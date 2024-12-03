@@ -26,7 +26,14 @@ Infinite Reality Engine. All Rights Reserved.
 import * as bitECS from 'bitecs'
 import React, { ErrorInfo, FC, memo, Suspense, useLayoutEffect, useMemo } from 'react'
 
-import { getState, HyperFlux, startReactor, useForceUpdate, useImmediateEffect } from '@ir-engine/hyperflux'
+import {
+  getState,
+  HyperFlux,
+  NO_PROXY_STEALTH,
+  startReactor,
+  useHookstate,
+  useImmediateEffect
+} from '@ir-engine/hyperflux'
 
 import { Component, useOptionalComponent } from './ComponentFunctions'
 import { Entity } from './Entity'
@@ -68,35 +75,42 @@ export const ReactiveQuerySystem = defineSystem({
   uuid: 'ee.hyperflux.ReactiveQuerySystem',
   insert: { after: PresentationSystemGroup },
   execute: () => {
-    for (const { query, forceUpdate } of getState(SystemState).reactiveQueryStates) {
+    for (const { query, entities } of getState(SystemState).reactiveQueryStates) {
       const entitiesAdded = query.enter().length
       const entitiesRemoved = query.exit().length
-      if (entitiesAdded || entitiesRemoved) forceUpdate()
+      if (entitiesAdded || entitiesRemoved) entities.set([...query()])
     }
   }
 })
+
+const sortedArraysEqual = (a: any[], b: any[]) => {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false
+  return true
+}
 
 /**
  * Use a query in a reactive context (a React component)
  * - "components" argument must not change
  */
 export function useQuery(components: QueryComponents) {
-  const query = bitECS.defineQuery(components)
-  const eids = query(HyperFlux.store) as Entity[]
-  bitECS.removeQuery(HyperFlux.store, query)
-
-  const forceUpdate = useForceUpdate()
+  const state = useHookstate(() => {
+    const query = defineQuery(components)
+    return {
+      query,
+      entities: query()
+    }
+  })
 
   // Use a layout effect to ensure that `queryResult`
   // is deleted from the `reactiveQueryStates` map immediately when the current
   // component is unmounted, before any other code attempts to set it
   // (component state can't be modified after a component is unmounted)
   useLayoutEffect(() => {
-    const query = defineQuery(components)
-    const queryState = { query, forceUpdate, components }
+    const queryState = { query: state.get(NO_PROXY_STEALTH).query, entities: state.entities, components }
     getState(SystemState).reactiveQueryStates.add(queryState)
     return () => {
-      removeQuery(query)
+      removeQuery(queryState.query)
       getState(SystemState).reactiveQueryStates.delete(queryState)
     }
   }, [])
@@ -122,15 +136,22 @@ export function useQuery(components: QueryComponents) {
     }
 
     function UseQueryComponentReactor(props: { entity: Entity; Component: Component }) {
-      useOptionalComponent(props.entity, props.Component)
-      forceUpdate()
+      const comp = useOptionalComponent(props.entity, props.Component)
+      useImmediateEffect(() => {
+        const ents = state.get(NO_PROXY_STEALTH).query()
+        if (!sortedArraysEqual(state.entities.value as any[], ents)) state.entities.set([...ents])
+        return () => {
+          const ents = state.get(NO_PROXY_STEALTH).query()
+          if (!sortedArraysEqual(state.entities.value as any[], ents)) state.entities.set([...ents])
+        }
+      }, [comp])
       return null
     }
 
     const root = startReactor(function UseQueryReactor() {
       return (
         <>
-          {eids.map((entity) => (
+          {state.entities.value.map((entity) => (
             <UseQueryEntityReactor key={entity} entity={entity}></UseQueryEntityReactor>
           ))}
         </>
@@ -140,9 +161,9 @@ export function useQuery(components: QueryComponents) {
     return () => {
       root.stop()
     }
-  }, [JSON.stringify(eids)])
+  }, [state.entities])
 
-  return eids
+  return state.entities.value as Entity[]
 }
 
 export type Query = ReturnType<typeof defineQuery>

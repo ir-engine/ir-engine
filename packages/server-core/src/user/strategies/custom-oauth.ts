@@ -26,10 +26,13 @@ Infinite Reality Engine. All Rights Reserved.
 import { OAuthStrategy } from '@feathersjs/authentication-oauth'
 import { Params } from '@feathersjs/feathers'
 
+import { AuthenticationRequest, AuthenticationResult } from '@feathersjs/authentication'
 import multiLogger from '@ir-engine/common/src/logger'
+import { IdentityProviderType, identityProviderPath } from '@ir-engine/common/src/schema.type.module'
 import { userLoginPath } from '@ir-engine/common/src/schemas/user/user-login.schema'
 import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
+import { RedirectConfig } from '../../types/OauthStrategies'
 
 // import { OAuthProfile } from '@feathersjs/authentication-oauth/src/strategy'
 const logger = multiLogger.child({ component: 'engine:ecs:CustomOAuthParams' })
@@ -43,6 +46,8 @@ export interface CustomOAuthParams extends Params {
 export class CustomOAuthStrategy extends OAuthStrategy {
   // @ts-ignore
   app: Application
+
+  private readonly userNotFoundError = 'User not found. Please sign up first.'
 
   async getEntityQuery(profile: any, _params: Params): Promise<any> {
     if (!profile)
@@ -78,6 +83,41 @@ export class CustomOAuthStrategy extends OAuthStrategy {
     } catch (error) {
       logger.error('Error creating user login entry:', error)
     }
+  }
+
+  protected async validateSignInUser(
+    authentication: AuthenticationRequest,
+    originalParams: Params,
+    type: IdentityProviderType['type']
+  ) {
+    const isSignIn = originalParams.query?.action === 'signin'
+    if (isSignIn && authentication?.profile) {
+      const token = (await this.getEntityQuery(authentication?.profile, {})).token
+      const identityProviders = await this.app.service(identityProviderPath).find({
+        query: {
+          token,
+          type: type
+        }
+      })
+      if (identityProviders?.data?.length === 0) {
+        // User does not exist in identityProvider, throw an error
+        throw new Error(this.userNotFoundError)
+      }
+    }
+  }
+
+  protected async handleErrorRedirect(
+    data: AuthenticationResult | Error,
+    params: CustomOAuthParams,
+    redirectConfig: RedirectConfig,
+    redirectDomain: string | undefined
+  ) {
+    const isSignIn = params.query?.action === 'signin'
+    const errorMessage = data.message as string
+    if (isSignIn && errorMessage == this.userNotFoundError) {
+      return `${redirectConfig.domain}${redirectConfig.path}?userNotFound==${encodeURIComponent(errorMessage)}`
+    }
+    return redirectDomain + `?error=${errorMessage}`
   }
 }
 

@@ -40,13 +40,7 @@ import assert from 'assert'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import {
-  assertArrayEqual,
-  assertFloatApproxEq,
-  assertFloatApproxNotEq,
-  assertVecAnyApproxNotEq,
-  assertVecApproxEq
-} from '../../../tests/util/mathAssertions'
+import { assertArray, assertFloat, assertVec } from '../../../tests/util/assert'
 import { Axis, PI, Vector3_One, Vector3_Zero } from '../../common/constants/MathConstants'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { TransformDirtyUpdateSystem } from '../systems/TransformSystem'
@@ -81,11 +75,11 @@ const TransformComponentDefaults: TransformComponentData = {
 }
 
 function assertTransformComponentEq(A: TransformComponentData, B: TransformComponentData): void {
-  assertVecApproxEq(A.position, B.position, 3)
-  assertVecApproxEq(A.rotation, B.rotation, 4)
-  assertVecApproxEq(A.scale, B.scale, 3)
-  assertArrayEqual(A.matrix.elements, B.matrix.elements)
-  assertArrayEqual(A.matrixWorld.elements, B.matrixWorld.elements)
+  assertVec.approxEq(A.position, B.position, 3)
+  assertVec.approxEq(A.rotation, B.rotation, 4)
+  assertVec.approxEq(A.scale, B.scale, 3)
+  assertArray.eq(A.matrix.elements, B.matrix.elements)
+  assertArray.eq(A.matrixWorld.elements, B.matrixWorld.elements)
 }
 
 describe('TransformComponent', () => {
@@ -265,7 +259,7 @@ describe('TransformComponent', () => {
       assert.equal(hasComponent(testEntity, TransformComponent), true)
       // Run and Check the result
       const result = TransformComponent.getWorldPosition(testEntity, new Vector3())
-      assertVecApproxEq(result, Expected, 3)
+      assertVec.approxEq(result, Expected, 3)
     })
   }) //:: getWorldPosition
 
@@ -292,7 +286,7 @@ describe('TransformComponent', () => {
       // Run and Check the result
       const result = new Matrix4()
       TransformComponent.getMatrixRelativeToEntity(testEntity, relativeEntity, result)
-      assertArrayEqual(result.elements, Expected.elements)
+      assertArray.eq(result.elements, Expected.elements)
     })
 
     it('should return a new matrix based on `@param entity`.matrixWorld and relative to `@param relativeEntity`.matrixWorld', () => {
@@ -308,7 +302,7 @@ describe('TransformComponent', () => {
       setComponent(relativeEntity, TransformComponent, { position: Base })
       // Run and Check the result
       const result = TransformComponent.getMatrixRelativeToEntity(testEntity, relativeEntity, new Matrix4())
-      assertArrayEqual(result.elements, Expected.elements)
+      assertArray.eq(result.elements, Expected.elements)
     })
   }) //:: getMatrixRelativeToEntity
 
@@ -339,7 +333,7 @@ describe('TransformComponent', () => {
       // Run and Check the result
       const result = new Matrix4()
       TransformComponent.getMatrixRelativeToScene(testEntity, result)
-      assertArrayEqual(result.elements, Expected.elements)
+      assertArray.eq(result.elements, Expected.elements)
     })
 
     it('should return `@param entity`.TransformComponent.matrixWorld when neither itself nor one of its ancestors have a SceneComponent', () => {
@@ -354,7 +348,7 @@ describe('TransformComponent', () => {
       matrixWorld[14].set(Position.z)
       // Run and Check the result
       const result = TransformComponent.getMatrixRelativeToScene(testEntity, new Matrix4())
-      assertArrayEqual(result.elements, Expected.elements)
+      assertArray.eq(result.elements, Expected.elements)
     })
 
     it('should write a matrix into `@param outMatrix` based on `@param entity`.matrixWorld and relative to the closest parent of `@param entity` that has a SceneComponent', () => {
@@ -380,7 +374,7 @@ describe('TransformComponent', () => {
       // Run and Check the result
       const result = new Matrix4()
       TransformComponent.getMatrixRelativeToScene(testEntity, result)
-      assertArrayEqual(result.elements, Expected.elements)
+      assertArray.eq(result.elements, Expected.elements)
     })
 
     it('should return a new matrix based on `@param entity`.matrixWorld and relative to the closest parent of `@param entity` that has a SceneComponent', () => {
@@ -405,7 +399,7 @@ describe('TransformComponent', () => {
       assert.equal(ancestor, sceneEntity)
       // Run and Check the result
       const result = TransformComponent.getMatrixRelativeToScene(testEntity, new Matrix4())
-      assertArrayEqual(result.elements, Expected.elements)
+      assertArray.eq(result.elements, Expected.elements)
     })
 
     /**
@@ -437,7 +431,7 @@ describe('TransformComponent', () => {
       assert.equal(hasComponent(testEntity, TransformComponent), true)
       // Run and Check the result
       const result = TransformComponent.getWorldRotation(testEntity, new Quaternion())
-      assertVecApproxEq(result, Expected, 4)
+      assertVec.approxEq(result, Expected, 4)
     })
 
     it('should decompose the rotation from `@param entity`.TransformComponent.matrixWorld and write it into `@param quaternion`', () => {
@@ -450,7 +444,7 @@ describe('TransformComponent', () => {
       // Run and Check the result
       const result = new Quaternion()
       TransformComponent.getWorldRotation(testEntity, result)
-      assertVecApproxEq(result, Expected, 4)
+      assertVec.approxEq(result, Expected, 4)
     })
   }) //:: getWorldRotation
 
@@ -477,7 +471,7 @@ describe('TransformComponent', () => {
       assert.equal(hasComponent(testEntity, TransformComponent), true)
       // Run and Check the result
       const result = TransformComponent.getWorldScale(testEntity, new Vector3())
-      assertVecApproxEq(result, Expected, 3)
+      assertVec.approxEq(result, Expected, 3)
     })
 
     it('should decompose the scale from `@param entity`.TransformComponent.matrixWorld and write it into `@param vec3`', () => {
@@ -490,7 +484,7 @@ describe('TransformComponent', () => {
       // Run and Check the result
       const result = new Vector3()
       TransformComponent.getWorldScale(testEntity, result)
-      assertVecApproxEq(result, Expected, 3)
+      assertVec.approxEq(result, Expected, 3)
     })
   }) //:: getWorldScale
 
@@ -519,8 +513,8 @@ describe('TransformComponent', () => {
       // Run and Check the result
       const result = new Vector3()
       TransformComponent.getSceneScale(testEntity, result)
-      assertVecAnyApproxNotEq(result, Initial, 3)
-      assertVecApproxEq(result, Expected, 3)
+      assertVec.anyApproxNotEq(result, Initial, 3)
+      assertVec.approxEq(result, Expected, 3)
     })
 
     it('should return a (1,1,1) vector when none of the ancestors of `@param entity` have a SceneComponent', () => {
@@ -534,8 +528,8 @@ describe('TransformComponent', () => {
       assert.equal(ancestor, UndefinedEntity)
       // Run and Check the result
       const result = TransformComponent.getSceneScale(testEntity, new Vector3())
-      assertVecAnyApproxNotEq(result, Initial, 3)
-      assertVecApproxEq(result, Expected, 3)
+      assertVec.anyApproxNotEq(result, Initial, 3)
+      assertVec.approxEq(result, Expected, 3)
     })
 
     it('should write into `@param vec3` the scale extracted from the `@param entity`.TransformComponent.matrixWorld relative to its closest ancestor that has a SceneComponent', () => {
@@ -557,8 +551,8 @@ describe('TransformComponent', () => {
       // Run and Check the result
       const result = new Vector3()
       TransformComponent.getSceneScale(testEntity, result)
-      assertVecAnyApproxNotEq(result, Initial, 3)
-      assertVecApproxEq(result, Expected, 3)
+      assertVec.anyApproxNotEq(result, Initial, 3)
+      assertVec.approxEq(result, Expected, 3)
     })
 
     it('should return the scale extracted from the `@param entity`.TransformComponent.matrixWorld relative to its closest ancestor that has a SceneComponent', () => {
@@ -579,8 +573,8 @@ describe('TransformComponent', () => {
       assert.equal(ancestor, parentEntity)
       // Run and Check the result
       const result = TransformComponent.getSceneScale(testEntity, new Vector3())
-      assertVecAnyApproxNotEq(result, Initial, 3)
-      assertVecApproxEq(result, Expected, 3)
+      assertVec.anyApproxNotEq(result, Initial, 3)
+      assertVec.approxEq(result, Expected, 3)
     })
   }) //:: getSceneScale
 
@@ -636,8 +630,8 @@ describe('TransformComponent', () => {
       // Run and Check the result
       TransformComponent.updateFromWorldMatrix(testEntity)
       const result = getComponent(testEntity, TransformComponent)
-      assertArrayEqual(result.matrix.elements, Expected.elements)
-      assertArrayEqual(result.matrix.elements, result.matrixWorld.elements)
+      assertArray.eq(result.matrix.elements, Expected.elements)
+      assertArray.eq(result.matrix.elements, result.matrixWorld.elements)
     })
 
     it('should copy the TransformComponent.matrixWorld of `@param entity` into its TransformComponent.matrix when the entity has no parent', () => {
@@ -655,8 +649,8 @@ describe('TransformComponent', () => {
       // Run and Check the result
       TransformComponent.updateFromWorldMatrix(testEntity)
       const result = getComponent(testEntity, TransformComponent)
-      assertArrayEqual(result.matrix.elements, Expected.elements)
-      assertArrayEqual(result.matrix.elements, result.matrixWorld.elements)
+      assertArray.eq(result.matrix.elements, Expected.elements)
+      assertArray.eq(result.matrix.elements, result.matrixWorld.elements)
     })
   }) //:: updateFromWorldMatrix
 
@@ -680,15 +674,15 @@ describe('TransformComponent', () => {
       // Sanity check before running
       assert.equal(hasComponent(testEntity, TransformComponent), true)
       const before = getComponent(testEntity, TransformComponent).matrixWorld.clone().elements
-      assertFloatApproxNotEq(before[12], Expected.x)
-      assertFloatApproxNotEq(before[13], Expected.y)
-      assertFloatApproxNotEq(before[14], Expected.z)
+      assertFloat.approxNotEq(before[12], Expected.x)
+      assertFloat.approxNotEq(before[13], Expected.y)
+      assertFloat.approxNotEq(before[14], Expected.z)
       // Run and Check the result
       TransformComponent.setWorldPosition(testEntity, Expected)
       const result = getComponent(testEntity, TransformComponent).matrixWorld.elements
-      assertFloatApproxEq(result[12], Expected.x)
-      assertFloatApproxEq(result[13], Expected.y)
-      assertFloatApproxEq(result[14], Expected.z)
+      assertFloat.approxEq(result[12], Expected.x)
+      assertFloat.approxEq(result[13], Expected.y)
+      assertFloat.approxEq(result[14], Expected.z)
     })
   }) //:: setWorldPosition
 
@@ -717,7 +711,7 @@ describe('TransformComponent', () => {
         scale: new Vector3()
       }
       getComponent(testEntity, TransformComponent).matrixWorld.decompose(before.position, before.rotation, before.scale)
-      assertVecAnyApproxNotEq(before.rotation, Expected, 4)
+      assertVec.anyApproxNotEq(before.rotation, Expected, 4)
       // Run and Check the result
       TransformComponent.setWorldRotation(testEntity, Expected)
       const result = {
@@ -726,7 +720,7 @@ describe('TransformComponent', () => {
         scale: new Vector3()
       }
       getComponent(testEntity, TransformComponent).matrixWorld.decompose(result.position, result.rotation, result.scale)
-      assertVecApproxEq(result.rotation, Expected, 4)
+      assertVec.approxEq(result.rotation, Expected, 4)
     })
   }) //:: setWorldRotation
 
@@ -755,7 +749,7 @@ describe('TransformComponent', () => {
         scale: new Vector3()
       }
       getComponent(testEntity, TransformComponent).matrixWorld.decompose(before.position, before.rotation, before.scale)
-      assertVecAnyApproxNotEq(before.scale, Expected, 4)
+      assertVec.anyApproxNotEq(before.scale, Expected, 4)
       // Run and Check the result
       TransformComponent.setWorldScale(testEntity, Expected)
       const result = {
@@ -764,7 +758,7 @@ describe('TransformComponent', () => {
         scale: new Vector3()
       }
       getComponent(testEntity, TransformComponent).matrixWorld.decompose(result.position, result.rotation, result.scale)
-      assertVecApproxEq(result.scale, Expected, 4)
+      assertVec.approxEq(result.scale, Expected, 4)
     })
   }) //:: setWorldScale
 
@@ -794,7 +788,7 @@ describe('TransformComponent', () => {
       assert.equal(result.x <= 1 && result.x >= -1, true)
       assert.equal(result.y <= 1 && result.y >= -1, true)
       assert.equal(result.z <= 1 && result.z >= -1, true)
-      assertVecApproxEq(result, Expected, 3)
+      assertVec.approxEq(result, Expected, 3)
     })
 
     it('should return the `@param entity`.TransformComponent.matrixWorld[8,9,10] elements as a normalized Vector3', () => {
@@ -809,7 +803,7 @@ describe('TransformComponent', () => {
       assert.equal(result.x <= 1 && result.x >= -1, true)
       assert.equal(result.y <= 1 && result.y >= -1, true)
       assert.equal(result.z <= 1 && result.z >= -1, true)
-      assertVecApproxEq(result, Expected, 3)
+      assertVec.approxEq(result, Expected, 3)
     })
   }) //:: forward
 
@@ -839,7 +833,7 @@ describe('TransformComponent', () => {
       assert.equal(result.x <= 1 && result.x >= -1, true)
       assert.equal(result.y <= 1 && result.y >= -1, true)
       assert.equal(result.z <= 1 && result.z >= -1, true)
-      assertVecApproxEq(result, Expected, 3)
+      assertVec.approxEq(result, Expected, 3)
     })
 
     it('should return the `@param entity`.TransformComponent.matrixWorld[8,9,10] elements as a negated and normalized Vector3', () => {
@@ -854,7 +848,7 @@ describe('TransformComponent', () => {
       assert.equal(result.x <= 1 && result.x >= -1, true)
       assert.equal(result.y <= 1 && result.y >= -1, true)
       assert.equal(result.z <= 1 && result.z >= -1, true)
-      assertVecApproxEq(result, Expected, 3)
+      assertVec.approxEq(result, Expected, 3)
     })
   }) //:: back
 
@@ -884,7 +878,7 @@ describe('TransformComponent', () => {
       assert.equal(result.x <= 1 && result.x >= -1, true)
       assert.equal(result.y <= 1 && result.y >= -1, true)
       assert.equal(result.z <= 1 && result.z >= -1, true)
-      assertVecApproxEq(result, Expected, 3)
+      assertVec.approxEq(result, Expected, 3)
     })
 
     it('should return the `@param entity`.TransformComponent.matrixWorld[4,5,6] elements as a normalized Vector3', () => {
@@ -899,7 +893,7 @@ describe('TransformComponent', () => {
       assert.equal(result.x <= 1 && result.x >= -1, true)
       assert.equal(result.y <= 1 && result.y >= -1, true)
       assert.equal(result.z <= 1 && result.z >= -1, true)
-      assertVecApproxEq(result, Expected, 3)
+      assertVec.approxEq(result, Expected, 3)
     })
   }) //:: up
 
@@ -929,7 +923,7 @@ describe('TransformComponent', () => {
       assert.equal(result.x <= 1 && result.x >= -1, true)
       assert.equal(result.y <= 1 && result.y >= -1, true)
       assert.equal(result.z <= 1 && result.z >= -1, true)
-      assertVecApproxEq(result, Expected, 3)
+      assertVec.approxEq(result, Expected, 3)
     })
 
     it('should return the `@param entity`.TransformComponent.matrixWorld[4,5,6] elements as a negated and normalized Vector3', () => {
@@ -944,7 +938,7 @@ describe('TransformComponent', () => {
       assert.equal(result.x <= 1 && result.x >= -1, true)
       assert.equal(result.y <= 1 && result.y >= -1, true)
       assert.equal(result.z <= 1 && result.z >= -1, true)
-      assertVecApproxEq(result, Expected, 3)
+      assertVec.approxEq(result, Expected, 3)
     })
   }) //:: down
 
@@ -974,7 +968,7 @@ describe('TransformComponent', () => {
       assert.equal(result.x <= 1 && result.x >= -1, true)
       assert.equal(result.y <= 1 && result.y >= -1, true)
       assert.equal(result.z <= 1 && result.z >= -1, true)
-      assertVecApproxEq(result, Expected, 3)
+      assertVec.approxEq(result, Expected, 3)
     })
 
     it('should return the `@param entity`.TransformComponent.matrixWorld[0,1,2] elements as a normalized Vector3', () => {
@@ -989,7 +983,7 @@ describe('TransformComponent', () => {
       assert.equal(result.x <= 1 && result.x >= -1, true)
       assert.equal(result.y <= 1 && result.y >= -1, true)
       assert.equal(result.z <= 1 && result.z >= -1, true)
-      assertVecApproxEq(result, Expected, 3)
+      assertVec.approxEq(result, Expected, 3)
     })
   }) //:: right
 
@@ -1019,7 +1013,7 @@ describe('TransformComponent', () => {
       assert.equal(result.x <= 1 && result.x >= -1, true)
       assert.equal(result.y <= 1 && result.y >= -1, true)
       assert.equal(result.z <= 1 && result.z >= -1, true)
-      assertVecApproxEq(result, Expected, 3)
+      assertVec.approxEq(result, Expected, 3)
     })
 
     it('should return the `@param entity`.TransformComponent.matrixWorld[0,1,2] elements as a negated and normalized Vector3', () => {
@@ -1034,7 +1028,7 @@ describe('TransformComponent', () => {
       assert.equal(result.x <= 1 && result.x >= -1, true)
       assert.equal(result.y <= 1 && result.y >= -1, true)
       assert.equal(result.z <= 1 && result.z >= -1, true)
-      assertVecApproxEq(result, Expected, 3)
+      assertVec.approxEq(result, Expected, 3)
     })
   }) //:: left
 
@@ -1123,7 +1117,7 @@ describe('composeMatrix', () => {
       matrix: new Matrix4()
     }
     result.matrix = new Matrix4().compose(result.position, result.rotation, result.scale)
-    assertArrayEqual(result.matrix.elements, Expected.matrix.elements)
+    assertArray.eq(result.matrix.elements, Expected.matrix.elements)
   })
 }) //:: composeMatrix
 
@@ -1162,16 +1156,16 @@ describe('decomposeMatrix', () => {
       scale: new Vector3(1, 1, 1)
     }
     getComponent(testEntity, TransformComponent).matrix.decompose(result.position, result.rotation, result.scale)
-    assertFloatApproxEq(TransformComponent.position.x[testEntity], Expected.position.x)
-    assertFloatApproxEq(TransformComponent.position.y[testEntity], Expected.position.y)
-    assertFloatApproxEq(TransformComponent.position.z[testEntity], Expected.position.z)
-    assertFloatApproxEq(TransformComponent.rotation.x[testEntity], Expected.rotation.x)
-    assertFloatApproxEq(TransformComponent.rotation.y[testEntity], Expected.rotation.y)
-    assertFloatApproxEq(TransformComponent.rotation.z[testEntity], Expected.rotation.z)
-    assertFloatApproxEq(TransformComponent.rotation.w[testEntity], Expected.rotation.w)
-    assertFloatApproxEq(TransformComponent.scale.x[testEntity], Expected.scale.x)
-    assertFloatApproxEq(TransformComponent.scale.y[testEntity], Expected.scale.y)
-    assertFloatApproxEq(TransformComponent.scale.z[testEntity], Expected.scale.z)
+    assertFloat.approxEq(TransformComponent.position.x[testEntity], Expected.position.x)
+    assertFloat.approxEq(TransformComponent.position.y[testEntity], Expected.position.y)
+    assertFloat.approxEq(TransformComponent.position.z[testEntity], Expected.position.z)
+    assertFloat.approxEq(TransformComponent.rotation.x[testEntity], Expected.rotation.x)
+    assertFloat.approxEq(TransformComponent.rotation.y[testEntity], Expected.rotation.y)
+    assertFloat.approxEq(TransformComponent.rotation.z[testEntity], Expected.rotation.z)
+    assertFloat.approxEq(TransformComponent.rotation.w[testEntity], Expected.rotation.w)
+    assertFloat.approxEq(TransformComponent.scale.x[testEntity], Expected.scale.x)
+    assertFloat.approxEq(TransformComponent.scale.y[testEntity], Expected.scale.y)
+    assertFloat.approxEq(TransformComponent.scale.z[testEntity], Expected.scale.z)
   })
 }) //:: decomposeMatrix
 
@@ -1196,10 +1190,10 @@ describe('setFromRotationMatrix', () => {
     assert.equal(hasComponent(testEntity, TransformComponent), true)
     // Run and Check the result
     setFromRotationMatrix(testEntity, new Matrix4().makeRotationFromQuaternion(Expected))
-    assertFloatApproxEq(TransformComponent.rotation.x[testEntity], Expected.x)
-    assertFloatApproxEq(TransformComponent.rotation.y[testEntity], Expected.y)
-    assertFloatApproxEq(TransformComponent.rotation.z[testEntity], Expected.z)
-    assertFloatApproxEq(TransformComponent.rotation.w[testEntity], Expected.w)
+    assertFloat.approxEq(TransformComponent.rotation.x[testEntity], Expected.x)
+    assertFloat.approxEq(TransformComponent.rotation.y[testEntity], Expected.y)
+    assertFloat.approxEq(TransformComponent.rotation.z[testEntity], Expected.z)
+    assertFloat.approxEq(TransformComponent.rotation.w[testEntity], Expected.w)
   })
 }) //:: setFromRotationMatrix
 

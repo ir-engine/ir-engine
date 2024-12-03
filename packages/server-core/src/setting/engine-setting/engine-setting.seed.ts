@@ -192,6 +192,20 @@ export async function seed(knex: Knex): Promise<void> {
     'redis'
   )
 
+  const helmSeedData = await generateSeedData(
+    [
+      {
+        key: EngineSettings.Helm.Main,
+        value: ''
+      },
+      {
+        key: EngineSettings.Helm.Builder,
+        value: ''
+      }
+    ],
+    'helm'
+  )
+
   const seedData: EngineSettingType[] = [
     ...taskServerSeedData,
     ...chargebeeSettingSeedData,
@@ -199,7 +213,8 @@ export async function seed(knex: Knex): Promise<void> {
     ...instanceServerSeedData,
     ...metabaseSeedData,
     ...redisSeedData,
-    ...zendeskSettingSeedData
+    ...zendeskSettingSeedData,
+    ...helmSeedData
   ]
 
   if (forceRefresh || testEnabled) {

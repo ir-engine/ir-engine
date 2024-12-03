@@ -447,7 +447,7 @@ const config = {
   instanceserver,
   ipfs,
   server,
-  taskserver,
+  'task-server': taskserver,
   redis,
   scopes,
   blockchain,

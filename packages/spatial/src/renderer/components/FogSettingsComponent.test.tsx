@@ -42,7 +42,7 @@ import { getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { Fog, FogExp2, MathUtils, ShaderChunk } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import { assertFloatApproxEq, assertFloatApproxNotEq } from '../../../tests/util/mathAssertions'
+import { assertFloat } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { EngineState } from '../../EngineState'
 import { destroySpatialEngine, initializeSpatialEngine } from '../../initializeEngine'
@@ -67,21 +67,21 @@ const FogSettingsComponentDefaults = {
 function assertFogSettingsComponentEq(A, B): void {
   assert.equal(A.type, B.type)
   assert.equal(A.color, B.color)
-  assertFloatApproxEq(A.density, B.density)
+  assertFloat.approxEq(A.density, B.density)
   assert.equal(A.near, B.near)
   assert.equal(A.far, B.far)
   assert.equal(A.timeScale, B.timeScale)
-  assertFloatApproxEq(A.height, B.height)
+  assertFloat.approxEq(A.height, B.height)
 }
 
 function assertFogSettingsComponentJSONEq(A, B): void {
   assert.equal(A.type, B.type)
   assert.equal(A.color, B.color)
-  assertFloatApproxEq(A.density, B.density)
+  assertFloat.approxEq(A.density, B.density)
   assert.equal(A.near, B.near)
   assert.equal(A.far, B.far)
   assert.equal(A.timeScale, B.timeScale)
-  assertFloatApproxEq(A.height, B.height)
+  assertFloat.approxEq(A.height, B.height)
 }
 
 describe('FogSettingsComponent', () => {
@@ -196,8 +196,8 @@ describe('FogSettingsComponent', () => {
       assert.notEqual(result.color, FogSettingsComponentDefaults.color)
       assert.equal(result.color, Data.color)
 
-      assertFloatApproxNotEq(result.density, FogSettingsComponentDefaults.density)
-      assertFloatApproxEq(result.density, Data.density)
+      assertFloat.approxNotEq(result.density, FogSettingsComponentDefaults.density)
+      assertFloat.approxEq(result.density, Data.density)
 
       assert.notEqual(result.near, FogSettingsComponentDefaults.near)
       assert.equal(result.near, Data.near)
@@ -208,8 +208,8 @@ describe('FogSettingsComponent', () => {
       assert.notEqual(result.timeScale, FogSettingsComponentDefaults.timeScale)
       assert.equal(result.timeScale, Data.timeScale)
 
-      assertFloatApproxNotEq(result.height, FogSettingsComponentDefaults.height)
-      assertFloatApproxEq(result.height, Data.height)
+      assertFloat.approxNotEq(result.height, FogSettingsComponentDefaults.height)
+      assertFloat.approxEq(result.height, Data.height)
     })
   }) //:: onSet
 
@@ -262,12 +262,12 @@ describe('FogSettingsComponent', () => {
       // Sanity check the initial data
       setComponent(testEntity, FogSettingsComponent, { type: FogType.Exponential })
       assert.equal(hasComponent(testEntity, FogComponent), true)
-      assertFloatApproxEq(getComponent(testEntity, FogSettingsComponent).density, FogSettingsComponentDefaults.density)
+      assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).density, FogSettingsComponentDefaults.density)
       // Trigger the reactor and Check the result
       setComponent(testEntity, FogSettingsComponent, { density: Expected })
-      assertFloatApproxEq(getComponent(testEntity, FogSettingsComponent).density, Expected)
+      assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).density, Expected)
       const result = getComponent(testEntity, FogComponent) as FogExp2
-      assertFloatApproxEq(result.density, Expected)
+      assertFloat.approxEq(result.density, Expected)
     })
 
     it('should trigger when fog.near changes', () => {
@@ -278,12 +278,12 @@ describe('FogSettingsComponent', () => {
       // Sanity check the initial data
       setComponent(testEntity, FogSettingsComponent, { type: FogType.Exponential })
       assert.equal(hasComponent(testEntity, FogComponent), true)
-      assertFloatApproxEq(getComponent(testEntity, FogSettingsComponent).density, FogSettingsComponentDefaults.density)
+      assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).density, FogSettingsComponentDefaults.density)
       // Trigger the reactor and Check the result
       setComponent(testEntity, FogSettingsComponent, { near: Expected })
-      assertFloatApproxEq(getComponent(testEntity, FogSettingsComponent).near, Expected)
+      assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).near, Expected)
       const result = getComponent(testEntity, FogComponent) as Fog
-      assertFloatApproxEq(result.near, Expected)
+      assertFloat.approxEq(result.near, Expected)
     })
 
     it('should trigger when fog.far changes', () => {
@@ -294,12 +294,12 @@ describe('FogSettingsComponent', () => {
       // Sanity check the initial data
       setComponent(testEntity, FogSettingsComponent, { type: FogType.Exponential })
       assert.equal(hasComponent(testEntity, FogComponent), true)
-      assertFloatApproxEq(getComponent(testEntity, FogSettingsComponent).density, FogSettingsComponentDefaults.density)
+      assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).density, FogSettingsComponentDefaults.density)
       // Trigger the reactor and Check the result
       setComponent(testEntity, FogSettingsComponent, { far: Expected })
-      assertFloatApproxEq(getComponent(testEntity, FogSettingsComponent).far, Expected)
+      assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).far, Expected)
       const result = getComponent(testEntity, FogComponent) as Fog
-      assertFloatApproxEq(result.far, Expected)
+      assertFloat.approxEq(result.far, Expected)
     })
 
     it('should trigger when fog.height changes', () => {
@@ -310,12 +310,12 @@ describe('FogSettingsComponent', () => {
       // Sanity check the initial data
       setComponent(testEntity, FogSettingsComponent, { type: FogType.Height })
       assert.equal(hasComponent(testEntity, FogComponent), true)
-      assertFloatApproxEq(getComponent(testEntity, FogSettingsComponent).height, FogSettingsComponentDefaults.height)
+      assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).height, FogSettingsComponentDefaults.height)
       // Trigger the reactor and Check the result
       setComponent(testEntity, FogSettingsComponent, { height: Expected })
-      assertFloatApproxEq(getComponent(testEntity, FogSettingsComponent).height, Expected)
+      assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).height, Expected)
       for (const shader of FogShadersList) {
-        assertFloatApproxEq(shader.uniforms.heightFactor.value, Expected)
+        assertFloat.approxEq(shader.uniforms.heightFactor.value, Expected)
       }
     })
 
@@ -327,15 +327,15 @@ describe('FogSettingsComponent', () => {
       // Sanity check the initial data
       setComponent(testEntity, FogSettingsComponent, { type: FogType.Brownian })
       assert.equal(hasComponent(testEntity, FogComponent), true)
-      assertFloatApproxEq(
+      assertFloat.approxEq(
         getComponent(testEntity, FogSettingsComponent).timeScale,
         FogSettingsComponentDefaults.timeScale
       )
       // Trigger the reactor and Check the result
       setComponent(testEntity, FogSettingsComponent, { timeScale: Expected })
-      assertFloatApproxEq(getComponent(testEntity, FogSettingsComponent).timeScale, Expected)
+      assertFloat.approxEq(getComponent(testEntity, FogSettingsComponent).timeScale, Expected)
       for (const shader of FogShadersList) {
-        assertFloatApproxEq(shader.uniforms.fogTimeScale.value, Expected)
+        assertFloat.approxEq(shader.uniforms.fogTimeScale.value, Expected)
       }
     })
   }) //:: reactor

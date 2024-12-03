@@ -149,6 +149,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     >
       <div className="mt-6 grid grid-cols-2 gap-6">
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.clientHost'),
             position: 'top'
@@ -158,6 +159,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.domain'),
             position: 'top'
@@ -175,6 +177,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.rtcStartPort'),
             position: 'top'
@@ -184,6 +187,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.releaseName'),
             position: 'top'
@@ -193,6 +197,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.rtcEndPort'),
             position: 'top'
@@ -202,6 +207,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.port'),
             position: 'top'
@@ -211,6 +217,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.rtcPortBlockSize'),
             position: 'top'
@@ -220,6 +227,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.mode'),
             position: 'top'
@@ -229,6 +237,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.identifierDigits'),
             position: 'top'
@@ -238,6 +247,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.locationName'),
             position: 'top'
@@ -310,6 +320,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
                       <div className="col-span-1 mb-4 flex flex-row items-center">
                         {' '}
                         <Input
+                          fullWidth
                           labelProps={{
                             text: t('admin:components.setting.webRTCSettings.iceURL') + (index + 1),
                             position: 'top'
@@ -334,6 +345,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
                         return (
                           <div className="col-span-1 mb-4 flex flex-row items-center" key={urlIndex}>
                             <Input
+                              fullWidth
                               labelProps={{
                                 text: t('admin:components.setting.webRTCSettings.iceURL') + (urlIndex + 1),
                                 position: 'top'
@@ -380,6 +392,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
                   {iceServer.useFixedCredentials.value && (
                     <>
                       <Input
+                        fullWidth
                         labelProps={{
                           text: t('admin:components.setting.webRTCSettings.username'),
                           position: 'top'

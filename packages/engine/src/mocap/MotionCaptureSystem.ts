@@ -45,6 +45,7 @@ import { RingBuffer } from '@ir-engine/network/src/functions/RingBuffer'
 
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
+import { NormalizedBoneComponent } from '../avatar/components/NormalizedBoneComponent'
 import { AvatarAnimationSystem } from '../avatar/systems/AvatarAnimationSystem'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 import { solveMotionCapturePose } from './solveMotionCapturePose'
@@ -130,8 +131,8 @@ const execute = () => {
   for (const entity of motionCaptureQuery()) {
     const peers = Object.keys(network.peers).find((peerID: PeerID) => timeSeriesMocapData.has(peerID))
     const rigComponent = getComponent(entity, AvatarRigComponent)
-    if (!rigComponent.normalizedRig) continue
-    const worldHipsParent = rigComponent.normalizedRig.hips.node.parent
+    if (!rigComponent.bonesToEntities.hips) continue
+    const worldHipsParent = getComponent(rigComponent.bonesToEntities.hips, NormalizedBoneComponent).parent
     if (!peers) {
       removeComponent(entity, MotionCaptureRigComponent)
       worldHipsParent?.position.setY(0)
@@ -177,7 +178,7 @@ const execute = () => {
       MotionCaptureRigComponent.slerpedRig[boneName].w[entity] = slerpedQuat.w
     }
 
-    const hipBone = rigComponent.normalizedRig.hips.node
+    const hipBone = getComponent(rigComponent.bonesToEntities.hips, NormalizedBoneComponent)
     hipBone.position.set(
       MotionCaptureRigComponent.hipPosition.x[entity],
       MotionCaptureRigComponent.hipPosition.y[entity],
