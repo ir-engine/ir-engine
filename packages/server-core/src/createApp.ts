@@ -50,7 +50,7 @@ import { Application } from '../declarations'
 import packagejson from '../package.json'
 import { logger } from './ServerLogger'
 import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
-import { default as appConfig, default as config } from './appconfig'
+import { default as appConfig } from './appconfig'
 import authenticate from './hooks/authenticate'
 import { logError } from './hooks/log-error'
 import persistHeaders from './hooks/persist-headers'
@@ -107,6 +107,8 @@ export const configurePrimus =
           transformer: 'websockets',
           origins: origin,
           methods: ['OPTIONS', 'GET', 'POST'],
+          pingInterval: commonConfig.websocket.pingInterval,
+          pingTimeout: commonConfig.websocket.pingTimeout,
           headers: '*',
           credentials: true
         },
@@ -180,7 +182,7 @@ export const createFeathersKoaApp = async (
   createEngine(createHyperStore())
 
   getMutableState(DomainConfigState).merge({
-    publicDomain: config.client.dist,
+    publicDomain: appConfig.client.dist,
     cloudDomain: commonConfig.client.fileServer,
     proxyDomain: commonConfig.client.cors.proxyUrl
   })
