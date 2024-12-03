@@ -36,6 +36,7 @@ import { DisposableObject, ResourceAssetType, ResourceManager } from './Resource
  * Loader hook for creating an instance of a class that implements the DisposableObject interface in ResourceState.ts in a React context,
  * but has it's lifecycle managed by the ResourceManager in ResourceState.ts
  *
+ * @deprecated in favor of useResource
  * @param disposableLike A class that implements the DisposableObject interface eg. DirectionalLight
  * @param entity *Optional* the entity that is loading the object
  * @param args *Optional* arguments to pass to the constructor of disposableLike
@@ -51,7 +52,7 @@ export function useDisposable<T extends DisposableObject, T2 extends new (...par
 
   const unload = () => {
     if (objState.value) {
-      ResourceManager.unload(objState.get(NO_PROXY).uuid, entity)
+      ResourceManager.unload(ResourceManager.getResourceID(objState.get(NO_PROXY)), entity)
     }
   }
 
@@ -89,7 +90,7 @@ export function createDisposable<T extends DisposableObject, T2 extends new (...
   const obj = ResourceManager.loadObj(disposableLike, entity, ...args)
 
   const unload = () => {
-    ResourceManager.unload(obj.uuid, entity)
+    ResourceManager.unload(ResourceManager.getResourceID(obj), entity)
   }
 
   return [obj, unload]
@@ -110,10 +111,9 @@ export type ObjOrFunction<T> = T | (() => T)
 export function useResource<TObj>(
   resource: ObjOrFunction<TObj>,
   entity: Entity = UndefinedEntity,
-  id?: string,
   onUnload?: () => void
 ): [State<TObj>, () => void] {
-  const uniqueID = useHookstate<string>(id || uuidv4())
+  const uniqueID = useHookstate<string>(uuidv4)
   const resourceState = useHookstate<TObj>(() => ResourceManager.addResource(resource, uniqueID.value, entity))
 
   const unload = () => {
@@ -150,8 +150,10 @@ export function useReferencedResource<Asset>(
 
   useEffect(() => {
     const resourceValue = resourceState.value as ResourceAssetType
-    if (resourceValue) ResourceManager.addReferencedAsset(assetKey, resourceValue)
-    return unload
+    if (resourceValue) {
+      ResourceManager.addReferencedAsset(assetKey, resourceValue)
+      return unload
+    }
   }, [resourceState])
 
   return [resourceState, unload]
