@@ -220,20 +220,25 @@ describe('QueryFunctions Hooks', async () => {
       setComponent(e1, ComponentB)
       setComponent(e2, ComponentA)
       setComponent(e2, ComponentB)
-      let counter = 0
+      let renderCounter = 0
+      let effectCounter = 0
       let entities = [] as Entity[]
 
       const reactor = startReactor(() => {
         const query = useQuery([ComponentA, ComponentB])
 
+        renderCounter++
+
         useEffect(() => {
-          counter++
+          effectCounter++
           entities = [...query]
         }, [query])
 
         return null
       })
 
+      assert.strictEqual(renderCounter, 1)
+      assert.strictEqual(effectCounter, 1)
       assert.strictEqual(entities.length, 2)
       assert.strictEqual(entities[0], e1)
       assert.strictEqual(entities[1], e2)
@@ -243,8 +248,11 @@ describe('QueryFunctions Hooks', async () => {
       assert.ok(hasComponent(entities[1], ComponentB))
       removeComponent(e1, ComponentB)
 
+      SystemDefinitions.get(ReactiveQuerySystem)!.execute()
       await act(async () => render(<></>))
 
+      assert.strictEqual(renderCounter, 2)
+      assert.strictEqual(effectCounter, 2)
       assert.strictEqual(entities.length, 1)
       assert.strictEqual(entities[0], e2)
       assert.ok(hasComponent(entities[0], ComponentA))

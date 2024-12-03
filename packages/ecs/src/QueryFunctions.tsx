@@ -31,11 +31,12 @@ import {
   HyperFlux,
   NO_PROXY_STEALTH,
   startReactor,
+  useForceUpdate,
   useHookstate,
   useImmediateEffect
 } from '@ir-engine/hyperflux'
 
-import { Component, useOptionalComponent } from './ComponentFunctions'
+import { Component } from './ComponentFunctions'
 import { Entity } from './Entity'
 import { EntityContext } from './EntityFunctions'
 import { defineSystem } from './SystemFunctions'
@@ -83,12 +84,6 @@ export const ReactiveQuerySystem = defineSystem({
   }
 })
 
-const sortedArraysEqual = (a: any[], b: any[]) => {
-  if (a.length !== b.length) return false
-  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false
-  return true
-}
-
 /**
  * Use a query in a reactive context (a React component)
  * - "components" argument must not change
@@ -101,6 +96,7 @@ export function useQuery(components: QueryComponents) {
       entities: query()
     }
   })
+  const forceUpdate = useForceUpdate()
 
   // Use a layout effect to ensure that `queryResult`
   // is deleted from the `reactiveQueryStates` map immediately when the current
@@ -135,16 +131,14 @@ export function useQuery(components: QueryComponents) {
       )
     }
 
+    let stopped = false
+
     function UseQueryComponentReactor(props: { entity: Entity; Component: Component }) {
-      const comp = useOptionalComponent(props.entity, props.Component)
-      useImmediateEffect(() => {
-        const ents = state.get(NO_PROXY_STEALTH).query()
-        if (!sortedArraysEqual(state.entities.value as any[], ents)) state.entities.set([...ents])
+      useLayoutEffect(() => {
         return () => {
-          const ents = state.get(NO_PROXY_STEALTH).query()
-          if (!sortedArraysEqual(state.entities.value as any[], ents)) state.entities.set([...ents])
+          if (!stopped) forceUpdate()
         }
-      }, [comp])
+      }, [])
       return null
     }
 
@@ -159,6 +153,7 @@ export function useQuery(components: QueryComponents) {
     })
 
     return () => {
+      stopped = true
       root.stop()
     }
   }, [state.entities])
