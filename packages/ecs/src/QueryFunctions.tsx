@@ -26,15 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import * as bitECS from 'bitecs'
 import React, { ErrorInfo, FC, memo, Suspense, useLayoutEffect, useMemo } from 'react'
 
-import {
-  getState,
-  HyperFlux,
-  NO_PROXY_STEALTH,
-  startReactor,
-  useForceUpdate,
-  useHookstate,
-  useImmediateEffect
-} from '@ir-engine/hyperflux'
+import { getState, HyperFlux, NO_PROXY_STEALTH, useHookstate } from '@ir-engine/hyperflux'
 
 import { Component } from './ComponentFunctions'
 import { Entity } from './Entity'
