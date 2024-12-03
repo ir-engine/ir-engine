@@ -516,11 +516,16 @@ function createColliderDesc(
 
     case ShapeType.Ball:
       if (mesh) {
-        mesh?.geometry?.computeBoundingSphere()
-        const boundingSphere = mesh?.geometry?.boundingSphere ?? new Sphere(Vector3_Zero, scale.x)
+        const newGeo = mesh?.geometry.clone().scale(scaleRelativeToRoot.x, scaleRelativeToRoot.y, scaleRelativeToRoot.z)
+        newGeo.applyQuaternion(quaternionRelativeToRoot).scale(rootWorldScale.x, rootWorldScale.y, rootWorldScale.z)
+        newGeo.computeBoundingSphere()
+        const boundingSphere = newGeo.boundingSphere ?? new Sphere(Vector3_Zero, scale.x)
         if (boundingSphere) {
-          meshCenterOffset.copy(boundingSphere.center)
-          const calculatedRadius = boundingSphere.radius * Math.max(scale.x, scale.y, scale.z)
+          //I'm done with rapier's sphere collider.center = (0,0,0) bug, so I'm just going to use the bounding box center
+          const box = new Box3().setFromBufferAttribute(mesh.geometry.attributes.position as BufferAttribute)
+          box.getCenter(meshCenterOffset)
+
+          const calculatedRadius = boundingSphere.radius
           colliderComponent.radius = calculatedRadius
           colliderDesc = ColliderDesc.ball(calculatedRadius)
         } else {

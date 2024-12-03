@@ -274,7 +274,7 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
 
     const entitiesArray = !component.applyColliders.value
       ? []
-      : !childMeshEntities.includes(props.entity)
+      : !childMeshEntities.includes(props.entity) && hasComponent(props.entity, MeshComponent)
       ? ([...childMeshEntities, props.entity] as Entity[])
       : childMeshEntities
 
