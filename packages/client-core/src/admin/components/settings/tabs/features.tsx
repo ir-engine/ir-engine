@@ -34,8 +34,8 @@ import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { FeatureFlagSettingType, featureFlagSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { getAllStringValueNodes } from '@ir-engine/common/src/utils/getAllStringValueNodes'
+import { Tooltip } from '@ir-engine/ui'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 
 const defaultProps = ['id', 'flagName', 'flagValue', 'userId', 'createdAt', 'updatedAt']
 
