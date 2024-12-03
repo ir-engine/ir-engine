@@ -18,7 +18,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
@@ -100,15 +100,22 @@ export default function AddEditLocationModal(props: {
   const sceneThumbnailState = useHookstate(getMutableState(SceneThumbnailState))
   const engineState = useHookstate(getMutableState(EngineState))
   const sceneSettingsEntities = useHookstate([] as Entity[])
+  const [shouldLoadEngineSections, setShouldLoadEngineSections] = useState(false)
+
+  useEffect(() => {
+    if (engineState.viewerEntity.value !== UndefinedEntity) {
+      setShouldLoadEngineSections(true)
+    }
+  }, [engineState.viewerEntity])
 
   // only use query if engine is running
   useEffect(() => {
-    if (engineState.viewerEntity.value === UndefinedEntity) return
+    if (!shouldLoadEngineSections) return
     sceneSettingsEntities.set(useQuery([SceneSettingsComponent]))
     return () => {
       sceneSettingsEntities.set([])
     }
-  }, [engineState.viewerEntity])
+  }, [shouldLoadEngineSections])
 
   useEffect(() => {
     if (location) {
@@ -328,7 +335,7 @@ export default function AddEditLocationModal(props: {
               onChange={screenSharingEnabled.set}
               disabled={isLoading}
             />
-            {engineState.viewerEntity.value !== UndefinedEntity && (
+            {shouldLoadEngineSections && (
               <>
                 <div>{t('editor:properties.sceneSettings.lbl-thumbnail')}</div>
                 <div className="flex flex-col ">
