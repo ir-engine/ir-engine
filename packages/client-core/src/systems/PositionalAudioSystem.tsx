@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { Not } from 'bitecs'
 import React, { useEffect } from 'react'
 import { Vector3 } from 'three'
@@ -46,8 +45,8 @@ import {
   updateAudioPanner
 } from '@ir-engine/engine/src/audio/PositionalAudioFunctions'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
+import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
-import { getAvatarBoneWorldPosition } from '@ir-engine/engine/src/avatar/functions/avatarFunctions'
 import {
   AudioNodeGroups,
   MediaElementComponent,
@@ -186,7 +185,8 @@ const execute = () => {
     const panner = AudioNodeGroups.get(audioObj)?.panner
     if (!panner) continue
 
-    getAvatarBoneWorldPosition(entity, VRMHumanBoneName.Head, _vec3)
+    TransformComponent.getWorldPosition(getComponent(entity, AvatarRigComponent).bonesToEntities.head, _vec3)
+
     const { rotation } = getComponent(entity, TransformComponent)
 
     updateAudioPanner(panner, _vec3, rotation, endTime, mediaSettings)

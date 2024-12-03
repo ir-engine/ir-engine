@@ -23,17 +23,20 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBoneName } from '@pixiv/three-vrm'
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
 
+import { Entity, getComponent } from '@ir-engine/ecs'
 import { XRJointAvatarBoneMap } from '@ir-engine/spatial/src/xr/XRComponents'
+import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
+import { NormalizedBoneComponent } from '../components/NormalizedBoneComponent'
 
-export const applyHandRotationFK = (vrm: VRM, handedness: 'left' | 'right', rotations: Float32Array) => {
+export const applyHandRotationFK = (avatarEntity: Entity, handedness: 'left' | 'right', rotations: Float32Array) => {
   const bones = Object.values(XRJointAvatarBoneMap)
   for (let i = 0; i < bones.length; i++) {
     const label = bones[i]
     const boneName = `${handedness}${label}` as VRMHumanBoneName
-    const bone = vrm.humanoid.getNormalizedBone(boneName)
-    if (!bone?.node) continue
-    bone.node.quaternion.fromArray(rotations, i * 4)
+    const bone = getComponent(avatarEntity, AvatarRigComponent).bonesToEntities[boneName]
+    if (!bone) continue
+    getComponent(bone, NormalizedBoneComponent).quaternion.fromArray(rotations, i * 4)
   }
 }

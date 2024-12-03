@@ -52,7 +52,9 @@ export class API {
     const feathersClient = feathers()
 
     const primus = new Primus(`${config.client.serverUrl}?pathName=${window.location.pathname}`, {
-      withCredentials: true
+      withCredentials: true,
+      pingTimeout: config.websocket.pingTimeout,
+      pingInterval: config.websocket.pingInterval
     })
     feathersClient.configure(primusClient(primus, { timeout: 10000 }))
 
