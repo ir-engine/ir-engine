@@ -32,9 +32,7 @@ A filename is valid if:
   - any other characters are either alphanumeric, '_', '-', or '.'
 */
 
-// eslint-disable-next-line no-control-regex
-export const VALID_FILENAME_REGEX = /^([^_\W])([\w\-\.]{2,62})([^_\W])$/
-// eslint-disable-next-line no-control-regex
+export const VALID_FILENAME_REGEX = /^([^_\W])([\w\-\.– ]{2,62})([^_\W])$/
 export const WINDOWS_RESERVED_NAME_REGEX = /^(con|prn|aux|nul|com\d|lpt\d)$/i
 export const VALID_SCENE_NAME_REGEX = VALID_FILENAME_REGEX
 export const VALID_HEIRARCHY_SEARCH_REGEX = /[.*+?^${}()|[\]\\]/g
@@ -117,7 +115,7 @@ export const PROJECT_PUBLIC_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+\
  */
 export const PROJECT_THUMBNAIL_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+\/thumbnails\//
 
-export const VALID_PROJECT_NAME = /^(?!\s)[\w\-\s]+$/
+export const VALID_PROJECT_NAME = /^(?!\s)[\w\-\s–]+$/
 
 // =======================================================================
 // ========================= Helm Regex Patterns =========================

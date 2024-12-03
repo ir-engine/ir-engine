@@ -59,7 +59,6 @@ describe('regex.test', () => {
         'asterisk*char',
         'control\0char',
         'another\ncontrol',
-        'file name',
         '< tag >',
         'key : value',
         'quote " example',
@@ -76,9 +75,7 @@ describe('regex.test', () => {
 
     it('should match valid filenames', () => {
       const validFilenames = [
-        'hello_world',
-        'hello-world',
-        'hello.world',
+        'hello_. -–world',
         'filename',
         'emailexample.com',
         'pathtofile',
@@ -489,8 +486,8 @@ describe('regex.test', () => {
     it('should match valid project paths', () => {
       const positiveCases = [
         'projects/ir-engine/project123',
-        'projects/ir-engine/project-name',
-        'projects/ir-engine/project_name',
+        'projects/ir-engine/project-–name',
+        'projects/ir-engine/project_ name',
         'projects/project/123',
         'projects/project/abc_def'
       ]
