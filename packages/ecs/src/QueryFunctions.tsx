@@ -96,9 +96,8 @@ export function useQuery(components: QueryComponents) {
       entities: query()
     }
   })
-  const forceUpdate = useForceUpdate()
 
-  // Use a layout effect to ensure that `queryResult`
+  // Use a layout effect to ensure that `queryState`
   // is deleted from the `reactiveQueryStates` map immediately when the current
   // component is unmounted, before any other code attempts to set it
   // (component state can't be modified after a component is unmounted)
@@ -110,53 +109,6 @@ export function useQuery(components: QueryComponents) {
       getState(SystemState).reactiveQueryStates.delete(queryState)
     }
   }, [])
-
-  // create an effect that forces an update when any components in the query change
-  // use an immediate effect to ensure that the reactor is initialized even if this component becomes suspended during this render
-  useImmediateEffect(() => {
-    function UseQueryEntityReactor({ entity }: { entity: Entity }) {
-      return (
-        <>
-          {components.map((C) => {
-            const Component = ('isComponent' in C ? C : (C as any)()[0]) as Component
-            return (
-              <UseQueryComponentReactor
-                entity={entity}
-                key={Component.name}
-                Component={Component}
-              ></UseQueryComponentReactor>
-            )
-          })}
-        </>
-      )
-    }
-
-    let stopped = false
-
-    function UseQueryComponentReactor(props: { entity: Entity; Component: Component }) {
-      useLayoutEffect(() => {
-        return () => {
-          if (!stopped) forceUpdate()
-        }
-      }, [])
-      return null
-    }
-
-    const root = startReactor(function UseQueryReactor() {
-      return (
-        <>
-          {state.entities.value.map((entity) => (
-            <UseQueryEntityReactor key={entity} entity={entity}></UseQueryEntityReactor>
-          ))}
-        </>
-      )
-    })
-
-    return () => {
-      stopped = true
-      root.stop()
-    }
-  }, [state.entities])
 
   return state.entities.value as Entity[]
 }
