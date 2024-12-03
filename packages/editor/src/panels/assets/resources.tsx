@@ -34,7 +34,7 @@ import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect, useRef, useState } from 'react'
-import { useDrag } from 'react-dnd'
+import { DragPreviewImage, useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
@@ -165,42 +165,45 @@ function ResourceFile({ resource }: { resource: StaticResourceType }) {
   const isSelected = useMutableState(ClickPlacementState).selectedAsset.value === resource.url
 
   return (
-    <div
-      key={resource.id}
-      ref={drag}
-      onClick={() => ClickPlacementState.setSelectedAsset(resource.url)}
-      onContextMenu={(event) => {
-        event.preventDefault()
-        event.stopPropagation()
-        anchorEvent.set(event)
-      }}
-      className={twMerge(
-        'resource-file mb-3 flex h-40 w-40 cursor-pointer flex-col items-center text-center',
-        isSelected && 'rounded bg-[#212226]'
-      )}
-      data-testid="assets-panel-resource-file"
-    >
+    <>
+      <DragPreviewImage connect={preview} src={resource.thumbnailURL || ''} />
       <div
+        key={resource.id}
+        ref={drag}
+        onClick={() => ClickPlacementState.setSelectedAsset(resource.url)}
+        onContextMenu={(event) => {
+          event.preventDefault()
+          event.stopPropagation()
+          anchorEvent.set(event)
+        }}
         className={twMerge(
-          'mx-auto mt-2 flex h-full w-28 items-center justify-center',
-          'max-h-40 min-h-20 min-w-20 max-w-40'
+          'resource-file mb-3 flex h-40 w-40 cursor-pointer flex-col items-center text-center',
+          isSelected && 'rounded bg-[#212226]'
         )}
-        data-testid="assets-panel-resource-file-icon"
+        data-testid="assets-panel-resource-file"
       >
-        <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
-      </div>
-
-      <Tooltip content={name}>
-        <span
-          className="line-clamp-2 w-full text-wrap break-all text-sm text-[#F5F5F5]"
-          data-testid="assets-panel-resource-file-name"
+        <div
+          className={twMerge(
+            'mx-auto mt-2 flex h-full w-28 items-center justify-center',
+            'max-h-40 min-h-20 min-w-20 max-w-40'
+          )}
+          data-testid="assets-panel-resource-file-icon"
         >
-          {name}
-        </span>
-      </Tooltip>
+          <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
+        </div>
 
-      <ResourceFileContextMenu resource={resource} anchorEvent={anchorEvent} />
-    </div>
+        <Tooltip content={name}>
+          <span
+            className="line-clamp-2 w-full text-wrap break-all text-sm text-[#F5F5F5]"
+            data-testid="assets-panel-resource-file-name"
+          >
+            {name}
+          </span>
+        </Tooltip>
+
+        <ResourceFileContextMenu resource={resource} anchorEvent={anchorEvent} />
+      </div>
+    </>
   )
 }
 
