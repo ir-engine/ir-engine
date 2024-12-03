@@ -23,16 +23,18 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { act, render, renderHook } from '@testing-library/react'
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React, { useEffect } from 'react'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
+import { startReactor } from '@ir-engine/hyperflux'
 import { ComponentMap, defineComponent, hasComponent, removeComponent, setComponent } from './ComponentFunctions'
 import { createEngine, destroyEngine } from './Engine'
 import { Entity, UndefinedEntity } from './Entity'
 import { createEntity, removeEntity } from './EntityFunctions'
-import { Query, defineQuery, useQuery } from './QueryFunctions'
+import { Query, ReactiveQuerySystem, defineQuery, useQuery } from './QueryFunctions'
+import { SystemDefinitions } from './SystemFunctions'
 
 function assertArrayEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are not equal') {
   assert.equal(A.length, B.length, err)
@@ -126,7 +128,6 @@ describe('QueryFunctions Hooks', async () => {
     let entity1 = UndefinedEntity
     let entity2 = UndefinedEntity
     let result = undefined as ResultType
-    let counter = 0
 
     beforeEach(() => {
       createEngine()
@@ -135,22 +136,11 @@ describe('QueryFunctions Hooks', async () => {
     })
 
     afterEach(() => {
-      counter = 0
       removeEntity(entity1)
       removeEntity(entity2)
       ComponentMap.clear()
       return destroyEngine()
     })
-
-    // Define the Reactor that will run the tested hook
-    const Reactor = () => {
-      const data = useQuery([component])
-      useEffect(() => {
-        result = data as ResultType
-        ++counter
-      }, [data])
-      return null
-    }
 
     it('should return entities that match the query', () => {
       const e1 = createEntity()
@@ -159,8 +149,22 @@ describe('QueryFunctions Hooks', async () => {
       setComponent(e1, ComponentB)
       setComponent(e2, ComponentA)
       setComponent(e2, ComponentB)
-      const { result } = renderHook(() => useQuery([ComponentA, ComponentB])) // return correct results the first time
-      const entities = result.current
+      let counter = 0
+      let entities = [] as Entity[]
+
+      const reactor = startReactor(() => {
+        const query = useQuery([ComponentA, ComponentB])
+
+        useEffect(() => {
+          counter++
+          entities = query
+        }, [query])
+
+        return null
+      })
+
+      assert.strictEqual(counter, 1)
+
       assert.strictEqual(entities.length, 2)
       assert.strictEqual(entities[0], e1)
       assert.strictEqual(entities[1], e2)
@@ -170,15 +174,66 @@ describe('QueryFunctions Hooks', async () => {
       assert.ok(hasComponent(entities[1], ComponentB))
     })
 
-    it('should update the entities when components change', () => {
+    it('should return entities that match the query', async () => {
+      const e1 = createEntity()
+      setComponent(e1, ComponentA)
+      setComponent(e1, ComponentB)
+      let counter = 0
+      let entities = [] as Entity[]
+
+      const reactor = startReactor(() => {
+        const query = useQuery([ComponentA, ComponentB])
+
+        useEffect(() => {
+          counter++
+          entities = [...query]
+        }, [query])
+
+        return null
+      })
+
+      assert.strictEqual(counter, 1)
+      assert.strictEqual(entities.length, 1)
+      assert.strictEqual(entities[0], e1)
+      assert.ok(hasComponent(entities[0], ComponentA))
+      assert.ok(hasComponent(entities[0], ComponentB))
+
+      const e2 = createEntity()
+      setComponent(e2, ComponentA)
+      setComponent(e2, ComponentB)
+      SystemDefinitions.get(ReactiveQuerySystem)!.execute()
+      await act(async () => render(<></>))
+      assert.strictEqual(counter, 2)
+      assert.strictEqual(entities.length, 2)
+      assert.strictEqual(entities[0], e1)
+      assert.strictEqual(entities[1], e2)
+      assert.ok(hasComponent(entities[0], ComponentA))
+      assert.ok(hasComponent(entities[0], ComponentB))
+      assert.ok(hasComponent(entities[1], ComponentA))
+      assert.ok(hasComponent(entities[1], ComponentB))
+    })
+
+    it('should update the entities when components change', async () => {
       const e1 = createEntity()
       const e2 = createEntity()
       setComponent(e1, ComponentA)
       setComponent(e1, ComponentB)
       setComponent(e2, ComponentA)
       setComponent(e2, ComponentB)
-      const { result, rerender } = renderHook(() => useQuery([ComponentA, ComponentB]))
-      let entities = result.current
+      let counter = 0
+      let entities = [] as Entity[]
+
+      const reactor = startReactor(() => {
+        const query = useQuery([ComponentA, ComponentB])
+
+        useEffect(() => {
+          counter++
+          entities = [...query]
+        }, [query])
+
+        return null
+      })
+
       assert.strictEqual(entities.length, 2)
       assert.strictEqual(entities[0], e1)
       assert.strictEqual(entities[1], e2)
@@ -187,17 +242,74 @@ describe('QueryFunctions Hooks', async () => {
       assert.ok(hasComponent(entities[1], ComponentA))
       assert.ok(hasComponent(entities[1], ComponentB))
       removeComponent(e1, ComponentB)
-      rerender()
-      entities = result.current
+
+      await act(async () => render(<></>))
+
       assert.strictEqual(entities.length, 1)
       assert.strictEqual(entities[0], e2)
       assert.ok(hasComponent(entities[0], ComponentA))
       assert.ok(hasComponent(entities[0], ComponentB))
     })
 
+    it('should update the entities when component is removed and added immediately', async () => {
+      const e1 = createEntity()
+      const e2 = createEntity()
+      setComponent(e1, ComponentA)
+      setComponent(e1, ComponentB)
+      setComponent(e2, ComponentA)
+      setComponent(e2, ComponentB)
+      let counter = 0
+      let entities = [] as Entity[]
+
+      const reactor = startReactor(() => {
+        const query = useQuery([ComponentA, ComponentB])
+
+        useEffect(() => {
+          counter++
+          entities = [...query]
+        }, [query])
+
+        return null
+      })
+
+      assert.strictEqual(counter, 1)
+      assert.strictEqual(entities.length, 2)
+      assert.strictEqual(entities[0], e1)
+      assert.strictEqual(entities[1], e2)
+      assert.ok(hasComponent(entities[0], ComponentA))
+      assert.ok(hasComponent(entities[0], ComponentB))
+      assert.ok(hasComponent(entities[1], ComponentA))
+      assert.ok(hasComponent(entities[1], ComponentB))
+
+      removeComponent(e1, ComponentB)
+      setComponent(e1, ComponentB)
+
+      SystemDefinitions.get(ReactiveQuerySystem)!.execute()
+      await act(async () => render(<></>))
+
+      assert.equal(counter, 2)
+      assert.strictEqual(entities.length, 2)
+      assert.strictEqual(entities[0], e1)
+      assert.strictEqual(entities[1], e2)
+      assert.ok(hasComponent(entities[0], ComponentA))
+      assert.ok(hasComponent(entities[0], ComponentB))
+      assert.ok(hasComponent(entities[1], ComponentA))
+      assert.ok(hasComponent(entities[1], ComponentB))
+    })
+
     it(`should return an empty array when entities don't have the component`, async () => {
       const ExpectedValue: ResultType = []
-      assert.equal(counter, 0, "The reactor shouldn't have run before rendering")
+      let counter = 0
+
+      const Reactor = () => {
+        const data = useQuery([component])
+        useEffect(() => {
+          result = data as ResultType
+          ++counter
+        }, [data])
+        return null
+      }
+
       const tag = <Reactor />
       const { rerender, unmount } = render(tag)
       await act(() => rerender(tag))
@@ -212,10 +324,20 @@ describe('QueryFunctions Hooks', async () => {
     })
 
     it('should return the list of entities that have the component', async () => {
+      let counter = 0
       const ExpectedValue: ResultType = [entity1, entity2]
       setComponent(entity1, component)
       setComponent(entity2, component)
       assert.equal(counter, 0, "The reactor shouldn't have run before rendering")
+
+      const Reactor = () => {
+        const data = useQuery([component])
+        useEffect(() => {
+          result = data as ResultType
+          ++counter
+        }, [data])
+        return null
+      }
       const tag = <Reactor />
       const { rerender, unmount } = render(tag)
       await act(() => rerender(tag))
