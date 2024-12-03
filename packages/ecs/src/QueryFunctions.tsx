@@ -139,10 +139,10 @@ export function useQuery(components: QueryComponents) {
       const comp = useOptionalComponent(props.entity, props.Component)
       useImmediateEffect(() => {
         const ents = state.get(NO_PROXY_STEALTH).query()
-        if (!sortedArraysEqual(state.entities.value as any[], ents)) state.entities.set(ents)
+        if (!sortedArraysEqual(state.entities.value as any[], ents)) state.entities.set([...ents])
         return () => {
           const ents = state.get(NO_PROXY_STEALTH).query()
-          if (!sortedArraysEqual(state.entities.value as any[], ents)) state.entities.set(ents)
+          if (!sortedArraysEqual(state.entities.value as any[], ents)) state.entities.set([...ents])
         }
       }, [comp])
       return null
