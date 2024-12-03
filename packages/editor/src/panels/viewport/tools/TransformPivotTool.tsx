@@ -87,11 +87,10 @@ const TransformPivotTool = () => {
       >
         <Select
           key={editorHelperState.transformPivot.value}
-          inputClassName="py-1 h-5 rounded-sm text-theme-gray3 text-xs"
-          className="m-1 w-32 border-theme-input text-theme-gray3"
           onChange={setTransformPivot}
           options={transformPivotOptions}
-          currentValue={editorHelperState.transformPivot.value}
+          value={editorHelperState.transformPivot.value}
+          width="sm"
         />
       </Tooltip>
     </div>

@@ -32,11 +32,15 @@ import {
   locationPath,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
+import { useQuery } from '@ir-engine/ecs'
 import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
-import { getState, useHookstate } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
+import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbnailState'
+import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
+import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { ImageLink } from '@ir-engine/ui/editor'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import { ModalHeader } from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
@@ -67,8 +71,8 @@ export default function AddEditLocationModal(props: {
 
   const params = {
     query: {
-      action: props.action,
-      id: locationID.value
+      id: locationID.value,
+      action: props.action
     }
   }
 
@@ -85,13 +89,15 @@ export default function AddEditLocationModal(props: {
   const errors = useHookstate(getDefaultErrors())
 
   const name = useHookstate(location?.name || '')
-  const maxUsers = useHookstate(location?.maxUsersPerInstance || 10)
+  const maxUsers = useHookstate(location?.maxUsersPerInstance || 5)
 
   const scene = useHookstate((location ? location.sceneId : props.sceneID) || '')
   const videoEnabled = useHookstate<boolean>(location?.locationSetting.videoEnabled || true)
   const audioEnabled = useHookstate<boolean>(location?.locationSetting.audioEnabled || true)
   const screenSharingEnabled = useHookstate<boolean>(location?.locationSetting.screenSharingEnabled || true)
   const locationType = useHookstate(location?.locationSetting.locationType || 'public')
+  const sceneThumbnailState = useHookstate(getMutableState(SceneThumbnailState))
+  const sceneSettingsEntities = useQuery([SceneSettingsComponent])
 
   useEffect(() => {
     if (location) {
@@ -122,7 +128,7 @@ export default function AddEditLocationModal(props: {
     if (!maxUsers.value) {
       errors.maxUsers.set(t('admin:components.location.maxUserCantEmpty'))
     }
-    if (maxUsers.value > 10) {
+    if (maxUsers.value > 5) {
       errors.maxUsers.set(t('admin:components.location.maxUserExceeded'))
     }
     if (!scene.value) {
@@ -231,34 +237,35 @@ export default function AddEditLocationModal(props: {
               </Button>
             )}
             <Input
-              labelProps={{
-                text: t('admin:components.location.lbl-name'),
-                position: 'top'
-              }}
+              labelProps={{ text: t('admin:components.location.lbl-name'), position: 'top' }}
               value={name.value}
               data-testid="publish-panel-location-name"
               onChange={(event) => name.set(event.target.value)}
-              helperText={errors.name.value}
               state={errors.name.value ? 'error' : undefined}
+              helperText={errors.name.value}
               disabled={isLoading}
+              fullWidth
+              variantSize="xl"
             />
             <Input
               type="number"
-              labelProps={{
-                text: t('admin:components.location.lbl-maxuser'),
-                position: 'top'
-              }}
+              labelProps={{ text: t('admin:components.location.lbl-maxuser'), position: 'top' }}
               value={maxUsers.value}
               data-testid="publish-panel-location-max-users"
               onChange={(event) => maxUsers.set(Math.max(parseInt(event.target.value, 0), 0))}
-              helperText={errors.maxUsers.value}
               state={errors.maxUsers.value ? 'error' : undefined}
+              helperText={errors.maxUsers.value}
               disabled={isLoading}
+              fullWidth
+              variantSize="xl"
             />
             <Select
-              label={t('admin:components.location.lbl-scene')}
-              currentValue={scene.value}
-              onChange={(value) => scene.set(value)}
+              labelProps={{
+                text: t('admin:components.location.lbl-scene'),
+                position: 'top'
+              }}
+              value={scene.value}
+              onChange={(value: string) => scene.set(value)}
               disabled={!!props.sceneID || scenes.status !== 'success' || isLoading}
               options={
                 scenes.status === 'pending'
@@ -275,14 +282,22 @@ export default function AddEditLocationModal(props: {
                       })
                     ]
               }
-              error={errors.scene.value}
+              state={errors.scene.value ? 'error' : undefined}
+              helperText={errors.scene.value}
+              width="full"
+              inputSizeVariant="xl"
             />
             <Select
-              label={t('admin:components.location.type')}
-              currentValue={locationType.value}
+              labelProps={{
+                text: t('admin:components.location.type'),
+                position: 'top'
+              }}
+              value={locationType.value}
               onChange={(value) => locationType.set(value as 'private' | 'public' | 'showroom')}
               options={locationTypeOptions}
               disabled={true}
+              width="full"
+              inputSizeVariant="xl"
             />
             <Toggle
               label={t('admin:components.location.lbl-ve')}
@@ -302,6 +317,56 @@ export default function AddEditLocationModal(props: {
               onChange={screenSharingEnabled.set}
               disabled={isLoading}
             />
+            <div>{t('editor:properties.sceneSettings.lbl-thumbnail')}</div>
+            <div className="flex flex-col ">
+              <div className="flex flex-row justify-around">
+                <div>{'Current Thumbnail'}</div>
+                <div>{'Previous Thumbnail'}</div>
+              </div>
+              <div className="flex flex-row justify-evenly">
+                <ImageLink src={sceneThumbnailState.thumbnailURL.value ?? ''} variant="md" />
+                <ImageLink src={sceneThumbnailState.oldThumbnailURL.value ?? ''} variant="md" />
+              </div>
+              <div className="flex flex-row gap-2 ">
+                <Button onClick={SceneThumbnailState.createThumbnail} className="w-full">
+                  {t('editor:properties.sceneSettings.generate')}
+                </Button>
+                <Button
+                  onClick={() => {
+                    SceneThumbnailState.uploadThumbnail(sceneSettingsEntities)
+                  }}
+                  disabled={!sceneThumbnailState.thumbnail.value}
+                  className="w-full"
+                >
+                  {t('editor:properties.sceneSettings.save')}
+                </Button>
+              </div>
+            </div>
+            <div>{t('editor:properties.sceneSettings.lbl-loading')}</div>
+            <div className="flex flex-col">
+              <div className="flex flex-row justify-around">
+                <div>{'Current Loading Screen'}</div>
+                <div>{'Previous Loading Screen'}</div>
+              </div>
+              <div className="flex flex-row justify-evenly ">
+                <ImageLink src={sceneThumbnailState.loadingScreenURL.value ?? ''} variant="md" />
+                <ImageLink src={sceneThumbnailState.oldLoadingScreenURL.value ?? ''} variant="md" />
+              </div>
+              <div className="flex flex-row gap-2">
+                <Button onClick={SceneThumbnailState.createLoadingScreen} className="w-full">
+                  {t('editor:properties.sceneSettings.generate')}
+                </Button>
+                <Button
+                  onClick={() => {
+                    SceneThumbnailState.uploadLoadingScreen(sceneSettingsEntities)
+                  }}
+                  disabled={!sceneThumbnailState.loadingScreenImageData.value}
+                  className="w-full"
+                >
+                  {t('editor:properties.sceneSettings.save')}
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
 

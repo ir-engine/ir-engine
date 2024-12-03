@@ -28,7 +28,7 @@ import { twMerge } from 'tailwind-merge'
 
 export interface RadioProps {
   disabled?: boolean
-  label: string
+  label?: string
   onClick?: (value: any) => void
   value: any
   checked?: boolean
@@ -102,7 +102,7 @@ export const Radio = ({ disabled, label, onClick, value, description, checked, v
 
 type OptionType = {
   value: string
-  label: string
+  label?: string
   description?: string
 }
 export interface RadioGroupProps<T> {

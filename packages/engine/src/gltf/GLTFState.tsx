@@ -36,6 +36,7 @@ import {
   MathUtils,
   Matrix4,
   Mesh,
+  MeshPhysicalMaterial,
   MeshStandardMaterial,
   Object3D,
   Quaternion,
@@ -59,7 +60,8 @@ import {
   setComponent,
   UndefinedEntity,
   useOptionalComponent,
-  UUIDComponent
+  UUIDComponent,
+  validateComponentSchema
 } from '@ir-engine/ecs'
 import {
   defineState,
@@ -72,7 +74,6 @@ import {
   State,
   Topic,
   useHookstate,
-  useImmediateEffect,
   useMutableState
 } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
@@ -87,7 +88,10 @@ import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/Scene
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
-import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import {
+  MaterialInstanceComponent,
+  MaterialStateComponent
+} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { ResourceManager, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
@@ -627,7 +631,7 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
   const entityState = useHookstate(UndefinedEntity)
   const entity = entityState.value
 
-  useImmediateEffect(() => {
+  useLayoutEffect(() => {
     const uuid = getNodeUUID(node.get(NO_PROXY) as GLTF.IGLTF, props.documentID, props.nodeIndex)
     const entity = UUIDComponent.getOrCreateEntityByUUID(uuid)
 
@@ -655,7 +659,10 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
       for (const extension in node.extensions.value) {
         const Component = ComponentJSONIDMap.get(extension)
         if (!Component) continue
-        setComponent(entity, Component, node.extensions[extension].get(NO_PROXY_STEALTH))
+
+        const validatedComponent = validateComponentSchema(Component, node.extensions[extension].get(NO_PROXY_STEALTH))
+        node.extensions[extension].set(validatedComponent)
+        setComponent(entity, Component, validatedComponent)
       }
     }
 
@@ -800,7 +807,15 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
           if (ComponentJSONIDMap.has(parts[1])) {
             const Component = ComponentJSONIDMap.get(parts[1])
             if (!Component) return console.warn('no component found for extension', parts[1])
-            setComponent(props.entity, Component)
+            let deserializedValue = typeof parts[2] === 'string' ? { [parts[2]]: value } : value
+            if (typeof value === 'string') {
+              try {
+                deserializedValue = JSON.parse(value)
+              } catch (e) {
+                // expected
+              }
+            }
+            setComponent(props.entity, Component, deserializedValue)
             if (Component === ColliderComponent) removeComponent(props.entity, VisibleComponent)
           }
         }
@@ -1025,10 +1040,12 @@ const PrimitiveReactor = (props: {
       typeof node.skin !== 'undefined'
         ? new SkinnedMesh(finalGeometry as BufferGeometry)
         : new Mesh(finalGeometry as BufferGeometry)
+
     mesh.material = material
 
     if (typeof node.skin !== 'undefined') {
       ;(mesh as SkinnedMesh).skeleton = new Skeleton()
+      ;(mesh as SkinnedMesh).normalizeSkinWeights()
       setComponent(props.entity, SkinnedMeshComponent, mesh as SkinnedMesh)
     }
 
@@ -1135,6 +1152,25 @@ const MaterialInstanceReactor = (props: {
     if (props.isArray) materialInstance.uuid[primitive.material].set(materialUUID)
     else materialInstance.uuid.set([materialUUID])
   }, [materialEntity, primitive.material])
+
+  const material = useOptionalComponent(materialEntity, MaterialStateComponent)?.material
+  const useDerivativeTangents = primitive.attributes.TANGENT === undefined
+  const useVertexColors = primitive.attributes.COLOR_0 !== undefined
+  const useFlatShading = primitive.attributes.NORMAL === undefined
+
+  useEffect(() => {
+    const material = getOptionalComponent(materialEntity, MaterialStateComponent)?.material as MeshPhysicalMaterial
+    if (!material) return
+
+    if (useVertexColors) material.vertexColors = true
+    if (useFlatShading) material.flatShading = true
+
+    if (useDerivativeTangents) {
+      // https://github.com/mrdoob/three.js/issues/11438#issuecomment-507003995
+      if (material.normalScale) material.normalScale.y *= -1
+      if (material.clearcoatNormalScale) material.clearcoatNormalScale.y *= -1
+    }
+  }, [!!material, useDerivativeTangents || useVertexColors || useFlatShading])
 
   return null
 }

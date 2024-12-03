@@ -56,7 +56,7 @@ export const start = async (): Promise<Application> => {
   collectEvents(app)
   logger.info('Task server running.')
 
-  const port = Number(config.taskserver.port) || 5050
+  const port = Number(config['task-server'].port) || 5050
 
   await app.listen(port)
 

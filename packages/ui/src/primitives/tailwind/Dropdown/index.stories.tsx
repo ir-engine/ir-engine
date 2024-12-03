@@ -51,7 +51,7 @@ export const DropdownItemStory = {
   name: 'Dropdown Item',
   render: DropdownItemRenderer,
   args: {
-    title: 'Account settings',
+    label: 'Account settings',
     selected: false
   },
   argTypes: {

@@ -29,9 +29,10 @@ import { SimulationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { NetworkObjectAuthorityTag } from '@ir-engine/network'
 
 import { applyGamepadInput } from '.././functions/moveAvatar'
+import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 
-const controlledAvatarEntity = defineQuery([AvatarControllerComponent, NetworkObjectAuthorityTag])
+const controlledAvatarEntity = defineQuery([AvatarComponent, AvatarControllerComponent, NetworkObjectAuthorityTag])
 
 const execute = () => {
   for (const entity of controlledAvatarEntity()) applyGamepadInput(entity)

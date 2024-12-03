@@ -42,9 +42,9 @@ import { isArray } from 'lodash'
 import sinon from 'sinon'
 import { BoxGeometry, Color, Material, Mesh, Texture } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
+import { assertArray } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { NameComponent } from '../../common/NameComponent'
-import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { TransformComponent } from '../RendererModule'
 import { MeshComponent } from '../components/MeshComponent'
 import {
@@ -672,7 +672,7 @@ describe('materialFunctions', () => {
       // Run and Check the result
       const result = getMaterialIndices(testEntity, materialUUID)
       assert.equal(result.length, Expected.length)
-      assertArrayEqual(result, Expected)
+      assertArray.eq(result, Expected)
     })
   }) //:: getMaterialIndices
 

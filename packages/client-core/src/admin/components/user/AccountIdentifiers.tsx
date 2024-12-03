@@ -42,7 +42,7 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 
 export default function AccountIdentifiers({ user }: { user: UserType }) {
-  const identityProvidersQuery = useFind(identityProviderPath, { query: { userId: user.id } })
+  const identityProvidersQuery = useFind(identityProviderPath, { query: { userId: user.id, action: 'admin' } })
 
   const appleIp = identityProvidersQuery.data.find((ip) => ip.type === 'apple')
   const discordIp = identityProvidersQuery.data.find((ip) => ip.type === 'discord')
