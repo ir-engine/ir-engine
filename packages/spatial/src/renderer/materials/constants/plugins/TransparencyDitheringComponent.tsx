@@ -70,8 +70,6 @@ export const TransparencyDitheringPluginComponent = defineComponent({
       if (!materialComponent) return
       const material = materialComponent.material as Material
       const callback = (shader) => {
-        //this auto-injects alphaTest into the shader but causes a race condition with the injecting the ditheringAlphatestChunk
-        // material.alphaTest = 0.5
         material.side = FrontSide
         const plugin = getComponent(entity, TransparencyDitheringPluginComponent)
 
