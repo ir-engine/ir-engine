@@ -197,7 +197,7 @@ export default function FilesToolbar() {
         <div className="ml-2" />
         {showBackButton && (
           <div id="backDir" className="pointer-events-auto flex h-7 w-7 items-center rounded-lg">
-            <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
+            <Tooltip content={t('editor:layout.filebrowser.back')}>
               <Button
                 variant="transparent"
                 startIcon={<IoArrowBack />}
@@ -244,7 +244,7 @@ export default function FilesToolbar() {
             onChange={(e) => {
               filesState.searchText.set(e.target.value)
             }}
-            variantSize="xs"
+            size="xs"
             startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
             data-testid="files-panel-search-input"
           />

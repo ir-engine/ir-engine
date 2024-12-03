@@ -153,7 +153,7 @@ export default function Topbar() {
     <div className="mb-1 flex h-8 items-center gap-2 bg-[#212226] py-1" data-testid="assets-panel-top-bar">
       <div className="ml-2" />
       <div className="flex h-7 w-7 items-center rounded-lg">
-        <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
+        <Tooltip content={t('editor:layout.filebrowser.back')}>
           <Button
             variant="transparent"
             startIcon={<IoArrowBack />}
@@ -180,7 +180,7 @@ export default function Topbar() {
         <SearchBar
           inputProps={{
             placeholder: t('editor:layout.scene-assets.search-placeholder'),
-            variantSize: 'xs',
+            size: 'xs',
             startComponent: <HiMagnifyingGlass className="h-3.5 w-3.5 text-[#A3A3A3]" />
           }}
           search={search}

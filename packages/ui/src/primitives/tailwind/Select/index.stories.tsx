@@ -37,7 +37,7 @@ const argTypes: ArgTypes = {
     control: 'select',
     options: ['sm', 'md', 'lg', 'full']
   },
-  inputSizeVariant: {
+  inputSize: {
     control: 'select',
     options: ['xs', 'l', 'xl']
   },
