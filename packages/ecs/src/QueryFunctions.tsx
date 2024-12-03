@@ -78,7 +78,7 @@ export const ReactiveQuerySystem = defineSystem({
     for (const { query, entities } of getState(SystemState).reactiveQueryStates) {
       const entitiesAdded = query.enter().length
       const entitiesRemoved = query.exit().length
-      if (entitiesAdded || entitiesRemoved) entities.set(query())
+      if (entitiesAdded || entitiesRemoved) entities.set([...query()])
     }
   }
 })
@@ -161,7 +161,7 @@ export function useQuery(components: QueryComponents) {
     return () => {
       root.stop()
     }
-  }, [JSON.stringify(state.entities.value)])
+  }, [state.entities])
 
   return state.entities.value as Entity[]
 }
