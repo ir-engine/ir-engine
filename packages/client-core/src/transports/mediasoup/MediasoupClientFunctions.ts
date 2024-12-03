@@ -219,12 +219,18 @@ export const connectToInstance = (
         (config.client.appEnv === 'development' && config.client.localNginx !== 'true')
       ) {
         const queryString = new URLSearchParams(query).toString()
-        primus = new Primus(`https://${ipAddress as string}:${port.toString()}?${queryString}`)
+        primus = new Primus(`https://${ipAddress as string}:${port.toString()}?${queryString}`, {
+          pingTimeout: config.websocket.pingTimeout,
+          pingInterval: config.websocket.pingInterval
+        })
       } else {
         query.address = ipAddress
         query.port = port.toString()
         const queryString = new URLSearchParams(query).toString()
-        primus = new Primus(`${config.client.instanceserverUrl}?${queryString}`)
+        primus = new Primus(`${config.client.instanceserverUrl}?${queryString}`, {
+          pingTimeout: config.websocket.pingTimeout,
+          pingInterval: config.websocket.pingInterval
+        })
       }
     } catch (err) {
       logger.error('Failed to connect to primus', err)
@@ -801,7 +807,8 @@ type Primus = EventEmitter & {
   online: boolean
   onlineHandler: () => void
   options: {
-    pingTimeout: 45000
+    pingTimeout: number
+    pingInterval: number
     queueSize: number
     reconnect: any
     strategy: string
