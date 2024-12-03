@@ -218,7 +218,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
                 endComponent={
                   setting.userId && (
                     <Tooltip
-                      position="left center"
+                      position="left"
                       content={t('admin:components.common.lastUpdatedBy', {
                         userId: setting.userId,
                         updatedAt: toDisplayDateTime(setting.updatedAt)

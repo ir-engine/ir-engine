@@ -234,12 +234,12 @@ export default function ProjectTable(props: { search: string }) {
               {row.name}
             </a>
             {!!row.needsRebuild && (
-              <Tooltip content={t('admin:components.project.outdatedBuild')} position="right center">
+              <Tooltip content={t('admin:components.project.outdatedBuild')} position="right">
                 <HiOutlineExclamationCircle className="text-orange-400" size={22} />
               </Tooltip>
             )}
             {!!row.hasLocalChanges && (
-              <Tooltip content={t('admin:components.project.hasLocalChanges')} position="right center">
+              <Tooltip content={t('admin:components.project.hasLocalChanges')} position="right">
                 <HiOutlineExclamationCircle className="text-yellow-400" size={22} />
               </Tooltip>
             )}

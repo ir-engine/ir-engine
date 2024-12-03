@@ -30,22 +30,22 @@ export interface TooltipProps {
   title?: string
   content: ReactNode
   children: ReactNode
-  direction?: 'auto' | 'top' | 'bottom' | 'left' | 'right'
+  position?: 'auto' | 'top' | 'bottom' | 'left' | 'right'
 }
 
-function Tooltip({ title, content, children, direction = 'auto' }: TooltipProps) {
-  const [tooltipDirection, setTooltipDirection] = useState('bottom')
+function Tooltip({ title, content, children, position = 'auto' }: TooltipProps) {
+  const [tooltipPosition, setTooltipPosition] = useState('bottom')
   const triggerRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    if (direction === 'auto' && triggerRef.current) {
-      calculateDirection()
+    if (position === 'auto' && triggerRef.current) {
+      calculatePosition()
     } else {
-      setTooltipDirection(direction)
+      setTooltipPosition(position)
     }
-  }, [direction])
+  }, [position])
 
-  const calculateDirection = () => {
+  const calculatePosition = () => {
     if (!triggerRef.current) return
     const triggerRect = triggerRef.current.getBoundingClientRect()
     const viewportWidth = window.innerWidth
@@ -56,15 +56,15 @@ function Tooltip({ title, content, children, direction = 'auto' }: TooltipProps)
     const fitsLeft = triggerRect.left >= 50
     const fitsRight = viewportWidth - triggerRect.right >= 50
 
-    if (fitsTop) setTooltipDirection('top')
-    else if (fitsBottom) setTooltipDirection('bottom')
-    else if (fitsRight) setTooltipDirection('right')
-    else if (fitsLeft) setTooltipDirection('left')
-    else setTooltipDirection('top')
+    if (fitsTop) setTooltipPosition('top')
+    else if (fitsBottom) setTooltipPosition('bottom')
+    else if (fitsRight) setTooltipPosition('right')
+    else if (fitsLeft) setTooltipPosition('left')
+    else setTooltipPosition('top')
   }
 
   const getPositionClasses = () => {
-    switch (tooltipDirection) {
+    switch (tooltipPosition) {
       case 'top':
         return 'left-1/2 bottom-full mb-3 -translate-x-1/2'
       case 'bottom':
@@ -79,7 +79,7 @@ function Tooltip({ title, content, children, direction = 'auto' }: TooltipProps)
   }
 
   const getArrowStyles = () => {
-    switch (tooltipDirection) {
+    switch (tooltipPosition) {
       case 'top':
         return 'bottom-[-4px] left-1/2 -translate-x-1/2'
       case 'bottom':

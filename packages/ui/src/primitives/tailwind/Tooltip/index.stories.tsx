@@ -35,7 +35,7 @@ const argTypes: ArgTypes = {
   content: {
     control: 'text'
   },
-  direction: {
+  position: {
     control: 'select',
     options: ['auto', 'top', 'bottom', 'left', 'right']
   }
@@ -68,6 +68,6 @@ export const Default = {
   args: {
     title: 'Tooltip',
     content: 'I am a tooltip 🚀',
-    direction: 'auto'
+    position: 'auto'
   }
 }
