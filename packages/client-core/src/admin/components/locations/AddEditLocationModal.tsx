@@ -18,7 +18,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useState } from 'react'
+import React, { lazy, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
@@ -32,14 +32,11 @@ import {
   locationPath,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
-import { Entity, UndefinedEntity, useQuery } from '@ir-engine/ecs'
+import { UndefinedEntity } from '@ir-engine/ecs'
 import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
-import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbnailState'
-import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { ImageLink } from '@ir-engine/ui/editor'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
@@ -54,6 +51,10 @@ const getDefaultErrors = () => ({
   scene: '',
   serverError: ''
 })
+
+const StudioSections = lazy(
+  () => import('@ir-engine/ui/src/components/editor/Modal/AddEditLocationModalStudioSections')
+)
 
 const locationTypeOptions = [
   { label: 'Private', value: 'private' },
@@ -97,25 +98,7 @@ export default function AddEditLocationModal(props: {
   const audioEnabled = useHookstate<boolean>(location?.locationSetting.audioEnabled || true)
   const screenSharingEnabled = useHookstate<boolean>(location?.locationSetting.screenSharingEnabled || true)
   const locationType = useHookstate(location?.locationSetting.locationType || 'public')
-  const sceneThumbnailState = useHookstate(getMutableState(SceneThumbnailState))
   const engineState = useHookstate(getMutableState(EngineState))
-  const sceneSettingsEntities = useHookstate([] as Entity[])
-  const [shouldLoadEngineSections, setShouldLoadEngineSections] = useState(false)
-
-  useEffect(() => {
-    if (engineState.viewerEntity.value !== UndefinedEntity) {
-      setShouldLoadEngineSections(true)
-    }
-  }, [engineState.viewerEntity])
-
-  // only use query if engine is running
-  useEffect(() => {
-    if (!shouldLoadEngineSections) return
-    sceneSettingsEntities.set(useQuery([SceneSettingsComponent]))
-    return () => {
-      sceneSettingsEntities.set([])
-    }
-  }, [shouldLoadEngineSections])
 
   useEffect(() => {
     if (location) {
@@ -335,59 +318,10 @@ export default function AddEditLocationModal(props: {
               onChange={screenSharingEnabled.set}
               disabled={isLoading}
             />
-            {shouldLoadEngineSections && (
-              <>
-                <div>{t('editor:properties.sceneSettings.lbl-thumbnail')}</div>
-                <div className="flex flex-col ">
-                  <div className="flex flex-row justify-around">
-                    <div>{'Current Thumbnail'}</div>
-                    <div>{'Previous Thumbnail'}</div>
-                  </div>
-                  <div className="flex flex-row justify-evenly">
-                    <ImageLink src={sceneThumbnailState.thumbnailURL.value ?? ''} variant="md" />
-                    <ImageLink src={sceneThumbnailState.oldThumbnailURL.value ?? ''} variant="md" />
-                  </div>
-                  <div className="flex flex-row gap-2 ">
-                    <Button onClick={SceneThumbnailState.createThumbnail} className="w-full">
-                      {t('editor:properties.sceneSettings.generate')}
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        SceneThumbnailState.uploadThumbnail(sceneSettingsEntities)
-                      }}
-                      disabled={!sceneThumbnailState.thumbnail.value}
-                      className="w-full"
-                    >
-                      {t('editor:properties.sceneSettings.save')}
-                    </Button>
-                  </div>
-                </div>
-                <div>{t('editor:properties.sceneSettings.lbl-loading')}</div>
-                <div className="flex flex-col">
-                  <div className="flex flex-row justify-around">
-                    <div>{'Current Loading Screen'}</div>
-                    <div>{'Previous Loading Screen'}</div>
-                  </div>
-                  <div className="flex flex-row justify-evenly ">
-                    <ImageLink src={sceneThumbnailState.loadingScreenURL.value ?? ''} variant="md" />
-                    <ImageLink src={sceneThumbnailState.oldLoadingScreenURL.value ?? ''} variant="md" />
-                  </div>
-                  <div className="flex flex-row gap-2">
-                    <Button onClick={SceneThumbnailState.createLoadingScreen} className="w-full">
-                      {t('editor:properties.sceneSettings.generate')}
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        SceneThumbnailState.uploadLoadingScreen(sceneSettingsEntities)
-                      }}
-                      disabled={!sceneThumbnailState.loadingScreenImageData.value}
-                      className="w-full"
-                    >
-                      {t('editor:properties.sceneSettings.save')}
-                    </Button>
-                  </div>
-                </div>
-              </>
+            {engineState.viewerEntity.value !== UndefinedEntity && (
+              <React.Suspense fallback={null}>
+                <StudioSections />
+              </React.Suspense>
             )}
           </div>
         </div>
