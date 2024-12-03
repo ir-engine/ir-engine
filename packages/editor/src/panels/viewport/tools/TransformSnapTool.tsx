@@ -98,7 +98,7 @@ const TransformSnapTool = () => {
           size="small"
         />
       </Tooltip>
-      <Tooltip content={t('editor:toolbar.transformSnapTool.info-translate')} position="right center">
+      <Tooltip content={t('editor:toolbar.transformSnapTool.info-translate')} position="right">
         <Select
           key={editorHelperState.translationSnap.value}
           onChange={onChangeTranslationSnap}
@@ -107,7 +107,7 @@ const TransformSnapTool = () => {
           width="sm"
         />
       </Tooltip>
-      <Tooltip content={t('editor:toolbar.transformSnapTool.info-rotate')} position="right center">
+      <Tooltip content={t('editor:toolbar.transformSnapTool.info-rotate')} position="right">
         <Select
           key={editorHelperState.rotationSnap.value}
           onChange={onChangeRotationSnap}

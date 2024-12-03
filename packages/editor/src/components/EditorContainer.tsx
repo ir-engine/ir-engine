@@ -264,13 +264,7 @@ const EditorContainer = () => {
       <PopupMenu />
       {!isWidgetVisible && initialized && (
         <div className="absolute bottom-3 right-4">
-          <Tooltip
-            position="left center"
-            contentStyle={{ transform: 'translate(10px)', animation: 'fadeIn 0.3s ease-in-out forwards' }}
-            key={t('editor:help')}
-            content={t('editor:help')}
-            arrow={true}
-          >
+          <Tooltip position="left" key={t('editor:help')} content={t('editor:help')}>
             <Button
               rounded="full"
               size="small"

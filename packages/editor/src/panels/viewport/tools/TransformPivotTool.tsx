@@ -82,7 +82,7 @@ const TransformPivotTool = () => {
         content={
           transformPivotOptions.find((pivot) => pivot.value === editorHelperState.transformPivot.value)?.description
         }
-        position="right center"
+        position="right"
       >
         <Select
           key={editorHelperState.transformPivot.value}
