@@ -97,7 +97,8 @@ function Tooltip({ title, content, children, position = 'auto' }: TooltipProps) 
     <div ref={triggerRef} className="group relative flex max-w-max flex-col items-center justify-center">
       {children}
       <div
-        className={`absolute ${getPositionClasses()} min-w-max scale-0 transform  transition duration-500 group-hover:scale-100`}
+        className={`absolute ${getPositionClasses()} min-w-max scale-0 transform  transition duration-300 group-hover:scale-100`}
+        style={{ zIndex: 9999 }}
       >
         <div className="relative flex max-w-xs flex-col items-center shadow-lg">
           <div
