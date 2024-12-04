@@ -173,8 +173,6 @@ describe('moveAvatar function tests', () => {
     const ecsState = getMutableState(ECSState)
     ecsState.simulationTimestep.set(1000 / 60)
 
-    applyIncomingActions()
-
     dispatchAction(
       AvatarNetworkAction.spawn({
         $peer: Engine.instance.store.peerID,

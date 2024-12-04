@@ -169,7 +169,12 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
 
     return () => {
       // ensure entity still exists
-      if (!getState(EntityNetworkState)[props.uuid]) return
+      if (
+        !worldNetwork ||
+        !getState(EntityNetworkState)[props.uuid] ||
+        !worldNetwork.users?.[HyperFlux.store.userID]?.length
+      )
+        return
 
       // Use the lowest peer as the new authority
       const lowestPeer = [...worldNetwork.users[HyperFlux.store.userID]].sort((a, b) => (a > b ? 1 : -1))[0]
