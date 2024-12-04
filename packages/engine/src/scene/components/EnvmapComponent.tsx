@@ -47,13 +47,14 @@ import {
   getComponent,
   getMutableComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import { entityExists, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { isClient } from '@ir-engine/hyperflux'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { createDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
+import { useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
@@ -67,7 +68,7 @@ import {
   envmapReplaceLambert,
   worldposReplace
 } from '../classes/BPCEMShader'
-import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
+import { EnvMapSourceType } from '../constants/EnvMapEnum'
 import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { createReflectionProbeRenderTarget } from '../functions/reflectionProbeFunctions'
@@ -77,155 +78,202 @@ import { SourceComponent } from './SourceComponent'
 
 const tempColor = new Color()
 
+const EnvmapCubemapReactor = () => {
+  const entity = useEntityContext()
+  const component = useComponent(entity, EnvmapComponent)
+
+  useEffect(() => {
+    return () => {
+      if (entityExists(entity)) component.envmap.set(null)
+    }
+  }, [])
+
+  useEffect(() => {
+    loadCubeMapTexture(
+      component.envMapCubemapURL.value,
+      (texture: CubeTexture | undefined) => {
+        if (texture) {
+          texture.mapping = CubeReflectionMapping
+          texture.colorSpace = SRGBColorSpace
+          component.envmap.set(texture)
+          removeError(entity, EnvmapComponent, 'MISSING_FILE')
+        }
+      },
+      undefined,
+      (_) => {
+        component.envmap.set(null)
+        addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
+      }
+    )
+  }, [component.envMapCubemapURL])
+
+  return null
+}
+
+const EnvmapEquirectangularReactor = () => {
+  const entity = useEntityContext()
+  const component = useComponent(entity, EnvmapComponent)
+  const [envMapTexture, error] = useTexture(component.envMapSourceURL.value, entity)
+
+  useEffect(() => {
+    return () => {
+      if (entityExists(entity)) component.envmap.set(null)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!envMapTexture || !envMapTexture.isTexture) return
+    envMapTexture.mapping = EquirectangularReflectionMapping
+    component.envmap.set(envMapTexture)
+  }, [envMapTexture])
+
+  useEffect(() => {
+    if (!error) return
+    component.envmap.set(null)
+    addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
+  }, [error])
+
+  return null
+}
+
+const EnvmapColorReactor = () => {
+  const entity = useEntityContext()
+  const component = useComponent(entity, EnvmapComponent)
+  const [textureState] = useResource(() => null! as DataTexture, entity)
+
+  useEffect(() => {
+    return () => {
+      if (entityExists(entity)) component.envmap.set(null)
+    }
+  }, [])
+
+  useEffect(() => {
+    const color = component.envMapSourceColor.value ?? tempColor
+    const resolution = 64 // Min value required
+    const texture = new DataTexture(getRGBArray(new Color(color)), resolution, resolution, RGBAFormat)
+    texture.needsUpdate = true
+    texture.colorSpace = SRGBColorSpace
+    texture.mapping = EquirectangularReflectionMapping
+    textureState.set(texture)
+    component.envmap.set(texture)
+  }, [component.envMapSourceColor])
+
+  return null
+}
+
+const EnvmapProbesReactor = () => {
+  const entity = useEntityContext()
+  const component = useComponent(entity, EnvmapComponent)
+  const probeQuery = useQuery([ReflectionProbeComponent])
+
+  useEffect(() => {
+    return () => {
+      if (entityExists(entity)) component.envmap.set(null)
+    }
+  }, [])
+
+  useEffect(() => {
+    const [renderTexture, unload] = createReflectionProbeRenderTarget(entity, probeQuery)
+    component.envmap.set(renderTexture)
+    return () => {
+      unload()
+    }
+  }, [probeQuery])
+
+  return null
+}
+
 export const EnvmapComponent = defineComponent({
   name: 'EnvmapComponent',
   jsonID: 'EE_envmap',
 
   schema: S.Object({
     type: S.LiteralUnion(Object.values(EnvMapSourceType), EnvMapSourceType.Skybox),
-    envMapTextureType: S.LiteralUnion(Object.values(EnvMapTextureType), EnvMapTextureType.Equirectangular),
     envMapSourceColor: S.Color(0xfff),
     envMapSourceURL: S.String(''),
+    envMapCubemapURL: S.String(''),
     envMapSourceEntityUUID: S.EntityUUID(),
     envMapIntensity: S.Number(1),
+
     // internal
     envmap: S.NonSerialized(S.Nullable(S.Type<Texture>()))
   }),
 
   reactor: function () {
-    const entity = useEntityContext()
     if (!isClient) return null
-
+    const entity = useEntityContext()
     const component = useComponent(entity, EnvmapComponent)
-    const textureSource =
-      component.envMapTextureType.value === EnvMapTextureType.Equirectangular ? component.envMapSourceURL.value : ''
-    const [envMapTexture, error] = useTexture(textureSource, entity)
+
+    const hasRootMesh = !!useOptionalComponent(entity, MeshComponent)
     const childrenMesh = useChildrenWithComponents(
       entity,
       [MeshComponent, VisibleComponent, SourceComponent],
       [EnvmapComponent]
     )
+    const bakeEntity = UUIDComponent.useEntityByUUID(component.envMapSourceEntityUUID.value)
 
-    const probeQuery = useQuery([ReflectionProbeComponent])
+    const getMeshes = () => {
+      const meshEntities = [...childrenMesh]
+      if (hasRootMesh) meshEntities.push(entity)
 
-    useEffect(() => {
-      if (component.type.value !== EnvMapSourceType.Skybox) return
-      component.envmap.set(null)
-      /** Setting the value from the skybox can be found in EnvironmentSystem */
-    }, [component.type.value])
-
-    useEffect(() => {
-      if (component.type.value !== EnvMapSourceType.Color) return
-
-      const col = component.envMapSourceColor.value ?? tempColor
-      const resolution = 64 // Min value required
-      const [texture, unload] = createDisposable(
-        DataTexture,
-        entity,
-        getRGBArray(new Color(col)),
-        resolution,
-        resolution,
-        RGBAFormat
-      )
-      texture.needsUpdate = true
-      texture.colorSpace = SRGBColorSpace
-      texture.mapping = EquirectangularReflectionMapping
-      component.envmap.set(texture)
-
-      return () => {
-        unload()
-      }
-    }, [component.type.value, component.envMapSourceColor.value])
+      return meshEntities.map((meshEntity) => getComponent(meshEntity, MeshComponent))
+    }
 
     useEffect(() => {
-      if (component.type.value !== EnvMapSourceType.Probes) return
-      if (!probeQuery.length) return
-      const [renderTexture, unload] = createReflectionProbeRenderTarget(entity, probeQuery)
-      component.envmap.set(renderTexture)
-      return () => {
-        unload()
-        component.envmap.set(null)
-      }
-    }, [component.type.value, probeQuery])
+      const meshes = getMeshes()
 
-    useEffect(() => {
-      if (!envMapTexture) return
-      envMapTexture.mapping = EquirectangularReflectionMapping
-      component.envmap.set(envMapTexture)
-    }, [envMapTexture])
-
-    useEffect(() => {
-      if (!error) return
-
-      component.envmap.set(null)
-      addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
-    }, [error])
-
-    useEffect(() => {
-      if (component.type.value !== EnvMapSourceType.Texture) return
-
-      if (component.envMapTextureType.value === EnvMapTextureType.Cubemap) {
-        loadCubeMapTexture(
-          component.envMapSourceURL.value,
-          (texture: CubeTexture | undefined) => {
-            if (texture) {
-              texture.mapping = CubeReflectionMapping
-              texture.colorSpace = SRGBColorSpace
-              component.envmap.set(texture)
-              removeError(entity, EnvmapComponent, 'MISSING_FILE')
-            }
-          },
-          undefined,
-          (_) => {
-            component.envmap.set(null)
-            addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
-          }
-        )
-      }
-    }, [component.type.value, component.envMapTextureType.value, component.envMapSourceURL.value])
-
-    useEffect(() => {
-      if (!component.envmap.value) return
-      for (const childEntity of childrenMesh) {
-        const childMesh = getComponent(childEntity, MeshComponent)
-        updateEnvMap(childMesh, component.envmap.value as Texture)
-      }
-      return () => {
-        for (const childEntity of childrenMesh) {
-          const childMesh = getComponent(childEntity, MeshComponent)
-          updateEnvMap(childMesh, null)
+      if (!component.envmap.value) {
+        for (const mesh of meshes) {
+          updateEnvMap(mesh, null)
+        }
+      } else {
+        for (const mesh of meshes) {
+          updateEnvMap(mesh, component.envmap.value as Texture)
         }
       }
-    }, [childrenMesh, component.envmap.value])
+    }, [childrenMesh, component.envmap, hasRootMesh])
 
     useEffect(() => {
-      for (const childEntity of childrenMesh) {
-        const childMesh = getComponent(childEntity, MeshComponent)
-        updateEnvMapIntensity(childMesh, component.envMapIntensity.value)
+      const meshes = getMeshes()
+
+      for (const mesh of meshes) {
+        updateEnvMapIntensity(mesh, component.envMapIntensity.value)
       }
-    }, [childrenMesh, component.envMapIntensity.value, component.envmap])
+    }, [childrenMesh, component.envMapIntensity, component.envmap, hasRootMesh])
 
-    useEffect(() => {
-      const envmap = component.envmap.value
-      if (!envmap) return
-
-      return () => {
-        envmap.dispose()
+    const getEnvmapChildReactor = () => {
+      switch (component.type.value) {
+        case 'Bake': {
+          if (bakeEntity) {
+            return (
+              <EnvBakeComponentReactor
+                key={bakeEntity}
+                envmapEntity={entity}
+                bakeEntity={bakeEntity}
+                childrenMesh={childrenMesh}
+              />
+            )
+          }
+          break
+        }
+        case 'Cubemap':
+          return <EnvmapCubemapReactor />
+        case 'Equirectangular':
+          return <EnvmapEquirectangularReactor />
+        case 'Color':
+          return <EnvmapColorReactor />
+        case 'Probes':
+          return <EnvmapProbesReactor />
+        case 'Skybox':
+        /** Setting the value from the skybox can be found in EnvironmentSystem */
+        default:
+          break
       }
-    }, [component.envmap.value])
 
-    const bakeEntity = UUIDComponent.useEntityByUUID(component.envMapSourceEntityUUID.value)
-    if (bakeEntity === UndefinedEntity) return null
-    if (component.type.value !== EnvMapSourceType.Bake) return null
+      return null
+    }
 
-    return (
-      <EnvBakeComponentReactor
-        key={bakeEntity}
-        envmapEntity={entity}
-        bakeEntity={bakeEntity}
-        childrenMesh={childrenMesh}
-      />
-    )
+    return <>{getEnvmapChildReactor()}</>
   },
 
   errors: ['MISSING_FILE']
