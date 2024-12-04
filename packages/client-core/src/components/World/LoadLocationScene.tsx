@@ -27,12 +27,11 @@ import { t } from 'i18next'
 import { useEffect } from 'react'
 
 import { LocationService, LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
-import { useGet } from '@ir-engine/common'
+import { useFind, useGet } from '@ir-engine/common'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
 
-import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
 import { RouterState } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'
 import { ClientContextState } from '../../util/ClientContextState'
@@ -88,11 +87,21 @@ export const useLoadLocation = (props: { locationName: string }) => {
 }
 
 export const useLoadScene = (props: { projectName: string; sceneName: string }) => {
+  const key = `projects/${props.projectName}/${props.sceneName}`
+  const resourceQuery = useFind(staticResourcePath, {
+    query: {
+      key
+    }
+  })
+
   useEffect(() => {
-    if (!props.sceneName || !props.projectName) return
-    const key = `${props.projectName}/${props.sceneName}`
-    const url = getState(DomainConfigState).cloudDomain + `/projects/${key}`
-    getMutableState(LocationState).currentLocation.location.sceneId.set(key)
-    return GLTFAssetState.loadScene(url, key)
-  }, [])
+    if (!resourceQuery.data.length) return
+    const resource = resourceQuery.data[0]
+    getMutableState(LocationState).currentLocation.location.sceneId.set(resource.id)
+    const unload = GLTFAssetState.loadScene(resource.url, resource.id)
+    return () => {
+      getMutableState(LocationState).currentLocation.location.sceneId.set('')
+      unload()
+    }
+  }, [resourceQuery.data])
 }
