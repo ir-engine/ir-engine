@@ -23,20 +23,30 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { DirectionalLight, SpotLight, Vector3 } from 'three'
-
-import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
-import { TransformSystem } from '../../transform/systems/TransformSystem'
+import { defineQuery, defineSystem, getComponent } from '@ir-engine/ecs'
+import { Vector3 } from 'three'
+import { TransformSystem } from '../transform/systems/TransformSystem'
+import { DirectionalLightComponent, SpotLightComponent } from './RendererModule'
+import { LightTagComponent } from './components/lights/LightTagComponent'
 
 const _vec3 = new Vector3()
 
-export const useUpdateLight = (light: DirectionalLight | SpotLight) => {
-  useExecute(
-    () => {
-      light.getWorldDirection(_vec3)
-      light.getWorldPosition(light.target.position).add(_vec3)
-      light.target.updateMatrixWorld()
-    },
-    { after: TransformSystem }
-  )
+const spotLightQuery = defineQuery([SpotLightComponent])
+const directionalLightQuery = defineQuery([DirectionalLightComponent])
+
+const execute = () => {
+  const lights = [...spotLightQuery(), ...directionalLightQuery()]
+
+  for (const entity of lights) {
+    const light = getComponent(entity, LightTagComponent).light
+    light.getWorldDirection(_vec3)
+    light.getWorldPosition(light.target.position).add(_vec3)
+    light.target.updateMatrixWorld()
+  }
 }
+
+export const LightTransformSystem = defineSystem({
+  uuid: 'ee.engine.LightTransformSystem',
+  insert: { after: TransformSystem },
+  execute
+})

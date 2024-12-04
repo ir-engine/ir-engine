@@ -292,7 +292,7 @@ export default defineConfig(async () => {
         'Origin-Agent-Cluster': '?1'
       },
       watch: {
-        ignored: ['**packages/server/upload/**']
+        ignored: ['**/server/upload/**']
       },
       ...(isDevOrLocal
         ? {
