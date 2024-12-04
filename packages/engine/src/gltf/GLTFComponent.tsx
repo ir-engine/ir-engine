@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
-import React, { useEffect, useLayoutEffect } from 'react'
+import React, { useEffect } from 'react'
 
 import {
   Component,
@@ -37,8 +37,6 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
-  removeComponent,
-  setComponent,
   UndefinedEntity,
   useComponent,
   useEntityContext,
@@ -61,7 +59,6 @@ import {
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics.ts'
-import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent.tsx'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent.ts'
 import { ShapeSchema } from '@ir-engine/spatial/src/physics/types/PhysicsTypes.ts'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -87,6 +84,7 @@ import { ErrorComponent } from '../scene/components/ErrorComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { addError, removeError } from '../scene/functions/ErrorFunctions'
 import { SceneJsonType } from '../scene/types/SceneTypes'
+import { applyCollidersToChildMeshes } from './applyCollidersToChildMeshes.ts'
 import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
 import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
 import { GLTFSourceState } from './GLTFState'
@@ -265,36 +263,7 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
   const rigidbodyEntity = useAncestorWithComponents(props.entity, [RigidBodyComponent])
   const rigidbodyComponent = useOptionalComponent(rigidbodyEntity, RigidBodyComponent)
   const component = useComponent(props.entity, GLTFComponent)
-
-  //populate/update collider state
-  useLayoutEffect(() => {
-    if (!rigidbodyComponent?.initialized?.value || !physicsWorld) return
-
-    const entitiesArray = !component.applyColliders.value
-      ? []
-      : !childMeshEntities.includes(props.entity) && hasComponent(props.entity, MeshComponent)
-      ? ([...childMeshEntities, props.entity] as Entity[])
-      : childMeshEntities
-
-    forceUpdateMatrices(props.entity)
-    for (const childMeshEntity of entitiesArray) {
-      if (component.applyColliders.value) {
-        setComponent(childMeshEntity, ColliderComponent, { shape: component.shape.value, matchMesh: true })
-        forceUpdateMatrices(childMeshEntity)
-      } else {
-        removeComponent(childMeshEntity, ColliderComponent)
-      }
-    }
-  }, [physicsWorld, component.shape, !!rigidbodyComponent?.initialized?.value, component.applyColliders])
-
-  useEffect(() => {
-    return () => {
-      const entities = [...childMeshEntities, props.entity] as Entity[]
-      for (const childMeshEntity of entities) {
-        removeComponent(childMeshEntity, ColliderComponent)
-      }
-    }
-  }, [])
+  applyCollidersToChildMeshes(props.entity)
 
   useEffect(() => {
     if (getComponent(props.entity, GLTFComponent).progress === 100) return
