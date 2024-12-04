@@ -767,6 +767,7 @@ const tryUnloadObj = (obj: DisposableObject) => {
 }
 
 const unloadObj = (obj: Object3D, sceneID?: string) => {
+  // @ts-ignore
   if (obj.isProxified) {
     disposeObj(obj, sceneID)
   } else {

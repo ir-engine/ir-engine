@@ -24,8 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schema.type.module'
-
-import { UserID } from '../schemas/user/user.schema'
+import { UserID } from '@ir-engine/hyperflux'
 
 export interface AuthUser {
   accessToken: string

@@ -200,7 +200,7 @@ export const handleUploadFiles = (projectName: string, directoryPath: string, fi
 
       const fileDirectory = file.webkitRelativePath || file.name
 
-      await uploadToFeathersService(fileBrowserUploadPath, [file], {
+      return uploadToFeathersService(fileBrowserUploadPath, [file], {
         args: [
           {
             project: projectName,
@@ -209,7 +209,7 @@ export const handleUploadFiles = (projectName: string, directoryPath: string, fi
             contentType: file.type
           }
         ]
-      })
+      }).promise
     })
   )
 }
