@@ -663,8 +663,6 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
     if (!hasComponent(entity, ObjectComponent) && !hasComponent(entity, MeshComponent)) {
       if (isBoneNode(documentState.get(NO_PROXY) as GLTF.IGLTF, props.nodeIndex)) {
         setComponent(entity, BoneComponent, new Bone())
-      } else {
-        setComponent(entity, ObjectComponent, new Object3D())
       }
     }
 
