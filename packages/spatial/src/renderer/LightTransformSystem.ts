@@ -26,8 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import { defineQuery, defineSystem, getComponent } from '@ir-engine/ecs'
 import { Vector3 } from 'three'
 import { TransformSystem } from '../transform/systems/TransformSystem'
-import { DirectionalLightComponent, SpotLightComponent } from './RendererModule'
+import { DirectionalLightComponent } from './components/lights/DirectionalLightComponent'
 import { LightTagComponent } from './components/lights/LightTagComponent'
+import { SpotLightComponent } from './components/lights/SpotLightComponent'
 
 const _vec3 = new Vector3()
 
