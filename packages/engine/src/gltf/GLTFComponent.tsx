@@ -60,7 +60,6 @@ import {
 } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { TransformComponent } from '@ir-engine/spatial'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics.ts'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent.tsx'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent.ts'
@@ -265,7 +264,6 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
   const physicsWorld = Physics.useWorld(props.entity)
   const rigidbodyEntity = useAncestorWithComponents(props.entity, [RigidBodyComponent])
   const rigidbodyComponent = useOptionalComponent(rigidbodyEntity, RigidBodyComponent)
-  const transform = useComponent(props.entity, TransformComponent)
   const component = useComponent(props.entity, GLTFComponent)
 
   //populate/update collider state
