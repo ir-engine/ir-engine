@@ -59,7 +59,6 @@ import { Effect, EffectComposer, EffectPass, OutlineEffect } from 'postprocessin
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { getNestedChildren } from '../transform/components/EntityTree'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
-import { XRLightProbeState } from '../xr/XRLightProbeSystem'
 import { XRState } from '../xr/XRState'
 import { GroupComponent } from './components/GroupComponent'
 import { BackgroundComponent, EnvironmentMapComponent, FogComponent } from './components/SceneComponents'
@@ -411,8 +410,7 @@ const execute = () => {
     _scene.background =
       sessionMode === 'immersive-ar' ? null : renderMode === RenderModes.WIREFRAME ? new Color(0xffffff) : background
 
-    const lightProbe = getState(XRLightProbeState).environment
-    _scene.environment = lightProbe ?? environment
+    _scene.environment = environment
 
     _scene.fog = fog
 

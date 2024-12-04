@@ -40,7 +40,6 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { mergeBufferGeometries } from '../../../common/classes/BufferGeometryUtils'
 import { useDisposable } from '../../../resources/resourceHooks'
 import { RendererState } from '../../RendererState'
-import { useUpdateLight } from '../../functions/useUpdateLight'
 import { addObjectToGroup, removeObjectFromGroup } from '../GroupComponent'
 import { LineSegmentComponent } from '../LineSegmentComponent'
 import { LightTagComponent } from './LightTagComponent'
@@ -179,8 +178,6 @@ export const DirectionalLightComponent = defineComponent({
         }
       }
     }, [debugEnabled])
-
-    useUpdateLight(light)
 
     return null
   }
