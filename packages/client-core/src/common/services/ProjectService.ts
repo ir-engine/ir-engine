@@ -47,6 +47,7 @@ import {
   projectPermissionPath,
   ProjectType,
   ProjectUpdateParams,
+  staticResourcePath,
   UserID
 } from '@ir-engine/common/src/schema.type.module'
 import { defineState, getMutableState, useHookstate } from '@ir-engine/hyperflux'
@@ -143,6 +144,22 @@ export const ProjectService = {
       await ProjectService.fetchProjects()
     } catch (err) {
       logger.error(err, 'Error invalidating project cache.')
+    }
+  },
+
+  getProjectScenes: async (projectName: string) => {
+    try {
+      const scenes = await API.instance.service(staticResourcePath).find({
+        query: {
+          project: projectName,
+          type: 'scene'
+        }
+      })
+
+      return scenes.data
+    } catch (err) {
+      logger.error(err, 'Error getting project scenes')
+      throw err
     }
   },
 
