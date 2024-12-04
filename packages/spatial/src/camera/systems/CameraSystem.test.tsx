@@ -28,9 +28,8 @@ import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { Engine, UUIDComponent, destroyEngine, getComponent, hasComponent } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { PeerID, UserID, applyIncomingActions, dispatchAction, getState } from '@ir-engine/hyperflux'
+import { UserID, applyIncomingActions, dispatchAction, getState } from '@ir-engine/hyperflux'
 import { Network, NetworkState, NetworkTopics } from '@ir-engine/network'
-import { NetworkId } from '@ir-engine/network/src/NetworkId'
 import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
 import { EngineState } from '../../EngineState'
 import { initializeSpatialViewer } from '../../initializeEngine'
@@ -57,19 +56,15 @@ describe('CameraSystem', async () => {
       createMockNetwork(NetworkTopics.world, hostPeerID, hostUserID)
 
       Engine.instance.store.userID = hostUserID
-      const peerID2 = 'peer id 2' as PeerID
       const cameraUUID = UUIDComponent.generateUUID()
 
       const network: Network = NetworkState.worldNetwork
-
-      const objNetId = 3 as NetworkId
 
       dispatchAction(
         CameraActions.spawnCamera({
           parentUUID: getComponent(getState(EngineState).viewerEntity, UUIDComponent),
           entityUUID: cameraUUID,
           ownerID: network.hostUserID!,
-          networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.store.peerID
         })

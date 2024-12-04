@@ -34,7 +34,7 @@ import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { GLTFComponent, loadGLTFFile } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { GLTFSourceState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { gltfReplaceUUIDsReferences } from '@ir-engine/engine/src/gltf/gltfUtils'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
@@ -58,7 +58,6 @@ import {
   useChildWithComponents
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
-import { v4 } from 'uuid'
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
@@ -107,13 +106,13 @@ export async function addMediaNode(
       // setComponent(rayEntity, LineSegmentComponent, { geometry: lineGeometry })
 
       startReactor(() => {
-        const assetEntity = useMutableState(GLTFAssetState)[url].value
+        const assetEntity = useMutableState(GLTFSourceState)[url].value
         const progress = useOptionalComponent(assetEntity, GLTFComponent)?.progress
         const material = useChildWithComponents(assetEntity, [MaterialStateComponent])
 
         useEffect(() => {
           if (!assetEntity) {
-            GLTFAssetState.loadScene(url, v4())
+            GLTFSourceState.load(url)
             return
           }
         }, [progress])

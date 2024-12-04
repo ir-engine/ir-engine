@@ -156,6 +156,7 @@ export type PeerMediaType = {
 }
 
 export const SceneUser = 'scene' as UserID
+export const ScenePeer = 'scene' as PeerID
 
 export const addNetwork = (network: Network) => {
   getMutableState(NetworkState).networks[network.id].set(network)
