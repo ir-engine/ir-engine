@@ -81,7 +81,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   setComponent(entity, EnvmapComponent, {
     type: EnvMapSourceType.Skybox,
-    envMapIntensity: 0.5
+    envMapIntensity: 1
   })
 
   setComponent(entity, AnimationComponent, {
