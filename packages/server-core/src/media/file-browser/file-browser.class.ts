@@ -340,7 +340,8 @@ export class FileBrowserService
       await this.moveFolderRecursively(
         storageProvider,
         path.join(oldDirectory, oldName),
-        path.join(newDirectory, fileName)
+        path.join(newDirectory, fileName),
+        !!data?.isCopy
       )
     } else {
       await storageProvider.moveObject(oldName, fileName, oldDirectory, newDirectory, data.isCopy)
@@ -414,7 +415,12 @@ export class FileBrowserService
     return results
   }
 
-  private async moveFolderRecursively(storageProvider: StorageProviderInterface, oldPath: string, newPath: string) {
+  private async moveFolderRecursively(
+    storageProvider: StorageProviderInterface,
+    oldPath: string,
+    newPath: string,
+    isCopy: boolean
+  ) {
     const items = await storageProvider.listFolderContent(oldPath + '/')
 
     for (const item of items) {
@@ -422,9 +428,9 @@ export class FileBrowserService
       const newItemPath = path.join(newPath, item.name)
 
       if (item.type === 'directory') {
-        await this.moveFolderRecursively(storageProvider, oldItemPath, newItemPath)
+        await this.moveFolderRecursively(storageProvider, oldItemPath, newItemPath, isCopy)
       } else {
-        await storageProvider.moveObject(item.name, item.name, oldPath, newPath, false)
+        await storageProvider.moveObject(item.name, item.name, oldPath, newPath, isCopy)
       }
     }
 
@@ -434,7 +440,7 @@ export class FileBrowserService
       path.basename(newPath),
       path.dirname(oldPath),
       path.dirname(newPath),
-      false
+      isCopy
     )
   }
 
