@@ -58,7 +58,7 @@ function forceUpdateMatrices(childEntity: Entity, ancestorEntity: Entity = Undef
  * Applies colliders to entity and all child entites with MeshComponent
  * @param entity
  */
-export function applyCollidersToChildMeshes(entity: Entity) {
+export function useApplyCollidersToChildMeshesEffect(entity: Entity) {
   const childMeshEntities = useChildrenWithComponents(entity, [MeshComponent])
   const physicsWorld = Physics.useWorld(entity)
   const rigidbodyEntity = useAncestorWithComponents(entity, [RigidBodyComponent])

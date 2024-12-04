@@ -84,12 +84,12 @@ import { ErrorComponent } from '../scene/components/ErrorComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { addError, removeError } from '../scene/functions/ErrorFunctions'
 import { SceneJsonType } from '../scene/types/SceneTypes'
-import { applyCollidersToChildMeshes } from './applyCollidersToChildMeshes.ts'
 import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
 import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
 import { GLTFSourceState } from './GLTFState'
 import { gltfReplaceUUIDsReferences } from './gltfUtils'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
+import { useApplyCollidersToChildMeshesEffect } from './useApplyCollidersToChildMeshesEffect.ts'
 
 type DependencyEval = {
   key: string
@@ -263,7 +263,7 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
   const rigidbodyEntity = useAncestorWithComponents(props.entity, [RigidBodyComponent])
   const rigidbodyComponent = useOptionalComponent(rigidbodyEntity, RigidBodyComponent)
   const component = useComponent(props.entity, GLTFComponent)
-  applyCollidersToChildMeshes(props.entity)
+  useApplyCollidersToChildMeshesEffect(props.entity)
 
   useEffect(() => {
     if (getComponent(props.entity, GLTFComponent).progress === 100) return
