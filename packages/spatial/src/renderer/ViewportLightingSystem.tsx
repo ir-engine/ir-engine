@@ -33,12 +33,12 @@ import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { AmbientLightComponent, TransformComponent } from './RendererModule'
 import { RendererState } from './RendererState'
 import { WebGLRendererSystem } from './WebGLRendererSystem'
-import { GroupComponent, ObjectComponent } from './components/ObjectComponent'
+import { ObjectComponent } from './components/ObjectComponent'
 import { VisibleComponent } from './components/VisibleComponent'
 import { LightTagComponent } from './components/lights/LightTagComponent'
 import { RenderModes } from './constants/RenderModes'
 
-const lightQuery = defineQuery([LightTagComponent, GroupComponent])
+const lightQuery = defineQuery([LightTagComponent, ObjectComponent])
 
 const execute = () => {
   const renderMode = getState(RendererState).renderMode

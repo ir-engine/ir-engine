@@ -81,10 +81,10 @@ function PersistentAnchorReactor() {
   const originalParentEntityUUID = useHookstate('' as EntityUUID)
 
   const anchor = useComponent(entity, PersistentAnchorComponent)
-  const groupComponent = useOptionalComponent(entity, ObjectComponent)
+  const objectComponent = useOptionalComponent(entity, ObjectComponent)
   const xrState = useMutableState(XRState)
 
-  const obj = groupComponent?.value as (Object3D & Mesh<BufferGeometry, MeshStandardMaterial>) | undefined
+  const obj = objectComponent?.value as (Object3D & Mesh<BufferGeometry, MeshStandardMaterial>) | undefined
 
   useEffect(() => {
     if (!obj) return
@@ -132,7 +132,7 @@ function PersistentAnchorReactor() {
       }
       removeEntity(shadowEntity)
     }
-  }, [anchor.active, !!groupComponent, xrState.sessionActive])
+  }, [anchor.active, !!objectComponent, xrState.sessionActive])
 
   return null
 }

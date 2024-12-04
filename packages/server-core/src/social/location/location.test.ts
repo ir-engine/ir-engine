@@ -67,7 +67,7 @@ describe('location.test', () => {
       {
         name,
         sceneId: scene.data[0].id,
-        maxUsersPerInstance: 10,
+        maxUsersPerInstance: 5,
         locationSetting: {
           locationType: 'public',
           audioEnabled: true,

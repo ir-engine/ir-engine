@@ -58,11 +58,7 @@ import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/Col
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { ThreeToPhysics } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import {
-  GroupComponent,
-  Object3DWithEntity,
-  ObjectComponent
-} from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { Object3DWithEntity, ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import {
   MaterialInstanceComponent,
@@ -161,7 +157,7 @@ export function setupObject(obj: Object3D, entity: Entity, forceBasicMaterials =
   }
 }
 
-const groupQuery = defineQuery([GroupComponent])
+const groupQuery = defineQuery([ObjectComponent])
 const updatableQuery = defineQuery([UpdatableComponent, CallbackComponent])
 
 function SceneObjectReactor() {

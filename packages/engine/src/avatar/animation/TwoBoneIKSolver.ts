@@ -30,6 +30,7 @@ import { Entity, getComponent } from '@ir-engine/ecs'
 import { Vector3_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
 
 import { AvatarRigComponent, Matrices } from '../components/AvatarAnimationComponent'
+import { NormalizedBoneComponent } from '../components/NormalizedBoneComponent'
 
 const sqrEpsilon = 1e-8
 
@@ -229,7 +230,7 @@ export const blendIKChain = (entity: Entity, bones: VRMHumanBoneName[], weight) 
   for (const bone of bones) {
     const boneMatrices = rigComponent.ikMatrices[bone]
     if (boneMatrices) {
-      const node = rigComponent.vrm.humanoid.getNormalizedBoneNode(bone)!
+      const node = getComponent(rigComponent.bonesToEntities[bone], NormalizedBoneComponent)
       nodeQuaternion.setFromRotationMatrix(boneMatrices.local)
       node.quaternion.fastSlerp(nodeQuaternion, weight)
     }

@@ -69,7 +69,7 @@ import { HolographicMaterial } from '@ir-engine/spatial/src/renderer/materials/p
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformDirtyCleanupSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import React, { useEffect } from 'react'
-import { Euler, Material, Mesh, Quaternion, Raycaster, Vector3 } from 'three'
+import { Euler, Material, Mesh, Object3D, Quaternion, Raycaster, Vector3 } from 'three'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
@@ -270,8 +270,7 @@ export const ClickPlacementSystem = defineSystem({
     const physicsWorld = Physics.getWorld(editorEntity)
     if (!physicsWorld) return
 
-    //@todo: fix type of `typeof GroupComponent`
-    const sceneObjects: any[] = []
+    const sceneObjects: Object3D[] = []
     const candidates = objectLayerQuery()
     for (const entity of candidates) {
       const obj = getOptionalComponent(entity, ObjectComponent)

@@ -23,14 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
-import { ImageFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
-import React from 'react'
-import FileBrowserInput from '../FileBrowser'
-import { StringInputProps } from '../String'
+import { defineComponent, S } from '@ir-engine/ecs'
+import { Bone } from 'three'
 
-export function ImageInput({ ...rest }: StringInputProps) {
-  return <FileBrowserInput acceptFileTypes={ImageFileTypes} acceptDropItems={ItemTypes.Images} {...rest} />
-}
-ImageInput.defaultProps = {}
-export default ImageInput
+export const NormalizedBoneComponent = defineComponent({
+  name: 'NormalizedBoneComponent',
+
+  schema: S.Required(S.Type<Bone>())
+})

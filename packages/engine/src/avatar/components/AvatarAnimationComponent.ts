@@ -27,6 +27,7 @@ import {
   VRM,
   VRM1Meta,
   VRMHumanBone,
+  VRMHumanBoneList,
   VRMHumanBoneName,
   VRMHumanBones,
   VRMHumanoid,
@@ -34,7 +35,6 @@ import {
 } from '@pixiv/three-vrm'
 import type * as V0VRM from '@pixiv/types-vrm-0.0'
 
-import { useEffect } from 'react'
 import { AnimationAction, Bone, Euler, Group, Matrix4, Object3D, Vector3 } from 'three'
 
 import { GLTF } from '@gltf-transform/core'
@@ -42,28 +42,25 @@ import { UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
-  setComponent,
-  useComponent,
-  useOptionalComponent
+  setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
-import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFDocumentState } from '../../gltf/GLTFDocumentState'
 import { hipsRegex, mixamoVRMRigMap } from '../AvatarBoneMatching'
-import { setAvatarAnimations, setupAvatarProportions } from '../functions/avatarFunctions'
+import { NormalizedBoneComponent } from './NormalizedBoneComponent'
 
+/**@todo refactor into generalized AnimationGraphComponent */
 export const AvatarAnimationComponent = defineComponent({
   name: 'AvatarAnimationComponent',
 
@@ -81,15 +78,18 @@ export const AvatarAnimationComponent = defineComponent({
 
 export type Matrices = { local: Matrix4; world: Matrix4 }
 
+const HumanBonesSchema = S.LiteralUnion(VRMHumanBoneList)
+
 export const AvatarRigComponent = defineComponent({
   name: 'AvatarRigComponent',
 
   schema: S.Object({
-    /** rig bones with quaternions relative to the raw bones in their bind pose */
-    normalizedRig: S.Type<VRMHumanBones>(),
-    /** contains the raw bone quaternions */
-    rawRig: S.Type<VRMHumanBones>(),
+    /** maps human bones to entities */
+    bonesToEntities: S.Record(HumanBonesSchema, S.Entity()),
+    entitiesToBones: S.Record(S.Entity(), HumanBonesSchema),
+
     /** contains ik solve data */
+    /**@todo create and move to AvatarIKComponent */
     ikMatrices: S.Record(
       S.LiteralUnion(Object.values(VRMHumanBoneName)),
       S.Object({
@@ -102,32 +102,10 @@ export const AvatarRigComponent = defineComponent({
     vrm: S.Type<VRM>()
   }),
 
-  reactor: function () {
-    const entity = useEntityContext()
-    const rigComponent = useComponent(entity, AvatarRigComponent)
-    const gltfComponent = useOptionalComponent(entity, GLTFComponent)
-
-    useEffect(() => {
-      if (gltfComponent?.progress?.value !== 100) return
-
-      try {
-        const vrm = createVRM(entity)
-        setObjectLayers(vrm.scene, ObjectLayers.Avatar)
-        setupAvatarProportions(entity, vrm)
-        rigComponent.vrm.set(vrm)
-        rigComponent.normalizedRig.set(vrm.humanoid.normalizedHumanBones)
-        rigComponent.rawRig.set(vrm.humanoid.rawHumanBones)
-        setAvatarAnimations(entity)
-      } catch (e) {
-        console.error('Failed to load avatar', e)
-        // addError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
-        return () => {
-          // removeError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
-        }
-      }
-    }, [gltfComponent?.progress?.value, gltfComponent?.src.value])
-
-    return null
+  setBone: (toRigEntity: Entity, boneEntity: Entity, boneName: VRMHumanBoneName) => {
+    const rigComponent = getMutableComponent(toRigEntity, AvatarRigComponent)
+    rigComponent.bonesToEntities[boneName].set(boneEntity)
+    rigComponent.entitiesToBones[boneEntity].set(boneName)
   },
 
   errors: ['UNSUPPORTED_AVATAR']
@@ -136,7 +114,18 @@ export const AvatarRigComponent = defineComponent({
 const _rightHandPos = new Vector3(),
   _rightUpperArmPos = new Vector3()
 
-export default function createVRM(rootEntity: Entity) {
+const linkNormalizedBones = (vrm: VRM) => {
+  for (const bone in vrm.humanoid.rawHumanBones)
+    if (vrm.humanoid.rawHumanBones[bone]?.node && vrm.humanoid.normalizedHumanBones[bone]?.node) {
+      setComponent(
+        vrm.humanoid.rawHumanBones[bone].node.entity,
+        NormalizedBoneComponent,
+        vrm.humanoid.normalizedHumanBones[bone].node
+      )
+    }
+}
+
+export function createVRM(rootEntity: Entity) {
   const documentID = GLTFComponent.getInstanceID(rootEntity)
   const gltf = getState(GLTFDocumentState)[documentID]
 
@@ -162,6 +151,7 @@ export default function createVRM(rootEntity: Entity) {
     const bones = humanBonesArray.reduce((bones, bone) => {
       const nodeID = `${documentID}-${bone.node}` as EntityUUID
       const entity = UUIDComponent.getEntityByUUID(nodeID)
+      AvatarRigComponent.setBone(rootEntity, entity, bone.bone as VRMHumanBoneName)
       bones[bone.bone!] = { node: getComponent(entity, BoneComponent) }
       return bones
     }, {} as VRMHumanBones)
@@ -193,13 +183,16 @@ export default function createVRM(rootEntity: Entity) {
       // nodeConstraintManager: gltf.userData.vrmNodeConstraintManager,
     } as VRMParameters)
 
+    setComponent(rootEntity, AvatarRigComponent, { vrm })
+    linkNormalizedBones(vrm)
+
     return vrm
   }
 
   return createVRMFromGLTF(rootEntity, gltf)
 }
 
-const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
+export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
   const hipsEntity = iterateEntityNode(
     rootEntity,
     (entity) => entity,
@@ -232,7 +225,9 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
 
     if (entity === rootEntity) return
 
-    const name = getOptionalComponent(entity, NameComponent) ?? ''
+    const name = getOptionalComponent(entity, NameComponent)
+    if (!name) return
+
     /**match the keys to create a humanoid bones object */
     let boneName = mixamoPrefix + name
 
@@ -246,6 +241,8 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
       if (transform instanceof Bone) transform.quaternion.set(0, 0, 0, 1)
       const node = getComponent(entity, BoneComponent)
       bones[bone] = { node } as VRMHumanBone
+      AvatarRigComponent.setBone(rootEntity, entity, bone as VRMHumanBoneName)
+      setComponent(entity, NormalizedBoneComponent, node)
     }
   })
   const humanoid = enforceTPose(bones)
@@ -264,6 +261,9 @@ const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
     // springBoneManager: gltf.userData.vrmSpringBoneManager,
     // nodeConstraintManager: gltf.userData.vrmNodeConstraintManager,
   } as VRMParameters)
+
+  setComponent(rootEntity, AvatarRigComponent, { vrm })
+  linkNormalizedBones(vrm)
 
   if (!vrm.userData) vrm.userData = {}
   humanoid.humanBones.rightHand.node.getWorldPosition(_rightHandPos)

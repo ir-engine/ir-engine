@@ -52,7 +52,7 @@ export const MeshComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const meshComponent = useComponent(entity, MeshComponent)
-    const [meshResource] = useResource(meshComponent.get(NO_PROXY), entity, meshComponent.uuid.get(NO_PROXY))
+    const [meshResource] = useResource(meshComponent.get(NO_PROXY), entity)
     const sceneLayer = useOptionalComponent(entity, ObjectLayerComponents[ObjectLayers.Scene])
 
     useImmediateEffect(() => {
@@ -63,18 +63,10 @@ export const MeshComponent = defineComponent({
     }, [])
 
     const geometryValue = meshComponent.geometry.value
-    const [geometryResource] = useResource(
-      isHookstateValue(geometryValue) ? null : geometryValue,
-      entity,
-      geometryValue.uuid
-    )
+    const [geometryResource] = useResource(isHookstateValue(geometryValue) ? null : geometryValue, entity)
 
     const materialValue = meshComponent.material.value
-    const [materialResource] = useResource(
-      isHookstateValue(materialValue) ? null : materialValue,
-      entity,
-      Array.isArray(materialValue) ? undefined : (materialValue as Material).uuid
-    )
+    const [materialResource] = useResource(isHookstateValue(materialValue) ? null : materialValue, entity)
 
     useEffect(() => {
       if (!sceneLayer) return

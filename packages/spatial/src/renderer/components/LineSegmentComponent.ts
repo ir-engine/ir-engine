@@ -52,8 +52,8 @@ export const LineSegmentComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, LineSegmentComponent)
-    const [geometryState] = useResource(component.geometry.value, entity, component.geometry.uuid.value)
-    const [materialState] = useResource(component.material.value, entity, component.material.uuid.value)
+    const [geometryState] = useResource(component.geometry.value, entity)
+    const [materialState] = useResource(component.material.value, entity)
     const [lineSegment] = useDisposable(
       LineSegments,
       entity,

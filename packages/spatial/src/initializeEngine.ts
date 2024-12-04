@@ -29,6 +29,7 @@ import { createEntity, getComponent, removeEntity, setComponent, UUIDComponent }
 import { EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 
+import { useEffect } from 'react'
 import { CameraComponent } from './camera/components/CameraComponent'
 import { NameComponent } from './common/NameComponent'
 import { EngineState } from './EngineState'
@@ -81,6 +82,15 @@ export const destroySpatialViewer = () => {
   getMutableState(EngineState).merge({
     viewerEntity: UndefinedEntity
   })
+}
+
+export const useSpatialEngine = () => {
+  useEffect(() => {
+    initializeSpatialEngine()
+    return () => {
+      destroySpatialEngine()
+    }
+  }, [])
 }
 
 export const initializeSpatialEngine = () => {

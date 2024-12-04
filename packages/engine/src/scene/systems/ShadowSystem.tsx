@@ -63,11 +63,7 @@ import {
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { DirectionalLightComponent } from '@ir-engine/spatial/src/renderer/components/lights/DirectionalLightComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import {
-  addObjectToGroup,
-  GroupComponent,
-  ObjectComponent
-} from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import {
   ObjectLayerComponents,
   ObjectLayerMaskComponent
@@ -196,7 +192,7 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
 
   return (
     <QueryReactor
-      Components={[ShadowComponent, GroupComponent]}
+      Components={[ShadowComponent, ObjectComponent]}
       ChildEntityReactor={EntityChildCSMReactor}
       props={{ rendererEntity: rendererEntity }}
     />
@@ -342,7 +338,7 @@ const DropShadowReactor = () => {
     const center = sphere.center.sub(TransformComponent.getWorldPosition(entity, vec3))
     const shadowEntity = createEntity()
     const [shadowObject, unload] = createDisposable(Mesh, shadowEntity, shadowGeometry.clone(), shadowMaterial.clone())
-    addObjectToGroup(shadowEntity, shadowObject)
+    setComponent(shadowEntity, MeshComponent, shadowObject)
     setComponent(shadowEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setComponent(
       shadowEntity,

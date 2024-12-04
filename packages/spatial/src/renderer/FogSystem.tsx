@@ -35,7 +35,7 @@ import {
   addOBCPlugin,
   removeOBCPlugin
 } from '@ir-engine/spatial/src/common/functions/OnBeforeCompilePlugin'
-import { GroupComponent, ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
 import { FogSettingsComponent, FogType } from './components/FogSettingsComponent'
@@ -94,7 +94,7 @@ const FogReactor = () => {
   return (
     <QueryReactor
       ChildEntityReactor={FogGroupReactor}
-      Components={[GroupComponent, VisibleComponent]}
+      Components={[ObjectComponent, VisibleComponent]}
       props={{ fogEntity: entity }}
     />
   )
