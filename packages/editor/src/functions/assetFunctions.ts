@@ -149,12 +149,9 @@ export const compressImage = async (properties: KTX2EncodeArguments) => {
   return data
 }
 
-export const filterExistingFiles = async (directoryPath: string, files: File[]) => {
+export const filterExistingFiles = async (projectName: string, directoryPath: string, files: File[]) => {
   if (!files.length) {
-    return {
-      existingFiles: [],
-      uniqueFiles: files
-    }
+    return files
   }
 
   const resourcePaths = files.map((file) => `${directoryPath}${file.name}`)
@@ -164,7 +161,7 @@ export const filterExistingFiles = async (directoryPath: string, files: File[]) 
 
   const existingResourceKeys = new Set(existingResources.map((resource) => resource.key))
 
-  return files.reduce(
+  const { existingFiles, uniqueFiles } = files.reduce(
     (result, file) => {
       const fileKey = `${directoryPath}${file.name}`
       if (existingResourceKeys.has(fileKey)) {
@@ -176,6 +173,12 @@ export const filterExistingFiles = async (directoryPath: string, files: File[]) 
     },
     { existingFiles: [], uniqueFiles: [] } as { existingFiles: File[]; uniqueFiles: File[] }
   )
+
+  if (existingFiles.length > 0) {
+    showMultipleFileModal(projectName, directoryPath, existingFiles)
+  }
+
+  return uniqueFiles
 }
 
 export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
@@ -241,11 +244,7 @@ export const inputFileWithAddToScene = ({
       try {
         if (el.files?.length) {
           const newFiles = sanitizeFiles(el.files)
-          const { existingFiles, uniqueFiles } = await filterExistingFiles(directoryPath, newFiles)
-
-          if (existingFiles.length > 0) {
-            showMultipleFileModal(projectName, directoryPath, existingFiles)
-          }
+          const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
 
           await handleUploadFiles(projectName, directoryPath, uniqueFiles)
         }
