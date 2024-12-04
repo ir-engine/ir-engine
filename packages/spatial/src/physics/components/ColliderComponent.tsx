@@ -101,8 +101,8 @@ export const ColliderComponent = defineComponent({
     ])
 
     useEffect(() => {
-      if (!physicsWorld) return
       return () => {
+        if (!physicsWorld) return
         Physics.removeCollider(physicsWorld, entity)
         hasCollider.set(false)
       }

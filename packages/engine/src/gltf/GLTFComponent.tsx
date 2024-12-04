@@ -58,8 +58,6 @@ import {
 } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics.ts'
-import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent.ts'
 import { ShapeSchema } from '@ir-engine/spatial/src/physics/types/PhysicsTypes.ts'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -256,11 +254,6 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
   const resourceQuery = useQuery([SourceComponent, ResourcePendingComponent])
   const gltfDocumentState = useMutableState(GLTFDocumentState)
   const sourceEntities = useHookstate(SourceComponent.entitiesBySourceState[props.documentID])
-  const childMeshEntities = useChildrenWithComponents(props.entity, [MeshComponent])
-  const physicsWorld = Physics.useWorld(props.entity)
-  const rigidbodyEntity = useAncestorWithComponents(props.entity, [RigidBodyComponent])
-  const rigidbodyComponent = useOptionalComponent(rigidbodyEntity, RigidBodyComponent)
-  const component = useComponent(props.entity, GLTFComponent)
   useApplyCollidersToChildMeshesEffect(props.entity)
 
   useEffect(() => {
@@ -270,8 +263,6 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
     if (!entities.length) {
       if (dependenciesLoaded) {
         getMutableComponent(props.entity, GLTFComponent).progress.set(100)
-
-        //@todo add the collider state update here
       }
       return
     }
