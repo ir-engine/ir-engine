@@ -35,6 +35,7 @@ import {
   createEntity,
   destroyEngine,
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
