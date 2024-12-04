@@ -25,6 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   Entity,
+  ReactiveQuerySystem,
+  SystemDefinitions,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -304,7 +306,7 @@ describe('InputPointerComponent', () => {
         return null
       }
       const root = startReactor(Reactor)
-      assert.equal(reactorSpy.callCount, 2)
+      assert.equal(reactorSpy.callCount, 1)
       assert.equal(effectSpy.callCount, 1)
       // Check that the assumptions are correct
       assert.equal(cameraPointers.length, 2)
@@ -346,6 +348,7 @@ describe('InputPointerComponent', () => {
       // Update the components and Check the results
       removeComponent(pointerEntity2, InputPointerComponent)
 
+      SystemDefinitions.get(ReactiveQuerySystem)!.execute()
       await act(async () => render(null))
 
       assert.equal(reactorSpy.callCount, 2)

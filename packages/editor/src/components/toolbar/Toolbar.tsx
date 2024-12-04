@@ -42,9 +42,9 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { RxHamburgerMenu } from 'react-icons/rx'
-import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { onNewScene, onSaveScene } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
+import { uploadFiles } from '../../panels/assets/topbar'
 import { EditorState } from '../../services/EditorServices'
 import { UIAddonsState } from '../../services/UIAddonsState'
 import CreatePrefabPanel from '../dialogs/CreatePrefabPanelDialog'
@@ -58,7 +58,7 @@ const onImportAsset = async () => {
 
   if (projectName) {
     try {
-      await inputFileWithAddToScene({ projectName, directoryPath: 'projects/' + projectName + '/assets/' })
+      uploadFiles()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
