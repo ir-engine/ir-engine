@@ -29,6 +29,7 @@ import { useState } from '@ir-engine/hyperflux'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useEffect, useLayoutEffect } from 'react'
 import { removeCallback, setCallback } from '../../common/CallbackComponent'
+import { MeshComponent } from '../../renderer/components/MeshComponent.ts'
 import { useAncestorWithComponents } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
@@ -51,6 +52,7 @@ export const ColliderComponent = defineComponent({
     collisionMask: S.Number(DefaultCollisionMask),
 
     //shape specific parameters
+    matchMesh: S.Bool(false),
     centerOffset: S.Vec3({ x: 0, y: 0, z: 0 }),
     boxSize: S.Vec3({ x: 1, y: 1, z: 1 }),
     radius: S.Number(0.5),
@@ -66,6 +68,11 @@ export const ColliderComponent = defineComponent({
     const physicsWorld = Physics.useWorld(entity)
     const triggerComponent = useOptionalComponent(entity, TriggerComponent)
     const hasCollider = useState(false)
+    const meshComponent = useOptionalComponent(entity, MeshComponent)
+
+    useEffect(() => {
+      if (!meshComponent) component.matchMesh.set(false)
+    }, [meshComponent])
 
     useLayoutEffect(() => {
       if (!rigidbodyComponent?.initialized?.value || !physicsWorld) return
@@ -89,7 +96,8 @@ export const ColliderComponent = defineComponent({
       component.centerOffset,
       component.boxSize,
       component.radius,
-      component.height
+      component.height,
+      meshComponent
     ])
 
     useEffect(() => {

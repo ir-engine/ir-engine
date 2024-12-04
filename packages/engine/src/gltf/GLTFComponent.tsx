@@ -281,7 +281,7 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
     forceUpdateMatrices(props.entity)
     for (const childMeshEntity of entitiesArray) {
       if (component.applyColliders.value) {
-        setComponent(childMeshEntity, ColliderComponent, { shape: component.shape.value })
+        setComponent(childMeshEntity, ColliderComponent, { shape: component.shape.value, matchMesh: true })
         forceUpdateMatrices(childMeshEntity)
       } else {
         removeComponent(childMeshEntity, ColliderComponent)

@@ -47,7 +47,6 @@ import {
   OrthographicCamera,
   PerspectiveCamera,
   Quaternion,
-  Sphere,
   Vector2,
   Vector3
 } from 'three'
@@ -489,7 +488,7 @@ function createColliderDesc(
     case ShapeType.Cuboid:
       if (colliderComponent.shape === 'plane') colliderDesc = ColliderDesc.cuboid(10000, 0.001, 10000)
       else {
-        if (mesh) {
+        if (colliderComponent.matchMesh && mesh) {
           // if we have a mesh, we want to make sure it uses the geometry itself to calculate the size
 
           //box around mesh without it's local baked rotations from gltf root
@@ -502,6 +501,7 @@ function createColliderDesc(
           boxSize.multiply(scale).multiplyScalar(0.5)
           boxSize.applyQuaternion(quaternionRelativeToRoot) //rotate so size is in proper orientation for scene xforming
           boxSize.set(Math.abs(boxSize.x), Math.abs(boxSize.y), Math.abs(boxSize.z))
+          colliderComponent.boxSize.copy(boxSize)
           colliderDesc = ColliderDesc.cuboid(boxSize.x, boxSize.y, boxSize.z)
         } else {
           const boxSize = colliderComponent.boxSize
@@ -515,12 +515,14 @@ function createColliderDesc(
       break
 
     case ShapeType.Ball:
-      if (mesh) {
+      if (colliderComponent.matchMesh && mesh) {
+        //this is a bit heavier than rotating a box3 but necessary to not lose fidelity for the mesh bounding sphere
         const newGeo = mesh?.geometry.clone().scale(scaleRelativeToRoot.x, scaleRelativeToRoot.y, scaleRelativeToRoot.z)
         newGeo.applyQuaternion(quaternionRelativeToRoot).scale(rootWorldScale.x, rootWorldScale.y, rootWorldScale.z)
         newGeo.computeBoundingSphere()
-        const boundingSphere = newGeo.boundingSphere ?? new Sphere(Vector3_Zero, scale.x)
-        if (boundingSphere) {
+        if (newGeo.boundingSphere) {
+          const boundingSphere = newGeo.boundingSphere
+
           //I'm done with rapier's sphere collider.center = (0,0,0) bug, so I'm just going to use the bounding box center
           const box = new Box3().setFromBufferAttribute(mesh.geometry.attributes.position as BufferAttribute)
           box.getCenter(meshCenterOffset)
@@ -529,57 +531,58 @@ function createColliderDesc(
           colliderComponent.radius = calculatedRadius
           colliderDesc = ColliderDesc.ball(calculatedRadius)
         } else {
-          colliderDesc = ColliderDesc.ball(Math.abs(scale.x))
+          colliderDesc = ColliderDesc.ball(Math.max(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z)))
         }
       } else {
-        colliderDesc = ColliderDesc.ball(Math.abs(scale.x))
+        colliderDesc = ColliderDesc.ball(Math.max(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z)))
       }
       break
 
     case ShapeType.Capsule:
-      if (mesh) {
+      if (colliderComponent.matchMesh && mesh) {
         //mesh?.geometry?.computeBoundingBox()
         const box = new Box3().setFromBufferAttribute(mesh.geometry.attributes.position as BufferAttribute)
-        if (box) {
-          box.getCenter(meshCenterOffset)
-          const boxSize = box.getSize(new Vector3())
 
-          boxSize.multiply(scale)
-          boxSize.applyQuaternion(quaternionRelativeToRoot)
-          boxSize.set(Math.abs(boxSize.x), Math.abs(boxSize.y), Math.abs(boxSize.z))
-          //calculate diagonal of box using pythagorean theorem
-          const calcRadius = Math.sqrt(Math.pow(boxSize.x / 2, 2) + Math.pow(boxSize.z / 2, 2))
-          colliderComponent.radius = calcRadius
-          colliderComponent.height = boxSize.y
-          //includes scale, whereas component radius does not when being driven by mesh
-          const diagonal = Math.sqrt(Math.pow(boxSize.x / 2, 2) + Math.pow(boxSize.z / 2, 2))
-          colliderDesc = ColliderDesc.capsule(boxSize.y / 2, diagonal)
-        } else {
-          colliderDesc = ColliderDesc.capsule(colliderComponent.height / 2, Math.abs(colliderComponent.radius))
-        }
+        box.getCenter(meshCenterOffset)
+        const boxSize = box.getSize(new Vector3())
+
+        boxSize.multiply(scale)
+        boxSize.applyQuaternion(quaternionRelativeToRoot)
+        boxSize.set(Math.abs(boxSize.x), Math.abs(boxSize.y), Math.abs(boxSize.z))
+        //calculate diagonal of box using pythagorean theorem for radius
+        const calcRadius = Math.sqrt(Math.pow(boxSize.x / 2, 2) + Math.pow(boxSize.z / 2, 2))
+
+        colliderComponent.radius = calcRadius
+        colliderComponent.height = boxSize.y
+        colliderDesc = ColliderDesc.capsule(boxSize.y / 2, calcRadius)
       } else {
-        colliderDesc = ColliderDesc.capsule(Math.abs(scale.y), Math.abs(scale.x))
+        colliderDesc = ColliderDesc.capsule(
+          Math.abs((colliderComponent.height / 2) * scale.y),
+          Math.abs(colliderComponent.radius * scale.x)
+        )
       }
       break
 
     case ShapeType.Cylinder:
-      if (mesh) {
+      if (colliderComponent.matchMesh && mesh) {
         // mesh?.geometry?.computeBoundingBox()
         const box = new Box3().setFromBufferAttribute(mesh.geometry.attributes.position as BufferAttribute)
-        if (box) {
-          box.getCenter(meshCenterOffset)
-          const boxSize = box.getSize(new Vector3())
-          boxSize.multiply(scale)
-          boxSize.applyQuaternion(quaternionRelativeToRoot)
-          boxSize.set(Math.abs(boxSize.x), Math.abs(boxSize.y), Math.abs(boxSize.z))
-          //calculate diagonal of box using pythagorean theorem
-          const diagonal = Math.sqrt(Math.pow(boxSize.x / 2, 2) + Math.pow(boxSize.z / 2, 2))
-          colliderDesc = ColliderDesc.cylinder(boxSize.y / 2, diagonal)
-        } else {
-          colliderDesc = ColliderDesc.cylinder(Math.abs(scale.y), Math.abs(scale.x))
-        }
+
+        box.getCenter(meshCenterOffset)
+        const boxSize = box.getSize(new Vector3())
+        boxSize.multiply(scale)
+        boxSize.applyQuaternion(quaternionRelativeToRoot)
+        boxSize.set(Math.abs(boxSize.x), Math.abs(boxSize.y), Math.abs(boxSize.z))
+        //calculate diagonal of box using pythagorean theorem for radius
+        const calcRadius = Math.sqrt(Math.pow(boxSize.x / 2, 2) + Math.pow(boxSize.z / 2, 2))
+        colliderComponent.radius = calcRadius
+        colliderComponent.height = boxSize.y
+        colliderDesc = ColliderDesc.cylinder(boxSize.y / 2, calcRadius)
       } else {
-        colliderDesc = ColliderDesc.cylinder(Math.abs(scale.y), Math.abs(scale.x))
+        colliderDesc = ColliderDesc.cylinder(
+          Math.abs((colliderComponent.height / 2) * scale.y),
+          Math.abs(colliderComponent.radius * scale.x)
+        )
       }
       break
 

@@ -395,11 +395,10 @@
     "collider": {
       "name": "Collider",
       "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
-      "warn-missing-mesh-root": "No mesh found for mesh collider!\n Mesh component required on collider entity.\n(try selecting 'Apply to Child Meshes' if mesh data may be on a child entity)",
-      "warn-missing-mesh-magic": "No mesh found for mesh collider!\n Mesh component required on collider entity or its children to Apply to Child Meshes",
       "lbl-isTrigger": "Trigger",
       "lbl-shape": "Shape",
-      "lbl-applyToChildMeshes": "Apply to Child Meshes",
+      "lbl-matchMesh": "Match Mesh",
+      "info-matchMesh": "Matches collider dimension settings to fit the mesh",
       "lbl-colliderProps": "Collider Properties",
       "lbl-centerOffset": "Center Offset",
       "lbl-boxSize": "Box Size",
@@ -409,7 +408,9 @@
       "lbl-mass": "Mass",
       "lbl-massCenter": "Mass Center",
       "lbl-friction": "Friction",
+      "info-friction": "A friction coefficient of 0 implies no friction at all (completely sliding contact) and a coefficient greater or equal to 1 implies a very strong friction. Values greater than 1 are allowed.",
       "lbl-restitution": "Restitution",
+      "info-restitution": "The bounciness of the object. 0 is no bounce, 1 is full bounce.",
       "lbl-collisionLayer": "Collision Layer",
       "lbl-collisionMask": "Collision Mask",
       "lbl-removeMesh": "Remove Mesh"
