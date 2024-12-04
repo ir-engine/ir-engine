@@ -433,12 +433,6 @@ function createColliderDesc(
     ColliderComponent
   )
 
-  // const useMesh =
-  //   (colliderEntityOverride !== UndefinedEntity && colliderComponent.applyToChildMeshes) ||
-  //   (colliderEntityOverride === UndefinedEntity && colliderComponent.alignToMesh) ||
-  //   colliderComponent.shape === Shapes.Mesh ||
-  //   colliderComponent.shape === Shapes.ConvexHull
-
   let shape: ShapeType
 
   switch (colliderComponent.shape) {

@@ -60,7 +60,13 @@ export const ColliderComponentDefaults = {
   friction: 0.5,
   restitution: 0.5,
   collisionLayer: CollisionGroups.Default,
-  collisionMask: DefaultCollisionMask
+  collisionMask: DefaultCollisionMask,
+
+  matchMesh: false,
+  centerOffset: new Vector3(0, 0, 0),
+  boxSize: new Vector3(1, 1, 1),
+  radius: 0.5,
+  height: 1
 }
 
 export function assertColliderComponentEquals(data, expected, testShape = true) {
