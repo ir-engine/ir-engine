@@ -68,11 +68,9 @@ import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLa
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import {
   getAncestorWithComponents,
-  getTreeFromChildToAncestor,
   useAncestorWithComponents,
   useChildrenWithComponents
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem.ts'
 import { useGLTFResource } from '../assets/functions/resourceLoaderHooks'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import {
@@ -615,13 +613,4 @@ export const useHasModelOrIndependentMesh = (entity: Entity) => {
   const isChildOfModel = !!useAncestorWithComponents(entity, [GLTFComponent, SceneComponent])
   const hasMesh = !!useOptionalComponent(entity, MeshComponent)
   return hasModel || (hasMesh && !isChildOfModel)
-}
-
-function forceUpdateMatrices(childEntity: Entity, ancestorEntity: Entity = UndefinedEntity) {
-  const entities = [] as Entity[]
-  getTreeFromChildToAncestor(childEntity, entities, ancestorEntity)
-  if (entities.length === 0) return
-  for (let i = entities.length - 1; i >= 0; i--) {
-    computeTransformMatrix(entities[i])
-  }
 }

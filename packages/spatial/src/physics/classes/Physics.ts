@@ -534,7 +534,6 @@ function createColliderDesc(
 
     case ShapeType.Capsule:
       if (colliderComponent.matchMesh && mesh) {
-        //mesh?.geometry?.computeBoundingBox()
         const box = new Box3().setFromBufferAttribute(mesh.geometry.attributes.position as BufferAttribute)
 
         box.getCenter(meshCenterOffset)
