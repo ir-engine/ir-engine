@@ -32,7 +32,8 @@ export const FeatureFlags = {
       ReadyPlayerMe: 'ir.client.menu.readyPlayerMe',
       CreateAvatar: 'ir.client.menu.createAvatar',
       MotionCapture: 'ir.client.location.menu.motionCapture',
-      XR: 'ir.client.menu.xr'
+      XR: 'ir.client.menu.xr',
+      ShareToQuest: 'ir.client.menu.shareToQuest'
     }
   },
   Studio: {
