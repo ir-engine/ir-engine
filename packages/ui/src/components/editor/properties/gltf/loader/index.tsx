@@ -40,7 +40,10 @@ import { getState, useHookstate } from '@ir-engine/hyperflux'
 import { supportedColliderShapes } from '@ir-engine/spatial/src/physics/components/ColliderComponent.tsx'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes.ts'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent.ts'
-import { useChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree.tsx'
+import {
+  useAncestorWithComponents,
+  useChildrenWithComponents
+} from '@ir-engine/spatial/src/transform/components/EntityTree.tsx'
 import { Checkbox } from '@ir-engine/ui'
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -49,10 +52,16 @@ import { MdOutlineViewInAr } from 'react-icons/md'
 import Accordion from '../../../../../primitives/tailwind/Accordion'
 import Button from '../../../../../primitives/tailwind/Button'
 import LoadingView from '../../../../../primitives/tailwind/LoadingView'
+import Text from '../../../../../primitives/tailwind/Text'
 import InputGroup from '../../../input/Group'
 import ModelInput from '../../../input/Model'
 import SelectInput from '../../../input/Select'
 import StringInput from '../../../input/String'
+
+import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions.ts'
+import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices.ts'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent.ts'
+import { HiPlus } from 'react-icons/hi2'
 
 const shapeTypeOptions = Object.entries(Shapes)
   .filter(([_, value]) => supportedColliderShapes.includes(value as any))
@@ -68,6 +77,7 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
   const editorState = getState(EditorState)
   const projectState = getState(ProjectState)
   const loadedProjects = useHookstate(() => projectState.projects.map((project) => project.name))
+  const hasRigidBody = useAncestorWithComponents(props.entity, [RigidBodyComponent])
 
   const childMeshEntities = useChildrenWithComponents(props.entity, [MeshComponent])
   const isMeshOrConvexHull =
@@ -147,7 +157,24 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
           onChange={commitProperty(GLTFComponent, 'applyColliders')}
         />
       </InputGroup>
-      {
+      {(!hasRigidBody && (
+        <>
+          <Text className="ml-5 text-red-400">{t('editor:properties.model.lbl-warnRigidBody')}</Text>
+          <Button
+            title={t('editor:properties.model.lbl-addRigidBody')}
+            startIcon={<HiPlus />}
+            className="text-sm text-[#FFFFFF]"
+            onClick={() => {
+              const nodes = SelectionState.getSelectedEntities()
+              EditorControlFunctions.addOrRemoveComponent(nodes, RigidBodyComponent, true, { type: 'fixed' })
+            }}
+          >
+            {t('editor:properties.model.lbl-addRigidBody')}
+          </Button>
+        </>
+      )) ||
+        ''}
+      {(hasRigidBody && (
         <InputGroup name="Shape" label={t('editor:properties.model.lbl-shape')}>
           <SelectInput
             options={shapeTypeOptions}
@@ -155,12 +182,8 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
             onChange={commitProperty(GLTFComponent, 'shape')}
           />
         </InputGroup>
-      }
-      {/*{showMeshError && (*/}
-      {/*  <Text className="ml-5 text-red-400">*/}
-      {/*    {t('editor:properties.model.warn-missing-mesh-magic')}*/}
-      {/*  </Text>*/}
-      {/*)}*/}
+      )) ||
+        ''}
       <Accordion
         className="space-y-4 p-4"
         title={t('editor:properties.model.lbl-export')}

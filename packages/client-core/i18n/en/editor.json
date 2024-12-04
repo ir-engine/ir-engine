@@ -506,6 +506,8 @@
       "lbl-isGPUInstancing": "Is Using GPU Instancing",
       "lbl-cameraOcclusion": "Occlude Camera",
       "lbl-applyColliders": "Apply Colliders",
+      "lbl-warnRigidBody": "Colliders require a Rigidbody component here or on a parent object to function",
+      "lbl-addRigidBody": "Add RigidBody",
       "lbl-shape": "Shape",
       "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
       "lbl-name": "Name",
