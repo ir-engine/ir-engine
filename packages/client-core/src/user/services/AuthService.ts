@@ -35,6 +35,7 @@ import { AuthUserSeed, resolveAuthUser } from '@ir-engine/common/src/interfaces/
 import multiLogger from '@ir-engine/common/src/logger'
 import {
   AuthStrategiesType,
+  HasAccessType,
   IdentityProviderType,
   InstanceID,
   UserApiKeyType,
@@ -56,7 +57,6 @@ import {
   userPath,
   userSettingPath
 } from '@ir-engine/common/src/schema.type.module'
-import type { HasAccessType } from '@ir-engine/common/src/schemas/networking/allowed-domains.schema'
 import {
   HyperFlux,
   defineState,

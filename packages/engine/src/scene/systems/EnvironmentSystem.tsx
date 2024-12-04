@@ -28,31 +28,54 @@ import React, { useEffect } from 'react'
 import {
   defineSystem,
   Entity,
+  getComponent,
   PresentationSystemGroup,
   QueryReactor,
   useComponent,
-  useEntityContext
+  useEntityContext,
+  useOptionalComponent
 } from '@ir-engine/ecs'
-import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { haveCommonAncestor } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { haveCommonAncestor, useChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
-import { NO_PROXY } from '@ir-engine/hyperflux'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { EnvmapComponent, updateEnvMap } from '../components/EnvmapComponent'
+import { SourceComponent } from '../components/SourceComponent'
 import { EnvMapSourceType } from '../constants/EnvMapEnum'
 
 const EnvmapReactor = (props: { backgroundEntity: Entity }) => {
   const entity = useEntityContext()
   const envmapComponent = useComponent(entity, EnvmapComponent)
   const backgroundComponent = useComponent(props.backgroundEntity, BackgroundComponent)
-  const obj = useComponent(entity, ObjectComponent)?.get(NO_PROXY)
+  const hasRootMesh = !!useOptionalComponent(entity, MeshComponent)
+  const childrenMesh = useChildrenWithComponents(
+    entity,
+    [MeshComponent, VisibleComponent, SourceComponent],
+    [EnvmapComponent]
+  )
+
+  const getMeshes = () => {
+    const meshEntities = [...childrenMesh]
+    if (hasRootMesh) meshEntities.push(entity)
+
+    return meshEntities.map((meshEntity) => getComponent(meshEntity, MeshComponent))
+  }
 
   useEffect(() => {
-    // TODO use spatial queries
     if (!haveCommonAncestor(entity, props.backgroundEntity)) return
     if (envmapComponent.type.value !== EnvMapSourceType.Skybox) return
-    updateEnvMap(obj as any, backgroundComponent.value as any)
-  }, [envmapComponent.type, backgroundComponent])
+    const meshes = getMeshes()
+
+    for (const mesh of meshes) {
+      updateEnvMap(mesh, backgroundComponent.value as any)
+    }
+    return () => {
+      for (const mesh of meshes) {
+        updateEnvMap(mesh, null)
+      }
+    }
+  }, [childrenMesh, envmapComponent.type, backgroundComponent])
 
   return null
 }

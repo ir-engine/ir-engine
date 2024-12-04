@@ -287,7 +287,7 @@ export default function AddEditLocationModal(props: {
               width="full"
               inputSizeVariant="xl"
             />
-            <Select
+            {/*<Select
               labelProps={{
                 text: t('admin:components.location.type'),
                 position: 'top'
@@ -298,7 +298,7 @@ export default function AddEditLocationModal(props: {
               disabled={true}
               width="full"
               inputSizeVariant="xl"
-            />
+            />*/}
             <Toggle
               label={t('admin:components.location.lbl-ve')}
               value={videoEnabled.value}
