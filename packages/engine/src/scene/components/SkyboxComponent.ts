@@ -24,7 +24,15 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Color, CubeReflectionMapping, CubeTexture, EquirectangularReflectionMapping, SRGBColorSpace } from 'three'
+import {
+  Color,
+  CubeReflectionMapping,
+  CubeTexture,
+  DataTexture,
+  EquirectangularReflectionMapping,
+  RGBAFormat,
+  SRGBColorSpace
+} from 'three'
 
 import { Engine } from '@ir-engine/ecs'
 import {
@@ -41,11 +49,14 @@ import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRenderer
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { createDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { Sky } from '../classes/Sky'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
-import { loadCubeMapTexture } from '../constants/Util'
+import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
+
+const tempColor = new Color()
 
 export const SkyboxComponent = defineComponent({
   name: 'SkyboxComponent',
@@ -104,7 +115,26 @@ export const SkyboxComponent = defineComponent({
 
     useEffect(() => {
       if (skyboxState.backgroundType.value !== SkyTypeEnum.color) return
-      setComponent(entity, BackgroundComponent, new Color(skyboxState.backgroundColor.value))
+
+      const col = skyboxState.backgroundColor.value ?? tempColor
+      const resolution = 64 // Min value required
+      const [texture, unload] = createDisposable(
+        DataTexture,
+        entity,
+        getRGBArray(new Color(col)),
+        resolution,
+        resolution,
+        RGBAFormat
+      )
+      texture.needsUpdate = true
+      texture.colorSpace = SRGBColorSpace
+      texture.mapping = EquirectangularReflectionMapping
+      setComponent(entity, BackgroundComponent, texture)
+
+      return () => {
+        unload()
+        removeComponent(entity, BackgroundComponent)
+      }
     }, [skyboxState.backgroundType, skyboxState.backgroundColor])
 
     useEffect(() => {

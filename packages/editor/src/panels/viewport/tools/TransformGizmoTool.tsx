@@ -27,13 +27,15 @@ import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorCo
 import { setTransformMode } from '@ir-engine/editor/src/functions/transformFunctions'
 import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
 import { TransformMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
-import { useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
+import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { TbPointer, TbRefresh, TbVector, TbWindowMaximize } from 'react-icons/tb'
+import { TbMarquee2, TbPointer, TbRefresh, TbVector, TbWindowMaximize } from 'react-icons/tb'
 import { twMerge } from 'tailwind-merge'
+import { SelectionBoxState } from './SelectionBoxTool'
 
 function Placer() {
   return (
@@ -58,7 +60,7 @@ export default function TransformGizmoTool({
   const [isDragging, setIsDragging] = useState(false)
   const gizmoRef = useRef<HTMLDivElement>(null)
   const [pointerSelected, setPointerSelected] = useState(false)
-
+  const [isClickedSelectionBox, setIsClickedSelectionBox] = useState(false)
   const [startingMouseX, setStartingMouseX] = useState(0)
   const [startingMouseY, setStartingMouseY] = useState(0)
 
@@ -82,7 +84,11 @@ export default function TransformGizmoTool({
       setPosition({ x: newX, y: newY })
     }
   }
-
+  const handleClickSelectionBox = () => {
+    setIsClickedSelectionBox(!isClickedSelectionBox)
+    getMutableState(SelectionBoxState).selectionBoxEnabled.set(!isClickedSelectionBox)
+    getMutableState(InputState).capturingCameraOrbitEnabled.set(isClickedSelectionBox)
+  }
   const handleMouseUp = () => {
     setIsDragging(false)
   }
@@ -163,6 +169,18 @@ export default function TransformGizmoTool({
               setPointerSelected(false)
               setTransformMode(TransformMode.scale)
             }}
+          />
+        </Tooltip>
+        <Tooltip content={t('disable orbit camera and enable selection box')} position={'right center'}>
+          <Button
+            className={twMerge(
+              'rounded-none bg-[#212226] p-2 text-[#A3A3A3]',
+              isClickedSelectionBox ? 'text-white' : 'text-[#A3A3A3]', // toggle styles
+              'flex items-center justify-center rounded' // ensure proper layout and styling
+            )}
+            iconContainerClassName="m-0"
+            startIcon={<TbMarquee2 />}
+            onClick={handleClickSelectionBox}
           />
         </Tooltip>
       </div>

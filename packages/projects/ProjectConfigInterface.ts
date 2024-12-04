@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { OembedType } from '@ir-engine/common/src/schemas/media/oembed.schema'
-import { ProjectType } from '@ir-engine/common/src/schemas/projects/project.schema'
+import { OembedType, ProjectType } from '@ir-engine/common/src/schema.type.module'
 import type { Application } from '@ir-engine/server-core/declarations'
 
 export interface ProjectConfigInterface {

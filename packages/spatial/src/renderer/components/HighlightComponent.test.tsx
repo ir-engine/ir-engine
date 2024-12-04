@@ -244,6 +244,7 @@ describe('HighlightSystem', () => {
       setComponent(testEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
       getMutableState(RendererState).usePostProcessing.set(true)
       setComponent(testEntity, SceneComponent)
+      getMutableComponent(rootEntity, RendererComponent).scenes.merge([testEntity])
       setComponent(testEntity, PostProcessingComponent, { enabled: true })
       setComponent(testEntity, EntityTreeComponent)
     })

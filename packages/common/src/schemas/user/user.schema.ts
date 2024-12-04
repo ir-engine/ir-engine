@@ -36,6 +36,7 @@ import { ScopeType } from '../scope/scope.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { userLoginSchema } from './user-login.schema'
 
+/** @deprecated - import from @ir-engine/hyperflux */
 export type { UserID }
 
 export const userPath = 'user'

@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { KTX2EncodeArguments } from '@ir-engine/engine/src/assets/constants/CompressionParms'
 import { NO_PROXY, State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
@@ -54,6 +55,12 @@ const UASTCFlagOptions = [
   { label: 'Fastest Hints', value: 128 },
   { label: 'Disable Flip and Individual', value: 256 }
 ]
+
+export const validateImportFolderPath = (importFolderPath: string) => {
+  if (!importFolderPath.startsWith('/public/') && !importFolderPath.startsWith('/assets/')) {
+    throw new Error('Folder must start with `/public/` or `/assets/`')
+  }
+}
 
 const ImageCompressionBox = ({ compressProperties }: { compressProperties: State<KTX2EncodeArguments> }) => {
   const { t } = useTranslation()
@@ -196,13 +203,20 @@ export default function ImportSettingsPanel() {
   }
 
   const handleSaveChanges = () => {
-    importSettingsState.importFolder.set(defaultImportFolder)
-    importSettingsState.LODFolder.set(LODImportFolder)
-    importSettingsState.LODsEnabled.set(LODGenEnabled)
-    importSettingsState.imageCompression.set(KTXEnabled)
-    importSettingsState.imageSettings.set(compressProperties.get(NO_PROXY))
-    importSettingsState.selectedLODS.set(selectedLODS)
-    handleCancel()
+    try {
+      validateImportFolderPath(defaultImportFolder)
+      importSettingsState.importFolder.set(
+        defaultImportFolder.endsWith('/') ? defaultImportFolder : defaultImportFolder + '/'
+      )
+      importSettingsState.LODFolder.set(LODImportFolder)
+      importSettingsState.LODsEnabled.set(LODGenEnabled)
+      importSettingsState.imageCompression.set(KTXEnabled)
+      importSettingsState.imageSettings.set(compressProperties.get(NO_PROXY))
+      importSettingsState.selectedLODS.set(selectedLODS)
+      handleCancel()
+    } catch (e) {
+      NotificationService.dispatchNotify(e.message, { variant: 'error' })
+    }
   }
 
   const handleCancel = () => {
