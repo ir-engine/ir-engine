@@ -59,7 +59,7 @@ import { Color, Euler, Material, Mesh, Quaternion, SphereGeometry } from 'three'
 
 import { useFind } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
-import { useTexture } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
+import { useGLTFComponent, useTexture } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowComponent'
@@ -68,8 +68,10 @@ import { setCameraFocusOnBox } from '@ir-engine/spatial/src/camera/functions/Cam
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { BackgroundComponent, SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { loadMaterialGLTF } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import { useChildWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import {
+  getChildrenWithComponents,
+  useChildWithComponents
+} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { uploadToFeathersService } from '../../util/upload'
 import { getCanvasBlob } from '../utils'
 
@@ -438,24 +440,41 @@ const RenderTextureThumbnail = (props: RenderThumbnailProps) => {
 const RenderMaterialThumbnail = (props: RenderThumbnailProps) => {
   const { src, project, id, onError } = props
   const [entity, lightEntity, skyboxEntity, cameraEntity] = useRenderEntities(src)
+  const gltfEntity = useGLTFComponent(src, entity)
+  const errors = ErrorComponent.useComponentErrors(gltfEntity ?? UndefinedEntity, GLTFComponent)
 
   useEffect(() => {
-    if (!entity || !lightEntity || !skyboxEntity || !cameraEntity) return
+    if (!entity || !lightEntity || !skyboxEntity || !cameraEntity || !gltfEntity) return
 
-    loadMaterialGLTF(src, (material) => {
-      if (!material) {
-        onError(`Failed to load material for thumbnail with source: ${src}`)
-      } else {
-        const sphere = new Mesh(new SphereGeometry(1), material)
-        if (Object.hasOwn(sphere.material, 'flatShading')) {
-          ;(sphere.material as Material & { flatShading: boolean }).flatShading = false
-        }
-        addObjectToGroup(entity, sphere)
-        setComponent(entity, MeshComponent, sphere)
-        renderThumbnail(entity, lightEntity, skyboxEntity, cameraEntity, props)
+    const meshEntity = getChildrenWithComponents(gltfEntity, [MeshComponent])[0]
+    if (!meshEntity) {
+      onError(`No mesh found in gltf with source: ${src}`)
+      return
+    }
+
+    const material = getComponent(meshEntity, MeshComponent).material
+    if (!material) {
+      onError(`Failed to load material for thumbnail with source: ${src}`)
+      return
+    }
+
+    /** @todo Remove the setTimeout when the GLTF loader refactor has been completed */
+    setTimeout(() => {
+      const sphere = new Mesh(new SphereGeometry(1), material)
+      if (Object.hasOwn(sphere.material, 'flatShading')) {
+        ;(sphere.material as Material & { flatShading: boolean }).flatShading = false
       }
-    })
-  }, [entity, lightEntity, skyboxEntity, cameraEntity])
+      addObjectToGroup(entity, sphere)
+      setComponent(entity, MeshComponent, sphere)
+      renderThumbnail(entity, lightEntity, skyboxEntity, cameraEntity, props)
+    }, 1000)
+  }, [entity, lightEntity, skyboxEntity, cameraEntity, gltfEntity])
+
+  useEffect(() => {
+    if (!errors) return
+    onError(errors)
+  }, [errors])
+
   return null
 }
 

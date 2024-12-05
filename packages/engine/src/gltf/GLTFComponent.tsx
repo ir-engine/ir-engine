@@ -36,6 +36,7 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  getOptionalMutableComponent,
   hasComponent,
   UndefinedEntity,
   useComponent,
@@ -107,7 +108,7 @@ const loadDependencies = {
   ['EE_model']: [
     {
       key: 'dependencies',
-      eval: (dependencies) => componentDependenciesLoaded(dependencies as ComponentDependencies | undefined)
+      eval: (dependencies?: ComponentDependencies) => componentDependenciesLoaded(dependencies)
     }
   ]
 } as Record<string, DependencyEval[]>
@@ -375,8 +376,8 @@ const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: C
   useEffect(() => {
     return () => {
       const ancestor = getAncestorWithComponents(gltfComponentEntity, [SceneComponent])
-      const scene = getMutableComponent(ancestor, SceneComponent)
-      scene.active.set(true)
+      const scene = getOptionalMutableComponent(ancestor, SceneComponent)
+      if (scene) scene.active.set(true)
       removeError(gltfComponentEntity, GLTFComponent, 'LOADING_ERROR')
       removeError(gltfComponentEntity, GLTFComponent, 'INVALID_SOURCE')
     }

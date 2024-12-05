@@ -30,6 +30,7 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { setPlugin } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { useEffect } from 'react'
+import { T } from '../../../../schema/schemaFunctions'
 import {
   ditheringAlphatestChunk,
   ditheringFragUniform,
@@ -46,21 +47,19 @@ export const MAX_DITHER_POINTS = 2 //should be equal to the length of the vec3 a
 
 export const TransparencyDitheringRootComponent = defineComponent({
   name: 'TransparencyDitheringRootComponent',
-  schema: S.Object({ materials: S.Array(S.EntityUUID()) })
+  schema: S.Object({ materials: S.Array(T.EntityUUID()) })
 })
 
 export const TransparencyDitheringPluginComponent = defineComponent({
   name: 'TransparencyDitheringPluginComponent',
-  schema: S.NonSerialized(
-    S.Object({
-      centers: S.Class(() => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => new Vector3()))),
-      exponents: S.Class(() => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 1))),
-      distances: S.Class(() => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 1))),
-      useWorldCalculation: S.Class(
-        () => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => ditherCalculationType.worldTransformed))
-      )
-    })
-  ),
+  schema: S.Object({
+    centers: S.Class(() => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => new Vector3()))),
+    exponents: S.Class(() => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 1))),
+    distances: S.Class(() => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 1))),
+    useWorldCalculation: S.Class(
+      () => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => ditherCalculationType.worldTransformed))
+    )
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
@@ -70,8 +69,6 @@ export const TransparencyDitheringPluginComponent = defineComponent({
       if (!materialComponent) return
       const material = materialComponent.material as Material
       const callback = (shader) => {
-        //this auto-injects alphaTest into the shader but causes a race condition with the injecting the ditheringAlphatestChunk
-        // material.alphaTest = 0.5
         material.side = FrontSide
         const plugin = getComponent(entity, TransparencyDitheringPluginComponent)
 

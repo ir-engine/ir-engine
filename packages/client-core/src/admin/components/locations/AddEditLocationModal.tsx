@@ -88,7 +88,7 @@ export default function AddEditLocationModal(props: {
   const errors = useHookstate(getDefaultErrors())
 
   const name = useHookstate(location?.name || '')
-  const maxUsers = useHookstate(location?.maxUsersPerInstance || 10)
+  const maxUsers = useHookstate(location?.maxUsersPerInstance || 5)
 
   const scene = useHookstate((location ? location.sceneId : props.sceneID) || '')
   const videoEnabled = useHookstate<boolean>(location?.locationSetting.videoEnabled || true)
@@ -127,7 +127,7 @@ export default function AddEditLocationModal(props: {
     if (!maxUsers.value) {
       errors.maxUsers.set(t('admin:components.location.maxUserCantEmpty'))
     }
-    if (maxUsers.value > 10) {
+    if (maxUsers.value > 5) {
       errors.maxUsers.set(t('admin:components.location.maxUserExceeded'))
     }
     if (!scene.value) {
@@ -282,7 +282,7 @@ export default function AddEditLocationModal(props: {
               width="full"
               inputSizeVariant="xl"
             />
-            <Select
+            {/*<Select
               labelProps={{
                 text: t('admin:components.location.type'),
                 position: 'top'
@@ -293,7 +293,7 @@ export default function AddEditLocationModal(props: {
               disabled={true}
               width="full"
               inputSizeVariant="xl"
-            />
+            />*/}
             <Toggle
               label={t('admin:components.location.lbl-ve')}
               value={videoEnabled.value}

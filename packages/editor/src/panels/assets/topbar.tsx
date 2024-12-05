@@ -33,9 +33,11 @@ import { ArrowLeftSm, CogSm, FolderSm, PlusCircleSm, Refresh1Sm, SearchSmSm } fr
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { validateImportFolderPath } from '../../components/dialogs/ImportSettingsPanelDialog'
 import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { FilesViewModeSettings } from '../../services/FilesState'
+import { ImportSettingsState } from '../../services/ImportSettingsState'
 import { useAssetsCategory, useAssetsQuery } from './hooks'
 
 const ViewModeSettings = () => {
@@ -71,11 +73,19 @@ const ViewModeSettings = () => {
   )
 }
 
-const uploadFiles = () => {
+export const uploadFiles = () => {
   const projectName = getState(EditorState).projectName
+  const importFolder = getState(ImportSettingsState).importFolder
+
+  try {
+    validateImportFolderPath(importFolder)
+  } catch (e) {
+    NotificationService.dispatchNotify(e.message, { variant: 'error' })
+  }
+
   return inputFileWithAddToScene({
     projectName: projectName as string,
-    directoryPath: `projects/${projectName}/assets/`
+    directoryPath: `projects/${projectName}${importFolder}`
   }).catch((err) => {
     NotificationService.dispatchNotify(err.message, { variant: 'error' })
   })

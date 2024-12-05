@@ -42,6 +42,7 @@ import { InputComponent } from '@ir-engine/spatial/src/input/components/InputCom
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { Mesh, Object3D } from 'three'
@@ -94,19 +95,19 @@ export const TransformGizmoVisualComponent = defineComponent({
 
   schema: S.Object({
     gizmo: S.Object({
-      translate: S.Entity(),
-      rotate: S.Entity(),
-      scale: S.Entity()
+      translate: T.Entity(),
+      rotate: T.Entity(),
+      scale: T.Entity()
     }),
     picker: S.Object({
-      translate: S.Entity(),
-      rotate: S.Entity(),
-      scale: S.Entity()
+      translate: T.Entity(),
+      rotate: T.Entity(),
+      scale: T.Entity()
     }),
     helper: S.Object({
-      translate: S.Entity(),
-      rotate: S.Entity(),
-      scale: S.Entity()
+      translate: T.Entity(),
+      rotate: T.Entity(),
+      scale: T.Entity()
     })
   }),
 

@@ -44,6 +44,7 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { EditorHelperState } from '../../../services/EditorHelperState'
 import { SelectionState } from '../../../services/SelectionServices'
 import { TransformGizmoControlComponent } from './TransformGizmoControlComponent'
@@ -52,7 +53,7 @@ import { TransformGizmoVisualComponent } from './TransformGizmoVisualComponent'
 export const TransformGizmoControlledComponent = defineComponent({
   name: 'TransformGizmoControlled',
 
-  schema: S.Object({ controller: S.Entity() }),
+  schema: S.Object({ controller: T.Entity() }),
 
   reactor: function (props) {
     const entity = useEntityContext()

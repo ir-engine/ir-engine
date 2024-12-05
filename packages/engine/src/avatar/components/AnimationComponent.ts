@@ -23,19 +23,18 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { AnimationClip, AnimationMixer, PropertyBinding, SkinnedMesh } from 'three'
+import { AnimationClip, AnimationMixer, Object3D, PropertyBinding } from 'three'
 
-import { Entity, removeEntity, UndefinedEntity } from '@ir-engine/ecs'
+import { Entity, removeEntity, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
   getOptionalComponent,
-  hasComponent,
   removeComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { NO_PROXY, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, State, useHookstate } from '@ir-engine/hyperflux'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
@@ -44,11 +43,13 @@ import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
-import { v4 } from 'uuid'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { GLTFAssetState } from '../../gltf/GLTFState'
+import { GLTFSourceState } from '../../gltf/GLTFState'
+import { SourceComponent } from '../../scene/components/SourceComponent'
+import { AvatarRigComponent } from './AvatarAnimationComponent'
+import { NormalizedBoneComponent } from './NormalizedBoneComponent'
 
 export const AnimationComponent = defineComponent({
   name: 'AnimationComponent',
@@ -70,112 +71,81 @@ export const useLoadAnimationFromBatchGLTF = (urls: string[], keepEntities = fal
 }
 
 export const useLoadAnimationFromGLTF = (url: string, keepEntity = false) => {
-  const assetEntity = useMutableState(GLTFAssetState)[url].value
+  const assetEntity = useHookstate(UndefinedEntity)
   const animation = useHookstate(null as AnimationClip[] | null)
-  const animationComponent = useOptionalComponent(assetEntity, AnimationComponent)
-  const progress = useOptionalComponent(assetEntity, GLTFComponent)?.progress
+  const animationComponent = useOptionalComponent(assetEntity.value, AnimationComponent)
+  const progress = useOptionalComponent(assetEntity.value, GLTFComponent)?.progress
 
   useEffect(() => {
-    if (animation.value) return
-    if (!assetEntity) {
-      GLTFAssetState.loadScene(url, v4())
+    if (animation.value || !url) return
+    if (!assetEntity.value) {
+      assetEntity.set(GLTFSourceState.load(url))
       return
     }
-  }, [progress])
+  }, [url, progress])
 
   useEffect(() => {
     if (!animationComponent?.animations || !animationComponent.animations.length || animation.value) return
-    iterateEntityNode(assetEntity, (entity) => {
+    iterateEntityNode(assetEntity.value, (entity) => {
       removeComponent(entity, MeshComponent)
       removeComponent(entity, SkinnedMeshComponent)
       removeComponent(entity, MaterialStateComponent)
       removeComponent(entity, MaterialInstanceComponent)
     })
-    animation.set(getComponent(assetEntity, AnimationComponent).animations)
-    if (!keepEntity) removeEntity(assetEntity)
+    animation.set(getComponent(assetEntity.value, AnimationComponent).animations)
+    if (!keepEntity) removeEntity(assetEntity.value)
   }, [animationComponent?.animations])
-  return [animation, keepEntity ? assetEntity : UndefinedEntity] as [State<AnimationClip[]>, Entity]
+  return [animation, keepEntity ? assetEntity.value : UndefinedEntity] as [State<AnimationClip[]>, Entity]
 }
 
-/** Override Property Binding for the ECS */
-PropertyBinding.findNode = function (root: SkinnedMesh, nodeName: string | number) {
-  if (
-    nodeName === undefined ||
-    nodeName === '' ||
-    nodeName === '.' ||
-    nodeName === -1 ||
-    nodeName === root.name ||
-    nodeName === root.uuid
-  ) {
-    return root
+PropertyBinding.parseTrackName = function (trackName) {
+  const lastDotIndex = trackName.lastIndexOf('.')
+  const beforeLastDot = trackName.substring(0, lastDotIndex)
+  const afterLastDot = trackName.substring(lastDotIndex + 1)
+
+  const results = {
+    nodeName: beforeLastDot,
+    objectName: undefined! as string,
+    objectIndex: undefined! as string,
+    propertyName: afterLastDot, // required
+    propertyIndex: undefined! as string
   }
 
-  // search into skeleton bones.
-  if (root.skeleton) {
-    const bone = root.skeleton.getBoneByName(nodeName as string)
-
-    if (bone !== undefined) {
-      return bone
-    }
+  if (results.propertyName === null || results.propertyName.length === 0) {
+    throw new Error('PropertyBinding: can not parse propertyName from trackName: ' + trackName)
   }
 
-  const entity = root.entity
-  if (entity) {
-    if (!hasComponent(entity, EntityTreeComponent)) return null
+  return results
+}
 
-    const children = getComponent(entity, EntityTreeComponent).children
+export const getTrackId = (entity: Entity) =>
+  getComponent(entity, UUIDComponent).replace(getComponent(entity, SourceComponent) + '-', '')
 
-    // search into node subtree.
-    const searchEntitySubtree = function (children: Entity[]) {
-      for (let i = 0; i < children.length; i++) {
-        const entity = children[i]
-        const childNode =
-          getOptionalComponent(entity, BoneComponent) ??
-          getOptionalComponent(entity, MeshComponent) ??
-          getOptionalComponent(entity, SkinnedMeshComponent) ??
-          getOptionalComponent(entity, Object3DComponent)!
+PropertyBinding.findNode = (root: Object3D, nodeName: string) => {
+  const sceneInstanceID = GLTFComponent.getInstanceID(root.entity)
+  const childEntities = SourceComponent.entitiesBySource[sceneInstanceID]
 
-        if (childNode && (childNode.name === nodeName || childNode.uuid === nodeName)) {
-          return childNode
-        }
-
-        const result = searchEntitySubtree(getComponent(entity, EntityTreeComponent).children)
-
-        if (result) return result
-      }
-
-      return null
-    }
-
-    const subTreeNode = searchEntitySubtree(children)
-
-    if (subTreeNode) {
-      return subTreeNode
-    }
+  let entity = UndefinedEntity
+  /**if AvatarRigComponent is present, use VRM schema */
+  const avatarRigComponent = getOptionalComponent(root.entity, AvatarRigComponent)
+  if (avatarRigComponent) {
+    entity = avatarRigComponent.bonesToEntities[nodeName]
   }
 
-  // fallback to three hierarchy for non-ecs hierarchy (normalize vrm rigs)
-  const searchNodeSubtree = function (children) {
-    for (let i = 0; i < children.length; i++) {
-      const childNode = children[i]
+  /**Find the entity that corresponds to the nodeName.
+   * Using getTrackId to allow reuse of the same track for identical hierarchies across different entity roots.
+   */
+  if (!entity)
+    entity = childEntities.find((entity) => getTrackId(entity) === nodeName.substring(nodeName.lastIndexOf('-') + 1))!
 
-      if (childNode.name === nodeName || childNode.uuid === nodeName) {
-        return childNode
-      }
-
-      const result = searchNodeSubtree(childNode.children)
-
-      if (result) return result
-    }
-
+  if (!entity) {
     return null
   }
 
-  const subTreeNode = searchNodeSubtree(root.children)
-
-  if (subTreeNode) {
-    return subTreeNode
-  }
-
-  return null
+  return (
+    getOptionalComponent(entity, NormalizedBoneComponent) ||
+    getOptionalComponent(entity, BoneComponent) ||
+    getOptionalComponent(entity, MeshComponent) ||
+    getOptionalComponent(entity, Object3DComponent)!
+  )
 }

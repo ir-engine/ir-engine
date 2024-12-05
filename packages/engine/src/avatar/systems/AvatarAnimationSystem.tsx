@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import { AnimationClip, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Group, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
 import {
   defineQuery,
@@ -35,10 +35,12 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
+  setComponent,
+  useComponent,
   useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
-import { defineState, getMutableState, getState, isClient } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent } from '@ir-engine/network'
 import {
   createPriorityQueue,
@@ -51,26 +53,30 @@ import { TransformSystem } from '@ir-engine/spatial/src/transform/TransformModul
 import { XRLeftHandComponent, XRRightHandComponent } from '@ir-engine/spatial/src/xr/XRComponents'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
+import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
-import {
-  EntityTreeComponent,
-  removeEntityNodeRecursively
-} from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { EntityTreeComponent, traverseEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React from 'react'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
+import { addError, removeError } from '../../scene/functions/ErrorFunctions'
 import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { getRootSpeed, updateAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { getArmIKHint } from '../animation/getArmIKHint'
 import { blendIKChain, solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets, preloadedAnimations } from '../animation/Util'
 import { AnimationState } from '../AnimationManager'
+import { mixamoVRMRigMap } from '../AvatarBoneMatching'
 import { AnimationComponent, useLoadAnimationFromBatchGLTF } from '../components/AnimationComponent'
-import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent, createVRM } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
-import { bindAnimationClipFromMixamo, retargetAnimationClip } from '../functions/retargetMixamoRig'
+import { NormalizedBoneComponent } from '../components/NormalizedBoneComponent'
+import { getAllLoadedAnimations, setupAvatarProportions } from '../functions/avatarFunctions'
+import { normalizeAnimationClips, retargetAnimationClips } from '../functions/retargetingFunctions'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { AnimationSystem } from './AnimationSystem'
@@ -150,10 +156,9 @@ const execute = () => {
     const rigComponent = getComponent(entity, AvatarRigComponent)
     const avatarComponent = getComponent(entity, AvatarComponent)
 
-    const rawRig = rigComponent.rawRig
-    const normalizedRig = rigComponent.normalizedRig
+    const rig = rigComponent.bonesToEntities
 
-    if (!rawRig?.hips?.node) continue
+    if (!rig.hips) continue
 
     const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
     const leftFoot = AvatarIKTargetComponent.getTargetEntity(ownerID, ikTargets.leftFoot)
@@ -181,8 +186,9 @@ const execute = () => {
 
     if (headTargetBlendWeight) {
       const headTransform = getComponent(head, TransformComponent)
+      const normalizedHips = getComponent(rig.hips, NormalizedBoneComponent)
 
-      normalizedRig.hips.node.position.set(
+      normalizedHips.position.set(
         headTransform.position.x,
         headTransform.position.y - avatarComponent.torsoLength - 0.125,
         headTransform.position.z
@@ -192,33 +198,35 @@ const execute = () => {
       hipsForward.set(0, 0, 1)
       hipsForward.applyQuaternion(rigidbodyComponent.rotation)
       hipsForward.multiplyScalar(0.125)
-      normalizedRig.hips.node.position.sub(hipsForward)
+      normalizedHips.position.sub(hipsForward)
 
       // convert to local space
-      normalizedRig.hips.node.position.applyMatrix4(mat4.copy(transform.matrixWorld).invert())
+      normalizedHips.position.applyMatrix4(mat4.copy(transform.matrixWorld).invert())
 
       _quat2.copy(headTransform.rotation)
 
       //calculate head look direction and apply to head bone
       //look direction should be set outside of the xr switch
-      normalizedRig.head.node.quaternion.multiplyQuaternions(
-        normalizedRig.spine.node.getWorldQuaternion(_quat).invert(),
+      getComponent(rig.head, NormalizedBoneComponent).quaternion.multiplyQuaternions(
+        getComponent(rig.spine, NormalizedBoneComponent).getWorldQuaternion(_quat).invert(),
         _quat2
       )
 
+      const hips = getComponent(rig.hips, BoneComponent)
       /** Place normalized rig in world space for ik calculations */
       const newWorldMatrix = transform.matrixWorld.clone()
-      newWorldMatrix.elements[13] = rawRig.hips.node.position.y - transform.position.y
-      normalizedRig.hips.node.matrix.setPosition(new Vector3())
-      normalizedRig.hips.node.matrixWorld.multiplyMatrices(newWorldMatrix, normalizedRig.hips.node.matrix)
+      newWorldMatrix.elements[13] = hips.position.y - transform.position.y
+      normalizedHips.matrix.setPosition(new Vector3())
+      normalizedHips.matrixWorld.multiplyMatrices(newWorldMatrix, normalizedHips.matrix)
+      normalizedHips.matrixWorld.scale(new Vector3(100, 100, 100))
       for (const boneName of VRMHumanBoneList) {
-        const bone = rigComponent.vrm.humanoid.getNormalizedBoneNode(boneName)
+        const bone = getComponent(rigComponent.bonesToEntities[boneName], NormalizedBoneComponent)
         if (!bone) continue
         bone.scale.setScalar(1)
         bone.updateMatrix()
         if (boneName === 'hips') continue
         bone.updateMatrixWorld()
-        const worldMatrix = rawRig[boneName]!.node.matrixWorld.elements
+        const worldMatrix = getComponent(rig[boneName], BoneComponent).matrixWorld.elements
         bone.matrixWorld.elements[13] = worldMatrix[13]
         bone.matrixWorld.elements[12] = worldMatrix[12]
         bone.matrixWorld.elements[14] = worldMatrix[14]
@@ -230,13 +238,14 @@ const execute = () => {
         entity,
         rightHandTransform.position,
         rightHandTransform.rotation,
-        rawRig.rightUpperArm.node.getWorldPosition(_vector3),
+        getComponent(rig.rightUpperArm, BoneComponent).getWorldPosition(_vector3),
         'right',
         _hint
       )
 
+      const upperArmEntity = getComponent(rig.rightUpperArm, EntityTreeComponent).parentEntity
       solveTwoBoneIK(
-        normalizedRig.rightUpperArm.node.parent!.matrixWorld,
+        getComponent(upperArmEntity, NormalizedBoneComponent).matrixWorld,
         rigComponent.ikMatrices.rightUpperArm!,
         rigComponent.ikMatrices.rightLowerArm!,
         rigComponent.ikMatrices.rightHand!,
@@ -253,13 +262,14 @@ const execute = () => {
         entity,
         leftHandTransform.position,
         leftHandTransform.rotation,
-        rawRig.leftUpperArm.node.getWorldPosition(_vector3),
+        getComponent(rig.leftUpperArm, BoneComponent).getWorldPosition(_vector3),
         'left',
         _hint
       )
 
+      const upperArmEntity = getComponent(rig.leftUpperArm, EntityTreeComponent).parentEntity
       solveTwoBoneIK(
-        normalizedRig.leftUpperArm.node.parent!.matrixWorld,
+        getComponent(upperArmEntity, NormalizedBoneComponent).matrixWorld,
         rigComponent.ikMatrices.leftUpperArm!,
         rigComponent.ikMatrices.leftLowerArm!,
         rigComponent.ikMatrices.leftHand!,
@@ -278,7 +288,7 @@ const execute = () => {
         .add(transform.position)
 
       solveTwoBoneIK(
-        normalizedRig.hips.node.matrixWorld,
+        getComponent(rig.hips, NormalizedBoneComponent).matrixWorld,
         rigComponent.ikMatrices.rightUpperLeg!,
         rigComponent.ikMatrices.rightLowerLeg!,
         rigComponent.ikMatrices.rightFoot!,
@@ -297,7 +307,7 @@ const execute = () => {
         .add(transform.position)
 
       solveTwoBoneIK(
-        normalizedRig.hips.node.matrixWorld,
+        getComponent(rig.hips, NormalizedBoneComponent).matrixWorld,
         rigComponent.ikMatrices.leftUpperLeg!,
         rigComponent.ikMatrices.leftLowerLeg!,
         rigComponent.ikMatrices.leftFoot!,
@@ -310,11 +320,11 @@ const execute = () => {
     }
 
     if (hasComponent(entity, XRRightHandComponent)) {
-      applyHandRotationFK(rigComponent.vrm, 'right', getComponent(entity, XRRightHandComponent).rotations)
+      applyHandRotationFK(entity, 'right', getComponent(entity, XRRightHandComponent).rotations)
     }
 
     if (hasComponent(entity, XRLeftHandComponent)) {
-      applyHandRotationFK(rigComponent.vrm, 'left', getComponent(entity, XRLeftHandComponent).rotations)
+      applyHandRotationFK(entity, 'left', getComponent(entity, XRLeftHandComponent).rotations)
     }
   }
 
@@ -338,9 +348,23 @@ const Reactor = () => {
   return null
 }
 
+/**
+ * @todo replace this with a retargeting utility to retarget the source animation assets rather than every time on load,
+ * and introduce a loader function that only loads the necessary data to avoid cleanup of the ecs armature
+ */
+export const setupMixamoAnimation = (entity: Entity) => {
+  normalizeAnimationClips(entity)
+  setComponent(entity, AvatarRigComponent)
+  traverseEntityNode(entity, (child) => {
+    const name = getComponent(child, NameComponent).replace(':', '')
+    if (mixamoVRMRigMap[name]) AvatarRigComponent.setBone(entity, child, mixamoVRMRigMap[name])
+  })
+  retargetAnimationClips(entity)
+}
+
 const runClipName = 'Run_RootMotion',
   walkClipName = 'Walk_RootMotion'
-const AnimationReactor = () => {
+const AnimationLoader = () => {
   const animations = [preloadedAnimations.locomotion, preloadedAnimations.emotes]
 
   const loadedAnimations = useLoadAnimationFromBatchGLTF(
@@ -357,15 +381,10 @@ const AnimationReactor = () => {
 
     let i = 0
     for (const [clips, entity] of loadedAnimations.value as [AnimationClip[] | null, Entity][]) {
-      /**
-       * @todo replace this with a retargeting utility to retarget the source animation assets rather than every time on load,
-       * and introduce a loader function that only loads the necessary data to avoid cleanup of the ecs armature
-       */
-      for (const animation of clips!) {
-        retargetAnimationClip(animation, entity)
-        bindAnimationClipFromMixamo(animation)
-      }
-      getMutableState(AnimationState).loadedAnimations[animations[i]].set(entity!)
+      if (getState(AnimationState).loadedAnimations[animations[i]]) continue
+
+      setupMixamoAnimation(entity)
+
       /** @todo handle avatar animation clips generically */
       const run = AnimationClip.findByName(clips ?? [], runClipName)
       const walk = AnimationClip.findByName(clips ?? [], walkClipName)
@@ -373,11 +392,47 @@ const AnimationReactor = () => {
       const movement = getMutableState(AvatarMovementSettingsState)
       if (run) movement.runSpeed.set(getRootSpeed(run))
       if (walk) movement.walkSpeed.set(getRootSpeed(walk))
-      for (const child of getComponent(entity, EntityTreeComponent).children) removeEntityNodeRecursively(child)
+
+      getMutableState(AnimationState).loadedAnimations[animations[i]].set(entity!)
       i++
     }
   }, [loadedAnimations.value])
 
+  return null
+}
+
+const RigReactor = (props: { entity: Entity }) => {
+  const entity = props.entity
+  const gltfComponent = useOptionalComponent(entity, GLTFComponent)
+  const avatarAnimationComponent = useOptionalComponent(entity, AvatarAnimationComponent)
+  useEffect(() => {
+    if (gltfComponent?.progress?.value !== 100 || !avatarAnimationComponent?.value) return
+    try {
+      createVRM(entity)
+      setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Avatars)
+      setupAvatarProportions(entity)
+    } catch (e) {
+      console.error('Failed to load avatar', e)
+      addError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
+      return () => {
+        removeError(entity, AvatarRigComponent, 'UNSUPPORTED_AVATAR')
+      }
+    }
+  }, [gltfComponent?.progress?.value, gltfComponent?.src.value, avatarAnimationComponent])
+
+  return null
+}
+
+const AnimationReactor = (props: { entity: Entity }) => {
+  const entity = props.entity
+  const rigComponent = useComponent(entity, AvatarRigComponent)
+  useEffect(() => {
+    if (!Object.values(rigComponent.entitiesToBones).length || !rigComponent.vrm.scene.value) return
+    setComponent(entity, AnimationComponent, {
+      animations: getAllLoadedAnimations(),
+      mixer: new AnimationMixer(rigComponent.vrm.scene.value as Group)
+    })
+  }, [entity, rigComponent.entitiesToBones, rigComponent.vrm.scene])
   return null
 }
 
@@ -386,11 +441,21 @@ export const AvatarAnimationSystem = defineSystem({
   insert: { after: AnimationSystem },
   execute,
   reactor: () => {
-    if (!isClient || !useQuery([RendererComponent]).length) return null
+    // if (!isClient || !useQuery([RendererComponent]).length) return null
+    const rigEntities = useQuery([AvatarRigComponent])
+    const avatarAnimationEntities = useQuery([AvatarAnimationComponent, AvatarComponent, AvatarRigComponent])
     return (
       <>
         <Reactor />
-        <AnimationReactor />
+        <AnimationLoader />
+        <>
+          {rigEntities.map((entity: Entity) => (
+            <RigReactor entity={entity} key={entity} />
+          ))}
+          {avatarAnimationEntities.map((entity: Entity) => (
+            <AnimationReactor entity={entity} key={entity} />
+          ))}
+        </>
       </>
     )
   }

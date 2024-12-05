@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { BadRequest, NotAuthenticated } from '@feathersjs/errors'
-import { Paginated, Params, ServiceInterface } from '@feathersjs/feathers'
+import { Paginated, ServiceInterface } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
 import https from 'https'
 import { Knex } from 'knex'
@@ -44,11 +44,13 @@ import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { getState } from '@ir-engine/hyperflux'
 
+import { instanceAttendancePath, InstanceAttendanceType } from '@ir-engine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 import getLocalServerIp from '../../util/get-local-server-ip'
+import { InstanceParams } from '../instance/instance.class'
 
 const releaseRegex = /^([a-zA-Z0-9_-]+)-instanceserver/
 
@@ -237,8 +239,7 @@ export async function checkForDuplicatedAssignments({
       channelId: channelId,
       assigned: true,
       assignedAt: toDateTimeSql(new Date()),
-      roomCode: '' as RoomCode,
-      currentUsers: 0
+      roomCode: '' as RoomCode
     },
     { headers }
   )) as InstanceType
@@ -409,6 +410,7 @@ export async function checkForDuplicatedAssignments({
       while (retry) {
         try {
           await fetch(protocol + ipAddress, options)
+          retry = false
           resolve(true)
         } catch (e) {
           // wait and try again
@@ -455,6 +457,62 @@ export async function checkForDuplicatedAssignments({
     port: split[1],
     podName: assignResult.podName,
     roomCode: assignResult.roomCode
+  }
+}
+
+export async function getP2PInstance({
+  app,
+  headers,
+  createPrivateRoom,
+  locationId,
+  channelId,
+  roomCode
+}: {
+  app: Application
+  headers: object
+  createPrivateRoom?: boolean
+  locationId?: LocationID
+  channelId?: ChannelID
+  roomCode?: RoomCode
+}): Promise<InstanceProvisionType> {
+  const query = {
+    assigned: true,
+    ended: false
+  } as any
+  if (locationId) query.locationId = locationId
+  if (channelId) query.channelId = channelId
+  if (!channelId && !locationId) throw new BadRequest('Missing location ID or channel ID')
+  /** @todo consider createPrivateRoom */
+  const instances = (await app.service(instancePath).find({
+    query,
+    paginate: false
+  })) as any as InstanceType[]
+
+  const activeInstances = instances.filter(
+    (instance) => instance.currentUsers < config.instanceserver.p2pMaxConnections
+  )
+  if (activeInstances.length > 0) {
+    // console.log(`\n\n\nProvisioned existing P2P ${activeInstances[0].locationId ? 'world' : 'media'} instance`, activeInstances[0])
+    return {
+      id: activeInstances[0].id,
+      p2p: true,
+      roomCode: activeInstances[0].roomCode
+    }
+  }
+  const newInstance = await app.service(instancePath).create(
+    {
+      locationId,
+      channelId,
+      assigned: true,
+      assignedAt: toDateTimeSql(new Date())
+    },
+    { headers }
+  )
+  // console.log(`\n\n\nProvisioned new P2P ${locationId ? 'world' : 'media'} instance`, newInstance)
+  return {
+    id: newInstance.id,
+    p2p: true,
+    roomCode: newInstance.roomCode
   }
 }
 
@@ -645,12 +703,22 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
       if (identityProvider != null) userId = identityProvider.userId
       else throw new BadRequest('Invalid user credentials')
 
-      if (channelId != null) {
+      if (channelId) {
         try {
           await this.app.service(channelPath).get(channelId)
         } catch (err) {
-          throw new BadRequest('Invalid channel ID', channelId)
+          throw new BadRequest(`Invalid channel ID: ${channelId}`)
         }
+
+        if (config.instanceserver.p2pEnabled) {
+          return getP2PInstance({
+            app: this.app,
+            headers: params.headers || {},
+            channelId,
+            roomCode
+          })
+        }
+
         const channelInstance = (await this.app.service(instancePath).find({
           query: {
             channelId: channelId,
@@ -658,7 +726,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
             $limit: 1
           }
         })) as Paginated<InstanceType>
-        if (channelInstance == null || channelInstance.data.length === 0)
+        if (channelInstance == null || channelInstance.data.length === 0) {
           return getFreeInstanceserver({
             app: this.app,
             headers: params.headers || {},
@@ -668,7 +736,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
             userId,
             provisionConstraints
           })
-        else {
+        } else {
           if (config.kubernetes.enabled) {
             const isCleanup = await this.isCleanup(channelInstance.data[0])
             if (isCleanup)
@@ -701,17 +769,34 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         if (instanceId != null) {
           instance = await this.app.service(instancePath).get(instanceId)
         } else if (roomCode != null) {
-          const instances = (await this.app.service(instancePath).find({
+          const instanceQuery = {
             query: {
               roomCode,
               ended: false
             },
             paginate: false
-          })) as any as InstanceType[]
+          } as InstanceParams
+
+          // ensure that if we switch from p2p to non-p2p, we don't get a p2p instance
+          if (!config.instanceserver.p2pEnabled) {
+            instanceQuery.query!.ipAddress = {
+              $ne: 'null'
+            }
+          }
+          const instances = (await this.app.service(instancePath).find(instanceQuery)) as any as InstanceType[]
           instance = instances.length > 0 ? instances[0] : null
         }
 
-        if ((roomCode && (instance == null || instance.ended)) || createPrivateRoom)
+        if ((roomCode && (!instance || instance.ended)) || createPrivateRoom) {
+          if (config.instanceserver.p2pEnabled) {
+            return getP2PInstance({
+              app: this.app,
+              headers: params.headers || {},
+              channelId,
+              roomCode
+            })
+          }
+
           return getFreeInstanceserver({
             app: this.app,
             headers: params.headers || {},
@@ -722,10 +807,20 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
             createPrivateRoom,
             provisionConstraints
           })
+        }
 
         let isCleanup
 
         if (instance) {
+          if (config.instanceserver.p2pEnabled) {
+            return getP2PInstance({
+              app: this.app,
+              headers: params.headers || {},
+              locationId,
+              roomCode
+            })
+          }
+
           if (config.kubernetes.enabled) isCleanup = await this.isCleanup(instance)
           if (
             (!config.kubernetes.enabled || (config.kubernetes.enabled && !isCleanup)) &&
@@ -813,6 +908,15 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         //   }
         // }
 
+        if (config.instanceserver.p2pEnabled) {
+          return getP2PInstance({
+            app: this.app,
+            headers: params.headers || {},
+            locationId,
+            roomCode
+          })
+        }
+
         const knexClient: Knex = this.app.get('knexClient')
 
         const response = await knexClient
@@ -848,6 +952,20 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
 
           instance.instance_authorized_users =
             instanceAuthorizedUsers.find((user) => user.instanceId === instance.id) || []
+
+          const peers = (await this.app.service(instanceAttendancePath).find({
+            query: {
+              instanceId: instance.id,
+              ended: false,
+              updatedAt: {
+                // Only consider instances that have been updated in the last 10 seconds
+                $gt: toDateTimeSql(new Date(new Date().getTime() - 10000))
+              }
+            },
+            paginate: false
+          })) as any as InstanceAttendanceType[]
+          const users = _.uniq(peers.map((peer) => peer.userId))
+          instance.currentUsers = users.length
         }
 
         const allowedLocationInstances = availableLocationInstances.filter(
@@ -857,7 +975,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
               (instanceAuthorizedUser) => instanceAuthorizedUser.userId === userId
             )
         )
-        if (allowedLocationInstances.length === 0)
+        if (allowedLocationInstances.length === 0) {
           return getFreeInstanceserver({
             app: this.app,
             headers: params.headers || {},
@@ -867,36 +985,20 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
             userId,
             provisionConstraints
           })
-        else
+        } else {
           return this.getISInService({
             availableLocationInstances: allowedLocationInstances,
             headers: params.headers || {},
             locationId,
-            channelId,
             roomCode,
             userId,
             provisionConstraints
           })
+        }
       }
     } catch (err) {
       logger.error(err)
       throw err
     }
-  }
-
-  /**
-   * A method which is used to create instance
-   *
-   * @param data which is used to create instance
-   * @param params
-   * @returns data of instance
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async create(data: any, params?: Params): Promise<any> {
-    if (Array.isArray(data)) {
-      return Promise.all(data.map((current) => this.create(current, params)))
-    }
-
-    return data
   }
 }
