@@ -28,14 +28,14 @@ import { twMerge } from 'tailwind-merge'
 import { HelpIconSm } from '../../../icons'
 import Tooltip from '../Tooltip'
 
-export const variantSizes = {
+export const heights = {
   xs: 'h-6 py-0.5 px-2',
   l: 'h-8 py-1.5 px-2',
   xl: 'h-10 py-2.5 px-2'
 } as const
 
 export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'className'> {
-  variantSize?: keyof typeof variantSizes
+  height?: keyof typeof heights
 
   /**
    * Optional React node to display at the start (left) of the s field.
@@ -74,7 +74,7 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
 
 const Input = (
   {
-    variantSize = 'l',
+    height = 'l',
     startComponent,
     endComponent,
     state,
@@ -137,7 +137,7 @@ const Input = (
         <div
           className={twMerge(
             'flex w-full items-center gap-x-2 rounded-md border-[0.5px] border-[#42454D] bg-[#141619] transition-colors duration-300',
-            variantSizes[variantSize],
+            heights[height],
             'hover:border-[#9CA0AA] hover:bg-[#191B1F]',
             'has-[:focus]:border-[#375DAF] has-[:focus]:outline-none',
             'has-[:disabled]:border-[#42454D] has-[:disabled]:bg-[#191B1F]',

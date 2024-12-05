@@ -28,10 +28,10 @@ import { ArgTypes, StoryFn } from '@storybook/react'
 import React from 'react'
 import Input, { InputProps } from './index'
 
-const sizes: InputProps['variantSize'][] = ['xs', 'l', 'xl']
+const sizes: InputProps['height'][] = ['xs', 'l', 'xl']
 
 const argTypes: ArgTypes = {
-  variantSize: {
+  size: {
     control: {
       type: 'select'
     },
@@ -115,7 +115,7 @@ export const Default = Template.bind({})
 Default.args = {
   value: 'ir@infinityreality.com',
   placeholder: 'Email Address',
-  variantSize: 'l'
+  size: 'l'
 }
 
 export const FullWidth = Template.bind({})
@@ -123,7 +123,7 @@ FullWidth.args = {
   value: 'ir@infinityreality.com',
   fullWidth: true,
   placeholder: 'Email Address',
-  variantSize: 'l'
+  size: 'l'
 }
 
 export const InputWithLeadingIcon = Template.bind({})
@@ -131,7 +131,7 @@ InputWithLeadingIcon.args = {
   value: 'ir@infinityreality.com',
   placeholder: 'Email Address',
   startComponent: <Globe01Sm />,
-  variantSize: 'l'
+  size: 'l'
 }
 
 export const InputWithTrailingIcon = Template.bind({})
@@ -143,7 +143,7 @@ InputWithTrailingIcon.args = {
       <HelpIconSm />
     </button>
   ),
-  variantSize: 'l'
+  size: 'l'
 }
 
 export const InputWithBothIcons = Template.bind({})
@@ -156,5 +156,5 @@ InputWithBothIcons.args = {
       <HelpIconSm />
     </button>
   ),
-  variantSize: 'l'
+  size: 'l'
 }
