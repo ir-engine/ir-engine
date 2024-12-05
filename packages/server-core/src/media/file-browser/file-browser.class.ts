@@ -30,25 +30,28 @@ import fs from 'fs'
 import { Knex } from 'knex'
 import path from 'path/posix'
 
-import { projectPath, ProjectType } from '@ir-engine/common/src/schema.type.module'
+import { projectPath, ProjectType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import {
   FileBrowserContentType,
   FileBrowserPatch,
   FileBrowserUpdate
 } from '@ir-engine/common/src/schemas/media/file-browser.schema'
 import { invalidationPath } from '@ir-engine/common/src/schemas/media/invalidation.schema'
-import { staticResourcePath, StaticResourceType } from '@ir-engine/common/src/schemas/media/static-resource.schema'
+import { StaticResourceType } from '@ir-engine/common/src/schemas/media/static-resource.schema'
 import {
   projectPermissionPath,
   ProjectPermissionType
 } from '@ir-engine/common/src/schemas/projects/project-permission.schema'
 import { checkScope } from '@ir-engine/common/src/utils/checkScope'
+import { isValidFileExtension, isValidFileName, isValidFilePath } from '@ir-engine/common/src/utils/validateFileName'
 import isValidSceneName from '@ir-engine/common/src/utils/validateSceneName'
 
 import { BadRequest } from '@feathersjs/errors/lib'
+import { PROJECT_CAPTURE_REGEX, PROJECT_REGEX } from '@ir-engine/common/src/regex'
 import { copyFolderRecursiveSync } from '@ir-engine/common/src/utils/fsHelperFunctions'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import verifyProjectPermission from '../../hooks/verify-project-permission'
 import { getContentType } from '../../util/fileUtils'
 import { getIncrementalName } from '../FileUtil'
 import { getStorageProvider } from '../storageprovider/storageprovider'
@@ -60,7 +63,62 @@ export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects
 export interface FileBrowserParams extends KnexAdapterParams {}
 
 const ensureProjectsDirectory = (directory: string) => {
-  if (!directory.startsWith('projects')) throw new Error(`Not allowed to access directory "${directory}"`)
+  const resolvedDirectory = path.join(directory)
+  if (!resolvedDirectory.startsWith('projects'))
+    throw new Error(`Not allowed to access directory "${resolvedDirectory}"`)
+}
+
+const ensureProjectPermissionAndPublicOrAssetsDirectory = async (
+  inputPath: string,
+  projectName: string,
+  app: Application,
+  params: FileBrowserParams
+) => {
+  if (!PROJECT_REGEX.test(inputPath)) throw new BadRequest('Invalid path: ' + inputPath + '; not in a valid project')
+  const pathSplit = inputPath.split('/')
+  const fileNameSplit = pathSplit[pathSplit.length - 1].split('.')
+  const isDirectory = fileNameSplit.length === 1
+  const filePath = path.join(...pathSplit.slice(0, isDirectory ? pathSplit.length : pathSplit.length - 1))
+  if (!isValidFilePath(filePath))
+    throw new BadRequest(
+      'Invalid path: ' +
+        filePath +
+        '; directories can only contain alphanumeric characters, dashes, underscores, dots, and @'
+    )
+  if (!isDirectory) {
+    if (!isValidFileName(fileNameSplit[0]))
+      throw new BadRequest(
+        'Invalid file name: ' +
+          fileNameSplit[0] +
+          '; file names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots'
+      )
+    if (!isValidFileExtension(fileNameSplit[1]))
+      throw new BadRequest(
+        'Invalid file extension: ' + fileNameSplit[1] + '; file extension must be 2-4 alphanumeric characters'
+      )
+  }
+
+  await verifyProjectPermission(['owner', 'editor'])({
+    data: {
+      project: projectName
+    },
+    params,
+    app: app
+  } as any)
+
+  const resolvedPath = path.resolve(inputPath)
+  const resolvedProjectPath = path.resolve('projects', projectName)
+  const publicRegExp = new RegExp(`^${resolvedProjectPath}/public/`)
+  const assetsRegExp = new RegExp(`^${resolvedProjectPath}/assets/`)
+
+  if (!publicRegExp.test(resolvedPath) && !assetsRegExp.test(resolvedPath))
+    throw new Error(
+      'Not allowed to access this directory or file: ' +
+        path.join(inputPath) +
+        ' as it does not match the specified project: ' +
+        projectName +
+        ' or it is not in the public or assets folder'
+    )
 }
 
 /**
@@ -85,12 +143,21 @@ export class FileBrowserService
    * Returns the metadata for a single file or directory
    */
   async get(key: string, params?: FileBrowserParams) {
+    key = decodeURIComponent(key)
     if (!key) return false
     const storageProvider = getStorageProvider()
     let [_, directory, file] = /(.*)\/([^\\\/]+$)/.exec(key)!
     if (directory[0] === '/') directory = directory.slice(1)
 
     ensureProjectsDirectory(directory)
+
+    const joinedDirectory = path.join(key)
+    const projectRegexExec = PROJECT_CAPTURE_REGEX.exec(joinedDirectory)
+    if (!projectRegexExec || projectRegexExec.length < 3)
+      throw new BadRequest('Invalid project path: ' + joinedDirectory)
+    const projectName = `${projectRegexExec[1]}/${projectRegexExec[2]}`
+
+    await ensureProjectPermissionAndPublicOrAssetsDirectory(key, projectName, this.app, params!)
 
     return await storageProvider.doesExist(file, directory)
   }
@@ -142,11 +209,13 @@ export class FileBrowserService
       }
 
       const allowedProjectNames = projectPermissions.map((permission) => permission.project.name)
-      result = result.filter((item) => {
+      const filtered = result.filter((item) => {
         return (
           allowedProjectNames.some((project) => item.key.startsWith(`projects/${project}`)) || item.name === 'projects'
         )
       })
+      total = total - (result.length - filtered.length)
+      result = filtered
     }
 
     const resourceQuery = (await this.app.service(staticResourcePath).find({
@@ -184,6 +253,21 @@ export class FileBrowserService
 
     ensureProjectsDirectory(directory)
 
+    const joinedDirectory = path.join(directory)
+    const projectRegexExec = PROJECT_CAPTURE_REGEX.exec(joinedDirectory)
+    if (!projectRegexExec || projectRegexExec.length < 3)
+      throw new BadRequest('Invalid project path: ' + joinedDirectory)
+    const projectName = `${projectRegexExec[1]}/${projectRegexExec[2]}`
+
+    await ensureProjectPermissionAndPublicOrAssetsDirectory(directory, projectName, this.app, params!)
+
+    if (!isValidFilePath(joinedDirectory))
+      throw new BadRequest(
+        'Invalid directory: ' +
+          joinedDirectory +
+          '; directories can only contain alphanumeric characters, dashes, underscores, dots, and @'
+      )
+
     const parentPath = path.dirname(directory)
     const key = await getIncrementalName(path.basename(directory), parentPath, storageProvider, true)
     const keyPath = path.join(parentPath, key)
@@ -210,14 +294,42 @@ export class FileBrowserService
     delete data.storageProviderName
     const storageProvider = getStorageProvider(storageProviderName)
 
+    await ensureProjectPermissionAndPublicOrAssetsDirectory(
+      path.join(data.oldPath, data.oldName),
+      data.oldProject,
+      this.app,
+      params!
+    )
+
+    await ensureProjectPermissionAndPublicOrAssetsDirectory(
+      path.join(data.newPath, data.newName),
+      data.newProject,
+      this.app,
+      params!
+    )
+
     /** @todo future proofing for when projects include orgname */
     if (!data.oldPath.startsWith('projects/' + data.oldProject))
-      throw new Error('Not allowed to access this directory ' + data.oldPath + ' ' + data.oldProject)
+      throw new Error(
+        'Not allowed to access this directory: ' +
+          data.oldPath +
+          ' as it does not match specified project ' +
+          data.oldProject
+      )
     if (!data.newPath.startsWith('projects/' + data.newProject))
-      throw new Error('Not allowed to access this directory ' + data.newPath + ' ' + data.newProject)
+      throw new Error(
+        'Not allowed to access this directory: ' +
+          data.newPath +
+          ' as it does not match specified project ' +
+          data.newProject
+      )
 
-    const oldDirectory = data.oldPath.split('/').slice(0, -1).join('/')
-    const newDirectory = data.newPath.split('/').slice(0, -1).join('/')
+    const oldDirectory = data.oldPath.endsWith('/')
+      ? data.oldPath.split('/').slice(0, -1).join('/')
+      : data.oldPath.split('/').join('/')
+    const newDirectory = data.newPath.endsWith('/')
+      ? data.newPath.split('/').slice(0, -1).join('/')
+      : data.newPath.split('/').join('/')
     const oldName = data.oldName.endsWith('/') ? data.oldName.slice(0, -1) : data.oldName
     const newName = data.newName.endsWith('/') ? data.newName.slice(0, -1) : data.newName
 
@@ -330,8 +442,12 @@ export class FileBrowserService
    * Upload file
    */
   async patch(id: NullableId, data: FileBrowserPatch, params?: FileBrowserParams) {
-    if (!data.path.startsWith('assets/') && !data.path.startsWith('public/'))
-      throw new Error('Not allowed to access this directory ' + data.path)
+    await ensureProjectPermissionAndPublicOrAssetsDirectory(
+      path.join('projects', data.project, data.path),
+      data.project,
+      this.app,
+      params!
+    )
 
     if (typeof data.body === 'string') {
       const url = new URL(data.body)
@@ -347,9 +463,7 @@ export class FileBrowserService
     if (data.type === 'scene') validateSceneName(data.path)
 
     let key = path.join('projects', data.project, data.path)
-    if (data.unique) {
-      key = await ensureUniqueName(this.app, key)
-    }
+    if (data.unique) key = await ensureUniqueName(this.app, key)
 
     /** @todo should we allow user-specific content types? Or standardize on the backend? */
     const contentType = data.contentType ?? getContentType(key)
@@ -387,15 +501,24 @@ export class FileBrowserService
     const storageProviderName = params?.query?.storageProviderName
     if (storageProviderName) delete params.query?.storageProviderName
 
+    key = decodeURIComponent(key)
     ensureProjectsDirectory(key)
 
+    const joinedDirectory = path.join(key)
+    const projectRegexExec = PROJECT_CAPTURE_REGEX.exec(joinedDirectory)
+    if (!projectRegexExec || projectRegexExec.length < 3)
+      throw new BadRequest('Invalid project path: ' + joinedDirectory)
+    const projectName = `${projectRegexExec[1]}/${projectRegexExec[2]}`
+
+    await ensureProjectPermissionAndPublicOrAssetsDirectory(key, projectName, this.app, params!)
+
     const storageProvider = getStorageProvider(storageProviderName)
-    const dirs = await storageProvider.listObjects(key, true)
-    const result = await storageProvider.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])
+    const dirs = await storageProvider.listObjects(joinedDirectory, true)
+    const result = await storageProvider.deleteResources([joinedDirectory, ...dirs.Contents.map((a) => a.Key)])
 
     const staticResources = (await this.app.service(staticResourcePath).find({
       query: {
-        key: { $like: `%${key}%` }
+        key: { $like: `%${joinedDirectory}%` }
       },
       paginate: false
     })) as StaticResourceType[]

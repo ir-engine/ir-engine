@@ -280,16 +280,19 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        await assert.rejects(async () => {
-          const res = await app.service(projectPermissionPath).create(
-            {
-              projectId: project1.id,
-              userId: user3.id,
-              type: 'editor'
-            },
-            params
-          )
-        }, new Forbidden('Missing required project permission'))
+        await assert.rejects(
+          async () => {
+            const res = await app.service(projectPermissionPath).create(
+              {
+                projectId: project1.id,
+                userId: user3.id,
+                type: 'editor'
+              },
+              params
+            )
+          },
+          new Forbidden('Missing required project permission for ' + project1.name)
+        )
       })
 
       it('should not allow a user with no permission on a project to create new permissions for that project', async function () {
@@ -388,15 +391,18 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        await assert.rejects(async () => {
-          await app.service(projectPermissionPath).patch(
-            project1Permission2.id,
-            {
-              type: ''
-            },
-            params
-          )
-        }, new Forbidden('Missing required project permission'))
+        await assert.rejects(
+          async () => {
+            await app.service(projectPermissionPath).patch(
+              project1Permission2.id,
+              {
+                type: ''
+              },
+              params
+            )
+          },
+          new Forbidden('Missing required project permission for ' + project1.name)
+        )
       })
 
       it('should not allow a user with no permission on a project to patch permissions for that project', async function () {
@@ -434,9 +440,12 @@ describe('project-permission.test', () => {
           provider: 'rest'
         }
 
-        await assert.rejects(async () => {
-          await app.service(projectPermissionPath).remove(project1Permission2.id, params)
-        }, new Forbidden('Missing required project permission'))
+        await assert.rejects(
+          async () => {
+            await app.service(projectPermissionPath).remove(project1Permission2.id, params)
+          },
+          new Forbidden('Missing required project permission for ' + project1.name)
+        )
       })
 
       it('should not allow a user with no permission on a project to remove permissions for that project', async function () {
