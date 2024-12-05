@@ -333,10 +333,12 @@ export function getTreeFromChildToAncestor(
   ancestorEntity: Entity = UndefinedEntity
 ): boolean {
   outEntities.push(childEntity)
+  if (ancestorEntity === childEntity) return true
   let found = false
   traverseEntityNodeParent(childEntity, (parent) => {
     if (ancestorEntity !== UndefinedEntity && parent === ancestorEntity) {
       found = true
+      outEntities.push(parent)
       return true
     }
     outEntities.push(parent)
