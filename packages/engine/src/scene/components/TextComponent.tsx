@@ -60,7 +60,7 @@ const TroikaTextDirectionSchema = S.LiteralUnion(['auto', 'ltr', 'rtl'], 'auto')
  * @notes troika.Text alignment type, as declared by `troika-three-text` in its Text.textAlign `@member` property.
  */
 export type TroikaTextAlignment = 'left' | 'center' | 'right' | 'justify'
-const TroikaTextAlignmentSchema = S.LiteralUnion(['left', 'center', 'right', 'justify'], 'left')
+const TroikaTextAlignmentSchema = S.LiteralUnion(['left', 'center', 'right', 'justify'], 'justify')
 
 /**
  * @description
@@ -97,6 +97,7 @@ const TroikaTextLineHeightSchema = S.Union([S.Number(), S.Literal('normal')], 'n
  *
  * @example
  * import { Text as TroikaText } from 'troika-three-text'
+import { hasComponent } from '../../../../ecs/src/ComponentFunctions';
  * let textMesh = new TroikaText() as TextMesh
  *
  * @note
@@ -195,7 +196,7 @@ export const TextComponent = defineComponent({
     textAlign: TroikaTextAlignmentSchema,
     textWrap: S.Bool(true), // Maps to: troika.Text.whiteSpace as TroikaTextWrap
     textWrapKind: TroikaTextWrapKindSchema, // Maps to troika.Text.overflowWrap
-    textAnchor: S.Vec2({ x: 0, y: 100 }), // range[0..100+], sent to troika as [0..100]% :string
+    textAnchor: S.Vec2({ x: 0, y: 0 }), // range[0..100+], sent to troika as [0..100]% :string
     textDepthOffset: S.Number(0), // For Z-fighting adjustments. Similar to anchor.Z
     textCurveRadius: S.Number(0),
     letterSpacing: S.Number(0),
@@ -208,14 +209,14 @@ export const TextComponent = defineComponent({
     fontColor: S.Color(0xffffff),
     fontMaterial: S.Enum(FontMaterialKind, FontMaterialKind.Basic), // Default to whatever value is marked at id=0 in FontMaterialKind
     // Font Outline Properties
-    outlineOpacity: S.Number(100, { minimum: 0, maximum: 100 }), // range[0..100], sent to troika as [0..1] :number
-    outlineWidth: S.Number(100, { minimum: 0, maximum: 100 }), // range[0..100+], sent to troika as [0..100]% :string
-    outlineBlur: S.Number(100, { minimum: 0, maximum: 100 }), // range[0..100+], sent to troika as [0..100]% :string
+    outlineOpacity: S.Number(0, { minimum: 0, maximum: 100 }), // range[0..100], sent to troika as [0..1] :number
+    outlineWidth: S.Number(0, { minimum: 0, maximum: 100 }), // range[0..100+], sent to troika as [0..100]% :string
+    outlineBlur: S.Number(0, { minimum: 0, maximum: 100 }), // range[0..100+], sent to troika as [0..100]% :string
     outlineOffset: S.Vec2({ x: 0, y: 100 }), // range[0..100+], sent to troika as [0..100]% :string
-    outlineColor: S.Color(0x000000),
+    outlineColor: S.Color(0xffffff),
     // Font Stroke Properties
-    strokeOpacity: S.Number(100, { minimum: 0, maximum: 100 }), // range[0..100], sent to troika as [0..1] :number
-    strokeWidth: S.Number(100, { minimum: 0, maximum: 100 }), // range[0..100+], sent to troika as [0..100]% :string
+    strokeOpacity: S.Number(0, { minimum: 0, maximum: 100 }), // range[0..100], sent to troika as [0..1] :number
+    strokeWidth: S.Number(0, { minimum: 0, maximum: 100 }), // range[0..100+], sent to troika as [0..100]% :string
     strokeColor: S.Color(0x444444),
 
     // Advanced Configuration
@@ -246,12 +247,17 @@ export const TextComponent = defineComponent({
 
     useEffect(() => {
       const troikaMesh = text.troikaMesh.value! as TextMesh
+      console.log('DEBUG in text', text.troikaMesh.value, troikaMesh)
+
+      Object.hasOwn(troikaMesh, 'text')
+
       troikaMesh.text = text.text.value
       troikaMesh.sync()
     }, [text.text])
 
     useEffect(() => {
       const troikaMesh = text.troikaMesh.value! as TextMesh
+
       troikaMesh.fillOpacity = text.textOpacity.value / 100
       troikaMesh.sync()
     }, [text.textOpacity])
@@ -336,6 +342,7 @@ export const TextComponent = defineComponent({
     }, [text.fontSize])
 
     useEffect(() => {
+      console.log('DEBUG fontcolor', text.troikaMesh.value)
       const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.color = toTroikaColor(text.fontColor.value)
       troikaMesh.sync()
