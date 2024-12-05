@@ -40,6 +40,7 @@ import { UndefinedEntity } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { mergeBufferGeometries } from '../../../common/classes/BufferGeometryUtils'
 import { useDisposable } from '../../../resources/resourceHooks'
+import { T } from '../../../schema/schemaFunctions'
 import { EntityTreeComponent } from '../../../transform/components/EntityTree'
 import { RendererState } from '../../RendererState'
 import { LineSegmentComponent } from '../LineSegmentComponent'
@@ -108,7 +109,7 @@ export const DirectionalLightComponent = defineComponent({
 
   schema: S.Object({
     light: S.NonSerialized(S.Type<DirectionalLight>()),
-    color: S.Color(),
+    color: T.Color(),
     intensity: S.Number(1),
     castShadow: S.Bool(false),
     shadowBias: S.Number(-0.00001),

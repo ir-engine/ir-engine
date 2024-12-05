@@ -34,6 +34,7 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import {
   EntityTreeComponent,
   removeEntityNodeRecursively
@@ -45,9 +46,9 @@ export const CameraGizmoVisualComponent = defineComponent({
   name: 'CameraGizmoVisual',
 
   schema: S.Object({
-    sceneEntity: S.Entity(),
-    gizmo: S.Entity(),
-    picker: S.Entity()
+    sceneEntity: T.Entity(),
+    gizmo: T.Entity(),
+    picker: T.Entity()
   }),
 
   reactor: function () {

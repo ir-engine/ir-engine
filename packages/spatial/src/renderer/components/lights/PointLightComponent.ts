@@ -39,6 +39,7 @@ import { NO_PROXY, useImmediateEffect, useMutableState } from '@ir-engine/hyperf
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useHelperEntity } from '../../../common/debug/useHelperEntity'
 import { useDisposable } from '../../../resources/resourceHooks'
+import { T } from '../../../schema/schemaFunctions'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { RendererState } from '../../RendererState'
 import { ObjectComponent } from '../ObjectComponent'
@@ -49,14 +50,14 @@ export const PointLightComponent = defineComponent({
   jsonID: 'EE_point_light',
 
   schema: S.Object({
-    color: S.Color(0xffffff),
+    color: T.Color(0xffffff),
     intensity: S.Number(1),
     range: S.Number(0),
     decay: S.Number(2),
     castShadow: S.Bool(false),
     shadowBias: S.Number(0.5),
     shadowRadius: S.Number(1),
-    helperEntity: S.NonSerialized(S.Nullable(S.Entity()))
+    helperEntity: T.Entity()
   }),
 
   reactor: function () {

@@ -24,13 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useLayoutEffect } from 'react'
-import { ColorRepresentation, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 'three'
+import { Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 'three'
 
 import { defineComponent, removeComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { matches } from '@ir-engine/hyperflux'
-import { matchesColor } from '@ir-engine/spatial/src/common/functions/MatchesUtils'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
@@ -38,36 +36,16 @@ import { BodyTypes, Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsT
 import { useMeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 
 export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',
   jsonID: 'EE_ground_plane',
 
   schema: S.Object({
-    color: S.Color(0xffffff),
+    color: T.Color(0xffffff),
     visible: S.Bool(true)
   }),
-
-  onInit(entity) {
-    return {
-      color: 0xffffff as ColorRepresentation,
-      visible: true
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-
-    if (matchesColor.test(json.color)) component.color.set(json.color)
-    if (matches.boolean.test(json.visible)) component.visible.set(json.visible)
-  },
-
-  toJSON: (component) => {
-    return {
-      color: component.color,
-      visible: component.visible
-    }
-  },
 
   reactor: function () {
     const entity = useEntityContext()

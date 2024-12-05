@@ -50,6 +50,7 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import {
   onGizmoCommit,
   onPointerDown,
@@ -65,10 +66,10 @@ export const TransformGizmoControlComponent = defineComponent({
   name: 'TransformGizmoControlComponent',
 
   schema: S.Object({
-    controlledEntities: S.Array(S.Entity(), []),
-    visualEntity: S.Entity(),
-    planeEntity: S.Entity(),
-    pivotEntity: S.Entity(),
+    controlledEntities: S.Array(T.Entity(), []),
+    visualEntity: T.Entity(),
+    planeEntity: T.Entity(),
+    pivotEntity: T.Entity(),
     enabled: S.Bool(true),
     dragging: S.Bool(false),
     axis: S.Nullable(S.LiteralUnion(Object.values(TransformAxis)), null),
@@ -81,15 +82,15 @@ export const TransformGizmoControlComponent = defineComponent({
     showX: S.Bool(true),
     showY: S.Bool(true),
     showZ: S.Bool(true),
-    worldPosition: S.Vec3(),
-    worldPositionStart: S.Vec3(),
-    worldQuaternion: S.Quaternion(),
-    worldQuaternionStart: S.Quaternion(),
-    pointStart: S.Vec3(),
-    pointEnd: S.Vec3(),
-    rotationAxis: S.Vec3(),
+    worldPosition: T.Vec3(),
+    worldPositionStart: T.Vec3(),
+    worldQuaternion: T.Quaternion(),
+    worldQuaternionStart: T.Quaternion(),
+    pointStart: T.Vec3(),
+    pointEnd: T.Vec3(),
+    rotationAxis: T.Vec3(),
     rotationAngle: S.Number(0),
-    eye: S.Vec3()
+    eye: T.Vec3()
   }),
 
   reactor: function (props) {

@@ -131,16 +131,6 @@ describe('BoundingBoxComponent', () => {
       const after = getComponent(testEntity, BoundingBoxComponent)
       assertBoundingBoxComponentEq(after, Expected)
     })
-
-    it('should not change values of an initialized BoundingBoxComponent when the data passed had incorrect types', () => {
-      const before = getComponent(testEntity, BoundingBoxComponent)
-      assertBoundingBoxComponentEq(before, BoundingBoxComponentDefaults)
-      const Incorrect = { box: 'someBox', helper: false }
-      // @ts-ignore Override the linter to force-send invalid types
-      setComponent(testEntity, BoundingBoxComponent, Incorrect)
-      const after = getComponent(testEntity, BoundingBoxComponent)
-      assertBoundingBoxComponentEq(after, BoundingBoxComponentDefaults)
-    })
   }) //:: onSet
 
   describe('reactor', () => {

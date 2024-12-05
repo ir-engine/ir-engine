@@ -57,6 +57,7 @@ import { defineState, getMutableState, getState, NO_PROXY, none, State, useMutab
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { Effect, EffectComposer, EffectPass, OutlineEffect } from 'postprocessing'
 import { CameraComponent } from '../camera/components/CameraComponent'
+import { T } from '../schema/schemaFunctions'
 import { getNestedChildren } from '../transform/components/EntityTree'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
 import { XRState } from '../xr/XRState'
@@ -102,7 +103,7 @@ export const RendererComponent = defineComponent({
       renderer: S.Nullable(S.Type<WebGLRenderer>()),
       effectComposer: S.Nullable(S.Type<EffectComposer>()),
 
-      scenes: S.Array(S.Entity()),
+      scenes: S.Array(T.Entity()),
       scene: S.Class(() => new Scene()),
 
       /** @todo deprecate and replace with engine implementation */

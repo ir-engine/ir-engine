@@ -154,7 +154,7 @@ describe('LookAtSystem', () => {
           setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42), rotation: Initial })
           setComponent(facerEntity, UUIDComponent, UUIDComponent.generateUUID())
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
-          setComponent(testEntity, LookAtComponent, { target: null })
+          setComponent(testEntity, LookAtComponent, { target: '' as EntityUUID })
           // Sanity check before running
           assert.equal(Boolean(getState(EngineState).viewerEntity), true)
           assert.equal(hasComponent(testEntity, TransformComponent), true)
@@ -175,7 +175,7 @@ describe('LookAtSystem', () => {
           setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42), rotation: Initial })
           setComponent(facerEntity, UUIDComponent, UUIDComponent.generateUUID())
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
-          setComponent(testEntity, LookAtComponent, { target: null })
+          setComponent(testEntity, LookAtComponent, { target: '' as EntityUUID })
           // Sanity check before running
           assert.equal(Boolean(getState(EngineState).viewerEntity), true)
           assert.equal(hasComponent(testEntity, TransformComponent), true)

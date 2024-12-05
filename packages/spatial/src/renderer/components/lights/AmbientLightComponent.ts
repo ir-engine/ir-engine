@@ -32,6 +32,7 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useImmediateEffect } from '@ir-engine/hyperflux'
 import { useDisposable } from '../../../resources/resourceHooks'
+import { T } from '../../../schema/schemaFunctions'
 import { ObjectComponent } from '../ObjectComponent'
 import { LightTagComponent } from './LightTagComponent'
 
@@ -40,7 +41,7 @@ export const AmbientLightComponent = defineComponent({
   jsonID: 'EE_ambient_light',
 
   schema: S.Object({
-    color: S.Color(0xffffff),
+    color: T.Color(0xffffff),
     intensity: S.Number(1)
   }),
 

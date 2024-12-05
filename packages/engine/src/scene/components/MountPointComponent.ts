@@ -44,6 +44,7 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { emoteAnimations, preloadedAnimations } from '../../avatar/animation/Util'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
@@ -144,7 +145,7 @@ export const MountPointComponent = defineComponent({
 
   schema: S.Object({
     type: MountPointTypesSchema,
-    dismountOffset: S.Vec3({ x: 0, y: 0, z: 0.75 }),
+    dismountOffset: T.Vec3({ x: 0, y: 0, z: 0.75 }),
     forceDismountPosition: S.Bool(false)
   }),
 
