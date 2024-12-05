@@ -29,6 +29,7 @@ import { Types } from 'bitecs'
 import React, { useEffect } from 'react'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import sinon from 'sinon'
 import { DirectionalLight, Matrix4, Vector3 } from 'three'
 import {
@@ -291,7 +292,7 @@ describe('ComponentFunctions', async () => {
 
       const Vec3Component = defineComponent({
         name: 'Vector3Component',
-        schema: S.Vec3()
+        schema: T.Vec3()
       })
 
       const entity = createEntity()

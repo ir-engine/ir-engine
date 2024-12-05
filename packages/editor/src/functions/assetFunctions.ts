@@ -30,7 +30,12 @@ import {
   uploadToFeathersService
 } from '@ir-engine/client-core/src/util/upload'
 import { API } from '@ir-engine/common'
-import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
+import {
+  assetLibraryPath,
+  fileBrowserPath,
+  fileBrowserUploadPath,
+  staticResourcePath
+} from '@ir-engine/common/src/schema.type.module'
 import { CommonKnownContentTypes } from '@ir-engine/common/src/utils/CommonKnownContentTypes'
 import { cleanFileNameFile, cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
 import { KTX2EncodeArguments } from '@ir-engine/engine/src/assets/constants/CompressionParms'
@@ -38,6 +43,7 @@ import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { getMutableState } from '@ir-engine/hyperflux'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
+import { showMultipleFileModal } from '../panels/files/toolbar'
 import { ImportSettingsState } from '../services/ImportSettingsState'
 
 enum FileType {
@@ -97,7 +103,7 @@ function isValidFileType(file): { isValid: boolean; errorMessage?: string } {
   }
 }
 
-function sanitizeFiles(files) {
+function sanitizeFiles(files): File[] {
   const newFiles: File[] = []
   for (const file of files) {
     const newFile = cleanFileNameFile(file)
@@ -143,6 +149,38 @@ export const compressImage = async (properties: KTX2EncodeArguments) => {
   return data
 }
 
+export const filterExistingFiles = async (projectName: string, directoryPath: string, files: File[]) => {
+  if (!files.length) {
+    return files
+  }
+
+  const resourcePaths = files.map((file) => `${directoryPath}${file.name}`)
+  const { data: existingResources } = await API.instance.service(staticResourcePath).find({
+    query: { key: { $in: resourcePaths || [] } }
+  })
+
+  const existingResourceKeys = new Set(existingResources.map((resource) => resource.key))
+
+  const { existingFiles, uniqueFiles } = files.reduce(
+    (result, file) => {
+      const fileKey = `${directoryPath}${file.name}`
+      if (existingResourceKeys.has(fileKey)) {
+        result.existingFiles.push(file)
+      } else {
+        result.uniqueFiles.push(file)
+      }
+      return result
+    },
+    { existingFiles: [], uniqueFiles: [] } as { existingFiles: File[]; uniqueFiles: File[] }
+  )
+
+  if (existingFiles.length > 0) {
+    showMultipleFileModal(projectName, directoryPath, existingFiles)
+  }
+
+  return uniqueFiles
+}
+
 export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
   const { ktx2: compressedImage } = CommonKnownContentTypes
   const importSettingsState = getMutableState(ImportSettingsState)
@@ -165,7 +203,7 @@ export const handleUploadFiles = (projectName: string, directoryPath: string, fi
 
       const fileDirectory = file.webkitRelativePath || file.name
 
-      await uploadToFeathersService(fileBrowserUploadPath, [file], {
+      return uploadToFeathersService(fileBrowserUploadPath, [file], {
         args: [
           {
             project: projectName,
@@ -174,7 +212,7 @@ export const handleUploadFiles = (projectName: string, directoryPath: string, fi
             contentType: file.type
           }
         ]
-      })
+      }).promise
     })
   )
 }
@@ -206,7 +244,9 @@ export const inputFileWithAddToScene = ({
       try {
         if (el.files?.length) {
           const newFiles = sanitizeFiles(el.files)
-          await handleUploadFiles(projectName, directoryPath, newFiles)
+          const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
+
+          await handleUploadFiles(projectName, directoryPath, uniqueFiles)
         }
         resolve(null)
         API.instance.service(fileBrowserPath).emit('created')

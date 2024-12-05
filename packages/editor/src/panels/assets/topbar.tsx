@@ -25,19 +25,21 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { getState, useMutableState } from '@ir-engine/hyperflux'
+import { Tooltip } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import SearchBar from '@ir-engine/ui/src/components/tailwind/SearchBar'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FiRefreshCcw } from 'react-icons/fi'
 import { HiMagnifyingGlass, HiOutlineFolder, HiOutlinePlusCircle } from 'react-icons/hi2'
 import { IoArrowBack, IoSettingsSharp } from 'react-icons/io5'
+import { validateImportFolderPath } from '../../components/dialogs/ImportSettingsPanelDialog'
 import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { FilesViewModeSettings } from '../../services/FilesState'
+import { ImportSettingsState } from '../../services/ImportSettingsState'
 import { useAssetsCategory, useAssetsQuery } from './hooks'
 
 const ViewModeSettings = () => {
@@ -75,11 +77,19 @@ const ViewModeSettings = () => {
   )
 }
 
-const uploadFiles = () => {
+export const uploadFiles = () => {
   const projectName = getState(EditorState).projectName
+  const importFolder = getState(ImportSettingsState).importFolder
+
+  try {
+    validateImportFolderPath(importFolder)
+  } catch (e) {
+    NotificationService.dispatchNotify(e.message, { variant: 'error' })
+  }
+
   return inputFileWithAddToScene({
     projectName: projectName as string,
-    directoryPath: `projects/${projectName}/assets/`
+    directoryPath: `projects/${projectName}${importFolder}`
   }).catch((err) => {
     NotificationService.dispatchNotify(err.message, { variant: 'error' })
   })
@@ -153,7 +163,7 @@ export default function Topbar() {
     <div className="mb-1 flex h-8 items-center gap-2 bg-[#212226] py-1" data-testid="assets-panel-top-bar">
       <div className="ml-2" />
       <div className="flex h-7 w-7 items-center rounded-lg">
-        <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
+        <Tooltip content={t('editor:layout.filebrowser.back')}>
           <Button
             variant="transparent"
             startIcon={<IoArrowBack />}
@@ -180,7 +190,7 @@ export default function Topbar() {
         <SearchBar
           inputProps={{
             placeholder: t('editor:layout.scene-assets.search-placeholder'),
-            variantSize: 'xs',
+            height: 'xs',
             startComponent: <HiMagnifyingGlass className="h-3.5 w-3.5 text-[#A3A3A3]" />
           }}
           search={search}

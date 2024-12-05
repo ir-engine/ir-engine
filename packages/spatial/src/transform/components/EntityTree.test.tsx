@@ -28,13 +28,7 @@ import React, { useEffect } from 'react'
 import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import { EntityUUID, hasComponents, UUIDComponent } from '@ir-engine/ecs'
-import {
-  getComponent,
-  hasComponent,
-  removeComponent,
-  serializeComponent,
-  setComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, entityExists, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
@@ -167,26 +161,6 @@ describe('EntityTreeComponent', () => {
       assertEntityTreeComponentEq(after, Expected)
     })
   }) //:: onSet
-
-  describe('toJSON', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(async () => {
-      createEngine()
-      testEntity = createEntity()
-      setComponent(testEntity, EntityTreeComponent)
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it("should serialize the component's default data as expected", () => {
-      const json = serializeComponent(testEntity, EntityTreeComponent)
-      assert.equal(json.parentEntity, UndefinedEntity)
-    })
-  }) //:: toJSON
 
   describe('reactor', () => {
     describe('whenever entityContext.EntityTreeComponent.{parentEntity, childIndex} change', () => {

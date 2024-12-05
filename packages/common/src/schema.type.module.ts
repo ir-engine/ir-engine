@@ -42,6 +42,7 @@ export type * from './schemas/media/file-browser.schema'
 export type * from './schemas/media/invalidation.schema'
 export type * from './schemas/media/oembed.schema'
 export type * from './schemas/media/static-resource.schema'
+export type * from './schemas/networking/allowed-domains.schema'
 export type * from './schemas/networking/instance-attendance.schema'
 export type * from './schemas/networking/instance-authorized-user.schema'
 export type * from './schemas/networking/instance-friends.schema'
@@ -188,6 +189,8 @@ export const recordingPath = 'recording'
 export const recordingResourceUploadPath = 'recording-resource-upload'
 
 export const instanceAttendancePath = 'instance-attendance'
+
+export const instanceSignalingPath = 'instance-signaling'
 
 export const fileBrowserPath = 'file-browser'
 

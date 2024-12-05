@@ -28,9 +28,8 @@ import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperSt
 import { ObjectGridSnapState } from '@ir-engine/editor/src/systems/ObjectGridSnapSystem'
 import { SnapMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { Select, Tooltip } from '@ir-engine/ui'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuUtilityPole } from 'react-icons/lu'
@@ -99,7 +98,7 @@ const TransformSnapTool = () => {
           size="small"
         />
       </Tooltip>
-      <Tooltip content={t('editor:toolbar.transformSnapTool.info-translate')} position="right center">
+      <Tooltip content={t('editor:toolbar.transformSnapTool.info-translate')} position="right">
         <Select
           key={editorHelperState.translationSnap.value}
           onChange={onChangeTranslationSnap}
@@ -108,7 +107,7 @@ const TransformSnapTool = () => {
           width="sm"
         />
       </Tooltip>
-      <Tooltip content={t('editor:toolbar.transformSnapTool.info-rotate')} position="right center">
+      <Tooltip content={t('editor:toolbar.transformSnapTool.info-rotate')} position="right">
         <Select
           key={editorHelperState.rotationSnap.value}
           onChange={onChangeRotationSnap}

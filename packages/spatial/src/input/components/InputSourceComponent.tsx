@@ -31,6 +31,7 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getState } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { T } from '../../schema/schemaFunctions'
 import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { ButtonStateMap } from '../state/ButtonState'
@@ -46,7 +47,7 @@ export const InputSourceComponent = defineComponent({
     raycaster: S.Class(() => new Raycaster()),
     intersections: S.Array(
       S.Object({
-        entity: S.Entity(),
+        entity: T.Entity(),
         distance: S.Number()
       })
     )

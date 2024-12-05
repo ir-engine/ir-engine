@@ -58,11 +58,33 @@ const sendActionsAsPeer = (network: Network) => {
     if (action.$to === HyperFlux.store.peerID) continue
     actions.push(action)
   }
-  // for (const peerID of network.peers) {
-  network.messageToPeer(
-    network.hostPeerID,
-    /*encode(*/ actions //)
-  )
+  // in unhosted networks, we send to all peers
+  if (!network.hostPeerID) {
+    const actionsByTo = actions.reduce(
+      (acc, action) => {
+        if (!action.$to) return acc
+        const toPeers = Array.isArray(action.$to) ? action.$to : [action.$to]
+        for (const toPeer of toPeers) {
+          if (!acc[toPeer]) acc[toPeer] = []
+          acc[toPeer].push(action)
+        }
+        return acc
+      },
+      {} as Record<PeerID | 'all', Action[]>
+    )
+
+    for (const [peerID, actions] of Object.entries(actionsByTo)) {
+      if (peerID === 'all') {
+        for (const peerID of Object.keys(network.peers) as PeerID[]) {
+          network.messageToPeer(peerID, actions)
+        }
+      } else {
+        network.messageToPeer(peerID as PeerID, actions)
+      }
+    }
+  } else {
+    network.messageToPeer(network.hostPeerID!, actions)
+  }
   clearOutgoingActions(network.topic)
 }
 
@@ -81,7 +103,7 @@ const sendActionsAsHost = (network: Network) => {
         else action.$topic = network.topic
       }
       if (!action.$to) continue
-      if (action.$to === 'all' || (action.$to === 'others' && peerID !== action.$peer) || action.$to === peerID) {
+      if (action.$to === 'all' || action.$to === peerID) {
         arr.push(action)
       }
     }

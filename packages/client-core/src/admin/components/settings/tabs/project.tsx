@@ -31,14 +31,12 @@ import { useFind, useGet, useMutation } from '@ir-engine/common'
 import { ProjectSettingType, projectPath, projectSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
+import { Input, Select, Tooltip } from '@ir-engine/ui'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { HiTrash, HiUser } from 'react-icons/hi2'
 
 const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
@@ -220,7 +218,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
                 endComponent={
                   setting.userId && (
                     <Tooltip
-                      position="left center"
+                      position="left"
                       content={t('admin:components.common.lastUpdatedBy', {
                         userId: setting.userId,
                         updatedAt: toDisplayDateTime(setting.updatedAt)

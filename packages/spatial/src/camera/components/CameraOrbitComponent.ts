@@ -25,19 +25,20 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { defineComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { T } from '../../schema/schemaFunctions'
 
 export const CameraOrbitComponent = defineComponent({
   name: 'CameraOrbitComponent',
 
   schema: S.Object({
-    focusedEntities: S.Array(S.Entity()),
+    focusedEntities: S.Array(T.Entity()),
     isPanning: S.Bool(false),
     cursorDeltaX: S.Number(0),
     cursorDeltaY: S.Number(0),
     minimumZoom: S.Number(0.1),
     isOrbiting: S.Bool(false),
     refocus: S.Bool(false),
-    cameraOrbitCenter: S.Vec3(),
+    cameraOrbitCenter: T.Vec3(),
     disabled: S.Bool(false)
   })
 })

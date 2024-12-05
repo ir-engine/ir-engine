@@ -30,7 +30,7 @@ import { useLocation } from 'react-router-dom'
 import { useMediaNetwork } from '@ir-engine/client-core/src/common/services/MediaInstanceConnectionService'
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { ECSRecordingActions, PlaybackState, RecordingState } from '@ir-engine/common/src/recording/ECSRecordingSystem'
-import { Engine, defineQuery, getOptionalComponent } from '@ir-engine/ecs'
+import { Engine, defineQuery } from '@ir-engine/ecs'
 import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
 import { dispatchAction, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
@@ -90,9 +90,7 @@ export const MediaIconsBox = () => {
   const isScreenVideoEnabled =
     !!mediaStreamState.screenshareMediaStream.value && mediaStreamState.screenshareEnabled.value
 
-  const spectating =
-    !!useHookstate(getMutableState(SpectateEntityState)[Engine.instance.userID]).value &&
-    getOptionalComponent(sceneSettings()?.[0], SceneSettingsComponent)?.spectateEntity === null
+  const spectating = !!useHookstate(getMutableState(SpectateEntityState)[Engine.instance.userID]).value
   const xrState = useMutableState(XRState)
   const supportsAR = xrState.supportedSessionModes['immersive-ar'].value
   const xrMode = xrState.sessionMode.value
