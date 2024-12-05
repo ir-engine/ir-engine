@@ -31,12 +31,10 @@ import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { ToolbarButton } from '@ir-engine/ui/editor'
 import { Cursor03Default, Refresh1Md, Scale02Md, TransformMd } from '@ir-engine/ui/src/icons'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TbMarquee2 } from 'react-icons/tb'
-import { twMerge } from 'tailwind-merge'
 import { SelectionBoxState } from './SelectionBoxTool'
 
 function Placer() {
@@ -158,16 +156,9 @@ export default function TransformGizmoTool({
           </ToolbarButton>
         </Tooltip>
         <Tooltip content={t('disable orbit camera and enable selection box')} position={'right center'}>
-          <Button
-            className={twMerge(
-              'rounded-none bg-[#212226] p-2 text-[#A3A3A3]',
-              isClickedSelectionBox ? 'text-white' : 'text-[#A3A3A3]', // toggle styles
-              'flex items-center justify-center rounded' // ensure proper layout and styling
-            )}
-            onClick={handleClickSelectionBox}
-          >
+          <ToolbarButton onClick={handleClickSelectionBox}>
             <TbMarquee2 />
-          </Button>
+          </ToolbarButton>
         </Tooltip>
       </div>
     </div>
