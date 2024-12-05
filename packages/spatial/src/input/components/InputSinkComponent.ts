@@ -25,9 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { defineComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { T } from '../../schema/schemaFunctions'
 
 /** InputSinkComponent - receives input from input entities.  */
 export const InputSinkComponent = defineComponent({
   name: 'InputSinkComponent',
-  schema: S.Object({ inputEntities: S.Array(S.Entity()) })
+  schema: S.Object({ inputEntities: S.Array(T.Entity()) })
 })

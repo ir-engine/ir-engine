@@ -70,7 +70,7 @@ const PointLightComponentDefaults: PointLightComponentData = {
   castShadow: false,
   shadowBias: 0.5,
   shadowRadius: 1,
-  helperEntity: null as Entity | null
+  helperEntity: UndefinedEntity
 }
 
 function assertPointLightComponentEq(A: PointLightComponentData, B: PointLightComponentData): void {

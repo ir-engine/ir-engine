@@ -39,6 +39,7 @@ import { useMutableState } from '@ir-engine/hyperflux'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
 import { useDisposable } from '../../../resources/resourceHooks'
+import { T } from '../../../schema/schemaFunctions'
 import { RendererState } from '../../RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '../GroupComponent'
 import { LightTagComponent } from './LightTagComponent'
@@ -48,8 +49,8 @@ export const HemisphereLightComponent = defineComponent({
   jsonID: 'EE_hemisphere_light',
 
   schema: S.Object({
-    skyColor: S.Color(0xffffff),
-    groundColor: S.Color(0xffffff),
+    skyColor: T.Color(0xffffff),
+    groundColor: T.Color(0xffffff),
     intensity: S.Number(1)
   }),
 

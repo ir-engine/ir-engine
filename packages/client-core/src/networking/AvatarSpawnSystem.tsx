@@ -36,7 +36,6 @@ import {
   getOptionalComponent,
   PresentationSystemGroup,
   useOptionalComponent,
-  useQuery,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
@@ -52,6 +51,7 @@ import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
+import { useChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { SearchParamState } from '../common/services/RouterService'
 import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
 import { LocationState } from '../social/services/LocationService'
@@ -65,13 +65,15 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
 
   const spawnAvatar = useHookstate(false)
   const spectateEntity = useHookstate(null as null | EntityUUID)
-  const settingsQuery = useQuery([SceneSettingsComponent])
+  const settingsQuery = useChildrenWithComponents(sceneEntity, [SceneSettingsComponent])
 
   const avatarsQuery = useFind(avatarPath)
 
   useEffect(() => {
     const sceneSettingsSpectateEntity = getOptionalComponent(settingsQuery[0], SceneSettingsComponent)?.spectateEntity
-    spectateEntity.set(sceneSettingsSpectateEntity ?? (getSearchParamFromURL('spectate') as EntityUUID))
+    spectateEntity.set(
+      sceneSettingsSpectateEntity ? sceneSettingsSpectateEntity : (getSearchParamFromURL('spectate') as EntityUUID)
+    )
   }, [settingsQuery, searchParams])
 
   useEffect(() => {

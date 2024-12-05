@@ -28,7 +28,6 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
-import { EntityUUID } from '@ir-engine/ecs'
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   EditorComponentType,
@@ -73,7 +72,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
     image.src = url
   }
 
-  const useSpectatingEntity = useState(sceneSettingsComponent.spectateEntity.value !== null)
+  const useSpectatingEntity = useState(!!sceneSettingsComponent.spectateEntity.value)
 
   return (
     <NodeEditor
@@ -92,10 +91,6 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
           checked={useSpectatingEntity.value}
           onChange={(value) => {
             useSpectatingEntity.set(value)
-            commitProperty(
-              SceneSettingsComponent,
-              'spectateEntity'
-            )(useSpectatingEntity.value ? ('' as EntityUUID) : null)
           }}
         />
       </InputGroup>
@@ -106,7 +101,7 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
           info={t('editor:properties.sceneSettings.info-uuid')}
         >
           <NodeInput
-            value={sceneSettingsComponent.spectateEntity.value ?? ('' as EntityUUID)}
+            value={sceneSettingsComponent.spectateEntity.value}
             onRelease={commitProperty(SceneSettingsComponent, `spectateEntity`)}
             onChange={commitProperty(SceneSettingsComponent, `spectateEntity`)}
           />
