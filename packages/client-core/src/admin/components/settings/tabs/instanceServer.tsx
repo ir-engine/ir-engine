@@ -36,6 +36,7 @@ import {
 } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { EngineSettingType, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { flattenObjectToArray, unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { State, useHookstate } from '@ir-engine/hyperflux'
 import { Checkbox, Input } from '@ir-engine/ui'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
@@ -45,59 +46,6 @@ import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 import { HiPlus } from 'react-icons/hi2'
-type FlattenedEntry = { key: string; value: any }
-
-function flattenObjectToArray(obj: Record<string, any>, parentKey: string = ''): FlattenedEntry[] {
-  const result: FlattenedEntry[] = []
-
-  function recurse(currentObj: any, currentPath: string): void {
-    for (const key in currentObj) {
-      const fullPath = `${currentPath}${key}`
-      if (typeof currentObj[key] === 'object' && !Array.isArray(currentObj[key]) && currentObj[key] !== null) {
-        recurse(currentObj[key], `${fullPath}.`)
-      } else if (Array.isArray(currentObj[key])) {
-        currentObj[key].forEach((item, index) => {
-          if (typeof item === 'object') {
-            recurse(item, `${fullPath}.[${index}].`)
-          } else {
-            result.push({ key: `${fullPath}.[${index}]`, value: item })
-          }
-        })
-      } else if (typeof currentObj[key] === 'boolean') {
-        result.push({ key: fullPath, value: currentObj[key] })
-      } else {
-        result.push({ key: fullPath, value: currentObj[key] })
-      }
-    }
-  }
-
-  recurse(obj, parentKey)
-  return result
-}
-
-function unflattenArrayToObject(flattenedArray: FlattenedEntry[]): Record<string, any> {
-  const result: Record<string, any> = {}
-
-  flattenedArray.forEach(({ key, value }) => {
-    const keys = key.split(/(?<!\.)\.(?!\.)/).map((k) => k.replace(/\[|\]/g, '')) // Split and clean key
-    let current = result
-
-    for (let i = 0; i < keys.length - 1; i++) {
-      const part = keys[i]
-      const nextPart = keys[i + 1]
-
-      if (!current[part]) {
-        current[part] = isNaN(Number(nextPart)) ? {} : [] // Determine if it's an array or object
-      }
-      current = current[part]
-    }
-
-    const lastKey = keys[keys.length - 1]
-    current[lastKey] = value === 'true' ? true : value === 'false' ? false : value // Convert boolean strings to boolean values
-  })
-
-  return result
-}
 
 const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
@@ -117,6 +65,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
   const instanceWebRTCSettings = useFind(engineSettingPath, {
     query: {
       category: 'instance-server-webrtc',
+      jsonKey: 'webRTCSettings',
       paginate: false
     }
   })

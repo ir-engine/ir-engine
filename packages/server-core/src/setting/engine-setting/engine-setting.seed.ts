@@ -30,6 +30,7 @@ import { defaultWebRTCSettings } from '@ir-engine/common/src/constants/DefaultWe
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { flattenObjectToArray } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import appConfig from '@ir-engine/server-core/src/appconfig'
 
 export async function seed(knex: Knex): Promise<void> {
@@ -133,13 +134,14 @@ export async function seed(knex: Knex): Promise<void> {
         value: process.env.PRELOAD_LOCATION_NAME || ''
       },
       {
-        key: EngineSettings.InstanceServer.WebRTCSettings,
-        value: JSON.stringify(defaultWebRTCSettings)
-      },
-      {
         key: EngineSettings.InstanceServer.ShutdownDelayMs,
         value: process.env.INSTANCESERVER_SHUTDOWN_DELAY_MS || '0'
-      }
+      },
+      ...flattenObjectToArray(defaultWebRTCSettings).map(({ key, value }) => ({
+        key,
+        value,
+        jsonKey: EngineSettings.InstanceServer.WebRTCSettings
+      }))
     ],
     'instance-server'
   )
