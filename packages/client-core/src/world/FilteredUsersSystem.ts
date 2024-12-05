@@ -45,7 +45,7 @@ export const FilteredUsersState = defineState({
 
 export const FilteredUsersService = {
   updateNearbyLayerUsers: () => {
-    if (!NetworkState.worldNetwork) return
+    if (!NetworkState.worldNetwork?.peers) return
     const mediaState = getMutableState(FilteredUsersState)
     const peers = Object.values(NetworkState.worldNetwork.peers)
     const worldUserIds = peers

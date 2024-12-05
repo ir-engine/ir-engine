@@ -51,7 +51,7 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
+import { GrabberComponent } from '../../grabbable/GrabbableComponent'
 import { EnvmapComponent } from '../../scene/components/EnvmapComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { EnvMapSourceType } from '../../scene/constants/EnvMapEnum'

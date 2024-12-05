@@ -29,12 +29,14 @@ import { Spark } from 'primus'
 import { API } from '@ir-engine/common'
 import {
   identityProviderPath,
+  InstanceAttendanceData,
   instanceAttendancePath,
   instanceAuthorizedUserPath,
   instancePath,
   InstanceType,
   InviteCode,
   inviteCodeLookupPath,
+  locationPath,
   messagePath,
   UserID,
   userKickPath,
@@ -43,12 +45,12 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { AuthTask } from '@ir-engine/common/src/world/receiveJoinWorld'
-import { EntityUUID } from '@ir-engine/ecs'
+import { Engine, EntityUUID } from '@ir-engine/ecs'
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { respawnAvatar } from '@ir-engine/engine/src/avatar/functions/respawnAvatar'
-import { Action, getMutableState, getState, PeerID } from '@ir-engine/hyperflux'
-import { NetworkPeerFunctions, NetworkState, updatePeers } from '@ir-engine/network'
+import { Action, dispatchAction, getMutableState, getState, PeerID } from '@ir-engine/hyperflux'
+import { NetworkActions, NetworkState } from '@ir-engine/network'
 import { Application } from '@ir-engine/server-core/declarations'
 import config from '@ir-engine/server-core/src/appconfig'
 import { config as mediaConfig } from '@ir-engine/server-core/src/config'
@@ -200,7 +202,18 @@ export function getUserIdFromPeerID(network: SocketWebRTCServerNetwork, peerID: 
   return client?.userId
 }
 
-export const handleConnectingPeer = (
+function getCachedActionsForPeer(toPeerID: PeerID) {
+  // send all cached and outgoing actions to joining user
+  const cachedActions = [] as Required<Action>[]
+  for (const action of Engine.instance.store.actions.cached) {
+    if (action.$peer === toPeerID) continue
+    if (action.$to === 'all' || action.$to === toPeerID) cachedActions.push({ ...action, $stack: undefined! })
+  }
+
+  return cachedActions
+}
+
+export const handleConnectingPeer = async (
   network: SocketWebRTCServerNetwork,
   spark: Spark,
   peerID: PeerID,
@@ -209,13 +222,34 @@ export const handleConnectingPeer = (
 ) => {
   const userId = user.id
 
-  // Create a new client object
-  // and add to the dictionary
-  const existingUser = Object.values(network.peers).find((client) => client.userId === userId)
-  const userIndex = existingUser ? existingUser.userIndex : network.userIndexCount++
-  const peerIndex = network.peerIndexCount++
+  const app = API.instance as Application
 
-  NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex)
+  const instanceServerState = getState(InstanceServerState)
+
+  const headers = spark.headers
+
+  const newInstanceAttendance: InstanceAttendanceData = {
+    instanceId: instanceServerState.instance.id,
+    isChannel: instanceServerState.isMediaInstance,
+    userId: userId,
+    peerId: peerID
+  }
+  if (!instanceServerState.isMediaInstance) {
+    const location = await app.service(locationPath).get(instanceServerState.instance.locationId!, { headers })
+    newInstanceAttendance.sceneId = location.sceneId
+  }
+  const instanceAttendance = await app.service(instanceAttendancePath).create(newInstanceAttendance)
+
+  dispatchAction(
+    NetworkActions.peerJoined({
+      $cache: true,
+      $network: network.id,
+      $topic: network.topic,
+      peerID,
+      peerIndex: instanceAttendance.peerIndex,
+      userID: userId
+    })
+  )
 
   const onMessage = (message: any) => {
     network.onMessage(peerID, message)
@@ -227,37 +261,28 @@ export const handleConnectingPeer = (
     spark.write(data)
   }
 
-  const networkState = getMutableState(NetworkState).networks[network.id]
-  networkState.peers[peerID].merge({
-    transport: {
-      message,
-      buffer: () => {
-        // Intentional no-op. SocketWebRTCServerFunctions defines an override for network.bufferToPeer and network.bufferToAll
-      },
-      end: () => {
-        spark.end()
-      }
+  const networkState = getState(NetworkState).networks[network.id]
+  networkState.transports[peerID] = {
+    message,
+    buffer: () => {
+      // Intentional no-op. SocketWebRTCServerFunctions defines an override for network.bufferToPeer and network.bufferToAll
     },
-    media: {},
-    lastSeenTs: Date.now()
-  })
-
-  const updatePeersAction = updatePeers(network)
+    end: () => {
+      spark.end()
+    }
+  }
 
   logger.info('Connect to world from ' + userId)
 
-  const cachedActions = ([updatePeersAction] as Required<Action>[])
-    .concat(NetworkPeerFunctions.getCachedActionsForPeer(peerID))
-    .map((action) => {
-      return cloneDeep(action)
-    })
+  const cachedActions = getCachedActionsForPeer(peerID).map((action) => {
+    return cloneDeep(action)
+  })
 
-  const instanceServerState = getState(InstanceServerState)
   if (inviteCode && !instanceServerState.isMediaInstance) getUserSpawnFromInvite(network, user, inviteCode!)
 
   return {
     routerRtpCapabilities: network.routers[0].rtpCapabilities,
-    peerIndex: network.peerIDToPeerIndex[peerID]!,
+    peerIndex: instanceAttendance.peerIndex,
     cachedActions,
     hostPeerID: network.hostPeerID
   } as Omit<AuthTask, 'status'>
@@ -386,8 +411,15 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, peerI
           )
         })
     }
-    NetworkPeerFunctions.destroyPeer(network, peerID)
-    updatePeers(network)
+    dispatchAction(
+      NetworkActions.peerLeft({
+        $cache: true,
+        $network: network.id,
+        $topic: network.topic,
+        peerID,
+        userID: userId
+      })
+    )
     logger.info(`Disconnecting user ${userId} on spark ${peerID}`)
   } else {
     logger.warn("Spark didn't match for disconnecting client.")
