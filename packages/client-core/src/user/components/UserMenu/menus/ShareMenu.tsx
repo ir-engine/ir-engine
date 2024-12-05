@@ -40,13 +40,14 @@ import { EMAIL_REGEX, PHONE_REGEX } from '@ir-engine/common/src/regex'
 import { authenticationSettingPath, InviteCode, InviteData } from '@ir-engine/common/src/schema.type.module'
 import { useMutableState } from '@ir-engine/hyperflux'
 import { isShareAvailable } from '@ir-engine/spatial/src/common/functions/DetectFeatures'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
 import OutlinedInput from '@ir-engine/ui/src/primitives/mui/OutlinedInput'
 
 import { useFind } from '@ir-engine/common'
+import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
+import useFeatureFlags from '../../../../hooks/useFeatureFlags'
 import { InviteService } from '../../../../social/services/InviteService'
 import { AuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
@@ -161,7 +162,9 @@ export const useShareMenuHooks = ({ refLink }) => {
 const ShareMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
-  const engineState = useMutableState(EngineState)
+
+  const [shareTOQuestEnabled] = useFeatureFlags([FeatureFlags.Client.Menu.ShareToQuest])
+
   const {
     copyLinkToClipboard,
     shareOnApps,
@@ -216,21 +219,23 @@ const ShareMenu = (): JSX.Element => {
   return (
     <Menu open title={t('user:usermenu.share.title')} onClose={() => PopupMenuServices.showPopupMenu()}>
       <Box className={styles.menuContent}>
-        <Box className={styles.shareQuest}>
-          <Button
-            className={styles.shareQuestButton}
-            endIcon={<OculusIcon sx={{ width: '36px', height: '36px', margin: '-7px 0 -5px -7px' }} />}
-            type="gradientRounded"
-            onClick={() => window.open(questShareLink, '_blank')}
-          >
-            {t('user:usermenu.share.shareQuest')}
-          </Button>
-          <IconButton
-            icon={<Icon type="FileCopy" sx={{ width: '18px' }} />}
-            sizePx={35}
-            onClick={() => copyToClipboard(questShareLink.toString())}
-          />
-        </Box>
+        {shareTOQuestEnabled && (
+          <Box className={styles.shareQuest}>
+            <Button
+              className={styles.shareQuestButton}
+              endIcon={<OculusIcon sx={{ width: '36px', height: '36px', margin: '-7px 0 -5px -7px' }} />}
+              type="gradientRounded"
+              onClick={() => window.open(questShareLink, '_blank')}
+            >
+              {t('user:usermenu.share.shareQuest')}
+            </Button>
+            <IconButton
+              icon={<Icon type="FileCopy" sx={{ width: '18px' }} />}
+              sizePx={35}
+              onClick={() => copyToClipboard(questShareLink.toString())}
+            />
+          </Box>
+        )}
 
         <div className={styles.QRContainer}>
           <QRCodeSVG height={176} width={200} value={shareLink} />

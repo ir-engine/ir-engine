@@ -42,7 +42,6 @@ import { useDisposable } from '../../../resources/resourceHooks'
 import { T } from '../../../schema/schemaFunctions'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { RendererState } from '../../RendererState'
-import { useUpdateLight } from '../../functions/useUpdateLight'
 import { addObjectToGroup, removeObjectFromGroup } from '../GroupComponent'
 import { LightTagComponent } from './LightTagComponent'
 
@@ -143,8 +142,6 @@ export const SpotLightComponent = defineComponent({
         removeComponent(entity, LightHelperComponent)
       }
     }, [debugEnabled])
-
-    useUpdateLight(light)
 
     return null
   }

@@ -639,7 +639,8 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
 
     /** Ensure all base components are added for synchronous mount */
     setComponent(entity, EntityTreeComponent, { parentEntity, childIndex: props.childIndex })
-    setComponent(entity, NameComponent, node.name.value ?? 'Node-' + props.nodeIndex)
+    const nodeName = node.name.value ?? 'Node-' + props.nodeIndex
+    setComponent(entity, NameComponent, nodeName)
     setComponent(entity, TransformComponent)
 
     if (node.matrix.value) {
@@ -669,11 +670,17 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
     if (!hasComponent(entity, Object3DComponent) && !hasComponent(entity, MeshComponent)) {
       if (isBoneNode(documentState.get(NO_PROXY) as GLTF.IGLTF, props.nodeIndex)) {
         const bone = new Bone()
-        bone.name = node.name.value ?? 'Bone-' + props.nodeIndex
+        bone.name = nodeName
         setComponent(entity, BoneComponent, bone)
         addObjectToGroup(entity, bone)
         proxifyParentChildRelationships(bone)
         setComponent(entity, Object3DComponent, bone)
+      } else {
+        const object = new Object3D()
+        object.name = nodeName
+        addObjectToGroup(entity, object)
+        proxifyParentChildRelationships(object)
+        setComponent(entity, Object3DComponent, object)
       }
     }
 

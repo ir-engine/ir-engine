@@ -280,7 +280,7 @@ export function useGLTFResource(url: string, entity: Entity): void {
     return () => {
       if (url) ResourceManager.unload(url, entity)
     }
-  }, [])
+  }, [url])
 }
 
 /**

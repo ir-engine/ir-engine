@@ -33,7 +33,6 @@ import {
   recordingPath,
   RecordingSchemaType,
   userAvatarPath,
-  UserID,
   userPath
 } from '@ir-engine/common/src/schema.type.module'
 import { checkScope } from '@ir-engine/common/src/utils/checkScope'
@@ -57,7 +56,8 @@ import {
   HyperFlux,
   isClient,
   PeerID,
-  Topic
+  Topic,
+  UserID
 } from '@ir-engine/hyperflux'
 import {
   addDataChannelHandler,

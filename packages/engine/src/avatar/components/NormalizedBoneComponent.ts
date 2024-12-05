@@ -23,20 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { DirectionalLight, SpotLight, Vector3 } from 'three'
+import { defineComponent, S } from '@ir-engine/ecs'
+import { Bone } from 'three'
 
-import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
-import { TransformSystem } from '../../transform/systems/TransformSystem'
+export const NormalizedBoneComponent = defineComponent({
+  name: 'NormalizedBoneComponent',
 
-const _vec3 = new Vector3()
-
-export const useUpdateLight = (light: DirectionalLight | SpotLight) => {
-  useExecute(
-    () => {
-      light.getWorldDirection(_vec3)
-      light.getWorldPosition(light.target.position).add(_vec3)
-      light.target.updateMatrixWorld()
-    },
-    { after: TransformSystem }
-  )
-}
+  schema: S.Required(S.Type<Bone>())
+})
