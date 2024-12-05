@@ -335,7 +335,6 @@ export class FileBrowserService
 
     const isDirectory = await storageProvider.isDirectory(oldName, oldDirectory)
     const fileName = await getIncrementalName(newName, newDirectory, storageProvider, isDirectory)
-
     if (isDirectory) {
       await this.moveFolderRecursively(
         storageProvider,
@@ -430,7 +429,9 @@ export class FileBrowserService
       if (item.type === 'directory') {
         await this.moveFolderRecursively(storageProvider, oldItemPath, newItemPath, isCopy)
       } else {
-        await storageProvider.moveObject(item.name, item.name, oldPath, newPath, isCopy)
+        //The local storage provider requires the file extension because it interacts with the filesystem and needs the full path, including the extension.
+        const fileName = config.server.storageProvider === 'local' ? `${item.name}.${item.type}` : item.name
+        await storageProvider.moveObject(fileName, fileName, oldPath, newPath, isCopy)
       }
     }
 
