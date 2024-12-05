@@ -32,7 +32,6 @@ import React, { startTransition } from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
 
-import config from '@ir-engine/common/src/config'
 import {
   DeepReadonly,
   getNestedObject,

@@ -42,7 +42,6 @@ import { mergeBufferGeometries } from '../../../common/classes/BufferGeometryUti
 import { useDisposable } from '../../../resources/resourceHooks'
 import { EntityTreeComponent } from '../../../transform/components/EntityTree'
 import { RendererState } from '../../RendererState'
-import { useUpdateLight } from '../../functions/useUpdateLight'
 import { LineSegmentComponent } from '../LineSegmentComponent'
 import { ObjectComponent } from '../ObjectComponent'
 import { LightTagComponent } from './LightTagComponent'
@@ -187,8 +186,6 @@ export const DirectionalLightComponent = defineComponent({
         helperEntity.set(UndefinedEntity)
       }
     }, [debugEnabled])
-
-    useUpdateLight(light)
 
     return null
   }

@@ -86,11 +86,17 @@ export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
 
   const name = args.name ?? args.file.originalname
   const relativePath = args.path!.replace('projects/' + args.project + '/', '') + name
-  await app.service(fileBrowserPath).patch(null, {
-    project: args.project,
-    body: args.file,
-    path: relativePath
-  })
+  await app.service(fileBrowserPath).patch(
+    null,
+    {
+      project: args.project,
+      body: args.file,
+      path: relativePath
+    },
+    {
+      isInternal: true
+    }
+  )
 
   return (
     await app.service(staticResourcePath).find({
