@@ -33,6 +33,7 @@ import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstant
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { SplineHelperComponent } from './debug/SplineHelperComponent'
 
 export const SplineComponent = defineComponent({
@@ -42,8 +43,8 @@ export const SplineComponent = defineComponent({
   schema: S.Object({
     elements: S.Array(
       S.Object({
-        position: S.Vec3(),
-        rotation: S.Quaternion()
+        position: T.Vec3(),
+        rotation: T.Quaternion()
       }),
       [
         { position: new Vector3(-1, 0, -1), rotation: new Quaternion() },

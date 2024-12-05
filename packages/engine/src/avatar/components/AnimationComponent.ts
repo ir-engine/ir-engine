@@ -77,12 +77,12 @@ export const useLoadAnimationFromGLTF = (url: string, keepEntity = false) => {
   const progress = useOptionalComponent(assetEntity.value, GLTFComponent)?.progress
 
   useEffect(() => {
-    if (animation.value) return
+    if (animation.value || !url) return
     if (!assetEntity.value) {
       assetEntity.set(GLTFSourceState.load(url))
       return
     }
-  }, [progress])
+  }, [url, progress])
 
   useEffect(() => {
     if (!animationComponent?.animations || !animationComponent.animations.length || animation.value) return

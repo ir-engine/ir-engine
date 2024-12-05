@@ -35,6 +35,7 @@ import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NetworkTopics } from '@ir-engine/network'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { InteractableComponent, XRUIVisibilityOverride } from '../interaction/components/InteractableComponent'
 
@@ -140,7 +141,7 @@ export const GrabbedComponent = defineComponent({
 
   schema: S.Object({
     attachmentPoint: XRHandedness,
-    grabberEntity: S.Entity()
+    grabberEntity: T.Entity()
   })
 })
 
@@ -152,8 +153,8 @@ export const GrabberComponent = defineComponent({
   name: 'GrabberComponent',
 
   schema: S.Object({
-    left: S.Nullable(S.Entity()),
-    right: S.Nullable(S.Entity())
+    left: T.Entity(),
+    right: T.Entity()
   })
 })
 

@@ -62,6 +62,7 @@ import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import { ContentFitTypeSchema } from '@ir-engine/spatial/src/xrui/functions/ObjectFitFunctions'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { clearErrors } from '../functions/ErrorFunctions'
 import { getTextureSize, PLANE_GEO, resizeVideoMesh, SideSchema, SPHERE_GEO } from './ImageComponent'
 import { MediaElementComponent } from './MediaComponent'
@@ -101,11 +102,11 @@ export const VideoComponent = defineComponent({
 
   schema: S.Object({
     side: SideSchema(DoubleSide),
-    size: S.Vec2({ x: 1, y: 1 }),
-    uvOffset: S.Vec2({ x: 0, y: 0 }),
-    uvScale: S.Vec2({ x: 1, y: 1 }),
-    alphaUVOffset: S.Vec2({ x: 0, y: 0 }),
-    alphaUVScale: S.Vec2({ x: 1, y: 1 }),
+    size: T.Vec2({ x: 1, y: 1 }),
+    uvOffset: T.Vec2({ x: 0, y: 0 }),
+    uvScale: T.Vec2({ x: 1, y: 1 }),
+    alphaUVOffset: T.Vec2({ x: 0, y: 0 }),
+    alphaUVScale: T.Vec2({ x: 1, y: 1 }),
     wrapS: WrappingSchema,
     wrapT: WrappingSchema,
     useAlpha: S.Bool(false),
@@ -113,10 +114,11 @@ export const VideoComponent = defineComponent({
     alphaThreshold: S.Number(0.5),
     fit: ContentFitTypeSchema('contain'),
     projection: ProjectionSchema,
-    mediaUUID: S.EntityUUID(),
+    mediaUUID: T.EntityUUID(),
+
     // internal
-    videoMeshEntity: S.Entity(),
-    texture: S.Nullable(S.Type<VideoTexturePriorityQueue>())
+    videoMeshEntity: T.Entity(),
+    texture: S.NonSerialized(S.Nullable(S.Type<VideoTexturePriorityQueue>()))
   }),
 
   onRemove: (entity, component) => {
