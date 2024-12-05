@@ -26,12 +26,11 @@ Infinite Reality Engine. All Rights Reserved.
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
-import { Checkbox, Input } from '@ir-engine/ui'
+import { Checkbox, Input, Tooltip } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaList } from 'react-icons/fa'
@@ -220,7 +219,7 @@ export default function FilesToolbar() {
         <div className="ml-2" />
         {showBackButton && (
           <div id="backDir" className="pointer-events-auto flex h-7 w-7 items-center rounded-lg">
-            <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
+            <Tooltip content={t('editor:layout.filebrowser.back')}>
               <Button
                 variant="transparent"
                 startIcon={<IoArrowBack />}
@@ -267,7 +266,7 @@ export default function FilesToolbar() {
             onChange={(e) => {
               filesState.searchText.set(e.target.value)
             }}
-            variantSize="xs"
+            height="xs"
             startComponent={<HiMagnifyingGlass className="h-[14px] w-[14px] text-[#A3A3A3]" />}
             data-testid="files-panel-search-input"
           />

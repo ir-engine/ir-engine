@@ -25,11 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { getState, useMutableState } from '@ir-engine/hyperflux'
+import { Tooltip } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import SearchBar from '@ir-engine/ui/src/components/tailwind/SearchBar'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FiRefreshCcw } from 'react-icons/fi'
@@ -163,7 +163,7 @@ export default function Topbar() {
     <div className="mb-1 flex h-8 items-center gap-2 bg-[#212226] py-1" data-testid="assets-panel-top-bar">
       <div className="ml-2" />
       <div className="flex h-7 w-7 items-center rounded-lg">
-        <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
+        <Tooltip content={t('editor:layout.filebrowser.back')}>
           <Button
             variant="transparent"
             startIcon={<IoArrowBack />}
@@ -190,7 +190,7 @@ export default function Topbar() {
         <SearchBar
           inputProps={{
             placeholder: t('editor:layout.scene-assets.search-placeholder'),
-            variantSize: 'xs',
+            height: 'xs',
             startComponent: <HiMagnifyingGlass className="h-3.5 w-3.5 text-[#A3A3A3]" />
           }}
           search={search}

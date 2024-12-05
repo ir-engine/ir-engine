@@ -55,13 +55,13 @@ import {
   formatMaterialArgs,
   getMaterial
 } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { Tooltip } from '@ir-engine/ui'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
 import StringInput from '@ir-engine/ui/src/components/editor/input/String'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import ParameterInput from '@ir-engine/ui/src/components/editor/properties/parameter'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Material, Texture, Uniform } from 'three'
