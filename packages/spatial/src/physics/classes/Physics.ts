@@ -63,7 +63,7 @@ import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { UUIDComponent } from '@ir-engine/ecs'
 import { NO_PROXY, defineState, getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '@ir-engine/network'
-import { Vector3_Zero } from '../../common/constants/MathConstants'
+import { Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
 import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
@@ -463,11 +463,11 @@ function createColliderDesc(
 
   let colliderDesc: ColliderDesc
 
-  const meshCenterOffset = new Vector3()
-  const positionRelativeToRoot = new Vector3()
-  const quaternionRelativeToRoot = new Quaternion()
+  const meshCenterOffset = new Vector3(0, 0, 0)
+  const positionRelativeToRoot = new Vector3(0, 0, 0)
+  const quaternionRelativeToRoot = new Quaternion().copy(Q_IDENTITY)
 
-  const scaleRelativeToRoot = new Vector3()
+  const scaleRelativeToRoot = new Vector3(1, 1, 1)
 
   const rootWorldScale = TransformComponent.getWorldScale(rootEntity, new Vector3())
 
@@ -511,7 +511,8 @@ function createColliderDesc(
     case ShapeType.Ball:
       if (colliderComponent.matchMesh && mesh) {
         //this is a bit heavier than rotating a box3 but necessary to not lose fidelity for the mesh bounding sphere
-        const newGeo = mesh?.geometry.clone().scale(scaleRelativeToRoot.x, scaleRelativeToRoot.y, scaleRelativeToRoot.z)
+        const newGeo = mesh?.geometry.clone()
+        newGeo.scale(scaleRelativeToRoot.x, scaleRelativeToRoot.y, scaleRelativeToRoot.z)
         newGeo.applyQuaternion(quaternionRelativeToRoot).scale(rootWorldScale.x, rootWorldScale.y, rootWorldScale.z)
         newGeo.computeBoundingSphere()
         if (newGeo.boundingSphere) {
@@ -542,8 +543,17 @@ function createColliderDesc(
         boxSize.multiply(scale)
         boxSize.applyQuaternion(quaternionRelativeToRoot)
         boxSize.set(Math.abs(boxSize.x), Math.abs(boxSize.y), Math.abs(boxSize.z))
-        //calculate diagonal of box using pythagorean theorem for radius
-        const calcRadius = Math.sqrt(Math.pow(boxSize.x / 2, 2) + Math.pow(boxSize.z / 2, 2))
+
+        //better radius calculation if object is not square and/or not not taller than wide
+        const newGeo = mesh?.geometry.clone().scale(scaleRelativeToRoot.x, scaleRelativeToRoot.y, scaleRelativeToRoot.z)
+        newGeo.applyQuaternion(quaternionRelativeToRoot).scale(rootWorldScale.x, rootWorldScale.y, rootWorldScale.z)
+        newGeo.computeBoundingSphere()
+
+        //calculate diagonal of box using pythagorean theorem for radius, compare to sphere radius in case object is not taller than wide
+        const calcRadius = Math.min(
+          newGeo.boundingSphere!.radius!,
+          Math.sqrt(Math.pow(boxSize.x / 2, 2) + Math.pow(boxSize.z / 2, 2))
+        )
 
         colliderComponent.radius = calcRadius
         colliderComponent.height = boxSize.y
@@ -566,8 +576,18 @@ function createColliderDesc(
         boxSize.multiply(scale)
         boxSize.applyQuaternion(quaternionRelativeToRoot)
         boxSize.set(Math.abs(boxSize.x), Math.abs(boxSize.y), Math.abs(boxSize.z))
-        //calculate diagonal of box using pythagorean theorem for radius
-        const calcRadius = Math.sqrt(Math.pow(boxSize.x / 2, 2) + Math.pow(boxSize.z / 2, 2))
+
+        //better radius calculation if object is not square and/or not not taller than wide
+        const newGeo = mesh?.geometry.clone().scale(scaleRelativeToRoot.x, scaleRelativeToRoot.y, scaleRelativeToRoot.z)
+        newGeo.applyQuaternion(quaternionRelativeToRoot).scale(rootWorldScale.x, rootWorldScale.y, rootWorldScale.z)
+        newGeo.computeBoundingSphere()
+
+        //calculate diagonal of box using pythagorean theorem for radius, compare to sphere radius in case object is not taller than wide
+        const calcRadius = Math.min(
+          newGeo.boundingSphere!.radius!,
+          Math.sqrt(Math.pow(boxSize.x / 2, 2) + Math.pow(boxSize.z / 2, 2))
+        )
+
         colliderComponent.radius = calcRadius
         colliderComponent.height = boxSize.y
         colliderDesc = ColliderDesc.cylinder(boxSize.y / 2, calcRadius)
