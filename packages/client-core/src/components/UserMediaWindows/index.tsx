@@ -30,6 +30,7 @@ import { Engine } from '@ir-engine/ecs/src/Engine'
 import { NO_PROXY, PeerID, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 
+import { NetworkPeerState } from '@ir-engine/network/src/NetworkPeerState'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../media/PeerMediaChannelState'
 import { AuthState } from '../../user/services/AuthService'
@@ -50,6 +51,8 @@ export const useMediaWindows = () => {
   const peerMediaChannelState = useMutableState(PeerMediaChannelState)
   const mediaNetworkInstanceState = useMediaNetwork()
   const mediaNetwork = NetworkState.mediaNetwork
+  const networkPeerState = useMutableState(NetworkPeerState).value
+  const mediaNetworkUsers = mediaNetwork ? networkPeerState?.[mediaNetwork.id]?.users : undefined
   const selfUser = useMutableState(AuthState).user
   const mediaNetworkConnected = mediaNetwork && mediaNetworkInstanceState?.ready?.value
 
@@ -63,9 +66,10 @@ export const useMediaWindows = () => {
 
   const camActive = (cam: PeerMediaStreamInterface) => cam.videoMediaStream || cam.audioMediaStream
 
-  const userPeers: Array<[UserID, PeerID[]]> = mediaNetworkConnected
-    ? (Object.entries(mediaNetwork.users) as Array<[UserID, PeerID[]]>)
-    : [[selfUserID, [selfPeerID]]]
+  const userPeers: Array<[UserID, PeerID[]]> =
+    mediaNetworkConnected && mediaNetworkUsers
+      ? (Object.entries(mediaNetworkUsers) as Array<[UserID, PeerID[]]>)
+      : [[selfUserID, [selfPeerID]]]
 
   // reduce all userPeers to an array 'windows' of { peerID, type } objects, displaying screens first, then cams. if a user has no cameras, only include one peerID for that user
   const windows = userPeers
@@ -97,7 +101,11 @@ export const useMediaWindows = () => {
     .filter(({ peerID }) => peerMediaChannelState[peerID].value)
 
   // if window doesnt exist for self, add it
-  if (mediaNetworkConnected && !windows.find(({ peerID }) => mediaNetwork.users[selfUserID]?.includes(peerID))) {
+  if (
+    mediaNetworkConnected &&
+    mediaNetwork.users &&
+    !windows.find(({ peerID }) => mediaNetwork.users[selfUserID]?.includes(peerID))
+  ) {
     windows.unshift({ peerID: selfPeerID, type: 'cam' })
   }
 

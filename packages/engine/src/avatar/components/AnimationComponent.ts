@@ -34,7 +34,7 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { NO_PROXY, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, State, useHookstate } from '@ir-engine/hyperflux'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
@@ -45,9 +45,8 @@ import {
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
-import { v4 } from 'uuid'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { GLTFAssetState } from '../../gltf/GLTFState'
+import { GLTFSourceState } from '../../gltf/GLTFState'
 import { SourceComponent } from '../../scene/components/SourceComponent'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
 import { NormalizedBoneComponent } from './NormalizedBoneComponent'
@@ -72,31 +71,31 @@ export const useLoadAnimationFromBatchGLTF = (urls: string[], keepEntities = fal
 }
 
 export const useLoadAnimationFromGLTF = (url: string, keepEntity = false) => {
-  const assetEntity = useMutableState(GLTFAssetState)[url].value
+  const assetEntity = useHookstate(UndefinedEntity)
   const animation = useHookstate(null as AnimationClip[] | null)
-  const animationComponent = useOptionalComponent(assetEntity, AnimationComponent)
-  const progress = useOptionalComponent(assetEntity, GLTFComponent)?.progress
+  const animationComponent = useOptionalComponent(assetEntity.value, AnimationComponent)
+  const progress = useOptionalComponent(assetEntity.value, GLTFComponent)?.progress
 
   useEffect(() => {
     if (animation.value || !url) return
-    if (!assetEntity) {
-      GLTFAssetState.loadScene(url, v4())
+    if (!assetEntity.value) {
+      assetEntity.set(GLTFSourceState.load(url))
       return
     }
   }, [url, progress])
 
   useEffect(() => {
     if (!animationComponent?.animations || !animationComponent.animations.length || animation.value) return
-    iterateEntityNode(assetEntity, (entity) => {
+    iterateEntityNode(assetEntity.value, (entity) => {
       removeComponent(entity, MeshComponent)
       removeComponent(entity, SkinnedMeshComponent)
       removeComponent(entity, MaterialStateComponent)
       removeComponent(entity, MaterialInstanceComponent)
     })
-    animation.set(getComponent(assetEntity, AnimationComponent).animations)
-    if (!keepEntity) removeEntity(assetEntity)
+    animation.set(getComponent(assetEntity.value, AnimationComponent).animations)
+    if (!keepEntity) removeEntity(assetEntity.value)
   }, [animationComponent?.animations])
-  return [animation, keepEntity ? assetEntity : UndefinedEntity] as [State<AnimationClip[]>, Entity]
+  return [animation, keepEntity ? assetEntity.value : UndefinedEntity] as [State<AnimationClip[]>, Entity]
 }
 
 PropertyBinding.parseTrackName = function (trackName) {
