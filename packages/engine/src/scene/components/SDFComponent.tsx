@@ -49,6 +49,7 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getState } from '@ir-engine/hyperflux'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 
 export enum SDFMode {
   TORUS,
@@ -62,8 +63,8 @@ export const SDFComponent = defineComponent({
   jsonID: 'EE_sdf',
 
   schema: S.Object({
-    color: S.Color(0xffffff),
-    scale: S.Vec3({ x: 0.25, y: 0.001, z: 0.25 }),
+    color: T.Color(0xffffff),
+    scale: T.Vec3({ x: 0.25, y: 0.001, z: 0.25 }),
     enable: S.Bool(false),
     mode: S.Enum(SDFMode, SDFMode.TORUS)
   }),

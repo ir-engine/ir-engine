@@ -157,11 +157,23 @@ export const uploadAvatarStaticResource = async (
   const folderName = isFromDomain ? data.path! : staticResourceKey
 
   delete params?.provider
-
   const modelKey = path.join(folderName, `${name}.${data.avatarFileType ?? 'glb'}`)
   const thumbnailKey = path.join(folderName, `${name}.png`)
 
   const storageProvider = getStorageProvider()
+
+  await Promise.all([
+    storageProvider.putObject({
+      Body: data.avatar,
+      Key: modelKey,
+      ContentType: CommonKnownContentTypes[data.avatarFileType ?? 'glb']
+    }),
+    storageProvider.putObject({
+      Body: data.thumbnail,
+      Key: thumbnailKey,
+      ContentType: CommonKnownContentTypes.png
+    })
+  ])
 
   const [modelResource, thumbnailResource] = await Promise.all([
     app.service(staticResourcePath).create(
@@ -182,17 +194,7 @@ export const uploadAvatarStaticResource = async (
         project: data.project
       },
       params
-    ),
-    storageProvider.putObject({
-      Body: data.avatar,
-      Key: modelKey,
-      ContentType: CommonKnownContentTypes[data.avatarFileType ?? 'glb']
-    }),
-    storageProvider.putObject({
-      Body: data.thumbnail,
-      Key: thumbnailKey,
-      ContentType: CommonKnownContentTypes.png
-    })
+    )
   ])
 
   logger.info('Successfully uploaded avatar %o %o', modelResource, thumbnailResource)

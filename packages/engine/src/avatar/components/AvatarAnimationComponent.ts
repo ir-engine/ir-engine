@@ -56,6 +56,7 @@ import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneCo
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
 import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFDocumentState } from '../../gltf/GLTFDocumentState'
@@ -74,7 +75,7 @@ export const AvatarAnimationComponent = defineComponent({
       layer: S.Number(0)
     }),
     /** The input vector for 2D locomotion blending space */
-    locomotion: S.Vec3()
+    locomotion: T.Vec3()
   })
 })
 
@@ -87,16 +88,16 @@ export const AvatarRigComponent = defineComponent({
 
   schema: S.Object({
     /** maps human bones to entities */
-    bonesToEntities: S.Record(HumanBonesSchema, S.Entity()),
-    entitiesToBones: S.Record(S.Entity(), HumanBonesSchema),
+    bonesToEntities: S.Record(HumanBonesSchema, T.Entity()),
+    entitiesToBones: S.Record(T.Entity(), HumanBonesSchema),
 
     /** contains ik solve data */
     /**@todo create and move to AvatarIKComponent */
     ikMatrices: S.Record(
       S.LiteralUnion(Object.values(VRMHumanBoneName)),
       S.Object({
-        local: S.Mat4(),
-        world: S.Mat4()
+        local: T.Mat4(),
+        world: T.Mat4()
       }),
       {}
     ),

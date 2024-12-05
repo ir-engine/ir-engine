@@ -29,6 +29,7 @@ import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useDisposable } from '../../resources/resourceHooks'
+import { T } from '../../schema/schemaFunctions'
 import { useHelperEntity } from './DebugComponentUtils'
 
 export const CameraHelperComponent = defineComponent({
@@ -36,16 +37,9 @@ export const CameraHelperComponent = defineComponent({
 
   schema: S.Object({
     name: S.String('camera-helper'),
-    camera: S.Type<Camera>(null!),
-    entity: S.Optional(S.Entity())
+    camera: S.Required(S.Type<Camera>(null!)),
+    entity: S.Optional(T.Entity())
   }),
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (!json.camera || !json.camera.isCamera) throw new Error('CameraHelperComponent: Valid Camera required')
-    component.camera.set(json.camera)
-    if (typeof json.name === 'string') component.name.set(json.name)
-  },
 
   reactor: function () {
     const entity = useEntityContext()

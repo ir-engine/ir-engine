@@ -38,10 +38,10 @@ import {
 } from 'three'
 
 import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
-import { matchesColor } from '@ir-engine/spatial/src/common/functions/MatchesUtils'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useDisposable } from '../../resources/resourceHooks'
+import { T } from '../../schema/schemaFunctions'
 import { useHelperEntity } from './DebugComponentUtils'
 
 const getLightHelperType = (light: Light) => {
@@ -56,21 +56,11 @@ export const LightHelperComponent = defineComponent({
 
   schema: S.Object({
     name: S.String('light-helper'),
-    light: S.Type<Light>(),
+    light: S.Required(S.Type<Light>()),
     size: S.Number(1),
-    color: S.Optional(S.Color()),
-    entity: S.Optional(S.Entity())
+    color: S.Optional(T.Color()),
+    entity: S.Optional(T.Entity())
   }),
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-
-    if (!json.light || !json.light.isLight) throw new Error('LightHelperComponent: Valid Light required')
-    component.light.set(json.light)
-    if (typeof json.name === 'string') component.name.set(json.name)
-    if (typeof json.size === 'number') component.size.set(json.size)
-    if (matchesColor.test(json.color)) component.color.set(json.color)
-  },
 
   reactor: function () {
     const entity = useEntityContext()

@@ -112,6 +112,7 @@ const RenderModeTool = () => {
               value={rendererState.shadowMapResolution.value}
               onChange={(resolution: number) => rendererState.shadowMapResolution.set(resolution)}
               disabled={rendererState.renderMode.value !== RenderModes.SHADOW}
+              width="full"
             />
           </InputGroup>
         </div>

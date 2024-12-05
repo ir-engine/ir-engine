@@ -22,9 +22,6 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { UserID } from '@ir-engine/hyperflux'
-import { Color, ColorRepresentation, Matrix4, Quaternion, Vector2, Vector3 } from 'three'
-import { Entity, EntityUUID, UndefinedEntity } from '../Entity'
 import {
   Kind,
   Options,
@@ -61,10 +58,6 @@ const buildOptions = (init: any | undefined, options?: Options) => {
         }
       : options
   return opt
-}
-
-const isColorObj = (color?: ColorRepresentation): color is Color => {
-  return color !== undefined && (color as Color).r !== undefined
 }
 
 export const S = {
@@ -164,7 +157,7 @@ export const S = {
 
   /**
    * Schema that infers as a Partial type of the schema passed in
-   * S.Partial(S.Vec3()) -> Partial<Vector3>
+   * S.Partial(T.Vec3()) -> Partial<Vector3>
    */
   Partial: <T extends Schema, Initial>(item: T, init?: Initial, options?: TPartialSchema<T>['options']) =>
     ({
@@ -277,6 +270,7 @@ export const S = {
 
   /**
    * Schemas wrapped in this schema may be null, will default to null if not default value is provided
+   * This should only be needed for properties of a component that are fetched asynchronously or provided by a third party api
    */
   Nullable: <T extends Schema, Initial>(
     schema: T,
@@ -328,107 +322,6 @@ export const S = {
       options: buildOptions(init, options),
       properties: schema
     }) as TNonSerializedSchema<T>,
-
-  /** EntityUUID type schema helper, defaults to UndefinedEntity */
-  Entity: (def?: Entity) => S.Number(def ?? UndefinedEntity, { $id: 'Entity' }) as unknown as TTypedSchema<Entity>,
-
-  /** EntityUUID type schema helper, defaults to '' */
-  EntityUUID: (options?: TTypedSchema<EntityUUID>['options']) =>
-    S.String('', { id: 'EntityUUID' }) as unknown as TTypedSchema<EntityUUID>,
-
-  /** UserID type schema helper, defaults to '' */
-  UserID: (options?: TTypedSchema<UserID>['options']) =>
-    S.String('', { id: 'UserUUID' }) as unknown as TTypedSchema<UserID>,
-
-  /** Vector3 type schema helper, defaults to { x: 0, y: 0, z: 0 } */
-  Vec3: (init = { x: 0, y: 0, z: 0 }, options?: Options<Vector3>) =>
-    S.SerializedClass(
-      () => new Vector3(init.x, init.y, init.z),
-      {
-        x: S.Number(),
-        y: S.Number(),
-        z: S.Number()
-      },
-      {
-        deserialize: (curr, value) => curr.copy(value),
-        ...options,
-        id: 'Vec3'
-      }
-    ),
-
-  /** Vector2 type schema helper, defaults to { x: 0, y: 0 } */
-  Vec2: (init = { x: 0, y: 0 }, options?: Options<Vector2>) =>
-    S.SerializedClass(
-      () => new Vector2(init.x, init.y),
-      {
-        x: S.Number(),
-        y: S.Number()
-      },
-      {
-        deserialize: (curr, value) => curr.copy(value),
-        ...options,
-        id: 'Vec2'
-      }
-    ),
-
-  /** Quaternion type schema helper, defaults to { x: 0, y: 0, z: 0, w: 1 } */
-  Quaternion: (init = { x: 0, y: 0, z: 0, w: 1 }, options?: Options<Quaternion>) =>
-    S.SerializedClass(
-      () => new Quaternion(init.x, init.y, init.z, init.w),
-      {
-        x: S.Number(),
-        y: S.Number(),
-        z: S.Number(),
-        w: S.Number()
-      },
-      {
-        deserialize: (curr, value) => curr.copy(value),
-        ...options,
-        id: 'Quaternion'
-      }
-    ),
-
-  /** Matrix4 type schema helper, defaults to idenity matrix */
-  Mat4: (init = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], options?: Options<Matrix4>) =>
-    S.SerializedClass(
-      () => new Matrix4().fromArray(init),
-      {
-        elements: S.Array(S.Number(), undefined, {
-          maxItems: 16,
-          minItems: 16
-        })
-      },
-      {
-        deserialize: (curr, value) => curr.copy(value),
-        ...options,
-        id: 'Mat4'
-      }
-    ),
-
-  /**
-   *
-   * Schema representing a color
-   * Can be a Color object, string or number, but will always serialize as a number
-   *
-   * @param init default color representation
-   * @param options schema options
-   * @returns
-   */
-  Color: (init?: ColorRepresentation, options?: Options<ColorRepresentation>) =>
-    S.SerializedClass<TProperties, ColorRepresentation>(
-      () => (isColorObj(init) ? new Color(init.r, init.g, init.b) : new Color(init)),
-      {
-        r: S.Number(),
-        g: S.Number(),
-        b: S.Number()
-      },
-      {
-        deserialize: (curr, value) => (curr instanceof Color ? curr.set(value) : new Color(value)),
-        serialize: (value) => (value instanceof Color ? value.getHex() : new Color(value).getHex()),
-        ...options,
-        id: 'Color'
-      }
-    ),
 
   /**
    *
