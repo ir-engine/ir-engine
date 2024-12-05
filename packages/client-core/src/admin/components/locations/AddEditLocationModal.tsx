@@ -32,11 +32,9 @@ import {
   locationPath,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
-import { UndefinedEntity } from '@ir-engine/ecs'
 import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
-import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { getState, useHookstate } from '@ir-engine/hyperflux'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
@@ -66,6 +64,7 @@ export default function AddEditLocationModal(props: {
   action: string
   location?: LocationType
   sceneID?: string | null
+  inStudio?: boolean
 }) {
   const { t } = useTranslation()
 
@@ -98,7 +97,6 @@ export default function AddEditLocationModal(props: {
   const audioEnabled = useHookstate<boolean>(location?.locationSetting.audioEnabled || true)
   const screenSharingEnabled = useHookstate<boolean>(location?.locationSetting.screenSharingEnabled || true)
   const locationType = useHookstate(location?.locationSetting.locationType || 'public')
-  const engineState = useHookstate(getMutableState(EngineState))
 
   useEffect(() => {
     if (location) {
@@ -318,7 +316,7 @@ export default function AddEditLocationModal(props: {
               onChange={screenSharingEnabled.set}
               disabled={isLoading}
             />
-            {engineState.viewerEntity.value !== UndefinedEntity && (
+            {props.inStudio && (
               <React.Suspense fallback={null}>
                 <StudioSections />
               </React.Suspense>
