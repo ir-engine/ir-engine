@@ -61,9 +61,11 @@ export default (app: Application): void => {
 
   const onUpdateAppConfig = (...args: EngineSettingType[]) => {
     args.forEach((setting) => {
+      // plain key value
       if (appConfig[setting.category]) {
         appConfig[setting.category][setting.key] = setting.value
       }
+      // jsonkey
     })
   }
 

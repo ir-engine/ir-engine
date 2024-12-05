@@ -186,13 +186,17 @@ export const updateAppConfig = async (): Promise<void> => {
     .select()
     .from<EngineSettingType>(engineSettingPath)
     .then((dbEngineSettings) => {
+      // jsonkey undefined
       dbEngineSettings.forEach((setting) => {
         if (!appConfig[setting.category]) {
           appConfig[setting.category] = {}
         }
         appConfig[setting.category][setting.key] = setting.value
       })
+      console.log('appConfig ' + '%'.repeat(10), appConfig)
     })
+    // jsonkey defined
+
     .catch((e) => {
       logger.error(e, `[updateAppConfig]: Failed to read engineSetting: ${e.message}`)
     })

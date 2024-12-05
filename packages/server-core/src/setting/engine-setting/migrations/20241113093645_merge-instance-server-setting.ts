@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defaultWebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
@@ -47,62 +46,71 @@ export async function up(knex: Knex): Promise<void> {
         [
           {
             key: EngineSettings.InstanceServer.ClientHost,
-            value: recordExists.clientHost || process.env.APP_HOST || ''
+            value: recordExists.clientHost || process.env.APP_HOST || '',
+            jsonKey: ''
           },
           {
             key: EngineSettings.InstanceServer.RtcStartPort,
-            value: recordExists.RtcStartPort || parseInt(process.env.RTC_START_PORT!)
+            value: recordExists.RtcStartPort || parseInt(process.env.RTC_START_PORT!),
+            jsonKey: ''
           },
           {
             key: EngineSettings.InstanceServer.RtcEndPort,
-            value: recordExists.RtcEndPort || parseInt(process.env.RTC_END_PORT!)
+            value: recordExists.RtcEndPort || parseInt(process.env.RTC_END_PORT!),
+            jsonKey: ''
           },
           {
             key: EngineSettings.InstanceServer.RtcPortBlockSize,
-            value: recordExists.RtcPortBlockSize || parseInt(process.env.RTC_PORT_BLOCK_SIZE!)
+            value: recordExists.RtcPortBlockSize || parseInt(process.env.RTC_PORT_BLOCK_SIZE!),
+            jsonKey: ''
           },
           {
             key: EngineSettings.InstanceServer.IdentifierDigits,
-            value: recordExists.IdentifierDigits || 5
+            value: recordExists.IdentifierDigits || 5,
+            jsonKey: ''
           },
           {
             key: EngineSettings.InstanceServer.Local,
-            value: recordExists.local || process.env.LOCAL === 'true'
+            value: recordExists.local || process.env.LOCAL === 'true',
+            jsonKey: ''
           },
           {
             key: EngineSettings.InstanceServer.Domain,
-            value: recordExists.domain || process.env.INSTANCESERVER_DOMAIN || 'instanceserver.etherealengine.com'
+            value: recordExists.domain || process.env.INSTANCESERVER_DOMAIN || 'instanceserver.etherealengine.com',
+            jsonKey: ''
           },
           {
             key: EngineSettings.InstanceServer.ReleaseName,
-            value: recordExists.releaseName || process.env.RELEASE_NAME || 'local'
+            value: recordExists.releaseName || process.env.RELEASE_NAME || 'local',
+            jsonKey: ''
           },
           {
             key: EngineSettings.InstanceServer.Port,
-            value: recordExists.port || process.env.INSTANCESERVER_PORT || '3031'
+            value: recordExists.port || process.env.INSTANCESERVER_PORT || '3031',
+            jsonKey: ''
           },
           {
             key: EngineSettings.InstanceServer.Mode,
-            value: recordExists.mode || process.env.INSTANCESERVER_MODE || 'dev'
+            value: recordExists.mode || process.env.INSTANCESERVER_MODE || 'dev',
+            jsonKey: ''
           },
           {
             key: EngineSettings.InstanceServer.LocationName,
-            value: recordExists.locationName || process.env.PRELOAD_LOCATION_NAME || ''
-          },
-          {
-            key: EngineSettings.InstanceServer.WebRTCSettings,
-            value: recordExists.webRTCSettings || defaultWebRTCSettings
+            value: recordExists.locationName || process.env.PRELOAD_LOCATION_NAME || '',
+            jsonKey: ''
           }
         ].map(async (item) => ({
           ...item,
           id: uuidv4(),
           type: 'private' as EngineSettingType['type'],
-          category: 'instance-server' as EngineSettingType['category'],
+          category: 'instance-server',
           createdAt: await getDateTimeSql(),
           updatedAt: await getDateTimeSql()
         }))
       )
       await knex.from(engineSettingPath).insert(instanceServerSettings)
+
+      const webRTCSettings = recordExists.webRTCSettings || {}
     }
   }
 

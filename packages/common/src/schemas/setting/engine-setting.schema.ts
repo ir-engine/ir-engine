@@ -57,6 +57,7 @@ export const engineSettingSchema = Type.Object(
     }),
     type: StringEnum(['private', 'public']),
     category: Type.String(),
+    jsonKey: Type.Optional(Type.String()),
     updatedBy: Type.Optional(
       TypedString<UserID>({
         format: 'uuid'
@@ -70,14 +71,14 @@ export const engineSettingSchema = Type.Object(
 export interface EngineSettingType extends Static<typeof engineSettingSchema> {}
 
 // Schema for creating new entries
-export const engineSettingDataSchema = Type.Pick(engineSettingSchema, ['key', 'value', 'type', 'category'], {
+export const engineSettingDataSchema = Type.Pick(engineSettingSchema, ['key', 'value', 'type', 'category', 'jsonKey'], {
   $id: 'EngineSettingData'
 })
 export interface EngineSettingData extends Static<typeof engineSettingDataSchema> {}
 
 // Schema for updating existing entries
 export const engineSettingPatchSchema = Type.Partial(
-  Type.Pick(engineSettingSchema, ['key', 'value', 'type', 'category']),
+  Type.Pick(engineSettingSchema, ['key', 'value', 'type', 'category', 'jsonKey']),
   {
     $id: 'EngineSettingPatch'
   }
@@ -85,7 +86,14 @@ export const engineSettingPatchSchema = Type.Partial(
 export interface EngineSettingPatch extends Static<typeof engineSettingPatchSchema> {}
 
 // Schema for allowed query properties
-export const engineSettingQueryProperties = Type.Pick(engineSettingSchema, ['id', 'key', 'value', 'type', 'category'])
+export const engineSettingQueryProperties = Type.Pick(engineSettingSchema, [
+  'id',
+  'key',
+  'value',
+  'type',
+  'category',
+  'jsonKey'
+])
 export const engineSettingQuerySchema = Type.Intersect(
   [
     querySyntax(engineSettingQueryProperties),
