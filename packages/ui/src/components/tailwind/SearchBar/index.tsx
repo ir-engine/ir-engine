@@ -41,7 +41,7 @@ export default function SearchBar({
     local: string
     query: string
   }>
-  size?: InputProps['size']
+  size?: InputProps['height']
   inputProps?: Partial<InputProps>
   debounceTime?: number
 }) {
@@ -67,7 +67,7 @@ export default function SearchBar({
       }}
       startComponent={<SearchSmSm className="h-20 text-white" />}
       data-testid="search-input"
-      size={size}
+      height={size}
       {...inputProps}
     />
   )

@@ -28,7 +28,7 @@ import { ArgTypes, StoryFn } from '@storybook/react'
 import React from 'react'
 import Input, { InputProps } from './index'
 
-const sizes: InputProps['size'][] = ['xs', 'l', 'xl']
+const sizes: InputProps['height'][] = ['xs', 'l', 'xl']
 
 const argTypes: ArgTypes = {
   size: {

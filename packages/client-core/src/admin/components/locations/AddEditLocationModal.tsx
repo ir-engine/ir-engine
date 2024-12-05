@@ -245,7 +245,7 @@ export default function AddEditLocationModal(props: {
               helperText={errors.name.value}
               disabled={isLoading}
               fullWidth
-              size="xl"
+              height="xl"
             />
             <Input
               type="number"
@@ -257,7 +257,7 @@ export default function AddEditLocationModal(props: {
               helperText={errors.maxUsers.value}
               disabled={isLoading}
               fullWidth
-              size="xl"
+              height="xl"
             />
             <Select
               labelProps={{
@@ -285,7 +285,7 @@ export default function AddEditLocationModal(props: {
               state={errors.scene.value ? 'error' : undefined}
               helperText={errors.scene.value}
               width="full"
-              inputSize="xl"
+              inputHeight="xl"
             />
             {/*<Select
               labelProps={{
