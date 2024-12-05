@@ -30,6 +30,7 @@ import {
   defineComponent,
   getComponent,
   getMutableComponent,
+  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -42,7 +43,6 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { addOBCPlugin } from '@ir-engine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { DistanceFromCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { EntityTreeComponent, useChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
@@ -277,8 +277,8 @@ uniform float minDistance;`
     }
 
     /** @todo rather than this, update the mesh component */
-    removeObjectFromGroup(props.meshEntity, mesh)
-    addObjectToGroup(props.meshEntity, instancedMesh)
+    removeComponent(props.meshEntity, MeshComponent)
+    setComponent(props.meshEntity, MeshComponent, instancedMesh)
   }, [])
 
   const level = useComponent(props.variantEntity, VariantComponent).levels[props.level].value

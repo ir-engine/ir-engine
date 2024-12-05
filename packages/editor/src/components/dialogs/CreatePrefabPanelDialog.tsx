@@ -48,7 +48,7 @@ import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceCo
 import { getMutableState, getState, startReactor, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
 import {
   EntityTreeComponent,
@@ -94,7 +94,7 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
     ]
     const prefabEntity = createEntity()
     const obj = new Scene()
-    addObjectToGroup(prefabEntity, obj)
+    setComponent(prefabEntity, ObjectComponent, obj)
     const rootEntity = getState(EditorState).rootEntity
     iterateEntityNode(rootEntity, (entity) => {
       lookDevComponent.forEach((component) => {

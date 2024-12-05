@@ -36,7 +36,6 @@ import {
 import { NO_PROXY, State, none, useHookstate } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, PointLightComponent, SpotLightComponent } from '@ir-engine/spatial'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import React, { useEffect } from 'react'
 import {
   BufferAttribute,
@@ -260,11 +259,8 @@ const processGPUInstancing = (entity: Entity, attributes: Record<string, BufferA
   instancedMesh.frustumCulled = false
   instancedMesh.instanceMatrix.needsUpdate = true
 
-  /** @todo we really should tidy this up, and change it such that the mesh component itself handles adding and removing from group */
-  removeObjectFromGroup(entity, mesh)
   removeComponent(entity, MeshComponent)
   setComponent(entity, MeshComponent, instancedMesh)
-  addObjectToGroup(entity, instancedMesh)
 
   setComponent(entity, InstancingComponent, {
     instanceMatrix: instancedMesh.instanceMatrix

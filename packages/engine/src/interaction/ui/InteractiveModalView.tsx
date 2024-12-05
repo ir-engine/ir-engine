@@ -29,7 +29,6 @@ import { createEntity, setComponent } from '@ir-engine/ecs'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { hookstate, isClient } from '@ir-engine/hyperflux'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
@@ -105,8 +104,7 @@ function createBackground(
   setComponent(backgroundEid, EntityTreeComponent, { parentEntity: parentEntity })
   setComponent(backgroundEid, MeshComponent, mesh)
   setComponent(backgroundEid, VisibleComponent)
-  const backgroundTransform = setComponent(backgroundEid, TransformComponent, { position: new Vector3(0, 0, -0.0001) })
-  addObjectToGroup(backgroundEid, mesh) // TODO: this should be managed by the MeshComponent
+  setComponent(backgroundEid, TransformComponent, { position: new Vector3(0, 0, -0.0001) })
   return backgroundEid
 }
 

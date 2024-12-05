@@ -62,7 +62,7 @@ import { Vector3_One, Vector3_Up } from '../common/constants/MathConstants'
 import { InputComponent } from '../input/components/InputComponent'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { InputState } from '../input/state/InputState'
-import { addObjectToGroup } from '../renderer/components/ObjectComponent'
+import { MeshComponent } from '../renderer/components/MeshComponent'
 import { VisibleComponent, setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { updateWorldOriginFromScenePlacement } from '../transform/updateWorldOrigin'
@@ -251,7 +251,7 @@ const Reactor = () => {
 
     const originAnchorEntity = createEntity()
     setComponent(originAnchorEntity, NameComponent, 'xr-world-anchor')
-    addObjectToGroup(originAnchorEntity, originAnchorMesh)
+    setComponent(originAnchorEntity, MeshComponent, originAnchorMesh)
     setComponent(originAnchorEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
 
     getMutableState(XRAnchorSystemState).set({ scenePlacementEntity, originAnchorEntity })

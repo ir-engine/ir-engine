@@ -76,11 +76,7 @@ import {
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Vector3_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import {
-  ObjectComponent,
-  addObjectToGroup,
-  removeObjectFromGroup
-} from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { useDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { EntityTreeComponent, getChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
@@ -1012,7 +1008,7 @@ export const ParticleSystemComponent = defineComponent({
 
       const emitterAsObj3D = nuSystem.emitter
       emitterAsObj3D.userData['_refresh'] = component._refresh
-      addObjectToGroup(entity, emitterAsObj3D)
+      setComponent(entity, ObjectComponent, emitterAsObj3D)
       emitterAsObj3D.parent = renderer
       const transformComponent = getComponent(entity, TransformComponent)
       emitterAsObj3D.matrix = transformComponent.matrix
@@ -1032,7 +1028,7 @@ export const ParticleSystemComponent = defineComponent({
             }
           }
         }
-        removeObjectFromGroup(entity, emitterAsObj3D)
+        removeComponent(entity, ObjectComponent)
         nuSystem.dispose()
         emitterAsObj3D.dispose()
         removeBatchedRenderer(sceneID!)
