@@ -31,6 +31,7 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useDisposable } from '../../../resources/resourceHooks'
+import { T } from '../../../schema/schemaFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from '../GroupComponent'
 import { LightTagComponent } from './LightTagComponent'
 
@@ -39,7 +40,7 @@ export const AmbientLightComponent = defineComponent({
   jsonID: 'EE_ambient_light',
 
   schema: S.Object({
-    color: S.Color(0xffffff),
+    color: T.Color(0xffffff),
     intensity: S.Number(1)
   }),
 

@@ -27,7 +27,6 @@ import { matchesEntityUUID } from '@ir-engine/ecs'
 import { defineAction, HyperFlux, matchesPeerID, matchesWithDefault } from '@ir-engine/hyperflux'
 
 import { NetworkTopics } from '../Network'
-import { matchesNetworkId, NetworkObjectComponent } from '../NetworkObjectComponent'
 import { matchesUserID } from './matchesUserID'
 
 export class WorldNetworkAction {
@@ -35,7 +34,6 @@ export class WorldNetworkAction {
     type: 'ee.network.SPAWN_ENTITY',
     entityUUID: matchesEntityUUID,
     parentUUID: matchesEntityUUID,
-    networkId: matchesWithDefault(matchesNetworkId, () => NetworkObjectComponent.createNetworkId()),
     ownerID: matchesWithDefault(matchesUserID, () => HyperFlux.store.userID),
     authorityPeerId: matchesPeerID.optional(),
     $cache: true,

@@ -43,7 +43,7 @@ import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import { useFind } from '@ir-engine/common'
 import { identityProviderPath, scopePath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
+import { Tooltip } from '@ir-engine/ui'
 import { RouterState } from '../common/services/RouterService'
 import { DefaultAdminRoutes } from './DefaultAdminRoutes'
 

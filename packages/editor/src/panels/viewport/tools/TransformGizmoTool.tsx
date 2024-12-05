@@ -29,8 +29,8 @@ import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperSt
 import { TransformMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
+import { Tooltip } from '@ir-engine/ui'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TbMarquee2, TbPointer, TbRefresh, TbVector, TbWindowMaximize } from 'react-icons/tb'
@@ -115,7 +115,7 @@ export default function TransformGizmoTool({
         <Placer />
       </div>
       <div className="mt-2 flex flex-col overflow-hidden rounded bg-[#212226]">
-        <Tooltip content={t('editor:toolbar.gizmo.pointer')} position={'right center'}>
+        <Tooltip content={t('editor:toolbar.gizmo.pointer')} position="right">
           <Button
             className={twMerge(
               'rounded-none border-b border-b-theme-primary bg-[#212226] p-2 text-[#A3A3A3]',
@@ -129,7 +129,7 @@ export default function TransformGizmoTool({
             }}
           />
         </Tooltip>
-        <Tooltip content={t('editor:toolbar.gizmo.translate')} position={'right center'}>
+        <Tooltip content={t('editor:toolbar.gizmo.translate')} position="right">
           <Button
             className={twMerge(
               'rounded-none border-b border-b-theme-primary bg-[#212226] p-2 text-[#A3A3A3]',
@@ -143,7 +143,7 @@ export default function TransformGizmoTool({
             }}
           />
         </Tooltip>
-        <Tooltip content={t('editor:toolbar.gizmo.rotate')} position={'right center'}>
+        <Tooltip content={t('editor:toolbar.gizmo.rotate')} position="right">
           <Button
             className={twMerge(
               'rounded-none border-b border-b-theme-primary bg-[#212226] p-2 text-[#A3A3A3]',
@@ -157,7 +157,7 @@ export default function TransformGizmoTool({
             }}
           />
         </Tooltip>
-        <Tooltip content={t('editor:toolbar.gizmo.scale')} position={'right center'}>
+        <Tooltip content={t('editor:toolbar.gizmo.scale')} position="right">
           <Button
             className={twMerge(
               'rounded-none bg-[#212226] p-2 text-[#A3A3A3]',
@@ -171,7 +171,7 @@ export default function TransformGizmoTool({
             }}
           />
         </Tooltip>
-        <Tooltip content={t('disable orbit camera and enable selection box')} position={'right center'}>
+        <Tooltip content={t('disable orbit camera and enable selection box')} position="right">
           <Button
             className={twMerge(
               'rounded-none bg-[#212226] p-2 text-[#A3A3A3]',

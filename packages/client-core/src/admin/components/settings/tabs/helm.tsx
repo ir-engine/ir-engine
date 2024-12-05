@@ -31,10 +31,10 @@ import { useFind, useMutation } from '@ir-engine/common'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { engineSettingPath, helmVersionPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { Select } from '@ir-engine/ui'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {

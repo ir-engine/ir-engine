@@ -30,6 +30,7 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useEffect, useLayoutEffect } from 'react'
 import { removeCallback, setCallback } from '../../common/CallbackComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent.ts'
+import { T } from '../../schema/schemaFunctions'
 import { useAncestorWithComponents } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
@@ -45,7 +46,7 @@ export const ColliderComponent = defineComponent({
   schema: S.Object({
     shape: ShapeSchema('box'),
     mass: S.Number(1),
-    massCenter: S.Vec3(),
+    massCenter: T.Vec3(),
     friction: S.Number(0.5),
     restitution: S.Number(0.5),
     collisionLayer: S.Enum(CollisionGroups, CollisionGroups.Default),
@@ -53,8 +54,8 @@ export const ColliderComponent = defineComponent({
 
     //shape specific parameters
     matchMesh: S.Bool(false),
-    centerOffset: S.Vec3({ x: 0, y: 0, z: 0 }),
-    boxSize: S.Vec3({ x: 1, y: 1, z: 1 }),
+    centerOffset: T.Vec3({ x: 0, y: 0, z: 0 }),
+    boxSize: T.Vec3({ x: 1, y: 1, z: 1 }),
     radius: S.Number(0.5),
     height: S.Number(1)
   }),

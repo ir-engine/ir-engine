@@ -38,12 +38,12 @@ import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbnailState'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { Select } from '@ir-engine/ui'
 import { ImageLink } from '@ir-engine/ui/editor'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import { ModalHeader } from '@ir-engine/ui/src/primitives/tailwind/Modal'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 import { HiLink } from 'react-icons/hi2'
 
@@ -245,7 +245,7 @@ export default function AddEditLocationModal(props: {
               helperText={errors.name.value}
               disabled={isLoading}
               fullWidth
-              variantSize="xl"
+              height="xl"
             />
             <Input
               type="number"
@@ -257,7 +257,7 @@ export default function AddEditLocationModal(props: {
               helperText={errors.maxUsers.value}
               disabled={isLoading}
               fullWidth
-              variantSize="xl"
+              height="xl"
             />
             <Select
               labelProps={{
@@ -285,7 +285,7 @@ export default function AddEditLocationModal(props: {
               state={errors.scene.value ? 'error' : undefined}
               helperText={errors.scene.value}
               width="full"
-              inputSizeVariant="xl"
+              inputHeight="xl"
             />
             {/*<Select
               labelProps={{

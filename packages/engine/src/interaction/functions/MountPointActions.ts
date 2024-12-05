@@ -50,35 +50,22 @@ export const MountPointState = defineState({
     onMountInteraction: MountPointActions.mountInteraction.receive((action) => {
       const state = getMutableState(MountPointState)
       if (action.mounted) {
-        addEntry(action.targetMount, action.mountedEntity)
+        state.mountsToMountedEntities[action.targetMount].set(action.mountedEntity)
+        state.mountedEntitiesToMounts[action.mountedEntity].set(action.targetMount)
       } else {
-        removeEntry(action.targetMount, action.mountedEntity)
+        state.mountsToMountedEntities[action.targetMount].set(none)
+        state.mountedEntitiesToMounts[action.mountedEntity].set(none)
       }
     }),
     onDestroyObject: WorldNetworkAction.destroyEntity.receive((action) => {
-      onEntityDestroyed(action.entityUUID)
+      const state = getMutableState(MountPointState)
+      if (action.entityUUID in state.mountedEntitiesToMounts.value) {
+        const mountUUID = state.mountedEntitiesToMounts[action.entityUUID].value
+        if (mountUUID) {
+          state.mountsToMountedEntities[mountUUID].set(none)
+          state.mountedEntitiesToMounts[action.entityUUID].set(none)
+        }
+      }
     })
   }
 })
-
-const addEntry = (targetMount: EntityUUID, mountedEntity: EntityUUID) => {
-  const state = getMutableState(MountPointState)
-  state.mountsToMountedEntities[targetMount].set(mountedEntity)
-  state.mountedEntitiesToMounts[mountedEntity].set(targetMount)
-}
-
-const removeEntry = (targetMount: EntityUUID, mountedEntity: EntityUUID) => {
-  const state = getMutableState(MountPointState)
-  state.mountsToMountedEntities[targetMount].set(none)
-  state.mountedEntitiesToMounts[mountedEntity].set(none)
-}
-
-const onEntityDestroyed = (entityUUID: EntityUUID) => {
-  const state = getMutableState(MountPointState)
-  if (entityUUID in state.mountedEntitiesToMounts.value) {
-    const mountUUID = state.mountedEntitiesToMounts[entityUUID].value
-    if (mountUUID) {
-      removeEntry(mountUUID, entityUUID)
-    }
-  }
-}

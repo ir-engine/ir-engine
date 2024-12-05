@@ -44,10 +44,10 @@ import config from '@ir-engine/common/src/config'
 import multiLogger from '@ir-engine/common/src/logger'
 import { ProjectType, projectPath } from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import TruncatedText from '@ir-engine/ui/src/primitives/tailwind/TruncatedText'
@@ -234,12 +234,12 @@ export default function ProjectTable(props: { search: string }) {
               {row.name}
             </a>
             {!!row.needsRebuild && (
-              <Tooltip content={t('admin:components.project.outdatedBuild')} position="right center">
+              <Tooltip content={t('admin:components.project.outdatedBuild')} position="right">
                 <HiOutlineExclamationCircle className="text-orange-400" size={22} />
               </Tooltip>
             )}
             {!!row.hasLocalChanges && (
-              <Tooltip content={t('admin:components.project.hasLocalChanges')} position="right center">
+              <Tooltip content={t('admin:components.project.hasLocalChanges')} position="right">
                 <HiOutlineExclamationCircle className="text-yellow-400" size={22} />
               </Tooltip>
             )}

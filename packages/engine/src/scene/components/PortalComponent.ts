@@ -54,6 +54,7 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useDisposable, useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
@@ -81,17 +82,17 @@ export const PortalComponent = defineComponent({
   jsonID: 'EE_portal',
 
   schema: S.Object({
-    linkedPortalId: S.EntityUUID(),
+    linkedPortalId: T.EntityUUID(),
     location: S.String(''),
     effectType: S.String('None'),
     previewType: S.String(PortalPreviewTypeSimple),
     previewImageURL: S.String(''),
     redirect: S.Bool(false),
-    spawnPosition: S.Vec3(),
-    spawnRotation: S.Quaternion(),
-    remoteSpawnPosition: S.Vec3(),
-    remoteSpawnRotation: S.Quaternion(),
-    mesh: S.Nullable(S.Type<Mesh<SphereGeometry, MeshBasicMaterial>>())
+    spawnPosition: T.Vec3(),
+    spawnRotation: T.Quaternion(),
+    remoteSpawnPosition: T.Vec3(),
+    remoteSpawnRotation: T.Quaternion(),
+    mesh: S.NonSerialized(S.Type<Mesh<SphereGeometry, MeshBasicMaterial>>())
   }),
 
   reactor: function () {
@@ -120,7 +121,7 @@ export const PortalComponent = defineComponent({
         triggers: [
           {
             onEnter: 'teleport',
-            onExit: null,
+            onExit: '',
             target: '' as EntityUUID
           }
         ]

@@ -27,9 +27,8 @@ import { setTransformSpace, toggleTransformSpace } from '@ir-engine/editor/src/f
 import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
 import { TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { Select, Tooltip } from '@ir-engine/ui'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { t } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -71,7 +70,7 @@ const TransformSpaceTool = () => {
             : t('editor:toolbar.transformSpace.info-world')
         }
         content={t('editor:toolbar.transformSpace.description')}
-        position="right center"
+        position="right"
       >
         <Select
           key={transformSpace.value}

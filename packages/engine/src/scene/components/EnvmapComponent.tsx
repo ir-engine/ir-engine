@@ -60,6 +60,7 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { setPlugin } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { useChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import {
@@ -189,10 +190,10 @@ export const EnvmapComponent = defineComponent({
 
   schema: S.Object({
     type: S.LiteralUnion(Object.values(EnvMapSourceType), EnvMapSourceType.Skybox),
-    envMapSourceColor: S.Color(0xfff),
+    envMapSourceColor: T.Color(0xfff),
     envMapSourceURL: S.String(''),
     envMapCubemapURL: S.String(''),
-    envMapSourceEntityUUID: S.EntityUUID(),
+    envMapSourceEntityUUID: T.EntityUUID(),
     envMapIntensity: S.Number(1),
 
     // internal

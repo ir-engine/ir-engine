@@ -30,18 +30,28 @@ import { RecordingID, recordingResourceUploadPath } from '@ir-engine/common/src/
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { PeerID, getMutableState, none } from '@ir-engine/hyperflux'
-import { NetworkPeerFunctions, NetworkState, updatePeers } from '@ir-engine/network'
+import { PeerID, dispatchAction, getMutableState, none } from '@ir-engine/hyperflux'
+import { NetworkActions, NetworkPeer, NetworkState } from '@ir-engine/network'
 
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
+export const lastSeen = new Map<PeerID, number>()
+
 export async function checkPeerHeartbeat(network: SocketWebRTCServerNetwork): Promise<void> {
-  for (const [peerID, client] of Object.entries(network.peers)) {
+  for (const [peerID, client] of Object.entries(network.peers) as [PeerID, NetworkPeer][]) {
     if (client.userId === Engine.instance.userID) continue
-    if (Date.now() - client.lastSeenTs > 10000) {
-      if (client.transport) client.transport!.end!()
-      NetworkPeerFunctions.destroyPeer(network, peerID as PeerID)
-      updatePeers(network)
+    if (!lastSeen.has(peerID)) lastSeen.set(peerID, Date.now())
+    if (Date.now() - lastSeen.get(peerID)! > 10000) {
+      if (network.transports[peerID]) network.transports[peerID]!.end!()
+      dispatchAction(
+        NetworkActions.peerLeft({
+          $cache: true,
+          $network: network.id,
+          $topic: network.topic,
+          peerID,
+          userID: client.userId
+        })
+      )
     }
   }
 }

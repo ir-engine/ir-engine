@@ -39,6 +39,7 @@ import { useMutableState } from '@ir-engine/hyperflux'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
 import { useDisposable } from '../../../resources/resourceHooks'
+import { T } from '../../../schema/schemaFunctions'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { RendererState } from '../../RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '../GroupComponent'
@@ -56,7 +57,7 @@ export const SpotLightComponent = defineComponent({
   jsonID: 'EE_spot_light',
 
   schema: S.Object({
-    color: S.Color(0xffffff),
+    color: T.Color(0xffffff),
     intensity: S.Number(10),
     range: S.Number(0),
     decay: S.Number(2),
