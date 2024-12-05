@@ -28,7 +28,7 @@ import { getState, none, useHookstate, useMutableState } from '@ir-engine/hyperf
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { destroySpatialViewer, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 
 export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
   const lastRef = useHookstate(() => ref.current)
@@ -66,7 +66,7 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
   }, [lastRef.value])
 
   /** Essentially mount/unmount upon the attach/detatch state of the ref node */
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!lastRef.value) return
     const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
     initializeSpatialViewer(canvas)

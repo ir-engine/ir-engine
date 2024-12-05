@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useGet } from '@ir-engine/common'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import { UndefinedEntity } from '@ir-engine/ecs'
 import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { useMutableState } from '@ir-engine/hyperflux'
 
@@ -32,5 +33,5 @@ export const useLoadedSceneEntity = (sceneID: string | undefined) => {
   const scene = useGet(staticResourcePath, sceneID).data
   const scenes = useMutableState(GLTFAssetState)
   const sceneKey = scene?.url
-  return sceneKey ? scenes[sceneKey].value : null
+  return sceneKey ? scenes[sceneKey].value : UndefinedEntity
 }
