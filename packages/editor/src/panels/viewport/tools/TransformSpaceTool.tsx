@@ -70,7 +70,7 @@ const TransformSpaceTool = () => {
             : t('editor:toolbar.transformSpace.info-world')
         }
         content={t('editor:toolbar.transformSpace.description')}
-        position="right center"
+        position="right"
       >
         <Select
           key={transformSpace.value}
