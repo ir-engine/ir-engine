@@ -44,18 +44,12 @@ import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaList } from 'react-icons/fa'
-import { FiGrid } from 'react-icons/fi'
 import { twMerge } from 'tailwind-merge'
 import { handleUploadFiles, inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
 import { FilesState, FilesViewModeSettings, FilesViewModeState } from '../../services/FilesState'
 import { availableTableColumns, useCurrentFiles } from './helpers'
 import { handleDownloadProject } from './loaders'
-
-const VIEW_MODES = [
-  { mode: 'list', icon: <FaList /> },
-  { mode: 'icons', icon: <FiGrid /> }
-]
 
 export const showMultipleFileModal = (projectName: string, directoryPath: string, files: File[]) => {
   const fileNames = files.map((file) => file.name)
