@@ -35,7 +35,6 @@ import {
   UndefinedEntity
 } from '@ir-engine/ecs'
 import { getMutableState, getState, ReactorRoot, startReactor } from '@ir-engine/hyperflux'
-import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 import sinon from 'sinon'
@@ -1257,25 +1256,26 @@ describe('ClientInputHooks', () => {
       assert.equal(before.has(testEntity), false)
 
       // Setup the reactor
-      const Reactor = React.createElement(
-        EntityContext.Provider,
-        { value: testEntity },
-        React.createElement(ClientInputHooks.BoundingBoxInputReactor, {})
+      const reactor = startReactor(() =>
+        React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.BoundingBoxInputReactor, {})
+        )
       )
 
-      const { rerender, unmount } = render(Reactor)
-      await act(() => rerender(Reactor))
+      reactor.run()
 
       // Check the result
       const one = getState(InputState).inputBoundingBoxes
       assert.equal(one.has(testEntity), true)
 
       removeComponent(parentEntity, InputComponent)
-      await act(() => rerender(Reactor))
+
+      reactor.run()
+
       const two = getState(InputState).inputBoundingBoxes
       assert.equal(two.has(testEntity), false)
-
-      unmount()
     })
   })
 })
