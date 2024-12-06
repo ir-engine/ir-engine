@@ -132,6 +132,7 @@ export const Vector3Input = ({
           startIcon={uniformEnabled.value ? <LuLock /> : <LuUnlock />}
           onClick={onToggleUniform}
           className="p-0"
+          tabIndex={-1}
         />
       )}
       <NumericInput
