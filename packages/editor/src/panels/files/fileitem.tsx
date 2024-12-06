@@ -148,10 +148,10 @@ function FileItemRow({
       key={file?.key}
       ref={(ref) => drag(drop(ref))}
       className={twMerge(
-        'h-9 rounded text-[#a3a3a3] hover:bg-[#2F3137]',
+        'h-9 rounded text-[#a3a3a3]',
         isOver && 'border-2 border-gray-400',
-        isSelected && 'bg-[#375DAF]',
-        className
+        className,
+        !isSelected ? 'hover:bg-[#2F3137]' : 'bg-[#375DAF]'
       )}
       onContextMenu={onContextMenu}
       onClick={onClick}
