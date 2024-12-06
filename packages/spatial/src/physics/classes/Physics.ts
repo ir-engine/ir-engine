@@ -545,6 +545,7 @@ function createColliderDesc(
 
         //better radius calculation if object is not square and/or not not taller than wide
         const newGeo = mesh?.geometry.clone().scale(scaleRelativeToRoot.x, scaleRelativeToRoot.y, scaleRelativeToRoot.z)
+        //for capsule/cylinder we have an absolute orientation expected for the collider, so we need to complete mesh rotation first before calculations
         newGeo.applyQuaternion(quaternionRelativeToRoot).scale(rootWorldScale.x, rootWorldScale.y, rootWorldScale.z)
         newGeo.computeBoundingSphere()
 
@@ -578,6 +579,7 @@ function createColliderDesc(
 
         //better radius calculation if object is not square and/or not not taller than wide
         const newGeo = mesh?.geometry.clone().scale(scaleRelativeToRoot.x, scaleRelativeToRoot.y, scaleRelativeToRoot.z)
+        //for capsule/cylinder we have an absolute orientation expected for the collider, so we need to complete mesh rotation first before calculations
         newGeo.applyQuaternion(quaternionRelativeToRoot).scale(rootWorldScale.x, rootWorldScale.y, rootWorldScale.z)
         newGeo.computeBoundingSphere()
 
@@ -645,9 +647,19 @@ function createColliderDesc(
   positionRelativeToRoot.multiply(rootWorldScale) //apply root gltf world scale
   positionRelativeToRoot.add(colliderComponent.centerOffset) //user specified offset adjustments
   colliderDesc.setTranslation(positionRelativeToRoot.x, positionRelativeToRoot.y, positionRelativeToRoot.z)
-  // if (!(colliderComponent.matchMesh && mesh)) {
-  colliderDesc.setRotation(quaternionRelativeToRoot)
-  // }
+
+  /*capsule and cylinder already apply mesh relative rotation before calculating the collider (above case statements), since capsule
+   * and cylinder are vertically oriented and require mesh correction prior to setup. Alternatively, we attempt to find the largest dimension
+   * of the mesh and apply a counter rotation tailored to that here so the capsule is oriented by size rather than vertical orientation.
+   * Neither of these approaches are ideal however, and while this has an uglier check it will behave consistently and predictably.
+   *
+   * note: if we prefer the longest side to be the height, we can edit the case statement, calculate the inverted rotation and
+   * potentially combine it with the quaternionRelativeToRoot (in a new variable to protect the original) then use that here instead
+   * in the cases of capsule/cylinder
+   */
+  if (shape !== ShapeType.Cylinder && shape !== ShapeType.Capsule) {
+    colliderDesc.setRotation(quaternionRelativeToRoot)
+  }
 
   colliderDesc.setFriction(colliderComponent.friction)
   colliderDesc.setRestitution(colliderComponent.restitution)
