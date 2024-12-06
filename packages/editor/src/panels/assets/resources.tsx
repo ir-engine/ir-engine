@@ -27,17 +27,19 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
-import { State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { Tooltip } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import InfiniteScroll from '@ir-engine/ui/src/components/tailwind/InfiniteScroll'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React, { useEffect, useRef, useState } from 'react'
 import { DragPreviewImage, useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
+import { FilesViewModeSettings } from '../../services/FilesState'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileIcon } from '../files/fileicon'
 import DeleteFileModal from '../files/modals/DeleteFileModal'
@@ -163,6 +165,7 @@ function ResourceFile({ resource }: { resource: StaticResourceType }) {
   }, [preview])
 
   const isSelected = useMutableState(ClickPlacementState).selectedAsset.value === resource.url
+  const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
 
   return (
     <>
@@ -176,31 +179,40 @@ function ResourceFile({ resource }: { resource: StaticResourceType }) {
           event.stopPropagation()
           anchorEvent.set(event)
         }}
-        className={twMerge(
-          'resource-file mb-3 flex h-40 w-40 cursor-pointer flex-col items-center text-center',
-          isSelected && 'rounded bg-[#212226]'
-        )}
+        className={twMerge('resource-file max-h-42 flex h-auto w-28 cursor-pointer flex-col items-center text-center')}
         data-testid="assets-panel-resource-file"
       >
         <div
           className={twMerge(
-            'mx-auto mt-2 flex h-full w-28 items-center justify-center',
-            'max-h-40 min-h-20 min-w-20 max-w-40'
+            `rounded font-figtree`,
+            isSelected
+              ? 'overflow-hidden rounded border border-2 border-[#375DAF] bg-[#2C2E30]'
+              : 'group-hover:bg-[#202225]'
           )}
+          style={{
+            height: iconSize,
+            width: iconSize,
+            fontSize: iconSize
+          }}
           data-testid="assets-panel-resource-file-icon"
         >
           <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
         </div>
 
         <Tooltip content={name}>
-          <span
-            className="line-clamp-2 w-full text-wrap break-all text-sm text-[#F5F5F5]"
+          <Text
+            theme="secondary"
+            fontSize="sm"
+            className={twMerge(
+              'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2',
+              isSelected ? 'rounded bg-[#375DAF]' : 'rounded group-hover:bg-[#2F3137]'
+            )}
             data-testid="assets-panel-resource-file-name"
           >
             {name}
-          </span>
+          </Text>
         </Tooltip>
-
+        <span className="text-xs text-[#375DAF]">{resource?.mimeType}</span>
         <ResourceFileContextMenu resource={resource} anchorEvent={anchorEvent} />
       </div>
     </>
