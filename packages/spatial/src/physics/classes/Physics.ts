@@ -646,6 +646,9 @@ function createColliderDesc(
   positionRelativeToRoot.multiply(rootWorldScale) //apply root gltf world scale
   positionRelativeToRoot.add(colliderComponent.centerOffset) //user specified offset adjustments
   colliderDesc.setTranslation(positionRelativeToRoot.x, positionRelativeToRoot.y, positionRelativeToRoot.z)
+  if (!(colliderComponent.matchMesh && mesh)) {
+    colliderDesc.setRotation(quaternionRelativeToRoot)
+  }
 
   colliderDesc.setFriction(colliderComponent.friction)
   colliderDesc.setRestitution(colliderComponent.restitution)
