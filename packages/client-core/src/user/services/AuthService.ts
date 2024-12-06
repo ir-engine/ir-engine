@@ -58,7 +58,6 @@ import {
   userSettingPath
 } from '@ir-engine/common/src/schema.type.module'
 import {
-  HyperFlux,
   defineState,
   getMutableState,
   getState,
@@ -66,6 +65,7 @@ import {
   syncStateWithLocalStorage,
   useHookstate
 } from '@ir-engine/hyperflux'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { MessageResponse, ParentCommunicator } from '../../common/iframeCOM'
 import { NotificationService } from '../../common/services/NotificationService'
 
@@ -894,7 +894,7 @@ export const useAuthenticated = () => {
   }, [])
 
   useEffect(() => {
-    HyperFlux.store.userID = authState.user.id.value
+    getMutableState(EngineState).userID.set(authState.user.id.value)
   }, [authState.user.id])
 
   return authState.isLoggedIn.value

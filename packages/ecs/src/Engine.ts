@@ -47,12 +47,12 @@ export class Engine {
   static instance: Engine
 
   /**
-   * @deprecated use "Engine.instance.store.userID" instead
+   * @deprecated use "getState(EngineState).userID" instead
    * The uuid of the logged-in user
    */
-  get userID() {
-    return Engine.instance.store.userID
-  }
+  // get userID() {
+  //   return Engine.instance.store.stateMap['EngineState'].get(NO_PROXY_STEALTH).userID
+  // }
 
   store: HyperStore
 

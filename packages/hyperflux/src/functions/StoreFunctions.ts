@@ -45,10 +45,6 @@ export interface HyperStore {
    */
   peerID: PeerID
   /**
-   * The uuid of the logged-in user
-   */
-  userID: UserID
-  /**
    * A function which returns the current dispatch time (units are arbitrary)
    */
   getDispatchTime: () => number
@@ -121,7 +117,6 @@ export function createHyperStore(options?: {
     getDispatchTime: options?.getDispatchTime ?? (() => 0),
     defaultDispatchDelay: options?.defaultDispatchDelay ?? (() => 0),
     getCurrentReactorRoot: options?.getCurrentReactorRoot ?? (() => undefined),
-    userID: '' as UserID,
     peerID: uuidv4() as PeerID,
     stateMap: {},
     stateReactors: {},

@@ -47,6 +47,7 @@ import {
 } from '@ir-engine/network'
 import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
 
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { AuthState } from '../../user/services/AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
@@ -62,6 +63,7 @@ export const useEngineInjection = () => {
 }
 
 export const useNetwork = (props: { online?: boolean }) => {
+  const userID = useMutableState(EngineState).userID.value
   const acceptedTOS = useMutableState(AuthState).user.acceptedTOS.value
 
   useEffect(() => {
@@ -76,9 +78,8 @@ export const useNetwork = (props: { online?: boolean }) => {
 
   /** Offline/local world network */
   useEffect(() => {
-    if (props.online) return
+    if (props.online || !userID) return
 
-    const userID = Engine.instance.userID
     const peerID = Engine.instance.store.peerID
     const peerIndex = 1
     const networkID = userID as any as InstanceID
@@ -116,5 +117,5 @@ export const useNetwork = (props: { online?: boolean }) => {
       removeNetwork(network)
       networkState.hostIds.world.set(none)
     }
-  }, [props.online])
+  }, [props.online, userID])
 }
