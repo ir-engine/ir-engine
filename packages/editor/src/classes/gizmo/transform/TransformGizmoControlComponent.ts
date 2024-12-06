@@ -70,10 +70,10 @@ export const TransformGizmoControlComponent = defineComponent({
   name: 'TransformGizmoControl',
 
   schema: S.Object({
-    controlledEntities: S.Array(T.Entity(), []),
-    visualEntity: T.Entity(),
-    planeEntity: T.Entity(),
-    pivotEntity: T.Entity(),
+    controlledEntities: S.Array(S.Entity(), []),
+    visualEntity: S.Entity(),
+    planeEntity: S.Entity(),
+    pivotEntity: S.Entity(),
     enabled: S.Bool(true),
     dragging: S.Bool(false),
     axis: S.Nullable(S.LiteralUnion(Object.values(TransformAxis)), null),

@@ -22,6 +22,8 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import { UserID } from '@ir-engine/hyperflux'
+import { Entity, EntityUUID, UndefinedEntity } from '../Entity'
 import {
   Kind,
   Options,
@@ -342,5 +344,19 @@ export const S = {
   Any: () =>
     ({
       [Kind]: 'Any'
-    }) as TTypedSchema<any>
+    }) as TTypedSchema<any>,
+
+  /** Entity type schema helper, Entities will not be serialized, defaults to UndefinedEntity */
+  Entity: (def?: Entity, options?: TTypedSchema<Entity>['options']) =>
+    S.NonSerialized(S.Number(def ?? UndefinedEntity, { ...options, id: 'Entity' })) as unknown as TNonSerializedSchema<
+      TTypedSchema<Entity>
+    >,
+
+  /** EntityUUID type schema helper, defaults to '' */
+  EntityUUID: (options?: TTypedSchema<EntityUUID>['options']) =>
+    S.String('', { ...options, id: 'EntityUUID' }) as unknown as TTypedSchema<EntityUUID>,
+
+  /** UserID type schema helper, defaults to '' */
+  UserID: (options?: TTypedSchema<UserID>['options']) =>
+    S.String('', { ...options, id: 'UserUUID' }) as unknown as TTypedSchema<UserID>
 }

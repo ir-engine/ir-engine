@@ -32,7 +32,6 @@ import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { useGLTFComponent } from '../../assets/functions/resourceLoaderHooks'
 
 const GLTF_PATH = '/static/editor/spawn-point.glb'
@@ -42,7 +41,7 @@ export const SpawnPointComponent = defineComponent({
   jsonID: 'EE_spawn_point',
 
   schema: S.Object({
-    permissionedUsers: S.Array(T.UserID())
+    permissionedUsers: S.Array(S.UserID())
   }),
 
   reactor: function () {

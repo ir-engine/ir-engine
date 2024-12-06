@@ -47,7 +47,6 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
-import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 export type MaterialMap = {
@@ -64,7 +63,7 @@ export const AvatarDissolveComponent = defineComponent({
     dissolveMaterials: S.Array(S.Type<ShaderMaterial>()),
     originMaterials: S.Array(
       S.Object({
-        entity: T.Entity(),
+        entity: S.Entity(),
         material: S.Type<Material>()
       })
     )
