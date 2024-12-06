@@ -107,7 +107,7 @@ export async function up(knex: Knex): Promise<void> {
         webRtcSettings.map(async ({ key, value }) => ({
           id: uuidv4(),
           key,
-          value,
+          value: `${value}`, // for some reason the boolean value are converted to 0 and 1 in db , so putt in string case keep it true/false
           jsonKey: EngineSettings.InstanceServer.WebRTCSettings,
           type: 'private' as EngineSettingType['type'],
           category: 'instance-server-webrtc',
