@@ -189,7 +189,7 @@ export const updateAppConfig = async (): Promise<void> => {
     .select()
     .from<EngineSettingType>(engineSettingPath)
     .then((dbEngineSettings) => {
-      // jsonkey undefined
+      // jsonkey undefined and its for plain key value pair settings
       dbEngineSettings
         .filter((setting) => !setting.jsonKey)
         .forEach((setting) => {
@@ -198,7 +198,7 @@ export const updateAppConfig = async (): Promise<void> => {
           }
           appConfig[setting.category][setting.key] = setting.value
         })
-      // jsonkey defined
+      // when jsonkey is defined and its instance-server-webrtc category and jsonKey is WebRTCSettings
       const webRtcServerKeyValues: FlattenedEntry[] = dbEngineSettings
         .filter(
           (setting) =>
