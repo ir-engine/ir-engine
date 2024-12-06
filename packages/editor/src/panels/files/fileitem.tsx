@@ -190,7 +190,7 @@ function FileItemCard({
       onContextMenu={onContextMenu}
     >
       <div
-        className={twMerge('flex h-auto max-h-32 w-28 cursor-pointer flex-col items-center text-center')}
+        className={twMerge('max-h-42 flex h-auto w-28 cursor-pointer flex-col items-center text-center')}
         onDoubleClick={file?.isFolder ? onDoubleClick : undefined}
         data-testid="files-panel-file-item"
         onClick={onClick}
