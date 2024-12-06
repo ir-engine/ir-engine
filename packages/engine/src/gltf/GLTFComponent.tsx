@@ -85,6 +85,8 @@ import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
 import { GLTFSourceState } from './GLTFState'
 import { gltfReplaceUUIDsReferences } from './gltfUtils'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
+import { SceneDynamicLoadTagComponent } from '../scene/components/SceneDynamicLoadTagComponent'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 
 type DependencyEval = {
   key: string
@@ -470,8 +472,13 @@ const useGLTFDocument = (entity: Entity) => {
   const url = state.src.value
   const source = GLTFComponent.useInstanceID(entity)
   useGLTFResource(url, entity)
+  const dynamicLoadComponent = useOptionalComponent(entity, SceneDynamicLoadTagComponent)
+  const isEditing = useMutableState(EngineState).isEditing.value
+
+  const dynamicLoadAndNotEditing = !isEditing && dynamicLoadComponent?.loaded?.value
 
   useEffect(() => {
+    if (!isEditing && !dynamicLoadComponent?.loaded?.value) return
     if (!url) {
       addError(entity, GLTFComponent, 'INVALID_SOURCE', 'Invalid URL')
       return
@@ -533,7 +540,7 @@ const useGLTFDocument = (entity: Entity) => {
       state.body.set(null)
       state.progress.set(0)
     }
-  }, [url])
+  }, [url, dynamicLoadAndNotEditing])
 }
 
 export const parseBinaryData = (data) => {
