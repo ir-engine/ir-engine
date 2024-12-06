@@ -71,11 +71,11 @@ export function TableWrapper({ children }: { children: React.ReactNode }) {
   return (
     <table className="w-full">
       <thead>
-        <tr className="h-8 text-left text-[#E7E7E7]">
+        <tr className="h-8 bg-[#191B1F] text-left text-[#E7E7E7]">
           {availableTableColumns
             .filter((header) => selectedTableColumns[header])
             .map((header) => (
-              <th key={header} className="table-cell text-xs font-normal dark:text-[#A3A3A3]">
+              <th key={header} className="border-1 table-cell border p-2 text-xs font-normal dark:text-[#A3A3A3]">
                 {t(`editor:layout.filebrowser.table-list.headers.${header}`)}
               </th>
             ))}
@@ -131,6 +131,7 @@ function TableView({ file, onClick, onDoubleClick, isSelected, drag, drop, isOve
     dateModified: staticResourceModifiedDates.value[file?.key] || '',
     size: file?.size
   }
+
   return (
     <tr
       key={file?.key}
@@ -209,21 +210,19 @@ export default function FileItem({
   onContextMenu: React.MouseEventHandler
 }) {
   const filesViewMode = useMutableState(FilesViewModeState).viewMode
-  const isListView = filesViewMode.value === 'list'
   const filesState = useMutableState(FilesState)
+  const selectedFiles = useMutableState(SelectedFilesState)
+
+  const isListView = filesViewMode.value === 'list'
+
   const { changeDirectoryByPath, files } = useCurrentFiles()
   const dropOnFileBrowser = useFileBrowserDrop()
-  const selectedFiles = useMutableState(SelectedFilesState)
 
   const [_dragProps, drag, preview] = useDrag(() => ({
     type: file.type,
     item: file,
     multiple: false
   }))
-
-  useEffect(() => {
-    if (preview) preview(getEmptyImage(), { captureDraggingState: true })
-  }, [preview])
 
   const [{ isOver }, drop] = useDrop({
     accept: [...SupportedFileTypes],
@@ -241,6 +240,10 @@ export default function FileItem({
       isOver: monitor.canDrop() && monitor.isOver()
     })
   })
+
+  useEffect(() => {
+    if (preview) preview(getEmptyImage(), { captureDraggingState: true })
+  }, [preview])
 
   const handleSelectedFiles = (event: React.MouseEvent) => {
     event.stopPropagation()

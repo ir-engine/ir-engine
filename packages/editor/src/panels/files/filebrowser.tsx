@@ -89,7 +89,7 @@ function Browser() {
       }}
     >
       <div
-        className={twMerge('mb-2 h-auto px-3 pb-6 text-gray-400 ', !isListView && 'flex py-8')}
+        className={twMerge('mb-2 h-auto pb-6 text-gray-400 ', !isListView && 'flex py-8')}
         onClick={(event) => {
           event.stopPropagation()
           selectedFiles.set([])
