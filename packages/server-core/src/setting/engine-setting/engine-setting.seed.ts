@@ -136,16 +136,23 @@ export async function seed(knex: Knex): Promise<void> {
       {
         key: EngineSettings.InstanceServer.ShutdownDelayMs,
         value: process.env.INSTANCESERVER_SHUTDOWN_DELAY_MS || '0'
-      },
-      ...flattenObjectToArray(defaultWebRTCSettings).map(({ key, value }) => ({
-        key,
-        value,
-        jsonKey: EngineSettings.InstanceServer.WebRTCSettings
-      }))
+      }
     ],
     'instance-server'
   )
 
+  const instanceServerWebRtc: EngineSettingType[] = await Promise.all(
+    flattenObjectToArray(defaultWebRTCSettings).map(async ({ key, value }) => ({
+      id: uuidv4(),
+      key,
+      value,
+      jsonKey: EngineSettings.InstanceServer.WebRTCSettings,
+      type: 'private' as EngineSettingType['type'],
+      category: 'instance-server-webrtc',
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }))
+  )
   const metabaseSeedData = await generateSeedData(
     [
       {
@@ -212,6 +219,7 @@ export async function seed(knex: Knex): Promise<void> {
     ...taskServerSeedData,
     ...chargebeeSettingSeedData,
     ...coilSeedData,
+    ...instanceServerWebRtc,
     ...instanceServerSeedData,
     ...metabaseSeedData,
     ...redisSeedData,

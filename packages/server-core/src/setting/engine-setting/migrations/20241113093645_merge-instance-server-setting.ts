@@ -103,16 +103,18 @@ export async function up(knex: Knex): Promise<void> {
           updatedAt: await getDateTimeSql()
         }))
       )
-      const instanceServerWebRtc = webRtcSettings.map(async ({ key, value }) => ({
-        id: uuidv4(),
-        key,
-        value,
-        jsonKey: EngineSettings.InstanceServer.WebRTCSettings,
-        type: 'private' as EngineSettingType['type'],
-        category: 'instance-server-webrtc',
-        createdAt: await getDateTimeSql(),
-        updatedAt: await getDateTimeSql()
-      }))
+      const instanceServerWebRtc: EngineSettingType[] = await Promise.all(
+        webRtcSettings.map(async ({ key, value }) => ({
+          id: uuidv4(),
+          key,
+          value,
+          jsonKey: EngineSettings.InstanceServer.WebRTCSettings,
+          type: 'private' as EngineSettingType['type'],
+          category: 'instance-server-webrtc',
+          createdAt: await getDateTimeSql(),
+          updatedAt: await getDateTimeSql()
+        }))
+      )
 
       await knex.from(engineSettingPath).insert([...instanceServerSettings, ...instanceServerWebRtc])
     }

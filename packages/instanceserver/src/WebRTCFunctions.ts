@@ -73,6 +73,7 @@ import {
   MediasoupTransportObjectsState,
   MediasoupTransportState
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
+import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import crypto from 'crypto'
 import { InstanceServerState } from './InstanceServerState'
 import { MediasoupInternalWebRTCDataChannelState } from './MediasoupInternalWebRTCDataChannelState'
@@ -407,9 +408,15 @@ export async function handleWebRtcTransportCreate(
 
     const { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
 
-    const instanceServerSettingsResponse = (await API.instance.service(engineSettingPath).find()).data.find(
-      (setting) => setting.category == 'instance-server' && setting.key == EngineSettings.InstanceServer.WebRTCSettings
-    )
+    const instanceServerSettingsResponse = (
+      await API.instance.service(engineSettingPath).find({
+        query: {
+          category: 'instance-server-webrtc',
+          jsonKey: EngineSettings.InstanceServer.WebRTCSettings
+        }
+      })
+    ).data
+
     if (!instanceServerSettingsResponse) {
       logger.error('Failed to fetch instance server settings')
       return dispatchAction(
@@ -422,8 +429,14 @@ export async function handleWebRtcTransportCreate(
         })
       )
     }
-
-    const webRTCSettings = JSON.parse(instanceServerSettingsResponse.value) as WebRTCSettings
+    const webRTCSettings = unflattenArrayToObject(
+      instanceServerSettingsResponse.map((setting) => {
+        return {
+          key: setting.key,
+          value: setting.value
+        }
+      })
+    ) as WebRTCSettings
     const iceServers: IceServer[] = webRTCSettings.useCustomICEServers
       ? webRTCSettings.iceServers
       : config.kubernetes.enabled

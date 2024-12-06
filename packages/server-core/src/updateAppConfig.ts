@@ -44,7 +44,10 @@ import {
   serverSettingPath
 } from '@ir-engine/common/src/schemas/setting/server-setting.schema'
 
+import { defaultWebRTCSettings, WebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schema.type.module'
+import { FlattenedEntry, unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { createHash } from 'crypto'
 import appConfig from './appconfig'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
@@ -187,15 +190,37 @@ export const updateAppConfig = async (): Promise<void> => {
     .from<EngineSettingType>(engineSettingPath)
     .then((dbEngineSettings) => {
       // jsonkey undefined
-      dbEngineSettings.forEach((setting) => {
-        if (!appConfig[setting.category]) {
-          appConfig[setting.category] = {}
+      dbEngineSettings
+        .filter((setting) => !setting.jsonKey)
+        .forEach((setting) => {
+          if (!appConfig[setting.category]) {
+            appConfig[setting.category] = {}
+          }
+          appConfig[setting.category][setting.key] = setting.value
+        })
+      // jsonkey defined
+      const webRtcServerKeyValues: FlattenedEntry[] = dbEngineSettings
+        .filter(
+          (setting) =>
+            setting.jsonKey &&
+            setting.jsonKey === EngineSettings.InstanceServer.WebRTCSettings &&
+            setting.category === 'instance-server-webrtc'
+        )
+        .map((setting) => {
+          return {
+            key: setting.key,
+            value: setting.value
+          }
+        })
+      if (!appConfig['instance-server-webrtc'] || !appConfig['instance-server-webrtc'].webRTCSettings) {
+        appConfig['instance-server-webrtc'] = {
+          webRTCSettings: defaultWebRTCSettings
         }
-        appConfig[setting.category][setting.key] = setting.value
-      })
-      console.log('appConfig ' + '%'.repeat(10), appConfig)
+      }
+      appConfig['instance-server-webrtc'].webRTCSettings = unflattenArrayToObject(
+        webRtcServerKeyValues
+      ) as WebRTCSettings
     })
-    // jsonkey defined
 
     .catch((e) => {
       logger.error(e, `[updateAppConfig]: Failed to read engineSetting: ${e.message}`)

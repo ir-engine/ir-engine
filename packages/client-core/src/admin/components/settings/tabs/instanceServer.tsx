@@ -65,7 +65,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
   const instanceWebRTCSettings = useFind(engineSettingPath, {
     query: {
       category: 'instance-server-webrtc',
-      jsonKey: 'webRTCSettings',
+      jsonKey: EngineSettings.InstanceServer.WebRTCSettings,
       paginate: false
     }
   })
@@ -161,7 +161,8 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
           key: entry.key,
           category: 'instance-server-webrtc',
           value: `${entry.value}`,
-          type: 'private'
+          type: 'private',
+          jsonKey: EngineSettings.InstanceServer.WebRTCSettings
         })
       } else if (settingInDb.value !== entry.value) {
         // Update existing setting if value has changed
@@ -169,7 +170,8 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
           key: entry.key,
           category: 'instance-server-webrtc',
           value: `${entry.value}`,
-          type: 'private'
+          type: 'private',
+          jsonKey: settingInDb.jsonKey || EngineSettings.InstanceServer.WebRTCSettings
         })
       } else {
         // No operation needed if value hasn't changed

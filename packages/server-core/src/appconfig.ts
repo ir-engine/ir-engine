@@ -205,7 +205,9 @@ const instanceserver = {
   releaseName: process.env.RELEASE_NAME || 'local',
   port: process.env.INSTANCESERVER_PORT!,
   locationName: process.env.PRELOAD_LOCATION_NAME!,
-  shutdownDelayMs: parseInt(process.env.INSTANCESERVER_SHUTDOWN_DELAY_MS!) || 0,
+  shutdownDelayMs: parseInt(process.env.INSTANCESERVER_SHUTDOWN_DELAY_MS!) || 0
+}
+const instanceServerWebRtc = {
   webRTCSettings: defaultWebRTCSettings
 }
 
@@ -444,7 +446,8 @@ const config = {
   coil,
   db,
   email,
-  instanceserver,
+  'instance-server': instanceserver,
+  'instance-server-webrtc': instanceServerWebRtc,
   ipfs,
   server,
   'task-server': taskserver,
