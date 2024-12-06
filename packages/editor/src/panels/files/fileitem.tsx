@@ -197,7 +197,7 @@ function FileItemCard({
       >
         <div
           className={twMerge(
-            `overflow-hidden rounded font-figtree`,
+            `rounded font-figtree`,
             isSelected
               ? 'overflow-hidden rounded border border-2 border-[#375DAF] bg-[#2C2E30]'
               : 'group-hover:bg-[#202225]'

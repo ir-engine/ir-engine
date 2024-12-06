@@ -85,6 +85,17 @@ export const FileIcon = ({
     imageLoaded.set(true)
   }
 
+  const Tag = ({ className }: { className?: string }) => {
+    if (!type) return <></>
+    return (
+      <div className={twMerge('absolute left-0 top-2', className)}>
+        <div className="flex h-4 w-9 items-center justify-center rounded-lg bg-[#162546] px-1 py-3">
+          <span className="truncate text-[8px] text-white">{type.toUpperCase()}</span>
+        </div>
+      </div>
+    )
+  }
+
   const renderImage = () => {
     const imageClass = twMerge(
       isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40',
@@ -121,7 +132,12 @@ export const FileIcon = ({
       return <FallbackIcon className={twMerge(color, isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40')} />
     }
 
-    return <img className={imageClass} crossOrigin="anonymous" src={FILE_ICON_PATH} alt="file-icon" />
+    return (
+      <div className="relative">
+        <Tag />
+        <img className={imageClass} crossOrigin="anonymous" src={FILE_ICON_PATH} alt="file-icon" />
+      </div>
+    )
   }
 
   return <>{renderImage()}</>
