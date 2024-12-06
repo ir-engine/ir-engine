@@ -29,9 +29,8 @@ import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { clientSettingPath, ClientSettingType } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, State, useHookstate } from '@ir-engine/hyperflux'
-import { Input, Select } from '@ir-engine/ui'
+import { Button, Input, Select } from '@ir-engine/ui'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
@@ -513,17 +512,11 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
       </div>
 
       <div className="mt-6 grid grid-cols-8 gap-6">
-        <Button size="small" className="text-primary col-span-1 bg-theme-highlight" onClick={handleCancel} fullWidth>
+        <Button size="sm" className="text-primary col-span-1 bg-theme-highlight" onClick={handleCancel} fullWidth>
           {t('admin:components.common.reset')}
         </Button>
-        <Button
-          size="small"
-          variant="primary"
-          className="col-span-1"
-          onClick={handleSubmit}
-          startIcon={state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
-          fullWidth
-        >
+        <Button size="sm" variant="primary" className="col-span-1" onClick={handleSubmit} fullWidth>
+          state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />
           {t('admin:components.common.save')}
         </Button>
       </div>

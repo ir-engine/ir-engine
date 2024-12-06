@@ -35,10 +35,9 @@ import {
   instanceServerSettingPath
 } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, State, useHookstate } from '@ir-engine/hyperflux'
-import { Checkbox, Input } from '@ir-engine/ui'
+import { Button, Checkbox, Input } from '@ir-engine/ui'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
@@ -243,9 +242,8 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
                     </Text>
 
                     <Button
-                      startIcon={<HiTrash />}
-                      variant="danger"
-                      size="small"
+                      variant="red"
+                      size="sm"
                       className="ml-2"
                       onClick={() => {
                         const iceServers = [] as IceServerType[]
@@ -265,6 +263,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
                         settings.webRTCSettings.iceServers.set(iceServers)
                       }}
                     >
+                      <HiTrash />
                       Remove iceServer
                     </Button>
                   </div>
@@ -284,14 +283,15 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
                           }}
                         />
                         <Button
-                          startIcon={<HiTrash />}
-                          variant="danger"
-                          size="small"
+                          variant="red"
+                          size="sm"
                           style={{ margin: '20px 0 0 5px' }}
                           onClick={() => {
                             iceServer.urls.set([])
                           }}
-                        />
+                        >
+                          <HiTrash />
+                        </Button>
                       </div>
                     ) : (
                       iceServer.urls?.value?.map((url, urlIndex) => {
@@ -309,29 +309,30 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
                               }}
                             />
                             <Button
-                              startIcon={<HiTrash />}
-                              variant="danger"
-                              size="small"
+                              variant="red"
+                              size="sm"
                               style={{ margin: '20px 0 0 5px' }}
                               onClick={() => {
                                 const urls = [...new Set(iceServer.urls.value)]
                                 urls.splice(urlIndex, 1)
                                 iceServer.urls.set(urls)
                               }}
-                            />
+                            >
+                              <HiTrash />
+                            </Button>
                           </div>
                         )
                       })
                     )}
                     <Button
-                      startIcon={<HiPlus />}
-                      size="small"
+                      size="sm"
                       className="mb-1 mt-1"
                       onClick={() => {
                         if (typeof iceServer.urls.value === 'string') iceServer.urls.set([iceServer.urls.value, ''])
                         else iceServer.urls.set([...new Set(iceServer.urls.value)].concat(''))
                       }}
                     >
+                      <HiPlus />
                       Add URL
                     </Button>
                   </div>
@@ -395,8 +396,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
 
         {settings.webRTCSettings.useCustomICEServers.value && (
           <Button
-            startIcon={<HiPlus />}
-            size="small"
+            size="sm"
             className="mb-4 mt-1"
             onClick={() => {
               const iceServers = [] as IceServerType[]
@@ -413,6 +413,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
               settings.webRTCSettings.iceServers.set(iceServers)
             }}
           >
+            <HiPlus />
             Add iceServer
           </Button>
         )}
@@ -425,17 +426,11 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       </div>
 
       <div className="mt-6 grid grid-cols-8 gap-6">
-        <Button size="small" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
+        <Button size="sm" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
           {t('admin:components.common.reset')}
         </Button>
-        <Button
-          size="small"
-          variant="primary"
-          className="col-span-1 mb-1"
-          fullWidth
-          onClick={handleSubmit}
-          startIcon={state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
-        >
+        <Button size="sm" variant="primary" className="col-span-1 mb-1" fullWidth onClick={handleSubmit}>
+          {state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
           {t('admin:components.common.save')}
         </Button>
       </div>

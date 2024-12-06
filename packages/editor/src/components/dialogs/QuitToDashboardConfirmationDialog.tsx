@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -53,7 +53,7 @@ export default function QuitToDashboardConfirmationDialog({ resolve }: { resolve
             <p className="text-xs text-red-600">{t('editor:dialog.saveScene.info-warning')}</p>
           </div>
           <div className="grid grid-flow-col border-t border-t-theme-primary px-5 py-6">
-            <Button variant="transparent" className="border border-theme-primary" onClick={() => onClose(true)}>
+            <Button variant="tertiary" onClick={() => onClose(true)}>
               {t('editor:dialog.saveScene.discard-quit')}
             </Button>
             <div className="flex flex-1 place-content-end gap-2">

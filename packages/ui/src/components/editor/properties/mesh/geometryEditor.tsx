@@ -76,11 +76,12 @@ export default function GeometryEditor({ geometry }: { ['geometry']: BufferGeome
       {geoData.attributes.map((attribute, idx) => (
         <div className="relative flex flex-col border border-gray-500 px-3 py-2" key={attribute.name.value + idx}>
           <Button
-            variant="transparent"
-            startIcon={<HiTrash />}
+            variant="tertiary"
             className="absolute right-0 top-1 text-theme-iconRed"
             onClick={() => deleteBufferAttribute(attribute.name.value)}
-          />
+          >
+            <HiTrash />
+          </Button>
           {['name', 'count', 'itemSize'].map((property) => (
             <div className="flex items-center gap-2" key={property}>
               <Label>{t(`editor:properties.mesh.geometry.${property}`)}</Label>

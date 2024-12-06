@@ -28,10 +28,9 @@ import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { Tooltip } from '@ir-engine/ui'
+import { Button, Tooltip } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import InfiniteScroll from '@ir-engine/ui/src/components/tailwind/InfiniteScroll'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import React, { useEffect, useRef, useState } from 'react'
 import { DragPreviewImage, useDrag } from 'react-dnd'
@@ -106,8 +105,8 @@ function ResourceFileContextMenu({
         />
         {!!userID && userID === resource.userId && (
           <Button
-            variant="outline"
-            size="small"
+            variant="tertiary"
+            size="sm"
             fullWidth
             onClick={() => {
               PopoverState.showPopupover(
@@ -328,14 +327,12 @@ function ResourceItems() {
             <div key={i} ref={(el) => (pageRefs.current[i] = el)} className="flex w-full flex-col gap-2">
               <div className="mt-4 flex h-2.5 w-[calc(100%_-_16px)] flex-row border-t-[0.5px] border-solid pt-1 text-[smaller] text-gray-500">
                 {i > 0 && (
-                  <Button
-                    className="text-grey-500 mr-auto text-xs"
-                    size="small"
-                    variant="transparent"
+                  <button
+                    className="text-grey-500 mr-auto flex items-center justify-center px-4 py-2 text-xs"
                     onClick={() => handleScrollToPage(i - 1)} // Scroll to the previous page
                   >
                     {'Previous'}
-                  </Button>
+                  </button>
                 )}
                 <span className="ml-auto">
                   {i * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()) + 1} -{' '}

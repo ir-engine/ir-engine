@@ -38,8 +38,7 @@ import { useTranslation } from 'react-i18next'
 
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { Input } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button, Input } from '@ir-engine/ui'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -164,8 +163,8 @@ const AvatarMenu2 = () => {
                     }}
                   />
                   <Button
-                    rounded="partial"
-                    className="ml-auto h-8 w-fit min-w-[30%] px-2 text-sm font-normal"
+                    className="rounded-md text-sm font-normal"
+                    size="sm"
                     variant="secondary"
                     hidden={!createAvatarEnabled}
                     onClick={() => PopupMenuServices.showPopupMenu(UserMenus.ReadyPlayer)}
@@ -217,11 +216,11 @@ const AvatarMenu2 = () => {
               <Button
                 data-testid="select-avatar-button"
                 disabled={userAvatarId === selectedAvatarId.value}
-                endIcon={avatarLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
                 onClick={handleConfirmAvatar}
                 className="ml-2 w-fit place-self-center text-sm"
               >
                 {t('user:avatar.finishEditing')}
+                {avatarLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
               </Button>
             </div>
           </div>

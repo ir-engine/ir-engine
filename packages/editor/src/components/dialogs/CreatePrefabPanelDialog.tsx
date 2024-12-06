@@ -55,8 +55,7 @@ import {
   iterateEntityNode,
   removeEntityNodeRecursively
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { Input } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button, Input } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -249,8 +248,8 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
           {!isExportLookDev && (
             <div>
               <Button
-                size="small"
-                variant="outline"
+                size="sm"
+                variant="tertiary"
                 className="text-left text-xs"
                 onClick={() => {
                   prefabTag.set([...(prefabTag.value ?? []), ''])
@@ -277,8 +276,8 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
                           onClick={() => {
                             prefabTag.set(prefabTag.value.filter((_, i) => i !== index))
                           }}
-                          size="small"
-                          variant="outline"
+                          size="sm"
+                          variant="tertiary"
                           className="text-left text-xs"
                         >
                           x
