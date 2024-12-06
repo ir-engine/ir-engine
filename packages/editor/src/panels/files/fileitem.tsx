@@ -62,6 +62,7 @@ type DisplayTypeProps = {
   drop: ConnectDropTarget
   isOver: boolean
   onContextMenu: React.MouseEventHandler
+  className?: string
 }
 
 export function TableWrapper({ children }: { children: React.ReactNode }) {
@@ -71,11 +72,11 @@ export function TableWrapper({ children }: { children: React.ReactNode }) {
   return (
     <table className="w-full">
       <thead>
-        <tr className="h-8 bg-[#191B1F] text-left text-[#E7E7E7]">
+        <tr className="h-8 divide-x divide-[#42454D] border-b-[0.5px] border-[#42454D] bg-[#191B1F] text-left text-[#E7E7E7]">
           {availableTableColumns
             .filter((header) => selectedTableColumns[header])
             .map((header) => (
-              <th key={header} className="border-1 table-cell border p-2 text-xs font-normal dark:text-[#A3A3A3]">
+              <th key={header} className="table-cell p-2 text-xs font-normal dark:text-[#A3A3A3]">
                 {t(`editor:layout.filebrowser.table-list.headers.${header}`)}
               </th>
             ))}
@@ -94,7 +95,8 @@ function FileItemRow({
   drag,
   drop,
   isOver,
-  onContextMenu
+  onContextMenu,
+  className
 }: DisplayTypeProps) {
   const filesViewModeSettings = useMutableState(FilesViewModeSettings)
   const selectedTableColumns = filesViewModeSettings.list.selectedTableColumns.value
@@ -146,9 +148,10 @@ function FileItemRow({
       key={file?.key}
       ref={(ref) => drag(drop(ref))}
       className={twMerge(
-        'h-9 rounded text-[#a3a3a3] hover:bg-[#212226]',
+        'h-9 rounded text-[#a3a3a3] hover:bg-[#2F3137]',
         isOver && 'border-2 border-gray-400',
-        isSelected && 'rounded bg-[#212226]'
+        isSelected && 'bg-[#375DAF]',
+        className
       )}
       onContextMenu={onContextMenu}
       onClick={onClick}
@@ -174,7 +177,8 @@ function FileItemCard({
   drag,
   drop,
   isOver,
-  onContextMenu
+  onContextMenu,
+  className
 }: DisplayTypeProps) {
   const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
   const thumbnailURL = file?.thumbnailURL
@@ -182,7 +186,7 @@ function FileItemCard({
   return (
     <div
       ref={(ref) => drag(drop(ref))}
-      className={twMerge('h-min', isOver && 'border-2 border-gray-400')}
+      className={twMerge('h-min', isOver && 'border-2 border-gray-400', className)}
       onContextMenu={onContextMenu}
     >
       <div
@@ -222,10 +226,12 @@ function FileItemCard({
 
 export default function FileItem({
   file,
-  onContextMenu
+  onContextMenu,
+  className
 }: {
   file: FileDataType
   onContextMenu: React.MouseEventHandler
+  className?: string
 }) {
   const filesViewMode = useMutableState(FilesViewModeState).viewMode
   const filesState = useMutableState(FilesState)
@@ -312,7 +318,8 @@ export default function FileItem({
     drag,
     drop,
     isOver,
-    onContextMenu
+    onContextMenu,
+    className
   }
 
   return isListView ? <FileItemRow {...commonProps} /> : <FileItemCard {...commonProps} />

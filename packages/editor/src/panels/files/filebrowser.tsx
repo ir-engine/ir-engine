@@ -59,21 +59,25 @@ function Browser() {
 
   const FileItems = () => (
     <>
-      {files.map((file) => (
-        <FileItem
-          file={file}
-          onContextMenu={(event) => {
-            event.preventDefault()
-            event.stopPropagation()
-            if (!selectedFiles.value.find((selectedFile) => selectedFile.key === file.key)) {
-              selectedFiles.set([file])
-            }
-            setAnchorEvent(event)
-          }}
-          key={file.key}
-          data-testid="files-panel-file-item"
-        />
-      ))}
+      {files.map((file, idx) => {
+        const backgroundColor = idx % 2 === 0 ? '#111113' : '#191B1F'
+        return (
+          <FileItem
+            file={file}
+            onContextMenu={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+              if (!selectedFiles.value.find((selectedFile) => selectedFile.key === file.key)) {
+                selectedFiles.set([file])
+              }
+              setAnchorEvent(event)
+            }}
+            key={file.key}
+            data-testid="files-panel-file-item"
+            className={`${isListView ? `bg-[${backgroundColor}]` : ''}`}
+          />
+        )
+      })}
     </>
   )
 
