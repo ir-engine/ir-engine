@@ -168,8 +168,9 @@ function ResourceFile({ resource }: { resource: StaticResourceType }) {
   const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
 
   return (
-    <>
+    <div className="h-min">
       <DragPreviewImage connect={preview} src={resource.thumbnailURL || ''} />
+      {/* // todo: move to reusuable component with FileItemCard */}
       <div
         key={resource.id}
         ref={drag}
@@ -179,7 +180,9 @@ function ResourceFile({ resource }: { resource: StaticResourceType }) {
           event.stopPropagation()
           anchorEvent.set(event)
         }}
-        className={twMerge('resource-file max-h-42 flex h-auto w-28 cursor-pointer flex-col items-center text-center')}
+        className={twMerge(
+          'resource-file max-h-42 group flex h-auto w-28 cursor-pointer flex-col items-center text-center'
+        )}
         data-testid="assets-panel-resource-file"
       >
         <div
@@ -215,7 +218,7 @@ function ResourceFile({ resource }: { resource: StaticResourceType }) {
         <span className="text-xs text-[#375DAF]">{resource?.mimeType}</span>
         <ResourceFileContextMenu resource={resource} anchorEvent={anchorEvent} />
       </div>
-    </>
+    </div>
   )
 }
 
