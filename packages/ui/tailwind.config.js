@@ -26,5 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import tailwindConfig from '../../tailwind.config'
 
 module.exports = {
-  ...tailwindConfig
+  ...tailwindConfig,
+  content: ['./src/**/*.{ts,tsx}']
 }

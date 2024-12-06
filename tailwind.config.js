@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   mode: 'jit',
-  content: ['../**/*.{ts,tsx}'],
   darkMode: ['class', '[data-theme="dark"]'],
   important: true, // important in prod is must be
   theme: {

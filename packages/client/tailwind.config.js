@@ -26,5 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import tailwindConfig from '../../tailwind.config'
 
 module.exports = {
-  ...tailwindConfig
+  ...tailwindConfig,
+  content: [
+    './src/**/*.{ts,tsx}',
+    '../client-core/src/**/*.{ts,tsx}',
+    '../ui/src/**/*.{ts,tsx}',
+    '../editor/src/**/*.{ts,tsx}',
+    '../projects/projects/**/**/{src,components}/**/*.{ts,tsx}'
+  ]
 }
