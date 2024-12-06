@@ -394,7 +394,7 @@ export async function checkForDuplicatedAssignments({
       setTimeout(() => {
         retry = false
         resolve(false)
-      }, config.server['instance-server'].UnreachableTimeoutSeconds * 1000) // timeout after 2 seconds
+      }, config.server.instanceserverUnreachableTimeoutSeconds * 1000) // timeout after 2 seconds
     }),
     new Promise<boolean>(async (resolve) => {
       const options = {} as any

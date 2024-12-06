@@ -408,14 +408,13 @@ export async function handleWebRtcTransportCreate(
 
     const { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
 
-    const instanceServerSettingsResponse = (
-      await API.instance.service(engineSettingPath).find({
-        query: {
-          category: 'instance-server-webrtc',
-          jsonKey: EngineSettings.InstanceServer.WebRTCSettings
-        }
-      })
-    ).data
+    const instanceServerSettingsResponse = await API.instance.service(engineSettingPath).find({
+      query: {
+        category: 'instance-server-webrtc',
+        jsonKey: EngineSettings.InstanceServer.WebRTCSettings
+      },
+      paginate: false
+    })
 
     if (!instanceServerSettingsResponse) {
       logger.error('Failed to fetch instance server settings')
