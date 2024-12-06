@@ -115,7 +115,7 @@ export const FileIcon = ({
           <div className="relative">
             <Tag className="top-2" />
           </div>
-          <div className="h-full w-full p-1">
+          <div className={`${isMinified ? '' : 'h-full w-full p-1'}`}>
             <img
               className={twMerge(imageClass, 'rounded p-0', 'object-cover', imageLoaded.value ? 'block' : 'hidden')}
               crossOrigin="anonymous"
