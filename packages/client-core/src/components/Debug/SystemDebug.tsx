@@ -38,7 +38,7 @@ import {
 } from '@ir-engine/ecs/src/SystemGroups'
 import { SystemState } from '@ir-engine/ecs/src/SystemState'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 const col = new Color()
@@ -62,7 +62,7 @@ export const SystemDebug = () => {
       <Text>{t('common:debug.systems')}</Text>
       <Button
         onClick={() => performanceProfilingEnabled.set((val) => !val)}
-        variant={performanceProfilingEnabled.value ? 'secondary' : 'outline'}
+        variant={performanceProfilingEnabled.value ? 'secondary' : 'tertiary'}
       >
         {'Profile'}
       </Button>

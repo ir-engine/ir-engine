@@ -30,9 +30,8 @@ import { HiMagnifyingGlass } from 'react-icons/hi2'
 import { useMutation } from '@ir-engine/common'
 import { userPath, UserType } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
+import { Button, Input } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 import { PopoverState } from '../../../common/services/PopoverState'
@@ -76,8 +75,8 @@ export default function Users() {
           />
           {selectedUsers.length > 0 && (
             <Button
-              variant="danger"
-              size="small"
+              variant="red"
+              size="sm"
               onClick={() => {
                 PopoverState.showPopupover(
                   <ConfirmDialog

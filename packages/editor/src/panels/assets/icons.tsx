@@ -29,26 +29,14 @@ import { FiSun } from 'react-icons/fi'
 import { LuWaves } from 'react-icons/lu'
 import { PiMountains } from 'react-icons/pi'
 import { RxCube } from 'react-icons/rx'
-import { TbMaximize, TbRoute } from 'react-icons/tb'
+import { TbRoute } from 'react-icons/tb'
 
-import React from 'react'
-
-const iconMap: { [key: string]: React.ReactElement } = {
-  Model: <RxCube />,
-  Material: <FaRegCircle />,
-  Texture: <LuWaves />,
-  Image: <PiMountains />,
-  Lighting: <FiSun />,
-  'Particle system': <BsStars />,
-  'Visual script': <TbRoute />
-}
-
-const defaultIcon = <TbMaximize />
-
-export const AssetIconMap = ({ name }): React.ReactElement => {
-  return (
-    <div className="flex h-4 w-4 items-center justify-center" data-testid="assets-panel-category-icon">
-      {iconMap[name] ?? defaultIcon}
-    </div>
-  )
+export const AssetIconMap: { [key: string]: ({ className }: { className?: string }) => JSX.Element } = {
+  Model: RxCube,
+  Material: FaRegCircle,
+  Texture: LuWaves,
+  Image: PiMountains,
+  Lighting: FiSun,
+  'Particle system': BsStars,
+  'Visual script': TbRoute
 }
