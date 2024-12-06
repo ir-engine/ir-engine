@@ -27,10 +27,9 @@ import { setTransformPivot, toggleTransformPivot } from '@ir-engine/editor/src/f
 import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
 import { TransformPivot } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { Select, Tooltip } from '@ir-engine/ui'
 import { ViewportButton } from '@ir-engine/ui/editor'
 import { SelectionMd } from '@ir-engine/ui/src/icons'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { t } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -79,10 +78,10 @@ const TransformPivotTool = () => {
         content={
           transformPivotOptions.find((pivot) => pivot.value === editorHelperState.transformPivot.value)?.description
         }
-        position="right center"
+        position="right"
       >
         <Select
-          inputSizeVariant="xs"
+          inputHeight="xs"
           key={editorHelperState.transformPivot.value}
           onChange={setTransformPivot}
           options={transformPivotOptions}

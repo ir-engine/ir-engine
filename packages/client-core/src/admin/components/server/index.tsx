@@ -27,10 +27,9 @@ import Tabs from '@ir-engine/ui/src/primitives/tailwind/Tabs'
 import { HiOutlineRefresh } from 'react-icons/hi'
 
 import { useHookstate } from '@ir-engine/hyperflux'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
+import { Button, Select } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
-import { Button } from '@ir-engine/ui'
 import { serverAutoRefreshOptions } from '../../common/constants/server'
 import { useServerInfoFind } from '../../services/ServerInfoQuery'
 import ApiJobsTable from './ApiJobsTable'

@@ -131,7 +131,7 @@ const SceneElementListItem = ({
   return (
     <button
       className={twMerge(
-        'place-items-center gap-1 rounded-xl border-[1px] border-[#212226] bg-[#212226] px-3 py-2.5 text-sm font-medium',
+        'gap-1 rounded-xl border-[1px] border-[#212226] bg-[#212226] px-3 py-2.5 text-sm font-medium',
         selected ? 'border-[#42454D] bg-[#2C2E33]' : 'text-[#B2B5BD]'
       )}
       data-testid="prefabs-category"
@@ -139,12 +139,12 @@ const SceneElementListItem = ({
     >
       <div className="flex flex-col items-center justify-center">
         <PrefabIcon categoryTitle={categoryTitle} isSelected={selected ?? false} />
-        <div
+        <span
           className="max-w-full overflow-hidden truncate whitespace-nowrap text-nowrap"
           data-testid="prefabs-category-title"
         >
           {categoryTitle}
-        </div>
+        </span>
       </div>
     </button>
   )

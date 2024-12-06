@@ -27,7 +27,7 @@ import { LocationState } from '@ir-engine/client-core/src/social/services/Locati
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
+import { Tooltip } from '@ir-engine/ui'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlinePause, HiOutlinePlay } from 'react-icons/hi2'

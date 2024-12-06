@@ -25,12 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { getState, useMutableState } from '@ir-engine/hyperflux'
-import { Button } from '@ir-engine/ui'
+import { Button, Tooltip } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import SearchBar from '@ir-engine/ui/src/components/tailwind/SearchBar'
 import { ArrowLeftSm, CogSm, FolderSm, PlusCircleSm, Refresh1Sm, SearchSmSm } from '@ir-engine/ui/src/icons'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { validateImportFolderPath } from '../../components/dialogs/ImportSettingsPanelDialog'
@@ -156,7 +155,7 @@ export default function Topbar() {
     <div className="mb-1 flex h-8 items-center gap-2 bg-[#191B1F] py-1" data-testid="assets-panel-top-bar">
       <div className="ml-2" />
       <div>
-        <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
+        <Tooltip content={t('editor:layout.filebrowser.back')}>
           <Button size="sm" variant="secondary" data-testid="assets-panel-back-button" onClick={handleBack}>
             <ArrowLeftSm />
           </Button>
@@ -175,8 +174,8 @@ export default function Topbar() {
         <SearchBar
           inputProps={{
             placeholder: t('editor:layout.scene-assets.search-placeholder'),
-            variantSize: 'xs',
-            startComponent: <SearchSmSm className="h-3.5 w-3.5 text-[#9CA0AA]" />
+            height: 'xs',
+            startComponent: <SearchSmSm className="h-3.5 w-3.5 text-[#A3A3A3]" />
           }}
           search={search}
         />

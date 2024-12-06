@@ -30,12 +30,11 @@ import { ShadowMapResolutionOptions } from '@ir-engine/client-core/src/user/comp
 import { useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { RenderModes, RenderModesType } from '@ir-engine/spatial/src/renderer/constants/RenderModes'
-import { Checkbox } from '@ir-engine/ui'
+import { Checkbox, Tooltip } from '@ir-engine/ui'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import { ChevronDownMd, GlobeWireframesMd, LitMd, NormalRenderMd, ShadowMd, UnlitMd } from '@ir-engine/ui/src/icons'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 
 const renderModes: { name: RenderModesType; icon: JSX.Element }[] = [
   {

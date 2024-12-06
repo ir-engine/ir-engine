@@ -28,10 +28,9 @@ import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperSt
 import { ObjectGridSnapState } from '@ir-engine/editor/src/systems/ObjectGridSnapSystem'
 import { SnapMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { Select, Tooltip } from '@ir-engine/ui'
 import { ViewportButton } from '@ir-engine/ui/editor'
 import { SnappingToolMd } from '@ir-engine/ui/src/icons'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuUtilityPole } from 'react-icons/lu'
@@ -91,24 +90,24 @@ const TransformSnapTool = () => {
           <SnappingToolMd />
         </ViewportButton>
       </Tooltip>
-      <Tooltip content={t('editor:toolbar.transformSnapTool.info-translate')} position="right center">
+      <Tooltip content={t('editor:toolbar.transformSnapTool.info-translate')} position="right">
         <Select
           key={editorHelperState.translationSnap.value}
           onChange={onChangeTranslationSnap}
           options={translationSnapOptions}
           value={editorHelperState.translationSnap.value}
           width="sm"
-          inputSizeVariant="xs"
+          inputHeight="xs"
         />
       </Tooltip>
-      <Tooltip content={t('editor:toolbar.transformSnapTool.info-rotate')} position="right center">
+      <Tooltip content={t('editor:toolbar.transformSnapTool.info-rotate')} position="right">
         <Select
           key={editorHelperState.rotationSnap.value}
           onChange={onChangeRotationSnap}
           options={rotationSnapOptions}
           value={editorHelperState.rotationSnap.value}
           width="sm"
-          inputSizeVariant="xs"
+          inputHeight="xs"
         />
       </Tooltip>
     </div>

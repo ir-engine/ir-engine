@@ -25,9 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { Tooltip } from '@ir-engine/ui'
 import NumericInput from '@ir-engine/ui/src/components/editor/input/Numeric'
 import { GridDotsMd } from '@ir-engine/ui/src/icons'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'

@@ -29,9 +29,9 @@ import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperSt
 import { TransformMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
+import { Tooltip } from '@ir-engine/ui'
 import { ToolbarButton } from '@ir-engine/ui/editor'
 import { Cursor03Default, Refresh1Md, Scale02Md, TransformMd } from '@ir-engine/ui/src/icons'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TbMarquee2 } from 'react-icons/tb'
@@ -115,7 +115,7 @@ export default function TransformGizmoTool({
         <Placer />
       </div>
       <div className="mt-2 flex flex-col overflow-hidden rounded bg-[#212226]">
-        <Tooltip content={t('editor:toolbar.gizmo.pointer')} position={'right center'}>
+        <Tooltip content={t('editor:toolbar.gizmo.pointer')} position="right">
           <ToolbarButton
             onClick={() => {
               setPointerSelected(true)
@@ -125,7 +125,7 @@ export default function TransformGizmoTool({
             <Cursor03Default />
           </ToolbarButton>
         </Tooltip>
-        <Tooltip content={t('editor:toolbar.gizmo.translate')} position={'right center'}>
+        <Tooltip content={t('editor:toolbar.gizmo.translate')} position="right">
           <ToolbarButton
             onClick={() => {
               setPointerSelected(false)
@@ -135,7 +135,7 @@ export default function TransformGizmoTool({
             <Scale02Md />
           </ToolbarButton>
         </Tooltip>
-        <Tooltip content={t('editor:toolbar.gizmo.rotate')} position={'right center'}>
+        <Tooltip content={t('editor:toolbar.gizmo.rotate')} position="right">
           <ToolbarButton
             onClick={() => {
               setPointerSelected(false)
@@ -145,7 +145,7 @@ export default function TransformGizmoTool({
             <Refresh1Md />
           </ToolbarButton>
         </Tooltip>
-        <Tooltip content={t('editor:toolbar.gizmo.scale')} position={'right center'}>
+        <Tooltip content={t('editor:toolbar.gizmo.scale')} position="right">
           <ToolbarButton
             onClick={() => {
               setPointerSelected(false)
@@ -155,7 +155,7 @@ export default function TransformGizmoTool({
             <TransformMd />
           </ToolbarButton>
         </Tooltip>
-        <Tooltip content={t('disable orbit camera and enable selection box')} position={'right center'}>
+        <Tooltip content={t('disable orbit camera and enable selection box')} position="right">
           <ToolbarButton onClick={handleClickSelectionBox}>
             <TbMarquee2 />
           </ToolbarButton>

@@ -35,12 +35,11 @@ import {
 import { ImmutableArray, useHookstate } from '@ir-engine/hyperflux'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import { Button, Checkbox, Input } from '@ir-engine/ui'
+import { Button, Checkbox, Input, Select } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { MdClose } from 'react-icons/md'

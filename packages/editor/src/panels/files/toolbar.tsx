@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
-import { Checkbox, Input } from '@ir-engine/ui'
+import { Checkbox, Input, Tooltip } from '@ir-engine/ui'
 import { Slider, StudioButton } from '@ir-engine/ui/editor'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import {
@@ -40,7 +40,6 @@ import {
   SearchSmSm
 } from '@ir-engine/ui/src/icons'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaList } from 'react-icons/fa'
@@ -218,7 +217,7 @@ export default function FilesToolbar() {
         <div className="ml-2" />
         {showBackButton && (
           <div>
-            <Tooltip content={t('editor:layout.filebrowser.back')} className="left-1">
+            <Tooltip content={t('editor:layout.filebrowser.back')}>
               <StudioButton
                 size="sm"
                 variant="tertiary"
@@ -271,7 +270,7 @@ export default function FilesToolbar() {
             onChange={(e) => {
               filesState.searchText.set(e.target.value)
             }}
-            variantSize="xs"
+            height="xs"
             startComponent={<SearchSmSm className="h-[14px] w-[14px] text-[#9CA0AA]" />}
             data-testid="files-panel-search-input"
           />
