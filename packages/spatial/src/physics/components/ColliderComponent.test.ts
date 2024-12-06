@@ -62,7 +62,7 @@ export const ColliderComponentDefaults = {
   collisionLayer: CollisionGroups.Default,
   collisionMask: DefaultCollisionMask,
 
-  matchMesh: false,
+  matchMesh: true,
   centerOffset: new Vector3(0, 0, 0),
   boxSize: new Vector3(1, 1, 1),
   radius: 0.5,
