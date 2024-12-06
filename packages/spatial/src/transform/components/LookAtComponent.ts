@@ -25,12 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { defineComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { T } from '../../schema/schemaFunctions'
 export const LookAtComponent = defineComponent({
   name: 'LookAtComponent',
   jsonID: 'IR_lookAt',
 
   schema: S.Object({
-    target: S.Nullable(S.EntityUUID()),
+    target: T.EntityUUID(),
     xAxis: S.Bool(true),
     yAxis: S.Bool(true)
   })

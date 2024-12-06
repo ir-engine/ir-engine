@@ -25,11 +25,12 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 
 export const SittingComponent = defineComponent({
   name: 'SittingComponent',
 
   schema: S.Object({
-    mountPointEntity: S.Entity()
+    mountPointEntity: T.Entity()
   })
 })

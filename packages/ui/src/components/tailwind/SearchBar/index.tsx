@@ -33,7 +33,7 @@ import Input, { InputProps } from '@ir-engine/ui/src/primitives/tailwind/Input'
 
 export default function SearchBar({
   search,
-  variantSize = 'l',
+  size = 'l',
   inputProps = {},
   debounceTime = 100
 }: {
@@ -41,7 +41,7 @@ export default function SearchBar({
     local: string
     query: string
   }>
-  variantSize?: InputProps['variantSize']
+  size?: InputProps['height']
   inputProps?: Partial<InputProps>
   debounceTime?: number
 }) {
@@ -67,7 +67,7 @@ export default function SearchBar({
       }}
       startComponent={<SearchSmSm className="h-20 text-white" />}
       data-testid="search-input"
-      variantSize={variantSize}
+      height={size}
       {...inputProps}
     />
   )

@@ -23,11 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React, { MouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FiEdit2 } from 'react-icons/fi'
+import { HiPencil } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
 import { handleSoundEffect } from '../../utils'
 
@@ -65,15 +66,15 @@ const Avatar = ({ alt, imageSrc, isSelected, name, showChangeButton, type, size,
         <img className="h-full w-24 max-w-24" src={imageSrc} alt={alt} crossOrigin="anonymous" />
         {showChangeButton && (
           <Button
-            rounded="partial"
-            size="small"
+            size="sm"
             fullWidth={false}
             variant="secondary"
             data-testid="edit-avatar-button"
-            className="absolute bottom-3 left-[4.25rem] h-8 w-10 border-[#162546] border-opacity-65 text-white"
-            startIcon={<FiEdit2 size={16} />}
+            className="absolute bottom-3 left-[4.25rem] h-8 w-10 rounded-md border-[#162546] border-opacity-65 text-white"
             onClick={handleChange}
-          />
+          >
+            <FiEdit2 size={16} />
+          </Button>
         )}
         <span className="line-clamp-2 w-full text-base font-semibold text-theme-primary">{name}</span>
       </div>
@@ -116,15 +117,14 @@ const Avatar = ({ alt, imageSrc, isSelected, name, showChangeButton, type, size,
       />
       {showChangeButton && (
         <Button
-          rounded="full"
-          size="small"
-          fullWidth={false}
+          size="xs"
           variant="secondary"
           data-testid="edit-avatar-button"
-          className="h-8 w-10 border-[#162546] border-opacity-65 text-white"
-          startIcon={<FiEdit2 size={16} />}
+          className="h-8 w-10 rounded-full border-[#162546] border-opacity-65 text-white"
           onClick={handleChange}
-        />
+        >
+          <HiPencil size={16} />
+        </Button>
       )}
     </div>
   )

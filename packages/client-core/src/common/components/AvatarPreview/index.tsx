@@ -34,6 +34,7 @@ import {
   createEntity,
   generateEntityUUID,
   getOptionalComponent,
+  removeComponent,
   removeEntity,
   setComponent,
   UndefinedEntity,
@@ -52,7 +53,10 @@ import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import Tooltip from '@ir-engine/ui/src/primitives/mui/Tooltip'
 
 import { AnimationComponent } from '@ir-engine/engine/src/avatar/components/AnimationComponent'
-import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
+import {
+  AvatarAnimationComponent,
+  AvatarRigComponent
+} from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
@@ -83,11 +87,13 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     setComponent(sceneEntity, UUIDComponent, uuid)
     setComponent(sceneEntity, NameComponent, '3D Preview Entity')
     setComponent(sceneEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
-    setComponent(sceneEntity, VisibleComponent, true)
     setComponent(sceneEntity, EnvmapComponent, { type: EnvMapSourceType.Skybox })
     setComponent(sceneEntity, AvatarComponent)
     setComponent(sceneEntity, GLTFComponent, { src: avatarUrl })
+    setComponent(sceneEntity, AvatarAnimationComponent)
     setComponent(sceneEntity, AvatarRigComponent)
+    //workaround to prevent a few frames of untextured, tposing avatars
+    removeComponent(sceneEntity, VisibleComponent)
 
     setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: sceneEntity })
 
@@ -121,6 +127,8 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
 
     if (!animation) return
     animationComponent.mixer.clipAction(animation).play()
+
+    setComponent(sceneEntity, VisibleComponent, true)
   }, [useOptionalComponent(sceneEntity, AnimationComponent)?.animations])
 
   return (

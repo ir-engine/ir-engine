@@ -23,6 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+export { default as Button } from './primitives/tailwind/Button'
+export type { ButtonProps } from './primitives/tailwind/Button'
 export { default as Checkbox } from './primitives/tailwind/Checkbox'
 export type { CheckboxProps } from './primitives/tailwind/Checkbox'
 export { DropdownItem } from './primitives/tailwind/Dropdown'
@@ -31,3 +33,5 @@ export { default as Input } from './primitives/tailwind/Input'
 export type { InputProps } from './primitives/tailwind/Input'
 export { Radio, default as RadioGroup } from './primitives/tailwind/Radio'
 export type { RadioGroupProps, RadioProps } from './primitives/tailwind/Radio'
+export { default as Select } from './primitives/tailwind/Select'
+export { default as Tooltip } from './primitives/tailwind/Tooltip'

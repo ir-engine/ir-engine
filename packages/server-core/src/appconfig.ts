@@ -43,6 +43,7 @@ import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identit
 import { loginPath } from '@ir-engine/common/src/schemas/user/login.schema'
 
 import { defaultWebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
+import { instanceSignalingPath } from '@ir-engine/common/src/schema.type.module'
 import { jwtPublicKeyPath } from '@ir-engine/common/src/schemas/user/jwt-public-key.schema'
 import { createHash } from 'crypto'
 import {
@@ -193,8 +194,9 @@ const client = {
   releaseName: process.env.RELEASE_NAME || 'local'
 }
 
-// TODO: rename to 'instanceserver'
 const instanceserver = {
+  p2pEnabled: process.env.P2P_INSTANCE_ENABLED === 'true',
+  p2pMaxConnections: parseInt(process.env.P2P_INSTANCE_MAX_CONNECTIONS!),
   clientHost: process.env.APP_HOST!,
   rtcStartPrt: parseInt(process.env.RTC_START_PORT!),
   rtcEndPort: parseInt(process.env.RTC_END_PORT!),
@@ -276,6 +278,7 @@ const authentication = {
     allowedDomainsPath,
     oembedPath,
     githubRepoAccessWebhookPath,
+    { path: instanceSignalingPath, methods: ['patch'] },
     { path: identityProviderPath, methods: ['create'] },
     { path: routePath, methods: ['find'] },
     { path: acceptInvitePath, methods: ['get'] },

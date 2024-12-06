@@ -28,12 +28,12 @@ import { BufferGeometry, Material, MeshBasicMaterial, NormalBufferAttributes } f
 
 import { defineComponent, setComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { NO_PROXY } from '@ir-engine/hyperflux'
-import { matchesGeometry, matchesMaterial } from '@ir-engine/spatial/src/common/functions/MatchesUtils'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useMeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '../../renderer/components/ObjectLayerComponent'
 import { ObjectLayerMasks } from '../../renderer/constants/ObjectLayers'
+import { T } from '../../schema/schemaFunctions'
 import { useHelperEntity } from './DebugComponentUtils'
 
 export const DebugMeshComponent = defineComponent({
@@ -41,19 +41,10 @@ export const DebugMeshComponent = defineComponent({
 
   schema: S.Object({
     name: S.String('debug-mesh'),
-    geometry: S.Type<BufferGeometry>(),
+    geometry: S.Required(S.Type<BufferGeometry>()),
     material: S.Class(() => new MeshBasicMaterial() as Material),
-    entity: S.Optional(S.Entity())
+    entity: S.Optional(T.Entity())
   }),
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.name === 'string') component.name.set(json.name)
-
-    if (matchesGeometry.test(json.geometry)) component.geometry.set(json.geometry)
-    else throw new Error('DebugMeshComponent: Geometry required for MeshHelperComponent')
-    if (matchesMaterial.test(json.material)) component.material.set(json.material)
-  },
 
   reactor: function () {
     const entity = useEntityContext()

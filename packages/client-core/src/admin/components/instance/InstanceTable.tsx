@@ -25,8 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import { InstanceType, instancePath } from '@ir-engine/common/src/schema.type.module'
+import { Button } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiEye, HiTrash } from 'react-icons/hi2'
@@ -81,14 +81,13 @@ export default function InstanceTable({ search }: { search: string }) {
             onClick={() => {
               PopoverState.showPopupover(<ViewModal instanceId={row.id} />)
             }}
-            startIcon={<HiEye className="place-self-center text-blue-700 dark:text-white" />}
-            size="small"
+            size="sm"
           >
+            <HiEye className="text-blue-700 dark:text-white" />
             {t('admin:components.instance.actions.view')}
           </Button>
           <Button
             className="h-8 w-8 justify-center border border-theme-primary bg-transparent p-0"
-            rounded="full"
             onClick={() => {
               PopoverState.showPopupover(
                 <ConfirmDialog

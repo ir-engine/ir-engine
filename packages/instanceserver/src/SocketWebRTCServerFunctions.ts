@@ -34,6 +34,7 @@ import { Application } from '@ir-engine/server-core/declarations'
 import multiLogger from '@ir-engine/server-core/src/ServerLogger'
 
 import { InstanceServerState } from './InstanceServerState'
+import { lastSeen } from './ServerHostNetworkSystem'
 import { startWebRTC } from './WebRTCFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:webrtc:network' })
@@ -57,7 +58,7 @@ export const initializeNetwork = async (app: Application, id: InstanceID, hostPe
       const networkPeer = network.peers[fromPeerID]
       if (!networkPeer) return
 
-      networkPeer.lastSeenTs = Date.now()
+      lastSeen.set(fromPeerID, Date.now())
       if (!message?.length) {
         // logger.info('Got heartbeat from ' + peerID + ' at ' + Date.now())
         return

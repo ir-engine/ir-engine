@@ -113,8 +113,7 @@ describe('channel-user service', () => {
 
     const instance = (await app.service(instancePath).create(
       {
-        roomCode: '' as RoomCode,
-        currentUsers: 0
+        roomCode: '' as RoomCode
       },
       {
         // @ts-ignore

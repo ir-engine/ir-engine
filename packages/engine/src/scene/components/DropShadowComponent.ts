@@ -25,13 +25,14 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 
 export const DropShadowComponent = defineComponent({
   name: 'DropShadowComponent',
 
   schema: S.Object({
     radius: S.Number(0),
-    center: S.Vec3(),
-    entity: S.Entity()
+    center: T.Vec3(),
+    entity: T.Entity()
   })
 })

@@ -1452,7 +1452,7 @@
       "lbl-save-quit": "Save and Quit",
       "info-confirm": "Are you sure you want to save the scene?",
       "info-question": "Save changes to the current scene?",
-      "info-warning": "Discarted changes can not be recovered",
+      "info-warning": "Discarded changes can not be recovered",
       "info-save-success": "Scene Saved",
       "unsavedChanges": {
         "title": "Quit to Dashboard"
