@@ -56,8 +56,8 @@ export const ColliderComponent = defineComponent({
     matchMesh: S.Bool(true),
     centerOffset: T.Vec3({ x: 0, y: 0, z: 0 }),
     boxSize: T.Vec3({ x: 1, y: 1, z: 1 }),
-    radius: S.Number(0.5),
-    height: S.Number(1)
+    radius: S.Number(1),
+    height: S.Number(2)
   }),
 
   reactor: function () {
