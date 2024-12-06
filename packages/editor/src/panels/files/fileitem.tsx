@@ -186,20 +186,22 @@ function FileItemCard({
   return (
     <div
       ref={(ref) => drag(drop(ref))}
-      className={twMerge('h-min', isOver && 'border-2 border-gray-400', className)}
+      className={twMerge('group h-min', isOver && 'border-2 border-gray-400', className)}
       onContextMenu={onContextMenu}
     >
       <div
-        className={twMerge(
-          'flex h-auto max-h-32 w-28 cursor-pointer flex-col items-center text-center',
-          isSelected && 'rounded bg-[#212226]'
-        )}
+        className={twMerge('flex h-auto max-h-32 w-28 cursor-pointer flex-col items-center text-center')}
         onDoubleClick={file?.isFolder ? onDoubleClick : undefined}
         data-testid="files-panel-file-item"
         onClick={onClick}
       >
         <div
-          className="mx-4 mt-2 font-figtree"
+          className={twMerge(
+            `overflow-hidden rounded font-figtree`,
+            isSelected
+              ? 'overflow-hidden rounded border border-2 border-[#375DAF] bg-[#2C2E30]'
+              : 'group-hover:bg-[#202225]'
+          )}
           style={{
             height: iconSize,
             width: iconSize,
@@ -213,12 +215,16 @@ function FileItemCard({
           <Text
             theme="secondary"
             fontSize="sm"
-            className="mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap"
+            className={twMerge(
+              'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2',
+              isSelected ? 'rounded bg-[#375DAF]' : 'rounded group-hover:bg-[#2F3137]'
+            )}
             data-testid="files-panel-file-item-name"
           >
             {file?.fullName}
           </Text>
         </Tooltip>
+        <span className="text-xs text-[#375DAF]">{file?.size}</span>
       </div>
     </div>
   )

@@ -89,7 +89,7 @@ export const FileIcon = ({
     <>
       {isFolder ? (
         <img
-          className={twMerge(isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40', 'object-contain')}
+          className={twMerge(isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40', 'object-contain', 'px-2 py-1')}
           crossOrigin="anonymous"
           src={FOLDER_ICON_PATH}
           alt="folder-icon"
@@ -99,7 +99,7 @@ export const FileIcon = ({
           <img
             className={twMerge(
               isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40',
-              'object-contain',
+              'object-cover',
               imageLoaded.value ? 'block' : 'hidden'
             )}
             crossOrigin="anonymous"
@@ -122,7 +122,11 @@ export const FileIcon = ({
         <FallbackIcon className={twMerge(color, isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40')} />
       ) : (
         <img
-          className={twMerge(isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40', 'object-contain')}
+          className={twMerge(
+            isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40',
+            'object-contain',
+            'px-2 py-1 '
+          )}
           crossOrigin="anonymous"
           src={FILE_ICON_PATH}
           alt="file-icon"
