@@ -86,7 +86,16 @@ export function TableWrapper({ children }: { children: React.ReactNode }) {
   )
 }
 
-function TableView({ file, onClick, onDoubleClick, isSelected, drag, drop, isOver, onContextMenu }: DisplayTypeProps) {
+function FileItemRow({
+  file,
+  onClick,
+  onDoubleClick,
+  isSelected,
+  drag,
+  drop,
+  isOver,
+  onContextMenu
+}: DisplayTypeProps) {
   const filesViewModeSettings = useMutableState(FilesViewModeSettings)
   const selectedTableColumns = filesViewModeSettings.list.selectedTableColumns.value
   const fontSize = filesViewModeSettings.list.fontSize.value
@@ -157,7 +166,16 @@ function TableView({ file, onClick, onDoubleClick, isSelected, drag, drop, isOve
   )
 }
 
-function GridView({ file, onDoubleClick, onClick, isSelected, drag, drop, isOver, onContextMenu }: DisplayTypeProps) {
+function FileItemCard({
+  file,
+  onDoubleClick,
+  onClick,
+  isSelected,
+  drag,
+  drop,
+  isOver,
+  onContextMenu
+}: DisplayTypeProps) {
   const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
   const thumbnailURL = file?.thumbnailURL
 
@@ -297,5 +315,5 @@ export default function FileItem({
     onContextMenu
   }
 
-  return isListView ? <TableView {...commonProps} /> : <GridView {...commonProps} />
+  return isListView ? <FileItemRow {...commonProps} /> : <FileItemCard {...commonProps} />
 }
