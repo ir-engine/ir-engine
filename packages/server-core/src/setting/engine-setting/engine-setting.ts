@@ -64,11 +64,9 @@ export default (app: Application): void => {
 
   const onUpdateAppConfig = (...args: EngineSettingType[]) => {
     args.forEach(async (setting) => {
-      // plain key value
       if (appConfig[setting.category] && !setting.jsonKey) {
         appConfig[setting.category][setting.key] = setting.value
       }
-      // jsonkey
       if (
         appConfig[setting.category] &&
         setting.category == 'instance-server-webrtc' &&
@@ -91,8 +89,6 @@ export default (app: Application): void => {
             }
           })
         ) as WebRTCSettings
-        const result = appConfig[setting.category]
-        console.log('result', result)
       }
     })
   }

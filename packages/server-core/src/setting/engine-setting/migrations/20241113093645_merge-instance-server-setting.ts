@@ -47,7 +47,6 @@ export async function up(knex: Knex): Promise<void> {
       const webRtcSettings = flattenObjectToArray(
         typeof webRTCSettings == 'string' ? JSON.parse(webRTCSettings) : webRTCSettings
       )
-      console.log('webRtcSettings', webRtcSettings)
       const instanceServerSettings: EngineSettingType[] = await Promise.all(
         [
           {
@@ -115,7 +114,6 @@ export async function up(knex: Knex): Promise<void> {
           updatedAt: await getDateTimeSql()
         }))
       )
-
       await knex.from(engineSettingPath).insert([...instanceServerSettings, ...instanceServerWebRtc])
     }
   }

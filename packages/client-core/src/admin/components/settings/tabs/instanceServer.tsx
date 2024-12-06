@@ -119,7 +119,6 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       (setting) => !webTrcKeyValues.some((entry) => entry.key === setting.key)
     )
 
-    console.log(missingInstanceSettings)
     // Update or create settings
     const settingsUpdateOperations = webTrcKeyValues.map((entry) => {
       const settingInDb = instanceSettingsMap.get(entry.key)
