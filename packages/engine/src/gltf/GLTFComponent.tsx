@@ -129,6 +129,7 @@ const buildComponentDependencies = (json: GLTF.IGLTF) => {
     if (node.extensions && node.extensions[UUIDComponent.jsonID]) {
       const uuid = node.extensions[UUIDComponent.jsonID] as EntityUUID
       const extensions = Object.keys(node.extensions)
+      if (typeof node.extensions[SceneDynamicLoadTagComponent.jsonID] !== 'undefined') continue
       for (const extension of extensions) {
         if (loadDependencies[extension]) {
           if (!dependencies.componentDependencies[uuid]) dependencies.componentDependencies[uuid] = []
@@ -334,7 +335,8 @@ const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: stri
   const { gltfComponentEntity, uuid, components } = props
   const entity = UUIDComponent.useEntityByUUID(uuid as EntityUUID) as Entity | undefined
   const hasComponents = useHasComponents(entity ?? UndefinedEntity, components)
-  return entity && hasComponents ? (
+  const dynamicLoad = !!useOptionalComponent(entity ?? UndefinedEntity, SceneDynamicLoadTagComponent)
+  return entity && !dynamicLoad && hasComponents ? (
     <>
       {components.map((component) => {
         return (
@@ -475,10 +477,11 @@ const useGLTFDocument = (entity: Entity) => {
   const dynamicLoadComponent = useOptionalComponent(entity, SceneDynamicLoadTagComponent)
   const isEditing = useMutableState(EngineState).isEditing.value
 
-  const dynamicLoadAndNotEditing = !isEditing && dynamicLoadComponent?.loaded?.value
+  const dynamicLoadAndNotEditing = !isEditing && !!dynamicLoadComponent && !dynamicLoadComponent?.loaded?.value
 
   useEffect(() => {
-    if (!isEditing && !dynamicLoadComponent?.loaded?.value) return
+    if (dynamicLoadAndNotEditing) return
+
     if (!url) {
       addError(entity, GLTFComponent, 'INVALID_SOURCE', 'Invalid URL')
       return

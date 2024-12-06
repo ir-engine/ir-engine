@@ -24,17 +24,24 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { PresentationSystemGroup } from '@ir-engine/ecs'
-import { getComponent, getMutableComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, getMutableComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getState } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { Matrix4, Vector3 } from 'three'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
+
+const _cameraMat4 = new Matrix4()
+const _sceneMat4 = new Matrix4()
+const _cameraVec3 = new Vector3()
+const _objVec3 = new Vector3()
 
 let accumulator = 0
 
@@ -43,9 +50,6 @@ const distanceMultiplier = isMobile ? 0.5 : 1
 const dynamicLoadQuery = defineQuery([SceneDynamicLoadTagComponent])
 
 const execute = () => {
-  const engineState = getState(EngineState)
-  if (engineState.isEditor) return
-
   accumulator += getState(ECSState).deltaSeconds
 
   if (accumulator < 1) {
@@ -54,17 +58,23 @@ const execute = () => {
 
   accumulator = 0
 
-  const selfAvatar = AvatarComponent.getSelfAvatarEntity()
-  const avatarPosition = getOptionalComponent(selfAvatar, TransformComponent)?.position
-  if (!avatarPosition) return
+  const viewerEntity = getState(EngineState).viewerEntity
+  const viewerWorldMatrix = getComponent(viewerEntity, TransformComponent).matrixWorld
 
   for (const entity of dynamicLoadQuery()) {
     const dynamicComponent = getComponent(entity, SceneDynamicLoadTagComponent)
     if (dynamicComponent.mode !== 'distance') continue
 
-    const transformComponent = getComponent(entity, TransformComponent)
+    const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
+    _cameraMat4
+      .copy(viewerWorldMatrix)
+      .premultiply(_sceneMat4.copy(getComponent(sceneEntity, TransformComponent).matrixWorld).invert())
 
-    const distanceToAvatar = avatarPosition.distanceToSquared(transformComponent.position)
+    _cameraVec3.set(_cameraMat4.elements[12], _cameraMat4.elements[13], _cameraMat4.elements[14])
+
+    const objectPosition = TransformComponent.getScenePosition(entity, _objVec3)
+
+    const distanceToAvatar = _cameraVec3.distanceToSquared(objectPosition)
     const loadDistance = dynamicComponent.distance * dynamicComponent.distance * distanceMultiplier
 
     getMutableComponent(entity, SceneDynamicLoadTagComponent).loaded.set(distanceToAvatar < loadDistance)
