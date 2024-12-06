@@ -53,7 +53,7 @@ export const ColliderComponent = defineComponent({
     collisionMask: S.Number(DefaultCollisionMask),
 
     //shape specific parameters
-    matchMesh: S.Bool(false),
+    matchMesh: S.Bool(true),
     centerOffset: T.Vec3({ x: 0, y: 0, z: 0 }),
     boxSize: T.Vec3({ x: 1, y: 1, z: 1 }),
     radius: S.Number(0.5),
@@ -70,10 +70,6 @@ export const ColliderComponent = defineComponent({
     const triggerComponent = useOptionalComponent(entity, TriggerComponent)
     const hasCollider = useState(false)
     const meshComponent = useOptionalComponent(entity, MeshComponent)
-
-    useEffect(() => {
-      if (!meshComponent) component.matchMesh.set(false)
-    }, [meshComponent])
 
     useLayoutEffect(() => {
       if (!rigidbodyComponent?.initialized?.value || !physicsWorld) return
@@ -97,8 +93,7 @@ export const ColliderComponent = defineComponent({
       component.centerOffset,
       component.boxSize,
       component.radius,
-      component.height,
-      meshComponent
+      component.height
     ])
 
     useEffect(() => {

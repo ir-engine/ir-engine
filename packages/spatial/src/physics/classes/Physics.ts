@@ -493,7 +493,7 @@ function createColliderDesc(
           /*multiplying by scale here is the same as multiplying by scaleRelativeToRoot, rotating, then multiplying by rootWorldScale
           this is fine because offset doesn't matter for it's size*/
           boxSize.multiply(scale).multiplyScalar(0.5)
-          boxSize.applyQuaternion(quaternionRelativeToRoot) //rotate so size is in proper orientation for scene xforming
+          // boxSize.applyQuaternion(quaternionRelativeToRoot) //rotate so size is in proper orientation for scene xforming
           boxSize.set(Math.abs(boxSize.x), Math.abs(boxSize.y), Math.abs(boxSize.z))
           colliderComponent.boxSize.copy(boxSize)
           colliderDesc = ColliderDesc.cuboid(boxSize.x, boxSize.y, boxSize.z)
@@ -512,8 +512,7 @@ function createColliderDesc(
       if (colliderComponent.matchMesh && mesh) {
         //this is a bit heavier than rotating a box3 but necessary to not lose fidelity for the mesh bounding sphere
         const newGeo = mesh?.geometry.clone()
-        newGeo.scale(scaleRelativeToRoot.x, scaleRelativeToRoot.y, scaleRelativeToRoot.z)
-        newGeo.applyQuaternion(quaternionRelativeToRoot).scale(rootWorldScale.x, rootWorldScale.y, rootWorldScale.z)
+        newGeo.scale(scale.x, scale.y, scale.z)
         newGeo.computeBoundingSphere()
         if (newGeo.boundingSphere) {
           const boundingSphere = newGeo.boundingSphere
@@ -646,9 +645,9 @@ function createColliderDesc(
   positionRelativeToRoot.multiply(rootWorldScale) //apply root gltf world scale
   positionRelativeToRoot.add(colliderComponent.centerOffset) //user specified offset adjustments
   colliderDesc.setTranslation(positionRelativeToRoot.x, positionRelativeToRoot.y, positionRelativeToRoot.z)
-  if (!(colliderComponent.matchMesh && mesh)) {
-    colliderDesc.setRotation(quaternionRelativeToRoot)
-  }
+  // if (!(colliderComponent.matchMesh && mesh)) {
+  colliderDesc.setRotation(quaternionRelativeToRoot)
+  // }
 
   colliderDesc.setFriction(colliderComponent.friction)
   colliderDesc.setRestitution(colliderComponent.restitution)
