@@ -162,13 +162,13 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
           <Text className="ml-5 text-red-400">{t('editor:properties.model.lbl-warnRigidBody')}</Text>
           <Button
             title={t('editor:properties.model.lbl-addRigidBody')}
-            startIcon={<HiPlus />}
             className="text-sm text-[#FFFFFF]"
             onClick={() => {
               const nodes = SelectionState.getSelectedEntities()
               EditorControlFunctions.addOrRemoveComponent(nodes, RigidBodyComponent, true, { type: 'fixed' })
             }}
           >
+            <HiPlus />
             {t('editor:properties.model.lbl-addRigidBody')}
           </Button>
         </>
