@@ -109,49 +109,20 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
   const handleSubmit = (event) => {
     state.loading.set(true)
     event.preventDefault()
-    // const setting = {
-    //   // webRTCSettings: JSON.stringify(webRTCSettingsState.value)
-    // }
 
-    // let operation: Promise<EngineSettingType>
-    // const settingInDb = engineSettings?.data?.find((el) => el.key === EngineSettings.InstanceServer.WebRTCSettings)
-    // if (!settingInDb) {
-    //   operation = engineSettingMutation.create({
-    //     key: EngineSettings.InstanceServer.WebRTCSettings,
-    //     category: 'instance-server',
-    //     value: setting[EngineSettings.InstanceServer.WebRTCSettings],
-    //     type: 'private'
-    //   })
-    // } else {
-    //   operation = engineSettingMutation.patch(settingInDb.id, {
-    //     key: EngineSettings.InstanceServer.WebRTCSettings,
-    //     category: 'instance-server',
-    //     value: setting[EngineSettings.InstanceServer.WebRTCSettings],
-    //     type: 'private'
-    //   })
-    // }
-    // const webTrcKeyValues = flattenObjectToArray(webRTCSettingsState.value)
-    // const instanceServerSettingsOperatoins = webTrcKeyValues.map((entry) => {
-    //   return engineSettingMutation.create({
-    //     key: entry.key,
-    //     category: 'instance-server-webrtc',
-    //     value: `${entry.value}`,
-    //     type: 'private'
-    //   })
-    // })
     const webTrcKeyValues = flattenObjectToArray(webRTCSettingsState.value)
 
     // Create a map for quick lookup
     const instanceSettingsMap = new Map(instanceWebRTCSettings.data.map((setting) => [setting.key, setting]))
 
     // Ensure webTrcKeyValues is an array of objects with a key property
-    const missingSettings = Array.from(instanceSettingsMap.values()).filter(
+    const missingInstanceSettings = Array.from(instanceSettingsMap.values()).filter(
       (setting) => !webTrcKeyValues.some((entry) => entry.key === setting.key)
     )
 
-    console.log(missingSettings)
+    console.log(missingInstanceSettings)
     // Update or create settings
-    const operations = webTrcKeyValues.map((entry) => {
+    const settingsUpdateOperations = webTrcKeyValues.map((entry) => {
       const settingInDb = instanceSettingsMap.get(entry.key)
       let operation: Promise<EngineSettingType>
 
@@ -180,11 +151,11 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
 
       return operation
     })
-    const deleteOpreations = missingSettings.map((setting) => {
+    const deleteOpreations = missingInstanceSettings.map((setting) => {
       return engineSettingMutation.remove(setting.id)
     })
 
-    Promise.all([...operations, ...deleteOpreations])
+    Promise.all([...settingsUpdateOperations, ...deleteOpreations])
       .then(() => {
         state.set({ loading: false, errorMessage: '' })
       })
