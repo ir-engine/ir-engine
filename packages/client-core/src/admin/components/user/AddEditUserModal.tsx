@@ -33,8 +33,7 @@ import {
   userAvatarPath
 } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button, Input } from '@ir-engine/ui'
 import Label from '@ir-engine/ui/src/primitives/tailwind/Label'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import MultiSelect from '@ir-engine/ui/src/primitives/tailwind/MultiSelect'
@@ -194,11 +193,11 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
             menuClassName="max-h-72"
           />
           <div className="flex gap-2">
-            <Button size="small" variant="outline" onClick={() => scopes.set([])}>
+            <Button size="sm" variant="tertiary" onClick={() => scopes.set([])}>
               {t('admin:components.user.clearAllScopes')}
             </Button>
             <Button
-              size="small"
+              size="sm"
               className="bg-theme-blue-secondary text-blue-700 dark:text-white"
               onClick={() =>
                 scopes.set(scopeTypeOptions.filter((st) => !st.disabled).map((st) => ({ type: st.value as ScopeType })))

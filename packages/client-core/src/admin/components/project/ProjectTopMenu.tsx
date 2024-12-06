@@ -32,11 +32,11 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { ProjectService, ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
 import config from '@ir-engine/common/src/config'
 import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 
 import { useFind } from '@ir-engine/common'
 import { identityProviderPath } from '@ir-engine/common/src/schema.type.module'
+import { Button } from '@ir-engine/ui'
 import { ProjectUpdateState } from '../../services/ProjectUpdateService'
 import AddEditProjectModal from './AddEditProjectModal'
 import UpdateEngineModal from './UpdateEngineModal'
@@ -94,7 +94,7 @@ export default function ProjectTopMenu() {
       <div className="flex gap-2">
         {githubProvider != null && (
           <Button
-            size="small"
+            size="sm"
             disabled={projectState.refreshingGithubRepoAccess.value}
             onClick={() => refreshGithubRepoAccess()}
             className="[&>*]:m-0"
@@ -111,29 +111,27 @@ export default function ProjectTopMenu() {
         )}
 
         <Button
-          startIcon={<HiArrowPath />}
-          size="small"
+          size="sm"
           onClick={() => {
             PopoverState.showPopupover(<UpdateEngineModal />)
           }}
           disabled={config.client.localBuildOrDev}
-          endIcon={
-            !config.client.localBuildOrDev && projectState.rebuilding.value ? (
-              <LoadingView spinnerOnly className="h-6 w-6" />
-            ) : undefined
-          }
         >
+          <HiArrowPath />
           {!config.client.localBuildOrDev && projectState.rebuilding.value
             ? t('admin:components.project.rebuilding')
             : t('admin:components.project.updateAndRebuild')}
+          {!config.client.localBuildOrDev && projectState.rebuilding.value ? (
+            <LoadingView spinnerOnly className="h-6 w-6" />
+          ) : undefined}
         </Button>
         <Button
-          startIcon={<HiPlus />}
-          size="small"
+          size="sm"
           onClick={() => {
             PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleSubmit} update={false} />)
           }}
         >
+          <HiPlus />
           {t('admin:components.project.addProject')}
         </Button>
       </div>

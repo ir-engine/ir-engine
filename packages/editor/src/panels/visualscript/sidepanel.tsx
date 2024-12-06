@@ -32,11 +32,11 @@ import { useReactFlow } from 'reactflow'
 import { UndefinedEntity } from '@ir-engine/ecs'
 import { NodetoEnginetype } from '@ir-engine/engine'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
+import { Button } from '@ir-engine/ui'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
 import StringInput from '@ir-engine/ui/src/components/editor/input/String'
 import PaginatedList from '@ir-engine/ui/src/components/editor/layout/PaginatedList'
 import ParameterInput from '@ir-engine/ui/src/components/editor/properties/parameter'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import { GraphTemplate, VariableJSON, VisualScriptDomain, VisualScriptState } from '@ir-engine/visual-script'
 import NodeEditor from '../properties/common/NodeEditor'
 import { useTemplateHandler, useVariableHandler, useVisualScriptFlow } from './hooks'
@@ -134,7 +134,7 @@ export const SidePanel = ({
             return (
               <div className="flex w-full">
                 <Button
-                  variant="outline"
+                  variant="tertiary"
                   className="h-7 w-[20%]"
                   onClick={() => {
                     handleApplyTemplate(template)
@@ -151,7 +151,7 @@ export const SidePanel = ({
                 ></StringInput>
 
                 <Button
-                  variant="outline"
+                  variant="tertiary"
                   className="h-7 w-[20%]"
                   style={{ width: '20%' }}
                   onClick={() => {
@@ -185,7 +185,7 @@ export const SidePanel = ({
                       }}
                     ></StringInput>
                     <Button
-                      variant="outline"
+                      variant="tertiary"
                       className="h-7 w-[10%] "
                       onClick={() => {
                         handleDeleteVariable(variable)
@@ -223,7 +223,7 @@ export const SidePanel = ({
         ></PaginatedList>
         <div className="flex w-full flex-row justify-center">
           <Button
-            variant="outline"
+            variant="tertiary"
             onClick={() => {
               handleAddVariable()
             }}

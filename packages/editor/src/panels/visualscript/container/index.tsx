@@ -29,7 +29,7 @@ import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorCo
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { VisualScriptComponent } from '@ir-engine/engine'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button } from '@ir-engine/ui'
 import { VisualScriptState } from '@ir-engine/visual-script'
 import { isEqual } from 'lodash'
 import React, { useEffect, useRef } from 'react'
@@ -98,7 +98,7 @@ const VisualFlow = () => {
       >
         {entities.length && !validEntity ? (
           <Button
-            variant="outline"
+            variant="tertiary"
             onClick={() => {
               addVisualScript()
             }}

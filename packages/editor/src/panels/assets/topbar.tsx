@@ -25,16 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { getState, useMutableState } from '@ir-engine/hyperflux'
-import { Tooltip } from '@ir-engine/ui'
+import { Button, Tooltip } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import SearchBar from '@ir-engine/ui/src/components/tailwind/SearchBar'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { ArrowLeftSm, CogSm, FolderSm, PlusCircleSm, Refresh1Sm, SearchSmSm } from '@ir-engine/ui/src/icons'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { FiRefreshCcw } from 'react-icons/fi'
-import { HiMagnifyingGlass, HiOutlineFolder, HiOutlinePlusCircle } from 'react-icons/hi2'
-import { IoArrowBack, IoSettingsSharp } from 'react-icons/io5'
 import { validateImportFolderPath } from '../../components/dialogs/ImportSettingsPanelDialog'
 import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
@@ -52,11 +49,9 @@ const ViewModeSettings = () => {
       position={'bottom left'}
       trigger={
         <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-          <Button
-            startIcon={<IoSettingsSharp />}
-            className="h-7 w-7 rounded-lg bg-transparent p-0"
-            data-testid="assets-panel-view-options-button"
-          />
+          <Button size="sm" variant="secondary" data-testid="assets-panel-view-options-button">
+            <CogSm />
+          </Button>
         </Tooltip>
       }
     >
@@ -111,10 +106,7 @@ export function AssetsBreadcrumbs() {
       className="flex h-6 w-96 items-center gap-2 rounded-lg border border-[#42454D] bg-[#141619] px-2"
       data-testid="assets-panel-breadcrumbs"
     >
-      <HiOutlineFolder
-        onClick={() => handleSelectParentCategory(0)}
-        className="cursor-pointer text-xs text-[#A3A3A3]"
-      />
+      <FolderSm onClick={() => handleSelectParentCategory(0)} className="cursor-pointer text-xs text-[#42454D]" />
       {parentCategories.map((category, idx) => (
         <span
           key={category.name.value}
@@ -160,28 +152,20 @@ export default function Topbar() {
   }, [search.query])
 
   return (
-    <div className="mb-1 flex h-8 items-center gap-2 bg-[#212226] py-1" data-testid="assets-panel-top-bar">
+    <div className="mb-1 flex h-8 items-center gap-2 bg-[#191B1F] py-1" data-testid="assets-panel-top-bar">
       <div className="ml-2" />
-      <div className="flex h-7 w-7 items-center rounded-lg">
+      <div>
         <Tooltip content={t('editor:layout.filebrowser.back')}>
-          <Button
-            variant="transparent"
-            startIcon={<IoArrowBack />}
-            className="p-0"
-            data-testid="assets-panel-back-button"
-            onClick={handleBack}
-          />
+          <Button size="sm" variant="secondary" data-testid="assets-panel-back-button" onClick={handleBack}>
+            <ArrowLeftSm />
+          </Button>
         </Tooltip>
       </div>
-      <div className="flex h-7 w-7 items-center rounded-lg">
+      <div>
         <Tooltip content={t('editor:layout.filebrowser.refresh')}>
-          <Button
-            variant="transparent"
-            startIcon={<FiRefreshCcw />}
-            className="p-0"
-            data-testid="assets-panel-refresh-button"
-            onClick={handleRefresh}
-          />
+          <Button size="sm" variant="secondary" data-testid="assets-panel-refresh-button" onClick={handleRefresh}>
+            <Refresh1Sm />
+          </Button>
         </Tooltip>
       </div>
       <ViewModeSettings />
@@ -191,21 +175,23 @@ export default function Topbar() {
           inputProps={{
             placeholder: t('editor:layout.scene-assets.search-placeholder'),
             height: 'xs',
-            startComponent: <HiMagnifyingGlass className="h-3.5 w-3.5 text-[#A3A3A3]" />
+            startComponent: <SearchSmSm className="h-3.5 w-3.5 text-[#A3A3A3]" />
           }}
           search={search}
         />
       </div>
-      <Button
-        startIcon={<HiOutlinePlusCircle className="text-lg" />}
-        rounded="none"
-        className="h-full whitespace-nowrap bg-theme-highlight px-2"
-        size="small"
-        data-testid="assets-panel-upload-button"
-        onClick={() => uploadFiles().then(handleRefresh)}
-      >
-        {t('editor:layout.filebrowser.uploadAssets')}
-      </Button>
+      <div className="w-fit">
+        <Button
+          size="l"
+          variant="secondary"
+          data-testid="assets-panel-upload-button"
+          className="bg-[#212226]"
+          onClick={() => uploadFiles().then(handleRefresh)}
+        >
+          <PlusCircleSm />
+          <span className="text-nowrap">{t('editor:layout.filebrowser.uploadAssets')}</span>
+        </Button>
+      </div>
     </div>
   )
 }

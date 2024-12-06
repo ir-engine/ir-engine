@@ -36,10 +36,10 @@ import Button from '../Button'
 export interface CopyTextProps extends React.HTMLAttributes<HTMLTextAreaElement> {
   text: string
   className?: string
-  size?: 'small' | 'medium' | 'large'
+  size?: 'xs' | 'sm' | 'l' | 'xl'
 }
 
-const CopyText = ({ text, className, size = 'small' }: CopyTextProps) => {
+const CopyText = ({ text, className, size = 'sm' }: CopyTextProps) => {
   const { t } = useTranslation()
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const buttonIcon = useHookstate(<HiDocument />)
@@ -65,12 +65,13 @@ const CopyText = ({ text, className, size = 'small' }: CopyTextProps) => {
   return (
     <Button
       title={t('common:components.copyText')}
-      variant="outline"
+      variant="tertiary"
       size={size}
       onClick={copyText}
       className={twMerge('p-1.5 [&>*]:m-0', className)}
-      startIcon={buttonIcon.get(NO_PROXY)}
-    />
+    >
+      {buttonIcon.get(NO_PROXY)}
+    </Button>
   )
 }
 

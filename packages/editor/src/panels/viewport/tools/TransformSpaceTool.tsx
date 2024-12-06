@@ -28,11 +28,11 @@ import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperSt
 import { TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { Select, Tooltip } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { ViewportButton } from '@ir-engine/ui/editor'
+import { Globe01Md } from '@ir-engine/ui/src/icons'
 import { t } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { PiGlobeSimple } from 'react-icons/pi'
 
 const transformSpaceOptions = [
   {
@@ -55,13 +55,9 @@ const TransformSpaceTool = () => {
   return (
     <div className="flex items-center rounded bg-[#0E0F11]">
       <Tooltip content={t('editor:toolbar.transformSpace.lbl-toggleTransformSpace')}>
-        <Button
-          startIcon={<PiGlobeSimple className="text-theme-input" />}
-          onClick={toggleTransformSpace}
-          variant="transparent"
-          className="px-0"
-          size="small"
-        />
+        <ViewportButton onClick={toggleTransformSpace}>
+          <Globe01Md />
+        </ViewportButton>
       </Tooltip>
       <Tooltip
         title={

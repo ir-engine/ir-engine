@@ -31,9 +31,8 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { useMutation } from '@ir-engine/common'
 import { channelPath, ChannelType } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
+import { Button, Input } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 import AddEditChannelModal from './AddEditChannelModal'
@@ -76,9 +75,8 @@ export default function Channels() {
             {selectedChannels.length > 0 && (
               <div>
                 <Button
-                  startIcon={<HiTrash />}
-                  variant="danger"
-                  size="small"
+                  variant="red"
+                  size="sm"
                   fullWidth
                   onClick={() => {
                     PopoverState.showPopupover(
@@ -95,19 +93,20 @@ export default function Channels() {
                     )
                   }}
                 >
+                  <HiTrash />
                   {t('admin:components.channel.removeChannels')}
                 </Button>
               </div>
             )}
             <div className="ml-auto">
               <Button
-                startIcon={<HiPlus />}
-                size="small"
+                size="sm"
                 fullWidth
                 onClick={() => {
                   PopoverState.showPopupover(<AddEditChannelModal />)
                 }}
               >
+                <HiPlus />
                 {t('admin:components.channel.createChannel')}
               </Button>
             </div>

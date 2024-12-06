@@ -49,12 +49,7 @@ export default function ErrorView({ title, description, retryButtonText, onRetry
         </Text>
       )}
       {onRetry && (
-        <Button
-          variant="danger"
-          size="small"
-          className="border border-red-500 bg-transparent text-red-500"
-          onClick={onRetry}
-        >
+        <Button variant="red" size="sm" className="border border-red-500 bg-transparent text-red-500" onClick={onRetry}>
           {retryButtonText ? retryButtonText : t('common:components.retry')}
         </Button>
       )}
