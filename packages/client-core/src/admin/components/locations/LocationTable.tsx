@@ -46,7 +46,7 @@ export default function LocationTable({ search }: { search: string }) {
 
   const scopeQuery = useFind(scopePath, {
     query: {
-      userId: Engine.instance.store.userID,
+      userId: Engine.instance.userID,
       type: 'location:write' as ScopeType
     }
   })

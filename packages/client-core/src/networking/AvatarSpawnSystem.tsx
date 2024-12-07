@@ -46,7 +46,6 @@ import { SpectateActions } from '@ir-engine/spatial/src/camera/systems/SpectateS
 
 import { useFind, useMutation } from '@ir-engine/common'
 import { avatarPath, userAvatarPath } from '@ir-engine/common/src/schema.type.module'
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
@@ -58,7 +57,6 @@ import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 
 export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
-  if (!isClient) return null
   const userID = useMutableState(EngineState).userID.value
   const { sceneEntity } = props
   const gltfLoaded = GLTFComponent.useSceneLoaded(sceneEntity)

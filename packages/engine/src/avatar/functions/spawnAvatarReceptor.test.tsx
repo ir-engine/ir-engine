@@ -60,14 +60,14 @@ describe('spawnAvatarReceptor', () => {
     initializeSpatialEngine()
     initializeSpatialViewer()
     await Physics.load()
-    Engine.instance.store.userID = 'user' as UserID
+    Engine.instance.userID = 'user' as UserID
     sceneEntity = loadEmptyScene()
 
     setComponent(sceneEntity, SceneComponent)
     const physicsWorld = Physics.createWorld(getComponent(sceneEntity, UUIDComponent))
     physicsWorld.timestep = 1 / 60
 
-    createMockNetwork(NetworkTopics.world, Engine.instance.store.peerID, Engine.instance.store.userID)
+    createMockNetwork(NetworkTopics.world, Engine.instance.store.peerID, Engine.instance.userID)
   })
 
   afterEach(() => {
@@ -75,7 +75,7 @@ describe('spawnAvatarReceptor', () => {
   })
 
   it('check the create avatar function', async () => {
-    const entityUUID = (Engine.instance.store.userID + '_avatar') as EntityUUID
+    const entityUUID = (Engine.instance.userID + '_avatar') as EntityUUID
 
     // mock entity to apply incoming unreliable updates to
     dispatchAction(

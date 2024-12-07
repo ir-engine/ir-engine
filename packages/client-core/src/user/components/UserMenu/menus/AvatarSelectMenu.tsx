@@ -93,7 +93,7 @@ const AvatarMenu = () => {
         userAvatarMutation.patch(
           null,
           { avatarId: selectedAvatarId.value },
-          { query: { userId: Engine.instance.store.userID } }
+          { query: { userId: Engine.instance.userID } }
         )
         if (selfAvatarEntity) avatarLoading.set(true)
         else PopupMenuServices.showPopupMenu()

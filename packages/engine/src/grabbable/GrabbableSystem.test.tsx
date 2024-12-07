@@ -85,7 +85,7 @@ describe('GrabbableSystem', () => {
 
     createMockNetwork(NetworkTopics.world, hostPeerID, hostUserID)
 
-    Engine.instance.store.userID = userID
+    Engine.instance.userID = userID
     const network = NetworkState.worldNetwork as Network
 
     dispatchAction(
@@ -202,7 +202,7 @@ describe('GrabbableSystem', () => {
 
     createMockNetwork(NetworkTopics.world, hostPeerID, hostUserID)
 
-    Engine.instance.store.userID = userID
+    Engine.instance.userID = userID
     const network = NetworkState.worldNetwork as Network
 
     dispatchAction(

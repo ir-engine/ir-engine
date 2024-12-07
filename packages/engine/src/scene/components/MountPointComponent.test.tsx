@@ -73,7 +73,7 @@ describe('MountPointComponent.ts', async () => {
 
   beforeEach(async () => {
     createEngine()
-    Engine.instance.store.userID = 'userId' as UserID
+    Engine.instance.userID = 'userId' as UserID
     initializeSpatialEngine()
     initializeSpatialViewer()
     avatarTestEntity = createEntity()
@@ -81,7 +81,7 @@ describe('MountPointComponent.ts', async () => {
     sceneEntity = loadEmptyScene()
 
     setComponent(sceneEntity, SceneComponent)
-    setComponent(avatarTestEntity, UUIDComponent, Engine.instance.store.userID as string as EntityUUID)
+    setComponent(avatarTestEntity, UUIDComponent, Engine.instance.userID as string as EntityUUID)
     setComponent(mountPointTestEntity, UUIDComponent, v4() as EntityUUID)
     setComponent(mountPointTestEntity, TransformComponent)
     setComponent(mountPointTestEntity, InteractableComponent)
@@ -275,9 +275,9 @@ describe('MountPointComponent.ts', async () => {
 
     beforeEach(async () => {
       avatarTestEntity = createEntity()
-      setComponent(avatarTestEntity, UUIDComponent, (Engine.instance.store.userID + '_avatar') as string as EntityUUID)
-      spawnAvatarReceptor(Engine.instance.store.userID as string as EntityUUID)
-      avatarTestEntity = AvatarComponent.getUserAvatarEntity(Engine.instance.store.userID)
+      setComponent(avatarTestEntity, UUIDComponent, (Engine.instance.userID + '_avatar') as string as EntityUUID)
+      spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
+      avatarTestEntity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
       await Physics.load()
       physicsWorldEntity = createEntity()
       setComponent(physicsWorldEntity, EntityTreeComponent)

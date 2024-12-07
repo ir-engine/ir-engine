@@ -153,7 +153,7 @@ export default function Toolbar() {
 
   const locationScopeQuery = useFind(scopePath, {
     query: {
-      userId: Engine.instance.store.userID,
+      userId: Engine.instance.userID,
       type: 'location:write' as ScopeType
     }
   })

@@ -62,7 +62,7 @@ describe('EntityNetworkState', () => {
 
       createMockNetwork(NetworkTopics.world, hostPeerID, hostUserId)
 
-      Engine.instance.store.userID = hostUserId
+      Engine.instance.userID = hostUserId
       const network = NetworkState.worldNetwork as Network
 
       dispatchAction(
@@ -99,7 +99,7 @@ describe('EntityNetworkState', () => {
 
       createMockNetwork(NetworkTopics.world, hostPeerID, hostUserId)
 
-      Engine.instance.store.userID = userId
+      Engine.instance.userID = userId
       const network = NetworkState.worldNetwork as Network
 
       dispatchAction(
@@ -146,7 +146,7 @@ describe('EntityNetworkState', () => {
       const userId = 'user id' as UserID
       const peerID2 = 'peer id 2' as PeerID
 
-      Engine.instance.store.userID = hostUserId
+      Engine.instance.userID = hostUserId
       const network = NetworkState.worldNetwork as Network
 
       dispatchAction(
@@ -191,7 +191,7 @@ describe('EntityNetworkState', () => {
 
       createMockNetwork(NetworkTopics.world, hostPeerID, hostUserId)
 
-      Engine.instance.store.userID = userId
+      Engine.instance.userID = userId
       const network = NetworkState.worldNetwork as Network
 
       dispatchAction(
@@ -240,7 +240,7 @@ describe('EntityNetworkState', () => {
       const peerID2 = 'peer id 2' as PeerID
       const peerID3 = 'peer id 3' as PeerID
 
-      Engine.instance.store.userID = userId
+      Engine.instance.userID = userId
       const network = NetworkState.worldNetwork as Network
 
       dispatchAction(
@@ -304,7 +304,7 @@ describe('EntityNetworkState', () => {
 
       createMockNetwork(NetworkTopics.world, hostPeerID, hostUserId)
 
-      Engine.instance.store.userID = hostUserId
+      Engine.instance.userID = hostUserId
       const network = NetworkState.worldNetwork as Network
 
       dispatchAction(
@@ -353,7 +353,7 @@ describe('EntityNetworkState', () => {
       const userId = 'user id' as UserID
       const peerID2 = Engine.instance.store.peerID
 
-      Engine.instance.store.userID = userId
+      Engine.instance.userID = userId
       const network = NetworkState.worldNetwork as Network
 
       dispatchAction(
@@ -408,7 +408,7 @@ describe('EntityNetworkState', () => {
 
       createMockNetwork(NetworkTopics.world, hostPeerID, hostUserId)
 
-      Engine.instance.store.userID = hostUserId
+      Engine.instance.userID = hostUserId
 
       dispatchAction(
         WorldNetworkAction.spawnEntity({
@@ -445,7 +445,7 @@ describe('EntityNetworkState', () => {
       const userId = 'user id' as UserID
       const peerID2 = Engine.instance.store.peerID
 
-      Engine.instance.store.userID = userId
+      Engine.instance.userID = userId
 
       dispatchAction(
         NetworkActions.peerJoined({
@@ -494,7 +494,7 @@ describe('EntityNetworkState', () => {
       const peerID = Engine.instance.store.peerID
       const peerID2 = 'peer id 2' as PeerID
 
-      Engine.instance.store.userID = userID
+      Engine.instance.userID = userID
       const network = NetworkState.worldNetwork as Network
 
       dispatchAction(
@@ -575,7 +575,7 @@ describe('EntityNetworkState', () => {
     const peerID = Engine.instance.store.peerID
     const peerID2 = 'peer id 2' as PeerID
 
-    Engine.instance.store.userID = userID
+    Engine.instance.userID = userID
     const network = NetworkState.worldNetwork as Network
 
     dispatchAction(
@@ -654,7 +654,7 @@ describe('EntityNetworkState', () => {
     const peerID = Engine.instance.store.peerID
     const peerID2 = 'peer id 2' as PeerID
 
-    Engine.instance.store.userID = userId
+    Engine.instance.userID = userId
     const network = NetworkState.worldNetwork as Network
 
     dispatchAction(
@@ -732,7 +732,7 @@ describe('EntityNetworkState', () => {
     const userId = 'user id' as UserID
     const peerID = Engine.instance.store.peerID
 
-    Engine.instance.store.userID = userId
+    Engine.instance.userID = userId
     const network = NetworkState.worldNetwork as Network
 
     dispatchAction(
@@ -837,7 +837,7 @@ describe('EntityNetworkState', () => {
     const userId = 'user id' as UserID
     const peerID = Engine.instance.store.peerID
 
-    Engine.instance.store.userID = userId
+    Engine.instance.userID = userId
     const network = NetworkState.worldNetwork as Network
 
     dispatchAction(
@@ -906,7 +906,7 @@ describe('EntityNetworkState', () => {
     const peerID = 'peer id' as PeerID
     const peerID2 = Engine.instance.store.peerID
 
-    Engine.instance.store.userID = userId
+    Engine.instance.userID = userId
     const network = NetworkState.worldNetwork as Network
 
     dispatchAction(
@@ -978,7 +978,7 @@ describe('EntityNetworkState', () => {
     const userId2 = 'user id 2' as UserID
     const peerID2 = 'peer id 2' as PeerID
 
-    Engine.instance.store.userID = userId
+    Engine.instance.userID = userId
     const network = NetworkState.worldNetwork as Network
 
     dispatchAction(
@@ -1050,7 +1050,7 @@ describe('EntityNetworkState', () => {
     const userId2 = 'user id 2' as UserID
     const peerID2 = 'peer id 2' as PeerID
 
-    Engine.instance.store.userID = userId
+    Engine.instance.userID = userId
     const network = NetworkState.worldNetwork as Network
 
     dispatchAction(
@@ -1124,7 +1124,7 @@ describe('EntityNetworkState', () => {
     const peerID = Engine.instance.store.peerID
     const peerID2 = 'peer id 2' as PeerID
 
-    Engine.instance.store.userID = userId
+    Engine.instance.userID = userId
     const network = NetworkState.worldNetwork as Network
 
     dispatchAction(

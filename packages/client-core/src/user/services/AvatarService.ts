@@ -79,7 +79,7 @@ export const AvatarService = {
   async updateUserAvatarId(id: AvatarID) {
     await API.instance
       .service(userAvatarPath)
-      .patch(null, { avatarId: id }, { query: { userId: Engine.instance.store.userID } })
+      .patch(null, { avatarId: id }, { query: { userId: Engine.instance.userID } })
   },
 
   async fetchAvatarList(search?: string, incDec?: 'increment' | 'decrement') {

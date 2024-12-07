@@ -55,7 +55,7 @@ describe('CameraSystem', async () => {
 
       createMockNetwork(NetworkTopics.world, hostPeerID, hostUserID)
 
-      Engine.instance.store.userID = hostUserID
+      Engine.instance.userID = hostUserID
       const cameraUUID = UUIDComponent.generateUUID()
 
       const network: Network = NetworkState.worldNetwork
