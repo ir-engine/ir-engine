@@ -334,12 +334,13 @@ const execute = () => {
 
 const Reactor = () => {
   const themeState = useMutableState(AppThemeState)
-  const themeModes = useFind(clientSettingPath).data[0].themeModes
-  const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
-  const sceneEntity = useLoadedSceneEntity(locationSceneID)
+  const themeModes = useFind(clientSettingPath).data[0]?.themeModes
+  const locationSceneURL = useHookstate(getMutableState(LocationState).currentLocation.location.sceneURL).value
+  const sceneEntity = useLoadedSceneEntity(locationSceneURL)
   const gltfDocumentState = useMutableState(GLTFDocumentState)
 
   useEffect(() => {
+    if (!themeModes) return
     const theme = getAppTheme(themeModes)
     if (theme) defaultColor.set(theme!.textColor)
   }, [themeState, themeModes])

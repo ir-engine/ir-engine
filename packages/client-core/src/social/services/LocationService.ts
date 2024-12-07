@@ -33,7 +33,6 @@ import {
   UserID,
   userPath
 } from '@ir-engine/common/src/schema.type.module'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 
 import { API } from '@ir-engine/common'
@@ -49,7 +48,7 @@ export const LocationSeed: LocationType = {
   sceneId: '',
   projectId: '',
   url: '',
-  sceneAsset: {} as any,
+  sceneURL: '',
   isLobby: false,
   isFeatured: false,
   locationSetting: {
@@ -157,14 +156,15 @@ export const LocationService = {
       })) as Paginated<LocationType>
 
       if (locationResult && locationResult.total > 0) {
-        if (
-          locationResult.data[0].locationSetting?.locationType === 'private' &&
-          !locationResult.data[0].locationAuthorizedUsers?.find(
-            (authUser) => authUser.userId === Engine.instance.userID
-          )
-        ) {
-          LocationState.socialLocationNotAuthorized()
-        } else LocationState.socialLocationRetrieved(locationResult.data[0])
+        // if (
+        //   locationResult.data[0].locationSetting?.locationType === 'private' &&
+        //   !locationResult.data[0].locationAuthorizedUsers?.find(
+        //     (authUser) => authUser.userId === Engine.instance.userID
+        //   )
+        // ) {
+        //   LocationState.socialLocationNotAuthorized()
+        // } else
+        LocationState.socialLocationRetrieved(locationResult.data[0])
       } else {
         LocationState.socialLocationNotFound()
       }

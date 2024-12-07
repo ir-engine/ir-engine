@@ -39,7 +39,17 @@ import { Params, Query } from '@feathersjs/feathers'
 import React, { useCallback, useEffect, useLayoutEffect, useMemo } from 'react'
 import { ServiceTypes } from '../../declarations'
 
-import { defineState, getState, NO_PROXY, OpaqueType, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import {
+  defineState,
+  getState,
+  isDev,
+  NO_PROXY,
+  OpaqueType,
+  State,
+  useHookstate,
+  useImmediateEffect,
+  useMutableState
+} from '@ir-engine/hyperflux'
 import { API } from '../API'
 
 export type Methods = 'find' | 'get' | 'create' | 'update' | 'patch' | 'remove'
@@ -79,6 +89,7 @@ export const FeathersState = defineState({
           response: unknown
           status: 'pending' | 'success' | 'error'
           error: string
+          $stack?: string[]
         }
       >
     >,
@@ -138,6 +149,13 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       status: 'pending',
       error: ''
     })
+    if (isDev) {
+      const trace = { stack: '' }
+      Error.captureStackTrace?.(trace, fetch)
+      const stack = trace.stack.split('\n')
+      stack.shift()
+      state[serviceName][queryId].merge({ $stack: stack })
+    }
     return service[method](...args)
       .then((res) => {
         state[serviceName][queryId].merge({
@@ -155,7 +173,8 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       })
   }
 
-  useLayoutEffect(() => {
+  // use immediate effect to get the stack trace of the react context, then add it to the state
+  useImmediateEffect(() => {
     if (!state.get(NO_PROXY)[serviceName]) state[serviceName].set({})
     if (!state.get(NO_PROXY)[serviceName][queryId]) {
       state[serviceName].merge({

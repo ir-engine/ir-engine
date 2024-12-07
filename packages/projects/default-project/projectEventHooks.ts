@@ -27,7 +27,7 @@ import { BadRequest } from '@feathersjs/errors'
 import fs from 'fs'
 import path from 'path'
 
-import { locationPath, LocationType, OembedType, ProjectType } from '@ir-engine/common/src/schema.type.module'
+import { locationPath, LocationType, OembedType, ProjectType, staticResourcePath, StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { createLocations } from '@ir-engine/projects/createLocations'
 import { ProjectEventHooks } from '@ir-engine/projects/ProjectConfigInterface'
 import { Application } from '@ir-engine/server-core/declarations'
@@ -53,8 +53,9 @@ const handleOEmbedRequest = async (app: Application, project: ProjectType, url: 
       pagination: false
     } as any)) as any as LocationType[]
     if (locationResult.length === 0) throw new BadRequest('Invalid location name')
-    const projectName = locationResult[0].sceneAsset.project
-    const sceneName = locationResult[0].sceneAsset.key.split('/').pop()!.replace('.gltf', '')
+    const scene = (await app.service(staticResourcePath).get(locationResult[0].sceneId)) as StaticResourceType
+    const projectName = scene.project
+    const sceneName = scene.key.split('/').pop()!.replace('.gltf', '')
     const storageProvider = getStorageProvider()
     currentOEmbed.title = `${locationResult[0].name} - ${currentOEmbed.title}`
     currentOEmbed.description = `Join others in VR at ${locationResult[0].name}, directly from the web browser`
@@ -86,8 +87,9 @@ const handleOEmbedRequest = async (app: Application, project: ProjectType, url: 
         pagination: false
       } as any)) as any as LocationType[]
       if (locationResult.length > 0) {
-        const projectName = locationResult[0].sceneAsset.project
-        const sceneName = locationResult[0].sceneAsset.key.split('/').pop()!.replace('.gltf', '')
+        const scene = (await app.service(staticResourcePath).get(locationResult[0].sceneId)) as StaticResourceType
+        const projectName = scene.project
+        const sceneName = scene.key.split('/').pop()!.replace('.gltf', '')
         const storageProvider = getStorageProvider()
         currentOEmbed.title = `${locationResult[0].name} Studio - ${currentOEmbed.title}`
         currentOEmbed.type = 'photo'

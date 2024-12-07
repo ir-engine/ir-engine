@@ -41,7 +41,7 @@ import './styles.scss'
 
 const AppPage = (props: { children: React.ReactNode; fallback?: JSX.Element, loginRequired?: boolean }) => {
   const { t } = useTranslation()
-  const isLoggedIn = useAuthenticated()
+  const isLoggedIn = false//useAuthenticated()
 
   useEffect(() => {
     initGA()
@@ -52,7 +52,9 @@ const AppPage = (props: { children: React.ReactNode; fallback?: JSX.Element, log
 
   useSearchParamState()
 
-  if (props.loginRequired && !isLoggedIn) {
+  const loginRequired = typeof props.loginRequired === 'undefined' ? true : props.loginRequired
+
+  if (loginRequired && !isLoggedIn) {
     return (
       props.fallback ?? <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingApp')} />
     )

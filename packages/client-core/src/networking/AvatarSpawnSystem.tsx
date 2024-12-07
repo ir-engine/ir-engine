@@ -158,8 +158,8 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
 
 const reactor = () => {
   const userID = useMutableState(EngineState).userID.value
-  const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
-  const sceneEntity = useLoadedSceneEntity(locationSceneID)
+  const locationSceneURL = useHookstate(getMutableState(LocationState).currentLocation.location.sceneURL).value
+  const sceneEntity = useLoadedSceneEntity(locationSceneURL)
 
   if (!sceneEntity || !userID) return null
 

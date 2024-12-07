@@ -71,9 +71,6 @@ export const createGLTFLoader = (keepMaterials = false) => {
   loader.register((parser) => new CachedImageLoadExtension(parser))
   loader.register((parser) => new ResourceManagerLoadExtension(parser))
 
-  if (MeshoptDecoder.useWorkers) {
-    MeshoptDecoder.useWorkers(2)
-  }
   loader.setMeshoptDecoder(MeshoptDecoder)
 
   if (isClient) {

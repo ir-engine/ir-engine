@@ -62,7 +62,7 @@ export const locationSchema = Type.Object(
     /** @todo review */
     isFeatured: Type.Boolean(),
     url: Type.String(),
-    sceneAsset: Type.Ref(staticResourceSchema),
+    sceneURL: Type.String(),
     maxUsersPerInstance: Type.Number(),
     locationSetting: Type.Ref(locationSettingSchema),
     locationAdmin: Type.Optional(Type.Ref(locationAdminSchema)),
@@ -122,7 +122,7 @@ export const locationPatchProperties = Type.Pick(locationSchema, [
   'slugifiedName',
   'isLobby',
   'isFeatured',
-  'sceneAsset',
+  'sceneURL',
   'maxUsersPerInstance',
   'updatedBy'
 ])

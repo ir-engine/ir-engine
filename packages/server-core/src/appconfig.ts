@@ -42,9 +42,13 @@ import { githubRepoAccessWebhookPath } from '@ir-engine/common/src/schemas/user/
 import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { loginPath } from '@ir-engine/common/src/schemas/user/login.schema'
 
-import { instanceSignalingPath } from '@ir-engine/common/src/schema.type.module'
+import { BadRequest } from '@feathersjs/errors'
+import { instanceSignalingPath, locationPath, projectsPath } from '@ir-engine/common/src/schema.type.module'
+import { staticResourcePath } from '@ir-engine/common/src/schemas/media/static-resource.schema'
 import { jwtPublicKeyPath } from '@ir-engine/common/src/schemas/user/jwt-public-key.schema'
 import { createHash } from 'crypto'
+import { HookContext } from '../declarations'
+import { StaticResourceService } from './media/static-resource/static-resource.class'
 import {
   APPLE_SCOPES,
   DISCORD_SCOPES,
@@ -246,7 +250,7 @@ const email = {
 
 type WhiteListItem = {
   path: string
-  methods: string[]
+  methods: string[] | Record<string, <Service>(ctx: HookContext<Service>) => boolean>
 }
 
 /**
@@ -275,6 +279,8 @@ const authentication = {
     oembedPath,
     githubRepoAccessWebhookPath,
     { path: instanceSignalingPath, methods: ['patch'] },
+    { path: projectsPath, methods: ['find'] },
+    { path: locationPath, methods: ['find'] },
     { path: identityProviderPath, methods: ['create'] },
     { path: routePath, methods: ['find'] },
     { path: acceptInvitePath, methods: ['get'] },
