@@ -41,7 +41,7 @@ import './styles.scss'
 
 const AppPage = (props: { children: React.ReactNode; fallback?: JSX.Element, loginRequired?: boolean }) => {
   const { t } = useTranslation()
-  const isLoggedIn = false//useAuthenticated()
+  const isLoggedIn = useAuthenticated()
 
   useEffect(() => {
     initGA()

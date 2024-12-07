@@ -98,9 +98,11 @@ export const useLoadScene = (props: { projectName: string; sceneName: string }) 
     if (!resourceQuery.data.length) return
     const resource = resourceQuery.data[0]
     getMutableState(LocationState).currentLocation.location.sceneId.set(resource.id)
+    getMutableState(LocationState).currentLocation.location.sceneURL.set(resource.url)
     const unload = GLTFAssetState.loadScene(resource.url, resource.id)
     return () => {
       getMutableState(LocationState).currentLocation.location.sceneId.set('')
+      getMutableState(LocationState).currentLocation.location.sceneURL.set('')
       unload()
     }
   }, [resourceQuery.data])

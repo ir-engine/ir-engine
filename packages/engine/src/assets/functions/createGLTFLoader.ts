@@ -74,7 +74,6 @@ export const createGLTFLoader = (keepMaterials = false) => {
   loader.setMeshoptDecoder(MeshoptDecoder)
 
   if (isClient) {
-    initializeKTX2Loader(loader)
     const dracoLoader = new DRACOLoader()
     dracoLoader.setDecoderPath(getState(DomainConfigState).publicDomain + '/loader_decoders/')
     dracoLoader.setWorkerLimit(1)

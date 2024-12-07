@@ -24,4 +24,4 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import '@ir-engine/engine/src/EngineModule'
-// import './ClientModule'
+import './ClientModule'
