@@ -34,6 +34,7 @@ import {
 import Tabs, { TabProps } from '@ir-engine/ui/src/primitives/tailwind/Tabs'
 import React, { useEffect } from 'react'
 import { APIDebug } from './APIDebug'
+import { useDraggeable } from '../../hooks/useDraggeable'
 import DebugButtons from './DebugButtons'
 import { EntityDebug } from './EntityDebug'
 import { StateDebug } from './StateDebug'
@@ -74,8 +75,13 @@ const Debug = () => {
   useHookstate(getMutableState(ECSState).frameTime).value
   const activeTabIndex = useMutableState(DebugState).activeTabIndex
 
+  useDraggeable('debug')
+
   return (
-    <div className="pointer-events-auto fixed top-0 z-[1000] m-1 max-h-[95vh] overflow-y-auto rounded bg-neutral-700 p-0.5">
+    <div
+      id="debug"
+      className="pointer-events-auto fixed z-[1000] m-1 max-h-[95vh] overflow-y-auto rounded bg-neutral-700 p-0.5"
+    >
       <DebugButtons />
       <StatsPanel show />
       <Tabs
