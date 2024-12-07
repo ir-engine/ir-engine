@@ -86,14 +86,14 @@ const LocationPage = ({ online }: Props) => {
 
   return (
     <>
-      {/* <ThemeContextProvider>
+      <ThemeContextProvider>
         <StyledEngineProvider injectFirst>
           {!ready.value && (
             <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingEngine')} />
           )}
           <LocationIcons />
         </StyledEngineProvider>
-      </ThemeContextProvider> */}
+      </ThemeContextProvider>
     </>
   )
 }
