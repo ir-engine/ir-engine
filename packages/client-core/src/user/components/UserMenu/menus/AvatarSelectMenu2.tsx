@@ -167,7 +167,6 @@ const AvatarMenu2 = () => {
                     <Button
                       className="min-w-[8rem] rounded-md text-sm font-normal"
                       variant="secondary"
-                      hidden={!createAvatarEnabled}
                       onClick={() => PopupMenuServices.showPopupMenu(UserMenus.ReadyPlayer)}
                     >
                       {t('user:avatar.createAvatar')}
@@ -177,7 +176,6 @@ const AvatarMenu2 = () => {
                     <Button
                       className="min-w-[8rem] rounded-md text-sm font-normal"
                       variant="secondary"
-                      hidden={!uploadAvatarEnabled}
                       onClick={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarModify)}
                     >
                       {t('user:avatar.uploadAvatar')}
