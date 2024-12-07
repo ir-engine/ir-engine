@@ -28,7 +28,6 @@ import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { Tooltip } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlinePause, HiOutlinePlay } from 'react-icons/hi2'
@@ -64,18 +63,13 @@ const PlayModeTool: React.FC = () => {
             : t('editor:toolbar.command.info-stopPreview')
         }
       >
-        <Button
-          variant="transparent"
-          startIcon={
-            engineState.isEditing.value ? (
-              <HiOutlinePlay className="text-theme-input" />
-            ) : (
-              <HiOutlinePause className="text-theme-input" />
-            )
-          }
-          className="p-0"
-          onClick={onTogglePlayMode}
-        />
+        <button className="p-0" onClick={onTogglePlayMode}>
+          {engineState.isEditing.value ? (
+            <HiOutlinePlay className="text-theme-input" />
+          ) : (
+            <HiOutlinePause className="text-theme-input" />
+          )}
+        </button>
       </Tooltip>
     </div>
   )

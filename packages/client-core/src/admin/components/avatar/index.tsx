@@ -29,8 +29,7 @@ import { HiMagnifyingGlass, HiPlus } from 'react-icons/hi2'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button, Input } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 import AddEditAvatarModal from './AddEditAvatarModal'
@@ -68,13 +67,13 @@ export default function Avatars() {
           />
           <div>
             <Button
-              startIcon={<HiPlus />}
-              size="small"
+              size="sm"
               fullWidth
               onClick={() => {
                 PopoverState.showPopupover(<AddEditAvatarModal />)
               }}
             >
+              <HiPlus />
               {t('admin:components.avatar.add')}
             </Button>
           </div>

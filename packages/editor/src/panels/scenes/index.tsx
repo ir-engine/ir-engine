@@ -31,13 +31,13 @@ import { confirmSceneSaveIfModified } from '@ir-engine/editor/src/components/too
 import { onNewScene } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { Button } from '@ir-engine/ui'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { PlusCircleSm } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import { TabData } from 'rc-dock'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiOutlinePlusCircle } from 'react-icons/hi2'
 import { UIAddonsState } from '../../services/UIAddonsState'
 import SceneItem from './SceneItem'
 
@@ -77,16 +77,15 @@ function ScenesPanel() {
     <div className="h-full bg-[#0E0F11]">
       <div className="mb-4 h-8 w-full overflow-hidden bg-[#212226]">
         <Button
-          startIcon={<HiOutlinePlusCircle />}
-          endIcon={isCreatingScene.value && <LoadingView spinnerOnly className="h-4 w-4" />}
           disabled={isCreatingScene.value}
-          rounded="none"
           className="ml-auto h-8 bg-theme-highlight px-2"
-          size="small"
+          size="sm"
           data-testid="scene-panel-add-scene-button"
           onClick={handleCreateScene}
         >
-          {t('editor:newScene')}
+          <PlusCircleSm />
+          <span className="text-nowrap">{t('editor:newScene')}</span>
+          {isCreatingScene.value && <LoadingView spinnerOnly className="h-4 w-4" />}
         </Button>
       </div>
       <div className="h-full bg-[#0E0F11]">

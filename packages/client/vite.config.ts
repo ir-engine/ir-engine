@@ -268,9 +268,16 @@ export default defineConfig(async () => {
     }
   }
 
-  const define = { __IR_ENGINE_VERSION__: JSON.stringify(packageJson.version) }
+  const define = {
+    __IR_ENGINE_VERSION__: JSON.stringify(packageJson.version),
+    'process.env': {}
+  }
   for (const [key, value] of Object.entries(process.env)) {
-    define[`globalThis.process.env.${key}`] = JSON.stringify(value)
+    if (key.startsWith('VITE_')) {
+      define[`process.env.${key}`] = JSON.stringify(value)
+    } else {
+      define['process.env'][key] = JSON.stringify(value)
+    }
   }
 
   const returned = {

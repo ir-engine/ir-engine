@@ -30,8 +30,7 @@ import { HiMagnifyingGlass, HiPlus } from 'react-icons/hi2'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { InviteType } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button, Input } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 import AddEditInviteModal from './AddEditInviteModal'
@@ -74,8 +73,8 @@ export default function Invites() {
             {selectedInvites.length > 0 && (
               <div>
                 <Button
-                  variant="danger"
-                  size="small"
+                  variant="red"
+                  size="sm"
                   fullWidth
                   onClick={() => {
                     PopoverState.showPopupover(<RemoveInviteModal invites={selectedInvites.value as InviteType[]} />)
@@ -87,13 +86,13 @@ export default function Invites() {
             )}
             <div className="ml-auto">
               <Button
-                startIcon={<HiPlus />}
-                size="small"
+                size="sm"
                 fullWidth
                 onClick={() => {
                   PopoverState.showPopupover(<AddEditInviteModal />)
                 }}
               >
+                <HiPlus />
                 {t('admin:components.invite.create')}
               </Button>
             </div>

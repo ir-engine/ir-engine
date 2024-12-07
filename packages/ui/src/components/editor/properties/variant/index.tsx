@@ -116,8 +116,8 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
         </InputGroup>
         <div className="flex flex-1 justify-center align-middle">
           <Button
-            variant="outline"
-            size="small"
+            variant="tertiary"
+            size="sm"
             onClick={() =>
               commitProperties(
                 VariantComponent,
@@ -179,8 +179,8 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
                 )}
                 <div className="flex flex-1 justify-center align-middle">
                   <Button
-                    variant="outline"
-                    size="small"
+                    variant="tertiary"
+                    size="sm"
                     onClick={() =>
                       commitProperties(VariantComponent, {
                         levels: JSON.parse(JSON.stringify(variantComponent.levels.value.filter((_, i) => i !== index)))

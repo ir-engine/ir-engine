@@ -31,8 +31,7 @@ import { HiOutlineRefresh } from 'react-icons/hi'
 import { useGet } from '@ir-engine/common'
 import { podsPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Select } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button, Select } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
@@ -92,12 +91,13 @@ export default function ServerLogsModal({ podName, containerName }: { podName: s
             {t('admin:components.server.logs')}: {podName}
           </Text>
           <Button
-            startIcon={<GoDownload />}
             title={t('admin:components.server.downloadLogs')}
-            variant="outline"
+            variant="tertiary"
             className="ml-auto border-0"
             onClick={handleDownloadServerLogs}
-          />
+          >
+            <GoDownload />
+          </Button>
         </div>
         <div className="flex items-end">
           <Select
@@ -113,10 +113,11 @@ export default function ServerLogsModal({ podName, containerName }: { podName: s
             <Button
               title={t('admin:components.common.refresh')}
               onClick={() => serverLogsQuery.refetch()}
-              startIcon={<HiOutlineRefresh />}
-              variant="outline"
+              variant="tertiary"
               className="border-0"
-            />
+            >
+              <HiOutlineRefresh />
+            </Button>
             <Select
               options={serverAutoRefreshOptions}
               value={autoRefresh.value}

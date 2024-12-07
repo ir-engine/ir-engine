@@ -29,7 +29,6 @@ import React from 'react'
 import { LuLock, LuUnlock } from 'react-icons/lu'
 import { twMerge } from 'tailwind-merge'
 import { Vector3 } from 'three'
-import Button from '../../../../primitives/tailwind/Button'
 import Scrubber from '../../layout/Scrubber'
 import NumericInput from '../Numeric'
 
@@ -103,7 +102,10 @@ export const Vector3Input = ({
 
   const toVec3 = (field: string, fieldValue: number): Vector3 => {
     if (uniformEnabled.value) {
-      return new Vector3(fieldValue, fieldValue, fieldValue)
+      const vec = new Vector3()
+      const change = fieldValue - value[field]
+      vec.copy(value).addScalar(change)
+      return vec
     } else {
       const vec = new Vector3()
       vec.copy(value)
@@ -127,12 +129,9 @@ export const Vector3Input = ({
   return (
     <div className="flex flex-row flex-wrap justify-end gap-1.5">
       {uniformScaling && (
-        <Button
-          variant="transparent"
-          startIcon={uniformEnabled.value ? <LuLock /> : <LuUnlock />}
-          onClick={onToggleUniform}
-          className="p-0"
-        />
+        <button onClick={onToggleUniform} className="p-0" tabIndex={-1}>
+          {uniformEnabled.value ? <LuLock /> : <LuUnlock />}
+        </button>
       )}
       <NumericInput
         {...rest}

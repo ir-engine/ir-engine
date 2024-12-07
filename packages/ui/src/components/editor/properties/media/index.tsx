@@ -164,10 +164,10 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
             label={t('editor:properties.media.lbl-mediaControls')}
             className="mb-2 flex gap-2"
           >
-            <Button variant="outline" onClick={toggle}>
+            <Button variant="tertiary" onClick={toggle}>
               {media.paused.value ? t('editor:properties.media.playtitle') : t('editor:properties.media.pausetitle')}
             </Button>
-            <Button variant="outline" onClick={reset}>
+            <Button variant="tertiary" onClick={reset}>
               {t('editor:properties.media.resettitle')}
             </Button>
           </InputGroup>
