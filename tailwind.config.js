@@ -28,9 +28,11 @@ module.exports = {
   mode: 'jit',
   content: [
     './packages/client/src/**/*.{ts,tsx}',
-    './packages/ui/src/**/*.{ts,tsx}',
+    './packages/client-core/src/**/*.{ts,tsx}',
+    './packages/engine/src/**/*.{ts,tsx}',
     './packages/editor/src/**/*.{ts,tsx}',
-    './packages/projects/**/src/**/*.{ts,tsx}'
+    './packages/projects/**/src/**/*.{ts,tsx}',
+    './packages/ui/src/**/*.{ts,tsx}'
   ],
   darkMode: ['class', '[data-theme="dark"]'],
   important: true, // important in prod is must be
