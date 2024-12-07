@@ -129,12 +129,7 @@ export default function DebugButtons() {
         <Button size="sm" variant="tertiary" title={t('common:debug.respawn')} onClick={onClickRespawn}>
           <MdRefresh />
         </Button>
-        <Button
-          size="sm"
-          variant="tertiary"
-          title={t('common:debug.close')}
-          onClick={onClickCloseDebug}
-        >
+        <Button size="sm" variant="tertiary" title={t('common:debug.close')} onClick={onClickCloseDebug}>
           <MdClose />
         </Button>
       </div>
