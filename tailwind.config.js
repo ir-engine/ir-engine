@@ -27,23 +27,24 @@ Infinite Reality Engine. All Rights Reserved.
 module.exports = {
   mode: 'jit',
   content: [
-    './packages/client/**/*.{ts,tsx}',
-    './packages/client-core/**/*.{ts,tsx}',
-    './packages/engine/**/*.{ts,tsx}',
-    './packages/editor/**/*.{ts,tsx}',
-    './packages/projects/projects/**/*.{ts,tsx}',
-    './packages/ui/**/*.{ts,tsx}'
+    '../client/**/*.{ts,tsx}',
+    '../client-core/**/*.{ts,tsx}',
+    '../common/**/*.{ts,tsx}',
+    '../engine/**/*.{ts,tsx}',
+    '../editor/**/*.{ts,tsx}',
+    '../projects/projects/**/*.{ts,tsx}',
+    '../ui/**/*.{ts,tsx}'
   ],
   darkMode: ['class', '[data-theme="dark"]'],
   important: true, // important in prod is must be
   theme: {
     extend: {
       screens: {
-        'xsh': { 'raw': '(min-height: 500px)' },
-        'smh': { 'raw': '(min-height: 700px)' },
-        'mdh': { 'raw': '(min-height: 900px)' },
-        'lgh': { 'raw': '(min-height: 1100px)' },
-        'xlh': { 'raw': '(min-height: 1300px)' },
+        xsh: { raw: '(min-height: 500px)' },
+        smh: { raw: '(min-height: 700px)' },
+        mdh: { raw: '(min-height: 900px)' },
+        lgh: { raw: '(min-height: 1100px)' },
+        xlh: { raw: '(min-height: 1300px)' }
       },
       height: {
         'table-size-xs': 'calc(100vh - 436px)',
