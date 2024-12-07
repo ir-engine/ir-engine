@@ -34,6 +34,7 @@ import {
   getMutableState,
   none,
   useHookstate,
+  useImmediateEffect,
   useMutableState
 } from '@ir-engine/hyperflux'
 import {
@@ -54,7 +55,7 @@ const logger = multiLogger.child({ component: 'client-core:world' })
 
 export const useEngineInjection = () => {
   const loaded = useHookstate(false)
-  useEffect(() => {
+  useImmediateEffect(() => {
     loadEngineInjection().then(() => {
       loaded.set(true)
     })

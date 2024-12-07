@@ -24,11 +24,9 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
-import { useFind } from '@ir-engine/common'
-import config from '@ir-engine/common/src/config'
-import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
-import { NO_PROXY } from '@ir-engine/hyperflux'
+import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { loadWebappInjection } from '@ir-engine/projects/loadWebappInjection'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import React, { Suspense, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -36,20 +34,15 @@ import { useTranslation } from 'react-i18next'
 export const LoadWebappInjection = (props: { children: React.ReactNode; fallback?: JSX.Element }) => {
   const { t } = useTranslation()
 
-  const clientSettingQuery = useFind(clientSettingPath)
-  const clientSettings = clientSettingQuery.data[0] ?? null
-  useEffect(() => {
-    config.client.key8thWall = clientSettings?.key8thWall
-    config.client.mediaSettings = clientSettings?.mediaSettings
-  }, [clientSettings])
-
+  const isLoggedIn = !!useMutableState(EngineState).userID.value
   const projectComponents = useHookstate(null as null | any[])
 
   useEffect(() => {
+    if (!isLoggedIn) return
     loadWebappInjection().then((result) => {
       projectComponents.set(result)
     })
-  }, [])
+  }, [isLoggedIn])
 
   if (!projectComponents.value) {
     return (
