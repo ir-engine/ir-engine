@@ -247,17 +247,12 @@ export const TextComponent = defineComponent({
 
     useEffect(() => {
       const troikaMesh = text.troikaMesh.value! as TextMesh
-      console.log('DEBUG in text', text.troikaMesh.value, troikaMesh)
-
-      Object.hasOwn(troikaMesh, 'text')
-
       troikaMesh.text = text.text.value
       troikaMesh.sync()
     }, [text.text])
 
     useEffect(() => {
       const troikaMesh = text.troikaMesh.value! as TextMesh
-
       troikaMesh.fillOpacity = text.textOpacity.value / 100
       troikaMesh.sync()
     }, [text.textOpacity])
@@ -342,7 +337,6 @@ export const TextComponent = defineComponent({
     }, [text.fontSize])
 
     useEffect(() => {
-      console.log('DEBUG fontcolor', text.troikaMesh.value)
       const troikaMesh = text.troikaMesh.value! as TextMesh
       troikaMesh.color = toTroikaColor(text.fontColor.value)
       troikaMesh.sync()
