@@ -32,7 +32,7 @@ import {
   KTX2EncodeArguments,
   KTX2EncodeDefaultArguments
 } from '@ir-engine/engine/src/assets/constants/CompressionParms'
-import { ImmutableArray, useHookstate } from '@ir-engine/hyperflux'
+import { ImmutableArray, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { Button, Checkbox, Input, Select } from '@ir-engine/ui'
@@ -45,6 +45,7 @@ import { useTranslation } from 'react-i18next'
 import { MdClose } from 'react-icons/md'
 import { FileDataType } from '../../constants/AssetTypes'
 import { compressImage } from '../../functions/assetFunctions'
+import { EditorState } from '../../services/EditorServices'
 
 const UASTCFlagOptions = [
   { label: 'Fastest', value: 0 },
@@ -68,6 +69,7 @@ export default function ImageCompressionPanel({
   refreshDirectory: () => Promise<void>
 }) {
   const { t } = useTranslation()
+  const { projectName } = useMutableState(EditorState)
 
   const compressProperties = useHookstate<KTX2EncodeArguments>(KTX2EncodeDefaultArguments)
   const compressionLoading = useHookstate(false)
@@ -76,6 +78,7 @@ export default function ImageCompressionPanel({
     compressionLoading.set(true)
 
     for (const file of selectedFiles) {
+      compressProperties.src.set(file.type === 'folder' ? `${file.url}/${file.key}` : file.url)
       await uploadImage(file, await compressImage(compressProperties.value))
     }
     await refreshDirectory()
@@ -85,12 +88,9 @@ export default function ImageCompressionPanel({
   }
 
   const uploadImage = async (props: FileDataType, data: ArrayBuffer) => {
-    compressProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
-
     const newFileName = props.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
     const path = props.key.replace(/(.*\/).*/, '$1')
-    const projectName = props.key.split('/')[1] // TODO: support projects with / in the name
-    const relativePath = path.replace('projects/' + projectName + '/', '')
+    const relativePath = path.replace('projects/' + projectName.value + '/', '')
 
     const file = new File([data], newFileName, { type: 'image/ktx2' })
 
@@ -98,7 +98,7 @@ export default function ImageCompressionPanel({
       await uploadToFeathersService(fileBrowserUploadPath, [file], {
         args: [
           {
-            project: projectName,
+            project: projectName.value,
             path: relativePath + file.name,
             contentType: file.type
           }
