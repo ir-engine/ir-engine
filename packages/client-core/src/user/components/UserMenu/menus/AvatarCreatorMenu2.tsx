@@ -36,7 +36,7 @@ import { Button, Input } from '@ir-engine/ui'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import { IoArrowBackOutline } from 'react-icons/io5'
+import { IoArrowBackOutline, IoCloseOutline } from 'react-icons/io5'
 import AvatarPreview from '../../../../common/components/AvatarPreview'
 import { PopoverState } from '../../../../common/services/PopoverState'
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunctions'
@@ -117,7 +117,6 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
       loading.set(LoadingState.Downloading)
       error.set('')
       avatarName.set(message.data.avatarId)
-
       try {
         const res = await fetch(message.data.url)
         const data = await res.blob()
@@ -194,7 +193,6 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
       : avatarUrl.value.split('/').pop() + '.glb'
 
     const blob = await getCanvasBlob(canvas)
-
     await AvatarService.createAvatar(
       new File([selectedBlob.value!], modelName),
       new File([blob!], thumbnailName),
@@ -203,7 +201,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
     )
 
     loading.set(LoadingState.None)
-    PopupMenuServices.showPopupMenu()
+    PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect2)
   }
 
   const loadingMessages = {
@@ -229,16 +227,37 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
             <div className="grid h-14 w-full grid-cols-[2rem,1fr,2rem] border-b border-b-theme-primary px-8">
               <Button
                 data-testid="edit-avatar-button"
-                className=" h-6 w-6 self-center bg-transparent"
+                className=" h-6 w-6 self-center bg-transparent hover:bg-transparent focus:bg-transparent"
                 onClick={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect2)}
               >
-                <IoArrowBackOutline size={16} />
+                <span>
+                  <IoArrowBackOutline size={16} />
+                </span>
               </Button>
               <Text className="col-start-2  place-self-center self-center">
                 {loading.value !== LoadingState.Uploading
                   ? t('user:avatar.titleCustomizeAvatar')
                   : t('user:avatar.savingAvatar', { avatar: avatarName.value })}
               </Text>
+              <Button
+                fullWidth={false}
+                data-testid="edit-avatar-button"
+                className=" h-6 w-6 self-center bg-transparent hover:bg-transparent focus:bg-transparent"
+                onClick={() =>
+                  PopoverState.showPopupover(
+                    <DiscardAvatarChangesModal
+                      handleConfirm={() => {
+                        PopoverState.hidePopupover()
+                        PopupMenuServices.showPopupMenu()
+                      }}
+                    />
+                  )
+                }
+              >
+                <span>
+                  <IoCloseOutline size={16} />
+                </span>
+              </Button>
             </div>
             <div className="grid h-full w-full flex-1 grid-cols-[1fr,50%,1fr] gap-6 px-10 py-2">
               {loading.value === LoadingState.LoadingCreator && (
@@ -267,15 +286,20 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
               )}
             </div>
             {avatarPreviewLoaded && (
-              <div className="mx-auto mb-2 flex py-2">
-                <Input
-                  value={avatarName.value || ''}
-                  labelProps={{
-                    text: t('user:avatar.InputAvatarName'),
-                    position: 'top'
-                  }}
-                  onChange={(e) => avatarName.set(e.target.value)}
-                />
+              <div className="mx-auto mb-2 flex items-center gap-2 py-2">
+                <Text className="" fontSize="sm">
+                  {t('user:avatar.InputAvatarName')}
+                </Text>
+                <Input value={avatarName.value || ''} onChange={(e) => avatarName.set(e.target.value)} />
+                <Button
+                  size="sm"
+                  disabled={loading.value !== LoadingState.None}
+                  data-testid="upload-avatar-button"
+                  onClick={uploadAvatar}
+                  className="w-fit place-self-center text-sm"
+                >
+                  {t('user:avatar.saveAvatar')}
+                </Button>
               </div>
             )}
             {loading.value !== LoadingState.None && loading.value !== LoadingState.LoadingCreator && (
@@ -287,33 +311,6 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
                 />
               </div>
             )}
-            <div className="flex w-full items-center justify-center border-t border-t-theme-primary px-6 py-2">
-              <Button
-                disabled={loading.value === LoadingState.Downloading || loading.value === LoadingState.Uploading}
-                data-testid="discard-changes-button"
-                onClick={() =>
-                  PopoverState.showPopupover(
-                    <DiscardAvatarChangesModal
-                      handleConfirm={() => {
-                        PopoverState.hidePopupover()
-                        PopupMenuServices.showPopupMenu()
-                      }}
-                    />
-                  )
-                }
-                className="w-full max-w-[20%] place-self-center text-sm"
-              >
-                {t('user:common.discardChanges')}
-              </Button>
-              <Button
-                disabled={loading.value !== LoadingState.None}
-                data-testid="upload-avatar-button"
-                onClick={uploadAvatar}
-                className="ml-2 w-full max-w-[20%] place-self-center text-sm"
-              >
-                {t('user:avatar.finishEditing')}
-              </Button>
-            </div>
           </div>
         }
       ></Modal>
