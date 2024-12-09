@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { getState, useMutableState } from '@ir-engine/hyperflux'
 import { Button, Tooltip } from '@ir-engine/ui'
-import { Slider } from '@ir-engine/ui/editor'
+import { Slider, StudioButton } from '@ir-engine/ui/editor'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import SearchBar from '@ir-engine/ui/src/components/tailwind/SearchBar'
 import { ArrowLeftSm, CogSm, FolderSm, PlusCircleSm, Refresh1Sm, SearchSmSm } from '@ir-engine/ui/src/icons'
@@ -49,9 +49,9 @@ const ViewModeSettings = () => {
       position={'bottom left'}
       trigger={
         <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-          <Button size="sm" variant="secondary" data-testid="assets-panel-view-options-button">
+          <StudioButton size="sm" variant="tertiary" data-testid="assets-panel-view-options-button">
             <CogSm />
-          </Button>
+          </StudioButton>
         </Tooltip>
       }
     >
@@ -156,16 +156,16 @@ export default function Topbar() {
       <div className="ml-2" />
       <div>
         <Tooltip content={t('editor:layout.filebrowser.back')}>
-          <Button size="sm" variant="secondary" data-testid="assets-panel-back-button" onClick={handleBack}>
+          <StudioButton size="sm" variant="tertiary" data-testid="assets-panel-back-button" onClick={handleBack}>
             <ArrowLeftSm />
-          </Button>
+          </StudioButton>
         </Tooltip>
       </div>
       <div>
         <Tooltip content={t('editor:layout.filebrowser.refresh')}>
-          <Button size="sm" variant="secondary" data-testid="assets-panel-refresh-button" onClick={handleRefresh}>
+          <StudioButton size="sm" variant="tertiary" data-testid="assets-panel-refresh-button" onClick={handleRefresh}>
             <Refresh1Sm />
-          </Button>
+          </StudioButton>
         </Tooltip>
       </div>
       <ViewModeSettings />
