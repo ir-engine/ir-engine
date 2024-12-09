@@ -31,6 +31,7 @@ import { defineQuery, useQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 
+import config from '@ir-engine/common/src/config'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { isMobile } from '../../common/functions/isMobile'
 import { PersistentAnchorComponent } from '../XRAnchorComponents'
@@ -63,7 +64,7 @@ function loadScript(url): Promise<HTMLScriptElement> {
  */
 const initialize8thwall = async (): Promise<XR8Assets> => {
   const [xr8Script, xrExtrasScript /*, xrCoachingOverlayScript*/] = await Promise.all([
-    loadScript(`https://apps.8thwall.com/xrweb?appKey=${globalThis.process.env.VITE_8TH_WALL}`),
+    loadScript(`https://apps.8thwall.com/xrweb?appKey=${config.client.key8thWall}`),
     loadScript(`https://cdn.8thwall.com/web/xrextras/xrextras.js`)
     // loadScript(`https://cdn.8thwall.com/web/coaching-overlay/coaching-overlay.js`)
   ])
