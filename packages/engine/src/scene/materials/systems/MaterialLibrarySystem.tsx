@@ -25,17 +25,15 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { PresentationSystemGroup, UndefinedEntity } from '@ir-engine/ecs'
+import { createEntity, PresentationSystemGroup, setComponent, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import {
   MaterialPrototypeDefinition,
   MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import {
-  createAndAssignMaterial,
-  createMaterialPrototype
-} from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { createMaterialPrototype } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { MeshBasicMaterial } from 'three'
 
 const reactor = () => {
@@ -45,7 +43,13 @@ const reactor = () => {
     )
     const fallbackMaterial = new MeshBasicMaterial({ name: 'Fallback Material', color: 0xff69b4 })
     fallbackMaterial.uuid = MaterialStateComponent.fallbackMaterial
-    createAndAssignMaterial(UndefinedEntity, fallbackMaterial)
+    const fallbackMaterialEntity = createEntity()
+    setComponent(fallbackMaterialEntity, MaterialStateComponent, {
+      material: fallbackMaterial,
+      instances: [UndefinedEntity]
+    })
+    setComponent(fallbackMaterialEntity, UUIDComponent, MaterialStateComponent.fallbackMaterial)
+    setComponent(fallbackMaterialEntity, NameComponent, 'Fallback Material')
   }, [])
 
   return null

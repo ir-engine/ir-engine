@@ -63,7 +63,6 @@ import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { createAndAssignMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { ResourceManager } from '@ir-engine/spatial/src/resources/ResourceState'
 import {
@@ -115,12 +114,13 @@ export const disposeObject3D = (obj: Object3D) => {
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 /**@todo refactor this to use preprocessor directives instead of new cloned materials with different shaders */
-export function setupObject(obj: Object3D, entity: Entity, forceBasicMaterials = false) {
+export function convertObjectMaterials(obj: Object3D, entity: Entity, forceBasicMaterials = false) {
   const child = obj as any as Mesh<any, any>
   if (child.material) {
     const shouldMakeBasic =
       (forceBasicMaterials || isMobileXRHeadset) && ExpensiveMaterials.has(child.material.constructor)
     if (shouldMakeBasic) {
+      console.log('making it basic baby')
       const basicUUID = `basic-${child.material.uuid}` as EntityUUID
       const basicMaterialEntity = UUIDComponent.getEntityByUUID(basicUUID)
       if (basicMaterialEntity) {
@@ -140,7 +140,7 @@ export function setupObject(obj: Object3D, entity: Entity, forceBasicMaterials =
       newBasicMaterial.side = prevMaterial.side
       newBasicMaterial.plugins = undefined
 
-      createAndAssignMaterial(entity, newBasicMaterial)
+      //createAndAssignMaterial(entity, newBasicMaterial)
       setComponent(entity, MaterialInstanceComponent, { uuid: [basicUUID] })
     } else {
       const UUID = child.material.uuid as EntityUUID
@@ -179,7 +179,7 @@ function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
   }, [])
 
   useEffect(() => {
-    setupObject(obj, entity, forceBasicMaterials.value)
+    convertObjectMaterials(obj, entity, forceBasicMaterials.value)
   }, [forceBasicMaterials])
 
   return null
