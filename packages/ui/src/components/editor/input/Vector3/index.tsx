@@ -102,7 +102,10 @@ export const Vector3Input = ({
 
   const toVec3 = (field: string, fieldValue: number): Vector3 => {
     if (uniformEnabled.value) {
-      return new Vector3(fieldValue, fieldValue, fieldValue)
+      const vec = new Vector3()
+      const change = fieldValue - value[field]
+      vec.copy(value).addScalar(change)
+      return vec
     } else {
       const vec = new Vector3()
       vec.copy(value)
