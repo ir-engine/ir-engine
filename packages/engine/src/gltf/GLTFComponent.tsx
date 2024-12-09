@@ -59,6 +59,7 @@ import {
 } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
@@ -77,6 +78,7 @@ import {
   BINARY_EXTENSION_HEADER_MAGIC
 } from '../assets/loaders/gltf/GLTFExtensions'
 import { ErrorComponent } from '../scene/components/ErrorComponent'
+import { SceneDynamicLoadTagComponent } from '../scene/components/SceneDynamicLoadTagComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { addError, removeError } from '../scene/functions/ErrorFunctions'
 import { SceneJsonType } from '../scene/types/SceneTypes'
@@ -85,8 +87,6 @@ import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
 import { GLTFSourceState } from './GLTFState'
 import { gltfReplaceUUIDsReferences } from './gltfUtils'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
-import { SceneDynamicLoadTagComponent } from '../scene/components/SceneDynamicLoadTagComponent'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 
 type DependencyEval = {
   key: string
