@@ -27,14 +27,15 @@ import React from 'react'
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
-import { fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
+import { fileBrowserUploadPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import {
   KTX2EncodeArguments,
   KTX2EncodeDefaultArguments
 } from '@ir-engine/engine/src/assets/constants/CompressionParms'
-import { ImmutableArray, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { ImmutableArray, useHookstate } from '@ir-engine/hyperflux'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { API } from '@ir-engine/common'
 import { Button, Checkbox, Input, Select } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
@@ -45,7 +46,6 @@ import { useTranslation } from 'react-i18next'
 import { MdClose } from 'react-icons/md'
 import { FileDataType } from '../../constants/AssetTypes'
 import { compressImage } from '../../functions/assetFunctions'
-import { EditorState } from '../../services/EditorServices'
 
 const UASTCFlagOptions = [
   { label: 'Fastest', value: 0 },
@@ -69,7 +69,6 @@ export default function ImageCompressionPanel({
   refreshDirectory: () => Promise<void>
 }) {
   const { t } = useTranslation()
-  const { projectName } = useMutableState(EditorState)
 
   const compressProperties = useHookstate<KTX2EncodeArguments>(KTX2EncodeDefaultArguments)
   const compressionLoading = useHookstate(false)
@@ -90,7 +89,12 @@ export default function ImageCompressionPanel({
   const uploadImage = async (props: FileDataType, data: ArrayBuffer) => {
     const newFileName = props.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
     const path = props.key.replace(/(.*\/).*/, '$1')
-    const relativePath = path.replace('projects/' + projectName.value + '/', '')
+
+    const staticResourceDetails = await API.instance.service(staticResourcePath).find({
+      query: { key: props.key }
+    })
+    const projectName = staticResourceDetails.data[0].project
+    const relativePath = path.replace('projects/' + projectName + '/', '')
 
     const file = new File([data], newFileName, { type: 'image/ktx2' })
 
@@ -98,7 +102,7 @@ export default function ImageCompressionPanel({
       await uploadToFeathersService(fileBrowserUploadPath, [file], {
         args: [
           {
-            project: projectName.value,
+            project: projectName,
             path: relativePath + file.name,
             contentType: file.type
           }
