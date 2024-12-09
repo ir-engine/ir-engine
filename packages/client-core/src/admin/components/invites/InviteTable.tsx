@@ -31,8 +31,7 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { useFind, useSearch } from '@ir-engine/common'
 import { invitePath, InviteType, UserName } from '@ir-engine/common/src/schema.type.module'
 import { State } from '@ir-engine/hyperflux'
-import { Checkbox } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button, Checkbox } from '@ir-engine/ui'
 import { validate as isValidUUID } from 'uuid'
 
 import { inviteColumns, InviteRowType } from '../../common/constants/invite'
@@ -107,17 +106,15 @@ export default function InviteTable({
       action: (
         <div className="flex items-center gap-3">
           <Button
-            size="small"
+            size="sm"
             variant="primary"
             onClick={() => PopoverState.showPopupover(<AddEditInviteModal invite={row} />)}
           >
             {t('admin:components:invite.update')}
           </Button>
-          <Button
-            variant="outline"
-            startIcon={<HiTrash className="place-self-center text-theme-iconRed" />}
-            onClick={() => PopoverState.showPopupover(<RemoveInviteModal invites={[row]} />)}
-          />
+          <Button variant="tertiary" onClick={() => PopoverState.showPopupover(<RemoveInviteModal invites={[row]} />)}>
+            <HiTrash className="text-theme-iconRed" />
+          </Button>
         </div>
       )
     }))

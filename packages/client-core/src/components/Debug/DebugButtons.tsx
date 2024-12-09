@@ -28,16 +28,27 @@ import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarC
 import { respawnAvatar } from '@ir-engine/engine/src/avatar/functions/respawnAvatar'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { MdAllOut, MdFormatColorReset, MdGridOn, MdPerson, MdRefresh, MdSelectAll, MdSquareFoot } from 'react-icons/md'
+import {
+  MdAllOut,
+  MdClose,
+  MdFormatColorReset,
+  MdGridOn,
+  MdPerson,
+  MdRefresh,
+  MdSelectAll,
+  MdSquareFoot
+} from 'react-icons/md'
+import { DebugState } from './index'
 
 export default function DebugButtons() {
   const { t } = useTranslation()
   useHookstate(getMutableState(ECSState).frameTime).value
   const rendererState = useMutableState(RendererState)
+  const debugEnabled = useMutableState(DebugState).enabled
 
   const onClickRespawn = (): void => {
     respawnAvatar(AvatarComponent.getSelfAvatarEntity())
@@ -59,59 +70,68 @@ export default function DebugButtons() {
     getMutableState(RendererState).gridVisibility.set(!getMutableState(RendererState).gridVisibility.value)
   }
 
+  const onClickCloseDebug = () => {
+    debugEnabled.set(false)
+  }
+
   return (
     <div className="m-1 rounded bg-neutral-600 p-1">
       <Text>{t('common:debug.debugOptions')}</Text>
       <div className="flex items-center gap-1">
         <Button
-          size="small"
-          variant={rendererState.physicsDebug.value ? 'secondary' : 'outline'}
-          startIcon={<MdSquareFoot />}
+          size="sm"
+          variant={rendererState.physicsDebug.value ? 'secondary' : 'tertiary'}
           title={t('common:debug.physicsDebug')}
           onClick={toggleDebug}
-        />
+        >
+          <MdSquareFoot />
+        </Button>
         <Button
-          size="small"
-          variant={rendererState.bvhDebug.value ? 'secondary' : 'outline'}
-          startIcon={<MdAllOut />}
+          size="sm"
+          variant={rendererState.bvhDebug.value ? 'secondary' : 'tertiary'}
           title={t('common:debug.bvhDebug')}
           onClick={() => rendererState.bvhDebug.set(!rendererState.bvhDebug.value)}
-        />
+        >
+          <MdAllOut />
+        </Button>
         <Button
-          size="small"
-          variant={rendererState.avatarDebug.value ? 'secondary' : 'outline'}
-          startIcon={<MdPerson />}
+          size="sm"
+          variant={rendererState.avatarDebug.value ? 'secondary' : 'tertiary'}
           title={t('common:debug.avatarDebug')}
           onClick={toggleAvatarDebug}
-        />
+        >
+          <MdPerson />
+        </Button>
         <Button
-          size="small"
-          variant={rendererState.nodeHelperVisibility.value ? 'secondary' : 'outline'}
-          startIcon={<MdSelectAll />}
+          size="sm"
+          variant={rendererState.nodeHelperVisibility.value ? 'secondary' : 'tertiary'}
           title={t('common:debug.nodeHelperDebug')}
           onClick={toggleNodeHelpers}
-        />
+        >
+          <MdSelectAll />
+        </Button>
         <Button
-          size="small"
-          variant={rendererState.gridVisibility.value ? 'secondary' : 'outline'}
-          startIcon={<MdGridOn />}
+          size="sm"
+          variant={rendererState.gridVisibility.value ? 'secondary' : 'tertiary'}
           title={t('common:debug.gridDebug')}
           onClick={toggleGridHelper}
-        />
+        >
+          <MdGridOn />
+        </Button>
         <Button
-          size="small"
-          variant={rendererState.forceBasicMaterials.value ? 'secondary' : 'outline'}
-          startIcon={<MdFormatColorReset />}
+          size="sm"
+          variant={rendererState.forceBasicMaterials.value ? 'secondary' : 'tertiary'}
           title={t('common:debug.forceBasicMaterials')}
           onClick={() => rendererState.forceBasicMaterials.set(!rendererState.forceBasicMaterials.value)}
-        />
-        <Button
-          size="small"
-          variant="outline"
-          startIcon={<MdRefresh />}
-          title={t('common:debug.respawn')}
-          onClick={onClickRespawn}
-        />
+        >
+          <MdFormatColorReset />
+        </Button>
+        <Button size="sm" variant="tertiary" title={t('common:debug.respawn')} onClick={onClickRespawn}>
+          <MdRefresh />
+        </Button>
+        <Button size="sm" variant="tertiary" title={t('common:debug.close')} onClick={onClickCloseDebug}>
+          <MdClose />
+        </Button>
       </div>
     </div>
   )

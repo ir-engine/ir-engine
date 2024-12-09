@@ -31,9 +31,8 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import { channelPath, ChannelType } from '@ir-engine/common/src/schema.type.module'
 import { State } from '@ir-engine/hyperflux'
-import { Checkbox } from '@ir-engine/ui'
+import { Button, Checkbox } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import { validate as isValidUUID } from 'uuid'
 
 import { channelColumns, ChannelRowType } from '../../common/constants/channel'
@@ -93,16 +92,15 @@ export default function ChannelTable({
       action: (
         <div className="flex items-center justify-start gap-3">
           <Button
-            rounded="full"
-            variant="outline"
+            variant="tertiary"
             className="h-8 w-8"
             title={t('admin:components.common.view')}
             onClick={() => PopoverState.showPopupover(<AddEditChannelModal channel={row} />)}
-            startIcon={<HiPencil className="place-self-center text-theme-iconGreen" />}
-          />
+          >
+            <HiPencil className="text-theme-iconGreen" />
+          </Button>
           <Button
-            rounded="full"
-            variant="outline"
+            variant="tertiary"
             className="h-8 w-8"
             title={t('admin:components.common.delete')}
             onClick={() =>
@@ -115,8 +113,9 @@ export default function ChannelTable({
                 />
               )
             }
-            startIcon={<HiTrash className="place-self-center text-theme-iconRed" />}
-          />
+          >
+            <HiTrash className="text-theme-iconRed" />
+          </Button>
         </div>
       )
     }))

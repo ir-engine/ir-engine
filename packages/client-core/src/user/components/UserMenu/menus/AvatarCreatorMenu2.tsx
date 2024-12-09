@@ -32,8 +32,7 @@ import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@ir-engine/common/src/constan
 
 import multiLogger from '@ir-engine/common/src/logger'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button, Input } from '@ir-engine/ui'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -229,12 +228,12 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
           <div className="flex h-full w-full flex-1 flex-col">
             <div className="grid h-14 w-full grid-cols-[2rem,1fr,2rem] border-b border-b-theme-primary px-8">
               <Button
-                fullWidth={false}
                 data-testid="edit-avatar-button"
                 className=" h-6 w-6 self-center bg-transparent"
-                startIcon={<IoArrowBackOutline size={16} />}
                 onClick={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect2)}
-              />
+              >
+                <IoArrowBackOutline size={16} />
+              </Button>
               <Text className="col-start-2  place-self-center self-center">
                 {loading.value !== LoadingState.Uploading
                   ? t('user:avatar.titleCustomizeAvatar')

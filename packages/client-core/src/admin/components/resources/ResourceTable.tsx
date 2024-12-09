@@ -30,9 +30,9 @@ import { HiEye, HiTrash } from 'react-icons/hi2'
 import { useFind, useSearch } from '@ir-engine/common'
 import { StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 
 import { API } from '@ir-engine/common'
+import { Button } from '@ir-engine/ui'
 import { PopoverState } from '../../../common/services/PopoverState'
 import DataTable from '../../common/Table'
 import { resourceColumns } from '../../common/constants/resources'
@@ -74,13 +74,11 @@ export default function ResourceTable({ search }: { search: string }) {
             onClick={() => {
               PopoverState.showPopupover(<AddEditResourceModal selectedResource={el} />)
             }}
-            rounded="full"
             className="h-8 w-8 justify-center border border-theme-primary bg-transparent p-0"
           >
-            <HiEye className="place-self-center text-theme-primary" />
+            <HiEye className="text-theme-primary" />
           </Button>
           <Button
-            rounded="full"
             className="h-8 w-8 justify-center border border-theme-primary bg-transparent p-0"
             onClick={() => {
               PopoverState.showPopupover(
@@ -93,7 +91,7 @@ export default function ResourceTable({ search }: { search: string }) {
               )
             }}
           >
-            <HiTrash className="place-self-center text-theme-iconRed" />
+            <HiTrash className="text-theme-iconRed" />
           </Button>
         </div>
       )

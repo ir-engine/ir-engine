@@ -26,10 +26,9 @@ import { useMutation } from '@ir-engine/common'
 import { podsPath, ServerPodInfoType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Tooltip } from '@ir-engine/ui'
+import { Button, Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import Badge from '@ir-engine/ui/src/primitives/tailwind/Badge'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 
 import { PopoverState } from '../../../common/services/PopoverState'
 import { serverColumns, ServerRowType } from '../../common/constants/server'
@@ -98,7 +97,7 @@ export default function ServerTable({
       action: (
         <div className="flex items-center gap-5">
           <Button
-            size="small"
+            size="sm"
             variant="primary"
             onClick={() => {
               PopoverState.showPopupover(
@@ -109,8 +108,7 @@ export default function ServerTable({
             {t('admin:components.server.viewLogs')}
           </Button>
           <Button
-            rounded="full"
-            variant="outline"
+            variant="tertiary"
             className="h-8 w-8"
             onClick={() => {
               PopoverState.showPopupover(

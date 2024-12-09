@@ -28,8 +28,7 @@ import { useTranslation } from 'react-i18next'
 import { HiMagnifyingGlass } from 'react-icons/hi2'
 
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button, Input } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 import { PopoverState } from '../../../common/services/PopoverState'
@@ -68,7 +67,7 @@ export default function Instances() {
           />
           <div>
             <Button
-              size="small"
+              size="sm"
               fullWidth
               onClick={() => {
                 PopoverState.showPopupover(<PatchServerModal />)

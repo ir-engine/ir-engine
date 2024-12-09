@@ -32,12 +32,12 @@ import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices
 import { GLTFNodeState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { NO_PROXY, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { Button } from '@ir-engine/ui'
 import TransformPropertyGroup from '@ir-engine/ui/src/components/editor/properties/transform'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { PlusCircleSm } from '@ir-engine/ui/src/icons'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiOutlinePlusCircle } from 'react-icons/hi'
 import ElementList from './elementlist'
 import MaterialEditor from './materialeditor'
 
@@ -97,13 +97,12 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
           onClose={() => setIsAddComponentMenuOpen(false)}
           trigger={
             <Button
-              startIcon={<HiOutlinePlusCircle />}
-              variant="transparent"
-              rounded="none"
+              variant="secondary"
               className="ml-auto w-40 bg-[#212226] px-2"
-              size="small"
+              size="sm"
               onClick={() => setIsAddComponentMenuOpen(true)}
             >
+              <PlusCircleSm />
               {t('editor:properties.lbl-addComponent')}
             </Button>
           }
