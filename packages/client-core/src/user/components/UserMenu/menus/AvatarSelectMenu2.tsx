@@ -38,8 +38,7 @@ import { useTranslation } from 'react-i18next'
 
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { Input } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button, Input } from '@ir-engine/ui'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -62,6 +61,7 @@ const AvatarMenu2 = () => {
   const selfAvatarLoaded = useOptionalComponent(selfAvatarEntity, GLTFComponent)?.progress?.value === 100
 
   const [createAvatarEnabled] = useFeatureFlags([FeatureFlags.Client.Menu.CreateAvatar])
+  const [uploadAvatarEnabled] = useFeatureFlags([FeatureFlags.Client.Menu.UploadAvatar])
 
   const page = useHookstate(0)
   const selectedAvatarId = useHookstate('' as AvatarID)
@@ -140,12 +140,12 @@ const AvatarMenu2 = () => {
               <Text className="col-start-2  place-self-center self-center">{t('user:avatar.titleSelectAvatar')}</Text>
             </div>
             <div className="grid h-full max-h-[calc(95vh-7rem)] w-full flex-1 grid-cols-[60%,40%] gap-6 px-10 py-2">
-              <div className="relative max-h-[calc(95vh-8rem)] rounded-lg bg-gradient-to-b from-[#162941] to-[#114352]">
+              <div className="relative h-full min-h-0 min-w-0 rounded-lg bg-gradient-to-b from-[#162941] to-[#114352]">
                 <div className="stars absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent"></div>
                 <AvatarPreview fill avatarUrl={currentAvatar?.modelResource?.url} />
               </div>
-              <div className="grid h-full w-full grid-flow-row grid-rows-[3rem,1fr]">
-                <div className="flex max-h-6  gap-2">
+              <div className="grid h-full min-h-0 w-full min-w-0 grid-flow-row grid-rows-[3rem,1fr]">
+                <div className="flex max-h-6 gap-2">
                   <Input
                     fullWidth
                     data-test-id="search-avatar-input"
@@ -163,15 +163,24 @@ const AvatarMenu2 = () => {
                       }, 100)
                     }}
                   />
-                  <Button
-                    rounded="partial"
-                    className="ml-auto h-8 w-fit min-w-[30%] px-2 text-sm font-normal"
-                    variant="secondary"
-                    hidden={!createAvatarEnabled}
-                    onClick={() => PopupMenuServices.showPopupMenu(UserMenus.ReadyPlayer)}
-                  >
-                    {t('user:avatar.createAvatar')}
-                  </Button>
+                  {createAvatarEnabled && (
+                    <Button
+                      className="min-w-[8rem] rounded-md text-sm font-normal"
+                      variant="secondary"
+                      onClick={() => PopupMenuServices.showPopupMenu(UserMenus.ReadyPlayer)}
+                    >
+                      {t('user:avatar.createAvatar')}
+                    </Button>
+                  )}
+                  {uploadAvatarEnabled && (
+                    <Button
+                      className="min-w-[8rem] rounded-md text-sm font-normal"
+                      variant="secondary"
+                      onClick={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarModify)}
+                    >
+                      {t('user:avatar.uploadAvatar')}
+                    </Button>
+                  )}
                 </div>
                 <div className="max-h-[calc(95vh-11rem)] overflow-y-auto pb-6 pr-2">
                   <div className="grid grid-cols-1 gap-2">
@@ -217,11 +226,11 @@ const AvatarMenu2 = () => {
               <Button
                 data-testid="select-avatar-button"
                 disabled={userAvatarId === selectedAvatarId.value}
-                endIcon={avatarLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
                 onClick={handleConfirmAvatar}
                 className="ml-2 w-fit place-self-center text-sm"
               >
                 {t('user:avatar.finishEditing')}
+                {avatarLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
               </Button>
             </div>
           </div>

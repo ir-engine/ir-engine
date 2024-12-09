@@ -138,7 +138,7 @@ export const MediasoupTransportState = defineState({
       state[networkID].merge({
         [action.transportID]: {
           /** Mediasoup is always client-server, so the peerID is always the host for clients */
-          peerID: isClient ? network.hostPeerID : action.peerID,
+          peerID: isClient ? network.hostPeerID! : action.peerID,
           transportID: action.transportID,
           direction: action.direction,
           connected: false,
@@ -165,12 +165,12 @@ export const MediasoupTransportState = defineState({
       if (!state[network].keys.length) state[network].set(none)
     }),
 
-    onUpdatePeers: NetworkActions.updatePeers.receive((action) => {
+    onUpdatePeers: NetworkActions.peerLeft.receive((action) => {
       const state = getState(MediasoupTransportState)
       const transports = state[action.$network]
       if (!transports) return
       for (const transport of Object.values(transports)) {
-        if (action.peers.find((peer) => peer.peerID === transport.peerID)) continue
+        if (action.peerID === transport.peerID) continue
         console.log('Transport peer not found:', transport.peerID)
         getMutableState(MediasoupTransportState)[action.$network][transport.transportID].set(none)
       }

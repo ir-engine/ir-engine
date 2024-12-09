@@ -39,7 +39,7 @@ import ECS, {
   useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
-import { matches, PeerID, UserID, Validator } from '@ir-engine/hyperflux'
+import { PeerID, UserID } from '@ir-engine/hyperflux'
 import { NetworkId } from '@ir-engine/network/src/NetworkId'
 import { ProxyWithECS } from '@ir-engine/spatial/src/common/proxies/ECSSchemaProxy'
 
@@ -80,7 +80,7 @@ export const NetworkObjectComponent = defineComponent({
     }, [networkObject.authorityPeerID])
 
     useLayoutEffect(() => {
-      if (networkObject.ownerId.value === Engine.instance.userID) setComponent(entity, NetworkObjectOwnedTag)
+      if (networkObject.ownerId.value === Engine.instance.store.userID) setComponent(entity, NetworkObjectOwnedTag)
       else removeComponent(entity, NetworkObjectOwnedTag)
     }, [networkObject.ownerId])
 
@@ -156,5 +156,3 @@ export const NetworkObjectAuthorityTag = defineComponent({ name: 'NetworkObjectA
 export const NetworkObjectOwnedTag = defineComponent({ name: 'NetworkObjectOwnedTag' })
 
 export const NetworkObjectSendPeriodicUpdatesTag = defineComponent({ name: 'NetworkObjectSendPeriodicUpdatesTag' })
-
-export const matchesNetworkId = matches.number as Validator<unknown, NetworkId>

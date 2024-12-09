@@ -31,10 +31,9 @@ import { useFind, useMutation } from '@ir-engine/common'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { engineSettingPath, helmVersionPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { Button, Select } from '@ir-engine/ui'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
@@ -172,18 +171,12 @@ const HelmTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefOb
         />
 
         <div className="col-span-1 mt-6 grid grid-cols-4 gap-6">
-          <Button size="small" className="text-primary col-span-1 bg-theme-highlight" onClick={handleCancel} fullWidth>
+          <Button size="sm" className="text-primary col-span-1 bg-theme-highlight" onClick={handleCancel} fullWidth>
             {t('admin:components.common.reset')}
           </Button>
 
-          <Button
-            size="small"
-            variant="primary"
-            className="col-span-1"
-            onClick={handleSubmit}
-            startIcon={state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
-            fullWidth
-          >
+          <Button size="sm" variant="primary" className="col-span-1" onClick={handleSubmit} fullWidth>
+            {state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
             {t('admin:components.common.save')}
           </Button>
         </div>

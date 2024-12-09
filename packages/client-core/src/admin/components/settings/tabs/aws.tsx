@@ -30,9 +30,8 @@ import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 import { useFind, useMutation } from '@ir-engine/common'
 import { AwsCloudFrontType, AwsSmsType, awsSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
+import { Button, Input } from '@ir-engine/ui'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 const SMS_PROPERTIES = {
@@ -299,10 +298,10 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
       </div>
 
       <div className="grid grid-cols-8 gap-6">
-        <Button size="small" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
+        <Button size="sm" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
           {t('admin:components.common.reset')}
         </Button>
-        <Button size="small" variant="primary" className="col-span-1" fullWidth onClick={handleSubmit}>
+        <Button size="sm" variant="primary" className="col-span-1" fullWidth onClick={handleSubmit}>
           {t('admin:components.common.save')}
         </Button>
       </div>

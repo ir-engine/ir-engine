@@ -25,8 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
-import Button from '@ir-engine/ui/src/primitives/mui/Button'
-
+import Button from '../../tailwind/Button'
 import Component from './index'
 
 const argTypes = {}

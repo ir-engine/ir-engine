@@ -77,7 +77,7 @@ function PasteFileButton({
             oldName: clipboardFile.fullName,
             newName: clipboardFile.fullName,
             oldPath: clipboardFile.path,
-            newPath: (newPath ?? currentDirectory) + clipboardFile.fullName,
+            newPath: newPath ?? currentDirectory,
             isCopy: filesState.clipboardFiles.isCopy.value
           })
         }

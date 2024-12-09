@@ -109,15 +109,16 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
             onChange={commitProperty(VariantComponent, 'heuristic')}
             options={[
               { value: Heuristic.DISTANCE, label: t('editor:properties.variant.heuristic-distance') },
-              { value: Heuristic.MANUAL, label: t('editor:properties.variant.heuristic-manual') },
-              { value: Heuristic.DEVICE, label: t('editor:properties.variant.heuristic-device') }
+              { value: Heuristic.MANUAL, label: t('editor:properties.variant.heuristic-manual') }
+              /** @todo device heuristic not currently enabled */
+              // { value: Heuristic.DEVICE, label: t('editor:properties.variant.heuristic-device') }
             ]}
           />
         </InputGroup>
         <div className="flex flex-1 justify-center align-middle">
           <Button
-            variant="outline"
-            size="small"
+            variant="tertiary"
+            size="sm"
             onClick={() =>
               commitProperties(
                 VariantComponent,
@@ -179,8 +180,8 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
                 )}
                 <div className="flex flex-1 justify-center align-middle">
                   <Button
-                    variant="outline"
-                    size="small"
+                    variant="tertiary"
+                    size="sm"
                     onClick={() =>
                       commitProperties(VariantComponent, {
                         levels: JSON.parse(JSON.stringify(variantComponent.levels.value.filter((_, i) => i !== index)))

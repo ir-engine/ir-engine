@@ -52,6 +52,7 @@ import { smootheLerpAlpha } from '@ir-engine/spatial/src/common/functions/MathLe
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
@@ -64,6 +65,7 @@ const _vec3 = new Vector3()
 
 function getSelfAvatarHeadPosition(selfAvatarEntity: Entity, vec3: Vector3): void {
   const selfAvatarRigidBodyComponent = getComponent(selfAvatarEntity, RigidBodyComponent)
+  if (!selfAvatarRigidBodyComponent) return
   const avatar = getComponent(selfAvatarEntity, AvatarComponent)
   vec3.copy(selfAvatarRigidBodyComponent.position)
   vec3.y += avatar.avatarHeight
@@ -72,7 +74,7 @@ function getSelfAvatarHeadPosition(selfAvatarEntity: Entity, vec3: Vector3): voi
 export const XruiNameplateComponent = defineComponent({
   name: 'XruiNameplateComponent',
   schema: S.Object({
-    uiEntity: S.Entity(),
+    uiEntity: T.Entity(),
     nameLabel: S.String('')
   }),
 

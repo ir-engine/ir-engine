@@ -23,20 +23,43 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { DirectionalLight, SpotLight, Vector3 } from 'three'
+import type { Knex } from 'knex'
 
-import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
-import { TransformSystem } from '../../transform/systems/TransformSystem'
+const instanceAttendanceTable = 'instance-attendance'
 
-const _vec3 = new Vector3()
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-export const useUpdateLight = (light: DirectionalLight | SpotLight) => {
-  useExecute(
-    () => {
-      light.getWorldDirection(_vec3)
-      light.getWorldPosition(light.target.position).add(_vec3)
-      light.target.updateMatrixWorld()
-    },
-    { after: TransformSystem }
-  )
+  const peerIDColumnExists = await knex.schema.hasColumn(instanceAttendanceTable, 'peerId')
+
+  if (peerIDColumnExists === false) {
+    await knex.schema.alterTable(instanceAttendanceTable, (table) => {
+      table.string('peerId', 255)
+      table.integer('peerIndex')
+    })
+  }
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const projectColumnExists = await knex.schema.hasColumn(instanceAttendanceTable, 'peerId')
+
+  if (projectColumnExists === true) {
+    await knex.schema.alterTable(instanceAttendanceTable, (table) => {
+      table.dropColumn('peerId')
+      table.dropColumn('peerIndex')
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }

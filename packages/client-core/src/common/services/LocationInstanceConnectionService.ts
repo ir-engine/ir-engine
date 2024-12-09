@@ -43,10 +43,11 @@ import { SocketWebRTCClientNetwork } from '../../transports/mediasoup/MediasoupC
 import { AuthState } from '../../user/services/AuthService'
 
 export type InstanceState = {
-  ipAddress: string
-  port: string
-  locationId?: LocationID
-  sceneId?: string
+  ipAddress?: string
+  port?: string
+  p2p?: boolean
+  locationId: LocationID
+  sceneId: string
   roomCode: RoomCode
 }
 
@@ -81,7 +82,7 @@ export const LocationInstanceConnectionService = {
     roomCode?: RoomCode,
     createPrivateRoom?: boolean
   ) => {
-    logger.info({ locationId, instanceId, sceneId }, 'Provision World Server')
+    logger.info({ locationId, instanceId, sceneId, roomCode }, 'Provision World Server')
     const token = getState(AuthState).authUser.accessToken
     if (instanceId != null) {
       const instance = (await API.instance.service(instancePath).find({
@@ -112,62 +113,22 @@ export const LocationInstanceConnectionService = {
         createPrivateRoom
       }
     })
-    if (provisionResult.ipAddress && provisionResult.port) {
+    if (provisionResult.p2p || (provisionResult.ipAddress && provisionResult.port)) {
       getMutableState(LocationInstanceState).instances.merge({
         [provisionResult.id]: {
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
+          p2p: provisionResult.p2p,
           locationId: locationId!,
           sceneId: sceneId!,
-          roomCode: provisionResult.roomCode as RoomCode
+          roomCode: provisionResult.roomCode
         }
-      } as Partial<{ [id: InstanceID]: InstanceState }>)
+      })
     } else {
       logger.error('Failed to connect to expected instance')
       setTimeout(() => {
         LocationInstanceConnectionService.provisionServer(locationId, instanceId, sceneId, roomCode, createPrivateRoom)
       }, 1000)
-    }
-  },
-  provisionExistingServer: async (locationId: LocationID, instanceId: InstanceID, sceneId: string) => {
-    logger.info({ locationId, instanceId, sceneId }, 'Provision Existing World Server')
-    const token = getState(AuthState).authUser.accessToken
-    const instance = (await API.instance.service(instancePath).find({
-      query: {
-        id: instanceId,
-        ended: false
-      }
-    })) as Paginated<InstanceType>
-    if (instance.total === 0) {
-      const parsed = new URL(window.location.href)
-      const query = parsed.searchParams
-      query.delete('instanceId')
-      parsed.search = query.toString()
-      if (typeof history.pushState !== 'undefined') {
-        window.history.replaceState({}, '', parsed.toString())
-      }
-      return
-    }
-    const provisionResult = await API.instance.service(instanceProvisionPath).find({
-      query: {
-        locationId,
-        instanceId,
-        sceneId,
-        token
-      }
-    })
-    if (provisionResult.ipAddress && provisionResult.port) {
-      getMutableState(LocationInstanceState).instances.merge({
-        [provisionResult.id]: {
-          ipAddress: provisionResult.ipAddress,
-          port: provisionResult.port,
-          locationId: locationId!,
-          sceneId: sceneId!,
-          roomCode: provisionResult.roomCode as RoomCode
-        }
-      } as Partial<{ [id: InstanceID]: InstanceState }>)
-    } else {
-      console.warn('Failed to connect to expected existing instance')
     }
   },
   provisionExistingServerByRoomCode: async (locationId: LocationID, roomCode: RoomCode, sceneId: string) => {
@@ -187,7 +148,6 @@ export const LocationInstanceConnectionService = {
       if (typeof history.pushState !== 'undefined') {
         window.history.replaceState({}, '', parsed.toString())
       }
-      return
     }
     const provisionResult = await API.instance.service(instanceProvisionPath).find({
       query: {

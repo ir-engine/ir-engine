@@ -65,8 +65,6 @@ export const userSchema = Type.Object(
     acceptedTOS: Type.Boolean(),
     isGuest: Type.Boolean(),
     inviteCode: Type.Optional(TypedString<InviteCode>()),
-    // avatarId: TypedString<AvatarID>(),
-    // avatar: Type.Ref(avatarDataSchema),
     lastLogin: Type.Optional(Type.Ref(userLoginSchema)),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })

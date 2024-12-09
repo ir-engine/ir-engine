@@ -30,10 +30,9 @@ import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 import { useFind, useMutation } from '@ir-engine/common'
 import { emailSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
+import { Button, Input } from '@ir-engine/ui'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
@@ -249,18 +248,12 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
         )}
 
         <div className="col-span-1 grid grid-cols-4 gap-6">
-          <Button size="small" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
+          <Button size="sm" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
             {t('admin:components.common.reset')}
           </Button>
-          <Button
-            size="small"
-            variant="primary"
-            className="col-span-1"
-            fullWidth
-            onClick={handleSubmit}
-            startIcon={state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
-          >
+          <Button size="sm" variant="primary" className="col-span-1" fullWidth onClick={handleSubmit}>
             {t('admin:components.common.save')}
+            {state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
           </Button>
         </div>
       </div>

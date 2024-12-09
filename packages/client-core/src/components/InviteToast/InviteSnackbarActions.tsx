@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { InviteType } from '@ir-engine/common/src/schema.type.module'
 import { useMutableState } from '@ir-engine/hyperflux'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button } from '@ir-engine/ui'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { InviteService, InviteState } from '../../social/services/InviteService'
@@ -51,10 +51,10 @@ const InviteSnackbarActions = ({ closeSnackbar }: Props) => {
 
   return (
     <div className="flex gap-2">
-      <Button onClick={handleDecline} size="small" variant="outline" className="cursor-pointer">
+      <Button onClick={handleDecline} size="sm" variant="tertiary" className="cursor-pointer">
         {t('social:invite.decline')}
       </Button>
-      <Button onClick={handleAccept} size="small" variant="primary" className="cursor-pointer">
+      <Button onClick={handleAccept} size="sm" variant="primary" className="cursor-pointer">
         {t('social:invite.accept')}
       </Button>
     </div>

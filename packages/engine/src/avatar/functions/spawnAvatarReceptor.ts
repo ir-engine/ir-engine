@@ -53,7 +53,7 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
-import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
+import { GrabberComponent } from '../../grabbable/GrabbableComponent'
 import { EnvmapComponent } from '../../scene/components/EnvmapComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { EnvMapSourceType } from '../../scene/constants/EnvMapEnum'
