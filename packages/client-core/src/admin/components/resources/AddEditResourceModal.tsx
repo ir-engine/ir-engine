@@ -36,8 +36,7 @@ import {
   MimeTypeToAssetType
 } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Input, RadioGroup } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button, Input, RadioGroup } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 
 import { NotificationService } from '../../../common/services/NotificationService'

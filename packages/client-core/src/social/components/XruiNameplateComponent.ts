@@ -52,6 +52,7 @@ import { smootheLerpAlpha } from '@ir-engine/spatial/src/common/functions/MathLe
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
@@ -64,16 +65,17 @@ const xrDistVec3 = new Vector3()
 
 function updateXrDistVec3(selfAvatarEntity: Entity): void {
   //TODO change from using rigidbody to use the transform position (+ height of avatar)
-  const selfAvatarRigidBodyComponent = getComponent(selfAvatarEntity, RigidBodyComponent)
+  const selfAvatarRigidBodyComponent = getOptionalComponent(selfAvatarEntity, RigidBodyComponent)
   const avatar = getComponent(selfAvatarEntity, AvatarComponent)
-  xrDistVec3.copy(selfAvatarRigidBodyComponent.position)
+  if (!selfAvatarRigidBodyComponent) return
+  xrDistVec3.copy(selfAvatarRigidBodyComponent!.position)
   xrDistVec3.y += avatar.avatarHeight
 }
 
 export const XruiNameplateComponent = defineComponent({
   name: 'XruiNameplateComponent',
   schema: S.Object({
-    uiEntity: S.Entity(),
+    uiEntity: T.Entity(),
     nameLabel: S.String('')
   }),
 

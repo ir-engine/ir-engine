@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { defineComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { T } from '../../schema/schemaFunctions'
 
 export const TriggerComponent = defineComponent({
   name: 'TriggerComponent',
@@ -36,15 +37,15 @@ export const TriggerComponent = defineComponent({
         /**
          * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
          */
-        onEnter: S.Nullable(S.String()),
+        onEnter: S.String(),
         /**
          * The function to call on the CallbackComponent of the targetEntity when the trigger volume is exited.
          */
-        onExit: S.Nullable(S.String()),
+        onExit: S.String(),
         /**
          * empty string represents self
          */
-        target: S.Nullable(S.EntityUUID())
+        target: T.EntityUUID()
       })
     )
   })

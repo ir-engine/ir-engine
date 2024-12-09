@@ -98,22 +98,20 @@ const TriggerProperties: EditorComponentType = (props) => {
         {!hasRigidbody && (
           <Button
             title={t('editor:properties.triggerVolume.lbl-addRigidBody')}
-            startIcon={<HiPlus />}
             className="text-sm text-[#FFFFFF]"
             onClick={() => {
               const nodes = SelectionState.getSelectedEntities()
               EditorControlFunctions.addOrRemoveComponent(nodes, RigidBodyComponent, true, { type: 'fixed' })
             }}
           >
+            <HiPlus />
             {t('editor:properties.triggerVolume.lbl-addRigidBody')}
           </Button>
         )}
       </div>
       <div className="my-3 flex justify-end">
-        <Button
-          variant="transparent"
+        <button
           title={t('editor:properties.triggerVolume.lbl-addTrigger')}
-          startIcon={<HiPlus />}
           className="text-sm text-[#8B8B8D]"
           onClick={() => {
             const triggers = [
@@ -126,24 +124,26 @@ const TriggerProperties: EditorComponentType = (props) => {
             ]
             commitProperties(TriggerComponent, { triggers: JSON.parse(JSON.stringify(triggers)) }, [props.entity])
           }}
-        />
+        >
+          <HiPlus />
+        </button>
       </div>
       {triggerComponent.triggers.map((trigger, index) => {
         const targetOption = targets.value.find((o) => o.value === trigger.target.value)
         const target = targetOption ? targetOption.value : ''
         return (
           <div className="-ml-4 h-[calc(100%+1.5rem)] w-[calc(100%+2rem)] bg-[#1A1A1A] pb-1.5">
-            <Button
-              variant="transparent"
+            <button
               title={t('editor:properties.triggerVolume.lbl-removeTrigger')}
-              startIcon={<HiTrash />}
               className="ml-auto text-sm text-[#8B8B8D]"
               onClick={() => {
                 const triggers = [...triggerComponent.triggers.value]
                 triggers.splice(index, 1)
                 commitProperties(TriggerComponent, { triggers: JSON.parse(JSON.stringify(triggers)) }, [props.entity])
               }}
-            />
+            >
+              <HiTrash />
+            </button>
             <InputGroup
               name="Target"
               label={t('editor:properties.triggerVolume.lbl-target')}

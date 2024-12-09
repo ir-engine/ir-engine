@@ -39,11 +39,10 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { toDateTimeSql, toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { Input, RadioGroup } from '@ir-engine/ui'
+import { Button, Input, RadioGroup, Select } from '@ir-engine/ui'
 import Label from '@ir-engine/ui/src/primitives/tailwind/Label'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 
@@ -441,14 +440,18 @@ export default function AddEditProjectModal({
               onChange={handleChangeSource}
               onBlur={handleChangeSourceRepo}
               endComponent={
-                <button
+                <Button
+                  title={t('admin:components.project.copyDestination')}
+                  variant="tertiary"
+                  size="sm"
+                  className="p-3 [&>*]:m-0"
                   onClick={() => {
                     handleChangeSource({ target: { value: projectUpdateStatus.value.destinationURL } })
                     handleChangeSourceRepo({ target: { value: projectUpdateStatus.value.destinationURL } })
                   }}
                 >
                   <Copy03Md />
-                </button>
+                </Button>
               }
               fullWidth
             />

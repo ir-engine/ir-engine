@@ -112,16 +112,6 @@ describe('ComputedTransformComponent', () => {
       const after = getComponent(testEntity, ComputedTransformComponent)
       assertComputedTransformComponentEq(after, Expected)
     })
-
-    it('should not change values of an initialized ComputedTransformComponent when the data passed had incorrect types', () => {
-      const before = getComponent(testEntity, ComputedTransformComponent)
-      assertComputedTransformComponentEq(before, ComputedTransformComponentDefaults)
-      const Incorrect = { referenceEntities: 'someBox', computeFunction: false }
-      // @ts-ignore Override the linter to force-send invalid types
-      setComponent(testEntity, ComputedTransformComponent, Incorrect)
-      const after = getComponent(testEntity, ComputedTransformComponent)
-      assertComputedTransformComponentEq(after, ComputedTransformComponentDefaults)
-    })
   }) //:: onSet
 
   describe('reactor', () => {

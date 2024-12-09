@@ -33,8 +33,8 @@ import {
   SelectedFilesState
 } from '@ir-engine/editor/src/services/FilesState'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { Tooltip } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { MouseEventHandler, useEffect } from 'react'
 import { ConnectDragSource, ConnectDropTarget, useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'

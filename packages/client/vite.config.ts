@@ -268,7 +268,10 @@ export default defineConfig(async () => {
     }
   }
 
-  const define = { __IR_ENGINE_VERSION__: JSON.stringify(packageJson.version) }
+  const define = {
+    __IR_ENGINE_VERSION__: JSON.stringify(packageJson.version),
+    'globalThis.process.env': {}
+  }
   for (const [key, value] of Object.entries(process.env)) {
     define[`globalThis.process.env.${key}`] = JSON.stringify(value)
   }

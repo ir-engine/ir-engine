@@ -25,14 +25,22 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { FilesViewModeSettings } from '@ir-engine/editor/src/services/FilesState'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import EditorDropdownItem from '@ir-engine/ui/src/components/editor/DropdownItem'
 import React, { ReactNode } from 'react'
 import { HiDotsVertical } from 'react-icons/hi'
-import { IoIosArrowDown, IoIosArrowForward } from 'react-icons/io'
 import { twMerge } from 'tailwind-merge'
 import { getParentCategories } from './helpers'
 import { useAssetsCategory, useAssetsQuery } from './hooks'
 import { AssetIconMap } from './icons'
+
+const depthPaddingMap = {
+  0: 'pl-0',
+  1: 'pl-2',
+  2: 'pl-4',
+  3: 'pl-8',
+  4: 'pl-16',
+  5: 'pl-32'
+}
 
 function AssetCategory({ index }: { index: number }) {
   const { categories, currentCategoryPath, expandedCategories } = useAssetsCategory()
@@ -49,51 +57,14 @@ function AssetCategory({ index }: { index: number }) {
   }
 
   return (
-    <div
-      className={twMerge(
-        'rounded-md bg-[#141619]',
-        selectedCategory?.name === category.name && 'text-primary bg-[#191B1F]',
-        category.depth === 0 ? 'min-h-9' : 'min-h-7'
-      )}
-      style={{
-        height: `${fontSize}px`,
-        fontSize: `${fontSize}px`
-      }}
-    >
-      <div
-        className={twMerge(
-          'flex h-full w-full cursor-pointer items-center gap-2 overflow-hidden text-[#B2B5BD]',
-          category.depth === 0 && !category.collapsed && 'mt-0'
-        )}
-        style={{
-          marginLeft: category.depth > 0 ? category.depth * 16 : 0
-        }}
-        data-testid={category.depth > 0 ? `assets-panel-subcategory-level-${category.depth}` : 'assets-panel-category'}
-        onClick={handleClickCategory}
-      >
-        <Button
-          variant="transparent"
-          className={twMerge('m-0 p-0', category.isLeaf && 'invisible cursor-auto')}
-          title={category.collapsed ? 'expand' : 'collapse'}
-          startIcon={category.collapsed ? <IoIosArrowForward /> : <IoIosArrowDown />}
-          iconContainerClassName="ml-2"
-          data-testid={
-            category.collapsed ? 'assets-panel-category-expand-button' : 'assets-panel-category-collapse-button'
-          }
-        />
-        <AssetIconMap name={category.name} />
-        <div className="flex w-full items-center gap-1 text-nowrap pr-2" data-testid="assets-panel-category-name">
-          <span
-            className={twMerge(
-              "flex flex-row items-center gap-2 text-nowrap font-['Figtree'] text-[#e7e7e7]",
-              selectedCategory?.name === category.name && 'text-[#F5F5F5]'
-            )}
-          >
-            {category.name}
-          </span>
-        </div>
-      </div>
-    </div>
+    <EditorDropdownItem
+      label={category.name}
+      ItemIcon={AssetIconMap[category.name]}
+      selected={selectedCategory?.name === category.name}
+      collapsed={category.collapsed}
+      onClick={handleClickCategory}
+      className={depthPaddingMap[category.depth]}
+    />
   )
 }
 

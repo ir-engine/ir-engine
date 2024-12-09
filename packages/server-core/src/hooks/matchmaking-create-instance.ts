@@ -85,7 +85,6 @@ export default (): Hook => {
       if (existingInstance.total === 0) {
         const newInstance = {
           ipAddress: `${freeInstance.ipAddress}:${freeInstance.port}`,
-          currentUsers: 0,
           locationId: location.data[0].id,
           assigned: true,
           assignedAt: toDateTimeSql(new Date()),

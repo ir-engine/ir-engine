@@ -29,7 +29,7 @@ import { Background, BackgroundVariant, NodeToolbar, Panel, Position, ReactFlow 
 
 import { useVisualScriptRunner } from '@ir-engine/engine/src/visualscript/systems/useVisualScriptRunner'
 import { useHookstate } from '@ir-engine/hyperflux'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button } from '@ir-engine/ui'
 import { GraphJSON, IRegistry } from '@ir-engine/visual-script'
 import CustomControls from './controls'
 import {
@@ -201,7 +201,7 @@ export const Flow: React.FC<FlowProps> = ({
         position={Position.Top}
       >
         <Button
-          variant="outline"
+          variant="tertiary"
           onClick={() => {
             handleAddTemplate()
           }}

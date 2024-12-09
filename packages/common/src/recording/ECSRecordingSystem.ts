@@ -65,12 +65,11 @@ import {
   DataChannelType,
   matchesUserID,
   Network,
-  NetworkPeerFunctions,
+  NetworkActions,
   NetworkState,
   NetworkTopics,
   removeDataChannelHandler,
   SerializationSchema,
-  updatePeers,
   webcamAudioDataChannelType,
   webcamVideoDataChannelType,
   WorldNetworkAction
@@ -628,18 +627,18 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
               const peerIDs = Object.keys(schema.peers) as PeerID[]
 
               // todo, this is a hack
-              for (const peerID of peerIDs) {
-                if (network.peers[peerID]) continue
-                activePlayback.peerIDs!.push(peerID)
-                NetworkPeerFunctions.createPeer(
-                  network,
-                  peerID,
-                  network.peerIndexCount++,
-                  entityID as any as UserID,
-                  network.userIndexCount++
-                )
-                updatePeers(network)
-              }
+              /** @todo rewrite */
+              // for (const peerID of peerIDs) {
+              //   if (network.peers[peerID]) continue
+              //   activePlayback.peerIDs!.push(peerID)
+              //   NetworkPeerFunctions.createPeer(
+              //     network,
+              //     peerID,
+              //     network.peerIndexCount++,
+              //     entityID as any as UserID
+              //   )
+              //   updatePeers(network)
+              // }
             }
 
             if (!UUIDComponent.getEntityByUUID(entityID) && isClone) {
@@ -737,11 +736,17 @@ const playbackStopped = (userId: UserID, recordingID: RecordingID, network?: Net
   if (network) {
     if (activePlayback.peerIDs) {
       for (const peerID of activePlayback.peerIDs) {
-        NetworkPeerFunctions.destroyPeer(network, peerID)
+        dispatchAction(
+          NetworkActions.peerLeft({
+            $cache: true,
+            $topic: network.topic,
+            $network: network.id,
+            peerID,
+            userID: userId
+          })
+        )
       }
     }
-
-    updatePeers(network)
 
     /** If syncing multipile instance servers, only need to dispatch once, so do it on the world server */
     if (network.topic === NetworkTopics.world) {

@@ -44,6 +44,7 @@ const serializeAndSend = (serialize: ReturnType<typeof createDataWriter>) => {
   const ents = networkQuery()
   if (ents.length > 0) {
     const network = NetworkState.worldNetwork as Network
+    if (!network.peers) return
     const peerID = Engine.instance.store.peerID
     const data = serialize(network, peerID, ents)
 
