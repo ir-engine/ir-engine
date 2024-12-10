@@ -107,7 +107,6 @@ export function findProximity(
 
   // @todo need a better way to do this
   const selfAvatarEntity = UUIDComponent.getEntityByUUID((userID + '_avatar') as EntityUUID)
-  if (!selfAvatarEntity) return
 
   // use sourceEid if controller (one InputSource per controller), otherwise use avatar rather than InputSource-emulated-pointer
   const inputSourceEntity = isCameraAttachedToAvatar && isSpatialInput ? sourceEid : selfAvatarEntity
