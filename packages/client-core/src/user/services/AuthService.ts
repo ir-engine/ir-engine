@@ -321,36 +321,6 @@ export const AuthService = {
     try {
       const client = API.instance
       const user = await client.service(userPath).get(userId)
-
-      /** @todo move this to server */
-      // const settingsRes = (await client
-      //   .service(userSettingPath)
-      //   .find({ query: { userId: userId } })) as Paginated<UserSettingType>
-      //   console.log({settingsRes})
-
-      // if (settingsRes.total === 0) {
-      //   await client.service(userSettingPath).create({ userId: userId })
-      // }
-      // const avatar = await client.service(userAvatarPath).find({ query: { userId } })
-      // console.log({avatar})
-      // if (!avatar.data[0]) {
-      //   const avatars = await client.service(avatarPath).find({
-      //     query: {
-      //       isPublic: true
-      //     }
-      //   })
-      //   console.log({avatars})
-
-      //   if (avatars.data.length > 0) {
-      //     const randomReplacementAvatar = avatars.data[Math.floor(Math.random() * avatars.data.length)]
-
-      //     await client
-      //       .service(userAvatarPath)
-      //       .patch(null, { avatarId: randomReplacementAvatar.id }, { query: { userId: userId } })
-      //   } else {
-      //     throw new Error('No avatars found in database')
-      //   }
-      // }
       getMutableState(AuthState).merge({ user })
     } catch (err) {
       NotificationService.dispatchNotify(i18n.t('common:error.loading-error').toString(), { variant: 'error' })
