@@ -30,7 +30,6 @@ import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/Obje
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useDisposable } from '../../resources/resourceHooks'
-import { T } from '../../schema/schemaFunctions'
 import { useHelperEntity } from './DebugComponentUtils'
 
 export const AxesHelperComponent = defineComponent({
@@ -40,7 +39,7 @@ export const AxesHelperComponent = defineComponent({
     name: S.String('axes-helper'),
     size: S.Number(1),
     layerMask: S.Number(ObjectLayerMasks.NodeHelper),
-    entity: S.Optional(T.Entity())
+    entity: S.Optional(S.Entity())
   }),
 
   reactor: function () {

@@ -41,7 +41,6 @@ import { EngineState } from '../../EngineState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
-import { T } from '../../schema/schemaFunctions'
 import { getAncestorWithComponents, isAncestor } from '../../transform/components/EntityTree'
 import {
   AnyAxis,
@@ -82,14 +81,14 @@ export const InputComponent = defineComponent({
   jsonID: 'EE_input',
 
   schema: S.Object({
-    inputSinks: S.Array(T.EntityUUID(), ['Self']),
+    inputSinks: S.Array(S.EntityUUID(), ['Self']),
     activationDistance: S.Number(2),
     highlight: S.Bool(false),
     grow: S.Bool(false),
 
     //internal
     /** populated automatically by ClientInputSystem */
-    inputSources: S.NonSerialized(S.Array(T.Entity()))
+    inputSources: S.NonSerialized(S.Array(S.Entity()))
   }),
 
   useExecuteWithInput(

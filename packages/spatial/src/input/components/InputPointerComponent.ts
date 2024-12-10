@@ -69,7 +69,7 @@ export const InputPointerComponent = defineComponent({
     position: T.Vec2(),
     lastPosition: T.Vec2(),
     movement: T.Vec2(),
-    cameraEntity: T.Entity()
+    cameraEntity: S.Entity()
   }),
 
   onSet(entity, component, json: { pointerId: number; cameraEntity: Entity }) {
