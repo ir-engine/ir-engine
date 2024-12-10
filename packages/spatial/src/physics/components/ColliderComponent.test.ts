@@ -65,8 +65,8 @@ export const ColliderComponentDefaults = {
   matchMesh: true,
   centerOffset: new Vector3(0, 0, 0),
   boxSize: new Vector3(1, 1, 1),
-  radius: 0.5,
-  height: 1
+  radius: 1,
+  height: 2
 }
 
 export function assertColliderComponentEquals(data, expected, testShape = true) {

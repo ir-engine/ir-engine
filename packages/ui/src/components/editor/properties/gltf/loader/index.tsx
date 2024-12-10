@@ -157,7 +157,7 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
           onChange={commitProperty(GLTFComponent, 'applyColliders')}
         />
       </InputGroup>
-      {(!hasRigidBody && (
+      {(!hasRigidBody && gltfComponent.applyColliders.value && (
         <>
           <Text className="ml-5 text-red-400">{t('editor:properties.model.lbl-warnRigidBody')}</Text>
           <Button
