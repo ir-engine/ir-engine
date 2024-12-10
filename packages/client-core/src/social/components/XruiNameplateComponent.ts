@@ -65,9 +65,10 @@ const xrDistVec3 = new Vector3()
 
 function updateXrDistVec3(selfAvatarEntity: Entity): void {
   //TODO change from using rigidbody to use the transform position (+ height of avatar)
-  const selfAvatarRigidBodyComponent = getComponent(selfAvatarEntity, RigidBodyComponent)
+  const selfAvatarRigidBodyComponent = getOptionalComponent(selfAvatarEntity, RigidBodyComponent)
   const avatar = getComponent(selfAvatarEntity, AvatarComponent)
-  xrDistVec3.copy(selfAvatarRigidBodyComponent.position)
+  if (!selfAvatarRigidBodyComponent) return
+  xrDistVec3.copy(selfAvatarRigidBodyComponent!.position)
   xrDistVec3.y += avatar.avatarHeight
 }
 

@@ -73,7 +73,10 @@ export const logger = multiLogger.child({ component: 'client-core:AuthService' }
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
 
 const iframe = document.getElementById('root-cookie-accessor') as HTMLIFrameElement
-const communicator = new ParentCommunicator('root-cookie-accessor', config.client.clientUrl) //Eventually we can configure iframe target seperatly
+const communicator = new ParentCommunicator(
+  'root-cookie-accessor',
+  config.client.hostOriginOverride ?? config.client.clientUrl
+) //Eventually we can configure iframe target seperatly
 
 export const UserSeed: UserType = {
   id: '' as UserID,
