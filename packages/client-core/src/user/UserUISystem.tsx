@@ -40,7 +40,7 @@ import { PopupMenuState } from './components/UserMenu/PopupMenuService'
 import AvatarCreatorMenu, { SupportedSdks } from './components/UserMenu/menus/AvatarCreatorMenu'
 import AvatarCreatorMenu2 from './components/UserMenu/menus/AvatarCreatorMenu2'
 import AvatarModifyMenu from './components/UserMenu/menus/AvatarModifyMenu'
-import AvatarSelectMenu2 from './components/UserMenu/menus/AvatarSelectMenu2'
+import AvatarSelectMenu from './components/UserMenu/menus/AvatarSelectMenu'
 import EmoteMenu from './components/UserMenu/menus/EmoteMenu'
 import ProfileMenu from './components/UserMenu/menus/ProfileMenu'
 import SettingMenu from './components/UserMenu/menus/SettingMenu'
@@ -67,7 +67,6 @@ export const UserMenus = {
   ReadyPlayer: 'user.ReadyPlayer',
   Avaturn: 'user.Avaturn',
   AvatarSelect: 'user.AvatarSelect',
-  AvatarSelect2: 'user.AvatarSelect2',
   AvatarModify: 'user.AvatarModify',
   Share: 'user.Share',
   Emote: 'user.Emote'
@@ -94,7 +93,7 @@ const UserSystemReactor = () => {
       [UserMenus.Profile]: ProfileMenu,
       [UserMenus.Settings]: SettingMenu,
       [UserMenus.Settings2]: SettingMenu2,
-      [UserMenus.AvatarSelect2]: AvatarSelectMenu2,
+      [UserMenus.AvatarSelect]: AvatarSelectMenu,
       [UserMenus.AvatarModify]: AvatarModifyMenu,
       [UserMenus.Share]: ShareMenu
     })
@@ -110,7 +109,7 @@ const UserSystemReactor = () => {
         [UserMenus.Settings]: none,
         [UserMenus.Settings2]: none,
         [UserMenus.AvatarSelect]: none,
-        [UserMenus.AvatarSelect2]: none,
+        [UserMenus.AvatarSelect]: none,
         [UserMenus.AvatarModify]: none,
         [UserMenus.Share]: none
       })

@@ -230,7 +230,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
               <Button
                 data-testid="edit-avatar-button"
                 className=" h-6 w-6 self-center bg-transparent"
-                onClick={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect2)}
+                onClick={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)}
               >
                 <IoArrowBackOutline size={16} />
               </Button>
