@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { PresentationSystemGroup } from '@ir-engine/ecs'
-import { getComponent, getMutableComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, getMutableComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
@@ -59,7 +59,9 @@ const execute = () => {
   accumulator = 0
 
   const viewerEntity = getState(EngineState).viewerEntity
-  const viewerWorldMatrix = getComponent(viewerEntity, TransformComponent).matrixWorld
+  const viewerTransform = getOptionalComponent(viewerEntity, TransformComponent)
+  if (!viewerTransform) return
+  const viewerWorldMatrix = viewerTransform.matrixWorld
 
   for (const entity of dynamicLoadQuery()) {
     const dynamicComponent = getComponent(entity, SceneDynamicLoadTagComponent)
