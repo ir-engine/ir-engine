@@ -744,7 +744,7 @@ const groupObjects = (entities: Entity[]) => {
     const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
 
     /** 1. create new group node */
-    const groupNode = {
+    const groupNode: GLTF.INode = {
       name: 'New Group',
       extensions: {
         [UUIDComponent.jsonID]: generateEntityUUID(),
@@ -758,9 +758,25 @@ const groupObjects = (entities: Entity[]) => {
 
     const groupIndex = gltf.data.nodes!.push(groupNode) - 1
 
+    const positions = entities.map((entity) => getComponent(entity, TransformComponent).position)
+
+    const groupPosition = positions.reduce((acc, pos) => acc.add(pos), new Vector3()).divideScalar(entities.length)
+    //const groupRotation = averageQuaternions(rotations)
+
+    const averageTransform = new Matrix4().compose(groupPosition, new Quaternion().identity(), new Vector3(1, 1, 1))
+
+    groupNode.matrix = averageTransform.toArray()
+
     /** For each node being added to the group */
     for (const entity of entities) {
       const entityUUID = getComponent(entity, UUIDComponent)
+      const node = getGLTFNodeByUUID(gltf.data, entityUUID)!
+
+      const nodeMatrix = node.matrix ? new Matrix4().fromArray(node.matrix) : new Matrix4().identity()
+      //subtract the average transform from the node's transform to get the relative transform
+      const relativeTransform = nodeMatrix.clone().premultiply(averageTransform.clone().invert())
+      node.matrix = relativeTransform.toArray()
+
       const nodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
 
       /** 2. remove node from current parent */
