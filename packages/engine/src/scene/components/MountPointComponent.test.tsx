@@ -37,8 +37,16 @@ import {
   removeComponent,
   setComponent
 } from '@ir-engine/ecs'
-import { HyperFlux, UserID, applyIncomingActions, dispatchAction, getState } from '@ir-engine/hyperflux'
+import {
+  HyperFlux,
+  UserID,
+  applyIncomingActions,
+  dispatchAction,
+  getMutableState,
+  getState
+} from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { ArrowHelperComponent } from '@ir-engine/spatial/src/common/debug/ArrowHelperComponent'
 import { initializeSpatialEngine, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
@@ -73,7 +81,7 @@ describe('MountPointComponent.ts', async () => {
 
   beforeEach(async () => {
     createEngine()
-    Engine.instance.userID = 'userId' as UserID
+    getMutableState(EngineState).userID.set('userId' as UserID)
     initializeSpatialEngine()
     initializeSpatialViewer()
     avatarTestEntity = createEntity()

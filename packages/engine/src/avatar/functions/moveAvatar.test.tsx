@@ -41,6 +41,7 @@ import { initializeSpatialEngine, initializeSpatialViewer } from '@ir-engine/spa
 import { Physics, PhysicsWorld } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -56,7 +57,7 @@ describe('moveAvatar function tests', () => {
     initializeSpatialEngine()
     initializeSpatialViewer()
     await Physics.load()
-    Engine.instance.userID = 'userId' as UserID
+    getMutableState(EngineState).userID.set('userId' as UserID)
     sceneEntity = loadEmptyScene()
 
     setComponent(sceneEntity, SceneComponent)
@@ -135,7 +136,7 @@ describe('moveAvatar function tests', () => {
   })
 
   it('should take world.physics.timeScale into account when moving avatars, consistent with physics simulation', async () => {
-    Engine.instance.userID = 'user' as UserID
+    getMutableState(EngineState).userID.set('user' as UserID)
 
     const ecsState = getMutableState(ECSState)
     ecsState.simulationTimestep.set(1000 / 60)
@@ -168,7 +169,7 @@ describe('moveAvatar function tests', () => {
   })
 
   it('should not allow velocity to breach a full unit through multiple frames', async () => {
-    Engine.instance.userID = 'user' as UserID
+    getMutableState(EngineState).userID.set('user' as UserID)
 
     const ecsState = getMutableState(ECSState)
     ecsState.simulationTimestep.set(1000 / 60)

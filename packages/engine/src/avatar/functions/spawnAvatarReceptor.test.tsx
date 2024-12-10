@@ -33,7 +33,7 @@ import '../state/AvatarNetworkState'
 import { Entity, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine, createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { UserID, applyIncomingActions, dispatchAction } from '@ir-engine/hyperflux'
+import { UserID, applyIncomingActions, dispatchAction, getMutableState } from '@ir-engine/hyperflux'
 import { NetworkTopics } from '@ir-engine/network'
 import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
 import { initializeSpatialEngine, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
@@ -44,6 +44,7 @@ import {
 } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
@@ -60,7 +61,7 @@ describe('spawnAvatarReceptor', () => {
     initializeSpatialEngine()
     initializeSpatialViewer()
     await Physics.load()
-    Engine.instance.userID = 'user' as UserID
+    getMutableState(EngineState).userID.set('user' as UserID)
     sceneEntity = loadEmptyScene()
 
     setComponent(sceneEntity, SceneComponent)
