@@ -331,7 +331,7 @@ function ResourceItems() {
                     className="text-grey-500 mr-auto flex items-center justify-center px-0 py-2 text-xs"
                     onClick={() => handleScrollToPage(i - 1)} // Scroll to the previous page
                   >
-                    {'Previous'}
+                    {'▲ Previous'}
                   </button>
                 )}
                 <span className="ml-auto">
