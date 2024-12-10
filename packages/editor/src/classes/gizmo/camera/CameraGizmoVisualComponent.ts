@@ -42,7 +42,6 @@ import { InputComponent } from '@ir-engine/spatial/src/input/components/InputCom
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { Mesh, Object3D } from 'three'
 import { enableObjectLayer } from '../../../../../spatial/src/renderer/components/ObjectLayerComponent'
@@ -71,9 +70,9 @@ export const CameraGizmoVisualComponent = defineComponent({
   name: 'CameraGizmoVisual',
 
   schema: S.Object({
-    sceneEntity: T.Entity(),
-    gizmo: T.Entity(),
-    picker: T.Entity()
+    sceneEntity: S.Entity(),
+    gizmo: S.Entity(),
+    picker: S.Entity()
   }),
 
   reactor: function (props) {

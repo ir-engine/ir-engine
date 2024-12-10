@@ -29,7 +29,6 @@ import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useDisposable } from '../../resources/resourceHooks'
-import { T } from '../../schema/schemaFunctions'
 import { useHelperEntity } from './DebugComponentUtils'
 
 export const CameraHelperComponent = defineComponent({
@@ -38,7 +37,7 @@ export const CameraHelperComponent = defineComponent({
   schema: S.Object({
     name: S.String('camera-helper'),
     camera: S.Required(S.Type<Camera>(null!)),
-    entity: S.Optional(T.Entity())
+    entity: S.Optional(S.Entity())
   }),
 
   reactor: function () {

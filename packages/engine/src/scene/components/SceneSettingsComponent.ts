@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 
 export const DefaultKillHeight = -10
 
@@ -40,6 +39,6 @@ export const SceneSettingsComponent = defineComponent({
     backgroundColor: S.String('#FFFFFF'),
     alternativeColor: S.String('#000000'),
     sceneKillHeight: S.Number(DefaultKillHeight),
-    spectateEntity: T.EntityUUID()
+    spectateEntity: S.EntityUUID()
   })
 })

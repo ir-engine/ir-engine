@@ -44,7 +44,6 @@ import { PluginType } from '@ir-engine/spatial/src/common/functions/OnBeforeComp
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import React, { useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { T } from '../../schema/schemaFunctions'
 import { MeshComponent } from '../components/MeshComponent'
 import { NoiseOffsetPluginComponent } from './constants/plugins/NoiseOffsetPlugin'
 import { TransparencyDitheringPluginComponent } from './constants/plugins/TransparencyDitheringComponent'
@@ -107,8 +106,8 @@ export const MaterialStateComponent = defineComponent({
     material: S.Type<Material>({} as Material),
     parameters: S.Record(S.String(), S.Any()),
     // all entities using this material. an undefined entity at index 0 is a fake user
-    instances: S.Array(T.Entity()),
-    prototypeEntity: T.Entity()
+    instances: S.Array(S.Entity()),
+    prototypeEntity: S.Entity()
   }),
 
   fallbackMaterial: uuidv4() as EntityUUID,
@@ -137,7 +136,7 @@ export const MaterialStateComponent = defineComponent({
 export const MaterialInstanceComponent = defineComponent({
   name: 'MaterialInstanceComponent',
 
-  schema: S.Object({ uuid: S.Array(T.EntityUUID()) }),
+  schema: S.Object({ uuid: S.Array(S.EntityUUID()) }),
 
   onRemove: (entity) => {
     const uuids = getOptionalComponent(entity, MaterialInstanceComponent)?.uuid

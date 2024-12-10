@@ -34,7 +34,6 @@ import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/re
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformComponent } from '@ir-engine/spatial'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from 'three'
@@ -47,7 +46,7 @@ export const SpawnPointComponent = defineComponent({
   jsonID: 'EE_spawn_point',
 
   schema: S.Object({
-    permissionedUsers: S.Array(T.UserID())
+    permissionedUsers: S.Array(S.UserID())
   }),
 
   reactor: function () {
