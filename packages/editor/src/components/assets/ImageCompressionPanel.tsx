@@ -27,7 +27,7 @@ import React from 'react'
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
-import { fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
+import { fileBrowserUploadPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import {
   KTX2EncodeArguments,
   KTX2EncodeDefaultArguments
@@ -35,6 +35,7 @@ import {
 import { ImmutableArray, useHookstate } from '@ir-engine/hyperflux'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { API } from '@ir-engine/common'
 import { Button, Checkbox, Input, Select } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
@@ -76,6 +77,7 @@ export default function ImageCompressionPanel({
     compressionLoading.set(true)
 
     for (const file of selectedFiles) {
+      compressProperties.src.set(file.type === 'folder' ? `${file.url}/${file.key}` : file.url)
       await uploadImage(file, await compressImage(compressProperties.value))
     }
     await refreshDirectory()
@@ -85,11 +87,13 @@ export default function ImageCompressionPanel({
   }
 
   const uploadImage = async (props: FileDataType, data: ArrayBuffer) => {
-    compressProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
-
     const newFileName = props.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
     const path = props.key.replace(/(.*\/).*/, '$1')
-    const projectName = props.key.split('/')[1] // TODO: support projects with / in the name
+
+    const staticResourceDetails = await API.instance.service(staticResourcePath).find({
+      query: { key: props.key }
+    })
+    const projectName = staticResourceDetails.data[0].project
     const relativePath = path.replace('projects/' + projectName + '/', '')
 
     const file = new File([data], newFileName, { type: 'image/ktx2' })
