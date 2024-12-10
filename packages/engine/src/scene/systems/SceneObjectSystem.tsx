@@ -37,7 +37,7 @@ import {
   Texture
 } from 'three'
 
-import { useEntityContext, UUIDComponent } from '@ir-engine/ecs'
+import { createEntity, useEntityContext, UUIDComponent } from '@ir-engine/ecs'
 import {
   getComponent,
   getOptionalComponent,
@@ -74,6 +74,7 @@ import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { KHRUnlitExtensionComponent } from '../../gltf/MaterialDefinitionComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SourceComponent } from '../components/SourceComponent'
 
@@ -122,9 +123,9 @@ export function convertObjectMaterials(obj: Object3D, entity: Entity, forceBasic
     if (shouldMakeBasic) {
       console.log('making it basic baby')
       const basicUUID = `basic-${child.material.uuid}` as EntityUUID
-      const basicMaterialEntity = UUIDComponent.getEntityByUUID(basicUUID)
-      if (basicMaterialEntity) {
-        child.material = getComponent(basicMaterialEntity, MaterialStateComponent).material
+      const existingMaterialEntity = UUIDComponent.getEntityByUUID(basicUUID)
+      if (existingMaterialEntity) {
+        child.material = getComponent(existingMaterialEntity, MaterialStateComponent).material
         return
       }
       const prevMaterial = child.material
@@ -141,6 +142,14 @@ export function convertObjectMaterials(obj: Object3D, entity: Entity, forceBasic
       newBasicMaterial.plugins = undefined
 
       //createAndAssignMaterial(entity, newBasicMaterial)
+      const newMaterialEntity = createEntity()
+      setComponent(newMaterialEntity, MaterialStateComponent, {
+        material: newBasicMaterial,
+        instances: [entity]
+      })
+      setComponent(newMaterialEntity, UUIDComponent, MaterialStateComponent.fallbackMaterial)
+      setComponent(newMaterialEntity, NameComponent, 'Fallback Material')
+
       setComponent(entity, MaterialInstanceComponent, { uuid: [basicUUID] })
     } else {
       const UUID = child.material.uuid as EntityUUID
