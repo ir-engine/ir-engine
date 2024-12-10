@@ -65,7 +65,6 @@ import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/Scene
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import {
-  getAncestorWithComponents,
   useAncestorWithComponents,
   useChildrenWithComponents
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
@@ -375,8 +374,7 @@ const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: C
 
   useEffect(() => {
     return () => {
-      const ancestor = getAncestorWithComponents(gltfComponentEntity, [SceneComponent])
-      const scene = getOptionalMutableComponent(ancestor, SceneComponent)
+      const scene = getOptionalMutableComponent(gltfComponentEntity, SceneComponent)
       if (scene) scene.active.set(true)
       removeError(gltfComponentEntity, GLTFComponent, 'LOADING_ERROR')
       removeError(gltfComponentEntity, GLTFComponent, 'INVALID_SOURCE')
