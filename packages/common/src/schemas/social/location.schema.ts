@@ -152,16 +152,15 @@ export const locationQueryProperties = Type.Pick(locationSchema, [
 ])
 export const locationQuerySchema = Type.Intersect(
   [
-    querySyntax(locationQueryProperties, {
-      name: {
-        $like: Type.String()
-      },
-      sceneId: {
-        $like: Type.String()
-      }
-    }),
+    querySyntax(locationQueryProperties, {}),
     // Add additional query properties here
-    Type.Object({ action: Type.Optional(Type.String()) }, { additionalProperties: false })
+    Type.Object(
+      {
+        action: Type.Optional(Type.String()),
+        search: Type.Optional(Type.String())
+      },
+      { additionalProperties: false }
+    )
   ],
   { additionalProperties: false }
 )
