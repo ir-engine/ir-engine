@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useCallback, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
 type Options = {
   targetId: string
@@ -48,61 +48,6 @@ export const useDraggable = ({ targetId, placerId = targetId, topOffset = 0, tar
     lastY: 0
   })
 
-  // Use useCallback to memoize the mouse event handlers
-  const onMouseDown = useCallback(
-    (e: MouseEvent) => {
-      isDragging.current = true
-      coords.current.startX = e.clientX
-      coords.current.startY = e.clientY + topOffset
-      document.body.style.userSelect = 'none'
-      const placer = document.getElementById(placerId) || document.getElementById(targetId)
-      if (placer) {
-        placer.style.cursor = 'grabbing'
-      }
-    },
-    [topOffset, targetId, placerId]
-  )
-
-  const onMouseUp = useCallback(() => {
-    isDragging.current = false
-    const target = document.getElementById(targetId)
-    if (target) {
-      coords.current.lastX = target.offsetLeft
-      coords.current.lastY = target.offsetTop
-    }
-    document.body.style.userSelect = 'auto'
-    const placer = document.getElementById(placerId) || document.getElementById(targetId)
-    if (placer) {
-      placer.style.cursor = 'grab'
-    }
-  }, [targetId, placerId])
-
-  const onMouseMove = useCallback(
-    (e: MouseEvent) => {
-      if (!isDragging.current) return
-
-      const target = document.getElementById(targetId)
-      const container = target?.parentElement
-      if (!target || !container) return
-
-      const parentRect = container.getBoundingClientRect()
-      const targetRect = target.getBoundingClientRect()
-
-      const maxX = parentRect.width - targetRect.width
-      const maxY = parentRect.height - targetRect.height
-
-      let nextX = e.clientX - coords.current.startX + coords.current.lastX
-      let nextY = e.clientY - coords.current.startY + coords.current.lastY
-
-      nextX = Math.max(0, Math.min(nextX, maxX))
-      nextY = Math.max(0, Math.min(nextY, maxY))
-
-      target.style.top = `${nextY}px`
-      target.style.left = `${nextX}px`
-    },
-    [targetId]
-  )
-
   useEffect(() => {
     const target = document.getElementById(targetId)
     let placer = document.getElementById(placerId)
@@ -123,18 +68,53 @@ export const useDraggable = ({ targetId, placerId = targetId, topOffset = 0, tar
       return
     }
 
+    const onMouseDown = (e: MouseEvent) => {
+      isDragging.current = true
+      coords.current.startX = e.clientX
+      coords.current.startY = e.clientY + topOffset
+      document.body.style.userSelect = 'none'
+      placer!.style.cursor = 'grabbing'
+    }
+
+    const onMouseUp = () => {
+      isDragging.current = false
+      coords.current.lastX = target.offsetLeft
+      coords.current.lastY = target.offsetTop
+      document.body.style.userSelect = 'auto'
+      placer!.style.cursor = 'grab'
+    }
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isDragging.current) return
+
+      const parentRect = container.getBoundingClientRect()
+      const targetRect = target.getBoundingClientRect()
+
+      const maxX = parentRect.width - targetRect.width
+      const maxY = parentRect.height - targetRect.height
+
+      let nextX = e.clientX - coords.current.startX + coords.current.lastX
+      let nextY = e.clientY - coords.current.startY + coords.current.lastY
+
+      nextX = Math.max(0, Math.min(nextX, maxX))
+      nextY = Math.max(0, Math.min(nextY, maxY))
+
+      target.style.top = `${nextY}px`
+      target.style.left = `${nextX}px`
+    }
+
     placer.addEventListener('mousedown', onMouseDown)
-    placer.addEventListener('mouseup', onMouseUp)
+    document.addEventListener('mouseup', onMouseUp)
     container.addEventListener('mousemove', onMouseMove)
-    container.addEventListener('mouseleave', onMouseUp)
+    document.addEventListener('mouseleave', onMouseUp)
 
     return () => {
       placer.removeEventListener('mousedown', onMouseDown)
-      placer.removeEventListener('mouseup', onMouseUp)
+      document.removeEventListener('mouseup', onMouseUp)
       container.removeEventListener('mousemove', onMouseMove)
-      container.removeEventListener('mouseleave', onMouseUp)
+      document.removeEventListener('mouseleave', onMouseUp)
     }
-  }, [targetId, placerId, topOffset, targetStartX, targetStartY, onMouseDown, onMouseUp, onMouseMove])
+  }, [targetId, placerId])
 
   return {
     isDragging: isDragging.current,
