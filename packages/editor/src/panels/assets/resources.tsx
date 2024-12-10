@@ -328,7 +328,7 @@ function ResourceItems() {
               <div className="mt-4 flex h-2.5 w-[calc(100%_-_16px)] flex-row border-t-[0.5px] border-solid pt-1 text-[smaller] text-gray-500">
                 {i > 0 && (
                   <button
-                    className="text-grey-500 mr-auto flex items-center justify-center px-4 py-2 text-xs"
+                    className="text-grey-500 mr-auto flex items-center justify-center px-0 py-2 text-xs"
                     onClick={() => handleScrollToPage(i - 1)} // Scroll to the previous page
                   >
                     {'Previous'}
