@@ -282,7 +282,7 @@ function BottomPaginationNavBar({ handleScrollToPage }) {
   return (
     <div className="flex h-20 flex-col items-center justify-center">
       <div className="text-[10px] text-white">
-        Showing <span>{resources.length}</span> of {staticResourcesPagination.total.value}
+        Showing <span>{resources.length}</span>
       </div>
       <div className="m-3 flex h-[1px] w-36 flex-row gap-[0.19rem]">
         {Array.from({ length: totalPages }, (_, i) =>
@@ -339,8 +339,7 @@ function ResourceItems() {
                   {Math.min(
                     (i + 1) * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()),
                     staticResourcesPagination.total.value
-                  )}{' '}
-                  of {staticResourcesPagination.total.value}
+                  )}
                 </span>
               </div>
               <div
