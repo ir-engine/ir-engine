@@ -31,7 +31,7 @@ export const CameraOrbitComponent = defineComponent({
   name: 'CameraOrbitComponent',
 
   schema: S.Object({
-    focusedEntities: S.Array(T.Entity()),
+    focusedEntities: S.Array(S.Entity()),
     isPanning: S.Bool(false),
     cursorDeltaX: S.Number(0),
     cursorDeltaY: S.Number(0),

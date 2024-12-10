@@ -82,7 +82,7 @@ export const PortalComponent = defineComponent({
   jsonID: 'EE_portal',
 
   schema: S.Object({
-    linkedPortalId: T.EntityUUID(),
+    linkedPortalId: S.EntityUUID(),
     location: S.String(''),
     effectType: S.String('None'),
     previewType: S.String(PortalPreviewTypeSimple),

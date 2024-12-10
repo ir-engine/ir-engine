@@ -39,18 +39,16 @@ import { useTranslation } from 'react-i18next'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { Button, Input } from '@ir-engine/ui'
-import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import { PopoverState } from '../../../../common/services/PopoverState'
+import { IoArrowBackOutline, IoCloseOutline } from 'react-icons/io5'
 import { UserMenus } from '../../../UserUISystem'
 import { AuthService, AuthState } from '../../../services/AuthService'
 import { PopupMenuServices } from '../PopupMenuService'
-import { DiscardAvatarChangesModal } from './DiscardAvatarChangesModal'
 
 const AVATAR_PAGE_LIMIT = 100
 
-const AvatarMenu2 = () => {
+const AvatarMenu2 = ({ showBackButton }: { showBackButton: boolean }) => {
   const { t } = useTranslation()
   const authState = useMutableState(AuthState)
   const userId = authState.user?.id?.value
@@ -128,6 +126,13 @@ const AvatarMenu2 = () => {
 
   useEffect(() => clearTimeout(debouncedSearchQueryRef.current), [])
 
+  const handleClose = async () => {
+    if (userAvatarId !== selectedAvatarId.value) {
+      await handleConfirmAvatar()
+    }
+    PopupMenuServices.showPopupMenu()
+  }
+
   return (
     <div className="fixed top-0 z-[35] flex h-[100vh] w-full bg-[rgba(0,0,0,0.75)]">
       <Modal
@@ -135,11 +140,37 @@ const AvatarMenu2 = () => {
         className="min-w-34 pointer-events-auto m-auto flex h-[95vh] w-[70vw] max-w-6xl rounded-xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col"
         hideFooter={true}
         rawChildren={
-          <div className="grid h-full w-full grid-rows-[3.5rem,1fr,3.5rem]">
+          <div className="grid h-full w-full grid-rows-[3.5rem,1fr]">
             <div className="grid h-14 w-full grid-cols-[2rem,1fr,2rem] border-b border-b-theme-primary px-8">
+              {showBackButton && (
+                <Button
+                  data-testid="edit-avatar-button"
+                  className=" h-6 w-6 self-center bg-transparent hover:bg-transparent focus:bg-transparent"
+                  onClick={async () => {
+                    if (userAvatarId !== selectedAvatarId.value) {
+                      await handleConfirmAvatar()
+                    }
+                    PopupMenuServices.showPopupMenu(UserMenus.Profile)
+                  }}
+                >
+                  <span>
+                    <IoArrowBackOutline size={16} />
+                  </span>
+                </Button>
+              )}
               <Text className="col-start-2  place-self-center self-center">{t('user:avatar.titleSelectAvatar')}</Text>
+              <Button
+                fullWidth={false}
+                data-testid="edit-avatar-button"
+                className="h-6 w-6 self-center bg-transparent hover:bg-transparent focus:bg-transparent"
+                onClick={handleClose}
+              >
+                <span>
+                  <IoCloseOutline size={16} />
+                </span>
+              </Button>
             </div>
-            <div className="grid h-full max-h-[calc(95vh-7rem)] w-full flex-1 grid-cols-[60%,40%] gap-6 px-10 py-2">
+            <div className="grid h-full max-h-[calc(95vh-3.5rem)] w-full flex-1 grid-cols-[60%,40%] gap-6 px-10 py-2">
               <div className="relative h-full min-h-0 min-w-0 rounded-lg bg-gradient-to-b from-[#162941] to-[#114352]">
                 <div className="stars absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent"></div>
                 <AvatarPreview fill avatarUrl={currentAvatar?.modelResource?.url} />
@@ -182,7 +213,7 @@ const AvatarMenu2 = () => {
                     </Button>
                   )}
                 </div>
-                <div className="max-h-[calc(95vh-11rem)] overflow-y-auto pb-6 pr-2">
+                <div className="max-h-[calc(95vh-7.5rem)] overflow-y-auto pb-6 pr-2">
                   <div className="grid grid-cols-1 gap-2">
                     {avatarsData.map((avatar) => (
                       <div key={avatar.id} className="w-full">
@@ -201,37 +232,6 @@ const AvatarMenu2 = () => {
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="flex h-14 w-full items-center justify-center border-t border-t-theme-primary px-6 py-2">
-              <Button
-                data-testid="discard-changes-button"
-                onClick={() => {
-                  if (userAvatarId !== selectedAvatarId.value) {
-                    PopoverState.showPopupover(
-                      <DiscardAvatarChangesModal
-                        handleConfirm={() => {
-                          PopoverState.hidePopupover()
-                          PopupMenuServices.showPopupMenu()
-                        }}
-                      />
-                    )
-                  } else {
-                    PopupMenuServices.showPopupMenu()
-                  }
-                }}
-                className="w-fit place-self-center text-sm"
-              >
-                {t('user:common.discardChanges')}
-              </Button>
-              <Button
-                data-testid="select-avatar-button"
-                disabled={userAvatarId === selectedAvatarId.value}
-                onClick={handleConfirmAvatar}
-                className="ml-2 w-fit place-self-center text-sm"
-              >
-                {t('user:avatar.finishEditing')}
-                {avatarLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
-              </Button>
             </div>
           </div>
         }

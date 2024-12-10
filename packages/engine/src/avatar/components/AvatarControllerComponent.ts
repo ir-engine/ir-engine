@@ -59,8 +59,8 @@ export const AvatarControllerComponent = defineComponent({
 
   schema: S.Object({
     /** The camera entity that should be updated by this controller */
-    cameraEntity: T.Entity(),
-    movementCaptured: S.Array(T.Entity()),
+    cameraEntity: S.Entity(),
+    movementCaptured: S.Array(S.Entity()),
     isJumping: S.Bool(false),
     isWalking: S.Bool(false),
     isInAir: S.Bool(false),
@@ -155,7 +155,7 @@ export const AvatarControllerComponent = defineComponent({
 
 export const AvatarColliderComponent = defineComponent({
   name: 'AvatarColliderComponent',
-  schema: S.Object({ colliderEntity: T.Entity() }),
+  schema: S.Object({ colliderEntity: S.Entity() }),
 
   reactor() {
     const entity = useEntityContext()

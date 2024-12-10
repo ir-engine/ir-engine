@@ -27,7 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Quaternion, Vector3 } from 'three'
 
-import { getComponent, hasComponent, useComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, useComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { SceneDynamicLoadTagComponent } from '@ir-engine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 
@@ -59,7 +59,7 @@ const scale = new Vector3()
 export const TransformPropertyGroup: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  useOptionalComponent(props.entity, SceneDynamicLoadTagComponent)
+  const hasDynamicLoad = !!useOptionalComponent(props.entity, SceneDynamicLoadTagComponent)
   const transformComponent = useComponent(props.entity, TransformComponent)
   const transformSpace = useHookstate(getMutableState(EditorHelperState).transformSpace)
 
@@ -113,12 +113,8 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
         className="flex w-auto flex-row-reverse flex-nowrap items-center gap-1"
         containerClassName="mb-4"
       >
-        <Checkbox
-          checked={hasComponent(props.entity, SceneDynamicLoadTagComponent)}
-          onChange={onChangeDynamicLoad}
-          className="mr-2"
-        />
-        {hasComponent(props.entity, SceneDynamicLoadTagComponent) && (
+        <Checkbox checked={hasDynamicLoad} onChange={onChangeDynamicLoad} className="mr-2" />
+        {hasDynamicLoad && (
           <NumericInput
             min={1}
             max={100}
