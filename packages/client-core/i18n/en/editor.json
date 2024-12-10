@@ -399,6 +399,8 @@
       "lbl-shape": "Shape",
       "lbl-matchMesh": "Match Mesh",
       "info-matchMesh": "Matches collider dimension settings to fit the mesh",
+      "lbl-warnRigidBody": "Colliders require a Rigidbody component here or on a parent object to function",
+      "lbl-addRigidBody": "Add RigidBody",
       "lbl-colliderProps": "Collider Properties",
       "lbl-centerOffset": "Center Offset",
       "lbl-boxSize": "Box Size",

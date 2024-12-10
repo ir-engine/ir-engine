@@ -26,15 +26,22 @@ Infinite Reality Engine. All Rights Reserved.
 import { camelCaseToSpacedString } from '@ir-engine/common/src/utils/camelCaseToSpacedString'
 import { hasComponent, SerializedComponentType, useComponent } from '@ir-engine/ecs'
 import { commitProperty, EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
+import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions.ts'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices.ts'
 import { ColliderComponent, supportedColliderShapes } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent.ts'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent.ts'
+import { useAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree.tsx'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { FiMinimize2 } from 'react-icons/fi'
+import { HiPlus } from 'react-icons/hi2'
 import { Vector3 } from 'three'
 import { Checkbox } from '../../../../index.ts'
+import Button from '../../../../primitives/tailwind/Button'
+import Text from '../../../../primitives/tailwind/Text'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import NumericScrubber from '../../input/Numeric/Scrubber'
@@ -56,6 +63,7 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
     colliderComponent.shape.value === Shapes.Mesh || colliderComponent.shape.value === Shapes.ConvexHull
 
   const showMatchMesh = !isMeshOrConvexHull && hasComponent(props.entity, MeshComponent)
+  const hasRigidBody = useAncestorWithComponents(props.entity, [RigidBodyComponent])
 
   const shape = colliderComponent.shape.value
 
@@ -83,6 +91,23 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
       description={t('editor:properties.collider.description')}
       Icon={ColliderComponentEditor.iconComponent}
     >
+      {(!hasRigidBody && (
+        <>
+          <Text className="ml-5 text-red-400">{t('editor:properties.collider.lbl-warnRigidBody')}</Text>
+          <Button
+            title={t('editor:properties.collider.lbl-addRigidBody')}
+            className="text-sm text-[#FFFFFF]"
+            onClick={() => {
+              const nodes = SelectionState.getSelectedEntities()
+              EditorControlFunctions.addOrRemoveComponent(nodes, RigidBodyComponent, true, { type: 'fixed' })
+            }}
+          >
+            <HiPlus />
+            {t('editor:properties.collider.lbl-addRigidBody')}
+          </Button>
+        </>
+      )) ||
+        ''}
       <InputGroup name="Shape" label={t('editor:properties.collider.lbl-shape')}>
         <SelectInput
           options={shapeTypeOptions}
