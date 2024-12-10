@@ -201,7 +201,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
     )
 
     loading.set(LoadingState.None)
-    PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect2)
+    PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)
   }
 
   const loadingMessages = {

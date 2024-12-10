@@ -155,9 +155,8 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       stack.shift()
       state[serviceName][queryId].merge({ $stack: stack })
     }
-    return API.instance
-      .service(serviceName)
-      [method](...args)
+    // prettier-ignore
+    return API.instance.service(serviceName)[method](...args)
       .then((res) => {
         state[serviceName][queryId].merge({
           response: res,
