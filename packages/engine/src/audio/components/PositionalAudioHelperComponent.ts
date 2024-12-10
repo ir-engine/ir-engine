@@ -42,7 +42,6 @@ import { useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { PositionalAudioComponent } from './PositionalAudioComponent'
 
 export const PositionalAudioHelperComponent = defineComponent({
@@ -50,7 +49,7 @@ export const PositionalAudioHelperComponent = defineComponent({
 
   schema: S.Object({
     name: S.String('positional-audio-helper'),
-    entity: T.Entity()
+    entity: S.Entity()
   }),
 
   reactor: function () {

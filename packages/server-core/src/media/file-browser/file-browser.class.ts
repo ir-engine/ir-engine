@@ -86,15 +86,24 @@ const ensureProjectPermissionAndPublicOrAssetsDirectory = async (
         '; directories can only contain alphanumeric characters, dashes, underscores, dots, and @'
     )
   if (!isDirectory) {
-    if (!isValidFileName(fileNameSplit[0]))
+    let fileName = '',
+      extension = ''
+    if (fileNameSplit.length > 1) {
+      fileName = fileNameSplit.slice(0, -1).join('.')
+      extension = fileNameSplit[fileNameSplit.length - 1]
+    } else {
+      fileName = fileNameSplit[0]
+      extension = ''
+    }
+    if (!isValidFileName(fileName))
       throw new BadRequest(
         'Invalid file name: ' +
-          fileNameSplit[0] +
+          fileName +
           '; file names must be 4-64 characters, start and end with an alphanumeric, and contain only alphanumerics, dashes, underscores, and dots'
       )
-    if (!isValidFileExtension(fileNameSplit[1]))
+    if (!isValidFileExtension(extension))
       throw new BadRequest(
-        'Invalid file extension: ' + fileNameSplit[1] + '; file extension must be 2-4 alphanumeric characters'
+        'Invalid file extension: ' + extension + '; file extension must be 2-4 alphanumeric characters'
       )
   }
 

@@ -88,9 +88,8 @@ const ComponentListItem = ({ item, onSelect }: { item: Component; onSelect: () =
 
 const PrefabListItem = ({ item, onSelect }: { item: PrefabShelfItem; onSelect: () => void }) => {
   return (
-    <Button
-      fullWidth
-      className="w-full bg-[#2C2E33] p-2 text-[#B2B5BD]"
+    <button
+      className="flex w-full items-center justify-center gap-1 rounded-md bg-[#2C2E33] p-2 text-[#B2B5BD] hover:bg-[#214AA6]"
       data-testid="prefabs-category-item"
       onClick={() => {
         const url = item.url
@@ -115,7 +114,7 @@ const PrefabListItem = ({ item, onSelect }: { item: PrefabShelfItem; onSelect: (
           {item.detail}
         </Text>
       </div>
-    </Button>
+    </button>
   )
 }
 

@@ -104,7 +104,8 @@
     "physicsDebug": "Physics Debug",
     "bvhDebug": "BVH Debug",
     "avatarDebug": "Avatar Debug",
-    "respawn": "Respawn"
+    "respawn": "Respawn",
+    "close": "Close Debug"
   },
   "recording": {
     "videoRecorder": "Video recorder",
