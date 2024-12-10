@@ -85,8 +85,6 @@ export default function ImageCompressionPanel({
   }
 
   const uploadImage = async (props: FileDataType, data: ArrayBuffer) => {
-    compressProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
-
     const newFileName = props.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
     const path = props.key.replace(/(.*\/).*/, '$1')
     const [_projFolder, orgName, projectName] = props.key.split('/')
