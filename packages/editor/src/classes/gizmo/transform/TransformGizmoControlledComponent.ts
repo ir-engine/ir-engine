@@ -45,7 +45,6 @@ import { InputComponent } from '@ir-engine/spatial/src/input/components/InputCom
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { gizmoPlane } from '../../../constants/GizmoPresets'
 import { EditorHelperState } from '../../../services/EditorHelperState'
 import { SelectionState } from '../../../services/SelectionServices'
@@ -55,7 +54,7 @@ import { TransformGizmoVisualComponent } from './TransformGizmoVisualComponent'
 export const TransformGizmoControlledComponent = defineComponent({
   name: 'TransformGizmoControlled',
 
-  schema: S.Object({ controller: T.Entity() }),
+  schema: S.Object({ controller: S.Entity() }),
 
   reactor: function (props) {
     const entity = useEntityContext()

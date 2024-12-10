@@ -47,7 +47,7 @@ export const LineSegmentComponent = defineComponent({
     material: S.Class(() => new LineBasicMaterial() as Material),
     color: S.Optional(T.Color()),
     layerMask: S.Number(ObjectLayers.NodeHelper),
-    entity: S.Optional(T.Entity())
+    entity: S.Optional(S.Entity())
   }),
 
   reactor: function () {

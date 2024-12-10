@@ -50,7 +50,6 @@ import { useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { PositionalAudioComponent } from './PositionalAudioComponent'
 
@@ -59,7 +58,7 @@ export const PositionalAudioHelperComponent = defineComponent({
 
   schema: S.Object({
     name: S.String('positional-audio-helper'),
-    entity: T.Entity()
+    entity: S.Entity()
   }),
 
   reactor: function () {

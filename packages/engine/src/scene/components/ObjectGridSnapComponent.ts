@@ -111,7 +111,7 @@ export const BoundingBoxHelperComponent = defineComponent({
     density: S.Number(2),
     color: T.Color(0xff0000),
     layerMask: S.Number(ObjectLayerMasks.NodeHelper),
-    helperEntity: S.Optional(T.Entity())
+    helperEntity: S.Optional(S.Entity())
   }),
 
   reactor: function () {

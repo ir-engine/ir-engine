@@ -461,7 +461,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
           <Avatar
             imageSrc={avatarThumbnail}
             showChangeButton={hasAcceptedTermsAndAge}
-            onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect2)}
+            onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect2, { showBackButton: true })}
           />
 
           <Box className={styles.profileDetails}>

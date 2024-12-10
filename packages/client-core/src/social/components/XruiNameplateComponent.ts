@@ -52,7 +52,6 @@ import { smootheLerpAlpha } from '@ir-engine/spatial/src/common/functions/MathLe
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
@@ -75,7 +74,7 @@ function updateXrDistVec3(selfAvatarEntity: Entity): void {
 export const XruiNameplateComponent = defineComponent({
   name: 'XruiNameplateComponent',
   schema: S.Object({
-    uiEntity: T.Entity(),
+    uiEntity: S.Entity(),
     nameLabel: S.String('')
   }),
 

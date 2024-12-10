@@ -75,7 +75,7 @@ export const FollowCameraComponent = defineComponent({
     thirdPersonOffset: T.Vec3(),
     currentOffset: T.Vec3(),
     offsetSmoothness: S.Number(0.1),
-    targetEntity: T.Entity(),
+    targetEntity: S.Entity(),
     currentTargetPosition: T.Vec3(),
     targetPositionSmoothness: S.Number(0),
     mode: S.Enum(FollowCameraMode, FollowCameraMode.ThirdPerson),

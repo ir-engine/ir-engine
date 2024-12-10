@@ -59,6 +59,7 @@ import {
 } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
@@ -77,6 +78,7 @@ import {
   BINARY_EXTENSION_HEADER_MAGIC
 } from '../assets/loaders/gltf/GLTFExtensions'
 import { ErrorComponent } from '../scene/components/ErrorComponent'
+import { SceneDynamicLoadTagComponent } from '../scene/components/SceneDynamicLoadTagComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { addError, removeError } from '../scene/functions/ErrorFunctions'
 import { SceneJsonType } from '../scene/types/SceneTypes'
@@ -127,6 +129,7 @@ const buildComponentDependencies = (json: GLTF.IGLTF) => {
     if (node.extensions && node.extensions[UUIDComponent.jsonID]) {
       const uuid = node.extensions[UUIDComponent.jsonID] as EntityUUID
       const extensions = Object.keys(node.extensions)
+      if (typeof node.extensions[SceneDynamicLoadTagComponent.jsonID] !== 'undefined') continue
       for (const extension of extensions) {
         if (loadDependencies[extension]) {
           if (!dependencies.componentDependencies[uuid]) dependencies.componentDependencies[uuid] = []
@@ -332,7 +335,8 @@ const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: stri
   const { gltfComponentEntity, uuid, components } = props
   const entity = UUIDComponent.useEntityByUUID(uuid as EntityUUID) as Entity | undefined
   const hasComponents = useHasComponents(entity ?? UndefinedEntity, components)
-  return entity && hasComponents ? (
+  const dynamicLoad = !!useOptionalComponent(entity ?? UndefinedEntity, SceneDynamicLoadTagComponent)
+  return entity && !dynamicLoad && hasComponents ? (
     <>
       {components.map((component) => {
         return (
@@ -470,8 +474,14 @@ const useGLTFDocument = (entity: Entity) => {
   const url = state.src.value
   const source = GLTFComponent.useInstanceID(entity)
   useGLTFResource(url, entity)
+  const dynamicLoadComponent = useOptionalComponent(entity, SceneDynamicLoadTagComponent)
+  const isEditing = useMutableState(EngineState).isEditing.value
+
+  const dynamicLoadAndNotEditing = !isEditing && !!dynamicLoadComponent && !dynamicLoadComponent?.loaded?.value
 
   useEffect(() => {
+    if (dynamicLoadAndNotEditing) return
+
     if (!url) {
       addError(entity, GLTFComponent, 'INVALID_SOURCE', 'Invalid URL')
       return
@@ -533,7 +543,7 @@ const useGLTFDocument = (entity: Entity) => {
       state.body.set(null)
       state.progress.set(0)
     }
-  }, [url])
+  }, [url, dynamicLoadAndNotEditing])
 }
 
 export const parseBinaryData = (data) => {

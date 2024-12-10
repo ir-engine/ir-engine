@@ -42,7 +42,6 @@ import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/Obje
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import {
   EntityTreeComponent,
   removeEntityNodeRecursively
@@ -59,9 +58,9 @@ export const TransformGizmoVisualComponent = defineComponent({
   name: 'TransformGizmoVisual',
 
   schema: S.Object({
-    gizmo: T.Entity(),
-    picker: T.Entity(),
-    helper: T.Entity()
+    gizmo: S.Entity(),
+    picker: S.Entity(),
+    helper: S.Entity()
   }),
 
   reactor: function () {
