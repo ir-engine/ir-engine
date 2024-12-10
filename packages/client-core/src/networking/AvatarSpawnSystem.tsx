@@ -71,8 +71,6 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
 
   const settingsQuery = useChildrenWithComponents(sceneEntity, [SceneSettingsComponent])
 
-  const avatarsQuery = useFind(avatarPath)
-
   useImmediateEffect(() => {
     const sceneSettingsSpectateEntity = getOptionalComponent(settingsQuery[0], SceneSettingsComponent)?.spectateEntity
     spectateEntity.set(sceneSettingsSpectateEntity || (getSearchParamFromURL('spectate') as EntityUUID))
@@ -136,6 +134,8 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
 
   const userAvatarMutation = useMutation(userAvatarPath)
 
+  const avatarsQuery = useFind(avatarPath)
+
   useEffect(() => {
     if (!errorWithAvatar || !avatarsQuery.data.length) return
     const randomAvatar = avatarsQuery.data[Math.floor(Math.random() * avatarsQuery.data.length)]
@@ -143,14 +143,14 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   }, [errorWithAvatar])
 
   useEffect(() => {
-    if (!userAvatar) return
+    if (isSpectating || !userAvatar) return
     dispatchAction(
       AvatarNetworkAction.setAvatarURL({
         avatarURL: userAvatar.avatar.modelResource!.url,
         entityUUID: (Engine.instance.store.userID + '_avatar') as any as EntityUUID
       })
     )
-  }, [userAvatar])
+  }, [isSpectating, userAvatar])
 
   return null
 }
