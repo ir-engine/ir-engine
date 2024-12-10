@@ -57,7 +57,6 @@ export class FacebookStrategy extends CustomOAuthStrategy {
     const identityProvider = authResult[identityProviderPath] ? authResult[identityProviderPath] : authResult
     const userId = identityProvider ? identityProvider.userId : params?.query ? params.query.userId : undefined
 
-    console.log('Facebook profile', profile)
     const returned = {
       ...baseData,
       accountIdentifier: profile.name,
