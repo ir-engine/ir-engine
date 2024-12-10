@@ -34,6 +34,7 @@ import { useHookstate } from '@hookstate/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { NetworkState } from '@ir-engine/network'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InviteService } from '../social/services/InviteService'
 import { PopupMenuState } from './components/UserMenu/PopupMenuService'
 import AvatarCreatorMenu, { SupportedSdks } from './components/UserMenu/menus/AvatarCreatorMenu'
@@ -72,7 +73,7 @@ export const UserMenus = {
   Emote: 'user.Emote'
 }
 
-const reactor = () => {
+const UserSystemReactor = () => {
   const { t } = useTranslation()
   InviteService.useAPIListeners()
 
@@ -187,5 +188,10 @@ const reactor = () => {
 export const UserUISystem = defineSystem({
   uuid: 'ee.client.UserUISystem',
   insert: { after: PresentationSystemGroup },
-  reactor
+  reactor: () => {
+    const userID = useHookstate(getMutableState(EngineState)).userID.value
+    if (!userID) return null
+
+    return <UserSystemReactor />
+  }
 })

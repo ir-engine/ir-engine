@@ -27,7 +27,14 @@ import { BadRequest } from '@feathersjs/errors'
 import fs from 'fs'
 import path from 'path'
 
-import { locationPath, LocationType, OembedType, ProjectType, staticResourcePath, StaticResourceType } from '@ir-engine/common/src/schema.type.module'
+import {
+  locationPath,
+  LocationType,
+  OembedType,
+  ProjectType,
+  staticResourcePath,
+  StaticResourceType
+} from '@ir-engine/common/src/schema.type.module'
 import { createLocations } from '@ir-engine/projects/createLocations'
 import { ProjectEventHooks } from '@ir-engine/projects/ProjectConfigInterface'
 import { Application } from '@ir-engine/server-core/declarations'

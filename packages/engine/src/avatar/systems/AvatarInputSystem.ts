@@ -188,7 +188,7 @@ const walkableQuery = defineQuery([RigidBodyFixedTagComponent, InputComponent])
 let mouseMovedDuringPrimaryClick = false
 
 const execute = () => {
-  if (!Engine.instance.userID) return 
+  if (!Engine.instance.userID) return
 
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
   if (!selfAvatarEntity) return

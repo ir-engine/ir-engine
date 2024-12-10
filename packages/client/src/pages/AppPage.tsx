@@ -70,7 +70,7 @@ const AppPage = (props: { children: React.ReactNode; fallback?: JSX.Element; log
 
   if (loginRequired && !isLoggedIn) {
     return (
-      props.fallback ?? <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingApp')} />
+      props.fallback ?? <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.authenticating')} />
     )
   }
 

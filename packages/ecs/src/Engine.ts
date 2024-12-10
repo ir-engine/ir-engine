@@ -51,7 +51,7 @@ export class Engine {
    * The uuid of the logged-in user
    */
   get userID() {
-    return Engine.instance.store.stateMap['EngineState'].get(NO_PROXY_STEALTH).userID
+    return Engine.instance.store.stateMap['EngineState']?.get(NO_PROXY_STEALTH).userID
   }
 
   store: HyperStore

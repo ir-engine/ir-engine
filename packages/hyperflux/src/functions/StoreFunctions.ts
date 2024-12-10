@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { State } from '@hookstate/core'
 import { v4 as uuidv4 } from 'uuid'
 
-import { PeerID, UserID } from '../types/Types'
+import { PeerID } from '../types/Types'
 import { ActionQueueHandle, ActionQueueInstance, ResolvedActionType, Topic } from './ActionFunctions'
 import { ReactorRoot } from './ReactorFunctions'
 

@@ -26,9 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { useHookstate } from '@hookstate/core'
 import { useFind } from '@ir-engine/common'
 import { projectsPath } from '@ir-engine/common/src/schema.type.module'
-import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY } from '@ir-engine/hyperflux'
 import { loadWebappInjection } from '@ir-engine/projects/loadWebappInjection'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import React, { Suspense, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -36,20 +35,19 @@ import { useTranslation } from 'react-i18next'
 export const LoadWebappInjection = (props: { children: React.ReactNode; fallback?: JSX.Element }) => {
   const { t } = useTranslation()
 
-  const userID = !!useMutableState(EngineState).userID.value
   const projectComponents = useHookstate(null as null | any[])
   const projects = useFind(projectsPath)
 
   useEffect(() => {
-    if (!userID || !projects.data.length) return
+    if (!projects.data.length) return
     loadWebappInjection(projects.data as string[]).then((result) => {
       projectComponents.set(result)
     })
-  }, [userID, projects.data])
+  }, [projects.data])
 
   if (!projectComponents.value) {
     return (
-      props.fallback ?? <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.authenticating')} />
+      props.fallback ?? <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingApp')} />
     )
   }
 

@@ -33,12 +33,12 @@ import {
 } from '@ir-engine/hyperflux'
 import Tabs, { TabProps } from '@ir-engine/ui/src/primitives/tailwind/Tabs'
 import React, { useEffect } from 'react'
+import { APIDebug } from './APIDebug'
 import DebugButtons from './DebugButtons'
 import { EntityDebug } from './EntityDebug'
 import { StateDebug } from './StateDebug'
 import { StatsPanel } from './StatsPanel'
 import { SystemDebug } from './SystemDebug'
-import { APIDebug } from './APIDebug'
 
 export const DebugState = defineState({
   name: 'DebugState',

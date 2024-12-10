@@ -151,6 +151,7 @@ export const LocationService = {
     try {
       const locationResult = (await API.instance.service(locationPath).find({
         query: {
+          action: 'viewer',
           slugifiedName: locationName
         }
       })) as Paginated<LocationType>
