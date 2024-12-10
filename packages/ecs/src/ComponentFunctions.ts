@@ -32,7 +32,6 @@ import React, { startTransition } from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
 
-import config from '@ir-engine/common/src/config'
 import {
   DeepReadonly,
   getNestedObject,
@@ -54,12 +53,14 @@ import { defineQuery } from './QueryFunctions'
 import { Kind, Static, Schema as TSchema } from './schemas/JSONSchemaTypes'
 import {
   CreateSchemaValue,
-  HasDeserializers,
+  HasSchemaDeserializers,
   HasRequiredSchema,
-  HasRequiredValues,
-  DeserializeValue,
+  HasRequiredSchemaValues,
+  DeserializeSchemaValue,
   IsSingleValueSchema,
-  SerializeSchema
+  SerializeSchema,
+  HasSchemaValidators,
+  HasValidSchemaValues
 } from './schemas/JSONSchemaUtils'
 
 /**
@@ -291,25 +292,36 @@ export const defineComponent = <
   Component.isComponent = true
 
   // Memoize as much tree walking as possible during component creation
-  const hasSchemaInitializers = schemaIsJSONSchema(def.schema) && HasDeserializers(def.schema)
+  const hasSchemaInitializers = schemaIsJSONSchema(def.schema) && HasSchemaDeserializers(def.schema)
   const hasRequiredSchema = schemaIsJSONSchema(def.schema) && HasRequiredSchema(def.schema)
+  const hasSchemaValidators = schemaIsJSONSchema(def.schema) && HasSchemaValidators(def.schema)
   const isSingleValueSchema = schemaIsJSONSchema(def.schema) && IsSingleValueSchema(def.schema)
 
   Component.onSet = (entity, component, json) => {
     if (schemaIsJSONSchema(def.schema) || def.onInit) {
       if (hasRequiredSchema) {
-        const [valid, key] = HasRequiredValues(def.schema as TSchema, json)
+        const [valid, key] = HasRequiredSchemaValues(def.schema as TSchema, json)
         if (!valid) throw new Error(`${def.name}:OnSet Missing required value for key ${key}`)
       }
 
       if (json === null || json === undefined) return
 
       if (hasSchemaInitializers) {
-        json = DeserializeValue(
+        json = DeserializeSchemaValue(
           def.schema as TSchema,
           component.get(NO_PROXY_STEALTH) as ComponentType,
           typeof json === 'object' ? ({ ...json } as ComponentType) : json
         ) as SetJSON | undefined
+      }
+
+      if (hasSchemaValidators) {
+        const [valid, key] = HasValidSchemaValues(
+          def.schema as TSchema,
+          json as ComponentType,
+          component.get(NO_PROXY_STEALTH) as ComponentType,
+          entity
+        )
+        if (!valid) throw new Error(`${def.name}:OnSet Invalid value for key ${key}`)
       }
 
       if (Array.isArray(json) || typeof json !== 'object' || isSingleValueSchema) component.set(json as ComponentType)
@@ -317,12 +329,8 @@ export const defineComponent = <
     }
   }
   Component.onRemove = () => {}
-  Component.toJSON = (component) => {
-    if (schemaIsJSONSchema(def.schema)) {
-      return SerializeSchema(def.schema, component) as unknown as JSON
-    }
-
-    return component as unknown as JSON
+  Component.toJSON = (component: ComponentType) => {
+    return validateComponentSchema(def as any, component) as JSON
   }
 
   Component.errors = []
@@ -693,6 +701,15 @@ export const removeAllComponents = (entity: Entity) => {
 export const serializeComponent = <C extends Component>(entity: Entity, Component: C) => {
   const component = getComponent(entity, Component)
   return JSON.parse(JSON.stringify(Component.toJSON(component))) as ReturnType<C['toJSON']>
+}
+
+// If we want to add more validation logic (ie. schema migrations), decouple this function from Component.toJSON first
+export const validateComponentSchema = <C extends Component>(Component: C, data: ComponentType<C>) => {
+  if (schemaIsJSONSchema(Component.schema)) {
+    return SerializeSchema(Component.schema, data)
+  }
+
+  return data
 }
 
 // use seems to be unavailable in the server environment

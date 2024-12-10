@@ -27,13 +27,12 @@ import { setTransformPivot, toggleTransformPivot } from '@ir-engine/editor/src/f
 import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
 import { TransformPivot } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
+import { Select, Tooltip } from '@ir-engine/ui'
+import { ViewportButton } from '@ir-engine/ui/editor'
+import { SelectionMd } from '@ir-engine/ui/src/icons'
 import { t } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { FaRegDotCircle } from 'react-icons/fa'
 
 const transformPivotOptions = [
   {
@@ -69,29 +68,25 @@ const TransformPivotTool = () => {
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
 
   return (
-    <div className="flex items-center rounded bg-[#0E0F11]">
+    <div className="flex items-center rounded bg-[#141619] p-1">
       <Tooltip content={t('editor:toolbar.transformPivot.toggleTransformPivot')}>
-        <Button
-          startIcon={<FaRegDotCircle className="text-theme-input" />}
-          onClick={toggleTransformPivot}
-          variant="transparent"
-          className="px-0"
-          size="small"
-        />
+        <ViewportButton onClick={toggleTransformPivot}>
+          <SelectionMd />
+        </ViewportButton>
       </Tooltip>
       <Tooltip
         content={
           transformPivotOptions.find((pivot) => pivot.value === editorHelperState.transformPivot.value)?.description
         }
-        position="right center"
+        position="right"
       >
         <Select
+          inputHeight="xs"
           key={editorHelperState.transformPivot.value}
-          inputClassName="py-1 h-5 rounded-sm text-theme-gray3 text-xs"
-          className="m-1 w-32 border-theme-input text-theme-gray3"
           onChange={setTransformPivot}
           options={transformPivotOptions}
-          currentValue={editorHelperState.transformPivot.value}
+          value={editorHelperState.transformPivot.value}
+          width="sm"
         />
       </Tooltip>
     </div>

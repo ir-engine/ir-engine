@@ -52,7 +52,7 @@ export const fileBrowserUpdateSchema = Type.Object(
     oldProject: Type.String(),
     newProject: Type.String(),
     oldName: Type.String(),
-    newName: Type.String({ minLength: 4, maxLength: 64 }),
+    newName: Type.String(),
     oldPath: Type.String(),
     newPath: Type.String(),
     isCopy: Type.Optional(Type.Boolean()),

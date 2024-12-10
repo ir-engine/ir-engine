@@ -30,9 +30,8 @@ import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 import { useFind, useMutation } from '@ir-engine/common'
 import { serverSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
+import { Button, Input } from '@ir-engine/ui'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
@@ -86,6 +85,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
     >
       <div className="mt-6 grid w-full grid-cols-2 gap-4">
         <Input
+          fullWidth
           value={serverSetting?.mode || 'test'}
           labelProps={{
             text: t('admin:components.setting.mode'),
@@ -95,6 +95,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.storageProvider'),
             position: 'top'
@@ -104,6 +105,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           value={serverSetting?.hostname || 'test'}
           labelProps={{
             text: t('admin:components.setting.hostName'),
@@ -113,6 +115,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.port'),
             position: 'top'
@@ -122,6 +125,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.hub'),
             position: 'top'
@@ -131,6 +135,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.clientHost'),
             position: 'top'
@@ -140,6 +145,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.url'),
             position: 'top'
@@ -149,6 +155,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.rootDirectory'),
             position: 'top'
@@ -158,6 +165,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.certPath'),
             position: 'top'
@@ -167,6 +175,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.publicDirectory'),
             position: 'top'
@@ -176,6 +185,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.keyPath'),
             position: 'top'
@@ -185,6 +195,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.nodeModulesDirectory'),
             position: 'top'
@@ -194,6 +205,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.githubWebhookSecret'),
             position: 'top'
@@ -203,6 +215,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.localStorageProvider'),
             position: 'top'
@@ -212,6 +225,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.releaseName'),
             position: 'top'
@@ -221,6 +235,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.instanceserverUnreachableTimeoutSeconds'),
             position: 'top'
@@ -256,17 +271,11 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         )}
 
         <div className="col-span-1 grid grid-cols-4 gap-6">
-          <Button size="small" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
+          <Button size="sm" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
             {t('admin:components.common.reset')}
           </Button>
-          <Button
-            size="small"
-            variant="primary"
-            className="col-span-1"
-            fullWidth
-            onClick={handleSubmit}
-            startIcon={state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
-          >
+          <Button size="sm" variant="primary" className="col-span-1" fullWidth onClick={handleSubmit}>
+            {state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
             {t('admin:components.common.save')}
           </Button>
         </div>

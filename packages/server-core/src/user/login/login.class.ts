@@ -27,11 +27,13 @@ import { Id, Paginated, ServiceInterface } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
 
 import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
-import { loginTokenPath, LoginTokenType } from '@ir-engine/common/src/schemas/user/login-token.schema'
+import { loginTokenPath } from '@ir-engine/common/src/schemas/user/login-token.schema'
 import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 
 import { userLoginPath } from '@ir-engine/common/src/schemas/user/user-login.schema'
+import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import moment from 'moment'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import makeInitialAdmin from '../../util/make-initial-admin'
@@ -49,7 +51,7 @@ export class LoginService implements ServiceInterface {
   }
 
   /**
-   * A function which find specific login details
+   * A function which validates login information and creates a JWT if valid
    *
    * @param id of specific login detail
    * @param params
@@ -58,28 +60,92 @@ export class LoginService implements ServiceInterface {
   async get(id: Id, params?: LoginParams) {
     try {
       if (!id) {
-        logger.info('Invalid login token id, cannot be null or undefined')
+        logger.info('Invalid login id, cannot be null or undefined')
         return {
-          error: 'invalid login token id, cannot be null or undefined'
+          error: 'invalid login id, cannot be null or undefined'
         }
       }
-      const result = (await this.app.service(loginTokenPath).find({
-        query: {
-          token: id.toString()
+      if (!params?.query?.token) {
+        logger.info('Invalid login token, cannot be null or undefined')
+        return {
+          error: 'invalid login token, cannot be null or undefined'
         }
-      })) as Paginated<LoginTokenType>
+      }
 
-      if (result.data.length === 0) {
-        logger.info('Invalid login token')
+      let loginToken
+      try {
+        loginToken = await this.app.service(loginTokenPath).get(id)
+      } catch (err) {
+        logger.info('Invalid login token ID')
         return {
-          error: 'invalid login token'
+          error: 'Invalid login token'
         }
       }
-      if (new Date() > new Date(result.data[0].expiresAt)) {
+      if (loginToken.token !== params?.query?.token) {
+        logger.info('Token does not match')
+        return {
+          error: 'Invalid login token'
+        }
+      }
+      if (new Date() > new Date(loginToken.expiresAt)) {
         logger.info('Login Token has expired')
+        await this.app.service(loginTokenPath).remove(loginToken.id)
         return { error: 'Login link has expired' }
       }
-      const identityProvider = await this.app.service(identityProviderPath).get(result.data[0].identityProviderId)
+      const identityProvider = await this.app.service(identityProviderPath).get(loginToken.identityProviderId)
+      let addToLogin = false
+      if (loginToken.associateUserId && params!.query?.associate === 'true') {
+        await this.app.service(identityProviderPath).patch(identityProvider.id, {
+          userId: loginToken.associateUserId
+        })
+        await this.app.service(userLoginPath).create({
+          userId: loginToken.associateUserId as UserID,
+          userAgent: params!.headers!['user-agent'],
+          identityProviderId: identityProvider.id,
+          ipAddress: params!.forwarded?.ip || ''
+        })
+      }
+      if (params!.query?.associate != null) addToLogin = true
+      const logins = await this.app.service(userLoginPath).find({
+        query: {
+          userId: identityProvider.userId
+        }
+      })
+      //Email identity-providers are created as type email, so new vs. existing logins can't be discerned by
+      //whether the current identity-provider is a guest. We're using logins === 0 and !addToLogin as a proxy for
+      //a brand-new login with that email, which should trigger the auto-association, and that not being true
+      //will be seen as an email that is established and shouldn't have the auto-association trigger
+      if (identityProvider.type === 'email' && logins.total === 0 && !addToLogin) {
+        const existingIdentityProviders = await this.app.service(identityProviderPath).find({
+          query: {
+            $or: [
+              {
+                email: identityProvider.token
+              },
+              {
+                token: identityProvider.token
+              }
+            ],
+            id: {
+              $ne: identityProvider.id
+            }
+          }
+        })
+        if (existingIdentityProviders.total > 0) {
+          const loginToken = await this.app.service(loginTokenPath).create({
+            identityProviderId: identityProvider.id,
+            associateUserId: existingIdentityProviders.data[0].userId,
+            expiresAt: toDateTimeSql(moment().utc().add(10, 'minutes').toDate())
+          })
+          return {
+            ...identityProvider,
+            associateEmail: identityProvider.token,
+            loginId: loginToken.id,
+            loginToken: loginToken.token,
+            promptForConnection: true
+          }
+        }
+      }
       await makeInitialAdmin(this.app, identityProvider.userId)
       const apiKey = (await this.app.service(userApiKeyPath).find({
         query: {
@@ -101,7 +167,7 @@ export class LoginService implements ServiceInterface {
         }
       })
 
-      await this.app.service(loginTokenPath).remove(result.data[0].id)
+      await this.app.service(loginTokenPath).remove(loginToken.id)
       await this.app.service(userPath).patch(identityProvider.userId, {
         isGuest: false
       })

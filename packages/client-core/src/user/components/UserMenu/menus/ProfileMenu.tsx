@@ -300,7 +300,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
       event_name: 'connect_social_login',
       event_value: e.currentTarget.id
     })
-    AuthService.loginUserByOAuth(e.currentTarget.id, location)
+    AuthService.loginUserByOAuth(e.currentTarget.id, location, true)
   }
 
   const handleRemoveOAuthServiceClick = (e) => {
@@ -461,7 +461,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
           <Avatar
             imageSrc={avatarThumbnail}
             showChangeButton={hasAcceptedTermsAndAge}
-            onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect2)}
+            onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect2, { showBackButton: true })}
           />
 
           <Box className={styles.profileDetails}>

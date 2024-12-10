@@ -29,6 +29,7 @@ import {
   createEntity,
   generateEntityUUID,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   setComponent
 } from '@ir-engine/ecs'
@@ -51,7 +52,7 @@ import assert from 'assert'
 import React from 'react'
 import Sinon from 'sinon'
 import { InstancedMesh, MathUtils, MeshStandardMaterial } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { overrideFileLoaderLoad } from '../../tests/util/loadGLTFAssetNode'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent.ts'
@@ -71,6 +72,9 @@ const skinned_gltf = base_url + '/skinned-mesh/Fox.gltf'
 const camera_gltf = base_url + '/camera/Cameras.gltf'
 const khr_light_gltf = base_url + '/khr-light/LightsPunctualLamp.gltf'
 const instanced_gltf = base_url + '/instanced/SimpleInstancing.gltf'
+const default_url = 'packages/projects/default-project/assets'
+const animation_pack = default_url + '/animations/emotes.glb'
+const rings_gltf = default_url + '/rings.glb'
 
 const setupEntity = () => {
   const parent = createEntity()
@@ -87,10 +91,10 @@ const setupEntity = () => {
   return entity
 }
 
-describe('GLTF Loader', () => {
+describe('GLTF Loader', async () => {
   overrideFileLoaderLoad()
 
-  beforeEach(async () => {
+  beforeEach(() => {
     createEngine()
   })
 
@@ -106,7 +110,7 @@ describe('GLTF Loader', () => {
 
     const { rerender, unmount } = render(<></>)
     applyIncomingActions()
-    await act(() => rerender(<></>))
+    await act(async () => rerender(<></>))
 
     const instanceID = GLTFComponent.getInstanceID(entity)
     const gltfDocumentState = getState(GLTFDocumentState)
@@ -116,8 +120,17 @@ describe('GLTF Loader', () => {
       if (typeof node.mesh === 'number') accum.add(node.mesh)
       return accum
     }, new Set<number>())
+    await act(async () => rerender(<></>))
 
     const meshes = getChildrenWithComponents(entity, [MeshComponent])
+
+    await vi.waitFor(
+      async () => {
+        expect(getChildrenWithComponents(entity, [MeshComponent]).length).toBeTruthy()
+      },
+      { timeout: 20000 }
+    )
+
     assert(meshes.length === usedMeshes.size)
     unmount()
   })
@@ -130,7 +143,7 @@ describe('GLTF Loader', () => {
 
     const { rerender, unmount } = render(<></>)
     applyIncomingActions()
-    await act(() => rerender(<></>))
+    await act(async () => rerender(<></>))
 
     const instanceID = GLTFComponent.getInstanceID(entity)
     const gltfDocumentState = getState(GLTFDocumentState)
@@ -167,7 +180,7 @@ describe('GLTF Loader', () => {
 
     const { rerender, unmount } = render(<></>)
     applyIncomingActions()
-    await act(() => rerender(<></>))
+    await act(async () => rerender(<></>))
 
     const instanceID = GLTFComponent.getInstanceID(entity)
     const gltfDocumentState = getState(GLTFDocumentState)
@@ -192,7 +205,7 @@ describe('GLTF Loader', () => {
 
     const { rerender, unmount } = render(<></>)
     applyIncomingActions()
-    await act(() => rerender(<></>))
+    await act(async () => rerender(<></>))
 
     const instanceID = GLTFComponent.getInstanceID(entity)
     const gltfDocumentState = getState(GLTFDocumentState)
@@ -218,7 +231,7 @@ describe('GLTF Loader', () => {
     unmount()
   })
 
-  it('can load an texture for a material', async () => {
+  it('can load a texture for a material', async () => {
     const entity = setupEntity()
 
     setComponent(entity, UUIDComponent, generateEntityUUID())
@@ -226,7 +239,7 @@ describe('GLTF Loader', () => {
 
     const { rerender, unmount } = render(<></>)
     applyIncomingActions()
-    await act(() => rerender(<></>))
+    await act(async () => rerender(<></>))
 
     const instanceID = GLTFComponent.getInstanceID(entity)
     const gltfDocumentState = getState(GLTFDocumentState)
@@ -251,7 +264,7 @@ describe('GLTF Loader', () => {
     unmount()
   })
 
-  it('can load a meshes with multiple primitives/materials', async () => {
+  it('can load meshes with multiple primitives/materials', async () => {
     const entity = setupEntity()
 
     setComponent(entity, UUIDComponent, generateEntityUUID())
@@ -259,7 +272,7 @@ describe('GLTF Loader', () => {
 
     const { rerender, unmount } = render(<></>)
     applyIncomingActions()
-    await act(() => rerender(<></>))
+    await act(async () => rerender(<></>))
 
     const instanceID = GLTFComponent.getInstanceID(entity)
     const gltfDocumentState = getState(GLTFDocumentState)
@@ -315,7 +328,7 @@ describe('GLTF Loader', () => {
 
     const { rerender, unmount } = render(<></>)
     applyIncomingActions()
-    await act(() => rerender(<></>))
+    await act(async () => rerender(<></>))
 
     const instanceID = GLTFComponent.getInstanceID(entity)
     const gltfDocumentState = getState(GLTFDocumentState)
@@ -329,6 +342,56 @@ describe('GLTF Loader', () => {
     unmount()
   })
 
+  it('can load a mesh with a single animation clip', async () => {
+    const entity = setupEntity()
+
+    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, GLTFComponent, { src: rings_gltf })
+
+    const { rerender, unmount } = render(<></>)
+    applyIncomingActions()
+    await act(async () => rerender(<></>))
+    await vi.waitFor(
+      () => {
+        expect(getOptionalComponent(entity, AnimationComponent)).toBeTruthy()
+      },
+      { timeout: 20000 }
+    )
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const gltfDocumentState = getState(GLTFDocumentState)
+    const gltf = gltfDocumentState[instanceID]
+
+    const animationComponent = getComponent(entity, AnimationComponent)
+    assert(animationComponent.animations.length === gltf.animations!.length)
+
+    unmount()
+  })
+
+  it('can load a skeleton with many animation clips', async () => {
+    const entity = setupEntity()
+
+    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, GLTFComponent, { src: animation_pack })
+
+    const { rerender, unmount } = render(<></>)
+    applyIncomingActions()
+    await act(async () => rerender(<></>))
+    await vi.waitFor(
+      () => {
+        expect(getOptionalComponent(entity, AnimationComponent)).toBeTruthy()
+      },
+      { timeout: 20000 }
+    )
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const gltfDocumentState = getState(GLTFDocumentState)
+    const gltf = gltfDocumentState[instanceID]
+
+    const animationComponent = getComponent(entity, AnimationComponent)
+    assert(animationComponent?.animations.length === gltf.animations!.length)
+
+    unmount()
+  })
+
   it('can load skinned meshes with bones and animations', async () => {
     const entity = setupEntity()
 
@@ -337,8 +400,13 @@ describe('GLTF Loader', () => {
 
     const { rerender, unmount } = render(<></>)
     applyIncomingActions()
-    await act(() => rerender(<></>))
-
+    await act(async () => rerender(<></>))
+    await vi.waitFor(
+      () => {
+        expect(getOptionalComponent(entity, AnimationComponent)).toBeTruthy()
+      },
+      { timeout: 20000 }
+    )
     const instanceID = GLTFComponent.getInstanceID(entity)
     const gltfDocumentState = getState(GLTFDocumentState)
     const gltf = gltfDocumentState[instanceID]
@@ -372,7 +440,7 @@ describe('GLTF Loader', () => {
 
     const { rerender, unmount } = render(<></>)
     applyIncomingActions()
-    await act(() => rerender(<></>))
+    await act(async () => rerender(<></>))
 
     const instanceID = GLTFComponent.getInstanceID(entity)
     const gltfDocumentState = getState(GLTFDocumentState)
@@ -404,7 +472,7 @@ describe('GLTF Loader', () => {
 
     const { rerender, unmount } = render(<></>)
     applyIncomingActions()
-    await act(() => rerender(<></>))
+    await act(async () => rerender(<></>))
 
     const instanceID = GLTFComponent.getInstanceID(entity)
     const gltfDocumentState = getState(GLTFDocumentState)
@@ -446,7 +514,13 @@ describe('GLTF Loader', () => {
 
     const { rerender, unmount } = render(<></>)
     applyIncomingActions()
-    await act(() => rerender(<></>))
+    await act(async () => rerender(<></>))
+    await vi.waitFor(
+      () => {
+        expect(getChildrenWithComponents(entity, [EXTMeshGPUInstancingComponent]).length).toBeTruthy()
+      },
+      { timeout: 20000 }
+    )
 
     const instanceID = GLTFComponent.getInstanceID(entity)
     const gltfDocumentState = getState(GLTFDocumentState)
@@ -499,7 +573,7 @@ describe('GLTF Loader', () => {
 
     const { rerender, unmount } = render(<></>)
     applyIncomingActions()
-    await act(() => rerender(<></>))
+    await act(async () => rerender(<></>))
 
     const instanceID = GLTFComponent.getInstanceID(entity)
     const instanceID2 = GLTFComponent.getInstanceID(entity2)

@@ -23,55 +23,95 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { ReactNode } from 'react'
-import Popup from 'reactjs-popup'
-import { PopupProps } from 'reactjs-popup/dist/types'
-import { twMerge } from 'tailwind-merge'
+import React, { ReactNode, useEffect, useRef, useState } from 'react'
 import './tooltip.css'
 
-export type TooltipProps = {
-  title?: ReactNode
-  titleClassName?: string
+export interface TooltipProps {
+  title?: string
   content: ReactNode
-  children: React.ReactElement
-} & PopupProps
+  children: ReactNode
+  position?: 'auto' | 'top' | 'bottom' | 'left' | 'right'
+}
 
-const Tooltip = ({ title, titleClassName, content, children, className, ...rest }: TooltipProps) => {
+function Tooltip({ title, content, children, position = 'auto' }: TooltipProps) {
+  const [tooltipPosition, setTooltipPosition] = useState('bottom')
+  const triggerRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (position === 'auto' && triggerRef.current) {
+      calculatePosition()
+    } else {
+      setTooltipPosition(position)
+    }
+  }, [position])
+
+  const calculatePosition = () => {
+    if (!triggerRef.current) return
+    const triggerRect = triggerRef.current.getBoundingClientRect()
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+
+    const fitsTop = triggerRect.top >= 50
+    const fitsBottom = viewportHeight - triggerRect.bottom >= 50
+    const fitsLeft = triggerRect.left >= 50
+    const fitsRight = viewportWidth - triggerRect.right >= 50
+
+    if (fitsTop) setTooltipPosition('top')
+    else if (fitsBottom) setTooltipPosition('bottom')
+    else if (fitsRight) setTooltipPosition('right')
+    else if (fitsLeft) setTooltipPosition('left')
+    else setTooltipPosition('top')
+  }
+
+  const getPositionClasses = () => {
+    switch (tooltipPosition) {
+      case 'top':
+        return 'left-1/2 bottom-full mb-3 -translate-x-1/2'
+      case 'bottom':
+        return 'left-1/2 top-full mt-3 -translate-x-1/2'
+      case 'left':
+        return 'right-full top-1/2 mr-3 -translate-y-1/2'
+      case 'right':
+        return 'left-full top-1/2 ml-3 -translate-y-1/2'
+      default:
+        return 'left-1/2 bottom-full mb-3 -translate-x-1/2'
+    }
+  }
+
+  const getArrowStyles = () => {
+    switch (tooltipPosition) {
+      case 'top':
+        return 'bottom-[-4px] left-1/2 -translate-x-1/2'
+      case 'bottom':
+        return 'top-[-4px] left-1/2 -translate-x-1/2'
+      case 'left':
+        return 'right-[-4px] top-1/2 -translate-y-1/2'
+      case 'right':
+        return 'left-[-4px] top-1/2 -translate-y-1/2'
+      default:
+        return 'bottom-[-4px] left-1/2 -translate-x-1/2'
+    }
+  }
+
   return (
-    <Popup
-      trigger={<div style={{ all: 'unset' }}>{children}</div>}
-      on="hover"
-      keepTooltipInside
-      repositionOnResize
-      arrow={false}
-      contentStyle={{
-        animation: 'expandFromCenter 0.3s cubic-bezier(0.38, 0.1, 0.36, 0.9) forwards',
-        transformOrigin: 'center'
-      }}
-      {...rest}
-    >
-      <div className="-mt-1 grid text-wrap shadow-lg transition-all">
-        {title && (
-          <span
-            className={twMerge(
-              'block rounded-t border-b border-b-[#212226] bg-[#141619] px-3 py-1.5 text-sm text-[#F5F5F5]',
-              titleClassName
-            )}
-          >
-            {title}
-          </span>
-        )}
-        <div
-          className={twMerge(
-            'bg-theme-studio-surface px-3 py-2 text-sm text-[#F5F5F5]',
-            title ? 'rounded-b' : 'rounded',
-            className
-          )}
-        >
-          {content}
+    <div ref={triggerRef} className="group relative flex max-w-max flex-col items-center justify-center">
+      {children}
+      <div
+        className={`absolute ${getPositionClasses()} min-w-max scale-0 transform  transition duration-300 group-hover:scale-100`}
+        style={{ zIndex: 9999 }}
+      >
+        <div className="relative flex max-w-xs flex-col items-center shadow-lg">
+          <div
+            className={`absolute ${getArrowStyles()} h-3 w-3 rotate-45 transform border-b border-theme-primary bg-[#191B1F]`}
+          ></div>
+
+          <div className="rounded border border-theme-primary bg-[#191B1F] px-4 py-2 text-center text-xs text-white">
+            {title && <div className="mb-1 text-sm font-semibold text-white">{title}</div>}
+            <div>{content}</div>
+          </div>
         </div>
       </div>
-    </Popup>
+    </div>
   )
 }
 

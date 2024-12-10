@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { AvatarID } from '@ir-engine/common/src/schema.type.module'
 
-import { UserID } from '../schemas/user/user.schema'
+import { UserID } from '@ir-engine/hyperflux'
 
 export type AvatarUploadArgsType = {
   avatarName: string

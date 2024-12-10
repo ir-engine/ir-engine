@@ -26,15 +26,26 @@ import { ArgTypes } from '@storybook/react'
 import React from 'react'
 
 import Button from '../Button'
-import Tooltip from './index'
+import Tooltip, { TooltipProps } from './index'
 
-const argTypes: ArgTypes = {}
+const argTypes: ArgTypes = {
+  title: {
+    control: 'text'
+  },
+  content: {
+    control: 'text'
+  },
+  position: {
+    control: 'select',
+    options: ['auto', 'top', 'bottom', 'left', 'right']
+  }
+}
 
-const TooltipStory = (title) => {
+const TooltipStory = (props: TooltipProps) => {
   return (
     <div className="flex h-screen items-center justify-center">
-      <Tooltip content={title}>
-        <Button title="Submit" />
+      <Tooltip {...props}>
+        <Button>Submit</Button>
       </Tooltip>
     </div>
   )
@@ -55,6 +66,8 @@ export default {
 
 export const Default = {
   args: {
-    title: 'Tooltip info'
+    title: 'Tooltip',
+    content: 'I am a tooltip 🚀',
+    position: 'auto'
   }
 }

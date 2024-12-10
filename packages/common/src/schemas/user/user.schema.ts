@@ -36,6 +36,7 @@ import { ScopeType } from '../scope/scope.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { userLoginSchema } from './user-login.schema'
 
+/** @deprecated - import from @ir-engine/hyperflux */
 export type { UserID }
 
 export const userPath = 'user'
@@ -64,8 +65,6 @@ export const userSchema = Type.Object(
     acceptedTOS: Type.Boolean(),
     isGuest: Type.Boolean(),
     inviteCode: Type.Optional(TypedString<InviteCode>()),
-    // avatarId: TypedString<AvatarID>(),
-    // avatar: Type.Ref(avatarDataSchema),
     lastLogin: Type.Optional(Type.Ref(userLoginSchema)),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })

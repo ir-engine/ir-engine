@@ -34,7 +34,7 @@ import {
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { NO_PROXY, State, useImmediateEffect } from '@ir-engine/hyperflux'
+import { NO_PROXY, State, isHookstateValue, useImmediateEffect } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs'
 import { useResource } from '../../resources/resourceHooks'
@@ -49,7 +49,13 @@ export const MeshComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const meshComponent = useComponent(entity, MeshComponent)
-    const [meshResource] = useResource(meshComponent.get(NO_PROXY), entity, meshComponent.uuid.get(NO_PROXY))
+    const [meshResource] = useResource(meshComponent.get(NO_PROXY), entity)
+
+    const geometryValue = meshComponent.geometry.value
+    const [geometryResource] = useResource(isHookstateValue(geometryValue) ? null : geometryValue, entity)
+
+    const materialValue = meshComponent.material.value
+    const [materialResource] = useResource(isHookstateValue(materialValue) ? null : materialValue, entity)
 
     useEffect(() => {
       const box = meshComponent.geometry.boundingBox.get(NO_PROXY) as Box3 | null
@@ -62,7 +68,14 @@ export const MeshComponent = defineComponent({
     }, [meshComponent.geometry.boundingBox])
 
     useEffect(() => {
+      const geometry = meshComponent.geometry.value
+      if (geometry !== geometryResource.value && !isHookstateValue(geometry)) geometryResource.set(geometry)
+    }, [meshComponent.geometry])
+
+    useEffect(() => {
       const material = meshComponent.material.value
+
+      if (material !== materialResource.value && !isHookstateValue(material)) materialResource.set(material)
 
       if (Array.isArray(material)) {
         material.forEach((material) => (material.needsUpdate = true))

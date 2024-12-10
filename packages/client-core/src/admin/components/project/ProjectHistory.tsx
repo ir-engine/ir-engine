@@ -24,15 +24,13 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useFind } from '@ir-engine/common'
-import { projectHistoryPath } from '@ir-engine/common/src/schema.type.module'
-import { ProjectHistoryType } from '@ir-engine/common/src/schemas/projects/project-history.schema'
+import { projectHistoryPath, ProjectHistoryType } from '@ir-engine/common/src/schema.type.module'
 
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
+import { Button, Tooltip } from '@ir-engine/ui'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import { TablePagination } from '@ir-engine/ui/src/primitives/tailwind/Table'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaSortAmountDown, FaSortAmountUpAlt } from 'react-icons/fa'
@@ -389,12 +387,14 @@ export const ProjectHistory = ({ projectId, projectName }: { projectId: string; 
   return (
     <div className="w-full flex-row justify-between gap-5 px-2">
       <div className="mb-4 flex items-center justify-start gap-3">
-        <Button onClick={toggleSortOrder} endIcon={sortOrder === -1 ? <FaSortAmountDown /> : <FaSortAmountUpAlt />}>
+        <Button onClick={toggleSortOrder}>
           {sortOrder === -1 ? t('admin:components.common.newestFirst') : t('admin:components.common.oldestFirst')}
+          {sortOrder === -1 ? <FaSortAmountDown /> : <FaSortAmountUpAlt />}
         </Button>
 
-        <Button startIcon={<FiRefreshCw />} onClick={projectHistoryQuery.refetch}>
+        <Button onClick={projectHistoryQuery.refetch}>
           {t('admin:components.common.refresh')}
+          <FiRefreshCw />
         </Button>
       </div>
 

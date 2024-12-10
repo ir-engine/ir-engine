@@ -46,6 +46,7 @@ import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { CameraComponent } from '../../../../spatial/src/camera/components/CameraComponent'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { setAvatarColliderTransform } from '../functions/spawnAvatarReceptor'
@@ -68,9 +69,9 @@ export const AvatarControllerComponent = defineComponent({
     /** Is the gamepad-driven jump active */
     gamepadJumpActive: S.Bool(false),
     /** gamepad-driven input, in the local XZ plane */
-    gamepadLocalInput: S.Vec3(),
+    gamepadLocalInput: T.Vec3(),
     /** gamepad-driven movement, in the world XZ plane */
-    gamepadWorldMovement: S.Vec3()
+    gamepadWorldMovement: T.Vec3()
   }),
 
   captureMovement(capturedEntity: Entity, entity: Entity): void {
@@ -87,7 +88,7 @@ export const AvatarControllerComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const avatarComponent = useComponent(entity, AvatarComponent)
+    const avatarComponent = useOptionalComponent(entity, AvatarComponent)
     const avatarControllerComponent = useComponent(entity, AvatarControllerComponent)
     const isCameraAttachedToAvatar = XRState.useCameraAttachedToAvatar()
     const camera = useComponent(Engine.instance.cameraEntity, CameraComponent)
@@ -119,6 +120,7 @@ export const AvatarControllerComponent = defineComponent({
     }, [world])
 
     useEffect(() => {
+      if (!avatarComponent) return
       setAvatarColliderTransform(entity)
 
       const cameraEntity = avatarControllerComponent.cameraEntity.value
@@ -127,9 +129,10 @@ export const AvatarControllerComponent = defineComponent({
         cameraComponent.firstPersonOffset.set(0, avatarComponent.eyeHeight.value, eyeOffset)
         cameraComponent.thirdPersonOffset.set(0, avatarComponent.eyeHeight.value, 0)
       }
-    }, [avatarComponent.avatarHeight, camera.near])
+    }, [avatarComponent?.avatarHeight, camera.near])
 
     useEffect(() => {
+      if (!avatarComponent) return
       if (isCameraAttachedToAvatar) {
         const controller = getComponent(entity, AvatarControllerComponent)
         removeComponent(controller.cameraEntity, FollowCameraComponent)
@@ -144,7 +147,7 @@ export const AvatarControllerComponent = defineComponent({
           thirdPersonOffset: new Vector3(0, avatarComponent.eyeHeight.value, 0)
         })
       }
-    }, [isCameraAttachedToAvatar])
+    }, [isCameraAttachedToAvatar, avatarComponent])
 
     return null
   }

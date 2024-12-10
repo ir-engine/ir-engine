@@ -35,6 +35,7 @@ import { AuthUserSeed, resolveAuthUser } from '@ir-engine/common/src/interfaces/
 import multiLogger from '@ir-engine/common/src/logger'
 import {
   AuthStrategiesType,
+  HasAccessType,
   IdentityProviderType,
   InstanceID,
   UserApiKeyType,
@@ -56,7 +57,6 @@ import {
   userPath,
   userSettingPath
 } from '@ir-engine/common/src/schema.type.module'
-import type { HasAccessType } from '@ir-engine/common/src/schemas/networking/allowed-domains.schema'
 import {
   HyperFlux,
   defineState,
@@ -73,7 +73,10 @@ export const logger = multiLogger.child({ component: 'client-core:AuthService' }
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
 
 const iframe = document.getElementById('root-cookie-accessor') as HTMLIFrameElement
-const communicator = new ParentCommunicator('root-cookie-accessor', config.client.clientUrl) //Eventually we can configure iframe target seperatly
+const communicator = new ParentCommunicator(
+  'root-cookie-accessor',
+  config.client.hostOriginOverride ?? config.client.clientUrl
+) //Eventually we can configure iframe target seperatly
 
 export const UserSeed: UserType = {
   id: '' as UserID,
@@ -449,7 +452,7 @@ export const AuthService = {
   /**
    * Logs in the current user based on an OAuth response.
    */
-  async loginUserByOAuth(service: string, location: any, redirectUrl?: string) {
+  async loginUserByOAuth(service: string, location: any, isSignUp: boolean, redirectUrl?: string) {
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     const token = getState(AuthState).authUser.accessToken
     const path = redirectUrl || new URLSearchParams(location.search).get('redirectUrl') || location.pathname
@@ -464,10 +467,13 @@ export const AuthService = {
 
     if (instanceId) redirectConfig.instanceId = instanceId
     if (domain) redirectConfig.domain = domain
+    const action = isSignUp == false ? 'signin' : 'signup'
 
     window.location.href = `${
       config.client.serverUrl
-    }/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(redirectConfig)}`
+    }/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(redirectConfig)}&action=${encodeURIComponent(
+      action
+    )}`
   },
 
   async removeUserOAuth(service: string) {
@@ -668,7 +674,7 @@ export const AuthService = {
         sms: 'sms-sent-msg',
         default: 'success-msg'
       }
-      NotificationService.dispatchNotify(i18n.t(`user:auth.magiklink.${message[type ?? 'default']}`).toString(), {
+      NotificationService.dispatchNotify(i18n.t(`user:auth.magiclink.${message[type ?? 'default']}`).toString(), {
         variant: 'success'
       })
     } catch (err) {
@@ -683,11 +689,12 @@ export const AuthService = {
     try {
       const identityProviders = await API.instance.service(identityProviderPath).find({
         query: {
-          email: email.toLowerCase()
+          email: email.toLowerCase(),
+          type: 'email'
         }
       })
 
-      return identityProviders.data.length > 0
+      return identityProviders.data.some((provider) => provider.email === email.toLowerCase())
     } catch (error) {
       return false
     }
@@ -722,7 +729,7 @@ export const AuthService = {
         userId
       })) as IdentityProviderType
       if (identityProvider.userId) {
-        NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.email-sent-msg').toString(), {
+        NotificationService.dispatchNotify(i18n.t('user:auth.magiclink.email-sent-msg').toString(), {
           variant: 'success'
         })
         return AuthService.loadUserData(identityProvider.userId)
@@ -750,7 +757,7 @@ export const AuthService = {
         userId
       })) as IdentityProviderType
       if (identityProvider.userId) {
-        NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.sms-sent-msg').toString(), { variant: 'error' })
+        NotificationService.dispatchNotify(i18n.t('user:auth.magiclink.sms-sent-msg').toString(), { variant: 'error' })
         return AuthService.loadUserData(identityProvider.userId)
       }
     } catch (err) {

@@ -44,6 +44,7 @@ export enum AuthError {
 
 export type AuthTask = {
   status: 'success' | 'fail' | 'pending'
+  peerIndex?: number
   hostPeerID?: PeerID
   routerRtpCapabilities?: any
   cachedActions?: Required<Action>[]

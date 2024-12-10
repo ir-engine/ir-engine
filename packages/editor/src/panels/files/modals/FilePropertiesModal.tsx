@@ -35,8 +35,7 @@ import {
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, State, getMutableState, startReactor, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button, Input } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import TextArea from '@ir-engine/ui/src/primitives/tailwind/TextArea'
@@ -283,11 +282,12 @@ export default function FilePropertiesModal() {
                 <Input value={resourceDigest.name.value ?? ''} onChange={onChange('name', resourceDigest.name)} />
                 <Button
                   title={t('common:components.save')}
-                  variant="transparent"
-                  size="small"
-                  startIcon={<RiSave2Line />}
+                  variant="secondary"
+                  size="sm"
                   onClick={() => editedField.set(null)}
-                />
+                >
+                  <RiSave2Line />
+                </Button>
               </>
             ) : (
               <>
@@ -298,11 +298,12 @@ export default function FilePropertiesModal() {
                 </Text>
                 <Button
                   title={t('common:components.edit')}
-                  variant="transparent"
-                  size="small"
-                  startIcon={<HiPencil />}
+                  variant="secondary"
+                  size="sm"
                   onClick={() => editedField.set('name')}
-                />
+                >
+                  <HiPencil />
+                </Button>
               </>
             )}
           </span>
@@ -336,11 +337,12 @@ export default function FilePropertiesModal() {
                     />
                     <Button
                       title={t('common:components.save')}
-                      variant="transparent"
-                      size="small"
-                      startIcon={<RiSave2Line />}
+                      variant="secondary"
+                      size="sm"
                       onClick={() => editedField.set(null)}
-                    />
+                    >
+                      <RiSave2Line />
+                    </Button>
                   </>
                 ) : (
                   <>
@@ -351,11 +353,12 @@ export default function FilePropertiesModal() {
                     </Text>
                     <Button
                       title={t('common:components.edit')}
-                      variant="transparent"
-                      size="small"
-                      startIcon={<HiPencil />}
+                      variant="secondary"
+                      size="sm"
                       onClick={() => editedField.set('attribution')}
-                    />
+                    >
+                      <HiPencil />
+                    </Button>
                   </>
                 )}
               </span>
@@ -371,11 +374,12 @@ export default function FilePropertiesModal() {
                     />
                     <Button
                       title={t('common:components.save')}
-                      variant="transparent"
-                      size="small"
-                      startIcon={<RiSave2Line />}
+                      variant="secondary"
+                      size="sm"
                       onClick={() => editedField.set(null)}
-                    />
+                    >
+                      <RiSave2Line />
+                    </Button>
                   </>
                 ) : (
                   <>
@@ -386,11 +390,12 @@ export default function FilePropertiesModal() {
                     </Text>
                     <Button
                       title={t('common:components.edit')}
-                      variant="transparent"
-                      size="small"
-                      startIcon={<HiPencil />}
+                      variant="secondary"
+                      size="sm"
                       onClick={() => editedField.set('licensing')}
-                    />
+                    >
+                      <HiPencil />
+                    </Button>
                   </>
                 )}
               </span>
@@ -407,12 +412,13 @@ export default function FilePropertiesModal() {
                   />
                   <Button
                     title={t('common:components.save')}
-                    variant="transparent"
-                    size="small"
-                    startIcon={<RiSave2Line />}
+                    variant="secondary"
+                    size="sm"
                     onClick={() => editedField.set(null)}
                     className="mt-2"
-                  />
+                  >
+                    <RiSave2Line />
+                  </Button>
                 </>
               ) : (
                 <>
@@ -423,11 +429,12 @@ export default function FilePropertiesModal() {
                   </Text>
                   <Button
                     title={t('common:components.edit')}
-                    variant="transparent"
-                    size="small"
-                    startIcon={<HiPencil />}
+                    variant="secondary"
+                    size="sm"
                     onClick={() => editedField.set('description')}
-                  />
+                  >
+                    <HiPencil />
+                  </Button>
                 </>
               )}
             </span>
@@ -445,11 +452,9 @@ export default function FilePropertiesModal() {
                     }
                   }}
                 />
-                <Button
-                  startIcon={<HiPlus />}
-                  title={t('editor:layout.filebrowser.fileProperties.add')}
-                  onClick={handleAddTag}
-                />
+                <Button title={t('editor:layout.filebrowser.fileProperties.add')} onClick={handleAddTag}>
+                  <HiPlus />
+                </Button>
               </div>
               <div className="flex h-24 flex-wrap gap-2 overflow-y-auto bg-theme-surfaceInput p-2">
                 {resourceDigest.tags.value!.map((tag, idx) => (

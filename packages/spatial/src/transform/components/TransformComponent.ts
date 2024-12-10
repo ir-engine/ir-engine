@@ -196,6 +196,20 @@ export const TransformComponent = defineComponent({
     return vec3
   },
 
+  getScenePosition: (entity: Entity, vec3: Vector3) => {
+    const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
+    if (!sceneEntity) return vec3.set(0, 0, 0)
+
+    TransformComponent.getMatrixRelativeToEntity(entity, sceneEntity, _m1)
+    const te = _m1.elements
+
+    vec3.x = te[12]
+    vec3.y = te[13]
+    vec3.z = te[14]
+
+    return vec3
+  },
+
   getSceneScale: (entity: Entity, vec3: Vector3) => {
     const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
     if (!sceneEntity) return vec3.set(1, 1, 1)
@@ -460,4 +474,4 @@ export const setFromRotationMatrix = (entity: Entity, m: Matrix4) => {
   }
 }
 
-export const TransformGizmoTagComponent = defineComponent({ name: 'TransformGizmoTag' })
+export const TransformGizmoTagComponent = defineComponent({ name: 'TransformGizmoTagComponent' })

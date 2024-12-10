@@ -23,9 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
+import Button from '../../../primitives/tailwind/Button'
 
 export function SidebarButton({ children, className, ...rest }) {
   return (

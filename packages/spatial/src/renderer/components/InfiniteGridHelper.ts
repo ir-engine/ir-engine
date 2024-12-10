@@ -45,10 +45,13 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
 import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
 import { useResource } from '../../resources/resourceHooks'
+import { T } from '../../schema/schemaFunctions'
 import { RendererState } from '../RendererState'
 import LogarithmicDepthBufferMaterialChunk from '../constants/LogarithmicDepthBufferMaterialChunk'
+import { ObjectLayerMasks } from '../constants/ObjectLayers'
 import { LineSegmentComponent } from './LineSegmentComponent'
 import { useMeshComponent } from './MeshComponent'
+import { ObjectLayerMaskComponent } from './ObjectLayerComponent'
 
 /**
  * Original Author: Fyrestar
@@ -132,7 +135,7 @@ export const InfiniteGridComponent = defineComponent({
 
   schema: S.Object({
     size: S.Number(1),
-    color: S.Color(0x535353),
+    color: T.Color(0x535353),
     distance: S.Number(200)
   }),
 
@@ -214,6 +217,7 @@ export const InfiniteGridComponent = defineComponent({
           material: lineMaterial
         })
         setComponent(lineEntity, EntityTreeComponent, { parentEntity: entity })
+        setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Gizmos)
         lineEntities.push(lineEntity)
       }
 
@@ -231,6 +235,7 @@ export const createInfiniteGridHelper = () => {
   setComponent(entity, EntityTreeComponent)
   setComponent(entity, InfiniteGridComponent)
   setComponent(entity, NameComponent, 'Infinite Grid Helper')
+  setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Gizmos)
   setVisibleComponent(entity, true)
   return entity
 }

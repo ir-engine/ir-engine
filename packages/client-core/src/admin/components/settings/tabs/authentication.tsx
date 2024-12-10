@@ -30,10 +30,9 @@ import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 import { useFind, useMutation } from '@ir-engine/common'
 import { AuthenticationSettingType, authenticationSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { State, useHookstate } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
+import { Button, Input } from '@ir-engine/ui'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
@@ -192,6 +191,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     >
       <div className="mt-6 grid grid-cols-2 gap-4">
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.service'),
             position: 'top'
@@ -201,6 +201,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.entity'),
             position: 'top'
@@ -210,6 +211,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.jwtAlgorithm'),
             position: 'top'
@@ -219,6 +221,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <PasswordInput
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.secret'),
             position: 'top'
@@ -228,6 +231,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.jwtPublicKey'),
             position: 'top'
@@ -270,6 +274,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
 
       <div className="grid grid-cols-3 gap-4">
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.host'),
             position: 'top'
@@ -279,6 +284,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
 
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.setting.protocol'),
             position: 'top'
@@ -297,6 +303,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             </Text>
 
             <PasswordInput
+              fullWidth
               labelProps={{
                 text: t('admin:components.setting.key'),
                 position: 'top'
@@ -306,6 +313,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             />
 
             <PasswordInput
+              fullWidth
               labelProps={{
                 text: t('admin:components.setting.secret'),
                 position: 'top'
@@ -315,6 +323,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             />
 
             <Input
+              fullWidth
               labelProps={{
                 text: t('admin:components.setting.callback'),
                 position: 'top'
@@ -331,6 +340,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             </Text>
 
             <PasswordInput
+              fullWidth
               labelProps={{
                 text: t('admin:components.setting.key'),
                 position: 'top'
@@ -340,6 +350,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             />
 
             <PasswordInput
+              fullWidth
               labelProps={{
                 text: t('admin:components.setting.secret'),
                 position: 'top'
@@ -349,6 +360,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             />
 
             <Input
+              fullWidth
               labelProps={{
                 text: t('admin:components.setting.callback'),
                 position: 'top'
@@ -366,6 +378,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             </Text>
 
             <PasswordInput
+              fullWidth
               labelProps={{
                 text: t('admin:components.setting.key'),
                 position: 'top'
@@ -375,6 +388,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             />
 
             <PasswordInput
+              fullWidth
               labelProps={{
                 text: t('admin:components.setting.secret'),
                 position: 'top'
@@ -384,6 +398,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             />
 
             <Input
+              fullWidth
               labelProps={{
                 text: t('admin:components.setting.callback'),
                 position: 'top'
@@ -401,6 +416,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             </Text>
 
             <PasswordInput
+              fullWidth
               labelProps={{
                 text: t('admin:components.setting.key'),
                 position: 'top'
@@ -410,6 +426,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             />
 
             <PasswordInput
+              fullWidth
               labelProps={{
                 text: t('admin:components.setting.secret'),
                 position: 'top'
@@ -419,6 +436,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             />
 
             <Input
+              fullWidth
               labelProps={{
                 text: t('admin:components.setting.callback'),
                 position: 'top'
@@ -436,6 +454,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             </Text>
 
             <PasswordInput
+              fullWidth
               labelProps={{
                 text: t('admin:components.setting.key'),
                 position: 'top'
@@ -445,6 +464,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             />
 
             <PasswordInput
+              fullWidth
               labelProps={{
                 text: t('admin:components.setting.secret'),
                 position: 'top'
@@ -454,6 +474,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             />
 
             <Input
+              fullWidth
               labelProps={{
                 text: t('admin:components.setting.callback'),
                 position: 'top'
@@ -471,6 +492,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             </Text>
 
             <PasswordInput
+              fullWidth
               labelProps={{
                 text: t('admin:components.setting.key'),
                 position: 'top'
@@ -480,6 +502,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             />
 
             <PasswordInput
+              fullWidth
               labelProps={{
                 text: t('admin:components.setting.secret'),
                 position: 'top'
@@ -489,6 +512,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             />
 
             <Input
+              fullWidth
               labelProps={{
                 text: t('admin:components.setting.callback'),
                 position: 'top'
@@ -506,6 +530,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             </Text>
 
             <PasswordInput
+              fullWidth
               labelProps={{
                 text: t('admin:components.setting.githubAppId'),
                 position: 'top'
@@ -515,6 +540,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             />
 
             <PasswordInput
+              fullWidth
               labelProps={{
                 text: t('admin:components.setting.key'),
                 position: 'top'
@@ -524,6 +550,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             />
 
             <PasswordInput
+              fullWidth
               labelProps={{
                 text: t('admin:components.setting.secret'),
                 position: 'top'
@@ -533,6 +560,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             />
 
             <Input
+              fullWidth
               labelProps={{
                 text: t('admin:components.setting.callback'),
                 position: 'top'
@@ -545,19 +573,13 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       </div>
 
       <div className="mt-6 grid grid-cols-8 gap-6">
-        <Button size="small" className="text-primary col-span-1 bg-theme-highlight" onClick={handleCancel} fullWidth>
+        <Button size="sm" className="text-primary col-span-1 bg-theme-highlight" onClick={handleCancel} fullWidth>
           {t('admin:components.common.reset')}
         </Button>
 
-        <Button
-          size="small"
-          className="col-span-1"
-          variant="primary"
-          onClick={handleSubmit}
-          startIcon={loadingState.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
-          fullWidth
-        >
+        <Button size="sm" className="col-span-1" variant="primary" onClick={handleSubmit} fullWidth>
           {t('admin:components.common.save')}
+          {loadingState.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
         </Button>
       </div>
     </Accordion>

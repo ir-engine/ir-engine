@@ -27,7 +27,7 @@
 
 https://user-images.githubusercontent.com/507127/142818955-51d7757f-a432-45da-8f8f-56037358ad58.mp4
 
-We ([Infinite Reality Engine](https://github.com/etherealengine)) believe that the Metaverse, 
+We ([Infinite Reality Engine](https://github.com/ir-engine)) believe that the Metaverse, 
 Web AR, VR, and XR should be easy.
 
 We want a Star Trek future where participating in immersive communication 
@@ -49,7 +49,7 @@ technology and shared simulations should be as easy and natural as making a webs
 
 ## Project API
 
-### [Library of EE Projects](https://github.com/ir-engine/project-manifest)
+### [Library of IR Engine Projects](https://github.com/ir-engine/project-manifest)
 
 Create composable plug-ins for iR Engine experiences with the Projects API
 
@@ -81,7 +81,7 @@ To install iR Engine locally, the following pre-reqs are required.
 
 ### Getting Started
 
-See the [Installation instructions](https://etherealengine.github.io/etherealengine-docs/manual/install/)
+See the [Installation instructions](https://app.archbee.com/public/PREVIEW-G_Kn_XtWasJmPy3-KJn4x)
 for more details.
 
 ## Usage
@@ -118,8 +118,6 @@ you find who you need to talk to.
 ![msf-member-badge-small](https://user-images.githubusercontent.com/5104160/181168132-57a91f8b-16c9-45f0-a0ee-c89f8f018a80.png)
 
 ### [Join our Discord](https://discord.gg/xrf)  [![Discord Chat](https://img.shields.io/discord/692672143053422678.svg)](https://discord.gg/xrf)
-
-### [Sponsorship](https://opencollective.com/etherealengine) [![Open Collective](https://opencollective.com/etherealengine/tiers/badge.svg)](https://opencollective.com/etherealengine)
 
 ## License
 [CPAL](LICENSE) - Copyright (c) 2021-2024 Infinite Reality.

@@ -30,33 +30,29 @@ import { ShadowMapResolutionOptions } from '@ir-engine/client-core/src/user/comp
 import { useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { RenderModes, RenderModesType } from '@ir-engine/spatial/src/renderer/constants/RenderModes'
-import { Checkbox } from '@ir-engine/ui'
+import { Checkbox, Tooltip } from '@ir-engine/ui'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
-import { GiWireframeGlobe } from 'react-icons/gi'
-import { RiArrowDownSLine } from 'react-icons/ri'
-import { TbBallBowling, TbInnerShadowBottom, TbInnerShadowBottomFilled, TbShadow } from 'react-icons/tb'
+import { ChevronDownMd, GlobeWireframesMd, LitMd, NormalRenderMd, ShadowMd, UnlitMd } from '@ir-engine/ui/src/icons'
 
 const renderModes: { name: RenderModesType; icon: JSX.Element }[] = [
   {
     name: 'Unlit',
-    icon: <TbInnerShadowBottom className="text-theme-input" />
+    icon: <UnlitMd className="text-[#9CA0AA]" />
   },
   {
     name: 'Lit',
-    icon: <TbInnerShadowBottomFilled className="text-theme-input" />
+    icon: <LitMd className="text-[#9CA0AA]" />
   },
-  { name: 'Normals', icon: <TbBallBowling className="text-theme-input" /> },
+  { name: 'Normals', icon: <NormalRenderMd className="text-[#9CA0AA]" /> },
   {
     name: 'Wireframe',
-    icon: <GiWireframeGlobe className="text-theme-input" />
+    icon: <GlobeWireframesMd className="text-[#9CA0AA]" />
   },
   {
     name: 'Shadows',
-    icon: <TbShadow className="text-theme-input" />
+    icon: <ShadowMd className="text-[#9CA0AA]" />
   }
 ]
 
@@ -82,16 +78,19 @@ const RenderModeTool = () => {
     <div className="flex items-center gap-1 rounded bg-[#141619]">
       {renderModes.map((mode) => (
         <Tooltip key={mode.name} content={mode.name}>
-          <Button
-            startIcon={mode.icon}
-            variant={rendererState.renderMode.value === mode.name ? 'outline' : 'transparent'}
-            onClick={() => rendererState.renderMode.set(mode.name)}
-            className="p-1"
-            size="small"
-          />
+          <button onClick={() => rendererState.renderMode.set(mode.name)} className="p-1">
+            {mode.icon}
+          </button>
         </Tooltip>
       ))}
-      <Popup keepInside trigger={<Button variant="transparent" className="p-2" startIcon={<RiArrowDownSLine />} />}>
+      <Popup
+        keepInside
+        trigger={
+          <button className="p-2">
+            <ChevronDownMd />
+          </button>
+        }
+      >
         <div className="w-52 rounded-md bg-theme-primary p-2">
           <InputGroup
             name="Use Post Processing"
@@ -109,12 +108,11 @@ const RenderModeTool = () => {
             containerClassName="justify-between gap-2"
           >
             <SelectInput
-              inputClassName="text-theme-gray3"
-              className="border-theme-input text-theme-gray3"
               options={ShadowMapResolutionOptions as { value: string; label: string }[]}
               value={rendererState.shadowMapResolution.value}
               onChange={(resolution: number) => rendererState.shadowMapResolution.set(resolution)}
               disabled={rendererState.renderMode.value !== RenderModes.SHADOW}
+              width="full"
             />
           </InputGroup>
         </div>

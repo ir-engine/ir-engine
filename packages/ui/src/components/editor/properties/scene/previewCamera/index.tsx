@@ -28,68 +28,93 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineCamera } from 'react-icons/hi'
 
-import { getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
+import { getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { generateThumbnailKey } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
+import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
+import { API } from '@ir-engine/common'
+import config from '@ir-engine/common/src/config'
+import { fileBrowserUploadPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
-import { previewScreenshot } from '@ir-engine/editor/src/functions/takeScreenshot'
+import { takeScreenshot } from '@ir-engine/editor/src/functions/takeScreenshot'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import {
-  RendererComponent,
-  getNestedVisibleChildren,
-  getSceneParameters
-} from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { ImageLink } from '@ir-engine/ui/editor'
-import { Scene } from 'three'
+import { Euler } from 'three'
 import Button from '../../../../../primitives/tailwind/Button'
 
 /**
  * ScenePreviewCameraNodeEditor provides the editor view to customize properties.
  */
 
-const scene = new Scene()
-
 export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const [bufferUrl, setBufferUrl] = useState<string>('')
-  const transformComponent = useComponent(Engine.instance.cameraEntity, TransformComponent)
+  const [blob, setBlob] = useState<Blob>()
+  const transformComponent = useComponent(getState(EngineState).viewerEntity, TransformComponent)
 
   const onSetFromViewport = () => {
-    const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    const transform = getComponent(props.entity, TransformComponent)
-    transform.position.copy(position)
-    transform.rotation.copy(rotation)
+    const { position, rotation } = getComponent(getState(EngineState).viewerEntity, TransformComponent)
+    const scenePreviewCamera = getComponent(props.entity, ScenePreviewCameraComponent)
+    setComponent(props.entity, TransformComponent, { position: position, rotation: rotation })
+    scenePreviewCamera.camera.position.copy(position)
+    scenePreviewCamera.camera.rotation.copy(new Euler().setFromQuaternion(rotation))
     computeTransformMatrix(props.entity)
-
     EditorControlFunctions.commitTransformSave([props.entity])
   }
 
+  const uploadThumbnail = async () => {
+    if (!blob) return
+
+    const editorState = getState(EditorState)
+    const source = editorState.scenePath
+    const projectName = editorState.projectName
+    const staticResourceId = editorState.sceneAssetID
+    if (source && projectName) {
+      const thumbnailKey = generateThumbnailKey(source, projectName)
+      const thumbnailMode = 'custom'
+      const file = new File([blob], thumbnailKey)
+      const thumbnailURL = new URL(
+        await uploadToFeathersService(fileBrowserUploadPath, [file], {
+          args: [
+            {
+              fileName: file.name,
+              project: projectName,
+              path: 'public/thumbnails/' + file.name,
+              contentType: file.type,
+              type: 'thumbnail',
+              thumbnailKey,
+              thumbnailMode
+            }
+          ]
+        }).promise
+      )
+      thumbnailURL.search = ''
+      thumbnailURL.hash = ''
+      const _thumbnailKey = thumbnailURL.href.replace(config.client.fileServer + '/', '')
+      await API.instance
+        .service(staticResourcePath)
+        .patch(staticResourceId, { thumbnailKey: _thumbnailKey, thumbnailMode, project: projectName })
+    }
+  }
+
   const updateScenePreview = async () => {
-    const rootEntity = getState(EngineState).viewerEntity
-    const entitiesToRender = getComponent(rootEntity, RendererComponent).scenes.map(getNestedVisibleChildren).flat()
-    const { background, environment, fog, children } = getSceneParameters(entitiesToRender)
-
-    scene.children = children
-    scene.environment = environment
-    scene.fog = fog
-    scene.background = background
-
-    const imageBlob = (await previewScreenshot(
+    const imageBlob = (await takeScreenshot(
       512 / 2,
       320 / 2,
-      0.9,
+      1,
       'jpeg',
-      scene,
       getComponent(props.entity, ScenePreviewCameraComponent).camera
     ))!
     const url = URL.createObjectURL(imageBlob)
     setBufferUrl(url)
+    setBlob(imageBlob)
   }
 
   const updateCubeMapBakeDebounced = useCallback(debounce(updateScenePreview, 500), []) //ms
@@ -109,7 +134,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
       Icon={ScenePreviewCameraNodeEditor.iconComponent}
     >
       <ImageLink src={bufferUrl} />
-      <div className="flex h-auto flex-col items-center">
+      <div className="my-4 flex h-auto flex-row items-center justify-center space-x-4">
         <Button
           onClick={() => {
             onSetFromViewport()
@@ -117,6 +142,15 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
           }}
         >
           {t('editor:properties.sceneCamera.lbl-setFromViewPort')}
+        </Button>
+
+        <Button
+          onClick={() => {
+            uploadThumbnail()
+          }}
+          disabled={blob === undefined}
+        >
+          {t('editor:properties.sceneCamera.lbl-updateThumbnail')}
         </Button>
       </div>
     </NodeEditor>

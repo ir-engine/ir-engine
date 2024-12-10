@@ -27,26 +27,25 @@ import React from 'react'
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
-import { fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
+import { fileBrowserUploadPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import {
   KTX2EncodeArguments,
   KTX2EncodeDefaultArguments
 } from '@ir-engine/engine/src/assets/constants/CompressionParms'
 import { ImmutableArray, useHookstate } from '@ir-engine/hyperflux'
-import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import { Checkbox, Input } from '@ir-engine/ui'
+import { API } from '@ir-engine/common'
+import { Button, Checkbox, Input, Select } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { MdClose } from 'react-icons/md'
 import { FileDataType } from '../../constants/AssetTypes'
+import { compressImage } from '../../functions/assetFunctions'
 
 const UASTCFlagOptions = [
   { label: 'Fastest', value: 0 },
@@ -78,7 +77,8 @@ export default function ImageCompressionPanel({
     compressionLoading.set(true)
 
     for (const file of selectedFiles) {
-      await compressImage(file)
+      compressProperties.src.set(file.type === 'folder' ? `${file.url}/${file.key}` : file.url)
+      await uploadImage(file, await compressImage(compressProperties.value))
     }
     await refreshDirectory()
 
@@ -86,41 +86,14 @@ export default function ImageCompressionPanel({
     PopoverState.hidePopupover()
   }
 
-  const compressImage = async (props: FileDataType) => {
-    compressProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
-
-    const ktx2Encoder = new KTX2Encoder()
-
-    const img = await new Promise<HTMLImageElement>((resolve) => {
-      const img = new Image()
-      img.crossOrigin = 'anonymous'
-      img.onload = function () {
-        resolve(img)
-      }
-      img.src = compressProperties.src.value
-    })
-
-    const canvas = new OffscreenCanvas(img.width, img.height)
-    const ctx = canvas.getContext('2d')!
-    ctx.drawImage(img, 0, 0)
-
-    const imageData = ctx.getImageData(0, 0, img.width, img.height)
-
-    const data = await ktx2Encoder.encode(imageData, {
-      uastc: compressProperties.mode.value === 'UASTC',
-      qualityLevel: compressProperties.quality.value,
-      mipmaps: compressProperties.mipmaps.value,
-      compressionLevel: compressProperties.compressionLevel.value,
-      yFlip: compressProperties.flipY.value,
-      srgb: !compressProperties.srgb.value,
-      uastcFlags: compressProperties.uastcFlags.value,
-      normalMap: compressProperties.normalMap.value,
-      uastcZstandard: compressProperties.uastcZstandard.value
-    })
-
+  const uploadImage = async (props: FileDataType, data: ArrayBuffer) => {
     const newFileName = props.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
     const path = props.key.replace(/(.*\/).*/, '$1')
-    const projectName = props.key.split('/')[1] // TODO: support projects with / in the name
+
+    const staticResourceDetails = await API.instance.service(staticResourcePath).find({
+      query: { key: props.key }
+    })
+    const projectName = staticResourceDetails.data[0].project
     const relativePath = path.replace('projects/' + projectName + '/', '')
 
     const file = new File([data], newFileName, { type: 'image/ktx2' })
@@ -152,11 +125,12 @@ export default function ImageCompressionPanel({
       <div className="relative mb-3 flex items-center justify-center px-8 py-3">
         <Text className="leading-6">{t('editor:properties.model.transform.compressImage')}</Text>
         <Button
-          variant="outline"
+          variant="tertiary"
           className="absolute right-0 border-0 dark:bg-transparent dark:text-[#A3A3A3]"
-          startIcon={<MdClose />}
           onClick={() => PopoverState.hidePopupover()}
-        />
+        >
+          <MdClose />
+        </Button>
       </div>
 
       <div className="mx-auto grid w-4/5 min-w-[400px] justify-center gap-y-2">
@@ -178,13 +152,11 @@ export default function ImageCompressionPanel({
           info={t('editor:properties.model.transform.modeTooltip')}
         >
           <Select
-            className="w-full"
-            inputClassName="px-2 py-0.5 text-theme-input text-sm"
             options={[
               { label: 'ETC1S', value: 'ETC1S' },
               { label: 'UASTC', value: 'UASTC' }
             ]}
-            currentValue={compressProperties.mode.value}
+            value={compressProperties.mode.value}
             onChange={(val: 'ETC1S' | 'UASTC') => compressProperties.mode.set(val)}
           />
         </InputGroup>
@@ -283,7 +255,6 @@ export default function ImageCompressionPanel({
               info={t('editor:properties.model.transform.uastcFlagsTooltip')}
             >
               <SelectInput
-                className="w-full"
                 options={UASTCFlagOptions}
                 value={compressProperties.uastcFlags.value}
                 onChange={(val: number) => compressProperties.uastcFlags.set(val)}

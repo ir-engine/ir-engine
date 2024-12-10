@@ -27,13 +27,12 @@ import { setTransformSpace, toggleTransformSpace } from '@ir-engine/editor/src/f
 import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
 import { TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
+import { Select, Tooltip } from '@ir-engine/ui'
+import { ViewportButton } from '@ir-engine/ui/editor'
+import { Globe01Md } from '@ir-engine/ui/src/icons'
 import { t } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { PiGlobeSimple } from 'react-icons/pi'
 
 const transformSpaceOptions = [
   {
@@ -56,13 +55,9 @@ const TransformSpaceTool = () => {
   return (
     <div className="flex items-center rounded bg-[#0E0F11]">
       <Tooltip content={t('editor:toolbar.transformSpace.lbl-toggleTransformSpace')}>
-        <Button
-          startIcon={<PiGlobeSimple className="text-theme-input" />}
-          onClick={toggleTransformSpace}
-          variant="transparent"
-          className="px-0"
-          size="small"
-        />
+        <ViewportButton onClick={toggleTransformSpace}>
+          <Globe01Md />
+        </ViewportButton>
       </Tooltip>
       <Tooltip
         title={
@@ -71,15 +66,14 @@ const TransformSpaceTool = () => {
             : t('editor:toolbar.transformSpace.info-world')
         }
         content={t('editor:toolbar.transformSpace.description')}
-        position="right center"
+        position="right"
       >
         <Select
           key={transformSpace.value}
-          inputClassName="py-1 h-5 rounded-sm text-theme-gray3 text-xs"
-          className="m-1 w-24 border-theme-input text-theme-gray3"
           onChange={setTransformSpace}
           options={transformSpaceOptions}
-          currentValue={transformSpace.value}
+          value={transformSpace.value}
+          width="sm"
         />
       </Tooltip>
     </div>

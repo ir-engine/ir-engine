@@ -30,7 +30,7 @@ import { VisualScriptComponent } from '@ir-engine/engine'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { GrabbableComponent } from '@ir-engine/engine/src/interaction/components/GrabbableComponent'
+import { GrabbableComponent } from '@ir-engine/engine/src/grabbable/GrabbableComponent'
 import { InteractableComponent } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
 import { AudioAnalysisComponent } from '@ir-engine/engine/src/scene/components/AudioAnalysisComponent'
 import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/CameraSettingsComponent'
@@ -80,14 +80,7 @@ export const ComponentShelfCategoriesState = defineState({
       Files: [GLTFComponent, PositionalAudioComponent, AudioAnalysisComponent, VideoComponent, ImageComponent],
       'Scene Composition': [CameraComponent, PrimitiveGeometryComponent, GroundPlaneComponent, VariantComponent],
       Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
-      Interaction: [
-        SpawnPointComponent,
-        LinkComponent,
-        MountPointComponent,
-        InteractableComponent,
-        InputComponent,
-        ScreenshareTargetComponent
-      ],
+      Interaction: [SpawnPointComponent, LinkComponent, MountPointComponent, InteractableComponent, InputComponent],
       Lighting: [
         AmbientLightComponent,
         PointLightComponent,

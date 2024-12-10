@@ -39,14 +39,15 @@ import {
 } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
 import { EmailSettingDatabaseType, emailSettingPath } from '@ir-engine/common/src/schemas/setting/email-setting.schema'
 import {
-  InstanceServerSettingType,
-  instanceServerSettingPath
+  instanceServerSettingPath,
+  InstanceServerSettingType
 } from '@ir-engine/common/src/schemas/setting/instance-server-setting.schema'
 import {
   ServerSettingDatabaseType,
   serverSettingPath
 } from '@ir-engine/common/src/schemas/setting/server-setting.schema'
 
+import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schema.type.module'
 import { createHash } from 'crypto'
 import appConfig from './appconfig'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
@@ -200,5 +201,20 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(serverSettingPromise)
 
+  const engineSettingPromise = knexClient
+    .select()
+    .from<EngineSettingType>(engineSettingPath)
+    .then((dbEngineSettings) => {
+      dbEngineSettings.forEach((setting) => {
+        if (!appConfig[setting.category]) {
+          appConfig[setting.category] = {}
+        }
+        appConfig[setting.category][setting.key] = setting.value
+      })
+    })
+    .catch((e) => {
+      logger.error(e, `[updateAppConfig]: Failed to read engineSetting: ${e.message}`)
+    })
+  promises.push(engineSettingPromise)
   await Promise.all(promises)
 }

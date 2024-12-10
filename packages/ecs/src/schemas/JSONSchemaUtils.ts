@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { Entity } from '../Entity'
 import {
   Kind,
   NonSerializable,
@@ -53,8 +54,13 @@ const CreateObject = (props?: TProperties) => {
   return obj
 }
 
-export const HasDeserializers = <T extends Schema>(schema: T): boolean => {
-  if (schema.options?.deserialize) return true
+const validValue = (value) => {
+  return value !== undefined && value !== null
+}
+
+const IterateSchema = <T extends Schema>(schema: T, pred: (curr: T) => boolean): boolean => {
+  if (pred(schema)) return true
+
   switch (schema[Kind]) {
     case 'Object':
     case 'Class': {
@@ -62,7 +68,7 @@ export const HasDeserializers = <T extends Schema>(schema: T): boolean => {
       const propKeys = Object.keys(props)
 
       for (const key of propKeys) {
-        if (HasDeserializers(props[key])) return true
+        if (IterateSchema(props[key], pred)) return true
       }
 
       return false
@@ -70,17 +76,17 @@ export const HasDeserializers = <T extends Schema>(schema: T): boolean => {
 
     case 'Partial': {
       const props = schema.properties as TPartialSchema<Schema>['properties']
-      return HasDeserializers(props)
+      return IterateSchema(props, pred)
     }
 
     case 'NonSerialized': {
       const props = schema.properties as TNonSerializedSchema<Schema>['properties']
-      return HasDeserializers(props)
+      return IterateSchema(props, pred)
     }
 
     case 'Required': {
       const props = schema.properties as TRequiredSchema<Schema>['properties']
-      return HasDeserializers(props)
+      return IterateSchema(props, pred)
     }
 
     default:
@@ -88,12 +94,13 @@ export const HasDeserializers = <T extends Schema>(schema: T): boolean => {
   }
 }
 
-const validValue = (value) => {
-  return value !== undefined && value !== null
+export const HasSchemaDeserializers = <T extends Schema>(schema: T): boolean => {
+  return IterateSchema(schema, (curr) => !!curr.options?.deserialize)
 }
 
-export const DeserializeValue = <T extends Schema, Val>(schema: T, curr: Val, value: Val): Val => {
-  if (validValue(value) && schema.options?.deserialize) return schema.options?.deserialize(curr, value) as Val
+export const DeserializeSchemaValue = <T extends Schema, Val>(schema: T, curr: Val, value: Val): Val => {
+  if (validValue(value) && schema.options?.deserialize) return schema.options.deserialize(curr, value) as Val
+
   switch (schema[Kind]) {
     case 'Object':
     case 'Class': {
@@ -105,7 +112,7 @@ export const DeserializeValue = <T extends Schema, Val>(schema: T, curr: Val, va
       const propKeys = Object.keys(props)
 
       for (const key of propKeys) {
-        if (validValue(value[key])) value[key] = DeserializeValue(props[key], curr[key], value[key])
+        if (validValue(value[key])) value[key] = DeserializeSchemaValue(props[key], curr[key], value[key])
       }
 
       break
@@ -113,17 +120,17 @@ export const DeserializeValue = <T extends Schema, Val>(schema: T, curr: Val, va
 
     case 'Partial': {
       const props = schema.properties as TPartialSchema<Schema>['properties']
-      return DeserializeValue(props, curr, value)
+      return DeserializeSchemaValue(props, curr, value)
     }
 
     case 'NonSerialized': {
       const props = schema.properties as TNonSerializedSchema<Schema>['properties']
-      return DeserializeValue(props, curr, value)
+      return DeserializeSchemaValue(props, curr, value)
     }
 
     case 'Required': {
       const props = schema.properties as TRequiredSchema<Schema>['properties']
-      return DeserializeValue(props, curr, value)
+      return DeserializeSchemaValue(props, curr, value)
     }
 
     default:
@@ -134,39 +141,10 @@ export const DeserializeValue = <T extends Schema, Val>(schema: T, curr: Val, va
 }
 
 export const HasRequiredSchema = <T extends Schema>(schema: T): boolean => {
-  switch (schema[Kind]) {
-    case 'Object':
-    case 'Class': {
-      const props = schema.properties as TProperties
-      const propKeys = Object.keys(props)
-
-      for (const key of propKeys) {
-        if (HasRequiredSchema(props[key])) return true
-      }
-
-      return false
-    }
-
-    case 'Partial': {
-      const props = schema.properties as TPartialSchema<Schema>['properties']
-      return HasRequiredSchema(props)
-    }
-
-    case 'NonSerialized': {
-      const props = schema.properties as TNonSerializedSchema<Schema>['properties']
-      return HasRequiredSchema(props)
-    }
-
-    case 'Required': {
-      return true
-    }
-
-    default:
-      return false
-  }
+  return IterateSchema(schema, (curr) => curr[Kind] === 'Required')
 }
 
-export const HasRequiredValues = <T extends Schema>(schema: T, value, current = ''): [boolean, string] => {
+export const HasRequiredSchemaValues = <T extends Schema>(schema: T, value, current = ''): [boolean, string] => {
   switch (schema[Kind]) {
     case 'Object':
     case 'Class': {
@@ -174,7 +152,7 @@ export const HasRequiredValues = <T extends Schema>(schema: T, value, current = 
       const propKeys = Object.keys(props)
 
       for (const key of propKeys) {
-        const [valid, fromKey] = HasRequiredValues(props[key], value?.[key], key)
+        const [valid, fromKey] = HasRequiredSchemaValues(props[key], value?.[key], key)
         if (!valid) return [valid, fromKey]
       }
 
@@ -183,16 +161,63 @@ export const HasRequiredValues = <T extends Schema>(schema: T, value, current = 
 
     case 'Partial': {
       const props = schema.properties as TPartialSchema<Schema>['properties']
-      return HasRequiredValues(props, value)
+      return HasRequiredSchemaValues(props, value)
     }
 
     case 'NonSerialized': {
       const props = schema.properties as TNonSerializedSchema<Schema>['properties']
-      return HasRequiredValues(props, value)
+      return HasRequiredSchemaValues(props, value)
     }
 
     case 'Required': {
-      return [value !== null && value !== undefined, current]
+      return [validValue(value), current]
+    }
+
+    default:
+      return [true, '']
+  }
+}
+
+export const HasSchemaValidators = <T extends Schema>(schema: T): boolean => {
+  return IterateSchema(schema, (curr) => !!curr.options?.validate)
+}
+
+export const HasValidSchemaValues = <T extends Schema, Val>(
+  schema: T,
+  value: Val,
+  prev: Val,
+  entity: Entity,
+  current = ''
+): [boolean, string] => {
+  if (schema.options?.validate && !schema.options.validate(value, prev, entity)) return [false, current]
+
+  switch (schema[Kind]) {
+    case 'Object':
+    case 'Class': {
+      const props = schema.properties as TProperties
+      const propKeys = Object.keys(props)
+
+      for (const key of propKeys) {
+        const [valid, fromKey] = HasValidSchemaValues(props[key], value?.[key], prev?.[key], entity, key)
+        if (!valid) return [valid, fromKey]
+      }
+
+      return [true, '']
+    }
+
+    case 'Partial': {
+      const props = schema.properties as TPartialSchema<Schema>['properties']
+      return HasValidSchemaValues(props, value, prev, entity)
+    }
+
+    case 'NonSerialized': {
+      const props = schema.properties as TNonSerializedSchema<Schema>['properties']
+      return HasValidSchemaValues(props, value, prev, entity)
+    }
+
+    case 'Required': {
+      const props = schema.properties as TRequiredSchema<Schema>['properties']
+      return HasValidSchemaValues(props, value, prev, entity)
     }
 
     default:

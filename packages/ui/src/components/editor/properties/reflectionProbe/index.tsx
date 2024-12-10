@@ -30,9 +30,9 @@ import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { ReflectionProbeComponent } from '@ir-engine/engine/src/scene/components/ReflectionProbeComponent'
 
+import DroppableImageInput from '@ir-engine/editor/src/components/assets/DroppableImageInput'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import { ImageLink } from '@ir-engine/ui/editor'
 import { IoMapOutline } from 'react-icons/io5'
 import InputGroup from '../../input/Group'
 
@@ -57,7 +57,7 @@ export const ReflectionProbeEditor: EditorComponentType = (props) => {
     >
       <div>
         <InputGroup name="Texture URL" label={t('editor:properties.reflectionProbe.src')}>
-          <ImageLink
+          <DroppableImageInput
             src={reflectionProbeComponent.src.value}
             onBlur={commitProperty(ReflectionProbeComponent, 'src')}
           />
