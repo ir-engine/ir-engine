@@ -46,8 +46,8 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
-import { AvatarInputSystem } from './AvatarInputSystem'
 import { AvatarState } from '../state/AvatarNetworkState'
+import { AvatarInputSystem } from './AvatarInputSystem'
 
 const controllerQuery = defineQuery([AvatarControllerComponent, NetworkObjectOwnedTag])
 
