@@ -38,7 +38,6 @@ import {
 import { createLocations } from '@ir-engine/projects/createLocations'
 import { ProjectEventHooks } from '@ir-engine/projects/ProjectConfigInterface'
 import { Application } from '@ir-engine/server-core/declarations'
-import { getStorageProvider } from '@ir-engine/server-core/src/media/storageprovider/storageprovider'
 
 import { patchStaticResourceAsAvatar, supportedAvatars } from '@ir-engine/server-core/src/user/avatar/avatar-helper'
 import appRootPath from 'app-root-path'
@@ -61,13 +60,10 @@ const handleOEmbedRequest = async (app: Application, project: ProjectType, url: 
     } as any)) as any as LocationType[]
     if (locationResult.length === 0) throw new BadRequest('Invalid location name')
     const scene = (await app.service(staticResourcePath).get(locationResult[0].sceneId)) as StaticResourceType
-    const projectName = scene.project
-    const sceneName = scene.key.split('/').pop()!.replace('.gltf', '')
-    const storageProvider = getStorageProvider()
     currentOEmbed.title = `${locationResult[0].name} - ${currentOEmbed.title}`
     currentOEmbed.description = `Join others in VR at ${locationResult[0].name}, directly from the web browser`
     currentOEmbed.type = 'photo'
-    currentOEmbed.url = `https://${storageProvider.getCacheDomain()}/projects/${projectName}/${sceneName}.thumbnail.jpeg`
+    currentOEmbed.url = scene.thumbnailURL
     currentOEmbed.height = 320
     currentOEmbed.width = 512
 
@@ -95,12 +91,9 @@ const handleOEmbedRequest = async (app: Application, project: ProjectType, url: 
       } as any)) as any as LocationType[]
       if (locationResult.length > 0) {
         const scene = (await app.service(staticResourcePath).get(locationResult[0].sceneId)) as StaticResourceType
-        const projectName = scene.project
-        const sceneName = scene.key.split('/').pop()!.replace('.gltf', '')
-        const storageProvider = getStorageProvider()
         currentOEmbed.title = `${locationResult[0].name} Studio - ${currentOEmbed.title}`
         currentOEmbed.type = 'photo'
-        currentOEmbed.url = `https://${storageProvider.getCacheDomain()}/projects/${projectName}/${sceneName}.thumbnail.jpeg`
+        currentOEmbed.url = scene.thumbnailURL
         currentOEmbed.height = 320
         currentOEmbed.width = 512
         return currentOEmbed
