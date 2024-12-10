@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import multiLogger from '@ir-engine/common/src/logger'
-import { InstanceID } from '@ir-engine/common/src/schema.type.module'
+import { InstanceID, projectsPath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs'
 import {
   addOutgoingTopicIfNecessary,
@@ -48,18 +48,21 @@ import {
 } from '@ir-engine/network'
 import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
 
+import { useFind } from '@ir-engine/common'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { AuthState } from '../../user/services/AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
 
 export const useEngineInjection = () => {
+  const projects = useFind(projectsPath)
   const loaded = useHookstate(false)
   useImmediateEffect(() => {
-    loadEngineInjection().then(() => {
+    if (!projects.data) return
+    loadEngineInjection(projects.data as string[]).then(() => {
       loaded.set(true)
     })
-  }, [])
+  }, [projects.data])
   return loaded.value
 }
 

@@ -44,9 +44,7 @@ import {
   UserName,
   UserPatch,
   UserPublicPatch,
-  UserSettingType,
   UserType,
-  avatarPath,
   generateTokenPath,
   identityProviderPath,
   loginPath,
@@ -54,8 +52,7 @@ import {
   magicLinkPath,
   userApiKeyPath,
   userAvatarPath,
-  userPath,
-  userSettingPath
+  userPath
 } from '@ir-engine/common/src/schema.type.module'
 import {
   defineState,
@@ -191,7 +188,6 @@ const getToken = async (): Promise<string> => {
 export const AuthState = defineState({
   name: 'AuthState',
   initial: () => ({
-    isLoggedIn: false,
     isProcessing: false,
     error: '',
     authUser: AuthUserSeed,
@@ -286,7 +282,7 @@ export const AuthService = {
           (err.className === 'not-authenticated' && err.message === 'invalid algorithm') ||
           (err.className === 'not-authenticated' && err.message === 'invalid signature')
         ) {
-          authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
+          authState.merge({ user: UserSeed, authUser: AuthUserSeed })
           await _resetToGuestToken()
           res = await API.instance.reAuthenticate()
         } else {
@@ -298,7 +294,7 @@ export const AuthService = {
         const identityProvider = res[identityProviderPath] as IdentityProviderType
         // Response received form reAuthenticate(), but no `id` set.
         if (!identityProvider?.id) {
-          authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
+          authState.merge({ user: UserSeed, authUser: AuthUserSeed })
           await _resetToGuestToken()
           res = await API.instance.reAuthenticate()
         }
@@ -312,7 +308,7 @@ export const AuthService = {
       }
     } catch (err) {
       logger.error(err, 'Error on resolving auth user in doLoginAuto, logging out')
-      authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
+      authState.merge({ user: UserSeed, authUser: AuthUserSeed })
       writeAuthUserToIframe()
 
       // if (window.location.pathname !== '/') {
@@ -326,32 +322,36 @@ export const AuthService = {
       const client = API.instance
       const user = await client.service(userPath).get(userId)
 
-      const settingsRes = (await client
-        .service(userSettingPath)
-        .find({ query: { userId: userId } })) as Paginated<UserSettingType>
+      /** @todo move this to server */
+      // const settingsRes = (await client
+      //   .service(userSettingPath)
+      //   .find({ query: { userId: userId } })) as Paginated<UserSettingType>
+      //   console.log({settingsRes})
 
-      if (settingsRes.total === 0) {
-        await client.service(userSettingPath).create({ userId: userId })
-      }
-      const avatar = await client.service(userAvatarPath).find({ query: { userId } })
-      if (!avatar.data[0]) {
-        const avatars = await client.service(avatarPath).find({
-          query: {
-            isPublic: true
-          }
-        })
+      // if (settingsRes.total === 0) {
+      //   await client.service(userSettingPath).create({ userId: userId })
+      // }
+      // const avatar = await client.service(userAvatarPath).find({ query: { userId } })
+      // console.log({avatar})
+      // if (!avatar.data[0]) {
+      //   const avatars = await client.service(avatarPath).find({
+      //     query: {
+      //       isPublic: true
+      //     }
+      //   })
+      //   console.log({avatars})
 
-        if (avatars.data.length > 0) {
-          const randomReplacementAvatar = avatars.data[Math.floor(Math.random() * avatars.data.length)]
+      //   if (avatars.data.length > 0) {
+      //     const randomReplacementAvatar = avatars.data[Math.floor(Math.random() * avatars.data.length)]
 
-          await client
-            .service(userAvatarPath)
-            .patch(null, { avatarId: randomReplacementAvatar.id }, { query: { userId: userId } })
-        } else {
-          throw new Error('No avatars found in database')
-        }
-      }
-      getMutableState(AuthState).merge({ isLoggedIn: true, user })
+      //     await client
+      //       .service(userAvatarPath)
+      //       .patch(null, { avatarId: randomReplacementAvatar.id }, { query: { userId: userId } })
+      //   } else {
+      //     throw new Error('No avatars found in database')
+      //   }
+      // }
+      getMutableState(AuthState).merge({ user })
     } catch (err) {
       NotificationService.dispatchNotify(i18n.t('common:error.loading-error').toString(), { variant: 'error' })
       console.error(err)
@@ -440,7 +440,7 @@ export const AuthService = {
   //     walletUser.id = oldId
 
   //     // loadXRAvatarForUpdatedUser(walletUser)
-  //     authState.merge({ isLoggedIn: true, user: walletUser, authUser })
+  //     authState.merge({  user: walletUser, authUser })
   //   } catch (err) {
   //     authState.merge({ error: i18n.t('common:error.login-error') })
   //     NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -559,9 +559,9 @@ export const AuthService = {
     authState.merge({ isProcessing: true, error: '' })
     try {
       await API.instance.logout()
-      authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
+      authState.merge({ user: UserSeed, authUser: AuthUserSeed })
     } catch (_) {
-      authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
+      authState.merge({ user: UserSeed, authUser: AuthUserSeed })
     } finally {
       authState.merge({ isProcessing: false, error: '' })
       writeAuthUserToIframe()
@@ -887,7 +887,7 @@ function parseLoginDisplayCredential(credentials) {
 }
 
 export const useAuthenticated = () => {
-  const authState = useHookstate(getMutableState(AuthState))
+  const userID = useHookstate(getMutableState(AuthState).user.id).value
 
   useEffect(() => {
     AuthService.doLoginAuto()
@@ -897,8 +897,8 @@ export const useAuthenticated = () => {
   }, [])
 
   useEffect(() => {
-    getMutableState(EngineState).userID.set(authState.user.id.value)
-  }, [authState.user.id])
+    getMutableState(EngineState).userID.set(userID)
+  }, [userID])
 
-  return authState.isLoggedIn.value
+  return userID !== ''
 }

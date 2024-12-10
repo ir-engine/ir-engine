@@ -30,7 +30,6 @@ import { useLocation } from 'react-router-dom'
 import { useMediaNetwork } from '@ir-engine/client-core/src/common/services/MediaInstanceConnectionService'
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { ECSRecordingActions, PlaybackState, RecordingState } from '@ir-engine/common/src/recording/ECSRecordingSystem'
-import { defineQuery } from '@ir-engine/ecs'
 import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
 import { dispatchAction, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
@@ -45,7 +44,6 @@ import IconButtonWithTooltip from '@ir-engine/ui/src/primitives/mui/IconButtonWi
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import multiLogger from '@ir-engine/common/src/logger'
-import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
@@ -56,7 +54,6 @@ import { clientContextParams } from '../../util/ClientContextState'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
-const sceneSettings = defineQuery([SceneSettingsComponent])
 const logger = multiLogger.child({ component: 'client-core:MediaIconsBox', modifier: clientContextParams })
 
 export const MediaIconsBox = () => {

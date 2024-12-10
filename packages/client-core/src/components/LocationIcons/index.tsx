@@ -45,19 +45,23 @@ export const LocationIcons = () => {
   return (
     <>
       <UserMenu />
-      {/** Container for fading most stuff in and out depending on if the location is loaded or not  */}
-      <div style={{ opacity: 1 - loadingScreenOpacity.value }}>
-        <div className={`${styles.rightSidebar}`}>
-          <UserMediaWindows />
-          <InstanceChatWrapper />
-        </div>
-        <Shelves />
-        <ARPlacement />
-        <XRLoading />
-        <MediaIconsBox />
-        <TouchGamepad />
-        {!iOS && <Fullscreen />}
-      </div>
+      {loadingScreenOpacity.value > 0 && (
+        <>
+          {/** Container for fading most stuff in and out depending on if the location is loaded or not  */}
+          <div style={{ opacity: 1 - loadingScreenOpacity.value }}>
+            <div className={`${styles.rightSidebar}`}>
+              <UserMediaWindows />
+              <InstanceChatWrapper />
+            </div>
+            <Shelves />
+            <ARPlacement />
+            <XRLoading />
+            <MediaIconsBox />
+            <TouchGamepad />
+            {!iOS && <Fullscreen />}
+          </div>
+        </>
+      )}
     </>
   )
 }

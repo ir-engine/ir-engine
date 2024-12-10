@@ -24,6 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
+import { useFind } from '@ir-engine/common'
+import { projectsPath } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { loadWebappInjection } from '@ir-engine/projects/loadWebappInjection'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
@@ -34,15 +36,16 @@ import { useTranslation } from 'react-i18next'
 export const LoadWebappInjection = (props: { children: React.ReactNode; fallback?: JSX.Element }) => {
   const { t } = useTranslation()
 
-  const isLoggedIn = !!useMutableState(EngineState).userID.value
+  const userID = !!useMutableState(EngineState).userID.value
   const projectComponents = useHookstate(null as null | any[])
+  const projects = useFind(projectsPath)
 
   useEffect(() => {
-    if (!isLoggedIn) return
-    loadWebappInjection().then((result) => {
+    if (!userID || !projects.data.length) return
+    loadWebappInjection(projects.data as string[]).then((result) => {
       projectComponents.set(result)
     })
-  }, [isLoggedIn])
+  }, [userID, projects.data])
 
   if (!projectComponents.value) {
     return (

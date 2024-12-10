@@ -126,7 +126,6 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
   method: M,
   ...args: Args
 ) => {
-  const service = API.instance.service(serviceName)
   const state = useMutableState(FeathersState)
 
   const queryParams = {
@@ -156,7 +155,9 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       stack.shift()
       state[serviceName][queryId].merge({ $stack: stack })
     }
-    return service[method](...args)
+    return API.instance
+      .service(serviceName)
+      [method](...args)
       .then((res) => {
         state[serviceName][queryId].merge({
           response: res,
