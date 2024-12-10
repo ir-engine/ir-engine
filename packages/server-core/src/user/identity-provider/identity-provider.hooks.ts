@@ -27,6 +27,7 @@ import { BadRequest, Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/e
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import { random } from 'lodash'
+import { v4 } from 'uuid'
 
 import { isDev } from '@ir-engine/common/src/config'
 import { staticResourcePath } from '@ir-engine/common/src/schemas/media/static-resource.schema'
@@ -45,6 +46,7 @@ import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema
 import { checkScope } from '@ir-engine/common/src/utils/checkScope'
 
 import { Paginated } from '@feathersjs/feathers'
+import { USER_ID_REGEX } from '@ir-engine/common/src/regex'
 import {
   projectPath,
   projectPermissionPath,
@@ -186,9 +188,15 @@ async function addIdentityProviderType(context: HookContext<IdentityProviderServ
   if (
     !isAdmin &&
     context.params!.provider &&
-    !['password', 'email', 'sms'].includes((context!.actualData as IdentityProviderData).type)
+    !['password', 'email', 'sms'].includes((context!.actualData as IdentityProviderData).type as string)
   ) {
-    ;(context.data as IdentityProviderData).type = 'guest'
+    if (!USER_ID_REGEX.test((context.data as IdentityProviderData).token as string))
+      //Ensure that guest tokens are UUIDs
+      (context.data as IdentityProviderData).token = v4()
+    if (!USER_ID_REGEX.test((context.actualData as IdentityProviderData).token as string))
+      //Ensure that guest tokens are UUIDs
+      (context.actualData as IdentityProviderData).token = v4()
+    ;(context.data as IdentityProviderData).type = 'guest' //Non-password/magiclink create requests must always be for guests
     ;(context.actualData as IdentityProviderData).type = 'guest' //Non-password/magiclink create requests must always be for guests
   }
 
@@ -200,6 +208,23 @@ async function addIdentityProviderType(context: HookContext<IdentityProviderServ
     })
     if (existingUser.data.length > 0) {
       throw new BadRequest('Cannot create a guest identity-provider on an existing user')
+    }
+
+    ;(context.data as any) = {
+      id: (context.data as any).id,
+      token: (context.data as any).token,
+      type: (context.data as any).type,
+      userId: (context.data as any).userId,
+      createdAt: (context.data as any).createdAt,
+      updatedAt: (context.data as any).updatedAt
+    }
+    context.actualData = {
+      id: context.actualData.id,
+      token: context.actualData.token,
+      type: context.actualData.type,
+      userId: context.actualData.userId,
+      createdAt: context.actualData.createdAt,
+      updatedAt: context.actualData.updatedAt
     }
   }
   const adminScopes = await context.app.service(scopePath).find({
@@ -327,7 +352,7 @@ export default {
     ],
     update: [disallow()],
     patch: [
-      iff(isProvider('external'), checkIdentityProvider),
+      disallow('external'),
       schemaHooks.validateData(identityProviderPatchValidator),
       schemaHooks.resolveData(identityProviderPatchResolver)
     ],
