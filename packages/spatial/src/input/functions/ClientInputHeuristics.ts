@@ -29,7 +29,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   defineQuery,
-  Engine,
   Entity,
   EntityUUID,
   getComponent,
@@ -101,10 +100,15 @@ export function findProximity(
   sortedIntersections: IntersectionData[],
   intersectionData: Set<IntersectionData>
 ) {
+  const userID = getState(EngineState).userID
+  if (!userID) return
+
   const isCameraAttachedToAvatar = XRState.isCameraAttachedToAvatar
 
-  //use sourceEid if controller (one InputSource per controller), otherwise use avatar rather than InputSource-emulated-pointer
-  const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID) //would prefer a better way to do this
+  // @todo need a better way to do this
+  const selfAvatarEntity = UUIDComponent.getEntityByUUID((userID + '_avatar') as EntityUUID)
+
+  // use sourceEid if controller (one InputSource per controller), otherwise use avatar rather than InputSource-emulated-pointer
   const inputSourceEntity = isCameraAttachedToAvatar && isSpatialInput ? sourceEid : selfAvatarEntity
 
   // Skip Proximity Heuristic when the entity is undefined

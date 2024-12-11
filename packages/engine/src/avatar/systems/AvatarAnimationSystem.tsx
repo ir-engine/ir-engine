@@ -441,13 +441,12 @@ export const AvatarAnimationSystem = defineSystem({
   insert: { after: AnimationSystem },
   execute,
   reactor: () => {
-    // if (!isClient || !useQuery([RendererComponent]).length) return null
     const rigEntities = useQuery([AvatarRigComponent])
     const avatarAnimationEntities = useQuery([AvatarAnimationComponent, AvatarComponent, AvatarRigComponent])
     return (
       <>
         <Reactor />
-        <AnimationLoader />
+        {rigEntities.length > 0 && <AnimationLoader />}
         <>
           {rigEntities.map((entity: Entity) => (
             <RigReactor entity={entity} key={entity} />

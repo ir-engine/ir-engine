@@ -96,7 +96,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
     enabledRotations: [false, true, false]
   })
 
-  if (ownerID === Engine.instance.store.userID) {
+  if (ownerID === Engine.instance.userID) {
     createAvatarController(entity)
   }
 
