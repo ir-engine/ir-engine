@@ -116,7 +116,6 @@ const AvatarMenu2 = ({ showBackButton }: { showBackButton: boolean }) => {
   }, [selfAvatarLoaded, avatarLoading])
 
   useEffect(() => {
-    console.log('HECKING HERE!!!!')
     const userAvatar = avatarsData.find((item) => item.id === userAvatarId)
     if (userAvatar && selectedAvatarId.value !== userAvatar.id) {
       selectedAvatarId.set(userAvatar?.id)
