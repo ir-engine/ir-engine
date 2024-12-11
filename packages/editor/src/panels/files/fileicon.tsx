@@ -70,30 +70,57 @@ export const FileIcon = ({
   type,
   isFolder,
   color = 'text-white',
-  isMinified = false
+  isMinified = false,
+  onLoad = () => {},
+  onLoadStart = () => {}
 }: {
   thumbnailURL?: string
   type: string
   isFolder?: boolean
   color?: string
   isMinified?: boolean
+  onLoad?: any
+  onLoadStart?: any
 }) => {
   const FallbackIcon = FileIconType[type ?? '']
   const imageLoaded = useHookstate(false)
 
   const handleImageLoaded = () => {
     imageLoaded.set(true)
+    onLoad?.()
+  }
+
+  const handleLoadStart = () => {
+    onLoadStart?.()
   }
 
   return (
     <>
       {isFolder ? (
-        <img
-          className={twMerge(isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40', 'object-contain')}
-          crossOrigin="anonymous"
-          src={FOLDER_ICON_PATH}
-          alt="folder-icon"
-        />
+        <>
+          <img
+            className={twMerge(
+              isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40',
+              'object-contain',
+              imageLoaded.value ? 'block' : 'hidden'
+            )}
+            crossOrigin="anonymous"
+            src={FOLDER_ICON_PATH}
+            alt="folder-icon"
+            onLoad={handleImageLoaded}
+          />
+          <img
+            className={twMerge(
+              isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40',
+              'object-contain',
+              imageLoaded.value ? 'hidden' : 'block'
+            )}
+            crossOrigin="anonymous"
+            src={FILE_ICON_BLUR}
+            alt="file-thumbnail"
+            onLoad={handleLoadStart}
+          />
+        </>
       ) : thumbnailURL ? (
         <>
           <img
@@ -116,17 +143,56 @@ export const FileIcon = ({
             crossOrigin="anonymous"
             src={FILE_ICON_BLUR}
             alt="file-thumbnail"
+            onLoad={handleLoadStart}
           />
         </>
       ) : FallbackIcon ? (
-        <FallbackIcon className={twMerge(color, isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40')} />
+        <>
+          <FallbackIcon
+            onLoad={handleImageLoaded}
+            className={twMerge(
+              color,
+              isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40',
+              imageLoaded.value ? 'block' : 'hidden'
+            )}
+          />
+          <img
+            className={twMerge(
+              isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40',
+              'object-contain',
+              imageLoaded.value ? 'hidden' : 'block'
+            )}
+            crossOrigin="anonymous"
+            src={FILE_ICON_BLUR}
+            alt="file-thumbnail"
+            onLoad={handleLoadStart}
+          />
+        </>
       ) : (
-        <img
-          className={twMerge(isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40', 'object-contain')}
-          crossOrigin="anonymous"
-          src={FILE_ICON_PATH}
-          alt="file-icon"
-        />
+        <>
+          <img
+            className={twMerge(
+              isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40',
+              'object-contain',
+              imageLoaded.value ? 'block' : 'hidden'
+            )}
+            crossOrigin="anonymous"
+            src={FILE_ICON_PATH}
+            alt="file-icon"
+            onLoad={handleImageLoaded}
+          />
+          <img
+            className={twMerge(
+              isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40',
+              'object-contain',
+              imageLoaded.value ? 'hidden' : 'block'
+            )}
+            crossOrigin="anonymous"
+            src={FILE_ICON_BLUR}
+            alt="file-thumbnail"
+            onLoad={handleLoadStart}
+          />
+        </>
       )}
     </>
   )
