@@ -117,10 +117,10 @@ const AvatarMenu2 = ({ showBackButton }: { showBackButton: boolean }) => {
 
   useEffect(() => {
     const userAvatar = avatarsData.find((item) => item.id === userAvatarId)
-    if (!currentAvatar && !selectedAvatarId.value && userAvatar) {
+    if (userAvatar && selectedAvatarId.value !== userAvatar.id) {
       selectedAvatarId.set(userAvatar?.id)
     }
-  }, [avatarsData, selectedAvatarId, currentAvatar, userAvatarId])
+  }, [avatarsData, userAvatarId])
 
   const debouncedSearchQueryRef = useRef<ReturnType<typeof setTimeout>>()
 
