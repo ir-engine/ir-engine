@@ -42,8 +42,7 @@ import {
 import { EntityUUID } from '@ir-engine/ecs'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
-import { AvatarState as AvatarNetworkState } from '@ir-engine/engine/src/avatar/state/AvatarNetworkState'
-import { defineState, dispatchAction, getMutableState, getState } from '@ir-engine/hyperflux'
+import { defineState, dispatchAction, getMutableState } from '@ir-engine/hyperflux'
 import i18n from 'i18next'
 import { NotificationService } from '../../common/services/NotificationService'
 import { uploadToFeathersService } from '../../util/upload'
@@ -79,7 +78,7 @@ export const AvatarService = {
   async updateUserAvatarId(id: AvatarID) {
     await API.instance
       .service(userAvatarPath)
-      .patch(null, { avatarId: id }, { query: { userId: Engine.instance.store.userID } })
+      .patch(null, { avatarId: id }, { query: { userId: Engine.instance.userID } })
   },
 
   async fetchAvatarList(search?: string, incDec?: 'increment' | 'decrement') {
@@ -148,10 +147,7 @@ export const AvatarService = {
       return prevAvatarList
     })
 
-    const userAvatarId = getState(AvatarNetworkState)[Engine.instance.userID] as AvatarID
-    if (userAvatarId === avatar.id) {
-      await AvatarService.updateUserAvatarId(avatar.id)
-    }
+    await AvatarService.updateUserAvatarId(avatar.id)
   },
 
   async removeStaticResource(id: string) {

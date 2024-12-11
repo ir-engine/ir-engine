@@ -325,16 +325,16 @@ function ResourceItems() {
         {resources.length > 0 &&
           Array.from({ length: pages }, (_, i) => (
             <div key={i} ref={(el) => (pageRefs.current[i] = el)} className="flex w-full flex-col gap-2">
-              <div className="mt-4 flex h-2.5 w-[calc(100%_-_16px)] flex-row border-t-[0.5px] border-solid pt-1 text-[smaller] text-gray-500">
+              <div className="mt-4 flex h-2.5 w-[calc(100%_-_16px)] flex-row border-t-[0.5px] border-solid border-[#42454D] pt-1 text-[smaller]">
                 {i > 0 && (
                   <button
-                    className="text-grey-500 mr-auto flex items-center justify-center px-4 py-2 text-xs"
+                    className="mr-auto flex items-center justify-center px-4 py-2 text-xs text-[#42454D]"
                     onClick={() => handleScrollToPage(i - 1)} // Scroll to the previous page
                   >
                     {'Previous'}
                   </button>
                 )}
-                <span className="ml-auto">
+                <span className="ml-auto text-[#42454D]">
                   {i * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()) + 1} -{' '}
                   {Math.min(
                     (i + 1) * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()),

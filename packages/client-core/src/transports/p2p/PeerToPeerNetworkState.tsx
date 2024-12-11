@@ -159,7 +159,7 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
         $to: Engine.instance.store.peerID,
         peerID: Engine.instance.store.peerID,
         peerIndex: joinResponse.value.index,
-        userID: Engine.instance.store.userID
+        userID: Engine.instance.userID
       })
     )
 
@@ -171,7 +171,7 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
           $topic: network.topic,
           $to: Engine.instance.store.peerID,
           peerID: Engine.instance.store.peerID,
-          userID: Engine.instance.store.userID
+          userID: Engine.instance.userID
         })
       )
       removeNetwork(network)

@@ -42,8 +42,9 @@ import { githubRepoAccessWebhookPath } from '@ir-engine/common/src/schemas/user/
 import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { loginPath } from '@ir-engine/common/src/schemas/user/login.schema'
 
+import { HookContext } from '@feathersjs/feathers'
 import { defaultWebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
-import { instanceSignalingPath } from '@ir-engine/common/src/schema.type.module'
+import { instanceSignalingPath, projectsPath } from '@ir-engine/common/src/schema.type.module'
 import { jwtPublicKeyPath } from '@ir-engine/common/src/schemas/user/jwt-public-key.schema'
 import { createHash } from 'crypto'
 import {
@@ -250,7 +251,7 @@ const email = {
 
 type WhiteListItem = {
   path: string
-  methods: string[]
+  methods: string[] | { [key: string]: (context: HookContext) => Promise<boolean> }
 }
 
 /**
@@ -279,6 +280,7 @@ const authentication = {
     oembedPath,
     githubRepoAccessWebhookPath,
     { path: instanceSignalingPath, methods: ['patch'] },
+    { path: projectsPath, methods: ['find'] },
     { path: identityProviderPath, methods: ['create'] },
     { path: routePath, methods: ['find'] },
     { path: acceptInvitePath, methods: ['get'] },

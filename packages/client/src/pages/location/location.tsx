@@ -32,11 +32,11 @@ import '../../engine'
 import Debug from '@ir-engine/client-core/src/components/Debug'
 import { useEngineInjection } from '@ir-engine/client-core/src/components/World/EngineHooks'
 import { useEngineCanvas } from '@ir-engine/client-core/src/hooks/useEngineCanvas'
+import { useBrowserCheck } from '@ir-engine/client-core/src/hooks/useUnsupported'
 import LocationPage from '@ir-engine/client-core/src/world/Location'
 import { useSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 
-import { useBrowserCheck } from '@ir-engine/editor/src/hooks/useBrowserCheck'
 import '../mui.styles.scss' /** @todo Remove when MUI is removed */
 import '../styles.scss'
 

@@ -121,7 +121,7 @@ const AdminSideBar = () => {
 
 const AdminRoutes = () => {
   const location = useLocation()
-  const scopeQuery = useFind(scopePath, { query: { userId: Engine.instance.store.userID, paginate: false } })
+  const scopeQuery = useFind(scopePath, { query: { userId: Engine.instance.userID, paginate: false } })
 
   const allowedRoutes = useMutableState(AllowedAdminRoutesState)
 

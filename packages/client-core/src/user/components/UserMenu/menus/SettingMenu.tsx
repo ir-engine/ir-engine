@@ -119,7 +119,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
 
   const adminScopeQuery = useFind(scopePath, {
     query: {
-      userId: Engine.instance.store.userID,
+      userId: Engine.instance.userID,
       type: 'admin:admin' as ScopeType
     }
   })
@@ -128,7 +128,7 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
 
   const editorScopeQuery = useFind(scopePath, {
     query: {
-      userId: Engine.instance.store.userID,
+      userId: Engine.instance.userID,
       type: 'editor:write' as ScopeType
     }
   })
