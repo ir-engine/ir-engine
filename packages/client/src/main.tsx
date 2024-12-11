@@ -57,7 +57,7 @@ const App = () => {
               <Suspense
                 fallback={<LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.starting')} />}
               >
-                <AppPage>
+                <AppPage loginRequired={false}>
                   <$location />
                 </AppPage>
               </Suspense>

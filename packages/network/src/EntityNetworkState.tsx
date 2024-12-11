@@ -31,7 +31,6 @@ import {
   dispatchAction,
   getMutableState,
   getState,
-  HyperFlux,
   none,
   PeerID,
   useHookstate,
@@ -40,6 +39,7 @@ import {
 } from '@ir-engine/hyperflux'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { WorldNetworkAction } from './functions/WorldNetworkAction'
 import { NetworkId } from './NetworkId'
 import { NetworkObjectComponent } from './NetworkObjectComponent'
@@ -104,7 +104,8 @@ export const EntityNetworkState = defineState({
 const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
   const state = useHookstate(getMutableState(EntityNetworkState)[props.uuid])
   const ownerID = state.ownerId.value
-  const isOwner = ownerID === SceneUser || ownerID === HyperFlux.store.userID
+  const userID = useMutableState(EngineState).userID.value
+  const isOwner = ownerID === SceneUser || ownerID === userID
   const worldNetwork = useHookstate(NetworkState.worldNetworkState).value
   const networkPeerState = useMutableState(NetworkPeerState).value
   const userHasPeer = !!(worldNetwork && networkPeerState[worldNetwork.id]?.users?.[ownerID])
@@ -147,7 +148,7 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
     const entity = UUIDComponent.getEntityByUUID(props.uuid)
     if (!entity) return
     const ownerID = getOptionalComponent(entity, NetworkObjectComponent)?.ownerId
-    if ((!ownerID || ownerID !== HyperFlux.store.userID) && ownerID !== SceneUser) return
+    if ((!ownerID || ownerID !== userID) && ownerID !== SceneUser) return
     dispatchAction(
       WorldNetworkAction.transferAuthorityOfObject({
         ownerID: state.ownerId.value,
@@ -169,15 +170,10 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
 
     return () => {
       // ensure entity still exists
-      if (
-        !worldNetwork ||
-        !getState(EntityNetworkState)[props.uuid] ||
-        !worldNetwork.users?.[HyperFlux.store.userID]?.length
-      )
-        return
+      if (!worldNetwork || !getState(EntityNetworkState)[props.uuid] || !worldNetwork.users?.[userID]?.length) return
 
       // Use the lowest peer as the new authority
-      const lowestPeer = [...worldNetwork.users[HyperFlux.store.userID]].sort((a, b) => (a > b ? 1 : -1))[0]
+      const lowestPeer = [...worldNetwork.users[userID]].sort((a, b) => (a > b ? 1 : -1))[0]
       if (lowestPeer !== Engine.instance.store.peerID) return
 
       dispatchAction(

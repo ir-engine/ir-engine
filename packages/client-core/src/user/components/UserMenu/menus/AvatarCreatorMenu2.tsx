@@ -201,7 +201,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
     )
 
     loading.set(LoadingState.None)
-    PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect2)
+    PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)
   }
 
   const loadingMessages = {
@@ -228,7 +228,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
               <Button
                 data-testid="edit-avatar-button"
                 className=" h-6 w-6 self-center bg-transparent hover:bg-transparent focus:bg-transparent"
-                onClick={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect2)}
+                onClick={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)}
               >
                 <span>
                   <IoArrowBackOutline size={16} />

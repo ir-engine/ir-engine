@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import multiLogger from '@ir-engine/common/src/logger'
-import { InstanceID } from '@ir-engine/common/src/schema.type.module'
+import { InstanceID, projectsPath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs'
 import {
   addOutgoingTopicIfNecessary,
@@ -34,6 +34,7 @@ import {
   getMutableState,
   none,
   useHookstate,
+  useImmediateEffect,
   useMutableState
 } from '@ir-engine/hyperflux'
 import {
@@ -47,21 +48,26 @@ import {
 } from '@ir-engine/network'
 import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
 
+import { useFind } from '@ir-engine/common'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { AuthState } from '../../user/services/AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
 
 export const useEngineInjection = () => {
+  const projects = useFind(projectsPath)
   const loaded = useHookstate(false)
-  useEffect(() => {
-    loadEngineInjection().then(() => {
+  useImmediateEffect(() => {
+    if (!projects.data) return
+    loadEngineInjection(projects.data as string[]).then(() => {
       loaded.set(true)
     })
-  }, [])
+  }, [projects.data])
   return loaded.value
 }
 
 export const useNetwork = (props: { online?: boolean }) => {
+  const userID = useMutableState(EngineState).userID.value
   const acceptedTOS = useMutableState(AuthState).user.acceptedTOS.value
 
   useEffect(() => {
@@ -76,9 +82,8 @@ export const useNetwork = (props: { online?: boolean }) => {
 
   /** Offline/local world network */
   useEffect(() => {
-    if (props.online) return
+    if (props.online || !userID) return
 
-    const userID = Engine.instance.userID
     const peerID = Engine.instance.store.peerID
     const peerIndex = 1
     const networkID = userID as any as InstanceID
@@ -116,5 +121,5 @@ export const useNetwork = (props: { online?: boolean }) => {
       removeNetwork(network)
       networkState.hostIds.world.set(none)
     }
-  }, [props.online])
+  }, [props.online, userID])
 }

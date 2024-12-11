@@ -920,7 +920,7 @@ describe('ClientInputHeuristics', () => {
   describe('findProximity', () => {
     beforeEach(() => {
       createEngine()
-      Engine.instance.store.userID = 'testUserID' as UserID
+      getMutableState(EngineState).userID.set('testUserID' as UserID)
       mockSpatialEngine()
     })
 
@@ -966,7 +966,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(sourceEntity, TransformComponent)
         const sorted = [] as IntersectionData[]
         const intersections = new Set<IntersectionData>()
-        const UUID = (Engine.instance.store.userID + '_avatar') as EntityUUID
+        const UUID = (Engine.instance.userID + '_avatar') as EntityUUID
         const testEntity = createEntity()
         setComponent(testEntity, VisibleComponent)
         setComponent(testEntity, TransformComponent)
@@ -1114,8 +1114,8 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, InputComponent)
         // Make the entity the selfAvatarEntity
-        Engine.instance.store.userID = 'testUserID' as UserID
-        const UUID = (Engine.instance.store.userID + '_avatar') as EntityUUID
+        getMutableState(EngineState).userID.set('testUserID' as UserID)
+        const UUID = (Engine.instance.userID + '_avatar') as EntityUUID
         setComponent(testEntity, UUIDComponent, UUID)
 
         // Run and Check the result
@@ -1140,8 +1140,8 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, InputComponent)
         // Make the entity the selfAvatarEntity
-        Engine.instance.store.userID = 'testUserID' as UserID
-        const UUID = (Engine.instance.store.userID + '_avatar') as EntityUUID
+        getMutableState(EngineState).userID.set('testUserID' as UserID)
+        const UUID = (Engine.instance.userID + '_avatar') as EntityUUID
         setComponent(testEntity, UUIDComponent, UUID)
 
         // Run and Check the result
@@ -1166,10 +1166,10 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, InputComponent)
         // Do not make the testEntity an Avatar entity, so that it is undefined
-        // Engine.instance.store.userID = "testUserID" as UserID
-        // const UUID = Engine.instance.store.userID + '_avatar' as EntityUUID
+        // getMutableState(EngineState).userID.set("testUserID" as UserID)
+        // const UUID = Engine.instance.userID + '_avatar' as EntityUUID
         // setComponent(testEntity, UUIDComponent, UUID)
-        const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.store.userID + '_avatar') as EntityUUID)
+        const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID)
         assert.equal(selfAvatarEntity, UndefinedEntity)
 
         // Run and Check the result
@@ -1199,8 +1199,8 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, InputComponent)
         // Make the entity the selfAvatarEntity
-        Engine.instance.store.userID = 'testUserID' as UserID
-        const UUID = (Engine.instance.store.userID + '_avatar') as EntityUUID
+        getMutableState(EngineState).userID.set('testUserID' as UserID)
+        const UUID = (Engine.instance.userID + '_avatar') as EntityUUID
         setComponent(testEntity, UUIDComponent, UUID)
 
         // Run and Check the result
@@ -1221,8 +1221,8 @@ describe('ClientInputHeuristics', () => {
         const intersections = new Set<IntersectionData>()
 
         const testEntity = createEntity()
-        Engine.instance.store.userID = 'testUserID' as UserID
-        const UUID = (Engine.instance.store.userID + '_avatar') as EntityUUID
+        getMutableState(EngineState).userID.set('testUserID' as UserID)
+        const UUID = (Engine.instance.userID + '_avatar') as EntityUUID
         setComponent(testEntity, UUIDComponent, UUID)
         setComponent(testEntity, VisibleComponent)
         setComponent(testEntity, TransformComponent)
@@ -1249,10 +1249,10 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, InputComponent)
         // Do not make the testEntity an Avatar entity, so that it is undefined
-        // Engine.instance.store.userID = "testUserID" as UserID
-        // const UUID = Engine.instance.store.userID + '_avatar' as EntityUUID
+        // getMutableState(EngineState).userID.set("testUserID" as UserID)
+        // const UUID = Engine.instance.userID + '_avatar' as EntityUUID
         // setComponent(testEntity, UUIDComponent, UUID)
-        const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.store.userID + '_avatar') as EntityUUID)
+        const selfAvatarEntity = UUIDComponent.getEntityByUUID((Engine.instance.userID + '_avatar') as EntityUUID)
         assert.equal(selfAvatarEntity, UndefinedEntity)
 
         // Run and Check the result
