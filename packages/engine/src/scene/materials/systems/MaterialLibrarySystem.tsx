@@ -25,16 +25,37 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { createEntity, PresentationSystemGroup, setComponent, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
+import {
+  createEntity,
+  Entity,
+  EntityUUID,
+  getComponent,
+  getMutableComponent,
+  PresentationSystemGroup,
+  QueryReactor,
+  setComponent,
+  UndefinedEntity,
+  useComponent,
+  useEntityContext,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
+import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import {
+  MaterialInstanceComponent,
   MaterialPrototypeDefinition,
   MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { createMaterialPrototype } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import { MeshBasicMaterial } from 'three'
+import {
+  createMaterialPrototype,
+  getMaterialIndices
+} from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
+import React from 'react'
+import { MeshBasicMaterial, MeshLambertMaterial, MeshPhysicalMaterial } from 'three'
 
 const reactor = () => {
   useEffect(() => {
@@ -52,7 +73,80 @@ const reactor = () => {
     setComponent(fallbackMaterialEntity, NameComponent, 'Fallback Material')
   }, [])
 
+  return <QueryReactor Components={[MaterialStateComponent]} ChildEntityReactor={ChildMaterialReactor} />
+}
+
+const ChildMaterialReactor = () => {
+  const entity = useEntityContext()
+  const forceBasicMaterials = useMutableState(RendererState).forceBasicMaterials
+  const material = useComponent(entity, MaterialStateComponent).material
+  useEffect(() => {
+    console.log(material)
+    if (!material) return
+    convertMaterials(entity, forceBasicMaterials.value)
+  }, [material, forceBasicMaterials])
+
   return null
+}
+
+const ExpensiveMaterials = new Set(['MeshStandardMaterial', 'MeshPhysicalMaterial'])
+/**@todo refactor this to use preprocessor directives instead of new cloned materials with different shaders */
+const convertMaterials = (material: Entity, forceBasicMaterials: boolean) => {
+  const materialComponent = getComponent(material, MaterialStateComponent)
+  const setMaterial = (uuid: EntityUUID, newUuid: EntityUUID) => {
+    for (const instance of materialComponent.instances) {
+      const indices = getMaterialIndices(instance, uuid)
+      for (const index of indices) {
+        const instanceComponent = getMutableComponent(instance, MaterialInstanceComponent)
+        const uuids = instanceComponent.uuid.get(NO_PROXY) as EntityUUID[]
+        uuids[index] = newUuid
+        instanceComponent.uuid.set(uuids)
+      }
+    }
+  }
+  const shouldMakeBasic =
+    (forceBasicMaterials || isMobileXRHeadset) && ExpensiveMaterials.has(materialComponent.material.type)
+
+  const uuid = getComponent(material, UUIDComponent)
+
+  if (shouldMakeBasic) {
+    const basicUuid = ('basic-' + uuid) as EntityUUID
+
+    const existingMaterialEntity = UUIDComponent.getEntityByUUID(basicUuid)
+    if (existingMaterialEntity) {
+      setMaterial(uuid, basicUuid)
+      return
+    }
+
+    const prevMaterial = materialComponent.material as MeshPhysicalMaterial
+    const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
+    const newBasicMaterial = new MeshLambertMaterial().copy(prevMaterial)
+    newBasicMaterial.specularMap = prevMaterial.roughnessMap ?? prevMaterial.specularIntensityMap
+    if (onlyEmmisive) newBasicMaterial.emissiveMap = prevMaterial.emissiveMap
+    else newBasicMaterial.map = prevMaterial.map
+    newBasicMaterial.reflectivity = prevMaterial.metalness
+    newBasicMaterial.envMap = prevMaterial.envMap
+    newBasicMaterial.uuid = basicUuid
+    newBasicMaterial.alphaTest = prevMaterial.alphaTest
+    newBasicMaterial.side = prevMaterial.side
+    newBasicMaterial.plugins = undefined
+
+    const newMaterialEntity = createEntity()
+    setComponent(newMaterialEntity, MaterialStateComponent, {
+      material: newBasicMaterial,
+      instances: materialComponent.instances
+    })
+    setComponent(newMaterialEntity, UUIDComponent, basicUuid)
+    setComponent(newMaterialEntity, NameComponent, 'Fallback Material')
+    setMaterial(uuid, basicUuid)
+  } else if (!forceBasicMaterials) {
+    const basicMaterialEntity = UUIDComponent.getEntityByUUID(uuid)
+    if (!basicMaterialEntity) return
+    const nonBasicUUID = uuid.slice(6) as EntityUUID
+    const materialEntity = UUIDComponent.getEntityByUUID(nonBasicUUID)
+    if (!materialEntity) return
+    setMaterial(uuid, nonBasicUUID)
+  }
 }
 
 export const MaterialLibrarySystem = defineSystem({
