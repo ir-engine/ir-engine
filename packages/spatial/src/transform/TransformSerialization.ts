@@ -23,20 +23,20 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import { ECSState, Entity, hasComponent } from '@ir-engine/ecs'
+import { getState } from '@ir-engine/hyperflux'
 import {
+  NetworkObjectSendPeriodicUpdatesTag,
+  ViewCursor,
   checkBitflag,
   readUint8,
   readVector3,
   readVector4,
   rewindViewCursor,
   spaceUint8,
-  ViewCursor,
   writeVector3,
   writeVector4
 } from '@ir-engine/network'
-
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { TransformComponent } from './components/TransformComponent'
 
@@ -62,8 +62,12 @@ export const writeTransform = (v: ViewCursor, entity: Entity) => {
   let changeMask = 0
   let b = 0
 
-  changeMask |= writePosition(v, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writeRotation(v, entity) ? 1 << b++ : b++ && 0
+  const ignoreHasChanged =
+    hasComponent(entity, NetworkObjectSendPeriodicUpdatesTag) &&
+    Math.round(getState(ECSState).simulationTime % getState(ECSState).periodicUpdateFrequency) === 0
+
+  changeMask |= writePosition(v, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
+  changeMask |= writeRotation(v, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }

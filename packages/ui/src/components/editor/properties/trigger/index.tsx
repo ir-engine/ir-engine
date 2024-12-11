@@ -62,7 +62,7 @@ const TriggerProperties: EditorComponentType = (props) => {
   const triggerComponent = useComponent(props.entity, TriggerComponent)
   const hasRigidbody = useAncestorWithComponents(props.entity, [RigidBodyComponent])
 
-  const callbackQuery = useQuery([CallbackComponent])
+  const callbackQuery = useQuery([CallbackComponent, NameComponent, UUIDComponent, EntityTreeComponent])
 
   useEffect(() => {
     if (!hasComponent(props.entity, ColliderComponent)) {
@@ -76,7 +76,6 @@ const TriggerProperties: EditorComponentType = (props) => {
 
     const options = [] as TargetOptionType[]
     for (const entity of callbackQuery) {
-      if (!hasComponent(entity, EntityTreeComponent)) continue
       const callbacks = getComponent(entity, CallbackComponent)
       options.push({
         label: getComponent(entity, NameComponent),

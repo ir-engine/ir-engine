@@ -41,13 +41,19 @@ import {
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { getRandomSpawnPoint } from '@ir-engine/engine/src/avatar/functions/getSpawnPoint'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { dispatchAction, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import {
+  dispatchAction,
+  getMutableState,
+  getState,
+  useHookstate,
+  useImmediateEffect,
+  useMutableState
+} from '@ir-engine/hyperflux'
 import { NetworkState, WorldNetworkAction } from '@ir-engine/network'
 import { SpectateActions } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
 
 import { useFind, useMutation } from '@ir-engine/common'
 import { avatarPath, userAvatarPath } from '@ir-engine/common/src/schema.type.module'
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
@@ -58,26 +64,22 @@ import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 
 export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
-  if (!isClient) return null
   const { sceneEntity } = props
-  const gltfLoaded = GLTFComponent.useSceneLoaded(sceneEntity)
   const searchParams = useMutableState(SearchParamState)
 
-  const spawnAvatar = useHookstate(false)
   const spectateEntity = useHookstate(null as null | EntityUUID)
+
   const settingsQuery = useChildrenWithComponents(sceneEntity, [SceneSettingsComponent])
 
-  const avatarsQuery = useFind(avatarPath)
-
-  useEffect(() => {
+  useImmediateEffect(() => {
     const sceneSettingsSpectateEntity = getOptionalComponent(settingsQuery[0], SceneSettingsComponent)?.spectateEntity
-    spectateEntity.set(
-      sceneSettingsSpectateEntity ? sceneSettingsSpectateEntity : (getSearchParamFromURL('spectate') as EntityUUID)
-    )
-  }, [settingsQuery, searchParams])
+    spectateEntity.set(sceneSettingsSpectateEntity || (getSearchParamFromURL('spectate') as EntityUUID))
+  }, [settingsQuery[0], searchParams.value['spectate']])
+
+  const isSpectating = typeof spectateEntity.value === 'string'
 
   useEffect(() => {
-    if (spectateEntity.value === null) return
+    if (!isSpectating) return
     dispatchAction(
       SpectateActions.spectateEntity({
         spectatorUserID: Engine.instance.userID,
@@ -88,11 +90,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
     return () => {
       dispatchAction(SpectateActions.exitSpectate({ spectatorUserID: Engine.instance.userID }))
     }
-  }, [spectateEntity.value])
-
-  useEffect(() => {
-    spawnAvatar.set(gltfLoaded && spectateEntity.value === null)
-  }, [gltfLoaded, spectateEntity.value])
+  }, [isSpectating])
 
   const userAvatarQuery = useFind(userAvatarPath, {
     query: {
@@ -103,7 +101,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   const userAvatar = userAvatarQuery.data[0]
 
   useEffect(() => {
-    if (!spawnAvatar.value || !userAvatar) return
+    if (isSpectating || !userAvatar) return
 
     const rootUUID = getComponent(sceneEntity, UUIDComponent)
     const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userID)
@@ -129,12 +127,14 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
         dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID: getComponent(selfAvatarEntity, UUIDComponent) }))
       }
     }
-  }, [spawnAvatar.value, !!userAvatar])
+  }, [isSpectating, !!userAvatar])
 
   const selfAvatarEntity = AvatarComponent.useSelfAvatarEntity()
   const errorWithAvatar = !!useOptionalComponent(selfAvatarEntity, ErrorComponent)
 
   const userAvatarMutation = useMutation(userAvatarPath)
+
+  const avatarsQuery = useFind(avatarPath)
 
   useEffect(() => {
     if (!errorWithAvatar || !avatarsQuery.data.length) return
@@ -143,14 +143,14 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   }, [errorWithAvatar])
 
   useEffect(() => {
-    if (!userAvatar) return
+    if (isSpectating || !userAvatar) return
     dispatchAction(
       AvatarNetworkAction.setAvatarURL({
         avatarURL: userAvatar.avatar.modelResource!.url,
         entityUUID: (Engine.instance.store.userID + '_avatar') as any as EntityUUID
       })
     )
-  }, [userAvatar])
+  }, [isSpectating, userAvatar])
 
   return null
 }
@@ -158,8 +158,8 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
 const reactor = () => {
   const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
   const sceneEntity = useLoadedSceneEntity(locationSceneID)
-
-  if (!sceneEntity) return null
+  const gltfLoaded = GLTFComponent.useSceneLoaded(sceneEntity)
+  if (!gltfLoaded) return null
 
   return <AvatarSpawnReactor key={sceneEntity} sceneEntity={sceneEntity} />
 }
