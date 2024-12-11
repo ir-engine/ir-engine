@@ -23,10 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { UndefinedEntity } from '@ir-engine/ecs'
 import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { useMutableState } from '@ir-engine/hyperflux'
 
 export const useLoadedSceneEntity = (sceneURL: string | undefined) => {
   const scenes = useMutableState(GLTFAssetState)
-  return sceneURL ? scenes[sceneURL].value : null
+  return sceneURL ? scenes[sceneURL].value : UndefinedEntity
 }
