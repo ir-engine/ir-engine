@@ -37,6 +37,14 @@ import { useTranslation } from 'react-i18next'
 import { TbMarquee2 } from 'react-icons/tb'
 import { SelectionBoxState } from './SelectionBoxTool'
 
+const GizmoTools = {
+  ...TransformMode,
+  pointer: 'pointer' as const,
+  selectionBox: 'selection_box' as const
+}
+
+type GizmoToolsType = (typeof GizmoTools)[keyof typeof GizmoTools]
+
 function Placer() {
   return (
     <div className="flex flex-col gap-0.5">
@@ -53,16 +61,18 @@ export default function TransformGizmoTool({
   viewportRef: React.RefObject<HTMLDivElement>
   toolbarRef: React.RefObject<HTMLDivElement>
 }) {
+  const { t } = useTranslation()
   const editorHelperState = useMutableState(EditorHelperState)
   const transformMode = editorHelperState.transformMode.value
-  const { t } = useTranslation()
+
   const [position, setPosition] = useState({ x: 16, y: 56 })
   const [isDragging, setIsDragging] = useState(false)
-  const gizmoRef = useRef<HTMLDivElement>(null)
-  const [pointerSelected, setPointerSelected] = useState(false)
   const [isClickedSelectionBox, setIsClickedSelectionBox] = useState(false)
   const [startingMouseX, setStartingMouseX] = useState(0)
   const [startingMouseY, setStartingMouseY] = useState(0)
+  const [toolSelected, setToolSelected] = useState<GizmoToolsType>(transformMode)
+
+  const gizmoRef = useRef<HTMLDivElement>(null)
 
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true)
@@ -88,7 +98,9 @@ export default function TransformGizmoTool({
     setIsClickedSelectionBox(!isClickedSelectionBox)
     getMutableState(SelectionBoxState).selectionBoxEnabled.set(!isClickedSelectionBox)
     getMutableState(InputState).capturingCameraOrbitEnabled.set(isClickedSelectionBox)
+    setToolSelected(GizmoTools.selectionBox)
   }
+
   const handleMouseUp = () => {
     setIsDragging(false)
   }
@@ -118,9 +130,10 @@ export default function TransformGizmoTool({
         <Tooltip content={t('editor:toolbar.gizmo.pointer')} position="right">
           <ToolbarButton
             onClick={() => {
-              setPointerSelected(true)
               EditorControlFunctions.replaceSelection([])
+              setToolSelected(GizmoTools.pointer)
             }}
+            selected={toolSelected === GizmoTools.pointer}
           >
             <Cursor03Default />
           </ToolbarButton>
@@ -128,9 +141,10 @@ export default function TransformGizmoTool({
         <Tooltip content={t('editor:toolbar.gizmo.translate')} position="right">
           <ToolbarButton
             onClick={() => {
-              setPointerSelected(false)
               setTransformMode(TransformMode.translate)
+              setToolSelected(GizmoTools.translate)
             }}
+            selected={toolSelected === GizmoTools.translate}
           >
             <Scale02Md />
           </ToolbarButton>
@@ -138,9 +152,10 @@ export default function TransformGizmoTool({
         <Tooltip content={t('editor:toolbar.gizmo.rotate')} position="right">
           <ToolbarButton
             onClick={() => {
-              setPointerSelected(false)
               setTransformMode(TransformMode.rotate)
+              setToolSelected(GizmoTools.rotate)
             }}
+            selected={toolSelected === GizmoTools.rotate}
           >
             <Refresh1Md />
           </ToolbarButton>
@@ -148,15 +163,16 @@ export default function TransformGizmoTool({
         <Tooltip content={t('editor:toolbar.gizmo.scale')} position="right">
           <ToolbarButton
             onClick={() => {
-              setPointerSelected(false)
               setTransformMode(TransformMode.scale)
+              setToolSelected(GizmoTools.scale)
             }}
+            selected={toolSelected === GizmoTools.scale}
           >
             <TransformMd />
           </ToolbarButton>
         </Tooltip>
         <Tooltip content={t('disable orbit camera and enable selection box')} position="right">
-          <ToolbarButton onClick={handleClickSelectionBox}>
+          <ToolbarButton onClick={handleClickSelectionBox} selected={toolSelected === GizmoTools.selectionBox}>
             <TbMarquee2 />
           </ToolbarButton>
         </Tooltip>
