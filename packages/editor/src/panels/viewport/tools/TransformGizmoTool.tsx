@@ -35,8 +35,8 @@ import { Cursor03Default, Refresh1Md, Scale02Md, TransformMd } from '@ir-engine/
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TbMarquee2 } from 'react-icons/tb'
-import { SelectionBoxState } from './SelectionBoxTool'
 import { EditorHelperState } from '../../../services/EditorHelperState'
+import { SelectionBoxState } from './SelectionBoxTool'
 
 const GizmoTools = {
   ...TransformMode,

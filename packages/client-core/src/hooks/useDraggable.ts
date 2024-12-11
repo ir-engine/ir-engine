@@ -44,8 +44,8 @@ export const useDraggable = ({ targetId, placerId = targetId, topOffset = 0, tar
   }>({
     startX: targetStartX || 0,
     startY: targetStartY || 0,
-    lastX: 0,
-    lastY: 0
+    lastX: targetStartX || 0,
+    lastY: (targetStartY && targetStartY + topOffset) || 0
   })
 
   useEffect(() => {
