@@ -1359,7 +1359,9 @@
       "preview": "Preview",
       "info-drag-drop": "Drag and Drop these items into the scene",
       "settings": "Settings",
-      "no-search-results": "No results found"
+      "no-search-results": "No results found",
+      "total-assets": "Showing {{total}} assets",
+      "previous": "Previous"
     }
   },
   "hierarchy": {
