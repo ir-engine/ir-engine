@@ -23,7 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent, getComponent, hasComponent, useComponent, useQuery } from '@ir-engine/ecs'
+import {
+  EntityUUID,
+  UUIDComponent,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  useComponent,
+  useQuery
+} from '@ir-engine/ecs'
 import {
   EditorComponentType,
   commitProperties,
@@ -78,9 +86,14 @@ const TriggerProperties: EditorComponentType = (props) => {
     for (const entity of callbackQuery) {
       if (!hasComponent(entity, EntityTreeComponent)) continue
       const callbacks = getComponent(entity, CallbackComponent)
+      const label = getOptionalComponent(entity, NameComponent)
+      const value = getOptionalComponent(entity, UUIDComponent)
+
+      if (!label || !value) continue //do not add entries without a name or uuid component
+
       options.push({
-        label: getComponent(entity, NameComponent),
-        value: getComponent(entity, UUIDComponent),
+        label: label,
+        value: value,
         callbacks: Object.keys(callbacks).map((cb) => ({ label: cb, value: cb }))
       })
     }
