@@ -52,7 +52,6 @@ import { smootheLerpAlpha } from '@ir-engine/spatial/src/common/functions/MathLe
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
@@ -61,21 +60,20 @@ import { useEffect } from 'react'
 import { MathUtils, Vector3 } from 'three'
 import { XruiNameplateState } from '../XruiNameplateState'
 
-const xrDistVec3 = new Vector3()
+const _vec3 = new Vector3()
 
-function updateXrDistVec3(selfAvatarEntity: Entity): void {
-  //TODO change from using rigidbody to use the transform position (+ height of avatar)
-  const selfAvatarRigidBodyComponent = getOptionalComponent(selfAvatarEntity, RigidBodyComponent)
-  const avatar = getComponent(selfAvatarEntity, AvatarComponent)
+function getSelfAvatarHeadPosition(selfAvatarEntity: Entity, vec3: Vector3): void {
+  const selfAvatarRigidBodyComponent = getComponent(selfAvatarEntity, RigidBodyComponent)
   if (!selfAvatarRigidBodyComponent) return
-  xrDistVec3.copy(selfAvatarRigidBodyComponent!.position)
-  xrDistVec3.y += avatar.avatarHeight
+  const avatar = getComponent(selfAvatarEntity, AvatarComponent)
+  vec3.copy(selfAvatarRigidBodyComponent.position)
+  vec3.y += avatar.avatarHeight
 }
 
 export const XruiNameplateComponent = defineComponent({
   name: 'XruiNameplateComponent',
   schema: S.Object({
-    uiEntity: T.Entity(),
+    uiEntity: S.Entity(),
     nameLabel: S.String('')
   }),
 
@@ -83,12 +81,10 @@ export const XruiNameplateComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
     const networkObject = useComponent(entity, NetworkObjectComponent)
     const user = useGet(userPath, networkObject.ownerId.value)
 
     useEffect(() => {
-      if (selfAvatarEntity === entity || getState(XruiNameplateState).isVisible === false) return //don't add nameplate to self
       const userName = user.data?.name ?? 'A User'
       addNameplateUI(entity, userName)
 
@@ -150,8 +146,12 @@ export const updateNameplateUI = (entity: Entity) => {
 
   const xruiTransform = getOptionalComponent(xruiNameplateComponent.uiEntity, TransformComponent)
   if (!xrui || !xruiTransform) return
+
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-  updateXrDistVec3(selfAvatarEntity)
+  const fromEntity = selfAvatarEntity ?? getState(EngineState).viewerEntity
+  if (!fromEntity) return
+
+  getSelfAvatarHeadPosition(fromEntity, _vec3)
 
   const hasVisibleComponent = hasComponent(xruiNameplateComponent.uiEntity, VisibleComponent)
   if (hasVisibleComponent && avatarComponent && avatarTransform) {
@@ -174,7 +174,7 @@ export const updateNameplateUI = (entity: Entity) => {
     xruiTransform.rotation.copy(cameraTransform.rotation)
   }
 
-  const distance = xrDistVec3.distanceTo(xruiTransform.position)
+  const distance = _vec3.distanceToSquared(xruiTransform.position)
 
   const transition = XruiNameplateComponent.Transitions.get(entity)
 

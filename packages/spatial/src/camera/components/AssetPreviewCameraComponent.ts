@@ -27,7 +27,6 @@ import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useEffect } from 'react'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
-import { T } from '../../schema/schemaFunctions'
 import { useChildrenWithComponents } from '../../transform/components/EntityTree'
 import { CameraOrbitComponent } from './CameraOrbitComponent'
 
@@ -35,7 +34,7 @@ export const AssetPreviewCameraComponent = defineComponent({
   name: 'AssetPreviewCameraComponent',
 
   schema: S.Object({
-    targetModelEntity: T.Entity()
+    targetModelEntity: S.Entity()
   }),
 
   reactor: () => {

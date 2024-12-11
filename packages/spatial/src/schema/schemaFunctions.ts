@@ -25,10 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Box3, Color, ColorRepresentation, Matrix4, Quaternion, Vector2, Vector3 } from 'three'
 
-import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { Options, TNonSerializedSchema, TProperties, TTypedSchema } from '@ir-engine/ecs/src/schemas/JSONSchemaTypes'
+import { Options, TProperties } from '@ir-engine/ecs/src/schemas/JSONSchemaTypes'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { UserID } from '@ir-engine/hyperflux'
 
 const isColorObj = (color?: ColorRepresentation): color is Color => {
   return color !== undefined && (color as Color).r !== undefined
@@ -46,20 +44,6 @@ export const NonEmptyString = (errMsg: string) => {
 }
 
 export const T = {
-  /** Entity type schema helper, Entities will not be serialized, defaults to UndefinedEntity */
-  Entity: (def?: Entity, options?: TTypedSchema<Entity>['options']) =>
-    S.NonSerialized(S.Number(def ?? UndefinedEntity, { ...options, id: 'Entity' })) as unknown as TNonSerializedSchema<
-      TTypedSchema<Entity>
-    >,
-
-  /** EntityUUID type schema helper, defaults to '' */
-  EntityUUID: (options?: TTypedSchema<EntityUUID>['options']) =>
-    S.String('', { ...options, id: 'EntityUUID' }) as unknown as TTypedSchema<EntityUUID>,
-
-  /** UserID type schema helper, defaults to '' */
-  UserID: (options?: TTypedSchema<UserID>['options']) =>
-    S.String('', { ...options, id: 'UserUUID' }) as unknown as TTypedSchema<UserID>,
-
   /** Vector3 type schema helper, defaults to { x: 0, y: 0, z: 0 } */
   Vec3: (init = { x: 0, y: 0, z: 0 }, options?: Options<Vector3>) =>
     S.SerializedClass(

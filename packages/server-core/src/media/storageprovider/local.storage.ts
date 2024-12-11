@@ -99,7 +99,9 @@ export class LocalStorage implements StorageProviderInterface {
           '8642',
           '--cors=*',
           '--brotli',
-          '--gzip'
+          '--gzip',
+          '-a',
+          '::'
         ],
         {
           cwd: process.cwd(),

@@ -45,7 +45,6 @@ import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { CameraGizmoTagComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
-import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import {
   onGizmoCommit,
   onPointerDown,
@@ -60,9 +59,9 @@ export const CameraGizmoComponent = defineComponent({
   name: 'CameraGizmo',
 
   schema: S.Object({
-    sceneEntity: T.Entity(),
-    cameraEntity: T.Entity(),
-    visualEntity: T.Entity(),
+    sceneEntity: S.Entity(),
+    cameraEntity: S.Entity(),
+    visualEntity: S.Entity(),
     enabled: S.Bool(true),
     axis: S.Nullable(S.LiteralUnion(Object.values(TransformAxis)), null),
     showX: S.Bool(true),

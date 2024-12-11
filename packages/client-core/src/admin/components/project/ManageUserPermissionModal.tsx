@@ -55,7 +55,7 @@ export default function ManageUserPermissionModal({ project }: { project: Immuta
 
   const scopeQuery = useFind(scopePath, {
     query: {
-      userId: Engine.instance.store.userID,
+      userId: Engine.instance.userID,
       type: 'admin:admin' as ScopeType
     }
   })

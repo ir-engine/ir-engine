@@ -51,7 +51,13 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
 
   const clientThemeSettings = useHookstate({} as Record<string, ClientThemeOptionsType>)
 
-  const currentThemeName = useAppThemeName(clientSetting.themeModes)
+  const currentThemeName = useAppThemeName(clientSetting?.themeModes)
+
+  useEffect(() => {
+    if (clientSettingQuery.error === 'Not authorized' && selfUser.id.value) {
+      clientSettingQuery.refetch()
+    }
+  }, [clientSettingQuery.error, selfUser.id.value])
 
   useEffect(() => {
     const html = document.querySelector('html')
@@ -59,11 +65,11 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
       html.dataset.theme = currentThemeName
       updateTheme()
     }
-  }, [clientSetting.themeModes, currentThemeName])
+  }, [clientSetting?.themeModes, currentThemeName])
 
   useEffect(() => {
     if (clientSetting) {
-      clientThemeSettings.set(clientSetting?.themeSettings)
+      clientThemeSettings.set(clientSetting.themeSettings)
     }
   }, [clientSetting])
 
@@ -72,7 +78,7 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
   }, [clientThemeSettings, appTheme.customTheme, appTheme.customThemeName])
 
   const updateTheme = () => {
-    const theme = getAppTheme(clientSetting.themeModes)
+    const theme = getAppTheme(clientSetting?.themeModes)
     if (theme)
       for (const variable of Object.keys(theme)) {
         ;(document.querySelector(`[data-theme=${currentThemeName}]`) as any)?.style.setProperty(

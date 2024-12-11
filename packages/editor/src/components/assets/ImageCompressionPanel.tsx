@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
 import { fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
 import {
@@ -76,6 +75,7 @@ export default function ImageCompressionPanel({
     compressionLoading.set(true)
 
     for (const file of selectedFiles) {
+      compressProperties.src.set(file.type === 'folder' ? `${file.url}/${file.key}` : file.url)
       await uploadImage(file, await compressImage(compressProperties.value))
     }
     await refreshDirectory()
@@ -85,12 +85,10 @@ export default function ImageCompressionPanel({
   }
 
   const uploadImage = async (props: FileDataType, data: ArrayBuffer) => {
-    compressProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
-
     const newFileName = props.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
     const path = props.key.replace(/(.*\/).*/, '$1')
-    const projectName = props.key.split('/')[1] // TODO: support projects with / in the name
-    const relativePath = path.replace('projects/' + projectName + '/', '')
+    const [_projFolder, orgName, projectName] = props.key.split('/')
+    const relativePath = path.replace('projects/' + orgName + '/' + projectName + '/', '')
 
     const file = new File([data], newFileName, { type: 'image/ktx2' })
 
@@ -105,7 +103,7 @@ export default function ImageCompressionPanel({
         ]
       }).promise
     } catch (err) {
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+      console.log('Error uploading compressed image', err)
     }
   }
 

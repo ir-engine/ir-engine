@@ -42,7 +42,6 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
-import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 
 const ToneMappingSchema = S.LiteralUnion(
   [NoToneMapping, LinearToneMapping, ReinhardToneMapping, CineonToneMapping, ACESFilmicToneMapping, CustomToneMapping],
@@ -56,7 +55,7 @@ export const RenderSettingsComponent = defineComponent({
   jsonID: 'EE_render_settings',
 
   schema: S.Object({
-    primaryLight: T.EntityUUID(),
+    primaryLight: S.EntityUUID(),
     csm: S.Bool(true),
     cascades: S.Number(5),
     toneMapping: ToneMappingSchema,

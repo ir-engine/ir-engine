@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
+import { config } from '@ir-engine/common/src/config'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
 import { useClickOutside } from '@ir-engine/common/src/utils/useClickOutside'
@@ -44,6 +45,8 @@ type SceneItemProps = {
   onRenameScene?: (newName: string) => void
   onDeleteScene?: (scene: StaticResourceType) => void
 }
+
+const DEFAULT_SCENE_THUMBNAIL = `${config.client.fileServer}/projects/ir-engine/default-project/public/scenes/default.thumbnail.jpg`
 
 export default function SceneItem({
   scene,
@@ -80,7 +83,8 @@ export default function SceneItem({
     >
       <img
         className="shrink grow basis-0 self-stretch rounded"
-        src={scene.thumbnailURL}
+        src={scene.thumbnailURL || DEFAULT_SCENE_THUMBNAIL}
+        alt={DEFAULT_SCENE_THUMBNAIL}
         data-testid="scene-thumbnail"
         onClick={handleOpenScene}
       />

@@ -275,6 +275,7 @@ function SideNavBar({ handleScrollToPage }) {
 }
 
 function BottomPaginationNavBar({ handleScrollToPage }) {
+  const { t } = useTranslation()
   const { resources, staticResourcesPagination } = useAssetsQuery()
   const totalPages = Math.ceil(staticResourcesPagination.total.value / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
   const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
@@ -282,7 +283,7 @@ function BottomPaginationNavBar({ handleScrollToPage }) {
   return (
     <div className="flex h-20 flex-col items-center justify-center">
       <div className="text-[10px] text-white">
-        Showing <span>{resources.length}</span> of {staticResourcesPagination.total.value}
+        {t('editor:layout.scene-assets.total-assets', { total: resources.length })}
       </div>
       <div className="m-3 flex h-[1px] w-36 flex-row gap-[0.19rem]">
         {Array.from({ length: totalPages }, (_, i) =>
@@ -293,7 +294,7 @@ function BottomPaginationNavBar({ handleScrollToPage }) {
               key={i}
               className="duration-250 h-[10px] w-1/4 border-t-[1px] border-solid border-gray-400 transition-all hover:border-t-[10px]"
               onClick={() => handleScrollToPage(i)}
-            ></div>
+            />
           )
         )}
       </div>
@@ -325,22 +326,21 @@ function ResourceItems() {
         {resources.length > 0 &&
           Array.from({ length: pages }, (_, i) => (
             <div key={i} ref={(el) => (pageRefs.current[i] = el)} className="flex w-full flex-col gap-2">
-              <div className="mt-4 flex h-2.5 w-[calc(100%_-_16px)] flex-row border-t-[0.5px] border-solid pt-1 text-[smaller] text-gray-500">
+              <div className="mt-4 flex h-2.5 w-[calc(100%_-_16px)] flex-row border-t-[0.5px] border-solid border-[#42454D] pt-1 text-[smaller]">
                 {i > 0 && (
                   <button
-                    className="text-grey-500 mr-auto flex items-center justify-center px-4 py-2 text-xs"
+                    className="mr-auto flex items-center justify-center px-4 py-2 text-xs text-[#42454D]"
                     onClick={() => handleScrollToPage(i - 1)} // Scroll to the previous page
                   >
-                    {'Previous'}
+                    {t('editor:layout.scene-assets.previous')}
                   </button>
                 )}
-                <span className="ml-auto">
+                <span className="ml-auto text-[#42454D]">
                   {i * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()) + 1} -{' '}
                   {Math.min(
                     (i + 1) * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()),
                     staticResourcesPagination.total.value
-                  )}{' '}
-                  of {staticResourcesPagination.total.value}
+                  )}
                 </span>
               </div>
               <div
