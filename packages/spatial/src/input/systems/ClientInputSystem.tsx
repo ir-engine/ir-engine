@@ -47,7 +47,7 @@ import { InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import ClientInputFunctions from '../functions/ClientInputFunctions'
-import { InputHeuristicState, findBBoxes, findMeshes } from '../functions/ClientInputHeuristics'
+import { InputHeuristicState, boundingBoxHeuristic, meshHeuristic } from '../functions/ClientInputHeuristics'
 import ClientInputHooks from '../functions/ClientInputHooks'
 import { InputState } from '../state/InputState'
 
@@ -132,11 +132,11 @@ const reactor = () => {
     getMutableState(InputHeuristicState).merge([
       {
         order: -1,
-        heuristic: findMeshes
+        heuristic: meshHeuristic
       },
       {
         order: 0,
-        heuristic: findBBoxes
+        heuristic: boundingBoxHeuristic
       }
     ])
   }, [])

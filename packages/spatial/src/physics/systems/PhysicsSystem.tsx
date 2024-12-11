@@ -132,7 +132,11 @@ const _inputRaycast = {
 
 const sceneQuery = defineQuery([SceneComponent])
 
-function findPhysicsColliders(intersectionData: Set<IntersectionData>, position: Vector3, direction: Vector3) {
+export function spatialInputRaycastHeuristic(
+  intersectionData: Set<IntersectionData>,
+  position: Vector3,
+  direction: Vector3
+) {
   const isEditing = getState(EngineState).isEditing
   if (isEditing) return
 
@@ -160,7 +164,7 @@ const reactor = () => {
     getMutableState(InputHeuristicState).merge([
       {
         order: 0,
-        heuristic: findPhysicsColliders
+        heuristic: spatialInputRaycastHeuristic
       }
     ])
 

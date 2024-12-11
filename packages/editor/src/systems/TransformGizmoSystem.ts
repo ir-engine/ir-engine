@@ -79,7 +79,7 @@ const cameraGizmoQuery = defineQuery([CameraGizmoTagComponent, InputComponent, V
 const raycaster = new Raycaster()
 raycaster.layers.enable(ObjectLayers.Gizmos)
 
-function findEditor(intersectionData: Set<IntersectionData>, position: Vector3, direction: Vector3) {
+export function editorInputHeuristic(intersectionData: Set<IntersectionData>, position: Vector3, direction: Vector3) {
   const isEditing = getState(EngineState).isEditing
   if (!isEditing) return
 
@@ -115,7 +115,7 @@ const reactor = () => {
     getMutableState(InputHeuristicState).merge([
       {
         order: 1,
-        heuristic: findEditor
+        heuristic: editorInputHeuristic
       }
     ])
   }, [])

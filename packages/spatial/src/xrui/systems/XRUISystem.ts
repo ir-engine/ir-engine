@@ -227,7 +227,7 @@ export const XRUISystem = defineSystem({
 const getIntersectionRays = (eid: Entity) => getComponent(eid, InputSourceComponent).raycaster.ray
 
 const _inputRay = new Ray()
-function findXRUI(intersectionData: Set<IntersectionData>, position: Vector3, direction: Vector3) {
+export function xruiInputHeuristic(intersectionData: Set<IntersectionData>, position: Vector3, direction: Vector3) {
   const isEditing = getState(EngineState).isEditing
   if (isEditing) return
 
@@ -261,7 +261,7 @@ export const XRUIInputSystem = defineSystem({
       getMutableState(InputHeuristicState).merge([
         {
           order: 0,
-          heuristic: findXRUI
+          heuristic: xruiInputHeuristic
         }
       ])
     }, [])

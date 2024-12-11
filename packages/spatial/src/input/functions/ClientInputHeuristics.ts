@@ -149,7 +149,7 @@ export function findProximity(
 const hitTarget = new Vector3()
 const ray = new Ray()
 
-export function findBBoxes(intersectionData: Set<IntersectionData>, position: Vector3, direction: Vector3) {
+export function boundingBoxHeuristic(intersectionData: Set<IntersectionData>, position: Vector3, direction: Vector3) {
   const isEditing = getState(EngineState).isEditing
   if (isEditing) return
 
@@ -168,10 +168,10 @@ export function findBBoxes(intersectionData: Set<IntersectionData>, position: Ve
 }
 
 const _raycaster = new Raycaster()
-_raycaster.layers.enable(ObjectLayers.Scene)
+_raycaster.layers.set(ObjectLayers.Scene)
 const meshesQuery = defineQuery([VisibleComponent, MeshComponent])
 
-export function findMeshes(intersectionData: Set<IntersectionData>, position: Vector3, direction: Vector3) {
+export function meshHeuristic(intersectionData: Set<IntersectionData>, position: Vector3, direction: Vector3) {
   const isEditing = getState(EngineState).isEditing
   const inputState = getState(InputState)
   const objects = (isEditing ? meshesQuery() : Array.from(inputState.inputMeshes))
