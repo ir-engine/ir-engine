@@ -40,7 +40,7 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import {
   MaterialInstanceComponent,
@@ -79,12 +79,13 @@ const reactor = () => {
 const ChildMaterialReactor = () => {
   const entity = useEntityContext()
   const forceBasicMaterials = useMutableState(RendererState).forceBasicMaterials
-  const material = useComponent(entity, MaterialStateComponent).material
+  const qualityLevel = getMutableState(RendererState).qualityLevel
+  const materialComponent = useComponent(entity, MaterialStateComponent)
   useEffect(() => {
-    console.log(material)
-    if (!material) return
-    convertMaterials(entity, forceBasicMaterials.value)
-  }, [material, forceBasicMaterials])
+    console.log(materialComponent.material)
+    if (!materialComponent.material || !materialComponent.instances.length) return
+    convertMaterials(entity, forceBasicMaterials.value || qualityLevel.value < 1)
+  }, [materialComponent.material, materialComponent.instances, forceBasicMaterials, qualityLevel])
 
   return null
 }
@@ -108,11 +109,9 @@ const convertMaterials = (material: Entity, forceBasicMaterials: boolean) => {
     (forceBasicMaterials || isMobileXRHeadset) && ExpensiveMaterials.has(materialComponent.material.type)
 
   const uuid = getComponent(material, UUIDComponent)
-
+  const basicUuid = ('basic-' + uuid) as EntityUUID
+  const existingMaterialEntity = UUIDComponent.getEntityByUUID(basicUuid)
   if (shouldMakeBasic) {
-    const basicUuid = ('basic-' + uuid) as EntityUUID
-
-    const existingMaterialEntity = UUIDComponent.getEntityByUUID(basicUuid)
     if (existingMaterialEntity) {
       setMaterial(uuid, basicUuid)
       return

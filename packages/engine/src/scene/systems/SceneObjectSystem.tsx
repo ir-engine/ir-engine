@@ -40,7 +40,7 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { defineQuery, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { getMutableState, getState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { getState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
@@ -49,7 +49,6 @@ import { GroupComponent, GroupQueryReactor } from '@ir-engine/spatial/src/render
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { ResourceManager } from '@ir-engine/spatial/src/resources/ResourceState'
 import {
   DistanceFromCameraComponent,
@@ -102,9 +101,6 @@ const updatableQuery = defineQuery([UpdatableComponent, CallbackComponent])
 
 function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
   const { entity, obj } = props
-
-  const renderState = getMutableState(RendererState)
-  const forceBasicMaterials = useHookstate(renderState.forceBasicMaterials)
 
   useImmediateEffect(() => {
     setComponent(entity, DistanceFromCameraComponent)
