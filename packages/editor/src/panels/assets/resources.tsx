@@ -218,7 +218,7 @@ function SideNavBar({ handleScrollToPage }) {
         id="minimap-nav"
         className={twMerge(
           'duration-250 fixed ml-6 mt-1.5 flex w-6 flex-col items-end overflow-visible rounded-[4px] text-[10px] transition-[margin,padding]',
-          navBarActivated ? 'py-2 pr-6' : 'py-2 pr-3'
+          navBarActivated ? 'py-2 pr-6' : 'py-2.5 pr-3'
         )}
         onMouseEnter={() => setNavBarActivated(true)}
         onMouseLeave={() => setNavBarActivated(false)}
