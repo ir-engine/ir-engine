@@ -199,9 +199,7 @@ const AvatarMenu2 = ({ showBackButton }: { showBackButton: boolean }) => {
                     <Button
                       className="min-w-[8rem] rounded-md text-sm font-normal"
                       variant="secondary"
-                      onClick={() => {
-                        PopupMenuServices.showPopupMenu(UserMenus.ReadyPlayer)
-                      }}
+                      onClick={() => PopupMenuServices.showPopupMenu(UserMenus.ReadyPlayer)}
                     >
                       {t('user:avatar.createAvatar')}
                     </Button>
