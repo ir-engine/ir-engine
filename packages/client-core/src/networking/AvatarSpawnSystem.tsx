@@ -161,6 +161,7 @@ const reactor = () => {
   const locationSceneURL = useHookstate(getMutableState(LocationState).currentLocation.location.sceneURL).value
   const sceneEntity = useLoadedSceneEntity(locationSceneURL)
   const gltfLoaded = GLTFComponent.useSceneLoaded(sceneEntity)
+  console.log({ gltfLoaded, sceneEntity })
 
   if (!gltfLoaded || !userID) return null
 
