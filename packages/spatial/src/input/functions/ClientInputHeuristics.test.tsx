@@ -135,12 +135,12 @@ describe('ClientInputHeuristics', () => {
         const inputState = getMutableState(InputState)
         inputState.inputBoundingBoxes.set(new Set([testEntity]))
 
-        const rayOrigin = new Vector3()
-        const rayDirection = new Vector3(2, 2, 2)
+        const rayOrigin = new Vector3(0, 2, 2)
+        const rayDirection = new Vector3(1, 0, 0).normalize()
         const data = new Set<IntersectionData>()
 
         boundingBoxHeuristic(data, rayOrigin, rayDirection)
-        assertFloat.approxEq(1, Array.from(data)[0].distance, 3)
+        assertFloat.approxEq(1, Array.from(data)[0].distance)
         assert.equal(data.size, 1)
         const result = [...data]
         assert.equal(result[0].entity, testEntity)
