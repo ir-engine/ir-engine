@@ -137,7 +137,7 @@ const convertMaterials = (material: Entity, forceBasicMaterials: boolean) => {
       instances: materialComponent.instances
     })
     setComponent(newMaterialEntity, UUIDComponent, basicUuid)
-    setComponent(newMaterialEntity, NameComponent, 'Fallback Material')
+    setComponent(newMaterialEntity, NameComponent, 'basic-' + getComponent(material, NameComponent))
     setMaterial(uuid, basicUuid)
   } else if (!forceBasicMaterials) {
     const basicMaterialEntity = UUIDComponent.getEntityByUUID(uuid)
