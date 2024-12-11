@@ -30,8 +30,9 @@ import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { Select, Tooltip } from '@ir-engine/ui'
 import { ViewportButton } from '@ir-engine/ui/editor'
 import { Globe01Md } from '@ir-engine/ui/src/icons'
+import { TooltipRef } from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { t } from 'i18next'
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 const transformSpaceOptions = [
@@ -51,6 +52,25 @@ const TransformSpaceTool = () => {
   const { t } = useTranslation()
 
   const transformSpace = useHookstate(getMutableState(EditorHelperState).transformSpace)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const ref = useRef<TooltipRef>(null)
+
+  useEffect(() => {
+    if (dropdownOpen) {
+      ref.current?.hideTooltip()
+    }
+  }, [dropdownOpen])
+
+  const onMouseEnter = () => {
+    if (dropdownOpen) {
+      return false
+    }
+    return true
+  }
+
+  const onMouseLeave = () => {
+    return false
+  }
 
   return (
     <div className="flex items-center rounded bg-[#0E0F11]">
@@ -66,7 +86,11 @@ const TransformSpaceTool = () => {
             : t('editor:toolbar.transformSpace.info-world')
         }
         content={t('editor:toolbar.transformSpace.description')}
-        position="right"
+        position="bottom"
+        ref={ref}
+        isControlled={true}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
       >
         <Select
           key={transformSpace.value}
@@ -74,6 +98,7 @@ const TransformSpaceTool = () => {
           options={transformSpaceOptions}
           value={transformSpace.value}
           width="sm"
+          onOpenChange={(isOpen) => setDropdownOpen(isOpen)}
         />
       </Tooltip>
     </div>

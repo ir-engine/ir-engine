@@ -23,35 +23,54 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { ReactNode, useEffect, useRef, useState } from 'react'
+import React, { ReactNode, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import './tooltip.css'
 
-interface BaseTooltipProps {
+export interface BaseTooltipProps {
   title?: string
   content: ReactNode
   children: ReactNode
   position?: 'auto' | 'top' | 'bottom' | 'left' | 'right'
 }
 
-interface ControlledProp {
+export interface ControlledProps {
   isControlled: true
   onMouseEnter: () => boolean
   onMouseLeave: () => boolean
 }
 
-interface UncontrolledProp {
+export interface UncontrolledProps {
   isControlled?: false
 }
 
-export type TooltipProps = BaseTooltipProps & (ControlledProp | UncontrolledProp)
+export type TooltipProps = BaseTooltipProps & (ControlledProps | UncontrolledProps)
 
-function Tooltip({ title, content, children, position = 'auto', isControlled = false, ...props }: TooltipProps) {
+export interface TooltipRef {
+  showTooltip: () => void
+  hideTooltip: () => void
+}
+
+function Tooltip(
+  { title, content, children, position = 'auto', isControlled = false, ...props }: TooltipProps,
+  ref: React.ForwardedRef<TooltipRef>
+) {
   const [tooltipPosition, setTooltipPosition] = useState('bottom')
   const [tooltipStyles, setTooltipStyles] = useState({ top: 0, left: 0 } as React.CSSProperties)
   const [visibleState, setIsVisible] = useState('hidden' as 'hidden' | 'calculating' | 'visible')
   const triggerRef = useRef<HTMLDivElement | null>(null)
   const tooltipRef = useRef<HTMLDivElement | null>(null)
+
+  useImperativeHandle(
+    ref,
+    () => {
+      return {
+        showTooltip: showTooltip,
+        hideTooltip: hideTooltip
+      }
+    },
+    []
+  )
 
   const calculatePosition = () => {
     if (!triggerRef.current || !tooltipRef.current) return null
@@ -107,21 +126,21 @@ function Tooltip({ title, content, children, position = 'auto', isControlled = f
   }
 
   const showTooltip = () => {
-    if (isControlled === true) {
-      if ('onMouseEnter' in props && props.onMouseEnter()) {
+    if (isControlled) {
+      if ('onMouseEnter' in props && props.onMouseEnter && props.onMouseEnter()) {
         setIsVisible('calculating')
       }
-    } else {
+    } else if (visibleState === 'hidden') {
       setIsVisible('calculating')
     }
   }
 
   const hideTooltip = () => {
-    if (isControlled === true) {
-      if ('onMouseLeave' in props && !props.onMouseLeave()) {
+    if (isControlled) {
+      if ('onMouseLeave' in props && props.onMouseLeave && !props.onMouseLeave()) {
         setIsVisible('hidden')
       }
-    } else {
+    } else if (visibleState !== 'hidden') {
       setIsVisible('hidden')
     }
   }
@@ -185,4 +204,4 @@ function Tooltip({ title, content, children, position = 'auto', isControlled = f
   )
 }
 
-export default Tooltip
+export default React.forwardRef(Tooltip)
