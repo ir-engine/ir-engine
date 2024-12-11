@@ -54,7 +54,7 @@ import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineQuery, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem, useExecute } from '@ir-engine/ecs/src/SystemFunctions'
-import { defineState, getMutableState, getState, isClient, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { Vector3_Back } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import {
   createPriorityQueue,
@@ -406,8 +406,6 @@ const updateDropShadowTransforms = () => {
 const rendererQuery = defineQuery([RendererComponent])
 
 const execute = () => {
-  if (!isClient) return
-
   const useShadows = getShadowsEnabled()
   if (!useShadows) return
 
@@ -435,8 +433,6 @@ const RendererShadowReactor = () => {
 }
 
 const reactor = () => {
-  if (!isClient) return null
-
   const useShadows = useShadowsEnabled()
 
   const [shadowTexture] = useTexture(
@@ -472,8 +468,6 @@ export const DropShadowSystem = defineSystem({
   uuid: 'ee.engine.DropShadowSystem',
   insert: { after: TransformSystem },
   execute: () => {
-    if (!isClient) return
-
     const useShadows = getShadowsEnabled()
     if (!useShadows) {
       updateDropShadowTransforms()
