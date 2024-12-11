@@ -27,7 +27,13 @@ import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
 import { isDev } from '@ir-engine/common/src/config'
-import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
@@ -117,7 +123,8 @@ const unregisterWidgetQueue = defineActionQueue(WidgetAppActions.unregisterWidge
 
 const execute = () => {
   const { widgetMenuUI } = getState(WidgetUISystemState)
-  if (!widgetMenuUI) return
+  const { viewerEntity, localFloorEntity } = getState(EngineState)
+  if (!widgetMenuUI || !viewerEntity) return
 
   const widgetState = getState(WidgetAppState)
   const inputSources = inputSourceQuery()
@@ -162,7 +169,7 @@ const execute = () => {
     )
     if (hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
       removeComponent(widgetMenuUI.entity, ComputedTransformComponent)
-      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
+      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: localFloorEntity })
       setComponent(widgetMenuUI.entity, TransformComponent, { scale: new Vector3().setScalar(1) })
     }
 
@@ -177,11 +184,12 @@ const execute = () => {
     }
   } else {
     if (!hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
-      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
+      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: localFloorEntity })
       setComponent(widgetMenuUI.entity, ComputedTransformComponent, {
-        referenceEntities: [Engine.instance.viewerEntity],
+        referenceEntities: [viewerEntity],
         computeFunction: () => {
-          const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
+          const camera = getOptionalComponent(viewerEntity, CameraComponent)
+          if (!camera) return
           const distance = camera.near * 1.1 // 10% in front of camera
           ObjectFitFunctions.attachObjectInFrontOfCamera(widgetMenuUI.entity, 0.2, distance)
         }

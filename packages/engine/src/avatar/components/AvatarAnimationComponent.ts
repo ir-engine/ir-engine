@@ -88,8 +88,8 @@ export const AvatarRigComponent = defineComponent({
 
   schema: S.Object({
     /** maps human bones to entities */
-    bonesToEntities: S.Record(HumanBonesSchema, T.Entity()),
-    entitiesToBones: S.Record(T.Entity(), HumanBonesSchema),
+    bonesToEntities: S.Record(HumanBonesSchema, S.Entity()),
+    entitiesToBones: S.Record(S.Entity(), HumanBonesSchema),
 
     /** contains ik solve data */
     /**@todo create and move to AvatarIKComponent */

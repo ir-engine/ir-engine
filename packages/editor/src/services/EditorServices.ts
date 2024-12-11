@@ -31,14 +31,7 @@ import { UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { LinkState } from '@ir-engine/engine/src/scene/components/LinkComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import {
-  defineState,
-  getMutableState,
-  getState,
-  syncStateWithLocalStorage,
-  useHookstate,
-  useMutableState
-} from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 
 export enum UIMode {
@@ -59,9 +52,7 @@ export const EditorState = defineState({
     panelLayout: {} as LayoutData,
     rootEntity: UndefinedEntity,
     uiEnabled: true,
-    uiMode: UIMode.ADVANCED,
-    acknowledgedUnsupportedBrowser: false,
-    acknowledgedUnsupportedDevice: false
+    uiMode: UIMode.ADVANCED
   }),
   useIsModified: () => {
     const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
@@ -85,6 +76,5 @@ export const EditorState = defineState({
     }, [linkState.location])
 
     return null
-  },
-  extension: syncStateWithLocalStorage(['acknowledgedUnsupportedBrowser'])
+  }
 })

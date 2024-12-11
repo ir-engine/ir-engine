@@ -24,8 +24,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
+import { useGet } from '@ir-engine/common'
+import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
-import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { Tooltip } from '@ir-engine/ui'
 import React, { useEffect } from 'react'
@@ -36,18 +38,21 @@ const PlayModeTool: React.FC = () => {
   const { t } = useTranslation()
 
   const engineState = useHookstate(getMutableState(EngineState))
+  const editorState = useHookstate(getMutableState(EditorState))
 
   const onTogglePlayMode = () => {
     engineState.isEditing.set(!engineState.isEditing.value)
   }
 
+  const staticResource = useGet(staticResourcePath, editorState.sceneAssetID.value!)
+
   useEffect(() => {
-    if (engineState.isEditing.value) return
-    getMutableState(LocationState).currentLocation.location.sceneId.set(getState(EditorState).sceneAssetID!)
+    if (engineState.isEditing.value || !staticResource.data) return
+    getMutableState(LocationState).currentLocation.location.sceneURL.set(staticResource.data.url)
     return () => {
-      getMutableState(LocationState).currentLocation.location.sceneId.set('')
+      getMutableState(LocationState).currentLocation.location.sceneURL.set('')
     }
-  }, [engineState.isEditing])
+  }, [engineState.isEditing.value, staticResource.data])
 
   return (
     <div id="preview" className="flex items-center">

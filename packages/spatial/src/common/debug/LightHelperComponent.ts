@@ -59,7 +59,7 @@ export const LightHelperComponent = defineComponent({
     light: S.Required(S.Type<Light>()),
     size: S.Number(1),
     color: S.Optional(T.Color()),
-    entity: S.Optional(T.Entity())
+    entity: S.Optional(S.Entity())
   }),
 
   reactor: function () {
