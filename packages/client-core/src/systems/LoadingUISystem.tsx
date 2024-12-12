@@ -61,11 +61,8 @@ import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUICompon
 import { ObjectFitFunctions } from '@ir-engine/spatial/src/xrui/functions/ObjectFitFunctions'
 import type { WebLayer3D } from '@ir-engine/xrui'
 
-import { useFind } from '@ir-engine/common'
-import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { AppThemeState, getAppTheme } from '../common/services/AppThemeState'
 import { useRemoveEngineCanvas } from '../hooks/useEngineCanvas'
 import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
 import { LocationState } from '../social/services/LocationService'
@@ -333,16 +330,9 @@ const execute = () => {
 }
 
 const Reactor = () => {
-  const themeState = useMutableState(AppThemeState)
-  const themeModes = useFind(clientSettingPath).data[0].themeModes
-  const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
-  const sceneEntity = useLoadedSceneEntity(locationSceneID)
+  const locationSceneURL = useHookstate(getMutableState(LocationState).currentLocation.location.sceneURL).value
+  const sceneEntity = useLoadedSceneEntity(locationSceneURL)
   const gltfDocumentState = useMutableState(GLTFDocumentState)
-
-  useEffect(() => {
-    const theme = getAppTheme(themeModes)
-    if (theme) defaultColor.set(theme!.textColor)
-  }, [themeState, themeModes])
 
   if (!sceneEntity) return null
 

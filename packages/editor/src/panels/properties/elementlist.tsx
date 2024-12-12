@@ -36,14 +36,14 @@ import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/
 import { RenderSettingsComponent } from '@ir-engine/engine/src/scene/components/RenderSettingsComponent'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { Button } from '@ir-engine/ui'
 import StringInput from '@ir-engine/ui/src/components/editor/input/String'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { PlusCircleSm } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { startCase } from 'lodash'
 import React, { useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { GrStatusPlaceholder } from 'react-icons/gr'
-import { IoMdAddCircle } from 'react-icons/io'
 import { twMerge } from 'tailwind-merge'
 
 type ElementsType = 'components' | 'prefabs'
@@ -72,8 +72,8 @@ const ComponentListItem = ({ item, onSelect }: { item: Component; onSelect: () =
         EditorControlFunctions.addOrRemoveComponent(entities, item, true)
         onSelect()
       }}
-      startIcon={<Icon className="h-4 w-4 text-[#B2B5BD]" />}
     >
+      <Icon className="h-4 w-4 text-[#B2B5BD]" />
       <div className="ml-4 w-full">
         <Text className="mb-1 block text-left text-sm text-[#B2B5BD]">
           {startCase(jsonName.replace('-', ' ').toLowerCase())}
@@ -88,9 +88,8 @@ const ComponentListItem = ({ item, onSelect }: { item: Component; onSelect: () =
 
 const PrefabListItem = ({ item, onSelect }: { item: PrefabShelfItem; onSelect: () => void }) => {
   return (
-    <Button
-      fullWidth
-      className="w-full bg-[#2C2E33] p-2 text-[#B2B5BD]"
+    <button
+      className="flex w-full items-center justify-center gap-1 rounded-md bg-[#2C2E33] p-2 text-[#B2B5BD] hover:bg-[#214AA6]"
       data-testid="prefabs-category-item"
       onClick={() => {
         const url = item.url
@@ -101,8 +100,8 @@ const PrefabListItem = ({ item, onSelect }: { item: PrefabShelfItem; onSelect: (
         }
         onSelect()
       }}
-      startIcon={<IoMdAddCircle className="h-4 w-4 text-[#B2B5BD]" />}
     >
+      <PlusCircleSm className="text-[#B2B5BD]" />
       <div className="ml-4 w-full">
         <Text className="mb-1 block text-left text-sm text-[#B2B5BD]" data-testid="prefabs-category-item-name">
           {item.name}
@@ -115,7 +114,7 @@ const PrefabListItem = ({ item, onSelect }: { item: PrefabShelfItem; onSelect: (
           {item.detail}
         </Text>
       </div>
-    </Button>
+    </button>
   )
 }
 
@@ -131,7 +130,7 @@ const SceneElementListItem = ({
   return (
     <button
       className={twMerge(
-        'place-items-center gap-1 rounded-xl border-[1px] border-[#212226] bg-[#212226] px-3 py-2.5 text-sm font-medium',
+        'gap-1 rounded-xl border-[1px] border-[#212226] bg-[#212226] px-3 py-2.5 text-sm font-medium',
         selected ? 'border-[#42454D] bg-[#2C2E33]' : 'text-[#B2B5BD]'
       )}
       data-testid="prefabs-category"
@@ -139,12 +138,12 @@ const SceneElementListItem = ({
     >
       <div className="flex flex-col items-center justify-center">
         <PrefabIcon categoryTitle={categoryTitle} isSelected={selected ?? false} />
-        <div
+        <span
           className="max-w-full overflow-hidden truncate whitespace-nowrap text-nowrap"
           data-testid="prefabs-category-title"
         >
           {categoryTitle}
-        </div>
+        </span>
       </div>
     </button>
   )

@@ -24,15 +24,15 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
+import { config } from '@ir-engine/common/src/config'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
 import { useClickOutside } from '@ir-engine/common/src/utils/useClickOutside'
 import RenameSceneModal from '@ir-engine/editor/src/panels/scenes/RenameSceneModal'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { Button, Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { default as React, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { BsThreeDotsVertical } from 'react-icons/bs'
@@ -45,6 +45,8 @@ type SceneItemProps = {
   onRenameScene?: (newName: string) => void
   onDeleteScene?: (scene: StaticResourceType) => void
 }
+
+const DEFAULT_SCENE_THUMBNAIL = `${config.client.fileServer}/projects/ir-engine/default-project/public/scenes/default.thumbnail.jpg`
 
 export default function SceneItem({
   scene,
@@ -81,7 +83,8 @@ export default function SceneItem({
     >
       <img
         className="shrink grow basis-0 self-stretch rounded"
-        src={scene.thumbnailURL}
+        src={scene.thumbnailURL || DEFAULT_SCENE_THUMBNAIL}
+        alt={DEFAULT_SCENE_THUMBNAIL}
         data-testid="scene-thumbnail"
         onClick={handleOpenScene}
       />
@@ -108,13 +111,14 @@ export default function SceneItem({
         </div>
         <div className="relative h-6 w-6" ref={sceneItemOptionsRef}>
           <Button
-            variant="transparent"
-            size="small"
+            variant="tertiary"
+            size="sm"
             className="px-2 py-1.5"
-            startIcon={<BsThreeDotsVertical className="text-neutral-100" />}
             data-testid="scene-options-button"
             onClick={() => isOptionsPopupOpen.set((displayed) => !displayed)}
-          />
+          >
+            <BsThreeDotsVertical className="text-neutral-100" />
+          </Button>
           <ul
             className={twMerge(
               'dropdown-menu absolute left-6 top-2  z-10  block w-[180px] rounded-lg bg-theme-primary px-4 py-3 pr-10',
@@ -124,8 +128,7 @@ export default function SceneItem({
           >
             <li className="h-8">
               <Button
-                variant="transparent"
-                size="medium"
+                variant="tertiary"
                 className="h-full p-0 text-zinc-400 hover:text-[var(--text-primary)]"
                 data-testid="scene-rename-button"
                 onClick={() => {
@@ -145,8 +148,7 @@ export default function SceneItem({
             </li>
             <li className="h-8">
               <Button
-                variant="transparent"
-                size="medium"
+                variant="tertiary"
                 className="h-full p-0 text-zinc-400 hover:text-[var(--text-primary)]"
                 data-testid="scene-delete-button"
                 onClick={() => {

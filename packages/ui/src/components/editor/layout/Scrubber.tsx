@@ -45,6 +45,7 @@ type ScrubberProps = {
   value?: any
   onChange: (value: number) => void
   onRelease?: (value: number) => void
+  disabled?: boolean
 }
 
 const Scrubber: React.FC<ScrubberProps> = ({
@@ -62,10 +63,10 @@ const Scrubber: React.FC<ScrubberProps> = ({
   value,
   onChange,
   onRelease,
+  disabled,
   ...rest
 }) => {
-  const containerClassName = twMerge('flex items-center', 'cursor-ew-resize p-1', 'text-xs font-normal', className)
-
+  const containerClassName = twMerge('flex items-center p-1 text-xs font-normal', className)
   const state = useHookstate({
     isDragging: false,
     startValue: 0,
@@ -130,10 +131,11 @@ const Scrubber: React.FC<ScrubberProps> = ({
   return (
     <div
       className={containerClassName}
+      style={{ cursor: disabled ? 'not-allowed' : 'ew-resize' }}
       ref={scrubberEl}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
+      onMouseDown={(e) => !disabled && handleMouseDown(e)}
+      onMouseMove={(e) => !disabled && handleMouseMove(e)}
+      onMouseUp={() => !disabled && handleMouseUp()}
       {...rest}
     >
       {children}
@@ -148,6 +150,7 @@ Scrubber.defaultProps = {
   sensitivity: 5,
   min: -Infinity,
   max: Infinity,
+  disabled: false,
   convertFrom: (value) => value,
   convertTo: (value) => value
 }

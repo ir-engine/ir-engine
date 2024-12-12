@@ -18,7 +18,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React, { lazy, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
@@ -32,18 +32,10 @@ import {
   locationPath,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
-import { useQuery } from '@ir-engine/ecs'
-import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
-import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
-import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbnailState'
-import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
-import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
-import { ImageLink } from '@ir-engine/ui/editor'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import { useHookstate } from '@ir-engine/hyperflux'
+import { Button, Input, Select } from '@ir-engine/ui'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import { ModalHeader } from '@ir-engine/ui/src/primitives/tailwind/Modal'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 import { HiLink } from 'react-icons/hi2'
 
@@ -53,6 +45,10 @@ const getDefaultErrors = () => ({
   scene: '',
   serverError: ''
 })
+
+const StudioSections = lazy(
+  () => import('@ir-engine/ui/src/components/editor/Modal/AddEditLocationModalStudioSections')
+)
 
 const locationTypeOptions = [
   { label: 'Private', value: 'private' },
@@ -64,6 +60,10 @@ export default function AddEditLocationModal(props: {
   action: string
   location?: LocationType
   sceneID?: string | null
+  sceneModified?: boolean
+  inStudio?: boolean
+
+  onPublish?: () => Promise<void>
 }) {
   const { t } = useTranslation()
 
@@ -81,8 +81,6 @@ export default function AddEditLocationModal(props: {
 
   const locationMutation = useMutation(locationPath)
 
-  const sceneModified = EditorState.useIsModified()
-
   const publishLoading = useHookstate(false)
   const unPublishLoading = useHookstate(false)
   const isLoading = locationQuery.status === 'pending' || publishLoading.value || unPublishLoading.value
@@ -96,8 +94,6 @@ export default function AddEditLocationModal(props: {
   const audioEnabled = useHookstate<boolean>(location?.locationSetting.audioEnabled || true)
   const screenSharingEnabled = useHookstate<boolean>(location?.locationSetting.screenSharingEnabled || true)
   const locationType = useHookstate(location?.locationSetting.locationType || 'public')
-  const sceneThumbnailState = useHookstate(getMutableState(SceneThumbnailState))
-  const sceneSettingsEntities = useQuery([SceneSettingsComponent])
 
   useEffect(() => {
     if (location) {
@@ -140,13 +136,9 @@ export default function AddEditLocationModal(props: {
 
     publishLoading.set(true)
 
-    if (sceneModified) {
+    if (props.onPublish) {
       try {
-        const { sceneAssetID, projectName, sceneName, rootEntity } = getState(EditorState)
-        if (!sceneAssetID || !projectName || !sceneName || !rootEntity)
-          throw new Error('Cannot save scene without scene data')
-        const abortController = new AbortController()
-        await saveSceneGLTF(sceneAssetID, projectName, sceneName, abortController.signal)
+        await props.onPublish()
       } catch (e) {
         errors.serverError.set(e.message)
         publishLoading.set(false)
@@ -211,22 +203,9 @@ export default function AddEditLocationModal(props: {
           <div className="relative grid w-full gap-6">
             {errors.serverError.value && <p className="mb-3 text-red-700">{errors.serverError.value}</p>}
             {location && (
-              <Button
-                size="medium"
-                variant="transparent"
-                className="w-full cursor-default text-left text-xs"
+              <button
+                className="flex w-full cursor-default items-center justify-center gap-x-1 text-left text-xs font-medium"
                 data-testid="publish-panel-copy-link-buttons-group"
-                endIcon={
-                  <HiLink
-                    className="z-10 h-4 w-4 cursor-pointer"
-                    onClick={() => {
-                      navigator.clipboard.writeText(new URL(location.url).href)
-                      NotificationService.dispatchNotify(t('editor:toolbar.publishLocation.locationLinkCopied'), {
-                        variant: 'success'
-                      })
-                    }}
-                  />
-                }
               >
                 <div
                   className="cursor-pointer text-blue-primary hover:underline"
@@ -234,7 +213,16 @@ export default function AddEditLocationModal(props: {
                 >
                   {location.url}
                 </div>
-              </Button>
+                <HiLink
+                  className="z-10 h-4 w-4 cursor-pointer"
+                  onClick={() => {
+                    navigator.clipboard.writeText(new URL(location.url).href)
+                    NotificationService.dispatchNotify(t('editor:toolbar.publishLocation.locationLinkCopied'), {
+                      variant: 'success'
+                    })
+                  }}
+                />
+              </button>
             )}
             <Input
               labelProps={{ text: t('admin:components.location.lbl-name'), position: 'top' }}
@@ -245,7 +233,7 @@ export default function AddEditLocationModal(props: {
               helperText={errors.name.value}
               disabled={isLoading}
               fullWidth
-              variantSize="xl"
+              height="xl"
             />
             <Input
               type="number"
@@ -257,7 +245,7 @@ export default function AddEditLocationModal(props: {
               helperText={errors.maxUsers.value}
               disabled={isLoading}
               fullWidth
-              variantSize="xl"
+              height="xl"
             />
             <Select
               labelProps={{
@@ -285,7 +273,7 @@ export default function AddEditLocationModal(props: {
               state={errors.scene.value ? 'error' : undefined}
               helperText={errors.scene.value}
               width="full"
-              inputSizeVariant="xl"
+              inputHeight="xl"
             />
             {/*<Select
               labelProps={{
@@ -317,62 +305,17 @@ export default function AddEditLocationModal(props: {
               onChange={screenSharingEnabled.set}
               disabled={isLoading}
             />
-            <div>{t('editor:properties.sceneSettings.lbl-thumbnail')}</div>
-            <div className="flex flex-col ">
-              <div className="flex flex-row justify-around">
-                <div>{'Current Thumbnail'}</div>
-                <div>{'Previous Thumbnail'}</div>
-              </div>
-              <div className="flex flex-row justify-evenly">
-                <ImageLink src={sceneThumbnailState.thumbnailURL.value ?? ''} variant="md" />
-                <ImageLink src={sceneThumbnailState.oldThumbnailURL.value ?? ''} variant="md" />
-              </div>
-              <div className="flex flex-row gap-2 ">
-                <Button onClick={SceneThumbnailState.createThumbnail} className="w-full">
-                  {t('editor:properties.sceneSettings.generate')}
-                </Button>
-                <Button
-                  onClick={() => {
-                    SceneThumbnailState.uploadThumbnail(sceneSettingsEntities)
-                  }}
-                  disabled={!sceneThumbnailState.thumbnail.value}
-                  className="w-full"
-                >
-                  {t('editor:properties.sceneSettings.save')}
-                </Button>
-              </div>
-            </div>
-            <div>{t('editor:properties.sceneSettings.lbl-loading')}</div>
-            <div className="flex flex-col">
-              <div className="flex flex-row justify-around">
-                <div>{'Current Loading Screen'}</div>
-                <div>{'Previous Loading Screen'}</div>
-              </div>
-              <div className="flex flex-row justify-evenly ">
-                <ImageLink src={sceneThumbnailState.loadingScreenURL.value ?? ''} variant="md" />
-                <ImageLink src={sceneThumbnailState.oldLoadingScreenURL.value ?? ''} variant="md" />
-              </div>
-              <div className="flex flex-row gap-2">
-                <Button onClick={SceneThumbnailState.createLoadingScreen} className="w-full">
-                  {t('editor:properties.sceneSettings.generate')}
-                </Button>
-                <Button
-                  onClick={() => {
-                    SceneThumbnailState.uploadLoadingScreen(sceneSettingsEntities)
-                  }}
-                  disabled={!sceneThumbnailState.loadingScreenImageData.value}
-                  className="w-full"
-                >
-                  {t('editor:properties.sceneSettings.save')}
-                </Button>
-              </div>
-            </div>
+            {props.inStudio && (
+              <React.Suspense fallback={null}>
+                <StudioSections />
+              </React.Suspense>
+            )}
           </div>
         </div>
 
         <div className="grid grid-flow-col border-t border-t-theme-primary px-6 py-5">
           <Button
-            variant="outline"
+            variant="tertiary"
             data-testid="publish-panel-cancel-button"
             onClick={() => PopoverState.hidePopupover()}
           >
@@ -383,24 +326,20 @@ export default function AddEditLocationModal(props: {
               <Button
                 className="bg-[#162546]"
                 data-testid="publish-panel-unpublish-button"
-                endIcon={unPublishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
                 disabled={isLoading}
                 onClick={unPublishLocation}
               >
                 {t('editor:toolbar.publishLocation.unpublish')}
+                {unPublishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
               </Button>
             )}
-            <Button
-              data-testid="publish-panel-publish-or-update-button"
-              endIcon={publishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
-              disabled={isLoading}
-              onClick={handlePublish}
-            >
+            <Button data-testid="publish-panel-publish-or-update-button" disabled={isLoading} onClick={handlePublish}>
               {location?.id
                 ? t('common:components.update')
-                : sceneModified
+                : props.sceneModified
                 ? t('editor:toolbar.publishLocation.saveAndPublish')
                 : t('editor:toolbar.publishLocation.title')}
+              {publishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
             </Button>
           </div>
         </div>

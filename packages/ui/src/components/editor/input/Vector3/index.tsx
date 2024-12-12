@@ -29,7 +29,6 @@ import React from 'react'
 import { LuLock, LuUnlock } from 'react-icons/lu'
 import { twMerge } from 'tailwind-merge'
 import { Vector3 } from 'three'
-import Button from '../../../../primitives/tailwind/Button'
 import Scrubber from '../../layout/Scrubber'
 import NumericInput from '../Numeric'
 
@@ -40,9 +39,18 @@ interface Vector3ScrubberProps {
   onRelease?: (v: number) => void
   children?: any
   className?: string
+  disabled?: boolean
 }
 
-export const Vector3Scrubber = ({ axis, onChange, onRelease, value, children, ...props }: Vector3ScrubberProps) => {
+export const Vector3Scrubber = ({
+  axis,
+  disabled,
+  onChange,
+  onRelease,
+  value,
+  children,
+  ...props
+}: Vector3ScrubberProps) => {
   const color = (() => {
     switch (axis) {
       case 'x':
@@ -59,7 +67,7 @@ export const Vector3Scrubber = ({ axis, onChange, onRelease, value, children, ..
   props.className = twMerge(`w-full text-${color}`)
   const content = children ?? `${axis?.toUpperCase()} - `
   return (
-    <Scrubber onChange={onChange} onRelease={onRelease} value={value} {...props}>
+    <Scrubber onChange={onChange} onRelease={onRelease} value={value} disabled={disabled} {...props}>
       {content}
     </Scrubber>
   )
@@ -82,6 +90,7 @@ interface Vector3InputProp {
   hideLabels?: boolean
   onChange: (v: Vector3) => void
   onRelease?: (v: Vector3) => void
+  disabled?: boolean
 }
 
 export const Vector3Input = ({
@@ -92,6 +101,7 @@ export const Vector3Input = ({
   value,
   hideLabels,
   onChange,
+  disabled,
   onRelease,
   ...rest
 }: Vector3InputProp) => {
@@ -103,7 +113,10 @@ export const Vector3Input = ({
 
   const toVec3 = (field: string, fieldValue: number): Vector3 => {
     if (uniformEnabled.value) {
-      return new Vector3(fieldValue, fieldValue, fieldValue)
+      const vec = new Vector3()
+      const change = fieldValue - value[field]
+      vec.copy(value).addScalar(change)
+      return vec
     } else {
       const vec = new Vector3()
       vec.copy(value)
@@ -127,22 +140,21 @@ export const Vector3Input = ({
   return (
     <div className="flex flex-row flex-wrap justify-end gap-1.5">
       {uniformScaling && (
-        <Button
-          variant="transparent"
-          startIcon={uniformEnabled.value ? <LuLock /> : <LuUnlock />}
-          onClick={onToggleUniform}
-          className="p-0"
-        />
+        <button onClick={onToggleUniform} className="p-0" tabIndex={-1} disabled={disabled}>
+          {uniformEnabled.value ? <LuLock /> : <LuUnlock />}
+        </button>
       )}
       <NumericInput
         {...rest}
         value={vx}
+        disabled={disabled}
         onChange={onChangeAxis('x')}
         onRelease={onReleaseAxis('x')}
         prefix={
           hideLabels ? null : (
             <Vector3Scrubber
               {...rest}
+              disabled={disabled}
               value={vx}
               onChange={onChangeAxis('x')}
               onRelease={onReleaseAxis('x')}
@@ -154,12 +166,14 @@ export const Vector3Input = ({
       <NumericInput
         {...rest}
         value={vy}
+        disabled={disabled}
         onChange={onChangeAxis('y')}
         onRelease={onReleaseAxis('y')}
         prefix={
           hideLabels ? null : (
             <Vector3Scrubber
               {...rest}
+              disabled={disabled}
               value={vy}
               onChange={onChangeAxis('y')}
               onRelease={onReleaseAxis('y')}
@@ -171,12 +185,14 @@ export const Vector3Input = ({
       <NumericInput
         {...rest}
         value={vz}
+        disabled={disabled}
         onChange={onChangeAxis('z')}
         onRelease={onReleaseAxis('z')}
         prefix={
           hideLabels ? null : (
             <Vector3Scrubber
               {...rest}
+              disabled={disabled}
               value={vz}
               onChange={onChangeAxis('z')}
               onRelease={onReleaseAxis('z')}

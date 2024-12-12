@@ -28,7 +28,7 @@ import { ChevronDownSm, HelpIconSm } from '@ir-engine/ui/src/icons'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { DropdownItem } from '../Dropdown'
-import { InputProps, variantSizes } from '../Input'
+import { InputProps, heights } from '../Input'
 import Tooltip from '../Tooltip'
 
 export interface OptionType {
@@ -45,7 +45,7 @@ export interface OptionType {
 export interface SelectProps<T = string | number> {
   options: OptionType[]
   width?: 'sm' | 'md' | 'lg' | 'full'
-  inputSizeVariant?: InputProps['variantSize']
+  inputHeight?: InputProps['height']
   onChange: (value: T) => void
   value: T
   labelProps?: InputProps['labelProps']
@@ -65,7 +65,7 @@ const variantToWidth: Record<NonNullable<SelectProps['width']>, string> = {
 const Select = ({
   options,
   width = 'md',
-  inputSizeVariant = 'l',
+  inputHeight = 'l',
   onChange,
   value,
   labelProps,
@@ -202,7 +202,7 @@ const Select = ({
             tabIndex={0}
             className={twMerge(
               `relative flex w-full items-center gap-x-2 rounded-md border-[0.5px] border-[#42454D] bg-[#141619] text-[#9CA0AA] ${
-                variantSizes[inputSizeVariant]
+                heights[inputHeight]
               } ${disabled && 'cursor-not-allowed bg-[#191B1F] text-[#6B6F78]'} transition-colors duration-300`,
               'focus:outline-none',
               state === 'success' && 'border-[#10B981]',

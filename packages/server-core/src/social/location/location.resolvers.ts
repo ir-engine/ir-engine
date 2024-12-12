@@ -72,8 +72,8 @@ export const locationResolver = resolve<LocationType, HookContext>({
       paginate: false
     })) as LocationBanType[]
   }),
-  sceneAsset: virtual(async (location, context) => {
-    return context.app.service(staticResourcePath).get(location.sceneId)
+  sceneURL: virtual(async (location, context) => {
+    return (await context.app.service(staticResourcePath).get(location.sceneId)).url
   }),
   url: virtual(async (location, _context) => {
     return `${config.client.url}/location/${location.slugifiedName}`

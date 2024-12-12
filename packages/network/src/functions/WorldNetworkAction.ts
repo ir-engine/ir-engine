@@ -24,10 +24,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { matchesEntityUUID } from '@ir-engine/ecs'
-import { defineAction, HyperFlux, matchesPeerID, matchesWithDefault } from '@ir-engine/hyperflux'
+import { defineAction, getState, matchesPeerID, matchesWithDefault } from '@ir-engine/hyperflux'
 
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { NetworkTopics } from '../Network'
-import { matchesNetworkId, NetworkObjectComponent } from '../NetworkObjectComponent'
 import { matchesUserID } from './matchesUserID'
 
 export class WorldNetworkAction {
@@ -35,8 +35,7 @@ export class WorldNetworkAction {
     type: 'ee.network.SPAWN_ENTITY',
     entityUUID: matchesEntityUUID,
     parentUUID: matchesEntityUUID,
-    networkId: matchesWithDefault(matchesNetworkId, () => NetworkObjectComponent.createNetworkId()),
-    ownerID: matchesWithDefault(matchesUserID, () => HyperFlux.store.userID),
+    ownerID: matchesWithDefault(matchesUserID, () => getState(EngineState).userID),
     authorityPeerId: matchesPeerID.optional(),
     $cache: true,
     $topic: NetworkTopics.world

@@ -65,22 +65,20 @@ export const EntityTreeComponent = defineComponent({
 
   schema: S.Object({
     // api
-    parentEntity: S.Entity(),
+    parentEntity: S.Entity(UndefinedEntity, {
+      validate: (value, prev, entity) => {
+        if (entity === value) {
+          console.error('Entity cannot be its own parent: ' + entity)
+          return false
+        }
+
+        return true
+      }
+    }),
     // internal
     childIndex: S.NonSerialized(S.Optional(S.Number())),
     children: S.NonSerialized(S.Array(S.Entity()))
   }),
-
-  onSet: (entity, component, json?: Readonly<EntityTreeSetType>) => {
-    if (!json) return
-
-    if (entity === json.parentEntity) {
-      throw new Error('Entity cannot be its own parent: ' + entity)
-    }
-
-    if (typeof json.parentEntity !== 'undefined') component.parentEntity.set(json.parentEntity)
-    if (typeof json.childIndex === 'number') component.childIndex.set(json.childIndex)
-  },
 
   reactor: () => {
     const entity = useEntityContext()
@@ -319,6 +317,31 @@ export function getAncestorWithComponents(
     }
   })
   return result
+}
+
+/**
+ * @description Walks up the tree and returns an inclusive array of entities from the child to the ancestor (in that order) or an empty array if the ancestor is not found
+ * @param childEntity The entity to start the search from
+ * @param outEntities The array where the entities will be pushed
+ * @param ancestorEntity The optional entity to stop the search at (leave UndefinedEntity to search all the way up)
+ */
+export function getTreeFromChildToAncestor(
+  childEntity: Entity,
+  outEntities: Entity[],
+  ancestorEntity: Entity = UndefinedEntity
+): boolean {
+  outEntities.push(childEntity)
+  if (ancestorEntity === childEntity) return true
+  let found = false
+  traverseEntityNodeParent(childEntity, (parent) => {
+    if (ancestorEntity !== UndefinedEntity && parent === ancestorEntity) {
+      found = true
+      outEntities.push(parent)
+      return true
+    }
+    outEntities.push(parent)
+  })
+  return found
 }
 
 /**

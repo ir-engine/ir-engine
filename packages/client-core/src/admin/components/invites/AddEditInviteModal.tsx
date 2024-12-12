@@ -41,10 +41,9 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { convertDateTimeSqlToLocal, toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Checkbox, Input, RadioGroup } from '@ir-engine/ui'
+import { Checkbox, Input, RadioGroup, Select } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import MultiEmailInput from '@ir-engine/ui/src/primitives/tailwind/MultiEmailInput'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 
 type InviteTypeOptionsType = 'new-user' | 'location' | 'instance'
 const inviteTypeOptions = ['new-user', 'location', 'instance'] as InviteTypeOptionsType[]

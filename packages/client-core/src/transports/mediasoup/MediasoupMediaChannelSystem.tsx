@@ -46,6 +46,7 @@ import {
 import { MediasoupTransportState } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
 import { Engine, PresentationSystemGroup } from '@ir-engine/ecs'
 import { NetworkState } from '@ir-engine/network'
+import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import { ConsumerExtension, SocketWebRTCClientNetwork, WebRTCTransportExtension } from './MediasoupClientFunctions'
 
 export const receiveConsumerHandler = async (networkID: NetworkID, consumerState: MediasoupMediaConsumerType) => {
@@ -64,44 +65,38 @@ export const receiveConsumerHandler = async (networkID: NetworkID, consumerState
     appData: { peerID, mediaTag, channelId: channelID }
   })) as unknown as ConsumerExtension
 
+  /** @todo check if we need any of this */
   // if we do already have a consumer, we shouldn't have called this method
-  const existingConsumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
-    network.id,
-    peerID,
-    mediaTag
-  ) as ConsumerExtension
+  // const existingConsumer = MediasoupMediaProducerConsumerState.getConsumerByPeerIdAndMediaTag(
+  //   network.id,
+  //   peerID,
+  //   mediaTag
+  // ) as ConsumerExtension
 
-  if (!existingConsumer) {
-    getMutableState(MediasoupMediaProducersConsumersObjectsState).consumers[consumer.id].set(consumer)
-    // okay, we're ready. let's ask the peer to send us media
-    if (!paused) MediasoupMediaProducerConsumerState.resumeConsumer(network, consumer.id)
-    else MediasoupMediaProducerConsumerState.pauseConsumer(network, consumer.id)
-  } else if (existingConsumer.track?.muted) {
-    dispatchAction(
-      MediasoupMediaConsumerActions.consumerClosed({
-        consumerID: existingConsumer.id,
-        $network: network.id,
-        $topic: network.topic,
-        $to: peerID
-      })
-    )
-    getMutableState(MediasoupMediaProducersConsumersObjectsState).consumers[consumer.id].set(consumer)
-    // okay, we're ready. let's ask the peer to send us media
-    if (!paused) {
-      MediasoupMediaProducerConsumerState.resumeConsumer(network, consumer.id)
-    } else {
-      MediasoupMediaProducerConsumerState.pauseConsumer(network, consumer.id)
-    }
-  } else {
-    dispatchAction(
-      MediasoupMediaConsumerActions.consumerClosed({
-        consumerID: consumer.id,
-        $network: network.id,
-        $topic: network.topic,
-        $to: peerID
-      })
-    )
-  }
+  // if (!existingConsumer) {
+  getMutableState(MediasoupMediaProducersConsumersObjectsState).consumers[consumer.id].set(consumer)
+  MediasoupMediaProducerConsumerState.resumeConsumer(network, consumer.id)
+  // } else if (existingConsumer.track?.muted) {
+  //   dispatchAction(
+  //     MediasoupMediaConsumerActions.consumerClosed({
+  //       consumerID: existingConsumer.id,
+  //       $network: network.id,
+  //       $topic: network.topic,
+  //       $to: peerID
+  //     })
+  //   )
+  //   getMutableState(MediasoupMediaProducersConsumersObjectsState).consumers[consumer.id].set(consumer)
+  //   MediasoupMediaProducerConsumerState.resumeConsumer(network, consumer.id)
+  // } else {
+  //   dispatchAction(
+  //     MediasoupMediaConsumerActions.consumerClosed({
+  //       consumerID: consumer.id,
+  //       $network: network.id,
+  //       $topic: network.topic,
+  //       $to: peerID
+  //     })
+  //   )
+  // }
 }
 
 const ConsumerReactor = (props: { consumerID: string; networkID: InstanceID }) => {
@@ -171,6 +166,10 @@ const NetworkReactor = (props: { networkID: InstanceID }) => {
 
 const reactor = () => {
   const mediaProducerConsumerState = useMutableState(MediasoupMediaProducerConsumerState)
+  const mediaNetworkState = useMediaNetwork()
+
+  /** @todo in future we will have a better way of determining whether we need to connect to a server or not */
+  if (!mediaNetworkState?.hostPeerID?.value) return null
 
   return (
     <>

@@ -39,6 +39,7 @@ import { useMutableState } from '@ir-engine/hyperflux'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
 import { useDisposable } from '../../../resources/resourceHooks'
+import { T } from '../../../schema/schemaFunctions'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { RendererState } from '../../RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '../GroupComponent'
@@ -49,14 +50,14 @@ export const PointLightComponent = defineComponent({
   jsonID: 'EE_point_light',
 
   schema: S.Object({
-    color: S.Color(0xffffff),
+    color: T.Color(0xffffff),
     intensity: S.Number(1),
     range: S.Number(0),
     decay: S.Number(2),
     castShadow: S.Bool(false),
     shadowBias: S.Number(0.5),
     shadowRadius: S.Number(1),
-    helperEntity: S.NonSerialized(S.Nullable(S.Entity()))
+    helperEntity: S.Entity()
   }),
 
   reactor: function () {

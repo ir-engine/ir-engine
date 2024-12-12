@@ -47,6 +47,7 @@ import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectLayerComponents } from '../../renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
+import { T } from '../../schema/schemaFunctions'
 import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraSettingsState } from '../CameraSceneMetadata'
@@ -61,21 +62,21 @@ export const FollowCameraComponent = defineComponent({
 
   schema: S.Object({
     lerpValue: S.Number(0),
-    originalPosition: S.Vec3(),
-    originalOffset: S.Vec3(),
-    originalRotation: S.Quaternion(),
-    targetRotation: S.Quaternion(),
-    targetPosition: S.Vec3(),
-    targetOffset: S.Vec3(),
-    targetToCamera: S.Vec3(),
-    direction: S.Vec3(),
-    lookAtMatrix: S.Mat4(),
-    firstPersonOffset: S.Vec3(),
-    thirdPersonOffset: S.Vec3(),
-    currentOffset: S.Vec3(),
+    originalPosition: T.Vec3(),
+    originalOffset: T.Vec3(),
+    originalRotation: T.Quaternion(),
+    targetRotation: T.Quaternion(),
+    targetPosition: T.Vec3(),
+    targetOffset: T.Vec3(),
+    targetToCamera: T.Vec3(),
+    direction: T.Vec3(),
+    lookAtMatrix: T.Mat4(),
+    firstPersonOffset: T.Vec3(),
+    thirdPersonOffset: T.Vec3(),
+    currentOffset: T.Vec3(),
     offsetSmoothness: S.Number(0.1),
     targetEntity: S.Entity(),
-    currentTargetPosition: S.Vec3(),
+    currentTargetPosition: T.Vec3(),
     targetPositionSmoothness: S.Number(0),
     mode: S.Enum(FollowCameraMode, FollowCameraMode.ThirdPerson),
     allowedModes: S.Array(S.Enum(FollowCameraMode), [
@@ -111,7 +112,7 @@ export const FollowCameraComponent = defineComponent({
         maxDistance: S.Number(-1),
         targetHit: S.Bool(false)
       }),
-      cameraRays: S.Array(S.Vec3(), [])
+      cameraRays: S.Array(T.Vec3(), [])
     }),
     pointerLock: S.Bool(false),
     smoothLerp: S.Bool(true),

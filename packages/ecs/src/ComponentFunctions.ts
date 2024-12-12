@@ -53,12 +53,14 @@ import { defineQuery } from './QueryFunctions'
 import { Kind, Static, Schema as TSchema } from './schemas/JSONSchemaTypes'
 import {
   CreateSchemaValue,
-  HasDeserializers,
+  HasSchemaDeserializers,
   HasRequiredSchema,
-  HasRequiredValues,
-  DeserializeValue,
+  HasRequiredSchemaValues,
+  DeserializeSchemaValue,
   IsSingleValueSchema,
-  SerializeSchema
+  SerializeSchema,
+  HasSchemaValidators,
+  HasValidSchemaValues
 } from './schemas/JSONSchemaUtils'
 
 /**
@@ -290,25 +292,36 @@ export const defineComponent = <
   Component.isComponent = true
 
   // Memoize as much tree walking as possible during component creation
-  const hasSchemaInitializers = schemaIsJSONSchema(def.schema) && HasDeserializers(def.schema)
+  const hasSchemaInitializers = schemaIsJSONSchema(def.schema) && HasSchemaDeserializers(def.schema)
   const hasRequiredSchema = schemaIsJSONSchema(def.schema) && HasRequiredSchema(def.schema)
+  const hasSchemaValidators = schemaIsJSONSchema(def.schema) && HasSchemaValidators(def.schema)
   const isSingleValueSchema = schemaIsJSONSchema(def.schema) && IsSingleValueSchema(def.schema)
 
   Component.onSet = (entity, component, json) => {
     if (schemaIsJSONSchema(def.schema) || def.onInit) {
       if (hasRequiredSchema) {
-        const [valid, key] = HasRequiredValues(def.schema as TSchema, json)
+        const [valid, key] = HasRequiredSchemaValues(def.schema as TSchema, json)
         if (!valid) throw new Error(`${def.name}:OnSet Missing required value for key ${key}`)
       }
 
       if (json === null || json === undefined) return
 
       if (hasSchemaInitializers) {
-        json = DeserializeValue(
+        json = DeserializeSchemaValue(
           def.schema as TSchema,
           component.get(NO_PROXY_STEALTH) as ComponentType,
           typeof json === 'object' ? ({ ...json } as ComponentType) : json
         ) as SetJSON | undefined
+      }
+
+      if (hasSchemaValidators) {
+        const [valid, key] = HasValidSchemaValues(
+          def.schema as TSchema,
+          json as ComponentType,
+          component.get(NO_PROXY_STEALTH) as ComponentType,
+          entity
+        )
+        if (!valid) throw new Error(`${def.name}:OnSet Invalid value for key ${key}`)
       }
 
       if (Array.isArray(json) || typeof json !== 'object' || isSingleValueSchema) component.set(json as ComponentType)

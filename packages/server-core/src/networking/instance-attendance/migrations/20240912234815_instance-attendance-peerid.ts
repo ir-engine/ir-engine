@@ -23,7 +23,43 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { GrabbableSystem } from './systems/GrabbableSystem'
-import { InteractableSystem } from './systems/InteractableSystem'
+import type { Knex } from 'knex'
 
-export { GrabbableSystem, InteractableSystem }
+const instanceAttendanceTable = 'instance-attendance'
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const peerIDColumnExists = await knex.schema.hasColumn(instanceAttendanceTable, 'peerId')
+
+  if (peerIDColumnExists === false) {
+    await knex.schema.alterTable(instanceAttendanceTable, (table) => {
+      table.string('peerId', 255)
+      table.integer('peerIndex')
+    })
+  }
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const projectColumnExists = await knex.schema.hasColumn(instanceAttendanceTable, 'peerId')
+
+  if (projectColumnExists === true) {
+    await knex.schema.alterTable(instanceAttendanceTable, (table) => {
+      table.dropColumn('peerId')
+      table.dropColumn('peerIndex')
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}

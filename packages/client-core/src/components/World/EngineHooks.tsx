@@ -26,12 +26,20 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import multiLogger from '@ir-engine/common/src/logger'
-import { InstanceID } from '@ir-engine/common/src/schema.type.module'
+import { InstanceID, projectsPath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs'
-import { addOutgoingTopicIfNecessary, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import {
+  addOutgoingTopicIfNecessary,
+  dispatchAction,
+  getMutableState,
+  none,
+  useHookstate,
+  useImmediateEffect,
+  useMutableState
+} from '@ir-engine/hyperflux'
 import {
   Network,
-  NetworkPeerFunctions,
+  NetworkActions,
   NetworkState,
   NetworkTopics,
   addNetwork,
@@ -40,21 +48,26 @@ import {
 } from '@ir-engine/network'
 import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
 
+import { useFind } from '@ir-engine/common'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { AuthState } from '../../user/services/AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
 
 export const useEngineInjection = () => {
+  const projects = useFind(projectsPath)
   const loaded = useHookstate(false)
-  useEffect(() => {
-    loadEngineInjection().then(() => {
+  useImmediateEffect(() => {
+    if (!projects.data) return
+    loadEngineInjection(projects.data as string[]).then(() => {
       loaded.set(true)
     })
-  }, [])
+  }, [projects.data])
   return loaded.value
 }
 
 export const useNetwork = (props: { online?: boolean }) => {
+  const userID = useMutableState(EngineState).userID.value
   const acceptedTOS = useMutableState(AuthState).user.acceptedTOS.value
 
   useEffect(() => {
@@ -69,27 +82,44 @@ export const useNetwork = (props: { online?: boolean }) => {
 
   /** Offline/local world network */
   useEffect(() => {
-    if (props.online) return
+    if (props.online || !userID) return
 
-    const userID = Engine.instance.userID
     const peerID = Engine.instance.store.peerID
-    const userIndex = 1
     const peerIndex = 1
+    const networkID = userID as any as InstanceID
 
     const networkState = getMutableState(NetworkState)
-    networkState.hostIds.world.set(userID as any as InstanceID)
-    addNetwork(createNetwork(userID as any as InstanceID, peerID, NetworkTopics.world))
+    networkState.hostIds.world.set(networkID)
+    addNetwork(createNetwork(networkID, peerID, NetworkTopics.world))
     addOutgoingTopicIfNecessary(NetworkTopics.world)
 
     NetworkState.worldNetworkState.ready.set(true)
 
-    NetworkPeerFunctions.createPeer(NetworkState.worldNetwork as Network, peerID, peerIndex, userID, userIndex)
-
     const network = NetworkState.worldNetwork as Network
 
+    dispatchAction(
+      NetworkActions.peerJoined({
+        $network: networkID,
+        $topic: network.topic,
+        $to: Engine.instance.store.peerID,
+        peerID,
+        peerIndex,
+        userID
+      })
+    )
+
     return () => {
+      dispatchAction(
+        NetworkActions.peerLeft({
+          $network: networkID,
+          $topic: network.topic,
+          $to: Engine.instance.store.peerID,
+          peerID,
+          userID
+        })
+      )
       removeNetwork(network)
       networkState.hostIds.world.set(none)
     }
-  }, [props.online])
+  }, [props.online, userID])
 }

@@ -53,7 +53,7 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
-import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
+import { GrabberComponent } from '../../grabbable/GrabbableComponent'
 import { EnvmapComponent } from '../../scene/components/EnvmapComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { EnvMapSourceType } from '../../scene/constants/EnvMapEnum'
@@ -103,7 +103,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
     enabledRotations: [false, true, false]
   })
 
-  if (ownerID === Engine.instance.store.userID) {
+  if (ownerID === Engine.instance.userID) {
     createAvatarController(entity)
   }
 
@@ -124,7 +124,8 @@ export const createAvatarCollider = (entity: Entity) => {
   setComponent(colliderEntity, ColliderComponent, {
     shape: Shapes.Capsule,
     collisionLayer: CollisionGroups.Avatars,
-    collisionMask: AvatarCollisionMask
+    collisionMask: AvatarCollisionMask,
+    matchMesh: false
   })
 }
 

@@ -23,15 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { act, render } from '@testing-library/react'
 import assert from 'assert'
-import React from 'react'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
   Engine,
   EntityUUID,
-  SystemDefinitions,
   UUIDComponent,
   UndefinedEntity,
   createEntity,
@@ -40,15 +37,9 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { PeerID, UserID, applyIncomingActions, dispatchAction, getState } from '@ir-engine/hyperflux'
-import {
-  Network,
-  NetworkPeerFunctions,
-  NetworkState,
-  NetworkTopics,
-  NetworkWorldUserStateSystem
-} from '@ir-engine/network'
-import { createMockNetwork } from '../../../../network/tests/createMockNetwork'
+import { UserID, applyIncomingActions, dispatchAction, getState } from '@ir-engine/hyperflux'
+import { NetworkActions, NetworkState, NetworkTopics } from '@ir-engine/network'
+import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
 import { SpectateActions, SpectateEntityState } from './SpectateSystem'
 
 describe('SpectateSystem', async () => {
@@ -57,7 +48,6 @@ describe('SpectateSystem', async () => {
   describe('SpectateEntityState', async () => {
     beforeEach(async () => {
       createEngine()
-      createMockNetwork()
       Engine.instance.store.defaultDispatchDelay = () => 0
       viewerEntity = createEntity()
       setComponent(viewerEntity, UUIDComponent, UUIDComponent.generateUUID())
@@ -69,90 +59,77 @@ describe('SpectateSystem', async () => {
     })
 
     it('should start spectating an entity when the `spectateEntity` action is dispatched', async () => {
-      const NetworkWorldUserStateSystemReactor = SystemDefinitions.get(NetworkWorldUserStateSystem)!.reactor!
-      const tag = <NetworkWorldUserStateSystemReactor />
+      createMockNetwork(NetworkTopics.world)
 
-      const hostUserId = 'world' as UserID
-      const userId = 'user id' as UserID
-      const userUuid = userId as any as EntityUUID
+      const userID = 'user id' as UserID
       const peerID = Engine.instance.store.peerID
-      const peerID2 = 'peer id 2' as PeerID
-      const peerID3 = 'peer id 3' as PeerID
-      const spectatorID = 'spectator id' as UserID
 
-      Engine.instance.store.userID = userId
-      const network: Network = NetworkState.worldNetwork
+      const network = NetworkState.worldNetwork
 
-      NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0)
-      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1)
-      NetworkPeerFunctions.createPeer(network, peerID3, 2, userId, 2)
-
-      const { rerender, unmount } = render(tag)
-      await act(() => rerender(tag))
+      dispatchAction(
+        NetworkActions.peerJoined({
+          $network: network.id,
+          peerID: peerID,
+          peerIndex: 1,
+          userID: userID
+        })
+      )
 
       dispatchAction(
         SpectateActions.spectateEntity({
-          spectatorUserID: spectatorID,
-          spectatingEntity: userUuid,
+          spectatorUserID: userID,
+          spectatingEntity: 'entity' as EntityUUID,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.store.peerID
         })
       )
       applyIncomingActions()
-      const state = getState(SpectateEntityState)[spectatorID]
-      assert.notEqual(state, undefined, "The spectator's SpectateEntityState should not be undefined after `getState`")
-      assert.equal(state.spectating, userId, 'The spectator is not spectating the correct userID')
 
-      unmount()
+      const state = getState(SpectateEntityState)[userID]
+      assert.equal(state.spectating, 'entity', 'The spectator is not spectating the correct userID')
     })
 
     it('should stop spectating an entity when the `exitSpectate` action is dispatched', async () => {
-      const NetworkWorldUserStateSystemReactor = SystemDefinitions.get(NetworkWorldUserStateSystem)!.reactor!
-      const tag = <NetworkWorldUserStateSystemReactor />
+      createMockNetwork(NetworkTopics.world)
 
-      const hostUserId = 'world' as UserID
-      const userId = 'user id' as UserID
-      const userUuid = userId as any as EntityUUID
+      const userID = 'user id' as UserID
       const peerID = Engine.instance.store.peerID
-      const peerID2 = 'peer id 2' as PeerID
-      const peerID3 = 'peer id 3' as PeerID
-      const spectatorID = 'spectator id' as UserID
 
-      Engine.instance.store.userID = userId
-      const network: Network = NetworkState.worldNetwork
+      const network = NetworkState.worldNetwork
 
-      NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0)
-      NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1)
-      NetworkPeerFunctions.createPeer(network, peerID3, 2, userId, 2)
-
-      const { rerender, unmount } = render(tag)
-      await act(() => rerender(tag))
+      dispatchAction(
+        NetworkActions.peerJoined({
+          $network: network.id,
+          peerID: peerID,
+          peerIndex: 1,
+          userID: userID
+        })
+      )
 
       dispatchAction(
         SpectateActions.spectateEntity({
-          spectatorUserID: spectatorID,
-          spectatingEntity: userUuid,
+          spectatorUserID: userID,
+          spectatingEntity: 'entity' as EntityUUID,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.store.peerID
         })
       )
+
       applyIncomingActions()
-      const before = getState(SpectateEntityState)[spectatorID]
+      const before = getState(SpectateEntityState)[userID]
       assert.notEqual(before, undefined, "The spectator's SpectateEntityState should not be undefined after `getState`")
-      assert.equal(before.spectating, userId, 'The spectator is not spectating the correct userID')
+      assert.equal(before.spectating, 'entity', 'The spectator is not spectating the correct userID')
 
       dispatchAction(
         SpectateActions.exitSpectate({
-          spectatorUserID: spectatorID,
+          spectatorUserID: userID,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.store.peerID
         })
       )
       applyIncomingActions()
-      const after = getState(SpectateEntityState)[spectatorID]
+      const after = getState(SpectateEntityState)[userID]
       assert.equal(after, undefined, "The spectator's SpectateEntityState should be undefined after exitSpectate")
-
-      unmount()
     })
   })
 })

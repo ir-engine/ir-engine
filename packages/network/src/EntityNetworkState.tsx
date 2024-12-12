@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useLayoutEffect } from 'react'
+import React, { useLayoutEffect } from 'react'
 
 import { Engine, EntityUUID, getOptionalComponent, removeEntity, setComponent, UUIDComponent } from '@ir-engine/ecs'
 import {
@@ -37,13 +37,14 @@ import {
   useMutableState,
   UserID
 } from '@ir-engine/hyperflux'
-import { NetworkId } from '@ir-engine/network/src/NetworkId'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { WorldNetworkAction } from './functions/WorldNetworkAction'
+import { NetworkId } from './NetworkId'
 import { NetworkObjectComponent } from './NetworkObjectComponent'
+import { NetworkPeerState } from './NetworkPeerState'
 import { NetworkState, SceneUser } from './NetworkState'
-import { NetworkWorldUserState } from './NetworkUserState'
 
 export const EntityNetworkState = defineState({
   name: 'ee.EntityNetworkState',
@@ -54,19 +55,16 @@ export const EntityNetworkState = defineState({
       parentUUID: EntityUUID
       ownerId: UserID | typeof SceneUser
       ownerPeer: PeerID
-      networkId: NetworkId
-      authorityPeerId: PeerID
+      authorityPeerId?: PeerID
       requestingPeerId?: PeerID
     }
   >,
 
   receptors: {
     onSpawnObject: WorldNetworkAction.spawnEntity.receive((action) => {
-      // const userId = getState(NetworkState).networks[action.$network].peers[action.$peer].userId
       getMutableState(EntityNetworkState)[action.entityUUID].merge({
         parentUUID: action.parentUUID,
         ownerId: action.ownerID,
-        networkId: action.networkId,
         authorityPeerId: action.authorityPeerId ?? action.$peer,
         ownerPeer: action.$peer
       })
@@ -80,6 +78,7 @@ export const EntityNetworkState = defineState({
       const fromUserId = action.ownerID
       const state = getMutableState(EntityNetworkState)
       const ownerUserId = state[action.entityUUID].ownerId.value
+      /** @todo move this to validation */
       if (fromUserId !== ownerUserId) return // Authority transfer can only be initiated by owner
       state[action.entityUUID].authorityPeerId.set(action.newAuthority)
       state[action.entityUUID].requestingPeerId.set(none)
@@ -105,16 +104,17 @@ export const EntityNetworkState = defineState({
 const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
   const state = useHookstate(getMutableState(EntityNetworkState)[props.uuid])
   const ownerID = state.ownerId.value
-  const isOwner = ownerID === SceneUser || ownerID === Engine.instance.userID
-  const userConnected = !!useHookstate(getMutableState(NetworkWorldUserState)[ownerID]).value || isOwner
-  const isWorldNetworkConnected = !!useHookstate(NetworkState.worldNetworkState).value
+  const userID = useMutableState(EngineState).userID.value
+  const isOwner = ownerID === SceneUser || ownerID === userID
+  const worldNetwork = useHookstate(NetworkState.worldNetworkState).value
+  const networkPeerState = useMutableState(NetworkPeerState).value
+  const userHasPeer = !!(worldNetwork && networkPeerState[worldNetwork.id]?.users?.[ownerID])
+  const userConnected = userHasPeer || isOwner
+  const networkID = useNetworkID(props.uuid)
 
   useLayoutEffect(() => {
     if (!userConnected) return
-    const entity =
-      ownerID === SceneUser
-        ? UUIDComponent.getEntityByUUID(props.uuid)
-        : UUIDComponent.getOrCreateEntityByUUID(props.uuid)
+    const entity = UUIDComponent.getOrCreateEntityByUUID(props.uuid)
     return () => {
       removeEntity(entity)
     }
@@ -132,16 +132,14 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
     if (!userConnected) return
     const entity = UUIDComponent.getEntityByUUID(props.uuid)
     if (!entity) return
-    const worldNetwork = NetworkState.worldNetwork
 
     setComponent(entity, NetworkObjectComponent, {
-      ownerId:
-        ownerID === SceneUser ? (isWorldNetworkConnected ? worldNetwork.hostUserID : Engine.instance.userID) : ownerID,
+      ownerId: ownerID,
       ownerPeer: state.ownerPeer.value,
       authorityPeerID: state.authorityPeerId.value,
-      networkId: state.networkId.value
+      networkId: networkID
     })
-  }, [isWorldNetworkConnected, userConnected, state.ownerId.value, state.authorityPeerId.value, state.networkId.value])
+  }, [!!worldNetwork, userConnected, state.ownerId.value, state.authorityPeerId.value, networkID])
 
   useLayoutEffect(() => {
     if (!userConnected || !state.requestingPeerId.value) return
@@ -150,8 +148,7 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
     const entity = UUIDComponent.getEntityByUUID(props.uuid)
     if (!entity) return
     const ownerID = getOptionalComponent(entity, NetworkObjectComponent)?.ownerId
-    if (!ownerID || ownerID !== Engine.instance.userID) return
-    console.log('Requesting authority over object', props.uuid, state.requestingPeerId.value)
+    if ((!ownerID || ownerID !== userID) && ownerID !== SceneUser) return
     dispatchAction(
       WorldNetworkAction.transferAuthorityOfObject({
         ownerID: state.ownerId.value,
@@ -161,35 +158,43 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
     )
   }, [userConnected, state.requestingPeerId.value])
 
-  return <>{isOwner && isWorldNetworkConnected && <OwnerPeerReactor uuid={props.uuid} />}</>
-}
+  const authorityPeer = state.authorityPeerId.value ?? state.ownerPeer.value
+  const isAuthorInNetwork = !!(worldNetwork && networkPeerState[worldNetwork.id]?.peers[authorityPeer])
 
-const OwnerPeerReactor = (props: { uuid: EntityUUID }) => {
-  const state = useHookstate(getMutableState(EntityNetworkState)[props.uuid])
-  const ownerPeer = state.ownerPeer.value
-  const networkState = useHookstate(NetworkState.worldNetworkState)
+  /**
+   * If the authority peer does not exist in the network, and we are the owner user,
+   * dispatch a spawn action so we take authority over the object
+   */
+  useLayoutEffect(() => {
+    if (!isOwner || !isAuthorInNetwork) return
 
-  /** If the owner peer does not exist in the network, and we are the owner user, dispatch a spawn action so we take ownership */
-  useEffect(() => {
     return () => {
-      // ensure reactor isn't completely unmounting
-      if (!getState(EntityNetworkState)[props.uuid]) return
-      if (ownerPeer !== Engine.instance.store.peerID && Engine.instance.store.userID === state.ownerId.value) {
-        const lowestPeer = [...networkState.users[Engine.instance.userID].value].sort((a, b) => (a > b ? 1 : -1))[0]
-        if (lowestPeer !== Engine.instance.store.peerID) return
-        dispatchAction(
-          WorldNetworkAction.spawnEntity({
-            entityUUID: props.uuid,
-            parentUUID: state.parentUUID.value,
-            // if the authority peer is not connected, we need to take authority
-            authorityPeerId: networkState.users[Engine.instance.userID].value.includes(ownerPeer)
-              ? undefined
-              : Engine.instance.store.peerID
-          })
-        )
-      }
+      // ensure entity still exists
+      if (!worldNetwork || !getState(EntityNetworkState)[props.uuid] || !worldNetwork.users?.[userID]?.length) return
+
+      // Use the lowest peer as the new authority
+      const lowestPeer = [...worldNetwork.users[userID]].sort((a, b) => (a > b ? 1 : -1))[0]
+      if (lowestPeer !== Engine.instance.store.peerID) return
+
+      dispatchAction(
+        WorldNetworkAction.transferAuthorityOfObject({
+          ownerID: state.ownerId.value,
+          entityUUID: props.uuid,
+          newAuthority: Engine.instance.store.peerID
+        })
+      )
     }
-  }, [networkState.peers, networkState.users])
+  }, [isOwner, isAuthorInNetwork])
 
   return null
+}
+
+/**
+ * Get a deterministic network ID scoped to each owner peer
+ */
+const useNetworkID = (uuid: EntityUUID) => {
+  const state = useMutableState(EntityNetworkState)
+  const ownerPeer = state[uuid].ownerPeer.value
+  const entitiesForPeer = state.keys.filter((key: EntityUUID) => state[key].ownerPeer.value === ownerPeer).sort()
+  return entitiesForPeer.indexOf(uuid) as NetworkId
 }

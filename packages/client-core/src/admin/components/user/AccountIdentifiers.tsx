@@ -38,8 +38,8 @@ import {
 
 import { useFind } from '@ir-engine/common'
 import { identityProviderPath, IdentityProviderType, UserType } from '@ir-engine/common/src/schema.type.module'
+import { Tooltip } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 
 export default function AccountIdentifiers({ user }: { user: UserType }) {
   const identityProvidersQuery = useFind(identityProviderPath, { query: { userId: user.id, action: 'admin' } })

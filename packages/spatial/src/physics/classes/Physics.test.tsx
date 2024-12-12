@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { RigidBodyType, ShapeType, TempContactForceEvent, Vector, World } from '@dimforge/rapier3d-compat'
 import assert from 'assert'
 import sinon from 'sinon'
-import { BoxGeometry, Mesh, Quaternion, Vector3 } from 'three'
+import { BoxGeometry, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
@@ -59,7 +59,8 @@ import { Entity, EntityUUID, SystemDefinitions, UUIDComponent, UndefinedEntity, 
 import { NetworkObjectComponent } from '@ir-engine/network'
 import { act, render } from '@testing-library/react'
 import React from 'react'
-import { assertFloat, assertVec } from '../../../tests/util/assert'
+import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry'
+import { Epsilon, assertFloat, assertVec } from '../../../tests/util/assert'
 import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
@@ -231,12 +232,12 @@ describe('Physics : External API', () => {
       collisionLayer: CollisionGroups.Default,
       collisionMask: AllCollisionMask
     })
+    setComponent(entity2, TriggerComponent)
     setComponent(entity2, ColliderComponent, {
       shape: Shapes.Sphere,
       collisionLayer: CollisionGroups.Default,
       collisionMask: AllCollisionMask
     })
-    setComponent(entity2, TriggerComponent)
 
     await act(() => rerender(<></>))
 
@@ -1941,6 +1942,150 @@ describe('Physics : Rapier->ECS API', () => {
       it('should set the rotation relative to the parent entity', () => {
         const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
         assertVec.approxEq(result.rotation, Q_IDENTITY, 4)
+      })
+
+      it('should encapsulate mesh with cube when set to match mesh', () => {
+        setComponent(testEntity, MeshComponent, new Mesh(new SphereGeometry(2)))
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Box, matchMesh: true })
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
+        assert.equal(result.shape.type, ShapeType.Cuboid)
+        assert.equal(result.shape.halfExtents.x, 2)
+      })
+
+      it('should encapsulate mesh with sphere when set to match mesh', () => {
+        const line = new LineGeometry()
+        line.setPositions([0, 0, 2, 0, 0, 6]) //line of length 4
+        setComponent(testEntity, MeshComponent, new Mesh(line))
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere, matchMesh: true })
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
+        assert.equal(result.shape.type, ShapeType.Ball)
+        assert.equal(result.shape.radius, 2)
+      })
+
+      it('should encapsulate mesh with capsule when set to match mesh', () => {
+        setComponent(testEntity, MeshComponent, new Mesh(new SphereGeometry(2)))
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Capsule, matchMesh: true })
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
+        assert.equal(result.shape.type, ShapeType.Capsule)
+        assert.equal(Math.abs(result.shape.radius - 2) < Epsilon, true)
+        assert.equal(result.shape.halfHeight, 2)
+      })
+
+      it('should encapsulate mesh with cylinder when set to match mesh', () => {
+        setComponent(testEntity, MeshComponent, new Mesh(new SphereGeometry(2)))
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Cylinder, matchMesh: true })
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
+        assert.equal(result.shape.type, ShapeType.Cylinder)
+        assert.equal(Math.abs(result.shape.radius - 2) < Epsilon, true)
+        assert.equal(result.shape.halfHeight, 2)
+      })
+
+      it('should offset box collider position to match mesh center-point', () => {
+        const boxGeometry = new BoxGeometry()
+        // Define the min and max points
+        const min = new Vector3(0, 0, 0)
+        const max = new Vector3(4, 4, 4)
+
+        // Create the corner points of the box
+        const points = [
+          new Vector3(min.x, min.y, min.z), // (0, 0, 0)
+          new Vector3(max.x, min.y, min.z), // (4, 0, 0)
+          new Vector3(min.x, max.y, min.z), // (0, 4, 0)
+          new Vector3(max.x, max.y, min.z), // (4, 4, 0)
+          new Vector3(min.x, min.y, max.z), // (0, 0, 4)
+          new Vector3(max.x, min.y, max.z), // (4, 0, 4)
+          new Vector3(min.x, max.y, max.z), // (0, 4, 4)
+          new Vector3(max.x, max.y, max.z) // (4, 4, 4)
+        ]
+
+        boxGeometry.setFromPoints(points)
+        const mesh = new Mesh(boxGeometry)
+        setComponent(testEntity, MeshComponent, mesh)
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Box, matchMesh: true })
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
+        assert.equal(result.shape.type, ShapeType.Cuboid)
+        assert.deepEqual(result.translation, new Vector3(2, 2, 2))
+      })
+
+      it('should offset sphere collider position to match mesh center-point', () => {
+        const boxGeometry = new BoxGeometry()
+        // Define the min and max points
+        const min = new Vector3(0, 0, 0)
+        const max = new Vector3(4, 4, 4)
+
+        // Create the corner points of the box
+        const points = [
+          new Vector3(min.x, min.y, min.z), // (0, 0, 0)
+          new Vector3(max.x, min.y, min.z), // (4, 0, 0)
+          new Vector3(min.x, max.y, min.z), // (0, 4, 0)
+          new Vector3(max.x, max.y, min.z), // (4, 4, 0)
+          new Vector3(min.x, min.y, max.z), // (0, 0, 4)
+          new Vector3(max.x, min.y, max.z), // (4, 0, 4)
+          new Vector3(min.x, max.y, max.z), // (0, 4, 4)
+          new Vector3(max.x, max.y, max.z) // (4, 4, 4)
+        ]
+
+        boxGeometry.setFromPoints(points)
+        const mesh = new Mesh(boxGeometry)
+        setComponent(testEntity, MeshComponent, mesh)
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere, matchMesh: true })
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
+        assert.equal(result.shape.type, ShapeType.Ball)
+        assert.deepEqual(result.translation, new Vector3(2, 2, 2))
+      })
+
+      it('should offset capsule collider position to match mesh center-point', () => {
+        const boxGeometry = new BoxGeometry()
+        // Define the min and max points
+        const min = new Vector3(0, 0, 0)
+        const max = new Vector3(4, 4, 4)
+
+        // Create the corner points of the box
+        const points = [
+          new Vector3(min.x, min.y, min.z), // (0, 0, 0)
+          new Vector3(max.x, min.y, min.z), // (4, 0, 0)
+          new Vector3(min.x, max.y, min.z), // (0, 4, 0)
+          new Vector3(max.x, max.y, min.z), // (4, 4, 0)
+          new Vector3(min.x, min.y, max.z), // (0, 0, 4)
+          new Vector3(max.x, min.y, max.z), // (4, 0, 4)
+          new Vector3(min.x, max.y, max.z), // (0, 4, 4)
+          new Vector3(max.x, max.y, max.z) // (4, 4, 4)
+        ]
+
+        boxGeometry.setFromPoints(points)
+        const mesh = new Mesh(boxGeometry)
+        setComponent(testEntity, MeshComponent, mesh)
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Capsule, matchMesh: true })
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
+        assert.equal(result.shape.type, ShapeType.Capsule)
+        assert.deepEqual(result.translation, new Vector3(2, 2, 2))
+      })
+
+      it('should offset cylinder collider position to match mesh center-point', () => {
+        const boxGeometry = new BoxGeometry()
+        // Define the min and max points
+        const min = new Vector3(0, 0, 0)
+        const max = new Vector3(4, 4, 4)
+
+        // Create the corner points of the box
+        const points = [
+          new Vector3(min.x, min.y, min.z), // (0, 0, 0)
+          new Vector3(max.x, min.y, min.z), // (4, 0, 0)
+          new Vector3(min.x, max.y, min.z), // (0, 4, 0)
+          new Vector3(max.x, max.y, min.z), // (4, 4, 0)
+          new Vector3(min.x, min.y, max.z), // (0, 0, 4)
+          new Vector3(max.x, min.y, max.z), // (4, 0, 4)
+          new Vector3(min.x, max.y, max.z), // (0, 4, 4)
+          new Vector3(max.x, max.y, max.z) // (4, 4, 4)
+        ]
+
+        boxGeometry.setFromPoints(points)
+        const mesh = new Mesh(boxGeometry)
+        setComponent(testEntity, MeshComponent, mesh)
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Cylinder, matchMesh: true })
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
+        assert.equal(result.shape.type, ShapeType.Cylinder)
+        assert.deepEqual(result.translation, new Vector3(2, 2, 2))
       })
     })
 

@@ -245,7 +245,7 @@ export const InteractableComponent = defineComponent({
   schema: S.Object({
     canInteract: S.NonSerialized(S.Bool(false)),
     uiInteractable: S.NonSerialized(S.Bool(true)),
-    uiEntity: S.NonSerialized(S.Entity()),
+    uiEntity: S.Entity(),
     label: S.String('E'),
     uiVisibilityOverride: S.NonSerialized(S.Enum(XRUIVisibilityOverride, XRUIVisibilityOverride.none)),
     uiActivationType: S.NonSerialized(S.Enum(XRUIActivationType, XRUIActivationType.proximity)),
@@ -257,11 +257,11 @@ export const InteractableComponent = defineComponent({
         /**
          * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
          */
-        callbackID: S.Nullable(S.String()),
+        callbackID: S.String(),
         /**
          * empty string represents self
          */
-        target: S.Nullable(S.EntityUUID())
+        target: S.EntityUUID()
       })
     )
   }),

@@ -42,14 +42,12 @@ import {
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
 import { Engine } from '@ir-engine/ecs'
-import { Checkbox, Input } from '@ir-engine/ui'
+import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -175,7 +173,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
 
   const adminScopeQuery = useFind(scopePath, {
     query: {
-      userId: Engine.instance.store.userID,
+      userId: Engine.instance.userID,
       type: 'admin:admin' as ScopeType
     }
   })
@@ -184,7 +182,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
 
   const editorScopeQuery = useFind(scopePath, {
     query: {
-      userId: Engine.instance.store.userID,
+      userId: Engine.instance.userID,
       type: 'projects:write' as ScopeType
     }
   })
@@ -377,7 +375,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
 
         <div className="flex items-center justify-between gap-3">
           {githubProvider && (
-            <Button onClick={refreshGithubRepoAccess} variant="outline">
+            <Button onClick={refreshGithubRepoAccess} variant="tertiary">
               {refreshingGithubRepoAccess.value ? (
                 <>
                   <LoadingView className="mr-2 h-10 w-10" />
@@ -393,7 +391,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
             onClick={() => {
               PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={false} />)
             }}
-            variant="outline"
+            variant="tertiary"
           >
             {t('editor.projects.install')}
           </Button>
@@ -476,10 +474,10 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
                   PopoverState.showPopupover(<ManageUserPermissionModal project={projectContextState.project} />)
                 }
               }}
-              startIcon={<MdGroup className="text-2xl" />}
-              variant="outline"
+              variant="tertiary"
               fullWidth
             >
+              <MdGroup className="text-2xl" />
               {t('editor.projects.permissions')}
             </Button>
           )}
@@ -495,10 +493,10 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
                     PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={true} />)
                   }
                 }}
-                startIcon={<MdDownload className="text-2xl" />}
-                variant="outline"
+                variant="tertiary"
                 fullWidth
               >
+                <MdDownload className="text-2xl" />
                 {t('editor.projects.updateFromGithub')}
               </Button>
             )}
@@ -514,10 +512,10 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
                     PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={true} />)
                   }
                 }}
-                startIcon={<MdLink className="text-2xl" />}
-                variant="outline"
+                variant="tertiary"
                 fullWidth
               >
+                <MdLink className="text-2xl" />
                 {t('editor.projects.link')}
               </Button>
             )}
@@ -533,35 +531,35 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
                     PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={true} />)
                   }
                 }}
-                startIcon={<MdLinkOff className="text-2xl" />}
-                variant="outline"
+                variant="tertiary"
                 fullWidth
               >
+                <MdLinkOff className="text-2xl" />
                 {t('editor.projects.unlink')}
               </Button>
             )}
 
           {isInstalled(projectContextState.project) && hasWriteAccess && hasRepo(projectContextState.project) && (
             <Button
-              startIcon={uploadingProject.value ? <LoadingView className="h-6 w-6" /> : <MdUpload />}
               onClick={() => projectContextState.project?.id && pushProject(projectContextState.project?.id)}
-              variant="outline"
+              variant="tertiary"
               fullWidth
             >
+              {uploadingProject.value ? <LoadingView className="h-6 w-6" /> : <MdUpload />}
               {t('editor.projects.pushToGithub')}
             </Button>
           )}
 
           {!isInstalled(projectContextState.project) && (
             <Button
-              startIcon={<MdDownload className="text-2xl" />}
               onClick={() => {
                 setProjectContextState({ event: undefined, project: null })
                 PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={false} />)
               }}
-              variant="outline"
+              variant="tertiary"
               fullWidth
             >
+              <MdDownload className="text-2xl" />
               {t(`editor.projects.install`)}
             </Button>
           )}

@@ -42,6 +42,7 @@ import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/DebugCompon
 import { LineSegmentComponent } from '@ir-engine/spatial/src/renderer/components/LineSegmentComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
@@ -111,7 +112,7 @@ export const BoundingBoxHelperComponent = defineComponent({
     name: S.String('bounding-box-helper'),
     bbox: S.Required(S.Type<Box3>()),
     density: S.Number(2),
-    color: S.Color(0xff0000),
+    color: T.Color(0xff0000),
     layerMask: S.Number(ObjectLayerMasks.NodeHelper),
     entity: S.Entity()
   }),
