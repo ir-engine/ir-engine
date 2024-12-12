@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { State } from '@hookstate/core'
 import { v4 as uuidv4 } from 'uuid'
 
-import { PeerID, UserID } from '../types/Types'
+import { PeerID } from '../types/Types'
 import { ActionQueueHandle, ActionQueueInstance, ResolvedActionType, Topic } from './ActionFunctions'
 import { ReactorRoot } from './ReactorFunctions'
 
@@ -44,10 +44,6 @@ export interface HyperStore {
    * The agent id
    */
   peerID: PeerID
-  /**
-   * The uuid of the logged-in user
-   */
-  userID: UserID
   /**
    * A function which returns the current dispatch time (units are arbitrary)
    */
@@ -121,7 +117,6 @@ export function createHyperStore(options?: {
     getDispatchTime: options?.getDispatchTime ?? (() => 0),
     defaultDispatchDelay: options?.defaultDispatchDelay ?? (() => 0),
     getCurrentReactorRoot: options?.getCurrentReactorRoot ?? (() => undefined),
-    userID: '' as UserID,
     peerID: uuidv4() as PeerID,
     stateMap: {},
     stateReactors: {},

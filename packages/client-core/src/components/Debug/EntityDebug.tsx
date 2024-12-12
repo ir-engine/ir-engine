@@ -183,7 +183,7 @@ export const EntityDebug = () => {
     <div className="m-1 bg-neutral-600 p-1">
       <div className="my-1">
         <Text>{t('common:debug.scenes')}</Text>
-        <JSONTree data={entityTree.value} postprocessValue={(v: any) => v?.value ?? v} />
+        <JSONTree data={entityTree.get(NO_PROXY)} postprocessValue={(v: any) => v?.value ?? v} />
       </div>
       <div className="my-1">
         <Text>{t('common:debug.entities')}</Text>

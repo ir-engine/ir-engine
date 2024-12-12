@@ -44,7 +44,7 @@ export const ArrowHelperComponent = defineComponent({
     color: T.Color(0xffffff),
     headLength: S.Optional(S.Number()),
     headWidth: S.Optional(S.Number()),
-    entity: S.Optional(T.Entity())
+    entity: S.Optional(S.Entity())
   }),
 
   reactor: function () {

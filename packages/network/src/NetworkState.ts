@@ -140,21 +140,6 @@ export type MediaTagType =
 
 // export type MediaType = typeof webcamMediaType | typeof screenshareMediaType
 
-export type PeerMediaType = {
-  /** @deprecated - use ProducersConsumerState instead */
-  paused: boolean
-  /** @deprecated - use ProducersConsumerState instead */
-  globalMute: boolean
-  producerId: string
-  encodings: Array<{
-    mimeType: 'video/rtx' | 'video/vp8' | 'video/h264' | 'video/vp9' | 'audio/opus' | 'audio/pcmu' | 'audio/pcma'
-    payloadType: number
-    clockRate: number
-    parameters: any
-    rtcpFeedback: any[]
-  }>
-}
-
 export const SceneUser = 'scene' as UserID
 export const ScenePeer = 'scene' as PeerID
 

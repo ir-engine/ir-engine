@@ -32,12 +32,23 @@ import { Button } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { MdAllOut, MdFormatColorReset, MdGridOn, MdPerson, MdRefresh, MdSelectAll, MdSquareFoot } from 'react-icons/md'
+import {
+  MdAllOut,
+  MdClose,
+  MdFormatColorReset,
+  MdGridOn,
+  MdPerson,
+  MdRefresh,
+  MdSelectAll,
+  MdSquareFoot
+} from 'react-icons/md'
+import { DebugState } from './index'
 
 export default function DebugButtons() {
   const { t } = useTranslation()
   useHookstate(getMutableState(ECSState).frameTime).value
   const rendererState = useMutableState(RendererState)
+  const debugEnabled = useMutableState(DebugState).enabled
 
   const onClickRespawn = (): void => {
     respawnAvatar(AvatarComponent.getSelfAvatarEntity())
@@ -57,6 +68,10 @@ export default function DebugButtons() {
 
   const toggleGridHelper = () => {
     getMutableState(RendererState).gridVisibility.set(!getMutableState(RendererState).gridVisibility.value)
+  }
+
+  const onClickCloseDebug = () => {
+    debugEnabled.set(false)
   }
 
   return (
@@ -113,6 +128,9 @@ export default function DebugButtons() {
         </Button>
         <Button size="sm" variant="tertiary" title={t('common:debug.respawn')} onClick={onClickRespawn}>
           <MdRefresh />
+        </Button>
+        <Button size="sm" variant="tertiary" title={t('common:debug.close')} onClick={onClickCloseDebug}>
+          <MdClose />
         </Button>
       </div>
     </div>

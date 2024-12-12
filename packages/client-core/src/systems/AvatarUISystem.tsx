@@ -322,7 +322,7 @@ const AvatarInstanceReactor = () => {
 
 export const AvatarUISystem = defineSystem({
   uuid: 'ee.client.AvatarUISystem',
-  insert: { before: TransformDirtyUpdateSystem },
-  execute,
-  reactor
+  insert: { before: TransformDirtyUpdateSystem }
+  // execute,
+  // reactor
 })

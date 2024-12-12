@@ -34,12 +34,26 @@ import { useSearchParamState } from '@ir-engine/client-core/src/common/services/
 import { useThemeProvider } from '@ir-engine/client-core/src/common/services/ThemeService'
 import { LoadWebappInjection } from '@ir-engine/client-core/src/components/LoadWebappInjection'
 import { useAuthenticated } from '@ir-engine/client-core/src/user/services/AuthService'
+import { useFind } from '@ir-engine/common'
+import config from '@ir-engine/common/src/config'
+import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 
 import './mui.styles.scss' /** @todo Remove when MUI is removed */
 import './styles.scss'
 
-const AppPage = (props: { children: React.ReactNode; fallback?: JSX.Element }) => {
+const ClientSettings = () => {
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSettings = clientSettingQuery.data[0] ?? null
+  useEffect(() => {
+    config.client.key8thWall = clientSettings?.key8thWall
+    config.client.mediaSettings = clientSettings?.mediaSettings
+  }, [clientSettings])
+
+  return <></>
+}
+
+const AppPage = (props: { children: React.ReactNode; fallback?: JSX.Element; loginRequired?: boolean }) => {
   const { t } = useTranslation()
   const isLoggedIn = useAuthenticated()
 
@@ -52,9 +66,11 @@ const AppPage = (props: { children: React.ReactNode; fallback?: JSX.Element }) =
 
   useSearchParamState()
 
-  if (!isLoggedIn) {
+  const loginRequired = typeof props.loginRequired === 'undefined' ? true : props.loginRequired
+
+  if (loginRequired && !isLoggedIn) {
     return (
-      props.fallback ?? <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingApp')} />
+      props.fallback ?? <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.authenticating')} />
     )
   }
 
@@ -62,6 +78,7 @@ const AppPage = (props: { children: React.ReactNode; fallback?: JSX.Element }) =
     <>
       <NotificationSnackbar />
       <LoadWebappInjection fallback={props.fallback}>{props.children}</LoadWebappInjection>
+      {isLoggedIn && <ClientSettings />}
     </>
   )
 }

@@ -46,6 +46,7 @@ import {
   writeTransform
 } from '@ir-engine/spatial/src/transform/TransformSerialization'
 
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { roundNumberToPlaces } from '../../tests/MathTestUtils'
 import { createMockNetwork } from '../../tests/createMockNetwork'
 import { Network, NetworkTopics } from '../Network'
@@ -524,7 +525,7 @@ describe('DataReader', () => {
     const network = NetworkState.worldNetwork as Network
     const userID = network.hostUserID!
     const peerID = network.hostPeerID!
-    Engine.instance.store.userID = userID
+    getMutableState(EngineState).userID.set(userID)
     const peerIndex = 0
 
     NetworkObjectComponent.networkId[entity] = networkId
@@ -597,7 +598,7 @@ describe('DataReader', () => {
     const network = NetworkState.worldNetwork as Network
     const userID = network.hostUserID!
     const peerID = network.hostPeerID!
-    Engine.instance.store.userID = userID
+    getMutableState(EngineState).userID.set(userID)
     const peerIndex = 0
 
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
@@ -658,7 +659,7 @@ describe('DataReader', () => {
     const peerID = network.hostPeerID!
     const peerID2 = 'peer id 2' as PeerID
 
-    Engine.instance.store.userID = userID
+    getMutableState(EngineState).userID.set(userID)
     const peerIndex = 0
     const peer2Index = 1
 
@@ -802,7 +803,7 @@ describe('DataReader', () => {
     const userID = network.hostUserID!
     const peerID = network.hostPeerID!
 
-    Engine.instance.store.userID = userID
+    getMutableState(EngineState).userID.set(userID)
     const peerIndex = 0
 
     const n = 10

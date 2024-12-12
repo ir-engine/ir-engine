@@ -299,12 +299,22 @@ export default function FilesToolbar() {
           <StudioButton
             size="l"
             variant="tertiary"
-            data-testid="files-panel-create-new-folder-button"
+            disabled={!showUploadButtons}
+            onClick={() =>
+              inputFileWithAddToScene({
+                projectName: filesState.projectName.value,
+                directoryPath: filesState.selectedDirectory.get(NO_PROXY).slice(1)
+              })
+                .then(() => refreshDirectory())
+                .catch((err) => {
+                  NotificationService.dispatchNotify(err.message, { variant: 'error' })
+                })
+            }
+            data-testid="files-panel-upload-files-button"
             className="disabled:bg-[#212226]"
-            onClick={createNewFolder}
           >
             <FolderSm />
-            <span className="text-nowrap">{t('editor:layout.filebrowser.uploadAssets')}</span>
+            <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFiles')}</span>
           </StudioButton>
         </div>
         <div className="w-fit">
@@ -312,7 +322,6 @@ export default function FilesToolbar() {
             size="l"
             disabled={!showUploadButtons}
             variant="tertiary"
-            data-testid="files-panel-upload-folder-button"
             className="disabled:bg-[#212226]"
             onClick={() =>
               inputFileWithAddToScene({
@@ -325,9 +334,10 @@ export default function FilesToolbar() {
                   NotificationService.dispatchNotify(err.message, { variant: 'error' })
                 })
             }
+            data-testid="files-panel-upload-folder-button"
           >
             <PlusCircleSm />
-            <span className="text-nowrap">{t('editor:layout.filebrowser.uploadAssets')}</span>
+            <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFolder')}</span>
           </StudioButton>
         </div>
       </div>

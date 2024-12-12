@@ -32,9 +32,7 @@ import {
   locationPath,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
-import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
-import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
-import { getState, useHookstate } from '@ir-engine/hyperflux'
+import { useHookstate } from '@ir-engine/hyperflux'
 import { Button, Input, Select } from '@ir-engine/ui'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import { ModalHeader } from '@ir-engine/ui/src/primitives/tailwind/Modal'
@@ -62,7 +60,10 @@ export default function AddEditLocationModal(props: {
   action: string
   location?: LocationType
   sceneID?: string | null
+  sceneModified?: boolean
   inStudio?: boolean
+
+  onPublish?: () => Promise<void>
 }) {
   const { t } = useTranslation()
 
@@ -79,8 +80,6 @@ export default function AddEditLocationModal(props: {
   const location = locationID.value ? locationQuery.data[0] : undefined
 
   const locationMutation = useMutation(locationPath)
-
-  const sceneModified = EditorState.useIsModified()
 
   const publishLoading = useHookstate(false)
   const unPublishLoading = useHookstate(false)
@@ -137,13 +136,9 @@ export default function AddEditLocationModal(props: {
 
     publishLoading.set(true)
 
-    if (sceneModified) {
+    if (props.onPublish) {
       try {
-        const { sceneAssetID, projectName, sceneName, rootEntity } = getState(EditorState)
-        if (!sceneAssetID || !projectName || !sceneName || !rootEntity)
-          throw new Error('Cannot save scene without scene data')
-        const abortController = new AbortController()
-        await saveSceneGLTF(sceneAssetID, projectName, sceneName, abortController.signal)
+        await props.onPublish()
       } catch (e) {
         errors.serverError.set(e.message)
         publishLoading.set(false)
@@ -341,7 +336,7 @@ export default function AddEditLocationModal(props: {
             <Button data-testid="publish-panel-publish-or-update-button" disabled={isLoading} onClick={handlePublish}>
               {location?.id
                 ? t('common:components.update')
-                : sceneModified
+                : props.sceneModified
                 ? t('editor:toolbar.publishLocation.saveAndPublish')
                 : t('editor:toolbar.publishLocation.title')}
               {publishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
