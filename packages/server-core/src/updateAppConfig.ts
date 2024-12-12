@@ -61,7 +61,7 @@ const db = {
 const nonFeathersStrategies = ['emailMagicLink', 'smsMagicLink']
 
 export const updateAppConfig = async (): Promise<void> => {
-  // if (appConfig.db.forceRefresh || !appConfig.kubernetes.enabled) return
+  if (appConfig.db.forceRefresh || !appConfig.kubernetes.enabled) return
 
   const knexClient = knex({
     client: 'mysql',
