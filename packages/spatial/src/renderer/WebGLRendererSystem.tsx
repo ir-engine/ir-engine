@@ -136,60 +136,6 @@ export const RendererComponent = defineComponent({
     const effectComposerState = rendererComponent.effectComposer as State<EffectComposer>
 
     useEffect(() => {
-      if (!effectComposerState.value) return
-
-      const scene = rendererComponent.scene.value as Scene
-      const outlineEffect = new OutlineEffect(scene, camera, getState(HighlightState))
-      outlineEffect.selectionLayer = ObjectLayers.HighlightEffect
-      effectComposerState.OutlineEffect.set(outlineEffect)
-
-      return () => {
-        if (!hasComponent(entity, RendererComponent)) return
-        outlineEffect.dispose()
-        effectComposerState.OutlineEffect.set(none)
-      }
-    }, [!!effectComposerState.value, hightlightState])
-
-    useEffect(() => {
-      const effectComposer = effectComposerState.value
-      if (!effectComposer) return
-
-      const effectsVal = rendererComponent.effects.get(NO_PROXY) as Record<string, Effect>
-
-      const enabled = renderSettings.usePostProcessing.value
-
-      const effectArray = enabled ? Object.values(effectsVal) : []
-      if (effectComposer.OutlineEffect) effectArray.unshift(effectComposer.OutlineEffect as OutlineEffect)
-
-      const effectPass = new EffectPass(camera, ...effectArray)
-      effectComposerState.EffectPass.set(effectPass)
-
-      if (enabled) {
-        effectComposerState.merge(effectsVal)
-      }
-
-      try {
-        effectComposer.addPass(effectPass)
-      } catch (e) {
-        console.warn(e) /** @todo Implement user messaging Ex: (Can not use multiple convolution effects) */
-      }
-
-      effectComposer.setRenderer(rendererComponent.renderer.value as WebGLRenderer)
-
-      return () => {
-        if (!hasComponent(entity, RendererComponent)) return
-        if (enabled) {
-          for (const effect in effectsVal) {
-            effectsVal[effect].dispose()
-            effectComposerState[effect].set(none)
-          }
-        }
-        effectComposer.EffectPass.dispose()
-        effectComposer.removePass(effectPass)
-      }
-    }, [rendererComponent.effects, !!effectComposerState?.OutlineEffect?.value, renderSettings.usePostProcessing.value])
-
-    useEffect(() => {
       const canvas = rendererComponent.canvas.value as HTMLCanvasElement
       const context = canvas.getContext('webgl2')
 
@@ -290,6 +236,60 @@ export const RendererComponent = defineComponent({
         composer.dispose()
       }
     }, [rendererComponent.renderContext.value])
+
+    useEffect(() => {
+      if (!effectComposerState.value) return
+
+      const scene = rendererComponent.scene.value as Scene
+      const outlineEffect = new OutlineEffect(scene, camera, getState(HighlightState))
+      outlineEffect.selectionLayer = ObjectLayers.HighlightEffect
+      effectComposerState.OutlineEffect.set(outlineEffect)
+
+      return () => {
+        if (!hasComponent(entity, RendererComponent)) return
+        outlineEffect.dispose()
+        effectComposerState.OutlineEffect.set(none)
+      }
+    }, [!!effectComposerState.value, hightlightState])
+
+    useEffect(() => {
+      const effectComposer = effectComposerState.value
+      if (!effectComposer) return
+
+      const effectsVal = rendererComponent.effects.get(NO_PROXY) as Record<string, Effect>
+
+      const enabled = renderSettings.usePostProcessing.value
+
+      const effectArray = enabled ? Object.values(effectsVal) : []
+      if (effectComposer.OutlineEffect) effectArray.unshift(effectComposer.OutlineEffect as OutlineEffect)
+
+      const effectPass = new EffectPass(camera, ...effectArray)
+      effectComposerState.EffectPass.set(effectPass)
+
+      if (enabled) {
+        effectComposerState.merge(effectsVal)
+      }
+
+      try {
+        effectComposer.addPass(effectPass)
+      } catch (e) {
+        console.warn(e) /** @todo Implement user messaging Ex: (Can not use multiple convolution effects) */
+      }
+
+      effectComposer.setRenderer(rendererComponent.renderer.value as WebGLRenderer)
+
+      return () => {
+        if (!hasComponent(entity, RendererComponent)) return
+        if (enabled) {
+          for (const effect in effectsVal) {
+            effectsVal[effect].dispose()
+            effectComposerState[effect].set(none)
+          }
+        }
+        effectComposer.EffectPass.dispose()
+        effectComposer.removePass(effectPass)
+      }
+    }, [rendererComponent.effects, !!effectComposerState?.OutlineEffect?.value, renderSettings.usePostProcessing.value])
 
     return null
   }
