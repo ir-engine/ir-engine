@@ -90,18 +90,17 @@ const Debug = () => {
   })
 
   return (
-    <div
-      id="debug"
-      className="pointer-events-auto fixed z-[1000] m-1 max-h-[95vh] overflow-y-auto rounded bg-neutral-700 p-0.5"
-    >
+    <div id="debug" className="pointer-events-auto fixed z-[1000] rounded bg-neutral-700 p-0.5">
       <Placer id="debug-placer" />
-      <DebugButtons />
-      <StatsPanel show />
-      <Tabs
-        tabsData={tabsData}
-        currentTabIndex={activeTabIndex.value}
-        onTabChange={(tabIndex) => activeTabIndex.set(tabIndex)}
-      />
+      <div className="m-1 max-h-[95vh] overflow-y-auto">
+        <DebugButtons />
+        <StatsPanel show />
+        <Tabs
+          tabsData={tabsData}
+          currentTabIndex={activeTabIndex.value}
+          onTabChange={(tabIndex) => activeTabIndex.set(tabIndex)}
+        />
+      </div>
     </div>
   )
 }
