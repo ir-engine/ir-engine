@@ -68,13 +68,16 @@ const TransformSpaceTool = () => {
         content={t('editor:toolbar.transformSpace.description')}
         position="right"
       >
-        <Select
-          key={transformSpace.value}
-          onChange={setTransformSpace}
-          options={transformSpaceOptions}
-          value={transformSpace.value}
-          width="sm"
-        />
+        <div className="w-[106px]">
+          <Select
+            key={transformSpace.value}
+            onChange={setTransformSpace}
+            options={transformSpaceOptions}
+            value={transformSpace.value}
+            width="full"
+            inputHeight="xs"
+          />
+        </div>
       </Tooltip>
     </div>
   )

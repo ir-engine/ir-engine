@@ -80,14 +80,16 @@ const TransformPivotTool = () => {
         }
         position="right"
       >
-        <Select
-          inputHeight="xs"
-          key={editorHelperState.transformPivot.value}
-          onChange={setTransformPivot}
-          options={transformPivotOptions}
-          value={editorHelperState.transformPivot.value}
-          width="sm"
-        />
+        <div className="ml-1 w-[122px]">
+          <Select
+            key={editorHelperState.transformPivot.value}
+            onChange={setTransformPivot}
+            options={transformPivotOptions}
+            value={editorHelperState.transformPivot.value}
+            width="full"
+            inputHeight="xs"
+          />
+        </div>
       </Tooltip>
     </div>
   )
