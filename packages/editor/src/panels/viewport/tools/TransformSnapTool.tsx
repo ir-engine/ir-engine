@@ -79,36 +79,40 @@ const TransformSnapTool = () => {
   }
 
   return (
-    <div className="flex items-center rounded bg-[#141619] p-1">
-      <Tooltip content={t('editor:toolbar.transformSnapTool.toggleBBoxSnap')}>
+    <div className="flex items-center rounded bg-[#141619] py-1">
+      <Tooltip content={t('editor:toolbar.transformSnapTool.toggleBBoxSnap')} position="bottom">
         <ViewportButton onClick={toggleAttachmentPointSnap} selected={objectSnapState.enabled.value}>
           <LuUtilityPole />
         </ViewportButton>
       </Tooltip>
-      <Tooltip content={t('editor:toolbar.transformSnapTool.toggleSnapMode')}>
+      <Tooltip content={t('editor:toolbar.transformSnapTool.toggleSnapMode')} position="bottom">
         <ViewportButton onClick={toggleSnapMode} selected={editorHelperState.gridSnap.value === SnapMode.Grid}>
           <SnappingToolMd />
         </ViewportButton>
       </Tooltip>
       <Tooltip content={t('editor:toolbar.transformSnapTool.info-translate')} position="right">
-        <Select
-          key={editorHelperState.translationSnap.value}
-          onChange={onChangeTranslationSnap}
-          options={translationSnapOptions}
-          value={editorHelperState.translationSnap.value}
-          width="sm"
-          inputHeight="xs"
-        />
+        <div className="w-[82px] p-1">
+          <Select
+            key={editorHelperState.translationSnap.value}
+            onChange={onChangeTranslationSnap}
+            options={translationSnapOptions}
+            value={editorHelperState.translationSnap.value}
+            width="full"
+            inputHeight="xs"
+          />
+        </div>
       </Tooltip>
       <Tooltip content={t('editor:toolbar.transformSnapTool.info-rotate')} position="right">
-        <Select
-          key={editorHelperState.rotationSnap.value}
-          onChange={onChangeRotationSnap}
-          options={rotationSnapOptions}
-          value={editorHelperState.rotationSnap.value}
-          width="sm"
-          inputHeight="xs"
-        />
+        <div className="w-[65px] p-1">
+          <Select
+            key={editorHelperState.rotationSnap.value}
+            onChange={onChangeRotationSnap}
+            options={rotationSnapOptions}
+            value={editorHelperState.rotationSnap.value}
+            width="full"
+            inputHeight="xs"
+          />
+        </div>
       </Tooltip>
     </div>
   )

@@ -35,7 +35,6 @@ import { NotificationState } from '@ir-engine/client-core/src/common/services/No
 import { ProjectService, ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { AuthService, AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
@@ -45,6 +44,7 @@ import Component from './index'
 import '@ir-engine/client/src/themes/base.css'
 import '@ir-engine/client/src/themes/components.css'
 import '@ir-engine/client/src/themes/utilities.css'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import 'tailwindcss/tailwind.css'
 
 // import { useLocation } from 'react-router-dom'
@@ -72,7 +72,7 @@ const decorators = [
         ProjectService.fetchProjects()
         if (!fetchedProjectComponents) {
           setFetchedProjectComponents(true)
-          loadEngineInjection().then((result) => {
+          loadEngineInjection([]).then((result) => {
             LocationState.setLocationName(locationName)
             setProjectComponents(result)
           })
@@ -81,7 +81,7 @@ const decorators = [
     }, [selfUser, projectState.updateNeeded.value])
 
     useEffect(() => {
-      Engine.instance.store.userID = selfUser.id.value
+      getMutableState(EngineState).userID.set(selfUser.id.value)
     }, [selfUser.id])
 
     useEffect(() => {

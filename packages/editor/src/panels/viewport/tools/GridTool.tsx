@@ -48,8 +48,8 @@ const GridTool = () => {
   }, [])
 
   return (
-    <div className="flex items-center rounded bg-[#0E0F11]">
-      <Tooltip content={t('editor:toolbar.grid.info-toggleGridVisibility')}>
+    <div className="flex items-center rounded bg-[#0E0F11] p-1">
+      <Tooltip content={t('editor:toolbar.grid.info-toggleGridVisibility')} position="bottom">
         <GridDotsMd
           onClick={onToggleGridVisible}
           className={twMerge('text-[#9CA0AA]', rendererState.gridVisibility.value && 'text-[#F5F5F5]')}

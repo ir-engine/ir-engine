@@ -45,7 +45,6 @@ import { getInteractionGroups } from '@ir-engine/spatial/src/physics/functions/g
 import { SceneQueryType } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { TweenComponent } from '@ir-engine/spatial/src/transform/components/TweenComponent'
@@ -54,10 +53,10 @@ export const SpawnEffectComponent = defineComponent({
   name: 'SpawnEffectComponent',
 
   schema: S.Object({
-    sourceEntity: T.Entity(),
+    sourceEntity: S.Entity(),
     opacityMultiplier: S.Number(1),
-    plateEntity: T.Entity(),
-    lightEntities: S.Array(T.Entity())
+    plateEntity: S.Entity(),
+    lightEntities: S.Array(S.Entity())
   }),
 
   reactor: () => {

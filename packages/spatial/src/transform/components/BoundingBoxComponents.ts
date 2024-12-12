@@ -54,7 +54,7 @@ export const BoundingBoxComponent = defineComponent({
 
   schema: S.Object({
     box: T.Box3(),
-    helper: T.Entity()
+    helper: S.Entity()
   }),
 
   reactor: function () {

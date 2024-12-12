@@ -23,50 +23,43 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import Avatar from '@ir-engine/client-core/src/common/components/Avatar/Avatar2'
+import AvatarPreview from '@ir-engine/client-core/src/common/components/AvatarPreview'
+import { useFind, useMutation } from '@ir-engine/common'
+import { AvatarID, avatarPath, userAvatarPath } from '@ir-engine/common/src/schema.type.module'
+import { hasComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
+import { SpawnEffectComponent } from '@ir-engine/engine/src/avatar/components/SpawnEffectComponent'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { debounce } from 'lodash'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Avatar from '@ir-engine/client-core/src/common/components/Avatar'
-import AvatarPreview from '@ir-engine/client-core/src/common/components/AvatarPreview'
-import Button from '@ir-engine/client-core/src/common/components/Button'
-import InputText from '@ir-engine/client-core/src/common/components/InputText'
-import Menu from '@ir-engine/client-core/src/common/components/Menu'
-import Text from '@ir-engine/client-core/src/common/components/Text'
-import { useFind, useMutation } from '@ir-engine/common'
-import { AvatarID, avatarPath, userAvatarPath } from '@ir-engine/common/src/schema.type.module'
-import { hasComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
-import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
-import { SpawnEffectComponent } from '@ir-engine/engine/src/avatar/components/SpawnEffectComponent'
-import { AvatarState } from '@ir-engine/engine/src/avatar/state/AvatarNetworkState'
-import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import Box from '@ir-engine/ui/src/primitives/mui/Box'
-import Grid from '@ir-engine/ui/src/primitives/mui/Grid'
-import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
-import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
-
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { LoadingCircle } from '../../../../components/LoadingCircle'
+import { Button, Input } from '@ir-engine/ui'
+import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { IoArrowBackOutline, IoCloseOutline } from 'react-icons/io5'
 import { UserMenus } from '../../../UserUISystem'
-import { AuthState } from '../../../services/AuthService'
+import { AuthService, AuthState } from '../../../services/AuthService'
 import { PopupMenuServices } from '../PopupMenuService'
-import styles from '../index.module.scss'
 
 const AVATAR_PAGE_LIMIT = 100
 
-const AvatarMenu = () => {
+const AvatarMenu2 = ({ showBackButton }: { showBackButton: boolean }) => {
   const { t } = useTranslation()
   const authState = useMutableState(AuthState)
   const userId = authState.user?.id?.value
-  const userAvatarId = useHookstate(getMutableState(AvatarState)[Engine.instance.userID].avatarID as AvatarID)
+  const avatar = useFind(userAvatarPath, { query: { userId } }).data[0]
+  const userAvatarId = avatar?.avatarId
   const avatarLoading = useHookstate(false)
   const selfAvatarEntity = AvatarComponent.useSelfAvatarEntity()
   const selfAvatarLoaded = useOptionalComponent(selfAvatarEntity, GLTFComponent)?.progress?.value === 100
 
   const [createAvatarEnabled] = useFeatureFlags([FeatureFlags.Client.Menu.CreateAvatar])
+  const [uploadAvatarEnabled] = useFeatureFlags([FeatureFlags.Client.Menu.UploadAvatar])
 
   const page = useHookstate(0)
   const selectedAvatarId = useHookstate('' as AvatarID)
@@ -83,18 +76,15 @@ const AvatarMenu = () => {
     }
   }).data
   const currentAvatar = avatarsData.find((item) => item.id === selectedAvatarId.value)
-
   const searchTimeoutCancelRef = useRef<(() => void) | null>(null)
 
-  const handleConfirmAvatar = () => {
-    if (userAvatarId.value !== selectedAvatarId.value) {
+  AuthService.useAPIListeners()
+
+  const handleConfirmAvatar = async () => {
+    if (userAvatarId !== selectedAvatarId.value) {
       const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
       if (!selfAvatarEntity || !hasComponent(selfAvatarEntity, SpawnEffectComponent)) {
-        userAvatarMutation.patch(
-          null,
-          { avatarId: selectedAvatarId.value },
-          { query: { userId: Engine.instance.store.userID } }
-        )
+        await userAvatarMutation.patch(null, { avatarId: selectedAvatarId.value }, { query: { userId } })
         if (selfAvatarEntity) avatarLoading.set(true)
         else PopupMenuServices.showPopupMenu()
       }
@@ -125,98 +115,129 @@ const AvatarMenu = () => {
     }
   }, [selfAvatarLoaded, avatarLoading])
 
+  useEffect(() => {
+    const userAvatar = avatarsData.find((item) => item.id === userAvatarId)
+    if (userAvatar && selectedAvatarId.value !== userAvatar.id) {
+      selectedAvatarId.set(userAvatar?.id)
+    }
+  }, [avatarsData, userAvatarId])
+
+  const debouncedSearchQueryRef = useRef<ReturnType<typeof setTimeout>>()
+
+  useEffect(() => clearTimeout(debouncedSearchQueryRef.current), [])
+
+  const handleClose = async () => {
+    if (userAvatarId !== selectedAvatarId.value) {
+      await handleConfirmAvatar()
+    }
+    PopupMenuServices.showPopupMenu()
+  }
+
   return (
-    <Menu
-      open
-      showBackButton
-      actions={
-        <Box display="flex" width="100%" justifyContent="center">
-          {avatarLoading.value ? (
-            <LoadingCircle />
-          ) : (
-            <Button
-              disabled={!currentAvatar || currentAvatar.id === userAvatarId.value}
-              startIcon={<Icon type="Check" />}
-              size="medium"
-              type="gradientRounded"
-              title={t('user:avatar.confirm')}
-              onClick={handleConfirmAvatar}
-            >
-              {t('user:avatar.confirm')}
-            </Button>
-          )}
-        </Box>
-      }
-      title={t('user:avatar.titleSelectAvatar')}
-      onBack={() => PopupMenuServices.showPopupMenu(UserMenus.Profile)}
-      onClose={() => PopupMenuServices.showPopupMenu()}
-    >
-      <Box className={styles.menuContent}>
-        <Grid container spacing={2}>
-          <Grid item md={6} sx={{ width: '100%', mt: 1 }}>
-            <AvatarPreview fill avatarUrl={currentAvatar?.modelResource?.url} />
-          </Grid>
-
-          <Grid item md={6} sx={{ width: '100%' }}>
-            <InputText
-              placeholder={t('user:avatar.searchAvatar')}
-              value={search.local.value}
-              sx={{ mt: 1 }}
-              onChange={(e) => handleSearch(e.target.value)}
-            />
-
-            <IconButton
-              icon={<Icon type="KeyboardArrowUp" />}
-              sx={{ display: 'none' }}
-              onClick={() => page.set((prevPage) => prevPage - 1)}
-            />
-
-            <Grid container sx={{ height: '275px', gap: 1.5, overflowX: 'hidden', overflowY: 'auto' }}>
-              {avatarsData.map((avatar) => (
-                <Grid item key={avatar.id} md={12} sx={{ pt: 0, width: '100%' }}>
-                  <Avatar
-                    imageSrc={avatar.thumbnailResource?.url || ''}
-                    isSelected={currentAvatar && avatar.id === currentAvatar.id}
-                    name={avatar.name}
-                    showChangeButton={userId && avatar.userId === userId}
-                    type="rectangle"
-                    onClick={() => selectedAvatarId.set(avatar.id)}
-                    onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarModify, { currentAvatar: avatar })}
-                  />
-                </Grid>
-              ))}
-
-              {avatarsData.length === 0 && (
-                <Text align="center" margin={'32px auto'} variant="body2">
-                  {t('user:avatar.noAvatars')}
-                </Text>
+    <div className="fixed top-0 z-[35] flex h-[100vh] w-full bg-[rgba(0,0,0,0.75)]">
+      <Modal
+        id="select-avatar-modal"
+        className="min-w-34 pointer-events-auto m-auto flex h-[95vh] w-[70vw] max-w-6xl rounded-xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col"
+        hideFooter={true}
+        rawChildren={
+          <div className="grid h-full w-full grid-rows-[3.5rem,1fr]">
+            <div className="grid h-14 w-full grid-cols-[2rem,1fr,2rem] border-b border-b-theme-primary px-8">
+              {showBackButton && (
+                <Button
+                  data-testid="edit-avatar-button"
+                  className=" h-6 w-6 self-center bg-transparent hover:bg-transparent focus:bg-transparent"
+                  onClick={async () => {
+                    if (userAvatarId !== selectedAvatarId.value) {
+                      await handleConfirmAvatar()
+                    }
+                    PopupMenuServices.showPopupMenu(UserMenus.Profile)
+                  }}
+                >
+                  <span>
+                    <IoArrowBackOutline size={16} />
+                  </span>
+                </Button>
               )}
-            </Grid>
-
-            <Box>
-              <IconButton
-                icon={<Icon type="KeyboardArrowDown" />}
-                sx={{ display: 'none' }}
-                onClick={() => page.set((prevPage) => prevPage + 1)}
-              />
-            </Box>
-            {createAvatarEnabled && (
+              <Text className="col-start-2  place-self-center self-center">{t('user:avatar.titleSelectAvatar')}</Text>
               <Button
-                fullWidth
-                startIcon={<Icon type="PersonAdd" />}
-                title={t('user:avatar.createAvatar')}
-                type="gradientRounded"
-                sx={{ mb: 0 }}
-                onClick={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarModify)}
+                fullWidth={false}
+                data-testid="edit-avatar-button"
+                className="h-6 w-6 self-center bg-transparent hover:bg-transparent focus:bg-transparent"
+                onClick={handleClose}
               >
-                {t('user:avatar.createAvatar')}
+                <span>
+                  <IoCloseOutline size={16} />
+                </span>
               </Button>
-            )}
-          </Grid>
-        </Grid>
-      </Box>
-    </Menu>
+            </div>
+            <div className="grid h-full max-h-[calc(95vh-3.5rem)] w-full flex-1 grid-cols-[60%,40%] gap-6 px-10 py-2">
+              <div className="relative h-full min-h-0 min-w-0 rounded-lg bg-gradient-to-b from-[#162941] to-[#114352]">
+                <div className="stars absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent"></div>
+                <AvatarPreview fill avatarUrl={currentAvatar?.modelResource?.url} />
+              </div>
+              <div className="grid h-full min-h-0 w-full min-w-0 grid-flow-row grid-rows-[3rem,1fr]">
+                <div className="flex max-h-6 gap-2">
+                  <Input
+                    fullWidth
+                    data-test-id="search-avatar-input"
+                    value={search.local.value}
+                    placeholder={t('user:avatar.searchAvatar')}
+                    onChange={(event) => {
+                      search.local.set(event.target.value)
+
+                      if (debouncedSearchQueryRef) {
+                        clearTimeout(debouncedSearchQueryRef.current)
+                      }
+
+                      debouncedSearchQueryRef.current = setTimeout(() => {
+                        handleSearch(event.target.value)
+                      }, 100)
+                    }}
+                  />
+                  {createAvatarEnabled && (
+                    <Button
+                      className="min-w-[8rem] rounded-md text-sm font-normal"
+                      variant="secondary"
+                      onClick={() => PopupMenuServices.showPopupMenu(UserMenus.ReadyPlayer)}
+                    >
+                      {t('user:avatar.createAvatar')}
+                    </Button>
+                  )}
+                  {uploadAvatarEnabled && (
+                    <Button
+                      className="min-w-[8rem] rounded-md text-sm font-normal"
+                      variant="secondary"
+                      onClick={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarModify)}
+                    >
+                      {t('user:avatar.uploadAvatar')}
+                    </Button>
+                  )}
+                </div>
+                <div className="max-h-[calc(95vh-7.5rem)] overflow-y-auto pb-6 pr-2">
+                  <div className="grid grid-cols-1 gap-2">
+                    {avatarsData.map((avatar) => (
+                      <div key={avatar.id} className="w-full">
+                        <Avatar
+                          imageSrc={avatar.thumbnailResource?.url || ''}
+                          isSelected={currentAvatar && avatar.id === currentAvatar.id}
+                          name={avatar.name}
+                          type="rectangle"
+                          onClick={() => selectedAvatarId.set(avatar.id)}
+                          onChange={() =>
+                            PopupMenuServices.showPopupMenu(UserMenus.AvatarModify, { selectedAvatar: avatar })
+                          }
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      ></Modal>
+    </div>
   )
 }
 
-export default AvatarMenu
+export default AvatarMenu2

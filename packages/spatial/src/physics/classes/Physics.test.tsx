@@ -231,12 +231,12 @@ describe('Physics : External API', () => {
       collisionLayer: CollisionGroups.Default,
       collisionMask: AllCollisionMask
     })
+    setComponent(entity2, TriggerComponent)
     setComponent(entity2, ColliderComponent, {
       shape: Shapes.Sphere,
       collisionLayer: CollisionGroups.Default,
       collisionMask: AllCollisionMask
     })
-    setComponent(entity2, TriggerComponent)
 
     await act(() => rerender(<></>))
 

@@ -37,7 +37,6 @@ import { NO_PROXY, startReactor, useImmediateEffect } from '@ir-engine/hyperflux
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { getPrototypeEntityFromName } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { useEffect, useLayoutEffect } from 'react'
 import {
   CanvasTexture,
@@ -937,7 +936,7 @@ export const EEMaterialComponent = defineComponent({
   name: 'EEMaterialComponent',
   jsonID: 'EE_material',
   schema: S.Object({
-    uuid: T.EntityUUID(),
+    uuid: S.EntityUUID(),
     name: S.String(),
     prototype: S.String(),
     args: S.Record(

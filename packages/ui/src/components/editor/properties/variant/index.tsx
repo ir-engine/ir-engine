@@ -109,8 +109,9 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
             onChange={commitProperty(VariantComponent, 'heuristic')}
             options={[
               { value: Heuristic.DISTANCE, label: t('editor:properties.variant.heuristic-distance') },
-              { value: Heuristic.MANUAL, label: t('editor:properties.variant.heuristic-manual') },
-              { value: Heuristic.DEVICE, label: t('editor:properties.variant.heuristic-device') }
+              { value: Heuristic.MANUAL, label: t('editor:properties.variant.heuristic-manual') }
+              /** @todo device heuristic not currently enabled */
+              // { value: Heuristic.DEVICE, label: t('editor:properties.variant.heuristic-device') }
             ]}
           />
         </InputGroup>

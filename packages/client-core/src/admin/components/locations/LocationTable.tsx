@@ -34,10 +34,17 @@ import { locationPath, LocationType, scopePath, ScopeType } from '@ir-engine/com
 import { Button } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 
+import config from '@ir-engine/common/src/config'
 import { Engine } from '@ir-engine/ecs'
 import { locationColumns, LocationRowType } from '../../common/constants/location'
 import DataTable from '../../common/Table'
 import AddEditLocationModal from './AddEditLocationModal'
+
+const getStudioURLfromScene = (url: string) => {
+  const key = url.replace(config.client.fileServer, '')
+  const [, orgName, projectName] = key.split('/')
+  return `/studio?projectName=${orgName}/${projectName}&scenePath=${key}`
+}
 
 const transformLink = (link: string) => link.toLowerCase().replace(' ', '-')
 
@@ -46,7 +53,7 @@ export default function LocationTable({ search }: { search: string }) {
 
   const scopeQuery = useFind(scopePath, {
     query: {
-      userId: Engine.instance.store.userID,
+      userId: Engine.instance.userID,
       type: 'location:write' as ScopeType
     }
   })
@@ -93,11 +100,7 @@ export default function LocationTable({ search }: { search: string }) {
         </a>
       ),
       sceneId: (
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href={`/studio?projectName=${row.sceneAsset.project!}&scenePath=${row.sceneAsset.key}`}
-        >
+        <a target="_blank" rel="noopener noreferrer" href={getStudioURLfromScene(row.sceneURL)}>
           {row.sceneId}
         </a>
       ),

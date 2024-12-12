@@ -92,14 +92,17 @@ const TransformSpaceTool = () => {
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
-        <Select
-          key={transformSpace.value}
-          onChange={setTransformSpace}
-          options={transformSpaceOptions}
-          value={transformSpace.value}
-          width="sm"
-          onOpenChange={(isOpen) => setDropdownOpen(isOpen)}
-        />
+        <div className="w-[106px]">
+          <Select
+            key={transformSpace.value}
+            onChange={setTransformSpace}
+            options={transformSpaceOptions}
+            value={transformSpace.value}
+            width="full"
+            inputHeight="xs"
+            onOpenChange={(isOpen) => setDropdownOpen(isOpen)}
+          />
+        </div>
       </Tooltip>
     </div>
   )

@@ -75,10 +75,10 @@ const RenderModeTool = () => {
   }
 
   return (
-    <div className="flex items-center gap-1 rounded bg-[#141619]">
+    <div className="flex h-full items-center gap-1 rounded bg-[#141619]">
       {renderModes.map((mode) => (
         <Tooltip key={mode.name} content={mode.name}>
-          <button onClick={() => rendererState.renderMode.set(mode.name)} className="p-1">
+          <button onClick={() => rendererState.renderMode.set(mode.name)} className="px-3.5 py-1.5">
             {mode.icon}
           </button>
         </Tooltip>
@@ -86,7 +86,7 @@ const RenderModeTool = () => {
       <Popup
         keepInside
         trigger={
-          <button className="p-2">
+          <button className="p-2 text-[#9CA0AA]">
             <ChevronDownMd />
           </button>
         }

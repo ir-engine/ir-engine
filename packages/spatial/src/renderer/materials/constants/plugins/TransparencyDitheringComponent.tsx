@@ -30,7 +30,6 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { setPlugin } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { useEffect } from 'react'
-import { T } from '../../../../schema/schemaFunctions'
 import {
   ditheringAlphatestChunk,
   ditheringFragUniform,
@@ -47,7 +46,7 @@ export const MAX_DITHER_POINTS = 2 //should be equal to the length of the vec3 a
 
 export const TransparencyDitheringRootComponent = defineComponent({
   name: 'TransparencyDitheringRootComponent',
-  schema: S.Object({ materials: S.Array(T.EntityUUID()) })
+  schema: S.Object({ materials: S.Array(S.EntityUUID()) })
 })
 
 export const TransparencyDitheringPluginComponent = defineComponent({

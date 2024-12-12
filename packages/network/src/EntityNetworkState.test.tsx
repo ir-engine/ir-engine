@@ -30,7 +30,7 @@ import { EntityUUID, generateEntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEngine, destroyEngine, Engine } from '@ir-engine/ecs/src/Engine'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
-import { applyIncomingActions, dispatchAction, getState, PeerID, UserID } from '@ir-engine/hyperflux'
+import { applyIncomingActions, dispatchAction, getMutableState, getState, PeerID, UserID } from '@ir-engine/hyperflux'
 import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 
 import { createMockNetwork } from '../tests/createMockNetwork'
@@ -62,7 +62,7 @@ describe('EntityNetworkState', () => {
 
       createMockNetwork(NetworkTopics.world, hostPeerID, hostUserId)
 
-      Engine.instance.store.userID = hostUserId
+      getMutableState(EngineState).userID.set(hostUserId)
       const network = NetworkState.worldNetwork as Network
 
       dispatchAction(
@@ -99,7 +99,7 @@ describe('EntityNetworkState', () => {
 
       createMockNetwork(NetworkTopics.world, hostPeerID, hostUserId)
 
-      Engine.instance.store.userID = userId
+      getMutableState(EngineState).userID.set(userId)
       const network = NetworkState.worldNetwork as Network
 
       dispatchAction(
@@ -146,7 +146,7 @@ describe('EntityNetworkState', () => {
       const userId = 'user id' as UserID
       const peerID2 = 'peer id 2' as PeerID
 
-      Engine.instance.store.userID = hostUserId
+      getMutableState(EngineState).userID.set(hostUserId)
       const network = NetworkState.worldNetwork as Network
 
       dispatchAction(
@@ -191,7 +191,7 @@ describe('EntityNetworkState', () => {
 
       createMockNetwork(NetworkTopics.world, hostPeerID, hostUserId)
 
-      Engine.instance.store.userID = userId
+      getMutableState(EngineState).userID.set(userId)
       const network = NetworkState.worldNetwork as Network
 
       dispatchAction(
@@ -240,7 +240,7 @@ describe('EntityNetworkState', () => {
       const peerID2 = 'peer id 2' as PeerID
       const peerID3 = 'peer id 3' as PeerID
 
-      Engine.instance.store.userID = userId
+      getMutableState(EngineState).userID.set(userId)
       const network = NetworkState.worldNetwork as Network
 
       dispatchAction(
@@ -304,7 +304,7 @@ describe('EntityNetworkState', () => {
 
       createMockNetwork(NetworkTopics.world, hostPeerID, hostUserId)
 
-      Engine.instance.store.userID = hostUserId
+      getMutableState(EngineState).userID.set(hostUserId)
       const network = NetworkState.worldNetwork as Network
 
       dispatchAction(
@@ -353,7 +353,7 @@ describe('EntityNetworkState', () => {
       const userId = 'user id' as UserID
       const peerID2 = Engine.instance.store.peerID
 
-      Engine.instance.store.userID = userId
+      getMutableState(EngineState).userID.set(userId)
       const network = NetworkState.worldNetwork as Network
 
       dispatchAction(
@@ -408,7 +408,7 @@ describe('EntityNetworkState', () => {
 
       createMockNetwork(NetworkTopics.world, hostPeerID, hostUserId)
 
-      Engine.instance.store.userID = hostUserId
+      getMutableState(EngineState).userID.set(hostUserId)
 
       dispatchAction(
         WorldNetworkAction.spawnEntity({
@@ -445,7 +445,7 @@ describe('EntityNetworkState', () => {
       const userId = 'user id' as UserID
       const peerID2 = Engine.instance.store.peerID
 
-      Engine.instance.store.userID = userId
+      getMutableState(EngineState).userID.set(userId)
 
       dispatchAction(
         NetworkActions.peerJoined({
@@ -494,7 +494,7 @@ describe('EntityNetworkState', () => {
       const peerID = Engine.instance.store.peerID
       const peerID2 = 'peer id 2' as PeerID
 
-      Engine.instance.store.userID = userID
+      getMutableState(EngineState).userID.set(userID)
       const network = NetworkState.worldNetwork as Network
 
       dispatchAction(
@@ -575,7 +575,7 @@ describe('EntityNetworkState', () => {
     const peerID = Engine.instance.store.peerID
     const peerID2 = 'peer id 2' as PeerID
 
-    Engine.instance.store.userID = userID
+    getMutableState(EngineState).userID.set(userID)
     const network = NetworkState.worldNetwork as Network
 
     dispatchAction(
@@ -654,7 +654,7 @@ describe('EntityNetworkState', () => {
     const peerID = Engine.instance.store.peerID
     const peerID2 = 'peer id 2' as PeerID
 
-    Engine.instance.store.userID = userId
+    getMutableState(EngineState).userID.set(userId)
     const network = NetworkState.worldNetwork as Network
 
     dispatchAction(
@@ -732,7 +732,7 @@ describe('EntityNetworkState', () => {
     const userId = 'user id' as UserID
     const peerID = Engine.instance.store.peerID
 
-    Engine.instance.store.userID = userId
+    getMutableState(EngineState).userID.set(userId)
     const network = NetworkState.worldNetwork as Network
 
     dispatchAction(
@@ -837,7 +837,7 @@ describe('EntityNetworkState', () => {
     const userId = 'user id' as UserID
     const peerID = Engine.instance.store.peerID
 
-    Engine.instance.store.userID = userId
+    getMutableState(EngineState).userID.set(userId)
     const network = NetworkState.worldNetwork as Network
 
     dispatchAction(
@@ -906,7 +906,7 @@ describe('EntityNetworkState', () => {
     const peerID = 'peer id' as PeerID
     const peerID2 = Engine.instance.store.peerID
 
-    Engine.instance.store.userID = userId
+    getMutableState(EngineState).userID.set(userId)
     const network = NetworkState.worldNetwork as Network
 
     dispatchAction(
@@ -978,7 +978,7 @@ describe('EntityNetworkState', () => {
     const userId2 = 'user id 2' as UserID
     const peerID2 = 'peer id 2' as PeerID
 
-    Engine.instance.store.userID = userId
+    getMutableState(EngineState).userID.set(userId)
     const network = NetworkState.worldNetwork as Network
 
     dispatchAction(
@@ -1050,7 +1050,7 @@ describe('EntityNetworkState', () => {
     const userId2 = 'user id 2' as UserID
     const peerID2 = 'peer id 2' as PeerID
 
-    Engine.instance.store.userID = userId
+    getMutableState(EngineState).userID.set(userId)
     const network = NetworkState.worldNetwork as Network
 
     dispatchAction(
@@ -1124,7 +1124,7 @@ describe('EntityNetworkState', () => {
     const peerID = Engine.instance.store.peerID
     const peerID2 = 'peer id 2' as PeerID
 
-    Engine.instance.store.userID = userId
+    getMutableState(EngineState).userID.set(userId)
     const network = NetworkState.worldNetwork as Network
 
     dispatchAction(

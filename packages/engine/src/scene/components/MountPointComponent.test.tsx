@@ -37,8 +37,16 @@ import {
   removeComponent,
   setComponent
 } from '@ir-engine/ecs'
-import { HyperFlux, UserID, applyIncomingActions, dispatchAction, getState } from '@ir-engine/hyperflux'
+import {
+  HyperFlux,
+  UserID,
+  applyIncomingActions,
+  dispatchAction,
+  getMutableState,
+  getState
+} from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { ArrowHelperComponent } from '@ir-engine/spatial/src/common/debug/ArrowHelperComponent'
 import { initializeSpatialEngine, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
@@ -73,7 +81,7 @@ describe('MountPointComponent.ts', async () => {
 
   beforeEach(async () => {
     createEngine()
-    Engine.instance.store.userID = 'userId' as UserID
+    getMutableState(EngineState).userID.set('userId' as UserID)
     initializeSpatialEngine()
     initializeSpatialViewer()
     avatarTestEntity = createEntity()
@@ -81,7 +89,7 @@ describe('MountPointComponent.ts', async () => {
     sceneEntity = loadEmptyScene()
 
     setComponent(sceneEntity, SceneComponent)
-    setComponent(avatarTestEntity, UUIDComponent, Engine.instance.store.userID as string as EntityUUID)
+    setComponent(avatarTestEntity, UUIDComponent, Engine.instance.userID as string as EntityUUID)
     setComponent(mountPointTestEntity, UUIDComponent, v4() as EntityUUID)
     setComponent(mountPointTestEntity, TransformComponent)
     setComponent(mountPointTestEntity, InteractableComponent)
@@ -275,9 +283,9 @@ describe('MountPointComponent.ts', async () => {
 
     beforeEach(async () => {
       avatarTestEntity = createEntity()
-      setComponent(avatarTestEntity, UUIDComponent, (Engine.instance.store.userID + '_avatar') as string as EntityUUID)
-      spawnAvatarReceptor(Engine.instance.store.userID as string as EntityUUID)
-      avatarTestEntity = AvatarComponent.getUserAvatarEntity(Engine.instance.store.userID)
+      setComponent(avatarTestEntity, UUIDComponent, (Engine.instance.userID + '_avatar') as string as EntityUUID)
+      spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
+      avatarTestEntity = AvatarComponent.getUserAvatarEntity(Engine.instance.userID)
       await Physics.load()
       physicsWorldEntity = createEntity()
       setComponent(physicsWorldEntity, EntityTreeComponent)

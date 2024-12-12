@@ -279,7 +279,6 @@ export default defineConfig(async () => {
   const returned = {
     define: define,
     server: {
-      proxy: {},
       cors: !isDevOrLocal,
       hmr:
         process.env.VITE_HMR === 'true'
