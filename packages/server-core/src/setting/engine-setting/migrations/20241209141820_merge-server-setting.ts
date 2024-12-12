@@ -130,7 +130,7 @@ export async function up(knex: Knex): Promise<void> {
     }
   }
 
-  // await knex.schema.dropTableIfExists(serverSettingPath)
+  await knex.schema.dropTableIfExists(serverSettingPath)
 }
 
 /**
