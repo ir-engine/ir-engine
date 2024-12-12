@@ -353,8 +353,8 @@ function ResourceItems() {
                     i * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()),
                     (i + 1) * (ASSETS_PAGE_LIMIT + calculateItemsToFetch())
                   )
-                  .map((resource, index) => (
-                    <ResourceFile key={index} resource={resource as StaticResourceType} />
+                  .map((resource) => (
+                    <ResourceFile key={resource.id} resource={resource as StaticResourceType} />
                   ))}
               </div>
             </div>
