@@ -201,7 +201,7 @@ function Tooltip(
               </div>
             </div>
           </div>,
-          document.getElementById('root')!
+          document.body
         )}
     </div>
   )
