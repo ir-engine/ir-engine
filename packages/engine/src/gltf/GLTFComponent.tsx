@@ -60,6 +60,7 @@ import {
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ShapeSchema } from '@ir-engine/spatial/src/physics/types/PhysicsTypes.ts'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
@@ -86,6 +87,7 @@ import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
 import { GLTFSourceState } from './GLTFState'
 import { gltfReplaceUUIDsReferences } from './gltfUtils'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
+import { useApplyCollidersToChildMeshesEffect } from './useApplyCollidersToChildMeshesEffect.ts'
 
 type DependencyEval = {
   key: string
@@ -160,6 +162,10 @@ export const GLTFComponent = defineComponent({
     src: S.String(''),
     /** @todo move this to it's own component */
     cameraOcclusion: S.Bool(false),
+
+    //collision info
+    applyColliders: S.Bool(false),
+    shape: ShapeSchema('box'),
 
     // internals
     body: S.NonSerialized(S.Nullable(S.Type<ArrayBuffer>())),
@@ -251,13 +257,16 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
   const resourceQuery = useQuery([SourceComponent, ResourcePendingComponent])
   const gltfDocumentState = useMutableState(GLTFDocumentState)
   const sourceEntities = useHookstate(SourceComponent.entitiesBySourceState[props.documentID])
+  useApplyCollidersToChildMeshesEffect(props.entity)
 
   useEffect(() => {
     if (getComponent(props.entity, GLTFComponent).progress === 100) return
     if (!getState(GLTFDocumentState)[props.documentID]) return
     const entities = resourceQuery.filter((e) => getComponent(e, SourceComponent) === props.documentID)
     if (!entities.length) {
-      if (dependenciesLoaded) getMutableComponent(props.entity, GLTFComponent).progress.set(100)
+      if (dependenciesLoaded) {
+        getMutableComponent(props.entity, GLTFComponent).progress.set(100)
+      }
       return
     }
 
