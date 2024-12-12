@@ -25,14 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 
+import { UNIQUEIFIED_VITE_KEY_REGEX } from '@ir-engine/common/src/regex'
 import cli from 'cli'
 
 import {
   createDefaultStorageProvider,
   getStorageProvider
 } from '@ir-engine/server-core/src/media/storageprovider/storageprovider'
-
-const UNIQUEIFIED_KEY_REGEX = /[.-]{1}[a-zA-Z0-9-_]{8}.(js|css)(.map)?$/
 
 cli.enable('status')
 
@@ -41,7 +40,7 @@ cli.main(async () => {
     await createDefaultStorageProvider()
     const storageProvider = getStorageProvider()
     let files = await storageProvider.listFolderContent('client/assets', true)
-    files = files.filter((file) => UNIQUEIFIED_KEY_REGEX.test(file.key))
+    files = files.filter((file) => UNIQUEIFIED_VITE_KEY_REGEX.test(file.key))
     const putData = {
       Body: Buffer.from(JSON.stringify(files.map((file) => file.key))),
       ContentType: 'application/json',
