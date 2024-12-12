@@ -23,9 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-
 import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
@@ -37,16 +34,18 @@ import {
   fileBrowserUploadPath,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
-import { NO_PROXY, State, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import { NO_PROXY, State, getMutableState, startReactor, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { Button, Input } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import TextArea from '@ir-engine/ui/src/primitives/tailwind/TextArea'
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { HiPencil, HiPlus, HiXMark } from 'react-icons/hi2'
 import { RiSave2Line } from 'react-icons/ri'
 import { FilesState, SelectedFilesState } from '../../../services/FilesState'
 import { createFileDigest, createStaticResourceDigest } from '../helpers'
+import FilePropertiesSaveConfirmationModal from './FilePropertiesSaveConfirmationModal'
 
 export default function FilePropertiesModal() {
   const projectName = useMutableState(FilesState).projectName.value
@@ -98,6 +97,7 @@ export default function FilePropertiesModal() {
   }
 
   const handleSubmit = async () => {
+    PopoverState.showPopupover(<FilePropertiesSaveConfirmationModal />)
     if (modifiedFields.value.length > 0) {
       const addedTags: string[] = resourceDigest.tags.value!.filter((tag) => !sharedTags.value.includes(tag))
       const removedTags: string[] = sharedTags.value!.filter((tag) => !resourceDigest.tags.value!.includes(tag))
@@ -114,7 +114,40 @@ export default function FilePropertiesModal() {
           project: resource.project
         })
       }
-      modifiedFields.set([])
+      const reactor = startReactor(() => {
+        const updatedResources = useFind(staticResourcePath, {
+          query: {
+            key: {
+              $like: undefined,
+              $or: files.map(({ key }) => ({
+                key
+              }))
+            },
+            $limit: 10000
+          }
+        })
+        for (const resource of updatedResources.data) {
+          const oldTags = resource.tags ?? []
+          const newTags = Array.from(new Set([...addedTags, ...oldTags.filter((tag) => !removedTags.includes(tag))]))
+          if (
+            resource.tags?.length === newTags.length &&
+            resource.tags.every((val, index) => val === newTags[index]) &&
+            resource.name === resourceDigest.name.value &&
+            resource.licensing === resourceDigest.licensing.value &&
+            resource.attribution === resourceDigest.attribution.value &&
+            resource.description === resourceDigest.description.value
+          ) {
+            console.log('All properties successfully updated')
+            modifiedFields.set([])
+            PopoverState.hidePopupover()
+            PopoverState.hidePopupover()
+            reactor.stop()
+          }
+        }
+        return null
+      })
+    } else {
+      PopoverState.hidePopupover()
       PopoverState.hidePopupover()
     }
   }
@@ -249,11 +282,12 @@ export default function FilePropertiesModal() {
                 <Input value={resourceDigest.name.value ?? ''} onChange={onChange('name', resourceDigest.name)} />
                 <Button
                   title={t('common:components.save')}
-                  variant="transparent"
-                  size="small"
-                  startIcon={<RiSave2Line />}
+                  variant="secondary"
+                  size="sm"
                   onClick={() => editedField.set(null)}
-                />
+                >
+                  <RiSave2Line />
+                </Button>
               </>
             ) : (
               <>
@@ -264,11 +298,12 @@ export default function FilePropertiesModal() {
                 </Text>
                 <Button
                   title={t('common:components.edit')}
-                  variant="transparent"
-                  size="small"
-                  startIcon={<HiPencil />}
+                  variant="secondary"
+                  size="sm"
                   onClick={() => editedField.set('name')}
-                />
+                >
+                  <HiPencil />
+                </Button>
               </>
             )}
           </span>
@@ -302,11 +337,12 @@ export default function FilePropertiesModal() {
                     />
                     <Button
                       title={t('common:components.save')}
-                      variant="transparent"
-                      size="small"
-                      startIcon={<RiSave2Line />}
+                      variant="secondary"
+                      size="sm"
                       onClick={() => editedField.set(null)}
-                    />
+                    >
+                      <RiSave2Line />
+                    </Button>
                   </>
                 ) : (
                   <>
@@ -317,11 +353,12 @@ export default function FilePropertiesModal() {
                     </Text>
                     <Button
                       title={t('common:components.edit')}
-                      variant="transparent"
-                      size="small"
-                      startIcon={<HiPencil />}
+                      variant="secondary"
+                      size="sm"
                       onClick={() => editedField.set('attribution')}
-                    />
+                    >
+                      <HiPencil />
+                    </Button>
                   </>
                 )}
               </span>
@@ -337,11 +374,12 @@ export default function FilePropertiesModal() {
                     />
                     <Button
                       title={t('common:components.save')}
-                      variant="transparent"
-                      size="small"
-                      startIcon={<RiSave2Line />}
+                      variant="secondary"
+                      size="sm"
                       onClick={() => editedField.set(null)}
-                    />
+                    >
+                      <RiSave2Line />
+                    </Button>
                   </>
                 ) : (
                   <>
@@ -352,11 +390,12 @@ export default function FilePropertiesModal() {
                     </Text>
                     <Button
                       title={t('common:components.edit')}
-                      variant="transparent"
-                      size="small"
-                      startIcon={<HiPencil />}
+                      variant="secondary"
+                      size="sm"
                       onClick={() => editedField.set('licensing')}
-                    />
+                    >
+                      <HiPencil />
+                    </Button>
                   </>
                 )}
               </span>
@@ -373,12 +412,13 @@ export default function FilePropertiesModal() {
                   />
                   <Button
                     title={t('common:components.save')}
-                    variant="transparent"
-                    size="small"
-                    startIcon={<RiSave2Line />}
+                    variant="secondary"
+                    size="sm"
                     onClick={() => editedField.set(null)}
                     className="mt-2"
-                  />
+                  >
+                    <RiSave2Line />
+                  </Button>
                 </>
               ) : (
                 <>
@@ -389,11 +429,12 @@ export default function FilePropertiesModal() {
                   </Text>
                   <Button
                     title={t('common:components.edit')}
-                    variant="transparent"
-                    size="small"
-                    startIcon={<HiPencil />}
+                    variant="secondary"
+                    size="sm"
                     onClick={() => editedField.set('description')}
-                  />
+                  >
+                    <HiPencil />
+                  </Button>
                 </>
               )}
             </span>
@@ -411,11 +452,9 @@ export default function FilePropertiesModal() {
                     }
                   }}
                 />
-                <Button
-                  startIcon={<HiPlus />}
-                  title={t('editor:layout.filebrowser.fileProperties.add')}
-                  onClick={handleAddTag}
-                />
+                <Button title={t('editor:layout.filebrowser.fileProperties.add')} onClick={handleAddTag}>
+                  <HiPlus />
+                </Button>
               </div>
               <div className="flex h-24 flex-wrap gap-2 overflow-y-auto bg-theme-surfaceInput p-2">
                 {resourceDigest.tags.value!.map((tag, idx) => (

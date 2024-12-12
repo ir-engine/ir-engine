@@ -25,127 +25,49 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { LocationService } from '@ir-engine/client-core/src/social/services/LocationService'
 import multiLogger from '@ir-engine/common/src/logger'
-import { InstanceID } from '@ir-engine/common/src/schema.type.module'
-import { Engine, getComponent, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
-import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
-import { teleportAvatar } from '@ir-engine/engine/src/avatar/functions/moveAvatar'
-import { LinkState } from '@ir-engine/engine/src/scene/components/LinkComponent'
-import { PortalComponent, PortalState } from '@ir-engine/engine/src/scene/components/PortalComponent'
+import { InstanceID, projectsPath } from '@ir-engine/common/src/schema.type.module'
+import { Engine } from '@ir-engine/ecs'
 import {
   addOutgoingTopicIfNecessary,
+  dispatchAction,
   getMutableState,
-  getState,
   none,
   useHookstate,
+  useImmediateEffect,
   useMutableState
 } from '@ir-engine/hyperflux'
 import {
-  addNetwork,
-  createNetwork,
   Network,
-  NetworkPeerFunctions,
+  NetworkActions,
   NetworkState,
   NetworkTopics,
+  addNetwork,
+  createNetwork,
   removeNetwork
 } from '@ir-engine/network'
 import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 
-import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
-import { RouterState } from '../../common/services/RouterService'
-import { LocationState } from '../../social/services/LocationService'
+import { useFind } from '@ir-engine/common'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { AuthState } from '../../user/services/AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
 
 export const useEngineInjection = () => {
+  const projects = useFind(projectsPath)
   const loaded = useHookstate(false)
-  useEffect(() => {
-    loadEngineInjection().then(() => {
+  useImmediateEffect(() => {
+    if (!projects.data) return
+    loadEngineInjection(projects.data as string[]).then(() => {
       loaded.set(true)
     })
-  }, [])
+  }, [projects.data])
   return loaded.value
 }
 
-export const useLinkTeleport = () => {
-  const linkState = useMutableState(LinkState)
-
-  useEffect(() => {
-    const location = linkState.location.value
-    if (!location) return
-
-    logger.info('Relocating to linked location.')
-
-    RouterState.navigate('/location/' + location)
-    LocationService.getLocationByName(location)
-
-    // shut down connection with existing world instance server
-    // leaving a world instance server will check if we are in a location media instance and shut that down too
-    getMutableState(LinkState).location.set(undefined)
-  }, [linkState.location])
-}
-
-export const usePortalTeleport = () => {
-  const engineState = useMutableState(EngineState)
-  const locationState = useMutableState(LocationState)
-  const portalState = useMutableState(PortalState)
-
-  useEffect(() => {
-    const activePortalEntity = portalState.activePortalEntity.value
-    if (!activePortalEntity) return
-
-    const activePortal = getComponent(activePortalEntity, PortalComponent)
-
-    const currentLocation = locationState.locationName.value.split('/')[1]
-    if (currentLocation === activePortal.location || UUIDComponent.getEntityByUUID(activePortal.linkedPortalId)) {
-      teleportAvatar(
-        AvatarComponent.getSelfAvatarEntity(),
-        activePortal.remoteSpawnPosition,
-        true
-        // activePortal.remoteSpawnRotation
-      )
-      portalState.activePortalEntity.set(UndefinedEntity)
-      return
-    }
-
-    if (activePortal.redirect) {
-      window.location.href = getState(DomainConfigState).publicDomain + '/location/' + activePortal.location
-      return
-    }
-
-    if (activePortal.effectType !== 'None') {
-      PortalComponent.setPlayerInPortalEffect(activePortal.effectType)
-    } else {
-      getMutableState(PortalState).portalReady.set(true)
-      // teleport player to where the portal spawn position is
-      teleportAvatar(AvatarComponent.getSelfAvatarEntity(), activePortal.remoteSpawnPosition, true)
-    }
-  }, [portalState.activePortalEntity])
-
-  useEffect(() => {
-    if (!portalState.activePortalEntity.value || !portalState.portalReady.value) return
-
-    const activePortalEntity = portalState.activePortalEntity.value
-    const activePortal = getComponent(activePortalEntity, PortalComponent)
-
-    RouterState.navigate('/location/' + activePortal.location)
-    LocationService.getLocationByName(activePortal.location)
-
-    if (activePortal.effectType === 'None') {
-      getMutableState(PortalState).activePortalEntity.set(UndefinedEntity)
-    }
-  }, [portalState.portalReady])
-}
-
-export const useLoadEngineWithScene = () => {
-  usePortalTeleport()
-  useLinkTeleport()
-}
-
 export const useNetwork = (props: { online?: boolean }) => {
+  const userID = useMutableState(EngineState).userID.value
   const acceptedTOS = useMutableState(AuthState).user.acceptedTOS.value
 
   useEffect(() => {
@@ -160,27 +82,44 @@ export const useNetwork = (props: { online?: boolean }) => {
 
   /** Offline/local world network */
   useEffect(() => {
-    if (props.online) return
+    if (props.online || !userID) return
 
-    const userID = Engine.instance.userID
     const peerID = Engine.instance.store.peerID
-    const userIndex = 1
     const peerIndex = 1
+    const networkID = userID as any as InstanceID
 
     const networkState = getMutableState(NetworkState)
-    networkState.hostIds.world.set(userID as any as InstanceID)
-    addNetwork(createNetwork(userID as any as InstanceID, peerID, NetworkTopics.world))
+    networkState.hostIds.world.set(networkID)
+    addNetwork(createNetwork(networkID, peerID, NetworkTopics.world))
     addOutgoingTopicIfNecessary(NetworkTopics.world)
 
     NetworkState.worldNetworkState.ready.set(true)
 
-    NetworkPeerFunctions.createPeer(NetworkState.worldNetwork as Network, peerID, peerIndex, userID, userIndex)
-
     const network = NetworkState.worldNetwork as Network
 
+    dispatchAction(
+      NetworkActions.peerJoined({
+        $network: networkID,
+        $topic: network.topic,
+        $to: Engine.instance.store.peerID,
+        peerID,
+        peerIndex,
+        userID
+      })
+    )
+
     return () => {
+      dispatchAction(
+        NetworkActions.peerLeft({
+          $network: networkID,
+          $topic: network.topic,
+          $to: Engine.instance.store.peerID,
+          peerID,
+          userID
+        })
+      )
       removeNetwork(network)
       networkState.hostIds.world.set(none)
     }
-  }, [props.online])
+  }, [props.online, userID])
 }

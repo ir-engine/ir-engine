@@ -51,6 +51,7 @@ import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/component
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AudioState } from '../../audio/AudioState'
@@ -138,7 +139,7 @@ export const MediaComponent = defineComponent({
     controls: S.Bool(false),
     synchronize: S.Bool(true),
     autoplay: S.Bool(false), //false = personal preference, this is super annoying when it just starts playing once added to a scene while editing
-    uiOffset: S.Vec3(),
+    uiOffset: T.Vec3(),
     xruiEntity: S.Entity(),
     volume: S.Number(1),
     resources: S.Array(S.String()),
@@ -191,6 +192,14 @@ export function MediaReactor() {
   const rendererEntity = useRendererEntity(entity)
 
   if (!isClient) return null
+
+  function validateTime() {
+    const mediaElementComponent = getMutableComponent(entity, MediaElementComponent)
+    const element = mediaElementComponent.element.value as HTMLMediaElement
+    if (element.currentTime < media.seekTime.value) {
+      setTime(mediaElementComponent.element, media.seekTime.value)
+    }
+  }
 
   useEffect(() => {
     if (!rendererEntity) return
@@ -387,6 +396,7 @@ export function MediaReactor() {
       if (!media.paused.value) {
         mediaElementState.value.element.play()
       }
+      validateTime()
     },
     [media.resources, media.ended, media.playMode]
   )
@@ -442,6 +452,10 @@ export function MediaReactor() {
       removeComponent(entity, DebugMeshComponent)
     }
   }, [rendererState.nodeHelperVisibility, audioHelperTexture])
+
+  useEffect(() => {
+    validateTime()
+  }, [media.seekTime])
 
   return null
 }

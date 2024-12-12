@@ -17,7 +17,7 @@
   "npmClient": "npm",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "cross-env TEST=true vitest run"
+    "test": "cross-env TEST=true vitest run --config=../../vitest.client.config.ts"
   },
   "resolutions": {
     "@types/react": "18.2.0",

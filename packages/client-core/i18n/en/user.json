@@ -21,7 +21,7 @@
       "username": "UserName + Password",
       "social": "Social"
     },
-    "magiklink": {
+    "magiclink": {
       "header": "Login Link",
       "descriptionEmail": "Please enter your email address and we'll send you a login link via Email.",
       "descriptionSMS": "Please enter your phone number and we'll send you a login link via SMS.",
@@ -191,7 +191,9 @@
       "client": "Client",
       "studio": "Studio",
       "admin": "Admin",
-      "windowsPerformanceHelp": "Windows OS Performance"
+      "windowsPerformanceHelp": "Windows OS Performance",
+      "lbl-isVisible": "Show User NamePlate",
+      "lbl-triggerDistance": "NamePlate Trigger Distance"
     },
     "profile": {
       "lbl-profile": "Profile",
@@ -231,6 +233,7 @@
       "addSocial": "Connect your Social Logins",
       "logIn": "Log In",
       "agreeToRequired": "Please agree to all iR Studio requirements before proceeding:",
+      "agreeToRequiredPal": "Please agree to all iR PAL requirements before proceeding:",
       "agreeTOS": "I agree to the ",
       "termsOfService": "Infinite Reality Terms of Service",
       "agreeToMarketing": "I agree to opt-in to marketing communications",
@@ -285,16 +288,24 @@
     "oauth": {
       "authenticating": "Authenticating..."
     },
-    "magikLink": {
+    "magicLink": {
       "wait": "Please wait a moment while processing..."
     }
   },
   "oauth": {
     "error": "Unfortunately, {{name}} authentication failed.",
-    "redirectToRoot": "Return to Home"
+    "redirectToRoot": "Return to Home",
+    "promptForConnection": "Connect to existing account?",
+    "askConnection": "{{email}} is already associated with an account. Would you like to link this {{service}} Single Sign-On to that account?",
+    "acceptConnection": "Yes",
+    "declineConnection": "No (create new account)"
   },
-  "magikLink": {
-    "wait": "Please wait a moment while processing..."
+  "magicLink": {
+    "wait": "Please wait a moment while processing...",
+    "promptForConnection": "Connect to existing account?",
+    "askConnection": "{{email}} is already associated with an account. Would you like to link this magiclink login to that account?",
+    "acceptConnection": "Yes",
+    "declineConnection": "No (create new account)"
   },
   "dashboard": {
     "header": "Dashboard",
@@ -352,6 +363,7 @@
     "useUrlInstead": "Use url instead",
     "cancel": "Cancel",
     "createAvatar": "Create Avatar",
+    "uploadAvatar": "Upload Avatar",
     "delete": "Delete",
     "view": "View",
     "uploadAvatarInfo": "Update avatar Information",
@@ -381,9 +393,9 @@
     "enterThumbnailUrl": "Enter Thumbnail URL",
     "avatarName": "Avatar Name",
     "done": "Done",
-    "finishEditing": "Finish Editing",
     "discardAvatarChanges": "Discard Your Avatar?",
-    "InputAvatarName": "Enter an Avatar Name",
+    "InputAvatarName": "Name Your Avatar",
+    "saveAvatar": "Save Avatar",
     "savingAvatar": "Saving {{avatar}}",
     "packagingAvatar": "Packaging & adding avatar to your Account..."
   },
@@ -407,6 +419,7 @@
     "exitFullScreen": "Exit FullScreen",
     "hide": "Hide",
     "show": "Show"
+    
   },
   "personMenu": {
     "inviteToParty": "Invite To Party",

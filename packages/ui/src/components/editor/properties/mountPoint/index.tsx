@@ -33,9 +33,9 @@ import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEdito
 import { InteractableComponent } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
 import { MountPoint, MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
 import { NO_PROXY } from '@ir-engine/hyperflux'
+import { Checkbox } from '@ir-engine/ui'
 import { LuUsers2 } from 'react-icons/lu'
 import { Vector3 } from 'three'
-import BooleanInput from '../../input/Boolean'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
 import Vector3Input from '../../input/Vector3'
@@ -93,10 +93,12 @@ export const MountPointNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.mountPoint.lbl-force-dismount')}
         info={t('editor:properties.mountPoint.lbl-force-dismount-info')}
       >
-        <BooleanInput
-          value={mountComponent.forceDismountPosition.value}
+        <Checkbox
+          checked={mountComponent.forceDismountPosition.value}
           onChange={updateProperty(MountPointComponent, 'forceDismountPosition')}
-          onRelease={commitProperty(MountPointComponent, 'forceDismountPosition')}
+          onBlur={() =>
+            commitProperty(MountPointComponent, 'forceDismountPosition')(mountComponent.forceDismountPosition.value)
+          }
         />
       </InputGroup>
     </NodeEditor>

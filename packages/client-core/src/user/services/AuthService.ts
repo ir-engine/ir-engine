@@ -35,6 +35,7 @@ import { AuthUserSeed, resolveAuthUser } from '@ir-engine/common/src/interfaces/
 import multiLogger from '@ir-engine/common/src/logger'
 import {
   AuthStrategiesType,
+  HasAccessType,
   IdentityProviderType,
   InstanceID,
   UserApiKeyType,
@@ -43,9 +44,7 @@ import {
   UserName,
   UserPatch,
   UserPublicPatch,
-  UserSettingType,
   UserType,
-  avatarPath,
   generateTokenPath,
   identityProviderPath,
   loginPath,
@@ -53,12 +52,9 @@ import {
   magicLinkPath,
   userApiKeyPath,
   userAvatarPath,
-  userPath,
-  userSettingPath
+  userPath
 } from '@ir-engine/common/src/schema.type.module'
-import type { HasAccessType } from '@ir-engine/common/src/schemas/networking/allowed-domains.schema'
 import {
-  HyperFlux,
   defineState,
   getMutableState,
   getState,
@@ -66,6 +62,7 @@ import {
   syncStateWithLocalStorage,
   useHookstate
 } from '@ir-engine/hyperflux'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { MessageResponse, ParentCommunicator } from '../../common/iframeCOM'
 import { NotificationService } from '../../common/services/NotificationService'
 
@@ -73,7 +70,10 @@ export const logger = multiLogger.child({ component: 'client-core:AuthService' }
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
 
 const iframe = document.getElementById('root-cookie-accessor') as HTMLIFrameElement
-const communicator = new ParentCommunicator('root-cookie-accessor', config.client.clientUrl) //Eventually we can configure iframe target seperatly
+const communicator = new ParentCommunicator(
+  'root-cookie-accessor',
+  config.client.hostOriginOverride ?? config.client.clientUrl
+) //Eventually we can configure iframe target seperatly
 
 export const UserSeed: UserType = {
   id: '' as UserID,
@@ -188,7 +188,6 @@ const getToken = async (): Promise<string> => {
 export const AuthState = defineState({
   name: 'AuthState',
   initial: () => ({
-    isLoggedIn: false,
     isProcessing: false,
     error: '',
     authUser: AuthUserSeed,
@@ -283,7 +282,7 @@ export const AuthService = {
           (err.className === 'not-authenticated' && err.message === 'invalid algorithm') ||
           (err.className === 'not-authenticated' && err.message === 'invalid signature')
         ) {
-          authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
+          authState.merge({ user: UserSeed, authUser: AuthUserSeed })
           await _resetToGuestToken()
           res = await API.instance.reAuthenticate()
         } else {
@@ -295,7 +294,7 @@ export const AuthService = {
         const identityProvider = res[identityProviderPath] as IdentityProviderType
         // Response received form reAuthenticate(), but no `id` set.
         if (!identityProvider?.id) {
-          authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
+          authState.merge({ user: UserSeed, authUser: AuthUserSeed })
           await _resetToGuestToken()
           res = await API.instance.reAuthenticate()
         }
@@ -309,7 +308,7 @@ export const AuthService = {
       }
     } catch (err) {
       logger.error(err, 'Error on resolving auth user in doLoginAuto, logging out')
-      authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
+      authState.merge({ user: UserSeed, authUser: AuthUserSeed })
       writeAuthUserToIframe()
 
       // if (window.location.pathname !== '/') {
@@ -322,33 +321,7 @@ export const AuthService = {
     try {
       const client = API.instance
       const user = await client.service(userPath).get(userId)
-
-      const settingsRes = (await client
-        .service(userSettingPath)
-        .find({ query: { userId: userId } })) as Paginated<UserSettingType>
-
-      if (settingsRes.total === 0) {
-        await client.service(userSettingPath).create({ userId: userId })
-      }
-      const avatar = await client.service(userAvatarPath).find({ query: { userId } })
-      if (!avatar.data[0]) {
-        const avatars = await client.service(avatarPath).find({
-          query: {
-            isPublic: true
-          }
-        })
-
-        if (avatars.data.length > 0) {
-          const randomReplacementAvatar = avatars.data[Math.floor(Math.random() * avatars.data.length)]
-
-          await client
-            .service(userAvatarPath)
-            .patch(null, { avatarId: randomReplacementAvatar.id }, { query: { userId: userId } })
-        } else {
-          throw new Error('No avatars found in database')
-        }
-      }
-      getMutableState(AuthState).merge({ isLoggedIn: true, user })
+      getMutableState(AuthState).merge({ user })
     } catch (err) {
       NotificationService.dispatchNotify(i18n.t('common:error.loading-error').toString(), { variant: 'error' })
       console.error(err)
@@ -437,7 +410,7 @@ export const AuthService = {
   //     walletUser.id = oldId
 
   //     // loadXRAvatarForUpdatedUser(walletUser)
-  //     authState.merge({ isLoggedIn: true, user: walletUser, authUser })
+  //     authState.merge({  user: walletUser, authUser })
   //   } catch (err) {
   //     authState.merge({ error: i18n.t('common:error.login-error') })
   //     NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -449,7 +422,7 @@ export const AuthService = {
   /**
    * Logs in the current user based on an OAuth response.
    */
-  async loginUserByOAuth(service: string, location: any, redirectUrl?: string) {
+  async loginUserByOAuth(service: string, location: any, isSignUp: boolean, redirectUrl?: string) {
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     const token = getState(AuthState).authUser.accessToken
     const path = redirectUrl || new URLSearchParams(location.search).get('redirectUrl') || location.pathname
@@ -464,10 +437,13 @@ export const AuthService = {
 
     if (instanceId) redirectConfig.instanceId = instanceId
     if (domain) redirectConfig.domain = domain
+    const action = isSignUp == false ? 'signin' : 'signup'
 
     window.location.href = `${
       config.client.serverUrl
-    }/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(redirectConfig)}`
+    }/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(redirectConfig)}&action=${encodeURIComponent(
+      action
+    )}`
   },
 
   async removeUserOAuth(service: string) {
@@ -553,9 +529,9 @@ export const AuthService = {
     authState.merge({ isProcessing: true, error: '' })
     try {
       await API.instance.logout()
-      authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
+      authState.merge({ user: UserSeed, authUser: AuthUserSeed })
     } catch (_) {
-      authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
+      authState.merge({ user: UserSeed, authUser: AuthUserSeed })
     } finally {
       authState.merge({ isProcessing: false, error: '' })
       writeAuthUserToIframe()
@@ -668,7 +644,7 @@ export const AuthService = {
         sms: 'sms-sent-msg',
         default: 'success-msg'
       }
-      NotificationService.dispatchNotify(i18n.t(`user:auth.magiklink.${message[type ?? 'default']}`).toString(), {
+      NotificationService.dispatchNotify(i18n.t(`user:auth.magiclink.${message[type ?? 'default']}`).toString(), {
         variant: 'success'
       })
     } catch (err) {
@@ -676,6 +652,21 @@ export const AuthService = {
       throw new Error(err)
     } finally {
       authState.merge({ isProcessing: false, error: '' })
+    }
+  },
+
+  async validateUser(email: string): Promise<boolean> {
+    try {
+      const identityProviders = await API.instance.service(identityProviderPath).find({
+        query: {
+          email: email.toLowerCase(),
+          type: 'email'
+        }
+      })
+
+      return identityProviders.data.some((provider) => provider.email === email.toLowerCase())
+    } catch (error) {
+      return false
     }
   },
 
@@ -708,7 +699,7 @@ export const AuthService = {
         userId
       })) as IdentityProviderType
       if (identityProvider.userId) {
-        NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.email-sent-msg').toString(), {
+        NotificationService.dispatchNotify(i18n.t('user:auth.magiclink.email-sent-msg').toString(), {
           variant: 'success'
         })
         return AuthService.loadUserData(identityProvider.userId)
@@ -736,7 +727,7 @@ export const AuthService = {
         userId
       })) as IdentityProviderType
       if (identityProvider.userId) {
-        NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.sms-sent-msg').toString(), { variant: 'error' })
+        NotificationService.dispatchNotify(i18n.t('user:auth.magiclink.sms-sent-msg').toString(), { variant: 'error' })
         return AuthService.loadUserData(identityProvider.userId)
       }
     } catch (err) {
@@ -866,7 +857,7 @@ function parseLoginDisplayCredential(credentials) {
 }
 
 export const useAuthenticated = () => {
-  const authState = useHookstate(getMutableState(AuthState))
+  const userID = useHookstate(getMutableState(AuthState).user.id).value
 
   useEffect(() => {
     AuthService.doLoginAuto()
@@ -876,8 +867,8 @@ export const useAuthenticated = () => {
   }, [])
 
   useEffect(() => {
-    HyperFlux.store.userID = authState.user.id.value
-  }, [authState.user.id])
+    getMutableState(EngineState).userID.set(userID)
+  }, [userID])
 
-  return authState.isLoggedIn.value
+  return userID !== ''
 }

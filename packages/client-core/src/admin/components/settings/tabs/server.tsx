@@ -30,9 +30,8 @@ import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 import { useFind, useMutation } from '@ir-engine/common'
 import { serverSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { Button, Input } from '@ir-engine/ui'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
@@ -86,113 +85,161 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
     >
       <div className="mt-6 grid w-full grid-cols-2 gap-4">
         <Input
-          containerClassName="col-span-1"
+          fullWidth
           value={serverSetting?.mode || 'test'}
-          label={t('admin:components.setting.mode')}
+          labelProps={{
+            text: t('admin:components.setting.mode'),
+            position: 'top'
+          }}
           disabled
         />
 
         <Input
-          containerClassName="col-span-1"
-          label={t('admin:components.setting.storageProvider')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.storageProvider'),
+            position: 'top'
+          }}
           value={serverSetting?.storageProvider || ''}
           disabled
         />
 
         <Input
-          containerClassName="col-span-1"
+          fullWidth
           value={serverSetting?.hostname || 'test'}
-          label={t('admin:components.setting.hostName')}
+          labelProps={{
+            text: t('admin:components.setting.hostName'),
+            position: 'top'
+          }}
           disabled
         />
 
         <Input
-          containerClassName="col-span-1"
-          label={t('admin:components.setting.port')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.port'),
+            position: 'top'
+          }}
           value={serverSetting?.port || ''}
           disabled
         />
 
         <Input
-          containerClassName="col-span-1"
-          label={t('admin:components.setting.hub')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.hub'),
+            position: 'top'
+          }}
           value={serverSetting?.hub?.endpoint || ''}
           disabled
         />
 
         <Input
-          containerClassName="col-span-1"
-          label={t('admin:components.setting.clientHost')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.clientHost'),
+            position: 'top'
+          }}
           value={serverSetting?.clientHost || ''}
           disabled
         />
 
         <Input
-          containerClassName="col-span-1"
-          label={t('admin:components.setting.url')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.url'),
+            position: 'top'
+          }}
           value={serverSetting?.url || ''}
           disabled
         />
 
         <Input
-          containerClassName="col-span-1"
-          label={t('admin:components.setting.rootDirectory')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.rootDirectory'),
+            position: 'top'
+          }}
           value={serverSetting?.rootDir || ''}
           disabled
         />
 
         <Input
-          containerClassName="col-span-1"
-          label={t('admin:components.setting.certPath')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.certPath'),
+            position: 'top'
+          }}
           value={serverSetting?.certPath || ''}
           disabled
         />
 
         <Input
-          containerClassName="col-span-1"
-          label={t('admin:components.setting.publicDirectory')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.publicDirectory'),
+            position: 'top'
+          }}
           value={serverSetting?.publicDir || ''}
           disabled
         />
 
         <Input
-          containerClassName="col-span-1"
-          label={t('admin:components.setting.keyPath')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.keyPath'),
+            position: 'top'
+          }}
           value={serverSetting?.keyPath || ''}
           disabled
         />
 
         <Input
-          containerClassName="col-span-1"
-          label={t('admin:components.setting.nodeModulesDirectory')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.nodeModulesDirectory'),
+            position: 'top'
+          }}
           value={serverSetting?.nodeModulesDir || ''}
           disabled
         />
 
         <Input
-          containerClassName="col-span-1"
-          label={t('admin:components.setting.githubWebhookSecret')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.githubWebhookSecret'),
+            position: 'top'
+          }}
           value={githubWebhookSecret.value || ''}
           onChange={(e) => githubWebhookSecret.set(e.target.value)}
         />
 
         <Input
-          containerClassName="col-span-1"
-          label={t('admin:components.setting.localStorageProvider')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.localStorageProvider'),
+            position: 'top'
+          }}
           value={serverSetting?.localStorageProvider || ''}
           disabled
         />
 
         <Input
-          containerClassName="col-span-1"
-          label={t('admin:components.setting.releaseName')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.releaseName'),
+            position: 'top'
+          }}
           value={serverSetting?.releaseName || ''}
           disabled
         />
 
         <Input
-          containerClassName="col-span-1"
-          label={t('admin:components.setting.instanceserverUnreachableTimeoutSeconds')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.instanceserverUnreachableTimeoutSeconds'),
+            position: 'top'
+          }}
           value={instanceserverUnreachableTimeoutSeconds?.value || ''}
           onChange={(e) => instanceserverUnreachableTimeoutSeconds.set(Number(e.target.value))}
         />
@@ -224,17 +271,11 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         )}
 
         <div className="col-span-1 grid grid-cols-4 gap-6">
-          <Button size="small" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
+          <Button size="sm" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
             {t('admin:components.common.reset')}
           </Button>
-          <Button
-            size="small"
-            variant="primary"
-            className="col-span-1"
-            fullWidth
-            onClick={handleSubmit}
-            startIcon={state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
-          >
+          <Button size="sm" variant="primary" className="col-span-1" fullWidth onClick={handleSubmit}>
+            {state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
             {t('admin:components.common.save')}
           </Button>
         </div>

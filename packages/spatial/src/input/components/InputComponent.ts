@@ -88,7 +88,7 @@ export const InputComponent = defineComponent({
 
     //internal
     /** populated automatically by ClientInputSystem */
-    inputSources: S.Array(S.Entity())
+    inputSources: S.NonSerialized(S.Array(S.Entity()))
   }),
 
   useExecuteWithInput(

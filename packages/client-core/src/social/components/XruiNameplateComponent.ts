@@ -58,15 +58,16 @@ import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUICompon
 import { WebLayer3D } from '@ir-engine/xrui'
 import { useEffect } from 'react'
 import { MathUtils, Vector3 } from 'three'
+import { XruiNameplateState } from '../XruiNameplateState'
 
-const xrDistVec3 = new Vector3()
+const _vec3 = new Vector3()
 
-function updateXrDistVec3(selfAvatarEntity: Entity): void {
-  //TODO change from using rigidbody to use the transform position (+ height of avatar)
+function getSelfAvatarHeadPosition(selfAvatarEntity: Entity, vec3: Vector3): void {
   const selfAvatarRigidBodyComponent = getComponent(selfAvatarEntity, RigidBodyComponent)
+  if (!selfAvatarRigidBodyComponent) return
   const avatar = getComponent(selfAvatarEntity, AvatarComponent)
-  xrDistVec3.copy(selfAvatarRigidBodyComponent.position)
-  xrDistVec3.y += avatar.avatarHeight
+  vec3.copy(selfAvatarRigidBodyComponent.position)
+  vec3.y += avatar.avatarHeight
 }
 
 export const XruiNameplateComponent = defineComponent({
@@ -80,13 +81,10 @@ export const XruiNameplateComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
     const networkObject = useComponent(entity, NetworkObjectComponent)
     const user = useGet(userPath, networkObject.ownerId.value)
 
     useEffect(() => {
-      if (selfAvatarEntity === entity) return //don't add nameplate to self
-
       const userName = user.data?.name ?? 'A User'
       addNameplateUI(entity, userName)
 
@@ -102,20 +100,21 @@ export const XruiNameplateComponent = defineComponent({
 })
 
 const addNameplateUI = (entity: Entity, username: string) => {
+  const xruiNamePlateParams = getState(XruiNameplateState)
   const uiEntity = createUI(
     entity,
     username,
-    false, //isInteractable
-    38, //borderRadiusPx
-    3, //bgPaddingPx
-    5, //verticalContentPaddingPx
-    40 //horizontalContentPaddingPx
+    xruiNamePlateParams.isInteractable,
+    xruiNamePlateParams.uiParams.borderRadiusPx,
+    xruiNamePlateParams.uiParams.bgPaddingPx,
+    xruiNamePlateParams.uiParams.verticalContentPaddingPx,
+    xruiNamePlateParams.uiParams.horizontalContentPaddingPx
   ).entity
 
   const uiTransform = getComponent(uiEntity, TransformComponent)
   const avatar = getOptionalComponent(entity, AvatarComponent)
 
-  uiTransform.position.set(0, avatar?.avatarHeight ?? 1.5, 0)
+  uiTransform.position.set(0, avatar?.avatarHeight ?? xruiNamePlateParams.defaultNamePlateHeight, 0)
   const nameplateComponent = getMutableComponent(entity, XruiNameplateComponent)
 
   nameplateComponent.uiEntity.set(uiEntity)
@@ -126,7 +125,7 @@ const addNameplateUI = (entity: Entity, username: string) => {
     computeFunction: () => updateNameplateUI(entity)
   })
 
-  const transition = createTransitionState(0.25)
+  const transition = createTransitionState(xruiNamePlateParams.transitionTime)
   transition.setState('OUT')
   XruiNameplateComponent.Transitions.set(entity, transition)
 }
@@ -134,15 +133,25 @@ const addNameplateUI = (entity: Entity, username: string) => {
 export const updateNameplateUI = (entity: Entity) => {
   const xruiNameplateComponent = getOptionalComponent(entity, XruiNameplateComponent)
   const avatarTransform = getOptionalComponent(entity, TransformComponent)
-  if (!xruiNameplateComponent || xruiNameplateComponent.uiEntity == UndefinedEntity) return
+  const xruiNamePlateParams = getState(XruiNameplateState)
+  if (
+    !xruiNameplateComponent ||
+    xruiNameplateComponent.uiEntity == UndefinedEntity ||
+    xruiNamePlateParams.isVisible === false
+  )
+    return
 
   const avatarComponent = getOptionalComponent(entity, AvatarComponent)
   const xrui = getOptionalComponent(xruiNameplateComponent.uiEntity, XRUIComponent)
 
   const xruiTransform = getOptionalComponent(xruiNameplateComponent.uiEntity, TransformComponent)
   if (!xrui || !xruiTransform) return
+
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-  updateXrDistVec3(selfAvatarEntity)
+  const fromEntity = selfAvatarEntity ?? getState(EngineState).viewerEntity
+  if (!fromEntity) return
+
+  getSelfAvatarHeadPosition(fromEntity, _vec3)
 
   const hasVisibleComponent = hasComponent(xruiNameplateComponent.uiEntity, VisibleComponent)
   if (hasVisibleComponent && avatarComponent && avatarTransform) {
@@ -165,13 +174,13 @@ export const updateNameplateUI = (entity: Entity) => {
     xruiTransform.rotation.copy(cameraTransform.rotation)
   }
 
-  const distance = xrDistVec3.distanceToSquared(xruiTransform.position)
+  const distance = _vec3.distanceToSquared(xruiTransform.position)
 
   const transition = XruiNameplateComponent.Transitions.get(entity)
 
   const inCameraFrustum = inFrustum(xruiNameplateComponent.uiEntity)
 
-  const activateUI = inCameraFrustum && distance < 64 //8m^2
+  const activateUI = inCameraFrustum && distance < xruiNamePlateParams.triggerDistance
 
   if (transition) {
     if (transition.state === 'OUT' && activateUI) {

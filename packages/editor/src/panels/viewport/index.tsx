@@ -55,6 +55,7 @@ import GridTool from './tools/GridTool'
 import PlayModeTool from './tools/PlayModeTool'
 import RenderModeTool from './tools/RenderTool'
 import SceneHelpersTool from './tools/SceneHelpersTool'
+import SelectionBox from './tools/SelectionBoxTool'
 import TransformGizmoTool from './tools/TransformGizmoTool'
 import TransformPivotTool from './tools/TransformPivotTool'
 import TransformSnapTool from './tools/TransformSnapTool'
@@ -164,6 +165,7 @@ function ViewportContainer() {
           <RenderModeTool />
           <PlayModeTool />
         </div>
+        {sceneName.value ? <SelectionBox viewportRef={ref} toolbarRef={toolbarRef} /> : null}
         {sceneName.value ? <TransformGizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
         {sceneName.value ? <CameraGizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
         {sceneName.value ? (

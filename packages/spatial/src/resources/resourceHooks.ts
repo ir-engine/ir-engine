@@ -29,13 +29,14 @@ import { v4 as uuidv4 } from 'uuid'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs'
 import { NO_PROXY, State, useDidMount, useHookstate } from '@ir-engine/hyperflux'
 
-import { DisposableObject, ResourceManager } from './ResourceState'
+import { DisposableObject, ResourceAssetType, ResourceManager } from './ResourceState'
 
 /**
  *
  * Loader hook for creating an instance of a class that implements the DisposableObject interface in ResourceState.ts in a React context,
  * but has it's lifecycle managed by the ResourceManager in ResourceState.ts
  *
+ * @deprecated in favor of useResource
  * @param disposableLike A class that implements the DisposableObject interface eg. DirectionalLight
  * @param entity *Optional* the entity that is loading the object
  * @param args *Optional* arguments to pass to the constructor of disposableLike
@@ -51,7 +52,7 @@ export function useDisposable<T extends DisposableObject, T2 extends new (...par
 
   const unload = () => {
     if (objState.value) {
-      ResourceManager.unload(objState.get(NO_PROXY).uuid, entity)
+      ResourceManager.unload(ResourceManager.getResourceID(objState.get(NO_PROXY)), entity)
     }
   }
 
@@ -89,13 +90,13 @@ export function createDisposable<T extends DisposableObject, T2 extends new (...
   const obj = ResourceManager.loadObj(disposableLike, entity, ...args)
 
   const unload = () => {
-    ResourceManager.unload(obj.uuid, entity)
+    ResourceManager.unload(ResourceManager.getResourceID(obj), entity)
   }
 
   return [obj, unload]
 }
 
-type ObjOrFunction<T> = T | (() => T)
+export type ObjOrFunction<T> = T | (() => T)
 /**
  *
  * Hook to add any resource to be tracked by the resource manager
@@ -107,13 +108,12 @@ type ObjOrFunction<T> = T | (() => T)
  * @param onUnload *Optional* a callback called when the resource is unloaded
  * @returns the resource object passed in
  */
-export function useResource<TObj extends NonNullable<object>>(
+export function useResource<TObj>(
   resource: ObjOrFunction<TObj>,
   entity: Entity = UndefinedEntity,
-  id?: string,
   onUnload?: () => void
 ): [State<TObj>, () => void] {
-  const uniqueID = useHookstate<string>(id || uuidv4())
+  const uniqueID = useHookstate<string>(uuidv4)
   const resourceState = useHookstate<TObj>(() => ResourceManager.addResource(resource, uniqueID.value, entity))
 
   const unload = () => {
@@ -130,6 +130,30 @@ export function useResource<TObj extends NonNullable<object>>(
   useDidMount(() => {
     unload()
     ResourceManager.addResource(resourceState.value, uniqueID.value, entity)
+  }, [resourceState])
+
+  return [resourceState, unload]
+}
+
+export function useReferencedResource<Asset>(
+  resource: ObjOrFunction<Asset>,
+  assetKey: string,
+  onUnload?: () => void
+): [State<Asset>, () => void] {
+  const resourceState = useHookstate<Asset>(resource)
+
+  const unload = () => {
+    const resourceValue = resourceState.value as ResourceAssetType
+    if (resourceValue) ResourceManager.removeReferencedAsset(assetKey, resourceValue)
+    if (onUnload) onUnload()
+  }
+
+  useEffect(() => {
+    const resourceValue = resourceState.value as ResourceAssetType
+    if (resourceValue) {
+      ResourceManager.addReferencedAsset(assetKey, resourceValue)
+      return unload
+    }
   }, [resourceState])
 
   return [resourceState, unload]

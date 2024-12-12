@@ -31,16 +31,11 @@ import { getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunction
 import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
-import { EnvMapSourceType, EnvMapTextureType } from '@ir-engine/engine/src/scene/constants/EnvMapEnum'
+import { EnvMapSourceType } from '@ir-engine/engine/src/scene/constants/EnvMapEnum'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 
 import { useQuery } from '@ir-engine/ecs/src/QueryFunctions'
-import {
-  EditorComponentType,
-  commitProperty,
-  updateProperties,
-  updateProperty
-} from '@ir-engine/editor/src/components/properties/Util'
+import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { ImageLink, Slider } from '@ir-engine/ui/editor'
 import { IoMapOutline } from 'react-icons/io5'
@@ -54,11 +49,6 @@ import SelectInput from '../../input/Select'
  * EnvMapSourceOptions array containing SourceOptions for Envmap
  */
 const EnvMapSourceOptions = Object.values(EnvMapSourceType).map((value) => ({ label: value, value }))
-
-/**
- * EnvMapSourceOptions array containing SourceOptions for Envmap
- */
-const EnvMapTextureOptions = Object.values(EnvMapTextureType).map((value) => ({ label: value, value }))
 
 /**
  * EnvMapEditor provides the editor view for environment map property customization.
@@ -76,9 +66,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
 
   const onChangeCubemapURLSource = useCallback((value) => {
     const directory = value[value.length - 1] === '/' ? value.substring(0, value.length - 1) : value
-    if (directory !== directory /*envmapComponent.envMapSourceURL*/) {
-      updateProperties(EnvmapComponent, { envMapSourceURL: directory })
-    }
+    commitProperty(EnvmapComponent, 'envMapCubemapURL')(directory)
   }, [])
 
   const envmapComponent = useComponent(entity, EnvmapComponent)
@@ -119,21 +107,14 @@ export const EnvMapEditor: EditorComponentType = (props) => {
           />
         </InputGroup>
       )}
-      {envmapComponent.type.value === EnvMapSourceType.Texture && (
+      {(envmapComponent.type.value === EnvMapSourceType.Cubemap ||
+        envmapComponent.type.value === EnvMapSourceType.Equirectangular) && (
         <div>
-          <InputGroup name="Texture Type" label={t('editor:properties.envmap.lbl-textureType')}>
-            <SelectInput
-              key={props.entity}
-              options={EnvMapTextureOptions}
-              value={envmapComponent.envMapTextureType.value}
-              onChange={commitProperty(EnvmapComponent, 'envMapTextureType')}
-            />
-          </InputGroup>
           <InputGroup name="Texture URL" label={t('editor:properties.envmap.lbl-textureUrl')} labelClassName="mr-16">
-            {envmapComponent.envMapTextureType.value === EnvMapTextureType.Cubemap && (
-              <FolderInput value={envmapComponent.envMapSourceURL.value} onRelease={onChangeCubemapURLSource} />
+            {envmapComponent.type.value === EnvMapSourceType.Cubemap && (
+              <FolderInput value={envmapComponent.envMapCubemapURL.value} onRelease={onChangeCubemapURLSource} />
             )}
-            {envmapComponent.envMapTextureType.value === EnvMapTextureType.Equirectangular && (
+            {envmapComponent.type.value === EnvMapSourceType.Equirectangular && (
               <ImageLink
                 src={envmapComponent.envMapSourceURL.value}
                 onBlur={commitProperty(EnvmapComponent, 'envMapSourceURL')}

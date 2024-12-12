@@ -33,6 +33,7 @@ import {
   ComponentJSONIDMap,
   getComponent,
   getOptionalComponent,
+  hasComponent,
   SerializedComponentType,
   updateComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -50,13 +51,14 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { getMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import {
   EntityTreeComponent,
-  findCommonAncestors,
+  findRootAncestors,
   iterateEntityNode
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
+import { ComponentDropdownState } from '@ir-engine/ui/src/components/editor/ComponentDropdown/ComponentDropdownState.ts'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
@@ -93,6 +95,37 @@ const hasComponentInAuthoringLayer = <C extends Component<any, any>>(entity: Ent
   const doc = getState(GLTFDocumentState)[source]
   const node = getGLTFNodeByUUID(doc, uuid)
   return node?.extensions?.[componentJsonId] !== undefined
+}
+
+const appendToSnapshot = (toAppend: GLTF.IGLTF, parent = getState(EditorState).rootEntity) => {
+  if (!toAppend.scenes || !toAppend.nodes) return
+
+  const sceneID = getComponent(parent, SourceComponent)
+  const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+  const offset = gltf.data.nodes!.length
+
+  const nodesToAppend = toAppend.scenes[0].nodes
+  for (let i = 0; i < nodesToAppend.length; i++) {
+    const nodeIndex = nodesToAppend[i]
+    const newIndex = appendNode(nodeIndex, toAppend, gltf.data, offset)
+    gltf.data.scenes![0].nodes.push(newIndex)
+  }
+
+  dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
+}
+
+const appendNode = (nodeIndex: number, src: GLTF.IGLTF, dst: GLTF.IGLTF, offset: number): number => {
+  const node = src.nodes![nodeIndex]
+  const offsetIndex = offset + nodeIndex
+  dst.nodes![offsetIndex] = node
+  if (node.children) {
+    node.children = node.children.map((index) => {
+      appendNode(index, src, dst, offset)
+      return offset + index
+    })
+  }
+
+  return offsetIndex
 }
 
 const addOrRemoveComponent = <C extends Component<any, any>>(
@@ -344,7 +377,7 @@ const duplicateObject = (entities: Entity[]) => {
   const copyMap = {} as { [entityUUID: EntityUUID]: EntityUUID }
 
   for (const [sceneID, entities] of Object.entries(scenes)) {
-    const rootEntities = findCommonAncestors(entities)
+    const rootEntities = findRootAncestors(entities)
 
     const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
 
@@ -401,6 +434,14 @@ const duplicateObject = (entities: Entity[]) => {
   }
 }
 
+const applyTransformToChildren = (entity: Entity) => {
+  iterateEntityNode(entity, (entity) => {
+    if (!hasComponent(entity, TransformComponent)) return
+    computeTransformMatrix(entity)
+    TransformComponent.dirtyTransforms[entity] = true
+  })
+}
+
 const positionObject = (
   nodes: Entity[],
   positions: Vector3[],
@@ -437,10 +478,7 @@ const positionObject = (
 
     updateComponent(entity, TransformComponent, { position: transform.position })
 
-    iterateEntityNode(entity, (entity) => {
-      computeTransformMatrix(entity)
-      TransformComponent.dirtyTransforms[entity] = true
-    })
+    applyTransformToChildren(entity)
   }
 }
 
@@ -474,10 +512,7 @@ const rotateObject = (nodes: Entity[], rotations: Quaternion[], space = getState
 
     updateComponent(entity, TransformComponent, { rotation: transform.rotation })
 
-    iterateEntityNode(entity, (entity) => {
-      computeTransformMatrix(entity)
-      TransformComponent.dirtyTransforms[entity] = true
-    })
+    applyTransformToChildren(entity)
   }
 }
 
@@ -709,7 +744,7 @@ const groupObjects = (entities: Entity[]) => {
     const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
 
     /** 1. create new group node */
-    const groupNode = {
+    const groupNode: GLTF.INode = {
       name: 'New Group',
       extensions: {
         [UUIDComponent.jsonID]: generateEntityUUID(),
@@ -723,9 +758,25 @@ const groupObjects = (entities: Entity[]) => {
 
     const groupIndex = gltf.data.nodes!.push(groupNode) - 1
 
+    const positions = entities.map((entity) => getComponent(entity, TransformComponent).position)
+
+    const groupPosition = positions.reduce((acc, pos) => acc.add(pos), new Vector3()).divideScalar(entities.length)
+    //const groupRotation = averageQuaternions(rotations)
+
+    const averageTransform = new Matrix4().compose(groupPosition, new Quaternion().identity(), new Vector3(1, 1, 1))
+
+    groupNode.matrix = averageTransform.toArray()
+
     /** For each node being added to the group */
     for (const entity of entities) {
       const entityUUID = getComponent(entity, UUIDComponent)
+      const node = getGLTFNodeByUUID(gltf.data, entityUUID)!
+
+      const nodeMatrix = node.matrix ? new Matrix4().fromArray(node.matrix) : new Matrix4().identity()
+      //subtract the average transform from the node's transform to get the relative transform
+      const relativeTransform = nodeMatrix.clone().premultiply(averageTransform.clone().invert())
+      node.matrix = relativeTransform.toArray()
+
       const nodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
 
       /** 2. remove node from current parent */
@@ -762,6 +813,7 @@ const removeObject = (entities: Entity[]) => {
     const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
     const gltfData = gltf.data
 
+    ComponentDropdownState.removeEntityUUIDs([...uuidsToRemove])
     const nodesToRemove = collectNodesToRemove(gltf.data, uuidsToRemove)
     removeNodes(gltfData, nodesToRemove)
     compactNodes(gltfData)
@@ -902,6 +954,7 @@ const commitTransformSave = (entities: Entity[]) => {
 }
 
 export const EditorControlFunctions = {
+  appendToSnapshot,
   addOrRemoveComponent,
   hasComponentInAuthoringLayer,
   modifyProperty,

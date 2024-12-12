@@ -25,14 +25,15 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 
 export const AvatarArmsTwistCorrectionComponent = defineComponent({
   name: 'AvatarArmsTwistCorrectionComponent',
 
   schema: S.Object({
-    LeftHandBindRotationInv: S.Quaternion(),
+    LeftHandBindRotationInv: T.Quaternion(),
     LeftArmTwistAmount: S.Number(0),
-    RightHandBindRotationInv: S.Quaternion(),
+    RightHandBindRotationInv: T.Quaternion(),
     RightArmTwistAmount: S.Number(0)
   })
 })

@@ -31,7 +31,6 @@ import {
   defineQuery,
   defineSystem,
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
   setComponent,
   useOptionalComponent,
@@ -50,16 +49,18 @@ import {
   ditherCalculationType
 } from '@ir-engine/spatial/src/renderer/materials/constants/plugins/TransparencyDitheringComponent'
 import React, { useEffect } from 'react'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { SourceComponent } from '../../scene/components/SourceComponent'
-import { useModelSceneID } from '../../scene/functions/loaders/ModelFunctions'
 import { AvatarComponent } from '../components/AvatarComponent'
 
 const headDithering = 0
 const cameraDithering = 1
 const avatarQuery = defineQuery([AvatarComponent])
+
 const execute = () => {
   const selfEntity = AvatarComponent.getSelfAvatarEntity()
   if (!selfEntity) return
+
   const cameraAttached = XRState.isCameraAttachedToAvatar
 
   for (const entity of avatarQuery()) {
@@ -100,10 +101,7 @@ export const AvatarTransparencySystem = defineSystem({
   execute,
   insert: { with: PresentationSystemGroup },
   reactor: () => {
-    const selfEid = AvatarComponent.useSelfAvatarEntity()
-
     const avatarQuery = useQuery([AvatarComponent])
-
     return (
       <>
         {avatarQuery.map((childEntity) => (
@@ -116,7 +114,7 @@ export const AvatarTransparencySystem = defineSystem({
 
 const AvatarReactor = (props: { entity: Entity }) => {
   const entity = props.entity
-  const sceneInstanceID = useModelSceneID(entity)
+  const sceneInstanceID = GLTFComponent.useInstanceID(entity)
   const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
   return (
     <>
@@ -130,15 +128,17 @@ const AvatarReactor = (props: { entity: Entity }) => {
 const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   const entity = props.entity
   const materialComponentUUID = useOptionalComponent(entity, MaterialInstanceComponent)?.uuid
+  const rootDitheringComponent = useOptionalComponent(props.rootEntity, TransparencyDitheringRootComponent)
+
   useEffect(() => {
-    if (!materialComponentUUID?.value) return
+    if (!materialComponentUUID?.value || !rootDitheringComponent) return
     for (const materialUUID of materialComponentUUID.value) {
       const material = UUIDComponent.getEntityByUUID(materialUUID)
-      const rootDitheringComponent = getMutableComponent(props.rootEntity, TransparencyDitheringRootComponent)
       if (!rootDitheringComponent.materials.value.includes(materialUUID))
         rootDitheringComponent.materials.set([...rootDitheringComponent.materials.value, materialUUID])
       setComponent(material, TransparencyDitheringPluginComponent)
     }
-  }, [materialComponentUUID])
+  }, [materialComponentUUID, !!rootDitheringComponent])
+
   return null
 }

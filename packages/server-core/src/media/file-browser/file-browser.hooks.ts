@@ -34,6 +34,7 @@ import {
 
 import { HookContext } from '@feathersjs/feathers'
 import { cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
+import verifyProjectPermission from '../../hooks/verify-project-permission'
 import verifyScope from '../../hooks/verify-scope'
 import { FileBrowserService } from './file-browser.class'
 
@@ -62,7 +63,8 @@ export default {
         return context
       },
       schemaHooks.validateData(fileBrowserPatchValidator),
-      cleanFileName()
+      cleanFileName(),
+      verifyProjectPermission(['owner', 'editor'])
     ],
     remove: []
   },

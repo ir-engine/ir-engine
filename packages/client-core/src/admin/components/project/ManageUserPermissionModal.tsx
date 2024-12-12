@@ -42,8 +42,7 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs'
 import { ImmutableObject, getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import { Button, Input } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
@@ -56,7 +55,7 @@ export default function ManageUserPermissionModal({ project }: { project: Immuta
 
   const scopeQuery = useFind(scopePath, {
     query: {
-      userId: Engine.instance.store.userID,
+      userId: Engine.instance.userID,
       type: 'admin:admin' as ScopeType
     }
   })
@@ -119,10 +118,14 @@ export default function ManageUserPermissionModal({ project }: { project: Immuta
     >
       {selfUserPermission === 'owner' && (
         <Input
-          label={t('admin:components.project.userInviteCode')}
+          labelProps={{
+            text: t('admin:components.project.userInviteCode'),
+            position: 'top'
+          }}
           value={userInviteCode.value}
           onChange={(event) => userInviteCode.set(event.target.value as InviteCode)}
-          error={userInviteCodeError.value}
+          helperText={userInviteCodeError.value}
+          state={userInviteCodeError.value ? 'error' : undefined}
         />
       )}
       <div className="grid gap-4">
@@ -143,11 +146,9 @@ export default function ManageUserPermissionModal({ project }: { project: Immuta
                 projectPermissionsFindQuery.data.length === 1
               }
             />
-            <Button
-              startIcon={<MdOutlineRemoveCircleOutline />}
-              title="Remove Access"
-              onClick={() => handleRemovePermission(permission.id)}
-            />
+            <Button title="Remove Access" onClick={() => handleRemovePermission(permission.id)}>
+              <MdOutlineRemoveCircleOutline />
+            </Button>
           </div>
         ))}
       </div>

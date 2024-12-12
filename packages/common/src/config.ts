@@ -56,6 +56,9 @@ const client = {
     localBuildOrDev && globalThis.process.env.VITE_LOCAL_NGINX !== 'true'
       ? `https://${globalThis.process.env.VITE_APP_HOST}:${globalThis.process.env.VITE_APP_PORT}`
       : `https://${globalThis.process.env.VITE_APP_HOST}`,
+  hostOriginOverride: globalThis.process.env.APP_HOST_ORIGIN_OVERRIDE
+    ? `https://${globalThis.process.env.APP_HOST_ORIGIN_OVERRIDE}:${globalThis.process.env.VITE_APP_PORT}`
+    : null,
   serverHost: globalThis.process.env.VITE_SERVER_HOST,
   serverUrl:
     localBuildOrDev && globalThis.process.env.VITE_LOCAL_NGINX !== 'true'
@@ -90,7 +93,6 @@ const client = {
   key8thWall: globalThis.process.env.VITE_8TH_WALL!,
   featherStoreKey: globalThis.process.env.VITE_FEATHERS_STORE_KEY,
   gaMeasurementId: globalThis.process.env.VITE_GA_MEASUREMENT_ID,
-
   zendesk: {
     enabled: globalThis.process.env.VITE_ZENDESK_ENABLED,
     authenticationEnabled: globalThis.process.env.VITE_ZENDESK_AUTHENTICATION_ENABLED,
@@ -102,7 +104,15 @@ const client = {
  * Full config
  */
 export const config = {
-  client
+  client,
+  websocket: {
+    pingTimeout: globalThis.process.env.VITE_WEBSOCKET_PING_TIMEOUT
+      ? parseInt(globalThis.process.env.VITE_WEBSOCKET_PING_TIMEOUT)
+      : 30000,
+    pingInterval: globalThis.process.env.VITE_WEBSOCKET_PING_INTERVAL
+      ? parseInt(globalThis.process.env.VITE_WEBSOCKET_PING_INTERVAL)
+      : 10000
+  }
 }
 
 export default config

@@ -86,7 +86,11 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.input.description')}
       Icon={InputComponentNodeEditor.iconComponent}
     >
-      <InputGroup name="ActivationDistance" label={t('editor:properties.input.lbl-activationDistance')}>
+      <InputGroup
+        name="ActivationDistance"
+        label={t('editor:properties.input.lbl-activationDistance')}
+        info={t('editor:properties.input.info-activationDistance')}
+      >
         <NumericInput
           value={inputComponent.activationDistance.value}
           onChange={updateProperty(InputComponent, 'activationDistance')}
@@ -94,7 +98,7 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <div className="flex w-full flex-1 justify-center">
-        <Button variant="outline" onClick={addSink}>
+        <Button variant="tertiary" onClick={addSink}>
           {t('editor:properties.input.lbl-addSinkTarget')}
         </Button>
       </div>
@@ -113,7 +117,7 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
                     />
                   </InputGroup>
                   <div className="flex w-full flex-1 justify-center">
-                    <Button variant="outline" onClick={() => removeSink(index)}>
+                    <Button variant="tertiary" onClick={() => removeSink(index)}>
                       {t('editor:properties.input.lbl-removeSinkTarget')}
                     </Button>
                   </div>

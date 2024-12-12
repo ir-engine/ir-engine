@@ -36,6 +36,7 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
+import { NormalizedBoneComponent } from '../../avatar/components/NormalizedBoneComponent'
 import { MotionCapturePoseComponent } from '../../mocap/MotionCapturePoseComponent'
 import { MotionCaptureRigComponent } from '../../mocap/MotionCaptureRigComponent'
 import { MountPointComponent } from '../../scene/components/MountPointComponent'
@@ -67,8 +68,8 @@ const execute = () => {
     const mountTransform = getComponent(getComponent(entity, SittingComponent).mountPointEntity, TransformComponent)
 
     mountTransform.matrixWorld.decompose(vec3_0, quat, vec3_1)
-    const rig = getComponent(entity, AvatarRigComponent)
-    vec3_0.y -= rig.normalizedRig.hips.node.position.y - 0.25
+    const rig = getComponent(entity, AvatarRigComponent).bonesToEntities
+    vec3_0.y -= getComponent(rig.hips, NormalizedBoneComponent).position.y - 0.25
     setComponent(entity, TransformComponent, { rotation: mountTransform.rotation, position: vec3_0 })
 
     if (!hasComponent(entity, MotionCaptureRigComponent)) continue

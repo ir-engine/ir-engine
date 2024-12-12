@@ -71,6 +71,7 @@ export const Shelves = () => {
         onClick={handleShowMediaIcons}
         onPointerDown={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+        style={{ zIndex: 1000 }}
       />
       <IconButtonWithTooltip
         type="solid"

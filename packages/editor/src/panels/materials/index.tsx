@@ -24,15 +24,15 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
-import { EntityUUID, getComponent, getOptionalComponent, useQuery, UUIDComponent } from '@ir-engine/ecs'
+import { EntityUUID, getComponent, getOptionalComponent, hasComponent, useQuery, UUIDComponent } from '@ir-engine/ecs'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getMaterialsFromScene } from '@ir-engine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { getMutableState } from '@ir-engine/hyperflux'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { Button } from '@ir-engine/ui'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import StringInput from '@ir-engine/ui/src/components/editor/input/String'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import { TabData } from 'rc-dock'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -78,9 +78,10 @@ function MaterialsLibrary() {
             .map((entity) => getComponent(entity, UUIDComponent))
             .filter((uuid) => uuid !== MaterialStateComponent.fallbackMaterial)
 
-    const materialsBySource = {} as Record<string, EntityUUID[]>
+    const materialsBySource = {} as Record<string, string[]>
     for (const uuid of materials) {
       const source = getOptionalComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), SourceComponent) ?? ''
+      if (!hasComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), MaterialStateComponent)) continue
       materialsBySource[source] = materialsBySource[source] ? [...materialsBySource[source], uuid] : [uuid]
     }
     const materialsBySourceArray = Object.entries(materialsBySource)
@@ -101,7 +102,7 @@ function MaterialsLibrary() {
           </InputGroup>
           <Button
             className="flex w-5 flex-grow items-center justify-center text-xs"
-            variant="outline"
+            variant="tertiary"
             onClick={() => saveMaterial(srcPath.value)}
           >
             {t('common:components.save')}
@@ -109,7 +110,7 @@ function MaterialsLibrary() {
           <div className="mx-2 h-full border-l" />
           <Button
             className="flex w-10 flex-grow items-center justify-center text-xs"
-            variant="outline"
+            variant="tertiary"
             onClick={() => {
               showLayers.set((prevValue) => !prevValue)
             }}

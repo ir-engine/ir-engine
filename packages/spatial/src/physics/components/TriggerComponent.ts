@@ -36,15 +36,15 @@ export const TriggerComponent = defineComponent({
         /**
          * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
          */
-        onEnter: S.Nullable(S.String()),
+        onEnter: S.String(),
         /**
          * The function to call on the CallbackComponent of the targetEntity when the trigger volume is exited.
          */
-        onExit: S.Nullable(S.String()),
+        onExit: S.String(),
         /**
          * empty string represents self
          */
-        target: S.Nullable(S.EntityUUID())
+        target: S.EntityUUID()
       })
     )
   })

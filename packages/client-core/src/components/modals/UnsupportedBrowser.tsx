@@ -24,21 +24,21 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineExclamationCircle } from 'react-icons/hi2'
+import { BrowserSupportState } from '../../hooks/useUnsupported'
 
 const downloadGoogleLink = 'https://www.google.com/chrome/dr/download'
 
 export const UnsupportedBrowser = () => {
   const { t } = useTranslation()
 
-  const { acknowledgedUnsupportedBrowser } = useHookstate(getMutableState(EditorState))
+  const { acknowledgedUnsupportedBrowser } = useHookstate(getMutableState(BrowserSupportState))
 
   const handleClose = () => {
     acknowledgedUnsupportedBrowser.set(true)

@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import '../threejsPatches'
-
 import { NormalPass, RenderPass, SMAAPreset } from 'postprocessing'
 import React, { useEffect } from 'react'
 import {
@@ -61,7 +59,6 @@ import { Effect, EffectComposer, EffectPass, OutlineEffect } from 'postprocessin
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { getNestedChildren } from '../transform/components/EntityTree'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
-import { XRLightProbeState } from '../xr/XRLightProbeSystem'
 import { XRState } from '../xr/XRState'
 import { GroupComponent } from './components/GroupComponent'
 import { BackgroundComponent, EnvironmentMapComponent, FogComponent } from './components/SceneComponents'
@@ -125,7 +122,7 @@ export const RendererComponent = defineComponent({
   },
 
   /**
-   * @deprecated will be removed once threejs objects are not proxified. Should only be used in loadGLTFModel.ts
+   * @deprecated will be removed once threejs objects are not proxified. Should only be used in proxifyParentChildRelationships.ts
    * see https://github.com/ir-engine/ir-engine/issues/9308
    */
   activeRender: false,
@@ -289,8 +286,8 @@ export const RendererComponent = defineComponent({
         canvas.removeEventListener('webglcontextlost', handleWebGLContextLost)
         // canvas.removeEventListener('webglcontextrestored', handleWebGLContextRestore)
 
-        rendererComponent.value.renderer?.dispose()
-        rendererComponent.value.effectComposer?.dispose()
+        renderer.dispose()
+        composer.dispose()
       }
     }, [rendererComponent.renderContext.value])
 
@@ -413,8 +410,7 @@ const execute = () => {
     _scene.background =
       sessionMode === 'immersive-ar' ? null : renderMode === RenderModes.WIREFRAME ? new Color(0xffffff) : background
 
-    const lightProbe = getState(XRLightProbeState).environment
-    _scene.environment = lightProbe ?? environment
+    _scene.environment = environment
 
     _scene.fog = fog
 

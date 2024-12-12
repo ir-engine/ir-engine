@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { FrontSide, Material, Uniform, Vector3 } from 'three'
 
-import { defineComponent, getComponent, getOptionalComponent, useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, getComponent, getOptionalComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { setPlugin } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
@@ -51,25 +51,23 @@ export const TransparencyDitheringRootComponent = defineComponent({
 
 export const TransparencyDitheringPluginComponent = defineComponent({
   name: 'TransparencyDitheringPluginComponent',
-  schema: S.NonSerialized(
-    S.Object({
-      centers: S.Class(() => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => new Vector3()))),
-      exponents: S.Class(() => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 1))),
-      distances: S.Class(() => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 1))),
-      useWorldCalculation: S.Class(
-        () => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => ditherCalculationType.worldTransformed))
-      )
-    })
-  ),
+  schema: S.Object({
+    centers: S.Class(() => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => new Vector3()))),
+    exponents: S.Class(() => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 1))),
+    distances: S.Class(() => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => 1))),
+    useWorldCalculation: S.Class(
+      () => new Uniform(Array.from({ length: MAX_DITHER_POINTS }, () => ditherCalculationType.worldTransformed))
+    )
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
+    const material = useComponent(entity, MaterialStateComponent).material
     useEffect(() => {
       const materialComponent = getOptionalComponent(entity, MaterialStateComponent)
       if (!materialComponent) return
       const material = materialComponent.material as Material
       const callback = (shader) => {
-        material.alphaTest = 0.5
         material.side = FrontSide
         const plugin = getComponent(entity, TransparencyDitheringPluginComponent)
 
@@ -95,7 +93,7 @@ export const TransparencyDitheringPluginComponent = defineComponent({
         shader.uniforms.useWorldCalculation = plugin.useWorldCalculation
       }
       setPlugin(materialComponent.material as Material, callback)
-    })
+    }, [material])
     return null
   }
 })

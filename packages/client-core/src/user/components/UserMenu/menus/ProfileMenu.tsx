@@ -64,7 +64,6 @@ import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
 import { API } from '@ir-engine/common'
 import { USERNAME_MAX_LENGTH } from '@ir-engine/common/src/constants/UserConstants'
 import { INVALID_USER_NAME_REGEX } from '@ir-engine/common/src/regex'
-import { Engine } from '@ir-engine/ecs'
 import Grid from '@ir-engine/ui/src/primitives/mui/Grid'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
@@ -139,7 +138,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
 
   const adminScopeQuery = useFind(scopePath, {
     query: {
-      userId: Engine.instance.store.userID,
+      userId: selfUser.id.value,
       type: 'admin:admin' as ScopeType
     }
   })
@@ -301,7 +300,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
       event_name: 'connect_social_login',
       event_value: e.currentTarget.id
     })
-    AuthService.loginUserByOAuth(e.currentTarget.id, location)
+    AuthService.loginUserByOAuth(e.currentTarget.id, location, true)
   }
 
   const handleRemoveOAuthServiceClick = (e) => {
@@ -462,7 +461,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
           <Avatar
             imageSrc={avatarThumbnail}
             showChangeButton={hasAcceptedTermsAndAge}
-            onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect2)}
+            onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect, { showBackButton: true })}
           />
 
           <Box className={styles.profileDetails}>

@@ -32,7 +32,7 @@ import { EnvMapBakeRefreshTypes } from '@ir-engine/engine/src/scene/types/EnvMap
 import { EnvMapBakeTypes } from '@ir-engine/engine/src/scene/types/EnvMapBakeTypes'
 
 import { commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
-import BooleanInput from '@ir-engine/ui/src/components/editor/input/Boolean'
+import { Checkbox } from '@ir-engine/ui'
 import { BakePropertyTypes } from '..'
 import InputGroup from '../../../input/Group'
 import SelectInput from '../../../input/Select'
@@ -99,8 +99,8 @@ export const EnvMapBakeProperties = (props: EnvMapBakePropertyEditorProps) => {
   switch (props.element.type) {
     case BakePropertyTypes.Boolean:
       renderVal = (
-        <BooleanInput
-          value={getPropertyValue(propertyName)}
+        <Checkbox
+          checked={getPropertyValue(propertyName)}
           onChange={commitProperty(EnvMapBakeComponent, propertyName)}
         />
       )

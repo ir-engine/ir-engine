@@ -54,7 +54,7 @@ import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineQuery, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem, useExecute } from '@ir-engine/ecs/src/SystemFunctions'
-import { defineState, getMutableState, getState, isClient, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { Vector3_Back } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import {
   createPriorityQueue,
@@ -85,8 +85,8 @@ import { createDisposable } from '@ir-engine/spatial/src/resources/resourceHooks
 import { TransformSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
+import { useHasModelOrIndependentMesh } from '../../gltf/GLTFComponent'
 import { DropShadowComponent } from '../components/DropShadowComponent'
-import { useHasModelOrIndependentMesh } from '../components/ModelComponent'
 import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SceneObjectSystem } from './SceneObjectSystem'
@@ -231,7 +231,6 @@ const EntityChildCSMReactor = (props: { rendererEntity: Entity }) => {
 function RenderSettingsQueryReactor() {
   const entity = useEntityContext()
   const rendererEntity = useRendererEntity(entity)
-  const isEditor = useHookstate(getMutableState(EngineState).isEditor).value
   const renderMode = useHookstate(getMutableState(RendererState).renderMode).value
   /**
    * @todo Currently we only have support for CSM for the core renderer, since we need to add proper multi-scene support via spatial volumes.
@@ -239,7 +238,7 @@ function RenderSettingsQueryReactor() {
   const viewerEntity = useHookstate(getMutableState(EngineState).viewerEntity).value
 
   if (!rendererEntity || rendererEntity !== viewerEntity) return null
-  if ((isEditor && renderMode === RenderModes.UNLIT) || renderMode === RenderModes.LIT) return null
+  if (renderMode === RenderModes.UNLIT || renderMode === RenderModes.LIT) return null
 
   return <CSMReactor rendererEntity={rendererEntity} renderSettingsEntity={entity} />
 }
@@ -407,8 +406,6 @@ const updateDropShadowTransforms = () => {
 const rendererQuery = defineQuery([RendererComponent])
 
 const execute = () => {
-  if (!isClient) return
-
   const useShadows = getShadowsEnabled()
   if (!useShadows) return
 
@@ -436,8 +433,6 @@ const RendererShadowReactor = () => {
 }
 
 const reactor = () => {
-  if (!isClient) return null
-
   const useShadows = useShadowsEnabled()
 
   const [shadowTexture] = useTexture(
@@ -473,8 +468,6 @@ export const DropShadowSystem = defineSystem({
   uuid: 'ee.engine.DropShadowSystem',
   insert: { after: TransformSystem },
   execute: () => {
-    if (!isClient) return
-
     const useShadows = getShadowsEnabled()
     if (!useShadows) {
       updateDropShadowTransforms()

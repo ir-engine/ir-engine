@@ -39,7 +39,7 @@ import { getMutableState, getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { BoxGeometry, ColorRepresentation, Mesh, MeshBasicMaterial, SpotLight, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import { assertVecApproxEq } from '../../../../tests/util/mathAssertions'
+import { assertColor, assertVec } from '../../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
 import { destroySpatialEngine } from '../../../initializeEngine'
@@ -47,7 +47,6 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import { RendererState } from '../../RendererState'
 import { GroupComponent, addObjectToGroup } from '../GroupComponent'
 import { LineSegmentComponent } from '../LineSegmentComponent'
-import { assertColorEqual, assertColorNotEqual } from './HemisphereLightComponent.test'
 import { LightTagComponent } from './LightTagComponent'
 import { SpotLightComponent } from './SpotLightComponent'
 
@@ -76,7 +75,7 @@ const SpotLightComponentDefaults: SpotLightComponentData = {
 }
 
 function assertSpotLightComponentEq(A: SpotLightComponentData, B: SpotLightComponentData): void {
-  assertColorEqual(A.color, B.color)
+  assertColor.eq(A.color, B.color)
   assert.equal(A.intensity, B.intensity)
   assert.equal(A.range, B.range)
   assert.equal(A.decay, B.decay)
@@ -88,7 +87,7 @@ function assertSpotLightComponentEq(A: SpotLightComponentData, B: SpotLightCompo
 }
 
 function assertSpotLightComponentNotEq(A: SpotLightComponentData, B: SpotLightComponentData): void {
-  assertColorNotEqual(A.color, B.color)
+  assertColor.notEq(A.color, B.color)
   assert.notEqual(A.intensity, B.intensity)
   assert.notEqual(A.range, B.range)
   assert.notEqual(A.decay, B.decay)
@@ -241,7 +240,7 @@ describe('SpotLightComponent', () => {
       setComponent(testEntity, SpotLightComponent)
       // Check side-effect
       const light = getComponent(testEntity, GroupComponent)[1] as SpotLight
-      assertVecApproxEq(light.target.position, Expected, 3)
+      assertVec.approxEq(light.target.position, Expected, 3)
     })
 
     it("should set the light.target.name to 'light-target' when it is mounted", () => {
@@ -305,12 +304,12 @@ describe('SpotLightComponent', () => {
 
       // Sanity check before running
       const before = getComponent(testEntity, SpotLightComponent).color
-      assertColorEqual(before, SpotLightComponentDefaults.color)
+      assertColor.eq(before, SpotLightComponentDefaults.color)
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent, { color: Expected })
       const result = getComponent(testEntity, SpotLightComponent).color
-      assertColorEqual(result, Expected)
+      assertColor.eq(result, Expected)
       // Check side-effect
       const light = getComponent(testEntity, GroupComponent)[0] as SpotLight
       assert.equal(light.color.getHex(), Expected)

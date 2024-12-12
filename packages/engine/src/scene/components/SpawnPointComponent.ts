@@ -25,19 +25,19 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useLayoutEffect } from 'react'
 
-import { defineComponent, hasComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState, none, useHookstate } from '@ir-engine/hyperflux'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { defineComponent, getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { createEntity, entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
-import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
+import { TransformComponent } from '@ir-engine/spatial'
+import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from 'three'
+import { useGLTFComponent } from '../../assets/functions/resourceLoaderHooks'
 
 const GLTF_PATH = '/static/editor/spawn-point.glb'
 
@@ -46,39 +46,43 @@ export const SpawnPointComponent = defineComponent({
   jsonID: 'EE_spawn_point',
 
   schema: S.Object({
-    permissionedUsers: S.Array(S.UserID()),
-    helperEntity: S.Nullable(S.Entity())
+    permissionedUsers: S.Array(S.UserID())
   }),
 
   reactor: function () {
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-    const spawnPoint = useComponent(entity, SpawnPointComponent)
 
-    const [gltf] = useGLTF(debugEnabled.value ? GLTF_PATH : '', entity)
+    const debugGLTF = useGLTFComponent(debugEnabled.value ? GLTF_PATH : '', entity)
 
     useLayoutEffect(() => {
-      const scene = gltf?.scene
-      if (!scene || !debugEnabled.value) return
+      if (!debugGLTF || !debugEnabled.value) return
 
-      const helperEntity = createEntity()
-      setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
-      spawnPoint.helperEntity.set(helperEntity)
+      const boundsHelperEntity = createEntity()
+      setComponent(boundsHelperEntity, TransformComponent)
+      setComponent(boundsHelperEntity, EntityTreeComponent, { parentEntity: entity })
+      setComponent(boundsHelperEntity, VisibleComponent)
+      const buffer = new BufferGeometry()
+      const positions = new Float32Array([-0.5, 0, -0.5, 0.5, 0, -0.5, 0.5, 0, 0.5, -0.5, 0, 0.5])
+      const indices = new Uint16Array([0, 1, 1, 2, 2, 3, 3, 0])
+      buffer.setIndex(new BufferAttribute(indices, 1))
+      buffer.setAttribute('position', new BufferAttribute(positions, 3))
+      addObjectToGroup(boundsHelperEntity, new LineSegments(buffer, new LineBasicMaterial({ color: 'white' })))
 
-      scene.name = `spawn-point-helper-${entity}`
-      addObjectToGroup(helperEntity, scene)
-      setObjectLayers(scene, ObjectLayers.NodeHelper)
-      setComponent(helperEntity, NameComponent, scene.name)
-
-      setVisibleComponent(spawnPoint.helperEntity.value!, true)
+      setVisibleComponent(debugGLTF, true)
+      setComponent(debugGLTF, ComputedTransformComponent, {
+        referenceEntities: [entity],
+        computeFunction: () => {
+          const scale = getComponent(entity, TransformComponent).scale
+          getComponent(debugGLTF, TransformComponent).scale.set(1 / scale.x, 1 / scale.y, 1 / scale.z)
+        }
+      })
 
       return () => {
-        removeObjectFromGroup(helperEntity, scene)
-        removeEntity(helperEntity)
-        if (!hasComponent(entity, SpawnPointComponent)) return
-        spawnPoint.helperEntity.set(none)
+        removeEntity(boundsHelperEntity)
+        if (entityExists(debugGLTF)) setVisibleComponent(debugGLTF, false)
       }
-    }, [gltf, debugEnabled])
+    }, [debugGLTF, debugEnabled])
 
     return null
   }

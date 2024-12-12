@@ -35,10 +35,9 @@ import { cleanURL } from '@ir-engine/common/src/utils/cleanURL'
 import { AssetsPreviewPanel } from '@ir-engine/editor/src/components/assets/AssetsPreviewPanel'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { RadioGroup } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button, Input, RadioGroup } from '@ir-engine/ui'
+
 import DragNDrop from '@ir-engine/ui/src/primitives/tailwind/DragNDrop'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 
 import { getCanvasBlob } from '../../../common/utils'
@@ -233,10 +232,15 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
       <div className="grid gap-6">
         {error.value && <p className="mt-2 text-red-700">{error.serverError.value}</p>}
         <Input
-          label={t('admin:components.common.name')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.avatar.avatarName'),
+            position: 'top'
+          }}
           value={avatarAssets.name.value}
           onChange={(event) => avatarAssets.name.set(event.target.value)}
-          error={error.name.value}
+          helperText={error.name.value}
+          state={error.name.value ? 'error' : undefined}
         />
         <RadioGroup
           value={avatarAssets.source.value}
@@ -254,11 +258,16 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
         <div className="col-span-1">
           {avatarAssets.source.value === 'url' && (
             <Input
-              label={t('admin:components.avatar.avatarUrl')}
+              fullWidth
+              labelProps={{
+                text: t('admin:components.avatar.avatarUrl'),
+                position: 'top'
+              }}
               value={avatarAssets.modelURL.value}
               onChange={(event) => avatarAssets.modelURL.set(event.target.value)}
               spellCheck={false}
-              error={error.modelURL.value}
+              helperText={error.modelURL.value}
+              state={error.modelURL.value ? 'error' : undefined}
             />
           )}
           <DragNDrop
@@ -276,12 +285,8 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
                   <p className="absolute right-2 top-2 max-w-[50%] text-wrap text-red-700">{error.model.value}</p>
                 )}
                 {avatarAssets.source.value === 'file' && (
-                  <Button
-                    disabled={!avatarAssets.model.value}
-                    startIcon={<HiArrowPath />}
-                    onClick={clearAvatar}
-                    className="absolute left-2 top-2"
-                  >
+                  <Button disabled={!avatarAssets.model.value} onClick={clearAvatar} className="absolute left-2 top-2">
+                    <HiArrowPath />
                     {t('admin:components.avatar.clearAvatar')}
                   </Button>
                 )}
@@ -311,11 +316,16 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
         <div className="col-span-1">
           {avatarAssets.source.value === 'url' && (
             <Input
-              label={t('admin:components.avatar.thumbnailUrl')}
+              fullWidth
+              labelProps={{
+                text: t('admin:components.avatar.thumbnailUrl'),
+                position: 'top'
+              }}
               value={avatarAssets.thumbnailURL.value}
               onChange={(event) => avatarAssets.thumbnailURL.set(event.target.value)}
               spellCheck={false}
-              error={error.thumbnailURL.value}
+              helperText={error.thumbnailURL.value}
+              state={error.thumbnailURL.value ? 'error' : undefined}
             />
           )}
           <DragNDrop
@@ -335,10 +345,10 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
                 {avatarAssets.source.value === 'file' && (
                   <Button
                     disabled={!avatarAssets.thumbnail.value}
-                    startIcon={<HiArrowPath />}
                     onClick={clearThumbnail}
                     className="absolute left-2 top-2"
                   >
+                    <HiArrowPath />
                     {t('admin:components.avatar.clearThumbnail')}
                   </Button>
                 )}
@@ -374,7 +384,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
             }
             className="mt-2"
           >
-            Generate Thumbnail
+            {t('admin:components.avatar.saveThumbnail')}
           </Button>
         </div>
       </div>

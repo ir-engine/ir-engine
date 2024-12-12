@@ -30,10 +30,9 @@ import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 import { useFind, useMutation } from '@ir-engine/common'
 import { emailSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { Button, Input } from '@ir-engine/ui'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
@@ -129,15 +128,21 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
           {t('admin:components.setting.smtp')}
         </Text>
         <Input
-          className="col-span-2"
-          label={t('admin:components.setting.host')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.host'),
+            position: 'top'
+          }}
           value={smtp?.value?.host || ''}
           onChange={(e) => handleUpdateSmtp(e, 'host')}
         />
 
         <Input
-          className="col-span-2"
-          label={t('admin:components.setting.port')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.port'),
+            position: 'top'
+          }}
           value={smtp?.value?.port || ''}
           onChange={(e) => handleUpdateSmtp(e, 'port')}
         />
@@ -155,8 +160,11 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
           {t('admin:components.setting.from')}
         </Text>
         <Input
-          className="col-span-2"
-          label={t('admin:components.setting.from')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.from'),
+            position: 'top'
+          }}
           value={from?.value || ''}
           onChange={(e) => from.set(e.target.value)}
         />
@@ -167,15 +175,21 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
           {t('admin:components.setting.auth')}
         </Text>
         <Input
-          className="col-span-2"
-          label={t('admin:components.setting.userName')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.userName'),
+            position: 'top'
+          }}
           value={auth?.value?.user || ''}
           onChange={(e) => handleUpdateAuth(e, 'user')}
         />
 
         <PasswordInput
-          className="col-span-2"
-          label={t('admin:components.setting.password')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.password'),
+            position: 'top'
+          }}
           value={auth?.value?.pass || ''}
           onChange={(e) => handleUpdateAuth(e, 'pass')}
         />
@@ -186,29 +200,41 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
           {t('admin:components.setting.subject')}
         </Text>
         <Input
-          className="col-span-2"
-          label={t('admin:components.setting.login')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.login'),
+            position: 'top'
+          }}
           value={subject?.value?.login || ''}
           onChange={(e) => handleUpdateSubject(e, 'login')}
         />
 
         <Input
-          className="col-span-2"
-          label={t('admin:components.setting.friend')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.friend'),
+            position: 'top'
+          }}
           value={subject?.value?.friend || ''}
           onChange={(e) => handleUpdateSubject(e, 'friend')}
         />
 
         <Input
-          className="col-span-2"
-          label={t('admin:components.setting.channel')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.channel'),
+            position: 'top'
+          }}
           value={subject?.value?.channel || ''}
           onChange={(e) => handleUpdateSubject(e, 'channel')}
         />
 
         <Input
-          className="col-span-2"
-          label={t('admin:components.setting.smsNameCharLimit')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.smsNameCharLimit'),
+            position: 'top'
+          }}
           value={smsNameCharacterLimit?.value?.toString() || ''}
           disabled
         />
@@ -222,18 +248,12 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
         )}
 
         <div className="col-span-1 grid grid-cols-4 gap-6">
-          <Button size="small" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
+          <Button size="sm" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
             {t('admin:components.common.reset')}
           </Button>
-          <Button
-            size="small"
-            variant="primary"
-            className="col-span-1"
-            fullWidth
-            onClick={handleSubmit}
-            startIcon={state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
-          >
+          <Button size="sm" variant="primary" className="col-span-1" fullWidth onClick={handleSubmit}>
             {t('admin:components.common.save')}
+            {state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
           </Button>
         </div>
       </div>

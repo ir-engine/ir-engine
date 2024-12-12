@@ -31,7 +31,6 @@ import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
 
 import { UserID } from '../../schema.type.module'
 import { TypedString } from '../../types/TypeboxUtils'
-import { staticResourceSchema } from '../media/static-resource.schema'
 import { dataValidator, queryValidator } from '../validators'
 import { locationAdminDataSchema, locationAdminSchema } from './location-admin.schema'
 import { locationAuthorizedUserSchema } from './location-authorized-user.schema'
@@ -62,7 +61,7 @@ export const locationSchema = Type.Object(
     /** @todo review */
     isFeatured: Type.Boolean(),
     url: Type.String(),
-    sceneAsset: Type.Ref(staticResourceSchema),
+    sceneURL: Type.String(),
     maxUsersPerInstance: Type.Number(),
     locationSetting: Type.Ref(locationSettingSchema),
     locationAdmin: Type.Optional(Type.Ref(locationAdminSchema)),
@@ -81,7 +80,7 @@ export interface LocationType extends Static<typeof locationSchema> {}
 export interface LocationDatabaseType
   extends Omit<
     LocationType,
-    'locationSetting' | 'locationAuthorizedUsers' | 'locationBans' | 'locationAdmin' | 'sceneAsset' | 'url'
+    'locationSetting' | 'locationAuthorizedUsers' | 'locationBans' | 'locationAdmin' | 'sceneURL' | 'url'
   > {}
 
 // Schema for creating new entries
@@ -122,7 +121,7 @@ export const locationPatchProperties = Type.Pick(locationSchema, [
   'slugifiedName',
   'isLobby',
   'isFeatured',
-  'sceneAsset',
+  'sceneURL',
   'maxUsersPerInstance',
   'updatedBy'
 ])

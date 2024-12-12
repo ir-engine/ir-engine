@@ -67,7 +67,10 @@ import { addObjectToGroup, GroupComponent } from '@ir-engine/spatial/src/rendere
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { destroyEntityTree, EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import {
+  EntityTreeComponent,
+  removeEntityNodeRecursively
+} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -222,7 +225,7 @@ export const HyperspaceTagComponent = defineComponent({
 
       return () => {
         removeEntity(ambientLightEntity)
-        destroyEntityTree(hyperspaceEffectEntity)
+        removeEntityNodeRecursively(hyperspaceEffectEntity)
       }
     }, [])
 

@@ -243,25 +243,25 @@ export const InteractableComponent = defineComponent({
   jsonID: 'EE_interactable',
 
   schema: S.Object({
-    canInteract: S.Bool(false),
-    uiInteractable: S.Bool(true),
+    canInteract: S.NonSerialized(S.Bool(false)),
+    uiInteractable: S.NonSerialized(S.Bool(true)),
     uiEntity: S.Entity(),
     label: S.String('E'),
-    uiVisibilityOverride: S.Enum(XRUIVisibilityOverride, XRUIVisibilityOverride.none),
-    uiActivationType: S.Enum(XRUIActivationType, XRUIActivationType.proximity),
+    uiVisibilityOverride: S.NonSerialized(S.Enum(XRUIVisibilityOverride, XRUIVisibilityOverride.none)),
+    uiActivationType: S.NonSerialized(S.Enum(XRUIActivationType, XRUIActivationType.proximity)),
     activationDistance: S.Number(2),
     clickInteract: S.Bool(false),
-    highlighted: S.Bool(false),
+    highlighted: S.NonSerialized(S.Bool(false)),
     callbacks: S.Array(
       S.Object({
         /**
          * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
          */
-        callbackID: S.Nullable(S.String()),
+        callbackID: S.String(),
         /**
          * empty string represents self
          */
-        target: S.Nullable(S.EntityUUID())
+        target: S.EntityUUID()
       })
     )
   }),

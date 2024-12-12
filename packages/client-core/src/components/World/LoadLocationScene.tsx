@@ -27,7 +27,7 @@ import { t } from 'i18next'
 import { useEffect } from 'react'
 
 import { LocationService, LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
-import { useFind, useGet } from '@ir-engine/common'
+import { useFind } from '@ir-engine/common'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
@@ -38,7 +38,6 @@ import { ClientContextState } from '../../util/ClientContextState'
 
 export const useLoadLocation = (props: { locationName: string }) => {
   const locationState = useMutableState(LocationState)
-  const scene = useGet(staticResourcePath, locationState.currentLocation.location.sceneId.value).data
 
   ClientContextState.useValue('location_id', locationState.currentLocation.location.id.value)
   ClientContextState.useValue('project_id', locationState.currentLocation.location.projectId.value)
@@ -78,22 +77,33 @@ export const useLoadLocation = (props: { locationName: string }) => {
       !locationState.currentLocation.location.sceneId.value ||
       locationState.invalidLocation.value ||
       locationState.currentLocation.selfNotAuthorized.value ||
-      !scene
+      !locationState.currentLocation.location.sceneURL.value
     )
       return
-    const sceneURL = scene.url
-    return GLTFAssetState.loadScene(sceneURL, scene.id)
-  }, [locationState.currentLocation.location.sceneId, scene])
+    const sceneURL = locationState.currentLocation.location.sceneURL.value
+    const sceneID = locationState.currentLocation.location.sceneId.value
+    return GLTFAssetState.loadScene(sceneURL, sceneID)
+  }, [locationState.currentLocation.location.sceneId, locationState.currentLocation.location.sceneURL])
 }
 
 export const useLoadScene = (props: { projectName: string; sceneName: string }) => {
-  const sceneKey = `projects/${props.projectName}/${props.sceneName}`
-  const assetID = useFind(staticResourcePath, { query: { key: sceneKey, type: 'scene' } })
+  const key = `projects/${props.projectName}/${props.sceneName}`
+  const resourceQuery = useFind(staticResourcePath, {
+    query: {
+      key
+    }
+  })
 
   useEffect(() => {
-    if (!props.sceneName || !props.projectName) return
-    if (!assetID.data.length) return
-    getMutableState(LocationState).currentLocation.location.sceneId.set(assetID.data[0].id)
-    return GLTFAssetState.loadScene(assetID.data[0].url, assetID.data[0].id)
-  }, [assetID.data.length])
+    if (!resourceQuery.data.length) return
+    const resource = resourceQuery.data[0]
+    getMutableState(LocationState).currentLocation.location.sceneId.set(resource.id)
+    getMutableState(LocationState).currentLocation.location.sceneURL.set(resource.url)
+    const unload = GLTFAssetState.loadScene(resource.url, resource.id)
+    return () => {
+      getMutableState(LocationState).currentLocation.location.sceneId.set('')
+      getMutableState(LocationState).currentLocation.location.sceneURL.set('')
+      unload()
+    }
+  }, [resourceQuery.data])
 }

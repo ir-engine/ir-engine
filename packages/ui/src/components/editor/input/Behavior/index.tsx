@@ -52,7 +52,7 @@ import {
 } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
 import { State } from '@ir-engine/hyperflux'
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
-import BooleanInput from '../Boolean'
+import { Checkbox } from '@ir-engine/ui'
 import ColorGenerator from '../Generator/Color'
 import RotationGenerator from '../Generator/Rotation'
 import ValueGenerator from '../Generator/Value'
@@ -119,6 +119,12 @@ export default function BehaviorInput({
           </InputGroup>
           <InputGroup name="power" label="Power">
             <Vector3Input value={new Vector3(...value.power)} onChange={onChange(noiseScope.power)} />
+          </InputGroup>
+          <InputGroup name="positionAmount" label="positionAmount">
+            <NumericInput value={value.positionAmount} onChange={onChange(noiseScope.positionAmount)} />
+          </InputGroup>
+          <InputGroup name="rotationAmount" label="rotation Amount">
+            <NumericInput value={value.rotationAmount} onChange={onChange(noiseScope.rotationAmount)} />
           </InputGroup>
         </>
       )
@@ -219,7 +225,7 @@ export default function BehaviorInput({
             />
           </InputGroup>
           <InputGroup name="dynamic" label="Dynamic">
-            <BooleanInput value={rotation3D.dynamic} onChange={onChange(rotation3DScope.dynamic)} />
+            <Checkbox checked={rotation3D.dynamic} onChange={onChange(rotation3DScope.dynamic)} />
           </InputGroup>
         </>
       )

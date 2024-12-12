@@ -27,13 +27,23 @@ import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorCo
 import { setTransformMode } from '@ir-engine/editor/src/functions/transformFunctions'
 import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
 import { TransformMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
-import { useMutableState } from '@ir-engine/hyperflux'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
+import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
+import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
+import { Tooltip } from '@ir-engine/ui'
+import { ToolbarButton } from '@ir-engine/ui/editor'
+import { Cursor03Default, Refresh1Md, Scale02Md, TransformMd } from '@ir-engine/ui/src/icons'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { TbPointer, TbRefresh, TbVector, TbWindowMaximize } from 'react-icons/tb'
-import { twMerge } from 'tailwind-merge'
+import { TbMarquee2 } from 'react-icons/tb'
+import { SelectionBoxState } from './SelectionBoxTool'
+
+const GizmoTools = {
+  ...TransformMode,
+  pointer: 'pointer' as const,
+  selectionBox: 'selection_box' as const
+}
+
+type GizmoToolsType = (typeof GizmoTools)[keyof typeof GizmoTools]
 
 function Placer() {
   return (
@@ -51,16 +61,18 @@ export default function TransformGizmoTool({
   viewportRef: React.RefObject<HTMLDivElement>
   toolbarRef: React.RefObject<HTMLDivElement>
 }) {
+  const { t } = useTranslation()
   const editorHelperState = useMutableState(EditorHelperState)
   const transformMode = editorHelperState.transformMode.value
-  const { t } = useTranslation()
+
   const [position, setPosition] = useState({ x: 16, y: 56 })
   const [isDragging, setIsDragging] = useState(false)
-  const gizmoRef = useRef<HTMLDivElement>(null)
-  const [pointerSelected, setPointerSelected] = useState(false)
-
+  const [isClickedSelectionBox, setIsClickedSelectionBox] = useState(false)
   const [startingMouseX, setStartingMouseX] = useState(0)
   const [startingMouseY, setStartingMouseY] = useState(0)
+  const [toolSelected, setToolSelected] = useState<GizmoToolsType>(transformMode)
+
+  const gizmoRef = useRef<HTMLDivElement>(null)
 
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true)
@@ -81,6 +93,12 @@ export default function TransformGizmoTool({
 
       setPosition({ x: newX, y: newY })
     }
+  }
+  const handleClickSelectionBox = () => {
+    setIsClickedSelectionBox(!isClickedSelectionBox)
+    getMutableState(SelectionBoxState).selectionBoxEnabled.set(!isClickedSelectionBox)
+    getMutableState(InputState).capturingCameraOrbitEnabled.set(isClickedSelectionBox)
+    setToolSelected(GizmoTools.selectionBox)
   }
 
   const handleMouseUp = () => {
@@ -109,61 +127,54 @@ export default function TransformGizmoTool({
         <Placer />
       </div>
       <div className="mt-2 flex flex-col overflow-hidden rounded bg-[#212226]">
-        <Tooltip content={t('editor:toolbar.gizmo.pointer')} position={'right center'}>
-          <Button
-            className={twMerge(
-              'rounded-none border-b border-b-theme-primary bg-[#212226] p-2 text-[#A3A3A3]',
-              pointerSelected && 'bg-theme-highlight text-white'
-            )}
-            iconContainerClassName="m-0"
-            startIcon={<TbPointer />}
+        <Tooltip content={t('editor:toolbar.gizmo.pointer')} position="right">
+          <ToolbarButton
             onClick={() => {
-              setPointerSelected(true)
               EditorControlFunctions.replaceSelection([])
+              setToolSelected(GizmoTools.pointer)
             }}
-          />
+            selected={toolSelected === GizmoTools.pointer}
+          >
+            <Cursor03Default />
+          </ToolbarButton>
         </Tooltip>
-        <Tooltip content={t('editor:toolbar.gizmo.translate')} position={'right center'}>
-          <Button
-            className={twMerge(
-              'rounded-none border-b border-b-theme-primary bg-[#212226] p-2 text-[#A3A3A3]',
-              !pointerSelected && transformMode === TransformMode.translate && 'bg-theme-highlight text-white'
-            )}
-            iconContainerClassName="m-0"
-            startIcon={<TbVector />}
+        <Tooltip content={t('editor:toolbar.gizmo.translate')} position="right">
+          <ToolbarButton
             onClick={() => {
-              setPointerSelected(false)
               setTransformMode(TransformMode.translate)
+              setToolSelected(GizmoTools.translate)
             }}
-          />
+            selected={toolSelected === GizmoTools.translate}
+          >
+            <Scale02Md />
+          </ToolbarButton>
         </Tooltip>
-        <Tooltip content={t('editor:toolbar.gizmo.rotate')} position={'right center'}>
-          <Button
-            className={twMerge(
-              'rounded-none border-b border-b-theme-primary bg-[#212226] p-2 text-[#A3A3A3]',
-              !pointerSelected && transformMode === TransformMode.rotate && 'bg-theme-highlight text-white'
-            )}
-            iconContainerClassName="m-0"
-            startIcon={<TbRefresh />}
+        <Tooltip content={t('editor:toolbar.gizmo.rotate')} position="right">
+          <ToolbarButton
             onClick={() => {
-              setPointerSelected(false)
               setTransformMode(TransformMode.rotate)
+              setToolSelected(GizmoTools.rotate)
             }}
-          />
+            selected={toolSelected === GizmoTools.rotate}
+          >
+            <Refresh1Md />
+          </ToolbarButton>
         </Tooltip>
-        <Tooltip content={t('editor:toolbar.gizmo.scale')} position={'right center'}>
-          <Button
-            className={twMerge(
-              'rounded-none bg-[#212226] p-2 text-[#A3A3A3]',
-              !pointerSelected && transformMode === TransformMode.scale && 'bg-theme-highlight text-white'
-            )}
-            iconContainerClassName="m-0"
-            startIcon={<TbWindowMaximize />}
+        <Tooltip content={t('editor:toolbar.gizmo.scale')} position="right">
+          <ToolbarButton
             onClick={() => {
-              setPointerSelected(false)
               setTransformMode(TransformMode.scale)
+              setToolSelected(GizmoTools.scale)
             }}
-          />
+            selected={toolSelected === GizmoTools.scale}
+          >
+            <TransformMd />
+          </ToolbarButton>
+        </Tooltip>
+        <Tooltip content={t('disable orbit camera and enable selection box')} position="right">
+          <ToolbarButton onClick={handleClickSelectionBox} selected={toolSelected === GizmoTools.selectionBox}>
+            <TbMarquee2 />
+          </ToolbarButton>
         </Tooltip>
       </div>
     </div>

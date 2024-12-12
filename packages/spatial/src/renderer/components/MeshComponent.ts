@@ -34,7 +34,7 @@ import {
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { NO_PROXY, State, useImmediateEffect } from '@ir-engine/hyperflux'
+import { NO_PROXY, State, isHookstateValue, useImmediateEffect } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs'
 import { useResource } from '../../resources/resourceHooks'
@@ -49,43 +49,45 @@ export const MeshComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const meshComponent = useComponent(entity, MeshComponent)
-    const [meshResource] = useResource(meshComponent.value, entity, meshComponent.uuid.value)
-    const [geometryResource] = useResource(meshComponent.geometry.value, entity, meshComponent.geometry.uuid.value)
-    const [materialResource] = useResource<Material | Material[]>(
-      meshComponent.material.value as Material | Material[],
-      entity,
-      !Array.isArray(meshComponent.material.value) ? (meshComponent.material.value as Material).uuid : undefined
-    )
+    const [meshResource] = useResource(meshComponent.get(NO_PROXY), entity)
+
+    const geometryValue = meshComponent.geometry.value
+    const [geometryResource] = useResource(isHookstateValue(geometryValue) ? null : geometryValue, entity)
+
+    const materialValue = meshComponent.material.value
+    const [materialResource] = useResource(isHookstateValue(materialValue) ? null : materialValue, entity)
 
     useEffect(() => {
-      const box = geometryResource.boundingBox.get(NO_PROXY) as Box3 | null
+      const box = meshComponent.geometry.boundingBox.get(NO_PROXY) as Box3 | null
       if (!box) return
 
       setComponent(entity, BoundingBoxComponent, { box: box })
       return () => {
         removeComponent(entity, BoundingBoxComponent)
       }
-    }, [geometryResource.boundingBox])
+    }, [meshComponent.geometry.boundingBox])
 
     useEffect(() => {
-      if (meshComponent.value !== meshResource.value) meshResource.set(meshComponent.value)
-    }, [meshComponent])
-
-    useEffect(() => {
-      const mesh = meshComponent.value
-      if (mesh.geometry !== geometryResource.value) geometryResource.set(mesh.geometry)
+      const geometry = meshComponent.geometry.value
+      if (geometry !== geometryResource.value && !isHookstateValue(geometry)) geometryResource.set(geometry)
     }, [meshComponent.geometry])
 
     useEffect(() => {
-      const mesh = meshComponent.value
-      if (mesh.material !== materialResource.value) materialResource.set(mesh.material)
+      const material = meshComponent.material.value
 
-      if (Array.isArray(mesh.material)) {
-        for (const material of mesh.material) material.needsUpdate = true
+      if (material !== materialResource.value && !isHookstateValue(material)) materialResource.set(material)
+
+      if (Array.isArray(material)) {
+        material.forEach((material) => (material.needsUpdate = true))
       } else {
-        ;(mesh.material as Material).needsUpdate = true
+        ;(material as Material).needsUpdate = true
       }
     }, [meshComponent.material])
+
+    useEffect(() => {
+      const mesh = meshComponent.value
+      if (mesh !== meshResource.value) meshResource.set(mesh)
+    }, [meshComponent])
 
     return null
   }

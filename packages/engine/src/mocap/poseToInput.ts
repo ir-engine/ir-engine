@@ -29,6 +29,7 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getState, none } from '@ir-engine/hyperflux'
 
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
+import { NormalizedBoneComponent } from '../avatar/components/NormalizedBoneComponent'
 import { MotionCapturePoseComponent } from './MotionCapturePoseComponent'
 import { MotionCaptureRigComponent } from './MotionCaptureRigComponent'
 
@@ -41,8 +42,8 @@ const minSeatedAngle = 1.25, //radians
 let poseHoldTimer = 0
 
 export const evaluatePose = (entity: Entity) => {
-  const rig = getComponent(entity, AvatarRigComponent).normalizedRig
-  if (!rig) return
+  const rig = getComponent(entity, AvatarRigComponent).bonesToEntities
+  if (!rig.hips) return
 
   const deltaSeconds = getState(ECSState).deltaSeconds
 
@@ -52,11 +53,13 @@ export const evaluatePose = (entity: Entity) => {
 
   if (!MotionCaptureRigComponent.solvingLowerBody[entity]) return 'none'
 
+  const rightUpperLeg = getComponent(rig.rightUpperLeg, NormalizedBoneComponent).quaternion
+  const leftUpperLeg = getComponent(rig.leftUpperLeg, NormalizedBoneComponent).quaternion
+  const spine = getComponent(rig.spine, NormalizedBoneComponent).quaternion
   /**Detect if our legs pose has changed by their angle */
   const getLegsSeatedChange = (toPose: MotionCapturePoses): boolean => {
     let metTargetStateAngle =
-      rig.rightUpperLeg.node.quaternion.angleTo(rig.spine.node.quaternion) < minSeatedAngle &&
-      rig.leftUpperLeg.node.quaternion.angleTo(rig.spine.node.quaternion) < minSeatedAngle
+      rightUpperLeg.angleTo(spine) < minSeatedAngle && leftUpperLeg.angleTo(spine) < minSeatedAngle
     metTargetStateAngle = toPose == 'sitting' ? !metTargetStateAngle : metTargetStateAngle
 
     if (!metTargetStateAngle || pose[toPose].value) return false

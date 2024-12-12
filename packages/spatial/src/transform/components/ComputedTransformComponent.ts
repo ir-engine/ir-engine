@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { matches } from 'ts-matches'
-
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useImmediateEffect } from '@ir-engine/hyperflux'
@@ -37,14 +35,6 @@ export const ComputedTransformComponent = defineComponent({
     referenceEntities: S.Array(S.Entity()),
     computeFunction: S.Call()
   }),
-
-  onSet(entity, component, json) {
-    if (!json) return
-
-    matches.arrayOf(matches.number).test(json.referenceEntities) &&
-      component.referenceEntities.set(json.referenceEntities)
-    if (typeof json.computeFunction === 'function') component.merge({ computeFunction: json.computeFunction })
-  },
 
   reactor: () => {
     useImmediateEffect(() => {

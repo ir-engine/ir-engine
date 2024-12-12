@@ -47,9 +47,10 @@ import { createHyperStore, getMutableState } from '@ir-engine/hyperflux'
 
 import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
 import { Application } from '../declarations'
+import packagejson from '../package.json'
 import { logger } from './ServerLogger'
 import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
-import { default as appConfig, default as config } from './appconfig'
+import { default as appConfig } from './appconfig'
 import authenticate from './hooks/authenticate'
 import { logError } from './hooks/log-error'
 import persistHeaders from './hooks/persist-headers'
@@ -64,24 +65,27 @@ export const configureOpenAPI = () => (app: Application) => {
     swagger({
       ui: swagger.swaggerUI({
         docsPath: '/openapi'
-        // docsJsonPath: '/openapi.json',
-        // indexFile: path.join(process.cwd() + '/openapi.html')
       }),
       specs: {
         info: {
           title: 'Infinite Reality Engine API Surface',
           description: 'APIs for the Infinite Reality Engine application',
-          version: '1.0.0'
+          version: packagejson.version
         },
         schemes: ['https'],
-        securityDefinitions: {
-          bearer: {
-            type: 'apiKey',
-            in: 'header',
-            name: 'authorization'
+        components: {
+          securitySchemes: {
+            BearerAuth: {
+              type: 'http',
+              scheme: 'bearer'
+            }
           }
         },
-        security: [{ bearer: [] }]
+        security: [{ BearerAuth: [] }]
+      },
+      idType: 'string',
+      ignore: {
+        paths: ['oauth', 'knex_migrations']
       }
     })
   )
@@ -103,6 +107,8 @@ export const configurePrimus =
           transformer: 'websockets',
           origins: origin,
           methods: ['OPTIONS', 'GET', 'POST'],
+          pingInterval: commonConfig.websocket.pingInterval,
+          pingTimeout: commonConfig.websocket.pingTimeout,
           headers: '*',
           credentials: true
         },
@@ -176,7 +182,7 @@ export const createFeathersKoaApp = async (
   createEngine(createHyperStore())
 
   getMutableState(DomainConfigState).merge({
-    publicDomain: config.client.dist,
+    publicDomain: appConfig.client.dist,
     cloudDomain: commonConfig.client.fileServer,
     proxyDomain: commonConfig.client.cors.proxyUrl
   })

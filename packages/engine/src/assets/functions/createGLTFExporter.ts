@@ -34,19 +34,19 @@ import ResourceIDExtension from '../exporters/gltf/extensions/ResourceIDExtensio
 import SourceHandlerExtension from '../exporters/gltf/extensions/SourceHandlerExtension'
 import { GLTFExporter, GLTFWriter } from '../exporters/gltf/GLTFExporter'
 
+const extensions = [
+  IgnoreGeometryExporterExtension,
+  GPUInstancingExporterExtension,
+  ImageRoutingExtension,
+  EEMaterialExporterExtension,
+  EEECSExporterExtension,
+  ResourceIDExtension,
+  SourceHandlerExtension
+  //ImageProcessingExtension
+]
+
 export default function createGLTFExporter() {
   const exporter = new GLTFExporter()
-
-  const extensions = [
-    IgnoreGeometryExporterExtension,
-    GPUInstancingExporterExtension,
-    ImageRoutingExtension,
-    EEMaterialExporterExtension,
-    EEECSExporterExtension,
-    ResourceIDExtension,
-    SourceHandlerExtension
-    //ImageProcessingExtension
-  ]
   extensions.forEach((extension) => exporter.register((writer) => new extension(writer)))
 
   //create persistent instances of basisu and buffer extensions to maintain cache

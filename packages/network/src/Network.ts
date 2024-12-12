@@ -25,7 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Action, HyperFlux, NetworkID, PeerID, Topic, UserID, getState } from '@ir-engine/hyperflux'
 import { DataChannelRegistryState, DataChannelType } from './DataChannelRegistry'
-import { MediaTagType, NetworkPeer } from './NetworkState'
+import { NetworkPeerState } from './NetworkPeerState'
+import { NetworkPeer, PeerTransport } from './NetworkState'
 import { NetworkActionFunctions } from './functions/NetworkActionFunctions'
 
 /**
@@ -42,37 +43,30 @@ export interface JitterBufferEntry {
 }
 
 export type Network<Ext = unknown> = {
-  /** Connected peers */
+  transports: Record<PeerID, PeerTransport>
+  /**
+   * Connected peers
+   * @deprecated use `getState(NetworkPeerState)[network.id].peers` instead
+   */
   peers: Record<PeerID, NetworkPeer>
 
-  /** Map of numerical peer index to peer IDs */
+  /**
+   * Map of numerical peer index to peer IDs
+   * @deprecated use `getState(NetworkPeerState)[network.id].peerIndexToPeerID` instead
+   */
   peerIndexToPeerID: Record<number, PeerID>
 
-  /** Map of peer IDs to numerical peer index */
+  /**
+   * Map of peer IDs to numerical peer index
+   * @deprecated use `getState(NetworkPeerState)[network.id].peerIDToPeerIndex` instead
+   */
   peerIDToPeerIndex: Record<PeerID, number>
 
   /**
-   * The index to increment when a new peer connects
-   * NOTE: Must only be updated by the host
-   * @todo - make this a function and throw an error if we are not the host
+   * Connected users
+   * @deprecated use `getState(NetworkPeerState)[network.id].users` instead
    */
-  peerIndexCount: number
-
-  /** Connected users */
   users: Record<UserID, PeerID[]>
-
-  /** Map of numerical user index to user client IDs */
-  userIndexToUserID: Record<number, UserID>
-
-  /** Map of user client IDs to numerical user index */
-  userIDToUserIndex: Record<UserID, number>
-
-  /**
-   * The index to increment when a new user joins
-   * NOTE: Must only be updated by the host
-   * @todo - make this a function and throw an error if we are not the host
-   */
-  userIndexCount: number
 
   /**
    * The UserID of the host
@@ -80,9 +74,9 @@ export type Network<Ext = unknown> = {
    * @todo rename to hostUserID to differentiate better from hostPeerID
    * @todo change from UserID to PeerID and change "get hostPeerID()" to "get hostUserID()"
    */
-  hostPeerID: PeerID
+  hostPeerID: PeerID | null
 
-  readonly hostUserID: UserID
+  readonly hostUserID: UserID | null
 
   /**
    * The ID of this network, equivalent to the InstanceID of an instance
@@ -104,10 +98,6 @@ export type Network<Ext = unknown> = {
   bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => void
   onBuffer: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => void
 
-  /** @todo maybe we should change the verbiage to 'muted'? does this make sense for video? */
-  pauseTrack: (peerID: PeerID, track: MediaTagType, pause: boolean) => void
-  /** @todo add more abstractions here */
-
   readonly isHosting: boolean
 
   topic: Topic
@@ -116,13 +106,13 @@ export type Network<Ext = unknown> = {
 /** Interface for the Transport. */
 export const createNetwork = <Ext = unknown>(
   id: NetworkID,
-  hostPeerID: PeerID,
+  hostPeerID: PeerID | null,
   topic: Topic,
   extension?: Ext
 ): Network<Ext> => {
   const network = {
     messageToPeer: (peerId: PeerID, data: any) => {
-      network.peers[peerId]?.transport?.message?.(data)
+      network.transports[peerId]?.message?.(data)
     },
     messageToAll: (data: any) => {
       for (const peer of Object.values(network.peers)) network.messageToPeer(peer.peerID, data)
@@ -133,7 +123,7 @@ export const createNetwork = <Ext = unknown>(
       NetworkActionFunctions.receiveIncomingActions(network, fromPeerID, actions)
     },
     bufferToPeer: (dataChannelType: DataChannelType, fromPeerID: PeerID, peerID: PeerID, data: any) => {
-      network.peers[peerID]?.transport?.buffer?.(dataChannelType, data)
+      network.transports[peerID]?.buffer?.(dataChannelType, data)
     },
     bufferToAll: (dataChannelType: DataChannelType, fromPeerID: PeerID, data: any) => {
       for (const peer of Object.values(network.peers))
@@ -145,21 +135,23 @@ export const createNetwork = <Ext = unknown>(
         for (const func of dataChannelFunctions) func(network, dataChannelType, fromPeerID, data)
       }
     },
-    pauseTrack(peerID, track, pause) {
-      // noop
-    },
     ...extension,
-    peers: {},
-    peerIndexToPeerID: {},
-    peerIDToPeerIndex: {},
-    peerIndexCount: 0,
-    users: {},
-    userIndexToUserID: {},
-    userIDToUserIndex: {},
-    userIndexCount: 0,
+    transports: {},
+    get peers() {
+      return getState(NetworkPeerState)[id]?.peers
+    },
+    get peerIndexToPeerID() {
+      return getState(NetworkPeerState)[id]?.peerIndexToPeerID
+    },
+    get peerIDToPeerIndex() {
+      return getState(NetworkPeerState)[id]?.peerIDToPeerIndex
+    },
+    get users() {
+      return getState(NetworkPeerState)[id]?.users
+    },
     hostPeerID,
     get hostUserID() {
-      return network.peers[network.hostPeerID]?.userId
+      return network.hostPeerID && (network.peers[network.hostPeerID]?.userId as UserID | undefined)
     },
     id,
     ready: false,

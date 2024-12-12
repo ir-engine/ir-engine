@@ -44,12 +44,12 @@ import config from '@ir-engine/common/src/config'
 import multiLogger from '@ir-engine/common/src/logger'
 import { ProjectType, projectPath } from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
+import { Button } from '@ir-engine/ui'
 import TruncatedText from '@ir-engine/ui/src/primitives/tailwind/TruncatedText'
 import DataTable from '../../common/Table'
 import { ProjectRowType, projectsColumns } from '../../common/constants/project'
@@ -119,8 +119,7 @@ export default function ProjectTable(props: { search: string }) {
     return (
       <div className="flex items-center justify-evenly p-1">
         <Button
-          startIcon={<HiOutlineArrowPath />}
-          size="small"
+          size="sm"
           className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={project.name === 'ir-engine/default-project'}
           onClick={() => {
@@ -130,11 +129,11 @@ export default function ProjectTable(props: { search: string }) {
             )
           }}
         >
+          <HiOutlineArrowPath />
           {t('admin:components.project.actions.update')}
         </Button>
         <Button
-          startIcon={<GrGithub />}
-          size="small"
+          size="sm"
           className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={!project || !project.repositoryPath || project.name === 'ir-engine/default-project'}
           onClick={() => {
@@ -150,23 +149,23 @@ export default function ProjectTable(props: { search: string }) {
             )
           }}
         >
+          <GrGithub />
           {t('admin:components.project.actions.push')}
         </Button>
 
         <Button
-          startIcon={<HiOutlineUsers />}
-          size="small"
+          size="sm"
           className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
           onClick={() => {
             activeProjectId.set(project.id)
             PopoverState.showPopupover(<ManageUserPermissionModal project={project} />)
           }}
         >
+          <HiOutlineUsers />
           {t('admin:components.project.actions.access')}
         </Button>
         <Button
-          startIcon={<HiOutlineCommandLine />}
-          size="small"
+          size="sm"
           className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={config.client.localBuildOrDev}
           onClick={() => {
@@ -180,28 +179,28 @@ export default function ProjectTable(props: { search: string }) {
             )
           }}
         >
+          <HiOutlineCommandLine />
           {t('admin:components.project.actions.invalidateCache')}
         </Button>
         <Button
-          startIcon={<HiOutlineFolder />}
-          size="small"
+          size="sm"
           className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
         >
+          <HiOutlineFolder />
           {t('admin:components.common.view')}
         </Button>
         <Button
-          startIcon={<HiOutlineClock />}
-          size="small"
+          size="sm"
           className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
           onClick={() => {
             PopoverState.showPopupover(<ProjectHistoryModal projectId={project.id} projectName={project.name} />)
           }}
         >
+          <HiOutlineClock />
           {t('admin:components.project.actions.history')}
         </Button>
         <Button
-          startIcon={<HiOutlineTrash />}
-          size="small"
+          size="sm"
           className="h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={project.name === 'ir-engine/default-project'}
           onClick={() => {
@@ -215,6 +214,7 @@ export default function ProjectTable(props: { search: string }) {
             )
           }}
         >
+          <HiOutlineTrash />
           {t('admin:components.common.remove')}
         </Button>
       </div>
@@ -234,12 +234,12 @@ export default function ProjectTable(props: { search: string }) {
               {row.name}
             </a>
             {!!row.needsRebuild && (
-              <Tooltip content={t('admin:components.project.outdatedBuild')} position="right center">
+              <Tooltip content={t('admin:components.project.outdatedBuild')} position="right">
                 <HiOutlineExclamationCircle className="text-orange-400" size={22} />
               </Tooltip>
             )}
             {!!row.hasLocalChanges && (
-              <Tooltip content={t('admin:components.project.hasLocalChanges')} position="right center">
+              <Tooltip content={t('admin:components.project.hasLocalChanges')} position="right">
                 <HiOutlineExclamationCircle className="text-yellow-400" size={22} />
               </Tooltip>
             )}

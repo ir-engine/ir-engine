@@ -99,7 +99,9 @@ export class LocalStorage implements StorageProviderInterface {
           '8642',
           '--cors=*',
           '--brotli',
-          '--gzip'
+          '--gzip',
+          '-a',
+          '::'
         ],
         {
           cwd: process.cwd(),
@@ -217,7 +219,6 @@ export class LocalStorage implements StorageProviderInterface {
           const readable = Readable.from(data.Body)
           readable.pipe(writeableStream)
           writeableStream.on('finish', () => {
-            console.log('finished writing to file', filePath)
             resolve(true)
           })
           readable.on('error', (e) => {

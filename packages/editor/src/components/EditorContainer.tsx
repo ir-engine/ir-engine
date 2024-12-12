@@ -37,7 +37,6 @@ import { cmdOrCtrlString } from '../functions/utils'
 import { EditorErrorState } from '../services/EditorErrorServices'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
-import { SaveSceneDialog } from './dialogs/SaveSceneDialog'
 import { DndWrapper } from './dnd/DndWrapper'
 import DragLayer from './dnd/DragLayer'
 
@@ -48,13 +47,12 @@ import { API } from '@ir-engine/common'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { EntityUUID } from '@ir-engine/ecs'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { destroySpatialEngine, initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
+import { useSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
+import { Button, Tooltip } from '@ir-engine/ui'
 import 'rc-dock/dist/rc-dock.css'
 import { useTranslation } from 'react-i18next'
 import { IoHelpCircleOutline } from 'react-icons/io5'
-import { setCurrentEditorScene } from '../functions/sceneFunctions'
+import { onSaveScene, setCurrentEditorScene } from '../functions/sceneFunctions'
 import { AssetsPanelTab } from '../panels/assets'
 import { FilesPanelTab } from '../panels/files'
 import { HierarchyPanelTab } from '../panels/hierarchy'
@@ -184,12 +182,7 @@ const EditorContainer = () => {
     }
   }, [scenePath.value])
 
-  useEffect(() => {
-    initializeSpatialEngine()
-    return () => {
-      destroySpatialEngine()
-    }
-  }, [])
+  useSpatialEngine()
 
   const originEntity = useMutableState(EngineState).originEntity.value
 
@@ -205,7 +198,7 @@ const EditorContainer = () => {
 
   useHotkeys(`${cmdOrCtrlString}+s`, (e) => {
     e.preventDefault()
-    PopoverState.showPopupover(<SaveSceneDialog />)
+    onSaveScene()
   })
 
   const { initialized, isWidgetVisible, openChat } = useZendesk()
@@ -270,21 +263,10 @@ const EditorContainer = () => {
       <PopupMenu />
       {!isWidgetVisible && initialized && (
         <div className="absolute bottom-3 right-4">
-          <Tooltip
-            position="left center"
-            contentStyle={{ transform: 'translate(10px)', animation: 'fadeIn 0.3s ease-in-out forwards' }}
-            key={t('editor:help')}
-            content={t('editor:help')}
-            arrow={true}
-          >
-            <Button
-              rounded="full"
-              size="small"
-              className="h-8 w-8 p-0"
-              iconContainerClassName="m-0"
-              startIcon={<IoHelpCircleOutline fontSize={24} />}
-              onClick={openChat}
-            />
+          <Tooltip position="left" key={t('editor:help')} content={t('editor:help')}>
+            <Button size="sm" className="h-8 w-8 p-0" onClick={openChat}>
+              <IoHelpCircleOutline fontSize={24} />
+            </Button>
           </Tooltip>
         </div>
       )}

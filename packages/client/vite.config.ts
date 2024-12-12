@@ -30,7 +30,7 @@ import fs, { readFileSync, writeFileSync } from 'fs'
 import { isArray, mergeWith } from 'lodash'
 import path from 'path'
 import { UserConfig, defineConfig } from 'vite'
-import viteCompression from 'vite-plugin-compression'
+import viteCompression from 'vite-plugin-compression2'
 import { ViteEjsPlugin } from 'vite-plugin-ejs'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import svgr from 'vite-plugin-svgr'
@@ -268,7 +268,10 @@ export default defineConfig(async () => {
     }
   }
 
-  const define = { __IR_ENGINE_VERSION__: JSON.stringify(packageJson.version) }
+  const define = {
+    __IR_ENGINE_VERSION__: JSON.stringify(packageJson.version),
+    'globalThis.process.env': {}
+  }
   for (const [key, value] of Object.entries(process.env)) {
     define[`globalThis.process.env.${key}`] = JSON.stringify(value)
   }
@@ -276,7 +279,6 @@ export default defineConfig(async () => {
   const returned = {
     define: define,
     server: {
-      proxy: {},
       cors: !isDevOrLocal,
       hmr:
         process.env.VITE_HMR === 'true'
@@ -290,6 +292,9 @@ export default defineConfig(async () => {
       port: process.env['VITE_APP_PORT'],
       headers: {
         'Origin-Agent-Cluster': '?1'
+      },
+      watch: {
+        ignored: ['**/server/upload/**']
       },
       ...(isDevOrLocal
         ? {
@@ -344,9 +349,9 @@ export default defineConfig(async () => {
             : ''
       }),
       viteCompression({
-        filter: /\.(js|mjs|json|css)$/i,
+        include: /\.(js|mjs|json|css)$/i,
         algorithm: 'brotliCompress',
-        deleteOriginFile: true
+        deleteOriginalAssets: true
       }),
       viteCommonjs({
         include: ['use-sync-external-store']

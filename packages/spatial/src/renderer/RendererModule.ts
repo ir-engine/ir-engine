@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRAnchorComponent } from '../xr/XRComponents'
 import { DebugRendererSystem } from './DebugRendererSystem'
+import { LightTransformSystem } from './LightTransformSystem'
 import { RenderInfoSystem } from './RenderInfoSystem'
 import { ViewportLightingSystem } from './ViewportLightingSystem'
 import { WebGLRendererSystem } from './WebGLRendererSystem'
@@ -42,6 +43,7 @@ export {
   DebugRendererSystem,
   DirectionalLightComponent,
   HemisphereLightComponent,
+  LightTransformSystem,
   PointLightComponent,
   RenderInfoSystem,
   SpotLightComponent,

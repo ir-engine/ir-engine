@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { defineComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { T } from '../../schema/schemaFunctions'
 
 export const CameraOrbitComponent = defineComponent({
   name: 'CameraOrbitComponent',
@@ -37,7 +38,7 @@ export const CameraOrbitComponent = defineComponent({
     minimumZoom: S.Number(0.1),
     isOrbiting: S.Bool(false),
     refocus: S.Bool(false),
-    cameraOrbitCenter: S.Vec3(),
+    cameraOrbitCenter: T.Vec3(),
     disabled: S.Bool(false)
   })
 })
