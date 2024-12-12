@@ -45,6 +45,7 @@ import { InstanceID, LocationID, RoomCode } from '@ir-engine/common/src/schema.t
 import { PresentationSystemGroup, defineSystem } from '@ir-engine/ecs'
 import { getMutableState, getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { FriendService } from '../social/services/FriendService'
 import { connectToInstance } from '../transports/mediasoup/MediasoupClientFunctions'
 import { PeerToPeerNetworkState } from '../transports/p2p/PeerToPeerNetworkState'
@@ -286,6 +287,9 @@ export const FriendMenus = () => {
 
 export const reactor = () => {
   const networkConfigState = useHookstate(getMutableState(NetworkState).config)
+  const userID = useHookstate(getMutableState(EngineState).userID).value
+
+  if (!userID) return null
 
   return (
     <>

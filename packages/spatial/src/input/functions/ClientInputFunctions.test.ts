@@ -49,8 +49,6 @@ import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import { ButtonState, ButtonStateMap, MouseButton } from '../state/ButtonState'
 import ClientInputFunctions, { DRAGGING_THRESHOLD, ROTATING_THRESHOLD } from './ClientInputFunctions'
-import ClientInputHeuristics, { HeuristicData, HeuristicFunctions } from './ClientInputHeuristics'
-import { createHeuristicDummyData } from './ClientInputHeuristics.test'
 
 describe('ClientInputFunctions', () => {
   describe('preventDefault', () => {
@@ -202,20 +200,8 @@ describe('ClientInputFunctions', () => {
   })
 
   describe('assignInputSources', () => {
-    let data = {} as HeuristicData
-    const heuristics = {
-      editor: ClientInputHeuristics.findEditor,
-      xrui: ClientInputHeuristics.findXRUI,
-      physicsColliders: ClientInputHeuristics.findPhysicsColliders,
-      bboxes: ClientInputHeuristics.findBBoxes,
-      meshes: ClientInputHeuristics.findMeshes,
-      proximity: ClientInputHeuristics.findProximity,
-      raycastedInput: ClientInputHeuristics.findRaycastedInput
-    } as HeuristicFunctions
-
     beforeEach(async () => {
       createEngine()
-      data = createHeuristicDummyData()
     })
 
     afterEach(() => {
@@ -239,7 +225,7 @@ describe('ClientInputFunctions', () => {
       setComponent(otherEntity, InputSourceComponent)
 
       // Run and Check the result
-      ClientInputFunctions.assignInputSources(sourceEntity, capturedEntity, data, heuristics)
+      ClientInputFunctions.assignInputSources(sourceEntity, capturedEntity)
       const SourcesList = [sourceEntity, otherEntity]
       const result = getComponent(parentEntity, InputComponent).inputSources
       for (const entity of SourcesList) {
@@ -266,43 +252,12 @@ describe('ClientInputFunctions', () => {
       setComponent(otherEntity, InputSourceComponent)
 
       // Run and Check the result
-      ClientInputFunctions.assignInputSources(sourceEntity, capturedEntity, data, heuristics)
+      ClientInputFunctions.assignInputSources(sourceEntity, capturedEntity)
       const SourcesList = [sourceEntity, otherEntity]
       const result = getComponent(capturedEntity, InputComponent).inputSources
       for (const entity of SourcesList) {
         assert.equal(result.includes(entity), true)
       }
-    })
-
-    it('should call the heuristic.raycastedInput function when the `@param sourceEid` has a TransformComponent', () => {
-      const spy = sinon.spy()
-      heuristics.raycastedInput = spy
-
-      const PointerID = 42
-      const cameraEntity = createEntity()
-      const capturedEntity = UndefinedEntity
-      const sourceEntity = createEntity()
-      setComponent(sourceEntity, TransformComponent)
-      setComponent(sourceEntity, InputSourceComponent)
-      setComponent(sourceEntity, InputPointerComponent, { pointerId: PointerID, cameraEntity: cameraEntity })
-      assert.equal(spy.callCount, 0)
-
-      // Run and Check the result
-      ClientInputFunctions.assignInputSources(sourceEntity, capturedEntity, data, heuristics)
-      assert.equal(spy.callCount, 1)
-    })
-
-    it('should call the heuristic.proximity function when the `@param capturedEntity` is undefined, intersectionData.length is 0 and `@param sourceEid` does not have a InputPointerComponent', () => {
-      const spy = sinon.spy()
-      heuristics.proximity = spy
-
-      const capturedEntity = UndefinedEntity
-      const sourceEntity = createEntity()
-      setComponent(sourceEntity, InputSourceComponent)
-
-      // Run and Check the result
-      ClientInputFunctions.assignInputSources(sourceEntity, capturedEntity, data, heuristics)
-      assert.equal(spy.callCount, 1)
     })
   })
 

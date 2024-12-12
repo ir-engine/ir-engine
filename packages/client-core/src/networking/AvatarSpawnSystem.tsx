@@ -29,7 +29,6 @@ import { getSearchParamFromURL } from '@ir-engine/common/src/utils/getSearchPara
 import { spawnLocalAvatarInWorld } from '@ir-engine/common/src/world/receiveJoinWorld'
 import {
   defineSystem,
-  Engine,
   Entity,
   EntityUUID,
   getComponent,
@@ -57,6 +56,7 @@ import { avatarPath, userAvatarPath } from '@ir-engine/common/src/schema.type.mo
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { useChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { SearchParamState } from '../common/services/RouterService'
 import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
@@ -64,6 +64,7 @@ import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 
 export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
+  const userID = useMutableState(EngineState).userID.value
   const { sceneEntity } = props
   const searchParams = useMutableState(SearchParamState)
 
@@ -82,19 +83,19 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
     if (!isSpectating) return
     dispatchAction(
       SpectateActions.spectateEntity({
-        spectatorUserID: Engine.instance.userID,
+        spectatorUserID: userID,
         spectatingEntity: spectateEntity.value
       })
     )
 
     return () => {
-      dispatchAction(SpectateActions.exitSpectate({ spectatorUserID: Engine.instance.userID }))
+      dispatchAction(SpectateActions.exitSpectate({ spectatorUserID: userID }))
     }
   }, [isSpectating])
 
   const userAvatarQuery = useFind(userAvatarPath, {
     query: {
-      userId: Engine.instance.store.userID
+      userId: userID
     }
   })
 
@@ -104,7 +105,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
     if (isSpectating || !userAvatar) return
 
     const rootUUID = getComponent(sceneEntity, UUIDComponent)
-    const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userID)
+    const avatarSpawnPose = getRandomSpawnPoint(userID)
     const user = getState(AuthState).user
 
     spawnLocalAvatarInWorld({
@@ -120,7 +121,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
 
       const network = NetworkState.worldNetwork
 
-      const peersCountForUser = network?.users?.[Engine.instance.userID]?.length
+      const peersCountForUser = network?.users?.[userID]?.length
 
       // if we are the last peer in the world for this user, destroy the object
       if (!peersCountForUser || peersCountForUser === 1) {
@@ -139,7 +140,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   useEffect(() => {
     if (!errorWithAvatar || !avatarsQuery.data.length) return
     const randomAvatar = avatarsQuery.data[Math.floor(Math.random() * avatarsQuery.data.length)]
-    userAvatarMutation.patch(null, { avatarId: randomAvatar.id }, { query: { userId: Engine.instance.store.userID } })
+    userAvatarMutation.patch(null, { avatarId: randomAvatar.id }, { query: { userId: userID } })
   }, [errorWithAvatar])
 
   useEffect(() => {
@@ -147,7 +148,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
     dispatchAction(
       AvatarNetworkAction.setAvatarURL({
         avatarURL: userAvatar.avatar.modelResource!.url,
-        entityUUID: (Engine.instance.store.userID + '_avatar') as any as EntityUUID
+        entityUUID: (userID + '_avatar') as any as EntityUUID
       })
     )
   }, [isSpectating, userAvatar])
@@ -156,10 +157,12 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
 }
 
 const reactor = () => {
-  const locationSceneID = useHookstate(getMutableState(LocationState).currentLocation.location.sceneId).value
-  const sceneEntity = useLoadedSceneEntity(locationSceneID)
+  const userID = useMutableState(EngineState).userID.value
+  const locationSceneURL = useHookstate(getMutableState(LocationState).currentLocation.location.sceneURL).value
+  const sceneEntity = useLoadedSceneEntity(locationSceneURL)
   const gltfLoaded = GLTFComponent.useSceneLoaded(sceneEntity)
-  if (!gltfLoaded) return null
+
+  if (!gltfLoaded || !userID) return null
 
   return <AvatarSpawnReactor key={sceneEntity} sceneEntity={sceneEntity} />
 }

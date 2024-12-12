@@ -73,7 +73,7 @@ export default function UpdateEngineModal() {
 
   const scopeQuery = useFind(scopePath, {
     query: {
-      userId: Engine.instance.store.userID,
+      userId: Engine.instance.userID,
       type: 'projects:read' as ScopeType
     }
   })

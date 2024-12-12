@@ -173,7 +173,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
 
   const adminScopeQuery = useFind(scopePath, {
     query: {
-      userId: Engine.instance.store.userID,
+      userId: Engine.instance.userID,
       type: 'admin:admin' as ScopeType
     }
   })
@@ -182,7 +182,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
 
   const editorScopeQuery = useFind(scopePath, {
     query: {
-      userId: Engine.instance.store.userID,
+      userId: Engine.instance.userID,
       type: 'projects:write' as ScopeType
     }
   })
