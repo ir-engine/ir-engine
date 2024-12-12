@@ -51,6 +51,9 @@ export interface TooltipRef {
   hideTooltip: () => void
 }
 
+/**
+ * Provides an imperative handle to show and hide the tooltip
+ */
 function Tooltip(
   { title, content, children, position = 'auto', isControlled = false, ...props }: TooltipProps,
   ref: React.ForwardedRef<TooltipRef>
