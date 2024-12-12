@@ -48,12 +48,16 @@ export class OembedService implements ServiceInterface<OembedType | BadRequest |
     if (!queryURL) return new BadRequest('Must provide a valid URL for OEmbed')
 
     const url = new URL(queryURL)
-    const serverSettingsResult = (await this.app.service(engineSettingPath).find()) as Paginated<EngineSettingType>
+    const serverSettingsResult = (await this.app.service(engineSettingPath).find({
+      query: {
+        category: 'server'
+      }
+    })) as Paginated<EngineSettingType>
     const clientSettingsResult = (await this.app.service(clientSettingPath).find()) as Paginated<ClientSettingType>
-    const clientHost = serverSettingsResult.data.find((setting) => setting.key === EngineSettings.Server.ClientHost)
-      ?.value
     if (serverSettingsResult.total > 0 && clientSettingsResult.total > 0) {
       const clientSettings = clientSettingsResult.data[0]
+      const clientHost = serverSettingsResult.data.find((setting) => setting.key === EngineSettings.Server.ClientHost)
+        ?.value
       if (clientHost !== url.origin.replace(/https:\/\//, ''))
         return new BadRequest('OEmbed request was for a different domain')
 
