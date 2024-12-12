@@ -41,7 +41,6 @@ export async function up(knex: Knex): Promise<void> {
 
   if (tableExists) {
     const recordExists = await knex.table(serverSettingPath).first()
-    console.log('recordExists', recordExists)
     if (recordExists) {
       const serverSettings: EngineSettingType[] = await Promise.all(
         [
