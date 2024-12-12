@@ -80,12 +80,12 @@ const TransformSnapTool = () => {
 
   return (
     <div className="flex items-center rounded bg-[#141619] py-1">
-      <Tooltip content={t('editor:toolbar.transformSnapTool.toggleBBoxSnap')}>
+      <Tooltip content={t('editor:toolbar.transformSnapTool.toggleBBoxSnap')} position="bottom">
         <ViewportButton onClick={toggleAttachmentPointSnap} selected={objectSnapState.enabled.value}>
           <LuUtilityPole />
         </ViewportButton>
       </Tooltip>
-      <Tooltip content={t('editor:toolbar.transformSnapTool.toggleSnapMode')}>
+      <Tooltip content={t('editor:toolbar.transformSnapTool.toggleSnapMode')} position="bottom">
         <ViewportButton onClick={toggleSnapMode} selected={editorHelperState.gridSnap.value === SnapMode.Grid}>
           <SnappingToolMd />
         </ViewportButton>

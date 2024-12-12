@@ -30,9 +30,9 @@ import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { Tooltip } from '@ir-engine/ui'
+import { PauseSquareLg, PlayLg } from '@ir-engine/ui/src/icons'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiOutlinePause, HiOutlinePlay } from 'react-icons/hi2'
 
 const PlayModeTool: React.FC = () => {
   const { t } = useTranslation()
@@ -70,9 +70,9 @@ const PlayModeTool: React.FC = () => {
       >
         <button className="p-0" onClick={onTogglePlayMode}>
           {engineState.isEditing.value ? (
-            <HiOutlinePlay className="text-theme-input" />
+            <PlayLg className="text-[#9CA0AA]" />
           ) : (
-            <HiOutlinePause className="text-theme-input" />
+            <PauseSquareLg className="text-[#9CA0AA]" />
           )}
         </button>
       </Tooltip>
