@@ -92,7 +92,7 @@ const ChildMaterialReactor = () => {
 
 const ExpensiveMaterials = new Set(['MeshStandardMaterial', 'MeshPhysicalMaterial'])
 /**@todo refactor this to use preprocessor directives instead of new cloned materials with different shaders */
-const convertMaterials = (material: Entity, forceBasicMaterials: boolean) => {
+export const convertMaterials = (material: Entity, forceBasicMaterials: boolean) => {
   const materialComponent = getComponent(material, MaterialStateComponent)
   const setMaterial = (uuid: EntityUUID, newUuid: EntityUUID) => {
     for (const instance of materialComponent.instances) {
