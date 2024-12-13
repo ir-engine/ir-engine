@@ -511,7 +511,7 @@ export default function AddEditProjectModal({
                 position: 'top'
               }}
               positioning={{
-                maxHeight: '300px',
+                maxHeight: '200px',
                 direction: 'down'
               }}
               value={projectUpdateStatus.value?.selectedSHA}
