@@ -56,6 +56,10 @@ export interface SelectProps<T = string | number> {
   required?: boolean
   disabled?: boolean
   searchMode?: 'prefix' | 'substring' | 'fuzzy'
+  positioning?: {
+    direction: 'down' | 'up'
+    maxHeight: string
+  }
 }
 
 const variantToWidth: Record<NonNullable<SelectProps['width']>, string> = {
@@ -77,12 +81,15 @@ const Select = ({
   helperText,
   required,
   disabled,
-  searchMode
+  searchMode,
+  positioning: userPositioning
 }: SelectProps) => {
   const [open, setOpen] = useState(false)
   const [positioning, setPositioning] = useState({
     direction: 'down' as 'down' | 'up',
-    maxHeight: '0px'
+    maxHeight: '0px',
+    ...userPositioning,
+    userSet: false
   })
   const ref = useRef<HTMLDivElement>(null)
   const [displayText, setDisplayText] = useState('')
@@ -104,7 +111,7 @@ const Select = ({
 
   useLayoutEffect(() => {
     const updateDirection = () => {
-      if (ref.current) {
+      if (ref.current && userPositioning === undefined) {
         const { top, bottom } = ref.current.getBoundingClientRect()
         const windowHeight = window.innerHeight
 
@@ -112,10 +119,11 @@ const Select = ({
         const spaceBelow = windowHeight - bottom
 
         const newDirection = spaceBelow >= spaceAbove ? 'down' : 'up'
-        const maxHeight = newDirection === 'down' ? 0.8 * spaceBelow : 0.8 * spaceAbove
+        const _maxHeight = newDirection === 'down' ? 0.8 * spaceBelow : 0.8 * spaceAbove
         setPositioning({
+          ...positioning,
           direction: newDirection,
-          maxHeight: `${maxHeight}px`
+          maxHeight: `${_maxHeight}px`
         })
       }
     }
@@ -318,7 +326,7 @@ const Select = ({
 
           {open && (
             <div
-              className={`absolute flex w-full flex-col overflow-y-auto rounded-lg ${
+              className={`absolute z-50 flex w-full flex-col overflow-y-auto rounded-lg ${
                 positioning.direction === 'down' && 'top-[calc(100%+0.5rem)]'
               } ${positioning.direction === 'up' && 'bottom-[calc(100%+0.5rem)]'}`}
               style={{
