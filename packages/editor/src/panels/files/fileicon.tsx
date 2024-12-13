@@ -107,18 +107,6 @@ export const FileIcon = ({
             crossOrigin="anonymous"
             src={FOLDER_ICON_PATH}
             alt="folder-icon"
-            onLoad={handleImageLoaded}
-          />
-          <img
-            className={twMerge(
-              isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40',
-              'object-contain',
-              imageLoaded.value ? 'hidden' : 'block'
-            )}
-            crossOrigin="anonymous"
-            src={FILE_ICON_BLUR}
-            alt="file-thumbnail"
-            onLoad={handleLoadStart}
           />
         </>
       ) : thumbnailURL ? (
@@ -149,23 +137,11 @@ export const FileIcon = ({
       ) : FallbackIcon ? (
         <>
           <FallbackIcon
-            onLoad={handleImageLoaded}
             className={twMerge(
               color,
               isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40',
               imageLoaded.value ? 'block' : 'hidden'
             )}
-          />
-          <img
-            className={twMerge(
-              isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40',
-              'object-contain',
-              imageLoaded.value ? 'hidden' : 'block'
-            )}
-            crossOrigin="anonymous"
-            src={FILE_ICON_BLUR}
-            alt="file-thumbnail"
-            onLoad={handleLoadStart}
           />
         </>
       ) : (
@@ -179,18 +155,6 @@ export const FileIcon = ({
             crossOrigin="anonymous"
             src={FILE_ICON_PATH}
             alt="file-icon"
-            onLoad={handleImageLoaded}
-          />
-          <img
-            className={twMerge(
-              isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40',
-              'object-contain',
-              imageLoaded.value ? 'hidden' : 'block'
-            )}
-            crossOrigin="anonymous"
-            src={FILE_ICON_BLUR}
-            alt="file-thumbnail"
-            onLoad={handleLoadStart}
           />
         </>
       )}

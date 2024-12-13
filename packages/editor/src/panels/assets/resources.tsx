@@ -339,7 +339,7 @@ function ResourceItems() {
   const isStillLoadingIcons = fileIconsLoaded.value !== fileIconsToLoad.value
 
   const handleFileIconLoadStart = () => {
-    fileIcosToLoad.set(fileIcosToLoad.get() + 1)
+    fileIconsToLoad.set(fileIconsToLoad.get() + 1)
   }
 
   const handleFileIconLoad = () => {
@@ -397,16 +397,16 @@ function ResourceItems() {
               </div>
             </div>
           ))}
-        {!resourcesLoading && !isStillLoadingIcons() && resources.length > 0 && (
+        {!resourcesLoading && !isStillLoadingIcons && resources.length > 0 && (
           <BottomPaginationNavBar handleScrollToPage={handleScrollToPage} />
         )}
-        {(resourcesLoading || isStillLoadingIcons()) && (
+        {(resourcesLoading || isStillLoadingIcons) && (
           <div className="my-4 w-full">
             <div id="progress-container" xr-layer="true" xr-scalable="true" className="w-[350px] place-self-center ">
               <ProgressBar
                 borderRadius="2px"
                 bgColor={'#ffffff'}
-                completed={fileIconsLoaded.value / fileIcosToLoad.value}
+                completed={(fileIconsLoaded.value / fileIconsToLoad.value) * 100}
                 height="3px"
                 baseBgColor="#2F3137"
                 isLabelVisible={false}
@@ -415,7 +415,7 @@ function ResourceItems() {
             <div className="my-2 flex w-[350px] place-self-center text-sm text-white ">
               <div className="w-1/2 justify-center  text-left">Loading Assets</div>
               <div className="w-1/2 justify-center  text-right ">
-                {fileIconsLoaded.value} of {fileIcosToLoad.value}
+                {fileIconsLoaded.value} of {fileIconsToLoad.value}
               </div>
             </div>
           </div>
