@@ -336,9 +336,7 @@ function ResourceItems() {
     }
   }
 
-  const isStillLoadingIcons = () => {
-    return !(fileIconsLoaded != fileIcosToLoad)
-  }
+  const isStillLoadingIcons = fileIconsLoaded.value !== fileIconsToLoad.value
 
   const handleFileIconLoadStart = () => {
     fileIcosToLoad.set(fileIcosToLoad.get() + 1)
