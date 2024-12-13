@@ -328,7 +328,7 @@ function ResourceItems() {
   const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]) // Create a ref array
   const fileIconsLoaded = useHookstate(0)
-  const fileIcosToLoad = useHookstate(0)
+  const fileIconsToLoad = useHookstate(0)
 
   const handleScrollToPage = (pageIndex: number) => {
     if (pageRefs.current[pageIndex]) {
