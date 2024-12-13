@@ -24,8 +24,17 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
-import { EntityUUID, getComponent, getOptionalComponent, hasComponent, useQuery, UUIDComponent } from '@ir-engine/ecs'
-import { EntityLayerState, LayerID } from '@ir-engine/ecs/src/LayerState'
+import {
+  EntityUUID,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  LayerComponent,
+  LayerID,
+  Layers,
+  useQuery,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getMaterialsFromScene } from '@ir-engine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { getMutableState } from '@ir-engine/hyperflux'
@@ -71,14 +80,14 @@ function MaterialsLibrary() {
   const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities)
   const showLayers = useHookstate(false)
 
-  const layer = useHookstate('authoring' as LayerID)
+  const layer = useHookstate<LayerID>(Layers.Authoring)
 
   useEffect(() => {
     const materials =
       selectedEntities.value.length && showLayers.value
         ? getMaterialsFromScene(UUIDComponent.getEntityByUUID(selectedEntities.value[0], layer.value))
         : materialQuery
-            .filter((entity) => EntityLayerState.getLayerID(entity) === layer.value)
+            .filter((entity) => LayerComponent.get(entity) === layer.value)
             .map((entity) => getComponent(entity, UUIDComponent))
             .filter((uuid) => uuid !== MaterialStateComponent.fallbackMaterial)
 
@@ -114,7 +123,9 @@ function MaterialsLibrary() {
           </Button>
           <Button
             onClick={() => {
-              layer.set((prevValue) => (prevValue === 'authoring' ? 'simulation' : 'authoring') as LayerID)
+              layer.set(
+                (prevValue) => (prevValue === Layers.Authoring ? Layers.Simulation : Layers.Authoring) as LayerID
+              )
             }}
           >
             {layer.value}

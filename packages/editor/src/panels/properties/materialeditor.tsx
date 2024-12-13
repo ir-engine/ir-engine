@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   Entity,
   EntityUUID,
+  Layers,
   UUIDComponent,
   getComponent,
   getOptionalComponent,
@@ -35,7 +36,6 @@ import {
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import { LayerID } from '@ir-engine/ecs/src/LayerState'
 import styles from '@ir-engine/editor/src/components/layout/styles.module.scss'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { getTextureAsync } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
@@ -86,8 +86,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
     value: prototype
   }))
 
-  const entity = UUIDComponent.getEntityByUUID(props.materialUUID, 'authoring' as LayerID)
-  console.log(entity)
+  const entity = UUIDComponent.getEntityByUUID(props.materialUUID, Layers.Authoring)
   const materialComponent = useComponent(entity, MaterialStateComponent)
   const material = materialComponent.material.get(NO_PROXY) as Material
   const thumbnails = useHookstate<Record<string, ThumbnailData>>({})

@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useFind } from '@ir-engine/common'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions.ts'
+import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
 import {
   FilesState,
   FilesViewModeSettings,

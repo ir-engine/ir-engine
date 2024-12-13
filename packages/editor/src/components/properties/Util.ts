@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { UUIDComponent } from '@ir-engine/ecs'
-import { Component, SerializedComponentType, updateComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Component, SerializedComponentType, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getMutableState } from '@ir-engine/hyperflux'
 
@@ -66,7 +66,7 @@ export const updateProperties = <C extends Component>(
     : SelectionState.getSelectedEntities()
   for (let i = 0; i < affectedNodes.length; i++) {
     const node = affectedNodes[i]
-    updateComponent(node, component, properties)
+    setComponent(node, component, properties)
   }
 }
 

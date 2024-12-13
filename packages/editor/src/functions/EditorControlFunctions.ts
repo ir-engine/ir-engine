@@ -34,10 +34,10 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
+  Layers,
   removeComponent,
   SerializedComponentType,
-  setComponent,
-  updateComponent
+  setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { GLTFDocumentState, GLTFModifiedState, GLTFSnapshotAction } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
@@ -58,7 +58,6 @@ import {
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
-import { LayerID } from '@ir-engine/ecs/src/LayerState'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
 import { EditorHelperState } from '../services/EditorHelperState'
@@ -340,7 +339,7 @@ const createObjectFromSceneElement = (
   //   } as GLTF.INode
 
   //   gltf.data.nodes!.push(node)
-  const entity = UUIDComponent.getOrCreateEntityByUUID(entityUUID, 'authoring' as LayerID)
+  const entity = UUIDComponent.getOrCreateEntityByUUID(entityUUID, Layers.Authoring)
 
   setComponent(entity, NameComponent, name)
 
@@ -507,7 +506,7 @@ const positionObject = (
       transform.position.copy(tempVector)
     }
 
-    updateComponent(entity, TransformComponent, { position: transform.position })
+    setComponent(entity, TransformComponent, { position: transform.position })
 
     applyTransformToChildren(entity)
   }
@@ -541,7 +540,7 @@ const rotateObject = (nodes: Entity[], rotations: Quaternion[], space = getState
       transform.rotation.copy(newLocalQuaternion)
     }
 
-    updateComponent(entity, TransformComponent, { rotation: transform.rotation })
+    setComponent(entity, TransformComponent, { rotation: transform.rotation })
 
     applyTransformToChildren(entity)
   }
@@ -567,7 +566,7 @@ const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: V
       .premultiply(tempMatrix4.copy(parentTransform.matrixWorld).invert())
       .decompose(transform.position, transform.rotation, transform.scale)
 
-    updateComponent(entity, TransformComponent, { rotation: transform.rotation })
+    setComponent(entity, TransformComponent, { rotation: transform.rotation })
   }
 }
 
@@ -590,7 +589,7 @@ const scaleObject = (entities: Entity[], scales: Vector3[], overrideScale = fals
       transformComponent.scale.z === 0 ? Number.EPSILON : transformComponent.scale.z
     )
 
-    updateComponent(entity, TransformComponent, { scale: transformComponent.scale })
+    setComponent(entity, TransformComponent, { scale: transformComponent.scale })
   }
 }
 

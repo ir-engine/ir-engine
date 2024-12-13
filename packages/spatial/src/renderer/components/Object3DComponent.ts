@@ -32,7 +32,7 @@ import { NameComponent } from '../../common/NameComponent'
 
 export const Object3DComponent = defineComponent({
   name: 'Object3DComponent',
-  jsonID: 'EE_object3d',
+
   schema: S.Required(S.NonSerialized(S.Type<Object3D>())),
 
   reactor: () => {

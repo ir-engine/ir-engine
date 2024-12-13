@@ -26,8 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import { EntityUUID, UUIDComponent, entityExists } from '@ir-engine/ecs'
-import { removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { LayerID } from '@ir-engine/ecs/src/LayerState'
+import { LayerID, Layers, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { SelectTagComponent } from '@ir-engine/engine/src/scene/components/SelectTagComponent'
@@ -45,11 +44,11 @@ export const SelectionState = defineState({
       selectedEntities: selectedEntities
     })
   },
-  getSelectedEntities: (layer: LayerID = 'authoring' as LayerID) => {
+  getSelectedEntities: (layer: LayerID = Layers.Authoring) => {
     return getState(SelectionState).selectedEntities.map((entity) => UUIDComponent.getEntityByUUID(entity, layer))
   },
 
-  useSelectedEntities: (layer: LayerID = 'authoring' as LayerID) => {
+  useSelectedEntities: (layer: LayerID = Layers.Authoring) => {
     return useHookstate(getMutableState(SelectionState).selectedEntities).value.map((entity) =>
       UUIDComponent.getEntityByUUID(entity, layer)
     )
@@ -61,7 +60,7 @@ const reactor = () => {
 
   useEffect(() => {
     const entities = [...selectedEntities.value].map((entity) =>
-      UUIDComponent.getEntityByUUID(entity, 'authoring' as LayerID)
+      UUIDComponent.getEntityByUUID(entity, Layers.Authoring)
     )
     for (const entity of entities) {
       if (!entityExists(entity)) continue

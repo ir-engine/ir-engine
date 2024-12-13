@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { defineComponent, useComponent, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
 import { useState } from '@ir-engine/hyperflux'
 
-import { EntityLayerState } from '@ir-engine/ecs/src/LayerState'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import React, { useEffect, useLayoutEffect } from 'react'
 import { removeCallback, setCallback } from '../../common/CallbackComponent'
@@ -62,9 +61,6 @@ export const ColliderComponent = defineComponent({
   }),
 
   reactor: () => {
-    const entity = useEntityContext()
-    const layerID = EntityLayerState.getLayerID(entity)
-    if (layerID !== 'simulation') return null
     return <ColliderReactor />
   }
 })

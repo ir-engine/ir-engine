@@ -33,7 +33,6 @@ import {
   removeComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { EntityLayerState, LayerID } from '@ir-engine/ecs/src/LayerState'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, State, useHookstate } from '@ir-engine/hyperflux'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
@@ -73,7 +72,6 @@ export const useLoadAnimationFromBatchGLTF = (urls: string[], keepEntities = fal
 
 export const useLoadAnimationFromGLTF = (url: string, keepEntity = false) => {
   const assetEntity = useHookstate(UndefinedEntity)
-  const simEntity = EntityLayerState.useLinkedEntity(assetEntity.value, 'simulation' as LayerID)
   const animation = useHookstate(null as AnimationClip[] | null)
   const animationComponent = useOptionalComponent(assetEntity.value, AnimationComponent)
   const progress = useOptionalComponent(assetEntity.value, GLTFComponent)?.progress
@@ -88,22 +86,22 @@ export const useLoadAnimationFromGLTF = (url: string, keepEntity = false) => {
 
   useEffect(() => {
     if (
-      !simEntity?.value ||
+      !assetEntity?.value ||
       !animationComponent?.animations ||
       !animationComponent.animations.length ||
       animation.value
     )
       return
-    iterateEntityNode(simEntity.value, (entity) => {
+    iterateEntityNode(assetEntity.value, (entity) => {
       removeComponent(entity, MeshComponent)
       removeComponent(entity, SkinnedMeshComponent)
       removeComponent(entity, MaterialStateComponent)
       removeComponent(entity, MaterialInstanceComponent)
     })
-    animation.set(getComponent(simEntity.value, AnimationComponent).animations)
+    animation.set(getComponent(assetEntity.value, AnimationComponent).animations)
     if (!keepEntity) removeEntity(assetEntity.value)
-  }, [animationComponent?.animations, simEntity?.value])
-  return [animation, keepEntity ? simEntity?.value ?? UndefinedEntity : UndefinedEntity] as [
+  }, [animationComponent?.animations, assetEntity?.value])
+  return [animation, keepEntity ? assetEntity?.value ?? UndefinedEntity : UndefinedEntity] as [
     State<AnimationClip[]>,
     Entity
   ]

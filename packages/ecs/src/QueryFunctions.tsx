@@ -28,15 +28,18 @@ import React, { ErrorInfo, FC, memo, Suspense, useLayoutEffect, useMemo } from '
 
 import { getState, HyperFlux, NO_PROXY_STEALTH, useHookstate } from '@ir-engine/hyperflux'
 
-import { Component } from './ComponentFunctions'
+import { Component, LayerComponents, LayerID, Layers } from './ComponentFunctions'
 import { Entity } from './Entity'
 import { EntityContext } from './EntityFunctions'
 import { defineSystem } from './SystemFunctions'
 import { PresentationSystemGroup } from './SystemGroups'
 import { SystemState } from './SystemState'
 
-export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier)[]) {
-  const query = bitECS.defineQuery(components) as bitECS.Query
+export function defineQuery(
+  components: (bitECS.Component | bitECS.QueryModifier)[],
+  layer: LayerID = Layers.Simulation
+) {
+  const query = bitECS.defineQuery([...components, LayerComponents[layer]]) as bitECS.Query
   const enterQuery = bitECS.enterQuery(query)
   const exitQuery = bitECS.exitQuery(query)
 
@@ -80,9 +83,9 @@ export const ReactiveQuerySystem = defineSystem({
  * Use a query in a reactive context (a React component)
  * - "components" argument must not change
  */
-export function useQuery(components: QueryComponents) {
+export function useQuery(components: QueryComponents, layer: LayerID = Layers.Simulation) {
   const state = useHookstate(() => {
-    const query = defineQuery(components)
+    const query = defineQuery(components, layer)
     return {
       query,
       entities: query()

@@ -33,7 +33,6 @@ import {
   useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
-import { hasAuthoringCounterpart } from '@ir-engine/ecs/src/LayerState'
 import { NO_PROXY, startReactor, useImmediateEffect } from '@ir-engine/hyperflux'
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
@@ -111,8 +110,6 @@ export const MaterialDefinitionComponent = defineComponent({
   schema: MaterialDefinitionSchema,
 
   reactor: () => {
-    const entity = useEntityContext()
-    if (hasAuthoringCounterpart(entity)) return null
     return <MaterialDefinitionReactor />
   }
 })

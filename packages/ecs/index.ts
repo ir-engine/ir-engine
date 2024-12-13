@@ -41,7 +41,6 @@ import {
   removeComponent,
   serializeComponent,
   setComponent,
-  updateComponent,
   useComponent,
   useOptionalComponent
 } from './src/ComponentFunctions'
@@ -62,7 +61,6 @@ const ECS = {
   getOptionalComponent,
   getComponent,
   setComponent,
-  updateComponent,
   hasComponent,
   removeComponent,
   getAllComponents,

@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent, getOptionalComponent, hasComponent } from '@ir-engine/ecs'
-import { LayerID } from '@ir-engine/ecs/src/LayerState'
+import { EntityUUID, Layers, UUIDComponent, getOptionalComponent, hasComponent } from '@ir-engine/ecs'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
@@ -53,7 +52,7 @@ export default function MaterialLayerNode(props: ListChildComponentProps<{ nodes
   const materialSelection = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
   const selectionState = useMutableState(SelectionState)
 
-  const materialEntity = UUIDComponent.getEntityByUUID(node, 'authoring' as LayerID)
+  const materialEntity = UUIDComponent.getEntityByUUID(node, Layers.Authoring)
   /**@todo use asset source decoupled from uuid to make this less brittle */
   const source = !hasComponent(materialEntity, MaterialStateComponent)
 

@@ -31,7 +31,6 @@ import { HyperFlux } from '@ir-engine/hyperflux'
 
 import { removeAllComponents } from './ComponentFunctions'
 import { Entity, EntityUUID, UndefinedEntity } from './Entity'
-import { EntityLayerState, LayerID } from './LayerState'
 
 export const removeEntity = (entity: Entity) => {
   if (!entity || !entityExists(entity)) return [] ///throw new Error(`[removeEntity]: Entity ${entity} does not exist in the world`)
@@ -39,16 +38,6 @@ export const removeEntity = (entity: Entity) => {
   removeAllComponents(entity)
 
   bitECS.removeEntity(HyperFlux.store, entity)
-
-  const layer = EntityLayerState.getEntityLayer(entity)
-  if (!layer) return
-  for (const layerID of Object.keys(layer.relations)) {
-    const relation = layer.relations[layerID as LayerID]
-    if (relation === 'propagate') {
-      const linkedEntity = EntityLayerState.getLinkedEntity(entity, layerID as LayerID)
-      removeEntity(linkedEntity)
-    }
-  }
 }
 
 export const entityExists = (entity: Entity) => {

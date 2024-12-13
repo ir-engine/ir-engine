@@ -43,7 +43,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const MeshComponent = defineComponent({
   name: 'MeshComponent',
-  jsonID: 'EE_mesh',
+
   schema: S.Required(S.NonSerialized(S.Type<Mesh>())),
 
   reactor: () => {

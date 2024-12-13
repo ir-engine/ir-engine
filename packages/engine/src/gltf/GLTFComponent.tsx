@@ -41,7 +41,6 @@ import {
   setComponent,
   UndefinedEntity,
   useComponent,
-  useEntityContext,
   useHasComponents,
   useOptionalComponent,
   useQuery,
@@ -58,10 +57,10 @@ import {
   useMutableState
 } from '@ir-engine/hyperflux'
 
-import { EntityLayerState, hasAuthoringCounterpart } from '@ir-engine/ecs/src/LayerState'
+import { LayerComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { ShapeSchema } from '@ir-engine/spatial/src/physics/types/PhysicsTypes.ts'
+import { ShapeSchema } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
@@ -90,7 +89,7 @@ import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
 import { getParserOptions, GLTFSourceState } from './GLTFState'
 import { gltfReplaceUUIDsReferences } from './gltfUtils'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
-import { useApplyCollidersToChildMeshesEffect } from './useApplyCollidersToChildMeshesEffect.ts'
+import { useApplyCollidersToChildMeshesEffect } from './useApplyCollidersToChildMeshesEffect'
 
 type DependencyEval = {
   key: string
@@ -215,12 +214,6 @@ export const GLTFComponent = defineComponent({
     return componentDependenciesLoaded(dependencies) && progress === 100
   },
 
-  reactor: () => {
-    const entity = useEntityContext()
-    if (hasAuthoringCounterpart(entity)) return null
-    return <GLTFComponentReactor />
-  },
-
   getInstanceID: (entity: Entity) => {
     const uuid = getOptionalComponent(entity, UUIDComponent)
     const src = getOptionalComponent(entity, GLTFComponent)?.src
@@ -236,8 +229,8 @@ export const GLTFComponent = defineComponent({
   }
 })
 
-const GLTFComponentReactor = () => {
-  const entity = useEntityContext()
+export const GLTFComponentReactor = (props: { entity: Entity }) => {
+  const entity = props.entity
   const gltfComponent = useComponent(entity, GLTFComponent)
   const gltfLoaded = useHookstate(false)
   const generatedEntities = useHookstate([] as Entity[])
@@ -491,7 +484,7 @@ const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; 
 
 const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: string; components: Component[] }) => {
   const { gltfComponentEntity, uuid, components } = props
-  const layer = EntityLayerState.getLayerID(gltfComponentEntity)
+  const layer = LayerComponent.get(gltfComponentEntity)
   const entity = UUIDComponent.useEntityByUUID(uuid as EntityUUID, layer) as Entity | undefined
   const hasComponents = useHasComponents(entity ?? UndefinedEntity, components)
   const dynamicLoad = !!useOptionalComponent(entity ?? UndefinedEntity, SceneDynamicLoadTagComponent)
@@ -643,6 +636,8 @@ const useGLTFDocument = (entity: Entity) => {
       return
     }
 
+    const layer = LayerComponent.get(entity)
+
     let loaded = false
 
     const abortController = new AbortController()
@@ -666,7 +661,7 @@ const useGLTFDocument = (entity: Entity) => {
             if (node.extensions && node.extensions[UUIDComponent.jsonID]) {
               let uuid = node.extensions[UUIDComponent.jsonID] as EntityUUID
               //check if uuid already exists
-              if (UUIDComponent.entitiesByUUIDState[uuid]?.value) {
+              if (UUIDComponent.entitiesByUUIDState[layer][uuid]?.value) {
                 //regenerate uuid if it already exists
                 const prevUUID = uuid
                 uuid = generateEntityUUID()

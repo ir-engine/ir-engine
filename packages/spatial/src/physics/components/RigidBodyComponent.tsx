@@ -32,7 +32,6 @@ import {
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 
-import { EntityLayerState } from '@ir-engine/ecs/src/LayerState'
 import { ECSSchema } from '@ir-engine/ecs/src/schemas/ECSSchemas'
 import { useEffect } from 'react'
 import { QuaternionProxy, Vec3Proxy } from '../../common/proxies/createThreejsProxy'
@@ -113,9 +112,6 @@ export const RigidBodyComponent = defineComponent({
   },
 
   reactor: () => {
-    const entity = useEntityContext()
-    const layerID = EntityLayerState.getLayerID(entity)
-    if (layerID !== 'simulation') return null
     return <RigidBodyReactor />
   }
 })

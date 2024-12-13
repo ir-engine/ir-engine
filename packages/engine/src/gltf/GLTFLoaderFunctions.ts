@@ -29,6 +29,7 @@ import {
   ComponentType,
   Entity,
   EntityUUID,
+  LayerComponent,
   UUIDComponent,
   UndefinedEntity,
   getComponent,
@@ -37,7 +38,6 @@ import {
   removeComponent,
   setComponent
 } from '@ir-engine/ecs'
-import { EntityLayerState } from '@ir-engine/ecs/src/LayerState'
 import { NO_PROXY, getState, isClient, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -1050,7 +1050,7 @@ const loadAnimation = (options: GLTFParserOptions, animationIndex?: number) => {
 
   const json = options.document
 
-  const layerID = EntityLayerState.getLayerID(options.entity)
+  const layerID = LayerComponent.get(options.entity)
 
   const animationDef = typeof animationIndex === 'number' ? json.animations![animationIndex] : null
   const animationName = animationDef ? (animationDef.name ? animationDef.name : 'animation_' + animationIndex) : null
@@ -1317,7 +1317,7 @@ const isBoneNode = (json: GLTF.IGLTF, nodeIndex: number) => {
 const loadGLTF = async (options: GLTFParserOptions) => {
   const { entity, document } = options
 
-  const layerID = EntityLayerState.getLayerID(entity)
+  const layerID = LayerComponent.get(entity)
 
   const gltfComponent = getComponent(entity, GLTFComponent)
 
