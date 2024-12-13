@@ -47,7 +47,7 @@ export interface SelectProps<T = string | number> {
   width?: 'sm' | 'md' | 'lg' | 'full'
   inputHeight?: InputProps['height']
   onChange: (value: T) => void
-  onOpenChange?: (isOpen: boolean) => void
+  onOpen?: (isOpen: boolean) => void
   value: T
   labelProps?: InputProps['labelProps']
   state?: InputProps['state']
@@ -68,7 +68,7 @@ const Select = ({
   width = 'md',
   inputHeight = 'l',
   onChange,
-  onOpenChange,
+  onOpen,
   value,
   labelProps,
   state,
@@ -162,8 +162,8 @@ const Select = ({
   }, [value, options, selectedOptionIndex])
 
   useEffect(() => {
-    if (onOpenChange) {
-      onOpenChange(open)
+    if (onOpen) {
+      onOpen(open)
     }
   }, [open])
 

@@ -72,7 +72,7 @@ function ToolbarDropdown({
       ref={ref}
     >
       <div className={dropdownParentClassName}>
-        <Select {...props} onOpenChange={(isOpen) => setDropdownOpen(isOpen)} />
+        <Select {...props} onOpen={(isOpen) => setDropdownOpen(isOpen)} />
       </div>
     </Tooltip>
   )
