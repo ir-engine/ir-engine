@@ -136,7 +136,6 @@ export const GLTFSourceState = defineState({
    */
   load: (source: string, uuid = MathUtils.generateUUID() as EntityUUID, parentEntity = UndefinedEntity) => {
     // getState(EngineState).isEditing is a hack, we will pass this down as needed
-    // @todo we need to set SceneComponent on the simulation layer version of this entity
     const entity = createEntity(getState(EngineState).isEditing ? Layers.Authoring : Layers.Simulation)
     setComponent(entity, UUIDComponent, uuid)
     setComponent(entity, NameComponent, source.split('/').pop()!)
@@ -171,45 +170,12 @@ export const GLTFLoadSystem = defineSystem({
           <GLTFComponentReactor key={'simulation-' + entity} entity={entity} />
         ))}
         {gltfAuthoringEntities.map((entity) => (
-          <GLTFAuthoringComponentReactor key={'authoring-simulation-' + entity} entity={entity} />
-        ))}
-        {gltfAuthoringEntities.map((entity) => (
           <GLTFComponentReactor key={'authoring-' + entity} entity={entity} />
         ))}
       </>
     )
   }
 })
-
-export const GLTFAuthoringComponentReactor = (props: { entity: Entity }) => {
-  useEffect(() => {
-    const uuid = getComponent(props.entity, UUIDComponent)
-    const name = getComponent(props.entity, NameComponent)
-    const parentEntity = getComponent(props.entity, EntityTreeComponent).parentEntity
-    const source = getComponent(props.entity, SourceComponent)
-    const url = getComponent(props.entity, GLTFComponent).src
-    console.log('GLTFAuthoringComponentReactor', { uuid, name, parentEntity, source, url })
-
-    const entity = createEntity(Layers.Simulation)
-    setComponent(entity, UUIDComponent, uuid)
-    setComponent(entity, NameComponent, name)
-    setComponent(entity, VisibleComponent, true)
-    setComponent(entity, TransformComponent)
-    setComponent(entity, EntityTreeComponent, { parentEntity })
-    setComponent(entity, SourceComponent, source)
-    setComponent(entity, GLTFComponent, { src: url })
-    const obj3d = new Group()
-    setComponent(entity, Object3DComponent, obj3d)
-    addObjectToGroup(entity, obj3d)
-    proxifyParentChildRelationships(obj3d)
-
-    return () => {
-      removeEntity(entity)
-    }
-  }, [])
-
-  return null
-}
 
 export type GLTFSnapshotStateType = Record<
   string,
