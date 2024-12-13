@@ -69,8 +69,10 @@ export const setInitialState = (def: StateDefinition<any, any, any, any>) => {
     ))
     if (def.onCreate) def.onCreate(HyperFlux.store, state)
     if (def.reactor) {
-      const reactor = startReactor(def.reactor)
-      HyperFlux.store.stateReactors[def.name] = reactor
+      Promise.resolve().then(() => {
+        const reactor = startReactor(def.reactor)
+        HyperFlux.store.stateReactors[def.name] = reactor
+      })
     }
   }
 }

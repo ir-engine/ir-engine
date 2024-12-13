@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { DependencyList, EffectCallback, useLayoutEffect, useRef } from 'react'
+import { DependencyList, EffectCallback, useEffect, useLayoutEffect, useRef } from 'react'
 
 function depsDiff(deps1, deps2) {
   return !(
@@ -38,20 +38,28 @@ export function useImmediateEffect(effect: EffectCallback, deps?: DependencyList
   const cleanupRef = useRef<any>()
   const depsRef = useRef<any>()
 
-  if (!depsRef.current || depsDiff(depsRef.current, deps)) {
+  // only run effect on mount and whenever deps change
+  if (depsDiff(depsRef.current, deps)) {
     depsRef.current = deps
 
+    // cleanup previous effect
     if (cleanupRef.current) {
       cleanupRef.current()
     }
 
+    // run effect
     cleanupRef.current = effect()
   }
 
+  // make sure deps are hooked
+  useEffect(() => {}, deps)
+
+  // make sure final cleanup is called on unmount
   useLayoutEffect(() => {
     return () => {
       if (cleanupRef.current) {
         cleanupRef.current()
+        cleanupRef.current = undefined
       }
     }
   }, [])

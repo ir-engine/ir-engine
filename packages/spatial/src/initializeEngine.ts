@@ -27,9 +27,8 @@ import { BoxGeometry, Group, Mesh, MeshNormalMaterial } from 'three'
 
 import { createEntity, getComponent, removeEntity, setComponent, UUIDComponent } from '@ir-engine/ecs'
 import { EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, useImmediateEffect } from '@ir-engine/hyperflux'
 
-import { useEffect } from 'react'
 import { CameraComponent } from './camera/components/CameraComponent'
 import { NameComponent } from './common/NameComponent'
 import { EngineState } from './EngineState'
@@ -85,7 +84,7 @@ export const destroySpatialViewer = () => {
 }
 
 export const useSpatialEngine = () => {
-  useEffect(() => {
+  useImmediateEffect(() => {
     initializeSpatialEngine()
     return () => {
       destroySpatialEngine()
