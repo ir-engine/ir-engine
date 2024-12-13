@@ -250,7 +250,7 @@ export const RendererComponent = defineComponent({
         outlineEffect.dispose()
         effectComposerState.OutlineEffect.set(none)
       }
-    }, [!!effectComposerState.value, hightlightState])
+    }, [!!rendererComponent.effectComposer.value, !!effectComposerState.value, hightlightState])
 
     useEffect(() => {
       const effectComposer = effectComposerState.value
