@@ -115,8 +115,9 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
   useLayoutEffect(() => {
     if (!userConnected) return
     const entity = UUIDComponent.getOrCreateEntityByUUID(props.uuid)
+    console.log(userConnected, entity)
     return () => {
-      removeEntity(entity)
+      if (userHasPeer) removeEntity(entity)
     }
   }, [userConnected])
 
