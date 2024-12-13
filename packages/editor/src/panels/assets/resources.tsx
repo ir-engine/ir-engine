@@ -147,8 +147,8 @@ function ResourceFile({
   onLoadStart
 }: {
   resource: StaticResourceType
-  onLoad?: any
-  onLoadStart?: any
+  onLoad?: () => void
+  onLoadStart?: () => void
 }) {
   const anchorEvent = useHookstate<React.MouseEvent | undefined>(undefined)
 
