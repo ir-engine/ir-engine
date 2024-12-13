@@ -27,6 +27,7 @@ import { BadRequest, Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/e
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import { random } from 'lodash'
+import { v4 } from 'uuid'
 
 import { isDev } from '@ir-engine/common/src/config'
 import { staticResourcePath } from '@ir-engine/common/src/schemas/media/static-resource.schema'
@@ -45,6 +46,7 @@ import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema
 import { checkScope } from '@ir-engine/common/src/utils/checkScope'
 
 import { Paginated } from '@feathersjs/feathers'
+import { USER_ID_REGEX } from '@ir-engine/common/src/regex'
 import {
   projectPath,
   projectPermissionPath,
@@ -183,23 +185,50 @@ async function validateAuthParams(context: HookContext<IdentityProviderService>)
 
 async function addIdentityProviderType(context: HookContext<IdentityProviderService>) {
   const isAdmin = context.existingUser && (await checkScope(context.existingUser, 'admin', 'admin'))
+  let data = context.data as any
+  let actualData = context.actualData
   if (
     !isAdmin &&
     context.params!.provider &&
-    !['password', 'email', 'sms'].includes((context!.actualData as IdentityProviderData).type)
+    !['password', 'email', 'sms'].includes((context!.actualData as IdentityProviderData).type as string)
   ) {
-    ;(context.data as IdentityProviderData).type = 'guest'
-    ;(context.actualData as IdentityProviderData).type = 'guest' //Non-password/magiclink create requests must always be for guests
+    if (!USER_ID_REGEX.test(data.token as string))
+      //Ensure that guest tokens are UUIDs
+      data.token = v4()
+    if (!USER_ID_REGEX.test(actualData.token as string))
+      //Ensure that guest tokens are UUIDs
+      actualData.token = v4()
+    data.type = 'guest' //Non-password/magiclink create requests must always be for guests
+    actualData.type = 'guest' //Non-password/magiclink create requests must always be for guests
   }
 
-  if ((context.data as IdentityProviderData).type === 'guest' && (context.actualData as IdentityProviderData).userId) {
-    const existingUser = await context.app.service(userPath).find({
-      query: {
-        id: (context.actualData as IdentityProviderData).userId
+  if (data.type === 'guest') {
+    if (actualData.userId) {
+      const existingUser = await context.app.service(userPath).find({
+        query: {
+          id: actualData.userId
+        }
+      })
+      if (existingUser.data.length > 0) {
+        throw new BadRequest('Cannot create a guest identity-provider on an existing user')
       }
-    })
-    if (existingUser.data.length > 0) {
-      throw new BadRequest('Cannot create a guest identity-provider on an existing user')
+    }
+
+    data = {
+      id: data.id,
+      token: data.token,
+      type: data.type,
+      userId: data.userId,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt
+    }
+    actualData = {
+      id: actualData.id,
+      token: actualData.token,
+      type: actualData.type,
+      userId: actualData.userId,
+      createdAt: actualData.createdAt,
+      updatedAt: actualData.updatedAt
     }
   }
   const adminScopes = await context.app.service(scopePath).find({
@@ -208,9 +237,11 @@ async function addIdentityProviderType(context: HookContext<IdentityProviderServ
     }
   })
 
-  if (adminScopes.total === 0 && (isDev || (context.actualData as IdentityProviderData).type !== 'guest')) {
+  if (adminScopes.total === 0 && (isDev || actualData.type !== 'guest')) {
     context.isAdmin = true
   }
+  context.data = data
+  context.actualData = actualData
 }
 
 async function createNewUser(context: HookContext<IdentityProviderService>) {
@@ -327,7 +358,7 @@ export default {
     ],
     update: [disallow()],
     patch: [
-      iff(isProvider('external'), checkIdentityProvider),
+      disallow('external'),
       schemaHooks.validateData(identityProviderPatchValidator),
       schemaHooks.resolveData(identityProviderPatchResolver)
     ],
