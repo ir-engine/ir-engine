@@ -40,7 +40,7 @@ import {
   useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
-import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, isClient } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent } from '@ir-engine/network'
 import {
   createPriorityQueue,
@@ -441,6 +441,7 @@ export const AvatarAnimationSystem = defineSystem({
   insert: { after: AnimationSystem },
   execute,
   reactor: () => {
+    if (!isClient) return null
     const rigEntities = useQuery([AvatarRigComponent])
     const avatarAnimationEntities = useQuery([AvatarAnimationComponent, AvatarComponent, AvatarRigComponent])
     return (
