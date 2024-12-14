@@ -436,28 +436,32 @@ const AnimationReactor = (props: { entity: Entity }) => {
   return null
 }
 
+export const AvatarAnimationSystemReactor = () => {
+  const rigEntities = useQuery([AvatarRigComponent])
+  const avatarAnimationEntities = useQuery([AvatarAnimationComponent, AvatarComponent, AvatarRigComponent])
+  return (
+    <>
+      <Reactor />
+      {rigEntities.length > 0 && <AnimationLoader />}
+      <>
+        {rigEntities.map((entity: Entity) => (
+          <RigReactor entity={entity} key={entity} />
+        ))}
+        {avatarAnimationEntities.map((entity: Entity) => (
+          <AnimationReactor entity={entity} key={entity} />
+        ))}
+      </>
+    </>
+  )
+}
+
 export const AvatarAnimationSystem = defineSystem({
   uuid: 'ee.engine.AvatarAnimationSystem',
   insert: { after: AnimationSystem },
   execute,
   reactor: () => {
     if (!isClient) return null
-    const rigEntities = useQuery([AvatarRigComponent])
-    const avatarAnimationEntities = useQuery([AvatarAnimationComponent, AvatarComponent, AvatarRigComponent])
-    return (
-      <>
-        <Reactor />
-        {rigEntities.length > 0 && <AnimationLoader />}
-        <>
-          {rigEntities.map((entity: Entity) => (
-            <RigReactor entity={entity} key={entity} />
-          ))}
-          {avatarAnimationEntities.map((entity: Entity) => (
-            <AnimationReactor entity={entity} key={entity} />
-          ))}
-        </>
-      </>
-    )
+    return AvatarAnimationSystemReactor()
   }
 })
 
