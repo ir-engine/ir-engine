@@ -33,12 +33,22 @@ import {
 } from '@ir-engine/hyperflux'
 import Tabs, { TabProps } from '@ir-engine/ui/src/primitives/tailwind/Tabs'
 import React, { useEffect } from 'react'
+import { useDraggable } from '../../hooks/useDraggable'
 import { APIDebug } from './APIDebug'
 import DebugButtons from './DebugButtons'
 import { EntityDebug } from './EntityDebug'
 import { StateDebug } from './StateDebug'
 import { StatsPanel } from './StatsPanel'
 import { SystemDebug } from './SystemDebug'
+
+function Placer({ id }: { id: string }) {
+  return (
+    <div id={id} className="flex flex-col gap-0.5 px-2 py-1">
+      <div className="h-0.5 w-full bg-[#2B2C30]" />
+      <div className="h-0.5 w-full bg-[#2B2C30]" />
+    </div>
+  )
+}
 
 export const DebugState = defineState({
   name: 'DebugState',
@@ -74,15 +84,23 @@ const Debug = () => {
   useHookstate(getMutableState(ECSState).frameTime).value
   const activeTabIndex = useMutableState(DebugState).activeTabIndex
 
+  useDraggable({
+    targetId: 'debug',
+    placerId: 'debug-placer'
+  })
+
   return (
-    <div className="pointer-events-auto fixed top-0 z-[1000] m-1 max-h-[95vh] overflow-y-auto rounded bg-neutral-700 p-0.5">
-      <DebugButtons />
-      <StatsPanel show />
-      <Tabs
-        tabsData={tabsData}
-        currentTabIndex={activeTabIndex.value}
-        onTabChange={(tabIndex) => activeTabIndex.set(tabIndex)}
-      />
+    <div id="debug" className="pointer-events-auto fixed z-[1000] rounded bg-neutral-700 p-0.5">
+      <Placer id="debug-placer" />
+      <div className="m-1 max-h-[95vh] overflow-y-auto">
+        <DebugButtons />
+        <StatsPanel show />
+        <Tabs
+          tabsData={tabsData}
+          currentTabIndex={activeTabIndex.value}
+          onTabChange={(tabIndex) => activeTabIndex.set(tabIndex)}
+        />
+      </div>
     </div>
   )
 }

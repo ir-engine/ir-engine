@@ -23,18 +23,19 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useDraggable } from '@ir-engine/client-core/src/hooks/useDraggable'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { setTransformMode } from '@ir-engine/editor/src/functions/transformFunctions'
-import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
 import { TransformMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { Tooltip } from '@ir-engine/ui'
 import { ToolbarButton } from '@ir-engine/ui/editor'
 import { Cursor03Default, Refresh1Md, Scale02Md, TransformMd } from '@ir-engine/ui/src/icons'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TbMarquee2 } from 'react-icons/tb'
+import { EditorHelperState } from '../../../services/EditorHelperState'
 import { SelectionBoxState } from './SelectionBoxTool'
 
 const GizmoTools = {
@@ -45,55 +46,23 @@ const GizmoTools = {
 
 type GizmoToolsType = (typeof GizmoTools)[keyof typeof GizmoTools]
 
-function Placer() {
+function Placer({ id }: { id: string }) {
   return (
-    <div className="flex flex-col gap-0.5">
+    <div id={id} className="z-[6] flex flex-col gap-0.5">
       <div className="h-0.5 w-6 bg-[#2B2C30]" />
       <div className="h-0.5 w-6 bg-[#2B2C30]" />
     </div>
   )
 }
 
-export default function TransformGizmoTool({
-  viewportRef,
-  toolbarRef
-}: {
-  viewportRef: React.RefObject<HTMLDivElement>
-  toolbarRef: React.RefObject<HTMLDivElement>
-}) {
+export default function TransformGizmoTool() {
   const { t } = useTranslation()
+  const [_, setPointerSelected] = useState(false)
+  const [isClickedSelectionBox, setIsClickedSelectionBox] = useState(false)
+
   const editorHelperState = useMutableState(EditorHelperState)
   const transformMode = editorHelperState.transformMode.value
-
-  const [position, setPosition] = useState({ x: 16, y: 56 })
-  const [isDragging, setIsDragging] = useState(false)
-  const [isClickedSelectionBox, setIsClickedSelectionBox] = useState(false)
-  const [startingMouseX, setStartingMouseX] = useState(0)
-  const [startingMouseY, setStartingMouseY] = useState(0)
   const [toolSelected, setToolSelected] = useState<GizmoToolsType>(transformMode)
-
-  const gizmoRef = useRef<HTMLDivElement>(null)
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true)
-    setStartingMouseX(e.clientX)
-    setStartingMouseY(e.clientY)
-  }
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging && viewportRef.current && gizmoRef.current && toolbarRef.current) {
-      const viewportRect = viewportRef.current.getBoundingClientRect()
-      const gizmoRect = gizmoRef.current.getBoundingClientRect()
-      const toolbarRect = toolbarRef.current.getBoundingClientRect()
-      const offsetX = e.clientX - startingMouseX
-      const offsetY = e.clientY - startingMouseY
-
-      const newX = Math.max(0, Math.min(position.x + offsetX, viewportRect.width - gizmoRect.width))
-      const newY = Math.max(toolbarRect.height, Math.min(position.y + offsetY, viewportRect.height - gizmoRect.height))
-
-      setPosition({ x: newX, y: newY })
-    }
-  }
   const handleClickSelectionBox = () => {
     setIsClickedSelectionBox(!isClickedSelectionBox)
     getMutableState(SelectionBoxState).selectionBoxEnabled.set(!isClickedSelectionBox)
@@ -101,31 +70,17 @@ export default function TransformGizmoTool({
     setToolSelected(GizmoTools.selectionBox)
   }
 
-  const handleMouseUp = () => {
-    setIsDragging(false)
-  }
-
-  useEffect(() => {
-    document.addEventListener('mousemove', handleMouseMove as any)
-    document.addEventListener('mouseup', handleMouseUp)
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove as any)
-      document.removeEventListener('mouseup', handleMouseUp)
-    }
-  }, [isDragging])
+  useDraggable({
+    targetId: 'gizmo-tool',
+    placerId: 'gizmo-tool-placer',
+    topOffset: 36,
+    targetStartY: 56,
+    targetStartX: 16
+  })
 
   return (
-    <div
-      ref={gizmoRef}
-      className={`absolute z-[5] flex flex-col items-center rounded-lg bg-[#080808] p-2`}
-      style={{
-        left: `${position.x}px`,
-        top: `${position.y}px`
-      }}
-    >
-      <div className={`z-[6] ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`} onMouseDown={handleMouseDown}>
-        <Placer />
-      </div>
+    <div id="gizmo-tool" className={`absolute z-[5] flex flex-col items-center rounded-lg bg-[#080808] p-2`}>
+      <Placer id="gizmo-tool-placer" />
       <div className="mt-2 flex flex-col overflow-hidden rounded bg-[#212226]">
         <Tooltip content={t('editor:toolbar.gizmo.pointer')} position="right">
           <ToolbarButton
