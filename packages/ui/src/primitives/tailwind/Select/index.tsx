@@ -47,6 +47,7 @@ export interface SelectProps<T = string | number> {
   width?: 'sm' | 'md' | 'lg' | 'full'
   inputHeight?: InputProps['height']
   onChange: (value: T) => void
+  onOpen?: (isOpen: boolean) => void
   value: T
   labelProps?: InputProps['labelProps']
   state?: InputProps['state']
@@ -67,6 +68,7 @@ const Select = ({
   width = 'md',
   inputHeight = 'l',
   onChange,
+  onOpen,
   value,
   labelProps,
   state,
@@ -158,6 +160,12 @@ const Select = ({
 
     setSelectedLabelContent(options[index].label)
   }, [value, options, selectedOptionIndex])
+
+  useEffect(() => {
+    if (onOpen) {
+      onOpen(open)
+    }
+  }, [open])
 
   return (
     <div className={`flex flex-col gap-y-2 ${width === 'full' ? 'w-full' : 'w-fit'}`}>
