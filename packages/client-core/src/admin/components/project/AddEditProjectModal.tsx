@@ -559,43 +559,37 @@ export default function AddEditProjectModal({
           <Text className="text-red-700">{projectUpdateStatus.value?.sourceVsDestinationError}</Text>
         )}
 
-        {!update && (
-          <Text
-            className={
-              'flex items-center gap-2 ' +
-              (projectUpdateStatus.value?.destinationValid ? 'text-green-400' : 'text-red-700')
-            }
-          >
-            {projectUpdateStatus.value?.destinationValid && <CiCircleCheck />}
-            {!projectUpdateStatus.value?.destinationValid && <CiCircleRemove />}
-            {t('admin:components.project.destinationURLValid')}
-          </Text>
-        )}
+        <Text
+          className={
+            'flex items-center gap-2 ' +
+            (projectUpdateStatus.value?.destinationValid ? 'text-green-400' : 'text-red-700')
+          }
+        >
+          {projectUpdateStatus.value?.destinationValid && <CiCircleCheck />}
+          {!projectUpdateStatus.value?.destinationValid && <CiCircleRemove />}
+          {t('admin:components.project.destinationURLValid')}
+        </Text>
 
-        {!update && (
-          <Text
-            className={
-              'flex items-center gap-2 ' + (projectUpdateStatus.value?.sourceValid ? 'text-green-400' : 'text-red-700')
-            }
-          >
-            {projectUpdateStatus.value?.sourceValid && <CiCircleCheck />}
-            {!projectUpdateStatus.value?.sourceValid && <CiCircleRemove />}
-            {t('admin:components.project.sourceURLValid')}
-          </Text>
-        )}
+        <Text
+          className={
+            'flex items-center gap-2 ' + (projectUpdateStatus.value?.sourceValid ? 'text-green-400' : 'text-red-700')
+          }
+        >
+          {projectUpdateStatus.value?.sourceValid && <CiCircleCheck />}
+          {!projectUpdateStatus.value?.sourceValid && <CiCircleRemove />}
+          {t('admin:components.project.sourceURLValid')}
+        </Text>
 
-        {!update && (
-          <Text
-            className={
-              'flex items-center gap-2 ' +
-              (projectUpdateStatus.value?.sourceProjectMatchesDestination ? 'text-green-400' : 'text-red-700')
-            }
-          >
-            {projectUpdateStatus.value?.sourceProjectMatchesDestination && <CiCircleCheck />}
-            {!projectUpdateStatus.value?.sourceProjectMatchesDestination && <CiCircleRemove />}
-            {t('admin:components.project.sourceMatchesDestination')}
-          </Text>
-        )}
+        <Text
+          className={
+            'flex items-center gap-2 ' +
+            (projectUpdateStatus.value?.sourceProjectMatchesDestination ? 'text-green-400' : 'text-red-700')
+          }
+        >
+          {projectUpdateStatus.value?.sourceProjectMatchesDestination && <CiCircleCheck />}
+          {!projectUpdateStatus.value?.sourceProjectMatchesDestination && <CiCircleRemove />}
+          {t('admin:components.project.sourceMatchesDestination')}
+        </Text>
 
         <Text>{t('admin:components.project.autoUpdate')}</Text>
         <Toggle
