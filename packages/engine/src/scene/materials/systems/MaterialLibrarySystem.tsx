@@ -33,6 +33,7 @@ import {
   getMutableComponent,
   PresentationSystemGroup,
   QueryReactor,
+  removeEntity,
   setComponent,
   UndefinedEntity,
   useComponent,
@@ -40,7 +41,7 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { getMutableState, NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import {
   MaterialInstanceComponent,
@@ -73,20 +74,27 @@ const reactor = () => {
     setComponent(fallbackMaterialEntity, NameComponent, 'Fallback Material')
   }, [])
 
+  const rendererState = useMutableState(RendererState)
+  useEffect(() => {
+    if (rendererState.qualityLevel.value === 0) rendererState.forceBasicMaterials.set(true)
+  }, [rendererState.qualityLevel, rendererState.forceBasicMaterials])
+
   return <QueryReactor Components={[MaterialStateComponent]} ChildEntityReactor={ChildMaterialReactor} />
 }
 
 const ChildMaterialReactor = () => {
   const entity = useEntityContext()
   const forceBasicMaterials = useMutableState(RendererState).forceBasicMaterials
-  const qualityLevel = getMutableState(RendererState).qualityLevel
   const materialComponent = useComponent(entity, MaterialStateComponent)
   useEffect(() => {
-    console.log(materialComponent.material)
-    if (!materialComponent.material || !materialComponent.instances.length) return
-    convertMaterials(entity, forceBasicMaterials.value || qualityLevel.value < 1)
-  }, [materialComponent.material, materialComponent.instances, forceBasicMaterials, qualityLevel])
-
+    if (!materialComponent.material.value || !materialComponent.instances.length) return
+    convertMaterials(entity, forceBasicMaterials.value)
+  }, [
+    materialComponent.material,
+    materialComponent.material.needsUpdate,
+    materialComponent.instances,
+    forceBasicMaterials
+  ])
   return null
 }
 
@@ -113,7 +121,7 @@ export const convertMaterials = (material: Entity, forceBasicMaterials: boolean)
   const existingMaterialEntity = UUIDComponent.getEntityByUUID(basicUuid)
   if (shouldMakeBasic) {
     if (existingMaterialEntity) {
-      setMaterial(uuid, basicUuid)
+      removeEntity(existingMaterialEntity)
       return
     }
 
