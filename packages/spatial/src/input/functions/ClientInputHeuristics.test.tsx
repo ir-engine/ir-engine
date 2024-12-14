@@ -24,10 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import React from 'react'
-import sinon from 'sinon'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import ClientInputHeuristics, { HeuristicData, HeuristicFunctions, IntersectionData } from './ClientInputHeuristics'
+import { boundingBoxHeuristic, findProximity, IntersectionData, meshHeuristic } from './ClientInputHeuristics'
 
 import {
   createEngine,
@@ -36,60 +34,27 @@ import {
   Engine,
   Entity,
   EntityUUID,
-  getComponent,
   getMutableComponent,
   removeEntity,
   setComponent,
   UndefinedEntity,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { getMutableState, getState, UserID } from '@ir-engine/hyperflux'
-import { act, render } from '@testing-library/react'
-import { Box3, BoxGeometry, Mesh, Quaternion, Ray, Raycaster, Vector3 } from 'three'
-import { assertFloat, assertVec } from '../../../tests/util/assert'
+import { getMutableState, UserID } from '@ir-engine/hyperflux'
+import { Box3, BoxGeometry, Mesh, Vector3 } from 'three'
+import { assertFloat } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
-import { createMockXRUI } from '../../../tests/util/MockXRUI'
 import { EngineState } from '../../EngineState'
 import { destroySpatialEngine, destroySpatialViewer } from '../../initializeEngine'
-import { Physics, RaycastArgs } from '../../physics/classes/Physics'
-import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { BodyTypes, SceneQueryType, Shapes } from '../../physics/types/PhysicsTypes'
 import { addObjectToGroup, GroupComponent } from '../../renderer/components/GroupComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
-import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
-import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
-import { TransformComponent, TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { XRState } from '../../xr/XRState'
 import { InputComponent } from '../components/InputComponent'
 import { InputState } from '../state/InputState'
-
-function createDefaultRaycastArgs(): RaycastArgs {
-  return {
-    type: SceneQueryType.Closest,
-    origin: new Vector3(),
-    direction: new Vector3(),
-    maxDistance: 1000,
-    groups: getInteractionGroups(CollisionGroups.Default, CollisionGroups.Default),
-    excludeRigidBody: undefined
-  } as RaycastArgs
-}
-
-export function createHeuristicDummyData(): HeuristicData {
-  return {
-    quaternion: new Quaternion(),
-    raycast: createDefaultRaycastArgs(),
-    ray: new Ray(),
-    caster: new Raycaster(),
-    hitTarget: new Vector3()
-  } as HeuristicData
-}
 
 describe('ClientInputHeuristics', () => {
   describe('findRaycastedInput', () => {
@@ -109,133 +74,9 @@ describe('ClientInputHeuristics', () => {
       destroySpatialViewer()
       return destroyEngine()
     })
-
-    it('should apply the editor heuristic only when EngineState.isEditing is true', () => {
-      const spy = sinon.spy()
-      const dummySpy = sinon.spy()
-      const intersectionData = {} as Set<IntersectionData>
-      const heuristicData = createHeuristicDummyData()
-      const heuristicFunctions = {
-        editor: spy as typeof ClientInputHeuristics.findEditor,
-        xrui: dummySpy as typeof ClientInputHeuristics.findXRUI,
-        physicsColliders: dummySpy as typeof ClientInputHeuristics.findPhysicsColliders,
-        bboxes: dummySpy as typeof ClientInputHeuristics.findBBoxes,
-        meshes: dummySpy as typeof ClientInputHeuristics.findMeshes,
-        proximity: dummySpy as typeof ClientInputHeuristics.findProximity,
-        raycastedInput: dummySpy as typeof ClientInputHeuristics.findRaycastedInput
-      } as HeuristicFunctions
-      assert.equal(spy.called, false)
-      assert.equal(getState(EngineState).isEditing, false)
-      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
-      assert.equal(spy.called, false)
-      getMutableState(EngineState).isEditing.set(true)
-      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
-      assert.equal(spy.called, true)
-    })
-
-    it('should apply the XRUI heuristic only when EngineState.isEditing is false', () => {
-      const spy = sinon.spy()
-      const dummySpy = sinon.spy()
-      const intersectionData = {} as Set<IntersectionData>
-      const heuristicData = createHeuristicDummyData()
-      const heuristicFunctions = {
-        xrui: spy as typeof ClientInputHeuristics.findXRUI,
-        editor: dummySpy as typeof ClientInputHeuristics.findEditor,
-        physicsColliders: dummySpy as typeof ClientInputHeuristics.findPhysicsColliders,
-        bboxes: dummySpy as typeof ClientInputHeuristics.findBBoxes,
-        meshes: dummySpy as typeof ClientInputHeuristics.findMeshes,
-        proximity: dummySpy as typeof ClientInputHeuristics.findProximity,
-        raycastedInput: dummySpy as typeof ClientInputHeuristics.findRaycastedInput
-      } as HeuristicFunctions
-      assert.equal(spy.called, false)
-      assert.equal(getState(EngineState).isEditing, false)
-      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
-      assert.equal(spy.callCount, 1)
-      getMutableState(EngineState).isEditing.set(true)
-      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
-      getMutableState(EngineState).isEditing.set(false)
-      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
-      assert.equal(spy.callCount, 2)
-    })
-
-    it('should apply the PhysicsColliders heuristic only when EngineState.isEditing is false', () => {
-      const spy = sinon.spy()
-      const dummySpy = sinon.spy()
-      const intersectionData = {} as Set<IntersectionData>
-      const heuristicData = createHeuristicDummyData()
-      const heuristicFunctions = {
-        physicsColliders: spy as typeof ClientInputHeuristics.findPhysicsColliders,
-        editor: dummySpy as typeof ClientInputHeuristics.findEditor,
-        xrui: dummySpy as typeof ClientInputHeuristics.findXRUI,
-        bboxes: dummySpy as typeof ClientInputHeuristics.findBBoxes,
-        meshes: dummySpy as typeof ClientInputHeuristics.findMeshes,
-        proximity: dummySpy as typeof ClientInputHeuristics.findProximity,
-        raycastedInput: dummySpy as typeof ClientInputHeuristics.findRaycastedInput
-      } as HeuristicFunctions
-      assert.equal(spy.called, false)
-      assert.equal(getState(EngineState).isEditing, false)
-      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
-      assert.equal(spy.callCount, 1)
-      getMutableState(EngineState).isEditing.set(true)
-      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
-      getMutableState(EngineState).isEditing.set(false)
-      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
-      assert.equal(spy.callCount, 2)
-    })
-
-    it('should apply the BBoxes heuristic only when EngineState.isEditing is false', () => {
-      const spy = sinon.spy()
-      const dummySpy = sinon.spy()
-      const intersectionData = {} as Set<IntersectionData>
-      const heuristicData = createHeuristicDummyData()
-      const heuristicFunctions = {
-        bboxes: spy as typeof ClientInputHeuristics.findBBoxes,
-        editor: dummySpy as typeof ClientInputHeuristics.findEditor,
-        xrui: dummySpy as typeof ClientInputHeuristics.findXRUI,
-        physicsColliders: dummySpy as typeof ClientInputHeuristics.findPhysicsColliders,
-        meshes: dummySpy as typeof ClientInputHeuristics.findMeshes,
-        proximity: dummySpy as typeof ClientInputHeuristics.findProximity,
-        raycastedInput: dummySpy as typeof ClientInputHeuristics.findRaycastedInput
-      } as HeuristicFunctions
-      assert.equal(spy.called, false)
-      assert.equal(getState(EngineState).isEditing, false)
-      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
-      assert.equal(spy.callCount, 1)
-      getMutableState(EngineState).isEditing.set(true)
-      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
-      getMutableState(EngineState).isEditing.set(false)
-      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
-      assert.equal(spy.callCount, 2)
-    })
-
-    it('should always apply the Meshes heuristic', () => {
-      const spy = sinon.spy()
-      const dummySpy = sinon.spy()
-      const intersectionData = {} as Set<IntersectionData>
-      const heuristicData = createHeuristicDummyData()
-      const heuristicFunctions = {
-        meshes: spy as typeof ClientInputHeuristics.findMeshes,
-        editor: dummySpy as typeof ClientInputHeuristics.findEditor,
-        xrui: dummySpy as typeof ClientInputHeuristics.findXRUI,
-        physicsColliders: dummySpy as typeof ClientInputHeuristics.findPhysicsColliders,
-        bboxes: dummySpy as typeof ClientInputHeuristics.findBBoxes,
-        proximity: dummySpy as typeof ClientInputHeuristics.findProximity,
-        raycastedInput: dummySpy as typeof ClientInputHeuristics.findRaycastedInput
-      } as HeuristicFunctions
-      assert.equal(spy.called, false)
-      assert.equal(getState(EngineState).isEditing, false)
-      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
-      assert.equal(spy.callCount, 1)
-      getMutableState(EngineState).isEditing.set(true)
-      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
-      assert.equal(spy.callCount, 2)
-      getMutableState(EngineState).isEditing.set(false)
-      ClientInputHeuristics.findRaycastedInput(testEntity, intersectionData, heuristicData, heuristicFunctions)
-      assert.equal(spy.callCount, 3)
-    })
   })
 
-  describe('findBBoxes', () => {
+  describe('boundingBoxHeuristic', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
@@ -261,13 +102,11 @@ describe('ClientInputHeuristics', () => {
 
         const rayOrigin = new Vector3()
         const rayDirection = new Vector3()
-        const ray = new Ray(rayOrigin, rayDirection)
-        const hitTarget = new Vector3()
 
         const data = new Set<IntersectionData>()
 
         // Run and check that nothing was added
-        ClientInputHeuristics.findBBoxes(data, ray, hitTarget)
+        boundingBoxHeuristic(data, rayOrigin, rayDirection)
         assert.equal(data.size, 0)
       })
 
@@ -278,13 +117,10 @@ describe('ClientInputHeuristics', () => {
 
         const rayOrigin = new Vector3()
         const rayDirection = new Vector3(2, 2, 2)
-        const ray = new Ray(rayOrigin, rayDirection)
-        const hitTarget = new Vector3()
         const data = new Set<IntersectionData>()
-        assert.equal(data.size, 0)
 
         // Run and check that nothing was added
-        ClientInputHeuristics.findBBoxes(data, ray, hitTarget)
+        boundingBoxHeuristic(data, rayOrigin, rayDirection)
         assert.equal(data.size, 0)
       })
 
@@ -299,15 +135,12 @@ describe('ClientInputHeuristics', () => {
         const inputState = getMutableState(InputState)
         inputState.inputBoundingBoxes.set(new Set([testEntity]))
 
-        const rayOrigin = new Vector3()
-        const rayDirection = new Vector3(2, 2, 2)
-        const ray = new Ray(rayOrigin, rayDirection)
-        const hitTarget = new Vector3()
+        const rayOrigin = new Vector3(0, 2, 2)
+        const rayDirection = new Vector3(1, 0, 0).normalize()
         const data = new Set<IntersectionData>()
-        assert.equal(data.size, 0)
 
-        ClientInputHeuristics.findBBoxes(data, ray, hitTarget)
-        assertVec.approxEq(boxMin, hitTarget, 3)
+        boundingBoxHeuristic(data, rayOrigin, rayDirection)
+        assertFloat.approxEq(1, Array.from(data)[0].distance)
         assert.equal(data.size, 1)
         const result = [...data]
         assert.equal(result[0].entity, testEntity)
@@ -340,12 +173,9 @@ describe('ClientInputHeuristics', () => {
 
         const rayOrigin = new Vector3()
         const rayDirection = new Vector3(2, 2, 2)
-        const ray = new Ray(rayOrigin, rayDirection)
-        const hitTarget = new Vector3()
         const data = new Set<IntersectionData>()
-        assert.equal(data.size, 0)
 
-        ClientInputHeuristics.findBBoxes(data, ray, hitTarget)
+        boundingBoxHeuristic(data, rayOrigin, rayDirection)
         assert.equal(data.size, boxes.length)
         const result = [...data]
         for (let id = 0; id < boxes.length; ++id) {
@@ -356,132 +186,7 @@ describe('ClientInputHeuristics', () => {
     })
   })
 
-  describe('findPhysicsColliders', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(async () => {
-      createEngine()
-      mockSpatialEngine()
-      await Physics.load()
-      testEntity = createEntity()
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      destroySpatialEngine()
-      destroySpatialViewer()
-      return destroyEngine()
-    })
-
-    it('should add the hit.entity and hit.distance to the `@param intersectionData` for the first entity hit by the `@param raycast`', async () => {
-      const physicsWorldEntity = createEntity()
-      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
-      setComponent(physicsWorldEntity, SceneComponent)
-      setComponent(physicsWorldEntity, TransformComponent)
-      setComponent(physicsWorldEntity, EntityTreeComponent)
-      const physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
-      physicsWorld.timestep = 1 / 60
-
-      const data = new Set<IntersectionData>()
-      const raycast = createDefaultRaycastArgs()
-      raycast.origin.set(0, 0, 0)
-      raycast.direction.set(2, 2, 2).normalize()
-
-      const one = createEntity()
-      setComponent(one, VisibleComponent)
-      setComponent(one, EntityTreeComponent, { parentEntity: physicsWorldEntity })
-      setComponent(one, TransformComponent, { position: new Vector3(2.1, 2.1, 2.1) })
-      setComponent(one, RigidBodyComponent, { type: BodyTypes.Fixed })
-      setComponent(one, ColliderComponent, { shape: Shapes.Box })
-      const two = createEntity() // Should not be hit by the raycast
-      setComponent(two, VisibleComponent)
-      setComponent(two, EntityTreeComponent, { parentEntity: physicsWorldEntity })
-      setComponent(two, TransformComponent, { position: new Vector3(2.2, 2.2, 2.2) })
-      setComponent(two, RigidBodyComponent, { type: BodyTypes.Fixed })
-      setComponent(two, ColliderComponent, { shape: Shapes.Box })
-
-      const { rerender, unmount } = render(<></>)
-      await act(() => rerender(<></>))
-      physicsWorld.step()
-
-      ClientInputHeuristics.findPhysicsColliders(data, raycast)
-
-      assert.notEqual(data.size, 0)
-      assert.equal(data.size, 1)
-      assert.equal([...data][0].entity, one)
-
-      unmount()
-    })
-
-    it('should not do anything if there is no PhysicsState.physicsWorld', async () => {
-      // Do not set PhysicsState.physicsWorld for this test
-      // const physicsWorld = Physics.createWorld()
-      // physicsWorld!.timestep = 1 / 60
-      // getMutableState(PhysicsState).physicsWorld!.set(physicsWorld!)
-
-      const data = new Set<IntersectionData>()
-      const raycast = createDefaultRaycastArgs()
-      raycast.origin.set(0, 0, 0)
-      raycast.direction.set(2, 2, 2).normalize()
-
-      const one = createEntity()
-      setComponent(one, VisibleComponent)
-      setComponent(one, EntityTreeComponent, { parentEntity: UndefinedEntity })
-      setComponent(one, TransformComponent, { position: new Vector3(2.1, 2.1, 2.1) })
-      setComponent(one, RigidBodyComponent, { type: BodyTypes.Fixed })
-      setComponent(one, ColliderComponent, { shape: Shapes.Box })
-
-      const { rerender, unmount } = render(<></>)
-      await act(() => rerender(<></>))
-      // getState(PhysicsState).physicsWorld.step() // Cannot step the physics if there is no physicsWorld
-
-      // Run and check that nothing was added
-      ClientInputHeuristics.findPhysicsColliders(data, raycast)
-      assert.equal(data.size, 0)
-
-      unmount()
-    })
-
-    it('should not do anything if the given `@param raycast` does not hit any entities in the current PhysicsState.physicsWorld', async () => {
-      const physicsWorldEntity = createEntity()
-      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
-      setComponent(physicsWorldEntity, SceneComponent)
-      setComponent(physicsWorldEntity, TransformComponent)
-      setComponent(physicsWorldEntity, EntityTreeComponent)
-      const physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
-      physicsWorld.timestep = 1 / 60
-
-      const data = new Set<IntersectionData>()
-      const raycast = createDefaultRaycastArgs()
-      raycast.origin.set(0, 0, 0)
-      raycast.direction.set(-2, -2, -2).normalize() // Opposite direction of the entities location
-
-      const one = createEntity()
-      setComponent(one, VisibleComponent)
-      setComponent(one, EntityTreeComponent, { parentEntity: UndefinedEntity })
-      setComponent(one, TransformComponent, { position: new Vector3(42.1, 42.1, 42.1) })
-      setComponent(one, RigidBodyComponent, { type: BodyTypes.Fixed })
-      setComponent(one, ColliderComponent, { shape: Shapes.Box })
-      const two = createEntity() // Should not be hit by the raycast
-      setComponent(two, VisibleComponent)
-      setComponent(two, EntityTreeComponent, { parentEntity: UndefinedEntity })
-      setComponent(two, TransformComponent, { position: new Vector3(42.2, 42.2, 42.2) })
-      setComponent(two, RigidBodyComponent, { type: BodyTypes.Fixed })
-      setComponent(two, ColliderComponent, { shape: Shapes.Box })
-
-      const { rerender, unmount } = render(<></>)
-      await act(() => rerender(<></>))
-      physicsWorld.step()
-
-      // Run and check that nothing was added
-      ClientInputHeuristics.findPhysicsColliders(data, raycast)
-      assert.equal(data.size, 0)
-
-      unmount()
-    })
-  })
-
-  describe('findMeshes', () => {
+  describe('meshHeuristic', () => {
     beforeEach(() => {
       createEngine()
       mockSpatialEngine()
@@ -494,32 +199,30 @@ describe('ClientInputHeuristics', () => {
     })
 
     describe('when `@param isEditing` is true ...', () => {
-      const Editing = true
       it('should add the parentObject.entity and hit.distance to the `@param intersectionData` for every object that has a MeshComponent and a VisibleComponent and is hit by the `@param caster`', () => {
-        const box1 = new Mesh(new BoxGeometry(2, 2, 2))
+        const box1 = new Mesh(new BoxGeometry(0.5, 0.5, 0.5))
         const one = createEntity()
-        setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
+        setComponent(one, TransformComponent, { position: new Vector3(1, 1, 1) })
         setComponent(one, VisibleComponent)
         setComponent(one, MeshComponent, box1)
-        setComponent(one, GroupComponent)
         addObjectToGroup(one, box1)
-        const box2 = new Mesh(new BoxGeometry(2, 2, 2))
+        const box2 = new Mesh(new BoxGeometry(0.5, 0.5, 0.5))
         const two = createEntity()
-        setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
+        setComponent(two, TransformComponent, { position: new Vector3(2, 2, 2) })
         setComponent(two, VisibleComponent)
         setComponent(two, MeshComponent, box2)
-        setComponent(two, GroupComponent)
         addObjectToGroup(two, box2)
         const KnownEntities = [one, two]
 
+        getMutableState(EngineState).isEditing.set(true)
+
         const data = new Set<IntersectionData>()
-        assert.equal(data.size, 0)
 
         const rayOrigin = new Vector3(0, 0, 0)
-        const rayDirection = new Vector3(3, 3, 3).normalize()
-        const raycaster = new Raycaster(rayOrigin, rayDirection)
+        const rayDirection = new Vector3(1, 1, 1).normalize()
 
-        ClientInputHeuristics.findMeshes(data, Editing, raycaster)
+        meshHeuristic(data, rayOrigin, rayDirection)
+        /** @todo find out why there are 7 hits returned... */
         assert.notEqual(data.size, 0)
         for (const hit of [...data]) {
           assert.equal(KnownEntities.includes(hit.entity), true)
@@ -544,17 +247,15 @@ describe('ClientInputHeuristics', () => {
         addObjectToGroup(two, box2)
 
         const data = new Set<IntersectionData>()
-        assert.equal(data.size, 0)
 
         const rayOrigin = new Vector3(0, 0, 0)
         const rayDirection = new Vector3(3.5, 3.5, 3.5).normalize()
-        const raycaster = new Raycaster(rayOrigin, rayDirection)
 
         // Remove the ancestor so that the `if (!parentObject) continue` code branch is hit
         box1.entity = undefined! as Entity
         box2.entity = undefined! as Entity
         // Run and check that nothing was added
-        ClientInputHeuristics.findMeshes(data, Editing, raycaster)
+        meshHeuristic(data, rayOrigin, rayDirection)
         assert.equal(data.size, 0)
       })
     })
@@ -580,13 +281,11 @@ describe('ClientInputHeuristics', () => {
         getMutableState(InputState).inputMeshes.set(new Set(KnownEntities))
 
         const data = new Set<IntersectionData>()
-        assert.equal(data.size, 0)
 
         const rayOrigin = new Vector3(0, 0, 0)
         const rayDirection = new Vector3(3, 3, 3).normalize()
-        const raycaster = new Raycaster(rayOrigin, rayDirection)
 
-        ClientInputHeuristics.findMeshes(data, Editing, raycaster)
+        meshHeuristic(data, rayOrigin, rayDirection)
         assert.notEqual(data.size, 0)
         for (const hit of [...data]) {
           assert.equal(KnownEntities.includes(hit.entity), true)
@@ -613,307 +312,17 @@ describe('ClientInputHeuristics', () => {
         getMutableState(InputState).inputMeshes.set(new Set(KnownEntities))
 
         const data = new Set<IntersectionData>()
-        assert.equal(data.size, 0)
 
         const rayOrigin = new Vector3(0, 0, 0)
         const rayDirection = new Vector3(3, 3, 3).normalize()
-        const raycaster = new Raycaster(rayOrigin, rayDirection)
 
         // Remove the ancestor so that the `if (!parentObject) continue` code branch is hit
         box1.entity = undefined! as Entity
         box2.entity = undefined! as Entity
         // Run and check that nothing was added
-        ClientInputHeuristics.findMeshes(data, Editing, raycaster)
+        meshHeuristic(data, rayOrigin, rayDirection)
         assert.equal(data.size, 0)
       })
-    })
-  })
-
-  describe('findEditor', () => {
-    beforeEach(async () => {
-      createEngine()
-      mockSpatialEngine()
-    })
-
-    afterEach(() => {
-      destroySpatialEngine()
-      destroySpatialViewer()
-      return destroyEngine()
-    })
-
-    describe('if there are gizmoPickerObjects ...', () => {
-      // objects will be the combined GroupComponent arrays of all gizmoPickerObjectsQuery entities
-
-      it('... should enable the ObjectLayers.TransformGizmo layer in raycaster.layers', () => {
-        const testEntity = createEntity()
-        setComponent(testEntity, InputComponent)
-        setComponent(testEntity, GroupComponent)
-        setComponent(testEntity, VisibleComponent)
-        setComponent(testEntity, TransformGizmoTagComponent)
-
-        const data = new Set<IntersectionData>()
-        assert.equal(data.size, 0)
-
-        const rayOrigin = new Vector3(0, 0, 0)
-        const rayDirection = new Vector3(3, 3, 3).normalize()
-        const raycaster = new Raycaster(rayOrigin, rayDirection)
-
-        assert.equal(raycaster.layers.isEnabled(ObjectLayers.TransformGizmo), false)
-        ClientInputHeuristics.findEditor(data, raycaster)
-        assert.equal(raycaster.layers.isEnabled(ObjectLayers.TransformGizmo), true)
-      })
-
-      it('... should add the parentObject.entity and hit.distance to the `@param intersectionData` for every gizmoPickerObject hit by the `@param caster`', () => {
-        const box1 = new Mesh(new BoxGeometry(2, 2, 2))
-        const one = createEntity()
-        setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
-        setComponent(one, VisibleComponent)
-        setComponent(one, MeshComponent, box1)
-        setComponent(one, GroupComponent)
-        addObjectToGroup(one, box1)
-        setComponent(one, InputComponent)
-        setComponent(one, TransformGizmoTagComponent)
-
-        const box2 = new Mesh(new BoxGeometry(2, 2, 2))
-        const two = createEntity()
-        setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
-        setComponent(two, VisibleComponent)
-        setComponent(two, MeshComponent, box2)
-        setComponent(two, GroupComponent)
-        addObjectToGroup(two, box2)
-        setComponent(two, InputComponent)
-        setComponent(two, TransformGizmoTagComponent)
-
-        const box3 = new Mesh(new BoxGeometry(2, 2, 2))
-        const three = createEntity()
-        setComponent(three, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
-        setComponent(three, VisibleComponent)
-        setComponent(three, MeshComponent, box3)
-        setComponent(three, GroupComponent)
-        addObjectToGroup(three, box3)
-        setComponent(three, InputComponent)
-        // setComponent(three, TransformGizmoTagComponent)  // Do not add three to the gizmoPickerObject query
-
-        const KnownEntities = [one, two]
-
-        const rayOrigin = new Vector3(0, 0, 0)
-        const rayDirection = new Vector3(3, 3, 3).normalize()
-        const raycaster = new Raycaster(rayOrigin, rayDirection)
-
-        const data = new Set<IntersectionData>()
-        assert.equal(data.size, 0)
-
-        ClientInputHeuristics.findEditor(data, raycaster)
-        assert.notEqual(data.size, 0)
-        const result = [...data]
-        for (const hit of result) {
-          assert.equal(KnownEntities.includes(hit.entity), true)
-          assertFloat.approxNotEq(hit.distance, 0)
-          assert.notEqual(hit.entity, three)
-        }
-      })
-
-      it('... should not do anything if the ancestor object we found does not belong to an entity', () => {
-        const box1 = new Mesh(new BoxGeometry(2, 2, 2))
-        const one = createEntity()
-        setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
-        setComponent(one, VisibleComponent)
-        setComponent(one, MeshComponent, box1)
-        setComponent(one, GroupComponent)
-        addObjectToGroup(one, box1)
-        setComponent(one, InputComponent)
-        setComponent(one, TransformGizmoTagComponent)
-
-        const box2 = new Mesh(new BoxGeometry(2, 2, 2))
-        const two = createEntity()
-        setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
-        setComponent(two, VisibleComponent)
-        setComponent(two, MeshComponent, box2)
-        setComponent(two, GroupComponent)
-        addObjectToGroup(two, box2)
-        setComponent(two, InputComponent)
-        setComponent(two, TransformGizmoTagComponent)
-
-        const rayOrigin = new Vector3(0, 0, 0)
-        const rayDirection = new Vector3(3, 3, 3).normalize()
-        const raycaster = new Raycaster(rayOrigin, rayDirection)
-
-        const data = new Set<IntersectionData>()
-        assert.equal(data.size, 0)
-
-        // Remove the ancestor so that the `if (!parentObject) continue` code branch is hit
-        box1.entity = undefined! as Entity
-        box2.entity = undefined! as Entity
-        // Run and check that nothing was added
-        ClientInputHeuristics.findEditor(data, raycaster)
-        assert.equal(data.size, 0)
-      })
-    })
-
-    describe('if there are no gizmoPickerObjects ...', () => {
-      // objects will be the combined GroupComponent arrays of the inputObjectsQuery entities
-
-      it('... should disable the ObjectLayers.TransformGizmo layer in raycaster.layers', () => {
-        const testEntity = createEntity()
-        setComponent(testEntity, InputComponent)
-        setComponent(testEntity, GroupComponent)
-        setComponent(testEntity, VisibleComponent)
-        // setComponent(testEntity, TransformGizmoTagComponent)  // Do not enable, so that the gizmoPicker.length branch of the code is hit
-
-        const data = new Set<IntersectionData>()
-        assert.equal(data.size, 0)
-
-        const rayOrigin = new Vector3(0, 0, 0)
-        const rayDirection = new Vector3(3, 3, 3).normalize()
-        const raycaster = new Raycaster(rayOrigin, rayDirection)
-        raycaster.layers.enable(ObjectLayers.TransformGizmo)
-
-        assert.equal(raycaster.layers.isEnabled(ObjectLayers.TransformGizmo), true)
-        ClientInputHeuristics.findEditor(data, raycaster)
-        assert.equal(raycaster.layers.isEnabled(ObjectLayers.TransformGizmo), false)
-      })
-
-      it('... should add the parentObject.entity and hit.distance to the `@param intersectionData` for every inputrObject hit by the `@param caster`', () => {
-        const box1 = new Mesh(new BoxGeometry(2, 2, 2))
-        const one = createEntity()
-        setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
-        setComponent(one, VisibleComponent)
-        setComponent(one, MeshComponent, box1)
-        setComponent(one, GroupComponent)
-        addObjectToGroup(one, box1)
-        setComponent(one, InputComponent)
-        // setComponent(one, TransformGizmoTagComponent)  // Do not enable, so that we are on the inputObjects branch of the code
-
-        const box2 = new Mesh(new BoxGeometry(2, 2, 2))
-        const two = createEntity()
-        setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
-        setComponent(two, VisibleComponent)
-        setComponent(two, MeshComponent, box2)
-        setComponent(two, GroupComponent)
-        addObjectToGroup(two, box2)
-        setComponent(two, InputComponent)
-        // setComponent(two, TransformGizmoTagComponent)  // Do not enable, so that we are on the inputObjects branch of the code
-
-        const box3 = new Mesh(new BoxGeometry(2, 2, 2))
-        const three = createEntity()
-        setComponent(three, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
-        setComponent(three, VisibleComponent)
-        setComponent(three, MeshComponent, box3)
-        setComponent(three, GroupComponent)
-        addObjectToGroup(three, box3)
-        // setComponent(three, InputComponent)  // Do not add the InputComponent, so that it is not part of inputObjectsQuery
-
-        const KnownEntities = [one, two]
-
-        const rayOrigin = new Vector3(0, 0, 0)
-        const rayDirection = new Vector3(3, 3, 3).normalize()
-        const raycaster = new Raycaster(rayOrigin, rayDirection)
-
-        const data = new Set<IntersectionData>()
-        assert.equal(data.size, 0)
-
-        ClientInputHeuristics.findEditor(data, raycaster)
-        assert.notEqual(data.size, 0)
-        const result = [...data]
-        for (const hit of result) {
-          assert.equal(KnownEntities.includes(hit.entity), true)
-          assertFloat.approxNotEq(hit.distance, 0)
-          assert.notEqual(hit.entity, three)
-        }
-      })
-
-      it('... should not do anything if the ancestor object we found does not belong to an entity', () => {
-        const box1 = new Mesh(new BoxGeometry(2, 2, 2))
-        const one = createEntity()
-        setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
-        setComponent(one, VisibleComponent)
-        setComponent(one, MeshComponent, box1)
-        setComponent(one, GroupComponent)
-        addObjectToGroup(one, box1)
-        setComponent(one, InputComponent)
-        // setComponent(one, TransformGizmoTagComponent)  // Do not enable, so that we are on the inputObjects branch of the code
-
-        const box2 = new Mesh(new BoxGeometry(2, 2, 2))
-        const two = createEntity()
-        setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
-        setComponent(two, VisibleComponent)
-        setComponent(two, MeshComponent, box2)
-        setComponent(two, GroupComponent)
-        addObjectToGroup(two, box2)
-        setComponent(two, InputComponent)
-        // setComponent(two, TransformGizmoTagComponent)  // Do not enable, so that we are on the inputObjects branch of the code
-
-        const box3 = new Mesh(new BoxGeometry(2, 2, 2))
-        const three = createEntity()
-        setComponent(three, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
-        setComponent(three, VisibleComponent)
-        setComponent(three, MeshComponent, box3)
-        setComponent(three, GroupComponent)
-        addObjectToGroup(three, box3)
-        // setComponent(three, InputComponent)  // Do not add the InputComponent, so that it is not part of inputObjectsQuery
-
-        const rayOrigin = new Vector3(0, 0, 0)
-        const rayDirection = new Vector3(3, 3, 3).normalize()
-        const raycaster = new Raycaster(rayOrigin, rayDirection)
-
-        const data = new Set<IntersectionData>()
-        assert.equal(data.size, 0)
-
-        // Remove the ancestor so that the `if (!parentObject) continue` code branch is hit
-        box1.entity = undefined! as Entity
-        box2.entity = undefined! as Entity
-        // Run and check that nothing was added
-        ClientInputHeuristics.findEditor(data, raycaster)
-        assert.equal(data.size, 0)
-      })
-    })
-  })
-
-  describe('findXRUI', () => {
-    beforeEach(() => {
-      createEngine()
-      mockSpatialEngine()
-    })
-
-    afterEach(() => {
-      destroySpatialEngine()
-      destroySpatialViewer()
-      return destroyEngine()
-    })
-
-    it('should add the xruiQuery.entity and intersection.distance to the `@param intersectionData`', () => {
-      const testEntity = createEntity()
-      setComponent(testEntity, VisibleComponent)
-      createMockXRUI(testEntity, 1)
-
-      const data = new Set<IntersectionData>()
-      assert.equal(data.size, 0)
-
-      const rayOrigin = new Vector3(0, 0, 0)
-      const rayDirection = new Vector3(0, 0, -1).normalize()
-      const ray = new Ray(rayOrigin, rayDirection)
-
-      ClientInputHeuristics.findXRUI(data, ray)
-      assert.notEqual(data.size, 0)
-      const result = [...data]
-      assert.equal(result[0].entity, testEntity)
-      assertFloat.approxEq(result[0].distance, 0)
-    })
-
-    it("should not do anything if we didn't hit the WebContainer3D", () => {
-      const testEntity = createEntity()
-      setComponent(testEntity, VisibleComponent)
-      createMockXRUI(testEntity, 1)
-
-      const data = new Set<IntersectionData>()
-      assert.equal(data.size, 0)
-
-      const rayOrigin = new Vector3(10, 10, 10)
-      const rayDirection = new Vector3(0, 0, -1).normalize()
-      const ray = new Ray(rayOrigin, rayDirection)
-
-      ClientInputHeuristics.findXRUI(data, ray)
-      assert.equal(data.size, 0)
     })
   })
 
@@ -951,7 +360,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, InputComponent)
         // Run and Check the result
-        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        findProximity(isSpatialInput, sourceEntity, sorted, intersections)
         const isStored = Boolean([...intersections].find((intersection) => intersection.entity === testEntity))
         assert.equal(isStored, true)
       })
@@ -973,7 +382,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, InputComponent)
         setComponent(testEntity, UUIDComponent, UUID)
         // Run and Check the result
-        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        findProximity(isSpatialInput, sourceEntity, sorted, intersections)
         const result = Boolean([...intersections].find((intersection) => intersection.entity === testEntity))
         assert.equal(result, false)
       })
@@ -988,7 +397,7 @@ describe('ClientInputHeuristics', () => {
         const sorted = [] as IntersectionData[]
         const intersections = new Set<IntersectionData>()
 
-        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        findProximity(isSpatialInput, sourceEntity, sorted, intersections)
         const result = intersections.size
         assert.equal(result, 0)
       })
@@ -1009,7 +418,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, InputComponent)
 
         // how to setup proximity threshold
-        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        findProximity(isSpatialInput, sourceEntity, sorted, intersections)
         const afterOne = sorted.length
         assert.equal(afterOne, 1)
       })
@@ -1030,14 +439,14 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, InputComponent)
 
         // how to setup proximity threshold
-        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        findProximity(isSpatialInput, sourceEntity, sorted, intersections)
         const afterOne = sorted.length
         assert.equal(afterOne, 0)
         sorted = [] as IntersectionData[]
 
         setComponent(sourceEntity, TransformComponent, { position: new Vector3(1, 1, 1) })
         computeTransformMatrix(sourceEntity)
-        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        findProximity(isSpatialInput, sourceEntity, sorted, intersections)
         const afterTwo = sorted.length
         assert.equal(afterTwo, 1)
       })
@@ -1062,7 +471,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity2, VisibleComponent)
         setComponent(testEntity2, InputComponent)
 
-        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        findProximity(isSpatialInput, sourceEntity, sorted, intersections)
         assert.equal(sorted.length, 1)
         for (const obj of sorted) assert.notEqual(obj.entity, testEntity2)
       })
@@ -1087,7 +496,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity2, VisibleComponent)
         setComponent(testEntity2, InputComponent)
 
-        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        findProximity(isSpatialInput, sourceEntity, sorted, intersections)
         assert.equal(sorted.length, 1)
         for (const obj of sorted) assert.notEqual(obj.entity, testEntity2)
       })
@@ -1119,7 +528,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, UUIDComponent, UUID)
 
         // Run and Check the result
-        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        findProximity(isSpatialInput, sourceEntity, sorted, intersections)
         const isStored = Boolean([...intersections].find((intersection) => intersection.entity === testEntity))
         assert.equal(isStored, false)
       })
@@ -1145,7 +554,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, UUIDComponent, UUID)
 
         // Run and Check the result
-        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        findProximity(isSpatialInput, sourceEntity, sorted, intersections)
         const isStored = Boolean([...intersections].find((intersection) => intersection.entity === testEntity))
         assert.equal(isStored, false)
       })
@@ -1173,7 +582,7 @@ describe('ClientInputHeuristics', () => {
         assert.equal(selfAvatarEntity, UndefinedEntity)
 
         // Run and Check the result
-        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        findProximity(isSpatialInput, sourceEntity, sorted, intersections)
         assert.equal(intersections.size, 0)
       })
     })
@@ -1204,7 +613,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, UUIDComponent, UUID)
 
         // Run and Check the result
-        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        findProximity(isSpatialInput, sourceEntity, sorted, intersections)
         const isStored = Boolean([...intersections].find((intersection) => intersection.entity === testEntity))
         assert.equal(isStored, false)
       })
@@ -1228,7 +637,7 @@ describe('ClientInputHeuristics', () => {
         setComponent(testEntity, TransformComponent)
         setComponent(testEntity, InputComponent)
         // Run and Check the result
-        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        findProximity(isSpatialInput, sourceEntity, sorted, intersections)
         const isStored = Boolean([...intersections].find((intersection) => intersection.entity === testEntity))
         assert.equal(isStored, false)
       })
@@ -1256,7 +665,7 @@ describe('ClientInputHeuristics', () => {
         assert.equal(selfAvatarEntity, UndefinedEntity)
 
         // Run and Check the result
-        ClientInputHeuristics.findProximity(isSpatialInput, sourceEntity, sorted, intersections)
+        findProximity(isSpatialInput, sourceEntity, sorted, intersections)
         assert.equal(intersections.size, 0)
       })
     })

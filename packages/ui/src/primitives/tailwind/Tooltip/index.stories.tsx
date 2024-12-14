@@ -68,6 +68,6 @@ export const Default = {
   args: {
     title: 'Tooltip',
     content: 'I am a tooltip 🚀',
-    position: 'auto'
+    position: 'right'
   }
 }

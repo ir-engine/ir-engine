@@ -1,15 +1,54 @@
-.clip-bottom {
-  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+.tooltip-arrow-top {
+  bottom: -4px;
+  left: calc(50% - 4px);
+  transform: translateX(-50%) rotate(45deg);
 }
 
-.clip-top {
-  clip-path: polygon(50% 100%, 0% 0%, 100% 0%);
+.tooltip-arrow-bottom {
+  top: -4px;
+  left: calc(50% - 4px);
+  transform: translateX(-50%) rotate(45deg);
 }
 
-.clip-left {
-  clip-path: polygon(0% 50%, 100% 0%, 100% 100%);
+.tooltip-arrow-left {
+  right: -4px;
+  top: calc(50% - 6px);
+  transform: translateY(-50%) rotate(45deg);
 }
 
-.clip-right {
-  clip-path: polygon(100% 50%, 0% 0%, 0% 100%);
+.tooltip-arrow-right {
+  left: -4px;
+  top: calc(50% - 6px);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.tooltip-arrow {
+  width: 8px;
+  height: 8px;
+  background-color: #191b1f;
+  border: 1px solid var(--theme-primary);
+  position: absolute;
+  z-index: 10000;
+}
+
+.tooltip-arrow {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.tooltip-visible .tooltip-arrow {
+  opacity: 1;
+}
+
+.tooltip {
+  opacity: 0;
+  transform: scale(0.95);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+.tooltip-visible {
+  opacity: 1;
+  transform: scale(1);
 }

@@ -39,23 +39,20 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import { InteractableComponent } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
-import { getState } from '@ir-engine/hyperflux'
-import { Mesh, MeshBasicMaterial, Object3D, Quaternion, Ray, Raycaster, Vector3 } from 'three'
-import { CameraComponent, CameraGizmoTagComponent } from '../../camera/components/CameraComponent'
+import { defineState, getState } from '@ir-engine/hyperflux'
+import { Object3D, Quaternion, Ray, Raycaster, Vector3 } from 'three'
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/MathConstants'
 import { EngineState } from '../../EngineState'
-import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
-import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
-import { TransformComponent, TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Object3DUtils } from '../../transform/Object3DUtils'
 import { XRScenePlacementComponent } from '../../xr/XRScenePlacementComponent'
 import { XRState } from '../../xr/XRState'
-import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { InputComponent } from '../components/InputComponent'
 import { InputState } from '../state/InputState'
 
@@ -67,23 +64,23 @@ export type IntersectionData = {
   distance: number
 }
 
-export type HeuristicData = {
-  quaternion: Quaternion
-  ray: Ray
-  raycast: RaycastArgs
-  caster: Raycaster
-  hitTarget: Vector3
-}
+/**
+ * 1 = early - used for heuristics that should take precedence (like helpers and gizmos)
+ * 0 = mid - used for most heuristics
+ * -1 = late - used for catchall heuristics
+ */
+export type HeuristicOrder = -1 | 0 | 1
 
-export type HeuristicFunctions = {
-  editor: typeof ClientInputHeuristics.findEditor
-  xrui: typeof ClientInputHeuristics.findXRUI
-  physicsColliders: typeof ClientInputHeuristics.findPhysicsColliders
-  bboxes: typeof ClientInputHeuristics.findBBoxes
-  meshes: typeof ClientInputHeuristics.findMeshes
-  proximity: typeof ClientInputHeuristics.findProximity
-  raycastedInput: typeof ClientInputHeuristics.findRaycastedInput
-}
+export type HeuristicFunctions = (
+  intersectionData: Set<IntersectionData>,
+  position: Vector3,
+  direction: Vector3
+) => void
+
+export const InputHeuristicState = defineState({
+  name: 'ir.spatial.input.InputHeuristicState',
+  initial: [] as Array<{ order: HeuristicOrder; heuristic: HeuristicFunctions }>
+})
 
 /**Proximity query */
 const spatialInputObjectsQuery = defineQuery([
@@ -149,81 +146,16 @@ export function findProximity(
   })
 }
 
-/**Editor InputComponent raycast query */
-const inputObjectsQuery = defineQuery([InputComponent, VisibleComponent, GroupComponent])
+const hitTarget = new Vector3()
+const ray = new Ray()
 
-/** @todo abstract into heuristic api */
-const gizmoPickerObjectsQuery = defineQuery([
-  InputComponent,
-  GroupComponent,
-  VisibleComponent,
-  TransformGizmoTagComponent
-])
+export function boundingBoxHeuristic(intersectionData: Set<IntersectionData>, position: Vector3, direction: Vector3) {
+  const isEditing = getState(EngineState).isEditing
+  if (isEditing) return
 
-//prevent query from detecting CameraGizmoVisualEntity which has no GroupComponent but has CameraGizmoTagComponent
-const cameraGizmoQuery = defineQuery([CameraGizmoTagComponent, InputComponent, VisibleComponent, GroupComponent])
+  ray.origin.copy(position)
+  ray.direction.copy(direction)
 
-export function findEditor(intersectionData: Set<IntersectionData>, caster: Raycaster) {
-  const pickerObj = gizmoPickerObjectsQuery() // gizmo heuristic
-  const cameraGizmo = cameraGizmoQuery() //camera gizmo heuristic
-
-  //concatenating cameraGizmo to both pickerObjects(transformGizmo) and inputObjects
-  const allGizmos = cameraGizmo.concat(pickerObj)
-  const inputObj = inputObjectsQuery().concat(cameraGizmo)
-
-  const objects = (pickerObj.length > 0 ? allGizmos : inputObj) // gizmo heuristic
-    .map((eid) => getComponent(eid, GroupComponent))
-    .flat()
-
-  //camera gizmos layer should always be active here, since it doesn't disable based on transformGizmo existing
-  caster.layers.enable(ObjectLayers.Gizmos)
-  pickerObj.length > 0
-    ? caster.layers.enable(ObjectLayers.TransformGizmo)
-    : caster.layers.disable(ObjectLayers.TransformGizmo)
-
-  const hits = caster.intersectObjects<Object3D>(objects, true)
-  for (const hit of hits) {
-    const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => !obj.parent)
-    if (parentObject?.entity) {
-      intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
-    }
-  }
-}
-
-const xruiQuery = defineQuery([VisibleComponent, XRUIComponent])
-
-export function findXRUI(intersectionData: Set<IntersectionData>, ray: Ray) {
-  for (const entity of xruiQuery()) {
-    const xrui = getComponent(entity, XRUIComponent)
-    const layerHit = xrui.hitTest(ray)
-    if (
-      !layerHit ||
-      !layerHit.intersection.object.visible ||
-      (layerHit.intersection.object as Mesh<any, MeshBasicMaterial>).material?.opacity < 0.01
-    )
-      continue
-    intersectionData.add({ entity, distance: layerHit.intersection.distance })
-  }
-}
-
-const sceneQuery = defineQuery([SceneComponent])
-
-export function findPhysicsColliders(intersectionData: Set<IntersectionData>, raycast: RaycastArgs) {
-  for (const entity of sceneQuery()) {
-    const world = Physics.getWorld(entity)
-    if (!world) continue
-
-    const hits = Physics.castRay(world, raycast)
-    for (const hit of hits) {
-      if (!hit.entity) continue
-      intersectionData.add({ entity: hit.entity, distance: hit.distance })
-    }
-  }
-}
-
-const boundingBoxesQuery = defineQuery([VisibleComponent, BoundingBoxComponent])
-
-export function findBBoxes(intersectionData: Set<IntersectionData>, ray: Ray, hitTarget: Vector3) {
   const inputState = getState(InputState)
   for (const entity of inputState.inputBoundingBoxes) {
     const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
@@ -235,16 +167,21 @@ export function findBBoxes(intersectionData: Set<IntersectionData>, ray: Ray, hi
   }
 }
 
+const _raycaster = new Raycaster()
+_raycaster.layers.set(ObjectLayers.Scene)
 const meshesQuery = defineQuery([VisibleComponent, MeshComponent])
 
-export function findMeshes(intersectionData: Set<IntersectionData>, isEditing: boolean, caster: Raycaster) {
+export function meshHeuristic(intersectionData: Set<IntersectionData>, position: Vector3, direction: Vector3) {
+  const isEditing = getState(EngineState).isEditing
   const inputState = getState(InputState)
-  const objects = (isEditing ? meshesQuery() : Array.from(inputState.inputMeshes)) // gizmo heuristic
+  const objects = (isEditing ? meshesQuery() : Array.from(inputState.inputMeshes))
     .filter((eid) => hasComponent(eid, GroupComponent))
     .map((eid) => getComponent(eid, GroupComponent))
     .flat()
 
-  const hits = caster.intersectObjects<Object3D>(objects, true)
+  _raycaster.set(position, direction)
+
+  const hits = _raycaster.intersectObjects<Object3D>(objects, true)
   for (const hit of hits) {
     const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => obj.entity != undefined)
     if (parentObject) {
@@ -253,44 +190,17 @@ export function findMeshes(intersectionData: Set<IntersectionData>, isEditing: b
   }
 }
 
-export function findRaycastedInput(
-  sourceEid: Entity,
-  intersectionData: Set<IntersectionData>,
-  data: HeuristicData,
-  heuristic: HeuristicFunctions
-) {
-  const sourceRotation = TransformComponent.getWorldRotation(sourceEid, data.quaternion)
-  data.raycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceRotation)
+const position = new Vector3()
+const direction = new Vector3()
+const sourceRotation = new Quaternion()
 
-  TransformComponent.getWorldPosition(sourceEid, data.raycast.origin).addScaledVector(data.raycast.direction, -0.01)
-  data.ray.set(data.raycast.origin, data.raycast.direction)
-  data.caster.set(data.raycast.origin, data.raycast.direction)
-  data.caster.layers.enable(ObjectLayers.Scene)
+export function findRaycastedInput(sourceEid: Entity, intersectionData: Set<IntersectionData>) {
+  TransformComponent.getWorldRotation(sourceEid, sourceRotation)
+  direction.copy(ObjectDirection.Forward).applyQuaternion(sourceRotation)
 
-  const isEditing = getState(EngineState).isEditing
-  // only heuristic is scene objects when in the editor
-  if (isEditing) {
-    heuristic.editor(intersectionData, data.caster)
-  } else {
-    // 1st heuristic is XRUI
-    heuristic.xrui(intersectionData, data.ray)
-    // 2nd heuristic is physics colliders
-    heuristic.physicsColliders(intersectionData, data.raycast)
+  TransformComponent.getWorldPosition(sourceEid, position).addScaledVector(direction, -0.01)
 
-    // 3rd heuristic is bboxes
-    heuristic.bboxes(intersectionData, data.ray, data.hitTarget)
-  }
-  // 4th heuristic is meshes
-  heuristic.meshes(intersectionData, isEditing, data.caster)
+  const heuristics = [...getState(InputHeuristicState)].sort((a, b) => b.order - a.order)
+
+  for (const { heuristic } of heuristics) heuristic(intersectionData, position, direction)
 }
-
-export const ClientInputHeuristics = {
-  findProximity,
-  findEditor,
-  findXRUI,
-  findPhysicsColliders,
-  findBBoxes,
-  findMeshes,
-  findRaycastedInput
-}
-export default ClientInputHeuristics
