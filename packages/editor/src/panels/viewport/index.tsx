@@ -166,7 +166,7 @@ function ViewportContainer() {
           <PlayModeTool />
         </div>
         {sceneName.value ? <SelectionBox viewportRef={ref} toolbarRef={toolbarRef} /> : null}
-        {sceneName.value ? <TransformGizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
+        {sceneName.value ? <TransformGizmoTool /> : null}
         {sceneName.value ? <CameraGizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
         {sceneName.value ? (
           <>

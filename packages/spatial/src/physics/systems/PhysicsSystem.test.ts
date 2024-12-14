@@ -39,21 +39,25 @@ import {
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { getState, startReactor } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { Vector3 } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 import { assertVec } from '../../../tests/util/assert'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
+import { IntersectionData } from '../../input/functions/ClientInputHeuristics'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { PhysicsSerialization } from '../PhysicsSerialization'
-import { Physics, PhysicsWorld } from '../classes/Physics'
+import { Physics, PhysicsWorld, RapierWorldState } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
-import { BodyTypes } from '../types/PhysicsTypes'
-import { PhysicsSystem } from './PhysicsSystem'
+import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
+import { BodyTypes, Shapes } from '../types/PhysicsTypes'
+import { PhysicsSystem, spatialInputRaycastHeuristic } from './PhysicsSystem'
 
 /** @description Number of steps per second that the physics will run */
 const steps = 60
@@ -278,7 +282,6 @@ describe('PhysicsSystem', () => {
 
       beforeEach(async () => {
         createEngine()
-        // await Physics.load()
         physicsWorldEntity = createEntity()
         setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
         setComponent(physicsWorldEntity, EntityTreeComponent)
@@ -296,17 +299,80 @@ describe('PhysicsSystem', () => {
       const physicsSystemReactor = SystemDefinitions.get(PhysicsSystem)?.reactor
 
       /** @todo Why is the world not recreated as expected ?? */
-      it.skip("should create a new physics world whenever the UUIDComponent of a SceneComponent's entityContext changes", () => {
+      it("should create a new physics world whenever the UUIDComponent of a SceneComponent's entityContext changes", async () => {
+        const uuid = getComponent(physicsWorldEntity, UUIDComponent)
+
         // Sanity check before running
         assert.equal(hasComponent(physicsWorldEntity, SceneComponent), false)
-        assert.throws(() => Physics.destroyWorld(getComponent(physicsWorldEntity, UUIDComponent)))
+        assert.throws(() => Physics.destroyWorld(uuid))
         // Run and Check the result
         const root = startReactor(physicsSystemReactor!)
-        setComponent(physicsWorldEntity, SceneComponent)
+        setComponent(physicsWorldEntity, SceneComponent, { active: true })
         root.run()
-        assert.equal(hasComponent(physicsWorldEntity, SceneComponent), true)
-        assert.doesNotThrow(() => Physics.destroyWorld(getComponent(physicsWorldEntity, UUIDComponent)))
+
+        const { rerender, unmount } = render(null)
+        await act(async () => rerender(null))
+
+        await vi.waitFor(
+          () => {
+            assert.ok(getState(RapierWorldState)[uuid])
+          },
+          { timeout: 20000 }
+        )
+
+        unmount()
       })
     }) //:: PhysicsSceneReactor
+
+    describe('spatialInputRaycastHeuristic', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorldEntity = UndefinedEntity
+      let physicsWorld: PhysicsWorld
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        physicsWorldEntity = createEntity()
+        setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(physicsWorldEntity, EntityTreeComponent)
+        setComponent(physicsWorldEntity, TransformComponent)
+        setComponent(physicsWorldEntity, SceneComponent)
+        physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+        physicsWorld!.timestep = 1 / 60
+
+        testEntity = createEntity()
+        setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
+        setComponent(testEntity, TransformComponent, {
+          position: new Vector3(1, 0, 0)
+        })
+        computeTransformMatrix(testEntity)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Fixed })
+        setComponent(testEntity, ColliderComponent, {
+          shape: Shapes.Box,
+          collisionLayer: CollisionGroups.Default,
+          collisionMask: DefaultCollisionMask
+        })
+      })
+
+      afterEach(() => {
+        removeEntity(physicsWorldEntity)
+        removeEntity(testEntity)
+        return destroyEngine()
+      })
+
+      it('should populate data with the collider', () => {
+        physicsWorld!.step()
+
+        const position = new Vector3(0, 0, 0)
+        const direction = new Vector3(1, 0, 0)
+
+        const intersectionData = new Set<IntersectionData>()
+
+        spatialInputRaycastHeuristic(intersectionData, position, direction)
+
+        assert.equal(intersectionData.size, 1)
+        assert.equal(intersectionData.values().next().value.entity, testEntity)
+      })
+    }) //:: spatialInputRaycastHeuristic
   }) //:: reactor
 }) //:: PhysicsSystem

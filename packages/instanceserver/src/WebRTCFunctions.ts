@@ -793,15 +793,6 @@ export async function handleRequestProducer(
 
     logger.info(`New Producer: peerID "${peerID}", Media stream "${appData.mediaTag}"`)
 
-    if (userId && network.peers[peerID]) {
-      if (!network.media[peerID]) network.media[peerID] = {}
-      network.media[peerID][appData.mediaTag!] = {
-        paused,
-        producerId: producer.id,
-        globalMute: false,
-        encodings: (rtpParameters as any).encodings
-      }
-    }
     dispatchAction(
       MediasoupMediaProducerActions.producerCreated({
         requestID,
