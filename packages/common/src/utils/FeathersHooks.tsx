@@ -47,6 +47,7 @@ import {
   OpaqueType,
   State,
   useHookstate,
+  useImmediateEffect,
   useMutableState
 } from '@ir-engine/hyperflux'
 import { API } from '../API'
@@ -174,7 +175,7 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
   }
 
   // use immediate effect to get the stack trace of the react context, then add it to the state
-  useEffect(() => {
+  useImmediateEffect(() => {
     if (!state.get(NO_PROXY)[serviceName]) state[serviceName].set({})
     if (!state.get(NO_PROXY)[serviceName][queryId]) {
       state[serviceName].merge({
