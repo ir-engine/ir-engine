@@ -192,6 +192,10 @@ export default function UpdateEngineModal() {
             text: t('admin:components.project.commitData'),
             position: 'top'
           }}
+          positioning={{
+            maxHeight: '200px',
+            direction: 'down'
+          }}
           options={selectCommitTagOptions}
           value={selectedCommitTag.value}
           onChange={(value: string) => {
