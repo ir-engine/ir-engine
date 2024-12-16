@@ -134,6 +134,7 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
     if (!materialComponentUUID?.value || !rootDitheringComponent) return
     for (const materialUUID of materialComponentUUID.value) {
       const material = UUIDComponent.getEntityByUUID(materialUUID)
+      if (!material) continue
       if (!rootDitheringComponent.materials.value.includes(materialUUID))
         rootDitheringComponent.materials.set([...rootDitheringComponent.materials.value, materialUUID])
       setComponent(material, TransparencyDitheringPluginComponent)
