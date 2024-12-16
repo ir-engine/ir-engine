@@ -36,7 +36,6 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
-  getOptionalMutableComponent,
   hasComponent,
   UndefinedEntity,
   useComponent,
@@ -226,6 +225,12 @@ export const GLTFComponent = defineComponent({
       }
     }, [gltfComponent.src])
 
+    const scene = useOptionalComponent(entity, SceneComponent)
+    useEffect(() => {
+      if (!scene) return
+      if (gltfComponent.progress.value === 100) scene.active.set(true)
+    }, [!!scene, gltfComponent.progress.value])
+
     const dependencies = gltfComponent.dependencies.get(NO_PROXY_STEALTH) as ComponentDependencies | undefined
     return (
       <>
@@ -387,8 +392,6 @@ const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: C
 
   useEffect(() => {
     return () => {
-      const scene = getOptionalMutableComponent(gltfComponentEntity, SceneComponent)
-      if (scene) scene.active.set(true)
       removeError(gltfComponentEntity, GLTFComponent, 'LOADING_ERROR')
       removeError(gltfComponentEntity, GLTFComponent, 'INVALID_SOURCE')
     }

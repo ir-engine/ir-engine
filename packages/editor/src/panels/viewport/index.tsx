@@ -166,7 +166,7 @@ function ViewportContainer() {
           <PlayModeTool />
         </div>
         {sceneName.value ? <SelectionBox viewportRef={ref} toolbarRef={toolbarRef} /> : null}
-        {sceneName.value ? <TransformGizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
+        {sceneName.value ? <TransformGizmoTool /> : null}
         {sceneName.value ? <CameraGizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
         <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
         {sceneName.value ? (
