@@ -565,11 +565,13 @@ export const setComponent = <C extends Component>(
     if (component === LayerComponent || LayerComponents.includes(component as any)) return
     const entityLayer = LayerComponent.get(entity)
     const layerComponent = getComponent(entity, LayerComponents[entityLayer])
-    for (const [linkedLayer, linkedEntity] of Object.entries(layerComponent.relations).map(([layer, val]) => [
+    for (const [linkedLayer, linkedEntityNumber] of Object.entries(layerComponent.relations).map(([layer, val]) => [
       Number(layer),
       val as Entity
     ])) {
+      const linkedEntity = linkedEntityNumber as Entity
       if (LayerRelations[entityLayer][linkedLayer] === LayerRelationTypes.Propagate) {
+        //@todo: would like to create the entity if it doesn't exist but this causes circular dependencies with createEntity.ts
         // if (!entityExists(linkedEntity)) {
         //if the linked entity doesn't exist, we recreate it and sync its state with the source entity
         // linkedEntity = createEntity(dstLayerID as LayerID)
@@ -619,7 +621,7 @@ export const setComponent = <C extends Component>(
         //set up reactive logic to propagate component changes to linked entity
         // console.log(dstEntity)
         setComponent(linkedEntity, component, argsClone)
-        getMutableComponent(linkedEntity, component).set(argsClone)
+        //getMutableComponent(linkedEntity, component).set(argsClone)
       }
     }
   }
@@ -709,10 +711,11 @@ export const removeComponent = <C extends Component>(entity: Entity, component: 
   const layer = LayerComponents[LayerComponent.get(entity)]
   if (layer && hasComponent(entity, layer)) {
     const layerComponent = getComponent(entity, layer)
-    for (const [layer, linkedEntity] of Object.entries(layerComponent.relations).map(([layer, val]) => [
+    for (const [layer, linkedEntityNumber] of Object.entries(layerComponent.relations).map(([layer, val]) => [
       Number(layer),
       val
     ])) {
+      const linkedEntity = linkedEntityNumber as Entity
       if (LayerRelations[layer][LayerComponent.layer[entity]] === LayerRelationTypes.Propagate) {
         removeComponent(linkedEntity, component)
       }
