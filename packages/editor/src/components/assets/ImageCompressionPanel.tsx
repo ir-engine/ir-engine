@@ -25,9 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
-import { fileBrowserUploadPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import { fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
 import {
   KTX2EncodeArguments,
   KTX2EncodeDefaultArguments
@@ -35,7 +34,6 @@ import {
 import { ImmutableArray, useHookstate } from '@ir-engine/hyperflux'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import { API } from '@ir-engine/common'
 import { Button, Checkbox, Input, Select } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
@@ -89,12 +87,8 @@ export default function ImageCompressionPanel({
   const uploadImage = async (props: FileDataType, data: ArrayBuffer) => {
     const newFileName = props.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
     const path = props.key.replace(/(.*\/).*/, '$1')
-
-    const staticResourceDetails = await API.instance.service(staticResourcePath).find({
-      query: { key: props.key }
-    })
-    const projectName = staticResourceDetails.data[0].project
-    const relativePath = path.replace('projects/' + projectName + '/', '')
+    const [_projFolder, orgName, projectName] = props.key.split('/')
+    const relativePath = path.replace('projects/' + orgName + '/' + projectName + '/', '')
 
     const file = new File([data], newFileName, { type: 'image/ktx2' })
 
@@ -109,7 +103,7 @@ export default function ImageCompressionPanel({
         ]
       }).promise
     } catch (err) {
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+      console.log('Error uploading compressed image', err)
     }
   }
 

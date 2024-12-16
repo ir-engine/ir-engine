@@ -41,6 +41,7 @@ import { createNetwork, NetworkTopics } from './Network'
 
 import './NetworkPeerState'
 
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { NetworkPeerState } from './NetworkPeerState'
 import { addNetwork, NetworkActions, NetworkState } from './NetworkState'
 
@@ -58,7 +59,7 @@ describe('NetworkPeerState', () => {
     it('should add peer to state', async () => {
       const hostUserID = 'host user' as UserID
       const hostPeerID = Engine.instance.store.peerID
-      Engine.instance.store.userID = hostUserID
+      getMutableState(EngineState).userID.set(hostUserID)
       const instanceID = 'instanceID' as NetworkID
 
       getMutableState(NetworkState).hostIds.world.set(instanceID)
@@ -88,7 +89,7 @@ describe('NetworkPeerState', () => {
     it('should add multiple peers to state', async () => {
       const hostUserID = 'host user' as UserID
       const hostPeerID = Engine.instance.store.peerID
-      Engine.instance.store.userID = hostUserID
+      getMutableState(EngineState).userID.set(hostUserID)
       const instanceID = 'instanceID' as NetworkID
 
       getMutableState(NetworkState).hostIds.world.set(instanceID)
@@ -137,7 +138,7 @@ describe('NetworkPeerState', () => {
     it('should add multiple peers to state with same user', async () => {
       const hostUserID = 'host user' as UserID
       const hostPeerID = Engine.instance.store.peerID
-      Engine.instance.store.userID = hostUserID
+      getMutableState(EngineState).userID.set(hostUserID)
       const instanceID = 'instanceID' as NetworkID
 
       getMutableState(NetworkState).hostIds.world.set(instanceID)
@@ -184,7 +185,7 @@ describe('NetworkPeerState', () => {
     it('should remove peer', async () => {
       const hostUserID = 'host user' as UserID
       const hostPeerID = Engine.instance.store.peerID
-      Engine.instance.store.userID = hostUserID
+      getMutableState(EngineState).userID.set(hostUserID)
       const instanceID = 'instanceID' as NetworkID
 
       getMutableState(NetworkState).hostIds.world.set(instanceID)
@@ -222,7 +223,7 @@ describe('NetworkPeerState', () => {
     it('should not remove user when a peer leaves but another remains', async () => {
       const hostUserID = 'host user' as UserID
       const hostPeerID = Engine.instance.store.peerID
-      Engine.instance.store.userID = hostUserID
+      getMutableState(EngineState).userID.set(hostUserID)
       const instanceID = 'instanceID' as NetworkID
 
       getMutableState(NetworkState).hostIds.world.set(instanceID)

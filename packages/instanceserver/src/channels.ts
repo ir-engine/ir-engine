@@ -64,6 +64,8 @@ import getLocalServerIp from '@ir-engine/server-core/src/util/get-local-server-i
 import './InstanceServerModule'
 
 import { NotAuthenticated } from '@feathersjs/errors'
+import { projectsPath } from '@ir-engine/common/src/schemas/projects/projects.schema'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
@@ -187,7 +189,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
   const instanceServerState = getState(InstanceServerState)
 
   const hostId = instanceServerState.instance.id as UserID & InstanceID
-  Engine.instance.store.userID = hostId
+  getMutableState(EngineState).userID.set(hostId)
   const topic = instanceServerState.isMediaInstance ? NetworkTopics.media : NetworkTopics.world
   HyperFlux.store.forwardingTopics.add(topic)
 
@@ -209,7 +211,8 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
     })
   )
 
-  await loadEngineInjection()
+  const projects = await app.service(projectsPath).find()
+  await loadEngineInjection(projects)
 
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId)

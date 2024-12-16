@@ -127,7 +127,7 @@ const SpectatorReactor = () => {
 }
 
 const SpectatingUserReactor = (props: { entityUUID: EntityUUID }) => {
-  const spectateEntity = UUIDComponent.useEntityByUUID(props.entityUUID)
+  const spectateEntity = UUIDComponent.useEntityByUUID((props.entityUUID + '_camera') as EntityUUID)
 
   useEffect(() => {
     if (!spectateEntity) return

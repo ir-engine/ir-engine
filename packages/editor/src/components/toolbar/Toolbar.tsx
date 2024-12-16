@@ -40,7 +40,7 @@ import { ChevronDownSm, SquaresLg } from '@ir-engine/ui/src/icons'
 import { t } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { onNewScene, onSaveScene } from '../../functions/sceneFunctions'
+import { onNewScene, onSaveScene, saveSceneGLTF } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { uploadFiles } from '../../panels/assets/topbar'
 import { EditorState } from '../../services/EditorServices'
@@ -144,16 +144,29 @@ const generateToolbarMenu = () => {
 
 const toolbarMenu = generateToolbarMenu()
 
+const onPublish = async () => {
+  const sceneModified = EditorState.isModified()
+
+  if (!sceneModified) return
+
+  const { sceneAssetID, projectName, sceneName, rootEntity } = getState(EditorState)
+  if (!sceneAssetID || !projectName || !sceneName || !rootEntity)
+    throw new Error('Cannot save scene without scene data')
+  const abortController = new AbortController()
+  await saveSceneGLTF(sceneAssetID, projectName, sceneName, abortController.signal)
+}
+
 export default function Toolbar() {
   const { t } = useTranslation()
   const anchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
   const anchorPosition = useHookstate({ left: 0, top: 0 })
 
   const { projectName, sceneName, sceneAssetID } = useMutableState(EditorState)
+  const isModified = EditorState.useIsModified()
 
   const locationScopeQuery = useFind(scopePath, {
     query: {
-      userId: Engine.instance.store.userID,
+      userId: Engine.instance.userID,
       type: 'location:write' as ScopeType
     }
   })
@@ -208,6 +221,8 @@ export default function Toolbar() {
                       sceneID={sceneAssetID.value}
                       location={currentLocation}
                       inStudio={true}
+                      sceneModified={isModified}
+                      onPublish={onPublish}
                     />
                   )
                 }

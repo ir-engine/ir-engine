@@ -28,7 +28,7 @@ import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { Engine, UUIDComponent, destroyEngine, getComponent, hasComponent } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { UserID, applyIncomingActions, dispatchAction, getState } from '@ir-engine/hyperflux'
+import { UserID, applyIncomingActions, dispatchAction, getMutableState, getState } from '@ir-engine/hyperflux'
 import { Network, NetworkState, NetworkTopics } from '@ir-engine/network'
 import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
 import { EngineState } from '../../EngineState'
@@ -55,7 +55,7 @@ describe('CameraSystem', async () => {
 
       createMockNetwork(NetworkTopics.world, hostPeerID, hostUserID)
 
-      Engine.instance.store.userID = hostUserID
+      getMutableState(EngineState).userID.set(hostUserID)
       const cameraUUID = UUIDComponent.generateUUID()
 
       const network: Network = NetworkState.worldNetwork

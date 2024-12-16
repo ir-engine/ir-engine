@@ -320,6 +320,31 @@ export function getAncestorWithComponents(
 }
 
 /**
+ * @description Walks up the tree and returns an inclusive array of entities from the child to the ancestor (in that order) or an empty array if the ancestor is not found
+ * @param childEntity The entity to start the search from
+ * @param outEntities The array where the entities will be pushed
+ * @param ancestorEntity The optional entity to stop the search at (leave UndefinedEntity to search all the way up)
+ */
+export function getTreeFromChildToAncestor(
+  childEntity: Entity,
+  outEntities: Entity[],
+  ancestorEntity: Entity = UndefinedEntity
+): boolean {
+  outEntities.push(childEntity)
+  if (ancestorEntity === childEntity) return true
+  let found = false
+  traverseEntityNodeParent(childEntity, (parent) => {
+    if (ancestorEntity !== UndefinedEntity && parent === ancestorEntity) {
+      found = true
+      outEntities.push(parent)
+      return true
+    }
+    outEntities.push(parent)
+  })
+  return found
+}
+
+/**
  * @description
  * Returns the array index of `@param entity` inside the `@param list` of {@link Entity} IDs
  * Useful for nodes that are not contained in the array but can have the same entity as one of the array elements

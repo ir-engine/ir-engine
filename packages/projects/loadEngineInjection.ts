@@ -23,13 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { API } from '@ir-engine/common'
-import { projectsPath } from '@ir-engine/common/src/schema.type.module'
-
 import { loadConfigForProject } from './loadConfigForProject'
 
-export const loadEngineInjection = async () => {
-  const projects = await API.instance.service(projectsPath).find()
+export const loadEngineInjection = async (projects: string[]) => {
   return Promise.all(
     projects.map(async (project) => {
       try {

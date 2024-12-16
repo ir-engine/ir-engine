@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Action, HyperFlux, NetworkID, PeerID, Topic, UserID, getState } from '@ir-engine/hyperflux'
 import { DataChannelRegistryState, DataChannelType } from './DataChannelRegistry'
 import { NetworkPeerState } from './NetworkPeerState'
-import { MediaTagType, NetworkPeer, PeerMediaType, PeerTransport } from './NetworkState'
+import { NetworkPeer, PeerTransport } from './NetworkState'
 import { NetworkActionFunctions } from './functions/NetworkActionFunctions'
 
 /**
@@ -44,8 +44,6 @@ export interface JitterBufferEntry {
 
 export type Network<Ext = unknown> = {
   transports: Record<PeerID, PeerTransport>
-  /** @deprecated - only used for media recording */
-  media: Record<MediaTagType, PeerMediaType>
   /**
    * Connected peers
    * @deprecated use `getState(NetworkPeerState)[network.id].peers` instead

@@ -23,10 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useEngineInjection } from '@ir-engine/client-core/src/components/World/EngineHooks'
 import { useUnsupported } from '@ir-engine/client-core/src/hooks/useUnsupported'
 import '@ir-engine/engine/src/EngineModule'
 import { getMutableState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
-import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import React, { useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -36,17 +36,14 @@ import { EditorState } from '../services/EditorServices'
 import { ProjectPage } from './ProjectPage'
 
 export const useStudioEditor = () => {
-  const engineReady = useHookstate(false)
+  const engineReady = useEngineInjection()
 
   useEffect(() => {
     getMutableState(EngineState).isEditor.set(true)
     getMutableState(EngineState).isEditing.set(true)
-    loadEngineInjection().then(() => {
-      engineReady.set(true)
-    })
   }, [])
 
-  return engineReady.value
+  return engineReady
 }
 
 export const EditorPage = () => {

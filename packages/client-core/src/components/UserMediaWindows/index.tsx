@@ -31,6 +31,7 @@ import { NO_PROXY, PeerID, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 
 import { NetworkPeerState } from '@ir-engine/network/src/NetworkPeerState'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../media/PeerMediaChannelState'
 import { AuthState } from '../../user/services/AuthService'
@@ -62,7 +63,7 @@ export const useMediaWindows = () => {
   ][]
 
   const selfPeerID = Engine.instance.store.peerID
-  const selfUserID = Engine.instance.userID
+  const selfUserID = useMutableState(EngineState).userID.value
 
   const camActive = (cam: PeerMediaStreamInterface) => cam.videoMediaStream || cam.audioMediaStream
 
@@ -118,7 +119,7 @@ export const useMediaWindows = () => {
   return windows.filter(
     ({ peerID }) =>
       (peerID === Engine.instance.store.peerID ||
-        mediaNetwork?.peers[peerID].userId === Engine.instance.userID ||
+        mediaNetwork?.peers[peerID].userId === selfUserID ||
         nearbyPeers.includes(peerID)) &&
       peerMediaChannelState.value[peerID]
   )
@@ -165,7 +166,7 @@ export const UserMediaWindowsWidget = () => {
   windows.push(...screens, ...cams)
 
   const selfPeerID = Engine.instance.store.peerID
-  const selfUserID = Engine.instance.userID
+  const selfUserID = useMutableState(EngineState).userID.value
   const mediaNetwork = NetworkState.mediaNetwork
 
   // if window doesnt exist for self, add it

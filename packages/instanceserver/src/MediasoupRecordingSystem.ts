@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { createHash } from 'crypto'
-import { Consumer, PlainTransport, Router } from 'mediasoup/node/lib/types'
+import { Consumer, PlainTransport, Router, RtpEncodingParameters } from 'mediasoup/node/lib/types'
 import { useEffect } from 'react'
 import { PassThrough } from 'stream'
 
@@ -33,11 +33,9 @@ import { RecordingAPIState } from '@ir-engine/common/src/recording/ECSRecordingS
 import { RecordingID, recordingResourceUploadPath, RecordingSchemaType } from '@ir-engine/common/src/schema.type.module'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { getMutableState, none, PeerID } from '@ir-engine/hyperflux'
+import { getMutableState, getState, none, PeerID } from '@ir-engine/hyperflux'
 import {
-  DataChannelType,
   NetworkState,
-  PeerMediaType,
   screenshareAudioDataChannelType,
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
@@ -45,8 +43,12 @@ import {
 import { config } from '@ir-engine/server-core/src/config'
 import serverLogger from '@ir-engine/server-core/src/ServerLogger'
 
+import {
+  MediasoupMediaProducerConsumerState,
+  MediasoupMediaProducersConsumersObjectsState
+} from '@ir-engine/common/src/transports/mediasoup/MediasoupMediaProducerConsumerState'
 import { startFFMPEG } from './FFMPEG'
-import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
+import { ProducerExtension, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
 const logger = serverLogger.child({ module: 'instanceserver:MediaRecording' })
 
@@ -103,6 +105,15 @@ export const createTransport = async (router: Router, port: number, rtcpPort: nu
   )
 
   return { transport, consumer }
+}
+
+export type PeerMediaType = {
+  /** @deprecated - use ProducersConsumerState instead */
+  paused: boolean
+  /** @deprecated - use ProducersConsumerState instead */
+  globalMute: boolean
+  producerId: string
+  encodings: RtpEncodingParameters[]
 }
 
 export type MediaTrackPair = {
@@ -175,6 +186,7 @@ export const startMediaRecordingPair = async (
   }
 
   /** start ffmpeg */
+  // @ts-ignore - @todo mimeType is not in the type definition for some reason
   const isH264 = !!tracks.video && !!tracks.video?.encodings.find((encoding) => encoding.mimeType === 'video/h264')
   const ffmpegProcess = await startFFMPEG(tracks.audioConsumer, tracks.videoConsumer, onExit, isH264, startPort)
 
@@ -204,25 +216,29 @@ export const startMediaRecording = async (recordingID: RecordingID, schema: Reco
 
   const mediaStreams = {} as Record<PeerID, { [mediaType: string]: MediaTrackPair }>
 
-  for (const [peerID, dataChannels] of Object.entries(schema)) {
-    const peer = network.peers[peerID as PeerID]!
-    const peerMedia = network.media[peerID]
-      ? Object.entries(network.media[peerID]!).filter(([type]) => dataChannels.includes(type as DataChannelType))
-      : []
+  for (const peerID of Object.keys(schema) as PeerID[]) {
+    const state = getState(MediasoupMediaProducerConsumerState)[network.id]
 
-    if (peerMedia.length) {
-      for (const [dataChannelType, media] of peerMedia) {
-        if (!mediaStreams[peerID]) mediaStreams[peerID] = {}
-        const mediaType =
-          dataChannelType === webcamAudioDataChannelType || dataChannelType === webcamVideoDataChannelType
-            ? 'webcam'
-            : 'screenshare'
-        const trackType =
-          dataChannelType === webcamAudioDataChannelType || dataChannelType === screenshareAudioDataChannelType
-            ? 'audio'
-            : 'video'
-        if (!mediaStreams[peerID][mediaType]) mediaStreams[peerID][mediaType] = {}
-        mediaStreams[peerID][mediaType][trackType] = media
+    const producers = Object.entries(state.producers).filter(([id, p]) => p.peerID === peerID)
+
+    for (const [id, producer] of producers) {
+      const dataChannelType = producer.mediaTag
+      if (!mediaStreams[peerID]) mediaStreams[peerID] = {}
+      const mediaType =
+        dataChannelType === webcamAudioDataChannelType || dataChannelType === webcamVideoDataChannelType
+          ? 'webcam'
+          : 'screenshare'
+      const trackType =
+        dataChannelType === webcamAudioDataChannelType || dataChannelType === screenshareAudioDataChannelType
+          ? 'audio'
+          : 'video'
+      if (!mediaStreams[peerID][mediaType]) mediaStreams[peerID][mediaType] = {}
+      const producerObject = getState(MediasoupMediaProducersConsumersObjectsState)[id] as ProducerExtension
+      mediaStreams[peerID][mediaType][trackType] = {
+        producerId: id,
+        encodings: producerObject.rtpParameters.encodings!,
+        paused: !!producer.paused,
+        globalMute: !!producer.globalMute
       }
     }
   }
