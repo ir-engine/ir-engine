@@ -198,6 +198,7 @@ export default function UpdateEngineModal() {
             selectedCommitTag.set(value)
           }}
           disabled={modalProcessing.value}
+          showClearButton={true}
           width="full"
         />
         <Checkbox

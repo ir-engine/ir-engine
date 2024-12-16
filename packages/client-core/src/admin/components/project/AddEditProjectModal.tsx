@@ -490,6 +490,7 @@ export default function AddEditProjectModal({
               onChange={handleChangeBranch}
               width="full"
               searchMode="fuzzy"
+              showClearButton={true}
             />
           )}
         {projectUpdateStatus.value?.branchProcessing && (
@@ -521,6 +522,7 @@ export default function AddEditProjectModal({
               helperText={projectUpdateStatus.value?.commitError}
               width="full"
               searchMode="substring"
+              showClearButton={true}
             />
           )}
         {projectUpdateStatus.value?.commitsProcessing && (

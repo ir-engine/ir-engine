@@ -213,7 +213,7 @@ export const Searchable = {
         secondaryText: 'A large fruit with a sweet and distinctive flavor'
       }
     ],
-    width: 'l',
+    width: 'lg',
     showCheckmark: false,
     searchMode: 'prefix'
   }

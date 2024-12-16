@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useClickOutside } from '@ir-engine/common/src/utils/useClickOutside'
-import { ChevronDownSm, HelpIconSm } from '@ir-engine/ui/src/icons'
+import { ChevronDownSm, HelpIconSm, XCloseSm } from '@ir-engine/ui/src/icons'
 import Fuse from 'fuse.js'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
@@ -60,6 +60,7 @@ export interface SelectProps<T = string | number> {
     direction: 'down' | 'up'
     maxHeight: string
   }
+  showClearButton?: boolean
 }
 
 const variantToWidth: Record<NonNullable<SelectProps['width']>, string> = {
@@ -82,7 +83,8 @@ const Select = ({
   required,
   disabled,
   searchMode,
-  positioning: userPositioning
+  positioning: userPositioning,
+  showClearButton = false
 }: SelectProps) => {
   const [open, setOpen] = useState(false)
   const [positioning, setPositioning] = useState({
@@ -320,6 +322,15 @@ const Select = ({
                 setDisplayText(e.target.value)
               }}
             />
+
+            {showClearButton && (
+              <XCloseSm
+                onClick={() => {
+                  onChange('')
+                }}
+                className="cursor-pointer"
+              />
+            )}
 
             <ChevronDownSm className={`${open && 'rotate-180'} duration-300`} />
           </div>
