@@ -39,7 +39,7 @@ import {
   useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
-import { getState, NO_PROXY, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { Vector3 } from 'three'
 import { NameComponent } from '../../common/NameComponent'
@@ -209,7 +209,7 @@ export const CanvasInputReactor = () => {
   useEffect(() => {
     if (xrState.session.value) return // pointer input sources are automatically handled by webxr
 
-    const canvas = rendererComponent.canvas.get(NO_PROXY)
+    const canvas = rendererComponent.canvas.value
     if (!canvas) return
 
     /** Clear mouse events */
