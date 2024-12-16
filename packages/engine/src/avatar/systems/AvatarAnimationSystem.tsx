@@ -36,7 +36,6 @@ import {
   getOptionalComponent,
   hasComponent,
   setComponent,
-  useComponent,
   useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
@@ -425,14 +424,14 @@ const RigReactor = (props: { entity: Entity }) => {
 
 const AnimationReactor = (props: { entity: Entity }) => {
   const entity = props.entity
-  const rigComponent = useComponent(entity, AvatarRigComponent)
+  const rigComponent = useOptionalComponent(entity, AvatarRigComponent)
   useEffect(() => {
-    if (!Object.values(rigComponent.entitiesToBones).length || !rigComponent.vrm.scene.value) return
+    if (!Object.values(rigComponent?.entitiesToBones ?? {}).length || !rigComponent?.vrm?.scene?.value) return
     setComponent(entity, AnimationComponent, {
       animations: getAllLoadedAnimations(),
       mixer: new AnimationMixer(rigComponent.vrm.scene.value as Group)
     })
-  }, [entity, rigComponent.entitiesToBones, rigComponent.vrm.scene])
+  }, [rigComponent?.bonesToEntities, rigComponent?.vrm.scene])
   return null
 }
 
