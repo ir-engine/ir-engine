@@ -87,11 +87,22 @@ export default function UpdateEngineModal() {
 
   const selectCommitTagOptions = projectState.builderTags.value.map((builderTag) => {
     const pushedDate = toDisplayDateTime(builderTag.pushedAt)
+    const label = `Commit ${builderTag.commitSHA?.slice(0, 8)}`
+
+    let secondaryText = ''
+
+    if (builderTag.tag === engineCommit) {
+      secondaryText += `Current`
+    }
+
+    if (secondaryText.length > 0) secondaryText += ' • '
+
+    secondaryText += `Version ${builderTag.engineVersion} • Pushed ${pushedDate}`
+
     return {
       value: builderTag.tag,
-      label: `Commit ${builderTag.commitSHA?.slice(0, 8)} -- ${
-        builderTag.tag === engineCommit ? '(Current) ' : ''
-      }Version ${builderTag.engineVersion} -- Pushed ${pushedDate}`
+      label,
+      secondaryText
     }
   })
 
@@ -187,6 +198,7 @@ export default function UpdateEngineModal() {
             selectedCommitTag.set(value)
           }}
           disabled={modalProcessing.value}
+          width="full"
         />
         <Checkbox
           checked={updateProjects.value}
