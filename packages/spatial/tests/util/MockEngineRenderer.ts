@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import './patchNodeForWebXREmulator'
-
 import { Entity, getComponent, setComponent } from '@ir-engine/ecs'
 import { EffectComposer, Pass, RenderPass } from 'postprocessing'
 import { WebGLRenderTarget, WebGLRenderer } from 'three'
