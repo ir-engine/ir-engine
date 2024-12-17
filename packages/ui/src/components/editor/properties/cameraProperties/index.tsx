@@ -70,11 +70,9 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
     const box = new Box3()
     const modelEntities = modelQuery()
     for (const entity of modelEntities) {
-      console.log(entity)
       iterateEntityNode(entity, (entity) => {
         const mesh = getOptionalComponent(entity, MeshComponent)
         if (mesh?.geometry?.boundingBox) {
-          console.log(mesh)
           _box3.copy(mesh.geometry.boundingBox)
           _box3.applyMatrix4(mesh.matrixWorld)
           box.union(_box3)
