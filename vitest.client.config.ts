@@ -29,8 +29,12 @@ const reporters = !process.env.CI ? ['basic'] : configDefaults.reporters // Use 
 const watermark = [80, 95] as [number, number]
 const threshold = 80
 
+import appRootPath from 'app-root-path'
+import path from 'path'
+
 export default defineConfig({
   test: {
+    setupFiles: [path.resolve(appRootPath.path, 'packages/spatial/tests/util/patchNode.ts')],
     environment: 'jsdom',
     passWithNoTests: true,
     testTimeout: 2 * 60 * 1000,

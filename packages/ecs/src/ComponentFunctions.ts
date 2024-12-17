@@ -343,7 +343,7 @@ export const defineComponent = <
   Component.stateMap = {}
   if (Component.jsonID) {
     ComponentJSONIDMap.set(Component.jsonID, Component)
-    console.log(`Registered component ${Component.name} with jsonID ${Component.jsonID}`)
+    // console.log(`Registered component ${Component.name} with jsonID ${Component.jsonID}`)
   } else if (def.toJSON) {
     console.warn(
       `Component ${Component.name} has toJson defined, but no jsonID defined. This will cause serialization issues.`
