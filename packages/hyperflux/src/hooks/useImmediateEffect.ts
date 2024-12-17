@@ -34,6 +34,8 @@ function depsDiff(deps1, deps2) {
   )
 }
 
+function noop() {}
+
 /**
  * Run an effect immediately on mount and whenever deps change.
  *
@@ -62,7 +64,7 @@ export function useImmediateEffect(effect: EffectCallback, deps?: DependencyList
   }
 
   // make sure deps are hooked
-  useEffect(() => {}, deps)
+  useEffect(noop, deps)
 
   // make sure final cleanup is called on unmount
   useLayoutEffect(() => {
