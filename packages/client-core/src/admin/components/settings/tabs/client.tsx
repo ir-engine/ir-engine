@@ -516,7 +516,7 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           {t('admin:components.common.reset')}
         </Button>
         <Button size="sm" variant="primary" className="col-span-1" onClick={handleSubmit} fullWidth>
-          state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />
+          {state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
           {t('admin:components.common.save')}
         </Button>
       </div>
