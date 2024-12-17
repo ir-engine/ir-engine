@@ -140,7 +140,7 @@ const LoadingReactor = (props: { sceneEntity: Entity }) => {
   const avatarEntity = AvatarComponent.useSelfAvatarEntity()
   const avatarLoaded = AvatarRigComponent.useAvatarLoaded(avatarEntity)
   const userID = useMutableState(EngineState).userID.value
-  const spectatorLoaded = useMutableState(SpectateEntityState)[userID].value
+  const spectatorLoaded = !!useMutableState(SpectateEntityState).value[userID]
   const viewerReady = avatarLoaded || spectatorLoaded
   const locationState = useMutableState(LocationState)
   const state = useMutableState(LoadingUISystemState)
