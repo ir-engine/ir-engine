@@ -70,10 +70,7 @@ export const logger = multiLogger.child({ component: 'client-core:AuthService' }
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
 
 const iframe = document.getElementById('root-cookie-accessor') as HTMLIFrameElement
-const communicator = new ParentCommunicator(
-  'root-cookie-accessor',
-  config.client.hostOriginOverride ?? config.client.clientUrl
-) //Eventually we can configure iframe target seperatly
+const communicator = new ParentCommunicator('root-cookie-accessor', config.client.clientUrl) //Eventually we can configure iframe target seperatly
 
 export const UserSeed: UserType = {
   id: '' as UserID,
@@ -265,11 +262,16 @@ export const AuthService = {
     if (location.pathname.startsWith('/auth')) return
     const authState = getMutableState(AuthState)
     try {
-      const rootDomainToken = await getToken()
+      const rootDomainToken = config.client.rootDomainEnabled
+        ? await getToken()
+        : forceClientAuthReset
+        ? undefined
+        : authState?.authUser?.accessToken?.value
 
       if (forceClientAuthReset) await API.instance.authentication.reset()
 
-      if (rootDomainToken?.length > 0) await API.instance.authentication.setAccessToken(rootDomainToken as string)
+      if (rootDomainToken && rootDomainToken.length > 0)
+        await API.instance.authentication.setAccessToken(rootDomainToken as string)
       else await _resetToGuestToken({ reset: false })
 
       let res: AuthenticationResult
