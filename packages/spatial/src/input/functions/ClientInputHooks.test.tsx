@@ -35,11 +35,10 @@ import {
   UndefinedEntity
 } from '@ir-engine/ecs'
 import { getMutableState, getState, ReactorRoot, startReactor } from '@ir-engine/hyperflux'
-import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
 import sinon from 'sinon'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 import { MockEventListener } from '../../../tests/util/MockEventListener'
 import { MockXRSession } from '../../../tests/util/MockXR'
 import { destroySpatialEngine, initializeSpatialEngine } from '../../initializeEngine'
@@ -1258,25 +1257,26 @@ describe('ClientInputHooks', () => {
       assert.equal(before.has(testEntity), false)
 
       // Setup the reactor
-      const Reactor = React.createElement(
-        EntityContext.Provider,
-        { value: testEntity },
-        React.createElement(ClientInputHooks.BoundingBoxInputReactor, {})
-      )
+      startReactor(() => {
+        return React.createElement(
+          EntityContext.Provider,
+          { value: testEntity },
+          React.createElement(ClientInputHooks.BoundingBoxInputReactor, {})
+        )
+      })
 
-      const { rerender, unmount } = render(Reactor)
-      await act(() => rerender(Reactor))
-
-      // Check the result
-      const one = getState(InputState).inputBoundingBoxes
-      assert.equal(one.has(testEntity), true)
+      await vi.waitFor(() => {
+        // Check the result
+        const one = getState(InputState).inputBoundingBoxes
+        assert.equal(one.has(testEntity), true)
+      })
 
       removeComponent(parentEntity, InputComponent)
-      await act(() => rerender(Reactor))
-      const two = getState(InputState).inputBoundingBoxes
-      assert.equal(two.has(testEntity), false)
 
-      unmount()
+      await vi.waitFor(() => {
+        const two = getState(InputState).inputBoundingBoxes
+        assert.equal(two.has(testEntity), false)
+      })
     })
   })
 })
