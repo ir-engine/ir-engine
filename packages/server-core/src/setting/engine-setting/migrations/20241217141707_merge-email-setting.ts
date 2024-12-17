@@ -1,0 +1,147 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Infinite Reality Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Infinite Reality Engine team.
+
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
+*/
+
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
+import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { EngineSettingType } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
+import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { flattenObjectToArray } from '@ir-engine/common/src/utils/jsonHelperUtils'
+import type { Knex } from 'knex'
+import { v4 as uuidv4 } from 'uuid'
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const emailSettingPath = 'email-setting'
+
+  const tableExists = await knex.schema.hasTable(emailSettingPath)
+
+  if (tableExists) {
+    const recordExists = await knex.table(emailSettingPath).first()
+
+    if (recordExists) {
+      console.log('recordExists', recordExists)
+      const emailSmtpSettings = recordExists.smtp || {}
+      const emailSmtpConfigArray = flattenObjectToArray({ smtp: JSON.parse(emailSmtpSettings) })
+      console.log('emailSmtpConfigArray', emailSmtpConfigArray)
+
+      const emailSubjectSetting = recordExists.subject || {}
+      const emailSubjectConfigArray = flattenObjectToArray({ subject: JSON.parse(emailSubjectSetting) })
+      console.log('emailSubjectConfigArray', emailSubjectConfigArray)
+
+      const instanceServerSettings: EngineSettingType[] = await Promise.all(
+        [
+          {
+            key: EngineSettings.EmailSetting.From,
+            value: recordExists.from || process.env.EMAIL_FROM || ''
+          },
+          {
+            key: EngineSettings.EmailSetting.Smtp.Host,
+            value: emailSmtpConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Smtp.Host)?.value || ''
+          },
+          {
+            key: EngineSettings.EmailSetting.Smtp.Port,
+            value: emailSmtpConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Smtp.Port)?.value || ''
+          },
+          {
+            key: EngineSettings.EmailSetting.Smtp.Secure,
+            value:
+              emailSmtpConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Smtp.Secure)?.value || ''
+          },
+          {
+            key: EngineSettings.EmailSetting.Smtp.Auth.User,
+            value:
+              emailSmtpConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Smtp.Auth.User)?.value || ''
+          },
+          {
+            key: EngineSettings.EmailSetting.Smtp.Auth.Pass,
+            value:
+              emailSmtpConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Smtp.Auth.Pass)?.value || ''
+          },
+          {
+            key: EngineSettings.EmailSetting.SmsNameCharacterLimit,
+            value: recordExists.smsNameCharacterLimit || process.env.SMS_NAME_CHARACTER_LIMIT || '11'
+          },
+          {
+            key: EngineSettings.EmailSetting.Subject.NewUser,
+            value:
+              emailSubjectConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Subject.NewUser)?.value ||
+              ''
+          },
+          {
+            key: EngineSettings.EmailSetting.Subject.Channel,
+            value:
+              emailSubjectConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Subject.Channel)?.value ||
+              ''
+          },
+          {
+            key: EngineSettings.EmailSetting.Subject.Friend,
+            value:
+              emailSubjectConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Subject.Friend)?.value ||
+              ''
+          },
+          {
+            key: EngineSettings.EmailSetting.Subject.Instance,
+            value:
+              emailSubjectConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Subject.Instance)
+                ?.value || ''
+          },
+          {
+            key: EngineSettings.EmailSetting.Subject.Location,
+            value:
+              emailSubjectConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Subject.Location)
+                ?.value || ''
+          },
+          {
+            key: EngineSettings.EmailSetting.Subject.Login,
+            value:
+              emailSubjectConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Subject.Login)?.value ||
+              ''
+          }
+        ].map(async (item) => ({
+          ...item,
+          id: uuidv4(),
+          type: 'private' as EngineSettingType['type'],
+          category: 'email-setting',
+          createdAt: await getDateTimeSql(),
+          updatedAt: await getDateTimeSql()
+        }))
+      )
+      console.log('instanceServerSettings', instanceServerSettings)
+
+      await knex.from(engineSettingPath).insert([...instanceServerSettings])
+    }
+  }
+
+  // await knex.schema.dropTableIfExists(emailSettingPath)
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {}
