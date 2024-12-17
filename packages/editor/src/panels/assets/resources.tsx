@@ -218,7 +218,7 @@ function SideNavBar({ handleScrollToPage }) {
         id="minimap-nav"
         className={twMerge(
           'duration-250 fixed ml-6 mt-1.5 flex w-6 flex-col items-end overflow-visible rounded-[4px] text-[10px] transition-[margin,padding]',
-          navBarActivated ? 'py-2 pr-6' : 'p-0.5 pr-1'
+          navBarActivated ? 'py-2 pr-6' : 'py-2.5 pr-3'
         )}
         onMouseEnter={() => setNavBarActivated(true)}
         onMouseLeave={() => setNavBarActivated(false)}
@@ -229,9 +229,8 @@ function SideNavBar({ handleScrollToPage }) {
             key={i}
             className={twMerge(
               'nav-item duration-250 flex w-10 flex-row items-center justify-end gap-1 text-gray-500  transition-[padding]',
-              navBarActivated ? 'h-auto' : 'h-2',
-              hoveredIndex === i ? 'cursor-pointer py-1.5 first:pb-0 first:pt-1.5 last:pt-1.5' : 'py-0.5',
-              ''
+              navBarActivated ? 'h-auto' : 'h-3.5',
+              hoveredIndex === i ? 'cursor-pointer py-1.5 first:pb-0 first:pt-1.5 last:pt-1.5' : 'py-0.5'
             )}
             onMouseEnter={() => setHoveredIndex(i)}
             onMouseLeave={() => setHoveredIndex(null)}

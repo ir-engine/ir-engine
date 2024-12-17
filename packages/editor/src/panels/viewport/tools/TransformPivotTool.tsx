@@ -27,12 +27,13 @@ import { setTransformPivot, toggleTransformPivot } from '@ir-engine/editor/src/f
 import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
 import { TransformPivot } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { Select, Tooltip } from '@ir-engine/ui'
+import { Tooltip } from '@ir-engine/ui'
 import { ViewportButton } from '@ir-engine/ui/editor'
 import { SelectionMd } from '@ir-engine/ui/src/icons'
 import { t } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import ToolbarDropdown from './ToolbarDropdown'
 
 const transformPivotOptions = [
   {
@@ -69,28 +70,22 @@ const TransformPivotTool = () => {
 
   return (
     <div className="flex items-center rounded bg-[#141619] p-1">
-      <Tooltip content={t('editor:toolbar.transformPivot.toggleTransformPivot')}>
+      <Tooltip content={t('editor:toolbar.transformPivot.toggleTransformPivot')} position="bottom">
         <ViewportButton onClick={toggleTransformPivot}>
           <SelectionMd />
         </ViewportButton>
       </Tooltip>
-      <Tooltip
-        content={
+      <ToolbarDropdown
+        tooltipContent={
           transformPivotOptions.find((pivot) => pivot.value === editorHelperState.transformPivot.value)?.description
         }
-        position="right"
-      >
-        <div className="ml-1 w-[122px]">
-          <Select
-            key={editorHelperState.transformPivot.value}
-            onChange={setTransformPivot}
-            options={transformPivotOptions}
-            value={editorHelperState.transformPivot.value}
-            width="full"
-            inputHeight="xs"
-          />
-        </div>
-      </Tooltip>
+        onChange={setTransformPivot}
+        options={transformPivotOptions}
+        value={editorHelperState.transformPivot.value}
+        width="full"
+        inputHeight="xs"
+        dropdownParentClassName="w-[106px]"
+      />
     </div>
   )
 }

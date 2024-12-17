@@ -67,6 +67,7 @@ const PlayModeTool: React.FC = () => {
             ? t('editor:toolbar.command.info-playPreview')
             : t('editor:toolbar.command.info-stopPreview')
         }
+        position="bottom"
       >
         <button className="p-0" onClick={onTogglePlayMode}>
           {engineState.isEditing.value ? (
