@@ -29,13 +29,13 @@ import { useEffect } from 'react'
 import { getComponent, removeComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { QueryReactor, defineQuery, useQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { defineQuery, QueryReactor, useQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 
-import { UUIDComponent, useEntityContext } from '@ir-engine/ecs'
+import { useEntityContext, UUIDComponent } from '@ir-engine/ecs'
 import { SimulationLayerTagComponent } from '@ir-engine/ecs/src/SimulationLayerTagComponent'
 import React from 'react'
 import { Vector3 } from 'three'
@@ -43,7 +43,6 @@ import { EngineState } from '../../EngineState'
 import { InputHeuristicState, IntersectionData } from '../../input/functions/ClientInputHeuristics'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { PhysicsSerialization } from '../PhysicsSerialization'
 import { Physics, RaycastArgs } from '../classes/Physics'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
@@ -53,6 +52,7 @@ import {
 } from '../components/RigidBodyComponent'
 import { CollisionGroups } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
+import { PhysicsSerialization } from '../PhysicsSerialization'
 import { ColliderHitEvent, CollisionEvents, SceneQueryType } from '../types/PhysicsTypes'
 
 const nonFixedRigidbodyQuery = defineQuery([
@@ -168,7 +168,7 @@ export function spatialInputRaycastHeuristic(
 const reactor = () => {
   const physicsLoaded = useHookstate(false)
   const physicsLoadPending = useHookstate(false)
-  const physicsQuery = useQuery([SceneComponent, SimulationLayerTagComponent])
+  const physicsQuery = useQuery([SceneComponent])
 
   useEffect(() => {
     getMutableState(InputHeuristicState).merge([
@@ -204,10 +204,7 @@ const reactor = () => {
 
   return (
     <>
-      <QueryReactor
-        Components={[SceneComponent, SimulationLayerTagComponent]}
-        ChildEntityReactor={PhysicsSceneReactor}
-      />
+      <QueryReactor Components={[SceneComponent]} ChildEntityReactor={PhysicsSceneReactor} />
     </>
   )
 }

@@ -640,11 +640,11 @@ export const setComponent = <C extends Component>(
                 //if so, we need to switch it to the linked entity in the destination layer
                 const uuid = getComponent(setArgs[key], UUIDComponent)
                 const dstEntity = UUIDComponent.getEntityByUUID(uuid, linkedLayer as LayerID)
-                console.log('linkedEntity', dstEntity)
+                // console.log('linkedEntity', dstEntity)
                 // Object.assign(setArgs, { [key]: linkedEntity })
                 setArgs[key] = dstEntity
-                console.log('set field', key, 'to', dstEntity)
-                console.log('result:', setArgs)
+                // console.log('set field', key, 'to', dstEntity)
+                // console.log('result:', setArgs)
               } else if (typeof setArgs[key] === 'object') {
                 frontier.push({ schema: valSchema, setArgs: setArgs[key] })
               }
@@ -980,7 +980,7 @@ export const LayerComponent = defineComponent({
     if (entityLayer === Layers.Simulation) {
       const uuid = getComponent(entity, UUIDComponent)
       const upstreamEntity = UUIDComponent.getEntityByUUID(uuid, Layers.Authoring)
-      if (entityExists(upstreamEntity)) return true
+      if (upstreamEntity !== UndefinedEntity && entityExists(upstreamEntity)) return true
     }
     return false
   }
