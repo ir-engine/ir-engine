@@ -212,7 +212,11 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
   )
 
   const projects = await app.service(projectsPath).find()
-  await loadEngineInjection(projects)
+  try {
+    await loadEngineInjection(projects)
+  } catch (e) {
+    logger.error('Failed to load engine injection', e)
+  }
 
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId)
