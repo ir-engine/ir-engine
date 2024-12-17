@@ -25,7 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useFind } from '@ir-engine/common'
 import { ProjectPermissionType, projectPermissionPath } from '@ir-engine/common/src/schema.type.module'
-import { HyperFlux } from '@ir-engine/hyperflux'
+import { useMutableState } from '@ir-engine/hyperflux'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 
 /**
  *
@@ -35,10 +36,11 @@ import { HyperFlux } from '@ir-engine/hyperflux'
  * @returns
  */
 export const useProjectPermissions = (project: string): ProjectPermissionType => {
+  const userID = useMutableState(EngineState).userID.value
   const { data } = useFind(projectPermissionPath, {
     query: {
       project,
-      userId: HyperFlux.store.userID,
+      userId: userID,
       paginate: false
     }
   })

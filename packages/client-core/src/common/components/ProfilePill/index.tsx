@@ -72,7 +72,7 @@ const ProfilePill = () => {
               className="absolute bottom-0 left-10 rounded-full p-1 text-[#F5F5F5]"
               onClick={() => {
                 popUpOpened.set(false)
-                PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect2)
+                PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)
               }}
             >
               <HiPencil />

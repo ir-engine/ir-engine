@@ -36,7 +36,6 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
-  getOptionalMutableComponent,
   hasComponent,
   UndefinedEntity,
   useComponent,
@@ -60,13 +59,13 @@ import {
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ShapeSchema } from '@ir-engine/spatial/src/physics/types/PhysicsTypes.ts'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import {
-  getAncestorWithComponents,
   useAncestorWithComponents,
   useChildrenWithComponents
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
@@ -87,6 +86,7 @@ import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
 import { GLTFSourceState } from './GLTFState'
 import { gltfReplaceUUIDsReferences } from './gltfUtils'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
+import { useApplyCollidersToChildMeshesEffect } from './useApplyCollidersToChildMeshesEffect.ts'
 
 type DependencyEval = {
   key: string
@@ -162,6 +162,10 @@ export const GLTFComponent = defineComponent({
     /** @todo move this to it's own component */
     cameraOcclusion: S.Bool(false),
 
+    //collision info
+    applyColliders: S.Bool(false),
+    shape: ShapeSchema('box'),
+
     // internals
     body: S.NonSerialized(S.Nullable(S.Type<ArrayBuffer>())),
     progress: S.NonSerialized(S.Number(0)),
@@ -221,6 +225,12 @@ export const GLTFComponent = defineComponent({
       }
     }, [gltfComponent.src])
 
+    const scene = useOptionalComponent(entity, SceneComponent)
+    useEffect(() => {
+      if (!scene) return
+      if (gltfComponent.progress.value === 100) scene.active.set(true)
+    }, [!!scene, gltfComponent.progress.value])
+
     const dependencies = gltfComponent.dependencies.get(NO_PROXY_STEALTH) as ComponentDependencies | undefined
     return (
       <>
@@ -252,13 +262,16 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
   const resourceQuery = useQuery([SourceComponent, ResourcePendingComponent])
   const gltfDocumentState = useMutableState(GLTFDocumentState)
   const sourceEntities = useHookstate(SourceComponent.entitiesBySourceState[props.documentID])
+  useApplyCollidersToChildMeshesEffect(props.entity)
 
   useEffect(() => {
     if (getComponent(props.entity, GLTFComponent).progress === 100) return
     if (!getState(GLTFDocumentState)[props.documentID]) return
     const entities = resourceQuery.filter((e) => getComponent(e, SourceComponent) === props.documentID)
     if (!entities.length) {
-      if (dependenciesLoaded) getMutableComponent(props.entity, GLTFComponent).progress.set(100)
+      if (dependenciesLoaded) {
+        getMutableComponent(props.entity, GLTFComponent).progress.set(100)
+      }
       return
     }
 
@@ -379,9 +392,6 @@ const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: C
 
   useEffect(() => {
     return () => {
-      const ancestor = getAncestorWithComponents(gltfComponentEntity, [SceneComponent])
-      const scene = getOptionalMutableComponent(ancestor, SceneComponent)
-      if (scene) scene.active.set(true)
       removeError(gltfComponentEntity, GLTFComponent, 'LOADING_ERROR')
       removeError(gltfComponentEntity, GLTFComponent, 'INVALID_SOURCE')
     }

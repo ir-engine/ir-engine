@@ -32,18 +32,16 @@ import { useMutableState } from '@ir-engine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
 import { InviteService, InviteState } from '../../social/services/InviteService'
-import { AuthState } from '../../user/services/AuthService'
 
 const InviteToast = () => {
   const { t } = useTranslation()
   const inviteState = useMutableState(InviteState)
-  const authState = useMutableState(AuthState)
   const newestInvite = inviteState.receivedInvites.invites[0]?.value as InviteType
 
   useEffect(() => {
-    if (inviteState.receivedUpdateNeeded.value && authState.isLoggedIn.value)
+    if (inviteState.receivedUpdateNeeded.value)
       InviteService.retrieveReceivedInvites(undefined, undefined, 'createdAt', 'desc')
-  }, [inviteState.receivedUpdateNeeded.value, authState.isLoggedIn.value])
+  }, [inviteState.receivedUpdateNeeded.value])
 
   useEffect(() => {
     if (newestInvite.inviteType) {

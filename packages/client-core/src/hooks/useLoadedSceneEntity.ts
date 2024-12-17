@@ -23,14 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useGet } from '@ir-engine/common'
-import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import { UndefinedEntity } from '@ir-engine/ecs'
 import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { useMutableState } from '@ir-engine/hyperflux'
 
-export const useLoadedSceneEntity = (sceneID: string | undefined) => {
-  const scene = useGet(staticResourcePath, sceneID).data
+export const useLoadedSceneEntity = (sceneURL: string | undefined) => {
   const scenes = useMutableState(GLTFAssetState)
-  const sceneKey = scene?.url
-  return sceneKey ? scenes[sceneKey].value : null
+  return sceneURL ? scenes[sceneURL].value : UndefinedEntity
 }

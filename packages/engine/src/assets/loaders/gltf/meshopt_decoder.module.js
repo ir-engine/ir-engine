@@ -187,6 +187,9 @@ var MeshoptDecoder = (function() {
 		},
 		decodeGltfBufferAsync: function(count, size, source, mode, filter) {
 			if (workers.length > 0) {
+				if (MeshoptDecoder.useWorkers) {
+					MeshoptDecoder.useWorkers(1)
+				}
 				return decodeWorker(count, size, source, decoders[mode], filters[filter]);
 			}
 

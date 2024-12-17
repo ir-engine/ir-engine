@@ -24,11 +24,16 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { UndefinedEntity } from '@ir-engine/ecs'
-import { defineState } from '@ir-engine/hyperflux'
+import { defineState, UserID } from '@ir-engine/hyperflux'
 
 export const EngineState = defineState({
   name: 'EngineState',
   initial: {
+    /**
+     * The uuid of the logged-in user
+     */
+    userID: '' as UserID,
+
     /** @deprecated use isEditing instead */
     isEditor: false,
     isEditing: false,

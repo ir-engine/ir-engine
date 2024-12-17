@@ -56,9 +56,11 @@ import { AvatarComponent } from '../components/AvatarComponent'
 const headDithering = 0
 const cameraDithering = 1
 const avatarQuery = defineQuery([AvatarComponent])
+
 const execute = () => {
   const selfEntity = AvatarComponent.getSelfAvatarEntity()
   if (!selfEntity) return
+
   const cameraAttached = XRState.isCameraAttachedToAvatar
 
   for (const entity of avatarQuery()) {
@@ -99,10 +101,7 @@ export const AvatarTransparencySystem = defineSystem({
   execute,
   insert: { with: PresentationSystemGroup },
   reactor: () => {
-    const selfEid = AvatarComponent.useSelfAvatarEntity()
-
     const avatarQuery = useQuery([AvatarComponent])
-
     return (
       <>
         {avatarQuery.map((childEntity) => (
@@ -130,14 +129,17 @@ const DitherChildReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   const entity = props.entity
   const materialComponentUUID = useOptionalComponent(entity, MaterialInstanceComponent)?.uuid
   const rootDitheringComponent = useOptionalComponent(props.rootEntity, TransparencyDitheringRootComponent)
+
   useEffect(() => {
     if (!materialComponentUUID?.value || !rootDitheringComponent) return
     for (const materialUUID of materialComponentUUID.value) {
       const material = UUIDComponent.getEntityByUUID(materialUUID)
+      if (!material) continue
       if (!rootDitheringComponent.materials.value.includes(materialUUID))
         rootDitheringComponent.materials.set([...rootDitheringComponent.materials.value, materialUUID])
       setComponent(material, TransparencyDitheringPluginComponent)
     }
-  }, [materialComponentUUID, rootDitheringComponent])
+  }, [materialComponentUUID, !!rootDitheringComponent])
+
   return null
 }

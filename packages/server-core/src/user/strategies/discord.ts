@@ -57,7 +57,6 @@ export class DiscordStrategy extends CustomOAuthStrategy {
     const identityProvider = authResult[identityProviderPath] ? authResult[identityProviderPath] : authResult
     const userId = identityProvider ? identityProvider.userId : params?.query ? params.query.userId : undefined
 
-    console.log('discord profile', profile)
     const returned = {
       ...baseData,
       accountIdentifier: `${profile.username}#${profile.discriminator}`,

@@ -95,6 +95,7 @@
     "gridDebug": "Grid",
     "tick": "Tick",
     "state": "State",
+    "api": "API",
     "systems": "Systems",
     "avgDuration": "Avg Duration: ",
     "entities": "Entities",
