@@ -248,6 +248,9 @@ export const GLTFComponentReactor = (props: { entity: Entity }) => {
     getMutableState(GLTFSourceState)[sourceID].set(entity)
     return () => {
       getMutableState(GLTFSourceState)[sourceID].set(none)
+      for (const generatedEntity of generatedEntities.value) {
+        removeEntity(generatedEntity)
+      }
     }
   }, [gltfComponent.src])
 
