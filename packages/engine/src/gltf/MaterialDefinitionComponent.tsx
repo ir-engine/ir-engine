@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   ComponentType,
+  LayerComponent,
   S,
   UUIDComponent,
   defineComponent,
@@ -110,6 +111,9 @@ export const MaterialDefinitionComponent = defineComponent({
   schema: MaterialDefinitionSchema,
 
   reactor: () => {
+    //@todo: this should probably be integrated into GLTF loader as materials can only ever come from a GLTF file
+    const entity = useEntityContext()
+    if (LayerComponent.hasUpstreamEntity(entity)) return null
     return <MaterialDefinitionReactor />
   }
 })

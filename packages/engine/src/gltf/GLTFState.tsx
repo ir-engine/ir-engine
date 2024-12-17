@@ -48,6 +48,7 @@ import {
   ComponentJSONIDMap,
   Entity,
   EntityUUID,
+  LayerComponent,
   Layers,
   PresentationSystemGroup,
   UUIDComponent,
@@ -163,15 +164,17 @@ export const GLTFLoadSystem = defineSystem({
   reactor: () => {
     const gltfSimulationEntities = useQuery([GLTFComponent])
     const gltfAuthoringEntities = useQuery([GLTFComponent], Layers.Authoring)
+    const gltfEntities = [...gltfSimulationEntities, ...gltfAuthoringEntities]
     return (
       <>
         {/* The authoring layer entities will have their entities propagated to the simulation layer */}
-        {gltfSimulationEntities.map((entity) => (
-          <GLTFComponentReactor key={'simulation-' + entity} entity={entity} />
-        ))}
-        {gltfAuthoringEntities.map((entity) => (
+        {gltfEntities.map((entity) => {
+          if (LayerComponent.hasUpstreamEntity(entity)) return null
+          return <GLTFComponentReactor key={'simulation-' + entity} entity={entity} />
+        })}
+        {/* {gltfAuthoringEntities.map((entity) => (
           <GLTFComponentReactor key={'authoring-' + entity} entity={entity} />
-        ))}
+        ))} */}
       </>
     )
   }

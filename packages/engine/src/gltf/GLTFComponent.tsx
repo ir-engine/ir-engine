@@ -59,7 +59,6 @@ import {
 
 import { LayerComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { ShapeSchema } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -623,13 +622,13 @@ const useGLTFDocument = (entity: Entity) => {
   const url = state.src.value
   const source = GLTFComponent.useInstanceID(entity)
   useGLTFResource(url, entity)
-  const dynamicLoadComponent = useOptionalComponent(entity, SceneDynamicLoadTagComponent)
-  const isEditing = useMutableState(EngineState).isEditing.value
+  // const dynamicLoadComponent = useOptionalComponent(entity, SceneDynamicLoadTagComponent)
+  // const isEditing = useMutableState(EngineState).isEditing.value
 
-  const dynamicLoadAndNotEditing = !isEditing && !!dynamicLoadComponent && !dynamicLoadComponent?.loaded?.value
+  // const dynamicLoadAndNotEditing = !isEditing && !!dynamicLoadComponent && !dynamicLoadComponent?.loaded?.value
 
   useEffect(() => {
-    if (dynamicLoadAndNotEditing) return
+    // if (dynamicLoadAndNotEditing) return
 
     if (!url) {
       addError(entity, GLTFComponent, 'INVALID_SOURCE', 'Invalid URL')
@@ -696,7 +695,7 @@ const useGLTFDocument = (entity: Entity) => {
       state.body.set(null)
       state.progress.set(0)
     }
-  }, [url, dynamicLoadAndNotEditing])
+  }, [url])
 }
 
 export const parseBinaryData = (data) => {
