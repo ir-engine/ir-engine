@@ -32,7 +32,6 @@ import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
 
-import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
 import { NotificationService } from '../../common/services/NotificationService'
 import { RouterState } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'
