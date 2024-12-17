@@ -26,12 +26,11 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import { getComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { createXRUI } from '@ir-engine/engine/src/xrui/createXRUI'
 import { dispatchAction, getMutableState, getState, startReactor, useHookstate } from '@ir-engine/hyperflux'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
-import { createXRUI } from '@ir-engine/spatial/src/xrui/functions/createXRUI'
-import { WidgetAppActions } from '@ir-engine/spatial/src/xrui/WidgetAppService'
-import { Widget, Widgets } from '@ir-engine/spatial/src/xrui/Widgets'
+import { WidgetAppActions } from './WidgetAppService'
 
 import { Engine, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
@@ -44,6 +43,7 @@ import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/Ri
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { Quaternion, Vector3 } from 'three'
+import { Widget, Widgets } from './Widgets'
 
 export function createAvatarModeWidget() {
   const ui = createXRUI(() => null)
