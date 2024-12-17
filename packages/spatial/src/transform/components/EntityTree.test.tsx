@@ -45,6 +45,7 @@ import {
   getAncestorWithComponents,
   getChildrenWithComponents,
   getNestedChildren,
+  getTreeFromChildToAncestor,
   haveCommonAncestor,
   isAncestor,
   isDeepChildOf,
@@ -867,6 +868,80 @@ describe('getAncestorWithComponents', () => {
     assert.equal(getAncestorWithComponents(entity2, [NameComponent], true, false), entity1)
   })
 }) //:: getAncestorWithComponents
+
+describe('getTreeFromChildToAncestor', () => {
+  let rootEntity: Entity
+  let level1Entity: Entity
+  let level2Entity: Entity
+  let level3Entity: Entity
+  let level4Entity: Entity
+
+  beforeEach(() => {
+    createEngine()
+
+    // Create a hierarchy of entities
+    rootEntity = createEntity()
+    setComponent(rootEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
+
+    level1Entity = createEntity()
+    setComponent(level1Entity, EntityTreeComponent, { parentEntity: rootEntity })
+
+    level2Entity = createEntity()
+    setComponent(level2Entity, EntityTreeComponent, { parentEntity: level1Entity })
+
+    level3Entity = createEntity()
+    setComponent(level3Entity, EntityTreeComponent, { parentEntity: level2Entity })
+
+    level4Entity = createEntity()
+    setComponent(level4Entity, EntityTreeComponent, { parentEntity: level3Entity })
+  })
+
+  afterEach(() => {
+    return destroyEngine()
+  })
+
+  it('should return an array containing all entities from level 4 to root when no ancestor is provided', () => {
+    const outEntities: Entity[] = []
+    const result = getTreeFromChildToAncestor(level4Entity, outEntities)
+
+    assert.deepEqual(outEntities, [level4Entity, level3Entity, level2Entity, level1Entity, rootEntity])
+    assert.equal(result, false)
+  })
+
+  it('should return an array containing entities from level 4 to level 2 when level 2 is specified as ancestor', () => {
+    const outEntities: Entity[] = []
+    const result = getTreeFromChildToAncestor(level4Entity, outEntities, level2Entity)
+
+    assert.deepEqual(outEntities, [level4Entity, level3Entity, level2Entity])
+    assert.equal(result, true)
+  })
+
+  it('should return false and an array containing all entities from level 4 to root when an invalid ancestor is provided', () => {
+    const outEntities: Entity[] = []
+    const invalidAncestor = createEntity() // Nonexistent ancestor in the hierarchy
+    const result = getTreeFromChildToAncestor(level4Entity, outEntities, invalidAncestor)
+
+    assert.deepEqual(outEntities, [level4Entity, level3Entity, level2Entity, level1Entity, rootEntity])
+    assert.equal(result, false)
+  })
+
+  it('should return an array containing only the child when childEntity does not have EntityTreeComponent', () => {
+    const orphan = createEntity()
+    const outEntities: Entity[] = []
+    const result = getTreeFromChildToAncestor(orphan, outEntities)
+
+    assert.deepEqual(outEntities, [orphan])
+    assert.equal(result, false)
+  })
+
+  it('should return true when the child is the ancestor itself', () => {
+    const outEntities: Entity[] = []
+    const result = getTreeFromChildToAncestor(level2Entity, outEntities, level2Entity)
+
+    assert.deepEqual(outEntities, [level2Entity])
+    assert.equal(result, true)
+  })
+}) //:: getTreeFromChildToAncestor
 
 describe('findIndexOfEntityNode', () => {
   let parentEntity: Entity

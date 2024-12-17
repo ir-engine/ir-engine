@@ -24,16 +24,27 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { camelCaseToSpacedString } from '@ir-engine/common/src/utils/camelCaseToSpacedString'
-import { useComponent } from '@ir-engine/ecs'
-import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
+import { hasComponent, SerializedComponentType, useComponent } from '@ir-engine/ecs'
+import { commitProperty, EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
+import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions.ts'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices.ts'
 import { ColliderComponent, supportedColliderShapes } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent.ts'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent.ts'
+import { useAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree.tsx'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { FiMinimize2 } from 'react-icons/fi'
+import { HiPlus } from 'react-icons/hi2'
+import { Vector3 } from 'three'
+import { Checkbox } from '../../../../index.ts'
+import Button from '../../../../primitives/tailwind/Button'
+import Text from '../../../../primitives/tailwind/Text'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
+import NumericScrubber from '../../input/Numeric/Scrubber'
 import SelectInput from '../../input/Select'
 import Vector3Input from '../../input/Vector3'
 
@@ -48,6 +59,31 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const colliderComponent = useComponent(props.entity, ColliderComponent)
 
+  const isMeshOrConvexHull =
+    colliderComponent.shape.value === Shapes.Mesh || colliderComponent.shape.value === Shapes.ConvexHull
+
+  const showMatchMesh = !isMeshOrConvexHull && hasComponent(props.entity, MeshComponent)
+  const hasRigidBody = useAncestorWithComponents(props.entity, [RigidBodyComponent])
+
+  const shape = colliderComponent.shape.value
+
+  const sanitzeAndCommitNumber = <K extends keyof SerializedComponentType<typeof ColliderComponent>>(
+    value: number,
+    propName: K
+  ) => {
+    commitProperty(ColliderComponent, propName)(Math.max(0, value) as any)
+  }
+
+  const sanitizeAndCommitVector3 = <K extends keyof SerializedComponentType<typeof ColliderComponent>>(
+    value: Vector3,
+    propName: K
+  ) => {
+    value.x = Math.max(0, value.x)
+    value.y = Math.max(0, value.y)
+    value.z = Math.max(0, value.z)
+    commitProperty(ColliderComponent, propName)(value as any)
+  }
+
   return (
     <NodeEditor
       {...props}
@@ -55,6 +91,23 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
       description={t('editor:properties.collider.description')}
       Icon={ColliderComponentEditor.iconComponent}
     >
+      {(!hasRigidBody && (
+        <>
+          <Text className="ml-5 text-red-400">{t('editor:properties.collider.lbl-warnRigidBody')}</Text>
+          <Button
+            title={t('editor:properties.collider.lbl-addRigidBody')}
+            className="text-sm text-[#FFFFFF]"
+            onClick={() => {
+              const nodes = SelectionState.getSelectedEntities()
+              EditorControlFunctions.addOrRemoveComponent(nodes, RigidBodyComponent, true, { type: 'fixed' })
+            }}
+          >
+            <HiPlus />
+            {t('editor:properties.collider.lbl-addRigidBody')}
+          </Button>
+        </>
+      )) ||
+        ''}
       <InputGroup name="Shape" label={t('editor:properties.collider.lbl-shape')}>
         <SelectInput
           options={shapeTypeOptions}
@@ -62,8 +115,83 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
           onChange={commitProperty(ColliderComponent, 'shape')}
         />
       </InputGroup>
+      {showMatchMesh && (
+        <InputGroup
+          label={t('editor:properties.collider.lbl-matchMesh')}
+          info={t('editor:properties.collider.info-matchMesh')}
+        >
+          <Checkbox
+            checked={colliderComponent.matchMesh.value}
+            onChange={commitProperty(ColliderComponent, 'matchMesh')}
+          />
+        </InputGroup>
+      )}
+      <InputGroup
+        name="CenterOffset"
+        label={t('editor:properties.collider.lbl-centerOffset')}
+        disabled={colliderComponent.matchMesh.value}
+      >
+        <Vector3Input
+          disabled={colliderComponent.matchMesh.value}
+          value={colliderComponent.centerOffset.value}
+          onChange={commitProperty(ColliderComponent, 'centerOffset')}
+        />
+      </InputGroup>
+      {shape === Shapes.Box && (
+        <InputGroup
+          name="BoxSize"
+          label={t('editor:properties.collider.lbl-boxSize')}
+          disabled={colliderComponent.matchMesh.value}
+        >
+          <Vector3Input
+            disabled={colliderComponent.matchMesh.value}
+            value={colliderComponent.boxSize.value}
+            onChange={(value) => sanitizeAndCommitVector3(value, 'boxSize')}
+          />
+        </InputGroup>
+      )}
+      {(shape === Shapes.Sphere || shape === Shapes.Capsule || shape === Shapes.Cylinder) && (
+        <InputGroup
+          name="Radius"
+          label={t('editor:properties.collider.lbl-radius')}
+          disabled={colliderComponent.matchMesh.value}
+        >
+          <NumericScrubber
+            smallStep={0.001}
+            mediumStep={0.01}
+            largeStep={0.1}
+            disabled={colliderComponent.matchMesh.value}
+            value={colliderComponent.radius.value}
+            onChange={(value) => sanitzeAndCommitNumber(value, 'radius')}
+            onRelease={(value) => sanitzeAndCommitNumber(value, 'radius')}
+          />
+        </InputGroup>
+      )}
+      {(shape === Shapes.Capsule || shape === Shapes.Cylinder) && (
+        <InputGroup
+          name="Height"
+          label={t('editor:properties.collider.lbl-height')}
+          disabled={colliderComponent.matchMesh.value}
+        >
+          <NumericScrubber
+            smallStep={0.001}
+            mediumStep={0.01}
+            largeStep={0.1}
+            disabled={colliderComponent.matchMesh.value}
+            value={colliderComponent.height.value}
+            onChange={(value) => sanitzeAndCommitNumber(value, 'height')}
+            onRelease={(value) => sanitzeAndCommitNumber(value, 'height')}
+          />
+        </InputGroup>
+      )}
       <InputGroup name="Mass" label={t('editor:properties.collider.lbl-mass')}>
-        <NumericInput value={colliderComponent.mass.value} onChange={commitProperty(ColliderComponent, 'mass')} />
+        <NumericScrubber
+          smallStep={0.001}
+          mediumStep={0.01}
+          largeStep={0.1}
+          value={colliderComponent.mass.value}
+          onChange={(value) => sanitzeAndCommitNumber(value, 'mass')}
+        />
       </InputGroup>
       <InputGroup name="Mass Center" label={t('editor:properties.collider.lbl-massCenter')} className="w-auto">
         <Vector3Input
@@ -71,14 +199,31 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
           onChange={commitProperty(ColliderComponent, 'massCenter')}
         />
       </InputGroup>
-      <InputGroup name="Friction" label={t('editor:properties.collider.lbl-friction')}>
-        <NumericInput
+      <InputGroup
+        name="Friction"
+        label={t('editor:properties.collider.lbl-friction')}
+        info={t('editor:properties.collider.info-friction')}
+      >
+        <NumericScrubber
+          smallStep={0.001}
+          mediumStep={0.01}
+          largeStep={0.1}
+          min={0}
           value={colliderComponent.friction.value}
           onChange={commitProperty(ColliderComponent, 'friction')}
         />
       </InputGroup>
-      <InputGroup name="Restitution" label={t('editor:properties.collider.lbl-restitution')}>
-        <NumericInput
+      <InputGroup
+        name="Restitution"
+        label={t('editor:properties.collider.lbl-restitution')}
+        info={t('editor:properties.collider.info-restitution')}
+      >
+        <NumericScrubber
+          smallStep={0.001}
+          mediumStep={0.01}
+          largeStep={0.1}
+          min={0}
+          max={1}
           value={colliderComponent.restitution.value}
           onChange={commitProperty(ColliderComponent, 'restitution')}
         />

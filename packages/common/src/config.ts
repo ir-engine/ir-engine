@@ -56,9 +56,7 @@ const client = {
     localBuildOrDev && globalThis.process.env.VITE_LOCAL_NGINX !== 'true'
       ? `https://${globalThis.process.env.VITE_APP_HOST}:${globalThis.process.env.VITE_APP_PORT}`
       : `https://${globalThis.process.env.VITE_APP_HOST}`,
-  hostOriginOverride: globalThis.process.env.APP_HOST_ORIGIN_OVERRIDE
-    ? `https://${globalThis.process.env.APP_HOST_ORIGIN_OVERRIDE}:${globalThis.process.env.VITE_APP_PORT}`
-    : null,
+  rootDomainEnabled: globalThis.process.env.VITE_ROOT_DOMAIN_ENABLED === 'false' ? false : true, // default to true
   serverHost: globalThis.process.env.VITE_SERVER_HOST,
   serverUrl:
     localBuildOrDev && globalThis.process.env.VITE_LOCAL_NGINX !== 'true'

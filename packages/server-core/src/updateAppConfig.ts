@@ -39,22 +39,16 @@ import {
 } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
 import { EmailSettingDatabaseType, emailSettingPath } from '@ir-engine/common/src/schemas/setting/email-setting.schema'
 
-import {
-  ServerSettingDatabaseType,
-  serverSettingPath
-} from '@ir-engine/common/src/schemas/setting/server-setting.schema'
-
 import { defaultWebRTCSettings, WebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schema.type.module'
 import { FlattenedEntry, unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { createHash } from 'crypto'
-import appConfig from './appconfig'
+import appConfig, { updateNestedConfig } from './appconfig'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
 import { awsDbToSchema } from './setting/aws-setting/aws-setting.resolvers'
 import { clientDbToSchema } from './setting/client-setting/client-setting.resolvers'
 import { emailDbToSchema } from './setting/email-setting/email-setting.resolvers'
-import { serverDbToSchema } from './setting/server-setting/server-setting.resolvers'
 
 const db = {
   user: process.env.MYSQL_USER ?? 'server',
@@ -168,23 +162,6 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(emailSettingPromise)
 
-  const serverSettingPromise = knexClient
-    .select()
-    .from<ServerSettingDatabaseType>(serverSettingPath)
-    .then(([dbServer]) => {
-      const dbServerConfig = serverDbToSchema(dbServer)
-      if (dbServerConfig) {
-        appConfig.server = {
-          ...appConfig.server,
-          ...dbServerConfig
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read serverSetting: ${e.message}`)
-    })
-  promises.push(serverSettingPromise)
-
   const engineSettingPromise = knexClient
     .select()
     .from<EngineSettingType>(engineSettingPath)
@@ -196,8 +173,13 @@ export const updateAppConfig = async (): Promise<void> => {
           if (!appConfig[setting.category]) {
             appConfig[setting.category] = {}
           }
-          appConfig[setting.category][setting.key] = setting.value
+          if (setting.key.includes('.')) {
+            updateNestedConfig(appConfig, setting.key, setting.value, setting.category)
+          } else {
+            appConfig[setting.category][setting.key] = setting.value
+          }
         })
+
       // when jsonkey is defined and its instance-server-webrtc category and jsonKey is WebRTCSettings
       const webRtcServerKeyValues: FlattenedEntry[] = dbEngineSettings
         .filter(

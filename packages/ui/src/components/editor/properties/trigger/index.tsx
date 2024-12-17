@@ -84,7 +84,7 @@ const TriggerProperties: EditorComponentType = (props) => {
       })
     }
     targets.set(options)
-  }, [callbackQuery])
+  }, [JSON.stringify(callbackQuery)])
 
   return (
     <NodeEditor
