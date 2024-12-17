@@ -664,7 +664,7 @@ export const setComponent = <C extends Component>(
 
   propagate()
 
-  if (!componentExists && !component.reactorMap.has(entity) && hasComponent(entity, SimulationLayerComponent)) {
+  if (!componentExists && !component.reactorMap.has(entity) /* && hasComponent(entity, SimulationLayerComponent)*/) {
     const root = startReactor(() => {
       return component.reactor
         ? React.createElement(EntityContext.Provider, { value: entity }, React.createElement(component.reactor, {}))
