@@ -351,7 +351,7 @@ export const CanvasInputReactor = () => {
       canvas.removeEventListener('click', onClick)
       canvas.removeEventListener('wheel', onWheelEvent)
     }
-  }, [xrState.session, rendererComponent])
+  }, [xrState.session, rendererComponent.canvas])
 
   return null
 }
