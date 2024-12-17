@@ -37,6 +37,7 @@ import {
   PROJECT_REGEX,
   PROJECT_THUMBNAIL_REGEX,
   PUBLIC_SIGNED_REGEX,
+  UNIQUEIFIED_VITE_KEY_REGEX,
   USER_ID_REGEX,
   VALID_FILENAME_REGEX,
   VALID_HEIRARCHY_SEARCH_REGEX,
@@ -700,6 +701,43 @@ describe('regex.test', () => {
         const matches = chart.matchAll(BUILDER_CHART_REGEX)
         const matchesArray = Array.from(matches)
         assert.ok(matchesArray.length === 0, `Expected '${chart}' to not match BUILDER_CHART_REGEX`)
+      })
+    })
+  })
+
+  describe('UNIQUEIFIED_VITE_KEY_REGEX', () => {
+    it('should match valid file keys', () => {
+      const positiveCases = [
+        'client/assets/AccountDetailsPage-Br_QAdyQ.js',
+        'client/assets/AccountDetailsPage-Br_QAdyQ.css',
+        'client/assets/Apppage-Br_QAdyQ.css.map',
+        'client/AccountDetailsPage-BraQAdyQ.css.map',
+        'AccountDetailsPage-Br_QAd-Q.css.map'
+      ]
+
+      positiveCases.forEach((item) => {
+        const match = UNIQUEIFIED_VITE_KEY_REGEX.exec(item)
+        assert.ok(match, `Expected '${item}' to match UNIQUEIFIED_VITE_KEY_REGEX`)
+      })
+    })
+
+    it('should not match invalid file keys', () => {
+      const negativeCases = [
+        'client/assets/AccountDetailsPage-Br_$Ad*Q.js',
+        'client/assets/AccountDetailsPage-Br_$AdyQ.js',
+        'client/assets/AccountDetailsPage.css',
+        'client/assets/AccountDetailsPage-Br_QAdyQ.tsx',
+        'client/assets/AccountDetailsPage-BraQAdyQ.tsx.map',
+        'client/AccountDetailsPage-Br_QQ.css.map',
+        'AccountDetailsPage-Br_QAd-QQQ.css.map',
+        'root-cookie-accessor.html'
+      ]
+      negativeCases.forEach((item) => {
+        assert.doesNotMatch(
+          item,
+          UNIQUEIFIED_VITE_KEY_REGEX,
+          `Expected '${item}' to not match UNIQUEIFIED_VITE_KEY_REGEX`
+        )
       })
     })
   })

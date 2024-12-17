@@ -30,9 +30,8 @@ import { ShadowMapResolutionOptions } from '@ir-engine/client-core/src/user/comp
 import { useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { RenderModes, RenderModesType } from '@ir-engine/spatial/src/renderer/constants/RenderModes'
-import { Checkbox, Tooltip } from '@ir-engine/ui'
+import { Checkbox, Select, Tooltip } from '@ir-engine/ui'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
-import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import { ChevronDownMd, GlobeWireframesMd, LitMd, NormalRenderMd, ShadowMd, UnlitMd } from '@ir-engine/ui/src/icons'
 
@@ -77,7 +76,7 @@ const RenderModeTool = () => {
   return (
     <div className="flex h-full items-center gap-1 rounded bg-[#141619]">
       {renderModes.map((mode) => (
-        <Tooltip key={mode.name} content={mode.name}>
+        <Tooltip key={mode.name} content={mode.name} position="bottom">
           <button onClick={() => rendererState.renderMode.set(mode.name)} className="px-3.5 py-1.5">
             {mode.icon}
           </button>
@@ -107,7 +106,7 @@ const RenderModeTool = () => {
             info={t('editor:toolbar.render-settings.info-shadowMapResolution')}
             containerClassName="justify-between gap-2"
           >
-            <SelectInput
+            <Select
               options={ShadowMapResolutionOptions as { value: string; label: string }[]}
               value={rendererState.shadowMapResolution.value}
               onChange={(resolution: number) => rendererState.shadowMapResolution.set(resolution)}

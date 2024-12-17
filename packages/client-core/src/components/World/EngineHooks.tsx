@@ -59,9 +59,14 @@ export const useEngineInjection = () => {
   const loaded = useHookstate(false)
   useImmediateEffect(() => {
     if (!projects.data) return
-    loadEngineInjection(projects.data as string[]).then(() => {
-      loaded.set(true)
-    })
+    loadEngineInjection(projects.data as string[])
+      .then(() => {
+        loaded.set(true)
+      })
+      .catch((e) => {
+        loaded.set(true)
+        logger.error('Failed to load engine injection', e)
+      })
   }, [projects.data])
   return loaded.value
 }
