@@ -33,7 +33,10 @@ export const ComputedTransformComponent = defineComponent({
 
   schema: S.Object({
     referenceEntities: S.Array(S.Entity()),
-    computeFunction: S.Call()
+    /**
+     * A function that computes the entity transform. Return false if the transform matrix does not need to be recomputed.
+     */
+    computeFunction: S.Func([], S.Union([S.Bool(), S.Void()]))
   }),
 
   reactor: () => {

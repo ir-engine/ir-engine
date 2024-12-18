@@ -23,7 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Bounds, Edges, traverseChildElements } from './dom-utils'
+import { Bounds } from './classes/Bounds'
+import { Edges } from './classes/Edges'
+import { traverseChildElements } from './dom-utils'
 import { WebLayerManagerBase } from './WebLayerManagerBase'
 import { WebRenderer } from './WebRenderer'
 
@@ -131,15 +133,15 @@ export class WebLayer {
   lastSVGUrl?: string
 
   get previousDOMState() {
-    return this.previousDOMStateKey ? this.manager.getLayerState(this.previousDOMStateKey) : undefined
+    return undefined // this.previousDOMStateKey ? this.manager.getLayerState(this.previousDOMStateKey) : undefined
   }
 
   get desiredDOMState() {
-    return this.desiredDOMStateKey ? this.manager.getLayerState(this.desiredDOMStateKey) : undefined
+    return undefined // this.desiredDOMStateKey ? this.manager.getLayerState(this.desiredDOMStateKey) : undefined
   }
 
   get currentDOMState() {
-    return this.currentDOMStateKey ? this.manager.getLayerState(this.currentDOMStateKey) : undefined
+    return undefined // this.currentDOMStateKey ? this.manager.getLayerState(this.currentDOMStateKey) : undefined
   }
 
   domMetrics = {
@@ -185,25 +187,24 @@ export class WebLayer {
   }
 
   update() {
-    if (this.desiredDOMStateKey !== this.currentDOMStateKey) {
-      const desired = this.desiredDOMState
-
-      if (
-        desired &&
-        (this.isMediaElement ||
-          desired.texture?.ktx2Url ||
-          desired.texture?.canvas ||
-          desired.fullWidth * desired.fullHeight === 0)
-      ) {
-        this.currentDOMStateKey = this.desiredDOMStateKey
-      }
-    }
-    const prev = this.previousDOMState?.texture?.ktx2Url ?? this.previousDOMState?.texture?.canvas
-    const current = this.currentDOMState?.texture?.ktx2Url ?? this.previousDOMState?.texture?.canvas
-    if (current && prev !== current) {
-      this.eventCallback('layerpainted', { target: this.element })
-    }
-    this.previousDOMStateKey = this.currentDOMStateKey
+    // if (this.desiredDOMStateKey !== this.currentDOMStateKey) {
+    //   const desired = this.desiredDOMState
+    //   if (
+    //     desired &&
+    //     (this.isMediaElement ||
+    //       desired.texture?.ktx2Url ||
+    //       desired.texture?.canvas ||
+    //       desired.fullWidth * desired.fullHeight === 0)
+    //   ) {
+    //     this.currentDOMStateKey = this.desiredDOMStateKey
+    //   }
+    // }
+    // const prev = this.previousDOMState?.texture?.ktx2Url ?? this.previousDOMState?.texture?.canvas
+    // const current = this.currentDOMState?.texture?.ktx2Url ?? this.previousDOMState?.texture?.canvas
+    // if (current && prev !== current) {
+    //   this.eventCallback('layerpainted', { target: this.element })
+    // }
+    // this.previousDOMStateKey = this.currentDOMStateKey
   }
 
   async refresh() {
@@ -213,8 +214,8 @@ export class WebLayer {
 
     const result = await this.manager.addToSerializeQueue(this)
 
-    if (result.needsRasterize && typeof result.stateKey === 'string' && result.svgUrl)
-      await this.manager.addToRasterizeQueue(result.stateKey, result.svgUrl)
+    // if (result.needsRasterize && typeof result.stateKey === 'string' && result.svgUrl)
+    //   await this.manager.addToRasterizeQueue(result.stateKey, result.svgUrl)
   }
 
   private _updateParentAndChildLayers() {
