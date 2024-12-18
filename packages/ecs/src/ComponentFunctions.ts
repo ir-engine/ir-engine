@@ -28,46 +28,41 @@ Infinite Reality Engine. All Rights Reserved.
  * @todo Write the `fileoverview` for `ComponentFunctions.ts`
  */
 import * as bitECS from 'bitecs'
-import React, { startTransition } from 'react'
+import React from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
-import { v4 as uuidv4 } from 'uuid'
 
 import {
   DeepReadonly,
-  getNestedObject,
   HyperFlux,
   InferStateValueType,
   NO_PROXY_STEALTH,
-  SetPartialStateAction,
   ReactorRoot,
+  SetPartialStateAction,
   State,
   hookstate,
   isTest,
   none,
   startReactor,
-  useHookstate,
-  useMutableState,
-  useImmediateEffect
+  useHookstate
 } from '@ir-engine/hyperflux'
-import { Entity, EntityUUID, UndefinedEntity } from './Entity'
+import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext, entityExists, removeEntity } from './EntityFunctions'
-// import { createEntity } from './createEntity'
 import { defineQuery } from './QueryFunctions'
+import { createEntity } from './createEntity'
 import { Kind, Static, Schema as TSchema, TTypedSchema } from './schemas/JSONSchemaTypes'
 import {
   CreateSchemaValue,
-  HasSchemaDeserializers,
+  DeserializeSchemaValue,
   HasRequiredSchema,
   HasRequiredSchemaValues,
-  DeserializeSchemaValue,
-  IsSingleValueSchema,
-  SerializeSchema,
+  HasSchemaDeserializers,
   HasSchemaValidators,
-  HasValidSchemaValues
+  HasValidSchemaValues,
+  IsSingleValueSchema,
+  SerializeSchema
 } from './schemas/JSONSchemaUtils'
 import { S } from './schemas/JSONSchemas'
-import { createEntity } from './createEntity'
 
 /**
  * @description
@@ -638,11 +633,10 @@ export const setComponent = <C extends Component>(
                 setArgs[key] !== UndefinedEntity
               ) {
                 //if so, we need to switch it to the linked entity in the destination layer
-                const uuid = getComponent(setArgs[key], UUIDComponent)
-                const dstEntity = UUIDComponent.getEntityByUUID(uuid, linkedLayer as LayerID)
+                const upstreamEntity = LayerComponents[linkedLayer].refs[setArgs[key]]
                 // console.log('linkedEntity', dstEntity)
                 // Object.assign(setArgs, { [key]: linkedEntity })
-                setArgs[key] = dstEntity
+                setArgs[key] = upstreamEntity
                 // console.log('set field', key, 'to', dstEntity)
                 // console.log('result:', setArgs)
               } else if (typeof setArgs[key] === 'object') {
@@ -899,7 +893,6 @@ export const Layers = {
   Authoring: 1 as const
 }
 
-export type LayerType = keyof typeof Layers
 export type LayerID = (typeof Layers)[keyof typeof Layers]
 
 export const LayerRelationTypes = {
@@ -960,7 +953,7 @@ export const LayerComponent = defineComponent({
     layer: bitECS.Types.ui8
   },
 
-  onSet(entity, component, layer: (typeof Layers)[keyof typeof Layers]) {
+  onSet(entity, component, layer: LayerID) {
     LayerComponent.layer[entity] = layer
     setComponent(entity, LayerComponents[layer])
   },
@@ -978,8 +971,7 @@ export const LayerComponent = defineComponent({
   hasUpstreamEntity(entity: Entity) {
     const entityLayer = LayerComponent.get(entity)
     if (entityLayer === Layers.Simulation) {
-      const uuid = getComponent(entity, UUIDComponent)
-      const upstreamEntity = UUIDComponent.getEntityByUUID(uuid, Layers.Authoring)
+      const upstreamEntity = LayerComponents[Layers.Simulation].refs[entity]
       if (upstreamEntity !== UndefinedEntity && entityExists(upstreamEntity)) return true
     }
     return false
@@ -988,81 +980,4 @@ export const LayerComponent = defineComponent({
 
 export const getAuthoringCounterpart = (entity: Entity) => {
   return LayerComponents[Layers.Authoring].refs[entity]
-}
-
-export const UUIDComponent = defineComponent({
-  name: 'UUIDComponent',
-  jsonID: 'EE_uuid',
-
-  schema: S.Required(
-    S.EntityUUID({
-      validate: (uuid, prev, entity) => {
-        if (!uuid) {
-          console.error('UUID cannot be empty')
-          return false
-        }
-        if (uuid === prev) return true
-        const layer = LayerComponent.get(entity)
-        // throw error if uuid is already in use
-        const currentEntity = UUIDComponent.getEntityByUUID(uuid, layer)
-        if (currentEntity !== UndefinedEntity && currentEntity !== entity) {
-          console.error(`UUID ${uuid} is already in use`)
-          return false
-        }
-
-        // remove old uuid
-        if (prev) {
-          const currentUUID = prev
-          _getUUIDState(currentUUID, layer).set(UndefinedEntity)
-        }
-
-        // set new uuid
-        _getUUIDState(uuid, layer).set(entity)
-        return true
-      }
-    })
-  ),
-
-  onRemove: (entity, component) => {
-    const uuid = component.value
-    const layer = LayerComponent.get(entity)
-    _getUUIDState(uuid, layer).set(UndefinedEntity)
-  },
-
-  entitiesByUUIDState: {} as Record<LayerID, Record<EntityUUID, State<Entity>>>,
-
-  useEntityByUUID(uuid: EntityUUID, layer = Layers.Simulation as LayerID) {
-    return useHookstate(_getUUIDState(uuid, layer)).value
-  },
-
-  getEntityByUUID(uuid: EntityUUID, layer = Layers.Simulation as LayerID) {
-    return _getUUIDState(uuid, layer).get(NO_PROXY_STEALTH)
-  },
-
-  getOrCreateEntityByUUID(uuid: EntityUUID, layer = Layers.Simulation as LayerID) {
-    const state = _getUUIDState(uuid, layer)
-    if (!state.value) {
-      const entity = createEntity(layer)
-      setComponent(entity, UUIDComponent, uuid)
-    }
-    return state.value
-  },
-
-  generateUUID() {
-    return uuidv4() as EntityUUID
-  }
-})
-
-function _getUUIDState(uuid: EntityUUID, layer = Layers.Simulation as LayerID) {
-  let layerState = UUIDComponent.entitiesByUUIDState[layer]
-  if (!layerState) {
-    layerState = {}
-    UUIDComponent.entitiesByUUIDState[layer] = layerState
-  }
-  let entityState = layerState[uuid]
-  if (!entityState) {
-    entityState = hookstate(UndefinedEntity)
-    layerState[uuid] = entityState
-  }
-  return entityState
 }
