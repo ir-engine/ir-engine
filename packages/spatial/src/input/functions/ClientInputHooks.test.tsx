@@ -52,16 +52,16 @@ import { InputState } from '../state/InputState'
 import ClientInputHooks from './ClientInputHooks'
 
 const createMockHTMLCanvasElement = (ev: MockEventListener) => {
-  return {
-    addEventListener: ev.addEventListener,
-    removeEventListener: ev.removeEventListener,
-    getDrawingBufferSize: () => 0,
-    getContext: () => {},
-    parentElement: {
+  return new (class {
+    addEventListener = ev.addEventListener
+    removeEventListener = ev.removeEventListener
+    getDrawingBufferSize = () => 0
+    getContext = () => {}
+    parentElement = {
       clientWidth: 100,
       clientHeight: 100
     }
-  } as any as HTMLCanvasElement
+  })() as any as HTMLCanvasElement
 }
 
 describe('ClientInputHooks', () => {
