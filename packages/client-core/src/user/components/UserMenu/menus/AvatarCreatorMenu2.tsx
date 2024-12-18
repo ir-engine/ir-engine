@@ -37,6 +37,7 @@ import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { IoArrowBackOutline, IoCloseOutline } from 'react-icons/io5'
+import { twMerge } from 'tailwind-merge'
 import AvatarPreview from '../../../../common/components/AvatarPreview'
 import { PopoverState } from '../../../../common/services/PopoverState'
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunctions'
@@ -53,8 +54,13 @@ enum LoadingState {
   LoadingPreview,
   Uploading
 }
+interface AvatarCreatorMenuProps {
+  showBackButton: boolean
+  previewEnabled: boolean
+  previewDisabledMessage?: boolean
+}
 
-const AvatarCreatorMenu = (selectedSdk: string) => () => {
+const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProps) => {
   const { t } = useTranslation()
   const selectedBlob = useHookstate<Blob | null>(null)
   const avatarName = useHookstate('')
@@ -124,6 +130,9 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
         loading.set(LoadingState.LoadingPreview)
         avatarUrl.set(message.data.url)
         selectedBlob.set(data)
+        if (!props.previewEnabled) {
+          loading.set(LoadingState.None)
+        }
       } catch (error) {
         logger.error(error)
         error.set(t('user:usermenu.avatar.selectValidFile'))
@@ -201,7 +210,11 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
     )
 
     loading.set(LoadingState.None)
-    PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)
+    PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect, {
+      showBackButton: props.showBackButton,
+      previewEnabled: props.previewEnabled,
+      previewDisabledMessage: props.previewDisabledMessage
+    })
   }
 
   const loadingMessages = {
@@ -219,7 +232,10 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
     <div className="fixed top-0  z-[35] flex h-[100vh] w-full bg-[rgba(0,0,0,0.75)]">
       <Modal
         id="select-avatar-modal"
-        className="min-w-34 pointer-events-auto m-auto flex h-[95vh] w-[70vw] max-w-6xl rounded-xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col"
+        className={twMerge(
+          'min-w-34 pointer-events-auto m-auto flex max-w-6xl rounded-xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col',
+          avatarPreviewLoaded && !props.previewEnabled ? 'h-[45vh] w-[40vw]' : 'h-[95vh] w-[70vw]'
+        )}
         showCloseButton={false}
         hideFooter={true}
         rawChildren={
@@ -228,7 +244,13 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
               <Button
                 data-testid="edit-avatar-button"
                 className=" h-6 w-6 self-center bg-transparent hover:bg-transparent focus:bg-transparent"
-                onClick={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)}
+                onClick={() =>
+                  PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect, {
+                    showBackButton: props.showBackButton,
+                    previewEnabled: props.previewEnabled,
+                    previewDisabledMessage: props.previewDisabledMessage
+                  })
+                }
               >
                 <span>
                   <IoArrowBackOutline size={16} />
@@ -273,7 +295,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
                   className="col-span-3"
                 />
               )}
-              {loading.value !== LoadingState.LoadingCreator && avatarUrl && (
+              {loading.value !== LoadingState.LoadingCreator && avatarUrl && props.previewEnabled && (
                 <div className="relative col-start-2 rounded-lg bg-gradient-to-b from-[#162941] to-[#114352]">
                   <div className="stars absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent"></div>
                   <AvatarPreview
@@ -282,6 +304,15 @@ const AvatarCreatorMenu = (selectedSdk: string) => () => {
                     onAvatarError={(e) => error.set(e)}
                     onAvatarLoaded={() => loading.set(LoadingState.None)}
                   />
+                </div>
+              )}
+              {avatarPreviewLoaded && !props.previewEnabled && (
+                <div className="relative col-span-3 flex">
+                  <Text className="m-auto" fontSize="lg">
+                    {props?.previewDisabledMessage
+                      ? props.previewDisabledMessage
+                      : t('user:avatar.avatarPreviewDisabledMessage')}
+                  </Text>
                 </div>
               )}
             </div>
