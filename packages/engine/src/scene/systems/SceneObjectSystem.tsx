@@ -33,6 +33,7 @@ import {
   hasComponent,
   removeComponent,
   setComponent,
+  useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
@@ -40,13 +41,13 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { defineQuery, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { getState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { getState, NO_PROXY, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { ThreeToPhysics } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { Object3DWithEntity, ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { ResourceManager } from '@ir-engine/spatial/src/resources/ResourceState'
@@ -101,6 +102,7 @@ const updatableQuery = defineQuery([UpdatableComponent, CallbackComponent])
 
 function SceneObjectReactor() {
   const entity = useEntityContext()
+  const obj = useComponent(entity, ObjectComponent).get(NO_PROXY) as Object3DWithEntity
 
   useImmediateEffect(() => {
     setComponent(entity, DistanceFromCameraComponent)
@@ -111,7 +113,6 @@ function SceneObjectReactor() {
       ? GLTFComponent.getInstanceID(entity)
       : getOptionalComponent(entity, SourceComponent)
     return () => {
-      const obj = getComponent(entity, ObjectComponent)
       ResourceManager.unloadObj(obj, source)
     }
   }, [])
