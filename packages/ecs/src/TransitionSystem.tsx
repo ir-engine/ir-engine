@@ -23,12 +23,34 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { getState } from '@ir-engine/hyperflux'
+import { getComponent } from './ComponentFunctions'
+import { ECSState } from './ECSState'
+import { defineQuery } from './QueryFunctions'
 import { defineSystem } from './SystemFunctions'
 import { AnimationSystemGroup } from './SystemGroups'
+import { TransitionComponent } from './TransitionComponent'
+
+const transitionQuery = defineQuery([TransitionComponent])
 
 export const TransitionSystem = defineSystem({
   uuid: 'TransitionSystem',
-  execute: () => {},
+  execute: () => {
+    const ecs = getState(ECSState)
+    const now = ecs.frameTime
+    const transitionEntities = transitionQuery()
+    for (const entity of transitionEntities) {
+      const transitions = getComponent(entity, TransitionComponent)
+      for (const transition of transitions) {
+        // Remove old targets beyond their duration and update initialValue
+        transition.targets = transition.targets.filter((t) => {
+          if (now - t.timestamp > t.duration) return false
+          transition.initialValue = t.to
+          return true
+        })
+      }
+    }
+  },
   insert: {
     before: AnimationSystemGroup
   }

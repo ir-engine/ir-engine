@@ -28,6 +28,7 @@ import { Color, Quaternion, Vector2, Vector3 } from 'three'
 export const Transitionable = {
   number: {
     interpolate: (a: number, b: number, t: number) => a + (b - a) * t,
+    add: (a: number, b: number) => a + b,
     isType: (a: any): a is number => typeof a === 'number'
   },
   vector2: {
@@ -35,6 +36,12 @@ export const Transitionable = {
       out = out || new Vector2()
       out.x = a.x + (b.x - a.x) * t
       out.y = a.y + (b.y - a.y) * t
+      return out
+    },
+    add: (a: Vector2, b: Vector2, out?: Vector2) => {
+      out = out || new Vector2()
+      out.x = a.x + b.x
+      out.y = a.y + b.y
       return out
     },
     isType: (a: any): a is Vector2 => a instanceof Vector2
@@ -76,6 +83,8 @@ export const Transitionable = {
 
 export type Transitionable = {
   interpolate(a: any, b: any, t: number, out?: any): any
+  add(a: any, b: any, out?: any): any
+  scale(a: any, b: number, out?: any): any
   isType(a: any): boolean
 }
 

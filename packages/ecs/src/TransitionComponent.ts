@@ -23,9 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getState } from '@ir-engine/hyperflux'
-import { defineComponent, getMutableComponent, hasComponent, setComponent } from './ComponentFunctions'
-import { ECSState } from './ECSState'
+import { resolveObject } from '@ir-engine/hyperflux'
+import {
+  ComponentJSONIDMap,
+  defineComponent,
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  setComponent
+} from './ComponentFunctions'
 import { Easing, EasingFunction } from './EasingFunctions'
 import { Entity } from './Entity'
 import { Transitionable, TransitionableTypes, getTransitionableKeyForType } from './Transitionable'
@@ -41,16 +47,19 @@ export const TransitionComponent = defineComponent({
     S.Object({
       componentJsonID: S.String(),
       propertyPath: S.String(),
-      propertyType: S.String(),
+      transitionableType: S.String(),
       duration: S.Number(500),
       easing: S.String(Easing.exponential.inOut.path),
-      targets: S.NonSerialized(
+      initialValue: S.NonSerialized(S.Type<TransitionableTypes>()),
+      outputValue: S.NonSerialized(S.Type<TransitionableTypes>()),
+      events: S.NonSerialized(
         S.Array(
           S.Object({
-            timestamp: S.Number(),
+            age: S.Number(),
+            fromValue: S.Type<TransitionableTypes>(),
+            toValue: S.Type<TransitionableTypes>(),
             duration: S.Number(),
-            easing: S.String(),
-            to: S.Any()
+            easing: S.String()
           })
         )
       )
@@ -92,14 +101,115 @@ export const TransitionComponent = defineComponent({
     }
     if (target.duration && transition.duration.value !== target.duration) transition.duration.set(target.duration)
     if (target.easing && transition.easing.value !== target.easing.path) transition.easing.set(target.easing.path)
-    const ecs = getState(ECSState)
-    transition.targets.merge([
+    if (target.type && transition.transitionableType.value !== type) transition.transitionableType.set(type)
+    TransitionComponent.update(entity, 0)
+    transition.events.merge([
       {
-        timestamp: ecs.frameTime,
+        age: 0,
         duration: transition.duration.value,
         easing: transition.easing.value,
-        to: target.value
+        fromValue: transition.outputValue.value,
+        toValue: target.value
       }
     ])
+  },
+
+  update(entity: Entity, dt: number) {
+    const transitions = getComponent(entity, TransitionComponent)
+
+    for (const transition of transitions) {
+      const Component = ComponentJSONIDMap.get(transition.componentJsonID)
+      if (!Component) continue
+      const property = resolveObject(Component, transition.propertyPath) as any as TransitionableTypes
+      if (!property) continue
+
+      if (!transition.initialValue) {
+        transition.initialValue = structuredClone(property)
+      }
+
+      if (transition.events.length === 0) {
+        transition.outputValue = structuredClone(transition.initialValue)
+        continue
+      }
+
+      const latestEvent = transition.events[transition.events.length - 1]
+
+      let totalWeight = 0
+      let weightedValue: TransitionableTypes | null = null
+
+      const transitionable = Transitionable[transition.transitionableType] as Transitionable
+
+      const addWeighted = (value: TransitionableTypes, weight: number) => {
+        if (weightedValue === null) {
+          weightedValue = transitionable.scale(value, weight)
+        } else {
+          weightedValue = transitionable.add(weightedValue, transitionable.scale(value, weight))
+        }
+        totalWeight += weight
+      }
+
+      for (let i = 0; i < transition.events.length; i++) {
+        const ev = transition.events[i]
+        ev.age += dt
+      }
+    }
+
+    if (this.events.length === 0) {
+      // No events, just return the initial value
+      return this.initialValue
+    }
+
+    const latestEvent = this.events[this.events.length - 1]
+
+    let totalWeight = 0
+    let weightedValue: T | null = null
+
+    const addWeighted = (value: T, weight: number) => {
+      if (weightedValue === null) {
+        weightedValue = this.applyWeight(value, weight)
+      } else {
+        weightedValue = this.addValues(weightedValue, this.applyWeight(value, weight))
+      }
+      totalWeight += weight
+    }
+
+    for (let i = 0; i < this.events.length; i++) {
+      const ev = this.events[i]
+      ev.age += dt
+      const clampedT = Math.min(Math.max(ev.age / ev.duration, 0), 1)
+      const easedT = ev.easing(clampedT)
+      const value = this.interpolator.interpolate(ev.fromValue, ev.toValue, easedT)
+
+      // Weight calculation:
+      let weight = 1
+      if (i < this.events.length - 1) {
+        // Not the latest event, fade out based on how far the latest event has progressed
+        const fadeFactor = 1 - Math.min(latestEvent.age / latestEvent.duration, 1)
+        weight = fadeFactor
+      }
+
+      if (weight > 0) {
+        addWeighted(value, weight)
+      }
+    }
+
+    if (totalWeight === 0 && weightedValue === null) {
+      // No active contribution, return initial value
+      return this.initialValue
+    }
+
+    const output = this.normalizeValue(weightedValue!, totalWeight)
+
+    // **Cleanup Logic:**
+    // If the latest event has fully completed, we can finalize and clean up.
+    if (latestEvent.age >= latestEvent.duration) {
+      // The latest event is done, which means all older events are at zero weight now.
+      // Set the final stable output as the new initialValue.
+      this.initialValue = output
+      // Clear the events array, as we've reached a stable state.
+      this.events = []
+    }
+
+    return output
   }
 })
