@@ -36,9 +36,7 @@ import {
   getOptionalComponent,
   getOptionalMutableComponent,
   hasComponent,
-  removeEntity,
   setComponent,
-  UndefinedEntity,
   UUIDComponent
 } from '@ir-engine/ecs'
 
@@ -46,7 +44,6 @@ import { NameComponent } from '../../common/NameComponent'
 import { MeshComponent } from '../components/MeshComponent'
 import {
   MaterialInstanceComponent,
-  MaterialPlugins,
   MaterialPrototypeComponent,
   MaterialPrototypeDefinition,
   MaterialPrototypeObjectConstructor,
@@ -211,55 +208,6 @@ export const assignMaterial = (user: Entity, materialEntity: Entity, index = 0) 
   const newUUID = material.uuid as EntityUUID
   if (!UUIDComponent.getEntityByUUID(newUUID)) throw new MaterialNotFoundError(`Material ${newUUID} not found`)
   materialInstanceComponent.uuid[index].set(newUUID)
-}
-
-/**Sets and replaces a material entity for a material's UUID */
-export const createMaterialEntity = (material: Material): Entity => {
-  const materialEntity = createEntity()
-  const uuid = material.uuid as EntityUUID
-  const existingMaterial = UUIDComponent.getEntityByUUID(uuid)
-  const existingUsers = existingMaterial ? getComponent(existingMaterial, MaterialStateComponent).instances : []
-  if (existingMaterial) {
-    removeEntity(existingMaterial)
-  }
-  setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
-  const prototypeEntity = getPrototypeEntityFromName(material.userData.type || material.type)
-  if (!prototypeEntity) {
-    console.warn(
-      `Material ${material.name} has no prototype entity for prototype ${material.userData.type || material.type}`
-    )
-    return UndefinedEntity
-  }
-  setComponent(materialEntity, MaterialStateComponent, {
-    material,
-    prototypeEntity,
-    parameters: Object.fromEntries(
-      Object.keys(extractDefaults(getComponent(prototypeEntity, MaterialPrototypeComponent).prototypeArguments)).map(
-        (k) => [k, material[k]]
-      )
-    ),
-    instances: existingUsers.length ? existingUsers : []
-  })
-  if (existingMaterial)
-    for (const instance of existingUsers)
-      setMeshMaterial(instance, getComponent(instance, MaterialInstanceComponent).uuid)
-  if (material.userData?.plugins)
-    material.userData.plugins.map((plugin) => {
-      if (!plugin) return
-      setComponent(materialEntity, MaterialPlugins[plugin.id])
-      const pluginComponent = getComponent(materialEntity, MaterialPlugins[plugin.id])
-      for (const [k, v] of Object.entries(plugin.uniforms)) {
-        if (v) pluginComponent[k].value = v
-      }
-    })
-  setComponent(materialEntity, NameComponent, material.name === '' ? material.type : material.name)
-  return materialEntity
-}
-
-export const createAndAssignMaterial = (user: Entity, material: Material, index = 0) => {
-  const materialEntity = createMaterialEntity(material)
-  assignMaterial(user, materialEntity, index)
-  return materialEntity
 }
 
 export const getMaterialIndices = (entity: Entity, materialUUID: EntityUUID): number[] => {
