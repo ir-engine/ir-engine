@@ -29,6 +29,7 @@ export const Transitionable = {
   number: {
     interpolate: (a: number, b: number, t: number) => a + (b - a) * t,
     add: (a: number, b: number) => a + b,
+    scale: (a: number, b: number) => a * b,
     isType: (a: any): a is number => typeof a === 'number'
   },
   vector2: {
@@ -44,6 +45,12 @@ export const Transitionable = {
       out.y = a.y + b.y
       return out
     },
+    scale: (a: Vector2, b: number, out?: Vector2) => {
+      out = out || new Vector2()
+      out.x = a.x * b
+      out.y = a.y * b
+      return out
+    },
     isType: (a: any): a is Vector2 => a instanceof Vector2
   },
   vector3: {
@@ -54,12 +61,23 @@ export const Transitionable = {
       out.z = a.z + (b.z - a.z) * t
       return out
     },
+    scale: (a: Vector3, b: number, out?: Vector3) => {
+      out = out || new Vector3()
+      out.x = a.x * b
+      out.y = a.y * b
+      out.z = a.z * b
+      return out
+    },
     isType: (a: any): a is Vector3 => a instanceof Vector3
   },
   quaternion: {
     interpolate: (a: Quaternion, b: Quaternion, t: number, out?: Quaternion) => {
       out = out || a.clone()
       return out.slerp(b, t)
+    },
+    scale: (a: Quaternion, b: number, out?: Quaternion) => {
+      out = out || a.clone()
+      return out.slerp(a, Q_IDENTITY)
     },
     isType: (a: any): a is Quaternion => a instanceof Quaternion
   },
