@@ -59,7 +59,6 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
-import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import {
   ObjectLayerComponents,
@@ -71,6 +70,7 @@ import {
   EntityTreeComponent,
   removeEntityNodeRecursively
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '../components/TransformComponent'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 
 declare module 'three-mesh-bvh' {
