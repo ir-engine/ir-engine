@@ -78,7 +78,7 @@ export function Contents() {
   const nodes = useHierarchyNodes()
   const ref = useRef<HTMLDivElement>(null)
 
-  const { canDrop, isOver, dropTarget: treeContainerDropTarget } = useHierarchyTreeDrop()
+  const { canDrop, isOver, dropTarget: treeContainerDropTarget } = useHierarchyTreeDrop(nodes?.[0], 'On')
 
   /**an explicit callback is required to rerender changed nodes inside FixedSizeList */
   const MemoTreeNode = useCallback(

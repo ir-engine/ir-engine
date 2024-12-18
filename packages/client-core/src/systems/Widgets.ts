@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { dispatchAction } from '@ir-engine/hyperflux'
 
-import { createXRUI } from './functions/createXRUI'
+import { createXRUI } from '@ir-engine/engine/src/xrui/createXRUI'
 import { RegisteredWidgets, WidgetAppActions } from './WidgetAppService'
 
 /**
