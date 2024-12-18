@@ -32,12 +32,10 @@ import FeatureFlagSetting from './feature-flag-setting/feature-flag-setting'
 import HelmVersion from './helm-version/helm-version'
 import InstanceServer from './instance-server-setting/instance-server-setting'
 import ProjectSetting from './project-setting/project-setting'
-import ServerSetting from './server-setting/server-setting'
 
 export default [
   ProjectSetting,
   EngineSetting,
-  ServerSetting,
   ClientSetting,
   InstanceServer,
   Email,

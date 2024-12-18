@@ -475,4 +475,21 @@ chargebeeInst.configure({
   api_key: config.chargebee.apiKey
 })
 
+/**
+ * Updates a nested configuration value in the appConfig object.
+ * @param key - The key of the nested configuration value, in dot notation.
+ * @param value - The value to set for the nested configuration.
+ * @param category - The category of the configuration.
+ */
+export function updateNestedConfig(appConfig: Record<string, any>, key: string, value: string, category: string) {
+  const keys = key.split('.')
+  if (keys.length !== 2) {
+    return
+  }
+  if (!appConfig[category][keys[0]]) {
+    appConfig[category][keys[0]] = {}
+  }
+  appConfig[category][keys[0]][keys[1]] = value
+}
+
 export default config

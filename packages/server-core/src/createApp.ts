@@ -205,7 +205,9 @@ export const createFeathersKoaApp = async (
   // hard-code http as the protocol, so manually mashing host + port together if in local.
   app.set(
     'host',
-    appConfig.server.local ? appConfig.server.hostname + ':' + appConfig.server.port : appConfig.server.hostname
+    (appConfig.server.local as any) === '1' || appConfig.server.local === true
+      ? appConfig.server.hostname + ':' + appConfig.server.port
+      : appConfig.server.hostname
   )
   app.set('port', appConfig.server.port)
 

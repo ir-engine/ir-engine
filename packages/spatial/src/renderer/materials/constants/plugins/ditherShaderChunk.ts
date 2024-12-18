@@ -30,25 +30,25 @@ issue where avatar would vanish when forcing to LAMBERT material in qualitySetti
 */
 /** glsl, vertex uniforms */
 export const ditheringVertexUniform = `
-//#ifndef LAMBERT
+#ifndef LAMBERT
     varying vec3 vWorldPosition;
-//#endif
+#endif
 varying vec3 vLocalPosition;
 `
 
 /** glsl, vertex main */
 export const ditheringVertex = `
-//#ifndef LAMBERT
+#ifndef LAMBERT
     vWorldPosition = (modelMatrix * vec4( transformed, 1.0 )).xyz;
-//#endif
+#endif
 vLocalPosition = position.xyz;
 `
 
 /** glsl, fragment uniforms */
 export const ditheringFragUniform = `
-//#ifndef LAMBERT
+#ifndef LAMBERT
     varying vec3 vWorldPosition;
-//#endif
+#endif
 varying vec3 vLocalPosition; 
 
 uniform vec3 centers[2];

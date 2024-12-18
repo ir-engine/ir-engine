@@ -58,8 +58,8 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent, useMeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { ContentFitTypeSchema } from '@ir-engine/spatial/src/transform/functions/ObjectFitFunctions'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
-import { ContentFitTypeSchema } from '@ir-engine/spatial/src/xrui/functions/ObjectFitFunctions'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
@@ -391,7 +391,13 @@ function VideoReactor() {
     const sourceMeshComponent = getOptionalComponent(mediaEntity, MeshComponent)
     const sourceTexture = sourceVideoComponent?.texture
     if (video.texture.value) {
+      //needed to set up the self-referencing source video texture
       ;(video.texture.value.image as HTMLVideoElement) = mediaElement.element.value as HTMLVideoElement
+
+      //if we're a videoComponent pointing to a different source, this will update the initial texture when we set source
+      if (entity !== mediaEntity && sourceVideoComponent) {
+        video.texture.set(sourceVideoComponent.texture)
+      }
       clearErrors(entity, VideoComponent)
     } else {
       if (sourceTexture && sourceMeshComponent) {
@@ -408,6 +414,6 @@ function VideoReactor() {
         }
       }
     }
-  }, [video.texture, mediaEntity, mediaElement])
+  }, [video.texture, video.mediaUUID, mediaEntity, mediaElement])
   return null
 }
