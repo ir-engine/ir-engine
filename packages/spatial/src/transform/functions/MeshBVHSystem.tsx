@@ -47,13 +47,7 @@ import {
   removeEntity,
   useEntityContext
 } from '@ir-engine/ecs'
-import {
-  getComponent,
-  hasComponent,
-  setComponent,
-  useComponent,
-  useOptionalComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, setComponent, useComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { getMutableState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
@@ -114,6 +108,7 @@ const _worldScale = new Vector3()
 function acceleratedRaycast(raycaster: Raycaster, intersects: Array<Intersection>) {
   const mesh = this as Mesh
   const geometry = mesh.geometry as BufferGeometry
+  console.log('acceleratedRaycast', geometry.boundsTree)
   if (geometry.boundsTree) {
     if (mesh.material === undefined) return
 
@@ -142,8 +137,7 @@ function acceleratedRaycast(raycaster: Raycaster, intersects: Array<Intersection
         }
       }
     }
-  } else if (!ValidMeshForBVH(mesh) || !hasComponent(mesh.entity, MeshComponent))
-    origMeshRaycastFunc.call(mesh, raycaster, intersects)
+  } else if (ValidMeshForBVH(mesh)) origMeshRaycastFunc.call(mesh, raycaster, intersects)
 }
 
 // https://github.com/mrdoob/three.js/blob/dev/src/math/Matrix4.js#L732

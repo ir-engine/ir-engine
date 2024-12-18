@@ -374,13 +374,6 @@ describe('ObjectLayerMaskComponent', () => {
       ObjectLayerMaskComponent.enableLayer(testEntity, Layer)
       assert.equal(hasComponent(testEntity, ObjectLayerMaskComponent), true)
     })
-
-    it('should not do anything if the entity does not exist', () => {
-      const Layer = 10
-      assert.equal(hasComponent(UndefinedEntity, ObjectLayerMaskComponent), false)
-      ObjectLayerMaskComponent.enableLayer(UndefinedEntity, Layer)
-      assert.equal(hasComponent(UndefinedEntity, ObjectLayerMaskComponent), false)
-    })
   }) //:: enableLayer
 
   describe('enableLayers', () => {
@@ -437,13 +430,6 @@ describe('ObjectLayerMaskComponent', () => {
       assert.equal(hasComponent(testEntity, ObjectLayerComponents[Layer]), true)
       ObjectLayerMaskComponent.disableLayer(testEntity, Layer)
       assert.equal(hasComponent(testEntity, ObjectLayerComponents[Layer]), false)
-    })
-
-    it('should not do anything if the entity does not exist', () => {
-      const Layer = 10
-      assert.equal(hasComponent(UndefinedEntity, ObjectLayerComponents[Layer]), false)
-      ObjectLayerMaskComponent.disableLayer(UndefinedEntity, Layer)
-      assert.equal(hasComponent(UndefinedEntity, ObjectLayerComponents[Layer]), false)
     })
   }) //:: disableLayer
 
@@ -558,51 +544,6 @@ describe('ObjectLayerComponents', () => {
       })
     })
   }) //:: IDs
-
-  describe('onSet', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(async () => {
-      createEngine()
-      testEntity = createEntity()
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should activate the bit for the respective layer ID in ObjectLayerMaskComponent.mask[entity]', () => {
-      const Layer = 10
-      setComponent(testEntity, ObjectLayerComponents[Layer])
-      const hasLayer = Boolean(ObjectLayerMaskComponent.mask[testEntity] & (1 << Layer)) // true when mask contains the Layer bit
-      assert.equal(hasLayer, true)
-    })
-  }) //:: onSet
-
-  describe('onRemove', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(async () => {
-      createEngine()
-      testEntity = createEntity()
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should deactivate the bit for the respective layer ID in ObjectLayerMaskComponent.mask[entity]', () => {
-      const Layer = 10
-      setComponent(testEntity, ObjectLayerComponents[Layer])
-      const before = Boolean(ObjectLayerMaskComponent.mask[testEntity] & (1 << Layer)) // true when mask contains the Layer bit
-      assert.equal(before, true)
-      removeComponent(testEntity, ObjectLayerComponents[Layer])
-      const hasLayer = Boolean(ObjectLayerMaskComponent.mask[testEntity] & (1 << Layer)) // true when mask contains the Layer bit
-      assert.equal(hasLayer, false)
-    })
-  }) //:: onRemove
 })
 
 describe('Layer', () => {

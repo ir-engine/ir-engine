@@ -32,7 +32,6 @@ import { InputSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 
 import { getMutableState, getState } from '@ir-engine/hyperflux'
-import { Object3DUtils } from '@ir-engine/spatial'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { CameraGizmoTagComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
@@ -41,7 +40,7 @@ import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/Obje
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-import { Object3D, Raycaster, Vector3 } from 'three'
+import { Raycaster, Vector3 } from 'three'
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
 import { TransformGizmoControlledComponent } from '../classes/gizmo/transform/TransformGizmoControlledComponent'
 import { controlUpdate, gizmoUpdate, planeUpdate } from '../functions/transformGizmoHelper'
@@ -100,12 +99,9 @@ export function editorInputHeuristic(intersectionData: Set<IntersectionData>, po
     ? raycaster.layers.enable(ObjectLayers.TransformGizmo)
     : raycaster.layers.disable(ObjectLayers.TransformGizmo)
 
-  const hits = raycaster.intersectObjects<Object3D>(objects, true)
+  const hits = raycaster.intersectObjects(objects, true)
   for (const hit of hits) {
-    const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => !obj.parent)
-    if (parentObject?.entity) {
-      intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
-    }
+    intersectionData.add({ entity: hit.object.entity, distance: hit.distance })
   }
 }
 

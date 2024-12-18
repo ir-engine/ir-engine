@@ -109,6 +109,5 @@ if (!globalThis.cancelAnimationFrame) {
   ;(globalThis as any).cancelAnimationFrame = () => {}
 }
 
-if (!URL.revokeObjectURL) {
-  URL.revokeObjectURL = () => {}
-}
+if (!URL.createObjectURL) URL.createObjectURL = (blob) => null!
+if (!URL.revokeObjectURL) URL.revokeObjectURL = () => {}

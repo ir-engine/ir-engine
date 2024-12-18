@@ -40,7 +40,7 @@ import {
 } from '@ir-engine/ecs'
 import { InteractableComponent } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
 import { defineState, getState } from '@ir-engine/hyperflux'
-import { Object3D, Quaternion, Ray, Raycaster, Vector3 } from 'three'
+import { Quaternion, Ray, Raycaster, Vector3 } from 'three'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/MathConstants'
 import { EngineState } from '../../EngineState'
@@ -50,7 +50,6 @@ import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { Object3DUtils } from '../../transform/Object3DUtils'
 import { XRScenePlacementComponent } from '../../xr/XRScenePlacementComponent'
 import { XRState } from '../../xr/XRState'
 import { InputComponent } from '../components/InputComponent'
@@ -180,12 +179,9 @@ export function meshHeuristic(intersectionData: Set<IntersectionData>, position:
 
   _raycaster.set(position, direction)
 
-  const hits = _raycaster.intersectObjects<Object3D>(objects, true)
+  const hits = _raycaster.intersectObjects(objects, true)
   for (const hit of hits) {
-    const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => obj.entity != undefined)
-    if (parentObject) {
-      intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
-    }
+    intersectionData.add({ entity: hit.object.entity, distance: hit.distance })
   }
 }
 
