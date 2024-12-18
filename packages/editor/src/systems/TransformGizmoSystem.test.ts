@@ -30,8 +30,8 @@ import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { destroySpatialEngine, destroySpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { IntersectionData } from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'
-import { GroupComponent, addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { BoxGeometry, Mesh, Vector3 } from 'three'
@@ -55,7 +55,7 @@ describe('TransformGizmoSystem', () => {
     })
 
     describe('if there are gizmoPickerObjects ...', () => {
-      // objects will be the combined GroupComponent arrays of all gizmoPickerObjectsQuery entities
+      // objects will be the combined ObjectComponent arrays of all gizmoPickerObjectsQuery entities
 
       it('... should add the parentObject.entity and hit.distance to the `@param intersectionData` for every gizmoPickerObject hit by the `@param caster`', () => {
         const box1 = new Mesh(new BoxGeometry(2, 2, 2))
@@ -63,8 +63,7 @@ describe('TransformGizmoSystem', () => {
         setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
         setComponent(one, VisibleComponent)
         setComponent(one, MeshComponent, box1)
-        setComponent(one, GroupComponent)
-        addObjectToGroup(one, box1)
+        setComponent(one, ObjectComponent)
         setComponent(one, InputComponent)
         setComponent(one, TransformGizmoTagComponent)
 
@@ -73,8 +72,7 @@ describe('TransformGizmoSystem', () => {
         setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
         setComponent(two, VisibleComponent)
         setComponent(two, MeshComponent, box2)
-        setComponent(two, GroupComponent)
-        addObjectToGroup(two, box2)
+        setComponent(two, ObjectComponent)
         setComponent(two, InputComponent)
         setComponent(two, TransformGizmoTagComponent)
 
@@ -83,8 +81,7 @@ describe('TransformGizmoSystem', () => {
         setComponent(three, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
         setComponent(three, VisibleComponent)
         setComponent(three, MeshComponent, box3)
-        setComponent(three, GroupComponent)
-        addObjectToGroup(three, box3)
+        setComponent(three, ObjectComponent)
         setComponent(three, InputComponent)
         // setComponent(three, TransformGizmoTagComponent)  // Do not add three to the gizmoPickerObject query
 
@@ -112,8 +109,7 @@ describe('TransformGizmoSystem', () => {
         setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
         setComponent(one, VisibleComponent)
         setComponent(one, MeshComponent, box1)
-        setComponent(one, GroupComponent)
-        addObjectToGroup(one, box1)
+        setComponent(one, ObjectComponent)
         setComponent(one, InputComponent)
         setComponent(one, TransformGizmoTagComponent)
 
@@ -122,8 +118,7 @@ describe('TransformGizmoSystem', () => {
         setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
         setComponent(two, VisibleComponent)
         setComponent(two, MeshComponent, box2)
-        setComponent(two, GroupComponent)
-        addObjectToGroup(two, box2)
+        setComponent(two, ObjectComponent)
         setComponent(two, InputComponent)
         setComponent(two, TransformGizmoTagComponent)
 
@@ -143,15 +138,14 @@ describe('TransformGizmoSystem', () => {
     })
 
     describe('if there are no gizmoPickerObjects ...', () => {
-      // objects will be the combined GroupComponent arrays of the inputObjectsQuery entities
+      // objects will be the combined ObjectComponent arrays of the inputObjectsQuery entities
       it('... should add the parentObject.entity and hit.distance to the `@param intersectionData` for every inputrObject hit by the `@param caster`', () => {
         const box1 = new Mesh(new BoxGeometry(2, 2, 2))
         const one = createEntity()
         setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
         setComponent(one, VisibleComponent)
         setComponent(one, MeshComponent, box1)
-        setComponent(one, GroupComponent)
-        addObjectToGroup(one, box1)
+        setComponent(one, ObjectComponent)
         setComponent(one, InputComponent)
         // setComponent(one, TransformGizmoTagComponent)  // Do not enable, so that we are on the inputObjects branch of the code
 
@@ -160,8 +154,7 @@ describe('TransformGizmoSystem', () => {
         setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
         setComponent(two, VisibleComponent)
         setComponent(two, MeshComponent, box2)
-        setComponent(two, GroupComponent)
-        addObjectToGroup(two, box2)
+        setComponent(two, ObjectComponent)
         setComponent(two, InputComponent)
         // setComponent(two, TransformGizmoTagComponent)  // Do not enable, so that we are on the inputObjects branch of the code
 
@@ -170,8 +163,7 @@ describe('TransformGizmoSystem', () => {
         setComponent(three, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
         setComponent(three, VisibleComponent)
         setComponent(three, MeshComponent, box3)
-        setComponent(three, GroupComponent)
-        addObjectToGroup(three, box3)
+        setComponent(three, ObjectComponent)
         // setComponent(three, InputComponent)  // Do not add the InputComponent, so that it is not part of inputObjectsQuery
 
         const KnownEntities = [one, two]
@@ -198,8 +190,7 @@ describe('TransformGizmoSystem', () => {
         setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
         setComponent(one, VisibleComponent)
         setComponent(one, MeshComponent, box1)
-        setComponent(one, GroupComponent)
-        addObjectToGroup(one, box1)
+        setComponent(one, ObjectComponent)
         setComponent(one, InputComponent)
         // setComponent(one, TransformGizmoTagComponent)  // Do not enable, so that we are on the inputObjects branch of the code
 
@@ -208,8 +199,7 @@ describe('TransformGizmoSystem', () => {
         setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
         setComponent(two, VisibleComponent)
         setComponent(two, MeshComponent, box2)
-        setComponent(two, GroupComponent)
-        addObjectToGroup(two, box2)
+        setComponent(two, ObjectComponent)
         setComponent(two, InputComponent)
         // setComponent(two, TransformGizmoTagComponent)  // Do not enable, so that we are on the inputObjects branch of the code
 
@@ -218,8 +208,7 @@ describe('TransformGizmoSystem', () => {
         setComponent(three, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
         setComponent(three, VisibleComponent)
         setComponent(three, MeshComponent, box3)
-        setComponent(three, GroupComponent)
-        addObjectToGroup(three, box3)
+        setComponent(three, ObjectComponent)
         // setComponent(three, InputComponent)  // Do not add the InputComponent, so that it is not part of inputObjectsQuery
 
         const rayOrigin = new Vector3(0, 0, 0)

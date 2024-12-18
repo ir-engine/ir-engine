@@ -37,7 +37,7 @@ import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { CameraGizmoTagComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { InputHeuristicState, IntersectionData } from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
@@ -65,16 +65,16 @@ const execute = () => {
 }
 
 /**Editor InputComponent raycast query */
-const inputObjectsQuery = defineQuery([InputComponent, VisibleComponent, GroupComponent])
+const inputObjectsQuery = defineQuery([InputComponent, VisibleComponent, ObjectComponent])
 const gizmoPickerObjectsQuery = defineQuery([
   InputComponent,
-  GroupComponent,
+  ObjectComponent,
   VisibleComponent,
   TransformGizmoTagComponent
 ])
 
-//prevent query from detecting CameraGizmoVisualEntity which has no GroupComponent but has CameraGizmoTagComponent
-const cameraGizmoQuery = defineQuery([CameraGizmoTagComponent, InputComponent, VisibleComponent, GroupComponent])
+//prevent query from detecting CameraGizmoVisualEntity which has no ObjectComponent but has CameraGizmoTagComponent
+const cameraGizmoQuery = defineQuery([CameraGizmoTagComponent, InputComponent, VisibleComponent, ObjectComponent])
 
 const raycaster = new Raycaster()
 raycaster.layers.enable(ObjectLayers.Gizmos)
@@ -93,8 +93,7 @@ export function editorInputHeuristic(intersectionData: Set<IntersectionData>, po
   const inputObj = [...inputObjectsQuery()].concat(cameraGizmo)
 
   const objects = (pickerObj.length > 0 ? allGizmos : inputObj) // gizmo heuristic
-    .map((eid) => getComponent(eid, GroupComponent))
-    .flat()
+    .map((eid) => getComponent(eid, ObjectComponent))
 
   //camera gizmos layer should always be active here, since it doesn't disable based on transformGizmo existing
   pickerObj.length > 0
