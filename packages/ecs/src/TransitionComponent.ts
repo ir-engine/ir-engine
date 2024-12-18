@@ -128,7 +128,7 @@ export const TransitionComponent = defineComponent({
       }
 
       if (transition.events.length === 0) {
-        transition.outputValue = structuredClone(transition.initialValue)
+        transition.outputValue = transition.initialValue
         continue
       }
 
@@ -151,65 +151,42 @@ export const TransitionComponent = defineComponent({
       for (let i = 0; i < transition.events.length; i++) {
         const ev = transition.events[i]
         ev.age += dt
-      }
-    }
+        const clampedT = Math.min(Math.max(ev.age / ev.duration, 0), 1)
+        const easedT = ev.easing(clampedT)
+        const value = transitionable.interpolate(ev.fromValue, ev.toValue, easedT)
 
-    if (this.events.length === 0) {
-      // No events, just return the initial value
-      return this.initialValue
-    }
+        // Weight calculation:
+        let weight = 1
+        if (i < transition.events.length - 1) {
+          // Not the latest event, fade out based on how far the latest event has progressed
+          const fadeFactor = 1 - Math.min(latestEvent.age / latestEvent.duration, 1)
+          weight = fadeFactor
+        }
 
-    const latestEvent = this.events[this.events.length - 1]
-
-    let totalWeight = 0
-    let weightedValue: T | null = null
-
-    const addWeighted = (value: T, weight: number) => {
-      if (weightedValue === null) {
-        weightedValue = this.applyWeight(value, weight)
-      } else {
-        weightedValue = this.addValues(weightedValue, this.applyWeight(value, weight))
-      }
-      totalWeight += weight
-    }
-
-    for (let i = 0; i < this.events.length; i++) {
-      const ev = this.events[i]
-      ev.age += dt
-      const clampedT = Math.min(Math.max(ev.age / ev.duration, 0), 1)
-      const easedT = ev.easing(clampedT)
-      const value = this.interpolator.interpolate(ev.fromValue, ev.toValue, easedT)
-
-      // Weight calculation:
-      let weight = 1
-      if (i < this.events.length - 1) {
-        // Not the latest event, fade out based on how far the latest event has progressed
-        const fadeFactor = 1 - Math.min(latestEvent.age / latestEvent.duration, 1)
-        weight = fadeFactor
+        if (weight > 0) {
+          addWeighted(value, weight)
+        }
       }
 
-      if (weight > 0) {
-        addWeighted(value, weight)
+      if (totalWeight === 0 && weightedValue === null) {
+        // No active contribution, use initial value
+        transition.outputValue = transition.initialValue
       }
+
+      // normalize by scaling by the total weight
+      const output = transitionable.scale(weightedValue!, 1 / totalWeight)
+
+      // **Cleanup Logic:**
+      // If the latest event has fully completed, we can finalize and clean up.
+      if (latestEvent.age >= latestEvent.duration) {
+        // The latest event is done, which means all older events are at zero weight now.
+        // Set the final stable output as the new initialValue.
+        this.initialValue = output
+        // Clear the events array, as we've reached a stable state.
+        this.events = []
+      }
+
+      transition.outputValue = output
     }
-
-    if (totalWeight === 0 && weightedValue === null) {
-      // No active contribution, return initial value
-      return this.initialValue
-    }
-
-    const output = this.normalizeValue(weightedValue!, totalWeight)
-
-    // **Cleanup Logic:**
-    // If the latest event has fully completed, we can finalize and clean up.
-    if (latestEvent.age >= latestEvent.duration) {
-      // The latest event is done, which means all older events are at zero weight now.
-      // Set the final stable output as the new initialValue.
-      this.initialValue = output
-      // Clear the events array, as we've reached a stable state.
-      this.events = []
-    }
-
-    return output
   }
 })

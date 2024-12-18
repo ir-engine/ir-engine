@@ -25,6 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Color, Quaternion, Vector2, Vector3 } from 'three'
 
+const Q_IDENTITY = new Quaternion()
+
 export const Transitionable = {
   number: {
     interpolate: (a: number, b: number, t: number) => a + (b - a) * t,
@@ -72,8 +74,8 @@ export const Transitionable = {
   },
   quaternion: {
     interpolate: (a: Quaternion, b: Quaternion, t: number, out?: Quaternion) => {
-      out = out || a.clone()
-      return out.slerp(b, t)
+      out = out || new Quaternion()
+      return out.slerpQuaternions(a, b, t)
     },
     scale: (a: Quaternion, b: number, out?: Quaternion) => {
       out = out || a.clone()
