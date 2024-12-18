@@ -44,7 +44,6 @@ import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
-import { SimulationLayerTagComponent } from '@ir-engine/ecs/src/SimulationLayerTagComponent'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 
 const ray = new Ray()
@@ -162,7 +161,5 @@ const MeshBVHReactor = () => {
 export const MeshBVHSystem = defineSystem({
   uuid: 'ee.engine.MeshBVHSystem',
   insert: { after: PresentationSystemGroup },
-  reactor: () => (
-    <QueryReactor Components={[MeshComponent, SimulationLayerTagComponent]} ChildEntityReactor={MeshBVHReactor} />
-  )
+  reactor: () => <QueryReactor Components={[MeshComponent]} ChildEntityReactor={MeshBVHReactor} />
 })

@@ -49,7 +49,6 @@ import { executeFixedSystem, executeSystems, getDAG } from './src/EngineFunction
 import { UndefinedEntity } from './src/Entity'
 import { entityExists, removeEntity, useEntityContext } from './src/EntityFunctions'
 import { defineQuery, QueryReactor, removeQuery, useQuery } from './src/QueryFunctions'
-import { SimulationLayerTagComponent } from './src/SimulationLayerTagComponent'
 import { defineSystem, destroySystem, executeSystem, useExecute } from './src/SystemFunctions'
 import { UUIDComponent } from './src/UUIDComponent'
 
@@ -70,7 +69,6 @@ const ECS = {
   useComponent,
   useOptionalComponent,
   UUIDComponent,
-  SimulationLayerTagComponent,
   /** Entity API */
   createEntity,
   removeEntity,

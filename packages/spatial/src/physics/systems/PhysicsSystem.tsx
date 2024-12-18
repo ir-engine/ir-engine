@@ -36,7 +36,6 @@ import { getMutableState, getState, none, useHookstate } from '@ir-engine/hyperf
 import { NetworkState } from '@ir-engine/network'
 
 import { useEntityContext, UUIDComponent } from '@ir-engine/ecs'
-import { SimulationLayerTagComponent } from '@ir-engine/ecs/src/SimulationLayerTagComponent'
 import React from 'react'
 import { Vector3 } from 'three'
 import { EngineState } from '../../EngineState'
@@ -55,19 +54,10 @@ import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { PhysicsSerialization } from '../PhysicsSerialization'
 import { ColliderHitEvent, CollisionEvents, SceneQueryType } from '../types/PhysicsTypes'
 
-const nonFixedRigidbodyQuery = defineQuery([
-  RigidBodyComponent,
-  Not(RigidBodyFixedTagComponent),
-  SimulationLayerTagComponent
-])
-const collisionQuery = defineQuery([CollisionComponent, SimulationLayerTagComponent])
+const nonFixedRigidbodyQuery = defineQuery([RigidBodyComponent, Not(RigidBodyFixedTagComponent)])
+const collisionQuery = defineQuery([CollisionComponent])
 
-const kinematicQuery = defineQuery([
-  RigidBodyComponent,
-  RigidBodyKinematicTagComponent,
-  TransformComponent,
-  SimulationLayerTagComponent
-])
+const kinematicQuery = defineQuery([RigidBodyComponent, RigidBodyKinematicTagComponent, TransformComponent])
 
 const execute = () => {
   const existingColliderHits = [] as Array<{ entity: Entity; collisionEntity: Entity; hit: ColliderHitEvent }>

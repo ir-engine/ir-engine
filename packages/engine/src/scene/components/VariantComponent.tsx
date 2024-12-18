@@ -287,7 +287,7 @@ uniform float minDistance;`
     const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
 
     for (const material of materials) {
-      if (!material.shader) continue
+      if (!material.shader?.uniforms?.minDistance) continue
       material.shader.uniforms.minDistance.value = level.metadata['minDistance']
     }
   }, [level.metadata['minDistance']])
@@ -297,7 +297,7 @@ uniform float minDistance;`
     const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
 
     for (const material of materials) {
-      if (!material.shader) continue
+      if (!material.shader?.uniforms?.maxDistance) continue
       material.shader.uniforms.maxDistance.value = level.metadata['maxDistance']
     }
   }, [level.metadata['minDistance']])

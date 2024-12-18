@@ -48,7 +48,6 @@ import {
 import { NO_PROXY, isClient, useHookstate } from '@ir-engine/hyperflux'
 import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 
-import { SimulationLayerTagComponent } from '@ir-engine/ecs/src/SimulationLayerTagComponent'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
 import { retargetAnimationClips } from '../functions/retargetingFunctions'
@@ -89,9 +88,7 @@ export const LoopAnimationComponent = defineComponent({
   }),
 
   reactor: () => {
-    const entity = useEntityContext()
-    if (hasComponent(entity, SimulationLayerTagComponent)) return <LoopAnimationReactor />
-    return null
+    return <LoopAnimationReactor />
   }
 })
 
