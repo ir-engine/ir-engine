@@ -42,7 +42,6 @@ import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { PluginType } from '@ir-engine/spatial/src/common/functions/OnBeforeCompilePlugin'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { NO_PROXY } from '@ir-engine/hyperflux'
 import React, { useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { MeshComponent } from '../components/MeshComponent'
@@ -193,7 +192,7 @@ const MaterialInstanceSubReactor = (props: { array: boolean; uuid: EntityUUID; e
       meshComponent.material.set(material)
     }
 
-    materialStateComponent.instances.set([...materialStateComponent.instances.get(NO_PROXY), entity])
+    materialStateComponent.instances.merge([entity])
   }, [materialStateComponent?.material, !!meshComponent])
 
   return null
