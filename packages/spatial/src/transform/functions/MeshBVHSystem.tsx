@@ -108,7 +108,6 @@ const _worldScale = new Vector3()
 function acceleratedRaycast(raycaster: Raycaster, intersects: Array<Intersection>) {
   const mesh = this as Mesh
   const geometry = mesh.geometry as BufferGeometry
-  console.log('acceleratedRaycast', geometry.boundsTree)
   if (geometry.boundsTree) {
     if (mesh.material === undefined) return
 
