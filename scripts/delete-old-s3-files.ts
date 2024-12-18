@@ -38,7 +38,7 @@ cli.main(async () => {
   try {
     await createDefaultStorageProvider()
     const storageProvider = getStorageProvider()
-    let filesToPruneResponse = await storageProvider.getObject('client/S3FilesToRemove.json')
+    let filesToPruneResponse = await storageProvider.getObject('client/S3FilesToRemoveFinal.json')
     let filesToPrune = JSON.parse(filesToPruneResponse.Body.toString('utf-8'))
     while (filesToPrune.length > 0) {
       const toDelete = filesToPrune.splice(0, 1000)

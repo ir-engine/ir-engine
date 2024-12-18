@@ -47,7 +47,7 @@ cli.main(async () => {
     const storageProvider = getStorageProvider()
     const clientPath = path.resolve(appRootPath.path, `packages/client/dist`)
     const files = getFilesRecursive(clientPath)
-    let filesToPruneResponse = await storageProvider.getObject('client/S3FilesToRemove.json')
+    let filesToPruneResponse = await storageProvider.getObject('client/S3FilesToRemoveInitial.json')
     const filesToPush: string[] = []
     await Promise.all(
       files.map((file) => {
@@ -89,7 +89,7 @@ cli.main(async () => {
     const putData = {
       Body: Buffer.from(JSON.stringify(filesToPrune)),
       ContentType: 'application/json',
-      Key: 'client/S3FilesToRemove.json',
+      Key: 'client/S3FilesToRemoveFinal.json',
       Metadata: {
         'Cache-Control': 'no-cache'
       }

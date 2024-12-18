@@ -112,15 +112,15 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const isGuest = selfUser.isGuest.value
   const acceptedTOS = !!selfUser.acceptedTOS.value
 
-  const checkedTOS = useHookstate(!isGuest)
-  const checked13OrOver = useHookstate(!isGuest)
+  const checkedTOS = useHookstate(!isGuest && !acceptedTOS)
+  const checked13OrOver = useHookstate(!isGuest && !acceptedTOS)
   const checked18OrOver = useHookstate(acceptedTOS)
   const hasAcceptedTermsAndAge = checkedTOS.value && checked13OrOver.value
 
   const originallyAcceptedTOS = useHookstate(acceptedTOS)
 
   useEffect(() => {
-    if (!originallyAcceptedTOS.value && checked18OrOver.value) {
+    if (!originallyAcceptedTOS.value && checked13OrOver.value) {
       API.instance
         .service(userPath)
         .patch(userId, { acceptedTOS: true })
@@ -134,7 +134,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
           console.error(e, 'Error updating user')
         })
     }
-  }, [checked18OrOver])
+  }, [checked13OrOver])
 
   const adminScopeQuery = useFind(scopePath, {
     query: {

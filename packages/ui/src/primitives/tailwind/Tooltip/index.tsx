@@ -23,96 +23,188 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { ReactNode, useEffect, useRef, useState } from 'react'
+import React, { ReactNode, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import ReactDOM from 'react-dom'
 import './tooltip.css'
 
-export interface TooltipProps {
+export interface BaseTooltipProps {
   title?: string
   content: ReactNode
   children: ReactNode
   position?: 'auto' | 'top' | 'bottom' | 'left' | 'right'
 }
 
-function Tooltip({ title, content, children, position = 'auto' }: TooltipProps) {
-  const [tooltipPosition, setTooltipPosition] = useState('bottom')
-  const triggerRef = useRef<HTMLDivElement | null>(null)
+export interface ControlledProps {
+  isControlled: true
+  onMouseEnter: () => boolean
+  onMouseLeave: () => boolean
+}
 
-  useEffect(() => {
-    if (position === 'auto' && triggerRef.current) {
-      calculatePosition()
-    } else {
-      setTooltipPosition(position)
-    }
-  }, [position])
+export interface UncontrolledProps {
+  isControlled?: false
+}
+
+export type TooltipProps = BaseTooltipProps & (ControlledProps | UncontrolledProps)
+
+export interface TooltipRef {
+  showTooltip: () => void
+  hideTooltip: () => void
+}
+
+/**
+ * Provides an imperative handle to show and hide the tooltip
+ */
+function Tooltip(
+  { title, content, children, position = 'auto', isControlled = false, ...props }: TooltipProps,
+  ref: React.ForwardedRef<TooltipRef>
+) {
+  const [tooltipPosition, setTooltipPosition] = useState('bottom')
+  const [tooltipStyles, setTooltipStyles] = useState({ top: 0, left: 0 } as React.CSSProperties)
+  const [visibleState, setIsVisible] = useState('hidden' as 'hidden' | 'calculating' | 'visible')
+  const triggerRef = useRef<HTMLDivElement | null>(null)
+  const tooltipRef = useRef<HTMLDivElement | null>(null)
+
+  useImperativeHandle(
+    ref,
+    () => {
+      return {
+        showTooltip: showTooltip,
+        hideTooltip: hideTooltip
+      }
+    },
+    []
+  )
 
   const calculatePosition = () => {
-    if (!triggerRef.current) return
+    if (!triggerRef.current || !tooltipRef.current) return null
+    const tooltipRect = tooltipRef.current.getBoundingClientRect()
+
+    let calculatedPosition = position
+    let top = 0
+    let left = 0
+
     const triggerRect = triggerRef.current.getBoundingClientRect()
     const viewportWidth = window.innerWidth
     const viewportHeight = window.innerHeight
 
-    const fitsTop = triggerRect.top >= 50
-    const fitsBottom = viewportHeight - triggerRect.bottom >= 50
-    const fitsLeft = triggerRect.left >= 50
-    const fitsRight = viewportWidth - triggerRect.right >= 50
+    const spaceTop = triggerRect.top
+    const spaceBottom = viewportHeight - triggerRect.bottom
+    const spaceLeft = triggerRect.left
+    const spaceRight = viewportWidth - triggerRect.right
 
-    if (fitsTop) setTooltipPosition('top')
-    else if (fitsBottom) setTooltipPosition('bottom')
-    else if (fitsRight) setTooltipPosition('right')
-    else if (fitsLeft) setTooltipPosition('left')
-    else setTooltipPosition('top')
+    if (position === 'auto') {
+      const maxSpace = Math.max(spaceTop, spaceBottom, spaceLeft, spaceRight)
+      if (maxSpace === spaceTop) calculatedPosition = 'top'
+      else if (maxSpace === spaceBottom) calculatedPosition = 'bottom'
+      else if (maxSpace === spaceLeft) calculatedPosition = 'left'
+      else if (maxSpace === spaceRight) calculatedPosition = 'right'
+    }
+
+    setTooltipPosition(calculatedPosition)
+
+    switch (calculatedPosition) {
+      case 'top':
+        top = triggerRect.top - tooltipRect.height - 8
+        left = triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2
+        break
+      case 'bottom':
+        top = triggerRect.bottom + 6
+        left = triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2
+        break
+      case 'left':
+        top = triggerRect.top + triggerRect.height / 2 - tooltipRect.height / 2
+        left = triggerRect.left - tooltipRect.width - 6
+        break
+      case 'right':
+        top = triggerRect.top + triggerRect.height / 2 - tooltipRect.height / 2
+        left = triggerRect.right + 6
+        break
+      default:
+        top = triggerRect.bottom + 6
+        left = triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2
+        break
+    }
+
+    setTooltipStyles({ top, left })
   }
 
-  const getPositionClasses = () => {
-    switch (tooltipPosition) {
-      case 'top':
-        return 'left-1/2 bottom-full mb-3 -translate-x-1/2'
-      case 'bottom':
-        return 'left-1/2 top-full mt-3 -translate-x-1/2'
-      case 'left':
-        return 'right-full top-1/2 mr-3 -translate-y-1/2'
-      case 'right':
-        return 'left-full top-1/2 ml-3 -translate-y-1/2'
-      default:
-        return 'left-1/2 bottom-full mb-3 -translate-x-1/2'
+  const showTooltip = () => {
+    if (isControlled) {
+      if ('onMouseEnter' in props && props.onMouseEnter && props.onMouseEnter()) {
+        setIsVisible('calculating')
+      }
+    } else if (visibleState === 'hidden') {
+      setIsVisible('calculating')
     }
   }
 
-  const getArrowStyles = () => {
-    switch (tooltipPosition) {
-      case 'top':
-        return 'bottom-[-4px] left-1/2 -translate-x-1/2'
-      case 'bottom':
-        return 'top-[-4px] left-1/2 -translate-x-1/2'
-      case 'left':
-        return 'right-[-4px] top-1/2 -translate-y-1/2'
-      case 'right':
-        return 'left-[-4px] top-1/2 -translate-y-1/2'
-      default:
-        return 'bottom-[-4px] left-1/2 -translate-x-1/2'
+  const hideTooltip = () => {
+    if (isControlled) {
+      if ('onMouseLeave' in props && props.onMouseLeave && !props.onMouseLeave()) {
+        setIsVisible('hidden')
+      }
+    } else if (visibleState !== 'hidden') {
+      setIsVisible('hidden')
     }
   }
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (visibleState) {
+        calculatePosition()
+      }
+    }
+    window.addEventListener('resize', handleResize)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [visibleState])
+
+  useEffect(() => {
+    if (visibleState) {
+      calculatePosition()
+    }
+  }, [position])
+
+  useEffect(() => {
+    if (visibleState === 'calculating' && triggerRef.current && tooltipRef.current) {
+      calculatePosition()
+      setIsVisible('visible')
+    }
+  }, [visibleState, title, content])
 
   return (
-    <div ref={triggerRef} className="group relative flex max-w-max flex-col items-center justify-center">
+    <div
+      ref={triggerRef}
+      className="group relative flex max-w-max flex-col items-center justify-center"
+      onMouseEnter={showTooltip}
+      onMouseLeave={hideTooltip}
+    >
       {children}
-      <div
-        className={`absolute ${getPositionClasses()} min-w-max scale-0 transform  transition duration-300 group-hover:scale-100`}
-        style={{ zIndex: 9999 }}
-      >
-        <div className="relative flex max-w-xs flex-col items-center shadow-lg">
+      {visibleState !== 'hidden' &&
+        ReactDOM.createPortal(
           <div
-            className={`absolute ${getArrowStyles()} h-3 w-3 rotate-45 transform border-b border-theme-primary bg-[#191B1F]`}
-          ></div>
+            ref={tooltipRef}
+            className={`tooltip ${
+              visibleState === 'visible' ? 'tooltip-visible' : ''
+            } absolute min-w-max transform transition duration-300`}
+            style={{ ...tooltipStyles, zIndex: 9999, position: 'absolute' }}
+          >
+            <div className="relative flex max-w-xs flex-col items-center shadow-lg">
+              <div
+                className={`tooltip-arrow absolute tooltip-arrow-${tooltipPosition} h-3 w-3 rotate-45 transform border-b border-theme-primary bg-[#191B1F]`}
+              ></div>
 
-          <div className="rounded border border-theme-primary bg-[#191B1F] px-4 py-2 text-center text-xs text-white">
-            {title && <div className="mb-1 text-sm font-semibold text-white">{title}</div>}
-            <div>{content}</div>
-          </div>
-        </div>
-      </div>
+              <div className="rounded border border-theme-primary bg-[#191B1F] px-4 py-2 text-center text-xs text-white">
+                {title && <div className="mb-1 text-sm font-semibold text-white">{title}</div>}
+                <div>{content}</div>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   )
 }
 
-export default Tooltip
+export default React.forwardRef(Tooltip)

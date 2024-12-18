@@ -23,10 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { render } from '@testing-library/react'
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React, { useEffect } from 'react'
-import { act } from 'react-dom/test-utils'
 import sinon from 'sinon'
 import { DoneCallback, afterAll, afterEach, beforeAll, beforeEach, describe, it } from 'vitest'
 

@@ -344,7 +344,7 @@ export const dispatchAction = <A extends Action>(_action: A) => {
 
 export function addOutgoingTopicIfNecessary(topic: Topic) {
   if (!HyperFlux.store.actions.outgoing[topic]) {
-    HyperFlux.store.logger('hyperflux:action').info(`Added topic ${topic}`)
+    // HyperFlux.store.logger('hyperflux:action').info(`Added topic ${topic}`)
     HyperFlux.store.actions.outgoing[topic] = {
       queue: [],
       history: [],

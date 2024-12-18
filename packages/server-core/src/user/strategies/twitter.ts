@@ -57,7 +57,6 @@ export class TwitterStrategy extends CustomOAuthStrategy {
     const identityProvider = authResult[identityProviderPath] ? authResult[identityProviderPath] : authResult
     const userId = identityProvider ? identityProvider.userId : params?.query ? params.query.userId : undefined
 
-    console.log('profile', profile)
     const returned = {
       ...baseData,
       accountIdentifier: profile.screen_name,

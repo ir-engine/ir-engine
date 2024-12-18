@@ -117,7 +117,8 @@ export const createAvatarCollider = (entity: Entity) => {
   setComponent(colliderEntity, ColliderComponent, {
     shape: Shapes.Capsule,
     collisionLayer: CollisionGroups.Avatars,
-    collisionMask: AvatarCollisionMask
+    collisionMask: AvatarCollisionMask,
+    matchMesh: false
   })
 }
 

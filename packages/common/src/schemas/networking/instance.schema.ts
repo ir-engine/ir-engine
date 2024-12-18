@@ -89,7 +89,7 @@ export interface InstanceData extends Static<typeof instanceDataSchema> {}
 export const instancePatchSchema = Type.Partial(
   Type.Pick(
     instanceSchema,
-    ['roomCode', 'ipAddress', 'channelId', 'podName', 'ended', 'assigned', 'locationId', 'assignedAt'],
+    ['roomCode', 'ipAddress', 'channelId', 'podName', 'ended', 'assigned', 'locationId', 'assignedAt', 'projectId'],
     {
       $id: 'InstancePatch'
     }
