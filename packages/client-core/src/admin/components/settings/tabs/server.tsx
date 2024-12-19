@@ -23,14 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { forwardRef } from 'react'
+import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { useFind, useMutation } from '@ir-engine/common'
-import { serverSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
+import { EngineSettingData, EngineSettingType, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { Button, Input } from '@ir-engine/ui'
+import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -39,12 +41,41 @@ import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
 
-  const serverSetting = useFind(serverSettingPath).data.at(0)
+  const engineSettingMutation = useMutation(engineSettingPath)
+  const engineSettings = useFind(engineSettingPath, {
+    query: {
+      category: 'server',
+      paginate: false
+    }
+  })
+  const port = engineSettings.data.find((item) => item.key === EngineSettings.Server.Port)?.value
+  const hostname = engineSettings.data.find((item) => item.key === EngineSettings.Server.Hostname)?.value
+  const mode = engineSettings.data.find((item) => item.key === EngineSettings.Server.Mode)?.value
+  const clientHost = engineSettings.data.find((item) => item.key === EngineSettings.Server.ClientHost)?.value
+  const rootDir = engineSettings.data.find((item) => item.key === EngineSettings.Server.RootDir)?.value
+  const publicDir = engineSettings.data.find((item) => item.key === EngineSettings.Server.PublicDir)?.value
+  const nodeModulesDir = engineSettings.data.find((item) => item.key === EngineSettings.Server.NodeModulesDir)?.value
+  const localStorageProvider = engineSettings.data.find(
+    (item) => item.key === EngineSettings.Server.LocalStorageProvider
+  )?.value
+  const performDryRun = engineSettings.data.find((item) => item.key === EngineSettings.Server.PerformDryRun)?.value
+  const storageProvider = engineSettings.data.find((item) => item.key === EngineSettings.Server.StorageProvider)?.value
+  const hubEndpoint = engineSettings.data.find((item) => item.key === EngineSettings.Server.Hub.Endpoint)?.value
+  const certPath = engineSettings.data.find((item) => item.key === EngineSettings.Server.CertPath)?.value
+  const keyPath = engineSettings.data.find((item) => item.key === EngineSettings.Server.KeyPath)?.value
+  const url = engineSettings.data.find((item) => item.key === EngineSettings.Server.Url)?.value
+  const gitPem = engineSettings.data.find((item) => item.key === EngineSettings.Server.GitPem)?.value
+  const localValue = engineSettings.data.find((item) => item.key === EngineSettings.Server.Local)?.value
+  const releaseName = engineSettings.data.find((item) => item.key === EngineSettings.Server.ReleaseName)?.value
+  const instanceserverUnreachableTimeoutSecondsSetting = engineSettings.data.find(
+    (item) => item.key === EngineSettings.Server.InstanceserverUnreachableTimeoutSeconds
+  )
+  const githubWebhookSecretSetting = engineSettings.data.find(
+    (item) => item.key === EngineSettings.Server.GithubWebhookSecret
+  )
 
-  const id = serverSetting?.id
-
-  const githubWebhookSecret = useHookstate(serverSetting?.githubWebhookSecret)
-  const instanceserverUnreachableTimeoutSeconds = useHookstate(serverSetting?.instanceserverUnreachableTimeoutSeconds)
+  const githubWebhookSecret = useHookstate('')
+  const instanceserverUnreachableTimeoutSeconds = useHookstate('')
   const dryRun = useHookstate(true)
   const local = useHookstate(true)
 
@@ -52,16 +83,46 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
     loading: false,
     errorMessage: ''
   })
-
-  const patchServerSetting = useMutation(serverSettingPath).patch
+  useEffect(() => {
+    githubWebhookSecret.set(githubWebhookSecretSetting?.value || '')
+    instanceserverUnreachableTimeoutSeconds.set(instanceserverUnreachableTimeoutSecondsSetting?.value || '')
+  }, [engineSettings.status])
 
   const handleSubmit = (event) => {
-    if (!id) return
     state.loading.set(true)
-    patchServerSetting(id, {
-      githubWebhookSecret: githubWebhookSecret.value,
-      instanceserverUnreachableTimeoutSeconds: instanceserverUnreachableTimeoutSeconds.value
+    const settings = {
+      [EngineSettings.Server.GithubWebhookSecret]: githubWebhookSecret.value,
+      [EngineSettings.Server.InstanceserverUnreachableTimeoutSeconds]: instanceserverUnreachableTimeoutSeconds.value
+    }
+    const createData: EngineSettingData[] = []
+    const operations: Promise<EngineSettingType | EngineSettingType[]>[] = []
+
+    Object.keys(settings).forEach((key) => {
+      const settingInDb = engineSettings.data.find((el) => el.key === key)
+      if (!settingInDb) {
+        createData.push({
+          key,
+          category: 'server',
+          value: settings[key],
+          type: 'private'
+        })
+      } else if (settingInDb.value !== settings[key]) {
+        operations.push(
+          engineSettingMutation.patch(settingInDb.id, {
+            key,
+            category: 'server',
+            value: settings[key],
+            type: 'private'
+          })
+        )
+      }
     })
+    if (createData.length > 0) {
+      const createOperation = engineSettingMutation.create(createData)
+      operations.push(createOperation)
+    }
+
+    Promise.all(operations)
       .then(() => {
         state.set({ loading: false, errorMessage: '' })
       })
@@ -71,7 +132,8 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
   }
 
   const handleCancel = () => {
-    githubWebhookSecret.set(serverSetting?.githubWebhookSecret)
+    githubWebhookSecret.set(githubWebhookSecret.value)
+    instanceserverUnreachableTimeoutSeconds.set(instanceserverUnreachableTimeoutSeconds.value)
   }
 
   return (
@@ -86,7 +148,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
       <div className="mt-6 grid w-full grid-cols-2 gap-4">
         <Input
           fullWidth
-          value={serverSetting?.mode || 'test'}
+          value={mode || 'test'}
           labelProps={{
             text: t('admin:components.setting.mode'),
             position: 'top'
@@ -100,13 +162,13 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
             text: t('admin:components.setting.storageProvider'),
             position: 'top'
           }}
-          value={serverSetting?.storageProvider || ''}
+          value={storageProvider || ''}
           disabled
         />
 
         <Input
           fullWidth
-          value={serverSetting?.hostname || 'test'}
+          value={hostname || 'test'}
           labelProps={{
             text: t('admin:components.setting.hostName'),
             position: 'top'
@@ -120,7 +182,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
             text: t('admin:components.setting.port'),
             position: 'top'
           }}
-          value={serverSetting?.port || ''}
+          value={port || ''}
           disabled
         />
 
@@ -130,7 +192,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
             text: t('admin:components.setting.hub'),
             position: 'top'
           }}
-          value={serverSetting?.hub?.endpoint || ''}
+          value={hubEndpoint || ''}
           disabled
         />
 
@@ -140,7 +202,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
             text: t('admin:components.setting.clientHost'),
             position: 'top'
           }}
-          value={serverSetting?.clientHost || ''}
+          value={clientHost || ''}
           disabled
         />
 
@@ -150,7 +212,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
             text: t('admin:components.setting.url'),
             position: 'top'
           }}
-          value={serverSetting?.url || ''}
+          value={url || ''}
           disabled
         />
 
@@ -160,7 +222,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
             text: t('admin:components.setting.rootDirectory'),
             position: 'top'
           }}
-          value={serverSetting?.rootDir || ''}
+          value={rootDir || ''}
           disabled
         />
 
@@ -170,7 +232,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
             text: t('admin:components.setting.certPath'),
             position: 'top'
           }}
-          value={serverSetting?.certPath || ''}
+          value={certPath || ''}
           disabled
         />
 
@@ -180,7 +242,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
             text: t('admin:components.setting.publicDirectory'),
             position: 'top'
           }}
-          value={serverSetting?.publicDir || ''}
+          value={publicDir || ''}
           disabled
         />
 
@@ -190,7 +252,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
             text: t('admin:components.setting.keyPath'),
             position: 'top'
           }}
-          value={serverSetting?.keyPath || ''}
+          value={keyPath || ''}
           disabled
         />
 
@@ -200,17 +262,17 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
             text: t('admin:components.setting.nodeModulesDirectory'),
             position: 'top'
           }}
-          value={serverSetting?.nodeModulesDir || ''}
+          value={nodeModulesDir || ''}
           disabled
         />
 
-        <Input
+        <PasswordInput
           fullWidth
           labelProps={{
             text: t('admin:components.setting.githubWebhookSecret'),
             position: 'top'
           }}
-          value={githubWebhookSecret.value || ''}
+          value={githubWebhookSecret?.value || ''}
           onChange={(e) => githubWebhookSecret.set(e.target.value)}
         />
 
@@ -220,7 +282,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
             text: t('admin:components.setting.localStorageProvider'),
             position: 'top'
           }}
-          value={serverSetting?.localStorageProvider || ''}
+          value={localStorageProvider || ''}
           disabled
         />
 
@@ -230,7 +292,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
             text: t('admin:components.setting.releaseName'),
             position: 'top'
           }}
-          value={serverSetting?.releaseName || ''}
+          value={releaseName || ''}
           disabled
         />
 
@@ -241,7 +303,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
             position: 'top'
           }}
           value={instanceserverUnreachableTimeoutSeconds?.value || ''}
-          onChange={(e) => instanceserverUnreachableTimeoutSeconds.set(Number(e.target.value))}
+          onChange={(e) => instanceserverUnreachableTimeoutSeconds.set(e.target.value)}
         />
 
         <div className="col-span-1 mt-5 grid grid-cols-2">

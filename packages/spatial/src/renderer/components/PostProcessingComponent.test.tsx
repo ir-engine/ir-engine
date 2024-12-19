@@ -262,10 +262,10 @@ describe('PostProcessingComponent', async () => {
 
       await act(() => rerender(null))
 
+      setComponent(rootEntity, RendererComponent)
       const postProcessingComponent = getMutableComponent(testEntity, PostProcessingComponent)
       postProcessingComponent.effects[effectKey].isActive.set(true)
 
-      setComponent(rootEntity, RendererComponent)
       await act(() => rerender(null))
 
       // @ts-ignore Allow access to the EffectPass.effects private field

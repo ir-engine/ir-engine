@@ -36,6 +36,7 @@ import {
   getOptionalComponent,
   removeEntity,
   setComponent,
+  useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
 import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
@@ -203,11 +204,13 @@ export const useXRInputSources = () => {
 export const CanvasInputReactor = () => {
   const cameraEntity = useEntityContext()
   const xrState = useMutableState(XRState)
+  const rendererComponent = useComponent(cameraEntity, RendererComponent)
+
   useEffect(() => {
     if (xrState.session.value) return // pointer input sources are automatically handled by webxr
 
-    const rendererComponent = getComponent(cameraEntity, RendererComponent)
-    const canvas = rendererComponent.canvas!
+    const canvas = rendererComponent.canvas.value
+    if (!canvas) return
 
     /** Clear mouse events */
     const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick'] as AnyButton[]
@@ -278,7 +281,7 @@ export const CanvasInputReactor = () => {
       const pointerComponent = getOptionalComponent(pointerEntity, InputPointerComponent)
       if (!pointerComponent) return
 
-      if (document.pointerLockElement === canvas) {
+      if (document.pointerLockElement === (canvas as HTMLCanvasElement)) {
         pointerComponent.position.set(
           pointerComponent.position.x + event.movementX / canvas.clientWidth,
           pointerComponent.position.y - event.movementY / canvas.clientHeight
@@ -348,7 +351,7 @@ export const CanvasInputReactor = () => {
       canvas.removeEventListener('click', onClick)
       canvas.removeEventListener('wheel', onWheelEvent)
     }
-  }, [xrState.session])
+  }, [xrState.session, rendererComponent.canvas])
 
   return null
 }

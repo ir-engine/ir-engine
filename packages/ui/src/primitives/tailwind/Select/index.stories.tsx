@@ -72,6 +72,12 @@ const argTypes: ArgTypes = {
       type: 'select'
     },
     options: ['success', 'error']
+  },
+  searchMode: {
+    control: {
+      type: 'select'
+    },
+    options: ['prefix', 'fuzzy']
   }
 }
 
@@ -91,14 +97,14 @@ export default {
   }
 }
 
-const Renderer = ({ numberOfListItems, labelText, labelPosition, generateItem, ...props }) => {
-  const items = [] as OptionType[]
+const Renderer = ({ numberOfListItems, labelText, labelPosition, generateItem, items, ...props }) => {
+  const _items = items || ([] as OptionType[])
   for (let i = 0; i < numberOfListItems; i++) {
     if (generateItem) {
       // @ts-ignore
-      items.push(generateItem(i))
-    } else {
-      items.push({
+      _items.push(generateItem(i))
+    } else if (!items) {
+      _items.push({
         value: i,
         label: `Account Settings ${i}`
       })
@@ -124,7 +130,7 @@ const Renderer = ({ numberOfListItems, labelText, labelPosition, generateItem, .
     }
   }, [labelText, labelPosition])
 
-  return <Select options={items} value={value} onChange={onChange} labelProps={labelProps} {...props} />
+  return <Select options={_items} value={value} onChange={onChange} labelProps={labelProps} {...props} />
 }
 
 export const Default = {
@@ -149,5 +155,66 @@ export const SecondaryTextWithIcon = {
       Icon: Rows01Md
     }),
     showCheckmark: false
+  }
+}
+
+export const Searchable = {
+  render: Renderer,
+  args: {
+    items: [
+      {
+        value: 1,
+        label: 'Apple',
+        secondaryText: 'A sweet red fruit rich in fiber and vitamins'
+      },
+      {
+        value: 2,
+        label: 'Banana',
+        secondaryText: 'A tropical fruit high in potassium'
+      },
+      {
+        value: 3,
+        label: 'Carrot',
+        secondaryText: 'A root vegetable great for vision health'
+      },
+      {
+        value: 4,
+        label: 'Dragon Fruit',
+        secondaryText: 'An exotic fruit with a vibrant pink skin'
+      },
+      {
+        value: 5,
+        label: 'Eggplant',
+        secondaryText: 'A versatile vegetable commonly used in cooking'
+      },
+      {
+        value: 6,
+        label: 'Fig',
+        secondaryText: 'A small fruit with a unique, sweet flavor'
+      },
+      {
+        value: 7,
+        label: 'Grape',
+        secondaryText: 'A juicy fruit used to make wine'
+      },
+      {
+        value: 8,
+        label: 'Honeydew Melon',
+        secondaryText: 'A refreshing melon with a pale green flesh'
+      },
+      {
+        value: 9,
+        label: 'Iceberg Lettuce',
+        secondaryText: 'A crisp, leafy vegetable often used in salads'
+      },
+      {
+        value: 10,
+        label: 'Jackfruit',
+        secondaryText: 'A large fruit with a sweet and distinctive flavor'
+      }
+    ],
+    width: 'lg',
+    showCheckmark: false,
+    searchMode: 'prefix'
   }
 }

@@ -23,10 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { WidgetAppServiceReceptorSystem } from '@ir-engine/spatial/src/xrui/WidgetAppService'
+import { WidgetAppServiceReceptorSystem } from '../systems/WidgetAppService'
 
 import { AvatarSpawnSystem } from '../networking/AvatarSpawnSystem'
-import { AvatarUISystem } from '../systems/AvatarUISystem'
+// import { AvatarUISystem } from '../systems/AvatarUISystem'
 import { LoadingUISystem } from '../systems/LoadingUISystem'
 import { MediaControlSystem } from '../systems/MediaControlSystem'
 import { PositionalAudioSystem } from '../systems/PositionalAudioSystem'
@@ -40,7 +40,7 @@ import './ClientNetworkModule'
 
 export {
   AvatarSpawnSystem,
-  AvatarUISystem,
+  // AvatarUISystem,
   LinkRedirectSystem,
   LoadingUISystem,
   MediaControlSystem,

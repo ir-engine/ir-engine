@@ -36,11 +36,10 @@ import {
   getOptionalComponent,
   hasComponent,
   setComponent,
-  useComponent,
   useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
-import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, isClient } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent } from '@ir-engine/network'
 import {
   createPriorityQueue,
@@ -220,7 +219,7 @@ const execute = () => {
       normalizedHips.matrixWorld.multiplyMatrices(newWorldMatrix, normalizedHips.matrix)
       normalizedHips.matrixWorld.scale(new Vector3(100, 100, 100))
       for (const boneName of VRMHumanBoneList) {
-        const bone = getComponent(rigComponent.bonesToEntities[boneName], NormalizedBoneComponent)
+        const bone = getOptionalComponent(rigComponent.bonesToEntities[boneName], NormalizedBoneComponent)
         if (!bone) continue
         bone.scale.setScalar(1)
         bone.updateMatrix()
@@ -425,15 +424,34 @@ const RigReactor = (props: { entity: Entity }) => {
 
 const AnimationReactor = (props: { entity: Entity }) => {
   const entity = props.entity
-  const rigComponent = useComponent(entity, AvatarRigComponent)
+  const rigComponent = useOptionalComponent(entity, AvatarRigComponent)
   useEffect(() => {
-    if (!Object.values(rigComponent.entitiesToBones).length || !rigComponent.vrm.scene.value) return
+    if (!Object.values(rigComponent?.entitiesToBones ?? {}).length || !rigComponent?.vrm?.scene?.value) return
     setComponent(entity, AnimationComponent, {
       animations: getAllLoadedAnimations(),
       mixer: new AnimationMixer(rigComponent.vrm.scene.value as Group)
     })
-  }, [entity, rigComponent.entitiesToBones, rigComponent.vrm.scene])
+  }, [rigComponent?.bonesToEntities, rigComponent?.vrm.scene])
   return null
+}
+
+export const AvatarAnimationSystemReactor = () => {
+  const rigEntities = useQuery([AvatarRigComponent])
+  const avatarAnimationEntities = useQuery([AvatarAnimationComponent, AvatarComponent, AvatarRigComponent])
+  return (
+    <>
+      <Reactor />
+      {rigEntities.length > 0 && <AnimationLoader />}
+      <>
+        {rigEntities.map((entity: Entity) => (
+          <RigReactor entity={entity} key={entity} />
+        ))}
+        {avatarAnimationEntities.map((entity: Entity) => (
+          <AnimationReactor entity={entity} key={entity} />
+        ))}
+      </>
+    </>
+  )
 }
 
 export const AvatarAnimationSystem = defineSystem({
@@ -441,23 +459,8 @@ export const AvatarAnimationSystem = defineSystem({
   insert: { after: AnimationSystem },
   execute,
   reactor: () => {
-    // if (!isClient || !useQuery([RendererComponent]).length) return null
-    const rigEntities = useQuery([AvatarRigComponent])
-    const avatarAnimationEntities = useQuery([AvatarAnimationComponent, AvatarComponent, AvatarRigComponent])
-    return (
-      <>
-        <Reactor />
-        <AnimationLoader />
-        <>
-          {rigEntities.map((entity: Entity) => (
-            <RigReactor entity={entity} key={entity} />
-          ))}
-          {avatarAnimationEntities.map((entity: Entity) => (
-            <AnimationReactor entity={entity} key={entity} />
-          ))}
-        </>
-      </>
-    )
+    if (!isClient) return null
+    return AvatarAnimationSystemReactor()
   }
 })
 

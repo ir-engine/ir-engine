@@ -51,6 +51,7 @@ import {
 } from '@ir-engine/hyperflux'
 import { NetworkActions, NetworkState, NetworkTopics } from '@ir-engine/network'
 import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { SpectateActions } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { act, render } from '@testing-library/react'
@@ -141,7 +142,7 @@ describe('AvatarSpawnSystem', async () => {
       }
     }
 
-    getMutableState(LocationState).currentLocation.location.sceneId.set(sceneID)
+    getMutableState(LocationState).currentLocation.location.sceneURL.set(sceneURL)
     GLTFAssetState.loadScene(sceneURL, sceneID)
 
     sceneEntity = getState(GLTFAssetState)[sceneURL]
@@ -149,7 +150,7 @@ describe('AvatarSpawnSystem', async () => {
     createMockNetwork(NetworkTopics.world)
 
     const peerID = Engine.instance.store.peerID
-    Engine.instance.store.userID = userID
+    getMutableState(EngineState).userID.set(userID)
 
     const network = NetworkState.worldNetwork
 

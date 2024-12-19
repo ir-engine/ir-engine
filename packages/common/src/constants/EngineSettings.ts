@@ -58,5 +58,31 @@ export const EngineSettings = {
   Helm: {
     Main: 'main',
     Builder: 'builder'
+  },
+  Server: {
+    Mode: 'mode',
+    StorageProvider: 'storageProvider',
+    Hostname: 'hostname',
+    Port: 'port',
+    RootDir: 'rootDir',
+    PublicDir: 'publicDir',
+    NodeModulesDir: 'nodeModulesDir',
+    Hub: {
+      Endpoint: 'hub.endpoint'
+    },
+    ClientHost: 'clientHost',
+    Url: 'url',
+    GitPem: 'gitPem',
+    RootDirectory: 'rootDir',
+    CertPath: 'certPath',
+    PublicDirectory: 'publicDir',
+    KeyPath: 'keyPath',
+    NodeModulesDirectory: 'nodeModulesDir',
+    GithubWebhookSecret: 'githubWebhookSecret',
+    LocalStorageProvider: 'localStorageProvider',
+    ReleaseName: 'releaseName',
+    InstanceserverUnreachableTimeoutSeconds: 'instanceserverUnreachableTimeoutSeconds',
+    PerformDryRun: 'performDryRun',
+    Local: 'local'
   }
 }

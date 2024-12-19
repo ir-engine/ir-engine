@@ -42,7 +42,8 @@ import { githubRepoAccessWebhookPath } from '@ir-engine/common/src/schemas/user/
 import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { loginPath } from '@ir-engine/common/src/schemas/user/login.schema'
 
-import { instanceSignalingPath } from '@ir-engine/common/src/schema.type.module'
+import { HookContext } from '@feathersjs/feathers'
+import { instanceSignalingPath, projectsPath } from '@ir-engine/common/src/schema.type.module'
 import { jwtPublicKeyPath } from '@ir-engine/common/src/schemas/user/jwt-public-key.schema'
 import { createHash } from 'crypto'
 import {
@@ -246,7 +247,7 @@ const email = {
 
 type WhiteListItem = {
   path: string
-  methods: string[]
+  methods: string[] | { [key: string]: (context: HookContext) => Promise<boolean> }
 }
 
 /**
@@ -275,6 +276,7 @@ const authentication = {
     oembedPath,
     githubRepoAccessWebhookPath,
     { path: instanceSignalingPath, methods: ['patch'] },
+    { path: projectsPath, methods: ['find'] },
     { path: identityProviderPath, methods: ['create'] },
     { path: routePath, methods: ['find'] },
     { path: acceptInvitePath, methods: ['get'] },
@@ -472,5 +474,22 @@ chargebeeInst.configure({
   site: process.env.CHARGEBEE_SITE!,
   api_key: config.chargebee.apiKey
 })
+
+/**
+ * Updates a nested configuration value in the appConfig object.
+ * @param key - The key of the nested configuration value, in dot notation.
+ * @param value - The value to set for the nested configuration.
+ * @param category - The category of the configuration.
+ */
+export function updateNestedConfig(appConfig: Record<string, any>, key: string, value: string, category: string) {
+  const keys = key.split('.')
+  if (keys.length !== 2) {
+    return
+  }
+  if (!appConfig[category][keys[0]]) {
+    appConfig[category][keys[0]] = {}
+  }
+  appConfig[category][keys[0]][keys[1]] = value
+}
 
 export default config

@@ -1083,12 +1083,4 @@ describe('materialFunctions', () => {
     it("should return the resulting material when it completed its process successfully", () => {})
     */
   }) //:: updateMaterialPrototype
-
-  /**
-  // @deprecated until the GLTF ECS Loader is merged : https://github.com/ir-engine/ir-engine/pull/11
-  describe('loadMaterialGLTF', () => {}) //:: loadMaterialGLTF
-  describe('assignMaterial', () => {}) //:: assignMaterial
-  describe('createAndAssignMaterial', () => {}) //:: createAndAssignMaterial
-  describe('createMaterialEntity', () => {}) //:: createMaterialEntity
-  */
 }) //:: materialFunctions

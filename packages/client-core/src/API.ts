@@ -77,6 +77,35 @@ export class API {
     API.instance.client = feathersClient as any
 
     CommonAPI.instance = feathersClient
+
+    const showLogs = false //isDev
+
+    // add logging to API calls
+    if (showLogs) {
+      const methods = ['create', 'update', 'patch', 'remove', 'find', 'get']
+      const originalService = feathersClient.service
+      const originalMethods = {} as Record<string, Record<string, any>>
+
+      feathersClient.service = (path: string) => {
+        if (!originalMethods[path]) originalMethods[path] = {}
+        const service = originalService.call(feathersClient, path)
+        for (const method of methods) {
+          if (!originalMethods[path][method]) {
+            originalMethods[path][method] = service[method]
+            const originalMethod = service[method]
+            service[method] = async (...args: any) => {
+              const trace = { stack: '' }
+              Error.captureStackTrace?.(trace, service[method])
+              const stack = trace.stack.split('\n')
+              stack.shift()
+              console.log(`API: ${path}.${method}`, ...args, { stack })
+              return originalMethod.call(service, ...args)
+            }
+          }
+        }
+        return service
+      }
+    }
   }
 }
 

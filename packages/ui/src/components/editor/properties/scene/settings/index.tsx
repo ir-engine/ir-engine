@@ -109,34 +109,34 @@ export const SceneSettingsEditor: EditorComponentType = (props) => {
       ) : (
         <></>
       )}
+      {/*@note disabled as this functionality was broken and it has been replaced by ScenePreviewCamera*/}
+      {/*<InputGroup*/}
+      {/*  name="Thumbnail"*/}
+      {/*  label={t('editor:properties.sceneSettings.lbl-thumbnail')}*/}
+      {/*  info={t('editor:properties.sceneSettings.info-thumbnail')}*/}
+      {/*  className="w-auto"*/}
+      {/*>*/}
+      {/*  <div>*/}
+      {/*    <ImageLink src={sceneThumbnailState.thumbnailURL.value ?? sceneSettingsComponent.thumbnailURL.value} />*/}
 
-      <InputGroup
-        name="Thumbnail"
-        label={t('editor:properties.sceneSettings.lbl-thumbnail')}
-        info={t('editor:properties.sceneSettings.info-thumbnail')}
-        className="w-auto"
-      >
-        <div>
-          <ImageLink src={sceneThumbnailState.thumbnailURL.value ?? sceneSettingsComponent.thumbnailURL.value} />
-
-          <Button onClick={SceneThumbnailState.createThumbnail} className="mt-2 w-full">
-            {t('editor:properties.sceneSettings.generate')}
-          </Button>
-          {sceneThumbnailState.uploadingThumbnail.value ? (
-            <LoadingView spinnerOnly />
-          ) : (
-            <Button
-              onClick={() => {
-                SceneThumbnailState.uploadThumbnail(props.entity)
-              }}
-              disabled={!sceneThumbnailState.thumbnail.value}
-              className="mt-2 w-full"
-            >
-              {t('editor:properties.sceneSettings.save')}
-            </Button>
-          )}
-        </div>
-      </InputGroup>
+      {/*    <Button onClick={SceneThumbnailState.createThumbnail} className="mt-2 w-full">*/}
+      {/*      {t('editor:properties.sceneSettings.generate')}*/}
+      {/*    </Button>*/}
+      {/*    {sceneThumbnailState.uploadingThumbnail.value ? (*/}
+      {/*      <LoadingView spinnerOnly />*/}
+      {/*    ) : (*/}
+      {/*      <Button*/}
+      {/*        onClick={() => {*/}
+      {/*          SceneThumbnailState.uploadThumbnail(props.entity)*/}
+      {/*        }}*/}
+      {/*        disabled={!sceneThumbnailState.thumbnail.value}*/}
+      {/*        className="mt-2 w-full"*/}
+      {/*      >*/}
+      {/*        {t('editor:properties.sceneSettings.save')}*/}
+      {/*      </Button>*/}
+      {/*    )}*/}
+      {/*  </div>*/}
+      {/*</InputGroup>*/}
       <InputGroup
         name="Loading Screen"
         label={t('editor:properties.sceneSettings.lbl-loading')}

@@ -35,25 +35,22 @@ import { AuthService } from '@ir-engine/client-core/src/user/services/AuthServic
 
 import '@ir-engine/engine/src/EngineModule'
 
+import { useEngineInjection } from '@ir-engine/client-core/src/components/World/EngineHooks'
 import { LocationService } from '@ir-engine/client-core/src/social/services/LocationService'
 import { clientContextParams } from '@ir-engine/client-core/src/util/ClientContextState'
 import multiLogger from '@ir-engine/common/src/logger'
 import { getMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
-import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
 
 const logger = multiLogger.child({ component: 'ui:chat:chat', modifier: clientContextParams })
-
-export const initializeEngineForChat = async () => {
-  await loadEngineInjection()
-}
 
 export function ChatPage() {
   AuthService.useAPIListeners()
   LocationService.useLocationBanListeners()
 
+  useEngineInjection()
+
   useEffect(() => {
-    initializeEngineForChat()
     getMutableState(NetworkState).config.set({
       world: false,
       media: true,

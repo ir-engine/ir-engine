@@ -91,7 +91,7 @@ const IconRenderer = () => {
       </div>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
         {iconsList.map(([iconName, IconComponent]) => {
-          const importText = `import { ${iconName} } from '@ir-engine/ui/icons'`
+          const importText = `import { ${iconName} } from '@ir-engine/ui/src/icons'`
           return (
             <div key={iconName} className="flex h-full flex-col items-center justify-between rounded-lg border p-4">
               <div className="flex flex-grow flex-col items-center">
@@ -107,7 +107,7 @@ const IconRenderer = () => {
               </div>
               <div className="flex w-full flex-col items-center">
                 <code className="mb-2 w-full truncate rounded bg-gray-100 p-1 text-center text-xs">{importText}</code>
-                <CopyText text={importText} className="bg-white" />
+                <CopyText text={importText} className="bg-gray-500" />
               </div>
             </div>
           )

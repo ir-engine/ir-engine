@@ -33,7 +33,7 @@ import '../state/AvatarNetworkState'
 import { Entity, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine, createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { UserID, applyIncomingActions, dispatchAction } from '@ir-engine/hyperflux'
+import { UserID, applyIncomingActions, dispatchAction, getMutableState } from '@ir-engine/hyperflux'
 import { NetworkTopics } from '@ir-engine/network'
 import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
 import { initializeSpatialEngine, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
@@ -44,6 +44,7 @@ import {
 } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
@@ -60,14 +61,14 @@ describe('spawnAvatarReceptor', () => {
     initializeSpatialEngine()
     initializeSpatialViewer()
     await Physics.load()
-    Engine.instance.store.userID = 'user' as UserID
+    getMutableState(EngineState).userID.set('user' as UserID)
     sceneEntity = loadEmptyScene()
 
     setComponent(sceneEntity, SceneComponent)
     const physicsWorld = Physics.createWorld(getComponent(sceneEntity, UUIDComponent))
     physicsWorld.timestep = 1 / 60
 
-    createMockNetwork(NetworkTopics.world, Engine.instance.store.peerID, Engine.instance.store.userID)
+    createMockNetwork(NetworkTopics.world, Engine.instance.store.peerID, Engine.instance.userID)
   })
 
   afterEach(() => {
@@ -75,7 +76,7 @@ describe('spawnAvatarReceptor', () => {
   })
 
   it('check the create avatar function', async () => {
-    const entityUUID = (Engine.instance.store.userID + '_avatar') as EntityUUID
+    const entityUUID = (Engine.instance.userID + '_avatar') as EntityUUID
 
     // mock entity to apply incoming unreliable updates to
     dispatchAction(
