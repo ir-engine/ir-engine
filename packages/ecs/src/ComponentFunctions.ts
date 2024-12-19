@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -64,7 +64,6 @@ import {
 } from './schemas/JSONSchemaUtils'
 import { EasingFunction } from './EasingFunctions'
 import { Transitionable, TransitionableTypes } from './Transitionable'
-import { TransitionComponent } from './TransitionComponent'
 
 /**
  * @description
@@ -377,7 +376,7 @@ export const defineComponent = <
   }
   ComponentMap.set(Component.name, Component)
 
-  function setTransition<P extends ComponentPropertyPath<ComponentType>>(
+  async function setTransition<P extends ComponentPropertyPath<ComponentType>>(
     entity: Entity,
     propertyPath: P,
     value: ComponentPropertyFromPath<ComponentType, P> & TransitionableTypes,
@@ -387,7 +386,9 @@ export const defineComponent = <
       type?: keyof typeof Transitionable
     }
   ) {
-    TransitionComponent.setTransition(entity, {
+    // Import at runtime to avoid circular dependency
+    const { TransitionComponent } = await import('./TransitionComponent')
+    TransitionComponent.setTarget(entity, {
       componentJsonID: Component.jsonID!,
       propertyPath,
       value,

@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getState } from '@ir-engine/hyperflux'
-import { ECSState } from './ECSState'
 import { defineQuery } from './QueryFunctions'
 import { defineSystem } from './SystemFunctions'
 import { AnimationSystemGroup } from './SystemGroups'
@@ -35,10 +33,9 @@ const transitionQuery = defineQuery([TransitionComponent])
 export const TransitionSystem = defineSystem({
   uuid: 'TransitionSystem',
   execute: () => {
-    const ecs = getState(ECSState)
     const transitionEntities = transitionQuery()
     for (const entity of transitionEntities) {
-      TransitionComponent.update(entity, ecs.deltaSeconds)
+      TransitionComponent.update(entity)
     }
   },
   insert: {
