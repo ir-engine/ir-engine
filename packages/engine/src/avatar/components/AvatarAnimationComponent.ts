@@ -246,7 +246,8 @@ export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
       setComponent(entity, NormalizedBoneComponent, node)
     }
   })
-  const humanoid = enforceTPose(bones)
+  enforceTPose(rootEntity)
+  const humanoid = new VRMHumanoid(bones)
   const scene = getComponent(rootEntity, Object3DComponent)
   const children = getComponent(rootEntity, EntityTreeComponent).children
   const childName = getComponent(children[0], NameComponent)
@@ -273,45 +274,70 @@ export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
   return vrm
 }
 
+const shoulderAngle = {
+  rightShoulderAngle: new Euler(Math.PI / 2, 0, Math.PI / 2),
+  leftShoulderAngle: new Euler(Math.PI / 2, 0, -Math.PI / 2)
+}
+const thumbAngle = {
+  rightThumbAngle: new Euler(Math.PI / 6, 0, -Math.PI / 6),
+  leftThumbAngle: new Euler(Math.PI / 6, 0, Math.PI / 6)
+}
 const legAngle = new Euler(0, 0, Math.PI)
-const rightShoulderAngle = new Euler(Math.PI / 2, 0, Math.PI / 2)
-const leftShoulderAngle = new Euler(Math.PI / 2, 0, -Math.PI / 2)
-const footAngle = new Euler(Math.PI / 3, 0, 0)
+const footAngle = new Euler(Math.PI / 3.25, 0, 0)
 const toesAngle = new Euler(Math.PI / 6, 0, 0)
-/**Rewrites avatar's bone quaternions and matrices to match a tpose */
-export const enforceTPose = (bones: VRMHumanBones) => {
-  bones.rightShoulder!.node.quaternion.setFromEuler(rightShoulderAngle)
-  iterateEntityNode(bones.rightShoulder!.node.entity, (entity) => {
-    getComponent(entity, BoneComponent).matrixWorld.makeRotationFromEuler(rightShoulderAngle)
-  })
-  bones.rightShoulder!.node.matrixWorld.makeRotationFromEuler(rightShoulderAngle)
-  bones.rightUpperArm.node.quaternion.set(0, 0, 0, 1)
-  bones.rightLowerArm.node.quaternion.set(0, 0, 0, 1)
 
-  bones.leftShoulder!.node.quaternion.setFromEuler(leftShoulderAngle)
-  iterateEntityNode(bones.leftShoulder!.node.entity, (entity) => {
-    getComponent(entity, BoneComponent).matrixWorld.makeRotationFromEuler(leftShoulderAngle)
-  })
-  bones.leftUpperArm.node.quaternion.set(0, 0, 0, 1)
-  bones.leftLowerArm.node.quaternion.set(0, 0, 0, 1)
+/**Rewrites avatar's bone quaternions and matrices to create a T-Pose, assuming all bones are the identity quaternion */
+export const enforceTPose = (entity: Entity) => {
+  const bones = getComponent(entity, AvatarRigComponent).bonesToEntities
+  const poseArm = (side: 'left' | 'right') => {
+    const shoulder = bones[`${side}Shoulder`]
+    const angle = shoulderAngle[`${side}ShoulderAngle`]
+    const shoulderTransform = getComponent(shoulder, TransformComponent)
+    shoulderTransform.rotation.setFromEuler(angle)
+    iterateEntityNode(shoulder, (entity) => {
+      getComponent(entity, BoneComponent).matrixWorld.makeRotationFromEuler(angle)
+    })
+  }
 
-  bones.rightUpperLeg.node.quaternion.setFromEuler(legAngle)
-  iterateEntityNode(bones.rightUpperLeg!.node.entity, (entity) => {
-    getComponent(entity, BoneComponent).matrixWorld.makeRotationFromEuler(legAngle)
-  })
-  bones.rightLowerLeg.node.quaternion.set(0, 0, 0, 1)
+  const poseLeg = (side: 'left' | 'right') => {
+    const upperLeg = bones[`${side}UpperLeg`]
+    getComponent(upperLeg, TransformComponent).rotation.setFromEuler(legAngle)
+    iterateEntityNode(upperLeg, (entity) => {
+      getComponent(entity, BoneComponent).matrixWorld.makeRotationFromEuler(legAngle)
+    })
+  }
 
-  bones.leftUpperLeg.node.quaternion.setFromEuler(legAngle)
-  iterateEntityNode(bones.leftUpperLeg!.node.entity, (entity) => {
-    getComponent(entity, BoneComponent).matrixWorld.makeRotationFromEuler(legAngle)
-  })
-  bones.leftLowerLeg.node.quaternion.set(0, 0, 0, 1)
+  const poseFoot = (side: 'left' | 'right') => {
+    const foot = bones[`${side}Foot`]
+    const toes = bones[`${side}Toes`]
+    getComponent(foot, TransformComponent).rotation.setFromEuler(footAngle)
+    iterateEntityNode(foot, (entity) => {
+      getComponent(entity, BoneComponent).matrixWorld.makeRotationFromEuler(footAngle)
+    })
+    getOptionalComponent(toes, TransformComponent)?.rotation.setFromEuler(toesAngle)
+  }
 
-  bones.rightFoot.node.quaternion.setFromEuler(footAngle)
-  bones.rightToes?.node.quaternion.setFromEuler(toesAngle)
+  const poseThumbs = (side: 'left' | 'right') => {
+    const thumb = bones[`${side}ThumbMetacarpal`]
+    const angle = thumbAngle[`${side}ThumbAngle`]
+    const hand = bones[`${side}Hand`]
+    getComponent(thumb, TransformComponent).rotation.setFromEuler(angle)
+    iterateEntityNode(thumb, (entity) => {
+      getComponent(entity, BoneComponent)
+        .matrixWorld.makeRotationFromEuler(angle)
+        .multiply(getComponent(hand, TransformComponent).matrixWorld)
+    })
+  }
 
-  bones.leftFoot.node.quaternion.setFromEuler(footAngle)
-  bones.leftToes?.node.quaternion.setFromEuler(toesAngle)
+  poseArm('right')
+  poseArm('left')
 
-  return new VRMHumanoid(bones)
+  poseLeg('right')
+  poseLeg('left')
+
+  poseFoot('right')
+  poseFoot('left')
+
+  poseThumbs('right')
+  poseThumbs('left')
 }
