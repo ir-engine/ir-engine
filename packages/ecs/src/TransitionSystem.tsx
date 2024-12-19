@@ -23,10 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { TransitionComponent } from './ComponentFunctions'
 import { defineQuery } from './QueryFunctions'
 import { defineSystem } from './SystemFunctions'
 import { AnimationSystemGroup } from './SystemGroups'
-import { TransitionComponent } from './TransitionComponent'
 
 const transitionQuery = defineQuery([TransitionComponent])
 
