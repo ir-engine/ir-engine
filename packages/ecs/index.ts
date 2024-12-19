@@ -114,5 +114,6 @@ export * from './src/schemas/JSONSchemaTypes'
 export * from './src/SystemFunctions'
 export * from './src/SystemGroups'
 export * from './src/Timer'
+export * from './src/TransitionSystem'
 export * from './src/UUIDComponent'
 export { ECS }
