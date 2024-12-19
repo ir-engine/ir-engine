@@ -130,7 +130,7 @@ export const TransitionComponent = defineComponent({
     if (propertyValue === undefined) return
 
     if (!transition.initialValue) {
-      transition.initialValue = structuredClone(propertyValue)
+      transition.initialValue = typeof propertyValue === 'number' ? propertyValue : propertyValue.clone()
     }
 
     if (transition.events.length === 0) {
