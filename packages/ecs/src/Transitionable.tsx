@@ -63,6 +63,13 @@ export const Transitionable = {
       out.z = a.z + (b.z - a.z) * t
       return out
     },
+    add: (a: Vector3, b: Vector3, out?: Vector3) => {
+      out = out || new Vector3()
+      out.x = a.x + b.x
+      out.y = a.y + b.y
+      out.z = a.z + b.z
+      return out
+    },
     scale: (a: Vector3, b: number, out?: Vector3) => {
       out = out || new Vector3()
       out.x = a.x * b
@@ -77,9 +84,13 @@ export const Transitionable = {
       out = out || new Quaternion()
       return out.slerpQuaternions(a, b, t)
     },
+    add: (a: Quaternion, b: Quaternion, out?: Quaternion) => {
+      out = out || new Quaternion()
+      return out.multiplyQuaternions(a, b)
+    },
     scale: (a: Quaternion, b: number, out?: Quaternion) => {
-      out = out || a.clone()
-      return out.slerp(a, Q_IDENTITY)
+      out = out || new Quaternion()
+      return out.slerpQuaternions(a, Q_IDENTITY, b)
     },
     isType: (a: any): a is Quaternion => a instanceof Quaternion
   },
@@ -89,12 +100,32 @@ export const Transitionable = {
       out.lerpColors(a, b, t)
       return out
     },
+    add: (a: Color, b: Color, out?: Color) => {
+      out = out || new Color()
+      out.addColors(a, b)
+      return out
+    },
+    scale: (a: Color, b: number, out?: Color) => {
+      out = out || new Color()
+      out.copy(a).multiplyScalar(b)
+      return out
+    },
     isType: (a: any): a is Color => a instanceof Color
   },
   colorHSL: {
     interpolate: (a: Color, b: Color, t: number, out?: Color) => {
       out = out || new Color()
       out.copy(a).lerpHSL(b, t)
+      return out
+    },
+    add: (a: Color, b: Color, out?: Color) => {
+      out = out || new Color()
+      out.addColors(a, b)
+      return out
+    },
+    scale: (a: Color, b: number, out?: Color) => {
+      out = out || new Color()
+      out.copy(a).multiplyScalar(b)
       return out
     },
     isType: (a: any): a is Color => a instanceof Color

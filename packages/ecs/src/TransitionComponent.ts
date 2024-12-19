@@ -152,7 +152,8 @@ export const TransitionComponent = defineComponent({
         const ev = transition.events[i]
         ev.age += dt
         const clampedT = Math.min(Math.max(ev.age / ev.duration, 0), 1)
-        const easedT = ev.easing(clampedT)
+        const easing = Easing.fromPath(ev.easing)
+        const easedT = easing(clampedT)
         const value = transitionable.interpolate(ev.fromValue, ev.toValue, easedT)
 
         // Weight calculation:
@@ -171,6 +172,7 @@ export const TransitionComponent = defineComponent({
       if (totalWeight === 0 && weightedValue === null) {
         // No active contribution, use initial value
         transition.outputValue = transition.initialValue
+        continue
       }
 
       // normalize by scaling by the total weight
