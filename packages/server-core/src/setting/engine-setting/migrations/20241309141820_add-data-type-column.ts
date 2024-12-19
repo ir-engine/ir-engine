@@ -23,7 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { serverSettingPath } from '@ir-engine/common/src/schemas/setting/server-setting.schema'
+import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
 import type { Knex } from 'knex'
 
 /**
@@ -33,13 +34,23 @@ import type { Knex } from 'knex'
 export async function up(knex: Knex): Promise<void> {
   await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const gaTrackingIdColumnExists = await knex.schema.hasColumn(serverSettingPath, 'gaTrackingId')
+  await knex.schema.alterTable(engineSettingPath, (table) => {
+    table.string('dataType', 10).defaultTo('string')
+  })
 
-  if (gaTrackingIdColumnExists === true) {
-    await knex.schema.alterTable(serverSettingPath, async (table) => {
-      table.dropColumn('gaTrackingId')
-    })
-  }
+  const engineSettings = await knex(engineSettingPath).select('id', 'value')
+  const engineSettingDataTypeUpdates = engineSettings.map((setting) => {
+    // update setting value to boolean if it is '0' or '1'
+    if (setting.value == '0' || setting.value == '1') {
+      return knex(engineSettingPath)
+        .where('id', setting.id)
+        .update('dataType', 'boolean')
+        .update('value', setting.value === '1' ? 'true' : 'false')
+    }
+    const dataType = getDataType(setting.value)
+    return knex(engineSettingPath).where('id', setting.id).update('dataType', dataType)
+  })
+  await Promise.all(engineSettingDataTypeUpdates)
 
   await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
@@ -51,11 +62,11 @@ export async function up(knex: Knex): Promise<void> {
 export async function down(knex: Knex): Promise<void> {
   await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const gaTrackingIdColumnExists = await knex.schema.hasColumn(serverSettingPath, 'gaTrackingId')
+  const dataTypeColumnExists = await knex.schema.hasColumn(engineSettingPath, 'dataType')
 
-  if (gaTrackingIdColumnExists === false) {
-    await knex.schema.alterTable(serverSettingPath, async (table) => {
-      table.string('gaTrackingId', 255).nullable()
+  if (dataTypeColumnExists) {
+    await knex.schema.alterTable(engineSettingPath, async (table) => {
+      table.dropColumn('dataType')
     })
   }
 

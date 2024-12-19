@@ -175,7 +175,7 @@ export function useFileBrowserDrop() {
     dropOn?: FileDataType,
     selectedFileKeys?: string[]
   ) => {
-    const destinationPath = dropOn?.isFolder ? `${dropOn.key}/` : filesState.selectedDirectory.value
+    const destinationPath = dropOn?.isFolder ? `${dropOn.key}` : filesState.selectedDirectory.value
 
     if (isFileDataType(data)) {
       if (dropOn?.isFolder) {

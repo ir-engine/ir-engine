@@ -809,7 +809,11 @@
       "lbl-projectionType": "Projection Type",
       "lbl-fov": "Field of View",
       "lbl-calcClippingPlanes": "Calculate Clipping Planes",
-      "lbl-projectionDistance": "Projection Distance",
+      "lbl-clippingPlanes": "Clipping Planes",
+      "lbl-nearClip": "Near",
+      "lbl-farClip": "Far ",
+      "lbl-minCamDist": "Min",
+      "lbl-maxCamDist": "Max",
       "lbl-cameraDistance": "Camera Distance",
       "lbl-startCameraDistance": "Start Camera Distance",
       "lbl-phi": "Phi"

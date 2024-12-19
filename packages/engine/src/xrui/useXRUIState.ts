@@ -23,24 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import { useContext } from 'react'
 
-import {
-  serverSettingDataSchema,
-  serverSettingPatchSchema,
-  serverSettingQuerySchema,
-  serverSettingSchema
-} from '@ir-engine/common/src/schemas/setting/server-setting.schema'
+import { State, useHookstate } from '@ir-engine/hyperflux'
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    serverSettingDataSchema,
-    serverSettingPatchSchema,
-    serverSettingQuerySchema,
-    serverSettingSchema
-  },
-  docs: {
-    description: 'Server setting service description',
-    securities: ['all']
-  }
-})
+import { XRUIStateContext } from './XRUIStateContext'
+
+//@ts-ignore
+export const useXRUIState = <S extends State>() => useHookstate<S>(useContext(XRUIStateContext) as S)

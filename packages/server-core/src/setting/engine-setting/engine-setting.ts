@@ -28,8 +28,9 @@ import {
   engineSettingPath,
   EngineSettingType
 } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
+import { parseValue } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { Application } from '@ir-engine/server-core/declarations'
-import appConfig from '../../appconfig'
+import appConfig, { updateNestedConfig } from '../../appconfig'
 import { EngineSettingService } from './engine-setting.class'
 import engineSettingDocs from './engine-setting.docs'
 import hooks from './engine-setting.hooks'
@@ -62,7 +63,11 @@ export default (app: Application): void => {
   const onUpdateAppConfig = (...args: EngineSettingType[]) => {
     args.forEach((setting) => {
       if (appConfig[setting.category]) {
-        appConfig[setting.category][setting.key] = setting.value
+        if (setting.key.includes('.')) {
+          updateNestedConfig(appConfig, setting)
+        } else {
+          appConfig[setting.category][setting.key] = parseValue(setting.value, setting.dataType)
+        }
       }
     })
   }
