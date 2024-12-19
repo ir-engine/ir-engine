@@ -40,6 +40,13 @@ export async function up(knex: Knex): Promise<void> {
 
   const engineSettings = await knex(engineSettingPath).select('id', 'value')
   const engineSettingDataTypeUpdates = engineSettings.map((setting) => {
+    // update setting value to boolean if it is '0' or '1'
+    if (setting.value == '0' || setting.value == '1') {
+      return knex(engineSettingPath)
+        .where('id', setting.id)
+        .update('dataType', 'boolean')
+        .update('value', setting.value === '1' ? 'true' : 'false')
+    }
     const dataType = getDataType(setting.value)
     return knex(engineSettingPath).where('id', setting.id).update('dataType', dataType)
   })
