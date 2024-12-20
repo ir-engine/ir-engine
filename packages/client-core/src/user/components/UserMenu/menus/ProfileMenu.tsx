@@ -92,7 +92,7 @@ interface Props {
   onClose?: () => void
 }
 
-const TermsOfServiceState = defineState({
+export const TermsOfServiceState = defineState({
   name: 'ir.client.TermsOfServiceState',
   initial: {
     accepted: false
@@ -139,7 +139,6 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
         .service(userPath)
         .patch(userId, { ageVerified: true })
         .then(() => {
-          // TOS is actually 18+ verification
           selfUser.ageVerified.set(true)
           logger.info({
             event_name: 'accept_tos'
