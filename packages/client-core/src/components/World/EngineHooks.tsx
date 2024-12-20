@@ -59,26 +59,31 @@ export const useEngineInjection = () => {
   const loaded = useHookstate(false)
   useImmediateEffect(() => {
     if (!projects.data) return
-    loadEngineInjection(projects.data as string[]).then(() => {
-      loaded.set(true)
-    })
+    loadEngineInjection(projects.data as string[])
+      .then(() => {
+        loaded.set(true)
+      })
+      .catch((e) => {
+        loaded.set(true)
+        logger.error('Failed to load engine injection', e)
+      })
   }, [projects.data])
   return loaded.value
 }
 
 export const useNetwork = (props: { online?: boolean }) => {
   const userID = useMutableState(EngineState).userID.value
-  const acceptedTOS = useMutableState(AuthState).user.acceptedTOS.value
+  const ageVerified = useMutableState(AuthState).user.ageVerified.value
 
   useEffect(() => {
     getMutableState(NetworkState).config.set({
       world: !!props.online,
-      media: !!props.online && acceptedTOS,
+      media: !!props.online && ageVerified,
       friends: !!props.online,
       instanceID: !!props.online,
       roomID: false
     })
-  }, [props.online, acceptedTOS])
+  }, [props.online, ageVerified])
 
   /** Offline/local world network */
   useEffect(() => {

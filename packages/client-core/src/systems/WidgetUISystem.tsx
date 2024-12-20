@@ -49,23 +49,18 @@ import {
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createMediaWidget } from './createMediaWidget'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { Vector3_Back, Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { Vector3_Back, Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '@ir-engine/spatial/src/input/state/ButtonState'
-import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { ObjectFitFunctions } from '@ir-engine/spatial/src/transform/functions/ObjectFitFunctions'
 import { TransformSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
-import { isMobileXRHeadset, ReferenceSpace, XRState } from '@ir-engine/spatial/src/xr/XRState'
-import { ObjectFitFunctions } from '@ir-engine/spatial/src/xrui/functions/ObjectFitFunctions'
-import {
-  RegisteredWidgets,
-  WidgetAppActions,
-  WidgetAppService,
-  WidgetAppState
-} from '@ir-engine/spatial/src/xrui/WidgetAppService'
+import { ReferenceSpace, XRState, isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
+import { RegisteredWidgets, WidgetAppActions, WidgetAppService, WidgetAppState } from './WidgetAppService'
 
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import React from 'react'

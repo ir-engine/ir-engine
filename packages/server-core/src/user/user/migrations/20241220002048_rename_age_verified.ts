@@ -23,24 +23,42 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import type { Knex } from 'knex'
 
-import {
-  serverSettingDataSchema,
-  serverSettingPatchSchema,
-  serverSettingQuerySchema,
-  serverSettingSchema
-} from '@ir-engine/common/src/schemas/setting/server-setting.schema'
+import { userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    serverSettingDataSchema,
-    serverSettingPatchSchema,
-    serverSettingQuerySchema,
-    serverSettingSchema
-  },
-  docs: {
-    description: 'Server setting service description',
-    securities: ['all']
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const acceptedTOSColumnExists = await knex.schema.hasColumn(userPath, 'acceptedTOS')
+
+  if (acceptedTOSColumnExists) {
+    await knex.schema.alterTable(userPath, async (table) => {
+      table.renameColumn('acceptedTOS', 'ageVerified')
+    })
   }
-})
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const ageVerifiedColumnExists = await knex.schema.hasColumn(userPath, 'ageVerified')
+
+  if (ageVerifiedColumnExists) {
+    await knex.schema.alterTable(userPath, async (table) => {
+      table.renameColumn('ageVerified', 'acceptedTOS')
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}

@@ -212,7 +212,11 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
   )
 
   const projects = await app.service(projectsPath).find()
-  await loadEngineInjection(projects)
+  try {
+    await loadEngineInjection(projects)
+  } catch (e) {
+    logger.error('Failed to load engine injection', e)
+  }
 
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId)
@@ -501,9 +505,9 @@ export const onConnection = (app: Application) => async (connection: RealTimeCon
 
   if (userId) {
     const user = await app.service(userPath).get(userId)
-    // disallow users from joining media servers if they haven't accepted the TOS
-    if (channelId && !user.acceptedTOS) {
-      logger.warn('User tried to connect without accepting TOS')
+    // disallow users from joining media servers if they aren't age verified
+    if (channelId && !user.ageVerified) {
+      logger.warn('User tried to connect without specifying they are age verified')
       return
     }
   }

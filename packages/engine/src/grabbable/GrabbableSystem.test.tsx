@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 
 import { Entity, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -285,14 +285,10 @@ describe('GrabbableSystem', () => {
 
     applyIncomingActions()
 
-    // wait for the authority transfer to be processed by the GrabbableState reactor
-    const { rerender, unmount } = render(<></>)
-    await act(async () => rerender(<></>))
-
-    // should now have authority
-    assert.equal(getComponent(grabbableEntity, NetworkObjectComponent).authorityPeerID, peerID)
-    assert.ok(hasComponent(grabbableEntity, GrabbedComponent))
-
-    unmount()
+    await vi.waitFor(() => {
+      // should now have authority
+      assert.equal(getComponent(grabbableEntity, NetworkObjectComponent).authorityPeerID, peerID)
+      assert.ok(hasComponent(grabbableEntity, GrabbedComponent))
+    })
   })
 })

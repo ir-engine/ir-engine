@@ -108,3 +108,7 @@ if (!globalThis.requestAnimationFrame) {
 if (!globalThis.cancelAnimationFrame) {
   ;(globalThis as any).cancelAnimationFrame = () => {}
 }
+
+if (!URL.revokeObjectURL) {
+  URL.revokeObjectURL = () => {}
+}

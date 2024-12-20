@@ -191,6 +191,8 @@ const MaterialInstanceSubReactor = (props: { array: boolean; uuid: EntityUUID; e
     } else {
       meshComponent.material.set(material)
     }
+
+    materialStateComponent.instances.merge([entity])
   }, [materialStateComponent?.material, !!meshComponent])
 
   return null

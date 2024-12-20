@@ -219,7 +219,7 @@ const execute = () => {
       normalizedHips.matrixWorld.multiplyMatrices(newWorldMatrix, normalizedHips.matrix)
       normalizedHips.matrixWorld.scale(new Vector3(100, 100, 100))
       for (const boneName of VRMHumanBoneList) {
-        const bone = getComponent(rigComponent.bonesToEntities[boneName], NormalizedBoneComponent)
+        const bone = getOptionalComponent(rigComponent.bonesToEntities[boneName], NormalizedBoneComponent)
         if (!bone) continue
         bone.scale.setScalar(1)
         bone.updateMatrix()

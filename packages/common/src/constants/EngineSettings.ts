@@ -79,5 +79,31 @@ export const EngineSettings = {
       Channel: 'subject.channel'
     },
     SmsNameCharacterLimit: 'smsNameCharacterLimit'
+  },
+  Server: {
+    Mode: 'mode',
+    StorageProvider: 'storageProvider',
+    Hostname: 'hostname',
+    Port: 'port',
+    RootDir: 'rootDir',
+    PublicDir: 'publicDir',
+    NodeModulesDir: 'nodeModulesDir',
+    Hub: {
+      Endpoint: 'hub.endpoint'
+    },
+    ClientHost: 'clientHost',
+    Url: 'url',
+    GitPem: 'gitPem',
+    RootDirectory: 'rootDir',
+    CertPath: 'certPath',
+    PublicDirectory: 'publicDir',
+    KeyPath: 'keyPath',
+    NodeModulesDirectory: 'nodeModulesDir',
+    GithubWebhookSecret: 'githubWebhookSecret',
+    LocalStorageProvider: 'localStorageProvider',
+    ReleaseName: 'releaseName',
+    InstanceserverUnreachableTimeoutSeconds: 'instanceserverUnreachableTimeoutSeconds',
+    PerformDryRun: 'performDryRun',
+    Local: 'local'
   }
 }

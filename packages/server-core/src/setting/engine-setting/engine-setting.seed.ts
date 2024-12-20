@@ -28,8 +28,10 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
+import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import appConfig from '@ir-engine/server-core/src/appconfig'
+import appRootPath from 'app-root-path'
 
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
@@ -53,7 +55,7 @@ export async function seed(knex: Knex): Promise<void> {
     ],
     'chargebee'
   )
-  const zendeskSettingSeedData: EngineSettingType[] = await Promise.all(
+  const zendeskSettingSeedData = await generateSeedData(
     [
       {
         key: EngineSettings.Zendesk.Name,
@@ -67,14 +69,8 @@ export async function seed(knex: Knex): Promise<void> {
         key: EngineSettings.Zendesk.Kid,
         value: process.env.ZENDESK_KID || ''
       }
-    ].map(async (item) => ({
-      ...item,
-      id: uuidv4(),
-      type: 'private' as EngineSettingType['type'],
-      category: 'zendesk' as EngineSettingType['category'],
-      createdAt: await getDateTimeSql(),
-      updatedAt: await getDateTimeSql()
-    }))
+    ],
+    'zendesk'
   )
 
   const coilSeedData = await generateSeedData(
@@ -148,11 +144,78 @@ export async function seed(knex: Knex): Promise<void> {
     'helm'
   )
 
+  const serverSeedData = await generateSeedData(
+    [
+      {
+        key: EngineSettings.Server.Port,
+        value: process.env.SERVER_PORT || '3030'
+      },
+      {
+        key: EngineSettings.Server.Hostname,
+        value: process.env.SERVER_HOSTNAME || 'localhost'
+      },
+      {
+        key: EngineSettings.Server.Mode,
+        value: process.env.NODE_ENV || 'development'
+      },
+      {
+        key: EngineSettings.Server.ClientHost,
+        value: process.env.CLIENT_HOST || 'localhost'
+      },
+      {
+        key: EngineSettings.Server.RootDirectory,
+        value: process.env.ROOT_DIR || ''
+      },
+      {
+        key: EngineSettings.Server.PublicDirectory,
+        value: process.env.PUBLIC_DIR || ''
+      },
+      {
+        key: EngineSettings.Server.NodeModulesDirectory,
+        value: process.env.NODE_MODULES_DIR || ''
+      },
+      {
+        key: EngineSettings.Server.LocalStorageProvider,
+        value: process.env.LOCAL_STORAGE_PROVIDER || ''
+      },
+      {
+        key: EngineSettings.Server.PerformDryRun,
+        value: process.env.PERFORM_DRY_RUN || 'false'
+      },
+      {
+        key: EngineSettings.Server.StorageProvider,
+        value: process.env.STORAGE_PROVIDER || ''
+      },
+      {
+        key: EngineSettings.Server.Hub.Endpoint,
+        value: process.env.HUB_ENDPOINT || ''
+      },
+      {
+        key: EngineSettings.Server.Url,
+        value: process.env.SERVER_URL || ''
+      },
+      {
+        key: EngineSettings.Server.Local,
+        value: process.env.LOCAL || 'false'
+      },
+      {
+        key: EngineSettings.Server.CertPath,
+        value: appRootPath.path.toString() + '/' + process.env.CERT || ''
+      },
+      {
+        key: EngineSettings.Server.KeyPath,
+        value: appRootPath.path.toString() + '/' + process.env.KEY || ''
+      }
+    ],
+    'server'
+  )
+
   const seedData: EngineSettingType[] = [
     ...taskServerSeedData,
     ...chargebeeSettingSeedData,
     ...coilSeedData,
     ...metabaseSeedData,
+    ...serverSeedData,
     ...redisSeedData,
     ...zendeskSettingSeedData,
     ...helmSeedData
@@ -184,6 +247,7 @@ export async function generateSeedData(
     items.map(async (item) => ({
       ...item,
       id: uuidv4(),
+      dataType: getDataType(item.value),
       type: type,
       category: category,
       createdAt: await getDateTimeSql(),
