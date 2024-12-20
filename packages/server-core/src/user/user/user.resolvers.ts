@@ -35,9 +35,9 @@ import { isDev } from '@ir-engine/common/src/config'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 
 export const userResolver = resolve<UserType, HookContext>({
-  acceptedTOS: virtual(async (user, context) => {
-    if (isDev) return true
-    return !!user.acceptedTOS
+  ageVerified: virtual(async (user, context) => {
+    // if (isDev) return true
+    return !!user.ageVerified
   }),
   createdAt: virtual(async (user) => fromDateTimeSql(user.createdAt)),
   updatedAt: virtual(async (user) => fromDateTimeSql(user.updatedAt))
