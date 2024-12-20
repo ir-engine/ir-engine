@@ -23,34 +23,42 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
+import type { Knex } from 'knex'
 
-import { ITableHeadCell } from '../Table'
+import { userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 
-type IdType =
-  | 'select'
-  | 'id'
-  | 'name'
-  | 'accountIdentifier'
-  | 'lastLogin'
-  | 'ageVerified'
-  | 'isGuest'
-  | 'action'
-  | 'avatar'
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-export type UserRowType = Record<IdType, string | JSX.Element | undefined>
+  const acceptedTOSColumnExists = await knex.schema.hasColumn(userPath, 'acceptedTOS')
 
-interface IUserColumn extends ITableHeadCell {
-  id: IdType
+  if (acceptedTOSColumnExists) {
+    await knex.schema.alterTable(userPath, async (table) => {
+      table.renameColumn('acceptedTOS', 'ageVerified')
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
-export const userColumns: IUserColumn[] = [
-  { id: 'id', label: t('admin:components.user.columns.id') },
-  { id: 'name', sortable: true, label: t('admin:components.user.columns.name') },
-  { id: 'avatar', label: t('admin:components.user.columns.avatar') },
-  { id: 'accountIdentifier', label: t('admin:components.user.columns.accountIdentifier') },
-  { id: 'lastLogin', label: t('admin:components.user.columns.lastLogin') },
-  { id: 'ageVerified', sortable: true, label: t('admin:components.user.columns.ageVerified') },
-  { id: 'isGuest', sortable: true, label: t('admin:components.user.columns.isGuest') },
-  { id: 'action', label: t('admin:components.user.columns.action') }
-]
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const ageVerifiedColumnExists = await knex.schema.hasColumn(userPath, 'ageVerified')
+
+  if (ageVerifiedColumnExists) {
+    await knex.schema.alterTable(userPath, async (table) => {
+      table.renameColumn('ageVerified', 'acceptedTOS')
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}

@@ -45,7 +45,8 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
-  setComponent
+  setComponent,
+  useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -109,6 +110,10 @@ export const AvatarRigComponent = defineComponent({
     const rigComponent = getMutableComponent(toRigEntity, AvatarRigComponent)
     rigComponent.bonesToEntities[boneName].set(boneEntity)
     rigComponent.entitiesToBones[boneEntity].set(boneName)
+  },
+
+  useAvatarLoaded: (entity: Entity) => {
+    return !!useOptionalComponent(entity, AvatarRigComponent)?.vrm.value
   },
 
   errors: ['UNSUPPORTED_AVATAR']
