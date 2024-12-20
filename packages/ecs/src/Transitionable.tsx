@@ -90,7 +90,7 @@ export const Transitionable = {
     },
     scale: (a: Quaternion, b: number, out?: Quaternion) => {
       out = out || new Quaternion()
-      return out.slerpQuaternions(a, Q_IDENTITY, b)
+      return out.slerpQuaternions(Q_IDENTITY, a, b)
     },
     isType: (a: any): a is Quaternion => a instanceof Quaternion
   },

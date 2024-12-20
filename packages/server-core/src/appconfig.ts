@@ -43,8 +43,9 @@ import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identit
 import { loginPath } from '@ir-engine/common/src/schemas/user/login.schema'
 
 import { HookContext } from '@feathersjs/feathers'
-import { instanceSignalingPath, projectsPath } from '@ir-engine/common/src/schema.type.module'
+import { EngineSettingType, instanceSignalingPath, projectsPath } from '@ir-engine/common/src/schema.type.module'
 import { jwtPublicKeyPath } from '@ir-engine/common/src/schemas/user/jwt-public-key.schema'
+import { parseValue } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { createHash } from 'crypto'
 import {
   APPLE_SCOPES,
@@ -481,7 +482,8 @@ chargebeeInst.configure({
  * @param value - The value to set for the nested configuration.
  * @param category - The category of the configuration.
  */
-export function updateNestedConfig(appConfig: Record<string, any>, key: string, value: string, category: string) {
+export function updateNestedConfig(appConfig: Record<string, any>, setting: EngineSettingType) {
+  const { key, value, dataType, category } = setting
   const keys = key.split('.')
   if (keys.length !== 2) {
     return
@@ -489,7 +491,7 @@ export function updateNestedConfig(appConfig: Record<string, any>, key: string, 
   if (!appConfig[category][keys[0]]) {
     appConfig[category][keys[0]] = {}
   }
-  appConfig[category][keys[0]][keys[1]] = value
+  appConfig[category][keys[0]][keys[1]] = parseValue(value, dataType)
 }
 
 export default config

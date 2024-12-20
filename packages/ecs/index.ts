@@ -102,6 +102,7 @@ export default ECS
 
 export { Not } from 'bitecs'
 export * from './src/ComponentFunctions'
+export * from './src/EasingFunctions'
 export * from './src/ECSState'
 export * from './src/Engine'
 export * from './src/EngineFunctions'
