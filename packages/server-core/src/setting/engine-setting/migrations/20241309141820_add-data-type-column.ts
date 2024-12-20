@@ -23,55 +23,52 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
-import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
+import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
-import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import type { Knex } from 'knex'
-import { v4 as uuidv4 } from 'uuid'
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const helmSettingPath = 'helm-setting'
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const tableExists = await knex.schema.hasTable(helmSettingPath)
+  await knex.schema.alterTable(engineSettingPath, (table) => {
+    table.string('dataType', 10).defaultTo('string')
+  })
 
-  if (tableExists) {
-    const recordExists = await knex.table(helmSettingPath).first()
-
-    if (recordExists) {
-      const redisSettings: EngineSettingType[] = await Promise.all(
-        [
-          {
-            key: EngineSettings.Helm.Main,
-            value: recordExists.main || ''
-          },
-          {
-            key: EngineSettings.Helm.Builder,
-            value: recordExists.builder || ''
-          }
-        ].map(async (item) => ({
-          ...item,
-          id: uuidv4(),
-          dataType: getDataType(item.value),
-          type: 'private' as EngineSettingType['type'],
-          category: 'helm',
-          createdAt: await getDateTimeSql(),
-          updatedAt: await getDateTimeSql()
-        }))
-      )
-      await knex.from(engineSettingPath).insert(redisSettings)
+  const engineSettings = await knex(engineSettingPath).select('id', 'value')
+  const engineSettingDataTypeUpdates = engineSettings.map((setting) => {
+    // update setting value to boolean if it is '0' or '1'
+    if (setting.value == '0' || setting.value == '1') {
+      return knex(engineSettingPath)
+        .where('id', setting.id)
+        .update('dataType', 'boolean')
+        .update('value', setting.value === '1' ? 'true' : 'false')
     }
-  }
+    const dataType = getDataType(setting.value)
+    return knex(engineSettingPath).where('id', setting.id).update('dataType', dataType)
+  })
+  await Promise.all(engineSettingDataTypeUpdates)
 
-  await knex.schema.dropTableIfExists(helmSettingPath)
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-export async function down(knex: Knex): Promise<void> {}
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const dataTypeColumnExists = await knex.schema.hasColumn(engineSettingPath, 'dataType')
+
+  if (dataTypeColumnExists) {
+    await knex.schema.alterTable(engineSettingPath, async (table) => {
+      table.dropColumn('dataType')
+    })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}
