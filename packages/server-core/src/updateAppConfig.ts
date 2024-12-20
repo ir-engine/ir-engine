@@ -44,6 +44,7 @@ import {
 } from '@ir-engine/common/src/schemas/setting/instance-server-setting.schema'
 
 import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schema.type.module'
+import { parseValue } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { createHash } from 'crypto'
 import appConfig, { updateNestedConfig } from './appconfig'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
@@ -188,9 +189,9 @@ export const updateAppConfig = async (): Promise<void> => {
           appConfig[setting.category] = {}
         }
         if (setting.key.includes('.')) {
-          updateNestedConfig(appConfig, setting.key, setting.value, setting.category)
+          updateNestedConfig(appConfig, setting)
         } else {
-          appConfig[setting.category][setting.key] = setting.value
+          appConfig[setting.category][setting.key] = parseValue(setting.value, setting.dataType)
         }
       })
     })
