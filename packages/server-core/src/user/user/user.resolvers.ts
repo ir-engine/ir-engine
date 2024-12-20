@@ -31,7 +31,6 @@ import { InviteCode, UserID, UserName, UserQuery, UserType } from '@ir-engine/co
 import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import type { HookContext } from '@ir-engine/server-core/declarations'
 
-import { isDev } from '@ir-engine/common/src/config'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 
 export const userResolver = resolve<UserType, HookContext>({
