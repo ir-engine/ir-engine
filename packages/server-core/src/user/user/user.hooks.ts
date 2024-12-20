@@ -87,7 +87,7 @@ const restrictUserPatch = async (context: HookContext<UserService>) => {
     const data = {} as UserPatch
     // selective define allowed props as not to accidentally pass an undefined value (which will be interpreted as NULL)
     if (typeof item.name !== 'undefined') data.name = item.name
-    if (typeof item.acceptedTOS !== 'undefined') data.acceptedTOS = item.acceptedTOS
+    if (typeof item.ageVerified !== 'undefined') data.ageVerified = item.ageVerified
 
     return data
   }
