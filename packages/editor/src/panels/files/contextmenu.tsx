@@ -71,6 +71,9 @@ function PasteFileButton({
         if (!hasClipboardFiles || isFilesLoading) return
         setAnchorEvent(undefined)
         for (const clipboardFile of clipboardFiles.get(NO_PROXY)) {
+          // make sure we are not moving a folder into itself
+          if (!filesState.clipboardFiles.isCopy.value && (newPath ?? currentDirectory).startsWith(clipboardFile.path))
+            return
           await fileService.update(null, {
             oldProject: filesState.projectName.value,
             newProject: filesState.projectName.value,
