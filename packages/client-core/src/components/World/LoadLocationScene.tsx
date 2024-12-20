@@ -32,6 +32,7 @@ import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
 
+import { NotificationService } from '../../common/services/NotificationService'
 import { RouterState } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'
 import { ClientContextState } from '../../util/ClientContextState'
@@ -49,13 +50,13 @@ export const useLoadLocation = (props: { locationName: string }) => {
 
   useEffect(() => {
     if (locationState.invalidLocation.value) {
-      WarningUIService.openWarning({
-        title: t('common:instanceServer.invalidLocation'),
-        body: `${t('common:instanceServer.cantFindLocation')} '${locationState.locationName.value}'. ${t(
+      NotificationService.dispatchNotify(
+        `${t('common:instanceServer.cantFindLocation')} '${locationState.locationName.value}'. ${t(
           'common:instanceServer.misspelledOrNotExist'
         )}`,
-        action: () => RouterState.navigate('/')
-      })
+        { variant: 'error' }
+      )
+      RouterState.navigate('/')
     }
   }, [locationState.invalidLocation])
 

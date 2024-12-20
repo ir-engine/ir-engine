@@ -61,8 +61,11 @@ import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/sys
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 import type { WebLayer3D } from '@ir-engine/xrui'
 
+import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
+import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { SpectateEntityState } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
 import { useRemoveEngineCanvas } from '../hooks/useEngineCanvas'
 import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
 import { LocationState } from '../social/services/LocationService'
@@ -134,7 +137,11 @@ const LoadingReactor = (props: { sceneEntity: Entity }) => {
   const { sceneEntity } = props
   const gltfComponent = useComponent(sceneEntity, GLTFComponent)
   const loadingProgress = gltfComponent.progress.value
-  const sceneLoaded = GLTFComponent.useSceneLoaded(sceneEntity)
+  const avatarEntity = AvatarComponent.useSelfAvatarEntity()
+  const avatarLoaded = AvatarRigComponent.useAvatarLoaded(avatarEntity)
+  const userID = useMutableState(EngineState).userID.value
+  const spectatorLoaded = !!useMutableState(SpectateEntityState).value[userID]
+  const viewerReady = avatarLoaded || spectatorLoaded
   const locationState = useMutableState(LocationState)
   const state = useMutableState(LoadingUISystemState)
 
@@ -150,18 +157,18 @@ const LoadingReactor = (props: { sceneEntity: Entity }) => {
   /** Scene is loading */
   useEffect(() => {
     const transition = getState(LoadingUISystemState).transition
-    if (transition.state === 'OUT' && state.ready.value && !sceneLoaded) transition.setState('IN')
+    if (transition.state === 'OUT' && state.ready.value && !viewerReady) transition.setState('IN')
   }, [state.ready])
 
   /** Scene has loaded */
   useEffect(() => {
-    if (sceneLoaded && !state.ready.value) state.ready.set(true)
+    if (viewerReady && !state.ready.value) state.ready.set(true)
     const transition = getState(LoadingUISystemState).transition
-    if (transition.state === 'IN' && sceneLoaded) transition.setState('OUT')
+    if (transition.state === 'IN' && viewerReady) transition.setState('OUT')
     /** used by the PWA service worker */
     /** @TODO find a better place for this */
     window.dispatchEvent(new Event('load'))
-  }, [sceneLoaded])
+  }, [viewerReady])
 
   useEffect(() => {
     const ui = state.ui.get(NO_PROXY)!
