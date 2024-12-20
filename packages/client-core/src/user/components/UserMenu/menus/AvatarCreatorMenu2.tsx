@@ -26,10 +26,10 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getCanvasBlob } from '@ir-engine/client-core/src/common/utils'
 import config from '@ir-engine/common/src/config'
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@ir-engine/common/src/constants/AvatarConstants'
 
+import { getCanvasBlob } from '@ir-engine/client-core/src/common/utils'
 import multiLogger from '@ir-engine/common/src/logger'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { Button, Input } from '@ir-engine/ui'
@@ -63,6 +63,7 @@ interface AvatarCreatorMenuProps {
 const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProps) => {
   const { t } = useTranslation()
   const selectedBlob = useHookstate<Blob | null>(null)
+  const thumbnail = useHookstate<Blob | null>(null)
   const avatarName = useHookstate('')
   const avatarUrl = useHookstate('')
   const loading = useHookstate(LoadingState.LoadingCreator)
@@ -91,6 +92,25 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
     const rpmIframe = document.getElementById('rpm-iframe') as HTMLIFrameElement
     rpmIframe.src = getSdkUrl() as string
   }, [])
+
+  const export2DReadyPlayerMeAvatar = async (avatarId: string): Promise<Blob> => {
+    const res = await fetch(
+      `https://models.readyplayer.me/${avatarId}.png?size=${THUMBNAIL_HEIGHT}&camera=portrait&pose=relaxed`
+    )
+    return await res.blob()
+  }
+
+  const generateAvatarThumbnail = async () => {
+    const canvas = document.createElement('canvas')
+    canvas.width = THUMBNAIL_WIDTH
+    canvas.height = THUMBNAIL_HEIGHT
+
+    const avatarCanvas = document.getElementById('stage')?.firstChild as CanvasImageSource
+
+    const newContext = canvas.getContext('2d')
+    newContext?.drawImage(avatarCanvas, 0, 0)
+    return await getCanvasBlob(canvas)
+  }
 
   const parseMessage = (event: MessageEvent) => {
     try {
@@ -130,6 +150,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
         loading.set(LoadingState.LoadingPreview)
         avatarUrl.set(message.data.url)
         selectedBlob.set(data)
+        thumbnail.set(await export2DReadyPlayerMeAvatar(message.data.avatarId))
         if (!props.previewEnabled) {
           loading.set(LoadingState.None)
         }
@@ -187,24 +208,18 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
     }
     loading.set(LoadingState.Uploading)
 
-    const canvas = document.createElement('canvas')
-    canvas.width = THUMBNAIL_WIDTH
-    canvas.height = THUMBNAIL_HEIGHT
-
-    const avatarCanvas = document.getElementById('stage')?.firstChild as CanvasImageSource
-
-    const newContext = canvas.getContext('2d')
-    newContext?.drawImage(avatarCanvas, 0, 0)
+    if (!thumbnail.value) {
+      thumbnail.set(await generateAvatarThumbnail())
+    }
 
     const thumbnailName = avatarUrl.value.substring(0, avatarUrl.value.lastIndexOf('.')) + '.png'
     const modelName = !isAvaturn(avatarUrl.value)
       ? avatarUrl.value.substring(0, avatarUrl.value.lastIndexOf('.')) + '.glb'
       : avatarUrl.value.split('/').pop() + '.glb'
 
-    const blob = await getCanvasBlob(canvas)
     await AvatarService.createAvatar(
       new File([selectedBlob.value!], modelName),
-      new File([blob!], thumbnailName),
+      new File([thumbnail.value!], thumbnailName),
       avatarName.value,
       false
     )
