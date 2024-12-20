@@ -927,64 +927,43 @@ export const TransitionComponent = defineComponent({
       return
     }
 
-    const latestEvent = transition.events[transition.events.length - 1]
-
-    let totalWeight = 0
-    let weightedValue: TransitionableTypes | null = null
-
     const transitionable = Transitionable[transition.transitionableType] as Transitionable
 
-    const addWeighted = (value: TransitionableTypes, weight: number) => {
-      if (weightedValue === null) {
-        weightedValue = transitionable.scale(value, weight)
-      } else {
-        weightedValue = transitionable.add(weightedValue, transitionable.scale(value, weight))
-      }
-      totalWeight += weight
-    }
+    // Start with initial value
+    let output = transition.initialValue
+    let previousValue = transition.initialValue
 
-    for (let i = 0; i < transition.events.length; i++) {
-      const ev = transition.events[i]
+    // Process each event as a transition stage
+    for (const ev of transition.events) {
       ev.age += deltaMilliSeconds
-      const clampedT = Math.min(Math.max(ev.age / ev.duration, 0), 1)
-      const easing = Easing.fromPath(ev.easing)
-      const easedT = easing(clampedT)
-      const value = transitionable.interpolate(ev.fromValue, ev.toValue, easedT)
+      const timeSinceStart = ev.age
 
-      // Weight calculation:
-      let weight = 1
-      if (i < transition.events.length - 1) {
-        // Not the latest event, fade out based on how far the latest event has progressed
-        const fadeFactor = 1 - Math.min(latestEvent.age / latestEvent.duration, 1)
-        weight = fadeFactor
+      // Apply easing function only if within duration
+      if (timeSinceStart >= 0 && timeSinceStart <= ev.duration) {
+        const t = timeSinceStart / ev.duration
+        const easing = Easing.fromPath(ev.easing)
+        const s = easing(t)
+
+        // Calculate and apply the delta
+        const interpolated = transitionable.interpolate(previousValue, ev.toValue, s)
+        output = interpolated
+      } else if (timeSinceStart > ev.duration) {
+        // Event has fully transitioned
+        output = ev.toValue
       }
 
-      if (weight > 0) {
-        addWeighted(value, weight)
+      // Update previous value for next iteration
+      previousValue = ev.toValue
+    }
+
+    // Remove completed events and update initial value
+    transition.events = transition.events.filter((ev) => {
+      if (ev.age >= ev.duration) {
+        transition.initialValue = ev.toValue
+        return false
       }
-    }
-
-    if (totalWeight === 0 && weightedValue === null) {
-      // No active contribution, use initial value
-      transition.outputValue = transition.initialValue
-      return
-    }
-
-    // normalize by scaling by the total weight
-    const output = transitionable.scale(weightedValue!, 1 / totalWeight)
-
-    // Remove any events that have completed
-    transition.events = transition.events.filter((ev) => ev.age < ev.duration)
-
-    // **Cleanup Logic:**
-    // If the latest event has fully completed, we can finalize and clean up.
-    if (latestEvent.age >= latestEvent.duration) {
-      // The latest event is done, which means all older events are at zero weight now.
-      // Set the final stable output as the new initialValue.
-      transition.initialValue = output
-      // Clear the events array, as we've reached a stable state.
-      transition.events = []
-    }
+      return true
+    })
 
     transition.outputValue = output
 
