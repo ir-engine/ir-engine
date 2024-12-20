@@ -45,6 +45,7 @@ import {
 
 import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schema.type.module'
 import { parseValue } from '@ir-engine/common/src/utils/dataTypeUtils'
+import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { createHash } from 'crypto'
 import appConfig, { updateNestedConfig } from './appconfig'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
@@ -180,19 +181,26 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(instanceServerSettingPromise)
 
+  const categoriesToUnflatten = ['email']
   const engineSettingPromise = knexClient
     .select()
     .from<EngineSettingType>(engineSettingPath)
     .then((dbEngineSettings) => {
-      dbEngineSettings.forEach((setting) => {
-        if (!appConfig[setting.category]) {
-          appConfig[setting.category] = {}
-        }
-        if (setting.key.includes('.')) {
-          updateNestedConfig(appConfig, setting)
-        } else {
-          appConfig[setting.category][setting.key] = parseValue(setting.value, setting.dataType)
-        }
+      dbEngineSettings
+        .filter((setting) => !categoriesToUnflatten.includes(setting.category))
+        .forEach((setting) => {
+          if (!appConfig[setting.category]) {
+            appConfig[setting.category] = {}
+          }
+          if (setting.key.includes('.')) {
+            updateNestedConfig(appConfig, setting)
+          } else {
+            appConfig[setting.category][setting.key] = parseValue(setting.value, setting.dataType)
+          }
+        })
+
+      categoriesToUnflatten.forEach((category) => {
+        processSettings(dbEngineSettings, category)
       })
     })
     .catch((e) => {
@@ -200,4 +208,18 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(engineSettingPromise)
   await Promise.all(promises)
+}
+
+const processSettings = (settings: EngineSettingType[], category: string) => {
+  const filteredSettings = settings.filter((setting) => setting.category === category)
+  const settingsObject = unflattenArrayToObject(
+    filteredSettings.map((setting) => ({
+      key: setting.key,
+      value: setting.value
+    }))
+  )
+  appConfig[category] = {
+    ...appConfig[category],
+    ...settingsObject
+  }
 }
