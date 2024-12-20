@@ -940,13 +940,11 @@ export const TransitionComponent = defineComponent({
 
       // Apply easing function only if within duration
       if (timeSinceStart >= 0 && timeSinceStart <= ev.duration) {
+        // Calculate and apply the delta
         const t = timeSinceStart / ev.duration
         const easing = Easing.fromPath(ev.easing)
         const s = easing(t)
-
-        // Calculate and apply the delta
-        const interpolated = transitionable.interpolate(previousValue, ev.toValue, s)
-        output = interpolated
+        output = transitionable.interpolate(previousValue, ev.toValue, s)
       } else if (timeSinceStart > ev.duration) {
         // Event has fully transitioned
         output = ev.toValue
