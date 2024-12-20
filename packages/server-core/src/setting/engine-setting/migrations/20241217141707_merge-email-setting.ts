@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { EngineSettingType } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
+import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { flattenObjectToArray } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import type { Knex } from 'knex'
@@ -125,6 +126,7 @@ export async function up(knex: Knex): Promise<void> {
         ].map(async (item) => ({
           ...item,
           id: uuidv4(),
+          dataType: getDataType(`${item.value}`),
           type: 'private' as EngineSettingType['type'],
           category: 'email-setting',
           createdAt: await getDateTimeSql(),
