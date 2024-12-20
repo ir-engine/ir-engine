@@ -65,9 +65,9 @@ import {
   HasValidSchemaValues
 } from './schemas/JSONSchemaUtils'
 import { Easing, EasingFunction } from './EasingFunctions'
-import { getTransitionableKeyForType, Transitionable, TransitionableTypes } from './Transitionable'
-import { ECSState } from './ECSState'
+import { Transitionable, TransitionableTypes, getTransitionableKeyForType } from './Transitionable'
 import { S } from './schemas/JSONSchemas'
+import { ECSState } from './ECSState'
 
 /**
  * @description
@@ -380,7 +380,7 @@ export const defineComponent = <
   }
   ComponentMap.set(Component.name, Component)
 
-  async function setTransition<P extends ComponentPropertyPath<ComponentType>>(
+  function setTransition<P extends ComponentPropertyPath<ComponentType>>(
     entity: Entity,
     propertyPath: P,
     value: ComponentPropertyFromPath<ComponentType, P> & TransitionableTypes,
