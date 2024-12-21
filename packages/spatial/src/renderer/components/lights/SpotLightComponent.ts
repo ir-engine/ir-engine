@@ -64,7 +64,7 @@ export const SpotLightComponent = defineComponent({
     angle: S.Number(Math.PI / 3),
     penumbra: S.Number(1),
     castShadow: S.Bool(false),
-    shadowBias: S.Number(0.00001),
+    shadowBias: S.Number(0),
     shadowRadius: S.Number(1)
   }),
 

@@ -55,7 +55,7 @@ export const PointLightComponent = defineComponent({
     range: S.Number(0),
     decay: S.Number(2),
     castShadow: S.Bool(false),
-    shadowBias: S.Number(0.5),
+    shadowBias: S.Number(0),
     shadowRadius: S.Number(1),
     helperEntity: S.Entity()
   }),

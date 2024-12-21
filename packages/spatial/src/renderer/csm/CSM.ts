@@ -197,6 +197,7 @@ export class CSM {
       this.sourceLight = sourceLight
       this.shadowBias = sourceLight.shadow.bias
       this.lightIntensity = sourceLight.intensity
+      this.lightColor = sourceLight.color.clone()
 
       for (let i = 0; i < this.cascades; i++) {
         const light = sourceLight.clone()
