@@ -250,14 +250,29 @@ export type ComponentPropertyPath<T, Prefix = ''> = {
     : `${string & Prefix}${string & K}` | ComponentPropertyPath<T[K], `${string & Prefix}${string & K}.`>
 }[keyof T]
 
-// get the component property type from a path
-export type ComponentPropertyFromPath<T, Path extends string> = T[Path extends keyof T
-  ? Path
-  : Path extends `${infer K}.${infer R}`
-  ? K extends keyof T
-    ? ComponentPropertyFromPath<T[K], R>
-    : never
-  : never]
+// Helper type for checking if a string is a direct property key
+type IsDirectProperty<T, P extends string> = P extends keyof T ? true : false
+
+// Helper type for extracting the first segment of a path
+type FirstSegment<P extends string> = P extends `${infer First}.${any}` ? First : P
+
+// Helper type for extracting the rest of the path after the first segment
+type RestOfPath<P extends string> = P extends `${any}.${infer Rest}` ? Rest : never
+
+// Helper type for getting a property type directly
+type DirectPropertyType<T, P extends string> = P extends keyof T ? T[P] : never
+
+// Helper type for handling nested property paths
+type NestedPropertyType<T, P extends string> = FirstSegment<P> extends keyof T
+  ? ComponentPropertyFromPath<T[FirstSegment<P>], RestOfPath<P>>
+  : never
+
+// Get the property type from a path
+export type ComponentPropertyFromPath<T, Path extends string> = IsDirectProperty<T, Path> extends true
+  ? DirectPropertyType<T, Path>
+  : Path extends `${string}.${string}`
+  ? NestedPropertyType<T, Path>
+  : never
 
 // function propertyStringPathFactory<T, R=string>(): (path: ComponentPropertyPath<T>) => R {
 //   // @ts-ignore
