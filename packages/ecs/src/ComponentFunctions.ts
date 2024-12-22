@@ -882,6 +882,7 @@ export const TransitionComponent = defineComponent({
       type?: keyof typeof Transitionable
     }
   ) {
+    if (!target.componentJsonID) throw new Error('[setTransition]: componentJsonID is required')
     const type = target.type ?? getTransitionableKeyForType(target.value)
     if (!type)
       throw new Error(
@@ -933,7 +934,7 @@ export const TransitionComponent = defineComponent({
     const propertyValue = resolveObject(component, transition.propertyPath) as any as TransitionableTypes
     if (propertyValue === undefined) return
 
-    if (!transition.initialValue) {
+    if (transition.initialValue === undefined) {
       transition.initialValue = typeof propertyValue === 'number' ? propertyValue : propertyValue.clone()
     }
 
@@ -993,10 +994,10 @@ export const TransitionComponent = defineComponent({
 
   update(entity: Entity) {
     const ecs = getState(ECSState)
-    const deltaMilliSeconds = ecs.deltaSeconds * 1000
+    const deltaMilliseconds = ecs.deltaSeconds * 1000
     const transitions = getComponent(entity, TransitionComponent)
     for (const transition of transitions) {
-      TransitionComponent.updateTransition(entity, transition, deltaMilliSeconds)
+      TransitionComponent.updateTransition(entity, transition, deltaMilliseconds)
     }
   }
 })
