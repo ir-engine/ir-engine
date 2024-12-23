@@ -36,6 +36,7 @@ import {
 } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { EngineSettingType, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { flattenObjectToArray, unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { State, useHookstate } from '@ir-engine/hyperflux'
 import { Button, Checkbox, Input } from '@ir-engine/ui'
@@ -130,6 +131,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
           key: entry.key,
           category: 'instance-server-webrtc',
           value: `${entry.value}`,
+          dataType: getDataType(`${entry.value}`),
           type: 'private',
           jsonKey: EngineSettings.InstanceServer.WebRTCSettings
         })
@@ -139,6 +141,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
           key: entry.key,
           category: 'instance-server-webrtc',
           value: `${entry.value}`,
+          dataType: getDataType(`${entry.value}`),
           type: 'private',
           jsonKey: settingInDb.jsonKey || EngineSettings.InstanceServer.WebRTCSettings
         })
