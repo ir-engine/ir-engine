@@ -97,7 +97,7 @@ export async function up(knex: Knex): Promise<void> {
         ].map(async (item) => ({
           ...item,
           id: uuidv4(),
-          dataType: getDataType(item.value),
+          dataType: getDataType(`${item.value}`),
           type: 'private' as EngineSettingType['type'],
           category: 'instance-server',
           createdAt: await getDateTimeSql(),
