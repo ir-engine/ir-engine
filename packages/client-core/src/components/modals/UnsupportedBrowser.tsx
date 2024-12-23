@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState } from '@ir-engine/hyperflux'
 import { Button } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -38,10 +38,8 @@ const downloadGoogleLink = 'https://www.google.com/chrome/dr/download'
 export const UnsupportedBrowser = () => {
   const { t } = useTranslation()
 
-  const { acknowledgedUnsupportedBrowser } = useHookstate(getMutableState(BrowserSupportState))
-
   const handleClose = () => {
-    acknowledgedUnsupportedBrowser.set(true)
+    getMutableState(BrowserSupportState).acknowledgedUnsupportedBrowser.set(true)
     PopoverState.hidePopupover()
   }
 
