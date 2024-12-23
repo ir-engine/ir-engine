@@ -286,7 +286,6 @@ export async function seed(knex: Knex): Promise<void> {
     ...instanceServerSeedData,
     ...serverSeedData,
     ...metabaseSeedData,
-    ...serverSeedData,
     ...redisSeedData,
     ...zendeskSettingSeedData,
     ...helmSeedData
