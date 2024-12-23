@@ -23,7 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-export type FlattenedEntry = { key: string; value: any }
+import { EngineSettingType } from '../schema.type.module'
+import { getDataType, parseValue } from './dataTypeUtils'
+
+export type FlattenedEntry = { key: string; value: any; dataType: string }
 
 /**
  * Flattens a nested object into an array of key-value pairs, where each key is a string representing the path to the value in the original object.
@@ -66,13 +69,17 @@ export function flattenObjectToArray(obj: Record<string, any>, parentKey: string
           if (typeof item === 'object') {
             recurse(item, `${fullPath}.[${index}].`)
           } else {
-            result.push({ key: `${fullPath}.[${index}]`, value: item })
+            result.push({
+              key: `${fullPath}.[${index}]`,
+              value: item,
+              dataType: getDataType(item)
+            })
           }
         })
       } else if (typeof currentObj[key] === 'boolean') {
-        result.push({ key: fullPath, value: currentObj[key] })
+        result.push({ key: fullPath, value: currentObj[key], dataType: getDataType(currentObj[key]) })
       } else {
-        result.push({ key: fullPath, value: currentObj[key] })
+        result.push({ key: fullPath, value: currentObj[key], dataType: getDataType(currentObj[key]) })
       }
     }
   }
@@ -112,7 +119,7 @@ export function flattenObjectToArray(obj: Record<string, any>, parentKey: string
 export function unflattenArrayToObject(flattenedArray: FlattenedEntry[]): Record<string, any> {
   const result: Record<string, any> = {}
 
-  flattenedArray.forEach(({ key, value }) => {
+  flattenedArray.forEach(({ key, value, dataType }) => {
     const keys = key.split(/(?<!\.)\.(?!\.)/).map((k) => k.replace(/\[|\]/g, '')) // Split and clean key
     let current = result
 
@@ -127,7 +134,7 @@ export function unflattenArrayToObject(flattenedArray: FlattenedEntry[]): Record
     }
 
     const lastKey = keys[keys.length - 1]
-    current[lastKey] = value === 'true' ? true : value === 'false' ? false : value // Convert boolean strings to boolean values
+    current[lastKey] = parseValue(value, dataType as EngineSettingType['dataType']) // Use parseValue to parse the value based on dataType
   })
 
   return result

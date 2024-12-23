@@ -215,7 +215,8 @@ const processSettings = (settings: EngineSettingType[], category: string) => {
   const settingsObject = unflattenArrayToObject(
     filteredSettings.map((setting) => ({
       key: setting.key,
-      value: setting.value
+      value: setting.value,
+      dataType: setting.dataType
     }))
   )
   appConfig[category] = {
