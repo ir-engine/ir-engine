@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
+import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { flattenObjectToArray } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import type { Knex } from 'knex'
@@ -96,6 +97,7 @@ export async function up(knex: Knex): Promise<void> {
         ].map(async (item) => ({
           ...item,
           id: uuidv4(),
+          dataType: getDataType(item.value),
           type: 'private' as EngineSettingType['type'],
           category: 'instance-server',
           createdAt: await getDateTimeSql(),
@@ -108,6 +110,7 @@ export async function up(knex: Knex): Promise<void> {
           key,
           value: `${value}`, // for some reason the boolean value are converted to 0 and 1 in db , so putt in string case keep it true/false
           jsonKey: EngineSettings.InstanceServer.WebRTCSettings,
+          dataType: getDataType(`${value}`),
           type: 'private' as EngineSettingType['type'],
           category: 'instance-server-webrtc',
           createdAt: await getDateTimeSql(),

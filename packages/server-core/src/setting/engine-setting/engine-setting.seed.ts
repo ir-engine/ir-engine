@@ -142,6 +142,7 @@ export async function seed(knex: Knex): Promise<void> {
       id: uuidv4(),
       key,
       value,
+      dataType: getDataType(value),
       jsonKey: EngineSettings.InstanceServer.WebRTCSettings,
       type: 'private' as EngineSettingType['type'],
       category: 'instance-server-webrtc',
