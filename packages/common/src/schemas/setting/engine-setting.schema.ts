@@ -64,21 +64,27 @@ export const engineSettingSchema = Type.Object(
       })
     ),
     updatedAt: Type.String({ format: 'date-time' }),
-    createdAt: Type.String({ format: 'date-time' })
+    createdAt: Type.String({ format: 'date-time' }),
+    dataType: StringEnum(['string', 'integer', 'boolean'])
   },
   { $id: 'EngineSetting', additionalProperties: false }
 )
 export interface EngineSettingType extends Static<typeof engineSettingSchema> {}
 
 // Schema for creating new entries
-export const engineSettingDataSchema = Type.Pick(engineSettingSchema, ['key', 'value', 'type', 'category', 'jsonKey'], {
-  $id: 'EngineSettingData'
-})
+
+export const engineSettingDataSchema = Type.Pick(
+  engineSettingSchema,
+  ['key', 'value', 'type', 'category', 'jsonKey', 'dataType'],
+  {
+    $id: 'EngineSettingData'
+  }
+)
 export interface EngineSettingData extends Static<typeof engineSettingDataSchema> {}
 
 // Schema for updating existing entries
 export const engineSettingPatchSchema = Type.Partial(
-  Type.Pick(engineSettingSchema, ['key', 'value', 'type', 'category', 'jsonKey']),
+  Type.Pick(engineSettingSchema, ['key', 'value', 'type', 'category', 'jsonKey', 'dataType']),
   {
     $id: 'EngineSettingPatch'
   }
@@ -92,7 +98,8 @@ export const engineSettingQueryProperties = Type.Pick(engineSettingSchema, [
   'value',
   'type',
   'category',
-  'jsonKey'
+  'jsonKey',
+  'dataType'
 ])
 export const engineSettingQuerySchema = Type.Intersect(
   [

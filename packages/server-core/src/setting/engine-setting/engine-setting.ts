@@ -30,6 +30,7 @@ import {
   engineSettingPath,
   EngineSettingType
 } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
+import { parseValue } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { Application } from '@ir-engine/server-core/declarations'
 import appConfig, { updateNestedConfig } from '../../appconfig'
@@ -66,9 +67,9 @@ export default (app: Application): void => {
     args.forEach(async (setting) => {
       if (appConfig[setting.category]) {
         if (setting.key.includes('.')) {
-          updateNestedConfig(appConfig, setting.key, setting.value, setting.category)
+          updateNestedConfig(appConfig, setting)
         } else {
-          appConfig[setting.category][setting.key] = setting.value
+          appConfig[setting.category][setting.key] = parseValue(setting.value, setting.dataType)
         }
       }
       if (

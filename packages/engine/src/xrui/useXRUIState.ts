@@ -23,34 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
+import { useContext } from 'react'
 
-import { ITableHeadCell } from '../Table'
+import { State, useHookstate } from '@ir-engine/hyperflux'
 
-type IdType =
-  | 'select'
-  | 'id'
-  | 'name'
-  | 'accountIdentifier'
-  | 'lastLogin'
-  | 'ageVerified'
-  | 'isGuest'
-  | 'action'
-  | 'avatar'
+import { XRUIStateContext } from './XRUIStateContext'
 
-export type UserRowType = Record<IdType, string | JSX.Element | undefined>
-
-interface IUserColumn extends ITableHeadCell {
-  id: IdType
-}
-
-export const userColumns: IUserColumn[] = [
-  { id: 'id', label: t('admin:components.user.columns.id') },
-  { id: 'name', sortable: true, label: t('admin:components.user.columns.name') },
-  { id: 'avatar', label: t('admin:components.user.columns.avatar') },
-  { id: 'accountIdentifier', label: t('admin:components.user.columns.accountIdentifier') },
-  { id: 'lastLogin', label: t('admin:components.user.columns.lastLogin') },
-  { id: 'ageVerified', sortable: true, label: t('admin:components.user.columns.ageVerified') },
-  { id: 'isGuest', sortable: true, label: t('admin:components.user.columns.isGuest') },
-  { id: 'action', label: t('admin:components.user.columns.action') }
-]
+//@ts-ignore
+export const useXRUIState = <S extends State>() => useHookstate<S>(useContext(XRUIStateContext) as S)

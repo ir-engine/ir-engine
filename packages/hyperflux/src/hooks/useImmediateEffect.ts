@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { DependencyList, EffectCallback, useLayoutEffect, useRef } from 'react'
+import { DependencyList, EffectCallback, useEffect, useLayoutEffect, useRef } from 'react'
 
 function depsDiff(deps1, deps2) {
   return !(
@@ -34,24 +34,44 @@ function depsDiff(deps1, deps2) {
   )
 }
 
+function noop() {}
+
+/**
+ * Run an effect immediately on mount and whenever deps change.
+ *
+ * WARNING: Do not use this hook in a context that may suspend,
+ * as the cleanup function will not be called on suspension,
+ * and the effect will be run again on resume.
+ *
+ * @param effect
+ * @param deps
+ */
 export function useImmediateEffect(effect: EffectCallback, deps?: DependencyList) {
   const cleanupRef = useRef<any>()
   const depsRef = useRef<any>()
 
-  if (!depsRef.current || depsDiff(depsRef.current, deps)) {
+  // only run effect on mount and whenever deps change
+  if (depsDiff(depsRef.current, deps)) {
     depsRef.current = deps
 
+    // cleanup previous effect
     if (cleanupRef.current) {
       cleanupRef.current()
     }
 
+    // run effect
     cleanupRef.current = effect()
   }
 
+  // make sure deps are hooked
+  useEffect(noop, deps)
+
+  // make sure final cleanup is called on unmount
   useLayoutEffect(() => {
     return () => {
       if (cleanupRef.current) {
         cleanupRef.current()
+        cleanupRef.current = undefined
       }
     }
   }, [])

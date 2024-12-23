@@ -29,6 +29,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { defaultWebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
+import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { flattenObjectToArray } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import appConfig from '@ir-engine/server-core/src/appconfig'
@@ -56,7 +57,7 @@ export async function seed(knex: Knex): Promise<void> {
     ],
     'chargebee'
   )
-  const zendeskSettingSeedData: EngineSettingType[] = await Promise.all(
+  const zendeskSettingSeedData = await generateSeedData(
     [
       {
         key: EngineSettings.Zendesk.Name,
@@ -70,14 +71,8 @@ export async function seed(knex: Knex): Promise<void> {
         key: EngineSettings.Zendesk.Kid,
         value: process.env.ZENDESK_KID || ''
       }
-    ].map(async (item) => ({
-      ...item,
-      id: uuidv4(),
-      type: 'private' as EngineSettingType['type'],
-      category: 'zendesk' as EngineSettingType['category'],
-      createdAt: await getDateTimeSql(),
-      updatedAt: await getDateTimeSql()
-    }))
+    ],
+    'zendesk'
   )
 
   const coilSeedData = await generateSeedData(
@@ -290,6 +285,7 @@ export async function seed(knex: Knex): Promise<void> {
     ...instanceServerSeedData,
     ...serverSeedData,
     ...metabaseSeedData,
+    ...serverSeedData,
     ...redisSeedData,
     ...zendeskSettingSeedData,
     ...helmSeedData
@@ -321,6 +317,7 @@ export async function generateSeedData(
     items.map(async (item) => ({
       ...item,
       id: uuidv4(),
+      dataType: getDataType(item.value),
       type: type,
       category: category,
       createdAt: await getDateTimeSql(),

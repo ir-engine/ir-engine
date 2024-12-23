@@ -24,25 +24,15 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { getComponent, getOptionalMutableComponent, hasComponent } from '@ir-engine/ecs'
-import { getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getState, none, useMutableState } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { destroySpatialViewer, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { useEffect } from 'react'
 
 export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
-  const lastRef = useHookstate(() => ref.current)
-
   useEffect(() => {
-    if (ref.current !== lastRef.value) {
-      lastRef.set(ref.current)
-    }
-  }, [ref.current])
-
-  useEffect(() => {
-    if (!lastRef.value) return
-
-    const parent = lastRef.value as HTMLElement
+    const parent = ref.current as HTMLElement
 
     const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
 
@@ -63,17 +53,15 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
       originalParent.appendChild(canvas)
       canvas.hidden = true
     }
-  }, [lastRef.value])
+  }, [])
 
-  /** Essentially mount/unmount upon the attach/detatch state of the ref node */
   useEffect(() => {
-    if (!lastRef.value) return
     const canvas = document.getElementById('engine-renderer-canvas') as HTMLCanvasElement
     initializeSpatialViewer(canvas)
     return () => {
       destroySpatialViewer()
     }
-  }, [!!lastRef.value])
+  }, [])
 
   /**
    * Since the viewer and XR reference spaces can technically exist without the other,
