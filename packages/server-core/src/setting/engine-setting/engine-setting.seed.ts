@@ -290,10 +290,7 @@ export async function seed(knex: Knex): Promise<void> {
     ...redisSeedData,
     ...zendeskSettingSeedData,
     ...helmSeedData
-  ].map((item) => ({
-    ...item,
-    dataType: getDataType(`${item.value}`)
-  }))
+  ]
 
   if (forceRefresh || testEnabled) {
     // Deletes ALL existing entries
