@@ -27,7 +27,7 @@ import { render } from '@testing-library/react'
 import React, { useEffect } from 'react'
 import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
-import { EntityUUID, hasComponents, UUIDComponent } from '@ir-engine/ecs'
+import { EntityUUID, hasComponents, S, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -778,10 +778,10 @@ describe('traverseEntityNodeParent', () => {
   })
 }) //:: traverseEntityNodeParent
 
-const ComponentA = defineComponent({ name: 'ComponentA' })
-const ComponentB = defineComponent({ name: 'ComponentB' })
-const ComponentC = defineComponent({ name: 'ComponentC' })
-const ComponentD = defineComponent({ name: 'ComponentD' })
+const ComponentA = defineComponent({ name: 'ComponentA', schema: S.String('') })
+const ComponentB = defineComponent({ name: 'ComponentB', schema: S.String('') })
+const ComponentC = defineComponent({ name: 'ComponentC', schema: S.String('') })
+const ComponentD = defineComponent({ name: 'ComponentD', schema: S.String('') })
 
 describe('getAncestorWithComponents', () => {
   beforeEach(() => {
