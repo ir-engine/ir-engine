@@ -39,7 +39,7 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { Clock, MathUtils, Raycaster, Vector3 } from 'three'
-import { EngineState } from '@ir-engine/ecs'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { Vector3_Up, Vector3_Zero } from '../../common/constants/MathConstants'
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp, smootherStep } from '../../common/functions/MathLerpFunctions'
@@ -54,7 +54,6 @@ import { CameraSettingsState } from '../CameraSceneMetadata'
 import { setTargetCameraRotation } from '../functions/CameraFunctions'
 import { FollowCameraMode, FollowCameraShoulderSide } from '../types/FollowCameraMode'
 import { TargetCameraRotationComponent } from './TargetCameraRotationComponent'
-import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 
 const window = 'window' in globalThis ? globalThis.window : ({} as any as Window)
 

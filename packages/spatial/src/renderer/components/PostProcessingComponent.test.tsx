@@ -48,11 +48,10 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 import { act, render } from '@testing-library/react'
 import { Effect } from 'postprocessing'
 import React from 'react'
-import { EngineState } from '@ir-engine/ecs'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { destroySpatialEngine, initializeSpatialEngine } from '../../initializeEngine'
 import { RendererState } from '../RendererState'
 import { PostProcessingComponent } from './PostProcessingComponent'
-import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 
 type PostProcessingComponentData = {
   enabled: boolean

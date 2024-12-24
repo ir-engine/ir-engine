@@ -35,7 +35,7 @@ import { WebContainer3D } from '@ir-engine/xrui/core/three/WebContainer3D'
 import { WebLayerManager } from '@ir-engine/xrui/core/three/WebLayerManager'
 
 import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
-import { EngineState } from '@ir-engine/ecs'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
@@ -45,7 +45,6 @@ import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLa
 import { DistanceFromCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 import { XRUIStateContext } from './XRUIStateContext'
-import { ReferenceSpaceState } from '@ir-engine/spatial'
 
 export function createXRUI<S extends State<any> | null>(
   UIFunc: React.FC,

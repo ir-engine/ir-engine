@@ -48,9 +48,9 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { TransformSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
+import { EngineState } from '@ir-engine/ecs'
 import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { EngineState } from '@ir-engine/ecs'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'

@@ -47,9 +47,9 @@ import { createEntity, entityExists, removeEntity, useEntityContext } from '@ir-
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { WebContainer3D } from '@ir-engine/xrui'
 
+import { EngineState } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getState } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/ecs'
 import { NameComponent } from '../../common/NameComponent'
 import { useAnimationTransition } from '../../common/functions/createTransitionState'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'

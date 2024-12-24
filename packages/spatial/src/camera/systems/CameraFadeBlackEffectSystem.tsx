@@ -35,7 +35,7 @@ import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { defineActionQueue, defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 
 import React from 'react'
-import { EngineState } from '@ir-engine/ecs'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { NameComponent } from '../../common/NameComponent'
 import { createTransitionState } from '../../common/functions/createTransitionState'
 import { addObjectToGroup } from '../../renderer/components/GroupComponent'
@@ -46,7 +46,6 @@ import { ComputedTransformComponent } from '../../transform/components/ComputedT
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraActions } from '../CameraState'
 import { CameraSystem } from './CameraSystem'
-import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 
 const fadeToBlackQueue = defineActionQueue(CameraActions.fadeToBlack.matches)
 

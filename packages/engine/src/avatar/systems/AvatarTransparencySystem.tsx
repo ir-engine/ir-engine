@@ -41,7 +41,7 @@ import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
-import { EngineState } from '@ir-engine/ecs'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import {
   TransparencyDitheringPluginComponent,
@@ -52,7 +52,6 @@ import React, { useEffect } from 'react'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { SourceComponent } from '../../scene/components/SourceComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { ReferenceSpaceState } from '@ir-engine/spatial'
 
 const headDithering = 0
 const cameraDithering = 1

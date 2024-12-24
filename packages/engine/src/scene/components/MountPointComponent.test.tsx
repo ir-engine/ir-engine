@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   Engine,
+  EngineState,
   Entity,
   EntityUUID,
   UUIDComponent,
@@ -46,7 +47,6 @@ import {
   getState
 } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
-import { EngineState } from '@ir-engine/ecs'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { ArrowHelperComponent } from '@ir-engine/spatial/src/common/debug/ArrowHelperComponent'
 import { initializeSpatialEngine, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'

@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { EngineState } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -36,7 +37,6 @@ import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getMutableState, useDidMount, useState } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/ecs'
 import { Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/DebugComponentUtils'
 import { LineSegmentComponent } from '@ir-engine/spatial/src/renderer/components/LineSegmentComponent'

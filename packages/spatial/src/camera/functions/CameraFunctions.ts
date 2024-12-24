@@ -27,15 +27,14 @@ import { ComponentType, getComponent, getOptionalComponent, setComponent } from 
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
 import { getState } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/ecs'
 import { Box3, Frustum, Matrix4, PerspectiveCamera, Quaternion, Sphere, Vector3 } from 'three'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { BoundingBoxComponent, updateBoundingBox } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { getBoundingBoxVertices } from '../../transform/functions/BoundingBoxFunctions'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { CameraComponent } from '../components/CameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
-import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 
 export const setTargetCameraRotation = (entity: Entity, phi: number, theta: number, time = 0.3) => {
   const cameraRotationTransition = getOptionalComponent(entity, TargetCameraRotationComponent) as

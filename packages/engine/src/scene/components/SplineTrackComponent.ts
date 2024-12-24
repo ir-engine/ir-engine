@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { UUIDComponent } from '@ir-engine/ecs'
+import { EngineState, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -37,7 +37,6 @@ import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { getState } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/ecs'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 

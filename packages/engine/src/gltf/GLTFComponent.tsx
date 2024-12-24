@@ -57,8 +57,8 @@ import {
   useMutableState
 } from '@ir-engine/hyperflux'
 
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { EngineState } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ShapeSchema } from '@ir-engine/spatial/src/physics/types/PhysicsTypes.ts'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'

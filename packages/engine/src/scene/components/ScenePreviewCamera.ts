@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useLayoutEffect } from 'react'
 import { Euler, PerspectiveCamera } from 'three'
 
-import { useExecute } from '@ir-engine/ecs'
+import { EngineState, useExecute } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -39,7 +39,6 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getMutableState, getState, isClient, useHookstate } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
-import { EngineState } from '@ir-engine/ecs'
 import { CameraHelperComponent } from '@ir-engine/spatial/src/common/debug/CameraHelperComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'

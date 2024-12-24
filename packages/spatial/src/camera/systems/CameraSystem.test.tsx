@@ -26,12 +26,11 @@ Infinite Reality Engine. All Rights Reserved.
 import assert from 'assert'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
-import { Engine, UUIDComponent, destroyEngine, getComponent, hasComponent } from '@ir-engine/ecs'
+import { Engine, EngineState, UUIDComponent, destroyEngine, getComponent, hasComponent } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { UserID, applyIncomingActions, dispatchAction, getMutableState, getState } from '@ir-engine/hyperflux'
 import { Network, NetworkState, NetworkTopics } from '@ir-engine/network'
 import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
-import { EngineState } from '@ir-engine/ecs'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { initializeSpatialViewer } from '../../initializeEngine'
 import { CameraActions } from '../CameraState'

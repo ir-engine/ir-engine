@@ -41,6 +41,7 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { ReactorReconciler, ReactorRoot, getMutableState, getState, startReactor } from '@ir-engine/hyperflux'
 
 import {
+  EngineState,
   Entity,
   EntityContext,
   EntityUUID,
@@ -53,7 +54,7 @@ import {
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { Raycaster } from 'three'
 import { assertArray } from '../../../tests/util/assert'
-import { EngineState } from '@ir-engine/ecs'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { initializeSpatialEngine } from '../../initializeEngine'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { EntityTreeComponent, isAncestor } from '../../transform/components/EntityTree'
@@ -62,7 +63,6 @@ import { InputState } from '../state/InputState'
 import { DefaultButtonAlias, InputComponent, InputExecutionOrder, InputExecutionSystemGroup } from './InputComponent'
 import { InputSinkComponent } from './InputSinkComponent'
 import { InputSourceComponent } from './InputSourceComponent'
-import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 
 type InputComponentData = {
   inputSinks: EntityUUID[]

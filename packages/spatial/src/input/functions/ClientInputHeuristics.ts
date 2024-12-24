@@ -29,6 +29,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   defineQuery,
+  EngineState,
   Entity,
   EntityUUID,
   getComponent,
@@ -42,7 +43,6 @@ import { defineState, getState } from '@ir-engine/hyperflux'
 import { Object3D, Quaternion, Ray, Raycaster, Vector3 } from 'three'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/MathConstants'
-import { EngineState } from '@ir-engine/ecs'
 import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'

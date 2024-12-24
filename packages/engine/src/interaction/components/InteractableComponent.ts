@@ -58,11 +58,12 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 import { WebLayer3D } from '@ir-engine/xrui'
 
+import { EngineState } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useXRUIState } from '@ir-engine/engine/src/xrui/useXRUIState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { inFrustum } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { smootheLerpAlpha } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
-import { EngineState } from '@ir-engine/ecs'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import {
   DistanceFromCameraComponent,
@@ -74,7 +75,6 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { createUI } from '../functions/createUI'
 import { InteractableState, InteractableTransitions } from '../functions/interactableFunctions'
 import { InteractiveModalState } from '../ui/InteractiveModalView'
-import { ReferenceSpaceState } from '@ir-engine/spatial'
 
 /**
  * Visibility override for XRUI, none is default behavior, on or off forces that state
