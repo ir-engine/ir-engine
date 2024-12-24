@@ -23,14 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import React, { useEffect, useLayoutEffect } from 'react'
 import {
   Component,
   ComponentType,
-  Entity,
-  S,
-  UndefinedEntity,
   defineComponent,
-  entityExists,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -38,15 +36,14 @@ import {
   hasComponent,
   hasComponents,
   removeComponent,
-  removeEntity,
   setComponent,
   useComponent,
-  useEntityContext,
   useHasComponents,
   useOptionalComponent
-} from '@ir-engine/ecs'
-import { startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
-import React, { useEffect, useLayoutEffect } from 'react'
+} from './ComponentFunctions'
+import { Entity, UndefinedEntity } from './Entity'
+import { entityExists, removeEntity, useEntityContext } from './EntityFunctions'
+import { S } from './schemas/JSONSchemas'
 
 /**
  * @description

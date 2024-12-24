@@ -31,7 +31,6 @@ import { getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/Com
 import { createEngine, destroyEngine, Engine } from '@ir-engine/ecs/src/Engine'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { applyIncomingActions, dispatchAction, getMutableState, getState, PeerID, UserID } from '@ir-engine/hyperflux'
-import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 
 import { createMockNetwork } from '../tests/createMockNetwork'
 import { Network, NetworkTopics } from './Network'
@@ -48,7 +47,6 @@ import { NetworkActions, NetworkState, ScenePeer, SceneUser } from './NetworkSta
 describe('EntityNetworkState', () => {
   beforeEach(async () => {
     createEngine()
-    initializeSpatialEngine()
   })
 
   afterEach(() => {
@@ -259,6 +257,10 @@ describe('EntityNetworkState', () => {
       getMutableState(EngineState).userID.set(userId)
       const network = NetworkState.worldNetwork as Network
 
+      const parentEntity = createEntity()
+      const parentUUID = UUIDComponent.generateUUID()
+      setComponent(parentEntity, UUIDComponent, parentUUID)
+
       dispatchAction(
         NetworkActions.peerJoined({
           peerID: peerID,
@@ -288,7 +290,7 @@ describe('EntityNetworkState', () => {
 
       dispatchAction(
         WorldNetworkAction.spawnEntity({
-          parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+          parentUUID,
           ownerID: userId2, // from other user
           $peer: peerID3,
           $topic: NetworkTopics.world,
@@ -697,6 +699,10 @@ describe('EntityNetworkState', () => {
     getMutableState(EngineState).userID.set(userId)
     const network = NetworkState.worldNetwork as Network
 
+    const parentEntity = createEntity()
+    const parentUUID = UUIDComponent.generateUUID()
+    setComponent(parentEntity, UUIDComponent, parentUUID)
+
     dispatchAction(
       NetworkActions.peerJoined({
         peerID: peerID,
@@ -718,7 +724,7 @@ describe('EntityNetworkState', () => {
 
     dispatchAction(
       WorldNetworkAction.spawnEntity({
-        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+        parentUUID,
         ownerID: hostUserID, // from  host
         $topic: NetworkTopics.world,
         $peer: Engine.instance.store.peerID,
@@ -775,6 +781,10 @@ describe('EntityNetworkState', () => {
     getMutableState(EngineState).userID.set(userId)
     const network = NetworkState.worldNetwork as Network
 
+    const parentEntity = createEntity()
+    const parentUUID = UUIDComponent.generateUUID()
+    setComponent(parentEntity, UUIDComponent, parentUUID)
+
     dispatchAction(
       NetworkActions.peerJoined({
         peerID: peerID,
@@ -788,7 +798,7 @@ describe('EntityNetworkState', () => {
 
     dispatchAction(
       WorldNetworkAction.spawnEntity({
-        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+        parentUUID,
         ownerID: hostUserID,
         $topic: NetworkTopics.world,
         $peer: hostPeerID,
@@ -811,7 +821,7 @@ describe('EntityNetworkState', () => {
 
     dispatchAction(
       WorldNetworkAction.spawnEntity({
-        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+        parentUUID,
         ownerID: hostUserID,
         $topic: NetworkTopics.world,
         $peer: hostPeerID,
@@ -830,7 +840,7 @@ describe('EntityNetworkState', () => {
 
     dispatchAction(
       WorldNetworkAction.spawnEntity({
-        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+        parentUUID,
         ownerID: userId,
         $topic: NetworkTopics.world,
         $peer: peerID,
@@ -852,7 +862,7 @@ describe('EntityNetworkState', () => {
 
     dispatchAction(
       WorldNetworkAction.spawnEntity({
-        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+        parentUUID,
         ownerID: userId,
         $topic: NetworkTopics.world,
         $peer: peerID,
@@ -880,6 +890,10 @@ describe('EntityNetworkState', () => {
     getMutableState(EngineState).userID.set(userId)
     const network = NetworkState.worldNetwork as Network
 
+    const parentEntity = createEntity()
+    const parentUUID = UUIDComponent.generateUUID()
+    setComponent(parentEntity, UUIDComponent, parentUUID)
+
     dispatchAction(
       NetworkActions.peerJoined({
         peerID: peerID,
@@ -893,7 +907,7 @@ describe('EntityNetworkState', () => {
 
     dispatchAction(
       WorldNetworkAction.spawnEntity({
-        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+        parentUUID,
         ownerID: SceneUser,
         $topic: NetworkTopics.world,
         $peer: ScenePeer,
@@ -949,6 +963,10 @@ describe('EntityNetworkState', () => {
     getMutableState(EngineState).userID.set(userId)
     const network = NetworkState.worldNetwork as Network
 
+    const parentEntity = createEntity()
+    const parentUUID = UUIDComponent.generateUUID()
+    setComponent(parentEntity, UUIDComponent, parentUUID)
+
     dispatchAction(
       NetworkActions.peerJoined({
         peerID: peerID,
@@ -970,7 +988,7 @@ describe('EntityNetworkState', () => {
 
     dispatchAction(
       WorldNetworkAction.spawnEntity({
-        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+        parentUUID,
         ownerID: userId,
         $topic: NetworkTopics.world,
         $peer: peerID,
@@ -1021,6 +1039,10 @@ describe('EntityNetworkState', () => {
     getMutableState(EngineState).userID.set(userId)
     const network = NetworkState.worldNetwork as Network
 
+    const parentEntity = createEntity()
+    const parentUUID = UUIDComponent.generateUUID()
+    setComponent(parentEntity, UUIDComponent, parentUUID)
+
     dispatchAction(
       NetworkActions.peerJoined({
         peerID: peerID,
@@ -1042,7 +1064,7 @@ describe('EntityNetworkState', () => {
 
     dispatchAction(
       WorldNetworkAction.spawnEntity({
-        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+        parentUUID,
         ownerID: userId2,
         $topic: NetworkTopics.world,
         $peer: peerID2,
@@ -1093,6 +1115,10 @@ describe('EntityNetworkState', () => {
     getMutableState(EngineState).userID.set(userId)
     const network = NetworkState.worldNetwork as Network
 
+    const parentEntity = createEntity()
+    const parentUUID = UUIDComponent.generateUUID()
+    setComponent(parentEntity, UUIDComponent, parentUUID)
+
     dispatchAction(
       NetworkActions.peerJoined({
         peerID: peerID,
@@ -1115,7 +1141,7 @@ describe('EntityNetworkState', () => {
 
     dispatchAction(
       WorldNetworkAction.spawnEntity({
-        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+        parentUUID,
         ownerID: SceneUser,
         authorityPeerId: peerID2,
         $topic: NetworkTopics.world,
@@ -1167,6 +1193,10 @@ describe('EntityNetworkState', () => {
     getMutableState(EngineState).userID.set(userId)
     const network = NetworkState.worldNetwork as Network
 
+    const parentEntity = createEntity()
+    const parentUUID = UUIDComponent.generateUUID()
+    setComponent(parentEntity, UUIDComponent, parentUUID)
+
     dispatchAction(
       NetworkActions.peerJoined({
         peerID: peerID,
@@ -1192,7 +1222,7 @@ describe('EntityNetworkState', () => {
     for (let i = 0; i < count; i++) {
       dispatchAction(
         WorldNetworkAction.spawnEntity({
-          parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+          parentUUID,
           ownerID: hostUserID, // from  host
           $topic: NetworkTopics.world,
           $peer: Engine.instance.store.peerID,
@@ -1216,7 +1246,7 @@ describe('EntityNetworkState', () => {
 
     dispatchAction(
       WorldNetworkAction.spawnEntity({
-        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+        parentUUID,
         ownerID: hostUserID, // from  host
         $topic: NetworkTopics.world,
         $peer: Engine.instance.store.peerID,
