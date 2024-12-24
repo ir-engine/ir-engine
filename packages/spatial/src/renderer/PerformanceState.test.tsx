@@ -33,7 +33,7 @@ import { ComponentType, destroyEngine } from '@ir-engine/ecs'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { EngineState } from '../EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import { initializeSpatialEngine } from '../initializeEngine'
 import { PerformanceManager, PerformanceState } from './PerformanceState'
 import { RendererState } from './RendererState'

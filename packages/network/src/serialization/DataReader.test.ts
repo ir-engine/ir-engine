@@ -46,7 +46,7 @@ import {
   writeTransform
 } from '@ir-engine/spatial/src/transform/TransformSerialization'
 
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import { roundNumberToPlaces } from '../../tests/MathTestUtils'
 import { createMockNetwork } from '../../tests/createMockNetwork'
 import { Network, NetworkTopics } from '../Network'

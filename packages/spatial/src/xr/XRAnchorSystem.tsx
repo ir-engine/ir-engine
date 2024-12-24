@@ -55,7 +55,7 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 import { smootheLerpAlpha } from '../common/functions/MathLerpFunctions'
 
 import React from 'react'
-import { EngineState } from '../EngineState'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { NameComponent } from '../common/NameComponent'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { Vector3_One, Vector3_Up } from '../common/constants/MathConstants'
@@ -374,7 +374,7 @@ export const XRAnchorSystem = defineSystem({
   insert: { after: XRCameraUpdateSystem },
   execute,
   reactor: () => {
-    if (!useMutableState(EngineState).viewerEntity.value) return null
+    if (!useMutableState(ReferenceSpaceState).viewerEntity.value) return null
     return <Reactor />
   }
 })

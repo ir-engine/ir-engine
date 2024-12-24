@@ -27,7 +27,7 @@ import { ComponentType, getComponent, getOptionalComponent, setComponent } from 
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
 import { getState } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import { Box3, Frustum, Matrix4, PerspectiveCamera, Quaternion, Sphere, Vector3 } from 'three'
 import { BoundingBoxComponent, updateBoundingBox } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -35,6 +35,7 @@ import { getBoundingBoxVertices } from '../../transform/functions/BoundingBoxFun
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { CameraComponent } from '../components/CameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 
 export const setTargetCameraRotation = (entity: Entity, phi: number, theta: number, time = 0.3) => {
   const cameraRotationTransition = getOptionalComponent(entity, TargetCameraRotationComponent) as
@@ -153,7 +154,7 @@ const worldPosVec3 = new Vector3()
 
 export const inFrustum = (
   entityToCheck: Entity,
-  cameraEntity: Entity = getState(EngineState).viewerEntity
+  cameraEntity: Entity = getState(ReferenceSpaceState).viewerEntity
 ): boolean => {
   if (!cameraEntity) return false
 

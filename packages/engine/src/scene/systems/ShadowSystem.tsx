@@ -78,7 +78,7 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { XRLightProbeState } from '@ir-engine/spatial/src/xr/XRLightProbeSystem'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import { RenderModes } from '@ir-engine/spatial/src/renderer/constants/RenderModes'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
 import { createDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
@@ -90,6 +90,7 @@ import { DropShadowComponent } from '../components/DropShadowComponent'
 import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SceneObjectSystem } from './SceneObjectSystem'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 
 export const ShadowSystemState = defineState({
   name: 'ee.engine.scene.ShadowSystemState',
@@ -235,7 +236,7 @@ function RenderSettingsQueryReactor() {
   /**
    * @todo Currently we only have support for CSM for the core renderer, since we need to add proper multi-scene support via spatial volumes.
    */
-  const viewerEntity = useHookstate(getMutableState(EngineState).viewerEntity).value
+  const viewerEntity = useHookstate(getMutableState(ReferenceSpaceState).viewerEntity).value
 
   if (!rendererEntity || rendererEntity !== viewerEntity) return null
   if (renderMode === RenderModes.UNLIT || renderMode === RenderModes.LIT) return null

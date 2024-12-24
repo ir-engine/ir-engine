@@ -33,7 +33,7 @@ import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceCo
 
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { Object3DUtils } from '@ir-engine/spatial'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import { CameraGizmoTagComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { InputHeuristicState, IntersectionData } from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'

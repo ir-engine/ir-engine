@@ -76,9 +76,9 @@ import {
   useHookstate,
   useMutableState
 } from '@ir-engine/hyperflux'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
@@ -110,7 +110,7 @@ export const GLTFAssetState = defineState({
   initial: {} as Record<string, Entity>, // sceneID => entity
 
   loadScene: (sceneURL: string, uuid: string) => {
-    const gltfEntity = GLTFSourceState.load(sceneURL, uuid as EntityUUID, getState(EngineState).originEntity)
+    const gltfEntity = GLTFSourceState.load(sceneURL, uuid as EntityUUID, getState(ReferenceSpaceState).originEntity)
     getMutableState(GLTFAssetState)[sceneURL].set(gltfEntity)
     setComponent(gltfEntity, SceneComponent)
 

@@ -41,7 +41,7 @@ import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import {
   TransparencyDitheringPluginComponent,
@@ -52,6 +52,7 @@ import React, { useEffect } from 'react'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { SourceComponent } from '../../scene/components/SourceComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 
 const headDithering = 0
 const cameraDithering = 1
@@ -69,7 +70,7 @@ const execute = () => {
     if (!materials) setComponent(entity, TransparencyDitheringRootComponent, { materials: [] })
 
     const avatarComponent = getComponent(entity, AvatarComponent)
-    const cameraComponent = getOptionalComponent(getState(EngineState).viewerEntity, FollowCameraComponent)
+    const cameraComponent = getOptionalComponent(getState(ReferenceSpaceState).viewerEntity, FollowCameraComponent)
 
     if (!materials?.length) return
     for (const materialUUID of materials) {

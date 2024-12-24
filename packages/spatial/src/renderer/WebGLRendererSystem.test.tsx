@@ -43,7 +43,7 @@ import React from 'react'
 import { Color, Group, MathUtils, Texture } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { mockEngineRenderer } from '../../tests/util/MockEngineRenderer'
-import { EngineState } from '../EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { RendererState } from './RendererState'
@@ -60,6 +60,7 @@ import { BackgroundComponent, EnvironmentMapComponent, SceneComponent } from './
 import { VisibleComponent } from './components/VisibleComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
 import { RenderModes } from './constants/RenderModes'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 
 describe('WebGl Renderer System', () => {
   let rootEntity: Entity
@@ -74,7 +75,7 @@ describe('WebGl Renderer System', () => {
     getMutableState(ECSState).timer.set(timer)
 
     rootEntity = createEntity()
-    getMutableState(EngineState).viewerEntity.set(rootEntity)
+    getMutableState(ReferenceSpaceState).viewerEntity.set(rootEntity)
     setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, CameraComponent)

@@ -62,7 +62,7 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useXRUIState } from '@ir-engine/engine/src/xrui/useXRUIState'
 import { inFrustum } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { smootheLerpAlpha } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import {
   DistanceFromCameraComponent,
@@ -74,6 +74,7 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { createUI } from '../functions/createUI'
 import { InteractableState, InteractableTransitions } from '../functions/interactableFunctions'
 import { InteractiveModalState } from '../ui/InteractiveModalView'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 
 /**
  * Visibility override for XRUI, none is default behavior, on or off forces that state
@@ -131,7 +132,7 @@ export const updateInteractableUI = (entity: Entity) => {
       xruiTransform.position.z = center.z
       xruiTransform.position.y = MathUtils.lerp(xruiTransform.position.y, center.y + 0.7 * size.y, alpha)
 
-      const cameraTransform = getComponent(getState(EngineState).viewerEntity, TransformComponent)
+      const cameraTransform = getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
       xruiTransform.rotation.copy(cameraTransform.rotation)
     } else {
       TransformComponent.getWorldPosition(entity, _center)
@@ -140,7 +141,7 @@ export const updateInteractableUI = (entity: Entity) => {
       xruiTransform.position.z = _center.z
       xruiTransform.position.y = MathUtils.lerp(xruiTransform.position.y, _center.y + 0.5, alpha)
 
-      const cameraTransform = getComponent(getState(EngineState).viewerEntity, TransformComponent)
+      const cameraTransform = getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
       xruiTransform.rotation.copy(cameraTransform.rotation)
     }
   }
@@ -226,9 +227,9 @@ const addInteractableUI = (entity: Entity) => {
     uiTransform.position.copy(_center)
   }
   getMutableComponent(entity, InteractableComponent).uiEntity.set(uiEntity)
-  setComponent(uiEntity, EntityTreeComponent, { parentEntity: getState(EngineState).originEntity })
+  setComponent(uiEntity, EntityTreeComponent, { parentEntity: getState(ReferenceSpaceState).originEntity })
   setComponent(uiEntity, ComputedTransformComponent, {
-    referenceEntities: [entity, getState(EngineState).viewerEntity],
+    referenceEntities: [entity, getState(ReferenceSpaceState).viewerEntity],
     computeFunction: () => updateInteractableUI(entity)
   })
 

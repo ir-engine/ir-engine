@@ -27,7 +27,7 @@ import { defineQuery, defineSystem, getComponent } from '@ir-engine/ecs'
 import { getState, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { AmbientLight } from 'three'
-import { EngineState } from '../EngineState'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { RendererState } from './RendererState'
 import { WebGLRendererSystem } from './WebGLRendererSystem'
 import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './components/GroupComponent'
@@ -53,7 +53,7 @@ const execute = () => {
 const reactor = () => {
   const renderer = useMutableState(RendererState)
   useEffect(() => {
-    const root = getState(EngineState).originEntity
+    const root = getState(ReferenceSpaceState).originEntity
     renderer.renderMode.value === RenderModes.UNLIT
       ? addObjectToGroup(root, _tempAmbientLight)
       : removeObjectFromGroup(root, _tempAmbientLight)

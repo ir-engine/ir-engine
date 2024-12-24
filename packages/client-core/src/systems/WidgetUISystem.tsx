@@ -62,7 +62,7 @@ import { TransformSystem } from '@ir-engine/spatial/src/transform/systems/Transf
 import { ReferenceSpace, XRState, isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import { RegisteredWidgets, WidgetAppActions, WidgetAppService, WidgetAppState } from './WidgetAppService'
 
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import React from 'react'
 import { createAnchorWidget } from './createAnchorWidget'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
@@ -118,7 +118,7 @@ const unregisterWidgetQueue = defineActionQueue(WidgetAppActions.unregisterWidge
 
 const execute = () => {
   const { widgetMenuUI } = getState(WidgetUISystemState)
-  const { viewerEntity, localFloorEntity } = getState(EngineState)
+  const { viewerEntity, localFloorEntity } = getState(ReferenceSpaceState)
   if (!widgetMenuUI || !viewerEntity) return
 
   const widgetState = getState(WidgetAppState)
@@ -241,7 +241,7 @@ export const WidgetUISystem = defineSystem({
   insert: { before: TransformSystem },
   execute,
   reactor: () => {
-    if (!useMutableState(EngineState).viewerEntity.value) return null
+    if (!useMutableState(ReferenceSpaceState).viewerEntity.value) return null
     return <Reactor />
   }
 })

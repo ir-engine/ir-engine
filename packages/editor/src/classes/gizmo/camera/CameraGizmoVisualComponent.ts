@@ -35,7 +35,7 @@ import {
 } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraGizmoTagComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
@@ -91,7 +91,7 @@ export const CameraGizmoVisualComponent = defineComponent({
       setComponent(gizmo, CameraGizmoTagComponent)
       setComponent(gizmo, VisibleComponent)
       setComponent(gizmo, EntityTreeComponent, {
-        parentEntity: visualComponent.sceneEntity.value ?? getState(EngineState).originEntity
+        parentEntity: visualComponent.sceneEntity.value ?? getState(ReferenceSpaceState).originEntity
       })
 
       visualComponent.gizmo.set(gizmo)
@@ -102,7 +102,7 @@ export const CameraGizmoVisualComponent = defineComponent({
       setComponent(picker, CameraGizmoTagComponent)
       setComponent(picker, VisibleComponent)
       setComponent(picker, EntityTreeComponent, {
-        parentEntity: visualComponent.sceneEntity.value ?? getState(EngineState).originEntity
+        parentEntity: visualComponent.sceneEntity.value ?? getState(ReferenceSpaceState).originEntity
       })
       /**todo can't seem to get the new method of setting layers to work on either pciker or gizmo entity)*/
       // setComponent(picker, ObjectLayerMaskComponent, ObjectLayers.Gizmos)

@@ -37,7 +37,7 @@ import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceCo
 import { SplineComponent } from '@ir-engine/engine/src/scene/components/SplineComponent'
 import { applyIncomingActions, getMutableState, getState } from '@ir-engine/hyperflux'
 import { HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'

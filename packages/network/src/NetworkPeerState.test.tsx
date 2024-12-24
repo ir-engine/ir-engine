@@ -41,7 +41,7 @@ import { createNetwork, NetworkTopics } from './Network'
 
 import './NetworkPeerState'
 
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import { NetworkPeerState } from './NetworkPeerState'
 import { addNetwork, NetworkActions, NetworkState } from './NetworkState'
 

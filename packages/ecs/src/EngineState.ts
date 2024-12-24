@@ -23,12 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { UndefinedEntity } from '@ir-engine/ecs'
 import { defineState, UserID } from '@ir-engine/hyperflux'
 
 export const EngineState = defineState({
   name: 'EngineState',
-  initial: {
+  initial: () => ({
     /**
      * The uuid of the logged-in user
      */
@@ -36,22 +35,6 @@ export const EngineState = defineState({
 
     /** @deprecated use isEditing instead */
     isEditor: false,
-    isEditing: false,
-
-    /**
-     * Represents the reference space of the xr session local floor.
-     */
-    localFloorEntity: UndefinedEntity,
-
-    /**
-     * Represents the reference space for the absolute origin of the rendering context.
-     */
-
-    originEntity: UndefinedEntity,
-
-    /**
-     * Represents the reference space for the viewer.
-     */
-    viewerEntity: UndefinedEntity
-  }
+    isEditing: false
+  })
 })

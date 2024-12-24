@@ -41,7 +41,7 @@ import { UndefinedEntity } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformAxis } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getState, useImmediateEffect } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraGizmoTagComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
@@ -77,7 +77,7 @@ export const CameraGizmoComponent = defineComponent({
     useEffect(() => {
       const gizmoVisualEntity = createEntity()
       setComponent(gizmoVisualEntity, EntityTreeComponent, {
-        parentEntity: cameraGizmoComponent.sceneEntity.value ?? getState(EngineState).originEntity
+        parentEntity: cameraGizmoComponent.sceneEntity.value ?? getState(ReferenceSpaceState).originEntity
       })
 
       setComponent(entity, NameComponent, 'cameraGizmoEntity')
@@ -112,7 +112,7 @@ export const CameraGizmoComponent = defineComponent({
     InputComponent.useExecuteWithInput(
       () => {
         if (!cameraGizmoComponent.enabled.value || !cameraGizmoComponent.visualEntity.value) return
-        if (!cameraGizmoComponent.cameraEntity.value || !getState(EngineState).viewerEntity) return
+        if (!cameraGizmoComponent.cameraEntity.value || !getState(ReferenceSpaceState).viewerEntity) return
 
         onPointerHover(entity)
 

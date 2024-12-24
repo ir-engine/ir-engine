@@ -32,7 +32,7 @@ import { getState } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { Matrix4, Vector3 } from 'three'
@@ -58,7 +58,7 @@ const execute = () => {
 
   accumulator = 0
 
-  const viewerEntity = getState(EngineState).viewerEntity
+  const viewerEntity = getState(ReferenceSpaceState).viewerEntity
   const viewerTransform = getOptionalComponent(viewerEntity, TransformComponent)
   if (!viewerTransform) return
   const viewerWorldMatrix = viewerTransform.matrixWorld

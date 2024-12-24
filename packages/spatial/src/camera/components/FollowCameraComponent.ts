@@ -39,7 +39,7 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { Clock, MathUtils, Raycaster, Vector3 } from 'three'
-import { EngineState } from '../../EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import { Vector3_Up, Vector3_Zero } from '../../common/constants/MathConstants'
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp, smootherStep } from '../../common/functions/MathLerpFunctions'
@@ -54,6 +54,7 @@ import { CameraSettingsState } from '../CameraSceneMetadata'
 import { setTargetCameraRotation } from '../functions/CameraFunctions'
 import { FollowCameraMode, FollowCameraShoulderSide } from '../types/FollowCameraMode'
 import { TargetCameraRotationComponent } from './TargetCameraRotationComponent'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 
 const window = 'window' in globalThis ? globalThis.window : ({} as any as Window)
 
@@ -446,7 +447,7 @@ const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
   const sceneObjects = cameraLayerQuery().flatMap((e) => getComponent(e, MeshComponent))
 
   // Raycast to keep the line of sight with avatar
-  const cameraTransform = getComponent(getState(EngineState).viewerEntity, TransformComponent)
+  const cameraTransform = getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
   followCamera.targetToCamera.subVectors(cameraTransform.position, target)
   // raycaster.ray.origin.sub(targetToCamVec.multiplyScalar(0.1)) // move origin behind camera
 

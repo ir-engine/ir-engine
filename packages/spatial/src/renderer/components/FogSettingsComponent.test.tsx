@@ -44,7 +44,7 @@ import { Fog, FogExp2, MathUtils, ShaderChunk } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { assertFloat } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
-import { EngineState } from '../../EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import { destroySpatialEngine, initializeSpatialEngine } from '../../initializeEngine'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { FogShaders as FogShadersList } from '../FogSystem'
@@ -53,6 +53,7 @@ import { FogSettingsComponent, FogType } from './FogSettingsComponent'
 import { FogShaders } from './FogShaders'
 import { FogComponent } from './SceneComponents'
 import { VisibleComponent } from './VisibleComponent'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 
 const FogSettingsComponentDefaults = {
   type: FogType.Disabled as FogType,
@@ -349,7 +350,7 @@ describe('FogSettingsComponent', () => {
 
       mockSpatialEngine()
 
-      rootEntity = getState(EngineState).viewerEntity
+      rootEntity = getState(ReferenceSpaceState).viewerEntity
 
       entity = createEntity()
       setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)

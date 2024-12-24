@@ -34,7 +34,7 @@ import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getMutableState, getState, isClient } from '@ir-engine/hyperflux'
 import { WebContainer3D } from '@ir-engine/xrui'
 
-import { EngineState } from '../../EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import { ClientInputSystem } from '../../SpatialModule'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'

@@ -53,7 +53,7 @@ import {
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { Raycaster } from 'three'
 import { assertArray } from '../../../tests/util/assert'
-import { EngineState } from '../../EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import { initializeSpatialEngine } from '../../initializeEngine'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { EntityTreeComponent, isAncestor } from '../../transform/components/EntityTree'
@@ -62,6 +62,7 @@ import { InputState } from '../state/InputState'
 import { DefaultButtonAlias, InputComponent, InputExecutionOrder, InputExecutionSystemGroup } from './InputComponent'
 import { InputSinkComponent } from './InputSinkComponent'
 import { InputSourceComponent } from './InputSourceComponent'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 
 type InputComponentData = {
   inputSinks: EntityUUID[]
@@ -1075,7 +1076,7 @@ describe('InputComponent', () => {
     })
 
     it('should add a HighlightComponent to the entity when the InputComponent is set with `highlight: true', async () => {
-      const entity = getState(EngineState).localFloorEntity
+      const entity = getState(ReferenceSpaceState).localFloorEntity
 
       const Expected = { highlight: true, grow: true }
       ReactorReconciler.flushSync(() => {

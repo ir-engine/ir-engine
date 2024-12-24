@@ -23,25 +23,26 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-const { defineProperties } = Object
+import { UndefinedEntity } from '@ir-engine/ecs'
+import { defineState } from '@ir-engine/hyperflux'
 
-export const ProxyWithECS = <T>(store: Record<string | keyof T, any>, obj: T, ...keys: (keyof T)[]) => {
-  return defineProperties(
-    obj,
-    keys.reduce(
-      (accum, key) => {
-        accum[key] = {
-          get() {
-            return store[key]
-          },
-          set(n) {
-            return (store[key] = n)
-          },
-          configurable: true
-        }
-        return accum
-      },
-      {} as Record<keyof T, any>
-    )
-  )
-}
+export const ReferenceSpaceState = defineState({
+  name: 'ReferenceSpaceState',
+  initial: {
+    /**
+     * Represents the reference space of the xr session local floor.
+     */
+    localFloorEntity: UndefinedEntity,
+
+    /**
+     * Represents the reference space for the absolute origin of the rendering context.
+     */
+
+    originEntity: UndefinedEntity,
+
+    /**
+     * Represents the reference space for the viewer.
+     */
+    viewerEntity: UndefinedEntity
+  }
+})

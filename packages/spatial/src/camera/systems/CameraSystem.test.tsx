@@ -31,7 +31,8 @@ import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { UserID, applyIncomingActions, dispatchAction, getMutableState, getState } from '@ir-engine/hyperflux'
 import { Network, NetworkState, NetworkTopics } from '@ir-engine/network'
 import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
-import { EngineState } from '../../EngineState'
+import { EngineState } from '@ir-engine/ecs'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { initializeSpatialViewer } from '../../initializeEngine'
 import { CameraActions } from '../CameraState'
 import { CameraComponent } from '../components/CameraComponent'
@@ -62,7 +63,7 @@ describe('CameraSystem', async () => {
 
       dispatchAction(
         CameraActions.spawnCamera({
-          parentUUID: getComponent(getState(EngineState).viewerEntity, UUIDComponent),
+          parentUUID: getComponent(getState(ReferenceSpaceState).viewerEntity, UUIDComponent),
           entityUUID: cameraUUID,
           ownerID: network.hostUserID!,
           $topic: NetworkTopics.world,

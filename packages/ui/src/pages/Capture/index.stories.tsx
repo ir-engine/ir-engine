@@ -44,7 +44,7 @@ import Component from './index'
 import '@ir-engine/client/src/themes/base.css'
 import '@ir-engine/client/src/themes/components.css'
 import '@ir-engine/client/src/themes/utilities.css'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import 'tailwindcss/tailwind.css'
 
 // import { useLocation } from 'react-router-dom'

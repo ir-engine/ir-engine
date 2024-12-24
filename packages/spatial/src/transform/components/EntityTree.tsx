@@ -46,11 +46,6 @@ import React, { useEffect, useLayoutEffect } from 'react'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
-type EntityTreeSetType = {
-  parentEntity: Entity
-  childIndex?: number
-}
-
 /**
  * @description
  * Describes parent-child relationship between entities.

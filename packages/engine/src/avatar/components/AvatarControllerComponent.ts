@@ -44,13 +44,14 @@ import { TargetCameraRotationComponent } from '@ir-engine/spatial/src/camera/com
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { CameraComponent } from '../../../../spatial/src/camera/components/CameraComponent'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { setAvatarColliderTransform } from '../functions/spawnAvatarReceptor'
 import { AvatarComponent } from './AvatarComponent'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 
 export const eyeOffset = 0.25
 
@@ -96,7 +97,7 @@ export const AvatarControllerComponent = defineComponent({
     const gltfComponent = useOptionalComponent(entity, GLTFComponent)
 
     useImmediateEffect(() => {
-      avatarControllerComponent.cameraEntity.set(getState(EngineState).viewerEntity || UndefinedEntity)
+      avatarControllerComponent.cameraEntity.set(getState(ReferenceSpaceState).viewerEntity || UndefinedEntity)
     }, [])
 
     useEffect(() => {

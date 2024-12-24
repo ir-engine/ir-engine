@@ -33,8 +33,8 @@ import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 
 import { NameComponent } from '../common/NameComponent'
-import { EngineState } from '../EngineState'
 import { RapierWorldState } from '../physics/classes/Physics'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { addObjectToGroup, GroupComponent } from '../renderer/components/GroupComponent'
 import { setObjectLayers } from '../renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
@@ -92,7 +92,7 @@ const PhysicsReactor = () => {
 
 const reactor = () => {
   const engineRendererSettings = useMutableState(RendererState)
-  const originEntity = useMutableState(EngineState).originEntity.value
+  const originEntity = useMutableState(ReferenceSpaceState).originEntity.value
 
   useEffect(() => {
     if (!engineRendererSettings.gridVisibility.value || !originEntity) return
