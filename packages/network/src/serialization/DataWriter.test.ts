@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { strictEqual } from 'assert'
 import { Types } from 'bitecs'
-import { Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { defineComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
