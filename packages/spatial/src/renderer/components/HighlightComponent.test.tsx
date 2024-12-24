@@ -27,6 +27,7 @@ import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import {
   Engine,
   Entity,
+  EntityTreeComponent,
   EntityUUID,
   SystemDefinitions,
   UUIDComponent,
@@ -48,7 +49,6 @@ import { BoxGeometry, MathUtils, Mesh } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { destroySpatialEngine, destroySpatialViewer } from '../../initializeEngine'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../RendererModule'
 import { RendererState } from '../RendererState'
 import { RendererComponent, WebGLRendererSystem } from '../WebGLRendererSystem'

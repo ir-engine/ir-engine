@@ -28,6 +28,7 @@ import { Euler, Matrix4, Quaternion, Raycaster, Vector3 } from 'three'
 import {
   Engine,
   Entity,
+  EntityTreeComponent,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -43,7 +44,6 @@ import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/I
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
 import { TransformGizmoVisualComponent } from '../classes/gizmo/transform/TransformGizmoVisualComponent'

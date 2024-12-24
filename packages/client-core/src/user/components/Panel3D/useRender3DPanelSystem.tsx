@@ -26,12 +26,14 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 
 import {
+  EntityTreeComponent,
   EntityUUID,
   UUIDComponent,
   UndefinedEntity,
   createEntity,
   generateEntityUUID,
   hasComponent,
+  removeEntityNodeRecursively,
   setComponent
 } from '@ir-engine/ecs'
 import { useHookstate } from '@ir-engine/hyperflux'
@@ -42,10 +44,6 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import {
-  EntityTreeComponent,
-  removeEntityNodeRecursively
-} from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvasElement>) {
   const canvasRef = useHookstate(canvas.current)

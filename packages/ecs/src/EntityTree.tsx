@@ -26,7 +26,11 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   Component,
   ComponentType,
+  Entity,
+  S,
+  UndefinedEntity,
   defineComponent,
+  entityExists,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -34,17 +38,15 @@ import {
   hasComponent,
   hasComponents,
   removeComponent,
+  removeEntity,
   setComponent,
   useComponent,
+  useEntityContext,
   useHasComponents,
   useOptionalComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+} from '@ir-engine/ecs'
 import { startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import React, { useEffect, useLayoutEffect } from 'react'
-
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
 /**
  * @description

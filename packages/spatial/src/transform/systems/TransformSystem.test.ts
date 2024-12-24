@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   AnimationSystemGroup,
   Entity,
+  EntityTreeComponent,
   SystemDefinitions,
   SystemUUID,
   UndefinedEntity,
@@ -59,7 +60,6 @@ import { TransformSerialization } from '../TransformSerialization'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../components/DistanceComponents'
-import { EntityTreeComponent } from '../components/EntityTree'
 import { TransformComponent } from '../components/TransformComponent'
 import { TransformDirtyCleanupSystem, TransformDirtyUpdateSystem, TransformSystem } from './TransformSystem'
 

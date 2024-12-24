@@ -28,17 +28,17 @@ import React, { useEffect } from 'react'
 import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import { EntityUUID, hasComponents, UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, entityExists, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 
-import { NameComponent } from '../../common/NameComponent'
-import { HighlightComponent } from '../../renderer/components/HighlightComponent'
-
-import { assertArray } from '../../../tests/util/assert'
-import { BackgroundComponent, SceneComponent } from '../../renderer/components/SceneComponents'
-import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import {
   EntityTreeComponent,
   findIndexOfEntityNode,
@@ -61,6 +61,13 @@ import {
   useChildWithComponents
 } from './EntityTree'
 
+function assertArrayEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are not equal') {
+  assert.equal(A.length, B.length, err)
+  for (let id = 0; id < A.length && id < B.length; id++) {
+    assert.deepEqual(A[id], B[id], err)
+  }
+}
+
 /**
  * @description An Entity's Hierarchy is considered valid when:
  * - The entity's value is truthy
@@ -76,7 +83,7 @@ function assertEntityHierarchy(name: string, entity: Entity, parent: Entity = Un
   assert.equal(
     parent,
     getComponent(entity, EntityTreeComponent).parentEntity,
-    parent ? name + "'s parent is not " + getComponent(parent, NameComponent) : name + ' does not have a parentEntity'
+    parent ? name + "'s parent is not " + getComponent(parent, ComponentC) : name + ' does not have a parentEntity'
   )
 }
 
@@ -95,7 +102,7 @@ const EntityTreeComponentDefaults: EntityTreeComponentData = {
 function assertEntityTreeComponentEq(A: EntityTreeComponentData, B: EntityTreeComponentData): void {
   assert.equal(A.parentEntity, B.parentEntity)
   assert.equal(A.childIndex, B.childIndex)
-  assertArray.eq(A.children, B.children)
+  assertArrayEqual(A.children, B.children)
 }
 
 describe('EntityTreeComponent', () => {
@@ -771,6 +778,11 @@ describe('traverseEntityNodeParent', () => {
   })
 }) //:: traverseEntityNodeParent
 
+const ComponentA = defineComponent({ name: 'ComponentA' })
+const ComponentB = defineComponent({ name: 'ComponentB' })
+const ComponentC = defineComponent({ name: 'ComponentC' })
+const ComponentD = defineComponent({ name: 'ComponentD' })
+
 describe('getAncestorWithComponents', () => {
   beforeEach(() => {
     createEngine()
@@ -785,22 +797,22 @@ describe('getAncestorWithComponents', () => {
     let child_1 = createEntity()
     let child_2 = createEntity()
     let result = UndefinedEntity
-    const component1 = HighlightComponent
-    const component2 = VisibleComponent
+    const component1 = ComponentA
+    const component2 = ComponentB
     const components = [component1, component2]
 
     /** @case 1:  rootEntity (with) -> child_1 (with) -> child_2 (empty) - get closest */
     // Case 1: Initialize
     setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, NameComponent, 'rootEntity')
+    setComponent(rootEntity, ComponentC, 'rootEntity')
     for (const component of components) setComponent(rootEntity, component)
 
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
-    setComponent(child_1, NameComponent, 'child_1')
+    setComponent(child_1, ComponentC, 'child_1')
     for (const component of components) setComponent(child_1, component)
 
     setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
-    setComponent(child_2, NameComponent, 'child_2')
+    setComponent(child_2, ComponentC, 'child_2')
 
     // Case1: Validate
     assertEntityHierarchy('rootEntity', rootEntity)
@@ -822,15 +834,15 @@ describe('getAncestorWithComponents', () => {
     result = UndefinedEntity
 
     setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, NameComponent, 'rootEntity')
+    setComponent(rootEntity, ComponentC, 'rootEntity')
     for (const component of components) setComponent(rootEntity, component)
 
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
-    setComponent(child_1, NameComponent, 'child_1')
+    setComponent(child_1, ComponentC, 'child_1')
     for (const component of components) setComponent(child_1, component)
 
     setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
-    setComponent(child_2, NameComponent, 'child_2')
+    setComponent(child_2, ComponentC, 'child_2')
 
     // Case2: Validate
     assertEntityHierarchy('rootEntity', rootEntity)
@@ -860,12 +872,12 @@ describe('getAncestorWithComponents', () => {
     setComponent(entity1, EntityTreeComponent, { parentEntity: UndefinedEntity })
     setComponent(entity2, EntityTreeComponent, { parentEntity: entity1 })
 
-    setComponent(entity1, NameComponent, '1')
-    setComponent(entity2, NameComponent, '2')
+    setComponent(entity1, ComponentC, '1')
+    setComponent(entity2, ComponentC, '2')
 
-    assert.equal(getAncestorWithComponents(entity2, [NameComponent]), entity2)
-    assert.equal(getAncestorWithComponents(entity2, [NameComponent], false, false), entity1)
-    assert.equal(getAncestorWithComponents(entity2, [NameComponent], true, false), entity1)
+    assert.equal(getAncestorWithComponents(entity2, [ComponentC]), entity2)
+    assert.equal(getAncestorWithComponents(entity2, [ComponentC], false, false), entity1)
+    assert.equal(getAncestorWithComponents(entity2, [ComponentC], true, false), entity1)
   })
 }) //:: getAncestorWithComponents
 
@@ -1053,8 +1065,8 @@ describe('useAncestorWithComponents', () => {
     let parent_1 = createEntity()
     let parent_2 = createEntity()
     let result = UndefinedEntity
-    const component1 = HighlightComponent
-    const component2 = VisibleComponent
+    const component1 = ComponentA
+    const component2 = ComponentB
     const components = [component1, component2]
 
     // Define the Reactor that will run the tested hook
@@ -1070,7 +1082,7 @@ describe('useAncestorWithComponents', () => {
     /** @case 1:  parent_1 (with component) -> rootEntity */
     // Case 1: Initialize
     setComponent(parent_1, EntityTreeComponent)
-    setComponent(parent_1, NameComponent, 'parent_1')
+    setComponent(parent_1, ComponentC, 'parent_1')
     setComponent(rootEntity, EntityTreeComponent, { parentEntity: parent_1 })
     for (const component of components) setComponent(parent_1, component)
     // Case1: Validate
@@ -1090,11 +1102,11 @@ describe('useAncestorWithComponents', () => {
     rootEntity = createEntity()
     parent_1 = createEntity()
     parent_2 = createEntity()
-    setComponent(parent_2, NameComponent, 'parent_2')
+    setComponent(parent_2, ComponentC, 'parent_2')
     for (const component of components) setComponent(parent_2, component)
     setComponent(parent_2, EntityTreeComponent)
     setComponent(parent_1, EntityTreeComponent, { parentEntity: parent_2 })
-    setComponent(parent_1, NameComponent, 'parent_1')
+    setComponent(parent_1, ComponentC, 'parent_1')
     setComponent(rootEntity, EntityTreeComponent, { parentEntity: parent_1 })
     // Case2: Validate
     assertEntityHierarchy('parent_2', parent_2)
@@ -1114,8 +1126,8 @@ describe('useAncestorWithComponents', () => {
     rootEntity = createEntity()
     parent_1 = createEntity()
     parent_2 = createEntity()
-    setComponent(parent_1, NameComponent, 'parent_1')
-    setComponent(parent_2, NameComponent, 'parent_2')
+    setComponent(parent_1, ComponentC, 'parent_1')
+    setComponent(parent_2, ComponentC, 'parent_2')
     setComponent(parent_2, EntityTreeComponent)
     setComponent(parent_1, EntityTreeComponent, { parentEntity: parent_2 })
     setComponent(rootEntity, EntityTreeComponent, { parentEntity: parent_1 })
@@ -1136,8 +1148,8 @@ describe('useAncestorWithComponents', () => {
     rootEntity = createEntity()
     parent_1 = createEntity()
     parent_2 = createEntity()
-    setComponent(parent_1, NameComponent, 'parent_1')
-    setComponent(parent_2, NameComponent, 'parent_2')
+    setComponent(parent_1, ComponentC, 'parent_1')
+    setComponent(parent_2, ComponentC, 'parent_2')
     setComponent(parent_2, EntityTreeComponent)
     setComponent(parent_1, EntityTreeComponent, { parentEntity: parent_2 })
     for (const component of components) setComponent(parent_1, component)
@@ -1158,7 +1170,7 @@ describe('useAncestorWithComponents', () => {
     // Case 5: Initialize
     rootEntity = createEntity()
     parent_1 = createEntity()
-    setComponent(parent_1, NameComponent, 'parent_1')
+    setComponent(parent_1, ComponentC, 'parent_1')
     setComponent(parent_1, EntityTreeComponent)
     setComponent(rootEntity, EntityTreeComponent, { parentEntity: parent_1 })
     setComponent(parent_1, component1)
@@ -1185,18 +1197,18 @@ describe('useAncestorWithComponents', () => {
 
     const rootEntity = createEntity()
     setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, NameComponent, 'rootEntity')
+    setComponent(rootEntity, ComponentC, 'rootEntity')
 
     const child_1 = createEntity()
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
-    setComponent(child_1, NameComponent, 'child_1')
+    setComponent(child_1, ComponentC, 'child_1')
 
     const child_2 = createEntity()
     setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
-    setComponent(child_2, NameComponent, 'child_2')
+    setComponent(child_2, ComponentC, 'child_2')
 
     const Reactor = () => {
-      const entity = useAncestorWithComponents(child_2, [NameComponent], false)
+      const entity = useAncestorWithComponents(child_2, [ComponentC], false)
       result = entity
       return null
     }
@@ -1208,7 +1220,7 @@ describe('useAncestorWithComponents', () => {
     assert.equal(rootEntity, result, `Case1: Did not return the correct entity. result = ${result}`)
     R1.unmount()
 
-    removeComponent(rootEntity, NameComponent)
+    removeComponent(rootEntity, ComponentC)
     const R2 = render(tag)
     assert.equal(child_1, result, `Case2: Did not return the correct entity. result = ${result}`)
     R2.unmount()
@@ -1222,18 +1234,18 @@ describe('useAncestorWithComponents', () => {
 
     const rootEntity = createEntity()
     setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, NameComponent, 'rootEntity')
+    setComponent(rootEntity, ComponentC, 'rootEntity')
 
     const child_1 = createEntity()
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
-    setComponent(child_1, NameComponent, 'child_1')
+    setComponent(child_1, ComponentC, 'child_1')
 
     const child_2 = createEntity()
     setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
-    setComponent(child_2, NameComponent, 'child_2')
+    setComponent(child_2, ComponentC, 'child_2')
 
     const Reactor = () => {
-      const entity = useAncestorWithComponents(child_2, [NameComponent], true, false)
+      const entity = useAncestorWithComponents(child_2, [ComponentC], true, false)
       useEffect(() => {
         result = entity
       }, [entity])
@@ -1247,12 +1259,12 @@ describe('useAncestorWithComponents', () => {
     assert.equal(child_1, result, `Case1: Did not return the correct entity. result = ${result}`)
     R1.unmount()
 
-    removeComponent(child_2, NameComponent)
+    removeComponent(child_2, ComponentC)
     const R2 = render(tag)
     assert.equal(child_1, result, `Case2: Did not return the correct entity. result = ${result}`)
     R2.unmount()
 
-    removeComponent(child_1, NameComponent)
+    removeComponent(child_1, ComponentC)
     const R3 = render(tag)
     assert.equal(rootEntity, result, `Case3: Did not return the correct entity. result = ${result}`)
     R3.unmount()
@@ -1276,8 +1288,8 @@ describe('useChildWithComponents', () => {
     let rootEntity = createEntity()
     let child_1 = createEntity()
     let child_2 = createEntity()
-    const component1 = HighlightComponent
-    const component2 = VisibleComponent
+    const component1 = ComponentA
+    const component2 = ComponentB
     const components = [component1, component2]
 
     // Define the Reactor that will run the tested hook
@@ -1293,7 +1305,7 @@ describe('useChildWithComponents', () => {
     /** @case 1:  rootEntity -> child_1 (with component) */
     // Case 1: Initialize
     setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, NameComponent, 'rootEntity')
+    setComponent(rootEntity, ComponentC, 'rootEntity')
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
     for (const component of components) setComponent(child_1, component)
     // Case1: Validate
@@ -1314,7 +1326,7 @@ describe('useChildWithComponents', () => {
     child_1 = createEntity()
     child_2 = createEntity()
     setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, NameComponent, 'rootEntity')
+    setComponent(rootEntity, ComponentC, 'rootEntity')
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
     setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
     for (const component of components) setComponent(child_2, component)
@@ -1337,7 +1349,7 @@ describe('useChildWithComponents', () => {
     child_1 = createEntity()
     child_2 = createEntity()
     setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, NameComponent, 'rootEntity')
+    setComponent(rootEntity, ComponentC, 'rootEntity')
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
     setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
     //setComponent(child_2, component)  // The Component for the third case is not set at all
@@ -1358,7 +1370,7 @@ describe('useChildWithComponents', () => {
     child_1 = createEntity()
     child_2 = createEntity()
     setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, NameComponent, 'rootEntity')
+    setComponent(rootEntity, ComponentC, 'rootEntity')
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
     setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
     for (const component of components) setComponent(child_1, component)
@@ -1391,8 +1403,8 @@ describe('useChildrenWithComponents', () => {
     let child_1 = createEntity()
     let child_2 = createEntity()
     let results = [UndefinedEntity]
-    const component1 = HighlightComponent
-    const component2 = VisibleComponent
+    const component1 = ComponentA
+    const component2 = ComponentB
     const components = [component1, component2]
 
     // Define the Reactor that will run the tested hook
@@ -1408,9 +1420,9 @@ describe('useChildrenWithComponents', () => {
     /** @case 1:  rootEntity -> child_1 + child_2(with component) */
     // Case 1: Initialize
     setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, NameComponent, 'rootEntity')
-    setComponent(child_1, NameComponent, 'child_1')
-    setComponent(child_2, NameComponent, 'child_2')
+    setComponent(rootEntity, ComponentC, 'rootEntity')
+    setComponent(child_1, ComponentC, 'child_1')
+    setComponent(child_2, ComponentC, 'child_2')
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
     setComponent(child_2, EntityTreeComponent, { parentEntity: rootEntity })
     for (const component of components) setComponent(child_1, component)
@@ -1438,12 +1450,12 @@ describe('useChildrenWithComponents', () => {
     child_1 = createEntity()
     child_2 = createEntity()
     setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, NameComponent, 'rootEntity')
+    setComponent(rootEntity, ComponentC, 'rootEntity')
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
     setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
     for (const component of components) setComponent(child_2, component)
-    setComponent(child_1, NameComponent, 'child_1')
-    setComponent(child_2, NameComponent, 'child_2')
+    setComponent(child_1, ComponentC, 'child_1')
+    setComponent(child_2, ComponentC, 'child_2')
     // Case2: Validate
     assertEntityHierarchy('rootEntity', rootEntity)
     assertEntityHierarchy('child_1', child_1, rootEntity)
@@ -1466,11 +1478,11 @@ describe('useChildrenWithComponents', () => {
     child_1 = createEntity()
     child_2 = createEntity()
     setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, NameComponent, 'rootEntity')
+    setComponent(rootEntity, ComponentC, 'rootEntity')
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
     setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
-    setComponent(child_1, NameComponent, 'child_1')
-    setComponent(child_2, NameComponent, 'child_2')
+    setComponent(child_1, ComponentC, 'child_1')
+    setComponent(child_2, ComponentC, 'child_2')
     //setComponent(child_2, component)  // The Component for the third case is not set at all
     // Case3: Validate
     assertEntityHierarchy('rootEntity', rootEntity)
@@ -1501,11 +1513,11 @@ describe('useChildrenWithComponents', () => {
     child_1 = createEntity()
     child_2 = createEntity()
     setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, NameComponent, 'rootEntity')
+    setComponent(rootEntity, ComponentC, 'rootEntity')
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
     setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
-    setComponent(child_1, NameComponent, 'child_1')
-    setComponent(child_2, NameComponent, 'child_2')
+    setComponent(child_1, ComponentC, 'child_1')
+    setComponent(child_2, ComponentC, 'child_2')
     setComponent(child_1, component1)
     setComponent(child_1, component2)
     // Case4: Validate
@@ -1526,8 +1538,8 @@ describe('useChildrenWithComponents', () => {
     const child_1 = createEntity()
     const child_2 = createEntity()
     let results = [UndefinedEntity]
-    const components = [HighlightComponent, VisibleComponent]
-    const exclude = [SceneComponent]
+    const components = [ComponentA, ComponentB]
+    const exclude = [ComponentD]
 
     const Reactor = () => {
       const entities = useChildrenWithComponents(rootEntity, components, exclude)
@@ -1563,8 +1575,8 @@ describe('useChildrenWithComponents', () => {
     const child_1 = createEntity()
     const child_2 = createEntity()
     let results = [UndefinedEntity]
-    const components = [HighlightComponent, VisibleComponent]
-    const exclude = [SceneComponent, BackgroundComponent]
+    const components = [ComponentA, ComponentB]
+    const exclude = [ComponentC, ComponentD]
 
     const Reactor = () => {
       const entities = useChildrenWithComponents(rootEntity, components, exclude)
@@ -1598,8 +1610,8 @@ describe('useChildrenWithComponents', () => {
     const child_1 = createEntity()
     const child_2 = createEntity()
     let results = [UndefinedEntity]
-    const components = [HighlightComponent, VisibleComponent]
-    const exclude = [SceneComponent]
+    const components = [ComponentA, ComponentB]
+    const exclude = [ComponentD]
 
     const Reactor = () => {
       const entities = useChildrenWithComponents(rootEntity, components, exclude)
@@ -1642,8 +1654,8 @@ describe('useAncestorWithComponents', () => {
     let parent_1 = createEntity()
     let parent_2 = createEntity()
     let result = UndefinedEntity
-    const component = HighlightComponent
-    const component2 = VisibleComponent
+    const component = ComponentA
+    const component2 = ComponentB
 
     // Define the Reactor that will run the tested hook
     const Reactor = () => {
@@ -1660,7 +1672,7 @@ describe('useAncestorWithComponents', () => {
      */
     // Case 1: Initialize
     setComponent(parent_1, EntityTreeComponent)
-    setComponent(parent_1, NameComponent, 'parent_1')
+    setComponent(parent_1, ComponentC, 'parent_1')
     setComponent(rootEntity, EntityTreeComponent, { parentEntity: parent_1 })
     setComponent(parent_1, component)
     setComponent(parent_1, component2)
@@ -1687,12 +1699,12 @@ describe('useAncestorWithComponents', () => {
     rootEntity = createEntity()
     parent_1 = createEntity()
     parent_2 = createEntity()
-    setComponent(parent_2, NameComponent, 'parent_2')
+    setComponent(parent_2, ComponentC, 'parent_2')
     setComponent(parent_2, component)
     setComponent(parent_2, component2)
     setComponent(parent_2, EntityTreeComponent)
     setComponent(parent_1, EntityTreeComponent, { parentEntity: parent_2 })
-    setComponent(parent_1, NameComponent, 'parent_1')
+    setComponent(parent_1, ComponentC, 'parent_1')
     setComponent(rootEntity, EntityTreeComponent, { parentEntity: parent_1 })
     // Case2: Validate
     assertEntityHierarchy('parent_2', parent_2)
@@ -1718,8 +1730,8 @@ describe('useAncestorWithComponents', () => {
     rootEntity = createEntity()
     parent_1 = createEntity()
     parent_2 = createEntity()
-    setComponent(parent_1, NameComponent, 'parent_1')
-    setComponent(parent_2, NameComponent, 'parent_2')
+    setComponent(parent_1, ComponentC, 'parent_1')
+    setComponent(parent_2, ComponentC, 'parent_2')
     setComponent(parent_2, EntityTreeComponent)
     setComponent(parent_1, EntityTreeComponent, { parentEntity: parent_2 })
     setComponent(rootEntity, EntityTreeComponent, { parentEntity: parent_1 })
@@ -1746,8 +1758,8 @@ describe('useAncestorWithComponents', () => {
     rootEntity = createEntity()
     parent_1 = createEntity()
     parent_2 = createEntity()
-    setComponent(parent_1, NameComponent, 'parent_1')
-    setComponent(parent_2, NameComponent, 'parent_2')
+    setComponent(parent_1, ComponentC, 'parent_1')
+    setComponent(parent_2, ComponentC, 'parent_2')
     setComponent(parent_2, EntityTreeComponent)
     setComponent(parent_1, EntityTreeComponent, { parentEntity: parent_2 })
     setComponent(parent_1, component)
@@ -1771,7 +1783,7 @@ describe('useAncestorWithComponents', () => {
     // Case 5: Initialize
     rootEntity = createEntity()
     parent_1 = createEntity()
-    setComponent(parent_1, NameComponent, 'parent_1')
+    setComponent(parent_1, ComponentC, 'parent_1')
     setComponent(parent_1, EntityTreeComponent)
     setComponent(rootEntity, EntityTreeComponent, { parentEntity: parent_1 })
     setComponent(parent_1, component)
@@ -1809,16 +1821,16 @@ describe('useAncestorWithComponents', () => {
     let result = UndefinedEntity
 
     setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, NameComponent, 'rootEntity')
+    setComponent(rootEntity, ComponentC, 'rootEntity')
 
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
-    setComponent(child_1, NameComponent, 'child_1')
+    setComponent(child_1, ComponentC, 'child_1')
 
     setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
-    setComponent(child_2, NameComponent, 'child_2')
+    setComponent(child_2, ComponentC, 'child_2')
 
     const Reactor = () => {
-      const entity = useAncestorWithComponents(child_2, [NameComponent], false)
+      const entity = useAncestorWithComponents(child_2, [ComponentC], false)
       result = entity
       return null
     }
@@ -1831,7 +1843,7 @@ describe('useAncestorWithComponents', () => {
     assert.equal(rootEntity, result, `Case1: Did not return the correct entity. result = ${result}`)
     R1.unmount()
 
-    removeComponent(rootEntity, NameComponent)
+    removeComponent(rootEntity, ComponentC)
     const R2 = render(tag)
     assert.equal(child_1, result, `Case2: Did not return the correct entity. result = ${result}`)
     R2.unmount()
@@ -1847,16 +1859,16 @@ describe('useAncestorWithComponents', () => {
     let result = UndefinedEntity
 
     setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, NameComponent, 'rootEntity')
+    setComponent(rootEntity, ComponentC, 'rootEntity')
 
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
-    setComponent(child_1, NameComponent, 'child_1')
+    setComponent(child_1, ComponentC, 'child_1')
 
     setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
-    setComponent(child_2, NameComponent, 'child_2')
+    setComponent(child_2, ComponentC, 'child_2')
 
     const Reactor = () => {
-      const entity = useAncestorWithComponents(child_2, [NameComponent], true, false)
+      const entity = useAncestorWithComponents(child_2, [ComponentC], true, false)
       useEffect(() => {}, [entity])
       result = entity
       return null
@@ -1870,12 +1882,12 @@ describe('useAncestorWithComponents', () => {
     assert.equal(child_1, result, `Case1: Did not return the correct entity. result = ${result}`)
     R1.unmount()
 
-    removeComponent(child_2, NameComponent)
+    removeComponent(child_2, ComponentC)
     const R2 = render(tag)
     assert.equal(child_1, result, `Case2: Did not return the correct entity. result = ${result}`)
     R2.unmount()
 
-    removeComponent(child_1, NameComponent)
+    removeComponent(child_1, ComponentC)
     const R3 = render(tag)
     assert.equal(rootEntity, result, `Case3: Did not return the correct entity. result = ${result}`)
     R3.unmount()
@@ -1898,16 +1910,16 @@ describe('getChildrenWithComponents', () => {
     let child_1 = createEntity()
     let child_2 = createEntity()
     let results = [] as Entity[]
-    const component1 = HighlightComponent
-    const component2 = VisibleComponent
+    const component1 = ComponentA
+    const component2 = ComponentB
     const components = [component1, component2]
 
     /** @case 1:  rootEntity (empty) -> child_1 (with) -> child_2 (with) */
     // Case 1: Initialize
     setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, NameComponent, 'rootEntity')
-    setComponent(child_1, NameComponent, 'child_1')
-    setComponent(child_2, NameComponent, 'child_2')
+    setComponent(rootEntity, ComponentC, 'rootEntity')
+    setComponent(child_1, ComponentC, 'child_1')
+    setComponent(child_2, ComponentC, 'child_2')
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
     setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
     for (const component of components) setComponent(child_1, component)
@@ -1932,9 +1944,9 @@ describe('getChildrenWithComponents', () => {
     results = [] as Entity[]
 
     setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, NameComponent, 'rootEntity')
-    setComponent(child_1, NameComponent, 'child_1')
-    setComponent(child_2, NameComponent, 'child_2')
+    setComponent(rootEntity, ComponentC, 'rootEntity')
+    setComponent(child_1, ComponentC, 'child_1')
+    setComponent(child_2, ComponentC, 'child_2')
     setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
     setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
     for (const component of components) setComponent(child_1, component)
@@ -2232,7 +2244,7 @@ describe('getNestedChildren', () => {
     assert.equal(Expected.includes(parentEntity), false)
     // Run and Check the result
     const result = getNestedChildren(parentEntity, predicate)
-    assertArray.eq(result, Expected)
+    assertArrayEqual(result, Expected)
   })
 
   it('should return all children of an entity when `@param pred` never returns false for any entity', () => {
@@ -2254,7 +2266,7 @@ describe('getNestedChildren', () => {
     }
     // Run and Check the result
     const result = getNestedChildren(parentEntity, predicate)
-    assertArray.eq(result, Expected)
+    assertArrayEqual(result, Expected)
   })
 }) //:: getNestedChildren
 
@@ -2272,7 +2284,7 @@ describe('iterateEntityNode', () => {
     parentEntity = createEntity()
     setComponent(parentEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
     setComponent(parentEntity, UUIDComponent, 'root' as EntityUUID)
-    setComponent(parentEntity, NameComponent, 'parentEntity-' + parentEntity)
+    setComponent(parentEntity, ComponentC, 'parentEntity-' + parentEntity)
   })
 
   afterEach(() => {
@@ -2318,37 +2330,37 @@ describe('iterateEntityNode', () => {
     // .. Add the parent to the expected list
     const parentName = 'parent-' + parentEntity
     Expected.push(parentName)
-    setComponent(parentEntity, NameComponent, parentName)
+    setComponent(parentEntity, ComponentC, parentName)
     // .. Add the children to the expected list
     for (let id = 0; id < entities.length; ++id) {
       const entity = entities[id]
       const name = 'entity-' + entity
       Expected.push(name)
-      setComponent(entity, NameComponent, name)
+      setComponent(entity, ComponentC, name)
       setComponent(entity, EntityTreeComponent, { parentEntity: id === 0 ? parentEntity : entities[id - 1] })
     }
     // Sanity check before running
     for (const entity of entities) {
-      assert.equal(hasComponents(entity, [NameComponent, EntityTreeComponent]), true)
-      assert.equal(Expected.includes(getComponent(entity, NameComponent)), true)
+      assert.equal(hasComponents(entity, [ComponentC, EntityTreeComponent]), true)
+      assert.equal(Expected.includes(getComponent(entity, ComponentC)), true)
     }
     // Run and Check the result
     const callback = (entity: Entity) => {
-      return getComponent(entity, NameComponent)
+      return getComponent(entity, ComponentC)
     }
     const result = iterateEntityNode(parentEntity, callback)
-    assertArray.eq(result, Expected)
+    assertArrayEqual(result, Expected)
   })
 
   it('should not process an entity when `@param pred` is specified and returns false for that entity', () => {
-    const Expected: string[] = [getComponent(parentEntity, NameComponent)]
+    const Expected: string[] = [getComponent(parentEntity, ComponentC)]
     function getName(entity: Entity): string {
       return 'entity-' + entity
     }
     // Set the data as expected
     const entities: Entity[] = [createEntity(), createEntity(), createEntity(), createEntity()]
     const callback = (entity: Entity) => {
-      return getComponent(entity, NameComponent)
+      return getComponent(entity, ComponentC)
     }
     const predicate = (entity: Entity) => {
       return entity !== entities[entities.length - 2]
@@ -2356,15 +2368,15 @@ describe('iterateEntityNode', () => {
     // .. Set the children
     for (let id = 0; id < entities.length; ++id) {
       const entity = entities[id]
-      setComponent(entity, NameComponent, getName(entity))
+      setComponent(entity, ComponentC, getName(entity))
       setComponent(entity, EntityTreeComponent, { parentEntity: id === 0 ? parentEntity : entities[id - 1] })
-      if (predicate(entity)) Expected.push(getComponent(entity, NameComponent))
+      if (predicate(entity)) Expected.push(getComponent(entity, ComponentC))
     }
     // Sanity check before running
-    for (const entity of entities) assert.equal(hasComponents(entity, [NameComponent, EntityTreeComponent]), true)
+    for (const entity of entities) assert.equal(hasComponents(entity, [ComponentC, EntityTreeComponent]), true)
     // Run and Check the result
     const result = iterateEntityNode(parentEntity, callback, predicate)
-    assertArray.eq(result, Expected)
+    assertArrayEqual(result, Expected)
   })
 
   it('should not process the children of an entity when `@param pred` is specified, it returns false for that entity and snubChildren is true', () => {
@@ -2376,7 +2388,7 @@ describe('iterateEntityNode', () => {
     // Set the data as expected
     const entities: Entity[] = [createEntity(), createEntity(), createEntity(), createEntity()]
     const callback = (entity: Entity) => {
-      return getComponent(entity, NameComponent)
+      return getComponent(entity, ComponentC)
     }
     const predicate = (entity: Entity) => {
       return entity !== parentEntity
@@ -2384,19 +2396,19 @@ describe('iterateEntityNode', () => {
     // .. Set the parent
     const parentName = 'parent-' + parentEntity
     // Expected.push(parentName)
-    setComponent(parentEntity, NameComponent, parentName)
+    setComponent(parentEntity, ComponentC, parentName)
     // .. Set the children
     for (let id = 0; id < entities.length; ++id) {
       const entity = entities[id]
-      setComponent(entity, NameComponent, getName(entity))
+      setComponent(entity, ComponentC, getName(entity))
       setComponent(entity, EntityTreeComponent, { parentEntity: id === 0 ? parentEntity : entities[id - 1] })
     }
     // Sanity check before running
-    for (const entity of entities) assert.equal(hasComponents(entity, [NameComponent, EntityTreeComponent]), true)
-    assert.equal(Expected.includes(getComponent(parentEntity, NameComponent)), false)
+    for (const entity of entities) assert.equal(hasComponents(entity, [ComponentC, EntityTreeComponent]), true)
+    assert.equal(Expected.includes(getComponent(parentEntity, ComponentC)), false)
     // Run and Check the result
     const result = iterateEntityNode(parentEntity, callback, predicate, snubChildren)
-    assertArray.eq(result, Expected)
+    assertArrayEqual(result, Expected)
   })
 
   it('should stop traversing as soon as `@param pred` returns true for the first time when `@param breakOnFind` is set to true', () => {
@@ -2409,7 +2421,7 @@ describe('iterateEntityNode', () => {
     // Set the data as expected
     const entities: Entity[] = [createEntity(), createEntity(), createEntity(), createEntity()]
     const callback = (entity: Entity) => {
-      return getComponent(entity, NameComponent)
+      return getComponent(entity, ComponentC)
     }
     const predicate = (entity: Entity) => {
       return entity === parentEntity
@@ -2417,18 +2429,18 @@ describe('iterateEntityNode', () => {
     // .. Set the parent
     const parentName = 'parent-' + parentEntity
     Expected.push(parentName)
-    setComponent(parentEntity, NameComponent, parentName)
+    setComponent(parentEntity, ComponentC, parentName)
     // .. Set the children
     for (let id = 0; id < entities.length; ++id) {
       const entity = entities[id]
-      setComponent(entity, NameComponent, getName(entity))
+      setComponent(entity, ComponentC, getName(entity))
       setComponent(entity, EntityTreeComponent, { parentEntity: id === 0 ? parentEntity : entities[id - 1] })
     }
     // Sanity check before running
-    for (const entity of entities) assert.equal(hasComponents(entity, [NameComponent, EntityTreeComponent]), true)
-    assert.equal(Expected.includes(getComponent(parentEntity, NameComponent)), true)
+    for (const entity of entities) assert.equal(hasComponents(entity, [ComponentC, EntityTreeComponent]), true)
+    assert.equal(Expected.includes(getComponent(parentEntity, ComponentC)), true)
     // Run and Check the result
     const result = iterateEntityNode(parentEntity, callback, predicate, snubChildren, breakOnFind)
-    assertArray.eq(result, Expected)
+    assertArrayEqual(result, Expected)
   })
 }) //:: iterateEntityNode

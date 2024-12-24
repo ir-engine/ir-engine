@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import {
+  EntityTreeComponent,
   createEntity,
   defineComponent,
   removeEntity,
@@ -42,7 +43,6 @@ import { InputComponent } from '@ir-engine/spatial/src/input/components/InputCom
 import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { Mesh, Object3D } from 'three'
 import { enableObjectLayer } from '../../../../../spatial/src/renderer/components/ObjectLayerComponent'
 import { cameraGizmo, cameraPicker, setupGizmo } from '../../../constants/GizmoPresets'

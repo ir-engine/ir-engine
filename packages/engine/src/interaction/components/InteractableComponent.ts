@@ -28,6 +28,7 @@ import { MathUtils, Vector2, Vector3 } from 'three'
 import {
   ECSState,
   Entity,
+  EntityTreeComponent,
   getComponent,
   getMutableComponent,
   removeComponent,
@@ -54,7 +55,6 @@ import {
   updateBoundingBox
 } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 import { WebLayer3D } from '@ir-engine/xrui'
 

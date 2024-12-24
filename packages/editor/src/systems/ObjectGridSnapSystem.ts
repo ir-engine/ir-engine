@@ -30,6 +30,7 @@ import {
   defineQuery,
   defineSystem,
   Entity,
+  EntityTreeComponent,
   getComponent,
   getOptionalComponent,
   getOptionalMutableComponent,
@@ -44,7 +45,6 @@ import {
   ObjectGridSnapComponent
 } from '@ir-engine/engine/src/scene/components/ObjectGridSnapComponent'
 import { defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { TransformSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 

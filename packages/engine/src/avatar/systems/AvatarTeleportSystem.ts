@@ -58,9 +58,9 @@ import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { ReferenceSpace, XRAction, XRState } from '@ir-engine/spatial/src/xr/XRState'
 
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { teleportAvatar } from '.././functions/moveAvatar'
 import { AvatarComponent } from '../components/AvatarComponent'

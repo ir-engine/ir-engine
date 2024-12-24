@@ -26,14 +26,21 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Object3D } from 'three'
 
-import { createEntity, Entity, generateEntityUUID, removeEntity, setComponent, UUIDComponent } from '@ir-engine/ecs'
+import {
+  createEntity,
+  Entity,
+  EntityTreeComponent,
+  generateEntityUUID,
+  removeEntity,
+  setComponent,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import { State, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 export function useHelperEntity<
   TObject extends Object3D,

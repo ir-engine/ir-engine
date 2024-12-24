@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   Entity,
+  EntityTreeComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -43,7 +44,6 @@ import { mockSpatialEngine } from '../../tests/util/mockSpatialEngine'
 import { ReferenceSpaceState, TransformComponent } from '../SpatialModule'
 import { Vector3_One } from '../common/constants/MathConstants'
 import { ReferenceSpace, XRState } from '../xr/XRState'
-import { EntityTreeComponent } from './components/EntityTree'
 import {
   computeAndUpdateWorldOrigin,
   updateWorldOrigin,

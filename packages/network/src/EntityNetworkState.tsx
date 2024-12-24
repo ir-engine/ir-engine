@@ -25,7 +25,15 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useLayoutEffect } from 'react'
 
-import { Engine, EntityUUID, getOptionalComponent, removeEntity, setComponent, UUIDComponent } from '@ir-engine/ecs'
+import {
+  Engine,
+  EntityTreeComponent,
+  EntityUUID,
+  getOptionalComponent,
+  removeEntity,
+  setComponent,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import {
   defineState,
   dispatchAction,
@@ -37,7 +45,6 @@ import {
   useMutableState,
   UserID
 } from '@ir-engine/hyperflux'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { EngineState } from '@ir-engine/ecs'
 import { WorldNetworkAction } from './functions/WorldNetworkAction'

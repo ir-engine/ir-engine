@@ -32,9 +32,9 @@ import { getState } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { getAncestorWithComponents } from '@ir-engine/ecs'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { Matrix4, Vector3 } from 'three'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 

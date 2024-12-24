@@ -26,6 +26,7 @@
 import {
   ECSState,
   Entity,
+  EntityTreeComponent,
   EntityUUID,
   SystemDefinitions,
   Timer,
@@ -45,7 +46,6 @@ import { afterEach, beforeEach, describe, it } from 'vitest'
 import { mockEngineRenderer } from '../../tests/util/MockEngineRenderer'
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { CameraComponent } from '../camera/components/CameraComponent'
-import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { RendererState } from './RendererState'
 import {
   RendererComponent,

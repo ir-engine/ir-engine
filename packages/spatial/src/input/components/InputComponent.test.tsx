@@ -44,11 +44,13 @@ import {
   EngineState,
   Entity,
   EntityContext,
+  EntityTreeComponent,
   EntityUUID,
   InputSystemGroup,
   SystemDefinitions,
   UndefinedEntity,
   createEntity,
+  isAncestor,
   removeEntity
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
@@ -57,7 +59,6 @@ import { assertArray } from '../../../tests/util/assert'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { initializeSpatialEngine } from '../../initializeEngine'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
-import { EntityTreeComponent, isAncestor } from '../../transform/components/EntityTree'
 import { ButtonStateMap, MouseScroll, XRStandardGamepadAxes } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 import { DefaultButtonAlias, InputComponent, InputExecutionOrder, InputExecutionSystemGroup } from './InputComponent'

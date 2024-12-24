@@ -36,6 +36,7 @@ import {
   Vector3
 } from 'three'
 
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import {
   ComponentType,
   getComponent,
@@ -51,7 +52,6 @@ import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineQuery, useQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { defineActionQueue, defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { smootheLerpAlpha } from '../common/functions/MathLerpFunctions'
 
 import React from 'react'

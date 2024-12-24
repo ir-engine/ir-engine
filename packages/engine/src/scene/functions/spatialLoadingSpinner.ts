@@ -23,9 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getComponent, getOptionalComponent, setComponent, UndefinedEntity } from '@ir-engine/ecs'
+import { EntityTreeComponent, getComponent, getOptionalComponent, setComponent, UndefinedEntity } from '@ir-engine/ecs'
 import { TransformComponent } from '@ir-engine/spatial'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { LookAtComponent } from '@ir-engine/spatial/src/transform/components/LookAtComponent'
 import { TweenComponent } from '@ir-engine/spatial/src/transform/components/TweenComponent'
 import { Tween } from '@tweenjs/tween.js'

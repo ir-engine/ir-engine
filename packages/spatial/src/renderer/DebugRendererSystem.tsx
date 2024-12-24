@@ -32,6 +32,7 @@ import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import { NameComponent } from '../common/NameComponent'
 import { RapierWorldState } from '../physics/classes/Physics'
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
@@ -41,7 +42,6 @@ import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../renderer/constants/ObjectLayers'
 import { RendererState } from '../renderer/RendererState'
 import { WebGLRendererSystem } from '../renderer/WebGLRendererSystem'
-import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { createInfiniteGridHelper } from './components/InfiniteGridHelper'
 import { SceneComponent } from './components/SceneComponents'
 

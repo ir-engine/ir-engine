@@ -39,9 +39,9 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
 
+import { getAncestorWithComponents, isAncestor } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
-import { getAncestorWithComponents, isAncestor } from '../../transform/components/EntityTree'
 import {
   AnyAxis,
   AnyButton,

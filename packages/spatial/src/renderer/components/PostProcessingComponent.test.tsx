@@ -30,6 +30,7 @@ import { MathUtils } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
+  EntityTreeComponent,
   EntityUUID,
   UUIDComponent,
   UndefinedEntity,
@@ -44,7 +45,6 @@ import { noiseAddToEffectRegistry } from '@ir-engine/engine/src/postprocessing/N
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { act, render } from '@testing-library/react'
 import { Effect } from 'postprocessing'
 import React from 'react'

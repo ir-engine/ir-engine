@@ -37,6 +37,7 @@ import {
 import {
   createEntity,
   defineComponent,
+  EntityTreeComponent,
   getComponent,
   getOptionalComponent,
   hasComponent,
@@ -51,7 +52,6 @@ import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { NameComponent } from '../../common/NameComponent'
 import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { RendererState } from '../RendererState'

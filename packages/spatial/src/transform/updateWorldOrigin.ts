@@ -26,10 +26,10 @@ Infinite Reality Engine. All Rights Reserved.
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { getState } from '@ir-engine/hyperflux'
 
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { Vector3_One } from '../common/constants/MathConstants'
 import { ReferenceSpace, XRState } from '../xr/XRState'
-import { EntityTreeComponent } from './components/EntityTree'
 import { TransformComponent } from './components/TransformComponent'
 import { computeTransformMatrix } from './systems/TransformSystem'
 

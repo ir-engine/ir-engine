@@ -23,9 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getComponent, getOptionalComponent, hasComponent } from '@ir-engine/ecs'
+import { EntityTreeComponent, getComponent, getOptionalComponent, hasComponent } from '@ir-engine/ecs'
 import { Object3D } from 'three'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { RendererComponent } from '../WebGLRendererSystem'
 import { GroupComponent } from '../components/GroupComponent'

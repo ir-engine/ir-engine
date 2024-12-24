@@ -27,6 +27,7 @@ import assert from 'assert'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
+  EntityTreeComponent,
   EntityUUID,
   SystemDefinitions,
   SystemUUID,
@@ -45,7 +46,6 @@ import { Matrix4, Quaternion, Vector3 } from 'three'
 import { assertVec } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
-import { EntityTreeComponent } from '../components/EntityTree'
 import { LookAtComponent } from '../components/LookAtComponent'
 import { TransformComponent } from '../components/TransformComponent'
 import { LookAtSystem } from './LookAtSystem'

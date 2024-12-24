@@ -31,6 +31,7 @@ import {
   Engine,
   EngineState,
   Entity,
+  EntityTreeComponent,
   SystemDefinitions,
   UUIDComponent,
   createEntity,
@@ -53,7 +54,6 @@ import {
 import { NetworkActions, NetworkState, NetworkTopics } from '@ir-engine/network'
 import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
 import { SpectateActions } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { act, render } from '@testing-library/react'
 import React from 'react'
 import { Cache } from 'three'

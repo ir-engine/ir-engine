@@ -41,7 +41,7 @@ import {
   Vector3
 } from 'three'
 
-import { PresentationSystemGroup } from '@ir-engine/ecs'
+import { EntityTreeComponent, PresentationSystemGroup, removeEntityNodeRecursively } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -57,20 +57,16 @@ import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src
 import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectDirection } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import {
-  createTransitionState,
-  TransitionStateSchema
+  TransitionStateSchema,
+  createTransitionState
 } from '@ir-engine/spatial/src/common/functions/createTransitionState'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { addObjectToGroup, GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { GroupComponent, addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import {
-  EntityTreeComponent,
-  removeEntityNodeRecursively
-} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'

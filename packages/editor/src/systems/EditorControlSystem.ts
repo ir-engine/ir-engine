@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Intersection, Layers, Object3D, Raycaster } from 'three'
 
-import { Entity, PresentationSystemGroup, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
+import { Entity, EntityTreeComponent, PresentationSystemGroup, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
 import {
   getComponent,
   getMutableComponent,
@@ -51,7 +51,6 @@ import { InputComponent } from '@ir-engine/spatial/src/input/components/InputCom
 import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
 import { InfiniteGridComponent } from '@ir-engine/spatial/src/renderer/components/InfiniteGridHelper'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'

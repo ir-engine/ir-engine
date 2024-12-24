@@ -27,6 +27,7 @@ import {
   Engine,
   EngineState,
   Entity,
+  EntityTreeComponent,
   EntityUUID,
   UUIDComponent,
   UndefinedEntity,
@@ -56,7 +57,6 @@ import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/Ri
 import { BodyTypes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { act, render } from '@testing-library/react'
 import React from 'react'
 import { Quaternion, Vector3 } from 'three'
