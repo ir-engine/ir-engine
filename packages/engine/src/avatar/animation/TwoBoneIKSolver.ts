@@ -24,12 +24,13 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { Bone, MathUtils, Matrix4, Mesh, Object3D, Quaternion, Vector3 } from 'three'
+import { MathUtils, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 
 import { Entity, getComponent } from '@ir-engine/ecs'
 import { Vector3_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
 
 import { AvatarRigComponent, Matrices } from '../components/AvatarAnimationComponent'
+import { AvatarIkComponent } from '../components/AvatarIKComponents'
 import { NormalizedBoneComponent } from '../components/NormalizedBoneComponent'
 
 const sqrEpsilon = 1e-8
@@ -59,23 +60,21 @@ const hintHelpers = {} as Record<string, Mesh>
 /**
  * Solves Two-Bone IK.
  * targetOffset is assumed to have no parents
- * @param {Bone} root root joint
- * @param {Bone} mid mid joint
- * @param {Bone} tip tip joint
- * @param {Object3D} target goal transform
- * @param {Object3D} hint Position of the hint
- * @param {Object3D} targetOffset Offset transform applied to the target
- * @param {number} targetPosWeight
- * @param {number} targetRotWeight
- * @param {number} hintWeight
+ * @param {Matrix4} root the normalized parent bone's matrix, tethers the ik solve to the rig
+ * @param {Matrices} root the root bone matrices from the ikComponent
+ * @param {Matrices} mid the mid bone matrices from the ikComponent
+ * @param {Matrices} tip the tip bone matrices from the ikComponent
+ * @param {Vector3} targetPosition the target position in world space
+ * @param {Quaternion} targetRotation the target rotation in world space to apply to the tip
+ * @param {Vector3} hint the hint position in world space, no hint will be applied if null
  */
 export function solveTwoBoneIK(
   parentMatrix: Matrix4,
   root: Matrices,
   mid: Matrices,
   tip: Matrices,
-  targetPosition: Vector3, // world space
-  targetRotation: Quaternion, // world space
+  targetPosition: Vector3,
+  targetRotation: Quaternion,
   hint: Vector3 | null = null
 ) {
   targetPos.copy(targetPosition)
@@ -225,10 +224,10 @@ const targetPos = new Vector3(),
 
 const nodeQuaternion = new Quaternion()
 export const blendIKChain = (entity: Entity, bones: VRMHumanBoneName[], weight) => {
+  const ikComponent = getComponent(entity, AvatarIkComponent)
   const rigComponent = getComponent(entity, AvatarRigComponent)
-
   for (const bone of bones) {
-    const boneMatrices = rigComponent.ikMatrices[bone]
+    const boneMatrices = ikComponent.ikMatrices[bone]
     if (boneMatrices) {
       const node = getComponent(rigComponent.bonesToEntities[bone], NormalizedBoneComponent)
       nodeQuaternion.setFromRotationMatrix(boneMatrices.local)

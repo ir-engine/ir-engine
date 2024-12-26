@@ -27,7 +27,7 @@ import { Types } from 'bitecs'
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { UUIDComponent } from '@ir-engine/ecs'
+import { S, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -45,6 +45,9 @@ import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
+import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
 
@@ -68,15 +71,17 @@ export const AvatarIKTargetComponent = defineComponent({
 
     useEffect(() => {
       if (debugEnabled.value) {
+        setComponent(entity, VisibleComponent, true)
         setComponent(entity, AxesHelperComponent, {
           name: 'avatar-ik-helper',
-          size: 0.5,
+          size: 0.125,
           layerMask: ObjectLayerMasks.AvatarHelper
         })
       }
 
       return () => {
         removeComponent(entity, AxesHelperComponent)
+        removeComponent(entity, VisibleComponent)
       }
     }, [debugEnabled])
 
@@ -129,3 +134,18 @@ export const getHandTarget = (entity: Entity, hand: XRHandedness): HandTargetRet
       }
   }
 }
+
+export const AvatarIkComponent = defineComponent({
+  name: 'AvatarIkComponent',
+  schema: S.Object({
+    /** contains ik solve data */
+    ikMatrices: S.Record(
+      S.LiteralUnion(Object.values(VRMHumanBoneName)),
+      S.Object({
+        local: T.Mat4(),
+        world: T.Mat4()
+      }),
+      {}
+    )
+  })
+})

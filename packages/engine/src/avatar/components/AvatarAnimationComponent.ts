@@ -35,7 +35,7 @@ import {
 } from '@pixiv/three-vrm'
 import type * as V0VRM from '@pixiv/types-vrm-0.0'
 
-import { AnimationAction, Bone, Euler, Group, Matrix4, Vector3 } from 'three'
+import { AnimationAction, Euler, Group, Matrix4, Vector3 } from 'three'
 
 import { GLTF } from '@gltf-transform/core'
 import { UUIDComponent } from '@ir-engine/ecs'
@@ -59,6 +59,7 @@ import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Ob
 import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFDocumentState } from '../../gltf/GLTFDocumentState'
 import { hipsRegex, mixamoVRMRigMap } from '../AvatarBoneMatching'
@@ -91,17 +92,6 @@ export const AvatarRigComponent = defineComponent({
     /** maps human bones to entities */
     bonesToEntities: S.Record(HumanBonesSchema, S.Entity()),
     entitiesToBones: S.Record(S.Entity(), HumanBonesSchema),
-
-    /** contains ik solve data */
-    /**@todo create and move to AvatarIKComponent */
-    ikMatrices: S.Record(
-      S.LiteralUnion(Object.values(VRMHumanBoneName)),
-      S.Object({
-        local: T.Mat4(),
-        world: T.Mat4()
-      }),
-      {}
-    ),
     /** The VRM model */
     vrm: S.Type<VRM>()
   }),
@@ -229,7 +219,6 @@ export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
   iterateEntityNode(rootEntity, (entity) => {
     // if (!getComponent(entity, BoneComponent)) return
     const boneComponent = getOptionalComponent(entity, BoneComponent) || getComponent(entity, TransformComponent)
-    boneComponent?.matrixWorld.identity()
     if (entity === rootEntity) return
 
     const name = getComponent(entity, NameComponent)
@@ -244,15 +233,18 @@ export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
 
     const bone = mixamoVRMRigMap[boneName] as string
     if (bone) {
-      if (boneComponent instanceof Bone) boneComponent.quaternion.set(0, 0, 0, 1)
       const node = getComponent(entity, BoneComponent)
       bones[bone] = { node } as VRMHumanBone
       AvatarRigComponent.setBone(rootEntity, entity, bone as VRMHumanBoneName)
       setComponent(entity, NormalizedBoneComponent, node)
     }
   })
+
   enforceTPose(rootEntity)
+  iterateEntityNode(rootEntity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
+
   const humanoid = new VRMHumanoid(bones)
+
   const scene = getComponent(rootEntity, Object3DComponent)
   const children = getComponent(rootEntity, EntityTreeComponent).children
   const childName = getComponent(children[0], NameComponent)
@@ -293,7 +285,15 @@ const toesAngle = new Euler(Math.PI / 6, 0, 0)
 
 /**Rewrites avatar's bone quaternions and matrices to create a T-Pose, assuming all bones are the identity quaternion */
 export const enforceTPose = (entity: Entity) => {
+  getComponent(entity, TransformComponent).rotation.set(0, 0, 0, 1)
+  getComponent(entity, TransformComponent).matrixWorld.identity()
   const bones = getComponent(entity, AvatarRigComponent).bonesToEntities
+
+  for (const bone in bones) {
+    getOptionalComponent(bones[bone], TransformComponent)?.rotation.set(0, 0, 0, 1)
+    getOptionalComponent(bones[bone], TransformComponent)?.matrixWorld.identity()
+  }
+
   const poseArm = (side: 'left' | 'right') => {
     const shoulder = bones[`${side}Shoulder`]
     const angle = shoulderAngle[`${side}ShoulderAngle`]
