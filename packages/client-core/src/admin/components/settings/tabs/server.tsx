@@ -30,6 +30,7 @@ import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 import { useFind, useMutation } from '@ir-engine/common'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { EngineSettingData, EngineSettingType, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { Button, Input } from '@ir-engine/ui'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
@@ -104,6 +105,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           key,
           category: 'server',
           value: settings[key],
+          dataType: getDataType(settings[key]),
           type: 'private'
         })
       } else if (settingInDb.value !== settings[key]) {
@@ -111,6 +113,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           engineSettingMutation.patch(settingInDb.id, {
             key,
             category: 'server',
+            dataType: getDataType(settings[key]),
             value: settings[key],
             type: 'private'
           })
