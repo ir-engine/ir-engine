@@ -102,6 +102,7 @@ export default ECS
 
 export { Not } from 'bitecs'
 export * from './src/ComponentFunctions'
+export * from './src/EasingFunctions'
 export * from './src/ECSState'
 export * from './src/Engine'
 export * from './src/EngineFunctions'
@@ -114,5 +115,6 @@ export * from './src/schemas/JSONSchemaTypes'
 export * from './src/SystemFunctions'
 export * from './src/SystemGroups'
 export * from './src/Timer'
+export * from './src/TransitionSystem'
 export * from './src/UUIDComponent'
 export { ECS }

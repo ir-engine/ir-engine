@@ -38,10 +38,6 @@ import {
 } from './SystemGroups'
 import { nowMilliseconds } from './Timer'
 
-const TimerConfig = {
-  MAX_DELTA_SECONDS: 1 / 10
-}
-
 /**
  * Execute systems on this world
  *
@@ -56,7 +52,7 @@ export const executeSystems = (elapsedTime: number) => {
 
   const elapsedSeconds = elapsedTime / 1000
   ecsState.deltaSeconds.set(
-    Math.max(0.001, Math.min(TimerConfig.MAX_DELTA_SECONDS, elapsedSeconds - ecsState.elapsedSeconds.value))
+    Math.max(0.001, Math.min(ecsState.maxDeltaSeconds.value, elapsedSeconds - ecsState.elapsedSeconds.value))
   )
   ecsState.elapsedSeconds.set(elapsedSeconds)
 
