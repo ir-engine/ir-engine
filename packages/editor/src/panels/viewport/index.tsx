@@ -55,6 +55,7 @@ import GridTool from './tools/GridTool'
 import PlayModeTool from './tools/PlayModeTool'
 import RenderModeTool from './tools/RenderTool'
 import SceneHelpersTool from './tools/SceneHelpersTool'
+import SelectionBox from './tools/SelectionBoxTool'
 import TransformGizmoTool from './tools/TransformGizmoTool'
 import TransformPivotTool from './tools/TransformPivotTool'
 import TransformSnapTool from './tools/TransformSnapTool'
@@ -164,13 +165,12 @@ function ViewportContainer() {
           <RenderModeTool />
           <PlayModeTool />
         </div>
-        {sceneName.value ? <TransformGizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
+        {sceneName.value ? <SelectionBox viewportRef={ref} toolbarRef={toolbarRef} /> : null}
+        {sceneName.value ? <TransformGizmoTool /> : null}
         {sceneName.value ? <CameraGizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
+        <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
         {sceneName.value ? (
-          <>
-            <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
-            {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}
-          </>
+          <>{rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}</>
         ) : (
           <div className="flex h-full w-full flex-col justify-center gap-2">
             <img src={clientSettings?.appTitle} className="block scale-[.8]" />

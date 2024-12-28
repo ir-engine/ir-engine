@@ -51,6 +51,7 @@ import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/component
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AudioState } from '../../audio/AudioState'
@@ -138,7 +139,7 @@ export const MediaComponent = defineComponent({
     controls: S.Bool(false),
     synchronize: S.Bool(true),
     autoplay: S.Bool(false), //false = personal preference, this is super annoying when it just starts playing once added to a scene while editing
-    uiOffset: S.Vec3(),
+    uiOffset: T.Vec3(),
     xruiEntity: S.Entity(),
     volume: S.Number(1),
     resources: S.Array(S.String()),

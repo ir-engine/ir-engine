@@ -31,14 +31,11 @@ import { useFind, useGet, useMutation } from '@ir-engine/common'
 import { ProjectSettingType, projectPath, projectSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
+import { Button, Input, Select, Tooltip } from '@ir-engine/ui'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { HiTrash, HiUser } from 'react-icons/hi2'
 
 const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
@@ -181,10 +178,12 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
 
       <Select
         options={projectsMenu}
-        currentValue={selectedProjectId.value}
-        onChange={(value) => selectedProjectId.set(value)}
-        label={t('admin:components.setting.project.header')}
-        className="mb-8 mt-6 max-w-[50%]"
+        value={selectedProjectId.value}
+        onChange={(value: string) => selectedProjectId.set(value)}
+        labelProps={{
+          text: t('admin:components.setting.project.header'),
+          position: 'top'
+        }}
       />
 
       {selectedProjectId.value && (
@@ -200,8 +199,8 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
                 endComponent={
                   <Button
                     className="text-primary mr-1 rounded py-1"
-                    variant={setting.type === 'private' ? 'danger' : 'success'}
-                    size="small"
+                    variant={setting.type === 'private' ? 'red' : 'green'}
+                    size="sm"
                     onClick={() => handleSettingsVisibilityChange(setting, index)}
                   >
                     {setting.type}
@@ -218,7 +217,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
                 endComponent={
                   setting.userId && (
                     <Tooltip
-                      position="left center"
+                      position="left"
                       content={t('admin:components.common.lastUpdatedBy', {
                         userId: setting.userId,
                         updatedAt: toDisplayDateTime(setting.updatedAt)
@@ -232,27 +231,24 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
               />
               <Button
                 className="text-primary mb-[2px] ml-1 rounded"
-                variant="outline"
-                size="small"
+                variant="tertiary"
+                size="sm"
                 title={t('admin:components.common.save')}
                 onClick={() => handleSaveSetting(setting)}
               >
                 {t('admin:components.common.save')}
               </Button>
-              <Button
-                className="mb-1 px-0"
-                rounded="full"
-                variant="transparent"
+              <button
+                className="mb-1 flex items-center justify-center gap-1 rounded-full px-0"
                 title={t('admin:components.common.delete')}
                 onClick={() => handleRemoveSetting(setting)}
-                startIcon={<HiTrash className="place-self-center text-theme-iconRed" />}
-              />
+              >
+                <HiTrash className="text-theme-iconRed" />
+              </button>
             </div>
           ))}
-          <Button
-            onClick={handleAddSetting}
-            startIcon={state.loading.value && <LoadingView spinnerOnly className="h-8 w-8" />}
-          >
+          <Button onClick={handleAddSetting}>
+            {state.loading.value && <LoadingView spinnerOnly className="h-8 w-8" />}
             {t('admin:components.setting.project.add')}
           </Button>
         </>

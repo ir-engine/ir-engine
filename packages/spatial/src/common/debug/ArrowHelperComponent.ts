@@ -30,6 +30,7 @@ import { useDidMount } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useDisposable } from '../../resources/resourceHooks'
+import { T } from '../../schema/schemaFunctions'
 import { useHelperEntity } from './DebugComponentUtils'
 
 export const ArrowHelperComponent = defineComponent({
@@ -37,10 +38,10 @@ export const ArrowHelperComponent = defineComponent({
 
   schema: S.Object({
     name: S.String('arrow-helper'),
-    dir: S.Vec3({ x: 0, y: 0, z: 1 }),
-    origin: S.Vec3({ x: 0, y: 0, z: 0 }),
+    dir: T.Vec3({ x: 0, y: 0, z: 1 }),
+    origin: T.Vec3({ x: 0, y: 0, z: 0 }),
     length: S.Number(0.5),
-    color: S.Color(0xffffff),
+    color: T.Color(0xffffff),
     headLength: S.Optional(S.Number()),
     headWidth: S.Optional(S.Number()),
     entity: S.Optional(S.Entity())

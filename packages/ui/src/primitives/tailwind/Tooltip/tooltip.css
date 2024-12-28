@@ -1,23 +1,54 @@
-@keyframes expandFromCenter {
-  0% {
-    transform: scaleX(0.5) scaleY(0.5);
-    opacity: 0;
-  }
-  50% {
-    transform: scaleX(1.025) scaleY(1.025);
-    opacity: 1;
-  }
-  100% {
-    transform: scaleX(1) scaleY(1);
-    opacity: 1;
-  }
+.tooltip-arrow-top {
+  bottom: -4px;
+  left: calc(50% - 4px);
+  transform: translateX(-50%) rotate(45deg);
 }
 
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
+.tooltip-arrow-bottom {
+  top: -4px;
+  left: calc(50% - 4px);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.tooltip-arrow-left {
+  right: -4px;
+  top: calc(50% - 6px);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.tooltip-arrow-right {
+  left: -4px;
+  top: calc(50% - 6px);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.tooltip-arrow {
+  width: 8px;
+  height: 8px;
+  background-color: #191b1f;
+  border: 1px solid var(--theme-primary);
+  position: absolute;
+  z-index: 10000;
+}
+
+.tooltip-arrow {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.tooltip-visible .tooltip-arrow {
+  opacity: 1;
+}
+
+.tooltip {
+  opacity: 0;
+  transform: scale(0.95);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+.tooltip-visible {
+  opacity: 1;
+  transform: scale(1);
 }

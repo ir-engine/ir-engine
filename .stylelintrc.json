@@ -13,6 +13,7 @@
     "at-rule-no-unknown": null,
     "no-descending-specificity": null,
     "indentation": 2,
+    "no-unexpected-multiline": 0,
     "number-leading-zero": null,
     "property-no-vendor-prefix": null,
     "font-family-no-missing-generic-family-keyword": null,

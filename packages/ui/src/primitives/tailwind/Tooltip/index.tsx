@@ -23,56 +23,188 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { ReactNode } from 'react'
-import Popup from 'reactjs-popup'
-import { PopupProps } from 'reactjs-popup/dist/types'
-import { twMerge } from 'tailwind-merge'
+import React, { ReactNode, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import ReactDOM from 'react-dom'
 import './tooltip.css'
 
-export type TooltipProps = {
-  title?: ReactNode
-  titleClassName?: string
+export interface BaseTooltipProps {
+  title?: string
   content: ReactNode
-  children: React.ReactElement
-} & PopupProps
+  children: ReactNode
+  position?: 'auto' | 'top' | 'bottom' | 'left' | 'right'
+}
 
-const Tooltip = ({ title, titleClassName, content, children, className, ...rest }: TooltipProps) => {
+export interface ControlledProps {
+  isControlled: true
+  onMouseEnter: () => boolean
+  onMouseLeave: () => boolean
+}
+
+export interface UncontrolledProps {
+  isControlled?: false
+}
+
+export type TooltipProps = BaseTooltipProps & (ControlledProps | UncontrolledProps)
+
+export interface TooltipRef {
+  showTooltip: () => void
+  hideTooltip: () => void
+}
+
+/**
+ * Provides an imperative handle to show and hide the tooltip
+ */
+function Tooltip(
+  { title, content, children, position = 'auto', isControlled = false, ...props }: TooltipProps,
+  ref: React.ForwardedRef<TooltipRef>
+) {
+  const [tooltipPosition, setTooltipPosition] = useState('bottom')
+  const [tooltipStyles, setTooltipStyles] = useState({ top: 0, left: 0 } as React.CSSProperties)
+  const [visibleState, setIsVisible] = useState('hidden' as 'hidden' | 'calculating' | 'visible')
+  const triggerRef = useRef<HTMLDivElement | null>(null)
+  const tooltipRef = useRef<HTMLDivElement | null>(null)
+
+  useImperativeHandle(
+    ref,
+    () => {
+      return {
+        showTooltip: showTooltip,
+        hideTooltip: hideTooltip
+      }
+    },
+    []
+  )
+
+  const calculatePosition = () => {
+    if (!triggerRef.current || !tooltipRef.current) return null
+    const tooltipRect = tooltipRef.current.getBoundingClientRect()
+
+    let calculatedPosition = position
+    let top = 0
+    let left = 0
+
+    const triggerRect = triggerRef.current.getBoundingClientRect()
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+
+    const spaceTop = triggerRect.top
+    const spaceBottom = viewportHeight - triggerRect.bottom
+    const spaceLeft = triggerRect.left
+    const spaceRight = viewportWidth - triggerRect.right
+
+    if (position === 'auto') {
+      const maxSpace = Math.max(spaceTop, spaceBottom, spaceLeft, spaceRight)
+      if (maxSpace === spaceTop) calculatedPosition = 'top'
+      else if (maxSpace === spaceBottom) calculatedPosition = 'bottom'
+      else if (maxSpace === spaceLeft) calculatedPosition = 'left'
+      else if (maxSpace === spaceRight) calculatedPosition = 'right'
+    }
+
+    setTooltipPosition(calculatedPosition)
+
+    switch (calculatedPosition) {
+      case 'top':
+        top = triggerRect.top - tooltipRect.height - 8
+        left = triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2
+        break
+      case 'bottom':
+        top = triggerRect.bottom + 6
+        left = triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2
+        break
+      case 'left':
+        top = triggerRect.top + triggerRect.height / 2 - tooltipRect.height / 2
+        left = triggerRect.left - tooltipRect.width - 6
+        break
+      case 'right':
+        top = triggerRect.top + triggerRect.height / 2 - tooltipRect.height / 2
+        left = triggerRect.right + 6
+        break
+      default:
+        top = triggerRect.bottom + 6
+        left = triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2
+        break
+    }
+
+    setTooltipStyles({ top, left })
+  }
+
+  const showTooltip = () => {
+    if (isControlled) {
+      if ('onMouseEnter' in props && props.onMouseEnter && props.onMouseEnter()) {
+        setIsVisible('calculating')
+      }
+    } else if (visibleState === 'hidden') {
+      setIsVisible('calculating')
+    }
+  }
+
+  const hideTooltip = () => {
+    if (isControlled) {
+      if ('onMouseLeave' in props && props.onMouseLeave && !props.onMouseLeave()) {
+        setIsVisible('hidden')
+      }
+    } else if (visibleState !== 'hidden') {
+      setIsVisible('hidden')
+    }
+  }
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (visibleState) {
+        calculatePosition()
+      }
+    }
+    window.addEventListener('resize', handleResize)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [visibleState])
+
+  useEffect(() => {
+    if (visibleState) {
+      calculatePosition()
+    }
+  }, [position])
+
+  useEffect(() => {
+    if (visibleState === 'calculating' && triggerRef.current && tooltipRef.current) {
+      calculatePosition()
+      setIsVisible('visible')
+    }
+  }, [visibleState, title, content])
+
   return (
-    <Popup
-      trigger={<div style={{ all: 'unset' }}>{children}</div>}
-      on="hover"
-      keepTooltipInside
-      repositionOnResize
-      arrow={false}
-      contentStyle={{
-        animation: 'expandFromCenter 0.3s cubic-bezier(0.38, 0.1, 0.36, 0.9) forwards',
-        transformOrigin: 'center'
-      }}
-      {...rest}
+    <div
+      ref={triggerRef}
+      className="group relative flex max-w-max flex-col items-center justify-center"
+      onMouseEnter={showTooltip}
+      onMouseLeave={hideTooltip}
     >
-      <div className="-mt-1 grid text-wrap shadow-lg transition-all">
-        {title && (
-          <span
-            className={twMerge(
-              'block rounded-t border-b border-b-[#212226] bg-[#141619] px-3 py-1.5 text-sm text-[#F5F5F5]',
-              titleClassName
-            )}
+      {children}
+      {visibleState !== 'hidden' &&
+        ReactDOM.createPortal(
+          <div
+            ref={tooltipRef}
+            className={`tooltip ${
+              visibleState === 'visible' ? 'tooltip-visible' : ''
+            } absolute min-w-max transform transition duration-300`}
+            style={{ ...tooltipStyles, zIndex: 9999, position: 'absolute' }}
           >
-            {title}
-          </span>
+            <div className="relative flex max-w-xs flex-col items-center shadow-lg">
+              <div
+                className={`tooltip-arrow absolute tooltip-arrow-${tooltipPosition} h-3 w-3 rotate-45 transform border-b border-theme-primary bg-[#191B1F]`}
+              ></div>
+
+              <div className="rounded border border-theme-primary bg-[#191B1F] px-4 py-2 text-center text-xs text-white">
+                {title && <div className="mb-1 text-sm font-semibold text-white">{title}</div>}
+                <div>{content}</div>
+              </div>
+            </div>
+          </div>,
+          document.body
         )}
-        <div
-          className={twMerge(
-            'bg-theme-studio-surface px-3 py-2 text-sm text-[#F5F5F5]',
-            title ? 'rounded-b' : 'rounded',
-            className
-          )}
-        >
-          {content}
-        </div>
-      </div>
-    </Popup>
+    </div>
   )
 }
 
-export default Tooltip
+export default React.forwardRef(Tooltip)

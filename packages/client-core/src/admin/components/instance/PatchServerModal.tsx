@@ -30,9 +30,8 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { useFind, useMutation } from '@ir-engine/common'
 import { LocationID, locationPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
+import { Input, Select } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 
@@ -79,12 +78,14 @@ export default function PatchServerModal() {
     >
       <Select
         options={locationsMenu}
-        currentValue={state.locationId.value}
-        onChange={(value) => {
+        value={state.locationId.value}
+        onChange={(value: string) => {
           state.locationId.set(value)
         }}
-        className="mb-5"
-        label={t('admin:components.instance.location')}
+        labelProps={{
+          text: t('admin:components.instance.location'),
+          position: 'top'
+        }}
       />
       <Input
         type="number"
@@ -96,6 +97,7 @@ export default function PatchServerModal() {
           text: t('admin:components.instance.count'),
           position: 'top'
         }}
+        fullWidth
       />
     </Modal>
   )

@@ -41,7 +41,7 @@ import {
 
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { Vector3 } from 'three'
-import { assertVecAllApproxNotEq, assertVecApproxEq } from '../../../tests/util/mathAssertions'
+import { assertVec } from '../../../tests/util/assert'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { EntityTreeComponent, getAncestorWithComponents } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -60,7 +60,13 @@ export const ColliderComponentDefaults = {
   friction: 0.5,
   restitution: 0.5,
   collisionLayer: CollisionGroups.Default,
-  collisionMask: DefaultCollisionMask
+  collisionMask: DefaultCollisionMask,
+
+  matchMesh: true,
+  centerOffset: new Vector3(0, 0, 0),
+  boxSize: new Vector3(1, 1, 1),
+  radius: 1,
+  height: 2
 }
 
 export function assertColliderComponentEquals(data, expected, testShape = true) {
@@ -298,12 +304,12 @@ describe('ColliderComponent', () => {
         const beforeCollider = physicsWorld.Colliders.get(testEntity)
         assert.ok(beforeCollider)
         const before = getComponent(testEntity, TransformComponent).scale.clone()
-        assertVecApproxEq(before, TransformScaleDefault, 3)
+        assertVec.approxEq(before, TransformScaleDefault, 3)
 
         // Apply and check on changes
         setComponent(testEntity, TransformComponent, { scale: Expected })
         const after1 = getComponent(testEntity, TransformComponent).scale.clone()
-        assertVecAllApproxNotEq(before, after1, 3)
+        assertVec.allApproxNotEq(before, after1, 3)
 
         // Apply and check on component removal
         removeComponent(testEntity, ColliderComponent)

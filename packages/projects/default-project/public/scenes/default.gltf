@@ -315,16 +315,6 @@
           },
           "enabled": false
         },
-        "EE_media_settings": {
-          "immersiveMedia": false,
-          "refDistance": 20,
-          "rolloffFactor": 1,
-          "maxDistance": 10000,
-          "distanceModel": "linear",
-          "coneInnerAngle": 360,
-          "coneOuterAngle": 0,
-          "coneOuterGain": 0
-        },
         "EE_render_settings": {
           "primaryLight": "cb045cfd-8daf-4a2b-b764-35625be54a11",
           "csm": true,
@@ -496,7 +486,6 @@
     "EE_fog",
     "EE_camera_settings",
     "EE_postprocessing",
-    "EE_media_settings",
     "EE_render_settings",
     "EE_scene_settings",
     "EE_visible",

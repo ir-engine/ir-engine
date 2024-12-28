@@ -28,17 +28,19 @@ import { PerspectiveCamera } from 'three'
 
 import {
   AnimationSystemGroup,
-  defineQuery,
   defineSystem,
   Engine,
   EntityUUID,
   getComponent,
   getOptionalMutableComponent,
+  QueryReactor,
+  removeComponent,
   setComponent,
+  useEntityContext,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { defineState, getMutableState, none, useMutableState } from '@ir-engine/hyperflux'
-import { NetworkObjectOwnedTag, WorldNetworkAction } from '@ir-engine/network'
+import { NetworkObjectOwnedTag, NetworkObjectSendPeriodicUpdatesTag, WorldNetworkAction } from '@ir-engine/network'
 
 import { EngineState } from '../../EngineState'
 import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
@@ -84,8 +86,6 @@ const CameraEntity = (props: { entityUUID: EntityUUID }) => {
   return null
 }
 
-const ownedNetworkCamera = defineQuery([CameraComponent, NetworkObjectOwnedTag])
-
 function CameraReactor() {
   const cameraSettings = useMutableState(CameraSettingsState)
 
@@ -111,33 +111,36 @@ function CameraReactor() {
     }
   }, [cameraSettings])
 
-  return null
+  return <QueryReactor Components={[CameraComponent, NetworkObjectOwnedTag]} ChildEntityReactor={OwnedCameraReactor} />
 }
 
-const execute = () => {
-  // as spectatee: update network camera from local camera
-  /** @todo event source this */
-  for (const networkCameraEntity of ownedNetworkCamera.enter()) {
-    const networkTransform = getComponent(networkCameraEntity, TransformComponent)
-    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    setComponent(networkCameraEntity, ComputedTransformComponent, {
-      referenceEntities: [Engine.instance.viewerEntity],
+const OwnedCameraReactor = () => {
+  const entity = useEntityContext()
+  const viewerEntity = useMutableState(EngineState).viewerEntity.value
+
+  useEffect(() => {
+    setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
+    const networkTransform = getComponent(entity, TransformComponent)
+    const cameraTransform = getComponent(viewerEntity, TransformComponent)
+    setComponent(entity, ComputedTransformComponent, {
+      referenceEntities: [viewerEntity],
       computeFunction: () => {
         networkTransform.position.copy(cameraTransform.position)
         networkTransform.rotation.copy(cameraTransform.rotation)
       }
     })
-  }
-}
+    return () => {
+      removeComponent(entity, ComputedTransformComponent)
+      removeComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
+    }
+  }, [])
 
-const reactor = () => {
-  return <CameraReactor />
+  return null
 }
 
 export const CameraSystem = defineSystem({
   uuid: 'ee.engine.CameraSystem',
   insert: { with: AnimationSystemGroup },
-  execute,
   reactor: () => {
     if (!useMutableState(EngineState).viewerEntity.value) return null
     return <CameraReactor />

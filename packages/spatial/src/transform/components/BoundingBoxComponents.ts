@@ -47,19 +47,15 @@ import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { RendererState } from '../../renderer/RendererState'
+import { T } from '../../schema/schemaFunctions'
 
 export const BoundingBoxComponent = defineComponent({
   name: 'BoundingBoxComponent',
 
   schema: S.Object({
-    box: S.Class(() => new Box3()),
+    box: T.Box3(),
     helper: S.Entity()
   }),
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (json.box?.isBox3) component.box.value.copy(json.box)
-  },
 
   reactor: function () {
     const entity = useEntityContext()
@@ -127,14 +123,17 @@ const _box = new Box3()
 
 const expandBoxByObject = (object: Mesh<BufferGeometry>, box: Box3) => {
   const geometry = object.geometry
+  if (!geometry) return
 
-  if (geometry) {
-    if (geometry.boundingBox === null) {
-      geometry.computeBoundingBox()
-    }
-
-    _box.copy(geometry.boundingBox!)
-    _box.applyMatrix4(object.matrixWorld)
-    box.union(_box)
+  if (geometry.boundingBox === null) {
+    geometry.computeBoundingBox()
   }
+
+  _box.copy(geometry.boundingBox!)
+  _box.applyMatrix4(object.matrixWorld)
+  box.union(_box)
+}
+
+export const BoundingBoxComponentFunctions = {
+  expandBoxByObject
 }

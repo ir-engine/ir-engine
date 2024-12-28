@@ -30,6 +30,7 @@ import { UserMenu } from '@ir-engine/client-core/src/user/components/UserMenu'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
 
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { LoadingSystemState } from '../../systems/state/LoadingState'
 import { ARPlacement } from '../ARPlacement'
 import { Fullscreen } from '../Fullscreen'
@@ -41,23 +42,28 @@ import { XRLoading } from '../XRLoading'
 import styles from './index.module.scss'
 
 export const LocationIcons = () => {
+  const userID = useHookstate(getMutableState(EngineState).userID).value
   const loadingScreenOpacity = useHookstate(getMutableState(LoadingSystemState).loadingScreenOpacity)
+  if (!userID) return null
+
   return (
     <>
       <UserMenu />
-      {/** Container for fading most stuff in and out depending on if the location is loaded or not  */}
-      <div style={{ opacity: 1 - loadingScreenOpacity.value }}>
-        <div className={`${styles.rightSidebar}`}>
-          <UserMediaWindows />
-          <InstanceChatWrapper />
+      <>
+        {/** Container for fading most stuff in and out depending on if the location is loaded or not  */}
+        <div style={{ opacity: 1 - loadingScreenOpacity.value }}>
+          <div className={`${styles.rightSidebar}`}>
+            <UserMediaWindows />
+            <InstanceChatWrapper />
+          </div>
+          <Shelves />
+          <ARPlacement />
+          <XRLoading />
+          <MediaIconsBox />
+          <TouchGamepad />
+          {!iOS && <Fullscreen />}
         </div>
-        <Shelves />
-        <ARPlacement />
-        <XRLoading />
-        <MediaIconsBox />
-        <TouchGamepad />
-        {!iOS && <Fullscreen />}
-      </div>
+      </>
     </>
   )
 }

@@ -131,14 +131,14 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       >
         <Checkbox checked={media.autoplay.value} onChange={commitProperty(MediaComponent, 'autoplay')} />
       </InputGroup>
-
-      <InputGroup
-        name="Synchronize"
-        label={t('editor:properties.media.lbl-synchronize')}
-        info={t('editor:properties.media.info-synchronize')}
-      >
-        <Checkbox checked={media.synchronize.value} onChange={commitProperty(MediaComponent, 'synchronize')} />
-      </InputGroup>
+      {/*hiding synchronize option until it can be fixed*/}
+      {/*<InputGroup*/}
+      {/*  name="Synchronize"*/}
+      {/*  label={t('editor:properties.media.lbl-synchronize')}*/}
+      {/*  info={t('editor:properties.media.info-synchronize')}*/}
+      {/*>*/}
+      {/*  <Checkbox checked={media.synchronize.value} onChange={commitProperty(MediaComponent, 'synchronize')} />*/}
+      {/*</InputGroup>*/}
 
       <ArrayInputGroup
         label={t('editor:properties.media.paths')}
@@ -164,10 +164,10 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
             label={t('editor:properties.media.lbl-mediaControls')}
             className="mb-2 flex gap-2"
           >
-            <Button variant="outline" onClick={toggle}>
+            <Button variant="tertiary" onClick={toggle}>
               {media.paused.value ? t('editor:properties.media.playtitle') : t('editor:properties.media.pausetitle')}
             </Button>
-            <Button variant="outline" onClick={reset}>
+            <Button variant="tertiary" onClick={reset}>
               {t('editor:properties.media.resettitle')}
             </Button>
           </InputGroup>

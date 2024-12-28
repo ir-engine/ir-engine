@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-import { twMerge } from 'tailwind-merge'
 import { LoaderUtils } from 'three'
 
 import {
@@ -48,8 +47,8 @@ import exportGLTF from '../../functions/exportGLTF'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
+import { Button } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { HiPlus, HiXMark } from 'react-icons/hi2'
 import { MdClose } from 'react-icons/md'
@@ -266,69 +265,64 @@ export default function ModelCompressionPanel({
       <div className="relative flex items-center justify-center px-8 py-3">
         <Text className="leading-6">{t('editor:properties.model.transform.compress')}</Text>
         <Button
-          variant="outline"
+          variant="tertiary"
           className="absolute right-0 border-0 dark:bg-transparent dark:text-[#A3A3A3]"
-          startIcon={<MdClose />}
           onClick={() => PopoverState.hidePopupover()}
-        />
+        >
+          <MdClose />
+        </Button>
       </div>
       <div className="px-8 pb-6 pt-2 text-left">
         <Text className="mb-6 font-semibold">{t('editor:properties.model.transform.lodLevels')}</Text>
         <div className="mb-8 flex gap-x-4">
           {lods.value.map((_lod, index) => (
             <span key={index} className="flex items-center">
-              <Button
-                variant="transparent"
+              <button
                 className={`rounded-none px-1 pb-4 text-sm font-medium ${
                   selectedLODIndex.value === index ? 'border-b border-blue-primary text-blue-primary' : 'text-[#9CA0AA]'
                 }`}
                 onClick={() => selectedLODIndex.set(Math.min(index, lods.length - 1))}
               >
                 {t('editor:properties.model.transform.lodLevelNumber', { index: index + 1 })}
-              </Button>
+              </button>
               {selectedLODIndex.value !== index && (
-                <Button
-                  className={twMerge('m-0 p-0 pb-1')}
-                  variant="transparent"
+                <button
+                  className="m-0 p-0 pb-1 font-medium text-white"
                   onClick={() => handleRemoveLOD(index)}
-                  startIcon={<HiXMark />}
                   title="remove"
-                />
+                >
+                  <HiXMark />
+                </button>
               )}
             </span>
           ))}
-          <Button
-            className="self-center rounded-md bg-[#162546] p-1 [&>*]:m-0"
-            variant="transparent"
+          <button
+            className="self-center rounded-md bg-[#162546] p-1 font-medium text-white [&>*]:m-0"
             onClick={handleAddLOD}
           >
             <HiPlus />
-          </Button>
+          </button>
         </div>
 
         <div className="my-8 flex items-center justify-around gap-x-1 overflow-x-auto rounded-lg border border-theme-input p-2">
           {presetList.value.map((lodItem: LODVariantDescriptor, index) => (
-            <Button
+            <button
               key={index}
-              variant="transparent"
-              className="text-nowrap rounded-full bg-[#212226] px-2 py-0.5"
+              className="flex items-center justify-center text-nowrap rounded-full bg-[#212226] px-2 py-0.5 font-medium text-white"
               onClick={() => applyPreset(lodItem.params)}
-              endIcon={
-                !LODList.find((l) => l.params.dst === lodItem.params.dst) && (
-                  <HiXMark onClick={(event) => deletePreset(event, index)} />
-                )
-              }
             >
               {lodItem.params.dst}
-            </Button>
+              {!LODList.find((l) => l.params.dst === lodItem.params.dst) && (
+                <HiXMark onClick={(event) => deletePreset(event, index)} />
+              )}
+            </button>
           ))}
-          <Button
-            variant="transparent"
-            className="text-nowrap rounded bg-[#162546] px-3 py-2"
+          <button
+            className="text-nowrap rounded bg-[#162546] px-3 py-2 font-medium text-white"
             onClick={() => savePresetList()}
           >
             {t('editor:properties.model.transform.savePreset')}
-          </Button>
+          </button>
         </div>
 
         <div className="ml-[16.66%] w-4/6">

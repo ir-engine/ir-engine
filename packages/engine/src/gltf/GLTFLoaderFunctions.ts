@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { GLTF } from '@gltf-transform/core'
 import {
   ComponentType,
+  Entity,
   EntityUUID,
   UUIDComponent,
   UndefinedEntity,
@@ -41,6 +42,7 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { MaterialPrototypeComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { ResourceManager, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 import { useReferencedResource } from '@ir-engine/spatial/src/resources/resourceHooks'
+import { traverseEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
 import {
   AnimationClip,
@@ -66,7 +68,6 @@ import {
   MeshBasicMaterial,
   MeshStandardMaterial,
   NumberKeyframeTrack,
-  Object3D,
   QuaternionKeyframeTrack,
   RepeatWrapping,
   SRGBColorSpace,
@@ -510,14 +511,14 @@ const useLoadMaterial = (
   useEffect(() => {
     if (!map) return
     map.colorSpace = SRGBColorSpace
-    result.value?.setValues({ map })
+    material?.setValues({ map })
     if (material) material.needsUpdate = true
   }, [material, map])
 
   useEffect(() => {
     if (Array.isArray(materialDef.pbrMetallicRoughness?.baseColorFactor)) {
       const array = materialDef.pbrMetallicRoughness.baseColorFactor
-      result.value?.setValues({
+      material?.setValues({
         color: new Color().setRGB(array[0], array[1], array[2], LinearSRGBColorSpace),
         opacity: array[3]
       })
@@ -526,7 +527,7 @@ const useLoadMaterial = (
   }, [material, materialDef.pbrMetallicRoughness?.baseColorFactor])
 
   useEffect(() => {
-    result.value?.setValues({
+    material?.setValues({
       metalness:
         materialDef.pbrMetallicRoughness?.metallicFactor !== undefined
           ? materialDef.pbrMetallicRoughness.metallicFactor
@@ -536,7 +537,7 @@ const useLoadMaterial = (
   }, [material, materialDef.pbrMetallicRoughness?.metallicFactor])
 
   useEffect(() => {
-    result.value?.setValues({
+    material?.setValues({
       roughness:
         materialDef.pbrMetallicRoughness?.roughnessFactor !== undefined
           ? materialDef.pbrMetallicRoughness.roughnessFactor
@@ -552,7 +553,7 @@ const useLoadMaterial = (
 
   useEffect(() => {
     if (!metalnessMap) return
-    result.value?.setValues({ metalnessMap })
+    material?.setValues({ metalnessMap })
     if (material) material.needsUpdate = true
   }, [material, metalnessMap])
 
@@ -563,34 +564,34 @@ const useLoadMaterial = (
 
   useEffect(() => {
     if (!roughnessMap) return
-    result.value?.setValues({ roughnessMap })
+    material?.setValues({ roughnessMap })
     if (material) material.needsUpdate = true
   }, [material, roughnessMap])
 
   useEffect(() => {
-    result.value?.setValues({ side: materialDef.doubleSided === true ? DoubleSide : FrontSide })
+    material?.setValues({ side: materialDef.doubleSided === true ? DoubleSide : FrontSide })
     if (material) material.needsUpdate = true
   }, [material, materialDef.doubleSided])
 
   useEffect(() => {
     const alphaMode = materialDef.alphaMode || ALPHA_MODES.OPAQUE
-    result.value?.setValues({ transparent: alphaMode === ALPHA_MODES.BLEND })
+    material?.setValues({ transparent: alphaMode === ALPHA_MODES.BLEND })
 
     // See: https://github.com/mrdoob/three.js/issues/17706
     if (alphaMode === ALPHA_MODES.BLEND) {
-      result.value?.setValues({ depthWrite: false })
+      material?.setValues({ depthWrite: false })
     }
     if (material) material.needsUpdate = true
   }, [material, materialDef.alphaMode])
 
   useEffect(() => {
     if (materialDef.alphaMode === ALPHA_MODES.MASK) {
-      result.value?.setValues({ alphaTest: materialDef.alphaCutoff !== undefined ? materialDef.alphaCutoff : 0.5 })
+      material?.setValues({ alphaTest: typeof materialDef.alphaCutoff === 'number' ? materialDef.alphaCutoff : 0.5 })
     } else {
-      result.value?.setValues({ alphaTest: 0 })
+      material?.setValues({ alphaTest: 0 })
     }
     if (material) material.needsUpdate = true
-  }, [material, materialDef.alphaCutoff])
+  }, [material, materialDef.alphaMode, materialDef.alphaCutoff])
 
   const normalMap = GLTFLoaderFunctions.useAssignTexture(
     options,
@@ -599,16 +600,16 @@ const useLoadMaterial = (
 
   useEffect(() => {
     if (!normalMap) return
-    result.value?.setValues({ normalMap })
+    material?.setValues({ normalMap })
     if (material) material.needsUpdate = true
   }, [material, normalMap])
 
   useEffect(() => {
     if (materialDef.normalTexture?.scale) {
       const scale = materialDef.normalTexture.scale
-      result.value?.setValues({ normalScale: new Vector2(scale, scale) })
+      material?.setValues({ normalScale: new Vector2(scale, scale) })
     } else {
-      result.value?.setValues({ normalScale: new Vector2(1, 1) })
+      material?.setValues({ normalScale: new Vector2(1, 1) })
     }
     if (material) material.needsUpdate = true
   }, [material, materialDef.normalTexture?.scale])
@@ -620,12 +621,12 @@ const useLoadMaterial = (
 
   useEffect(() => {
     if (!aoMap) return
-    result.value?.setValues({ aoMap })
+    material?.setValues({ aoMap })
     if (material) material.needsUpdate = true
   }, [material, aoMap])
 
   useEffect(() => {
-    result.value?.setValues({ aoMapIntensity: materialDef.occlusionTexture?.strength ?? 1.0 })
+    material?.setValues({ aoMapIntensity: materialDef.occlusionTexture?.strength ?? 1.0 })
     if (material) material.needsUpdate = true
   }, [material, materialDef.occlusionTexture?.strength])
 
@@ -633,7 +634,7 @@ const useLoadMaterial = (
     const emissiveFactor = materialDef.emissiveFactor
     if (!emissiveFactor) return
 
-    result.value?.setValues({
+    material?.setValues({
       emissive: new Color().setRGB(emissiveFactor[0], emissiveFactor[1], emissiveFactor[2], LinearSRGBColorSpace)
     })
     if (material) material.needsUpdate = true
@@ -1003,7 +1004,8 @@ const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) =
           channels.map((channel, i) => [
             i,
             {
-              nodes: null as null | Mesh | Bone | Object3D,
+              nodes: null as null | Mesh | Bone,
+              entity: null as null | Entity,
               inputAccessors: null as null | BufferAttribute,
               outputAccessors: null as null | BufferAttribute,
               samplers: animationDef.samplers[channel.sampler],
@@ -1026,8 +1028,6 @@ const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) =
 
         const targetNodeUUID = getNodeUUID(json.nodes![nodeIndex], options.documentID, nodeIndex)
         const targetNodeEntity = UUIDComponent.useEntityByUUID(targetNodeUUID)
-
-        /** @todo we should probably jsut use GroupComponent or something here once we stop creating Object3Ds for all nodes */
         const meshComponent = useOptionalComponent(targetNodeEntity, MeshComponent)
         const boneComponent = useOptionalComponent(targetNodeEntity, BoneComponent)
         useEffect(() => {
@@ -1055,10 +1055,16 @@ const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) =
           if (!outputAccessor) return
           channelData[i].outputAccessors.set(outputAccessor)
         }, [outputAccessor])
+
+        useEffect(() => {
+          if (!targetNodeEntity) return
+          channelData[i].entity.set(targetNodeEntity)
+        }, [targetNodeEntity])
       }
 
       useEffect(() => {
         const channelDataArray = Object.values(channelData.get(NO_PROXY))
+        if (!channelDataArray.some((data) => data.nodes)) return
         if (
           (channelDataArray.length === 1 && channelDataArray[0].nodes === null) /**@todo reevaluate this check */ ||
           channelDataArray.some((data) => !data.outputAccessors || !data.inputAccessors)
@@ -1070,22 +1076,24 @@ const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) =
         const outputAccessors = values.map((data) => data.outputAccessors) as BufferAttribute[]
         const samplers = values.map((data) => data.samplers) as GLTF.IAnimationSampler[]
         const targets = values.map((data) => data.targets) as GLTF.IAnimationChannelTarget[]
+        const entities = values.map((data) => data.entity) as Entity[]
 
         const tracks = [] as any[] // todo
-        if (animationName === 'Sphere') console.log(nodes)
         for (let i = 0, il = nodes.length; i < il; i++) {
           const node = nodes[i] as Mesh | SkinnedMesh
           const inputAccessor = inputAccessors[i]
           const outputAccessor = outputAccessors[i]
           const sampler = samplers[i]
           const target = targets[i]
-          if (!node || !outputAccessor || !inputAccessor) continue
+          const entity = entities[i]
 
-          if (node.updateMatrix) {
-            node.updateMatrix()
+          if (!(node || entity) || !outputAccessor || !inputAccessor) continue
+
+          if ((node as Mesh)?.updateMatrix) {
+            ;(node as Mesh)?.updateMatrix()
           }
 
-          const createdTracks = _createAnimationTracks(node, inputAccessor, outputAccessor, sampler, target)
+          const createdTracks = _createAnimationTracks(entity, inputAccessor, outputAccessor, sampler, target)
 
           if (createdTracks) {
             for (let k = 0; k < createdTracks.length; k++) {
@@ -1109,23 +1117,22 @@ const useLoadAnimation = (options: GLTFParserOptions, animationIndex?: number) =
 }
 
 const _createAnimationTracks = (
-  node: Mesh | SkinnedMesh,
+  node: Entity,
   inputAccessor: BufferAttribute,
   outputAccessor: BufferAttribute,
   sampler: GLTF.IAnimationSampler,
   target: GLTF.IAnimationChannelTarget
 ) => {
   const tracks = [] as any[] // todo
-
-  const targetName = node.name
+  const targetName = getComponent(node, UUIDComponent)
   if (!targetName) throw new Error('THREE.GLTFLoader: Node has no name.')
   const targetNames = [] as string[]
-
   if (PATH_PROPERTIES[target.path] === PATH_PROPERTIES.weights) {
-    node.traverse(function (object: Mesh | SkinnedMesh) {
+    traverseEntityNode(node, (entity) => {
+      const object = getComponent(entity, MeshComponent)
       if (object.morphTargetInfluences) {
         if (!object.name) throw new Error('THREE.GLTFLoader: Node has no name.')
-        targetNames.push(object.name)
+        targetNames.push(getComponent(node, UUIDComponent))
       }
     })
   } else {

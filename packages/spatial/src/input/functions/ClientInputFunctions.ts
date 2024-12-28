@@ -49,7 +49,7 @@ import { DefaultButtonAlias, InputComponent } from '../components/InputComponent
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import { ButtonState, ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
-import { HeuristicData, HeuristicFunctions, IntersectionData } from './ClientInputHeuristics'
+import { findProximity, findRaycastedInput, IntersectionData } from './ClientInputHeuristics'
 
 /** radian threshold for rotating state*/
 export const ROTATING_THRESHOLD = 1.5 * (PI / 180)
@@ -214,17 +214,12 @@ export const redirectPointerEventsToXRUI = (cameraEntity: Entity, evt: PointerEv
 
 const nonSpatialInputSource = defineQuery([InputSourceComponent, Not(TransformComponent)])
 
-export function assignInputSources(
-  sourceEid: Entity,
-  capturedEntity: Entity,
-  data: HeuristicData,
-  heuristic: HeuristicFunctions
-) {
+export function assignInputSources(sourceEid: Entity, capturedEntity: Entity) {
   const isSpatialInput = hasComponent(sourceEid, TransformComponent)
 
   const intersectionData = new Set([] as IntersectionData[])
 
-  if (isSpatialInput) heuristic.raycastedInput(sourceEid, intersectionData, data, heuristic)
+  if (isSpatialInput) findRaycastedInput(sourceEid, intersectionData)
 
   const sortedIntersections = Array.from(intersectionData).sort((a, b) => {
     // - if a < b
@@ -244,7 +239,7 @@ export function assignInputSources(
     sortedIntersections.length === 0 &&
     !hasComponent(sourceEid, InputPointerComponent)
   ) {
-    heuristic.proximity(isSpatialInput, sourceEid, sortedIntersections, intersectionData)
+    findProximity(isSpatialInput, sourceEid, sortedIntersections, intersectionData)
   }
 
   const inputPointerComponent = getOptionalComponent(sourceEid, InputPointerComponent)

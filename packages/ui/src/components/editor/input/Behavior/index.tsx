@@ -120,6 +120,12 @@ export default function BehaviorInput({
           <InputGroup name="power" label="Power">
             <Vector3Input value={new Vector3(...value.power)} onChange={onChange(noiseScope.power)} />
           </InputGroup>
+          <InputGroup name="positionAmount" label="positionAmount">
+            <NumericInput value={value.positionAmount} onChange={onChange(noiseScope.positionAmount)} />
+          </InputGroup>
+          <InputGroup name="rotationAmount" label="rotation Amount">
+            <NumericInput value={value.rotationAmount} onChange={onChange(noiseScope.rotationAmount)} />
+          </InputGroup>
         </>
       )
     },

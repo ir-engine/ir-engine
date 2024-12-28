@@ -55,12 +55,14 @@ export const SplineTrackComponent = defineComponent({
   jsonID: 'EE_spline_track',
 
   schema: S.Object({
-    alpha: S.Number(0), // internal
-    splineEntityUUID: S.Nullable(S.EntityUUID()),
+    splineEntityUUID: S.EntityUUID(),
     velocity: S.Number(1.0),
     enableRotation: S.Bool(false),
     lockToXZPlane: S.Bool(true),
-    loop: S.Bool(true)
+    loop: S.Bool(true),
+
+    // internal
+    alpha: S.NonSerialized(S.Number(0))
   }),
 
   reactor: function (props) {

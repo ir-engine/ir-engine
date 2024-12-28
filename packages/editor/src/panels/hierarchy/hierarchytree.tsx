@@ -24,12 +24,12 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { Button } from '@ir-engine/ui'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import SearchBar from '@ir-engine/ui/src/components/tailwind/SearchBar'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { PlusCircleSm } from '@ir-engine/ui/src/icons'
 import React, { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiOutlinePlusCircle } from 'react-icons/hi2'
 import { FixedSizeList, ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
@@ -51,16 +51,14 @@ export function Topbar() {
         onClose={() => isAddEntityMenuOpen.set(false)}
         trigger={
           <Button
-            startIcon={<HiOutlinePlusCircle />}
-            variant="transparent"
-            rounded="none"
-            className="ml-auto w-32 text-nowrap bg-theme-highlight px-2 py-3 text-white"
-            size="small"
-            textContainerClassName="mx-0"
+            variant="secondary"
+            size="l"
             data-testid="hierarchy-panel-add-entity-button"
             onClick={() => isAddEntityMenuOpen.set(true)}
+            className="bg-[#212226]"
           >
-            {t('editor:hierarchy.lbl-addEntity')}
+            <PlusCircleSm />
+            <span className="text-nowrap">{t('editor:hierarchy.lbl-addEntity')}</span>
           </Button>
         }
       >
@@ -80,7 +78,7 @@ export function Contents() {
   const nodes = useHierarchyNodes()
   const ref = useRef<HTMLDivElement>(null)
 
-  const { canDrop, isOver, dropTarget: treeContainerDropTarget } = useHierarchyTreeDrop()
+  const { canDrop, isOver, dropTarget: treeContainerDropTarget } = useHierarchyTreeDrop(nodes?.[0], 'On')
 
   /**an explicit callback is required to rerender changed nodes inside FixedSizeList */
   const MemoTreeNode = useCallback(

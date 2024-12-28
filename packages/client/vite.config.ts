@@ -268,7 +268,10 @@ export default defineConfig(async () => {
     }
   }
 
-  const define = { __IR_ENGINE_VERSION__: JSON.stringify(packageJson.version) }
+  const define = {
+    __IR_ENGINE_VERSION__: JSON.stringify(packageJson.version),
+    'globalThis.process.env': {}
+  }
   for (const [key, value] of Object.entries(process.env)) {
     define[`globalThis.process.env.${key}`] = JSON.stringify(value)
   }
@@ -276,7 +279,6 @@ export default defineConfig(async () => {
   const returned = {
     define: define,
     server: {
-      proxy: {},
       cors: !isDevOrLocal,
       hmr:
         process.env.VITE_HMR === 'true'
@@ -292,7 +294,7 @@ export default defineConfig(async () => {
         'Origin-Agent-Cluster': '?1'
       },
       watch: {
-        ignored: ['**packages/server/upload/**']
+        ignored: ['**/server/upload/**']
       },
       ...(isDevOrLocal
         ? {

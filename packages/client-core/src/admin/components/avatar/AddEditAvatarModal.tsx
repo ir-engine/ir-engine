@@ -35,8 +35,8 @@ import { cleanURL } from '@ir-engine/common/src/utils/cleanURL'
 import { AssetsPreviewPanel } from '@ir-engine/editor/src/components/assets/AssetsPreviewPanel'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Input, RadioGroup } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button, Input, RadioGroup } from '@ir-engine/ui'
+
 import DragNDrop from '@ir-engine/ui/src/primitives/tailwind/DragNDrop'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 
@@ -232,6 +232,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
       <div className="grid gap-6">
         {error.value && <p className="mt-2 text-red-700">{error.serverError.value}</p>}
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.avatar.avatarName'),
             position: 'top'
@@ -257,6 +258,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
         <div className="col-span-1">
           {avatarAssets.source.value === 'url' && (
             <Input
+              fullWidth
               labelProps={{
                 text: t('admin:components.avatar.avatarUrl'),
                 position: 'top'
@@ -283,12 +285,8 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
                   <p className="absolute right-2 top-2 max-w-[50%] text-wrap text-red-700">{error.model.value}</p>
                 )}
                 {avatarAssets.source.value === 'file' && (
-                  <Button
-                    disabled={!avatarAssets.model.value}
-                    startIcon={<HiArrowPath />}
-                    onClick={clearAvatar}
-                    className="absolute left-2 top-2"
-                  >
+                  <Button disabled={!avatarAssets.model.value} onClick={clearAvatar} className="absolute left-2 top-2">
+                    <HiArrowPath />
                     {t('admin:components.avatar.clearAvatar')}
                   </Button>
                 )}
@@ -318,6 +316,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
         <div className="col-span-1">
           {avatarAssets.source.value === 'url' && (
             <Input
+              fullWidth
               labelProps={{
                 text: t('admin:components.avatar.thumbnailUrl'),
                 position: 'top'
@@ -346,10 +345,10 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
                 {avatarAssets.source.value === 'file' && (
                   <Button
                     disabled={!avatarAssets.thumbnail.value}
-                    startIcon={<HiArrowPath />}
                     onClick={clearThumbnail}
                     className="absolute left-2 top-2"
                   >
+                    <HiArrowPath />
                     {t('admin:components.avatar.clearThumbnail')}
                   </Button>
                 )}
@@ -385,7 +384,7 @@ export default function AddEditAvatarModal({ avatar }: { avatar?: AvatarType }) 
             }
             className="mt-2"
           >
-            Generate Thumbnail
+            {t('admin:components.avatar.saveThumbnail')}
           </Button>
         </div>
       </div>

@@ -36,11 +36,7 @@ export const ReflectionProbeComponent = defineComponent({
 
   schema: S.Object({
     src: S.String(''),
-    texture: S.Nullable(S.Type<Texture>())
-  }),
-
-  toJSON: (component) => ({
-    src: component.src
+    texture: S.NonSerialized(S.Nullable(S.Type<Texture>()))
   }),
 
   errors: ['LOADING_ERROR'],
@@ -59,6 +55,6 @@ export const ReflectionProbeComponent = defineComponent({
       if (!error) return
       probeComponent.texture.set(null)
       addError(entity, ReflectionProbeComponent, 'LOADING_ERROR', 'Failed to load reflection probe texture.')
-    })
+    }, [])
   }
 })

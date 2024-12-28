@@ -52,11 +52,6 @@ export const PositionalAudioHelperComponent = defineComponent({
     entity: S.Entity()
   }),
 
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.name === 'string') component.name.set(json.name)
-  },
-
   reactor: function () {
     const entity = useEntityContext()
     const audioComponent = useComponent(entity, PositionalAudioComponent)

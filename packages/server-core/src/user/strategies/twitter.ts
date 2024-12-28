@@ -30,6 +30,9 @@ import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identit
 import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { InviteCode, UserName, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 
+import { loginTokenPath } from '@ir-engine/common/src/schemas/user/login-token.schema'
+import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import moment from 'moment/moment'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { RedirectConfig } from '../../types/OauthStrategies'
@@ -54,12 +57,14 @@ export class TwitterStrategy extends CustomOAuthStrategy {
     const identityProvider = authResult[identityProviderPath] ? authResult[identityProviderPath] : authResult
     const userId = identityProvider ? identityProvider.userId : params?.query ? params.query.userId : undefined
 
-    return {
+    const returned = {
       ...baseData,
       accountIdentifier: profile.screen_name,
       type: 'twitter',
       userId
     }
+    if (profile.email) returned.email = profile.email
+    return returned
   }
 
   async updateEntity(entity: any, profile: any, params: Params): Promise<any> {
@@ -67,17 +72,23 @@ export class TwitterStrategy extends CustomOAuthStrategy {
       { accessToken: params?.authentication?.accessToken },
       {}
     )
-    if (!entity.userId) {
-      const code = (await getFreeInviteCode(this.app)) as InviteCode
-      const newUser = await this.app.service(userPath).create({
-        name: '' as UserName,
-        isGuest: false,
-        inviteCode: code
-      })
-      entity.userId = newUser.id
-      await this.app.service(identityProviderPath).patch(entity.id, {
-        userId: newUser.id
-      })
+    if (entity.type === 'twitter') {
+      if (!entity.userId) {
+        const code = (await getFreeInviteCode(this.app)) as InviteCode
+        const newUser = await this.app.service(userPath).create({
+          name: '' as UserName,
+          isGuest: false,
+          inviteCode: code
+        })
+        entity.userId = newUser.id
+        await this.app.service(identityProviderPath).patch(entity.id, {
+          userId: newUser.id,
+          email: entity.email
+        })
+      } else
+        await this.app.service(identityProviderPath)._patch(entity.id, {
+          email: entity.email
+        })
     }
     const identityProvider = authResult[identityProviderPath]
     const user = await this.app.service(userPath).get(entity.userId)
@@ -105,7 +116,41 @@ export class TwitterStrategy extends CustomOAuthStrategy {
     if (!existingEntity) {
       profile.userId = user.id
       const newIP = await super.createEntity(profile, params)
-      if (entity.type === 'guest') await this.app.service(identityProviderPath).remove(entity.id)
+      if (entity.type === 'guest') {
+        if (profile.email) {
+          const profileEmail = profile.email
+          const existingIdentityProviders = await this.app.service(identityProviderPath).find({
+            query: {
+              $or: [
+                {
+                  email: profileEmail
+                },
+                {
+                  token: profileEmail
+                }
+              ],
+              id: {
+                $ne: newIP.id
+              }
+            }
+          })
+          if (existingIdentityProviders.total > 0) {
+            const loginToken = await this.app.service(loginTokenPath).create({
+              identityProviderId: newIP.id,
+              associateUserId: existingIdentityProviders.data[0].userId,
+              expiresAt: toDateTimeSql(moment().utc().add(10, 'minutes').toDate())
+            })
+            return {
+              ...entity,
+              associateEmail: profileEmail,
+              loginId: loginToken.id,
+              loginToken: loginToken.token,
+              promptForConnection: true
+            }
+          }
+        }
+        await this.app.service(identityProviderPath).remove(entity.id)
+      }
       await this.userLoginEntry(newIP, params)
       return newIP
     } else if (existingEntity.userId === identityProvider.userId) {
@@ -131,16 +176,28 @@ export class TwitterStrategy extends CustomOAuthStrategy {
       return redirectDomain + `?error=${err}`
     }
 
-    const loginType = params.query?.userId ? 'connection' : 'login'
-    let redirectUrl = `${redirectDomain}?token=${data.accessToken}&type=${loginType}`
-    if (redirectPath) {
-      redirectUrl = redirectUrl.concat(`&path=${redirectPath}`)
-    }
-    if (redirectInstanceId) {
-      redirectUrl = redirectUrl.concat(`&instanceId=${redirectInstanceId}`)
-    }
+    if (data[identityProviderPath]?.promptForConnection) {
+      let redirectUrl = `${redirectDomain}?promptForConnection=true&associateEmail=${data[identityProviderPath].associateEmail}&loginToken=${data[identityProviderPath].loginToken}&loginId=${data[identityProviderPath].loginId}`
+      if (redirectPath) {
+        redirectUrl = redirectUrl.concat(`&path=${redirectPath}`)
+      }
+      if (redirectInstanceId) {
+        redirectUrl = redirectUrl.concat(`&instanceId=${redirectInstanceId}`)
+      }
 
-    return redirectUrl
+      return redirectUrl
+    } else {
+      const loginType = params.query?.userId ? 'connection' : 'login'
+      let redirectUrl = `${redirectDomain}?token=${data.accessToken}&type=${loginType}`
+      if (redirectPath) {
+        redirectUrl = redirectUrl.concat(`&path=${redirectPath}`)
+      }
+      if (redirectInstanceId) {
+        redirectUrl = redirectUrl.concat(`&instanceId=${redirectInstanceId}`)
+      }
+
+      return redirectUrl
+    }
   }
 
   async authenticate(authentication: AuthenticationRequest, originalParams: Params) {
@@ -153,7 +210,27 @@ export class TwitterStrategy extends CustomOAuthStrategy {
           'There was a problem with the Twitter OAuth login flow: ' + error?.errors[0].message || error?.errors[0]
         )
     }
-    return super.authenticate(authentication, originalParams)
+    const entity: string = this.configuration.entity
+    const { provider, ...params } = originalParams
+    const profile = await super.getProfile(authentication, params)
+    const existingEntity = (await super.findEntity(profile, params)) || (await super.getCurrentEntity(params))
+
+    const authEntity = !existingEntity
+      ? await this.createEntity(profile, params)
+      : await this.updateEntity(existingEntity, profile, params)
+
+    const fetchedEntity = await super.getEntity(authEntity, originalParams)
+    if (authEntity.promptForConnection) {
+      fetchedEntity.promptForConnection = authEntity.promptForConnection
+      fetchedEntity.associateEmail = authEntity.associateEmail
+      fetchedEntity.loginId = authEntity.loginId
+      fetchedEntity.loginToken = authEntity.loginToken
+    }
+
+    return {
+      authentication: { strategy: this.name! },
+      [entity]: fetchedEntity
+    }
   }
 }
 export default TwitterStrategy

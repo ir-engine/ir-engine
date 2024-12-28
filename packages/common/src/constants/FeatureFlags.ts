@@ -31,8 +31,10 @@ export const FeatureFlags = {
       Avaturn: 'ir.client.menu.avaturn',
       ReadyPlayerMe: 'ir.client.menu.readyPlayerMe',
       CreateAvatar: 'ir.client.menu.createAvatar',
+      UploadAvatar: 'ir.client.menu.uploadAvatar',
       MotionCapture: 'ir.client.location.menu.motionCapture',
-      XR: 'ir.client.menu.xr'
+      XR: 'ir.client.menu.xr',
+      ShareToQuest: 'ir.client.menu.shareToQuest'
     }
   },
   Studio: {
@@ -41,7 +43,9 @@ export const FeatureFlags = {
     },
     Components: {
       LegacyVolumetric: 'ir.studio.components.legacyVolumetric',
-      Volumetric: 'ir.studio.components.volumetric'
+      Volumetric: 'ir.studio.components.volumetric',
+      AudioAnalysis: 'ir.studio.components.audioAnalysis',
+      ScreenshareTarget: 'ir.studio.components.screenshareTarget'
     },
     Panel: {
       VisualScript: 'ir.editor.panel.visualScript',

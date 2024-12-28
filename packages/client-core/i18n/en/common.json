@@ -58,7 +58,7 @@
     "loadingAllowed": "Loading allowed routes...",
     "loadingXRSystems": "Loading immersive session...",
     "connectingToWorld": "Connecting to world...",
-    "needToAgreeTOS": "You need to agree the terms of service to access chat.",
+    "needToAgreeTOS": "You need to verify your age to access chat.",
     "needToLogIn": "You need to log in to access chat.",
     "connectingToMedia": "Connecting to media...",
     "entering": "Entering world...",
@@ -95,6 +95,7 @@
     "gridDebug": "Grid",
     "tick": "Tick",
     "state": "State",
+    "api": "API",
     "systems": "Systems",
     "avgDuration": "Avg Duration: ",
     "entities": "Entities",
@@ -104,7 +105,8 @@
     "physicsDebug": "Physics Debug",
     "bvhDebug": "BVH Debug",
     "avatarDebug": "Avatar Debug",
-    "respawn": "Respawn"
+    "respawn": "Respawn",
+    "close": "Close Debug"
   },
   "recording": {
     "videoRecorder": "Video recorder",

@@ -2,62 +2,40 @@
 
 >  Manifest your dreams on the open social spatial web.
 
-## Table of Contents
-
-- [Table of Contents](#table-of-contents)
-- [Background](#background)
-- [Demos](#demos)
-- [Project API](#project-api)
-  - [Library of EE Projects](#library-of-ee-projects)
-  - [Create your own projects](#create-your-own-projects)
-- [Launch iR Engine with Control Center Install - ***RECOMMENDED***](#launch-ethereal-engine-with-control-center-install---recommended)
-  - [Use Metaverse Control Plane Managment GUI](#use-metaverse-control-plane-managment-gui)
-- [Advanced Development Install](#advanced-development-install)
-  - [Pre-Requisites](#pre-requisites)
-  - [Getting Started](#getting-started)
-- [Usage](#usage)
-  - [Documentation](#documentation)
-- [Contributing](#contributing)
-  - [Let's build it together](#lets-build-it-together)
-  - [Join our Discord  ](#join-our-discord--)
-  - [Sponsorship ](#sponsorship-)
-- [License](#license)
-
 ## Background
 
 https://user-images.githubusercontent.com/507127/142818955-51d7757f-a432-45da-8f8f-56037358ad58.mp4
 
-We ([Infinite Reality Engine](https://github.com/etherealengine)) believe that the Metaverse, 
+We ([Infinite Reality Engine](https://github.com/ir-engine)) believe that the Metaverse, 
 Web AR, VR, and XR should be easy.
 
 We want a Star Trek future where participating in immersive communication 
 technology and shared simulations should be as easy and natural as making a website.
 
 - Includes a self-deployable platform, UI, worlds, avatars, and games
-- Fully customizable for any kind of game, social experience, event or spatial web app
-- User management, avatars and inventory with optional blockchain integration (see our Blockchain-in-a-Box repo)
-- Social features like chat, groups, friends, blocking and moderation
+- Fully customizable for any kind of game, social experience, event or spatial web site
+- Social features like avatars, chat, groups, friends, blocking and moderation
 - Complete world editing and administration
 - 2D, 3D and XR Avatars with full inverse kinematics and facial expressions
 - Fully networked physics using Rapier Physics
-- Voice and video over WebRTC
+- Voice and video over WebRTC server & peer-to-peer
 - Instant login and location sharing with phone number or email
 - Modular- Use the engine, server, client, editor and scalable devops infrastructure as needed
-- OAuth login with Facebook, Google, Steam, Github or instant login with email or phone
+- OAuth login with Meta, Apple, X, Google, Github or instant login with email or phone
 - WebGL client deployable to iOS, Android and desktop
 - Free, open source, CPAL licensed
 
 ## Project API
 
-### [Library of EE Projects](https://github.com/ir-engine/project-manifest)
+### [Library of IR Engine Projects](https://github.com/ir-engine/project-manifest)
 
-Create composable plug-ins for iR Engine experiences with the Projects API
+Create composable plug-ins for iR Engine experiences with the plugin system (Projects API)
 
-## Launch iR Engine with Control Center Install - ***RECOMMENDED***
+## Launch iR Engine with Control Center Install
 
-### [Use Metaverse Control Plane Managment GUI](https://github.com/ir-engine/ir-engine-launcher)
+### [Use iR Engine Launcher GUI](https://github.com/ir-engine/ir-engine-launcher)
 
-Best for simple self hosting, advanced editor content creation, and XRProject Pack Project development.
+Best for simple self hosting.
 
 ## Advanced Development Install
 
@@ -66,7 +44,7 @@ Best for simple self hosting, advanced editor content creation, and XRProject Pa
 To install iR Engine locally, the following pre-reqs are required.
 
 * Linux (many of us develop on Ubuntu), Mac OS X, or Windows (we recommend WSL2)
-* Node.js v16 or later (we recommend installing via [`nvm`](https://github.com/nvm-sh/nvm)
+* Node.js v18 or later (we recommend installing via [`nvm`](https://github.com/nvm-sh/nvm)
   or [`asdf`](https://github.com/asdf-vm/asdf).)
 * C++ (for `node-gyp`), Python >=3.6 + [PIP](https://pypi.org/project/pip/), `make`
   and other build tools, for compiling Mediasoup.
@@ -81,7 +59,7 @@ To install iR Engine locally, the following pre-reqs are required.
 
 ### Getting Started
 
-See the [Installation instructions](https://etherealengine.github.io/etherealengine-docs/manual/install/)
+See the [Installation instructions](https://app.archbee.com/public/PREVIEW-G_Kn_XtWasJmPy3-KJn4x)
 for more details.
 
 ## Usage
@@ -118,8 +96,6 @@ you find who you need to talk to.
 ![msf-member-badge-small](https://user-images.githubusercontent.com/5104160/181168132-57a91f8b-16c9-45f0-a0ee-c89f8f018a80.png)
 
 ### [Join our Discord](https://discord.gg/xrf)  [![Discord Chat](https://img.shields.io/discord/692672143053422678.svg)](https://discord.gg/xrf)
-
-### [Sponsorship](https://opencollective.com/etherealengine) [![Open Collective](https://opencollective.com/etherealengine/tiers/badge.svg)](https://opencollective.com/etherealengine)
 
 ## License
 [CPAL](LICENSE) - Copyright (c) 2021-2024 Infinite Reality.

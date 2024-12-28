@@ -40,13 +40,7 @@ import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsSta
 import { MotionCaptureSystem, timeSeriesMocapData } from '@ir-engine/engine/src/mocap/MotionCaptureSystem'
 import { applyScreenshareToTexture } from '@ir-engine/engine/src/scene/functions/applyScreenshareToTexture'
 import { NO_PROXY, PeerID, State, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import {
-  NetworkState,
-  screenshareAudioDataChannelType,
-  screenshareVideoDataChannelType,
-  webcamAudioDataChannelType,
-  webcamVideoDataChannelType
-} from '@ir-engine/network'
+import { NetworkState } from '@ir-engine/network'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { drawPoseToCanvas } from '@ir-engine/ui/src/pages/Capture'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
@@ -166,11 +160,8 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     audioElement.id = `${peerID}_audio`
     audioElement.autoplay = true
     audioElement.setAttribute('playsinline', 'true')
-    if (isSelf) {
-      audioElement.muted = true
-    } else {
-      audioElement.volume = volume
-    }
+    audioElement.muted = audioStreamPaused || isSelf
+    audioElement.volume = audioStreamPaused || isSelf ? 0 : volume
 
     audioElement.srcObject = audioMediaStream
 
@@ -194,13 +185,18 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   }, [audioMediaStream])
 
   useEffect(() => {
+    audioElement.muted = audioStreamPaused || isSelf
+    audioElement.volume = audioStreamPaused || isSelf ? 0 : volume
+  }, [audioStreamPaused])
+
+  useEffect(() => {
     if (!videoMediaStream) return
 
     videoElement.id = `${peerID}_video`
     videoElement.autoplay = true
     videoElement.muted = true
     videoElement.setAttribute('playsinline', 'true')
-    videoElement!.srcObject = videoMediaStream
+    videoElement.srcObject = videoMediaStream
 
     if (isScreen) {
       applyScreenshareToTexture(videoElement!)
@@ -217,33 +213,23 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const toggleVideo = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = NetworkState.mediaNetwork
     if (isSelf && !isScreen) {
       MediaStreamState.toggleWebcamPaused()
     } else if (isSelf && isScreen) {
       MediaStreamState.toggleScreenshareVideoPaused()
     } else {
-      mediaNetwork.pauseTrack(
-        peerID,
-        isScreen ? screenshareVideoDataChannelType : webcamVideoDataChannelType,
-        !videoStreamPaused
-      )
+      peerMediaChannelState.videoStreamPaused.set((val) => !val)
     }
   }
 
   const toggleAudio = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = NetworkState.mediaNetwork
     if (isSelf && !isScreen) {
       MediaStreamState.toggleMicrophonePaused()
     } else if (isSelf && isScreen) {
       MediaStreamState.toggleScreenshareAudioPaused()
     } else {
-      mediaNetwork.pauseTrack(
-        peerID,
-        isScreen ? screenshareAudioDataChannelType : webcamAudioDataChannelType,
-        !audioStreamPaused
-      )
+      peerMediaChannelState.audioStreamPaused.set((val) => !val)
     }
   }
 
@@ -386,7 +372,8 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const canvasCtxRef = useRef<CanvasRenderingContext2D>()
 
-  useDrawMocapLandmarks(videoElement, canvasCtxRef, canvasRef, peerID)
+  // @todo - currently this adds lots of systems unnecessarily
+  // useDrawMocapLandmarks(videoElement, canvasCtxRef, canvasRef, peerID)
 
   useEffect(() => {
     videoElement.draggable = false

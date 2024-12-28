@@ -29,12 +29,13 @@ import { getContentType } from '@ir-engine/common/src/utils/getContentType'
 import { generateEntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, getOptionalComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
-import { GLTFComponent, loadGltfFile } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { GLTFComponent, loadGLTFFile } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { GLTFSourceState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { gltfReplaceUUIDsReferences } from '@ir-engine/engine/src/gltf/gltfUtils'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
@@ -57,7 +58,6 @@ import {
   useChildWithComponents
 } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
-import { v4 } from 'uuid'
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
@@ -106,13 +106,13 @@ export async function addMediaNode(
       // setComponent(rayEntity, LineSegmentComponent, { geometry: lineGeometry })
 
       startReactor(() => {
-        const assetEntity = useMutableState(GLTFAssetState)[url].value
+        const assetEntity = useMutableState(GLTFSourceState)[url].value
         const progress = useOptionalComponent(assetEntity, GLTFComponent)?.progress
         const material = useChildWithComponents(assetEntity, [MaterialStateComponent])
 
         useEffect(() => {
           if (!assetEntity) {
-            GLTFAssetState.loadScene(url, v4())
+            GLTFSourceState.load(url)
             return
           }
         }, [progress])
@@ -154,12 +154,19 @@ export async function addMediaNode(
         }
       )
     } else if (contentType.startsWith('model/prefab')) {
-      loadGltfFile(url, (gltf) => {
-        if (gltf.nodes)
+      loadGLTFFile(url, (gltf) => {
+        if (gltf.nodes) {
+          const uuidReplacements = [] as [EntityUUID, EntityUUID][]
           gltf.nodes.forEach((node) => {
-            if (node.extensions && node.extensions[UUIDComponent.jsonID])
-              node.extensions[UUIDComponent.jsonID] = generateEntityUUID()
+            if (node.extensions && node.extensions[UUIDComponent.jsonID]) {
+              const prevUUID = node.extensions[UUIDComponent.jsonID] as EntityUUID
+              const newUUID = generateEntityUUID()
+              node.extensions[UUIDComponent.jsonID] = newUUID
+              uuidReplacements.push([prevUUID, newUUID])
+            }
           })
+          gltfReplaceUUIDsReferences(gltf, uuidReplacements)
+        }
         EditorControlFunctions.appendToSnapshot(gltf)
       })
     } else {

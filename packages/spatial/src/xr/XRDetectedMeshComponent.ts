@@ -27,13 +27,13 @@ import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, Mesh } from 'three'
 
 import { defineComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { EngineState } from '../EngineState'
 import { NameComponent } from '../common/NameComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '../renderer/components/GroupComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
@@ -139,7 +139,7 @@ export const XRDetectedMeshComponent = defineComponent({
 
   foundMesh: (mesh: XRMesh) => {
     const entity = createEntity()
-    setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
+    setComponent(entity, EntityTreeComponent, { parentEntity: getState(EngineState).localFloorEntity })
     setComponent(entity, TransformComponent)
     setVisibleComponent(entity, true)
     setComponent(entity, XRDetectedMeshComponent)

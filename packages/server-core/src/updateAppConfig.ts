@@ -39,21 +39,18 @@ import {
 } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
 import { EmailSettingDatabaseType, emailSettingPath } from '@ir-engine/common/src/schemas/setting/email-setting.schema'
 import {
-  InstanceServerSettingType,
-  instanceServerSettingPath
+  instanceServerSettingPath,
+  InstanceServerSettingType
 } from '@ir-engine/common/src/schemas/setting/instance-server-setting.schema'
-import {
-  ServerSettingDatabaseType,
-  serverSettingPath
-} from '@ir-engine/common/src/schemas/setting/server-setting.schema'
 
+import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schema.type.module'
+import { parseValue } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { createHash } from 'crypto'
-import appConfig from './appconfig'
+import appConfig, { updateNestedConfig } from './appconfig'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
 import { awsDbToSchema } from './setting/aws-setting/aws-setting.resolvers'
 import { clientDbToSchema } from './setting/client-setting/client-setting.resolvers'
 import { emailDbToSchema } from './setting/email-setting/email-setting.resolvers'
-import { serverDbToSchema } from './setting/server-setting/server-setting.resolvers'
 
 const db = {
   user: process.env.MYSQL_USER ?? 'server',
@@ -183,22 +180,24 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(instanceServerSettingPromise)
 
-  const serverSettingPromise = knexClient
+  const engineSettingPromise = knexClient
     .select()
-    .from<ServerSettingDatabaseType>(serverSettingPath)
-    .then(([dbServer]) => {
-      const dbServerConfig = serverDbToSchema(dbServer)
-      if (dbServerConfig) {
-        appConfig.server = {
-          ...appConfig.server,
-          ...dbServerConfig
+    .from<EngineSettingType>(engineSettingPath)
+    .then((dbEngineSettings) => {
+      dbEngineSettings.forEach((setting) => {
+        if (!appConfig[setting.category]) {
+          appConfig[setting.category] = {}
         }
-      }
+        if (setting.key.includes('.')) {
+          updateNestedConfig(appConfig, setting)
+        } else {
+          appConfig[setting.category][setting.key] = parseValue(setting.value, setting.dataType)
+        }
+      })
     })
     .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read serverSetting: ${e.message}`)
+      logger.error(e, `[updateAppConfig]: Failed to read engineSetting: ${e.message}`)
     })
-  promises.push(serverSettingPromise)
-
+  promises.push(engineSettingPromise)
   await Promise.all(promises)
 }

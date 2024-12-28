@@ -76,6 +76,9 @@ cli.main(async () => {
       .first()
 
     if (userMatch != null) {
+      // Update isGuest to false
+      await knexClient.from(userPath).where({ id: options.id }).update({ isGuest: false })
+
       for (const { type } of scopeTypeSeed) {
         try {
           const existingScope = await knexClient

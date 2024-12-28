@@ -60,8 +60,8 @@ import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/
 import iterateObject3D from '@ir-engine/spatial/src/common/functions/iterateObject3D'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { TweenComponent } from '@ir-engine/spatial/src/transform/components/TweenComponent'
+import { ContentFitType } from '@ir-engine/spatial/src/transform/functions/ObjectFitFunctions'
 import { endXRSession, requestXRSession } from '@ir-engine/spatial/src/xr/XRSessionFunctions'
-import { ContentFitType } from '@ir-engine/spatial/src/xrui/functions/ObjectFitFunctions'
 import { NodeCategory, makeFlowNodeDefinition, makeFunctionNodeDefinition } from '@ir-engine/visual-script'
 
 export const playVideo = makeFlowNodeDefinition({

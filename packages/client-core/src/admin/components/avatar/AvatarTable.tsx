@@ -32,9 +32,9 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import { AvatarID, AvatarType, UserName, avatarPath } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { Button } from '@ir-engine/ui'
 import { ConfirmDialog } from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 
 import { truncateText } from '@ir-engine/ui/src/primitives/tailwind/TruncatedText'
@@ -107,16 +107,15 @@ export default function AvatarTable({ search }: { search: string }) {
       action: (
         <div className="flex items-center justify-start gap-3">
           <Button
-            rounded="full"
-            variant="outline"
+            variant="tertiary"
             className="h-8 w-8"
             title={t('admin:components.common.view')}
             onClick={() => PopoverState.showPopupover(<AddEditAvatarModal avatar={row} />)}
-            startIcon={<HiPencil className="place-self-center text-theme-iconGreen" />}
-          />
+          >
+            <HiPencil className="text-theme-iconGreen" />
+          </Button>
           <Button
-            rounded="full"
-            variant="outline"
+            variant="tertiary"
             className="h-8 w-8"
             title={t('admin:components.common.delete')}
             onClick={() => {
@@ -129,8 +128,9 @@ export default function AvatarTable({ search }: { search: string }) {
                 />
               )
             }}
-            startIcon={<HiTrash className="place-self-center text-theme-iconRed" />}
-          />
+          >
+            <HiTrash className="text-theme-iconRed" />
+          </Button>
         </div>
       )
     }))

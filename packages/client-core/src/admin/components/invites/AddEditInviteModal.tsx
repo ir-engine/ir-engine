@@ -41,10 +41,9 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { convertDateTimeSqlToLocal, toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Checkbox, Input, RadioGroup } from '@ir-engine/ui'
+import { Checkbox, Input, RadioGroup, Select } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import MultiEmailInput from '@ir-engine/ui/src/primitives/tailwind/MultiEmailInput'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 
 type InviteTypeOptionsType = 'new-user' | 'location' | 'instance'
 const inviteTypeOptions = ['new-user', 'location', 'instance'] as InviteTypeOptionsType[]
@@ -218,15 +217,21 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
           />
         )}
         <Select
-          label={t('admin:components.invite.type')}
+          labelProps={{
+            text: t('admin:components.invite.type'),
+            position: 'top'
+          }}
           options={inviteTypeOptions.map((type) => ({ label: t(`admin:components.invite.${type}`), value: type }))}
-          currentValue={inviteType.value}
-          onChange={(value) => inviteType.set(value)}
+          value={inviteType.value}
+          onChange={(value: InviteTypeOptionsType) => inviteType.set(value)}
           disabled={submitLoading.value}
         />
         {inviteType.value === 'location' && (
           <Select
-            label={t('admin:components.invite.location')}
+            labelProps={{
+              text: t('admin:components.invite.location'),
+              position: 'top'
+            }}
             options={[
               { value: '', label: t('admin:components.invite.selectLocation'), disabled: true },
               ...adminLocations.map((location) => ({
@@ -234,15 +239,19 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
                 label: location.name
               }))
             ]}
-            currentValue={inviteLocation.value}
-            onChange={(value) => inviteLocation.set(value)}
-            error={errors.inviteLocation.value}
+            value={inviteLocation.value}
+            onChange={(value: string) => inviteLocation.set(value)}
+            state={errors.inviteLocation.value ? 'error' : undefined}
+            helperText={errors.inviteLocation.value}
             disabled={submitLoading.value}
           />
         )}
         {inviteType.value === 'instance' && (
           <Select
-            label={t('admin:components.invite.instance')}
+            labelProps={{
+              text: t('admin:components.invite.instance'),
+              position: 'top'
+            }}
             options={[
               { value: '', label: t('admin:components.invite.selectInstance'), disabled: true },
               ...adminInstances.map((instance) => ({
@@ -250,9 +259,10 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
                 value: instance.id
               }))
             ]}
-            currentValue={inviteInstance.value}
-            onChange={(value) => inviteInstance.set(value)}
-            error={errors.inviteInstance.value}
+            value={inviteInstance.value}
+            onChange={(value: string) => inviteInstance.set(value)}
+            state={errors.inviteInstance.value ? 'error' : undefined}
+            helperText={errors.inviteInstance.value}
             disabled={submitLoading.value}
           />
         )}
@@ -279,16 +289,22 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
                 />
                 {spawnType.value === 'spawnPoint' && (
                   <Select
-                    label={t('admin:components.invite.spawnPoint')}
+                    labelProps={{
+                      text: t('admin:components.invite.spawnPoint'),
+                      position: 'top'
+                    }}
                     options={spawnPointOptions}
-                    currentValue={spawnPoint.value}
-                    onChange={(value) => spawnPoint.set(value)}
+                    value={spawnPoint.value}
+                    onChange={(value: string) => spawnPoint.set(value)}
                     disabled={submitLoading.value}
                   />
                 )}
                 {spawnType.value === 'userPosition' && (
                   <Select
-                    label={t('admin:components.invite.userPosition')}
+                    labelProps={{
+                      text: t('admin:components.invite.userPosition'),
+                      position: 'top'
+                    }}
                     options={[
                       { label: t('admin:components.invite.selectUserPosition'), value: '', disabled: true },
                       ...adminUsers
@@ -298,8 +314,8 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
                           label: `${user.name} (${user.inviteCode})`
                         }))
                     ]}
-                    currentValue={userPosition.value}
-                    onChange={(value) => userPosition.set(value)}
+                    value={userPosition.value}
+                    onChange={(value: string) => userPosition.set(value)}
                     disabled={submitLoading.value}
                   />
                 )}
