@@ -282,38 +282,53 @@ const execute = () => {
   }
 }
 
+const difference = new Matrix4(),
+  rootRotationInverse = new Matrix4(),
+  toOrigin = new Matrix4(),
+  back = new Matrix4()
+
 const SetupIkMatrices = (props: { avatarEntity: Entity }) => {
   const ikComponent = useComponent(props.avatarEntity, AvatarIkComponent)
   const rigComponent = useComponent(props.avatarEntity, AvatarRigComponent)
   useEffect(() => {
-    if (!rigComponent.bonesToEntities.hips.value) return
+    if (!rigComponent.vrm.value) return
     const rootEntity = props.avatarEntity
-
     iterateEntityNode(rootEntity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
-    // sets up ik matrices for blending into the normalized rig
     const rig = rigComponent.bonesToEntities.value
+
     // get list of bone names for arms and legs
     const boneNames = VRMHumanBoneList.filter(
       (bone) => bone.includes('Arm') || bone.includes('Leg') || bone.includes('Foot') || bone.includes('Hand')
     )
+
+    const rootMatrix = getComponent(rootEntity, TransformComponent).matrixWorld
+    const transform = getComponent(rootEntity, TransformComponent)
+    rootRotationInverse.makeRotationFromQuaternion(transform.rotation).invert()
+    toOrigin.makeTranslation(-transform.position.x, -transform.position.y, -transform.position.z)
+    back.makeTranslation(transform.position.x, transform.position.y, transform.position.z).multiply(rootRotationInverse)
+
     for (const bone of boneNames) {
-      const worldMatrix = getComponent(rig[bone], TransformComponent).matrixWorld.clone()
+      const worldMatrix = getComponent(rig[bone], TransformComponent).matrixWorld
       const parentMatrix = getComponent(
         getComponent(rig[bone], EntityTreeComponent).parentEntity,
         TransformComponent
       ).matrixWorld
-      const ikLocalMatrix = new Matrix4()
-      ikLocalMatrix.elements[12] = worldMatrix.elements[12] - parentMatrix.elements[12]
-      ikLocalMatrix.elements[13] = worldMatrix.elements[13] - parentMatrix.elements[13]
-      ikLocalMatrix.elements[14] = worldMatrix.elements[14] - parentMatrix.elements[14]
-
+      // get difference in world position, relative to the root, between the bone and its parent
+      difference.elements[12] =
+        worldMatrix.elements[12] - rootMatrix.elements[12] - (parentMatrix.elements[12] - rootMatrix.elements[12])
+      difference.elements[13] =
+        worldMatrix.elements[13] - rootMatrix.elements[13] - (parentMatrix.elements[13] - rootMatrix.elements[13])
+      difference.elements[14] =
+        worldMatrix.elements[14] - rootMatrix.elements[14] - (parentMatrix.elements[14] - rootMatrix.elements[14])
+      // undo the parent rotation
+      const local = new Matrix4().copy(back).multiply(toOrigin).multiply(difference)
       ikComponent.ikMatrices[bone].set({
         world: new Matrix4(),
-        local: ikLocalMatrix
+        local
       })
     }
-  }, [rigComponent.bonesToEntities])
+  }, [rigComponent.vrm])
 
   return null
 }

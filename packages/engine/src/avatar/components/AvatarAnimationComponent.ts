@@ -59,7 +59,6 @@ import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Ob
 import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFDocumentState } from '../../gltf/GLTFDocumentState'
 import { hipsRegex, mixamoVRMRigMap } from '../AvatarBoneMatching'
@@ -241,7 +240,11 @@ export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
   })
 
   enforceTPose(rootEntity)
-  iterateEntityNode(rootEntity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
+
+  const hips = getComponent(rootEntity, AvatarRigComponent).bonesToEntities.hips
+  const root = getComponent(hips, EntityTreeComponent).parentEntity
+  const transform = getOptionalComponent(root, TransformComponent)
+  transform?.matrixWorld.identity()
 
   const humanoid = new VRMHumanoid(bones)
 
@@ -285,8 +288,6 @@ const toesAngle = new Euler(Math.PI / 6, 0, 0)
 
 /**Rewrites avatar's bone quaternions and matrices to create a T-Pose, assuming all bones are the identity quaternion */
 export const enforceTPose = (entity: Entity) => {
-  getComponent(entity, TransformComponent).rotation.set(0, 0, 0, 1)
-  getComponent(entity, TransformComponent).matrixWorld.identity()
   const bones = getComponent(entity, AvatarRigComponent).bonesToEntities
 
   for (const bone in bones) {

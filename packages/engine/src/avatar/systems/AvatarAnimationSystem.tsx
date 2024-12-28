@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { AnimationClip, AnimationMixer, Group, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Group, MathUtils, Vector3 } from 'three'
 
 import {
   defineQuery,
@@ -89,12 +89,7 @@ const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationCom
 const avatarComponentQuery = defineQuery([AvatarComponent, RigidBodyComponent, AvatarAnimationComponent])
 const avatarRigQuery = defineQuery([AvatarRigComponent])
 
-const _quat = new Quaternion()
-const _quat2 = new Quaternion()
 const _vector3 = new Vector3()
-const _hint = new Vector3()
-const mat4 = new Matrix4()
-const hipsForward = new Vector3(0, 0, 1)
 
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(avatarComponentQuery, compareDistanceToCamera)
 
