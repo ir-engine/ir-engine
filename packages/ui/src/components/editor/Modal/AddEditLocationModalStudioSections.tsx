@@ -47,7 +47,7 @@ export default function AddEditLocationModalStudioSections() {
           <ImageLink src={sceneThumbnailState.oldThumbnailURL.value ?? ''} variant="md" />
         </div>
         <div className="flex flex-row gap-2 ">
-          <Button onClick={SceneThumbnailState.createThumbnail} className="w-full">
+          <Button onClick={() => SceneThumbnailState.createThumbnail()} className="w-full">
             {t('editor:properties.sceneSettings.generate')}
           </Button>
           <Button

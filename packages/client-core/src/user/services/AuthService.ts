@@ -76,7 +76,7 @@ export const UserSeed: UserType = {
   id: '' as UserID,
   name: '' as UserName,
   isGuest: true,
-  acceptedTOS: false,
+  ageVerified: false,
   createdAt: '',
   updatedAt: ''
 }
