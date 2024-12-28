@@ -118,10 +118,10 @@ export const XR8Pipeline = (cameraCanvas: HTMLCanvasElement): CameraPipelineModu
     //   }
     // }
     listeners: [
-      { event: 'reality.projectwayspotfound', process: onWayspotFound },
       { event: 'reality.projectwayspotscanning', process: onWayspotScanning },
-      { event: 'reality.projectwayspotlost', process: onWayspotLost },
-      { event: 'reality.projectwayspotupdated', process: onWayspotUpdated }
+      { event: 'reality.projectwayspotfound', process: onWayspotFound },
+      { event: 'reality.projectwayspotupdated', process: onWayspotUpdated },
+      { event: 'reality.projectwayspotlost', process: onWayspotLost }
       // { event: 'reality.meshfound', process: onMeshFound },
       // { event: 'reality.meshupdated', process: onMeshUpdate },
       // { event: 'reality.meshlost', process: onMeshLost }

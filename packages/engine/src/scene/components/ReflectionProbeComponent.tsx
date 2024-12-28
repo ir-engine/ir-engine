@@ -55,6 +55,6 @@ export const ReflectionProbeComponent = defineComponent({
       if (!error) return
       probeComponent.texture.set(null)
       addError(entity, ReflectionProbeComponent, 'LOADING_ERROR', 'Failed to load reflection probe texture.')
-    })
+    }, [])
   }
 })

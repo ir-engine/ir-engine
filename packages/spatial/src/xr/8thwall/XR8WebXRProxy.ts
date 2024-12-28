@@ -26,9 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import { EventDispatcher, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import { getState } from '@ir-engine/hyperflux'
 
+import { EngineState } from '../../EngineState'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Vector3_One } from '../../common/constants/MathConstants'
 import { XRState } from '../XRState'
@@ -48,7 +48,7 @@ export class XRView {
 
   constructor(transform: XRRigidTransform) {
     this.transform = transform
-    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    const camera = getComponent(getState(EngineState).viewerEntity, CameraComponent)
     this.projectionMatrix = camera.projectionMatrix.toArray()
   }
 }
@@ -155,7 +155,7 @@ export class XRRigidTransform {
     const inverse = this._matrix.clone().invert()
     const pos = new Vector3()
     const rot = new Quaternion()
-    inverse.decompose(pos, rot, new Vector3())
+    inverse.decompose(pos, rot, Vector3_One.clone())
     return new XRRigidTransform(pos, rot)
   }
 }

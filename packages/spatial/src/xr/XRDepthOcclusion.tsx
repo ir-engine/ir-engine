@@ -189,18 +189,16 @@ function updateDepthMaterials(
   if (!frame || !referenceSpace) return
   const xrState = getMutableState(XRState)
   const viewerPose = frame.getViewerPose(referenceSpace)
-  if (viewerPose) {
-    for (const view of viewerPose.views) {
-      const depthInfo = frame.getDepthInformation(view)
-      if (depthInfo) {
-        if (!xrState.depthDataTexture.value) {
-          xrState.depthDataTexture.set(new DepthDataTexture(depthInfo.width, depthInfo.height))
-        }
-        xrState.depthDataTexture.value!.updateDepth(depthInfo)
-        XRDepthOcclusion.updateUniforms(XRDepthOcclusionMaterials, depthInfo)
-        depthTexture?.updateDepth(depthInfo)
-      }
+  if (!viewerPose) return
+  for (const view of viewerPose.views) {
+    const depthInfo = frame.getDepthInformation(view)
+    if (!depthInfo) continue
+    if (!xrState.depthDataTexture.value) {
+      xrState.depthDataTexture.set(new DepthDataTexture(depthInfo.width, depthInfo.height))
     }
+    xrState.depthDataTexture.value!.updateDepth(depthInfo)
+    XRDepthOcclusion.updateUniforms(XRDepthOcclusionMaterials, depthInfo)
+    depthTexture?.updateDepth(depthInfo)
   }
 }
 
@@ -218,12 +216,11 @@ function updateUniforms(materials: XRDepthOcclusionMaterialType[], depthInfo: XR
   const width = Math.floor(window.devicePixelRatio * window.innerWidth)
   const height = Math.floor(window.devicePixelRatio * window.innerHeight)
   for (const material of materials) {
-    if (material.userData.DepthOcclusionPlugin && material.shader) {
-      material.shader.uniforms.uResolution.value.set(width, height)
-      /** invert matrix as physics looks down +z, and webxr looks down -z */
-      material.shader.uniforms.uUvTransform.value.fromArray(normTextureFromNormViewMatrix).invert()
-      material.shader.uniforms.uRawValueToMeters.value = rawValueToMeters
-    }
+    if (!(material.userData.DepthOcclusionPlugin && material.shader)) continue
+    material.shader.uniforms.uResolution.value.set(width, height)
+    /** invert matrix as physics looks down +z, and webxr looks down -z */
+    material.shader.uniforms.uUvTransform.value.fromArray(normTextureFromNormViewMatrix).invert()
+    material.shader.uniforms.uRawValueToMeters.value = rawValueToMeters
   }
 }
 

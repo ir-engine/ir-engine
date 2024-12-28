@@ -23,25 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { requestEmulatedXRSession } from '../webxr/emulator'
-import { MockXRFrame } from './MockXR'
-import { mockSpatialEngine } from './mockSpatialEngine'
+import { describe } from 'vitest'
 
-import { getMutableState, getState } from '@ir-engine/hyperflux'
-import { destroySpatialEngine, destroySpatialViewer } from '../../src/initializeEngine'
-import { endXRSession } from '../../src/xr/XRSessionFunctions'
-import { XRState } from '../../src/xr/XRState'
-
-export async function mockEmulatedXREngine() {
-  mockSpatialEngine()
-  await requestEmulatedXRSession()
-  // @ts-expect-error Allow coercing the MockXRFrame type into the xrFrame property
-  getMutableState(XRState).xrFrame.set(new MockXRFrame())
-  getMutableState(XRState).xrFrame.merge({ session: getState(XRState).session! })
-}
-
-export async function destroyEmulatedXREngine() {
-  destroySpatialViewer()
-  destroySpatialEngine()
-  await endXRSession()
-}
+describe('XRScenePlacementComponent', () => {
+  // name: 'XRScenePlacementComponent'
+}) //:: XRScenePlacementComponent
