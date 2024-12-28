@@ -22,26 +22,21 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import { Engine } from '@ir-engine/ecs'
 
-import { requestEmulatedXRSession } from '../webxr/emulator'
-import { MockXRFrame } from './MockXR'
-import { mockSpatialEngine } from './mockSpatialEngine'
-
-import { getMutableState, getState } from '@ir-engine/hyperflux'
-import { destroySpatialEngine, destroySpatialViewer } from '../../src/initializeEngine'
-import { endXRSession } from '../../src/xr/XRSessionFunctions'
-import { XRState } from '../../src/xr/XRState'
-
-export async function mockEmulatedXREngine() {
-  mockSpatialEngine()
-  await requestEmulatedXRSession()
-  // @ts-expect-error Allow coercing the MockXRFrame type into the xrFrame property
-  getMutableState(XRState).xrFrame.set(new MockXRFrame())
-  getMutableState(XRState).xrFrame.merge({ session: getState(XRState).session! })
+/**
+ * @description Returns the first incoming action that matches the `@param name` from the Engine.instance's actions store
+ * */
+export function getIncomingAction(name: string) {
+  for (const action of Engine.instance.store.actions.incoming) {
+    if (action.type === name) return action
+  }
+  return undefined
 }
 
-export async function destroyEmulatedXREngine() {
-  destroySpatialViewer()
-  destroySpatialEngine()
-  await endXRSession()
+/**
+ * @description Returns the last action from the Engine.instance's actions history
+ * */
+export function getLastAction() {
+  return Engine.instance.store.actions.history.at(-1)
 }

@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -45,7 +45,9 @@ import {
   isTest,
   none,
   startReactor,
-  useHookstate
+  useHookstate,
+  resolveObject,
+  getState
 } from '@ir-engine/hyperflux'
 import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext } from './EntityFunctions'
@@ -62,6 +64,10 @@ import {
   HasSchemaValidators,
   HasValidSchemaValues
 } from './schemas/JSONSchemaUtils'
+import { Easing, EasingFunction } from './EasingFunctions'
+import { Transitionable, TransitionableTypes, getTransitionableKeyForType } from './Transitionable'
+import { S } from './schemas/JSONSchemas'
+import { ECSState } from './ECSState'
 
 /**
  * @description
@@ -235,6 +241,44 @@ const schemaIsECSSchema = (schema?: ComponentSchema): schema is bitECS.ISchema =
   return !!(schema && (schema as TSchema)[Kind] === undefined)
 }
 
+type Primitive = string | number | bigint | boolean | undefined | symbol
+export type ComponentPropertyPath<T, Prefix = ''> = {
+  [K in keyof T]: T[K] extends Function // eslint-disable-line @typescript-eslint/ban-types
+    ? never
+    : T[K] extends Primitive | Array<any>
+    ? `${string & Prefix}${string & K}`
+    : `${string & Prefix}${string & K}` | ComponentPropertyPath<T[K], `${string & Prefix}${string & K}.`>
+}[keyof T]
+
+// Helper type for checking if a string is a direct property key
+type IsDirectProperty<T, P extends string> = P extends keyof T ? true : false
+
+// Helper type for extracting the first segment of a path
+type FirstSegment<P extends string> = P extends `${infer First}.${any}` ? First : P
+
+// Helper type for extracting the rest of the path after the first segment
+type RestOfPath<P extends string> = P extends `${any}.${infer Rest}` ? Rest : never
+
+// Helper type for getting a property type directly
+type DirectPropertyType<T, P extends string> = P extends keyof T ? T[P] : never
+
+// Helper type for handling nested property paths
+type NestedPropertyType<T, P extends string> = FirstSegment<P> extends keyof T
+  ? ComponentPropertyFromPath<T[FirstSegment<P>], RestOfPath<P>>
+  : never
+
+// Get the property type from a path
+export type ComponentPropertyFromPath<T, Path extends string> = IsDirectProperty<T, Path> extends true
+  ? DirectPropertyType<T, Path>
+  : Path extends `${string}.${string}`
+  ? NestedPropertyType<T, Path>
+  : never
+
+// function propertyStringPathFactory<T, R=string>(): (path: ComponentPropertyPath<T>) => R {
+//   // @ts-ignore
+//   return (path: ComponentPropertyPath<T>) => (path as unknown as R);
+// }
+
 /**
  * @description
  * Defines a new Component type.
@@ -288,7 +332,7 @@ export const defineComponent = <
   ) as Component<Schema, InitializationType, ComponentType, JSON, SetJSON, ErrorTypes> & {
     _TYPE: ComponentType
   } & ComponentExtras &
-    SOAComponent
+    SOAComponent & { setTransition: typeof setTransition }
   Component.isComponent = true
 
   // Memoize as much tree walking as possible during component creation
@@ -350,6 +394,27 @@ export const defineComponent = <
     )
   }
   ComponentMap.set(Component.name, Component)
+
+  function setTransition<P extends ComponentPropertyPath<ComponentType>>(
+    entity: Entity,
+    propertyPath: P,
+    value: ComponentPropertyFromPath<ComponentType, P> & TransitionableTypes,
+    options: {
+      duration?: number
+      easing?: EasingFunction
+      type?: keyof typeof Transitionable
+    }
+  ) {
+    TransitionComponent.setTarget(entity, {
+      componentJsonID: Component.jsonID!,
+      propertyPath,
+      value,
+      duration: options.duration,
+      easing: options.easing
+    })
+  }
+
+  Component.setTransition = setTransition
 
   return Component
 
@@ -777,3 +842,162 @@ export const getAllComponentsOfType = <C extends Component>(component: C): Compo
     return getComponent(e, component)!
   })
 }
+
+export const TransitionComponent = defineComponent({
+  name: 'TransitionComponent',
+
+  jsonID: 'IR_transition',
+
+  schema: S.Array(
+    S.Object({
+      componentJsonID: S.String(),
+      propertyPath: S.String(),
+      transitionableType: S.String(),
+      duration: S.Number(500),
+      easing: S.String(Easing.exponential.inOut.path),
+      initialValue: S.NonSerialized(S.Type<TransitionableTypes>()),
+      outputValue: S.NonSerialized(S.Type<TransitionableTypes>()),
+      events: S.NonSerialized(
+        S.Array(
+          S.Object({
+            age: S.Number(),
+            fromValue: S.Type<TransitionableTypes>(),
+            toValue: S.Type<TransitionableTypes>(),
+            duration: S.Number(),
+            easing: S.String()
+          })
+        )
+      )
+    })
+  ),
+
+  setTarget: function (
+    entity: Entity,
+    target: {
+      componentJsonID: string
+      propertyPath: string
+      value: TransitionableTypes
+      duration?: number
+      easing?: EasingFunction
+      type?: keyof typeof Transitionable
+    }
+  ) {
+    if (!target.componentJsonID) throw new Error('[setTransition]: componentJsonID is required')
+    const type = target.type ?? getTransitionableKeyForType(target.value)
+    if (!type)
+      throw new Error(
+        `[setTransition]: Unknown transitionable type for ${target.componentJsonID} - ${target.propertyPath}`
+      )
+    const isType = Transitionable[type].isType(target.value)
+    if (!isType)
+      throw new Error(
+        `[setTransition]: Invalid transitionable type for ${target.componentJsonID} - ${target.propertyPath}`
+      )
+    if (!hasComponent(entity, TransitionComponent)) {
+      setComponent(entity, TransitionComponent)
+    }
+    const transitions = getComponent(entity, TransitionComponent)
+    let transition = transitions.find(
+      (t) => t.componentJsonID === target.componentJsonID && t.propertyPath === target.propertyPath
+    )
+    if (!transition) {
+      const t = CreateSchemaValue(TransitionComponent.schema.properties)
+      transitions.push(t)
+      transition = transitions[transitions.length - 1]
+      transition.componentJsonID = target.componentJsonID
+      transition.propertyPath = target.propertyPath
+      transition.transitionableType = type
+    }
+    if (target.duration && transition.duration !== target.duration) transition.duration = target.duration
+    if (target.easing && transition.easing !== target.easing.path) transition.easing = target.easing.path
+    if (target.type && transition.transitionableType !== type) transition.transitionableType = type
+    TransitionComponent.updateTransition(entity, transition, 0, false)
+    transition.events.push({
+      age: 0,
+      duration: transition.duration,
+      easing: transition.easing,
+      fromValue: transition.outputValue,
+      toValue: target.value
+    })
+  },
+
+  updateTransition(
+    entity: Entity,
+    transition: typeof TransitionComponent.schema.properties.static,
+    deltaMilliSeconds: number,
+    setProperty: boolean = true
+  ) {
+    const Component = ComponentJSONIDMap.get(transition.componentJsonID)
+    if (!Component) return
+    const component = getComponent(entity, Component)
+    if (!component) return
+    const propertyValue = resolveObject(component, transition.propertyPath) as any as TransitionableTypes
+    if (propertyValue === undefined) return
+
+    if (transition.initialValue === undefined) {
+      transition.initialValue = typeof propertyValue === 'number' ? propertyValue : propertyValue.clone()
+    }
+
+    if (transition.events.length === 0) {
+      transition.outputValue = transition.initialValue
+      return
+    }
+
+    const transitionable = Transitionable[transition.transitionableType] as Transitionable
+
+    // Start with initial value
+    let output = transition.initialValue
+    let previousValue = transition.initialValue
+
+    // Process each event as a transition stage
+    for (const ev of transition.events) {
+      ev.age += deltaMilliSeconds
+      const timeSinceStart = ev.age
+
+      // Apply easing function only if within duration
+      if (timeSinceStart >= 0 && timeSinceStart <= ev.duration) {
+        // Calculate and apply the delta
+        const t = timeSinceStart / ev.duration
+        const easing = Easing.fromPath(ev.easing)
+        const s = easing(t)
+        output = transitionable.interpolate(previousValue, ev.toValue, s)
+      } else if (timeSinceStart > ev.duration) {
+        // Event has fully transitioned
+        output = ev.toValue
+      }
+
+      // Update previous value for next iteration
+      previousValue = ev.toValue
+    }
+
+    // Remove completed events and update initial value
+    transition.events = transition.events.filter((ev) => {
+      if (ev.age >= ev.duration) {
+        transition.initialValue = ev.toValue
+        return false
+      }
+      return true
+    })
+
+    transition.outputValue = output
+
+    if (setProperty) {
+      if (typeof output === 'number') {
+        const mutableComponent = getMutableComponent(entity, Component)
+        const mutableProperty = resolveObject(mutableComponent, transition.propertyPath as any) as any
+        mutableProperty.set(output)
+      } else if ('copy' in (propertyValue as any)) {
+        ;(propertyValue as any).copy(output)
+      }
+    }
+  },
+
+  update(entity: Entity) {
+    const ecs = getState(ECSState)
+    const deltaMilliseconds = ecs.deltaSeconds * 1000
+    const transitions = getComponent(entity, TransitionComponent)
+    for (const transition of transitions) {
+      TransitionComponent.updateTransition(entity, transition, deltaMilliseconds)
+    }
+  }
+})
