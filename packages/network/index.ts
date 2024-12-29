@@ -29,8 +29,6 @@ import '@ir-engine/ecs'
 import * as VideoConstants from './src/constants/VideoConstants'
 
 export * from './src/DataChannelRegistry'
-export * from './src/webrtc/useWebRTCPeerConnection'
-export * from './src/webrtc/WebRTCTransportFunctions'
 export * from './src/EntityNetworkState'
 export * from './src/Network'
 export * from './src/NetworkObjectComponent'
@@ -46,5 +44,7 @@ export * from './src/systems/IncomingActionSystem'
 export * from './src/systems/IncomingNetworkSystem'
 export * from './src/systems/OutgoingActionSystem'
 export * from './src/systems/OutgoingNetworkSystem'
+export * from './src/webrtc/WebRTCTransportFunctions'
+export * from './src/webrtc/useWebRTCPeerConnection'
 
 export { VideoConstants }
