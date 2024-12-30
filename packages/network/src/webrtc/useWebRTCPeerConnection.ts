@@ -105,7 +105,7 @@ export const useWebRTCPeerConnection = (
           clearInterval(interval)
           // once connected, send all our cached actions to the peer
           const selfCachedActions = Engine.instance.store.actions.cached.filter(
-            (action) => action.$topic === network.topic && action.$peer === Engine.instance.store.peerID
+            (action) => action.$topic === network.topic
           )
           network.messageToPeer(peerID, selfCachedActions)
         }
