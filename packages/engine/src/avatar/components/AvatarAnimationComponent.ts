@@ -35,7 +35,7 @@ import {
 } from '@pixiv/three-vrm'
 import type * as V0VRM from '@pixiv/types-vrm-0.0'
 
-import { AnimationAction, Bone, Euler, Group, Matrix4, Object3D, Vector3 } from 'three'
+import { AnimationAction, Euler, Group, Matrix4, Object3D, Vector3 } from 'three'
 
 import { GLTF } from '@gltf-transform/core'
 import { UUIDComponent } from '@ir-engine/ecs'
@@ -244,7 +244,7 @@ export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
 
     const bone = mixamoVRMRigMap[boneName] as string
     if (bone) {
-      if (transform instanceof Bone) transform.quaternion.set(0, 0, 0, 1)
+      if (transform && hasComponent(entity, BoneComponent)) transform.rotation.set(0, 0, 0, 1)
       const node = getComponent(entity, BoneComponent)
       bones[bone] = { node } as VRMHumanBone
       AvatarRigComponent.setBone(rootEntity, entity, bone as VRMHumanBoneName)
