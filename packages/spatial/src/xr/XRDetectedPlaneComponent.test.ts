@@ -48,11 +48,7 @@ import { TransformComponent } from '../SpatialModule'
 import { NameComponent } from '../common/NameComponent'
 import { VisibleComponent } from '../renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '../transform/components/EntityTree'
-import {
-  XRDetectedPlaneComponent,
-  placementHelperMaterial,
-  shadowMaterial
-} from './XRDetectedPlaneComponent'
+import { XRDetectedPlaneComponent, placementHelperMaterial, shadowMaterial } from './XRDetectedPlaneComponent'
 import { ReferenceSpace, XRState } from './XRState'
 
 describe('placementHelperMaterial', () => {
