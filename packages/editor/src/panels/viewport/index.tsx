@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { useEngineCanvas } from '@ir-engine/client-core/src/hooks/useEngineCanvas'
+import { useEngineCanvas } from '@ir-engine/spatial/src/renderer/functions/useEngineCanvas'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
 import { useFind } from '@ir-engine/common'
