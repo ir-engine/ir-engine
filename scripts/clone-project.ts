@@ -52,7 +52,7 @@ const cloneRepo = async () => {
   const url = options.url
   if (!url) throw new Error('URL is required')
 
-  const [org, repo] = new URL(url).pathname.split('/').slice(1, 3)
+  const [org, repo] = new URL(url).pathname.toLowerCase().split('/').slice(1, 3)
 
   const orgFolderPath = path.resolve(appRootPath.path, 'packages/projects/projects', org)
   const orgExists = await fs.promises
