@@ -488,7 +488,7 @@ export const InstanceChatWrapper = () => {
   const { t } = useTranslation()
   const { bottomShelfStyle } = useShelfStyles()
 
-  const acceptedTOS = useMutableState(AuthState).user.acceptedTOS.value
+  const ageVerified = useMutableState(AuthState).user.ageVerified.value
   const isGuest = useMutableState(AuthState).user.isGuest.value
 
   const networkWorldConfig = useHookstate(getMutableState(NetworkState).config.world)
@@ -505,12 +505,12 @@ export const InstanceChatWrapper = () => {
       </>
     )
 
-  if (!acceptedTOS)
+  if (!ageVerified)
     return (
       <>
         <div className={styles.modalConnecting}>
           <div className={styles.modalConnectingTitle}>
-            <p>{t('common:loader.needToAgreeTOS')}</p>
+            <p>{t('common:loader.needToVerifyAge')}</p>
           </div>
         </div>
       </>

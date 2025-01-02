@@ -242,6 +242,7 @@
       "lbl-textureType": "Texture Type",
       "lbl-textureUrl": "Texture URL",
       "lbl-intensity": "Envmap Intensity",
+      "info-intensity": "Visual intensity may vary depending on material, shader, and environment map type configuration.",
       "bake-reflection-probes": "Bake Probes"
     },
     "trigger": {

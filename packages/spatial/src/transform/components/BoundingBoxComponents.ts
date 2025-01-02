@@ -48,6 +48,7 @@ import { ObjectLayerMaskComponent } from '../../renderer/components/ObjectLayerC
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { T } from '../../schema/schemaFunctions'
+import { TransformComponent } from './TransformComponent'
 
 export const BoundingBoxComponent = defineComponent({
   name: 'BoundingBoxComponent',
@@ -63,8 +64,6 @@ export const BoundingBoxComponent = defineComponent({
     const boundingBox = useComponent(entity, BoundingBoxComponent)
 
     useEffect(() => {
-      updateBoundingBox(entity)
-
       if (!debugEnabled.value) return
 
       const helperEntity = createEntity()
@@ -80,6 +79,9 @@ export const BoundingBoxComponent = defineComponent({
       setComponent(helperEntity, ObjectComponent, helper)
       ObjectLayerMaskComponent.setLayer(helperEntity, ObjectLayers.NodeHelper)
       boundingBox.helper.set(helperEntity)
+
+      TransformComponent.dirtyTransforms[entity] = true //used to dirty trasform and set the appropate bounding box
+      updateBoundingBox(entity)
 
       return () => {
         removeEntity(helperEntity)

@@ -76,6 +76,12 @@ export type XR8Type = {
   run: (props: { canvas: HTMLCanvasElement }) => void
 }
 
+export type EventFn = (event: Event) => void
+export type WayspotScanningEventFn = (event: WayspotScanningEvent) => void
+export type WayspotFoundEventFn = (event: WayspotFoundEvent) => void
+export type WayspotUpdatedEventFn = (event: WayspotUpdatedEvent) => void
+export type WayspotLostEventFn = (event: WayspotLostEvent) => void
+
 export type CameraPipelineModuleListeners =
   | { event: 'reality.imageloading'; process: (event: Event) => void }
   | { event: 'reality.imagescanning'; process: (event: Event) => void }

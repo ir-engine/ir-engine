@@ -154,8 +154,8 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
  */
 export const authorizeUserToJoinServer = async (app: Application, instance: InstanceType, user: UserType) => {
   const userId = user.id
-  // disallow users from joining media servers if they haven't accepted the TOS
-  if (instance.channelId && !user.acceptedTOS) return false
+  // disallow users from joining media servers if they are not age verified
+  if (instance.channelId && !user.ageVerified) return false
 
   const authorizedUsers = (await app.service(instanceAuthorizedUserPath).find({
     query: {
