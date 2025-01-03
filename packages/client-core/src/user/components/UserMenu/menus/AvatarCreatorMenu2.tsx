@@ -44,8 +44,19 @@ import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunc
 import { UserMenus } from '../../../UserUISystem'
 import { AvatarService } from '../../../services/AvatarService'
 import { PopupMenuServices } from '../PopupMenuService'
-import { SupportedSdks, isAvaturn } from './AvatarCreatorMenu'
 import { DiscardAvatarChangesModal } from './DiscardAvatarChangesModal'
+
+export const SupportedSdks = {
+  Avaturn: 'Avaturn',
+  ReadyPlayerMe: 'ReadyPlayerMe'
+}
+
+const isAvaturn = (url: string) => {
+  const fileExtensionRegex = /\.[0-9a-z]+$/i
+  const avaturnUrl = config.client.avaturnUrl
+  if (avaturnUrl && !fileExtensionRegex.test(url)) return url.startsWith(avaturnUrl)
+  return false
+}
 
 enum LoadingState {
   None,

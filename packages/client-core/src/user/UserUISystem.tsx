@@ -37,8 +37,7 @@ import { NetworkState } from '@ir-engine/network'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InviteService } from '../social/services/InviteService'
 import { PopupMenuState } from './components/UserMenu/PopupMenuService'
-import AvatarCreatorMenu, { SupportedSdks } from './components/UserMenu/menus/AvatarCreatorMenu'
-import AvatarCreatorMenu2 from './components/UserMenu/menus/AvatarCreatorMenu2'
+import AvatarCreatorMenu2, { SupportedSdks } from './components/UserMenu/menus/AvatarCreatorMenu2'
 import AvatarModifyMenu from './components/UserMenu/menus/AvatarModifyMenu'
 import AvatarSelectMenu from './components/UserMenu/menus/AvatarSelectMenu'
 import EmoteMenu from './components/UserMenu/menus/EmoteMenu'
@@ -166,7 +165,7 @@ const UserSystemReactor = () => {
     const popupMenuState = getMutableState(PopupMenuState)
 
     popupMenuState.menus.merge({
-      [UserMenus.Avaturn]: AvatarCreatorMenu(SupportedSdks.Avaturn)
+      [UserMenus.Avaturn]: AvatarCreatorMenu2(SupportedSdks.Avaturn)
     })
     return () => {
       popupMenuState.menus.merge({
