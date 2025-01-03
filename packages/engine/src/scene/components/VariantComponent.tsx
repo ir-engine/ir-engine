@@ -30,7 +30,6 @@ import {
   defineComponent,
   getComponent,
   getMutableComponent,
-  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
