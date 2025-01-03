@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Box3, Vector3 } from 'three'
+import { Box3, DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, Vector3 } from 'three'
 
 import { Engine, Entity, UndefinedEntity } from '@ir-engine/ecs'
 import { defineComponent, getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -45,7 +45,6 @@ import { InputComponent } from '@ir-engine/spatial/src/input/components/InputCom
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { gizmoPlane } from '../../../constants/GizmoPresets'
 import { EditorHelperState } from '../../../services/EditorHelperState'
 import { SelectionState } from '../../../services/SelectionServices'
 import { TransformGizmoControlComponent } from './TransformGizmoControlComponent'
@@ -94,6 +93,19 @@ export const TransformGizmoControlledComponent = defineComponent({
       setComponent(gizmoPlaneEntity, NameComponent, 'gizmoPlaneEntity')
       setComponent(gizmoPlaneEntity, TransformComponent)
       setComponent(gizmoPlaneEntity, InputComponent)
+
+      const gizmoPlane = new Mesh(
+        new PlaneGeometry(100000, 100000, 2, 2),
+        new MeshBasicMaterial({
+          visible: false,
+          wireframe: true,
+          side: DoubleSide,
+          transparent: true,
+          opacity: 0.1,
+          toneMapped: false
+        })
+      )
+
       setComponent(gizmoPlaneEntity, MeshComponent, gizmoPlane)
       setComponent(gizmoPlaneEntity, TransformGizmoTagComponent)
       ObjectLayerMaskComponent.setLayer(gizmoPlaneEntity, ObjectLayers.TransformGizmo)

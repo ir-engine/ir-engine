@@ -236,19 +236,6 @@ const lineGeometry = new BufferGeometry().setAttribute('position', new Float32Bu
 const lineGeometry2 = new CylinderGeometry(0.0075, 0.0075, 0.5, 4).translate(0, 0.25, 0)
 const lineGeometry3 = new CylinderGeometry(0.02, 0.02, 0.5, 4).translate(0, 0.25, 0)
 
-//plane geomerty
-const gizmoPlane = new Mesh(
-  new PlaneGeometry(100000, 100000, 2, 2),
-  new MeshBasicMaterial({
-    visible: false,
-    wireframe: true,
-    side: DoubleSide,
-    transparent: true,
-    opacity: 0.1,
-    toneMapped: false
-  })
-)
-
 function CircleGeometry(radius: number, arc: number) {
   const geometry = new TorusGeometry(radius, 0.0075, 3, 64, arc * Math.PI * 2)
   geometry.rotateY(Math.PI / 2)
@@ -476,7 +463,6 @@ export {
   cameraPicker,
   gizmo,
   gizmoMaterialProperties,
-  gizmoPlane,
   gizmoRotate,
   gizmoScale,
   gizmoTranslate,
