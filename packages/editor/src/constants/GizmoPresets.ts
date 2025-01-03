@@ -44,7 +44,6 @@ import {
   Mesh,
   MeshBasicMaterial,
   OctahedronGeometry,
-  PlaneGeometry,
   Quaternion,
   SphereGeometry,
   TorusGeometry,

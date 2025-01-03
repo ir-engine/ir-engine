@@ -111,10 +111,10 @@ export const XRDetectedPlaneComponent = defineComponent({
       }
     }, [component.geometry])
 
-    useEffect(() => {
-      const placementHelper = component.placementHelper
-      placementHelper.visible.set(scenePlacementMode.value === 'placing')
-    }, [scenePlacementMode])
+    // useEffect(() => {
+    //   const placementHelper = component.placementHelper.get(NO_PROXY) as Mesh
+    //   placementHelper.visible = scenePlacementMode.value === 'placing'
+    // }, [scenePlacementMode])
 
     return null
   },
