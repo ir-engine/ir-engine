@@ -47,7 +47,7 @@ import { CameraComponent } from '../../camera/components/CameraComponent'
 import { NameComponent } from '../../common/NameComponent'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { addOBCPlugin, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
-import { addObjectToGroup } from '../../renderer/components/GroupComponent'
+import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -181,10 +181,10 @@ export class CSM {
     light.intensity = this.lightIntensity
 
     const entity = createEntity()
-    addObjectToGroup(entity, light)
     setComponent(entity, NameComponent, 'CSM light ' + i)
     setComponent(entity, VisibleComponent)
     setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+    setComponent(entity, ObjectComponent, light)
 
     this.lightEntities.push(entity)
     this.lights.push(light)

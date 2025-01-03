@@ -51,7 +51,6 @@ import {
   isDeepChildOf,
   iterateEntityNode,
   removeEntityNodeRecursively,
-  removeFromEntityTree,
   traverseEarlyOut,
   traverseEntityNode,
   traverseEntityNodeChildFirst,
@@ -504,70 +503,6 @@ describe('removeEntityNodeRecursively', () => {
     assert(!hasComponent(node_0_1_0, EntityTreeComponent))
   })
 }) //:: removeEntityNodeRecursively
-
-describe('removeFromEntityTree', () => {
-  let parentEntity: Entity
-
-  beforeEach(() => {
-    createEngine()
-
-    parentEntity = createEntity()
-    setComponent(parentEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
-    setComponent(parentEntity, UUIDComponent, 'root' as EntityUUID)
-  })
-
-  afterEach(() => {
-    return destroyEngine()
-  })
-
-  it('should recursively call `removeComponent` on the `@param entity` and every entity in its EntityTreeComponent.children', () => {
-    // Set the data as expected
-    const children = [createEntity(), createEntity(), createEntity(), createEntity(), createEntity()]
-    for (let id = 0; id < children.length; ++id) {
-      const entity = children[id]
-      const first = id === 0
-      setComponent(entity, EntityTreeComponent, { parentEntity: first ? parentEntity : children[id - 1] })
-    }
-    // Sanity check before running
-    assert.equal(entityExists(parentEntity), true)
-    assert.equal(hasComponent(parentEntity, EntityTreeComponent), true)
-    for (const entity of children) {
-      assert.equal(entityExists(entity), true)
-      assert.equal(hasComponent(entity, EntityTreeComponent), true)
-    }
-    // Run and Check the result
-    removeFromEntityTree(parentEntity)
-    assert.equal(entityExists(parentEntity), true)
-    assert.equal(hasComponent(parentEntity, EntityTreeComponent), false)
-    for (const entity of children) {
-      assert.equal(entityExists(entity), true)
-      assert.equal(hasComponent(entity, EntityTreeComponent), false)
-    }
-  })
-
-  it('should empty the entity tree', () => {
-    // Set the data as expected
-    const node_0 = createEntity()
-    const node_0_0 = createEntity()
-    const node_0_1 = createEntity()
-    const node_0_0_0 = createEntity()
-    const node_0_1_0 = createEntity()
-    setComponent(node_0, EntityTreeComponent, { parentEntity: parentEntity })
-    setComponent(node_0_0, EntityTreeComponent, { parentEntity: node_0 })
-    setComponent(node_0_1, EntityTreeComponent, { parentEntity: node_0 })
-    setComponent(node_0_0_0, EntityTreeComponent, { parentEntity: node_0_0 })
-    setComponent(node_0_1_0, EntityTreeComponent, { parentEntity: node_0_1 })
-
-    // Run and Check the result
-    removeFromEntityTree(node_0)
-    assert(hasComponent(parentEntity, EntityTreeComponent))
-    assert(!hasComponent(node_0, EntityTreeComponent))
-    assert(!hasComponent(node_0_0, EntityTreeComponent))
-    assert(!hasComponent(node_0_1, EntityTreeComponent))
-    assert(!hasComponent(node_0_0_0, EntityTreeComponent))
-    assert(!hasComponent(node_0_1_0, EntityTreeComponent))
-  })
-}) //:: removeFromEntityTree
 
 describe('traverseEntityNode', () => {
   let parentEntity: Entity

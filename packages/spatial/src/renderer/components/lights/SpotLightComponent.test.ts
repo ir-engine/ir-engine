@@ -37,16 +37,16 @@ import {
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
-import { BoxGeometry, ColorRepresentation, Mesh, MeshBasicMaterial, SpotLight, Vector3 } from 'three'
+import { ColorRepresentation, SpotLight, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { assertColor, assertVec } from '../../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
-import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
+import { NameComponent } from '../../../common/NameComponent'
 import { destroySpatialEngine } from '../../../initializeEngine'
+import { EntityTreeComponent } from '../../../transform/components/EntityTree'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { RendererState } from '../../RendererState'
-import { GroupComponent, addObjectToGroup } from '../GroupComponent'
-import { LineSegmentComponent } from '../LineSegmentComponent'
+import { ObjectComponent } from '../ObjectComponent'
 import { LightTagComponent } from './LightTagComponent'
 import { SpotLightComponent } from './SpotLightComponent'
 
@@ -231,69 +231,47 @@ describe('SpotLightComponent', () => {
     it('should set the light.target.position to (1,0,0) when it is mounted', () => {
       const Expected = new Vector3(1, 0, 0)
 
-      // Set the data as expected
-      const geometry = new BoxGeometry(1, 1, 1)
-      const material = new MeshBasicMaterial({ color: 0xffff00 })
-      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
-
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent)
       // Check side-effect
-      const light = getComponent(testEntity, GroupComponent)[1] as SpotLight
+      const light = getComponent(testEntity, ObjectComponent) as SpotLight
       assertVec.approxEq(light.target.position, Expected, 3)
     })
 
     it("should set the light.target.name to 'light-target' when it is mounted", () => {
       const Expected = 'light-target'
 
-      // Set the data as expected
-      const geometry = new BoxGeometry(1, 1, 1)
-      const material = new MeshBasicMaterial({ color: 0xffff00 })
-      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
-
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent)
       // Check side-effect
-      const light = getComponent(testEntity, GroupComponent)[1] as SpotLight
+      const light = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(light.target.name, Expected)
     })
 
-    it('should create a new SpotLight object and add it to the GroupComponent of the entity when it is mounted', () => {
-      setComponent(testEntity, GroupComponent)
-
+    it('should create a new SpotLight object and add it to the ObjectComponent of the entity when it is mounted', () => {
       // Sanity check before running
-      const before = getComponent(testEntity, GroupComponent)
-      assert.equal(before.length, 0)
+      const before = getComponent(testEntity, ObjectComponent)
+      assert.equal(!!before, false)
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent)
-      const after = getComponent(testEntity, GroupComponent)
-      assert.notEqual(after.length, 0)
-      assert.equal(after.length, 1)
-      const result = after[0].type === 'SpotLight'
+      const after = getComponent(testEntity, ObjectComponent)
+      assert.equal(!!after, true)
+      const result = after.type === 'SpotLight'
       assert.equal(result, true)
     })
 
-    it('should remove the SpotLight object from the GroupComponent of the entityContext when it is unmounted', () => {
-      setComponent(testEntity, GroupComponent)
-      const DummyObject = new Mesh(new BoxGeometry())
-
+    it('should remove the SpotLight object from the ObjectComponent of the entityContext when it is unmounted', () => {
       // Sanity check before running
-      const before1 = getComponent(testEntity, GroupComponent)
-      assert.equal(before1.length, 0)
+      const before1 = getComponent(testEntity, ObjectComponent)
+      assert.equal(!!before1, false)
       setComponent(testEntity, SpotLightComponent)
-      addObjectToGroup(testEntity, DummyObject)
-      const before2 = getComponent(testEntity, GroupComponent)
-      assert.notEqual(before2.length, 0)
-      assert.equal(before2.length, 2)
-      assert.equal(before2[0].type, 'SpotLight')
 
       // Run and Check the result
       removeComponent(testEntity, SpotLightComponent)
-      const after = getComponent(testEntity, GroupComponent)
-      assert.notEqual(after.length, 2)
-      assert.equal(after.length, 1)
-      assert.notEqual(after[0].type, 'SpotLight')
+      const after = getComponent(testEntity, ObjectComponent)
+      assert.equal(!!after, false)
+      assert.notEqual(after?.type, 'SpotLight')
     })
 
     it('should react when directionalLightComponent.color changes', () => {
@@ -311,17 +289,12 @@ describe('SpotLightComponent', () => {
       const result = getComponent(testEntity, SpotLightComponent).color
       assertColor.eq(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, GroupComponent)[0] as SpotLight
+      const light = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(light.color.getHex(), Expected)
     })
 
     it('should react when hemisphereLightComponent.intensity changes', () => {
       const Expected = 42
-
-      // Set the data as expected
-      const geometry = new BoxGeometry(1, 1, 1)
-      const material = new MeshBasicMaterial({ color: 0xffff00 })
-      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       setComponent(testEntity, SpotLightComponent)
 
       // Sanity check before running
@@ -334,17 +307,12 @@ describe('SpotLightComponent', () => {
       const result = getComponent(testEntity, SpotLightComponent).intensity
       assert.equal(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, GroupComponent)[1] as SpotLight
+      const light = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(light.intensity, Expected)
     })
 
     it('should react when pointLightComponent.range changes', () => {
       const Expected = 42
-
-      // Set the data as expected
-      const geometry = new BoxGeometry(1, 1, 1)
-      const material = new MeshBasicMaterial({ color: 0xffff00 })
-      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       setComponent(testEntity, SpotLightComponent)
 
       // Sanity check before running
@@ -357,17 +325,12 @@ describe('SpotLightComponent', () => {
       const result = getComponent(testEntity, SpotLightComponent).range
       assert.equal(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, GroupComponent)[1] as SpotLight
+      const light = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(light.distance, Expected)
     })
 
     it('should react when pointLightComponent.decay changes', () => {
       const Expected = 42
-
-      // Set the data as expected
-      const geometry = new BoxGeometry(1, 1, 1)
-      const material = new MeshBasicMaterial({ color: 0xffff00 })
-      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       setComponent(testEntity, SpotLightComponent)
 
       // Sanity check before running
@@ -380,17 +343,12 @@ describe('SpotLightComponent', () => {
       const result = getComponent(testEntity, SpotLightComponent).decay
       assert.equal(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, GroupComponent)[1] as SpotLight
+      const light = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(light.decay, Expected)
     })
 
     it('should react when pointLightComponent.angle changes', () => {
       const Expected = 42
-
-      // Set the data as expected
-      const geometry = new BoxGeometry(1, 1, 1)
-      const material = new MeshBasicMaterial({ color: 0xffff00 })
-      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       setComponent(testEntity, SpotLightComponent)
 
       // Sanity check before running
@@ -403,17 +361,12 @@ describe('SpotLightComponent', () => {
       const result = getComponent(testEntity, SpotLightComponent).angle
       assert.equal(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, GroupComponent)[1] as SpotLight
+      const light = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(light.angle, Expected)
     })
 
     it('should react when pointLightComponent.penumbra changes', () => {
       const Expected = 42
-
-      // Set the data as expected
-      const geometry = new BoxGeometry(1, 1, 1)
-      const material = new MeshBasicMaterial({ color: 0xffff00 })
-      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       setComponent(testEntity, SpotLightComponent)
 
       // Sanity check before running
@@ -426,17 +379,12 @@ describe('SpotLightComponent', () => {
       const result = getComponent(testEntity, SpotLightComponent).penumbra
       assert.equal(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, GroupComponent)[1] as SpotLight
+      const light = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(light.penumbra, Expected)
     })
 
     it('should react when pointLightComponent.castShadow changes', () => {
       const Expected = !SpotLightComponentDefaults.castShadow
-
-      // Set the data as expected
-      const geometry = new BoxGeometry(1, 1, 1)
-      const material = new MeshBasicMaterial({ color: 0xffff00 })
-      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       setComponent(testEntity, SpotLightComponent)
 
       // Sanity check before running
@@ -449,17 +397,12 @@ describe('SpotLightComponent', () => {
       const result = getComponent(testEntity, SpotLightComponent).castShadow
       assert.equal(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, GroupComponent)[1] as SpotLight
+      const light = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(light.castShadow, Expected)
     })
 
     it('should react when pointLightComponent.shadowBias changes', () => {
       const Expected = 42
-
-      // Set the data as expected
-      const geometry = new BoxGeometry(1, 1, 1)
-      const material = new MeshBasicMaterial({ color: 0xffff00 })
-      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       setComponent(testEntity, SpotLightComponent)
 
       // Sanity check before running
@@ -472,17 +415,12 @@ describe('SpotLightComponent', () => {
       const result = getComponent(testEntity, SpotLightComponent).shadowBias
       assert.equal(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, GroupComponent)[1] as SpotLight
+      const light = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(light.shadow.bias, Expected)
     })
 
     it('should react when pointLightComponent.shadowRadius changes', () => {
       const Expected = 42
-
-      // Set the data as expected
-      const geometry = new BoxGeometry(1, 1, 1)
-      const material = new MeshBasicMaterial({ color: 0xffff00 })
-      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       setComponent(testEntity, SpotLightComponent)
 
       // Sanity check before running
@@ -495,29 +433,24 @@ describe('SpotLightComponent', () => {
       const result = getComponent(testEntity, SpotLightComponent).shadowRadius
       assert.equal(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, GroupComponent)[1] as SpotLight
+      const light = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(light.shadow.radius, Expected)
     })
 
     it('should react when renderState.shadowMapResolution changes', () => {
       const Initial = 21
       const Expected = 42
-
-      // Set the data as expected
-      const geometry = new BoxGeometry(1, 1, 1)
-      const material = new MeshBasicMaterial({ color: 0xffff00 })
-      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       getMutableState(RendererState).shadowMapResolution.set(Initial)
 
       // Run and Check the result
       setComponent(testEntity, SpotLightComponent)
-      const before = getComponent(testEntity, GroupComponent)[1] as SpotLight
+      const before = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(before.shadow.mapSize.x, Initial)
 
       // Re-run and Check the result again
       getMutableState(RendererState).shadowMapResolution.set(Expected)
       SpotLightComponent.reactorMap.get(testEntity)!.run()
-      const result = getComponent(testEntity, GroupComponent)[1] as SpotLight
+      const result = getComponent(testEntity, ObjectComponent) as SpotLight
       assert.equal(result.shadow.mapSize.x, Expected)
     })
 
@@ -531,18 +464,20 @@ describe('SpotLightComponent', () => {
 
       // Run and Check the Initial result
       setComponent(testEntity, SpotLightComponent)
-      assert.equal(hasComponent(testEntity, LightHelperComponent), Initial)
+      setComponent(testEntity, NameComponent, 'spot-light')
 
       // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(Expected)
       SpotLightComponent.reactorMap.get(testEntity)!.run()
-      assert.equal(hasComponent(testEntity, LightHelperComponent), Expected)
-      assert.equal(getComponent(testEntity, LightHelperComponent).name, 'spot-light-helper')
+
+      const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
+      assert.equal(hasComponent(childEntity1, ObjectComponent), Expected)
+      assert.equal(getComponent(childEntity1, NameComponent), 'spot-light-helper')
 
       // Re-run and Check the unmount case
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)
       SpotLightComponent.reactorMap.get(testEntity)!.run()
-      assert.equal(hasComponent(testEntity, LightHelperComponent), Initial)
+      assert.equal(hasComponent(childEntity1, ObjectComponent), Initial)
     })
   }) //:: reactor
 })

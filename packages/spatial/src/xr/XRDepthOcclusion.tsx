@@ -30,12 +30,11 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { Material, Matrix4, Mesh, Shader, ShaderMaterial, ShadowMaterial, Vector2 } from 'three'
 
-import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
 import { addOBCPlugin, removeOBCPlugin } from '../common/functions/OnBeforeCompilePlugin'
-import { GroupComponent, GroupQueryReactor } from '../renderer/components/GroupComponent'
 import { VisibleComponent } from '../renderer/components/VisibleComponent'
 import { DepthCanvasTexture } from './DepthCanvasTexture'
 import { DepthDataTexture } from './DepthDataTexture'
@@ -181,6 +180,11 @@ type getDepthInformationType = {
   getDepthInformation: (view: XRView) => XRCPUDepthInformation
 }
 
+/**
+ * Updates materials with XR depth map uniforms
+ * @param world
+ * @returns
+ */
 function updateDepthMaterials(
   frame: XRFrame & getDepthInformationType,
   referenceSpace: XRReferenceSpace,
@@ -244,13 +248,6 @@ const _createDepthDebugCanvas = (enabled: boolean) => {
   return depthTexture
 }
 
-/**
- * Updates materials with XR depth map uniforms
- * @param world
- * @returns
- */
-const groupQuery = defineQuery([GroupComponent])
-
 const useDepthTextureDebug = false
 const depthTexture = _createDepthDebugCanvas(useDepthTextureDebug)
 let depthSupported = false
@@ -292,7 +289,7 @@ const reactor = () => {
     }
   }, [xrState.sessionActive])
 
-  return <GroupQueryReactor GroupChildReactor={DepthOcclusionReactor} Components={[VisibleComponent]} />
+  return <QueryReactor ChildEntityReactor={DepthOcclusionReactor} Components={[VisibleComponent]} />
 }
 
 export const XRDepthOcclusionSystem = defineSystem({

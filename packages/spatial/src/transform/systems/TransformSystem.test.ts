@@ -35,7 +35,6 @@ import {
   getComponent,
   getMutableComponent,
   hasComponent,
-  hasComponents,
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
@@ -43,7 +42,7 @@ import { getMutableState, getState, startReactor } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import assert from 'assert'
 import sinon from 'sinon'
-import { Box3, BoxGeometry, Group, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
+import { Box3, BoxGeometry, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { MockXRFrame } from '../../../tests/util/MockXR'
 import { assertArray, assertVec } from '../../../tests/util/assert'
@@ -51,7 +50,6 @@ import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { EngineState } from '../../EngineState'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { destroySpatialEngine } from '../../initializeEngine'
-import { GroupComponent, addObjectToGroup } from '../../renderer/components/GroupComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
@@ -113,37 +111,6 @@ describe('TransformSystem', () => {
       // Run and Check the result
       System.execute()
       assert.equal(spy.callCount, entities.length)
-    })
-
-    it('should call updateGroupChildren for all entities that have the components [GroupComponent, VisibleComponent] and are true in the TransformComponent.dirtyTransforms list', () => {
-      const Initial = true
-      const Expected = !Initial
-      // Set the data as expected
-      const entities: Entity[] = [createEntity(), createEntity(), createEntity(), createEntity()]
-      const objCount: number = 2
-      for (const entity of entities) {
-        setComponent(entity, VisibleComponent)
-        setComponent(entity, TransformComponent)
-        for (let id = 0; id < objCount; ++id) {
-          const obj = new Mesh(new BoxGeometry())
-          obj.matrixWorldNeedsUpdate = Initial
-          const group = new Group()
-          group.children = [obj]
-          addObjectToGroup(entity, group)
-        }
-      }
-      // Sanity check before running
-      for (const entity of entities) {
-        assert.equal(hasComponents(entity, [GroupComponent, VisibleComponent]), true)
-        for (const group of getComponent(entity, GroupComponent))
-          for (const child of group.children) assert.equal(child.matrixWorldNeedsUpdate, Initial)
-      }
-      // Run and Check the result
-      System.execute()
-      for (const entity of entities) {
-        for (const group of getComponent(entity, GroupComponent))
-          for (const child of group.children) assert.equal(child.matrixWorldNeedsUpdate, Expected)
-      }
     })
 
     it('should call updateBoundingBox for all entities that have a BoundingBoxComponent and are true in the TransformComponent.dirtyTransforms list', () => {
@@ -412,7 +379,6 @@ describe('TransformSystem', () => {
             setComponent(entity, TransformComponent, { position: new Vector3(0, 0, 2) })
             setComponent(entity, FrustumCullCameraComponent)
             setComponent(entity, MeshComponent, new Mesh(new BoxGeometry(1, 1, 1)))
-            addObjectToGroup(entity, getComponent(entity, MeshComponent))
             setComponent(entity, BoundingBoxComponent) // Set a bounding box, so we hit the `?` branch when frustum culling
           }
           // Sanity check before running
@@ -500,7 +466,6 @@ describe('TransformSystem', () => {
             setComponent(entity, TransformComponent, { position: new Vector3(0, 0, 2) })
             setComponent(entity, FrustumCullCameraComponent)
             setComponent(entity, MeshComponent, new Mesh(new BoxGeometry(1, 1, 1)))
-            addObjectToGroup(entity, getComponent(entity, MeshComponent))
             setComponent(entity, BoundingBoxComponent) // Set a bounding box, so we hit the `?` branch when frustum culling
           }
           // Sanity check before running

@@ -53,7 +53,7 @@ import { createTransitionState } from '@ir-engine/spatial/src/common/functions/c
 import { easeOutCubic, normalizeRange } from '@ir-engine/spatial/src/common/functions/MathFunctions'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { ReferenceSpace, XRAction, XRState } from '@ir-engine/spatial/src/xr/XRState'
@@ -280,9 +280,10 @@ const reactor = () => {
     guideline.name = 'teleport-guideline'
 
     const guidelineEntity = createEntity()
-    addObjectToGroup(guidelineEntity, guideline)
     setComponent(guidelineEntity, NameComponent, 'Teleport Guideline')
+    setComponent(guidelineEntity, TransformComponent)
     setComponent(guidelineEntity, EntityTreeComponent, { parentEntity: originEntity })
+    setComponent(guidelineEntity, ObjectComponent, guideline)
 
     // The guide cursor at the end of the line
     const guideCursorGeometry = new RingGeometry(0.45, 0.5, 32)
@@ -294,9 +295,10 @@ const reactor = () => {
     guideCursor.frustumCulled = false
 
     const guideCursorEntity = createEntity()
-    addObjectToGroup(guideCursorEntity, guideCursor)
     setComponent(guideCursorEntity, NameComponent, 'Teleport Guideline Cursor')
+    setComponent(guideCursorEntity, TransformComponent)
     setComponent(guideCursorEntity, EntityTreeComponent, { parentEntity: originEntity })
+    setComponent(guideCursorEntity, ObjectComponent, guideCursor)
 
     const transition = createTransitionState(0.5)
 

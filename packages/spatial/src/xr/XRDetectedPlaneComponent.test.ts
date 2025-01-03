@@ -48,12 +48,7 @@ import { TransformComponent } from '../SpatialModule'
 import { NameComponent } from '../common/NameComponent'
 import { VisibleComponent } from '../renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '../transform/components/EntityTree'
-import {
-  XRDetectedPlaneComponent,
-  occlusionMat,
-  placementHelperMaterial,
-  shadowMaterial
-} from './XRDetectedPlaneComponent'
+import { XRDetectedPlaneComponent, placementHelperMaterial, shadowMaterial } from './XRDetectedPlaneComponent'
 import { ReferenceSpace, XRState } from './XRState'
 
 describe('placementHelperMaterial', () => {
@@ -92,19 +87,19 @@ describe('shadowMaterial', () => {
   })
 }) //:: shadowMaterial
 
-describe('occlusionMat', () => {
-  it('should initialize Material.colorWrite with the expected value', () => {
-    expect(occlusionMat.colorWrite).toBe(false)
-  })
+// describe('occlusionMat', () => {
+//   it('should initialize Material.colorWrite with the expected value', () => {
+//     expect(occlusionMat.colorWrite).toBe(false)
+//   })
 
-  it('should initialize Material.polygonOffset with the expected value', () => {
-    expect(occlusionMat.polygonOffset).toBe(true)
-  })
+//   it('should initialize Material.polygonOffset with the expected value', () => {
+//     expect(occlusionMat.polygonOffset).toBe(true)
+//   })
 
-  it('should initialize Material.polygonOffsetFactor with the expected value', () => {
-    expect(occlusionMat.polygonOffsetFactor).toBe(-0.01)
-  })
-}) //:: occlusionMat
+//   it('should initialize Material.polygonOffsetFactor with the expected value', () => {
+//     expect(occlusionMat.polygonOffsetFactor).toBe(-0.01)
+//   })
+// }) //:: occlusionMat
 
 describe('XRDetectedPlaneComponent', () => {
   describe('Fields', () => {

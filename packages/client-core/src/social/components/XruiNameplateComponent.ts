@@ -85,6 +85,8 @@ export const XruiNameplateComponent = defineComponent({
     const user = useGet(userPath, networkObject.ownerId.value)
 
     useEffect(() => {
+      if (!user.data?.name || getState(XruiNameplateState).isVisible === false) return
+
       const userName = user.data?.name ?? 'A User'
       addNameplateUI(entity, userName)
 

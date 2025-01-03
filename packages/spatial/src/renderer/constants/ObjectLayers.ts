@@ -57,7 +57,7 @@ export const ObjectLayers = {
   HighlightEffect: 11 as const,
 
   UVOL: 30 as const
-} as Record<string, number>
+}
 
 export const ObjectLayerMasks = {
   Scene: 1 << ObjectLayers.Scene,
@@ -73,4 +73,4 @@ export const ObjectLayerMasks = {
   TransformGizmo: 1 << ObjectLayers.TransformGizmo,
   HighlightEffect: 1 << ObjectLayers.HighlightEffect,
   UVOL: 1 << ObjectLayers.UVOL
-} as Record<string, number>
+}

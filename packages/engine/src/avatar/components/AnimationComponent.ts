@@ -37,7 +37,7 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, State, useHookstate } from '@ir-engine/hyperflux'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import {
   MaterialInstanceComponent,
@@ -146,6 +146,6 @@ PropertyBinding.findNode = (root: Object3D, nodeName: string) => {
     getOptionalComponent(entity, NormalizedBoneComponent) ||
     getOptionalComponent(entity, BoneComponent) ||
     getOptionalComponent(entity, MeshComponent) ||
-    getOptionalComponent(entity, Object3DComponent)!
+    getOptionalComponent(entity, ObjectComponent)!
   )
 }

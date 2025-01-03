@@ -32,7 +32,7 @@ import { createEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctio
 import { QueryReactor, defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getMutableState, getState, isClient, useHookstate } from '@ir-engine/hyperflux'
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
@@ -66,11 +66,11 @@ const execute = () => {
     const { opacityMultiplier, plateEntity, lightEntities } = getComponent(entity, SpawnEffectComponent)
     if (!plateEntity) continue
 
-    const plate = getComponent(plateEntity, GroupComponent)[0] as typeof SpawnEffectComponent.plateMesh
+    const plate = getComponent(plateEntity, ObjectComponent) as typeof SpawnEffectComponent.plateMesh
     plate.material.opacity = opacityMultiplier * (0.7 + 0.5 * Math.sin((Date.now() % 6283) * 5e-3))
 
     for (const rayEntity of lightEntities) {
-      const ray = getComponent(rayEntity, GroupComponent)[0] as typeof SpawnEffectComponent.lightMesh
+      const ray = getComponent(rayEntity, ObjectComponent) as typeof SpawnEffectComponent.lightMesh
       const rayTransform = getComponent(rayEntity, TransformComponent)
       rayTransform.position.y += 2 * delta
       rayTransform.scale.y = lightScale(rayTransform.position.y, ray.geometry.boundingSphere!.radius)

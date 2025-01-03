@@ -42,7 +42,6 @@ import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/Col
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import { BodyTypes, Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import {
   DistanceFromCameraComponent,
@@ -52,7 +51,6 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
 import { GrabberComponent } from '../../grabbable/GrabbableComponent'
 import { EnvmapComponent } from '../../scene/components/EnvmapComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
@@ -68,11 +66,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
   setComponent(entity, TransformComponent)
-
-  const obj3d = new Object3D()
-  obj3d.entity = entity
-  addObjectToGroup(entity, obj3d)
-  proxifyParentChildRelationships(obj3d)
 
   setComponent(entity, VisibleComponent, true)
 

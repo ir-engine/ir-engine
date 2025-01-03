@@ -216,6 +216,3 @@ SkinnedMesh.prototype.applyBoneTransform = function (index, vector) {
 overrideOnBeforeCompile()
 
 globalThis.THREE = { ...THREE } as any
-
-// required to patch realism-effects
-if (!globalThis.URL.createObjectURL) globalThis.URL.createObjectURL = (blob) => null!
