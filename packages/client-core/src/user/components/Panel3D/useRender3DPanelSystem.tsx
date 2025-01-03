@@ -32,6 +32,7 @@ import {
   createEntity,
   generateEntityUUID,
   hasComponent,
+  removeEntity,
   setComponent
 } from '@ir-engine/ecs'
 import { useHookstate } from '@ir-engine/hyperflux'
@@ -41,11 +42,9 @@ import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/C
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import {
-  EntityTreeComponent,
-  removeEntityNodeRecursively
-} from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvasElement>) {
   const canvasRef = useHookstate(canvas.current)
@@ -56,6 +55,7 @@ export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvas
     setComponent(sceneEntity, UUIDComponent, (uuid + '-scene') as EntityUUID)
     setComponent(sceneEntity, TransformComponent)
     setComponent(sceneEntity, VisibleComponent)
+    setComponent(sceneEntity, SceneComponent)
     setComponent(sceneEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
 
     const cameraEntity = createEntity()
@@ -77,8 +77,8 @@ export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvas
     const { cameraEntity, sceneEntity } = panelState.value
     return () => {
       // cleanup entities and state associated with this 3d panel
-      removeEntityNodeRecursively(cameraEntity)
-      removeEntityNodeRecursively(sceneEntity)
+      removeEntity(cameraEntity)
+      removeEntity(sceneEntity)
     }
   }, [])
 
