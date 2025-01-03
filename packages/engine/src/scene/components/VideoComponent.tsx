@@ -45,17 +45,18 @@ import { UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getOptionalComponent,
+  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { defineState, NO_PROXY, useHookstate, useState } from '@ir-engine/hyperflux'
+import { defineState, NO_PROXY, State, useHookstate, useState } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { createPriorityQueue } from '@ir-engine/spatial/src/common/functions/PriorityQueue'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { MeshComponent, useMeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { ContentFitTypeSchema } from '@ir-engine/spatial/src/transform/functions/ObjectFitFunctions'
@@ -143,25 +144,27 @@ function VideoReactor() {
   const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
 
   const videoMeshEntity = useHookstate(createEntity)
-  const mesh = useMeshComponent<PlaneGeometry | SphereGeometry, ShaderMaterial>(
-    videoMeshEntity.value,
-    PLANE_GEO,
-    () =>
-      new ShaderMaterial({
-        uniforms: {
-          map: { value: null },
-          alphaMap: { value: null },
-          uvOffset: { value: new Vector2(0, 0) },
-          uvScale: { value: new Vector2(1, 1) },
-          useAlpha: { value: false },
-          alphaThreshold: { value: 0.5 },
-          useAlphaUVTransform: { value: false },
-          alphaUVOffset: { value: new Vector2(0, 0) },
-          alphaUVScale: { value: new Vector2(1, 1) },
-          wrapS: { value: ClampToEdgeWrapping },
-          wrapT: { value: ClampToEdgeWrapping }
-        },
-        vertexShader: `
+  useEffect(() => {
+    setComponent(
+      videoMeshEntity.value,
+      MeshComponent,
+      new Mesh(
+        PLANE_GEO(),
+        new ShaderMaterial({
+          uniforms: {
+            map: { value: null },
+            alphaMap: { value: null },
+            uvOffset: { value: new Vector2(0, 0) },
+            uvScale: { value: new Vector2(1, 1) },
+            useAlpha: { value: false },
+            alphaThreshold: { value: 0.5 },
+            useAlphaUVTransform: { value: false },
+            alphaUVOffset: { value: new Vector2(0, 0) },
+            alphaUVScale: { value: new Vector2(1, 1) },
+            wrapS: { value: ClampToEdgeWrapping },
+            wrapT: { value: ClampToEdgeWrapping }
+          },
+          vertexShader: `
         varying vec2 vUv;
         void main() {
           vUv = uv;
@@ -169,7 +172,7 @@ function VideoReactor() {
         }
 
       `,
-        fragmentShader: `
+          fragmentShader: `
       #ifdef USE_MAP
         uniform sampler2D map;
       #endif
@@ -238,16 +241,24 @@ function VideoReactor() {
         #endif
         }
       `
-      })
-  )
+        })
+      )
+    )
+    return () => {
+      removeComponent(videoMeshEntity.value, MeshComponent)
+    }
+  }, [])
 
   const fitPlacementUvOffset = useState(new Vector2(0, 0))
   const fitPlacementUvScale = useState(new Vector2(1, 1))
 
+  const mesh = useOptionalComponent(videoMeshEntity.value, MeshComponent) as any as State<
+    Mesh<PlaneGeometry | SphereGeometry, ShaderMaterial>
+  >
+
   useEffect(() => {
     const videoEntity = videoMeshEntity.value
     video.videoMeshEntity.set(videoEntity)
-    mesh.name.set(`video-group-${entity}`)
     setComponent(videoEntity, EntityTreeComponent, { parentEntity: entity })
     setComponent(videoEntity, NameComponent, mesh.name.value)
     return () => {
@@ -256,16 +267,24 @@ function VideoReactor() {
   }, [])
 
   useEffect(() => {
+    if (!mesh) return
+    mesh.name.set(`video-group-${entity}`)
+  }, [mesh])
+
+  useEffect(() => {
     setVisibleComponent(videoMeshEntity.value, !!visible)
   }, [visible])
 
   // update side
   useEffect(() => {
+    if (!mesh) return
     mesh.material.side.set(video.side.value)
-  }, [video.side])
+  }, [mesh, video.side])
 
   // update mesh
   useEffect(() => {
+    if (!mesh) return
+
     const videoMesh = mesh.value as Mesh<PlaneGeometry | SphereGeometry, ShaderMaterial>
     resizeVideoMesh(videoMesh)
 
@@ -316,9 +335,10 @@ function VideoReactor() {
 
     fitPlacementUvOffset.set(uvOffset)
     fitPlacementUvScale.set(uvScale)
-  }, [video.size, video.fit, video.texture, mesh.material])
+  }, [mesh, video.size, video.fit, video.texture, mesh.material])
 
   useEffect(() => {
+    if (!mesh) return
     mesh.geometry.set(video.projection.value === 'Flat' ? PLANE_GEO() : SPHERE_GEO())
     mesh.geometry.attributes.position.needsUpdate.set(true)
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
@@ -330,37 +350,43 @@ function VideoReactor() {
       delete defines.USE_MAP
     }
     mesh.material.needsUpdate.set(true)
-  }, [video.texture, video.projection])
+  }, [mesh, video.texture, video.projection])
 
   useEffect(() => {
+    if (!mesh) return
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
     uniforms.wrapS.value = video.wrapS.value
-  }, [video.wrapS])
+  }, [mesh, video.wrapS])
 
   useEffect(() => {
+    if (!mesh) return
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
     uniforms.wrapT.value = video.wrapT.value
-  }, [video.wrapT])
+  }, [mesh, video.wrapT])
 
   useEffect(() => {
+    if (!mesh) return
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
     uniforms.useAlpha.value = video.useAlpha.value
-  }, [video.useAlpha])
+  }, [mesh, video.useAlpha])
 
   useEffect(() => {
+    if (!mesh) return
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
     uniforms.alphaThreshold.value = video.alphaThreshold.value
-  }, [video.alphaThreshold])
+  }, [mesh, video.alphaThreshold])
 
   useEffect(() => {
+    if (!mesh) return
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
     uniforms.uvOffset.value = new Vector2(
       video.uvOffset.x.value + fitPlacementUvOffset.x.value,
       video.uvOffset.y.value + fitPlacementUvOffset.y.value
     )
-  }, [video.uvOffset, fitPlacementUvOffset])
+  }, [mesh, video.uvOffset, fitPlacementUvOffset])
 
   useEffect(() => {
+    if (!mesh) return
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
     uniforms.uvScale.value = video.uvScale.value
 
@@ -368,25 +394,28 @@ function VideoReactor() {
       video.uvScale.x.value * fitPlacementUvScale.x.value,
       video.uvScale.y.value * fitPlacementUvScale.y.value
     )
-  }, [video.uvScale, fitPlacementUvScale])
+  }, [mesh, video.uvScale, fitPlacementUvScale])
 
   useEffect(() => {
+    if (!mesh) return
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
     uniforms.useAlphaUVTransform.value = video.useAlphaUVTransform.value
-  }, [video.useAlphaUVTransform])
+  }, [mesh, video.useAlphaUVTransform])
 
   useEffect(() => {
+    if (!mesh) return
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
     uniforms.alphaUVOffset.value = video.alphaUVOffset.value
-  }, [video.alphaUVOffset])
+  }, [mesh, video.alphaUVOffset])
 
   useEffect(() => {
+    if (!mesh) return
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
     uniforms.alphaUVScale.value = video.alphaUVScale.value
-  }, [video.alphaUVScale])
+  }, [mesh, video.alphaUVScale])
 
   useEffect(() => {
-    if (!mediaEntity || !mediaElement) return
+    if (!mesh || !mediaEntity || !mediaElement) return
     const sourceVideoComponent = getOptionalComponent(mediaEntity, VideoComponent)
     const sourceMeshComponent = getOptionalComponent(mediaEntity, MeshComponent)
     const sourceTexture = sourceVideoComponent?.texture
@@ -414,6 +443,6 @@ function VideoReactor() {
         }
       }
     }
-  }, [video.texture, video.mediaUUID, mediaEntity, mediaElement])
+  }, [mesh, video.texture, video.mediaUUID, mediaEntity, mediaElement])
   return null
 }
