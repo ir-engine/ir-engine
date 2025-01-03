@@ -44,7 +44,7 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { State, useMutableState } from '@ir-engine/hyperflux'
+import { State, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -149,7 +149,8 @@ export const InfiniteGridComponent = defineComponent({
 
     const component = useComponent(entity, InfiniteGridComponent)
     const engineRendererSettings = useMutableState(RendererState)
-    useEffect(() => {
+
+    useImmediateEffect(() => {
       setComponent(
         entity,
         MeshComponent,
