@@ -63,7 +63,7 @@ import {
   TransitionStateSchema
 } from '@ir-engine/spatial/src/common/functions/createTransitionState'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { addObjectToGroup, GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup, ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
@@ -233,7 +233,7 @@ export const HyperspaceTagComponent = defineComponent({
       if (!galaxyTexture) return
 
       const hyperspaceEffectEntity = hyperspaceEffectEntityState.value
-      const hyperspaceEffect = getComponent(hyperspaceEffectEntity, GroupComponent)[0] as any as PortalEffect
+      const hyperspaceEffect = getComponent(hyperspaceEffectEntity, ObjectComponent) as any as PortalEffect
       hyperspaceEffect.texture = galaxyTexture
     }, [galaxyTexture])
 
@@ -245,7 +245,7 @@ export const HyperspaceTagComponent = defineComponent({
         if (!hyperspaceEffectEntity) return
         const { transition } = getComponent(entity, HyperspaceTagComponent)
 
-        const hyperspaceEffect = getComponent(hyperspaceEffectEntity, GroupComponent)[0] as any as PortalEffect
+        const hyperspaceEffect = getComponent(hyperspaceEffectEntity, ObjectComponent) as any as PortalEffect
         const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
         const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
         const ecsState = getState(ECSState)

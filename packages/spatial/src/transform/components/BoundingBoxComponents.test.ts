@@ -43,8 +43,8 @@ import { afterEach, beforeEach, describe, it } from 'vitest'
 import { assertVec } from '../../../tests/util/assert'
 import { NameComponent } from '../../common/NameComponent'
 import { RendererState } from '../../renderer/RendererState'
-import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
+import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { BoundingBoxComponent, BoundingBoxComponentFunctions, updateBoundingBox } from './BoundingBoxComponents'
@@ -195,9 +195,8 @@ describe('BoundingBoxComponent', () => {
           assert.notEqual(helperEntity, UndefinedEntity)
           assert.equal(hasComponent(helperEntity, NameComponent), true)
           assert.equal(hasComponent(helperEntity, TransformComponent), true)
-          assert.equal(hasComponent(helperEntity, GroupComponent), true)
-          assert.equal(getComponent(helperEntity, GroupComponent).length, 1)
-          const result = getComponent(helperEntity, GroupComponent)[0].name
+          assert.equal(hasComponent(helperEntity, ObjectComponent), true)
+          const result = getComponent(helperEntity, ObjectComponent).name
           assert.equal(result, Expected)
         })
 
@@ -209,9 +208,13 @@ describe('BoundingBoxComponent', () => {
           assert.notEqual(helperEntity, UndefinedEntity)
           assert.equal(hasComponent(helperEntity, NameComponent), true)
           assert.equal(hasComponent(helperEntity, TransformComponent), true)
-          assert.equal(hasComponent(helperEntity, GroupComponent), true)
-          assert.equal(getComponent(helperEntity, GroupComponent).length, 1)
-          const result = getComponent(helperEntity, GroupComponent)[0].layers.isEnabled(ObjectLayers.NodeHelper)
+          assert.equal(hasComponent(helperEntity, ObjectComponent), true)
+          const result = getComponent(helperEntity, ObjectComponent).layers.isEnabled(ObjectLayers.NodeHelper)
+          console.log(
+            getComponent(helperEntity, ObjectComponent).layers,
+            getComponent(helperEntity, ObjectComponent).layers.mask,
+            getComponent(helperEntity, ObjectComponent).layers.isEnabled(ObjectLayers.NodeHelper)
+          )
           assert.equal(result, Expected)
         })
       })
@@ -277,14 +280,13 @@ describe('BoundingBoxComponent', () => {
         assert.notEqual(helperEntity, UndefinedEntity)
         assert.equal(hasComponent(helperEntity, NameComponent), true)
         assert.equal(hasComponent(helperEntity, TransformComponent), true)
-        assert.equal(hasComponent(helperEntity, GroupComponent), true)
-        assert.equal(getComponent(helperEntity, GroupComponent).length, 1)
+        assert.equal(hasComponent(helperEntity, ObjectComponent), true)
         // Run and Check the result
         removeComponent(testEntity, BoundingBoxComponent)
         assert.equal(hasComponent(helperEntity, VisibleComponent), false)
         assert.equal(hasComponent(helperEntity, NameComponent), false)
         assert.equal(hasComponent(helperEntity, TransformComponent), false)
-        assert.equal(hasComponent(helperEntity, GroupComponent), false)
+        assert.equal(hasComponent(helperEntity, ObjectComponent), false)
       })
     })
   }) //:: reactor

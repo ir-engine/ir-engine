@@ -53,7 +53,9 @@ export const GroundPlaneComponent = defineComponent({
     const component = useComponent(entity, GroundPlaneComponent)
 
     const getMaterial = (): MeshLambertMaterial | ShadowMaterial => {
-      return component.visible.value ? new MeshLambertMaterial() : new ShadowMaterial({ opacity: 0.5 })
+      return component.visible.value
+        ? new MeshLambertMaterial()
+        : new ShadowMaterial({ opacity: 0.5, colorWrite: false })
     }
 
     const mesh = useMeshComponent(entity, () => new PlaneGeometry(10000, 10000), getMaterial)

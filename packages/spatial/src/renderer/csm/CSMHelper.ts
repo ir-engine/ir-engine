@@ -45,7 +45,7 @@ import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { NameComponent } from '../../common/NameComponent'
-import { addObjectToGroup, GroupComponent } from '../../renderer/components/GroupComponent'
+import { addObjectToGroup, ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
@@ -120,7 +120,7 @@ export class CSMHelper {
     const frustums = csm.frustums
     const lights = csm.lights
 
-    const frustumLines = getComponent(this.frustumLinesEntity, GroupComponent)[0] as any as LineSegments<
+    const frustumLines = getComponent(this.frustumLinesEntity, ObjectComponent) as any as LineSegments<
       BufferGeometry,
       LineBasicMaterial
     >
@@ -175,10 +175,10 @@ export class CSMHelper {
       const shadowCam = light.shadow.camera
       const farVerts = frustum.vertices.far
 
-      const cascadeLine = getComponent(cascadeLines[i], GroupComponent)[0] as any as Box3Helper
+      const cascadeLine = getComponent(cascadeLines[i], ObjectComponent) as any as Box3Helper
       const cascadeLineTransform = getComponent(cascadeLines[i], TransformComponent)
       const cascadePlane = getComponent(cascadePlanes[i], TransformComponent)
-      const shadowLine = getComponent(shadowLines[i], GroupComponent)[0] as any as Box3Helper
+      const shadowLine = getComponent(shadowLines[i], ObjectComponent) as any as Box3Helper
       const shadowTransform = getComponent(shadowLines[i], TransformComponent)
 
       cascadeLine.box.min.copy(farVerts[2])

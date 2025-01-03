@@ -202,16 +202,16 @@ const reactor = () => {
     // }
 
     // const canvas = EngineRenderer.instance.renderer.getContext().canvas
-    document.body.addEventListener('pointerdown', redirectDOMEvent)
-    document.body.addEventListener('click', redirectDOMEvent)
-    document.body.addEventListener('contextmenu', redirectDOMEvent)
-    document.body.addEventListener('dblclick', redirectDOMEvent)
+    // document.body.addEventListener('pointerdown', redirectDOMEvent)
+    // document.body.addEventListener('click', redirectDOMEvent)
+    // document.body.addEventListener('contextmenu', redirectDOMEvent)
+    // document.body.addEventListener('dblclick', redirectDOMEvent)
 
     return () => {
-      document.body.removeEventListener('pointerdown', redirectDOMEvent)
-      document.body.removeEventListener('click', redirectDOMEvent)
-      document.body.removeEventListener('contextmenu', redirectDOMEvent)
-      document.body.removeEventListener('dblclick', redirectDOMEvent)
+      // document.body.removeEventListener('pointerdown', redirectDOMEvent)
+      // document.body.removeEventListener('click', redirectDOMEvent)
+      // document.body.removeEventListener('contextmenu', redirectDOMEvent)
+      // document.body.removeEventListener('dblclick', redirectDOMEvent)
     }
   }, [])
   return null

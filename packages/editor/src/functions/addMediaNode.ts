@@ -27,10 +27,8 @@ import { Intersection, Raycaster, Vector2 } from 'three'
 
 import { getContentType } from '@ir-engine/common/src/utils/getContentType'
 import { generateEntityUUID, UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, getOptionalComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
+import { getOptionalComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
-import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { GLTFComponent, loadGLTFFile } from '@ir-engine/engine/src/gltf/GLTFComponent'
@@ -45,10 +43,7 @@ import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/Volu
 import { createLoadingSpinner } from '@ir-engine/engine/src/scene/functions/spatialLoadingSpinner'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 import { getState, startReactor, useMutableState } from '@ir-engine/hyperflux'
-import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { ObjectLayerComponents } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { assignMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
@@ -83,8 +78,8 @@ export async function addMediaNode(
   if (contentType.startsWith('model/')) {
     if (contentType.startsWith('model/material')) {
       // find current intersected object
-      const objectLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Scene]])
-      const sceneObjects = objectLayerQuery().flatMap((entity) => getComponent(entity, GroupComponent))
+      // const objectLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Scene]])
+      // const sceneObjects = objectLayerQuery().flatMap((entity) => getComponent(entity, ObjectComponent))
       //const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Scene] || [])
       const mouse = new Vector2()
       const mouseEvent = event as MouseEvent // Type assertion
@@ -92,7 +87,7 @@ export async function addMediaNode(
       let rect = element.getBoundingClientRect()
       mouse.x = ((mouseEvent.clientX - rect.left) / rect.width) * 2 - 1
       mouse.y = -((mouseEvent.clientY - rect.top) / rect.height) * 2 + 1
-      const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+      // const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
       const raycaster = new Raycaster()
       raycaster.layers.set(ObjectLayerMasks[ObjectLayers.Scene])
       const intersections = [] as Intersection[]

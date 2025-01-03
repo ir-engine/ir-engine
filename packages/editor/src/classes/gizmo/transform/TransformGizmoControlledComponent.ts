@@ -24,26 +24,27 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Box3, Vector3 } from 'three'
+import { Box3, DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, Vector3 } from 'three'
 
 import { Engine, Entity, UndefinedEntity } from '@ir-engine/ecs'
-import {
-  defineComponent,
-  getComponent,
-  removeComponent,
-  setComponent,
-  useComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { TransformPivot } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import {
+  EntityTreeComponent,
+  removeEntityNodeRecursively
+} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { EditorHelperState } from '../../../services/EditorHelperState'
 import { SelectionState } from '../../../services/SelectionServices'
 import { TransformGizmoControlComponent } from './TransformGizmoControlComponent'
@@ -78,39 +79,55 @@ export const TransformGizmoControlledComponent = defineComponent({
     }
 
     useEffect(() => {
-      const gizmoControlEntity = createEntity()
       const gizmoVisualEntity = createEntity()
-      const gizmoPlaneEntity = createEntity()
-      setComponent(gizmoControlEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
       setComponent(gizmoVisualEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
-      setComponent(gizmoPlaneEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+      setComponent(gizmoVisualEntity, NameComponent, 'gizmoVisualEntity')
+      setComponent(gizmoVisualEntity, TransformGizmoVisualComponent)
+      setComponent(gizmoVisualEntity, TransformGizmoTagComponent)
+      setComponent(gizmoVisualEntity, VisibleComponent)
+      setComponent(gizmoVisualEntity, TransformComponent)
+      ObjectLayerMaskComponent.setLayer(gizmoVisualEntity, ObjectLayers.TransformGizmo)
 
-      const controlledEntities = [entity]
+      const gizmoPlaneEntity = createEntity()
+      setComponent(gizmoPlaneEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+      setComponent(gizmoPlaneEntity, NameComponent, 'gizmoPlaneEntity')
+      setComponent(gizmoPlaneEntity, TransformComponent)
+      setComponent(gizmoPlaneEntity, InputComponent)
+
+      const gizmoPlane = new Mesh(
+        new PlaneGeometry(100000, 100000, 2, 2),
+        new MeshBasicMaterial({
+          visible: false,
+          wireframe: true,
+          side: DoubleSide,
+          transparent: true,
+          opacity: 0.1,
+          toneMapped: false
+        })
+      )
+
+      setComponent(gizmoPlaneEntity, MeshComponent, gizmoPlane)
+      setComponent(gizmoPlaneEntity, TransformGizmoTagComponent)
+      ObjectLayerMaskComponent.setLayer(gizmoPlaneEntity, ObjectLayers.TransformGizmo)
+
+      const gizmoControlEntity = createEntity()
+      setComponent(gizmoControlEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
       setComponent(gizmoControlEntity, NameComponent, 'gizmoControllerEntity')
       setComponent(gizmoControlEntity, TransformGizmoControlComponent, {
-        controlledEntities: controlledEntities,
+        controlledEntities: [entity],
         visualEntity: gizmoVisualEntity,
         planeEntity: gizmoPlaneEntity
       })
       setComponent(gizmoControlEntity, TransformGizmoTagComponent)
       setComponent(gizmoControlEntity, VisibleComponent)
+      setComponent(gizmoControlEntity, TransformComponent)
 
       transformGizmoControlledComponent.controller.set(gizmoControlEntity)
 
-      setComponent(gizmoVisualEntity, NameComponent, 'gizmoVisualEntity')
-      setComponent(gizmoVisualEntity, TransformGizmoVisualComponent)
-      setComponent(gizmoVisualEntity, TransformGizmoTagComponent)
-      setComponent(gizmoVisualEntity, VisibleComponent)
-
-      setComponent(gizmoPlaneEntity, NameComponent, 'gizmoPlaneEntity')
-      setComponent(gizmoPlaneEntity, TransformGizmoTagComponent)
-      //NOTE: VisibleComponent for gizmoPlaneEntity is managed in TransformGizmoControlComponent based on drag interaction
-
       return () => {
-        removeEntity(gizmoControlEntity)
-        removeComponent(gizmoVisualEntity, TransformGizmoVisualComponent)
-        removeEntity(gizmoVisualEntity)
-        removeEntity(gizmoPlaneEntity)
+        removeEntityNodeRecursively(gizmoControlEntity)
+        removeEntityNodeRecursively(gizmoVisualEntity)
+        removeEntityNodeRecursively(gizmoPlaneEntity)
       }
     }, [])
 

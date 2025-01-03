@@ -81,13 +81,11 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
 import {
   MaterialInstanceComponent,
   MaterialStateComponent
@@ -142,9 +140,7 @@ export const GLTFSourceState = defineState({
     setComponent(entity, SourceComponent, sourceID)
     setComponent(entity, GLTFComponent, { src: source })
     const obj3d = new Group()
-    setComponent(entity, Object3DComponent, obj3d)
-    addObjectToGroup(entity, obj3d)
-    proxifyParentChildRelationships(obj3d)
+    setComponent(entity, ObjectComponent, obj3d)
     return entity
   },
 
@@ -421,14 +417,11 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
   useEffect(() => {
     /** @todo this is a temporary hack */
     const obj3d = new Group()
-    setComponent(rootEntity, Object3DComponent, obj3d)
-    addObjectToGroup(rootEntity, obj3d)
-    proxifyParentChildRelationships(obj3d)
+    setComponent(rootEntity, ObjectComponent, obj3d)
 
     return () => {
       if (entityExists(rootEntity)) {
-        removeObjectFromGroup(rootEntity, getComponent(rootEntity, Object3DComponent))
-        removeComponent(rootEntity, Object3DComponent)
+        removeComponent(rootEntity, ObjectComponent)
       }
     }
   }, [])
@@ -436,7 +429,7 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
   useEffect(() => {
     if (!animationState.length) return
 
-    const obj3d = getComponent(rootEntity, Object3DComponent)
+    const obj3d = getComponent(rootEntity, ObjectComponent)
     obj3d.animations = animationState.get(NO_PROXY) as AnimationClip[]
     if (!hasComponent(rootEntity, AnimationComponent)) {
       setComponent(rootEntity, AnimationComponent, {
@@ -667,20 +660,9 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
       }
     }
 
-    if (!hasComponent(entity, Object3DComponent) && !hasComponent(entity, MeshComponent)) {
+    if (!hasComponent(entity, ObjectComponent) && !hasComponent(entity, MeshComponent)) {
       if (isBoneNode(documentState.get(NO_PROXY) as GLTF.IGLTF, props.nodeIndex)) {
-        const bone = new Bone()
-        bone.name = nodeName
-        setComponent(entity, BoneComponent, bone)
-        addObjectToGroup(entity, bone)
-        proxifyParentChildRelationships(bone)
-        setComponent(entity, Object3DComponent, bone)
-      } else {
-        const object = new Object3D()
-        object.name = nodeName
-        addObjectToGroup(entity, object)
-        proxifyParentChildRelationships(object)
-        setComponent(entity, Object3DComponent, object)
+        setComponent(entity, BoneComponent, new Bone())
       }
     }
 
@@ -1057,8 +1039,6 @@ const PrimitiveReactor = (props: {
     }
 
     setComponent(props.entity, MeshComponent, mesh)
-    addObjectToGroup(props.entity, mesh)
-    proxifyParentChildRelationships(mesh)
     mesh.name = node.name ?? 'Node-' + props.nodeIndex
 
     const url = options.url
@@ -1068,7 +1048,6 @@ const PrimitiveReactor = (props: {
       if (entityExists(props.entity)) {
         removeComponent(props.entity, SkinnedMeshComponent)
         removeComponent(props.entity, MeshComponent)
-        removeObjectFromGroup(props.entity, mesh)
       }
     }
   }, [node.skin, finalGeometry])
@@ -1122,9 +1101,7 @@ const PrimitiveExtensionReactor = (props: {
   useEffect(() => {
     if (!extensions) return
     for (const extension in extensions) {
-      console.log(extension)
       const Component = ComponentJSONIDMap.get(extension)
-      console.log(Component)
       if (!Component) continue
       setComponent(props.entity, Component, extensions[extension])
     }

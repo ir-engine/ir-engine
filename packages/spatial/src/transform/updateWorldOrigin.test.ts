@@ -41,10 +41,10 @@ import { afterEach, beforeEach, describe, it } from 'vitest'
 import { assertArray, assertVec } from '../../tests/util/assert'
 import { mockSpatialEngine } from '../../tests/util/mockSpatialEngine'
 import { EngineState } from '../EngineState'
-import { TransformComponent } from '../SpatialModule'
 import { Vector3_One } from '../common/constants/MathConstants'
 import { ReferenceSpace, XRState } from '../xr/XRState'
 import { EntityTreeComponent } from './components/EntityTree'
+import { TransformComponent } from './components/TransformComponent'
 import {
   computeAndUpdateWorldOrigin,
   updateWorldOrigin,

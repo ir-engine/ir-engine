@@ -26,13 +26,14 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { AmbientLight } from 'three'
 
-import { defineComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, removeComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { useImmediateEffect } from '@ir-engine/hyperflux'
 import { useDisposable } from '../../../resources/resourceHooks'
 import { T } from '../../../schema/schemaFunctions'
-import { addObjectToGroup, removeObjectFromGroup } from '../GroupComponent'
+import { ObjectComponent } from '../ObjectComponent'
 import { LightTagComponent } from './LightTagComponent'
 
 export const AmbientLightComponent = defineComponent({
@@ -49,11 +50,11 @@ export const AmbientLightComponent = defineComponent({
     const ambientLightComponent = useComponent(entity, AmbientLightComponent)
     const [light] = useDisposable(AmbientLight, entity)
 
-    useEffect(() => {
+    useImmediateEffect(() => {
       setComponent(entity, LightTagComponent)
-      addObjectToGroup(entity, light)
+      setComponent(entity, ObjectComponent, light)
       return () => {
-        removeObjectFromGroup(entity, light)
+        removeComponent(entity, ObjectComponent)
       }
     }, [])
 

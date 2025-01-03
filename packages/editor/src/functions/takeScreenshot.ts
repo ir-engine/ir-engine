@@ -32,7 +32,6 @@ import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
@@ -82,13 +81,12 @@ export async function takeScreenshot(
     if (!scenePreviewCamera) {
       const entity = createEntity()
       setComponent(entity, ScenePreviewCameraComponent)
-      scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
       const { position, rotation } = getComponent(getState(EngineState).viewerEntity, TransformComponent)
       setComponent(entity, TransformComponent, { position, rotation })
-      addObjectToGroup(entity, scenePreviewCamera)
       setComponent(entity, EntityTreeComponent, {
         parentEntity: getState(EditorState).rootEntity
       })
+      scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
       scenePreviewCamera.updateMatrixWorld(true)
     }
   }

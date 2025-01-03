@@ -38,11 +38,10 @@ import {
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 
-import { GroupComponent } from '../../renderer/components/GroupComponent'
-
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { insertionSort } from '../../common/functions/insertionSort'
 import { EngineState } from '../../EngineState'
+import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
 import { BoundingBoxComponent, updateBoundingBox } from '../components/BoundingBoxComponents'
@@ -53,7 +52,8 @@ import { composeMatrix, TransformComponent } from '../components/TransformCompon
 import { TransformSerialization } from '../TransformSerialization'
 
 const transformQuery = defineQuery([TransformComponent])
-const groupQuery = defineQuery([GroupComponent, VisibleComponent])
+
+const objectQuery = defineQuery([ObjectComponent, VisibleComponent])
 
 const boundingBoxQuery = defineQuery([BoundingBoxComponent])
 
@@ -62,10 +62,12 @@ const frustumCulledQuery = defineQuery([TransformComponent, FrustumCullCameraCom
 
 const cameraQuery = defineQuery([TransformComponent, CameraComponent])
 
-//isProxified: used to check if an object is proxified
-declare module 'three/src/core/Object3D' {
-  export interface Object3D {
-    readonly isProxified: true | undefined
+const updateObjectChildren = (entity: Entity) => {
+  const object = getComponent(entity, ObjectComponent) as any as Mesh & Camera
+  if (object.isProxified) return
+  for (const obj of object.children) {
+    obj.updateMatrixWorld()
+    obj.matrixWorldNeedsUpdate = false
   }
 }
 
@@ -80,19 +82,6 @@ export const computeTransformMatrix = (entity: Entity) => {
     if (parentTransform) transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
   } else {
     transform.matrixWorld.copy(transform.matrix)
-  }
-}
-
-export const updateGroupChildren = (entity: Entity) => {
-  const group = getComponent(entity, GroupComponent) as any as (Mesh & Camera)[]
-  // drop down one level and update children
-
-  for (const root of group) {
-    if (root.isProxified) continue
-    for (const obj of root.children) {
-      obj.updateMatrixWorld()
-      obj.matrixWorldNeedsUpdate = false
-    }
   }
 }
 
@@ -176,8 +165,8 @@ const execute = () => {
   const dirtySortedTransformEntities = _sortedTransformEntities.filter(isDirty)
   for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity)
 
-  const dirtyGroupEntities = groupQuery().filter(isDirty)
-  for (const entity of dirtyGroupEntities) updateGroupChildren(entity)
+  const dirtyObjectEntities = objectQuery().filter(isDirty)
+  for (const entity of dirtyObjectEntities) updateObjectChildren(entity)
 
   const dirtyBoundingBoxes = boundingBoxQuery().filter(isDirty)
   for (const entity of dirtyBoundingBoxes) updateBoundingBox(entity)
