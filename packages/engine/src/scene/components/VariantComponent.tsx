@@ -276,8 +276,6 @@ uniform float minDistance;`
       })
     }
 
-    /** @todo rather than this, update the mesh component */
-    removeComponent(props.meshEntity, MeshComponent)
     setComponent(props.meshEntity, MeshComponent, instancedMesh)
   }, [])
 
