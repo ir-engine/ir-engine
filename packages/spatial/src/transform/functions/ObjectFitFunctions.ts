@@ -111,35 +111,6 @@ export const ObjectFitFunctions = {
     return ObjectFitFunctions.computeContentFitScale(contentWidth, contentHeight, size.width, size.height, fit)
   },
 
-  fitToPositionOnScreen: (
-    entity: Entity,
-    uiSize: Vector2,
-    uiScale: number,
-    distance: number,
-    camera = getComponent(getState(EngineState).viewerEntity, CameraComponent)
-  ) => {
-    const containerSize = ObjectFitFunctions.computeFrustumSizeAtDistance(distance, camera)
-    const screenSize = getComponent(getState(EngineState).viewerEntity, RendererComponent).renderer!.getSize(
-      SCREEN_SIZE
-    )
-    const aspectRatio = screenSize.x / screenSize.y
-    const scaleMultiplier = aspectRatio < 1 ? 1 / aspectRatio : 1
-    const scale =
-      ObjectFitFunctions.computeContentFitScale(uiSize.x, uiSize.y, containerSize.width, containerSize.height) *
-      uiScale *
-      scaleMultiplier
-    const transform = getComponent(entity, TransformComponent)
-    const screenUnitsX = containerSize.x * 0.5
-    // now that we have the scale, we can set the position of the UI in front of the camera
-    const xOffset = screenUnitsX - uiSize.x * 0.5 * scale
-    _mat4.makeTranslation(xOffset, 0, -distance).scale(_vec3.set(scale, scale, 1))
-    transform.matrixWorld.multiplyMatrices(
-      getComponent(getState(EngineState).viewerEntity, CameraComponent).matrixWorld,
-      _mat4
-    )
-    transform.matrixWorld.decompose(transform.position, transform.rotation, transform.scale)
-  },
-
   snapToSideOfScreen: (
     entity: Entity,
     contentSize: Vector2,
