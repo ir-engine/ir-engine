@@ -31,7 +31,7 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 
 import { getGLTFAsync } from '../../assets/functions/resourceLoaderHooks'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'

@@ -66,7 +66,6 @@ import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComp
 import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowComponent'
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
 import { setCameraFocusOnBox } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { BackgroundComponent, SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { uploadToFeathersService } from '../../util/upload'
@@ -461,7 +460,6 @@ const RenderMaterialThumbnail = (props: RenderThumbnailProps) => {
       if (Object.hasOwn(sphere.material, 'flatShading')) {
         ;(sphere.material as Material & { flatShading: boolean }).flatShading = false
       }
-      addObjectToGroup(entity, sphere)
       setComponent(entity, MeshComponent, sphere)
       renderThumbnail(entity, lightEntity, skyboxEntity, cameraEntity, props)
     }, 1000)

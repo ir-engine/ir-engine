@@ -34,10 +34,8 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { Group } from 'three'
 import { SourceComponent } from '../components/SourceComponent'
@@ -61,9 +59,7 @@ export const createSceneEntity = (name: string, parentEntity: Entity = Undefined
   // the current GLTF exporter to successfully generate a GLTF.
   const obj3d = new Group()
   obj3d.entity = entity
-  addObjectToGroup(entity, obj3d)
-  proxifyParentChildRelationships(obj3d)
-  setComponent(entity, Object3DComponent, obj3d)
+  setComponent(entity, ObjectComponent, obj3d)
 
   return entity
 }

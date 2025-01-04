@@ -208,7 +208,7 @@ function setHelperColor(entity: Entity, color: Color) {
 }
 
 function resetHelperTransform(entity: Entity) {
-  const helper = getOptionalComponent(entity, BoundingBoxHelperComponent)?.entity
+  const helper = getOptionalComponent(entity, BoundingBoxHelperComponent)?.helperEntity
   if (helper) {
     setComponent(helper, TransformComponent, {
       position: new Vector3(),
@@ -235,7 +235,7 @@ export const ObjectGridSnapState = defineState({
     for (let i = 0; i < selectedEntities.length; i++) {
       const selectedEntity = selectedEntities[i]
       const selectedParent = selectedParents[i]
-      const helperEntity = getOptionalComponent(selectedEntity, BoundingBoxHelperComponent)?.entity
+      const helperEntity = getOptionalComponent(selectedEntity, BoundingBoxHelperComponent)?.helperEntity
       if (!helperEntity) {
         console.warn(`ObjectGridSnapSystem:apply No Helper entity found for selected entity: ${selectedEntity}`)
         continue
@@ -343,7 +343,7 @@ export const ObjectGridSnapSystem = defineSystem({
         }
       }
 
-      const helperEntity = getOptionalComponent(selectedEntity, BoundingBoxHelperComponent)?.entity
+      const helperEntity = getOptionalComponent(selectedEntity, BoundingBoxHelperComponent)?.helperEntity
 
       const commitNoOp = () => {
         resetHelperTransform(selectedEntity)

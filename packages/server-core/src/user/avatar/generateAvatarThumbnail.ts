@@ -42,7 +42,7 @@ import {
 import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { createGLTFLoader } from '@ir-engine/engine/src/assets/functions/createGLTFLoader'
 import { loadDRACODecoderNode } from '@ir-engine/engine/src/assets/loaders/gltf/NodeDracoLoader'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 
 import logger from '../../ServerLogger'
 

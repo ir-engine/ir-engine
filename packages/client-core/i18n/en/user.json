@@ -397,7 +397,8 @@
     "InputAvatarName": "Name Your Avatar",
     "saveAvatar": "Save Avatar",
     "savingAvatar": "Saving {{avatar}}",
-    "packagingAvatar": "Packaging & adding avatar to your Account..."
+    "packagingAvatar": "Packaging & adding avatar to your Account...",
+    "avatarPreviewDisabledMessage": "Preview Image not Available"
   },
   "menu": {
     "settings": "Profile",

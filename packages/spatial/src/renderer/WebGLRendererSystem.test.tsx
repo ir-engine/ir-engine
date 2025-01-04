@@ -54,8 +54,7 @@ import {
   getSceneParameters
 } from './WebGLRendererSystem'
 import { FogSettingsComponent, FogType } from './components/FogSettingsComponent'
-import { GroupComponent, addObjectToGroup } from './components/GroupComponent'
-import { Object3DComponent } from './components/Object3DComponent'
+import { ObjectComponent } from './components/ObjectComponent'
 import { BackgroundComponent, EnvironmentMapComponent, SceneComponent } from './components/SceneComponents'
 import { VisibleComponent } from './components/VisibleComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
@@ -87,34 +86,26 @@ describe('WebGl Renderer System', () => {
 
     invisibleEntity = createEntity()
     setComponent(invisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-    setComponent(invisibleEntity, GroupComponent)
-    const invisibleObject3d = setComponent(invisibleEntity, Object3DComponent, new Group())
-    addObjectToGroup(invisibleEntity, invisibleObject3d)
+    setComponent(invisibleEntity, ObjectComponent, new Group())
     setComponent(invisibleEntity, EntityTreeComponent)
 
     visibleEntity = createEntity()
     setComponent(visibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(visibleEntity, VisibleComponent)
-    const visibleObject3d = setComponent(visibleEntity, Object3DComponent, new Group())
-    addObjectToGroup(visibleEntity, visibleObject3d)
-    setComponent(visibleEntity, GroupComponent)
+    setComponent(visibleEntity, ObjectComponent, new Group())
     setComponent(visibleEntity, EntityTreeComponent)
     setComponent(rootEntity, SceneComponent)
 
     nestedInvisibleEntity = createEntity()
     setComponent(nestedInvisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
-    setComponent(nestedInvisibleEntity, GroupComponent)
-    const nestedInvisibleObject3d = setComponent(nestedInvisibleEntity, Object3DComponent, new Group())
-    addObjectToGroup(nestedInvisibleEntity, nestedInvisibleObject3d)
+    setComponent(nestedInvisibleEntity, ObjectComponent, new Group())
     setComponent(nestedInvisibleEntity, EntityTreeComponent)
     setComponent(visibleEntity, SceneComponent)
 
     nestedVisibleEntity = createEntity()
     setComponent(nestedVisibleEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(nestedVisibleEntity, VisibleComponent)
-    const nestedVisibleObject3d = setComponent(nestedVisibleEntity, Object3DComponent, new Group())
-    addObjectToGroup(nestedVisibleEntity, nestedVisibleObject3d)
-    setComponent(nestedVisibleEntity, GroupComponent)
+    setComponent(nestedVisibleEntity, ObjectComponent, new Group())
     setComponent(nestedVisibleEntity, EntityTreeComponent)
     setComponent(invisibleEntity, SceneComponent)
 

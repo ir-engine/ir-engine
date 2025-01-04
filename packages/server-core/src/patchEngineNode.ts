@@ -47,6 +47,6 @@ globalThis.self = globalThis as Window & typeof globalThis
 
 globalThis.Blob = Blob as any
 
-if (!URL.revokeObjectURL) {
-  URL.revokeObjectURL = () => {}
-}
+// @ts-ignore
+if (!URL.createObjectURL) URL.createObjectURL = () => {}
+if (!URL.revokeObjectURL) URL.revokeObjectURL = () => {}

@@ -31,6 +31,7 @@ import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { defineActionQueue, getMutableState, getState } from '@ir-engine/hyperflux'
 
+import { EngineState } from '../EngineState'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { Vector3_One } from '../common/constants/MathConstants'
 import { RendererComponent } from '../renderer/WebGLRendererSystem'
@@ -121,90 +122,89 @@ function updateProjectionFromCameraArrayUnion(camera: ArrayCamera) {
 }
 
 function updateCameraFromXRViewerPose() {
-  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-  const originTransform = getComponent(Engine.instance.localFloorEntity, TransformComponent)
-  const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-  const renderer = getComponent(Engine.instance.viewerEntity, RendererComponent).renderer!
+  const camera = getComponent(getState(EngineState).viewerEntity, CameraComponent)
+  const originTransform = getComponent(getState(EngineState).localFloorEntity, TransformComponent)
+  const cameraTransform = getComponent(getState(EngineState).viewerEntity, TransformComponent)
+  const renderer = getComponent(getState(EngineState).viewerEntity, RendererComponent).renderer!
   const xrState = getState(XRState)
   const pose = xrState.viewerPose
+  if (!pose) return
 
-  if (pose) {
-    const views = pose.views
-    const xrRendererState = getState(XRRendererState)
-    const glBaseLayer = xrRendererState.glBaseLayer
-    const glBinding = xrRendererState.glBinding
-    const glProjLayer = xrRendererState.glProjLayer
-    const newRenderTarget = xrRendererState.newRenderTarget
+  const views = pose.views
+  const xrRendererState = getState(XRRendererState)
+  const glBaseLayer = xrRendererState.glBaseLayer
+  const glBinding = xrRendererState.glBinding
+  const glProjLayer = xrRendererState.glProjLayer
+  const newRenderTarget = xrRendererState.newRenderTarget
+
+  if (glBaseLayer !== null) {
+    // @ts-ignore setRenderTargetFramebuffer is not in the type definition
+    renderer.setRenderTargetFramebuffer(newRenderTarget, glBaseLayer.framebuffer)
+    renderer.setRenderTarget(newRenderTarget)
+  }
+
+  cameraTransform.position.copy(pose.transform.position as any)
+  cameraTransform.rotation.copy(pose.transform.orientation as any)
+  cameraTransform.matrixWorld
+    .compose(cameraTransform.position, cameraTransform.rotation, Vector3_One)
+    .premultiply(originTransform.matrixWorld)
+    .decompose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
+  camera.matrixWorldInverse.copy(cameraTransform.matrixWorld).invert()
+
+  // check if it's necessary to rebuild camera list
+  let cameraListNeedsUpdate = false
+  if (views.length !== camera.cameras.length) {
+    camera.cameras.length = 0
+    cameraListNeedsUpdate = true
+  }
+
+  for (let i = 0; i < views.length; i++) {
+    const view = views[i]
+
+    let viewport: XRViewport | null = null
 
     if (glBaseLayer !== null) {
-      // @ts-ignore setRenderTargetFramebuffer is not in the type definition
-      renderer.setRenderTargetFramebuffer(newRenderTarget, glBaseLayer.framebuffer)
-      renderer.setRenderTarget(newRenderTarget)
+      viewport = glBaseLayer.getViewport(view)!
+    } else if (glBinding) {
+      const glSubImage = glBinding.getViewSubImage(glProjLayer!, view)
+      viewport = glSubImage.viewport
+
+      // For side-by-side projection, we only produce a single texture for both eyes.
+      if (i === 0) {
+        // @ts-ignore setRenderTargetTextures is not in the type definition
+        renderer.setRenderTargetTextures(
+          newRenderTarget,
+          glSubImage.colorTexture,
+          glProjLayer!.ignoreDepthValues ? undefined : glSubImage.depthStencilTexture
+        )
+
+        renderer.setRenderTarget(newRenderTarget)
+      }
     }
 
-    cameraTransform.position.copy(pose.transform.position as any)
-    cameraTransform.rotation.copy(pose.transform.orientation as any)
-    cameraTransform.matrixWorld
-      .compose(cameraTransform.position, cameraTransform.rotation, Vector3_One)
+    let viewCamera = cameraPool[i]
+
+    if (viewCamera === undefined) {
+      viewCamera = new PerspectiveCamera()
+      viewCamera.layers.enable(i)
+      viewCamera.viewport = new Vector4()
+      cameraPool[i] = viewCamera
+      viewCamera.matrixAutoUpdate = false
+      viewCamera.matrixWorldAutoUpdate = false
+    }
+
+    viewCamera.position.copy(view.transform.position as any)
+    viewCamera.quaternion.copy(view.transform.orientation as any)
+    viewCamera.matrixWorld
+      .compose(viewCamera.position, viewCamera.quaternion, Vector3_One)
       .premultiply(originTransform.matrixWorld)
-      .decompose(cameraTransform.position, cameraTransform.rotation, cameraTransform.scale)
-    camera.matrixWorldInverse.copy(cameraTransform.matrixWorld).invert()
+      .decompose(viewCamera.position, viewCamera.quaternion, viewCamera.scale)
+    viewCamera.matrixWorldInverse.copy(viewCamera.matrixWorld).invert()
+    viewCamera.projectionMatrix.fromArray(view.projectionMatrix)
+    if (viewport) viewCamera.viewport.set(viewport.x, viewport.y, viewport.width, viewport.height)
 
-    // check if it's necessary to rebuild camera list
-    let cameraListNeedsUpdate = false
-    if (views.length !== camera.cameras.length) {
-      camera.cameras.length = 0
-      cameraListNeedsUpdate = true
-    }
-
-    for (let i = 0; i < views.length; i++) {
-      const view = views[i]
-
-      let viewport: XRViewport | null = null
-
-      if (glBaseLayer !== null) {
-        viewport = glBaseLayer.getViewport(view)!
-      } else if (glBinding) {
-        const glSubImage = glBinding.getViewSubImage(glProjLayer!, view)
-        viewport = glSubImage.viewport
-
-        // For side-by-side projection, we only produce a single texture for both eyes.
-        if (i === 0) {
-          // @ts-ignore setRenderTargetTextures is not in the type definition
-          renderer.setRenderTargetTextures(
-            newRenderTarget,
-            glSubImage.colorTexture,
-            glProjLayer!.ignoreDepthValues ? undefined : glSubImage.depthStencilTexture
-          )
-
-          renderer.setRenderTarget(newRenderTarget)
-        }
-      }
-
-      let viewCamera = cameraPool[i]
-
-      if (viewCamera === undefined) {
-        viewCamera = new PerspectiveCamera()
-        viewCamera.layers.enable(i)
-        viewCamera.viewport = new Vector4()
-        cameraPool[i] = viewCamera
-        viewCamera.matrixAutoUpdate = false
-        viewCamera.matrixWorldAutoUpdate = false
-      }
-
-      viewCamera.position.copy(view.transform.position as any)
-      viewCamera.quaternion.copy(view.transform.orientation as any)
-      viewCamera.matrixWorld
-        .compose(viewCamera.position, viewCamera.quaternion, Vector3_One)
-        .premultiply(originTransform.matrixWorld)
-        .decompose(viewCamera.position, viewCamera.quaternion, viewCamera.scale)
-      viewCamera.matrixWorldInverse.copy(viewCamera.matrixWorld).invert()
-      viewCamera.projectionMatrix.fromArray(view.projectionMatrix)
-      if (viewport) viewCamera.viewport.set(viewport.x, viewport.y, viewport.width, viewport.height)
-
-      if (cameraListNeedsUpdate === true) {
-        camera.cameras.push(viewCamera)
-      }
+    if (cameraListNeedsUpdate === true) {
+      camera.cameras.push(viewCamera)
     }
   }
 }

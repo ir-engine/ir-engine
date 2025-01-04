@@ -26,12 +26,14 @@ Infinite Reality Engine. All Rights Reserved.
 import { Matrix4, Quaternion, Vector2, Vector3 } from 'three'
 
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import type { WebContainer3D } from '@ir-engine/xrui'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { getState } from '@ir-engine/hyperflux'
+import { EngineState } from '../../EngineState'
 import { CameraComponent } from '../../camera/components/CameraComponent'
+import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 
 const _size = new Vector2()
@@ -41,6 +43,7 @@ const _quat = new Quaternion()
 const _forward = new Vector3(0, 0, -1)
 const _mat4 = new Matrix4()
 const _vec3 = new Vector3()
+const SCREEN_SIZE = new Vector2()
 
 export type ContentFitType = 'cover' | 'contain' | 'vertical' | 'horizontal'
 export const ContentFitTypeSchema = (init?: ContentFitType) =>
@@ -84,7 +87,7 @@ export const ObjectFitFunctions = {
 
   computeFrustumSizeAtDistance: (
     distance: number,
-    camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    camera = getComponent(getState(EngineState).viewerEntity, CameraComponent)
   ) => {
     // const vFOV = camera.fov * DEG2RAD
     camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert()
@@ -102,24 +105,88 @@ export const ObjectFitFunctions = {
     contentWidth: number,
     contentHeight: number,
     fit: ContentFitType = 'contain',
-    camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    camera = getComponent(getState(EngineState).viewerEntity, CameraComponent)
   ) => {
     const size = ObjectFitFunctions.computeFrustumSizeAtDistance(distance, camera)
     return ObjectFitFunctions.computeContentFitScale(contentWidth, contentHeight, size.width, size.height, fit)
+  },
+
+  snapToSideOfScreen: (
+    entity: Entity,
+    contentSize: Vector2,
+    contentScale: number,
+    distance: number,
+    horizontalSnap: 'left' | 'right' | 'center' | number, // where number is range from -1 to 1
+    verticalSnap: 'top' | 'bottom' | 'center' | number, // where number is range from -1 to 1
+    cameraEntity = getState(EngineState).viewerEntity
+  ) => {
+    const camera = getComponent(cameraEntity, CameraComponent)
+    const containerSize = ObjectFitFunctions.computeFrustumSizeAtDistance(distance, camera)
+    const screenSize = getComponent(cameraEntity, RendererComponent).renderer!.getSize(SCREEN_SIZE)
+    const aspectRatio = screenSize.x / screenSize.y
+    const scaleMultiplier = aspectRatio < 1 ? 1 / aspectRatio : 1
+    const scale =
+      ObjectFitFunctions.computeContentFitScale(
+        contentSize.x,
+        contentSize.y,
+        containerSize.width,
+        containerSize.height
+      ) *
+      contentScale *
+      scaleMultiplier
+    const transform = getComponent(entity, TransformComponent)
+    const screenUnitsX = containerSize.x * 0.5
+    const screenUnitsY = containerSize.y * 0.5
+    let xOffset = 0
+    let yOffset = 0
+    if (horizontalSnap === 'left') {
+      xOffset = -screenUnitsX + contentSize.x * 0.5 * scale
+    } else if (horizontalSnap === 'right') {
+      xOffset = screenUnitsX - contentSize.x * 0.5 * scale
+    } else if (horizontalSnap === 'center') {
+      xOffset = 0
+    } else if (typeof horizontalSnap === 'number') {
+      if (horizontalSnap < 0) {
+        xOffset = screenUnitsX * horizontalSnap + contentSize.x * 0.5 * scale
+      } else if (horizontalSnap > 0) {
+        xOffset = screenUnitsX * horizontalSnap - contentSize.x * 0.5 * scale
+      } else {
+        xOffset = 0
+      }
+    }
+    if (verticalSnap === 'top') {
+      yOffset = screenUnitsY - contentSize.y * 0.5 * scale
+    } else if (verticalSnap === 'bottom') {
+      yOffset = -screenUnitsY + contentSize.y * 0.5 * scale
+    } else if (verticalSnap === 'center') {
+      yOffset = 0
+    } else if (typeof verticalSnap === 'number') {
+      if (verticalSnap < 0) {
+        yOffset = screenUnitsY * verticalSnap + contentSize.y * 0.5 * scale
+      } else if (verticalSnap > 0) {
+        yOffset = screenUnitsY * verticalSnap - contentSize.y * 0.5 * scale
+      } else {
+        yOffset = 0
+      }
+    }
+
+    _mat4.makeTranslation(xOffset, yOffset, -distance).scale(_vec3.set(scale, scale, 1))
+    transform.matrixWorld.multiplyMatrices(getComponent(cameraEntity, CameraComponent).matrixWorld, _mat4)
+    transform.matrixWorld.decompose(transform.position, transform.rotation, transform.scale)
   },
 
   attachObjectInFrontOfCamera: (entity: Entity, scale: number, distance: number) => {
     const transform = getComponent(entity, TransformComponent)
     _mat4.makeTranslation(0, 0, -distance).scale(_vec3.set(scale, scale, 1))
     transform.matrixWorld.multiplyMatrices(
-      getComponent(Engine.instance.cameraEntity, CameraComponent).matrixWorld,
+      getComponent(getState(EngineState).viewerEntity, CameraComponent).matrixWorld,
       _mat4
     )
     transform.matrixWorld.decompose(transform.position, transform.rotation, transform.scale)
   },
 
   lookAtCameraFromPosition: (container: WebContainer3D, position: Vector3) => {
-    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    const camera = getComponent(getState(EngineState).viewerEntity, CameraComponent)
     container.scale.setScalar(Math.max(1, camera.position.distanceTo(position) / 3))
     container.position.copy(position)
     container.rotation.setFromRotationMatrix(camera.matrixWorld)
