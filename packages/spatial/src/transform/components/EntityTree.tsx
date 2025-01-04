@@ -33,7 +33,6 @@ import {
   getOptionalMutableComponent,
   hasComponent,
   hasComponents,
-  removeComponent,
   setComponent,
   useComponent,
   useHasComponents,
@@ -42,7 +41,7 @@ import {
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
-import React, { useEffect, useLayoutEffect } from 'react'
+import React, { useLayoutEffect } from 'react'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
@@ -138,19 +137,6 @@ export const EntityTreeComponent = defineComponent({
     return null
   }
 })
-
-/**
- * @description
- * Recursively call {@link removeComponent} with {@link EntityTreeComponent} on `@param entity` and all its children entities
- * Children entities will be traversed first
- *
- * @param entity The parent entity where traversal will start.
- */
-export function removeFromEntityTree(entity: Entity): void {
-  traverseEntityNodeChildFirst(entity, (nodeEntity) => {
-    removeComponent(nodeEntity, EntityTreeComponent)
-  })
-}
 
 /**
  * @description
@@ -426,8 +412,8 @@ export function useAncestorWithComponents(
     let unmounted = false
     const ParentSubReactor = React.memo((props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
-      const matchesQuery = components.every((component) => !!useOptionalComponent(props.entity, component))
-      useEffect(() => {
+      const matchesQuery = useHasComponents(props.entity, components)
+      useImmediateEffect(() => {
         if (!unmounted) forceUpdate()
       }, [tree?.parentEntity?.value, matchesQuery])
       if (matchesQuery && closest) return null

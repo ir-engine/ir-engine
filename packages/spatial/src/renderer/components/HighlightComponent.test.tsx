@@ -47,14 +47,15 @@ import assert from 'assert'
 import { BoxGeometry, MathUtils, Mesh } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 import { EngineState } from '../../EngineState'
+import { NameComponent } from '../../common/NameComponent'
 import { destroySpatialEngine, destroySpatialViewer } from '../../initializeEngine'
 import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../RendererModule'
 import { RendererState } from '../RendererState'
 import { RendererComponent, WebGLRendererSystem } from '../WebGLRendererSystem'
-import { GroupComponent, addObjectToGroup } from './GroupComponent'
 import { HighlightComponent, HighlightSystem } from './HighlightComponent'
 import { MeshComponent } from './MeshComponent'
+import { GroupComponent, addObjectToGroup } from './ObjectComponent'
 import { PostProcessingComponent } from './PostProcessingComponent'
 import { SceneComponent } from './SceneComponents'
 import { VisibleComponent } from './VisibleComponent'
@@ -99,9 +100,8 @@ describe('HighlightSystem', () => {
       const result = createEntity()
       setComponent(result, HighlightComponent)
       setComponent(result, VisibleComponent)
+      setComponent(result, NameComponent, name)
       setComponent(result, MeshComponent, new Mesh(new BoxGeometry()))
-      getMutableComponent(result, MeshComponent).name.set(name)
-      setComponent(result, GroupComponent)
       setComponent(result, EntityTreeComponent)
       return {
         id: result,

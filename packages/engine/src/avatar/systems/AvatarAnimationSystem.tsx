@@ -215,7 +215,7 @@ const RigReactor = (props: { entity: Entity }) => {
     if (gltfComponent?.progress?.value !== 100 || !avatarAnimationComponent?.value) return
     try {
       createVRM(entity)
-      setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Avatars)
+      setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Avatar)
       setupAvatarProportions(entity)
     } catch (e) {
       console.error('Failed to load avatar', e)

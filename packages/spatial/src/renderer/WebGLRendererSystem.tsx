@@ -60,7 +60,7 @@ import { CameraComponent } from '../camera/components/CameraComponent'
 import { getNestedChildren } from '../transform/components/EntityTree'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
 import { XRState } from '../xr/XRState'
-import { GroupComponent } from './components/GroupComponent'
+import { ObjectComponent } from './components/ObjectComponent'
 import { BackgroundComponent, EnvironmentMapComponent, FogComponent } from './components/SceneComponents'
 import { VisibleComponent } from './components/VisibleComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
@@ -120,12 +120,6 @@ export const RendererComponent = defineComponent({
     initial.scene.layers.set(ObjectLayers.Scene)
     return initial
   },
-
-  /**
-   * @deprecated will be removed once threejs objects are not proxified. Should only be used in proxifyParentChildRelationships.ts
-   * see https://github.com/ir-engine/ir-engine/issues/9308
-   */
-  activeRender: false,
 
   reactor: () => {
     const entity = useEntityContext()
@@ -338,7 +332,7 @@ export const render = (
     renderer.needsResize = false
   }
 
-  RendererComponent.activeRender = true
+  ObjectComponent.activeRender = true
 
   /** Postprocessing does not support multipass yet, so just use basic renderer when in VR */
   if (xrFrame || !effectComposer || !renderer.effectComposer) {
@@ -351,7 +345,7 @@ export const render = (
     renderer.effectComposer.render(delta)
   }
 
-  RendererComponent.activeRender = false
+  ObjectComponent.activeRender = false
 }
 
 export const RenderSettingsState = defineState({
@@ -383,8 +377,8 @@ export const getSceneParameters = (entities: Entity[]) => {
     if (hasComponent(entity, FogComponent)) {
       vals.fog = getComponent(entity, FogComponent)
     }
-    if (hasComponent(entity, GroupComponent)) {
-      vals.children.push(...getComponent(entity, GroupComponent)!)
+    if (hasComponent(entity, ObjectComponent)) {
+      vals.children.push(getComponent(entity, ObjectComponent))
     }
   }
 

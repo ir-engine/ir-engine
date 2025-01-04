@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Group, Object3D, SkinnedMesh } from 'three'
 
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 
 import { XRHandBones } from './XRHandBones'
 

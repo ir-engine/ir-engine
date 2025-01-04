@@ -42,7 +42,6 @@ import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../common/NameComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '../renderer/components/GroupComponent'
 import { MeshComponent } from '../renderer/components/MeshComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -54,12 +53,9 @@ export const placementHelperMaterial = new MeshBasicMaterial({
   opacity: 0.5,
   transparent: true
 })
-export const shadowMaterial = new ShadowMaterial({ opacity: 0.5, color: 0x0a0a0a })
+export const shadowMaterial = new ShadowMaterial({ opacity: 0.5, color: 0x0a0a0a, colorWrite: false })
 shadowMaterial.polygonOffset = true
 shadowMaterial.polygonOffsetFactor = -0.01
-export const occlusionMat = new MeshBasicMaterial({ colorWrite: false })
-occlusionMat.polygonOffset = true
-occlusionMat.polygonOffsetFactor = -0.01
 
 export const XRDetectedPlaneComponent = defineComponent({
   name: 'XRDetectedPlaneComponent',
@@ -68,7 +64,6 @@ export const XRDetectedPlaneComponent = defineComponent({
     plane: S.Type<XRPlane>(),
     // internal
     shadowMesh: S.Type<Mesh>(),
-    occlusionMesh: S.Type<Mesh>(),
     geometry: S.Type<BufferGeometry>(),
     placementHelper: S.Type<Mesh>()
   }),
@@ -87,34 +82,22 @@ export const XRDetectedPlaneComponent = defineComponent({
       component.geometry.set(geometry)
 
       const shadowMesh = new Mesh(geometry, shadowMaterial)
-
-      const occlusionMesh = new Mesh(geometry, occlusionMat)
-
-      const placementHelper = new Mesh(geometry, placementHelperMaterial)
+      // const placementHelper = new Mesh(geometry, placementHelperMaterial)
 
       setComponent(entity, MeshComponent, shadowMesh)
-
-      addObjectToGroup(entity, shadowMesh)
-      addObjectToGroup(entity, occlusionMesh)
-      addObjectToGroup(entity, placementHelper)
-      occlusionMesh.renderOrder = -1 /** @todo make a global config for AR occlusion mesh renderOrder */
+      // addObjectToGroup(entity, placementHelper)
 
       component.shadowMesh.set(shadowMesh)
-      component.occlusionMesh.set(occlusionMesh)
-      component.placementHelper.set(placementHelper)
+      // component.placementHelper.set(placementHelper)
 
       return () => {
         removeComponent(entity, MeshComponent)
-
-        removeObjectFromGroup(entity, shadowMesh)
-        removeObjectFromGroup(entity, occlusionMesh)
-        removeObjectFromGroup(entity, placementHelper)
+        // removeObjectFromGroup(entity, placementHelper)
 
         if (!hasComponent(entity, XRDetectedPlaneComponent)) return
 
         component.shadowMesh.set(none)
-        component.occlusionMesh.set(none)
-        component.placementHelper.set(none)
+        // component.placementHelper.set(none)
       }
     }, [component.plane])
 
@@ -122,17 +105,16 @@ export const XRDetectedPlaneComponent = defineComponent({
       const geometry = component.geometry.value
 
       if (component.shadowMesh.value) component.shadowMesh.geometry.set(geometry)
-      if (component.occlusionMesh.value) component.occlusionMesh.geometry.set(geometry)
 
       return () => {
         geometry.dispose()
       }
     }, [component.geometry])
 
-    useEffect(() => {
-      const placementHelper = component.placementHelper
-      placementHelper.visible.set(scenePlacementMode.value === 'placing')
-    }, [scenePlacementMode])
+    // useEffect(() => {
+    //   const placementHelper = component.placementHelper.get(NO_PROXY) as Mesh
+    //   placementHelper.visible = scenePlacementMode.value === 'placing'
+    // }, [scenePlacementMode])
 
     return null
   },

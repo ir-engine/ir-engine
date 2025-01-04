@@ -35,7 +35,7 @@ import {
 } from '@pixiv/three-vrm'
 import type * as V0VRM from '@pixiv/types-vrm-0.0'
 
-import { AnimationAction, Euler, Group, Matrix4, Vector3 } from 'three'
+import { AnimationAction, Euler, Group, Matrix4, Object3D, Vector3 } from 'three'
 
 import { GLTF } from '@gltf-transform/core'
 import { UUIDComponent } from '@ir-engine/ecs'
@@ -54,9 +54,7 @@ import { getState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
-import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
@@ -135,11 +133,9 @@ export function createVRM(rootEntity: Entity) {
     return bones
   }
 
-  if (!hasComponent(rootEntity, Object3DComponent)) {
+  if (!hasComponent(rootEntity, ObjectComponent)) {
     const obj3d = new Group()
-    setComponent(rootEntity, Object3DComponent, obj3d)
-    addObjectToGroup(rootEntity, obj3d)
-    proxifyParentChildRelationships(obj3d)
+    setComponent(rootEntity, ObjectComponent, obj3d)
   }
 
   if (gltf.extensions?.VRM || gltf.extensions?.VRMC_vrm) {
@@ -166,7 +162,7 @@ export function createVRM(rootEntity: Entity) {
 
     const humanoid = new VRMHumanoid(bones)
 
-    const scene = getComponent(rootEntity, Object3DComponent)
+    const scene = getComponent(rootEntity, ObjectComponent)
 
     const meta = vrmExtensionDefinition.meta! as any
 
@@ -195,12 +191,15 @@ export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
   const hipsEntity = iterateEntityNode(
     rootEntity,
     (entity) => entity,
-    (entity) => hipsRegex.test(getComponent(entity, NameComponent)),
+    (entity) => (hasComponent(entity, NameComponent) ? hipsRegex.test(getComponent(entity, NameComponent)) : false),
     false,
     true
   )?.[0]
 
   const hipsName = getComponent(hipsEntity, NameComponent)
+
+  const hipsParent = getOptionalComponent(hipsEntity, EntityTreeComponent)?.parentEntity
+  if (!hasComponent(hipsParent!, ObjectComponent)) setComponent(hipsParent!, ObjectComponent, new Object3D())
 
   const bones = {} as VRMHumanBones
 
@@ -216,12 +215,11 @@ export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
   const removeSuffix = mixamoPrefix ? false : !/[hp]/i.test(hipsName.charAt(9))
 
   iterateEntityNode(rootEntity, (entity) => {
-    // if (!getComponent(entity, BoneComponent)) return
-    const boneComponent = getOptionalComponent(entity, BoneComponent) || getComponent(entity, TransformComponent)
     if (entity === rootEntity) return
 
-    const name = getComponent(entity, NameComponent)
+    const name = getOptionalComponent(entity, NameComponent)
     if (!name) return
+
     /**match the keys to create a humanoid bones object */
     let boneName = mixamoPrefix + name
 
@@ -247,8 +245,7 @@ export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
   transform?.matrixWorld.identity()
 
   const humanoid = new VRMHumanoid(bones)
-
-  const scene = getComponent(rootEntity, Object3DComponent)
+  const scene = getComponent(rootEntity, ObjectComponent)
   const children = getComponent(rootEntity, EntityTreeComponent).children
   const childName = getComponent(children[0], NameComponent)
 

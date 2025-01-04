@@ -61,15 +61,15 @@ import { InputComponent } from '@ir-engine/spatial/src/input/components/InputCom
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
 import { MouseScroll } from '@ir-engine/spatial/src/input/state/ButtonState'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { ObjectLayerComponents } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { HolographicMaterial } from '@ir-engine/spatial/src/renderer/materials/prototypes/HolographicMaterial.mat'
 import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformDirtyCleanupSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import React, { useEffect } from 'react'
-import { Euler, Material, Mesh, Quaternion, Raycaster, Vector3 } from 'three'
+import { Euler, Material, Mesh, Object3D, Quaternion, Raycaster, Vector3 } from 'three'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
@@ -270,11 +270,10 @@ export const ClickPlacementSystem = defineSystem({
     const physicsWorld = Physics.getWorld(editorEntity)
     if (!physicsWorld) return
 
-    //@todo: fix type of `typeof GroupComponent`
-    const sceneObjects: any[] = []
+    const sceneObjects: Object3D[] = []
     const candidates = objectLayerQuery()
     for (const entity of candidates) {
-      const obj = getOptionalComponent(entity, GroupComponent)?.[0]
+      const obj = getOptionalComponent(entity, ObjectComponent)
       !!obj && sceneObjects.push(obj)
     }
     //const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Scene] || [])

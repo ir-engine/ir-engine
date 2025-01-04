@@ -46,8 +46,8 @@ import { assertFloat } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import { EngineState } from '../../EngineState'
 import { destroySpatialEngine, destroySpatialViewer } from '../../initializeEngine'
-import { addObjectToGroup, GroupComponent } from '../../renderer/components/GroupComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
+import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -205,13 +205,12 @@ describe('ClientInputHeuristics', () => {
         setComponent(one, TransformComponent, { position: new Vector3(1, 1, 1) })
         setComponent(one, VisibleComponent)
         setComponent(one, MeshComponent, box1)
-        addObjectToGroup(one, box1)
+
         const box2 = new Mesh(new BoxGeometry(0.5, 0.5, 0.5))
         const two = createEntity()
         setComponent(two, TransformComponent, { position: new Vector3(2, 2, 2) })
         setComponent(two, VisibleComponent)
         setComponent(two, MeshComponent, box2)
-        addObjectToGroup(two, box2)
         const KnownEntities = [one, two]
 
         getMutableState(EngineState).isEditing.set(true)
@@ -229,35 +228,6 @@ describe('ClientInputHeuristics', () => {
           assertFloat.approxNotEq(hit.distance, 0)
         }
       })
-
-      it('should not do anything if the object hit does not have an entity or an ancestor with an entity', () => {
-        const box1 = new Mesh(new BoxGeometry(2, 2, 2))
-        const one = createEntity()
-        setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
-        setComponent(one, VisibleComponent)
-        setComponent(one, MeshComponent, box1)
-        setComponent(one, GroupComponent)
-        addObjectToGroup(one, box1)
-        const box2 = new Mesh(new BoxGeometry(2, 2, 2))
-        const two = createEntity()
-        setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
-        setComponent(two, VisibleComponent)
-        setComponent(two, MeshComponent, box2)
-        setComponent(two, GroupComponent)
-        addObjectToGroup(two, box2)
-
-        const data = new Set<IntersectionData>()
-
-        const rayOrigin = new Vector3(0, 0, 0)
-        const rayDirection = new Vector3(3.5, 3.5, 3.5).normalize()
-
-        // Remove the ancestor so that the `if (!parentObject) continue` code branch is hit
-        box1.entity = undefined! as Entity
-        box2.entity = undefined! as Entity
-        // Run and check that nothing was added
-        meshHeuristic(data, rayOrigin, rayDirection)
-        assert.equal(data.size, 0)
-      })
     })
 
     describe('when `@param isEditing` is false ...', () => {
@@ -268,15 +238,13 @@ describe('ClientInputHeuristics', () => {
         setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
         // setComponent(one, VisibleComponent)  // Do not make it visible, so it doesn't hit the meshesQuery
         setComponent(one, MeshComponent, box1)
-        setComponent(one, GroupComponent)
-        addObjectToGroup(one, box1)
+        setComponent(one, ObjectComponent, box1)
         const box2 = new Mesh(new BoxGeometry(2, 2, 2))
         const two = createEntity()
         setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
         // setComponent(two, VisibleComponent)  // Do not make it visible, so it doesn't hit the meshesQuery
         setComponent(two, MeshComponent, box2)
-        setComponent(two, GroupComponent)
-        addObjectToGroup(two, box2)
+        setComponent(two, ObjectComponent, box2)
         const KnownEntities = [one, two]
         getMutableState(InputState).inputMeshes.set(new Set(KnownEntities))
 
@@ -291,37 +259,6 @@ describe('ClientInputHeuristics', () => {
           assert.equal(KnownEntities.includes(hit.entity), true)
           assertFloat.approxNotEq(hit.distance, 0)
         }
-      })
-
-      it('should not do anything if the object hit does not have an entity or an ancestor with an entity', () => {
-        const box1 = new Mesh(new BoxGeometry(2, 2, 2))
-        const one = createEntity()
-        setComponent(one, TransformComponent, { position: new Vector3(3.1, 3.1, 3.1) })
-        // setComponent(one, VisibleComponent)  // Do not make it visible, so it doesn't hit the meshesQuery
-        setComponent(one, MeshComponent, box1)
-        setComponent(one, GroupComponent)
-        addObjectToGroup(one, box1)
-        const box2 = new Mesh(new BoxGeometry(2, 2, 2))
-        const two = createEntity()
-        setComponent(two, TransformComponent, { position: new Vector3(3.2, 3.2, 3.2) })
-        // setComponent(two, VisibleComponent)  // Do not make it visible, so it doesn't hit the meshesQuery
-        setComponent(two, MeshComponent, box2)
-        setComponent(two, GroupComponent)
-        addObjectToGroup(two, box2)
-        const KnownEntities = [one, two]
-        getMutableState(InputState).inputMeshes.set(new Set(KnownEntities))
-
-        const data = new Set<IntersectionData>()
-
-        const rayOrigin = new Vector3(0, 0, 0)
-        const rayDirection = new Vector3(3, 3, 3).normalize()
-
-        // Remove the ancestor so that the `if (!parentObject) continue` code branch is hit
-        box1.entity = undefined! as Entity
-        box2.entity = undefined! as Entity
-        // Run and check that nothing was added
-        meshHeuristic(data, rayOrigin, rayDirection)
-        assert.equal(data.size, 0)
       })
     })
   })

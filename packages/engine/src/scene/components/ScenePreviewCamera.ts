@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useLayoutEffect } from 'react'
-import { Euler, PerspectiveCamera } from 'three'
+import { CameraHelper, Euler, PerspectiveCamera } from 'three'
 
 import { useExecute } from '@ir-engine/ecs'
 import {
@@ -39,9 +39,9 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getMutableState, getState, isClient, useHookstate } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { CameraHelperComponent } from '@ir-engine/spatial/src/common/debug/CameraHelperComponent'
+import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { TransformDirtyCleanupSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
@@ -70,9 +70,9 @@ export const ScenePreviewCameraComponent = defineComponent({
       cameraTransform.position.copy(transform.position)
       cameraTransform.rotation.copy(transform.rotation)
       const camera = previewCamera.camera.value as PerspectiveCamera
-      addObjectToGroup(entity, camera)
+      setComponent(entity, ObjectComponent, camera)
       return () => {
-        removeObjectFromGroup(entity, camera)
+        removeComponent(entity, ObjectComponent)
       }
     }, [engineCameraTransform])
 
@@ -91,17 +91,7 @@ export const ScenePreviewCameraComponent = defineComponent({
       previewCamera.camera.value.rotation.copy(new Euler().setFromQuaternion(previewCameraTransform.rotation.value))
     }, [previewCameraTransform])
 
-    useLayoutEffect(() => {
-      if (debugEnabled.value) {
-        setComponent(entity, CameraHelperComponent, {
-          name: 'scene-preview-helper',
-          camera: previewCamera.camera.value as PerspectiveCamera
-        })
-      }
-      return () => {
-        removeComponent(entity, CameraHelperComponent)
-      }
-    }, [debugEnabled])
+    useHelperEntity(entity, () => new CameraHelper(previewCamera.camera.value as PerspectiveCamera), debugEnabled.value)
 
     return null
   }

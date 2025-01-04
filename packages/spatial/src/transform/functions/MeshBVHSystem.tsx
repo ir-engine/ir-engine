@@ -31,20 +31,47 @@ import {
   LineBasicMaterial,
   Matrix4,
   Mesh,
+  Object3D,
   Ray,
   Raycaster,
-  SkinnedMesh
+  SkinnedMesh,
+  Vector3
 } from 'three'
 import { computeBoundsTree, disposeBoundsTree, MeshBVHHelper } from 'three-mesh-bvh'
 
-import { defineSystem, PresentationSystemGroup, QueryReactor, useEntityContext } from '@ir-engine/ecs'
-import { getComponent, getOptionalComponent, hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import {
+  createEntity,
+  defineSystem,
+  PresentationSystemGroup,
+  QueryReactor,
+  removeEntity,
+  useEntityContext
+} from '@ir-engine/ecs'
+import { getComponent, setComponent, useComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getMutableState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import {
+  ObjectLayerComponents,
+  ObjectLayerMaskComponent
+} from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import {
+  EntityTreeComponent,
+  removeEntityNodeRecursively
+} from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { TransformComponent } from '../components/TransformComponent'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
+
+declare module 'three-mesh-bvh' {
+  export interface MeshBVHHelper {
+    dispose(): void
+  }
+}
 
 const ray = new Ray()
 const tmpInverseMatrix = new Matrix4()
@@ -75,6 +102,9 @@ function convertRaycastIntersect(hit: Intersection | null, object: Mesh, raycast
   }
 }
 
+const direction = new Vector3()
+const _worldScale = new Vector3()
+
 function acceleratedRaycast(raycaster: Raycaster, intersects: Array<Intersection>) {
   const mesh = this as Mesh
   const geometry = mesh.geometry as BufferGeometry
@@ -84,14 +114,21 @@ function acceleratedRaycast(raycaster: Raycaster, intersects: Array<Intersection
     tmpInverseMatrix.copy(mesh.matrixWorld).invert()
     ray.copy(raycaster.ray).applyMatrix4(tmpInverseMatrix)
 
+    extractMatrixScale(mesh.matrixWorld, _worldScale)
+    direction.copy(ray.direction).multiply(_worldScale)
+
+    const scaleFactor = direction.length()
+    const near = raycaster.near / scaleFactor
+    const far = raycaster.far / scaleFactor
+
     const bvh = geometry.boundsTree
     if (raycaster.firstHitOnly === true) {
-      const hit = convertRaycastIntersect(bvh.raycastFirst(ray, mesh.material), mesh, raycaster)
+      const hit = convertRaycastIntersect(bvh.raycastFirst(ray, mesh.material, near, far), mesh, raycaster)
       if (hit) {
         intersects.push(hit)
       }
     } else {
-      const hits = bvh.raycast(ray, mesh.material)
+      const hits = bvh.raycast(ray, mesh.material, near, far)
       for (let i = 0, l = hits.length; i < l; i++) {
         const hit = convertRaycastIntersect(hits[i], mesh, raycaster)
         if (hit) {
@@ -99,8 +136,17 @@ function acceleratedRaycast(raycaster: Raycaster, intersects: Array<Intersection
         }
       }
     }
-  } else if (!ValidMeshForBVH(mesh) || !hasComponent(mesh.entity, MeshComponent))
-    origMeshRaycastFunc.call(mesh, raycaster, intersects)
+  } else if (ValidMeshForBVH(mesh)) origMeshRaycastFunc.call(mesh, raycaster, intersects)
+}
+
+// https://github.com/mrdoob/three.js/blob/dev/src/math/Matrix4.js#L732
+// extracting the scale directly is ~3x faster than using "decompose"
+function extractMatrixScale(matrix: Matrix4, target: Vector3) {
+  const te = matrix.elements
+  const sx = target.set(te[0], te[1], te[2]).length()
+  const sy = target.set(te[4], te[5], te[6]).length()
+  const sz = target.set(te[8], te[9], te[10]).length()
+  return target.set(sx, sy, sz)
 }
 
 Mesh.prototype.raycast = acceleratedRaycast
@@ -109,8 +155,8 @@ Mesh.prototype.raycast = acceleratedRaycast
  */
 SkinnedMesh.prototype.raycast = () => {}
 
-BufferGeometry.prototype['disposeBoundsTree'] = disposeBoundsTree
-BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
+BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree
+BufferGeometry.prototype.computeBoundsTree = computeBoundsTree
 
 const edgeMaterial = new LineBasicMaterial({
   color: 0x00ff88,
@@ -122,39 +168,52 @@ const edgeMaterial = new LineBasicMaterial({
 const MeshBVHReactor = () => {
   const entity = useEntityContext()
   const bvhDebug = useHookstate(getMutableState(RendererState).bvhDebug)
-  const mesh = useComponent(entity, MeshComponent)
+  const mesh = useComponent(entity, MeshComponent).get(NO_PROXY) as Mesh
+  const hasMeshBVH = useHookstate(false)
+  const sceneLayer = useOptionalComponent(entity, ObjectLayerComponents[ObjectLayers.Scene])
 
   useEffect(() => {
-    const mesh = getOptionalComponent(entity, MeshComponent)
-    if (!mesh) return
     const abortController = new AbortController()
     if (ValidMeshForBVH(mesh)) {
       generateMeshBVH(mesh!, abortController.signal, { indirect: true }).then(() => {
         if (abortController.signal.aborted) return
+        hasMeshBVH.set(true)
       })
     }
     return () => {
+      hasMeshBVH.set(false)
       abortController.abort()
     }
   }, [mesh])
 
   useEffect(() => {
-    if (!bvhDebug.value) return
+    if (!bvhDebug.value || !hasMeshBVH.value) return // || !sceneLayer) return
 
     const mesh = getComponent(entity, MeshComponent)
 
-    const meshBVHVisualizer = new MeshBVHHelper(mesh!)
+    const meshBVHVisualizer = new MeshBVHHelper(mesh)
     meshBVHVisualizer.edgeMaterial = edgeMaterial
     meshBVHVisualizer.depth = 20
     meshBVHVisualizer.displayParents = false
+
+    const helperEntity = createEntity()
+    setComponent(helperEntity, NameComponent, getComponent(entity, NameComponent) + ' BVH')
+    setComponent(helperEntity, TransformComponent)
+    setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
+    setComponent(helperEntity, ObjectComponent, meshBVHVisualizer)
+    setComponent(helperEntity, VisibleComponent)
+    ObjectLayerMaskComponent.setLayer(helperEntity, ObjectLayers.Gizmos)
+
+    // force entity since ObjectComponent's reactor won't be invoked immediately from within this useEffect
+    meshBVHVisualizer.entity = helperEntity
+    // force update to create the visualizer
     meshBVHVisualizer.update()
 
-    addObjectToGroup(entity, meshBVHVisualizer)
-
     return () => {
-      removeObjectFromGroup(entity, meshBVHVisualizer)
+      meshBVHVisualizer.dispose()
+      removeEntityNodeRecursively(helperEntity)
     }
-  }, [bvhDebug.value])
+  }, [bvhDebug.value, hasMeshBVH.value, sceneLayer])
 
   return null
 }
@@ -163,3 +222,33 @@ export const MeshBVHSystem = defineSystem({
   insert: { after: PresentationSystemGroup },
   reactor: () => <QueryReactor Components={[MeshComponent]} ChildEntityReactor={MeshBVHReactor} />
 })
+
+/**
+ * MeshBVHHelper overrides to use ECS instead of direct threejs hierarchy
+ */
+
+const originalUpdate = MeshBVHHelper.prototype.update
+
+MeshBVHHelper.prototype.update = function () {
+  if (!this.entity) return
+
+  originalUpdate.call(this)
+}
+
+MeshBVHHelper.prototype.add = function (object: Object3D) {
+  if (!this.entity) return this
+  const entity = createEntity()
+  setComponent(entity, NameComponent, 'BVH Root')
+  setComponent(entity, TransformComponent)
+  setComponent(entity, VisibleComponent)
+  setComponent(entity, EntityTreeComponent, { parentEntity: this.entity })
+  setComponent(entity, ObjectComponent, object)
+  return this
+}
+
+MeshBVHHelper.prototype.remove = function (object: Object3D) {
+  if (!this.entity) return this
+  const entity = object.entity
+  removeEntity(entity)
+  return this
+}

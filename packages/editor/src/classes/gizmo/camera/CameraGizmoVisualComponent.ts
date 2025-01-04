@@ -25,46 +25,21 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import {
-  createEntity,
-  defineComponent,
-  removeEntity,
-  setComponent,
-  useComponent,
-  useEntityContext
-} from '@ir-engine/ecs'
+import { createEntity, defineComponent, setComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { getState, useHookstate } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
 import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { CameraGizmoTagComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { Mesh, Object3D } from 'three'
-import { enableObjectLayer } from '../../../../../spatial/src/renderer/components/ObjectLayerComponent'
+import {
+  EntityTreeComponent,
+  removeEntityNodeRecursively
+} from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { Object3D } from 'three'
 import { cameraGizmo, cameraPicker, setupGizmo } from '../../../constants/GizmoPresets'
-
-const useCameraGizmoEntities = () => {
-  const gizmo = useHookstate(createEntity)
-
-  useEffect(() => {
-    return () => {
-      removeEntity(gizmo.value)
-    }
-  }, [])
-
-  return gizmo.value
-}
-
-const cleanupGizmo = (gizmoObj: Object3D) => {
-  for (const child of gizmoObj.children as Mesh[]) {
-    // Only dispose cloned geometry from setupGizmo
-    if (child.geometry) child.geometry.dispose()
-  }
-}
 
 export const CameraGizmoVisualComponent = defineComponent({
   name: 'CameraGizmoVisual',
@@ -75,51 +50,39 @@ export const CameraGizmoVisualComponent = defineComponent({
     picker: S.Entity()
   }),
 
-  reactor: function (props) {
+  reactor: function () {
     const cameraGizmoVisualEntity = useEntityContext()
     const visualComponent = useComponent(cameraGizmoVisualEntity, CameraGizmoVisualComponent)
-    const gizmo = useCameraGizmoEntities()
-    const picker = useCameraGizmoEntities()
 
     useEffect(() => {
-      // Gizmo creation
-      const gizmoObject = setupGizmo(cameraGizmo)
-      const pickerObject = setupGizmo(cameraPicker)
-
+      const gizmo = createEntity()
+      const picker = createEntity()
+      setComponent(gizmo, ObjectComponent, new Object3D())
       setComponent(gizmo, NameComponent, `cameraGizmoMeshEntity`)
-      addObjectToGroup(gizmo, gizmoObject)
       setComponent(gizmo, CameraGizmoTagComponent)
       setComponent(gizmo, VisibleComponent)
       setComponent(gizmo, EntityTreeComponent, {
         parentEntity: visualComponent.sceneEntity.value ?? getState(EngineState).originEntity
       })
+      setupGizmo(gizmo, cameraGizmo)
 
       visualComponent.gizmo.set(gizmo)
 
+      setComponent(picker, ObjectComponent, new Object3D())
       setComponent(picker, NameComponent, `cameraGizmoPickerMeshEntity`)
-      pickerObject.visible = false
-      addObjectToGroup(picker, pickerObject)
       setComponent(picker, CameraGizmoTagComponent)
-      setComponent(picker, VisibleComponent)
       setComponent(picker, EntityTreeComponent, {
         parentEntity: visualComponent.sceneEntity.value ?? getState(EngineState).originEntity
       })
-      /**todo can't seem to get the new method of setting layers to work on either pciker or gizmo entity)*/
-      // setComponent(picker, ObjectLayerMaskComponent, ObjectLayers.Gizmos)
-      enableObjectLayer(pickerObject, ObjectLayers.Gizmos, true)
+      setupGizmo(picker, cameraPicker)
 
       visualComponent.picker.set(picker)
 
       setComponent(picker, InputComponent)
 
       return () => {
-        removeObjectFromGroup(gizmo, gizmoObject)
-        cleanupGizmo(gizmoObject)
-        removeObjectFromGroup(picker, pickerObject)
-        cleanupGizmo(pickerObject)
-
-        removeEntity(gizmo)
-        removeEntity(picker)
+        removeEntityNodeRecursively(gizmo)
+        removeEntityNodeRecursively(picker)
       }
     }, [])
 

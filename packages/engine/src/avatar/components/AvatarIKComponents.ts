@@ -24,28 +24,20 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Types } from 'bitecs'
-import { useEffect } from 'react'
-import { Quaternion, Vector3 } from 'three'
+import { AxesHelper, Quaternion, Vector3 } from 'three'
 
 import { S, UUIDComponent } from '@ir-engine/ecs'
-import {
-  defineComponent,
-  getComponent,
-  getOptionalComponent,
-  removeComponent,
-  setComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { UserID, getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent } from '@ir-engine/network'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { AxesHelperComponent } from '@ir-engine/spatial/src/common/debug/AxesHelperComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
-import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { ikTargets } from '../animation/Util'
@@ -69,21 +61,7 @@ export const AvatarIKTargetComponent = defineComponent({
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).avatarDebug)
 
-    useEffect(() => {
-      if (debugEnabled.value) {
-        setComponent(entity, VisibleComponent, true)
-        setComponent(entity, AxesHelperComponent, {
-          name: 'avatar-ik-helper',
-          size: 0.125,
-          layerMask: ObjectLayerMasks.AvatarHelper
-        })
-      }
-
-      return () => {
-        removeComponent(entity, AxesHelperComponent)
-        removeComponent(entity, VisibleComponent)
-      }
-    }, [debugEnabled])
+    useHelperEntity(entity, () => new AxesHelper(0.125), debugEnabled.value, ObjectLayerMasks.AvatarHelper)
 
     return null
   },

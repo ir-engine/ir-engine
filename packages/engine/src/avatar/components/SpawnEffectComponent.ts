@@ -43,7 +43,7 @@ import { Physics, RaycastArgs } from '@ir-engine/spatial/src/physics/classes/Phy
 import { AvatarCollisionMask, CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@ir-engine/spatial/src/physics/functions/getInteractionGroups'
 import { SceneQueryType } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
@@ -157,7 +157,7 @@ const createPlateEntity = (entity: Entity) => {
   const plateEntity = createEntity()
   setComponent(plateEntity, NameComponent, 'Spawn Plate ' + entity)
   setComponent(plateEntity, EntityTreeComponent, { parentEntity: entity })
-  addObjectToGroup(plateEntity, plateMesh)
+  setComponent(plateEntity, MeshComponent, plateMesh)
   setVisibleComponent(plateEntity, true)
   const transform = getComponent(plateEntity, TransformComponent)
   transform.rotation.setFromAxisAngle(Vector3_Right, -0.5 * Math.PI)
@@ -175,7 +175,7 @@ const createRayEntities = (entity: Entity) => {
     const rayEntity = createEntity()
     setComponent(rayEntity, NameComponent, 'Spawn Ray ' + entity)
     setComponent(rayEntity, EntityTreeComponent, { parentEntity: entity })
-    addObjectToGroup(rayEntity, ray)
+    setComponent(rayEntity, MeshComponent, ray)
     const transform = getComponent(rayEntity, TransformComponent)
     setVisibleComponent(rayEntity, true)
     getMutableComponent(entity, SpawnEffectComponent).lightEntities.merge([rayEntity])

@@ -56,6 +56,7 @@ import { Entity, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
+  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -74,8 +75,8 @@ import {
 } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Vector3_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { useDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { EntityTreeComponent, getChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
@@ -108,13 +109,14 @@ const createBatchedRenderer: (sceneID: string) => ParticleSystemRendererInstance
     setComponent(rendererEntity, NameComponent, 'Particle Renderer')
     const sourceState = getState(GLTFSourceState)
     setComponent(rendererEntity, EntityTreeComponent, { parentEntity: sourceState[sceneID] })
-    addObjectToGroup(rendererEntity, renderer)
+    renderer.preserveChildren = true
     renderer.parent = {
       type: 'Scene',
       remove: () => {},
       removeFromParent: () => {}
     } as Object3D
     renderer.matrixWorld = new Matrix4().identity()
+    setComponent(rendererEntity, ObjectComponent, renderer)
     const instance: ParticleSystemRendererInstance = { renderer, rendererEntity, instanceCount: 1 }
     particleState.renderers[sceneID].set(instance)
     return instance
@@ -126,7 +128,7 @@ const removeBatchedRenderer: (sceneID: string) => void = (sceneID) => {
   if (particleState.renderers[sceneID].value) {
     const instance = particleState.renderers[sceneID].get(NO_PROXY) as ParticleSystemRendererInstance
     if (instance.instanceCount <= 1) {
-      removeObjectFromGroup(instance.rendererEntity, instance.renderer)
+      removeComponent(instance.rendererEntity, ObjectComponent)
       for (const batch of instance.renderer.batches) {
         batch.geometry.dispose()
         batch.dispose()
@@ -962,6 +964,7 @@ export const ParticleSystemComponent = defineComponent({
 
     //@todo: this is a hack to make trail rendering mode work correctly. We need to find out why an additional snapshot is needed
     useEffect(() => {
+      if (!sceneID) return
       if (gltfComponent?.value && !GLTFComponent.isSceneLoaded(rootEntity)) return
       if (refreshed.value) return
 
@@ -1005,7 +1008,7 @@ export const ParticleSystemComponent = defineComponent({
 
       const emitterAsObj3D = nuSystem.emitter
       emitterAsObj3D.userData['_refresh'] = component._refresh
-      addObjectToGroup(entity, emitterAsObj3D)
+      setComponent(entity, ObjectComponent, emitterAsObj3D)
       emitterAsObj3D.parent = renderer
       const transformComponent = getComponent(entity, TransformComponent)
       emitterAsObj3D.matrix = transformComponent.matrix
@@ -1025,7 +1028,7 @@ export const ParticleSystemComponent = defineComponent({
             }
           }
         }
-        removeObjectFromGroup(entity, emitterAsObj3D)
+        removeComponent(entity, ObjectComponent)
         nuSystem.dispose()
         emitterAsObj3D.dispose()
         removeBatchedRenderer(sceneID!)

@@ -29,8 +29,8 @@ import { defineComponent, getComponent, hasComponent } from '@ir-engine/ecs/src/
 import { Object3D } from 'three'
 import { traverseEntityNode } from '../../transform/components/EntityTree'
 import { RendererComponent, WebGLRendererSystem } from '../WebGLRendererSystem'
-import { GroupComponent } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
+import { ObjectComponent } from './ObjectComponent'
 import { VisibleComponent } from './VisibleComponent'
 
 export const HighlightComponent = defineComponent({ name: 'HighlightComponent' })
@@ -45,7 +45,7 @@ const execute = () => {
   for (const entity of highlightQuery()) {
     traverseEntityNode(entity, (child, index) => {
       if (!hasComponent(child, MeshComponent)) return
-      if (!hasComponent(child, GroupComponent)) return
+      if (!hasComponent(child, ObjectComponent)) return
       if (!hasComponent(child, VisibleComponent)) return
       highlightObjects.add(getComponent(child, MeshComponent))
     })

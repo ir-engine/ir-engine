@@ -41,12 +41,12 @@ import { getState, isClient } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { EngineState } from '../../EngineState'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputPointerComponent } from '../../input/components/InputPointerComponent'
 import { MouseScroll } from '../../input/state/ButtonState'
 import { InputState } from '../../input/state/InputState'
+import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { FlyControlComponent } from '../components/FlyControlComponent'
@@ -148,11 +148,8 @@ const execute = () => {
         } else {
           box.makeEmpty()
           for (const object of cameraOrbit.focusedEntities.value) {
-            const group = getOptionalComponent(object, GroupComponent)
-            if (group)
-              for (const obj of group) {
-                box.expandByObject(obj)
-              }
+            const obj = getOptionalComponent(object, ObjectComponent)
+            if (obj) box.expandByObject(obj)
           }
           if (box.isEmpty()) {
             const entity = cameraOrbit.focusedEntities[0].value
