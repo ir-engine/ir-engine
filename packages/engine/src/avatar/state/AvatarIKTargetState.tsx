@@ -31,6 +31,7 @@ import { defineState, getMutableState, none, useHookstate, useMutableState } fro
 import { WorldNetworkAction } from '@ir-engine/network'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 
@@ -73,6 +74,7 @@ const AvatarReactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
     if (!entity) return
     setComponent(entity, NameComponent, state.name.value)
     setComponent(entity, AvatarIKTargetComponent)
+    setComponent(entity, VisibleComponent)
   }, [entity])
 
   return null

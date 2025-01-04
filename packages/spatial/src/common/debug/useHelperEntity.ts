@@ -40,7 +40,7 @@ import {
 import { useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
-import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
@@ -71,7 +71,7 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
     setComponent(helperEntity, ObjectComponent, helper)
     setComponent(helperEntity, UUIDComponent, generateEntityUUID())
     setComponent(helperEntity, ObjectLayerMaskComponent, layerMask)
-    setVisibleComponent(helperEntity, true)
+    setComponent(helperEntity, VisibleComponent, true)
     helperEntityState.set(helperEntity)
     if (typeof helper.update === 'function') helper.update()
 
