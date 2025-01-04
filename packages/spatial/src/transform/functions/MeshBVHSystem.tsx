@@ -42,9 +42,11 @@ import { computeBoundsTree, disposeBoundsTree, MeshBVHHelper } from 'three-mesh-
 import {
   createEntity,
   defineSystem,
+  EntityTreeComponent,
   PresentationSystemGroup,
   QueryReactor,
   removeEntity,
+  removeEntityNodeRecursively,
   useEntityContext
 } from '@ir-engine/ecs'
 import { getComponent, setComponent, useComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -60,10 +62,6 @@ import {
 } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import {
-  EntityTreeComponent,
-  removeEntityNodeRecursively
-} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '../components/TransformComponent'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 

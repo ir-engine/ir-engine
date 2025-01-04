@@ -29,6 +29,7 @@ import { Mesh, Object3D } from 'three'
 import {
   createEntity,
   Entity,
+  EntityTreeComponent,
   generateEntityUUID,
   getOptionalComponent,
   removeEntity,
@@ -42,7 +43,6 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 

@@ -131,7 +131,8 @@ export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' |
   /** Hide the canvas - do not do this for the WebXR emulator */
   /** @todo currently, XRSession.visibilityState is undefined in the webxr emulator - we need a better check*/
   if (typeof xrSession.visibilityState === 'string') {
-    getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer!.domElement.style.display = 'none'
+    getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer!.domElement.style.display =
+      'none'
   }
 
   xrState.session.set(xrSession)
