@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useState } from 'react'
-import { ArgTypes } from 'storybook/internal/types'
+import { ArgTypes } from '@storybook/react'
 import Slider, { SliderProps } from './index'
 
 const argTypes: ArgTypes = {
