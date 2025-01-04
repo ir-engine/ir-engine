@@ -43,8 +43,7 @@ export const createStorageProvider = (constructor: StorageProviderConstructor) =
 }
 
 export const createDefaultStorageProvider = () => {
-  const StorageProvider =
-    config.server.storageProvider !== 's3' ? LocalStorage : S3Storage
+  const StorageProvider = config.server.storageProvider !== 's3' ? LocalStorage : S3Storage
   const provider = createStorageProvider(StorageProvider)
   providers['default'] = provider
   return provider

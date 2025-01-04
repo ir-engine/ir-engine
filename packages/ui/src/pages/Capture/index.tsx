@@ -73,8 +73,8 @@ import Video from '@ir-engine/ui/src/primitives/tailwind/Video'
 
 import { SocketWebRTCClientNetwork } from '@ir-engine/client-core/src/transports/mediasoup/MediasoupClientFunctions'
 import { useVideoFrameCallback } from '@ir-engine/spatial/src/common/functions/useVideoFrameCallback'
-import Button from '../../primitives/tailwind/Button'
 import { Slider } from '../../../editor'
+import Button from '../../primitives/tailwind/Button'
 
 /**
  * Start playback of a recording
