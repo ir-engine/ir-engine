@@ -30,7 +30,7 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import {
   BoxGeometry,
   BufferGeometry,
