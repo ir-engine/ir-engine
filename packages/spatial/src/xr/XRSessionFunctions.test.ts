@@ -37,8 +37,7 @@ import {
 import { createEngine, destroyEngine, getComponent, getMutableComponent } from '@ir-engine/ecs'
 import { applyIncomingActions, getMutableState, getState } from '@ir-engine/hyperflux'
 import { Quaternion, Vector3 } from 'three'
-import { EngineState } from '../EngineState'
-import { TransformComponent } from '../SpatialModule'
+import { ReferenceSpaceState, TransformComponent } from '../SpatialModule'
 import { Q_IDENTITY, Vector3_One, Vector3_Zero } from '../common/constants/MathConstants'
 import { destroySpatialEngine, destroySpatialViewer } from '../initializeEngine'
 import { RendererComponent } from '../renderer/WebGLRendererSystem'
@@ -135,24 +134,24 @@ describe('onSessionEnd', () => {
   it("should set EngineState.viewerEntity.RendererComponent.renderer.domElement.style.display to ''", async () => {
     const Expected = ''
     // Sanity check before running
-    const before = getComponent(getState(EngineState).viewerEntity, RendererComponent).renderer?.domElement.style
-      .display
+    const before = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer?.domElement
+      .style.display
     expect(before).not.toBe(undefined)
     // Run and Check the result
     onSessionEnd()
-    const result = getComponent(getState(EngineState).viewerEntity, RendererComponent).renderer?.domElement.style
-      .display
+    const result = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer?.domElement
+      .style.display
     expect(result).toBe(Expected)
   })
 
   it('should set EngineState.viewerEntity.RendererComponent.needsResize to true', async () => {
     const Expected = true
     // Sanity check before running
-    const before = getComponent(getState(EngineState).viewerEntity, RendererComponent).needsResize
+    const before = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).needsResize
     expect(before).not.toBe(Expected)
     // Run and Check the result
     onSessionEnd()
-    const result = getComponent(getState(EngineState).viewerEntity, RendererComponent).needsResize
+    const result = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).needsResize
     expect(result).toBe(Expected)
   })
 
@@ -161,7 +160,7 @@ describe('onSessionEnd', () => {
     const Expected = Vector3_Zero
     const Initial = new Vector3(41, 42, 43)
     // Set the data as expected
-    const origin = getMutableComponent(getState(EngineState).originEntity, TransformComponent)
+    const origin = getMutableComponent(getState(ReferenceSpaceState).originEntity, TransformComponent)
     origin.position.set(Initial)
     // Sanity check before running
     const before = origin.position.get()
@@ -181,7 +180,7 @@ describe('onSessionEnd', () => {
     const Expected = Q_IDENTITY
     const Initial = new Quaternion(40, 41, 42, 43).normalize()
     // Set the data as expected
-    const origin = getMutableComponent(getState(EngineState).originEntity, TransformComponent)
+    const origin = getMutableComponent(getState(ReferenceSpaceState).originEntity, TransformComponent)
     origin.rotation.set(Initial)
     // Sanity check before running
     const before = origin.rotation.get()
@@ -203,7 +202,7 @@ describe('onSessionEnd', () => {
     const Expected = Vector3_One
     const Initial = new Vector3(41, 42, 43)
     // Set the data as expected
-    const origin = getMutableComponent(getState(EngineState).originEntity, TransformComponent)
+    const origin = getMutableComponent(getState(ReferenceSpaceState).originEntity, TransformComponent)
     origin.scale.set(Initial)
     // Sanity check before running
     const before = origin.scale.get()
@@ -223,7 +222,7 @@ describe('onSessionEnd', () => {
     const Expected = Vector3_Zero
     const Initial = new Vector3(41, 42, 43)
     // Set the data as expected
-    const localFloor = getMutableComponent(getState(EngineState).localFloorEntity, TransformComponent)
+    const localFloor = getMutableComponent(getState(ReferenceSpaceState).localFloorEntity, TransformComponent)
     localFloor.position.set(Initial)
     // Sanity check before running
     const before = localFloor.position.get()
@@ -243,7 +242,7 @@ describe('onSessionEnd', () => {
     const Expected = Q_IDENTITY
     const Initial = new Quaternion(40, 41, 42, 43).normalize()
     // Set the data as expected
-    const localFloor = getMutableComponent(getState(EngineState).localFloorEntity, TransformComponent)
+    const localFloor = getMutableComponent(getState(ReferenceSpaceState).localFloorEntity, TransformComponent)
     localFloor.rotation.set(Initial)
     // Sanity check before running
     const before = localFloor.rotation.get()
@@ -265,7 +264,7 @@ describe('onSessionEnd', () => {
     const Expected = Vector3_One
     const Initial = new Vector3(41, 42, 43)
     // Set the data as expected
-    const localFloor = getMutableComponent(getState(EngineState).localFloorEntity, TransformComponent)
+    const localFloor = getMutableComponent(getState(ReferenceSpaceState).localFloorEntity, TransformComponent)
     localFloor.scale.set(Initial)
     // Sanity check before running
     const before = localFloor.scale.get()
@@ -285,7 +284,7 @@ describe('onSessionEnd', () => {
     const Expected = Vector3_One
     const Initial = new Vector3(41, 42, 43)
     // Set the data as expected
-    const viewer = getMutableComponent(getState(EngineState).viewerEntity, TransformComponent)
+    const viewer = getMutableComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
     viewer.scale.set(Initial)
     // Sanity check before running
     const before = viewer.scale.get()
@@ -517,7 +516,7 @@ describe('setupXRSession', () => {
       and xrSession.domOverlayState?.type is 'screen'`, async () => {
     const Expected = 0.5
     // Set the data as expected
-    const xrManager = getComponent(getState(EngineState).viewerEntity, RendererComponent).xrManager!
+    const xrManager = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).xrManager!
     const setSessionSpy = vi.spyOn(xrManager, 'setSession')
     // Run and Check the result
     expect(navigator.userAgent.includes('OculusBrowser')).toBe(true)
@@ -536,7 +535,7 @@ describe('setupXRSession', () => {
       and xrSession.domOverlayState?.type is not 'screen'`, async () => {
     const Expected = 1.2
     // Set the data as expected
-    const xrManager = getComponent(getState(EngineState).viewerEntity, RendererComponent).xrManager!
+    const xrManager = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).xrManager!
     const setSessionSpy = vi.spyOn(xrManager, 'setSession')
     // Run and Check the result
     const session = await setupXRSession()
@@ -551,13 +550,13 @@ describe('setupXRSession', () => {
   it("should set EngineState.viewerEntity.RendererComponent.renderer!.domElement.style.display to 'none' when (typeof xrSession.visibilityState) is 'string'", async () => {
     const Expected = 'none'
     // Sanity check before running
-    const before = getComponent(getState(EngineState).viewerEntity, RendererComponent).renderer!.domElement.style.display
+    const before = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer!.domElement.style.display
     expect(before).not.toBe(Expected)
     // Run and Check the result
     const session = await setupXRSession()
     assert(session)
     expect(typeof session.visibilityState).toBe('string')
-    const result = getComponent(getState(EngineState).viewerEntity, RendererComponent).renderer!.domElement.style.display
+    const result = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer!.domElement.style.display
     expect(result).toBe(Expected)
   })
   */

@@ -33,7 +33,7 @@ import { createEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctio
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { EngineState } from '../EngineState'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { NameComponent } from '../common/NameComponent'
 import { addObjectToGroup, removeObjectFromGroup } from '../renderer/components/ObjectComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
@@ -131,7 +131,7 @@ export const XRDetectedMeshComponent = defineComponent({
 
   foundMesh: (mesh: XRMesh) => {
     const entity = createEntity()
-    setComponent(entity, EntityTreeComponent, { parentEntity: getState(EngineState).localFloorEntity })
+    setComponent(entity, EntityTreeComponent, { parentEntity: getState(ReferenceSpaceState).localFloorEntity })
     setComponent(entity, TransformComponent)
     setVisibleComponent(entity, true)
     setComponent(entity, XRDetectedMeshComponent)
