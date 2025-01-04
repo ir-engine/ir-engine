@@ -69,7 +69,7 @@ const PointLightComponentDefaults: PointLightComponentData = {
   range: 0,
   decay: 2,
   castShadow: false,
-  shadowBias: 0.5,
+  shadowBias: 0,
   shadowRadius: 1,
   helperEntity: UndefinedEntity
 }

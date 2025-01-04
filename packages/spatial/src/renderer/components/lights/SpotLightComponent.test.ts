@@ -70,7 +70,7 @@ const SpotLightComponentDefaults: SpotLightComponentData = {
   angle: Math.PI / 3,
   penumbra: 1,
   castShadow: false,
-  shadowBias: 0.00001,
+  shadowBias: 0,
   shadowRadius: 1
 }
 
