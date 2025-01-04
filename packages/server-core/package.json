@@ -109,7 +109,7 @@
     "pug": "^3.0.2",
     "s3-blob-store": "^4.1.1",
     "semver": "^7.3.8",
-    "sharp": "^0.31.3",
+    "sharp": "0.33.5",
     "simple-git": "3.17.0",
     "slugify": "1.6.5",
     "trace-unhandled": "2.0.1",
