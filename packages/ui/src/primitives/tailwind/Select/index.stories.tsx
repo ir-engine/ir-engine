@@ -24,8 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Rows01Md } from '@ir-engine/ui/src/icons'
-import React, { useEffect } from 'react'
 import { ArgTypes } from '@storybook/react'
+import React, { useEffect } from 'react'
 import Select, { OptionType, SelectProps } from './index'
 
 const argTypes: ArgTypes = {
