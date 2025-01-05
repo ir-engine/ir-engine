@@ -25,9 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Object3D } from 'three'
 
+import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/ecs'
 import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { GLTFComponent } from '../../../../gltf/GLTFComponent'
 import { SourceComponent } from '../../../../scene/components/SourceComponent'

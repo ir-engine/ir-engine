@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Bone, InstancedMesh, Mesh, Object3D, Scene, SkinnedMesh } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 
-import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
+import { EntityTreeComponent, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import {
   ComponentJSONIDMap,
   ComponentMap,
@@ -43,7 +43,6 @@ import { ObjectComponent, addObjectToGroup } from '@ir-engine/spatial/src/render
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { FrustumCullCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 

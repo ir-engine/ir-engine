@@ -31,7 +31,7 @@ import type { WebContainer3D } from '@ir-engine/xrui'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getState } from '@ir-engine/hyperflux'
-import { EngineState } from '../../EngineState'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -87,7 +87,7 @@ export const ObjectFitFunctions = {
 
   computeFrustumSizeAtDistance: (
     distance: number,
-    camera = getComponent(getState(EngineState).viewerEntity, CameraComponent)
+    camera = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent)
   ) => {
     // const vFOV = camera.fov * DEG2RAD
     camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert()
@@ -105,7 +105,7 @@ export const ObjectFitFunctions = {
     contentWidth: number,
     contentHeight: number,
     fit: ContentFitType = 'contain',
-    camera = getComponent(getState(EngineState).viewerEntity, CameraComponent)
+    camera = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent)
   ) => {
     const size = ObjectFitFunctions.computeFrustumSizeAtDistance(distance, camera)
     return ObjectFitFunctions.computeContentFitScale(contentWidth, contentHeight, size.width, size.height, fit)
@@ -118,7 +118,7 @@ export const ObjectFitFunctions = {
     distance: number,
     horizontalSnap: 'left' | 'right' | 'center' | number, // where number is range from -1 to 1
     verticalSnap: 'top' | 'bottom' | 'center' | number, // where number is range from -1 to 1
-    cameraEntity = getState(EngineState).viewerEntity
+    cameraEntity = getState(ReferenceSpaceState).viewerEntity
   ) => {
     const camera = getComponent(cameraEntity, CameraComponent)
     const containerSize = ObjectFitFunctions.computeFrustumSizeAtDistance(distance, camera)
@@ -179,14 +179,14 @@ export const ObjectFitFunctions = {
     const transform = getComponent(entity, TransformComponent)
     _mat4.makeTranslation(0, 0, -distance).scale(_vec3.set(scale, scale, 1))
     transform.matrixWorld.multiplyMatrices(
-      getComponent(getState(EngineState).viewerEntity, CameraComponent).matrixWorld,
+      getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent).matrixWorld,
       _mat4
     )
     transform.matrixWorld.decompose(transform.position, transform.rotation, transform.scale)
   },
 
   lookAtCameraFromPosition: (container: WebContainer3D, position: Vector3) => {
-    const camera = getComponent(getState(EngineState).viewerEntity, CameraComponent)
+    const camera = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent)
     container.scale.setScalar(Math.max(1, camera.position.distanceTo(position) / 3))
     container.position.copy(position)
     container.rotation.setFromRotationMatrix(camera.matrixWorld)

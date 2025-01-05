@@ -29,6 +29,7 @@ import {
   createEntity,
   Engine,
   Entity,
+  EntityTreeComponent,
   EntityUUID,
   getComponent,
   getOptionalComponent,
@@ -47,7 +48,6 @@ import {
   DistanceFromCameraComponent,
   FrustumCullCameraComponent
 } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'

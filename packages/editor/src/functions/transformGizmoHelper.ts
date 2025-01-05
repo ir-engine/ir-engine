@@ -29,6 +29,7 @@ import {
   ComponentType,
   Engine,
   Entity,
+  EntityTreeComponent,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -44,17 +45,15 @@ import {
   TransformSpaceType
 } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getState, NO_PROXY, State } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
+import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { Axis, Q_IDENTITY, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
 import { TransformGizmoVisualComponent } from '../classes/gizmo/transform/TransformGizmoVisualComponent'
@@ -436,7 +435,7 @@ export function planeUpdate(gizmoEntity) {
   }
   if (_dirVector.length() === 0) {
     // If in rotate mode, make the plane parallel to camera
-    const camera = getComponent(getState(EngineState).viewerEntity, TransformComponent)
+    const camera = getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
     planeTransform.rotation.copy(camera.rotation)
   } else {
     _tempMatrix.lookAt(Vector3_Zero, _dirVector, _alignVector)

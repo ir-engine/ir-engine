@@ -52,7 +52,7 @@ import {
 } from 'three.quarks'
 import matches from 'ts-matches'
 
-import { Entity, UUIDComponent } from '@ir-engine/ecs'
+import { Entity, EntityTreeComponent, UUIDComponent, getChildrenWithComponents } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -79,7 +79,6 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { useDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
-import { EntityTreeComponent, getChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useGLTFComponent, useTexture } from '../../assets/functions/resourceLoaderHooks'

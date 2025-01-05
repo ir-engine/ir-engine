@@ -30,6 +30,7 @@ import {
   defineQuery,
   defineSystem,
   Engine,
+  EngineState,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -41,7 +42,6 @@ import { getState, isClient } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
-import { EngineState } from '../../EngineState'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputPointerComponent } from '../../input/components/InputPointerComponent'
 import { MouseScroll } from '../../input/state/ButtonState'

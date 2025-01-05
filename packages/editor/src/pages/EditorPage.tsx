@@ -25,9 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEngineInjection } from '@ir-engine/client-core/src/components/World/EngineHooks'
 import { useUnsupported } from '@ir-engine/client-core/src/hooks/useUnsupported'
+import { EngineState } from '@ir-engine/ecs'
 import '@ir-engine/engine/src/EngineModule'
 import { getMutableState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import React, { useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import '../EditorModule'

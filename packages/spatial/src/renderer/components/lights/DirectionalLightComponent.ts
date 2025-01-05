@@ -36,12 +36,11 @@ import {
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
-import { UndefinedEntity } from '@ir-engine/ecs'
+import { EntityTreeComponent, UndefinedEntity } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { mergeBufferGeometries } from '../../../common/classes/BufferGeometryUtils'
 import { useDisposable } from '../../../resources/resourceHooks'
 import { T } from '../../../schema/schemaFunctions'
-import { EntityTreeComponent } from '../../../transform/components/EntityTree'
 import { RendererState } from '../../RendererState'
 import { LineSegmentComponent } from '../LineSegmentComponent'
 import { ObjectComponent } from '../ObjectComponent'

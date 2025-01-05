@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { AnimationClip, AnimationMixer, Object3D, PropertyBinding } from 'three'
 
-import { Entity, removeEntity, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
+import { Entity, iterateEntityNode, removeEntity, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -43,7 +43,6 @@ import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFSourceState } from '../../gltf/GLTFState'

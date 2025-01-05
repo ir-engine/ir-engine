@@ -27,6 +27,7 @@ import { Easing, Tween } from '@tweenjs/tween.js'
 import { useEffect } from 'react'
 import { AdditiveBlending, DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, Vector3 } from 'three'
 
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -45,7 +46,6 @@ import { getInteractionGroups } from '@ir-engine/spatial/src/physics/functions/g
 import { SceneQueryType } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { TweenComponent } from '@ir-engine/spatial/src/transform/components/TweenComponent'
 

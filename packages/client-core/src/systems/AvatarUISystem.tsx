@@ -54,12 +54,11 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 
-import { Not } from '@ir-engine/ecs'
+import { EntityTreeComponent, Not } from '@ir-engine/ecs'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { PeerMediaChannelState } from '../media/PeerMediaChannelState'
 import { XruiNameplateComponent } from '../social/components/XruiNameplateComponent'
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
@@ -158,7 +157,7 @@ const onSecondaryClick = () => {
 }
 
 const execute = () => {
-  const viewerEntity = getState(EngineState).viewerEntity
+  const viewerEntity = getState(ReferenceSpaceState).viewerEntity
   if (!viewerEntity) return
 
   const ecsState = getState(ECSState)

@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { BackSide, Color, Mesh, MeshBasicMaterial, SphereGeometry, Vector2 } from 'three'
 
-import { Entity, UndefinedEntity } from '@ir-engine/ecs'
+import { Entity, EntityTreeComponent, UndefinedEntity, useChildWithComponents } from '@ir-engine/ecs'
 import {
   getComponent,
   getMutableComponent,
@@ -54,17 +54,17 @@ import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/Obje
 import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
-import { EntityTreeComponent, useChildWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { ObjectFitFunctions } from '@ir-engine/spatial/src/transform/functions/ObjectFitFunctions'
 import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 import type { WebLayer3D } from '@ir-engine/xrui'
 
+import { EngineState } from '@ir-engine/ecs'
 import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { SpectateEntityState } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { useRemoveEngineCanvas } from '@ir-engine/spatial/src/renderer/functions/useEngineCanvas'
@@ -361,7 +361,7 @@ export const LoadingUISystem = defineSystem({
   insert: { before: TransformDirtyUpdateSystem },
   execute,
   reactor: () => {
-    if (!useMutableState(EngineState).viewerEntity.value) return null
+    if (!useMutableState(ReferenceSpaceState).viewerEntity.value) return null
     return <Reactor />
   }
 })

@@ -25,12 +25,12 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Quaternion, Vector3 } from 'three'
 
+import { EngineState } from '@ir-engine/ecs'
 import { getComponent, getOptionalComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getState } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'

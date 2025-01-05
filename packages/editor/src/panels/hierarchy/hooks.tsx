@@ -29,8 +29,11 @@ import { VALID_HEIRARCHY_SEARCH_REGEX } from '@ir-engine/common/src/regex'
 import {
   Entity,
   entityExists,
+  EntityTreeComponent,
   getComponent,
   getOptionalComponent,
+  isAncestor,
+  traverseEntityNode,
   UndefinedEntity,
   useOptionalComponent,
   useQuery
@@ -40,11 +43,6 @@ import { GLTFAssetState, GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GL
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getMutableState, getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import {
-  EntityTreeComponent,
-  isAncestor,
-  traverseEntityNode
-} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React, { createContext, ReactNode, useContext, useEffect, useMemo } from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { useHotkeys } from 'react-hotkeys-hook'

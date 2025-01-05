@@ -27,6 +27,7 @@ import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 import {
   Engine,
   Entity,
+  EntityTreeComponent,
   EntityUUID,
   SystemDefinitions,
   UUIDComponent,
@@ -46,10 +47,9 @@ import { getMutableState, getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import { BoxGeometry, MathUtils, Mesh } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
-import { EngineState } from '../../EngineState'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { NameComponent } from '../../common/NameComponent'
 import { destroySpatialEngine, destroySpatialViewer } from '../../initializeEngine'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../RendererModule'
 import { RendererState } from '../RendererState'
 import { RendererComponent, WebGLRendererSystem } from '../WebGLRendererSystem'
@@ -131,12 +131,12 @@ describe('HighlightSystem', () => {
       const entity3 = createOutlineEntity('entity3')
       const Expected = [entity1.name, entity2.name, entity3.name]
       // Sanity check before running
-      assert.equal(hasComponent(getState(EngineState).viewerEntity, RendererComponent), false)
+      assert.equal(hasComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent), false)
       // Get the system definition
       const highlightSystemExecute = SystemDefinitions.get(HighlightSystem)!.execute
       // Run and Check the result
       highlightSystemExecute()
-      const result = getOptionalComponent(getState(EngineState).viewerEntity, RendererComponent)?.effectComposer
+      const result = getOptionalComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)?.effectComposer
         ?.OutlineEffect.selection
       assert.equal(result, undefined)
     })
@@ -162,7 +162,7 @@ describe('HighlightSystem', () => {
       const highlightSystemExecute = SystemDefinitions.get(HighlightSystem)!.execute
       // Run and Check the result
       highlightSystemExecute()
-      const result = getOptionalComponent(getState(EngineState).viewerEntity, RendererComponent)?.effectComposer
+      const result = getOptionalComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)?.effectComposer
         ?.OutlineEffect.selection
       for (const obj of result!) {
         assert.notEqual(obj.entity, notQueryEntity1)
@@ -191,7 +191,7 @@ describe('HighlightSystem', () => {
       const highlightSystemExecute = SystemDefinitions.get(HighlightSystem)!.execute
       // Run and Check the result
       highlightSystemExecute()
-      const result = getOptionalComponent(getState(EngineState).viewerEntity, RendererComponent)?.effectComposer
+      const result = getOptionalComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)?.effectComposer
         ?.OutlineEffect.selection
       for (const obj of result!) {
         assert.notEqual(obj.entity, notQueryEntity1)
@@ -220,7 +220,7 @@ describe('HighlightSystem', () => {
       const highlightSystemExecute = SystemDefinitions.get(HighlightSystem)!.execute
       // Run and Check the result
       highlightSystemExecute()
-      const result = getOptionalComponent(getState(EngineState).viewerEntity, RendererComponent)?.effectComposer
+      const result = getOptionalComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)?.effectComposer
         ?.OutlineEffect.selection
       for (const obj of result!) {
         assert.notEqual(obj.entity, notQueryEntity1)
@@ -236,7 +236,7 @@ describe('HighlightSystem', () => {
     beforeEach(() => {
       createEngine()
       mockSpatialEngine()
-      rootEntity = getState(EngineState).viewerEntity
+      rootEntity = getState(ReferenceSpaceState).viewerEntity
 
       testEntity = createEntity()
       setComponent(testEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)

@@ -26,6 +26,7 @@
 import {
   ECSState,
   Entity,
+  EntityTreeComponent,
   EntityUUID,
   SystemDefinitions,
   Timer,
@@ -43,9 +44,8 @@ import React from 'react'
 import { Color, Group, MathUtils, Texture } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { mockEngineRenderer } from '../../tests/util/MockEngineRenderer'
-import { EngineState } from '../EngineState'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { CameraComponent } from '../camera/components/CameraComponent'
-import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { RendererState } from './RendererState'
 import {
   RendererComponent,
@@ -73,7 +73,7 @@ describe('WebGl Renderer System', () => {
     getMutableState(ECSState).timer.set(timer)
 
     rootEntity = createEntity()
-    getMutableState(EngineState).viewerEntity.set(rootEntity)
+    getMutableState(ReferenceSpaceState).viewerEntity.set(rootEntity)
     setComponent(rootEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
     setComponent(rootEntity, EntityTreeComponent)
     setComponent(rootEntity, CameraComponent)

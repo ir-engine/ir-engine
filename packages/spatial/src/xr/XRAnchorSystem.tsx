@@ -36,6 +36,7 @@ import {
   Vector3
 } from 'three'
 
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import {
   ComponentType,
   getComponent,
@@ -51,11 +52,10 @@ import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineQuery, useQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { defineActionQueue, defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { smootheLerpAlpha } from '../common/functions/MathLerpFunctions'
 
 import React from 'react'
-import { EngineState } from '../EngineState'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { NameComponent } from '../common/NameComponent'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { Vector3_One, Vector3_Up } from '../common/constants/MathConstants'
@@ -84,7 +84,7 @@ export const updateHitTest = (entity: Entity) => {
   const pose = hitTestResults[0].getPose(ReferenceSpace.localFloor!)
   if (!pose) return
 
-  const parentEntity = getState(EngineState).localFloorEntity
+  const parentEntity = getState(ReferenceSpaceState).localFloorEntity
   setComponent(entity, EntityTreeComponent, { parentEntity })
 
   const transform = getComponent(entity, TransformComponent)
@@ -232,7 +232,9 @@ const Reactor = () => {
     setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
     setComponent(scenePlacementEntity, XRScenePlacementComponent)
     setComponent(scenePlacementEntity, TransformComponent)
-    setComponent(scenePlacementEntity, EntityTreeComponent, { parentEntity: getState(EngineState).localFloorEntity })
+    setComponent(scenePlacementEntity, EntityTreeComponent, {
+      parentEntity: getState(ReferenceSpaceState).localFloorEntity
+    })
     setComponent(scenePlacementEntity, VisibleComponent, true)
     setComponent(scenePlacementEntity, InputComponent, { highlight: false, grow: false })
 
@@ -254,7 +256,7 @@ const Reactor = () => {
     const originAnchorEntity = createEntity()
     setComponent(originAnchorEntity, NameComponent, 'xr-world-anchor')
     setComponent(originAnchorEntity, MeshComponent, originAnchorMesh)
-    setComponent(originAnchorEntity, EntityTreeComponent, { parentEntity: getState(EngineState).originEntity })
+    setComponent(originAnchorEntity, EntityTreeComponent, { parentEntity: getState(ReferenceSpaceState).originEntity })
 
     getMutableState(XRAnchorSystemState).set({ scenePlacementEntity, originAnchorEntity })
   }, [])
@@ -376,7 +378,7 @@ export const XRAnchorSystem = defineSystem({
   insert: { after: XRCameraUpdateSystem },
   execute,
   reactor: () => {
-    if (!useMutableState(EngineState).viewerEntity.value) return null
+    if (!useMutableState(ReferenceSpaceState).viewerEntity.value) return null
     return <Reactor />
   }
 })

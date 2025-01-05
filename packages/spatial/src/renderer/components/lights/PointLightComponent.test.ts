@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   Entity,
+  EntityTreeComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -44,7 +45,6 @@ import { assertColor } from '../../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { NameComponent } from '../../../common/NameComponent'
 import { destroySpatialEngine } from '../../../initializeEngine'
-import { EntityTreeComponent } from '../../../transform/components/EntityTree'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { RendererState } from '../../RendererState'
 import { LineSegmentComponent } from '../LineSegmentComponent'

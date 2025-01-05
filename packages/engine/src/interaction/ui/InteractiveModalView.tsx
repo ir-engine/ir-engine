@@ -25,14 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { createEntity, setComponent } from '@ir-engine/ecs'
+import { EntityTreeComponent, createEntity, setComponent } from '@ir-engine/ecs'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createXRUI } from '@ir-engine/engine/src/xrui/createXRUI'
 import { useXRUIState } from '@ir-engine/engine/src/xrui/useXRUIState'
 import { hookstate, isClient } from '@ir-engine/hyperflux'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { Color, DoubleSide, Mesh, MeshPhysicalMaterial, Shape, ShapeGeometry, Vector3 } from 'three'
 

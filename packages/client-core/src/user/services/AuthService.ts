@@ -54,6 +54,7 @@ import {
   userAvatarPath,
   userPath
 } from '@ir-engine/common/src/schema.type.module'
+import { EngineState } from '@ir-engine/ecs'
 import {
   defineState,
   getMutableState,
@@ -62,7 +63,6 @@ import {
   syncStateWithLocalStorage,
   useHookstate
 } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { MessageResponse, ParentCommunicator } from '../../common/iframeCOM'
 import { NotificationService } from '../../common/services/NotificationService'
 

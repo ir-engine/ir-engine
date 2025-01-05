@@ -28,13 +28,14 @@ import '../../threejsPatches'
 import { Object3D } from 'three'
 
 import {
+  EntityTreeComponent,
   defineComponent,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+} from '@ir-engine/ecs'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useImmediateEffect } from '@ir-engine/hyperflux'
@@ -43,7 +44,6 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { removeCallback, setCallback } from '../../common/CallbackComponent'
 import { NameComponent } from '../../common/NameComponent'
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Layer } from './ObjectLayerComponent'
 import { VisibleComponent } from './VisibleComponent'

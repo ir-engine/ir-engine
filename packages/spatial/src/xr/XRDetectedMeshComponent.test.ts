@@ -30,6 +30,7 @@ import { mockSpatialEngine } from '../../tests/util/mockSpatialEngine'
 import { requestEmulatedXRSession } from '../../tests/webxr/emulator'
 
 import {
+  EntityTreeComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -41,11 +42,10 @@ import {
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { Quaternion, Vector3 } from 'three'
-import { EngineState } from '../EngineState'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { TransformComponent } from '../SpatialModule'
 import { NameComponent } from '../common/NameComponent'
 import { VisibleComponent } from '../renderer/components/VisibleComponent'
-import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { XRDetectedMeshComponent } from './XRDetectedMeshComponent'
 import { ReferenceSpace, XRState } from './XRState'
 
@@ -240,7 +240,7 @@ describe('XRDetectedMeshComponent', () => {
       expect(result).not.toBe(UndefinedEntity)
     })
 
-    it('should add an EntityTreeComponent to the new entity and set its parentEntity to EngineState.localFloorEntity', () => {
+    it('should add an EntityTreeComponent to the new entity and set its parentEntity to ReferenceSpaceState.localFloorEntity', () => {
       // Set the data as expected
       const mesh = {} as XRMesh
       const before = XRDetectedMeshComponent.detectedMeshesMap.get(mesh)
@@ -252,7 +252,9 @@ describe('XRDetectedMeshComponent', () => {
       expect(result).not.toBe(undefined)
       expect(result).not.toBe(UndefinedEntity)
       expect(hasComponent(result, EntityTreeComponent)).toBe(true)
-      expect(getComponent(result, EntityTreeComponent).parentEntity).toBe(getState(EngineState).localFloorEntity)
+      expect(getComponent(result, EntityTreeComponent).parentEntity).toBe(
+        getState(ReferenceSpaceState).localFloorEntity
+      )
     })
 
     it('should add TransformComponent to the new entity', () => {

@@ -31,7 +31,7 @@ import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { defineActionQueue, getMutableState, getState } from '@ir-engine/hyperflux'
 
-import { EngineState } from '../EngineState'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { Vector3_One } from '../common/constants/MathConstants'
 import { RendererComponent } from '../renderer/WebGLRendererSystem'
@@ -122,10 +122,10 @@ function updateProjectionFromCameraArrayUnion(camera: ArrayCamera) {
 }
 
 function updateCameraFromXRViewerPose() {
-  const camera = getComponent(getState(EngineState).viewerEntity, CameraComponent)
-  const originTransform = getComponent(getState(EngineState).localFloorEntity, TransformComponent)
-  const cameraTransform = getComponent(getState(EngineState).viewerEntity, TransformComponent)
-  const renderer = getComponent(getState(EngineState).viewerEntity, RendererComponent).renderer!
+  const camera = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent)
+  const originTransform = getComponent(getState(ReferenceSpaceState).localFloorEntity, TransformComponent)
+  const cameraTransform = getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
+  const renderer = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer!
   const xrState = getState(XRState)
   const pose = xrState.viewerPose
   if (!pose) return
