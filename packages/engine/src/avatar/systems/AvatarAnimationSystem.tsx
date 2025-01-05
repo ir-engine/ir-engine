@@ -36,7 +36,7 @@ import {
   useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
-import { defineState, getMutableState, getState, isClient } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, isClient, useMutableState } from '@ir-engine/hyperflux'
 import {
   createPriorityQueue,
   createSortAndApplyPriorityQueue
@@ -232,13 +232,14 @@ const RigReactor = (props: { entity: Entity }) => {
 const AnimationReactor = (props: { entity: Entity }) => {
   const entity = props.entity
   const rigComponent = useOptionalComponent(entity, AvatarRigComponent)
+  const loadedAnimations = useMutableState(AnimationState).loadedAnimations
   useEffect(() => {
-    if (!Object.values(rigComponent?.entitiesToBones ?? {}).length || !rigComponent?.vrm?.scene?.value) return
+    if (!rigComponent?.vrm?.scene?.value) return
     setComponent(entity, AnimationComponent, {
       animations: getAllLoadedAnimations(),
       mixer: new AnimationMixer(rigComponent.vrm.scene.value as Group)
     })
-  }, [rigComponent?.bonesToEntities, rigComponent?.vrm.scene])
+  }, [rigComponent?.vrm, loadedAnimations])
   return null
 }
 
