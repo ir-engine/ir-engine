@@ -34,8 +34,8 @@ import {
   useComponent,
   useQuery
 } from '@ir-engine/ecs'
-import { defineState, getState } from '@ir-engine/hyperflux'
-import { NetworkObjectComponent } from '@ir-engine/network'
+import { defineState, getMutableState, getState, none } from '@ir-engine/hyperflux'
+import { NetworkObjectComponent, NetworkState } from '@ir-engine/network'
 import { TransformComponent } from '@ir-engine/spatial'
 import {
   createPriorityQueue,
@@ -58,6 +58,7 @@ import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIkComponent, AvatarIKTargetComponent } from '../components/AvatarIKComponents'
 import { NormalizedBoneComponent } from '../components/NormalizedBoneComponent'
+import { IKSerialization } from '../IKSerialization'
 import { AvatarAnimationSystem } from './AvatarAnimationSystem'
 
 const _quat = new Quaternion()
@@ -136,6 +137,7 @@ const execute = () => {
 
     if (headTargetBlendWeight) {
       const headTransform = getComponent(head, TransformComponent)
+      const worldTransform = TransformComponent.getWorldPosition(entity, _vector3)
       const normalizedHips = getComponent(rig.hips, NormalizedBoneComponent)
 
       normalizedHips.position.set(
@@ -165,11 +167,11 @@ const execute = () => {
       const hips = getComponent(rig.hips, TransformComponent)
       /** Place normalized rig in world space for ik calculations */
       const newWorldMatrix = transform.matrixWorld.clone()
-      newWorldMatrix.elements[13] = hips.position.y + transform.position.y
-      newWorldMatrix.elements[12] = hips.position.x + transform.position.x
-      newWorldMatrix.elements[14] = hips.position.z + transform.position.z
       normalizedHips.matrix.setPosition(new Vector3())
       normalizedHips.matrixWorld.multiplyMatrices(newWorldMatrix, normalizedHips.matrix)
+      normalizedHips.matrixWorld.elements[13] = hips.position.y + worldTransform.y
+      normalizedHips.matrixWorld.elements[12] = hips.position.x + worldTransform.x
+      normalizedHips.matrixWorld.elements[14] = hips.position.z + worldTransform.z
 
       for (const boneName of VRMHumanBoneList) {
         const bone = getOptionalComponent(rigComponent.bonesToEntities[boneName], NormalizedBoneComponent)
@@ -291,9 +293,11 @@ const SetupIkMatrices = (props: { avatarEntity: Entity }) => {
   const ikComponent = useComponent(props.avatarEntity, AvatarIkComponent)
   const rigComponent = useComponent(props.avatarEntity, AvatarRigComponent)
   useEffect(() => {
-    if (!rigComponent.vrm.value) return
+    if (!rigComponent.vrm.value || !rigComponent.bonesToEntities.hips) return
     const rootEntity = props.avatarEntity
-    iterateEntityNode(rootEntity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
+    iterateEntityNode(rigComponent.bonesToEntities.hips.value, computeTransformMatrix, (e) =>
+      hasComponent(e, TransformComponent)
+    )
 
     const rig = rigComponent.bonesToEntities.value
 
@@ -302,12 +306,11 @@ const SetupIkMatrices = (props: { avatarEntity: Entity }) => {
       (bone) => bone.includes('Arm') || bone.includes('Leg') || bone.includes('Foot') || bone.includes('Hand')
     )
 
-    const rootMatrix = getComponent(rootEntity, TransformComponent).matrixWorld
     const transform = getComponent(rootEntity, TransformComponent)
+    const rootMatrix = getComponent(rootEntity, TransformComponent).matrixWorld
     rootRotationInverse.makeRotationFromQuaternion(transform.rotation).invert()
-    toOrigin.makeTranslation(-transform.position.x, -transform.position.y, -transform.position.z)
-    back.makeTranslation(transform.position.x, transform.position.y, transform.position.z).multiply(rootRotationInverse)
-
+    toOrigin.identity()
+    back.identity().multiply(rootRotationInverse)
     for (const bone of boneNames) {
       const worldMatrix = getComponent(rig[bone], TransformComponent).matrixWorld
       const parentMatrix = getComponent(
@@ -323,18 +326,33 @@ const SetupIkMatrices = (props: { avatarEntity: Entity }) => {
         worldMatrix.elements[14] - rootMatrix.elements[14] - (parentMatrix.elements[14] - rootMatrix.elements[14])
       // undo the parent rotation
       const local = new Matrix4().copy(back).multiply(toOrigin).multiply(difference)
+
       ikComponent.ikMatrices[bone].set({
         world: new Matrix4(),
         local
       })
     }
-  }, [rigComponent.vrm])
+  }, [rigComponent.vrm, rigComponent.bonesToEntities.hips])
 
   return null
 }
 
-const AvatarIkReactor = () => {
+export const AvatarIkReactor = () => {
   const ikQuery = useQuery([AvatarIkComponent, AvatarRigComponent])
+
+  useEffect(() => {
+    const networkState = getMutableState(NetworkState)
+
+    networkState.networkSchema[IKSerialization.ID].set({
+      read: IKSerialization.readBlendWeight,
+      write: IKSerialization.writeBlendWeight
+    })
+
+    return () => {
+      networkState.networkSchema[IKSerialization.ID].set(none)
+    }
+  }, [])
+
   return (
     <>
       {ikQuery.map((entity) => (
