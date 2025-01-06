@@ -26,20 +26,20 @@ Infinite Reality Engine. All Rights Reserved.
 import { PerspectiveCamera, Vector2 } from 'three'
 
 import { getCanvasBlob } from '@ir-engine/client-core/src/common/utils'
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { EditorState } from '../services/EditorServices'
 
 function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: number) {
@@ -81,7 +81,8 @@ export async function takeScreenshot(
     if (!scenePreviewCamera) {
       const entity = createEntity()
       setComponent(entity, ScenePreviewCameraComponent)
-      const { position, rotation } = getComponent(getState(EngineState).viewerEntity, TransformComponent)
+      scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
+      const { position, rotation } = getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
       setComponent(entity, TransformComponent, { position, rotation })
       setComponent(entity, EntityTreeComponent, {
         parentEntity: getState(EditorState).rootEntity
@@ -94,7 +95,7 @@ export async function takeScreenshot(
   const prevAspect = scenePreviewCamera.aspect
   const prevLayers = scenePreviewCamera.layers
   const prevLayersMask = scenePreviewCamera.layers.mask
-  const camera = getComponent(getState(EngineState).viewerEntity, CameraComponent)
+  const camera = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent)
 
   // Setting up scene preview camera
   scenePreviewCamera.aspect = width / height
@@ -102,7 +103,7 @@ export async function takeScreenshot(
   scenePreviewCamera.layers.disableAll()
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
-  const rendererComponent = getComponent(getState(EngineState).viewerEntity, RendererComponent)
+  const rendererComponent = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)
   const renderer = rendererComponent.renderer!
   const renderContext = rendererComponent.renderContext!
   const effectComposer = rendererComponent.effectComposer!
@@ -171,7 +172,7 @@ export const downloadScreenshot = () => {
     1080 * 4,
     1,
     'png',
-    getComponent(getState(EngineState).viewerEntity, CameraComponent),
+    getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent),
     false
   ).then((blob) => {
     if (!blob) return

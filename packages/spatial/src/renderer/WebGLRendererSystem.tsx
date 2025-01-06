@@ -54,10 +54,10 @@ import {
 } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, NO_PROXY, none, State, useMutableState } from '@ir-engine/hyperflux'
 
+import { getNestedChildren } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { Effect, EffectComposer, EffectPass, OutlineEffect } from 'postprocessing'
 import { CameraComponent } from '../camera/components/CameraComponent'
-import { getNestedChildren } from '../transform/components/EntityTree'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
 import { XRState } from '../xr/XRState'
 import { ObjectComponent } from './components/ObjectComponent'

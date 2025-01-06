@@ -27,12 +27,14 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import {
   Engine,
   Entity,
+  EntityTreeComponent,
   UUIDComponent,
   UndefinedEntity,
   defineQuery,
   defineSystem,
   getComponent,
   getOptionalComponent,
+  iterateEntityNode,
   removeComponent,
   setComponent,
   useOptionalComponent
@@ -66,7 +68,6 @@ import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/Obje
 import { ObjectLayerComponents } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { HolographicMaterial } from '@ir-engine/spatial/src/renderer/materials/prototypes/HolographicMaterial.mat'
-import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformDirtyCleanupSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import React, { useEffect } from 'react'
 import { Euler, Material, Mesh, Object3D, Quaternion, Raycaster, Vector3 } from 'three'

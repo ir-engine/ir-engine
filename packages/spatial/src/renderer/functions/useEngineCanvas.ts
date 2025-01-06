@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { getComponent, getOptionalMutableComponent, hasComponent } from '@ir-engine/ecs'
 import { getState, none, useMutableState } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { destroySpatialViewer, initializeSpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { useEffect } from 'react'
@@ -42,7 +42,7 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
     parent.appendChild(canvas)
 
     const observer = new ResizeObserver(() => {
-      getComponent(getState(EngineState).viewerEntity, RendererComponent).needsResize = true
+      getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).needsResize = true
     })
 
     observer.observe(parent)
@@ -67,7 +67,7 @@ export const useEngineCanvas = (ref: React.RefObject<HTMLElement>) => {
    * Since the viewer and XR reference spaces can technically exist without the other,
    * we need to reactively update the core renderer's scenes
    */
-  const { viewerEntity, originEntity, localFloorEntity } = useMutableState(EngineState).value
+  const { viewerEntity, originEntity, localFloorEntity } = useMutableState(ReferenceSpaceState).value
 
   useEffect(() => {
     if (!viewerEntity || !originEntity) return

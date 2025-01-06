@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   Entity,
+  EntityTreeComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -40,11 +41,9 @@ import { Matrix4, Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { assertArray, assertVec } from '../../tests/util/assert'
 import { mockSpatialEngine } from '../../tests/util/mockSpatialEngine'
-import { EngineState } from '../EngineState'
+import { ReferenceSpaceState, TransformComponent } from '../SpatialModule'
 import { Vector3_One } from '../common/constants/MathConstants'
 import { ReferenceSpace, XRState } from '../xr/XRState'
-import { EntityTreeComponent } from './components/EntityTree'
-import { TransformComponent } from './components/TransformComponent'
 import {
   computeAndUpdateWorldOrigin,
   updateWorldOrigin,
@@ -59,7 +58,7 @@ describe('updateWorldOriginFromScenePlacement', () => {
   beforeEach(async () => {
     createEngine()
     mockSpatialEngine()
-    localFloorEntity = getState(EngineState).localFloorEntity
+    localFloorEntity = getState(ReferenceSpaceState).localFloorEntity
 
     for (let id = 0; id < childrenCount; ++id) {
       children[id] = createEntity()
@@ -73,10 +72,10 @@ describe('updateWorldOriginFromScenePlacement', () => {
     return destroyEngine()
   })
 
-  it('should set the value of XRState.worldScale into all components of TransformComponent.scale for all children of EngineState.originEntity', () => {
+  it('should set the value of XRState.worldScale into all components of TransformComponent.scale for all children of ReferenceSpaceState.originEntity', () => {
     const scale = 42
     const Initial = new Vector3().setScalar(scale)
-    const children = getComponent(getState(EngineState).originEntity, EntityTreeComponent).children
+    const children = getComponent(getState(ReferenceSpaceState).originEntity, EntityTreeComponent).children
     for (const child of children) {
       // Set the data as expected
       setComponent(child, TransformComponent, { scale: Initial })
@@ -174,7 +173,7 @@ describe('updateWorldOrigin', () => {
   beforeEach(async () => {
     createEngine()
     mockSpatialEngine()
-    localFloorEntity = getState(EngineState).localFloorEntity
+    localFloorEntity = getState(ReferenceSpaceState).localFloorEntity
   })
 
   afterEach(() => {
@@ -211,7 +210,7 @@ describe.skip('computeAndUpdateWorldOrigin', () => {
   beforeEach(async () => {
     createEngine()
     mockSpatialEngine()
-    localFloorEntity = getState(EngineState).localFloorEntity
+    localFloorEntity = getState(ReferenceSpaceState).localFloorEntity
   })
 
   afterEach(() => {

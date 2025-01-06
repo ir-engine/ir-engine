@@ -26,8 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { defineQuery, defineSystem, Engine } from '@ir-engine/ecs'
 import { defineComponent, getComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 
+import { traverseEntityNode } from '@ir-engine/ecs'
 import { Object3D } from 'three'
-import { traverseEntityNode } from '../../transform/components/EntityTree'
 import { RendererComponent, WebGLRendererSystem } from '../WebGLRendererSystem'
 import { MeshComponent } from './MeshComponent'
 import { ObjectComponent } from './ObjectComponent'

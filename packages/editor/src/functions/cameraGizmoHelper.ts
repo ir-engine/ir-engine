@@ -27,6 +27,7 @@ import { Quaternion, Raycaster, Vector3 } from 'three'
 
 import {
   Entity,
+  EntityTreeComponent,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -40,11 +41,9 @@ import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/I
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 
-import { TransformComponent } from '@ir-engine/spatial'
+import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { Vector3_Forward } from '@ir-engine/spatial/src/common/constants/MathConstants'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { CameraGizmoComponent } from '../classes/gizmo/camera/CameraGizmoComponent'
 import { CameraGizmoVisualComponent } from '../classes/gizmo/camera/CameraGizmoVisualComponent'
 import { cameraGizmo, GizmoMaterial, gizmoMaterialProperties } from '../constants/GizmoPresets'
@@ -99,7 +98,7 @@ export function gizmoUpdate(gizmoEntity) {
 }
 
 export function controlUpdate(gizmoEntity) {
-  const viewerEntity = getState(EngineState).viewerEntity
+  const viewerEntity = getState(ReferenceSpaceState).viewerEntity
   if (!viewerEntity) return
   const sceneRot = getComponent(viewerEntity, TransformComponent).rotation
   const inverse = new Quaternion().copy(sceneRot).invert()
@@ -129,15 +128,21 @@ function pointerDown(gizmoEntity) {
   const inputPointerEntity = InputPointerComponent.getPointersForCamera(cameraGizmoComponent.cameraEntity)[0]
   if (!inputPointerEntity) return
 
-  const focusCenter = getComponent(getState(EngineState).viewerEntity, CameraOrbitComponent).cameraOrbitCenter.clone()
+  const focusCenter = getComponent(
+    getState(ReferenceSpaceState).viewerEntity,
+    CameraOrbitComponent
+  ).cameraOrbitCenter.clone()
   const cameraDistance = focusCenter.distanceTo(
-    getComponent(getState(EngineState).viewerEntity, TransformComponent).position
+    getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent).position
   )
   const direction = new Vector3().fromArray(cameraGizmo[cameraGizmoComponent.axis!][0][1] as Array<number>).normalize()
   const newRotation = new Quaternion().setFromUnitVectors(Vector3_Forward, direction.normalize())
   const newPosition = focusCenter.clone().add(direction.multiplyScalar(-cameraDistance))
 
-  setComponent(getState(EngineState).viewerEntity, TransformComponent, { position: newPosition, rotation: newRotation })
+  setComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent, {
+    position: newPosition,
+    rotation: newRotation
+  })
 }
 
 /*function pointerMove(gizmoEntity) {

@@ -29,6 +29,7 @@ import {
   defineComponent,
   ECSState,
   Entity,
+  EntityTreeComponent,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -45,15 +46,13 @@ import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarC
 import { createUI } from '@ir-engine/engine/src/interaction/functions/createUI'
 import { getState } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent } from '@ir-engine/network'
-import { TransformComponent } from '@ir-engine/spatial'
+import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { inFrustum } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
 import { smootheLerpAlpha } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 import { WebLayer3D } from '@ir-engine/xrui'
 import { useEffect } from 'react'
@@ -121,9 +120,9 @@ const addNameplateUI = (entity: Entity, username: string) => {
 
   nameplateComponent.uiEntity.set(uiEntity)
 
-  setComponent(uiEntity, EntityTreeComponent, { parentEntity: getState(EngineState).originEntity })
+  setComponent(uiEntity, EntityTreeComponent, { parentEntity: getState(ReferenceSpaceState).originEntity })
   setComponent(uiEntity, ComputedTransformComponent, {
-    referenceEntities: [entity, getState(EngineState).viewerEntity],
+    referenceEntities: [entity, getState(ReferenceSpaceState).viewerEntity],
     computeFunction: () => updateNameplateUI(entity)
   })
 
@@ -150,7 +149,7 @@ export const updateNameplateUI = (entity: Entity) => {
   if (!xrui || !xruiTransform) return
 
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-  const fromEntity = selfAvatarEntity ?? getState(EngineState).viewerEntity
+  const fromEntity = selfAvatarEntity ?? getState(ReferenceSpaceState).viewerEntity
   if (!fromEntity) return
 
   getSelfAvatarHeadPosition(fromEntity, _vec3)
@@ -172,7 +171,7 @@ export const updateNameplateUI = (entity: Entity) => {
       avatarTransform?.matrix.elements[14] ?? 0
     )
 
-    const cameraTransform = getComponent(getState(EngineState).viewerEntity, TransformComponent)
+    const cameraTransform = getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
     xruiTransform.rotation.copy(cameraTransform.rotation)
   }
 

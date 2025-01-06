@@ -46,11 +46,11 @@ import { compareDistanceToCamera } from '@ir-engine/spatial/src/transform/compon
 import { TransformSystem } from '@ir-engine/spatial/src/transform/TransformModule'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
+import { traverseEntityNode } from '@ir-engine/ecs'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { traverseEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React from 'react'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { GLTFComponent } from '../../gltf/GLTFComponent'

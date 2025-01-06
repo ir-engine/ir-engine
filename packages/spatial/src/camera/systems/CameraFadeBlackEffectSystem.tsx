@@ -35,7 +35,7 @@ import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { defineActionQueue, defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 
 import React from 'react'
-import { EngineState } from '../../EngineState'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { NameComponent } from '../../common/NameComponent'
 import { createTransitionState } from '../../common/functions/createTransitionState'
 import { addObjectToGroup } from '../../renderer/components/ObjectComponent'
@@ -128,7 +128,7 @@ export const CameraFadeBlackEffectSystem = defineSystem({
   insert: { with: CameraSystem },
   execute,
   reactor: () => {
-    if (!useMutableState(EngineState).viewerEntity.value) return null
+    if (!useMutableState(ReferenceSpaceState).viewerEntity.value) return null
     return <Reactor />
   }
 })

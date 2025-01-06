@@ -29,11 +29,12 @@ import { createEntity, getComponent, removeEntity, setComponent, UUIDComponent }
 import { EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import { useEffect } from 'react'
 import { CameraComponent } from './camera/components/CameraComponent'
 import { NameComponent } from './common/NameComponent'
-import { EngineState } from './EngineState'
 import { InputComponent } from './input/components/InputComponent'
+import { ReferenceSpaceState } from './ReferenceSpaceState'
 import { MeshComponent } from './renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from './renderer/components/ObjectLayerComponent'
 import { SceneComponent } from './renderer/components/SceneComponents'
@@ -41,7 +42,6 @@ import { VisibleComponent } from './renderer/components/VisibleComponent'
 import { ObjectLayers } from './renderer/constants/ObjectLayers'
 import { PerformanceManager } from './renderer/PerformanceState'
 import { RendererComponent } from './renderer/WebGLRendererSystem'
-import { EntityTreeComponent } from './transform/components/EntityTree'
 import { TransformComponent } from './transform/components/TransformComponent'
 
 export const initializeSpatialViewer = (canvas?: HTMLCanvasElement) => {
@@ -67,19 +67,19 @@ export const initializeSpatialViewer = (canvas?: HTMLCanvasElement) => {
     PerformanceManager.buildPerformanceState(getComponent(viewerEntity, RendererComponent))
   }
 
-  getMutableState(EngineState).merge({
+  getMutableState(ReferenceSpaceState).merge({
     viewerEntity
   })
 }
 
 export const destroySpatialViewer = () => {
-  const { viewerEntity } = getState(EngineState)
+  const { viewerEntity } = getState(ReferenceSpaceState)
 
   if (viewerEntity) {
     removeEntity(viewerEntity)
   }
 
-  getMutableState(EngineState).merge({
+  getMutableState(ReferenceSpaceState).merge({
     viewerEntity: UndefinedEntity
   })
 }
@@ -112,14 +112,14 @@ export const initializeSpatialEngine = () => {
   ObjectLayerMaskComponent.setLayer(localFloorEntity, ObjectLayers.Gizmos)
   setComponent(localFloorEntity, MeshComponent, floorHelperMesh)
 
-  getMutableState(EngineState).merge({
+  getMutableState(ReferenceSpaceState).merge({
     originEntity,
     localFloorEntity
   })
 }
 
 export const destroySpatialEngine = () => {
-  const { originEntity, localFloorEntity } = getState(EngineState)
+  const { originEntity, localFloorEntity } = getState(ReferenceSpaceState)
 
   if (localFloorEntity) {
     removeEntity(localFloorEntity)
@@ -128,7 +128,7 @@ export const destroySpatialEngine = () => {
     removeEntity(originEntity)
   }
 
-  getMutableState(EngineState).merge({
+  getMutableState(ReferenceSpaceState).merge({
     originEntity: UndefinedEntity,
     localFloorEntity: UndefinedEntity
   })

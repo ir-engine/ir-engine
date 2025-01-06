@@ -27,6 +27,7 @@ import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, Line, LineBasicMaterial, MeshBasicMaterial, Vector3 } from 'three'
 
 import {
+  EntityTreeComponent,
   createEntity,
   defineComponent,
   removeEntity,
@@ -39,7 +40,6 @@ import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/Obje
 import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { SplineComponent } from '../SplineComponent'

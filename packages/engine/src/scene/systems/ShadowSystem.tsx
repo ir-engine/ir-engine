@@ -72,16 +72,16 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { CSM } from '@ir-engine/spatial/src/renderer/csm/CSM'
 //import { CSMHelper } from '@ir-engine/spatial/src/renderer/csm/CSMHelper'
+import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/ecs'
 import { getShadowsEnabled, useShadowsEnabled } from '@ir-engine/spatial/src/renderer/functions/RenderSettingsFunction'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { compareDistanceToCamera } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
-import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { XRLightProbeState } from '@ir-engine/spatial/src/xr/XRLightProbeSystem'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { RenderModes } from '@ir-engine/spatial/src/renderer/constants/RenderModes'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
 import { createDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
@@ -233,7 +233,7 @@ function RenderSettingsQueryReactor() {
   /**
    * @todo Currently we only have support for CSM for the core renderer, since we need to add proper multi-scene support via spatial volumes.
    */
-  const viewerEntity = useHookstate(getMutableState(EngineState).viewerEntity).value
+  const viewerEntity = useHookstate(getMutableState(ReferenceSpaceState).viewerEntity).value
 
   if (!rendererEntity || rendererEntity !== viewerEntity) return null
   if (renderMode === RenderModes.UNLIT || renderMode === RenderModes.LIT) return null

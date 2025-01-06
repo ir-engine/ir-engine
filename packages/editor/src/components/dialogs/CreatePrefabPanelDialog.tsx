@@ -30,12 +30,15 @@ import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import {
   Component,
   Entity,
+  EntityTreeComponent,
   EntityUUID,
   UUIDComponent,
   createEntity,
   entityExists,
   getComponent,
   hasComponent,
+  iterateEntityNode,
+  removeEntityNodeRecursively,
   setComponent,
   useOptionalComponent
 } from '@ir-engine/ecs'
@@ -50,11 +53,6 @@ import { DirectionalLightComponent, HemisphereLightComponent, TransformComponent
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
-import {
-  EntityTreeComponent,
-  iterateEntityNode,
-  removeEntityNodeRecursively
-} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { Button, Input } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React, { useEffect } from 'react'

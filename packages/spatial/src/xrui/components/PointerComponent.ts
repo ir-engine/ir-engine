@@ -35,15 +35,15 @@ import {
   SphereGeometry
 } from 'three'
 
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import { defineComponent, getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { WebContainer3D } from '@ir-engine/xrui'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getState } from '@ir-engine/hyperflux'
-import { EngineState } from '../../EngineState'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { NameComponent } from '../../common/NameComponent'
 import { useAnimationTransition } from '../../common/functions/createTransitionState'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
@@ -133,7 +133,7 @@ export const PointerComponent = defineComponent({
     const entity = createEntity()
     setComponent(entity, PointerComponent, { inputSource })
     setComponent(entity, NameComponent, 'Pointer' + inputSource.handedness)
-    setComponent(entity, EntityTreeComponent, { parentEntity: getState(EngineState).localFloorEntity })
+    setComponent(entity, EntityTreeComponent, { parentEntity: getState(ReferenceSpaceState).localFloorEntity })
     setComponent(entity, ComputedTransformComponent, {
       referenceEntities: [inputSourceEntity],
       computeFunction: () => {

@@ -27,15 +27,16 @@ import {
   createEngine,
   createEntity,
   destroyEngine,
+  EntityTreeComponent,
   generateEntityUUID,
   getComponent,
   getOptionalComponent,
   setComponent,
+  traverseEntityNode,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { applyIncomingActions } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { EntityTreeComponent, traverseEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { render } from '@testing-library/react'
 import React from 'react'
 import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'

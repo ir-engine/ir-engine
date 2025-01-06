@@ -38,7 +38,7 @@ import type * as V0VRM from '@pixiv/types-vrm-0.0'
 import { AnimationAction, Euler, Group, Matrix4, Object3D, Vector3 } from 'three'
 
 import { GLTF } from '@gltf-transform/core'
-import { UUIDComponent } from '@ir-engine/ecs'
+import { EntityTreeComponent, UUIDComponent, iterateEntityNode } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -56,7 +56,6 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
-import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { GLTFDocumentState } from '../../gltf/GLTFDocumentState'
 import { hipsRegex, mixamoVRMRigMap } from '../AvatarBoneMatching'

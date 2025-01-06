@@ -32,6 +32,7 @@ import {
   createEntity,
   destroyEngine,
   Engine,
+  EngineState,
   Entity,
   EntityUUID,
   getMutableComponent,
@@ -44,7 +45,6 @@ import { getMutableState, UserID } from '@ir-engine/hyperflux'
 import { Box3, BoxGeometry, Mesh, Vector3 } from 'three'
 import { assertFloat } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
-import { EngineState } from '../../EngineState'
 import { destroySpatialEngine, destroySpatialViewer } from '../../initializeEngine'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'

@@ -30,6 +30,7 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
+  iterateEntityNode,
   setComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
@@ -37,7 +38,6 @@ import { applyIncomingActions, startReactor } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { act, render } from '@testing-library/react'
 import React from 'react'
 import { AnimationMixer } from 'three'
