@@ -95,7 +95,10 @@ const client = {
     enabled: globalThis.process.env.VITE_ZENDESK_ENABLED,
     authenticationEnabled: globalThis.process.env.VITE_ZENDESK_AUTHENTICATION_ENABLED,
     key: globalThis.process.env.VITE_ZENDESK_KEY
-  }
+  },
+  maxFileSizeToUpload: globalThis.process.env.VITE_MAX_FILE_SIZE_TO_UPLOAD_MB
+    ? parseInt(globalThis.process.env.VITE_MAX_FILE_SIZE_TO_UPLOAD_MB, 10) * 1024 * 1024
+    : 1000 * 1024 * 1024 // 1000 MB or 1GB
 }
 
 /**

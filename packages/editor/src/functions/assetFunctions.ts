@@ -30,6 +30,7 @@ import {
   uploadToFeathersService
 } from '@ir-engine/client-core/src/util/upload'
 import { API } from '@ir-engine/common'
+import config from '@ir-engine/common/src/config'
 import {
   assetLibraryPath,
   fileBrowserPath,
@@ -43,7 +44,7 @@ import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { getMutableState } from '@ir-engine/hyperflux'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
-import { t } from 'i18next'
+import i18n from 'i18next'
 import { showMultipleFileModal } from '../panels/files/toolbar'
 import { ImportSettingsState } from '../services/ImportSettingsState'
 
@@ -214,7 +215,7 @@ export const handleUploadFiles = (projectName: string, directoryPath: string, fi
           }
         ]
       }).promise.catch(() => {
-        NotificationService.dispatchNotify(t('editor:errors.fileUploadFailed') as string, { variant: 'error' })
+        NotificationService.dispatchNotify(i18n.t('editor:errors.fileUploadFailed') as string, { variant: 'error' })
       })
     })
   )
@@ -246,10 +247,21 @@ export const inputFileWithAddToScene = ({
     el.onchange = async () => {
       try {
         if (el.files?.length) {
-          const newFiles = sanitizeFiles(el.files)
-          const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
+          const validFiles = Array.from(el.files).filter((file) => file.size <= config.client.maxFileSizeToUpload)
 
-          await handleUploadFiles(projectName, directoryPath, uniqueFiles)
+          if (validFiles.length > 0) {
+            const newFiles = sanitizeFiles(el.files)
+            const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
+
+            await handleUploadFiles(projectName, directoryPath, uniqueFiles)
+          } else {
+            const maxFileSizeToUploadMB = config.client.maxFileSizeToUpload / (1024 * 1024)
+            NotificationService.dispatchNotify(
+              i18n.t('editor:errors.maxUploadFileWeightExceed', { maxFileSizeToUploadMB }) as string,
+              { variant: 'warning' }
+            )
+            return
+          }
         }
         resolve(null)
         API.instance.service(fileBrowserPath).emit('created')
