@@ -24,31 +24,23 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { strictEqual } from 'assert'
-import { Quaternion, Vector3 } from 'three'
+import { Types } from 'bitecs'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
-import { setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { createEngine, destroyEngine, Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { getMutableState, getState, PeerID, UserID } from '@ir-engine/hyperflux'
 import { NetworkId } from '@ir-engine/network/src/NetworkId'
-import { TransformComponent } from '@ir-engine/spatial'
-import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
-import {
-  readRotation,
-  TransformSerialization,
-  writePosition,
-  writeTransform
-} from '@ir-engine/spatial/src/transform/TransformSerialization'
 
 import { createMockNetwork } from '../../tests/createMockNetwork'
 import { roundNumberToPlaces } from '../../tests/MathTestUtils'
 import { Network, NetworkTopics } from '../Network'
 import { NetworkObjectComponent, NetworkObjectSendPeriodicUpdatesTag } from '../NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'
-import { readCompressedRotation, readCompressedVector3 } from './DataReader'
+import { checkBitflag, readCompressedRotation, readCompressedVector3, readVector3, readVector4 } from './DataReader'
 import {
   createDataWriter,
   writeComponent,
@@ -56,17 +48,64 @@ import {
   writeCompressedVector3,
   writeEntities,
   writeEntity,
-  writeVector3
+  writeVector3,
+  writeVector4
 } from './DataWriter'
-import { createViewCursor, readFloat64, readUint32, readUint8, sliceViewCursor } from './ViewCursor'
+import {
+  createViewCursor,
+  readFloat64,
+  readUint32,
+  readUint8,
+  rewindViewCursor,
+  sliceViewCursor,
+  spaceUint8,
+  ViewCursor
+} from './ViewCursor'
+
+const { f64 } = Types
+
+const MockPoseComponent = defineComponent({
+  name: 'MockPoseComponent_Writer',
+  schema: {
+    Vec3: { x: f64, y: f64, z: f64 },
+    Quat: { x: f64, y: f64, z: f64, w: f64 }
+  }
+})
+
+const readPosition = readVector3(MockPoseComponent.Vec3)
+const writePosition = writeVector3(MockPoseComponent.Vec3)
+const readRotation = readVector4(MockPoseComponent.Quat)
+const writeRotation = writeVector4(MockPoseComponent.Quat)
 
 describe('DataWriter', () => {
   beforeEach(() => {
     createEngine()
     createMockNetwork(NetworkTopics.world, 'host peer id' as PeerID, 'host user id' as UserID)
-    getMutableState(NetworkState).networkSchema[TransformSerialization.ID].set({
-      read: TransformSerialization.readTransform,
-      write: TransformSerialization.writeTransform
+
+    getMutableState(NetworkState).networkSchema.merge({
+      mock: {
+        read: (v: ViewCursor, entity: Entity) => {
+          const changeMask = readUint8(v)
+          let b = 0
+          if (checkBitflag(changeMask, 1 << b++)) readPosition(v, entity)
+          if (checkBitflag(changeMask, 1 << b++)) readRotation(v, entity)
+        },
+        write: (v: ViewCursor, entity: Entity) => {
+          const rewind = rewindViewCursor(v)
+          const writeChangeMask = spaceUint8(v)
+          let changeMask = 0
+          let b = 0
+
+          const ignoreHasChanged =
+            hasComponent(entity, NetworkObjectSendPeriodicUpdatesTag) &&
+            Math.round(getState(ECSState).simulationTime % getState(ECSState).periodicUpdateFrequency) === 0
+
+          changeMask |= writePosition(v, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
+          changeMask |= writeRotation(v, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
+
+          return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
+        }
+      }
     })
     const ecsState = getMutableState(ECSState)
     ecsState.simulationTime.set(1)
@@ -81,11 +120,11 @@ describe('DataWriter', () => {
     const entity = createEntity()
 
     const [x, y, z] = [1.5, 2.5, 3.5]
-    TransformComponent.position.x[entity] = x
-    TransformComponent.position.y[entity] = y
-    TransformComponent.position.z[entity] = z
+    MockPoseComponent.Vec3.x[entity] = x
+    MockPoseComponent.Vec3.y[entity] = y
+    MockPoseComponent.Vec3.z[entity] = z
 
-    const writePosition = writeComponent(TransformComponent.position)
+    const writePosition = writeComponent(MockPoseComponent.Vec3)
 
     writePosition(writeView, entity)
 
@@ -100,8 +139,8 @@ describe('DataWriter', () => {
 
     sliceViewCursor(writeView)
 
-    TransformComponent.position.x[entity]++
-    TransformComponent.position.z[entity]++
+    MockPoseComponent.Vec3.x[entity]++
+    MockPoseComponent.Vec3.z[entity]++
 
     writePosition(writeView, entity)
 
@@ -119,11 +158,11 @@ describe('DataWriter', () => {
     const entity = createEntity()
 
     const [x, y, z] = [1.5, 2.5, 3.5]
-    TransformComponent.position.x[entity] = x
-    TransformComponent.position.y[entity] = y
-    TransformComponent.position.z[entity] = z
+    MockPoseComponent.Vec3.x[entity] = x
+    MockPoseComponent.Vec3.y[entity] = y
+    MockPoseComponent.Vec3.z[entity] = z
 
-    writeVector3(TransformComponent.position)(writeView, entity)
+    writeVector3(MockPoseComponent.Vec3)(writeView, entity)
 
     const testView = createViewCursor(writeView.buffer)
 
@@ -136,10 +175,10 @@ describe('DataWriter', () => {
 
     sliceViewCursor(writeView)
 
-    TransformComponent.position.x[entity]++
-    TransformComponent.position.z[entity]++
+    MockPoseComponent.Vec3.x[entity]++
+    MockPoseComponent.Vec3.z[entity]++
 
-    writeVector3(TransformComponent.position)(writeView, entity)
+    writeVector3(MockPoseComponent.Vec3)(writeView, entity)
 
     const readView = createViewCursor(writeView.buffer)
 
@@ -155,9 +194,9 @@ describe('DataWriter', () => {
     const entity = createEntity()
 
     const [x, y, z] = [1.5, 2.5, 3.5]
-    TransformComponent.position.x[entity] = x
-    TransformComponent.position.y[entity] = y
-    TransformComponent.position.z[entity] = z
+    MockPoseComponent.Vec3.x[entity] = x
+    MockPoseComponent.Vec3.y[entity] = y
+    MockPoseComponent.Vec3.z[entity] = z
 
     writePosition(writeView, entity)
 
@@ -181,23 +220,23 @@ describe('DataWriter', () => {
     let d = Math.sqrt(1 - (a * a + b * b + c * c))
 
     const [x, y, z, w] = [a, b, c, d]
-    TransformComponent.rotation.x[entity] = x
-    TransformComponent.rotation.y[entity] = y
-    TransformComponent.rotation.z[entity] = z
-    TransformComponent.rotation.w[entity] = w
+    MockPoseComponent.Quat.x[entity] = x
+    MockPoseComponent.Quat.y[entity] = y
+    MockPoseComponent.Quat.z[entity] = z
+    MockPoseComponent.Quat.w[entity] = w
 
-    writeCompressedRotation(TransformComponent.rotation)(writeView, entity)
+    writeCompressedRotation(MockPoseComponent.Quat)(writeView, entity)
 
     const readView = createViewCursor(writeView.buffer)
-    readCompressedRotation(TransformComponent.rotation)(readView, entity)
+    readCompressedRotation(MockPoseComponent.Quat)(readView, entity)
 
     strictEqual(readView.cursor, Uint8Array.BYTES_PER_ELEMENT + Uint32Array.BYTES_PER_ELEMENT)
 
     // Round values to 3 decimal places and compare
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(x, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(y, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(z, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(w, 3))
+    strictEqual(roundNumberToPlaces(MockPoseComponent.Quat.x[entity], 3), roundNumberToPlaces(x, 3))
+    strictEqual(roundNumberToPlaces(MockPoseComponent.Quat.y[entity], 3), roundNumberToPlaces(y, 3))
+    strictEqual(roundNumberToPlaces(MockPoseComponent.Quat.z[entity], 3), roundNumberToPlaces(z, 3))
+    strictEqual(roundNumberToPlaces(MockPoseComponent.Quat.w[entity], 3), roundNumberToPlaces(w, 3))
   })
 
   it('should writeCompressedVector3', () => {
@@ -206,64 +245,21 @@ describe('DataWriter', () => {
     setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
 
     const [x, y, z] = [1.333, 2.333, 3.333]
-    RigidBodyComponent.linearVelocity.x[entity] = x
-    RigidBodyComponent.linearVelocity.y[entity] = y
-    RigidBodyComponent.linearVelocity.z[entity] = z
+    MockPoseComponent.Vec3.x[entity] = x
+    MockPoseComponent.Vec3.y[entity] = y
+    MockPoseComponent.Vec3.z[entity] = z
 
-    writeCompressedVector3(RigidBodyComponent.linearVelocity)(writeView, entity)
+    writeCompressedVector3(MockPoseComponent.Vec3)(writeView, entity)
 
     const readView = createViewCursor(writeView.buffer)
-    readCompressedVector3(RigidBodyComponent.linearVelocity)(readView, entity)
+    readCompressedVector3(MockPoseComponent.Vec3)(readView, entity)
 
     strictEqual(readView.cursor, Uint8Array.BYTES_PER_ELEMENT + Uint32Array.BYTES_PER_ELEMENT)
 
     // Round values and compare
-    strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.x[entity], 1), roundNumberToPlaces(x, 1))
-    strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.y[entity], 1), roundNumberToPlaces(y, 1))
-    strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.z[entity], 1), roundNumberToPlaces(z, 1))
-  })
-
-  it('should writeTransform', () => {
-    const writeView = createViewCursor()
-    const entity = createEntity()
-
-    // construct values for a valid quaternion
-    const [a, b, c] = [0.167, 0.167, 0.167]
-    let d = Math.sqrt(1 - (a * a + b * b + c * c))
-
-    const [posX, posY, posZ] = [1.5, 2.5, 3.5]
-    const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
-
-    setComponent(entity, TransformComponent, {
-      position: new Vector3().set(posX, posY, posZ),
-      rotation: new Quaternion().set(rotX, rotY, rotZ, rotW),
-      scale: new Vector3(1, 1, 1)
-    })
-
-    writeTransform(writeView, entity)
-
-    const readView = createViewCursor(writeView.buffer)
-
-    strictEqual(
-      writeView.cursor,
-      3 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT + 4 * Float64Array.BYTES_PER_ELEMENT
-    )
-
-    strictEqual(readUint8(readView), 0b11)
-
-    strictEqual(readUint8(readView), 0b111)
-
-    strictEqual(readFloat64(readView), posX)
-    strictEqual(readFloat64(readView), posY)
-    strictEqual(readFloat64(readView), posZ)
-
-    readRotation(readView, entity)
-
-    // Round values to 3 decimal places and compare
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
+    strictEqual(roundNumberToPlaces(MockPoseComponent.Vec3.x[entity], 1), roundNumberToPlaces(x, 1))
+    strictEqual(roundNumberToPlaces(MockPoseComponent.Vec3.y[entity], 1), roundNumberToPlaces(y, 1))
+    strictEqual(roundNumberToPlaces(MockPoseComponent.Vec3.z[entity], 1), roundNumberToPlaces(z, 1))
   })
 
   // it('should writeXRHands', () => {
@@ -351,10 +347,10 @@ describe('DataWriter', () => {
   //         readRotation(readView, entity)
 
   //         // Round values to 3 decimal places and compare
-  //         strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
-  //         strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
-  //         strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
-  //         strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
+  //         strictEqual(roundNumberToPlaces(MockPoseComponent.Quat.x[entity], 3), roundNumberToPlaces(rotX, 3))
+  //         strictEqual(roundNumberToPlaces(MockPoseComponent.Quat.y[entity], 3), roundNumberToPlaces(rotY, 3))
+  //         strictEqual(roundNumberToPlaces(MockPoseComponent.Quat.z[entity], 3), roundNumberToPlaces(rotZ, 3))
+  //         strictEqual(roundNumberToPlaces(MockPoseComponent.Quat.w[entity], 3), roundNumberToPlaces(rotW, 3))
   //       })
   //     })
   //   })
@@ -376,11 +372,13 @@ describe('DataWriter', () => {
     const [posX, posY, posZ] = [1.5, 2.5, 3.5]
     const [rotX, rotY, rotZ, rotW] = [a, b, c, d]
 
-    setComponent(entity, TransformComponent, {
-      position: new Vector3().set(posX, posY, posZ),
-      rotation: new Quaternion().set(rotX, rotY, rotZ, rotW),
-      scale: new Vector3(1, 1, 1)
-    })
+    MockPoseComponent.Vec3.x[entity] = posX
+    MockPoseComponent.Vec3.y[entity] = posY
+    MockPoseComponent.Vec3.z[entity] = posZ
+    MockPoseComponent.Quat.x[entity] = rotX
+    MockPoseComponent.Quat.y[entity] = rotY
+    MockPoseComponent.Quat.z[entity] = rotZ
+    MockPoseComponent.Quat.w[entity] = rotW
 
     setComponent(entity, NetworkObjectComponent, {
       networkId,
@@ -427,10 +425,10 @@ describe('DataWriter', () => {
     readRotation(readView, entity)
 
     // Round values to 3 decimal places and compare
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(rotX, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(rotY, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(rotZ, 3))
-    strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(rotW, 3))
+    strictEqual(roundNumberToPlaces(MockPoseComponent.Quat.x[entity], 3), roundNumberToPlaces(rotX, 3))
+    strictEqual(roundNumberToPlaces(MockPoseComponent.Quat.y[entity], 3), roundNumberToPlaces(rotY, 3))
+    strictEqual(roundNumberToPlaces(MockPoseComponent.Quat.z[entity], 3), roundNumberToPlaces(rotZ, 3))
+    strictEqual(roundNumberToPlaces(MockPoseComponent.Quat.w[entity], 3), roundNumberToPlaces(rotW, 3))
   })
 
   it('should writeEntities', () => {
@@ -457,11 +455,15 @@ describe('DataWriter', () => {
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
       NetworkObjectComponent.networkId[entity] = networkId
-      setComponent(entity, TransformComponent, {
-        position: new Vector3().set(posX, posY, posZ),
-        rotation: new Quaternion().set(rotX, rotY, rotZ, rotW),
-        scale: new Vector3(1, 1, 1)
-      })
+
+      MockPoseComponent.Vec3.x[entity] = posX
+      MockPoseComponent.Vec3.y[entity] = posY
+      MockPoseComponent.Vec3.z[entity] = posZ
+      MockPoseComponent.Quat.x[entity] = rotX
+      MockPoseComponent.Quat.y[entity] = rotY
+      MockPoseComponent.Quat.z[entity] = rotZ
+      MockPoseComponent.Quat.w[entity] = rotW
+
       setComponent(entity, NetworkObjectComponent, {
         networkId,
         ownerPeer: peerID,
@@ -514,10 +516,10 @@ describe('DataWriter', () => {
       readRotation(readView, entities[i])
 
       // Round values to 3 decimal places and compare
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entities[i]], 3), roundNumberToPlaces(rotX, 3))
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entities[i]], 3), roundNumberToPlaces(rotY, 3))
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entities[i]], 3), roundNumberToPlaces(rotZ, 3))
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entities[i]], 3), roundNumberToPlaces(rotW, 3))
+      strictEqual(roundNumberToPlaces(MockPoseComponent.Quat.x[entities[i]], 3), roundNumberToPlaces(rotX, 3))
+      strictEqual(roundNumberToPlaces(MockPoseComponent.Quat.y[entities[i]], 3), roundNumberToPlaces(rotY, 3))
+      strictEqual(roundNumberToPlaces(MockPoseComponent.Quat.z[entities[i]], 3), roundNumberToPlaces(rotZ, 3))
+      strictEqual(roundNumberToPlaces(MockPoseComponent.Quat.w[entities[i]], 3), roundNumberToPlaces(rotW, 3))
     }
   })
 
@@ -549,11 +551,13 @@ describe('DataWriter', () => {
       const networkId = entity as unknown as NetworkId
       NetworkObjectComponent.networkId[entity] = networkId
 
-      setComponent(entity, TransformComponent, {
-        position: new Vector3().set(posX, posY, posZ),
-        rotation: new Quaternion().set(rotX, rotY, rotZ, rotW),
-        scale: new Vector3(1, 1, 1)
-      })
+      MockPoseComponent.Vec3.x[entity] = posX
+      MockPoseComponent.Vec3.y[entity] = posY
+      MockPoseComponent.Vec3.z[entity] = posZ
+      MockPoseComponent.Quat.x[entity] = rotX
+      MockPoseComponent.Quat.y[entity] = rotY
+      MockPoseComponent.Quat.z[entity] = rotZ
+      MockPoseComponent.Quat.w[entity] = rotW
 
       setComponent(entity, NetworkObjectComponent, {
         networkId,
@@ -609,10 +613,10 @@ describe('DataWriter', () => {
       readRotation(readView, entities[i])
 
       // Round values to 3 decimal places and compare
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entities[i]], 3), roundNumberToPlaces(rotX, 3))
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entities[i]], 3), roundNumberToPlaces(rotY, 3))
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entities[i]], 3), roundNumberToPlaces(rotZ, 3))
-      strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entities[i]], 3), roundNumberToPlaces(rotW, 3))
+      strictEqual(roundNumberToPlaces(MockPoseComponent.Quat.x[entities[i]], 3), roundNumberToPlaces(rotX, 3))
+      strictEqual(roundNumberToPlaces(MockPoseComponent.Quat.y[entities[i]], 3), roundNumberToPlaces(rotY, 3))
+      strictEqual(roundNumberToPlaces(MockPoseComponent.Quat.z[entities[i]], 3), roundNumberToPlaces(rotZ, 3))
+      strictEqual(roundNumberToPlaces(MockPoseComponent.Quat.w[entities[i]], 3), roundNumberToPlaces(rotW, 3))
     }
   })
 })

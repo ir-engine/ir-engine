@@ -38,11 +38,11 @@ import {
   PlaneGeometry
 } from 'three'
 
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { NameComponent } from '../../common/NameComponent'
 import { addObjectToGroup, ObjectComponent } from '../../renderer/components/ObjectComponent'

@@ -44,7 +44,7 @@ import { defineState, getMutableState, getState, NO_PROXY } from '@ir-engine/hyp
 
 import { createAnimationLoop, ECSState } from '@ir-engine/ecs'
 import { CameraComponent } from '../camera/components/CameraComponent'
-import { EngineState } from '../EngineState'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { XRState } from './XRState'
 
 // augment PerspectiveCamera
@@ -148,7 +148,7 @@ function getEnvironmentBlendMode() {
  * @description Member function of the {@link WebXRManager} class-like object
  * */
 function getCamera() {
-  return getComponent(getState(EngineState).viewerEntity, CameraComponent)
+  return getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent)
 }
 
 /**

@@ -25,9 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { GLTF } from '@gltf-transform/core'
 import {
+  EntityTreeComponent,
   UUIDComponent,
   createEntity,
   generateEntityUUID,
+  getChildrenWithComponents,
   getComponent,
   getOptionalComponent,
   hasComponent,
@@ -38,15 +40,14 @@ import { applyIncomingActions, getMutableState, getState } from '@ir-engine/hype
 import { DirectionalLightComponent, PointLightComponent, SpotLightComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { RapierWorldState } from '@ir-engine/spatial/src/physics/classes/Physics'
-import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent.ts'
+import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent.ts'
+import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { EntityTreeComponent, getChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React from 'react'
@@ -55,7 +56,7 @@ import { InstancedMesh, MathUtils, MeshStandardMaterial } from 'three'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { overrideFileLoaderLoad } from '../../tests/util/loadGLTFAssetNode'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
-import { AnimationComponent } from '../avatar/components/AnimationComponent.ts'
+import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { GLTFComponent } from './GLTFComponent'
 import { GLTFDocumentState } from './GLTFDocumentState'
 import { KHRUnlitExtensionComponent, MaterialDefinitionComponent } from './MaterialDefinitionComponent'

@@ -26,7 +26,13 @@ Infinite Reality Engine. All Rights Reserved.
 import { Intersection, Raycaster, Vector2 } from 'three'
 
 import { getContentType } from '@ir-engine/common/src/utils/getContentType'
-import { generateEntityUUID, UUIDComponent } from '@ir-engine/ecs'
+import {
+  generateEntityUUID,
+  iterateEntityNode,
+  removeEntityNodeRecursively,
+  useChildWithComponents,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import { getOptionalComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
@@ -47,11 +53,6 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { assignMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import {
-  iterateEntityNode,
-  removeEntityNodeRecursively,
-  useChildWithComponents
-} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'

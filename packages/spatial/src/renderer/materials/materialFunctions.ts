@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { isArray } from 'lodash'
 import { Color, Material, Mesh, Texture } from 'three'
 
 import {
@@ -112,7 +111,7 @@ export const setMeshMaterial = (groupEntity: Entity, newMaterialUUIDs: EntityUUI
   if (newMaterialUUIDs.length === 0) return
 
   const mesh = getComponent(groupEntity, MeshComponent) as Mesh
-  if (!isArray(mesh.material)) mesh.material = getMaterial(newMaterialUUIDs[0])
+  if (!Array.isArray(mesh.material)) mesh.material = getMaterial(newMaterialUUIDs[0])
   else
     for (let i = 0; i < (mesh.material as Material[]).length; i++) mesh.material[i] = getMaterial(newMaterialUUIDs[i])
 }

@@ -28,7 +28,7 @@ import { useLayoutEffect } from 'react'
 import { Mesh } from 'three'
 import matches from 'ts-matches'
 
-import { EntityUUID } from '@ir-engine/ecs'
+import { EntityUUID, iterateEntityNode, useChildWithComponents } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -53,7 +53,6 @@ import {
 } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
-import { iterateEntityNode, useChildWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 

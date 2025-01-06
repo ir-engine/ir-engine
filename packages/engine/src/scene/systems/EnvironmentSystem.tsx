@@ -29,14 +29,15 @@ import {
   defineSystem,
   Entity,
   getComponent,
+  haveCommonAncestor,
   PresentationSystemGroup,
   QueryReactor,
+  useChildrenWithComponents,
   useComponent,
   useEntityContext,
   useOptionalComponent
 } from '@ir-engine/ecs'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { haveCommonAncestor, useChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'

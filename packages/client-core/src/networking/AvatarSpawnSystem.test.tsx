@@ -29,7 +29,9 @@ import { API } from '@ir-engine/common'
 import { avatarPath, staticResourcePath, userAvatarPath } from '@ir-engine/common/src/schema.type.module'
 import {
   Engine,
+  EngineState,
   Entity,
+  EntityTreeComponent,
   SystemDefinitions,
   UUIDComponent,
   createEntity,
@@ -51,9 +53,7 @@ import {
 } from '@ir-engine/hyperflux'
 import { NetworkActions, NetworkState, NetworkTopics } from '@ir-engine/network'
 import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { SpectateActions } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { act, render } from '@testing-library/react'
 import React from 'react'
 import { Cache } from 'three'

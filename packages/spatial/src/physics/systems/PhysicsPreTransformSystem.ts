@@ -29,12 +29,8 @@ import { defineQuery, defineSystem, Entity, getComponent } from '@ir-engine/ecs'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { getState } from '@ir-engine/hyperflux'
 
+import { EntityTreeComponent, getAncestorWithComponents, iterateEntityNode } from '@ir-engine/ecs'
 import { Vector3_One, Vector3_Zero } from '../../common/constants/MathConstants'
-import {
-  EntityTreeComponent,
-  getAncestorWithComponents,
-  iterateEntityNode
-} from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix, isDirty, TransformDirtyUpdateSystem } from '../../transform/systems/TransformSystem'
 import { Physics } from '../classes/Physics'

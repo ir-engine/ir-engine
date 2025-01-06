@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   Entity,
+  EntityTreeComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -48,7 +49,6 @@ import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { BoundingBoxComponent, BoundingBoxComponentFunctions, updateBoundingBox } from './BoundingBoxComponents'
-import { EntityTreeComponent } from './EntityTree'
 import { TransformComponent } from './TransformComponent'
 
 function createEntityWithBoxAndParent(parent: Entity): Entity {

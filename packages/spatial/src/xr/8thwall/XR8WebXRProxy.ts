@@ -28,7 +28,7 @@ import { EventDispatcher, Matrix4, Quaternion, Vector3 } from 'three'
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { getState } from '@ir-engine/hyperflux'
 
-import { EngineState } from '../../EngineState'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Vector3_One } from '../../common/constants/MathConstants'
 import { XRState } from '../XRState'
@@ -48,7 +48,7 @@ export class XRView {
 
   constructor(transform: XRRigidTransform) {
     this.transform = transform
-    const camera = getComponent(getState(EngineState).viewerEntity, CameraComponent)
+    const camera = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent)
     this.projectionMatrix = camera.projectionMatrix.toArray()
   }
 }

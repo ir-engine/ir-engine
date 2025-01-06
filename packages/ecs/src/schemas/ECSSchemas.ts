@@ -31,3 +31,26 @@ export const ECSSchema = {
   Quaternion: { x: f64, y: f64, z: f64, w: f64 },
   Mat4: [f64, 16] as const
 }
+
+const { defineProperties } = Object
+
+export const ProxyWithECS = <T>(store: Record<string | keyof T, any>, obj: T, ...keys: (keyof T)[]) => {
+  return defineProperties(
+    obj,
+    keys.reduce(
+      (accum, key) => {
+        accum[key] = {
+          get() {
+            return store[key]
+          },
+          set(n) {
+            return (store[key] = n)
+          },
+          configurable: true
+        }
+        return accum
+      },
+      {} as Record<keyof T, any>
+    )
+  )
+}

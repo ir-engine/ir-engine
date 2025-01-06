@@ -27,7 +27,7 @@ import { viteCommonjs } from '@originjs/vite-plugin-commonjs'
 import packageRoot from 'app-root-path'
 import dotenv from 'dotenv'
 import fs, { readFileSync, writeFileSync } from 'fs'
-import { isArray, mergeWith } from 'lodash'
+import { mergeWith } from 'lodash'
 import path from 'path'
 import { UserConfig, defineConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression2'
@@ -111,7 +111,7 @@ const parseModuleName = (moduleName: string) => {
 
 const merge = (src, dest) =>
   mergeWith({}, src, dest, function (a, b) {
-    if (isArray(a)) {
+    if (Array.isArray(a)) {
       return b.concat(a)
     }
   })

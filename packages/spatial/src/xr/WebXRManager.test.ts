@@ -46,7 +46,7 @@ import {
   WebGLRenderTarget,
   WebGLRenderer
 } from 'three'
-import { EngineState } from '../EngineState'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { RendererComponent } from '../renderer/WebGLRendererSystem'
 import { WebXRManager, WebXRManagerFunctions, XRRendererState, createWebXRManager } from './WebXRManager'
@@ -126,7 +126,7 @@ describe('WebXRManagerFunctions', () => {
     beforeEach(async () => {
       createEngine()
       await mockEmulatedXREngine()
-      renderer = getComponent(getState(EngineState).viewerEntity, RendererComponent).renderer
+      renderer = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer
     })
 
     afterEach(() => {
@@ -306,7 +306,7 @@ describe('WebXRManagerFunctions', () => {
     beforeEach(async () => {
       createEngine()
       await mockEmulatedXREngine()
-      renderer = getComponent(getState(EngineState).viewerEntity, RendererComponent).renderer
+      renderer = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer
     })
 
     afterEach(() => {
@@ -772,8 +772,8 @@ describe('WebXRManagerFunctions', () => {
       destroyEngine()
     })
 
-    it('should return the CameraComponent of EngineState.viewerEntity', () => {
-      const Expected = getComponent(getState(EngineState).viewerEntity, CameraComponent)
+    it('should return the CameraComponent of ReferenceSpaceState.viewerEntity', () => {
+      const Expected = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent)
       // Sanity check before running
       expect(() => WebXRManagerFunctions.getCamera()).does.not.throw()
       // Run and Check the result
@@ -1936,7 +1936,7 @@ describe('createWebXRManager', () => {
   beforeEach(async () => {
     createEngine()
     await mockEmulatedXREngine()
-    renderer = getComponent(getState(EngineState).viewerEntity, RendererComponent).renderer
+    renderer = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer
   })
 
   afterEach(() => {

@@ -30,6 +30,7 @@ import { MathUtils } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 
 import {
+  EntityTreeComponent,
   EntityUUID,
   UUIDComponent,
   UndefinedEntity,
@@ -44,9 +45,8 @@ import { noiseAddToEffectRegistry } from '@ir-engine/engine/src/postprocessing/N
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { Effect } from 'postprocessing'
-import { EngineState } from '../../EngineState'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { destroySpatialEngine, initializeSpatialEngine } from '../../initializeEngine'
 import { RendererState } from '../RendererState'
 import { PostProcessingComponent } from './PostProcessingComponent'
@@ -233,7 +233,7 @@ describe('PostProcessingComponent', async () => {
 
       mockSpatialEngine()
 
-      rootEntity = getState(EngineState).viewerEntity
+      rootEntity = getState(ReferenceSpaceState).viewerEntity
 
       testEntity = createEntity()
       setComponent(testEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)

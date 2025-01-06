@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createHookableFunction, dispatchAction, getMutableState, getState } from '@ir-engine/hyperflux'
 
-import { EngineState } from '../EngineState'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { Vector3_One, Vector3_Zero } from '../common/constants/MathConstants'
 import { isSafari } from '../common/functions/isMobile'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -44,21 +44,21 @@ export const onSessionEnd = () => {
 
   xrState.xrFrame.set(null)
 
-  const renderer = getComponent(getState(EngineState).viewerEntity, RendererComponent)
+  const renderer = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)
   renderer.renderer!.domElement.style.display = ''
   renderer.needsResize = true
 
-  const originTransform = getComponent(getState(EngineState).originEntity, TransformComponent)
+  const originTransform = getComponent(getState(ReferenceSpaceState).originEntity, TransformComponent)
   originTransform.position.copy(Vector3_Zero)
   originTransform.rotation.identity()
   originTransform.scale.copy(Vector3_One)
 
-  const localFloorTransform = getComponent(getState(EngineState).localFloorEntity, TransformComponent)
+  const localFloorTransform = getComponent(getState(ReferenceSpaceState).localFloorEntity, TransformComponent)
   localFloorTransform.position.copy(Vector3_Zero)
   localFloorTransform.rotation.identity()
   localFloorTransform.scale.copy(Vector3_One)
 
-  const viewerTransform = getComponent(getState(EngineState).viewerEntity, TransformComponent)
+  const viewerTransform = getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
   viewerTransform.scale.copy(Vector3_One)
 
   ReferenceSpace.origin = null
@@ -72,7 +72,7 @@ export const onSessionEnd = () => {
 
 export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' | 'immersive-vr') => {
   const xrState = getMutableState(XRState)
-  const xrManager = getComponent(getState(EngineState).viewerEntity, RendererComponent).xrManager
+  const xrManager = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).xrManager
 
   // @todo - hack to detect nreal
   const params = new URL(document.location.href).searchParams
@@ -131,7 +131,8 @@ export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' |
   /** Hide the canvas - do not do this for the WebXR emulator */
   /** @todo currently, XRSession.visibilityState is undefined in the webxr emulator - we need a better check*/
   if (typeof xrSession.visibilityState === 'string') {
-    getComponent(getState(EngineState).viewerEntity, RendererComponent).renderer!.domElement.style.display = 'none'
+    getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer!.domElement.style.display =
+      'none'
   }
 
   xrState.session.set(xrSession)

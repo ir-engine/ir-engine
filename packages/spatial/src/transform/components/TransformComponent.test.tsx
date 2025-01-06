@@ -39,12 +39,12 @@ import { createEngine } from '@ir-engine/ecs/src/Engine'
 import assert from 'assert'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
+import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/ecs'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 import { assertArray, assertFloat, assertVec } from '../../../tests/util/assert'
 import { Axis, PI, Vector3_One, Vector3_Zero } from '../../common/constants/MathConstants'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { TransformDirtyUpdateSystem } from '../systems/TransformSystem'
-import { EntityTreeComponent, getAncestorWithComponents } from './EntityTree'
 import {
   TransformComponent,
   TransformECS,

@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
-import { entityExists, UUIDComponent } from '@ir-engine/ecs'
+import { entityExists, EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
 import {
   getAllComponents,
   getComponent,
@@ -46,11 +46,10 @@ import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, getState, none, useHookstate, useMutableState, useState } from '@ir-engine/hyperflux'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { Button } from '@ir-engine/ui'
 import TransformPropertyGroup from '@ir-engine/ui/src/components/editor/properties/transform'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
@@ -293,7 +292,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
         firstSelectedEntity.set(entity)
       }
     } else if (event.detail === 2) {
-      const cameraEntity = getState(EngineState).viewerEntity
+      const cameraEntity = getState(ReferenceSpaceState).viewerEntity
       if (entity && getOptionalComponent(cameraEntity, CameraOrbitComponent)) {
         const editorCameraState = getMutableComponent(cameraEntity, CameraOrbitComponent)
         editorCameraState.focusedEntities.set([entity])

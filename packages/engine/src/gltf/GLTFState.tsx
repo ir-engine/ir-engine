@@ -50,7 +50,9 @@ import {
   createEntity,
   Entity,
   entityExists,
+  EntityTreeComponent,
   EntityUUID,
+  getAncestorWithComponents,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -76,9 +78,9 @@ import {
   useHookstate,
   useMutableState
 } from '@ir-engine/hyperflux'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -91,7 +93,6 @@ import {
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { ResourceManager, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
-import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
@@ -108,7 +109,7 @@ export const GLTFAssetState = defineState({
   initial: {} as Record<string, Entity>, // sceneID => entity
 
   loadScene: (sceneURL: string, uuid: string) => {
-    const gltfEntity = GLTFSourceState.load(sceneURL, uuid as EntityUUID, getState(EngineState).originEntity)
+    const gltfEntity = GLTFSourceState.load(sceneURL, uuid as EntityUUID, getState(ReferenceSpaceState).originEntity)
     getMutableState(GLTFAssetState)[sceneURL].set(gltfEntity)
     setComponent(gltfEntity, SceneComponent)
 
