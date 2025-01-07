@@ -1366,7 +1366,8 @@
           "dateModified": "Date Modified",
           "size": "Size",
           "author": "Author",
-          "statistics": "Statistics"
+          "statistics": "Statistics",
+          "createdAt": "Created At"
         }
       },
       "image-convert": {

@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useFind } from '@ir-engine/common'
-import { staticResourcePath, StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions.ts'
 import {
   FilesState,
@@ -40,21 +38,16 @@ import { ConnectDragSource, ConnectDropTarget, useDrag, useDrop } from 'react-dn
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import { IoIosArrowForward } from 'react-icons/io'
+import { MdKeyboardArrowDown } from 'react-icons/md'
 import { VscBlank } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
 import { FileDataType, SupportedFileTypes } from '../../constants/AssetTypes'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileIcon } from './fileicon'
-import {
-  availableTableColumns,
-  canDropOnFileBrowser,
-  FILES_PAGE_LIMIT,
-  useCurrentFiles,
-  useFileBrowserDrop
-} from './helpers'
+import { availableTableColumns, canDropOnFileBrowser, useCurrentFiles, useFileBrowserDrop } from './helpers'
 
 type DisplayTypeProps = {
-  file: FileDataType
+  file: FileDataType & { [key: string]: unknown }
   onDoubleClick?: MouseEventHandler
   onClick?: MouseEventHandler
   isSelected: boolean
@@ -65,7 +58,7 @@ type DisplayTypeProps = {
   className?: string
 }
 
-export function TableWrapper({ children }: { children: React.ReactNode }) {
+export function TableWrapper({ children, handleSort }: { children: React.ReactNode; handleSort: any }) {
   const { t } = useTranslation()
   const selectedTableColumns = useHookstate(getMutableState(FilesViewModeSettings).list.selectedTableColumns).value
 
@@ -76,8 +69,15 @@ export function TableWrapper({ children }: { children: React.ReactNode }) {
           {availableTableColumns
             .filter((header) => selectedTableColumns[header])
             .map((header) => (
-              <th key={header} className="table-cell p-2 text-xs font-normal dark:text-[#A3A3A3]">
-                {t(`editor:layout.filebrowser.table-list.headers.${header}`)}
+              <th
+                key={header}
+                onClick={() => handleSort(header)}
+                className="table-cell p-2 text-xs font-normal dark:text-[#A3A3A3]"
+              >
+                <div className="flex items-center justify-between">
+                  <span>{t(`editor:layout.filebrowser.table-list.headers.${header}`)}</span>
+                  <MdKeyboardArrowDown />
+                </div>
               </th>
             ))}
         </tr>
@@ -101,33 +101,6 @@ function FileItemRow({
   const filesViewModeSettings = useMutableState(FilesViewModeSettings)
   const selectedTableColumns = filesViewModeSettings.list.selectedTableColumns.value
   const fontSize = filesViewModeSettings.list.fontSize.value
-  const { files } = useCurrentFiles()
-  const { projectName } = useMutableState(FilesState)
-  const staticResourceData = useHookstate<Record<string, Record<string, string>>>({})
-
-  const staticResourceDataQuery = useFind(staticResourcePath, {
-    query: {
-      key: {
-        $in: files.map((file) => file.key)
-      },
-      project: projectName.value,
-      $select: ['key', 'userId', 'stats', 'updatedAt'],
-      $limit: FILES_PAGE_LIMIT
-    }
-  })
-
-  useEffect(() => {
-    if (staticResourceDataQuery.status !== 'success') return
-    const additionalData: Record<string, Record<string, string>> = {}
-    staticResourceDataQuery.data.forEach((data: StaticResourceType) => {
-      additionalData[data.key] = {
-        modifiedDate: new Date(data.updatedAt).toLocaleString(),
-        author: data.userId || 'iR Starter Content',
-        statistics: Object.keys({ ...data.stats }).length ? JSON.stringify(data.stats) : ''
-      }
-    })
-    staticResourceData.set(additionalData)
-  }, [staticResourceDataQuery.status])
 
   const thumbnailURL = file?.thumbnailURL
 
@@ -143,9 +116,9 @@ function FileItemRow({
       </span>
     ),
     type: file?.type.toUpperCase(),
-    author: staticResourceData.value[file?.key]?.author || '',
-    dateModified: staticResourceData.value[file?.key]?.modifiedDate || '',
-    statistics: staticResourceData.value[file?.key]?.statistics || '',
+    author: file?.author || '',
+    createdAt: file?.createdAt || '',
+    statistics: file?.statistics || '',
     size: file?.size
   }
 

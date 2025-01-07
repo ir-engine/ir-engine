@@ -47,7 +47,7 @@ export const FilesViewModeSettings = defineState({
         author: true,
         statistics: true,
         type: true,
-        dateModified: true,
+        createdAt: true,
         size: true
       }
     }
