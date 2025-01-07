@@ -116,7 +116,7 @@ export const FileIcon = ({
           </div>
           <div className={`${isMinified ? '' : 'h-full w-full'}`}>
             <img
-              className={twMerge(imageClass, 'p-0', 'object-cover', imageLoaded.value ? 'block' : 'hidden')}
+              className={twMerge(imageClass, 'p-0', 'object-contain', imageLoaded.value ? 'block' : 'hidden')}
               crossOrigin="anonymous"
               src={thumbnailURL}
               alt="file-thumbnail"

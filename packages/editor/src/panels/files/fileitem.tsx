@@ -186,7 +186,7 @@ function FileItemCard({
   return (
     <div
       ref={(ref) => drag(drop(ref))}
-      className={twMerge('group h-min', isOver && 'border-2 border-gray-400', className)}
+      className={twMerge('group box-border h-min', isOver && 'border-2 border-gray-400', className)}
       onContextMenu={onContextMenu}
     >
       <div
@@ -197,7 +197,7 @@ function FileItemCard({
       >
         <div
           className={twMerge(
-            `rounded border border-0 font-figtree`,
+            `box-border rounded border border-0 font-figtree`,
             isSelected ? 'border-2 border-[#375DAF] bg-[#2C2E30]' : 'group-hover:bg-[#202225]'
           )}
           style={{

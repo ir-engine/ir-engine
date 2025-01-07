@@ -180,16 +180,14 @@ function ResourceFile({ resource }: { resource: StaticResourceType }) {
           anchorEvent.set(event)
         }}
         className={twMerge(
-          'resource-file max-h-42 group flex h-auto w-28 cursor-pointer flex-col items-center text-center'
+          'resource-file max-h-38 w-30 flex h-auto cursor-pointer flex-col items-center p-1.5 text-center'
         )}
         data-testid="assets-panel-resource-file"
       >
         <div
           className={twMerge(
-            `rounded font-figtree`,
-            isSelected
-              ? 'overflow-hidden rounded border border-2 border-[#375DAF] bg-[#2C2E30]'
-              : 'group-hover:bg-[#202225]'
+            `box-border rounded border border-0 font-figtree`,
+            isSelected ? 'rounded border border-2 border-[#375DAF] bg-[#2C2E30]' : 'group-hover:bg-[#202225]'
           )}
           style={{
             height: iconSize,
