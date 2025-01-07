@@ -110,8 +110,8 @@ function Browser() {
       const b = { ...$b, ...additionalDataB }
 
       const { key, direction } = sortConfig
-      let valueA = a[key] || ''
-      let valueB = b[key] || ''
+      let valueA: any = key ? a[key] : ''
+      let valueB: any = key ? b[key] : ''
 
       if (key === 'createdAt') {
         valueA = new Date(valueA)
