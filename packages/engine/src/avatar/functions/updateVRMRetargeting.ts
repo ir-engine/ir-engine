@@ -26,9 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { Matrix4, Object3D, Quaternion, Vector3 } from 'three'
 
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import { getComponent, getOptionalComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'

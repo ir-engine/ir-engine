@@ -52,6 +52,7 @@ export const TransformAxis = {
   Yn: 'Yn' as const,
   Zn: 'Zn' as const
 }
+
 export const TransformAxisConstraints = {
   X: new Vector3(1, 0, 0),
   Y: new Vector3(0, 1, 0),

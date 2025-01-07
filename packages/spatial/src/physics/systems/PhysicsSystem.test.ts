@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   Entity,
+  EntityTreeComponent,
   SimulationSystemGroup,
   SystemDefinitions,
   SystemUUID,
@@ -47,7 +48,6 @@ import { assertVec } from '../../../tests/util/assert'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { IntersectionData } from '../../input/functions/ClientInputHeuristics'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { PhysicsSerialization } from '../PhysicsSerialization'

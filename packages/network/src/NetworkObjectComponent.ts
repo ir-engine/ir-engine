@@ -33,6 +33,7 @@ import ECS, {
   Entity,
   getComponent,
   hasComponent,
+  ProxyWithECS,
   removeComponent,
   setComponent,
   UndefinedEntity,
@@ -41,7 +42,6 @@ import ECS, {
 } from '@ir-engine/ecs'
 import { PeerID, UserID } from '@ir-engine/hyperflux'
 import { NetworkId } from '@ir-engine/network/src/NetworkId'
-import { ProxyWithECS } from '@ir-engine/spatial/src/common/proxies/ECSSchemaProxy'
 
 /** ID of last network created. */
 let availableNetworkId = 0 as NetworkId

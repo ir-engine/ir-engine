@@ -31,7 +31,6 @@ import { twMerge } from 'tailwind-merge'
 
 import { useWorldNetwork } from '@ir-engine/client-core/src/common/services/LocationInstanceConnectionService'
 import { useMediaNetwork } from '@ir-engine/client-core/src/common/services/MediaInstanceConnectionService'
-import { useEngineCanvas } from '@ir-engine/client-core/src/hooks/useEngineCanvas'
 import { useResizableVideoCanvas } from '@ir-engine/client-core/src/hooks/useResizableVideoCanvas'
 import { useScrubbableVideo } from '@ir-engine/client-core/src/hooks/useScrubbableVideo'
 import { CaptureClientSettingsState } from '@ir-engine/client-core/src/media/CaptureClientSettingsState'
@@ -67,6 +66,7 @@ import {
   useMutableState
 } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
+import { useEngineCanvas } from '@ir-engine/spatial/src/renderer/functions/useEngineCanvas'
 import Header from '@ir-engine/ui/src/components/tailwind/Header'
 import RecordingsList from '@ir-engine/ui/src/components/tailwind/RecordingList'
 import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'

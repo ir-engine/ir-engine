@@ -26,10 +26,10 @@ Infinite Reality Engine. All Rights Reserved.
 import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { Matrix4, Vector3 } from 'three'
 
+import { iterateEntityNode } from '@ir-engine/ecs'
 import { getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getState } from '@ir-engine/hyperflux'
-import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 

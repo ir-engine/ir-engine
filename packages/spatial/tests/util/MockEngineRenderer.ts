@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import './patchNodeForWebXREmulator'
-
 import { Entity, getComponent, setComponent } from '@ir-engine/ecs'
 import { EffectComposer, Pass, RenderPass } from 'postprocessing'
 import { WebGLRenderTarget, WebGLRenderer } from 'three'
@@ -35,6 +33,9 @@ import { MockEventListener } from './MockEventListener'
 const mockCanvas = new MockEventListener() as any
 mockCanvas.parentElement = new MockEventListener()
 mockCanvas.getContext = () => null! // null will tell the renderer to not initialize, allowing our mock to work
+mockCanvas.style = {
+  display: 'initial' /** [MDN Reference](https://developer.mozilla.org/docs/Web/CSS/display) */
+} as CSSStyleDeclaration
 
 const mockContext = {
   getExtension: () => {},
@@ -60,6 +61,7 @@ class MockRenderer {
   domElement = mockCanvas
   setPixelRatio = () => {}
   getRenderTarget = () => {}
+  setRenderTarget = () => {}
   getSize = () => 0
   getContext = () => mockContext
   getPixelRatio = () => 1
