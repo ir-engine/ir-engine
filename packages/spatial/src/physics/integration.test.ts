@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   ECSState,
   Entity,
+  EntityTreeComponent,
   SystemDefinitions,
   UUIDComponent,
   UndefinedEntity,
@@ -47,7 +48,6 @@ import { Axis, Vector3_Zero } from '../common/constants/MathConstants'
 import { MeshComponent } from '../renderer/components/MeshComponent'
 import { SceneComponent } from '../renderer/components/SceneComponents'
 import { VisibleComponent } from '../renderer/components/VisibleComponent'
-import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import {
   TransformDirtyCleanupSystem,

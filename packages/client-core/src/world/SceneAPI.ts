@@ -53,10 +53,12 @@ export const renameScene = async (
   projectName: string,
   params?: Params
 ) => {
-  const oldPath = resource.key
-  const newPath = newKey
-  const oldName = resource.key.split('/').pop()!
-  const newName = newKey.split('/').pop()!
+  const oldKeySplit = resource.key.split('/')
+  const newKeySplit = newKey.split('/')
+  const oldName = oldKeySplit.splice(oldKeySplit.length - 1)[0]
+  const newName = newKeySplit.splice(newKeySplit.length - 1)[0]
+  const oldPath = oldKeySplit.join('/')
+  const newPath = newKeySplit.join('/')
   try {
     return await API.instance
       .service(fileBrowserPath)

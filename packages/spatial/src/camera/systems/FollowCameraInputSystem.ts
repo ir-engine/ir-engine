@@ -45,7 +45,7 @@ import { AxisValueMap } from '@ir-engine/spatial/src/input/state/ButtonState'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 import { useEffect } from 'react'
-import { EngineState } from '../../EngineState'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { Q_Y_180 } from '../../common/constants/MathConstants'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -184,7 +184,7 @@ const reactor = () => {
   useEffect(() => {
     if (!xrSession) return
 
-    const { localFloorEntity, viewerEntity } = getState(EngineState)
+    const { localFloorEntity, viewerEntity } = getState(ReferenceSpaceState)
 
     /**
      * Upon entering a new XR session, we need to update the world origin to match the local floor.

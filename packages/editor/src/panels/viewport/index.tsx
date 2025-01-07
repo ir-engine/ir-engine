@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { useEngineCanvas } from '@ir-engine/client-core/src/hooks/useEngineCanvas'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
 import { useFind } from '@ir-engine/common'
@@ -36,6 +35,7 @@ import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ResourcePendingComponent } from '@ir-engine/engine/src/gltf/ResourcePendingComponent'
 import { useMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
+import { useEngineCanvas } from '@ir-engine/spatial/src/renderer/functions/useEngineCanvas'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -166,13 +166,11 @@ function ViewportContainer() {
           <PlayModeTool />
         </div>
         {sceneName.value ? <SelectionBox viewportRef={ref} toolbarRef={toolbarRef} /> : null}
-        {sceneName.value ? <TransformGizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
+        {sceneName.value ? <TransformGizmoTool /> : null}
         {sceneName.value ? <CameraGizmoTool viewportRef={ref} toolbarRef={toolbarRef} /> : null}
+        <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
         {sceneName.value ? (
-          <>
-            <div id="engine-renderer-canvas-container" ref={ref} className="absolute h-full w-full" />
-            {rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}
-          </>
+          <>{rootEntity.value && <SceneLoadingProgress key={rootEntity.value} rootEntity={rootEntity.value} />}</>
         ) : (
           <div className="flex h-full w-full flex-col justify-center gap-2">
             <img src={clientSettings?.appTitle} className="block scale-[.8]" />

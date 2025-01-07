@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Bone, InstancedMesh, Mesh, Object3D, Scene, SkinnedMesh } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 
-import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
+import { EntityTreeComponent, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import {
   ComponentJSONIDMap,
   ComponentMap,
@@ -38,14 +38,11 @@ import {
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import iterateObject3D from '@ir-engine/spatial/src/common/functions/iterateObject3D'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
+import { ObjectComponent, addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
 import { FrustumCullCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
@@ -223,7 +220,6 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   ObjectLayerMaskComponent.setMask(objEntity, ObjectLayerMaskComponent.mask[rootEntity])
 
   /** Proxy children with EntityTreeComponent if it exists */
-  proxifyParentChildRelationships(obj)
 
   obj.removeFromParent = () => {
     if (getOptionalComponent(objEntity, EntityTreeComponent)?.parentEntity) {
@@ -288,7 +284,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
   }
 
   if (!hasComponent(objEntity, MeshComponent)) {
-    setComponent(objEntity, Object3DComponent, obj)
+    setComponent(objEntity, ObjectComponent, obj)
   }
 
   delete mesh.userData['componentJson']

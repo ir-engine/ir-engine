@@ -26,9 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { useGet } from '@ir-engine/common'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import { EngineState } from '@ir-engine/ecs'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { Tooltip } from '@ir-engine/ui'
 import { PauseSquareLg, PlayLg } from '@ir-engine/ui/src/icons'
 import React, { useEffect } from 'react'
@@ -67,6 +67,7 @@ const PlayModeTool: React.FC = () => {
             ? t('editor:toolbar.command.info-playPreview')
             : t('editor:toolbar.command.info-stopPreview')
         }
+        position="bottom"
       >
         <button className="p-0" onClick={onTogglePlayMode}>
           {engineState.isEditing.value ? (

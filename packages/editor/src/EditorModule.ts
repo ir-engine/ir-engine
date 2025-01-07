@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { AvatarSpawnSystem } from '@ir-engine/client-core/src/networking/AvatarSpawnSystem'
 import { RenderInfoSystem } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
 // import { EditorInstanceNetworkingSystem } from './components/realtime/EditorInstanceNetworkingSystem'
-import { PositionalAudioSystem } from '@ir-engine/client-core/src/systems/PositionalAudioSystem.tsx'
+import { PositionalAudioSystem } from '@ir-engine/client-core/src/systems/PositionalAudioSystem'
 import { CameraGizmoSystem } from './systems/CameraGizmoSystem'
 import { ClickPlacementSystem } from './systems/ClickPlacementSystem'
 import { EditorControlSystem } from './systems/EditorControlSystem'

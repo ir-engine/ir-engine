@@ -23,6 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { generateThumbnailKey } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
+import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
+import { API } from '@ir-engine/common'
+import config from '@ir-engine/common/src/config'
+import { fileBrowserUploadPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import {
   blurAndScaleImageData,
   convertImageDataToKTX2Blob,
@@ -50,8 +55,8 @@ export const SceneThumbnailState = defineState({
     uploadingLoadingScreen: false,
     resolution: 2048
   }),
-  createThumbnail: async () => {
-    const thumbnailBlob = await takeScreenshot(512, 320)
+  createThumbnail: async (width = 512, height = 320, quality = 1) => {
+    const thumbnailBlob = await takeScreenshot(width, height, quality)
     if (!thumbnailBlob) return
     const sceneName = getState(EditorState).sceneName!.split('.').slice(0, -1).join('.')
     const file = new File([thumbnailBlob!], sceneName + '.thumbnail.jpg')
@@ -62,17 +67,42 @@ export const SceneThumbnailState = defineState({
       thumbnail: file
     })
   },
-  uploadThumbnail: async (entity) => {
+  uploadThumbnail: async (entity?) => {
     const sceneThumbnailState = getMutableState(SceneThumbnailState)
     if (!sceneThumbnailState.thumbnail.value) return
     sceneThumbnailState.uploadingThumbnail.set(true)
     const currentThumbnail = sceneThumbnailState.thumbnailURL.value
     const editorState = getState(EditorState)
     const projectName = editorState.projectName!
-    const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
-    const { promises } = uploadProjectFiles(projectName, [sceneThumbnailState.thumbnail.value], [currentSceneDirectory])
-    const [[savedThumbnailURL]] = await Promise.all(promises)
-    commitProperty(SceneSettingsComponent, 'thumbnailURL', [entity])(savedThumbnailURL)
+    const staticResourceId = editorState.sceneAssetID
+    const source = editorState.scenePath
+    if (!source || !projectName) return
+
+    const thumbnailKey = generateThumbnailKey(source, projectName)
+    const thumbnailMode = 'custom'
+    const thumbnailURL = new URL(
+      await uploadToFeathersService(fileBrowserUploadPath, [sceneThumbnailState.thumbnail.value], {
+        args: [
+          {
+            fileName: sceneThumbnailState.thumbnail.value.name,
+            project: projectName,
+            path: 'public/thumbnails/' + sceneThumbnailState.thumbnail.value.name,
+            contentType: sceneThumbnailState.thumbnail.value.type,
+            type: 'thumbnail',
+            thumbnailKey,
+            thumbnailMode
+          }
+        ]
+      }).promise
+    )
+    thumbnailURL.search = ''
+    thumbnailURL.hash = ''
+    const _thumbnailKey = thumbnailURL.href.replace(config.client.fileServer + '/', '')
+    await API.instance
+      .service(staticResourcePath)
+      .patch(staticResourceId, { thumbnailKey: _thumbnailKey, thumbnailMode, project: projectName })
+
+    if (entity) commitProperty(SceneSettingsComponent, 'thumbnailURL', [entity])(thumbnailURL.href)
     sceneThumbnailState.merge({
       thumbnailURL: null,
       oldThumbnailURL: currentThumbnail,
@@ -91,7 +121,7 @@ export const SceneThumbnailState = defineState({
       loadingScreenImageData: envmapImageData
     })
   },
-  uploadLoadingScreen: async (entity) => {
+  uploadLoadingScreen: async (entity?) => {
     const sceneThumbnailState = getMutableState(SceneThumbnailState)
     const envmapImageData = sceneThumbnailState.loadingScreenImageData.value
     if (!envmapImageData) return
@@ -125,7 +155,8 @@ export const SceneThumbnailState = defineState({
     const cleanURL = new URL(loadingScreenURL)
     cleanURL.hash = ''
     cleanURL.search = ''
-    commitProperty(SceneSettingsComponent, 'loadingScreenURL', [entity])(cleanURL.href)
+
+    if (entity) commitProperty(SceneSettingsComponent, 'loadingScreenURL', [entity])(cleanURL.href)
 
     sceneThumbnailState.merge({
       loadingScreenURL: null,

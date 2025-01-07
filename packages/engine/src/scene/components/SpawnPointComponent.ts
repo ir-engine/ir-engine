@@ -31,11 +31,11 @@ import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformComponent } from '@ir-engine/spatial'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from 'three'
 import { useGLTFComponent } from '../../assets/functions/resourceLoaderHooks'
 
@@ -67,7 +67,11 @@ export const SpawnPointComponent = defineComponent({
       const indices = new Uint16Array([0, 1, 1, 2, 2, 3, 3, 0])
       buffer.setIndex(new BufferAttribute(indices, 1))
       buffer.setAttribute('position', new BufferAttribute(positions, 3))
-      addObjectToGroup(boundsHelperEntity, new LineSegments(buffer, new LineBasicMaterial({ color: 'white' })))
+      setComponent(
+        boundsHelperEntity,
+        ObjectComponent,
+        new LineSegments(buffer, new LineBasicMaterial({ color: 'white' }))
+      )
 
       setVisibleComponent(debugGLTF, true)
       setComponent(debugGLTF, ComputedTransformComponent, {

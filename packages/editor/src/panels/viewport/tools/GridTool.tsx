@@ -55,7 +55,7 @@ const GridTool = () => {
           className={twMerge('text-[#9CA0AA]', rendererState.gridVisibility.value && 'text-[#F5F5F5]')}
         />
       </Tooltip>
-      <Tooltip content={t('editor:toolbar.grid.info-gridHeight')}>
+      <Tooltip content={t('editor:toolbar.grid.info-gridHeight')} position="bottom">
         <NumericInput
           value={rendererState.gridHeight.value}
           onChange={(value) => rendererState.gridHeight.set(value)}

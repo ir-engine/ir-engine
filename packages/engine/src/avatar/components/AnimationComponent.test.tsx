@@ -27,12 +27,13 @@ import {
   createEngine,
   createEntity,
   destroyEngine,
+  EntityTreeComponent,
   generateEntityUUID,
   getComponent,
   getOptionalComponent,
   hasComponent,
+  iterateEntityNode,
   setComponent,
-  SystemDefinitions,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { applyIncomingActions, startReactor } from '@ir-engine/hyperflux'
@@ -40,15 +41,13 @@ import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import { render } from '@testing-library/react'
+import { act, render } from '@testing-library/react'
 import React from 'react'
-import { act } from 'react-dom/test-utils'
 import { AnimationMixer } from 'three'
 import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { AvatarAnimationSystem, setupMixamoAnimation } from '../systems/AvatarAnimationSystem'
+import { AvatarAnimationSystemReactor, setupMixamoAnimation } from '../systems/AvatarAnimationSystem'
 import { AnimationComponent } from './AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from './AvatarAnimationComponent'
 import { AvatarComponent } from './AvatarComponent'
@@ -145,7 +144,7 @@ describe('AnimationComponent', () => {
       setComponent(vrmEntity, AvatarRigComponent)
       setComponent(vrmEntity, AvatarAnimationComponent)
       setComponent(vrmEntity, AvatarComponent)
-      startReactor(SystemDefinitions.get(AvatarAnimationSystem)!.reactor!)
+      startReactor(AvatarAnimationSystemReactor)
       applyIncomingActions()
       //extra wait for animation component to prevent race conditions
       await vi.waitFor(

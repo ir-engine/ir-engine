@@ -27,12 +27,13 @@ import { setTransformSpace, toggleTransformSpace } from '@ir-engine/editor/src/f
 import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
 import { TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { Select, Tooltip } from '@ir-engine/ui'
+import { Tooltip } from '@ir-engine/ui'
 import { ViewportButton } from '@ir-engine/ui/editor'
 import { Globe01Md } from '@ir-engine/ui/src/icons'
 import { t } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import ToolbarDropdown from './ToolbarDropdown'
 
 const transformSpaceOptions = [
   {
@@ -59,26 +60,21 @@ const TransformSpaceTool = () => {
           <Globe01Md />
         </ViewportButton>
       </Tooltip>
-      <Tooltip
-        title={
+      <ToolbarDropdown
+        tooltipTitle={
           transformSpace.value === TransformSpace.local
             ? t('editor:toolbar.transformSpace.info-selection')
             : t('editor:toolbar.transformSpace.info-world')
         }
-        content={t('editor:toolbar.transformSpace.description')}
-        position="right"
-      >
-        <div className="w-[106px]">
-          <Select
-            key={transformSpace.value}
-            onChange={setTransformSpace}
-            options={transformSpaceOptions}
-            value={transformSpace.value}
-            width="full"
-            inputHeight="xs"
-          />
-        </div>
-      </Tooltip>
+        tooltipContent={t('editor:toolbar.transformSpace.description')}
+        tooltipPosition="right"
+        onChange={setTransformSpace}
+        options={transformSpaceOptions}
+        value={transformSpace.value}
+        width="full"
+        inputHeight="xs"
+        dropdownParentClassName="w-[106px]"
+      />
     </div>
   )
 }
