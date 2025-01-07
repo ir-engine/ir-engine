@@ -27,6 +27,7 @@ import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, Line, LineBasicMaterial, MeshBasicMaterial, Vector3 } from 'three'
 
 import {
+  EntityTreeComponent,
   createEntity,
   defineComponent,
   removeEntity,
@@ -35,11 +36,10 @@ import {
   useEntityContext
 } from '@ir-engine/ecs'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { SplineComponent } from '../SplineComponent'
@@ -96,9 +96,9 @@ export const SplineHelperComponent = defineComponent({
       const line = new Line(lineGeometry.value as BufferGeometry, lineMaterial)
       line.name = `SplineHelperComponent-${entity}`
 
-      addObjectToGroup(lineEntity, line)
       setComponent(lineEntity, NameComponent, line.name)
       setComponent(lineEntity, EntityTreeComponent, { parentEntity: entity })
+      setComponent(lineEntity, ObjectComponent, line)
 
       setVisibleComponent(lineEntity, true)
 

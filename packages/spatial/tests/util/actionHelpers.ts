@@ -22,24 +22,21 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-
-import { Entity, setComponent } from '@ir-engine/ecs'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
-import { Mesh } from 'three'
+import { Engine } from '@ir-engine/ecs'
 
 /**
- * Helper function for attaching a mesh to a scene entity
- * @param entity Entity to attach the mesh to
- * @param mesh Mesh to attach to the entity
- * @param objectLayers Object layers to assign to the mesh. Default is [ObjectLayers.Scene]
- */
-export function addMesh(entity: Entity, mesh: Mesh, objectLayers: number[] = [ObjectLayers.Scene]) {
-  setComponent(entity, MeshComponent, mesh)
-  addObjectToGroup(entity, mesh)
-  proxifyParentChildRelationships(mesh)
-  setObjectLayers(mesh, ...objectLayers)
+ * @description Returns the first incoming action that matches the `@param name` from the Engine.instance's actions store
+ * */
+export function getIncomingAction(name: string) {
+  for (const action of Engine.instance.store.actions.incoming) {
+    if (action.type === name) return action
+  }
+  return undefined
+}
+
+/**
+ * @description Returns the last action from the Engine.instance's actions history
+ * */
+export function getLastAction() {
+  return Engine.instance.store.actions.history.at(-1)
 }

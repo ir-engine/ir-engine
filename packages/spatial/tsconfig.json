@@ -3,7 +3,11 @@
     "target": "ESNext",
     "useDefineForClassFields": true,
     "module": "CommonJS",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "skipLibCheck": true,
     "moduleResolution": "node",
     "allowImportingTsExtensions": true,
@@ -24,7 +28,14 @@
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
     "declaration": false,
-    "types": ["@types/node"]
+    "types": [
+      "@types/node"
+    ]
   },
-  "include": ["../../__global.d.ts", "./src", "./tests", "./index.ts"]
+  "include": ["../../__global.d.ts", "./src", "./tests", "./index.ts"],
+  "exclude": [
+    "./tests/webxr/emulator/**",
+    "./tests/webxr/devtool/**",
+    "./tests/webxr/emulator.ts"
+  ]
 }

@@ -25,8 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
 import config from '@ir-engine/common/src/config'
-import { camelCaseToSpacedString } from '@ir-engine/common/src/utils/camelCaseToSpacedString.ts'
-import { hasComponent, useComponent } from '@ir-engine/ecs'
+import { camelCaseToSpacedString } from '@ir-engine/common/src/utils/camelCaseToSpacedString'
+import { hasComponent, useAncestorWithComponents, useChildrenWithComponents, useComponent } from '@ir-engine/ecs'
 import ErrorPopUp from '@ir-engine/editor/src/components/popup/ErrorPopUp'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
@@ -37,13 +37,9 @@ import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathR
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
-import { supportedColliderShapes } from '@ir-engine/spatial/src/physics/components/ColliderComponent.tsx'
-import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes.ts'
-import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent.ts'
-import {
-  useAncestorWithComponents,
-  useChildrenWithComponents
-} from '@ir-engine/spatial/src/transform/components/EntityTree.tsx'
+import { supportedColliderShapes } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
+import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { Checkbox } from '@ir-engine/ui'
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -58,9 +54,9 @@ import ModelInput from '../../../input/Model'
 import SelectInput from '../../../input/Select'
 import StringInput from '../../../input/String'
 
-import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions.ts'
-import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices.ts'
-import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent.ts'
+import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
+import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { HiPlus } from 'react-icons/hi2'
 
 const shapeTypeOptions = Object.entries(Shapes)

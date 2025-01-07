@@ -63,7 +63,7 @@ const createPersistentAnchor = async (xrFrame: XRFrame, position: Vector3, rotat
     const anchor = await xrFrame.createAnchor?.(anchorPose, referenceSpace)!
     try {
       const handle = await anchor.requestPersistentHandle?.()
-      return [anchor, handle]
+      return [anchor, handle] as [XRAnchor, string | undefined]
     } catch (e) {
       anchor.delete()
       throw e
@@ -108,58 +108,48 @@ const execute = () => {
   const xrSpace = ReferenceSpace.origin
   if (!xrSpace) return
 
-  if (frame.trackedAnchors) {
-    const anchorsToRemove = [] as XRAnchor[]
+  if (!frame.trackedAnchors) return
+  const anchorsToRemove = [] as XRAnchor[]
 
-    for (const anchor of anchors) {
-      if (!frame.trackedAnchors.has(anchor)) {
-        anchorsToRemove.push(anchor)
+  for (const anchor of anchors) {
+    if (!frame.trackedAnchors.has(anchor)) anchorsToRemove.push(anchor)
+  }
+
+  for (const anchor of anchorsToRemove) {
+    anchors.delete(anchor)
+  }
+
+  for (const anchor of frame.trackedAnchors) {
+    if (!anchors.has(anchor)) anchors.add(anchor)
+  }
+
+  for (const anchor of anchors) {
+    const knownPose = anchorPoses.get(anchor)
+    const anchorPose = frame.getPose(anchor.anchorSpace, xrSpace)
+    if (!anchorPose) continue
+
+    if (knownPose === undefined) {
+      anchorPoses.set(anchor, anchorPose)
+    } else {
+      const position = anchorPose.transform.position
+      const orientation = anchorPose.transform.orientation
+
+      const knownPosition = knownPose.transform.position
+      const knownOrientation = knownPose.transform.orientation
+
+      if (
+        position.x !== knownPosition.x ||
+        position.y !== knownPosition.y ||
+        position.z !== knownPosition.z ||
+        orientation.x !== knownOrientation.x ||
+        orientation.y !== knownOrientation.y ||
+        orientation.z !== knownOrientation.z ||
+        orientation.w !== knownOrientation.w
+      ) {
+        anchorPoses.set(anchor, anchorPose)
       }
     }
-
-    if (anchorsToRemove.length) {
-      for (const anchor of anchorsToRemove) {
-        anchors.delete(anchor)
-      }
-    }
-
-    for (const anchor of frame.trackedAnchors) {
-      if (!anchors.has(anchor)) {
-        anchors.add(anchor)
-      }
-    }
-
-    for (const anchor of anchors) {
-      const knownPose = anchorPoses.get(anchor)
-      const anchorPose = frame.getPose(anchor.anchorSpace, xrSpace)
-      if (anchorPose) {
-        if (knownPose === undefined) {
-          anchorPoses.set(anchor, anchorPose)
-        } else {
-          const position = anchorPose.transform.position
-          const orientation = anchorPose.transform.orientation
-
-          const knownPosition = knownPose.transform.position
-          const knownOrientation = knownPose.transform.orientation
-
-          if (
-            position.x !== knownPosition.x ||
-            position.y !== knownPosition.y ||
-            position.z !== knownPosition.z ||
-            orientation.x !== knownOrientation.x ||
-            orientation.y !== knownOrientation.y ||
-            orientation.z !== knownOrientation.z ||
-            orientation.w !== knownOrientation.w
-          ) {
-            anchorPoses.set(anchor, anchorPose)
-          }
-        }
-      } else {
-        if (knownPose !== undefined) {
-          // anchor pose changed
-        }
-      }
-    }
+    // anchor pose changed
   }
 }
 

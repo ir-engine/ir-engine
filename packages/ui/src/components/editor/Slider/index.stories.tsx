@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { ArgTypes } from '@storybook/react'
 import React, { useState } from 'react'
-import { ArgTypes } from 'storybook/internal/types'
 import Slider, { SliderProps } from './index'
 
 const argTypes: ArgTypes = {

@@ -28,6 +28,7 @@ import {
   createEntity,
   defineQuery,
   destroyEngine,
+  EntityTreeComponent,
   getComponent,
   getMutableComponent,
   hasComponent,
@@ -42,7 +43,6 @@ import { Color, ColorRepresentation, ShaderMaterial } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { assertFloat } from '../../../tests/util/assert'
 import { NameComponent } from '../../common/NameComponent'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { RendererState } from '../RendererState'
 import { createInfiniteGridHelper, InfiniteGridComponent } from './InfiniteGridHelper'
 import { LineSegmentComponent } from './LineSegmentComponent'

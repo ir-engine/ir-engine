@@ -23,30 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Camera, CameraHelper } from 'three'
+import { describe } from 'vitest'
 
-import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
-
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { useDisposable } from '../../resources/resourceHooks'
-import { useHelperEntity } from './DebugComponentUtils'
-
-export const CameraHelperComponent = defineComponent({
-  name: 'CameraHelperComponent',
-
-  schema: S.Object({
-    name: S.String('camera-helper'),
-    camera: S.Required(S.Type<Camera>(null!)),
-    entity: S.Optional(S.Entity())
-  }),
-
-  reactor: function () {
-    const entity = useEntityContext()
-    const component = useComponent(entity, CameraHelperComponent)
-    const [helper] = useDisposable(CameraHelper, entity, component.camera.value as Camera)
-    useHelperEntity(entity, component, helper)
-    helper.update()
-
-    return null
-  }
-})
+describe('XRScenePlacementComponent', () => {
+  // name: 'XRScenePlacementComponent'
+}) //:: XRScenePlacementComponent

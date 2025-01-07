@@ -32,11 +32,11 @@ import { useEffect } from 'react'
 import { Color, ColorRepresentation, Material, MathUtils, Mesh, MeshBasicMaterial, MeshStandardMaterial } from 'three'
 import { Text as TroikaText } from 'troika-three-text'
 
-import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, removeComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { isClient } from '@ir-engine/hyperflux'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 
 /**
@@ -240,8 +240,9 @@ export const TextComponent = defineComponent({
 
     useEffect(() => {
       text.troikaMesh.set(new TroikaText())
-      addObjectToGroup(entity, text.troikaMesh.value as TextMesh)
+      setComponent(entity, MeshComponent, text.troikaMesh.value as TextMesh)
       return () => {
+        removeComponent(entity, MeshComponent)
         text.troikaMesh.value!.dispose()
       }
     }, [])

@@ -29,6 +29,7 @@ import {
   destroyEngine,
   Entity,
   EntityContext,
+  EntityTreeComponent,
   removeComponent,
   removeEntity,
   setComponent,
@@ -38,13 +39,12 @@ import { getMutableState, getState, ReactorRoot, startReactor } from '@ir-engine
 import assert from 'assert'
 import React from 'react'
 import sinon from 'sinon'
-import { afterEach, beforeEach, describe, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 import { MockEventListener } from '../../../tests/util/MockEventListener'
 import { MockXRSession } from '../../../tests/util/MockXR'
 import { destroySpatialEngine, initializeSpatialEngine } from '../../initializeEngine'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
 import { InputComponent } from '../components/InputComponent'
@@ -1166,7 +1166,6 @@ describe('ClientInputHooks', () => {
       setComponent(parentEntity, InputComponent)
       setComponent(parentEntity, EntityTreeComponent)
 
-      // setComponent(testEntity, InputComponent)
       setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
       assert.equal(before.has(testEntity), false)
 
@@ -1257,26 +1256,24 @@ describe('ClientInputHooks', () => {
       assert.equal(before.has(testEntity), false)
 
       // Setup the reactor
-      startReactor(() => {
-        return React.createElement(
+      const reactor = startReactor(() =>
+        React.createElement(
           EntityContext.Provider,
           { value: testEntity },
           React.createElement(ClientInputHooks.BoundingBoxInputReactor, {})
         )
-      })
+      )
 
-      await vi.waitFor(() => {
-        // Check the result
-        const one = getState(InputState).inputBoundingBoxes
-        assert.equal(one.has(testEntity), true)
-      })
+      // Check the result
+      const one = getState(InputState).inputBoundingBoxes
+      assert.equal(one.has(testEntity), true)
 
       removeComponent(parentEntity, InputComponent)
 
-      await vi.waitFor(() => {
-        const two = getState(InputState).inputBoundingBoxes
-        assert.equal(two.has(testEntity), false)
-      })
+      reactor.run()
+
+      const two = getState(InputState).inputBoundingBoxes
+      assert.equal(two.has(testEntity), false)
     })
   })
 })

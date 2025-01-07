@@ -23,35 +23,22 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { UndefinedEntity } from '@ir-engine/ecs'
-import { defineState, UserID } from '@ir-engine/hyperflux'
+import { TransitionComponent } from './ComponentFunctions'
+import { defineQuery } from './QueryFunctions'
+import { defineSystem } from './SystemFunctions'
+import { AnimationSystemGroup } from './SystemGroups'
 
-export const EngineState = defineState({
-  name: 'EngineState',
-  initial: {
-    /**
-     * The uuid of the logged-in user
-     */
-    userID: '' as UserID,
+const transitionQuery = defineQuery([TransitionComponent])
 
-    /** @deprecated use isEditing instead */
-    isEditor: false,
-    isEditing: false,
-
-    /**
-     * Represents the reference space of the xr session local floor.
-     */
-    localFloorEntity: UndefinedEntity,
-
-    /**
-     * Represents the reference space for the absolute origin of the rendering context.
-     */
-
-    originEntity: UndefinedEntity,
-
-    /**
-     * Represents the reference space for the viewer.
-     */
-    viewerEntity: UndefinedEntity
+export const TransitionSystem = defineSystem({
+  uuid: 'TransitionSystem',
+  execute: () => {
+    const transitionEntities = transitionQuery()
+    for (const entity of transitionEntities) {
+      TransitionComponent.update(entity)
+    }
+  },
+  insert: {
+    before: AnimationSystemGroup
   }
 })

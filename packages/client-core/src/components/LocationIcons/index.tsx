@@ -30,7 +30,7 @@ import { UserMenu } from '@ir-engine/client-core/src/user/components/UserMenu'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
 
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import { LoadingSystemState } from '../../systems/state/LoadingState'
 import { ARPlacement } from '../ARPlacement'
 import { Fullscreen } from '../Fullscreen'

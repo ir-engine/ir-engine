@@ -23,29 +23,26 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Object3D } from 'three'
+import { UndefinedEntity } from '@ir-engine/ecs'
+import { defineState } from '@ir-engine/hyperflux'
 
-import { defineComponent, useComponent, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { NO_PROXY, useImmediateEffect } from '@ir-engine/hyperflux'
-import { NameComponent } from '../../common/NameComponent'
+export const ReferenceSpaceState = defineState({
+  name: 'ReferenceSpaceState',
+  initial: {
+    /**
+     * Represents the reference space of the xr session local floor.
+     */
+    localFloorEntity: UndefinedEntity,
 
-export const Object3DComponent = defineComponent({
-  name: 'Object3DComponent',
-  jsonID: 'EE_object3d',
-  schema: S.Required(S.NonSerialized(S.Type<Object3D>())),
+    /**
+     * Represents the reference space for the absolute origin of the rendering context.
+     */
 
-  reactor: () => {
-    const entity = useEntityContext()
-    const object3DComponent = useComponent(entity, Object3DComponent)
-    const nameComponent = useOptionalComponent(entity, NameComponent)
+    originEntity: UndefinedEntity,
 
-    useImmediateEffect(() => {
-      if (!nameComponent) return
-      const object = object3DComponent.get(NO_PROXY) as Object3D
-      object.name = nameComponent.value
-    }, [nameComponent?.value])
-
-    return null
+    /**
+     * Represents the reference space for the viewer.
+     */
+    viewerEntity: UndefinedEntity
   }
 })
