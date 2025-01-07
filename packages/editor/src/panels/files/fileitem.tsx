@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useFind } from '@ir-engine/common'
-import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import { staticResourcePath, StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions.ts'
 import {
   FilesState,
@@ -46,9 +46,9 @@ import { FileDataType, SupportedFileTypes } from '../../constants/AssetTypes'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileIcon } from './fileicon'
 import {
-  FILES_PAGE_LIMIT,
   availableTableColumns,
   canDropOnFileBrowser,
+  FILES_PAGE_LIMIT,
   useCurrentFiles,
   useFileBrowserDrop
 } from './helpers'
@@ -103,27 +103,31 @@ function FileItemRow({
   const fontSize = filesViewModeSettings.list.fontSize.value
   const { files } = useCurrentFiles()
   const { projectName } = useMutableState(FilesState)
-  const staticResourceModifiedDates = useHookstate<Record<string, string>>({})
+  const staticResourceData = useHookstate<Record<string, Record<string, string>>>({})
 
-  const staticResourceData = useFind(staticResourcePath, {
+  const staticResourceDataQuery = useFind(staticResourcePath, {
     query: {
       key: {
         $in: files.map((file) => file.key)
       },
       project: projectName.value,
-      $select: ['key', 'updatedAt'] as any,
+      $select: ['key', 'userId', 'stats', 'updatedAt'],
       $limit: FILES_PAGE_LIMIT
     }
   })
 
   useEffect(() => {
-    if (staticResourceData.status !== 'success') return
-    const modifiedDates: Record<string, string> = {}
-    staticResourceData.data.forEach((data) => {
-      modifiedDates[data.key] = new Date(data.updatedAt).toLocaleString()
+    if (staticResourceDataQuery.status !== 'success') return
+    const additionalData: Record<string, Record<string, string>> = {}
+    staticResourceDataQuery.data.forEach((data: StaticResourceType) => {
+      additionalData[data.key] = {
+        modifiedDate: new Date(data.updatedAt).toLocaleString(),
+        author: data.userId || 'iR Starter Content',
+        statistics: Object.keys({ ...data.stats }).length ? JSON.stringify(data.stats) : ''
+      }
     })
-    staticResourceModifiedDates.set(modifiedDates)
-  }, [staticResourceData.status])
+    staticResourceData.set(additionalData)
+  }, [staticResourceDataQuery.status])
 
   const thumbnailURL = file?.thumbnailURL
 
@@ -135,11 +139,13 @@ function FileItemRow({
       >
         {file.isFolder ? <IoIosArrowForward /> : <VscBlank />}
         <FileIcon isMinified={true} thumbnailURL={thumbnailURL} type={file?.type} isFolder={file?.isFolder} />
-        {file?.fullName}
+        <span className="text-ellipsis text-nowrap">{file?.fullName}</span>
       </span>
     ),
     type: file?.type.toUpperCase(),
-    dateModified: staticResourceModifiedDates.value[file?.key] || '',
+    author: staticResourceData.value[file?.key]?.author || '',
+    dateModified: staticResourceData.value[file?.key]?.modifiedDate || '',
+    statistics: staticResourceData.value[file?.key]?.statistics || '',
     size: file?.size
   }
 

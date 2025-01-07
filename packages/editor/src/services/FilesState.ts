@@ -44,6 +44,8 @@ export const FilesViewModeSettings = defineState({
       fontSize: 15,
       selectedTableColumns: {
         name: true,
+        author: true,
+        statistics: true,
         type: true,
         dateModified: true,
         size: true
