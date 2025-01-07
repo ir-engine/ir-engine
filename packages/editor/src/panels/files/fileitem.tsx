@@ -215,7 +215,7 @@ function FileItemCard({
           <FileIcon thumbnailURL={thumbnailURL} type={file?.type} isFolder={file?.isFolder} color="text-[#375DAF]" />
         </div>
 
-        <Tooltip content={file?.fullName}>
+        <Tooltip content={file?.fullName} position="bottom">
           <Text
             theme="secondary"
             fontSize="sm"
