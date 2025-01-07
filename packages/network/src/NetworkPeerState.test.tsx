@@ -35,20 +35,18 @@ import {
   PeerID,
   UserID
 } from '@ir-engine/hyperflux'
-import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 
 import { createNetwork, NetworkTopics } from './Network'
 
 import './NetworkPeerState'
 
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import { NetworkPeerState } from './NetworkPeerState'
 import { addNetwork, NetworkActions, NetworkState } from './NetworkState'
 
 describe('NetworkPeerState', () => {
   beforeEach(async () => {
     createEngine()
-    initializeSpatialEngine()
   })
 
   afterEach(() => {

@@ -59,7 +59,7 @@ import { ServerState } from '@ir-engine/server-core/src/ServerState'
 import getLocalServerIp from '@ir-engine/server-core/src/util/get-local-server-ip'
 import { SpawnPoseState } from '@ir-engine/spatial'
 import checkPositionIsValid from '@ir-engine/spatial/src/common/functions/checkPositionIsValid'
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
@@ -154,8 +154,8 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
  */
 export const authorizeUserToJoinServer = async (app: Application, instance: InstanceType, user: UserType) => {
   const userId = user.id
-  // disallow users from joining media servers if they haven't accepted the TOS
-  if (instance.channelId && !user.acceptedTOS) return false
+  // disallow users from joining media servers if they are not age verified
+  if (instance.channelId && !user.ageVerified) return false
 
   const authorizedUsers = (await app.service(instanceAuthorizedUserPath).find({
     query: {
@@ -345,7 +345,7 @@ const getUserSpawnFromInvite = async (
         const inviterUserTransform = getComponent(inviterUserAvatarEntity, TransformComponent)
 
         /** @todo find nearest valid spawn position, rather than 2 in front */
-        const inviterUserObject3d = getComponent(inviterUserAvatarEntity, GroupComponent)[0]
+        const inviterUserObject3d = getComponent(inviterUserAvatarEntity, ObjectComponent)
         // Translate infront of the inviter
         inviterUserObject3d.translateZ(2)
 

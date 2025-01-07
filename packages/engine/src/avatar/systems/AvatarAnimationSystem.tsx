@@ -36,7 +36,6 @@ import {
   getOptionalComponent,
   hasComponent,
   setComponent,
-  useComponent,
   useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
@@ -53,12 +52,12 @@ import { TransformSystem } from '@ir-engine/spatial/src/transform/TransformModul
 import { XRLeftHandComponent, XRRightHandComponent } from '@ir-engine/spatial/src/xr/XRComponents'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
+import { EntityTreeComponent, traverseEntityNode } from '@ir-engine/ecs'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { EntityTreeComponent, traverseEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React from 'react'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
@@ -220,7 +219,7 @@ const execute = () => {
       normalizedHips.matrixWorld.multiplyMatrices(newWorldMatrix, normalizedHips.matrix)
       normalizedHips.matrixWorld.scale(new Vector3(100, 100, 100))
       for (const boneName of VRMHumanBoneList) {
-        const bone = getComponent(rigComponent.bonesToEntities[boneName], NormalizedBoneComponent)
+        const bone = getOptionalComponent(rigComponent.bonesToEntities[boneName], NormalizedBoneComponent)
         if (!bone) continue
         bone.scale.setScalar(1)
         bone.updateMatrix()
@@ -409,7 +408,7 @@ const RigReactor = (props: { entity: Entity }) => {
     if (gltfComponent?.progress?.value !== 100 || !avatarAnimationComponent?.value) return
     try {
       createVRM(entity)
-      setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Avatars)
+      setComponent(entity, ObjectLayerMaskComponent, ObjectLayerMasks.Avatar)
       setupAvatarProportions(entity)
     } catch (e) {
       console.error('Failed to load avatar', e)
@@ -425,14 +424,14 @@ const RigReactor = (props: { entity: Entity }) => {
 
 const AnimationReactor = (props: { entity: Entity }) => {
   const entity = props.entity
-  const rigComponent = useComponent(entity, AvatarRigComponent)
+  const rigComponent = useOptionalComponent(entity, AvatarRigComponent)
   useEffect(() => {
-    if (!Object.values(rigComponent.entitiesToBones).length || !rigComponent.vrm.scene.value) return
+    if (!Object.values(rigComponent?.entitiesToBones ?? {}).length || !rigComponent?.vrm?.scene?.value) return
     setComponent(entity, AnimationComponent, {
       animations: getAllLoadedAnimations(),
       mixer: new AnimationMixer(rigComponent.vrm.scene.value as Group)
     })
-  }, [entity, rigComponent.entitiesToBones, rigComponent.vrm.scene])
+  }, [rigComponent?.bonesToEntities, rigComponent?.vrm.scene])
   return null
 }
 

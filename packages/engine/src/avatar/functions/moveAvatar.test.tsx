@@ -41,7 +41,7 @@ import { initializeSpatialEngine, initializeSpatialViewer } from '@ir-engine/spa
 import { Physics, PhysicsWorld } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { AvatarComponent } from '../components/AvatarComponent'

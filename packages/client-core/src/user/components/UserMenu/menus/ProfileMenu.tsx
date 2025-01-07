@@ -53,7 +53,13 @@ import {
   userApiKeyPath,
   userPath
 } from '@ir-engine/common/src/schema.type.module'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import {
+  defineState,
+  getMutableState,
+  syncStateWithLocalStorage,
+  useHookstate,
+  useMutableState
+} from '@ir-engine/hyperflux'
 import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import Checkbox from '@ir-engine/ui/src/primitives/mui/Checkbox'
 import CircularProgress from '@ir-engine/ui/src/primitives/mui/CircularProgress'
@@ -86,6 +92,14 @@ interface Props {
   onClose?: () => void
 }
 
+export const TermsOfServiceState = defineState({
+  name: 'ir.client.TermsOfServiceState',
+  initial: {
+    accepted: false
+  },
+  extension: syncStateWithLocalStorage(['accepted'])
+})
+
 const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const { t } = useTranslation()
   const location = useLocation()
@@ -110,22 +124,22 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const userId = selfUser.id.value
   const apiKey = useFind(userApiKeyPath).data[0]
   const isGuest = selfUser.isGuest.value
-  const acceptedTOS = !!selfUser.acceptedTOS.value
+  const acceptedTOS = useMutableState(TermsOfServiceState).accepted.value
 
-  const checkedTOS = useHookstate(!isGuest && !acceptedTOS)
-  const checked13OrOver = useHookstate(!isGuest && !acceptedTOS)
-  const checked18OrOver = useHookstate(acceptedTOS)
-  const hasAcceptedTermsAndAge = checkedTOS.value && checked13OrOver.value
+  const checkedTOS = useHookstate(!isGuest || acceptedTOS)
+  const checked13OrOver = useHookstate(!isGuest || acceptedTOS)
+  const checked18OrOver = selfUser.ageVerified.value
 
-  const originallyAcceptedTOS = useHookstate(acceptedTOS)
+  const originallyAgeVerified = useHookstate(checked18OrOver)
+  const originallyAcceptedTOS = useHookstate(acceptedTOS).value
 
-  useEffect(() => {
-    if (!originallyAcceptedTOS.value && checked13OrOver.value) {
+  const submitAgeVerified = () => {
+    if (!originallyAgeVerified.value && !checked18OrOver) {
       API.instance
         .service(userPath)
-        .patch(userId, { acceptedTOS: true })
+        .patch(userId, { ageVerified: true })
         .then(() => {
-          selfUser.acceptedTOS.set(true)
+          selfUser.ageVerified.set(true)
           logger.info({
             event_name: 'accept_tos'
           })
@@ -134,7 +148,13 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
           console.error(e, 'Error updating user')
         })
     }
-  }, [checked13OrOver])
+  }
+
+  useEffect(() => {
+    if (checked13OrOver.value && checkedTOS.value) {
+      getMutableState(TermsOfServiceState).accepted.set(true)
+    }
+  }, [checked13OrOver, checkedTOS])
 
   const adminScopeQuery = useFind(scopePath, {
     query: {
@@ -460,7 +480,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
         <Box className={styles.profileContainer}>
           <Avatar
             imageSrc={avatarThumbnail}
-            showChangeButton={hasAcceptedTermsAndAge}
+            showChangeButton={acceptedTOS}
             onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect, { showBackButton: true })}
           />
 
@@ -470,7 +490,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
               <span className={commonStyles.bold}>{hasAdminAccess ? ' Admin' : isGuest ? ' Guest' : ' User'}</span>.
             </Text>
 
-            {hasAcceptedTermsAndAge && selfUser?.inviteCode.value && (
+            {acceptedTOS && selfUser?.inviteCode.value && (
               <Text mt={1} variant="body2">
                 {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode.value}
               </Text>
@@ -482,24 +502,24 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
               </Text>
             )} */}
 
-            {hasAcceptedTermsAndAge && (
+            {acceptedTOS && (
               <Text id="show-user-id" mt={1} variant="body2" onClick={() => showUserId.set(!showUserId.value)}>
                 {showUserId.value ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
               </Text>
             )}
 
-            {hasAcceptedTermsAndAge && apiKey?.id && (
+            {acceptedTOS && apiKey?.id && (
               <Text variant="body2" mt={1} onClick={() => showApiKey.set(!showApiKey.value)}>
                 {showApiKey.value ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
               </Text>
             )}
 
-            {isGuest && (
+            {isGuest && !originallyAcceptedTOS && (
               <Grid item xs={12}>
                 <FormControlLabel
                   control={
                     <Checkbox
-                      disabled={hasAcceptedTermsAndAge}
+                      disabled={acceptedTOS}
                       value={checkedTOS.value}
                       onChange={(e) => checkedTOS.set(e.target.checked)}
                       color="primary"
@@ -531,7 +551,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
                 <FormControlLabel
                   control={
                     <Checkbox
-                      disabled={hasAcceptedTermsAndAge}
+                      disabled={acceptedTOS}
                       value={checked13OrOver.value}
                       onChange={(e) => checked13OrOver.set(e.target.checked)}
                       color="primary"
@@ -552,16 +572,16 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
               </Grid>
             )}
 
-            {!isGuest && !originallyAcceptedTOS.value && (
+            {!isGuest && !originallyAgeVerified.value && (
               <Grid item xs={12}>
                 <FormControlLabel
                   control={
                     <Checkbox
-                      disabled={checked18OrOver.value}
-                      value={checked18OrOver.value}
-                      onChange={(e) => checked18OrOver.set(e.target.checked)}
+                      disabled={checked18OrOver}
+                      value={checked18OrOver}
+                      onChange={submitAgeVerified}
                       color="primary"
-                      name="is13OrOver"
+                      name="is18OrOver"
                     />
                   }
                   label={
@@ -684,7 +704,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
         </Box>
 
         <InputText
-          disabled={!hasAcceptedTermsAndAge}
+          disabled={!acceptedTOS}
           name={'username' as UserName}
           label={t('user:usermenu.profile.lbl-username')}
           value={username.value || ('' as UserName)}
@@ -755,7 +775,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
           </div>
         )} */}
 
-        {!hideLogin && hasAcceptedTermsAndAge && (
+        {!hideLogin && acceptedTOS && (
           <>
             {isGuest && enableConnect && (
               <>
@@ -812,7 +832,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
               <>
                 {selfUser?.isGuest.value && (
                   <Text align="center" variant="body2" mb={1} mt={2}>
-                    {hasAcceptedTermsAndAge ? t('user:usermenu.profile.addSocial') : t('user:usermenu.profile.logIn')}
+                    {acceptedTOS ? t('user:usermenu.profile.addSocial') : t('user:usermenu.profile.logIn')}
                   </Text>
                 )}
                 <div className={styles.socialContainer}>

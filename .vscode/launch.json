@@ -108,6 +108,12 @@
             "type": "node-terminal"
         },
         {
+            "command": "cd packages/spatial && npm run test -- --reporter=basic ${file}",
+            "name": "vitest run - spatial : Current File",
+            "request": "launch",
+            "type": "node-terminal",
+        },
+        {
             "command": "cd packages/ecs && npm run test -- --maxConcurrency 1 --no-file-parallelism --bail 1 --reporter=basic",
             "name": "npm run test - ecs",
             "request": "launch",

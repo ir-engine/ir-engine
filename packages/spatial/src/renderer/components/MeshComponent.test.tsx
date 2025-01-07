@@ -44,8 +44,8 @@ import { State } from '@ir-engine/hyperflux'
 
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { Geometry } from '../../common/constants/Geometry'
-import { GroupComponent } from './GroupComponent'
 import { MeshComponent, useMeshComponent } from './MeshComponent'
+import { ObjectComponent } from './ObjectComponent'
 
 describe('MeshComponent', () => {
   describe('IDs', () => {
@@ -209,7 +209,7 @@ describe('MeshComponent', () => {
 
         assert(hasComponent(entity, MeshComponent))
         const mesh = getComponent(entity, MeshComponent)
-        assert(hasComponent(entity, GroupComponent) && getComponent(entity, GroupComponent).includes(mesh))
+        assert(getComponent(entity, ObjectComponent) === mesh)
         assert(mesh.userData['ignoreOnExport'])
         unmount()
       })

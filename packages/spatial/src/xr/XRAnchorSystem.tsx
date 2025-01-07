@@ -36,33 +36,33 @@ import {
   Vector3
 } from 'three'
 
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import {
   ComponentType,
   getComponent,
   getMutableComponent,
+  getOptionalComponent,
   removeComponent,
   setComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineQuery, useQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { defineActionQueue, defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { smootheLerpAlpha } from '../common/functions/MathLerpFunctions'
 
 import React from 'react'
-import { EngineState } from '../EngineState'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { NameComponent } from '../common/NameComponent'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { Vector3_One, Vector3_Up } from '../common/constants/MathConstants'
 import { InputComponent } from '../input/components/InputComponent'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { InputState } from '../input/state/InputState'
-import { addObjectToGroup } from '../renderer/components/GroupComponent'
+import { MeshComponent } from '../renderer/components/MeshComponent'
 import { VisibleComponent, setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { updateWorldOriginFromScenePlacement } from '../transform/updateWorldOrigin'
@@ -84,7 +84,7 @@ export const updateHitTest = (entity: Entity) => {
   const pose = hitTestResults[0].getPose(ReferenceSpace.localFloor!)
   if (!pose) return
 
-  const parentEntity = Engine.instance.localFloorEntity
+  const parentEntity = getState(ReferenceSpaceState).localFloorEntity
   setComponent(entity, EntityTreeComponent, { parentEntity })
 
   const transform = getComponent(entity, TransformComponent)
@@ -94,13 +94,13 @@ export const updateHitTest = (entity: Entity) => {
 
 export const updateAnchor = (entity: Entity) => {
   const xrFrame = getState(XRState).xrFrame!
-  const anchor = getComponent(entity, XRAnchorComponent).anchor
-  const transform = getComponent(entity, TransformComponent)
+  const anchor = getOptionalComponent(entity, XRAnchorComponent)?.anchor
+  if (!anchor) return
   const pose = ReferenceSpace.localFloor && xrFrame.getPose(anchor.anchorSpace, ReferenceSpace.localFloor)
-  if (pose) {
-    transform.position.copy(pose.transform.position as any)
-    transform.rotation.copy(pose.transform.orientation as any)
-  }
+  if (!pose) return
+  const transform = getComponent(entity, TransformComponent)
+  transform.position.copy(pose.transform.position as any)
+  transform.rotation.copy(pose.transform.orientation as any)
 }
 
 const _plane = new Plane()
@@ -113,10 +113,12 @@ const _quat = new Quaternion()
  *
  * Miniature scale math shrinks linearly from 20% to 1%, between 1 meters to 0.01 meters from the hit test plane
  */
-const minDollhouseScale = 0.01
-const maxDollhouseScale = 0.2
-const minDollhouseDist = 0.01
-const maxDollhouseDist = 1
+const Dollhouse = Object.freeze({
+  minScale: 0.01,
+  maxScale: 0.2,
+  minDist: 0.01,
+  maxDist: 1
+})
 
 const getTargetWorldSize = (transform: ComponentType<typeof TransformComponent>) => {
   const xrState = getState(XRState)
@@ -141,15 +143,15 @@ const getTargetWorldSize = (transform: ComponentType<typeof TransformComponent>)
   const lifeSize =
     xrState.session!.interactionMode === 'world-space'
       ? xrState.sceneScaleAutoMode
-      : dist > maxDollhouseDist && upDir.angleTo(Vector3_Up) < Math.PI * 0.02
+      : dist > Dollhouse.maxDist && upDir.angleTo(Vector3_Up) < Math.PI * 0.02
 
   if (lifeSize) return 1
 
-  const normalizedDist = MathUtils.clamp(dist, minDollhouseDist, maxDollhouseDist)
+  const normalizedDist = MathUtils.clamp(dist, Dollhouse.minDist, Dollhouse.maxDist)
 
-  const scalingFactor = maxDollhouseDist - minDollhouseDist
+  const scalingFactor = Dollhouse.maxDist - Dollhouse.minDist
 
-  return MathUtils.clamp(Math.pow(normalizedDist, 2) * scalingFactor, minDollhouseScale, maxDollhouseScale)
+  return MathUtils.clamp(Math.pow(normalizedDist, 2) * scalingFactor, Dollhouse.minScale, Dollhouse.maxScale)
 }
 
 export const updateScenePlacement = (scenePlacementEntity: Entity) => {
@@ -230,7 +232,9 @@ const Reactor = () => {
     setComponent(scenePlacementEntity, NameComponent, 'xr-scene-placement')
     setComponent(scenePlacementEntity, XRScenePlacementComponent)
     setComponent(scenePlacementEntity, TransformComponent)
-    setComponent(scenePlacementEntity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
+    setComponent(scenePlacementEntity, EntityTreeComponent, {
+      parentEntity: getState(ReferenceSpaceState).localFloorEntity
+    })
     setComponent(scenePlacementEntity, VisibleComponent, true)
     setComponent(scenePlacementEntity, InputComponent, { highlight: false, grow: false })
 
@@ -251,8 +255,8 @@ const Reactor = () => {
 
     const originAnchorEntity = createEntity()
     setComponent(originAnchorEntity, NameComponent, 'xr-world-anchor')
-    addObjectToGroup(originAnchorEntity, originAnchorMesh)
-    setComponent(originAnchorEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
+    setComponent(originAnchorEntity, MeshComponent, originAnchorMesh)
+    setComponent(originAnchorEntity, EntityTreeComponent, { parentEntity: getState(ReferenceSpaceState).originEntity })
 
     getMutableState(XRAnchorSystemState).set({ scenePlacementEntity, originAnchorEntity })
   }, [])
@@ -374,7 +378,7 @@ export const XRAnchorSystem = defineSystem({
   insert: { after: XRCameraUpdateSystem },
   execute,
   reactor: () => {
-    if (!useMutableState(EngineState).viewerEntity.value) return null
+    if (!useMutableState(ReferenceSpaceState).viewerEntity.value) return null
     return <Reactor />
   }
 })

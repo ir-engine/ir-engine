@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { matchesEntityUUID } from '@ir-engine/ecs'
 import { defineAction, getState, matchesPeerID, matchesWithDefault } from '@ir-engine/hyperflux'
 
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import { NetworkTopics } from '../Network'
 import { matchesUserID } from './matchesUserID'
 

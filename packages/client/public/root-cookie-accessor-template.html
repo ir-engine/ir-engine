@@ -59,16 +59,7 @@
               break
             } else {
               const hasAccess = await document.hasStorageAccess()
-              let storageAccessPermission
-              try {
-                storageAccessPermission = await navigator.permissions.query({
-                  name: 'storage-access'
-                })
-              } catch (error) {
-                storageAccessPermission = { state: 'denied' } 
-                console.error('Failed to query storage permission', error)
-              }
-              if (hasAccess && storageAccessPermission.state === 'granted') {
+              if (hasAccess) {
                 message.data.hasStorageAccess = hasAccess
                 message.data.cookieSet = cookieSet
                 parent.postMessage(message, e.origin)
@@ -81,18 +72,10 @@
                   parent.postMessage(message, e.origin)
                   break
                 } catch (err) {
-                  if (storageAccessPermission.state === 'prompt') {
-                    message.data.hasStorageAccess = false
-                    message.data.cookieSet = cookieSet
-                    parent.postMessage(message, e.origin)
-                    break
-                  } else if (storageAccessPermission.state === 'denied') {
-                    message.data.hasStorageAccess = false
-                    message.data.cookieSet = cookieSet
-                    message.data.storageAccessPermission = 'denied'
-                    parent.postMessage(message, e.origin)
-                    break
-                  }
+                  message.data.hasStorageAccess = false
+                  message.data.cookieSet = cookieSet
+                  parent.postMessage(message, e.origin)
+                  break
                 }
               }
               break
@@ -129,22 +112,19 @@
       document.addEventListener('DOMContentLoaded', async (event) => {
         document.getElementById('confirmButton').onclick = async (event) => {
           try {
-            const requestStorageAccessResponse = await document.requestStorageAccess()
-            if (requestStorageAccessResponse == null) {
-              cookiesMapObj = getCookies()
-              const cookieSet = cookiesMapObj['visited'] || cookiesMapObj['allowedDomains']
-              parent.postMessage({ success: true, data: { hasStorageAccess: true, cookieSet } }, origin)
-            }
+            await document.requestStorageAccess()
+            cookiesMapObj = getCookies()
+            const cookieSet = cookiesMapObj['visited'] || cookiesMapObj['allowedDomains']
+            parent.postMessage({ success: true, data: { hasStorageAccess: true, cookieSet } }, origin)
           } catch (err) {
-            if (err.message === 'requestStorageAccess not allowed')
-              parent.postMessage(
-                { success: false, data: { hasStorageAccess: false, storageAccessPermission: 'denied' } },
-                origin
-              )
+            // the user confirmed that they want to share, and then (strangely) didn't give permission
+            // This will esentially result in the user being asked again, until they
+            // explicitly confirm and follow through with giving permission to the site,
+            // or they or hit the deny button. 
           }
         }
 
-        document.getElementById('cancelButton').onclick = (event) =>
+        document.getElementById('denyButton').onclick = (event) =>
           parent.postMessage({ success: true, data: { skipCrossOriginCookieCheck: true } }, origin)
 
         let data
@@ -180,7 +160,7 @@
     </h2>
     <div class="button-container">
       <button id="confirmButton">Share my login across sites</button>
-      <button id="cancelButton">Do not share my login across sites</button>
+      <button id="denyButton">Do not share my login across sites</button>
     </div>
   </body>
 </html>

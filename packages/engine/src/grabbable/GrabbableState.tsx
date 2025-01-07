@@ -48,10 +48,10 @@ import { EntityNetworkState, SceneUser, WorldNetworkAction } from '@ir-engine/ne
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { BodyTypes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 
+import { getChildrenWithComponents } from '@ir-engine/ecs'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
-import { getChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import '@ir-engine/spatial/src/transform/SpawnPoseState'
 import { GrabbableNetworkAction, GrabbedComponent, GrabberComponent } from './GrabbableComponent'
 

@@ -29,13 +29,13 @@ import { Mesh, MeshStandardMaterial, Shader } from 'three'
 import { Entity, PresentationSystemGroup, QueryReactor, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { getState } from '@ir-engine/hyperflux'
+import { NO_PROXY, getState } from '@ir-engine/hyperflux'
 import {
   PluginType,
   addOBCPlugin,
   removeOBCPlugin
 } from '@ir-engine/spatial/src/common/functions/OnBeforeCompilePlugin'
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
 import { FogSettingsComponent, FogType } from './components/FogSettingsComponent'
@@ -74,18 +74,17 @@ function removeFogShaderPlugin(obj: Mesh<any, MeshStandardMaterial>) {
 function FogGroupReactor(props: { fogEntity: Entity }) {
   const entity = useEntityContext()
   const fogComponent = useComponent(props.fogEntity, FogSettingsComponent)
-  const group = useComponent(entity, GroupComponent)
+  const obj = useComponent(entity, ObjectComponent)?.get(NO_PROXY)
 
   useEffect(() => {
     const customShader = fogComponent.type.value === FogType.Brownian || fogComponent.type.value === FogType.Height
     if (customShader) {
-      const objs = [...group.value]
-      for (const obj of objs) addFogShaderPlugin(obj as any)
+      addFogShaderPlugin(obj as any)
       return () => {
-        for (const obj of objs) removeFogShaderPlugin(obj as any)
+        removeFogShaderPlugin(obj as any)
       }
     }
-  }, [fogComponent.type, group])
+  }, [fogComponent.type, !!obj])
 
   return null
 }
@@ -95,7 +94,7 @@ const FogReactor = () => {
   return (
     <QueryReactor
       ChildEntityReactor={FogGroupReactor}
-      Components={[GroupComponent, VisibleComponent]}
+      Components={[ObjectComponent, VisibleComponent]}
       props={{ fogEntity: entity }}
     />
   )

@@ -28,6 +28,7 @@ import {
   createEntity,
   destroyEngine,
   Entity,
+  EntityTreeComponent,
   getComponent,
   getMutableComponent,
   hasComponent,
@@ -41,7 +42,6 @@ import { Quaternion, Vector2, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { assertVec } from '../../../tests/util/assert'
 import { Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { InputComponent } from '../components/InputComponent'
