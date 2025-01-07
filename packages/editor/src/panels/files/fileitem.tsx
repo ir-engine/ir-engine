@@ -190,17 +190,15 @@ function FileItemCard({
       onContextMenu={onContextMenu}
     >
       <div
-        className={twMerge('max-h-42 flex h-auto w-28 cursor-pointer flex-col items-center text-center')}
+        className={twMerge('max-h-38 w-30 flex h-auto cursor-pointer flex-col items-center p-1.5 text-center')}
         onDoubleClick={file?.isFolder ? onDoubleClick : undefined}
         data-testid="files-panel-file-item"
         onClick={onClick}
       >
         <div
           className={twMerge(
-            `rounded font-figtree`,
-            isSelected
-              ? 'overflow-hidden rounded border border-2 border-[#375DAF] bg-[#2C2E30]'
-              : 'group-hover:bg-[#202225]'
+            `rounded border border-0 font-figtree`,
+            isSelected ? 'border-2 border-[#375DAF] bg-[#2C2E30]' : 'group-hover:bg-[#202225]'
           )}
           style={{
             height: iconSize,
