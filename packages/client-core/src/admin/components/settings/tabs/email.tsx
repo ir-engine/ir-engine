@@ -103,12 +103,12 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
       from: from.value,
       subject: subject.value
     })
-    const operation: Promise<EngineSettingType | EngineSettingType[]>[] = []
+    const emailOperationPromises: Promise<EngineSettingType | EngineSettingType[]>[] = []
 
     updatedSettings.forEach((setting) => {
       const settingInDb = emailSetting.data.find((el) => el.key === setting.key)
       if (!settingInDb) {
-        operation.push(
+        emailOperationPromises.push(
           patchEmailSetting.create({
             key: setting.key,
             category: 'email',
@@ -118,7 +118,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
           })
         )
       } else if (settingInDb.value != setting.value) {
-        operation.push(
+        emailOperationPromises.push(
           patchEmailSetting.patch(settingInDb.id, {
             key: setting.key,
             category: 'email',
@@ -130,7 +130,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
       }
     })
 
-    Promise.all(operation)
+    Promise.all(emailOperationPromises)
       .then(() => {
         state.set({ loading: false, errorMessage: '' })
       })
