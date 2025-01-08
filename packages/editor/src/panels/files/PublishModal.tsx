@@ -135,7 +135,7 @@ export default function PublishModal(props: {
     }
   })
 
-  const handleCreateFolder = async () => {
+  const handlePublishFolder = async () => {
     if (!createNewFolder) {
       console.error('Cannot create folder because createNewFolder is undefined.')
       return
@@ -421,7 +421,7 @@ export default function PublishModal(props: {
                 : t('editor:toolbar.publishLocation.title')}
               {publishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
             </Button>
-            <Button onClick={handleCreateFolder}>{t('save duplicate scene')}</Button>
+            <Button onClick={handlePublishFolder}>{t('save duplicate scene')}</Button>
           </div>
         </div>
       </div>
