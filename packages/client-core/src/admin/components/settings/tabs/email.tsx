@@ -98,12 +98,11 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
     event.preventDefault()
     if (!smtp.value || !auth.value || !from.value || !subject.value) return
 
-    const updated = {
+    const updatedSettings = flattenObjectToArray({
       smtp: { ...smtp.value, auth: auth.value, secure: `${smtp.value.secure}`, port: smtp.value.port },
       from: from.value,
       subject: subject.value
-    }
-    const updatedSettings = flattenObjectToArray(updated)
+    })
     const operation: Promise<EngineSettingType | EngineSettingType[]>[] = []
 
     updatedSettings.forEach((setting) => {
