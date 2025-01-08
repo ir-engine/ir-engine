@@ -28,15 +28,18 @@ import {
   defineSystem,
   ECSState,
   Entity,
+  EntityTreeComponent,
   getComponent,
   getOptionalComponent,
   hasComponent,
+  iterateEntityNode,
   useComponent,
   useQuery
 } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent, NetworkState } from '@ir-engine/network'
 import { TransformComponent } from '@ir-engine/spatial'
+import { Axis } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import {
   createPriorityQueue,
   createSortAndApplyPriorityQueue
@@ -44,7 +47,6 @@ import {
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { compareDistanceToCamera } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
-import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { XRLeftHandComponent, XRRightHandComponent } from '@ir-engine/spatial/src/xr/XRComponents'
 import { VRMHumanBoneList } from '@pixiv/three-vrm'
@@ -193,10 +195,12 @@ const execute = () => {
         entity,
         rightHandTransform.position,
         rightHandTransform.rotation,
-        getComponent(rig.rightUpperArm, BoneComponent).getWorldPosition(_vector3),
+        TransformComponent.getWorldPosition(rig.rightUpperArm, _vector3),
         'right',
         _hint
       )
+
+      getComponent(rig.rightUpperArm, NormalizedBoneComponent).quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
 
       const upperArmEntity = getComponent(rig.rightUpperArm, EntityTreeComponent).parentEntity
       solveTwoBoneIK(
@@ -217,7 +221,7 @@ const execute = () => {
         entity,
         leftHandTransform.position,
         leftHandTransform.rotation,
-        getComponent(rig.leftUpperArm, BoneComponent).getWorldPosition(_vector3),
+        TransformComponent.getWorldPosition(rig.rightUpperArm, _vector3),
         'left',
         _hint
       )
@@ -239,8 +243,8 @@ const execute = () => {
     if (rightFootTargetBlendWeight && rightFootTransform) {
       _hint
         .set(-avatarComponent.footGap * 1.5, 0, 1)
-        .applyQuaternion(transform.rotation)
-        .add(transform.position)
+        .applyQuaternion(TransformComponent.getWorldRotation(entity, _quat))
+        .add(TransformComponent.getWorldPosition(entity, _vector3).sub(hipsForward))
 
       solveTwoBoneIK(
         getComponent(rig.hips, NormalizedBoneComponent).matrixWorld,
@@ -258,8 +262,8 @@ const execute = () => {
     if (leftFootTargetBlendWeight && leftFootTransform) {
       _hint
         .set(-avatarComponent.footGap * 1.5, 0, 1)
-        .applyQuaternion(transform.rotation)
-        .add(transform.position)
+        .applyQuaternion(TransformComponent.getWorldRotation(entity, _quat))
+        .add(TransformComponent.getWorldPosition(entity, _vector3).sub(hipsForward))
 
       solveTwoBoneIK(
         getComponent(rig.hips, NormalizedBoneComponent).matrixWorld,

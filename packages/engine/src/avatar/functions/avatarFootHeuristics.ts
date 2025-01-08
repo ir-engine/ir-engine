@@ -34,6 +34,7 @@ import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/Ri
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { ikTargets } from '../animation/Util'
+import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
 
@@ -51,7 +52,7 @@ const offset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 const quat = new Quaternion()
 let currentStep = ikTargets.leftFoot
 const speedMultiplier = 2
-
+const hipsOffset = new Vector3()
 //step threshold should be a function of leg length
 //walk threshold to determine when to move the feet back into standing position, should be
 export const setIkFootTarget = (userID: UserID, delta: number) => {
@@ -69,12 +70,17 @@ export const setIkFootTarget = (userID: UserID, delta: number) => {
   /** quick fix - set feet to under the avtar and slide around */
   const avatarTransform = getComponent(selfAvatarEntity, TransformComponent)
   const avatar = getComponent(selfAvatarEntity, AvatarComponent)
-
+  const hipsPos = getComponent(
+    getComponent(selfAvatarEntity, AvatarRigComponent).bonesToEntities.hips,
+    TransformComponent
+  ).position
+  hipsOffset.set(hipsPos.x * 2, 0, hipsPos.z * 2)
   const leftFootTransform = getComponent(leftFootEntity, TransformComponent)
   leftFootTransform.position
     .set(avatar.footGap, avatar.footHeight, 0)
     .applyQuaternion(avatarTransform.rotation)
     .add(avatarTransform.position)
+    .add(hipsOffset)
   leftFootTransform.rotation.copy(avatarTransform.rotation)
 
   const rightFootTransform = getComponent(rightFootEntity, TransformComponent)
@@ -82,6 +88,7 @@ export const setIkFootTarget = (userID: UserID, delta: number) => {
     .set(-avatar.footGap, avatar.footHeight, 0)
     .applyQuaternion(avatarTransform.rotation)
     .add(avatarTransform.position)
+    .add(hipsOffset)
   rightFootTransform.rotation.copy(avatarTransform.rotation)
 
   /** @todo new implementation */
