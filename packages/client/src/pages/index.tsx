@@ -27,7 +27,6 @@ import React, { useEffect } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Navigate } from 'react-router-dom'
 
-import styles from '@ir-engine/client-core/src/admin/old-styles/admin.module.scss'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 
 import { PopupMenuState } from '@ir-engine/client-core/src/user/components/UserMenu/PopupMenuService'
@@ -116,7 +115,7 @@ export const HomePage = (): any => {
             )}
             {Boolean(clientSetting?.homepageLinkButtonEnabled) && (
               <Button
-                className={styles.gradientButton + ' ' + styles.forceVaporwave}
+                className="gradientButton"
                 autoFocus
                 onClick={() => (window.location.href = clientSetting?.homepageLinkButtonRedirect)}
               >
