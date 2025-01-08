@@ -34,10 +34,11 @@ import {
   hasComponent,
   iterateEntityNode,
   useComponent,
-  useQuery
+  useQuery,
+  UUIDComponent
 } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, none } from '@ir-engine/hyperflux'
-import { NetworkObjectComponent, NetworkState } from '@ir-engine/network'
+import { NetworkState } from '@ir-engine/network'
 import { TransformComponent } from '@ir-engine/spatial'
 import { Axis } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import {
@@ -113,7 +114,7 @@ const execute = () => {
 
     if (!rig.hips) continue
 
-    const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
+    const ownerID = getComponent(entity, UUIDComponent)
     const leftFoot = AvatarIKTargetComponent.getTargetEntity(ownerID, ikTargets.leftFoot)
     const leftFootTransform = getOptionalComponent(leftFoot, TransformComponent)
     const leftFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[leftFoot]

@@ -28,7 +28,6 @@ import { Euler, MathUtils, Quaternion, Vector3 } from 'three'
 import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { UserID } from '@ir-engine/hyperflux'
 import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
@@ -55,11 +54,12 @@ const speedMultiplier = 2
 const hipsOffset = new Vector3()
 //step threshold should be a function of leg length
 //walk threshold to determine when to move the feet back into standing position, should be
-export const setIkFootTarget = (userID: UserID, delta: number) => {
-  const selfAvatarEntity = AvatarComponent.getUserAvatarEntity(userID)
+export const setIkFootTarget = (delta: number) => {
+  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+  const uuid = getComponent(selfAvatarEntity, UUIDComponent)
 
-  const leftFootEntity = UUIDComponent.getEntityByUUID((userID + ikTargets.leftFoot) as EntityUUID)
-  const rightFootEntity = UUIDComponent.getEntityByUUID((userID + ikTargets.rightFoot) as EntityUUID)
+  const leftFootEntity = UUIDComponent.getEntityByUUID((uuid + ikTargets.leftFoot) as EntityUUID)
+  const rightFootEntity = UUIDComponent.getEntityByUUID((uuid + ikTargets.rightFoot) as EntityUUID)
 
   if (!leftFootEntity || !rightFootEntity) return
 
@@ -98,8 +98,8 @@ export const setIkFootTarget = (userID: UserID, delta: number) => {
   const stepDistance = 0.1
 
   const feet = {
-    [ikTargets.rightFoot]: UUIDComponent.getEntityByUUID((userID + ikTargets.rightFoot) as EntityUUID),
-    [ikTargets.leftFoot]: UUIDComponent.getEntityByUUID((userID + ikTargets.leftFoot) as EntityUUID)
+    [ikTargets.rightFoot]: UUIDComponent.getEntityByUUID((uuid + ikTargets.rightFoot) as EntityUUID),
+    [ikTargets.leftFoot]: UUIDComponent.getEntityByUUID((uuid + ikTargets.leftFoot) as EntityUUID)
   }
 
   const playerRigidbody = getComponent(selfAvatarEntity, RigidBodyComponent)

@@ -189,10 +189,10 @@ const execute = () => {
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
   if (!selfAvatarEntity) return
 
-  applyInputSourcePoseToIKTargets(Engine.instance.userID)
+  applyInputSourcePoseToIKTargets()
 
   const { deltaSeconds } = getState(ECSState)
-  setIkFootTarget(Engine.instance.userID, deltaSeconds)
+  setIkFootTarget(deltaSeconds)
 
   const inputState = getState(InputState)
   const avatarInputSettings = getState(AvatarInputSettingsState)
