@@ -131,7 +131,6 @@ export async function up(knex: Knex): Promise<void> {
           updatedAt: await getDateTimeSql()
         }))
       )
-      console.log('instanceServerSettings', instanceServerSettings)
 
       await knex.from(engineSettingPath).insert([...instanceServerSettings])
     }
