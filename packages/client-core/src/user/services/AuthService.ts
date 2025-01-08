@@ -54,6 +54,7 @@ import {
   userAvatarPath,
   userPath
 } from '@ir-engine/common/src/schema.type.module'
+import { EngineState } from '@ir-engine/ecs'
 import {
   defineState,
   getMutableState,
@@ -62,7 +63,6 @@ import {
   syncStateWithLocalStorage,
   useHookstate
 } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { MessageResponse, ParentCommunicator } from '../../common/iframeCOM'
 import { NotificationService } from '../../common/services/NotificationService'
 
@@ -132,8 +132,6 @@ const getToken = async (): Promise<string> => {
   const hasAccess = (await communicator
     .sendMessage('checkAccess')
     .then((message) => {
-      if (message?.data?.skipCrossOriginCookieCheck === true || message?.data?.storageAccessPermission === 'denied')
-        localStorage.setItem('skipCrossOriginCookieCheck', 'true')
       return message.data
     })
     .catch((message) => {
@@ -156,7 +154,7 @@ const getToken = async (): Promise<string> => {
           if (e.origin !== config.client.clientUrl || e.source !== iframe.contentWindow) return
           try {
             const data = e?.data?.data
-            if (data.skipCrossOriginCookieCheck === true || data.storageAccessPermission === 'denied') {
+            if (data.skipCrossOriginCookieCheck === true) {
               localStorage.setItem('skipCrossOriginCookieCheck', 'true')
               iframe.style.display = 'none'
               iframe.style.visibility = 'hidden'

@@ -27,10 +27,12 @@ import {
   createEngine,
   createEntity,
   destroyEngine,
+  EntityTreeComponent,
   generateEntityUUID,
   getComponent,
   getOptionalComponent,
   hasComponent,
+  iterateEntityNode,
   setComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
@@ -39,7 +41,6 @@ import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { act, render } from '@testing-library/react'
 import React from 'react'
 import { AnimationMixer } from 'three'

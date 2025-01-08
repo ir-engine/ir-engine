@@ -28,10 +28,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Bone, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
-import { Entity, getComponent } from '@ir-engine/ecs'
+import { Entity, getComponent, iterateEntityNode } from '@ir-engine/ecs'
 import { Object3DUtils } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 export type MixamoBoneNames =
   | 'Root'

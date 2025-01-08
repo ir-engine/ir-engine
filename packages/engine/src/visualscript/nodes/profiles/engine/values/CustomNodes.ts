@@ -58,7 +58,7 @@ import { dispatchAction, getState } from '@ir-engine/hyperflux'
 import { CameraActions } from '@ir-engine/spatial/src/camera/CameraState'
 import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
 import iterateObject3D from '@ir-engine/spatial/src/common/functions/iterateObject3D'
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { TweenComponent } from '@ir-engine/spatial/src/transform/components/TweenComponent'
 import { ContentFitType } from '@ir-engine/spatial/src/transform/functions/ObjectFitFunctions'
 import { endXRSession, requestXRSession } from '@ir-engine/spatial/src/xr/XRSessionFunctions'
@@ -480,7 +480,7 @@ export const fadeMesh = makeFlowNodeDefinition({
     const fadeOut = read<boolean>('fadeOut')
     const duration = read<number>('duration')
 
-    const obj3d: Object3D | null = getOptionalComponent(entity, GroupComponent)?.[0] ?? null
+    const obj3d: Object3D | null = getOptionalComponent(entity, ObjectComponent) ?? null
     const meshMaterials = obj3d
       ? iterateObject3D(
           obj3d,

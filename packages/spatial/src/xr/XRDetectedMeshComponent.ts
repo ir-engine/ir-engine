@@ -26,19 +26,19 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, Mesh } from 'three'
 
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import { defineComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { EngineState } from '../EngineState'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { NameComponent } from '../common/NameComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '../renderer/components/GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../renderer/components/ObjectComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { occlusionMat, placementHelperMaterial, shadowMaterial } from './XRDetectedPlaneComponent'
+import { shadowMaterial } from './XRDetectedPlaneComponent'
 import { ReferenceSpace, XRState } from './XRState'
 
 export const XRDetectedMeshComponent = defineComponent({
@@ -48,7 +48,6 @@ export const XRDetectedMeshComponent = defineComponent({
     mesh: S.Type<XRMesh>(),
     // internal
     shadowMesh: S.Type<Mesh>(),
-    occlusionMesh: S.Type<Mesh>(),
     geometry: S.Type<BufferGeometry>(),
     placementHelper: S.Type<Mesh>()
   }),
@@ -65,32 +64,25 @@ export const XRDetectedMeshComponent = defineComponent({
       component.geometry.set(geometry)
 
       const shadowMesh = new Mesh(geometry, shadowMaterial)
-      const occlusionMesh = new Mesh(geometry, occlusionMat)
-      const placementHelper = new Mesh(geometry, placementHelperMaterial)
+      // const placementHelper = new Mesh(geometry, placementHelperMaterial)
 
       addObjectToGroup(entity, shadowMesh)
-      addObjectToGroup(entity, occlusionMesh)
-      addObjectToGroup(entity, placementHelper)
-      occlusionMesh.renderOrder = -1 /** @todo make a global config for AR occlusion mesh renderOrder */
+      // addObjectToGroup(entity, placementHelper)
 
       component.shadowMesh.set(shadowMesh)
-      component.occlusionMesh.set(occlusionMesh)
-      component.placementHelper.set(placementHelper)
+      // component.placementHelper.set(placementHelper)
 
       return () => {
         removeObjectFromGroup(entity, shadowMesh)
-        removeObjectFromGroup(entity, occlusionMesh)
-        removeObjectFromGroup(entity, placementHelper)
+        // removeObjectFromGroup(entity, placementHelper)
       }
     }, [component.mesh])
 
     useEffect(() => {
       const shadowMesh = component.shadowMesh.value
-      const occlusionMesh = component.occlusionMesh.value
       const geometry = component.geometry.value
 
       if (shadowMesh.geometry) (shadowMesh.geometry as any) = geometry
-      if (occlusionMesh.geometry) (occlusionMesh.geometry as any) = geometry
 
       return () => {
         geometry.dispose()
@@ -139,7 +131,7 @@ export const XRDetectedMeshComponent = defineComponent({
 
   foundMesh: (mesh: XRMesh) => {
     const entity = createEntity()
-    setComponent(entity, EntityTreeComponent, { parentEntity: getState(EngineState).localFloorEntity })
+    setComponent(entity, EntityTreeComponent, { parentEntity: getState(ReferenceSpaceState).localFloorEntity })
     setComponent(entity, TransformComponent)
     setVisibleComponent(entity, true)
     setComponent(entity, XRDetectedMeshComponent)

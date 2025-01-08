@@ -26,10 +26,10 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getCanvasBlob } from '@ir-engine/client-core/src/common/utils'
 import config from '@ir-engine/common/src/config'
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@ir-engine/common/src/constants/AvatarConstants'
 
+import { getCanvasBlob } from '@ir-engine/client-core/src/common/utils'
 import multiLogger from '@ir-engine/common/src/logger'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { Button, Input } from '@ir-engine/ui'
@@ -44,8 +44,19 @@ import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunc
 import { UserMenus } from '../../../UserUISystem'
 import { AvatarService } from '../../../services/AvatarService'
 import { PopupMenuServices } from '../PopupMenuService'
-import { SupportedSdks, isAvaturn } from './AvatarCreatorMenu'
 import { DiscardAvatarChangesModal } from './DiscardAvatarChangesModal'
+
+export const SupportedSdks = {
+  Avaturn: 'Avaturn',
+  ReadyPlayerMe: 'ReadyPlayerMe'
+}
+
+const isAvaturn = (url: string) => {
+  const fileExtensionRegex = /\.[0-9a-z]+$/i
+  const avaturnUrl = config.client.avaturnUrl
+  if (avaturnUrl && !fileExtensionRegex.test(url)) return url.startsWith(avaturnUrl)
+  return false
+}
 
 enum LoadingState {
   None,
@@ -61,8 +72,10 @@ interface AvatarCreatorMenuProps {
 }
 
 const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProps) => {
+  const { showBackButton, previewEnabled = true, previewDisabledMessage } = props
   const { t } = useTranslation()
   const selectedBlob = useHookstate<Blob | null>(null)
+  const thumbnail = useHookstate<Blob | null>(null)
   const avatarName = useHookstate('')
   const avatarUrl = useHookstate('')
   const loading = useHookstate(LoadingState.LoadingCreator)
@@ -91,6 +104,25 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
     const rpmIframe = document.getElementById('rpm-iframe') as HTMLIFrameElement
     rpmIframe.src = getSdkUrl() as string
   }, [])
+
+  const export2DReadyPlayerMeAvatar = async (avatarId: string): Promise<Blob> => {
+    const res = await fetch(
+      `https://models.readyplayer.me/${avatarId}.png?size=${THUMBNAIL_HEIGHT}&camera=portrait&pose=relaxed`
+    )
+    return await res.blob()
+  }
+
+  const generateAvatarThumbnail = async () => {
+    const canvas = document.createElement('canvas')
+    canvas.width = THUMBNAIL_WIDTH
+    canvas.height = THUMBNAIL_HEIGHT
+
+    const avatarCanvas = document.getElementById('stage')?.firstChild as CanvasImageSource
+
+    const newContext = canvas.getContext('2d')
+    newContext?.drawImage(avatarCanvas, 0, 0)
+    return await getCanvasBlob(canvas)
+  }
 
   const parseMessage = (event: MessageEvent) => {
     try {
@@ -130,7 +162,8 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
         loading.set(LoadingState.LoadingPreview)
         avatarUrl.set(message.data.url)
         selectedBlob.set(data)
-        if (!props.previewEnabled) {
+        thumbnail.set(await export2DReadyPlayerMeAvatar(message.data.avatarId))
+        if (!previewEnabled) {
           loading.set(LoadingState.None)
         }
       } catch (error) {
@@ -187,33 +220,27 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
     }
     loading.set(LoadingState.Uploading)
 
-    const canvas = document.createElement('canvas')
-    canvas.width = THUMBNAIL_WIDTH
-    canvas.height = THUMBNAIL_HEIGHT
-
-    const avatarCanvas = document.getElementById('stage')?.firstChild as CanvasImageSource
-
-    const newContext = canvas.getContext('2d')
-    newContext?.drawImage(avatarCanvas, 0, 0)
+    if (!thumbnail.value) {
+      thumbnail.set(await generateAvatarThumbnail())
+    }
 
     const thumbnailName = avatarUrl.value.substring(0, avatarUrl.value.lastIndexOf('.')) + '.png'
     const modelName = !isAvaturn(avatarUrl.value)
       ? avatarUrl.value.substring(0, avatarUrl.value.lastIndexOf('.')) + '.glb'
       : avatarUrl.value.split('/').pop() + '.glb'
 
-    const blob = await getCanvasBlob(canvas)
     await AvatarService.createAvatar(
       new File([selectedBlob.value!], modelName),
-      new File([blob!], thumbnailName),
+      new File([thumbnail.value!], thumbnailName),
       avatarName.value,
       false
     )
 
     loading.set(LoadingState.None)
     PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect, {
-      showBackButton: props.showBackButton,
-      previewEnabled: props.previewEnabled,
-      previewDisabledMessage: props.previewDisabledMessage
+      showBackButton: showBackButton,
+      previewEnabled: previewEnabled,
+      previewDisabledMessage: previewDisabledMessage
     })
   }
 
@@ -234,7 +261,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
         id="select-avatar-modal"
         className={twMerge(
           'min-w-34 pointer-events-auto m-auto flex max-w-6xl rounded-xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col',
-          avatarPreviewLoaded && !props.previewEnabled ? 'h-[45vh] w-[40vw]' : 'h-[95vh] w-[70vw]'
+          avatarPreviewLoaded && !previewEnabled ? 'h-[45vh] w-[40vw]' : 'h-[95vh] w-[70vw]'
         )}
         showCloseButton={false}
         hideFooter={true}
@@ -246,9 +273,9 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
                 className=" h-6 w-6 self-center bg-transparent hover:bg-transparent focus:bg-transparent"
                 onClick={() =>
                   PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect, {
-                    showBackButton: props.showBackButton,
-                    previewEnabled: props.previewEnabled,
-                    previewDisabledMessage: props.previewDisabledMessage
+                    showBackButton: showBackButton,
+                    previewEnabled: previewEnabled,
+                    previewDisabledMessage: previewDisabledMessage
                   })
                 }
               >
@@ -295,7 +322,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
                   className="col-span-3"
                 />
               )}
-              {loading.value !== LoadingState.LoadingCreator && avatarUrl && props.previewEnabled && (
+              {loading.value !== LoadingState.LoadingCreator && avatarUrl && previewEnabled && (
                 <div className="relative col-start-2 rounded-lg bg-gradient-to-b from-[#162941] to-[#114352]">
                   <div className="stars absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent"></div>
                   <AvatarPreview
@@ -306,12 +333,10 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
                   />
                 </div>
               )}
-              {avatarPreviewLoaded && !props.previewEnabled && (
+              {avatarPreviewLoaded && !previewEnabled && (
                 <div className="relative col-span-3 flex">
                   <Text className="m-auto" fontSize="lg">
-                    {props?.previewDisabledMessage
-                      ? props.previewDisabledMessage
-                      : t('user:avatar.avatarPreviewDisabledMessage')}
+                    {previewDisabledMessage ? previewDisabledMessage : t('user:avatar.avatarPreviewDisabledMessage')}
                   </Text>
                 </div>
               )}

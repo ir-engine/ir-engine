@@ -27,11 +27,10 @@ import { ArrayCamera, PerspectiveCamera, Vector2, Vector3, Vector4 } from 'three
 
 import { AnimationSystemGroup } from '@ir-engine/ecs'
 import { getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { defineActionQueue, getMutableState, getState } from '@ir-engine/hyperflux'
 
-import { EngineState } from '../EngineState'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { Vector3_One } from '../common/constants/MathConstants'
 import { RendererComponent } from '../renderer/WebGLRendererSystem'
@@ -122,10 +121,10 @@ function updateProjectionFromCameraArrayUnion(camera: ArrayCamera) {
 }
 
 function updateCameraFromXRViewerPose() {
-  const camera = getComponent(getState(EngineState).viewerEntity, CameraComponent)
-  const originTransform = getComponent(getState(EngineState).localFloorEntity, TransformComponent)
-  const cameraTransform = getComponent(getState(EngineState).viewerEntity, TransformComponent)
-  const renderer = getComponent(getState(EngineState).viewerEntity, RendererComponent).renderer!
+  const camera = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent)
+  const originTransform = getComponent(getState(ReferenceSpaceState).localFloorEntity, TransformComponent)
+  const cameraTransform = getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
+  const renderer = getComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent).renderer!
   const xrState = getState(XRState)
   const pose = xrState.viewerPose
   if (!pose) return
@@ -214,10 +213,11 @@ let _currentDepthFar = null as number | null
 const _vec = new Vector2()
 
 export function updateXRCamera() {
-  const renderer = getOptionalComponent(Engine.instance.viewerEntity, RendererComponent)?.renderer
+  const viewerEntity = getState(ReferenceSpaceState).viewerEntity
+  const renderer = getOptionalComponent(viewerEntity, RendererComponent)?.renderer
   if (!renderer) return
 
-  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  const camera = getComponent(viewerEntity, CameraComponent)
   const xrState = getState(XRState)
   const session = xrState.session
 

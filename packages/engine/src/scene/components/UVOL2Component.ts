@@ -62,7 +62,7 @@ import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getState, isClient, NO_PROXY_STEALTH, none, State, usePrevious } from '@ir-engine/hyperflux'
 import { isIPhone, isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'

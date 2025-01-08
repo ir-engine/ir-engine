@@ -28,6 +28,7 @@ import { destroyEmulatedXREngine, mockEmulatedXREngine } from '../../tests/util/
 import { CustomWebXRPolyfill } from '../../tests/webxr/emulator'
 
 import {
+  EntityTreeComponent,
   SystemDefinitions,
   SystemUUID,
   UndefinedEntity,
@@ -44,10 +45,9 @@ import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { Quaternion, Vector3 } from 'three'
 import { MockXRAnchor } from '../../tests/util/MockXR'
 import { assertVec } from '../../tests/util/assert'
-import { EngineState } from '../EngineState'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { TransformComponent, XRAnchorComponent } from '../SpatialModule'
 import { Q_IDENTITY, Vector3_Zero } from '../common/constants/MathConstants'
-import { EntityTreeComponent } from '../transform/components/EntityTree'
 import { XRRigidTransform } from './8thwall/XR8WebXRProxy'
 import { XRAnchorSystemState, updateAnchor, updateHitTest, updateScenePlacement } from './XRAnchorSystem'
 import { XRHitTestComponent } from './XRComponents'
@@ -453,8 +453,8 @@ describe('updateHitTest', () => {
     expect(result).toEqual(Expected)
   })
 
-  it('should set `@param entity`.EntityTreeComponent.parentEntity to EngineState.localFloorEntity', () => {
-    const Expected = getState(EngineState).localFloorEntity
+  it('should set `@param entity`.EntityTreeComponent.parentEntity to ReferenceSpaceState.localFloorEntity', () => {
+    const Expected = getState(ReferenceSpaceState).localFloorEntity
     const Initial = undefined
     // Set the data as expected
     const source = {} as XRHitTestSource
@@ -581,7 +581,7 @@ describe('updateHitTest', () => {
   })
 
   it('should return early if XRFrame.getHitTestResults returns an array with length 0', () => {
-    const Expected = getState(EngineState).localFloorEntity
+    const Expected = getState(ReferenceSpaceState).localFloorEntity
     const Initial = undefined
     // Set the data as expected
     const source = {} as XRHitTestSource
@@ -606,7 +606,7 @@ describe('updateHitTest', () => {
   })
 
   it('should return early if hitTestResults[0].getPose(ReferenceSpace.localFloor) is falsy', () => {
-    const Expected = getState(EngineState).localFloorEntity
+    const Expected = getState(ReferenceSpaceState).localFloorEntity
     const Initial = undefined
     // Set the data as expected
     const source = {} as XRHitTestSource

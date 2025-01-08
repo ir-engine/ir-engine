@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Box3, Box3Helper, BufferGeometry, Mesh } from 'three'
 
+import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -37,16 +38,15 @@ import {
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
-import { addObjectToGroup, GroupComponent } from '../../renderer/components/GroupComponent'
+import { RendererState } from '../../renderer/RendererState'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
-import { setObjectLayers } from '../../renderer/components/ObjectLayerComponent'
+import { ObjectComponent } from '../../renderer/components/ObjectComponent'
+import { ObjectLayerMaskComponent } from '../../renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
-import { RendererState } from '../../renderer/RendererState'
 import { T } from '../../schema/schemaFunctions'
 import { TransformComponent } from './TransformComponent'
 
@@ -76,10 +76,8 @@ export const BoundingBoxComponent = defineComponent({
 
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: entity })
 
-      addObjectToGroup(helperEntity, helper)
-
-      setObjectLayers(helper, ObjectLayers.NodeHelper)
-
+      setComponent(helperEntity, ObjectComponent, helper)
+      ObjectLayerMaskComponent.setLayer(helperEntity, ObjectLayers.NodeHelper)
       boundingBox.helper.set(helperEntity)
 
       TransformComponent.dirtyTransforms[entity] = true //used to dirty trasform and set the appropate bounding box
@@ -119,7 +117,7 @@ export const updateBoundingBox = (entity: Entity) => {
   const helperEntity = boundingBox.helper
   if (!helperEntity) return
 
-  const helperObject = getComponent(helperEntity, GroupComponent)?.[0] as any as Box3Helper
+  const helperObject = getComponent(helperEntity, ObjectComponent) as any as Box3Helper
   helperObject.updateMatrixWorld(true)
 }
 

@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { UUIDComponent } from '@ir-engine/ecs'
+import { EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
 import {
   getAllComponents,
   getComponent,
@@ -33,7 +33,6 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
 

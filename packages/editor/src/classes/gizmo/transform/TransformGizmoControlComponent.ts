@@ -44,17 +44,13 @@ import {
 } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
-import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
-import { gizmoPlane } from '../../../constants/GizmoPresets'
 import {
   onGizmoCommit,
   onPointerDown,
@@ -67,7 +63,7 @@ import { EditorHelperState } from '../../../services/EditorHelperState'
 import { TransformGizmoVisualComponent } from './TransformGizmoVisualComponent'
 
 export const TransformGizmoControlComponent = defineComponent({
-  name: 'TransformGizmoControl',
+  name: 'TransformGizmoControlComponent',
 
   schema: S.Object({
     controlledEntities: S.Array(S.Entity(), []),
@@ -128,7 +124,7 @@ export const TransformGizmoControlComponent = defineComponent({
           return
 
         const visualComponent = getComponent(gizmoControlComponent.visualEntity, TransformGizmoVisualComponent)
-        const pickerEntity = visualComponent.picker[gizmoControlComponent.mode]
+        const pickerEntity = visualComponent.picker
 
         onPointerHover(gizmoControlEntity)
 
@@ -158,13 +154,6 @@ export const TransformGizmoControlComponent = defineComponent({
       true,
       InputExecutionOrder.Before
     )
-
-    useEffect(() => {
-      addObjectToGroup(gizmoControlComponent.planeEntity.value, gizmoPlane)
-      gizmoPlane.layers.set(ObjectLayers.TransformGizmo)
-      setComponent(gizmoControlComponent.planeEntity.value, InputComponent)
-      setComponent(gizmoControlComponent.planeEntity.value, TransformGizmoTagComponent)
-    }, [])
 
     useEffect(() => {
       const mode = editorHelperState.transformMode.value

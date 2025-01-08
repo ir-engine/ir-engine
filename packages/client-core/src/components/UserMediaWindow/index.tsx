@@ -73,7 +73,7 @@ const useDrawMocapLandmarks = (
   useEffect(() => {
     drawingUtils.set(new DrawingUtils(canvasCtxRef.current!))
     canvasRef.current!.style.transform = `scaleX(-1)`
-  })
+  }, [])
   useExecute(
     () => {
       if (videoElement.paused || videoElement.ended || !videoElement.currentTime) return

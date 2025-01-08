@@ -69,6 +69,7 @@
     "sceneCreationFail": "Scene creation failed. {{reason}}",
     "uploadAborted": "Upload aborted",
     "uploadFailed": "Upload failed {{reason}}",
+    "fileUploadFailed": "File upload failed",
     "assetDeletionFail": "Asset deletion failed. {{reason}}",
     "projectAssetDeletionFail": "Project Asset deletion failed. {{reason}}",
     "networkError": "Network Error: {{status}}. {{text}}",

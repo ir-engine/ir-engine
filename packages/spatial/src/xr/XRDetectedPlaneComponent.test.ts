@@ -31,6 +31,7 @@ import { mockSpatialEngine } from '../../tests/util/mockSpatialEngine'
 import { requestEmulatedXRSession } from '../../tests/webxr/emulator'
 
 import {
+  EntityTreeComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -43,17 +44,11 @@ import {
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { BufferGeometry, Color, Quaternion, Vector3 } from 'three'
-import { EngineState } from '../EngineState'
+import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { TransformComponent } from '../SpatialModule'
 import { NameComponent } from '../common/NameComponent'
 import { VisibleComponent } from '../renderer/components/VisibleComponent'
-import { EntityTreeComponent } from '../transform/components/EntityTree'
-import {
-  XRDetectedPlaneComponent,
-  occlusionMat,
-  placementHelperMaterial,
-  shadowMaterial
-} from './XRDetectedPlaneComponent'
+import { XRDetectedPlaneComponent, placementHelperMaterial, shadowMaterial } from './XRDetectedPlaneComponent'
 import { ReferenceSpace, XRState } from './XRState'
 
 describe('placementHelperMaterial', () => {
@@ -92,19 +87,19 @@ describe('shadowMaterial', () => {
   })
 }) //:: shadowMaterial
 
-describe('occlusionMat', () => {
-  it('should initialize Material.colorWrite with the expected value', () => {
-    expect(occlusionMat.colorWrite).toBe(false)
-  })
+// describe('occlusionMat', () => {
+//   it('should initialize Material.colorWrite with the expected value', () => {
+//     expect(occlusionMat.colorWrite).toBe(false)
+//   })
 
-  it('should initialize Material.polygonOffset with the expected value', () => {
-    expect(occlusionMat.polygonOffset).toBe(true)
-  })
+//   it('should initialize Material.polygonOffset with the expected value', () => {
+//     expect(occlusionMat.polygonOffset).toBe(true)
+//   })
 
-  it('should initialize Material.polygonOffsetFactor with the expected value', () => {
-    expect(occlusionMat.polygonOffsetFactor).toBe(-0.01)
-  })
-}) //:: occlusionMat
+//   it('should initialize Material.polygonOffsetFactor with the expected value', () => {
+//     expect(occlusionMat.polygonOffsetFactor).toBe(-0.01)
+//   })
+// }) //:: occlusionMat
 
 describe('XRDetectedPlaneComponent', () => {
   describe('Fields', () => {
@@ -322,7 +317,7 @@ describe('XRDetectedPlaneComponent', () => {
       expect(result).not.toBe(UndefinedEntity)
     })
 
-    it('should add an EntityTreeComponent to the new entity and set its parentEntity to EngineState.localFloorEntity', () => {
+    it('should add an EntityTreeComponent to the new entity and set its parentEntity to ReferenceSpaceState.localFloorEntity', () => {
       // Set the data as expected
       const plane = {} as XRPlane
       const before = XRDetectedPlaneComponent.detectedPlanesMap.get(plane)
@@ -334,7 +329,9 @@ describe('XRDetectedPlaneComponent', () => {
       expect(result).not.toBe(undefined)
       expect(result).not.toBe(UndefinedEntity)
       expect(hasComponent(result, EntityTreeComponent)).toBe(true)
-      expect(getComponent(result, EntityTreeComponent).parentEntity).toBe(getState(EngineState).localFloorEntity)
+      expect(getComponent(result, EntityTreeComponent).parentEntity).toBe(
+        getState(ReferenceSpaceState).localFloorEntity
+      )
     })
 
     it('should add TransformComponent to the new entity', () => {

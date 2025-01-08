@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Entity, UUIDComponent, defineQuery, defineSystem, getComponent } from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { EngineState } from '../../EngineState'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { Vector3_Up, Vector3_Zero } from '../../common/constants/MathConstants'
 import { LookAtComponent } from '../components/LookAtComponent'
 import { TransformComponent } from '../components/TransformComponent'
@@ -45,7 +45,7 @@ export const LookAtSystem = defineSystem({
   uuid: 'ir.spatial.LookAtSystem',
   insert: { before: TransformDirtyUpdateSystem },
   execute: () => {
-    const viewerEntity = getState(EngineState).viewerEntity
+    const viewerEntity = getState(ReferenceSpaceState).viewerEntity
     if (!viewerEntity) return
 
     for (const entity of facerQuery()) {

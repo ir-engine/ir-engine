@@ -23,26 +23,18 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import { defineState, UserID } from '@ir-engine/hyperflux'
 
-const argTypes = {}
+export const EngineState = defineState({
+  name: 'EngineState',
+  initial: () => ({
+    /**
+     * The uuid of the logged-in user
+     */
+    userID: '' as UserID,
 
-export default {
-  title: 'Admin/Dashboard',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'Dashboard',
-    jest: 'Dashboard.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    },
-    reactRouter: {
-      routePath: '/admin',
-      routeParams: {}
-    }
-  },
-  argTypes
-}
-
-export const Default = { args: Component.defaultProps }
+    /** @deprecated use isEditing instead */
+    isEditor: false,
+    isEditing: false
+  })
+})

@@ -35,8 +35,8 @@ import {
 } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
+import { getAncestorWithComponents } from '@ir-engine/ecs'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { SpawnPoseState } from '@ir-engine/spatial/src/transform/SpawnPoseState'
 import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
