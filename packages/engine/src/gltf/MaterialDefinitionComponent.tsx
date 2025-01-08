@@ -23,34 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  ComponentType,
-  LayerComponent,
-  S,
-  UUIDComponent,
-  defineComponent,
-  getComponent,
-  setComponent,
-  useComponent,
-  useEntityContext
-} from '@ir-engine/ecs'
-import { NO_PROXY, startReactor, useImmediateEffect } from '@ir-engine/hyperflux'
+import { GLTF } from '@gltf-transform/core'
+import { ComponentType, S, defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
+import { NO_PROXY } from '@ir-engine/hyperflux'
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
-import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { MaterialPrototypeDefinitions, MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { getPrototypeEntityFromName } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import React, { useEffect, useLayoutEffect } from 'react'
+import { useEffect } from 'react'
 import {
   CanvasTexture,
   Color,
   LinearSRGBColorSpace,
-  Material,
+  MeshBasicMaterial,
   MeshPhysicalMaterial,
-  MeshStandardMaterial,
   SRGBColorSpace,
   Texture,
   Vector2
 } from 'three'
 import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
+import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
 import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
 import { getParserOptions } from './GLTFState'
 
@@ -106,39 +97,32 @@ const MaterialDefinitionSchema = S.Object({
   extras: S.Optional(S.Record(S.String(), S.Any()))
 })
 
-export const MaterialDefinitionComponent = defineComponent({
-  name: 'MaterialDefinitionComponent',
-  schema: MaterialDefinitionSchema,
+// export const MaterialDefinitionComponent = defineComponent({
+//   name: 'MaterialDefinitionComponent',
+//   schema: MaterialDefinitionSchema,
 
-  reactor: () => {
-    //@todo: this should probably be integrated into GLTF loader as materials can only ever come from a GLTF file
-    const entity = useEntityContext()
-    if (LayerComponent.hasUpstreamEntity(entity)) return null
-    return <MaterialDefinitionReactor />
-  }
-})
+//   reactor: () => {
+//     const entity = useEntityContext()
+//     const component = useComponent(entity, MaterialDefinitionComponent)
+//     const options = getParserOptions(entity)
+//     // const material = GLTFLoaderFunctions.useLoadMaterial(
+//     //   options,
+//     //   component.get(NO_PROXY) as ComponentType<typeof MaterialDefinitionComponent>
+//     // )
 
-const MaterialDefinitionReactor = () => {
-  const entity = useEntityContext()
-  const component = useComponent(entity, MaterialDefinitionComponent)
-  const options = getParserOptions(entity)
-  const material = GLTFLoaderFunctions.useLoadMaterial(
-    options,
-    component.get(NO_PROXY) as ComponentType<typeof MaterialDefinitionComponent>
-  )
-  useLayoutEffect(() => {
-    if (!entity || !material) return
-    const uuid = getComponent(entity, UUIDComponent)
-    material.uuid = uuid
-    setComponent(entity, MaterialStateComponent, {
-      material,
-      prototypeEntity: getPrototypeEntityFromName(material.type)
-    })
-  }, [material])
-  // }, [])
+//     // useLayoutEffect(() => {
+//     //   if (!entity || !material) return
+//     //   const uuid = getComponent(entity, UUIDComponent)
+//     //   material.uuid = uuid
+//     //   setComponent(entity, MaterialStateComponent, {
+//     //     material,
+//     //     prototypeEntity: getPrototypeEntityFromName(material.type)
+//     //   })
+//     // }, [material])
 
-  return null
-}
+//     return null
+//   }
+// })
 
 declare module 'three/src/materials/MeshPhysicalMaterial' {
   export interface MeshPhysicalMaterial {
@@ -156,14 +140,37 @@ export const KHRUnlitExtensionComponent = defineComponent({
   jsonID: EXTENSIONS.KHR_MATERIALS_UNLIT,
   schema: S.Record(S.Any(), S.Any(), {}),
 
-  reactor: () => {
-    const entity = useEntityContext()
+  getMaterialType() {
+    return MeshBasicMaterial
+  },
 
-    useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshBasicMaterial' })
-    }, [])
+  extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {
+    const pending = [] as Promise<any>[]
 
-    return null
+    materialParams.color = new Color(1.0, 1.0, 1.0)
+    materialParams.opacity = 1.0
+
+    const metallicRoughness = materialDef.pbrMetallicRoughness
+
+    if (metallicRoughness) {
+      if (Array.isArray(metallicRoughness.baseColorFactor)) {
+        const array = metallicRoughness.baseColorFactor
+
+        materialParams.color.setRGB(array[0], array[1], array[2], LinearSRGBColorSpace)
+        materialParams.opacity = array[3]
+      }
+
+      if (metallicRoughness.baseColorTexture !== undefined) {
+        pending.push(
+          GLTFLoaderFunctions.assignTexture(options, metallicRoughness.baseColorTexture).then((map) => {
+            materialParams.map = map
+            map.colorSpace = SRGBColorSpace
+          })
+        )
+      }
+    }
+
+    return Promise.all(pending)
   }
 })
 
@@ -177,18 +184,15 @@ export const KHREmissiveStrengthExtensionComponent = defineComponent({
   jsonID: EXTENSIONS.KHR_MATERIALS_EMISSIVE_STRENGTH,
   schema: S.Object({ emissiveStrength: S.Optional(S.Number()) }),
 
-  reactor: () => {
-    const entity = useEntityContext()
-    const component = useComponent(entity, KHREmissiveStrengthExtensionComponent)
-    const materialStateComponent = useComponent(entity, MaterialStateComponent)
+  extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {
+    // @ts-ignore -- TODO type extensions
+    const emissiveStrength = materialDef.extensions[KHREmissiveStrengthExtensionComponent.jsonID].emissiveStrength
 
-    useEffect(() => {
-      if (typeof component.emissiveStrength.value !== 'number') return
-      const material = materialStateComponent.material.value as MeshStandardMaterial
-      material.setValues({ emissiveIntensity: component.emissiveStrength.value })
-    }, [materialStateComponent.material.value.type, component.emissiveStrength.value])
+    if (emissiveStrength !== undefined) {
+      materialParams.emissiveIntensity = emissiveStrength
+    }
 
-    return null
+    return Promise.resolve()
   }
 })
 
@@ -208,67 +212,56 @@ export const KHRClearcoatExtensionComponent = defineComponent({
     clearcoatNormalTexture: S.Optional(MaterialNormalTextureInfoSchema)
   }),
 
-  reactor: () => {
-    const entity = useEntityContext()
-    const component = useComponent(entity, KHRClearcoatExtensionComponent)
-    const materialStateComponent = useComponent(entity, MaterialStateComponent)
+  getMaterialType() {
+    return MeshPhysicalMaterial
+  },
 
-    useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshPhysicalMaterial' })
-    }, [])
+  extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {
+    const pending = [] as Promise<any>[]
 
-    useEffect(() => {
-      if (!component.clearcoatFactor.value) return
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ clearcoat: component.clearcoatFactor.value })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, component.clearcoatFactor.value])
+    const extension = materialDef.extensions![KHRClearcoatExtensionComponent.jsonID] as ComponentType<
+      typeof KHRClearcoatExtensionComponent
+    >
 
-    useEffect(() => {
-      if (!component.clearcoatRoughnessFactor.value) return
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ clearcoatRoughness: component.clearcoatRoughnessFactor.value })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, component.clearcoatRoughnessFactor.value])
+    if (extension.clearcoatFactor !== undefined) {
+      materialParams.clearcoat = extension.clearcoatFactor
+    }
 
-    const options = getParserOptions(entity)
-    const clearcoatMap = GLTFLoaderFunctions.useAssignTexture(options, component.clearcoatTexture.get(NO_PROXY))
+    if (extension.clearcoatTexture !== undefined) {
+      pending.push(
+        GLTFLoaderFunctions.assignTexture(options, extension.clearcoatTexture).then((map) => {
+          materialParams.clearcoatMap = map
+        })
+      )
+    }
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ clearcoatMap })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, clearcoatMap])
+    if (extension.clearcoatRoughnessFactor !== undefined) {
+      materialParams.clearcoatRoughness = extension.clearcoatRoughnessFactor
+    }
 
-    const clearcoatRoughnessMap = GLTFLoaderFunctions.useAssignTexture(
-      options,
-      component.clearcoatRoughnessTexture.get(NO_PROXY)
-    )
+    if (extension.clearcoatRoughnessTexture !== undefined) {
+      pending.push(
+        GLTFLoaderFunctions.assignTexture(options, extension.clearcoatRoughnessTexture).then((map) => {
+          materialParams.clearcoatRoughnessMap = map
+        })
+      )
+    }
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ clearcoatRoughnessMap })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, clearcoatRoughnessMap])
+    if (extension.clearcoatNormalTexture !== undefined) {
+      pending.push(
+        GLTFLoaderFunctions.assignTexture(options, extension.clearcoatNormalTexture).then((map) => {
+          materialParams.clearcoatNormalMap = map
+        })
+      )
 
-    const clearcoatNormalMap = GLTFLoaderFunctions.useAssignTexture(
-      options,
-      component.clearcoatNormalTexture.get(NO_PROXY)
-    )
+      if (extension.clearcoatNormalTexture.scale !== undefined) {
+        const scale = extension.clearcoatNormalTexture.scale
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-
-      if (component.clearcoatNormalTexture.value?.scale !== undefined) {
-        const scale = component.clearcoatNormalTexture.value.scale
-        material.setValues({ clearcoatNormalScale: new Vector2(scale, scale) })
+        materialParams.clearcoatNormalScale = new Vector2(scale, scale)
       }
+    }
 
-      material.setValues({ clearcoatNormalMap })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, clearcoatNormalMap])
-
-    return null
+    return Promise.all(pending)
   }
 })
 
@@ -289,65 +282,53 @@ export const KHRIridescenceExtensionComponent = defineComponent({
     iridescenceThicknessTexture: S.Optional(TextureInfoSchema)
   }),
 
-  reactor: () => {
-    const entity = useEntityContext()
-    const component = useComponent(entity, KHRIridescenceExtensionComponent)
-    const materialStateComponent = useComponent(entity, MaterialStateComponent)
+  getMaterialType() {
+    return MeshPhysicalMaterial
+  },
 
-    useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshPhysicalMaterial' })
-    }, [])
+  extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {
+    const pending = [] as Promise<any>[]
 
-    useEffect(() => {
-      if (!component.iridescenceFactor.value) return
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ iridescence: component.iridescenceFactor.value })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, component.iridescenceFactor.value])
+    const extension = materialDef.extensions![KHRIridescenceExtensionComponent.jsonID] as ComponentType<
+      typeof KHRIridescenceExtensionComponent
+    >
+    if (extension.iridescenceFactor !== undefined) {
+      materialParams.iridescence = extension.iridescenceFactor
+    }
 
-    useEffect(() => {
-      if (!component.iridescenceIor.value) return
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ iridescenceIOR: component.iridescenceIor.value })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, component.iridescenceIor.value])
+    if (extension.iridescenceTexture !== undefined) {
+      pending.push(
+        GLTFLoaderFunctions.assignTexture(options, extension.iridescenceTexture).then((map) => {
+          materialParams.iridescenceMap = map
+        })
+      )
+    }
 
-    const options = getParserOptions(entity)
-    const iridescenceMap = GLTFLoaderFunctions.useAssignTexture(options, component.iridescenceTexture.get(NO_PROXY))
+    if (extension.iridescenceIor !== undefined) {
+      materialParams.iridescenceIOR = extension.iridescenceIor
+    }
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ iridescenceMap })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, iridescenceMap])
+    if (materialParams.iridescenceThicknessRange === undefined) {
+      materialParams.iridescenceThicknessRange = [100, 400]
+    }
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({
-        iridescenceThicknessRange: [
-          component.iridescenceThicknessMinimum.value ?? 100,
-          component.iridescenceThicknessMaximum.value ?? 400
-        ]
-      })
-      material.needsUpdate = true
-    }, [
-      materialStateComponent.material.value.type,
-      component.iridescenceThicknessMinimum.value,
-      component.iridescenceThicknessMaximum.value
-    ])
+    if (extension.iridescenceThicknessMinimum !== undefined) {
+      materialParams.iridescenceThicknessRange[0] = extension.iridescenceThicknessMinimum
+    }
 
-    const iridescenceThicknessMap = GLTFLoaderFunctions.useAssignTexture(
-      options,
-      component.iridescenceThicknessTexture.get(NO_PROXY)
-    )
+    if (extension.iridescenceThicknessMaximum !== undefined) {
+      materialParams.iridescenceThicknessRange[1] = extension.iridescenceThicknessMaximum
+    }
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ iridescenceThicknessMap })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, iridescenceThicknessMap])
+    if (extension.iridescenceThicknessTexture !== undefined) {
+      pending.push(
+        GLTFLoaderFunctions.assignTexture(options, extension.iridescenceThicknessTexture).then((map) => {
+          materialParams.iridescenceThicknessMap = map
+        })
+      )
+    }
 
-    return null
+    return Promise.all(pending)
   }
 })
 
@@ -366,60 +347,48 @@ export const KHRSheenExtensionComponent = defineComponent({
     sheenRoughnessTexture: S.Optional(TextureInfoSchema)
   }),
 
-  reactor: () => {
-    const entity = useEntityContext()
-    const component = useComponent(entity, KHRSheenExtensionComponent)
-    const materialStateComponent = useComponent(entity, MaterialStateComponent)
+  getMaterialType() {
+    return MeshPhysicalMaterial
+  },
 
-    useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshPhysicalMaterial' })
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ sheen: 1 })
-    }, [])
+  extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {
+    const pending = [] as Promise<any>[]
 
-    useEffect(() => {
-      if (!component.sheenColorFactor.value) return
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({
-        sheenColor: new Color().setRGB(
-          component.sheenColorFactor.value[0],
-          component.sheenColorFactor.value[1],
-          component.sheenColorFactor.value[2],
-          LinearSRGBColorSpace
-        )
-      })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, component.sheenColorFactor.value])
+    materialParams.sheenColor = new Color(0, 0, 0)
+    materialParams.sheenRoughness = 0
+    materialParams.sheen = 1
 
-    useEffect(() => {
-      if (!component.sheenRoughnessFactor.value) return
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ sheenRoughness: component.sheenRoughnessFactor.value })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, component.sheenRoughnessFactor.value])
+    const extension = materialDef.extensions![KHRSheenExtensionComponent.jsonID] as ComponentType<
+      typeof KHRSheenExtensionComponent
+    >
 
-    const options = getParserOptions(entity)
-    const sheenColorMap = GLTFLoaderFunctions.useAssignTexture(options, component.sheenColorTexture.get(NO_PROXY))
+    if (extension.sheenColorFactor !== undefined) {
+      const colorFactor = extension.sheenColorFactor
+      materialParams.sheenColor.setRGB(colorFactor[0], colorFactor[1], colorFactor[2], LinearSRGBColorSpace)
+    }
 
-    useEffect(() => {
-      if (sheenColorMap) sheenColorMap.colorSpace = SRGBColorSpace
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ sheenColorMap })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, sheenColorMap])
+    if (extension.sheenRoughnessFactor !== undefined) {
+      materialParams.sheenRoughness = extension.sheenRoughnessFactor
+    }
 
-    const sheenRoughnessMap = GLTFLoaderFunctions.useAssignTexture(
-      options,
-      component.sheenRoughnessTexture.get(NO_PROXY)
-    )
+    if (extension.sheenColorTexture !== undefined) {
+      pending.push(
+        GLTFLoaderFunctions.assignTexture(options, extension.sheenColorTexture).then((map) => {
+          materialParams.sheenColorMap = map
+          map.colorSpace = SRGBColorSpace
+        })
+      )
+    }
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ sheenRoughnessMap })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, sheenRoughnessMap])
+    if (extension.sheenRoughnessTexture !== undefined) {
+      pending.push(
+        GLTFLoaderFunctions.assignTexture(options, extension.sheenRoughnessTexture).then((map) => {
+          materialParams.sheenRoughnessMap = map
+        })
+      )
+    }
 
-    return null
+    return Promise.all(pending)
   }
 })
 
@@ -437,32 +406,29 @@ export const KHRTransmissionExtensionComponent = defineComponent({
     transmissionTexture: S.Optional(TextureInfoSchema)
   }),
 
-  reactor: () => {
-    const entity = useEntityContext()
-    const component = useComponent(entity, KHRTransmissionExtensionComponent)
-    const materialStateComponent = useComponent(entity, MaterialStateComponent)
+  getMaterialType() {
+    return MeshPhysicalMaterial
+  },
 
-    useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshPhysicalMaterial' })
-    }, [])
+  extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {
+    const pending = [] as Promise<any>[]
 
-    useEffect(() => {
-      if (!component.transmissionFactor.value) return
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ transmission: component.transmissionFactor.value })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value, component.transmissionFactor.value])
+    const extension = materialDef.extensions![KHRTransmissionExtensionComponent.jsonID] as ComponentType<
+      typeof KHRTransmissionExtensionComponent
+    >
+    if (extension.transmissionFactor !== undefined) {
+      materialParams.transmission = extension.transmissionFactor
+    }
 
-    const options = getParserOptions(entity)
-    const transmissionMap = GLTFLoaderFunctions.useAssignTexture(options, component.transmissionTexture.get(NO_PROXY))
+    if (extension.transmissionTexture !== undefined) {
+      pending.push(
+        GLTFLoaderFunctions.assignTexture(options, extension.transmissionTexture).then((map) => {
+          materialParams.transmissionMap = map
+        })
+      )
+    }
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ transmissionMap })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value, transmissionMap])
-
-    return null
+    return Promise.all(pending)
   }
 })
 
@@ -481,51 +447,37 @@ export const KHRVolumeExtensionComponent = defineComponent({
     attenuationColor: S.Optional(S.Tuple([S.Number(), S.Number(), S.Number()]))
   }),
 
-  reactor: () => {
-    const entity = useEntityContext()
-    const component = useComponent(entity, KHRVolumeExtensionComponent)
-    const materialStateComponent = useComponent(entity, MaterialStateComponent)
+  getMaterialType() {
+    return MeshPhysicalMaterial
+  },
 
-    useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshPhysicalMaterial' })
-    }, [])
+  extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {
+    const pending = [] as Promise<any>[]
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ thickness: component.thicknessFactor.value ?? 0 })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, component.thicknessFactor.value])
+    const extension = materialDef.extensions![KHRVolumeExtensionComponent.jsonID] as ComponentType<
+      typeof KHRVolumeExtensionComponent
+    >
+    materialParams.thickness = extension.thicknessFactor !== undefined ? extension.thicknessFactor : 0
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ attenuationDistance: component.attenuationDistance.value || Infinity })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, component.attenuationDistance.value])
+    if (extension.thicknessTexture !== undefined) {
+      pending.push(
+        GLTFLoaderFunctions.assignTexture(options, extension.thicknessTexture).then((map) => {
+          materialParams.thicknessMap = map
+        })
+      )
+    }
 
-    useEffect(() => {
-      if (!component.attenuationColor.value) return
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({
-        attenuationColor: new Color().setRGB(
-          component.attenuationColor.value[0],
-          component.attenuationColor.value[1],
-          component.attenuationColor.value[2],
-          LinearSRGBColorSpace
-        )
-      })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, component.attenuationColor.value])
+    materialParams.attenuationDistance = extension.attenuationDistance || Infinity
 
-    const options = getParserOptions(entity)
-    const thicknessMap = GLTFLoaderFunctions.useAssignTexture(options, component.thicknessTexture.get(NO_PROXY))
+    const colorArray = extension.attenuationColor || [1, 1, 1]
+    materialParams.attenuationColor = new Color().setRGB(
+      colorArray[0],
+      colorArray[1],
+      colorArray[2],
+      LinearSRGBColorSpace
+    )
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ thicknessMap })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, thicknessMap])
-
-    return null
+    return Promise.all(pending)
   }
 })
 
@@ -541,22 +493,17 @@ export const KHRIorExtensionComponent = defineComponent({
     ior: S.Optional(S.Number())
   }),
 
-  reactor: () => {
-    const entity = useEntityContext()
-    const component = useComponent(entity, KHRIorExtensionComponent)
-    const materialStateComponent = useComponent(entity, MaterialStateComponent)
+  getMaterialType() {
+    return MeshPhysicalMaterial
+  },
 
-    useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshPhysicalMaterial' })
-    }, [])
+  extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {
+    const extension = materialDef.extensions![KHRIorExtensionComponent.jsonID] as ComponentType<
+      typeof KHRIorExtensionComponent
+    >
+    materialParams.ior = extension.ior !== undefined ? extension.ior : 1.5
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ ior: component.ior.value ?? 1.5 })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, component.ior.value])
-
-    return null
+    return Promise.resolve()
   }
 })
 
@@ -575,53 +522,39 @@ export const KHRSpecularExtensionComponent = defineComponent({
     specularColorTexture: S.Optional(TextureInfoSchema)
   }),
 
-  reactor: () => {
-    const entity = useEntityContext()
-    const component = useComponent(entity, KHRSpecularExtensionComponent)
-    const materialStateComponent = useComponent(entity, MaterialStateComponent)
+  getMaterialType() {
+    return MeshPhysicalMaterial
+  },
 
-    useImmediateEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshPhysicalMaterial' })
-    }, [])
+  extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {
+    const pending = [] as Promise<any>[]
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ specularIntensity: component.specularFactor.value ?? 1.0 })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.type.value, component.specularFactor.value])
+    const extension = materialDef.extensions![KHRSpecularExtensionComponent.jsonID] as ComponentType<
+      typeof KHRSpecularExtensionComponent
+    >
+    materialParams.specularIntensity = extension.specularFactor !== undefined ? extension.specularFactor : 1.0
 
-    useEffect(() => {
-      const specularColorFactor = component.specularColorFactor.value ?? [1, 1, 1]
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({
-        specularColor: new Color().setRGB(
-          specularColorFactor[0],
-          specularColorFactor[1],
-          specularColorFactor[2],
-          LinearSRGBColorSpace
-        )
-      })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.type.value, component.specularColorFactor.value])
+    if (extension.specularTexture !== undefined) {
+      pending.push(
+        GLTFLoaderFunctions.assignTexture(options, extension.specularTexture).then((map) => {
+          materialParams.specularIntensityMap = map
+        })
+      )
+    }
 
-    const options = getParserOptions(entity)
-    const specularMap = GLTFLoaderFunctions.useAssignTexture(options, component.specularTexture.get(NO_PROXY))
+    const colorArray = extension.specularColorFactor || [1, 1, 1]
+    materialParams.specularColor = new Color().setRGB(colorArray[0], colorArray[1], colorArray[2], LinearSRGBColorSpace)
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ specularIntensityMap: specularMap })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.type.value, specularMap])
+    if (extension.specularColorTexture !== undefined) {
+      pending.push(
+        GLTFLoaderFunctions.assignTexture(options, extension.specularColorTexture).then((map) => {
+          materialParams.specularColorMap = map
+          map.colorSpace = SRGBColorSpace
+        })
+      )
+    }
 
-    const specularColorMap = GLTFLoaderFunctions.useAssignTexture(options, component.specularColorTexture.get(NO_PROXY))
-
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ specularColorMap })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.type.value, specularColorMap])
-
-    return null
+    return Promise.all(pending)
   }
 })
 
@@ -638,31 +571,27 @@ export const EXTBumpExtensionComponent = defineComponent({
     bumpTexture: S.Optional(TextureInfoSchema)
   }),
 
-  reactor: () => {
-    const entity = useEntityContext()
-    const component = useComponent(entity, EXTBumpExtensionComponent)
-    const materialStateComponent = useComponent(entity, MaterialStateComponent)
+  getMaterialType() {
+    return MeshPhysicalMaterial
+  },
 
-    useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshPhysicalMaterial' })
-    }, [])
+  extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {
+    const pending = [] as Promise<any>[]
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ bumpScale: component.bumpFactor.value ?? 1.0 })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, component.bumpFactor.value])
+    const extension = materialDef.extensions![EXTBumpExtensionComponent.jsonID] as ComponentType<
+      typeof EXTBumpExtensionComponent
+    >
+    materialParams.bumpScale = extension.bumpFactor !== undefined ? extension.bumpFactor : 1.0
 
-    const options = getParserOptions(entity)
-    const bumpMap = GLTFLoaderFunctions.useAssignTexture(options, component.bumpTexture.get(NO_PROXY))
+    if (extension.bumpTexture !== undefined) {
+      pending.push(
+        GLTFLoaderFunctions.assignTexture(options, extension.bumpTexture).then((map) => {
+          materialParams.bumpMap = map
+        })
+      )
+    }
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ bumpMap })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, bumpMap])
-
-    return null
+    return Promise.all(pending)
   }
 })
 
@@ -680,37 +609,33 @@ export const KHRAnisotropyExtensionComponent = defineComponent({
     anisotropyTexture: S.Optional(TextureInfoSchema)
   }),
 
-  reactor: () => {
-    const entity = useEntityContext()
-    const component = useComponent(entity, KHRAnisotropyExtensionComponent)
-    const materialStateComponent = useComponent(entity, MaterialStateComponent)
+  getMaterialType() {
+    return MeshPhysicalMaterial
+  },
 
-    useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshPhysicalMaterial' })
-    }, [])
+  extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {
+    const pending = [] as Promise<any>[]
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ anisotropy: component.anisotropyStrength.value ?? 0.0 })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, component.anisotropyStrength.value])
+    const extension = materialDef.extensions![KHRAnisotropyExtensionComponent.jsonID] as ComponentType<
+      typeof KHRAnisotropyExtensionComponent
+    >
+    if (extension.anisotropyStrength !== undefined) {
+      materialParams.anisotropy = extension.anisotropyStrength
+    }
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ anisotropyRotation: component.anisotropyRotation.value ?? 0.0 })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, component.anisotropyRotation.value])
+    if (extension.anisotropyRotation !== undefined) {
+      materialParams.anisotropyRotation = extension.anisotropyRotation
+    }
 
-    const options = getParserOptions(entity)
-    const anisotropyMap = GLTFLoaderFunctions.useAssignTexture(options, component.anisotropyTexture.get(NO_PROXY))
+    if (extension.anisotropyTexture !== undefined) {
+      pending.push(
+        GLTFLoaderFunctions.assignTexture(options, extension.anisotropyTexture).then((map) => {
+          materialParams.anisotropyMap = map
+        })
+      )
+    }
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      material.setValues({ anisotropyMap })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, anisotropyMap])
-
-    return null
+    return Promise.all(pending)
   }
 })
 
@@ -820,29 +745,29 @@ export const MozillaHubsLightMapComponent = defineComponent({
 
     useEffect(() => {
       const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      const materialDefinitionComponent = getComponent(entity, MaterialDefinitionComponent)
       // Multiply by pi for MeshBasicMaterial shading
       const lightMapIntensity =
-        component.intensity.value * (materialDefinitionComponent.type === 'MeshBasicMaterial' ? Math.PI : 1.0)
+        component.intensity.value * (materialStateComponent.material instanceof MeshBasicMaterial ? Math.PI : 1.0)
 
-      material.setValues({ lightMapIntensity })
+      material.lightMapIntensity = lightMapIntensity
       material.needsUpdate = true
     }, [component.intensity.value])
 
     const options = getParserOptions(entity)
-    const lightMap = GLTFLoaderFunctions.useAssignTexture(options, component.get(NO_PROXY))
 
     useEffect(() => {
-      if (!lightMap) return
+      GLTFLoaderFunctions.assignTexture(options, component.get(NO_PROXY)).then((lightMap) => {
+        if (!lightMap) return
 
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
+        const material = materialStateComponent.material.value as MeshPhysicalMaterial
 
-      lightMap.channel = 1
-      material.lightMap = lightMap
+        lightMap.channel = 1
+        material.lightMap = lightMap
 
-      material.setValues({ lightMap: lightMap })
-      material.needsUpdate = true
-    }, [lightMap])
+        material.setValues({ lightMap: lightMap })
+        material.needsUpdate = true
+      })
+    }, [component])
 
     return null
   }
@@ -860,71 +785,71 @@ export const KHRMaterialsPBRSpecularGlossinessComponent = defineComponent({
     specularFactor: S.Optional(S.Tuple([S.Number(), S.Number(), S.Number()])),
     glossinessFactor: S.Optional(S.Number()),
     specularGlossinessTexture: S.Optional(TextureInfoSchema)
-  }),
+  })
 
-  reactor: () => {
-    const entity = useEntityContext()
-    const component = useComponent(entity, KHRMaterialsPBRSpecularGlossinessComponent)
-    const materialStateComponent = useComponent(entity, MaterialStateComponent)
+  // reactor: () => {
+  //   const entity = useEntityContext()
+  //   const component = useComponent(entity, KHRMaterialsPBRSpecularGlossinessComponent)
+  //   const materialStateComponent = useComponent(entity, MaterialStateComponent)
 
-    useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: 'MeshStandardMaterial' })
-      console.warn(
-        'KHR_materials_pbrSpecularGlossiness is deprecated. Use KHR_materials_ior and KHR_materials_specular instead.'
-      )
-    }, [])
+  //   useEffect(() => {
+  //     setComponent(entity, MaterialDefinitionComponent, { type: 'MeshStandardMaterial' })
+  //     console.warn(
+  //       'KHR_materials_pbrSpecularGlossiness is deprecated. Use KHR_materials_ior and KHR_materials_specular instead.'
+  //     )
+  //   }, [])
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshStandardMaterial
-      material.setValues({
-        color: new Color().fromArray(component.diffuseFactor.value ?? [1, 1, 1, 1]),
-        opacity: component.diffuseFactor.value ? component.diffuseFactor.value[3] : 1
-      })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, component.diffuseFactor.value])
+  //   useEffect(() => {
+  //     const material = materialStateComponent.material.value as MeshStandardMaterial
+  //     material.setValues({
+  //       color: new Color().fromArray(component.diffuseFactor.value ?? [1, 1, 1, 1]),
+  //       opacity: component.diffuseFactor.value ? component.diffuseFactor.value[3] : 1
+  //     })
+  //     material.needsUpdate = true
+  //   }, [materialStateComponent.material.value.type, component.diffuseFactor.value])
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshStandardMaterial
-      material.setValues({
-        roughness: 1 - (component.glossinessFactor.value ?? 1)
-      })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, component.glossinessFactor.value])
+  //   useEffect(() => {
+  //     const material = materialStateComponent.material.value as MeshStandardMaterial
+  //     material.setValues({
+  //       roughness: 1 - (component.glossinessFactor.value ?? 1)
+  //     })
+  //     material.needsUpdate = true
+  //   }, [materialStateComponent.material.value.type, component.glossinessFactor.value])
 
-    const options = getParserOptions(entity)
-    const map = GLTFLoaderFunctions.useAssignTexture(options, component.diffuseTexture.get(NO_PROXY))
+  //   const options = getParserOptions(entity)
+  //   const map = GLTFLoaderFunctions.useAssignTexture(options, component.diffuseTexture.get(NO_PROXY))
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshStandardMaterial
-      material.setValues({ map })
-      material.needsUpdate = true
-    }, [materialStateComponent.material.value.type, map])
+  //   useEffect(() => {
+  //     const material = materialStateComponent.material.value as MeshStandardMaterial
+  //     material.setValues({ map })
+  //     material.needsUpdate = true
+  //   }, [materialStateComponent.material.value.type, map])
 
-    const specularGlossinessMap = GLTFLoaderFunctions.useAssignTexture(
-      options,
-      component.specularGlossinessTexture.get(NO_PROXY)
-    )
+  //   const specularGlossinessMap = GLTFLoaderFunctions.useAssignTexture(
+  //     options,
+  //     component.specularGlossinessTexture.get(NO_PROXY)
+  //   )
 
-    useEffect(() => {
-      if (!specularGlossinessMap) return
+  //   useEffect(() => {
+  //     if (!specularGlossinessMap) return
 
-      const abortController = new AbortController()
+  //     const abortController = new AbortController()
 
-      invertGlossinessMap(specularGlossinessMap).then((invertedMap) => {
-        if (abortController.signal.aborted) return
+  //     invertGlossinessMap(specularGlossinessMap).then((invertedMap) => {
+  //       if (abortController.signal.aborted) return
 
-        const material = materialStateComponent.material.value as MeshStandardMaterial
-        material.setValues({ roughnessMap: invertedMap })
-        material.needsUpdate = true
-      })
+  //       const material = materialStateComponent.material.value as MeshStandardMaterial
+  //       material.setValues({ roughnessMap: invertedMap })
+  //       material.needsUpdate = true
+  //     })
 
-      return () => {
-        abortController.abort()
-      }
-    }, [materialStateComponent.material.value.type, specularGlossinessMap])
+  //     return () => {
+  //       abortController.abort()
+  //     }
+  //   }, [materialStateComponent.material.value.type, specularGlossinessMap])
 
-    return null
-  }
+  //   return null
+  // }
 })
 
 const invertGlossinessMap = async (glossinessMap: Texture) => {
@@ -959,65 +884,41 @@ export const EEMaterialComponent = defineComponent({
     plugins: S.Array(MaterialExtensionPluginTypeSchema)
   }),
 
-  reactor: () => {
-    const entity = useEntityContext()
-    const component = useComponent(entity, EEMaterialComponent)
-    const materialStateComponent = useComponent(entity, MaterialStateComponent)
+  getMaterialType(materialDefintion: GLTF.IMaterial) {
+    const extension = materialDefintion.extensions![EEMaterialComponent.jsonID] as ComponentType<
+      typeof EEMaterialComponent
+    >
+    return MaterialPrototypeDefinitions.find(e => e.prototypeId === extension.prototype)!.prototypeConstructor
+  },
 
-    useEffect(() => {
-      setComponent(entity, MaterialDefinitionComponent, { type: component.prototype.value })
-    }, [component.prototype.value])
+  extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {
+    const pending = [] as Promise<any>[]
 
-    useEffect(() => {
-      const options = getParserOptions(entity)
-      const resultProperties = {} as Record<string, any>
-      const texturePromises = Object.fromEntries(
-        Object.entries(component.args.value).filter(([k, v]) => v.type === 'texture' && v.contents)
-      )
+    const extension = materialDef.extensions![EEMaterialComponent.jsonID] as ComponentType<typeof EEMaterialComponent>
+    const resultProperties = {} as Record<string, any>
 
-      const reactor = startReactor(() => {
-        const material = materialStateComponent.material.value as Material
-        for (const [k, v] of Object.entries(component.args.value)) {
-          if (v.type === 'texture') {
-            if (v.contents) {
-              const texture = GLTFLoaderFunctions.useAssignTexture(options, v.contents)
-              useEffect(() => {
-                if (!texture) return
-                if (k === 'map') texture.colorSpace = SRGBColorSpace
-                resultProperties[k] = texture
-                delete texturePromises[k]
-                if (Object.keys(texturePromises).length === 0) {
-                  material.setValues(resultProperties)
-                  material.needsUpdate = true
-                  reactor.stop()
-                }
-              }, [texture])
-            } else {
-              useEffect(() => {
-                resultProperties[k] = null
-              }, [])
-            }
-          } else if (v.type === 'color') {
-            useEffect(() => {
-              resultProperties[k] = new Color(v.contents)
-              material.setValues(resultProperties)
-            }, [])
-          } else {
-            useEffect(() => {
-              resultProperties[k] = v.contents
-              material.setValues(resultProperties)
-            }, [])
-          }
+    for (const [k, v] of Object.entries(extension.args)) {
+      if (v.type === 'texture') {
+        if (v.contents) {
+          pending.push(
+            GLTFLoaderFunctions.assignTexture(options, v.contents).then((texture) => {
+              if (!texture) return
+              if (k === 'map') texture.colorSpace = SRGBColorSpace
+              materialParams[k] = texture
+            })
+          )
+        } else {
+          useEffect(() => {
+            resultProperties[k] = null
+          }, [])
         }
-
-        return null
-      })
-
-      return () => {
-        reactor.stop()
+      } else if (v.type === 'color') {
+        materialParams[k] = new Color(v.contents)
+      } else {
+        materialParams[k] = v.contents
       }
-    }, [materialStateComponent.material.type.value, component.args.value])
+    }
 
-    return null
+    return Promise.all(pending)
   }
 })
