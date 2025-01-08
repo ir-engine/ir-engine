@@ -45,14 +45,11 @@ export async function up(knex: Knex): Promise<void> {
     const recordExists = await knex.table(emailSettingPath).first()
 
     if (recordExists) {
-      console.log('recordExists', recordExists)
       const emailSmtpSettings = recordExists.smtp || {}
       const emailSmtpConfigArray = flattenObjectToArray({ smtp: JSON.parse(emailSmtpSettings) })
-      console.log('emailSmtpConfigArray', emailSmtpConfigArray)
 
       const emailSubjectSetting = recordExists.subject || {}
       const emailSubjectConfigArray = flattenObjectToArray({ subject: JSON.parse(emailSubjectSetting) })
-      console.log('emailSubjectConfigArray', emailSubjectConfigArray)
 
       const instanceServerSettings: EngineSettingType[] = await Promise.all(
         [
@@ -71,7 +68,8 @@ export async function up(knex: Knex): Promise<void> {
           {
             key: EngineSettings.EmailSetting.Smtp.Secure,
             value:
-              emailSmtpConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Smtp.Secure)?.value || ''
+              `${emailSmtpConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Smtp.Secure)?.value}` ||
+              ''
           },
           {
             key: EngineSettings.EmailSetting.Smtp.Auth.User,
@@ -128,7 +126,7 @@ export async function up(knex: Knex): Promise<void> {
           id: uuidv4(),
           dataType: getDataType(`${item.value}`),
           type: 'private' as EngineSettingType['type'],
-          category: 'email-setting',
+          category: 'email',
           createdAt: await getDateTimeSql(),
           updatedAt: await getDateTimeSql()
         }))
@@ -139,7 +137,7 @@ export async function up(knex: Knex): Promise<void> {
     }
   }
 
-  // await knex.schema.dropTableIfExists(emailSettingPath)
+  await knex.schema.dropTableIfExists(emailSettingPath)
 }
 
 /**

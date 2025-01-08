@@ -28,8 +28,11 @@ import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { useFind, useMutation } from '@ir-engine/common'
-import { emailSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { EngineSettingType, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
+import { flattenObjectToArray, unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { EmailConfig } from '@ir-engine/server-core/src/appconfig'
 import { Button, Input } from '@ir-engine/ui'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
@@ -43,15 +46,24 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
     loading: false,
     errorMessage: ''
   })
-  const emailSetting = useFind(emailSettingPath).data.at(0)
-  const id = emailSetting?.id
-  const smsNameCharacterLimit = useHookstate(emailSetting?.smsNameCharacterLimit)
-  const smtp = useHookstate(emailSetting?.smtp)
-  const auth = useHookstate(emailSetting?.smtp?.auth)
-  const from = useHookstate(emailSetting?.from)
-  const subject = useHookstate(emailSetting?.subject)
+  const emailSetting = useFind(engineSettingPath, {
+    query: {
+      category: 'email',
+      paginate: false
+    }
+  })
 
-  const patchEmailSetting = useMutation(emailSettingPath).patch
+  const settingsKeyValuePairs = unflattenArrayToObject(
+    emailSetting.data.map((el) => ({ key: el.key, value: el.value, dataType: el.dataType }))
+  ) as EmailConfig
+
+  const smsNameCharacterLimit = useHookstate(settingsKeyValuePairs.smsNameCharacterLimit)
+  const smtp = useHookstate(settingsKeyValuePairs?.smtp)
+  const auth = useHookstate(settingsKeyValuePairs?.smtp?.auth)
+  const from = useHookstate(settingsKeyValuePairs?.from)
+  const subject = useHookstate(settingsKeyValuePairs?.subject)
+
+  const patchEmailSetting = useMutation(engineSettingPath)
 
   const handleSmtpSecure = (value) => {
     smtp.set({ ...JSON.parse(JSON.stringify(smtp.value)), secure: value })
@@ -72,25 +84,54 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
   }
 
   useEffect(() => {
-    if (emailSetting) {
-      smtp.set(emailSetting?.smtp)
-      auth.set(emailSetting?.smtp?.auth)
-      subject.set(emailSetting?.subject)
-      from.set(emailSetting?.from)
+    if (emailSetting.status === 'success') {
+      smtp.set(settingsKeyValuePairs?.smtp)
+      auth.set(settingsKeyValuePairs?.smtp?.auth)
+      subject.set(settingsKeyValuePairs?.subject)
+      from.set(settingsKeyValuePairs?.from)
+      smsNameCharacterLimit.set(settingsKeyValuePairs?.smsNameCharacterLimit)
     }
-  }, [emailSetting])
+  }, [emailSetting.status])
 
   const handleSubmit = (event) => {
     state.loading.set(true)
     event.preventDefault()
+    if (!smtp.value || !auth.value || !from.value || !subject.value) return
 
-    if (!id || !smtp.value || !auth.value || !from.value || !subject.value) return
-
-    patchEmailSetting(id, {
-      smtp: { ...smtp.value, auth: auth.value, secure: Boolean(smtp.value.secure), port: Number(smtp.value.port) },
+    const updated = {
+      smtp: { ...smtp.value, auth: auth.value, secure: `${smtp.value.secure}`, port: smtp.value.port },
       from: from.value,
       subject: subject.value
+    }
+    const updatedSettings = flattenObjectToArray(updated)
+    const operation: Promise<EngineSettingType | EngineSettingType[]>[] = []
+
+    updatedSettings.forEach((setting) => {
+      const settingInDb = emailSetting.data.find((el) => el.key === setting.key)
+      if (!settingInDb) {
+        operation.push(
+          patchEmailSetting.create({
+            key: setting.key,
+            category: 'email',
+            dataType: getDataType(setting.value),
+            value: `${setting.value}`,
+            type: 'private'
+          })
+        )
+      } else if (settingInDb.value != setting.value) {
+        operation.push(
+          patchEmailSetting.patch(settingInDb.id, {
+            key: setting.key,
+            category: 'email',
+            dataType: getDataType(setting.value),
+            value: setting.value,
+            type: 'private'
+          })
+        )
+      }
     })
+
+    Promise.all(operation)
       .then(() => {
         state.set({ loading: false, errorMessage: '' })
       })
@@ -100,11 +141,11 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
   }
 
   const handleCancel = () => {
-    smtp.set(emailSetting?.smtp)
-    auth.set(emailSetting?.smtp?.auth)
-    subject.set(emailSetting?.subject)
-    from.set(emailSetting?.from)
-    smsNameCharacterLimit.set(emailSetting?.smsNameCharacterLimit)
+    smtp.set(settingsKeyValuePairs?.smtp)
+    auth.set(settingsKeyValuePairs?.smtp?.auth)
+    subject.set(settingsKeyValuePairs?.subject)
+    from.set(settingsKeyValuePairs?.from)
+    smsNameCharacterLimit.set(settingsKeyValuePairs?.smsNameCharacterLimit)
   }
 
   const handleUpdateSubject = (event, type) => {
