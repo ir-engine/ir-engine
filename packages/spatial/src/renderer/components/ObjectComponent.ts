@@ -48,27 +48,16 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { Layer } from './ObjectLayerComponent'
 import { VisibleComponent } from './VisibleComponent'
 
-declare module 'three/src/core/Object3D' {
-  interface Object3D {
-    /** @deprecated */
-    preserveChildren?: boolean
-    /** @deprecated */
-    readonly isProxified: true | undefined
-  }
-}
-
-export type Object3DWithEntity = Object3D & { entity: Entity }
-
 export const ObjectComponent = defineComponent({
   name: 'ObjectComponent',
   jsonID: 'EE_object3d',
-  schema: S.Required(S.Type<Object3DWithEntity>()),
+  schema: S.Required(S.Type<Object3D>()),
 
   reactor: () => {
     const entity = useEntityContext()
 
     useImmediateEffect(() => {
-      const obj = getComponent(entity, ObjectComponent) as Object3DWithEntity
+      const obj = getComponent(entity, ObjectComponent)
       setComponent(entity, TransformComponent)
 
       obj.entity = entity
@@ -140,7 +129,7 @@ export const ObjectComponent = defineComponent({
           updateWorldMatrix: () => {}
         })
       }
-
+      TransformComponent.position.x
       // sometimes it's convenient to update the entity transform via the Object3D,
       // so allow people to do that via proxies
       proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirtyTransforms, obj.position)

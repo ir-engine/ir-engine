@@ -88,6 +88,7 @@ describe('PhysicsSerialization', () => {
 
       it('should read the RigidBodyComponent.position into the `@param cursor` ViewCursor correctly', () => {
         const Expected = new Vector3(40, 41, 42)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         RigidBodyComponent.position.x[testEntity] = Expected.x
         RigidBodyComponent.position.y[testEntity] = Expected.y
         RigidBodyComponent.position.z[testEntity] = Expected.z
@@ -124,6 +125,7 @@ describe('PhysicsSerialization', () => {
 
       it('should read the RigidBodyComponent.rotation into the `@param cursor` ViewCursor correctly', () => {
         const Expected = new Quaternion(40, 41, 42, 43).normalize()
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         RigidBodyComponent.rotation.x[testEntity] = Expected.x
         RigidBodyComponent.rotation.y[testEntity] = Expected.y
         RigidBodyComponent.rotation.z[testEntity] = Expected.z
@@ -160,6 +162,7 @@ describe('PhysicsSerialization', () => {
 
       it('should read the RigidBodyComponent.linearVelocity into the `@param cursor` ViewCursor correctly', () => {
         const Expected = new Vector3(40, 41, 42)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         RigidBodyComponent.linearVelocity.x[testEntity] = Expected.x
         RigidBodyComponent.linearVelocity.y[testEntity] = Expected.y
         RigidBodyComponent.linearVelocity.z[testEntity] = Expected.z
@@ -196,6 +199,7 @@ describe('PhysicsSerialization', () => {
 
       it('should read the RigidBodyComponent.angularVelocity into the `@param cursor` ViewCursor correctly', () => {
         const Expected = new Vector3(40, 41, 42)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         RigidBodyComponent.angularVelocity.x[testEntity] = Expected.x
         RigidBodyComponent.angularVelocity.y[testEntity] = Expected.y
         RigidBodyComponent.angularVelocity.z[testEntity] = Expected.z
@@ -232,6 +236,7 @@ describe('PhysicsSerialization', () => {
 
       it('should readBodyPosition into the `@param v` ViewCursor when position is marked as changed (1<<1)', () => {
         const Expected = new Vector3(40, 41, 42)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         RigidBodyComponent.position.x[testEntity] = Expected.x
         RigidBodyComponent.position.y[testEntity] = Expected.y
         RigidBodyComponent.position.z[testEntity] = Expected.z
@@ -253,6 +258,7 @@ describe('PhysicsSerialization', () => {
 
       it('should readBodyRotation into the `@param v` ViewCursor when rotation is marked as changed (1<<2)', () => {
         const Expected = new Quaternion(40, 41, 42, 43).normalize()
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         RigidBodyComponent.rotation.x[testEntity] = Expected.x
         RigidBodyComponent.rotation.y[testEntity] = Expected.y
         RigidBodyComponent.rotation.z[testEntity] = Expected.z
@@ -275,6 +281,7 @@ describe('PhysicsSerialization', () => {
 
       it('should readBodyLinearVelocity into the `@param v` ViewCursor when linearVelocity is marked as changed (1<<3)', () => {
         const Expected = new Vector3(40, 41, 42)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         RigidBodyComponent.linearVelocity.x[testEntity] = Expected.x
         RigidBodyComponent.linearVelocity.y[testEntity] = Expected.y
         RigidBodyComponent.linearVelocity.z[testEntity] = Expected.z
@@ -296,6 +303,7 @@ describe('PhysicsSerialization', () => {
 
       it('should readBodyAngularVelocity into the `@param v` ViewCursor when angularVelocity is marked as changed (1<<4)', () => {
         const Expected = new Vector3(40, 41, 42)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         RigidBodyComponent.angularVelocity.x[testEntity] = Expected.x
         RigidBodyComponent.angularVelocity.y[testEntity] = Expected.y
         RigidBodyComponent.angularVelocity.z[testEntity] = Expected.z
@@ -452,6 +460,7 @@ describe('PhysicsSerialization', () => {
       it('should write the RigidBodyComponent.rotation into the ViewCursor correctly', () => {
         const Expected = new Quaternion(40, 41, 42, 43).normalize()
         // Set the data as expected
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         RigidBodyComponent.rotation.x[testEntity] = Expected.x
         RigidBodyComponent.rotation.y[testEntity] = Expected.y
         RigidBodyComponent.rotation.z[testEntity] = Expected.z
@@ -483,6 +492,7 @@ describe('PhysicsSerialization', () => {
       it('should write the RigidBodyComponent.linearVelocity into the ViewCursor correctly', () => {
         // Set the data as expected
         const Expected = new Vector3(40, 41, 42)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         RigidBodyComponent.linearVelocity.x[testEntity] = Expected.x
         RigidBodyComponent.linearVelocity.y[testEntity] = Expected.y
         RigidBodyComponent.linearVelocity.z[testEntity] = Expected.z
@@ -513,6 +523,7 @@ describe('PhysicsSerialization', () => {
       it('should write the RigidBodyComponent.angularVelocity into the ViewCursor correctly', () => {
         // Set the data as expected
         const Expected = new Vector3(40, 41, 42)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
         RigidBodyComponent.angularVelocity.x[testEntity] = Expected.x
         RigidBodyComponent.angularVelocity.y[testEntity] = Expected.y
         RigidBodyComponent.angularVelocity.z[testEntity] = Expected.z

@@ -1,5 +1,5 @@
 {
-  "name": "@ir-engine/projects",
+"name": "@ir-engine/projects",
   "version": "1.6.0",
   "main": "index.ts",
   "private": true,

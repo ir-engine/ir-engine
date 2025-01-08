@@ -47,7 +47,7 @@ import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/Col
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { ThreeToPhysics } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { Object3DWithEntity, ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { ResourceManager } from '@ir-engine/spatial/src/resources/ResourceState'
@@ -102,7 +102,7 @@ const updatableQuery = defineQuery([UpdatableComponent, CallbackComponent])
 
 function SceneObjectReactor() {
   const entity = useEntityContext()
-  const obj = useComponent(entity, ObjectComponent).get(NO_PROXY) as Object3DWithEntity
+  const obj = useComponent(entity, ObjectComponent).get(NO_PROXY)
 
   useImmediateEffect(() => {
     setComponent(entity, DistanceFromCameraComponent)
@@ -113,7 +113,7 @@ function SceneObjectReactor() {
       ? GLTFComponent.getInstanceID(entity)
       : getOptionalComponent(entity, SourceComponent)
     return () => {
-      ResourceManager.unloadObj(obj, source)
+      ResourceManager.unloadObj(obj as Object3D, source)
     }
   }, [])
 

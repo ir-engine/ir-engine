@@ -1,5 +1,5 @@
 {
-  "name": "@ir-engine/server-core",
+"name": "@ir-engine/server-core",
   "description": "Shared components for Infinite Reality Engine server",
   "version": "1.6.0",
   "repository": {
@@ -121,7 +121,7 @@
     "slugify": "1.6.5",
     "swagger-ui-dist": "^4.12.0",
     "trace-unhandled": "2.0.1",
-    "typescript": "5.4.5",
+    "typescript": "5.6.3",
     "uint8arrays": "^3.0.0",
     "universal-analytics": "^0.5.3",
     "uuid": "9.0.0"

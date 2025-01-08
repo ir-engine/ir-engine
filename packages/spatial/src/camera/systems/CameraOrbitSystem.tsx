@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Not } from 'bitecs'
 import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
 
 import {
@@ -35,6 +34,7 @@ import {
   getMutableComponent,
   getOptionalComponent,
   InputSystemGroup,
+  Not,
   setComponent,
   UndefinedEntity
 } from '@ir-engine/ecs'

@@ -231,7 +231,7 @@ export class LocalStorage implements StorageProviderInterface {
         }
       })
     } else {
-      fs.writeFileSync(filePath, data.Body)
+      fs.writeFileSync(filePath, new Uint8Array(data.Body))
       return true
     }
   }

@@ -23,7 +23,6 @@
     "@ir-engine/network": "^1.6.0",
     "@ir-engine/visual-script": "^1.6.0",
     "@tweenjs/tween.js": "^23.1.2",
-    "bitecs": "0.3.40",
     "lodash": "4.17.21",
     "noisejs": "2.1.0",
     "postprocessing": "6.34.1",

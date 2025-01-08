@@ -28,6 +28,7 @@ import { Euler, Matrix4, Object3D, Quaternion, Scene, SkinnedMesh, Vector2, Vect
 
 import { Entity } from '@ir-engine/ecs'
 
+import { MeshBVH } from 'three-mesh-bvh'
 import { overrideOnBeforeCompile } from './common/functions/OnBeforeCompilePlugin'
 import { Object3DUtils } from './transform/Object3DUtils'
 
@@ -119,10 +120,10 @@ Euler.prototype.toJSON = function () {
   return { x: this._x, y: this._y, z: this._z, order: this._order }
 }
 
-declare module 'three/src/core/Object3D' {
+declare module 'three/src/core/Object3D.js' {
   export interface Object3D {
     matrixWorldAutoUpdate: boolean
-    entity: Entity
+    entity?: Entity
     /** @deprecated use ECS hierarchy instead [#9308](https://github.com/ir-engine/ir-engine/issues/9308) */
     add(...object: Object3D[]): this
     /** @deprecated use ECS hierarchy instead [#9308](https://github.com/ir-engine/ir-engine/issues/9308) */
@@ -143,12 +144,30 @@ declare module 'three/src/core/Object3D' {
     traverseVisible(callback: (object: Object3D) => void): void
     /** @deprecated use ECS hierarchy instead [#9308](https://github.com/ir-engine/ir-engine/issues/9308) */
     traverseAncestors(callback: (object: Object3D) => void): void
+    /** @deprecated */
+    preserveChildren?: boolean
+    /** @deprecated */
+    readonly isProxified: true | undefined
   }
 }
 
-declare module 'three/src/math/Quaternion' {
+declare module 'three/src/math/Quaternion.js' {
   export interface Quaternion {
     fastSlerp: typeof fastSlerp
+  }
+}
+
+declare module 'three/src/core/BufferGeometry.js' {
+  export interface BufferGeometry {
+    boundsTree?: MeshBVH
+    disposeBoundsTree: () => void
+    computeBoundsTree: () => void
+  }
+}
+
+declare module 'three/src/core/Raycaster.js' {
+  export interface Raycaster {
+    firstHitOnly: boolean
   }
 }
 

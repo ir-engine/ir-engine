@@ -118,7 +118,7 @@ export async function addMediaNode(
 
           let foundTarget = false
           for (const intersection of intersections) {
-            iterateEntityNode(intersection.object.entity, (entity: Entity) => {
+            iterateEntityNode(intersection.object.entity!, (entity: Entity) => {
               const mesh = getOptionalComponent(entity, MeshComponent)
               if (!mesh || !mesh.visible) return
               assignMaterial(entity, material)
