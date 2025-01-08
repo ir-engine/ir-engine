@@ -33,7 +33,14 @@ import {
   locationPath,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
-import { Entity, createEntity, hasComponent, setComponent } from '@ir-engine/ecs'
+import {
+  Entity,
+  EntityTreeComponent,
+  createEntity,
+  hasComponent,
+  iterateEntityNode,
+  setComponent
+} from '@ir-engine/ecs'
 import { CurrentFilesQueryProvider, useCurrentFiles } from '@ir-engine/editor/src/panels/files/helpers'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { FilesState } from '@ir-engine/editor/src/services/FilesState'
@@ -41,17 +48,14 @@ import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
-import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { Button, Input, Select } from '@ir-engine/ui'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import { ModalHeader } from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 import { HiLink } from 'react-icons/hi2'
-import { Scene } from 'three'
+import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { saveSceneGLTF } from '../../functions/sceneFunctions'
 const getDefaultErrors = () => ({
   name: '',
@@ -136,20 +140,20 @@ export default function PublishModal(props: {
   })
 
   const handlePublishFolder = async () => {
-    if (!createNewFolder) {
-      console.error('Cannot create folder because createNewFolder is undefined.')
-      return
-    }
-    //if exist publish folder dont create\
+    // if (!createNewFolder) {
+    //   console.error('Cannot create folder because createNewFolder is undefined.')
+    //   return
+    // }
+    // //if exist publish folder dont create\
 
-    const ifFolderExist = files.some((file) => file.fullName === 'publish' && file.type === 'folder')
-    if (ifFolderExist) {
-      console.log('Publish folder already exist')
-      //return
-    } else {
-      //await createNewFolder('publish')
-      await createPublishFolder()
-    }
+    // const ifFolderExist = files.some((file) => file.fullName === 'publish' && file.type === 'folder')
+    // if (ifFolderExist) {
+    //   console.log('Publish folder already exist')
+    //   //return
+    // } else {
+    //   //await createNewFolder('publish')
+    //   await createPublishFolder()
+    // }
     const { projectName, sceneName, rootEntity, sceneAssetID } = getState(EditorState)
     const abortController = new AbortController()
     try {
@@ -170,9 +174,6 @@ export default function PublishModal(props: {
         //add all mesh into one entity
         //get all entities
         const meshParentEntity = createEntity()
-        const obj = new Scene()
-        addObjectToGroup(meshParentEntity, obj)
-        proxifyParentChildRelationships(obj)
         const rootEntity = getState(EditorState).rootEntity
         const meshEntity = [] as Entity[]
         setComponent(meshParentEntity, EntityTreeComponent, { parentEntity: rootEntity })
@@ -186,7 +187,12 @@ export default function PublishModal(props: {
           }
         })
 
-        //exportRelativeGLTF
+        exportRelativeGLTF(meshParentEntity, projectName, 'public/publish/combined-mesh.gltf')
+        // meshEntity.forEach((entity) => {
+        //   const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
+        //   const name=getComponent(parentEntity,NameComponent)
+        //   exportRelativeGLTF(parentEntity, projectName, 'public/publish/' + name + '.gltf')
+        // })
         PopoverState.hidePopupover()
       }
     } catch (error) {
