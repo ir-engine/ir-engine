@@ -210,6 +210,63 @@ export async function seed(knex: Knex): Promise<void> {
     'server'
   )
 
+  const emailSeedData = await generateSeedData(
+    [
+      {
+        key: EngineSettings.EmailSetting.From,
+        value: process.env.EMAIL_FROM || ''
+      },
+      {
+        key: EngineSettings.EmailSetting.Smtp.Host,
+        value: ''
+      },
+      {
+        key: EngineSettings.EmailSetting.Smtp.Port,
+        value: ''
+      },
+      {
+        key: EngineSettings.EmailSetting.Smtp.Secure,
+        value: ''
+      },
+      {
+        key: EngineSettings.EmailSetting.Smtp.Auth.User,
+        value: ''
+      },
+      {
+        key: EngineSettings.EmailSetting.Smtp.Auth.Pass,
+        value: ''
+      },
+      {
+        key: EngineSettings.EmailSetting.SmsNameCharacterLimit,
+        value: process.env.SMS_NAME_CHARACTER_LIMIT || '11'
+      },
+      {
+        key: EngineSettings.EmailSetting.Subject.NewUser,
+        value: ''
+      },
+      {
+        key: EngineSettings.EmailSetting.Subject.Channel,
+        value: ''
+      },
+      {
+        key: EngineSettings.EmailSetting.Subject.Friend,
+        value: ''
+      },
+      {
+        key: EngineSettings.EmailSetting.Subject.Instance,
+        value: ''
+      },
+      {
+        key: EngineSettings.EmailSetting.Subject.Location,
+        value: ''
+      },
+      {
+        key: EngineSettings.EmailSetting.Subject.Login,
+        value: ''
+      }
+    ],
+    'email'
+  )
   const seedData: EngineSettingType[] = [
     ...taskServerSeedData,
     ...chargebeeSettingSeedData,
@@ -218,7 +275,8 @@ export async function seed(knex: Knex): Promise<void> {
     ...serverSeedData,
     ...redisSeedData,
     ...zendeskSettingSeedData,
-    ...helmSeedData
+    ...helmSeedData,
+    ...emailSeedData
   ]
 
   if (forceRefresh || testEnabled) {
