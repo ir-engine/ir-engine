@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import Authentication from './authentication-setting/authentication-setting'
 import Aws from './aws-setting/aws-setting'
 import ClientSetting from './client-setting/client-setting'
-import Email from './email-setting/email-setting'
 import EngineSetting from './engine-setting/engine-setting'
 import FeatureFlagSetting from './feature-flag-setting/feature-flag-setting'
 import HelmVersion from './helm-version/helm-version'
@@ -38,7 +37,6 @@ export default [
   EngineSetting,
   ClientSetting,
   InstanceServer,
-  Email,
   FeatureFlagSetting,
   Authentication,
   Aws,

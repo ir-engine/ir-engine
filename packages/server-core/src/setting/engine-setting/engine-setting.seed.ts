@@ -214,55 +214,55 @@ export async function seed(knex: Knex): Promise<void> {
     [
       {
         key: EngineSettings.EmailSetting.From,
-        value: process.env.EMAIL_FROM || ''
+        value: process.env.SMTP_FROM_EMAIL || ''
       },
       {
         key: EngineSettings.EmailSetting.Smtp.Host,
-        value: ''
+        value: process.env.SMTP_HOST || ''
       },
       {
         key: EngineSettings.EmailSetting.Smtp.Port,
-        value: ''
+        value: process.env.SMTP_PORT || ''
       },
       {
         key: EngineSettings.EmailSetting.Smtp.Secure,
-        value: ''
+        value: process.env.SMTP_SECURE || ''
       },
       {
         key: EngineSettings.EmailSetting.Smtp.Auth.User,
-        value: ''
+        value: process.env.SMTP_USER || ''
       },
       {
         key: EngineSettings.EmailSetting.Smtp.Auth.Pass,
-        value: ''
+        value: process.env.SMTP_PASS || ''
       },
       {
         key: EngineSettings.EmailSetting.SmsNameCharacterLimit,
-        value: process.env.SMS_NAME_CHARACTER_LIMIT || '11'
+        value: process.env.SMTP_SUBJECT_SMS_NAME_CHARACTER_LIMIT || '11'
       },
       {
         key: EngineSettings.EmailSetting.Subject.NewUser,
-        value: ''
+        value: process.env.SMTP_SUBJECT_NEW_USER || ''
       },
       {
         key: EngineSettings.EmailSetting.Subject.Channel,
-        value: ''
+        value: process.env.SMTP_SUBJECT_CHANNEL || ''
       },
       {
         key: EngineSettings.EmailSetting.Subject.Friend,
-        value: ''
+        value: process.env.SMTP_SUBJECT_FRIEND || ''
       },
       {
         key: EngineSettings.EmailSetting.Subject.Instance,
-        value: ''
+        value: process.env.SMTP_SUBJECT_INSTANCE || ''
       },
       {
         key: EngineSettings.EmailSetting.Subject.Location,
-        value: ''
+        value: process.env.SMTP_SUBJECT_LOCATION || ''
       },
       {
         key: EngineSettings.EmailSetting.Subject.Login,
-        value: ''
+        value: process.env.SMTP_SUBJECT_LOGIN || ''
       }
     ],
     'email'

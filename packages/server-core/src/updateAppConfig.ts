@@ -37,7 +37,6 @@ import {
   ClientSettingDatabaseType,
   clientSettingPath
 } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
-import { EmailSettingDatabaseType, emailSettingPath } from '@ir-engine/common/src/schemas/setting/email-setting.schema'
 import {
   instanceServerSettingPath,
   InstanceServerSettingType
@@ -51,7 +50,6 @@ import appConfig, { updateNestedConfig } from './appconfig'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
 import { awsDbToSchema } from './setting/aws-setting/aws-setting.resolvers'
 import { clientDbToSchema } from './setting/client-setting/client-setting.resolvers'
-import { emailDbToSchema } from './setting/email-setting/email-setting.resolvers'
 
 const db = {
   user: process.env.MYSQL_USER ?? 'server',
@@ -147,23 +145,6 @@ export const updateAppConfig = async (): Promise<void> => {
       logger.error(e, `[updateAppConfig]: Failed to read clientSetting: ${e.message}`)
     })
   promises.push(clientSettingPromise)
-
-  const emailSettingPromise = knexClient
-    .select()
-    .from<EmailSettingDatabaseType>(emailSettingPath)
-    .then(([dbEmail]) => {
-      const dbEmailConfig = emailDbToSchema(dbEmail)
-      if (dbEmailConfig) {
-        appConfig.email = {
-          ...appConfig.email,
-          ...dbEmailConfig
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read emailSetting: ${e.message}`)
-    })
-  promises.push(emailSettingPromise)
 
   const instanceServerSettingPromise = knexClient
     .select()
