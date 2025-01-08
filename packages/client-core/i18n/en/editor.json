@@ -77,7 +77,7 @@
     "CORS": "Possibly a CORS error",
     "urlFetchError": "Failed to fetch \"{{url}}\"",
     "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters, underscores, hyphens, and periods, and begin and end with an alphanumeric.",
-    "maxUploadFileSizeExceed":"That file size is too large. Please upload a file under {{maxFileSizeToUploadMB}}MB"
+    "maxUploadFileSizeExceed":"That file size is too large. Please upload a file under {{maxFileSizeToUploadMB}}MB. The following files are too large: {{filesNames}}"
   },
   "warnings": {
     "sceneComplexity": "Scene complexity is {{sceneComplexity}}. Consider optimizing your scene for better performance."

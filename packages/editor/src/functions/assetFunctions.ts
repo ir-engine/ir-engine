@@ -222,6 +222,19 @@ export const handleUploadFiles = (projectName: string, directoryPath: string, fi
 }
 
 /**
+ * Function that validates files and separates them into valid and invalid files based on size
+ * @param files List of files to validate
+ * @returns [validFiles: File[], invalidFiles: File[]]
+ */
+function validateFiles(files: FileList) {
+  const { maxFileSizeToUpload } = config.client
+  const validFiles = Array.from(files).filter((file) => file.size <= maxFileSizeToUpload)
+  const invalidFiles = Array.from(files).filter((file) => file.size > maxFileSizeToUpload)
+
+  return [validFiles, invalidFiles]
+}
+
+/**
  * @param config
  * @param config.projectName input and upload the file to the assets directory of the project
  * @param config.directoryPath input and upload the file to the `directoryPath`
@@ -247,21 +260,20 @@ export const inputFileWithAddToScene = ({
     el.onchange = async () => {
       try {
         if (el.files?.length) {
-          const validFiles = Array.from(el.files).filter((file) => file.size <= config.client.maxFileSizeToUpload)
-
-          if (validFiles.length > 0) {
-            const newFiles = sanitizeFiles(el.files)
-            const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
-
-            await handleUploadFiles(projectName, directoryPath, uniqueFiles)
-          } else {
+          const [validFiles, invalidFiles] = validateFiles(el.files)
+          if (invalidFiles.length > 0) {
+            // notify invalid files
+            const fileNames = invalidFiles.map((file) => file.name).join(', ')
             const maxFileSizeToUploadMB = config.client.maxFileSizeToUpload / (1024 * 1024)
             NotificationService.dispatchNotify(
-              i18n.t('editor:errors.maxUploadFileWeightExceed', { maxFileSizeToUploadMB }) as string,
+              i18n.t('editor:errors.maxUploadFileWeightExceed', { maxFileSizeToUploadMB, fileNames }) as string,
               { variant: 'warning' }
             )
-            return
           }
+          // process the valid files
+          const newFiles = sanitizeFiles(validFiles)
+          const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
+          await handleUploadFiles(projectName, directoryPath, uniqueFiles)
         }
         resolve(null)
         API.instance.service(fileBrowserPath).emit('created')
