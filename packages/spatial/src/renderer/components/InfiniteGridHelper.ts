@@ -29,26 +29,31 @@ import {
   BufferGeometry,
   DoubleSide,
   LineBasicMaterial,
+  Mesh,
   NormalBlending,
-  Plane,
   PlaneGeometry,
   ShaderMaterial
 } from 'three'
 
 import { Entity, EntityTreeComponent, createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs'
-import { defineComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useMutableState } from '@ir-engine/hyperflux'
+import {
+  defineComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { State, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
 import { setVisibleComponent } from '../../renderer/components/VisibleComponent'
-import { useResource } from '../../resources/resourceHooks'
 import { T } from '../../schema/schemaFunctions'
 import { RendererState } from '../RendererState'
 import LogarithmicDepthBufferMaterialChunk from '../constants/LogarithmicDepthBufferMaterialChunk'
 import { ObjectLayerMasks } from '../constants/ObjectLayers'
 import { LineSegmentComponent } from './LineSegmentComponent'
-import { useMeshComponent } from './MeshComponent'
+import { MeshComponent } from './MeshComponent'
 import { ObjectLayerMaskComponent } from './ObjectLayerComponent'
 
 /**
@@ -142,38 +147,51 @@ export const InfiniteGridComponent = defineComponent({
 
     const component = useComponent(entity, InfiniteGridComponent)
     const engineRendererSettings = useMutableState(RendererState)
-    const mesh = useMeshComponent(
-      entity,
-      () => new PlaneGeometry(2, 2, 1, 1),
-      () =>
-        new ShaderMaterial({
-          side: DoubleSide,
-          uniforms: {},
-          transparent: true,
-          vertexShader: vertexShaderGrid,
-          fragmentShader: fragmentShaderGrid,
-          polygonOffset: true,
-          polygonOffsetFactor: -1,
-          polygonOffsetUnits: 0.01,
-          extensions: {
-            derivatives: true
-          }
-        })
-    )
-    const [plane] = useResource(() => new Plane(mesh.up.value), entity)
+
+    useImmediateEffect(() => {
+      setComponent(
+        entity,
+        MeshComponent,
+        new Mesh(
+          new PlaneGeometry(2, 2, 1, 1),
+
+          new ShaderMaterial({
+            side: DoubleSide,
+            uniforms: {},
+            transparent: true,
+            vertexShader: vertexShaderGrid,
+            fragmentShader: fragmentShaderGrid,
+            polygonOffset: true,
+            polygonOffsetFactor: -1,
+            polygonOffsetUnits: 0.01,
+            extensions: {
+              derivatives: true
+            }
+          })
+        )
+      )
+      return () => {
+        removeComponent(entity, MeshComponent)
+      }
+    }, [])
+
+    const mesh = useOptionalComponent(entity, MeshComponent) as any as State<Mesh<PlaneGeometry, ShaderMaterial>>
 
     useEffect(() => {
+      if (!mesh) return
       mesh.position.y.set(engineRendererSettings.gridHeight.value)
       mesh.value.updateMatrixWorld(true)
-    }, [engineRendererSettings.gridHeight])
+    }, [mesh, engineRendererSettings.gridHeight])
 
     useEffect(() => {
+      if (!mesh) return
       mesh.material.uniforms.uColor.set({
         value: component.color.value
       })
-    }, [component.color])
+    }, [mesh, component.color])
 
     useEffect(() => {
+      if (!mesh) return
       const size = component.size.value
       mesh.material.uniforms.uSize1.set({
         value: size
@@ -181,9 +199,10 @@ export const InfiniteGridComponent = defineComponent({
       mesh.material.uniforms.uSize2.set({
         value: size * 10
       })
-    }, [component.size])
+    }, [mesh, component.size])
 
     useEffect(() => {
+      if (!mesh) return
       mesh.material.uniforms.uDistance.set({
         value: component.distance.value
       })
@@ -222,7 +241,7 @@ export const InfiniteGridComponent = defineComponent({
       return () => {
         for (const lineEntity of lineEntities) removeEntity(lineEntity)
       }
-    }, [component.distance])
+    }, [mesh, component.distance])
 
     return null
   }
