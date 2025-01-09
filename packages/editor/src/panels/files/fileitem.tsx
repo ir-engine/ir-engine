@@ -116,9 +116,9 @@ function FileItemRow({
       </span>
     ),
     type: file?.type.toUpperCase(),
-    author: file?.author || '',
-    createdAt: file?.createdAt || '',
-    statistics: file?.statistics || '',
+    author: (file?.author as string) || '',
+    createdAt: (file?.createdAt as string) || '',
+    statistics: (file?.statistics as string) || '',
     size: file?.size
   }
 
