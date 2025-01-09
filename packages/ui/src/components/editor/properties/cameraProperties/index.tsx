@@ -29,6 +29,7 @@ import React from 'react'
 import { getOptionalComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/CameraSettingsComponent'
 
+import { iterateEntityNode } from '@ir-engine/ecs'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import {
   EditorComponentType,
@@ -39,10 +40,9 @@ import {
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { HiOutlineCamera } from 'react-icons/hi'
 import { Box3, Vector3 } from 'three'
-import { Slider } from '../../../../../editor.ts'
+import { Slider } from '../../../../../editor'
 import Button from '../../../../primitives/tailwind/Button'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'

@@ -42,13 +42,18 @@ import { Button, Input } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { IoArrowBackOutline, IoCloseOutline } from 'react-icons/io5'
+import { twMerge } from 'tailwind-merge'
 import { UserMenus } from '../../../UserUISystem'
 import { AuthService, AuthState } from '../../../services/AuthService'
 import { PopupMenuServices } from '../PopupMenuService'
 
 const AVATAR_PAGE_LIMIT = 100
-
-const AvatarMenu2 = ({ showBackButton }: { showBackButton: boolean }) => {
+interface AvatarMenuProps {
+  showBackButton: boolean
+  previewEnabled: boolean
+  previewDisabledMessage?: boolean
+}
+const AvatarMenu2 = ({ showBackButton, previewEnabled = true, previewDisabledMessage }: AvatarMenuProps) => {
   const { t } = useTranslation()
   const authState = useMutableState(AuthState)
   const userId = authState.user?.id?.value
@@ -137,7 +142,10 @@ const AvatarMenu2 = ({ showBackButton }: { showBackButton: boolean }) => {
     <div className="fixed top-0 z-[35] flex h-[100vh] w-full bg-[rgba(0,0,0,0.75)]">
       <Modal
         id="select-avatar-modal"
-        className="min-w-34 pointer-events-auto m-auto flex h-[95vh] w-[70vw] max-w-6xl rounded-xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col"
+        className={twMerge(
+          'pointer-events-auto m-auto flex h-[95vh] max-w-6xl rounded-xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col',
+          previewEnabled ? 'min-w-34 w-[70vw]' : 'w-[29vw]'
+        )}
         hideFooter={true}
         rawChildren={
           <div className="grid h-full w-full grid-rows-[3.5rem,1fr]">
@@ -170,11 +178,18 @@ const AvatarMenu2 = ({ showBackButton }: { showBackButton: boolean }) => {
                 </span>
               </Button>
             </div>
-            <div className="grid h-full max-h-[calc(95vh-3.5rem)] w-full flex-1 grid-cols-[60%,40%] gap-6 px-10 py-2">
-              <div className="relative h-full min-h-0 min-w-0 rounded-lg bg-gradient-to-b from-[#162941] to-[#114352]">
-                <div className="stars absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent"></div>
-                <AvatarPreview fill avatarUrl={currentAvatar?.modelResource?.url} />
-              </div>
+            <div
+              className={twMerge(
+                'grid h-full max-h-[calc(95vh-3.5rem)] w-full flex-1 gap-6 px-10 py-2',
+                previewEnabled ? 'grid-cols-[60%,40%]' : 'grid-cols-1'
+              )}
+            >
+              {previewEnabled && (
+                <div className="relative h-full min-h-0 min-w-0 rounded-lg bg-gradient-to-b from-[#162941] to-[#114352]">
+                  <div className="stars absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent"></div>
+                  <AvatarPreview fill avatarUrl={currentAvatar?.modelResource?.url} />
+                </div>
+              )}
               <div className="grid h-full min-h-0 w-full min-w-0 grid-flow-row grid-rows-[3rem,1fr]">
                 <div className="flex max-h-6 gap-2">
                   <Input
@@ -198,7 +213,13 @@ const AvatarMenu2 = ({ showBackButton }: { showBackButton: boolean }) => {
                     <Button
                       className="min-w-[8rem] rounded-md text-sm font-normal"
                       variant="secondary"
-                      onClick={() => PopupMenuServices.showPopupMenu(UserMenus.ReadyPlayer)}
+                      onClick={() =>
+                        PopupMenuServices.showPopupMenu(UserMenus.ReadyPlayer, {
+                          showBackButton,
+                          previewEnabled,
+                          previewDisabledMessage
+                        })
+                      }
                     >
                       {t('user:avatar.createAvatar')}
                     </Button>

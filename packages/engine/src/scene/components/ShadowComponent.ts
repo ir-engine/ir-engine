@@ -24,12 +24,13 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Object3D } from 'three'
+import { Mesh } from 'three'
 
 import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { NO_PROXY } from '@ir-engine/hyperflux'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 
 export const ShadowComponent = defineComponent({
   name: 'ShadowComponent',
@@ -43,15 +44,12 @@ export const ShadowComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const shadowComponent = useComponent(entity, ShadowComponent)
-    const groupComponent = useComponent(entity, GroupComponent)
+    const object = useComponent(entity, ObjectComponent).get(NO_PROXY) as Mesh
 
     useEffect(() => {
-      for (const obj of groupComponent.value) {
-        const object = obj as Object3D
-        object.castShadow = shadowComponent.cast.value
-        object.receiveShadow = shadowComponent.receive.value
-      }
-    }, [groupComponent, shadowComponent.cast, shadowComponent.receive])
+      object.castShadow = shadowComponent.cast.value
+      object.receiveShadow = shadowComponent.receive.value
+    }, [!!object, shadowComponent.cast, shadowComponent.receive])
 
     return null
   }

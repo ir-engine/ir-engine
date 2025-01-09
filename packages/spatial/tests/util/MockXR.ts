@@ -49,7 +49,7 @@ export class MockXRInputSource {
   }
 }
 
-export class MockXRSpace {}
+export class MockXRSpace extends EventTarget {}
 
 export class MockXRReferenceSpace extends MockEventListener {
   getOffsetReferenceSpace = (originOffset: XRRigidTransform) => {
@@ -63,6 +63,11 @@ export class MockXRFrame {
   pose = new MockXRPose()
   getPose = (space, origin) => {
     return this.pose
+  }
+
+  // https://developer.mozilla.org/en-US/docs/Web/API/XRFrame/getViewerPose
+  getViewerPose(_referenceSpace: XRReferenceSpace): XRViewerPose | undefined {
+    return {} as XRViewerPose
   }
 }
 
@@ -86,3 +91,44 @@ export class MockXRPose {
 }
 
 export class MockXRSession extends EventTarget {}
+export class MockXRAnchor implements XRAnchor {
+  anchorSpace: MockXRSpace
+  delete(): void {}
+  requestPersistentHandle?(): Promise<string>
+}
+
+export class MockXRWebGLBinding implements XRWebGLBinding {
+  readonly nativeProjectionScaleFactor: number
+
+  constructor(_session: XRSession, _context: WebGLRenderingContext) {}
+
+  // @warning The process of this function is over-simplifed and only valid for mock testing.
+  createProjectionLayer(init?: XRProjectionLayerInit): XRProjectionLayer {
+    const result = {} as XRProjectionLayer
+    if (init) for (const [key, value] of Object.entries(init)) result[key] = value
+    return result
+  }
+  createQuadLayer(_init?: XRQuadLayerInit): XRQuadLayer {
+    return {} as XRQuadLayer
+  }
+  createCylinderLayer(_init?: XRCylinderLayerInit): XRCylinderLayer {
+    return {} as XRCylinderLayer
+  }
+  createEquirectLayer(_init?: XREquirectLayerInit): XREquirectLayer {
+    return {} as XREquirectLayer
+  }
+  createCubeLayer(_init?: XRCubeLayerInit): XRCubeLayer {
+    return {} as XRCubeLayer
+  }
+  getSubImage(_layer: XRCompositionLayer, _frame: XRFrame, _eye?: XREye): XRWebGLSubImage {
+    return {} as XRWebGLSubImage
+  }
+  getViewSubImage(_layer: XRProjectionLayer, _view: XRView): XRWebGLSubImage {
+    return {} as XRWebGLSubImage
+  }
+  getCameraImage(_camera: XRCamera): WebGLTexture {
+    return {} as WebGLTexture
+  }
+}
+// @ts-expect-error Allow declaring the XRWebGLBinding Mock into the global object as a polyfill
+global.XRWebGLBinding = MockXRWebGLBinding

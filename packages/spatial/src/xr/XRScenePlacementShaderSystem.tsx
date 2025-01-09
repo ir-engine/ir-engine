@@ -30,7 +30,7 @@ import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 
-import { GroupQueryReactor } from '../renderer/components/GroupComponent'
+import { QueryReactor, getComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { MeshComponent } from '../renderer/components/MeshComponent'
 import { VisibleComponent } from '../renderer/components/VisibleComponent'
 import { XRState } from './XRState'
@@ -77,27 +77,29 @@ const removeShaderFromObject = (obj: Mesh<any, Material & ScenePlacementMaterial
  * @returns
  */
 
-function XRScenePlacementReactor({ obj }) {
+function XRScenePlacementReactor() {
   const xrState = getMutableState(XRState)
   const scenePlacementMode = useHookstate(xrState.scenePlacementMode).value
   const sessionActive = useHookstate(xrState.sessionActive).value
+  const entity = useEntityContext()
+  const meshComponent = useComponent(entity, MeshComponent)
 
   useEffect(() => {
     if (scenePlacementMode !== 'placing' || !sessionActive) return
 
-    addShaderToObject(obj)
+    const mesh = getComponent(entity, MeshComponent) as Mesh<any, Material & ScenePlacementMaterialType>
+
+    addShaderToObject(mesh)
     return () => {
-      removeShaderFromObject(obj)
+      removeShaderFromObject(mesh)
     }
-  }, [scenePlacementMode, sessionActive])
+  }, [meshComponent, scenePlacementMode, sessionActive])
 
   return null
 }
 
 const reactor = () => {
-  return (
-    <GroupQueryReactor GroupChildReactor={XRScenePlacementReactor} Components={[VisibleComponent, MeshComponent]} />
-  )
+  return <QueryReactor ChildEntityReactor={XRScenePlacementReactor} Components={[VisibleComponent, MeshComponent]} />
 }
 
 export const XRScenePlacementShaderSystem = defineSystem({

@@ -423,10 +423,6 @@ const blockchain = {
   blockchainUrlSecret: process.env.BLOCKCHAIN_URL_SECRET
 }
 
-const ipfs = {
-  enabled: process.env.USE_IPFS
-}
-
 const zendesk = {
   name: process.env.ZENDESK_KEY_NAME,
   secret: process.env.ZENDESK_SECRET,
@@ -454,7 +450,6 @@ const config = {
   email,
   'instance-server': instanceserver,
   'instance-server-webrtc': instanceServerWebRtc,
-  ipfs,
   server,
   'task-server': taskserver,
   redis,

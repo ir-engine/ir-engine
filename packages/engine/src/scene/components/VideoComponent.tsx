@@ -41,7 +41,7 @@ import {
   VideoTexture
 } from 'three'
 
-import { UUIDComponent } from '@ir-engine/ecs'
+import { EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getOptionalComponent,
@@ -57,7 +57,6 @@ import { createPriorityQueue } from '@ir-engine/spatial/src/common/functions/Pri
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent, useMeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { ContentFitTypeSchema } from '@ir-engine/spatial/src/transform/functions/ObjectFitFunctions'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 

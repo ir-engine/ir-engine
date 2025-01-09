@@ -45,7 +45,7 @@ import {
   ResourceType
 } from '@ir-engine/spatial/src/resources/ResourceState'
 
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { ResourcePendingComponent } from '../../gltf/ResourcePendingComponent'
 import { AssetLoader } from '../classes/AssetLoader'

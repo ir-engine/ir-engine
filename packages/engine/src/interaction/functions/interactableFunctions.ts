@@ -35,7 +35,7 @@ import {
   compareDistanceToLocalClient
 } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { inFrustum } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { InteractableComponent } from '../components/InteractableComponent'
 
@@ -78,7 +78,7 @@ export const InteractableState = defineState({
 export const gatherAvailableInteractables = (interactables: Entity[]) => {
   const availableInteractable = getMutableState(InteractableState).available
 
-  const viewerEntity = getState(EngineState).viewerEntity
+  const viewerEntity = getState(ReferenceSpaceState).viewerEntity
   if (!viewerEntity) return
 
   const camera = getComponent(viewerEntity, CameraComponent)

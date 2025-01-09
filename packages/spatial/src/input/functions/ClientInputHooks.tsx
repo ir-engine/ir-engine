@@ -32,10 +32,12 @@ import {
   createEntity,
   Engine,
   Entity,
+  EntityTreeComponent,
   getComponent,
   getOptionalComponent,
   removeEntity,
   setComponent,
+  useAncestorWithComponents,
   useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
@@ -44,7 +46,6 @@ import { useEffect } from 'react'
 import { Vector3 } from 'three'
 import { NameComponent } from '../../common/NameComponent'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
-import { EntityTreeComponent, useAncestorWithComponents } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
 import { DefaultButtonAlias, InputComponent } from '../components/InputComponent'
@@ -358,7 +359,7 @@ export const CanvasInputReactor = () => {
 
 export const MeshInputReactor = () => {
   const entity = useEntityContext()
-  const shouldReceiveInput = !!useAncestorWithComponents(entity, [InputComponent])
+  const shouldReceiveInput = useAncestorWithComponents(entity, [InputComponent])
 
   useImmediateEffect(() => {
     const inputState = getState(InputState)
@@ -370,7 +371,7 @@ export const MeshInputReactor = () => {
 
 export const BoundingBoxInputReactor = () => {
   const entity = useEntityContext()
-  const shouldReceiveInput = !!useAncestorWithComponents(entity, [InputComponent])
+  const shouldReceiveInput = useAncestorWithComponents(entity, [InputComponent])
   useImmediateEffect(() => {
     const inputState = getState(InputState)
     if (shouldReceiveInput) inputState.inputBoundingBoxes.add(entity)

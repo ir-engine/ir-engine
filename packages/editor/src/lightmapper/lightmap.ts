@@ -25,10 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { MeshStandardMaterial, Object3D, Scene, WebGLRenderer } from 'three'
 
+import { iterateEntityNode } from '@ir-engine/ecs'
 import { getComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { runBakingPasses } from './bake'
 import { withLightScene } from './lightScene'

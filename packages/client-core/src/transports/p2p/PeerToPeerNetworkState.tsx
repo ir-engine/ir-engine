@@ -60,6 +60,7 @@ import {
   removeNetwork,
   screenshareAudioDataChannelType,
   screenshareVideoDataChannelType,
+  useWebRTCPeerConnection,
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
 } from '@ir-engine/network'
@@ -71,7 +72,7 @@ import {
   StunServerState,
   WebRTCTransportFunctions
 } from '@ir-engine/network/src/webrtc/WebRTCTransportFunctions'
-import { decode, encode } from 'msgpackr'
+import { decode } from 'msgpackr'
 import React, { useEffect } from 'react'
 import { MediaStreamState } from '../../media/MediaStreamState'
 import {
@@ -231,127 +232,22 @@ const sendMessage: SendMessageType = (instanceID: InstanceID, toPeerID: PeerID, 
 const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID; instanceID: InstanceID }) => {
   const network = getState(NetworkState).networks[props.instanceID]
 
+  useWebRTCPeerConnection(network, props.peerID, props.peerIndex, props.userID, sendMessage)
+
   useEffect(() => {
-    API.instance.service(instanceSignalingPath).on('patched', async (data) => {
+    API.instance.service(instanceSignalingPath).on('patched', (data) => {
       // need to ignore messages from self
       if (data.fromPeerID !== props.peerID) return
       if (data.targetPeerID !== Engine.instance.store.peerID) return
-      if (data.instanceID !== props.instanceID) return
+      if (data.instanceID !== network.id) return
 
-      await WebRTCTransportFunctions.onMessage(sendMessage, data.instanceID, props.peerID, data.message)
+      WebRTCTransportFunctions.onMessage(sendMessage, data.instanceID, props.peerID, data.message)
     })
-
-    const abortController = new AbortController()
-
-    /**
-     * We only need one peer to initiate the connection, so do so if the peerID is greater than our own.
-     */
-    const isInitiator = Engine.instance.store.peerID > props.peerID
-
-    if (isInitiator) {
-      // poll to ensure the other peer's listener has been set up before we try to connect
-
-      WebRTCTransportFunctions.poll(sendMessage, props.instanceID, props.peerID)
-
-      const interval = setInterval(() => {
-        if (abortController.signal.aborted || getState(RTCPeerConnectionState)[props.instanceID]?.[props.peerID]) {
-          clearInterval(interval)
-        } else {
-          WebRTCTransportFunctions.poll(sendMessage, props.instanceID, props.peerID)
-        }
-      }, 1000)
-    }
-
-    return () => {
-      abortController.abort()
-      WebRTCTransportFunctions.close(props.instanceID, props.peerID)
-    }
   }, [])
 
-  const peerConnectionState = useMutableState(RTCPeerConnectionState)[props.instanceID][props.peerID]?.value
-
-  useEffect(() => {
-    if (!peerConnectionState || !peerConnectionState.ready || !peerConnectionState.dataChannels['actions']) return
-
-    const dataChannel = peerConnectionState.dataChannels['actions'] as RTCDataChannel
-
-    dispatchAction(
-      NetworkActions.peerJoined({
-        $network: network.id,
-        $topic: network.topic,
-        $to: Engine.instance.store.peerID,
-        peerID: props.peerID,
-        peerIndex: props.peerIndex,
-        userID: props.userID
-      })
-    )
-
-    let receivedPoll = false
-
-    const onMessage = (e) => {
-      if (e.data === '') {
-        receivedPoll = true
-        return
-      }
-      const message = decode(e.data)
-
-      network.onMessage(props.peerID, message)
-    }
-
-    dataChannel.addEventListener('message', onMessage)
-
-    const message = (data) => {
-      dataChannel.send(encode(data))
-    }
-
-    const buffer = (dataChannelType: DataChannelType, data: any) => {
-      const dataChannel = peerConnectionState.dataChannels[dataChannelType] as RTCDataChannel
-      if (!dataChannel || dataChannel.readyState !== 'open') return
-      const fromPeerID = Engine.instance.store.peerID
-      const fromPeerIndex = network.peerIDToPeerIndex[fromPeerID]
-      if (typeof fromPeerIndex === 'undefined')
-        return console.warn('fromPeerIndex is undefined', fromPeerID, fromPeerIndex)
-      dataChannel.send(encode([fromPeerIndex, data]))
-    }
-
-    network.transports[props.peerID] = {
-      message,
-      buffer
-    }
-
-    /**
-     * Poll the data channel until it's open, then send a message to the peer to let them know we're ready to receive messages.
-     */
-    const interval = setInterval(() => {
-      if (dataChannel.readyState === 'open') {
-        dataChannel.send('')
-        if (receivedPoll) {
-          clearInterval(interval)
-          // once connected, send all our cached actions to the peer
-          const selfCachedActions = Engine.instance.store.actions.cached.filter(
-            (action) => action.$topic === network.topic && action.$peer === Engine.instance.store.peerID
-          )
-          network.messageToPeer(props.peerID, selfCachedActions)
-        }
-      }
-    }, 10)
-
-    return () => {
-      clearInterval(interval)
-      dispatchAction(
-        NetworkActions.peerLeft({
-          $network: network.id,
-          $topic: network.topic,
-          $to: Engine.instance.store.peerID,
-          peerID: props.peerID,
-          userID: props.userID
-        })
-      )
-      dataChannel.removeEventListener('message', onMessage)
-    }
-  }, [peerConnectionState?.ready, peerConnectionState?.dataChannels?.['actions']])
-
   const dataChannelRegistry = useMutableState(DataChannelRegistryState).value
+
+  const peerConnectionState = useMutableState(RTCPeerConnectionState)[network.id][props.peerID]?.value
 
   if (!peerConnectionState?.ready) return null
 
