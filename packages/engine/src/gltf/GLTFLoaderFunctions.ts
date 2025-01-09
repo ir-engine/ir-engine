@@ -215,26 +215,130 @@ const loadPrimitive = async (
 
     const attributes = primitiveDef.attributes
 
+    const promises = [] as Promise<void>[]
+
     for (const attributeName of Object.keys(attributes)) {
       const threeAttributeName = ATTRIBUTES[attributeName] || attributeName.toLowerCase()
       const attribute = primitiveDef.attributes[attributeName]
-      const accessor = await getDependency(options, 'accessor', attribute)
-      if (accessor) {
-        geometry.setAttribute(threeAttributeName, accessor)
-      }
+      promises.push(
+        new Promise<void>(async (resolve) => {
+          const accessor = await getDependency(options, 'accessor', attribute)
+          if (accessor) {
+            geometry.setAttribute(threeAttributeName, accessor)
+          }
+          resolve()
+        })
+      )
     }
 
     if (typeof primitiveDef.indices === 'number') {
-      const accessor = await getDependency(options, 'accessor', primitiveDef.indices!)
-      if (accessor) {
-        geometry.setIndex(accessor as BufferAttribute)
-      }
+      promises.push(
+        new Promise<void>(async (resolve) => {
+          const accessor = await getDependency(options, 'accessor', primitiveDef.indices!)
+          if (accessor) {
+            geometry.setIndex(accessor as BufferAttribute)
+          }
+          resolve()
+        })
+      )
     }
     GLTFLoaderFunctions.computeBounds(json, geometry, primitiveDef)
     assignExtrasToUserData(geometry, primitiveDef as GLTF.IMeshPrimitive)
-    const material = await materialPromise
+    const [material] = await Promise.all([materialPromise, promises])
     assignFinalMaterial(primitiveDef, material)
+    if (primitiveDef.targets) await addMorphTargets(options, geometry, primitiveDef.targets)
     return [geometry, material]
+  }
+}
+
+const addMorphTargets = async (
+  options: GLTFParserOptions,
+  geometry: BufferGeometry,
+  targets: GLTF.IMeshPrimitive['targets']
+) => {
+  let hasMorphPosition = false
+  let hasMorphNormal = false
+  let hasMorphColor = false
+
+  if (!targets) return Promise.resolve()
+
+  for (let i = 0, il = targets.length; i < il; i++) {
+    const target = targets[i]
+
+    if (target.POSITION !== undefined) hasMorphPosition = true
+    if (target.NORMAL !== undefined) hasMorphNormal = true
+    if (target.COLOR_0 !== undefined) hasMorphColor = true
+
+    if (hasMorphPosition && hasMorphNormal && hasMorphColor) break
+  }
+
+  if (!hasMorphPosition && !hasMorphNormal && !hasMorphColor) return Promise.resolve(geometry)
+
+  const pendingPositionAccessors = [] as Promise<BufferAttribute>[]
+  const pendingNormalAccessors = [] as Promise<BufferAttribute>[]
+  const pendingColorAccessors = [] as Promise<BufferAttribute>[]
+
+  for (let i = 0, il = targets.length; i < il; i++) {
+    const target = targets[i]
+
+    if (hasMorphPosition) {
+      const pendingAccessor =
+        target.POSITION !== undefined
+          ? getDependency(options, 'accessor', target.POSITION)
+          : geometry.attributes.position
+
+      pendingPositionAccessors.push(pendingAccessor)
+    }
+
+    if (hasMorphNormal) {
+      const pendingAccessor =
+        target.NORMAL !== undefined ? getDependency(options, 'accessor', target.NORMAL) : geometry.attributes.normal
+
+      pendingNormalAccessors.push(pendingAccessor)
+    }
+
+    if (hasMorphColor) {
+      const pendingAccessor =
+        target.COLOR_0 !== undefined ? getDependency(options, 'accessor', target.COLOR_0) : geometry.attributes.color
+
+      pendingColorAccessors.push(pendingAccessor)
+    }
+  }
+
+  const [morphPositions, morphNormals, morphColors] = await Promise.all([
+    Promise.all(pendingPositionAccessors),
+    Promise.all(pendingNormalAccessors),
+    Promise.all(pendingColorAccessors)
+  ])
+
+  if (hasMorphPosition) geometry.morphAttributes.position = morphPositions
+  if (hasMorphNormal) geometry.morphAttributes.normal = morphNormals
+  if (hasMorphColor) geometry.morphAttributes.color = morphColors
+  geometry.morphTargetsRelative = true
+}
+
+function updateMorphTargets(mesh: Mesh, meshDef: GLTF.IMesh) {
+  mesh.updateMorphTargets()
+
+  if (meshDef.weights !== undefined) {
+    for (let i = 0, il = meshDef.weights.length; i < il; i++) {
+      mesh.morphTargetInfluences![i] = meshDef.weights[i]
+    }
+  }
+
+  // .extras has user-defined data, so check that .extras.targetNames is an array.
+  if (meshDef.extras && Array.isArray(meshDef.extras.targetNames)) {
+    const targetNames = meshDef.extras.targetNames
+
+    if (mesh.morphTargetInfluences!.length === targetNames.length) {
+      mesh.morphTargetDictionary = {}
+
+      for (let i = 0, il = targetNames.length; i < il; i++) {
+        mesh.morphTargetDictionary[targetNames[i]] = i
+      }
+    } else {
+      console.warn('THREE.GLTFLoader: Invalid extras.targetNames length. Ignoring names.')
+    }
   }
 }
 
@@ -954,9 +1058,11 @@ const _createAnimationTracks = (
   target: GLTF.IAnimationChannelTarget
 ) => {
   const tracks = [] as KeyframeTrack[]
+
   const targetName = getComponent(node, UUIDComponent)
   if (!targetName) throw new Error('THREE.GLTFLoader: Node has no name.')
   const targetNames = [] as string[]
+
   if (PATH_PROPERTIES[target.path] === PATH_PROPERTIES.weights) {
     traverseEntityNode(node, (entity) => {
       const object = getComponent(entity, MeshComponent)
@@ -1135,22 +1241,8 @@ const loadMesh = async (options: GLTFParserOptions, entity: Entity, nodeIndex: n
     uuid: (Array.isArray(materials) ? materials : [materials]).map((material) => material.uuid as EntityUUID)
   })
 
-  //handle morph targets
-  const loadedMorphTargets = await GLTFLoaderFunctions.mergeMorphTargets(options, nodeIndex)
-
-  if (loadedMorphTargets && mesh) {
-    if (loadedMorphTargets.POSITION) mesh.geometry.morphAttributes.position = loadedMorphTargets.POSITION
-    if (loadedMorphTargets.NORMAL) mesh.geometry.morphAttributes.normal = loadedMorphTargets.NORMAL
-    if (loadedMorphTargets.COLOR_0) mesh.geometry.morphAttributes.color = loadedMorphTargets.COLOR_0
-
-    mesh.geometry.morphTargetsRelative = true
-    mesh.updateMorphTargets()
-
-    if (meshDef.weights) {
-      for (let j = 0, jl = meshDef.weights.length; j < jl; j++) {
-        mesh.morphTargetInfluences![j] = meshDef.weights[j]
-      }
-    }
+  if (Object.keys(mesh.geometry.morphAttributes).length > 0) {
+    updateMorphTargets(mesh, meshDef)
   }
 
   return mesh
@@ -1329,7 +1421,8 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
     animationPromises.push(animation)
   }
 
-  const [loadedNodeEntities, animationClips] = await Promise.all([Promise.all(pending), Promise.all(animationPromises)])
+  const loadedNodeEntities = await Promise.all(pending)
+
   for (const entity of loadedNodeEntities) {
     setComponent(entity, EntityTreeComponent, { parentEntity: options.entity })
   }
@@ -1340,6 +1433,8 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
     const obj3d = new Object3D()
     setComponent(rootEntity, ObjectComponent, obj3d)
   }
+
+  const animationClips = await Promise.all(animationPromises)
 
   if (animationClips.length > 0) {
     const obj3d = getComponent(rootEntity, ObjectComponent)

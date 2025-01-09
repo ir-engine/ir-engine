@@ -229,6 +229,8 @@ function mergeBufferGeometries(geometries: Array<BufferGeometry>, useGroups = fa
     }
   }
 
+  mergedGeometry.morphTargetsRelative = morphTargetsRelative
+
   return mergedGeometry
 }
 
