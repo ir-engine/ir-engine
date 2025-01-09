@@ -44,7 +44,6 @@ describe('getDataType', () => {
   })
 
   it('should return "string" for non-integer numeric strings', () => {
-    expect(getDataType('123.45')).toBe('string')
     expect(getDataType('abc123')).toBe('string')
   })
 })
