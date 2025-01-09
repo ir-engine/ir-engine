@@ -34,7 +34,7 @@ import type { Knex } from 'knex'
 export async function up(knex: Knex): Promise<void> {
   await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const dataTypeColumnExists = await knex.schema.hasColumn(tableName, 'accountId')
+  const dataTypeColumnExists = await knex.schema.hasColumn(engineSettingPath, 'dataType')
 
   if (!dataTypeColumnExists) {
     await knex.schema.alterTable(engineSettingPath, (table) => {
