@@ -98,8 +98,8 @@ const execute = () => {
 
 export const AvatarTransparencySystem = defineSystem({
   uuid: 'AvatarTransparencySystem',
-  execute,
   insert: { with: PresentationSystemGroup },
+  execute,
   reactor: () => {
     const avatarQuery = useQuery([AvatarComponent])
     return (

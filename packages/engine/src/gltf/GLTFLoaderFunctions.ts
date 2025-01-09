@@ -1131,11 +1131,6 @@ const loadMesh = async (options: GLTFParserOptions, entity: Entity, nodeIndex: n
   const url = options.url
   ResourceState.addReferencedAsset(url, mesh, ResourceType.Mesh)
 
-  if (Array.isArray(materials))
-    console.log(
-      'LOAD MATERIAL INSTANCE UUIDS',
-      materials.map((material) => material.uuid)
-    )
   setComponent(entity, MaterialInstanceComponent, {
     uuid: (Array.isArray(materials) ? materials : [materials]).map((material) => material.uuid as EntityUUID)
   })
