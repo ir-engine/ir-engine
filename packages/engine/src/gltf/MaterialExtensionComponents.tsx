@@ -99,12 +99,6 @@ const MaterialDefinitionSchema = S.Object({
   extras: S.Optional(S.Record(S.String(), S.Any()))
 })
 
-declare module 'three/src/materials/MeshPhysicalMaterial' {
-  export interface MeshPhysicalMaterial {
-    setValues(parameters: MeshPhysicalMaterialParameters): void
-  }
-}
-
 /**
  * Unlit Materials Extension
  *
@@ -160,8 +154,10 @@ export const KHREmissiveStrengthExtensionComponent = defineComponent({
   schema: S.Object({ emissiveStrength: S.Optional(S.Number()) }),
 
   extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {
-    // @ts-ignore -- TODO type extensions
-    const emissiveStrength = materialDef.extensions[KHREmissiveStrengthExtensionComponent.jsonID].emissiveStrength
+    const extension = materialDef.extensions![KHREmissiveStrengthExtensionComponent.jsonID] as ComponentType<
+      typeof KHREmissiveStrengthExtensionComponent
+    >
+    const emissiveStrength = extension.emissiveStrength
 
     if (emissiveStrength !== undefined) {
       materialParams.emissiveIntensity = emissiveStrength

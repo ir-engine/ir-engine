@@ -179,10 +179,10 @@ export function ImageReactor() {
 
     mesh.material.map.set(texture)
     mesh.visible.set(true)
-  }, [texture])
+  }, [mesh, texture])
 
   useEffect(() => {
-    if (!mesh.material.map.value || !mesh) return
+    if (!mesh || !mesh.material.map.value) return
 
     const flippedTexture = mesh.material.map.value.flipY
     switch (image.projection.value) {
@@ -195,7 +195,7 @@ export function ImageReactor() {
         mesh.geometry.set(flippedTexture ? PLANE_GEO() : PLANE_GEO_FLIPPED())
         resizeImageMesh(mesh.value as Mesh<PlaneGeometry, MeshBasicMaterial>)
     }
-  }, [mesh.material.map.value, image.projection.value])
+  }, [mesh, mesh?.material?.map?.value, image.projection.value])
 
   useEffect(() => {
     if (!mesh) return
