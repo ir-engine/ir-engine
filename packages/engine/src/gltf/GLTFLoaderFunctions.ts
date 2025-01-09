@@ -116,7 +116,7 @@ import {
   assignExtrasToUserData,
   getNormalizedComponentScale
 } from '../assets/loaders/gltf/GLTFLoaderFunctions'
-import { GLTFParserOptions, GLTFRegistry, getImageURIMimeType } from '../assets/loaders/gltf/GLTFParser'
+import { GLTFParserOptions, getImageURIMimeType } from '../assets/loaders/gltf/GLTFParser'
 import { KTX2Loader } from '../assets/loaders/gltf/KTX2Loader'
 import { TextureLoader } from '../assets/loaders/texture/TextureLoader'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
@@ -125,9 +125,6 @@ import { SourceComponent } from '../scene/components/SourceComponent'
 import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
 import { defaultMaterial } from './GLTFState'
 import { KHRTextureTransformExtensionComponent, KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
-
-// todo make this a state
-const cache = new GLTFRegistry()
 
 const assignFinalMaterial = (primitiveDef: GLTF.IMeshPrimitive, material: MeshPhysicalMaterial) => {
   const useDerivativeTangents = primitiveDef.attributes.TANGENT === undefined
@@ -160,8 +157,8 @@ const loadPrimitives = async (
     let needsTangentRecalculation = false
     for (let i = 0; i < primitives.length; i++) {
       const [geometry] = primitives[i]!
-      geometry.deleteAttribute('tangent')
       if (geometry.attributes.tangent) needsTangentRecalculation = true
+      geometry.deleteAttribute('tangent')
     }
 
     const newGeometry = mergeBufferGeometries(
@@ -296,16 +293,17 @@ const loadAccessor = async (options: GLTFParserOptions, accessorIndex: number) =
       ibSlice +
       ':' +
       accessorDef.count
-    let ib = cache.get(ibCacheKey)
+    // let ib = cache.get(ibCacheKey)
+    let ib: InterleavedBuffer | null = null
 
-    if (!ib) {
-      array = new TypedArray(bufferView!, ibSlice * byteStride, (accessorDef.count * byteStride) / elementBytes)
+    // if (!ib) {
+    array = new TypedArray(bufferView!, ibSlice * byteStride, (accessorDef.count * byteStride) / elementBytes)
 
-      // Integer parameters to IB/IBA are in array elements, not bytes.
-      ib = new InterleavedBuffer(array, byteStride / elementBytes)
+    // Integer parameters to IB/IBA are in array elements, not bytes.
+    ib = new InterleavedBuffer(array, byteStride / elementBytes)
 
-      cache.add(ibCacheKey, ib)
-    }
+    // cache.add(ibCacheKey, ib)
+    // }
 
     bufferAttribute = new InterleavedBufferAttribute(ib, itemSize, (byteOffset % byteStride) / elementBytes, normalized)
   } else {
@@ -652,6 +650,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
 
   const material = new materialConstructor(materialParams)
   material.uuid = uuid
+  material.name = materialDef.name || 'Material-' + materialIndex
 
   setComponent(materialEntity, MaterialStateComponent, { material, parameters: materialParams })
 
@@ -757,8 +756,6 @@ const assignTexture = async (options: GLTFParserOptions, mapDef: GLTF.ITextureIn
   }
 }
 
-const textureLoader = new TextureLoader(undefined, true)
-
 type KHRTextureBasisu = {
   source: number
 }
@@ -785,9 +782,10 @@ const loadTexture = (options: GLTFParserOptions, textureIndex: number) => {
   const handler = typeof sourceDef?.uri === 'string' && options.manager.getHandler(sourceDef.uri)
   let loader: ImageLoader | ImageBitmapLoader | TextureLoader | KTX2Loader | Loader<unknown, string>
 
-  if (handler) loader = handler as Loader<unknown, string>
   if (basisu) loader = getState(AssetLoaderState).gltfLoader.ktx2Loader!
+  else if (handler) loader = handler as Loader<unknown, string>
   else {
+    const textureLoader = new TextureLoader(undefined, true)
     loader = textureLoader
     loader.setRequestHeader(options.requestHeader)
   }
@@ -1383,7 +1381,6 @@ export const GLTFLoaderFunctions = {
   loadMesh,
   loadNode,
   loadScene
-  // loadGLTF
 }
 
 export const DependencyCache = new Map<string, Map<string, Promise<any>>>()
