@@ -59,13 +59,12 @@ export const parseValue = (value: string, dataType: EngineSettingType['dataType'
     ? Number(value)
     : value
 
-function isValidInteger(value) {
-  // Ensure the value is a non-empty string and does not contain non-numeric characters
-  if (typeof value !== 'string' || value.trim() === '') return false
-
-  // Convert the string to a number
-  const number = Number(value)
-
-  // Check if it's an integer and not NaN
-  return Number.isInteger(number)
+function isValidInteger(value): boolean {
+  if (typeof value === 'number') {
+    return Number.isInteger(value)
+  }
+  if (typeof value === 'string') {
+    return /^\d+$/.test(value)
+  }
+  return false
 }

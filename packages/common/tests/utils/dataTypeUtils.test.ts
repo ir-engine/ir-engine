@@ -27,8 +27,8 @@ import { getDataType, parseValue } from '../../src/utils/dataTypeUtils'
 
 describe('getDataType', () => {
   it('should return "string" for string values', () => {
-    expect(getDataType('hello')).toBe('string')
-    expect(getDataType('123')).toBe('string')
+    expect(getDataType('string value')).toBe('string')
+    expect(getDataType('abc123')).toBe('string')
   })
 
   it('should return "boolean" for boolean values', () => {
@@ -41,10 +41,6 @@ describe('getDataType', () => {
   it('should return "integer" for integer values', () => {
     expect(getDataType(123)).toBe('integer')
     expect(getDataType('123')).toBe('integer')
-  })
-
-  it('should return "string" for non-integer numeric strings', () => {
-    expect(getDataType('abc123')).toBe('string')
   })
 })
 
