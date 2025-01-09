@@ -55,7 +55,7 @@ import {
   FrustumCullCameraComponent
 } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { KHRUnlitExtensionComponent } from '../../gltf/MaterialDefinitionComponent'
+import { KHRUnlitExtensionComponent } from '../../gltf/MaterialExtensionComponents'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 
 import { ResourceState } from '@ir-engine/spatial/src/resources/ResourceState'

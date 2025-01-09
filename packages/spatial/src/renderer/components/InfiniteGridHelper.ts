@@ -38,12 +38,12 @@ import {
 import { Entity, EntityTreeComponent, createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
+  getComponent,
   removeComponent,
   setComponent,
-  useComponent,
-  useOptionalComponent
+  useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { State, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
@@ -157,7 +157,12 @@ export const InfiniteGridComponent = defineComponent({
 
           new ShaderMaterial({
             side: DoubleSide,
-            uniforms: {},
+            uniforms: {
+              uColor: { value: component.color.value },
+              uSize1: { value: component.size.value },
+              uSize2: { value: component.size.value * 10 },
+              uDistance: { value: component.distance.value }
+            },
             transparent: true,
             vertexShader: vertexShaderGrid,
             fragmentShader: fragmentShaderGrid,
@@ -175,37 +180,26 @@ export const InfiniteGridComponent = defineComponent({
       }
     }, [])
 
-    const mesh = useOptionalComponent(entity, MeshComponent) as any as State<Mesh<PlaneGeometry, ShaderMaterial>>
+    const mesh = getComponent(entity, MeshComponent) as any as Mesh<PlaneGeometry, ShaderMaterial>
 
     useEffect(() => {
-      if (!mesh) return
-      mesh.position.y.set(engineRendererSettings.gridHeight.value)
-      mesh.value.updateMatrixWorld(true)
-    }, [mesh, engineRendererSettings.gridHeight])
+      mesh.position.y = engineRendererSettings.gridHeight.value
+      mesh.updateMatrixWorld(true)
+    }, [engineRendererSettings.gridHeight])
 
     useEffect(() => {
-      if (!mesh) return
-      mesh.material.uniforms.uColor.set({
-        value: component.color.value
-      })
-    }, [mesh, component.color])
+      mesh.material.uniforms.uColor.value = component.color.value
+    }, [component.color])
 
     useEffect(() => {
-      if (!mesh) return
       const size = component.size.value
-      mesh.material.uniforms.uSize1.set({
-        value: size
-      })
-      mesh.material.uniforms.uSize2.set({
-        value: size * 10
-      })
-    }, [mesh, component.size])
+      mesh.material.uniforms.uSize1.value = size
+      mesh.material.uniforms.uSize2.value = size * 10
+    }, [component.size])
 
     useEffect(() => {
       if (!mesh) return
-      mesh.material.uniforms.uDistance.set({
-        value: component.distance.value
-      })
+      mesh.material.uniforms.uDistance.value = component.distance.value
 
       const lineEntities = [] as Entity[]
       const lineColors = ['red', 'green', 'blue']
@@ -241,7 +235,7 @@ export const InfiniteGridComponent = defineComponent({
       return () => {
         for (const lineEntity of lineEntities) removeEntity(lineEntity)
       }
-    }, [mesh, component.distance])
+    }, [component.distance])
 
     return null
   }

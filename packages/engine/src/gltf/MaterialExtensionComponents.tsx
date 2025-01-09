@@ -27,8 +27,10 @@ import { GLTF } from '@gltf-transform/core'
 import { ComponentType, S, defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { NO_PROXY } from '@ir-engine/hyperflux'
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
-import { MaterialPrototypeDefinitions, MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { getPrototypeEntityFromName } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import {
+  MaterialPrototypeDefinitions,
+  MaterialStateComponent
+} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { useEffect } from 'react'
 import {
   CanvasTexture,
@@ -97,33 +99,6 @@ const MaterialDefinitionSchema = S.Object({
   extras: S.Optional(S.Record(S.String(), S.Any()))
 })
 
-// export const MaterialDefinitionComponent = defineComponent({
-//   name: 'MaterialDefinitionComponent',
-//   schema: MaterialDefinitionSchema,
-
-//   reactor: () => {
-//     const entity = useEntityContext()
-//     const component = useComponent(entity, MaterialDefinitionComponent)
-//     const options = getParserOptions(entity)
-//     // const material = GLTFLoaderFunctions.useLoadMaterial(
-//     //   options,
-//     //   component.get(NO_PROXY) as ComponentType<typeof MaterialDefinitionComponent>
-//     // )
-
-//     // useLayoutEffect(() => {
-//     //   if (!entity || !material) return
-//     //   const uuid = getComponent(entity, UUIDComponent)
-//     //   material.uuid = uuid
-//     //   setComponent(entity, MaterialStateComponent, {
-//     //     material,
-//     //     prototypeEntity: getPrototypeEntityFromName(material.type)
-//     //   })
-//     // }, [material])
-
-//     return null
-//   }
-// })
-
 declare module 'three/src/materials/MeshPhysicalMaterial' {
   export interface MeshPhysicalMaterial {
     setValues(parameters: MeshPhysicalMaterialParameters): void
@@ -145,7 +120,7 @@ export const KHRUnlitExtensionComponent = defineComponent({
   },
 
   extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {
-    const pending = [] as Promise<any>[]
+    const pending = [] as Promise<void>[]
 
     materialParams.color = new Color(1.0, 1.0, 1.0)
     materialParams.opacity = 1.0
@@ -884,11 +859,9 @@ export const EEMaterialComponent = defineComponent({
     plugins: S.Array(MaterialExtensionPluginTypeSchema)
   }),
 
-  getMaterialType(materialDefintion: GLTF.IMaterial) {
-    const extension = materialDefintion.extensions![EEMaterialComponent.jsonID] as ComponentType<
-      typeof EEMaterialComponent
-    >
-    return MaterialPrototypeDefinitions.find(e => e.prototypeId === extension.prototype)!.prototypeConstructor
+  getMaterialType(materialDef: GLTF.IMaterial) {
+    const extension = materialDef.extensions![EEMaterialComponent.jsonID] as ComponentType<typeof EEMaterialComponent>
+    return MaterialPrototypeDefinitions.find((e) => e.prototypeId === extension.prototype)!.prototypeConstructor
   },
 
   extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {

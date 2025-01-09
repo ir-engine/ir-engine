@@ -31,23 +31,17 @@ import {
   defineComponent,
   defineQuery,
   getComponent,
-  getOptionalComponent,
-  getOptionalMutableComponent,
-  hasComponent,
-  useComponent,
-  useEntityContext,
   useOptionalComponent
 } from '@ir-engine/ecs'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { PluginType } from '@ir-engine/spatial/src/common/functions/OnBeforeCompilePlugin'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { MeshComponent } from '../components/MeshComponent'
 import { NoiseOffsetPluginComponent } from './constants/plugins/NoiseOffsetPlugin'
 import { TransparencyDitheringPluginComponent } from './constants/plugins/TransparencyDitheringComponent'
-import { materialPrototypeMatches, setMeshMaterial, updateMaterialPrototype } from './materialFunctions'
 import MeshBasicMaterial from './prototypes/MeshBasicMaterial.mat'
 import MeshLambertMaterial from './prototypes/MeshLambertMaterial.mat'
 import MeshMatcapMaterial from './prototypes/MeshMatcapMaterial.mat'
@@ -110,70 +104,70 @@ export const MaterialStateComponent = defineComponent({
     prototypeEntity: S.Entity()
   }),
 
-  fallbackMaterial: uuidv4() as EntityUUID,
+  fallbackMaterial: uuidv4() as EntityUUID
 
-  onRemove: (entity) => {
-    const materialComponent = getOptionalComponent(entity, MaterialStateComponent)
-    if (!materialComponent) return
-    for (const instanceEntity of materialComponent.instances) {
-      if (!hasComponent(instanceEntity, MaterialInstanceComponent)) continue
-      setMeshMaterial(instanceEntity, getComponent(instanceEntity, MaterialInstanceComponent).uuid)
-    }
-  },
+  // onRemove: (entity) => {
+  //   const materialComponent = getOptionalComponent(entity, MaterialStateComponent)
+  //   if (!materialComponent) return
+  //   for (const instanceEntity of materialComponent.instances) {
+  //     if (!hasComponent(instanceEntity, MaterialInstanceComponent)) continue
+  //     setMeshMaterial(instanceEntity, getComponent(instanceEntity, MaterialInstanceComponent).uuid)
+  //   }
+  // },
 
-  reactor: () => {
-    const entity = useEntityContext()
-    const materialComponent = useComponent(entity, MaterialStateComponent)
+  // reactor: () => {
+  //   const entity = useEntityContext()
+  //   const materialComponent = useComponent(entity, MaterialStateComponent)
 
-    useEffect(() => {
-      if (materialComponent.prototypeEntity.value && !materialPrototypeMatches(entity)) updateMaterialPrototype(entity)
-    }, [materialComponent.prototypeEntity])
+  //   useEffect(() => {
+  //     if (materialComponent.prototypeEntity.value && !materialPrototypeMatches(entity)) updateMaterialPrototype(entity)
+  //   }, [materialComponent.prototypeEntity])
 
-    return null
-  }
+  //   return null
+  // }
 })
 
 export const MaterialInstanceComponent = defineComponent({
   name: 'MaterialInstanceComponent',
 
-  schema: S.Object({ uuid: S.Array(S.EntityUUID()) }),
+  schema: S.Object({ uuid: S.Array(S.EntityUUID()) })
 
-  onRemove: (entity) => {
-    const uuids = getOptionalComponent(entity, MaterialInstanceComponent)?.uuid
-    if (!uuids) return
-    for (const uuid of uuids) {
-      const materialEntity = UUIDComponent.getEntityByUUID(uuid)
-      if (!hasComponent(materialEntity, MaterialStateComponent)) continue
-      const materialComponent = getOptionalMutableComponent(materialEntity, MaterialStateComponent)
-      if (materialComponent?.instances.value)
-        materialComponent.instances.set(materialComponent.instances.value.filter((instance) => instance !== entity))
-    }
-  },
-  reactor: () => {
-    const entity = useEntityContext()
-    const materialComponent = useOptionalComponent(entity, MaterialInstanceComponent)
+  // onRemove: (entity) => {
+  //   const uuids = getOptionalComponent(entity, MaterialInstanceComponent)?.uuid
+  //   if (!uuids) return
+  //   for (const uuid of uuids) {
+  //     const materialEntity = UUIDComponent.getEntityByUUID(uuid)
+  //     if (!hasComponent(materialEntity, MaterialStateComponent)) continue
+  //     const materialComponent = getOptionalMutableComponent(materialEntity, MaterialStateComponent)
+  //     if (materialComponent?.instances.value)
+  //       materialComponent.instances.set(materialComponent.instances.value.filter((instance) => instance !== entity))
+  //   }
+  // },
+  // reactor: () => {
+  //   const entity = useEntityContext()
+  //   const materialComponent = useOptionalComponent(entity, MaterialInstanceComponent)
 
-    if (!materialComponent || materialComponent.uuid.value.length === 0) return null
+  //   if (!materialComponent || materialComponent.uuid.value.length === 0) return null
 
-    if (materialComponent.uuid.value.length > 1)
-      return (
-        <>
-          {materialComponent.uuid.value.map((uuid, index) => (
-            <MaterialInstanceSubReactor array={true} key={uuid} index={index} uuid={uuid} entity={entity} />
-          ))}
-        </>
-      )
+  //   if (materialComponent.uuid.value.length > 1)
+  //     return (
+  //       <>
+  //         {materialComponent.uuid.value.map((uuid, index) => (
+  //           <MaterialInstanceSubReactor array={true} key={uuid + '-' + index} index={index} uuid={uuid} entity={entity} />
+  //         ))}
+  //       </>
+  //     )
 
-    return (
-      <MaterialInstanceSubReactor
-        array={false}
-        key={materialComponent.uuid.value[0]}
-        index={0}
-        uuid={materialComponent.uuid.value[0]}
-        entity={entity}
-      />
-    )
-  }
+  //   return (
+  //     <MaterialInstanceSubReactor
+  //       array={false}
+  //       key={materialComponent.uuid.value[0]}
+  //       index={0}
+  //       uuid={materialComponent.uuid.value[0]}
+  //       entity={entity}
+  //     />
+  //   )
+  // }
 })
 
 const MaterialInstanceSubReactor = (props: { array: boolean; uuid: EntityUUID; entity: Entity; index: number }) => {

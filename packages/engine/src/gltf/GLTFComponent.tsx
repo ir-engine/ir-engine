@@ -57,7 +57,7 @@ import {
   useMutableState
 } from '@ir-engine/hyperflux'
 
-import { LayerComponent, useAncestorWithComponents, useChildrenWithComponents } from '@ir-engine/ecs'
+import { LayerComponent, useAncestorWithComponents } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ShapeSchema } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -91,15 +91,10 @@ type DependencyEval = {
 
 type ComponentDependencies = {
   componentDependencies: Record<EntityUUID, Component[]>
-  childrenDependencies: Map<Component, number>
 }
 
 const componentDependenciesLoaded = (dependencies?: ComponentDependencies) => {
-  return (
-    !!dependencies &&
-    Object.keys(dependencies.componentDependencies).length === 0 &&
-    dependencies.childrenDependencies.size === 0
-  )
+  return !!dependencies && Object.keys(dependencies.componentDependencies).length === 0
 }
 
 const loadDependencies = {
@@ -113,8 +108,7 @@ const loadDependencies = {
 
 const buildComponentDependencies = (json: GLTF.IGLTF) => {
   const dependencies = {
-    componentDependencies: {},
-    childrenDependencies: new Map<Component, number>()
+    componentDependencies: {}
   } as ComponentDependencies
 
   const meshes = new Set<number>()
@@ -142,9 +136,6 @@ const buildComponentDependencies = (json: GLTF.IGLTF) => {
       })
     }
   }
-
-  // if (meshes.size) dependencies.childrenDependencies.set(MeshComponent, meshes.size)
-  // if (materials.size) dependencies.childrenDependencies.set(MaterialStateComponent, materials.size)
 
   return dependencies
 }
@@ -274,99 +265,13 @@ export const GLTFComponentReactor = (props: { entity: Entity }) => {
   const dependencies = gltfComponent.dependencies.get(NO_PROXY_STEALTH) as ComponentDependencies | undefined
   return (
     <>
-      {/* {gltfComponent.document.value && (
-        <>
-          {gltfComponent.document.value.buffers?.map((_, index) => (
-            <BufferReactor key={index} entity={entity} bufferIndex={index} />
-          ))}
-          {gltfComponent.document.value.images?.map((_, index) => (
-            <ImageReactor key={index} entity={entity} imageIndex={index} />
-          ))}
-          {gltfComponent.document.value.bufferViews?.map((_, index) => (
-            <BufferViewReactor key={index} entity={entity} bufferViewIndex={index} />
-          ))}
-        </>
-      )} */}
-      {/* <ResourceReactor documentID={sourceID} entity={entity} /> */}
+      <ResourceReactor documentID={sourceID} entity={entity} />
       {dependencies && !componentDependenciesLoaded(dependencies) ? (
         <DependencyReactor key={entity} gltfComponentEntity={entity} dependencies={dependencies} />
       ) : null}
     </>
   )
 }
-
-// const BufferReactor = (props: { entity: Entity; bufferIndex: number }) => {
-//   const { entity, bufferIndex } = props
-//   const options = getParserOptions(entity)
-//   const buffer = GLTFLoaderFunctions.useLoadBuffer(options, bufferIndex)
-
-//   useEffect(() => {
-//     if (!buffer) return
-//     const gltfComponent = getMutableComponent(entity, GLTFComponent)
-//     gltfComponent.buffers.set((prev) => {
-//       prev![bufferIndex] = buffer
-//       console.log('setting buffer', bufferIndex, 'for entity', entity)
-//       return prev
-//     })
-//   }, [buffer])
-
-//   return null
-// }
-
-// const BufferViewReactor = (props: { entity: Entity; bufferViewIndex: number }) => {
-//   const { entity, bufferViewIndex } = props
-//   const options = getParserOptions(entity)
-//   const bufferView = GLTFLoaderFunctions.useLoadBufferView(options, bufferViewIndex)
-
-//   useEffect(() => {
-//     if (!bufferView) return
-//     const gltfComponent = getMutableComponent(entity, GLTFComponent)
-//     gltfComponent.bufferViews.set((prev) => {
-//       prev![bufferViewIndex] = bufferView
-//       return prev
-//     })
-//   }, [bufferView])
-
-//   return null
-// }
-
-// const ImageReactor = (props: { entity: Entity; imageIndex: number }) => {
-//   const { entity, imageIndex } = props
-//   const options = getParserOptions(entity)
-
-//   const imageDef = options.document.images![imageIndex]
-//   const loader = imageDef.mimeType === 'image/ktx2' ? options.ktx2Loader : new TextureLoader()
-//   const image = GLTFLoaderFunctions.useLoadImageSource(options, imageIndex, loader)
-
-//   useEffect(() => {
-//     if (!image) return
-//     const gltfComponent = getMutableComponent(entity, GLTFComponent)
-//     gltfComponent.images.set((prev) => {
-//       prev![imageIndex] = image
-//       return prev
-//     })
-//   }, [image])
-
-//   return null
-// }
-
-// const MeshReactor = (props: { entity: Entity; meshIndex: number }) => {
-//   const { entity, meshIndex } = props
-//   const options = getParserOptions(entity)
-
-//   const meshGeo = GLTFLoaderFunctions.useLoadPrimitives(options, meshIndex)
-
-//   useEffect(() => {
-//     if(!meshGeo) return
-//     const gltfComponent = getMutableComponent(entity, GLTFComponent)
-//     gltfComponent.meshes.set((prev) => {
-//       prev![meshIndex] = meshGeo
-//       return prev
-//     })
-//   }, [meshGeo])
-
-//   return null
-// }
 
 const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
   const dependenciesLoaded = GLTFComponent.useDependenciesLoaded(props.entity)
@@ -420,6 +325,7 @@ const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; 
     const uuid = getComponent(entity, UUIDComponent)
     ;(gltfComponent.dependencies as State<ComponentDependencies>).componentDependencies.set((prev) => {
       const dependencyArr = prev![uuid] as Component[]
+      if (!dependencyArr) return prev
       const index = dependencyArr.findIndex((compItem) => compItem.jsonID === component.jsonID)
       dependencyArr.splice(index, 1)
       if (!dependencyArr.length) {
@@ -475,30 +381,9 @@ const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: stri
   ) : null
 }
 
-const ChildDependencyReactor = (props: { gltfComponentEntity: Entity; component: Component; count: number }) => {
-  const { gltfComponentEntity, component, count } = props
-  const children = useChildrenWithComponents(gltfComponentEntity, [component])
-  const childrenCount = children.length
-
-  useEffect(() => {
-    const gltfSource = GLTFComponent.getInstanceID(gltfComponentEntity)
-    const gltfChildren = children.filter((child) => getOptionalComponent(child, SourceComponent) === gltfSource)
-    if (gltfChildren.length === count) {
-      const gltfComponent = getMutableComponent(gltfComponentEntity, GLTFComponent)
-      ;(gltfComponent.dependencies as State<ComponentDependencies>).childrenDependencies.set((prev) => {
-        prev.delete(component)
-        return prev
-      })
-    }
-  }, [childrenCount])
-
-  return null
-}
-
 const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: ComponentDependencies }) => {
   const { gltfComponentEntity, dependencies } = props
   const componentDependencies = Object.entries(dependencies.componentDependencies)
-  const childrenDependencies = [...dependencies.childrenDependencies.entries()]
 
   useEffect(() => {
     return () => {
@@ -516,16 +401,6 @@ const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: C
             gltfComponentEntity={gltfComponentEntity}
             uuid={uuid}
             components={components}
-          />
-        )
-      })}
-      {childrenDependencies.map(([component, count]) => {
-        return (
-          <ChildDependencyReactor
-            key={component.name}
-            gltfComponentEntity={gltfComponentEntity}
-            component={component}
-            count={count}
           />
         )
       })}

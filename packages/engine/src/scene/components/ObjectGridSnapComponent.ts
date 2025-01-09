@@ -23,15 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EngineState, EntityTreeComponent, iterateEntityNode } from '@ir-engine/ecs'
 import {
+  EngineState,
   Entity,
+  EntityTreeComponent,
   S,
   UndefinedEntity,
   createEntity,
   defineComponent,
   getComponent,
   hasComponent,
+  iterateEntityNode,
   removeComponent,
   removeEntity,
   setComponent,

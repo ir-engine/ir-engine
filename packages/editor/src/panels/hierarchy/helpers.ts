@@ -28,6 +28,7 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import {
   Entity,
   entityExists,
+  EntityTreeComponent,
   EntityUUID,
   getComponent,
   hasComponent,
@@ -41,7 +42,6 @@ import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { nodeIsChild } from '@ir-engine/engine/src/gltf/gltfUtils'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
-import { EntityTreeComponent } from '@ir-engine/ecs'
 import { t } from 'i18next'
 import { CopyPasteFunctions } from '../../functions/CopyPasteFunctions'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'

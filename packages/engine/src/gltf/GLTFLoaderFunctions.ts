@@ -80,6 +80,7 @@ import {
   Material,
   Matrix4,
   Mesh,
+  MeshPhysicalMaterial,
   MeshStandardMaterial,
   NumberKeyframeTrack,
   Object3D,
@@ -123,10 +124,26 @@ import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
 import { defaultMaterial } from './GLTFState'
-import { KHRTextureTransformExtensionComponent } from './MaterialDefinitionComponent'
+import { KHRTextureTransformExtensionComponent, KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
 
 // todo make this a state
 const cache = new GLTFRegistry()
+
+const assignFinalMaterial = (primitiveDef: GLTF.IMeshPrimitive, material: MeshPhysicalMaterial) => {
+  const useDerivativeTangents = primitiveDef.attributes.TANGENT === undefined
+  const useVertexColors = primitiveDef.attributes.COLOR_0 !== undefined
+  const useFlatShading = primitiveDef.attributes.NORMAL === undefined
+
+  if (useVertexColors) material.vertexColors = true
+  if (useFlatShading) material.flatShading = true
+
+  if (useDerivativeTangents) {
+    if (material.normalScale) material.normalScale.y *= -1
+    if (material.clearcoatNormalScale) material.clearcoatNormalScale.y *= -1
+  }
+
+  material.needsUpdate = true
+}
 
 const loadPrimitives = async (
   options: GLTFParserOptions,
@@ -152,8 +169,6 @@ const loadPrimitives = async (
       true
     )!
     if (needsTangentRecalculation) newGeometry?.computeTangents()
-
-    // for (let i = 0; i < mesh.primitives.length; i++) newGeometry!.groups[i].materialIndex = i
 
     return [newGeometry, primitives.map(([, material]) => material)]
   } else {
@@ -193,7 +208,9 @@ const loadPrimitive = async (
       KHR_DRACO_MESH_COMPRESSION.decodePrimitive(options, primitiveDef).then(async (geom) => {
         GLTFLoaderFunctions.computeBounds(json, geom, primitiveDef)
         assignExtrasToUserData(geom, primitiveDef as GLTF.IMeshPrimitive)
-        resolve([geom, await materialPromise])
+        const material = await materialPromise
+        assignFinalMaterial(primitiveDef, material)
+        resolve([geom, material])
       })
     })
   } else {
@@ -204,21 +221,23 @@ const loadPrimitive = async (
     for (const attributeName of Object.keys(attributes)) {
       const threeAttributeName = ATTRIBUTES[attributeName] || attributeName.toLowerCase()
       const attribute = primitiveDef.attributes[attributeName]
-      const accessor = await GLTFLoaderFunctions.loadAccessor(options, attribute)
+      const accessor = await getDependency(options, 'accessor', attribute)
       if (accessor) {
         geometry.setAttribute(threeAttributeName, accessor)
       }
     }
 
     if (typeof primitiveDef.indices === 'number') {
-      const accessor = await GLTFLoaderFunctions.loadAccessor(options, primitiveDef.indices!)
+      const accessor = await getDependency(options, 'accessor', primitiveDef.indices!)
       if (accessor) {
         geometry.setIndex(accessor as BufferAttribute)
       }
     }
     GLTFLoaderFunctions.computeBounds(json, geometry, primitiveDef)
     assignExtrasToUserData(geometry, primitiveDef as GLTF.IMeshPrimitive)
-    return [geometry, await materialPromise]
+    const material = await materialPromise
+    assignFinalMaterial(primitiveDef, material)
+    return [geometry, material]
   }
 }
 
@@ -469,79 +488,86 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   setComponent(materialEntity, EntityTreeComponent, { parentEntity: entity, childIndex: materialIndex })
   setComponent(materialEntity, NameComponent, materialDef.name ?? 'Material-' + materialIndex)
 
-  /** @todo */
-  // parser.associations.set(material, { materials: materialIndex })
-
   // if (materialDef.extensions) addUnknownExtensionsToUserData(GLTFExtensions, material, materialDef)
 
   const materialParams = {} as any
   const promises = [] as Promise<void>[]
-
   const materialExtensions = materialDef.extensions || {}
 
-  if (typeof materialDef.pbrMetallicRoughness?.baseColorTexture !== 'undefined') {
-    promises.push(
-      new Promise<void>(async (resolve) => {
-        const map = await GLTFLoaderFunctions.assignTexture(
-          options,
-          materialDef.pbrMetallicRoughness!.baseColorTexture!
-        )
-        if (map) {
-          map.colorSpace = SRGBColorSpace
-          materialParams.map = map
-        }
-        resolve()
-      })
-    )
-  }
+  let materialConstructor = MeshStandardMaterial
 
-  if (typeof materialDef.pbrMetallicRoughness?.baseColorFactor !== 'undefined') {
-    if (Array.isArray(materialDef.pbrMetallicRoughness?.baseColorFactor)) {
-      const array = materialDef.pbrMetallicRoughness.baseColorFactor
-      ;(materialParams.color = new Color().setRGB(array[0], array[1], array[2], LinearSRGBColorSpace)),
-        (materialParams.opacity = array[3])
+  if (!materialExtensions[EXTENSIONS.EE_MATERIAL] && materialExtensions[EXTENSIONS.KHR_MATERIALS_UNLIT]) {
+    const kmuExtension = KHRUnlitExtensionComponent
+    materialConstructor = kmuExtension.getMaterialType() as any
+    promises.push(kmuExtension.extendMaterialParams(options, materialParams, materialDef) as any)
+  } else {
+    materialParams.color = new Color(1.0, 1.0, 1.0)
+    materialParams.opacity = 1.0
+
+    if (typeof materialDef.pbrMetallicRoughness?.baseColorTexture !== 'undefined') {
+      promises.push(
+        new Promise<void>(async (resolve) => {
+          const map = await GLTFLoaderFunctions.assignTexture(
+            options,
+            materialDef.pbrMetallicRoughness!.baseColorTexture!
+          )
+          if (map) {
+            map.colorSpace = SRGBColorSpace
+            materialParams.map = map
+          }
+          resolve()
+        })
+      )
     }
-  }
-  materialParams.metalness =
-    materialDef.pbrMetallicRoughness?.metallicFactor !== undefined
-      ? materialDef.pbrMetallicRoughness.metallicFactor
-      : 1.0
 
-  materialParams.roughness =
-    materialDef.pbrMetallicRoughness?.roughnessFactor !== undefined
-      ? materialDef.pbrMetallicRoughness.roughnessFactor
-      : 1.0
+    if (typeof materialDef.pbrMetallicRoughness?.baseColorFactor !== 'undefined') {
+      if (Array.isArray(materialDef.pbrMetallicRoughness?.baseColorFactor)) {
+        const array = materialDef.pbrMetallicRoughness.baseColorFactor
+        ;(materialParams.color = new Color().setRGB(array[0], array[1], array[2], LinearSRGBColorSpace)),
+          (materialParams.opacity = array[3])
+      }
+    }
+    materialParams.metalness =
+      materialDef.pbrMetallicRoughness?.metallicFactor !== undefined
+        ? materialDef.pbrMetallicRoughness.metallicFactor
+        : 1.0
 
-  if (typeof materialDef.pbrMetallicRoughness?.metallicRoughnessTexture !== 'undefined') {
-    promises.push(
-      new Promise<void>(async (resolve) => {
-        const metalnessMap = await GLTFLoaderFunctions.assignTexture(
-          options,
-          materialDef.pbrMetallicRoughness!.metallicRoughnessTexture!
-        )
+    materialParams.roughness =
+      materialDef.pbrMetallicRoughness?.roughnessFactor !== undefined
+        ? materialDef.pbrMetallicRoughness.roughnessFactor
+        : 1.0
 
-        if (metalnessMap) {
-          materialParams.metalnessMap = metalnessMap
-        }
-        resolve()
-      })
-    )
-  }
+    if (typeof materialDef.pbrMetallicRoughness?.metallicRoughnessTexture !== 'undefined') {
+      promises.push(
+        new Promise<void>(async (resolve) => {
+          const metalnessMap = await GLTFLoaderFunctions.assignTexture(
+            options,
+            materialDef.pbrMetallicRoughness!.metallicRoughnessTexture!
+          )
 
-  if (typeof materialDef.pbrMetallicRoughness?.metallicRoughnessTexture !== 'undefined') {
-    promises.push(
-      new Promise<void>(async (resolve) => {
-        const roughnessMap = await GLTFLoaderFunctions.assignTexture(
-          options,
-          materialDef.pbrMetallicRoughness!.metallicRoughnessTexture!
-        )
+          if (metalnessMap) {
+            materialParams.metalnessMap = metalnessMap
+          }
+          resolve()
+        })
+      )
+    }
 
-        if (roughnessMap) {
-          materialParams.roughnessMap = roughnessMap
-        }
-        resolve()
-      })
-    )
+    if (typeof materialDef.pbrMetallicRoughness?.metallicRoughnessTexture !== 'undefined') {
+      promises.push(
+        new Promise<void>(async (resolve) => {
+          const roughnessMap = await GLTFLoaderFunctions.assignTexture(
+            options,
+            materialDef.pbrMetallicRoughness!.metallicRoughnessTexture!
+          )
+
+          if (roughnessMap) {
+            materialParams.roughnessMap = roughnessMap
+          }
+          resolve()
+        })
+      )
+    }
   }
 
   materialParams.side = materialDef.doubleSided === true ? DoubleSide : FrontSide
@@ -609,8 +635,6 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
     )
   }
 
-  let materialConstructor = MeshStandardMaterial
-
   const extensions = Object.entries(materialDef.extensions || {})
   for (const [extensionName, extension] of extensions) {
     const Component = ComponentJSONIDMap.get(extensionName) as any // todo
@@ -627,6 +651,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   await Promise.all(promises)
 
   const material = new materialConstructor(materialParams)
+  material.uuid = uuid
 
   setComponent(materialEntity, MaterialStateComponent, { material, parameters: materialParams })
 
@@ -686,7 +711,7 @@ const loadMorphTargets = async (options: GLTFParserOptions, targetsList: Record<
   for (let i = 0, il = targetsList.length; i < il; i++) {
     const target = targetsList[i]
     for (const [key, accessorIndex] of Object.entries(target)) {
-      const accessor = await GLTFLoaderFunctions.loadAccessor(options, accessorIndex)
+      const accessor = await getDependency(options, 'accessor', accessorIndex)
       if (!accessor) continue
       targetState[i][key] = accessor as BufferAttribute
     }
@@ -712,10 +737,11 @@ const loadMorphTargets = async (options: GLTFParserOptions, targetsList: Record<
  * @return {Promise<Texture>}
  */
 const assignTexture = async (options: GLTFParserOptions, mapDef: GLTF.ITextureInfo) => {
-  const texture = await GLTFLoaderFunctions.loadTexture(options, mapDef.index)
+  let texture = await getDependency(options, 'texture', mapDef.index)
   if (!texture) return null
 
   if (mapDef?.texCoord !== undefined && mapDef.texCoord > 0) {
+    texture = texture.clone()
     texture.channel = mapDef.texCoord
   }
 
@@ -792,7 +818,6 @@ const loadTextureImage = async (
 
   const texture = await GLTFLoaderFunctions.loadImageSource(options, sourceIndex, loader)
 
-  // useEffect(() => {
   if (!texture || !sourceDef || !textureDef) return
 
   texture.flipY = false
@@ -1094,44 +1119,28 @@ const loadMesh = async (options: GLTFParserOptions, entity: Entity, nodeIndex: n
     setComponent(entity, SkinnedMeshComponent, skinnedMesh)
   }
 
+  //handle primitive extensions
+  // const extensions = primitiveDef.extensions || {}
+  // for (const extensionName in extensions) {
+  //   const Component = ComponentJSONIDMap.get(extensionName)
+  //   if (!Component) continue
+  //   setComponent(entity, Component, extensions[extensionName])
+  // }
+
   setComponent(entity, MeshComponent, mesh)
   setComponent(entity, NameComponent, meshDef.name ?? 'Mesh-' + meshIndex)
 
   const url = options.url
   ResourceState.addReferencedAsset(url, mesh, ResourceType.Mesh)
 
-  const materialUUIDs = [] as EntityUUID[]
-  for (let primIndex = 0; primIndex < meshDef.primitives.length; primIndex++) {
-    const primitiveDef = meshDef.primitives[primIndex]
-    //handle material instances
-    const materialUUID = (options.documentID + '-material-' + primitiveDef.material!) as EntityUUID
-
-    materialUUIDs[primitiveDef.material!] = materialUUID
-
-    //handle primitive extensions
-    const extensions = primitiveDef.extensions || {}
-    for (const extensionName in extensions) {
-      const Component = ComponentJSONIDMap.get(extensionName)
-      if (!Component) continue
-      setComponent(entity, Component, extensions[extensionName])
-    }
-
-    const material = materials[primIndex]
-    if (!material) continue
-
-    const useDerivativeTangents = primitiveDef.attributes.TANGENT === undefined
-    const useVertexColors = primitiveDef.attributes.COLOR_0 !== undefined
-    const useFlatShading = primitiveDef.attributes.NORMAL === undefined
-
-    if (useVertexColors) material.vertexColors = true
-    if (useFlatShading) material.flatShading = true
-
-    if (useDerivativeTangents) {
-      if (material.normalScale) material.normalScale.y *= -1
-      if (material.clearcoatNormalScale) material.clearcoatNormalScale.y *= -1
-    }
-  }
-  setComponent(entity, MaterialInstanceComponent, { uuid: materialUUIDs })
+  if (Array.isArray(materials))
+    console.log(
+      'LOAD MATERIAL INSTANCE UUIDS',
+      materials.map((material) => material.uuid)
+    )
+  setComponent(entity, MaterialInstanceComponent, {
+    uuid: (Array.isArray(materials) ? materials : [materials]).map((material) => material.uuid as EntityUUID)
+  })
 
   //handle morph targets
   const loadedMorphTargets = await GLTFLoaderFunctions.mergeMorphTargets(options, nodeIndex)
@@ -1262,7 +1271,7 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
 
         const [skinnedMesh, inverseBindMatrices, ...jointNodes] = (await Promise.all([
           getDependency(options, 'mesh', nodeEntity, nodeIndex, nodeDef.mesh),
-          GLTFLoaderFunctions.loadAccessor(options, skinDef.inverseBindMatrices!),
+          getDependency(options, 'accessor', skinDef.inverseBindMatrices!),
           ...skinDef.joints.map((joint) => getDependency(options, 'node', joint))
         ])) as [SkinnedMesh, BufferAttribute, ...Entity[]]
         if (!inverseBindMatrices) throw new Error('GLTFLoader: Inverse bind matrices not found')
@@ -1338,16 +1347,18 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
     const obj3d = new Object3D()
     setComponent(rootEntity, ObjectComponent, obj3d)
   }
-  const obj3d = getComponent(rootEntity, ObjectComponent)
 
-  obj3d.animations = animationClips
-  if (!hasComponent(rootEntity, AnimationComponent)) {
-    setComponent(rootEntity, AnimationComponent, {
-      mixer: new AnimationMixer(obj3d),
-      animations: obj3d.animations
-    })
-  } else {
-    getMutableComponent(rootEntity, AnimationComponent).animations.merge(obj3d.animations)
+  if (animationClips.length > 0) {
+    const obj3d = getComponent(rootEntity, ObjectComponent)
+    obj3d.animations = animationClips
+    if (!hasComponent(rootEntity, AnimationComponent)) {
+      setComponent(rootEntity, AnimationComponent, {
+        mixer: new AnimationMixer(obj3d),
+        animations: obj3d.animations
+      })
+    } else {
+      getMutableComponent(rootEntity, AnimationComponent).animations.merge(obj3d.animations)
+    }
   }
 
   return loadedNodeEntities
@@ -1395,7 +1406,7 @@ export const getDependency = (options: GLTFParserOptions, type: DependencyType, 
   const cache = DependencyCache.get(url)
   if (!cache) throw new Error('GLTFLoader: No cache found for url ' + url)
 
-  const cacheKey = type + ':' + indexes[0]
+  const cacheKey = type + ':' + JSON.stringify(indexes)
   const dependency = cache.get(cacheKey)
 
   if (!dependency) {
