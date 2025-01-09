@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { DrawingUtils, FilesetResolver, NormalizedLandmark, PoseLandmarker } from '@mediapipe/tasks-vision'
 import React, { useEffect, useLayoutEffect, useRef } from 'react'
-import ReactSlider from 'react-slider'
 import { twMerge } from 'tailwind-merge'
 
 import { useWorldNetwork } from '@ir-engine/client-core/src/common/services/LocationInstanceConnectionService'
@@ -74,6 +73,7 @@ import Video from '@ir-engine/ui/src/primitives/tailwind/Video'
 
 import { SocketWebRTCClientNetwork } from '@ir-engine/client-core/src/transports/mediasoup/MediasoupClientFunctions'
 import { useVideoFrameCallback } from '@ir-engine/spatial/src/common/functions/useVideoFrameCallback'
+import { Slider } from '../../../editor'
 import Button from '../../primitives/tailwind/Button'
 
 /**
@@ -439,23 +439,24 @@ export const PlaybackControls = (props: { durationSeconds: number }) => {
           {playing.value ? 'Pause' : 'Play'}
         </Button>
       </div>
-      <ReactSlider
+      <Slider
         className="my-2 h-4 w-full cursor-pointer rounded-lg bg-gray-300"
         min={0}
-        value={playing.value ? currentTime.value : undefined}
+        value={playing.value ? currentTime.value! : 0}
         max={durationSeconds}
         step={1 / 60} // todo store recording framerate in recording
         onChange={setCurrentTime}
-        renderThumb={(props, state) => {
-          return (
-            <div
-              {...props}
-              className="font=[lato] h-4 w-8 rounded-full bg-white text-center text-sm font-bold shadow-md"
-            >
-              {Math.round(state.valueNow)}
-            </div>
-          )
-        }}
+        label="Time"
+        // renderThumb={(props, state) => {
+        //   return (
+        //     <div
+        //       {...props}
+        //       className="font=[lato] h-4 w-8 rounded-full bg-white text-center text-sm font-bold shadow-md"
+        //     >
+        //       {Math.round(state.valueNow)}
+        //     </div>
+        //   )
+        // }}
       />
     </div>
   )
