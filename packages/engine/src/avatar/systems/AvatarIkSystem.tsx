@@ -32,7 +32,6 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
-  iterateEntityNode,
   useComponent,
   useQuery,
   UUIDComponent
@@ -48,11 +47,10 @@ import {
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { compareDistanceToCamera } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
-import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { XRLeftHandComponent, XRRightHandComponent } from '@ir-engine/spatial/src/xr/XRComponents'
 import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import React, { useEffect } from 'react'
-import { Matrix4, Quaternion, Vector3 } from 'three'
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { getArmIKHint } from '../animation/getArmIKHint'
 import { blendIKChain, solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
@@ -300,9 +298,9 @@ const SetupIkMatrices = (props: { avatarEntity: Entity }) => {
   useEffect(() => {
     if (!rigComponent.vrm.value || !rigComponent.bonesToEntities.hips) return
     const rootEntity = props.avatarEntity
-    iterateEntityNode(rigComponent.bonesToEntities.hips.value, computeTransformMatrix, (e) =>
-      hasComponent(e, TransformComponent)
-    )
+    // iterateEntityNode(rigComponent.bonesToEntities.hips.value, computeTransformMatrix, (e) =>
+    //   hasComponent(e, TransformComponent)
+    // )
 
     const rig = rigComponent.bonesToEntities.value
 
@@ -316,12 +314,36 @@ const SetupIkMatrices = (props: { avatarEntity: Entity }) => {
     rootRotationInverse.makeRotationFromQuaternion(transform.rotation).invert()
     toOrigin.identity()
     back.identity().multiply(rootRotationInverse)
+    let needsRotationSetup = false
+    for (const bone of boneNames) {
+      const localParentMatrix = getComponent(
+        getComponent(rig[bone], EntityTreeComponent).parentEntity,
+        TransformComponent
+      ).matrix.elements
+      needsRotationSetup =
+        localParentMatrix[0] !== 1 ||
+        localParentMatrix[1] !== 0 ||
+        localParentMatrix[2] !== 0 ||
+        localParentMatrix[3] !== 0 ||
+        localParentMatrix[4] !== 0 ||
+        localParentMatrix[5] !== 1 ||
+        localParentMatrix[6] !== 0 ||
+        localParentMatrix[7] !== 0 ||
+        localParentMatrix[8] !== 0 ||
+        localParentMatrix[9] !== 0 ||
+        localParentMatrix[10] !== 1 ||
+        localParentMatrix[11] !== 0 ||
+        localParentMatrix[15] !== 1
+      if (needsRotationSetup) break
+    }
+
     for (const bone of boneNames) {
       const worldMatrix = getComponent(rig[bone], TransformComponent).matrixWorld
       const parentMatrix = getComponent(
         getComponent(rig[bone], EntityTreeComponent).parentEntity,
         TransformComponent
       ).matrixWorld
+
       // get difference in world position, relative to the root, between the bone and its parent
       difference.elements[12] =
         worldMatrix.elements[12] - rootMatrix.elements[12] - (parentMatrix.elements[12] - rootMatrix.elements[12])
@@ -331,6 +353,37 @@ const SetupIkMatrices = (props: { avatarEntity: Entity }) => {
         worldMatrix.elements[14] - rootMatrix.elements[14] - (parentMatrix.elements[14] - rootMatrix.elements[14])
       // undo the parent rotation
       const local = new Matrix4().copy(back).multiply(toOrigin).multiply(difference)
+
+      local.elements[0] = 1
+      local.elements[1] = 0
+      local.elements[2] = 0
+      local.elements[3] = 0
+      local.elements[4] = 0
+      local.elements[5] = 1
+      local.elements[6] = 0
+      local.elements[7] = 0
+      local.elements[8] = 0
+      local.elements[9] = 0
+      local.elements[10] = 1
+      local.elements[11] = 0
+      local.elements[15] = 1
+
+      /**@todo temporary workaround for t-pose enforcement causing differing chain parent matrices */
+      if (needsRotationSetup) {
+        if (bone.includes('UpperArm')) {
+          const scale =
+            parentMatrix.elements[0] < 0 && parentMatrix.elements[5] < 0 && parentMatrix.elements[10] < 0 ? -1 : 1
+          console.log(bone, scale, local.elements)
+          local.elements[0] = scale
+          local.elements[5] = scale
+          local.elements[10] = scale
+        }
+      }
+      if (bone.includes('Lower')) {
+        if (bone.includes('Arm')) local.multiply(new Matrix4().makeRotationFromEuler(new Euler(Math.PI * -0.25, 0, 0)))
+      }
+
+      if (bone.includes('Leg')) local.multiply(new Matrix4().makeRotationFromEuler(new Euler(Math.PI * 0.5, 0, 0)))
 
       ikComponent.ikMatrices[bone].set({
         world: new Matrix4(),

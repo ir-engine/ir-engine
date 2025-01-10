@@ -1010,7 +1010,7 @@ const PrimitiveReactor = (props: {
 
   useEffect(() => {
     return () => {
-      if (!props.isSinglePrimitive) removeEntity(props.entity)
+      //if (!props.isSinglePrimitive) removeEntity(props.entity)
     }
   }, [])
 
