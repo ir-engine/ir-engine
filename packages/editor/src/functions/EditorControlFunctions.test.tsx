@@ -232,8 +232,6 @@ describe('EditorControlFunctions', () => {
       const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
       const sourceID = getComponent(nodeEntity, SourceComponent)
 
-      console.log('BEFORE---', getComponent(nodeEntity, HemisphereLightComponent))
-
       EditorControlFunctions.modifyProperty([nodeEntity], HemisphereLightComponent, {
         skyColor: new Color('blue').getHex() as any,
         groundColor: new Color('red').getHex() as any,
@@ -241,8 +239,6 @@ describe('EditorControlFunctions', () => {
       })
 
       applyIncomingActions()
-
-      console.log('AFTER---', getComponent(nodeEntity, HemisphereLightComponent))
 
       const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
       const extensionData = newSnapshot.nodes![0].extensions![HemisphereLightComponent.jsonID!] as any

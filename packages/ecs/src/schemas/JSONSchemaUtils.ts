@@ -99,7 +99,6 @@ export const HasSchemaDeserializers = <T extends Schema>(schema: T): boolean => 
 }
 
 export const DeserializeSchemaValue = <T extends Schema, Val>(schema: T, curr: Val, value: Val): Val | undefined => {
-  if (!schema) console.trace(schema)
   if (validValue(value) && schema.options?.deserialize) return schema.options.deserialize(curr, value) as Val
 
   switch (schema[Kind]) {
