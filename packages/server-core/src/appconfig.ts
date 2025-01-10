@@ -43,6 +43,7 @@ import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identit
 import { loginPath } from '@ir-engine/common/src/schemas/user/login.schema'
 
 import { HookContext } from '@feathersjs/feathers'
+import { defaultWebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
 import { EngineSettingType, instanceSignalingPath, projectsPath } from '@ir-engine/common/src/schema.type.module'
 import { jwtPublicKeyPath } from '@ir-engine/common/src/schemas/user/jwt-public-key.schema'
 import { parseValue } from '@ir-engine/common/src/utils/dataTypeUtils'
@@ -209,6 +210,9 @@ const instanceserver = {
   port: process.env.INSTANCESERVER_PORT!,
   locationName: process.env.PRELOAD_LOCATION_NAME!,
   shutdownDelayMs: parseInt(process.env.INSTANCESERVER_SHUTDOWN_DELAY_MS!) || 0
+}
+const instanceServerWebRtc = {
+  webRTCSettings: defaultWebRTCSettings
 }
 
 /**
@@ -444,7 +448,8 @@ const config = {
   coil,
   db,
   email,
-  instanceserver,
+  'instance-server': instanceserver,
+  'instance-server-webrtc': instanceServerWebRtc,
   server,
   'task-server': taskserver,
   redis,

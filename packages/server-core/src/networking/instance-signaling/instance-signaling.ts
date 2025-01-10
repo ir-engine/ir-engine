@@ -25,22 +25,28 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { BadRequest } from '@feathersjs/errors'
 import { Params } from '@feathersjs/feathers'
-import { CREDENTIAL_OFFSET, HASH_ALGORITHM } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
+import {
+  CREDENTIAL_OFFSET,
+  HASH_ALGORITHM,
+  IceServer,
+  WebRTCSettings
+} from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { PUBLIC_STUN_SERVERS } from '@ir-engine/common/src/constants/STUNServers'
 import multiLogger from '@ir-engine/common/src/logger'
 import {
-  IceServerType,
   InstanceAttendanceData,
   InstanceID,
   channelPath,
   channelUserPath,
+  engineSettingPath,
   instanceAttendancePath,
   instancePath,
-  instanceServerSettingPath,
   instanceSignalingPath,
   locationPath
 } from '@ir-engine/common/src/schema.type.module'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { PeerID, getState } from '@ir-engine/hyperflux'
 import { MessageTypes } from '@ir-engine/network/src/webrtc/WebRTCTransportFunctions'
 import crypto from 'crypto'
@@ -125,9 +131,23 @@ const peerJoin = async (app: Application, data: InstanceSignalingDataType, param
   const newInstanceAttendanceResult = await app.service(instanceAttendancePath).create(newInstanceAttendance)
 
   /** Get ice servers to use */
-  const instanceServerSettingsResponse = await app.service(instanceServerSettingPath).find()
-  const webRTCSettings = instanceServerSettingsResponse.data[0].webRTCSettings
-  const iceServers: IceServerType[] = webRTCSettings.useCustomICEServers
+  const instanceServerSettingsResponse = await app.service(engineSettingPath).find({
+    query: {
+      category: 'instance-server-webrtc',
+      jsonKey: EngineSettings.InstanceServer.WebRTCSettings
+    },
+    paginate: false
+  })
+
+  const webRTCSettings = unflattenArrayToObject(
+    instanceServerSettingsResponse.map((setting) => {
+      return {
+        key: setting.key,
+        value: setting.value
+      }
+    })
+  ) as WebRTCSettings
+  const iceServers: IceServer[] = webRTCSettings.useCustomICEServers
     ? webRTCSettings.iceServers
     : config.kubernetes.enabled
     ? PUBLIC_STUN_SERVERS
