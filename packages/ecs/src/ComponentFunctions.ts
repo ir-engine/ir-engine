@@ -426,23 +426,6 @@ export const defineComponent = <
   Component.setTransition = setTransition
 
   return Component
-
-  // const ExternalComponentReactor = (props: SetJSON) => {
-  //   const entity = useEntityContext()
-
-  //   useLayoutEffect(() => {
-  //     setComponent(entity, Component, props)
-  //     return () => {
-  //       removeComponent(entity, Component)
-  //     }
-  //   }, [props])
-
-  //   return null
-  // }
-  // Object.setPrototypeOf(ExternalComponentReactor, Component)
-  // Object.defineProperty(ExternalComponentReactor, 'name', { value: `${Component.name}Reactor` })
-
-  // return ExternalComponentReactor as typeof Component & { _TYPE: ComponentType } & typeof ExternalComponentReactor
 }
 
 export const getOptionalMutableComponent = <C extends Component>(
@@ -640,56 +623,6 @@ export const setComponent = <C extends Component>(
     ])) {
       const linkedEntity = linkedEntityNumber as Entity
       if (LayerRelations[entityLayer][linkedLayer] === LayerRelationTypes.Propagate) {
-        //@todo: would like to create the entity if it doesn't exist but this causes circular dependencies with createEntity.ts
-        // if (!entityExists(linkedEntity)) {
-        //if the linked entity doesn't exist, we recreate it and sync its state with the source entity
-        // linkedEntity = createEntity(dstLayerID as LayerID)
-        // EntityLayerState.linkEntity(entity, linkedEntity)
-        // for (const entityComponent of getAllComponents(entity)) {
-        //   if (entityComponent === component) continue //we're about to do this operation anyways
-        //   setComponent(linkedEntity, entityComponent, entityComponent.stateMap[entity]!.get(NO_PROXY_STEALTH))
-        // }
-        // }
-
-        // let argsClone: SetComponentType<C> | undefined = args
-
-        // if (component.jsonID) argsClone = structuredClone(component.toJSON(getComponent(entity, component)))
-        // else argsClone = weakClone(getComponent(entity, component))
-
-        // if (argsClone && component.schema && component.jsonID) {
-        //   //switch any target entities in the args to their corresponding linked entity in the destination layer
-
-        //   const componentSchema = component.schema as TTypedSchema<C> | undefined
-        //   const frontier = [{ schema: componentSchema, path: '' }] as { schema: any; path: string }[]
-        //   while (frontier.length > 0) {
-        //     const { schema, path } = frontier.pop()!
-        //     const argsClonePath = getNestedObject(argsClone, path).result
-        //     if (!schema || typeof argsClonePath !== 'object') continue
-        //     for (const key in argsClonePath) {
-        //       const valSchema = schema?.properties?.[key]
-        //       //check if the value is an entity
-        //       if (
-        //         valSchema?.properties?.options &&
-        //         valSchema.properties.options['id'] === 'Entity'
-        //         // && setArgs[key] !== UndefinedEntity
-        //       ) {
-        //         // const respectiveComponent = getOptionalComponent(linkedEntity, component)
-        //         // if (!respectiveComponent) continue
-        //         // const val = getNestedObject(respectiveComponent, path + '.' + key).result
-        //         //if so, we need to switch it to the linked entity in the destination layer
-        //         // argsClonePath[key] = val
-        //         const obj = getNestedObject(argsClone, path).result
-        //         const baseEntity = obj[key]
-        //         const baseUUID = getComponent(baseEntity, UUIDComponent)
-        //         const linkedEntity = UUIDComponent.getEntityByUUID(baseUUID, linkedLayer as LayerID)
-        //         Object.assign(obj, { [key]: linkedEntity })
-        //       } else if (typeof argsClonePath[key] === 'object') {
-        //         frontier.push({ schema: valSchema, path: path + '.' + key })
-        //       }
-        //     }
-        //   }
-        // }
-
         if (component.schema) {
           const componentSchema = component.schema as TTypedSchema<C>
           const frontier = [{ schema: componentSchema, setArgs: args }] as { schema: any; setArgs: any }[]
@@ -707,11 +640,7 @@ export const setComponent = <C extends Component>(
               ) {
                 //if so, we need to switch it to the linked entity in the destination layer
                 const upstreamEntity = LayerComponents[linkedLayer].refs[setArgs[key]]
-                // console.log('linkedEntity', dstEntity)
-                // Object.assign(setArgs, { [key]: linkedEntity })
                 setArgs[key] = upstreamEntity
-                // console.log('set field', key, 'to', dstEntity)
-                // console.log('result:', setArgs)
               } else if (typeof setArgs[key] === 'object') {
                 frontier.push({ schema: valSchema, setArgs: setArgs[key] })
               }
@@ -719,23 +648,16 @@ export const setComponent = <C extends Component>(
           }
         }
 
-        // console.log(args)
-
-        //set up reactive logic to propagate component changes to linked entity
-        // console.log(dstEntity)
         setComponent(linkedEntity, component, args)
-        //getMutableComponent(linkedEntity, component).set(argsClone)
       }
     }
   }
 
   propagate()
 
-  if (!componentExists && !component.reactorMap.has(entity) /* && hasComponent(entity, SimulationLayerComponent)*/) {
+  if (!componentExists && !component.reactorMap.has(entity) && component.reactor) {
     const root = startReactor(() => {
-      return component.reactor
-        ? React.createElement(EntityContext.Provider, { value: entity }, React.createElement(component.reactor, {}))
-        : null
+      return React.createElement(EntityContext.Provider, { value: entity }, React.createElement(component.reactor, {}))
     }) as ReactorRoot
     root['entity'] = entity
     root['component'] = component.name

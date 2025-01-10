@@ -72,9 +72,6 @@ import {
   InterleavedBufferAttribute,
   InterpolateLinear,
   KeyframeTrack,
-  Line,
-  LineLoop,
-  LineSegments,
   LinearFilter,
   LinearMipmapLinearFilter,
   LinearSRGBColorSpace,
@@ -87,7 +84,6 @@ import {
   MeshStandardMaterial,
   NumberKeyframeTrack,
   Object3D,
-  Points,
   Quaternion,
   QuaternionKeyframeTrack,
   RepeatWrapping,
@@ -1189,11 +1185,10 @@ const loadMesh = async (options: GLTFParserOptions, entity: Entity, nodeIndex: n
 
   const [geometry, materials] = await GLTFLoaderFunctions.loadPrimitives(options, node.mesh!)
 
-  let mesh: Mesh | SkinnedMesh | LineSegments | Line | LineLoop | LineSegments | Points
-
   const isSkinnedMesh = typeof node.skin !== 'undefined'
 
   /** @todo add support for primitive modes */
+  // let mesh: Mesh | SkinnedMesh | LineSegments | Line | LineLoop | LineSegments | Points
 
   // if (
   //   primitive.mode === WEBGL_CONSTANTS.TRIANGLES ||
@@ -1201,7 +1196,7 @@ const loadMesh = async (options: GLTFParserOptions, entity: Entity, nodeIndex: n
   //   primitive.mode === WEBGL_CONSTANTS.TRIANGLE_FAN ||
   //   primitive.mode === undefined
   // ) {
-  mesh = isSkinnedMesh === true ? new SkinnedMesh(geometry, materials) : new Mesh(geometry, materials)
+  const mesh = isSkinnedMesh === true ? new SkinnedMesh(geometry, materials) : new Mesh(geometry, materials)
 
   //   if (primitive.mode === WEBGL_CONSTANTS.TRIANGLE_STRIP) {
   //     mesh.geometry = toTrianglesDrawMode(mesh.geometry, TriangleStripDrawMode)
@@ -1239,7 +1234,7 @@ const loadMesh = async (options: GLTFParserOptions, entity: Entity, nodeIndex: n
   setComponent(entity, NameComponent, meshDef.name ?? 'Mesh-' + meshIndex)
 
   const url = options.url
-  ResourceState.addReferencedAsset(url, mesh, ResourceType.Mesh)
+  // ResourceState.addReferencedAsset(url, mesh, ResourceType.Mesh)
 
   setComponent(entity, MaterialInstanceComponent, {
     uuid: (Array.isArray(materials) ? materials : [materials]).map((material) => material.uuid as EntityUUID)

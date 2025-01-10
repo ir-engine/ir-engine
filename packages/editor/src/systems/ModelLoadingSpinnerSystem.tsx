@@ -26,21 +26,21 @@ Infinite Reality Engine. All Rights Reserved.
 import { useHookstate } from '@hookstate/core'
 import {
   Entity,
+  Layers,
+  Not,
   PresentationSystemGroup,
   UndefinedEntity,
   defineSystem,
   removeEntityNodeRecursively,
-  useChildrenWithComponents,
   useComponent,
-  useOptionalComponent
+  useOptionalComponent,
+  useQuery
 } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { createLoadingSpinner } from '@ir-engine/engine/src/scene/functions/spatialLoadingSpinner'
-import { getMutableState } from '@ir-engine/hyperflux'
+import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import React, { useEffect } from 'react'
-import { EditorState } from '../services/EditorServices'
 
 const LoadingSpinnerReactor = (props: { entity: Entity }) => {
   const { entity } = props
@@ -81,9 +81,7 @@ const LoadingSpinnerReactor = (props: { entity: Entity }) => {
 }
 
 const reactor = () => {
-  const studioSceneEntity = useHookstate(getMutableState(EditorState)).rootEntity.value
-  const entities = useChildrenWithComponents(studioSceneEntity, [GLTFComponent, SourceComponent])
-  if (!studioSceneEntity) return null
+  const entities = useQuery([GLTFComponent, Not(SceneComponent)], Layers.Authoring)
   return (
     <>
       {entities.map((entity) => (

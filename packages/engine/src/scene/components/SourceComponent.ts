@@ -29,6 +29,7 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { hookstate, none, useImmediateEffect } from '@ir-engine/hyperflux'
 import { NonEmptyString } from '@ir-engine/spatial/src/schema/schemaFunctions'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
 
 const entitiesBySource = {} as Record<string, Entity[]>
 
@@ -67,7 +68,8 @@ export const SourceComponent = defineComponent({
     return null
   },
 
-  getEntitiesBySource: (rootEntity: Entity, source: string) => {
+  getEntitiesBySource: (rootEntity: Entity) => {
+    const source = GLTFComponent.getInstanceID(rootEntity)
     const entities = [] as Entity[]
     iterateEntityNode(rootEntity, (childEntity) => {
       if (rootEntity === childEntity) return

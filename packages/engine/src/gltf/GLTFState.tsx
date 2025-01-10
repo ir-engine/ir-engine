@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Group, MathUtils } from 'three'
 
 import {
@@ -40,9 +40,10 @@ import {
   defineSystem,
   removeEntity,
   setComponent,
+  useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
-import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, startReactor } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
@@ -101,6 +102,34 @@ export const AssetState = defineState({
 
   unload: (entity: Entity) => {
     removeEntity(entity)
+  },
+
+  loadAsync: async (
+    source: string,
+    unloadOnComplete = true,
+    uuid = MathUtils.generateUUID() as EntityUUID,
+    parentEntity = UndefinedEntity,
+    layer = Layers.Simulation as LayerID
+  ) => {
+    return new Promise<Entity>((resolve) => {
+      const assetEntity = AssetState.load(source, uuid, parentEntity, layer)
+
+      const reactor = startReactor(() => {
+        const progress = useOptionalComponent(assetEntity, GLTFComponent)?.progress?.value
+
+        useEffect(() => {
+          return () => {
+            if (unloadOnComplete) AssetState.unload(assetEntity)
+            resolve(assetEntity)
+          }
+        }, [])
+
+        useEffect(() => {
+          if (progress === 100) reactor.stop()
+        }, [progress])
+        return null
+      })
+    })
   }
 })
 

@@ -79,7 +79,6 @@ export const useLoadAnimationFromGLTF = (url: string, keepEntity = false) => {
     if (animation.value || !url) return
     if (!assetEntity.value) {
       assetEntity.set(AssetState.load(url))
-      return
     }
   }, [url, progress])
 
@@ -91,14 +90,17 @@ export const useLoadAnimationFromGLTF = (url: string, keepEntity = false) => {
       animation.value
     )
       return
-    iterateEntityNode(assetEntity.value, (entity) => {
-      removeComponent(entity, MeshComponent)
-      removeComponent(entity, SkinnedMeshComponent)
-      removeComponent(entity, MaterialStateComponent)
-      removeComponent(entity, MaterialInstanceComponent)
-    })
     animation.set(getComponent(assetEntity.value, AnimationComponent).animations)
-    if (!keepEntity) removeEntity(assetEntity.value)
+    if (keepEntity) {
+      iterateEntityNode(assetEntity.value, (entity) => {
+        removeComponent(entity, MeshComponent)
+        removeComponent(entity, SkinnedMeshComponent)
+        removeComponent(entity, MaterialStateComponent)
+        removeComponent(entity, MaterialInstanceComponent)
+      })
+    } else {
+      removeEntity(assetEntity.value)
+    }
   }, [animationComponent?.animations, assetEntity?.value])
   return [animation, keepEntity ? assetEntity?.value ?? UndefinedEntity : UndefinedEntity] as [
     State<AnimationClip[]>,

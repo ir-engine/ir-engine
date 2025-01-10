@@ -218,7 +218,7 @@ export const GLTFComponentReactor = (props: { entity: Entity }) => {
     let aborted = false
     let loadedEntities = null as Entity[] | null
     GLTFLoaderFunctions.loadScene(options, sceneIndex).then(() => {
-      loadedEntities = SourceComponent.getEntitiesBySource(entity, sourceID)
+      loadedEntities = SourceComponent.getEntitiesBySource(entity)
       if (aborted) {
         for (const entity of loadedEntities) removeEntity(entity)
       }
