@@ -610,49 +610,6 @@ export const KHRAnisotropyExtensionComponent = defineComponent({
   }
 })
 
-/**
- * Texture Transform Extension
- *
- * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_texture_transform
- */
-export class GLTFTextureTransformExtension {
-  name = EXTENSIONS.KHR_TEXTURE_TRANSFORM
-
-  extendTexture(texture, transform) {
-    if (
-      (transform.texCoord === undefined || transform.texCoord === texture.channel) &&
-      transform.offset === undefined &&
-      transform.rotation === undefined &&
-      transform.scale === undefined
-    ) {
-      // See https://github.com/mrdoob/three.js/issues/21819.
-      return texture
-    }
-
-    texture = texture.clone()
-
-    if (transform.texCoord !== undefined) {
-      texture.channel = transform.texCoord
-    }
-
-    if (transform.offset !== undefined) {
-      texture.offset.fromArray(transform.offset)
-    }
-
-    if (transform.rotation !== undefined) {
-      texture.rotation = transform.rotation
-    }
-
-    if (transform.scale !== undefined) {
-      texture.repeat.fromArray(transform.scale)
-    }
-
-    texture.needsUpdate = true
-
-    return texture
-  }
-}
-
 type GLTFTextureTransformExtensionType = {
   texCoord?: number
   offset?: [number, number]
@@ -660,11 +617,22 @@ type GLTFTextureTransformExtensionType = {
   scale?: [number, number]
 }
 
+/**
+ * Texture Transform Extension
+ *
+ * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_texture_transform
+ */
 export const KHRTextureTransformExtensionComponent = defineComponent({
   name: 'KHRTextureTransformExtensionComponent',
   jsonID: EXTENSIONS.KHR_TEXTURE_TRANSFORM,
 
-  /** static function */
+  schema: S.Object({
+    offset: S.Optional(S.Tuple([S.Number(), S.Number()])),
+    rotation: S.Optional(S.Number()),
+    scale: S.Optional(S.Tuple([S.Number(), S.Number()])),
+    texCoord: S.Optional(S.Number())
+  }),
+
   extendTexture: (texture: Texture, transform: GLTFTextureTransformExtensionType) => {
     if (
       (transform.texCoord === undefined || transform.texCoord === texture.channel) &&

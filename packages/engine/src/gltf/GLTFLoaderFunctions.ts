@@ -40,6 +40,7 @@ import {
 } from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { mergeBufferGeometries } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
@@ -78,6 +79,7 @@ import {
   LinearSRGBColorSpace,
   LoaderUtils,
   Material,
+  MathUtils,
   Matrix4,
   Mesh,
   MeshPhysicalMaterial,
@@ -187,7 +189,7 @@ const loadPrimitive = async (
   let materialPromise
 
   if (typeof materialIndex === 'number') {
-    materialPromise = GLTFLoaderFunctions.loadMaterial(options, materialIndex)
+    materialPromise = getDependency(options, 'material', materialIndex)
   } else {
     materialPromise = Promise.resolve(defaultMaterial())
   }
@@ -285,21 +287,25 @@ const addMorphTargets = async (
       const pendingAccessor =
         target.POSITION !== undefined
           ? getDependency(options, 'accessor', target.POSITION)
-          : geometry.attributes.position
+          : Promise.resolve(geometry.attributes.position)
 
       pendingPositionAccessors.push(pendingAccessor)
     }
 
     if (hasMorphNormal) {
       const pendingAccessor =
-        target.NORMAL !== undefined ? getDependency(options, 'accessor', target.NORMAL) : geometry.attributes.normal
+        target.NORMAL !== undefined
+          ? getDependency(options, 'accessor', target.NORMAL)
+          : Promise.resolve(geometry.attributes.normal)
 
       pendingNormalAccessors.push(pendingAccessor)
     }
 
     if (hasMorphColor) {
       const pendingAccessor =
-        target.COLOR_0 !== undefined ? getDependency(options, 'accessor', target.COLOR_0) : geometry.attributes.color
+        target.COLOR_0 !== undefined
+          ? getDependency(options, 'accessor', target.COLOR_0)
+          : Promise.resolve(geometry.attributes.color)
 
       pendingColorAccessors.push(pendingAccessor)
     }
@@ -1248,6 +1254,68 @@ const loadMesh = async (options: GLTFParserOptions, entity: Entity, nodeIndex: n
   return mesh
 }
 
+const loadCamera = async (options: GLTFParserOptions, entity: Entity, nodeIndex: number) => {
+  const json = options.document
+  const nodes = json.nodes!
+  const node = nodes[nodeIndex]!
+
+  const cameraDef = json.cameras![node.camera!]
+
+  if (cameraDef.type === 'orthographic' || !cameraDef.perspective) {
+    // const camera = new OrthographicCamera(-params.xmag, params.xmag, params.ymag, -params.ymag, params.znear, params.zfar)
+    return console.warn('Orthographic cameras not supported yet')
+  }
+
+  const perspectiveCamera = cameraDef.perspective
+
+  setComponent(entity, CameraComponent, {
+    fov: MathUtils.radToDeg(perspectiveCamera.yfov),
+    aspect: perspectiveCamera.aspectRatio || 1,
+    near: perspectiveCamera.znear || 1,
+    far: perspectiveCamera.zfar || 2e6
+  })
+}
+
+const loadSkin = async (options: GLTFParserOptions, nodeEntity: Entity, nodeIndex: number) => {
+  const json = options.document
+  const nodeDef = json.nodes![nodeIndex]
+  const skinDef = json.skins![nodeDef.skin!]
+
+  const [skinnedMesh, inverseBindMatrices, ...jointNodes] = (await Promise.all([
+    getDependency(options, 'mesh', nodeEntity, nodeIndex, nodeDef.mesh),
+    getDependency(options, 'accessor', skinDef.inverseBindMatrices!),
+    ...skinDef.joints.map((joint) => getDependency(options, 'node', joint))
+  ])) as [SkinnedMesh, BufferAttribute, ...Entity[]]
+  if (!inverseBindMatrices) throw new Error('GLTFLoader: Inverse bind matrices not found')
+  const jointBones = jointNodes.map((entity) => getComponent(entity, BoneComponent))
+
+  const bones: Bone[] = []
+  const boneInverses: Matrix4[] = []
+  for (let i = 0, il = jointBones.length; i < il; i++) {
+    const jointNode = jointBones[i]
+
+    if (jointNode) {
+      bones.push(jointNode)
+
+      const mat = new Matrix4()
+
+      if (inverseBindMatrices !== null) {
+        mat.fromArray(inverseBindMatrices.array, i * 16)
+      }
+
+      boneInverses.push(mat)
+    } else {
+      console.warn('Joint "%s" could not be found.', skinDef.joints[i])
+    }
+  }
+
+  const skeleton = new Skeleton(bones, boneInverses)
+  skinnedMesh.skeleton = skeleton
+
+  // const url = options.url
+  // ResourceState.addReferencedAsset(url, skeleton as unknown as Object3D, ResourceType.Object3D)
+}
+
 const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
   const json = options.document
 
@@ -1279,15 +1347,6 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
   /** Always set visible extension if this is not an ECS node */
   if (!nodeDef.extensions?.[UUIDComponent.jsonID]) setComponent(nodeEntity, VisibleComponent)
 
-  // add all extensions for synchronous mount
-  if (nodeDef.extensions) {
-    for (const extension in nodeDef.extensions) {
-      const Component = ComponentJSONIDMap.get(extension)
-      if (!Component) continue
-      setComponent(nodeEntity, Component, nodeDef.extensions[extension])
-    }
-  }
-
   //handle legacy ECS embedding
   const extras = nodeDef.extras
   if (extras) {
@@ -1318,13 +1377,12 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
     }
   }
 
-  const loadedEntities = [] as Promise<Entity>[]
   const dependencies = [] as Promise<any>[]
 
   if (nodeDef.children) {
     for (let i = 0; i < nodeDef.children.length; i++) {
       const childIndex = nodeDef.children[i]
-      const nodePromise = GLTFLoaderFunctions.loadNode(options, childIndex)
+      const nodePromise = getDependency(options, 'node', childIndex)
       dependencies.push(nodePromise)
       nodePromise.then((childEntity) => {
         setComponent(childEntity, EntityTreeComponent, {
@@ -1350,52 +1408,32 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
   }
 
   if (typeof nodeDef.skin === 'number') {
-    dependencies.push(
-      new Promise<void>(async (resolve) => {
-        const skinDef = json.skins![nodeDef.skin!]
-
-        const [skinnedMesh, inverseBindMatrices, ...jointNodes] = (await Promise.all([
-          getDependency(options, 'mesh', nodeEntity, nodeIndex, nodeDef.mesh),
-          getDependency(options, 'accessor', skinDef.inverseBindMatrices!),
-          ...skinDef.joints.map((joint) => getDependency(options, 'node', joint))
-        ])) as [SkinnedMesh, BufferAttribute, ...Entity[]]
-        if (!inverseBindMatrices) throw new Error('GLTFLoader: Inverse bind matrices not found')
-        const jointBones = jointNodes.map((entity) => getComponent(entity, BoneComponent))
-
-        const bones: Bone[] = []
-        const boneInverses: Matrix4[] = []
-        for (let i = 0, il = jointBones.length; i < il; i++) {
-          const jointNode = jointBones[i]
-
-          if (jointNode) {
-            bones.push(jointNode)
-
-            const mat = new Matrix4()
-
-            if (inverseBindMatrices !== null) {
-              mat.fromArray(inverseBindMatrices.array, i * 16)
-            }
-
-            boneInverses.push(mat)
-          } else {
-            console.warn('Joint "%s" could not be found.', skinDef.joints[i])
-          }
-        }
-
-        const skeleton = new Skeleton(bones, boneInverses)
-        skinnedMesh.skeleton = skeleton
-
-        // const url = options.url
-        // ResourceState.addReferencedAsset(url, skeleton as unknown as Object3D, ResourceType.Object3D)
-
-        resolve()
-      })
-    )
+    dependencies.push(getDependency(options, 'skin', nodeEntity, nodeIndex))
   }
 
-  await Promise.all([...dependencies, ...loadedEntities])
+  if (nodeDef.camera !== undefined) {
+    getDependency(options, 'camera', nodeEntity, nodeIndex)
+  }
 
-  return Promise.all(loadedEntities).then(() => nodeEntity)
+  await Promise.all(dependencies)
+
+  const extensionPending = [] as Promise<void>[]
+
+  // add all extensions for synchronous mount
+  if (nodeDef.extensions) {
+    for (const extension in nodeDef.extensions) {
+      const Component = ComponentJSONIDMap.get(extension) as any // todo
+      if (!Component) continue
+      setComponent(nodeEntity, Component, nodeDef.extensions[extension])
+      if (typeof Component.loadNode === 'function') {
+        extensionPending.push(Component.loadNode(options, nodeIndex))
+      }
+    }
+  }
+
+  await Promise.all(extensionPending)
+
+  return nodeEntity
 }
 
 const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
@@ -1467,7 +1505,7 @@ export const GLTFLoaderFunctions = {
   loadImageSource,
   loadTextureImage,
   loadAnimation,
-  // loadCamera,
+  loadCamera,
   loadMesh,
   loadNode,
   loadScene
@@ -1488,16 +1526,17 @@ type DependencyType =
   | 'animation'
   | 'camera'
 
-export const getDependency = (options: GLTFParserOptions, type: DependencyType, ...indexes) => {
+/** @todo integrate this with resource tracking or something */
+export const getDependency = (options: GLTFParserOptions, type: DependencyType, ...args: any[]) => {
   const url = options.url
   const cache = DependencyCache.get(url)
   if (!cache) throw new Error('GLTFLoader: No cache found for url ' + url)
 
-  const cacheKey = type + ':' + JSON.stringify(indexes)
+  const cacheKey = type + ':' + JSON.stringify(args)
   const dependency = cache.get(cacheKey)
 
   if (!dependency) {
-    const dep = DependencyMap[type](options, ...indexes)
+    const dep = DependencyMap[type](options, ...args)
     cache.set(cacheKey, dep)
     return dep
   }
@@ -1514,7 +1553,7 @@ const DependencyMap = {
   buffer: loadBuffer,
   material: loadMaterial,
   texture: loadTexture,
-  // skin: loadSkin,
-  animation: loadAnimation
-  // camera: loadCamera
-}
+  skin: loadSkin,
+  animation: loadAnimation,
+  camera: loadCamera
+} as Record<DependencyType, (options: GLTFParserOptions, ...args: any[]) => any>

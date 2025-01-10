@@ -356,30 +356,6 @@ export const EditorTopic = 'editor' as Topic
 export const getNodeUUID = (node: GLTF.INode, documentID: string, nodeIndex: number) =>
   (node.extensions?.[UUIDComponent.jsonID] as EntityUUID) ?? (`${documentID}-${nodeIndex}` as EntityUUID)
 
-const CameraReactor = (props: { nodeIndex: number; documentID: string; entity: Entity }) => {
-  const documentState = useHookstate(getMutableState(GLTFDocumentState)[props.documentID])
-  const nodes = documentState.nodes!.get(NO_PROXY)!
-  const node = nodes[props.nodeIndex]!
-
-  const camera = documentState.cameras.get(NO_PROXY)![node.camera!] as GLTF.ICamera
-
-  useEffect(() => {
-    if (camera.type === 'orthographic' || !camera.perspective)
-      return console.warn('Orthographic cameras not supported yet')
-
-    const perspectiveCamera = camera.perspective
-
-    setComponent(props.entity, CameraComponent, {
-      fov: MathUtils.radToDeg(perspectiveCamera.yfov),
-      aspect: perspectiveCamera.aspectRatio || 1,
-      near: perspectiveCamera.znear || 1,
-      far: perspectiveCamera.zfar || 2e6
-    })
-  }, [camera])
-
-  return null
-}
-
 export const defaultMaterial = () =>
   new MeshStandardMaterial({
     color: 0xffffff,
