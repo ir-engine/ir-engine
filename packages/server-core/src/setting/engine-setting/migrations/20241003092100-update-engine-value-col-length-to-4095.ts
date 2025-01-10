@@ -23,26 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import { engineSettingPath } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
+import { Knex } from 'knex'
 
-const argTypes = {}
-
-export default {
-  title: 'Admin/Dashboard',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'Dashboard',
-    jest: 'Dashboard.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    },
-    reactRouter: {
-      routePath: '/admin',
-      routeParams: {}
-    }
-  },
-  argTypes
+export async function up(knex: Knex): Promise<void> {
+  await knex.schema.alterTable(engineSettingPath, (table) => {
+    table.string('value', 4095).alter()
+  })
 }
 
-export const Default = { args: Component.defaultProps }
+export async function down(knex: Knex): Promise<void> {
+  await knex.schema.alterTable(engineSettingPath, (table) => {
+    table.string('value', 225).alter()
+  })
+}

@@ -73,7 +73,6 @@ export type * from './schemas/setting/aws-setting.schema'
 export type * from './schemas/setting/client-setting.schema'
 export type * from './schemas/setting/engine-setting.schema'
 export type * from './schemas/setting/feature-flag-setting.schema'
-export type * from './schemas/setting/instance-server-setting.schema'
 export type * from './schemas/setting/project-setting.schema'
 export type * from './schemas/social/channel-user.schema'
 export type * from './schemas/social/channel.schema'
@@ -216,8 +215,6 @@ export const projectSettingPath = 'project-setting'
 export const awsSettingPath = 'aws-setting'
 
 export const featureFlagSettingPath = 'feature-flag-setting'
-
-export const instanceServerSettingPath = 'instance-server-setting'
 
 export const clientSettingPath = 'client-setting'
 

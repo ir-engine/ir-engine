@@ -1364,7 +1364,10 @@
           "name": "Name",
           "type": "Type",
           "dateModified": "Date Modified",
-          "size": "Size"
+          "size": "Size",
+          "author": "Author",
+          "statistics": "Statistics",
+          "createdAt": "Created At"
         }
       },
       "image-convert": {

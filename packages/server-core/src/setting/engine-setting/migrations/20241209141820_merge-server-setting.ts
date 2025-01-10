@@ -80,7 +80,7 @@ export async function up(knex: Knex): Promise<void> {
           },
           {
             key: EngineSettings.Server.PerformDryRun,
-            value: recordExists.performDryRun || false
+            value: (Boolean(recordExists.performDryRun) || false).toString()
           },
           {
             key: EngineSettings.Server.StorageProvider,
@@ -108,7 +108,7 @@ export async function up(knex: Knex): Promise<void> {
           },
           {
             key: EngineSettings.Server.Local,
-            value: recordExists.local || false
+            value: (Boolean(recordExists.local) || false).toString()
           },
           {
             key: EngineSettings.Server.ReleaseName,

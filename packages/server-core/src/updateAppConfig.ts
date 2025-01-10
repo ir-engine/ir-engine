@@ -28,6 +28,9 @@ import logger from './ServerLogger'
 
 import knex from 'knex'
 
+import { WebRTCSettings, defaultWebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
+import { EngineSettingType, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import {
   AuthenticationSettingDatabaseType,
   authenticationSettingPath
@@ -37,14 +40,8 @@ import {
   ClientSettingDatabaseType,
   clientSettingPath
 } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
-import {
-  instanceServerSettingPath,
-  InstanceServerSettingType
-} from '@ir-engine/common/src/schemas/setting/instance-server-setting.schema'
-
-import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schema.type.module'
 import { parseValue } from '@ir-engine/common/src/utils/dataTypeUtils'
-import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
+import { FlattenedEntry, unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { createHash } from 'crypto'
 import appConfig, { updateNestedConfig } from './appconfig'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
@@ -146,29 +143,15 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(clientSettingPromise)
 
-  const instanceServerSettingPromise = knexClient
-    .select()
-    .from<InstanceServerSettingType>(instanceServerSettingPath)
-    .then(([dbInstanceServer]) => {
-      if (dbInstanceServer) {
-        appConfig.instanceserver = {
-          ...appConfig.instanceserver,
-          ...dbInstanceServer
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read instanceServerSetting: ${e.message}`)
-    })
-  promises.push(instanceServerSettingPromise)
-
   const categoriesToUnflatten = ['email']
+
   const engineSettingPromise = knexClient
     .select()
     .from<EngineSettingType>(engineSettingPath)
     .then((dbEngineSettings) => {
+      // jsonkey undefined and its for plain key value pair settings and not in categoriesToUnflatten
       dbEngineSettings
-        .filter((setting) => !categoriesToUnflatten.includes(setting.category))
+        .filter((setting) => !setting.jsonKey && !categoriesToUnflatten.includes(setting.category))
         .forEach((setting) => {
           if (!appConfig[setting.category]) {
             appConfig[setting.category] = {}
@@ -183,7 +166,32 @@ export const updateAppConfig = async (): Promise<void> => {
       categoriesToUnflatten.forEach((category) => {
         processSettings(dbEngineSettings, category)
       })
+      // when jsonkey is defined and its instance-server-webrtc category and jsonKey is WebRTCSettings
+      const webRtcServerKeyValues: FlattenedEntry[] = dbEngineSettings
+        .filter(
+          (setting) =>
+            setting.jsonKey &&
+            setting.jsonKey === EngineSettings.InstanceServer.WebRTCSettings &&
+            setting.category === 'instance-server-webrtc'
+        )
+        .map((setting) => {
+          return {
+            key: setting.key,
+            value: setting.value,
+            dataType: setting.dataType
+          }
+        })
+      if (!appConfig['instance-server-webrtc'] || !appConfig['instance-server-webrtc'].webRTCSettings) {
+        appConfig['instance-server-webrtc'] = {
+          webRTCSettings: defaultWebRTCSettings
+        }
+      }
+
+      appConfig['instance-server-webrtc'].webRTCSettings = unflattenArrayToObject(
+        webRtcServerKeyValues
+      ) as WebRTCSettings
     })
+
     .catch((e) => {
       logger.error(e, `[updateAppConfig]: Failed to read engineSetting: ${e.message}`)
     })
