@@ -23,27 +23,25 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { NO_PROXY, none, startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import React, { useLayoutEffect } from 'react'
 import {
   Component,
   ComponentType,
-  Entity,
-  S,
-  UndefinedEntity,
   defineComponent,
-  entityExists,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   getOptionalMutableComponent,
   hasComponent,
   hasComponents,
-  removeEntity,
   setComponent,
   useHasComponents,
   useOptionalComponent
-} from '@ir-engine/ecs'
-import { NO_PROXY, none, startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
-import React, { useLayoutEffect } from 'react'
+} from './ComponentFunctions'
+import { Entity, UndefinedEntity } from './Entity'
+import { entityExists, removeEntity } from './EntityFunctions'
+import { S } from './schemas/JSONSchemas'
 
 type EntityTreeSetType = {
   parentEntity: Entity
