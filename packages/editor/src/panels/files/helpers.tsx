@@ -47,7 +47,7 @@ import { FilesState } from '../../services/FilesState'
 
 export const FILES_PAGE_LIMIT = 100 as const
 
-export const availableTableColumns = ['name', 'type', 'dateModified', 'size'] as const
+export const availableTableColumns = ['name', 'type', 'author', 'createdAt', 'statistics', 'size'] as const
 
 /* HOOKS */
 

@@ -163,34 +163,36 @@ export class GithubStrategy extends CustomOAuthStrategy {
       profile.oauthRefreshToken = params.refresh_token
       const newIP = await super.createEntity(profile, params)
       if (entity.type === 'guest') {
-        const profileEmail = profile.email
-        const existingIdentityProviders = await this.app.service(identityProviderPath).find({
-          query: {
-            $or: [
-              {
-                email: profileEmail
-              },
-              {
-                token: profileEmail
+        if (newIP.email) {
+          const profileEmail = newIP.email
+          const existingIdentityProviders = await this.app.service(identityProviderPath).find({
+            query: {
+              $or: [
+                {
+                  email: profileEmail
+                },
+                {
+                  token: profileEmail
+                }
+              ],
+              id: {
+                $ne: newIP.id
               }
-            ],
-            id: {
-              $ne: newIP.id
             }
-          }
-        })
-        if (existingIdentityProviders.total > 0) {
-          const loginToken = await this.app.service(loginTokenPath).create({
-            identityProviderId: newIP.id,
-            associateUserId: existingIdentityProviders.data[0].userId,
-            expiresAt: toDateTimeSql(moment().utc().add(10, 'minutes').toDate())
           })
-          return {
-            ...entity,
-            associateEmail: profileEmail,
-            loginId: loginToken.id,
-            loginToken: loginToken.token,
-            promptForConnection: true
+          if (existingIdentityProviders.total > 0) {
+            const loginToken = await this.app.service(loginTokenPath).create({
+              identityProviderId: newIP.id,
+              associateUserId: existingIdentityProviders.data[0].userId,
+              expiresAt: toDateTimeSql(moment().utc().add(10, 'minutes').toDate())
+            })
+            return {
+              ...entity,
+              associateEmail: profileEmail,
+              loginId: loginToken.id,
+              loginToken: loginToken.token,
+              promptForConnection: true
+            }
           }
         }
         await this.app.service(identityProviderPath).remove(entity.id)
