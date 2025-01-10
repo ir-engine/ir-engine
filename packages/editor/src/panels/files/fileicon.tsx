@@ -85,49 +85,67 @@ export const FileIcon = ({
     imageLoaded.set(true)
   }
 
-  return (
-    <>
-      {isFolder ? (
-        <img
-          className={twMerge(isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40', 'object-contain')}
-          crossOrigin="anonymous"
-          src={FOLDER_ICON_PATH}
-          alt="folder-icon"
-        />
-      ) : thumbnailURL ? (
-        <>
-          <img
-            className={twMerge(
-              isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40',
-              'object-contain',
-              imageLoaded.value ? 'block' : 'hidden'
-            )}
-            crossOrigin="anonymous"
-            src={thumbnailURL}
-            alt="file-thumbnail"
-            onLoad={handleImageLoaded}
-          />
-          <img
-            className={twMerge(
-              isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40',
-              'object-contain',
-              imageLoaded.value ? 'hidden' : 'block'
-            )}
-            crossOrigin="anonymous"
-            src={FILE_ICON_BLUR}
-            alt="file-thumbnail"
-          />
-        </>
-      ) : FallbackIcon ? (
-        <FallbackIcon className={twMerge(color, isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40')} />
-      ) : (
-        <img
-          className={twMerge(isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40', 'object-contain')}
-          crossOrigin="anonymous"
-          src={FILE_ICON_PATH}
-          alt="file-icon"
-        />
-      )}
-    </>
-  )
+  const Tag = ({ className }: { className?: string }) => {
+    if (!type || isMinified) return <></>
+    return (
+      <div className={twMerge('absolute -left-[6px] top-0', className)}>
+        <div className="flex h-4 w-9 items-center justify-center rounded-lg bg-[#162546] px-1 py-3">
+          <span className="truncate text-[8px] text-white">{type.toUpperCase()}</span>
+        </div>
+      </div>
+    )
+  }
+
+  const renderImage = () => {
+    const imageClass = twMerge(
+      isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40',
+      'object-contain',
+      'px-2 py-1',
+      'overflow-hidden rounded'
+    )
+
+    if (isFolder) {
+      return <img className={imageClass} crossOrigin="anonymous" src={FOLDER_ICON_PATH} alt="folder-icon" />
+    }
+
+    if (thumbnailURL) {
+      return (
+        <div className={`${isMinified ? '' : 'h-full w-full'}`}>
+          <div className="relative">
+            <Tag className="top-2" />
+          </div>
+          <div className={`${isMinified ? '' : 'h-full w-full'}`}>
+            <img
+              className={twMerge(imageClass, 'p-0', 'object-contain', imageLoaded.value ? 'block' : 'hidden')}
+              crossOrigin="anonymous"
+              src={thumbnailURL}
+              alt="file-thumbnail"
+              onLoad={handleImageLoaded}
+            />
+            <img
+              className={twMerge(imageClass, 'p-0', 'object-contain', imageLoaded.value ? 'hidden' : 'block')}
+              crossOrigin="anonymous"
+              src={FILE_ICON_BLUR}
+              alt="file-thumbnail"
+            />
+          </div>
+        </div>
+      )
+    }
+
+    if (FallbackIcon) {
+      return <FallbackIcon className={twMerge(color, isMinified ? 'h-4 w-4' : 'h-full max-h-40 w-full max-w-40')} />
+    }
+
+    return (
+      <>
+        <div className="relative">
+          <Tag className="top-2" />
+        </div>
+        <img className={`${imageClass} object-contain`} crossOrigin="anonymous" src={FILE_ICON_PATH} alt="file-icon" />
+      </>
+    )
+  }
+
+  return <>{renderImage()}</>
 }
