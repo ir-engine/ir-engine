@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import {
   ComponentType,
   getAllComponents,
@@ -35,7 +36,6 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { Matrix4 } from 'three'
 import { cleanStorageProviderURLs } from '../assets/functions/parseSceneJSON'

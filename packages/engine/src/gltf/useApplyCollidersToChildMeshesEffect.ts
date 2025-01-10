@@ -25,10 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   Entity,
+  getTreeFromChildToAncestor,
   hasComponent,
   removeComponent,
   setComponent,
   UndefinedEntity,
+  useAncestorWithComponents,
+  useChildrenWithComponents,
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs'
@@ -36,11 +39,6 @@ import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import {
-  getTreeFromChildToAncestor,
-  useAncestorWithComponents,
-  useChildrenWithComponents
-} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { useEffect, useLayoutEffect } from 'react'
 import { GLTFComponent } from './GLTFComponent'

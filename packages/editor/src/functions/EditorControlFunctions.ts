@@ -26,7 +26,16 @@ Infinite Reality Engine. All Rights Reserved.
 import { GLTF } from '@gltf-transform/core'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { EntityUUID, generateEntityUUID, getMutableComponent, SetComponentType, UUIDComponent } from '@ir-engine/ecs'
+import {
+  EntityTreeComponent,
+  EntityUUID,
+  findRootAncestors,
+  generateEntityUUID,
+  getMutableComponent,
+  iterateEntityNode,
+  SetComponentType,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import {
   Component,
   componentJsonDefaults,
@@ -49,16 +58,11 @@ import { DirectionalLightComponent, HemisphereLightComponent } from '@ir-engine/
 import { MAT4_IDENTITY } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { getMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import {
-  EntityTreeComponent,
-  findRootAncestors,
-  iterateEntityNode
-} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
-import { ComponentDropdownState } from '@ir-engine/ui/src/components/editor/ComponentDropdown/ComponentDropdownState.ts'
+import { ComponentDropdownState } from '@ir-engine/ui/src/components/editor/ComponentDropdown/ComponentDropdownState'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'

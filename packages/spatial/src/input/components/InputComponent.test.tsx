@@ -41,22 +41,24 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { ReactorReconciler, ReactorRoot, getMutableState, getState, startReactor } from '@ir-engine/hyperflux'
 
 import {
+  EngineState,
   Entity,
   EntityContext,
+  EntityTreeComponent,
   EntityUUID,
   InputSystemGroup,
   SystemDefinitions,
   UndefinedEntity,
   createEntity,
+  isAncestor,
   removeEntity
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { Raycaster } from 'three'
 import { assertArray } from '../../../tests/util/assert'
-import { EngineState } from '../../EngineState'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { initializeSpatialEngine } from '../../initializeEngine'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
-import { EntityTreeComponent, isAncestor } from '../../transform/components/EntityTree'
 import { ButtonStateMap, MouseScroll, XRStandardGamepadAxes } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 import { DefaultButtonAlias, InputComponent, InputExecutionOrder, InputExecutionSystemGroup } from './InputComponent'
@@ -1075,7 +1077,7 @@ describe('InputComponent', () => {
     })
 
     it('should add a HighlightComponent to the entity when the InputComponent is set with `highlight: true', async () => {
-      const entity = getState(EngineState).localFloorEntity
+      const entity = getState(ReferenceSpaceState).localFloorEntity
 
       const Expected = { highlight: true, grow: true }
       ReactorReconciler.flushSync(() => {

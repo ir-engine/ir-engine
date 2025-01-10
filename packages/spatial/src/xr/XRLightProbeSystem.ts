@@ -35,7 +35,7 @@ import { defineState, getMutableState, getState, useMutableState } from '@ir-eng
 
 import { Vector3_Zero } from '../common/constants/MathConstants'
 import { RendererComponent } from '../renderer/WebGLRendererSystem'
-import { addObjectToGroup } from '../renderer/components/GroupComponent'
+import { ObjectComponent } from '../renderer/components/ObjectComponent'
 import { EnvironmentMapComponent } from '../renderer/components/SceneComponents'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { DirectionalLightComponent } from '../renderer/components/lights/DirectionalLightComponent'
@@ -197,7 +197,7 @@ const reactor = () => {
       cameraFar: 2000,
       castShadow: true
     })
-    addObjectToGroup(directionalLightEntity, getState(XRLightProbeState).lightProbe)
+    setComponent(directionalLightEntity, ObjectComponent, getState(XRLightProbeState).lightProbe)
     setVisibleComponent(directionalLightEntity, true)
 
     xrLightProbeState.directionalLightEntity.set(directionalLightEntity)

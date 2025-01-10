@@ -25,7 +25,14 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { Entity, EntityUUID, Static, UUIDComponent } from '@ir-engine/ecs'
+import {
+  Entity,
+  EntityTreeComponent,
+  EntityUUID,
+  Static,
+  UUIDComponent,
+  useChildrenWithComponents
+} from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -41,11 +48,9 @@ import { removeCallback, setCallback } from '@ir-engine/spatial/src/common/Callb
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { addOBCPlugin } from '@ir-engine/spatial/src/common/functions/OnBeforeCompilePlugin'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { DistanceFromCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
-import { EntityTreeComponent, useChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import React from 'react'
@@ -276,9 +281,7 @@ uniform float minDistance;`
       })
     }
 
-    /** @todo rather than this, update the mesh component */
-    removeObjectFromGroup(props.meshEntity, mesh)
-    addObjectToGroup(props.meshEntity, instancedMesh)
+    setComponent(props.meshEntity, MeshComponent, instancedMesh)
   }, [])
 
   const level = useComponent(props.variantEntity, VariantComponent).levels[props.level].value

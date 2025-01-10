@@ -3654,6 +3654,38 @@ describe('file-browser.test', () => {
         storageProvider.getObject('projects/' + testProject1Name + '/public/test/' + longFileExtension)
       )
     })
+
+    it('does not move a folder into itself', async () => {
+      // create folder
+      await app.service(fileBrowserPath).create('projects/' + testProject1Name + '/public/subfolder/', {
+        user: user1
+      })
+
+      // move folder into itself
+      await assert.rejects(
+        async () =>
+          app.service(fileBrowserPath).update(
+            null,
+            {
+              oldProject: testProject1Name,
+              newProject: testProject1Name,
+              oldName: 'subfolder',
+              newName: 'subfolder',
+              oldPath: 'projects/' + testProject1Name + '/public/',
+              newPath: 'projects/' + testProject1Name + '/public/subfolder'
+            },
+            {
+              user: user1
+            }
+          ),
+        {
+          message: 'Cannot move a folder into itself'
+        }
+      )
+
+      const storageProvider = getStorageProvider()
+      await assert.rejects(storageProvider.getObject('projects/' + testProject1Name + '/public/subfolder/subfolder'))
+    })
   })
 
   describe('remove', () => {

@@ -29,7 +29,7 @@ import { Cache, Color, MathUtils } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { UserID } from '@ir-engine/common/src/schema.type.module'
-import { createEntity, getComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
+import { createEntity, EngineState, getComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { GLTFSnapshotState, GLTFSourceState } from '@ir-engine/engine/src/gltf/GLTFState'
@@ -37,12 +37,11 @@ import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceCo
 import { SplineComponent } from '@ir-engine/engine/src/scene/components/SplineComponent'
 import { applyIncomingActions, getMutableState, getState } from '@ir-engine/hyperflux'
 import { HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 

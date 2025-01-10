@@ -44,6 +44,7 @@ import { MountPointComponent } from '@ir-engine/engine/src/scene/components/Moun
 import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
 import { PortalComponent } from '@ir-engine/engine/src/scene/components/PortalComponent'
 import { PrimitiveGeometryComponent } from '@ir-engine/engine/src/scene/components/PrimitiveGeometryComponent'
+import { ReflectionProbeComponent } from '@ir-engine/engine/src/scene/components/ReflectionProbeComponent.tsx'
 import { RenderSettingsComponent } from '@ir-engine/engine/src/scene/components/RenderSettingsComponent'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
@@ -102,7 +103,8 @@ export const ComponentShelfCategoriesState = defineState({
         SkyboxComponent,
         TextComponent,
         LookAtComponent,
-        FogSettingsComponent
+        FogSettingsComponent,
+        ReflectionProbeComponent
       ]
     } as Record<string, Component[]>
   },

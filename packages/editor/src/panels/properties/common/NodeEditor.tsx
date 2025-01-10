@@ -30,7 +30,7 @@ import { EditorPropType } from '@ir-engine/editor/src/components/properties/Util
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import ComponentDropdown, { ComponentDropdownProps } from '@ir-engine/ui/src/components/editor/ComponentDropdown'
-import { ComponentDropdownState } from '@ir-engine/ui/src/components/editor/ComponentDropdown/ComponentDropdownState.ts'
+import { ComponentDropdownState } from '@ir-engine/ui/src/components/editor/ComponentDropdown/ComponentDropdownState'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'

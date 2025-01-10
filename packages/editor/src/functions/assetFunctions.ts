@@ -43,6 +43,7 @@ import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { getMutableState } from '@ir-engine/hyperflux'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
+import { t } from 'i18next'
 import { showMultipleFileModal } from '../panels/files/toolbar'
 import { ImportSettingsState } from '../services/ImportSettingsState'
 
@@ -212,7 +213,9 @@ export const handleUploadFiles = (projectName: string, directoryPath: string, fi
             contentType: file.type
           }
         ]
-      }).promise
+      }).promise.catch(() => {
+        NotificationService.dispatchNotify(t('editor:errors.fileUploadFailed') as string, { variant: 'error' })
+      })
     })
   )
 }

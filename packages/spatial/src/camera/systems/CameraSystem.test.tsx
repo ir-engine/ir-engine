@@ -26,12 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import assert from 'assert'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
-import { Engine, UUIDComponent, destroyEngine, getComponent, hasComponent } from '@ir-engine/ecs'
+import { Engine, EngineState, UUIDComponent, destroyEngine, getComponent, hasComponent } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { UserID, applyIncomingActions, dispatchAction, getMutableState, getState } from '@ir-engine/hyperflux'
 import { Network, NetworkState, NetworkTopics } from '@ir-engine/network'
 import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
-import { EngineState } from '../../EngineState'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { initializeSpatialViewer } from '../../initializeEngine'
 import { CameraActions } from '../CameraState'
 import { CameraComponent } from '../components/CameraComponent'
@@ -62,7 +62,7 @@ describe('CameraSystem', async () => {
 
       dispatchAction(
         CameraActions.spawnCamera({
-          parentUUID: getComponent(getState(EngineState).viewerEntity, UUIDComponent),
+          parentUUID: getComponent(getState(ReferenceSpaceState).viewerEntity, UUIDComponent),
           entityUUID: cameraUUID,
           ownerID: network.hostUserID!,
           $topic: NetworkTopics.world,

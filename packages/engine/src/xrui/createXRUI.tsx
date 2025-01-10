@@ -35,14 +35,18 @@ import { WebContainer3D } from '@ir-engine/xrui/core/three/WebContainer3D'
 import { WebLayerManager } from '@ir-engine/xrui/core/three/WebLayerManager'
 
 import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import {
+  ObjectLayerMaskComponent,
+  setObjectLayers
+} from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { DistanceFromCameraComponent } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 import { XRUIStateContext } from './XRUIStateContext'
 
@@ -71,7 +75,7 @@ export function createXRUI<S extends State<any> | null>(
   )
 
   if (!WebLayerManager.instance) {
-    const viewerEntity = getState(EngineState).viewerEntity
+    const viewerEntity = getState(ReferenceSpaceState).viewerEntity
     const renderer = getComponent(viewerEntity, RendererComponent)
     const gltfLoader = getState(AssetLoaderState).gltfLoader
     WebLayerManager.initialize(renderer.renderer!, gltfLoader.ktx2Loader!)
@@ -84,8 +88,11 @@ export function createXRUI<S extends State<any> | null>(
   const root = new Group()
   root.name = containerElement.id
   root.add(container)
-  addObjectToGroup(entity, root)
+  root.preserveChildren = true
   setObjectLayers(container, ObjectLayers.UI)
+  ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.UI)
+  setComponent(entity, ObjectComponent, root)
+  setComponent(entity, TransformComponent)
   setComponent(entity, DistanceFromCameraComponent)
   setComponent(entity, XRUIComponent, container)
   setComponent(entity, VisibleComponent, true)

@@ -63,11 +63,11 @@ import { InstanceServerState } from '../src/InstanceServerState'
 import { setupSocketFunctions } from '../src/SocketFunctions'
 import { start } from '../src/start'
 
-const p2pEnabled = config.instanceserver.p2pEnabled
+const p2pEnabled = config['instance-server'].p2pEnabled
 
 describe('InstanceLoad', () => {
   beforeAll(async () => {
-    config.instanceserver.p2pEnabled = false
+    config['instance-server'].p2pEnabled = false
 
     const child: ChildProcess = require('child_process').spawn('npm', ['run', 'dev-agones'], {
       cwd: appRootPath.path,
@@ -85,7 +85,7 @@ describe('InstanceLoad', () => {
   })
 
   afterAll(() => {
-    config.instanceserver.p2pEnabled = p2pEnabled
+    config['instance-server'].p2pEnabled = p2pEnabled
     return destroyEngine()
   })
 

@@ -65,7 +65,7 @@ import './InstanceServerModule'
 
 import { NotAuthenticated } from '@feathersjs/errors'
 import { projectsPath } from '@ir-engine/common/src/schemas/projects/projects.schema'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
@@ -425,7 +425,7 @@ const handleUserDisconnect = async ({
 
   app.channel(`instanceIds/${instanceId}`).leave(connection)
 
-  await new Promise((resolve) => setTimeout(resolve, config.instanceserver.shutdownDelayMs))
+  await new Promise((resolve) => setTimeout(resolve, config['instance-server'].shutdownDelayMs))
 
   const network = getServerNetwork(app)
 

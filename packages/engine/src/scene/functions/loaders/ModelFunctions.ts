@@ -26,11 +26,10 @@ Infinite Reality Engine. All Rights Reserved.
 import { DracoOptions } from '@gltf-transform/functions'
 import { Material, Texture } from 'three'
 
-import { UUIDComponent } from '@ir-engine/ecs'
+import { UUIDComponent, iterateEntityNode } from '@ir-engine/ecs'
 import { getComponent, getOptionalComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import {
   GeometryTransformParameters,

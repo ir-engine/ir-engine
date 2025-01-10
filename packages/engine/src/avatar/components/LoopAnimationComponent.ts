@@ -49,7 +49,7 @@ import { NO_PROXY, isClient, useHookstate } from '@ir-engine/hyperflux'
 import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { retargetAnimationClips } from '../functions/retargetingFunctions'
 import { setupMixamoAnimation } from '../systems/AvatarAnimationSystem'
 import { AnimationComponent, useLoadAnimationFromGLTF } from './AnimationComponent'
@@ -117,7 +117,7 @@ export const LoopAnimationComponent = defineComponent({
       } else if (loopAnimationComponent.useVRM.value && !hasComponent(entity, AvatarRigComponent)) {
         setComponent(entity, AvatarRigComponent)
         setComponent(entity, AvatarAnimationComponent)
-        setComponent(entity, AnimationComponent, { mixer: new AnimationMixer(getComponent(entity, Object3DComponent)) })
+        setComponent(entity, AnimationComponent, { mixer: new AnimationMixer(getComponent(entity, ObjectComponent)) })
       }
     }, [loopAnimationComponent.useVRM.value])
 

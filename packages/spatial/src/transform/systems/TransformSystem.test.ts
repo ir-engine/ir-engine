@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   AnimationSystemGroup,
   Entity,
+  EntityTreeComponent,
   SystemDefinitions,
   SystemUUID,
   UndefinedEntity,
@@ -35,7 +36,6 @@ import {
   getComponent,
   getMutableComponent,
   hasComponent,
-  hasComponents,
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
@@ -43,15 +43,14 @@ import { getMutableState, getState, startReactor } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import assert from 'assert'
 import sinon from 'sinon'
-import { Box3, BoxGeometry, Group, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
+import { Box3, BoxGeometry, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { MockXRFrame } from '../../../tests/util/MockXR'
 import { assertArray, assertVec } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
-import { EngineState } from '../../EngineState'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { destroySpatialEngine } from '../../initializeEngine'
-import { GroupComponent, addObjectToGroup } from '../../renderer/components/GroupComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
@@ -59,7 +58,6 @@ import { TransformSerialization } from '../TransformSerialization'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../components/DistanceComponents'
-import { EntityTreeComponent } from '../components/EntityTree'
 import { TransformComponent } from '../components/TransformComponent'
 import { TransformDirtyCleanupSystem, TransformDirtyUpdateSystem, TransformSystem } from './TransformSystem'
 
@@ -113,37 +111,6 @@ describe('TransformSystem', () => {
       // Run and Check the result
       System.execute()
       assert.equal(spy.callCount, entities.length)
-    })
-
-    it('should call updateGroupChildren for all entities that have the components [GroupComponent, VisibleComponent] and are true in the TransformComponent.dirtyTransforms list', () => {
-      const Initial = true
-      const Expected = !Initial
-      // Set the data as expected
-      const entities: Entity[] = [createEntity(), createEntity(), createEntity(), createEntity()]
-      const objCount: number = 2
-      for (const entity of entities) {
-        setComponent(entity, VisibleComponent)
-        setComponent(entity, TransformComponent)
-        for (let id = 0; id < objCount; ++id) {
-          const obj = new Mesh(new BoxGeometry())
-          obj.matrixWorldNeedsUpdate = Initial
-          const group = new Group()
-          group.children = [obj]
-          addObjectToGroup(entity, group)
-        }
-      }
-      // Sanity check before running
-      for (const entity of entities) {
-        assert.equal(hasComponents(entity, [GroupComponent, VisibleComponent]), true)
-        for (const group of getComponent(entity, GroupComponent))
-          for (const child of group.children) assert.equal(child.matrixWorldNeedsUpdate, Initial)
-      }
-      // Run and Check the result
-      System.execute()
-      for (const entity of entities) {
-        for (const group of getComponent(entity, GroupComponent))
-          for (const child of group.children) assert.equal(child.matrixWorldNeedsUpdate, Expected)
-      }
     })
 
     it('should call updateBoundingBox for all entities that have a BoundingBoxComponent and are true in the TransformComponent.dirtyTransforms list', () => {
@@ -323,7 +290,7 @@ describe('TransformSystem', () => {
         const rotation = new Quaternion(4, 5, 6, 7).normalize()
         const scale = new Vector3(8, 9, 10)
         const Initial = new Matrix4().compose(position, rotation, scale)
-        const viewerEntity = getState(EngineState).viewerEntity
+        const viewerEntity = getState(ReferenceSpaceState).viewerEntity
         // Set the data as expected
         // @ts-ignore Coerce the mocked XRFrame into XRState
         getMutableState(XRState).xrFrame.set(new MockXRFrame())
@@ -347,7 +314,7 @@ describe('TransformSystem', () => {
         it('.. should set DistanceFromCameraComponent.squaredDistance[entity] to the output of getDistanceSquaredFromTarget(entity, EngineState.viewerEntity.TransformComponent.position )', () => {
           const Initial = 23
           const Expected = 5292
-          const viewerEntity = getState(EngineState).viewerEntity
+          const viewerEntity = getState(ReferenceSpaceState).viewerEntity
           // Set the data as expected
           setComponent(viewerEntity, TransformComponent, { position: new Vector3().setScalar(42) })
           const entities: Entity[] = [createEntity(), createEntity(), createEntity()]
@@ -377,7 +344,7 @@ describe('TransformSystem', () => {
         it(".. should set FrustumCullCameraComponent.isCulled for the entity if it does not have a BoundingBoxComponent and the worldPosition of the entity is contained in the frustrum of the viewerEntity's camera", () => {
           const Initial = 0
           const Expected = 1
-          const viewerEntity = getState(EngineState).viewerEntity
+          const viewerEntity = getState(ReferenceSpaceState).viewerEntity
           // Set the data as expected
           const entities: Entity[] = [createEntity(), createEntity(), createEntity()]
           for (const entity of entities) {
@@ -405,14 +372,13 @@ describe('TransformSystem', () => {
         it(".. should set FrustumCullCameraComponent.isCulled for the entity if it has a BoundingBoxComponent and its .box intersect with the frustrum of the viewerEntity's camera", () => {
           const Initial = 0
           const Expected = 1
-          const viewerEntity = getState(EngineState).viewerEntity
+          const viewerEntity = getState(ReferenceSpaceState).viewerEntity
           // Set the data as expected
           const entities: Entity[] = [createEntity(), createEntity(), createEntity()]
           for (const entity of entities) {
             setComponent(entity, TransformComponent, { position: new Vector3(0, 0, 2) })
             setComponent(entity, FrustumCullCameraComponent)
             setComponent(entity, MeshComponent, new Mesh(new BoxGeometry(1, 1, 1)))
-            addObjectToGroup(entity, getComponent(entity, MeshComponent))
             setComponent(entity, BoundingBoxComponent) // Set a bounding box, so we hit the `?` branch when frustum culling
           }
           // Sanity check before running
@@ -438,8 +404,8 @@ describe('TransformSystem', () => {
       describe('... for every entity that has the components [TransformComponent, DistanceFromCameraComponent]', () => {
         it('.. should not set DistanceFromCameraComponent.squaredDistance[entity] to the output of getDistanceSquaredFromTarget(entity, EngineState.viewerEntity.TransformComponent.position )', () => {
           const Initial = 23
-          getMutableState(EngineState).viewerEntity.set(UndefinedEntity)
-          const viewerEntity = getState(EngineState).viewerEntity
+          getMutableState(ReferenceSpaceState).viewerEntity.set(UndefinedEntity)
+          const viewerEntity = getState(ReferenceSpaceState).viewerEntity
           // Set the data as expected
           const entities: Entity[] = [createEntity(), createEntity(), createEntity()]
           for (const entity of entities) {
@@ -465,8 +431,8 @@ describe('TransformSystem', () => {
       describe('... for every entity that has the components [TransformComponent, FrustumCullCameraComponent]', () => {
         it(".. should not set FrustumCullCameraComponent.isCulled for the entity if it does not have a BoundingBoxComponent and the worldPosition of the entity is contained in the frustrum of the viewerEntity's camera", () => {
           const Initial = 0
-          getMutableState(EngineState).viewerEntity.set(UndefinedEntity)
-          const viewerEntity = getState(EngineState).viewerEntity
+          getMutableState(ReferenceSpaceState).viewerEntity.set(UndefinedEntity)
+          const viewerEntity = getState(ReferenceSpaceState).viewerEntity
           // Set the data as expected
           const entities: Entity[] = [createEntity(), createEntity(), createEntity()]
           for (const entity of entities) {
@@ -492,15 +458,14 @@ describe('TransformSystem', () => {
         it(".. should not set FrustumCullCameraComponent.isCulled for the entity if it has a BoundingBoxComponent and its .box intersect with the frustrum of the viewerEntity's camera", () => {
           const Initial = 0
           const Expected = Initial
-          getMutableState(EngineState).viewerEntity.set(UndefinedEntity)
-          const viewerEntity = getState(EngineState).viewerEntity
+          getMutableState(ReferenceSpaceState).viewerEntity.set(UndefinedEntity)
+          const viewerEntity = getState(ReferenceSpaceState).viewerEntity
           // Set the data as expected
           const entities: Entity[] = [createEntity(), createEntity(), createEntity()]
           for (const entity of entities) {
             setComponent(entity, TransformComponent, { position: new Vector3(0, 0, 2) })
             setComponent(entity, FrustumCullCameraComponent)
             setComponent(entity, MeshComponent, new Mesh(new BoxGeometry(1, 1, 1)))
-            addObjectToGroup(entity, getComponent(entity, MeshComponent))
             setComponent(entity, BoundingBoxComponent) // Set a bounding box, so we hit the `?` branch when frustum culling
           }
           // Sanity check before running

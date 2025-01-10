@@ -3,14 +3,14 @@ import { InstancedMesh, Material, Object3D, Vector3 } from 'three'
 import { ComponentType, getComponent, getMutableComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { addOBCPlugin } from '@ir-engine/spatial/src/common/functions/OnBeforeCompilePlugin'
-import {
-  addObjectToGroup,
-  GroupComponent,
-  removeObjectFromGroup
-} from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import {
+  ObjectComponent,
+  addObjectToGroup,
+  removeObjectFromGroup
+} from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
@@ -123,13 +123,11 @@ export async function setInstancedMeshVariant(entity: Entity) {
       referencedVariants.push(variantComponent.levels[i])
       variantIndices.push(i)
     }
-    const group = getComponent(entity, GroupComponent)
+    const object = getComponent(entity, ObjectComponent)
     const loadedVariants: VariantLevel[] = []
     //for levels in range, check if already loaded
-    for (let i = 0; i < group.length; i++) {
-      const loadedElement = group[i]
-      if (!loadedElement.userData['variant']) continue
-      const elementVariantData = loadedElement.userData['variant']
+    if (object.userData['variant']) {
+      const elementVariantData = object.userData['variant']
       const loadedVariant = referencedVariants.find(
         (variant, index) =>
           //if already loaded, check that the src and index are the same
@@ -137,11 +135,12 @@ export async function setInstancedMeshVariant(entity: Entity) {
       )
       if (loadedVariant) {
         loadedVariants.push(loadedVariant)
-        continue
+      } else {
+        //if not referenced or src is different, remove from group
+        removeObjectFromGroup(entity, object)
       }
-      //if not referenced or src is different, remove from group
-      removeObjectFromGroup(entity, loadedElement)
     }
+
     for (let i = 0; i < referencedVariants.length; i++) {
       const referencedVariant = referencedVariants[i]
       if (loadedVariants.includes(referencedVariant)) continue //already loaded

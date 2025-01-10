@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { BackSide, Color, Mesh, MeshBasicMaterial, SphereGeometry, Vector2 } from 'three'
 
-import { Entity, UndefinedEntity } from '@ir-engine/ecs'
+import { Entity, EntityTreeComponent, UndefinedEntity, useChildWithComponents } from '@ir-engine/ecs'
 import {
   getComponent,
   getMutableComponent,
@@ -49,24 +49,25 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
-import { GroupComponent, addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
-import { EntityTreeComponent, useChildWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { ObjectFitFunctions } from '@ir-engine/spatial/src/transform/functions/ObjectFitFunctions'
 import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 import type { WebLayer3D } from '@ir-engine/xrui'
 
+import { EngineState } from '@ir-engine/ecs'
 import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { SpectateEntityState } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
-import { useRemoveEngineCanvas } from '../hooks/useEngineCanvas'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { useRemoveEngineCanvas } from '@ir-engine/spatial/src/renderer/functions/useEngineCanvas'
 import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
 import { LocationState } from '../social/services/LocationService'
 import { LoadingSystemState } from './state/LoadingState'
@@ -116,11 +117,13 @@ export const LoadingUISystemState = defineState({
       }
     })
 
+    setComponent(meshEntity, TransformComponent)
+
     setComponent(ui.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setComponent(meshEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
 
     setComponent(meshEntity, VisibleComponent)
-    addObjectToGroup(meshEntity, mesh)
+    setComponent(meshEntity, MeshComponent, mesh)
     mesh.renderOrder = 1
     setObjectLayers(mesh, ObjectLayers.UI)
 
@@ -220,7 +223,7 @@ const SceneSettingsChildReactor = (props: { entity: Entity }) => {
   useEffect(() => {
     if (!loadingTexture) return
 
-    const mesh = getComponent(meshEntity, GroupComponent)[0] as any as Mesh<SphereGeometry, MeshBasicMaterial>
+    const mesh = getComponent(meshEntity, ObjectComponent) as any as Mesh<SphereGeometry, MeshBasicMaterial>
     if (sceneComponent && sceneComponent.loadingScreenURL && mesh.userData.url !== sceneComponent.loadingScreenURL) {
       mesh.userData.url = sceneComponent.loadingScreenURL
     }
@@ -322,7 +325,7 @@ const execute = () => {
 
   setVisibleComponent(meshEntity, isReady)
 
-  const mesh = getComponent(meshEntity, GroupComponent)[0] as any as Mesh<SphereGeometry, MeshBasicMaterial>
+  const mesh = getComponent(meshEntity, ObjectComponent) as any as Mesh<SphereGeometry, MeshBasicMaterial>
   mesh.material.opacity = opacity
 
   xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
@@ -358,7 +361,7 @@ export const LoadingUISystem = defineSystem({
   insert: { before: TransformDirtyUpdateSystem },
   execute,
   reactor: () => {
-    if (!useMutableState(EngineState).viewerEntity.value) return null
+    if (!useMutableState(ReferenceSpaceState).viewerEntity.value) return null
     return <Reactor />
   }
 })

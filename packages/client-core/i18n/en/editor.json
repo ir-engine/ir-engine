@@ -69,6 +69,7 @@
     "sceneCreationFail": "Scene creation failed. {{reason}}",
     "uploadAborted": "Upload aborted",
     "uploadFailed": "Upload failed {{reason}}",
+    "fileUploadFailed": "File upload failed",
     "assetDeletionFail": "Asset deletion failed. {{reason}}",
     "projectAssetDeletionFail": "Project Asset deletion failed. {{reason}}",
     "networkError": "Network Error: {{status}}. {{text}}",
@@ -242,6 +243,7 @@
       "lbl-textureType": "Texture Type",
       "lbl-textureUrl": "Texture URL",
       "lbl-intensity": "Envmap Intensity",
+      "info-intensity": "Visual intensity may vary depending on material, shader, and environment map type configuration.",
       "bake-reflection-probes": "Bake Probes"
     },
     "trigger": {
@@ -1362,7 +1364,10 @@
           "name": "Name",
           "type": "Type",
           "dateModified": "Date Modified",
-          "size": "Size"
+          "size": "Size",
+          "author": "Author",
+          "statistics": "Statistics",
+          "createdAt": "Created At"
         }
       },
       "image-convert": {

@@ -52,7 +52,7 @@ import {
   MediaElementComponent,
   createAudioNodeGroup
 } from '@ir-engine/engine/src/scene/components/MediaComponent'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { PeerMediaChannelState } from '../media/PeerMediaChannelState'
 
 const _vec3 = new Vector3()
@@ -192,7 +192,7 @@ const execute = () => {
     updateAudioPanner(panner, _vec3, rotation, endTime, mediaSettings)
   }
 
-  const viewerEntity = getState(EngineState).viewerEntity
+  const viewerEntity = getState(ReferenceSpaceState).viewerEntity
   if (!viewerEntity) return
 
   /**
