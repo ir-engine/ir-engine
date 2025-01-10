@@ -200,7 +200,7 @@ describe('EditorControlFunctions', () => {
   })
 
   describe('modifyProperty', () => {
-    it('should modify the property of a node', () => {
+    it.only('should modify the property of a node', () => {
       const nodeUUID = MathUtils.generateUUID() as EntityUUID
 
       const gltf: GLTF.IGLTF = {
@@ -232,6 +232,8 @@ describe('EditorControlFunctions', () => {
       const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
       const sourceID = getComponent(nodeEntity, SourceComponent)
 
+      console.log('BEFORE---', getComponent(nodeEntity, HemisphereLightComponent))
+
       EditorControlFunctions.modifyProperty([nodeEntity], HemisphereLightComponent, {
         skyColor: new Color('blue').getHex() as any,
         groundColor: new Color('red').getHex() as any,
@@ -239,6 +241,8 @@ describe('EditorControlFunctions', () => {
       })
 
       applyIncomingActions()
+
+      console.log('AFTER---', getComponent(nodeEntity, HemisphereLightComponent))
 
       const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
       const extensionData = newSnapshot.nodes![0].extensions![HemisphereLightComponent.jsonID!] as any
@@ -643,7 +647,7 @@ describe('EditorControlFunctions', () => {
       const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
       assert.equal(newSnapshot.scenes![0].nodes![0], 0)
       assert.equal(newSnapshot.scenes![0].nodes![1], 1)
-      assert.equal(newSnapshot.nodes![0].children?.length!, 0)
+      assert.equal(newSnapshot.nodes![0].children!.length, 0)
     })
 
     it('should reparent an object to another object', () => {
