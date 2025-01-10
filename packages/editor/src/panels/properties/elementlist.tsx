@@ -66,7 +66,7 @@ const ComponentListItem = ({ item, onSelect }: { item: Component; onSelect: () =
   return (
     <Button
       fullWidth
-      className="w-full bg-[#2C2E33] p-2 text-[#B2B5BD]"
+      className="h-full bg-[#2C2E33] p-2 text-[#B2B5BD]"
       onClick={() => {
         const entities = SelectionState.getSelectedEntities()
         EditorControlFunctions.addOrRemoveComponent(entities, item, true)
