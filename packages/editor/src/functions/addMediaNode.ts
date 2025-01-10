@@ -33,8 +33,8 @@ import {
   useChildWithComponents,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { getOptionalComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
+import { getOptionalComponent, LayerID, Layers, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { GLTFComponent, loadGLTFFile } from '@ir-engine/engine/src/gltf/GLTFComponent'
@@ -108,7 +108,7 @@ export async function addMediaNode(
 
         useEffect(() => {
           if (!assetEntity) {
-            AssetState.load(url)
+            AssetState.load(url, UUIDComponent.generateUUID(), UndefinedEntity, Layers.Authoring as LayerID)
             return
           }
         }, [progress])

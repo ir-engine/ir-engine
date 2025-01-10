@@ -31,6 +31,7 @@ import {
   EntityTreeComponent,
   EntityUUID,
   LayerComponent,
+  LayerID,
   Layers,
   PresentationSystemGroup,
   UUIDComponent,
@@ -41,7 +42,6 @@ import {
   setComponent,
   useQuery
 } from '@ir-engine/ecs'
-import { EngineState } from '@ir-engine/ecs/src/EngineState'
 import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -59,8 +59,8 @@ export const SceneState = defineState({
   name: 'ee.engine.gltf.SceneState',
   initial: {} as Record<string, Entity>,
 
-  loadScene: (sceneURL: string, uuid: string) => {
-    const gltfEntity = AssetState.load(sceneURL, uuid as EntityUUID, getState(ReferenceSpaceState).originEntity)
+  loadScene: (sceneURL: string, uuid: string, layer?: LayerID) => {
+    const gltfEntity = AssetState.load(sceneURL, uuid as EntityUUID, getState(ReferenceSpaceState).originEntity, layer)
     getMutableState(SceneState)[sceneURL].set(gltfEntity)
     setComponent(gltfEntity, SceneComponent)
 
@@ -81,9 +81,13 @@ export const AssetState = defineState({
    * @param parentEntity The parent entity to attach the GLTF to
    * @returns
    */
-  load: (source: string, uuid = MathUtils.generateUUID() as EntityUUID, parentEntity = UndefinedEntity) => {
-    // getState(EngineState).isEditing is a hack, we will pass this down as needed
-    const entity = createEntity(getState(EngineState).isEditing ? Layers.Authoring : Layers.Simulation)
+  load: (
+    source: string,
+    uuid = MathUtils.generateUUID() as EntityUUID,
+    parentEntity = UndefinedEntity,
+    layer = Layers.Simulation as LayerID
+  ) => {
+    const entity = createEntity(layer)
     setComponent(entity, UUIDComponent, uuid)
     setComponent(entity, NameComponent, source.split('/').pop()!)
     setComponent(entity, VisibleComponent, true)

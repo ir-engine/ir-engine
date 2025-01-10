@@ -34,9 +34,8 @@ import multiLogger from '@ir-engine/common/src/logger'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { cleanString } from '@ir-engine/common/src/utils/cleanString'
 import { EngineState, EntityUUID, UndefinedEntity } from '@ir-engine/ecs'
-import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { Layers, getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { AssetModifiedState, SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { exportGLTFScene } from '@ir-engine/engine/src/gltf/exportGLTFScene'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { handleScenePaths } from '@ir-engine/engine/src/scene/functions/GLTFConversion'
@@ -144,7 +143,7 @@ export const onNewScene = async (
 
 export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
   getMutableState(EngineState).isEditing.set(true)
-  const unload = SceneState.loadScene(sceneURL, uuid)
+  const unload = SceneState.loadScene(sceneURL, uuid, Layers.Authoring)
   const gltfEntity = getState(SceneState)[sceneURL]
   setComponent(gltfEntity, SceneComponent)
   getMutableState(EditorState).rootEntity.set(gltfEntity)
