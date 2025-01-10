@@ -47,10 +47,16 @@ import multiLogger from '@ir-engine/server-core/src/ServerLogger'
 import { ServerState } from '@ir-engine/server-core/src/ServerState'
 import { WebRtcTransportParams } from '@ir-engine/server-core/src/types/WebRtcTransportParams'
 
-import { CREDENTIAL_OFFSET, HASH_ALGORITHM } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
+import {
+  CREDENTIAL_OFFSET,
+  HASH_ALGORITHM,
+  IceServer,
+  WebRTCSettings
+} from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { PUBLIC_STUN_SERVERS } from '@ir-engine/common/src/constants/STUNServers'
 import { MediaStreamAppData } from '@ir-engine/common/src/interfaces/NetworkInterfaces'
-import { IceServerType, instanceServerSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import {
   MediasoupDataConsumerActions,
   MediasoupDataProducerActions,
@@ -67,6 +73,7 @@ import {
   MediasoupTransportObjectsState,
   MediasoupTransportState
 } from '@ir-engine/common/src/transports/mediasoup/MediasoupTransportState'
+import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import crypto from 'crypto'
 import { InstanceServerState } from './InstanceServerState'
 import { MediasoupInternalWebRTCDataChannelState } from './MediasoupInternalWebRTCDataChannelState'
@@ -401,9 +408,35 @@ export async function handleWebRtcTransportCreate(
 
     const { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
 
-    const instanceServerSettingsResponse = await API.instance.service(instanceServerSettingPath).find()
-    const webRTCSettings = instanceServerSettingsResponse.data[0].webRTCSettings
-    const iceServers: IceServerType[] = webRTCSettings.useCustomICEServers
+    const instanceServerSettingsResponse = await API.instance.service(engineSettingPath).find({
+      query: {
+        category: 'instance-server-webrtc',
+        jsonKey: EngineSettings.InstanceServer.WebRTCSettings
+      },
+      paginate: false
+    })
+
+    if (!instanceServerSettingsResponse) {
+      logger.error('Failed to fetch instance server settings')
+      return dispatchAction(
+        MediasoupTransportActions.requestTransportError({
+          error: 'Failed to fetch instance server settings',
+          direction,
+          $network: network.id,
+          $topic: network.topic,
+          $to: peerID
+        })
+      )
+    }
+    const webRTCSettings = unflattenArrayToObject(
+      instanceServerSettingsResponse.map((setting) => {
+        return {
+          key: setting.key,
+          value: setting.value
+        }
+      })
+    ) as WebRTCSettings
+    const iceServers: IceServer[] = webRTCSettings.useCustomICEServers
       ? webRTCSettings.iceServers
       : config.kubernetes.enabled
       ? PUBLIC_STUN_SERVERS

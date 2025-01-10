@@ -32,7 +32,7 @@ import config from '@ir-engine/server-core/src/appconfig'
 
 const killports = () => {
   killPort(config.server.port)
-  killPort(config.instanceserver.port)
+  killPort(config['instance-server'].port)
   killPort('3032') // todo, we should put this hardcoded val into env
   killPort(process.env.CORS_SERVER_PORT)
   killPort(process.env.VITE_APP_PORT)

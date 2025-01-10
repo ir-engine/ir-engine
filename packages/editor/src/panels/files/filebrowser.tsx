@@ -24,7 +24,9 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
-import { useMutableState } from '@ir-engine/hyperflux'
+import { useFind } from '@ir-engine/common'
+import { StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import React, { useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import { twMerge } from 'tailwind-merge'
@@ -34,7 +36,13 @@ import { FilesState, FilesViewModeState, SelectedFilesState } from '../../servic
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileContextMenu } from './contextmenu'
 import FileItem, { TableWrapper } from './fileitem'
-import { CurrentFilesQueryProvider, canDropOnFileBrowser, useCurrentFiles, useFileBrowserDrop } from './helpers'
+import {
+  CurrentFilesQueryProvider,
+  FILES_PAGE_LIMIT,
+  canDropOnFileBrowser,
+  useCurrentFiles,
+  useFileBrowserDrop
+} from './helpers'
 import FilesLoaders from './loaders'
 import FilesToolbar from './toolbar'
 
@@ -52,28 +60,99 @@ function Browser() {
   const selectedFiles = useMutableState(SelectedFilesState)
   const { files, refreshDirectory } = useCurrentFiles()
   const thumbnailJobState = useMutableState(FileThumbnailJobState)
+  const { projectName } = useMutableState(FilesState)
+  const staticResourceData = useHookstate<Record<string, Record<string, string>>>({})
+
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' })
+
+  const handleSort = (columnKey) => {
+    setSortConfig((prevConfig) => {
+      const newDirection = prevConfig.key === columnKey && prevConfig.direction === 'asc' ? 'desc' : 'asc'
+      return { key: columnKey, direction: newDirection }
+    })
+  }
 
   useEffect(() => {
     refreshDirectory()
   }, [thumbnailJobState.length])
 
+  const staticResourceDataQuery = useFind(staticResourcePath, {
+    query: {
+      key: {
+        $in: files.map((file) => file.key)
+      },
+      project: projectName.value,
+      $select: ['key', 'userId', 'stats', 'createdAt'],
+      $limit: FILES_PAGE_LIMIT
+    }
+  })
+
+  useEffect(() => {
+    if (staticResourceDataQuery.status !== 'success') return
+    const additionalData: Record<string, Record<string, string>> = {}
+    staticResourceDataQuery.data.forEach((data: StaticResourceType) => {
+      additionalData[data.key] = {
+        createdAt: new Date(data.createdAt).toLocaleString(),
+        author: data.userId || 'iR Starter Content',
+        statistics: Object.keys({ ...data.stats }).length ? JSON.stringify(data.stats) : ''
+      }
+    })
+    staticResourceData.set(additionalData)
+  }, [staticResourceDataQuery.status])
+
+  const sortedFiles = React.useMemo(() => {
+    if (!sortConfig.key) return files
+
+    const sorted = [...files].sort(($a, $b) => {
+      const additionalDataA = staticResourceData.value[$a?.key] || {}
+      const additionalDataB = staticResourceData.value[$b?.key] || {}
+      const a = { ...$a, ...additionalDataA }
+      const b = { ...$b, ...additionalDataB }
+
+      const { key, direction } = sortConfig
+      let valueA: any = (key && a[key]) || ''
+      let valueB: any = (key && b[key]) || ''
+
+      if (key === 'createdAt') {
+        valueA = new Date(valueA)
+        valueB = new Date(valueB)
+      } else if (key === 'size') {
+        valueA = parseFloat(valueA) || 0
+        valueB = parseFloat(valueB) || 0
+      } else if (key === 'type' || key === 'author' || key === 'name' || key === 'statistics') {
+        valueA = valueA.toString().toLowerCase()
+        valueB = valueB.toString().toLowerCase()
+      }
+
+      if (valueA < valueB) return direction === 'asc' ? -1 : 1
+      if (valueA > valueB) return direction === 'asc' ? 1 : -1
+      return 0
+    })
+
+    return sorted
+  }, [files, sortConfig, staticResourceData])
+
   const FileItems = () => (
     <>
-      {files.map((file) => (
-        <FileItem
-          file={file}
-          onContextMenu={(event) => {
-            event.preventDefault()
-            event.stopPropagation()
-            if (!selectedFiles.value.find((selectedFile) => selectedFile.key === file.key)) {
-              selectedFiles.set([file])
-            }
-            setAnchorEvent(event)
-          }}
-          key={file.key}
-          data-testid="files-panel-file-item"
-        />
-      ))}
+      {sortedFiles.map((file, idx) => {
+        const backgroundColor = idx % 2 === 0 ? '#111113' : '#191B1F'
+        return (
+          <FileItem
+            file={{ ...file, ...staticResourceData.value[file?.key] }}
+            onContextMenu={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+              if (!selectedFiles.value.find((selectedFile) => selectedFile.key === file.key)) {
+                selectedFiles.set([file])
+              }
+              setAnchorEvent(event)
+            }}
+            key={file.key}
+            data-testid="files-panel-file-item"
+            className={`${isListView ? `bg-[${backgroundColor}]` : ''}`}
+          />
+        )
+      })}
     </>
   )
 
@@ -89,7 +168,7 @@ function Browser() {
       }}
     >
       <div
-        className={twMerge('mb-2 h-auto px-3 pb-6 text-gray-400 ', !isListView && 'flex py-8')}
+        className={twMerge('mb-2 h-auto pb-6 text-gray-400 ', !isListView && 'flex py-8')}
         onClick={(event) => {
           event.stopPropagation()
           selectedFiles.set([])
@@ -98,7 +177,7 @@ function Browser() {
       >
         <div className={twMerge(!isListView && 'flex flex-wrap gap-2')}>
           {isListView ? (
-            <TableWrapper>
+            <TableWrapper handleSort={handleSort}>
               <FileItems />
             </TableWrapper>
           ) : (

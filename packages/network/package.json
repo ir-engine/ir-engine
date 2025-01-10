@@ -18,7 +18,8 @@
   "license": "CPAL",
   "dependencies": {
     "@ir-engine/ecs": "^1.6.0",
-    "@ir-engine/hyperflux": "^1.6.0"
+    "@ir-engine/hyperflux": "^1.6.0",
+    "msgpackr": "^1.9.2"
   },
   "devDependencies": {
     "@types/node": "18.15.5",

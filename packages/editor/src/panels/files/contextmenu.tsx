@@ -86,6 +86,7 @@ function PasteFileButton({
         }
       }}
       label={t('editor:layout.filebrowser.pasteAsset')}
+      className="h-auto bg-[rgba(20,22,25,0.9)] px-6 py-1 text-sm text-white"
     />
   )
 }
@@ -105,172 +106,190 @@ export function FileContextMenu({
   const hasSelection = selectedFiles.length > 0
   const hasFiles = selectedFiles.some((file) => !file.isFolder.value)
 
+  const fileActions = [
+    {
+      // CUT
+      condition: hasSelection,
+      label: t('editor:layout.filebrowser.cutAsset'),
+      action: () => {
+        filesState.clipboardFiles.set({ files: selectedFiles.get(NO_PROXY) })
+        setAnchorEvent(undefined)
+      },
+      testId: 'files-panel-file-item-context-menu-cut-asset-button'
+    },
+    {
+      // COPY
+      condition: hasSelection,
+      label: t('editor:layout.filebrowser.copyAsset'),
+      action: () => {
+        filesState.clipboardFiles.set({ files: selectedFiles.get(NO_PROXY), isCopy: true })
+        setAnchorEvent(undefined)
+      },
+      testId: 'files-panel-file-item-context-menu-copy-asset-button'
+    },
+    {
+      // PASTE
+      condition: true, // Paste is always available
+      label: '',
+      action: () => {},
+      testId: '',
+      component: <PasteFileButton setAnchorEvent={setAnchorEvent} />
+    },
+    {}, // BREAK
+    {
+      condition: selectedFiles.length === 1,
+      label: t('editor:layout.filebrowser.renameAsset'),
+      action: () => {
+        PopoverState.showPopupover(
+          <RenameFileModal projectName={filesState.projectName.value} file={selectedFiles.value[0]} />
+        )
+        setAnchorEvent(undefined)
+      },
+      testId: 'files-panel-file-item-context-menu-rename-asset-button'
+    },
+    {
+      // DELETE
+      condition: hasSelection,
+      label: t('editor:layout.assetGrid.deleteAsset'),
+      action: () => {
+        PopoverState.showPopupover(
+          <DeleteFileModal
+            files={selectedFiles.value}
+            onComplete={(err) => {
+              selectedFiles.set([])
+              ClickPlacementState.resetSelectedAsset()
+            }}
+          />
+        )
+        setAnchorEvent(undefined)
+      },
+      testId: 'files-panel-file-item-context-menu-delete-asset-button'
+    },
+    {
+      // COMPRESS
+      condition: hasFiles && fileConsistsOfContentType(selectedFiles.value, 'model'),
+      label: t('editor:layout.filebrowser.compress'),
+      action: () => {
+        PopoverState.showPopupover(
+          <ModelCompressionPanel selectedFiles={selectedFiles.value} refreshDirectory={refreshDirectory} />
+        )
+        setAnchorEvent(undefined)
+      },
+      testId: ''
+    },
+    {
+      // COMPRESS IMAGE
+      condition: hasFiles && fileConsistsOfContentType(selectedFiles.value, 'image'),
+      label: t('editor:layout.filebrowser.compress') + ' Image',
+      action: () => {
+        PopoverState.showPopupover(
+          <ImageCompressionPanel selectedFiles={selectedFiles.value} refreshDirectory={refreshDirectory} />
+        )
+        setAnchorEvent(undefined)
+      },
+      testId: ''
+    },
+    {}, // BREAK
+    {
+      // COPY
+      condition: hasSelection,
+      label: t('editor:layout.assetGrid.copyURL'),
+      action: () => {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(selectedFiles.map((file) => file.url.value).join(' '))
+        }
+        setAnchorEvent(undefined)
+      },
+      testId: 'files-panel-file-item-context-menu-copy-url-button'
+    },
+    {
+      // OPEN IN NEW TAB
+      condition: hasFiles,
+      label: t('editor:layout.assetGrid.openInNewTab'),
+      action: () => {
+        selectedFiles.filter((file) => !file.isFolder.value).forEach((file) => window.open(file.url.value))
+        setAnchorEvent(undefined)
+      },
+      testId: 'files-panel-file-item-context-menu-open-in-new-tab-button'
+    },
+    {}, // BREAK
+    {
+      // PLACE OBJECT
+      condition: hasFiles,
+      label: t('editor:layout.assetGrid.placeObject'),
+      action: () => {
+        const vec3 = new Vector3()
+        getSpawnPositionAtCenter(vec3)
+        selectedFiles
+          .filter((file) => !file.isFolder.value)
+          .map((file) => {
+            addMediaNode(file.url.value, undefined, undefined, [
+              { name: TransformComponent.jsonID, props: { position: vec3 } }
+            ])
+          })
+        setAnchorEvent(undefined)
+      },
+      testId: 'files-panel-file-item-context-menu-place-object-button'
+    },
+    {
+      // PLACE OBJECT AT ORIGIN
+      condition: hasFiles,
+      label: t('editor:layout.assetGrid.placeObjectAtOrigin'),
+      action: () => {
+        selectedFiles
+          .filter((file) => !file.isFolder.value)
+          .map((file) => {
+            addMediaNode(file.url.value)
+          })
+        setAnchorEvent(undefined)
+      },
+      testId: 'files-panel-file-item-context-menu-place-object-at-origin-button'
+    },
+    {}, // BREAK
+    {
+      // ADD NEW FOLDER
+      condition: true, // Always visible
+      label: t('editor:layout.filebrowser.addNewFolder'),
+      action: createNewFolder,
+      testId: 'files-panel-file-item-context-menu-add-new-folder-button'
+    },
+    {
+      // VIEW PROPERTIES
+      condition: hasSelection,
+      label: t('editor:layout.filebrowser.viewAssetProperties'),
+      action: () => {
+        PopoverState.showPopupover(<FilePropertiesModal />)
+        setAnchorEvent(undefined)
+      },
+      testId: 'files-panel-file-item-context-menu-view-asset-properties-button'
+    }
+  ]
+
   return (
     <ContextMenu anchorEvent={anchorEvent} onClose={() => setAnchorEvent(undefined)}>
-      <div className="w-40" tabIndex={0}>
-        {/* Place Object, Place Object At Origin */}
-        {hasFiles && (
-          <>
-            <DropdownItem
-              label={t('editor:layout.assetGrid.placeObject')}
-              onClick={() => {
-                const vec3 = new Vector3()
-                getSpawnPositionAtCenter(vec3)
-                selectedFiles
-                  .filter((file) => !file.isFolder.value)
-                  .map((file) => {
-                    addMediaNode(file.url.value, undefined, undefined, [
-                      { name: TransformComponent.jsonID, props: { position: vec3 } }
-                    ])
-                  })
-                setAnchorEvent(undefined)
-              }}
-              data-testid="files-panel-file-item-context-menu-place-object-button"
-            />
-            <DropdownItem
-              label={t('editor:layout.assetGrid.placeObjectAtOrigin')}
-              data-testid="files-panel-file-item-context-menu-place-object-at-origin-button"
-              onClick={() => {
-                selectedFiles
-                  .filter((file) => !file.isFolder.value)
-                  .map((file) => {
-                    addMediaNode(file.url.value)
-                  })
-                setAnchorEvent(undefined)
-              }}
-            />
-          </>
-        )}
-        {/* Copy URL */}
-        {hasSelection && (
-          <DropdownItem
-            data-testid="files-panel-file-item-context-menu-copy-url-button"
-            onClick={() => {
-              if (navigator.clipboard) {
-                navigator.clipboard.writeText(selectedFiles.map((file) => file.url.value).join(' '))
-              }
-              setAnchorEvent(undefined)
-            }}
-            label={t('editor:layout.assetGrid.copyURL')}
-          />
-        )}
-        {/* Open In New Tab */}
-        {hasFiles && (
-          <DropdownItem
-            data-testid="files-panel-file-item-context-menu-open-in-new-tab-button"
-            onClick={() => {
-              selectedFiles.filter((file) => !file.isFolder.value).forEach((file) => window.open(file.url.value))
-              setAnchorEvent(undefined)
-            }}
-            label={t('editor:layout.assetGrid.openInNewTab')}
-          />
-        )}
-        {/* Add New Folder */}
-        <DropdownItem
-          onClick={createNewFolder}
-          data-testid="files-panel-file-item-context-menu-add-new-folder-button"
-          label={t('editor:layout.filebrowser.addNewFolder')}
-        />
-        {hasSelection && (
-          <>
-            {/* Cut Asset */}
-            <DropdownItem
-              data-testid="files-panel-file-item-context-menu-cut-asset-button"
-              onClick={() => {
-                filesState.clipboardFiles.set({
-                  files: selectedFiles.get(NO_PROXY)
-                })
-                setAnchorEvent(undefined)
-              }}
-              label={t('editor:layout.filebrowser.cutAsset')}
-            />
-            {/* Copy Asset */}
-            <DropdownItem
-              data-testid="files-panel-file-item-context-menu-copy-asset-button"
-              onClick={() => {
-                filesState.clipboardFiles.set({
-                  files: selectedFiles.get(NO_PROXY),
-                  isCopy: true
-                })
-                setAnchorEvent(undefined)
-              }}
-              label={t('editor:layout.filebrowser.copyAsset')}
-            />
-          </>
-        )}
-        {/* Paste Asset */}
-        <PasteFileButton setAnchorEvent={setAnchorEvent} />
-        {/* Rename Asset */}
-        {selectedFiles.length === 1 && (
-          <DropdownItem
-            data-testid="files-panel-file-item-context-menu-rename-asset-button"
-            onClick={() => {
-              PopoverState.showPopupover(
-                <RenameFileModal projectName={filesState.projectName.value} file={selectedFiles.value[0]} />
-              )
-              setAnchorEvent(undefined)
-            }}
-            label={t('editor:layout.filebrowser.renameAsset')}
-          />
-        )}
-        {/* Delete Asset */}
-        {hasSelection && (
-          <DropdownItem
-            data-testid="files-panel-file-item-context-menu-delete-asset-button"
-            onClick={() => {
-              PopoverState.showPopupover(
-                <DeleteFileModal
-                  files={selectedFiles.value}
-                  onComplete={(err) => {
-                    selectedFiles.set([])
-                    ClickPlacementState.resetSelectedAsset()
-                  }}
-                />
-              )
-              setAnchorEvent(undefined)
-            }}
-            label={t('editor:layout.assetGrid.deleteAsset')}
-          />
-        )}
-        {/* Compress */}
-        {hasFiles && fileConsistsOfContentType(selectedFiles.value, 'model') && (
-          <DropdownItem
-            onClick={() => {
-              if (fileConsistsOfContentType(selectedFiles.value, 'model')) {
-                PopoverState.showPopupover(
-                  <ModelCompressionPanel selectedFiles={selectedFiles.value} refreshDirectory={refreshDirectory} />
-                )
-              }
-              setAnchorEvent(undefined)
-            }}
-            label={t('editor:layout.filebrowser.compress')}
-          />
-        )}
-        {hasFiles && fileConsistsOfContentType(selectedFiles.value, 'image') && (
-          <DropdownItem
-            onClick={() => {
-              if (fileConsistsOfContentType(selectedFiles.value, 'image')) {
-                PopoverState.showPopupover(
-                  <ImageCompressionPanel selectedFiles={selectedFiles.value} refreshDirectory={refreshDirectory} />
-                )
-              }
-              setAnchorEvent(undefined)
-            }}
-            label={t('editor:layout.filebrowser.compress')}
-          />
-        )}
+      <div className="w-40 overflow-hidden rounded" tabIndex={0}>
+        {fileActions
+          .filter((action) => action.condition || Object.keys(action).length === 0)
+          .map((action, index) => {
+            if (action.component) {
+              return action.component
+            }
 
-        {/* View Asset Properties */}
-        {hasSelection && (
-          <DropdownItem
-            data-testid="files-panel-file-item-context-menu-view-asset-properties-button"
-            onClick={() => {
-              PopoverState.showPopupover(<FilePropertiesModal />)
-              setAnchorEvent(undefined)
-            }}
-            label={t('editor:layout.filebrowser.viewAssetProperties')}
-          />
-        )}
+            return (
+              <>
+                {Object.keys(action).length === 0 && <hr className="mx-1 border-[#42454D]" />}
+                {Object.keys(action).length > 0 && (
+                  <DropdownItem
+                    key={index}
+                    label={action.label || ''}
+                    onClick={action.action}
+                    data-testid={action.testId}
+                    className="h-auto bg-[rgba(20,22,25,0.9)] px-6 py-1 text-sm text-white"
+                  />
+                )}
+              </>
+            )
+          })}
       </div>
     </ContextMenu>
   )
