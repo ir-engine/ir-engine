@@ -200,7 +200,7 @@ describe('EditorControlFunctions', () => {
   })
 
   describe('modifyProperty', () => {
-    it.only('should modify the property of a node', () => {
+    it('should modify the property of a node', () => {
       const nodeUUID = MathUtils.generateUUID() as EntityUUID
 
       const gltf: GLTF.IGLTF = {
