@@ -37,6 +37,7 @@ import {
   Entity,
   EntityTreeComponent,
   createEntity,
+  getComponent,
   hasComponent,
   iterateEntityNode,
   setComponent
@@ -46,6 +47,7 @@ import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { FilesState } from '@ir-engine/editor/src/services/FilesState'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -172,7 +174,6 @@ export default function PublishModal(props: {
           saveScenePath
         )
         //add all mesh into one entity
-        //get all entities
         const meshParentEntity = createEntity()
         const rootEntity = getState(EditorState).rootEntity
         const meshEntity = [] as Entity[]
@@ -183,16 +184,29 @@ export default function PublishModal(props: {
           if (hasComponent(entity, MeshComponent)) {
             if (meshEntity.includes(entity) || hasComponent(entity, ColliderComponent)) return
             meshEntity.push(entity)
+            //preserve transform
+            const parentEntityTransform = getComponent(
+              getComponent(entity, EntityTreeComponent).parentEntity,
+              TransformComponent
+            )
+            const transform = getComponent(entity, TransformComponent)
+            transform.position.applyMatrix4(parentEntityTransform.matrixWorld)
+            transform.rotation.premultiply(parentEntityTransform.rotation)
+            transform.scale.multiply(parentEntityTransform.scale)
             setComponent(entity, EntityTreeComponent, { parentEntity: meshParentEntity })
           }
         })
-
+        //export parent entities and combined mesh entity
+        const exportParentEntity = [] as Entity[]
         exportRelativeGLTF(meshParentEntity, projectName, 'public/publish/combined-mesh.gltf')
-        // meshEntity.forEach((entity) => {
-        //   const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
-        //   const name=getComponent(parentEntity,NameComponent)
-        //   exportRelativeGLTF(parentEntity, projectName, 'public/publish/' + name + '.gltf')
-        // })
+        meshEntity.forEach((entity) => {
+          const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
+          if (exportParentEntity.includes(parentEntity)) return
+          exportParentEntity.push(parentEntity)
+          const name = getComponent(parentEntity, NameComponent)
+          exportRelativeGLTF(parentEntity, projectName, 'public/publish/' + name + '.gltf')
+        })
+
         PopoverState.hidePopupover()
       }
     } catch (error) {
