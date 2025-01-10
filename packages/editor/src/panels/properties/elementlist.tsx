@@ -163,21 +163,23 @@ const useComponentShelfCategories = (search: string) => {
     return [category, filteredComponents]
   }
 
-  if (!search) {
+  const filteredCategories = useMemo(() => {
+    if (!search) {
+      return Object.entries(getState(ComponentShelfCategoriesState))
+        .map(mapSettingsComponents)
+        .filter(([_, items]) => !!items.length)
+    }
+
     return Object.entries(getState(ComponentShelfCategoriesState))
+      .map(([category, items]) => {
+        const filteredItems = items.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()))
+        return [category, filteredItems] as [string, Component[]]
+      })
       .map(mapSettingsComponents)
       .filter(([_, items]) => !!items.length)
-  }
+  }, [search])
 
-  const searchString = search.toLowerCase()
-
-  return Object.entries(getState(ComponentShelfCategoriesState))
-    .map(([category, items]) => {
-      const filteredItems = items.filter((item) => item.name.toLowerCase().includes(searchString))
-      return [category, filteredItems] as [string, Component[]]
-    })
-    .map(mapSettingsComponents)
-    .filter(([_, items]) => !!items.length)
+  return filteredCategories
 }
 
 const usePrefabShelfCategories = (search: string): [string, PrefabShelfItem[]][] => {
@@ -199,18 +201,19 @@ const usePrefabShelfCategories = (search: string): [string, PrefabShelfItem[]][]
     return shelves
   }, [prefabState])
 
-  if (!search) {
+  const filteredCategories = useMemo(() => {
+    if (!search) {
+      return Object.entries(prefabShelves)
+    }
     return Object.entries(prefabShelves)
-  }
+      .map(([category, items]) => {
+        const filteredItems = items.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()))
+        return [category, filteredItems] as [string, PrefabShelfItem[]]
+      })
+      .filter(([_, items]) => !!items.length)
+  }, [search])
 
-  const searchString = search.toLowerCase()
-
-  return Object.entries(prefabShelves)
-    .map(([category, items]) => {
-      const filteredItems = items.filter((item) => item.name.toLowerCase().includes(searchString))
-      return [category, filteredItems] as [string, PrefabShelfItem[]]
-    })
-    .filter(([_, items]) => !!items.length)
+  return filteredCategories
 }
 
 export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: () => void }) {
@@ -252,7 +255,7 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
       selectedCategories.set(Array.from({ length: shelves.length }, (_, index) => index))
     }
     prevSearchQuery.current = search.query.value
-  }, [search.query, shelves.length])
+  }, [search.query, shelves])
 
   const onSearch = (text: string) => {
     search.local.set(text)
