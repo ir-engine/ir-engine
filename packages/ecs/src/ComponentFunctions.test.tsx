@@ -66,7 +66,6 @@ describe('ComponentFunctions', async () => {
   })
 
   describe('defineComponent', () => {
-
     it('should not deserialize if property does not match schema', () => {
       const Vector3Component = defineComponent({
         name: 'Vector3Component',
