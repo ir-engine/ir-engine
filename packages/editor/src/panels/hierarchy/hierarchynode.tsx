@@ -41,7 +41,7 @@ import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices
 import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFModifiedState'
+import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, getState, none, useHookstate, useMutableState, useState } from '@ir-engine/hyperflux'
@@ -316,7 +316,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
     // setVisibleComponent(entity, !hasComponent(entity, VisibleComponent))
   }
   const isModelRoot = hasComponent(entity, GLTFComponent)
-  const isModified = isModelRoot && !!getState(GLTFModifiedState)[GLTFComponent.getInstanceID(entity)]
+  const isModified = isModelRoot && !!getState(AssetModifiedState)[GLTFComponent.getInstanceID(entity)]
 
   const onSaveChanges = () => {
     const gltfComponent = getComponent(node.entity, GLTFComponent)
@@ -325,14 +325,14 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
     const parsedName = fileName.split('?')[0]
     exportRelativeGLTF(node.entity, fullProjectName, parsedName).then(() => {
       ResourceLoaderManager.reloadResource(gltfComponent.src)
-      getMutableState(GLTFModifiedState)[GLTFComponent.getInstanceID(entity)].set(none)
+      getMutableState(AssetModifiedState)[GLTFComponent.getInstanceID(entity)].set(none)
     })
   }
 
   const onRevert = () => {
     const gltfComponent = getComponent(node.entity, GLTFComponent)
     ResourceLoaderManager.reloadResource(gltfComponent.src)
-    getMutableState(GLTFModifiedState)[GLTFComponent.getInstanceID(entity)].set(none)
+    getMutableState(AssetModifiedState)[GLTFComponent.getInstanceID(entity)].set(none)
   }
 
   return (

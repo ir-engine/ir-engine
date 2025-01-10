@@ -29,7 +29,7 @@ import { useEffect } from 'react'
 import { LocationService, LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { useFind } from '@ir-engine/common'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
@@ -83,7 +83,7 @@ export const useLoadLocation = (props: { locationName: string }) => {
       return
     const sceneURL = locationState.currentLocation.location.sceneURL.value
     const sceneID = locationState.currentLocation.location.sceneId.value
-    return GLTFAssetState.loadScene(sceneURL, sceneID)
+    return SceneState.loadScene(sceneURL, sceneID)
   }, [locationState.currentLocation.location.sceneId, locationState.currentLocation.location.sceneURL])
 }
 
@@ -100,7 +100,7 @@ export const useLoadScene = (props: { projectName: string; sceneName: string }) 
     const resource = resourceQuery.data[0]
     getMutableState(LocationState).currentLocation.location.sceneId.set(resource.id)
     getMutableState(LocationState).currentLocation.location.sceneURL.set(resource.url)
-    const unload = GLTFAssetState.loadScene(resource.url, resource.id)
+    const unload = SceneState.loadScene(resource.url, resource.id)
     return () => {
       getMutableState(LocationState).currentLocation.location.sceneId.set('')
       getMutableState(LocationState).currentLocation.location.sceneURL.set('')

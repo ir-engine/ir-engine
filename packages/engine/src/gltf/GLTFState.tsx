@@ -23,9 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { GLTF } from '@gltf-transform/core'
 import React from 'react'
-import { FrontSide, Group, LoaderUtils, MathUtils, MeshStandardMaterial } from 'three'
+import { Group, MathUtils } from 'three'
 
 import {
   Entity,
@@ -38,43 +37,42 @@ import {
   UndefinedEntity,
   createEntity,
   defineSystem,
-  getAncestorWithComponents,
-  getComponent,
   removeEntity,
   setComponent,
   useQuery
 } from '@ir-engine/ecs'
 import { EngineState } from '@ir-engine/ecs/src/EngineState'
-import { Topic, defineState, getMutableState, getState } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
-import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { GLTFComponent, GLTFComponentReactor } from './GLTFComponent'
 import './MeshExtensionComponents'
 
-export const GLTFAssetState = defineState({
-  name: 'ee.engine.gltf.GLTFAssetState',
+/**
+ * Load an asset file as a scene
+ */
+export const SceneState = defineState({
+  name: 'ee.engine.gltf.SceneState',
   initial: {} as Record<string, Entity>, // sceneID => entity
 
   loadScene: (sceneURL: string, uuid: string) => {
-    const gltfEntity = GLTFSourceState.load(sceneURL, uuid as EntityUUID, getState(ReferenceSpaceState).originEntity)
-    getMutableState(GLTFAssetState)[sceneURL].set(gltfEntity)
+    const gltfEntity = AssetState.load(sceneURL, uuid as EntityUUID, getState(ReferenceSpaceState).originEntity)
+    getMutableState(SceneState)[sceneURL].set(gltfEntity)
     setComponent(gltfEntity, SceneComponent)
 
     return () => {
-      GLTFSourceState.unload(gltfEntity)
-      getMutableState(GLTFAssetState)[sceneURL].set(gltfEntity)
+      AssetState.unload(gltfEntity)
+      getMutableState(SceneState)[sceneURL].set(gltfEntity)
     }
   }
 })
 
-export const GLTFSourceState = defineState({
+export const AssetState = defineState({
   name: 'ee.engine.gltf.GLTFSourceState',
   initial: {} as Record<string, Entity>,
 
@@ -92,7 +90,7 @@ export const GLTFSourceState = defineState({
     setComponent(entity, VisibleComponent, true)
     setComponent(entity, TransformComponent)
     setComponent(entity, EntityTreeComponent, { parentEntity })
-    const sourceID = `${getComponent(entity, UUIDComponent)}-${source}`
+    const sourceID = `${uuid}-${source}`
     setComponent(entity, SourceComponent, sourceID)
     setComponent(entity, GLTFComponent, { src: source })
     const obj3d = new Group()
@@ -123,39 +121,10 @@ export const GLTFLoadSystem = defineSystem({
   }
 })
 
-export const EditorTopic = 'editor' as Topic
-
-export const getNodeUUID = (node: GLTF.INode, documentID: string, nodeIndex: number) =>
-  (node.extensions?.[UUIDComponent.jsonID] as EntityUUID) ?? (`${documentID}-${nodeIndex}` as EntityUUID)
-
-export const defaultMaterial = () =>
-  new MeshStandardMaterial({
-    color: 0xffffff,
-    emissive: 0x000000,
-    metalness: 1,
-    roughness: 1,
-    transparent: false,
-    depthTest: true,
-    side: FrontSide
-  })
-
-export const getParserOptions = (entity: Entity) => {
-  const gltfEntity = getAncestorWithComponents(entity, [GLTFComponent])
-  const documentID = GLTFComponent.getInstanceID(gltfEntity)
-  const gltfComponent = getComponent(gltfEntity, GLTFComponent)
-  const document = gltfComponent.document
-  const gltfLoader = getState(AssetLoaderState).gltfLoader
-  return {
-    entity: gltfEntity,
-    document,
-    documentID,
-    url: gltfComponent.src,
-    path: LoaderUtils.extractUrlBase(gltfComponent.src),
-    body: gltfComponent.body,
-    crossOrigin: gltfLoader.crossOrigin,
-    requestHeader: gltfLoader.requestHeader,
-    manager: gltfLoader.manager,
-    ktx2Loader: gltfLoader.ktx2Loader,
-    meshoptDecoder: gltfLoader.meshoptDecoder
-  } as GLTFParserOptions
-}
+/**
+ * @todo will be replaced with ECS history system
+ */
+export const AssetModifiedState = defineState({
+  name: 'ee.engine.gltf.AssetModifiedState',
+  initial: {} as Record<string, boolean>
+})

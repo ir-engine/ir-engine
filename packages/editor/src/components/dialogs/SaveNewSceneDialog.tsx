@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import isValidSceneName from '@ir-engine/common/src/utils/validateSceneName'
 import { getComponent } from '@ir-engine/ecs'
-import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFModifiedState'
+import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
 import { Input } from '@ir-engine/ui'
@@ -58,7 +58,7 @@ export default function SaveNewSceneDialog(props: { onConfirm?: () => void; onCa
           await saveSceneGLTF(sceneAssetID!, projectName, inputSceneName.value, abortController.signal, true)
 
           const sourceID = getComponent(rootEntity, SourceComponent)
-          getMutableState(GLTFModifiedState)[sourceID].set(none)
+          getMutableState(AssetModifiedState)[sourceID].set(none)
         }
       }
       PopoverState.hidePopupover()

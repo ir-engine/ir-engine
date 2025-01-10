@@ -51,8 +51,7 @@ import {
 import { WEBGL_CONSTANTS } from '../assets/loaders/gltf/GLTFConstants'
 import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
 import { InstancingComponent } from '../scene/components/InstancingComponent'
-import { getDependency } from './GLTFLoaderFunctions'
-import { getNodeUUID, getParserOptions } from './GLTFState'
+import { getDependency, getNodeUUID, getParserOptions } from './GLTFLoaderFunctions'
 
 export type KHRPunctualLight = {
   color?: [number, number, number]

@@ -49,7 +49,7 @@ import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/Scene
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { GLTFSnapshotAction } from './GLTFModifiedState'
-import { GLTFSnapshotState, GLTFSourceState } from './GLTFState'
+import { GLTFSnapshotState, AssetState } from './GLTFState'
 
 const assertSignificantFigures = (actual: number[], expected: number[], figures = 8) => {
   assert.deepStrictEqual(toSignificantFigures(actual, figures), toSignificantFigures(expected, figures))
@@ -109,7 +109,7 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    const gltfEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+    const gltfEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 
@@ -127,7 +127,7 @@ describe('GLTFState', () => {
       getComponent(gltfEntity, UUIDComponent) + '-' + '/test.gltf'
     )
 
-    GLTFSourceState.unload(gltfEntity)
+    AssetState.unload(gltfEntity)
 
     applyIncomingActions()
 
@@ -163,7 +163,7 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    const gltfEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+    const gltfEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 
@@ -185,7 +185,7 @@ describe('GLTFState', () => {
     assert.equal(nodeName, 'node')
     assert.equal(childName, 'child')
 
-    GLTFSourceState.unload(gltfEntity)
+    AssetState.unload(gltfEntity)
 
     applyIncomingActions()
 
@@ -230,7 +230,7 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    const gltfEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+    const gltfEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 
@@ -258,7 +258,7 @@ describe('GLTFState', () => {
     assert.equal(childName, 'child')
     assert.equal(grandChildName, 'grandchild')
 
-    GLTFSourceState.unload(gltfEntity)
+    AssetState.unload(gltfEntity)
 
     applyIncomingActions()
 
@@ -307,7 +307,7 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+    AssetState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 
@@ -367,7 +367,7 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    const gltfEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+    const gltfEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 
@@ -426,7 +426,7 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    const gltfEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+    const gltfEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 
@@ -471,7 +471,7 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    const gltfEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+    const gltfEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 
@@ -517,7 +517,7 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    const gltfEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+    const gltfEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 
@@ -566,7 +566,7 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    const gltfEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+    const gltfEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 
@@ -620,7 +620,7 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    const gltfEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+    const gltfEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 
@@ -714,7 +714,7 @@ describe('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    const gltfEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+    const gltfEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 

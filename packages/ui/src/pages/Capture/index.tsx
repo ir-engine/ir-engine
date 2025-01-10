@@ -49,7 +49,7 @@ import {
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
 import {
   MotionCaptureFunctions,
   MotionCaptureResults,
@@ -485,7 +485,7 @@ const PlaybackMode = () => {
       !scene
     )
       return
-    return GLTFAssetState.loadScene(scene.url, scene.id)
+    return SceneState.loadScene(scene.url, scene.id)
   }, [scene])
 
   const ActiveRecording = () => {

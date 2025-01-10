@@ -31,6 +31,7 @@ import {
   EntityUUID,
   LayerComponent,
   UUIDComponent,
+  getAncestorWithComponents,
   getComponent,
   getMutableComponent,
   hasComponent,
@@ -124,8 +125,8 @@ import { TextureLoader } from '../assets/loaders/texture/TextureLoader'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
+import { GLTFComponent } from './GLTFComponent'
 import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
-import { defaultMaterial } from './GLTFState'
 import { KHRTextureTransformExtensionComponent, KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
 
 const assignFinalMaterial = (primitiveDef: GLTF.IMeshPrimitive, material: MeshPhysicalMaterial) => {
@@ -991,9 +992,6 @@ const loadImageSource = async (
   return texture
 }
 
-const getNodeUUID = (node: GLTF.INode, documentID: string, nodeIndex: number) =>
-  (node.extensions?.[UUIDComponent.jsonID] as EntityUUID) ?? (`${documentID}-${nodeIndex}` as EntityUUID)
-
 const loadAnimation = async (options: GLTFParserOptions, animationIndex: number) => {
   const json = options.document
 
@@ -1557,3 +1555,38 @@ const DependencyMap = {
   animation: loadAnimation,
   camera: loadCamera
 } as Record<DependencyType, (options: GLTFParserOptions, ...args: any[]) => any>
+
+export const getNodeUUID = (node: GLTF.INode, documentID: string, nodeIndex: number) =>
+  (node.extensions?.[UUIDComponent.jsonID] as EntityUUID) ?? (`${documentID}-${nodeIndex}` as EntityUUID)
+
+export const defaultMaterial = () =>
+  new MeshStandardMaterial({
+    color: 0xffffff,
+    emissive: 0x000000,
+    metalness: 1,
+    roughness: 1,
+    transparent: false,
+    depthTest: true,
+    side: FrontSide
+  })
+
+export const getParserOptions = (entity: Entity) => {
+  const gltfEntity = getAncestorWithComponents(entity, [GLTFComponent])
+  const documentID = GLTFComponent.getInstanceID(gltfEntity)
+  const gltfComponent = getComponent(gltfEntity, GLTFComponent)
+  const document = gltfComponent.document
+  const gltfLoader = getState(AssetLoaderState).gltfLoader
+  return {
+    entity: gltfEntity,
+    document,
+    documentID,
+    url: gltfComponent.src,
+    path: LoaderUtils.extractUrlBase(gltfComponent.src),
+    body: gltfComponent.body,
+    crossOrigin: gltfLoader.crossOrigin,
+    requestHeader: gltfLoader.requestHeader,
+    manager: gltfLoader.manager,
+    ktx2Loader: gltfLoader.ktx2Loader,
+    meshoptDecoder: gltfLoader.meshoptDecoder
+  } as GLTFParserOptions
+}

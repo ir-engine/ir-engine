@@ -69,8 +69,8 @@ import { SourceComponent } from '../scene/components/SourceComponent'
 import { addError, removeError } from '../scene/functions/ErrorFunctions'
 import { SceneJsonType } from '../scene/types/SceneTypes'
 import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
-import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
-import { getParserOptions, GLTFSourceState } from './GLTFState'
+import { getParserOptions, GLTFLoaderFunctions } from './GLTFLoaderFunctions'
+import { AssetState } from './GLTFState'
 import { gltfReplaceUUIDsReferences } from './gltfUtils'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
 import { useApplyCollidersToChildMeshesEffect } from './useApplyCollidersToChildMeshesEffect'
@@ -206,9 +206,9 @@ export const GLTFComponentReactor = (props: { entity: Entity }) => {
   const sourceID = GLTFComponent.getInstanceID(entity)
 
   useEffect(() => {
-    getMutableState(GLTFSourceState)[sourceID].set(entity)
+    getMutableState(AssetState)[sourceID].set(entity)
     return () => {
-      getMutableState(GLTFSourceState)[sourceID].set(none)
+      getMutableState(AssetState)[sourceID].set(none)
       for (const generatedEntity of generatedEntities.value) {
         removeEntity(generatedEntity)
       }

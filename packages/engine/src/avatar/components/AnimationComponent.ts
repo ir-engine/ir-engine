@@ -45,7 +45,7 @@ import {
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { useEffect } from 'react'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { GLTFSourceState } from '../../gltf/GLTFState'
+import { AssetState } from '../../gltf/GLTFState'
 import { SourceComponent } from '../../scene/components/SourceComponent'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
 import { NormalizedBoneComponent } from './NormalizedBoneComponent'
@@ -78,7 +78,7 @@ export const useLoadAnimationFromGLTF = (url: string, keepEntity = false) => {
   useEffect(() => {
     if (animation.value || !url) return
     if (!assetEntity.value) {
-      assetEntity.set(GLTFSourceState.load(url))
+      assetEntity.set(AssetState.load(url))
       return
     }
   }, [url, progress])

@@ -38,7 +38,7 @@ import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { GLTFComponent, loadGLTFFile } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { GLTFSourceState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { AssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { gltfReplaceUUIDsReferences } from '@ir-engine/engine/src/gltf/gltfUtils'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
@@ -102,13 +102,13 @@ export async function addMediaNode(
       // setComponent(rayEntity, LineSegmentComponent, { geometry: lineGeometry })
 
       startReactor(() => {
-        const assetEntity = useMutableState(GLTFSourceState)[url].value
+        const assetEntity = useMutableState(AssetState)[url].value
         const progress = useOptionalComponent(assetEntity, GLTFComponent)?.progress
         const material = useChildWithComponents(assetEntity, [MaterialStateComponent])
 
         useEffect(() => {
           if (!assetEntity) {
-            GLTFSourceState.load(url)
+            AssetState.load(url)
             return
           }
         }, [progress])

@@ -44,8 +44,7 @@ import {
 } from 'three'
 import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
 import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
-import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
-import { getParserOptions } from './GLTFState'
+import { GLTFLoaderFunctions, getParserOptions } from './GLTFLoaderFunctions'
 
 const TextureInfoSchema = S.Object({
   index: S.Number(),

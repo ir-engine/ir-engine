@@ -35,8 +35,8 @@ import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { cleanString } from '@ir-engine/common/src/utils/cleanString'
 import { EngineState, EntityUUID, UndefinedEntity } from '@ir-engine/ecs'
 import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFModifiedState'
-import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { exportGLTFScene } from '@ir-engine/engine/src/gltf/exportGLTFScene'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { handleScenePaths } from '@ir-engine/engine/src/scene/functions/GLTFConversion'
@@ -144,8 +144,8 @@ export const onNewScene = async (
 
 export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
   getMutableState(EngineState).isEditing.set(true)
-  const unload = GLTFAssetState.loadScene(sceneURL, uuid)
-  const gltfEntity = getState(GLTFAssetState)[sceneURL]
+  const unload = SceneState.loadScene(sceneURL, uuid)
+  const gltfEntity = getState(SceneState)[sceneURL]
   setComponent(gltfEntity, SceneComponent)
   getMutableState(EditorState).rootEntity.set(gltfEntity)
   return () => {
@@ -175,7 +175,7 @@ export const onSaveScene = async () => {
     await saveSceneGLTF(sceneAssetID!, projectName!, sceneName!, abortController.signal)
     NotificationService.dispatchNotify(`${i18n.t('editor:dialog.saveScene.info-save-success')}`, { variant: 'success' })
     const sourceID = getComponent(rootEntity, SourceComponent)
-    getMutableState(GLTFModifiedState)[sourceID].set(none)
+    getMutableState(AssetModifiedState)[sourceID].set(none)
 
     PopoverState.hidePopupover()
   } catch (error) {

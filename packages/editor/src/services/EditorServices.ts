@@ -28,7 +28,7 @@ import { LayoutData } from 'rc-dock'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { EntityUUID, getComponent } from '@ir-engine/ecs'
 import { UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFModifiedState'
+import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { LinkState } from '@ir-engine/engine/src/scene/components/LinkComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { defineState, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
@@ -56,14 +56,14 @@ export const EditorState = defineState({
   }),
   useIsModified: () => {
     const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
-    const modifiedState = useMutableState(GLTFModifiedState)
+    const modifiedState = useMutableState(AssetModifiedState)
     if (!rootEntity) return false
     return !!modifiedState[getComponent(rootEntity, SourceComponent)].value
   },
   isModified: () => {
     const rootEntity = getState(EditorState).rootEntity
     if (!rootEntity) return false
-    return !!getState(GLTFModifiedState)[getComponent(rootEntity, SourceComponent)]
+    return !!getState(AssetModifiedState)[getComponent(rootEntity, SourceComponent)]
   },
   reactor: () => {
     const linkState = useMutableState(LinkState)
