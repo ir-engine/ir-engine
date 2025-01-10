@@ -268,7 +268,6 @@ export const inputFileWithAddToScene = ({
     el.onchange = async () => {
       try {
         if (el.files?.length) {
-          // process the valid files
           const newFiles = sanitizeFiles(el.files)
           const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
           await handleUploadFiles(projectName, directoryPath, uniqueFiles)
