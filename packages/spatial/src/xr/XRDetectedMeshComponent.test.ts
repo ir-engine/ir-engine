@@ -46,7 +46,7 @@ import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { TransformComponent } from '../SpatialModule'
 import { NameComponent } from '../common/NameComponent'
 import { VisibleComponent } from '../renderer/components/VisibleComponent'
-import { XRDetectedMeshComponent } from './XRDetectedMeshComponent'
+import { XRDetectedMeshComponent, XRDetectedMeshComponentState } from './XRDetectedMeshComponent'
 import { ReferenceSpace, XRState } from './XRState'
 
 describe('XRDetectedMeshComponent', () => {
@@ -123,15 +123,20 @@ describe('XRDetectedMeshComponent', () => {
       destroyEngine()
     })
 
-    it('should set XRDetectedMeshComponent.meshesLastChangedTimes for the mesh to the value of `@param mesh`.lastChangedTime', () => {
+    it('should set XRDetectedMeshComponentState.meshesLastChangedTimes for the mesh to the value of `@param mesh`.lastChangedTime', () => {
       const Expected = 42
       // Set the data as expected
+      const state = getState(XRDetectedMeshComponentState)
       const mesh = { lastChangedTime: Expected } as XRMesh
-      const before = XRDetectedMeshComponent.detectedMeshesMap.get(mesh)
+      const before = state.meshesLastChangedTimes.get(mesh)
       expect(before).toBe(undefined)
-      // Run and Check the result
-      XRDetectedMeshComponent.updateMeshGeometry(createEntity(), mesh)
-      const result = XRDetectedMeshComponent.meshesLastChangedTimes.get(mesh)
+
+      const entity = XRDetectedMeshComponent.getMeshEntity(mesh)
+      const after = state.meshesLastChangedTimes.get(mesh)
+      expect(after).toBe(-1)
+
+      XRDetectedMeshComponent.updateMeshGeometry(entity)
+      const result = state.meshesLastChangedTimes.get(mesh)
       expect(result).toBe(Expected)
     })
   }) //:: updateMeshGeometry
@@ -167,18 +172,19 @@ describe('XRDetectedMeshComponent', () => {
       assertVec.approxEq(before, Initial, 3)
       assertVec.anyApproxNotEq(before, Expected, 3)
       // Run and Check the result
-      XRDetectedMeshComponent.updateMeshPose(testEntity, mesh)
+      XRDetectedMeshComponent.updateMeshPose(testEntity)
       const result = getComponent(testEntity, TransformComponent).position.clone()
       assertVec.approxEq(result, Expected, 3)
     })
 
     it('should update the TransformComponent.rotation of the `@param entity` with the value of PlanePose.transform.rotation', () => {
-      const Expected = new Quaternion(0, 0, 0, 0)
-      const Initial = new Quaternion(1, 2, 3, 4).normalize()
+      const Initial = new Quaternion(0, 0, 0, 0)
+      const Expected = new Quaternion(1, 2, 3, 4).normalize()
       // Set the data as expected
       // @ts-expect-error Allow coercing the MockXRFrame type into the xrFrame property
       const xrFrame = new MockXRFrame() as XRFrame
-      // xrFrame.getPose = () => undefined
+      const expectedPose = { transform: { orientation: Expected }, position: { x: 0, y: 0, z: 0 } }
+      xrFrame.getPose = () => expectedPose
       getMutableState(XRState).xrFrame.set(xrFrame)
       setComponent(testEntity, TransformComponent, { rotation: Initial })
       const mesh = {} as XRMesh
@@ -234,7 +240,7 @@ describe('XRDetectedMeshComponent', () => {
       const before = XRDetectedMeshComponent.detectedMeshesMap.get(mesh)
       expect(before).toBe(undefined)
       // Run and Check the result
-      XRDetectedMeshComponent.foundMesh(mesh)
+      XRDetectedMeshComponent.getMeshEntity(mesh)
       const result = XRDetectedMeshComponent.detectedMeshesMap.get(mesh)
       expect(result).not.toBe(undefined)
       expect(result).not.toBe(UndefinedEntity)
@@ -246,7 +252,7 @@ describe('XRDetectedMeshComponent', () => {
       const before = XRDetectedMeshComponent.detectedMeshesMap.get(mesh)
       expect(before).toBe(undefined)
       // Run and Check the result
-      XRDetectedMeshComponent.foundMesh(mesh)
+      XRDetectedMeshComponent.getMeshEntity(mesh)
       const result = XRDetectedMeshComponent.detectedMeshesMap.get(mesh)
       assert(result)
       expect(result).not.toBe(undefined)
@@ -263,7 +269,7 @@ describe('XRDetectedMeshComponent', () => {
       const before = XRDetectedMeshComponent.detectedMeshesMap.get(mesh)
       expect(before).toBe(undefined)
       // Run and Check the result
-      XRDetectedMeshComponent.foundMesh(mesh)
+      XRDetectedMeshComponent.getMeshEntity(mesh)
       const result = XRDetectedMeshComponent.detectedMeshesMap.get(mesh)
       assert(result)
       expect(result).not.toBe(undefined)
@@ -277,7 +283,7 @@ describe('XRDetectedMeshComponent', () => {
       const before = XRDetectedMeshComponent.detectedMeshesMap.get(mesh)
       expect(before).toBe(undefined)
       // Run and Check the result
-      XRDetectedMeshComponent.foundMesh(mesh)
+      XRDetectedMeshComponent.getMeshEntity(mesh)
       const result = XRDetectedMeshComponent.detectedMeshesMap.get(mesh)
       assert(result)
       expect(result).not.toBe(undefined)
@@ -291,7 +297,7 @@ describe('XRDetectedMeshComponent', () => {
       const before = XRDetectedMeshComponent.detectedMeshesMap.get(mesh)
       expect(before).toBe(undefined)
       // Run and Check the result
-      XRDetectedMeshComponent.foundMesh(mesh)
+      XRDetectedMeshComponent.getMeshEntity(mesh)
       const result = XRDetectedMeshComponent.detectedMeshesMap.get(mesh)
       assert(result)
       expect(result).not.toBe(undefined)
@@ -306,7 +312,7 @@ describe('XRDetectedMeshComponent', () => {
       const before = XRDetectedMeshComponent.detectedMeshesMap.get(mesh)
       expect(before).toBe(undefined)
       // Run and Check the result
-      XRDetectedMeshComponent.foundMesh(mesh)
+      XRDetectedMeshComponent.getMeshEntity(mesh)
       const result = XRDetectedMeshComponent.detectedMeshesMap.get(mesh)
       assert(result)
       expect(result).not.toBe(undefined)
@@ -322,7 +328,7 @@ describe('XRDetectedMeshComponent', () => {
       const before = XRDetectedMeshComponent.detectedMeshesMap.get(mesh)
       expect(before).toBe(undefined)
       // Run and Check the result
-      XRDetectedMeshComponent.foundMesh(mesh)
+      XRDetectedMeshComponent.getMeshEntity(mesh)
       const entity = XRDetectedMeshComponent.detectedMeshesMap.get(mesh)
       assert(entity)
       expect(entity).not.toBe(undefined)

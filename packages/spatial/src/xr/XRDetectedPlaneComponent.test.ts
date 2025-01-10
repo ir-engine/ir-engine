@@ -311,7 +311,7 @@ describe('XRDetectedPlaneComponent', () => {
       const before = XRDetectedPlaneComponent.detectedPlanesMap.get(plane)
       expect(before).toBe(undefined)
       // Run and Check the result
-      XRDetectedPlaneComponent.foundPlane(plane)
+      XRDetectedPlaneComponent.getPlaneEntity(plane)
       const result = XRDetectedPlaneComponent.detectedPlanesMap.get(plane)
       expect(result).not.toBe(undefined)
       expect(result).not.toBe(UndefinedEntity)
@@ -323,7 +323,7 @@ describe('XRDetectedPlaneComponent', () => {
       const before = XRDetectedPlaneComponent.detectedPlanesMap.get(plane)
       expect(before).toBe(undefined)
       // Run and Check the result
-      XRDetectedPlaneComponent.foundPlane(plane)
+      XRDetectedPlaneComponent.getPlaneEntity(plane)
       const result = XRDetectedPlaneComponent.detectedPlanesMap.get(plane)
       assert(result)
       expect(result).not.toBe(undefined)
@@ -340,7 +340,7 @@ describe('XRDetectedPlaneComponent', () => {
       const before = XRDetectedPlaneComponent.detectedPlanesMap.get(plane)
       expect(before).toBe(undefined)
       // Run and Check the result
-      XRDetectedPlaneComponent.foundPlane(plane)
+      XRDetectedPlaneComponent.getPlaneEntity(plane)
       const result = XRDetectedPlaneComponent.detectedPlanesMap.get(plane)
       assert(result)
       expect(result).not.toBe(undefined)
@@ -354,7 +354,7 @@ describe('XRDetectedPlaneComponent', () => {
       const before = XRDetectedPlaneComponent.detectedPlanesMap.get(plane)
       expect(before).toBe(undefined)
       // Run and Check the result
-      XRDetectedPlaneComponent.foundPlane(plane)
+      XRDetectedPlaneComponent.getPlaneEntity(plane)
       const result = XRDetectedPlaneComponent.detectedPlanesMap.get(plane)
       assert(result)
       expect(result).not.toBe(undefined)
@@ -368,7 +368,7 @@ describe('XRDetectedPlaneComponent', () => {
       const before = XRDetectedPlaneComponent.detectedPlanesMap.get(plane)
       expect(before).toBe(undefined)
       // Run and Check the result
-      XRDetectedPlaneComponent.foundPlane(plane)
+      XRDetectedPlaneComponent.getPlaneEntity(plane)
       const result = XRDetectedPlaneComponent.detectedPlanesMap.get(plane)
       assert(result)
       expect(result).not.toBe(undefined)
@@ -383,7 +383,7 @@ describe('XRDetectedPlaneComponent', () => {
       const before = XRDetectedPlaneComponent.detectedPlanesMap.get(plane)
       expect(before).toBe(undefined)
       // Run and Check the result
-      XRDetectedPlaneComponent.foundPlane(plane)
+      XRDetectedPlaneComponent.getPlaneEntity(plane)
       const result = XRDetectedPlaneComponent.detectedPlanesMap.get(plane)
       assert(result)
       expect(result).not.toBe(undefined)
@@ -399,7 +399,7 @@ describe('XRDetectedPlaneComponent', () => {
       const before = XRDetectedPlaneComponent.detectedPlanesMap.get(plane)
       expect(before).toBe(undefined)
       // Run and Check the result
-      XRDetectedPlaneComponent.foundPlane(plane)
+      XRDetectedPlaneComponent.getPlaneEntity(plane)
       const entity = XRDetectedPlaneComponent.detectedPlanesMap.get(plane)
       assert(entity)
       expect(entity).not.toBe(undefined)

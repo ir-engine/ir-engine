@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { Matrix4, Quaternion, Vector3 } from 'three'
 import { MockEventListener } from './MockEventListener'
 
 export class MockXRInputSource {
@@ -49,7 +50,11 @@ export class MockXRInputSource {
   }
 }
 
-export class MockXRSpace extends EventTarget {}
+export class MockXRSpace extends EventTarget {
+  constructor(public matrix: Matrix4) {
+    super()
+  }
+}
 
 export class MockXRReferenceSpace extends MockEventListener {
   getOffsetReferenceSpace = (originOffset: XRRigidTransform) => {
@@ -59,10 +64,20 @@ export class MockXRReferenceSpace extends MockEventListener {
   onreset = () => {}
 }
 
+const _scale = new Vector3()
+
 export class MockXRFrame {
-  pose = new MockXRPose()
-  getPose = (space, origin) => {
-    return this.pose
+  pose = new MockXRPose() as any as XRPose
+
+  getPose = (space: MockXRSpace, origin: MockXRSpace) => {
+    const spacePose = space.matrix
+    const originPose = origin.matrix
+    const position = new Vector3()
+    const rotation = new Quaternion()
+    const resultPose = new Matrix4()
+    resultPose.multiplyMatrices(spacePose, originPose)
+    resultPose.decompose(position, rotation, _scale)
+    return new MockXRPose(position, rotation)
   }
 
   // https://developer.mozilla.org/en-US/docs/Web/API/XRFrame/getViewerPose
@@ -71,23 +86,44 @@ export class MockXRFrame {
   }
 }
 
-export class MockXRPose {
-  transform = {
-    position: {
-      x: 0,
-      y: 0,
-      z: 0
-    },
-    orientation: {
-      x: 0,
-      y: 0,
-      z: 0,
-      w: 0
-    }
+export const MockXRPose = class {
+  transform: MockXRRigidTransform
+  constructor(position?: Vector3, orientation?: Quaternion) {
+    this.transform = new MockXRRigidTransform(position, orientation)
   }
-  // readonly linearVelocity?: DOMPointReadOnly | undefined;
-  // readonly angularVelocity?: DOMPointReadOnly | undefined;
-  // readonly emulatedPosition: boolean;
+}
+
+export class MockXRRigidTransform {
+  position = new Vector3()
+  orientation = new Quaternion()
+  matrix = new Float32Array(16)
+
+  constructor(position?: Vector3, orientation?: Quaternion) {
+    if (position) this.position.copy(position)
+    if (orientation) this.orientation.copy(orientation)
+    this.matrix = new Float32Array(new Matrix4().compose(this.position, this.orientation, new Vector3()).toArray())
+  }
+
+  get inverse() {
+    return new MockXRRigidTransform(
+      this.position.clone().negate(),
+      this.orientation.clone().invert()
+    ) as unknown as XRRigidTransform
+  }
+}
+
+export class MockXRPlane {
+  orientation: XRPlaneOrientation = 'horizontal'
+  planeSpace: XRSpace = new MockXRSpace(new Matrix4())
+  polygon: DOMPointReadOnly[] = []
+  lastChangedTime: number = 0
+}
+
+export class MockXRMesh {
+  meshSpace: XRSpace = new MockXRSpace(new Matrix4())
+  vertices: Float32Array = new Float32Array()
+  indices: Uint16Array = new Uint16Array()
+  lastChangedTime: number = 0
 }
 
 export class MockXRSession extends EventTarget {}

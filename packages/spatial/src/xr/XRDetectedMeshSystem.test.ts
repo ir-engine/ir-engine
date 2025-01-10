@@ -39,9 +39,11 @@ import {
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
+import { getState } from '@ir-engine/hyperflux'
+import { MockXRPlane } from '../../tests/util/MockXR'
 import { XRDetectedMeshComponent } from './XRDetectedMeshComponent'
-import { XRDetectedMeshSystem, XRDetectedMeshSystemFunctions } from './XRDetectedMeshSystem'
-import { XRDetectedPlaneComponent } from './XRDetectedPlaneComponent'
+import { XRDetectedMeshSystem } from './XRDetectedMeshSystem'
+import { XRDetectedPlaneComponent, XRDetectedPlaneComponentState } from './XRDetectedPlaneComponent'
 import { XRSystem } from './XRSystem'
 
 /** @note Runs once on the `describe` implied by vitest for this file */
@@ -99,24 +101,19 @@ describe('XRDetectedMeshSystem Functions', () => {
       destroyEngine()
     })
 
-    describe('for every entry in the XRDetectedPlaneComponent.detectedPlanesMap list', () => {
+    describe('for every entry in the XRDetectedPlaneComponentState.detectedPlanesMap list', () => {
       describe('when detectedPlanes does not contain the plane entry ..', () => {
         it('.. should call removeEntity for the entity of the entry', () => {
-          const Expected = false
-          // Set the data as expected
-          const plane = { lastChangedTime: 42 } as XRPlane
-          XRDetectedPlaneComponent.detectedPlanesMap.set(plane, testEntity)
-          const detectedPlanes = new Set<XRPlane>()
-          const frame = { detectedPlanes: detectedPlanes } as XRFrame
-          // Sanity check before running
-          expect(detectedPlanes).not.toContain(plane)
-          expect(Array.from(XRDetectedPlaneComponent.detectedPlanesMap.keys())).toContain(plane)
-          const before = entityExists(testEntity)
-          expect(before).not.toBe(Expected)
-          // Run and Check the result
-          XRDetectedMeshSystemFunctions.handleDetectedPlanes(frame)
-          const result = entityExists(testEntity)
-          expect(result).toBe(Expected)
+          const plane = new MockXRPlane()
+          const planeEntity = XRDetectedPlaneComponent.getPlaneEntity(plane)
+          const state = getState(XRDetectedPlaneComponentState)
+          expect(entityExists(planeEntity)).toBe(true)
+          expect(state.detectedPlanesMap.has(plane)).toBe(true)
+
+          const emptySet = new Set<XRPlane>()
+          XRDetectedPlaneComponent.updateDetectedPlanes(emptySet)
+          expect(entityExists(planeEntity)).toBe(false)
+          expect(state.detectedPlanesMap.has(plane)).toBe(false)
         })
 
         it(".. should delete the entry's plane from the XRDetectedPlaneComponent.detectedPlanesMap list", () => {
@@ -339,29 +336,29 @@ describe('XRDetectedMeshSystem Functions', () => {
         const Initial = true
         // Set the data as expected
         const mesh = {} as XRMesh
-        XRDetectedMeshComponent.detectedMeshesMap.set(mesh, testEntity)
+        const meshEntity = XRDetectedMeshComponent.getMeshEntity(mesh)
         const detectedMeshes = new Set<XRMesh>([mesh])
         const frame = { detectedMeshes: detectedMeshes } as XRFrame
         // Sanity check before running
         expect(frame.detectedMeshes).toBeTruthy()
         expect(detectedMeshes).toContain(mesh)
         expect(Array.from(XRDetectedMeshComponent.detectedMeshesMap.keys())).toContain(mesh)
-        const before = entityExists(testEntity)
+        const before = entityExists(meshEntity)
         expect(before).toBe(Initial)
         // Run and Check the result
         XRDetectedMeshSystemFunctions.handleDetectedMeshes(frame)
-        const result = entityExists(testEntity)
+        const result = entityExists(meshEntity)
         expect(result).toBe(Initial)
       })
     })
 
     describe('for every entry in the XRDetectedMeshComponent.detectedMeshes list', () => {
-      it(".. should call XRDetectedMeshComponent.foundMesh with the entry's mesh if XRDetectedMeshComponent.detectedMeshesMap list doesn't contain the mesh", () => {
+      it(".. should call XRDetectedMeshComponent.getMeshEntity with the entry's mesh if XRDetectedMeshComponent.detectedMeshesMap list doesn't contain the mesh", () => {
         // Set the data as expected
         const mesh = { lastChangedTime: 42 } as XRMesh
         const detectedMeshes = new Set<XRMesh>([mesh])
         const frame = { detectedMeshes: detectedMeshes } as XRFrame
-        const result = vi.spyOn(XRDetectedMeshComponent, 'foundMesh')
+        const result = vi.spyOn(XRDetectedMeshComponent, 'getMeshEntity')
         // Sanity check before running
         expect(frame.detectedMeshes).toBeTruthy()
         expect(frame.detectedMeshes).toContain(mesh)
@@ -377,26 +374,22 @@ describe('XRDetectedMeshSystem Functions', () => {
           with the mesh and the entity that is tied to it
           if mesh.lastChangedTime is bigger than the time found on the XRDetectedMeshComponent.meshesLastChangedTimes for that mesh`, () => {
         // Set the data as expected
-        const lastChangedTime = 42
-        const lastKnownTime = lastChangedTime - 1
-        const mesh = { lastChangedTime: lastChangedTime } as XRMesh
-        XRDetectedMeshComponent.detectedMeshesMap.set(mesh, testEntity)
-        XRDetectedMeshComponent.meshesLastChangedTimes.set(mesh, lastKnownTime)
+        const mesh = { lastChangedTime: 42 } as XRMesh
         const detectedMeshes = new Set<XRMesh>([mesh])
         const frame = { detectedMeshes: detectedMeshes } as XRFrame
-        setComponent(testEntity, XRDetectedMeshComponent, { mesh: mesh })
+        const meshEntity = XRDetectedMeshComponent.getMeshEntity(mesh)
         const result = vi.spyOn(XRDetectedMeshComponent, 'updateMeshGeometry')
         // Sanity check before running
         expect(frame.detectedMeshes).toBeTruthy()
         expect(mesh.lastChangedTime).toBeGreaterThan(XRDetectedMeshComponent.meshesLastChangedTimes.get(mesh)!)
         expect(frame.detectedMeshes).toContain(mesh)
-        expect(Array.from(XRDetectedMeshComponent.detectedMeshesMap.keys())).toContain(mesh)
-        expect(hasComponent(testEntity, XRDetectedMeshComponent)).toBe(true)
+        expect(XRDetectedMeshComponent.detectedMeshesMap.has(mesh)).toBe(true)
+        expect(hasComponent(meshEntity, XRDetectedMeshComponent)).toBe(true)
         expect(result).not.toHaveBeenCalled()
         // Run and Check the result
         XRDetectedMeshSystemFunctions.handleDetectedMeshes(frame)
         expect(result).toHaveBeenCalled()
-        expect(result).toHaveBeenCalledWith(testEntity, mesh)
+        expect(result).toHaveBeenCalledWith(meshEntity, mesh)
       })
 
       it('.. should call XRDetectedMeshComponent.updateMeshPose with the mesh and the entity that is tied to it', () => {

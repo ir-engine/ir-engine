@@ -129,6 +129,7 @@ describe('PhysicsSerialization', () => {
         RigidBodyComponent.rotation.x[testEntity] = Expected.x
         RigidBodyComponent.rotation.y[testEntity] = Expected.y
         RigidBodyComponent.rotation.z[testEntity] = Expected.z
+        RigidBodyComponent.rotation.w[testEntity] = Expected.w
 
         // Set the data as expected
         const cursor: ViewCursor = createViewCursor()
@@ -138,7 +139,7 @@ describe('PhysicsSerialization', () => {
 
         // Sanity check before running
         const beforeCursor = 0
-        const afterCursor = Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT
+        const afterCursor = Uint8Array.BYTES_PER_ELEMENT + 4 * Float64Array.BYTES_PER_ELEMENT
         assert.equal(view.cursor, beforeCursor)
         // Run and Check the result
         readBodyRotation(view, testEntity)
@@ -390,7 +391,7 @@ describe('PhysicsSerialization', () => {
       it('should set RigidBodyComponent.targetKinematicRotation to RigidBodyComponent.rotation if the entity has a fixed RigidBody (aka [RigidBodyComponent, Not(RigidBodyDynamicTagComponent)])', () => {
         const Expected = new Quaternion(40, 41, 42, 43).normalize()
         // Set the data as expected
-        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Fixed })
+        setComponent(testEntity, RigidBodyComponent)
         getMutableComponent(testEntity, RigidBodyComponent).rotation.x.set(Expected.x)
         getMutableComponent(testEntity, RigidBodyComponent).rotation.y.set(Expected.y)
         getMutableComponent(testEntity, RigidBodyComponent).rotation.z.set(Expected.z)

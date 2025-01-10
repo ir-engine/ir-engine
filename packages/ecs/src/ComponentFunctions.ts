@@ -211,10 +211,10 @@ export type SoAComponentType<S extends bitECSLegacy.ISchema> = {
     : S[key] extends readonly [infer RT, number]
     ? RT extends bitECSLegacy.Type
       ? Array<bitECSLegacy.ArrayByType[RT]>
-      : unknown
+      : never
     : S[key] extends bitECSLegacy.ISchema
     ? SoAComponentType<S[key]>
-    : unknown
+    : never
 }
 /** @description Generic `type` for all Engine's ECS {@link Component}s. All of its fields are required to not be `null`. */
 export type ComponentType<C extends Component> = InferStateValueType<NonNullable<C['stateMap'][Entity]>>
@@ -311,12 +311,12 @@ export const defineComponent = <
   JSON = ComponentType,
   SetJSON = ComponentJSON<DeepReadonly<ComponentType>>,
   ErrorTypes = never,
-  ComponentExtras = Record<string, any>,
+  ComponentExtras = Record<string, unknown>,
   SOAComponent = Schema extends TSchema
-    ? SoAComponentType<any>
+    ? unknown
     : Schema extends bitECSLegacy.ISchema
     ? SoAComponentType<Schema>
-    : never
+    : unknown
 >(
   def: ComponentPartial<Schema, InitializationType, ComponentType, JSON, SetJSON, ErrorTypes> & ComponentExtras
 ) => {
