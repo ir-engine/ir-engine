@@ -38,9 +38,7 @@
     "@hookstate/core": "npm:@speigg/hookstate@4.0.1-fix-111-106.2",
     "@mui/icons-material": "5.15.15",
     "@mui/material": "5.11.13",
-    "@mui/styles": "5.11.13",
     "@types/react-window": "^1.8.8",
-    "@uiw/react-color-sketch": "^2.1.1",
     "i18next": "21.6.16",
     "lodash": "4.17.21",
     "potpack": "^2.0.0",
@@ -57,7 +55,6 @@
     "react-window": "1.8.8",
     "reactflow": "^11.10.1",
     "typescript": "5.4.5",
-    "use-http": "1.0.27",
     "uuid": "9.0.0"
   },
   "devDependencies": {

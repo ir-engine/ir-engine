@@ -66,6 +66,17 @@ export const LightShadowProperties: EditorComponentType = (props: LightShadowPro
           onRelease={commitProperty(props.component, 'shadowBias')}
         />
       </InputGroup>
+      <InputGroup name="Shadow Radius" label={t('editor:properties.directionalLight.lbl-shadowRadius')}>
+        <NumericInput
+          mediumStep={0.01}
+          smallStep={0.1}
+          largeStep={1}
+          displayPrecision={0.0001}
+          value={lightComponent.shadowRadius.value}
+          onChange={updateProperty(props.component, 'shadowRadius')}
+          onRelease={commitProperty(props.component, 'shadowRadius')}
+        />
+      </InputGroup>
     </>
   )
 }
