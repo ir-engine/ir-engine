@@ -1484,8 +1484,6 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
       getMutableComponent(rootEntity, AnimationComponent).animations.merge(obj3d.animations)
     }
   }
-
-  return loadedNodeEntities
 }
 
 export const GLTFLoaderFunctions = {

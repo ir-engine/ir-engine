@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEntityContext } from '@ir-engine/ecs'
-import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { iterateEntityNode, useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, getOptionalComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { hookstate, none, useImmediateEffect } from '@ir-engine/hyperflux'
@@ -65,6 +65,17 @@ export const SourceComponent = defineComponent({
     }, [sourceComponent])
 
     return null
+  },
+
+  getEntitiesBySource: (rootEntity: Entity, source: string) => {
+    const entities = [] as Entity[]
+    iterateEntityNode(rootEntity, (childEntity) => {
+      if (rootEntity === childEntity) return
+      const src = getOptionalComponent(childEntity, SourceComponent)
+      if (src !== source) return
+      entities.push(childEntity)
+    })
+    return entities
   },
 
   entitiesBySourceState: hookstate(entitiesBySource),

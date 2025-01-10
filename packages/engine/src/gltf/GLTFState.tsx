@@ -49,7 +49,6 @@ import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/Obje
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-import { SourceComponent } from '../scene/components/SourceComponent'
 import { GLTFComponent, GLTFComponentReactor } from './GLTFComponent'
 import './MeshExtensionComponents'
 
@@ -58,7 +57,7 @@ import './MeshExtensionComponents'
  */
 export const SceneState = defineState({
   name: 'ee.engine.gltf.SceneState',
-  initial: {} as Record<string, Entity>, // sceneID => entity
+  initial: {} as Record<string, Entity>,
 
   loadScene: (sceneURL: string, uuid: string) => {
     const gltfEntity = AssetState.load(sceneURL, uuid as EntityUUID, getState(ReferenceSpaceState).originEntity)
@@ -90,8 +89,6 @@ export const AssetState = defineState({
     setComponent(entity, VisibleComponent, true)
     setComponent(entity, TransformComponent)
     setComponent(entity, EntityTreeComponent, { parentEntity })
-    const sourceID = `${uuid}-${source}`
-    setComponent(entity, SourceComponent, sourceID)
     setComponent(entity, GLTFComponent, { src: source })
     const obj3d = new Group()
     setComponent(entity, ObjectComponent, obj3d)
@@ -114,7 +111,7 @@ export const GLTFLoadSystem = defineSystem({
       <>
         {gltfEntities.map((entity) => {
           if (LayerComponent.hasUpstreamEntity(entity)) return null
-          return <GLTFComponentReactor key={'simulation-' + entity} entity={entity} />
+          return <GLTFComponentReactor key={entity} entity={entity} />
         })}
       </>
     )

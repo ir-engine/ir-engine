@@ -33,6 +33,7 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   UndefinedEntity
@@ -452,14 +453,10 @@ export function controlUpdate(gizmoEntity: Entity) {
       : gizmoControl.controlledEntities.get(NO_PROXY)[0]
   if (targetEntity === UndefinedEntity) return
 
-  let parentEntity = UndefinedEntity
-  const parent = getComponent(targetEntity, EntityTreeComponent)
+  const parentEntity = getOptionalComponent(targetEntity, EntityTreeComponent)?.parentEntity
 
-  if (parent && parent.parentEntity !== UndefinedEntity) {
-    parentEntity = parent.parentEntity!
-  }
-
-  if (parentEntity) _parentScale.copy(getComponent(parentEntity!, TransformComponent).scale)
+  if (parentEntity && hasComponent(parentEntity, TransformComponent))
+    _parentScale.copy(getComponent(parentEntity!, TransformComponent).scale)
   else _parentScale.set(1, 1, 1)
 
   const currentMatrix = getComponent(targetEntity, TransformComponent).matrixWorld
@@ -467,7 +464,8 @@ export function controlUpdate(gizmoEntity: Entity) {
   gizmoControl.worldPosition.set(_worldPosition)
   gizmoControl.worldQuaternion.set(_worldQuaternion)
 
-  if (parentEntity) _parentQuaternionInv.copy(getComponent(parentEntity!, TransformComponent).rotation).invert()
+  if (parentEntity && hasComponent(parentEntity, TransformComponent))
+    _parentQuaternionInv.copy(getComponent(parentEntity!, TransformComponent).rotation).invert()
   else _parentQuaternionInv.set(0, 0, 0, 1).invert()
   _worldQuaternionInv.copy(getComponent(targetEntity, TransformComponent).rotation).invert()
 
