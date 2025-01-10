@@ -218,7 +218,6 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
   const search = useHookstate({ local: '', query: '' })
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const selectedCategories = useHookstate([] as number[])
-  const isInSearchMode = useHookstate(false)
   const prevSearchQuery = useRef('')
 
   const onClickCategory = (index: number) => {
@@ -238,26 +237,22 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
       : usePrefabShelfCategories(search.query.value)
   const inputReference = useRef<HTMLInputElement>(null)
 
-  const allCategories: number[] = useMemo(() => {
-    return Array.from({ length: shelves.length }, (_, index) => index)
-  }, [shelves])
-
   useEffect(() => {
     inputReference.current?.focus()
   }, [])
 
+  const isInSearchMode = search.query.value.length > 0
+
   useEffect(() => {
     if (!search.query.value) {
-      isInSearchMode.set(false)
       if (prevSearchQuery.current) {
         selectedCategories.set([])
       }
     } else {
-      isInSearchMode.set(true)
-      selectedCategories.set(allCategories)
+      selectedCategories.set(Array.from({ length: shelves.length }, (_, index) => index))
     }
     prevSearchQuery.current = search.query.value
-  }, [search.query, allCategories])
+  }, [search.query, shelves.length])
 
   const onSearch = (text: string) => {
     search.local.set(text)
@@ -281,7 +276,7 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
         />
       </div>
 
-      {!isInSearchMode.value && (
+      {!isInSearchMode && (
         <div className="grid grid-cols-4 gap-1">
           {shelves.map(([category, _items], index) => (
             <SceneElementListItem
@@ -294,9 +289,9 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
         </div>
       )}
 
-      {(isInSearchMode.value || selectedCategories.value.length > 0) && (
+      {(isInSearchMode || selectedCategories.value.length > 0) && (
         <ul className="flex w-full flex-col space-y-1 pt-3" data-testid="prefabs-category-item-list">
-          {shelves.flatMap(([_, items], index) =>
+          {shelves.flatMap(([_, items], index: number) =>
             selectedCategories.value.includes(index)
               ? items.map((item: Component | PrefabShelfItem) =>
                   type === 'components' ? (
