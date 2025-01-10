@@ -40,15 +40,10 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { NO_PROXY, startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import React, { useLayoutEffect } from 'react'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-
-type EntityTreeSetType = {
-  parentEntity: Entity
-  childIndex?: number
-}
 
 /**
  * @description
@@ -512,7 +507,7 @@ export function useChildrenWithComponents(
   const children = useHookstate([] as Entity[])
   const componentsString = components.map((component) => component.name).join()
   const excludeString = exclude.map((component) => component.name).join()
-  useLayoutEffect(() => {
+  useImmediateEffect(() => {
     let unmounted = false
     const ChildSubReactor = (props: { entity: Entity }) => {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
@@ -555,7 +550,7 @@ export function useChildrenWithComponents(
     }
   }, [rootEntity, componentsString, excludeString])
 
-  return children.value as Entity[]
+  return children.get(NO_PROXY) as Entity[]
 }
 
 /**

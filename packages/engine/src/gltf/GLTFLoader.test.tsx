@@ -58,7 +58,7 @@ import { overrideFileLoaderLoad } from '../../tests/util/loadGLTFAssetNode'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { GLTFComponent } from './GLTFComponent'
-import { GLTFDocumentState } from './GLTFDocumentState'
+import { GLTFDocumentState } from './GLTFModifiedState'
 import { KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
 import { EXTMeshGPUInstancingComponent, KHRLightsPunctualComponent, KHRPunctualLight } from './MeshExtensionComponents'
 

@@ -922,9 +922,7 @@ export function onGizmoCommit(gizmoEntity) {
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
   if (gizmoControlComponent.dragging && gizmoControlComponent.axis !== null) {
     //check for snap modes
-    if (!getState(ObjectGridSnapState).enabled) {
-      EditorControlFunctions.commitTransformSave(gizmoControlComponent.controlledEntities.get(NO_PROXY) as Entity[])
-    } else {
+    if (getState(ObjectGridSnapState).enabled) {
       ObjectGridSnapState.apply()
     }
   }

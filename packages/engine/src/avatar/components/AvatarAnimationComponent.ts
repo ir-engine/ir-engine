@@ -56,7 +56,6 @@ import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneCo
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
-// import { GLTFDocumentState } from '../../gltf/GLTFDocumentState'
 import { hipsRegex, mixamoVRMRigMap } from '../AvatarBoneMatching'
 import { NormalizedBoneComponent } from './NormalizedBoneComponent'
 
@@ -131,7 +130,6 @@ const linkNormalizedBones = (vrm: VRM) => {
 
 export function createVRM(rootEntity: Entity) {
   const documentID = GLTFComponent.getInstanceID(rootEntity)
-  // const gltf = getState(GLTFDocumentState)[documentID]
   const gltf = getComponent(rootEntity, GLTFComponent).document!
 
   //formats an object of human bones to be used in the VRM constructor

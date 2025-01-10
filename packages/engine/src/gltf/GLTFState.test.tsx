@@ -48,7 +48,7 @@ import { HemisphereLightComponent } from '@ir-engine/spatial/src/renderer/compon
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
-import { GLTFSnapshotAction } from './GLTFDocumentState'
+import { GLTFSnapshotAction } from './GLTFModifiedState'
 import { GLTFSnapshotState, GLTFSourceState } from './GLTFState'
 
 const assertSignificantFigures = (actual: number[], expected: number[], figures = 8) => {

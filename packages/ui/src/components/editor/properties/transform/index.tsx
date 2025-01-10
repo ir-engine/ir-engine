@@ -74,8 +74,6 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
     const bboxSnapState = getState(ObjectGridSnapState)
     if (bboxSnapState.enabled) {
       ObjectGridSnapState.apply()
-    } else {
-      EditorControlFunctions.commitTransformSave([props.entity])
     }
   }
 

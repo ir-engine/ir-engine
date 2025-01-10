@@ -999,7 +999,6 @@ export const LayerComponents = Object.entries(Layers).map(([name, layer]) => {
           const linkedEntity = createEntity(linkedLayer)
           getMutableComponent(entity, LayerComponents[layer]).relations[linkedLayer].set(linkedEntity)
           LayerComponents[linkedLayer].refs[linkedEntity] = entity
-          console.log('createEntity', { linkedLayer, relation, entity, linkedEntity })
         }
       }
     },

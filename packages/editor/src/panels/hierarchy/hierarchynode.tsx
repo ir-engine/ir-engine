@@ -32,7 +32,6 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
-  useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
@@ -42,7 +41,7 @@ import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices
 import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
+import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFModifiedState'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, getState, none, useHookstate, useMutableState, useState } from '@ir-engine/hyperflux'
@@ -114,8 +113,8 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
   const node = nodes[props.index]
   const entity = node.entity
   const fixedSizeListStyles = props.style
-  const uuid = useComponent(entity, UUIDComponent)
-  const selected = useHookstate(getMutableState(SelectionState).selectedEntities).value.includes(uuid.value)
+  const uuid = getComponent(entity, UUIDComponent) // intentionally non reactive
+  const selected = useHookstate(getMutableState(SelectionState).selectedEntities).value.includes(uuid)
   const visible = useOptionalComponent(entity, VisibleComponent)
   const { rootEntity } = useMutableState(EditorState).value
   const { collapseChildren, expandChildren, collapseNode, expandNode } = useNodeCollapseExpand()
@@ -125,7 +124,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
   const currentRenameNode = useHookstate(getComponent(entity, NameComponent))
   const { setMenu } = useHierarchyTreeContextMenu()
   const renameRef = useRef<HTMLDivElement>(null)
-  let isRenameOpen = useState(false)
+  const isRenameOpen = useState(false)
 
   const handleRenameOpen = () => {
     if (!isRenameOpen.value) {

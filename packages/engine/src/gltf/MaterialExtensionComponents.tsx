@@ -845,9 +845,7 @@ export const EEMaterialComponent = defineComponent({
             })
           )
         } else {
-          useEffect(() => {
-            resultProperties[k] = null
-          }, [])
+          resultProperties[k] = null
         }
       } else if (v.type === 'color') {
         materialParams[k] = new Color(v.contents)

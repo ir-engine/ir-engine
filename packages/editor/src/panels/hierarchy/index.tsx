@@ -60,13 +60,10 @@ function HierarchyPanelWrapper() {
 
   if (!scenePath || !rootEntity || !sourceId) return null
 
-  return <HierarchyPanel sourceId={sourceId} />
+  return <HierarchyPanel />
 }
 
-function HierarchyPanel({ sourceId }: { sourceId: string }) {
-  // const index = GLTFSnapshotState.useSnapshotIndex(sourceId)
-  // if (index === undefined) return null
-
+function HierarchyPanel() {
   return (
     <HierarchyPanelProvider>
       <Topbar />

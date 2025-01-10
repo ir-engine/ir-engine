@@ -71,8 +71,6 @@ export default function EditorDropdownItem({
     disabled && 'text-[#42454D]'
   )
 
-  console.log('the props style', props.style)
-
   return (
     <div
       className={twMerge(

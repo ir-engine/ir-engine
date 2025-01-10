@@ -163,7 +163,6 @@ export async function addMediaNode(
           })
           gltfReplaceUUIDsReferences(gltf, uuidReplacements)
         }
-        EditorControlFunctions.appendToSnapshot(gltf)
       })
     } else {
       EditorControlFunctions.createObjectFromSceneElement(

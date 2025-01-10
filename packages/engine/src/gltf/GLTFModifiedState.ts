@@ -23,25 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { VRM } from '@pixiv/three-vrm'
-import { Group } from 'three'
-import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { defineState } from '@ir-engine/hyperflux'
 
 /**
- * ModelComponent is an entity/object hierarchy loaded from a resource
- * @deprecated - use GLTFComponent instead
+ * @todo will be replaced with ECS history system
  */
-export const ModelComponent = defineComponent({
-  name: 'ModelComponent',
-  schema: S.Object({
-    src: S.String(''),
-    cameraOcclusion: S.Bool(true),
-    /** optional, only for bone matchable avatars */
-    convertToVRM: S.Bool(false),
-    scene: S.NonSerialized(S.Nullable(S.Type<Group>())),
-    asset: S.NonSerialized(S.Nullable(S.Type<VRM | GLTF>())),
-    dereference: S.NonSerialized(S.Bool(false))
-  })
+export const GLTFModifiedState = defineState({
+  name: 'ee.engine.gltf.GLTFModifiedState',
+  initial: {} as Record<string, boolean>
 })

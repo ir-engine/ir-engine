@@ -30,17 +30,13 @@ import {
   entityExists,
   EntityTreeComponent,
   getComponent,
-  getOptionalComponent,
   isAncestor,
   traverseEntityNode,
   UndefinedEntity,
-  useOptionalComponent,
-  useQuery
+  useOptionalComponent
 } from '@ir-engine/ecs'
-import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
-import { GLTFAssetState, GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { getMutableState, getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import React, { createContext, ReactNode, useContext, useEffect, useMemo } from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
@@ -93,23 +89,14 @@ const HierarchyTreeContext = createContext({
   }
 })
 
-const HierarchySnapshotReactor = (props: {
-  children?: ReactNode
-  rootEntity: Entity
-  sourceId: string
-  // snapshotIndex: number
-}) => {
-  // const { children, rootEntity, sourceId, snapshotIndex } = props
+const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Entity; sourceId: string }) => {
   const { children, rootEntity, sourceId } = props
-  const gltfState = useMutableState(GLTFSnapshotState)
   const selectionState = useMutableState(SelectionState)
   const hierarchyNodes = useHookstate<HierarchyTreeNodeType[]>([])
   const hierarchyTreeState = useMutableState(HierarchyTreeState)
   const [showModelChildren] = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowModelChildren])
   const renamingEntity = useHookstate<Entity | null>(null)
   const contextMenu = useHookstate({ entity: UndefinedEntity, anchorEvent: undefined as React.MouseEvent | undefined })
-  const modifiedState = useMutableState(GLTFModifiedState)
-  // const gltfSnapshot = gltfState[sourceId].snapshots[snapshotIndex]
 
   const displayedNodes = useMemo(() => {
     if (hierarchyTreeState.search.query.value.length > 0) {
@@ -126,28 +113,18 @@ const HierarchySnapshotReactor = (props: {
   }, [hierarchyTreeState.search.query, hierarchyNodes])
 
   useEffect(() => {
-    // if (!hierarchyTreeState.expandedNodes.value[sourceId]) {
     hierarchyTreeState.expandedNodes.set({ [sourceId]: { [rootEntity]: true } })
-    // }
   }, [sourceId])
 
-  const sourceQuery = useQuery([SourceComponent])
   useEffect(() => {
-    // const nodes = gltfHierarchyTreeWalker(rootEntity, gltfSnapshot.nodes.value as GLTF.INode[], showModelChildren)
-    const nodes = ecsHierarchyTreeWalker(rootEntity)
-
-    if (didHierarchyChange(hierarchyNodes.value as HierarchyTreeNodeType[], nodes)) {
-      hierarchyNodes.set(nodes) //.filter((node) => entityExists(node.entity)))
+    const entities = ecsHierarchyTreeWalker(rootEntity)
+    if (didHierarchyChange(hierarchyNodes.value as HierarchyTreeNodeType[], entities)) {
+      hierarchyNodes.set(entities)
     }
   }, [
     hierarchyTreeState.expandedNodes[sourceId], // extra dep for rebuilding tree for expanded/collapsed nodes
-    // snapshotIndex,
-    // gltfState,
-    // gltfSnapshot,
     selectionState.selectedEntities,
-    showModelChildren,
-    modifiedState.keys,
-    sourceQuery
+    showModelChildren
   ])
 
   useEffect(() => {
@@ -180,19 +157,9 @@ const HierarchySnapshotReactor = (props: {
 
 export const HierarchyPanelProvider = ({ children }: { children?: ReactNode }) => {
   const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
-  const sourceId = useOptionalComponent(rootEntity, SourceComponent)!.value
-  // const snapshotIndex = GLTFSnapshotState.useSnapshotIndex(sourceId)
-
-  // return snapshotIndex !== undefined ? (
-  return (
-    <HierarchySnapshotReactor
-      children={children}
-      rootEntity={rootEntity}
-      sourceId={sourceId}
-      // snapshotIndex={snapshotIndex.value}
-    />
-  )
-  // ) : null
+  const sourceId = useOptionalComponent(rootEntity, SourceComponent)?.value
+  if (!sourceId) return null
+  return <HierarchySnapshotReactor children={children} rootEntity={rootEntity} sourceId={sourceId} />
 }
 
 export const useHierarchyNodes = () => useContext(HierarchyTreeContext).nodes
@@ -230,7 +197,6 @@ export const useNodeCollapseExpand = () => {
 export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' | 'Before' | 'After') => {
   const onUpload = useUpload(uploadOptions)
   const rootEntity = useMutableState(EditorState).rootEntity.value
-  const sourceId = useOptionalComponent(rootEntity, SourceComponent)!.value
 
   const canDropItem = (item: DragItemType, monitor: DropTargetMonitor): boolean => {
     if (!monitor.isOver({ shallow: true })) {
@@ -249,7 +215,7 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
         if (place === 'On' || !!entityTreeComponent.parentEntity) return true
       }
 
-      const entity = node?.entity || getState(GLTFAssetState)[sourceId]
+      const entity = node?.entity || rootEntity
 
       return !(item.multiple
         ? (item.value as Entity[]).some((otherObject) => isAncestor(otherObject, entity))
@@ -264,22 +230,20 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
     let afterNode: Entity = UndefinedEntity
 
     if (node) {
-      const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
-      parentNode = entityTreeComponent?.parentEntity
-      const parentTreeComponent = getOptionalComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
+      const entityTreeComponent = getComponent(node.entity, EntityTreeComponent)
+      parentNode = entityTreeComponent.parentEntity
+      const parentTreeComponent = getComponent(entityTreeComponent.parentEntity, EntityTreeComponent)
 
       switch (place) {
         case 'Before': // we want to place before this node
           beforeNode = node.entity
-          if (!parentTreeComponent || !parentNode) break
           if (0 > node.childIndex - 1) break // nothing to place after it, as node index is the first child
           afterNode = UndefinedEntity
           break
         case 'After': // we want to place after this node
           afterNode = node.entity
-          if (!parentTreeComponent || !parentNode) break
           if (node.lastChild) break // if it is last child, nothing to place before it
-          if (parentTreeComponent?.children.length < node.childIndex + 1) break //node index is last child
+          if (parentTreeComponent.children.length < node.childIndex + 1) break //node index is last child
           beforeNode = UndefinedEntity
           break
         default: //case 'on'
@@ -320,13 +284,15 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
       return
     }
 
+    if (!parentNode) return
+
     EditorControlFunctions.reparentObject(
       Array.isArray((item as DragItemType).value)
         ? ((item as DragItemType).value as Entity[])
         : [(item as DragItemType).value as Entity],
       beforeNode,
       afterNode,
-      parentNode === null ? undefined : parentNode
+      parentNode
     )
   }
 

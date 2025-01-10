@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import isValidSceneName from '@ir-engine/common/src/utils/validateSceneName'
 import { getComponent } from '@ir-engine/ecs'
-import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
+import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFModifiedState'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
 import { Input } from '@ir-engine/ui'

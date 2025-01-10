@@ -35,9 +35,9 @@ import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { cleanString } from '@ir-engine/common/src/utils/cleanString'
 import { EngineState, EntityUUID, UndefinedEntity } from '@ir-engine/ecs'
 import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { GLTFDocumentState, GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
+import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFModifiedState'
 import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { exportGLTFScene } from '@ir-engine/engine/src/gltf/exportGLTFScene'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { handleScenePaths } from '@ir-engine/engine/src/scene/functions/GLTFConversion'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
@@ -61,7 +61,6 @@ export const saveSceneGLTF = async (
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
 
   const { rootEntity } = getState(EditorState)
-  const sourceID = GLTFComponent.getInstanceID(rootEntity)
 
   const sceneName = cleanString(sceneFile!.replace('.scene.json', '').replace('.gltf', ''))
   const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
@@ -74,7 +73,8 @@ export const saveSceneGLTF = async (
     if (existingScene.data.length > 0) throw new Error(i18n.t('editor:errors.sceneAlreadyExists'))
   }
 
-  const gltfData = getState(GLTFDocumentState)[sourceID]
+  const gltfData = exportGLTFScene(rootEntity)
+
   if (!gltfData) {
     logger.error('Failed to save scene, no gltf data found')
   }

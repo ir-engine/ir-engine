@@ -248,8 +248,6 @@ export const ObjectGridSnapState = defineState({
       TransformComponent.updateFromWorldMatrix(selectedParent)
       toCommit.push(selectedParent)
     }
-
-    EditorControlFunctions.commitTransformSave(toCommit)
   }
 })
 

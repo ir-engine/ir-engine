@@ -40,7 +40,6 @@ import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { useTexture } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { NO_PROXY, defineState, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
@@ -62,7 +61,6 @@ import type { WebLayer3D } from '@ir-engine/xrui'
 import { EngineState } from '@ir-engine/ecs'
 import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { SpectateEntityState } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -341,12 +339,9 @@ const execute = () => {
 const Reactor = () => {
   const locationSceneURL = useHookstate(getMutableState(LocationState).currentLocation.location.sceneURL).value
   const sceneEntity = useLoadedSceneEntity(locationSceneURL)
-  const gltfDocumentState = useMutableState(GLTFDocumentState)
+  const sceneLoaded = GLTFComponent.useSceneLoaded(sceneEntity)
 
-  if (!sceneEntity) return null
-
-  // wait for scene gltf to load
-  if (!gltfDocumentState[getComponent(sceneEntity, SourceComponent)]) return null
+  if (!sceneEntity || !sceneLoaded) return null
 
   return (
     <>
