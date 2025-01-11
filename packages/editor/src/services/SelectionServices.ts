@@ -70,7 +70,7 @@ const reactor = () => {
         removeComponent(entity, SelectTagComponent)
       }
     }
-  }, [selectedEntities.length])
+  }, [selectedEntities])
 
   return null
 }

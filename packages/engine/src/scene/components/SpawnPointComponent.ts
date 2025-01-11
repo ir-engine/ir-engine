@@ -25,9 +25,14 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useLayoutEffect } from 'react'
 
-import { defineComponent, getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  setComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEntity, entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
@@ -38,6 +43,7 @@ import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/Obje
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from 'three'
 import { useGLTFComponent } from '../../assets/functions/resourceLoaderHooks'
+import { SelectTagComponent } from './SelectTagComponent'
 
 const GLTF_PATH = '/static/editor/spawn-point.glb'
 
@@ -51,12 +57,15 @@ export const SpawnPointComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
+    const renderState = useMutableState(RendererState)
+    const selectTagComponent = useOptionalComponent(entity, SelectTagComponent)
 
-    const debugGLTF = useGLTFComponent(debugEnabled.value ? GLTF_PATH : '', entity)
+    const debugEnabled = renderState.nodeHelperVisibility.value || selectTagComponent !== undefined
+
+    const debugGLTF = useGLTFComponent(debugEnabled ? GLTF_PATH : '', entity)
 
     useLayoutEffect(() => {
-      if (!debugGLTF || !debugEnabled.value) return
+      if (!debugGLTF || !debugEnabled) return
 
       const boundsHelperEntity = createEntity()
       setComponent(boundsHelperEntity, TransformComponent)

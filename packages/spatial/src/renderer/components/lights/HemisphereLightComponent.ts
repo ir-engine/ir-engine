@@ -37,6 +37,7 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { SelectTagComponent } from '../../../../../engine/src/scene/components/SelectTagComponent'
 import { useHelperEntity } from '../../../common/debug/useHelperEntity'
 import { useDisposable } from '../../../resources/resourceHooks'
 import { T } from '../../../schema/schemaFunctions'
@@ -57,10 +58,12 @@ export const HemisphereLightComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const hemisphereLightComponent = useComponent(entity, HemisphereLightComponent)
+    const selectTagComponent = useOptionalComponent(entity, SelectTagComponent)
     const renderState = useMutableState(RendererState)
-    const debugEnabled = renderState.nodeHelperVisibility
+    const debugEnabled = renderState.nodeHelperVisibility.value || selectTagComponent !== undefined
+
     const [light] = useDisposable(HemisphereLight, entity)
-    const helperEntity = useHelperEntity(entity, () => new HemisphereLightHelper(light, 100), debugEnabled.value)
+    const helperEntity = useHelperEntity(entity, () => new HemisphereLightHelper(light, 100), debugEnabled)
     const helper = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as
       | HemisphereLightHelper
       | undefined

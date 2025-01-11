@@ -29,15 +29,18 @@ import { BufferGeometry, DirectionalLight, Float32BufferAttribute } from 'three'
 import {
   defineComponent,
   getMutableComponent,
+  hasComponent,
   removeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
 import { EntityTreeComponent, UndefinedEntity } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { SelectTagComponent } from '@ir-engine/engine/src/scene/components/SelectTagComponent'
 import { mergeBufferGeometries } from '../../../common/classes/BufferGeometryUtils'
 import { useDisposable } from '../../../resources/resourceHooks'
 import { T } from '../../../schema/schemaFunctions'
@@ -123,11 +126,13 @@ export const DirectionalLightComponent = defineComponent({
     const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
     const [light] = useDisposable(DirectionalLight, entity)
     const helperEntity = useHookstate(UndefinedEntity)
+    const selectTagComponent = useOptionalComponent(entity, SelectTagComponent)
 
     useImmediateEffect(() => {
       setComponent(entity, LightTagComponent)
       directionalLightComponent.light.set(light)
       setComponent(entity, ObjectComponent, light)
+
       return () => {
         removeComponent(entity, ObjectComponent)
       }
@@ -171,7 +176,7 @@ export const DirectionalLightComponent = defineComponent({
     }, [renderState.shadowMapResolution])
 
     useEffect(() => {
-      if (!debugEnabled.value) return
+      if (!debugEnabled.value && !hasComponent(entity, SelectTagComponent)) return
       helperEntity.set(createEntity())
       setComponent(helperEntity.value, EntityTreeComponent, { parentEntity: entity })
       setComponent(helperEntity.value, LineSegmentComponent, {
@@ -185,7 +190,7 @@ export const DirectionalLightComponent = defineComponent({
         removeEntity(helperEntity.value)
         helperEntity.set(UndefinedEntity)
       }
-    }, [debugEnabled])
+    }, [debugEnabled, selectTagComponent])
 
     return null
   }
