@@ -55,7 +55,7 @@ import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { getArmIKHint } from '../animation/getArmIKHint'
 import { blendIKChain, solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets } from '../animation/Util'
-import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
+import { AvatarRigComponent, shoulderAngle } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarIkComponent, AvatarIKTargetComponent } from '../components/AvatarIKComponents'
 import { NormalizedBoneComponent } from '../components/NormalizedBoneComponent'
@@ -296,11 +296,8 @@ const SetupIkMatrices = (props: { avatarEntity: Entity }) => {
   const ikComponent = useComponent(props.avatarEntity, AvatarIkComponent)
   const rigComponent = useComponent(props.avatarEntity, AvatarRigComponent)
   useEffect(() => {
-    if (!rigComponent.vrm.value || !rigComponent.bonesToEntities.hips) return
+    if (!rigComponent.vrm.value) return
     const rootEntity = props.avatarEntity
-    // iterateEntityNode(rigComponent.bonesToEntities.hips.value, computeTransformMatrix, (e) =>
-    //   hasComponent(e, TransformComponent)
-    // )
 
     const rig = rigComponent.bonesToEntities.value
 
@@ -314,28 +311,6 @@ const SetupIkMatrices = (props: { avatarEntity: Entity }) => {
     rootRotationInverse.makeRotationFromQuaternion(transform.rotation).invert()
     toOrigin.identity()
     back.identity().multiply(rootRotationInverse)
-    let needsRotationSetup = false
-    for (const bone of boneNames) {
-      const localParentMatrix = getComponent(
-        getComponent(rig[bone], EntityTreeComponent).parentEntity,
-        TransformComponent
-      ).matrix.elements
-      needsRotationSetup =
-        localParentMatrix[0] !== 1 ||
-        localParentMatrix[1] !== 0 ||
-        localParentMatrix[2] !== 0 ||
-        localParentMatrix[3] !== 0 ||
-        localParentMatrix[4] !== 0 ||
-        localParentMatrix[5] !== 1 ||
-        localParentMatrix[6] !== 0 ||
-        localParentMatrix[7] !== 0 ||
-        localParentMatrix[8] !== 0 ||
-        localParentMatrix[9] !== 0 ||
-        localParentMatrix[10] !== 1 ||
-        localParentMatrix[11] !== 0 ||
-        localParentMatrix[15] !== 1
-      if (needsRotationSetup) break
-    }
 
     for (const bone of boneNames) {
       const worldMatrix = getComponent(rig[bone], TransformComponent).matrixWorld
@@ -351,9 +326,11 @@ const SetupIkMatrices = (props: { avatarEntity: Entity }) => {
         worldMatrix.elements[13] - rootMatrix.elements[13] - (parentMatrix.elements[13] - rootMatrix.elements[13])
       difference.elements[14] =
         worldMatrix.elements[14] - rootMatrix.elements[14] - (parentMatrix.elements[14] - rootMatrix.elements[14])
+
       // undo the parent rotation
       const local = new Matrix4().copy(back).multiply(toOrigin).multiply(difference)
 
+      // keep only the position data from the above transformation
       local.elements[0] = 1
       local.elements[1] = 0
       local.elements[2] = 0
@@ -368,21 +345,12 @@ const SetupIkMatrices = (props: { avatarEntity: Entity }) => {
       local.elements[11] = 0
       local.elements[15] = 1
 
-      /**@todo temporary workaround for t-pose enforcement causing differing chain parent matrices */
-      if (needsRotationSetup) {
-        if (bone.includes('UpperArm')) {
-          const scale =
-            parentMatrix.elements[0] < 0 && parentMatrix.elements[5] < 0 && parentMatrix.elements[10] < 0 ? -1 : 1
-          console.log(bone, scale, local.elements)
-          local.elements[0] = scale
-          local.elements[5] = scale
-          local.elements[10] = scale
-        }
+      // quick dirty bone rotations for the ik solve to start relative to
+      if (bone.includes('Arm') || bone.includes('Hand')) {
+        if (bone.includes('left')) local.multiply(new Matrix4().makeRotationFromEuler(shoulderAngle.leftShoulderAngle))
+        else local.multiply(new Matrix4().makeRotationFromEuler(shoulderAngle.rightShoulderAngle))
       }
-      if (bone.includes('Lower')) {
-        if (bone.includes('Arm')) local.multiply(new Matrix4().makeRotationFromEuler(new Euler(Math.PI * -0.25, 0, 0)))
-      }
-
+      if (bone.includes('Arm')) local.multiply(new Matrix4().makeRotationFromEuler(new Euler(Math.PI * -0.5, 0, 0)))
       if (bone.includes('Leg')) local.multiply(new Matrix4().makeRotationFromEuler(new Euler(Math.PI * 0.5, 0, 0)))
 
       ikComponent.ikMatrices[bone].set({
@@ -390,7 +358,7 @@ const SetupIkMatrices = (props: { avatarEntity: Entity }) => {
         local
       })
     }
-  }, [rigComponent.vrm, rigComponent.bonesToEntities.hips])
+  }, [rigComponent.vrm])
 
   return null
 }

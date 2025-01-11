@@ -270,7 +270,7 @@ export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
   return vrm
 }
 
-const shoulderAngle = {
+export const shoulderAngle = {
   rightShoulderAngle: new Euler(Math.PI / 2, 0, Math.PI / 2),
   leftShoulderAngle: new Euler(Math.PI / 2, 0, -Math.PI / 2)
 }

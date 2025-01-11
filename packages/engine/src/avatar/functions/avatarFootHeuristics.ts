@@ -74,7 +74,7 @@ export const setIkFootTarget = (delta: number) => {
     getComponent(selfAvatarEntity, AvatarRigComponent).bonesToEntities.hips,
     TransformComponent
   ).position
-  hipsOffset.set(hipsPos.x * 2, 0, hipsPos.z * 2)
+  hipsOffset.set(hipsPos.x, 0, hipsPos.z * 2)
   const leftFootTransform = getComponent(leftFootEntity, TransformComponent)
   leftFootTransform.position
     .set(avatar.footGap, avatar.footHeight, 0)
