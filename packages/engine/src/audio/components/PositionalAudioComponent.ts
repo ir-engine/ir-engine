@@ -40,7 +40,7 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { SelectTagComponent } from '../../scene/components/SelectTagComponent'
+import { ActiveHelperComponent } from '../../../../spatial/src/common/ActiveHelperComponent'
 import { PositionalAudioHelperComponent } from './PositionalAudioHelperComponent'
 
 export interface PositionalAudioInterface {
@@ -73,8 +73,8 @@ export const PositionalAudioComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const renderState = useMutableState(RendererState)
-    const selectTagComponent = useOptionalComponent(entity, SelectTagComponent)
-    const debugEnabled = renderState.nodeHelperVisibility.value || selectTagComponent !== undefined
+    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
+    const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
     const audio = useComponent(entity, PositionalAudioComponent)
     const mediaElement = useOptionalComponent(entity, MediaElementComponent)
 

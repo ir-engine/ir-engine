@@ -39,12 +39,12 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getMutableState, getState, isClient, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { TransformDirtyCleanupSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
-import { SelectTagComponent } from './SelectTagComponent'
 
 export const ScenePreviewCameraComponent = defineComponent({
   name: 'EE_scenePreviewCamera',
@@ -58,8 +58,8 @@ export const ScenePreviewCameraComponent = defineComponent({
     if (!isClient) return null
     const entity = useEntityContext()
     const renderState = useMutableState(RendererState)
-    const selectTagComponent = useOptionalComponent(entity, SelectTagComponent)
-    const debugEnabled = renderState.nodeHelperVisibility || selectTagComponent !== undefined
+    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
+    const debugEnabled = renderState.nodeHelperVisibility || activeHelperComponent !== undefined
     const previewCamera = useComponent(entity, ScenePreviewCameraComponent)
     const previewCameraTransform = useComponent(entity, TransformComponent)
     const engineCameraTransform = useOptionalComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)

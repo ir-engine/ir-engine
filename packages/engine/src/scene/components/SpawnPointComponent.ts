@@ -39,11 +39,11 @@ import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/re
 import { EntityTreeComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformComponent } from '@ir-engine/spatial'
+import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from 'three'
 import { useGLTFComponent } from '../../assets/functions/resourceLoaderHooks'
-import { SelectTagComponent } from './SelectTagComponent'
 
 const GLTF_PATH = '/static/editor/spawn-point.glb'
 
@@ -58,9 +58,9 @@ export const SpawnPointComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const renderState = useMutableState(RendererState)
-    const selectTagComponent = useOptionalComponent(entity, SelectTagComponent)
+    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
 
-    const debugEnabled = renderState.nodeHelperVisibility.value || selectTagComponent !== undefined
+    const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
 
     const debugGLTF = useGLTFComponent(debugEnabled ? GLTF_PATH : '', entity)
 
