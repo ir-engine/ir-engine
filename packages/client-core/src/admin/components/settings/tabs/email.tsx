@@ -46,24 +46,24 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
     loading: false,
     errorMessage: ''
   })
-  const emailSetting = useFind(engineSettingPath, {
+  const engineSetting = useFind(engineSettingPath, {
     query: {
       category: 'email',
       paginate: false
     }
   })
 
-  const settingsKeyValuePairs = unflattenArrayToObject(
-    emailSetting.data.map((el) => ({ key: el.key, value: el.value, dataType: el.dataType }))
+  const emailSettings = unflattenArrayToObject(
+    engineSetting.data.map((el) => ({ key: el.key, value: el.value, dataType: el.dataType }))
   ) as EmailConfig
 
-  const smsNameCharacterLimit = useHookstate(settingsKeyValuePairs.smsNameCharacterLimit)
-  const smtp = useHookstate(settingsKeyValuePairs?.smtp)
-  const auth = useHookstate(settingsKeyValuePairs?.smtp?.auth)
-  const from = useHookstate(settingsKeyValuePairs?.from)
-  const subject = useHookstate(settingsKeyValuePairs?.subject)
+  const smsNameCharacterLimit = useHookstate(emailSettings.smsNameCharacterLimit)
+  const smtp = useHookstate(emailSettings?.smtp)
+  const auth = useHookstate(emailSettings?.smtp?.auth)
+  const from = useHookstate(emailSettings?.from)
+  const subject = useHookstate(emailSettings?.subject)
 
-  const patchEmailSetting = useMutation(engineSettingPath)
+  const patchEngineSetting = useMutation(engineSettingPath)
 
   const handleSmtpSecure = (value) => {
     smtp.set({ ...JSON.parse(JSON.stringify(smtp.value)), secure: value })
@@ -84,14 +84,14 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
   }
 
   useEffect(() => {
-    if (emailSetting.status === 'success') {
-      smtp.set(settingsKeyValuePairs?.smtp)
-      auth.set(settingsKeyValuePairs?.smtp?.auth)
-      subject.set(settingsKeyValuePairs?.subject)
-      from.set(settingsKeyValuePairs?.from)
-      smsNameCharacterLimit.set(settingsKeyValuePairs?.smsNameCharacterLimit)
+    if (engineSetting.status === 'success') {
+      smtp.set(emailSettings?.smtp)
+      auth.set(emailSettings?.smtp?.auth)
+      subject.set(emailSettings?.subject)
+      from.set(emailSettings?.from)
+      smsNameCharacterLimit.set(emailSettings?.smsNameCharacterLimit)
     }
-  }, [emailSetting.status])
+  }, [engineSetting.status])
 
   const handleSubmit = (event) => {
     state.loading.set(true)
@@ -106,10 +106,10 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
     const emailOperationPromises: Promise<EngineSettingType | EngineSettingType[]>[] = []
 
     updatedSettings.forEach((setting) => {
-      const settingInDb = emailSetting.data.find((el) => el.key === setting.key)
+      const settingInDb = engineSetting.data.find((el) => el.key === setting.key)
       if (!settingInDb) {
         emailOperationPromises.push(
-          patchEmailSetting.create({
+          patchEngineSetting.create({
             key: setting.key,
             category: 'email',
             dataType: getDataType(setting.value),
@@ -119,7 +119,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
         )
       } else if (settingInDb.value != setting.value) {
         emailOperationPromises.push(
-          patchEmailSetting.patch(settingInDb.id, {
+          patchEngineSetting.patch(settingInDb.id, {
             key: setting.key,
             category: 'email',
             dataType: getDataType(setting.value),
@@ -140,11 +140,11 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
   }
 
   const handleCancel = () => {
-    smtp.set(settingsKeyValuePairs?.smtp)
-    auth.set(settingsKeyValuePairs?.smtp?.auth)
-    subject.set(settingsKeyValuePairs?.subject)
-    from.set(settingsKeyValuePairs?.from)
-    smsNameCharacterLimit.set(settingsKeyValuePairs?.smsNameCharacterLimit)
+    smtp.set(emailSettings?.smtp)
+    auth.set(emailSettings?.smtp?.auth)
+    subject.set(emailSettings?.subject)
+    from.set(emailSettings?.from)
+    smsNameCharacterLimit.set(emailSettings?.smsNameCharacterLimit)
   }
 
   const handleUpdateSubject = (event, type) => {
