@@ -84,8 +84,8 @@ export class MockXRFrame {
   pose = new MockXRPose() as any as XRPose
 
   getPose = (space: MockXRSpace, origin: MockXRSpace) => {
-    const spacePose = space.matrix
-    const originPose = origin.matrix
+    const spacePose = new Matrix4().fromArray(space.matrix?.elements ?? (space as any)._baseMatrix)
+    const originPose = new Matrix4().fromArray(origin.matrix?.elements ?? (origin as any)._baseMatrix)
     const position = new Vector3()
     const rotation = new Quaternion()
     const resultPose = new Matrix4()
@@ -125,6 +125,9 @@ export class MockXRRigidTransform {
     ) as unknown as XRRigidTransform
   }
 }
+
+//@ts-ignore
+globalThis['XRRigidTransform'] = MockXRRigidTransform
 
 export class MockXRPlane implements XRPlane {
   orientation: XRPlaneOrientation = 'horizontal'

@@ -31,15 +31,13 @@ import {
   defineComponent,
   getComponent,
   getMutableComponent,
-  hasComponent,
-  removeComponent,
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../common/NameComponent'
@@ -80,45 +78,12 @@ export const XRDetectedPlaneComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, XRDetectedPlaneComponent)
-    const scenePlacementMode = useHookstate(getMutableState(XRState).scenePlacementMode)
 
     useEffect(() => {
-      if (!component.plane.value) return
-
-      const geometry = XRDetectedPlaneComponent.createGeometryFromPolygon(component.plane.value as XRPlane)
-
-      XRDetectedPlaneComponent.updatePlanePose(entity)
-      component.geometry.set(geometry)
-
-      const shadowMesh = new Mesh(geometry, shadowMaterial)
-      // const placementHelper = new Mesh(geometry, placementHelperMaterial)
-
-      setComponent(entity, MeshComponent, shadowMesh)
-      // addObjectToGroup(entity, placementHelper)
-
-      component.shadowMesh.set(shadowMesh)
-      // component.placementHelper.set(placementHelper)
-
       return () => {
-        removeComponent(entity, MeshComponent)
-        // removeObjectFromGroup(entity, placementHelper)
-
-        if (!hasComponent(entity, XRDetectedPlaneComponent)) return
-
-        component.shadowMesh.set(none)
-        // component.placementHelper.set(none)
+        component.geometry.value?.dispose()
       }
-    }, [component.plane])
-
-    useEffect(() => {
-      const geometry = component.geometry.value
-
-      if (component.shadowMesh.value) component.shadowMesh.geometry.set(geometry)
-
-      return () => {
-        geometry.dispose()
-      }
-    }, [component.geometry])
+    }, [])
 
     // useEffect(() => {
     //   const placementHelper = component.placementHelper.get(NO_PROXY) as Mesh
@@ -162,7 +127,13 @@ export const XRDetectedPlaneComponent = defineComponent({
     if (plane.lastChangedTime > lastKnownTime) {
       state.planesLastChangedTimes.set(plane, plane.lastChangedTime)
       const geometry = XRDetectedPlaneComponent.createGeometryFromPolygon(plane)
-      getMutableComponent(entity, XRDetectedPlaneComponent).geometry.set(geometry)
+      const planeComponent = getMutableComponent(entity, XRDetectedPlaneComponent)
+      planeComponent.geometry.value?.dispose()
+      planeComponent.shadowMesh.value?.geometry.dispose()
+      const mesh = new Mesh(geometry, shadowMaterial)
+      setComponent(entity, MeshComponent, mesh)
+      planeComponent.geometry.set(geometry)
+      planeComponent.shadowMesh.set(mesh)
     }
   },
 
@@ -190,15 +161,15 @@ export const XRDetectedPlaneComponent = defineComponent({
     setVisibleComponent(entity, true)
     setComponent(entity, XRDetectedPlaneComponent, { plane })
     setComponent(entity, NameComponent, 'xrplane-' + planeId++ + '-' + plane.semanticLabel)
-    state.planesLastChangedTimes.set(plane, plane.lastChangedTime)
+    state.planesLastChangedTimes.set(plane, -1)
     state.detectedPlanesMap.set(plane, entity)
     return entity
   },
 
   purgeExpiredPlanes: (detectedPlanes: XRPlaneSet) => {
     const state = getState(XRDetectedPlaneComponentState)
-    for (const plane of detectedPlanes) {
-      const entity = state.detectedPlanesMap.get(plane) ?? UndefinedEntity
+    for (const [plane, entity] of state.detectedPlanesMap) {
+      if (detectedPlanes.has(plane)) continue
       state.detectedPlanesMap.delete(plane)
       state.planesLastChangedTimes.delete(plane)
       removeEntity(entity)

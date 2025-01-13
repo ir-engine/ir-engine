@@ -27,15 +27,21 @@ import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, Mesh } from 'three'
 
 import { EntityTreeComponent } from '@ir-engine/ecs'
-import { defineComponent, getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import {
+  defineComponent,
+  getComponent,
+  getMutableComponent,
+  setComponent,
+  useComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { NameComponent } from '../common/NameComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '../renderer/components/ObjectComponent'
+import { MeshComponent } from '../renderer/components/MeshComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { shadowMaterial } from './XRDetectedPlaneComponent'
@@ -66,36 +72,10 @@ export const XRDetectedMeshComponent = defineComponent({
     const scenePlacementMode = useHookstate(getMutableState(XRState).scenePlacementMode)
 
     useEffect(() => {
-      if (!component.mesh.value) return
-
-      const geometry = XRDetectedMeshComponent.createGeometryFromMesh(component.mesh.value)
-      component.geometry.set(geometry)
-
-      const shadowMesh = new Mesh(geometry, shadowMaterial)
-      // const placementHelper = new Mesh(geometry, placementHelperMaterial)
-
-      addObjectToGroup(entity, shadowMesh)
-      // addObjectToGroup(entity, placementHelper)
-
-      component.shadowMesh.set(shadowMesh)
-      // component.placementHelper.set(placementHelper)
-
       return () => {
-        removeObjectFromGroup(entity, shadowMesh)
-        // removeObjectFromGroup(entity, placementHelper)
+        component.geometry.value?.dispose()
       }
-    }, [component.mesh])
-
-    useEffect(() => {
-      const shadowMesh = component.shadowMesh.value
-      const geometry = component.geometry.value
-
-      if (shadowMesh.geometry) (shadowMesh.geometry as any) = geometry
-
-      return () => {
-        geometry.dispose()
-      }
-    }, [component.geometry])
+    }, [])
 
     useEffect(() => {
       const placementHelper = component.placementHelper.value as Mesh
@@ -127,6 +107,13 @@ export const XRDetectedMeshComponent = defineComponent({
     if (mesh.lastChangedTime > lastKnownTime) {
       state.meshesLastChangedTimes.set(mesh, mesh.lastChangedTime)
       const geometry = XRDetectedMeshComponent.createGeometryFromMesh(mesh)
+      const meshComponent = getMutableComponent(entity, XRDetectedMeshComponent)
+      meshComponent.geometry.value?.dispose()
+      meshComponent.shadowMesh.value?.geometry.dispose()
+      const meshObj = new Mesh(geometry, shadowMaterial)
+      setComponent(entity, MeshComponent, meshObj)
+      meshComponent.geometry.set(geometry)
+      meshComponent.shadowMesh.set(meshObj)
     }
   },
 
@@ -169,8 +156,8 @@ export const XRDetectedMeshComponent = defineComponent({
 
   purgeExpiredMeshes: (detectedMeshes: XRMeshSet) => {
     const state = getState(XRDetectedMeshComponentState)
-    for (const mesh of detectedMeshes) {
-      const entity = state.detectedMeshesMap.get(mesh) ?? UndefinedEntity
+    for (const [mesh, entity] of state.detectedMeshesMap) {
+      if (detectedMeshes.has(mesh)) continue
       state.detectedMeshesMap.delete(mesh)
       state.meshesLastChangedTimes.delete(mesh)
       removeEntity(entity)

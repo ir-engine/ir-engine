@@ -133,39 +133,38 @@ describe('XRDetectedMeshSystem Functions', () => {
       const detectedPlanes = new Set<XRPlane>([plane])
       const getPlaneEntity = vi.spyOn(XRDetectedPlaneComponent, 'getPlaneEntity')
       // Sanity check before running
-      expect(detectedPlanes).toContain(plane)
-      expect(state.detectedPlanesMap).not.toContain(plane)
+      expect(detectedPlanes.has(plane)).toBe(true)
+      expect(state.detectedPlanesMap.has(plane)).toBe(false)
       expect(getPlaneEntity).not.toHaveBeenCalled()
       // Run and Check the result
       XRDetectedPlaneComponent.updateDetectedPlanes(detectedPlanes)
       expect(getPlaneEntity).toHaveBeenCalled()
     })
 
-    it(`should call XRDetectedPlaneComponent.updatePlaneGeometry
+    it(`should call XRDetectedPlaneComponent.createGeometryFromPolygon
         with the plane and the entity that is tied to it
         if plane.lastChangedTime is bigger than the time found on the XRDetectedPlaneComponent.planesLastChangedTimes for that plane`, () => {
       const state = getState(XRDetectedPlaneComponentState)
       const plane = new MockXRPlane()
       plane.lastChangedTime = 42
       const detectedPlanes = new Set<XRPlane>([plane])
-      const updatePlaneGeometry = vi.spyOn(XRDetectedPlaneComponent, 'updatePlaneGeometry')
+      const createGeometryFromPolygon = vi.spyOn(XRDetectedPlaneComponent, 'createGeometryFromPolygon')
       // Sanity check before running
-      expect(detectedPlanes).toContain(plane)
-      expect(state.detectedPlanesMap).not.toContain(plane)
-      expect(updatePlaneGeometry).not.toHaveBeenCalled()
+      expect(detectedPlanes.has(plane)).toBe(true)
+      expect(state.detectedPlanesMap.has(plane)).toBe(false)
+      expect(createGeometryFromPolygon).not.toHaveBeenCalled()
       // Run and Check the result
       XRDetectedPlaneComponent.updateDetectedPlanes(detectedPlanes)
-      expect(state.detectedPlanesMap).toContain(plane)
-      const planeEntity = state.detectedPlanesMap.get(plane)
-      expect(updatePlaneGeometry).toBeCalledTimes(1)
-      expect(updatePlaneGeometry).toHaveBeenCalledWith(planeEntity, plane)
+      expect(state.detectedPlanesMap.has(plane)).toBe(true)
+      expect(createGeometryFromPolygon).toBeCalledTimes(1)
+      expect(createGeometryFromPolygon).toHaveBeenCalledWith(plane)
       // Run again with the same plane data
       XRDetectedPlaneComponent.updateDetectedPlanes(detectedPlanes)
-      expect(updatePlaneGeometry).toBeCalledTimes(1)
+      expect(createGeometryFromPolygon).toBeCalledTimes(1)
       // Change the plane time
       plane.lastChangedTime = 43
       XRDetectedPlaneComponent.updateDetectedPlanes(detectedPlanes)
-      expect(updatePlaneGeometry).toBeCalledTimes(2)
+      expect(createGeometryFromPolygon).toBeCalledTimes(2)
     })
 
     it('should call XRDetectedPlaneComponent.updatePlanePose with the plane and the entity that is tied to it', () => {
@@ -178,15 +177,15 @@ describe('XRDetectedMeshSystem Functions', () => {
       plane.lastChangedTime = 42
       const updatePlanePose = vi.spyOn(XRDetectedPlaneComponent, 'updatePlanePose')
       // Sanity check before running
-      expect(state.detectedPlanesMap).not.toContain(plane)
+      expect(state.detectedPlanesMap.has(plane)).toBe(false)
       expect(updatePlanePose).not.toHaveBeenCalled()
       // Run and Check the result
       const detectedPlanes = new Set<XRPlane>([plane])
       XRDetectedPlaneComponent.updateDetectedPlanes(detectedPlanes)
-      expect(state.detectedPlanesMap).toContain(plane)
+      expect(state.detectedPlanesMap.has(plane)).toBe(true)
       const planeEntity = state.detectedPlanesMap.get(plane)!
       expect(updatePlanePose).toBeCalledTimes(1)
-      expect(updatePlanePose).toHaveBeenCalledWith(planeEntity, plane)
+      expect(updatePlanePose).toHaveBeenCalledWith(planeEntity)
       const transform = getComponent(planeEntity, TransformComponent)
       expect(transform.position.x).to.be.approximately(position.x, 0.001)
       expect(transform.position.y).to.be.approximately(position.y, 0.001)
@@ -265,22 +264,22 @@ describe('XRDetectedMeshSystem Functions', () => {
       const mesh = new MockXRMesh()
       const meshEntity = XRDetectedMeshComponent.getMeshEntity(mesh)
       const detectedMeshes = new Set<XRMesh>([mesh])
-      const updateMeshGeometry = vi.spyOn(XRDetectedMeshComponent, 'updateMeshGeometry')
+      const createGeometryFromMesh = vi.spyOn(XRDetectedMeshComponent, 'createGeometryFromMesh')
       // Sanity check before running
-      expect(detectedMeshes).toContain(mesh)
-      expect(state.detectedMeshesMap).toContain(mesh)
-      expect(updateMeshGeometry).not.toHaveBeenCalled()
+      expect(detectedMeshes.has(mesh)).toBe(true)
+      expect(state.detectedMeshesMap.has(mesh)).toBe(true)
+      expect(createGeometryFromMesh).not.toHaveBeenCalled()
       // Run and Check the result
       XRDetectedMeshComponent.updateDetectedMeshes(detectedMeshes)
-      expect(updateMeshGeometry).toHaveBeenCalledTimes(1)
-      expect(updateMeshGeometry).toHaveBeenCalledWith(meshEntity)
+      expect(createGeometryFromMesh).toHaveBeenCalledTimes(1)
+      expect(createGeometryFromMesh).toHaveBeenCalledWith(mesh)
       // Run again with the same mesh data
       XRDetectedMeshComponent.updateDetectedMeshes(detectedMeshes)
-      expect(updateMeshGeometry).toHaveBeenCalledTimes(1)
+      expect(createGeometryFromMesh).toHaveBeenCalledTimes(1)
       // Change the mesh time
       mesh.lastChangedTime = 43
       XRDetectedMeshComponent.updateDetectedMeshes(detectedMeshes)
-      expect(updateMeshGeometry).toHaveBeenCalledTimes(2)
+      expect(createGeometryFromMesh).toHaveBeenCalledTimes(2)
     })
 
     it('should call XRDetectedMeshComponent.updateMeshPose with the mesh and the entity that is tied to it', () => {
@@ -295,8 +294,8 @@ describe('XRDetectedMeshSystem Functions', () => {
       const detectedMeshes = new Set<XRMesh>([mesh])
       const updateMeshPose = vi.spyOn(XRDetectedMeshComponent, 'updateMeshPose')
       // Sanity check before running
-      expect(detectedMeshes).toContain(mesh)
-      expect(state.detectedMeshesMap).toContain(mesh)
+      expect(detectedMeshes.has(mesh)).toBe(true)
+      expect(state.detectedMeshesMap.has(mesh)).toBe(true)
       expect(updateMeshPose).not.toHaveBeenCalled()
       // Run and Check the result
       XRDetectedMeshComponent.updateDetectedMeshes(detectedMeshes)
