@@ -1,5 +1,5 @@
 {
-"name": "@ir-engine/network",
+  "name": "@ir-engine/network",
   "version": "1.6.0",
   "main": "index.ts",
   "publishConfig": {

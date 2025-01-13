@@ -1,5 +1,5 @@
 {
-"name": "@ir-engine/hyperflux",
+  "name": "@ir-engine/hyperflux",
   "version": "1.6.0",
   "files": ["index.cjs", "index.js", "index.d.ts"],
   "main": "./index.cjs",
