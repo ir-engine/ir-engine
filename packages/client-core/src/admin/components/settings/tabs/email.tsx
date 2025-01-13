@@ -63,7 +63,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
   const from = useHookstate(emailSettings?.from)
   const subject = useHookstate(emailSettings?.subject)
 
-  const patchEngineSetting = useMutation(engineSettingPath)
+  const engineSettingMutation = useMutation(engineSettingPath)
 
   const handleSmtpSecure = (value) => {
     smtp.set({ ...JSON.parse(JSON.stringify(smtp.value)), secure: value })
@@ -109,7 +109,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
       const settingInDb = engineSetting.data.find((el) => el.key === setting.key)
       if (!settingInDb) {
         emailOperationPromises.push(
-          patchEngineSetting.create({
+          engineSettingMutation.create({
             key: setting.key,
             category: 'email',
             dataType: getDataType(setting.value),
@@ -119,7 +119,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
         )
       } else if (settingInDb.value != setting.value) {
         emailOperationPromises.push(
-          patchEngineSetting.patch(settingInDb.id, {
+          engineSettingMutation.patch(settingInDb.id, {
             key: setting.key,
             category: 'email',
             dataType: getDataType(setting.value),
