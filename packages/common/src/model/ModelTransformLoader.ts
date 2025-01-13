@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { NodeIO } from '@gltf-transform/core'
+import { WebIO } from '@gltf-transform/core'
 import {
   EXTMeshGPUInstancing,
   EXTMeshoptCompression,
@@ -43,14 +43,12 @@ import { EEMaterialExtension } from '@ir-engine/engine/src/assets/compression/ex
 import { EEResourceIDExtension } from '@ir-engine/engine/src/assets/compression/extensions/EE_ResourceIDTransformer'
 import { VRMExtension } from '@ir-engine/engine/src/assets/compression/extensions/EE_VRMTransformer'
 import { MOZLightmapExtension } from '@ir-engine/engine/src/assets/compression/extensions/MOZ_LightmapTransformer'
-import fetch from 'cross-fetch'
 import draco3d from 'draco3dgltf'
 import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer'
 import { FileLoader } from 'three'
-
 const transformHistory: string[] = []
 export default async function ModelTransformLoader() {
-  const io = new NodeIO(fetch, {}).setAllowNetwork(true)
+  const io = new WebIO()
   io.registerExtensions([
     KHRLightsPunctual,
     KHRMaterialsSpecular,

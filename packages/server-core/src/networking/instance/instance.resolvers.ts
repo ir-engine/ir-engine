@@ -59,7 +59,7 @@ export const instanceResolver = resolve<InstanceType, HookContext>({
       },
       paginate: false
     } as InstanceAttendanceParams
-    if (appConfig.instanceserver.p2pEnabled)
+    if (appConfig['instance-server'].p2pEnabled)
       query.query!.updatedAt = {
         // Only consider instances that have been updated in the last 10 seconds
         $gt: toDateTimeSql(new Date(new Date().getTime() - 10000))

@@ -26,10 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import { Knex } from 'knex'
 import { v4 as uuidv4 } from 'uuid'
 
+import { defaultWebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
 import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { flattenObjectToArray } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import appConfig from '@ir-engine/server-core/src/appconfig'
 import appRootPath from 'app-root-path'
 
@@ -81,7 +83,73 @@ export async function seed(knex: Knex): Promise<void> {
     ],
     'coil'
   )
+  const instanceServerSeedData = await generateSeedData(
+    [
+      {
+        key: EngineSettings.InstanceServer.ClientHost,
+        value: process.env.APP_HOST || ''
+      },
+      {
+        key: EngineSettings.InstanceServer.RtcStartPort,
+        value: process.env.RTC_START_PORT || ''
+      },
+      {
+        key: EngineSettings.InstanceServer.RtcEndPort,
+        value: process.env.RTC_END_PORT || ''
+      },
+      {
+        key: EngineSettings.InstanceServer.RtcPortBlockSize,
+        value: process.env.RTC_PORT_BLOCK_SIZE || ''
+      },
+      {
+        key: EngineSettings.InstanceServer.IdentifierDigits,
+        value: '5'
+      },
+      {
+        key: EngineSettings.InstanceServer.Local,
+        value: `${process.env.LOCAL === 'true'}`
+      },
+      {
+        key: EngineSettings.InstanceServer.Domain,
+        value: process.env.INSTANCESERVER_DOMAIN || 'instanceserver.etherealengine.com'
+      },
+      {
+        key: EngineSettings.InstanceServer.ReleaseName,
+        value: process.env.RELEASE_NAME || 'local'
+      },
+      {
+        key: EngineSettings.InstanceServer.Port,
+        value: process.env.INSTANCESERVER_PORT || '3031'
+      },
+      {
+        key: EngineSettings.InstanceServer.Mode,
+        value: process.env.INSTANCESERVER_MODE || 'dev'
+      },
+      {
+        key: EngineSettings.InstanceServer.LocationName,
+        value: process.env.PRELOAD_LOCATION_NAME || ''
+      },
+      {
+        key: EngineSettings.InstanceServer.ShutdownDelayMs,
+        value: process.env.INSTANCESERVER_SHUTDOWN_DELAY_MS || '0'
+      }
+    ],
+    'instance-server'
+  )
 
+  const instanceServerWebRtc: EngineSettingType[] = await Promise.all(
+    flattenObjectToArray(defaultWebRTCSettings).map(async ({ key, value }) => ({
+      id: uuidv4(),
+      key,
+      value,
+      dataType: getDataType(`${value}`),
+      jsonKey: EngineSettings.InstanceServer.WebRTCSettings,
+      type: 'private' as EngineSettingType['type'],
+      category: 'instance-server-webrtc',
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }))
+  )
   const metabaseSeedData = await generateSeedData(
     [
       {
@@ -214,8 +282,10 @@ export async function seed(knex: Knex): Promise<void> {
     ...taskServerSeedData,
     ...chargebeeSettingSeedData,
     ...coilSeedData,
-    ...metabaseSeedData,
+    ...instanceServerWebRtc,
+    ...instanceServerSeedData,
     ...serverSeedData,
+    ...metabaseSeedData,
     ...redisSeedData,
     ...zendeskSettingSeedData,
     ...helmSeedData
