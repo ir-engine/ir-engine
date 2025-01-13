@@ -59,8 +59,7 @@
     "@types/koa-compress": "^4.0.3",
     "@types/node": "18.15.5",
     "concurrently": "7.6.0",
-    "http-server": "14.1.1",
-    "supertest": "6.3.3"
+    "http-server": "14.1.1"
   },
   "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c"
 }

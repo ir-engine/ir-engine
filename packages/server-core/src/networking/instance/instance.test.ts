@@ -40,13 +40,13 @@ import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 
 const params = { isInternal: true } as any
 
-const p2pEnabled = config.instanceserver.p2pEnabled
+const p2pEnabled = config['instance-server'].p2pEnabled
 
 describe('instance.test', () => {
   let app: Application
 
   beforeAll(async () => {
-    config.instanceserver.p2pEnabled = false
+    config['instance-server'].p2pEnabled = false
 
     app = await createFeathersKoaApp()
     await app.setup()
@@ -55,7 +55,7 @@ describe('instance.test', () => {
   }, 60000)
 
   afterAll(async () => {
-    config.instanceserver.p2pEnabled = p2pEnabled
+    config['instance-server'].p2pEnabled = p2pEnabled
     await tearDownAPI()
     destroyEngine()
   })
