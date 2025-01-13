@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { MockEventListener } from './MockEventListener'
 
 export class MockXRInputSource {
   handedness: XRHandedness
@@ -56,12 +55,27 @@ export class MockXRSpace extends EventTarget {
   }
 }
 
-export class MockXRReferenceSpace extends MockEventListener {
-  getOffsetReferenceSpace = (originOffset: XRRigidTransform) => {
-    return {}
+export class MockXRReferenceSpace extends MockXRSpace {
+  getOffsetReferenceSpace = (originOffset: MockXRRigidTransform) => {
+    const matrix = this.matrix.clone()
+    const offsetMatrix = originOffset.matrix
+    matrix.multiply(new Matrix4().fromArray(offsetMatrix))
+    return new MockXRReferenceSpace(matrix)
   }
 
   onreset = () => {}
+
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions
+  ) {}
+
+  removeEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | EventListenerOptions
+  ) {}
 }
 
 const _scale = new Vector3()
@@ -112,17 +126,17 @@ export class MockXRRigidTransform {
   }
 }
 
-export class MockXRPlane {
+export class MockXRPlane implements XRPlane {
   orientation: XRPlaneOrientation = 'horizontal'
   planeSpace: XRSpace = new MockXRSpace(new Matrix4())
   polygon: DOMPointReadOnly[] = []
   lastChangedTime: number = 0
 }
 
-export class MockXRMesh {
+export class MockXRMesh implements XRMesh {
   meshSpace: XRSpace = new MockXRSpace(new Matrix4())
   vertices: Float32Array = new Float32Array()
-  indices: Uint16Array = new Uint16Array()
+  indices: Uint32Array = new Uint32Array()
   lastChangedTime: number = 0
 }
 
