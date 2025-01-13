@@ -46,7 +46,7 @@
     "quit": "Quit to Dashboard"
   },
   "errors": {
-    "fileTypeNotSupported": "Unsupported file type for file: \"{{name}}\". File must be an image, video, or glb model.",
+    "fileNotSupported": "File \"{{file}}\" is unsupported. Reason: {{errorMessage}}",
     "addObject": "addObject: before object not found",
     "removeObject": "removeObject: node not found. This is due to removing a node that is no longer in the scene.",
     "noParent": "{{node}} \"{{name}}\" has no parent. Reparent only works on objects that are currently in the scene.",
@@ -76,7 +76,8 @@
     "unknownStatus": "Unknown Status",
     "CORS": "Possibly a CORS error",
     "urlFetchError": "Failed to fetch \"{{url}}\"",
-    "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters, underscores, hyphens, and periods, and begin and end with an alphanumeric."
+    "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters, underscores, hyphens, and periods, and begin and end with an alphanumeric.",
+    "maxUploadFileSizeExceed":"That file size is too large. Please upload a file under {{maxFileSizeToUploadMB}}MB. The following files are too large: {{filesNames}}"
   },
   "warnings": {
     "sceneComplexity": "Scene complexity is {{sceneComplexity}}. Consider optimizing your scene for better performance."
