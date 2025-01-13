@@ -181,7 +181,8 @@ const exportMesh = async (mesh: Mesh, gltf: GLTF.IGLTF, context: GLTFSceneExport
         projectName: context.projectName,
         relativePath: context.relativePath,
         onlyVisible: false,
-        includeCustomExtensions: false
+        includeCustomExtensions: false,
+        embedImages: false
       }
     )
   })
