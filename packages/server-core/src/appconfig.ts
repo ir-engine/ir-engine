@@ -394,6 +394,7 @@ const aws = {
     secretAccessKey: process.env.AWS_SMS_SECRET_ACCESS_KEY!
   }
 }
+export type AwsConfig = typeof aws
 
 const chargebee = {
   url: process.env.CHARGEBEE_SITE + '.chargebee.com' || 'dummy.not-chargebee.com',

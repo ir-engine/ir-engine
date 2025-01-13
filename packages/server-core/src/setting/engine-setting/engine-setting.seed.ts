@@ -278,6 +278,84 @@ export async function seed(knex: Knex): Promise<void> {
     'server'
   )
 
+  const awsSeedData = await generateSeedData(
+    [
+      {
+        key: EngineSettings.Aws.S3.AccessKeyId,
+        value: process.env.STORAGE_AWS_ACCESS_KEY_ID || ''
+      },
+      {
+        key: EngineSettings.Aws.S3.AvatarDir,
+        value: process.env.STORAGE_AWS_AVATAR_DIR || ''
+      },
+      {
+        key: EngineSettings.Aws.S3.Endpoint,
+        value: process.env.STORAGE_S3_ENDPOINT || ''
+      },
+      {
+        key: EngineSettings.Aws.S3.Region,
+        value: process.env.STORAGE_S3_REGION || ''
+      },
+      {
+        key: EngineSettings.Aws.S3.SecretAccessKey,
+        value: process.env.STORAGE_AWS_ACCESS_KEY_SECRET || ''
+      },
+      {
+        key: EngineSettings.Aws.S3.S3DevMode,
+        value: process.env.STORAGE_S3_DEV_MODE || ''
+      },
+      {
+        key: EngineSettings.Aws.S3.StaticResourceBucket,
+        value: process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET || ''
+      },
+      {
+        key: EngineSettings.Aws.CloudFront.DistributionId,
+        value: process.env.STORAGE_CLOUDFRONT_DISTRIBUTION_ID || ''
+      },
+      {
+        key: EngineSettings.Aws.CloudFront.Domain,
+        value: process.env.STORAGE_CLOUDFRONT_DOMAIN || ''
+      },
+      {
+        key: EngineSettings.Aws.CloudFront.Region,
+        value: process.env.STORAGE_CLOUDFRONT_REGION || ''
+      },
+      {
+        key: EngineSettings.Aws.SMS.AccessKeyId,
+        value: process.env.AWS_SMS_ACCESS_KEY_ID || ''
+      },
+      {
+        key: EngineSettings.Aws.SMS.SecretAccessKey,
+        value: process.env.AWS_SMS_SECRET_ACCESS_KEY || ''
+      },
+      {
+        key: EngineSettings.Aws.SMS.ApplicationId,
+        value: process.env.AWS_SMS_APPLICATION_ID || ''
+      },
+      {
+        key: EngineSettings.Aws.SMS.Region,
+        value: process.env.AWS_SMS_REGION || ''
+      },
+      {
+        key: EngineSettings.Aws.SMS.SenderId,
+        value: process.env.AWS_SMS_SENDER_ID || ''
+      },
+      {
+        key: EngineSettings.Aws.EKS.AccessKeyId,
+        value: process.env.AWS_EKS_ACCESS_KEY_ID || ''
+      },
+      {
+        key: EngineSettings.Aws.EKS.RoleArn,
+        value: process.env.AWS_EKS_ROLE_ARN || ''
+      },
+      {
+        key: EngineSettings.Aws.EKS.SecretAccessKey,
+        value: process.env.AWS_EKS_SECRET_ACCESS_KEY || ''
+      }
+    ],
+    'aws'
+  )
+
   const seedData: EngineSettingType[] = [
     ...taskServerSeedData,
     ...chargebeeSettingSeedData,
@@ -288,7 +366,8 @@ export async function seed(knex: Knex): Promise<void> {
     ...metabaseSeedData,
     ...redisSeedData,
     ...zendeskSettingSeedData,
-    ...helmSeedData
+    ...helmSeedData,
+    ...awsSeedData
   ]
 
   if (forceRefresh || testEnabled) {
