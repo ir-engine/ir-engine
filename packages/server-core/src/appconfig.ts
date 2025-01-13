@@ -226,29 +226,7 @@ const taskserver = {
 /**
  * Email / SMTP
  */
-export type EmailConfig = {
-  smtp: {
-    host: string
-    port: number
-    secure: boolean
-    auth: {
-      user: string
-      pass: string
-    }
-  }
-  from: string
-  subject: {
-    'new-user': string
-    location: string
-    instance: string
-    login: string
-    friend: string
-    channel: string
-  }
-  smsNameCharacterLimit: number
-}
-
-const email: EmailConfig = {
+const email = {
   smtp: {
     host: process.env.SMTP_HOST!,
     port: parseInt(process.env.SMTP_PORT!),
@@ -269,6 +247,7 @@ const email: EmailConfig = {
   },
   smsNameCharacterLimit: 20
 }
+export type EmailConfigType = typeof email
 
 type WhiteListItem = {
   path: string

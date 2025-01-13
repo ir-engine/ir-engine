@@ -32,7 +32,7 @@ import { EngineSettingType, engineSettingPath } from '@ir-engine/common/src/sche
 import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { flattenObjectToArray, unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { EmailConfig } from '@ir-engine/server-core/src/appconfig'
+import { EmailConfigType } from '@ir-engine/server-core/src/appconfig'
 import { Button, Input } from '@ir-engine/ui'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
@@ -55,7 +55,7 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
 
   const emailSettings = unflattenArrayToObject(
     engineSetting.data.map((el) => ({ key: el.key, value: el.value, dataType: el.dataType }))
-  ) as EmailConfig
+  ) as EmailConfigType
 
   const smsNameCharacterLimit = useHookstate(emailSettings.smsNameCharacterLimit)
   const smtp = useHookstate(emailSettings?.smtp)
