@@ -140,7 +140,6 @@ export const DirectionalLightComponent = defineComponent({
     }, [])
 
     useEffect(() => {
-      console.log('DEBUG run this shit')
       light.color.set(directionalLightComponent.color.value)
     }, [directionalLightComponent.color])
 
