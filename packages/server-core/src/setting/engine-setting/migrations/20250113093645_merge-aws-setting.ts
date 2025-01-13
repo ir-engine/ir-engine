@@ -38,7 +38,6 @@ export async function up(knex: Knex): Promise<void> {
 
   if (tableExists) {
     const recordExists = await knex.table(awsSettingPath).first()
-    console.log('recordExists', recordExists)
 
     if (recordExists) {
       const awsS3Settings = recordExists.s3 || {}
@@ -50,11 +49,6 @@ export async function up(knex: Knex): Promise<void> {
       const cloudfrontAwsConfigArray = flattenObjectToArray({ cloudfront: JSON.parse(cloudfrontSettings) })
       const smsAwsConfigArray = flattenObjectToArray({ sms: JSON.parse(smsSettings) })
       const eksAwsConfigArray = flattenObjectToArray({ eks: JSON.parse(eksSettings) })
-
-      console.log('awsS3SettingConfigArray', awsS3SettingConfigArray)
-      console.log('cloudfrontAwsConfigArray', cloudfrontAwsConfigArray)
-      console.log('smsAwsConfigArray', smsAwsConfigArray)
-      console.log('eksAwsConfigArray', eksAwsConfigArray)
 
       const awsSettings: EngineSettingType[] = await Promise.all(
         [
