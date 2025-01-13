@@ -146,20 +146,18 @@ const execute = () => {
           editorCameraCenter.set(0, 0, 0)
           distance = 10
         } else {
-          if (cameraOrbit.focusedEntities.value) {
-            box.makeEmpty()
-            for (const object of cameraOrbit.focusedEntities.value) {
-              const obj = getOptionalComponent(object, ObjectComponent)
-              if (obj) box.expandByObject(obj)
-            }
-            if (box.isEmpty()) {
-              const entity = cameraOrbit.focusedEntities.value[0]
-              const position = getComponent(entity, TransformComponent).position
-              editorCameraCenter.copy(position)
-            } else {
-              box.getCenter(editorCameraCenter)
-              distance = box.getBoundingSphere(sphere).radius
-            }
+          box.makeEmpty()
+          for (const object of cameraOrbit.focusedEntities.value) {
+            const obj = getOptionalComponent(object, ObjectComponent)
+            if (obj) box.expandByObject(obj)
+          }
+          if (box.isEmpty()) {
+            const entity = cameraOrbit.focusedEntities.value[0]
+            const position = getComponent(entity, TransformComponent).position
+            editorCameraCenter.copy(position)
+          } else {
+            box.getCenter(editorCameraCenter)
+            distance = box.getBoundingSphere(sphere).radius
           }
         }
 
@@ -169,7 +167,7 @@ const execute = () => {
           .multiplyScalar(Math.min(distance, MAX_FOCUS_DISTANCE) * 2)
         transform.position.copy(editorCameraCenter).add(delta)
 
-        setComponent(cameraEid, CameraOrbitComponent, { focusedEntities: null!, refocus: false })
+        setComponent(cameraEid, CameraOrbitComponent, { focusedEntities: [], refocus: false })
       }
 
       if (cameraOrbit.isPanning.value) {
