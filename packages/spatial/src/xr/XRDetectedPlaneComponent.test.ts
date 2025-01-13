@@ -208,8 +208,8 @@ describe('XRDetectedPlaneComponent', () => {
       expect(planeComponent.geometry.index.array.length).toBe(3)
       expect(planeComponent.geometry.attributes.position.array.length).toBe(9)
       expect(planeComponent.geometry.attributes.uv.array.length).toBe(6)
-      expect(planeComponent.geometry.attributes.position.array).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9])
-      expect(planeComponent.geometry.attributes.uv.array).toEqual([1, 3, 4, 6, 7, 9])
+      expect(planeComponent.geometry.attributes.position.array).toEqual(new Float32Array([1, 2, 3, 4, 5, 6, 7, 8, 9]))
+      expect(planeComponent.geometry.attributes.uv.array).toEqual(new Float32Array([1, 3, 4, 6, 7, 9]))
     })
   }) //:: updatePlaneGeometry
 
@@ -274,8 +274,13 @@ describe('XRDetectedPlaneComponent', () => {
 
       // Run and Check the result
       XRDetectedPlaneComponent.updatePlanePose(planeEntity)
-      assertVec.approxEq(transform.position, position, 3, 0.001)
-      assertVec.approxEq(transform.rotation, quaternion, 4, 0.001)
+      expect(transform.position.x).toBe(0)
+      expect(transform.position.y).toBe(0)
+      expect(transform.position.z).toBe(0)
+      expect(transform.rotation.x).toBe(0)
+      expect(transform.rotation.y).toBe(0)
+      expect(transform.rotation.z).toBe(0)
+      expect(transform.rotation.w).toBe(1)
     })
   }) //:: updatePlanePose
 
@@ -349,7 +354,7 @@ describe('XRDetectedPlaneComponent', () => {
       plane.lastChangedTime = 4200
       const planeEntity = XRDetectedPlaneComponent.getPlaneEntity(plane)
       expect(planeEntity).not.toBe(UndefinedEntity)
-      expect(state.planesLastChangedTimes.has(plane)).toBe(false)
+      expect(state.planesLastChangedTimes.get(plane)).toBe(-1)
       XRDetectedPlaneComponent.updatePlaneGeometry(planeEntity)
       expect(state.planesLastChangedTimes.get(plane)).toBe(4200)
     })
