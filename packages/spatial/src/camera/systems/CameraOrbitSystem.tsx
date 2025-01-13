@@ -146,18 +146,20 @@ const execute = () => {
           editorCameraCenter.set(0, 0, 0)
           distance = 10
         } else {
-          box.makeEmpty()
-          for (const object of cameraOrbit.focusedEntities.value) {
-            const obj = getOptionalComponent(object, ObjectComponent)
-            if (obj) box.expandByObject(obj)
-          }
-          if (box.isEmpty()) {
-            const entity = cameraOrbit.focusedEntities[0].value
-            const position = getComponent(entity, TransformComponent).position
-            editorCameraCenter.copy(position)
-          } else {
-            box.getCenter(editorCameraCenter)
-            distance = box.getBoundingSphere(sphere).radius
+          if (cameraOrbit.focusedEntities.value) {
+            box.makeEmpty()
+            for (const object of cameraOrbit.focusedEntities.value) {
+              const obj = getOptionalComponent(object, ObjectComponent)
+              if (obj) box.expandByObject(obj)
+            }
+            if (box.isEmpty()) {
+              const entity = cameraOrbit.focusedEntities.value[0]
+              const position = getComponent(entity, TransformComponent).position
+              editorCameraCenter.copy(position)
+            } else {
+              box.getCenter(editorCameraCenter)
+              distance = box.getBoundingSphere(sphere).radius
+            }
           }
         }
 
