@@ -129,7 +129,6 @@ export const ObjectComponent = defineComponent({
           updateWorldMatrix: () => {}
         })
       }
-      TransformComponent.position.x
       // sometimes it's convenient to update the entity transform via the Object3D,
       // so allow people to do that via proxies
       proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirtyTransforms, obj.position)
