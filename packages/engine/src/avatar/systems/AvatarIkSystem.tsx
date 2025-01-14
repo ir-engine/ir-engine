@@ -44,7 +44,6 @@ import {
   createPriorityQueue,
   createSortAndApplyPriorityQueue
 } from '@ir-engine/spatial/src/common/functions/PriorityQueue'
-import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { compareDistanceToCamera } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { XRLeftHandComponent, XRRightHandComponent } from '@ir-engine/spatial/src/xr/XRComponents'
@@ -68,6 +67,7 @@ const _vector3 = new Vector3()
 const _hint = new Vector3()
 const mat4 = new Matrix4()
 const hipsForward = new Vector3(0, 0, 1)
+const _worldRot = new Quaternion()
 
 const avatarIkQuery = defineQuery([AvatarIkComponent, AvatarRigComponent])
 
@@ -134,7 +134,7 @@ const execute = () => {
 
     const transform = getComponent(entity, TransformComponent)
 
-    const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
+    const worldRotation = TransformComponent.getWorldRotation(entity, _worldRot)
 
     if (headTargetBlendWeight) {
       const headTransform = getComponent(head, TransformComponent)
@@ -149,7 +149,7 @@ const execute = () => {
 
       //offset target forward to account for hips being behind the head
       hipsForward.set(0, 0, 1)
-      hipsForward.applyQuaternion(rigidbodyComponent.rotation)
+      hipsForward.applyQuaternion(worldRotation)
       hipsForward.multiplyScalar(0.125)
       normalizedHips.position.sub(hipsForward)
 

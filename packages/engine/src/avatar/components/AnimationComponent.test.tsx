@@ -89,7 +89,7 @@ export const mockAnimatedAvatar = async () => {
 
   setupMixamoAnimation(animationPackEntity)
 
-  const animationComponent = setComponent(vrmEntity, AnimationComponent, {
+  setComponent(vrmEntity, AnimationComponent, {
     animations: getComponent(animationPackEntity, AnimationComponent).animations,
     mixer: new AnimationMixer(getComponent(vrmEntity, AvatarRigComponent).vrm.scene)
   })
