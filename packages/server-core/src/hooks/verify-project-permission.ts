@@ -72,7 +72,7 @@ export default (types: string[]) => {
       return context
     }
 
-    if (context.data.project === 'theinfinitereality/irpro-ecomm') {
+    if (context.data?.project === 'theinfinitereality/irpro-ecomm') {
       return context
     }
 
