@@ -182,7 +182,7 @@ describe('AvatarIKSystem', () => {
 
     const leftFootEntity = UUIDComponent.getEntityByUUID(leftFootUuid)
     const leftFootPosition = getComponent(leftFootEntity, TransformComponent).position
-    leftFootPosition.set(0, 0, 0)
+    leftFootPosition.set(-0.1, 0.1, 0)
 
     const rightFootEntity = UUIDComponent.getEntityByUUID(rightFootUuid)
     const rightFootPosition = getComponent(rightFootEntity, TransformComponent).position
@@ -204,10 +204,6 @@ describe('AvatarIKSystem', () => {
 
       iterateEntityNode(avatarEntity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
-      const hipsPos = TransformComponent.getWorldPosition(
-        getComponent(avatarEntity, AvatarRigComponent).bonesToEntities.hips,
-        new Vector3()
-      )
       const rightHandIkPos = TransformComponent.getWorldPosition(
         getComponent(avatarEntity, AvatarRigComponent).bonesToEntities.rightHand,
         new Vector3()
@@ -224,7 +220,6 @@ describe('AvatarIKSystem', () => {
         getComponent(avatarEntity, AvatarRigComponent).bonesToEntities.rightFoot,
         new Vector3()
       )
-      console.log(rightHandIkPos.x, rightHandIkPos.y, rightHandIkPos.z)
       expect(rightHandIkPos.distanceTo(rightHandPosition) < 0.1).toBeTruthy()
       expect(leftHandIkPos.distanceTo(leftHandPosition) < 0.1).toBeTruthy()
       expect(leftFootIkPos.distanceTo(leftFootPosition) < 0.1).toBeTruthy()

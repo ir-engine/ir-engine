@@ -28,7 +28,7 @@ import { Quaternion, Vector3 } from 'three'
 
 import { InviteCode } from '@ir-engine/common/src/schema.type.module'
 import { EngineState, EntityUUID } from '@ir-engine/ecs'
-import { Action, dispatchAction, getState, PeerID } from '@ir-engine/hyperflux'
+import { Action, PeerID, dispatchAction, getState } from '@ir-engine/hyperflux'
 import { CameraActions } from '@ir-engine/spatial/src/camera/CameraState'
 
 import { ikTargets } from '@ir-engine/engine/src/avatar/animation/Util'
