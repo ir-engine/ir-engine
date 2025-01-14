@@ -73,9 +73,7 @@ const isPortTaken = (port, fn) => {
   const tester = net
     .createServer()
     .once('error', (err) => {
-      if (err.name === 'EADDRINUSE') {
-        killProcess(port)
-      }
+      killProcess(port)
       fn(port, true)
     })
     .once('listening', () => {
