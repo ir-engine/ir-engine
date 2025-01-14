@@ -55,11 +55,12 @@ export async function up(knex: Knex): Promise<void> {
         [
           {
             key: EngineSettings.EmailSetting.From,
-            value: recordExists.from || process.env.EMAIL_FROM || ''
+            value: recordExists.from || `${process.env.SMTP_FROM_NAME} <${process.env.SMTP_FROM_EMAIL}>` || ''
           },
           {
             key: EngineSettings.EmailSetting.Smtp.Host,
-            value: emailSmtpConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Smtp.Host)?.value || ''
+            value:
+              emailSmtpConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Smtp.Host)?.value || 'test'
           },
           {
             key: EngineSettings.EmailSetting.Smtp.Port,
@@ -69,17 +70,19 @@ export async function up(knex: Knex): Promise<void> {
             key: EngineSettings.EmailSetting.Smtp.Secure,
             value:
               `${emailSmtpConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Smtp.Secure)?.value}` ||
-              ''
+              'true'
           },
           {
             key: EngineSettings.EmailSetting.Smtp.Auth.User,
             value:
-              emailSmtpConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Smtp.Auth.User)?.value || ''
+              emailSmtpConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Smtp.Auth.User)?.value ||
+              'test'
           },
           {
             key: EngineSettings.EmailSetting.Smtp.Auth.Pass,
             value:
-              emailSmtpConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Smtp.Auth.Pass)?.value || ''
+              emailSmtpConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Smtp.Auth.Pass)?.value ||
+              'test'
           },
           {
             key: EngineSettings.EmailSetting.SmsNameCharacterLimit,
@@ -89,37 +92,45 @@ export async function up(knex: Knex): Promise<void> {
             key: EngineSettings.EmailSetting.Subject.NewUser,
             value:
               emailSubjectConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Subject.NewUser)?.value ||
-              ''
+              process.env.SMTP_SUBJECT_NEW_USER ||
+              'Infinite Reality Engine signup'
           },
           {
             key: EngineSettings.EmailSetting.Subject.Channel,
             value:
               emailSubjectConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Subject.Channel)?.value ||
-              ''
+              process.env.SMTP_SUBJECT_CHANNEL ||
+              'Infinite Reality Engine channel invitation'
           },
           {
             key: EngineSettings.EmailSetting.Subject.Friend,
             value:
               emailSubjectConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Subject.Friend)?.value ||
-              ''
+              process.env.SMTP_SUBJECT_FRIEND ||
+              'Infinite Reality Engine friend request'
           },
           {
             key: EngineSettings.EmailSetting.Subject.Instance,
             value:
               emailSubjectConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Subject.Instance)
-                ?.value || ''
+                ?.value ||
+              process.env.SMTP_SUBJECT_INSTANCE ||
+              'Infinite Reality Engine location link'
           },
           {
             key: EngineSettings.EmailSetting.Subject.Location,
             value:
               emailSubjectConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Subject.Location)
-                ?.value || ''
+                ?.value ||
+              process.env.SMTP_SUBJECT_LOCATION ||
+              'Infinite Reality Engine location link'
           },
           {
             key: EngineSettings.EmailSetting.Subject.Login,
             value:
               emailSubjectConfigArray.find((item) => item.key === EngineSettings.EmailSetting.Subject.Login)?.value ||
-              ''
+              process.env.SMTP_SUBJECT_LOGIN ||
+              'Infinite Reality Engine login link'
           }
         ].map(async (item) => ({
           ...item,
