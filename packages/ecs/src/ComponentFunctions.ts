@@ -28,7 +28,7 @@ Infinite Reality Engine. All Rights Reserved.
  * @todo Write the `fileoverview` for `ComponentFunctions.ts`
  */
 import * as bitECS from 'bitecs'
-import React, { startTransition } from 'react'
+import React, { startTransition, useEffect } from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
 
@@ -187,10 +187,12 @@ export interface Component<
   onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove: (entity: Entity, component: State<ComponentType>) => void
   reactor?: any
+  reactorRoot?: ReactorRoot
   reactorMap: Map<Entity, ReactorRoot>
-  stateMap: Record<Entity, State<ComponentType> | undefined>
+  stateMap: State<Record<Entity, ComponentType>>
   errors: ErrorTypes[]
   storageSize: number
+  __ComponentType: ComponentType
 }
 
 // ECS schema to JS type
@@ -217,7 +219,7 @@ export type SoAComponentType<S extends bitECSLegacy.ISchema> = {
     : never
 }
 /** @description Generic `type` for all Engine's ECS {@link Component}s. All of its fields are required to not be `null`. */
-export type ComponentType<C extends Component> = InferStateValueType<NonNullable<C['stateMap'][Entity]>>
+export type ComponentType<C extends Component> = C['__ComponentType']
 /** @description Generic `type` for {@link Component}s, that takes the shape of the type returned by the its serialization function {@link Component.toJSON}. */
 export type SerializedComponentType<C extends Component> = ReturnType<C['toJSON']>
 /** @description Generic `type` for {@link Component}s, that takes the shape of the type returned by its {@link Component.onSet} function. */
@@ -367,7 +369,13 @@ export const defineComponent = <
       }
 
       if (Array.isArray(json) || typeof json !== 'object' || isSingleValueSchema) component.set(json as ComponentType)
-      else component.merge(json as SetPartialStateAction<ComponentType>)
+      else if (json) {
+        for (const key of Object.keys(json)) {
+          ;(component[key] as any).set((_) => json?.[key])
+        }
+      } else {
+        component.set(json as any)
+      }
     }
   }
   Component.onRemove = () => {}
@@ -382,7 +390,7 @@ export const defineComponent = <
   // We have to create an stateful existence map in order to reactively track which entities have a given component.
   // Unfortunately, we can't simply use a single shared state because hookstate will (incorrectly) invalidate other nested states when a single component
   // instance is added/removed, so each component instance has to be isolated from the others.
-  Component.stateMap = {}
+  Component.stateMap = hookstate({}) as State<Record<Entity, ComponentType>>
   if (Component.jsonID) {
     ComponentJSONIDMap.set(Component.jsonID, Component)
     // console.log(`Registered component ${Component.name} with jsonID ${Component.jsonID}`)
@@ -440,14 +448,14 @@ export const getOptionalMutableComponent = <C extends Component>(
   entity: Entity,
   component: C
 ): State<ComponentType<C>> | undefined => {
-  if (!component.stateMap[entity]) component.stateMap[entity] = hookstate(none) as State<ComponentType<C>>
-  const componentState = component.stateMap[entity]!
-  return componentState.promised ? undefined : (componentState as State<ComponentType<C>> | undefined)
+  return !bitECS.hasComponent(HyperFlux.store, entity, component)
+    ? undefined
+    : (component.stateMap[entity]! as State<ComponentType<C>> | undefined)
 }
 
 export const getMutableComponent = <C extends Component>(entity: Entity, component: C): State<ComponentType<C>> => {
   const componentState = getOptionalMutableComponent(entity, component)
-  if (!componentState || componentState.promised) {
+  if (componentState === undefined) {
     console.warn(
       `[getMutableComponent]: entity ${entity} does not have ${component.name}. This will be an error in the future. Use getOptionalMutableComponent if there is uncertainty over whether or not an entity has the specified component.`
     )
@@ -461,7 +469,9 @@ export const getOptionalComponent = <C extends Component>(
   component: C
 ): ComponentType<C> | undefined => {
   const componentState = component.stateMap[entity]!
-  return componentState?.promised ? undefined : (componentState?.get(NO_PROXY_STEALTH) as ComponentType<C>)
+  return !bitECS.hasComponent(HyperFlux.store, entity, component)
+    ? undefined
+    : (componentState?.get(NO_PROXY_STEALTH) as ComponentType<C>)
 }
 
 export const getComponent = <C extends Component>(entity: Entity, component: C): ComponentType<C> => {
@@ -645,13 +655,7 @@ export const setComponent = <C extends Component>(
   const componentExists = hasComponent(entity, component)
   if (!componentExists) {
     const value = createInitialComponentValue(entity, component)
-
-    if (!component.stateMap[entity]) {
-      component.stateMap[entity] = hookstate(value)
-    } else {
-      component.stateMap[entity]!.set(value)
-    }
-
+    component.stateMap[entity]!.set(value)
     bitECS.addComponent(HyperFlux.store, entity, component)
   }
 
@@ -842,13 +846,28 @@ export function _use(promise) {
  */
 export function useComponent<C extends Component>(entity: Entity, component: C): State<ComponentType<C>> {
   if (entity === UndefinedEntity) throw new Error('InvalidUsage: useComponent called with UndefinedEntity')
-  if (!component.stateMap[entity]) component.stateMap[entity] = hookstate(none) as State<ComponentType<C>>
-  const componentState = component.stateMap[entity]!
+
   // use() will suspend the component (by throwing a promise) and resume when the promise is resolved
-  if (componentState.promise) {
-    ;(React.use ?? _use)(componentState.promise)
+  let unsubscribe
+  if (!hasComponent(entity, component)) {
+    const promise = new Promise((resolve) => {
+      unsubscribe = bitECS.observe(HyperFlux.store, bitECS.onAdd(component), (eid) => {
+        if (entity === eid) {
+          resolve(getComponent(entity, component))
+          unsubscribe?.()
+        }
+      })
+    })
+    ;(React.use ?? _use)(promise)
   }
-  return useHookstate(componentState) as State<ComponentType<C>>
+
+  useEffect(() => {
+    return () => {
+      unsubscribe?.()
+    }
+  }, [])
+
+  return useHookstate(component.stateMap[entity]) as State<ComponentType<C>>
 }
 
 /**
@@ -858,9 +877,8 @@ export function useOptionalComponent<C extends Component>(
   entity: Entity,
   component: C
 ): State<ComponentType<C>> | undefined {
-  if (!component.stateMap[entity]) component.stateMap[entity] = hookstate(none) as State<ComponentType<C>>
   const componentState = useHookstate(component.stateMap[entity]) as State<ComponentType<C>>
-  return componentState.promised ? undefined : componentState
+  return !hasComponent(entity, component) || componentState.promised ? undefined : componentState
 }
 
 export const getComponentCountOfType = <C extends Component>(component: C): number => {

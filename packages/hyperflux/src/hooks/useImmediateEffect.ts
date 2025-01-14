@@ -50,6 +50,11 @@ export function useImmediateEffect(effect: EffectCallback, deps?: DependencyList
   const cleanupRef = useRef<any>()
   const depsRef = useRef<any>()
 
+  // make sure deps are hooked
+  useEffect(() => {
+    for (const d of deps ?? []) (d as any)?.value
+  }, deps)
+
   // only run effect on mount and whenever deps change
   if (depsDiff(depsRef.current, deps)) {
     depsRef.current = deps
@@ -62,9 +67,6 @@ export function useImmediateEffect(effect: EffectCallback, deps?: DependencyList
     // run effect
     cleanupRef.current = effect()
   }
-
-  // make sure deps are hooked
-  useEffect(noop, deps)
 
   // make sure final cleanup is called on unmount
   useLayoutEffect(() => {

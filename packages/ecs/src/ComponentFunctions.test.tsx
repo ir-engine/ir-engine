@@ -615,7 +615,7 @@ describe('ComponentFunctions', async () => {
       removeComponent(entity, TestComponent)
 
       assert.ok(!hasComponent(entity, TestComponent))
-      assert.ok(TestComponent.stateMap[entity]!.promised === true)
+      assert.ok(TestComponent.stateMap[entity]!.value === undefined)
     })
 
     it('should remove component with AoS values', () => {
@@ -847,7 +847,7 @@ describe('ComponentFunctions Hooks', async () => {
 
       // Run the test case
       const tag = <Reactor />
-      assert.equal(TestComponent.stateMap[entity]!, undefined)
+      assert.equal(TestComponent.stateMap[entity]!.value, undefined)
       const { rerender, unmount } = render(tag)
       assert.equal(result, 1)
 
