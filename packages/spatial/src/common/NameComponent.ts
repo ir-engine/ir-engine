@@ -23,14 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEntityContext } from '@ir-engine/ecs'
-import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { useImmediateEffect } from '@ir-engine/hyperflux'
 import { NonEmptyString } from '../schema/schemaFunctions'
 
-const entitiesByName = {} as Record<string, Entity[]>
+const entitiesByName = {} as Record<string, Set<Entity>>
 
 export const NameComponent = defineComponent({
   name: 'NameComponent',
@@ -39,24 +37,24 @@ export const NameComponent = defineComponent({
     validate: NonEmptyString('NameComponent expects a non-empty string')
   }),
 
-  reactor: () => {
-    const entity = useEntityContext()
-    const nameComponent = useComponent(entity, NameComponent)
+  onSet: (entity, component, name: string) => {
+    const prevName = component.value
 
-    useImmediateEffect(() => {
-      const name = nameComponent.value
-      if (!entitiesByName[name]) {
-        entitiesByName[name] = []
-      }
+    if (entitiesByName[prevName]) {
+      entitiesByName[prevName].delete(entity)
+    }
 
-      entitiesByName[name].push(entity)
-      return () => {
-        const index = entitiesByName[name].indexOf(entity)
-        entitiesByName[name].splice(index, 1)
-      }
-    }, [nameComponent.value])
+    if (!entitiesByName[name]) {
+      entitiesByName[name] = new Set()
+    }
 
-    return null
+    entitiesByName[name].add(entity)
+    component.set(name)
+  },
+
+  onRemove: (entity, component) => {
+    const name = component.value
+    entitiesByName[name].delete(entity)
   },
 
   entitiesByName: entitiesByName as Readonly<typeof entitiesByName>

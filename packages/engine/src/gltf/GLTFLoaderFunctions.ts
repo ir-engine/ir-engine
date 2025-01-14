@@ -487,7 +487,7 @@ const useLoadMaterial = (
 
   useEffect(() => {
     /** @todo refactor this into a proper registry, rather than prototype definition entities */
-    const materialPrototypeEntity = NameComponent.entitiesByName[materialDef.type]?.[0]
+    const materialPrototypeEntity = NameComponent.entitiesByName[materialDef.type].values().next().value
     const materialPrototype = materialPrototypeEntity
       ? (getComponent(materialPrototypeEntity, MaterialPrototypeComponent).prototypeConstructor as any)[
           materialDef.type

@@ -463,8 +463,8 @@ describe('SpotLightComponent', () => {
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)
 
       // Run and Check the Initial result
-      setComponent(testEntity, SpotLightComponent)
       setComponent(testEntity, NameComponent, 'spot-light')
+      setComponent(testEntity, SpotLightComponent)
 
       // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(Expected)
