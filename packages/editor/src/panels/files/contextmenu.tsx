@@ -154,7 +154,7 @@ export function FileContextMenu({
       action: () => {
         PopoverState.showPopupover(
           <DeleteFileModal
-            files={selectedFiles.value}
+            files={selectedFiles.get(NO_PROXY)}
             onComplete={(err) => {
               selectedFiles.set([])
               ClickPlacementState.resetSelectedAsset()
