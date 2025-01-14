@@ -32,7 +32,7 @@ import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { Tooltip } from '@ir-engine/ui'
 import { ToolbarButton } from '@ir-engine/ui/editor'
 import { Cursor03Default, Refresh1Md, Scale02Md, TransformMd } from '@ir-engine/ui/src/icons'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TbMarquee2 } from 'react-icons/tb'
 import { EditorHelperState } from '../../../services/EditorHelperState'
@@ -77,6 +77,11 @@ export default function TransformGizmoTool() {
     targetStartY: 56,
     targetStartX: 16
   })
+
+  useEffect(() => {
+    const mode = editorHelperState.transformMode.value
+    setToolSelected(mode)
+  }, [editorHelperState.transformMode])
 
   return (
     <div id="gizmo-tool" className={`absolute z-[5] flex flex-col items-center rounded-lg bg-[#080808] p-2`}>
