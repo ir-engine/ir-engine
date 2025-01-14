@@ -30,6 +30,7 @@ import net from 'net'
 import { join } from 'path'
 import serveStatic from 'serve-static'
 
+import { exec } from 'child_process'
 import config from './appconfig'
 
 const serve = process.env.TEST === 'true' ? serveStatic('../server/upload_test/') : serveStatic('../server/upload/')
@@ -54,11 +55,28 @@ export const StartTestFileServer = () => {
   isPortTaken(port, createTestFileServer)
 }
 
+function killProcess(port: number) {
+  exec(`lsof -i :${port} | grep LISTEN | awk '{print $2}' | xargs kill`, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error: ${error.message}`)
+      return
+    }
+    if (stderr) {
+      console.error(`Stderr: ${stderr}`)
+      return
+    }
+    console.log(`Process on port ${port} killed`)
+  })
+}
+
 const isPortTaken = (port, fn) => {
   const tester = net
     .createServer()
     .once('error', (err) => {
-      if (err.name === 'EADDRINUSE') return fn(port, true)
+      if (err.name === 'EADDRINUSE') {
+        killProcess(port)
+      }
+      fn(port, true)
     })
     .once('listening', () => {
       tester
