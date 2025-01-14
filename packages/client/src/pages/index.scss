@@ -179,3 +179,18 @@
     }
   }
 }
+
+
+.gradientButton {
+  background: linear-gradient(90deg, #5236ff, #c20560);
+  color: #fff !important;
+  width: 100%;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}

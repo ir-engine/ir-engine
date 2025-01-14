@@ -159,9 +159,9 @@ export const SceneThumbnailState = defineState({
     if (entity) commitProperty(SceneSettingsComponent, 'loadingScreenURL', [entity])(cleanURL.href)
 
     sceneThumbnailState.merge({
-      loadingScreenURL: null,
+      loadingScreenURL: loadingScreenURL,
       oldLoadingScreenURL: currentLoadingScreen,
-      loadingScreenImageData: null,
+      loadingScreenImageData: loadingScreenImageData,
       uploadingLoadingScreen: false
     })
   },

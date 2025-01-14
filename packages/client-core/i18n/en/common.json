@@ -58,7 +58,7 @@
     "loadingAllowed": "Loading allowed routes...",
     "loadingXRSystems": "Loading immersive session...",
     "connectingToWorld": "Connecting to world...",
-    "needToAgreeTOS": "You need to verify your age to access chat.",
+    "needToVerifyAge": "You need to verify your age to access chat.",
     "needToLogIn": "You need to log in to access chat.",
     "connectingToMedia": "Connecting to media...",
     "entering": "Entering world...",
@@ -155,7 +155,11 @@
   },
   "table": {
     "refetching": "Refetching Data...",
-    "noData": "Data is Empty"
+    "noData": "Data is Empty",
+    "pagination": {
+      "prev": "Prev",
+      "next": "Next"
+    }
   },
   "multiEmailInput": {
     "placeholder": "Type or paste email addresses and press `Enter`...",
