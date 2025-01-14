@@ -152,7 +152,7 @@ const execute = () => {
             if (obj) box.expandByObject(obj)
           }
           if (box.isEmpty()) {
-            const entity = cameraOrbit.focusedEntities.value[0]
+            const entity = cameraOrbit.focusedEntities[0].value
             const position = getComponent(entity, TransformComponent).position
             editorCameraCenter.copy(position)
           } else {
