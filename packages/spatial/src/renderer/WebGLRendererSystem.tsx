@@ -96,6 +96,7 @@ export const RendererComponent = defineComponent({
       normalPass: S.Nullable(S.Type<NormalPass>()),
       renderContext: S.Nullable(S.Type<WebGLRenderingContext | WebGL2RenderingContext>()),
       effects: S.Record(S.String(), EffectSchema),
+      effectInstances: S.Record(S.String(), S.Type<Effect>()),
 
       canvas: S.Nullable(S.Type<HTMLCanvasElement>()),
 
@@ -232,19 +233,19 @@ export const RendererComponent = defineComponent({
     }, [rendererComponent.renderContext.value])
 
     useEffect(() => {
-      if (!effectComposerState.value) return
+      if (!rendererComponent.effectComposer.value) return
 
       const scene = rendererComponent.scene.value as Scene
       const outlineEffect = new OutlineEffect(scene, camera, getState(HighlightState))
       outlineEffect.selectionLayer = ObjectLayers.HighlightEffect
-      effectComposerState.OutlineEffect.set(outlineEffect)
+      rendererComponent.effectInstances.OutlineEffect.set(outlineEffect)
 
       return () => {
         if (!hasComponent(entity, RendererComponent)) return
         outlineEffect.dispose()
-        effectComposerState.OutlineEffect.set(none)
+        rendererComponent.effectInstances.OutlineEffect.set(none)
       }
-    }, [!!rendererComponent.effectComposer.value, !!effectComposerState.value, hightlightState])
+    }, [!!rendererComponent.effectComposer.value, hightlightState])
 
     useEffect(() => {
       const effectComposer = effectComposerState.value
@@ -255,7 +256,8 @@ export const RendererComponent = defineComponent({
       const enabled = renderSettings.usePostProcessing.value
 
       const effectArray = enabled ? Object.values(effectsVal) : []
-      if (effectComposer.OutlineEffect) effectArray.unshift(effectComposer.OutlineEffect as OutlineEffect)
+      if (rendererComponent.effectInstances.OutlineEffect.value)
+        effectArray.unshift(rendererComponent.effectInstances.OutlineEffect.value as OutlineEffect)
 
       const effectPass = new EffectPass(camera, ...effectArray)
       effectComposerState.EffectPass.set(effectPass)
@@ -283,7 +285,12 @@ export const RendererComponent = defineComponent({
         effectComposer.EffectPass.dispose()
         effectComposer.removePass(effectPass)
       }
-    }, [rendererComponent.effects, !!effectComposerState?.OutlineEffect?.value, renderSettings.usePostProcessing.value])
+    }, [
+      rendererComponent.effects,
+      rendererComponent.effectComposer.value,
+      rendererComponent?.effectInstances?.OutlineEffect.value,
+      renderSettings.usePostProcessing.value
+    ])
 
     return null
   }
