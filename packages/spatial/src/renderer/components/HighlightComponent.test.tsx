@@ -141,7 +141,7 @@ describe('HighlightSystem', () => {
       const result = (
         getOptionalComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)?.effectInstances
           ?.OutlineEffect as OutlineEffect
-      ).selection
+      )?.selection
       assert.equal(result, undefined)
     })
 
@@ -169,7 +169,7 @@ describe('HighlightSystem', () => {
       const result = (
         getOptionalComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)?.effectInstances
           ?.OutlineEffect as OutlineEffect
-      ).selection
+      )?.selection
       for (const obj of result!) {
         assert.notEqual(obj.entity, notQueryEntity1)
         assert.notEqual(obj.entity, notQueryEntity2)
@@ -200,7 +200,7 @@ describe('HighlightSystem', () => {
       const result = (
         getOptionalComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)?.effectInstances
           ?.OutlineEffect as OutlineEffect
-      ).selection
+      )?.selection
       for (const obj of result!) {
         assert.notEqual(obj.entity, notQueryEntity1)
         assert.notEqual(obj.entity, notQueryEntity2)
@@ -231,7 +231,7 @@ describe('HighlightSystem', () => {
       const result = (
         getOptionalComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)?.effectInstances
           ?.OutlineEffect as OutlineEffect
-      ).selection
+      )?.selection
       for (const obj of result!) {
         assert.notEqual(obj.entity, notQueryEntity1)
         assert.notEqual(obj.entity, notQueryEntity2)
