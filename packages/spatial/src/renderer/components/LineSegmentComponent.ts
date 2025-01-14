@@ -26,14 +26,15 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { BufferGeometry, Color, LineBasicMaterial, LineSegments, Material, NormalBufferAttributes } from 'three'
 
-import { defineComponent, setComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, removeComponent, setComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { NO_PROXY } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
 import { useDisposable, useResource } from '../../resources/resourceHooks'
+import { T } from '../../schema/schemaFunctions'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { ObjectComponent } from './ObjectComponent'
 import { ObjectLayerMaskComponent } from './ObjectLayerComponent'
 import { setVisibleComponent } from './VisibleComponent'
 
@@ -44,7 +45,7 @@ export const LineSegmentComponent = defineComponent({
     name: S.String('line-segment'),
     geometry: S.Required(S.Type<BufferGeometry>()),
     material: S.Class(() => new LineBasicMaterial() as Material),
-    color: S.Optional(S.Color()),
+    color: S.Optional(T.Color()),
     layerMask: S.Number(ObjectLayers.NodeHelper),
     entity: S.Optional(S.Entity())
   }),
@@ -52,8 +53,8 @@ export const LineSegmentComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, LineSegmentComponent)
-    const [geometryState] = useResource(component.geometry.value, entity, component.geometry.uuid.value)
-    const [materialState] = useResource(component.material.value, entity, component.material.uuid.value)
+    const [geometryState] = useResource(component.geometry.value, entity)
+    const [materialState] = useResource(component.material.value, entity)
     const [lineSegment] = useDisposable(
       LineSegments,
       entity,
@@ -62,10 +63,10 @@ export const LineSegmentComponent = defineComponent({
     )
 
     useEffect(() => {
-      addObjectToGroup(entity, lineSegment)
+      setComponent(entity, ObjectComponent, lineSegment)
       setVisibleComponent(entity, true)
       return () => {
-        removeObjectFromGroup(entity, lineSegment)
+        removeComponent(entity, ObjectComponent)
       }
     }, [])
 

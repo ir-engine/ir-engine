@@ -131,6 +131,10 @@ export class S3Provider implements StorageProviderInterface {
     fs.writeFileSync(credentialsPath, Buffer.from(awsCredentials))
 
     this.provider = new S3Client({
+      requestHandler: {
+        requestTimeout: 5_000,
+        httpsAgent: { maxSockets: 300 }
+      },
       credentials: fromIni({
         profile: config.aws.s3.roleArn ? 'role' : 'default',
         filepath: credentialsPath
@@ -370,7 +374,6 @@ export class S3Provider implements StorageProviderInterface {
       try {
         const upload = new Upload(args as unknown as Options)
         upload.on('httpUploadProgress', (progress) => {
-          console.log(progress)
           // if (params.onProgress) params.onProgress(progress.loaded, progress.total)
         })
         await upload.done()

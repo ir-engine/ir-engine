@@ -86,11 +86,17 @@ export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
 
   const name = args.name ?? args.file.originalname
   const relativePath = args.path!.replace('projects/' + args.project + '/', '') + name
-  await app.service(fileBrowserPath).patch(null, {
-    project: args.project,
-    body: args.file,
-    path: relativePath
-  })
+  await app.service(fileBrowserPath).patch(
+    null,
+    {
+      project: args.project,
+      body: args.file,
+      path: relativePath
+    },
+    {
+      isInternal: true
+    }
+  )
 
   return (
     await app.service(staticResourcePath).find({
@@ -112,7 +118,9 @@ const uploadAssets = (app: Application) => async (data: AssetUploadType, params:
       ...(data.args as AvatarUploadArgsType)
     } as any
     if (data.path) callData.path = data.path
-
+    // Clear files from params to prevent them from being propagated in subsequent requests,
+    // which could lead to errors from exceeding Redis Pub/Sub output buffer limits.
+    params.files = []
     return await uploadAvatarStaticResource(app, callData, params)
   } else if (data.type === 'admin-file-upload') {
     if (!(await verifyScope('admin', 'admin')({ app, params } as any))) throw new Error('Unauthorized')

@@ -41,7 +41,7 @@ import {
   VideoTexture
 } from 'three'
 
-import { UUIDComponent } from '@ir-engine/ecs'
+import { EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getOptionalComponent,
@@ -57,11 +57,11 @@ import { createPriorityQueue } from '@ir-engine/spatial/src/common/functions/Pri
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent, useMeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { ContentFitTypeSchema } from '@ir-engine/spatial/src/transform/functions/ObjectFitFunctions'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
-import { ContentFitTypeSchema } from '@ir-engine/spatial/src/xrui/functions/ObjectFitFunctions'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { clearErrors } from '../functions/ErrorFunctions'
 import { getTextureSize, PLANE_GEO, resizeVideoMesh, SideSchema, SPHERE_GEO } from './ImageComponent'
 import { MediaElementComponent } from './MediaComponent'
@@ -101,11 +101,11 @@ export const VideoComponent = defineComponent({
 
   schema: S.Object({
     side: SideSchema(DoubleSide),
-    size: S.Vec2({ x: 1, y: 1 }),
-    uvOffset: S.Vec2({ x: 0, y: 0 }),
-    uvScale: S.Vec2({ x: 1, y: 1 }),
-    alphaUVOffset: S.Vec2({ x: 0, y: 0 }),
-    alphaUVScale: S.Vec2({ x: 1, y: 1 }),
+    size: T.Vec2({ x: 1, y: 1 }),
+    uvOffset: T.Vec2({ x: 0, y: 0 }),
+    uvScale: T.Vec2({ x: 1, y: 1 }),
+    alphaUVOffset: T.Vec2({ x: 0, y: 0 }),
+    alphaUVScale: T.Vec2({ x: 1, y: 1 }),
     wrapS: WrappingSchema,
     wrapT: WrappingSchema,
     useAlpha: S.Bool(false),
@@ -114,9 +114,10 @@ export const VideoComponent = defineComponent({
     fit: ContentFitTypeSchema('contain'),
     projection: ProjectionSchema,
     mediaUUID: S.EntityUUID(),
+
     // internal
     videoMeshEntity: S.Entity(),
-    texture: S.Nullable(S.Type<VideoTexturePriorityQueue>())
+    texture: S.NonSerialized(S.Nullable(S.Type<VideoTexturePriorityQueue>()))
   }),
 
   onRemove: (entity, component) => {
@@ -389,7 +390,13 @@ function VideoReactor() {
     const sourceMeshComponent = getOptionalComponent(mediaEntity, MeshComponent)
     const sourceTexture = sourceVideoComponent?.texture
     if (video.texture.value) {
+      //needed to set up the self-referencing source video texture
       ;(video.texture.value.image as HTMLVideoElement) = mediaElement.element.value as HTMLVideoElement
+
+      //if we're a videoComponent pointing to a different source, this will update the initial texture when we set source
+      if (entity !== mediaEntity && sourceVideoComponent) {
+        video.texture.set(sourceVideoComponent.texture)
+      }
       clearErrors(entity, VideoComponent)
     } else {
       if (sourceTexture && sourceMeshComponent) {
@@ -406,6 +413,6 @@ function VideoReactor() {
         }
       }
     }
-  }, [video.texture, mediaEntity, mediaElement])
+  }, [video.texture, video.mediaUUID, mediaEntity, mediaElement])
   return null
 }

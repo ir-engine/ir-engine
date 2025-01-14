@@ -50,7 +50,9 @@ import {
   createEntity,
   Entity,
   entityExists,
+  EntityTreeComponent,
   EntityUUID,
+  getAncestorWithComponents,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -60,7 +62,8 @@ import {
   setComponent,
   UndefinedEntity,
   useOptionalComponent,
-  UUIDComponent
+  UUIDComponent,
+  validateComponentSchema
 } from '@ir-engine/ecs'
 import {
   defineState,
@@ -73,27 +76,23 @@ import {
   State,
   Topic,
   useHookstate,
-  useImmediateEffect,
   useMutableState
 } from '@ir-engine/hyperflux'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { Object3DComponent } from '@ir-engine/spatial/src/renderer/components/Object3DComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
 import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { ResourceManager, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
-import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
@@ -110,7 +109,7 @@ export const GLTFAssetState = defineState({
   initial: {} as Record<string, Entity>, // sceneID => entity
 
   loadScene: (sceneURL: string, uuid: string) => {
-    const gltfEntity = GLTFSourceState.load(sceneURL, uuid as EntityUUID, getState(EngineState).originEntity)
+    const gltfEntity = GLTFSourceState.load(sceneURL, uuid as EntityUUID, getState(ReferenceSpaceState).originEntity)
     getMutableState(GLTFAssetState)[sceneURL].set(gltfEntity)
     setComponent(gltfEntity, SceneComponent)
 
@@ -142,9 +141,7 @@ export const GLTFSourceState = defineState({
     setComponent(entity, SourceComponent, sourceID)
     setComponent(entity, GLTFComponent, { src: source })
     const obj3d = new Group()
-    setComponent(entity, Object3DComponent, obj3d)
-    addObjectToGroup(entity, obj3d)
-    proxifyParentChildRelationships(obj3d)
+    setComponent(entity, ObjectComponent, obj3d)
     return entity
   },
 
@@ -421,14 +418,11 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
   useEffect(() => {
     /** @todo this is a temporary hack */
     const obj3d = new Group()
-    setComponent(rootEntity, Object3DComponent, obj3d)
-    addObjectToGroup(rootEntity, obj3d)
-    proxifyParentChildRelationships(obj3d)
+    setComponent(rootEntity, ObjectComponent, obj3d)
 
     return () => {
       if (entityExists(rootEntity)) {
-        removeObjectFromGroup(rootEntity, getComponent(rootEntity, Object3DComponent))
-        removeComponent(rootEntity, Object3DComponent)
+        removeComponent(rootEntity, ObjectComponent)
       }
     }
   }, [])
@@ -436,7 +430,7 @@ export const DocumentReactor = (props: { documentID: string; parentUUID: EntityU
   useEffect(() => {
     if (!animationState.length) return
 
-    const obj3d = getComponent(rootEntity, Object3DComponent)
+    const obj3d = getComponent(rootEntity, ObjectComponent)
     obj3d.animations = animationState.get(NO_PROXY) as AnimationClip[]
     if (!hasComponent(rootEntity, AnimationComponent)) {
       setComponent(rootEntity, AnimationComponent, {
@@ -631,7 +625,7 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
   const entityState = useHookstate(UndefinedEntity)
   const entity = entityState.value
 
-  useImmediateEffect(() => {
+  useLayoutEffect(() => {
     const uuid = getNodeUUID(node.get(NO_PROXY) as GLTF.IGLTF, props.documentID, props.nodeIndex)
     const entity = UUIDComponent.getOrCreateEntityByUUID(uuid)
 
@@ -639,7 +633,8 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
 
     /** Ensure all base components are added for synchronous mount */
     setComponent(entity, EntityTreeComponent, { parentEntity, childIndex: props.childIndex })
-    setComponent(entity, NameComponent, node.name.value ?? 'Node-' + props.nodeIndex)
+    const nodeName = node.name.value ?? 'Node-' + props.nodeIndex
+    setComponent(entity, NameComponent, nodeName)
     setComponent(entity, TransformComponent)
 
     if (node.matrix.value) {
@@ -659,18 +654,16 @@ const NodeReactor = (props: { nodeIndex: number; childIndex: number; parentUUID:
       for (const extension in node.extensions.value) {
         const Component = ComponentJSONIDMap.get(extension)
         if (!Component) continue
-        setComponent(entity, Component, node.extensions[extension].get(NO_PROXY_STEALTH))
+
+        const validatedComponent = validateComponentSchema(Component, node.extensions[extension].get(NO_PROXY_STEALTH))
+        node.extensions[extension].set(validatedComponent)
+        setComponent(entity, Component, validatedComponent)
       }
     }
 
-    if (!hasComponent(entity, Object3DComponent) && !hasComponent(entity, MeshComponent)) {
+    if (!hasComponent(entity, ObjectComponent) && !hasComponent(entity, MeshComponent)) {
       if (isBoneNode(documentState.get(NO_PROXY) as GLTF.IGLTF, props.nodeIndex)) {
-        const bone = new Bone()
-        bone.name = node.name.value ?? 'Bone-' + props.nodeIndex
-        setComponent(entity, BoneComponent, bone)
-        addObjectToGroup(entity, bone)
-        proxifyParentChildRelationships(bone)
-        setComponent(entity, Object3DComponent, bone)
+        setComponent(entity, BoneComponent, new Bone())
       }
     }
 
@@ -804,7 +797,15 @@ const ExtensionReactor = (props: { entity: Entity; extension: string; nodeIndex:
           if (ComponentJSONIDMap.has(parts[1])) {
             const Component = ComponentJSONIDMap.get(parts[1])
             if (!Component) return console.warn('no component found for extension', parts[1])
-            setComponent(props.entity, Component)
+            let deserializedValue = typeof parts[2] === 'string' ? { [parts[2]]: value } : value
+            if (typeof value === 'string') {
+              try {
+                deserializedValue = JSON.parse(value)
+              } catch (e) {
+                // expected
+              }
+            }
+            setComponent(props.entity, Component, deserializedValue)
             if (Component === ColliderComponent) removeComponent(props.entity, VisibleComponent)
           }
         }
@@ -1029,16 +1030,16 @@ const PrimitiveReactor = (props: {
       typeof node.skin !== 'undefined'
         ? new SkinnedMesh(finalGeometry as BufferGeometry)
         : new Mesh(finalGeometry as BufferGeometry)
+
     mesh.material = material
 
     if (typeof node.skin !== 'undefined') {
       ;(mesh as SkinnedMesh).skeleton = new Skeleton()
+      ;(mesh as SkinnedMesh).normalizeSkinWeights()
       setComponent(props.entity, SkinnedMeshComponent, mesh as SkinnedMesh)
     }
 
     setComponent(props.entity, MeshComponent, mesh)
-    addObjectToGroup(props.entity, mesh)
-    proxifyParentChildRelationships(mesh)
     mesh.name = node.name ?? 'Node-' + props.nodeIndex
 
     const url = options.url
@@ -1048,7 +1049,6 @@ const PrimitiveReactor = (props: {
       if (entityExists(props.entity)) {
         removeComponent(props.entity, SkinnedMeshComponent)
         removeComponent(props.entity, MeshComponent)
-        removeObjectFromGroup(props.entity, mesh)
       }
     }
   }, [node.skin, finalGeometry])
@@ -1102,9 +1102,7 @@ const PrimitiveExtensionReactor = (props: {
   useEffect(() => {
     if (!extensions) return
     for (const extension in extensions) {
-      console.log(extension)
       const Component = ComponentJSONIDMap.get(extension)
-      console.log(Component)
       if (!Component) continue
       setComponent(props.entity, Component, extensions[extension])
     }

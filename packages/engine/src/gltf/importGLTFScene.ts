@@ -28,17 +28,17 @@ import {
   ComponentJSONIDMap,
   createEntity,
   Entity,
+  EntityTreeComponent,
   generateEntityUUID,
   setComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { TransformComponent } from '@ir-engine/spatial'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { loadGltfFile } from './GLTFComponent'
+import { loadGLTFFile } from './GLTFComponent'
 
 export function importGLTFSceneFromURL(url: string, onLoad: (entities: Entity[]) => void) {
-  loadGltfFile(
+  loadGLTFFile(
     url,
     (gltf) => {
       onLoad(importGLTFScene(gltf))

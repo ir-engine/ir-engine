@@ -55,7 +55,7 @@ import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { useVideoFrameCallback } from '@ir-engine/spatial/src/common/functions/useVideoFrameCallback'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -195,7 +195,7 @@ function UVOL1Reactor() {
     volumetric.currentTrackInfo.duration.set(component.data.frameData.length / component.data.frameRate.value)
 
     return () => {
-      removeObjectFromGroup(entity, mesh)
+      removeComponent(entity, ObjectComponent)
       videoTexture.dispose()
       const numberOfFrames = component.data.value.frameData.length
       removePlayedBuffer(numberOfFrames)
@@ -260,7 +260,7 @@ function UVOL1Reactor() {
         component.loadingEffectStarted.set(true)
       }
 
-      addObjectToGroup(entity, mesh)
+      setComponent(entity, ObjectComponent, mesh)
     }
 
     prepareMesh()

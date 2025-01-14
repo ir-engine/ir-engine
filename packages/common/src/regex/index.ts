@@ -33,7 +33,8 @@ A filename is valid if:
 */
 
 // eslint-disable-next-line no-control-regex
-export const VALID_FILENAME_REGEX = /^([^_\W])([\w\-\.]{2,62})([^_\W])$/
+export const VALID_FILENAME_REGEX = /^([^_\W])([\w\-_.]{2,62})([^_\W])$/
+export const VALID_EXTENSION_REGEX = /^(\w{2,4})$/
 // eslint-disable-next-line no-control-regex
 export const WINDOWS_RESERVED_NAME_REGEX = /^(con|prn|aux|nul|com\d|lpt\d)$/i
 export const VALID_SCENE_NAME_REGEX = VALID_FILENAME_REGEX
@@ -108,6 +109,13 @@ export const ASSETS_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+\/assets\
 export const PROJECT_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]/
 
 /**
+ * This regex captures strings that start with `projects/`, followed by one or more characters that can be letters, digits, hyphens, underscores, or forward slashes.
+ */
+export const PROJECT_CAPTURE_REGEX = /projects\/([a-zA-Z0-9-_@]+)\/([a-zA-Z0-9-_]+)/
+
+export const PATH_REGEX = /^[a-zA-Z0-9-_@.\/]+$/
+
+/**
  * This regex matches strings that start with `projects/`, followed by one or more characters that can be letters, digits, hyphens, underscores, or forward slashes, and then `/public/`.
  */
 export const PROJECT_PUBLIC_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+\/public\//
@@ -125,3 +133,5 @@ export const VALID_PROJECT_NAME = /^(?!\s)[\w\-\s]+$/
 
 export const MAIN_CHART_REGEX = /ir-engine-([0-9]+\.[0-9]+\.[0-9]+)/g
 export const BUILDER_CHART_REGEX = /ir-engine-builder-([0-9]+\.[0-9]+\.[0-9]+)/g
+
+export const UNIQUEIFIED_VITE_KEY_REGEX = /[.-]{1}[a-zA-Z0-9-_]{8}.(js|css)(.map)?$/

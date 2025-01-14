@@ -34,6 +34,7 @@ import { API as CommonAPI } from '@ir-engine/common'
 import type { ServiceTypes } from '@ir-engine/common/declarations'
 import config from '@ir-engine/common/src/config'
 
+import { HyperFlux } from '@ir-engine/hyperflux'
 import primusClient from './util/primus-client'
 
 declare module '@feathersjs/client' {
@@ -51,8 +52,16 @@ export class API {
   static createAPI = () => {
     const feathersClient = feathers()
 
-    const primus = new Primus(`${config.client.serverUrl}?pathName=${window.location.pathname}`, {
-      withCredentials: true
+    const query = {
+      pathName: window.location.pathname,
+      peerID: HyperFlux.store.peerID
+    }
+
+    const queryString = new URLSearchParams(query).toString()
+    const primus = new Primus(`${config.client.serverUrl}?${queryString}`, {
+      withCredentials: true,
+      pingTimeout: config.websocket.pingTimeout,
+      pingInterval: config.websocket.pingInterval
     })
     feathersClient.configure(primusClient(primus, { timeout: 10000 }))
 
@@ -68,6 +77,35 @@ export class API {
     API.instance.client = feathersClient as any
 
     CommonAPI.instance = feathersClient
+
+    const showLogs = false //isDev
+
+    // add logging to API calls
+    if (showLogs) {
+      const methods = ['create', 'update', 'patch', 'remove', 'find', 'get']
+      const originalService = feathersClient.service
+      const originalMethods = {} as Record<string, Record<string, any>>
+
+      feathersClient.service = (path: string) => {
+        if (!originalMethods[path]) originalMethods[path] = {}
+        const service = originalService.call(feathersClient, path)
+        for (const method of methods) {
+          if (!originalMethods[path][method]) {
+            originalMethods[path][method] = service[method]
+            const originalMethod = service[method]
+            service[method] = async (...args: any) => {
+              const trace = { stack: '' }
+              Error.captureStackTrace?.(trace, service[method])
+              const stack = trace.stack.split('\n')
+              stack.shift()
+              console.log(`API: ${path}.${method}`, ...args, { stack })
+              return originalMethod.call(service, ...args)
+            }
+          }
+        }
+        return service
+      }
+    }
   }
 }
 

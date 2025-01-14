@@ -29,6 +29,7 @@ import {
   createEntity,
   Engine,
   Entity,
+  EntityTreeComponent,
   EntityUUID,
   getComponent,
   getOptionalComponent,
@@ -42,18 +43,15 @@ import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/Col
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import { BodyTypes, Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import {
   DistanceFromCameraComponent,
   FrustumCullCameraComponent
 } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
-import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
+import { GrabberComponent } from '../../grabbable/GrabbableComponent'
 import { EnvmapComponent } from '../../scene/components/EnvmapComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { EnvMapSourceType } from '../../scene/constants/EnvMapEnum'
@@ -69,11 +67,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
   setComponent(entity, TransformComponent)
 
-  const obj3d = new Object3D()
-  obj3d.entity = entity
-  addObjectToGroup(entity, obj3d)
-  proxifyParentChildRelationships(obj3d)
-
   setComponent(entity, VisibleComponent, true)
 
   setComponent(entity, DistanceFromCameraComponent)
@@ -81,7 +74,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   setComponent(entity, EnvmapComponent, {
     type: EnvMapSourceType.Skybox,
-    envMapIntensity: 0.5
+    envMapIntensity: 1
   })
 
   setComponent(entity, AnimationComponent, {
@@ -103,7 +96,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
     enabledRotations: [false, true, false]
   })
 
-  if (ownerID === Engine.instance.store.userID) {
+  if (ownerID === Engine.instance.userID) {
     createAvatarController(entity)
   }
 
@@ -124,7 +117,8 @@ export const createAvatarCollider = (entity: Entity) => {
   setComponent(colliderEntity, ColliderComponent, {
     shape: Shapes.Capsule,
     collisionLayer: CollisionGroups.Avatars,
-    collisionMask: AvatarCollisionMask
+    collisionMask: AvatarCollisionMask,
+    matchMesh: false
   })
 }
 

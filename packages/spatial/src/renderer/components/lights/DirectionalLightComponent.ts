@@ -28,21 +28,22 @@ import { BufferGeometry, DirectionalLight, Float32BufferAttribute } from 'three'
 
 import {
   defineComponent,
+  getMutableComponent,
   removeComponent,
   setComponent,
-  useComponent,
-  useOptionalComponent
+  useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
+import { EntityTreeComponent, UndefinedEntity } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { mergeBufferGeometries } from '../../../common/classes/BufferGeometryUtils'
 import { useDisposable } from '../../../resources/resourceHooks'
+import { T } from '../../../schema/schemaFunctions'
 import { RendererState } from '../../RendererState'
-import { useUpdateLight } from '../../functions/useUpdateLight'
-import { addObjectToGroup, removeObjectFromGroup } from '../GroupComponent'
 import { LineSegmentComponent } from '../LineSegmentComponent'
+import { ObjectComponent } from '../ObjectComponent'
 import { LightTagComponent } from './LightTagComponent'
 
 const size = 1
@@ -107,7 +108,7 @@ export const DirectionalLightComponent = defineComponent({
 
   schema: S.Object({
     light: S.NonSerialized(S.Type<DirectionalLight>()),
-    color: S.Color(),
+    color: T.Color(),
     intensity: S.Number(1),
     castShadow: S.Bool(false),
     shadowBias: S.Number(-0.00001),
@@ -121,22 +122,26 @@ export const DirectionalLightComponent = defineComponent({
     const debugEnabled = renderState.nodeHelperVisibility
     const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
     const [light] = useDisposable(DirectionalLight, entity)
-    const lightHelper = useOptionalComponent(entity, LineSegmentComponent)
+    const helperEntity = useHookstate(UndefinedEntity)
 
     useImmediateEffect(() => {
       setComponent(entity, LightTagComponent)
       directionalLightComponent.light.set(light)
-      addObjectToGroup(entity, light)
+      setComponent(entity, ObjectComponent, light)
       return () => {
-        removeObjectFromGroup(entity, light)
+        removeComponent(entity, ObjectComponent)
       }
     }, [])
 
     useEffect(() => {
       light.color.set(directionalLightComponent.color.value)
-      if (!lightHelper) return
-      lightHelper.color.set(directionalLightComponent.color.value)
     }, [directionalLightComponent.color])
+
+    useEffect(() => {
+      if (!helperEntity.value) return
+      const helper = getMutableComponent(helperEntity.value, LineSegmentComponent)
+      helper.color.set(directionalLightComponent.color.value)
+    }, [helperEntity.value, directionalLightComponent.color])
 
     useEffect(() => {
       light.intensity = directionalLightComponent.intensity.value
@@ -166,21 +171,21 @@ export const DirectionalLightComponent = defineComponent({
     }, [renderState.shadowMapResolution])
 
     useEffect(() => {
-      if (debugEnabled.value) {
-        setComponent(entity, LineSegmentComponent, {
-          name: 'directional-light-helper',
-          // Clone geometry because LineSegmentComponent disposes it when removed
-          geometry: mergedGeometry?.clone(),
-          color: directionalLightComponent.color.value
-        })
+      if (!debugEnabled.value) return
+      helperEntity.set(createEntity())
+      setComponent(helperEntity.value, EntityTreeComponent, { parentEntity: entity })
+      setComponent(helperEntity.value, LineSegmentComponent, {
+        name: 'directional-light-helper',
+        // Clone geometry because LineSegmentComponent disposes it when removed
+        geometry: mergedGeometry?.clone(),
+        color: directionalLightComponent.color.value
+      })
 
-        return () => {
-          removeComponent(entity, LineSegmentComponent)
-        }
+      return () => {
+        removeEntity(helperEntity.value)
+        helperEntity.set(UndefinedEntity)
       }
     }, [debugEnabled])
-
-    useUpdateLight(light)
 
     return null
   }

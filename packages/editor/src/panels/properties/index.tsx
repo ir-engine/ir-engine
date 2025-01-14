@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { Tooltip } from '@ir-engine/ui'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { TabData } from 'rc-dock'
 import React from 'react'
 import { useTranslation } from 'react-i18next'

@@ -25,12 +25,12 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { Tooltip } from '@ir-engine/ui'
 import NumericInput from '@ir-engine/ui/src/components/editor/input/Numeric'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
+import { GridDotsMd } from '@ir-engine/ui/src/icons'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MdBorderClear } from 'react-icons/md'
+import { twMerge } from 'tailwind-merge'
 
 const GridTool = () => {
   const { t } = useTranslation()
@@ -48,17 +48,14 @@ const GridTool = () => {
   }, [])
 
   return (
-    <div className="flex items-center rounded bg-[#0E0F11]">
-      <Tooltip content={t('editor:toolbar.grid.info-toggleGridVisibility')}>
-        <Button
-          startIcon={<MdBorderClear className="text-theme-input" />}
+    <div className="flex items-center rounded bg-[#0E0F11] p-1">
+      <Tooltip content={t('editor:toolbar.grid.info-toggleGridVisibility')} position="bottom">
+        <GridDotsMd
           onClick={onToggleGridVisible}
-          variant={rendererState.gridVisibility.value ? 'outline' : 'transparent'}
-          className="px-0"
-          size="small"
+          className={twMerge('text-[#9CA0AA]', rendererState.gridVisibility.value && 'text-[#F5F5F5]')}
         />
       </Tooltip>
-      <Tooltip content={t('editor:toolbar.grid.info-gridHeight')}>
+      <Tooltip content={t('editor:toolbar.grid.info-gridHeight')} position="bottom">
         <NumericInput
           value={rendererState.gridHeight.value}
           onChange={(value) => rendererState.gridHeight.set(value)}

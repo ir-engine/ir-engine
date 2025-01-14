@@ -42,7 +42,7 @@
     "@juggle/resize-observer": "^3.4.0",
     "dexie": "^3.2.3",
     "fflate": "^0.7.4",
-    "msgpackr": "^1.8.5"
+    "msgpackr": "^1.9.2"
   },
   "devDependencies": {
     "@types/node": "18.15.5",

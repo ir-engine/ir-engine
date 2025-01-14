@@ -27,20 +27,26 @@ import React from 'react'
 import { HiCheck } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
 
-export interface DropdownItemProps extends Pick<React.HTMLAttributes<HTMLDivElement>, 'onClick' | 'onKeyUp'> {
+export interface DropdownItemProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'className'> {
   /**text shown on the left end */
-  title: string
+  label: string
   Icon?: ({ className }: { className?: string }) => JSX.Element
   /**text shown on the right end */
   secondaryText?: string
   disabled?: boolean
   selected?: boolean
   className?: string
+
+  /**
+   * Whether the item is hovered (or navigated through arrow keys)
+   */
+  active?: boolean
 }
 
 export function DropdownItem({
-  title,
+  label,
   disabled,
+  active,
   Icon,
   selected,
   secondaryText,
@@ -53,16 +59,17 @@ export function DropdownItem({
       className={twMerge(
         'h-[38px] w-full cursor-pointer bg-[#141619] px-4 py-2.5 text-xs text-[#9CA0AA] outline-none',
         'flex items-center',
-        !disabled && 'hover:text-[#F5F5F5] focus:text-[#F5F5F5]',
+        !disabled && active && 'text-[#F5F5F5]',
         !disabled && selected && 'bg-[#191B1F] text-[#375DAF]',
-        disabled && 'cursor-not-allowed bg-[#191B1F] text-[#42454D]',
+        disabled ? '' : 'hover:bg-[#2C4A8C]',
+        disabled && 'cursor-not-allowed bg-[#191B1F] text-[#42454D] text-opacity-30',
         className
       )}
       {...props}
     >
       <span className="flex items-center gap-2">
         {Icon && <Icon className={twMerge('h-3 w-3', selected && 'text-[#F5F5F5]')} />}
-        {title}
+        {label}
       </span>
       {secondaryText && <span className="ml-auto">{secondaryText}</span>}
       {!secondaryText && selected && <HiCheck className="ml-auto h-3 w-3 stroke-2" />}

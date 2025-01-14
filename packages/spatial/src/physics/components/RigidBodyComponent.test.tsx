@@ -24,11 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { act, render } from '@testing-library/react'
-import assert from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import { RigidBodyType } from '@dimforge/rapier3d-compat'
 import {
+  EntityTreeComponent,
   SystemDefinitions,
   UUIDComponent,
   UndefinedEntity,
@@ -47,7 +47,6 @@ import { Vector3 } from 'three'
 import { assertArray, assertFloat, assertVec } from '../../../tests/util/assert'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics, PhysicsWorld } from '../classes/Physics'
 import { PhysicsSystem } from '../systems/PhysicsSystem'

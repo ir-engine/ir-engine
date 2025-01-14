@@ -60,7 +60,7 @@ const EditorProtectedRoutes = () => {
   const location = useLocation()
   const scopeQuery = useFind(scopePath, {
     query: {
-      userId: Engine.instance.store.userID,
+      userId: Engine.instance.userID,
       type: 'editor:write' as ScopeType
     }
   })

@@ -28,6 +28,7 @@ import { MathUtils, Vector2, Vector3 } from 'three'
 import {
   ECSState,
   Entity,
+  EntityTreeComponent,
   getComponent,
   getMutableComponent,
   removeComponent,
@@ -54,21 +55,21 @@ import {
   updateBoundingBox
 } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 import { WebLayer3D } from '@ir-engine/xrui'
 
+import { EngineState } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { useXRUIState } from '@ir-engine/engine/src/xrui/useXRUIState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { inFrustum } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { smootheLerpAlpha } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import {
   DistanceFromCameraComponent,
   DistanceFromLocalClientComponent
 } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-import { useXRUIState } from '@ir-engine/spatial/src/xrui/functions/useXRUIState'
 import { useEffect } from 'react'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { createUI } from '../functions/createUI'
@@ -131,7 +132,7 @@ export const updateInteractableUI = (entity: Entity) => {
       xruiTransform.position.z = center.z
       xruiTransform.position.y = MathUtils.lerp(xruiTransform.position.y, center.y + 0.7 * size.y, alpha)
 
-      const cameraTransform = getComponent(getState(EngineState).viewerEntity, TransformComponent)
+      const cameraTransform = getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
       xruiTransform.rotation.copy(cameraTransform.rotation)
     } else {
       TransformComponent.getWorldPosition(entity, _center)
@@ -140,7 +141,7 @@ export const updateInteractableUI = (entity: Entity) => {
       xruiTransform.position.z = _center.z
       xruiTransform.position.y = MathUtils.lerp(xruiTransform.position.y, _center.y + 0.5, alpha)
 
-      const cameraTransform = getComponent(getState(EngineState).viewerEntity, TransformComponent)
+      const cameraTransform = getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
       xruiTransform.rotation.copy(cameraTransform.rotation)
     }
   }
@@ -226,9 +227,9 @@ const addInteractableUI = (entity: Entity) => {
     uiTransform.position.copy(_center)
   }
   getMutableComponent(entity, InteractableComponent).uiEntity.set(uiEntity)
-  setComponent(uiEntity, EntityTreeComponent, { parentEntity: getState(EngineState).originEntity })
+  setComponent(uiEntity, EntityTreeComponent, { parentEntity: getState(ReferenceSpaceState).originEntity })
   setComponent(uiEntity, ComputedTransformComponent, {
-    referenceEntities: [entity, getState(EngineState).viewerEntity],
+    referenceEntities: [entity, getState(ReferenceSpaceState).viewerEntity],
     computeFunction: () => updateInteractableUI(entity)
   })
 
@@ -245,7 +246,7 @@ export const InteractableComponent = defineComponent({
   schema: S.Object({
     canInteract: S.NonSerialized(S.Bool(false)),
     uiInteractable: S.NonSerialized(S.Bool(true)),
-    uiEntity: S.NonSerialized(S.Entity()),
+    uiEntity: S.Entity(),
     label: S.String('E'),
     uiVisibilityOverride: S.NonSerialized(S.Enum(XRUIVisibilityOverride, XRUIVisibilityOverride.none)),
     uiActivationType: S.NonSerialized(S.Enum(XRUIActivationType, XRUIActivationType.proximity)),
@@ -257,11 +258,11 @@ export const InteractableComponent = defineComponent({
         /**
          * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
          */
-        callbackID: S.Nullable(S.String()),
+        callbackID: S.String(),
         /**
          * empty string represents self
          */
-        target: S.Nullable(S.EntityUUID())
+        target: S.EntityUUID()
       })
     )
   }),

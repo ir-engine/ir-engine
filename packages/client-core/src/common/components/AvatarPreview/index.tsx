@@ -32,13 +32,13 @@ import Text from '@ir-engine/client-core/src/common/components/Text'
 import { useRender3DPanelSystem } from '@ir-engine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import {
   createEntity,
-  generateEntityUUID,
+  EntityTreeComponent,
   getOptionalComponent,
+  removeComponent,
   removeEntity,
   setComponent,
   UndefinedEntity,
-  useOptionalComponent,
-  UUIDComponent
+  useOptionalComponent
 } from '@ir-engine/ecs'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { EnvMapSourceType } from '@ir-engine/engine/src/scene/constants/EnvMapEnum'
@@ -46,17 +46,18 @@ import { AmbientLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { AssetPreviewCameraComponent } from '@ir-engine/spatial/src/camera/components/AssetPreviewCameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { EntityTreeComponent, getChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import Tooltip from '@ir-engine/ui/src/primitives/mui/Tooltip'
 
 import { AnimationComponent } from '@ir-engine/engine/src/avatar/components/AnimationComponent'
-import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
+import {
+  AvatarAnimationComponent,
+  AvatarRigComponent
+} from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
-import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { AnimationClip } from 'three'
 import styles from './index.module.scss'
 
@@ -78,20 +79,17 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
   useEffect(() => {
     if (!avatarUrl) return
 
-    const uuid = generateEntityUUID()
-    setComponent(sceneEntity, SceneComponent)
-    setComponent(sceneEntity, UUIDComponent, uuid)
-    setComponent(sceneEntity, NameComponent, '3D Preview Entity')
     setComponent(sceneEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
-    setComponent(sceneEntity, VisibleComponent, true)
     setComponent(sceneEntity, EnvmapComponent, { type: EnvMapSourceType.Skybox })
     setComponent(sceneEntity, AvatarComponent)
     setComponent(sceneEntity, GLTFComponent, { src: avatarUrl })
+    setComponent(sceneEntity, AvatarAnimationComponent)
     setComponent(sceneEntity, AvatarRigComponent)
+    //workaround to prevent a few frames of untextured, tposing avatars
+    removeComponent(sceneEntity, VisibleComponent)
 
     setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: sceneEntity })
 
-    if (getChildrenWithComponents(sceneEntity, [AmbientLightComponent]).length) return
     const lightEntity = createEntity()
     setComponent(lightEntity, AmbientLightComponent)
     setComponent(lightEntity, TransformComponent)
@@ -121,6 +119,8 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
 
     if (!animation) return
     animationComponent.mixer.clipAction(animation).play()
+
+    setComponent(sceneEntity, VisibleComponent, true)
   }, [useOptionalComponent(sceneEntity, AnimationComponent)?.animations])
 
   return (

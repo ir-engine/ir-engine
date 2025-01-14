@@ -26,7 +26,16 @@ Infinite Reality Engine. All Rights Reserved.
 import { GLTF } from '@gltf-transform/core'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { EntityUUID, generateEntityUUID, getMutableComponent, SetComponentType, UUIDComponent } from '@ir-engine/ecs'
+import {
+  EntityTreeComponent,
+  EntityUUID,
+  findRootAncestors,
+  generateEntityUUID,
+  getMutableComponent,
+  iterateEntityNode,
+  SetComponentType,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import {
   Component,
   componentJsonDefaults,
@@ -49,16 +58,12 @@ import { DirectionalLightComponent, HemisphereLightComponent } from '@ir-engine/
 import { MAT4_IDENTITY } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { getMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import {
-  EntityTreeComponent,
-  findRootAncestors,
-  iterateEntityNode
-} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
 import { appendGLTF } from '@ir-engine/engine/src/gltf/gltfUtils'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
+import { ComponentDropdownState } from '@ir-engine/ui/src/components/editor/ComponentDropdown/ComponentDropdownState'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
@@ -724,7 +729,7 @@ const groupObjects = (entities: Entity[]) => {
     const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
 
     /** 1. create new group node */
-    const groupNode = {
+    const groupNode: GLTF.INode = {
       name: 'New Group',
       extensions: {
         [UUIDComponent.jsonID]: generateEntityUUID(),
@@ -738,9 +743,25 @@ const groupObjects = (entities: Entity[]) => {
 
     const groupIndex = gltf.data.nodes!.push(groupNode) - 1
 
+    const positions = entities.map((entity) => getComponent(entity, TransformComponent).position)
+
+    const groupPosition = positions.reduce((acc, pos) => acc.add(pos), new Vector3()).divideScalar(entities.length)
+    //const groupRotation = averageQuaternions(rotations)
+
+    const averageTransform = new Matrix4().compose(groupPosition, new Quaternion().identity(), new Vector3(1, 1, 1))
+
+    groupNode.matrix = averageTransform.toArray()
+
     /** For each node being added to the group */
     for (const entity of entities) {
       const entityUUID = getComponent(entity, UUIDComponent)
+      const node = getGLTFNodeByUUID(gltf.data, entityUUID)!
+
+      const nodeMatrix = node.matrix ? new Matrix4().fromArray(node.matrix) : new Matrix4().identity()
+      //subtract the average transform from the node's transform to get the relative transform
+      const relativeTransform = nodeMatrix.clone().premultiply(averageTransform.clone().invert())
+      node.matrix = relativeTransform.toArray()
+
       const nodeIndex = gltf.data.nodes!.findIndex((n) => n.extensions?.[UUIDComponent.jsonID] === entityUUID)
 
       /** 2. remove node from current parent */
@@ -777,6 +798,7 @@ const removeObject = (entities: Entity[]) => {
     const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
     const gltfData = gltf.data
 
+    ComponentDropdownState.removeEntityUUIDs([...uuidsToRemove])
     const nodesToRemove = collectNodesToRemove(gltf.data, uuidsToRemove)
     removeNodes(gltfData, nodesToRemove)
     compactNodes(gltfData)

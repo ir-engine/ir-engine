@@ -37,7 +37,10 @@ import {
 } from '@ir-engine/common/src/schemas/networking/instance.schema'
 import { LocationID, locationPath, LocationType } from '@ir-engine/common/src/schemas/social/location.schema'
 
+import { channelPath } from '@ir-engine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
+import allowNullQuery from '../../hooks/allow-null-query'
+import enableClientPagination from '../../hooks/enable-client-pagination'
 import isAction from '../../hooks/is-action'
 import verifyScope from '../../hooks/verify-scope'
 import { generateRoomCode, InstanceService } from './instance.class'
@@ -146,6 +149,26 @@ const addRoomCode = async (context: HookContext<InstanceService>) => {
   return context
 }
 
+const createInstanceChannel = async (context: HookContext<InstanceService>) => {
+  if (!context.result || context.method !== 'create') {
+    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+  }
+
+  const data = Array.isArray(context.result)
+    ? context.result
+    : 'data' in context.result
+    ? context.result!.data
+    : [context.result]
+
+  for (const instance of data) {
+    if (instance.locationId) {
+      await context.app.service(channelPath).create({
+        instanceId: instance.id
+      })
+    }
+  }
+}
+
 export default {
   around: {
     all: [schemaHooks.resolveExternal(instanceExternalResolver), schemaHooks.resolveResult(instanceResolver)]
@@ -155,8 +178,10 @@ export default {
     all: [schemaHooks.validateQuery(instanceQueryValidator), schemaHooks.resolveQuery(instanceQueryResolver)],
     find: [
       iff(isProvider('external') && isAction('admin'), verifyScope('instance', 'read'), addLocationSearchToQuery),
+      enableClientPagination(),
       discardQuery('search'),
       discardQuery('action'),
+      allowNullQuery('ipAddress'),
       sortByLocationName
     ],
     get: [],
@@ -179,7 +204,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [createInstanceChannel],
     update: [],
     patch: [],
     remove: []

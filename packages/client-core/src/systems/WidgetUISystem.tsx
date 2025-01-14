@@ -27,7 +27,13 @@ import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
 import { isDev } from '@ir-engine/common/src/config'
-import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
@@ -42,26 +48,21 @@ import {
 } from '@ir-engine/hyperflux'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createMediaWidget } from './createMediaWidget'
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { Vector3_Back, Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { Vector3_Back, Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '@ir-engine/spatial/src/input/state/ButtonState'
-import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { ObjectFitFunctions } from '@ir-engine/spatial/src/transform/functions/ObjectFitFunctions'
 import { TransformSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
-import { isMobileXRHeadset, ReferenceSpace, XRState } from '@ir-engine/spatial/src/xr/XRState'
-import { ObjectFitFunctions } from '@ir-engine/spatial/src/xrui/functions/ObjectFitFunctions'
-import {
-  RegisteredWidgets,
-  WidgetAppActions,
-  WidgetAppService,
-  WidgetAppState
-} from '@ir-engine/spatial/src/xrui/WidgetAppService'
+import { ReferenceSpace, XRState, isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
+import { RegisteredWidgets, WidgetAppActions, WidgetAppService, WidgetAppState } from './WidgetAppService'
 
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import React from 'react'
 import { createAnchorWidget } from './createAnchorWidget'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
@@ -117,7 +118,8 @@ const unregisterWidgetQueue = defineActionQueue(WidgetAppActions.unregisterWidge
 
 const execute = () => {
   const { widgetMenuUI } = getState(WidgetUISystemState)
-  if (!widgetMenuUI) return
+  const { viewerEntity, localFloorEntity } = getState(ReferenceSpaceState)
+  if (!widgetMenuUI || !viewerEntity) return
 
   const widgetState = getState(WidgetAppState)
   const inputSources = inputSourceQuery()
@@ -162,7 +164,7 @@ const execute = () => {
     )
     if (hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
       removeComponent(widgetMenuUI.entity, ComputedTransformComponent)
-      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
+      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: localFloorEntity })
       setComponent(widgetMenuUI.entity, TransformComponent, { scale: new Vector3().setScalar(1) })
     }
 
@@ -177,11 +179,12 @@ const execute = () => {
     }
   } else {
     if (!hasComponent(widgetMenuUI.entity, ComputedTransformComponent)) {
-      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
+      setComponent(widgetMenuUI.entity, EntityTreeComponent, { parentEntity: localFloorEntity })
       setComponent(widgetMenuUI.entity, ComputedTransformComponent, {
-        referenceEntities: [Engine.instance.viewerEntity],
+        referenceEntities: [viewerEntity],
         computeFunction: () => {
-          const camera = getComponent(Engine.instance.viewerEntity, CameraComponent)
+          const camera = getOptionalComponent(viewerEntity, CameraComponent)
+          if (!camera) return
           const distance = camera.near * 1.1 // 10% in front of camera
           ObjectFitFunctions.attachObjectInFrontOfCamera(widgetMenuUI.entity, 0.2, distance)
         }
@@ -238,7 +241,7 @@ export const WidgetUISystem = defineSystem({
   insert: { before: TransformSystem },
   execute,
   reactor: () => {
-    if (!useMutableState(EngineState).viewerEntity.value) return null
+    if (!useMutableState(ReferenceSpaceState).viewerEntity.value) return null
     return <Reactor />
   }
 })

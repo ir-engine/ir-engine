@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -43,8 +43,8 @@ export default function CreateSceneDialog() {
     >
       <div className="flex justify-center">
         <Button
-          size="small"
-          variant="outline"
+          size="sm"
+          variant="tertiary"
           className="w-[10vw]"
           onClick={() => {
             onNewScene()

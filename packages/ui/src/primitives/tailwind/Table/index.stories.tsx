@@ -109,26 +109,33 @@ export const TableStory = () => {
             ))}
             <TableCell className="border border-neutral-300 p-3 text-left text-neutral-600">
               <div className="flex justify-evenly">
-                <Button startIcon={<GrUpdate />} size="small" className="bg-[#61759f]">
-                  Update
+                <Button size="sm" className="bg-[#61759f]">
+                  <GrUpdate />
+                  <span>Update</span>
                 </Button>
-                <Button startIcon={<GrGithub />} size="small" className="bg-[#61759f]">
-                  Push
+                <Button size="sm" className="bg-[#61759f]">
+                  <GrGithub />
+                  <span>Push</span>
                 </Button>
-                <Button startIcon={<HiLink />} size="small" className="bg-[#61759f]">
-                  Repo
+                <Button size="sm" className="bg-[#61759f]">
+                  <HiLink />
+                  <span>Repo</span>
                 </Button>
-                <Button startIcon={<IoPeopleOutline />} size="small" className="bg-[#61759f]">
-                  Access
+                <Button size="sm" className="bg-[#61759f]">
+                  <IoPeopleOutline />
+                  <span>Access</span>
                 </Button>
-                <Button startIcon={<IoTerminalOutline />} size="small" className="bg-[#61759f]">
-                  Invalidate Cache
+                <Button size="sm" className="bg-[#61759f]">
+                  <IoTerminalOutline />
+                  <span>Invalidate Cache</span>
                 </Button>
-                <Button startIcon={<IoFolderOutline />} size="small" className="bg-[#61759f]">
-                  View
+                <Button size="sm" className="bg-[#61759f]">
+                  <IoFolderOutline />
+                  <span>View</span>
                 </Button>
-                <Button startIcon={<RiDeleteBinLine />} size="small" className="bg-[#61759f]">
-                  Remove
+                <Button size="sm" className="bg-[#61759f]">
+                  <RiDeleteBinLine />
+                  <span>Remove</span>
                 </Button>
               </div>
             </TableCell>

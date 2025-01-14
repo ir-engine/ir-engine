@@ -24,14 +24,13 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { BackSide, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
+import { ArrowHelper, BackSide, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 
-import { EntityUUID } from '@ir-engine/ecs'
+import { EntityTreeComponent, EntityUUID } from '@ir-engine/ecs'
 import {
   ComponentType,
   defineComponent,
   hasComponent,
-  removeComponent,
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -39,21 +38,21 @@ import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
-import { Vector3_Right } from '@ir-engine/spatial/src/common/constants/MathConstants'
-import { ArrowHelperComponent } from '@ir-engine/spatial/src/common/debug/ArrowHelperComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { Vector3_Right, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
 import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { useDisposable, useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
@@ -87,11 +86,11 @@ export const PortalComponent = defineComponent({
     previewType: S.String(PortalPreviewTypeSimple),
     previewImageURL: S.String(''),
     redirect: S.Bool(false),
-    spawnPosition: S.Vec3(),
-    spawnRotation: S.Quaternion(),
-    remoteSpawnPosition: S.Vec3(),
-    remoteSpawnRotation: S.Quaternion(),
-    mesh: S.Nullable(S.Type<Mesh<SphereGeometry, MeshBasicMaterial>>())
+    spawnPosition: T.Vec3(),
+    spawnRotation: T.Quaternion(),
+    remoteSpawnPosition: T.Vec3(),
+    remoteSpawnRotation: T.Quaternion(),
+    mesh: S.NonSerialized(S.Type<Mesh<SphereGeometry, MeshBasicMaterial>>())
   }),
 
   reactor: function () {
@@ -120,26 +119,14 @@ export const PortalComponent = defineComponent({
         triggers: [
           {
             onEnter: 'teleport',
-            onExit: null,
+            onExit: '',
             target: '' as EntityUUID
           }
         ]
       })
     }, [])
 
-    useEffect(() => {
-      if (debugEnabled.value) {
-        setComponent(entity, ArrowHelperComponent, {
-          name: 'portal-helper',
-          length: 1,
-          dir: Vector3_Right,
-          color: 0x000000
-        })
-      }
-      return () => {
-        removeComponent(entity, ArrowHelperComponent)
-      }
-    }, [debugEnabled])
+    useHelperEntity(entity, () => new ArrowHelper(Vector3_Right, Vector3_Zero, 1, 0x000000), debugEnabled.value)
 
     const [portalGeometry] = useResource<SphereGeometry>(new SphereGeometry(1, 32, 32), entity)
     const [portalMesh] = useDisposable(

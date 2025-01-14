@@ -264,7 +264,6 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
   for (const item of items) {
     const instanceExists = instances.find((instance) => instance.podName === item.name)
     item.instanceId = instanceExists ? instanceExists.id : undefined
-    item.currentUsers = instanceExists ? instanceExists.currentUsers : 0
     if (!instanceExists) {
       item.type = 'Unassigned'
       continue

@@ -24,18 +24,21 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { BufferGeometry, Color, Mesh, MeshBasicMaterial } from 'three'
+import { BufferGeometry, Color, Mesh, MeshBasicMaterial, Ray, Vector3 } from 'three'
 
 import { getComponent, getMutableComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { isClient } from '@ir-engine/hyperflux'
+import { getMutableState, getState, isClient } from '@ir-engine/hyperflux'
 import { WebContainer3D } from '@ir-engine/xrui'
 
+import { EngineState } from '@ir-engine/ecs'
+import { ClientInputSystem } from '../../SpatialModule'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
+import { InputHeuristicState, IntersectionData } from '../../input/functions/ClientInputHeuristics'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { TransformSystem } from '../../transform/systems/TransformSystem'
 import { PointerComponent, PointerObject } from '../components/PointerComponent'
@@ -199,16 +202,16 @@ const reactor = () => {
     // }
 
     // const canvas = EngineRenderer.instance.renderer.getContext().canvas
-    document.body.addEventListener('pointerdown', redirectDOMEvent)
-    document.body.addEventListener('click', redirectDOMEvent)
-    document.body.addEventListener('contextmenu', redirectDOMEvent)
-    document.body.addEventListener('dblclick', redirectDOMEvent)
+    // document.body.addEventListener('pointerdown', redirectDOMEvent)
+    // document.body.addEventListener('click', redirectDOMEvent)
+    // document.body.addEventListener('contextmenu', redirectDOMEvent)
+    // document.body.addEventListener('dblclick', redirectDOMEvent)
 
     return () => {
-      document.body.removeEventListener('pointerdown', redirectDOMEvent)
-      document.body.removeEventListener('click', redirectDOMEvent)
-      document.body.removeEventListener('contextmenu', redirectDOMEvent)
-      document.body.removeEventListener('dblclick', redirectDOMEvent)
+      // document.body.removeEventListener('pointerdown', redirectDOMEvent)
+      // document.body.removeEventListener('click', redirectDOMEvent)
+      // document.body.removeEventListener('contextmenu', redirectDOMEvent)
+      // document.body.removeEventListener('dblclick', redirectDOMEvent)
     }
   }, [])
   return null
@@ -219,4 +222,49 @@ export const XRUISystem = defineSystem({
   insert: { with: TransformSystem },
   execute,
   reactor
+})
+
+const getIntersectionRays = (eid: Entity) => getComponent(eid, InputSourceComponent).raycaster.ray
+
+const _inputRay = new Ray()
+export function xruiInputHeuristic(intersectionData: Set<IntersectionData>, position: Vector3, direction: Vector3) {
+  const isEditing = getState(EngineState).isEditing
+  if (isEditing) return
+
+  _inputRay.origin.copy(position)
+  _inputRay.direction.copy(direction)
+
+  for (const entity of xruiQuery()) {
+    const xrui = getComponent(entity, XRUIComponent)
+    const layerHit = xrui.hitTest(_inputRay)
+    if (
+      !layerHit ||
+      !layerHit.intersection.object.visible ||
+      (layerHit.intersection.object as Mesh<any, MeshBasicMaterial>).material?.opacity < 0.01
+    )
+      continue
+    intersectionData.add({ entity, distance: layerHit.intersection.distance })
+  }
+}
+
+export const XRUIInputSystem = defineSystem({
+  uuid: 'ee.engine.XRUIInputSystem',
+  insert: { before: ClientInputSystem },
+  execute: () => {
+    const interactionRays = inputSourceQuery().map(getIntersectionRays)
+    for (const xrui of visibleXRUIQuery()) {
+      getComponent(xrui, XRUIComponent).interactionRays = interactionRays
+    }
+  },
+  reactor: () => {
+    useEffect(() => {
+      getMutableState(InputHeuristicState).merge([
+        {
+          order: 0,
+          heuristic: xruiInputHeuristic
+        }
+      ])
+    }, [])
+    return null
+  }
 })

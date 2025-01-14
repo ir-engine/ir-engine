@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { isArray } from 'lodash'
 import { Color, Material, Mesh, Texture } from 'three'
 
 import {
@@ -36,20 +35,14 @@ import {
   getOptionalComponent,
   getOptionalMutableComponent,
   hasComponent,
-  removeEntity,
   setComponent,
-  UndefinedEntity,
   UUIDComponent
 } from '@ir-engine/ecs'
 
-import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
-import { getState } from '@ir-engine/hyperflux'
-import iterateObject3D from '../../common/functions/iterateObject3D'
 import { NameComponent } from '../../common/NameComponent'
 import { MeshComponent } from '../components/MeshComponent'
 import {
   MaterialInstanceComponent,
-  MaterialPlugins,
   MaterialPrototypeComponent,
   MaterialPrototypeDefinition,
   MaterialPrototypeObjectConstructor,
@@ -57,19 +50,6 @@ import {
   PrototypeArgument,
   prototypeQuery
 } from './MaterialComponent'
-
-export const loadMaterialGLTF = (url: string, callback: (material: Material | null) => void) => {
-  const gltfLoader = getState(AssetLoaderState).gltfLoader
-  gltfLoader.load(url, (gltf) => {
-    const material = iterateObject3D(
-      gltf.scene,
-      (mesh: Mesh) => mesh.material as Material,
-      (mesh: Mesh) => mesh?.isMesh
-    )[0]
-    if (!material) callback(null)
-    callback(material)
-  })
-}
 
 export const extractDefaults = (defaultArgs: PrototypeArgument) => {
   return formatMaterialArgs(
@@ -131,7 +111,7 @@ export const setMeshMaterial = (groupEntity: Entity, newMaterialUUIDs: EntityUUI
   if (newMaterialUUIDs.length === 0) return
 
   const mesh = getComponent(groupEntity, MeshComponent) as Mesh
-  if (!isArray(mesh.material)) mesh.material = getMaterial(newMaterialUUIDs[0])
+  if (!Array.isArray(mesh.material)) mesh.material = getMaterial(newMaterialUUIDs[0])
   else
     for (let i = 0; i < (mesh.material as Material[]).length; i++) mesh.material[i] = getMaterial(newMaterialUUIDs[i])
 }
@@ -227,55 +207,6 @@ export const assignMaterial = (user: Entity, materialEntity: Entity, index = 0) 
   const newUUID = material.uuid as EntityUUID
   if (!UUIDComponent.getEntityByUUID(newUUID)) throw new MaterialNotFoundError(`Material ${newUUID} not found`)
   materialInstanceComponent.uuid[index].set(newUUID)
-}
-
-/**Sets and replaces a material entity for a material's UUID */
-export const createMaterialEntity = (material: Material): Entity => {
-  const materialEntity = createEntity()
-  const uuid = material.uuid as EntityUUID
-  const existingMaterial = UUIDComponent.getEntityByUUID(uuid)
-  const existingUsers = existingMaterial ? getComponent(existingMaterial, MaterialStateComponent).instances : []
-  if (existingMaterial) {
-    removeEntity(existingMaterial)
-  }
-  setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
-  const prototypeEntity = getPrototypeEntityFromName(material.userData.type || material.type)
-  if (!prototypeEntity) {
-    console.warn(
-      `Material ${material.name} has no prototype entity for prototype ${material.userData.type || material.type}`
-    )
-    return UndefinedEntity
-  }
-  setComponent(materialEntity, MaterialStateComponent, {
-    material,
-    prototypeEntity,
-    parameters: Object.fromEntries(
-      Object.keys(extractDefaults(getComponent(prototypeEntity, MaterialPrototypeComponent).prototypeArguments)).map(
-        (k) => [k, material[k]]
-      )
-    ),
-    instances: existingUsers.length ? existingUsers : []
-  })
-  if (existingMaterial)
-    for (const instance of existingUsers)
-      setMeshMaterial(instance, getComponent(instance, MaterialInstanceComponent).uuid)
-  if (material.userData?.plugins)
-    material.userData.plugins.map((plugin) => {
-      if (!plugin) return
-      setComponent(materialEntity, MaterialPlugins[plugin.id])
-      const pluginComponent = getComponent(materialEntity, MaterialPlugins[plugin.id])
-      for (const [k, v] of Object.entries(plugin.uniforms)) {
-        if (v) pluginComponent[k].value = v
-      }
-    })
-  setComponent(materialEntity, NameComponent, material.name === '' ? material.type : material.name)
-  return materialEntity
-}
-
-export const createAndAssignMaterial = (user: Entity, material: Material, index = 0) => {
-  const materialEntity = createMaterialEntity(material)
-  assignMaterial(user, materialEntity, index)
-  return materialEntity
 }
 
 export const getMaterialIndices = (entity: Entity, materialUUID: EntityUUID): number[] => {

@@ -48,6 +48,7 @@ export const MediaSettingsEditor: EditorComponentType = (props) => {
       name={t('editor:properties.mediaSettings.name')}
       description={t('editor:properties.mediaSettings.description')}
       Icon={MediaSettingsEditor.iconComponent}
+      entity={props.entity}
     >
       <InputGroup
         name="Media Distance Model"

@@ -37,6 +37,21 @@ export const EngineSettings = {
     ApiKey: 'apiKey',
     Url: 'url'
   },
+  InstanceServer: {
+    ClientHost: 'clientHost',
+    RtcStartPort: 'rtcStartPort',
+    RtcEndPort: 'rtcEndPort',
+    RtcPortBlockSize: 'rtcPortBlockSize',
+    IdentifierDigits: 'identifierDigits',
+    Local: 'local',
+    Domain: 'domain',
+    ReleaseName: 'releaseName',
+    Port: 'port',
+    Mode: 'mode',
+    LocationName: 'locationName',
+    WebRTCSettings: 'webRTCSettings',
+    ShutdownDelayMs: 'shutdownDelayMs'
+  },
   Metabase: {
     SiteUrl: 'siteUrl',
     SecretKey: 'secretKey',
@@ -54,5 +69,35 @@ export const EngineSettings = {
     Name: 'name',
     Secret: 'secret',
     Kid: 'kid'
+  },
+  Helm: {
+    Main: 'main',
+    Builder: 'builder'
+  },
+  Server: {
+    Mode: 'mode',
+    StorageProvider: 'storageProvider',
+    Hostname: 'hostname',
+    Port: 'port',
+    RootDir: 'rootDir',
+    PublicDir: 'publicDir',
+    NodeModulesDir: 'nodeModulesDir',
+    Hub: {
+      Endpoint: 'hub.endpoint'
+    },
+    ClientHost: 'clientHost',
+    Url: 'url',
+    GitPem: 'gitPem',
+    RootDirectory: 'rootDir',
+    CertPath: 'certPath',
+    PublicDirectory: 'publicDir',
+    KeyPath: 'keyPath',
+    NodeModulesDirectory: 'nodeModulesDir',
+    GithubWebhookSecret: 'githubWebhookSecret',
+    LocalStorageProvider: 'localStorageProvider',
+    ReleaseName: 'releaseName',
+    InstanceserverUnreachableTimeoutSeconds: 'instanceserverUnreachableTimeoutSeconds',
+    PerformDryRun: 'performDryRun',
+    Local: 'local'
   }
 }

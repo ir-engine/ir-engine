@@ -52,16 +52,14 @@ import {
 } from '@ir-engine/ecs'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
-import { getState } from '@ir-engine/hyperflux'
 
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 
 import { assertColor } from '../../../tests/util/assert'
 import { NameComponent } from '../../common/NameComponent'
-import { ResourceState } from '../../resources/ResourceState'
 import { ObjectLayerMasks, ObjectLayers } from '../constants/ObjectLayers'
-import { GroupComponent } from './GroupComponent'
 import { LineSegmentComponent } from './LineSegmentComponent'
+import { ObjectComponent } from './ObjectComponent'
 import { ObjectLayerComponents, ObjectLayerMaskComponent } from './ObjectLayerComponent'
 import { VisibleComponent } from './VisibleComponent'
 
@@ -180,12 +178,12 @@ describe('LineSegmentComponent', () => {
     })
 
     it('should call addObjectToGroup(lineSegment) with the entity when it mounts', () => {
-      assert.equal(hasComponent(testEntity, GroupComponent), false)
+      assert.equal(hasComponent(testEntity, ObjectComponent), false)
       setComponent(testEntity, LineSegmentComponent, {
         geometry: new BoxGeometry(1, 1, 1),
         material: new MeshBasicMaterial({ color: 0x111111 })
       })
-      assert.equal(hasComponent(testEntity, GroupComponent), true)
+      assert.equal(hasComponent(testEntity, ObjectComponent), true)
     })
 
     it('should set a VisibleComponent to the entity when it mounts', () => {
@@ -198,14 +196,14 @@ describe('LineSegmentComponent', () => {
     })
 
     it('should call removeObjectFromGroup(lineSegment) with the entity when it unmounts', () => {
-      assert.equal(hasComponent(testEntity, GroupComponent), false)
+      assert.equal(hasComponent(testEntity, ObjectComponent), false)
       setComponent(testEntity, LineSegmentComponent, {
         geometry: new BoxGeometry(1, 1, 1),
         material: new MeshBasicMaterial({ color: 0x111111 })
       })
-      assert.equal(hasComponent(testEntity, GroupComponent), true)
-      removeComponent(testEntity, GroupComponent)
-      assert.equal(hasComponent(testEntity, GroupComponent), false)
+      assert.equal(hasComponent(testEntity, ObjectComponent), true)
+      removeComponent(testEntity, ObjectComponent)
+      assert.equal(hasComponent(testEntity, ObjectComponent), false)
     })
 
     it('should trigger when component.name changes', () => {
@@ -274,11 +272,11 @@ describe('LineSegmentComponent', () => {
           rerender(<Reactor />)
         }).then(() => {
           assert(hasComponent(entity, LineSegmentComponent))
-          assert(hasComponent(entity, GroupComponent))
+          assert(hasComponent(entity, ObjectComponent))
           assert(hasComponent(entity, ObjectLayerMaskComponent))
           assert(hasComponent(entity, ObjectLayerComponents[layer]))
-          const group = getComponent(entity, GroupComponent)
-          const lineSegments = group[0] as LineSegments
+          const object = getComponent(entity, ObjectComponent)
+          const lineSegments = object as LineSegments
           assert(lineSegments.isLineSegments)
           assert(lineSegments.layers.mask === layerMask)
           unmount()
@@ -325,18 +323,12 @@ describe('LineSegmentComponent', () => {
 
         const { rerender, unmount } = render(<Reactor />)
 
-        const resourceState = getState(ResourceState)
-
         act(async () => {
           assert(hasComponent(entity, LineSegmentComponent))
-          assert(resourceState.resources[geometry.uuid])
-          assert(resourceState.resources[material.uuid])
           removeEntity(entity)
           unmount()
         }).then(() => {
           assert(!hasComponent(entity, LineSegmentComponent))
-          assert(!resourceState.resources[geometry.uuid])
-          assert(!resourceState.resources[material.uuid])
           done()
         })
       }))
@@ -350,9 +342,6 @@ describe('LineSegmentComponent', () => {
         const spy = sinon.spy()
         geometry.dispose = spy
         material.dispose = spy
-
-        const geoResourceID = geometry.uuid
-        const matResourceID = material.uuid
 
         const geometry2 = new SphereGeometry(0.5)
         const material2 = new LineBasicMaterial()
@@ -370,38 +359,14 @@ describe('LineSegmentComponent', () => {
 
         const { rerender, unmount } = render(<Reactor />)
 
-        const resourceState = getState(ResourceState)
         act(async () => {
           assert(hasComponent(entity, LineSegmentComponent))
-          assert(resourceState.resources[geoResourceID])
-          assert(
-            resourceState.resources[geoResourceID].asset &&
-              (resourceState.resources[geoResourceID].asset as BoxGeometry).type === 'BoxGeometry'
-          )
-          assert(resourceState.resources[matResourceID])
-          assert(
-            resourceState.resources[matResourceID].asset &&
-              (resourceState.resources[matResourceID].asset as MeshBasicMaterial).type === 'MeshBasicMaterial'
-          )
           const lineSegmentComponent = getMutableComponent(entity, LineSegmentComponent)
           lineSegmentComponent.geometry.set(geometry2)
           lineSegmentComponent.material.set(material2)
           rerender(<Reactor />)
         }).then(() => {
           sinon.assert.calledTwice(spy)
-          assert(
-            resourceState.resources[geoResourceID].asset &&
-              (resourceState.resources[geoResourceID].asset as SphereGeometry).type === 'SphereGeometry'
-          )
-          assert(
-            resourceState.resources[matResourceID].asset &&
-              (resourceState.resources[matResourceID].asset as LineBasicMaterial).type === 'LineBasicMaterial'
-          )
-          removeEntity(entity)
-          assert(!hasComponent(entity, LineSegmentComponent))
-          assert(!resourceState.resources[geoResourceID])
-          assert(!resourceState.resources[matResourceID])
-          assert(spy.callCount === 4)
           unmount()
           done()
         })
@@ -430,17 +395,11 @@ describe('LineSegmentComponent', () => {
 
         const { rerender, unmount } = render(<Reactor />)
 
-        const resourceState = getState(ResourceState)
-
         act(async () => {
           assert(hasComponent(entity, LineSegmentComponent))
-          assert(resourceState.resources[geometry.uuid])
-          assert(resourceState.resources[material.uuid])
           unmount()
         }).then(() => {
           assert(!hasComponent(entity, LineSegmentComponent))
-          assert(!resourceState.resources[geometry.uuid])
-          assert(!resourceState.resources[material.uuid])
           sinon.assert.calledTwice(spy)
           removeEntity(entity)
           done()

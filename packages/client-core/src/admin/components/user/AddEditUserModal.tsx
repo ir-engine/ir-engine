@@ -33,12 +33,11 @@ import {
   userAvatarPath
 } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Input } from '@ir-engine/ui'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { Button, Input } from '@ir-engine/ui'
 import Label from '@ir-engine/ui/src/primitives/tailwind/Label'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import MultiSelect from '@ir-engine/ui/src/primitives/tailwind/MultiSelect'
-import Select, { SelectOptionsType } from '@ir-engine/ui/src/primitives/tailwind/Select'
+import Select, { OptionType } from '@ir-engine/ui/src/primitives/tailwind/Select'
 
 import AccountIdentifiers from './AccountIdentifiers'
 
@@ -69,7 +68,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
     }
   })
   const userAvatar = userAvatarQuery.status === 'success' ? userAvatarQuery.data[0] : null
-  const avatarOptions: SelectOptionsType[] =
+  const avatarOptions: OptionType[] =
     avatarsQuery.status === 'success'
       ? [
           { label: t('admin:components.user.selectAvatar'), value: '', disabled: true },
@@ -82,7 +81,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       paginate: false
     }
   })
-  const scopeTypeOptions: SelectOptionsType[] =
+  const scopeTypeOptions: OptionType[] =
     scopeTypesQuery.status === 'success'
       ? [
           { label: t('admin:components.user.selectScopes'), value: '', disabled: true },
@@ -174,6 +173,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
       <div className="relative grid w-full gap-6">
         {errors.serviceError.value ? <p className="mt-2 text-red-700">{errors.serviceError.value}</p> : null}
         <Input
+          fullWidth
           labelProps={{
             text: t('admin:components.user.name'),
             position: 'top'
@@ -193,11 +193,11 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
             menuClassName="max-h-72"
           />
           <div className="flex gap-2">
-            <Button size="small" variant="outline" onClick={() => scopes.set([])}>
+            <Button size="sm" variant="tertiary" onClick={() => scopes.set([])}>
               {t('admin:components.user.clearAllScopes')}
             </Button>
             <Button
-              size="small"
+              size="sm"
               className="bg-theme-blue-secondary text-blue-700 dark:text-white"
               onClick={() =>
                 scopes.set(scopeTypeOptions.filter((st) => !st.disabled).map((st) => ({ type: st.value as ScopeType })))
@@ -208,12 +208,15 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
           </div>
         </div>
         <Select
-          label={t('admin:components.user.avatar')}
-          currentValue={avatarId.value}
-          onChange={(value) => avatarId.set(value)}
+          labelProps={{
+            text: t('admin:components.user.avatar'),
+            position: 'top'
+          }}
+          value={avatarId.value}
+          onChange={(value: string) => avatarId.set(value)}
           options={avatarOptions}
-          error={errors.avatarId.value}
-          menuClassname="min-h-52"
+          state={errors.avatarId.value ? 'error' : undefined}
+          helperText={errors.avatarId.value}
         />
         {user?.inviteCode && (
           <Input

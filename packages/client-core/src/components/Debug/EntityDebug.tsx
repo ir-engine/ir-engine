@@ -28,7 +28,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'
 
-import { UUIDComponent } from '@ir-engine/ecs'
+import { EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
 import {
   Component,
   ComponentMap,
@@ -53,7 +53,6 @@ import {
   useMutableState
 } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { Input } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
@@ -183,7 +182,7 @@ export const EntityDebug = () => {
     <div className="m-1 bg-neutral-600 p-1">
       <div className="my-1">
         <Text>{t('common:debug.scenes')}</Text>
-        <JSONTree data={entityTree.value} postprocessValue={(v: any) => v?.value ?? v} />
+        <JSONTree data={entityTree.get(NO_PROXY)} postprocessValue={(v: any) => v?.value ?? v} />
       </div>
       <div className="my-1">
         <Text>{t('common:debug.entities')}</Text>

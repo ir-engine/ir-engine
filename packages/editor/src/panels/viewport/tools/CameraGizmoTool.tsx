@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useRender3DPanelSystem } from '@ir-engine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import {
   createEntity,
+  EntityTreeComponent,
   generateEntityUUID,
   removeComponent,
   setComponent,
@@ -36,7 +37,6 @@ import { AmbientLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React, { useEffect, useRef } from 'react'
 import { Vector3 } from 'three'
 import { CameraGizmoComponent } from '../../../classes/gizmo/camera/CameraGizmoComponent'

@@ -26,10 +26,14 @@ Infinite Reality Engine. All Rights Reserved.
 import { Knex } from 'knex'
 import { v4 as uuidv4 } from 'uuid'
 
+import { defaultWebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
+import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { flattenObjectToArray } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import appConfig from '@ir-engine/server-core/src/appconfig'
+import appRootPath from 'app-root-path'
 
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
@@ -53,7 +57,7 @@ export async function seed(knex: Knex): Promise<void> {
     ],
     'chargebee'
   )
-  const zendeskSettingSeedData: EngineSettingType[] = await Promise.all(
+  const zendeskSettingSeedData = await generateSeedData(
     [
       {
         key: EngineSettings.Zendesk.Name,
@@ -67,14 +71,8 @@ export async function seed(knex: Knex): Promise<void> {
         key: EngineSettings.Zendesk.Kid,
         value: process.env.ZENDESK_KID || ''
       }
-    ].map(async (item) => ({
-      ...item,
-      id: uuidv4(),
-      type: 'private' as EngineSettingType['type'],
-      category: 'zendesk' as EngineSettingType['category'],
-      createdAt: await getDateTimeSql(),
-      updatedAt: await getDateTimeSql()
-    }))
+    ],
+    'zendesk'
   )
 
   const coilSeedData = await generateSeedData(
@@ -85,7 +83,73 @@ export async function seed(knex: Knex): Promise<void> {
     ],
     'coil'
   )
+  const instanceServerSeedData = await generateSeedData(
+    [
+      {
+        key: EngineSettings.InstanceServer.ClientHost,
+        value: process.env.APP_HOST || ''
+      },
+      {
+        key: EngineSettings.InstanceServer.RtcStartPort,
+        value: process.env.RTC_START_PORT || ''
+      },
+      {
+        key: EngineSettings.InstanceServer.RtcEndPort,
+        value: process.env.RTC_END_PORT || ''
+      },
+      {
+        key: EngineSettings.InstanceServer.RtcPortBlockSize,
+        value: process.env.RTC_PORT_BLOCK_SIZE || ''
+      },
+      {
+        key: EngineSettings.InstanceServer.IdentifierDigits,
+        value: '5'
+      },
+      {
+        key: EngineSettings.InstanceServer.Local,
+        value: `${process.env.LOCAL === 'true'}`
+      },
+      {
+        key: EngineSettings.InstanceServer.Domain,
+        value: process.env.INSTANCESERVER_DOMAIN || 'instanceserver.etherealengine.com'
+      },
+      {
+        key: EngineSettings.InstanceServer.ReleaseName,
+        value: process.env.RELEASE_NAME || 'local'
+      },
+      {
+        key: EngineSettings.InstanceServer.Port,
+        value: process.env.INSTANCESERVER_PORT || '3031'
+      },
+      {
+        key: EngineSettings.InstanceServer.Mode,
+        value: process.env.INSTANCESERVER_MODE || 'dev'
+      },
+      {
+        key: EngineSettings.InstanceServer.LocationName,
+        value: process.env.PRELOAD_LOCATION_NAME || ''
+      },
+      {
+        key: EngineSettings.InstanceServer.ShutdownDelayMs,
+        value: process.env.INSTANCESERVER_SHUTDOWN_DELAY_MS || '0'
+      }
+    ],
+    'instance-server'
+  )
 
+  const instanceServerWebRtc: EngineSettingType[] = await Promise.all(
+    flattenObjectToArray(defaultWebRTCSettings).map(async ({ key, value }) => ({
+      id: uuidv4(),
+      key,
+      value,
+      dataType: getDataType(`${value}`),
+      jsonKey: EngineSettings.InstanceServer.WebRTCSettings,
+      type: 'private' as EngineSettingType['type'],
+      category: 'instance-server-webrtc',
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }))
+  )
   const metabaseSeedData = await generateSeedData(
     [
       {
@@ -134,13 +198,97 @@ export async function seed(knex: Knex): Promise<void> {
     'redis'
   )
 
+  const helmSeedData = await generateSeedData(
+    [
+      {
+        key: EngineSettings.Helm.Main,
+        value: ''
+      },
+      {
+        key: EngineSettings.Helm.Builder,
+        value: ''
+      }
+    ],
+    'helm'
+  )
+
+  const serverSeedData = await generateSeedData(
+    [
+      {
+        key: EngineSettings.Server.Port,
+        value: process.env.SERVER_PORT || '3030'
+      },
+      {
+        key: EngineSettings.Server.Hostname,
+        value: process.env.SERVER_HOSTNAME || 'localhost'
+      },
+      {
+        key: EngineSettings.Server.Mode,
+        value: process.env.NODE_ENV || 'development'
+      },
+      {
+        key: EngineSettings.Server.ClientHost,
+        value: process.env.CLIENT_HOST || 'localhost'
+      },
+      {
+        key: EngineSettings.Server.RootDirectory,
+        value: process.env.ROOT_DIR || ''
+      },
+      {
+        key: EngineSettings.Server.PublicDirectory,
+        value: process.env.PUBLIC_DIR || ''
+      },
+      {
+        key: EngineSettings.Server.NodeModulesDirectory,
+        value: process.env.NODE_MODULES_DIR || ''
+      },
+      {
+        key: EngineSettings.Server.LocalStorageProvider,
+        value: process.env.LOCAL_STORAGE_PROVIDER || ''
+      },
+      {
+        key: EngineSettings.Server.PerformDryRun,
+        value: process.env.PERFORM_DRY_RUN || 'false'
+      },
+      {
+        key: EngineSettings.Server.StorageProvider,
+        value: process.env.STORAGE_PROVIDER || ''
+      },
+      {
+        key: EngineSettings.Server.Hub.Endpoint,
+        value: process.env.HUB_ENDPOINT || ''
+      },
+      {
+        key: EngineSettings.Server.Url,
+        value: process.env.SERVER_URL || ''
+      },
+      {
+        key: EngineSettings.Server.Local,
+        value: process.env.LOCAL || 'false'
+      },
+      {
+        key: EngineSettings.Server.CertPath,
+        value: appRootPath.path.toString() + '/' + process.env.CERT || ''
+      },
+      {
+        key: EngineSettings.Server.KeyPath,
+        value: appRootPath.path.toString() + '/' + process.env.KEY || ''
+      }
+    ],
+    'server'
+  )
+
   const seedData: EngineSettingType[] = [
     ...taskServerSeedData,
     ...chargebeeSettingSeedData,
     ...coilSeedData,
+    ...instanceServerWebRtc,
+    ...instanceServerSeedData,
+    ...serverSeedData,
     ...metabaseSeedData,
     ...redisSeedData,
-    ...zendeskSettingSeedData
+    ...zendeskSettingSeedData,
+    ...helmSeedData
   ]
 
   if (forceRefresh || testEnabled) {
@@ -169,6 +317,7 @@ export async function generateSeedData(
     items.map(async (item) => ({
       ...item,
       id: uuidv4(),
+      dataType: getDataType(item.value),
       type: type,
       category: category,
       createdAt: await getDateTimeSql(),

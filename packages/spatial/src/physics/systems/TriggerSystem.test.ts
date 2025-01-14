@@ -27,6 +27,7 @@ import assert from 'assert'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
+  EntityTreeComponent,
   EntityUUID,
   SystemDefinitions,
   SystemUUID,
@@ -43,7 +44,6 @@ import {
 } from '@ir-engine/ecs'
 import { setCallback } from '../../common/CallbackComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics, PhysicsWorld } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
@@ -144,7 +144,7 @@ describe('TriggerSystem', () => {
         setCallback(noEnterEntity, TestOnExitName, testOnExit)
         const noEnterEntityUUID = getComponent(noEnterEntity, UUIDComponent)
         setComponent(triggerEntity, TriggerComponent, {
-          triggers: [{ onEnter: null, onExit: TestOnExitName, target: noEnterEntityUUID }]
+          triggers: [{ onEnter: '', onExit: TestOnExitName, target: noEnterEntityUUID }]
         })
         assert.equal(enterVal, EnterStartValue)
         triggerEnterOrExit(triggerEntity, targetEntity, Hit)
@@ -177,7 +177,7 @@ describe('TriggerSystem', () => {
         setCallback(noExitEntity, TestOnExitName, testOnExit)
         const noExitEntityUUID = getComponent(noExitEntity, UUIDComponent)
         setComponent(triggerEntity, TriggerComponent, {
-          triggers: [{ onEnter: TestOnEnterName, onExit: null, target: noExitEntityUUID }]
+          triggers: [{ onEnter: TestOnEnterName, onExit: '', target: noExitEntityUUID }]
         })
         assert.equal(exitVal, ExitStartValue)
         triggerEnterOrExit(triggerEntity, targetEntity, Hit)

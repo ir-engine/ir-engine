@@ -34,31 +34,29 @@ import { ScopeType, locationPath, scopePath } from '@ir-engine/common/src/schema
 import { Engine } from '@ir-engine/ecs'
 import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { DropdownItem } from '@ir-engine/ui'
+import { Button, DropdownItem } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { ChevronDownSm, SquaresLg } from '@ir-engine/ui/src/icons'
 import { t } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
-import { RxHamburgerMenu } from 'react-icons/rx'
-import { twMerge } from 'tailwind-merge'
-import { inputFileWithAddToScene } from '../../functions/assetFunctions'
-import { onNewScene } from '../../functions/sceneFunctions'
+import { onNewScene, onSaveScene, saveSceneGLTF } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
+import { uploadFiles } from '../../panels/assets/topbar'
 import { EditorState } from '../../services/EditorServices'
 import { UIAddonsState } from '../../services/UIAddonsState'
 import CreatePrefabPanel from '../dialogs/CreatePrefabPanelDialog'
 import CreateSceneDialog from '../dialogs/CreateScenePanelDialog'
 import ImportSettingsPanel from '../dialogs/ImportSettingsPanelDialog'
-import { SaveNewSceneDialog, SaveSceneDialog } from '../dialogs/SaveSceneDialog'
+import SaveNewSceneDialog from '../dialogs/SaveNewSceneDialog'
+import QuitToDashboardConfirmationDialog from './../dialogs/QuitToDashboardConfirmationDialog'
 
 const onImportAsset = async () => {
   const { projectName } = getState(EditorState)
 
   if (projectName) {
     try {
-      await inputFileWithAddToScene({ projectName, directoryPath: 'projects/' + projectName + '/assets/' })
+      uploadFiles()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -70,9 +68,7 @@ export const confirmSceneSaveIfModified = async () => {
 
   if (isModified) {
     return new Promise((resolve) => {
-      PopoverState.showPopupover(
-        <SaveSceneDialog isExiting onConfirm={() => resolve(true)} onCancel={() => resolve(false)} />
-      )
+      PopoverState.showPopupover(<QuitToDashboardConfirmationDialog resolve={resolve} />)
     })
   }
   return true
@@ -121,7 +117,7 @@ const generateToolbarMenu = () => {
     {
       name: t('editor:menubar.saveScene'),
       hotkey: `${cmdOrCtrlString}+s`,
-      action: () => PopoverState.showPopupover(<SaveSceneDialog />)
+      action: onSaveScene
     },
     {
       name: t('editor:menubar.saveAs'),
@@ -148,16 +144,29 @@ const generateToolbarMenu = () => {
 
 const toolbarMenu = generateToolbarMenu()
 
+const onPublish = async () => {
+  const sceneModified = EditorState.isModified()
+
+  if (!sceneModified) return
+
+  const { sceneAssetID, projectName, sceneName, rootEntity } = getState(EditorState)
+  if (!sceneAssetID || !projectName || !sceneName || !rootEntity)
+    throw new Error('Cannot save scene without scene data')
+  const abortController = new AbortController()
+  await saveSceneGLTF(sceneAssetID, projectName, sceneName, abortController.signal)
+}
+
 export default function Toolbar() {
   const { t } = useTranslation()
   const anchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
   const anchorPosition = useHookstate({ left: 0, top: 0 })
 
   const { projectName, sceneName, sceneAssetID } = useMutableState(EditorState)
+  const isModified = EditorState.useIsModified()
 
   const locationScopeQuery = useFind(scopePath, {
     query: {
-      userId: Engine.instance.store.userID,
+      userId: Engine.instance.userID,
       type: 'location:write' as ScopeType
     }
   })
@@ -175,17 +184,16 @@ export default function Toolbar() {
           <div className="ml-3 mr-6 cursor-pointer" onClick={onCloseProject}>
             <img src="ir-studio-icon.svg" alt="iR Engine Logo" className={`h-6 w-6`} />
           </div>
-          <Button
-            endIcon={<MdOutlineKeyboardArrowDown size="1em" className="-ml-3 text-[#A3A3A3]" />}
-            iconContainerClassName="ml-2 mr-1"
-            rounded="none"
-            startIcon={<RxHamburgerMenu size={24} className="text-theme-input" />}
-            className="-mr-1 border-0 bg-transparent p-0"
+          <button
+            className="flex items-center justify-end gap-1 px-1 py-2 text-[#9CA0AA]"
             onClick={(event) => {
               anchorPosition.set({ left: event.clientX - 5, top: event.clientY - 2 })
               anchorEvent.set(event)
             }}
-          />
+          >
+            <SquaresLg />
+            <ChevronDownSm />
+          </button>
         </div>
         {/* TO BE ADDED */}
         {/* <div className="flex items-center gap-2.5 rounded-full bg-[#212226] p-0.5">
@@ -204,15 +212,21 @@ export default function Toolbar() {
           {sceneAssetID.value && (
             <div className="p-2">
               <Button
-                rounded="full"
                 data-testid="publish-button"
                 disabled={!hasPublishAccess}
                 onClick={() =>
                   PopoverState.showPopupover(
-                    <AddEditLocationModal action="studio" sceneID={sceneAssetID.value} location={currentLocation} />
+                    <AddEditLocationModal
+                      action="studio"
+                      sceneID={sceneAssetID.value}
+                      location={currentLocation}
+                      inStudio={true}
+                      sceneModified={isModified}
+                      onPublish={onPublish}
+                    />
                   )
                 }
-                className="py-1 text-base"
+                className="rounded-[32px] py-1 text-base"
               >
                 {t('editor:toolbar.lbl-publish')}
               </Button>
@@ -227,8 +241,7 @@ export default function Toolbar() {
         <div className="w-[180px]" tabIndex={0}>
           {toolbarMenu.map(({ name, action, hotkey }, index) => (
             <DropdownItem
-              className={twMerge(index === 0 && 'rounded-t-lg', index === toolbarMenu.length - 1 && 'rounded-b-lg')}
-              title={name}
+              label={name}
               secondaryText={hotkey}
               onClick={() => {
                 action()

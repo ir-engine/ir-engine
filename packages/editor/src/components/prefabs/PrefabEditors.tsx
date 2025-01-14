@@ -18,7 +18,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 import config from '@ir-engine/common/src/config'
-import { useGLTF } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
+import { useFile } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import React from 'react'
 
@@ -184,6 +184,7 @@ export const PrefabShelfState = defineState({
 })
 
 const ShelfItemReactor = (props: { key: string; url: string }): JSX.Element | null => {
-  useGLTF(props.url)
+  // Add prefab to cache
+  useFile(props.url)
   return null
 }

@@ -26,10 +26,10 @@ Infinite Reality Engine. All Rights Reserved.
 import { useFind } from '@ir-engine/common'
 import { identityProviderPath } from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { Button } from '@ir-engine/ui'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import React from 'react'
-import { BiSolidPencil } from 'react-icons/bi'
+import { HiPencil } from 'react-icons/hi2'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { UserMenus } from '../../../user/UserUISystem'
 import { PopupMenuServices } from '../../../user/components/UserMenu/PopupMenuService'
@@ -66,18 +66,17 @@ const ProfilePill = () => {
           <div className="relative h-14 w-14">
             <img className="rounded-full" src={avatarThumbnail} />
             <Button
-              rounded="full"
-              size="small"
-              fullWidth={false}
+              size="xs"
               variant="secondary"
               data-testid="edit-avatar-button"
-              className="absolute bottom-0 left-10 h-6 w-6 border-blue-900 border-opacity-65 text-white"
-              startIcon={<BiSolidPencil size={16} />}
+              className="absolute bottom-0 left-10 rounded-full p-1 text-[#F5F5F5]"
               onClick={() => {
                 popUpOpened.set(false)
-                PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect2)
+                PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)
               }}
-            />
+            >
+              <HiPencil />
+            </Button>
           </div>
 
           <div className="flex flex-col gap-1">

@@ -28,13 +28,13 @@ import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperSt
 import { ObjectGridSnapState } from '@ir-engine/editor/src/systems/ObjectGridSnapSystem'
 import { SnapMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
+import { Tooltip } from '@ir-engine/ui'
+import { ViewportButton } from '@ir-engine/ui/editor'
+import { SnappingToolMd } from '@ir-engine/ui/src/icons'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { LuUtilityPole } from 'react-icons/lu'
-import { MdOutlineCenterFocusWeak } from 'react-icons/md'
+import ToolbarDropdown from './ToolbarDropdown'
 
 const translationSnapOptions = [
   { label: '0.1m', value: 0.1 },
@@ -80,45 +80,37 @@ const TransformSnapTool = () => {
   }
 
   return (
-    <div className="flex items-center rounded bg-[#0E0F11]">
-      <Tooltip content={t('editor:toolbar.transformSnapTool.toggleBBoxSnap')}>
-        <Button
-          startIcon={<LuUtilityPole className="text-theme-input" />}
-          onClick={toggleAttachmentPointSnap}
-          variant={objectSnapState.enabled.value ? 'outline' : 'transparent'}
-          className="px-0"
-          size="small"
-        />
+    <div className="flex items-center rounded bg-[#141619] py-1">
+      <Tooltip content={t('editor:toolbar.transformSnapTool.toggleBBoxSnap')} position="bottom">
+        <ViewportButton onClick={toggleAttachmentPointSnap} selected={objectSnapState.enabled.value}>
+          <LuUtilityPole />
+        </ViewportButton>
       </Tooltip>
-      <Tooltip content={t('editor:toolbar.transformSnapTool.toggleSnapMode')}>
-        <Button
-          startIcon={<MdOutlineCenterFocusWeak className="text-theme-input" />}
-          onClick={toggleSnapMode}
-          variant={editorHelperState.gridSnap.value === SnapMode.Grid ? 'outline' : 'transparent'}
-          className="px-0"
-          size="small"
-        />
+      <Tooltip content={t('editor:toolbar.transformSnapTool.toggleSnapMode')} position="bottom">
+        <ViewportButton onClick={toggleSnapMode} selected={editorHelperState.gridSnap.value === SnapMode.Grid}>
+          <SnappingToolMd />
+        </ViewportButton>
       </Tooltip>
-      <Tooltip content={t('editor:toolbar.transformSnapTool.info-translate')} position="right center">
-        <Select
-          key={editorHelperState.translationSnap.value}
-          inputClassName="py-1 h-5 rounded-sm text-theme-gray3 text-xs"
-          className="w-20 border-theme-input p-1 text-theme-gray3"
-          onChange={onChangeTranslationSnap}
-          options={translationSnapOptions}
-          currentValue={editorHelperState.translationSnap.value}
-        />
-      </Tooltip>
-      <Tooltip content={t('editor:toolbar.transformSnapTool.info-rotate')} position="right center">
-        <Select
-          key={editorHelperState.rotationSnap.value}
-          inputClassName="py-1 h-5 rounded-sm text-theme-gray3 text-xs pe-9"
-          className="w-20 border-theme-input p-1 text-theme-gray3"
-          onChange={onChangeRotationSnap}
-          options={rotationSnapOptions}
-          currentValue={editorHelperState.rotationSnap.value}
-        />
-      </Tooltip>
+
+      <ToolbarDropdown
+        tooltipContent={t('editor:toolbar.transformSnapTool.info-translate')}
+        onChange={onChangeTranslationSnap}
+        options={translationSnapOptions}
+        value={editorHelperState.translationSnap.value}
+        width="full"
+        inputHeight="xs"
+        dropdownParentClassName="w-[82px] p-1"
+      />
+
+      <ToolbarDropdown
+        tooltipContent={t('editor:toolbar.transformSnapTool.info-rotate')}
+        onChange={onChangeRotationSnap}
+        options={rotationSnapOptions}
+        value={editorHelperState.rotationSnap.value}
+        width="full"
+        inputHeight="xs"
+        dropdownParentClassName="w-[65px] p-1"
+      />
     </div>
   )
 }

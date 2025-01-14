@@ -40,14 +40,14 @@ import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import React, { ReactNode, createContext, useContext } from 'react'
 import { DnDFileType, FileDataType } from '../../constants/AssetTypes'
-import { handleUploadFiles } from '../../functions/assetFunctions'
+import { filterExistingFiles, handleUploadFiles } from '../../functions/assetFunctions'
 import { FilesState } from '../../services/FilesState'
 
 /* CONSTANTS */
 
 export const FILES_PAGE_LIMIT = 100 as const
 
-export const availableTableColumns = ['name', 'type', 'dateModified', 'size'] as const
+export const availableTableColumns = ['name', 'type', 'author', 'createdAt', 'statistics', 'size'] as const
 
 /* HOOKS */
 
@@ -152,6 +152,7 @@ export function useFileBrowserDrop() {
     isCopy = false
   ): Promise<void> => {
     if (isLoading) return
+    if (!isCopy && newPath.startsWith(oldPath)) return // make sure we are not moving a folder into itself
     try {
       await fileService.update(null, {
         oldProject: filesState.projectName.value,
@@ -175,7 +176,7 @@ export function useFileBrowserDrop() {
     dropOn?: FileDataType,
     selectedFileKeys?: string[]
   ) => {
-    const destinationPath = dropOn?.isFolder ? `${dropOn.key}/` : filesState.selectedDirectory.value
+    const destinationPath = dropOn?.isFolder ? `${dropOn.key}` : filesState.selectedDirectory.value
 
     if (isFileDataType(data)) {
       if (dropOn?.isFolder) {
@@ -210,7 +211,8 @@ export function useFileBrowserDrop() {
 
       if (filesToUpload.length) {
         try {
-          await handleUploadFiles(filesState.projectName.value, path, filesToUpload)
+          const uniqueFiles = await filterExistingFiles(filesState.projectName.value, path, filesToUpload)
+          await handleUploadFiles(filesState.projectName.value, path, uniqueFiles)
         } catch (err) {
           NotificationService.dispatchNotify(err.message, { variant: 'error' })
         }

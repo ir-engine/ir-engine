@@ -78,7 +78,6 @@ export default async function (locationName, app: Application) {
   const localIp = await getLocalServerIp()
   const selfIpAddress = `${status.address as string}:${status.portsList[0].port as string}`
   const newInstance = {
-    currentUsers: 0,
     sceneId: location.sid,
     ipAddress: config.kubernetes.enabled ? selfIpAddress : `${localIp.ipAddress}:3031`,
     locationId: location.id

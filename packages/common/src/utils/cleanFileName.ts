@@ -42,7 +42,7 @@ export const cleanFileNameString = (fullFileName: string, useStorageProviderLeng
     const lastDotIndex = hasExtension ? _lastDotIndex : fileName.length
 
     // Split the name into the part before and after the dot
-    let nameWithoutExtension = fileName.substring(0, lastDotIndex)
+    let nameWithoutExtension = fileName.substring(0, lastDotIndex).replace(' ', '_')
     const extension = fileName.substring(lastDotIndex + 1).toLowerCase()
 
     //Used by backend uploads to storage provider, which has different length restrictions than other uses

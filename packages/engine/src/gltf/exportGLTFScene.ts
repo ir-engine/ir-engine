@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import {
   ComponentType,
   getAllComponents,

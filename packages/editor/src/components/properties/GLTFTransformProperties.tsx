@@ -27,9 +27,8 @@ import React from 'react'
 
 import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/ModelTransform'
 import { State } from '@ir-engine/hyperflux'
-import { Checkbox, Input } from '@ir-engine/ui'
+import { Checkbox, Input, Select } from '@ir-engine/ui'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
@@ -171,7 +170,6 @@ export default function GLTFTransformProperties({
 
             <div className="col-span-2 col-start-3">
               <Select
-                inputClassName="text-theme-input text-xs py-0"
                 options={[
                   { label: 'Default', value: 'default' },
                   { label: 'JPG', value: 'jpg' },
@@ -183,7 +181,7 @@ export default function GLTFTransformProperties({
                   // @ts-ignore
                   transformParms.textureFormat.set(value)
                 }}
-                currentValue={transformParms.textureFormat.value}
+                value={transformParms.textureFormat.value}
               />
             </div>
           </div>
@@ -215,7 +213,6 @@ export default function GLTFTransformProperties({
 
             <div className="col-span-2 col-start-3">
               <Select
-                inputClassName="text-theme-input text-xs py-0"
                 options={[
                   { label: 'UASTC', value: 'uastc' },
                   { label: 'ETC1', value: 'etc1' }
@@ -224,7 +221,7 @@ export default function GLTFTransformProperties({
                   // @ts-ignore
                   transformParms.textureCompressionType.set(value)
                 }}
-                currentValue={transformParms.textureCompressionType.value}
+                value={transformParms.textureCompressionType.value}
               />
             </div>
           </div>

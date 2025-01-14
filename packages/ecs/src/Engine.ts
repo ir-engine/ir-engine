@@ -47,37 +47,37 @@ export class Engine {
   static instance: Engine
 
   /**
-   * @deprecated use "Engine.instance.store.userID" instead
+   * @deprecated use "getState(EngineState).userID" instead
    * The uuid of the logged-in user
    */
   get userID() {
-    return Engine.instance.store.userID
+    return Engine.instance.store.stateMap['EngineState']?.get(NO_PROXY_STEALTH).userID
   }
 
   store: HyperStore
 
   /**
    * Represents the reference space of the xr session local floor.
-   * @deprecated use "getState(EngineState).localFloorEntity" instead
+   * @deprecated use "getState(ReferenceSpaceState).localFloorEntity" instead
    */
   get localFloorEntity() {
-    return Engine.instance.store.stateMap['EngineState'].get(NO_PROXY_STEALTH).localFloorEntity as Entity
+    return Engine.instance.store.stateMap['ReferenceSpaceState'].get(NO_PROXY_STEALTH).localFloorEntity as Entity
   }
 
   /**
    * Represents the reference space for the absolute origin of the rendering context.
-   * @deprecated use "getState(EngineState).originEntity" instead
+   * @deprecated use "getState(ReferenceSpaceState).originEntity" instead
    */
   get originEntity() {
-    return Engine.instance.store.stateMap['EngineState'].get(NO_PROXY_STEALTH).originEntity as Entity
+    return Engine.instance.store.stateMap['ReferenceSpaceState'].get(NO_PROXY_STEALTH).originEntity as Entity
   }
 
   /**
    * Represents the reference space for the viewer.
-   * @deprecated use "getState(EngineState).viewerEntity" instead
+   * @deprecated use "getState(ReferenceSpaceState).viewerEntity" instead
    */
   get viewerEntity() {
-    return Engine.instance.store.stateMap['EngineState'].get(NO_PROXY_STEALTH).viewerEntity as Entity
+    return Engine.instance.store.stateMap['ReferenceSpaceState'].get(NO_PROXY_STEALTH).viewerEntity as Entity
   }
 
   /** @deprecated use viewerEntity instead */

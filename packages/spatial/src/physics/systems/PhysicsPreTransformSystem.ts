@@ -29,12 +29,8 @@ import { defineQuery, defineSystem, Entity, getComponent } from '@ir-engine/ecs'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { getState } from '@ir-engine/hyperflux'
 
+import { EntityTreeComponent, getAncestorWithComponents, iterateEntityNode } from '@ir-engine/ecs'
 import { Vector3_One, Vector3_Zero } from '../../common/constants/MathConstants'
-import {
-  EntityTreeComponent,
-  getAncestorWithComponents,
-  iterateEntityNode
-} from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix, isDirty, TransformDirtyUpdateSystem } from '../../transform/systems/TransformSystem'
 import { Physics } from '../classes/Physics'
@@ -105,10 +101,6 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
 
   /** convert the local space transform to scene space */
   transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
-
-  /** @todo Whatever this math is doing is incorrect and we'll fix it v0.9. */
-  /** convert the scene space transform to world space */
-  //transform.matrixWorld.premultiply(sceneRelParentMatrix)
 
   /** set all children dirty deeply, but set this entity to clean */
   iterateEntityNode(entity, setDirty)
@@ -182,7 +174,7 @@ const filterAwakeCleanRigidbodies = (entity: Entity) => {
   const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
   if (TransformComponent.dirtyTransforms[parentEntity]) return true
   // if the entity is dirty, we don't need to update the transform
-  if (isDirty(entity)) return false
+  if (TransformComponent.dirtyTransforms[entity]) return false
   const world = Physics.getWorld(entity)
   if (!world) return false
   // if the entity is not dirty, we only need to update the transform if it is awake

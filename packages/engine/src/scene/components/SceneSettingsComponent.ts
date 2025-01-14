@@ -39,6 +39,6 @@ export const SceneSettingsComponent = defineComponent({
     backgroundColor: S.String('#FFFFFF'),
     alternativeColor: S.String('#000000'),
     sceneKillHeight: S.Number(DefaultKillHeight),
-    spectateEntity: S.Nullable(S.EntityUUID())
+    spectateEntity: S.EntityUUID()
   })
 })

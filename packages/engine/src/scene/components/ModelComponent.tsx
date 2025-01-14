@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { UUIDComponent } from '@ir-engine/ecs'
+import { EntityTreeComponent, UUIDComponent, iterateEntityNode, removeEntityNodeRecursively } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -39,19 +39,12 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY, dispatchAction, getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
-import { GroupComponent, addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { GroupComponent, addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
-import {
-  EntityTreeComponent,
-  iterateEntityNode,
-  removeEntityNodeRecursively
-} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { VRM } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 import { AnimationMixer, Group, Scene } from 'three'
-import { useGLTF } from '../../assets/functions/resourceLoaderHooks'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { GLTFDocumentState, GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
@@ -91,7 +84,7 @@ function ModelReactor() {
   const gltfDocumentState = useHookstate(getMutableState(GLTFDocumentState))
   const modelSceneID = getModelSceneID(entity)
 
-  const [gltf, error] = useGLTF(modelComponent.src.value, entity)
+  const [gltf, error] = [null as null | GLTF, null as null | Error]
 
   useEffect(() => {
     const occlusion = modelComponent.cameraOcclusion.value
@@ -122,7 +115,6 @@ function ModelReactor() {
         const obj3d = new Group()
         obj3d.entity = entity
         addObjectToGroup(entity, obj3d)
-        proxifyParentChildRelationships(obj3d)
       }
       return
     }
@@ -154,7 +146,7 @@ function ModelReactor() {
 
     removeError(entity, ModelComponent, 'INVALID_SOURCE')
     removeError(entity, ModelComponent, 'LOADING_ERROR')
-    const sceneObj = group[0] as Group
+    const sceneObj = group as Group
 
     sceneObj.userData.src = model.src
     modelComponent.scene.set(sceneObj)

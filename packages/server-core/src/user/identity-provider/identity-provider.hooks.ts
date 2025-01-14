@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { BadRequest, Forbidden, MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { hooks as schemaHooks } from '@feathersjs/schema'
 import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
+import { v4 } from 'uuid'
 
 import { isDev } from '@ir-engine/common/src/config'
 import { scopeTypePath } from '@ir-engine/common/src/schemas/scope/scope-type.schema'
@@ -43,6 +44,7 @@ import { checkScope as checkScopeMethod } from '@ir-engine/common/src/utils/chec
 import checkScope from '../../hooks/check-scope'
 
 import { Paginated } from '@feathersjs/feathers'
+import { USER_ID_REGEX } from '@ir-engine/common/src/regex'
 import {
   projectPath,
   projectPermissionPath,
@@ -182,23 +184,50 @@ async function validateAuthParams(context: HookContext<IdentityProviderService>)
 
 async function addIdentityProviderType(context: HookContext<IdentityProviderService>) {
   const isAdmin = context.existingUser && (await checkScopeMethod(context.existingUser, 'admin', 'admin'))
+  let data = context.data as any
+  let actualData = context.actualData
   if (
     !isAdmin &&
     context.params!.provider &&
-    !['password', 'email', 'sms'].includes((context!.actualData as IdentityProviderData).type)
+    !['password', 'email', 'sms'].includes((context!.actualData as IdentityProviderData).type as string)
   ) {
-    ;(context.data as IdentityProviderData).type = 'guest'
-    ;(context.actualData as IdentityProviderData).type = 'guest' //Non-password/magiclink create requests must always be for guests
+    if (!USER_ID_REGEX.test(data.token as string))
+      //Ensure that guest tokens are UUIDs
+      data.token = v4()
+    if (!USER_ID_REGEX.test(actualData.token as string))
+      //Ensure that guest tokens are UUIDs
+      actualData.token = v4()
+    data.type = 'guest' //Non-password/magiclink create requests must always be for guests
+    actualData.type = 'guest' //Non-password/magiclink create requests must always be for guests
   }
 
-  if ((context.data as IdentityProviderData).type === 'guest' && (context.actualData as IdentityProviderData).userId) {
-    const existingUser = await context.app.service(userPath).find({
-      query: {
-        id: (context.actualData as IdentityProviderData).userId
+  if (data.type === 'guest') {
+    if (actualData.userId) {
+      const existingUser = await context.app.service(userPath).find({
+        query: {
+          id: actualData.userId
+        }
+      })
+      if (existingUser.data.length > 0) {
+        throw new BadRequest('Cannot create a guest identity-provider on an existing user')
       }
-    })
-    if (existingUser.data.length > 0) {
-      throw new BadRequest('Cannot create a guest identity-provider on an existing user')
+    }
+
+    data = {
+      id: data.id,
+      token: data.token,
+      type: data.type,
+      userId: data.userId,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt
+    }
+    actualData = {
+      id: actualData.id,
+      token: actualData.token,
+      type: actualData.type,
+      userId: actualData.userId,
+      createdAt: actualData.createdAt,
+      updatedAt: actualData.updatedAt
     }
   }
   const adminScopes = await context.app.service(scopePath).find({
@@ -207,9 +236,11 @@ async function addIdentityProviderType(context: HookContext<IdentityProviderServ
     }
   })
 
-  if (adminScopes.total === 0 && (isDev || (context.actualData as IdentityProviderData).type !== 'guest')) {
+  if (adminScopes.total === 0 && (isDev || actualData.type !== 'guest')) {
     context.isAdmin = true
   }
+  context.data = data
+  context.actualData = actualData
 }
 
 async function createNewUser(context: HookContext<IdentityProviderService>) {
@@ -275,10 +306,7 @@ const isSearchQuery = (context: HookContext) => {
   const { query } = context.params
   const queryLength = Object.keys(query).length
   // we only need to allow search based on exact email in the query
-  if (queryLength === 2 && query.email && !query.email.$like && !query.email.$notlike) {
-    return true
-  }
-  return false
+  return queryLength === 3 && query.email && !query.email.$like && !query.email.$notlike
 }
 
 export default {
@@ -298,7 +326,8 @@ export default {
       iff(
         isProvider('external'),
         iffElse(
-          (ctx: HookContext) => (isAction('admin')(ctx) && checkScope('user', 'read')(ctx)) || isSearchQuery(ctx),
+          async (ctx: HookContext) =>
+            (isAction('admin')(ctx) && (await checkScope('user', 'read')(ctx))) || isSearchQuery(ctx),
           [],
           [setLoggedinUserInQuery('userId')]
         )
@@ -324,7 +353,7 @@ export default {
     ],
     update: [disallow()],
     patch: [
-      iff(isProvider('external'), checkIdentityProvider),
+      disallow('external'),
       schemaHooks.validateData(identityProviderPatchValidator),
       schemaHooks.resolveData(identityProviderPatchResolver)
     ],

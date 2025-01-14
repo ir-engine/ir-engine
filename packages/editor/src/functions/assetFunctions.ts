@@ -30,10 +30,23 @@ import {
   uploadToFeathersService
 } from '@ir-engine/client-core/src/util/upload'
 import { API } from '@ir-engine/common'
-import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
+import config from '@ir-engine/common/src/config'
+import {
+  assetLibraryPath,
+  fileBrowserPath,
+  fileBrowserUploadPath,
+  staticResourcePath
+} from '@ir-engine/common/src/schema.type.module'
+import { CommonKnownContentTypes } from '@ir-engine/common/src/utils/CommonKnownContentTypes'
 import { cleanFileNameFile, cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
+import { KTX2EncodeArguments } from '@ir-engine/engine/src/assets/constants/CompressionParms'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
+import { getMutableState } from '@ir-engine/hyperflux'
+import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
+import i18n from 'i18next'
+import { showMultipleFileModal } from '../panels/files/toolbar'
+import { ImportSettingsState } from '../services/ImportSettingsState'
 
 enum FileType {
   THREE_D = '3D',
@@ -58,7 +71,7 @@ const supportedFiles = {
   [FileType.VIDEO]: new Set(['.mp4', '.mkv', '.avi'])
 }
 
-function findMimeType(file): FileType {
+function findMimeType(file: File): FileType {
   let fileType = FileType.UNKNOWN
   if (file.type.startsWith('image/')) {
     fileType = FileType.IMAGE
@@ -92,25 +105,127 @@ function isValidFileType(file): { isValid: boolean; errorMessage?: string } {
   }
 }
 
-function sanitizeFiles(files) {
+function sanitizeFiles(files: FileList): File[] {
+  const { maxFileSizeToUpload } = config.client
+
+  const invalidSizeFiles: string[] = []
   const newFiles: File[] = []
   for (const file of files) {
+    if (file.size > maxFileSizeToUpload) {
+      invalidSizeFiles.push(file.name)
+      continue
+    }
     const newFile = cleanFileNameFile(file)
     const { isValid, errorMessage } = isValidFileType(newFile)
     if (!isValid) {
-      NotificationService.dispatchNotify(`${file.name} is not supported. ${errorMessage}`, { variant: 'warning' })
+      NotificationService.dispatchNotify(
+        i18n.t('editor:errors.fileNotSupported', { file: file.name, errorMessage: errorMessage || '' }) as string,
+        { variant: 'warning' }
+      )
+      continue
     }
     newFiles.push(newFile)
+  }
+
+  if (invalidSizeFiles.length > 0) {
+    NotificationService.dispatchNotify(
+      i18n.t('editor:errors.maxUploadFileWeightExceed', {
+        maxFileSizeToUploadMB: maxFileSizeToUpload / (1024 * 1024),
+        fileNames: invalidSizeFiles.join(', ')
+      }) as string,
+      { variant: 'warning' }
+    )
   }
 
   return newFiles
 }
 
+export const compressImage = async (properties: KTX2EncodeArguments) => {
+  const ktx2Encoder = new KTX2Encoder()
+
+  let img: CanvasImageSource
+  if (properties.src instanceof Blob) {
+    img = await createImageBitmap(properties.src)
+  } else {
+    img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.src = properties.src
+    await img.decode()
+  }
+  const canvas = new OffscreenCanvas(img.width, img.height)
+  const ctx = canvas.getContext('2d')!
+  ctx.drawImage(img, 0, 0)
+  const imageData = ctx.getImageData(0, 0, img.width, img.height)
+
+  const data = await ktx2Encoder.encode(imageData, {
+    uastc: properties.mode === 'UASTC',
+    qualityLevel: properties.quality,
+    mipmaps: properties.mipmaps,
+    compressionLevel: properties.compressionLevel,
+    yFlip: properties.flipY,
+    srgb: !properties.srgb,
+    uastcFlags: properties.uastcFlags,
+    normalMap: properties.normalMap,
+    uastcZstandard: properties.uastcZstandard
+  })
+
+  return data
+}
+
+export const filterExistingFiles = async (projectName: string, directoryPath: string, files: File[]) => {
+  if (!files.length) {
+    return files
+  }
+
+  const resourcePaths = files.map((file) => `${directoryPath}${file.name}`)
+  const { data: existingResources } = await API.instance.service(staticResourcePath).find({
+    query: { key: { $in: resourcePaths || [] } }
+  })
+
+  const existingResourceKeys = new Set(existingResources.map((resource) => resource.key))
+
+  const { existingFiles, uniqueFiles } = files.reduce(
+    (result, file) => {
+      const fileKey = `${directoryPath}${file.name}`
+      if (existingResourceKeys.has(fileKey)) {
+        result.existingFiles.push(file)
+      } else {
+        result.uniqueFiles.push(file)
+      }
+      return result
+    },
+    { existingFiles: [], uniqueFiles: [] } as { existingFiles: File[]; uniqueFiles: File[] }
+  )
+
+  if (existingFiles.length > 0) {
+    showMultipleFileModal(projectName, directoryPath, existingFiles)
+  }
+
+  return uniqueFiles
+}
+
 export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
+  const { ktx2: compressedImage } = CommonKnownContentTypes
+  const importSettingsState = getMutableState(ImportSettingsState)
   return Promise.all(
-    Array.from(files).map((file) => {
+    Array.from(files).map(async (file) => {
       file = cleanFileNameFile(file)
+
+      const ext = file.name.split('.').pop() ?? ''
+      const contentType = CommonKnownContentTypes[ext] as string | null
+      const isUncompressedImage = contentType != compressedImage && contentType?.startsWith('image')
+
+      if (isUncompressedImage && importSettingsState.imageCompression.value) {
+        const newFileName = file.name.replace(/.*\/(.*)\..*/, '$1').replace(/\.([^\.]+)$/, '-$1') + '.ktx2'
+        const data = await compressImage({
+          ...importSettingsState.imageSettings.value,
+          src: file
+        })
+        file = new File([data], newFileName, { type: 'image/ktx2' })
+      }
+
       const fileDirectory = file.webkitRelativePath || file.name
+
       return uploadToFeathersService(fileBrowserUploadPath, [file], {
         args: [
           {
@@ -120,7 +235,9 @@ export const handleUploadFiles = (projectName: string, directoryPath: string, fi
             contentType: file.type
           }
         ]
-      }).promise
+      }).promise.catch(() => {
+        NotificationService.dispatchNotify(i18n.t('editor:errors.fileUploadFailed') as string, { variant: 'error' })
+      })
     })
   )
 }
@@ -152,7 +269,8 @@ export const inputFileWithAddToScene = ({
       try {
         if (el.files?.length) {
           const newFiles = sanitizeFiles(el.files)
-          await handleUploadFiles(projectName, directoryPath, newFiles)
+          const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
+          await handleUploadFiles(projectName, directoryPath, uniqueFiles)
         }
         resolve(null)
         API.instance.service(fileBrowserPath).emit('created')

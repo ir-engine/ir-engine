@@ -291,7 +291,18 @@ describe('ComponentFunctions', async () => {
 
       const Vec3Component = defineComponent({
         name: 'Vector3Component',
-        schema: S.Vec3()
+        schema: S.SerializedClass(
+          () => new Vector3(),
+          {
+            x: S.Number(),
+            y: S.Number(),
+            z: S.Number()
+          },
+          {
+            deserialize: (curr, value) => curr.copy(value),
+            id: 'Vec3'
+          }
+        )
       })
 
       const entity = createEntity()

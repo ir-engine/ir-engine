@@ -25,9 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Mesh, Object3D } from 'three'
 
-import { Entity, getComponent, hasComponent, removeComponent } from '@ir-engine/ecs'
+import { Entity, getComponent, hasComponent, iterateEntityNode, removeComponent } from '@ir-engine/ecs'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { GroundPlaneComponent } from '../../../../scene/components/GroundPlaneComponent'
 import { ImageComponent } from '../../../../scene/components/ImageComponent'

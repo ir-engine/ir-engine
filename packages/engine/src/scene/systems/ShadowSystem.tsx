@@ -54,31 +54,34 @@ import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineQuery, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem, useExecute } from '@ir-engine/ecs/src/SystemFunctions'
-import { defineState, getMutableState, getState, isClient, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { Vector3_Back } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import {
   createPriorityQueue,
   createSortAndApplyPriorityQueue
 } from '@ir-engine/spatial/src/common/functions/PriorityQueue'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { addObjectToGroup, GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { DirectionalLightComponent } from '@ir-engine/spatial/src/renderer/components/lights/DirectionalLightComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { ObjectLayerComponents } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import {
+  ObjectLayerComponents,
+  ObjectLayerMaskComponent
+} from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { CSM } from '@ir-engine/spatial/src/renderer/csm/CSM'
 //import { CSMHelper } from '@ir-engine/spatial/src/renderer/csm/CSMHelper'
+import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/ecs'
 import { getShadowsEnabled, useShadowsEnabled } from '@ir-engine/spatial/src/renderer/functions/RenderSettingsFunction'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { compareDistanceToCamera } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
-import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { XRLightProbeState } from '@ir-engine/spatial/src/xr/XRLightProbeSystem'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { RenderModes } from '@ir-engine/spatial/src/renderer/constants/RenderModes'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
 import { createDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
@@ -189,7 +192,7 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
 
   return (
     <QueryReactor
-      Components={[ShadowComponent, GroupComponent]}
+      Components={[ShadowComponent, ObjectComponent]}
       ChildEntityReactor={EntityChildCSMReactor}
       props={{ rendererEntity: rendererEntity }}
     />
@@ -201,26 +204,21 @@ const EntityChildCSMReactor = (props: { rendererEntity: Entity }) => {
   const { rendererEntity } = props
 
   const shadowComponent = useComponent(entity, ShadowComponent)
-  const groupComponent = useComponent(entity, GroupComponent)
+  const obj = useComponent(entity, ObjectComponent).get(NO_PROXY) as Mesh | null
   const csm = useComponent(rendererEntity, RendererComponent).csm.value
 
   useEffect(() => {
     if (!csm || !shadowComponent.receive.value) return
 
-    if (!groupComponent) return
+    if (!obj) return
 
-    const objs = [...groupComponent.value] as Mesh<any, Material>[]
-    for (const obj of objs) {
-      if (obj.material) {
-        csm.setupMaterial(obj)
-      }
+    if (obj.material) {
+      csm.setupMaterial(obj)
     }
 
     return () => {
-      for (const obj of objs) {
-        if (obj.material) {
-          csm.teardownMaterial(obj.material)
-        }
+      if (obj.material) {
+        csm.teardownMaterial(obj.material as any)
       }
     }
   }, [shadowComponent.receive, csm])
@@ -235,7 +233,7 @@ function RenderSettingsQueryReactor() {
   /**
    * @todo Currently we only have support for CSM for the core renderer, since we need to add proper multi-scene support via spatial volumes.
    */
-  const viewerEntity = useHookstate(getMutableState(EngineState).viewerEntity).value
+  const viewerEntity = useHookstate(getMutableState(ReferenceSpaceState).viewerEntity).value
 
   if (!rendererEntity || rendererEntity !== viewerEntity) return null
   if (renderMode === RenderModes.UNLIT || renderMode === RenderModes.LIT) return null
@@ -340,7 +338,7 @@ const DropShadowReactor = () => {
     const center = sphere.center.sub(TransformComponent.getWorldPosition(entity, vec3))
     const shadowEntity = createEntity()
     const [shadowObject, unload] = createDisposable(Mesh, shadowEntity, shadowGeometry.clone(), shadowMaterial.clone())
-    addObjectToGroup(shadowEntity, shadowObject)
+    setComponent(shadowEntity, MeshComponent, shadowObject)
     setComponent(shadowEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setComponent(
       shadowEntity,
@@ -348,7 +346,7 @@ const DropShadowReactor = () => {
       'Shadow for ' + getComponent(entity, NameComponent) + '_' + getComponent(entity, UUIDComponent)
     )
     setComponent(shadowEntity, VisibleComponent)
-    setComponent(shadowEntity, ObjectLayerComponents[ObjectLayers.Scene])
+    ObjectLayerMaskComponent.setLayer(shadowEntity, ObjectLayers.Scene)
     setComponent(entity, DropShadowComponent, { radius, center, entity: shadowEntity })
 
     return () => {
@@ -394,7 +392,7 @@ const updateDropShadowTransforms = () => {
     const sizeBias = 0.3
     const finalRadius = sizeBias * dropShadow.radius + dropShadow.radius * centerCorrectedDist * 0.5
 
-    const shadowMaterial = (getComponent(dropShadow.entity, GroupComponent)[0] as Mesh).material as Material
+    const shadowMaterial = (getComponent(dropShadow.entity, ObjectComponent) as Mesh).material as Material
     shadowMaterial.opacity = Math.min(1 / (1 + centerCorrectedDist), 1) * 1.2
     shadowRotation.setFromUnitVectors(intersected.face.normal, Vector3_Back)
     dropShadowTransform.rotation.copy(shadowRotation)
@@ -406,8 +404,6 @@ const updateDropShadowTransforms = () => {
 const rendererQuery = defineQuery([RendererComponent])
 
 const execute = () => {
-  if (!isClient) return
-
   const useShadows = getShadowsEnabled()
   if (!useShadows) return
 
@@ -435,8 +431,6 @@ const RendererShadowReactor = () => {
 }
 
 const reactor = () => {
-  if (!isClient) return null
-
   const useShadows = useShadowsEnabled()
 
   const [shadowTexture] = useTexture(
@@ -472,8 +466,6 @@ export const DropShadowSystem = defineSystem({
   uuid: 'ee.engine.DropShadowSystem',
   insert: { after: TransformSystem },
   execute: () => {
-    if (!isClient) return
-
     const useShadows = getShadowsEnabled()
     if (!useShadows) {
       updateDropShadowTransforms()

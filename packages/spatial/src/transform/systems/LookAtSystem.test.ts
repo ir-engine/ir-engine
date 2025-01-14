@@ -27,6 +27,7 @@ import assert from 'assert'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
+  EntityTreeComponent,
   EntityUUID,
   SystemDefinitions,
   SystemUUID,
@@ -44,8 +45,7 @@ import { getState } from '@ir-engine/hyperflux'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 import { assertVec } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
-import { EngineState } from '../../EngineState'
-import { EntityTreeComponent } from '../components/EntityTree'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { LookAtComponent } from '../components/LookAtComponent'
 import { TransformComponent } from '../components/TransformComponent'
 import { LookAtSystem } from './LookAtSystem'
@@ -97,7 +97,7 @@ describe('LookAtSystem', () => {
         setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22), rotation: Initial })
         setComponent(testEntity, LookAtComponent, { target: getComponent(facerEntity, UUIDComponent) })
         // Sanity check before running
-        assert.equal(Boolean(getState(EngineState).viewerEntity), false)
+        assert.equal(Boolean(getState(ReferenceSpaceState).viewerEntity), false)
         assert.equal(hasComponent(testEntity, TransformComponent), true)
         assert.equal(hasComponent(testEntity, LookAtComponent), true)
         assert.equal(Boolean(getComponent(testEntity, LookAtComponent).target), true)
@@ -136,7 +136,7 @@ describe('LookAtSystem', () => {
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
           setComponent(testEntity, LookAtComponent, { target: 'invalidTestUUID' as EntityUUID })
           // Sanity check before running
-          assert.equal(Boolean(getState(EngineState).viewerEntity), true)
+          assert.equal(Boolean(getState(ReferenceSpaceState).viewerEntity), true)
           assert.equal(hasComponent(testEntity, TransformComponent), true)
           assert.equal(hasComponent(testEntity, LookAtComponent), true)
           assert.equal(Boolean(getComponent(testEntity, LookAtComponent).target), true)
@@ -154,9 +154,9 @@ describe('LookAtSystem', () => {
           setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42), rotation: Initial })
           setComponent(facerEntity, UUIDComponent, UUIDComponent.generateUUID())
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
-          setComponent(testEntity, LookAtComponent, { target: null })
+          setComponent(testEntity, LookAtComponent, { target: '' as EntityUUID })
           // Sanity check before running
-          assert.equal(Boolean(getState(EngineState).viewerEntity), true)
+          assert.equal(Boolean(getState(ReferenceSpaceState).viewerEntity), true)
           assert.equal(hasComponent(testEntity, TransformComponent), true)
           assert.equal(hasComponent(testEntity, LookAtComponent), true)
           assert.equal(Boolean(getComponent(testEntity, LookAtComponent).target), false)
@@ -175,9 +175,9 @@ describe('LookAtSystem', () => {
           setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42), rotation: Initial })
           setComponent(facerEntity, UUIDComponent, UUIDComponent.generateUUID())
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
-          setComponent(testEntity, LookAtComponent, { target: null })
+          setComponent(testEntity, LookAtComponent, { target: '' as EntityUUID })
           // Sanity check before running
-          assert.equal(Boolean(getState(EngineState).viewerEntity), true)
+          assert.equal(Boolean(getState(ReferenceSpaceState).viewerEntity), true)
           assert.equal(hasComponent(testEntity, TransformComponent), true)
           assert.equal(hasComponent(testEntity, LookAtComponent), true)
           assert.equal(Boolean(getComponent(testEntity, LookAtComponent).target), false)
@@ -204,7 +204,7 @@ describe('LookAtSystem', () => {
           setComponent(testEntity, LookAtComponent, { target: getComponent(facerEntity, UUIDComponent) })
           CleanupSystem.execute()
           // Sanity check before running
-          assert.equal(Boolean(getState(EngineState).viewerEntity), true)
+          assert.equal(Boolean(getState(ReferenceSpaceState).viewerEntity), true)
           assert.equal(hasComponent(testEntity, TransformComponent), true)
           assert.equal(hasComponent(testEntity, LookAtComponent), true)
           assert.equal(Boolean(getComponent(testEntity, LookAtComponent).target), true)

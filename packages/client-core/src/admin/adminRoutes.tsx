@@ -37,13 +37,11 @@ import '@ir-engine/engine/src/EngineModule'
 import { useTranslation } from 'react-i18next'
 import { HiMiniMoon, HiMiniSun } from 'react-icons/hi2'
 
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
-
 import { useFind } from '@ir-engine/common'
 import { identityProviderPath, scopePath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
+import { Button, Tooltip } from '@ir-engine/ui'
+import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import { RouterState } from '../common/services/RouterService'
 import { DefaultAdminRoutes } from './DefaultAdminRoutes'
 
@@ -75,7 +73,7 @@ const AdminTopBar = () => {
           )}
         </Button>
         <Tooltip content={tooltip}>
-          <Button className="pointer-events-auto" size="small" onClick={() => AuthService.logoutUser()}>
+          <Button className="pointer-events-auto" size="sm" onClick={() => AuthService.logoutUser()}>
             {t('admin:components.common.logOut')}
           </Button>
         </Tooltip>
@@ -108,8 +106,8 @@ const AdminSideBar = () => {
                         ? 'bg-theme-highlight font-semibold text-theme-primary '
                         : 'bg-theme-surface-main'
                     }`}
-                    startIcon={sidebarItem.icon}
                   >
+                    {sidebarItem.icon}
                     {t(sidebarItem.name)}
                   </Button>
                 </Link>
@@ -123,7 +121,7 @@ const AdminSideBar = () => {
 
 const AdminRoutes = () => {
   const location = useLocation()
-  const scopeQuery = useFind(scopePath, { query: { userId: Engine.instance.store.userID, paginate: false } })
+  const scopeQuery = useFind(scopePath, { query: { userId: Engine.instance.userID, paginate: false } })
 
   const allowedRoutes = useMutableState(AllowedAdminRoutesState)
 

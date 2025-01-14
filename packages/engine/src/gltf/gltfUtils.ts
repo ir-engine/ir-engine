@@ -333,3 +333,24 @@ export const appendGLTF = (src: GLTF.IGLTF, dst: GLTF.IGLTF) => {
     dst.extensionsRequired = [...requiredExtensions]
   }
 }
+
+export function gltfReplaceUUIDsReferences(gltf: GLTF.IGLTF, UUIDs: [EntityUUID, EntityUUID][]) {
+  if (!gltf.nodes || !UUIDs.length) return
+
+  for (const node of gltf.nodes) {
+    if (!node.extensions) continue
+
+    for (const extKey in node.extensions) {
+      if (extKey === UUIDComponent.jsonID) continue
+
+      const ext = node.extensions[extKey]
+      for (const [prevUUID, newUUID] of UUIDs) {
+        // If a component is just a reference to a uuid
+        if (ext === prevUUID) node.extensions[extKey] = newUUID
+        else if (typeof ext === 'object') {
+          replaceUUID(ext, prevUUID, newUUID)
+        }
+      }
+    }
+  }
+}

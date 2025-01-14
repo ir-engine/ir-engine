@@ -29,6 +29,8 @@ import {
   PresentationSystemGroup,
   UndefinedEntity,
   defineSystem,
+  removeEntityNodeRecursively,
+  useChildrenWithComponents,
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs'
@@ -37,10 +39,6 @@ import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComp
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { createLoadingSpinner } from '@ir-engine/engine/src/scene/functions/spatialLoadingSpinner'
 import { getMutableState } from '@ir-engine/hyperflux'
-import {
-  removeEntityNodeRecursively,
-  useChildrenWithComponents
-} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React, { useEffect } from 'react'
 import { EditorState } from '../services/EditorServices'
 
@@ -48,6 +46,7 @@ const LoadingSpinnerReactor = (props: { entity: Entity }) => {
   const { entity } = props
   const gltfComponent = useComponent(entity, GLTFComponent)
   const errors = !!useOptionalComponent(entity, ErrorComponent)?.value?.[GLTFComponent.name]
+  const loaded = GLTFComponent.useSceneLoaded(entity)
 
   const loadingEntity = useHookstate<Entity>(UndefinedEntity)
 
@@ -74,9 +73,9 @@ const LoadingSpinnerReactor = (props: { entity: Entity }) => {
   }, [errors])
 
   useEffect(() => {
-    if (gltfComponent.progress.value !== 100) return
+    if (!loaded) return
     removeLoadingGeo()
-  }, [gltfComponent.progress.value])
+  }, [loaded])
 
   return null
 }

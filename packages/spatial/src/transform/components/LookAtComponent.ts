@@ -30,7 +30,7 @@ export const LookAtComponent = defineComponent({
   jsonID: 'IR_lookAt',
 
   schema: S.Object({
-    target: S.Nullable(S.EntityUUID()),
+    target: S.EntityUUID(),
     xAxis: S.Bool(true),
     yAxis: S.Bool(true)
   })

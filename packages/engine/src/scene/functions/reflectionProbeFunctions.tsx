@@ -149,7 +149,7 @@ export function createReflectionProbeRenderTarget(entity: Entity, probes: Entity
 
   // const testEntity = createEntity()
   // setComponent(testEntity, EntityTreeComponent, {
-  //   parentEntity: getComponent(getState(EngineState).viewerEntity, SceneComponent).children[0]
+  //   parentEntity: getComponent(getState(ReferenceSpaceState).viewerEntity, SceneComponent).children[0]
   // })
   // setComponent(testEntity, TransformComponent, { position: new Vector3(0, randFloat(5, 15), 0) })
 

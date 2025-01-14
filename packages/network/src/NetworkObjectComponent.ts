@@ -33,15 +33,15 @@ import ECS, {
   Entity,
   getComponent,
   hasComponent,
+  ProxyWithECS,
   removeComponent,
   setComponent,
   UndefinedEntity,
   useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
-import { matches, PeerID, UserID, Validator } from '@ir-engine/hyperflux'
+import { PeerID, UserID } from '@ir-engine/hyperflux'
 import { NetworkId } from '@ir-engine/network/src/NetworkId'
-import { ProxyWithECS } from '@ir-engine/spatial/src/common/proxies/ECSSchemaProxy'
 
 /** ID of last network created. */
 let availableNetworkId = 0 as NetworkId
@@ -156,5 +156,3 @@ export const NetworkObjectAuthorityTag = defineComponent({ name: 'NetworkObjectA
 export const NetworkObjectOwnedTag = defineComponent({ name: 'NetworkObjectOwnedTag' })
 
 export const NetworkObjectSendPeriodicUpdatesTag = defineComponent({ name: 'NetworkObjectSendPeriodicUpdatesTag' })
-
-export const matchesNetworkId = matches.number as Validator<unknown, NetworkId>

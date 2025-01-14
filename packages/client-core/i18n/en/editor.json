@@ -46,7 +46,7 @@
     "quit": "Quit to Dashboard"
   },
   "errors": {
-    "fileTypeNotSupported": "Unsupported file type for file: \"{{name}}\". File must be an image, video, or glb model.",
+    "fileNotSupported": "File \"{{file}}\" is unsupported. Reason: {{errorMessage}}",
     "addObject": "addObject: before object not found",
     "removeObject": "removeObject: node not found. This is due to removing a node that is no longer in the scene.",
     "noParent": "{{node}} \"{{name}}\" has no parent. Reparent only works on objects that are currently in the scene.",
@@ -69,13 +69,15 @@
     "sceneCreationFail": "Scene creation failed. {{reason}}",
     "uploadAborted": "Upload aborted",
     "uploadFailed": "Upload failed {{reason}}",
+    "fileUploadFailed": "File upload failed",
     "assetDeletionFail": "Asset deletion failed. {{reason}}",
     "projectAssetDeletionFail": "Project Asset deletion failed. {{reason}}",
     "networkError": "Network Error: {{status}}. {{text}}",
     "unknownStatus": "Unknown Status",
     "CORS": "Possibly a CORS error",
     "urlFetchError": "Failed to fetch \"{{url}}\"",
-    "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters, underscores, hyphens, and periods, and begin and end with an alphanumeric."
+    "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters, underscores, hyphens, and periods, and begin and end with an alphanumeric.",
+    "maxUploadFileSizeExceed":"That file size is too large. Please upload a file under {{maxFileSizeToUploadMB}}MB. The following files are too large: {{filesNames}}"
   },
   "warnings": {
     "sceneComplexity": "Scene complexity is {{sceneComplexity}}. Consider optimizing your scene for better performance."
@@ -242,6 +244,7 @@
       "lbl-textureType": "Texture Type",
       "lbl-textureUrl": "Texture URL",
       "lbl-intensity": "Envmap Intensity",
+      "info-intensity": "Visual intensity may vary depending on material, shader, and environment map type configuration.",
       "bake-reflection-probes": "Bake Probes"
     },
     "trigger": {
@@ -397,11 +400,22 @@
       "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
       "lbl-isTrigger": "Trigger",
       "lbl-shape": "Shape",
+      "lbl-matchMesh": "Match Mesh",
+      "info-matchMesh": "Matches collider dimension settings to fit the mesh",
+      "lbl-warnRigidBody": "Colliders require a Rigidbody component here or on a parent object to function",
+      "lbl-addRigidBody": "Add RigidBody",
+      "lbl-colliderProps": "Collider Properties",
+      "lbl-centerOffset": "Center Offset",
+      "lbl-boxSize": "Box Size",
+      "lbl-radius": "Radius",
+      "lbl-height": "Height",
       "lbl-type": "Body Type",
       "lbl-mass": "Mass",
       "lbl-massCenter": "Mass Center",
       "lbl-friction": "Friction",
+      "info-friction": "A friction coefficient of 0 implies no friction at all (completely sliding contact) and a coefficient greater or equal to 1 implies a very strong friction. Values greater than 1 are allowed.",
       "lbl-restitution": "Restitution",
+      "info-restitution": "The bounciness of the object. 0 is no bounce, 1 is full bounce.",
       "lbl-collisionLayer": "Collision Layer",
       "lbl-collisionMask": "Collision Mask",
       "lbl-removeMesh": "Remove Mesh"
@@ -496,6 +510,10 @@
       "lbl-convertToVRM": "Force VRM",
       "lbl-isGPUInstancing": "Is Using GPU Instancing",
       "lbl-cameraOcclusion": "Occlude Camera",
+      "lbl-applyColliders": "Apply Colliders",
+      "lbl-warnRigidBody": "Colliders require a Rigidbody component here or on a parent object to function",
+      "lbl-addRigidBody": "Add RigidBody",
+      "lbl-shape": "Shape",
       "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
       "lbl-name": "Name",
       "lbl-url": "Model Url",
@@ -794,7 +812,11 @@
       "lbl-projectionType": "Projection Type",
       "lbl-fov": "Field of View",
       "lbl-calcClippingPlanes": "Calculate Clipping Planes",
-      "lbl-projectionDistance": "Projection Distance",
+      "lbl-clippingPlanes": "Clipping Planes",
+      "lbl-nearClip": "Near",
+      "lbl-farClip": "Far ",
+      "lbl-minCamDist": "Min",
+      "lbl-maxCamDist": "Max",
       "lbl-cameraDistance": "Camera Distance",
       "lbl-startCameraDistance": "Start Camera Distance",
       "lbl-phi": "Phi"
@@ -907,7 +929,8 @@
     "sceneCamera": {
       "name": "Scene Preview Camera",
       "description": "The camera used to generate the thumbnail for your scene and the starting position for the preview camera.",
-      "lbl-setFromViewPort": "Set From Viewport"
+      "lbl-setFromViewPort": "Set From Viewport",
+      "lbl-updateThumbnail": "Update Thumbnail"
     },
     "skybox": {
       "name": "Skybox",
@@ -1342,7 +1365,10 @@
           "name": "Name",
           "type": "Type",
           "dateModified": "Date Modified",
-          "size": "Size"
+          "size": "Size",
+          "author": "Author",
+          "statistics": "Statistics",
+          "createdAt": "Created At"
         }
       },
       "image-convert": {
@@ -1358,7 +1384,9 @@
       "preview": "Preview",
       "info-drag-drop": "Drag and Drop these items into the scene",
       "settings": "Settings",
-      "no-search-results": "No results found"
+      "no-search-results": "No results found",
+      "total-assets": "Showing {{total}} assets",
+      "previous": "Previous"
     }
   },
   "hierarchy": {
@@ -1448,11 +1476,14 @@
       "title": "Save",
       "lbl-thumbnail": "Generate thumbnail & envmap",
       "lbl-confirm": "Save Scene",
+      "discard-quit": "Discard Changes and Quit",
+      "lbl-save-quit": "Save and Quit",
       "info-confirm": "Are you sure you want to save the scene?",
-      "info-question": "Do you want to save the current scene?",
-      "info-save-success": "Scene saved successfully!",
+      "info-question": "Save changes to the current scene?",
+      "info-warning": "Discarded changes can not be recovered",
+      "info-save-success": "Scene Saved",
       "unsavedChanges": {
-        "title": "Unsaved Changes"
+        "title": "Quit to Dashboard"
       }
     },
     "saveNewScene": {

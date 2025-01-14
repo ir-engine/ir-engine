@@ -30,9 +30,9 @@ import { HiTrash } from 'react-icons/hi2'
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import { RecordingType, recordingPath } from '@ir-engine/common/src/schema.type.module'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import { validate as isValidUUID } from 'uuid'
 
+import { Button } from '@ir-engine/ui'
 import { PopoverState } from '../../../common/services/PopoverState'
 import DataTable from '../../common/Table'
 import { recordingColumns } from '../../common/constants/recordings'
@@ -77,7 +77,6 @@ export default function RecordingsTable({ search }: { search: string }) {
           </Button> */}
           <Button
             className="h-8 w-8 justify-center border border-theme-primary bg-transparent p-0"
-            rounded="full"
             onClick={() => {
               PopoverState.showPopupover(
                 <ConfirmDialog

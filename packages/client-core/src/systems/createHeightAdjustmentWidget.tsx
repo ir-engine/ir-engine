@@ -24,12 +24,12 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { removeComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { createXRUI } from '@ir-engine/engine/src/xrui/createXRUI'
 import { dispatchAction } from '@ir-engine/hyperflux'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
-import { createXRUI } from '@ir-engine/spatial/src/xrui/functions/createXRUI'
-import { WidgetAppActions } from '@ir-engine/spatial/src/xrui/WidgetAppService'
-import { Widget, Widgets } from '@ir-engine/spatial/src/xrui/Widgets'
+import { WidgetAppActions } from './WidgetAppService'
+import { Widget, Widgets } from './Widgets'
 
 export function createHeightAdjustmentWidget() {
   const ui = createXRUI(() => null)
