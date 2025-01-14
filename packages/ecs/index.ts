@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 // ensure dependency modules are imported
 import '@ir-engine/hyperflux'
 
-import { getAllEntities, getEntityComponents, Not } from 'bitecs'
+import { getAllEntities, getEntityComponents, Not } from '@ir-engine/ecs'
 
 import {
   defineComponent,

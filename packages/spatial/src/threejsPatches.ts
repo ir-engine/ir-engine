@@ -28,7 +28,6 @@ import { Euler, Matrix4, Object3D, Quaternion, Scene, SkinnedMesh, Vector2, Vect
 
 import { Entity } from '@ir-engine/ecs'
 
-import { MeshBVH } from 'three-mesh-bvh'
 import { overrideOnBeforeCompile } from './common/functions/OnBeforeCompilePlugin'
 import { Object3DUtils } from './transform/Object3DUtils'
 
@@ -157,19 +156,19 @@ declare module 'three/src/math/Quaternion.js' {
   }
 }
 
-declare module 'three/src/core/BufferGeometry.js' {
-  export interface BufferGeometry {
-    boundsTree?: MeshBVH
-    disposeBoundsTree: () => void
-    computeBoundsTree: () => void
-  }
-}
+// declare module 'three/src/core/BufferGeometry.js' {
+//   export interface BufferGeometry {
+//     boundsTree?: MeshBVH
+//     disposeBoundsTree: () => void
+//     computeBoundsTree: () => void
+//   }
+// }
 
-declare module 'three/src/core/Raycaster.js' {
-  export interface Raycaster {
-    firstHitOnly: boolean
-  }
-}
+// declare module 'three/src/core/Raycaster.js' {
+//   export interface Raycaster {
+//     firstHitOnly: boolean
+//   }
+// }
 
 Scene.DEFAULT_MATRIX_AUTO_UPDATE = false
 
