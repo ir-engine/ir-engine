@@ -83,7 +83,7 @@ export async function up(knex: Knex): Promise<void> {
           },
           {
             key: EngineSettings.EmailSetting.SmsNameCharacterLimit,
-            value: recordExists.smsNameCharacterLimit || process.env.SMS_NAME_CHARACTER_LIMIT || '11'
+            value: recordExists.smsNameCharacterLimit || process.env.SMS_NAME_CHARACTER_LIMIT || '20'
           },
           {
             key: EngineSettings.EmailSetting.Subject.NewUser,

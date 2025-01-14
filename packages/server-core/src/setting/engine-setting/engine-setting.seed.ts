@@ -306,7 +306,7 @@ export async function seed(knex: Knex): Promise<void> {
       },
       {
         key: EngineSettings.EmailSetting.SmsNameCharacterLimit,
-        value: process.env.SMTP_SUBJECT_SMS_NAME_CHARACTER_LIMIT || '11'
+        value: process.env.SMTP_SUBJECT_SMS_NAME_CHARACTER_LIMIT || '20'
       },
       {
         key: EngineSettings.EmailSetting.Subject.NewUser,
