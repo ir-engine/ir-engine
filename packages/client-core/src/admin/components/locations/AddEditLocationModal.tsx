@@ -266,7 +266,7 @@ export default function AddEditLocationModal(props: {
 
     try {
       if (location?.id) {
-        await locationMutation.patch(location.id, locationData as LocationPatch, {
+        await locationMutation.patch(location.id, { ...locationData, id: location.id } as LocationPatch, {
           query: { projectId: location.projectId }
         })
       } else {
