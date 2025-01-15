@@ -173,8 +173,10 @@ describe('GrabbableSystem', () => {
     await act(async () => rerender(<></>))
 
     // should now have authority
-    assert.equal(getComponent(grabbableEntity, NetworkObjectComponent).authorityPeerID, peerID)
-    assert.ok(hasComponent(grabbableEntity, GrabbedComponent))
+    await vi.waitFor(() => {
+      assert.equal(getComponent(grabbableEntity, NetworkObjectComponent).authorityPeerID, peerID)
+      assert.ok(hasComponent(grabbableEntity, GrabbedComponent))
+    })
 
     /** @todo test transforms */
 
