@@ -189,6 +189,7 @@ export interface Component<
   reactor?: any
   reactorMap: Map<Entity, ReactorRoot>
   stateMap: State<Record<Entity, ComponentType>>
+  valueMap: Record<Entity, ComponentType>
   errors: ErrorTypes[]
   storageSize: number
   __ComponentType: ComponentType
@@ -402,7 +403,8 @@ export const defineComponent = <
   // We have to create an stateful existence map in order to reactively track which entities have a given component.
   // Unfortunately, we can't simply use a single shared state because hookstate will (incorrectly) invalidate other nested states when a single component
   // instance is added/removed, so each component instance has to be isolated from the others.
-  Component.stateMap = hookstate({}) as State<Record<Entity, ComponentType>>
+  Component.valueMap = {}
+  Component.stateMap = hookstate(Component.valueMap) as State<Record<Entity, ComponentType>>
   if (Component.jsonID) {
     ComponentJSONIDMap.set(Component.jsonID, Component)
     // console.log(`Registered component ${Component.name} with jsonID ${Component.jsonID}`)
@@ -480,10 +482,7 @@ export const getOptionalComponent = <C extends Component>(
   entity: Entity,
   component: C
 ): ComponentType<C> | undefined => {
-  const componentState = component.stateMap[entity]!
-  return !bitECS.hasComponent(HyperFlux.store, entity, component)
-    ? undefined
-    : (componentState?.get(NO_PROXY_STEALTH) as ComponentType<C>)
+  return bitECS.hasComponent(HyperFlux.store, entity, component) ? component.valueMap[entity] : undefined
 }
 
 export const getComponent = <C extends Component>(entity: Entity, component: C): ComponentType<C> => {
@@ -493,21 +492,7 @@ export const getComponent = <C extends Component>(entity: Entity, component: C):
     )
     return undefined as ComponentType<C>
   }
-  const componentState = component.stateMap[entity]!
-  return componentState.get(NO_PROXY_STEALTH) as ComponentType<C>
-}
-
-const ArrayByType = {
-  [bitECSLegacy.Types.i8]: Int8Array,
-  [bitECSLegacy.Types.ui8]: Uint8Array,
-  [bitECSLegacy.Types.ui8c]: Uint8ClampedArray,
-  [bitECSLegacy.Types.i16]: Int16Array,
-  [bitECSLegacy.Types.ui16]: Uint16Array,
-  [bitECSLegacy.Types.i32]: Int32Array,
-  [bitECSLegacy.Types.ui32]: Uint32Array,
-  [bitECSLegacy.Types.f32]: Float32Array,
-  [bitECSLegacy.Types.f64]: Float64Array,
-  [bitECSLegacy.Types.eid]: Uint32Array
+  return component.valueMap[entity] as ComponentType<C>
 }
 
 const accessor = Symbol('proxied')
