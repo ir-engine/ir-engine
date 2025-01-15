@@ -278,6 +278,63 @@ export async function seed(knex: Knex): Promise<void> {
     'server'
   )
 
+  const emailSeedData = await generateSeedData(
+    [
+      {
+        key: EngineSettings.EmailSetting.From,
+        value: `${process.env.SMTP_FROM_NAME} <${process.env.SMTP_FROM_EMAIL}>`
+      },
+      {
+        key: EngineSettings.EmailSetting.Smtp.Host,
+        value: process.env.SMTP_HOST || 'test'
+      },
+      {
+        key: EngineSettings.EmailSetting.Smtp.Port,
+        value: process.env.SMTP_PORT || ''
+      },
+      {
+        key: EngineSettings.EmailSetting.Smtp.Secure,
+        value: process.env.SMTP_SECURE || 'true'
+      },
+      {
+        key: EngineSettings.EmailSetting.Smtp.Auth.User,
+        value: process.env.SMTP_USER || 'test'
+      },
+      {
+        key: EngineSettings.EmailSetting.Smtp.Auth.Pass,
+        value: process.env.SMTP_PASS || 'test'
+      },
+      {
+        key: EngineSettings.EmailSetting.SmsNameCharacterLimit,
+        value: process.env.SMTP_SUBJECT_SMS_NAME_CHARACTER_LIMIT || '20'
+      },
+      {
+        key: EngineSettings.EmailSetting.Subject.NewUser,
+        value: process.env.SMTP_SUBJECT_NEW_USER || 'Infinite Reality Engine signup'
+      },
+      {
+        key: EngineSettings.EmailSetting.Subject.Channel,
+        value: process.env.SMTP_SUBJECT_CHANNEL || 'Infinite Reality Engine channel invitation'
+      },
+      {
+        key: EngineSettings.EmailSetting.Subject.Friend,
+        value: process.env.SMTP_SUBJECT_FRIEND || 'Infinite Reality Engine friend request'
+      },
+      {
+        key: EngineSettings.EmailSetting.Subject.Instance,
+        value: process.env.SMTP_SUBJECT_INSTANCE || 'Infinite Reality Engine location link'
+      },
+      {
+        key: EngineSettings.EmailSetting.Subject.Location,
+        value: process.env.SMTP_SUBJECT_LOCATION || 'Infinite Reality Engine location link'
+      },
+      {
+        key: EngineSettings.EmailSetting.Subject.Login,
+        value: process.env.SMTP_SUBJECT_LOGIN || 'Infinite Reality Engine login link'
+      }
+    ],
+    'email'
+  )
   const seedData: EngineSettingType[] = [
     ...taskServerSeedData,
     ...chargebeeSettingSeedData,
@@ -288,7 +345,8 @@ export async function seed(knex: Knex): Promise<void> {
     ...metabaseSeedData,
     ...redisSeedData,
     ...zendeskSettingSeedData,
-    ...helmSeedData
+    ...helmSeedData,
+    ...emailSeedData
   ]
 
   if (forceRefresh || testEnabled) {

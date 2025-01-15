@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 
 import { getSearchParamFromURL } from '@ir-engine/common/src/utils/getSearchParamFromURL'
-import { spawnLocalAvatarInWorld } from '@ir-engine/common/src/world/receiveJoinWorld'
 import {
   defineSystem,
   Entity,
@@ -39,6 +38,7 @@ import {
 } from '@ir-engine/ecs'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { getRandomSpawnPoint } from '@ir-engine/engine/src/avatar/functions/getSpawnPoint'
+import { spawnLocalAvatarInWorld } from '@ir-engine/engine/src/avatar/functions/spawnLocalAvatarInWorld'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import {
   dispatchAction,
