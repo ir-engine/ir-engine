@@ -36,7 +36,6 @@ import { Application } from '../../../declarations'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { UploadParams } from '../../media/upload-asset/upload-asset.service'
 import logger from '../../ServerLogger'
-import { cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
 
 const getAvatarDependencies = async (resourceKey: string) => {
   const fileExtension = resourceKey.split('.').pop()!
