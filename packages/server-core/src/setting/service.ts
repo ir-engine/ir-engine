@@ -25,10 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import Authentication from './authentication-setting/authentication-setting'
 import ClientSetting from './client-setting/client-setting'
-import Email from './email-setting/email-setting'
 import EngineSetting from './engine-setting/engine-setting'
 import FeatureFlagSetting from './feature-flag-setting/feature-flag-setting'
 import HelmVersion from './helm-version/helm-version'
 import ProjectSetting from './project-setting/project-setting'
 
-export default [ProjectSetting, EngineSetting, ClientSetting, Email, FeatureFlagSetting, Authentication, HelmVersion]
+export default [ProjectSetting, EngineSetting, ClientSetting, FeatureFlagSetting, Authentication, HelmVersion]

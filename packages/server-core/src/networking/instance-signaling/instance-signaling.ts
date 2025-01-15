@@ -143,7 +143,8 @@ const peerJoin = async (app: Application, data: InstanceSignalingDataType, param
     instanceServerSettingsResponse.map((setting) => {
       return {
         key: setting.key,
-        value: setting.value
+        value: setting.value,
+        dataType: setting.dataType
       }
     })
   ) as WebRTCSettings

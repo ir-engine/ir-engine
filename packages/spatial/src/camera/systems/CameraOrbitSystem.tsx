@@ -167,7 +167,7 @@ const execute = () => {
           .multiplyScalar(Math.min(distance, MAX_FOCUS_DISTANCE) * 2)
         transform.position.copy(editorCameraCenter).add(delta)
 
-        setComponent(cameraEid, CameraOrbitComponent, { focusedEntities: null!, refocus: false })
+        setComponent(cameraEid, CameraOrbitComponent, { focusedEntities: [], refocus: false })
       }
 
       if (cameraOrbit.isPanning.value) {
