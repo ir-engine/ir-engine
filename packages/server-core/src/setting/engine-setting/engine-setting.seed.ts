@@ -286,7 +286,7 @@ export async function seed(knex: Knex): Promise<void> {
       },
       {
         key: EngineSettings.Aws.S3.AvatarDir,
-        value: process.env.STORAGE_AWS_AVATAR_DIR || ''
+        value: process.env.STORAGE_S3_AVATAR_DIRECTORY || ''
       },
       {
         key: EngineSettings.Aws.S3.Endpoint,
@@ -314,11 +314,14 @@ export async function seed(knex: Knex): Promise<void> {
       },
       {
         key: EngineSettings.Aws.CloudFront.Domain,
-        value: process.env.STORAGE_CLOUDFRONT_DOMAIN || ''
+        value:
+          process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true'
+            ? process.env.APP_HOST!
+            : process.env.STORAGE_CLOUDFRONT_DOMAIN! || ''
       },
       {
         key: EngineSettings.Aws.CloudFront.Region,
-        value: process.env.STORAGE_CLOUDFRONT_REGION || ''
+        value: process.env.STORAGE_CLOUDFRONT_REGION || process.env.STORAGE_S3_REGION || ''
       },
       {
         key: EngineSettings.Aws.SMS.AccessKeyId,
@@ -342,7 +345,7 @@ export async function seed(knex: Knex): Promise<void> {
       },
       {
         key: EngineSettings.Aws.EKS.AccessKeyId,
-        value: process.env.AWS_EKS_ACCESS_KEY_ID || ''
+        value: process.env.EKS_AWS_ACCESS_KEY_SECRET || ''
       },
       {
         key: EngineSettings.Aws.EKS.RoleArn,
@@ -350,7 +353,7 @@ export async function seed(knex: Knex): Promise<void> {
       },
       {
         key: EngineSettings.Aws.EKS.SecretAccessKey,
-        value: process.env.AWS_EKS_SECRET_ACCESS_KEY || ''
+        value: process.env.EKS_AWS_ACCESS_KEY_ID || ''
       }
     ],
     'aws'
