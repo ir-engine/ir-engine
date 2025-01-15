@@ -28,6 +28,9 @@ import logger from './ServerLogger'
 
 import knex from 'knex'
 
+import { WebRTCSettings, defaultWebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
+import { EngineSettingType, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import {
   AuthenticationSettingDatabaseType,
   authenticationSettingPath
@@ -37,11 +40,6 @@ import {
   ClientSettingDatabaseType,
   clientSettingPath
 } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
-import { EmailSettingDatabaseType, emailSettingPath } from '@ir-engine/common/src/schemas/setting/email-setting.schema'
-
-import { defaultWebRTCSettings, WebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
-import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
-import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schema.type.module'
 import { parseValue } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { FlattenedEntry, unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { createHash } from 'crypto'
@@ -49,7 +47,6 @@ import appConfig, { updateNestedConfig } from './appconfig'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
 import { awsDbToSchema } from './setting/aws-setting/aws-setting.resolvers'
 import { clientDbToSchema } from './setting/client-setting/client-setting.resolvers'
-import { emailDbToSchema } from './setting/email-setting/email-setting.resolvers'
 
 const db = {
   user: process.env.MYSQL_USER ?? 'server',
@@ -146,30 +143,15 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(clientSettingPromise)
 
-  const emailSettingPromise = knexClient
-    .select()
-    .from<EmailSettingDatabaseType>(emailSettingPath)
-    .then(([dbEmail]) => {
-      const dbEmailConfig = emailDbToSchema(dbEmail)
-      if (dbEmailConfig) {
-        appConfig.email = {
-          ...appConfig.email,
-          ...dbEmailConfig
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read emailSetting: ${e.message}`)
-    })
-  promises.push(emailSettingPromise)
+  const categoriesToUnflatten = ['email']
 
   const engineSettingPromise = knexClient
     .select()
     .from<EngineSettingType>(engineSettingPath)
     .then((dbEngineSettings) => {
-      // jsonkey undefined and its for plain key value pair settings
+      // jsonkey undefined and its for plain key value pair settings and not in categoriesToUnflatten
       dbEngineSettings
-        .filter((setting) => !setting.jsonKey)
+        .filter((setting) => !setting.jsonKey && !categoriesToUnflatten.includes(setting.category))
         .forEach((setting) => {
           if (!appConfig[setting.category]) {
             appConfig[setting.category] = {}
@@ -181,6 +163,9 @@ export const updateAppConfig = async (): Promise<void> => {
           }
         })
 
+      categoriesToUnflatten.forEach((category) => {
+        processSettings(dbEngineSettings, category)
+      })
       // when jsonkey is defined and its instance-server-webrtc category and jsonKey is WebRTCSettings
       const webRtcServerKeyValues: FlattenedEntry[] = dbEngineSettings
         .filter(
@@ -192,7 +177,8 @@ export const updateAppConfig = async (): Promise<void> => {
         .map((setting) => {
           return {
             key: setting.key,
-            value: setting.value
+            value: setting.value,
+            dataType: setting.dataType
           }
         })
       if (!appConfig['instance-server-webrtc'] || !appConfig['instance-server-webrtc'].webRTCSettings) {
@@ -211,4 +197,19 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(engineSettingPromise)
   await Promise.all(promises)
+}
+
+const processSettings = (settings: EngineSettingType[], category: string) => {
+  const filteredSettings = settings.filter((setting) => setting.category === category)
+  const settingsObject = unflattenArrayToObject(
+    filteredSettings.map((setting) => ({
+      key: setting.key,
+      value: setting.value,
+      dataType: setting.dataType
+    }))
+  )
+  appConfig[category] = {
+    ...appConfig[category],
+    ...settingsObject
+  }
 }

@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 // spawnPose is temporary - just so portals work for now - will be removed in favor of instanceserver-instanceserver communication
 import { Quaternion, Vector3 } from 'three'
 
-import { InviteCode } from '@ir-engine/common/src/schema.type.module'
 import { EngineState, EntityUUID } from '@ir-engine/ecs'
 import { Action, PeerID, dispatchAction, getState } from '@ir-engine/hyperflux'
 import { CameraActions } from '@ir-engine/spatial/src/camera/CameraState'
@@ -52,15 +51,6 @@ export type AuthTask = {
 
 export type ReadyTask = {
   instanceReady: boolean
-}
-
-export type JoinWorldRequestData = {
-  inviteCode?: InviteCode
-}
-
-export type JoinWorldProps = {
-  peerIndex: number
-  cachedActions: Required<Action>[]
 }
 
 export type SpawnInWorldProps = {

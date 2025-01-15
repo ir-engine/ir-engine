@@ -241,6 +241,7 @@ export default function Toolbar() {
         <div className="w-[180px]" tabIndex={0}>
           {toolbarMenu.map(({ name, action, hotkey }, index) => (
             <DropdownItem
+              key={name + '' + index}
               label={name}
               secondaryText={hotkey}
               onClick={() => {
