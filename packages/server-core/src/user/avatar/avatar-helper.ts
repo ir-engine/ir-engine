@@ -31,6 +31,7 @@ import { AvatarID, avatarPath } from '@ir-engine/common/src/schemas/user/avatar.
 import { CommonKnownContentTypes } from '@ir-engine/common/src/utils/CommonKnownContentTypes'
 
 import { staticResourcePath, StaticResourceType } from '@ir-engine/common/src/schema.type.module'
+import { cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
 import { Application } from '../../../declarations'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { UploadParams } from '../../media/upload-asset/upload-asset.service'
