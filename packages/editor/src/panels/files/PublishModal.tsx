@@ -206,6 +206,7 @@ export default function PublishModal(props: {
           const name = getComponent(parentEntity, NameComponent)
           exportRelativeGLTF(parentEntity, projectName, 'public/publish/' + name + '.gltf')
         })
+        //put combined mesh entity to compression
 
         PopoverState.hidePopupover()
       }

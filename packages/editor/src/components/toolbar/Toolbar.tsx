@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import AddEditLocationModal from '@ir-engine/client-core/src/admin/components/locations/AddEditLocationModal'
 import ProfilePill from '@ir-engine/client-core/src/common/components/ProfilePill'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
@@ -42,7 +43,6 @@ import { useTranslation } from 'react-i18next'
 import { onNewScene, onSaveScene, saveSceneGLTF } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { uploadFiles } from '../../panels/assets/topbar'
-import { PublishModalWithProvider } from '../../panels/files/PublishModal'
 import { EditorState } from '../../services/EditorServices'
 import { UIAddonsState } from '../../services/UIAddonsState'
 import CreatePrefabPanel from '../dialogs/CreatePrefabPanelDialog'
@@ -214,7 +214,7 @@ export default function Toolbar() {
                 disabled={!hasPublishAccess}
                 onClick={() =>
                   PopoverState.showPopupover(
-                    <PublishModalWithProvider
+                    <AddEditLocationModal
                       action="studio"
                       sceneID={sceneAssetID.value}
                       location={currentLocation}

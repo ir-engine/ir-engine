@@ -32,13 +32,30 @@ import {
   locationPath,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
-import { useHookstate } from '@ir-engine/hyperflux'
+import {
+  Entity,
+  EntityTreeComponent,
+  createEntity,
+  getComponent,
+  hasComponent,
+  iterateEntityNode,
+  setComponent
+} from '@ir-engine/ecs'
+import { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
+import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
+import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { getState, useHookstate } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { Button, Input, Select } from '@ir-engine/ui'
+import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import { ModalHeader } from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 import { HiLink } from 'react-icons/hi2'
-
 const getDefaultErrors = () => ({
   name: '',
   maxUsers: '',
@@ -114,6 +131,91 @@ export default function AddEditLocationModal(props: {
       type: 'scene'
     }
   })
+  const handlePublishFolder = async () => {
+    // if (!createNewFolder) {
+    //   console.error('Cannot create folder because createNewFolder is undefined.')
+    //   return
+    // }
+    // //if exist publish folder dont create\
+
+    // const ifFolderExist = files.some((file) => file.fullName === 'publish' && file.type === 'folder')
+    // if (ifFolderExist) {
+    //   console.log('Publish folder already exist')
+    //   //return
+    // } else {
+    //   //await createNewFolder('publish')
+    //   await createPublishFolder()
+    // }
+    const { projectName, sceneName, rootEntity, sceneAssetID } = getState(EditorState)
+    const abortController = new AbortController()
+    try {
+      if (sceneName && projectName) {
+        const saveScenePath = getState(EditorState)
+          .scenePath!.split('/')
+          .slice(0, -1)
+          .join('/')
+          .replace('scenes', 'publish')
+        await saveSceneGLTF(
+          sceneAssetID!,
+          projectName,
+          sceneName + '-duplicated',
+          abortController.signal,
+          true,
+          saveScenePath
+        )
+        //add all mesh into one entity
+        const meshParentEntity = createEntity()
+        const rootEntity = getState(EditorState).rootEntity
+        const meshEntity = [] as Entity[]
+        setComponent(meshParentEntity, EntityTreeComponent, { parentEntity: rootEntity })
+        setComponent(meshParentEntity, NameComponent, 'combined mesh entity')
+        setComponent(meshParentEntity, GLTFComponent)
+        iterateEntityNode(rootEntity, (entity) => {
+          if (hasComponent(entity, MeshComponent)) {
+            if (meshEntity.includes(entity) || hasComponent(entity, ColliderComponent)) return
+            meshEntity.push(entity)
+            //preserve transform
+            const parentEntityTransform = getComponent(
+              getComponent(entity, EntityTreeComponent).parentEntity,
+              TransformComponent
+            )
+            const transform = getComponent(entity, TransformComponent)
+            transform.position.applyMatrix4(parentEntityTransform.matrixWorld)
+            transform.rotation.premultiply(parentEntityTransform.rotation)
+            transform.scale.multiply(parentEntityTransform.scale)
+            setComponent(entity, EntityTreeComponent, { parentEntity: meshParentEntity })
+          }
+        })
+        //export parent entities and combined mesh entity
+        const exportParentEntity = [] as Entity[]
+        exportRelativeGLTF(meshParentEntity, projectName, 'public/publish/combined-mesh.gltf')
+        // meshEntity.forEach((entity) => {
+        //   const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
+        //   if (exportParentEntity.includes(parentEntity)) return
+        //   exportParentEntity.push(parentEntity)
+        //   const name = getComponent(parentEntity, NameComponent)
+        //   exportRelativeGLTF(parentEntity, projectName, 'public/publish/' + name + '.gltf')
+        // })
+        //put combined mesh entity to compression
+        // const url = new URL(file.url)
+        // const srcURL = pathJoin(url.origin, url.pathname)
+        // await transformModel(
+        //   srcURL,
+        //   [DefaultModelTransformParameters],
+        //   (i, key, data) => {
+        //     if (!transformMetadata[i]) transformMetadata[i] = {}
+        //     transformMetadata[i][key] = data
+        //   },
+        //   onProgress
+        // )
+        PopoverState.hidePopupover()
+      }
+    } catch (error) {
+      PopoverState.showPopupover(
+        <ErrorDialog title={t('editor:savingError')} description={error?.message || t('editor:savingErrorMsg')} />
+      )
+    }
+  }
 
   const handlePublish = async () => {
     errors.set(getDefaultErrors())
@@ -341,6 +443,7 @@ export default function AddEditLocationModal(props: {
                 : t('editor:toolbar.publishLocation.title')}
               {publishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
             </Button>
+            <Button onClick={handlePublishFolder}>{t('save duplicate scene')}</Button>
           </div>
         </div>
       </div>
