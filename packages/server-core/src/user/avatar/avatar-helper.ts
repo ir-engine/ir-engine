@@ -31,6 +31,7 @@ import { AvatarID, avatarPath } from '@ir-engine/common/src/schemas/user/avatar.
 import { CommonKnownContentTypes } from '@ir-engine/common/src/utils/CommonKnownContentTypes'
 
 import { staticResourcePath, StaticResourceType } from '@ir-engine/common/src/schema.type.module'
+import { cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
 import { Application } from '../../../declarations'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { UploadParams } from '../../media/upload-asset/upload-asset.service'
@@ -51,17 +52,18 @@ const getAvatarDependencies = async (resourceKey: string) => {
 }
 
 export const patchStaticResourceAsAvatar = async (app: Application, projectName: string, resourceKey: string) => {
+  const cleanResourceKey = cleanFileNameString(resourceKey)
   const staticResourceQuery = await app.service(staticResourcePath).find({
     query: {
-      key: resourceKey
+      key: cleanResourceKey
     }
   })
   if (!staticResourceQuery.data || staticResourceQuery.data.length === 0)
-    throw new Error('Static resource not found for key ' + resourceKey)
+    throw new Error('Static resource not found for key ' + cleanResourceKey)
 
   const staticResource = staticResourceQuery.data[0]
 
-  const thumbnailPath = resourceKey.split('.').slice(0, -1).join('.') + '.png'
+  const thumbnailPath = cleanResourceKey.split('.').slice(0, -1).join('.') + '.png'
   const thumbnailResourceQuery = await app.service(staticResourcePath).find({
     query: {
       key: thumbnailPath
@@ -83,7 +85,7 @@ export const patchStaticResourceAsAvatar = async (app: Application, projectName:
     })
   } else {
     await app.service(avatarPath).create({
-      name: resourceKey.split('/').pop()!.split('.')[0],
+      name: cleanResourceKey.split('/').pop()!.split('.')[0],
       modelResourceId: staticResource.id,
       thumbnailResourceId: thumbnailStaticResource?.id || undefined,
       isPublic: true,
@@ -91,7 +93,7 @@ export const patchStaticResourceAsAvatar = async (app: Application, projectName:
     })
   }
 
-  const dependencies = await getAvatarDependencies(resourceKey)
+  const dependencies = await getAvatarDependencies(cleanResourceKey)
   await app.service(staticResourcePath).patch(staticResource.id, {
     type: 'avatar',
     dependencies: [...dependencies, ...(thumbnailStaticResource ? [thumbnailStaticResource.key] : [])]

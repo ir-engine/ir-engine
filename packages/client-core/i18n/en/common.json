@@ -155,7 +155,11 @@
   },
   "table": {
     "refetching": "Refetching Data...",
-    "noData": "Data is Empty"
+    "noData": "Data is Empty",
+    "pagination": {
+      "prev": "Prev",
+      "next": "Next"
+    }
   },
   "multiEmailInput": {
     "placeholder": "Type or paste email addresses and press `Enter`...",
