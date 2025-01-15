@@ -32,6 +32,7 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
+  setComponent,
   useComponent,
   useQuery,
   UUIDComponent
@@ -56,7 +57,7 @@ import { blendIKChain, solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
 import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent, shoulderAngle } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { AvatarIkComponent, AvatarIKTargetComponent } from '../components/AvatarIKComponents'
+import { AvatarIKComponent, AvatarIKTargetComponent, IKMatrixComponent } from '../components/AvatarIKComponents'
 import { NormalizedBoneComponent } from '../components/NormalizedBoneComponent'
 import { IKSerialization } from '../IKSerialization'
 import { AvatarAnimationSystem } from './AvatarAnimationSystem'
@@ -69,7 +70,7 @@ const mat4 = new Matrix4()
 const hipsForward = new Vector3(0, 0, 1)
 const _worldRot = new Quaternion()
 
-const avatarIkQuery = defineQuery([AvatarIkComponent, AvatarRigComponent])
+const avatarIkQuery = defineQuery([AvatarIKComponent, AvatarRigComponent])
 
 export const AvatarIkPriorityQueueState = defineState({
   name: 'AvatarIkPriorityQueueState',
@@ -105,7 +106,6 @@ const execute = () => {
   }
   for (const entity of ikAvatars) {
     const rigComponent = getComponent(entity, AvatarRigComponent)
-    const ikComponent = getComponent(entity, AvatarIkComponent)
     const avatarComponent = getComponent(entity, AvatarComponent)
 
     const rig = rigComponent.bonesToEntities
@@ -204,15 +204,15 @@ const execute = () => {
       const upperArmEntity = getComponent(rig.rightUpperArm, EntityTreeComponent).parentEntity
       solveTwoBoneIK(
         getComponent(upperArmEntity, NormalizedBoneComponent).matrixWorld,
-        ikComponent.ikMatrices.rightUpperArm!,
-        ikComponent.ikMatrices.rightLowerArm!,
-        ikComponent.ikMatrices.rightHand!,
+        getComponent(rig.rightUpperArm, IKMatrixComponent),
+        getComponent(rig.rightLowerArm, IKMatrixComponent),
+        getComponent(rig.rightHand, IKMatrixComponent),
         rightHandTransform.position,
         rightHandTransform.rotation,
         _hint
       )
 
-      blendIKChain(entity, ['rightUpperArm', 'rightLowerArm', 'rightHand'], rightHandTargetBlendWeight)
+      blendIKChain([rig.rightUpperArm, rig.rightLowerArm, rig.rightHand], rightHandTargetBlendWeight)
     }
 
     if (leftHandTargetBlendWeight && leftHandTransform) {
@@ -228,15 +228,15 @@ const execute = () => {
       const upperArmEntity = getComponent(rig.leftUpperArm, EntityTreeComponent).parentEntity
       solveTwoBoneIK(
         getComponent(upperArmEntity, NormalizedBoneComponent).matrixWorld,
-        ikComponent.ikMatrices.leftUpperArm!,
-        ikComponent.ikMatrices.leftLowerArm!,
-        ikComponent.ikMatrices.leftHand!,
+        getComponent(rig.leftUpperArm, IKMatrixComponent),
+        getComponent(rig.leftLowerArm, IKMatrixComponent),
+        getComponent(rig.leftHand, IKMatrixComponent),
         leftHandTransform.position,
         leftHandTransform.rotation,
         _hint
       )
 
-      blendIKChain(entity, ['leftUpperArm', 'leftLowerArm', 'leftHand'], leftHandTargetBlendWeight)
+      blendIKChain([rig.leftUpperArm, rig.leftLowerArm, rig.leftHand], leftHandTargetBlendWeight)
     }
 
     if (rightFootTargetBlendWeight && rightFootTransform) {
@@ -247,15 +247,15 @@ const execute = () => {
 
       solveTwoBoneIK(
         getComponent(rig.hips, NormalizedBoneComponent).matrixWorld,
-        ikComponent.ikMatrices.rightUpperLeg!,
-        ikComponent.ikMatrices.rightLowerLeg!,
-        ikComponent.ikMatrices.rightFoot!,
+        getComponent(rig.rightUpperLeg, IKMatrixComponent),
+        getComponent(rig.rightLowerLeg, IKMatrixComponent),
+        getComponent(rig.rightFoot, IKMatrixComponent),
         rightFootTransform.position,
         rightFootTransform.rotation,
         _hint
       )
 
-      blendIKChain(entity, ['rightUpperLeg', 'rightLowerLeg', 'rightFoot'], rightFootTargetBlendWeight)
+      blendIKChain([rig.rightUpperLeg, rig.rightLowerLeg, rig.rightFoot], rightFootTargetBlendWeight)
     }
 
     if (leftFootTargetBlendWeight && leftFootTransform) {
@@ -266,15 +266,15 @@ const execute = () => {
 
       solveTwoBoneIK(
         getComponent(rig.hips, NormalizedBoneComponent).matrixWorld,
-        ikComponent.ikMatrices.leftUpperLeg!,
-        ikComponent.ikMatrices.leftLowerLeg!,
-        ikComponent.ikMatrices.leftFoot!,
+        getComponent(rig.leftUpperLeg, IKMatrixComponent),
+        getComponent(rig.leftLowerLeg, IKMatrixComponent),
+        getComponent(rig.leftFoot, IKMatrixComponent),
         leftFootTransform.position,
         leftFootTransform.rotation,
         _hint
       )
 
-      blendIKChain(entity, ['leftUpperLeg', 'leftLowerLeg', 'leftFoot'], leftFootTargetBlendWeight)
+      blendIKChain([rig.leftUpperLeg, rig.leftLowerLeg, rig.leftFoot], leftFootTargetBlendWeight)
     }
 
     if (hasComponent(entity, XRRightHandComponent)) {
@@ -290,10 +290,13 @@ const execute = () => {
 const difference = new Matrix4(),
   rootRotationInverse = new Matrix4(),
   toOrigin = new Matrix4(),
-  back = new Matrix4()
+  back = new Matrix4(),
+  rightShoulderMatrix = new Matrix4().makeRotationFromEuler(shoulderAngle.rightShoulderAngle),
+  leftShoulderMatrix = new Matrix4().makeRotationFromEuler(shoulderAngle.leftShoulderAngle),
+  armMatrix = new Matrix4().makeRotationFromEuler(new Euler(Math.PI * -0.5, 0, 0)),
+  legMatrix = new Matrix4().makeRotationFromEuler(new Euler(Math.PI * 0.5, 0, 0))
 
 const SetupIkMatrices = (props: { avatarEntity: Entity }) => {
-  const ikComponent = useComponent(props.avatarEntity, AvatarIkComponent)
   const rigComponent = useComponent(props.avatarEntity, AvatarRigComponent)
   useEffect(() => {
     if (!rigComponent.vrm.value) return
@@ -347,13 +350,13 @@ const SetupIkMatrices = (props: { avatarEntity: Entity }) => {
 
       // quick dirty bone rotations for the ik solve to start relative to
       if (bone.includes('Arm') || bone.includes('Hand')) {
-        if (bone.includes('left')) local.multiply(new Matrix4().makeRotationFromEuler(shoulderAngle.leftShoulderAngle))
-        else local.multiply(new Matrix4().makeRotationFromEuler(shoulderAngle.rightShoulderAngle))
+        if (bone.includes('left')) local.multiply(rightShoulderMatrix)
+        else local.multiply(leftShoulderMatrix)
       }
-      if (bone.includes('Arm')) local.multiply(new Matrix4().makeRotationFromEuler(new Euler(Math.PI * -0.5, 0, 0)))
-      if (bone.includes('Leg')) local.multiply(new Matrix4().makeRotationFromEuler(new Euler(Math.PI * 0.5, 0, 0)))
+      if (bone.includes('Arm')) local.multiply(armMatrix)
+      if (bone.includes('Leg')) local.multiply(legMatrix)
 
-      ikComponent.ikMatrices[bone].set({
+      setComponent(rig[bone], IKMatrixComponent, {
         world: new Matrix4(),
         local
       })
@@ -364,7 +367,7 @@ const SetupIkMatrices = (props: { avatarEntity: Entity }) => {
 }
 
 export const AvatarIkReactor = () => {
-  const ikQuery = useQuery([AvatarIkComponent, AvatarRigComponent])
+  const ikQuery = useQuery([AvatarRigComponent, AvatarIKComponent])
 
   useEffect(() => {
     const networkState = getMutableState(NetworkState)
@@ -388,8 +391,8 @@ export const AvatarIkReactor = () => {
   )
 }
 
-export const AvatarIkSystem = defineSystem({
-  uuid: 'ir.engine.AvatarIkSystem',
+export const AvatarIKSystem = defineSystem({
+  uuid: 'ir.engine.AvatarIKSystem',
   insert: { before: AvatarAnimationSystem },
   reactor: AvatarIkReactor,
   execute

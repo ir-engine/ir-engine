@@ -23,14 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { Entity, getComponent } from '@ir-engine/ecs'
 import { Vector3_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
 
-import { AvatarRigComponent, Matrices } from '../components/AvatarAnimationComponent'
-import { AvatarIkComponent } from '../components/AvatarIKComponents'
+import { Matrices } from '../components/AvatarAnimationComponent'
+import { IKMatrixComponent } from '../components/AvatarIKComponents'
 import { NormalizedBoneComponent } from '../components/NormalizedBoneComponent'
 
 /**
@@ -227,15 +226,11 @@ const targetPos = new Vector3(),
   rootWorldRotation = new Quaternion()
 
 const nodeQuaternion = new Quaternion()
-export const blendIKChain = (entity: Entity, bones: VRMHumanBoneName[], weight) => {
-  const ikComponent = getComponent(entity, AvatarIkComponent)
-  const rigComponent = getComponent(entity, AvatarRigComponent)
+export const blendIKChain = (bones: Entity[], weight) => {
   for (const bone of bones) {
-    const boneMatrices = ikComponent.ikMatrices[bone]
-    if (boneMatrices) {
-      const node = getComponent(rigComponent.bonesToEntities[bone], NormalizedBoneComponent)
-      nodeQuaternion.setFromRotationMatrix(boneMatrices.local)
-      node.quaternion.fastSlerp(nodeQuaternion, weight)
-    }
+    const node = getComponent(bone, NormalizedBoneComponent)
+    const ikMatrix = getComponent(bone, IKMatrixComponent).local
+    nodeQuaternion.setFromRotationMatrix(ikMatrix)
+    node.quaternion.fastSlerp(nodeQuaternion, weight)
   }
 }

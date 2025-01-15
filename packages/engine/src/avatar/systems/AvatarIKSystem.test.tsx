@@ -51,12 +51,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { mockAnimatedAvatar } from '../components/AnimationComponent.test'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
-import { AvatarIkComponent, AvatarIKTargetComponent } from '../components/AvatarIKComponents'
+import { AvatarIKComponent, AvatarIKTargetComponent, IKMatrixComponent } from '../components/AvatarIKComponents'
 import { NormalizedBoneComponent } from '../components/NormalizedBoneComponent'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { AnimationSystem } from './AnimationSystem'
 import { AvatarAnimationSystem, AvatarAnimationSystemReactor } from './AvatarAnimationSystem'
-import { AvatarIkReactor, AvatarIkSystem } from './AvatarIkSystem'
+import { AvatarIkReactor, AvatarIKSystem } from './AvatarIKSystem'
 
 const default_url = 'packages/projects/default-project/assets'
 describe('AvatarIKSystem', () => {
@@ -76,41 +76,31 @@ describe('AvatarIKSystem', () => {
     let avatarEntity = UndefinedEntity as Entity
     avatarEntity = await mockAnimatedAvatar()
     setComponent(avatarEntity, UUIDComponent, avatarUuid)
-    const ikComponent = setComponent(avatarEntity, AvatarIkComponent)
+    setComponent(avatarEntity, AvatarIKComponent)
     startReactor(AvatarIkReactor)
     startReactor(AvatarAnimationSystemReactor)
     const rig = getComponent(avatarEntity, AvatarRigComponent)
+
     // no idea why this is necessary
     for (const entity in rig.entitiesToBones) {
       const bone = getOptionalComponent(entity as unknown as Entity, NormalizedBoneComponent)
       if (bone) bone.quaternion.fastSlerp = Quaternion.prototype.fastSlerp
     }
+
     await vi.waitFor(() => {
       expect(
-        ikComponent.ikMatrices.rightHand.local &&
-          ikComponent.ikMatrices.rightHand.world &&
-          ikComponent.ikMatrices.rightLowerArm.local &&
-          ikComponent.ikMatrices.rightLowerArm.world &&
-          ikComponent.ikMatrices.rightUpperArm.local &&
-          ikComponent.ikMatrices.rightUpperArm.world &&
-          ikComponent.ikMatrices.leftHand.local &&
-          ikComponent.ikMatrices.leftHand.world &&
-          ikComponent.ikMatrices.leftLowerArm.local &&
-          ikComponent.ikMatrices.leftLowerArm.world &&
-          ikComponent.ikMatrices.leftUpperArm.local &&
-          ikComponent.ikMatrices.leftUpperArm.world &&
-          ikComponent.ikMatrices.rightFoot.local &&
-          ikComponent.ikMatrices.rightFoot.world &&
-          ikComponent.ikMatrices.rightLowerLeg.local &&
-          ikComponent.ikMatrices.rightLowerLeg.world &&
-          ikComponent.ikMatrices.rightUpperLeg.local &&
-          ikComponent.ikMatrices.rightUpperLeg.world &&
-          ikComponent.ikMatrices.leftFoot.local &&
-          ikComponent.ikMatrices.leftFoot.world &&
-          ikComponent.ikMatrices.leftLowerLeg.local &&
-          ikComponent.ikMatrices.leftLowerLeg.world &&
-          ikComponent.ikMatrices.leftUpperLeg.local &&
-          ikComponent.ikMatrices.leftUpperLeg.world
+        getOptionalComponent(rig.bonesToEntities.rightUpperArm, IKMatrixComponent) &&
+          getOptionalComponent(rig.bonesToEntities.rightLowerArm, IKMatrixComponent) &&
+          getOptionalComponent(rig.bonesToEntities.rightHand, IKMatrixComponent) &&
+          getOptionalComponent(rig.bonesToEntities.leftUpperArm, IKMatrixComponent) &&
+          getOptionalComponent(rig.bonesToEntities.leftLowerArm, IKMatrixComponent) &&
+          getOptionalComponent(rig.bonesToEntities.leftHand, IKMatrixComponent) &&
+          getOptionalComponent(rig.bonesToEntities.rightUpperLeg, IKMatrixComponent) &&
+          getOptionalComponent(rig.bonesToEntities.rightLowerLeg, IKMatrixComponent) &&
+          getOptionalComponent(rig.bonesToEntities.rightFoot, IKMatrixComponent) &&
+          getOptionalComponent(rig.bonesToEntities.leftUpperLeg, IKMatrixComponent) &&
+          getOptionalComponent(rig.bonesToEntities.leftLowerLeg, IKMatrixComponent) &&
+          getOptionalComponent(rig.bonesToEntities.leftFoot, IKMatrixComponent)
       ).toBeTruthy()
     })
 
@@ -198,7 +188,7 @@ describe('AvatarIKSystem', () => {
       SystemDefinitions.get(TransformDirtyUpdateSystem)?.execute()
       SystemDefinitions.get(TransformSystem)?.execute()
       SystemDefinitions.get(TransformDirtyCleanupSystem)?.execute()
-      SystemDefinitions.get(AvatarIkSystem)?.execute()
+      SystemDefinitions.get(AvatarIKSystem)?.execute()
       SystemDefinitions.get(AnimationSystem)?.execute()
       SystemDefinitions.get(AvatarAnimationSystem)?.execute()
 

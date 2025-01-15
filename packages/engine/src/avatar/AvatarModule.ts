@@ -28,7 +28,7 @@ import { AnimationSystem } from './systems/AnimationSystem'
 import { AvatarAnimationSystem } from './systems/AvatarAnimationSystem'
 import { AvatarAutopilotSystem } from './systems/AvatarAutopilotSystem'
 import { AvatarControllerSystem } from './systems/AvatarControllerSystem'
-import { AvatarIkSystem } from './systems/AvatarIkSystem'
+import { AvatarIKSystem } from './systems/AvatarIKSystem'
 import { AvatarInputSystem } from './systems/AvatarInputSystem'
 import { AvatarLoadingSystem } from './systems/AvatarLoadingSystem'
 import { AvatarMovementSystem } from './systems/AvatarMovementSystem'
@@ -39,7 +39,7 @@ import { ReferenceSpaceTransformSystem } from './systems/ReferenceSpaceTransform
 export default {
   AnimationSystem,
   AvatarAnimationSystem,
-  AvatarIkSystem,
+  AvatarIkSystem: AvatarIKSystem,
   AvatarAutopilotSystem,
   AvatarControllerSystem,
   AvatarIKTargetState,

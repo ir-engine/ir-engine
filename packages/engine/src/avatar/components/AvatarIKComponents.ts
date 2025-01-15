@@ -39,7 +39,6 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { ikTargets } from '../animation/Util'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
 
@@ -113,17 +112,15 @@ export const getHandTarget = (entity: Entity, hand: XRHandedness): HandTargetRet
   }
 }
 
-export const AvatarIkComponent = defineComponent({
-  name: 'AvatarIkComponent',
+export const IKMatrixComponent = defineComponent({
+  name: 'IKMatricesComponent',
   schema: S.Object({
     /** contains ik solve data */
-    ikMatrices: S.Record(
-      S.LiteralUnion(Object.values(VRMHumanBoneName)),
-      S.Object({
-        local: T.Mat4(),
-        world: T.Mat4()
-      }),
-      {}
-    )
+    local: T.Mat4(),
+    world: T.Mat4()
   })
+})
+
+export const AvatarIKComponent = defineComponent({
+  name: 'AvatarIKComponent'
 })
