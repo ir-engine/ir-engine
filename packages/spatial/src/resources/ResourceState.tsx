@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
-  Bone,
+  AnimationClip,
   BufferAttribute,
   Cache,
   CompressedTexture,
@@ -43,9 +43,10 @@ import {
   Engine,
   Entity,
   QueryReactor,
+  getAuthoringCounterpart,
   getOptionalComponent,
-  useEntityContext,
-  useOptionalComponent
+  useComponent,
+  useEntityContext
 } from '@ir-engine/ecs'
 import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
@@ -67,16 +68,14 @@ export interface DisposableObject {
 Cache.enabled = false
 
 export enum ResourceType {
-  // GLTF = 'GLTF',
   Mesh = 'Mesh',
   SkinnedMesh = 'SkinnedMesh',
-  Bone = 'Bone',
   Texture = 'Texture',
   Geometry = 'Geometry',
   Material = 'Material',
+  AnimationClip = 'AnimationClip',
   Line = 'Line',
   Light = 'Light',
-  Object3D = 'Object3D',
   Audio = 'Audio',
   File = 'File',
   ArrayBuffer = 'ArrayBuffer',
@@ -87,15 +86,14 @@ export enum ResourceType {
 }
 
 export type ResourceAssetType =
-  // | GLTF
   | Texture
   | CompressedTexture
   | Geometry
   | Material
-  | Material[]
   | SkinnedMesh
   | Mesh
-  | Bone
+  | AnimationClip
+  // | Bone // bone does not have any resources we need to rack
   | DisposableObject
   | BufferAttribute
   | InterleavedBufferAttribute
@@ -103,10 +101,10 @@ export type ResourceAssetType =
   // | AudioBuffer
   | ArrayBuffer
   | Line
-  | Object3D
 
 type BaseMetadata = {
   size?: number
+  discarded?: boolean
   onGPU?: boolean
 }
 
@@ -244,19 +242,21 @@ const resourceCallbacks = {
       discardUponUpload: boolean
     ) => {
       if (!asset.image) return
-      resource.metadata.merge({ onGPU: false })
+      resource.metadata.merge({ onGPU: false, discarded: false })
       asset.wrapS = RepeatWrapping
       asset.wrapT = RepeatWrapping
       asset.onUpdate = () => {
-        if (resource && resource.value) resource.metadata.merge({ onGPU: true })
+        resource.metadata.merge({ onGPU: true, discarded: discardUponUpload })
         //@ts-ignore
         asset.onUpdate = null
         if (discardUponUpload) {
-          console.log('disposing texture')
           asset.source.data = null
-          asset.mipmaps.map((b) => delete b.data)
           asset.mipmaps = []
         }
+      }
+      if ((asset as CompressedTexture).isCompressedTexture && discardUponUpload) {
+        // for some reason, this is necessary for the onUpdate to trigger
+        asset.needsUpdate = true
       }
       //Compressed texture size
       if (asset.mipmaps[0]) {
@@ -272,15 +272,14 @@ const resourceCallbacks = {
         const size = width * height * 4
         resource.metadata.size.set(size)
       }
-      if ((asset as CompressedTexture).isCompressedTexture) {
-        const id = resource.id.value
-        if (id.endsWith('ktx2')) asset.source.data.src = id
-      }
+      /** @todo why did we put the id on the source data? */
+      // if ((asset as CompressedTexture).isCompressedTexture) {
+      //   const id = resource.id.value
+      //   if (id.endsWith('ktx2')) asset.source.data.src = id
+      // }
       resource.metadata.merge({ textureWidth: asset.image.width })
       resourceState.totalBufferCount.set(resourceState.totalBufferCount.value + resource.metadata.size.value!)
     },
-    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
-    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
     onUnload: (
       asset: Texture | CompressedTexture,
       resource: State<Resource>,
@@ -293,24 +292,6 @@ const resourceCallbacks = {
       if (size) resourceState.totalBufferCount.set(resourceState.totalBufferCount.value - size)
     }
   },
-  [ResourceType.Material]: {
-    onLoad: (
-      asset: Material,
-      resource: State<Resource>,
-      resourceState: State<typeof ResourceState._TYPE>,
-      discardUponUpload: boolean
-    ) => {},
-    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
-    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
-    onUnload: (
-      asset: Material | Material[],
-      resource: State<Resource>,
-      resourceState: State<typeof ResourceState._TYPE>,
-      discardUponUpload: boolean
-    ) => {
-      disposeMaterial(asset, resource)
-    }
-  },
   [ResourceType.Geometry]: {
     onLoad: (
       asset: Geometry,
@@ -318,18 +299,19 @@ const resourceCallbacks = {
       resourceState: State<typeof ResourceState._TYPE>,
       discardUponUpload: boolean
     ) => {
+      asset.computeBoundingSphere()
+
       // Estimated geometry size
       const attributeKeys = Object.keys(asset.attributes)
       let needsUploaded = asset.index ? attributeKeys.length + 1 : attributeKeys.length
       let size = 0
 
       const checkUploaded = () => {
-        if (needsUploaded == 0 && resource && resource.value) resource.metadata.merge({ onGPU: true })
+        resource.metadata.merge({ onGPU: needsUploaded === 0, discarded: needsUploaded === 0 && discardUponUpload })
       }
 
       asset.index?.onUpload(function () {
         if (discardUponUpload) {
-          console.log('disposing index')
           this.array = new this.array.constructor(1)
         }
         needsUploaded -= 1
@@ -342,7 +324,6 @@ const resourceCallbacks = {
         if (typeof attr.onUpload === 'function') {
           attr.onUpload(function () {
             if (discardUponUpload) {
-              console.log('disposing attribute')
               this.array = new this.array.constructor(1)
             }
             needsUploaded -= 1
@@ -360,179 +341,35 @@ const resourceCallbacks = {
         size += indices.count * indices.itemSize * indices.array.BYTES_PER_ELEMENT
       }
       resource.metadata.size.set(size)
-    },
-    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
-    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
-    onUnload: (
-      asset: Geometry,
+    }
+  },
+  [ResourceType.AnimationClip]: {
+    onLoad: (
+      asset: AnimationClip,
       resource: State<Resource>,
       resourceState: State<typeof ResourceState._TYPE>,
       discardUponUpload: boolean
     ) => {
-      disposeGeometry(asset, resource)
+      let size = 0
+      for (const track of asset.tracks) {
+        const times = track.times
+        const values = track.values
+        size += times.length * times.BYTES_PER_ELEMENT + values.length * values.BYTES_PER_ELEMENT
+      }
+      resource.metadata.size.set(size)
     }
-  },
-  [ResourceType.Mesh]: {
-    onLoad: (
-      asset: Mesh,
-      resource: State<Resource>,
-      resourceState: State<typeof ResourceState._TYPE>,
-      discardUponUpload: boolean
-    ) => {},
-    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
-    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
-    onUnload: (
-      asset: Mesh,
-      resource: State<Resource>,
-      resourceState: State<typeof ResourceState._TYPE>,
-      discardUponUpload: boolean
-    ) => {
-      disposeMesh(asset, resource)
-    }
-  },
-  [ResourceType.Line]: {
-    onLoad: (
-      asset: Line,
-      resource: State<Resource>,
-      resourceState: State<typeof ResourceState._TYPE>,
-      discardUponUpload: boolean
-    ) => {},
-    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
-    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
-    onUnload: (
-      asset: Line,
-      resource: State<Resource>,
-      resourceState: State<typeof ResourceState._TYPE>,
-      discardUponUpload: boolean
-    ) => {}
-  },
-  [ResourceType.Object3D]: {
-    onLoad: (
-      asset: Material,
-      resource: State<Resource>,
-      resourceState: State<typeof ResourceState._TYPE>,
-      discardUponUpload: boolean
-    ) => {},
-    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
-    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
-    onUnload: (
-      asset: DisposableObject,
-      resource: State<Resource>,
-      resourceState: State<typeof ResourceState._TYPE>,
-      discardUponUpload: boolean
-    ) => {
-      tryUnloadObj(asset, resource)
-    }
-  },
-  [ResourceType.SkinnedMesh]: {
-    onLoad: (
-      asset: SkinnedMesh,
-      resource: State<Resource>,
-      resourceState: State<typeof ResourceState._TYPE>,
-      discardUponUpload: boolean
-    ) => {},
-    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
-    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
-    onUnload: (
-      asset: SkinnedMesh,
-      resource: State<Resource>,
-      resourceState: State<typeof ResourceState._TYPE>,
-      discardUponUpload: boolean
-    ) => {
-      disposeMesh(asset, resource)
-    }
-  },
-  [ResourceType.Bone]: {
-    onLoad: (
-      asset: Bone,
-      resource: State<Resource>,
-      resourceState: State<typeof ResourceState._TYPE>,
-      discardUponUpload: boolean
-    ) => {},
-    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
-    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
-    onUnload: (
-      asset: Bone,
-      resource: State<Resource>,
-      resourceState: State<typeof ResourceState._TYPE>,
-      discardUponUpload: boolean
-    ) => {}
-  },
-  [ResourceType.Light]: {
-    onLoad: (
-      asset: Light,
-      resource: State<Resource>,
-      resourceState: State<typeof ResourceState._TYPE>,
-      discardUponUpload: boolean
-    ) => {},
-    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
-    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
-    onUnload: (
-      asset: Light,
-      resource: State<Resource>,
-      resourceState: State<typeof ResourceState._TYPE>,
-      discardUponUpload: boolean
-    ) => {}
-  },
-  [ResourceType.Unknown]: {
-    onLoad: (
-      asset: Material,
-      resource: State<Resource>,
-      resourceState: State<typeof ResourceState._TYPE>,
-      discardUponUpload: boolean
-    ) => {},
-    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
-    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
-    onUnload: (
-      asset: ResourceAssetType,
-      resource: State<Resource>,
-      resourceState: State<typeof ResourceState._TYPE>,
-      discardUponUpload: boolean
-    ) => {
-      dispose(asset, resource)
-    }
-  },
-  [ResourceType.BufferAttribute]: {
-    onLoad: (
-      asset: BufferAttribute,
-      resource: State<Resource>,
-      resourceState: State<typeof ResourceState._TYPE>,
-      discardUponUpload: boolean
-    ) => {},
-    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
-    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
-    onUnload: (
-      asset: BufferAttribute,
-      resource: State<Resource>,
-      resourceState: State<typeof ResourceState._TYPE>
-    ) => {}
-  },
-  [ResourceType.InterleavedBufferAttribute]: {
-    onLoad: (
-      asset: InterleavedBufferAttribute,
-      resource: State<Resource>,
-      resourceState: State<typeof ResourceState._TYPE>,
-      discardUponUpload: boolean
-    ) => {},
-    onProgress: (request: ProgressEvent, resource: State<Resource>) => {},
-    onError: (event: ErrorEvent | Error, resource: State<Resource>) => {},
-    onUnload: (
-      asset: InterleavedBufferAttribute,
-      resource: State<Resource>,
-      resourceState: State<typeof ResourceState._TYPE>
-    ) => {}
   }
 } as {
   [key in ResourceType]: {
-    onLoad: (
+    onLoad?: (
       asset: ResourceAssetType,
       resource: State<Resource>,
       resourceState: State<typeof ResourceState._TYPE>,
       discardUponUpload: boolean
     ) => void
-    onProgress: (request: ProgressEvent, resource: State<Resource>) => void
-    onError: (event: ErrorEvent | Error, resource: State<Resource>) => void
-    onUnload: (
+    onProgress?: (request: ProgressEvent, resource: State<Resource>) => void
+    onError?: (event: ErrorEvent | Error, resource: State<Resource>) => void
+    onUnload?: (
       asset: ResourceAssetType,
       resource: State<Resource>,
       resourceState: State<typeof ResourceState._TYPE>
@@ -542,10 +379,10 @@ const resourceCallbacks = {
 //#endregion
 
 //#region resource disposal functions
-const dispose = (asset: ResourceAssetType, resource: State<Resource>) => {
-  if ((asset as Geometry).isBufferGeometry) disposeGeometry(asset as Geometry, resource)
-  else if ((asset as Material).isMaterial) disposeMaterial(asset as Material, resource)
-  else if ((asset as Mesh).isMesh) disposeMesh(asset as Mesh, resource)
+const dispose = (asset: ResourceAssetType) => {
+  if ((asset as Geometry).isBufferGeometry) disposeGeometry(asset as Geometry)
+  else if ((asset as Material).isMaterial) disposeMaterial(asset as Material)
+  else if ((asset as Mesh).isMesh) disposeMesh(asset as Mesh)
   else {
     const disposable = asset as DisposableObject
     if (!disposable.disposed && typeof disposable.dispose == 'function') disposable.dispose()
@@ -553,7 +390,7 @@ const dispose = (asset: ResourceAssetType, resource: State<Resource>) => {
   }
 }
 
-const disposeGeometry = (asset: Geometry, resource: State<Resource>) => {
+const disposeGeometry = (asset: Geometry) => {
   if ((asset as DisposableObject).disposed) return
   asset.dispose()
   for (const key in asset.attributes) {
@@ -568,7 +405,7 @@ const disposeGeometry = (asset: Geometry, resource: State<Resource>) => {
   ;(asset as DisposableObject).disposed = true
 }
 
-const disposeMesh = (asset: Mesh, resource: State<Resource>) => {
+const disposeMesh = (asset: Mesh) => {
   if ((asset as DisposableObject).disposed) return
   const skinnedMesh = asset as SkinnedMesh
   if (skinnedMesh.isSkinnedMesh && skinnedMesh.skeleton) {
@@ -583,7 +420,7 @@ const disposeMesh = (asset: Mesh, resource: State<Resource>) => {
   ;(asset as DisposableObject).disposed = true
 }
 
-const disposeMaterial = (asset: Material | Material[], resource: State<Resource>) => {
+const disposeMaterial = (asset: Material | Material[]) => {
   const dispose = (material: Material) => {
     if ((material as DisposableObject).disposed) return
     for (const [_, val] of Object.entries(material) as [string, Texture][]) {
@@ -625,7 +462,7 @@ const getResourceType = (
   else if ((asset as Texture).isTexture) return ResourceType.Texture
   else if ((asset as Line).isLine) return ResourceType.Line
   else if ((asset as Light).isLight) return ResourceType.Light
-  else if ((asset as Object3D).isObject3D) return ResourceType.Object3D
+  else if (asset instanceof AnimationClip) return ResourceType.AnimationClip
   else if (asset instanceof BufferAttribute) return ResourceType.BufferAttribute
   else if (asset instanceof InterleavedBufferAttribute) return ResourceType.InterleavedBufferAttribute
   else return defaultType
@@ -640,7 +477,7 @@ const getResourceID = (asset: ResourceAssetType): string => {
   return resourceID
 }
 
-const tryUnloadObj = (obj: DisposableObject, resource: State<Resource>) => {
+const tryUnloadObj = (obj: DisposableObject) => {
   const obj3D = obj as Object3D
   if (!obj3D.isObject3D) return
 
@@ -694,9 +531,10 @@ const addEntityResource = (
     return returnedResources
   }
 
-  const resourceState = getMutableState(ResourceState)
-
   const resourceType = getResourceType(asset)
+  /** @todo if we don't recognize the resource, we don't need to track it */
+  if (resourceType === ResourceType.Unknown) return returnedResources
+
   const id = getResourceID(asset)
 
   ResourceState.debugLog('addEntityResource', { entity, asset, resourceType, id })
@@ -711,6 +549,7 @@ const addEntityResource = (
     metadata: {}
   }
 
+  const resourceState = getMutableState(ResourceState)
   resourceState.resources.merge({
     [id]: resource
   })
@@ -718,10 +557,11 @@ const addEntityResource = (
   returnedResources.push(resource)
 
   /** @todo disposal currently causes errors */
-  const entityHasAuthoringUpstream = true //getAuthoringCounterpart(entity)
+  const entityHasAuthoringUpstream = getAuthoringCounterpart(entity)
 
   const callbacks = resourceCallbacks[resourceType]
-  callbacks.onLoad(asset, resourceState.resources[id], resourceState, !entityHasAuthoringUpstream)
+  if (callbacks?.onLoad)
+    callbacks.onLoad(asset, resourceState.resources[id], resourceState, !entityHasAuthoringUpstream)
 
   switch (resourceType) {
     case ResourceType.Line:
@@ -757,14 +597,15 @@ const addEntityResource = (
       break
     }
 
-    default:
+    default: {
       break
+    }
   }
 
   return returnedResources
 }
 
-const removeEntityResource = (resource: any) => {
+const removeEntityResource = (resource: Resource) => {
   const asset = resource.asset
 
   const resourceType = resource.type
@@ -775,15 +616,16 @@ const removeEntityResource = (resource: any) => {
   const resourceState = getMutableState(ResourceState)
 
   const callbacks = resourceCallbacks[resourceType]
-  callbacks.onUnload(asset, resourceState.resources[id], resourceState)
+  if (callbacks?.onUnload) callbacks.onUnload(asset, resourceState.resources[id], resourceState)
 
   resourceState.resources[id].set(none)
+
+  tryUnloadObj(asset as any)
+  dispose(asset)
 }
 
-const useEntityResource = (entity: Entity, state: State<ResourceAssetType> | undefined) => {
+const useEntityResource = (entity: Entity, state: State<ResourceAssetType>) => {
   useEffect(() => {
-    if (!state) return
-
     const asset = state.get(NO_PROXY) as ResourceAssetType
 
     const resources = addEntityResource(entity, asset)
@@ -826,12 +668,16 @@ export const ResourceState = defineState({
   __unsafeRemoveResource: removeResource,
 
   reactor: () => {
-    return <QueryReactor Components={[ObjectComponent]} ChildEntityReactor={ObjectReactor} />
+    return (
+      <>
+        <QueryReactor Components={[ObjectComponent]} ChildEntityReactor={ObjectReactor} />
+      </>
+    )
   }
 })
 
 const ObjectReactor = () => {
   const entity = useEntityContext()
-  ResourceState.useEntityResource(entity, useOptionalComponent(entity, ObjectComponent))
+  ResourceState.useEntityResource(entity, useComponent(entity, ObjectComponent) as State<ResourceAssetType>)
   return null
 }

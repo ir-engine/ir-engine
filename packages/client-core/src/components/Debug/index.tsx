@@ -40,6 +40,7 @@ import { EntityDebug } from './EntityDebug'
 import { StateDebug } from './StateDebug'
 import { StatsPanel } from './StatsPanel'
 import { SystemDebug } from './SystemDebug'
+import { ResourceDebug } from './ResourceDebug'
 
 function Placer({ id }: { id: string }) {
   return (
@@ -64,15 +65,17 @@ const DebugTabs = {
   All: (
     <>
       <EntityDebug />
+      <APIDebug />
       <SystemDebug />
       <StateDebug />
-      <APIDebug />
+      <ResourceDebug />
     </>
   ),
   Entities: <EntityDebug />,
   API: <APIDebug />,
   Systems: <SystemDebug />,
-  State: <StateDebug />
+  State: <StateDebug />,
+  Resources: <ResourceDebug />
 }
 
 const tabsData: TabProps['tabsData'] = Object.keys(DebugTabs).map((tabLabel) => ({

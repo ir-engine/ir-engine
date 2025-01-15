@@ -32,7 +32,7 @@ import loadVideoTexture from '../../scene/materials/functions/LoadVideoTexture'
 import { FileLoader } from '../loaders/base/FileLoader'
 import { Loader } from '../loaders/base/Loader'
 import { DDSLoader } from '../loaders/dds/DDSLoader'
-import { FBXLoader } from '../loaders/fbx/FBXLoader'
+// import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { TextureLoader } from '../loaders/texture/TextureLoader'
 import { TGALoader } from '../loaders/tga/TGALoader'
 import { USDZLoader } from '../loaders/usdz/USDZLoader'
@@ -67,10 +67,10 @@ export const getLoader = (assetType: AssetExt) => {
     case AssetExt.GLB:
     case AssetExt.VRM:
       return getState(AssetLoaderState).gltfLoader
-    case AssetExt.USDZ:
-      return new USDZLoader()
-    case AssetExt.FBX:
-      return new FBXLoader()
+    // case AssetExt.USDZ:
+    //   return new USDZLoader()
+    // case AssetExt.FBX:
+    //   return new FBXLoader()
     case AssetExt.TGA:
       return new TGALoader()
     case AssetExt.PNG:

@@ -110,6 +110,8 @@ class TextureLoader extends Loader<Texture> {
       url,
       (image: HTMLImageElement | ImageBitmap) => {
         const texture = new Texture(image)
+        texture.userData.url = url
+        texture.source.data.src = url
         texture.needsUpdate = true
         if (canvas) canvas.remove()
         onLoad(texture)
