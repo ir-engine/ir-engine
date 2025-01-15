@@ -342,7 +342,7 @@ export const defineComponent = <
   const isSingleValueSchema = schemaIsJSONSchema(def.schema) && IsSingleValueSchema(def.schema)
 
   Component.onSet = (entity, component, json) => {
-    if (schemaIsJSONSchema(def.schema) || def.onInit) {
+    if (schemaIsJSONSchema(def.schema)) {
       if (hasRequiredSchema) {
         const [valid, key] = HasRequiredSchemaValues(def.schema as TSchema, json)
         if (!valid) throw new Error(`${def.name}:OnSet Missing required value for key ${key}`)
@@ -350,27 +350,36 @@ export const defineComponent = <
 
       if (json === null || json === undefined) return
 
-      if (hasSchemaInitializers) {
-        json = DeserializeSchemaValue(
-          def.schema as TSchema,
-          component.get(NO_PROXY_STEALTH) as ComponentType,
-          typeof json === 'object' ? ({ ...json } as ComponentType) : json
-        ) as SetJSON | undefined
-      }
+      const cleanJson = DeserializeSchemaValue(
+        def.schema as TSchema,
+        component.get(NO_PROXY_STEALTH) as ComponentType,
+        json as any
+      )
+
+      if (cleanJson === null || cleanJson === undefined) return
 
       if (hasSchemaValidators) {
         const [valid, key] = HasValidSchemaValues(
           def.schema as TSchema,
-          json as ComponentType,
+          cleanJson as ComponentType,
           component.get(NO_PROXY_STEALTH) as ComponentType,
           entity
         )
         if (!valid) throw new Error(`${def.name}:OnSet Invalid value for key ${key}`)
       }
 
-      if (Array.isArray(json) || typeof json !== 'object' || isSingleValueSchema) component.set(json as ComponentType)
-      else component.merge(json as SetPartialStateAction<ComponentType>)
+      if (Array.isArray(cleanJson) || typeof cleanJson !== 'object' || isSingleValueSchema)
+        component.set(cleanJson as ComponentType)
+      else component.merge(cleanJson as SetPartialStateAction<ComponentType>)
+
+      return
     }
+
+    if (json === null || json === undefined) return
+
+    // if no schema, just set the json - assume insecure or internal
+    if (Array.isArray(json) || typeof json !== 'object' || isSingleValueSchema) component.set(json as ComponentType)
+    else component.merge(json as SetPartialStateAction<ComponentType>)
   }
   Component.onRemove = () => {}
   Component.toJSON = (component: ComponentType) => {

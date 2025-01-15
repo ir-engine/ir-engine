@@ -643,7 +643,7 @@ describe('EditorControlFunctions', () => {
       const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
       assert.equal(newSnapshot.scenes![0].nodes![0], 0)
       assert.equal(newSnapshot.scenes![0].nodes![1], 1)
-      assert.equal(newSnapshot.nodes![0].children?.length!, 0)
+      assert.equal(newSnapshot.nodes![0].children!.length, 0)
     })
 
     it('should reparent an object to another object', () => {

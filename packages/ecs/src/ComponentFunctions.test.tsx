@@ -62,6 +62,53 @@ describe('ComponentFunctions', async () => {
   })
 
   describe('defineComponent', () => {
+    it('should not deserialize if property does not match schema', () => {
+      const Vector3Component = defineComponent({
+        name: 'Vector3Component',
+        schema: S.Object({
+          x: S.Number(0),
+          y: S.Number(0),
+          z: S.Number(4)
+        })
+      })
+
+      const entity = createEntity()
+      // @ts-expect-error
+      const vector3Component = setComponent(entity, Vector3Component, { otherval: 10 })
+      assert.deepEqual(vector3Component, { x: 0, y: 0, z: 4 })
+    })
+
+    it('should not deserialize if property type does not match schema', () => {
+      const NestedObjectComponent = defineComponent({
+        name: 'NestedObjectComponent',
+        schema: S.Object({
+          obj: S.Object({
+            num: S.Number(0)
+          })
+        })
+      })
+
+      const entity = createEntity()
+      // @ts-expect-error
+      const nestedObjectComponent = setComponent(entity, NestedObjectComponent, { obj: 'test' })
+      assert.deepEqual(nestedObjectComponent, { obj: { num: 0 } })
+    })
+
+    it('should deserialize if values match schema', () => {
+      const Vector3Component = defineComponent({
+        name: 'Vector3Component',
+        schema: S.Object({
+          x: S.Number(0),
+          y: S.Number(0),
+          z: S.Number(4)
+        })
+      })
+
+      const entity = createEntity()
+      const vector3Component = setComponent(entity, Vector3Component, { x: 12, y: 24, z: 36 })
+      assert.deepEqual(vector3Component, { x: 12, y: 24, z: 36 })
+    })
+
     it('should create tag component', () => {
       const TagComponent = defineComponent({ name: 'TagComponent', onInit: () => true })
 
@@ -72,11 +119,6 @@ describe('ComponentFunctions', async () => {
     })
 
     it('should create mapped component with SoA', () => {
-      type Vector3ComponentType = {
-        x: number
-        y: number
-        z: number
-      }
       const { f32 } = Types
       const Vector3Schema = { x: f32, y: f32, z: f32 }
       const Vector3Component = defineComponent({
