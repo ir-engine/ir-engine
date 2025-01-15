@@ -79,8 +79,8 @@ export const FileIcon = ({
   isFolder?: boolean
   color?: string
   isMinified?: boolean
-  onLoad?: any
-  onLoadStart?: any
+  onLoad?: () => void
+  onLoadStart?: () => void
 }) => {
   const FallbackIcon = FileIconType[type ?? '']
   const imageLoaded = useHookstate(false)
