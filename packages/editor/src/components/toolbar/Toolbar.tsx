@@ -143,6 +143,7 @@ const generateToolbarMenu = () => {
 }
 
 const toolbarMenu = generateToolbarMenu()
+
 const onPublish = async () => {
   const sceneModified = EditorState.isModified()
 
@@ -175,6 +176,7 @@ export default function Toolbar() {
   const hasPublishAccess = hasLocationWriteScope || permission?.type === 'owner' || permission?.type === 'editor'
   const locationQuery = useFind(locationPath, { query: { action: 'studio', sceneId: sceneAssetID.value } })
   const currentLocation = locationQuery.data[0]
+
   return (
     <>
       <div className="flex h-10 items-center justify-between bg-theme-primary">
