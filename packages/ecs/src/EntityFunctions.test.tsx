@@ -23,9 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+
 import { createEngine, destroyEngine } from './Engine'
+import { UndefinedEntity } from './Entity'
 import { entityExists } from './EntityFunctions'
 import { createEntity } from './createEntity'
 
@@ -38,10 +39,14 @@ describe('EntityFunctions', async () => {
   })
 
   describe('createEntity', () => {
-    it('create basic entity'),
-      () => {
-        const entity = createEntity()
-        assert.equal(entityExists(entity), true)
-      }
+    it('should return a valid entity ID that returns true when given to `entityExists`', () => {
+      const result = createEntity()
+      expect(entityExists(result)).toBeTruthy()
+    })
+
+    it('should never return UndefinedEntity', () => {
+      const result = createEntity()
+      expect(result).not.toBe(UndefinedEntity)
+    })
   })
 })
