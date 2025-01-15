@@ -29,11 +29,9 @@ import { Light, Material, Mesh, Object3D, SkinnedMesh, Texture } from 'three'
 import { useEntityContext, UUIDComponent } from '@ir-engine/ecs'
 import {
   getComponent,
-  getOptionalComponent,
   hasComponent,
   removeComponent,
   setComponent,
-  useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
@@ -41,13 +39,13 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { defineQuery, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { getState, NO_PROXY, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { getState, useHookstate } from '@ir-engine/hyperflux'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { ThreeToPhysics } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { Object3DWithEntity, ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import {
@@ -58,7 +56,6 @@ import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { KHRUnlitExtensionComponent } from '../../gltf/MaterialExtensionComponents'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 
-import { ResourceState } from '@ir-engine/spatial/src/resources/ResourceState'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SourceComponent } from '../components/SourceComponent'
 
@@ -97,28 +94,8 @@ export const disposeObject3D = (obj: Object3D) => {
   if (typeof light.dispose === 'function') light.dispose()
 }
 
-const groupQuery = defineQuery([ObjectComponent])
+const objectQuery = defineQuery([ObjectComponent])
 const updatableQuery = defineQuery([UpdatableComponent, CallbackComponent])
-
-function SceneObjectReactor() {
-  const entity = useEntityContext()
-  const obj = useComponent(entity, ObjectComponent).get(NO_PROXY) as Object3DWithEntity
-
-  useImmediateEffect(() => {
-    setComponent(entity, DistanceFromCameraComponent)
-  }, [])
-
-  useEffect(() => {
-    const source = hasComponent(entity, GLTFComponent)
-      ? GLTFComponent.getInstanceID(entity)
-      : getOptionalComponent(entity, SourceComponent)
-    return () => {
-      ResourceState.unloadObj(obj, source)
-    }
-  }, [])
-
-  return null
-}
 
 const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
 
@@ -128,17 +105,16 @@ const execute = () => {
     const callbacks = getComponent(entity, CallbackComponent)
     callbacks.get(UpdatableCallback)?.(delta)
   }
-  for (const entity of groupQuery()) {
+  for (const entity of objectQuery()) {
     const obj = getComponent(entity, ObjectComponent)
+    const hasDistance = hasComponent(entity, DistanceFromCameraComponent)
+    const inRange = hasDistance
+      ? DistanceFromCameraComponent.squaredDistance[entity] > minimumFrustumCullDistanceSqr
+      : true
     /**
      * do frustum culling here, but only if the object is more than 5 units away
      */
-    const visible =
-      hasComponent(entity, VisibleComponent) &&
-      !(
-        FrustumCullCameraComponent.isCulled[entity] &&
-        DistanceFromCameraComponent.squaredDistance[entity] > minimumFrustumCullDistanceSqr
-      )
+    const visible = hasComponent(entity, VisibleComponent) && !(FrustumCullCameraComponent.isCulled[entity] && inRange)
 
     obj.visible = visible
   }
@@ -213,7 +189,6 @@ const reactor = () => {
   return (
     <>
       <QueryReactor Components={[GLTFComponent]} ChildEntityReactor={ModelEntityReactor} />
-      <QueryReactor Components={[ObjectComponent]} ChildEntityReactor={SceneObjectReactor} />
     </>
   )
 }

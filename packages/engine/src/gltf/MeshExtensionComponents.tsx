@@ -51,7 +51,8 @@ import {
 import { WEBGL_CONSTANTS } from '../assets/loaders/gltf/GLTFConstants'
 import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
 import { InstancingComponent } from '../scene/components/InstancingComponent'
-import { getDependency, getNodeUUID, getParserOptions } from './GLTFLoaderFunctions'
+import { getGLTFOptions } from './GLTFComponent'
+import { getDependency, getNodeUUID } from './GLTFLoaderFunctions'
 
 export type KHRPunctualLight = {
   color?: [number, number, number]
@@ -71,12 +72,13 @@ export const KHRLightsPunctualComponent = defineComponent({
     light: S.Optional(S.Number())
   }),
 
+  /** @todo need to refactor this into whatever API three uses, as we clean up the buffers before it can be loaded */
   reactor: () => {
     const entity = useEntityContext()
     useComponent(entity, EntityTreeComponent)
     const component = useComponent(entity, KHRLightsPunctualComponent)
 
-    const options = getParserOptions(entity)
+    const options = getGLTFOptions(entity)
     const json = options.document
     const extensions: {
       lights?: KHRPunctualLight[]

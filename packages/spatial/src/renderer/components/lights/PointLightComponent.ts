@@ -35,10 +35,9 @@ import {
   useEntityContext,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import { NO_PROXY, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
 import { useHelperEntity } from '../../../common/debug/useHelperEntity'
-import { useDisposable } from '../../../resources/resourceHooks'
 import { T } from '../../../schema/schemaFunctions'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { RendererState } from '../../RendererState'
@@ -65,7 +64,7 @@ export const PointLightComponent = defineComponent({
     const renderState = useMutableState(RendererState)
     const debugEnabled = renderState.nodeHelperVisibility
     const pointLightComponent = useComponent(entity, PointLightComponent)
-    const [light] = useDisposable(PointLight, entity)
+    const light = useHookstate(() => new PointLight()).value as PointLight
     const helperEntity = useHelperEntity(entity, () => new PointLightHelper(light), debugEnabled.value)
     const helper = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as PointLightHelper | undefined
 

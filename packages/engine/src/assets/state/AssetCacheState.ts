@@ -23,31 +23,28 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Object3D } from 'three'
+import { Entity } from '@ir-engine/ecs'
+import { defineState } from '@ir-engine/hyperflux'
+import { ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 
-import { ResourceState } from '@ir-engine/spatial/src/resources/ResourceState'
-
-import { GLTF, GLTFLoaderPlugin } from '../GLTFLoader'
-import { ImporterExtension } from './ImporterExtension'
-
-class ResourceManagerLoadExtension extends ImporterExtension implements GLTFLoaderPlugin {
-  name = 'EE_resourceManagerLoadExtension'
-
-  beforeRoot(): Promise<void> | null {
-    return null
-  }
-
-  afterRoot(result: GLTF): Promise<void> | null {
-    this.AddAssetToResourceManager(result.scene)
-    return null
-  }
-
-  AddAssetToResourceManager(asset: Object3D) {
-    const parser = this.parser
-    const assetKey = parser.options.url
-    // ResourceState.addReferencedAsset(assetKey, asset)
-    // if (asset.children) for (const child of asset.children) this.AddAssetToResourceManager(child)
-  }
+export enum ResourceStatus {
+  Unloaded,
+  Loading,
+  Loaded,
+  Error
 }
 
-export { ResourceManagerLoadExtension }
+export const AssetCacheState = defineState({
+  name: 'AssetCacheState',
+  initial: {} as Record<
+    string,
+    {
+      id: string
+      asset: unknown
+      status: ResourceStatus
+      type: ResourceType
+      references: Entity[]
+      metadata: Record<string, any>
+    }
+  >
+})

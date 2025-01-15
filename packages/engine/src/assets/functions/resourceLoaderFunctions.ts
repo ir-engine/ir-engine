@@ -24,51 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Entity } from '@ir-engine/ecs'
-import { getMutableState, getState, NO_PROXY } from '@ir-engine/hyperflux'
-import {
-  ResourceAssetType,
-  ResourceState,
-  ResourceStatus,
-  ResourceType
-} from '@ir-engine/spatial/src/resources/ResourceState'
+import { getMutableState, getState, NO_PROXY, none } from '@ir-engine/hyperflux'
+import { ResourceAssetType, ResourceState, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 
 import { AssetLoader } from '../classes/AssetLoader'
-import { GLTF } from '../loaders/gltf/GLTFLoader'
-
-export const setGLTFResource = (url: string, entity: Entity, status: ResourceStatus) => {
-  const resourceType = ResourceType.GLTF
-  const resourceState = getMutableState(ResourceState)
-  const resources = resourceState.nested('resources')
-  if (!resources[url].value) {
-    resources.merge({
-      [url]: {
-        id: url,
-        status: ResourceStatus.Unloaded,
-        type: resourceType,
-        asset: {} as GLTF,
-        references: [entity],
-        metadata: {},
-        onLoads: {}
-      }
-    })
-  } else if (!resources[url].references.value.includes(entity)) resources[url].references.merge([entity])
-
-  const callbacks = ResourceState.resourceCallbacks[resourceType]
-  const resource = resources[url]
-  resource.status.set(status)
-
-  switch (resource.status.value) {
-    case ResourceStatus.Loading:
-      callbacks.onStart(resource)
-      break
-    case ResourceStatus.Loaded:
-      callbacks.onLoad({} as GLTF, resource, resourceState)
-      break
-    default:
-      console.error('resourceLoaderFunctions:setGLTFResource: Invalid resource status')
-      break
-  }
-}
+import { AssetCacheState, ResourceStatus } from '../state/AssetCacheState'
 
 interface Cloneable<T> {
   clone?: () => T
@@ -98,31 +58,23 @@ export const loadResource = <T extends ResourceAssetType>(
   onProgress: (request: ProgressEvent) => void,
   onError: (event: ErrorEvent | Error) => void,
   signal: AbortSignal,
-  loader?: AssetLoader,
-  uuid?: string
+  loader?: AssetLoader
 ) => {
-  const resourceState = getMutableState(ResourceState)
-  const resources = resourceState.nested('resources')
-  let callbacks = ResourceState.resourceCallbacks[resourceType]
-  if (!resources[url].value) {
-    resources.merge({
+  const assetCacheState = getMutableState(AssetCacheState)
+  if (!assetCacheState[url].value) {
+    assetCacheState.merge({
       [url]: {
         id: url,
         status: ResourceStatus.Unloaded,
         type: resourceType,
         references: [entity],
-        metadata: {},
-        onLoads: {}
+        asset: null,
+        metadata: {}
       }
     })
-    if (uuid) resources[url].onLoads.merge({ [uuid]: { entity, onLoad } })
   } else {
-    //No need for callbacks if the asset has already been loaded
-    callbacks = ResourceState.resourceCallbacks[ResourceType.Unknown]
-    resources[url].references.merge([entity])
-    if (uuid) resources[url].onLoads.merge({ [uuid]: { entity, onLoad } })
-
-    const resource = getState(ResourceState).resources[url]
+    getMutableState(AssetCacheState)[url].references.merge([entity])
+    const resource = getState(AssetCacheState)[url]
     const asset = resource.asset as Cloneable<T> | undefined
     if (
       (resource.status === ResourceStatus.Unloaded || resource.status === ResourceStatus.Loading) &&
@@ -139,8 +91,7 @@ export const loadResource = <T extends ResourceAssetType>(
     }
   }
 
-  const resource = resources[url]
-  callbacks.onStart(resource)
+  const resource = assetCacheState[url]
   ResourceState.debugLog(`ResourceState:load Loading resource: ${url} for entity: ${entity}`)
   AssetLoader.loadAsset<T>(
     url,
@@ -151,7 +102,6 @@ export const loadResource = <T extends ResourceAssetType>(
       }
       resource.asset.set(response)
       resource.status.set(ResourceStatus.Loaded)
-      callbacks.onLoad(response, resource, resourceState)
       ResourceState.debugLog(`ResourceState:load Loaded resource: ${url} for entity: ${entity}`)
       ResourceState.checkBudgets()
       onLoad(response)
@@ -166,21 +116,46 @@ export const loadResource = <T extends ResourceAssetType>(
       }
     },
     (request) => {
-      callbacks.onProgress(request, resource)
       onProgress(request)
     },
     (error) => {
       console.warn(`ResourceState:load error loading ${resourceType} at url ${url} for entity ${entity}`, error)
       if (resource && resource.value) {
         resource.status.set(ResourceStatus.Error)
-        callbacks.onError(error, resource)
       }
       onError(error)
-      ResourceState.unload(url, entity, uuid)
     },
     signal,
     loader
   )
+}
+
+export const unloadResource = (url: string, entity: Entity) => {
+  const assetCacheState = getMutableState(AssetCacheState)
+  const resource = assetCacheState[url]
+  if (!resource.value) {
+    console.warn(`ResourceState:unload No resource found to unload for url: ${url}`)
+    return
+  }
+
+  ResourceState.debugLog(`ResourceState:unload Unloading resource: ${url} for entity: ${entity}`)
+  const references = resource.references.value
+  if (references.length === 1 && references[0] === entity) {
+    resource.set(none)
+    ResourceState.debugLog(`ResourceState:unload Unloaded resource: ${url} for entity: ${entity}`)
+  } else {
+    resource.references.set(references.filter((e) => e !== entity))
+    ResourceState.debugLog(`ResourceState:unload Unloaded reference for resource: ${url} for entity: ${entity}`)
+  }
+}
+
+export const unloadResourcesForEntity = (entity: Entity) => {
+  const assetCacheState = getState(AssetCacheState)
+  for (const [url, resource] of Object.entries(assetCacheState)) {
+    if (resource.references.includes(entity)) {
+      unloadResource(url, entity)
+    }
+  }
 }
 
 /**

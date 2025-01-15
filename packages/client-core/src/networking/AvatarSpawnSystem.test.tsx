@@ -40,7 +40,7 @@ import {
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
-import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import {
   EventDispatcher,
@@ -143,9 +143,9 @@ describe('AvatarSpawnSystem', async () => {
     }
 
     getMutableState(LocationState).currentLocation.location.sceneURL.set(sceneURL)
-    GLTFAssetState.loadScene(sceneURL, sceneID)
+    SceneState.loadScene(sceneURL, sceneID)
 
-    sceneEntity = getState(GLTFAssetState)[sceneURL]
+    sceneEntity = getState(SceneState)[sceneURL]
 
     createMockNetwork(NetworkTopics.world)
 

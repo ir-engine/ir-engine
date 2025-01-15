@@ -28,9 +28,8 @@ import { getState } from '@ir-engine/hyperflux'
 import { BufferGeometry, NormalBufferAttributes } from 'three'
 import { ATTRIBUTES, WEBGL_COMPONENT_TYPES } from '../assets/loaders/gltf/GLTFConstants'
 import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
-import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
-import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
+import { GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
 
 export const KHR_DRACO_MESH_COMPRESSION = {
   decodePrimitive(options: GLTFParserOptions, primitive: GLTF.IMeshPrimitive) {

@@ -32,7 +32,7 @@ import { SystemUUID } from './SystemFunctions'
 export const SystemState = defineState({
   name: 'ee.meta.SystemState',
   initial: () => ({
-    performanceProfilingEnabled: isDev,
+    performanceProfilingEnabled: false,
     activeSystemReactors: new Map<SystemUUID, ReactorRoot>(),
     currentSystemUUID: '__null__' as SystemUUID,
     reactiveQueryStates: new Set<{

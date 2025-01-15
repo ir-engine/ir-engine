@@ -90,6 +90,8 @@ export const sortSystemsByAvgDuration = (): System[] => {
   return sorted
 }
 
+const nullSystemID = '__null__' as SystemUUID
+
 export const SystemDefinitions = new Map<SystemUUID, System>()
 globalThis.SystemDefinitions = SystemDefinitions
 
@@ -116,14 +118,14 @@ export function executeSystem(systemUUID: SystemUUID) {
   const startTime = nowMilliseconds()
 
   try {
-    getMutableState(SystemState).currentSystemUUID.set(systemUUID)
+    getState(SystemState).currentSystemUUID = systemUUID
     system.execute()
   } catch (e) {
     const logger = HyperFlux.store.logger('ecs:SystemFunctions')
     logger.error(`Failed to execute system ${system.uuid}`)
     logger.error(e)
   } finally {
-    getMutableState(SystemState).currentSystemUUID.set('__null__' as SystemUUID)
+    getState(SystemState).currentSystemUUID = nullSystemID
   }
 
   const endTime = nowMilliseconds()

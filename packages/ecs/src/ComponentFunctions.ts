@@ -671,34 +671,6 @@ export const setComponent = <C extends Component>(
   return getComponent(entity, component)
 }
 
-// weakClone will copy values but copy the reference for classes
-export const weakClone = (obj: any) => {
-  const newObj = {}
-  for (const key in obj) {
-    if (typeof obj[key] === 'object') {
-      if (obj[key] !== null && obj[key].constructor) {
-        if (Array.isArray(obj[key])) {
-          newObj[key] = weakClone(obj[key].slice())
-        } else {
-          newObj[key] = obj[key]
-          // if (
-          //   argsClonePath[key] &&
-          //   typeof argsClonePath[key] === 'object' &&
-          //   'clone' in argsClonePath[key] &&
-          //   typeof argsClonePath[key].clone === 'function'
-          // ) {
-          //   argsClonePath[key] = argsClonePath[key].clone()
-          //   continue
-          // }
-        }
-      } else {
-        newObj[key] = weakClone(obj[key])
-      }
-    } else newObj[key] = obj[key]
-  }
-  return newObj
-}
-
 export const hasComponent = <C extends Component>(entity: Entity, component: C): boolean => {
   if (!component) throw new Error('[hasComponent]: component is undefined')
   if (!entity) return false
