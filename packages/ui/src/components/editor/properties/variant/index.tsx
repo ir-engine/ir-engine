@@ -32,6 +32,7 @@ import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { EditorComponentType, commitProperties, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { loadResource } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
+import { ResourceStatus } from '@ir-engine/engine/src/assets/state/AssetCacheState'
 import {
   Devices,
   Heuristic,
@@ -39,7 +40,7 @@ import {
   VariantLevel
 } from '@ir-engine/engine/src/scene/components/VariantComponent'
 import { State, getState } from '@ir-engine/hyperflux'
-import { ResourceState, ResourceStatus, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
+import { ResourceState, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 import Button from '../../../../primitives/tailwind/Button'
 import InputGroup from '../../input/Group'
 import ModelInput from '../../input/Model'

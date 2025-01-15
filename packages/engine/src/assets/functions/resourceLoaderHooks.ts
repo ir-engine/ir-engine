@@ -23,9 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEffect, useLayoutEffect } from 'react'
+import { useEffect } from 'react'
 import { AudioLoader, Texture } from 'three'
-import { v4 as uuidv4 } from 'uuid'
 
 import {
   createEntity,
@@ -39,9 +38,9 @@ import {
 } from '@ir-engine/ecs'
 import { getState, NO_PROXY, State, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import {
+  Resource,
   ResourceAssetType,
   ResourceState,
-  ResourceStatus,
   ResourceType
 } from '@ir-engine/spatial/src/resources/ResourceState'
 
@@ -52,8 +51,7 @@ import { AssetLoader } from '../classes/AssetLoader'
 import { FileLoader } from '../loaders/base/FileLoader'
 import { GLTF as GLTFAsset } from '../loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../state/AssetLoaderState'
-import { ResourceLoadingManagerState } from '../state/ResourceLoadingManagerState'
-import { loadResource, setGLTFResource } from './resourceLoaderFunctions'
+import { loadResource } from './resourceLoaderFunctions'
 
 const defaultLoaders = {
   fileLoader: new FileLoader(),
@@ -71,10 +69,16 @@ function useLoader<T extends ResourceAssetType>(
   const value = useHookstate<T | null>(null)
   const error = useHookstate<ErrorEvent | Error | null>(null)
   const progress = useHookstate<ProgressEvent<EventTarget> | null>(null)
-  const uuid = useHookstate<string>(uuidv4)
+  const entityResource = useHookstate<Resource[] | null>(null)
 
   const unload = () => {
-    if (url) ResourceState.unload(url, entity, uuid.value)
+    if (url && entityResource.value) {
+      for (const resource of entityResource.value) {
+        if (resource.id === url) {
+          ResourceState.removeEntityResource(resource)
+        }
+      }
+    }
   }
 
   useEffect(() => {
@@ -98,6 +102,7 @@ function useLoader<T extends ResourceAssetType>(
       (response) => {
         completed = true
         value.set(response)
+        entityResource.set(ResourceState.addEntityResource(entity, response))
         if (entity) {
           ResourcePendingComponent.removeResource(entity, _url)
         }
@@ -118,8 +123,7 @@ function useLoader<T extends ResourceAssetType>(
         }
       },
       controller.signal,
-      loader,
-      uuid.value
+      loader
     )
 
     return () => {
@@ -129,7 +133,7 @@ function useLoader<T extends ResourceAssetType>(
         )
 
       if (entity && entityExists(entity)) ResourcePendingComponent.removeResource(entity, _url)
-      ResourceState.unload(_url, entity, uuid.value)
+      // ResourceState.unload(_url, entity, uuid.value)
       value.set(null)
       progress.set(null)
       error.set(null)
@@ -212,7 +216,7 @@ async function getLoader<T extends ResourceAssetType>(
   loader?: AssetLoader
 ): Promise<[T | null, () => void, ErrorEvent | Error | null]> {
   const unload = () => {
-    ResourceState.unload(url, entity)
+    // ResourceState.unload(url, entity)
   }
 
   return new Promise((resolve) => {
@@ -265,22 +269,6 @@ export function useGLTFComponent(url: string, parentEntity: Entity): Entity | nu
   }, [parentEntity, url])
 
   return loaded ? gltfEntityState.value : null
-}
-
-export function useGLTFResource(url: string, entity: Entity): void {
-  const loaded = GLTFComponent.useSceneLoaded(entity)
-  ResourceLoadingManagerState.initialize()
-
-  useImmediateEffect(() => {
-    const status = loaded ? ResourceStatus.Loaded : ResourceStatus.Loading
-    setGLTFResource(url, entity, status)
-  }, [loaded])
-
-  useLayoutEffect(() => {
-    return () => {
-      if (url) ResourceState.unload(url, entity)
-    }
-  }, [url])
 }
 
 /**

@@ -183,6 +183,7 @@ export class CSM {
     const entity = createEntity()
     setComponent(entity, NameComponent, 'CSM light ' + i)
     setComponent(entity, VisibleComponent)
+    setComponent(entity, TransformComponent)
     setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setComponent(entity, ObjectComponent, light)
 

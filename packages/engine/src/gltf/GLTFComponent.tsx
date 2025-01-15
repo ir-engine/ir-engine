@@ -47,7 +47,7 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
-import { getMutableState, NO_PROXY_STEALTH, none, State } from '@ir-engine/hyperflux'
+import { getMutableState, getState, NO_PROXY_STEALTH, none, State } from '@ir-engine/hyperflux'
 
 import { LayerComponent, useAncestorWithComponents } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -56,20 +56,21 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { useGLTFResource } from '../assets/functions/resourceLoaderHooks'
+import { LoaderUtils } from 'three'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import {
   BINARY_EXTENSION_CHUNK_TYPES,
   BINARY_EXTENSION_HEADER_LENGTH,
   BINARY_EXTENSION_HEADER_MAGIC
 } from '../assets/loaders/gltf/GLTFExtensions'
+import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { ErrorComponent } from '../scene/components/ErrorComponent'
 import { SceneDynamicLoadTagComponent } from '../scene/components/SceneDynamicLoadTagComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { addError, removeError } from '../scene/functions/ErrorFunctions'
 import { SceneJsonType } from '../scene/types/SceneTypes'
 import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
-import { getParserOptions, GLTFLoaderFunctions } from './GLTFLoaderFunctions'
+import { GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
 import { AssetState } from './GLTFState'
 import { gltfReplaceUUIDsReferences } from './gltfUtils'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
@@ -212,8 +213,11 @@ export const GLTFComponentReactor = (props: { entity: Entity }) => {
   }, [gltfComponent.src])
 
   useEffect(() => {
-    if (!gltfComponent.document.value) return
-    const options = getParserOptions(entity)
+    const gltfComponent = getComponent(entity, GLTFComponent)
+    if (!gltfComponent.document) return
+
+    const options = getGLTFOptions(entity)
+
     const sceneIndex = options.document.scene || 0
     let aborted = false
     let loadedEntities = null as Entity[] | null
@@ -224,6 +228,7 @@ export const GLTFComponentReactor = (props: { entity: Entity }) => {
       }
     })
     return () => {
+      GLTFLoaderFunctions.unloadScene(options)
       aborted = true
       if (loadedEntities) {
         for (const entity of loadedEntities) removeEntity(entity)
@@ -448,7 +453,6 @@ const useGLTFDocument = (entity: Entity) => {
   const state = useComponent(entity, GLTFComponent)
   const url = state.src.value
 
-  useGLTFResource(url, entity)
   // const dynamicLoadComponent = useOptionalComponent(entity, SceneDynamicLoadTagComponent)
   // const isEditing = useMutableState(EngineState).isEditing.value
 
@@ -572,4 +576,22 @@ export const useHasModelOrIndependentMesh = (entity: Entity) => {
   const isChildOfModel = !!useAncestorWithComponents(entity, [GLTFComponent, SceneComponent])
   const hasMesh = !!useOptionalComponent(entity, MeshComponent)
   return hasModel || (hasMesh && !isChildOfModel)
+}
+
+export const getGLTFOptions = (entity: Entity): GLTFParserOptions => {
+  const gltfComponent = getComponent(entity, GLTFComponent)
+  const documentID = GLTFComponent.getInstanceID(entity)
+  const document = gltfComponent.document!
+  const gltfLoader = getState(AssetLoaderState).gltfLoader
+
+  return {
+    entity,
+    document,
+    documentID,
+    url: gltfComponent.src,
+    path: LoaderUtils.extractUrlBase(gltfComponent.src),
+    body: gltfComponent.body,
+    requestHeader: {},
+    manager: gltfLoader.manager
+  }
 }

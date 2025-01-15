@@ -42,7 +42,6 @@ import {
 import { useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
 import { mergeBufferGeometries } from '../../../common/classes/BufferGeometryUtils'
-import { useDisposable } from '../../../resources/resourceHooks'
 import { T } from '../../../schema/schemaFunctions'
 import { RendererState } from '../../RendererState'
 import { LineSegmentComponent } from '../LineSegmentComponent'
@@ -124,7 +123,7 @@ export const DirectionalLightComponent = defineComponent({
     const renderState = useMutableState(RendererState)
     const debugEnabled = renderState.nodeHelperVisibility
     const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
-    const [light] = useDisposable(DirectionalLight, entity)
+    const light = useHookstate(() => new DirectionalLight()).value as DirectionalLight
     const helperEntity = useHookstate(UndefinedEntity)
 
     useImmediateEffect(() => {

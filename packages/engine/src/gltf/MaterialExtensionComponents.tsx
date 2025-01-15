@@ -43,8 +43,8 @@ import {
   Vector2
 } from 'three'
 import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
-import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
-import { GLTFLoaderFunctions, getParserOptions } from './GLTFLoaderFunctions'
+import { GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
+import { getGLTFOptions } from './GLTFComponent'
 
 const TextureInfoSchema = S.Object({
   index: S.Number(),
@@ -676,6 +676,7 @@ export const MozillaHubsLightMapComponent = defineComponent({
     intensity: S.Number(1.0)
   }),
 
+  /** @todo need to refactor this into whatever API three uses, as we clean up the buffers before it can be loaded */
   reactor: () => {
     const entity = useEntityContext()
     const component = useComponent(entity, MozillaHubsLightMapComponent)
@@ -691,7 +692,7 @@ export const MozillaHubsLightMapComponent = defineComponent({
       material.needsUpdate = true
     }, [component.intensity.value])
 
-    const options = getParserOptions(entity)
+    const options = getGLTFOptions(entity)
 
     useEffect(() => {
       GLTFLoaderFunctions.assignTexture(options, component.get(NO_PROXY)).then((lightMap) => {

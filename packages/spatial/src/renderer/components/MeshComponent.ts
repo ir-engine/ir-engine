@@ -40,7 +40,7 @@ export const MeshComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     // const meshComponent = useComponent(entity, MeshComponent)
-    // const [meshResource] = useResource(meshComponent.get(NO_PROXY), entity)
+    // useResource(getComponent(entity, MeshComponent), entity)
     // const sceneLayer = useOptionalComponent(entity, ObjectLayerComponents[ObjectLayers.Scene])
 
     useImmediateEffect(() => {

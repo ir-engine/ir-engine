@@ -31,7 +31,6 @@ import {
   EntityUUID,
   LayerComponent,
   UUIDComponent,
-  getAncestorWithComponents,
   getComponent,
   getMutableComponent,
   hasComponent,
@@ -54,7 +53,7 @@ import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { ResourceState, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
+import { ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 import {
   AnimationClip,
   AnimationMixer,
@@ -76,6 +75,7 @@ import {
   LinearMipmapLinearFilter,
   LinearSRGBColorSpace,
   LoaderUtils,
+  LoadingManager,
   Material,
   MathUtils,
   Matrix4,
@@ -96,6 +96,7 @@ import {
   Vector3,
   VectorKeyframeTrack
 } from 'three'
+import { loadResource, unloadResourcesForEntity } from '../assets/functions/resourceLoaderFunctions'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { Loader } from '../assets/loaders/base/Loader'
 import {
@@ -115,9 +116,10 @@ import {
   assignExtrasToUserData,
   getNormalizedComponentScale
 } from '../assets/loaders/gltf/GLTFLoaderFunctions'
-import { GLTFParserOptions, getImageURIMimeType } from '../assets/loaders/gltf/GLTFParser'
+import { getImageURIMimeType } from '../assets/loaders/gltf/GLTFParser'
 import { KTX2Loader } from '../assets/loaders/gltf/KTX2Loader'
 import { TextureLoader } from '../assets/loaders/texture/TextureLoader'
+import { AssetCacheState } from '../assets/state/AssetCacheState'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
@@ -345,6 +347,8 @@ function updateMorphTargets(mesh: Mesh, meshDef: GLTF.IMesh) {
   }
 }
 
+const interleavedBufferCache = {} as Record<string, Record<string, InterleavedBuffer>>
+
 const loadAccessor = async (options: GLTFParserOptions, accessorIndex: number) => {
   const json = options.document
 
@@ -400,17 +404,18 @@ const loadAccessor = async (options: GLTFParserOptions, accessorIndex: number) =
       ibSlice +
       ':' +
       accessorDef.count
-    // let ib = cache.get(ibCacheKey)
-    let ib: InterleavedBuffer | null = null
+    if (!interleavedBufferCache[options.url]) interleavedBufferCache[options.url] = {}
+    const cache = interleavedBufferCache[options.url]
+    let ib = cache[ibCacheKey]
 
-    // if (!ib) {
-    array = new TypedArray(bufferView!, ibSlice * byteStride, (accessorDef.count * byteStride) / elementBytes)
+    if (!ib) {
+      array = new TypedArray(bufferView!, ibSlice * byteStride, (accessorDef.count * byteStride) / elementBytes)
 
-    // Integer parameters to IB/IBA are in array elements, not bytes.
-    ib = new InterleavedBuffer(array, byteStride / elementBytes)
+      // Integer parameters to IB/IBA are in array elements, not bytes.
+      ib = new InterleavedBuffer(array, byteStride / elementBytes)
 
-    // cache.add(ibCacheKey, ib)
-    // }
+      cache[ibCacheKey] = ib
+    }
 
     bufferAttribute = new InterleavedBufferAttribute(ib, itemSize, (byteOffset % byteStride) / elementBytes, normalized)
   } else {
@@ -486,9 +491,24 @@ const loadBuffer = async (options: GLTFParserOptions, bufferIndex: number) => {
   }
 
   return new Promise<ArrayBuffer>(function (resolve, reject) {
-    loader.load(LoaderUtils.resolveURL(bufferDef.uri!, options.path), resolve, undefined, function () {
-      reject(new Error('THREE.GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".'))
-    })
+    const url = LoaderUtils.resolveURL(bufferDef.uri!, options.path)
+    loadResource<ArrayBuffer>(
+      url,
+      ResourceType.ArrayBuffer,
+      options.entity, // the GLTF entity
+      (response) => {
+        resolve(response)
+      },
+      (request) => {
+        //
+      },
+      (err) => {
+        // if (controller.signal.aborted) return
+        reject(new Error('GLTFLoaderFunctions: Failed to load buffer "' + bufferDef.uri + '".'))
+      },
+      null!, // controller.signal,
+      loader
+    )
   })
 }
 
@@ -913,14 +933,6 @@ const loadTextureImage = async (
   const textureDef = json.textures![textureIndex]
   const sourceDef = json.images![sourceIndex]
 
-  /** @todo cache */
-  // const cacheKey = (sourceDef.uri || sourceDef.bufferView) + ':' + textureDef.sampler
-
-  // if (textureCache[cacheKey]) {
-  //   // See https://github.com/mrdoob/three.js/issues/21559.
-  //   return textureCache[cacheKey]
-  // }
-
   const texture = await GLTFLoaderFunctions.loadImageSource(options, sourceIndex, loader)
 
   if (!texture || !sourceDef || !textureDef) return
@@ -943,8 +955,6 @@ const loadTextureImage = async (
 
   return texture
 }
-
-// const sourceCache = {} as any // todo
 
 const URL = self.URL || self.webkitURL
 
@@ -972,9 +982,25 @@ const loadImageSource = async (
     throw new Error('THREE.GLTFLoader: Image ' + sourceIndex + ' is missing URI and bufferView')
   }
 
-  const texture = await new Promise<any>(function (resolve, reject) {
-    const onLoad = resolve
-    loader.load(LoaderUtils.resolveURL(sourceURI, options.path), onLoad, undefined, reject)
+  const texture = await new Promise<Texture>(function (resolve, reject) {
+    const url = LoaderUtils.resolveURL(sourceURI, options.path)
+    loadResource<Texture>(
+      url,
+      ResourceType.Texture,
+      options.entity, // the GLTF entity
+      (response) => {
+        resolve(response)
+      },
+      (request) => {
+        //
+      },
+      (err) => {
+        // if (controller.signal.aborted) return
+        reject()
+      },
+      null!, // controller.signal,
+      loader
+    )
   })
 
   if (isObjectURL) {
@@ -1233,9 +1259,6 @@ const loadMesh = async (options: GLTFParserOptions, entity: Entity, nodeIndex: n
   setComponent(entity, MeshComponent, mesh)
   setComponent(entity, NameComponent, meshDef.name ?? 'Mesh-' + meshIndex)
 
-  const url = options.url
-  // ResourceState.addReferencedAsset(url, mesh, ResourceType.Mesh)
-
   setComponent(entity, MaterialInstanceComponent, {
     uuid: (Array.isArray(materials) ? materials : [materials]).map((material) => material.uuid as EntityUUID)
   })
@@ -1304,9 +1327,6 @@ const loadSkin = async (options: GLTFParserOptions, nodeEntity: Entity, nodeInde
 
   const skeleton = new Skeleton(bones, boneInverses)
   skinnedMesh.skeleton = skeleton
-
-  // const url = options.url
-  // ResourceState.addReferencedAsset(url, skeleton as unknown as Object3D, ResourceType.Object3D)
 }
 
 const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
@@ -1479,6 +1499,23 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
       getMutableComponent(rootEntity, AnimationComponent).animations.merge(obj3d.animations)
     }
   }
+
+  // dereference body non-reactively if it exists
+  getComponent(options.entity, GLTFComponent).body = null
+}
+
+const unloadScene = async (options: GLTFParserOptions) => {
+  const url = options.url
+
+  // handle reference counting
+  unloadResourcesForEntity(options.entity)
+
+  // if no more references to this url, remove from cache
+  const assetCacheState = getState(AssetCacheState)
+  if (!assetCacheState[url]) {
+    delete interleavedBufferCache[url]
+    DependencyCache.delete(url)
+  }
 }
 
 export const GLTFLoaderFunctions = {
@@ -1499,7 +1536,8 @@ export const GLTFLoaderFunctions = {
   loadCamera,
   loadMesh,
   loadNode,
-  loadScene
+  loadScene,
+  unloadScene
 }
 
 export const DependencyCache = new Map<string, Map<string, Promise<any>>>()
@@ -1563,23 +1601,13 @@ export const defaultMaterial = () =>
     side: FrontSide
   })
 
-export const getParserOptions = (entity: Entity) => {
-  const gltfEntity = getAncestorWithComponents(entity, [GLTFComponent])
-  const documentID = GLTFComponent.getInstanceID(gltfEntity)
-  const gltfComponent = getComponent(gltfEntity, GLTFComponent)
-  const document = gltfComponent.document
-  const gltfLoader = getState(AssetLoaderState).gltfLoader
-  return {
-    entity: gltfEntity,
-    document,
-    documentID,
-    url: gltfComponent.src,
-    path: LoaderUtils.extractUrlBase(gltfComponent.src),
-    body: gltfComponent.body,
-    crossOrigin: gltfLoader.crossOrigin,
-    requestHeader: gltfLoader.requestHeader,
-    manager: gltfLoader.manager,
-    ktx2Loader: gltfLoader.ktx2Loader,
-    meshoptDecoder: gltfLoader.meshoptDecoder
-  } as GLTFParserOptions
+export type GLTFParserOptions = {
+  url: string
+  documentID: string
+  document: GLTF.IGLTF
+  entity: Entity
+  body: null | ArrayBuffer
+  manager: LoadingManager
+  path: string
+  requestHeader: Record<string, string>
 }

@@ -34,10 +34,9 @@ import {
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
 import { useHelperEntity } from '../../../common/debug/useHelperEntity'
-import { useDisposable } from '../../../resources/resourceHooks'
 import { T } from '../../../schema/schemaFunctions'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { RendererState } from '../../RendererState'
@@ -72,7 +71,7 @@ export const SpotLightComponent = defineComponent({
     const renderState = useMutableState(RendererState)
     const debugEnabled = renderState.nodeHelperVisibility
     const spotLightComponent = useComponent(entity, SpotLightComponent)
-    const [light] = useDisposable(SpotLight, entity)
+    const light = useHookstate(() => new SpotLight()).value as SpotLight
     const helperEntity = useHelperEntity(entity, () => new SpotLightHelper(light), debugEnabled.value)
     const helper = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as SpotLightHelper | undefined
 

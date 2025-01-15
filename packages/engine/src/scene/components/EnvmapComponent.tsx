@@ -53,7 +53,6 @@ import {
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { isClient } from '@ir-engine/hyperflux'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
 
 import { useChildrenWithComponents } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -139,7 +138,6 @@ const EnvmapEquirectangularReactor = () => {
 const EnvmapColorReactor = () => {
   const entity = useEntityContext()
   const component = useComponent(entity, EnvmapComponent)
-  const [textureState] = useResource(() => null! as DataTexture, entity)
 
   useEffect(() => {
     return () => {
@@ -150,12 +148,15 @@ const EnvmapColorReactor = () => {
   useEffect(() => {
     const color = component.envMapSourceColor.value ?? tempColor
     const resolution = 64 // Min value required
+    /** @todo track in resource manager */
     const texture = new DataTexture(getRGBArray(new Color(color)), resolution, resolution, RGBAFormat)
     texture.needsUpdate = true
     texture.colorSpace = SRGBColorSpace
     texture.mapping = EquirectangularReflectionMapping
-    textureState.set(texture)
     component.envmap.set(texture)
+    return () => {
+      texture.dispose()
+    }
   }, [component.envMapSourceColor])
 
   return null
