@@ -39,7 +39,7 @@ import { ReferenceSpaceTransformSystem } from './systems/ReferenceSpaceTransform
 export default {
   AnimationSystem,
   AvatarAnimationSystem,
-  AvatarIkSystem: AvatarIKSystem,
+  AvatarIKSystem,
   AvatarAutopilotSystem,
   AvatarControllerSystem,
   AvatarIKTargetState,
