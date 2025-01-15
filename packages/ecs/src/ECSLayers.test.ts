@@ -44,14 +44,15 @@ describe('createEntity', () => {
   )
   it.todo('should return the newly created entity', () => {})
 }) //:: createEntity
-
 /** @todo Move this describe into `EntityFunctions.test.tsx` instead */
 describe('removeEntity', () => {}) //:: removeEntity
 
+// @note High complexity
 describe('setComponent', () => {
   describe('Propagation', () => {}) //:: Propagation
 }) //:: setComponent
 describe('removeComponent', () => {}) //:: removeComponent
+
 describe('LayerComponents', () => {
   describe('SimulationLayerComponent', () => {}) //:: SimulationLayerComponent
   describe('AuthoringLayerComponent', () => {}) //:: AuthoringLayerComponent

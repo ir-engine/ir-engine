@@ -49,4 +49,11 @@ describe('EntityFunctions', async () => {
       expect(result).not.toBe(UndefinedEntity)
     })
   })
+
+  describe('removeEntity', () => {
+    it.todo('should return an empty `never[]` array if `@param entity` is falsy', () => {})
+    it.todo('should return an empty `never[]` array if the result of `entityExists(entity)` is falsy', () => {})
+    it.todo('should call removeAllComponents with `@param entity`', () => {})
+    it.todo('should call bitECS.removeEntity with HyperFlux.store and `@param entity` as arguments', () => {})
+  })
 })
