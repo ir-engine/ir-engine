@@ -197,7 +197,7 @@ export async function up(knex: Knex): Promise<void> {
     }
   }
 
-  // await knex.schema.dropTableIfExists(awsSettingPath)
+  await knex.schema.dropTableIfExists(awsSettingPath)
 }
 
 /**

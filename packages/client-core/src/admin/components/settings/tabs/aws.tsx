@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { useFind, useMutation } from '@ir-engine/common'
-// import { AwsCloudFrontType, AwsSmsType, awsSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { EngineSettingType, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { flattenObjectToArray, unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
