@@ -576,6 +576,111 @@ export const createInitialComponentValue = <
 }
 
 /**
+ * @description Returns array of relations that, for each entry, contains:
+ *  - Layer number at slot 0
+ *  - Entity ID at slot 1
+ *  @example ```ts
+ *  for ([layer, linkedEntity] of getLayerRelations(entity)) { ..... }
+ *  ```
+ * */
+function getLayerRelations(entity: Entity): [number, Entity][] {
+  return Object.entries(getComponent(entity, LayerComponents[LayerComponent.get(entity)]).relations).map(
+    ([layer, val]): [number, Entity] => [Number(layer), val]
+  )
+}
+
+/**
+ * @description Returns the LayerComponent used by this entity from the LayerComponents map.
+ * */
+function getLayerComponent(entity: Entity) {
+  return LayerComponents[LayerComponent.get(entity)]
+}
+
+/**
+ * @description Returns true if `@param entity` has a layer component assigned.
+ * */
+function hasLayer(entity: Entity): boolean {
+  const layerComponent = LayerFunctions.getLayerComponent(entity)
+  return layerComponent && hasComponent(entity, layerComponent)
+}
+
+/**
+ * @description Returns true if the given entity/layer pair should trigger propagation behavior.
+ * */
+function shouldPropagate(entity: Entity, layer: any): boolean {
+  return LayerRelations[layer][LayerComponent.layer[entity]] === LayerRelationTypes.Propagate
+}
+
+/**
+ * @description Runs the `@param linkedLayer` propagation process for the schema of the given `@param C` Component
+ * @note Checking whether this process/behavior should be run or not is done with the {@link shouldPropagate} helper function.
+ * */
+function propagateSchema<C extends Component>(
+  linkedLayer: number,
+  component: C,
+  args: SetComponentType<C> | undefined = undefined
+) {
+  const componentSchema = component.schema as TTypedSchema<C>
+  const frontier = [{ schema: componentSchema, setArgs: args }] as { schema: any; setArgs: any }[]
+  while (frontier.length > 0) {
+    const { schema, setArgs } = frontier.pop()!
+    if (!schema || typeof setArgs !== 'object') continue
+    for (const arg of Object.keys(setArgs)) {
+      const valSchema = schema.properties?.[arg] as any
+      //check if the value is an entity
+      if (
+        valSchema?.properties?.options &&
+        valSchema.properties.options['id'] === 'Entity' &&
+        setArgs[arg] !== UndefinedEntity
+      ) {
+        //if so, we need to switch it to the linked entity in the destination layer
+        const upstreamEntity = LayerComponents[linkedLayer].refs[setArgs[arg]]
+        setArgs[arg] = upstreamEntity
+      } else if (typeof setArgs[arg] === 'object') {
+        frontier.push({ schema: valSchema, setArgs: setArgs[arg] })
+      }
+    }
+  }
+}
+
+/**
+ * @description
+ * Runs the `@param linkedLayer` propagation process for the given `@param entity`/`@param component` pair
+ * It will also trigger Schema propagation when `@param component`.schema is truthy.
+ *
+ * @note Checking whether this process/behavior should be run or not is done with the {@link shouldPropagate} helper function.
+ * */
+function propagateLayer<C extends Component>(
+  entity: Entity,
+  component: C,
+  args: SetComponentType<C> | undefined = undefined
+) {
+  if (component === LayerComponent || LayerComponents.includes(component as any)) return
+  for (const [linkedLayer, linkedEntity] of LayerFunctions.getLayerRelations(entity)) {
+    if (!LayerFunctions.shouldPropagate(linkedEntity, linkedLayer)) continue
+    if (component.schema) LayerFunctions.propagateSchema(linkedLayer, component, args)
+    setComponent(linkedEntity, component, args)
+  }
+}
+
+/**
+ * @description
+ * Collection of ECSLayers Helper functions.
+ *
+ * @note
+ * Usage of these functions through this object is preferable.
+ * Simplifies unit testing by allowing the definition of function spies directly from this object.
+ * */
+export const LayerFunctions = {
+  getLayerRelations,
+  getLayerComponent,
+  hasLayer,
+  shouldPropagate,
+  propagateSchema,
+  propagateLayer
+}
+
+/**
  * @description
  * Assigns the given component to the given entity, and returns the component.
  * @notes
@@ -613,47 +718,7 @@ export const setComponent = <C extends Component>(
 
   component.onSet(entity, component.stateMap[entity]!, args)
 
-  const propagate = () => {
-    if (component === LayerComponent || LayerComponents.includes(component as any)) return
-    const entityLayer = LayerComponent.get(entity)
-    const layerComponent = getComponent(entity, LayerComponents[entityLayer])
-    for (const [linkedLayer, linkedEntityNumber] of Object.entries(layerComponent.relations).map(([layer, val]) => [
-      Number(layer),
-      val as Entity
-    ])) {
-      const linkedEntity = linkedEntityNumber as Entity
-      if (LayerRelations[entityLayer][linkedLayer] === LayerRelationTypes.Propagate) {
-        if (component.schema) {
-          const componentSchema = component.schema as TTypedSchema<C>
-          const frontier = [{ schema: componentSchema, setArgs: args }] as { schema: any; setArgs: any }[]
-          while (frontier.length > 0) {
-            const { schema, setArgs } = frontier.pop()!
-            if (!schema || typeof setArgs !== 'object') continue
-            const keys = Object.keys(setArgs)
-            for (const key of keys) {
-              const valSchema = schema.properties?.[key] as any
-              //check if the value is an entity
-              if (
-                valSchema?.properties?.options &&
-                valSchema.properties.options['id'] === 'Entity' &&
-                setArgs[key] !== UndefinedEntity
-              ) {
-                //if so, we need to switch it to the linked entity in the destination layer
-                const upstreamEntity = LayerComponents[linkedLayer].refs[setArgs[key]]
-                setArgs[key] = upstreamEntity
-              } else if (typeof setArgs[key] === 'object') {
-                frontier.push({ schema: valSchema, setArgs: setArgs[key] })
-              }
-            }
-          }
-        }
-
-        setComponent(linkedEntity, component, args)
-      }
-    }
-  }
-
-  propagate()
+  LayerFunctions.propagateLayer(entity, component, args)
 
   if (!componentExists && !component.reactorMap.has(entity) && component.reactor) {
     const root = startReactor(() => {
@@ -705,17 +770,10 @@ export function useHasComponents<C extends Component>(entity: Entity, components
 export const removeComponent = <C extends Component>(entity: Entity, component: C) => {
   if (!hasComponent(entity, component)) return
 
-  const layer = LayerComponents[LayerComponent.get(entity)]
-  if (layer && hasComponent(entity, layer)) {
-    const layerComponent = getComponent(entity, layer)
-    for (const [layer, linkedEntityNumber] of Object.entries(layerComponent.relations).map(([layer, val]) => [
-      Number(layer),
-      val
-    ])) {
-      const linkedEntity = linkedEntityNumber as Entity
-      if (LayerRelations[layer][LayerComponent.layer[entity]] === LayerRelationTypes.Propagate) {
-        removeComponent(linkedEntity, component)
-      }
+  if (LayerFunctions.hasLayer(entity)) {
+    for (const [layer, linkedEntity] of LayerFunctions.getLayerRelations(entity)) {
+      if (!LayerFunctions.shouldPropagate(entity, layer)) continue
+      removeComponent(linkedEntity, component)
     }
   }
 
