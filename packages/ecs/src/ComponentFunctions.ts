@@ -376,13 +376,19 @@ export const defineComponent = <
       } else {
         component.set(cleanJson as any)
       }
+
+      return
     }
 
     if (json === null || json === undefined) return
 
     // if no schema, just set the json - assume insecure or internal
     if (Array.isArray(json) || typeof json !== 'object' || isSingleValueSchema) component.set(json as ComponentType)
-    else component.merge(json as SetPartialStateAction<ComponentType>)
+    else if (json) {
+      for (const key of Object.keys(json)) {
+        ;(component[key] as any).set((_) => json?.[key])
+      }
+    } else component.merge(json as SetPartialStateAction<ComponentType>)
   }
   Component.onRemove = () => {}
   Component.toJSON = (component: ComponentType) => {
