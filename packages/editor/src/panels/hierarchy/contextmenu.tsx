@@ -141,7 +141,7 @@ export default function HierarchyTreeContextMenu() {
               setMenu()
               PopoverState.showPopupover(<SavePrefabPanel entity={entity} />)
             }}
-            title={t('editor:hierarchy.lbl-savePrefab')}
+            label={t('editor:hierarchy.lbl-savePrefab')}
           />
         )}
       </div>
