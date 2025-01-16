@@ -51,7 +51,37 @@ describe('removeEntity', () => {}) //:: removeEntity
 describe('setComponent', () => {
   describe('Propagation', () => {}) //:: Propagation
 }) //:: setComponent
-describe('removeComponent', () => {}) //:: removeComponent
+
+describe('removeComponent', () => {
+  it.todo('should not do anything if `@param entity` does not have the given `@param component`', () => {})
+  describe('when the result of LayerFunctions.hasLayer(`@param entity`) is truthy (aka the entity has an ECS layer) ...', () => {
+    describe('.. for every (layer,entity) pair returned by LayerFunctions.getLayerRelations(`@param entity`)', () => {
+      it.todo(
+        '.. .. should not do anything if LayerFunctions.shouldPropagate(`@param entity`, layer) is falsy',
+        () => {}
+      )
+      it.todo(
+        '.. .. should remove `@param component` from the linkedEntity returned by LayerFunctions.getLayerRelations',
+        () => {}
+      )
+    })
+  })
+  it.todo(
+    'should call `@param component` onRemove with `@param entity` and `component.stateMap[entity])` as arguments',
+    () => {}
+  )
+  it.todo(
+    'should call bitECS.removeComponent with `(HyperFlux.store, component, entity, false)` as arguments',
+    () => {}
+  )
+  it.todo('should call `@param component`.reactorMap.get with `@param entity` as its argument', () => {})
+  it.todo('should call `@param component`.reactorMap.delete with `@param entity` as its argument', () => {})
+  it.todo(
+    'should call root.stop from the result of @param component`.reactorMap.get when root.isRunning is truthy',
+    () => {}
+  )
+  it.todo('should set `@param component`.stateMap[`@param entity`] to none by calling its .set method', () => {})
+}) //:: removeComponent
 
 describe('LayerComponents', () => {
   describe('SimulationLayerComponent', () => {}) //:: SimulationLayerComponent
