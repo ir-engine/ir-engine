@@ -52,6 +52,15 @@ describe('setComponent', () => {
   describe('Propagation', () => {}) //:: Propagation
 }) //:: setComponent
 
+describe('LayerFunctions', () => {
+  describe('getLayerRelations', () => {}) //:: getLayerRelations
+  describe('getLayerComponent', () => {}) //:: getLayerComponent
+  describe('hasLayer', () => {}) //:: hasLayer
+  describe('shouldPropagate', () => {}) //:: shouldPropagate
+  describe('propagateSchema', () => {}) //:: propagateSchema
+  describe('propagateLayer', () => {}) //:: propagateLayer
+}) //:: LayerFunctions
+
 describe('removeComponent', () => {
   it.todo('should not do anything if `@param entity` does not have the given `@param component`', () => {})
   describe('when the result of LayerFunctions.hasLayer(`@param entity`) is truthy (aka the entity has an ECS layer) ...', () => {
@@ -84,12 +93,35 @@ describe('removeComponent', () => {
 }) //:: removeComponent
 
 describe('LayerComponents', () => {
+  // This array of Components is used for propagation logic upon setting, and for querying
   describe('SimulationLayerComponent', () => {}) //:: SimulationLayerComponent
   describe('AuthoringLayerComponent', () => {}) //:: AuthoringLayerComponent
 }) //:: LayerComponents
-describe('LayerComponent', () => {}) //:: LayerComponent
-describe('UUIDComponent', () => {}) //:: UUIDComponent
-describe('Queries', () => {}) //:: Queries
+
+describe('LayerComponent', () => {
+  // LayerComponent is the API for setting and getting the layer of an entity
+}) //:: LayerComponent
+
+describe('UUIDComponent', () => {
+  describe('onSet', () => {}) //:: onSet
+  describe('onRemove', () => {}) //:: onRemove
+  describe('entitiesByUUIDState', () => {}) //:: entitiesByUUIDState
+  describe('useEntityByUUID', () => {}) //:: useEntityByUUID
+  describe('getEntityByUUID', () => {}) //:: getEntityByUUID
+  describe('getOrCreateEntityByUUID', () => {}) //:: getOrCreateEntityByUUID
+  describe('generateUUID', () => {
+    // not affected by layers, just for completion
+  }) //:: generateUUID
+  describe('function _getUUIDState', () => {
+    // not exported. Figure out how to access it
+  }) //:: _getUUIDState
+}) //:: UUIDComponent
+
+describe('Queries', () => {
+  describe('defineQuery', () => {}) //:: defineQuery
+  describe('useQuery', () => {}) //:: useQuery
+  // @note The rest of the QueryFunctions file is not affected by the Layers changes
+}) //:: Queries
 
 //......................................................................................................................
 //......................................................................................................................
@@ -97,6 +129,9 @@ describe.skip('old-tests-reference', () => {
   // @warning Broken. Will remove.
   // Reference from an old implementation.
   describe('setComponent: Authoring Layer', async () => {
+    // changes target entity to destination layer
+    // adds component to destination layer entity
+    // removes component from destination layer entity
     it('changes target entity to destination layer', async () => {
       createEngine()
 
