@@ -40,6 +40,7 @@ type EulerInputProps = {
   onChange: (quat: Quaternion) => any
   onRelease?: () => any
   unit?: string
+  disabled?: boolean
 }
 
 const getBoundedRoundedAngle = (angle: number) => {
@@ -69,6 +70,7 @@ export const EulerInput = (props: EulerInputProps) => {
   return (
     <div className="flex flex-wrap justify-end gap-1.5">
       <NumericInput
+        disabled={props.disabled}
         value={angle.x}
         onChange={onSetEuler('x')}
         onRelease={props.onRelease}
@@ -76,6 +78,7 @@ export const EulerInput = (props: EulerInputProps) => {
         prefix={<Vector3Scrubber value={angle.x} onChange={onSetEuler('x')} onRelease={props.onRelease} axis="x" />}
       />
       <NumericInput
+        disabled={props.disabled}
         value={angle.y}
         onChange={onSetEuler('y')}
         onRelease={props.onRelease}
@@ -83,6 +86,7 @@ export const EulerInput = (props: EulerInputProps) => {
         prefix={<Vector3Scrubber value={angle.y} onChange={onSetEuler('y')} onRelease={props.onRelease} axis="y" />}
       />
       <NumericInput
+        disabled={props.disabled}
         value={angle.z}
         onChange={onSetEuler('z')}
         onRelease={props.onRelease}

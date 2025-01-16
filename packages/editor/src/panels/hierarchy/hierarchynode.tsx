@@ -49,6 +49,7 @@ import { getMutableState, getState, none, useHookstate, useMutableState, useStat
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { LockedComponent, setLockedComponent } from '@ir-engine/spatial/src/renderer/components/LockedComponent'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { Button } from '@ir-engine/ui'
 import TransformPropertyGroup from '@ir-engine/ui/src/components/editor/properties/transform'
@@ -59,7 +60,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import { IoArrowUndo, IoSaveOutline } from 'react-icons/io5'
 import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
-import { PiEyeBold, PiEyeClosedBold } from 'react-icons/pi'
+import { PiEyeBold, PiEyeClosedBold, PiLockBold, PiLockOpenBold } from 'react-icons/pi'
 import { ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
@@ -117,6 +118,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
   const uuid = useComponent(entity, UUIDComponent)
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities).value.includes(uuid.value)
   const visible = useOptionalComponent(entity, VisibleComponent)
+  const locked = useOptionalComponent(entity, LockedComponent)?.value
   const { rootEntity } = useMutableState(EditorState).value
   const { collapseChildren, expandChildren, collapseNode, expandNode } = useNodeCollapseExpand()
   const renamingNode = useRenamingNode()
@@ -316,6 +318,17 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
     }
     setVisibleComponent(entity, !hasComponent(entity, VisibleComponent))
   }
+
+  const onLockUnlockNode = (event: React.MouseEvent) => {
+    event.stopPropagation()
+    if (locked) {
+      EditorControlFunctions.addOrRemoveComponent([entity], LockedComponent, false)
+    } else {
+      EditorControlFunctions.addOrRemoveComponent([entity], LockedComponent, true)
+    }
+    setLockedComponent(entity, !hasComponent(entity, LockedComponent))
+  }
+
   const isModelRoot = hasComponent(entity, GLTFComponent)
   const isModified = isModelRoot && !!getState(GLTFModifiedState)[GLTFComponent.getInstanceID(entity)]
 
@@ -461,6 +474,19 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
                 </Button>
               </div>
             )}
+
+            <button
+              type="button"
+              className="m-0 h-5 w-5 flex-shrink-0 border-none p-0 hover:opacity-80"
+              data-testid={`hierarchy-panel-scene-item-${visible ? 'hide' : 'unhide'}-button`}
+              onClick={onLockUnlockNode}
+            >
+              {locked ? (
+                <PiLockBold className="font-small text-[#6B7280]" />
+              ) : (
+                <PiLockOpenBold className="font-small text-[#42454d]" />
+              )}
+            </button>
             <button
               type="button"
               className="m-0 h-5 w-5 flex-shrink-0 border-none p-0 hover:opacity-80"
