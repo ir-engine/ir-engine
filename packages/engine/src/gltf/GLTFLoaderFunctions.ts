@@ -122,6 +122,7 @@ import { TextureLoader } from '../assets/loaders/texture/TextureLoader'
 import { AssetCacheState } from '../assets/state/AssetCacheState'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
+import { EnvmapComponent } from '../scene/components/EnvmapComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { GLTFComponent } from './GLTFComponent'
 import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
@@ -745,6 +746,8 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
       LinearSRGBColorSpace
     )
   }
+
+  setComponent(materialEntity, EnvmapComponent)
 
   if (typeof materialDef.emissiveTexture !== 'undefined') {
     promises.push(
