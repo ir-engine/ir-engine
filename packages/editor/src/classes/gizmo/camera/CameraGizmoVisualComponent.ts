@@ -42,7 +42,6 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { Object3D } from 'three'
 import { cameraGizmo, cameraPicker, setupGizmo } from '../../../constants/GizmoPresets'
 
@@ -69,16 +68,17 @@ export const CameraGizmoVisualComponent = defineComponent({
       setComponent(gizmo, EntityTreeComponent, {
         parentEntity: visualComponent.sceneEntity.value ?? getState(ReferenceSpaceState).originEntity
       })
-      setupGizmo(gizmo, cameraGizmo, ObjectLayers.Scene)
+      setupGizmo(gizmo, cameraGizmo)
       visualComponent.gizmo.set(gizmo)
 
       setComponent(picker, ObjectComponent, new Object3D())
       setComponent(picker, NameComponent, `cameraGizmoPickerMeshEntity`)
       setComponent(picker, CameraGizmoTagComponent)
+      setComponent(picker, VisibleComponent)
       setComponent(picker, EntityTreeComponent, {
         parentEntity: visualComponent.sceneEntity.value ?? getState(ReferenceSpaceState).originEntity
       })
-      setupGizmo(picker, cameraPicker, ObjectLayers.Scene)
+      setupGizmo(picker, cameraPicker)
       visualComponent.picker.set(picker)
 
       setComponent(picker, InputComponent)

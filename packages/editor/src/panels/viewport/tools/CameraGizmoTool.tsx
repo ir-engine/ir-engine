@@ -69,7 +69,6 @@ export default function CameraGizmoTool({
 
     const camera = getComponent(cameraEntity, CameraComponent)
     camera.layers.set(ObjectLayers.Gizmos)
-    camera.layers.enable(ObjectLayers.Scene)
 
     const lightEntity = createEntity()
     setComponent(lightEntity, AmbientLightComponent)
