@@ -489,7 +489,9 @@ export async function getP2PInstance({
   })) as any as InstanceType[]
 
   const activeInstances = instances.filter(
-    (instance) => instance.currentUsers < config['instance-server'].p2pMaxConnections
+    (instance) =>
+      instance.currentUsers < instance.location.maxUsersPerInstance &&
+      instance.currentUsers < config['instance-server'].p2pMaxConnections
   )
   if (activeInstances.length > 0) {
     // console.log(`\n\n\nProvisioned existing P2P ${activeInstances[0].locationId ? 'world' : 'media'} instance`, activeInstances[0])

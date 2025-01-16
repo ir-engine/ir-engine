@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VRMHumanBoneList } from '@pixiv/three-vrm'
-import { Matrix4, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
 import { iterateEntityNode } from '@ir-engine/ecs'
 import { getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -83,18 +82,6 @@ export const setupAvatarProportions = (entity: Entity) => {
     footGap: footGap.subVectors(leftFootPos, rightFootPos).length(),
     footAngle: rig.leftToes ? Math.atan2(leftFootPos.z - leftToesPos.z, leftFootPos.y - leftToesPos.y) : 0
   })
-  /**sets up ik matrices for blending into the normalized rig */
-  const rigComponent = getComponent(entity, AvatarRigComponent)
-  //get list of bone names for arms and legs
-  const boneNames = VRMHumanBoneList.filter(
-    (bone) => bone.includes('Arm') || bone.includes('Leg') || bone.includes('Foot') || bone.includes('Hand')
-  )
-  for (const bone of boneNames) {
-    rigComponent.ikMatrices[bone] = {
-      world: new Matrix4().copy(getComponent(rig[bone], TransformComponent).matrixWorld),
-      local: new Matrix4().copy(getComponent(rig[bone], TransformComponent).matrix)
-    }
-  }
 }
 
 export const getAllLoadedAnimations = () =>

@@ -28,7 +28,6 @@ import { KnexSeed } from '@ir-engine/common/src/interfaces/KnexSeed'
 import * as authenticationSeed from './authentication-setting/authentication-setting.seed'
 import * as awsSeed from './aws-setting/aws-setting.seed'
 import * as clientSeed from './client-setting/client-setting.seed'
-import * as emailSeed from './email-setting/email-setting.seed'
 import * as engineSeed from './engine-setting/engine-setting.seed'
 
-export const settingSeeds: Array<KnexSeed> = [authenticationSeed, clientSeed, emailSeed, awsSeed, engineSeed]
+export const settingSeeds: Array<KnexSeed> = [authenticationSeed, clientSeed, awsSeed, engineSeed]

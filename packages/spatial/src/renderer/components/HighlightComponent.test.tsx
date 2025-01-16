@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
 
 import {
-  Engine,
   Entity,
   EntityTreeComponent,
   EntityUUID,
@@ -45,6 +44,7 @@ import {
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
+import { OutlineEffect } from 'postprocessing'
 import { BoxGeometry, MathUtils, Mesh } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
@@ -119,8 +119,10 @@ describe('HighlightSystem', () => {
       const highlightSystemExecute = SystemDefinitions.get(HighlightSystem)!.execute
       // Run and Check the result
       highlightSystemExecute()
-      const result = getComponent(Engine.instance.viewerEntity, RendererComponent).effectComposer?.OutlineEffect
-        .selection
+      const result = (
+        getOptionalComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)?.effectInstances
+          ?.OutlineEffect as OutlineEffect
+      ).selection
       const list = [...result!.values()]
       list.forEach((value, _) => assert.equal(Expected.includes(value.name), true))
     })
@@ -136,8 +138,10 @@ describe('HighlightSystem', () => {
       const highlightSystemExecute = SystemDefinitions.get(HighlightSystem)!.execute
       // Run and Check the result
       highlightSystemExecute()
-      const result = getOptionalComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)?.effectComposer
-        ?.OutlineEffect.selection
+      const result = (
+        getOptionalComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)?.effectInstances
+          ?.OutlineEffect as OutlineEffect
+      )?.selection
       assert.equal(result, undefined)
     })
 
@@ -162,8 +166,10 @@ describe('HighlightSystem', () => {
       const highlightSystemExecute = SystemDefinitions.get(HighlightSystem)!.execute
       // Run and Check the result
       highlightSystemExecute()
-      const result = getOptionalComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)?.effectComposer
-        ?.OutlineEffect.selection
+      const result = (
+        getOptionalComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)?.effectInstances
+          ?.OutlineEffect as OutlineEffect
+      )?.selection
       for (const obj of result!) {
         assert.notEqual(obj.entity, notQueryEntity1)
         assert.notEqual(obj.entity, notQueryEntity2)
@@ -191,8 +197,10 @@ describe('HighlightSystem', () => {
       const highlightSystemExecute = SystemDefinitions.get(HighlightSystem)!.execute
       // Run and Check the result
       highlightSystemExecute()
-      const result = getOptionalComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)?.effectComposer
-        ?.OutlineEffect.selection
+      const result = (
+        getOptionalComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)?.effectInstances
+          ?.OutlineEffect as OutlineEffect
+      )?.selection
       for (const obj of result!) {
         assert.notEqual(obj.entity, notQueryEntity1)
         assert.notEqual(obj.entity, notQueryEntity2)
@@ -220,8 +228,10 @@ describe('HighlightSystem', () => {
       const highlightSystemExecute = SystemDefinitions.get(HighlightSystem)!.execute
       // Run and Check the result
       highlightSystemExecute()
-      const result = getOptionalComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)?.effectComposer
-        ?.OutlineEffect.selection
+      const result = (
+        getOptionalComponent(getState(ReferenceSpaceState).viewerEntity, RendererComponent)?.effectInstances
+          ?.OutlineEffect as OutlineEffect
+      )?.selection
       for (const obj of result!) {
         assert.notEqual(obj.entity, notQueryEntity1)
         assert.notEqual(obj.entity, notQueryEntity2)
