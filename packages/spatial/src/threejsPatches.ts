@@ -122,7 +122,7 @@ Euler.prototype.toJSON = function () {
 declare module 'three/src/core/Object3D.js' {
   export interface Object3D {
     matrixWorldAutoUpdate: boolean
-    entity?: Entity
+    entity: Entity
     /** @deprecated use ECS hierarchy instead [#9308](https://github.com/ir-engine/ir-engine/issues/9308) */
     add(...object: Object3D[]): this
     /** @deprecated use ECS hierarchy instead [#9308](https://github.com/ir-engine/ir-engine/issues/9308) */
