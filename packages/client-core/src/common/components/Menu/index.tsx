@@ -55,6 +55,7 @@ interface Props {
   onBack?: () => void
   onClose?: () => void
   onSubmit?: () => void
+  unset?: boolean
 }
 
 const Menu = ({
@@ -72,7 +73,8 @@ const Menu = ({
   title,
   onBack,
   onClose,
-  onSubmit
+  onSubmit,
+  unset
 }: Props): JSX.Element => {
   const { t } = useTranslation()
 
@@ -137,11 +139,19 @@ const Menu = ({
   return (
     <MUIDialog
       disablePortal
-      sx={{ pointerEvents: 'all', ...sx }}
+      sx={
+        unset
+          ? {
+              '& .MuiDialog-container': {
+                all: 'unset' // Removes container styles
+              }
+            }
+          : { pointerEvents: 'all', ...sx }
+      }
       open={open}
       maxWidth={maxWidth}
       fullWidth
-      PaperProps={{ className: styles.menu }}
+      PaperProps={unset ? { className: '', style: { all: 'unset' } } : { className: styles.menu }}
       onClose={onClose}
     >
       {dialogContent}

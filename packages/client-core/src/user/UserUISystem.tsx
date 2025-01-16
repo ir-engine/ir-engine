@@ -40,6 +40,7 @@ import { PopupMenuState } from './components/UserMenu/PopupMenuService'
 import AvatarCreatorMenu2, { SupportedSdks } from './components/UserMenu/menus/AvatarCreatorMenu2'
 import AvatarModifyMenu from './components/UserMenu/menus/AvatarModifyMenu'
 import AvatarSelectMenu from './components/UserMenu/menus/AvatarSelectMenu'
+import EmbedFrame from './components/UserMenu/menus/EmbedFrame'
 import EmoteMenu from './components/UserMenu/menus/EmoteMenu'
 import ProfileMenu from './components/UserMenu/menus/ProfileMenu'
 import SettingMenu from './components/UserMenu/menus/SettingMenu'
@@ -68,7 +69,8 @@ export const UserMenus = {
   AvatarSelect: 'user.AvatarSelect',
   AvatarModify: 'user.AvatarModify',
   Share: 'user.Share',
-  Emote: 'user.Emote'
+  Emote: 'user.Emote',
+  EmbedFrame: 'user.EmbedFrame'
 }
 
 const UserSystemReactor = () => {
@@ -94,7 +96,8 @@ const UserSystemReactor = () => {
       [UserMenus.Settings2]: SettingMenu2,
       [UserMenus.AvatarSelect]: AvatarSelectMenu,
       [UserMenus.AvatarModify]: AvatarModifyMenu,
-      [UserMenus.Share]: ShareMenu
+      [UserMenus.Share]: ShareMenu,
+      [UserMenus.EmbedFrame]: EmbedFrame
     })
 
     popupMenuState.hotbar.merge({
@@ -110,7 +113,8 @@ const UserSystemReactor = () => {
         [UserMenus.AvatarSelect]: none,
         [UserMenus.AvatarSelect]: none,
         [UserMenus.AvatarModify]: none,
-        [UserMenus.Share]: none
+        [UserMenus.Share]: none,
+        [UserMenus.EmbedFrame]: none
       })
 
       popupMenuState.hotbar.merge({

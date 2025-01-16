@@ -1,0 +1,50 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Infinite Reality Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Infinite Reality Engine team.
+
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+Infinite Reality Engine. All Rights Reserved.
+*/
+
+import multiLogger from '@ir-engine/common/src/logger'
+import Box from '@ir-engine/ui/src/primitives/mui/Box'
+import React from 'react'
+import Menu from '../../../../common/components/Menu'
+import { clientContextParams } from '../../../../util/ClientContextState'
+import { PopupMenuServices } from '../PopupMenuService'
+
+const logger = multiLogger.child({ component: 'system:settings-menu', modifier: clientContextParams })
+
+type Props = {}
+
+const EmbedFrame = ({}: Props): JSX.Element => {
+  return (
+    <Menu unset={true} open isPopover={false} onClose={() => PopupMenuServices.showPopupMenu()}>
+      <Box className="h-[90vh]">
+        <iframe
+          style={{ height: '100%', width: '100%' }}
+          src="https://ir-engine-mt-dev.theinfinitereality.io/concierge/bot?shopifyStoreFrontId=62a00252-8d97-11ef-b3ee-029b0d227a79"
+        ></iframe>
+      </Box>
+    </Menu>
+  )
+}
+
+export default EmbedFrame

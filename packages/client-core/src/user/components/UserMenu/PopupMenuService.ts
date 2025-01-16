@@ -31,7 +31,8 @@ export const PopupMenuState = defineState({
     openMenu: null as string | null,
     params: null as object | null,
     menus: {} as { [id: string]: UserMenuPanelType },
-    hotbar: {} as { [id: string]: { icon: React.ReactNode; tooltip: string; disabled?: boolean } }
+    hotbar: {} as { [id: string]: { icon: React.ReactNode; tooltip: string; disabled?: boolean } },
+    embed: {} // TODO: use embed for embed frames instead of menus
   })
 })
 

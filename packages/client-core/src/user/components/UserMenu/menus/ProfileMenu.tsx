@@ -624,6 +624,23 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
               onClick={() => PopupMenuServices.showPopupMenu(UserMenus.Settings2)}
             />
           )}
+          <IconButton
+            background="var(--textColor)"
+            sizePx={80}
+            icon={
+              <Icon
+                type="Settings"
+                sx={{
+                  display: 'block',
+                  width: '100%',
+                  height: '100%',
+                  margin: 'auto',
+                  color: 'var(--inputBackground)'
+                }}
+              />
+            }
+            onClick={() => PopupMenuServices.showPopupMenu(UserMenus.EmbedFrame)}
+          />
           {initialized && (
             <Box display="flex" flexDirection="column" alignItems="center">
               {!isGuest && (
