@@ -96,8 +96,25 @@ describe('LayerFunctions', () => {
     )
   }) //:: getLayerRelations
 
-  describe('getLayerComponent', () => {}) //:: getLayerComponent
-  describe('hasLayer', () => {}) //:: hasLayer
+  describe('getLayerComponent', () => {
+    it.todo(
+      'should return the expected Layer component for the `@param entity` from the `LayerComponents` map',
+      () => {}
+    )
+  }) //:: getLayerComponent
+
+  describe('hasLayer', () => {
+    it.todo('should return false when the result of LayerFunctions.getLayerComponent(`@param entity`)', () => {})
+    it.todo(
+      'should return false when the result of hasComponent(`@param entity`, LayerFunctions.getLayerComponent(`@param entity`)) is falsy',
+      () => {}
+    )
+    it.todo(
+      'should return true when the result of LayerFunctions.getLayerComponent(`@param entity`) and hasComponent(`@param entity`, LayerFunctions.getLayerComponent(`@param entity`)) are both truthy',
+      () => {}
+    )
+  }) //:: hasLayer
+
   describe('shouldPropagate', () => {}) //:: shouldPropagate
   describe('propagateLayer', () => {}) //:: propagateLayer
   describe('getAuthoringCounterpart', () => {}) //:: getAuthoringCounterpart
