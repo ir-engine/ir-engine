@@ -61,6 +61,8 @@ const Slider = ({
   const parentRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(0)
 
+  const [localValue, setLocalValue] = useState(value)
+
   const handleInputChange = (value: string) => {
     const fractionLength = step.toString().split('.')[1]?.length || 0
     let newValue = parseFloat(value)
@@ -69,15 +71,18 @@ const Slider = ({
     } else {
       newValue = Math.min(Math.max(newValue, min), max)
     }
-    onChange?.(+newValue.toFixed(fractionLength))
+    const setLocalValueNewValue = +newValue.toFixed(fractionLength)
+    setLocalValue(setLocalValueNewValue)
+    onChange?.(setLocalValueNewValue)
   }
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = parseFloat(event.target.value)
+    setLocalValue(newValue)
     onChange?.(newValue)
   }
 
-  const gradientPercent = Math.round(((value - min) / (max - min)) * 100)
+  const gradientPercent = Math.round(((localValue - min) / (max - min)) * 100)
 
   useEffect(() => {
     const observer = new ResizeObserver(() => {
@@ -103,16 +108,16 @@ const Slider = ({
         id={id}
         min={min}
         max={max}
-        value={value}
+        value={localValue}
         onChange={(event) => handleInputChange(event.target.value)}
         onKeyDown={(event) => {
           if (event.key === 'ArrowUp') {
-            handleInputChange(value + step + '')
+            handleInputChange(localValue + step + '')
           } else if (event.key === 'ArrowDown') {
-            handleInputChange(value - step + '')
+            handleInputChange(localValue - step + '')
           }
         }}
-        onBlur={() => onRelease?.(value)}
+        onBlur={() => onRelease?.(localValue)}
         className="m-0 h-8 w-14 rounded bg-[#141619] text-center text-sm font-normal leading-[21px] text-[#9CA0AA] group-hover/editor-slider:bg-[#191B1F] group-hover/editor-slider:text-[#F5F5F5]"
         data-testid="slider-text-value-input"
       />
@@ -120,9 +125,9 @@ const Slider = ({
         id={'slider' + id}
         min={min}
         max={max}
-        value={value}
+        value={localValue}
         onChange={handleChange}
-        onPointerUp={() => onRelease?.(value)}
+        onPointerUp={() => onRelease?.(localValue)}
         step={step}
         type="range"
         style={{
