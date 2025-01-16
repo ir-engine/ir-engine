@@ -23,25 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import type { Knex } from 'knex'
-
-import { defaultWebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
-import { instanceServerSettingPath } from '@ir-engine/common/src/schemas/setting/instance-server-setting.schema'
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const webRTCSettingsColumnExists = await knex.schema.hasColumn(instanceServerSettingPath, 'webRTCSettings')
-  if (!webRTCSettingsColumnExists) {
-    await knex.schema.alterTable(instanceServerSettingPath, async (table) => {
-      table.json('webRTCSettings')
-    })
-    await knex.table(instanceServerSettingPath).update({
-      webRTCSettings: JSON.stringify(defaultWebRTCSettings)
-    })
-  }
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  await knex.schema.alterTable(engineSettingPath, (table) => {
+    table.string('jsonKey', 255).defaultTo(null)
+  })
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 /**
@@ -49,11 +45,15 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const webRTCSettingsColumnExists = await knex.schema.hasColumn(instanceServerSettingPath, 'webRTCSettings')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  if (webRTCSettingsColumnExists) {
-    await knex.schema.alterTable(instanceServerSettingPath, async (table) => {
-      table.dropColumn('webRTCSettings')
+  const emailColumnExists = await knex.schema.hasColumn(engineSettingPath, 'jsonKey')
+
+  if (emailColumnExists) {
+    await knex.schema.alterTable(engineSettingPath, async (table) => {
+      table.dropColumn('jsonKey')
     })
   }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }

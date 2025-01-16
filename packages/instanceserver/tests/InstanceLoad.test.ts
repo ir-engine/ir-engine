@@ -52,8 +52,8 @@ import { NetworkState } from '@ir-engine/network'
 import { Application } from '@ir-engine/server-core/declarations'
 
 import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
-import { AuthTask } from '@ir-engine/common/src/world/receiveJoinWorld'
 import { EntityUUID, getComponent, UUIDComponent } from '@ir-engine/ecs'
+import { AuthTask } from '@ir-engine/engine/src/avatar/functions/spawnLocalAvatarInWorld'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import config from '@ir-engine/server-core/src/appconfig'
 import { Spark } from 'primus'
@@ -63,11 +63,11 @@ import { InstanceServerState } from '../src/InstanceServerState'
 import { setupSocketFunctions } from '../src/SocketFunctions'
 import { start } from '../src/start'
 
-const p2pEnabled = config.instanceserver.p2pEnabled
+const p2pEnabled = config['instance-server'].p2pEnabled
 
 describe('InstanceLoad', () => {
   beforeAll(async () => {
-    config.instanceserver.p2pEnabled = false
+    config['instance-server'].p2pEnabled = false
 
     const child: ChildProcess = require('child_process').spawn('npm', ['run', 'dev-agones'], {
       cwd: appRootPath.path,
@@ -85,7 +85,7 @@ describe('InstanceLoad', () => {
   })
 
   afterAll(() => {
-    config.instanceserver.p2pEnabled = p2pEnabled
+    config['instance-server'].p2pEnabled = p2pEnabled
     return destroyEngine()
   })
 

@@ -98,11 +98,38 @@ export const HasSchemaDeserializers = <T extends Schema>(schema: T): boolean => 
   return IterateSchema(schema, (curr) => !!curr.options?.deserialize)
 }
 
-export const DeserializeSchemaValue = <T extends Schema, Val>(schema: T, curr: Val, value: Val): Val => {
+export const DeserializeSchemaValue = <T extends Schema, Val>(schema: T, curr: Val, value: Val): Val | undefined => {
   if (validValue(value) && schema.options?.deserialize) return schema.options.deserialize(curr, value) as Val
 
   switch (schema[Kind]) {
-    case 'Object':
+    case 'Object': {
+      if (!validValue(value)) return value
+
+      if (schema.options?.deserialize) return schema.options?.deserialize(curr, value) as Val
+
+      if (!value || typeof value !== 'object') return
+
+      const newValue = {} as Val
+
+      const valueKeys = Object.keys(value as object)
+
+      const props = schema.properties as TProperties
+
+      for (const key of valueKeys) {
+        if (!props[key]) {
+          delete value[key]
+          continue
+        }
+        if (validValue(value[key])) {
+          const deserializedValue = DeserializeSchemaValue(props[key], curr[key], value[key])
+          if (!validValue(deserializedValue)) delete value[key]
+          else newValue[key] = deserializedValue
+        }
+      }
+
+      return newValue
+    }
+
     case 'Class': {
       if (!validValue(value)) return value
 

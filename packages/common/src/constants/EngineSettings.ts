@@ -37,6 +37,21 @@ export const EngineSettings = {
     ApiKey: 'apiKey',
     Url: 'url'
   },
+  InstanceServer: {
+    ClientHost: 'clientHost',
+    RtcStartPort: 'rtcStartPort',
+    RtcEndPort: 'rtcEndPort',
+    RtcPortBlockSize: 'rtcPortBlockSize',
+    IdentifierDigits: 'identifierDigits',
+    Local: 'local',
+    Domain: 'domain',
+    ReleaseName: 'releaseName',
+    Port: 'port',
+    Mode: 'mode',
+    LocationName: 'locationName',
+    WebRTCSettings: 'webRTCSettings',
+    ShutdownDelayMs: 'shutdownDelayMs'
+  },
   Metabase: {
     SiteUrl: 'siteUrl',
     SecretKey: 'secretKey',
@@ -58,6 +73,27 @@ export const EngineSettings = {
   Helm: {
     Main: 'main',
     Builder: 'builder'
+  },
+  EmailSetting: {
+    Smtp: {
+      Host: 'smtp.host',
+      Port: 'smtp.port',
+      Secure: 'smtp.secure',
+      Auth: {
+        User: 'smtp.auth.user',
+        Pass: 'smtp.auth.pass'
+      }
+    },
+    From: 'from',
+    Subject: {
+      NewUser: 'subject.new-user',
+      Location: 'subject.location',
+      Instance: 'subject.instance',
+      Login: 'subject.login',
+      Friend: 'subject.friend',
+      Channel: 'subject.channel'
+    },
+    SmsNameCharacterLimit: 'smsNameCharacterLimit'
   },
   Server: {
     Mode: 'mode',

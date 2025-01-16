@@ -116,7 +116,7 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
     }
     exporting.set(true)
     const fileName = `${srcPath.value}.${exportType.value}`
-    exportRelativeGLTF(props.entity, srcProject.value, fileName).then(() => {
+    exportRelativeGLTF(props.entity, srcProject.value, fileName, false).then(() => {
       const nuPath = pathJoin(config.client.fileServer, 'projects', srcProject.value, fileName)
       commitProperty(GLTFComponent, 'src')(nuPath)
       exporting.set(false)
