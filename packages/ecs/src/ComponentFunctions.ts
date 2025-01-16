@@ -34,41 +34,39 @@ import type from 'react/experimental'
 
 import {
   DeepReadonly,
-  getNestedObject,
   HyperFlux,
-  InferStateValueType,
   NO_PROXY_STEALTH,
-  SetPartialStateAction,
   ReactorRoot,
+  SetPartialStateAction,
   State,
+  getNestedObject,
+  getState,
   hookstate,
-  isTest,
   none,
-  startReactor,
-  useHookstate,
   resolveObject,
-  getState
+  startReactor,
+  useHookstate
 } from '@ir-engine/hyperflux'
+import { ECSState } from './ECSState'
+import { Easing, EasingFunction } from './EasingFunctions'
 import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext } from './EntityFunctions'
 import { defineQuery, removeQuery } from './QueryFunctions'
+import { Transitionable, TransitionableTypes, getTransitionableKeyForType } from './Transitionable'
+import * as bitECSLegacy from './bitecsLegacy'
 import { Kind, Static, Schema as TSchema } from './schemas/JSONSchemaTypes'
 import {
   CreateSchemaValue,
-  HasSchemaDeserializers,
+  DeserializeSchemaValue,
   HasRequiredSchema,
   HasRequiredSchemaValues,
-  DeserializeSchemaValue,
-  IsSingleValueSchema,
-  SerializeSchema,
+  HasSchemaDeserializers,
   HasSchemaValidators,
-  HasValidSchemaValues
+  HasValidSchemaValues,
+  IsSingleValueSchema,
+  SerializeSchema
 } from './schemas/JSONSchemaUtils'
-import { Easing, EasingFunction } from './EasingFunctions'
-import { Transitionable, TransitionableTypes, getTransitionableKeyForType } from './Transitionable'
 import { S } from './schemas/JSONSchemas'
-import { ECSState } from './ECSState'
-import * as bitECSLegacy from './bitecsLegacy'
 
 export const ComponentMap = new Map<string, Component<any, any, any, any, any, any>>()
 export const ComponentJSONIDMap = new Map<string, Component<any, any, any, any, any, any>>() // <jsonID, Component>
