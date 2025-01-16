@@ -25,9 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
-import { defineSystem, Entity, PresentationSystemGroup, useComponent, useQuery } from '@ir-engine/ecs'
+import { defineSystem, Entity, Layers, PresentationSystemGroup, useComponent, useQuery } from '@ir-engine/ecs'
 
 import { State } from '@ir-engine/hyperflux'
+import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { MeshStandardMaterial } from 'three'
 import { EnvmapComponent } from '../components/EnvmapComponent'
@@ -77,11 +78,12 @@ const EnvMapReactor = (props: { entity: Entity }) => {
   const entity = props.entity
   const envmapComponent = useComponent(entity, EnvmapComponent)
   const materialComponent = useComponent(entity, MaterialStateComponent)
-
+  const backgroundQuery = useQuery([BackgroundComponent], Layers.Authoring)
+  console.log(backgroundQuery)
   useEffect(() => {
     const material = materialComponent.material as State<MeshStandardMaterial>
     // material.set()
-  }, [envmapComponent, materialComponent.material])
+  }, [envmapComponent, materialComponent.material, backgroundQuery])
   return null
 }
 
@@ -89,11 +91,12 @@ export const EnvironmentSystem = defineSystem({
   uuid: 'ee.engine.EnvironmentSystem',
   insert: { after: PresentationSystemGroup },
   reactor: () => {
-    const envMapQuery = useQuery([EnvmapComponent])
+    const envMapQuery = useQuery([EnvmapComponent], Layers.Authoring)
+    console.log(envMapQuery)
     return (
       <>
         {envMapQuery.map((entity) => (
-          <EnvMapReactor entity={entity} />
+          <EnvMapReactor entity={entity} key={entity} />
         ))}
       </>
     )
