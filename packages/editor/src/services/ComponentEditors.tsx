@@ -38,7 +38,6 @@ import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComp
 import { InstancingComponent } from '@ir-engine/engine/src/scene/components/InstancingComponent'
 import { LegacyVolumetricComponent } from '@ir-engine/engine/src/scene/components/LegacyVolumetricComponent'
 import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkComponent'
-import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
 import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
 import { PlaylistComponent } from '@ir-engine/engine/src/scene/components/PlaylistComponent'
@@ -103,7 +102,6 @@ import PointLightNodeEditor from '@ir-engine/ui/src/components/editor/properties
 import SpotLightNodeEditor from '@ir-engine/ui/src/components/editor/properties/light/spot'
 import LinkNodeEditor from '@ir-engine/ui/src/components/editor/properties/link'
 import LookAtNodeEditor from '@ir-engine/ui/src/components/editor/properties/lookAt'
-import MediaNodeEditor from '@ir-engine/ui/src/components/editor/properties/media'
 import MeshNodeEditor from '@ir-engine/ui/src/components/editor/properties/mesh'
 import MountPointNodeEditor from '@ir-engine/ui/src/components/editor/properties/mountPoint'
 import ParticleSystemNodeEditor from '@ir-engine/ui/src/components/editor/properties/particle'
@@ -165,7 +163,6 @@ export const ComponentEditorsState = defineState({
       [ScenePreviewCameraComponent.name]: ScenePreviewCameraNodeEditor,
       [SkyboxComponent.name]: SkyboxNodeEditor,
       [SpawnPointComponent.name]: SpawnPointNodeEditor,
-      [MediaComponent.name]: MediaNodeEditor,
       [ImageComponent.name]: ImageNodeEditor,
       [PositionalAudioComponent.name]: PositionalAudioNodeEditor,
       [AudioAnalysisComponent.name]: AudioAnalysisEditor,

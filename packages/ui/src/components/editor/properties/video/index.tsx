@@ -35,11 +35,14 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 
 import { useQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { Checkbox } from '@ir-engine/ui'
 import { BackSide, ClampToEdgeWrapping, DoubleSide, FrontSide, MirroredRepeatWrapping, RepeatWrapping } from 'three'
+import { Slider } from '../../../../../editor'
+import ArrayInputGroup from '../../input/Array'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
@@ -70,6 +73,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const video = useComponent(props.entity, VideoComponent)
+  const media = useComponent(props.entity, MediaComponent)
   const mediaUUID = video.mediaUUID.value
   const mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID)
   const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
@@ -112,6 +116,44 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
 
+      {video.mediaUUID.value == '' && (
+        <>
+          <ArrayInputGroup
+            label={t('editor:properties.media.paths')}
+            inputLabel={t('editor:properties.media.path')}
+            values={media.resources.value as string[]}
+            dropTypes={[...ItemTypes.Videos]}
+            onChange={commitProperty(MediaComponent, 'resources')}
+          />
+
+          <Slider
+            min={0}
+            max={100}
+            step={1}
+            value={media.volume.value}
+            onChange={updateProperty(MediaComponent, 'volume')}
+            onRelease={commitProperty(MediaComponent, 'volume')}
+            aria-label="Volume"
+            label={t('editor:properties.media.lbl-volume')}
+          />
+
+          <InputGroup
+            name="Controls"
+            label={t('editor:properties.media.lbl-controls')}
+            info={t('editor:properties.media.info-controls')}
+          >
+            <Checkbox checked={media.controls.value} onChange={commitProperty(MediaComponent, 'controls')} />
+          </InputGroup>
+
+          <InputGroup
+            name="Auto Play"
+            label={t('editor:properties.media.lbl-autoplay')}
+            info={t('editor:properties.media.info-autoplay')}
+          >
+            <Checkbox checked={media.autoplay.value} onChange={commitProperty(MediaComponent, 'autoplay')} />
+          </InputGroup>
+        </>
+      )}
       <InputGroup
         name="Video Size"
         label={t('editor:properties.video.lbl-size')}
