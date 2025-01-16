@@ -22,19 +22,31 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import { Entity } from '@ir-engine/ecs'
+import { defineState, getMutableState } from '@ir-engine/hyperflux'
 
-import { defineComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+export const LockedState = defineState({
+  name: 'LockedState',
+  initial: () => ({
+    lockedEntities: new Map<Entity, boolean>() // Map to store locked state of entities
+  }),
+  // Updates the locked state of a specific entity
+  updateLocked: (entityId: Entity, isLocked: boolean) => {
+    const state = getMutableState(LockedState)
+    const updatedMap = new Map(state.lockedEntities.value) // Create a new Map to trigger reactivity
+    updatedMap.set(entityId, isLocked)
+    state.lockedEntities.set(updatedMap) // Replace the Map entirely
+  },
 
-export const LockedComponent = defineComponent({
-  name: 'LockedComponent',
-  jsonID: 'EE_locked',
-  schema: S.Bool(false)
+  // Retrieves the lock status of a specific entity
+  isEntityLocked: (entityId: Entity): boolean => {
+    const state = getMutableState(LockedState)
+    return state.lockedEntities.get()?.get(entityId) ?? false // Default to false if not set
+  },
+
+  // Clears all locked entities
+  clearLockedEntities: () => {
+    const state = getMutableState(LockedState)
+    state.lockedEntities.set(new Map()) // Replace the Map entirely with an empty one
+  }
 })
-
-export const setLockedComponent = (entity: Entity, locked: boolean) => {
-  if (locked) {
-    !hasComponent(entity, LockedComponent) && setComponent(entity, LockedComponent, true)
-  } else removeComponent(entity, LockedComponent)
-}

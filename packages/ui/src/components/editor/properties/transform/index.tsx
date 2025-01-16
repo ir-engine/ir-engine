@@ -38,10 +38,10 @@ import { ObjectGridSnapState } from '@ir-engine/editor/src/systems/ObjectGridSna
 
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
+import { LockedState } from '@ir-engine/editor/src/services/LockedState'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { TransformComponent } from '@ir-engine/spatial'
-import { LockedComponent } from '@ir-engine/spatial/src/renderer/components/LockedComponent'
 
 import { Checkbox } from '@ir-engine/ui'
 import ComponentDropdown from '../../ComponentDropdown'
@@ -60,7 +60,7 @@ const scale = new Vector3()
 export const TransformPropertyGroup: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const locked = useOptionalComponent(props.entity, LockedComponent)?.value
+  const locked = useHookstate(getMutableState(LockedState).lockedEntities).value.get(props.entity)
   const hasDynamicLoad = !!useOptionalComponent(props.entity, SceneDynamicLoadTagComponent)
   const transformComponent = useComponent(props.entity, TransformComponent)
   const transformSpace = useHookstate(getMutableState(EditorHelperState).transformSpace)

@@ -38,6 +38,7 @@ import {
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
+import { LockedState } from '@ir-engine/editor/src/services/LockedState'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
@@ -49,7 +50,6 @@ import { getMutableState, getState, none, useHookstate, useMutableState, useStat
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { LockedComponent, setLockedComponent } from '@ir-engine/spatial/src/renderer/components/LockedComponent'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { Button } from '@ir-engine/ui'
 import TransformPropertyGroup from '@ir-engine/ui/src/components/editor/properties/transform'
@@ -118,7 +118,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
   const uuid = useComponent(entity, UUIDComponent)
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities).value.includes(uuid.value)
   const visible = useOptionalComponent(entity, VisibleComponent)
-  const locked = useOptionalComponent(entity, LockedComponent)?.value
+  const locked = useHookstate(getMutableState(LockedState).lockedEntities).value.get(entity)
   const { rootEntity } = useMutableState(EditorState).value
   const { collapseChildren, expandChildren, collapseNode, expandNode } = useNodeCollapseExpand()
   const renamingNode = useRenamingNode()
@@ -322,11 +322,10 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
   const onLockUnlockNode = (event: React.MouseEvent) => {
     event.stopPropagation()
     if (locked) {
-      EditorControlFunctions.addOrRemoveComponent([entity], LockedComponent, false)
+      LockedState.updateLocked(entity, false)
     } else {
-      EditorControlFunctions.addOrRemoveComponent([entity], LockedComponent, true)
+      LockedState.updateLocked(entity, true)
     }
-    setLockedComponent(entity, !hasComponent(entity, LockedComponent))
   }
 
   const isModelRoot = hasComponent(entity, GLTFComponent)
