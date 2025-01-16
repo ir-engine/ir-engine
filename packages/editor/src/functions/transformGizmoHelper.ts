@@ -53,7 +53,7 @@ import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/Obje
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 
-import { LockedState } from '@ir-engine/editor/src/services/LockedState'
+import { EntityHierarchyLockState } from '@ir-engine/editor/src/services/EntityHierarchyLockState'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
@@ -585,7 +585,7 @@ function applyTranslate(
     .divide(_parentScale)
 
   const newPosition = getComponent(entity, TransformComponent).position
-  const locked = getState(LockedState).lockedEntities.get(entity)
+  const locked = EntityHierarchyLockState.isEntityLocked(entity)
 
   if (locked) return newPosition
   newPosition.copy(_offset.add(pivotControlledEntity ? _positionMultiStart[entity] : _positionStart))
@@ -673,7 +673,7 @@ function applyScale(
 
   // Apply scale
   const newScale = getComponent(entity, TransformComponent).scale
-  const locked = getState(LockedState).lockedEntities.get(entity)
+  const locked = EntityHierarchyLockState.isEntityLocked(entity)
 
   if (locked) return newScale
   newScale.copy(pivotControlledEntity ? _scaleMultiStart[entity] : _scaleStart).multiply(_tempVector2)
@@ -757,7 +757,7 @@ function applyRotation(
         gizmoControlComponent.rotationSnap.value
     )
   const newRotation = getComponent(entity, TransformComponent).rotation
-  const locked = getState(LockedState).lockedEntities.get(entity)
+  const locked = EntityHierarchyLockState.isEntityLocked(entity)
 
   if (locked) return newRotation
   // Apply rotate

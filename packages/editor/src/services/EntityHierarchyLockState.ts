@@ -23,30 +23,28 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 import { Entity } from '@ir-engine/ecs'
-import { defineState, getMutableState } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 
-export const LockedState = defineState({
-  name: 'LockedState',
+export const EntityHierarchyLockState = defineState({
+  name: 'ir.editor.EntityHierarchyLockState',
   initial: () => ({
-    lockedEntities: new Map<Entity, boolean>() // Map to store locked state of entities
+    lockedEntities: {} as Record<Entity, boolean> // Map to store locked state of entities
   }),
   // Updates the locked state of a specific entity
-  updateLocked: (entityId: Entity, isLocked: boolean) => {
-    const state = getMutableState(LockedState)
-    const updatedMap = new Map(state.lockedEntities.value) // Create a new Map to trigger reactivity
-    updatedMap.set(entityId, isLocked)
-    state.lockedEntities.set(updatedMap) // Replace the Map entirely
+  updateLocked: (entity: Entity, isLocked: boolean) => {
+    const state = getMutableState(EntityHierarchyLockState)
+    state.lockedEntities[entity].set(isLocked) // Replace the Map entirely
   },
 
   // Retrieves the lock status of a specific entity
-  isEntityLocked: (entityId: Entity): boolean => {
-    const state = getMutableState(LockedState)
-    return state.lockedEntities.get()?.get(entityId) ?? false // Default to false if not set
+  isEntityLocked: (entity: Entity): boolean => {
+    const state = getState(EntityHierarchyLockState)
+    return state.lockedEntities[entity] ?? false // Default to false if not set
   },
 
   // Clears all locked entities
   clearLockedEntities: () => {
-    const state = getMutableState(LockedState)
-    state.lockedEntities.set(new Map()) // Replace the Map entirely with an empty one
+    const state = getState(EntityHierarchyLockState)
+    state.lockedEntities = {} // Replace the Map entirely with an empty one
   }
 })

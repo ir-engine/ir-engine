@@ -38,7 +38,7 @@ import {
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
-import { LockedState } from '@ir-engine/editor/src/services/LockedState'
+import { EntityHierarchyLockState } from '@ir-engine/editor/src/services/EntityHierarchyLockState'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
@@ -118,7 +118,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
   const uuid = useComponent(entity, UUIDComponent)
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities).value.includes(uuid.value)
   const visible = useOptionalComponent(entity, VisibleComponent)
-  const locked = useHookstate(getMutableState(LockedState).lockedEntities).value.get(entity)
+  const locked = useHookstate(getMutableState(EntityHierarchyLockState).lockedEntities).value[entity] ?? false
   const { rootEntity } = useMutableState(EditorState).value
   const { collapseChildren, expandChildren, collapseNode, expandNode } = useNodeCollapseExpand()
   const renamingNode = useRenamingNode()
@@ -322,9 +322,9 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
   const onLockUnlockNode = (event: React.MouseEvent) => {
     event.stopPropagation()
     if (locked) {
-      LockedState.updateLocked(entity, false)
+      EntityHierarchyLockState.updateLocked(entity, false)
     } else {
-      LockedState.updateLocked(entity, true)
+      EntityHierarchyLockState.updateLocked(entity, true)
     }
   }
 
