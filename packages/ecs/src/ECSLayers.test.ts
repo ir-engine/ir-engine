@@ -45,11 +45,42 @@ describe('createEntity', () => {
   it.todo('should return the newly created entity', () => {})
 }) //:: createEntity
 /** @todo Move this describe into `EntityFunctions.test.tsx` instead */
-describe('removeEntity', () => {}) //:: removeEntity
+describe('removeEntity', () => {
+  it.todo('should return an empty `never[]` array if `@param entity` is falsy', () => {})
+  it.todo('should return an empty `never[]` array if the result of `entityExists(entity)` is falsy', () => {})
+  it.todo('should call removeAllComponents with `@param entity`', () => {})
+  it.todo('should call bitECS.removeEntity with HyperFlux.store and `@param entity` as arguments', () => {})
+}) //:: removeEntity
 
-// @note High complexity
 describe('setComponent', () => {
-  describe('Propagation', () => {}) //:: Propagation
+  /** @section ECS Layers specific tests */
+  it.todo('should call LayerFunctions.propagateLayer with (entity, component, args) as arguments', () => {})
+
+  /** @section Other tests for Coverage */
+  it.todo('should throw an error if `@param entity` is falsy', () => {})
+  it.todo(
+    'should throw an error if calling bitECS.entityExists with (HyperFlux.store, `@param entity`) as arguments returns a falsy value',
+    () => {}
+  )
+  describe('when the result of hasComponent(`@param entity`, `@param component`) is falsy ...', () => {
+    it.todo(
+      '.. should set `@param component`.stateMap[`@param entity`] to the result of hookstate(createInitialComponentValue(`@param entity`, `@param component`)) when `@param component`.stateMap[`@param entity`] is falsy',
+      () => {}
+    )
+    it.todo(
+      '.. should call `@param component`.stateMap[`@param entity`].set with the result of hookstate(createInitialComponentValue(`@param entity`, `@param component`)) as arguments when `@param component`.stateMap[`@param entity`] is falsy',
+      () => {}
+    )
+    it.todo(
+      '.. should call bitECS.addComponent with (HyperFlux.store, `@param component`, `@param entity`, false) as arguments',
+      () => {}
+    )
+  })
+  it.todo(
+    'should call `@param component`.onSet with (entity, component.stateMap[entity]!, args) as arguments',
+    () => {}
+  )
+  // @todo Missing Statements after the line that calls LayerFunctions.propagateLayer
 }) //:: setComponent
 
 describe('LayerFunctions', () => {
@@ -57,8 +88,9 @@ describe('LayerFunctions', () => {
   describe('getLayerComponent', () => {}) //:: getLayerComponent
   describe('hasLayer', () => {}) //:: hasLayer
   describe('shouldPropagate', () => {}) //:: shouldPropagate
-  describe('propagateSchema', () => {}) //:: propagateSchema
   describe('propagateLayer', () => {}) //:: propagateLayer
+  // @note High complexity
+  describe('propagateSchema', () => {}) //:: propagateSchema
 }) //:: LayerFunctions
 
 describe('removeComponent', () => {
