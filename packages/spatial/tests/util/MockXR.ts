@@ -95,8 +95,12 @@ export class MockXRFrame {
   }
 
   // https://developer.mozilla.org/en-US/docs/Web/API/XRFrame/getViewerPose
-  getViewerPose(_referenceSpace: XRReferenceSpace): XRViewerPose | undefined {
-    return {} as XRViewerPose
+  getViewerPose(space: MockXRReferenceSpace): XRViewerPose | undefined {
+    const spacePose = new Matrix4().fromArray(space.matrix?.elements ?? (space as any)._baseMatrix)
+    const position = new Vector3()
+    const rotation = new Quaternion()
+    spacePose.decompose(position, rotation, _scale)
+    return new MockXRPose(position, rotation) as any as XRViewerPose
   }
 }
 
