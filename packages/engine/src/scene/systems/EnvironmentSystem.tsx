@@ -25,69 +25,77 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
-import {
-  defineSystem,
-  Entity,
-  getComponent,
-  haveCommonAncestor,
-  PresentationSystemGroup,
-  QueryReactor,
-  useChildrenWithComponents,
-  useComponent,
-  useEntityContext,
-  useOptionalComponent
-} from '@ir-engine/ecs'
-import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { defineSystem, Entity, PresentationSystemGroup, useComponent, useQuery } from '@ir-engine/ecs'
 
-import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { EnvmapComponent, updateEnvMap } from '../components/EnvmapComponent'
-import { SourceComponent } from '../components/SourceComponent'
-import { EnvMapSourceType } from '../constants/EnvMapEnum'
+import { State } from '@ir-engine/hyperflux'
+import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { MeshStandardMaterial } from 'three'
+import { EnvmapComponent } from '../components/EnvmapComponent'
 
-const EnvmapReactor = (props: { backgroundEntity: Entity }) => {
-  const entity = useEntityContext()
+// const EnvmapReactor = (props: { backgroundEntity: Entity }) => {
+//   const entity = useEntityContext()
+//   const envmapComponent = useComponent(entity, EnvmapComponent)
+//   const backgroundComponent = useComponent(props.backgroundEntity, BackgroundComponent)
+//   const hasRootMesh = !!useOptionalComponent(entity, MeshComponent)
+//   const childrenMesh = useChildrenWithComponents(
+//     entity,
+//     [MeshComponent, VisibleComponent, SourceComponent],
+//     [EnvmapComponent]
+//   )
+
+//   const getMeshes = () => {
+//     const meshEntities = [...childrenMesh]
+//     if (hasRootMesh) meshEntities.push(entity)
+
+//     return meshEntities.map((meshEntity) => getComponent(meshEntity, MeshComponent))
+//   }
+
+//   useEffect(() => {
+//     if (!haveCommonAncestor(entity, props.backgroundEntity)) return
+//     if (envmapComponent.type.value !== EnvMapSourceType.Skybox) return
+//     const meshes = getMeshes()
+
+//     for (const mesh of meshes) {
+//       // updateEnvMap(mesh, backgroundComponent.value as any)
+//     }
+//     return () => {
+//       for (const mesh of meshes) {
+//         // updateEnvMap(mesh, null)
+//       }
+//     }
+//   }, [childrenMesh, envmapComponent.type, backgroundComponent])
+
+//   return null
+// }
+
+// const BackgroundReactor = () => {
+//   const backgroundEntity = useEntityContext()
+//   return <QueryReactor Components={[EnvmapComponent]} ChildEntityReactor={EnvmapReactor} props={{ backgroundEntity }} />
+// }
+
+const EnvMapReactor = (props: { entity: Entity }) => {
+  const entity = props.entity
   const envmapComponent = useComponent(entity, EnvmapComponent)
-  const backgroundComponent = useComponent(props.backgroundEntity, BackgroundComponent)
-  const hasRootMesh = !!useOptionalComponent(entity, MeshComponent)
-  const childrenMesh = useChildrenWithComponents(
-    entity,
-    [MeshComponent, VisibleComponent, SourceComponent],
-    [EnvmapComponent]
-  )
-
-  const getMeshes = () => {
-    const meshEntities = [...childrenMesh]
-    if (hasRootMesh) meshEntities.push(entity)
-
-    return meshEntities.map((meshEntity) => getComponent(meshEntity, MeshComponent))
-  }
+  const materialComponent = useComponent(entity, MaterialStateComponent)
 
   useEffect(() => {
-    if (!haveCommonAncestor(entity, props.backgroundEntity)) return
-    if (envmapComponent.type.value !== EnvMapSourceType.Skybox) return
-    const meshes = getMeshes()
-
-    for (const mesh of meshes) {
-      updateEnvMap(mesh, backgroundComponent.value as any)
-    }
-    return () => {
-      for (const mesh of meshes) {
-        updateEnvMap(mesh, null)
-      }
-    }
-  }, [childrenMesh, envmapComponent.type, backgroundComponent])
-
+    const material = materialComponent.material as State<MeshStandardMaterial>
+    // material.set()
+  }, [envmapComponent, materialComponent.material])
   return null
-}
-
-const BackgroundReactor = () => {
-  const backgroundEntity = useEntityContext()
-  return <QueryReactor Components={[EnvmapComponent]} ChildEntityReactor={EnvmapReactor} props={{ backgroundEntity }} />
 }
 
 export const EnvironmentSystem = defineSystem({
   uuid: 'ee.engine.EnvironmentSystem',
   insert: { after: PresentationSystemGroup },
-  reactor: () => <QueryReactor Components={[BackgroundComponent]} ChildEntityReactor={BackgroundReactor} />
+  reactor: () => {
+    const envMapQuery = useQuery([EnvmapComponent])
+    return (
+      <>
+        {envMapQuery.map((entity) => (
+          <EnvMapReactor entity={entity} />
+        ))}
+      </>
+    )
+  }
 })

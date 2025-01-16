@@ -747,7 +747,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
     )
   }
 
-  setComponent(materialEntity, EnvmapComponent)
+  setComponent(materialEntity, EnvmapComponent, { type: 'Skybox' })
 
   if (typeof materialDef.emissiveTexture !== 'undefined') {
     promises.push(

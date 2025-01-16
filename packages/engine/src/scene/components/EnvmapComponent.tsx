@@ -173,7 +173,6 @@ const EnvmapProbesReactor = () => {
 
   useEffect(() => {
     const [renderTexture, unload] = createReflectionProbeRenderTarget(entity, probeQuery)
-    const component = getMutableComponent(entity, EnvmapComponent)
     ;(materialComponent.material as State<MeshStandardMaterial>).envMap.set(renderTexture)
     return () => {
       unload()
