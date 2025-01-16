@@ -145,8 +145,8 @@
     "vitest": "2.1.1"
   },
   "dependencies": {
-    "@aws-sdk/client-ecr": "^3.319.0",
-    "@aws-sdk/client-s3": "^3.319.0",
+    "@aws-sdk/client-ecr": "3.726.1",
+    "@aws-sdk/client-s3": "3.726.1",
     "@feathersjs/errors": "5.0.5",
     "@feathersjs/feathers": "5.0.5",
     "@feathersjs/schema": "5.0.5",
