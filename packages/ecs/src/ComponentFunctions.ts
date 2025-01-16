@@ -677,7 +677,8 @@ export const LayerFunctions = {
   hasLayer,
   shouldPropagate,
   propagateSchema,
-  propagateLayer
+  propagateLayer,
+  getAuthoringCounterpart
 }
 
 /**
@@ -1003,7 +1004,7 @@ export const LayerComponent = defineComponent({
   }
 })
 
-export const getAuthoringCounterpart = (entity: Entity) => {
+export function getAuthoringCounterpart(entity: Entity) {
   return LayerComponents[Layers.Authoring].refs[entity]
 }
 export const TransitionComponent = defineComponent({
