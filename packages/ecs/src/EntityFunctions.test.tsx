@@ -50,5 +50,6 @@ describe('EntityFunctions', async () => {
     })
   }) //:: createEntity
 
+  /** @todo */
   describe('removeEntity', () => {}) //:: removeEntity
 })

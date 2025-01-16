@@ -84,11 +84,23 @@ describe('setComponent', () => {
 }) //:: setComponent
 
 describe('LayerFunctions', () => {
-  describe('getLayerRelations', () => {}) //:: getLayerRelations
+  describe('getLayerRelations', () => {
+    it.todo(
+      'should return an array of arrays that contains valid layer ID numbers in slot 0 of each subarray',
+      () => {}
+    )
+    it.todo('should return an array of arrays that contains valid Entity IDs in slot 1 of each subarray', () => {})
+    it.todo(
+      'should retrieve the `@param entity` Layer relations from the LayerFunctions.getLayerComponent(entity) component and map them as expected into the result',
+      () => {}
+    )
+  }) //:: getLayerRelations
+
   describe('getLayerComponent', () => {}) //:: getLayerComponent
   describe('hasLayer', () => {}) //:: hasLayer
   describe('shouldPropagate', () => {}) //:: shouldPropagate
   describe('propagateLayer', () => {}) //:: propagateLayer
+  describe('getAuthoringCounterpart', () => {}) //:: getAuthoringCounterpart
   // @note High complexity
   describe('propagateSchema', () => {}) //:: propagateSchema
 }) //:: LayerFunctions
