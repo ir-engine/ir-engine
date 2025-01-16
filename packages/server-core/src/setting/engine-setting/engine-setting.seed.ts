@@ -297,6 +297,10 @@ export async function seed(knex: Knex): Promise<void> {
         value: process.env.STORAGE_S3_REGION || ''
       },
       {
+        key: EngineSettings.Aws.S3.RoleArn,
+        value: process.env.STORAGE_AWS_ROLE_ARN || ''
+      },
+      {
         key: EngineSettings.Aws.S3.SecretAccessKey,
         value: process.env.STORAGE_AWS_ACCESS_KEY_SECRET || ''
       },

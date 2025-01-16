@@ -129,6 +129,7 @@ export const EngineSettings = {
       StaticResourceBucket: 's3.staticResourceBucket',
       Region: 's3.region',
       AvatarDir: 's3.avatarDir',
+      RoleArn: 's3.roleArn',
       S3DevMode: 's3.s3DevMode'
     },
     CloudFront: {

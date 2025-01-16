@@ -81,6 +81,13 @@ export async function up(knex: Knex): Promise<void> {
               ''
           },
           {
+            key: EngineSettings.Aws.S3.RoleArn,
+            value:
+              awsS3SettingConfigArray.find((item) => item.key === EngineSettings.Aws.S3.RoleArn)?.value ||
+              process.env.STORAGE_AWS_ROLE_ARN ||
+              ''
+          },
+          {
             key: EngineSettings.Aws.S3.SecretAccessKey,
             value:
               awsS3SettingConfigArray.find((item) => item.key === EngineSettings.Aws.S3.SecretAccessKey)?.value ||
