@@ -584,7 +584,7 @@ export const createInitialComponentValue = <
  *  ```
  * */
 function getLayerRelations(entity: Entity): [number, Entity][] {
-  return Object.entries(getComponent(entity, LayerComponents[LayerComponent.get(entity)]).relations).map(
+  return Object.entries(getComponent(entity, LayerFunctions.getLayerComponent(entity)).relations).map(
     ([layer, val]): [number, Entity] => [Number(layer), val]
   )
 }
