@@ -53,6 +53,7 @@ import { mockAnimatedAvatar } from '../components/AnimationComponent.test'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarIKComponent, AvatarIKTargetComponent, IKMatrixComponent } from '../components/AvatarIKComponents'
 import { NormalizedBoneComponent } from '../components/NormalizedBoneComponent'
+import '../state/AvatarIKTargetState'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { AnimationSystem } from './AnimationSystem'
 import { AvatarAnimationSystem, AvatarAnimationSystemReactor } from './AvatarAnimationSystem'
@@ -178,7 +179,7 @@ describe('AvatarIKSystem', () => {
     const rightFootPosition = getComponent(rightFootEntity, TransformComponent).position
     rightFootPosition.set(-0.1, 0.1, 0)
 
-    AvatarIKTargetComponent.blendWeight[headUuid] = 1
+    AvatarIKTargetComponent.blendWeight[headEntity] = 1
     AvatarIKTargetComponent.blendWeight[rightHandEntity] = 1
     AvatarIKTargetComponent.blendWeight[leftHandEntity] = 1
     AvatarIKTargetComponent.blendWeight[leftFootEntity] = 1
