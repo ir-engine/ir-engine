@@ -154,7 +154,7 @@ export function FileContextMenu({
       action: () => {
         PopoverState.showPopupover(
           <DeleteFileModal
-            files={selectedFiles.value}
+            files={selectedFiles.get(NO_PROXY)}
             onComplete={(err) => {
               selectedFiles.set([])
               ClickPlacementState.resetSelectedAsset()
@@ -250,7 +250,10 @@ export function FileContextMenu({
       // ADD NEW FOLDER
       condition: true, // Always visible
       label: t('editor:layout.filebrowser.addNewFolder'),
-      action: createNewFolder,
+      action: () => {
+        createNewFolder()
+        setAnchorEvent(undefined)
+      },
       testId: 'files-panel-file-item-context-menu-add-new-folder-button'
     },
     {
