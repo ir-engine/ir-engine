@@ -41,8 +41,8 @@ import { twMerge } from 'tailwind-merge'
 import AvatarPreview from '../../../common/components/AvatarPreview'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../util/avatarIdFunctions'
-import { DiscardAvatarChangesModal } from '../../components/UserMenu/menus/DiscardAvatarChangesModal'
 import { AvatarService } from '../../services/AvatarService'
+import { DiscardAvatarChangesModal } from './DiscardAvatarChangesModal'
 
 export const SupportedSdks = {
   Avaturn: 'Avaturn',

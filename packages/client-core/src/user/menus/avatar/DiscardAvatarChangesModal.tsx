@@ -29,7 +29,7 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { GoAlert } from 'react-icons/go'
-import { PopoverState } from '../../../../common/services/PopoverState'
+import { PopoverState } from '../../../common/services/PopoverState'
 
 interface Props {
   handleConfirm: () => void
