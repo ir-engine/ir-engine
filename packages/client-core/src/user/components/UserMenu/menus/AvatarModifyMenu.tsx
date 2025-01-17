@@ -26,13 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Avatar from '@ir-engine/client-core/src/common/components/Avatar'
 import AvatarPreview from '@ir-engine/client-core/src/common/components/AvatarPreview'
-import Button from '@ir-engine/client-core/src/common/components/Button'
-import ConfirmDialog from '@ir-engine/client-core/src/common/components/ConfirmDialog'
-import InputFile from '@ir-engine/client-core/src/common/components/InputFile'
-import InputText from '@ir-engine/client-core/src/common/components/InputText'
-import Menu from '@ir-engine/client-core/src/common/components/Menu'
 import { getCanvasBlob, isValidHttpUrl } from '@ir-engine/client-core/src/common/utils'
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
@@ -46,18 +40,18 @@ import {
 } from '@ir-engine/common/src/constants/AvatarConstants'
 import { AvatarType } from '@ir-engine/common/src/schema.type.module'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
-import Box from '@ir-engine/ui/src/primitives/mui/Box'
-import CircularProgress from '@ir-engine/ui/src/primitives/mui/CircularProgress'
-import Grid from '@ir-engine/ui/src/primitives/mui/Grid'
-import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
-import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
 
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
+import { Button, Input } from '@ir-engine/ui'
+import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
+import { Upload01Lg, User01Lg, XCloseLg } from '@ir-engine/ui/src/icons'
+import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
+import { PopoverState } from '../../../../common/services/PopoverState'
 import { UserMenus } from '../../../UserUISystem'
 import { AvatarService } from '../../../services/AvatarService'
 import { PopupMenuServices } from '../PopupMenuService'
-import styles from '../index.module.scss'
+import AvatarCreatorMenu2, { SupportedSdks } from './AvatarCreatorMenu2'
 
 interface Props {
   selectedAvatar?: AvatarType
@@ -80,8 +74,6 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
   const { t } = useTranslation()
   const [state, setState] = useState({ ...defaultState })
   const [avatarSrc, setAvatarSrc] = useState('')
-  const [showConfirmThumbnail, setShowConfirmThumbnail] = useState(false)
-  const [showConfirmChanges, setShowConfirmChanges] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const avatarRef = useRef<HTMLInputElement | null>(null)
   const thumbnailRef = useRef<HTMLInputElement | null>(null)
@@ -243,7 +235,12 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
 
   const handleGenerateThumbnail = () => {
     if (thumbnailSrc) {
-      setShowConfirmThumbnail(true)
+      PopoverState.showPopupover(
+        <ConfirmDialog
+          text={t('admin:components.avatar.confirmThumbnailReplace')}
+          onSubmit={handleProcessGenerateThumbnail}
+        />
+      )
       return
     }
 
@@ -262,8 +259,7 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
 
     const blob = await getCanvasBlob(canvas)
     setState({ ...state, thumbnailUrl: 'thumbnail.png', thumbnailFile: new File([blob!], 'thumbnail.png') })
-
-    setShowConfirmThumbnail(false)
+    PopoverState.hidePopupover()
   }
 
   const handleSave = async () => {
@@ -309,178 +305,155 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
     setIsSaving(false)
   }
 
-  const handleBack = () => {
-    if (hasPendingChanges) {
-      setShowConfirmChanges(true)
-    } else {
-      PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)
-    }
-  }
-
   return (
-    <Menu
-      open
-      showBackButton
-      actions={
-        <Box display="flex" width="100%">
-          <Button
-            disabled={!hasPendingChanges || hasErrors || isSaving}
-            startIcon={
-              isSaving ? <CircularProgress size={24} sx={{ color: 'var(--textColor)' }} /> : <Icon type="Check" />
-            }
-            size="medium"
-            type="gradientRounded"
-            title={isSaving ? t('user:common.saving') : t('user:common.save')}
-            onClick={handleSave}
-          >
-            {isSaving ? t('user:common.saving') : t('user:common.save')}
-          </Button>
-        </Box>
-      }
+    <Modal
+      submitButtonText={t('user:common.save')}
+      onSubmit={handleSave}
+      submitLoading={isSaving}
       title={selectedAvatar ? t('user:avatar.titleEditAvatar') : t('user:avatar.createAvatar')}
-      onBack={handleBack}
-      onClose={() => PopupMenuServices.showPopupMenu()}
+      onClose={() => PopoverState.hidePopupover()}
+      className="pointer-events-auto w-[50vw] min-w-[720px] max-w-2xl"
     >
-      <Box className={styles.menuContent}>
-        <Grid container spacing={2}>
-          <Grid item md={7} sx={{ width: '100%' }}>
-            <Box padding="10px 0">
-              <AvatarPreview
-                avatarUrl={avatarSrc}
-                sx={{ width: `${THUMBNAIL_WIDTH}px`, height: `${THUMBNAIL_HEIGHT}px`, m: 'auto' }}
-              />
-            </Box>
-          </Grid>
-
-          <Grid item md={5} sx={{ width: '100%' }}>
-            {rpmEnabled && (
-              <Button
-                fullWidth
-                type="gradientRounded"
-                sx={{ mt: 1 }}
-                onClick={() => PopupMenuServices.showPopupMenu(UserMenus.ReadyPlayer)}
-              >
-                {t('user:usermenu.profile.useReadyPlayerMe')}
-              </Button>
-            )}
-
-            {avaturnEnabled && (
-              <Button
-                fullWidth
-                type="gradientRounded"
-                sx={{ mt: 1 }}
-                onClick={() => PopupMenuServices.showPopupMenu(UserMenus.Avaturn)}
-              >
-                {t('user:usermenu.profile.useAvaturn')}
-              </Button>
-            )}
-
-            <InputText
-              name="name"
-              label={t('user:avatar.name')}
-              value={state.name}
-              error={state.formErrors.name}
-              sx={{ mt: 2 }}
-              onChange={handleChange}
-            />
-
-            <InputText
-              name="avatarUrl"
-              label={t('user:avatar.avatar')}
-              placeholder={t('user:avatar.enterAvatarUrl')}
-              value={state.avatarUrl}
-              error={state.formErrors.avatar}
-              sx={{ mt: 2 }}
-              endIcon={state.avatarFile ? <Icon type="Clear" /> : undefined}
-              endControl={
-                <IconButton
-                  icon={<Icon type="FileUpload" />}
-                  title={t('admin:components.avatar.selectAvatar')}
-                  type="gradient"
-                  sx={{ ml: 1 }}
-                  onClick={() => avatarRef.current && avatarRef.current.click()}
-                />
-              }
-              onChange={handleChange}
-              onEndIconClick={() => {
-                setState({ ...state, avatarUrl: '', avatarFile: undefined })
-                if (avatarRef.current) avatarRef.current.value = ''
-              }}
-            />
-
-            <InputFile
-              ref={avatarRef}
-              name="avatarFile"
-              accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
-              onChange={handleChangeFile}
-            />
-
-            <InputText
-              name="thumbnailUrl"
-              label={t('user:avatar.thumbnail')}
-              placeholder={t('user:avatar.enterThumbnailUrl')}
-              value={state.thumbnailUrl}
-              error={state.formErrors.thumbnail}
-              sx={{ mt: 2, mb: 1 }}
-              endIcon={state.thumbnailFile ? <Icon type="Clear" /> : undefined}
-              endControl={
-                <IconButton
-                  icon={<Icon type="FileUpload" />}
-                  title={t('admin:components.avatar.selectThumbnail')}
-                  type="gradient"
-                  sx={{ ml: 1 }}
-                  onClick={() => thumbnailRef.current && thumbnailRef.current.click()}
-                />
-              }
-              onChange={handleChange}
-              onEndIconClick={() => {
-                setState({ ...state, thumbnailUrl: '', thumbnailFile: undefined })
-                if (thumbnailRef.current) thumbnailRef.current.value = ''
-              }}
-            />
-
-            <InputFile
-              ref={thumbnailRef}
-              name="thumbnailFile"
-              accept={THUMBNAIL_FILE_ALLOWED_EXTENSIONS}
-              onChange={handleChangeFile}
-            />
-
-            <Avatar imageSrc={thumbnailSrc} type="thumbnail" size={100} sx={{ margin: '20px auto' }} />
-
+      <div className="grid grid-cols-2 gap-x-4">
+        <div className="col-span-1">
+          <AvatarPreview
+            avatarUrl={avatarSrc}
+            sx={{ width: `${THUMBNAIL_WIDTH}px`, height: `${THUMBNAIL_HEIGHT}px`, m: 'auto' }}
+          />
+        </div>
+        <div className="col-span-1 grid grid-cols-1 gap-y-3">
+          {rpmEnabled && (
             <Button
-              disabled={!state.avatarUrl}
               fullWidth
-              startIcon={<Icon type="Portrait" />}
-              sx={{ mb: 0, mt: 0 }}
-              type="gradientRounded"
-              onClick={handleGenerateThumbnail}
+              onClick={() => {
+                const Menu = AvatarCreatorMenu2(SupportedSdks.ReadyPlayerMe)
+                PopoverState.showPopupover(<Menu showBackButton={false} previewEnabled={true} />)
+              }}
             >
-              {t('admin:components.avatar.saveThumbnail')}
+              {t('user:usermenu.profile.useReadyPlayerMe')}
             </Button>
+          )}
 
-            {showConfirmThumbnail && (
-              <ConfirmDialog
-                open
-                description={t('admin:components.avatar.confirmThumbnailReplace')}
-                onClose={() => setShowConfirmThumbnail(false)}
-                onSubmit={handleProcessGenerateThumbnail}
-              />
-            )}
+          {avaturnEnabled && (
+            <Button
+              fullWidth
+              onClick={() => {
+                const Menu = AvatarCreatorMenu2(SupportedSdks.Avaturn)
+                PopoverState.showPopupover(<Menu showBackButton={false} previewEnabled={true} />)
+              }}
+            >
+              {t('user:usermenu.profile.useAvaturn')}
+            </Button>
+          )}
 
-            {showConfirmChanges && (
-              <ConfirmDialog
-                open
-                description={t('user:common.confirmDiscardChange')}
-                submitButtonText={t('user:common.discardChanges')}
-                onClose={() => setShowConfirmChanges(false)}
-                onSubmit={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)}
-              />
-            )}
-          </Grid>
-        </Grid>
-      </Box>
-    </Menu>
+          <Input
+            labelProps={{
+              text: t('user:avatar.name'),
+              position: 'top'
+            }}
+            value={state.name}
+            state={state.formErrors.name ? 'error' : undefined}
+            helperText={state.formErrors.name}
+            onChange={handleChange}
+            fullWidth
+          />
+
+          <Input
+            labelProps={{
+              text: t('user:avatar.avatar'),
+              position: 'top'
+            }}
+            placeholder={t('user:avatar.enterAvatarUrl')}
+            value={state.avatarUrl}
+            state={state.formErrors.avatar ? 'error' : undefined}
+            helperText={state.formErrors.avatar}
+            endComponent={
+              <div className="flex h-4 justify-start gap-x-1">
+                {state.avatarFile ? (
+                  <button
+                    className="h-4 w-4"
+                    onClick={() => {
+                      setState({ ...state, avatarUrl: '', avatarFile: undefined })
+                      if (avatarRef.current) {
+                        avatarRef.current.value = ''
+                      }
+                    }}
+                  >
+                    <XCloseLg />
+                  </button>
+                ) : null}
+                <input
+                  ref={avatarRef}
+                  name="avatarFile"
+                  accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
+                  onChange={handleChangeFile}
+                  type="file"
+                  id="avatarInput"
+                  className="hidden"
+                />
+                <label htmlFor="avatarInput" className="flex cursor-pointer items-center justify-center">
+                  <Upload01Lg />
+                </label>
+              </div>
+            }
+            fullWidth
+          />
+
+          <Input
+            labelProps={{
+              text: t('user:avatar.thumbnail'),
+              position: 'top'
+            }}
+            placeholder={t('user:avatar.enterThumbnailUrl')}
+            value={state.thumbnailUrl}
+            state={state.formErrors.thumbnail ? 'error' : undefined}
+            helperText={state.formErrors.thumbnail}
+            endComponent={
+              <div className="flex h-4 justify-start gap-x-1">
+                {state.thumbnailFile ? (
+                  <button
+                    className="h-4 w-4"
+                    onClick={() => {
+                      setState({ ...state, thumbnailUrl: '', thumbnailFile: undefined })
+                      if (thumbnailRef.current) {
+                        thumbnailRef.current.value = ''
+                      }
+                    }}
+                  >
+                    <XCloseLg />
+                  </button>
+                ) : null}
+
+                <input
+                  type="file"
+                  id="avatarThumbnailInput"
+                  className="hidden"
+                  ref={thumbnailRef}
+                  name="thumbnailFile"
+                  accept={THUMBNAIL_FILE_ALLOWED_EXTENSIONS}
+                  onChange={handleChangeFile}
+                />
+                <label htmlFor="avatarThumbnailInput" className="flex cursor-pointer items-center justify-center">
+                  <Upload01Lg />
+                </label>
+              </div>
+            }
+            fullWidth
+          />
+
+          {thumbnailSrc && (
+            <div className="flex w-full items-center justify-center">
+              <img src={thumbnailSrc} className="h-24 w-24 rounded object-cover" />
+            </div>
+          )}
+
+          <Button disabled={!state.avatarUrl} fullWidth onClick={handleGenerateThumbnail}>
+            <User01Lg />
+            {t('admin:components.avatar.saveThumbnail')}
+          </Button>
+        </div>
+      </div>
+    </Modal>
   )
 }
 

@@ -32,7 +32,9 @@ const ClickawayListener = (props: { children: JSX.Element; isTopMost: boolean })
   const ref = useClickAway(() => PopoverState.hidePopupover(), props.isTopMost)
   return (
     <div className="fixed inset-0 z-40 flex h-full w-full items-center justify-center bg-gray-800 bg-opacity-50">
-      <div ref={ref}>{props.children}</div>
+      <div className="flex h-fit w-fit items-center justify-center" ref={ref}>
+        {props.children}
+      </div>
     </div>
   )
 }

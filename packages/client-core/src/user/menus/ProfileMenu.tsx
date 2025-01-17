@@ -79,6 +79,7 @@ import { PopoverState } from '../../common/services/PopoverState'
 import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 import { useZendesk } from '../../hooks/useZendesk'
 import { clientContextParams } from '../../util/ClientContextState'
+import AvatarSelectMenu from '../components/UserMenu/menus/AvatarSelectMenu'
 import { AuthService, AuthState } from '../services/AuthService'
 import { AvatarService } from '../services/AvatarService'
 import SettingsMenu from './SettingsMenu'
@@ -370,7 +371,12 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
         <div className="grid grid-cols-3 gap-x-2">
           <div className="relative col-span-1 h-20 w-20">
             <AvatarImage size="fill" src={avatarThumbnail} />
-            <button className="absolute -bottom-3 -right-3 flex h-8 w-8 items-center justify-center rounded-full bg-[#DDE1E5] p-2">
+            <button
+              onClick={() => {
+                PopoverState.showPopupover(<AvatarSelectMenu showBackButton={true} previewEnabled={true} />)
+              }}
+              className="absolute -bottom-3 -right-3 flex h-8 w-8 items-center justify-center rounded-full bg-[#DDE1E5] p-2"
+            >
               <Edit01Lg className="place-items-center text-black" />
             </button>
           </div>

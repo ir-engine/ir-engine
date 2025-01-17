@@ -41,9 +41,7 @@ import { twMerge } from 'tailwind-merge'
 import AvatarPreview from '../../../../common/components/AvatarPreview'
 import { PopoverState } from '../../../../common/services/PopoverState'
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunctions'
-import { UserMenus } from '../../../UserUISystem'
 import { AvatarService } from '../../../services/AvatarService'
-import { PopupMenuServices } from '../PopupMenuService'
 import { DiscardAvatarChangesModal } from './DiscardAvatarChangesModal'
 
 export const SupportedSdks = {
@@ -237,11 +235,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
     )
 
     loading.set(LoadingState.None)
-    PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect, {
-      showBackButton: showBackButton,
-      previewEnabled: previewEnabled,
-      previewDisabledMessage: previewDisabledMessage
-    })
+    PopoverState.hidePopupover()
   }
 
   const loadingMessages = {
@@ -256,121 +250,114 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
   const avatarPreviewLoaded = loading.value === LoadingState.None && selectedBlob.value
 
   return (
-    <div className="fixed top-0  z-[35] flex h-[100vh] w-full bg-[rgba(0,0,0,0.75)]">
-      <Modal
-        id="select-avatar-modal"
-        className={twMerge(
-          'min-w-34 pointer-events-auto m-auto flex max-w-6xl rounded-xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col',
-          avatarPreviewLoaded && !previewEnabled ? 'h-[45vh] w-[40vw]' : 'h-[95vh] w-[70vw]'
-        )}
-        showCloseButton={false}
-        hideFooter={true}
-        rawChildren={
-          <div className="flex h-full w-full flex-1 flex-col">
-            <div className="grid h-14 w-full grid-cols-[2rem,1fr,2rem] border-b border-b-theme-primary px-8">
-              <Button
-                data-testid="edit-avatar-button"
-                className=" h-6 w-6 self-center bg-transparent hover:bg-transparent focus:bg-transparent"
-                onClick={() =>
-                  PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect, {
-                    showBackButton: showBackButton,
-                    previewEnabled: previewEnabled,
-                    previewDisabledMessage: previewDisabledMessage
-                  })
-                }
-              >
-                <span>
-                  <IoArrowBackOutline size={16} />
-                </span>
-              </Button>
-              <Text className="col-start-2  place-self-center self-center">
-                {loading.value !== LoadingState.Uploading
-                  ? t('user:avatar.titleCustomizeAvatar')
-                  : t('user:avatar.savingAvatar', { avatar: avatarName.value })}
-              </Text>
-              <Button
-                fullWidth={false}
-                data-testid="edit-avatar-button"
-                className=" h-6 w-6 self-center bg-transparent hover:bg-transparent focus:bg-transparent"
-                onClick={() =>
-                  PopoverState.showPopupover(
-                    <DiscardAvatarChangesModal
-                      handleConfirm={() => {
-                        PopoverState.hidePopupover()
-                        PopupMenuServices.showPopupMenu()
-                      }}
-                    />
-                  )
-                }
-              >
-                <span>
-                  <IoCloseOutline size={16} />
-                </span>
-              </Button>
-            </div>
-            <div className="grid h-full w-full flex-1 grid-cols-[1fr,50%,1fr] gap-6 px-10 py-2">
-              {loading.value === LoadingState.LoadingCreator && (
-                <iframe
-                  id="rpm-iframe"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    zIndex: 2,
-                    maxWidth: '100%',
-                    border: 0
-                  }}
-                  className="col-span-3"
-                />
-              )}
-              {loading.value !== LoadingState.LoadingCreator && avatarUrl && previewEnabled && (
-                <div className="relative col-start-2 rounded-lg bg-gradient-to-b from-[#162941] to-[#114352]">
-                  <div className="stars absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent"></div>
-                  <AvatarPreview
-                    avatarUrl={avatarUrl.value}
-                    fill
-                    onAvatarError={(e) => error.set(e)}
-                    onAvatarLoaded={() => loading.set(LoadingState.None)}
+    <Modal
+      id="select-avatar-modal"
+      className={twMerge(
+        'min-w-34 pointer-events-auto m-auto flex max-w-6xl rounded-xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col',
+        avatarPreviewLoaded && !previewEnabled ? 'h-[45vh] w-[40vw]' : 'h-[95vh] w-[70vw]'
+      )}
+      showCloseButton={false}
+      hideFooter={true}
+      rawChildren={
+        <div className="flex h-full w-full flex-1 flex-col">
+          <div className="grid h-14 w-full grid-cols-[2rem,1fr,2rem] border-b border-b-theme-primary px-8">
+            <Button
+              data-testid="edit-avatar-button"
+              className=" h-6 w-6 self-center bg-transparent hover:bg-transparent focus:bg-transparent"
+              onClick={() => {
+                PopoverState.hidePopupover()
+              }}
+            >
+              <span>
+                <IoArrowBackOutline size={16} />
+              </span>
+            </Button>
+            <Text className="col-start-2  place-self-center self-center">
+              {loading.value !== LoadingState.Uploading
+                ? t('user:avatar.titleCustomizeAvatar')
+                : t('user:avatar.savingAvatar', { avatar: avatarName.value })}
+            </Text>
+            <Button
+              fullWidth={false}
+              data-testid="edit-avatar-button"
+              className=" h-6 w-6 self-center bg-transparent hover:bg-transparent focus:bg-transparent"
+              onClick={() =>
+                PopoverState.showPopupover(
+                  <DiscardAvatarChangesModal
+                    handleConfirm={() => {
+                      PopoverState.hidePopupover()
+                    }}
                   />
-                </div>
-              )}
-              {avatarPreviewLoaded && !previewEnabled && (
-                <div className="relative col-span-3 flex">
-                  <Text className="m-auto" fontSize="lg">
-                    {previewDisabledMessage ? previewDisabledMessage : t('user:avatar.avatarPreviewDisabledMessage')}
-                  </Text>
-                </div>
-              )}
-            </div>
-            {avatarPreviewLoaded && (
-              <div className="mx-auto mb-2 flex items-center gap-2 py-2">
-                <Text className="" fontSize="sm">
-                  {t('user:avatar.InputAvatarName')}
-                </Text>
-                <Input value={avatarName.value || ''} onChange={(e) => avatarName.set(e.target.value)} />
-                <Button
-                  size="sm"
-                  disabled={loading.value !== LoadingState.None}
-                  data-testid="upload-avatar-button"
-                  onClick={uploadAvatar}
-                  className="w-fit place-self-center text-sm"
-                >
-                  {t('user:avatar.saveAvatar')}
-                </Button>
+                )
+              }
+            >
+              <span>
+                <IoCloseOutline size={16} />
+              </span>
+            </Button>
+          </div>
+          <div className="grid h-full w-full flex-1 grid-cols-[1fr,50%,1fr] gap-6 px-10 py-2">
+            {loading.value === LoadingState.LoadingCreator && (
+              <iframe
+                id="rpm-iframe"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  zIndex: 2,
+                  maxWidth: '100%',
+                  border: 0
+                }}
+                className="col-span-3"
+              />
+            )}
+            {loading.value !== LoadingState.LoadingCreator && avatarUrl && previewEnabled && (
+              <div className="relative col-start-2 rounded-lg bg-gradient-to-b from-[#162941] to-[#114352]">
+                <div className="stars absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent"></div>
+                <AvatarPreview
+                  avatarUrl={avatarUrl.value}
+                  fill
+                  onAvatarError={(e) => error.set(e)}
+                  onAvatarLoaded={() => loading.set(LoadingState.None)}
+                />
               </div>
             )}
-            {loading.value !== LoadingState.None && loading.value !== LoadingState.LoadingCreator && (
-              <div className="mx-auto flex justify-between py-2">
-                <LoadingView
-                  className="mr-2 h-6 max-h-6 w-6 justify-between"
-                  containerClassName="flex-row"
-                  title={loadingTitle}
-                />
+            {avatarPreviewLoaded && !previewEnabled && (
+              <div className="relative col-span-3 flex">
+                <Text className="m-auto" fontSize="lg">
+                  {previewDisabledMessage ? previewDisabledMessage : t('user:avatar.avatarPreviewDisabledMessage')}
+                </Text>
               </div>
             )}
           </div>
-        }
-      ></Modal>
-    </div>
+          {avatarPreviewLoaded && (
+            <div className="mx-auto mb-2 flex items-center gap-2 py-2">
+              <Text className="" fontSize="sm">
+                {t('user:avatar.InputAvatarName')}
+              </Text>
+              <Input value={avatarName.value || ''} onChange={(e) => avatarName.set(e.target.value)} />
+              <Button
+                size="sm"
+                disabled={loading.value !== LoadingState.None}
+                data-testid="upload-avatar-button"
+                onClick={uploadAvatar}
+                className="w-fit place-self-center text-sm"
+              >
+                {t('user:avatar.saveAvatar')}
+              </Button>
+            </div>
+          )}
+          {loading.value !== LoadingState.None && loading.value !== LoadingState.LoadingCreator && (
+            <div className="mx-auto flex justify-between py-2">
+              <LoadingView
+                className="mr-2 h-6 max-h-6 w-6 justify-between"
+                containerClassName="flex-row"
+                title={loadingTitle}
+              />
+            </div>
+          )}
+        </div>
+      }
+    ></Modal>
   )
 }
 
