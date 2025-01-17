@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { Types } from '@ir-engine/ecs'
 import assert, { strictEqual } from 'assert'
-import { Types } from 'bitecs'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { EngineState, createEntity } from '@ir-engine/ecs'
@@ -139,6 +139,7 @@ describe('DataReader', () => {
   it('should readComponentProp', () => {
     const view = createViewCursor()
     const entity = createEntity()
+    setComponent(entity, MockPoseComponent)
 
     const prop = MockPoseComponent.Vec3.x
 
@@ -158,6 +159,7 @@ describe('DataReader', () => {
   it('should readVector3', () => {
     const view = createViewCursor()
     const entity = createEntity()
+    setComponent(entity, MockPoseComponent)
     const position = MockPoseComponent.Vec3 as Vector3SoA
     const [x, y, z] = [1.5, 2.5, 3.5]
     position.x[entity] = x
@@ -192,6 +194,7 @@ describe('DataReader', () => {
   it('should readVector4', () => {
     const view = createViewCursor()
     const entity = createEntity()
+    setComponent(entity, MockPoseComponent)
     const rotation = MockPoseComponent.Quat
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
     rotation.x[entity] = x
@@ -234,6 +237,7 @@ describe('DataReader', () => {
   it('should readPosition', () => {
     const view = createViewCursor()
     const entity = createEntity()
+    setComponent(entity, MockPoseComponent)
     const position = MockPoseComponent.Vec3
     const [x, y, z] = [1.5, 2.5, 3.5]
     position.x[entity] = x
@@ -268,6 +272,7 @@ describe('DataReader', () => {
   it('should readCompressedRotation', () => {
     const view = createViewCursor()
     const entity = createEntity()
+    setComponent(entity, MockPoseComponent)
     const rotation = MockPoseComponent.Quat
     setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
 
@@ -304,6 +309,7 @@ describe('DataReader', () => {
   it('should readCompressedVector3', () => {
     const view = createViewCursor()
     const entity = createEntity()
+    setComponent(entity, MockPoseComponent)
     setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
 
     const [x, y, z] = [1.333, 2.333, 3.333]
@@ -407,6 +413,8 @@ describe('DataReader', () => {
   it('should readEntity', () => {
     const view = createViewCursor()
     const entity = createEntity()
+    setComponent(entity, NetworkObjectComponent)
+    setComponent(entity, MockPoseComponent)
     const networkId = 5678 as NetworkId
     const network = NetworkState.worldNetwork as Network
     const userID = network.hostUserID!
@@ -472,6 +480,8 @@ describe('DataReader', () => {
   it('should not readEntity if reading back own data', () => {
     const view = createViewCursor()
     const entity = createEntity()
+    setComponent(entity, NetworkObjectComponent)
+    setComponent(entity, MockPoseComponent)
     const networkId = 5678 as NetworkId
     const network = NetworkState.worldNetwork as Network
     const userID = network.hostUserID!
@@ -553,6 +563,8 @@ describe('DataReader', () => {
 
     const view = createViewCursor()
     const entity = createEntity()
+    setComponent(entity, MockPoseComponent)
+
     const networkId = 5678 as NetworkId
     const network = NetworkState.worldNetwork as Network
     const userID = network.hostUserID!
@@ -620,6 +632,8 @@ describe('DataReader', () => {
   it('should not readEntity if peer is not the authority of the entity', () => {
     const view = createViewCursor()
     const entity = createEntity()
+    setComponent(entity, NetworkObjectComponent)
+    setComponent(entity, MockPoseComponent)
     const networkId = 5678 as NetworkId
     const network = NetworkState.worldNetwork as Network
     const userID = network.hostUserID!
@@ -729,6 +743,7 @@ describe('DataReader', () => {
       const networkId = entity as unknown as NetworkId
       const peerIndex = entity
 
+      setComponent(entity, MockPoseComponent)
       MockPoseComponent.Vec3.x[entity] = posX
       MockPoseComponent.Vec3.y[entity] = posY
       MockPoseComponent.Vec3.z[entity] = posZ
@@ -800,6 +815,7 @@ describe('DataReader', () => {
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
 
+      setComponent(entity, MockPoseComponent)
       MockPoseComponent.Vec3.x[entity] = posX
       MockPoseComponent.Vec3.y[entity] = posY
       MockPoseComponent.Vec3.z[entity] = posZ
@@ -863,6 +879,7 @@ describe('DataReader', () => {
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i]
 
+      setComponent(entity, MockPoseComponent)
       MockPoseComponent.Vec3.x[entity] = 0
       MockPoseComponent.Vec3.y[entity] = 0
       MockPoseComponent.Vec3.z[entity] = 0
@@ -913,6 +930,8 @@ describe('DataReader', () => {
       const networkID = entity as unknown as NetworkId
       const userID = `${entity}` as unknown as UserID & PeerID
       const peerIndex = entity
+
+      setComponent(entity, MockPoseComponent)
       MockPoseComponent.Vec3.x[entity] = x
       MockPoseComponent.Vec3.y[entity] = y
       MockPoseComponent.Vec3.z[entity] = z
@@ -1008,6 +1027,7 @@ describe('DataReader', () => {
     network.peerIndexToPeerID[peerIndex] = peerID
 
     entities.forEach((entity) => {
+      setComponent(entity, MockPoseComponent)
       const networkId = entity as unknown as NetworkId
       MockPoseComponent.Vec3.x[entity] = x
       MockPoseComponent.Vec3.y[entity] = y
@@ -1035,7 +1055,7 @@ describe('DataReader', () => {
     })
 
     const entity = entities[0]
-
+    setComponent(entity, MockPoseComponent)
     MockPoseComponent.Vec3.x[entity] = 1
     MockPoseComponent.Vec3.y[entity] = 1
     MockPoseComponent.Vec3.z[entity] = 1

@@ -38,6 +38,7 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { Entity } from '@ir-engine/ecs/src/Entity'
+import { none } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { removeCallback, setCallback } from '../../common/CallbackComponent'
@@ -46,17 +47,6 @@ import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../commo
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Layer } from './ObjectLayerComponent'
 import { VisibleComponent } from './VisibleComponent'
-
-declare module 'three/src/core/Object3D' {
-  interface Object3D {
-    /** @deprecated */
-    preserveChildren?: boolean
-    /** @deprecated */
-    readonly isProxified: true | undefined
-  }
-}
-
-export type Object3DWithEntity = Object3D & { entity: Entity }
 
 export const ObjectComponent = defineComponent({
   name: 'ObjectComponent',
@@ -160,7 +150,8 @@ export const ObjectComponent = defineComponent({
     component.set(obj)
   },
 
-  onRemove(entity, component) {
+  onRemove(entity: Entity, component) {
+    component.set(none)
     removeCallback(entity, 'setVisible')
     removeCallback(entity, 'setInvisible')
   },

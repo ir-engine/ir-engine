@@ -65,7 +65,7 @@
     "primus": "^8.0.7",
     "ps-list": "7.2.0",
     "trace-unhandled": "2.0.1",
-    "typescript": "5.4.5",
+    "typescript": "5.6.3",
     "uuid": "9.0.0"
   },
   "devDependencies": {

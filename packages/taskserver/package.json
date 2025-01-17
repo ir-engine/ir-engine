@@ -1,5 +1,5 @@
 {
-  "name": "@ir-engine/taskserver",
+"name": "@ir-engine/taskserver",
   "description": "Task server for IREngine platform",
   "version": "1.6.0",
   "repository": {
@@ -41,7 +41,7 @@
   "dependencies": {
     "@ir-engine/server-core": "^1.6.0",
     "cross-env": "7.0.3",
-    "typescript": "5.4.5"
+    "typescript": "5.6.3"
   },
   "devDependencies": {
     "@types/node": "18.15.5"
