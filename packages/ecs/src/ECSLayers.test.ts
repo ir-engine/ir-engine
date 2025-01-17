@@ -115,11 +115,43 @@ describe('LayerFunctions', () => {
     )
   }) //:: hasLayer
 
-  describe('shouldPropagate', () => {}) //:: shouldPropagate
-  describe('propagateLayer', () => {}) //:: propagateLayer
-  describe('getAuthoringCounterpart', () => {}) //:: getAuthoringCounterpart
+  describe('shouldPropagate', () => {
+    it.todo('should return true if the given entity/layer pair is expected to trigger propagation behavior.', () => {})
+    it.todo(
+      'should return false if the given entity/layer pair is not expected to trigger propagation behavior.',
+      () => {}
+    )
+  }) //:: shouldPropagate
+
+  describe('propagateLayer', () => {
+    it.todo('should not do anything if `@param component` is LayerComponent', () => {})
+    it.todo('should not do anything if the LayerComponents array contains `@param component`', () => {})
+    describe('for every (layer,entity) pair returned by LayerFunctions.getLayerRelations for the `@param entity`', () => {
+      it.todo(
+        '.. should not do anything for this pair if the result of LayerFunctions.shouldPropagate(linkedEntity, linkedLayer) is falsy',
+        () => {}
+      )
+      it.todo(
+        '.. should call LayerFunctions.propagateSchema with (linkedLayer, component, args) as arguments when `@param component`.schema is truthy',
+        () => {}
+      )
+      it.todo(
+        '.. should call setComponent with (linkedEntity, `@param component`, `@param args`) as arguments',
+        () => {}
+      )
+    })
+  }) //:: propagateLayer
+
+  describe('getAuthoringCounterpart', () => {
+    it.todo(
+      'should return the entity stored in the `.refs` field of the AuthoringLayerComponent for the given `@param entity`',
+      () => {}
+    )
+  }) //:: getAuthoringCounterpart
+
+  /** @todo */
   // @note High complexity
-  describe('propagateSchema', () => {}) //:: propagateSchema
+  describe.todo('propagateSchema', () => {}) //:: propagateSchema
 }) //:: LayerFunctions
 
 describe('removeComponent', () => {
@@ -156,6 +188,11 @@ describe('removeComponent', () => {
 describe('LayerComponents', () => {
   // This array of Components is used for propagation logic upon setting, and for querying
   it.todo('should contain the expected number of components', () => {})
+  it.todo('should contain a list of valid Components', () => {})
+  it.todo(
+    'should contain a Component for every LayerID defined by the `Layers` object that all have the expected name',
+    () => {}
+  )
   describe('*LayerComponent', () => {
     describe('name', () => {
       it.todo('should have the expected value', () => {})
