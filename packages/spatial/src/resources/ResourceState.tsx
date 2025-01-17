@@ -98,7 +98,7 @@ export type ResourceAssetType =
   | BufferAttribute
   | InterleavedBufferAttribute
   | Light
-  // | AudioBuffer
+  | AudioBuffer
   | ArrayBuffer
   | Line
 
@@ -521,7 +521,7 @@ const getResourceName = (asset: ResourceAssetType) => {
 const addEntityResource = (
   entity: Entity,
   asset: ResourceAssetType,
-  returnedResources = [] as any[],
+  returnedResources = [] as Resource[],
   extraData?: string
 ) => {
   if (Array.isArray(asset)) {
