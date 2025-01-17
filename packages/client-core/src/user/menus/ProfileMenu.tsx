@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-// import * as polyfill from 'credential-handler-polyfill'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
@@ -74,17 +73,15 @@ import {
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
-import { NotificationService } from '../../../../common/services/NotificationService'
-import { PopoverState } from '../../../../common/services/PopoverState'
-import { useUserAvatarThumbnail } from '../../../../hooks/useUserAvatarThumbnail'
-import { useZendesk } from '../../../../hooks/useZendesk'
-import { clientContextParams } from '../../../../util/ClientContextState'
-import SettingsMenu from '../../../menus/SettingsMenu'
-import { AuthService, AuthState } from '../../../services/AuthService'
-import { AvatarService } from '../../../services/AvatarService'
-import { UserMenus } from '../../../UserUISystem'
-import { PopupMenuServices } from '../PopupMenuService'
+import { initialAuthState, initialOAuthConnectedState } from '../../common/initialAuthState'
+import { NotificationService } from '../../common/services/NotificationService'
+import { PopoverState } from '../../common/services/PopoverState'
+import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
+import { useZendesk } from '../../hooks/useZendesk'
+import { clientContextParams } from '../../util/ClientContextState'
+import { AuthService, AuthState } from '../services/AuthService'
+import { AvatarService } from '../services/AvatarService'
+import SettingsMenu from './SettingsMenu'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ProfileMenu', modifier: clientContextParams })
 interface Props {
@@ -221,7 +218,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     }
   }, [identityProvidersQuery.data])
 
-  const updateUserName = (e) => {
+  const updateUserName = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.preventDefault()
     handleUpdateUsername()
   }
@@ -244,7 +241,6 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     if (!name) return
     if (errorUsername.value.length > 0) return
     if (selfUser.name.value.trim() !== name) {
-      // @ts-ignore
       AvatarService.updateUsername(userId, name).then(() =>
         logger.info({
           event_name: 'rename_user'
@@ -306,12 +302,10 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   }
 
   const handleLogout = async () => {
-    PopupMenuServices.showPopupMenu(UserMenus.Profile)
     if (onClose) onClose()
     showUserId.set(false)
     showApiKey.set(false)
     await AuthService.logoutUser()
-    // window.location.reload()
     oauthConnectedState.set(Object.assign({}, initialOAuthConnectedState))
   }
 
