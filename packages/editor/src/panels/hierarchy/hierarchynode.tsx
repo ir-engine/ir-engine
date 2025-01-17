@@ -43,7 +43,6 @@ import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/re
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFLoaderFunctions } from '@ir-engine/engine/src/gltf/GLTFLoaderFunctions'
 import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, getState, none, useHookstate, useMutableState, useState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
@@ -121,7 +120,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
   const { collapseChildren, expandChildren, collapseNode, expandNode } = useNodeCollapseExpand()
   const renamingNode = useRenamingNode()
   const { expandedNodes, firstSelectedEntity } = useMutableState(HierarchyTreeState)
-  const sourceId = useOptionalComponent(rootEntity, SourceComponent)!.value
+  const sourceID = GLTFComponent.useInstanceID(rootEntity)
   const currentRenameNode = useHookstate(getComponent(entity, NameComponent))
   const { setMenu } = useHierarchyTreeContextMenu()
   const renameRef = useRef<HTMLDivElement>(null)
@@ -303,7 +302,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
 
   const onCollapseExpandNode = (event: React.MouseEvent) => {
     event.stopPropagation()
-    if (expandedNodes.value[sourceId][entity]) collapseNode(entity)
+    if (expandedNodes.value[sourceID][entity]) collapseNode(entity)
     else expandNode(entity)
   }
 

@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { UUIDComponent } from '@ir-engine/ecs'
+import { UUIDComponent, Layers } from '@ir-engine/ecs'
 import { Component, SerializedComponentType, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getMutableState } from '@ir-engine/hyperflux'
@@ -62,7 +62,7 @@ export const updateProperties = <C extends Component>(
   const affectedNodes = nodes
     ? nodes
     : editorState.lockPropertiesPanel.value
-    ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value)]
+    ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value, Layers.Authoring)]
     : SelectionState.getSelectedEntities()
   for (let i = 0; i < affectedNodes.length; i++) {
     const node = affectedNodes[i]
@@ -90,7 +90,7 @@ export const commitProperties = <C extends Component>(
   const affectedNodes = nodes
     ? nodes
     : editorState.lockPropertiesPanel.value
-    ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value)]
+    ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value, Layers.Authoring)]
     : SelectionState.getSelectedEntities()
 
   EditorControlFunctions.modifyProperty(affectedNodes, component, properties)

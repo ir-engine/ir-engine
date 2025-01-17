@@ -31,6 +31,7 @@ import {
   generateEntityUUID,
   getComponent,
   getMutableComponent,
+  Layers,
   setComponent,
   useOptionalComponent,
   UUIDComponent
@@ -53,7 +54,7 @@ function MaterialPreviewCanvas() {
   const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
   const panel = document.getElementById(MATERIALS_PANEL_ID)
   const materialComponent = useOptionalComponent(
-    UUIDComponent.getEntityByUUID(selectedMaterial.value!),
+    UUIDComponent.getEntityByUUID(selectedMaterial.value!, Layers.Authoring),
     MaterialStateComponent
   )
 
