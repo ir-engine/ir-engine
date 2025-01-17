@@ -33,8 +33,8 @@ import { defineState, getMutableState, useMutableState } from '@ir-engine/hyperf
 import { NetworkState } from '@ir-engine/network'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
+import { useUserAvatarThumbnail } from '../../../hooks/useUserAvatarThumbnail'
 import { FriendService, FriendState } from '../../../social/services/FriendService'
-import { useUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThumbnail'
 import { AuthState } from '../../../user/services/AuthService'
 import XRTextButton from '../../components/XRTextButton'
 import styles from './index.scss?inline'

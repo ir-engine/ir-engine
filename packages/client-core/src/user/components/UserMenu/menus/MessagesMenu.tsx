@@ -34,10 +34,10 @@ import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 
 import InputText from '../../../../common/components/InputText'
+import { useUserAvatarThumbnail } from '../../../../hooks/useUserAvatarThumbnail'
 import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
 import { ChannelService, ChannelState } from '../../../../social/services/ChannelService'
 import XRIconButton from '../../../../systems/components/XRIconButton'
-import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
 import { PopupMenuServices } from '../PopupMenuService'
 
 // This file is a raw css copy of packages/ui/src/components/Chat/Message.tsx

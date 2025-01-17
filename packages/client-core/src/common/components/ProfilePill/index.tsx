@@ -31,9 +31,9 @@ import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import React from 'react'
 import { HiPencil } from 'react-icons/hi2'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
+import { useUserAvatarThumbnail } from '../../../hooks/useUserAvatarThumbnail'
 import { UserMenus } from '../../../user/UserUISystem'
 import { PopupMenuServices } from '../../../user/components/UserMenu/PopupMenuService'
-import { useUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThumbnail'
 import { AuthState } from '../../../user/services/AuthService'
 
 const ProfilePill = () => {
