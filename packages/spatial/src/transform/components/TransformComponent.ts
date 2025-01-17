@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Matrix4, Quaternion, Vector3 } from 'three'
+import { Matrix, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/ecs'
 import { defineComponent, getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -84,7 +84,7 @@ export const TransformComponent = defineComponent({
     const parentEntity = entityTree?.parentEntity
     if (parentEntity) {
       const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
-      if (parentTransform) component.matrixWorld.value.multiplyMatrices(parentTransform.matrixWorld, component.matrix)
+      if (parentTransform) component.matrixWorld.value.multiplyMatrices(parentTransform.matrixWorld, component.matrix.value as Matrix4)
     } else {
       component.matrixWorld.value.copy(component.matrix.value as Matrix4)
     }
