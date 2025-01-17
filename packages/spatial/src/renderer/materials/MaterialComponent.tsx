@@ -159,7 +159,13 @@ export const MaterialInstanceComponent = defineComponent({
       return (
         <>
           {materialComponent.uuid.value.map((uuid, index) => (
-            <MaterialInstanceSubReactor array={true} key={uuid + '-' + index} index={index} uuid={uuid} entity={entity} />
+            <MaterialInstanceSubReactor
+              array={true}
+              key={uuid + '-' + index}
+              index={index}
+              uuid={uuid}
+              entity={entity}
+            />
           ))}
         </>
       )
@@ -209,7 +215,7 @@ export const MaterialPrototypeComponent = defineComponent({
 
 export const prototypeQuery = defineQuery([MaterialPrototypeComponent])
 
-declare module 'three/src/materials/Material' {
+declare module 'three/src/materials/Material.js' {
   export interface Material {
     shader: Shader
     plugins?: PluginType[]
@@ -218,7 +224,7 @@ declare module 'three/src/materials/Material' {
   }
 }
 
-declare module 'three/src/renderers/shaders/ShaderLib' {
+declare module 'three/src/renderers/shaders/ShaderLib.js' {
   export interface Shader {
     uuid?: EntityUUID
   }

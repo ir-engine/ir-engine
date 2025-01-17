@@ -24,8 +24,16 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { Entity, EntityTreeComponent, getComponent, getOptionalComponent, UUIDComponent } from '@ir-engine/ecs'
+import {
+  Entity,
+  EntityTreeComponent,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import { AllFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { t } from 'i18next'
@@ -113,13 +121,13 @@ export function ecsHierarchyTreeWalker(rootEntity: Entity): HierarchyTreeNodeTyp
   while (frontier.length > 0) {
     const { entity, depth, lastChild, isRendered: originalIsRendered } = frontier.pop()!
     const eTree = getOptionalComponent(entity, EntityTreeComponent)
-    const sourceComponent = getOptionalComponent(entity, SourceComponent)
-    if (!eTree || !sourceComponent) continue
+    const valid = hasComponent(entity, GLTFComponent) || hasComponent(entity, SourceComponent)
+    if (!eTree | !valid) continue
     const childIndex = eTree.childIndex ?? 0
     const children = eTree.children
     const isLeaf = !children || children.length === 0
-    const sceneID = getComponent(rootEntity, SourceComponent)
-    const isCollapsed = !getState(HierarchyTreeState).expandedNodes[sceneID]?.[entity]
+    const sourceID = GLTFComponent.getInstanceID(rootEntity)
+    const isCollapsed = !getState(HierarchyTreeState).expandedNodes[sourceID]?.[entity]
     const isRendered = originalIsRendered && !isCollapsed
     result.push({
       entity,

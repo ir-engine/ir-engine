@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import * as bitECS from 'bitecs'
 import React, { ErrorInfo, FC, memo, Suspense, useLayoutEffect, useMemo } from 'react'
+import * as bitECSLegacy from './bitecsLegacy'
 
 import { getState, HyperFlux, NO_PROXY_STEALTH, useHookstate } from '@ir-engine/hyperflux'
 
@@ -35,13 +36,12 @@ import { defineSystem } from './SystemFunctions'
 import { PresentationSystemGroup } from './SystemGroups'
 import { SystemState } from './SystemState'
 
-export function defineQuery(
-  components: (bitECS.Component | bitECS.QueryModifier)[],
-  layer: LayerID = Layers.Simulation
-) {
-  const query = bitECS.defineQuery([...components, LayerComponents[layer]]) as bitECS.Query
-  const enterQuery = bitECS.enterQuery(query)
-  const exitQuery = bitECS.exitQuery(query)
+export type { QueryTerm } from 'bitecs'
+
+export function defineQuery(components: bitECS.QueryTerm[], layer: LayerID = Layers.Simulation) {
+  const query = bitECSLegacy.defineQuery([...components, LayerComponents[layer]])
+  const enterQuery = bitECSLegacy.enterQuery(query)
+  const exitQuery = bitECSLegacy.exitQuery(query)
 
   const wrappedQuery = () => {
     return query(HyperFlux.store) as Entity[]
@@ -59,13 +59,11 @@ export function defineQuery(
   return wrappedQuery
 }
 
-export function removeQuery(query: ReturnType<typeof defineQuery>) {
-  bitECS.removeQuery(HyperFlux.store, query._query)
-  bitECS.removeQuery(HyperFlux.store, query._enterQuery)
-  bitECS.removeQuery(HyperFlux.store, query._exitQuery)
+export function removeQuery(queryOrTerms: ReturnType<typeof defineQuery> | bitECS.QueryTerm[]) {
+  bitECS.removeQuery(HyperFlux.store, Array.isArray(queryOrTerms) ? queryOrTerms : queryOrTerms._query.components)
+  if ('_enterQuery' in queryOrTerms) queryOrTerms._enterQuery.unsubscribe()
+  if ('_exitQuery' in queryOrTerms) queryOrTerms._exitQuery.unsubscribe()
 }
-
-export type QueryComponents = (bitECS.QueryModifier | bitECS.Component)[]
 
 export const ReactiveQuerySystem = defineSystem({
   uuid: 'ee.hyperflux.ReactiveQuerySystem',
@@ -124,24 +122,17 @@ const QuerySubReactor = memo((props: { entity: Entity; ChildEntityReactor: FC; p
   )
 })
 
-export const QueryReactor = memo(
-  (props: { Components: (bitECS.Component | bitECS.QueryModifier)[]; ChildEntityReactor: FC; props?: any }) => {
-    const entities = useQuery(props.Components)
-    const MemoChildEntityReactor = useMemo(() => memo(props.ChildEntityReactor), [props.ChildEntityReactor])
-    return (
-      <>
-        {entities.map((entity) => (
-          <QuerySubReactor
-            key={entity}
-            entity={entity}
-            ChildEntityReactor={MemoChildEntityReactor}
-            props={props.props}
-          />
-        ))}
-      </>
-    )
-  }
-)
+export const QueryReactor = memo((props: { Components: bitECS.QueryTerm[]; ChildEntityReactor: FC; props?: any }) => {
+  const entities = useQuery(props.Components)
+  const MemoChildEntityReactor = useMemo(() => memo(props.ChildEntityReactor), [props.ChildEntityReactor])
+  return (
+    <>
+      {entities.map((entity) => (
+        <QuerySubReactor key={entity} entity={entity} ChildEntityReactor={MemoChildEntityReactor} props={props.props} />
+      ))}
+    </>
+  )
+})
 
 interface ErrorState {
   error: Error | null

@@ -32,10 +32,9 @@ import {
   getComponent,
   isAncestor,
   traverseEntityNode,
-  UndefinedEntity,
-  useOptionalComponent
+  UndefinedEntity
 } from '@ir-engine/ecs'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import React, { createContext, ReactNode, useContext, useEffect, useMemo } from 'react'
@@ -89,43 +88,40 @@ const HierarchyTreeContext = createContext({
   }
 })
 
-const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Entity; sourceId: string }) => {
-  const { children, rootEntity, sourceId } = props
+const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Entity; sourceID: string }) => {
+  const { children, rootEntity, sourceID } = props
   const selectionState = useMutableState(SelectionState)
-  const hierarchyNodes = useHookstate<HierarchyTreeNodeType[]>([])
   const hierarchyTreeState = useMutableState(HierarchyTreeState)
   const [showModelChildren] = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowModelChildren])
   const renamingEntity = useHookstate<Entity | null>(null)
   const contextMenu = useHookstate({ entity: UndefinedEntity, anchorEvent: undefined as React.MouseEvent | undefined })
+
+  const hierarchyNodes = useMemo(
+    () => ecsHierarchyTreeWalker(rootEntity),
+    [
+      hierarchyTreeState.expandedNodes[sourceID],
+      selectionState.selectedEntities,
+      showModelChildren
+    ]
+  )
 
   const displayedNodes = useMemo(() => {
     if (hierarchyTreeState.search.query.value.length > 0) {
       const searchedNodes: HierarchyTreeNodeType[] = []
       const adjustedSearchValue = hierarchyTreeState.search.query.value.replace(VALID_HEIRARCHY_SEARCH_REGEX, '\\$&')
       const condition = new RegExp(adjustedSearchValue, 'i')
-      hierarchyNodes.value.forEach((node) => {
+      hierarchyNodes.forEach((node) => {
         if (node.entity && condition.test(getComponent(node.entity, NameComponent)?.toLowerCase() ?? ''))
           searchedNodes.push(node)
       })
       return searchedNodes
     }
-    return hierarchyNodes.value.filter((node) => node.isRendered)
+    return hierarchyNodes.filter((node) => node.isRendered)
   }, [hierarchyTreeState.search.query, hierarchyNodes])
 
   useEffect(() => {
-    hierarchyTreeState.expandedNodes.set({ [sourceId]: { [rootEntity]: true } })
-  }, [sourceId])
-
-  useEffect(() => {
-    const entities = ecsHierarchyTreeWalker(rootEntity)
-    if (didHierarchyChange(hierarchyNodes.value as HierarchyTreeNodeType[], entities)) {
-      hierarchyNodes.set(entities)
-    }
-  }, [
-    hierarchyTreeState.expandedNodes[sourceId], // extra dep for rebuilding tree for expanded/collapsed nodes
-    selectionState.selectedEntities,
-    showModelChildren
-  ])
+    hierarchyTreeState.expandedNodes.set({ [sourceID]: { [rootEntity]: true } })
+  }, [sourceID])
 
   useEffect(() => {
     if (!selectionState.selectedEntities.value.length) {
@@ -157,9 +153,9 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
 
 export const HierarchyPanelProvider = ({ children }: { children?: ReactNode }) => {
   const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
-  const sourceId = useOptionalComponent(rootEntity, SourceComponent)?.value
-  if (!sourceId) return null
-  return <HierarchySnapshotReactor children={children} rootEntity={rootEntity} sourceId={sourceId} />
+  const sourceID = GLTFComponent.useInstanceID(rootEntity)
+  if (!sourceID) return null
+  return <HierarchySnapshotReactor children={children} rootEntity={rootEntity} sourceID={sourceID} />
 }
 
 export const useHierarchyNodes = () => useContext(HierarchyTreeContext).nodes
@@ -169,7 +165,7 @@ export const useHierarchyTreeContextMenu = () => useContext(HierarchyTreeContext
 export const useNodeCollapseExpand = () => {
   const rootEntity = useMutableState(EditorState).rootEntity.value
   const expandedNodes = useMutableState(HierarchyTreeState).expandedNodes
-  const sourceID = useOptionalComponent(rootEntity, SourceComponent)!.value
+  const sourceID = GLTFComponent.useInstanceID(rootEntity)
 
   const expandNode = (entity: Entity) => {
     expandedNodes[sourceID][entity].set(true)

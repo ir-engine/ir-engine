@@ -23,10 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Types } from 'bitecs'
 import { AxesHelper, Quaternion, Vector3 } from 'three'
 
-import { S, UUIDComponent, useEntityContext } from '@ir-engine/ecs'
+import { S, Types, UUIDComponent, useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
@@ -83,7 +82,7 @@ type HandTargetReturn = { position: Vector3; rotation: Quaternion } | null
 export const getHandTarget = (entity: Entity, hand: XRHandedness): HandTargetReturn => {
   const networkComponent = getComponent(entity, NetworkObjectComponent)
 
-  const targetEntity = NameComponent.entitiesByName[networkComponent.ownerId + '_' + hand]?.[0] // todo, how should be choose which one to use?
+  const targetEntity = NameComponent.getEntitiesByName(networkComponent.ownerId + '_' + hand)[0] // todo, how should be choose which one to use?
   if (targetEntity && AvatarIKTargetComponent.blendWeight[targetEntity] > 0)
     return getComponent(targetEntity, TransformComponent)
 

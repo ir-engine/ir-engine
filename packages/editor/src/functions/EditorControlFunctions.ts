@@ -132,7 +132,7 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
         material[k] = v
       }
     })
-    const materialEntity = UUIDComponent.getEntityByUUID(materialId)
+    const materialEntity = UUIDComponent.getEntityByUUID(materialId, Layers.Authoring)
     const sceneID = getComponent(materialEntity, SourceComponent)
     getMutableState(AssetModifiedState)[sceneID].set(true)
     material.needsUpdate = true
@@ -243,7 +243,7 @@ const duplicateObject = (entities: Entity[]) => {
       setComponent(newEntity, ComponentJSONIDMap.get(component.name)!, component.props)
     }
     const newParentUUID = uuidMap[entityUUID]
-    const newParentEntity = UUIDComponent.getEntityByUUID(newParentUUID)
+    const newParentEntity = UUIDComponent.getEntityByUUID(newParentUUID, Layers.Authoring)
     setComponent(newEntity, EntityTreeComponent, { parentEntity: newParentEntity })
     uuidMap[entityUUID] = newUUID
 
@@ -269,7 +269,7 @@ const applyTransformToChildren = (entity: Entity) => {
   iterateEntityNode(entity, (entity) => {
     if (!hasComponent(entity, TransformComponent)) return
     computeTransformMatrix(entity)
-    TransformComponent.dirtyTransforms[entity] = true
+    TransformComponent.dirty[entity] = 1
   })
 }
 

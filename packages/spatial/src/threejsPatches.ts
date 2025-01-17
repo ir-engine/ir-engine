@@ -119,7 +119,7 @@ Euler.prototype.toJSON = function () {
   return { x: this._x, y: this._y, z: this._z, order: this._order }
 }
 
-declare module 'three/src/core/Object3D' {
+declare module 'three/src/core/Object3D.js' {
   export interface Object3D {
     matrixWorldAutoUpdate: boolean
     entity: Entity
@@ -143,14 +143,32 @@ declare module 'three/src/core/Object3D' {
     traverseVisible(callback: (object: Object3D) => void): void
     /** @deprecated use ECS hierarchy instead [#9308](https://github.com/ir-engine/ir-engine/issues/9308) */
     traverseAncestors(callback: (object: Object3D) => void): void
+    /** @deprecated */
+    preserveChildren?: boolean
+    /** @deprecated */
+    readonly isProxified: true | undefined
   }
 }
 
-declare module 'three/src/math/Quaternion' {
+declare module 'three/src/math/Quaternion.js' {
   export interface Quaternion {
     fastSlerp: typeof fastSlerp
   }
 }
+
+// declare module 'three/src/core/BufferGeometry.js' {
+//   export interface BufferGeometry {
+//     boundsTree?: MeshBVH
+//     disposeBoundsTree: () => void
+//     computeBoundsTree: () => void
+//   }
+// }
+
+// declare module 'three/src/core/Raycaster.js' {
+//   export interface Raycaster {
+//     firstHitOnly: boolean
+//   }
+// }
 
 Scene.DEFAULT_MATRIX_AUTO_UPDATE = false
 

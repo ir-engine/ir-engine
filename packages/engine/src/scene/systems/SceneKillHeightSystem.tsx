@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Not } from 'bitecs'
+import { Not } from '@ir-engine/ecs'
 import { Vector3 } from 'three'
 
 import { defineQuery, defineSystem, getComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
@@ -78,7 +78,7 @@ const execute = () => {
         position: spawnState?.spawnPosition,
         rotation: spawnState?.spawnRotation
       })
-      TransformComponent.dirtyTransforms[entity] = true
+      TransformComponent.dirty[entity] = 1
 
       if (!isCameraAttachedToAvatar) continue
 

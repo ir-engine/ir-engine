@@ -37,6 +37,7 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
+  Layers,
   removeEntity,
   setComponent,
   UndefinedEntity,
@@ -75,62 +76,6 @@ import { AssetState } from './GLTFState'
 import { gltfReplaceUUIDsReferences } from './gltfUtils'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
 import { useApplyCollidersToChildMeshesEffect } from './useApplyCollidersToChildMeshesEffect'
-
-type DependencyEval = {
-  key: string
-  eval: (val: unknown) => boolean
-}
-
-type ComponentDependencies = {
-  componentDependencies: Record<EntityUUID, Component[]>
-}
-
-const componentDependenciesLoaded = (dependencies?: ComponentDependencies) => {
-  return !!dependencies && Object.keys(dependencies.componentDependencies).length === 0
-}
-
-const loadDependencies = {
-  ['EE_model']: [
-    {
-      key: 'dependencies',
-      eval: (dependencies?: ComponentDependencies) => componentDependenciesLoaded(dependencies)
-    }
-  ]
-} as Record<string, DependencyEval[]>
-
-const buildComponentDependencies = (json: GLTF.IGLTF) => {
-  const dependencies = {
-    componentDependencies: {}
-  } as ComponentDependencies
-
-  const meshes = new Set<number>()
-  const materials = new Set<number>()
-
-  if (!json.nodes) return dependencies
-  for (const node of json.nodes) {
-    if (node.extensions && node.extensions[UUIDComponent.jsonID]) {
-      const uuid = node.extensions[UUIDComponent.jsonID] as EntityUUID
-      const extensions = Object.keys(node.extensions)
-      if (typeof node.extensions[SceneDynamicLoadTagComponent.jsonID] !== 'undefined') continue
-      for (const extension of extensions) {
-        if (loadDependencies[extension]) {
-          if (!dependencies.componentDependencies[uuid]) dependencies.componentDependencies[uuid] = []
-          dependencies.componentDependencies[uuid].push(ComponentJSONIDMap.get(extension)!)
-        }
-      }
-    }
-
-    if (node.mesh !== undefined) {
-      meshes.add(node.mesh)
-      const mesh = json.meshes![node.mesh]
-      mesh.primitives.forEach((prim) => {
-        if (prim.material !== undefined) materials.add(prim.material)
-      })
-    }
-  }
-
-  return dependencies
-}
 
 export const GLTFComponent = defineComponent({
   name: 'GLTFComponent',
@@ -190,6 +135,62 @@ export const GLTFComponent = defineComponent({
     return `${uuid}-${src}`
   }
 })
+
+type DependencyEval = {
+  key: string
+  eval: (val: unknown) => boolean
+}
+
+type ComponentDependencies = {
+  componentDependencies: Record<EntityUUID, Component[]>
+}
+
+const componentDependenciesLoaded = (dependencies?: ComponentDependencies) => {
+  return !!dependencies && Object.keys(dependencies.componentDependencies).length === 0
+}
+
+const loadDependencies = {
+  ['EE_model']: [
+    {
+      key: 'dependencies',
+      eval: (dependencies?: ComponentDependencies) => componentDependenciesLoaded(dependencies)
+    }
+  ]
+} as Record<string, DependencyEval[]>
+
+const buildComponentDependencies = (json: GLTF.IGLTF) => {
+  const dependencies = {
+    componentDependencies: {}
+  } as ComponentDependencies
+
+  const meshes = new Set<number>()
+  const materials = new Set<number>()
+
+  if (!json.nodes) return dependencies
+  for (const node of json.nodes) {
+    if (node.extensions && node.extensions[UUIDComponent.jsonID]) {
+      const uuid = node.extensions[UUIDComponent.jsonID] as EntityUUID
+      const extensions = Object.keys(node.extensions)
+      if (typeof node.extensions[SceneDynamicLoadTagComponent.jsonID] !== 'undefined') continue
+      for (const extension of extensions) {
+        if (loadDependencies[extension]) {
+          if (!dependencies.componentDependencies[uuid]) dependencies.componentDependencies[uuid] = []
+          dependencies.componentDependencies[uuid].push(ComponentJSONIDMap.get(extension)!)
+        }
+      }
+    }
+
+    if (node.mesh !== undefined) {
+      meshes.add(node.mesh)
+      const mesh = json.meshes![node.mesh]
+      mesh.primitives.forEach((prim) => {
+        if (prim.material !== undefined) materials.add(prim.material)
+      })
+    }
+  }
+
+  return dependencies
+}
 
 export const GLTFComponentReactor = (props: { entity: Entity }) => {
   const entity = props.entity
@@ -263,7 +264,7 @@ export const GLTFComponentReactor = (props: { entity: Entity }) => {
   )
 }
 
-const ResourceReactor = (props: { documentID: string; entity: Entity, documentLoaded: boolean }) => {
+const ResourceReactor = (props: { documentID: string; entity: Entity; documentLoaded: boolean }) => {
   const dependenciesLoaded = GLTFComponent.useDependenciesLoaded(props.entity)
   const resourceQuery = useQuery([SourceComponent, ResourcePendingComponent])
 
@@ -457,13 +458,14 @@ const useGLTFDocument = (entity: Entity) => {
   const state = useComponent(entity, GLTFComponent)
   const url = state.src.value
 
-  // const dynamicLoadComponent = useOptionalComponent(entity, SceneDynamicLoadTagComponent)
-  // const isEditing = useMutableState(EngineState).isEditing.value
+  const dynamicLoadComponent = useOptionalComponent(entity, SceneDynamicLoadTagComponent)
+  const layer = LayerComponent.get(entity)
+  const isEditing = layer === Layers.Authoring
 
-  // const dynamicLoadAndNotEditing = !isEditing && !!dynamicLoadComponent && !dynamicLoadComponent?.loaded?.value
+  const dynamicLoadAndNotEditing = !isEditing && !!dynamicLoadComponent && !dynamicLoadComponent?.loaded?.value
 
   useEffect(() => {
-    // if (dynamicLoadAndNotEditing) return
+    if (dynamicLoadAndNotEditing) return
 
     if (!url) {
       addError(entity, GLTFComponent, 'INVALID_SOURCE', 'Invalid URL')

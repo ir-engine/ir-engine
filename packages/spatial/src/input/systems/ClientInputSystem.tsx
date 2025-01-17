@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Not } from 'bitecs'
 import React, { useEffect } from 'react'
 import { Quaternion } from 'three'
 
@@ -34,7 +33,7 @@ import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { InputSystemGroup, PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, getState, isClient } from '@ir-engine/hyperflux'
 
-import { entityExists, removeEntity } from '@ir-engine/ecs'
+import { Not, entityExists, removeEntity } from '@ir-engine/ecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/MathConstants'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
@@ -90,7 +89,7 @@ const execute = () => {
     TransformComponent.rotation.y[eid] = _rayRotation.y
     TransformComponent.rotation.z[eid] = _rayRotation.z
     TransformComponent.rotation.w[eid] = _rayRotation.w
-    TransformComponent.dirtyTransforms[eid] = true
+    TransformComponent.dirty[eid] = 1
   }
 
   // remove stale pointers
@@ -112,7 +111,7 @@ const execute = () => {
     TransformComponent.rotation.y[eid] = pose.transform.orientation.y
     TransformComponent.rotation.z[eid] = pose.transform.orientation.z
     TransformComponent.rotation.w[eid] = pose.transform.orientation.w
-    TransformComponent.dirtyTransforms[eid] = true
+    TransformComponent.dirty[eid] = 1
   }
 
   // assign input sources (InputSourceComponent) to input sinks (InputComponent), foreach on InputSourceComponents

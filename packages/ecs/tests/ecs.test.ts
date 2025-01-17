@@ -213,27 +213,22 @@ describe('ECS', () => {
     assert.ok(!getOptionalComponent(entity, MockComponent))
     ECS.executeSystems(mockDeltaMillis)
     assert(!MockSystemState.has(entity))
-    assert.ok(!getAllEntities(HyperFlux.store).includes(entity))
+    assert(!ECS.entityExists(entity))
+    // assert.ok(!getAllEntities(HyperFlux.store).includes(entity))
   })
 
   it('should remove entity', async () => {
     const entity = ECS.createEntity()
-
-    const lengthBefore = getAllEntities(HyperFlux.store).length
+    assert.ok(ECS.entityExists(entity))
     ECS.removeEntity(entity)
-    const entities = getAllEntities(HyperFlux.store)
-    assert.equal(entities.length, lengthBefore - 1)
+    assert.ok(!ECS.entityExists(entity))
   })
 
   it('should noop with entity that is already removed', async () => {
     const entity = ECS.createEntity()
-
-    const lengthBefore = getAllEntities(HyperFlux.store).length
-
+    assert.ok(ECS.entityExists(entity))
     ECS.removeEntity(entity)
     ECS.removeEntity(entity)
-
-    const entities = getAllEntities(HyperFlux.store)
-    assert.equal(entities.length, lengthBefore - 1)
+    assert.ok(!ECS.entityExists(entity))
   })
 })

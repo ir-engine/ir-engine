@@ -252,7 +252,7 @@ export const regenerateProjectResourcesJson = async (app: Application, projectNa
     const filePath = path.join(appRootPath.path, 'packages', 'projects', key)
     const dirname = path.dirname(filePath)
     fs.mkdirSync(dirname, { recursive: true })
-    fs.writeFileSync(filePath, body)
+    fs.writeFileSync(filePath, new Uint8Array(body))
   }
 }
 
@@ -304,7 +304,7 @@ export const patchSingleProjectResourcesJson = async (app: Application, id: stri
       const filePath = path.join(appRootPath.path, 'packages', 'projects', key)
       const dirname = path.dirname(filePath)
       fs.mkdirSync(dirname, { recursive: true })
-      fs.writeFileSync(filePath, body)
+      fs.writeFileSync(filePath, new Uint8Array(body))
     }
     return
   }
@@ -348,7 +348,7 @@ export const patchSingleProjectResourcesJson = async (app: Application, id: stri
     const filePath = path.join(appRootPath.path, 'packages', 'projects', key)
     const dirname = path.dirname(filePath)
     fs.mkdirSync(dirname, { recursive: true })
-    fs.writeFileSync(filePath, body)
+    fs.writeFileSync(filePath, new Uint8Array(body))
   }
 }
 
@@ -389,6 +389,6 @@ export const removeProjectResourcesJson = async (app: Application, resource: Sta
     const filePath = path.join(appRootPath.path, 'packages', 'projects', key)
     const dirname = path.dirname(filePath)
     fs.mkdirSync(dirname, { recursive: true })
-    fs.writeFileSync(filePath, body)
+    fs.writeFileSync(filePath, new Uint8Array(body))
   }
 }

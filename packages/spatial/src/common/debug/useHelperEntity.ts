@@ -88,14 +88,14 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
   useEffect(() => {
     if (!helperEntityState.value) return
     setComponent(helperEntityState.value, NameComponent, `${nameComponent?.value ?? parentEntity}-helper`)
-  }, [helperEntityState.value, nameComponent])
+  }, [helperEntityState.value, nameComponent, enabled])
 
   useEffect(() => {
     if (!helperEntityState.value || !transform) return
     const helper = getOptionalComponent(helperEntityState.value, ObjectComponent) as TObject
     if (!helper) return
     if (typeof helper.update === 'function') helper.update()
-  }, [transform])
+  }, [transform, helperEntityState.value, enabled])
 
   return helperEntityState.value
 }

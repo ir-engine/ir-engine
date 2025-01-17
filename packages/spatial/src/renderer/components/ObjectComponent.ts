@@ -38,6 +38,7 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { Entity } from '@ir-engine/ecs/src/Entity'
+import { none } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { removeCallback, setCallback } from '../../common/CallbackComponent'
@@ -47,21 +48,10 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { Layer } from './ObjectLayerComponent'
 import { VisibleComponent } from './VisibleComponent'
 
-declare module 'three/src/core/Object3D' {
-  interface Object3D {
-    /** @deprecated */
-    preserveChildren?: boolean
-    /** @deprecated */
-    readonly isProxified: true | undefined
-  }
-}
-
-export type Object3DWithEntity = Object3D & { entity: Entity }
-
 export const ObjectComponent = defineComponent({
   name: 'ObjectComponent',
 
-  schema: S.Required(S.Type<Object3DWithEntity>()),
+  schema: S.Required(S.Type<Object3D>()),
 
   onSet(entity, component, obj: Object3D) {
     if (!obj?.isObject3D) throw new Error('ObjectComponent requires an Object3D')
@@ -145,9 +135,9 @@ export const ObjectComponent = defineComponent({
 
     // sometimes it's convenient to update the entity transform via the Object3D,
     // so allow people to do that via proxies
-    proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirtyTransforms, obj.position)
-    proxifyQuaternionWithDirty(TransformComponent.rotation, entity, TransformComponent.dirtyTransforms, obj.quaternion)
-    proxifyVector3WithDirty(TransformComponent.scale, entity, TransformComponent.dirtyTransforms, obj.scale)
+    proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirty, obj.position)
+    proxifyQuaternionWithDirty(TransformComponent.rotation, entity, TransformComponent.dirty, obj.quaternion)
+    proxifyVector3WithDirty(TransformComponent.scale, entity, TransformComponent.dirty, obj.scale)
 
     setCallback(entity, 'setVisible', () => {
       setComponent(entity, VisibleComponent, true)
@@ -160,7 +150,8 @@ export const ObjectComponent = defineComponent({
     component.set(obj)
   },
 
-  onRemove(entity, component) {
+  onRemove(entity: Entity, component) {
+    component.set(none)
     removeCallback(entity, 'setVisible')
     removeCallback(entity, 'setInvisible')
   },

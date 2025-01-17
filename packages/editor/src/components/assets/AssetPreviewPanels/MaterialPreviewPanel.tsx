@@ -27,7 +27,14 @@ import React, { useEffect, useRef } from 'react'
 import { Mesh, SphereGeometry } from 'three'
 
 import { useRender3DPanelSystem } from '@ir-engine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import { generateEntityUUID, getMutableComponent, setComponent, useComponent, UUIDComponent } from '@ir-engine/ecs'
+import {
+  generateEntityUUID,
+  getMutableComponent,
+  Layers,
+  setComponent,
+  useComponent,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { getState, useMutableState } from '@ir-engine/hyperflux'
@@ -58,7 +65,8 @@ export const MaterialPreviewCanvas = () => {
     orbitCamera.refocus.set(true)
   }, [
     selectedMaterial,
-    useComponent(UUIDComponent.getEntityByUUID(selectedMaterial.value!), MaterialStateComponent).material
+    useComponent(UUIDComponent.getEntityByUUID(selectedMaterial.value!, Layers.Authoring), MaterialStateComponent)
+      .material
   ])
   return (
     <>

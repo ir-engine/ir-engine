@@ -38,7 +38,7 @@ import { ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
 
 const getNodeDisplayName = (uuid: EntityUUID) => {
-  const entity = UUIDComponent.getEntityByUUID(uuid)
+  const entity = UUIDComponent.getEntityByUUID(uuid, Layers.Authoring)
   return (
     getOptionalComponent(entity, MaterialStateComponent)?.material?.name ||
     getOptionalComponent(entity, NameComponent) ||
