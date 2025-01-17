@@ -27,13 +27,12 @@ import React, { HTMLProps, useMemo, useState } from 'react'
 
 import { UUIDComponent } from '@ir-engine/ecs'
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { preloadedAnimations } from '@ir-engine/engine/src/avatar/animation/Util'
+import { emoteAnimations, preloadedAnimations } from '@ir-engine/engine/src/avatar/animation/Util'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import { dispatchAction } from '@ir-engine/hyperflux'
 
-import { emoteAnimations } from '@ir-engine/engine/src/avatar/animation/Util'
-import { PopoverState } from '../../../../common/services/PopoverState'
+import { PopoverState } from '../../common/services/PopoverState'
 
 const EmoteMenu = (): JSX.Element => {
   const playAnimation = (stateName: string) => {

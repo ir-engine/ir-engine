@@ -32,7 +32,7 @@ import { useTranslation } from 'react-i18next'
 import { PopoverState } from '../../common/services/PopoverState'
 import { ViewerMenuState } from '../../util/ViewerMenuState'
 import LocationIconButton from '../components/LocationIconButton'
-import EmoteMenu from '../components/UserMenu/menus/EmoteMenu'
+import EmoteMenu from './EmoteMenu'
 import ProfileMenu from './ProfileMenu'
 import ShareMenu from './ShareMenu'
 
