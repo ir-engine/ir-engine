@@ -28,7 +28,7 @@ Infinite Reality Engine. All Rights Reserved.
  * @todo Write the `fileoverview` for `ComponentFunctions.ts`
  */
 import * as bitECS from 'bitecs'
-import React from 'react'
+import React, { useEffect } from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
 
@@ -687,7 +687,7 @@ function propagateLayer<C extends Component>(
   component: C,
   args: SetComponentType<C> | undefined = undefined
 ) {
-  if (component === LayerComponent || LayerComponents.includes(component as any)) return
+  if ((component as any) === LayerComponent || LayerComponents.includes(component as any)) return
   for (const [linkedLayer, linkedEntity] of LayerFunctions.getLayerRelationsEntities(entity)) {
     if (!LayerFunctions.shouldPropagate(linkedEntity, linkedLayer)) continue
     if (component.schema) LayerFunctions.propagateSchema(linkedLayer, component, args)
@@ -1031,7 +1031,7 @@ export const LayerComponent = defineComponent({
   name: 'LayerComponent',
 
   schema: {
-    layer: bitECS.Types.ui8
+    layer: bitECSLegacy.Types.ui8
   },
 
   onSet(entity, component, layer: LayerID) {
@@ -1063,6 +1063,7 @@ export const LayerComponent = defineComponent({
 export const getAuthoringCounterpart = (entity: Entity) => {
   return LayerComponents[Layers.Authoring].refs[entity]
 }
+
 export const TransitionComponent = defineComponent({
   name: 'TransitionComponent',
 
