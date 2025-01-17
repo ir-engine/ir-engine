@@ -101,7 +101,7 @@ export function editorInputHeuristic(intersectionData: Set<IntersectionData>, po
 
   const hits = raycaster.intersectObjects(objects, true)
   for (const hit of hits) {
-    intersectionData.add({ entity: hit.object.entity, distance: hit.distance })
+    intersectionData.add({ entity: hit.object.entity!, distance: hit.distance })
   }
 }
 

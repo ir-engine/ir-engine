@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { MockEventListener } from './MockEventListener'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 
 export class MockXRInputSource {
   handedness: XRHandedness
@@ -49,45 +49,102 @@ export class MockXRInputSource {
   }
 }
 
-export class MockXRSpace extends EventTarget {}
+export class MockXRSpace extends EventTarget {
+  constructor(public matrix: Matrix4) {
+    super()
+  }
+}
 
-export class MockXRReferenceSpace extends MockEventListener {
-  getOffsetReferenceSpace = (originOffset: XRRigidTransform) => {
-    return {}
+export class MockXRReferenceSpace extends MockXRSpace {
+  getOffsetReferenceSpace = (originOffset: MockXRRigidTransform) => {
+    const matrix = this.matrix.clone()
+    const offsetMatrix = originOffset.matrix
+    matrix.multiply(new Matrix4().fromArray(offsetMatrix))
+    return new MockXRReferenceSpace(matrix)
   }
 
   onreset = () => {}
+
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | AddEventListenerOptions
+  ) {}
+
+  removeEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options?: boolean | EventListenerOptions
+  ) {}
 }
 
+const _scale = new Vector3()
+
 export class MockXRFrame {
-  pose = new MockXRPose()
-  getPose = (space, origin) => {
-    return this.pose
+  pose = new MockXRPose() as any as XRPose
+
+  getPose = (space: MockXRSpace, origin: MockXRSpace) => {
+    const spacePose = new Matrix4().fromArray(space.matrix?.elements ?? (space as any)._baseMatrix)
+    const originPose = new Matrix4().fromArray(origin.matrix?.elements ?? (origin as any)._baseMatrix)
+    const position = new Vector3()
+    const rotation = new Quaternion()
+    const resultPose = new Matrix4()
+    resultPose.multiplyMatrices(spacePose, originPose)
+    resultPose.decompose(position, rotation, _scale)
+    return new MockXRPose(position, rotation)
   }
 
   // https://developer.mozilla.org/en-US/docs/Web/API/XRFrame/getViewerPose
-  getViewerPose(_referenceSpace: XRReferenceSpace): XRViewerPose | undefined {
-    return {} as XRViewerPose
+  getViewerPose(space: MockXRReferenceSpace): XRViewerPose | undefined {
+    const spacePose = new Matrix4().fromArray(space.matrix?.elements ?? (space as any)._baseMatrix)
+    const position = new Vector3()
+    const rotation = new Quaternion()
+    spacePose.decompose(position, rotation, _scale)
+    return new MockXRPose(position, rotation) as any as XRViewerPose
   }
 }
 
-export class MockXRPose {
-  transform = {
-    position: {
-      x: 0,
-      y: 0,
-      z: 0
-    },
-    orientation: {
-      x: 0,
-      y: 0,
-      z: 0,
-      w: 0
-    }
+export const MockXRPose = class {
+  transform: MockXRRigidTransform
+  constructor(position?: Vector3, orientation?: Quaternion) {
+    this.transform = new MockXRRigidTransform(position, orientation)
   }
-  // readonly linearVelocity?: DOMPointReadOnly | undefined;
-  // readonly angularVelocity?: DOMPointReadOnly | undefined;
-  // readonly emulatedPosition: boolean;
+}
+
+export class MockXRRigidTransform {
+  position = new Vector3()
+  orientation = new Quaternion()
+  matrix = new Float32Array(16)
+
+  constructor(position?: Vector3, orientation?: Quaternion) {
+    if (position) this.position.copy(position)
+    if (orientation) this.orientation.copy(orientation)
+    this.matrix = new Float32Array(new Matrix4().compose(this.position, this.orientation, new Vector3()).toArray())
+  }
+
+  get inverse() {
+    return new MockXRRigidTransform(
+      this.position.clone().negate(),
+      this.orientation.clone().invert()
+    ) as unknown as XRRigidTransform
+  }
+}
+
+//@ts-ignore
+globalThis['XRRigidTransform'] = MockXRRigidTransform
+
+export class MockXRPlane implements XRPlane {
+  orientation: XRPlaneOrientation = 'horizontal'
+  planeSpace: XRSpace = new MockXRSpace(new Matrix4())
+  polygon: DOMPointReadOnly[] = []
+  lastChangedTime: number = 0
+}
+
+export class MockXRMesh implements XRMesh {
+  meshSpace: XRSpace = new MockXRSpace(new Matrix4())
+  vertices: Float32Array = new Float32Array()
+  indices: Uint32Array = new Uint32Array()
+  lastChangedTime: number = 0
 }
 
 export class MockXRSession extends EventTarget {}

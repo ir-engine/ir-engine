@@ -126,7 +126,7 @@ export const EntityTreeComponent = defineComponent({
           }
         }
       }
-    }, [treeComponent.parentEntity, treeComponent.childIndex])
+    }, [treeComponent.parentEntity.value, treeComponent.childIndex.value])
 
     return null
   }

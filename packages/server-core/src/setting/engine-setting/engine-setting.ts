@@ -72,6 +72,25 @@ export default (app: Application): void => {
           appConfig[setting.category][setting.key] = parseValue(setting.value, setting.dataType)
         }
       }
+      const categoriesToUnflatten = ['email', 'aws']
+      if (categoriesToUnflatten.includes(setting.category)) {
+        const categorySettings = await service.find({
+          query: {
+            category: setting.category
+          },
+          paginate: false
+        })
+
+        appConfig[setting.category] = unflattenArrayToObject(
+          categorySettings.map((setting) => {
+            return {
+              key: setting.key,
+              value: setting.value,
+              dataType: setting.dataType
+            }
+          })
+        )
+      }
       if (
         appConfig[setting.category] &&
         setting.category == 'instance-server-webrtc' &&

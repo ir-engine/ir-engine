@@ -77,12 +77,12 @@ export const mockAnimatedAvatar = async () => {
   startReactor(AvatarAnimationSystemReactor)
   applyIncomingActions()
   //extra wait for animation component to prevent race conditions
-  await vi.waitFor(
+  await vi.waitUntil(
     () => {
-      expect(
+      return (
         getOptionalComponent(animationPackEntity, AnimationComponent) &&
-          getOptionalComponent(vrmEntity, AvatarRigComponent)?.vrm?.scene
-      ).toBeTruthy()
+        getOptionalComponent(vrmEntity, AvatarRigComponent)?.vrm?.scene
+      )
     },
     { timeout: 20000 }
   )

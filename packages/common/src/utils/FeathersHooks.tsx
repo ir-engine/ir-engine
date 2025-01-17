@@ -189,7 +189,7 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       })
       fetch()
     }
-  }, [serviceName, method, ...args])
+  }, [serviceName, method, queryId])
 
   const query = state[serviceName]?.[queryId]
   const queryObj = state.get(NO_PROXY)[serviceName]?.[queryId]

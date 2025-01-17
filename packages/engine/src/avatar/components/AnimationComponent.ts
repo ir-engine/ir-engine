@@ -121,12 +121,12 @@ export const getTrackId = (entity: Entity) =>
   getComponent(entity, UUIDComponent).replace(getComponent(entity, SourceComponent) + '-', '')
 
 PropertyBinding.findNode = (root: Object3D, nodeName: string) => {
-  const sceneInstanceID = GLTFComponent.getInstanceID(root.entity)
+  const sceneInstanceID = GLTFComponent.getInstanceID(root.entity!)
   const childEntities = SourceComponent.entitiesBySource[sceneInstanceID]
 
   let entity = UndefinedEntity
   /**if AvatarRigComponent is present, use VRM schema */
-  const avatarRigComponent = getOptionalComponent(root.entity, AvatarRigComponent)
+  const avatarRigComponent = getOptionalComponent(root.entity!, AvatarRigComponent)
   if (avatarRigComponent) {
     entity = avatarRigComponent.bonesToEntities[nodeName]
   }

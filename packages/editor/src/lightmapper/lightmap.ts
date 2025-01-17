@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { MeshStandardMaterial, Object3D, Scene, WebGLRenderer } from 'three'
 
-import { iterateEntityNode } from '@ir-engine/ecs'
+import { iterateEntityNode, UndefinedEntity } from '@ir-engine/ecs'
 import { getComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -49,7 +49,7 @@ export async function bakeLightmaps(
   }
 
   iterateEntityNode(
-    target.entity,
+    target.entity ?? UndefinedEntity,
     (entity) => {
       const mesh = getComponent(entity, MeshComponent)
       const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]

@@ -43,7 +43,7 @@
     "@mediapipe/tasks-vision": "0.10.12",
     "@pixiv/three-vrm": "^2.0.6",
     "@tweenjs/tween.js": "^23.1.2",
-    "bitecs": "0.3.40",
+    "alea": "1.0.1",
     "draco3dgltf": "^1.5.6",
     "fflate": "0.7.4",
     "hls.js": "^1.3.5",
@@ -71,7 +71,7 @@
     "sinon": "15.0.2",
     "trace-unhandled": "2.0.1",
     "typedoc": "0.23.28",
-    "typescript": "5.4.5"
+    "typescript": "5.6.3"
   },
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }
