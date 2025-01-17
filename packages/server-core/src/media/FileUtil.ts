@@ -56,7 +56,7 @@ export const getIncrementalName = async function (
 
   if (isDirectory) {
     while (await store.isDirectory(filename, directoryPath)) {
-      filename = `${name}(${count})`
+      filename = `${name}_${count}`
       count++
     }
   } else {
@@ -64,7 +64,7 @@ export const getIncrementalName = async function (
     const baseName = path.basename(name, extension)
 
     while (await store.doesExist(filename, directoryPath)) {
-      filename = `${baseName}(${count})${extension}`
+      filename = `${baseName}_${count}${extension}`
       count++
     }
   }

@@ -24,11 +24,14 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { hasComponent } from '@ir-engine/ecs'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { DropdownItem } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import CreatePrefabPanel from '../../components/dialogs/CreatePrefabPanelDialog'
+import SavePrefabPanel from '../../components/dialogs/SavePrefabDialog'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { copyNodes, deleteNode, duplicateNode, groupNodes, pasteNodes } from './helpers'
 import { useHierarchyNodes, useHierarchyTreeContextMenu, useNodeCollapseExpand, useRenamingNode } from './hooks'
@@ -132,6 +135,15 @@ export default function HierarchyTreeContextMenu() {
           }}
           label={t('editor:hierarchy.lbl-createPrefab')}
         />
+        {hasComponent(entity, GLTFComponent) && (
+          <DropdownItem
+            onClick={() => {
+              setMenu()
+              PopoverState.showPopupover(<SavePrefabPanel entity={entity} />)
+            }}
+            label={t('editor:hierarchy.lbl-savePrefab')}
+          />
+        )}
       </div>
     </ContextMenu>
   )

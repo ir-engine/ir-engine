@@ -96,7 +96,11 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     instanceWebRTCSettings?.data.length === 0
       ? defaultWebRTCSettings
       : unflattenArrayToObject(
-          instanceWebRTCSettings.data.map((setting) => ({ key: setting.key, value: setting.value }))
+          instanceWebRTCSettings.data.map((setting) => ({
+            key: setting.key,
+            value: setting.value,
+            dataType: setting.dataType
+          }))
         )
 
   useEffect(() => {

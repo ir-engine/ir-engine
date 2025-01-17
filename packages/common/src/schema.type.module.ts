@@ -71,7 +71,6 @@ export type * from './schemas/scope/scope.schema'
 export type * from './schemas/setting/authentication-setting.schema'
 export type * from './schemas/setting/aws-setting.schema'
 export type * from './schemas/setting/client-setting.schema'
-export type * from './schemas/setting/email-setting.schema'
 export type * from './schemas/setting/engine-setting.schema'
 export type * from './schemas/setting/feature-flag-setting.schema'
 export type * from './schemas/setting/project-setting.schema'
@@ -214,8 +213,6 @@ export const helmVersionPath = 'helm-version'
 export const projectSettingPath = 'project-setting'
 
 export const awsSettingPath = 'aws-setting'
-
-export const emailSettingPath = 'email-setting'
 
 export const featureFlagSettingPath = 'feature-flag-setting'
 

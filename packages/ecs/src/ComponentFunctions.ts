@@ -583,10 +583,14 @@ export const createInitialComponentValue = <
  *  for ([layer, linkedEntity] of getLayerRelations(entity)) { ..... }
  *  ```
  * */
-function getLayerRelations(entity: Entity): [number, Entity][] {
+function getLayerRelationsEntities(entity: Entity): [number, Entity][] {
   return Object.entries(getComponent(entity, LayerFunctions.getLayerComponent(entity)).relations).map(
     ([layer, val]): [number, Entity] => [Number(layer), val]
   )
+}
+
+function getLayerRelationsTypes(layer: LayerID): [number, keyof typeof LayerRelationTypes][] {
+  return Object.entries(LayerRelations[layer]).map(([layer, val]) => [Number(layer), val])
 }
 
 /**
@@ -656,7 +660,7 @@ function propagateLayer<C extends Component>(
   args: SetComponentType<C> | undefined = undefined
 ) {
   if (component === LayerComponent || LayerComponents.includes(component as any)) return
-  for (const [linkedLayer, linkedEntity] of LayerFunctions.getLayerRelations(entity)) {
+  for (const [linkedLayer, linkedEntity] of LayerFunctions.getLayerRelationsEntities(entity)) {
     if (!LayerFunctions.shouldPropagate(linkedEntity, linkedLayer)) continue
     if (component.schema) LayerFunctions.propagateSchema(linkedLayer, component, args)
     setComponent(linkedEntity, component, args)
@@ -672,7 +676,8 @@ function propagateLayer<C extends Component>(
  * Simplifies unit testing by allowing the definition of function spies directly from this object.
  * */
 export const LayerFunctions = {
-  getLayerRelations,
+  getLayerRelationsEntities,
+  getLayerRelationsTypes,
   getLayerComponent,
   hasLayer,
   shouldPropagate,
@@ -772,7 +777,7 @@ export const removeComponent = <C extends Component>(entity: Entity, component: 
   if (!hasComponent(entity, component)) return
 
   if (LayerFunctions.hasLayer(entity)) {
-    for (const [layer, linkedEntity] of LayerFunctions.getLayerRelations(entity)) {
+    for (const [layer, linkedEntity] of LayerFunctions.getLayerRelationsEntities(entity)) {
       if (!LayerFunctions.shouldPropagate(entity, layer)) continue
       removeComponent(linkedEntity, component)
     }
@@ -942,23 +947,18 @@ export const LayerComponents = Object.entries(Layers).map(([name, layer]) => {
     // backward references
     refs: {} as Record<Entity, Entity>,
 
-    onSet: (entity, component) => {
-      const relations = Object.entries(LayerRelations[layer]).map(([layer, val]) => [Number(layer), val]) as any as [
-        LayerID,
-        keyof typeof LayerRelationTypes
-      ][]
-      for (const [linkedLayer, relation] of relations) {
+    onSet: (entity, _component) => {
+      for (const [linkedLayer, relation] of LayerFunctions.getLayerRelationsTypes(layer)) {
         if (relation === LayerRelationTypes.Propagate) {
-          const linkedEntity = createEntity(linkedLayer)
+          const linkedEntity = createEntity(linkedLayer as LayerID)
           getMutableComponent(entity, LayerComponents[layer]).relations[linkedLayer].set(linkedEntity)
           LayerComponents[linkedLayer].refs[linkedEntity] = entity
         }
       }
     },
 
-    onRemove(entity, component) {
-      const relations = LayerRelations[layer]
-      for (const [linkedLayer, relation] of Object.entries(relations).map(([layer, val]) => [Number(layer), val])) {
+    onRemove(entity, _component) {
+      for (const [linkedLayer, relation] of LayerFunctions.getLayerRelationsTypes(layer)) {
         if (relation === LayerRelationTypes.Propagate) {
           const relation = getComponent(entity, LayerComponents[layer]).relations[linkedLayer]
           removeEntity(relation)
