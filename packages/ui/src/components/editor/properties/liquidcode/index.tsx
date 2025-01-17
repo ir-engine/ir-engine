@@ -71,7 +71,9 @@ export const LiquidCodeNodeEditor: EditorComponentType = (props) => {
 
   useEffect(() => {
     if (liquidCodeComponent.isOpen.value) {
-      PopupMenuServices.showPopupMenu(UserMenus.EmbedFrame)
+      PopupMenuServices.showPopupMenu(UserMenus.EmbedFrame, {
+        liquidCode: liquidCodeComponent.liquidCode.value
+      })
     }
   }, [liquidCodeComponent.isOpen.value])
 

@@ -26,21 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { isClient } from '@ir-engine/hyperflux'
 import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
-
-const liquidCodeCallback = (liquidCodeEntity: Entity) => {
-  const liquidCode = useComponent(liquidCodeEntity, LiquidCodeComponent)
-  const buttons = InputComponent.getMergedButtons(liquidCodeEntity)
-  liquidCode.isOpen.set(!liquidCode.isOpen.value)
-}
-
-const interactMessage = 'E'
+const interactMessage = 'Click'
 
 export const enum LiquidCodeCallbacks {
   OPEN = 'open',
@@ -60,7 +51,6 @@ export const LiquidCodeComponent = defineComponent({
   }),
 
   liquidCodeCallbackName,
-  liquidCodeCallback,
   interactMessage,
   errors: ['INVALID_URL'],
 
@@ -71,8 +61,12 @@ export const LiquidCodeComponent = defineComponent({
 
     // todo: when liqudi code is change, set isOpen to false
     useEffect(() => {
-      setCallback(entity, liquidCodeCallbackName, () => LiquidCodeComponent.liquidCodeCallback(entity))
-    }, [liquidCode.liquidCode])
+      const toggleOpen = () => {
+        liquidCode.isOpen.set(!liquidCode.isOpen.value)
+      }
+
+      setCallback(entity, liquidCodeCallbackName, toggleOpen)
+    }, [])
 
     return null
   }

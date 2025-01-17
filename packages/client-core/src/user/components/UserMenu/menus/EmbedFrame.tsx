@@ -25,23 +25,37 @@ Infinite Reality Engine. All Rights Reserved.
 
 import multiLogger from '@ir-engine/common/src/logger'
 import Box from '@ir-engine/ui/src/primitives/mui/Box'
-import React from 'react'
+import React, { useEffect } from 'react'
 import Menu from '../../../../common/components/Menu'
 import { clientContextParams } from '../../../../util/ClientContextState'
 import { PopupMenuServices } from '../PopupMenuService'
 
 const logger = multiLogger.child({ component: 'system:settings-menu', modifier: clientContextParams })
 
-type Props = {}
+type Props = {
+  liquidCode: string
+}
 
-const EmbedFrame = ({}: Props): JSX.Element => {
+const EmbedFrame = ({ liquidCode }: Props): JSX.Element => {
+  const [htmlContent, setHtmlContent] = React.useState<string>('')
+
+  useEffect(() => {
+    setHtmlContent(liquidCode)
+  }, [liquidCode])
+
   return (
     <Menu unset={true} open isPopover={false} onClose={() => PopupMenuServices.showPopupMenu()}>
       <Box className="h-[90vh]">
-        <iframe
-          style={{ height: '100%', width: '100%' }}
-          src="https://ir-engine-mt-dev.theinfinitereality.io/concierge/bot?shopifyStoreFrontId=62a00252-8d97-11ef-b3ee-029b0d227a79"
-        ></iframe>
+        {htmlContent ? <div className="h-full w-full" dangerouslySetInnerHTML={{ __html: htmlContent }} /> : <></>}
+        {/* Apply styles to the iframe element */}
+        <style>
+          {`
+            iframe {
+              width: 100%;
+              height: 100%;
+            }
+          `}
+        </style>
       </Box>
     </Menu>
   )
