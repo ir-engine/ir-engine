@@ -31,13 +31,8 @@ import { isClient } from '@ir-engine/hyperflux'
 import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+
 const interactMessage = 'Click'
-
-export const enum LiquidCodeCallbacks {
-  OPEN = 'open',
-  CLOSE = 'close'
-}
-
 const liquidCodeCallbackName = 'liquidCodeCallback'
 
 export const LiquidCodeComponent = defineComponent({
@@ -45,7 +40,7 @@ export const LiquidCodeComponent = defineComponent({
   jsonID: 'ir_liquid_code',
 
   schema: S.Object({
-    // TODO: instead of just liquidCode, allow web links?
+    // TODO: Replace with url instead of liquid code
     liquidCode: S.String(''),
     isOpen: S.Bool(false)
   }),
@@ -61,6 +56,7 @@ export const LiquidCodeComponent = defineComponent({
 
     useEffect(() => {
       const toggleOpen = () => {
+        // if (getState(EngineState).isEditing) return
         liquidCode.isOpen.set(!liquidCode.isOpen.value)
       }
 
