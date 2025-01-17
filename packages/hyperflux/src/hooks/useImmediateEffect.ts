@@ -41,9 +41,7 @@ function noop() {}
 /**
  * Run an effect immediately on mount and whenever deps change.
  *
- * WARNING: Do not use this hook in a context that may suspend,
- * as the cleanup function will not be called on suspension,
- * and the effect will be run again on resume.
+ * NOTE: this effect only runs after the component is first mounted
  *
  * @param effect
  * @param deps
@@ -52,12 +50,17 @@ export function useImmediateEffect(effect: EffectCallback, deps?: DependencyList
   const cleanupRef = useHookstate<any>(null)
   const depsRef = useHookstate<any>(null)
 
+  // noop unless component is mounted to ensure we can clean up correctly
+  const isMounted = useHookstate(false)
+  useLayoutEffect(() => {
+    isMounted.set(true)
+  }, [])
+
   // make sure deps are hooked
-  // for (const d of deps ?? []) (d as any)?.value
   useEffect(() => {}, deps)
 
-  // only run effect on mount and whenever deps change
-  if (depsDiff(depsRef.get(NO_PROXY_STEALTH), deps)) {
+  // only run effect when mounted and whenever deps change
+  if (isMounted.value && depsDiff(depsRef.get(NO_PROXY_STEALTH), deps)) {
     depsRef.set(deps)
 
     // cleanup previous effect

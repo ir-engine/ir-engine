@@ -60,6 +60,8 @@ export function defineQuery(components: bitECS.QueryTerm[]) {
 
 export function removeQuery(queryOrTerms: ReturnType<typeof defineQuery> | bitECS.QueryTerm[]) {
   bitECS.removeQuery(HyperFlux.store, Array.isArray(queryOrTerms) ? queryOrTerms : queryOrTerms._query.components)
+  if ('_enterQuery' in queryOrTerms) queryOrTerms._enterQuery.unsubscribe()
+  if ('_exitQuery' in queryOrTerms) queryOrTerms._exitQuery.unsubscribe()
 }
 
 export const ReactiveQuerySystem = defineSystem({

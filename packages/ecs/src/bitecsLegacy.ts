@@ -60,34 +60,37 @@ export function defineQuery(components: QueryTerm[]) {
   return queryFn
 }
 
-export function enterQuery<W extends IWorld = IWorld>(queryFn: Query<W>): Query<W> {
+export function enterQuery<W extends IWorld = IWorld>(queryFn: Query<W>): Query<W> & { unsubscribe: () => void } {
   let queue: number[] = []
   const initSet = new WeakSet<IWorld>()
   const query = (world: W) => {
     if (!initSet.has(world)) {
       queue.push(...queryFn(world))
-      observe(world, onAdd(...(queryFn as any).components), (eid: EntityId) => queue.push(eid))
+      query.unsubscribe = observe(world, onAdd(...(queryFn as any).components), (eid: EntityId) => queue.push(eid))
       initSet.add(world)
     }
     const results = queue.slice()
     queue.length = 0
     return results
   }
+  query.unsubscribe = () => {}
   return query
 }
 
-export function exitQuery<W extends IWorld = IWorld>(queryFn: Query<W>): Query<W> {
+export function exitQuery<W extends IWorld = IWorld>(queryFn: Query<W>): Query<W> & { unsubscribe: () => void } {
   let queue: number[] = []
   const initSet = new WeakSet<IWorld>()
-  return (world: W) => {
+  const query = (world: W) => {
     if (!initSet.has(world)) {
-      observe(world, onRemove(...(queryFn as any).components), (eid: EntityId) => queue.push(eid))
+      query.unsubscribe = observe(world, onRemove(...(queryFn as any).components), (eid: EntityId) => queue.push(eid))
       initSet.add(world)
     }
     const results = queue.slice()
     queue.length = 0
     return results
   }
+  query.unsubscribe = () => {}
+  return query
 }
 
 export const addComponent = (world: IWorld, component: ComponentRef, eid: EntityId) =>

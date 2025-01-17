@@ -35,6 +35,7 @@ import type from 'react/experimental'
 import {
   DeepReadonly,
   HyperFlux,
+  NO_PROXY,
   NO_PROXY_STEALTH,
   ReactorRoot,
   SetPartialStateAction,
@@ -836,29 +837,46 @@ export function _use(promise) {
   }
 }
 
+const useComponentObservers = new Map<string, { promise: Promise<any>; unsubscribe: () => void }>()
+
 /**
  * Use a component in a reactive context (a React component)
  */
 export function useComponent<C extends Component>(entity: Entity, component: C): State<ComponentType<C>> {
   if (entity === UndefinedEntity) throw new Error('InvalidUsage: useComponent called with UndefinedEntity')
 
+  const key = entity + component.name
+
   // use() will suspend the component (by throwing a promise) and resume when the promise is resolved
-  let unsubscribe
   if (!hasComponent(entity, component)) {
-    const promise = new Promise((resolve) => {
-      unsubscribe = bitECS.observe(HyperFlux.store, bitECS.onAdd(component), (eid) => {
-        if (entity === eid) {
-          resolve(getComponent(entity, component))
-          unsubscribe?.()
-        }
+    let observer = useComponentObservers.get(key)
+    if (!observer) {
+      let unsubscribe
+      const promise = new Promise((resolve) => {
+        unsubscribe = bitECS.observe(HyperFlux.store, bitECS.onAdd(component), (eid) => {
+          if (entity === eid) {
+            resolve(getComponent(entity, component))
+            unsubscribe?.()
+            useComponentObservers.delete(key)
+          }
+        })
       })
-    })
-    ;(React.use ?? _use)(promise)
+      observer = {
+        promise,
+        unsubscribe
+      }
+      useComponentObservers.set(key, observer)
+    }
+    ;(React.use ?? _use)(observer.promise)
   }
 
   useEffect(() => {
     return () => {
-      unsubscribe?.()
+      const observer = useComponentObservers.get(key)
+      if (observer) {
+        observer.unsubscribe()
+        useComponentObservers.delete(key)
+      }
     }
   }, [])
 
