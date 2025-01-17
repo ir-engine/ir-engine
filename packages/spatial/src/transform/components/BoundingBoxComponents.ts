@@ -79,7 +79,7 @@ export const BoundingBoxComponent = defineComponent({
       ObjectLayerMaskComponent.setLayer(helperEntity, ObjectLayers.NodeHelper)
       boundingBox.helper.set(helperEntity)
 
-      TransformComponent.dirtyTransforms[entity] = true //used to dirty trasform and set the appropate bounding box
+      TransformComponent.dirty[entity] = 1 //used to dirty trasform and set the appropate bounding box
       updateBoundingBox(entity)
 
       return () => {

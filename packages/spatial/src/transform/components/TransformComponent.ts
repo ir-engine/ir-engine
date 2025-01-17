@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
-import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/ecs'
+import { EntityTreeComponent, Types, getAncestorWithComponents } from '@ir-engine/ecs'
 import { defineComponent, getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
@@ -49,7 +49,8 @@ export const PoseECS = {
 export const TransformECS = {
   position: ECSSchema.Vec3,
   rotation: ECSSchema.Quaternion,
-  scale: ECSSchema.Vec3
+  scale: ECSSchema.Vec3,
+  dirty: Types.ui8
   // There might be a way to make this a performance gain, but in testing it's about 15% slower than JS arrays
   // matrix: ECSSchema.Mat4,
   // matrixWorld: ECSSchema.Mat4
@@ -62,7 +63,7 @@ export const TransformComponent = defineComponent({
 
   onInit: (initial) => {
     const entity = initial.entity
-    const dirtyTransforms = TransformComponent.dirtyTransforms
+    const dirtyTransforms = TransformComponent.dirty
     const component = {
       position: Vec3ProxyDirty(initial.position, entity, dirtyTransforms),
       rotation: QuaternionProxyDirty(initial.rotation, entity, dirtyTransforms),
@@ -84,14 +85,14 @@ export const TransformComponent = defineComponent({
     const parentEntity = entityTree?.parentEntity
     if (parentEntity) {
       const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
-      if (parentTransform) component.matrixWorld.value.multiplyMatrices(parentTransform.matrixWorld, component.matrix)
+      if (parentTransform) component.matrixWorld.value.multiplyMatrices(parentTransform.matrixWorld, component.matrix.value as Matrix4)
     } else {
       component.matrixWorld.value.copy(component.matrix.value as Matrix4)
     }
   },
 
   onRemove: (entity, component) => {
-    delete TransformComponent.dirtyTransforms[entity]
+    TransformComponent.dirty[entity] = 0
   },
 
   toJSON: (component) => {
@@ -230,7 +231,7 @@ export const TransformComponent = defineComponent({
       transform.matrix.copy(transform.matrixWorld)
     }
     decomposeMatrix(entity)
-    TransformComponent.dirtyTransforms[entity] = true
+    TransformComponent.dirty[entity] = 1
   },
 
   /**
@@ -309,7 +310,6 @@ export const TransformComponent = defineComponent({
     return outVector
   },
 
-  dirtyTransforms: {} as Record<Entity, boolean>,
   transformsNeedSorting: false
 })
 

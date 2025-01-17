@@ -77,7 +77,7 @@ export const ScenePreviewCameraComponent = defineComponent({
 
     useExecute(
       () => {
-        if (!TransformComponent.dirtyTransforms[entity]) return
+        if (!TransformComponent.dirty[entity]) return
         const camera = getComponent(entity, ScenePreviewCameraComponent).camera
         camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
       },
