@@ -98,7 +98,7 @@ function PersistentAnchorReactor() {
     const originalParent = getComponent(getComponent(entity, EntityTreeComponent).parentEntity, UUIDComponent)
     originalParentEntityUUID.set(originalParent)
     setComponent(entity, EntityTreeComponent, { parentEntity: Engine.instance.localFloorEntity })
-    TransformComponent.dirtyTransforms[entity] = true
+    TransformComponent.dirty[entity] = 1
 
     const wireframe = anchor.wireframe.value
 
@@ -126,7 +126,7 @@ function PersistentAnchorReactor() {
       /** add back to the scene */
       const originalParent = UUIDComponent.getEntityByUUID(originalParentEntityUUID.value)
       setComponent(entity, EntityTreeComponent, { parentEntity: originalParent })
-      TransformComponent.dirtyTransforms[entity] = true
+      TransformComponent.dirty[entity] = 1
 
       if (typeof wireframe === 'boolean') {
         obj.material.wireframe = wireframe

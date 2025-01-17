@@ -117,7 +117,7 @@ const compareReferenceDepth = (a: Entity, b: Entity) => {
   return aDepth - bDepth
 }
 
-export const isDirty = (entity: Entity) => TransformComponent.dirtyTransforms[entity]
+export const isDirty = (entity: Entity) => TransformComponent.dirty[entity] === 1
 
 const _sortedTransformEntities = [] as Entity[]
 
@@ -153,11 +153,11 @@ const sortAndMakeDirtyEntities = () => {
 
   // entities with dirty parent or reference entities, or computed transforms, should also be dirty
   for (const entity of _sortedTransformEntities) {
-    TransformComponent.dirtyTransforms[entity] =
-      TransformComponent.dirtyTransforms[entity] ||
-      hasComponent(entity, ComputedTransformComponent) ||
-      TransformComponent.dirtyTransforms[getOptionalComponent(entity, EntityTreeComponent)?.parentEntity ?? -1] ||
-      false
+    TransformComponent.dirty[entity] =
+      TransformComponent.dirty[entity] ||
+      (hasComponent(entity, ComputedTransformComponent) ? 1 : 0) ||
+      TransformComponent.dirty[getOptionalComponent(entity, EntityTreeComponent)?.parentEntity ?? -1] ||
+      1
   }
 }
 
@@ -242,6 +242,6 @@ export const TransformDirtyCleanupSystem = defineSystem({
   uuid: 'ee.engine.TransformDirtyCleanupSystem',
   insert: { after: TransformSystem },
   execute: () => {
-    for (const entity in TransformComponent.dirtyTransforms) delete TransformComponent.dirtyTransforms[entity]
+    TransformComponent.dirty.fill(0)
   }
 })

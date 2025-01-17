@@ -269,7 +269,7 @@ const applyTransformToChildren = (entity: Entity) => {
   iterateEntityNode(entity, (entity) => {
     if (!hasComponent(entity, TransformComponent)) return
     computeTransformMatrix(entity)
-    TransformComponent.dirtyTransforms[entity] = true
+    TransformComponent.dirty[entity] = 1
   })
 }
 
