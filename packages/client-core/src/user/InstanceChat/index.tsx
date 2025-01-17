@@ -32,9 +32,11 @@ import React, { createContext, useContext, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
+import { PopoverState } from '../../common/services/PopoverState'
 import { ChannelState } from '../../social/services/ChannelService'
 import { AvatarUIActions, AvatarUIState } from '../../systems/state/AvatarUIState'
 import LocationIconButton from '../components/LocationIconButton'
+import ProfileMenu from '../menus/ProfileMenu'
 import { AuthState } from '../services/AuthService'
 
 const InstanceChatContext = createContext({
@@ -238,10 +240,12 @@ export default function InstanceChat() {
       {isGuest || !ageVerified ? (
         <div className="rounded-lg bg-[#C6C6C6] p-4">
           <div className="mx-auto text-center font-semibold text-[#3B3A3A]">{t('user:instanceChat.wantToChat')}</div>
-          <button className="mt-4 flex items-center justify-center rounded-[20px] bg-[#969696] px-[30px] py-1.5">
+          <button
+            className="mt-4 flex items-center justify-center rounded-[20px] bg-[#969696] px-[30px] py-1.5"
+            onClick={() => PopoverState.showPopupover(<ProfileMenu />)}
+          >
             {isGuest ? t('user:instanceChat.register') : t('user:instanceChat.verifyAge')}
           </button>
-          {/* todo: where does this link on button click go? */}
         </div>
       ) : (
         <div className="w-[25vw] pb-6 pr-6">
