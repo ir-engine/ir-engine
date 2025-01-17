@@ -47,7 +47,7 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
-import { getMutableState, getState, NO_PROXY_STEALTH, none, State } from '@ir-engine/hyperflux'
+import { getMutableState, getState, NO_PROXY_STEALTH, none, State, useHookstate } from '@ir-engine/hyperflux'
 
 import { LayerComponent, useAncestorWithComponents } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -194,6 +194,7 @@ export const GLTFComponent = defineComponent({
 export const GLTFComponentReactor = (props: { entity: Entity }) => {
   const entity = props.entity
   const gltfComponent = useComponent(entity, GLTFComponent)
+  const documentLoaded = useHookstate(false)
 
   useEffect(() => {
     const occlusion = gltfComponent.cameraOcclusion.value
@@ -223,12 +224,14 @@ export const GLTFComponentReactor = (props: { entity: Entity }) => {
     let aborted = false
     let loadedEntities = null as Entity[] | null
     GLTFLoaderFunctions.loadScene(options, sceneIndex).then(() => {
+      documentLoaded.set(true)
       loadedEntities = SourceComponent.getEntitiesBySource(entity)
       if (aborted) {
         for (const entity of loadedEntities) removeEntity(entity)
       }
     })
     return () => {
+      documentLoaded.set(false)
       GLTFLoaderFunctions.unloadScene(url, entity)
       aborted = true
       if (loadedEntities) {
@@ -252,7 +255,7 @@ export const GLTFComponentReactor = (props: { entity: Entity }) => {
   const dependencies = gltfComponent.dependencies.get(NO_PROXY_STEALTH) as ComponentDependencies | undefined
   return (
     <>
-      <ResourceReactor documentID={sourceID} entity={entity} />
+      <ResourceReactor documentID={sourceID} entity={entity} documentLoaded={documentLoaded.value} />
       {dependencies && !componentDependenciesLoaded(dependencies) ? (
         <DependencyReactor key={entity} gltfComponentEntity={entity} dependencies={dependencies} />
       ) : null}
@@ -260,14 +263,14 @@ export const GLTFComponentReactor = (props: { entity: Entity }) => {
   )
 }
 
-const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
+const ResourceReactor = (props: { documentID: string; entity: Entity, documentLoaded: boolean }) => {
   const dependenciesLoaded = GLTFComponent.useDependenciesLoaded(props.entity)
   const resourceQuery = useQuery([SourceComponent, ResourcePendingComponent])
 
   useApplyCollidersToChildMeshesEffect(props.entity)
 
   useEffect(() => {
-    if (!hasComponent(props.entity, GLTFComponent)) return
+    if (!hasComponent(props.entity, GLTFComponent) || !props.documentLoaded) return
     if (getComponent(props.entity, GLTFComponent).progress === 100) return
     const entities = resourceQuery.filter((e) => getComponent(e, SourceComponent) === props.documentID)
     if (!entities.length) {
@@ -295,7 +298,7 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
 
     const percentage = Math.floor(Math.min((progress / total) * 100, dependenciesLoaded ? 100 : 99))
     getMutableComponent(props.entity, GLTFComponent).progress.set(percentage)
-  }, [resourceQuery, dependenciesLoaded])
+  }, [resourceQuery, dependenciesLoaded, props.documentLoaded])
 
   return null
 }

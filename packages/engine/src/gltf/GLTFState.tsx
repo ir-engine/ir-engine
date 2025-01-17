@@ -107,7 +107,7 @@ export const AssetState = defineState({
   loadAsync: async (
     source: string,
     unloadOnComplete = true,
-    uuid = MathUtils.generateUUID() as EntityUUID,
+    uuid = UUIDComponent.generateUUID(),
     parentEntity = UndefinedEntity,
     layer = Layers.Simulation as LayerID
   ) => {
