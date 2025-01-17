@@ -94,6 +94,10 @@ export const AvatarControllerComponent = defineComponent({
     const camera = useComponent(Engine.instance.cameraEntity, CameraComponent)
     const world = Physics.useWorld(entity)
     const gltfComponent = useOptionalComponent(entity, GLTFComponent)
+    const cameraHasTargetRotation = !!useOptionalComponent(
+      avatarControllerComponent.cameraEntity.value,
+      TargetCameraRotationComponent
+    )
 
     useImmediateEffect(() => {
       avatarControllerComponent.cameraEntity.set(getState(ReferenceSpaceState).viewerEntity || UndefinedEntity)
@@ -136,7 +140,7 @@ export const AvatarControllerComponent = defineComponent({
       if (isCameraAttachedToAvatar) {
         const controller = getComponent(entity, AvatarControllerComponent)
         removeComponent(controller.cameraEntity, FollowCameraComponent)
-      } else {
+      } else if (cameraHasTargetRotation) {
         const controller = getComponent(entity, AvatarControllerComponent)
         const targetCameraRotation = getComponent(controller.cameraEntity, TargetCameraRotationComponent)
         setComponent(controller.cameraEntity, FollowCameraComponent, {
@@ -147,7 +151,7 @@ export const AvatarControllerComponent = defineComponent({
           thirdPersonOffset: new Vector3(0, avatarComponent.eyeHeight.value, 0)
         })
       }
-    }, [isCameraAttachedToAvatar, avatarComponent])
+    }, [isCameraAttachedToAvatar, avatarComponent, cameraHasTargetRotation])
 
     return null
   }

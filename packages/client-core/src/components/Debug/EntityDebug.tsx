@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getAllEntities, getEntityComponents } from 'bitecs'
+import { getAllEntities, getEntityComponents } from '@ir-engine/ecs'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'

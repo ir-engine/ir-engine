@@ -40,7 +40,7 @@ import {
   Layers,
   setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { AssetState } from '@ir-engine/engine/src/gltf/GLTFState'
@@ -75,7 +75,7 @@ export async function addMediaNode(
   parent?: Entity,
   before?: Entity,
   extraComponentJson: ComponentJsonType[] = []
-) {
+): Promise<EntityUUID | null> {
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
   console.log(contentType)
@@ -89,7 +89,7 @@ export async function addMediaNode(
       const mouse = new Vector2()
       const mouseEvent = event as MouseEvent // Type assertion
       const element = mouseEvent.target as HTMLElement
-      let rect = element.getBoundingClientRect()
+      const rect = element.getBoundingClientRect()
       mouse.x = ((mouseEvent.clientX - rect.left) / rect.width) * 2 - 1
       mouse.y = -((mouseEvent.clientY - rect.top) / rect.height) * 2 + 1
       // const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
@@ -146,7 +146,7 @@ export async function addMediaNode(
         (entity) => {
           const entities = SourceComponent.getEntitiesBySource(entity)
           const rootEntity = getState(EditorState).rootEntity
-          const newSource = GLTFComponent.getSource(rootEntity)
+          const newSource = GLTFComponent.getInstanceID(rootEntity)
           for (const entity of entities) {
             setComponent(entity, SourceComponent, newSource)
           }
@@ -157,9 +157,9 @@ export async function addMediaNode(
         }
       )
     } else {
-      EditorControlFunctions.createObjectFromSceneElement(
+      const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
         [
-          { name: GLTFComponent.jsonID, props: { src: url, progress: 0, body: null } },
+          { name: GLTFComponent.jsonID, props: { src: url } },
           { name: ShadowComponent.jsonID },
           { name: EnvmapComponent.jsonID },
           ...extraComponentJson
@@ -167,9 +167,10 @@ export async function addMediaNode(
         parent!,
         before
       )
+      return entityUUID
     }
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
-    EditorControlFunctions.createObjectFromSceneElement(
+    const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
       [
         { name: VideoComponent.jsonID },
         { name: PositionalAudioComponent.jsonID },
@@ -179,14 +180,16 @@ export async function addMediaNode(
       parent!,
       before
     )
+    return entityUUID
   } else if (contentType.startsWith('image/')) {
-    EditorControlFunctions.createObjectFromSceneElement(
+    const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
       [{ name: ImageComponent.jsonID, props: { source: url } }, ...extraComponentJson],
       parent!,
       before
     )
+    return entityUUID
   } else if (contentType.startsWith('audio/')) {
-    EditorControlFunctions.createObjectFromSceneElement(
+    const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
       [
         { name: PositionalAudioComponent.jsonID },
         { name: MediaComponent.jsonID, props: { resources: [url] } },
@@ -195,9 +198,10 @@ export async function addMediaNode(
       parent!,
       before
     )
+    return entityUUID
   } else if (url.includes('.uvol')) {
     // TODO: detect whether to add LegacyVolumetricComponent or VolumetricComponent
-    EditorControlFunctions.createObjectFromSceneElement(
+    const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
       [
         { name: VolumetricComponent.jsonID },
         { name: MediaComponent.jsonID, props: { resources: [url] } },
@@ -206,5 +210,7 @@ export async function addMediaNode(
       parent!,
       before
     )
+    return entityUUID
   }
+  return null
 }

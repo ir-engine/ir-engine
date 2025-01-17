@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { calculateAndApplyYOffset } from '@ir-engine/common/src/utils/offsets'
 import { Entity, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
-import { Component, getAllComponents, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Component, Layers, getAllComponents, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ComponentEditorsState } from '@ir-engine/editor/src/services/ComponentEditors'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
@@ -61,15 +61,9 @@ const EntityComponentEditor = ({
 const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multiEdit: boolean }) => {
   const { t } = useTranslation()
 
-  const entity = UUIDComponent.getEntityByUUID(entityUUID)
+  const entity = UUIDComponent.getEntityByUUID(entityUUID, Layers.Authoring)
   const componentEditors = useHookstate(getMutableState(ComponentEditorsState)).get(NO_PROXY)
-  // const node = useHookstate(GLTFNodeState.getMutableNode(entity))
   const components: Component[] = []
-  // for (const jsonID of Object.keys(node.extensions.value!)) {
-  //   const component = ComponentJSONIDMap.get(jsonID)!
-  //   if (!componentEditors[component?.name]) continue
-  //   components.push(component)
-  // }
   const entityComponents = getAllComponents(entity)
   for (const component of entityComponents) {
     if (!componentEditors[component.name ?? '']) continue
@@ -90,6 +84,8 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
   }, [])
 
   const [isAddComponentMenuOpen, setIsAddComponentMenuOpen] = useState(false)
+
+  if (!entity) return null
 
   return (
     <>
@@ -130,13 +126,6 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
   )
 }
 
-const NodeEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multiEdit: boolean }) => {
-  const entity = UUIDComponent.useEntityByUUID(entityUUID)
-  // const node = GLTFNodeState.useMutableNode(entity)
-  // if (!node) return null
-  return <EntityEditor entityUUID={entityUUID} multiEdit={multiEdit} />
-}
-
 const PropertiesEditor = () => {
   const { t } = useTranslation()
   const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities).value
@@ -150,7 +139,7 @@ const PropertiesEditor = () => {
       {materialUUID ? (
         <MaterialEditor materialUUID={materialUUID} />
       ) : uuid ? (
-        <NodeEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
+        <EntityEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
       ) : (
         <div className="flex h-full items-center justify-center text-gray-500">
           {t('editor:properties.noNodeSelected')}

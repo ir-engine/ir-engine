@@ -28,9 +28,11 @@ import { mockEngineRenderer } from './MockEngineRenderer'
 
 import { ECSState, Timer, setComponent } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { Matrix4 } from 'three'
 import { ReferenceSpaceState } from '../../src/ReferenceSpaceState'
 import { RendererComponent } from '../../src/renderer/WebGLRendererSystem'
-import { XRState } from '../../src/xr/XRState'
+import { ReferenceSpace, XRState } from '../../src/xr/XRState'
+import { MockXRFrame, MockXRReferenceSpace, MockXRSpace } from './MockXR'
 
 export const mockSpatialEngine = () => {
   initializeSpatialEngine()
@@ -46,4 +48,12 @@ export const mockSpatialEngine = () => {
   const { originEntity, localFloorEntity, viewerEntity } = getState(ReferenceSpaceState)
   mockEngineRenderer(viewerEntity)
   setComponent(viewerEntity, RendererComponent, { scenes: [originEntity, localFloorEntity, viewerEntity] })
+
+  const xrFrame = new MockXRFrame()
+  // @ts-expect-error Allow coercing the MockXRFrame type into the xrFrame property of XRState
+  getMutableState(XRState).xrFrame.set(xrFrame)
+
+  ReferenceSpace.origin = new MockXRReferenceSpace(new Matrix4()) as any as XRReferenceSpace
+  ReferenceSpace.localFloor = new MockXRReferenceSpace(new Matrix4()) as any as XRReferenceSpace
+  ReferenceSpace.viewer = new MockXRSpace(new Matrix4()) as any as XRReferenceSpace
 }

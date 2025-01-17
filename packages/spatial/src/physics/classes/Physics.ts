@@ -225,7 +225,7 @@ function createRigidBody(world: PhysicsWorld, entity: Entity) {
   TransformComponent.getMatrixRelativeToScene(entity, mat4)
   mat4.decompose(position, rotation, scale)
 
-  TransformComponent.dirtyTransforms[entity] = false
+  TransformComponent.dirty[entity] = 0
 
   const rigidBody = getComponent(entity, RigidBodyComponent)
 

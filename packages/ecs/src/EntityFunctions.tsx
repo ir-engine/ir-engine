@@ -33,7 +33,7 @@ import { removeAllComponents } from './ComponentFunctions'
 import { Entity, EntityUUID, UndefinedEntity } from './Entity'
 
 export const removeEntity = (entity: Entity) => {
-  if (!entity || !entityExists(entity)) return [] ///throw new Error(`[removeEntity]: Entity ${entity} does not exist in the world`)
+  if (!entity || !entityExists(entity)) return ///throw new Error(`[removeEntity]: Entity ${entity} does not exist in the world`)
 
   removeAllComponents(entity)
 

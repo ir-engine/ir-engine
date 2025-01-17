@@ -23,9 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import { AnimationClip, AnimationMixer, Group, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Group, MathUtils, Vector3 } from 'three'
 
 import {
   defineQuery,
@@ -33,28 +32,22 @@ import {
   ECSState,
   Entity,
   getComponent,
-  getOptionalComponent,
-  hasComponent,
   setComponent,
   useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
-import { defineState, getMutableState, getState, isClient } from '@ir-engine/hyperflux'
-import { NetworkObjectComponent } from '@ir-engine/network'
+import { defineState, getMutableState, getState, isClient, useMutableState } from '@ir-engine/hyperflux'
 import {
   createPriorityQueue,
   createSortAndApplyPriorityQueue
 } from '@ir-engine/spatial/src/common/functions/PriorityQueue'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { compareDistanceToCamera } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { TransformSystem } from '@ir-engine/spatial/src/transform/TransformModule'
-import { XRLeftHandComponent, XRRightHandComponent } from '@ir-engine/spatial/src/xr/XRComponents'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
-import { EntityTreeComponent, traverseEntityNode } from '@ir-engine/ecs'
+import { traverseEntityNode } from '@ir-engine/ecs'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
@@ -62,18 +55,13 @@ import React from 'react'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { addError, removeError } from '../../scene/functions/ErrorFunctions'
-import { applyHandRotationFK } from '../animation/applyHandRotationFK'
 import { getRootSpeed, updateAnimationGraph } from '../animation/AvatarAnimationGraph'
-import { getArmIKHint } from '../animation/getArmIKHint'
-import { blendIKChain, solveTwoBoneIK } from '../animation/TwoBoneIKSolver'
-import { ikTargets, preloadedAnimations } from '../animation/Util'
+import { preloadedAnimations } from '../animation/Util'
 import { AnimationState } from '../AnimationManager'
 import { mixamoVRMRigMap } from '../AvatarBoneMatching'
 import { AnimationComponent, useLoadAnimationFromBatchGLTF } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent, createVRM } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
-import { AvatarIKTargetComponent } from '../components/AvatarIKComponents'
-import { NormalizedBoneComponent } from '../components/NormalizedBoneComponent'
 import { getAllLoadedAnimations, setupAvatarProportions } from '../functions/avatarFunctions'
 import { normalizeAnimationClips, retargetAnimationClips } from '../functions/retargetingFunctions'
 import { updateVRMRetargeting } from '../functions/updateVRMRetargeting'
@@ -101,12 +89,7 @@ const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationCom
 const avatarComponentQuery = defineQuery([AvatarComponent, RigidBodyComponent, AvatarAnimationComponent])
 const avatarRigQuery = defineQuery([AvatarRigComponent])
 
-const _quat = new Quaternion()
-const _quat2 = new Quaternion()
 const _vector3 = new Vector3()
-const _hint = new Vector3()
-const mat4 = new Matrix4()
-const hipsForward = new Vector3(0, 0, 1)
 
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(avatarComponentQuery, compareDistanceToCamera)
 
@@ -150,182 +133,6 @@ const execute = () => {
   }
 
   updateAnimationGraph(avatarAnimationEntities)
-
-  for (const entity of avatarAnimationEntities) {
-    const rigComponent = getComponent(entity, AvatarRigComponent)
-    const avatarComponent = getComponent(entity, AvatarComponent)
-
-    const rig = rigComponent.bonesToEntities
-
-    if (!rig.hips) continue
-
-    const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
-    const leftFoot = AvatarIKTargetComponent.getTargetEntity(ownerID, ikTargets.leftFoot)
-    const leftFootTransform = getOptionalComponent(leftFoot, TransformComponent)
-    const leftFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[leftFoot]
-
-    const rightFoot = AvatarIKTargetComponent.getTargetEntity(ownerID, ikTargets.rightFoot)
-    const rightFootTransform = getOptionalComponent(rightFoot, TransformComponent)
-    const rightFootTargetBlendWeight = AvatarIKTargetComponent.blendWeight[rightFoot]
-
-    const leftHand = AvatarIKTargetComponent.getTargetEntity(ownerID, ikTargets.leftHand)
-    const leftHandTransform = getOptionalComponent(leftHand, TransformComponent)
-    const leftHandTargetBlendWeight = AvatarIKTargetComponent.blendWeight[leftHand]
-
-    const rightHand = AvatarIKTargetComponent.getTargetEntity(ownerID, ikTargets.rightHand)
-    const rightHandTransform = getOptionalComponent(rightHand, TransformComponent)
-    const rightHandTargetBlendWeight = AvatarIKTargetComponent.blendWeight[rightHand]
-
-    const head = AvatarIKTargetComponent.getTargetEntity(ownerID, ikTargets.head)
-    const headTargetBlendWeight = AvatarIKTargetComponent.blendWeight[head]
-
-    const transform = getComponent(entity, TransformComponent)
-
-    const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
-
-    if (headTargetBlendWeight) {
-      const headTransform = getComponent(head, TransformComponent)
-      const normalizedHips = getComponent(rig.hips, NormalizedBoneComponent)
-
-      normalizedHips.position.set(
-        headTransform.position.x,
-        headTransform.position.y - avatarComponent.torsoLength - 0.125,
-        headTransform.position.z
-      )
-
-      //offset target forward to account for hips being behind the head
-      hipsForward.set(0, 0, 1)
-      hipsForward.applyQuaternion(rigidbodyComponent.rotation)
-      hipsForward.multiplyScalar(0.125)
-      normalizedHips.position.sub(hipsForward)
-
-      // convert to local space
-      normalizedHips.position.applyMatrix4(mat4.copy(transform.matrixWorld).invert())
-
-      _quat2.copy(headTransform.rotation)
-
-      //calculate head look direction and apply to head bone
-      //look direction should be set outside of the xr switch
-      getComponent(rig.head, NormalizedBoneComponent).quaternion.multiplyQuaternions(
-        getComponent(rig.spine, NormalizedBoneComponent).getWorldQuaternion(_quat).invert(),
-        _quat2
-      )
-
-      const hips = getComponent(rig.hips, BoneComponent)
-      /** Place normalized rig in world space for ik calculations */
-      const newWorldMatrix = transform.matrixWorld.clone()
-      newWorldMatrix.elements[13] = hips.position.y - transform.position.y
-      normalizedHips.matrix.setPosition(new Vector3())
-      normalizedHips.matrixWorld.multiplyMatrices(newWorldMatrix, normalizedHips.matrix)
-      normalizedHips.matrixWorld.scale(new Vector3(100, 100, 100))
-      for (const boneName of VRMHumanBoneList) {
-        const bone = getOptionalComponent(rigComponent.bonesToEntities[boneName], NormalizedBoneComponent)
-        if (!bone) continue
-        bone.scale.setScalar(1)
-        bone.updateMatrix()
-        if (boneName === 'hips') continue
-        bone.updateMatrixWorld()
-        const worldMatrix = getComponent(rig[boneName], BoneComponent).matrixWorld.elements
-        bone.matrixWorld.elements[13] = worldMatrix[13]
-        bone.matrixWorld.elements[12] = worldMatrix[12]
-        bone.matrixWorld.elements[14] = worldMatrix[14]
-      }
-    }
-
-    if (rightHandTargetBlendWeight && rightHandTransform) {
-      getArmIKHint(
-        entity,
-        rightHandTransform.position,
-        rightHandTransform.rotation,
-        getComponent(rig.rightUpperArm, BoneComponent).getWorldPosition(_vector3),
-        'right',
-        _hint
-      )
-
-      const upperArmEntity = getComponent(rig.rightUpperArm, EntityTreeComponent).parentEntity
-      solveTwoBoneIK(
-        getComponent(upperArmEntity, NormalizedBoneComponent).matrixWorld,
-        rigComponent.ikMatrices.rightUpperArm!,
-        rigComponent.ikMatrices.rightLowerArm!,
-        rigComponent.ikMatrices.rightHand!,
-        rightHandTransform.position,
-        rightHandTransform.rotation,
-        _hint
-      )
-
-      blendIKChain(entity, ['rightUpperArm', 'rightLowerArm', 'rightHand'], rightHandTargetBlendWeight)
-    }
-
-    if (leftHandTargetBlendWeight && leftHandTransform) {
-      getArmIKHint(
-        entity,
-        leftHandTransform.position,
-        leftHandTransform.rotation,
-        getComponent(rig.leftUpperArm, BoneComponent).getWorldPosition(_vector3),
-        'left',
-        _hint
-      )
-
-      const upperArmEntity = getComponent(rig.leftUpperArm, EntityTreeComponent).parentEntity
-      solveTwoBoneIK(
-        getComponent(upperArmEntity, NormalizedBoneComponent).matrixWorld,
-        rigComponent.ikMatrices.leftUpperArm!,
-        rigComponent.ikMatrices.leftLowerArm!,
-        rigComponent.ikMatrices.leftHand!,
-        leftHandTransform.position,
-        leftHandTransform.rotation,
-        _hint
-      )
-
-      blendIKChain(entity, ['leftUpperArm', 'leftLowerArm', 'leftHand'], leftHandTargetBlendWeight)
-    }
-
-    if (rightFootTargetBlendWeight && rightFootTransform) {
-      _hint
-        .set(-avatarComponent.footGap * 1.5, 0, 1)
-        .applyQuaternion(transform.rotation)
-        .add(transform.position)
-
-      solveTwoBoneIK(
-        getComponent(rig.hips, NormalizedBoneComponent).matrixWorld,
-        rigComponent.ikMatrices.rightUpperLeg!,
-        rigComponent.ikMatrices.rightLowerLeg!,
-        rigComponent.ikMatrices.rightFoot!,
-        rightFootTransform.position,
-        rightFootTransform.rotation,
-        _hint
-      )
-
-      blendIKChain(entity, ['rightUpperLeg', 'rightLowerLeg', 'rightFoot'], rightFootTargetBlendWeight)
-    }
-
-    if (leftFootTargetBlendWeight && leftFootTransform) {
-      _hint
-        .set(-avatarComponent.footGap * 1.5, 0, 1)
-        .applyQuaternion(transform.rotation)
-        .add(transform.position)
-
-      solveTwoBoneIK(
-        getComponent(rig.hips, NormalizedBoneComponent).matrixWorld,
-        rigComponent.ikMatrices.leftUpperLeg!,
-        rigComponent.ikMatrices.leftLowerLeg!,
-        rigComponent.ikMatrices.leftFoot!,
-        leftFootTransform.position,
-        leftFootTransform.rotation,
-        _hint
-      )
-
-      blendIKChain(entity, ['leftUpperLeg', 'leftLowerLeg', 'leftFoot'], leftFootTargetBlendWeight)
-    }
-
-    if (hasComponent(entity, XRRightHandComponent)) {
-      applyHandRotationFK(entity, 'right', getComponent(entity, XRRightHandComponent).rotations)
-    }
-
-    if (hasComponent(entity, XRLeftHandComponent)) {
-      applyHandRotationFK(entity, 'left', getComponent(entity, XRLeftHandComponent).rotations)
-    }
-  }
 
   for (const entity of avatarRigQuery()) updateVRMRetargeting(entity)
 }
@@ -425,13 +232,14 @@ const RigReactor = (props: { entity: Entity }) => {
 const AnimationReactor = (props: { entity: Entity }) => {
   const entity = props.entity
   const rigComponent = useOptionalComponent(entity, AvatarRigComponent)
+  const loadedAnimations = useMutableState(AnimationState).loadedAnimations
   useEffect(() => {
-    if (!Object.values(rigComponent?.entitiesToBones ?? {}).length || !rigComponent?.vrm?.scene?.value) return
+    if (!rigComponent?.vrm?.scene?.value) return
     setComponent(entity, AnimationComponent, {
       animations: getAllLoadedAnimations(),
       mixer: new AnimationMixer(rigComponent.vrm.scene.value as Group)
     })
-  }, [rigComponent?.bonesToEntities, rigComponent?.vrm.scene])
+  }, [rigComponent?.vrm, loadedAnimations])
   return null
 }
 

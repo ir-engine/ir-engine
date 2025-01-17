@@ -1506,11 +1506,9 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   getComponent(options.entity, GLTFComponent).body = null
 }
 
-const unloadScene = async (options: GLTFParserOptions) => {
-  const url = options.url
-
+const unloadScene = async (url: string, entity: Entity) => {
   // handle reference counting
-  unloadResourcesForEntity(options.entity)
+  unloadResourcesForEntity(entity)
 
   // if no more references to this url, remove from cache
   const assetCacheState = getState(AssetCacheState)

@@ -39,15 +39,7 @@ import {
   Texture
 } from 'three'
 
-import {
-  Engine,
-  Entity,
-  QueryReactor,
-  getAuthoringCounterpart,
-  getOptionalComponent,
-  useComponent,
-  useEntityContext
-} from '@ir-engine/ecs'
+import { Engine, Entity, QueryReactor, getOptionalComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 
@@ -98,7 +90,7 @@ export type ResourceAssetType =
   | BufferAttribute
   | InterleavedBufferAttribute
   | Light
-  // | AudioBuffer
+  | AudioBuffer
   | ArrayBuffer
   | Line
 
@@ -239,7 +231,7 @@ const resourceCallbacks = {
       asset: Texture | CompressedTexture,
       resource: State<Resource>,
       resourceState: State<typeof ResourceState._TYPE>,
-      discardUponUpload: boolean
+      discardUponUpload = false
     ) => {
       if (!asset.image) return
       resource.metadata.merge({ onGPU: false, discarded: false })
@@ -365,7 +357,7 @@ const resourceCallbacks = {
       asset: ResourceAssetType,
       resource: State<Resource>,
       resourceState: State<typeof ResourceState._TYPE>,
-      discardUponUpload: boolean
+      discardUponUpload?: boolean
     ) => void
     onProgress?: (request: ProgressEvent, resource: State<Resource>) => void
     onError?: (event: ErrorEvent | Error, resource: State<Resource>) => void
@@ -521,7 +513,7 @@ const getResourceName = (asset: ResourceAssetType) => {
 const addEntityResource = (
   entity: Entity,
   asset: ResourceAssetType,
-  returnedResources = [] as any[],
+  returnedResources = [] as Resource[],
   extraData?: string
 ) => {
   if (Array.isArray(asset)) {
@@ -557,11 +549,11 @@ const addEntityResource = (
   returnedResources.push(resource)
 
   /** @todo disposal currently causes errors */
-  const entityHasAuthoringUpstream = getAuthoringCounterpart(entity)
+  //const entityHasAuthoringUpstream = getAuthoringCounterpart(entity)
 
   const callbacks = resourceCallbacks[resourceType]
   if (callbacks?.onLoad)
-    callbacks.onLoad(asset, resourceState.resources[id], resourceState, !entityHasAuthoringUpstream)
+    callbacks.onLoad(asset, resourceState.resources[id], resourceState /*!entityHasAuthoringUpstream*/)
 
   switch (resourceType) {
     case ResourceType.Line:

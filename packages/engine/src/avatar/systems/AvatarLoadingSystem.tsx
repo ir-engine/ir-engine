@@ -61,7 +61,7 @@ const execute = () => {
   const delta = getState(ECSState).deltaSeconds
 
   for (const entity of growQuery()) {
-    TransformComponent.dirtyTransforms[entity] = true
+    TransformComponent.dirty[entity] = 1
 
     const { opacityMultiplier, plateEntity, lightEntities } = getComponent(entity, SpawnEffectComponent)
     if (!plateEntity) continue

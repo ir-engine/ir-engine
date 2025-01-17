@@ -149,7 +149,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
 
   const currentSelectedMaterial = useMutableState(MaterialSelectionState).selectedMaterial
   const materialName = useOptionalComponent(
-    UUIDComponent.getEntityByUUID(currentSelectedMaterial.value!),
+    UUIDComponent.getEntityByUUID(currentSelectedMaterial.value!, Layers.Authoring),
     NameComponent
   )
 

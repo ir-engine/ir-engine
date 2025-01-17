@@ -48,6 +48,8 @@ import {
   StorageProviderInterface
 } from './storageprovider.interface'
 
+import kill from 'kill-port'
+
 /**
  * Storage provide class to communicate with Local http file server.
  */
@@ -85,33 +87,37 @@ export class LocalStorage implements StorageProviderInterface {
     this._store = fsStore(this.PATH_PREFIX)
 
     if (getState(ServerState).serverMode === ServerMode.API) {
-      const child: ChildProcess = require('child_process').spawn(
-        'npx',
-        [
-          'http-server',
-          `${this.PATH_PREFIX}`,
-          '--ssl',
-          '--cert',
-          `${config.server.certPath}`,
-          '--key',
-          `${config.server.keyPath}`,
-          '--port',
-          '8642',
-          '--cors=*',
-          '--brotli',
-          '--gzip',
-          '-a',
-          '::'
-        ],
-        {
-          cwd: process.cwd(),
-          stdio: 'inherit',
-          detached: true
-        }
-      )
-      process.on('exit', async () => {
-        process.kill(-child.pid!, 'SIGINT')
-      })
+      kill(8642, 'tcp')
+        .catch(() => {})
+        .finally(() => {
+          const child: ChildProcess = require('child_process').spawn(
+            'npx',
+            [
+              'http-server',
+              `${this.PATH_PREFIX}`,
+              '--ssl',
+              '--cert',
+              `${config.server.certPath}`,
+              '--key',
+              `${config.server.keyPath}`,
+              '--port',
+              '8642',
+              '--cors=*',
+              '--brotli',
+              '--gzip',
+              '-a',
+              '::'
+            ],
+            {
+              cwd: process.cwd(),
+              stdio: 'inherit',
+              detached: true
+            }
+          )
+          process.on('exit', async () => {
+            process.kill(-child.pid!, 'SIGINT')
+          })
+        })
     }
     this.getOriginURLs().then((result) => (this.originURLs = result))
   }
@@ -231,7 +237,7 @@ export class LocalStorage implements StorageProviderInterface {
         }
       })
     } else {
-      fs.writeFileSync(filePath, data.Body)
+      fs.writeFileSync(filePath, new Uint8Array(data.Body))
       return true
     }
   }

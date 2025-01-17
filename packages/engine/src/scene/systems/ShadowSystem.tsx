@@ -342,8 +342,7 @@ const DropShadowReactor = () => {
     const radius = Math.max(sphere.radius * 2, minRadius)
     const center = sphere.center.sub(TransformComponent.getWorldPosition(entity, vec3))
     const shadowEntity = createEntity()
-    const [shadowObject, unload] = createDisposable(Mesh, shadowEntity, shadowGeometry.clone(), shadowMaterial.clone())
-    setComponent(shadowEntity, MeshComponent, shadowObject)
+    setComponent(shadowEntity, MeshComponent, new Mesh(shadowGeometry.clone(), shadowMaterial.clone()))
     setComponent(shadowEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setComponent(
       shadowEntity,
@@ -357,7 +356,6 @@ const DropShadowReactor = () => {
     return () => {
       removeComponent(entity, DropShadowComponent)
       removeEntity(shadowEntity)
-      unload()
     }
   }, [hasMeshOrModel, shadow])
 

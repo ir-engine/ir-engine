@@ -39,6 +39,7 @@ import { useTranslation } from 'react-i18next'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { Button, Input } from '@ir-engine/ui'
+import { UserPlus01Sm } from '@ir-engine/ui/src/icons'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { IoArrowBackOutline, IoCloseOutline } from 'react-icons/io5'
@@ -144,7 +145,7 @@ const AvatarMenu2 = ({ showBackButton, previewEnabled = true, previewDisabledMes
         id="select-avatar-modal"
         className={twMerge(
           'pointer-events-auto m-auto flex h-[95vh] max-w-6xl rounded-xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col',
-          previewEnabled ? 'min-w-34 w-[70vw]' : 'w-[29vw]'
+          previewEnabled ? 'min-w-34 w-[70vw]' : 'w-[29vw] min-w-[450px]'
         )}
         hideFooter={true}
         rawChildren={
@@ -211,8 +212,8 @@ const AvatarMenu2 = ({ showBackButton, previewEnabled = true, previewDisabledMes
                   />
                   {createAvatarEnabled && (
                     <Button
-                      className="min-w-[8rem] rounded-md text-sm font-normal"
-                      variant="secondary"
+                      className="min-w-[9rem] rounded-md text-sm font-normal"
+                      variant="primary"
                       onClick={() =>
                         PopupMenuServices.showPopupMenu(UserMenus.ReadyPlayer, {
                           showBackButton,
@@ -221,6 +222,7 @@ const AvatarMenu2 = ({ showBackButton, previewEnabled = true, previewDisabledMes
                         })
                       }
                     >
+                      <UserPlus01Sm />
                       {t('user:avatar.createAvatar')}
                     </Button>
                   )}
