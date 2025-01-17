@@ -25,9 +25,17 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
-import { defineSystem, Entity, Layers, PresentationSystemGroup, useComponent, useQuery } from '@ir-engine/ecs'
+import {
+  defineSystem,
+  Entity,
+  getComponent,
+  getOptionalComponent,
+  PresentationSystemGroup,
+  setComponent,
+  useComponent,
+  useQuery
+} from '@ir-engine/ecs'
 
-import { State } from '@ir-engine/hyperflux'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { MeshStandardMaterial } from 'three'
@@ -76,14 +84,23 @@ import { EnvmapComponent } from '../components/EnvmapComponent'
 
 const EnvMapReactor = (props: { entity: Entity }) => {
   const entity = props.entity
-  const envmapComponent = useComponent(entity, EnvmapComponent)
   const materialComponent = useComponent(entity, MaterialStateComponent)
-  const backgroundQuery = useQuery([BackgroundComponent], Layers.Authoring)
-  console.log(backgroundQuery)
+  const backgroundQuery = useQuery([BackgroundComponent])
   useEffect(() => {
-    const material = materialComponent.material as State<MeshStandardMaterial>
-    // material.set()
-  }, [envmapComponent, materialComponent.material, backgroundQuery])
+    const envMapComponent = setComponent(entity, EnvmapComponent)
+    if (!backgroundQuery.length) return
+    console.log(backgroundQuery[0], envMapComponent.type, materialComponent.value)
+    if ((!getOptionalComponent(backgroundQuery[0], BackgroundComponent) as any)?.isTexture) return
+    console.log(backgroundQuery)
+    const material = materialComponent.material.value as MeshStandardMaterial
+
+    material.envMap = getComponent(backgroundQuery[0], BackgroundComponent) as any
+    material.roughness = 0
+    material.envMapIntensity = 2
+    material.metalness = 1
+
+    console.log(materialComponent.material.value)
+  }, [backgroundQuery])
   return null
 }
 
@@ -91,8 +108,8 @@ export const EnvironmentSystem = defineSystem({
   uuid: 'ee.engine.EnvironmentSystem',
   insert: { after: PresentationSystemGroup },
   reactor: () => {
-    const envMapQuery = useQuery([EnvmapComponent], Layers.Authoring)
-    console.log(envMapQuery)
+    const envMapQuery = useQuery([MaterialStateComponent])
+
     return (
       <>
         {envMapQuery.map((entity) => (

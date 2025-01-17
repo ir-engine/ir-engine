@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import {
   Color,
   CubeReflectionMapping,
@@ -48,7 +48,7 @@ import {
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { State, isClient } from '@ir-engine/hyperflux'
+import { State } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
@@ -195,35 +195,35 @@ export const EnvmapComponent = defineComponent({
     envMapIntensity: S.Number(1)
   }),
 
-  reactor: function () {
-    if (!isClient) return null
-    const entity = useEntityContext()
-    const component = useComponent(entity, EnvmapComponent)
+  // reactor: function () {
+  //   if (!isClient) return null
+  //   const entity = useEntityContext()
+  //   const component = useComponent(entity, EnvmapComponent)
 
-    const bakeEntity = UUIDComponent.useEntityByUUID(component.envMapSourceEntityUUID.value)
+  //   const bakeEntity = UUIDComponent.useEntityByUUID(component.envMapSourceEntityUUID.value)
 
-    switch (component.type.value) {
-      case 'Bake': {
-        if (bakeEntity) {
-          return <EnvBakeComponentReactor key={bakeEntity} envmapEntity={entity} bakeEntity={bakeEntity} />
-        }
-        break
-      }
-      case 'Cubemap':
-        return <EnvmapCubemapReactor key={'EnvmapCubemapReactor'} />
-      case 'Equirectangular':
-        return <EnvmapEquirectangularReactor key={'EnvmapEquirectangularReactor'} />
-      case 'Color':
-        return <EnvmapColorReactor key={'EnvmapColorReactor'} />
-      case 'Probes':
-        return <EnvmapProbesReactor key={'EnvmapProbesReactor'} />
-      case 'Skybox':
-      /** Setting the value from the skybox can be found in EnvironmentSystem */
-      default:
-        break
-    }
-    return null
-  },
+  //   switch (component.type.value) {
+  //     case 'Bake': {
+  //       if (bakeEntity) {
+  //         return <EnvBakeComponentReactor key={bakeEntity} envmapEntity={entity} bakeEntity={bakeEntity} />
+  //       }
+  //       break
+  //     }
+  //     case 'Cubemap':
+  //       return <EnvmapCubemapReactor key={'EnvmapCubemapReactor'} />
+  //     case 'Equirectangular':
+  //       return <EnvmapEquirectangularReactor key={'EnvmapEquirectangularReactor'} />
+  //     case 'Color':
+  //       return <EnvmapColorReactor key={'EnvmapColorReactor'} />
+  //     case 'Probes':
+  //       return <EnvmapProbesReactor key={'EnvmapProbesReactor'} />
+  //     case 'Skybox':
+  //     /** Setting the value from the skybox can be found in EnvironmentSystem */
+  //     default:
+  //       break
+  //   }
+  //   return null
+  // },
 
   errors: ['MISSING_FILE']
 })
