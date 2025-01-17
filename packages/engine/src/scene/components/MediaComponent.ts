@@ -33,6 +33,7 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  getOptionalMutableComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -194,7 +195,8 @@ export function MediaReactor() {
   if (!isClient) return null
 
   function validateTime() {
-    const mediaElementComponent = getMutableComponent(entity, MediaElementComponent)
+    const mediaElementComponent = getOptionalMutableComponent(entity, MediaElementComponent)
+    if (!mediaElementComponent) return
     const element = mediaElementComponent.element.value as HTMLMediaElement
     if (element.currentTime < media.seekTime.value) {
       setTime(mediaElementComponent.element, media.seekTime.value)
@@ -267,22 +269,19 @@ export function MediaReactor() {
     }
   }, [rendererEntity])
 
-  useEffect(
-    function updatePlay() {
-      if (!mediaElement) return
-      if (media.paused.value) {
-        mediaElement.element.value.pause()
-      } else {
-        const promise = mediaElement.element.value.play()
-        if (promise) {
-          promise.catch((error) => {
-            console.error(error)
-          })
-        }
+  useEffect(() => {
+    if (!mediaElement) return
+    if (media.paused.value) {
+      mediaElement.element.value.pause()
+    } else {
+      const promise = mediaElement.element.value.play()
+      if (promise) {
+        promise.catch((error) => {
+          console.error(error)
+        })
       }
-    },
-    [media.paused, mediaElement]
-  )
+    }
+  }, [media.paused, mediaElement])
 
   useEffect(() => {
     if (mediaElement && !mediaElement.element.paused.value) {

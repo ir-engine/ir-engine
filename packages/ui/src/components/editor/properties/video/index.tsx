@@ -28,8 +28,8 @@ import { useTranslation } from 'react-i18next'
 import { HiOutlineVideoCamera } from 'react-icons/hi2'
 
 import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, hasComponent, useComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { MediaComponent, MediaElementComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
+import { getComponent, getMutableComponent, hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { MediaComponent, MediaElementComponent, setTime } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 
@@ -39,14 +39,36 @@ import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import { PlayMode } from '@ir-engine/engine/src/scene/constants/PlayMode'
 import { Checkbox } from '@ir-engine/ui'
 import { BackSide, ClampToEdgeWrapping, DoubleSide, FrontSide, MirroredRepeatWrapping, RepeatWrapping } from 'three'
 import { Slider } from '../../../../../editor'
+import Button from '../../../../primitives/tailwind/Button'
 import ArrayInputGroup from '../../input/Array'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
 import Vector2Input from '../../input/Vector2'
+import MediaPreview from '../media/preview'
+
+const PlayModeOptions = [
+  {
+    label: 'Single',
+    value: PlayMode.single
+  },
+  {
+    label: 'Random',
+    value: PlayMode.random
+  },
+  {
+    label: 'Loop',
+    value: PlayMode.loop
+  },
+  {
+    label: 'SingleLoop',
+    value: PlayMode.singleloop
+  }
+]
 
 const fitOptions = [
   { label: 'Cover', value: 'cover' },
@@ -74,9 +96,14 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
 
   const video = useComponent(props.entity, VideoComponent)
   const media = useComponent(props.entity, MediaComponent)
+
   const mediaUUID = video.mediaUUID.value
-  const mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID)
-  const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
+  let mediaEntity = props.entity
+  if (mediaUUID && mediaUUID != '') {
+    mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID)
+  }
+  const mediaElement = getMutableComponent(mediaEntity, MediaElementComponent)
+
   const mediaEntities = useQuery([MediaComponent])
   const mediaOptions = mediaEntities
     .filter((entity) => entity !== props.entity)
@@ -84,6 +111,16 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
       return { label: getComponent(entity, NameComponent), value: getComponent(entity, UUIDComponent) }
     })
   mediaOptions.unshift({ label: 'Self', value: '' as EntityUUID })
+
+  const toggle = () => {
+    media.paused.set(!media.paused.value)
+  }
+
+  const reset = () => {
+    if (mediaElement) {
+      setTime(mediaElement.element, media.seekTime.value)
+    }
+  }
 
   useEffect(() => {
     if (!hasComponent(props.entity, MediaComponent)) {
@@ -152,6 +189,36 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
           >
             <Checkbox checked={media.autoplay.value} onChange={commitProperty(MediaComponent, 'autoplay')} />
           </InputGroup>
+
+          <InputGroup name="Play Mode" label={t('editor:properties.media.playmode')}>
+            <SelectInput
+              key={props.entity}
+              options={PlayModeOptions}
+              value={media.playMode.value}
+              onChange={commitProperty(MediaComponent, 'playMode')}
+            />
+          </InputGroup>
+
+          {mediaElement && media.resources.length > 0 && (
+            <div>
+              <InputGroup
+                name="media-controls"
+                info={t('editor:properties.media.info-mediaControls')}
+                label={t('editor:properties.media.lbl-mediaControls')}
+                className="mb-2 flex gap-2"
+              >
+                <Button variant="tertiary" onClick={toggle}>
+                  {media.paused.value
+                    ? t('editor:properties.media.playtitle')
+                    : t('editor:properties.media.pausetitle')}
+                </Button>
+                <Button variant="tertiary" onClick={reset}>
+                  {t('editor:properties.media.resettitle')}
+                </Button>
+              </InputGroup>
+              <MediaPreview resources={media.resources} />
+            </div>
+          )}
         </>
       )}
       <InputGroup
