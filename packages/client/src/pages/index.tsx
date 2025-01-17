@@ -31,13 +31,13 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 
 import { PopupMenuState } from '@ir-engine/client-core/src/user/components/UserMenu/PopupMenuService'
 import config from '@ir-engine/common/src/config'
-import { getState, none, useMutableState } from '@ir-engine/hyperflux'
+import { getState, useMutableState } from '@ir-engine/hyperflux'
 
 import { Box, Button } from '@mui/material'
 
-import ProfileMenu from '@ir-engine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-import { UserMenus } from '@ir-engine/client-core/src/user/UserUISystem'
-
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import ProfileMenu from '@ir-engine/client-core/src/user/menus/ProfileMenu'
+import { ViewerMenuState } from '@ir-engine/client-core/src/util/ViewerMenuState'
 import { useFind } from '@ir-engine/common'
 import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import './index.scss'
@@ -51,20 +51,16 @@ export const HomePage = (): any => {
   const popupMenuState = useMutableState(PopupMenuState)
   const popupMenu = getState(PopupMenuState)
   const Panel = popupMenuState.openMenu.value ? popupMenu.menus[popupMenuState.openMenu.value] : null
+  const viewerMenuState = useMutableState(ViewerMenuState)
 
   useEffect(() => {
     const error = new URL(window.location.href).searchParams.get('error')
     if (error) NotificationService.dispatchNotify(error, { variant: 'error' })
-    popupMenuState.openMenu.set(UserMenus.Profile)
-
-    popupMenuState.menus.merge({
-      [UserMenus.Profile]: ProfileMenu
-    })
+    PopoverState.showPopupover(<ProfileMenu />)
+    viewerMenuState.userMenus.profile.set(true)
 
     return () => {
-      popupMenuState.menus.merge({
-        [UserMenus.Profile]: none
-      })
+      viewerMenuState.userMenus.profile.set(false)
       popupMenuState.openMenu.set(null)
     }
   }, [])
@@ -138,7 +134,6 @@ export const HomePage = (): any => {
               `}
             </style>
             {Panel && <Panel {...popupMenu.params} isPopover />}
-            {popupMenuState.openMenu.value !== UserMenus.Profile && <ProfileMenu />}
           </Box>
         </div>
         <div className="link-container">

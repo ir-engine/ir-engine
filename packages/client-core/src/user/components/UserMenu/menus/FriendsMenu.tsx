@@ -49,6 +49,7 @@ import Chip from '@ir-engine/ui/src/primitives/mui/Chip'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
 
+import { PopoverState } from '../../../../common/services/PopoverState'
 import { useUserAvatarThumbnail } from '../../../../hooks/useUserAvatarThumbnail'
 import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
 import { ChannelService, ChannelState } from '../../../../social/services/ChannelService'
@@ -56,7 +57,6 @@ import { FriendService, FriendState } from '../../../../social/services/FriendSe
 import { AvatarMenus } from '../../../../systems/AvatarUISystem'
 import { AvatarUIContextMenuService } from '../../../../systems/ui/UserMenuView'
 import { AuthState } from '../../../services/AuthService'
-import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
 
@@ -281,7 +281,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
     <Menu
       open
       header={<Tabs value={selectedTab.value} items={settingTabs} onChange={handleTabChange} />}
-      onBack={() => PopupMenuServices.showPopupMenu(UserMenus.Profile)}
+      onBack={() => PopoverState.hidePopupover()}
       onClose={() => PopupMenuServices.showPopupMenu()}
     >
       <Box className={styles.menuContent}>

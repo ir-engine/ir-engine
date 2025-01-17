@@ -50,7 +50,6 @@ import { connectToInstance } from '../transports/mediasoup/MediasoupClientFuncti
 import { PeerToPeerNetworkState } from '../transports/p2p/PeerToPeerNetworkState'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import FriendsMenu from '../user/components/UserMenu/menus/FriendsMenu'
-import MessagesMenu from '../user/components/UserMenu/menus/MessagesMenu'
 
 export const WorldInstanceProvisioning = () => {
   const locationState = useMutableState(LocationState)
@@ -255,8 +254,7 @@ export const FriendMenus = () => {
 
     const popupMenuState = getMutableState(PopupMenuState)
     popupMenuState.menus.merge({
-      [SocialMenus.Friends]: FriendsMenu,
-      [SocialMenus.Messages]: MessagesMenu
+      [SocialMenus.Friends]: FriendsMenu
     })
 
     popupMenuState.hotbar.merge({
@@ -265,8 +263,7 @@ export const FriendMenus = () => {
 
     return () => {
       popupMenuState.menus.merge({
-        [SocialMenus.Friends]: none,
-        [SocialMenus.Messages]: none
+        [SocialMenus.Friends]: none
       })
 
       popupMenuState.hotbar.merge({

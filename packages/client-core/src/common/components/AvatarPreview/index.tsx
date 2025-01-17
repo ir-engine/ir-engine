@@ -58,7 +58,7 @@ import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarC
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { AnimationClip } from 'three'
-import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRender3DPanelSystem'
+import { useRender3DPanelSystem } from '../../../hooks/useRender3DPanelSystem'
 import styles from './index.module.scss'
 
 interface Props {

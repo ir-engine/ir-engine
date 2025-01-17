@@ -33,7 +33,7 @@ import { PositionalAudioSystem } from '../systems/PositionalAudioSystem'
 import { WarningUISystem } from '../systems/WarningUISystem'
 import { WidgetUISystem } from '../systems/WidgetUISystem'
 // import { UserUISystem } from '../user/UserUISystem'
-import { UserUISystem } from '../user/UserUISystem2'
+import { UserUISystem } from '../user/UserUISystem'
 import { LinkRedirectSystem } from './LinkRedirectSystem'
 import { PortalRedirectSystem } from './PortalRedirectSystem'
 
