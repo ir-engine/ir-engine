@@ -130,9 +130,7 @@ export function createReflectionProbeRenderTarget(entity: Entity, probes: Entity
   if (ctx) {
     ctx.drawImage(canvas, 0, 0)
   }
-  const [result, unload] = createDisposable(
-    CanvasTexture,
-    entity,
+  const result = new CanvasTexture(
     dupeCanvas,
     EquirectangularReflectionMapping,
     RepeatWrapping,
@@ -165,7 +163,7 @@ export function createReflectionProbeRenderTarget(entity: Entity, probes: Entity
   // })
   result.name = `ReflectionProbeTexture__${textureIndex++}`
   const fullUnload = () => {
-    unload()
+    result.dispose()
     scene.clear()
     quad.geometry.dispose()
     dupeCanvas.remove()

@@ -41,6 +41,7 @@ import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices
 import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { GLTFLoaderFunctions } from '@ir-engine/engine/src/gltf/GLTFLoaderFunctions'
 import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
@@ -323,14 +324,16 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
     const [_, orgName, projectName, fileName] = STATIC_ASSET_REGEX.exec(gltfComponent.src)!
     const fullProjectName = `${orgName}/${projectName}`
     const parsedName = fileName.split('?')[0]
-    exportRelativeGLTF(node.entity, fullProjectName, parsedName).then(() => {
-      ResourceLoaderManager.reloadResource(gltfComponent.src)
+    exportRelativeGLTF(node.entity, fullProjectName, parsedName).then((newSRC) => {
+      EditorControlFunctions.modifyProperty([node.entity], GLTFComponent, { src: newSRC })
       getMutableState(AssetModifiedState)[GLTFComponent.getInstanceID(entity)].set(none)
     })
   }
 
   const onRevert = () => {
     const gltfComponent = getComponent(node.entity, GLTFComponent)
+    GLTFLoaderFunctions.unloadScene(gltfComponent.src, node.entity)
+    EditorControlFunctions.modifyProperty([node.entity], GLTFComponent, { src: gltfComponent.src })
     ResourceLoaderManager.reloadResource(gltfComponent.src)
     getMutableState(AssetModifiedState)[GLTFComponent.getInstanceID(entity)].set(none)
   }

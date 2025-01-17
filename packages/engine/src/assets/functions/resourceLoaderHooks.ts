@@ -36,7 +36,7 @@ import {
   UndefinedEntity,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { getState, NO_PROXY, State, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { NO_PROXY, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import {
   Resource,
   ResourceAssetType,
@@ -49,8 +49,6 @@ import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { ResourcePendingComponent } from '../../gltf/ResourcePendingComponent'
 import { AssetLoader } from '../classes/AssetLoader'
 import { FileLoader } from '../loaders/base/FileLoader'
-import { GLTF as GLTFAsset } from '../loaders/gltf/GLTFLoader'
-import { AssetLoaderState } from '../state/AssetLoaderState'
 import { loadResource } from './resourceLoaderFunctions'
 
 const defaultLoaders = {
@@ -75,7 +73,7 @@ function useLoader<T extends ResourceAssetType>(
     if (url && entityResource.value) {
       for (const resource of entityResource.value) {
         if (resource.id === url) {
-          ResourceState.removeEntityResource(resource)
+          ResourceState.removeEntityResource(resource as Resource)
         }
       }
     }
@@ -144,81 +142,12 @@ function useLoader<T extends ResourceAssetType>(
   return [value.get(NO_PROXY) as T | null, error.get(NO_PROXY), progress.get(NO_PROXY), unload]
 }
 
-function useBatchLoader<T extends ResourceAssetType>(
-  urls: string[],
-  resourceType: ResourceType,
-  entity: Entity = UndefinedEntity,
-  loader?: AssetLoader
-): [
-  State<(T | null)[]>,
-  State<(ErrorEvent | Error | null)[]>,
-  State<(ProgressEvent<EventTarget> | null)[]>,
-  () => void
-] {
-  const values = useHookstate<T[]>(new Array(urls.length).fill(null))
-  const errors = useHookstate<(ErrorEvent | Error)[]>(new Array(urls.length).fill(null))
-  const progress = useHookstate<ProgressEvent<EventTarget>[]>(new Array(urls.length).fill(null))
-
-  const unload = () => {
-    for (const url of urls) ResourceState.unload(url, entity)
-  }
-
-  useEffect(() => {
-    return unload
-  }, [])
-
-  useImmediateEffect(() => {
-    const completedArr = new Array(urls.length).fill(false) as boolean[]
-    const controller = new AbortController()
-
-    for (let i = 0; i < urls.length; i++) {
-      const url = urls[i]
-      if (!url) continue
-      loadResource<T>(
-        url,
-        resourceType,
-        entity,
-        (response) => {
-          completedArr[i] = true
-          values[i].set(response)
-        },
-        (request) => {
-          progress[i].set(request)
-        },
-        (err) => {
-          completedArr[i] = true
-          errors[i].set(err)
-        },
-        controller.signal,
-        loader
-      )
-    }
-
-    return () => {
-      for (const completed of completedArr) {
-        if (!completed) {
-          controller.abort(
-            `resourceHooks:useBatchLoader Component loading ${resourceType} at urls ${urls.toString()} for entity ${entity} was unmounted`
-          )
-          return
-        }
-      }
-    }
-  }, [JSON.stringify(urls)])
-
-  return [values, errors, progress, unload]
-}
-
 async function getLoader<T extends ResourceAssetType>(
   url: string,
   resourceType: ResourceType,
   entity: Entity = UndefinedEntity,
   loader?: AssetLoader
 ): Promise<[T | null, () => void, ErrorEvent | Error | null]> {
-  const unload = () => {
-    // ResourceState.unload(url, entity)
-  }
-
   return new Promise((resolve) => {
     const controller = new AbortController()
     loadResource<T>(
@@ -226,11 +155,15 @@ async function getLoader<T extends ResourceAssetType>(
       resourceType,
       entity,
       (response) => {
+        const resources = ResourceState.addEntityResource(entity, response)
+        const unload = () => {
+          for (const resource of resources) ResourceState.removeEntityResource(resource)
+        }
         resolve([response, unload, null])
       },
       (request) => {},
       (err) => {
-        resolve([null, unload, err])
+        resolve([null, () => {}, err])
       },
       controller.signal,
       loader
@@ -269,25 +202,6 @@ export function useGLTFComponent(url: string, parentEntity: Entity): Entity | nu
   }, [parentEntity, url])
 
   return loaded ? gltfEntityState.value : null
-}
-
-/**
- *
- * GLTF loader function for when you need to load an asset in a non-React context.
- * The asset will be loaded through the ResourceState in ResourceState.ts.
- * The asset will only be unloaded when onUnloadCallback is called, otherwise the asset will be leaked.
- *
- * @param url The URL of the GLTF file to load
- * @param entity *Optional* The entity that is loading the GLTF, defaults to UndefinedEntity
- * @param params *Optional* LoadingArgs that are passed through to the asset loader
- * @returns Promise of Tuple of [GLTF, onUnloadCallback, Error]
- */
-export async function getGLTFAsync(
-  url: string,
-  entity?: Entity,
-  loader: AssetLoader = getState(AssetLoaderState).gltfLoader
-): Promise<[GLTFAsset | null, () => void, ErrorEvent | Error | null]> {
-  return getLoader<GLTFAsset>(url, ResourceType.GLTF, entity, loader)
 }
 
 /**

@@ -159,7 +159,7 @@ export async function addMediaNode(
     } else {
       const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
         [
-          { name: GLTFComponent.jsonID, props: { src: url, progress: 0, body: null } },
+          { name: GLTFComponent.jsonID, props: { src: url } },
           { name: ShadowComponent.jsonID },
           { name: EnvmapComponent.jsonID },
           ...extraComponentJson

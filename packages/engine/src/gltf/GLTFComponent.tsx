@@ -217,6 +217,7 @@ export const GLTFComponentReactor = (props: { entity: Entity }) => {
     if (!gltfComponent.document) return
 
     const options = getGLTFOptions(entity)
+    const url = options.url
 
     const sceneIndex = options.document.scene || 0
     let aborted = false
@@ -228,7 +229,7 @@ export const GLTFComponentReactor = (props: { entity: Entity }) => {
       }
     })
     return () => {
-      GLTFLoaderFunctions.unloadScene(options)
+      GLTFLoaderFunctions.unloadScene(url, entity)
       aborted = true
       if (loadedEntities) {
         for (const entity of loadedEntities) removeEntity(entity)

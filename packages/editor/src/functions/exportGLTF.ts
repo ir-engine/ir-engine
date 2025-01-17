@@ -39,7 +39,7 @@ export async function exportRelativeGLTF(entity: Entity, projectName: string, re
   if (!gltf) return
   const blob = [new Blob([JSON.stringify(gltf, null, 2)])]
   const file = new File(blob, relativePath)
-  const urls = await Promise.all(
+  const [url] = await Promise.all(
     uploadProjectFiles(
       projectName,
       [file],
@@ -51,6 +51,7 @@ export async function exportRelativeGLTF(entity: Entity, projectName: string, re
         }
       ]
     ).promises
-  )
-  console.log('exported model data to ', ...urls)
+  ) as string[]
+  console.log('exported model data to ', url)
+  return url
 }
