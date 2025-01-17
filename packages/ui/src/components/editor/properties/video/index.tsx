@@ -28,7 +28,13 @@ import { useTranslation } from 'react-i18next'
 import { HiOutlineVideoCamera } from 'react-icons/hi2'
 
 import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, getMutableComponent, hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  getMutableComponent,
+  hasComponent,
+  useComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { MediaComponent, MediaElementComponent, setTime } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -95,7 +101,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const video = useComponent(props.entity, VideoComponent)
-  const media = useComponent(props.entity, MediaComponent)
+  const media = useOptionalComponent(props.entity, MediaComponent)
 
   const mediaUUID = video.mediaUUID.value
   let mediaEntity = props.entity
@@ -113,11 +119,13 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   mediaOptions.unshift({ label: 'Self', value: '' as EntityUUID })
 
   const toggle = () => {
-    media.paused.set(!media.paused.value)
+    if (media) {
+      media.paused.set(!media.paused.value)
+    }
   }
 
   const reset = () => {
-    if (mediaElement) {
+    if (mediaElement && media) {
       setTime(mediaElement.element, media.seekTime.value)
     }
   }
@@ -153,7 +161,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
 
-      {video.mediaUUID.value == '' && (
+      {video.mediaUUID.value == '' && media && (
         <>
           <ArrayInputGroup
             label={t('editor:properties.media.paths')}
