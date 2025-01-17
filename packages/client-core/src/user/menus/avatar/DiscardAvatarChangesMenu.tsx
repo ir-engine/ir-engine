@@ -36,7 +36,7 @@ interface Props {
   handleCancel?: () => void
 }
 
-export const DiscardAvatarChangesModal = ({ handleConfirm, handleCancel }: Props) => {
+export const DiscardAvatarChangesMenu = ({ handleConfirm, handleCancel }: Props) => {
   const { t } = useTranslation()
 
   const handleClose = () => {

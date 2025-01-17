@@ -42,7 +42,7 @@ import AvatarPreview from '../../../common/components/AvatarPreview'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../util/avatarIdFunctions'
 import { AvatarService } from '../../services/AvatarService'
-import { DiscardAvatarChangesModal } from './DiscardAvatarChangesModal'
+import { DiscardAvatarChangesMenu } from './DiscardAvatarChangesMenu'
 
 export const SupportedSdks = {
   Avaturn: 'Avaturn',
@@ -283,7 +283,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
               className=" h-6 w-6 self-center bg-transparent hover:bg-transparent focus:bg-transparent"
               onClick={() =>
                 PopoverState.showPopupover(
-                  <DiscardAvatarChangesModal
+                  <DiscardAvatarChangesMenu
                     handleConfirm={() => {
                       PopoverState.hidePopupover()
                     }}
