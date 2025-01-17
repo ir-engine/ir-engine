@@ -25,15 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
-import { EntityTreeComponent, getAncestorWithComponents, useEntityContext } from '@ir-engine/ecs'
-import {
-  defineComponent,
-  getComponent,
-  getOptionalComponent,
-  useComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/ecs'
+import { defineComponent, getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { useImmediateEffect } from '@ir-engine/hyperflux'
 
 import { ECSSchema } from '@ir-engine/ecs/src/schemas/ECSSchemas'
 import { isZero } from '../../common/functions/MathFunctions'
@@ -84,6 +78,20 @@ export const TransformComponent = defineComponent({
     if (json.position) component.position.value.copy(json.position)
     if (json.rotation) component.rotation.value.copy(json.rotation)
     if (json.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
+
+    composeMatrix(entity)
+    const entityTree = getOptionalComponent(entity, EntityTreeComponent)
+    const parentEntity = entityTree?.parentEntity
+    if (parentEntity) {
+      const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
+      if (parentTransform) component.matrixWorld.value.multiplyMatrices(parentTransform.matrixWorld, component.matrix)
+    } else {
+      component.matrixWorld.value.copy(component.matrix.value as Matrix4)
+    }
+  },
+
+  onRemove: (entity, component) => {
+    delete TransformComponent.dirtyTransforms[entity]
   },
 
   toJSON: (component) => {
@@ -92,30 +100,6 @@ export const TransformComponent = defineComponent({
       rotation: component.rotation,
       scale: component.scale
     }
-  },
-
-  reactor: () => {
-    const entity = useEntityContext()
-    const transformComponent = useComponent(entity, TransformComponent)
-
-    useImmediateEffect(() => {
-      const transform = transformComponent.value as TransformComponentType
-      composeMatrix(entity)
-      const entityTree = getOptionalComponent(entity, EntityTreeComponent)
-      const parentEntity = entityTree?.parentEntity
-      if (parentEntity) {
-        const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
-        if (parentTransform) transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
-      } else {
-        transform.matrixWorld.copy(transform.matrix)
-      }
-
-      return () => {
-        delete TransformComponent.dirtyTransforms[entity]
-      }
-    }, [])
-
-    return null
   },
 
   getWorldPosition: (entity: Entity, vec3: Vector3) => {
