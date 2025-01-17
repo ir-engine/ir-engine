@@ -102,6 +102,7 @@ import HemisphereLightNodeEditor from '@ir-engine/ui/src/components/editor/prope
 import PointLightNodeEditor from '@ir-engine/ui/src/components/editor/properties/light/point'
 import SpotLightNodeEditor from '@ir-engine/ui/src/components/editor/properties/light/spot'
 import LinkNodeEditor from '@ir-engine/ui/src/components/editor/properties/link'
+import LiquidCodeNodeEditor from '@ir-engine/ui/src/components/editor/properties/liquidcode'
 import LookAtNodeEditor from '@ir-engine/ui/src/components/editor/properties/lookAt'
 import MediaNodeEditor from '@ir-engine/ui/src/components/editor/properties/media'
 import MeshNodeEditor from '@ir-engine/ui/src/components/editor/properties/mesh'
@@ -121,6 +122,7 @@ import SkyboxNodeEditor from '@ir-engine/ui/src/components/editor/properties/sky
 import SpawnPointNodeEditor from '@ir-engine/ui/src/components/editor/properties/spawnPoint'
 import SplineNodeEditor from '@ir-engine/ui/src/components/editor/properties/spline'
 
+import { LiquidCodeComponent } from '@ir-engine/engine/src/scene/components/LiquidCodeComponent'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import PlaylistNodeEditor from '@ir-engine/ui/src/components/editor/properties/playlist'
 import SplineTrackNodeEditor from '@ir-engine/ui/src/components/editor/properties/spline/track'
@@ -182,6 +184,7 @@ export const ComponentEditorsState = defineState({
       [SplineTrackComponent.name]: SplineTrackNodeEditor,
       [VisualScriptComponent.name]: VisualScriptNodeEditor,
       [LinkComponent.name]: LinkNodeEditor,
+      [LiquidCodeComponent.name]: LiquidCodeNodeEditor,
       [InteractableComponent.name]: InteractableComponentNodeEditor,
       [InputComponent.name]: InputComponentNodeEditor,
       [GrabbableComponent.name]: GrabbableComponentNodeEditor,

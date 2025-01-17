@@ -40,6 +40,7 @@ import { GroundPlaneComponent } from '@ir-engine/engine/src/scene/components/Gro
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { LegacyVolumetricComponent } from '@ir-engine/engine/src/scene/components/LegacyVolumetricComponent'
 import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkComponent'
+import { LiquidCodeComponent } from '@ir-engine/engine/src/scene/components/LiquidCodeComponent'
 import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
 import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
 import { PortalComponent } from '@ir-engine/engine/src/scene/components/PortalComponent'
@@ -81,7 +82,14 @@ export const ComponentShelfCategoriesState = defineState({
       Files: [GLTFComponent, PositionalAudioComponent, VideoComponent, ImageComponent],
       'Scene Composition': [CameraComponent, PrimitiveGeometryComponent, GroundPlaneComponent, VariantComponent],
       Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
-      Interaction: [SpawnPointComponent, LinkComponent, MountPointComponent, InteractableComponent, InputComponent],
+      Interaction: [
+        SpawnPointComponent,
+        LinkComponent,
+        MountPointComponent,
+        InteractableComponent,
+        InputComponent,
+        LiquidCodeComponent
+      ],
       Lighting: [
         AmbientLightComponent,
         PointLightComponent,
