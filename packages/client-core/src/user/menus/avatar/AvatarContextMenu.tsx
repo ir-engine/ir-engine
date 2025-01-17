@@ -37,14 +37,14 @@ import { useMutableState } from '@ir-engine/hyperflux'
 import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import Chip from '@ir-engine/ui/src/primitives/mui/Chip'
 
-import { NotificationService } from '../../../../common/services/NotificationService'
-import { useUserAvatarThumbnail } from '../../../../hooks/useUserAvatarThumbnail'
-import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
-import { FriendService, FriendState } from '../../../../social/services/FriendService'
-import { AvatarUIContextMenuState } from '../../../../systems/ui/UserMenuView'
-import { AuthState } from '../../../services/AuthService'
+import { NotificationService } from '../../../common/services/NotificationService'
+import { PopoverState } from '../../../common/services/PopoverState'
+import { useUserAvatarThumbnail } from '../../../hooks/useUserAvatarThumbnail'
+import { FriendService, FriendState } from '../../../social/services/FriendService'
+import { AvatarUIContextMenuState } from '../../../systems/ui/UserMenuView'
+import FriendsMenu from '../../components/UserMenu/menus/FriendsMenu'
+import { AuthState } from '../../services/AuthService'
 import styles from '../index.module.scss'
-import { PopupMenuServices } from '../PopupMenuService'
 
 interface Props {
   onBack?: () => void
@@ -110,7 +110,7 @@ const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
       onBack={onBack}
       onClose={() => {
         avatarUIContextMenuState.id.set('')
-        PopupMenuServices.showPopupMenu()
+        PopoverState.hidePopupover()
       }}
     >
       {userId && (
@@ -130,7 +130,7 @@ const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
               width="70%"
               onClick={() => {
                 FriendService.requestFriend(selfId, userId)
-                PopupMenuServices.showPopupMenu(SocialMenus.Friends, { defaultSelectedTab: 'find' })
+                PopoverState.showPopupover(<FriendsMenu defaultSelectedTab="find" />)
               }}
             >
               {t('user:personMenu.addAsFriend')}
@@ -143,7 +143,7 @@ const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
               width="70%"
               onClick={() => {
                 FriendService.unfriend(selfId, userId)
-                PopupMenuServices.showPopupMenu(SocialMenus.Friends, { defaultSelectedTab: 'find' })
+                PopoverState.showPopupover(<FriendsMenu defaultSelectedTab="find" />)
               }}
             >
               {t('user:personMenu.unFriend')}
@@ -165,7 +165,7 @@ const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
                 width="70%"
                 onClick={() => {
                   FriendService.acceptFriend(selfId, userId)
-                  PopupMenuServices.showPopupMenu(SocialMenus.Friends)
+                  PopoverState.showPopupover(<FriendsMenu />)
                 }}
               >
                 {t('user:personMenu.acceptRequest')}
@@ -176,7 +176,7 @@ const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
                 width="70%"
                 onClick={() => {
                   FriendService.declineFriend(selfId, userId)
-                  PopupMenuServices.showPopupMenu(SocialMenus.Friends, { defaultSelectedTab: 'find' })
+                  PopoverState.showPopupover(<FriendsMenu />)
                 }}
               >
                 {t('user:personMenu.declineRequest')}
@@ -199,7 +199,7 @@ const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
                 width="70%"
                 onClick={() => {
                   FriendService.unfriend(selfId, userId)
-                  PopupMenuServices.showPopupMenu(SocialMenus.Friends, { defaultSelectedTab: 'find' })
+                  PopoverState.showPopupover(<FriendsMenu defaultSelectedTab="find" />)
                 }}
               >
                 {t('user:personMenu.cancelRequest')}
@@ -217,7 +217,7 @@ const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
               width="70%"
               onClick={() => {
                 FriendService.blockUser(selfId, userId)
-                PopupMenuServices.showPopupMenu(SocialMenus.Friends, { defaultSelectedTab: 'blocked' })
+                PopoverState.showPopupover(<FriendsMenu defaultSelectedTab="blocked" />)
               }}
             >
               {t('user:personMenu.block')}
@@ -230,7 +230,7 @@ const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
               width="70%"
               onClick={() => {
                 FriendService.unblockUser(selfId, userId)
-                PopupMenuServices.showPopupMenu(SocialMenus.Friends)
+                PopoverState.showPopupover(<FriendsMenu />)
               }}
             >
               {t('user:personMenu.unblock')}

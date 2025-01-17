@@ -47,11 +47,10 @@ import { Button, Input } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import { Upload01Lg, User01Lg, XCloseLg } from '@ir-engine/ui/src/icons'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
-import { PopoverState } from '../../../../common/services/PopoverState'
-import { UserMenus } from '../../../UserUISystem'
-import { AvatarService } from '../../../services/AvatarService'
-import { PopupMenuServices } from '../PopupMenuService'
-import AvatarCreatorMenu2, { SupportedSdks } from './AvatarCreatorMenu2'
+import { PopoverState } from '../../../common/services/PopoverState'
+import { AvatarService } from '../../services/AvatarService'
+import AvatarCreatorMenu2, { SupportedSdks } from './AvatarCreatorMenu'
+import AvatarSelectMenu from './AvatarSelectMenu'
 
 interface Props {
   selectedAvatar?: AvatarType
@@ -292,11 +291,10 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
           avatarFile,
           thumbnailFile
         )
-        PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)
+        PopoverState.showPopupover(<AvatarSelectMenu showBackButton={true} previewEnabled={true} />)
       } else if (avatarFile && thumbnailFile) {
         await AvatarService.createAvatar(avatarFile, thumbnailFile, state.name, false)
-
-        PopupMenuServices.showPopupMenu()
+        PopoverState.hidePopupover()
       }
     } catch (err) {
       console.error(err)

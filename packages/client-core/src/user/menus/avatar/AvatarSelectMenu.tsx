@@ -44,20 +44,17 @@ import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { IoArrowBackOutline, IoCloseOutline } from 'react-icons/io5'
 import { twMerge } from 'tailwind-merge'
-import { PopoverState } from '../../../../common/services/PopoverState'
-import { UserMenus } from '../../../UserUISystem'
-import { AuthService, AuthState } from '../../../services/AuthService'
-import { PopupMenuServices } from '../PopupMenuService'
-import AvatarCreatorMenu2, { SupportedSdks } from './AvatarCreatorMenu2'
+import { PopoverState } from '../../../common/services/PopoverState'
+import { AuthService, AuthState } from '../../services/AuthService'
+import AvatarCreatorMenu2, { SupportedSdks } from './AvatarCreatorMenu'
 import AvatarModifyMenu from './AvatarModifyMenu'
 
 const AVATAR_PAGE_LIMIT = 100
 interface AvatarMenuProps {
   showBackButton: boolean
   previewEnabled: boolean
-  previewDisabledMessage?: boolean
 }
-const AvatarMenu2 = ({ showBackButton, previewEnabled = true, previewDisabledMessage }: AvatarMenuProps) => {
+const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuProps) => {
   const { t } = useTranslation()
   const authState = useMutableState(AuthState)
   const userId = authState.user?.id?.value
@@ -95,7 +92,7 @@ const AvatarMenu2 = ({ showBackButton, previewEnabled = true, previewDisabledMes
       if (!selfAvatarEntity || !hasComponent(selfAvatarEntity, SpawnEffectComponent)) {
         await userAvatarMutation.patch(null, { avatarId: selectedAvatarId.value }, { query: { userId } })
         if (selfAvatarEntity) avatarLoading.set(true)
-        else PopupMenuServices.showPopupMenu()
+        else PopoverState.hidePopupover()
       }
     }
     selectedAvatarId.set('' as AvatarID)
@@ -120,7 +117,7 @@ const AvatarMenu2 = ({ showBackButton, previewEnabled = true, previewDisabledMes
   useEffect(() => {
     if (avatarLoading.value && selfAvatarLoaded) {
       avatarLoading.set(false)
-      PopupMenuServices.showPopupMenu()
+      PopoverState.hidePopupover()
     }
   }, [selfAvatarLoaded, avatarLoading])
 
@@ -139,7 +136,6 @@ const AvatarMenu2 = ({ showBackButton, previewEnabled = true, previewDisabledMes
     if (userAvatarId !== selectedAvatarId.value) {
       await handleConfirmAvatar()
     }
-    PopupMenuServices.showPopupMenu()
     PopoverState.hidePopupover()
   }
 
@@ -248,9 +244,7 @@ const AvatarMenu2 = ({ showBackButton, previewEnabled = true, previewDisabledMes
                         name={avatar.name}
                         type="rectangle"
                         onClick={() => selectedAvatarId.set(avatar.id)}
-                        onChange={() =>
-                          PopupMenuServices.showPopupMenu(UserMenus.AvatarModify, { selectedAvatar: avatar })
-                        }
+                        onChange={() => PopoverState.showPopupover(<AvatarModifyMenu selectedAvatar={avatar} />)}
                       />
                     </div>
                   ))}
@@ -260,8 +254,8 @@ const AvatarMenu2 = ({ showBackButton, previewEnabled = true, previewDisabledMes
           </div>
         </div>
       }
-    ></Modal>
+    />
   )
 }
 
-export default AvatarMenu2
+export default AvatarSelectMenu

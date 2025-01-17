@@ -79,9 +79,9 @@ import { PopoverState } from '../../common/services/PopoverState'
 import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 import { useZendesk } from '../../hooks/useZendesk'
 import { clientContextParams } from '../../util/ClientContextState'
-import AvatarSelectMenu from '../components/UserMenu/menus/AvatarSelectMenu'
 import { AuthService, AuthState } from '../services/AuthService'
 import { AvatarService } from '../services/AvatarService'
+import AvatarSelectMenu from './avatar/AvatarSelectMenu'
 import SettingsMenu from './SettingsMenu'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ProfileMenu', modifier: clientContextParams })

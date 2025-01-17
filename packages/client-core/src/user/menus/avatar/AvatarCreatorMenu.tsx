@@ -38,11 +38,11 @@ import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { IoArrowBackOutline, IoCloseOutline } from 'react-icons/io5'
 import { twMerge } from 'tailwind-merge'
-import AvatarPreview from '../../../../common/components/AvatarPreview'
-import { PopoverState } from '../../../../common/services/PopoverState'
-import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunctions'
-import { AvatarService } from '../../../services/AvatarService'
-import { DiscardAvatarChangesModal } from './DiscardAvatarChangesModal'
+import AvatarPreview from '../../../common/components/AvatarPreview'
+import { PopoverState } from '../../../common/services/PopoverState'
+import { AVATAR_ID_REGEX, generateAvatarId } from '../../../util/avatarIdFunctions'
+import { DiscardAvatarChangesModal } from '../../components/UserMenu/menus/DiscardAvatarChangesModal'
+import { AvatarService } from '../../services/AvatarService'
 
 export const SupportedSdks = {
   Avaturn: 'Avaturn',
@@ -357,7 +357,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
           )}
         </div>
       }
-    ></Modal>
+    />
   )
 }
 
