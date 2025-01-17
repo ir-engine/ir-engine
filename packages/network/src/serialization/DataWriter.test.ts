@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { Types } from '@ir-engine/ecs'
 import { strictEqual } from 'assert'
-import { Types } from 'bitecs'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { defineComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -120,6 +120,7 @@ describe('DataWriter', () => {
     const entity = createEntity()
 
     const [x, y, z] = [1.5, 2.5, 3.5]
+    setComponent(entity, MockPoseComponent)
     MockPoseComponent.Vec3.x[entity] = x
     MockPoseComponent.Vec3.y[entity] = y
     MockPoseComponent.Vec3.z[entity] = z
@@ -454,8 +455,10 @@ describe('DataWriter', () => {
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
+      setComponent(entity, NetworkObjectComponent)
       NetworkObjectComponent.networkId[entity] = networkId
 
+      setComponent(entity, MockPoseComponent)
       MockPoseComponent.Vec3.x[entity] = posX
       MockPoseComponent.Vec3.y[entity] = posY
       MockPoseComponent.Vec3.z[entity] = posZ
@@ -549,8 +552,10 @@ describe('DataWriter', () => {
 
     entities.forEach((entity) => {
       const networkId = entity as unknown as NetworkId
+      setComponent(entity, NetworkObjectComponent)
       NetworkObjectComponent.networkId[entity] = networkId
 
+      setComponent(entity, MockPoseComponent)
       MockPoseComponent.Vec3.x[entity] = posX
       MockPoseComponent.Vec3.y[entity] = posY
       MockPoseComponent.Vec3.z[entity] = posZ

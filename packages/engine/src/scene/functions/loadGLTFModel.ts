@@ -174,7 +174,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
 
   // create entity outside of scene loading reactor since we need to access it before the reactor is guaranteed to have executed
   const objEntity = UUIDComponent.getOrCreateEntityByUUID(obj.uuid as EntityUUID)
-  const parentEntity = obj.parent ? obj.parent.entity : rootEntity
+  const parentEntity = obj.parent ? obj.parent.entity! : rootEntity
   const uuid = obj.uuid as EntityUUID
   const name = obj.userData['xrengine.entity'] ?? obj.name
 
@@ -230,7 +230,7 @@ export const generateEntityJsonFromObject = (rootEntity: Entity, obj: Object3D, 
 
   const findColliderData = (obj: Object3D) => {
     if (
-      hasComponent(obj.entity, ColliderComponent) ||
+      hasComponent(obj.entity!, ColliderComponent) ||
       Object.keys(obj.userData).find(
         (key) => key.startsWith('xrengine.collider') || key.startsWith('xrengine.EE_collider')
       )

@@ -38,7 +38,6 @@ import { NO_PROXY, getState, useImmediateEffect } from '@ir-engine/hyperflux'
 
 import { EntityTreeComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { Types } from 'bitecs'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { ReferenceSpace, XRState } from './XRState'
 
@@ -184,11 +183,12 @@ export const XRHandComponent = defineComponent({
   name: 'XRHandComponent'
 })
 
-const rotationsSchema = { rotations: [Types.f32, 4 * 19] as const }
-
 export const XRLeftHandComponent = defineComponent({
   name: 'XRLeftHandComponent',
-  schema: rotationsSchema,
+
+  schema: S.Object({
+    rotations: S.Class(() => new Float32Array(4 * 19))
+  }),
 
   onInit: (initial) => {
     return {
@@ -200,7 +200,10 @@ export const XRLeftHandComponent = defineComponent({
 
 export const XRRightHandComponent = defineComponent({
   name: 'XRRightHandComponent',
-  schema: rotationsSchema,
+
+  schema: S.Object({
+    rotations: S.Class(() => new Float32Array(4 * 19))
+  }),
 
   onInit: (initial) => {
     return {

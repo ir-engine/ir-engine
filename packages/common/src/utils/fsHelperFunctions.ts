@@ -119,7 +119,7 @@ export function copyFileSync(source, target) {
         resolve(true)
       })
     })
-  } else fs.writeFileSync(targetFile, fs.readFileSync(source))
+  } else fs.writeFileSync(targetFile, new Uint8Array(fs.readFileSync(source)))
 }
 
 export function copyFolderRecursiveSync(source, target) {

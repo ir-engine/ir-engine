@@ -209,7 +209,7 @@ export const MaterialPrototypeComponent = defineComponent({
 
 export const prototypeQuery = defineQuery([MaterialPrototypeComponent])
 
-declare module 'three/src/materials/Material' {
+declare module 'three/src/materials/Material.js' {
   export interface Material {
     shader: Shader
     plugins?: PluginType[]
@@ -218,7 +218,7 @@ declare module 'three/src/materials/Material' {
   }
 }
 
-declare module 'three/src/renderers/shaders/ShaderLib' {
+declare module 'three/src/renderers/shaders/ShaderLib.js' {
   export interface Shader {
     uuid?: EntityUUID
   }

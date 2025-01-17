@@ -26,11 +26,11 @@ import '@hookstate/core' // required for hookstate to override react properly wo
 
 export * from './src/EventDispatcher'
 export * from './src/functions/ActionFunctions'
+export * from './src/functions/createHookableFunction'
 export * from './src/functions/EnvironmentConstants'
 export * from './src/functions/ReactorFunctions'
 export * from './src/functions/StateFunctions'
 export * from './src/functions/StoreFunctions'
-export * from './src/functions/createHookableFunction'
 export * from './src/hooks/useDidMount'
 export * from './src/hooks/useForceUpdate'
 export * from './src/hooks/useImmediateEffect'

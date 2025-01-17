@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { TypedArray } from 'bitecs'
+import { TypedArray } from '@ir-engine/ecs'
 
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
