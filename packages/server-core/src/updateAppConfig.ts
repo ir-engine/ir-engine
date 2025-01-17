@@ -35,7 +35,6 @@ import {
   AuthenticationSettingDatabaseType,
   authenticationSettingPath
 } from '@ir-engine/common/src/schemas/setting/authentication-setting.schema'
-import { AwsSettingDatabaseType, awsSettingPath } from '@ir-engine/common/src/schemas/setting/aws-setting.schema'
 import {
   ClientSettingDatabaseType,
   clientSettingPath
@@ -45,7 +44,6 @@ import { FlattenedEntry, unflattenArrayToObject } from '@ir-engine/common/src/ut
 import { createHash } from 'crypto'
 import appConfig, { updateNestedConfig } from './appconfig'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
-import { awsDbToSchema } from './setting/aws-setting/aws-setting.resolvers'
 import { clientDbToSchema } from './setting/client-setting/client-setting.resolvers'
 
 const db = {
@@ -109,23 +107,6 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(authenticationSettingPromise)
 
-  const awsSettingPromise = knexClient
-    .select()
-    .from<AwsSettingDatabaseType>(awsSettingPath)
-    .then(([dbAws]) => {
-      const dbAwsConfig = awsDbToSchema(dbAws)
-      if (dbAwsConfig) {
-        appConfig.aws = {
-          ...appConfig.aws,
-          ...dbAwsConfig
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read ${awsSettingPath}: ${e.message}`)
-    })
-  promises.push(awsSettingPromise)
-
   const clientSettingPromise = knexClient
     .select()
     .from<ClientSettingDatabaseType>(clientSettingPath)
@@ -143,7 +124,7 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(clientSettingPromise)
 
-  const categoriesToUnflatten = ['email']
+  const categoriesToUnflatten = ['email', 'aws']
 
   const engineSettingPromise = knexClient
     .select()
