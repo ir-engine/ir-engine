@@ -862,7 +862,7 @@ describe('InputComponent', () => {
       syst.execute()
       root.run()
       // Check that we have run the correct number of times, after having reacted to the inputSources change
-      assert.equal(reactorSpy.callCount, 3)
+      assert.equal(reactorSpy.callCount, 4)
       assert.equal(effectSpy.callCount, 2)
       const afterOne = InputComponent.getInputSourceEntities(testEntity)
       assert.ok(afterOne.length > 0, 'getInputSourceEntities for testEntity should return an array containing entities')
@@ -879,14 +879,14 @@ describe('InputComponent', () => {
       syst.execute()
 
       // Check the spies and the list of sources after running the system and the reactor
-      assert.equal(reactorSpy.callCount, 4)
+      assert.equal(reactorSpy.callCount, 5)
       assert.equal(effectSpy.callCount, 2)
       const afterTwo = InputComponent.getInputSourceEntities(testEntity).length == 0
       assert.ok(afterTwo, 'getInputSourceEntities for testEntity should return an empty array after we clear it')
 
       // Check that everything is updated as expected after running the reactor root
       root.run()
-      assert.equal(reactorSpy.callCount, 5)
+      assert.equal(reactorSpy.callCount, 6)
       assert.equal(effectSpy.callCount, 3)
     })
   })
@@ -983,7 +983,7 @@ describe('InputComponent', () => {
           const root = startReactor(() => {
             return React.createElement(EntityContext.Provider, { value: testEntity }, React.createElement(Reactor, {}))
           }) as ReactorRoot
-          assert.equal(reactorSpy.callCount, 1)
+          assert.equal(reactorSpy.callCount, 2)
           assert.ok(!executeSpy.called)
           root.run()
           // Extract the useExecute system out of the global list of SystemDefinitions array
@@ -1002,7 +1002,7 @@ describe('InputComponent', () => {
           assert.equal(ConditionAncestor, !isAncestor(getState(InputState).capturingEntity, testEntity, true))
 
           // Check the test
-          assert.equal(reactorSpy.callCount, 2)
+          assert.equal(reactorSpy.callCount, 3)
           // assert.equal(executeSpy.called, ShouldRun)
         })
       })

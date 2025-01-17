@@ -53,6 +53,7 @@ import { mockAnimatedAvatar } from '../components/AnimationComponent.test'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarIKComponent, AvatarIKTargetComponent, IKMatrixComponent } from '../components/AvatarIKComponents'
 import { NormalizedBoneComponent } from '../components/NormalizedBoneComponent'
+import '../state/AvatarIKTargetState'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { AnimationSystem } from './AnimationSystem'
 import { AvatarAnimationSystem, AvatarAnimationSystemReactor } from './AvatarAnimationSystem'
@@ -150,12 +151,12 @@ describe('AvatarIKSystem', () => {
       })
     )
     applyIncomingActions()
-    await vi.waitFor(() => {
-      expect(
+    await vi.waitUntil(() => {
+      return (
         UUIDComponent.getEntityByUUID(rightHandUuid) &&
-          UUIDComponent.getEntityByUUID(headUuid) &&
-          UUIDComponent.getEntityByUUID(leftHandUuid)
-      ).toBeTruthy()
+        UUIDComponent.getEntityByUUID(headUuid) &&
+        UUIDComponent.getEntityByUUID(leftHandUuid)
+      )
     })
 
     const headEntity = UUIDComponent.getEntityByUUID(headUuid)
@@ -178,13 +179,13 @@ describe('AvatarIKSystem', () => {
     const rightFootPosition = getComponent(rightFootEntity, TransformComponent).position
     rightFootPosition.set(-0.1, 0.1, 0)
 
-    AvatarIKTargetComponent.blendWeight[headUuid] = 1
+    AvatarIKTargetComponent.blendWeight[headEntity] = 1
     AvatarIKTargetComponent.blendWeight[rightHandEntity] = 1
     AvatarIKTargetComponent.blendWeight[leftHandEntity] = 1
     AvatarIKTargetComponent.blendWeight[leftFootEntity] = 1
     AvatarIKTargetComponent.blendWeight[rightFootEntity] = 1
 
-    await vi.waitFor(() => {
+    await vi.waitUntil(() => {
       SystemDefinitions.get(TransformDirtyUpdateSystem)?.execute()
       SystemDefinitions.get(TransformSystem)?.execute()
       SystemDefinitions.get(TransformDirtyCleanupSystem)?.execute()
@@ -210,10 +211,13 @@ describe('AvatarIKSystem', () => {
         getComponent(avatarEntity, AvatarRigComponent).bonesToEntities.rightFoot,
         new Vector3()
       )
-      expect(rightHandIkPos.distanceTo(rightHandPosition) < 0.1).toBeTruthy()
-      expect(leftHandIkPos.distanceTo(leftHandPosition) < 0.1).toBeTruthy()
-      expect(leftFootIkPos.distanceTo(leftFootPosition) < 0.1).toBeTruthy()
-      expect(rightFootIkPos.distanceTo(rightFootPosition) < 0.1).toBeTruthy()
+
+      return (
+        rightHandIkPos.distanceTo(rightHandPosition) < 0.1 &&
+        leftHandIkPos.distanceTo(leftHandPosition) < 0.1 &&
+        leftFootIkPos.distanceTo(leftFootPosition) < 0.1 &&
+        rightFootIkPos.distanceTo(rightFootPosition) < 0.1
+      )
     }, 1000)
   })
 })

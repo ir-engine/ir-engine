@@ -67,7 +67,7 @@ import {
 import { NetworkObjectComponent } from '@ir-engine/network'
 import { act, render } from '@testing-library/react'
 import React from 'react'
-import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry'
+import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js'
 import { Epsilon, assertFloat, assertVec } from '../../../tests/util/assert'
 import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'

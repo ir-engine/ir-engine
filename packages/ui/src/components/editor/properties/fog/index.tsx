@@ -55,7 +55,7 @@ export const FogSettingsEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.fog.name')}
       description={t('editor:properties.fog.description')}
-      Icon={FogSettingsComponent.iconComponent}
+      Icon={FogSettingsEditor.iconComponent}
     >
       <InputGroup name="Fog Type" label={t('editor:properties.fog.lbl-fogType')}>
         <SelectInput

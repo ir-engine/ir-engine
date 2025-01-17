@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Mesh, Object3D } from 'three'
 
-import { Entity, getComponent, hasComponent, iterateEntityNode, removeComponent } from '@ir-engine/ecs'
+import { Entity, getComponent, hasComponent, iterateEntityNode, removeComponent, UndefinedEntity } from '@ir-engine/ecs'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 
 import { GroundPlaneComponent } from '../../../../scene/components/GroundPlaneComponent'
@@ -45,7 +45,7 @@ export default class IgnoreGeometryExporterExtension extends ExporterExtension i
   }
   beforeParse(input: Object3D | Object3D[]) {
     const root = (Array.isArray(input) ? input[0] : input) as Object3D
-    iterateEntityNode(root.entity, (entity) => {
+    iterateEntityNode(root.entity ?? UndefinedEntity, (entity) => {
       if (!hasComponent(entity, MeshComponent)) return
       const mesh = getComponent(entity, MeshComponent)
       const removeMesh =
