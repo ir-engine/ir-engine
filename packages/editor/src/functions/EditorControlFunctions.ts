@@ -171,7 +171,6 @@ const createObjectFromSceneElement = (
   beforeEntity?: Entity,
   requestedName?: string
 ): { entityUUID: EntityUUID; sourceID: string } => {
-  console.log('createObjectFromSceneElement', componentJson, parentEntity, beforeEntity, requestedName)
   const entityUUID: EntityUUID =
     componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
 

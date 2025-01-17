@@ -146,7 +146,7 @@ export async function addMediaNode(
         (entity) => {
           const entities = SourceComponent.getEntitiesBySource(entity)
           const rootEntity = getState(EditorState).rootEntity
-          const newSource = GLTFComponent.getSource(rootEntity)
+          const newSource = GLTFComponent.getInstanceID(rootEntity)
           for (const entity of entities) {
             setComponent(entity, SourceComponent, newSource)
           }
