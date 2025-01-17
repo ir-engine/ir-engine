@@ -31,13 +31,13 @@ import { MessageTextSquare01Lg, Send01Lg, XCloseLg } from '@ir-engine/ui/src/ico
 import React, { createContext, useContext, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
-import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
-import { PopoverState } from '../../common/services/PopoverState'
-import { ChannelState } from '../../social/services/ChannelService'
-import { AvatarUIActions, AvatarUIState } from '../../systems/state/AvatarUIState'
-import LocationIconButton from '../components/LocationIconButton'
-import ProfileMenu from '../menus/ProfileMenu'
-import { AuthState } from '../services/AuthService'
+import { useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
+import { PopoverState } from '../common/services/PopoverState'
+import { ChannelState } from '../social/services/ChannelService'
+import { AvatarUIActions, AvatarUIState } from '../systems/state/AvatarUIState'
+import LocationIconButton from './components/LocationIconButton'
+import ProfileMenu from './menus/ProfileMenu'
+import { AuthState } from './services/AuthService'
 
 const InstanceChatContext = createContext({
   messages: {} as State<MessageType[]>,
