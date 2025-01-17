@@ -155,12 +155,78 @@ describe('removeComponent', () => {
 
 describe('LayerComponents', () => {
   // This array of Components is used for propagation logic upon setting, and for querying
-  describe('SimulationLayerComponent', () => {}) //:: SimulationLayerComponent
-  describe('AuthoringLayerComponent', () => {}) //:: AuthoringLayerComponent
+  it.todo('should contain the expected number of components', () => {})
+  describe('*LayerComponent', () => {
+    describe('name', () => {
+      it.todo('should have the expected value', () => {})
+      it.todo('should respect the naming convention for Components', () => {})
+    }) //:: name
+    describe('onSet', () => {
+      describe("for every entity,relation pair returned by LayerFunctions.getLayerRelationsTypes for this component's layer ..", () => {
+        it.todo('.. should not do anything for this pair if the relation is LayerRelationTypes.Propagate', () => {})
+        it.todo(".. should create a new entity on this pair's layer", () => {})
+        it.todo(".. should set the relations on the LayerComponent of this Layer to this pair's entity", () => {})
+        it.todo('.. should set [linkedLayer].refs[linkedEntity] to `@param entity`', () => {})
+      })
+    }) //:: onSet
+    describe('onRemove', () => {
+      describe("for every entity,relation pair returned by LayerFunctions.getLayerRelationsTypes for this component's layer ..", () => {
+        it.todo('.. should not do anything for this pair if the relation is not LayerRelationTypes.Propagate', () => {})
+        it.todo(
+          '.. should call removeEntity on the entity stored at getComponent(entity, LayerComponents[layer]).relations[linkedLayer]',
+          () => {}
+        )
+        it.todo('.. should delete the LayerComponents[linkedLayer].refs[relation] array entry', () => {})
+      })
+    }) //:: onRemove
+  }) //:: *LayerComponent
 }) //:: LayerComponents
 
 describe('LayerComponent', () => {
   // LayerComponent is the API for setting and getting the layer of an entity
+  describe('name', () => {
+    it.todo('should have the expected value', () => {})
+    it.todo('should respect the naming convention for Components', () => {})
+  }) //:: name
+
+  describe('onSet', () => {
+    it.todo('should set the value of LayerComponent.layer for `@param entity` to the value of `@param layer`', () => {})
+    it.todo(
+      'should set the LayerComponents with `@param layer` id from the LayerComponents array into the entity',
+      () => {}
+    )
+  }) //:: onSet
+
+  describe('get', () => {
+    it.todo(
+      'should return the `@param entity` entry of the LayerComponent.layer array/list as a LayerID type',
+      () => {}
+    )
+  }) //:: get
+
+  describe('onRemove', () => {
+    it.todo(
+      'should remove the LayerComponent returned by LayerFunctions.getLayerComponent for the `@param entity`',
+      () => {}
+    )
+    it.todo('should set the `@param entity` entry of the LayerComponent.layer array/list to 0', () => {})
+  }) //:: onRemove
+
+  describe('hasUpstreamEntity', () => {
+    it.todo('should return false if LayerComponent.get(entity) is not Layers.Simulation', () => {})
+    describe('when LayerComponent.get(entity) is Layers.Simulation ..', () => {
+      it.todo('.. should return false if LayerComponents[Layers.Simulation].refs[entity] is undefined', () => {})
+      it.todo('.. should return false if LayerComponents[Layers.Simulation].refs[entity] is UndefinedEntity', () => {})
+      it.todo(
+        '.. should return false if entityExists(LayerComponents[Layers.Simulation].refs[entity]) returns a falsy value',
+        () => {}
+      )
+      it.todo(
+        '.. should return true if LayerComponents[Layers.Simulation].refs[entity] is a valid entity that is considered to exist',
+        () => {}
+      )
+    })
+  }) //:: hasUpstreamEntity
 }) //:: LayerComponent
 
 describe('UUIDComponent', () => {
@@ -179,6 +245,7 @@ describe('UUIDComponent', () => {
 }) //:: UUIDComponent
 
 describe('Queries', () => {
+  // @todo After the refactor is merged
   describe('defineQuery', () => {}) //:: defineQuery
   describe('useQuery', () => {}) //:: useQuery
   // @note The rest of the QueryFunctions file is not affected by the Layers changes
