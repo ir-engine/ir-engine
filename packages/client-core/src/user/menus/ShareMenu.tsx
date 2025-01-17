@@ -34,18 +34,16 @@ import { InviteCode, InviteData, authenticationSettingPath } from '@ir-engine/co
 import { useMutableState } from '@ir-engine/hyperflux'
 
 import { useFind } from '@ir-engine/common'
-import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { Checkbox, Input } from '@ir-engine/ui'
 import { Copy03Lg, Send01Lg } from '@ir-engine/ui/src/icons'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
-import { PopoverState } from '../../../../common/services/PopoverState'
-import useFeatureFlags from '../../../../hooks/useFeatureFlags'
-import { InviteService } from '../../../../social/services/InviteService'
-import { AuthState } from '../../../services/AuthService'
+import { PopoverState } from '../../common/services/PopoverState'
+import { InviteService } from '../../social/services/InviteService'
+import { AuthState } from '../services/AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:ShareMenu' })
 
-export const useShareMenuHooks = ({ refLink }) => {
+const useShareMenuHooks = ({ refLink }) => {
   const { t } = useTranslation()
   const [token, setToken] = React.useState('')
   const [isSpectatorMode, setSpectatorMode] = useState<boolean>(false)
@@ -153,11 +151,8 @@ const ShareMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
 
-  const [shareTOQuestEnabled] = useFeatureFlags([FeatureFlags.Client.Menu.ShareToQuest])
-
   const {
     copyLinkToClipboard,
-    shareOnApps,
     packageInvite,
     handleChangeToken,
     token,

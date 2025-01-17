@@ -33,8 +33,8 @@ import { PopoverState } from '../../common/services/PopoverState'
 import { ViewerMenuState } from '../../util/ViewerMenuState'
 import LocationIconButton from '../components/LocationIconButton'
 import EmoteMenu from '../components/UserMenu/menus/EmoteMenu'
-import ShareMenu from '../components/UserMenu/menus/ShareMenu'
 import ProfileMenu from './ProfileMenu'
+import ShareMenu from './ShareMenu'
 
 export default function UserMenus() {
   const userMenus = useMutableState(ViewerMenuState).userMenus
