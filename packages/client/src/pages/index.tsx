@@ -29,9 +29,8 @@ import { Navigate } from 'react-router-dom'
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 
-import { PopupMenuState } from '@ir-engine/client-core/src/user/components/UserMenu/PopupMenuService'
 import config from '@ir-engine/common/src/config'
-import { getState, useMutableState } from '@ir-engine/hyperflux'
+import { useMutableState } from '@ir-engine/hyperflux'
 
 import { Box, Button } from '@mui/material'
 
@@ -48,9 +47,6 @@ export const HomePage = (): any => {
   const { t } = useTranslation()
   const clientSettingQuery = useFind(clientSettingPath)
   const clientSetting = clientSettingQuery.data[0]
-  const popupMenuState = useMutableState(PopupMenuState)
-  const popupMenu = getState(PopupMenuState)
-  const Panel = popupMenuState.openMenu.value ? popupMenu.menus[popupMenuState.openMenu.value] : null
   const viewerMenuState = useMutableState(ViewerMenuState)
 
   useEffect(() => {
@@ -61,7 +57,6 @@ export const HomePage = (): any => {
 
     return () => {
       viewerMenuState.userMenus.profile.set(false)
-      popupMenuState.openMenu.set(null)
     }
   }, [])
 
@@ -133,7 +128,6 @@ export const HomePage = (): any => {
                 }
               `}
             </style>
-            {Panel && <Panel {...popupMenu.params} isPopover />}
           </Box>
         </div>
         <div className="link-container">

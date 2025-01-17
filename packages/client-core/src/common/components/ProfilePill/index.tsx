@@ -32,8 +32,6 @@ import React from 'react'
 import { HiPencil } from 'react-icons/hi2'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { useUserAvatarThumbnail } from '../../../hooks/useUserAvatarThumbnail'
-import { UserMenus } from '../../../user/UserUISystem'
-import { PopupMenuServices } from '../../../user/components/UserMenu/PopupMenuService'
 import { AuthState } from '../../../user/services/AuthService'
 
 const ProfilePill = () => {
@@ -72,7 +70,8 @@ const ProfilePill = () => {
               className="absolute bottom-0 left-10 rounded-full p-1 text-[#F5F5F5]"
               onClick={() => {
                 popUpOpened.set(false)
-                PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)
+                // PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)
+                // PopoverState.showPopupover()
               }}
             >
               <HiPencil />

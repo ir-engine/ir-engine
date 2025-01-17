@@ -25,20 +25,19 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { defineState } from '@ir-engine/hyperflux'
 
-const getInitialState = () => ({
-  userMenus: {
-    profile: true,
-    settings: false,
-    readyplayer: false,
-    avaturn: false,
-    avatarselect: false,
-    avatarmodify: false,
-    share: false,
-    emote: false
-  }
-})
-
 export const ViewerMenuState = defineState({
   name: 'ViewerMenuState',
-  initial: () => getInitialState()
+  initial: () => ({
+    userMenus: {
+      profile: true,
+      settings: false,
+      readyplayer: false,
+      avaturn: false,
+      avatarselect: false,
+      avatarmodify: false,
+      share: false,
+      emote: false,
+      friends: false
+    }
+  })
 })
