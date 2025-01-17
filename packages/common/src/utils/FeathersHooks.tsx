@@ -144,7 +144,7 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       })
       return
     }
-    state[serviceName][queryId].merge({
+    state[serviceName][queryId]?.merge({
       status: 'pending',
       error: ''
     })
@@ -153,7 +153,7 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       Error.captureStackTrace?.(trace, fetch)
       const stack = trace.stack.split('\n')
       stack.shift()
-      state[serviceName][queryId].merge({ $stack: stack })
+      state[serviceName][queryId]?.merge({ $stack: stack })
     }
     // prettier-ignore
     return API.instance.service(serviceName)[method](...args)
