@@ -46,7 +46,7 @@ export const updateVRMRetargeting = (avatarEntity: Entity) => {
     if (boneNode != null) {
       const rigBoneNode = humanoidRig.getBoneNode(boneName)! as Object3D
 
-      delete TransformComponent.dirtyTransforms[rigBoneNode.entity!]
+      TransformComponent.dirty[rigBoneNode.entity!] = 0
 
       const parentWorldRotation = humanoidRig._parentWorldRotations[boneName]!
       const invParentWorldRotation = _quatA.copy(parentWorldRotation).invert()

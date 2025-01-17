@@ -51,7 +51,7 @@ import { VisibleComponent } from './VisibleComponent'
 export const ObjectComponent = defineComponent({
   name: 'ObjectComponent',
 
-  schema: S.Required(S.Type<Object3DWithEntity>()),
+  schema: S.Required(S.Type<Object3D>()),
 
   onSet(entity, component, obj: Object3D) {
     if (!obj?.isObject3D) throw new Error('ObjectComponent requires an Object3D')
@@ -135,9 +135,9 @@ export const ObjectComponent = defineComponent({
 
     // sometimes it's convenient to update the entity transform via the Object3D,
     // so allow people to do that via proxies
-    proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirtyTransforms, obj.position)
-    proxifyQuaternionWithDirty(TransformComponent.rotation, entity, TransformComponent.dirtyTransforms, obj.quaternion)
-    proxifyVector3WithDirty(TransformComponent.scale, entity, TransformComponent.dirtyTransforms, obj.scale)
+    proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirty, obj.position)
+    proxifyQuaternionWithDirty(TransformComponent.rotation, entity, TransformComponent.dirty, obj.quaternion)
+    proxifyVector3WithDirty(TransformComponent.scale, entity, TransformComponent.dirty, obj.scale)
 
     setCallback(entity, 'setVisible', () => {
       setComponent(entity, VisibleComponent, true)

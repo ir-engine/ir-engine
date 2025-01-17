@@ -45,7 +45,7 @@ const _rotation = new Quaternion()
 const _scale = new Vector3()
 const _mat4 = new Matrix4()
 
-const setDirty = (entity: Entity) => (TransformComponent.dirtyTransforms[entity] = true)
+const setDirty = (entity: Entity) => (TransformComponent.dirty[entity] = 1)
 
 /**
  * Lerp the transform of a rigidbody entity from the previous frame to the current frame.
@@ -104,7 +104,7 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
 
   /** set all children dirty deeply, but set this entity to clean */
   iterateEntityNode(entity, setDirty)
-  TransformComponent.dirtyTransforms[entity] = false
+  TransformComponent.dirty[entity] = 0
 }
 
 export const copyTransformToRigidBody = (entity: Entity) => {
@@ -150,7 +150,7 @@ export const copyTransformToRigidBody = (entity: Entity) => {
 
   /** set all children dirty deeply, but set this entity to clean */
   iterateEntityNode(entity, setDirty)
-  TransformComponent.dirtyTransforms[entity] = false
+  TransformComponent.dirty[entity] = 0
 }
 
 const copyTransformToCollider = (entity: Entity) => {
@@ -172,9 +172,9 @@ const colliderQuery = defineQuery([TransformComponent, ColliderComponent, Entity
 const filterAwakeCleanRigidbodies = (entity: Entity) => {
   // if the entity has a parent that is dirty, we need to update the transform
   const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
-  if (TransformComponent.dirtyTransforms[parentEntity]) return true
+  if (TransformComponent.dirty[parentEntity]) return true
   // if the entity is dirty, we don't need to update the transform
-  if (TransformComponent.dirtyTransforms[entity]) return false
+  if (TransformComponent.dirty[entity]) return false
   const world = Physics.getWorld(entity)
   if (!world) return false
   // if the entity is not dirty, we only need to update the transform if it is awake
