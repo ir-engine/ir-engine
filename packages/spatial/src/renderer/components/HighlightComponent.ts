@@ -27,6 +27,7 @@ import { defineQuery, defineSystem, Engine } from '@ir-engine/ecs'
 import { defineComponent, getComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 
 import { traverseEntityNode } from '@ir-engine/ecs'
+import { OutlineEffect } from 'postprocessing'
 import { Object3D } from 'three'
 import { RendererComponent, WebGLRendererSystem } from '../WebGLRendererSystem'
 import { MeshComponent } from './MeshComponent'
@@ -51,7 +52,8 @@ const execute = () => {
     })
   }
   const rendererComponent = getComponent(Engine.instance.viewerEntity, RendererComponent)
-  rendererComponent.effectComposer?.OutlineEffect?.selection.set(highlightObjects)
+  const outlineEffect = rendererComponent?.effectInstances?.OutlineEffect as OutlineEffect
+  outlineEffect?.selection.set(highlightObjects)
 }
 
 export const HighlightSystem = defineSystem({

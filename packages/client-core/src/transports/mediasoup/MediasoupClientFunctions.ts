@@ -45,10 +45,10 @@ import { MediaStreamAppData, NetworkConnectionParams } from '@ir-engine/common/s
 import multiLogger from '@ir-engine/common/src/logger'
 import { ChannelID, InstanceID, InviteCode, LocationID, RoomCode } from '@ir-engine/common/src/schema.type.module'
 import { getSearchParamFromURL } from '@ir-engine/common/src/utils/getSearchParamFromURL'
-import { AuthTask, ReadyTask } from '@ir-engine/common/src/world/receiveJoinWorld'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineSystem, destroySystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
+import { AuthTask, ReadyTask } from '@ir-engine/engine/src/avatar/functions/spawnLocalAvatarInWorld'
 import {
   Action,
   NetworkID,

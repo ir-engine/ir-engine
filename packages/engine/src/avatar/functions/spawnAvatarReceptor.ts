@@ -59,6 +59,7 @@ import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarColliderComponent, AvatarControllerComponent, eyeOffset } from '../components/AvatarControllerComponent'
+import { AvatarIKComponent } from '../components/AvatarIKComponents'
 
 export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   const entity = UUIDComponent.getEntityByUUID(entityUUID)
@@ -105,6 +106,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   setComponent(entity, ShadowComponent)
   setComponent(entity, GrabberComponent)
   setComponent(entity, AvatarRigComponent)
+  setComponent(entity, AvatarIKComponent)
 
   setComponent(entity, InputComponent)
 }
