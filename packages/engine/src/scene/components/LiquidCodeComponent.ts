@@ -59,14 +59,17 @@ export const LiquidCodeComponent = defineComponent({
     const entity = useEntityContext()
     const liquidCode = useComponent(entity, LiquidCodeComponent)
 
-    // todo: when liqudi code is change, set isOpen to false
     useEffect(() => {
       const toggleOpen = () => {
         liquidCode.isOpen.set(!liquidCode.isOpen.value)
       }
 
       setCallback(entity, liquidCodeCallbackName, toggleOpen)
-    }, [])
+
+      return () => {
+        setCallback(entity, liquidCodeCallbackName, null)
+      }
+    }, [entity, liquidCode])
 
     return null
   }
