@@ -61,7 +61,7 @@ export const SceneState = defineState({
   initial: {} as Record<string, Entity>,
 
   loadScene: (sceneURL: string, uuid: string, layer?: LayerID) => {
-    const gltfEntity = AssetState.load(sceneURL, uuid as EntityUUID, getState(ReferenceSpaceState).originEntity, layer)
+    const gltfEntity = AssetState.load(sceneURL, uuid as EntityUUID, UndefinedEntity, layer)
     getMutableState(SceneState)[sceneURL].set(gltfEntity)
     setComponent(gltfEntity, SceneComponent)
 

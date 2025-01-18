@@ -35,6 +35,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { saveSceneGLTF } from '../../functions/sceneFunctions'
 import { EditorState } from '../../services/EditorServices'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 
 export default function SaveNewSceneDialog(props: { onConfirm?: () => void; onCancel?: () => void }) {
   const { t } = useTranslation()
@@ -57,7 +58,7 @@ export default function SaveNewSceneDialog(props: { onConfirm?: () => void; onCa
         if (inputSceneName.value && projectName) {
           await saveSceneGLTF(sceneAssetID!, projectName, inputSceneName.value, abortController.signal, true)
 
-          const sourceID = getComponent(rootEntity, SourceComponent)
+          const sourceID = GLTFComponent.getInstanceID(rootEntity)
           getMutableState(AssetModifiedState)[sourceID].set(none)
         }
       }

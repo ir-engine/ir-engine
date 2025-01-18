@@ -34,13 +34,14 @@ import multiLogger from '@ir-engine/common/src/logger'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { cleanString } from '@ir-engine/common/src/utils/cleanString'
 import { EngineState, EntityUUID, UndefinedEntity } from '@ir-engine/ecs'
-import { Layers, getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, getMutableComponent, LayerComponents, Layers } from '@ir-engine/ecs/src/ComponentFunctions'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { AssetModifiedState, SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { exportGLTFScene } from '@ir-engine/engine/src/gltf/exportGLTFScene'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { handleScenePaths } from '@ir-engine/engine/src/scene/functions/GLTFConversion'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
-import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
 import React from 'react'
 import { EditorState } from '../services/EditorServices'
@@ -145,9 +146,14 @@ export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
   getMutableState(EngineState).isEditing.set(true)
   const unload = SceneState.loadScene(sceneURL, uuid, Layers.Authoring)
   const gltfEntity = getState(SceneState)[sceneURL]
-  setComponent(gltfEntity, SceneComponent)
+  const simulationEntity = getComponent(gltfEntity, LayerComponents[Layers.Authoring]).relations[Layers.Simulation]
+  const viewerEntity = getState(ReferenceSpaceState).viewerEntity
+  getMutableComponent(viewerEntity, RendererComponent).scenes.merge([simulationEntity])
   getMutableState(EditorState).rootEntity.set(gltfEntity)
   return () => {
+    getMutableComponent(viewerEntity, RendererComponent).scenes.set((current) =>
+      current.splice(current.indexOf(simulationEntity), 1)
+    )
     unload()
     getMutableState(EditorState).rootEntity.set(UndefinedEntity)
   }
@@ -173,7 +179,7 @@ export const onSaveScene = async () => {
   try {
     await saveSceneGLTF(sceneAssetID!, projectName!, sceneName!, abortController.signal)
     NotificationService.dispatchNotify(`${i18n.t('editor:dialog.saveScene.info-save-success')}`, { variant: 'success' })
-    const sourceID = getComponent(rootEntity, SourceComponent)
+    const sourceID = GLTFComponent.getInstanceID(rootEntity)
     getMutableState(AssetModifiedState)[sourceID].set(none)
 
     PopoverState.hidePopupover()

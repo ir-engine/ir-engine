@@ -108,15 +108,19 @@ export function resolveObject<O extends object, P extends string>(
 }
 
 export function getNestedObject(object: any, propertyName: string) {
+  if (propertyName === '') return { result: object, finalProp: '' }
+
+  if (propertyName.startsWith('.')) propertyName = propertyName.slice(1)
+
   const props = propertyName.split('.')
   let result = object
 
-  for (let i = 0; i < props.length - 1; i++) {
+  for (let i = 0; i < props.length; i++) {
+    if (typeof result !== 'object') continue
     let isNumber = false
 
     try {
-      Number(props[0])
-      isNumber = true
+      isNumber = !isNaN(Number(props[i]))
     } catch (e) {
       isNumber = false
     }
@@ -127,11 +131,29 @@ export function getNestedObject(object: any, propertyName: string) {
       val = Number(val)
     }
 
-    if (typeof result[props[i]] === 'undefined') result[props[i]] = {}
-    result = result[props[i]]
+    result = result[val]
   }
 
   return { result, finalProp: props[props.length - 1] }
+}
+
+export function setNestedObject(object: any, propertyName: string, value: any) {
+  if (propertyName === '') return value
+  if (propertyName.startsWith('.')) propertyName = propertyName.slice(1)
+
+  console.log('setNestedObject', object, propertyName, value)
+
+  const { result, finalProp } = getNestedObject(object ?? {}, propertyName.split('.').slice(0, -1).join('.'))
+  console.log({ result, finalProp })
+
+  if (finalProp === '') {
+    object[propertyName] = value
+    return object
+  }
+
+  result[finalProp] = value
+
+  return result
 }
 
 export function useMutableState<S, I, E, R extends ReceptorMap, P extends string>(

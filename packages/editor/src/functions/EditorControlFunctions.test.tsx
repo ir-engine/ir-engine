@@ -44,6 +44,7 @@ import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 
 describe('EditorControlFunctions', () => {
   let physicsWorldEntity: Entity
@@ -840,7 +841,7 @@ describe('EditorControlFunctions', () => {
       const node2Entity = UUIDComponent.getEntityByUUID(node2UUID)
       const node4Entity = UUIDComponent.getEntityByUUID(node4UUID)
 
-      const sourceID = getComponent(rootEntity, SourceComponent)
+      const sourceID = GLTFComponent.getInstanceID(rootEntity)
 
       const currentSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[0]
       assert.equal(currentSnapshot.nodes?.length, 4)
