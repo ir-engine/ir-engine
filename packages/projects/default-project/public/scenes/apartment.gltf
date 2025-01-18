@@ -1206,7 +1206,7 @@
           "bakeType": "Baked",
           "resolution": 1024,
           "refreshMode": "OnAwake",
-          "envMapOrigin": "__$project$__/ir-engine/default-project/public/scenes/apartment-New-EnvMap%20Bake.ktx2",
+          "envMapOrigin": "__$project$__/ir-engine/default-project/public/scenes/apartment.envmap.ktx2",
           "boxProjection": true
         },
         "EE_visible": true

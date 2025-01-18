@@ -228,6 +228,12 @@ export const EnvmapComponent = defineComponent({
   errors: ['MISSING_FILE']
 })
 
+export const EnvmapSpecificationComponent = defineComponent({
+  name: 'EnvmapSpecificationComponent',
+  jsonID: 'EE_envmap',
+  schema: EnvmapComponent.schema
+})
+
 const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Entity }) => {
   const { envmapEntity, bakeEntity } = props
   const bakeComponent = useComponent(bakeEntity, EnvMapBakeComponent)
@@ -248,7 +254,7 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
 
   useEffect(() => {
     if (!error) return
-    addError(envmapEntity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
+    addError(envmapEntity, EnvmapComponent, 'MISSING_FILE', 'EnvMap bake texture not found!')
   }, [error])
 
   return null

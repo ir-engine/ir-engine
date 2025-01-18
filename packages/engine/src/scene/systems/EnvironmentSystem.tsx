@@ -28,18 +28,28 @@ import React, { useEffect } from 'react'
 import {
   defineSystem,
   Entity,
+  getAncestorWithComponents,
+  getComponent,
+  getMutableComponent,
   getOptionalComponent,
+  hasComponent,
   haveCommonAncestor,
   PresentationSystemGroup,
   setComponent,
   useComponent,
-  useQuery
+  useQuery,
+  UUIDComponent
 } from '@ir-engine/ecs'
 
+import { State } from '@ir-engine/hyperflux'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { MeshStandardMaterial } from 'three'
-import { EnvmapComponent } from '../components/EnvmapComponent'
+import { EquirectangularReflectionMapping, MeshStandardMaterial } from 'three'
+import { useTexture } from '../../assets/functions/resourceLoaderHooks'
+import { EnvMapBakeComponent } from '../components/EnvMapBakeComponent'
+import { EnvmapComponent, EnvmapSpecificationComponent } from '../components/EnvmapComponent'
+import { EnvMapSourceType } from '../constants/EnvMapEnum'
+import { addError } from '../functions/ErrorFunctions'
 
 // const EnvmapReactor = (props: { backgroundEntity: Entity }) => {
 //   const entity = useEntityContext()
@@ -84,18 +94,68 @@ import { EnvmapComponent } from '../components/EnvmapComponent'
 
 const EnvMapReactor = (props: { entity: Entity }) => {
   const entity = props.entity
-  const materialComponent = useComponent(entity, MaterialStateComponent)
+  const envMap = useComponent(entity, EnvmapComponent)
+  switch (envMap.type.value) {
+    case 'Skybox':
+      return <EnvMapSkyboxReactor entity={entity} />
+    case 'Bake':
+      return <EnvMapBakeReactor entity={entity} />
+  }
+
+  return null
+}
+
+const EnvMapSkyboxReactor = (props: { entity: Entity }) => {
+  const entity = props.entity
   const backgroundQuery = useQuery([BackgroundComponent])
+  const materialComponent = useComponent(props.entity, MaterialStateComponent)
   useEffect(() => {
     let i = 0
     for (i; i < backgroundQuery.length; i++) if (haveCommonAncestor(entity, backgroundQuery[i])) break
     const backgroundComponent = getOptionalComponent(backgroundQuery[i], BackgroundComponent)
     if (!backgroundComponent) return
-    setComponent(entity, EnvmapComponent, { type: 'Skybox' })
     const material = materialComponent.material.value as MeshStandardMaterial
     material.envMap = backgroundComponent as any
-    material.needsUpdate = true
+    const hasSpec = getAncestorWithComponents(entity, [EnvmapSpecificationComponent])
+    if (hasSpec) setComponent(entity, EnvmapComponent, getComponent(hasSpec, EnvmapSpecificationComponent))
   }, [backgroundQuery])
+
+  return null
+}
+
+const EnvMapBakeReactor = (props: { entity: Entity }) => {
+  const entity = props.entity
+  const envMap = useComponent(entity, EnvmapComponent)
+  const bakeEntity = UUIDComponent.useEntityByUUID(envMap.envMapSourceEntityUUID.value)
+  const bakeComponent = useComponent(bakeEntity, EnvMapBakeComponent)
+
+  const [envMaptexture, error] = useTexture(bakeComponent.envMapOrigin.value, entity)
+
+  useEffect(() => {
+    const texture = envMaptexture
+    if (!texture) return
+    texture.mapping = EquirectangularReflectionMapping
+    ;(getMutableComponent(entity, MaterialStateComponent).material as State<MeshStandardMaterial>).envMap.set(texture)
+    if (bakeComponent.boxProjection.value) {
+      //set the box projection plugin
+    }
+  }, [envMaptexture])
+
+  useEffect(() => {
+    if (!error) return
+    addError(entity, EnvmapComponent, 'MISSING_FILE', 'EnvMap bake texture not found!')
+  }, [error])
+
+  return null
+}
+
+const MaterialStateReactor = (props: { entity: Entity }) => {
+  const entity = props.entity
+  const materialComponent = useComponent(entity, MaterialStateComponent)
+  useEffect(() => {
+    if (!hasComponent(entity, EnvmapComponent)) setComponent(entity, EnvmapComponent, { type: EnvMapSourceType.Skybox })
+  }, [materialComponent])
+
   return null
 }
 
@@ -103,10 +163,14 @@ export const EnvironmentSystem = defineSystem({
   uuid: 'ee.engine.EnvironmentSystem',
   insert: { after: PresentationSystemGroup },
   reactor: () => {
-    const envMapQuery = useQuery([MaterialStateComponent])
+    const envMapQuery = useQuery([MaterialStateComponent, EnvmapComponent])
+    const materialQuery = useQuery([MaterialStateComponent])
 
     return (
       <>
+        {materialQuery.map((entity) => {
+          ;<MaterialStateReactor entity={entity} key={entity} />
+        })}
         {envMapQuery.map((entity) => (
           <EnvMapReactor entity={entity} key={entity} />
         ))}
