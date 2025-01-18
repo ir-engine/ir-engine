@@ -89,7 +89,7 @@ const deviceMetadataSchema = S.Object({
 export type VariantMetadata = Static<typeof distanceMetadataSchema> | Static<typeof deviceMetadataSchema>
 
 export const VariantComponent = defineComponent({
-  name: 'EE_variant',
+  name: 'VariantComponent',
   jsonID: 'EE_variant',
 
   schema: S.Object({
@@ -248,7 +248,7 @@ const ChildMeshReactor = (props: { variantEntity: Entity; modelEntity: Entity; m
       mesh instanceof InstancedMesh
         ? mesh
         : new InstancedMesh(mesh.geometry, mesh.material, instancingComponent.instanceMatrix.count)
-    instancedMesh.instanceMatrix = instancingComponent.instanceMatrix
+    instancedMesh.instanceMatrix.copy(instancingComponent.instanceMatrix)
     instancedMesh.frustumCulled = false
 
     //add distance culling shader plugin
