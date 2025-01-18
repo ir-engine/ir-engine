@@ -29,7 +29,15 @@ import { getState, HyperFlux } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import * as bitECS from 'bitecs'
 import { Vector3 } from 'three'
-import { getComponent, hasComponent, LayerComponent, Layers, removeComponent, setComponent } from './ComponentFunctions'
+import {
+  getComponent,
+  hasComponent,
+  LayerComponent,
+  LayerID,
+  Layers,
+  removeComponent,
+  setComponent
+} from './ComponentFunctions'
 import { createEngine, destroyEngine } from './Engine'
 import { entityExists } from './EntityFunctions'
 import { EntityTreeComponent } from './EntityTree'
@@ -72,6 +80,10 @@ describe('createEntity', () => {
     expect(result).not.toBe(undefined)
     expect(result).toBeTruthy()
     expect(entityExists(result)).toBeTruthy()
+  })
+
+  it('should throw an error when `@param layerID` is not a valid LayerID', () => {
+    expect(() => createEntity(42_000 as LayerID)).toThrowError()
   })
 }) //:: createEntity
 
