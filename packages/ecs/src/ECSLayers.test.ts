@@ -38,11 +38,12 @@ import {
   removeComponent,
   setComponent
 } from './ComponentFunctions'
+import { createEntity } from './createEntity'
 import { createEngine, destroyEngine } from './Engine'
-import { entityExists } from './EntityFunctions'
+import { Entity } from './Entity'
+import { entityExists, removeEntity } from './EntityFunctions'
 import { EntityTreeComponent } from './EntityTree'
 import { UUIDComponent } from './UUIDComponent'
-import { createEntity } from './createEntity'
 
 /** @todo Move this describe into `EntityFunctions.test.tsx` instead */
 describe('createEntity', () => {
@@ -89,10 +90,30 @@ describe('createEntity', () => {
 
 /** @todo Move this describe into `EntityFunctions.test.tsx` instead */
 describe('removeEntity', () => {
+  beforeEach(() => {
+    createEngine()
+  })
+
+  afterEach(() => {
+    destroyEngine()
+  })
+
+  it('should call bitECS.removeEntity with HyperFlux.store and `@param entity` as arguments', () => {
+    const testEntity = bitECS.addEntity(HyperFlux.store) as Entity
+    removeEntity(testEntity)
+    const result = bitECS.entityExists(HyperFlux.store, testEntity)
+    expect(result).toBeFalsy()
+  })
+
+  /**
+  // @note
+  // Just for reference. These tests require circular logic that cannot be solved
+  // Cannot check if the process of removing an entity is not happening on a falsy entity (aka already does not exist)
+  // Cannot check if removing all components from an entity has been triggered on an entity that after the process does not exist
   it.todo('should not do anything if `@param entity` is falsy', () => {})
   it.todo('should not do anything if the result of `entityExists(entity)` is falsy', () => {})
   it.todo('should call removeAllComponents with `@param entity`', () => {})
-  it.todo('should call bitECS.removeEntity with HyperFlux.store and `@param entity` as arguments', () => {})
+  */
 }) //:: removeEntity
 
 describe('setComponent', () => {
