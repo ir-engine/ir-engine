@@ -23,16 +23,18 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { afterEach, assert, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { getState, HyperFlux } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import * as bitECS from 'bitecs'
 import { Vector3 } from 'three'
 import {
+  defineComponent,
   getComponent,
   hasComponent,
   LayerComponent,
+  LayerFunctions,
   LayerID,
   Layers,
   removeComponent,
@@ -117,8 +119,26 @@ describe('removeEntity', () => {
 }) //:: removeEntity
 
 describe('setComponent', () => {
+  beforeEach(() => {
+    createEngine()
+  })
+
+  afterEach(() => {
+    destroyEngine()
+  })
+
   /** @section ECS Layers specific tests */
-  it.todo('should call LayerFunctions.propagateLayer with (entity, component, args) as arguments', () => {})
+  it('should call LayerFunctions.propagateLayer with (entity, component, args) as arguments', () => {
+    // Set the data as expected
+    const resultSpy = vi.spyOn(LayerFunctions, 'propagateLayer')
+    const TestComponent = defineComponent({ name: '123' })
+    const testArgs = '42'
+    const testEntity = createEntity()
+    // Run and Check the result
+    setComponent(testEntity, TestComponent, testArgs)
+    expect(resultSpy).toHaveBeenCalled()
+    expect(resultSpy).toHaveBeenCalledWith(testEntity, TestComponent, testArgs)
+  })
 
   /** @section Other tests for Coverage */
   it.todo('should throw an error if `@param entity` is falsy', () => {})
@@ -148,17 +168,41 @@ describe('setComponent', () => {
 }) //:: setComponent
 
 describe('LayerFunctions', () => {
-  describe('getLayerRelations', () => {
-    it.todo(
-      'should return an array of arrays that contains valid layer ID numbers in slot 0 of each subarray',
-      () => {}
-    )
-    it.todo('should return an array of arrays that contains valid Entity IDs in slot 1 of each subarray', () => {})
-    it.todo(
-      'should retrieve the `@param entity` Layer relations from the LayerFunctions.getLayerComponent(entity) component and map them as expected into the result',
-      () => {}
-    )
-  }) //:: getLayerRelations
+  beforeEach(() => {
+    createEngine()
+  })
+
+  afterEach(() => {
+    destroyEngine()
+  })
+
+  describe('getLayerRelationsEntities', () => {
+    it('should return an array of arrays that contains valid layer ID numbers in slot 0 of each subarray', () => {
+      const testEntity = createEntity(Layers.Authoring)
+      const result = LayerFunctions.getLayerRelationsEntities(testEntity)
+      expect(Array.isArray(result)).toBeTruthy()
+      expect(Array.isArray(result[0])).toBeTruthy()
+      expect(Object.values(Layers).includes(result[0][0] as LayerID)).toBeTruthy()
+    })
+
+    it('should return an array of arrays that contains valid Entity IDs in slot 1 of each subarray', () => {
+      const testEntity = createEntity(Layers.Authoring)
+      const result = LayerFunctions.getLayerRelationsEntities(testEntity)
+      expect(Array.isArray(result)).toBeTruthy()
+      expect(Array.isArray(result[0])).toBeTruthy()
+      expect(entityExists(result[0][1])).toBeTruthy()
+    })
+
+    it('should retrieve the `@param entity` Layer relations from the LayerFunctions.getLayerComponent(entity) component and map them as expected into the result', () => {
+      const testEntity = createEntity(Layers.Authoring)
+      const result = LayerFunctions.getLayerRelationsEntities(testEntity)
+      expect(Array.isArray(result)).toBeTruthy()
+      expect(result.length).toBe(1)
+      expect(result[0][0]).toBe(Layers.Simulation)
+      expect(entityExists(result[0][1])).toBeTruthy()
+    })
+  }) //:: getLayerRelationsEntities
+  describe('getLayerRelationsTypes', () => {}) //:: getLayerRelationsTypes
 
   describe('getLayerComponent', () => {
     it.todo(
