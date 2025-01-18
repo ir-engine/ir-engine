@@ -32,10 +32,7 @@ import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 
-import { getMutableComponent } from '@ir-engine/ecs'
-import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { NotificationService } from '../../common/services/NotificationService'
 import { RouterState } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'
@@ -87,17 +84,8 @@ export const useLoadLocation = (props: { locationName: string }) => {
       return
     const sceneURL = locationState.currentLocation.location.sceneURL.value
     const sceneID = locationState.currentLocation.location.sceneId.value
-    const unload = SceneState.loadScene(sceneURL, sceneID)
-    const gltfEntity = getState(SceneState)[sceneURL]
     const viewerEntity = getState(ReferenceSpaceState).viewerEntity
-    getMutableComponent(viewerEntity, RendererComponent).scenes.merge([gltfEntity])
-    getMutableState(EditorState).rootEntity.set(gltfEntity)
-    return () => {
-      unload()
-      getMutableComponent(viewerEntity, RendererComponent).scenes.set((current) =>
-        current.splice(current.indexOf(gltfEntity), 1)
-      )
-    }
+    return SceneState.loadScene(sceneURL, sceneID, viewerEntity)
   }, [locationState.currentLocation.location.sceneId, locationState.currentLocation.location.sceneURL])
 }
 
@@ -114,7 +102,8 @@ export const useLoadScene = (props: { projectName: string; sceneName: string }) 
     const resource = resourceQuery.data[0]
     getMutableState(LocationState).currentLocation.location.sceneId.set(resource.id)
     getMutableState(LocationState).currentLocation.location.sceneURL.set(resource.url)
-    const unload = SceneState.loadScene(resource.url, resource.id)
+    const viewerEntity = getState(ReferenceSpaceState).viewerEntity
+    const unload = SceneState.loadScene(resource.url, resource.id, viewerEntity)
     return () => {
       getMutableState(LocationState).currentLocation.location.sceneId.set('')
       getMutableState(LocationState).currentLocation.location.sceneURL.set('')
