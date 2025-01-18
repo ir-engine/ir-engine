@@ -267,15 +267,65 @@ describe('LayerComponent', () => {
 }) //:: LayerComponent
 
 describe('UUIDComponent', () => {
-  describe('onSet', () => {}) //:: onSet
-  describe('onRemove', () => {}) //:: onRemove
-  describe('entitiesByUUIDState', () => {}) //:: entitiesByUUIDState
-  describe('useEntityByUUID', () => {}) //:: useEntityByUUID
-  describe('getEntityByUUID', () => {}) //:: getEntityByUUID
-  describe('getOrCreateEntityByUUID', () => {}) //:: getOrCreateEntityByUUID
+  describe('name', () => {}) //:: name
+  describe('jsonID', () => {}) //:: jsonID
+
+  describe('onSet', () => {
+    it.todo(
+      'should call UUIDComponentFunctions._getUUIDState with (currentUUID, layer) as arguments and set its value to UndefinedEntity if `@param component`.value is truthy ',
+      () => {}
+    )
+    it.todo(
+      'should call UUIDComponentFunctions._getUUIDState with (`@param uuid`, layer) as arguments and set its value to `@param entity`',
+      () => {}
+    )
+    it.todo('should call `@param component`.set with `@param uuid` as its argument', () => {})
+  }) //:: onSet
+
+  describe('onRemove', () => {
+    it.todo(
+      'should call UUIDComponentFunctions._getUUIDState with (currentUUID, layer) as arguments and set its value to UndefinedEntity if `@param component`.value is truthy ',
+      () => {}
+    )
+  }) //:: onRemove
+
+  describe('useEntityByUUID', () => {
+    it.todo(
+      'should return the result.value of calling useHookstate with UUIDComponentFunctions._getUUIDState(uuid, `@param layer`) as its argument',
+      () => {}
+    )
+    it.todo(
+      'should return the result.value of calling useHookstate with UUIDComponentFunctions._getUUIDState(uuid, Layers.Simulation) as its argument when `@param layer` is not provided',
+      () => {}
+    )
+  }) //:: useEntityByUUID
+
+  describe('getEntityByUUID', () => {
+    it.todo(
+      'should return the NO_PROXY_STEALTH result of calling UUIDComponentFunctions._getUUIDState with (uuid, `@param layer`) as its arguments',
+      () => {}
+    )
+    it.todo(
+      'should return the NO_PROXY_STEALTH result of calling UUIDComponentFunctions._getUUIDState with (uuid, Layers.Simulation) as its arguments when `@param layer` is not provided',
+      () => {}
+    )
+  }) //:: getEntityByUUID
+
+  describe('getOrCreateEntityByUUID', () => {
+    it.todo(
+      'should create a new entity and set its UUIDComponent to `@param uuid` when the result.value of UUIDComponentFunctions._getUUIDState(uuid, layer) is falsy',
+      () => {}
+    )
+    it.todo(
+      'should return the result.value of UUIDComponentFunctions._getUUIDState with (`@param uuid`, `@param layer`) as its arguments',
+      () => {}
+    )
+  }) //:: getOrCreateEntityByUUID
+
   describe('generateUUID', () => {
     // not affected by layers, just for completion
   }) //:: generateUUID
+
   describe('function _getUUIDState', () => {
     // not exported. Figure out how to access it
   }) //:: _getUUIDState
