@@ -157,7 +157,7 @@ const sortAndMakeDirtyEntities = () => {
       TransformComponent.dirty[entity] ||
       (hasComponent(entity, ComputedTransformComponent) ? 1 : 0) ||
       TransformComponent.dirty[getOptionalComponent(entity, EntityTreeComponent)?.parentEntity ?? -1] ||
-      1
+      0
   }
 }
 
