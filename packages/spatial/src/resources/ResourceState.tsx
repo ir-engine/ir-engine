@@ -43,6 +43,7 @@ import {
   Engine,
   Entity,
   QueryReactor,
+  getAncestorWithComponents,
   getAuthoringCounterpart,
   getOptionalComponent,
   useComponent,
@@ -56,6 +57,7 @@ import { Geometry } from '../common/constants/Geometry'
 import iterateObject3D from '../common/functions/iterateObject3D'
 import { PerformanceState } from '../renderer/PerformanceState'
 import { RendererComponent } from '../renderer/WebGLRendererSystem'
+import { ColliderComponent } from '../physics/components/ColliderComponent'
 
 export interface DisposableObject {
   uuid: string
@@ -557,7 +559,7 @@ const addEntityResource = (
   returnedResources.push(resource)
 
   /** @todo disposal currently causes errors */
-  const entityHasAuthoringUpstream = getAuthoringCounterpart(entity)
+  const entityHasAuthoringUpstream = getAuthoringCounterpart(entity) || getAncestorWithComponents(entity, [ColliderComponent]) // collider component is a hack to prevent unloading of physics objects
 
   const callbacks = resourceCallbacks[resourceType]
   if (callbacks?.onLoad)
