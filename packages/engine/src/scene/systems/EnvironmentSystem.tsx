@@ -28,8 +28,8 @@ import React, { useEffect } from 'react'
 import {
   defineSystem,
   Entity,
-  getComponent,
   getOptionalComponent,
+  haveCommonAncestor,
   PresentationSystemGroup,
   setComponent,
   useComponent,
@@ -87,19 +87,14 @@ const EnvMapReactor = (props: { entity: Entity }) => {
   const materialComponent = useComponent(entity, MaterialStateComponent)
   const backgroundQuery = useQuery([BackgroundComponent])
   useEffect(() => {
-    const envMapComponent = setComponent(entity, EnvmapComponent)
-    if (!backgroundQuery.length) return
-    console.log(backgroundQuery[0], envMapComponent.type, materialComponent.value)
-    if ((!getOptionalComponent(backgroundQuery[0], BackgroundComponent) as any)?.isTexture) return
-    console.log(backgroundQuery)
+    let i = 0
+    for (i; i < backgroundQuery.length; i++) if (haveCommonAncestor(entity, backgroundQuery[i])) break
+    const backgroundComponent = getOptionalComponent(backgroundQuery[i], BackgroundComponent)
+    if (!backgroundComponent) return
+    setComponent(entity, EnvmapComponent, { type: 'Skybox' })
     const material = materialComponent.material.value as MeshStandardMaterial
-
-    material.envMap = getComponent(backgroundQuery[0], BackgroundComponent) as any
-    material.roughness = 0
-    material.envMapIntensity = 2
-    material.metalness = 1
-
-    console.log(materialComponent.material.value)
+    material.envMap = backgroundComponent as any
+    material.needsUpdate = true
   }, [backgroundQuery])
   return null
 }

@@ -382,7 +382,7 @@ export const getSceneParameters = (entities: Entity[], cameraEntity: Entity) => 
       vals.environment = getComponent(entity, EnvironmentMapComponent)
     }
     if (hasComponent(entity, BackgroundComponent)) {
-      //vals.background = getComponent(entity, BackgroundComponent as any) as Color | Texture | CubeTexture
+      vals.background = getComponent(entity, BackgroundComponent as any) as Color | Texture | CubeTexture
     }
     if (hasComponent(entity, FogComponent)) {
       vals.fog = getComponent(entity, FogComponent)
