@@ -820,6 +820,8 @@ function pointerMove(gizmoEntity: Entity) {
 
   const planeIntersect = intersectObjectWithRay(plane, _raycaster, true)
 
+  console.log({targetEntity})
+
   if (!planeIntersect) return
   gizmoControlComponent.pointEnd.set(planeIntersect.point.sub(gizmoControlComponent.worldPositionStart.value))
 

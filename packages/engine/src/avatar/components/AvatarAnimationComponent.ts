@@ -35,7 +35,7 @@ import {
 } from '@pixiv/three-vrm'
 import type * as V0VRM from '@pixiv/types-vrm-0.0'
 
-import { AnimationAction, Euler, Group, Matrix4, Object3D, Vector3 } from 'three'
+import { AnimationAction, Euler, Group, Matrix4, Object3D, Quaternion, Vector3 } from 'three'
 
 import { GLTF } from '@gltf-transform/core'
 import { EntityTreeComponent, UUIDComponent, iterateEntityNode } from '@ir-engine/ecs'
@@ -158,6 +158,12 @@ export function createVRM(rootEntity: Entity) {
     bones.hips.node.rotateY(Math.PI)
 
     const humanoid = new VRMHumanoid(bones)
+    ;(humanoid as any)._normalizedHumanBones._parentWorldRotationInverses = Object.fromEntries(
+      Object.entries((humanoid as any)._normalizedHumanBones._parentWorldRotations).map(([key, value]) => [
+        key,
+        (value as Quaternion).clone().invert()
+      ])
+    )
 
     const scene = getComponent(rootEntity, ObjectComponent)
 
@@ -182,6 +188,13 @@ export function createVRM(rootEntity: Entity) {
   }
 
   return createVRMFromGLTF(rootEntity, gltf)
+}
+
+declare module '@pixiv/three-vrm-core' {
+  export interface VRMHumanoid {
+    _parentWorldRotations: { [key: string]: Quaternion }
+    _parentWorldRotationInverses: { [key: string]: Quaternion }
+  }
 }
 
 export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
@@ -242,6 +255,12 @@ export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
   transform?.matrixWorld.identity()
 
   const humanoid = new VRMHumanoid(bones)
+  ;(humanoid as any)._normalizedHumanBones._parentWorldRotationInverses = Object.fromEntries(
+    Object.entries((humanoid as any)._normalizedHumanBones._parentWorldRotations).map(([key, value]) => [
+      key,
+      (value as Quaternion).clone().invert()
+    ])
+  )
   const scene = getComponent(rootEntity, ObjectComponent)
   const children = getComponent(rootEntity, EntityTreeComponent).children
   const childName = getComponent(children[0], NameComponent)

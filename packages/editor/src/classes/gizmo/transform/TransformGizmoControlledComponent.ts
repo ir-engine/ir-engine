@@ -96,6 +96,7 @@ export const TransformGizmoControlledComponent = defineComponent({
       setComponent(gizmoPlaneEntity, NameComponent, 'gizmoPlaneEntity')
       setComponent(gizmoPlaneEntity, TransformComponent)
       setComponent(gizmoPlaneEntity, InputComponent)
+      setComponent(gizmoPlaneEntity, VisibleComponent)
 
       const gizmoPlane = new Mesh(
         new PlaneGeometry(100000, 100000, 2, 2),

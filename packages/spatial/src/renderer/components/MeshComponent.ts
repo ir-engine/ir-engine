@@ -37,18 +37,27 @@ export const MeshComponent = defineComponent({
 
   schema: S.Required(S.NonSerialized(S.Type<Mesh>())),
 
-  reactor: () => {
-    const entity = useEntityContext()
+  onSet(entity, component, json) {
+    component.set(json as Mesh)
+    setComponent(entity, ObjectComponent, json as Mesh)
+  },
+
+  onRemove(entity, component) {
+    removeComponent(entity, ObjectComponent)
+  }
+
+  // reactor: () => {
+  //   const entity = useEntityContext()
     // const meshComponent = useComponent(entity, MeshComponent)
     // useResource(getComponent(entity, MeshComponent), entity)
     // const sceneLayer = useOptionalComponent(entity, ObjectLayerComponents[ObjectLayers.Scene])
 
-    useImmediateEffect(() => {
-      setComponent(entity, ObjectComponent, getComponent(entity, MeshComponent))
-      return () => {
-        removeComponent(entity, ObjectComponent)
-      }
-    }, [])
+    // useImmediateEffect(() => {
+    //   setComponent(entity, ObjectComponent, getComponent(entity, MeshComponent))
+    //   return () => {
+    //     removeComponent(entity, ObjectComponent)
+    //   }
+    // }, [])
 
     // const geometryValue = meshComponent.geometry.value
     // const [geometryResource] = useResource(isHookstateValue(geometryValue) ? null : geometryValue, entity)
@@ -92,6 +101,6 @@ export const MeshComponent = defineComponent({
     //   }
     // }, [meshComponent])
 
-    return null
-  }
+    // return null
+  // }
 })
