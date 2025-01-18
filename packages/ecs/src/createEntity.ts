@@ -25,10 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { HyperFlux } from '@ir-engine/hyperflux'
 import * as bitECS from 'bitecs'
-import { LayerComponent, LayerID, Layers, setComponent } from './ComponentFunctions'
+import { LayerComponent, LayerComponents, LayerID, Layers, setComponent } from './ComponentFunctions'
 import { Entity } from './Entity'
 
 export const createEntity = (layerID: LayerID = Layers.Simulation): Entity => {
+  if (!LayerComponents[layerID]) throw new Error('createEntity: parameter layerID must be a valid LayerID value')
   const entity = bitECS.addEntity(HyperFlux.store) as Entity
   setComponent(entity, LayerComponent, layerID)
   return entity
