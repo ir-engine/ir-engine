@@ -69,6 +69,8 @@ export const ObjectComponent = defineComponent({
     obj.matrix = transform.matrix
     obj.matrixWorld = transform.matrixWorld
     obj.layers = new Layer(entity)
+    if (obj.rotation) obj.rotation._onChangeCallback = () => {}
+    obj.quaternion._onChangeCallback = () => {}
 
     obj.frustumCulled = false
 
@@ -79,6 +81,10 @@ export const ObjectComponent = defineComponent({
           get() {
             return getComponent(entity, UUIDComponent)
           }
+        },
+        rotation: {
+          get() {},
+          set(value) {}
         },
         parent: {
           get() {
