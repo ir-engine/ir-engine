@@ -23,31 +23,62 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { assert, describe, it } from 'vitest'
+import { afterEach, assert, beforeEach, describe, expect, it } from 'vitest'
 
-import { getState } from '@ir-engine/hyperflux'
+import { getState, HyperFlux } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import * as bitECS from 'bitecs'
 import { Vector3 } from 'three'
-import { getComponent, hasComponent, removeComponent, setComponent } from './ComponentFunctions'
+import { getComponent, hasComponent, LayerComponent, Layers, removeComponent, setComponent } from './ComponentFunctions'
 import { createEngine, destroyEngine } from './Engine'
+import { entityExists } from './EntityFunctions'
 import { EntityTreeComponent } from './EntityTree'
 import { UUIDComponent } from './UUIDComponent'
 import { createEntity } from './createEntity'
 
 /** @todo Move this describe into `EntityFunctions.test.tsx` instead */
 describe('createEntity', () => {
-  it.todo('should use Layers.Simulation as the default value for `@param layerID` when it is omitted', () => {})
-  it.todo('should create a new entity by calling bitECS.addEntity with HyperFlux.store as its world argument', () => {})
-  it.todo(
-    'should set a LayerComponent on the newly created entity with `@param layerID` as its layer argument',
-    () => {}
-  )
-  it.todo('should return the newly created entity', () => {})
+  beforeEach(() => {
+    createEngine()
+  })
+
+  afterEach(() => {
+    destroyEngine()
+  })
+
+  it('should use Layers.Simulation as the default value for `@param layerID` when it is omitted', () => {
+    const Expected = Layers.Simulation
+    const testEntity = createEntity()
+    const result = getComponent(testEntity, LayerComponent).layer
+    expect(result).toBe(Expected)
+  })
+
+  it('should create a new entity by calling bitECS.addEntity with HyperFlux.store as its world argument', () => {
+    const testEntity = createEntity()
+    const result = bitECS.entityExists(HyperFlux.store, testEntity)
+    expect(result).toBeTruthy()
+  })
+
+  it('should set a LayerComponent on the newly created entity with `@param layerID` as its layer argument', () => {
+    const expectedLayer = Layers.Authoring
+    const testEntity = createEntity(expectedLayer)
+    const result = getComponent(testEntity, LayerComponent)
+    expect(result).toBeTruthy()
+    expect(result.layer).toBe(expectedLayer)
+  })
+
+  it('should return the newly created entity', () => {
+    const result = createEntity()
+    expect(result).not.toBe(undefined)
+    expect(result).toBeTruthy()
+    expect(entityExists(result)).toBeTruthy()
+  })
 }) //:: createEntity
+
 /** @todo Move this describe into `EntityFunctions.test.tsx` instead */
 describe('removeEntity', () => {
-  it.todo('should return an empty `never[]` array if `@param entity` is falsy', () => {})
-  it.todo('should return an empty `never[]` array if the result of `entityExists(entity)` is falsy', () => {})
+  it.todo('should not do anything if `@param entity` is falsy', () => {})
+  it.todo('should not do anything if the result of `entityExists(entity)` is falsy', () => {})
   it.todo('should call removeAllComponents with `@param entity`', () => {})
   it.todo('should call bitECS.removeEntity with HyperFlux.store and `@param entity` as arguments', () => {})
 }) //:: removeEntity
@@ -327,7 +358,7 @@ describe('UUIDComponent', () => {
   }) //:: generateUUID
 
   describe('function _getUUIDState', () => {
-    // not exported. Figure out how to access it
+    // should set UUIDComponent.entitiesByUUIDState to `{}` when it is falsy
   }) //:: _getUUIDState
 }) //:: UUIDComponent
 
