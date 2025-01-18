@@ -238,6 +238,7 @@ export const S = {
       [Kind]: 'Class',
       options: {
         ...options,
+        id: 'SerializedClass',
         default: init
       },
       properties: items

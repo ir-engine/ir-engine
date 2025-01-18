@@ -39,7 +39,15 @@ import {
   Texture
 } from 'three'
 
-import { Engine, Entity, QueryReactor, getOptionalComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
+import {
+  Engine,
+  Entity,
+  QueryReactor,
+  getAuthoringCounterpart,
+  getOptionalComponent,
+  useComponent,
+  useEntityContext
+} from '@ir-engine/ecs'
 import { NO_PROXY, State, defineState, getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 
@@ -242,7 +250,7 @@ const resourceCallbacks = {
         //@ts-ignore
         asset.onUpdate = null
         if (discardUponUpload) {
-          asset.source.data = null
+          // asset.source.data = null
           asset.mipmaps = []
         }
       }
@@ -549,11 +557,11 @@ const addEntityResource = (
   returnedResources.push(resource)
 
   /** @todo disposal currently causes errors */
-  //const entityHasAuthoringUpstream = getAuthoringCounterpart(entity)
+  const entityHasAuthoringUpstream = getAuthoringCounterpart(entity)
 
   const callbacks = resourceCallbacks[resourceType]
   if (callbacks?.onLoad)
-    callbacks.onLoad(asset, resourceState.resources[id], resourceState /*!entityHasAuthoringUpstream*/)
+    callbacks.onLoad(asset, resourceState.resources[id], resourceState, !entityHasAuthoringUpstream)
 
   switch (resourceType) {
     case ResourceType.Line:

@@ -35,12 +35,10 @@ import type from 'react/experimental'
 import {
   DeepReadonly,
   HyperFlux,
-  NO_PROXY,
   NO_PROXY_STEALTH,
   ReactorRoot,
   SetPartialStateAction,
   State,
-  getNestedObject,
   getState,
   hookstate,
   none,
@@ -611,14 +609,16 @@ export const resizeComponent = (component: Component, size: number) => {
  *  for ([layer, linkedEntity] of getLayerRelations(entity)) { ..... }
  *  ```
  * */
-function getLayerRelationsEntities(entity: Entity): [number, Entity][] {
+function getLayerRelationsEntities(entity: Entity): [LayerID, Entity][] {
   return Object.entries(getComponent(entity, LayerFunctions.getLayerComponent(entity)).relations).map(
-    ([layer, val]): [number, Entity] => [Number(layer), val]
+    ([layer, val]): [LayerID, Entity] => [Number(layer), val] as [LayerID, Entity]
   )
 }
 
-function getLayerRelationsTypes(layer: LayerID): [number, keyof typeof LayerRelationTypes][] {
-  return Object.entries(LayerRelations[layer]).map(([layer, val]) => [Number(layer), val])
+function getLayerRelationsTypes(layer: LayerID): [LayerID, keyof typeof LayerRelationTypes][] {
+  return Object.entries(LayerRelations[layer]).map(
+    ([layer, val]) => [Number(layer), val] as [LayerID, keyof typeof LayerRelationTypes]
+  )
 }
 
 /**
@@ -639,8 +639,8 @@ function hasLayer(entity: Entity): boolean {
 /**
  * @description Returns true if the given entity/layer pair should trigger propagation behavior.
  * */
-function shouldPropagate(entity: Entity, layer: any): boolean {
-  return LayerRelations[layer][LayerComponent.layer[entity]] === LayerRelationTypes.Propagate
+function shouldPropagate(entityLayer: LayerID, layer: LayerID): boolean {
+  return LayerRelations[entityLayer][layer] === LayerRelationTypes.Propagate
 }
 
 /**
@@ -648,31 +648,140 @@ function shouldPropagate(entity: Entity, layer: any): boolean {
  * @note Checking whether this process/behavior should be run or not is done with the {@link shouldPropagate} helper function.
  * */
 function propagateSchema<C extends Component>(
-  linkedLayer: number,
+  entity: Entity,
+  linkedLayer: LayerID,
   component: C,
   args: SetComponentType<C> | undefined = undefined
 ) {
+  if (!args || !component.schema) return args
   const componentSchema = component.schema as TTypedSchema<C>
-  const frontier = [{ schema: componentSchema, setArgs: args }] as { schema: any; setArgs: any }[]
-  while (frontier.length > 0) {
-    const { schema, setArgs } = frontier.pop()!
-    if (!schema || typeof setArgs !== 'object') continue
-    for (const arg of Object.keys(setArgs)) {
-      const valSchema = schema.properties?.[arg] as any
-      //check if the value is an entity
-      if (
-        valSchema?.properties?.options &&
-        valSchema.properties.options['id'] === 'Entity' &&
-        setArgs[arg] !== UndefinedEntity
-      ) {
-        //if so, we need to switch it to the linked entity in the destination layer
-        const upstreamEntity = LayerComponents[linkedLayer].refs[setArgs[arg]]
-        setArgs[arg] = upstreamEntity
-      } else if (typeof setArgs[arg] === 'object') {
-        frontier.push({ schema: valSchema, setArgs: setArgs[arg] })
+  const layer = LayerComponent.get(entity)
+
+  const parseSchema = (schema: TTypedSchema<C>, key: string | number, obj: any) => {
+    if (!schema) return
+    const currentArg = key === '' ? obj : obj[key]
+
+    if ((schema[Kind] as any) === 'Number' && schema?.options?.['id'] === 'Entity' && currentArg !== UndefinedEntity) {
+      const referencedEntity = currentArg as Entity
+      const layerRelations = getComponent(referencedEntity, LayerComponents[layer]).relations[linkedLayer]
+
+      return layerRelations
+    } else {
+      switch (schema[Kind] as any) {
+        case 'Null':
+        case 'Undefined':
+        case 'Void':
+        case 'Number':
+        case 'Bool':
+        case 'String':
+        case 'Enum':
+        case 'Literal': {
+          return currentArg
+        }
+        case 'Class': {
+          let deserializedClass = currentArg
+          if (typeof currentArg !== 'object') {
+            if (schema.options?.id === 'SerializedClass') {
+              deserializedClass = DeserializeSchemaValue(schema, null, currentArg)
+            } else {
+              throw new Error(`[propagateSchema]: ${entity} ${component.name} ${key} is not a class`)
+            }
+          }
+          if ('clone' in deserializedClass && typeof deserializedClass.clone === 'function') {
+            return deserializedClass.clone()
+          } else {
+            try {
+              return structuredClone(deserializedClass)
+            } catch (e) {
+              throw new Error(`[propagateSchema]: ${entity} ${component.name} ${key} is not a cloneable class`)
+            }
+          }
+        }
+        case 'Array': {
+          const props = schema.properties as any
+          for (let i = 0; i < currentArg.length; i++) {
+            const parsed = parseSchema(props, i, currentArg)
+            currentArg[i] = parsed
+          }
+          return currentArg
+        }
+        case 'Tuple': {
+          const props = schema.properties as any
+          for (let i = 0; i < props.length; i++) {
+            const parsed = parseSchema(props[i], i, currentArg)
+            currentArg[i] = parsed
+          }
+          return currentArg
+        }
+        case 'Func':
+          // noop
+          break
+        case 'Any': {
+          switch (typeof currentArg) {
+            case 'number':
+            case 'string':
+            case 'boolean':
+              return currentArg
+            case 'object':
+              if (currentArg === null) {
+                return null
+              } else if (Array.isArray(currentArg)) {
+                const props = schema.properties as any
+                for (let i = 0; i < currentArg.length; i++) {
+                  const parsed = parseSchema(props, i, currentArg)
+                  currentArg[i] = parsed
+                }
+                return currentArg
+              } else {
+                const s = schema.properties as any
+                for (const k in currentArg) {
+                  const parsed = parseSchema(s, k, currentArg)
+                  currentArg[k] = parsed
+                }
+                return currentArg
+              }
+            default:
+              break
+          }
+        }
+        case 'Object': {
+          const s = schema.properties as any
+          for (const k in currentArg) {
+            const parsed = parseSchema(s[k], k, currentArg)
+            currentArg[k] = parsed
+          }
+          return currentArg
+        }
+        case 'Record': {
+          const { key, value } = schema.properties as { key: any; value: any }
+          for (const k in currentArg) {
+            const parsed = parseSchema(value, k, currentArg)
+            currentArg[k] = parsed
+          }
+          return currentArg
+        }
+
+        case 'Union': {
+          const schemas = schema.properties as any[]
+          /** @todo how do we handle this properly? */
+          for (const s of schemas) {
+            const parsed = parseSchema(s, key, obj)
+            if (parsed) return parsed
+          }
+
+          return currentArg
+        }
+        case 'Partial':
+        case 'Required':
+        case 'NonSerialized': {
+          const s = schema.properties as any
+          return parseSchema(s, key, obj)
+        }
       }
     }
   }
+
+  return parseSchema(componentSchema, '', args)
 }
 
 /**
@@ -688,10 +797,11 @@ function propagateLayer<C extends Component>(
   args: SetComponentType<C> | undefined = undefined
 ) {
   if ((component as any) === LayerComponent || LayerComponents.includes(component as any)) return
+  const entityLayer = LayerComponent.get(entity)
   for (const [linkedLayer, linkedEntity] of LayerFunctions.getLayerRelationsEntities(entity)) {
-    if (!LayerFunctions.shouldPropagate(linkedEntity, linkedLayer)) continue
-    if (component.schema) LayerFunctions.propagateSchema(linkedLayer, component, args)
-    setComponent(linkedEntity, component, args)
+    if (!LayerFunctions.shouldPropagate(entityLayer, linkedLayer)) continue
+    const newArgs = LayerFunctions.propagateSchema(entity, linkedLayer, component, args)
+    setComponent(linkedEntity, component, newArgs)
   }
 }
 
@@ -805,8 +915,9 @@ export const removeComponent = <C extends Component>(entity: Entity, component: 
   if (!hasComponent(entity, component)) return
 
   if (LayerFunctions.hasLayer(entity)) {
+    const entityLayer = LayerComponent.get(entity)
     for (const [layer, linkedEntity] of LayerFunctions.getLayerRelationsEntities(entity)) {
-      if (!LayerFunctions.shouldPropagate(entity, layer)) continue
+      if (!LayerFunctions.shouldPropagate(entityLayer, layer)) continue
       removeComponent(linkedEntity, component)
     }
   }

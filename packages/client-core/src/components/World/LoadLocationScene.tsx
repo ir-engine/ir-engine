@@ -30,8 +30,12 @@ import { LocationService, LocationState } from '@ir-engine/client-core/src/socia
 import { useFind } from '@ir-engine/common'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 
+import { getMutableComponent } from '@ir-engine/ecs'
+import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { NotificationService } from '../../common/services/NotificationService'
 import { RouterState } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'
@@ -83,7 +87,17 @@ export const useLoadLocation = (props: { locationName: string }) => {
       return
     const sceneURL = locationState.currentLocation.location.sceneURL.value
     const sceneID = locationState.currentLocation.location.sceneId.value
-    return SceneState.loadScene(sceneURL, sceneID)
+    const unload = SceneState.loadScene(sceneURL, sceneID)
+    const gltfEntity = getState(SceneState)[sceneURL]
+    const viewerEntity = getState(ReferenceSpaceState).viewerEntity
+    getMutableComponent(viewerEntity, RendererComponent).scenes.merge([gltfEntity])
+    getMutableState(EditorState).rootEntity.set(gltfEntity)
+    return () => {
+      unload()
+      getMutableComponent(viewerEntity, RendererComponent).scenes.set((current) =>
+        current.splice(current.indexOf(gltfEntity), 1)
+      )
+    }
   }, [locationState.currentLocation.location.sceneId, locationState.currentLocation.location.sceneURL])
 }
 

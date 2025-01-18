@@ -43,7 +43,7 @@ import {
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
@@ -148,7 +148,7 @@ export const InfiniteGridComponent = defineComponent({
     const component = useComponent(entity, InfiniteGridComponent)
     const engineRendererSettings = useMutableState(RendererState)
 
-    useImmediateEffect(() => {
+    const mesh = useHookstate(() => {
       setComponent(
         entity,
         MeshComponent,
@@ -175,12 +175,14 @@ export const InfiniteGridComponent = defineComponent({
           })
         )
       )
+      return getComponent(entity, MeshComponent)
+    }).value as Mesh<PlaneGeometry, ShaderMaterial>
+
+    useEffect(() => {
       return () => {
         removeComponent(entity, MeshComponent)
       }
     }, [])
-
-    const mesh = getComponent(entity, MeshComponent) as any as Mesh<PlaneGeometry, ShaderMaterial>
 
     useEffect(() => {
       mesh.position.y = engineRendererSettings.gridHeight.value

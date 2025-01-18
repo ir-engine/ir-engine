@@ -117,13 +117,15 @@ const reactor = () => {
 
   const selectedEntities = SelectionState.useSelectedEntities()
 
-  for (const entity of sourceQuery()) removeComponent(entity, TransformGizmoControlledComponent)
-
   useEffect(() => {
     if (!selectedEntities) return
     const lastSelection = selectedEntities[selectedEntities.length - 1]
     if (!lastSelection) return
     setComponent(lastSelection, TransformGizmoControlledComponent)
+
+    return () => {
+      removeComponent(lastSelection, TransformGizmoControlledComponent)
+    }
   }, [selectedEntities])
 
   return null
