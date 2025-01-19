@@ -67,12 +67,10 @@ export const FogSettingsComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const fog = useComponent(entity, FogSettingsComponent)
-    const isVisible = useOptionalComponent(entity, VisibleComponent)
+    const isVisible = !!useOptionalComponent(entity, VisibleComponent)
 
     useEffect(() => {
-      if (!isVisible) {
-        return
-      }
+      if (!isVisible) return
 
       const fogData = fog.value
       switch (fogData.type) {
