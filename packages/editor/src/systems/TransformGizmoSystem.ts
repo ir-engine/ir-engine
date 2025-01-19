@@ -46,7 +46,6 @@ import { TransformGizmoControlledComponent } from '../classes/gizmo/transform/Tr
 import { controlUpdate, gizmoUpdate, planeUpdate } from '../functions/transformGizmoHelper'
 import { SelectionState } from '../services/SelectionServices'
 
-const sourceQuery = defineQuery([SourceComponent, TransformGizmoControlledComponent])
 export const transformGizmoControllerQuery = defineQuery([TransformGizmoControlComponent])
 export const transformGizmoControlledQuery = defineQuery([TransformGizmoControlledComponent])
 
