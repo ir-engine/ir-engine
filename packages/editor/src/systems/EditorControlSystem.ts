@@ -59,7 +59,6 @@ import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
-import { TransformGizmoControlledComponent } from '../classes/gizmo/transform/TransformGizmoControlledComponent'
 import { addMediaNode } from '../functions/addMediaNode'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import isInputSelected from '../functions/isInputSelected'
@@ -79,6 +78,7 @@ import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunction
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { TransformGizmoControlledComponent } from '../classes/gizmo/transform/TransformGizmoControlledComponent'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { ClickPlacementState } from './ClickPlacementSystem'
@@ -331,7 +331,7 @@ const execute = () => {
       let selectedParentEntity = getAncestorWithComponents(closestIntersection.entity, [GLTFComponent])
       // If selectedParentEntity has a parent in a different GLTF document use that as top most parent
       const parent = getOptionalComponent(selectedParentEntity, EntityTreeComponent)?.parentEntity
-      if (parent && getComponent(parent, SourceComponent) !== getComponent(selectedParentEntity, SourceComponent)) {
+      if (parent && GLTFComponent.getInstanceID(parent) !== getComponent(selectedParentEntity, SourceComponent)) {
         selectedParentEntity = parent
       }
 

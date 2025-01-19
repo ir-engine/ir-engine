@@ -663,9 +663,12 @@ function propagateSchema<C extends Component>(
 
     if ((schema[Kind] as any) === 'Number' && schema?.options?.['id'] === 'Entity' && currentArg !== UndefinedEntity) {
       const referencedEntity = currentArg as Entity
-      const layerRelations = getComponent(referencedEntity, LayerComponents[layer]).relations[linkedLayer]
 
-      return layerRelations
+      // if the entity is already in the linked layer, return the current arg
+      if (LayerComponent.get(referencedEntity) === linkedLayer) return referencedEntity
+
+      // otherwise return the linked entity
+      return getComponent(referencedEntity, LayerComponents[layer]).relations[linkedLayer]
     } else {
       switch (schema[Kind] as any) {
         case 'Null':
