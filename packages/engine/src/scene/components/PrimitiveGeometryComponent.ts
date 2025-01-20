@@ -77,7 +77,7 @@ export const PrimitiveGeometryComponent = defineComponent({
     useEffect(() => {
       if (!mesh) return
       mesh.geometry.set(createGeometry(geometryComponent.geometryType.value, geometryComponent.geometryParams.value))
-    }, [mesh, geometryComponent.geometryType, geometryComponent.geometryParams])
+    }, [!!mesh, geometryComponent.geometryType, geometryComponent.geometryParams])
 
     return null
   }

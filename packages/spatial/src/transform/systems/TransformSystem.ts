@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Camera, Frustum, Matrix4, Mesh, Vector3 } from 'three'
+import { Frustum, Matrix4, Vector3 } from 'three'
 
 import {
   AnimationSystemGroup,
@@ -42,8 +42,6 @@ import { EntityTreeComponent } from '@ir-engine/ecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { insertionSort } from '../../common/functions/insertionSort'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
-import { ObjectComponent } from '../../renderer/components/ObjectComponent'
-import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
 import { BoundingBoxComponent, updateBoundingBox } from '../components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
@@ -53,23 +51,12 @@ import { TransformSerialization } from '../TransformSerialization'
 
 const transformQuery = defineQuery([TransformComponent])
 
-const objectQuery = defineQuery([ObjectComponent, VisibleComponent])
-
 const boundingBoxQuery = defineQuery([BoundingBoxComponent])
 
 const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCameraComponent])
 const frustumCulledQuery = defineQuery([TransformComponent, FrustumCullCameraComponent])
 
 const cameraQuery = defineQuery([TransformComponent, CameraComponent])
-
-const updateObjectChildren = (entity: Entity) => {
-  const object = getComponent(entity, ObjectComponent) as any as Mesh & Camera
-  if (object.isProxified) return
-  for (const obj of object.children) {
-    obj.updateMatrixWorld()
-    obj.matrixWorldNeedsUpdate = false
-  }
-}
 
 export const computeTransformMatrix = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
@@ -164,9 +151,6 @@ const sortAndMakeDirtyEntities = () => {
 const execute = () => {
   const dirtySortedTransformEntities = _sortedTransformEntities.filter(isDirty)
   for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity)
-
-  const dirtyObjectEntities = objectQuery().filter(isDirty)
-  for (const entity of dirtyObjectEntities) updateObjectChildren(entity)
 
   const dirtyBoundingBoxes = boundingBoxQuery().filter(isDirty)
   for (const entity of dirtyBoundingBoxes) updateBoundingBox(entity)

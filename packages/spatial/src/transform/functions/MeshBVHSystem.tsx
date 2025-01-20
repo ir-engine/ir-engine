@@ -218,7 +218,8 @@ const MeshBVHReactor = () => {
 export const MeshBVHSystem = defineSystem({
   uuid: 'ee.engine.MeshBVHSystem',
   insert: { after: PresentationSystemGroup },
-  reactor: () => <QueryReactor Components={[MeshComponent]} ChildEntityReactor={MeshBVHReactor} />
+  /** @todo this breaks the studio currently */
+  // reactor: () => <QueryReactor Components={[MeshComponent]} ChildEntityReactor={MeshBVHReactor} />
 })
 
 /**
