@@ -66,6 +66,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: hmallen99/irpro-mariale
+          token: ${{ secrets.MARIALE_ACCESS_TOKEN }}
           path: packages/projects/projects/theinfinitereality/irpro-mariale
 
       - name: build javascript bundle
