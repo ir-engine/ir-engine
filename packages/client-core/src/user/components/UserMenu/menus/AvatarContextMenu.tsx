@@ -93,6 +93,7 @@ const AvatarContextMenu = ({ userId }: { userId: UserID }): JSX.Element => {
         <Text fontSize="xl">{userName}</Text>
         {!isFriend && !isRequested && !isPending && !isBlocked && !isBlocking && (
           <Button
+            fullWidth
             onClick={() => {
               FriendService.requestFriend(selfId, userId)
               PopoverState.showPopupover(<FriendsMenu defaultSelectedTab="find" />)
@@ -103,6 +104,7 @@ const AvatarContextMenu = ({ userId }: { userId: UserID }): JSX.Element => {
         )}
         {isFriend && !isRequested && !isPending && !isBlocked && !isBlocking && (
           <Button
+            fullWidth
             onClick={() => {
               FriendService.unfriend(selfId, userId)
               PopoverState.showPopupover(<FriendsMenu defaultSelectedTab="find" />)
@@ -114,8 +116,8 @@ const AvatarContextMenu = ({ userId }: { userId: UserID }): JSX.Element => {
         {isPending && (
           <>
             <Badge variant="warning" label={t('user:friends.pending')} />
-
             <Button
+              fullWidth
               onClick={() => {
                 FriendService.acceptFriend(selfId, userId)
                 PopoverState.showPopupover(<FriendsMenu />)
@@ -125,6 +127,7 @@ const AvatarContextMenu = ({ userId }: { userId: UserID }): JSX.Element => {
             </Button>
 
             <Button
+              fullWidth
               onClick={() => {
                 FriendService.declineFriend(selfId, userId)
                 PopoverState.showPopupover(<FriendsMenu defaultSelectedTab="find" />)
@@ -138,8 +141,8 @@ const AvatarContextMenu = ({ userId }: { userId: UserID }): JSX.Element => {
         {isRequested && (
           <>
             <Badge variant="warning" label={t('user:friends.requested')} />
-
             <Button
+              fullWidth
               onClick={() => {
                 FriendService.unfriend(selfId, userId)
                 PopoverState.showPopupover(<FriendsMenu defaultSelectedTab="find" />)
@@ -152,6 +155,7 @@ const AvatarContextMenu = ({ userId }: { userId: UserID }): JSX.Element => {
 
         {!isBlocked && !isBlocking && (
           <Button
+            fullWidth
             onClick={() => {
               FriendService.blockUser(selfId, userId)
               PopoverState.showPopupover(<FriendsMenu defaultSelectedTab="blocked" />)
@@ -163,6 +167,7 @@ const AvatarContextMenu = ({ userId }: { userId: UserID }): JSX.Element => {
 
         {isBlocking && (
           <Button
+            fullWidth
             onClick={() => {
               FriendService.unblockUser(selfId, userId)
               PopoverState.showPopupover(<FriendsMenu />)
