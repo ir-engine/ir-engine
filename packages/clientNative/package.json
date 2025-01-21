@@ -1,6 +1,17 @@
 {
   "name": "clientNative",
   "version": "0.0.1",
+  "description": "Infinite Reality Engine React Native App",
+  "author": {
+    "name": "Infinite Reality Engine",
+    "email": "info@ir-engine.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ir-engine/ir-engine.git"
+  },
+  "homepage": "https://github.com/ir-engine/ir-engine.git",
+  "license": "CPAL",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
@@ -19,6 +30,7 @@
     "react": "18.2.0"
   },
   "dependencies": {
+    "@callstack/polygen": "^0.0.1",
     "@callstack/react-native-basis-universal": "^0.3.0",
     "@callstack/react-native-draco": "^0.3.0",
     "@expo/browser-polyfill": "^1.0.1",
@@ -42,8 +54,10 @@
     "react-native-dotenv": "^3.4.11",
     "react-native-get-random-values": "^1.11.0",
     "react-native-nitro-modules": "^0.20.1",
+    "react-native-performance": "^5.1.2",
     "react-native-quick-crypto": "^0.7.11",
     "react-native-wgpu": "^0.1.22",
+    "text-encoding-polyfill": "^0.6.7",
     "text-encoding-shim": "^1.0.5"
   },
   "devDependencies": {

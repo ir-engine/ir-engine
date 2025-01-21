@@ -1,5 +1,5 @@
+plugin 'cocoapods-swift-modular-headers'
 $ExpoUseSources = ["expo-gl-cpp"]
-$RNFirebaseAsStaticFramework = true
 require File.join(File.dirname(`node --print "require.resolve('expo/package.json')"`), "scripts/autolinking")
 # Resolve react_native_pods.rb with node to allow for hoisting
 require Pod::Executable.execute_command('node', ['-p',
@@ -8,34 +8,16 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
-$static_library = [
-  'react-native-basis-universal',
-]
-
-pre_install do |installer|
-  Pod::Installer::Xcode::TargetValidator.send(:define_method, :verify_no_static_framework_transitive_dependencies) {}
-
-  installer.pod_targets.each do |pod|
-    ## Skia pod correction
-    if $static_library.include?(pod.name)
-      puts "Overriding the build_type to static_library from static_framework for #{pod.name}"
-      def pod.build_type;
-        Pod::BuildType.static_library
-      end
-    end
-
-    ## Firebase
-    bt = pod.send(:build_type)
-    puts "#{pod.name} (#{bt})"
-    puts "  linkage: #{bt.send(:linkage)} packaging: #{bt.send(:packaging)}"
-  end
-end
-
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
-Pod::UI.puts "Configuring Pod with statically linked Frameworks".green
-use_frameworks! :linkage => :static
+linkage = ENV['USE_FRAMEWORKS']
+if linkage != nil
+  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
+  use_frameworks! :linkage => linkage.to_sym
+end
+
+apply_modular_headers_for_swift_dependencies()
 
 target 'clientNative' do
   use_expo_modules!
@@ -62,6 +44,8 @@ target 'clientNative' do
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
+
+  pod 'ReactNativeWebAssemblyHost', :path => "../wasm/_generated/@host"
 
   target 'clientNativeTests' do
     inherit! :complete

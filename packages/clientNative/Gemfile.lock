@@ -1,3 +1,10 @@
+GIT
+  remote: git@github.com:okwasniewski/cocoapods-swift-modular-headers.git
+  revision: 7b9a5e757854557211b8a1adc9a672811f41c423
+  branch: main
+  specs:
+    cocoapods-swift-modular-headers (0.0.2)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -110,6 +117,7 @@ PLATFORMS
 DEPENDENCIES
   activesupport (>= 6.1.7.5, != 7.1.0)
   cocoapods (>= 1.13, != 1.15.1, != 1.15.0)
+  cocoapods-swift-modular-headers!
   xcodeproj (< 1.26.0)
 
 RUBY VERSION

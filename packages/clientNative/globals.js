@@ -27,8 +27,10 @@ import '@expo/browser-polyfill';
 import 'react-native-get-random-values';
 import {TextEncoder, TextDecoder} from 'text-encoding-shim';
 import structuredClone from '@ungap/structured-clone';
+import performance from 'react-native-performance';
 
-globalThis.XMLSerializer = class XMLSerializer { }
+global.performance = performance;
+globalThis.XMLSerializer = class XMLSerializer {};
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 global.structuredClone = structuredClone;
@@ -62,4 +64,4 @@ globalThis.window.history = {
   forward: () => {},
   length: 0,
   state: null,
-}
+};
