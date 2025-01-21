@@ -726,7 +726,9 @@ function propagateSchema<C extends Component>(
             case 'boolean':
               return currentArg
             case 'object':
-              if (currentArg === null) {
+              if ('clone' in currentArg && typeof currentArg.clone === 'function') {
+                return currentArg.clone()
+              } else if (currentArg === null) {
                 return null
               } else if (Array.isArray(currentArg)) {
                 const props = schema.properties as any
@@ -779,6 +781,10 @@ function propagateSchema<C extends Component>(
         case 'NonSerialized': {
           const s = schema.properties as any
           return parseSchema(s, key, obj)
+        }
+
+        default: {
+          return currentArg
         }
       }
     }
