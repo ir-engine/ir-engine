@@ -44,6 +44,10 @@ const toggleOpen = (liquidCodeEntity: Entity) => {
   setComponent(liquidCodeEntity, LiquidCodeComponent, { isOpen: !liquidCodeComponent.isOpen })
 }
 
+const sendCallback = (fn) => {
+  return fn
+}
+
 export const LiquidCodeComponent = defineComponent({
   name: 'LiquidCodeComponent',
   jsonID: 'ir_liquid_code',
@@ -57,6 +61,7 @@ export const LiquidCodeComponent = defineComponent({
   liquidCodeCallbackName,
   interactMessage,
   toggleOpen,
+  sendCallback,
 
   errors: ['INVALID_URL'],
 

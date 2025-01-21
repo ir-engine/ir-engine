@@ -33,8 +33,10 @@ import { getMutableState, none } from '@ir-engine/hyperflux'
 import { useHookstate } from '@hookstate/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { EngineState } from '@ir-engine/ecs'
+import { EngineState, QueryReactor, useQuery } from '@ir-engine/ecs'
+import { LiquidCodeComponent } from '@ir-engine/engine/src/scene/components/LiquidCodeComponent'
 import { NetworkState } from '@ir-engine/network'
+import { LiquidCodeReactor } from '@ir-engine/ui/src/components/editor/properties/liquidcode/index.tsx'
 import { InviteService } from '../social/services/InviteService'
 import { PopupMenuState } from './components/UserMenu/PopupMenuService'
 import AvatarCreatorMenu2, { SupportedSdks } from './components/UserMenu/menus/AvatarCreatorMenu2'
@@ -76,12 +78,13 @@ export const UserMenus = {
 const UserSystemReactor = () => {
   const { t } = useTranslation()
   InviteService.useAPIListeners()
-  // const iframeComponent = useQuery([LiquidCodeComponent])
 
-  // useEffect(()=> {
-  //   console.log('test')
-  //   console.log(iframeComponent)
-  // }, [iframeComponent])
+  const iframeComponent = useQuery([LiquidCodeComponent])
+
+  useEffect(() => {
+    console.log('test')
+    console.log(iframeComponent)
+  }, [iframeComponent])
 
   const [emotesEnabled, avaturnEnabled, rpmEnabled] = useFeatureFlags([
     FeatureFlags.Client.Menu.Emote,
@@ -190,7 +193,7 @@ const UserSystemReactor = () => {
     if (worldHostId) popupMenuState.hotbar[UserMenus.Share].disabled.set(false)
   }, [worldHostId])
 
-  return null
+  return <QueryReactor Components={[LiquidCodeComponent]} ChildEntityReactor={LiquidCodeReactor} />
 }
 
 export const UserUISystem = defineSystem({

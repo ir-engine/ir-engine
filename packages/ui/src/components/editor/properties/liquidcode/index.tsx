@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import { PopupMenuServices } from '@ir-engine/client-core/src/user/components/UserMenu/PopupMenuService'
 import { UserMenus } from '@ir-engine/client-core/src/user/UserUISystem'
-import { getComponent, hasComponent, useComponent, UUIDComponent } from '@ir-engine/ecs'
+import { getComponent, hasComponent, useComponent, useEntityContext, UUIDComponent } from '@ir-engine/ecs'
 import { commitProperty, EditorComponentType, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
@@ -41,6 +41,28 @@ import { LiquidCodeComponent } from '@ir-engine/engine/src/scene/components/Liqu
 import { CodeSnippet01Md } from '../../../../icons'
 import InputGroup from '../../input/Group'
 import { ControlledStringInput } from '../../input/String'
+
+export const LiquidCodeReactor = () => {
+  console.log('from liquid code reactor')
+  const entity = useEntityContext()
+  const liquidCodeComponent = useComponent(entity, LiquidCodeComponent)
+
+  useEffect(() => {
+    console.log('hitting use effect in liquid code')
+    console.log('liquidCode', liquidCodeComponent.value)
+    if (liquidCodeComponent.isOpen.value) {
+      PopupMenuServices.showPopupMenu(UserMenus.EmbedFrame, {
+        liquidCode: liquidCodeComponent.liquidCode.value
+      })
+    }
+  }, [liquidCodeComponent])
+
+  useEffect(() => {
+    console.log('update')
+  }, [liquidCodeComponent.isOpen])
+
+  return null
+}
 
 /**
  * LiquidCodeNodeEditor component used to provide the editor with liquid code popup
@@ -70,20 +92,6 @@ export const LiquidCodeNodeEditor: EditorComponentType = (props) => {
       })
     }
   }, [])
-
-  useEffect(() => {
-    console.log('hitting use effect in liquid code')
-    console.log('liquidCode', liquidCodeComponent.value)
-    if (liquidCodeComponent.isOpen.value) {
-      PopupMenuServices.showPopupMenu(UserMenus.EmbedFrame, {
-        liquidCode: liquidCodeComponent.liquidCode.value
-      })
-    }
-  }, [liquidCodeComponent])
-
-  useEffect(() => {
-    console.log('update')
-  }, [liquidCodeComponent.isOpen])
 
   return (
     <NodeEditor
