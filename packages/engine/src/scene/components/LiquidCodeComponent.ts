@@ -39,13 +39,7 @@ const liquidCodeCallbackName = 'liquidCodeCallback'
 
 const toggleOpen = (liquidCodeEntity: Entity) => {
   const liquidCodeComponent = getComponent(liquidCodeEntity, LiquidCodeComponent)
-  console.log('test')
-  console.log(!liquidCodeComponent.isOpen)
   setComponent(liquidCodeEntity, LiquidCodeComponent, { isOpen: !liquidCodeComponent.isOpen })
-}
-
-const sendCallback = (fn) => {
-  return fn
 }
 
 export const LiquidCodeComponent = defineComponent({
@@ -61,7 +55,6 @@ export const LiquidCodeComponent = defineComponent({
   liquidCodeCallbackName,
   interactMessage,
   toggleOpen,
-  sendCallback,
 
   errors: ['INVALID_URL'],
 
@@ -82,10 +75,6 @@ export const LiquidCodeComponent = defineComponent({
     }, [liquidCode.liquidCode])
 
     useEffect(() => {
-      // const toggleOpen = () => {
-      //   // if (getState(EngineState).isEditing) return
-      //   liquidCode.isOpen.set(!liquidCode.isOpen.value)
-      // }
       setCallback(entity, liquidCodeCallbackName, () => toggleOpen(entity))
 
       return () => {

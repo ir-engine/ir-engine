@@ -43,23 +43,16 @@ import InputGroup from '../../input/Group'
 import { ControlledStringInput } from '../../input/String'
 
 export const LiquidCodeReactor = () => {
-  console.log('from liquid code reactor')
   const entity = useEntityContext()
   const liquidCodeComponent = useComponent(entity, LiquidCodeComponent)
 
   useEffect(() => {
-    console.log('hitting use effect in liquid code')
-    console.log('liquidCode', liquidCodeComponent.value)
     if (liquidCodeComponent.isOpen.value) {
       PopupMenuServices.showPopupMenu(UserMenus.EmbedFrame, {
         liquidCode: liquidCodeComponent.liquidCode.value
       })
     }
   }, [liquidCodeComponent])
-
-  useEffect(() => {
-    console.log('update')
-  }, [liquidCodeComponent.isOpen])
 
   return null
 }
@@ -71,7 +64,6 @@ export const LiquidCodeNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const liquidCodeComponent = useComponent(props.entity, LiquidCodeComponent)
-  console.log('from node editopr', liquidCodeComponent)
   const errors = getEntityErrors(props.entity, LiquidCodeComponent)
 
   useEffect(() => {
