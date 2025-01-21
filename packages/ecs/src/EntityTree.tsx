@@ -42,6 +42,7 @@ import {
 import { Entity, UndefinedEntity } from './Entity'
 import { entityExists, removeEntity } from './EntityFunctions'
 import { S } from './schemas/JSONSchemas'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 type EntityTreeSetType = {
   parentEntity: Entity
@@ -261,6 +262,20 @@ export function iterateEntityNode<R>(
     }
   }
   return result
+}
+
+/**
+ * @description
+ * Sets the `@param entity` as dirty and recursively sets all children entities as dirty.
+ * 
+ * @param entity Entity Node where traversal will start
+ */
+export function setChildrenDirtyFast(entity: Entity) {
+  TransformComponent.dirty[entity] = 1
+  const children  = getComponent(entity, EntityTreeComponent).children
+  for (const child of children) {
+    setChildrenDirtyFast(child)
+  }
 }
 
 /**
