@@ -35,24 +35,23 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 
 const interactMessage = 'Click'
-const liquidCodeCallbackName = 'liquidCodeCallback'
+const iframeCallbackName = 'iframeCallback'
 
-const toggleOpen = (liquidCodeEntity: Entity) => {
-  const liquidCodeComponent = getComponent(liquidCodeEntity, LiquidCodeComponent)
-  setComponent(liquidCodeEntity, LiquidCodeComponent, { isOpen: !liquidCodeComponent.isOpen })
+const toggleOpen = (iframeEntity: Entity) => {
+  const iframeComponent = getComponent(iframeEntity, IFrameComponent)
+  setComponent(iframeEntity, IFrameComponent, { isOpen: !iframeComponent.isOpen })
 }
 
-export const LiquidCodeComponent = defineComponent({
-  name: 'LiquidCodeComponent',
-  jsonID: 'ir_liquid_code',
+export const IFrameComponent = defineComponent({
+  name: 'IFrameComponent',
+  jsonID: 'ir_iframe',
 
   schema: S.Object({
-    // TODO: Replace with url instead of liquid code
-    liquidCode: S.String(''),
+    src: S.String(''),
     isOpen: S.Bool(false)
   }),
 
-  liquidCodeCallbackName,
+  iframeCallbackName,
   interactMessage,
   toggleOpen,
 
@@ -61,24 +60,24 @@ export const LiquidCodeComponent = defineComponent({
   reactor: function () {
     if (!isClient) return null
     const entity = useEntityContext()
-    const liquidCode = useComponent(entity, LiquidCodeComponent)
+    const iframeComponent = useComponent(entity, IFrameComponent)
 
     useEffect(() => {
-      clearErrors(entity, LiquidCodeComponent)
-      if (liquidCode.liquidCode.value) return
+      clearErrors(entity, IFrameComponent)
+      if (iframeComponent.src.value) return
       try {
-        new URL(liquidCode.liquidCode.value)
+        new URL(iframeComponent.src.value)
       } catch {
-        return addError(entity, LiquidCodeComponent, 'INVALID_URL', 'Please enter a valid URL.')
+        return addError(entity, IFrameComponent, 'INVALID_URL', 'Please enter a valid URL.')
       }
       return
-    }, [liquidCode.liquidCode])
+    }, [iframeComponent.src])
 
     useEffect(() => {
-      setCallback(entity, liquidCodeCallbackName, () => toggleOpen(entity))
+      setCallback(entity, iframeCallbackName, () => toggleOpen(entity))
 
       return () => {
-        removeCallback(entity, liquidCodeCallbackName)
+        removeCallback(entity, iframeCallbackName)
       }
     }, [entity])
 

@@ -29,22 +29,22 @@ import Menu from '../../../../common/components/Menu'
 import { PopupMenuServices } from '../PopupMenuService'
 
 type Props = {
-  liquidCode: string
+  src: string
 }
 
-const EmbedFrame = ({ liquidCode }: Props): JSX.Element => {
+const EmbedFrame = ({ src }: Props): JSX.Element => {
   const [htmlContent, setHtmlContent] = React.useState<string>('')
 
   useEffect(() => {
-    setHtmlContent(liquidCode)
-  }, [liquidCode])
+    setHtmlContent(src)
+  }, [src])
 
   return (
     <Menu unset={true} open isPopover={false} onClose={() => PopupMenuServices.showPopupMenu()}>
       <Box className="h-[90vh]">
         {htmlContent ? (
           <div className="h-full w-full">
-            <iframe className="h-full w-full" src={liquidCode}></iframe>
+            <iframe className="h-full w-full" src={src}></iframe>
           </div>
         ) : (
           <></>

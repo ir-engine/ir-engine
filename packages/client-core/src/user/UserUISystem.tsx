@@ -34,9 +34,9 @@ import { useHookstate } from '@hookstate/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { EngineState, QueryReactor } from '@ir-engine/ecs'
-import { LiquidCodeComponent } from '@ir-engine/engine/src/scene/components/LiquidCodeComponent'
+import { IFrameComponent } from '@ir-engine/engine/src/scene/components/IFrameComponent'
 import { NetworkState } from '@ir-engine/network'
-import { LiquidCodeReactor } from '@ir-engine/ui/src/components/editor/properties/liquidcode/index.tsx'
+import { IFrameReactor } from '@ir-engine/ui/src/components/editor/properties/liquidcode/index.tsx'
 import { InviteService } from '../social/services/InviteService'
 import { PopupMenuState } from './components/UserMenu/PopupMenuService'
 import AvatarCreatorMenu2, { SupportedSdks } from './components/UserMenu/menus/AvatarCreatorMenu2'
@@ -186,7 +186,7 @@ const UserSystemReactor = () => {
     if (worldHostId) popupMenuState.hotbar[UserMenus.Share].disabled.set(false)
   }, [worldHostId])
 
-  return <QueryReactor Components={[LiquidCodeComponent]} ChildEntityReactor={LiquidCodeReactor} />
+  return <QueryReactor Components={[IFrameComponent]} ChildEntityReactor={IFrameReactor} />
 }
 
 export const UserUISystem = defineSystem({

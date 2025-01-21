@@ -37,46 +37,46 @@ import {
   XRUIActivationType
 } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
-import { LiquidCodeComponent } from '@ir-engine/engine/src/scene/components/LiquidCodeComponent'
+import { IFrameComponent } from '@ir-engine/engine/src/scene/components/IFrameComponent'
 import { CodeSnippet01Md } from '../../../../icons'
 import InputGroup from '../../input/Group'
 import { ControlledStringInput } from '../../input/String'
 
-export const LiquidCodeReactor = () => {
+export const iframeReactor = () => {
   const entity = useEntityContext()
-  const liquidCodeComponent = useComponent(entity, LiquidCodeComponent)
+  const iframeComponent = useComponent(entity, IFrameComponent)
 
   useEffect(() => {
-    if (liquidCodeComponent.isOpen.value) {
+    if (iframeComponent.isOpen.value) {
       PopupMenuServices.showPopupMenu(UserMenus.EmbedFrame, {
-        liquidCode: liquidCodeComponent.liquidCode.value
+        src: iframeComponent.src.value
       })
     }
-  }, [liquidCodeComponent])
+  }, [iframeComponent])
 
   return null
 }
 
 /**
- * LiquidCodeNodeEditor component used to provide the editor with liquid code popup
+ * IFrameNodeEditor component used to provide the editor with liquid code popup
  */
-export const LiquidCodeNodeEditor: EditorComponentType = (props) => {
+export const IFrameNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const liquidCodeComponent = useComponent(props.entity, LiquidCodeComponent)
-  const errors = getEntityErrors(props.entity, LiquidCodeComponent)
+  const iframeComponent = useComponent(props.entity, IFrameComponent)
+  const errors = getEntityErrors(props.entity, IFrameComponent)
 
   useEffect(() => {
     // add an interactable component if it doesnt exist (this is required to interact with entity)
     if (!hasComponent(props.entity, InteractableComponent)) {
       EditorControlFunctions.addOrRemoveComponent([props.entity], InteractableComponent, true, {
-        label: LiquidCodeComponent.interactMessage,
+        label: IFrameComponent.interactMessage,
         uiInteractable: false, // todo: this should be true
         clickInteract: true,
         uiActivationType: XRUIActivationType.hover,
         callbacks: [
           {
-            callbackID: LiquidCodeComponent.liquidCodeCallbackName,
+            callbackID: IFrameComponent.iframeCallbackName,
             target: getComponent(props.entity, UUIDComponent)
           }
         ]
@@ -87,9 +87,9 @@ export const LiquidCodeNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor
       {...props}
-      name={t('editor:properties.liquidCode.title')}
-      description={t('editor:properties.liquidCode.description')}
-      Icon={LiquidCodeNodeEditor.iconComponent}
+      name={t('editor:properties.iframe.title')}
+      description={t('editor:properties.iframe.description')}
+      Icon={IFrameNodeEditor.iconComponent}
     >
       {errors
         ? Object.entries(errors).map(([err, message]) => (
@@ -98,17 +98,17 @@ export const LiquidCodeNodeEditor: EditorComponentType = (props) => {
             </div>
           ))
         : null}
-      <InputGroup name="LiquidCode" label={'Liquid Code'}>
+      <InputGroup name="IFrame" label={'IFrame'}>
         <ControlledStringInput
-          value={liquidCodeComponent.liquidCode.value}
-          onChange={updateProperty(LiquidCodeComponent, 'liquidCode')}
-          onRelease={commitProperty(LiquidCodeComponent, 'liquidCode')}
+          value={iframeComponent.src.value}
+          onChange={updateProperty(IFrameComponent, 'src')}
+          onRelease={commitProperty(IFrameComponent, 'src')}
         />
       </InputGroup>
     </NodeEditor>
   )
 }
 
-LiquidCodeNodeEditor.iconComponent = CodeSnippet01Md
+IFrameNodeEditor.iconComponent = CodeSnippet01Md
 
-export default LiquidCodeNodeEditor
+export default IFrameNodeEditor
