@@ -59,6 +59,8 @@ export const ObjectComponent = defineComponent({
     setComponent(entity, TransformComponent)
 
     obj.entity = entity
+    if (obj.rotation) obj.rotation._onChangeCallback = () => {}
+    obj.quaternion._onChangeCallback = () => {}
 
     const transform = getComponent(entity, TransformComponent)
     obj.position.copy(transform.position)
@@ -69,8 +71,6 @@ export const ObjectComponent = defineComponent({
     obj.matrix = transform.matrix
     obj.matrixWorld = transform.matrixWorld
     obj.layers = new Layer(entity)
-    if (obj.rotation) obj.rotation._onChangeCallback = () => {}
-    obj.quaternion._onChangeCallback = () => {}
 
     obj.frustumCulled = false
 

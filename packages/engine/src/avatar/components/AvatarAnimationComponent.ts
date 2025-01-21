@@ -153,6 +153,10 @@ export function createVRM(rootEntity: Entity) {
       const bone = getOptionalComponent(entity, BoneComponent)
       bone?.matrixWorld.identity()
       bone?.quaternion.set(0, 0, 0, 1)
+
+      if (bone?.rotation) bone.rotation._onChangeCallback = () => {}
+      if (bone) bone.quaternion._onChangeCallback = () => {}
+
       if (entity !== bones.hips.node.parent?.entity) bone?.matrixWorld.makeRotationY(Math.PI)
     })
     bones.hips.node.rotateY(Math.PI)
