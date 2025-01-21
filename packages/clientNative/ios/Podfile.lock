@@ -67,7 +67,7 @@ PODS:
     - GoogleUtilities/Environment (~> 8.0)
     - GoogleUtilities/UserDefaults (~> 8.0)
     - PromisesObjC (~> 2.4)
-  - FirebaseRemoteConfigInterop (11.6.0)
+  - FirebaseRemoteConfigInterop (11.7.0)
   - FirebaseSessions (11.5.0):
     - FirebaseCore (= 11.5)
     - FirebaseCoreExtension (= 11.5)
@@ -1812,8 +1812,8 @@ DEPENDENCIES:
   - React-utils (from `../../../node_modules/react-native/ReactCommon/react/utils`)
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../../../node_modules/react-native/ReactCommon`)
-  - "RNFBApp (from `../../../node_modules/@react-native-firebase/app`)"
-  - "RNFBCrashlytics (from `../../../node_modules/@react-native-firebase/crashlytics`)"
+  - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
+  - "RNFBCrashlytics (from `../node_modules/@react-native-firebase/crashlytics`)"
   - Yoga (from `../../../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -1991,9 +1991,9 @@ EXTERNAL SOURCES:
   ReactCommon:
     :path: "../../../node_modules/react-native/ReactCommon"
   RNFBApp:
-    :path: "../../../node_modules/@react-native-firebase/app"
+    :path: "../node_modules/@react-native-firebase/app"
   RNFBCrashlytics:
-    :path: "../../../node_modules/@react-native-firebase/crashlytics"
+    :path: "../node_modules/@react-native-firebase/crashlytics"
   Yoga:
     :path: "../../../node_modules/react-native/ReactCommon/yoga"
 
@@ -2015,7 +2015,7 @@ SPEC CHECKSUMS:
   FirebaseCoreInternal: f47dd28ae7782e6a4738aad3106071a8fe0af604
   FirebaseCrashlytics: 94c11c3bf296fde8c18f2c9f8e76bd9349227038
   FirebaseInstallations: d8063d302a426d114ac531cd82b1e335a0565745
-  FirebaseRemoteConfigInterop: e75e348953352a000331eb77caf01e424248e176
+  FirebaseRemoteConfigInterop: ca12abf9da0003efd3a476b2dff4f7a04fd31b4f
   FirebaseSessions: b252b3f91a51186188882ea8e7e1730fc1eee391
   fmt: 10c6e61f4be25dc963c36bd73fc7b1705fe975be
   glog: 08b301085f15bcbb6ff8632a8ebaf239aae04e6a
