@@ -159,7 +159,7 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
     return API.instance.service(serviceName)[method](...args)
       .then((res) => {
         //console.log(`API: ${serviceName}.${method}`, ...args, res)
-        state[serviceName][queryId].merge({
+        state[serviceName][queryId]?.merge({
           response: res,
           status: 'success',
           error: ''
@@ -167,7 +167,7 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       })
       .catch((error) => {
         console.error(`Error in service: ${serviceName}, method: ${method}, args: ${JSON.stringify(args)}`, error)
-        state[serviceName][queryId].merge({
+        state[serviceName][queryId]?.merge({
           status: 'error',
           error: error.message
         })
