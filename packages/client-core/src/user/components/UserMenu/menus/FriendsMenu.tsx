@@ -259,18 +259,10 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
   }
 
   const DisplayedUsers = () => {
-    const newList = [
-      ...displayList,
-      {
-        id: userId,
-        name: selfUser.name.value
-      }
-    ]
-
     return (
       <div className="flex flex-col gap-2">
-        {newList.length > 0 && newList.map((value) => <Friend user={value} />)}
-        {newList.length === 0 && <Text>{t('user:friends.noUsers')}</Text>}
+        {displayList.length > 0 && displayList.map((value) => <Friend user={value} />)}
+        {displayList.length === 0 && <Text>{t('user:friends.noUsers')}</Text>}
       </div>
     )
   }
