@@ -76,6 +76,12 @@ export const UserMenus = {
 const UserSystemReactor = () => {
   const { t } = useTranslation()
   InviteService.useAPIListeners()
+  // const iframeComponent = useQuery([LiquidCodeComponent])
+
+  // useEffect(()=> {
+  //   console.log('test')
+  //   console.log(iframeComponent)
+  // }, [iframeComponent])
 
   const [emotesEnabled, avaturnEnabled, rpmEnabled] = useFeatureFlags([
     FeatureFlags.Client.Menu.Emote,

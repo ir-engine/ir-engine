@@ -25,15 +25,24 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { isClient } from '@ir-engine/hyperflux'
-import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
+import { removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 
+import { Entity } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { addError, clearErrors } from '../functions/ErrorFunctions'
 
 const interactMessage = 'Click'
 const liquidCodeCallbackName = 'liquidCodeCallback'
+
+const toggleOpen = (liquidCodeEntity: Entity) => {
+  const liquidCodeComponent = getComponent(liquidCodeEntity, LiquidCodeComponent)
+  console.log('test')
+  console.log(!liquidCodeComponent.isOpen)
+  setComponent(liquidCodeEntity, LiquidCodeComponent, { isOpen: !liquidCodeComponent.isOpen })
+}
 
 export const LiquidCodeComponent = defineComponent({
   name: 'LiquidCodeComponent',
@@ -47,6 +56,8 @@ export const LiquidCodeComponent = defineComponent({
 
   liquidCodeCallbackName,
   interactMessage,
+  toggleOpen,
+
   errors: ['INVALID_URL'],
 
   reactor: function () {
@@ -55,17 +66,27 @@ export const LiquidCodeComponent = defineComponent({
     const liquidCode = useComponent(entity, LiquidCodeComponent)
 
     useEffect(() => {
-      const toggleOpen = () => {
-        // if (getState(EngineState).isEditing) return
-        liquidCode.isOpen.set(!liquidCode.isOpen.value)
+      clearErrors(entity, LiquidCodeComponent)
+      if (liquidCode.liquidCode.value) return
+      try {
+        new URL(liquidCode.liquidCode.value)
+      } catch {
+        return addError(entity, LiquidCodeComponent, 'INVALID_URL', 'Please enter a valid URL.')
       }
+      return
+    }, [liquidCode.liquidCode])
 
-      setCallback(entity, liquidCodeCallbackName, toggleOpen)
+    useEffect(() => {
+      // const toggleOpen = () => {
+      //   // if (getState(EngineState).isEditing) return
+      //   liquidCode.isOpen.set(!liquidCode.isOpen.value)
+      // }
+      setCallback(entity, liquidCodeCallbackName, () => toggleOpen(entity))
 
       return () => {
-        setCallback(entity, liquidCodeCallbackName, null)
+        removeCallback(entity, liquidCodeCallbackName)
       }
-    }, [entity, liquidCode])
+    }, [entity])
 
     return null
   }

@@ -49,13 +49,15 @@ export const LiquidCodeNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const liquidCodeComponent = useComponent(props.entity, LiquidCodeComponent)
+  console.log('from node editopr', liquidCodeComponent)
   const errors = getEntityErrors(props.entity, LiquidCodeComponent)
 
   useEffect(() => {
+    // add an interactable component if it doesnt exist (this is required to interact with entity)
     if (!hasComponent(props.entity, InteractableComponent)) {
       EditorControlFunctions.addOrRemoveComponent([props.entity], InteractableComponent, true, {
         label: LiquidCodeComponent.interactMessage,
-        uiInteractable: false, // this should be true
+        uiInteractable: false, // todo: this should be true
         clickInteract: true,
         uiActivationType: XRUIActivationType.hover,
         // is it possible to just pass in a function as a callback, this can remove the use of isOpen in LiquidCode Component?
@@ -70,12 +72,18 @@ export const LiquidCodeNodeEditor: EditorComponentType = (props) => {
   }, [])
 
   useEffect(() => {
+    console.log('hitting use effect in liquid code')
+    console.log('liquidCode', liquidCodeComponent.value)
     if (liquidCodeComponent.isOpen.value) {
       PopupMenuServices.showPopupMenu(UserMenus.EmbedFrame, {
         liquidCode: liquidCodeComponent.liquidCode.value
       })
     }
-  }, [liquidCodeComponent.isOpen.value])
+  }, [liquidCodeComponent])
+
+  useEffect(() => {
+    console.log('update')
+  }, [liquidCodeComponent.isOpen])
 
   return (
     <NodeEditor
