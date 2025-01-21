@@ -100,7 +100,7 @@ function PersistentAnchorReactor() {
 
     const shadowMesh = new Mesh().copy(obj, true)
     shadowMesh.material = shadowMat
-    const parentEntity = getComponent(obj.entity, EntityTreeComponent).parentEntity!
+    const parentEntity = getComponent(obj.entity!, EntityTreeComponent).parentEntity!
     const shadowEntity = createEntity()
     setComponent(shadowEntity, NameComponent, obj.name + '_shadow')
     setComponent(shadowEntity, TransformComponent, {

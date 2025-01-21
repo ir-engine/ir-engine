@@ -27,9 +27,8 @@ import { createEntity, defineComponent, destroyEngine, getComponent, setComponen
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { ECSSchema } from '@ir-engine/ecs/src/schemas/ECSSchemas'
 import assert from 'assert'
-import { Matrix4 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import { Mat4Proxy, Vec3Proxy } from './createThreejsProxy'
+import { Vec3Proxy } from './createThreejsProxy'
 
 describe('createThreejsProxy', () => {
   beforeEach(async () => {
@@ -44,8 +43,7 @@ describe('createThreejsProxy', () => {
     const TransformComponent = defineComponent({
       name: 'Vector3Component',
       schema: {
-        position: ECSSchema.Vec3,
-        matrix: ECSSchema.Mat4
+        position: ECSSchema.Vec3
       }
     })
 
@@ -68,44 +66,5 @@ describe('createThreejsProxy', () => {
     assert((vec3.x as number) === 14)
     assert((transformComponent.position.x as number) === 14)
     assert((TransformComponent.position.x[entity] as number) === 14)
-  })
-
-  it('Creates a Mat4 proxy', () => {
-    const TransformComponent = defineComponent({
-      name: 'Vector3Component',
-      schema: {
-        position: ECSSchema.Vec3,
-        matrix: ECSSchema.Mat4
-      }
-    })
-
-    const entity = createEntity()
-    setComponent(entity, TransformComponent)
-    const transformComponent = getComponent(entity, TransformComponent)
-    const mat4 = Mat4Proxy(transformComponent.matrix)
-
-    const mat4Elements = new Matrix4().elements
-    transformComponent.matrix.set(mat4Elements)
-
-    for (let i = 0; i < mat4Elements.length; i++) {
-      assert(transformComponent.matrix[i] === mat4Elements[i])
-      assert(TransformComponent.matrix[entity][i] === mat4Elements[i])
-      assert(mat4.elements[i] === mat4Elements[i])
-    }
-
-    mat4.elements[12] = 34
-    assert(transformComponent.matrix[12] === 34)
-    assert(TransformComponent.matrix[entity][12] === 34)
-    assert(mat4.elements[12] === 34)
-
-    transformComponent.matrix[13] = 35
-    assert(transformComponent.matrix[13] === 35)
-    assert(TransformComponent.matrix[entity][13] === 35)
-    assert(mat4.elements[13] === 35)
-
-    TransformComponent.matrix[entity][14] = 36
-    assert(transformComponent.matrix[14] === 36)
-    assert(TransformComponent.matrix[entity][14] === 36)
-    assert(mat4.elements[14] === 36)
   })
 })

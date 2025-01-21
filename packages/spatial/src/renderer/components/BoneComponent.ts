@@ -25,10 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Bone } from 'three'
 
-import { useEntityContext } from '@ir-engine/ecs'
-import { defineComponent, getComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { useImmediateEffect } from '@ir-engine/hyperflux'
 import { ObjectComponent } from './ObjectComponent'
 
 export const BoneComponent = defineComponent({
@@ -36,14 +34,12 @@ export const BoneComponent = defineComponent({
 
   schema: S.Required(S.Type<Bone>()),
 
-  reactor: () => {
-    const entity = useEntityContext()
-    useImmediateEffect(() => {
-      setComponent(entity, ObjectComponent, getComponent(entity, BoneComponent))
-      return () => {
-        removeComponent(entity, ObjectComponent)
-      }
-    }, [])
-    return null
+  onSet: (entity, component, bone: Bone) => {
+    component.set(bone)
+    setComponent(entity, ObjectComponent, bone)
+  },
+
+  onRemove: (entity, component) => {
+    removeComponent(entity, ObjectComponent)
   }
 })

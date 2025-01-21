@@ -128,7 +128,7 @@ export class S3Provider implements StorageProviderInterface {
     const awsCredentials = `[default]\naws_access_key_id=${config.aws.s3.accessKeyId}\naws_secret_access_key=${config.aws.s3.secretAccessKey}\n[role]\nrole_arn = ${config.aws.s3.roleArn}\nsource_profile = default`
 
     if (!fs.existsSync(awsPath)) fs.mkdirSync(awsPath, { recursive: true })
-    fs.writeFileSync(credentialsPath, Buffer.from(awsCredentials))
+    fs.writeFileSync(credentialsPath, awsCredentials)
 
     this.provider = new S3Client({
       requestHandler: {

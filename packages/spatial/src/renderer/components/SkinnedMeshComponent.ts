@@ -97,7 +97,7 @@ export const SkinnedMeshComponent = defineComponent({
       for (let i = 0; i < bones.length; i++) {
         const bone = bones[i]
 
-        const boneParentEntity = getComponent(bone.entity, EntityTreeComponent).parentEntity
+        const boneParentEntity = getComponent(bone.entity!, EntityTreeComponent).parentEntity
         const boneParentComponent = hasComponent(boneParentEntity, BoneComponent)
 
         if (boneParentComponent) {
@@ -141,7 +141,7 @@ export const SkinnedMeshComponent = defineComponent({
           for (let i = 0, j = 0; i < bones.length; i++) {
             const bone = bones[i]
 
-            const boneParentEntity = getComponent(bone.entity, EntityTreeComponent).parentEntity
+            const boneParentEntity = getComponent(bone.entity!, EntityTreeComponent).parentEntity
             const boneParentComponent = getOptionalComponent(boneParentEntity, BoneComponent)
 
             if (boneParentComponent) {
