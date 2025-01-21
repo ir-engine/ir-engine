@@ -46,16 +46,13 @@ const EmbedFrame = ({ liquidCode }: Props): JSX.Element => {
   return (
     <Menu unset={true} open isPopover={false} onClose={() => PopupMenuServices.showPopupMenu()}>
       <Box className="h-[90vh]">
-        {htmlContent ? <div className="h-full w-full" dangerouslySetInnerHTML={{ __html: htmlContent }} /> : <></>}
-        {/* Apply styles to the iframe element */}
-        <style>
-          {`
-            iframe {
-              width: 100%;
-              height: 100%;
-            }
-          `}
-        </style>
+        {htmlContent ? (
+          <div className="h-full w-full">
+            <iframe className="h-full w-full" src={liquidCode}></iframe>
+          </div>
+        ) : (
+          <></>
+        )}
       </Box>
     </Menu>
   )
