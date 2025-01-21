@@ -192,13 +192,8 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
         }
       })
       fetch()
-    } else {
-      // Update `fetch` if dependencies change
-      state[serviceName][queryId].merge({
-        fetch
-      })
     }
-  }, [serviceName, method, queryId, fetch])
+  }, [serviceName, method, queryId])
 
   const query = state[serviceName]?.[queryId]
   const queryObj = state.get(NO_PROXY)[serviceName]?.[queryId]
