@@ -23,14 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import multiLogger from '@ir-engine/common/src/logger'
 import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import React, { useEffect } from 'react'
 import Menu from '../../../../common/components/Menu'
-import { clientContextParams } from '../../../../util/ClientContextState'
 import { PopupMenuServices } from '../PopupMenuService'
-
-const logger = multiLogger.child({ component: 'system:settings-menu', modifier: clientContextParams })
 
 type Props = {
   liquidCode: string

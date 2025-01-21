@@ -74,7 +74,6 @@ export const LiquidCodeNodeEditor: EditorComponentType = (props) => {
         uiInteractable: false, // todo: this should be true
         clickInteract: true,
         uiActivationType: XRUIActivationType.hover,
-        // is it possible to just pass in a function as a callback, this can remove the use of isOpen in LiquidCode Component?
         callbacks: [
           {
             callbackID: LiquidCodeComponent.liquidCodeCallbackName,
