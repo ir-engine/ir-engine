@@ -103,6 +103,13 @@ export function useQuery(components: bitECS.QueryTerm[], layer: LayerID = Layers
     }
   }, [])
 
+  if (state.entities.value.length > 100)
+    console.warn(
+      `QueryReactor(${components
+        .map((c) => c.name)
+        .join(', ')}): more than 100 entities matched the query, this may cause performance issues`
+    )
+
   return state.entities.value as Entity[]
 }
 
