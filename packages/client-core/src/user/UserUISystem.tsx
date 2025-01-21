@@ -33,7 +33,7 @@ import { getMutableState, none } from '@ir-engine/hyperflux'
 import { useHookstate } from '@hookstate/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { EngineState, QueryReactor, useQuery } from '@ir-engine/ecs'
+import { EngineState, QueryReactor } from '@ir-engine/ecs'
 import { LiquidCodeComponent } from '@ir-engine/engine/src/scene/components/LiquidCodeComponent'
 import { NetworkState } from '@ir-engine/network'
 import { LiquidCodeReactor } from '@ir-engine/ui/src/components/editor/properties/liquidcode/index.tsx'
@@ -79,13 +79,6 @@ const UserSystemReactor = () => {
   const { t } = useTranslation()
   InviteService.useAPIListeners()
 
-  const iframeComponent = useQuery([LiquidCodeComponent])
-
-  useEffect(() => {
-    console.log('test')
-    console.log(iframeComponent)
-  }, [iframeComponent])
-
   const [emotesEnabled, avaturnEnabled, rpmEnabled] = useFeatureFlags([
     FeatureFlags.Client.Menu.Emote,
     FeatureFlags.Client.Menu.Avaturn,
@@ -106,7 +99,7 @@ const UserSystemReactor = () => {
       [UserMenus.AvatarSelect]: AvatarSelectMenu,
       [UserMenus.AvatarModify]: AvatarModifyMenu,
       [UserMenus.Share]: ShareMenu,
-      [UserMenus.EmbedFrame]: EmbedFrame
+      [UserMenus.EmbedFrame]: EmbedFrame // add this to another state called popupMenuState.embed?
     })
 
     popupMenuState.hotbar.merge({
