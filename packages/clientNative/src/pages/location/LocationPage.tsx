@@ -66,7 +66,7 @@ const LocationRoutes = () => {
     <View>
       <LocationPage
         params={{
-          locationName: 'sky-station',
+          locationName: 'mariale',
         }}
       />
       <GLView style={{width, height}} onContextCreate={onContextCreate} />

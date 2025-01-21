@@ -65,8 +65,8 @@ jobs:
       - name: Checkout test project repo
         uses: actions/checkout@v4
         with:
-          repository: ir-engine/ir-tutorial-hello
-          path: packages/projects/ir-tutorial-hello
+          repository: hmallen99/irpro-mariale
+          path: packages/projects/projects/theinfinitereality/irpro-mariale
 
       - name: build javascript bundle
         run: |

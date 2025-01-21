@@ -27,7 +27,7 @@ import { loadConfigForProject } from './loadConfigForProject'
 
 export const loadEngineInjection = async () => {
   // const projects = await API.instance.service(projectsPath).find()
-  const projects = ['ir-engine/default-project']
+  const projects = ['theinfiniterealityengine/irpro-mariale']
   return Promise.all(
     projects.map(async (project) => {
       try {

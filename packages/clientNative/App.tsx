@@ -52,7 +52,7 @@ const initializeLogs = async () => {
 };
 
 createHyperStore();
-ClientAPI.createAPI('/location/sky-station');
+ClientAPI.createAPI('/location/mariale');
 
 const publicDomain = 'https://localhost:8081';
 
@@ -84,9 +84,11 @@ function App(): React.JSX.Element {
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <View>
-        <Suspense fallback={null}>
-          <LocationPage />
-        </Suspense>
+        {isLoggedIn ? (
+          <Suspense fallback={null}>
+            <LocationPage />
+          </Suspense>
+        ) : null}
       </View>
     </SafeAreaView>
   );
