@@ -34,7 +34,8 @@ const getInitialState = () => ({
     avatarselect: false,
     avatarmodify: false,
     share: false,
-    emote: false
+    emote: false,
+    social: false
   }
 })
 

@@ -26,14 +26,15 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Menu from '@ir-engine/client-core/src/common/components/Menu'
 import { useFind, useMutation } from '@ir-engine/common'
 import { ChannelID, messagePath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 
-import InputText from '../../../../common/components/InputText'
+import { Input } from '@ir-engine/ui'
+import { Send01Lg } from '@ir-engine/ui/src/icons'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
 import { ChannelService, ChannelState } from '../../../../social/services/ChannelService'
 import XRIconButton from '../../../../systems/components/XRIconButton'
@@ -159,21 +160,22 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
 
     return (
       <div style={{ position: 'absolute', bottom: '0px', display: 'flex' }}>
-        <InputText
-          endIcon={<Icon type="Send" />}
-          startIcon={
-            <img
-              style={{ maxWidth: '100%', borderRadius: '38px', width: '36px', height: '36px', objectFit: 'cover' }}
-              alt=""
-              src={userThumbnail}
-            />
-          }
+        <Input
           placeholder={t('user:messages.enterMessage')}
-          sx={{ mb: 1, mt: 0 }}
           value={composingMessage.value}
           onChange={(e) => composingMessage.set(e.target.value)}
           onKeyDown={(e) => handleMessageKeyDown(e)}
-          onEndIconClick={sendMessage}
+          endComponent={
+            <button className="h-4 w-4" onMouseDown={sendMessage}>
+              <Send01Lg />
+            </button>
+          }
+          startComponent={
+            <img
+              style={{ maxWidth: '100%', borderRadius: '38px', width: '16px', height: '16px', objectFit: 'cover' }}
+              src={userThumbnail}
+            />
+          }
         />
         <XRIconButton
           size="large"
@@ -189,7 +191,10 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
   }
 
   return (
-    <Menu open maxWidth="xs" sx={{}} title={props.name} onClose={() => PopupMenuServices.showPopupMenu()}>
+    <div className="relative z-50 h-fit max-h-[60vh] w-[50vw] min-w-[500px] max-w-2xl overflow-y-auto rounded-2xl bg-theme-surface-main px-10 py-6">
+      <Text fontWeight="semibold" fontSize="lg" component="h2">
+        {props.name}
+      </Text>
       <XRIconButton
         size="large"
         xr-layer="true"
@@ -218,7 +223,7 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
         </div>
         <MessageField />
       </div>
-    </Menu>
+    </div>
   )
 }
 
