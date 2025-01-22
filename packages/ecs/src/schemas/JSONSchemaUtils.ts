@@ -379,6 +379,7 @@ const isValueType = (type: string) => {
 
 export const CloneSerializable = <Val>(value: Val) => {
   const type = typeof value
+  if (typeof value === 'undefined') return NonSerializable
   if (isValueType(type) || value === null) return value
   else if (isArrayBuffer(value)) return value.slice(0)
   else if (Array.isArray(value))
@@ -590,6 +591,9 @@ const ConvertToSchema = <T extends Schema, Val>(schema: T, value: Val) => {
       const props = schema.properties as TRequiredSchema<Schema>['properties'] | TPartialSchema<Schema>['properties']
       return ConvertToSchema(props, value)
     }
+
+    case 'NonSerialized':
+      return
 
     default:
       return null

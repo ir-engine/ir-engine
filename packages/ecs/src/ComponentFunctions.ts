@@ -187,7 +187,7 @@ export interface Component<
   reactor?: any
   reactorMap: Map<Entity, ReactorRoot>
   stateMap: Record<Entity, State<ComponentType>>
-  valueMap: Record<Entity, ComponentType>
+  // valueMap: Record<Entity, ComponentType>
   errors: ErrorTypes[]
   storageSize: number
   __ComponentType: ComponentType
@@ -401,7 +401,7 @@ export const defineComponent = <
   // We have to create an stateful existence map in order to reactively track which entities have a given component.
   // Unfortunately, we can't simply use a single shared state because hookstate will (incorrectly) invalidate other nested states when a single component
   // instance is added/removed, so each component instance has to be isolated from the others.
-  Component.valueMap = {}
+  // Component.valueMap = {}
   Component.stateMap = {} // hookstate(Component.valueMap) as State<Record<Entity, ComponentType>>
   if (Component.jsonID) {
     ComponentJSONIDMap.set(Component.jsonID, Component)
@@ -463,7 +463,7 @@ export const getOptionalComponent = <C extends Component>(
   entity: Entity,
   component: C
 ): ComponentType<C> | undefined => {
-  return bitECS.hasComponent(HyperFlux.store, entity, component) ? component.valueMap[entity] : undefined
+  return bitECS.hasComponent(HyperFlux.store, entity, component) ? component.stateMap[entity].get(NO_PROXY_STEALTH) : undefined
 }
 
 export const getComponent = <C extends Component>(entity: Entity, component: C): ComponentType<C> => {
@@ -473,7 +473,7 @@ export const getComponent = <C extends Component>(entity: Entity, component: C):
     )
     return undefined as ComponentType<C>
   }
-  return component.valueMap[entity] as ComponentType<C>
+  return component.stateMap[entity].get(NO_PROXY_STEALTH) //component.valueMap[entity] as ComponentType<C>
 }
 
 const accessor = Symbol('proxied')
@@ -690,6 +690,7 @@ function propagateSchema<C extends Component>(
               throw new Error(`[propagateSchema]: ${entity} ${component.name} ${key} is not a class`)
             }
           }
+          if (deserializedClass === null || deserializedClass === undefined) return null
           if ('clone' in deserializedClass && typeof deserializedClass.clone === 'function') {
             return deserializedClass.clone()
           } else {
@@ -864,13 +865,21 @@ export const setComponent = <C extends Component>(
   const componentExists = hasComponent(entity, component)
   if (!componentExists) {
     const value = createInitialComponentValue(entity, component)
-    component.stateMap[entity] = hookstate(value)
-    component.valueMap[entity] = value
+    const state = hookstate(value)//, subscribable())
+    component.stateMap[entity] = state
+    // state.subscribe<SetComponentType<C>>((v) => {
+    //   if (!bitECS.hasComponent(HyperFlux.store, entity, component)) return
+    //   console.log('subscribed', entity, component.name, v)
+    //   // component.valueMap[entity] = v.get(NO_PROXY_STEALTH)
+    //   component.valueMap[entity] = component.stateMap[entity].get(NO_PROXY_STEALTH)
+    //   LayerFunctions.propagateLayer(entity, component, component.valueMap[entity])
+    // })
+    // component.valueMap[entity] = value
     bitECS.addComponent(HyperFlux.store, entity, component)
   }
 
   component.onSet(entity, component.stateMap[entity], args)
-  component.valueMap[entity] = component.stateMap[entity].get(NO_PROXY_STEALTH)
+  // component.valueMap[entity] = component.stateMap[entity].get(NO_PROXY_STEALTH)
 
   LayerFunctions.propagateLayer(entity, component, args)
 
@@ -939,7 +948,7 @@ export const removeComponent = <C extends Component>(entity: Entity, component: 
   if (root?.isRunning) root.stop()
   /** clear state data after reactor stops, to ensure hookstate is still referenceable */
   component.stateMap[entity]?.set(none)
-  delete component.valueMap[entity]
+  // delete component.valueMap[entity]
 }
 
 /**
