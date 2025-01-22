@@ -130,6 +130,10 @@ export class S3Provider implements StorageProviderInterface {
     if (!fs.existsSync(awsPath)) fs.mkdirSync(awsPath, { recursive: true })
     fs.writeFileSync(credentialsPath, awsCredentials)
 
+    console.log('credentials that were written', fs.readFileSync(credentialsPath))
+    console.log('aws config', config.aws, config.aws.s3)
+    console.log('server config', config.server)
+
     this.provider = new S3Client({
       requestHandler: {
         requestTimeout: 5_000,
@@ -340,6 +344,7 @@ export class S3Provider implements StorageProviderInterface {
    * @param params Parameters of the add request.
    */
   async putObject(data: StorageObjectPutInterface, params: PutObjectParams = {}): Promise<boolean> {
+    console.log('putObject data', data)
     if (!data.Key) return false
     // key should not contain '/' at the begining
     const key = data.Key[0] === '/' ? data.Key.substring(1) : data.Key
@@ -454,7 +459,9 @@ export class S3Provider implements StorageProviderInterface {
       }
     } else {
       try {
+        console.log('sending Put Object with provider', this.provider)
         const command = new PutObjectCommand(args)
+        console.log('command', command)
         await this.provider.send(command)
         return true
       } catch (err) {
