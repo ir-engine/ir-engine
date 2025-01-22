@@ -29,7 +29,7 @@ import { Button } from '@ir-engine/ui'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { BsFillExclamationTriangleFill } from 'react-icons/bs'
-import { AuthService } from '../../services/AuthService'
+import { AuthService } from '../services/AuthService'
 
 const AuthMagicLink = (): JSX.Element => {
   const { t } = useTranslation()

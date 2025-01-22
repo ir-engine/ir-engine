@@ -30,7 +30,7 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
 import { BsFillExclamationTriangleFill } from 'react-icons/bs'
 import { useLocation } from 'react-router-dom'
-import { AuthService, AuthState } from '../../services/AuthService'
+import { AuthService, AuthState } from '../services/AuthService'
 
 interface ErrorPageProps {
   name: string
