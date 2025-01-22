@@ -26,39 +26,29 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Avatar from '@ir-engine/client-core/src/common/components/Avatar'
-import Button from '@ir-engine/client-core/src/common/components/Button'
-import commonStyles from '@ir-engine/client-core/src/common/components/common.module.scss'
-import Menu from '@ir-engine/client-core/src/common/components/Menu'
-import Text from '@ir-engine/client-core/src/common/components/Text'
 import { useGet } from '@ir-engine/common'
 import { UserID, userPath } from '@ir-engine/common/src/schema.type.module'
 import { useMutableState } from '@ir-engine/hyperflux'
-import Box from '@ir-engine/ui/src/primitives/mui/Box'
-import Chip from '@ir-engine/ui/src/primitives/mui/Chip'
 
-import { NotificationService } from '../../../common/services/NotificationService'
+import { Button } from '@ir-engine/ui'
+import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
+import Badge from '@ir-engine/ui/src/primitives/tailwind/Badge'
+import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { useUserAvatarThumbnail } from '../../../hooks/useUserAvatarThumbnail'
 import { FriendService, FriendState } from '../../../social/services/FriendService'
-import { AvatarUIContextMenuState } from '../../../systems/ui/UserMenuView'
 import FriendsMenu from '../../components/UserMenu/menus/FriendsMenu'
 import { AuthState } from '../../services/AuthService'
-import styles from '../index.module.scss'
 
-interface Props {
-  onBack?: () => void
-}
-
-const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
+const AvatarContextMenu = ({ userId }: { userId: UserID }): JSX.Element => {
   const { t } = useTranslation()
   const friendState = useMutableState(FriendState)
-  const avatarUIContextMenuState = useMutableState(AvatarUIContextMenuState)
-  const userId = avatarUIContextMenuState.id.value as UserID
-  const user = useGet(userPath, userId)
 
   const authState = useMutableState(AuthState)
   const selfId = authState.user.id?.value ?? ''
+  userId = selfId!
+  const user = useGet(userPath, userId)
 
   const isFriend = friendState.relationships
     .get({ noproxy: true })
@@ -94,151 +84,100 @@ const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
     }
   }, [friendState.updateNeeded.value])
 
-  const handleMute = () => {
-    console.log('Mute pressed')
-    NotificationService.dispatchNotify('Mute Pressed', { variant: 'info' })
-  }
-
   const userThumbnail = useUserAvatarThumbnail(userId)
 
   return (
-    <Menu
-      open
-      contentMargin={onBack ? '-50px 0 0' : undefined}
-      maxWidth="xs"
-      showBackButton={!!onBack}
-      onBack={onBack}
-      onClose={() => {
-        avatarUIContextMenuState.id.set('')
-        PopoverState.hidePopupover()
-      }}
-    >
-      {userId && (
-        <Box
-          className={styles.menuContent}
-          style={{ display: 'flex', alignItems: 'center', flexDirection: 'column', gap: '10px' }}
-        >
-          <Avatar imageSrc={userThumbnail} size={150} sx={{ margin: '0 auto' }} />
-
-          <Text variant="h6" align="center" mt={2} mb={1}>
-            {userName}
-          </Text>
-
-          {!isFriend && !isRequested && !isPending && !isBlocked && !isBlocking && (
+    <Modal showCloseButton={false} hideFooter={true} className="rounded">
+      <div className="flex flex-col items-center justify-center gap-y-2">
+        <AvatarImage src={userThumbnail} />
+        <Text fontSize="xl">{userName}</Text>
+        {!isFriend && !isRequested && !isPending && !isBlocked && !isBlocking && (
+          <Button
+            fullWidth
+            onClick={() => {
+              FriendService.requestFriend(selfId, userId)
+              PopoverState.showPopupover(<FriendsMenu defaultSelectedTab="find" />)
+            }}
+          >
+            {t('user:personMenu.addAsFriend')}
+          </Button>
+        )}
+        {isFriend && !isRequested && !isPending && !isBlocked && !isBlocking && (
+          <Button
+            fullWidth
+            onClick={() => {
+              FriendService.unfriend(selfId, userId)
+              PopoverState.showPopupover(<FriendsMenu defaultSelectedTab="find" />)
+            }}
+          >
+            {t('user:personMenu.unFriend')}
+          </Button>
+        )}
+        {isPending && (
+          <>
+            <Badge variant="warning" label={t('user:friends.pending')} />
             <Button
-              type="gradientRounded"
-              width="70%"
+              fullWidth
               onClick={() => {
-                FriendService.requestFriend(selfId, userId)
+                FriendService.acceptFriend(selfId, userId)
+                PopoverState.showPopupover(<FriendsMenu />)
+              }}
+            >
+              {t('user:personMenu.acceptRequest')}
+            </Button>
+
+            <Button
+              fullWidth
+              onClick={() => {
+                FriendService.declineFriend(selfId, userId)
                 PopoverState.showPopupover(<FriendsMenu defaultSelectedTab="find" />)
               }}
             >
-              {t('user:personMenu.addAsFriend')}
+              {t('user:personMenu.declineRequest')}
             </Button>
-          )}
+          </>
+        )}
 
-          {isFriend && !isRequested && !isPending && !isBlocked && !isBlocking && (
+        {isRequested && (
+          <>
+            <Badge variant="warning" label={t('user:friends.requested')} />
             <Button
-              type="gradientRounded"
-              width="70%"
+              fullWidth
               onClick={() => {
                 FriendService.unfriend(selfId, userId)
                 PopoverState.showPopupover(<FriendsMenu defaultSelectedTab="find" />)
               }}
             >
-              {t('user:personMenu.unFriend')}
+              {t('user:personMenu.cancelRequest')}
             </Button>
-          )}
+          </>
+        )}
 
-          {isPending && (
-            <>
-              <Chip
-                className={commonStyles.chip}
-                sx={{ margin: '10px auto !important' }}
-                label={t('user:friends.pending')}
-                size="small"
-                variant="outlined"
-              />
-
-              <Button
-                type="gradientRounded"
-                width="70%"
-                onClick={() => {
-                  FriendService.acceptFriend(selfId, userId)
-                  PopoverState.showPopupover(<FriendsMenu />)
-                }}
-              >
-                {t('user:personMenu.acceptRequest')}
-              </Button>
-
-              <Button
-                type="gradientRounded"
-                width="70%"
-                onClick={() => {
-                  FriendService.declineFriend(selfId, userId)
-                  PopoverState.showPopupover(<FriendsMenu />)
-                }}
-              >
-                {t('user:personMenu.declineRequest')}
-              </Button>
-            </>
-          )}
-
-          {isRequested && (
-            <>
-              <Chip
-                className={commonStyles.chip}
-                sx={{ margin: '10px auto !important' }}
-                label={t('user:friends.requested')}
-                size="small"
-                variant="outlined"
-              />
-
-              <Button
-                type="gradientRounded"
-                width="70%"
-                onClick={() => {
-                  FriendService.unfriend(selfId, userId)
-                  PopoverState.showPopupover(<FriendsMenu defaultSelectedTab="find" />)
-                }}
-              >
-                {t('user:personMenu.cancelRequest')}
-              </Button>
-            </>
-          )}
-
-          <Button type="gradientRounded" width="70%" onClick={handleMute}>
-            {t('user:personMenu.mute')}
+        {!isBlocked && !isBlocking && (
+          <Button
+            fullWidth
+            onClick={() => {
+              FriendService.blockUser(selfId, userId)
+              PopoverState.showPopupover(<FriendsMenu defaultSelectedTab="blocked" />)
+            }}
+          >
+            {t('user:personMenu.block')}
           </Button>
+        )}
 
-          {!isBlocked && !isBlocking && (
-            <Button
-              type="gradientRounded"
-              width="70%"
-              onClick={() => {
-                FriendService.blockUser(selfId, userId)
-                PopoverState.showPopupover(<FriendsMenu defaultSelectedTab="blocked" />)
-              }}
-            >
-              {t('user:personMenu.block')}
-            </Button>
-          )}
-
-          {isBlocking && (
-            <Button
-              type="gradientRounded"
-              width="70%"
-              onClick={() => {
-                FriendService.unblockUser(selfId, userId)
-                PopoverState.showPopupover(<FriendsMenu />)
-              }}
-            >
-              {t('user:personMenu.unblock')}
-            </Button>
-          )}
-        </Box>
-      )}
-    </Menu>
+        {isBlocking && (
+          <Button
+            fullWidth
+            onClick={() => {
+              FriendService.unblockUser(selfId, userId)
+              PopoverState.showPopupover(<FriendsMenu />)
+            }}
+          >
+            {t('user:personMenu.unblock')}
+          </Button>
+        )}
+      </div>
+    </Modal>
   )
 }
 

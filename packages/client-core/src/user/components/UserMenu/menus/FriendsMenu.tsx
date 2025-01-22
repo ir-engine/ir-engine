@@ -27,11 +27,6 @@ import { cloneDeep } from 'lodash'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Avatar from '@ir-engine/client-core/src/common/components/Avatar'
-import commonStyles from '@ir-engine/client-core/src/common/components/common.module.scss'
-import Menu from '@ir-engine/client-core/src/common/components/Menu'
-import Tabs from '@ir-engine/client-core/src/common/components/Tabs'
-import Text from '@ir-engine/client-core/src/common/components/Text'
 import { useFind, useGet } from '@ir-engine/common'
 import {
   ChannelID,
@@ -44,26 +39,23 @@ import {
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
-import Box from '@ir-engine/ui/src/primitives/mui/Box'
-import Chip from '@ir-engine/ui/src/primitives/mui/Chip'
-import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
-import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
 
+import { Tooltip } from '@ir-engine/ui'
+import { CheckCircleLg, CheckLg, MessageTextSquare01Lg, User01Lg, XCloseLg } from '@ir-engine/ui/src/icons'
+import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
+import Tabs from '@ir-engine/ui/src/primitives/tailwind/Tabs'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { IoIosCall } from 'react-icons/io'
 import { PopoverState } from '../../../../common/services/PopoverState'
-import { useUserAvatarThumbnail } from '../../../../hooks/useUserAvatarThumbnail'
-import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
 import { ChannelService, ChannelState } from '../../../../social/services/ChannelService'
 import { FriendService, FriendState } from '../../../../social/services/FriendService'
-import { AvatarMenus } from '../../../../systems/AvatarUISystem'
 import { AvatarUIContextMenuService } from '../../../../systems/ui/UserMenuView'
 import { AuthState } from '../../../services/AuthService'
-import styles from '../index.module.scss'
-import { PopupMenuServices } from '../PopupMenuService'
 
-type TabsType = 'friends' | 'blocked' | 'find' | 'messages'
+const TabNames = ['friends', 'blocked', 'find', 'messages'] as const
 
 interface Props {
-  defaultSelectedTab?: TabsType
+  defaultSelectedTab?: (typeof TabNames)[number]
 }
 
 interface DisplayedUserInterface {
@@ -90,7 +82,9 @@ const getChannelName = (channel: ChannelType) => {
  * */
 const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
   const { t } = useTranslation()
-  const selectedTab = useHookstate(defaultSelectedTab ? defaultSelectedTab : 'friends')
+  const selectedTabIndex = useHookstate(
+    defaultSelectedTab && TabNames.includes(defaultSelectedTab) ? TabNames.indexOf(defaultSelectedTab) : 0
+  )
 
   const channels = useFind(channelPath)
 
@@ -111,30 +105,30 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
     FriendService.getUserRelationship(userId)
   }, [])
 
-  const handleTabChange = (newValue: TabsType) => {
-    selectedTab.set(newValue)
+  const handleTabChange = (index: number) => {
+    selectedTabIndex.set(index)
   }
 
   const handleProfile = (user: DisplayedUserInterface) => {
     AvatarUIContextMenuService.setId(user.id as UserID)
-    PopupMenuServices.showPopupMenu(AvatarMenus.AvatarContext, {
-      onBack: () => PopupMenuServices.showPopupMenu(SocialMenus.Friends, { defaultSelectedTab: selectedTab.value })
-    })
+    PopoverState.showPopupover(<AvatarContextMenu userId={user.id} />)
   }
 
   const handleOpenChat = (id: string) => {
-    if (selectedTab.value === 'messages') {
-      PopupMenuServices.showPopupMenu(SocialMenus.Messages, { channelID: id as ChannelID })
+    if (TabNames[selectedTabIndex.value] === 'messages') {
+      PopoverState.showPopupover(<MessagesMenu channelID={id as ChannelID} name="" />)
     } else {
       const channelWithFriend = privateChannels.find(
         (channel) =>
           channel.channelUsers.length === 2 && channel.channelUsers.find((channelUser) => channelUser.userId === id)
       )
       if (channelWithFriend) {
-        PopupMenuServices.showPopupMenu(SocialMenus.Messages, { channelID: channelWithFriend.id })
+        PopoverState.showPopupover(<MessagesMenu channelID={channelWithFriend.id} name="" />)
       } else {
         ChannelService.createChannel([id as UserID]).then((channel) => {
-          if (channel) PopupMenuServices.showPopupMenu(SocialMenus.Messages, { channelID: channel.id })
+          if (channel) {
+            PopoverState.showPopupover(<MessagesMenu channelID={channel.id} name="" />)
+          }
         })
       }
     }
@@ -148,10 +142,10 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
     .filter((item) => item.userRelationshipType === 'friend')
     .map((item) => ({ id: item.relatedUserId, name: item.relatedUser.name, relationType: 'friend' as const }))
 
-  if (selectedTab.value === 'friends') {
+  if (TabNames[selectedTabIndex.value] === 'friends') {
     displayList.push(...pendingList)
     displayList.push(...friendList)
-  } else if (selectedTab.value === 'messages') {
+  } else if (TabNames[selectedTabIndex.value] === 'messages') {
     displayList.push(
       ...privateChannels.map((channel) => ({
         id: channel.id.toString() as UserID,
@@ -159,12 +153,12 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
         relationType: 'friend' as const
       }))
     )
-  } else if (selectedTab.value === 'blocked') {
+  } else if (TabNames[selectedTabIndex.value] === 'blocked') {
     const blockingList: Array<DisplayedUserInterface> = friendState.relationships.value
       .filter((item) => item.userRelationshipType === 'blocking')
       .map((item) => ({ id: item.relatedUserId, name: item.relatedUser.name, relationType: 'blocking' as const }))
     displayList.push(...blockingList)
-  } else if (selectedTab.value === 'find') {
+  } else if (TabNames[selectedTabIndex.value] === 'find') {
     const layerPeers = NetworkState.worldNetwork
       ? Object.values(NetworkState.worldNetwork.peers).filter(
           (peer) =>
@@ -200,99 +194,106 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
     })
   }
 
-  const settingTabs = [
-    { value: 'find', label: t('user:friends.find') },
-    { value: 'friends', label: t('user:friends.friends') },
-    { value: 'messages', label: t('user:friends.messages') },
-    { value: 'blocked', label: t('user:friends.blocked') }
-  ]
-
   const Friend = (props: { user: DisplayedUserInterface }) => {
     const { user } = props
     const userName = useGet(userPath, props.user.id).data?.name ?? 'User'
     const thumbnail = useUserAvatarThumbnail(user.id as UserID)
     return (
-      <Box key={user.id} display="flex" alignItems="center" m={2} gap={1.5}>
-        <Avatar alt={userName} imageSrc={thumbnail} size={50} />
+      <div key={user.id} className="m-2 flex items-center gap-2">
+        <AvatarImage src={thumbnail} size="medium" />
 
-        <Text flex={1}>{userName}</Text>
+        <Text className="w-full">{userName}</Text>
 
         {user.relationType === 'friend' && (
-          <IconButton
-            icon={<Icon type="Message" sx={{ height: 30, width: 30 }} />}
-            title={t('user:friends.message')}
-            onClick={() => handleOpenChat(user.id)}
-          />
+          <Tooltip content={t('user:friends.accept')}>
+            <button onClick={() => handleOpenChat(user.id)}>
+              <MessageTextSquare01Lg />
+            </button>
+          </Tooltip>
         )}
 
         {user.relationType === 'pending' && (
           <>
-            <Chip className={commonStyles.chip} label={t('user:friends.pending')} size="small" variant="outlined" />
-
-            <IconButton
-              icon={<Icon type="Check" sx={{ height: 30, width: 30 }} />}
-              title={t('user:friends.accept')}
-              onClick={() => FriendService.acceptFriend(userId, user.id)}
-            />
-
-            <IconButton
-              icon={<Icon type="Close" sx={{ height: 30, width: 30 }} />}
-              title={t('user:friends.decline')}
-              onClick={() => FriendService.declineFriend(userId, user.id)}
-            />
+            <Text>{t('user:friends.pending')}</Text>
+            <Tooltip content={t('user:friends.accept')}>
+              <button onClick={() => FriendService.acceptFriend(userId, user.id)}>
+                <CheckLg />
+              </button>
+            </Tooltip>
+            <Tooltip content={t('user:friends.decline')}>
+              <button onClick={() => FriendService.declineFriend(userId, user.id)}>
+                <XCloseLg />
+              </button>
+            </Tooltip>
           </>
         )}
 
-        {user.relationType === 'requested' && (
-          <Chip className={commonStyles.chip} label={t('user:friends.requested')} size="small" variant="outlined" />
-        )}
+        {user.relationType === 'requested' && <Text>{t('user:friends.requested')}</Text>}
 
         {user.relationType === 'blocking' && (
-          <IconButton
-            icon={<Icon type="HowToReg" sx={{ height: 30, width: 30 }} />}
-            title={t('user:friends.unblock')}
-            onClick={() => FriendService.unblockUser(userId, user.id)}
-          />
+          <Tooltip content={t('user:friends.unblock')}>
+            <button onClick={() => FriendService.unblockUser(userId, user.id)}>
+              <CheckCircleLg />
+            </button>
+          </Tooltip>
         )}
 
-        {selectedTab.value === 'messages' ? (
-          <IconButton
-            icon={
-              <Icon
-                type={channelState.targetChannelId.value === user.id.toString() ? 'CallEnd' : 'Call'}
-                sx={{ height: 30, width: 30 }}
-              />
-            }
-            title={t('user:friends.call')}
-            onClick={() => startMediaCall(user.id.toString() as ChannelID)}
-          />
+        {TabNames[selectedTabIndex.value] === 'messages' ? (
+          <Tooltip content={t('user:friends.call')}>
+            <button onClick={() => startMediaCall(user.id.toString() as ChannelID)}>
+              <IoIosCall />
+            </button>
+          </Tooltip>
         ) : (
-          <IconButton
-            icon={<Icon type="AccountCircle" sx={{ height: 30, width: 30 }} />}
-            title={t('user:friends.profile')}
-            onClick={() => handleProfile(user)}
-          />
+          <Tooltip content={t('user:friends.profile')}>
+            <button onClick={() => handleProfile(user)}>
+              <User01Lg />
+            </button>
+          </Tooltip>
         )}
-      </Box>
+      </div>
+    )
+  }
+
+  const DisplayedUsers = () => {
+    return (
+      <div className="flex flex-col gap-2">
+        {displayList.length > 0 && displayList.map((value) => <Friend user={value} />)}
+        {displayList.length === 0 && <Text>{t('user:friends.noUsers')}</Text>}
+      </div>
     )
   }
 
   return (
-    <Menu
-      open
-      header={<Tabs value={selectedTab.value} items={settingTabs} onChange={handleTabChange} />}
-      onBack={() => PopoverState.hidePopupover()}
-      onClose={() => PopupMenuServices.showPopupMenu()}
-    >
-      <Box className={styles.menuContent}>
-        {displayList.length > 0 && displayList.map((value) => <Friend user={value} />)}
-        {displayList.length === 0 && (
-          <Text align="center" mt={4} variant="body2">
-            {t('user:friends.noUsers')}
-          </Text>
-        )}
-      </Box>
-    </Menu>
+    <div className="relative z-50 h-fit max-h-[60vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-theme-surface-main px-10 py-6">
+      <Tabs
+        tabcontainerClassName="w-full justify-center gap-x-6"
+        currentTabIndex={selectedTabIndex.value}
+        onTabChange={handleTabChange}
+        tabsData={[
+          {
+            title: t('user:friends.friends'),
+            tabLabel: t('user:friends.friends'),
+            bottomComponent: <DisplayedUsers />
+          },
+          {
+            title: t('user:friends.find'),
+            tabLabel: t('user:friends.find'),
+            bottomComponent: <DisplayedUsers />
+          },
+          {
+            title: t('user:friends.messages'),
+            tabLabel: t('user:friends.messages'),
+            bottomComponent: <DisplayedUsers />
+          },
+          {
+            title: t('user:friends.blocked'),
+            tabLabel: t('user:friends.blocked'),
+            bottomComponent: <DisplayedUsers />
+          }
+        ]}
+      />
+    </div>
   )
 }
 

@@ -37,7 +37,8 @@ export const ViewerMenuState = defineState({
       avatarmodify: false,
       share: false,
       emote: false,
-      friends: false
+      friends: false,
+      social: false
     }
   })
 })
