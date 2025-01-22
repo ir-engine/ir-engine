@@ -340,10 +340,10 @@ export const enforceTPose = (entity: Entity) => {
     const thumb = bones[`${side}ThumbMetacarpal`]
     const angle = thumbAngle[`${side}ThumbAngle`]
     const hand = bones[`${side}Hand`]
-    getComponent(thumb, TransformComponent).rotation.setFromEuler(angle)
+    getOptionalComponent(thumb, TransformComponent)?.rotation.setFromEuler(angle)
     iterateEntityNode(thumb, (entity) => {
-      getComponent(entity, BoneComponent)
-        .matrixWorld.makeRotationFromEuler(angle)
+      getOptionalComponent(entity, BoneComponent)
+        ?.matrixWorld.makeRotationFromEuler(angle)
         .multiply(getComponent(hand, TransformComponent).matrixWorld)
     })
   }
