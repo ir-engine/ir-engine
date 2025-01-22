@@ -23,12 +23,24 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { removeComponent, setComponent } from '@ir-engine/ecs'
+import { hasComponent, removeComponent, setComponent, traverseEntityNode } from '@ir-engine/ecs'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { HighlightComponent } from '@ir-engine/spatial/src/renderer/components/HighlightComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { useEffect } from 'react'
 import { SelectionState } from '../services/SelectionServices'
+
+function highlightCallback(func) {
+  return (child, index) => {
+    if (!hasComponent(child, MeshComponent)) return
+    if (!hasComponent(child, ObjectComponent)) return
+    if (!hasComponent(child, VisibleComponent)) return
+    func(child, HighlightComponent)
+  }
+}
 
 const reactor = () => {
   const selectedEntities = SelectionState.useSelectedEntities()
@@ -39,10 +51,12 @@ const reactor = () => {
     if (!prevSelectedEntities) return
     for (const entity of prevSelectedEntities) {
       setComponent(entity, HighlightComponent)
+      traverseEntityNode(entity, highlightCallback(setComponent))
     }
     return () => {
       for (const entity of prevSelectedEntities) {
         removeComponent(entity, HighlightComponent)
+        traverseEntityNode(entity, highlightCallback(removeComponent))
       }
     }
   }, [selectedEntities])
