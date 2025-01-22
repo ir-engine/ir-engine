@@ -42,7 +42,7 @@ import { CodeSnippet01Md } from '../../../../icons'
 import InputGroup from '../../input/Group'
 import { ControlledStringInput } from '../../input/String'
 
-export const iframeReactor = () => {
+export const IFrameReactor = () => {
   const entity = useEntityContext()
   const iframeComponent = useComponent(entity, IFrameComponent)
 
@@ -58,7 +58,7 @@ export const iframeReactor = () => {
 }
 
 /**
- * IFrameNodeEditor component used to provide the editor with liquid code popup
+ * IFrameNodeEditor component used to provide the editor with iframe popup
  */
 export const IFrameNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
