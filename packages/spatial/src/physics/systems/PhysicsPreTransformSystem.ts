@@ -25,11 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
-import { defineQuery, defineSystem, Entity, getComponent } from '@ir-engine/ecs'
+import { defineQuery, defineSystem, Entity, getComponent, setChildrenDirtyFast } from '@ir-engine/ecs'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { getState } from '@ir-engine/hyperflux'
 
-import { EntityTreeComponent, getAncestorWithComponents, iterateEntityNode } from '@ir-engine/ecs'
+import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/ecs'
 import { Vector3_One, Vector3_Zero } from '../../common/constants/MathConstants'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix, isDirty, TransformDirtyUpdateSystem } from '../../transform/systems/TransformSystem'
@@ -44,8 +44,6 @@ const _position = new Vector3()
 const _rotation = new Quaternion()
 const _scale = new Vector3()
 const _mat4 = new Matrix4()
-
-const setDirty = (entity: Entity) => (TransformComponent.dirty[entity] = 1)
 
 /**
  * Lerp the transform of a rigidbody entity from the previous frame to the current frame.
@@ -103,7 +101,7 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
 
   /** set all children dirty deeply, but set this entity to clean */
-  iterateEntityNode(entity, setDirty)
+  setChildrenDirtyFast(entity)
   TransformComponent.dirty[entity] = 0
 }
 
@@ -149,7 +147,7 @@ export const copyTransformToRigidBody = (entity: Entity) => {
   Physics.setRigidbodyPose(world, entity, rigidbody.position, rigidbody.rotation, Vector3_Zero, Vector3_Zero)
 
   /** set all children dirty deeply, but set this entity to clean */
-  iterateEntityNode(entity, setDirty)
+  setChildrenDirtyFast(entity)
   TransformComponent.dirty[entity] = 0
 }
 

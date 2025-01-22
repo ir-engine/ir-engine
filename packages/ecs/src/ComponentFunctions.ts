@@ -186,7 +186,7 @@ export interface Component<
   onRemove: (entity: Entity, component: State<ComponentType>) => void
   reactor?: any
   reactorMap: Map<Entity, ReactorRoot>
-  stateMap: State<Record<Entity, ComponentType>>
+  stateMap: Record<Entity, State<ComponentType>>
   valueMap: Record<Entity, ComponentType>
   errors: ErrorTypes[]
   storageSize: number
@@ -402,7 +402,7 @@ export const defineComponent = <
   // Unfortunately, we can't simply use a single shared state because hookstate will (incorrectly) invalidate other nested states when a single component
   // instance is added/removed, so each component instance has to be isolated from the others.
   Component.valueMap = {}
-  Component.stateMap = hookstate(Component.valueMap) as State<Record<Entity, ComponentType>>
+  Component.stateMap = {} // hookstate(Component.valueMap) as State<Record<Entity, ComponentType>>
   if (Component.jsonID) {
     ComponentJSONIDMap.set(Component.jsonID, Component)
     // console.log(`Registered component ${Component.name} with jsonID ${Component.jsonID}`)
@@ -663,9 +663,12 @@ function propagateSchema<C extends Component>(
 
     if ((schema[Kind] as any) === 'Number' && schema?.options?.['id'] === 'Entity' && currentArg !== UndefinedEntity) {
       const referencedEntity = currentArg as Entity
-      const layerRelations = getComponent(referencedEntity, LayerComponents[layer]).relations[linkedLayer]
 
-      return layerRelations
+      // if the entity is already in the linked layer, return the current arg
+      if (LayerComponent.get(referencedEntity) === linkedLayer) return referencedEntity
+
+      // otherwise return the linked entity
+      return getComponent(referencedEntity, LayerComponents[layer]).relations[linkedLayer]
     } else {
       switch (schema[Kind] as any) {
         case 'Null':
@@ -725,6 +728,8 @@ function propagateSchema<C extends Component>(
             case 'object':
               if (currentArg === null) {
                 return null
+              } else if ('clone' in currentArg && typeof currentArg.clone === 'function') {
+                return currentArg.clone()
               } else if (Array.isArray(currentArg)) {
                 const props = schema.properties as any
                 for (let i = 0; i < currentArg.length; i++) {
@@ -776,6 +781,10 @@ function propagateSchema<C extends Component>(
         case 'NonSerialized': {
           const s = schema.properties as any
           return parseSchema(s, key, obj)
+        }
+
+        default: {
+          return currentArg
         }
       }
     }
@@ -856,11 +865,13 @@ export const setComponent = <C extends Component>(
   const componentExists = hasComponent(entity, component)
   if (!componentExists) {
     const value = createInitialComponentValue(entity, component)
-    component.stateMap[entity]!.set(value)
+    component.stateMap[entity] = hookstate(value)
+    component.valueMap[entity] = value
     bitECS.addComponent(HyperFlux.store, entity, component)
   }
 
-  component.onSet(entity, component.stateMap[entity]!, args)
+  component.onSet(entity, component.stateMap[entity], args)
+  component.valueMap[entity] = component.stateMap[entity].get(NO_PROXY_STEALTH)
 
   LayerFunctions.propagateLayer(entity, component, args)
 
@@ -929,6 +940,7 @@ export const removeComponent = <C extends Component>(entity: Entity, component: 
   if (root?.isRunning) root.stop()
   /** clear state data after reactor stops, to ensure hookstate is still referenceable */
   component.stateMap[entity]?.set(none)
+  delete component.valueMap[entity]
 }
 
 /**
@@ -1014,50 +1026,22 @@ export function _use(promise) {
   }
 }
 
-const useComponentObservers = new Map<string, { promise: Promise<any>; unsubscribe: () => void }>()
-
 /**
  * Use a component in a reactive context (a React component)
  */
 export function useComponent<C extends Component>(entity: Entity, component: C): State<ComponentType<C>> {
   if (entity === UndefinedEntity) throw new Error('InvalidUsage: useComponent called with UndefinedEntity')
 
-  const key = entity + component.name
+  const hasCpnt = hasComponent(entity, component)
+  const componentState = useHookstate(component.stateMap[entity]) as State<ComponentType<C>>
 
   // use() will suspend the component (by throwing a promise) and resume when the promise is resolved
-  if (!hasComponent(entity, component)) {
-    let observer = useComponentObservers.get(key)
-    if (!observer) {
-      let unsubscribe
-      const promise = new Promise((resolve) => {
-        unsubscribe = bitECS.observe(HyperFlux.store, bitECS.onAdd(component), (eid) => {
-          if (entity === eid) {
-            resolve(getComponent(entity, component))
-            unsubscribe?.()
-            useComponentObservers.delete(key)
-          }
-        })
-      })
-      observer = {
-        promise,
-        unsubscribe
-      }
-      useComponentObservers.set(key, observer)
-    }
-    ;(React.use ?? _use)(observer.promise)
+  if (!hasCpnt) {
+    component.stateMap[entity] = hookstate(none)
+    ;(React.use ?? _use)(component.stateMap[entity].promise!)
   }
 
-  useEffect(() => {
-    return () => {
-      const observer = useComponentObservers.get(key)
-      if (observer) {
-        observer.unsubscribe()
-        useComponentObservers.delete(key)
-      }
-    }
-  }, [])
-
-  return useHookstate(component.stateMap[entity]) as State<ComponentType<C>>
+  return componentState
 }
 
 /**
@@ -1067,8 +1051,13 @@ export function useOptionalComponent<C extends Component>(
   entity: Entity,
   component: C
 ): State<ComponentType<C>> | undefined {
+  const hasCpnt = hasComponent(entity, component)
+  if (!hasCpnt) {
+    component.stateMap[entity] = hookstate(none)
+  }
+
   const componentState = useHookstate(component.stateMap[entity]) as State<ComponentType<C>>
-  return !hasComponent(entity, component) || componentState.promised ? undefined : componentState
+  return !hasCpnt ? undefined : componentState
 }
 
 export const getComponentCountOfType = <C extends Component>(component: C): number => {

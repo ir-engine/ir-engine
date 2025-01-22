@@ -59,6 +59,8 @@ export const ObjectComponent = defineComponent({
     setComponent(entity, TransformComponent)
 
     obj.entity = entity
+    if (obj.rotation) obj.rotation._onChangeCallback = () => {}
+    obj.quaternion._onChangeCallback = () => {}
 
     const transform = getComponent(entity, TransformComponent)
     obj.position.copy(transform.position)
@@ -79,6 +81,10 @@ export const ObjectComponent = defineComponent({
           get() {
             return getComponent(entity, UUIDComponent)
           }
+        },
+        rotation: {
+          get() {},
+          set(value) {}
         },
         parent: {
           get() {

@@ -123,6 +123,8 @@ declare module 'three/src/core/Object3D.js' {
   export interface Object3D {
     matrixWorldAutoUpdate: boolean
     entity: Entity
+    /** @deprecated use TransformComponent property */
+    readonly rotation: Euler
     /** @deprecated use ECS hierarchy instead [#9308](https://github.com/ir-engine/ir-engine/issues/9308) */
     add(...object: Object3D[]): this
     /** @deprecated use ECS hierarchy instead [#9308](https://github.com/ir-engine/ir-engine/issues/9308) */
@@ -229,6 +231,50 @@ SkinnedMesh.prototype.applyBoneTransform = function (index, vector) {
   }
 
   return vector.applyMatrix4(this.bindMatrixInverse)
+}
+
+Object3D.prototype.copy = function (source: Object3D, recursive = true) {
+  this.name = source.name
+
+  this.up.copy(source.up)
+
+  this.position.copy(source.position)
+
+  // disable rotation
+  // this.rotation.order = source.rotation.order;
+
+  this.quaternion.copy(source.quaternion)
+  this.scale.copy(source.scale)
+
+  this.matrix.copy(source.matrix)
+  this.matrixWorld.copy(source.matrixWorld)
+
+  this.matrixAutoUpdate = source.matrixAutoUpdate
+  this.matrixWorldNeedsUpdate = source.matrixWorldNeedsUpdate
+
+  this.matrixWorldAutoUpdate = source.matrixWorldAutoUpdate
+
+  this.layers.mask = source.layers.mask
+  this.visible = source.visible
+
+  this.castShadow = source.castShadow
+  this.receiveShadow = source.receiveShadow
+
+  this.frustumCulled = source.frustumCulled
+  this.renderOrder = source.renderOrder
+
+  this.animations = source.animations.slice()
+
+  this.userData = JSON.parse(JSON.stringify(source.userData))
+
+  if (recursive === true) {
+    for (let i = 0; i < source.children.length; i++) {
+      const child = source.children[i]
+      this.add(child.clone())
+    }
+  }
+
+  return this
 }
 
 overrideOnBeforeCompile()

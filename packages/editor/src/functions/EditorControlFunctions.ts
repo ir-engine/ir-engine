@@ -62,6 +62,7 @@ import { getMaterial } from '@ir-engine/spatial/src/renderer/materials/materialF
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { serializeEntity } from '@ir-engine/engine/src/scene/functions/serializeWorld'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
@@ -69,7 +70,6 @@ import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/Scene
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
-import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 
 const tempMatrix4 = new Matrix4()
 const tempVector = new Vector3()

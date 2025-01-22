@@ -35,7 +35,7 @@ import {
 } from '@pixiv/three-vrm'
 import type * as V0VRM from '@pixiv/types-vrm-0.0'
 
-import { AnimationAction, Euler, Group, Matrix4, Object3D, Vector3 } from 'three'
+import { AnimationAction, Euler, Group, Matrix4, Object3D, Quaternion, Vector3 } from 'three'
 
 import { GLTF } from '@gltf-transform/core'
 import { EntityTreeComponent, UUIDComponent, iterateEntityNode } from '@ir-engine/ecs'
@@ -153,11 +153,21 @@ export function createVRM(rootEntity: Entity) {
       const bone = getOptionalComponent(entity, BoneComponent)
       bone?.matrixWorld.identity()
       bone?.quaternion.set(0, 0, 0, 1)
+
+      if (bone?.rotation) bone.rotation._onChangeCallback = () => {}
+      if (bone) bone.quaternion._onChangeCallback = () => {}
+
       if (entity !== bones.hips.node.parent?.entity) bone?.matrixWorld.makeRotationY(Math.PI)
     })
     bones.hips.node.rotateY(Math.PI)
 
     const humanoid = new VRMHumanoid(bones)
+    ;(humanoid as any)._normalizedHumanBones._parentWorldRotationInverses = Object.fromEntries(
+      Object.entries((humanoid as any)._normalizedHumanBones._parentWorldRotations).map(([key, value]) => [
+        key,
+        (value as Quaternion).clone().invert()
+      ])
+    )
 
     const scene = getComponent(rootEntity, ObjectComponent)
 
@@ -182,6 +192,13 @@ export function createVRM(rootEntity: Entity) {
   }
 
   return createVRMFromGLTF(rootEntity, gltf)
+}
+
+declare module '@pixiv/three-vrm-core' {
+  export interface VRMHumanoid {
+    _parentWorldRotations: { [key: string]: Quaternion }
+    _parentWorldRotationInverses: { [key: string]: Quaternion }
+  }
 }
 
 export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
@@ -242,6 +259,12 @@ export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
   transform?.matrixWorld.identity()
 
   const humanoid = new VRMHumanoid(bones)
+  ;(humanoid as any)._normalizedHumanBones._parentWorldRotationInverses = Object.fromEntries(
+    Object.entries((humanoid as any)._normalizedHumanBones._parentWorldRotations).map(([key, value]) => [
+      key,
+      (value as Quaternion).clone().invert()
+    ])
+  )
   const scene = getComponent(rootEntity, ObjectComponent)
   const children = getComponent(rootEntity, EntityTreeComponent).children
   const childName = getComponent(children[0], NameComponent)
@@ -321,10 +344,10 @@ export const enforceTPose = (entity: Entity) => {
     const thumb = bones[`${side}ThumbMetacarpal`]
     const angle = thumbAngle[`${side}ThumbAngle`]
     const hand = bones[`${side}Hand`]
-    getComponent(thumb, TransformComponent).rotation.setFromEuler(angle)
+    getOptionalComponent(thumb, TransformComponent)?.rotation.setFromEuler(angle)
     iterateEntityNode(thumb, (entity) => {
-      getComponent(entity, BoneComponent)
-        .matrixWorld.makeRotationFromEuler(angle)
+      getOptionalComponent(entity, BoneComponent)
+        ?.matrixWorld.makeRotationFromEuler(angle)
         .multiply(getComponent(hand, TransformComponent).matrixWorld)
     })
   }

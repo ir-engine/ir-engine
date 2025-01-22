@@ -144,16 +144,11 @@ export const onNewScene = async (
 
 export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
   getMutableState(EngineState).isEditing.set(true)
-  const unload = SceneState.loadScene(sceneURL, uuid, Layers.Authoring)
-  const gltfEntity = getState(SceneState)[sceneURL]
-  const simulationEntity = getComponent(gltfEntity, LayerComponents[Layers.Authoring]).relations[Layers.Simulation]
   const viewerEntity = getState(ReferenceSpaceState).viewerEntity
-  getMutableComponent(viewerEntity, RendererComponent).scenes.merge([simulationEntity])
+  const unload = SceneState.loadScene(sceneURL, uuid, viewerEntity, Layers.Authoring)
+  const gltfEntity = getState(SceneState)[sceneURL]
   getMutableState(EditorState).rootEntity.set(gltfEntity)
   return () => {
-    getMutableComponent(viewerEntity, RendererComponent).scenes.set((current) =>
-      current.splice(current.indexOf(simulationEntity), 1)
-    )
     unload()
     getMutableState(EditorState).rootEntity.set(UndefinedEntity)
   }

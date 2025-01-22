@@ -226,13 +226,11 @@ export function gizmoUpdate(gizmoControlEntity) {
     setComponent(handleEntity, VisibleComponent)
     const name = getComponent(handleEntity, NameComponent)
     const transform = getComponent(handleEntity, TransformComponent)
-    transform.rotation.identity()
-    transform.position.set(0, 0, 0)
-    transform.scale.set(1, 1, 1).multiplyScalar((factor * gizmoControl.size) / 4)
 
     // Align handles to current local or world rotation
-
     transform.rotation.copy(quaternion)
+    transform.position.set(0, 0, 0)
+    transform.scale.set(1, 1, 1).multiplyScalar((factor * gizmoControl.size) / 4)
 
     if (gizmoControl.mode === TransformMode.translate || gizmoControl.mode === TransformMode.scale) {
       // Hide translate and scale axis facing the camera
@@ -819,8 +817,6 @@ function pointerMove(gizmoEntity: Entity) {
   _raycaster.setFromCamera(pointer.position, camera)
 
   const planeIntersect = intersectObjectWithRay(plane, _raycaster, true)
-
-  console.log({targetEntity})
 
   if (!planeIntersect) return
   gizmoControlComponent.pointEnd.set(planeIntersect.point.sub(gizmoControlComponent.worldPositionStart.value))

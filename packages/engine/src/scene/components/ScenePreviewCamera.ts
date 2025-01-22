@@ -87,7 +87,7 @@ export const ScenePreviewCameraComponent = defineComponent({
     useLayoutEffect(() => {
       if (!engineCameraTransform) return
       previewCamera.camera.value.position.copy(previewCameraTransform.position.value)
-      previewCamera.camera.value.rotation.copy(new Euler().setFromQuaternion(previewCameraTransform.rotation.value))
+      previewCamera.camera.value.quaternion.copy(previewCameraTransform.rotation.value)
     }, [previewCameraTransform])
 
     useHelperEntity(entity, () => new CameraHelper(previewCamera.camera.value as PerspectiveCamera), debugEnabled.value)

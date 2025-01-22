@@ -31,6 +31,7 @@ import {
   EntityTreeComponent,
   EntityUUID,
   LayerComponent,
+  LayerComponents,
   LayerID,
   Layers,
   PresentationSystemGroup,
@@ -38,17 +39,19 @@ import {
   UndefinedEntity,
   createEntity,
   defineSystem,
+  getComponent,
+  getMutableComponent,
   removeEntity,
   setComponent,
   useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
-import { defineState, getMutableState, getState, startReactor } from '@ir-engine/hyperflux'
-import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { defineState, getMutableState, startReactor } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { GLTFComponent, GLTFComponentReactor } from './GLTFComponent'
 import './MeshExtensionComponents'
@@ -60,12 +63,27 @@ export const SceneState = defineState({
   name: 'ee.engine.gltf.SceneState',
   initial: {} as Record<string, Entity>,
 
-  loadScene: (sceneURL: string, uuid: string, layer?: LayerID) => {
+  loadScene: (sceneURL: string, uuid: string, viewerEntity?: Entity, layer?: LayerID) => {
     const gltfEntity = AssetState.load(sceneURL, uuid as EntityUUID, UndefinedEntity, layer)
     getMutableState(SceneState)[sceneURL].set(gltfEntity)
     setComponent(gltfEntity, SceneComponent)
 
+    let simulationEntity = gltfEntity
+    if (viewerEntity) {
+      simulationEntity =
+        layer === Layers.Authoring
+          ? getComponent(gltfEntity, LayerComponents[layer]).relations[Layers.Simulation]
+          : gltfEntity
+
+      getMutableComponent(viewerEntity, RendererComponent).scenes.merge([simulationEntity])
+    }
+
     return () => {
+      if (viewerEntity) {
+        getMutableComponent(viewerEntity, RendererComponent).scenes.set((current) =>
+          current.splice(current.indexOf(simulationEntity), 1)
+        )
+      }
       AssetState.unload(gltfEntity)
       getMutableState(SceneState)[sceneURL].set(gltfEntity)
     }
