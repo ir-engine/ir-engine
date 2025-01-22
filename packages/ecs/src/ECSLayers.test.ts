@@ -262,8 +262,35 @@ describe('LayerFunctions', () => {
   }) //:: hasLayer
 
   describe('shouldPropagate', () => {
-    it.todo('should return true if the given layer pair is expected to trigger propagation behavior.', () => {})
-    it.todo('should return false if the given layer pair is not expected to trigger propagation behavior.', () => {})
+    it('should never return true when comparing a layer with itself', () => {
+      const Expected = false
+      // Set the data as expected
+      const layerA = Layers.Authoring
+      const layerB = Layers.Authoring
+      // Run and Check the result
+      const result = LayerFunctions.shouldPropagate(layerA, layerB)
+      expect(result).toBe(Expected)
+    })
+
+    it('should return true if the given layer pair is expected to trigger propagation behavior.', () => {
+      const Expected = true
+      // Set the data as expected
+      const layerA = Layers.Authoring
+      const layerB = Layers.Simulation
+      // Run and Check the result
+      const result = LayerFunctions.shouldPropagate(layerA, layerB)
+      expect(result).toBe(Expected)
+    })
+
+    it('should return false if the given layer pair is not expected to trigger propagation behavior.', () => {
+      const Expected = false
+      // Set the data as expected
+      const layerA = Layers.Simulation
+      const layerB = Layers.Authoring
+      // Run and Check the result
+      const result = LayerFunctions.shouldPropagate(layerA, layerB)
+      expect(result).toBe(Expected)
+    })
   }) //:: shouldPropagate
 
   describe('propagateLayer', () => {
