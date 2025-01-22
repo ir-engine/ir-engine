@@ -34,6 +34,7 @@ import {
   getComponent,
   hasComponent,
   LayerComponent,
+  LayerComponents,
   LayerFunctions,
   LayerID,
   LayerRelationTypes,
@@ -60,20 +61,26 @@ describe('createEntity', () => {
 
   it('should use Layers.Simulation as the default value for `@param layerID` when it is omitted', () => {
     const Expected = Layers.Simulation
+    // Set the data as expected
     const testEntity = createEntity()
+    // Run and Check the result
     const result = getComponent(testEntity, LayerComponent).layer
     expect(result).toBe(Expected)
   })
 
   it('should create a new entity by calling bitECS.addEntity with HyperFlux.store as its world argument', () => {
+    // Set the data as expected
     const testEntity = createEntity()
+    // Run and Check the result
     const result = bitECS.entityExists(HyperFlux.store, testEntity)
     expect(result).toBeTruthy()
   })
 
   it('should set a LayerComponent on the newly created entity with `@param layerID` as its layer argument', () => {
+    // Set the data as expected
     const expectedLayer = Layers.Authoring
     const testEntity = createEntity(expectedLayer)
+    // Run and Check the result
     const result = getComponent(testEntity, LayerComponent)
     expect(result).toBeTruthy()
     expect(result.layer).toBe(expectedLayer)
@@ -102,7 +109,9 @@ describe('removeEntity', () => {
   })
 
   it('should call bitECS.removeEntity with HyperFlux.store and `@param entity` as arguments', () => {
+    // Set the data as expected
     const testEntity = bitECS.addEntity(HyperFlux.store) as Entity
+    // Run and Check the result
     removeEntity(testEntity)
     const result = bitECS.entityExists(HyperFlux.store, testEntity)
     expect(result).toBeFalsy()
@@ -130,7 +139,9 @@ describe('LayerFunctions', () => {
 
   describe('getLayerRelationsEntities', () => {
     it('should return an array of arrays that contains valid layer ID numbers in slot 0 of each subarray', () => {
+      // Set the data as expected
       const testEntity = createEntity(Layers.Authoring)
+      // Run and Check the result
       const result = LayerFunctions.getLayerRelationsEntities(testEntity)
       expect(Array.isArray(result)).toBeTruthy()
       expect(Array.isArray(result[0])).toBeTruthy()
@@ -138,7 +149,9 @@ describe('LayerFunctions', () => {
     })
 
     it('should return an array of arrays that contains valid Entity IDs in slot 1 of each subarray', () => {
+      // Set the data as expected
       const testEntity = createEntity(Layers.Authoring)
+      // Run and Check the result
       const result = LayerFunctions.getLayerRelationsEntities(testEntity)
       expect(Array.isArray(result)).toBeTruthy()
       expect(Array.isArray(result[0])).toBeTruthy()
@@ -146,7 +159,9 @@ describe('LayerFunctions', () => {
     })
 
     it('should retrieve the `@param entity` Layer relations from the LayerFunctions.getLayerComponent(entity) component and map them as expected into the result', () => {
+      // Set the data as expected
       const testEntity = createEntity(Layers.Authoring)
+      // Run and Check the result
       const result = LayerFunctions.getLayerRelationsEntities(testEntity)
       expect(Array.isArray(result)).toBeTruthy()
       expect(result.length).toBe(1)
@@ -157,7 +172,9 @@ describe('LayerFunctions', () => {
 
   describe('getLayerRelationsTypes', () => {
     it('should return an array of arrays that contains valid layer ID numbers in slot 0 of each subarray', () => {
+      // Set the data as expected
       const layer = Layers.Authoring
+      // Run and Check the result
       const result = LayerFunctions.getLayerRelationsTypes(layer)
       expect(Array.isArray(result)).toBeTruthy()
       expect(Array.isArray(result[0])).toBeTruthy()
@@ -165,7 +182,9 @@ describe('LayerFunctions', () => {
     })
 
     it('should return an array of arrays that contains a valid RelationTypes entry in slot 1 of each subarray', () => {
+      // Set the data as expected
       const layer = Layers.Authoring
+      // Run and Check the result
       const result = LayerFunctions.getLayerRelationsTypes(layer)
       expect(Array.isArray(result)).toBeTruthy()
       expect(Array.isArray(result[0])).toBeTruthy()
@@ -173,7 +192,9 @@ describe('LayerFunctions', () => {
     })
 
     it('should retrieve the `@param entity` Layer relations from the LayerFunctions.getLayerComponent(entity) component and map them as expected into the result', () => {
+      // Set the data as expected
       const layer = Layers.Authoring
+      // Run and Check the result
       const result = LayerFunctions.getLayerRelationsTypes(layer)
       expect(Array.isArray(result)).toBeTruthy()
       expect(result.length).toBe(1)
@@ -183,18 +204,57 @@ describe('LayerFunctions', () => {
   }) //:: getLayerRelationsTypes
 
   describe('getLayerComponent', () => {
-    it.todo(
-      'should return the expected Layer component for the `@param entity` from the `LayerComponents` map',
-      () => {}
-    )
+    it('should return the expected Layer component for the `@param entity` from the `LayerComponents` map', () => {
+      const Expected = LayerComponents[Layers.Authoring]
+      // Set the data as expected
+      const testEntity = createEntity(Layers.Authoring)
+      // Run and Check the result
+      const result = LayerFunctions.getLayerComponent(testEntity)
+      expect(result).toBe(Expected)
+      expect(result).toEqual(Expected)
+    })
   }) //:: getLayerComponent
 
   describe('hasLayer', () => {
-    it.todo('should return false when the result of LayerFunctions.getLayerComponent(`@param entity`)', () => {})
-    it.todo(
-      'should return false when the result of hasComponent(`@param entity`, LayerFunctions.getLayerComponent(`@param entity`)) is falsy',
-      () => {}
-    )
+    /** @todo Edge-case bug.
+     * `hasLayer` should return false after calling removeComponent(testEntity, component)
+     * */
+    it.todo('should return false when the result of LayerFunctions.getLayerComponent(`@param entity`) is falsy', () => {
+      const Expected = false
+      // Set the data as expected
+      const layer = Layers.Authoring
+      const testEntity = createEntity(layer)
+
+      console.log('before removeComponent: ....................................')
+      console.log('1: ', LayerComponent.layer[testEntity])
+      console.log('2: ', LayerComponents[LayerComponent.layer[testEntity]])
+
+      const component = LayerFunctions.getLayerComponent(testEntity)
+      removeComponent(testEntity, component) // Remove the LayerComponent that `createEntity` just added
+
+      console.log('after  removeComponent: _____________________')
+      console.log('3: ', LayerComponent.layer[testEntity])
+      console.log('4: ', LayerComponents[LayerComponent.layer[testEntity]])
+
+      expect(LayerFunctions.getLayerComponent(testEntity)).toBeFalsy()
+      // Run and Check the result
+      const result = LayerFunctions.hasLayer(testEntity)
+      expect(result).toBe(Expected)
+    })
+
+    it('should return false when the result of hasComponent(`@param entity`, LayerFunctions.getLayerComponent(`@param entity`)) is falsy', () => {
+      const Expected = false
+      // Set the data as expected
+      const testEntity = createEntity()
+      removeComponent(testEntity, LayerFunctions.getLayerComponent(testEntity)) // Remove the LayerComponent that `createEntity` just added
+      expect(hasComponent(testEntity, LayerComponent)).toBeTruthy()
+      expect(hasComponent(testEntity, LayerFunctions.getLayerComponent(testEntity))).toBeFalsy()
+      // Run and Check the result
+      const result = LayerFunctions.hasLayer(testEntity)
+      expect(result).toBe(Expected)
+    })
+
+    /** @todo Depends on fixing the first case's bug */
     it.todo(
       'should return true when the result of LayerFunctions.getLayerComponent(`@param entity`) and hasComponent(`@param entity`, LayerFunctions.getLayerComponent(`@param entity`)) are both truthy',
       () => {}
@@ -202,11 +262,8 @@ describe('LayerFunctions', () => {
   }) //:: hasLayer
 
   describe('shouldPropagate', () => {
-    it.todo('should return true if the given entity/layer pair is expected to trigger propagation behavior.', () => {})
-    it.todo(
-      'should return false if the given entity/layer pair is not expected to trigger propagation behavior.',
-      () => {}
-    )
+    it.todo('should return true if the given layer pair is expected to trigger propagation behavior.', () => {})
+    it.todo('should return false if the given layer pair is not expected to trigger propagation behavior.', () => {})
   }) //:: shouldPropagate
 
   describe('propagateLayer', () => {
