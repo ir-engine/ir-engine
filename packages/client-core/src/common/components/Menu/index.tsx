@@ -139,15 +139,16 @@ const Menu = ({
   return (
     <MUIDialog
       disablePortal
-      sx={
-        unset
+      sx={{
+        ...(unset
           ? {
               '& .MuiDialog-container': {
-                all: 'unset' // Removes container styles
+                all: 'unset'
               }
             }
-          : { pointerEvents: 'all', ...sx }
-      }
+          : { pointerEvents: 'all' }),
+        ...sx
+      }}
       open={open}
       maxWidth={maxWidth}
       fullWidth

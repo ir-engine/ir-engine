@@ -39,16 +39,6 @@ module.exports = {
   important: true, // important in prod is must be
   theme: {
     extend: {
-      animation: {
-        sciFiOpen: 'sciFiOpen 0.6s ease-out',
-      },
-      keyframes: {
-        sciFiOpen: {
-          '0%': { transform: 'scaleX(0.1) scaleY(0.1)', opacity: '0' },
-          '50%': { transform: 'scaleX(1) scaleY(0.1)', opacity: '1' },
-          '100%': { transform: 'scaleX(1) scaleY(1)', opacity: '1' },
-        },
-      },
       screens: {
         xsh: { raw: '(min-height: 500px)' },
         smh: { raw: '(min-height: 700px)' },
