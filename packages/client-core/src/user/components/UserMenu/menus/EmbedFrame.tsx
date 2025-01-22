@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import Box from '@ir-engine/ui/src/primitives/mui/Box'
-import React, { useEffect } from 'react'
+import React from 'react'
 import Menu from '../../../../common/components/Menu'
 import { PopupMenuServices } from '../PopupMenuService'
 
@@ -33,16 +33,10 @@ type Props = {
 }
 
 const EmbedFrame = ({ src }: Props): JSX.Element => {
-  const [htmlContent, setHtmlContent] = React.useState<string>('')
-
-  useEffect(() => {
-    setHtmlContent(src)
-  }, [src])
-
   return (
     <Menu unset={true} open isPopover={false} onClose={() => PopupMenuServices.showPopupMenu()}>
       <Box className="h-[90vh]">
-        {htmlContent ? (
+        {src ? (
           <div className="h-full w-full">
             <iframe className="h-full w-full" src={src}></iframe>
           </div>
