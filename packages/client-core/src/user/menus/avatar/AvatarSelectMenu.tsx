@@ -52,7 +52,7 @@ import AvatarModifyMenu from './AvatarModifyMenu'
 const AVATAR_PAGE_LIMIT = 100
 interface AvatarMenuProps {
   showBackButton: boolean
-  previewEnabled: boolean
+  previewEnabled?: boolean
 }
 const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuProps) => {
   const { t } = useTranslation()

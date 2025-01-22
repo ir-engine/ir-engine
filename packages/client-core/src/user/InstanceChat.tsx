@@ -217,7 +217,7 @@ function Messages() {
   if (!isChatOpen.value) return null
   return (
     <div className="h-[45vh] overflow-y-auto">
-      <div className="flex flex-col justify-end gap-y-[13px]">
+      <div className="flex h-full flex-col justify-end gap-y-[13px]">
         {messages.value.map((message) => (
           <Message key={message.id} message={message} />
         ))}
