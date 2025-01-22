@@ -50,7 +50,6 @@ import { PopoverState } from '../../../common/services/PopoverState'
 import { useUserAvatarThumbnail } from '../../../hooks/useUserAvatarThumbnail'
 import { ChannelService, ChannelState } from '../../../social/services/ChannelService'
 import { FriendService, FriendState } from '../../../social/services/FriendService'
-import { AvatarUIContextMenuService } from '../../../systems/ui/UserMenuView'
 import { AuthState } from '../../services/AuthService'
 import MessagesMenu from './MessagesMenu'
 import AvatarContextMenu from './RelationMenu'
@@ -113,7 +112,6 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
   }
 
   const handleProfile = (user: DisplayedUserInterface) => {
-    AvatarUIContextMenuService.setId(user.id as UserID)
     PopoverState.showPopupover(<AvatarContextMenu userId={user.id} />)
   }
 
