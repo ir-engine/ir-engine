@@ -28,15 +28,13 @@ import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { HighlightComponent } from '@ir-engine/spatial/src/renderer/components/HighlightComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { useEffect } from 'react'
 import { SelectionState } from '../services/SelectionServices'
 
-function highlightCallback(func) {
+function highlightCallback(func: typeof setComponent | typeof removeComponent) {
   return (child, index) => {
     if (!hasComponent(child, MeshComponent)) return
-    if (!hasComponent(child, ObjectComponent)) return
     if (!hasComponent(child, VisibleComponent)) return
     func(child, HighlightComponent)
   }

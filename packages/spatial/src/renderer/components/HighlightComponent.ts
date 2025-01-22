@@ -36,13 +36,15 @@ export const HighlightComponent = defineComponent({ name: 'HighlightComponent' }
 
 const highlightQuery = defineQuery([HighlightComponent, MeshComponent, VisibleComponent])
 
+const getCompObject = (entity) => getComponent(entity, ObjectComponent)
+
 const execute = () => {
   /** @todo support multiple scenes */
   if (!hasComponent(Engine.instance.viewerEntity, RendererComponent)) return
 
   const rendererComponent = getComponent(Engine.instance.viewerEntity, RendererComponent)
   const outlineEffect = rendererComponent?.effectInstances?.OutlineEffect as OutlineEffect
-  outlineEffect?.selection.set(highlightQuery().map((entity) => getComponent(entity, ObjectComponent)))
+  outlineEffect?.selection.set(highlightQuery().map(getCompObject))
 }
 
 export const HighlightSystem = defineSystem({
