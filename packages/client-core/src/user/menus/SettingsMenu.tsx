@@ -41,7 +41,7 @@ import { XruiNameplateState } from '../../social/XruiNameplateState'
 
 const isChromeDesktop = !isMobile && /chrome/i.test(navigator.userAgent)
 const logger = multiLogger.child({ component: 'system:settings-menu' })
-const ShadowMapResolutionOptions: OptionType[] = [
+export const ShadowMapResolutionOptions: OptionType[] = [
   {
     label: '256px',
     value: 256
