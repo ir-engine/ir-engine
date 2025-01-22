@@ -36,6 +36,7 @@ import {
   LayerComponent,
   LayerFunctions,
   LayerID,
+  LayerRelationTypes,
   Layers,
   removeComponent,
   setComponent
@@ -118,55 +119,6 @@ describe('removeEntity', () => {
   */
 }) //:: removeEntity
 
-describe('setComponent', () => {
-  beforeEach(() => {
-    createEngine()
-  })
-
-  afterEach(() => {
-    destroyEngine()
-  })
-
-  /** @section ECS Layers specific tests */
-  it('should call LayerFunctions.propagateLayer with (entity, component, args) as arguments', () => {
-    // Set the data as expected
-    const resultSpy = vi.spyOn(LayerFunctions, 'propagateLayer')
-    const TestComponent = defineComponent({ name: '123' })
-    const testArgs = '42'
-    const testEntity = createEntity()
-    // Run and Check the result
-    setComponent(testEntity, TestComponent, testArgs)
-    expect(resultSpy).toHaveBeenCalled()
-    expect(resultSpy).toHaveBeenCalledWith(testEntity, TestComponent, testArgs)
-  })
-
-  /** @section Other tests for Coverage */
-  it.todo('should throw an error if `@param entity` is falsy', () => {})
-  it.todo(
-    'should throw an error if calling bitECS.entityExists with (HyperFlux.store, `@param entity`) as arguments returns a falsy value',
-    () => {}
-  )
-  describe('when the result of hasComponent(`@param entity`, `@param component`) is falsy ...', () => {
-    it.todo(
-      '.. should set `@param component`.stateMap[`@param entity`] to the result of hookstate(createInitialComponentValue(`@param entity`, `@param component`)) when `@param component`.stateMap[`@param entity`] is falsy',
-      () => {}
-    )
-    it.todo(
-      '.. should call `@param component`.stateMap[`@param entity`].set with the result of hookstate(createInitialComponentValue(`@param entity`, `@param component`)) as arguments when `@param component`.stateMap[`@param entity`] is falsy',
-      () => {}
-    )
-    it.todo(
-      '.. should call bitECS.addComponent with (HyperFlux.store, `@param component`, `@param entity`, false) as arguments',
-      () => {}
-    )
-  })
-  it.todo(
-    'should call `@param component`.onSet with (entity, component.stateMap[entity]!, args) as arguments',
-    () => {}
-  )
-  // @todo Missing Statements after the line that calls LayerFunctions.propagateLayer
-}) //:: setComponent
-
 describe('LayerFunctions', () => {
   beforeEach(() => {
     createEngine()
@@ -202,7 +154,33 @@ describe('LayerFunctions', () => {
       expect(entityExists(result[0][1])).toBeTruthy()
     })
   }) //:: getLayerRelationsEntities
-  describe('getLayerRelationsTypes', () => {}) //:: getLayerRelationsTypes
+
+  describe('getLayerRelationsTypes', () => {
+    it('should return an array of arrays that contains valid layer ID numbers in slot 0 of each subarray', () => {
+      const layer = Layers.Authoring
+      const result = LayerFunctions.getLayerRelationsTypes(layer)
+      expect(Array.isArray(result)).toBeTruthy()
+      expect(Array.isArray(result[0])).toBeTruthy()
+      expect(Object.values(Layers).includes(result[0][0] as LayerID)).toBeTruthy()
+    })
+
+    it('should return an array of arrays that contains a valid RelationTypes entry in slot 1 of each subarray', () => {
+      const layer = Layers.Authoring
+      const result = LayerFunctions.getLayerRelationsTypes(layer)
+      expect(Array.isArray(result)).toBeTruthy()
+      expect(Array.isArray(result[0])).toBeTruthy()
+      expect(Object.values(LayerRelationTypes).includes(result[0][1])).toBeTruthy()
+    })
+
+    it('should retrieve the `@param entity` Layer relations from the LayerFunctions.getLayerComponent(entity) component and map them as expected into the result', () => {
+      const layer = Layers.Authoring
+      const result = LayerFunctions.getLayerRelationsTypes(layer)
+      expect(Array.isArray(result)).toBeTruthy()
+      expect(result.length).toBe(1)
+      expect(result[0][0]).toBe(Layers.Simulation)
+      expect(Object.values(LayerRelationTypes).includes(result[0][1])).toBeTruthy()
+    })
+  }) //:: getLayerRelationsTypes
 
   describe('getLayerComponent', () => {
     it.todo(
@@ -261,6 +239,55 @@ describe('LayerFunctions', () => {
   // @note High complexity
   describe.todo('propagateSchema', () => {}) //:: propagateSchema
 }) //:: LayerFunctions
+
+describe('setComponent', () => {
+  beforeEach(() => {
+    createEngine()
+  })
+
+  afterEach(() => {
+    destroyEngine()
+  })
+
+  /** @section ECS Layers specific tests */
+  it('should call LayerFunctions.propagateLayer with (entity, component, args) as arguments', () => {
+    // Set the data as expected
+    const resultSpy = vi.spyOn(LayerFunctions, 'propagateLayer')
+    const TestComponent = defineComponent({ name: '123' })
+    const testArgs = '42'
+    const testEntity = createEntity()
+    // Run and Check the result
+    setComponent(testEntity, TestComponent, testArgs)
+    expect(resultSpy).toHaveBeenCalled()
+    expect(resultSpy).toHaveBeenCalledWith(testEntity, TestComponent, testArgs)
+  })
+
+  /** @section Other tests for Coverage */
+  it.todo('should throw an error if `@param entity` is falsy', () => {})
+  it.todo(
+    'should throw an error if calling bitECS.entityExists with (HyperFlux.store, `@param entity`) as arguments returns a falsy value',
+    () => {}
+  )
+  describe('when the result of hasComponent(`@param entity`, `@param component`) is falsy ...', () => {
+    it.todo(
+      '.. should set `@param component`.stateMap[`@param entity`] to the result of hookstate(createInitialComponentValue(`@param entity`, `@param component`)) when `@param component`.stateMap[`@param entity`] is falsy',
+      () => {}
+    )
+    it.todo(
+      '.. should call `@param component`.stateMap[`@param entity`].set with the result of hookstate(createInitialComponentValue(`@param entity`, `@param component`)) as arguments when `@param component`.stateMap[`@param entity`] is falsy',
+      () => {}
+    )
+    it.todo(
+      '.. should call bitECS.addComponent with (HyperFlux.store, `@param component`, `@param entity`, false) as arguments',
+      () => {}
+    )
+  })
+  it.todo(
+    'should call `@param component`.onSet with (entity, component.stateMap[entity]!, args) as arguments',
+    () => {}
+  )
+  // @todo Missing Statements after the line that calls LayerFunctions.propagateLayer
+}) //:: setComponent
 
 describe('removeComponent', () => {
   it.todo('should not do anything if `@param entity` does not have the given `@param component`', () => {})
