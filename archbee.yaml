@@ -1,3 +1,4 @@
 # This will include all code files from your repo
 shadowDocs: 
   - "*"
+  - "packages/ecs/src/EntityTree.tsx"
