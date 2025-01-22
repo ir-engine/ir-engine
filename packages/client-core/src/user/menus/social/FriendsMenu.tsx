@@ -52,8 +52,8 @@ import { ChannelService, ChannelState } from '../../../social/services/ChannelSe
 import { FriendService, FriendState } from '../../../social/services/FriendService'
 import { AvatarUIContextMenuService } from '../../../systems/ui/UserMenuView'
 import { AuthState } from '../../services/AuthService'
-import AvatarContextMenu from './AvatarContextMenu'
 import MessagesMenu from './MessagesMenu'
+import AvatarContextMenu from './RelationMenu'
 
 const TabNames = ['friends', 'blocked', 'find', 'messages'] as const
 
