@@ -38,8 +38,8 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { useUserAvatarThumbnail } from '../../../hooks/useUserAvatarThumbnail'
 import { FriendService, FriendState } from '../../../social/services/FriendService'
-import FriendsMenu from '../../components/UserMenu/menus/FriendsMenu'
 import { AuthState } from '../../services/AuthService'
+import FriendsMenu from './FriendsMenu'
 
 const AvatarContextMenu = ({ userId }: { userId: UserID }): JSX.Element => {
   const { t } = useTranslation()

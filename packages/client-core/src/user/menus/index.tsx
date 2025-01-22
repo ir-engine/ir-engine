@@ -33,10 +33,10 @@ import { FaUserFriends } from 'react-icons/fa'
 import { PopoverState } from '../../common/services/PopoverState'
 import { ViewerMenuState } from '../../util/ViewerMenuState'
 import LocationIconButton from '../components/LocationIconButton'
-import FriendsMenu from '../components/UserMenu/menus/FriendsMenu'
 import EmoteMenu from './EmoteMenu'
 import ProfileMenu from './ProfileMenu'
 import ShareMenu from './ShareMenu'
+import FriendsMenu from './social/FriendsMenu'
 
 export default function UserMenus() {
   const userMenus = useMutableState(ViewerMenuState).userMenus
