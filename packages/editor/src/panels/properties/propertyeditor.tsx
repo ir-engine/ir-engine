@@ -31,6 +31,7 @@ import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { NO_PROXY, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { Button } from '@ir-engine/ui'
 import TransformPropertyGroup from '@ir-engine/ui/src/components/editor/properties/transform'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
@@ -85,6 +86,8 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
 
   const [isAddComponentMenuOpen, setIsAddComponentMenuOpen] = useState(false)
 
+  const hasTransform = useOptionalComponent(entity, TransformComponent)
+
   if (!entity) return null
 
   return (
@@ -113,7 +116,7 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
           </div>
         </Popup>
       </div>
-      <TransformPropertyGroup entity={entity} />
+      {hasTransform && <TransformPropertyGroup entity={entity} />}
       {components.map((c) => (
         <EntityComponentEditor
           key={`${entityUUID + entity}-${c.name}`}
