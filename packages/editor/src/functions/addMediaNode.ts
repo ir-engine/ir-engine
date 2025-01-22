@@ -44,7 +44,7 @@ import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { AssetState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
+import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowComponent'
@@ -161,7 +161,7 @@ export async function addMediaNode(
         [
           { name: GLTFComponent.jsonID, props: { src: url } },
           { name: ShadowComponent.jsonID },
-          { name: EnvmapComponent.jsonID },
+          { name: EnvMapComponent.jsonID },
           ...extraComponentJson
         ],
         parent!,

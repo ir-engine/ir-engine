@@ -122,7 +122,7 @@ import { TextureLoader } from '../assets/loaders/texture/TextureLoader'
 import { AssetCacheState } from '../assets/state/AssetCacheState'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
-import { EnvmapComponent } from '../scene/components/EnvmapComponent'
+import { EnvMapComponent } from '../scene/components/EnvmapComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { GLTFComponent } from './GLTFComponent'
 import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
@@ -781,7 +781,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   material.name = materialDef.name || 'Material-' + materialIndex
 
   setComponent(materialEntity, MaterialStateComponent, { material, parameters: materialParams })
-  setComponent(materialEntity, EnvmapComponent, { type: 'Skybox' })
+  setComponent(materialEntity, EnvMapComponent, { type: 'Skybox' })
 
   assignExtrasToUserData(material, materialDef)
 

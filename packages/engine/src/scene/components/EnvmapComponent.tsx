@@ -25,15 +25,12 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 import {
-  Color,
   CubeReflectionMapping,
   CubeTexture,
-  DataTexture,
   EquirectangularReflectionMapping,
   Material,
   Mesh,
   MeshStandardMaterial,
-  RGBAFormat,
   SRGBColorSpace,
   Uniform,
   Vector3
@@ -62,17 +59,15 @@ import {
   worldposReplace
 } from '../classes/BPCEMShader'
 import { EnvMapSourceType } from '../constants/EnvMapEnum'
-import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
+import { loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { createReflectionProbeRenderTarget } from '../functions/reflectionProbeFunctions'
 import { EnvMapBakeComponent } from './EnvMapBakeComponent'
 import { ReflectionProbeComponent } from './ReflectionProbeComponent'
 
-const tempColor = new Color()
-
 const EnvmapCubemapReactor = () => {
   const entity = useEntityContext()
-  const component = useComponent(entity, EnvmapComponent)
+  const component = useComponent(entity, EnvMapComponent)
   const materialComponent = useComponent(entity, MaterialStateComponent)
 
   useEffect(() => {
@@ -89,71 +84,16 @@ const EnvmapCubemapReactor = () => {
           texture.mapping = CubeReflectionMapping
           texture.colorSpace = SRGBColorSpace
           ;(materialComponent.material as State<MeshStandardMaterial>).envMap.set(texture)
-          removeError(entity, EnvmapComponent, 'MISSING_FILE')
+          removeError(entity, EnvMapComponent, 'MISSING_FILE')
         }
       },
       undefined,
       (_) => {
         ;(materialComponent.material as State<MeshStandardMaterial>).envMap.set(null)
-        addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
+        addError(entity, EnvMapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
       }
     )
   }, [component.envMapCubemapURL])
-
-  return null
-}
-
-const EnvmapEquirectangularReactor = () => {
-  const entity = useEntityContext()
-  const component = useComponent(entity, EnvmapComponent)
-  const materialComponent = useComponent(entity, MaterialStateComponent)
-  const [envMapTexture, error] = useTexture(component.envMapSourceURL.value, entity)
-
-  useEffect(() => {
-    return () => {
-      if (entityExists(entity)) (materialComponent.material as State<MeshStandardMaterial>).envMap.set(null)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!envMapTexture || !envMapTexture.isTexture) return
-    envMapTexture.mapping = EquirectangularReflectionMapping
-    ;(materialComponent.material as State<MeshStandardMaterial>).envMap.set(envMapTexture)
-  }, [envMapTexture])
-
-  useEffect(() => {
-    if (!error) return
-    ;(materialComponent.material as State<MeshStandardMaterial>).envMap.set(null)
-    addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
-  }, [error])
-
-  return null
-}
-
-const EnvmapColorReactor = () => {
-  const entity = useEntityContext()
-  const component = useComponent(entity, EnvmapComponent)
-  const materialComponent = useComponent(entity, MaterialStateComponent)
-
-  useEffect(() => {
-    return () => {
-      if (entityExists(entity)) (materialComponent.material as State<MeshStandardMaterial>).envMap.set(null)
-    }
-  }, [])
-
-  useEffect(() => {
-    const color = component.envMapSourceColor.value ?? tempColor
-    const resolution = 64 // Min value required
-    /** @todo track in resource manager */
-    const texture = new DataTexture(getRGBArray(new Color(color)), resolution, resolution, RGBAFormat)
-    texture.needsUpdate = true
-    texture.colorSpace = SRGBColorSpace
-    texture.mapping = EquirectangularReflectionMapping
-    ;(materialComponent.material as State<MeshStandardMaterial>).envMap.set(texture)
-    return () => {
-      texture.dispose()
-    }
-  }, [component.envMapSourceColor])
 
   return null
 }
@@ -166,7 +106,7 @@ const EnvmapProbesReactor = () => {
 
   useEffect(() => {
     return () => {
-      const component = getMutableComponent(entity, EnvmapComponent)
+      const component = getMutableComponent(entity, EnvMapComponent)
       if (entityExists(entity)) (materialComponent.material as State<MeshStandardMaterial>).envMap.set(null)
     }
   }, [])
@@ -182,13 +122,13 @@ const EnvmapProbesReactor = () => {
   return null
 }
 
-export const EnvmapComponent = defineComponent({
-  name: 'EnvmapComponent',
+export const EnvMapComponent = defineComponent({
+  name: 'EnvMapComponent',
   // jsonID: 'EE_envmap',
 
   schema: S.Object({
     type: S.LiteralUnion(Object.values(EnvMapSourceType), EnvMapSourceType.Skybox),
-    envMapSourceColor: T.Color(0xfff),
+    envMapSourceColor: T.Color('#8080FF'),
     envMapSourceURL: S.String(''),
     envMapCubemapURL: S.String(''),
     envMapSourceEntityUUID: S.EntityUUID(),
@@ -228,10 +168,11 @@ export const EnvmapComponent = defineComponent({
   errors: ['MISSING_FILE']
 })
 
-export const EnvmapSpecificationComponent = defineComponent({
+export const EnvMapSpecificationComponent = defineComponent({
   name: 'EnvmapSpecificationComponent',
   jsonID: 'EE_envmap',
-  schema: EnvmapComponent.schema
+  schema: EnvMapComponent.schema,
+  errors: EnvMapComponent.errors
 })
 
 const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Entity }) => {
@@ -254,7 +195,7 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
 
   useEffect(() => {
     if (!error) return
-    addError(envmapEntity, EnvmapComponent, 'MISSING_FILE', 'EnvMap bake texture not found!')
+    addError(envmapEntity, EnvMapComponent, 'MISSING_FILE', 'EnvMap bake texture not found!')
   }, [error])
 
   return null

@@ -32,7 +32,7 @@ import { InteractableComponent } from '@ir-engine/engine/src/interaction/compone
 import { AudioAnalysisComponent } from '@ir-engine/engine/src/scene/components/AudioAnalysisComponent'
 import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/CameraSettingsComponent'
 import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvMapBakeComponent'
-import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
+import { EnvMapSpecificationComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { GroundPlaneComponent } from '@ir-engine/engine/src/scene/components/GroundPlaneComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { InstancingComponent } from '@ir-engine/engine/src/scene/components/InstancingComponent'
@@ -173,7 +173,7 @@ export const ComponentEditorsState = defineState({
       [LegacyVolumetricComponent.name]: LegacyVolumetricNodeEditor,
       [VolumetricComponent.name]: VolumetricNodeEditor,
       [PlaylistComponent.name]: PlaylistNodeEditor,
-      [EnvmapComponent.name]: EnvMapEditor,
+      [EnvMapSpecificationComponent.name]: EnvMapEditor,
       [EnvMapBakeComponent.name]: EnvMapBakeNodeEditor,
       [InstancingComponent.name]: InstancingNodeEditor,
       [PersistentAnchorComponent.name]: PersistentAnchorNodeEditor,
