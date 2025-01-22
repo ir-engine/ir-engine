@@ -398,9 +398,18 @@ describe('LayerFunctions', () => {
   }) //:: propagateLayer
 
   describe('getAuthoringCounterpart', () => {
+    /** @todo Shouldn't createEntity trigger an onSet and call createEntity to create a linked entity with AuthoringLayerComponent ?? */
     it.todo(
       'should return the entity stored in the `.refs` field of the AuthoringLayerComponent for the given `@param entity`',
-      () => {}
+      () => {
+        const Expected = 1234 as Entity
+        // Set the data as expected
+        const testEntity = createEntity(Layers.Simulation)
+        // Sanity check before running
+        // Run and Check the result
+        const result = LayerFunctions.getAuthoringCounterpart(testEntity)
+        expect(result).toBe(Expected)
+      }
     )
   }) //:: getAuthoringCounterpart
 
@@ -459,7 +468,9 @@ describe('setComponent', () => {
 }) //:: setComponent
 
 describe('removeComponent', () => {
+  /** @section ECS Layers specific tests */
   it.todo('should not do anything if `@param entity` does not have the given `@param component`', () => {})
+  /** @todo Depends on fixing the edge-case bug with LayerFunctions.hasLayer */
   describe('when the result of LayerFunctions.hasLayer(`@param entity`) is truthy (aka the entity has an ECS layer) ...', () => {
     describe('.. for every (layer,entity) pair returned by LayerFunctions.getLayerRelations(`@param entity`)', () => {
       it.todo(
@@ -472,6 +483,8 @@ describe('removeComponent', () => {
       )
     })
   })
+
+  /** @section Other tests for Coverage */
   it.todo(
     'should call `@param component` onRemove with `@param entity` and `component.stateMap[entity])` as arguments',
     () => {}
