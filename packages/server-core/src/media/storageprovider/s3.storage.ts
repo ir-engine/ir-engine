@@ -453,9 +453,14 @@ export class S3Provider implements StorageProviderInterface {
         throw err
       }
     } else {
-      const command = new PutObjectCommand(args)
-      await this.provider.send(command)
-      return true
+      try {
+        const command = new PutObjectCommand(args)
+        await this.provider.send(command)
+        return true
+      } catch (err) {
+        console.error('Error in put upload', err, args)
+        throw err
+      }
     }
   }
 
