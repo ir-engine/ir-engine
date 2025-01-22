@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useLayoutEffect } from 'react'
-import { CameraHelper, Euler, PerspectiveCamera } from 'three'
+import { CameraHelper, PerspectiveCamera } from 'three'
 
 import { EngineState, useEntityContext, useExecute } from '@ir-engine/ecs'
 import {
@@ -49,7 +49,7 @@ export const ScenePreviewCameraComponent = defineComponent({
   jsonID: 'EE_scene_preview_camera',
 
   schema: S.Object({
-    camera: S.Class(() => new PerspectiveCamera(80, 16 / 9, 0.2, 8000))
+    camera: S.NonSerialized(S.Class(() => new PerspectiveCamera(80, 16 / 9, 0.2, 8000)))
   }),
 
   reactor: function () {

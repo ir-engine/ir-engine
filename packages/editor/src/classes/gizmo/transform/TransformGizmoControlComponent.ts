@@ -33,6 +33,7 @@ import {
   Entity,
   EntityTreeComponent,
   getComponent,
+  hasComponent,
   removeComponent,
   removeEntity,
   setComponent,
@@ -111,6 +112,9 @@ export const TransformGizmoControlComponent = defineComponent({
 
       const controlledEntity = controlledEntities[controlledEntities.length - 1]
       if (!controlledEntity) return
+
+      // we dont want a transform gizmo on non spatial entities, like materials
+      if (!hasComponent(controlledEntity, TransformComponent)) return
 
       const gizmoVisualEntity = createEntity()
       setComponent(gizmoVisualEntity, EntityTreeComponent, { parentEntity: originEntity })

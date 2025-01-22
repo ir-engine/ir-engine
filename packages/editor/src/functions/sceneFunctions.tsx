@@ -34,14 +34,13 @@ import multiLogger from '@ir-engine/common/src/logger'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { cleanString } from '@ir-engine/common/src/utils/cleanString'
 import { EngineState, EntityUUID, UndefinedEntity } from '@ir-engine/ecs'
-import { getComponent, getMutableComponent, LayerComponents, Layers } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Layers } from '@ir-engine/ecs/src/ComponentFunctions'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { AssetModifiedState, SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { exportGLTFScene } from '@ir-engine/engine/src/gltf/exportGLTFScene'
 import { handleScenePaths } from '@ir-engine/engine/src/scene/functions/GLTFConversion'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
 import React from 'react'
 import { EditorState } from '../services/EditorServices'
@@ -73,7 +72,7 @@ export const saveSceneGLTF = async (
     if (existingScene.data.length > 0) throw new Error(i18n.t('editor:errors.sceneAlreadyExists'))
   }
 
-  const gltfData = exportGLTFScene(rootEntity)
+  const gltfData = await exportGLTFScene(rootEntity, getState(EditorState).projectName!, sceneFile, false)
 
   if (!gltfData) {
     logger.error('Failed to save scene, no gltf data found')

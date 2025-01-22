@@ -309,8 +309,13 @@ const execute = () => {
       // dont let use the editor camera while dragging
       const mainOrbitCamera = getOptionalMutableComponent(Engine.instance.cameraEntity, CameraOrbitComponent)
       const controllerEntity = getComponent(lastSelection, TransformGizmoControlledComponent).controller
-      if (mainOrbitCamera && controllerEntity !== UndefinedEntity)
+      if (
+        mainOrbitCamera &&
+        controllerEntity !== UndefinedEntity &&
+        hasComponent(controllerEntity, TransformGizmoControlComponent)
+      ) {
         mainOrbitCamera.disabled.set(getComponent(controllerEntity, TransformGizmoControlComponent).dragging)
+      }
     }
   }
 
