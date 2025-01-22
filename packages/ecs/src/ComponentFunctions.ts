@@ -461,9 +461,7 @@ export const getOptionalMutableComponent = <C extends Component>(
   entity: Entity,
   component: C
 ): State<ComponentType<C>> | undefined => {
-  return !bitECS.hasComponent(HyperFlux.store, entity, component)
-    ? undefined
-    : (component.stateMap[entity]! as State<ComponentType<C>> | undefined)
+  return component?.stateMap?.[entity]
 }
 
 export const getMutableComponent = <C extends Component>(entity: Entity, component: C): State<ComponentType<C>> => {
@@ -481,7 +479,7 @@ export const getOptionalComponent = <C extends Component>(
   entity: Entity,
   component: C
 ): ComponentType<C> | undefined => {
-  return bitECS.hasComponent(HyperFlux.store, entity, component) ? component.valueMap[entity] : undefined
+  return component?.valueMap?.[entity]
 }
 
 export const getComponent = <C extends Component>(entity: Entity, component: C): ComponentType<C> => {
