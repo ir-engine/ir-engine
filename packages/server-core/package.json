@@ -44,11 +44,11 @@
     "migrate:make": "knex --migrations-directory ./ migrate:make"
   },
   "dependencies": {
-    "@aws-sdk/client-cloudfront": "3.732.0",
-    "@aws-sdk/client-ecr-public": "3.732.0",
+    "@aws-sdk/client-cloudfront": "3.731.1",
+    "@aws-sdk/client-ecr-public": "3.731.1",
     "@aws-sdk/client-s3": "3.732.0",
     "@aws-sdk/client-sns": "3.732.0",
-    "@aws-sdk/credential-providers": "3.732.0",
+    "@aws-sdk/credential-providers": "3.731.1",
     "@aws-sdk/lib-storage": "3.732.0",
     "@aws-sdk/s3-presigned-post": "3.732.0",
     "@feathersjs/adapter-commons": "5.0.5",
