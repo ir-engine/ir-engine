@@ -29,12 +29,11 @@ import {
   ComponentType,
   getAllComponents,
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   serializeComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { Entity } from '@ir-engine/ecs/src/Entity'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
@@ -55,54 +54,8 @@ export interface GLTFSceneExportExtension {
   after?: (rootEntity: Entity, gltf: GLTF.IGLTF) => void
 }
 
-export class RemoveRootNodeParentExportExtension implements GLTFSceneExportExtension {
-  parentEntity: Entity = UndefinedEntity
-
-  before(rootEntity: Entity) {
-    if (hasComponent(rootEntity, EntityTreeComponent)) {
-      const tree = getMutableComponent(rootEntity, EntityTreeComponent)
-      this.parentEntity = tree.parentEntity.value
-      tree.parentEntity.set(UndefinedEntity)
-    }
-  }
-
-  after(rootEntity: Entity) {
-    if (hasComponent(rootEntity, EntityTreeComponent)) {
-      getMutableComponent(rootEntity, EntityTreeComponent).parentEntity.set(this.parentEntity)
-    }
-  }
-}
-
-export class IgnoreGLTFComponentExportExtension implements GLTFSceneExportExtension {
-  entityChildrenCache = new Map<Entity, Entity[] | undefined>()
-
-  beforeNode(entity: Entity) {
-    if (hasComponent(entity, GLTFComponent)) {
-      const source = GLTFComponent.getInstanceID(entity)
-      const children = getOptionalComponent(entity, EntityTreeComponent)?.children
-      if (children && children.length) {
-        const removed: Entity[] = []
-        const toKeep: Entity[] = []
-        for (const child of children) {
-          if (getOptionalComponent(child, SourceComponent) === source) removed.push(child)
-          else toKeep.push(child)
-        }
-        this.entityChildrenCache[entity] = removed
-        getMutableComponent(entity, EntityTreeComponent).children.set(toKeep)
-      }
-    }
-  }
-
-  afterNode(entity: Entity) {
-    const children = this.entityChildrenCache[entity]
-    if (children) {
-      getMutableComponent(entity, EntityTreeComponent).children.set(children)
-      this.entityChildrenCache.delete(entity)
-    }
-  }
-}
-
 type GLTFSceneExportContext = {
+  sourceID: string
   extensionsUsed: Set<string>
   exportExtensions: GLTFSceneExportExtension[]
   projectName: string
@@ -111,10 +64,7 @@ type GLTFSceneExportContext = {
 
 export type ExportExtension = new () => GLTFSceneExportExtension
 
-export const defaultExportExtensionList = [
-  IgnoreGLTFComponentExportExtension,
-  RemoveRootNodeParentExportExtension
-] as ExportExtension[]
+export const defaultExportExtensionList = [] as ExportExtension[]
 
 export async function exportGLTFScene(
   entity: Entity,
@@ -134,7 +84,8 @@ export async function exportGLTFScene(
 
   for (const extension of exportExtensions) extension.before?.(entity, gltf)
 
-  const context = {
+  const context: GLTFSceneExportContext = {
+    sourceID: GLTFComponent.getInstanceID(entity),
     extensionsUsed: new Set<string>(),
     exportExtensions,
     projectName,
@@ -143,13 +94,13 @@ export async function exportGLTFScene(
 
   if (exportRoot) {
     const rootIndex = await exportGLTFSceneNode(entity, gltf, context)
-    rootIndex && gltf.scenes![0].nodes.push(rootIndex)
+    if (typeof rootIndex === 'number') gltf.scenes![0].nodes.push(rootIndex)
   } else {
     const indices: number[] = []
     const children = getComponent(entity, EntityTreeComponent).children
     for (const child of children) {
       const index = await exportGLTFSceneNode(child, gltf, context)
-      index && indices.push(index)
+      if (typeof index === 'number') indices.push(index)
     }
     gltf.scenes![0].nodes.push(...indices)
   }
@@ -203,8 +154,9 @@ const exportGLTFSceneNode = async (
   const childrenIndicies = [] as number[]
   if (children && children.length > 0) {
     for (const child of children) {
+      if (getComponent(child, SourceComponent) !== context.sourceID) continue
       const childIndex = await exportGLTFSceneNode(child, gltf, context)
-      childIndex && childrenIndicies.push(childIndex)
+      if (typeof childIndex === 'number') childrenIndicies.push(childIndex)
     }
   }
 
@@ -258,10 +210,32 @@ const exportGLTFSceneNode = async (
 
     for (const extension of context.exportExtensions) extension.afterComponent?.(entity, component, node, index)
   }
+  if (node.matrix && matrixEqualsIdentity(node.matrix)) delete node.matrix
   if (Object.keys(extensions).length > 0) node.extensions = extensions
-  node.children = childrenIndicies
+  if (childrenIndicies.length) node.children = childrenIndicies
 
   for (const extension of context.exportExtensions) extension.afterNode?.(entity, node, index)
 
   return index
+}
+
+const matrixEqualsIdentity = (matrix: number[]) => {
+  return (
+    matrix[0] === 1 &&
+    matrix[1] === 0 &&
+    matrix[2] === 0 &&
+    matrix[3] === 0 &&
+    matrix[4] === 0 &&
+    matrix[5] === 1 &&
+    matrix[6] === 0 &&
+    matrix[7] === 0 &&
+    matrix[8] === 0 &&
+    matrix[9] === 0 &&
+    matrix[10] === 1 &&
+    matrix[11] === 0 &&
+    matrix[12] === 0 &&
+    matrix[13] === 0 &&
+    matrix[14] === 0 &&
+    matrix[15] === 1
+  )
 }
