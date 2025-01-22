@@ -44,11 +44,11 @@ const toggleOpen = (iframeEntity: Entity) => {
 
 export const IFrameComponent = defineComponent({
   name: 'IFrameComponent',
-  jsonID: 'ir_iframe',
+  jsonID: 'IR_iframe',
 
   schema: S.Object({
     src: S.String(''),
-    isOpen: S.Bool(false)
+    isOpen: S.NonSerialized(S.Bool(false))
   }),
 
   iframeCallbackName,
