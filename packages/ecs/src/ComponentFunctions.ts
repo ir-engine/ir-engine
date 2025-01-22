@@ -726,10 +726,10 @@ function propagateSchema<C extends Component>(
             case 'boolean':
               return currentArg
             case 'object':
-              if ('clone' in currentArg && typeof currentArg.clone === 'function') {
-                return currentArg.clone()
-              } else if (currentArg === null) {
+              if (currentArg === null) {
                 return null
+              } else if ('clone' in currentArg && typeof currentArg.clone === 'function') {
+                return currentArg.clone()
               } else if (Array.isArray(currentArg)) {
                 const props = schema.properties as any
                 for (let i = 0; i < currentArg.length; i++) {
