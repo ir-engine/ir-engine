@@ -294,21 +294,106 @@ describe('LayerFunctions', () => {
   }) //:: shouldPropagate
 
   describe('propagateLayer', () => {
-    it.todo('should not do anything if `@param component` is LayerComponent', () => {})
-    it.todo('should not do anything if the LayerComponents array contains `@param component`', () => {})
-    describe('for every (layer,entity) pair returned by LayerFunctions.getLayerRelations for the `@param entity`', () => {
-      it.todo(
-        '.. should not do anything for this pair if the result of LayerFunctions.shouldPropagate(linkedEntity, linkedLayer) is falsy',
-        () => {}
-      )
-      it.todo(
-        '.. should call LayerFunctions.propagateSchema with (linkedLayer, component, args) as arguments when `@param component`.schema is truthy',
-        () => {}
-      )
-      it.todo(
-        '.. should call setComponent with (linkedEntity, `@param component`, `@param args`) as arguments',
-        () => {}
-      )
+    it('should not do anything if `@param component` is LayerComponent', () => {
+      // Set the data as expected
+      const resultSpy = vi.spyOn(LayerFunctions, 'propagateSchema')
+      const entityLayer = Layers.Authoring
+      const linkedLayer = Layers.Simulation
+      const testEntity = createEntity(entityLayer)
+      const component = LayerComponent as any
+      const args = undefined
+      // Sanity check before running
+      expect(component).toBe(LayerComponent)
+      expect(LayerComponents.includes(component)).toBeFalsy()
+      expect(LayerFunctions.shouldPropagate(entityLayer, linkedLayer)).toBeTruthy()
+      expect(component.schema).toBeTruthy()
+      expect(resultSpy).not.toHaveBeenCalled()
+      // Run and Check the result
+      LayerFunctions.propagateLayer(testEntity, component, args)
+      expect(resultSpy).not.toHaveBeenCalled()
+    })
+
+    it('should not do anything if the LayerComponents array contains `@param component`', () => {
+      // Set the data as expected
+      const resultSpy = vi.spyOn(LayerFunctions, 'propagateSchema')
+      const entityLayer = Layers.Authoring
+      const linkedLayer = Layers.Simulation
+      const testEntity = createEntity(entityLayer)
+      const component = LayerComponents[entityLayer]
+      const args = undefined
+      // Sanity check before running
+      expect(component).not.toBe(LayerComponent)
+      expect(LayerComponents.includes(component)).toBeTruthy()
+      expect(LayerFunctions.shouldPropagate(entityLayer, linkedLayer)).toBeTruthy()
+      expect(component.schema).toBeTruthy()
+      expect(resultSpy).not.toHaveBeenCalled()
+      // Run and Check the result
+      LayerFunctions.propagateLayer(testEntity, component, args)
+      expect(resultSpy).not.toHaveBeenCalled()
+    })
+
+    describe('for every (layer,entity) pair returned by LayerFunctions.getLayerRelationsEntities for the `@param entity`', () => {
+      it('.. should not do anything for this pair if the result of LayerFunctions.shouldPropagate(entityLayer, linkedLayer) is falsy', () => {
+        // Set the data as expected
+        const resultSpy = vi.spyOn(LayerFunctions, 'propagateSchema')
+        const entityLayer = Layers.Simulation
+        const linkedLayer = Layers.Authoring
+        const testEntity = createEntity(entityLayer)
+        const component = TransformComponent as any
+        const args = undefined
+        // Sanity check before running
+        expect(component).not.toBe(LayerComponent)
+        expect(LayerComponents.includes(component)).toBeFalsy()
+        expect(LayerFunctions.shouldPropagate(entityLayer, linkedLayer)).toBeFalsy()
+        expect(component.schema).toBeTruthy()
+        expect(resultSpy).not.toHaveBeenCalled()
+        // Run and Check the result
+        LayerFunctions.propagateLayer(testEntity, component, args)
+        expect(resultSpy).not.toHaveBeenCalled()
+      })
+
+      it('.. should call LayerFunctions.propagateSchema with (entity, linkedLayer, component, args) as arguments when `@param component`.schema is truthy', () => {
+        // Set the data as expected
+        const resultSpy = vi.spyOn(LayerFunctions, 'propagateSchema')
+        const entityLayer = Layers.Authoring
+        const linkedLayer = Layers.Simulation
+        const testEntity = createEntity(entityLayer)
+        const component = TransformComponent as any
+        const args = undefined
+        // Sanity check before running
+        expect(component).not.toBe(LayerComponent)
+        expect(LayerComponents.includes(component)).toBeFalsy()
+        expect(LayerFunctions.shouldPropagate(entityLayer, linkedLayer)).toBeTruthy()
+        expect(component.schema).toBeTruthy()
+        expect(resultSpy).not.toHaveBeenCalled()
+        // Run and Check the result
+        LayerFunctions.propagateLayer(testEntity, component, args)
+        expect(resultSpy).toHaveBeenCalled()
+        expect(resultSpy).toHaveBeenCalledWith(testEntity, linkedLayer, component, args)
+      })
+
+      it('.. should call setComponent with (linkedEntity, `@param component`, `@param args`) as arguments', () => {
+        // Set the data as expected
+        const resultSpy = vi.spyOn(LayerFunctions, 'propagateSchema')
+        const entityLayer = Layers.Authoring
+        const linkedLayer = Layers.Simulation
+        const testEntity = createEntity(entityLayer)
+        const component = TransformComponent as any
+        const args = undefined
+        const linkedEntity = LayerFunctions.getLayerRelationsEntities(testEntity)[0][1]
+        // Sanity check before running
+        expect(component).not.toBe(LayerComponent)
+        expect(LayerComponents.includes(component)).toBeFalsy()
+        expect(LayerFunctions.shouldPropagate(entityLayer, linkedLayer)).toBeTruthy()
+        expect(component.schema).toBeTruthy()
+        expect(resultSpy).not.toHaveBeenCalled()
+        const before = hasComponent(linkedEntity, component)
+        expect(before).toBeFalsy()
+        // Run and Check the result
+        LayerFunctions.propagateLayer(testEntity, component, args)
+        const result = hasComponent(linkedEntity, component)
+        expect(result).toBeTruthy()
+      })
     })
   }) //:: propagateLayer
 
