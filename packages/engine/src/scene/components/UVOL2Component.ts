@@ -320,16 +320,6 @@ export const UVOL2Component = defineComponent({
     loadingEffectEnded: S.Bool(false)
   }),
 
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (json.manifestPath) {
-      component.manifestPath.set(json.manifestPath)
-    }
-    if (json.data) {
-      component.data.set(json.data)
-    }
-  },
-
   setStartAndPlaybackTime: (entity: Entity, newMediaStartTime: number, newPlaybackStartDate: number) => {
     const volumetric = getMutableComponent(entity, LegacyVolumetricComponent)
 

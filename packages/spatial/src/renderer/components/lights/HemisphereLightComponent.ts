@@ -37,6 +37,7 @@ import {
 } from '@ir-engine/ecs'
 import { NO_PROXY, useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
+import { ActiveHelperComponent } from '../../../common/ActiveHelperComponent'
 import { useHelperEntity } from '../../../common/debug/useHelperEntity'
 import { T } from '../../../schema/schemaFunctions'
 import { RendererState } from '../../RendererState'
@@ -56,10 +57,11 @@ export const HemisphereLightComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const hemisphereLightComponent = useComponent(entity, HemisphereLightComponent)
+    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const renderState = useMutableState(RendererState)
-    const debugEnabled = renderState.nodeHelperVisibility
+    const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
     const light = useHookstate(() => new HemisphereLight()).get(NO_PROXY) as HemisphereLight
-    const helperEntity = useHelperEntity(entity, () => new HemisphereLightHelper(light, 100), debugEnabled.value)
+    const helperEntity = useHelperEntity(entity, () => new HemisphereLightHelper(light, 100), debugEnabled)
 
     useImmediateEffect(() => {
       setComponent(entity, LightTagComponent)

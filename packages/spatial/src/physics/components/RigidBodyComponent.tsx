@@ -100,17 +100,6 @@ export const RigidBodyComponent = defineComponent({
     }
   },
 
-  toJSON: (component) => {
-    return {
-      type: component.type,
-      ccd: component.ccd,
-      allowRolling: component.allowRolling,
-      enabledRotations: component.enabledRotations,
-      canSleep: component.canSleep,
-      gravityScale: component.gravityScale
-    }
-  },
-
   reactor: () => {
     return <RigidBodyReactor />
   }

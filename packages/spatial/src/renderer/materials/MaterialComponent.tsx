@@ -110,7 +110,11 @@ export const MaterialStateComponent = defineComponent({
     prototypeEntity: S.Entity()
   }),
 
-  fallbackMaterial: uuidv4() as EntityUUID,
+  fallbackMaterialUUID: uuidv4() as EntityUUID,
+  fallbackMaterial: () => {
+    const fallbackMaterialEntity = UUIDComponent.getEntityByUUID(MaterialStateComponent.fallbackMaterialUUID)
+    return getComponent(fallbackMaterialEntity, MaterialStateComponent).material //.clone()
+  },
 
   onRemove: (entity) => {
     const materialComponent = getOptionalComponent(entity, MaterialStateComponent)

@@ -32,7 +32,7 @@ import { UserID } from '@ir-engine/common/src/schema.type.module'
 import { createEntity, EngineState, getComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
-import { GLTFSnapshotState, AssetState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { AssetState, GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { SplineComponent } from '@ir-engine/engine/src/scene/components/SplineComponent'
 import { applyIncomingActions, getMutableState, getState } from '@ir-engine/hyperflux'
@@ -40,11 +40,11 @@ import { HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
 import { EntityTreeComponent } from '@ir-engine/ecs'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
-import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 
 describe('EditorControlFunctions', () => {
   let physicsWorldEntity: Entity

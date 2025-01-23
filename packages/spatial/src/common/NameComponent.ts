@@ -59,7 +59,6 @@ export const NameComponent = defineComponent({
     }
 
     getState(NameComponentState).entitiesByName[name].add(entity)
-    component.set(name)
   },
 
   onRemove: (entity, component) => {

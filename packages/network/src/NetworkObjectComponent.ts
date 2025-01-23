@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useLayoutEffect } from 'react'
 
-import ECS, {
+import {
   Component,
   defineComponent,
   defineQuery,
@@ -36,6 +36,7 @@ import ECS, {
   ProxyWithECS,
   removeComponent,
   setComponent,
+  Types,
   UndefinedEntity,
   useComponent,
   useEntityContext
@@ -50,7 +51,7 @@ export const NetworkObjectComponent = defineComponent({
   name: 'NetworkObjectComponent',
 
   schema: {
-    networkId: ECS.Types.ui32
+    networkId: Types.ui32
   },
 
   onInit: (initial) => {

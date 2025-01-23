@@ -49,7 +49,7 @@ import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/Scene
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { GLTFSnapshotAction } from './GLTFModifiedState'
-import { GLTFSnapshotState, AssetState } from './GLTFState'
+import { AssetState, GLTFSnapshotState } from './GLTFState'
 
 const assertSignificantFigures = (actual: number[], expected: number[], figures = 8) => {
   assert.deepStrictEqual(toSignificantFigures(actual, figures), toSignificantFigures(expected, figures))

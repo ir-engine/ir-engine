@@ -28,7 +28,7 @@ Infinite Reality Engine. All Rights Reserved.
  * @todo Write the `fileoverview` for `ComponentFunctions.ts`
  */
 import * as bitECS from 'bitecs'
-import React, { useEffect } from 'react'
+import React from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
 
@@ -51,11 +51,11 @@ import { ECSState } from './ECSState'
 import { Easing, EasingFunction } from './EasingFunctions'
 import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext, entityExists, removeEntity } from './EntityFunctions'
-import { createEntity } from './createEntity'
-import { Kind, Static, Schema as TSchema, TTypedSchema } from './schemas/JSONSchemaTypes'
 import { defineQuery, removeQuery } from './QueryFunctions'
 import { Transitionable, TransitionableTypes, getTransitionableKeyForType } from './Transitionable'
 import * as bitECSLegacy from './bitecsLegacy'
+import { createEntity } from './createEntity'
+import { Kind, Static, Schema as TSchema, TTypedSchema } from './schemas/JSONSchemaTypes'
 import {
   CreateSchemaValue,
   DeserializeSchemaValue,
@@ -335,60 +335,7 @@ export const defineComponent = <
     SOAComponent & { setTransition: typeof setTransition }
   Component.isComponent = true
 
-  // Memoize as much tree walking as possible during component creation
-  const hasSchemaInitializers = schemaIsJSONSchema(def.schema) && HasSchemaDeserializers(def.schema)
-  const hasRequiredSchema = schemaIsJSONSchema(def.schema) && HasRequiredSchema(def.schema)
-  const hasSchemaValidators = schemaIsJSONSchema(def.schema) && HasSchemaValidators(def.schema)
-  const isSingleValueSchema = schemaIsJSONSchema(def.schema) && IsSingleValueSchema(def.schema)
-
-  Component.onSet = (entity, component, json) => {
-    if (schemaIsJSONSchema(def.schema)) {
-      if (hasRequiredSchema) {
-        const [valid, key] = HasRequiredSchemaValues(def.schema as TSchema, json)
-        if (!valid) throw new Error(`${def.name}:OnSet Missing required value for key ${key}`)
-      }
-
-      if (json === null || json === undefined) return
-
-      const cleanJson = DeserializeSchemaValue(
-        def.schema as TSchema,
-        component.get(NO_PROXY_STEALTH) as ComponentType,
-        json as any
-      )
-
-      if (cleanJson === null || cleanJson === undefined) return
-
-      if (hasSchemaValidators) {
-        const [valid, key] = HasValidSchemaValues(
-          def.schema as TSchema,
-          cleanJson as ComponentType,
-          component.get(NO_PROXY_STEALTH) as ComponentType,
-          entity
-        )
-        if (!valid) throw new Error(`${def.name}:OnSet Invalid value for key ${key} ${JSON.stringify(json)}`)
-      }
-
-      if (Array.isArray(cleanJson) || typeof cleanJson !== 'object' || isSingleValueSchema)
-        component.set(cleanJson as ComponentType)
-      else {
-        for (const key of Object.keys(cleanJson)) {
-          ;(component[key] as any).set((_) => cleanJson?.[key])
-        }
-      }
-
-      return
-    }
-
-    if (json === null || json === undefined) return
-
-    // if no schema, just set the json - assume insecure or internal
-    if (Array.isArray(json) || typeof json !== 'object' || isSingleValueSchema) component.set(json as ComponentType)
-    else {
-      for (const key of Object.keys(json)) {
-        ;(component[key] as any).set((_) => json?.[key])
-      }
-    }
-  }
+  Component.onSet = () => {}
   Component.onRemove = () => {}
   Component.toJSON = (component: ComponentType) => {
     return validateComponentSchema(def as any, component) as JSON
@@ -402,7 +349,7 @@ export const defineComponent = <
   // Unfortunately, we can't simply use a single shared state because hookstate will (incorrectly) invalidate other nested states when a single component
   // instance is added/removed, so each component instance has to be isolated from the others.
   Component.valueMap = {}
-  Component.stateMap = {} // hookstate(Component.valueMap) as State<Record<Entity, ComponentType>>
+  Component.stateMap = {}
   if (Component.jsonID) {
     ComponentJSONIDMap.set(Component.jsonID, Component)
     // console.log(`Registered component ${Component.name} with jsonID ${Component.jsonID}`)
@@ -466,17 +413,17 @@ export const getOptionalComponent = <C extends Component>(
   entity: Entity,
   component: C
 ): ComponentType<C> | undefined => {
-  return bitECS.hasComponent(HyperFlux.store, entity, component) ? component.valueMap[entity] : undefined
+  return component.valueMap[entity]
 }
 
 export const getComponent = <C extends Component>(entity: Entity, component: C): ComponentType<C> => {
-  if (!bitECS.hasComponent(HyperFlux.store, entity, component)) {
+  const value = component.valueMap[entity] as ComponentType<C>
+  if (value === undefined) {
     console.warn(
       `[getComponent]: entity ${entity} does not have ${component.name}. This will be an error in the future. Use getOptionalComponent if there is uncertainty over whether or not an entity has the specified component.`
     )
-    return undefined as ComponentType<C>
   }
-  return component.valueMap[entity] as ComponentType<C>
+  return value
 }
 
 const accessor = Symbol('proxied')
@@ -633,14 +580,6 @@ function getLayerRelationsTypes(layer: LayerID): [LayerID, keyof typeof LayerRel
  * */
 function getLayerComponent(entity: Entity) {
   return LayerComponents[LayerComponent.get(entity)]
-}
-
-/**
- * @description Returns true if `@param entity` has a layer component assigned.
- * */
-function hasLayer(entity: Entity): boolean {
-  const layerComponent = LayerFunctions.getLayerComponent(entity)
-  return layerComponent && hasComponent(entity, layerComponent)
 }
 
 /**
@@ -806,10 +745,77 @@ export const LayerFunctions = {
   getLayerRelationsEntities,
   getLayerRelationsTypes,
   getLayerComponent,
-  hasLayer,
   shouldPropagate,
   createLayerPropagationArgs,
   propagateLayer
+}
+
+const _getComponentState = <C extends Component>(entity: Entity, component: C) => {
+  if (!component.stateMap[entity]) {
+    component.stateMap[entity] = hookstate(none, subscribable())
+    // component.stateMap[entity].subscribe(() => {
+    //   component.valueMap[entity] = component.stateMap[entity].get(NO_PROXY_STEALTH)
+    //   LayerFunctions.propagateLayer(entity, component)
+    // })
+  }
+  return component.stateMap[entity]
+}
+
+/**
+ * @todo we used to have some of the conditionals here cached scoped inside onSet,
+ * but now that it is it's own function we may want to precompute and cache these again
+ */
+const _mergeComponentState = <C extends Component>(
+  entity: Entity,
+  component: C,
+  args: SetComponentType<C> | undefined = undefined
+) => {
+  const componentState = component.stateMap[entity]
+
+  if (schemaIsJSONSchema(component.schema)) {
+    if (HasRequiredSchema(component.schema)) {
+      const [valid, key] = HasRequiredSchemaValues(component.schema, args)
+      if (!valid) throw new Error(`${component.name}:OnSet Missing required value for key ${key}`)
+    }
+
+    if (args === null || args === undefined) return
+
+    const cleanJson = DeserializeSchemaValue(component.schema, componentState.get(NO_PROXY_STEALTH), args)
+
+    if (cleanJson === null || cleanJson === undefined) return
+
+    if (HasSchemaValidators(component.schema)) {
+      const [valid, key] = HasValidSchemaValues(
+        component.schema,
+        cleanJson,
+        componentState.get(NO_PROXY_STEALTH),
+        entity
+      )
+      if (!valid) throw new Error(`${component.name}:OnSet Invalid value for key ${key} ${JSON.stringify(args)}`)
+    }
+
+    if (Array.isArray(cleanJson) || typeof cleanJson !== 'object' || IsSingleValueSchema(component.schema))
+      componentState.set(cleanJson)
+    else if (cleanJson) {
+      for (const key of Object.keys(cleanJson)) {
+        componentState[key].set((_) => cleanJson?.[key])
+      }
+    } else {
+      componentState.set(cleanJson as any)
+    }
+
+    return
+  }
+
+  if (args === null || args === undefined) return
+
+  // if no schema, just set the json - assume insecure or internal
+  if (Array.isArray(args) || typeof args !== 'object' || IsSingleValueSchema(component.schema)) componentState.set(args)
+  else if (args) {
+    for (const key of Object.keys(args)) {
+      componentState[key].set((_) => args?.[key])
+    }
+  } else componentState.merge(args)
 }
 
 /**
@@ -841,24 +847,23 @@ export const setComponent = <C extends Component>(
     if (component.storageSize < nextSize) resizeComponent(component, nextSize)
   }
 
-  const componentExists = hasComponent(entity, component)
-  if (!componentExists) {
-    const value = createInitialComponentValue(entity, component)
-    component.stateMap[entity] = hookstate(value, subscribable())
-    component.valueMap[entity] = value
+  const state = _getComponentState(entity, component)
+
+  if (!hasComponent(entity, component)) {
+    state.set(createInitialComponentValue(entity, component))
     bitECS.addComponent(HyperFlux.store, entity, component)
-    component.stateMap[entity].subscribe(() => {
-      component.valueMap[entity] = component.stateMap[entity].get(NO_PROXY_STEALTH)
-      LayerFunctions.propagateLayer(entity, component)
-    })
+    // TODO; can remove when hookstate subscription is working
+    component.valueMap[entity] = component.stateMap[entity].get(NO_PROXY_STEALTH)
   }
 
-  component.onSet(entity, component.stateMap[entity], args)
-  LayerFunctions.propagateLayer(entity, component)
-  // component.valueMap[entity] = component.stateMap[entity].get(NO_PROXY_STEALTH)
-  // LayerFunctions.propagateLayer(entity, component, args)
+  _mergeComponentState(entity, component, args)
+  component.onSet(entity, state, args)
 
-  if (!componentExists && !component.reactorMap.has(entity) && component.reactor) {
+  // TODO; can remove when hookstate subscription is working
+  component.valueMap[entity] = component.stateMap[entity].get(NO_PROXY_STEALTH)
+  LayerFunctions.propagateLayer(entity, component)
+
+  if (!component.reactorMap.has(entity) && component.reactor) {
     const root = startReactor(() => {
       return React.createElement(EntityContext.Provider, { value: entity }, React.createElement(component.reactor, {}))
     }) as ReactorRoot
@@ -908,12 +913,10 @@ export function useHasComponents<C extends Component>(entity: Entity, components
 export const removeComponent = <C extends Component>(entity: Entity, component: C) => {
   if (!hasComponent(entity, component)) return
 
-  if (LayerFunctions.hasLayer(entity)) {
-    const entityLayer = LayerComponent.get(entity)
-    for (const [layer, linkedEntity] of LayerFunctions.getLayerRelationsEntities(entity)) {
-      if (!LayerFunctions.shouldPropagate(entityLayer, layer)) continue
-      removeComponent(linkedEntity, component)
-    }
+  const entityLayer = LayerComponent.get(entity)
+  for (const [layer, linkedEntity] of LayerFunctions.getLayerRelationsEntities(entity)) {
+    if (!LayerFunctions.shouldPropagate(entityLayer, layer)) continue
+    removeComponent(linkedEntity, component)
   }
 
   component.onRemove(entity, component.stateMap[entity]!)
@@ -1015,15 +1018,14 @@ export function _use(promise) {
 export function useComponent<C extends Component>(entity: Entity, component: C): State<ComponentType<C>, Subscribable> {
   if (entity === UndefinedEntity) throw new Error('InvalidUsage: useComponent called with UndefinedEntity')
 
-  const hasCpnt = hasComponent(entity, component)
+  const state = _getComponentState(entity, component)
 
   // use() will suspend the component (by throwing a promise) and resume when the promise is resolved
-  if (!hasCpnt) {
-    component.stateMap[entity] = hookstate(none, subscribable())
-    ;(React.use ?? _use)(component.stateMap[entity].promise!)
+  if (state.promise) {
+    ;(React.use ?? _use)(state.promise)
   }
 
-  return useHookstate(component.stateMap[entity]) as State<ComponentType<C>, Subscribable>
+  return useHookstate(state) as State<ComponentType<C>, Subscribable>
 }
 
 /**
@@ -1033,13 +1035,8 @@ export function useOptionalComponent<C extends Component>(
   entity: Entity,
   component: C
 ): State<ComponentType<C>, Subscribable> | undefined {
-  const hasCpnt = hasComponent(entity, component)
-  if (!hasCpnt) {
-    component.stateMap[entity] = hookstate(none, subscribable())
-  }
-
-  const componentState = useHookstate(component.stateMap[entity]) as State<ComponentType<C>, Subscribable>
-  return !hasCpnt ? undefined : componentState
+  const componentState = useHookstate(_getComponentState(entity, component)) as State<ComponentType<C>, Subscribable>
+  return componentState.promised ? undefined : componentState
 }
 
 export const getComponentCountOfType = <C extends Component>(component: C): number => {

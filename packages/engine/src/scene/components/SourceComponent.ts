@@ -49,7 +49,6 @@ export const SourceComponent = defineComponent({
     } else {
       if (!entitiesBySourceState.value.includes(entity)) entitiesBySourceState.merge([entity])
     }
-    component.set(source)
   },
 
   onRemove: (entity, component) => {
