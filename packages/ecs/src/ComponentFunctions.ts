@@ -46,6 +46,7 @@ import {
   startReactor,
   useHookstate
 } from '@ir-engine/hyperflux'
+import { Subscribable, subscribable } from '@hookstate/subscribable'
 import { ECSState } from './ECSState'
 import { Easing, EasingFunction } from './EasingFunctions'
 import { Entity, UndefinedEntity } from './Entity'
@@ -67,6 +68,7 @@ import {
   SerializeSchema
 } from './schemas/JSONSchemaUtils'
 import { S } from './schemas/JSONSchemas'
+import { error } from 'console'
 
 export const ComponentMap = new Map<string, Component<any, any, any, any, any, any>>()
 export const ComponentJSONIDMap = new Map<string, Component<any, any, any, any, any, any>>() // <jsonID, Component>
@@ -186,8 +188,8 @@ export interface Component<
   onRemove: (entity: Entity, component: State<ComponentType>) => void
   reactor?: any
   reactorMap: Map<Entity, ReactorRoot>
-  stateMap: Record<Entity, State<ComponentType>>
-  // valueMap: Record<Entity, ComponentType>
+  stateMap: Record<Entity, State<ComponentType, Subscribable>>
+  valueMap: Record<Entity, ComponentType>
   errors: ErrorTypes[]
   storageSize: number
   __ComponentType: ComponentType
@@ -368,12 +370,10 @@ export const defineComponent = <
 
       if (Array.isArray(cleanJson) || typeof cleanJson !== 'object' || isSingleValueSchema)
         component.set(cleanJson as ComponentType)
-      else if (cleanJson) {
+      else {
         for (const key of Object.keys(cleanJson)) {
           ;(component[key] as any).set((_) => cleanJson?.[key])
         }
-      } else {
-        component.set(cleanJson as any)
       }
 
       return
@@ -383,11 +383,11 @@ export const defineComponent = <
 
     // if no schema, just set the json - assume insecure or internal
     if (Array.isArray(json) || typeof json !== 'object' || isSingleValueSchema) component.set(json as ComponentType)
-    else if (json) {
+    else {
       for (const key of Object.keys(json)) {
         ;(component[key] as any).set((_) => json?.[key])
       }
-    } else component.merge(json as SetPartialStateAction<ComponentType>)
+    }
   }
   Component.onRemove = () => {}
   Component.toJSON = (component: ComponentType) => {
@@ -401,7 +401,7 @@ export const defineComponent = <
   // We have to create an stateful existence map in order to reactively track which entities have a given component.
   // Unfortunately, we can't simply use a single shared state because hookstate will (incorrectly) invalidate other nested states when a single component
   // instance is added/removed, so each component instance has to be isolated from the others.
-  // Component.valueMap = {}
+  Component.valueMap = {}
   Component.stateMap = {} // hookstate(Component.valueMap) as State<Record<Entity, ComponentType>>
   if (Component.jsonID) {
     ComponentJSONIDMap.set(Component.jsonID, Component)
@@ -442,13 +442,16 @@ export const defineComponent = <
 export const getOptionalMutableComponent = <C extends Component>(
   entity: Entity,
   component: C
-): State<ComponentType<C>> | undefined => {
+): State<ComponentType<C>, Subscribable> | undefined => {
   return !bitECS.hasComponent(HyperFlux.store, entity, component)
     ? undefined
-    : (component.stateMap[entity]! as State<ComponentType<C>> | undefined)
+    : (component.stateMap[entity]! as State<ComponentType<C>, Subscribable> | undefined)
 }
 
-export const getMutableComponent = <C extends Component>(entity: Entity, component: C): State<ComponentType<C>> => {
+export const getMutableComponent = <C extends Component>(
+  entity: Entity,
+  component: C
+): State<ComponentType<C>, Subscribable> => {
   const componentState = getOptionalMutableComponent(entity, component)
   if (componentState === undefined) {
     console.warn(
@@ -463,7 +466,7 @@ export const getOptionalComponent = <C extends Component>(
   entity: Entity,
   component: C
 ): ComponentType<C> | undefined => {
-  return bitECS.hasComponent(HyperFlux.store, entity, component) ? component.stateMap[entity].get(NO_PROXY_STEALTH) : undefined
+  return bitECS.hasComponent(HyperFlux.store, entity, component) ? component.valueMap[entity] : undefined
 }
 
 export const getComponent = <C extends Component>(entity: Entity, component: C): ComponentType<C> => {
@@ -473,7 +476,7 @@ export const getComponent = <C extends Component>(entity: Entity, component: C):
     )
     return undefined as ComponentType<C>
   }
-  return component.stateMap[entity].get(NO_PROXY_STEALTH) //component.valueMap[entity] as ComponentType<C>
+  return component.valueMap[entity] as ComponentType<C>
 }
 
 const accessor = Symbol('proxied')
@@ -610,7 +613,11 @@ export const resizeComponent = (component: Component, size: number) => {
  *  ```
  * */
 function getLayerRelationsEntities(entity: Entity): [LayerID, Entity][] {
-  return Object.entries(getComponent(entity, LayerFunctions.getLayerComponent(entity)).relations).map(
+  const LayerComponent = LayerFunctions.getLayerComponent(entity)
+  if (!LayerComponent) return []
+  const layer = getOptionalComponent(entity, LayerComponent)
+  if (!layer) return []
+  return Object.entries(layer.relations).map(
     ([layer, val]): [LayerID, Entity] => [Number(layer), val] as [LayerID, Entity]
   )
 }
@@ -647,151 +654,123 @@ function shouldPropagate(entityLayer: LayerID, layer: LayerID): boolean {
  * @description Runs the `@param linkedLayer` propagation process for the schema of the given `@param C` Component
  * @note Checking whether this process/behavior should be run or not is done with the {@link shouldPropagate} helper function.
  * */
-function propagateSchema<C extends Component>(
-  entity: Entity,
-  linkedLayer: LayerID,
-  component: C,
-  args: SetComponentType<C> | undefined = undefined
-) {
-  if (!args || !component.schema) return args
+function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedLayer: LayerID, component: C) {
+  if (!component.schema) return
   const componentSchema = component.schema as TTypedSchema<C>
   const layer = LayerComponent.get(entity)
 
-  const parseSchema = (schema: TTypedSchema<C>, key: string | number, obj: any) => {
-    if (!schema) return
-    const currentArg = key === '' ? obj : obj[key]
+  const createArgs = (schema: TTypedSchema<C>, key: string | number, data: any) => {
+    const obj = key === '' ? data : data[key]
+    if (obj === undefined || obj == null || obj === UndefinedEntity) return obj
 
-    if ((schema[Kind] as any) === 'Number' && schema?.options?.['id'] === 'Entity' && currentArg !== UndefinedEntity) {
-      const referencedEntity = currentArg as Entity
+    switch (schema[Kind] as any) {
+      case 'Null':
+      case 'Undefined':
+      case 'Void':
+      case 'Bool':
+      case 'String':
+      case 'Enum':
+      case 'Literal': {
+        return obj
+      }
+      case 'Number': {
+        if ((schema[Kind] as any) === 'Number' && schema?.options?.['id'] === 'Entity') {
+          const referencedEntity = obj as Entity
 
-      // if the entity is already in the linked layer, return the current arg
-      if (LayerComponent.get(referencedEntity) === linkedLayer) return referencedEntity
+          // if the entity is already in the linked layer, return the current arg
+          if (LayerComponent.get(referencedEntity) === linkedLayer) return referencedEntity
 
-      // otherwise return the linked entity
-      return getComponent(referencedEntity, LayerComponents[layer]).relations[linkedLayer]
-    } else {
-      switch (schema[Kind] as any) {
-        case 'Null':
-        case 'Undefined':
-        case 'Void':
-        case 'Number':
-        case 'Bool':
-        case 'String':
-        case 'Enum':
-        case 'Literal': {
-          return currentArg
+          // otherwise return the linked entity
+          return getComponent(referencedEntity, LayerComponents[layer]).relations[linkedLayer]
+        } else {
+          return obj
         }
-        case 'Class': {
-          let deserializedClass = currentArg
-          if (typeof currentArg !== 'object') {
-            if (schema.options?.id === 'SerializedClass') {
-              deserializedClass = DeserializeSchemaValue(schema, null, currentArg)
-            } else {
-              throw new Error(`[propagateSchema]: ${entity} ${component.name} ${key} is not a class`)
+      }
+      case 'Any': {
+        if (typeof obj === 'object' && 'clone' in obj && typeof obj.clone === 'function') {
+          return obj.clone()
+        } else if (Array.isArray(obj)) {
+          return [...obj] as any[]
+        } else {
+          return structuredClone(obj)
+        }
+      }
+      case 'Class': {
+        if ('clone' in obj && typeof obj.clone === 'function') {
+          return obj.clone()
+        } else {
+          try {
+            return structuredClone(obj)
+          } catch (error) {
+            throw new Error(
+              `[propagateSchema]: ${entity} ${component.name} ${key} is not a cloneable class. ` + error.message
+            )
+          }
+        }
+      }
+      case 'Object': {
+        const props = schema.properties as any
+        const args = {} as any
+        for (const k in props) {
+          const parsed = createArgs(props[k], k, obj)
+          args[k] = parsed
+        }
+        return args
+      }
+      case 'Record': {
+        const { key, value } = schema.properties as { key: any; value: any }
+        const args = {} as any
+        for (const k in obj) {
+          const parsed = createArgs(value, k, obj)
+          args[k] = parsed
+        }
+        return args
+      }
+      case 'Array': {
+        const props = schema.properties as any
+        const args = [] as any[]
+        for (let i = 0; i < obj.length; i++) {
+          const parsed = createArgs(props, i, obj)
+          args[i] = parsed
+        }
+        return args
+      }
+      case 'Tuple': {
+        const props = schema.properties as any
+        const args = [] as any[]
+        for (let i = 0; i < props.length; i++) {
+          const parsed = createArgs(props[i], i, obj)
+          args[i] = parsed
+        }
+        return args
+      }
+      case 'Union': {
+        const props = schema.properties as any
+        for (const prop of props) {
+          const parsed = createArgs(prop, '', obj)
+          if (parsed) return parsed
+        }
+        return null
+      }
+      default: {
+        let props = schema.properties as any
+        if (!props) {
+          // must be SoA data
+          if (typeof obj === 'object') {
+            props = {
+              properties: Object.fromEntries(Object.keys(schema).map((key) => [key, { [Kind]: 'Any' }])),
+              [Kind]: 'Object'
             }
-          }
-          if (deserializedClass === null || deserializedClass === undefined) return null
-          if ('clone' in deserializedClass && typeof deserializedClass.clone === 'function') {
-            return deserializedClass.clone()
-          } else {
-            try {
-              return structuredClone(deserializedClass)
-            } catch (e) {
-              throw new Error(`[propagateSchema]: ${entity} ${component.name} ${key} is not a cloneable class`)
-            }
+          } else if (typeof obj === 'number') {
+            return obj
           }
         }
-        case 'Array': {
-          const props = schema.properties as any
-          for (let i = 0; i < currentArg.length; i++) {
-            const parsed = parseSchema(props, i, currentArg)
-            currentArg[i] = parsed
-          }
-          return currentArg
-        }
-        case 'Tuple': {
-          const props = schema.properties as any
-          for (let i = 0; i < props.length; i++) {
-            const parsed = parseSchema(props[i], i, currentArg)
-            currentArg[i] = parsed
-          }
-          return currentArg
-        }
-        case 'Func':
-          // noop
-          break
-        case 'Any': {
-          switch (typeof currentArg) {
-            case 'number':
-            case 'string':
-            case 'boolean':
-              return currentArg
-            case 'object':
-              if (currentArg === null) {
-                return null
-              } else if ('clone' in currentArg && typeof currentArg.clone === 'function') {
-                return currentArg.clone()
-              } else if (Array.isArray(currentArg)) {
-                const props = schema.properties as any
-                for (let i = 0; i < currentArg.length; i++) {
-                  const parsed = parseSchema(props, i, currentArg)
-                  currentArg[i] = parsed
-                }
-                return currentArg
-              } else {
-                const s = schema.properties as any
-                for (const k in currentArg) {
-                  const parsed = parseSchema(s, k, currentArg)
-                  currentArg[k] = parsed
-                }
-                return currentArg
-              }
-            default:
-              break
-          }
-        }
-        case 'Object': {
-          const s = schema.properties as any
-          for (const k in currentArg) {
-            const parsed = parseSchema(s[k], k, currentArg)
-            currentArg[k] = parsed
-          }
-          return currentArg
-        }
-        case 'Record': {
-          const { key, value } = schema.properties as { key: any; value: any }
-          for (const k in currentArg) {
-            const parsed = parseSchema(value, k, currentArg)
-            currentArg[k] = parsed
-          }
-          return currentArg
-        }
-
-        case 'Union': {
-          const schemas = schema.properties as any[]
-          /** @todo how do we handle this properly? */
-          for (const s of schemas) {
-            const parsed = parseSchema(s, key, obj)
-            if (parsed) return parsed
-          }
-
-          return currentArg
-        }
-        case 'Partial':
-        case 'Required':
-        case 'NonSerialized': {
-          const s = schema.properties as any
-          return parseSchema(s, key, obj)
-        }
-
-        default: {
-          return currentArg
-        }
+        return createArgs(props, '', obj)
       }
     }
   }
 
-  return parseSchema(componentSchema, '', args)
+  return createArgs(componentSchema, '', getComponent(entity, component))
 }
 
 /**
@@ -801,16 +780,16 @@ function propagateSchema<C extends Component>(
  *
  * @note Checking whether this process/behavior should be run or not is done with the {@link shouldPropagate} helper function.
  * */
-function propagateLayer<C extends Component>(
-  entity: Entity,
-  component: C,
-  args: SetComponentType<C> | undefined = undefined
-) {
+function propagateLayer<C extends Component>(entity: Entity, component: C) {
   if ((component as any) === LayerComponent || LayerComponents.includes(component as any)) return
   const entityLayer = LayerComponent.get(entity)
   for (const [linkedLayer, linkedEntity] of LayerFunctions.getLayerRelationsEntities(entity)) {
+    if (!hasComponent(entity, component)) {
+      removeComponent(linkedEntity, component)
+      continue
+    }
     if (!LayerFunctions.shouldPropagate(entityLayer, linkedLayer)) continue
-    const newArgs = LayerFunctions.propagateSchema(entity, linkedLayer, component, args)
+    const newArgs = LayerFunctions.createLayerPropagationArgs(entity, linkedLayer, component)
     setComponent(linkedEntity, component, newArgs)
   }
 }
@@ -829,7 +808,7 @@ export const LayerFunctions = {
   getLayerComponent,
   hasLayer,
   shouldPropagate,
-  propagateSchema,
+  createLayerPropagationArgs,
   propagateLayer
 }
 
@@ -865,23 +844,19 @@ export const setComponent = <C extends Component>(
   const componentExists = hasComponent(entity, component)
   if (!componentExists) {
     const value = createInitialComponentValue(entity, component)
-    const state = hookstate(value)//, subscribable())
-    component.stateMap[entity] = state
-    // state.subscribe<SetComponentType<C>>((v) => {
-    //   if (!bitECS.hasComponent(HyperFlux.store, entity, component)) return
-    //   console.log('subscribed', entity, component.name, v)
-    //   // component.valueMap[entity] = v.get(NO_PROXY_STEALTH)
-    //   component.valueMap[entity] = component.stateMap[entity].get(NO_PROXY_STEALTH)
-    //   LayerFunctions.propagateLayer(entity, component, component.valueMap[entity])
-    // })
-    // component.valueMap[entity] = value
+    component.stateMap[entity] = hookstate(value, subscribable())
+    component.valueMap[entity] = value
     bitECS.addComponent(HyperFlux.store, entity, component)
+    component.stateMap[entity].subscribe(() => {
+      component.valueMap[entity] = component.stateMap[entity].get(NO_PROXY_STEALTH)
+      LayerFunctions.propagateLayer(entity, component)
+    })
   }
 
   component.onSet(entity, component.stateMap[entity], args)
+  LayerFunctions.propagateLayer(entity, component)
   // component.valueMap[entity] = component.stateMap[entity].get(NO_PROXY_STEALTH)
-
-  LayerFunctions.propagateLayer(entity, component, args)
+  // LayerFunctions.propagateLayer(entity, component, args)
 
   if (!componentExists && !component.reactorMap.has(entity) && component.reactor) {
     const root = startReactor(() => {
@@ -948,7 +923,7 @@ export const removeComponent = <C extends Component>(entity: Entity, component: 
   if (root?.isRunning) root.stop()
   /** clear state data after reactor stops, to ensure hookstate is still referenceable */
   component.stateMap[entity]?.set(none)
-  // delete component.valueMap[entity]
+  delete component.valueMap[entity]
 }
 
 /**
@@ -1037,19 +1012,18 @@ export function _use(promise) {
 /**
  * Use a component in a reactive context (a React component)
  */
-export function useComponent<C extends Component>(entity: Entity, component: C): State<ComponentType<C>> {
+export function useComponent<C extends Component>(entity: Entity, component: C): State<ComponentType<C>, Subscribable> {
   if (entity === UndefinedEntity) throw new Error('InvalidUsage: useComponent called with UndefinedEntity')
 
   const hasCpnt = hasComponent(entity, component)
-  const componentState = useHookstate(component.stateMap[entity]) as State<ComponentType<C>>
 
   // use() will suspend the component (by throwing a promise) and resume when the promise is resolved
   if (!hasCpnt) {
-    component.stateMap[entity] = hookstate(none)
+    component.stateMap[entity] = hookstate(none, subscribable())
     ;(React.use ?? _use)(component.stateMap[entity].promise!)
   }
 
-  return componentState
+  return useHookstate(component.stateMap[entity]) as State<ComponentType<C>, Subscribable>
 }
 
 /**
@@ -1058,13 +1032,13 @@ export function useComponent<C extends Component>(entity: Entity, component: C):
 export function useOptionalComponent<C extends Component>(
   entity: Entity,
   component: C
-): State<ComponentType<C>> | undefined {
+): State<ComponentType<C>, Subscribable> | undefined {
   const hasCpnt = hasComponent(entity, component)
   if (!hasCpnt) {
-    component.stateMap[entity] = hookstate(none)
+    component.stateMap[entity] = hookstate(none, subscribable())
   }
 
-  const componentState = useHookstate(component.stateMap[entity]) as State<ComponentType<C>>
+  const componentState = useHookstate(component.stateMap[entity]) as State<ComponentType<C>, Subscribable>
   return !hasCpnt ? undefined : componentState
 }
 

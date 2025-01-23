@@ -47,7 +47,7 @@ export const SourceComponent = defineComponent({
     if (!entitiesBySourceState.value) {
       entitiesBySourceState.set([entity])
     } else {
-      entitiesBySourceState.merge([entity])
+      if (!entitiesBySourceState.value.includes(entity)) entitiesBySourceState.merge([entity])
     }
     component.set(source)
   },
