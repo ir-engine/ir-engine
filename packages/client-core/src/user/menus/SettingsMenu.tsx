@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import multiLogger from '@ir-engine/common/src/logger'
 import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
-import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
+import { useMutableState } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
@@ -93,7 +93,9 @@ function GeneralTab() {
 
 function AudioTab() {
   const { t } = useTranslation()
-  const audioState = getMutableState(AudioState)
+  const audioState = useMutableState(AudioState)
+  console.log('debug1 the audiostate', audioState)
+
   return (
     <div className="w-[594px]">
       {isChromeDesktop && (
@@ -108,7 +110,7 @@ function AudioTab() {
           label={(<label className="text-[#080808]">{t('user:usermenu.setting.use-positional-media')}</label>) as any}
           checked={audioState.positionalMedia.value}
           onChange={(value: boolean) => {
-            getMutableState(AudioState).positionalMedia.set(value)
+            audioState.positionalMedia.set(value)
             logger.info({ event_name: `spatial_user_av`, event_value: value })
           }}
         />
@@ -120,7 +122,7 @@ function AudioTab() {
           step={0.01}
           value={audioState.masterVolume.value}
           onChange={(value: number) => {
-            getMutableState(AudioState).masterVolume.set(value)
+            audioState.masterVolume.set(value)
             logger.info({ event_name: `set_total_volume`, event_value: value })
           }}
           onRelease={() => {}}
@@ -138,7 +140,7 @@ function AudioTab() {
           step={0.01}
           value={audioState.microphoneGain.value}
           onChange={(value: number) => {
-            getMutableState(AudioState).microphoneGain.set(value)
+            audioState.microphoneGain.set(value)
             logger.info({ event_name: `set_microphone_volume`, event_value: value })
           }}
           onRelease={() => {}}
@@ -156,7 +158,7 @@ function AudioTab() {
           step={0.01}
           value={audioState.mediaStreamVolume.value}
           onChange={(value: number) => {
-            getMutableState(AudioState).mediaStreamVolume.set(value)
+            audioState.mediaStreamVolume.set(value)
             logger.info({ event_name: `set_user_volume`, event_value: value })
           }}
           onRelease={() => {}}
@@ -176,7 +178,7 @@ function AudioTab() {
           step={0.01}
           value={audioState.notificationVolume.value}
           onChange={(value: number) => {
-            getMutableState(AudioState).notificationVolume.set(value)
+            audioState.notificationVolume.set(value)
             logger.info({ event_name: `set_notification_volume`, event_value: value })
           }}
           onRelease={() => {}}
@@ -194,7 +196,7 @@ function AudioTab() {
           step={0.01}
           value={audioState.soundEffectsVolume.value}
           onChange={(value: number) => {
-            getMutableState(AudioState).soundEffectsVolume.set(value)
+            audioState.soundEffectsVolume.set(value)
             logger.info({ event_name: `set_scene_volume`, event_value: value })
           }}
           onRelease={() => {}}
@@ -212,7 +214,7 @@ function AudioTab() {
           step={0.01}
           value={audioState.backgroundMusicVolume.value}
           onChange={(value: number) => {
-            getMutableState(AudioState).backgroundMusicVolume.set(value)
+            audioState.backgroundMusicVolume.set(value)
             logger.info({ event_name: `set_music_volume`, event_value: value })
           }}
           onRelease={() => {}}
