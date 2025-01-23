@@ -27,7 +27,6 @@ import { useEffect } from 'react'
 import {
   CubeReflectionMapping,
   CubeTexture,
-  EquirectangularReflectionMapping,
   Material,
   Mesh,
   MeshStandardMaterial,
@@ -51,7 +50,6 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { setPlugin } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
-import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import {
   envmapParsReplaceLambert,
   envmapPhysicalParsReplace,
@@ -124,7 +122,7 @@ const EnvmapProbesReactor = () => {
 
 export const EnvMapComponent = defineComponent({
   name: 'EnvMapComponent',
-  // jsonID: 'EE_envmap',
+  jsonID: 'EE_envmap',
 
   schema: S.Object({
     type: S.LiteralUnion(Object.values(EnvMapSourceType), EnvMapSourceType.Skybox),
@@ -167,39 +165,6 @@ export const EnvMapComponent = defineComponent({
 
   errors: ['MISSING_FILE']
 })
-
-export const EnvMapSpecificationComponent = defineComponent({
-  name: 'EnvmapSpecificationComponent',
-  jsonID: 'EE_envmap',
-  schema: EnvMapComponent.schema,
-  errors: EnvMapComponent.errors
-})
-
-const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Entity }) => {
-  const { envmapEntity, bakeEntity } = props
-  const bakeComponent = useComponent(bakeEntity, EnvMapBakeComponent)
-
-  const [envMaptexture, error] = useTexture(bakeComponent.envMapOrigin.value, envmapEntity)
-
-  useEffect(() => {
-    const texture = envMaptexture
-    if (!texture) return
-    texture.mapping = EquirectangularReflectionMapping
-    ;(getMutableComponent(envmapEntity, MaterialStateComponent).material as State<MeshStandardMaterial>).envMap.set(
-      texture
-    )
-    if (bakeComponent.boxProjection.value) {
-      //set the box projection plugin
-    }
-  }, [envMaptexture])
-
-  useEffect(() => {
-    if (!error) return
-    addError(envmapEntity, EnvMapComponent, 'MISSING_FILE', 'EnvMap bake texture not found!')
-  }, [error])
-
-  return null
-}
 
 export const BoxProjectionPlugin = defineComponent({
   name: 'BoxProjectionPlugin',

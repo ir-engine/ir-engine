@@ -29,7 +29,7 @@ import { useTranslation } from 'react-i18next'
 import { UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvMapBakeComponent'
-import { EnvMapComponent, EnvMapSpecificationComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
+import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { EnvMapSourceType } from '@ir-engine/engine/src/scene/constants/EnvMapEnum'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -66,17 +66,17 @@ export const EnvMapEditor: EditorComponentType = (props) => {
 
   const onChangeCubemapURLSource = useCallback((value) => {
     const directory = value[value.length - 1] === '/' ? value.substring(0, value.length - 1) : value
-    commitProperty(EnvMapSpecificationComponent, 'envMapCubemapURL')(directory)
+    commitProperty(EnvMapComponent, 'envMapCubemapURL')(directory)
   }, [])
 
-  const envmapComponent = useComponent(entity, EnvMapSpecificationComponent)
+  const envmapComponent = useComponent(entity, EnvMapComponent)
 
-  const errors = getEntityErrors(props.entity, EnvMapSpecificationComponent)
+  const errors = getEntityErrors(props.entity, EnvMapComponent)
 
   return (
     <NodeEditor
       {...props}
-      component={EnvMapSpecificationComponent}
+      component={EnvMapComponent}
       name={t('editor:properties.envmap.name')}
       description={t('editor:properties.envmap.description')}
       Icon={EnvMapEditor.iconComponent}
@@ -86,15 +86,15 @@ export const EnvMapEditor: EditorComponentType = (props) => {
           key={props.entity}
           options={EnvMapSourceOptions}
           value={envmapComponent.type.value}
-          onChange={commitProperty(EnvMapSpecificationComponent, 'type')}
+          onChange={commitProperty(EnvMapComponent, 'type')}
         />
       </InputGroup>
       {envmapComponent.type.value === EnvMapSourceType.Color && (
         <InputGroup name="EnvMapColor" label={t('editor:properties.envmap.lbl-color')}>
           <ColorInput
             value={envmapComponent.envMapSourceColor.value}
-            onChange={commitProperty(EnvMapSpecificationComponent, 'envMapSourceColor')}
-            onRelease={commitProperty(EnvMapSpecificationComponent, 'envMapSourceColor')}
+            onChange={commitProperty(EnvMapComponent, 'envMapSourceColor')}
+            onRelease={commitProperty(EnvMapComponent, 'envMapSourceColor')}
           />
         </InputGroup>
       )}
@@ -103,7 +103,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
           <SelectInput
             options={bakeEntities}
             value={envmapComponent.envMapSourceEntityUUID.value}
-            onChange={commitProperty(EnvMapSpecificationComponent, 'envMapSourceEntityUUID')}
+            onChange={commitProperty(EnvMapComponent, 'envMapSourceEntityUUID')}
           />
         </InputGroup>
       )}
@@ -117,7 +117,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
             {envmapComponent.type.value === EnvMapSourceType.Equirectangular && (
               <ImageLink
                 src={envmapComponent.envMapSourceURL.value}
-                onBlur={commitProperty(EnvMapSpecificationComponent, 'envMapSourceURL')}
+                onBlur={commitProperty(EnvMapComponent, 'envMapSourceURL')}
               />
             )}
             {errors?.MISSING_FILE && (
@@ -144,8 +144,8 @@ export const EnvMapEditor: EditorComponentType = (props) => {
           step={0.01}
           max={10}
           value={envmapComponent.envMapIntensity.value}
-          onChange={updateProperty(EnvMapSpecificationComponent, 'envMapIntensity')}
-          onRelease={commitProperty(EnvMapSpecificationComponent, 'envMapIntensity')}
+          onChange={updateProperty(EnvMapComponent, 'envMapIntensity')}
+          onRelease={commitProperty(EnvMapComponent, 'envMapIntensity')}
           aria-label="EnvMap Intensity"
           label={t('editor:properties.envmap.lbl-intensity')}
           info={t('editor:properties.envmap.info-intensity')}
