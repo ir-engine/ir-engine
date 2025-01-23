@@ -37,6 +37,7 @@ import {
 } from '@ir-engine/ecs'
 import { NO_PROXY, useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
+import { ActiveHelperComponent } from '../../../common/ActiveHelperComponent'
 import { useHelperEntity } from '../../../common/debug/useHelperEntity'
 import { T } from '../../../schema/schemaFunctions'
 import { isMobileXRHeadset } from '../../../xr/XRState'
@@ -62,10 +63,11 @@ export const PointLightComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const renderState = useMutableState(RendererState)
-    const debugEnabled = renderState.nodeHelperVisibility
+    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
+    const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
     const pointLightComponent = useComponent(entity, PointLightComponent)
     const light = useHookstate(() => new PointLight()).value as PointLight
-    const helperEntity = useHelperEntity(entity, () => new PointLightHelper(light), debugEnabled.value)
+    const helperEntity = useHelperEntity(entity, () => new PointLightHelper(light), debugEnabled)
     const helper = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as PointLightHelper | undefined
 
     useImmediateEffect(() => {

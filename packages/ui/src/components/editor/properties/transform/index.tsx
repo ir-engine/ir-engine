@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 import { Quaternion, Vector3 } from 'three'
 
 import { getComponent, useComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { SceneDynamicLoadTagComponent } from '@ir-engine/engine/src/scene/components/SceneDynamicLoadTagComponent'
+import { SceneDynamicLoadComponent } from '@ir-engine/engine/src/scene/components/SceneDynamicLoadComponent'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 
 import { LuMove3D } from 'react-icons/lu'
@@ -59,7 +59,7 @@ const scale = new Vector3()
 export const TransformPropertyGroup: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const hasDynamicLoad = !!useOptionalComponent(props.entity, SceneDynamicLoadTagComponent)
+  const hasDynamicLoad = !!useOptionalComponent(props.entity, SceneDynamicLoadComponent)
   const transformComponent = useComponent(props.entity, TransformComponent)
   const transformSpace = useHookstate(getMutableState(EditorHelperState).transformSpace)
 
@@ -79,7 +79,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   const onChangeDynamicLoad = (value) => {
     const selectedEntities = SelectionState.getSelectedEntities()
-    EditorControlFunctions.addOrRemoveComponent(selectedEntities, SceneDynamicLoadTagComponent, value)
+    EditorControlFunctions.addOrRemoveComponent(selectedEntities, SceneDynamicLoadComponent, value)
   }
 
   const onChangePosition = (value: Vector3) => {
@@ -116,9 +116,9 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           <NumericInput
             min={1}
             max={100}
-            value={getComponent(props.entity, SceneDynamicLoadTagComponent).distance}
-            onChange={updateProperty(SceneDynamicLoadTagComponent, 'distance')}
-            onRelease={commitProperty(SceneDynamicLoadTagComponent, 'distance')}
+            value={getComponent(props.entity, SceneDynamicLoadComponent).distance}
+            onChange={updateProperty(SceneDynamicLoadComponent, 'distance')}
+            onRelease={commitProperty(SceneDynamicLoadComponent, 'distance')}
           />
         )}
       </InputGroup>

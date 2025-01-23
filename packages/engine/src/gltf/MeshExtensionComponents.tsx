@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Mesh } from '@gltf-transform/core'
 import {
   ComponentType,
   EntityTreeComponent,
@@ -38,16 +39,7 @@ import {
 import { DirectionalLightComponent, PointLightComponent, SpotLightComponent } from '@ir-engine/spatial'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { useEffect } from 'react'
-import {
-  BufferAttribute,
-  Color,
-  InstancedBufferAttribute,
-  InstancedMesh,
-  Matrix4,
-  Object3D,
-  Quaternion,
-  Vector3
-} from 'three'
+import { BufferAttribute, Color, InstancedBufferAttribute, InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
 import { WEBGL_CONSTANTS } from '../assets/loaders/gltf/GLTFConstants'
 import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
 import { InstancingComponent } from '../scene/components/InstancingComponent'
@@ -253,11 +245,12 @@ export const EXTMeshGPUInstancingComponent = defineComponent({
     }
 
     // Just in case
-    Object3D.prototype.copy.call(instancedMesh, mesh)
+    Mesh.prototype.copy.call(instancedMesh, mesh as any)
 
     instancedMesh.frustumCulled = false
     instancedMesh.instanceMatrix.needsUpdate = true
 
+    removeComponent(entity, MeshComponent)
     setComponent(entity, MeshComponent, instancedMesh)
 
     setComponent(entity, InstancingComponent, {
