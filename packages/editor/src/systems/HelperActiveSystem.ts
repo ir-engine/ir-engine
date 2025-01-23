@@ -25,49 +25,29 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
+import { UUIDComponent } from '@ir-engine/ecs'
 import { removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { SelectTagComponent } from '@ir-engine/engine/src/scene/components/SelectTagComponent'
-import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
-import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
-
-export const SelectionState = defineState({
-  name: 'SelectionState',
-  initial: {
-    selectedEntities: [] as EntityUUID[]
-  },
-  updateSelection: (selectedEntities: EntityUUID[]) => {
-    getMutableState(MaterialSelectionState).selectedMaterial.set(null)
-    getMutableState(SelectionState).merge({
-      selectedEntities: selectedEntities
-    })
-  },
-  getSelectedEntities: () => {
-    return getState(SelectionState).selectedEntities.map(UUIDComponent.getEntityByUUID)
-  },
-
-  useSelectedEntities: () => {
-    return useHookstate(getMutableState(SelectionState).selectedEntities).value.map(UUIDComponent.getEntityByUUID)
-  }
-})
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { SelectionState } from '../services/SelectionServices'
 
 const reactor = () => {
   const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities)
-
+  const rendererState = useHookstate(getMutableState(RendererState))
   useEffect(() => {
     const entities = [...selectedEntities.value].map(UUIDComponent.getEntityByUUID)
     for (const entity of entities) {
       if (!entityExists(entity)) continue
-      setComponent(entity, SelectTagComponent)
+      setComponent(entity, ActiveHelperComponent)
     }
-
     return () => {
       for (const entity of entities) {
         if (!entityExists(entity)) continue
-        removeComponent(entity, SelectTagComponent)
+        removeComponent(entity, ActiveHelperComponent)
       }
     }
   }, [selectedEntities])
@@ -75,8 +55,8 @@ const reactor = () => {
   return null
 }
 
-export const EditorSelectionReceptorSystem = defineSystem({
-  uuid: 'ee.engine.EditorSelectionReceptorSystem',
+export const HelperActiveSystem = defineSystem({
+  uuid: 'ee.engine.HelperActiveSystem',
   insert: { before: PresentationSystemGroup },
   reactor
 })

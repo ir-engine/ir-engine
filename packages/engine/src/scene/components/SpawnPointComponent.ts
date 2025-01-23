@@ -25,15 +25,21 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useLayoutEffect } from 'react'
 
-import { defineComponent, getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  getComponent,
+  setComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEntity, entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
 import { EntityTreeComponent } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformComponent } from '@ir-engine/spatial'
+import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
 import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from 'three'
@@ -51,12 +57,15 @@ export const SpawnPointComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
+    const renderState = useMutableState(RendererState)
+    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
 
-    const debugGLTF = useGLTFComponent(debugEnabled.value ? GLTF_PATH : '', entity)
+    const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
+
+    const debugGLTF = useGLTFComponent(debugEnabled ? GLTF_PATH : '', entity)
 
     useLayoutEffect(() => {
-      if (!debugGLTF || !debugEnabled.value) return
+      if (!debugGLTF || !debugEnabled) return
 
       const boundsHelperEntity = createEntity()
       setComponent(boundsHelperEntity, TransformComponent)
