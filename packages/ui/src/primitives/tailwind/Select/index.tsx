@@ -28,6 +28,7 @@ import { ChevronDownSm, HelpIconSm, XCloseSm } from '@ir-engine/ui/src/icons'
 import Fuse from 'fuse.js'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
+import { Popup } from '../../../components/tailwind/Popup'
 import { DropdownItem } from '../Dropdown'
 import { InputProps, heights } from '../Input'
 import Tooltip from '../Tooltip'
@@ -266,82 +267,84 @@ const Select = ({
             width: variantToWidth[width]
           }}
         >
-          <div
-            tabIndex={0}
-            className={twMerge(
-              `relative flex w-full items-center gap-x-2 rounded-md border-[0.5px] border-[#42454D] bg-[#141619] text-[#9CA0AA] ${
-                heights[inputHeight]
-              } ${disabled && 'cursor-not-allowed bg-[#191B1F] text-[#6B6F78]'} transition-colors duration-300`,
-              'focus:outline-none',
-              state === 'success' && 'border-[#10B981]',
-              state === 'error' && 'border-[#C3324B]'
-            )}
-            onKeyUp={(e) => {
-              if (disabled || !open) return
+          <Popup
+            trigger={
+              <div
+                tabIndex={0}
+                className={twMerge(
+                  `relative flex w-full items-center gap-x-2 rounded-md border-[0.5px] border-[#42454D] bg-[#141619] text-[#9CA0AA] ${
+                    heights[inputHeight]
+                  } ${disabled && 'cursor-not-allowed bg-[#191B1F] text-[#6B6F78]'} transition-colors duration-300`,
+                  'focus:outline-none',
+                  state === 'success' && 'border-[#10B981]',
+                  state === 'error' && 'border-[#C3324B]'
+                )}
+                onKeyUp={(e) => {
+                  if (disabled || !open) return
 
-              let newIndex = activeIndex
+                  let newIndex = activeIndex
 
-              if (activeIndex === -1) {
-                if (e.code === 'ArrowUp') {
-                  newIndex = filteredOptions.length - 1
-                } else if (e.code === 'ArrowDown') {
-                  newIndex = 0
-                }
-              } else if (e.code === 'ArrowUp') {
-                newIndex = (activeIndex - 1 + filteredOptions.length) % filteredOptions.length
-              } else if (e.code === 'ArrowDown') {
-                newIndex = (activeIndex + 1) % filteredOptions.length
-              }
+                  if (activeIndex === -1) {
+                    if (e.code === 'ArrowUp') {
+                      newIndex = filteredOptions.length - 1
+                    } else if (e.code === 'ArrowDown') {
+                      newIndex = 0
+                    }
+                  } else if (e.code === 'ArrowUp') {
+                    newIndex = (activeIndex - 1 + filteredOptions.length) % filteredOptions.length
+                  } else if (e.code === 'ArrowDown') {
+                    newIndex = (activeIndex + 1) % filteredOptions.length
+                  }
 
-              setActiveIndex(newIndex)
-              if (['Enter', ' '].includes(e.code)) {
-                setOpen(false)
-                setLocalValue(filteredOptions[newIndex].value)
-                setSelectedOptionIndex(newIndex)
-                setDisplayText(filteredOptions[newIndex].label)
-                onChange(filteredOptions[newIndex].value)
-              }
-            }}
-          >
-            <input
-              onClick={() => {
-                if (!disabled) {
-                  setOpen((v) => !v)
-                }
-              }}
-              type="text"
-              className={twMerge(
-                'w-full bg-inherit focus:outline-none',
-                searchMode === undefined ? 'cursor-pointer' : 'cursor-text'
-              )}
-              value={displayText}
-              readOnly={searchMode === undefined}
-              onChange={(e) => {
-                if (!open) {
-                  setOpen(true)
-                }
-                setSearchString(e.target.value)
-                setDisplayText(e.target.value)
-              }}
-            />
-
-            {showClearButton && (
-              <XCloseSm
-                onClick={() => {
-                  onChange('')
+                  setActiveIndex(newIndex)
+                  if (['Enter', ' '].includes(e.code)) {
+                    setOpen(false)
+                    setLocalValue(filteredOptions[newIndex].value)
+                    setSelectedOptionIndex(newIndex)
+                    setDisplayText(filteredOptions[newIndex].label)
+                    onChange(filteredOptions[newIndex].value)
+                  }
                 }}
-                className="cursor-pointer"
-              />
-            )}
+              >
+                <input
+                  onClick={() => {
+                    if (!disabled) {
+                      setOpen((v) => !v)
+                    }
+                  }}
+                  type="text"
+                  className={twMerge(
+                    'w-full bg-inherit focus:outline-none',
+                    searchMode === undefined ? 'cursor-pointer' : 'cursor-text'
+                  )}
+                  value={displayText}
+                  readOnly={searchMode === undefined}
+                  onChange={(e) => {
+                    if (!open) {
+                      setOpen(true)
+                    }
+                    setSearchString(e.target.value)
+                    setDisplayText(e.target.value)
+                  }}
+                />
 
-            <ChevronDownSm className={`${open && 'rotate-180'} duration-300`} />
-          </div>
+                {showClearButton && (
+                  <XCloseSm
+                    onClick={() => {
+                      onChange('')
+                    }}
+                    className="cursor-pointer"
+                  />
+                )}
 
-          {open && (
+                <ChevronDownSm className={`${open && 'rotate-180'} duration-300`} />
+              </div>
+            }
+            keepInside
+            position={positioning.direction === 'down' ? 'bottom center' : 'top center'}
+          >
             <div
-              className={`absolute z-50 flex w-full flex-col overflow-y-auto rounded-lg ${
-                positioning.direction === 'down' && 'top-[calc(100%+0.5rem)]'
-              } ${positioning.direction === 'up' && 'bottom-[calc(100%+0.5rem)]'}`}
+              className={`flex w-full flex-col overflow-y-auto rounded-lg`}
               style={{
                 maxHeight: positioning.maxHeight
               }}
@@ -360,21 +363,8 @@ const Select = ({
                       setDisplayText(optionProps.label)
                       onChange(currentValue)
                     }}
-                    onMouseEnter={() => {
-                      setActiveIndex(index)
-                    }}
-                    onMouseLeave={() => {
-                      setActiveIndex(-1)
-                    }}
-                    onKeyUp={(e) => {
-                      if (e.code === 'Enter') {
-                        setOpen(false)
-                        setLocalValue(currentValue)
-                        setSelectedOptionIndex(index)
-                        setDisplayText(optionProps.label)
-                        onChange(currentValue)
-                      }
-                    }}
+                    onMouseEnter={() => setActiveIndex(index)}
+                    onMouseLeave={() => setActiveIndex(-1)}
                   />
                 ))
               ) : (
@@ -382,9 +372,8 @@ const Select = ({
                   No options available
                 </div>
               )}
-              {/* {} */}
             </div>
-          )}
+          </Popup>
         </div>
       </div>
 
