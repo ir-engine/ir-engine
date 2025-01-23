@@ -190,7 +190,7 @@ const loadPrimitive = async (
   if (typeof materialIndex === 'number') {
     materialPromise = getDependency(options, 'material', materialIndex)
   } else {
-    materialPromise = Promise.resolve(defaultMaterial())
+    materialPromise = Promise.resolve(MaterialStateComponent.fallbackMaterial())
   }
 
   const hasDracoCompression = primitiveDef.extensions && primitiveDef.extensions[EXTENSIONS.KHR_DRACO_MESH_COMPRESSION]
@@ -1590,17 +1590,6 @@ const DependencyMap = {
 
 export const getNodeUUID = (node: GLTF.INode, documentID: string, nodeIndex: number) =>
   (node.extensions?.[UUIDComponent.jsonID] as EntityUUID) ?? (`${documentID}-${nodeIndex}` as EntityUUID)
-
-export const defaultMaterial = () =>
-  new MeshStandardMaterial({
-    color: 0xffffff,
-    emissive: 0x000000,
-    metalness: 1,
-    roughness: 1,
-    transparent: false,
-    depthTest: true,
-    side: FrontSide
-  })
 
 export type GLTFParserOptions = {
   url: string

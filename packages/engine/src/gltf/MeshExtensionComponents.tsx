@@ -53,6 +53,7 @@ import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
 import { InstancingComponent } from '../scene/components/InstancingComponent'
 import { getGLTFOptions } from './GLTFComponent'
 import { getDependency, getNodeUUID } from './GLTFLoaderFunctions'
+import { Mesh } from '@gltf-transform/core'
 
 export type KHRPunctualLight = {
   color?: [number, number, number]
@@ -253,11 +254,12 @@ export const EXTMeshGPUInstancingComponent = defineComponent({
     }
 
     // Just in case
-    Object3D.prototype.copy.call(instancedMesh, mesh)
+    Mesh.prototype.copy.call(instancedMesh, mesh as any)
 
     instancedMesh.frustumCulled = false
     instancedMesh.instanceMatrix.needsUpdate = true
 
+    removeComponent(entity, MeshComponent)
     setComponent(entity, MeshComponent, instancedMesh)
 
     setComponent(entity, InstancingComponent, {
