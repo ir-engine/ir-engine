@@ -218,8 +218,10 @@ const loadPrimitive = async (
 
     const promises = [] as Promise<void>[]
 
-    for (const attributeName of Object.keys(attributes)) {
+    for (const attributeName in attributes) {
       const threeAttributeName = ATTRIBUTES[attributeName] || attributeName.toLowerCase()
+      // Skip attributes already provided by e.g. Draco extension.
+      if (threeAttributeName in geometry.attributes) continue
       const attribute = primitiveDef.attributes[attributeName]
       promises.push(
         new Promise<void>(async (resolve) => {
@@ -1241,7 +1243,7 @@ const loadMesh = async (options: GLTFParserOptions, entity: Entity, nodeIndex: n
   //   throw new Error('THREE.GLTFLoader: Primitive mode unsupported: ' + primitive.mode)
   // }
 
-  if (typeof node.skin !== 'undefined') {
+  if (isSkinnedMesh) {
     const skinnedMesh = mesh as SkinnedMesh
     skinnedMesh.skeleton = new Skeleton()
     skinnedMesh.normalizeSkinWeights()
@@ -1487,6 +1489,8 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   }
 
   const animationClips = await Promise.all(animationPromises)
+
+  console.log({animationClips})
 
   if (animationClips.length > 0) {
     const obj3d = getComponent(rootEntity, ObjectComponent)

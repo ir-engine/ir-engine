@@ -25,9 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Mesh } from 'three'
 
-import { useEntityContext } from '@ir-engine/ecs'
-import { defineComponent, getComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useImmediateEffect } from '@ir-engine/hyperflux'
+import { defineComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 
 import { S } from '@ir-engine/ecs'
 import { ObjectComponent } from './ObjectComponent'
@@ -45,62 +43,4 @@ export const MeshComponent = defineComponent({
   onRemove(entity, component) {
     removeComponent(entity, ObjectComponent)
   }
-
-  // reactor: () => {
-  //   const entity = useEntityContext()
-    // const meshComponent = useComponent(entity, MeshComponent)
-    // useResource(getComponent(entity, MeshComponent), entity)
-    // const sceneLayer = useOptionalComponent(entity, ObjectLayerComponents[ObjectLayers.Scene])
-
-    // useImmediateEffect(() => {
-    //   setComponent(entity, ObjectComponent, getComponent(entity, MeshComponent))
-    //   return () => {
-    //     removeComponent(entity, ObjectComponent)
-    //   }
-    // }, [])
-
-    // const geometryValue = meshComponent.geometry.value
-    // const [geometryResource] = useResource(isHookstateValue(geometryValue) ? null : geometryValue, entity)
-
-    // const materialValue = meshComponent.material.value
-    // const [materialResource] = useResource(isHookstateValue(materialValue) ? null : materialValue, entity)
-
-    // useEffect(() => {
-    //   if (!sceneLayer) return
-    //   const box = meshComponent.geometry.boundingBox.get(NO_PROXY) as Box3 | null
-    //   if (!box) return
-
-    //   setComponent(entity, BoundingBoxComponent, { box: box })
-    //   return () => {
-    //     removeComponent(entity, BoundingBoxComponent)
-    //   }
-    // }, [sceneLayer && meshComponent.geometry.value.boundingBox])
-
-    // useEffect(() => {
-    //   const geometry = meshComponent.geometry.value
-    //   if (geometry !== geometryResource.value && !isHookstateValue(geometry)) geometryResource.set(geometry)
-    // }, [meshComponent.geometry])
-
-    // useEffect(() => {
-    //   const material = meshComponent.material.value
-
-    //   if (material !== materialResource.value && !isHookstateValue(material)) materialResource.set(material)
-
-    //   if (Array.isArray(material)) {
-    //     material.forEach((material) => (material.needsUpdate = true))
-    //   } else {
-    //     ;(material as Material).needsUpdate = true
-    //   }
-    // }, [meshComponent.material])
-
-    // useEffect(() => {
-    //   const mesh = meshComponent.value
-    //   if (mesh !== meshResource.value) {
-    //     meshResource.set(mesh)
-    //     setComponent(entity, ObjectComponent, meshResource.get(NO_PROXY) as Mesh)
-    //   }
-    // }, [meshComponent])
-
-    // return null
-  // }
 })
