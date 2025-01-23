@@ -105,9 +105,9 @@ function NewMessage() {
   const usersTyping = useMutableState(AvatarUIState).usersTyping[user?.id.value].value
   const messageMutation = useMutation(messagePath, false)
   const { messages, setNewMessage, isChatOpen, unreadMessages } = useInstanceChatMessages()
-  const textAreaRef = useRef<HTMLTextAreaElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
-  const handleComposedMessage = (event: React.ChangeEvent<HTMLTextAreaElement>): void => {
+  const handleComposedMessage = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const message = event.target.value
     if (message.length > composedMessage.value.length && !usersTyping) {
       dispatchAction(
@@ -145,7 +145,7 @@ function NewMessage() {
           messages.merge([message])
         })
       composedMessage.set('')
-      textAreaRef.current?.focus()
+      inputRef.current?.focus()
     }
   }
 
@@ -174,13 +174,13 @@ function NewMessage() {
       </div>
       {isChatOpen.value && (
         <div className="height-[74px] ml-[13px] flex w-full items-center justify-between rounded-[37px] bg-black/50">
-          <textarea
-            ref={textAreaRef}
+          <input
+            ref={inputRef}
             value={composedMessage.value}
             spellCheck={false}
             autoComplete="off"
             className="my-auto ml-8 mr-4 flex w-full resize-none items-center justify-start bg-transparent text-base text-white outline-none"
-            onKeyUp={(event) => event.key === 'Enter' && !event.shiftKey && sendMessage()}
+            onKeyUp={(event) => event.key === 'Enter' && sendMessage()}
             onChange={handleComposedMessage}
           />
           <span className="m-[5px]">
