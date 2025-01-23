@@ -21,6 +21,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
 import Tooltip, { TooltipProps } from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React from 'react'
+import { IconType } from 'react-icons'
 import { twMerge } from 'tailwind-merge'
 
 export type SVGIconType = React.ForwardRefExoticComponent<
@@ -32,7 +33,7 @@ interface LocationIconButtonProps extends React.HTMLAttributes<HTMLButtonElement
     title: string
     position?: TooltipProps['position']
   }
-  icon: SVGIconType
+  icon: SVGIconType | IconType
   iconProps?: React.SVGProps<SVGSVGElement>
 }
 
@@ -43,7 +44,6 @@ function LocationIconButton({ tooltip, icon: Icon, iconProps, className, ...prop
     return (
       <button
         className={twMerge('flex h-16 w-16 items-center justify-center rounded-full bg-white', className)}
-        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         {...props}
       >

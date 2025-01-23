@@ -36,8 +36,6 @@ import { useMutableState } from '@ir-engine/hyperflux'
 import { useFind } from '@ir-engine/common'
 import { Checkbox, Input } from '@ir-engine/ui'
 import { Copy03Lg, Send01Lg } from '@ir-engine/ui/src/icons'
-import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
-import { PopoverState } from '../../common/services/PopoverState'
 import { InviteService } from '../../social/services/InviteService'
 import { AuthState } from '../services/AuthService'
 
@@ -202,11 +200,7 @@ const ShareMenu = (): JSX.Element => {
   }
 
   return (
-    <Modal
-      title={t('user:usermenu.share.title')}
-      className="pointer-events-auto w-[50vw] max-w-2xl"
-      onClose={PopoverState.hidePopupover}
-    >
+    <div className="relative z-50 h-fit max-h-[60vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-theme-surface-main p-10">
       <div className="mb-3 flex w-full items-center justify-center">
         <div className="flex justify-center gap-x-4">
           <button className="rounded-3xl bg-gray-800 px-6 py-2" onClick={() => window.open(questShareLink, '_blank')}>
@@ -233,6 +227,7 @@ const ShareMenu = (): JSX.Element => {
         />
 
         <Input
+          readOnly
           value={shareLink}
           endComponent={
             <button className="h-4 w-4" onMouseDown={copyLinkToClipboard}>
@@ -288,7 +283,7 @@ const ShareMenu = (): JSX.Element => {
           }}
         />
       </div>
-    </Modal>
+    </div>
   )
 }
 

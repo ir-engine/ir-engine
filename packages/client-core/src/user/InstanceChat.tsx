@@ -28,7 +28,7 @@ import { InstanceID, MessageType, messagePath } from '@ir-engine/common/src/sche
 import { State, dispatchAction, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { MessageTextSquare01Lg, Send01Lg, XCloseLg } from '@ir-engine/ui/src/icons'
-import React, { createContext, useContext, useEffect, useRef } from 'react'
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import { useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
@@ -105,9 +105,9 @@ function NewMessage() {
   const usersTyping = useMutableState(AvatarUIState).usersTyping[user?.id.value].value
   const messageMutation = useMutation(messagePath, false)
   const { messages, setNewMessage, isChatOpen, unreadMessages } = useInstanceChatMessages()
-  const textAreaRef = useRef<HTMLTextAreaElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
-  const handleComposedMessage = (event: React.ChangeEvent<HTMLTextAreaElement>): void => {
+  const handleComposedMessage = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const message = event.target.value
     if (message.length > composedMessage.value.length && !usersTyping) {
       dispatchAction(
@@ -145,7 +145,7 @@ function NewMessage() {
           messages.merge([message])
         })
       composedMessage.set('')
-      textAreaRef.current?.focus()
+      inputRef.current?.focus()
     }
   }
 
@@ -161,6 +161,17 @@ function NewMessage() {
     return () => clearTimeout(delayDebounce)
   }, [composedMessage.value])
 
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    if (!isChatOpen.value || !inputRef.current) {
+      setIsMounted(false)
+      return
+    }
+
+    setIsMounted(true)
+  }, [isChatOpen])
+
   return (
     <div className="mt-5 flex w-full items-center justify-end">
       <div className="relative w-16">
@@ -172,22 +183,25 @@ function NewMessage() {
           onClick={() => isChatOpen.set(!isChatOpen.value)}
         />
       </div>
-      {isChatOpen.value && (
-        <div className="height-[74px] ml-[13px] flex w-full items-center justify-between rounded-[37px] bg-black/50">
-          <textarea
-            ref={textAreaRef}
-            value={composedMessage.value}
-            spellCheck={false}
-            autoComplete="off"
-            className="my-auto ml-8 mr-4 flex w-full resize-none items-center justify-start bg-transparent text-base text-white outline-none"
-            onKeyUp={(event) => event.key === 'Enter' && !event.shiftKey && sendMessage()}
-            onChange={handleComposedMessage}
-          />
-          <span className="m-[5px]">
-            <LocationIconButton icon={Send01Lg} onClick={sendMessage} />
-          </span>
-        </div>
-      )}
+      <div
+        className={twMerge(
+          'height-[74px] ml-[13px] flex  items-center justify-between rounded-[37px] bg-black/50 transition-[width,transform] duration-500',
+          isChatOpen.value ? 'w-full translate-x-0' : 'w-0 translate-x-[100%]'
+        )}
+      >
+        <input
+          ref={inputRef}
+          value={composedMessage.value}
+          spellCheck={false}
+          autoComplete="off"
+          className="my-auto ml-8 mr-4 flex w-full resize-none items-center justify-start bg-transparent text-base text-white outline-none"
+          onKeyUp={(event) => event.key === 'Enter' && sendMessage()}
+          onChange={handleComposedMessage}
+        />
+        <span className="m-[5px]">
+          <LocationIconButton icon={Send01Lg} onClick={sendMessage} />
+        </span>
+      </div>
     </div>
   )
 }
@@ -217,7 +231,7 @@ function Messages() {
   if (!isChatOpen.value) return null
   return (
     <div className="h-[45vh] overflow-y-auto">
-      <div className="flex flex-col justify-end gap-y-[13px]">
+      <div className="flex h-full flex-col justify-end gap-y-[13px]">
         {messages.value.map((message) => (
           <Message key={message.id} message={message} />
         ))}
@@ -248,7 +262,7 @@ export default function InstanceChat() {
           </button>
         </div>
       ) : (
-        <div className="w-[25vw] pb-6 pr-6">
+        <div className="w-[25vw]">
           <Messages />
           <NewMessage />
         </div>

@@ -32,7 +32,9 @@ import React from 'react'
 import { HiPencil } from 'react-icons/hi2'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { useUserAvatarThumbnail } from '../../../hooks/useUserAvatarThumbnail'
+import AvatarSelectMenu from '../../../user/menus/avatar/AvatarSelectMenu'
 import { AuthState } from '../../../user/services/AuthService'
+import { PopoverState } from '../../services/PopoverState'
 
 const ProfilePill = () => {
   const user = getMutableState(AuthState).user
@@ -70,8 +72,7 @@ const ProfilePill = () => {
               className="absolute bottom-0 left-10 rounded-full p-1 text-[#F5F5F5]"
               onClick={() => {
                 popUpOpened.set(false)
-                // PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)
-                // PopoverState.showPopupover()
+                PopoverState.showPopupover(<AvatarSelectMenu showBackButton={false} />)
               }}
             >
               <HiPencil />
