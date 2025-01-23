@@ -43,8 +43,8 @@ import {
   Vector2
 } from 'three'
 import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
-import { GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
 import { getGLTFOptions } from './GLTFComponent'
+import { GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
 
 const TextureInfoSchema = S.Object({
   index: S.Number(),

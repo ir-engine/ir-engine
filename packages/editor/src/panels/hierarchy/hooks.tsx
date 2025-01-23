@@ -98,11 +98,7 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
 
   const hierarchyNodes = useMemo(
     () => ecsHierarchyTreeWalker(rootEntity),
-    [
-      hierarchyTreeState.expandedNodes[sourceID],
-      selectionState.selectedEntities,
-      showModelChildren
-    ]
+    [hierarchyTreeState.expandedNodes[sourceID], selectionState.selectedEntities, showModelChildren]
   )
 
   const displayedNodes = useMemo(() => {

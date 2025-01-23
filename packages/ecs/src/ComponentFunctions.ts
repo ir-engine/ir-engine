@@ -612,6 +612,7 @@ export const resizeComponent = (component: Component, size: number) => {
  *  ```
  * */
 function getLayerRelationsEntities(entity: Entity): [LayerID, Entity][] {
+  if (!hasComponent(entity, LayerFunctions.getLayerComponent(entity))) return []
   return Object.entries(getComponent(entity, LayerFunctions.getLayerComponent(entity)).relations).map(
     ([layer, val]): [LayerID, Entity] => [Number(layer), val] as [LayerID, Entity]
   )
@@ -630,7 +631,7 @@ function getLayerComponent(entity: Entity) {
   return LayerComponents[LayerComponent.get(entity)]
 }
 
-/**
+/** 
  * @description Returns true if the given entity/layer pair should trigger propagation behavior.
  * */
 function shouldPropagate(entityLayer: LayerID, layer: LayerID): boolean {

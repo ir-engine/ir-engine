@@ -25,8 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Object3D } from 'three'
 
-import { ResourceState } from '@ir-engine/spatial/src/resources/ResourceState'
-
 import { GLTF, GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 

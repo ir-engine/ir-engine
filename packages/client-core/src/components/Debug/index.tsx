@@ -37,10 +37,10 @@ import { useDraggable } from '../../hooks/useDraggable'
 import { APIDebug } from './APIDebug'
 import DebugButtons from './DebugButtons'
 import { EntityDebug } from './EntityDebug'
+import { ResourceDebug } from './ResourceDebug'
 import { StateDebug } from './StateDebug'
 import { StatsPanel } from './StatsPanel'
 import { SystemDebug } from './SystemDebug'
-import { ResourceDebug } from './ResourceDebug'
 
 function Placer({ id }: { id: string }) {
   return (
