@@ -26,12 +26,11 @@ Infinite Reality Engine. All Rights Reserved.
 import { LayoutData } from 'rc-dock'
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { EntityUUID, getComponent } from '@ir-engine/ecs'
+import { EntityUUID } from '@ir-engine/ecs'
 import { UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { LinkState } from '@ir-engine/engine/src/scene/components/LinkComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { defineState, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 

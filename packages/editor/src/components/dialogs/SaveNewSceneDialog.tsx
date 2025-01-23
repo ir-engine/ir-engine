@@ -24,9 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import isValidSceneName from '@ir-engine/common/src/utils/validateSceneName'
-import { getComponent } from '@ir-engine/ecs'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
 import { Input } from '@ir-engine/ui'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
@@ -35,7 +34,6 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { saveSceneGLTF } from '../../functions/sceneFunctions'
 import { EditorState } from '../../services/EditorServices'
-import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 
 export default function SaveNewSceneDialog(props: { onConfirm?: () => void; onCancel?: () => void }) {
   const { t } = useTranslation()

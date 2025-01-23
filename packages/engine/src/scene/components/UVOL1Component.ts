@@ -119,16 +119,6 @@ export const UVOL1Component = defineComponent({
     loadingEffectEnded: S.Bool(false)
   }),
 
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (json.manifestPath) {
-      component.manifestPath.set(json.manifestPath)
-    }
-    if (json.data) {
-      component.data.set(json.data)
-    }
-  },
-
   reactor: UVOL1Reactor
 })
 

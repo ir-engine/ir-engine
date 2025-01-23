@@ -35,7 +35,6 @@ import { DDSLoader } from '../loaders/dds/DDSLoader'
 // import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { TextureLoader } from '../loaders/texture/TextureLoader'
 import { TGALoader } from '../loaders/tga/TGALoader'
-import { USDZLoader } from '../loaders/usdz/USDZLoader'
 import { AssetLoaderState } from '../state/AssetLoaderState'
 import { DomainConfigState } from '../state/DomainConfigState'
 
