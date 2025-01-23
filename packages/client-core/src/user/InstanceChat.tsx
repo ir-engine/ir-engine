@@ -28,7 +28,7 @@ import { InstanceID, MessageType, messagePath } from '@ir-engine/common/src/sche
 import { State, dispatchAction, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { MessageTextSquare01Lg, Send01Lg, XCloseLg } from '@ir-engine/ui/src/icons'
-import React, { createContext, useContext, useEffect, useRef } from 'react'
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import { useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
@@ -161,6 +161,17 @@ function NewMessage() {
     return () => clearTimeout(delayDebounce)
   }, [composedMessage.value])
 
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    if (!isChatOpen.value || !inputRef.current) {
+      setIsMounted(false)
+      return
+    }
+
+    setIsMounted(true)
+  }, [isChatOpen])
+
   return (
     <div className="mt-5 flex w-full items-center justify-end">
       <div className="relative w-16">
@@ -172,22 +183,25 @@ function NewMessage() {
           onClick={() => isChatOpen.set(!isChatOpen.value)}
         />
       </div>
-      {isChatOpen.value && (
-        <div className="height-[74px] ml-[13px] flex w-full items-center justify-between rounded-[37px] bg-black/50">
-          <input
-            ref={inputRef}
-            value={composedMessage.value}
-            spellCheck={false}
-            autoComplete="off"
-            className="my-auto ml-8 mr-4 flex w-full resize-none items-center justify-start bg-transparent text-base text-white outline-none"
-            onKeyUp={(event) => event.key === 'Enter' && sendMessage()}
-            onChange={handleComposedMessage}
-          />
-          <span className="m-[5px]">
-            <LocationIconButton icon={Send01Lg} onClick={sendMessage} />
-          </span>
-        </div>
-      )}
+      <div
+        className={twMerge(
+          'height-[74px] ml-[13px] flex  items-center justify-between rounded-[37px] bg-black/50 transition-[width,transform] duration-500',
+          isChatOpen.value ? 'w-full translate-x-0' : 'w-0 translate-x-[100%]'
+        )}
+      >
+        <input
+          ref={inputRef}
+          value={composedMessage.value}
+          spellCheck={false}
+          autoComplete="off"
+          className="my-auto ml-8 mr-4 flex w-full resize-none items-center justify-start bg-transparent text-base text-white outline-none"
+          onKeyUp={(event) => event.key === 'Enter' && sendMessage()}
+          onChange={handleComposedMessage}
+        />
+        <span className="m-[5px]">
+          <LocationIconButton icon={Send01Lg} onClick={sendMessage} />
+        </span>
+      </div>
     </div>
   )
 }
@@ -248,7 +262,7 @@ export default function InstanceChat() {
           </button>
         </div>
       ) : (
-        <div className="w-[25vw] pb-6 pr-6">
+        <div className="w-[25vw]">
           <Messages />
           <NewMessage />
         </div>
