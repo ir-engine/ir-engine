@@ -346,7 +346,8 @@ const Select = ({
             <div
               className={`flex w-full flex-col overflow-y-auto rounded-lg`}
               style={{
-                maxHeight: positioning.maxHeight
+                maxHeight: ref.current?.getBoundingClientRect().width,
+                minWidth: ref.current?.getBoundingClientRect().width
               }}
             >
               {filteredOptions.length > 0 ? (
