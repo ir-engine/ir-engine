@@ -463,7 +463,9 @@ export const getOptionalComponent = <C extends Component>(
   entity: Entity,
   component: C
 ): ComponentType<C> | undefined => {
-  return bitECS.hasComponent(HyperFlux.store, entity, component) ? component.stateMap[entity].get(NO_PROXY_STEALTH) : undefined
+  return bitECS.hasComponent(HyperFlux.store, entity, component)
+    ? component.stateMap[entity].get(NO_PROXY_STEALTH)
+    : undefined
 }
 
 export const getComponent = <C extends Component>(entity: Entity, component: C): ComponentType<C> => {
@@ -866,7 +868,7 @@ export const setComponent = <C extends Component>(
   const componentExists = hasComponent(entity, component)
   if (!componentExists) {
     const value = createInitialComponentValue(entity, component)
-    const state = hookstate(value)//, subscribable())
+    const state = hookstate(value) //, subscribable())
     component.stateMap[entity] = state
     // state.subscribe<SetComponentType<C>>((v) => {
     //   if (!bitECS.hasComponent(HyperFlux.store, entity, component)) return
@@ -1137,6 +1139,7 @@ export const LayerComponents = Object.entries(Layers).map(([name, layer]) => {
 
 export const SimulationLayerComponent = LayerComponents[Layers.Simulation]
 
+// @note LayerComponent is the API for setting and getting the layer of an entity
 export const LayerComponent = defineComponent({
   name: 'LayerComponent',
 

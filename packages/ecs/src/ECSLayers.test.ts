@@ -44,7 +44,7 @@ import {
 } from './ComponentFunctions'
 import { createEntity } from './createEntity'
 import { createEngine, destroyEngine } from './Engine'
-import { Entity } from './Entity'
+import { Entity, UndefinedEntity } from './Entity'
 import { entityExists, removeEntity } from './EntityFunctions'
 import { EntityTreeComponent } from './EntityTree'
 import { UUIDComponent } from './UUIDComponent'
@@ -504,17 +504,61 @@ describe('removeComponent', () => {
 
 describe('LayerComponents', () => {
   // This array of Components is used for propagation logic upon setting, and for querying
-  it.todo('should contain the expected number of components', () => {})
-  it.todo('should contain a list of valid Components', () => {})
-  it.todo(
-    'should contain a Component for every LayerID defined by the `Layers` object that all have the expected name',
-    () => {}
-  )
+  it('should contain the expected number of components', () => {
+    const Expected = Object.entries(Layers).length
+    const result = LayerComponents.length
+    expect(result).toBe(Expected)
+  })
+
+  it('should contain a list of valid Components', () => {
+    for (const component of LayerComponents) {
+      expect(component?.isComponent).toBeTruthy()
+      expect(component?.name).not.toBeFalsy()
+      expect(component?.name.endsWith('Component'))
+    }
+  })
+
+  it('should contain a Component for every LayerID defined by the `Layers` object', () => {
+    const ExpectedList = Object.values(Layers)
+    for (const layerID of ExpectedList) expect(LayerComponents[layerID]).toBeTruthy()
+  })
+
+  it('should not contain duplicate entries', () => {
+    const ExpectedList = Object.values(Layers)
+    // @note
+    // This duplication check assumes that entries of the Layers object are in order by their LayerID
+    // and that their value matches their position on the array.
+    // eg: Layers[ 0] ===  0 as LayerID
+    //   : Layers[ 1] ===  1 as LayerID
+    //   : Layers[42] === 42 as LayerID
+    for (let id = 0; id < ExpectedList.length; ++id) {
+      if ((id as LayerID) === ExpectedList[id]) continue
+      for (const layerID of ExpectedList) expect(ExpectedList[id]).not.toBe(layerID)
+    }
+  })
+
   describe('*LayerComponent', () => {
     describe('name', () => {
-      it.todo('should have the expected value', () => {})
-      it.todo('should respect the naming convention for Components', () => {})
+      const layerNameSuffix = LayerComponent.name
+
+      it('should have the expected value', () => {
+        for (const [name, id] of Object.entries(Layers)) {
+          const result = LayerComponents[id].name
+          expect(result).toBeTruthy()
+          expect(result.endsWith(layerNameSuffix)).toBeTruthy()
+          expect(result).toBe(name + layerNameSuffix)
+        }
+      })
+
+      it('should respect the naming convention for Components', () => {
+        for (const id of Object.values(Layers)) {
+          const result = LayerComponents[id].name
+          expect(result).toBeTruthy()
+          expect(result.endsWith('Component')).toBeTruthy()
+        }
+      })
     }) //:: name
+
     describe('onSet', () => {
       describe("for every entity,relation pair returned by LayerFunctions.getLayerRelationsTypes for this component's layer ..", () => {
         it.todo('.. should not do anything for this pair if the relation is LayerRelationTypes.Propagate', () => {})
@@ -523,6 +567,7 @@ describe('LayerComponents', () => {
         it.todo('.. should set [linkedLayer].refs[linkedEntity] to `@param entity`', () => {})
       })
     }) //:: onSet
+
     describe('onRemove', () => {
       describe("for every entity,relation pair returned by LayerFunctions.getLayerRelationsTypes for this component's layer ..", () => {
         it.todo('.. should not do anything for this pair if the relation is not LayerRelationTypes.Propagate', () => {})
@@ -537,10 +582,26 @@ describe('LayerComponents', () => {
 }) //:: LayerComponents
 
 describe('LayerComponent', () => {
-  // LayerComponent is the API for setting and getting the layer of an entity
+  beforeEach(() => {
+    createEngine()
+  })
+
+  afterEach(() => {
+    destroyEngine()
+  })
+
   describe('name', () => {
-    it.todo('should have the expected value', () => {})
-    it.todo('should respect the naming convention for Components', () => {})
+    it('should have the expected value', () => {
+      const Expected = 'LayerComponent'
+      const result = LayerComponent.name
+      expect(result).toBe(Expected)
+    })
+
+    it('should respect the naming convention for Components', () => {
+      const result = LayerComponent.name
+      expect(result).toBeTruthy()
+      expect(result.endsWith('Component')).toBeTruthy()
+    })
   }) //:: name
 
   describe('onSet', () => {
@@ -567,18 +628,83 @@ describe('LayerComponent', () => {
   }) //:: onRemove
 
   describe('hasUpstreamEntity', () => {
-    it.todo('should return false if LayerComponent.get(entity) is not Layers.Simulation', () => {})
+    it('should return false if LayerComponent.get(entity) is not Layers.Simulation', () => {
+      const Expected = false
+      // Set the data as expected
+      const layer = Layers.Authoring
+      const testEntity = createEntity(layer)
+      // Sanity check before running
+      expect(LayerComponent.get(testEntity)).not.toBe(Layers.Simulation)
+      // Run and Check the result
+      const result = LayerComponent.hasUpstreamEntity(testEntity)
+      expect(result).toBe(Expected)
+    })
+
     describe('when LayerComponent.get(entity) is Layers.Simulation ..', () => {
-      it.todo('.. should return false if LayerComponents[Layers.Simulation].refs[entity] is undefined', () => {})
-      it.todo('.. should return false if LayerComponents[Layers.Simulation].refs[entity] is UndefinedEntity', () => {})
-      it.todo(
-        '.. should return false if entityExists(LayerComponents[Layers.Simulation].refs[entity]) returns a falsy value',
-        () => {}
-      )
-      it.todo(
-        '.. should return true if LayerComponents[Layers.Simulation].refs[entity] is a valid entity that is considered to exist',
-        () => {}
-      )
+      it('.. should return false if LayerComponents[Layers.Simulation].refs[entity] is undefined', () => {
+        const Expected = false
+        // Set the data as expected
+        const layer = Layers.Simulation
+        const ref = undefined
+        const testEntity = createEntity(layer)
+        // Sanity check before running
+        expect(LayerComponent.get(testEntity)).toBe(Layers.Simulation)
+        expect(LayerComponents[Layers.Simulation].refs[testEntity]).toBe(ref)
+        // Run and Check the result
+        const result = LayerComponent.hasUpstreamEntity(testEntity)
+        expect(result).toBe(Expected)
+      })
+
+      it('.. should return false if LayerComponents[Layers.Simulation].refs[entity] is UndefinedEntity', () => {
+        const Expected = false
+        // Set the data as expected
+        const layer = Layers.Simulation
+        const ref = UndefinedEntity
+        const testEntity = createEntity(layer)
+        LayerComponents[Layers.Simulation].refs[testEntity] = ref
+        // Sanity check before running
+        expect(LayerComponent.get(testEntity)).toBe(Layers.Simulation)
+        expect(LayerComponents[Layers.Simulation].refs[testEntity]).toBe(ref)
+        // Run and Check the result
+        const result = LayerComponent.hasUpstreamEntity(testEntity)
+        expect(result).toBe(Expected)
+      })
+
+      it('.. should return false if entityExists(LayerComponents[Layers.Simulation].refs[entity]) returns a falsy value', () => {
+        const Expected = false
+        // Set the data as expected
+        const layer = Layers.Simulation
+        const testEntity = createEntity(layer)
+        const fakeEntity = Number.MAX_SAFE_INTEGER as Entity
+        LayerComponents[Layers.Simulation].refs[testEntity] = fakeEntity
+        // Sanity check before running
+        expect(LayerComponent.get(testEntity)).toBe(Layers.Simulation)
+        expect(LayerComponents[Layers.Simulation].refs[testEntity]).not.toBe(undefined)
+        expect(LayerComponents[Layers.Simulation].refs[testEntity]).not.toBe(UndefinedEntity)
+        expect(entityExists(fakeEntity)).toBeFalsy()
+        expect(entityExists(LayerComponents[Layers.Simulation].refs[testEntity])).toBeFalsy()
+        // Run and Check the result
+        const result = LayerComponent.hasUpstreamEntity(testEntity)
+        expect(result).toBe(Expected)
+      })
+
+      it('.. should return true if LayerComponents[Layers.Simulation].refs[entity] is a valid entity that is considered to exist', () => {
+        const Expected = true
+        // Set the data as expected
+        const layer = Layers.Simulation
+        const testEntity = createEntity(layer)
+        const otherEntity = createEntity()
+        LayerComponents[Layers.Simulation].refs[testEntity] = otherEntity
+        // Sanity check before running
+        expect(LayerComponent.get(testEntity)).toBe(Layers.Simulation)
+        expect(LayerComponents[Layers.Simulation].refs[testEntity]).not.toBe(undefined)
+        expect(LayerComponents[Layers.Simulation].refs[testEntity]).not.toBe(UndefinedEntity)
+        expect(entityExists(otherEntity)).toBeTruthy()
+        expect(entityExists(LayerComponents[Layers.Simulation].refs[testEntity])).toBeTruthy()
+        // Run and Check the result
+        const result = LayerComponent.hasUpstreamEntity(testEntity)
+        expect(result).toBe(Expected)
+      })
     })
   }) //:: hasUpstreamEntity
 }) //:: LayerComponent
