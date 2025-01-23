@@ -166,6 +166,7 @@
     "@aws-sdk/middleware-logger": "https://github.com/ir-engine/middleware-logger",
     "@aws-sdk/middleware-sdk-s3": "https://github.com/ir-engine/middleware-sdk-s3",
     "@smithy/core": "https://github.com/ir-engine/smithy-core",
-    "@smithy/middleware-endpoint": "https://github.com/ir-engine/middleware-endpoint"
+    "@smithy/middleware-endpoint": "https://github.com/ir-engine/middleware-endpoint",
+    "@smithy/url-parser": "https://github.com/ir-engine/url-parser"
   }
 }
