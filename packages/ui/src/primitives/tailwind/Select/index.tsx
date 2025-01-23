@@ -343,37 +343,39 @@ const Select = ({
             keepInside
             position={positioning.direction === 'down' ? 'bottom center' : 'top center'}
           >
-            <div
-              className={`flex w-full flex-col overflow-y-auto rounded-lg`}
-              style={{
-                maxHeight: ref.current?.getBoundingClientRect().width,
-                minWidth: ref.current?.getBoundingClientRect().width
-              }}
-            >
-              {filteredOptions.length > 0 ? (
-                filteredOptions.map(({ value: currentValue, ...optionProps }, index) => (
-                  <DropdownItem
-                    key={index}
-                    {...optionProps}
-                    selected={localValue === currentValue}
-                    active={index === activeIndex}
-                    onClick={() => {
-                      setOpen(false)
-                      setLocalValue(currentValue)
-                      setSelectedOptionIndex(index)
-                      setDisplayText(optionProps.label)
-                      onChange(currentValue)
-                    }}
-                    onMouseEnter={() => setActiveIndex(index)}
-                    onMouseLeave={() => setActiveIndex(-1)}
-                  />
-                ))
-              ) : (
-                <div className="flex h-12 items-center justify-center bg-[#141619] text-[#9CA0AA]">
-                  No options available
-                </div>
-              )}
-            </div>
+            {open && (
+              <div
+                className={`flex w-full flex-col overflow-y-auto rounded-lg`}
+                style={{
+                  maxHeight: ref.current?.getBoundingClientRect().width,
+                  minWidth: ref.current?.getBoundingClientRect().width
+                }}
+              >
+                {filteredOptions.length > 0 ? (
+                  filteredOptions.map(({ value: currentValue, ...optionProps }, index) => (
+                    <DropdownItem
+                      key={index}
+                      {...optionProps}
+                      selected={localValue === currentValue}
+                      active={index === activeIndex}
+                      onClick={() => {
+                        setOpen(false)
+                        setLocalValue(currentValue)
+                        setSelectedOptionIndex(index)
+                        setDisplayText(optionProps.label)
+                        onChange(currentValue)
+                      }}
+                      onMouseEnter={() => setActiveIndex(index)}
+                      onMouseLeave={() => setActiveIndex(-1)}
+                    />
+                  ))
+                ) : (
+                  <div className="flex h-12 items-center justify-center bg-[#141619] text-[#9CA0AA]">
+                    No options available
+                  </div>
+                )}
+              </div>
+            )}
           </Popup>
         </div>
       </div>
