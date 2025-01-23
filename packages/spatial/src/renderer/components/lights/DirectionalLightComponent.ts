@@ -43,7 +43,6 @@ import {
 } from '@ir-engine/ecs'
 import { useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
-import { SelectTagComponent } from '@ir-engine/engine/src/scene/components/SelectTagComponent'
 import { ActiveHelperComponent } from '../../../common/ActiveHelperComponent'
 import { mergeBufferGeometries } from '../../../common/classes/BufferGeometryUtils'
 import { T } from '../../../schema/schemaFunctions'
@@ -125,7 +124,7 @@ export const DirectionalLightComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const renderState = useMutableState(RendererState)
-    const activeHelperComponent = useOptionalComponent(entity, SelectTagComponent)
+    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const debugEnabled = renderState.nodeHelperVisibility
     const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
     const light = useHookstate(() => new DirectionalLight()).value as DirectionalLight
