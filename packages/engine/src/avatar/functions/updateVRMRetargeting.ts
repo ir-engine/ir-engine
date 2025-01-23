@@ -47,10 +47,10 @@ export const updateVRMRetargeting = (avatarEntity: Entity) => {
 
   for (const boneName of VRMHumanBoneList) {
     const boneNode = humanoidRig.original.getBoneNode(boneName) as Object3D | null
-    
+
     if (boneNode != null) {
       const rigBoneNode = humanoidRig.getBoneNode(boneName)! as Object3D
-      
+
       const entity = boneNode.entity
 
       const parentWorldRotation = parentWorldRotations[boneName] as Quaternion

@@ -28,14 +28,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { FC } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
-import {
-  getMutableState,
-  getState,
-  HyperFlux,
-  OpaqueType,
-  startReactor,
-  useImmediateEffect
-} from '@ir-engine/hyperflux'
+import { getState, HyperFlux, OpaqueType, startReactor, useImmediateEffect } from '@ir-engine/hyperflux'
 
 import { SystemState } from './SystemState'
 import { nowMilliseconds } from './Timer'
