@@ -61,7 +61,7 @@ describe('createEntity', () => {
     // Set the data as expected
     const testEntity = createEntity()
     // Run and Check the result
-    const result = getComponent(testEntity, LayerComponent).layer
+    const result = getComponent(testEntity, LayerComponent)
     expect(result).toBe(Expected)
   })
 
@@ -80,7 +80,7 @@ describe('createEntity', () => {
     // Run and Check the result
     const result = getComponent(testEntity, LayerComponent)
     expect(result).toBeTruthy()
-    expect(result.layer).toBe(expectedLayer)
+    expect(result).toBe(expectedLayer)
   })
 
   it('should return the newly created entity', () => {
@@ -419,17 +419,54 @@ describe('setComponent', () => {
 }) //:: setComponent
 
 describe('removeComponent', () => {
+  beforeEach(() => {
+    createEngine()
+  })
+
+  afterEach(() => {
+    destroyEngine()
+  })
+
   /** @section ECS Layers specific tests */
-  it.todo('should not do anything if `@param entity` does not have the given `@param component`', () => {})
-  describe('.. for every (layer,entity) pair returned by LayerFunctions.getLayerRelations(`@param entity`)', () => {
-    it.todo('.. .. should not do anything if LayerFunctions.shouldPropagate(`@param entity`, layer) is falsy', () => {})
-    it.todo(
-      '.. .. should remove `@param component` from the linkedEntity returned by LayerFunctions.getLayerRelations',
-      () => {}
-    )
+  describe('for every (layer,entity) pair returned by LayerFunctions.getLayerRelationsEntities(`@param entity`)', () => {
+    it('.. should not do anything if LayerFunctions.shouldPropagate(entityLayer, layer) is falsy', () => {
+      // Set the data as expected
+      const entityLayer = Layers.Simulation
+      const component = defineComponent({ name: 'SomeTestComponent' })
+      const testEntity = createEntity(entityLayer)
+      setComponent(testEntity, component)
+      const list = [] as Entity[]
+      const relationLayer = LayerFunctions.getLayerRelationsEntities(testEntity)?.[0]?.[0] as LayerID
+      for (const relation of LayerFunctions.getLayerRelationsEntities(testEntity)) list.push(relation[1])
+      // Sanity check before running
+      expect(LayerFunctions.shouldPropagate(entityLayer, relationLayer)).toBeFalsy()
+      expect(list.length).toBe(0)
+      for (const linkedEntity of list) expect(hasComponent(linkedEntity, component)).toBeTruthy() // @note Only for clarity of intention. List should be empty
+      // Run and Check the result
+      removeComponent(testEntity, component)
+      for (const linkedEntity of list) expect(hasComponent(linkedEntity, component)).toBeTruthy() // @note Only for clarity of intention. List should be empty
+    })
+
+    it('.. should remove `@param component` from the linkedEntity returned by LayerFunctions.getLayerRelationsEntities', () => {
+      // Set the data as expected
+      const entityLayer = Layers.Authoring
+      const component = defineComponent({ name: 'SomeTestComponent' })
+      const testEntity = createEntity(entityLayer)
+      setComponent(testEntity, component)
+      const list = [] as Entity[]
+      const relationLayer = LayerFunctions.getLayerRelationsEntities(testEntity)[0][0] as LayerID
+      for (const relation of LayerFunctions.getLayerRelationsEntities(testEntity)) list.push(relation[1])
+      // Sanity check before running
+      expect(LayerFunctions.shouldPropagate(entityLayer, relationLayer)).toBeTruthy()
+      for (const linkedEntity of list) expect(hasComponent(linkedEntity, component)).toBeTruthy()
+      // Run and Check the result
+      removeComponent(testEntity, component)
+      for (const linkedEntity of list) expect(hasComponent(linkedEntity, component)).toBeFalsy()
+    })
   })
 
   /** @section Other tests for Coverage */
+  it.todo('should not do anything if `@param entity` does not have the given `@param component`', () => {})
   it.todo(
     'should call `@param component` onRemove with `@param entity` and `component.stateMap[entity])` as arguments',
     () => {}
