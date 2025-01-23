@@ -38,6 +38,7 @@ import {
   LayerID,
   LayerRelationTypes,
   Layers,
+  removeComponent,
   setComponent
 } from './ComponentFunctions'
 import { createEntity } from './createEntity'
@@ -549,26 +550,91 @@ describe('LayerComponent', () => {
   }) //:: name
 
   describe('onSet', () => {
-    it.todo('should set the value of LayerComponent.layer for `@param entity` to the value of `@param layer`', () => {})
-    it.todo(
-      'should set the LayerComponents with `@param layer` id from the LayerComponents array into the entity',
-      () => {}
-    )
+    it('should set the value of LayerComponent.layer for `@param entity` to the value of `@param layer`', () => {
+      const Expected = Layers.Simulation
+      const Initial = 42 as LayerID
+      // Set the data as expected
+      const layer = Expected
+      const testEntity = createEntity(layer)
+      LayerComponent.layer[testEntity] = Initial
+      // Sanity check before running
+      const before = LayerComponent.layer[testEntity]
+      expect(before).toBe(Initial)
+      expect(before).not.toBe(Expected)
+      // Run and Check the result
+      LayerComponent.onSet(testEntity, {} as any, layer)
+      const result = LayerComponent.layer[testEntity]
+      expect(result).not.toBe(Initial)
+      expect(result).toBe(Expected)
+    })
+
+    it('should set the LayerComponents with `@param layer` id from the LayerComponents array into the entity', () => {
+      // Set the data as expected
+      const layer = Layers.Simulation
+      const testEntity = createEntity(layer)
+      const component = LayerComponents[layer]
+      removeComponent(testEntity, component) // Manually remove the component to ensure the code adds it back as expected  (createEntity already added it)
+      // Sanity check before running
+      const before = hasComponent(testEntity, component)
+      expect(before).toBeFalsy()
+      // Run and Check the result
+      LayerComponent.onSet(testEntity, {} as any, layer)
+      const result = hasComponent(testEntity, component)
+      expect(result).toBeTruthy()
+    })
   }) //:: onSet
 
   describe('get', () => {
-    it.todo(
-      'should return the `@param entity` entry of the LayerComponent.layer array/list as a LayerID type',
-      () => {}
-    )
+    it('should return the `@param entity` entry of the LayerComponent.layer array/list as a LayerID type', () => {
+      const Expected = 255 as LayerID
+      const Initial = Layers.Simulation
+      // Set the data as expected
+      const layer = Initial
+      const testEntity = createEntity(layer)
+      // Sanity check before running
+      const before = LayerComponent.layer[testEntity]
+      expect(before).toBe(Initial)
+      expect(before).not.toBe(Expected)
+      // Run and Check the result
+      LayerComponent.layer[testEntity] = Expected // @note Temporary fake layer. Needs cleanup at the end of the test.
+      const result = LayerComponent.get(testEntity)
+      expect(result).not.toBe(Initial)
+      expect(result).toBe(Expected)
+      // Cleanup after running
+      LayerComponent.layer[testEntity] = Initial // Remove the fake layer from the list. Avoids errors on `destroyEngine`
+    })
   }) //:: get
 
   describe('onRemove', () => {
-    it.todo(
-      'should remove the LayerComponent returned by LayerFunctions.getLayerComponent for the `@param entity`',
-      () => {}
-    )
-    it.todo('should set the `@param entity` entry of the LayerComponent.layer array/list to 0', () => {})
+    it('should remove the LayerComponent returned by LayerFunctions.getLayerComponent for the `@param entity`', () => {
+      // Set the data as expected
+      const layer = Layers.Simulation
+      const testEntity = createEntity(layer)
+      const component = LayerComponents[layer]
+      // Sanity check before running
+      expect(hasComponent(testEntity, component)).toBeTruthy()
+      // Run and Check the result
+      LayerComponent.onRemove(testEntity, {} as any)
+      expect(hasComponent(testEntity, component)).toBeFalsy()
+    })
+
+    it('should set the `@param entity` entry of the LayerComponent.layer array/list to 0', () => {
+      const Expected = Object.values(Layers)[0]
+      const Initial = Object.values(Layers)[1]
+      // Set the data as expected
+      const layer = Initial
+      const testEntity = createEntity(layer)
+      LayerComponent.layer[testEntity] = Initial // Temporary fake layer. Should be replaced by the function
+      // Sanity check before running
+      const before = LayerComponent.layer[testEntity]
+      expect(before).toBe(Initial)
+      expect(before).not.toBe(Expected)
+      // Run and Check the result
+      LayerComponent.onRemove(testEntity, {} as any)
+      const result = LayerComponent.layer[testEntity]
+      expect(result).not.toBe(Initial)
+      expect(result).toBe(Expected)
+    })
   }) //:: onRemove
 
   describe('hasUpstreamEntity', () => {
