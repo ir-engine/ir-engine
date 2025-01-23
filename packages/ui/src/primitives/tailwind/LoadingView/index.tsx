@@ -83,13 +83,13 @@ const LoadingView = ({
       data-testid="loading-view-spinner"
     >
       {animated ? (
-        <div className="h-70 ml-8 w-56 bg-cover bg-center">
+        <div className="h-70 w-56 bg-cover bg-center">
           <LoadingAnimation />
         </div>
       ) : (
         loader
       )}
-      {title && <Text className={twMerge('mt-1', titleClassname)}>{title}</Text>}
+      {title && <Text className={titleClassname}>{title}</Text>}
       {description && <Text className="opacity-65">{description}</Text>}
     </div>
   )
