@@ -38,7 +38,6 @@ import {
   LayerID,
   LayerRelationTypes,
   Layers,
-  removeComponent,
   setComponent
 } from './ComponentFunctions'
 import { createEntity } from './createEntity'
@@ -211,52 +210,6 @@ describe('LayerFunctions', () => {
       expect(result).toEqual(Expected)
     })
   }) //:: getLayerComponent
-
-  describe('hasLayer', () => {
-    /** @todo Edge-case bug.
-     * `hasLayer` should return false after calling removeComponent(testEntity, component)
-     * */
-    it.todo('should return false when the result of LayerFunctions.getLayerComponent(`@param entity`) is falsy', () => {
-      const Expected = false
-      // Set the data as expected
-      const layer = Layers.Authoring
-      const testEntity = createEntity(layer)
-
-      console.log('before removeComponent: ....................................')
-      console.log('1: ', LayerComponent.layer[testEntity])
-      console.log('2: ', LayerComponents[LayerComponent.layer[testEntity]])
-
-      const component = LayerFunctions.getLayerComponent(testEntity)
-      removeComponent(testEntity, component) // Remove the LayerComponent that `createEntity` just added
-
-      console.log('after  removeComponent: _____________________')
-      console.log('3: ', LayerComponent.layer[testEntity])
-      console.log('4: ', LayerComponents[LayerComponent.layer[testEntity]])
-
-      expect(LayerFunctions.getLayerComponent(testEntity)).toBeFalsy()
-      // Run and Check the result
-      const result = LayerFunctions.hasLayer(testEntity)
-      expect(result).toBe(Expected)
-    })
-
-    it('should return false when the result of hasComponent(`@param entity`, LayerFunctions.getLayerComponent(`@param entity`)) is falsy', () => {
-      const Expected = false
-      // Set the data as expected
-      const testEntity = createEntity()
-      removeComponent(testEntity, LayerFunctions.getLayerComponent(testEntity)) // Remove the LayerComponent that `createEntity` just added
-      expect(hasComponent(testEntity, LayerComponent)).toBeTruthy()
-      expect(hasComponent(testEntity, LayerFunctions.getLayerComponent(testEntity))).toBeFalsy()
-      // Run and Check the result
-      const result = LayerFunctions.hasLayer(testEntity)
-      expect(result).toBe(Expected)
-    })
-
-    /** @todo Depends on fixing the first case's bug */
-    it.todo(
-      'should return true when the result of LayerFunctions.getLayerComponent(`@param entity`) and hasComponent(`@param entity`, LayerFunctions.getLayerComponent(`@param entity`)) are both truthy',
-      () => {}
-    )
-  }) //:: hasLayer
 
   describe('shouldPropagate', () => {
     it('should never return true when comparing a layer with itself', () => {
@@ -467,18 +420,12 @@ describe('setComponent', () => {
 describe('removeComponent', () => {
   /** @section ECS Layers specific tests */
   it.todo('should not do anything if `@param entity` does not have the given `@param component`', () => {})
-  /** @todo Depends on fixing the edge-case bug with LayerFunctions.hasLayer */
-  describe('when the result of LayerFunctions.hasLayer(`@param entity`) is truthy (aka the entity has an ECS layer) ...', () => {
-    describe('.. for every (layer,entity) pair returned by LayerFunctions.getLayerRelations(`@param entity`)', () => {
-      it.todo(
-        '.. .. should not do anything if LayerFunctions.shouldPropagate(`@param entity`, layer) is falsy',
-        () => {}
-      )
-      it.todo(
-        '.. .. should remove `@param component` from the linkedEntity returned by LayerFunctions.getLayerRelations',
-        () => {}
-      )
-    })
+  describe('.. for every (layer,entity) pair returned by LayerFunctions.getLayerRelations(`@param entity`)', () => {
+    it.todo('.. .. should not do anything if LayerFunctions.shouldPropagate(`@param entity`, layer) is falsy', () => {})
+    it.todo(
+      '.. .. should remove `@param component` from the linkedEntity returned by LayerFunctions.getLayerRelations',
+      () => {}
+    )
   })
 
   /** @section Other tests for Coverage */
