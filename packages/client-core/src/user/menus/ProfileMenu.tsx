@@ -71,7 +71,6 @@ import {
   TwitterOriginalFalse
 } from '@ir-engine/ui/src/icons'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
-import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { initialAuthState, initialOAuthConnectedState } from '../../common/initialAuthState'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -362,11 +361,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   const enableConnect = authState?.value?.emailMagicLink || authState?.value?.smsMagicLink
 
   return (
-    <Modal
-      onClose={PopoverState.hidePopupover}
-      className="pointer-events-auto w-[50vw] min-w-[720px] max-w-2xl"
-      hideFooter
-    >
+    <div className="relative z-50 h-fit max-h-[60vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-theme-surface-main p-10">
       <div className="grid w-full grid-cols-2 gap-x-2">
         <div className="grid grid-cols-3 gap-x-2">
           <div className="relative col-span-1 h-20 w-20">
@@ -421,23 +416,25 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             <CogLg className="h-10 w-10 text-white" />
           </button>
 
-          <div className="col-span-2 grid grid-cols-1 gap-y-2">
-            <button
-              className="flex w-full items-center justify-center gap-x-2 rounded-md bg-[#616161] p-1"
-              onClick={openChat}
-            >
-              <HelpIconLg />
-              {t('user:usermenu.profile.helpChat')}
-            </button>
+          {initialized && (
+            <div className="col-span-2 grid grid-cols-1 gap-y-2">
+              <button
+                className="flex w-full items-center justify-center gap-x-2 rounded-md bg-[#616161] p-1"
+                onClick={openChat}
+              >
+                <HelpIconLg />
+                {t('user:usermenu.profile.helpChat')}
+              </button>
 
-            <button
-              className="flex w-full items-center justify-center gap-x-2 rounded-md bg-[#C3324B] p-1"
-              onClick={openChat}
-            >
-              <ReportWebsiteDefaullg />
-              {t('user:usermenu.profile.reportWorld')}
-            </button>
-          </div>
+              <button
+                className="flex w-full items-center justify-center gap-x-2 rounded-md bg-[#C3324B] p-1"
+                onClick={openChat}
+              >
+                <ReportWebsiteDefaullg />
+                {t('user:usermenu.profile.reportWorld')}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -688,7 +685,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
           {t('user:usermenu.profile.privacyPolicy')}
         </Text>
       </a>
-    </Modal>
+    </div>
   )
 }
 
