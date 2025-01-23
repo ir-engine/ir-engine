@@ -33,14 +33,18 @@ import {
   createEntity,
   defineComponent,
   getMutableComponent,
+  hasComponent,
   removeComponent,
   removeEntity,
   setComponent,
   useComponent,
-  useEntityContext
+  useEntityContext,
+  useOptionalComponent
 } from '@ir-engine/ecs'
 import { useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
+import { SelectTagComponent } from '@ir-engine/engine/src/scene/components/SelectTagComponent'
+import { ActiveHelperComponent } from '../../../common/ActiveHelperComponent'
 import { mergeBufferGeometries } from '../../../common/classes/BufferGeometryUtils'
 import { T } from '../../../schema/schemaFunctions'
 import { RendererState } from '../../RendererState'
@@ -121,6 +125,7 @@ export const DirectionalLightComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const renderState = useMutableState(RendererState)
+    const activeHelperComponent = useOptionalComponent(entity, SelectTagComponent)
     const debugEnabled = renderState.nodeHelperVisibility
     const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
     const light = useHookstate(() => new DirectionalLight()).value as DirectionalLight
@@ -130,6 +135,7 @@ export const DirectionalLightComponent = defineComponent({
       setComponent(entity, LightTagComponent)
       directionalLightComponent.light.set(light)
       setComponent(entity, ObjectComponent, light)
+
       return () => {
         removeComponent(entity, ObjectComponent)
       }
@@ -173,7 +179,7 @@ export const DirectionalLightComponent = defineComponent({
     }, [renderState.shadowMapResolution])
 
     useEffect(() => {
-      if (!debugEnabled.value) return
+      if (!debugEnabled.value && !hasComponent(entity, ActiveHelperComponent)) return
       helperEntity.set(createEntity())
       setComponent(helperEntity.value, EntityTreeComponent, { parentEntity: entity })
       setComponent(helperEntity.value, LineSegmentComponent, {
@@ -187,7 +193,7 @@ export const DirectionalLightComponent = defineComponent({
         removeEntity(helperEntity.value)
         helperEntity.set(UndefinedEntity)
       }
-    }, [debugEnabled])
+    }, [debugEnabled, activeHelperComponent])
 
     return null
   }
