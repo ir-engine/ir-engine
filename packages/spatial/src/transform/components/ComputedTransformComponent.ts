@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { useImmediateEffect } from '@ir-engine/hyperflux'
 import { TransformComponent } from './TransformComponent'
 
 export const ComputedTransformComponent = defineComponent({
@@ -36,10 +35,11 @@ export const ComputedTransformComponent = defineComponent({
     computeFunction: S.Call()
   }),
 
-  reactor: () => {
-    useImmediateEffect(() => {
-      TransformComponent.transformsNeedSorting = true
-    }, [])
-    return null
+  onSet(entity, component, json) {
+    TransformComponent.transformsNeedSorting = true
+  },
+
+  onRemove(entity, component) {
+    TransformComponent.transformsNeedSorting = true
   }
 })

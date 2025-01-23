@@ -43,10 +43,14 @@ export const UUIDComponent = defineComponent({
         }
         if (uuid === prev) return true
         const layer = LayerComponent.get(entity)
+        if (!UUIDComponent.entitiesByUUIDState[layer]) {
+          UUIDComponent.entitiesByUUIDState[layer] = {}
+          return true
+        }
         // throw error if uuid is already in use
-        const currentEntity = UUIDComponent.entitiesByUUIDState[layer][uuid].value
-        if (currentEntity !== UndefinedEntity && currentEntity !== entity) {
-          console.error(`UUID ${uuid} is already in use`)
+        const currentEntity = UUIDComponent.entitiesByUUIDState[layer][uuid]?.value
+        if (currentEntity && currentEntity !== entity) {
+          console.error(`UUID ${uuid} is already in use`, currentEntity, entity)
           return false
         }
 
@@ -65,9 +69,7 @@ export const UUIDComponent = defineComponent({
     }
 
     // set new uuid
-    UUIDComponentFunctions._getUUIDState(uuid, layer).set(entity)
-
-    component.set(uuid)
+    _getUUIDState(uuid, layer).set(entity)
   },
 
   onRemove: (entity, component) => {
