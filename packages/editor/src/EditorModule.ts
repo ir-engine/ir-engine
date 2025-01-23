@@ -30,6 +30,7 @@ import { PositionalAudioSystem } from '@ir-engine/client-core/src/systems/Positi
 import { CameraGizmoSystem } from './systems/CameraGizmoSystem'
 import { ClickPlacementSystem } from './systems/ClickPlacementSystem'
 import { EditorControlSystem } from './systems/EditorControlSystem'
+import { HelperActiveSystem } from './systems/HelperActiveSystem'
 import { HighlightSystem } from './systems/HighlightSystem'
 import { ModelHandlingSystem } from './systems/ModelHandlingSystem'
 import { ModelLoadingSpinnerSystem } from './systems/ModelLoadingSpinnerSystem'
@@ -43,6 +44,7 @@ export {
   CameraGizmoSystem,
   ClickPlacementSystem,
   EditorControlSystem,
+  HelperActiveSystem,
   HighlightSystem,
   ModelHandlingSystem,
   ModelLoadingSpinnerSystem,

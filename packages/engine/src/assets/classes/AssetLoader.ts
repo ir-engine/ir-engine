@@ -75,6 +75,7 @@ export const getLoader = (assetType: AssetExt) => {
       return new TGALoader()
     case AssetExt.PNG:
     case AssetExt.JPEG:
+    case AssetExt.WEBP:
       return new TextureLoader()
     case AssetExt.AAC:
     case AssetExt.MP3:
