@@ -631,14 +631,6 @@ function getLayerComponent(entity: Entity) {
 }
 
 /**
- * @description Returns true if `@param entity` has a layer component assigned.
- * */
-function hasLayer(entity: Entity): boolean {
-  const layerComponent = LayerFunctions.getLayerComponent(entity)
-  return layerComponent && hasComponent(entity, layerComponent)
-}
-
-/**
  * @description Returns true if the given entity/layer pair should trigger propagation behavior.
  * */
 function shouldPropagate(entityLayer: LayerID, layer: LayerID): boolean {
@@ -829,7 +821,6 @@ export const LayerFunctions = {
   getLayerRelationsEntities,
   getLayerRelationsTypes,
   getLayerComponent,
-  hasLayer,
   shouldPropagate,
   propagateSchema,
   propagateLayer,
@@ -939,12 +930,10 @@ export function useHasComponents<C extends Component>(entity: Entity, components
 export const removeComponent = <C extends Component>(entity: Entity, component: C) => {
   if (!hasComponent(entity, component)) return
 
-  if (LayerFunctions.hasLayer(entity)) {
-    const entityLayer = LayerComponent.get(entity)
-    for (const [layer, linkedEntity] of LayerFunctions.getLayerRelationsEntities(entity)) {
-      if (!LayerFunctions.shouldPropagate(entityLayer, layer)) continue
-      removeComponent(linkedEntity, component)
-    }
+  const entityLayer = LayerComponent.get(entity)
+  for (const [layer, linkedEntity] of LayerFunctions.getLayerRelationsEntities(entity)) {
+    if (!LayerFunctions.shouldPropagate(entityLayer, layer)) continue
+    removeComponent(linkedEntity, component)
   }
 
   component.onRemove(entity, component.stateMap[entity]!)
