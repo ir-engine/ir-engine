@@ -137,13 +137,13 @@ describe('TransformComponent', () => {
       const Expected = {
         position: new Vector3(1, 2, 3),
         rotation: new Quaternion(4, 5, 6, 7).normalize(),
-        scale: new Vector3(8, 9, 10),
-        matrix: new Matrix4(), // Ignored by onSet
-        matrixWorld: new Matrix4() // Ignored by onSet
+        scale: new Vector3(8, 9, 10)
       }
       setComponent(testEntity, TransformComponent, Expected)
       const after = getComponent(testEntity, TransformComponent)
-      assertTransformComponentEq(after, Expected)
+      assertVec.approxEq(after.position, Expected.position, 3)
+      assertVec.approxEq(after.rotation, Expected.rotation, 4)
+      assertVec.approxEq(after.scale, Expected.scale, 3)
     })
 
     it('should not change values of an initialized TransformComponent when the data passed had incorrect types', () => {
@@ -594,8 +594,8 @@ describe('TransformComponent', () => {
       return destroyEngine()
     })
 
-    it('should mark TransformComponent.dirtyTransforms for `@param entity` as true', () => {
-      const Expected = true
+    it('should mark TransformComponent.dirty for `@param entity` as true', () => {
+      const Expected = 1
       // Set the data as expected
       setComponent(parentEntity, SceneComponent)
       setComponent(parentEntity, TransformComponent)
@@ -607,7 +607,7 @@ describe('TransformComponent', () => {
       assert.equal(getComponent(testEntity, EntityTreeComponent).parentEntity, parentEntity)
       // Run and Check the result
       TransformComponent.updateFromWorldMatrix(testEntity)
-      const result = TransformComponent.dirtyTransforms[testEntity]
+      const result = TransformComponent.dirty[testEntity]
       assert.equal(result, Expected)
     })
 
@@ -1066,7 +1066,7 @@ describe('TransformComponent', () => {
 
       setComponent(entity, TransformComponent)
       const transformComponent = getComponent(entity, TransformComponent)
-      assert.equal(TransformComponent.dirtyTransforms[entity], true)
+      assert.equal(TransformComponent.dirty[entity], 1)
       transformComponent.position.x = 12
       assert.equal(transformComponent.position.x, TransformComponent.position.x[entity])
     })

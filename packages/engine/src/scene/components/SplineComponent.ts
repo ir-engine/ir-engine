@@ -65,17 +65,6 @@ export const SplineComponent = defineComponent({
     curve: S.Class(() => new CatmullRomCurve3([], true))
   }),
 
-  onSet: (entity, component, json) => {
-    if (!json) return
-    json.elements &&
-      component.elements.set(
-        json.elements.map((e) => ({
-          position: new Vector3().copy(e.position),
-          rotation: new Quaternion().copy(e.rotation)
-        }))
-      )
-  },
-
   reactor: () => {
     const entity = useEntityContext()
     const component = useComponent(entity, SplineComponent)

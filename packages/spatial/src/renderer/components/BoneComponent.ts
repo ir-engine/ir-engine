@@ -35,7 +35,6 @@ export const BoneComponent = defineComponent({
   schema: S.Required(S.Type<Bone>()),
 
   onSet: (entity, component, bone: Bone) => {
-    component.set(bone)
     setComponent(entity, ObjectComponent, bone)
   },
 

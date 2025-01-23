@@ -333,62 +333,7 @@ export const defineComponent = <
     SOAComponent & { setTransition: typeof setTransition }
   Component.isComponent = true
 
-  // Memoize as much tree walking as possible during component creation
-  const hasSchemaInitializers = schemaIsJSONSchema(def.schema) && HasSchemaDeserializers(def.schema)
-  const hasRequiredSchema = schemaIsJSONSchema(def.schema) && HasRequiredSchema(def.schema)
-  const hasSchemaValidators = schemaIsJSONSchema(def.schema) && HasSchemaValidators(def.schema)
-  const isSingleValueSchema = schemaIsJSONSchema(def.schema) && IsSingleValueSchema(def.schema)
-
-  Component.onSet = (entity, component, json) => {
-    if (schemaIsJSONSchema(def.schema)) {
-      if (hasRequiredSchema) {
-        const [valid, key] = HasRequiredSchemaValues(def.schema as TSchema, json)
-        if (!valid) throw new Error(`${def.name}:OnSet Missing required value for key ${key}`)
-      }
-
-      if (json === null || json === undefined) return
-
-      const cleanJson = DeserializeSchemaValue(
-        def.schema as TSchema,
-        component.get(NO_PROXY_STEALTH) as ComponentType,
-        json as any
-      )
-
-      if (cleanJson === null || cleanJson === undefined) return
-
-      if (hasSchemaValidators) {
-        const [valid, key] = HasValidSchemaValues(
-          def.schema as TSchema,
-          cleanJson as ComponentType,
-          component.get(NO_PROXY_STEALTH) as ComponentType,
-          entity
-        )
-        if (!valid) throw new Error(`${def.name}:OnSet Invalid value for key ${key} ${JSON.stringify(json)}`)
-      }
-
-      if (Array.isArray(cleanJson) || typeof cleanJson !== 'object' || isSingleValueSchema)
-        component.set(cleanJson as ComponentType)
-      else if (cleanJson) {
-        for (const key of Object.keys(cleanJson)) {
-          ;(component[key] as any).set((_) => cleanJson?.[key])
-        }
-      } else {
-        component.set(cleanJson as any)
-      }
-
-      return
-    }
-
-    if (json === null || json === undefined) return
-
-    // if no schema, just set the json - assume insecure or internal
-    if (Array.isArray(json) || typeof json !== 'object' || isSingleValueSchema) component.set(json as ComponentType)
-    else if (json) {
-      for (const key of Object.keys(json)) {
-        ;(component[key] as any).set((_) => json?.[key])
-      }
-    } else component.merge(json as SetPartialStateAction<ComponentType>)
-  }
+  Component.onSet = () => {}
   Component.onRemove = () => {}
   Component.toJSON = (component: ComponentType) => {
     return validateComponentSchema(def as any, component) as JSON
@@ -828,6 +773,63 @@ export const LayerFunctions = {
 }
 
 /**
+ * @todo we used to have some of the conditionals here cached scoped inside onSet,
+ * but now that it is it's own function we may want to precompute and cache these again
+ */
+const _mergeComponentState = <C extends Component>(
+  entity: Entity,
+  component: C,
+  args: SetComponentType<C> | undefined = undefined
+) => {
+  const componentState = component.stateMap[entity]
+
+  if (schemaIsJSONSchema(component.schema)) {
+    if (HasRequiredSchema(component.schema)) {
+      const [valid, key] = HasRequiredSchemaValues(component.schema, args)
+      if (!valid) throw new Error(`${component.name}:OnSet Missing required value for key ${key}`)
+    }
+
+    if (args === null || args === undefined) return
+
+    const cleanJson = DeserializeSchemaValue(component.schema, componentState.get(NO_PROXY_STEALTH), args)
+
+    if (cleanJson === null || cleanJson === undefined) return
+
+    if (HasSchemaValidators(component.schema)) {
+      const [valid, key] = HasValidSchemaValues(
+        component.schema,
+        cleanJson,
+        componentState.get(NO_PROXY_STEALTH),
+        entity
+      )
+      if (!valid) throw new Error(`${component.name}:OnSet Invalid value for key ${key} ${JSON.stringify(args)}`)
+    }
+
+    if (Array.isArray(cleanJson) || typeof cleanJson !== 'object' || IsSingleValueSchema(component.schema))
+      componentState.set(cleanJson)
+    else if (cleanJson) {
+      for (const key of Object.keys(cleanJson)) {
+        componentState[key].set((_) => cleanJson?.[key])
+      }
+    } else {
+      componentState.set(cleanJson as any)
+    }
+
+    return
+  }
+
+  if (args === null || args === undefined) return
+
+  // if no schema, just set the json - assume insecure or internal
+  if (Array.isArray(args) || typeof args !== 'object' || IsSingleValueSchema(component.schema)) componentState.set(args)
+  else if (args) {
+    for (const key of Object.keys(args)) {
+      componentState[key].set((_) => args?.[key])
+    }
+  } else componentState.merge(args)
+}
+
+/**
  * @description
  * Assigns the given component to the given entity, and returns the component.
  * @notes
@@ -874,6 +876,8 @@ export const setComponent = <C extends Component>(
     // component.valueMap[entity] = value
     bitECS.addComponent(HyperFlux.store, entity, component)
   }
+
+  _mergeComponentState(entity, component, args)
 
   component.onSet(entity, component.stateMap[entity], args)
   // component.valueMap[entity] = component.stateMap[entity].get(NO_PROXY_STEALTH)

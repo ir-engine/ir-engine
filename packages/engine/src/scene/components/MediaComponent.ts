@@ -94,16 +94,6 @@ export const MediaElementComponent = defineComponent({
     abortController: S.Class(() => new AbortController())
   }),
 
-  toJSON: () => {
-    return null! as { element: HTMLMediaElement }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.element === 'object' && json.element !== component.element.get({ noproxy: true }))
-      component.element.set(json.element as HTMLMediaElement)
-  },
-
   reactor: () => {
     const entity = useEntityContext()
     const mediaElementComponent = useComponent(entity, MediaElementComponent)
@@ -162,20 +152,6 @@ export const MediaComponent = defineComponent({
      */
     // autoStartTime: -1
   }),
-
-  toJSON: (component) => {
-    return {
-      controls: component.controls,
-      autoplay: component.autoplay,
-      resources: [...component.resources].filter(Boolean), // filter empty strings
-      volume: component.volume,
-      uiOffset: component.uiOffset,
-      synchronize: component.synchronize,
-      playMode: component.playMode,
-      isMusic: component.isMusic,
-      seekTime: component.seekTime // we can start media from a specific point if needed
-    }
-  },
 
   reactor: MediaReactor,
 
