@@ -66,7 +66,7 @@ import {
 } from '../assets/loaders/gltf/GLTFExtensions'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { ErrorComponent } from '../scene/components/ErrorComponent'
-import { SceneDynamicLoadTagComponent } from '../scene/components/SceneDynamicLoadTagComponent'
+import { SceneDynamicLoadComponent } from '../scene/components/SceneDynamicLoadComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { addError, removeError } from '../scene/functions/ErrorFunctions'
 import { SceneJsonType } from '../scene/types/SceneTypes'
@@ -171,7 +171,7 @@ const buildComponentDependencies = (json: GLTF.IGLTF) => {
     if (node.extensions && node.extensions[UUIDComponent.jsonID]) {
       const uuid = node.extensions[UUIDComponent.jsonID] as EntityUUID
       const extensions = Object.keys(node.extensions)
-      if (typeof node.extensions[SceneDynamicLoadTagComponent.jsonID] !== 'undefined') continue
+      if (typeof node.extensions[SceneDynamicLoadComponent.jsonID] !== 'undefined') continue
       for (const extension of extensions) {
         if (loadDependencies[extension]) {
           if (!dependencies.componentDependencies[uuid]) dependencies.componentDependencies[uuid] = []
@@ -354,7 +354,7 @@ const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: stri
   const layer = LayerComponent.get(gltfComponentEntity)
   const entity = UUIDComponent.useEntityByUUID(uuid as EntityUUID, layer) as Entity | undefined
   const hasComponents = useHasComponents(entity ?? UndefinedEntity, components)
-  const dynamicLoad = !!useOptionalComponent(entity ?? UndefinedEntity, SceneDynamicLoadTagComponent)
+  const dynamicLoad = !!useOptionalComponent(entity ?? UndefinedEntity, SceneDynamicLoadComponent)
   return entity && !dynamicLoad && hasComponents ? (
     <>
       {components.map((component) => {
@@ -458,7 +458,7 @@ const useGLTFDocument = (entity: Entity) => {
   const state = useComponent(entity, GLTFComponent)
   const url = state.src.value
 
-  const dynamicLoadComponent = useOptionalComponent(entity, SceneDynamicLoadTagComponent)
+  const dynamicLoadComponent = useOptionalComponent(entity, SceneDynamicLoadComponent)
   const layer = LayerComponent.get(entity)
   const isEditing = layer === Layers.Authoring
 
@@ -516,10 +516,11 @@ const useGLTFDocument = (entity: Entity) => {
     return () => {
       abortController.abort()
       if (!hasComponent(entity, GLTFComponent)) return
+      state.document.set(null)
       state.body.set(null)
       state.progress.set(0)
     }
-  }, [url])
+  }, [url, dynamicLoadAndNotEditing])
 }
 
 export const parseBinaryData = (data) => {

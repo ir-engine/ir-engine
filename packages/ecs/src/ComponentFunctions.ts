@@ -28,7 +28,7 @@ Infinite Reality Engine. All Rights Reserved.
  * @todo Write the `fileoverview` for `ComponentFunctions.ts`
  */
 import * as bitECS from 'bitecs'
-import React, { useEffect } from 'react'
+import React from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
 
@@ -50,11 +50,11 @@ import { ECSState } from './ECSState'
 import { Easing, EasingFunction } from './EasingFunctions'
 import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext, entityExists, removeEntity } from './EntityFunctions'
-import { createEntity } from './createEntity'
-import { Kind, Static, Schema as TSchema, TTypedSchema } from './schemas/JSONSchemaTypes'
 import { defineQuery, removeQuery } from './QueryFunctions'
 import { Transitionable, TransitionableTypes, getTransitionableKeyForType } from './Transitionable'
 import * as bitECSLegacy from './bitecsLegacy'
+import { createEntity } from './createEntity'
+import { Kind, Static, Schema as TSchema, TTypedSchema } from './schemas/JSONSchemaTypes'
 import {
   CreateSchemaValue,
   DeserializeSchemaValue,
@@ -463,7 +463,9 @@ export const getOptionalComponent = <C extends Component>(
   entity: Entity,
   component: C
 ): ComponentType<C> | undefined => {
-  return bitECS.hasComponent(HyperFlux.store, entity, component) ? component.stateMap[entity].get(NO_PROXY_STEALTH) : undefined
+  return bitECS.hasComponent(HyperFlux.store, entity, component)
+    ? component.stateMap[entity].get(NO_PROXY_STEALTH)
+    : undefined
 }
 
 export const getComponent = <C extends Component>(entity: Entity, component: C): ComponentType<C> => {
@@ -865,8 +867,11 @@ export const setComponent = <C extends Component>(
   const componentExists = hasComponent(entity, component)
   if (!componentExists) {
     const value = createInitialComponentValue(entity, component)
-    const state = hookstate(value)//, subscribable())
-    component.stateMap[entity] = state
+    const state = hookstate(value) //, subscribable())
+
+    // check if a useOptionalComponent has already set it
+    if (component.stateMap[entity]) component.stateMap[entity].set(value)
+    else component.stateMap[entity] = state
     // state.subscribe<SetComponentType<C>>((v) => {
     //   if (!bitECS.hasComponent(HyperFlux.store, entity, component)) return
     //   console.log('subscribed', entity, component.name, v)
@@ -1059,13 +1064,9 @@ export function useOptionalComponent<C extends Component>(
   entity: Entity,
   component: C
 ): State<ComponentType<C>> | undefined {
-  const hasCpnt = hasComponent(entity, component)
-  if (!hasCpnt) {
-    component.stateMap[entity] = hookstate(none)
-  }
-
+  if (!component.stateMap[entity]) component.stateMap[entity] = hookstate(none) as State<ComponentType<C>>
   const componentState = useHookstate(component.stateMap[entity]) as State<ComponentType<C>>
-  return !hasCpnt ? undefined : componentState
+  return componentState.promised ? undefined : componentState
 }
 
 export const getComponentCountOfType = <C extends Component>(component: C): number => {

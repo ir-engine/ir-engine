@@ -46,7 +46,7 @@ import { OldColliderComponent } from './components/OldColliderComponent'
 import { ParticleSystemComponent } from './components/ParticleSystemComponent'
 import { PrimitiveGeometryComponent } from './components/PrimitiveGeometryComponent'
 import { RenderSettingsComponent } from './components/RenderSettingsComponent'
-import { SceneDynamicLoadTagComponent } from './components/SceneDynamicLoadTagComponent'
+import { SceneDynamicLoadComponent } from './components/SceneDynamicLoadComponent'
 import { ScenePreviewCameraComponent } from './components/ScenePreviewCamera'
 import { SceneSettingsComponent } from './components/SceneSettingsComponent'
 import { ScreenshareTargetComponent } from './components/ScreenshareTargetComponent'
@@ -90,7 +90,7 @@ export const SceneComponents = [
   PostProcessingComponent,
   PrimitiveGeometryComponent,
   RenderSettingsComponent,
-  SceneDynamicLoadTagComponent,
+  SceneDynamicLoadComponent,
   ScenePreviewCameraComponent,
   SceneSettingsComponent,
   ScreenshareTargetComponent,

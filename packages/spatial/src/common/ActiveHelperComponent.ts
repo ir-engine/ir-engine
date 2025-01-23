@@ -23,24 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Mesh } from 'three'
+import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 
-import { defineComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-
-import { S } from '@ir-engine/ecs'
-import { ObjectComponent } from './ObjectComponent'
-
-export const MeshComponent = defineComponent({
-  name: 'MeshComponent',
-
-  schema: S.Required(S.NonSerialized(S.Type<Mesh>())),
-
-  onSet(entity, component, json) {
-    component.set(json as Mesh)
-    setComponent(entity, ObjectComponent, json as Mesh)
-  },
-
-  onRemove(entity, component) {
-    removeComponent(entity, ObjectComponent)
-  }
-})
+export const ActiveHelperComponent = defineComponent({ name: 'ActiveHelperComponent' })

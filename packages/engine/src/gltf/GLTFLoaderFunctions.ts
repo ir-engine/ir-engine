@@ -190,7 +190,7 @@ const loadPrimitive = async (
   if (typeof materialIndex === 'number') {
     materialPromise = getDependency(options, 'material', materialIndex)
   } else {
-    materialPromise = Promise.resolve(defaultMaterial())
+    materialPromise = Promise.resolve(MaterialStateComponent.fallbackMaterial())
   }
 
   const hasDracoCompression = primitiveDef.extensions && primitiveDef.extensions[EXTENSIONS.KHR_DRACO_MESH_COMPRESSION]
@@ -218,8 +218,10 @@ const loadPrimitive = async (
 
     const promises = [] as Promise<void>[]
 
-    for (const attributeName of Object.keys(attributes)) {
+    for (const attributeName in attributes) {
       const threeAttributeName = ATTRIBUTES[attributeName] || attributeName.toLowerCase()
+      // Skip attributes already provided by e.g. Draco extension.
+      if (threeAttributeName in geometry.attributes) continue
       const attribute = primitiveDef.attributes[attributeName]
       promises.push(
         new Promise<void>(async (resolve) => {
@@ -1241,7 +1243,7 @@ const loadMesh = async (options: GLTFParserOptions, entity: Entity, nodeIndex: n
   //   throw new Error('THREE.GLTFLoader: Primitive mode unsupported: ' + primitive.mode)
   // }
 
-  if (typeof node.skin !== 'undefined') {
+  if (isSkinnedMesh) {
     const skinnedMesh = mesh as SkinnedMesh
     skinnedMesh.skeleton = new Skeleton()
     skinnedMesh.normalizeSkinWeights()
@@ -1588,17 +1590,6 @@ const DependencyMap = {
 
 export const getNodeUUID = (node: GLTF.INode, documentID: string, nodeIndex: number) =>
   (node.extensions?.[UUIDComponent.jsonID] as EntityUUID) ?? (`${documentID}-${nodeIndex}` as EntityUUID)
-
-export const defaultMaterial = () =>
-  new MeshStandardMaterial({
-    color: 0xffffff,
-    emissive: 0x000000,
-    metalness: 1,
-    roughness: 1,
-    transparent: false,
-    depthTest: true,
-    side: FrontSide
-  })
 
 export type GLTFParserOptions = {
   url: string

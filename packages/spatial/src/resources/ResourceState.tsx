@@ -55,9 +55,9 @@ import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/Obje
 import React, { useEffect } from 'react'
 import { Geometry } from '../common/constants/Geometry'
 import iterateObject3D from '../common/functions/iterateObject3D'
+import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { PerformanceState } from '../renderer/PerformanceState'
 import { RendererComponent } from '../renderer/WebGLRendererSystem'
-import { ColliderComponent } from '../physics/components/ColliderComponent'
 
 export interface DisposableObject {
   uuid: string
@@ -252,8 +252,9 @@ const resourceCallbacks = {
         //@ts-ignore
         asset.onUpdate = null
         if (discardUponUpload) {
+          /** @todo re-enable discard */
           // asset.source.data = null
-          asset.mipmaps = []
+          // asset.mipmaps = []
         }
       }
       if ((asset as CompressedTexture).isCompressedTexture && discardUponUpload) {
@@ -326,7 +327,8 @@ const resourceCallbacks = {
         if (typeof attr.onUpload === 'function') {
           attr.onUpload(function () {
             if (discardUponUpload) {
-              this.array = new this.array.constructor(1)
+              /** @todo re-enable discard */
+              // this.array = new this.array.constructor(1)
             }
             needsUploaded -= 1
             checkUploaded()
@@ -559,7 +561,8 @@ const addEntityResource = (
   returnedResources.push(resource)
 
   /** @todo disposal currently causes errors */
-  const entityHasAuthoringUpstream = getAuthoringCounterpart(entity) || getAncestorWithComponents(entity, [ColliderComponent]) // collider component is a hack to prevent unloading of physics objects
+  const entityHasAuthoringUpstream =
+    getAuthoringCounterpart(entity) || getAncestorWithComponents(entity, [ColliderComponent]) // collider component is a hack to prevent unloading of physics objects
 
   const callbacks = resourceCallbacks[resourceType]
   if (callbacks?.onLoad)

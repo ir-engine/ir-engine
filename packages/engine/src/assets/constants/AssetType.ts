@@ -51,6 +51,7 @@ export enum AssetExt {
   TGA = 'tga',
   KTX2 = 'ktx2',
   DDS = 'dds',
+  WEBP = 'webp',
 
   MP4 = 'mp4',
   AVI = 'avi',
