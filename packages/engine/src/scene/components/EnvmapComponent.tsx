@@ -31,7 +31,7 @@ import { defineComponent, getComponent } from '@ir-engine/ecs/src/ComponentFunct
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { setPlugin } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { removePlugin, setPlugin } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import {
   envmapParsReplaceLambert,
@@ -100,6 +100,10 @@ export const BoxProjectionPlugin = defineComponent({
       }
 
       setPlugin(materialComponent.material as Material, callback)
-    })
+
+      return () => {
+        removePlugin(materialComponent.material as Material, callback)
+      }
+    }, [])
   }
 })
