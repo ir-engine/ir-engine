@@ -23,12 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { getState, HyperFlux } from '@ir-engine/hyperflux'
+import { HyperFlux } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import * as bitECS from 'bitecs'
-import { Vector3 } from 'three'
 import {
   defineComponent,
   getComponent,
@@ -46,8 +45,6 @@ import { createEntity } from './createEntity'
 import { createEngine, destroyEngine } from './Engine'
 import { Entity, UndefinedEntity } from './Entity'
 import { entityExists, removeEntity } from './EntityFunctions'
-import { EntityTreeComponent } from './EntityTree'
-import { UUIDComponent } from './UUIDComponent'
 
 /** @todo Move this describe into `EntityFunctions.test.tsx` instead */
 describe('createEntity', () => {
@@ -780,73 +777,3 @@ describe('Queries', () => {
   describe('useQuery', () => {}) //:: useQuery
   // @note The rest of the QueryFunctions file is not affected by the Layers changes
 }) //:: Queries
-
-//......................................................................................................................
-//......................................................................................................................
-describe.skip('old-tests-reference', () => {
-  // @warning Broken. Will remove.
-  // Reference from an old implementation.
-  describe('setComponent: Authoring Layer', async () => {
-    // changes target entity to destination layer
-    // adds component to destination layer entity
-    // removes component from destination layer entity
-    it('changes target entity to destination layer', async () => {
-      createEngine()
-
-      const parentEntity = createEntity('authoring' as LayerID)
-      const childEntity = createEntity('authoring' as LayerID)
-      const layerState = getState(EntityLayerState)
-      console.log(layerState)
-      const simParent = EntityLayerState.getLinkedEntity(parentEntity, 'simulation' as LayerID)
-      const simChild = EntityLayerState.getLinkedEntity(childEntity, 'simulation' as LayerID)
-
-      setComponent(childEntity, EntityTreeComponent, { parentEntity })
-
-      const simChildETree = getComponent(simChild, EntityTreeComponent)
-      assert.equal(simChildETree.parentEntity, simParent)
-
-      const authChildETree = getComponent(childEntity, EntityTreeComponent)
-      assert.equal(authChildETree.parentEntity, parentEntity)
-
-      destroyEngine()
-    })
-
-    it('adds component to destination layer entity', async () => {
-      createEngine()
-
-      const entity = createEntity('authoring' as LayerID)
-      const simEntity = EntityLayerState.getLinkedEntity(entity, 'simulation' as LayerID)
-
-      setComponent(entity, UUIDComponent, 'AAAAAAAAAAAAHHHHHHHHHHHHHHHHH' as EntityUUID)
-
-      assert.equal(getComponent(simEntity, UUIDComponent), 'AAAAAAAAAAAAHHHHHHHHHHHHHHHHH')
-      assert.equal(getComponent(entity, UUIDComponent), getComponent(simEntity, UUIDComponent))
-
-      destroyEngine()
-    })
-
-    it('removes component from destination layer entity', async () => {
-      createEngine()
-
-      const entity = createEntity('authoring' as LayerID)
-      const simEntity = EntityLayerState.getLinkedEntity(entity, 'simulation' as LayerID)
-
-      setComponent(entity, TransformComponent, { position: new Vector3(1, 2, 3) })
-
-      assert.equal(getComponent(simEntity, TransformComponent).position.x, 1)
-
-      removeComponent(simEntity, TransformComponent)
-
-      assert.equal(hasComponent(simEntity, TransformComponent), false)
-      assert.equal(hasComponent(entity, TransformComponent), true)
-
-      setComponent(entity, TransformComponent, { position: new Vector3(4, 5, 6) })
-
-      assert.equal(getComponent(simEntity, TransformComponent).position.x, 4)
-      removeComponent(entity, TransformComponent)
-      assert.equal(hasComponent(simEntity, TransformComponent), false)
-
-      destroyEngine()
-    })
-  })
-}) // old-tests-reference
