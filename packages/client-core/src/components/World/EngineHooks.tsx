@@ -67,7 +67,7 @@ export const useEngineInjection = () => {
         loaded.set(true)
         logger.error('Failed to load engine injection', e)
       })
-  }, [projects.data])
+  }, projects.data)
   return loaded.value
 }
 

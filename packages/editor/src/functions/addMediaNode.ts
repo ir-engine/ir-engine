@@ -71,7 +71,7 @@ export async function addMediaNode(
   parent?: Entity,
   before?: Entity,
   extraComponentJson: ComponentJsonType[] = []
-) {
+): Promise<EntityUUID | null> {
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
   console.log(contentType)
@@ -85,7 +85,7 @@ export async function addMediaNode(
       const mouse = new Vector2()
       const mouseEvent = event as MouseEvent // Type assertion
       const element = mouseEvent.target as HTMLElement
-      let rect = element.getBoundingClientRect()
+      const rect = element.getBoundingClientRect()
       mouse.x = ((mouseEvent.clientX - rect.left) / rect.width) * 2 - 1
       mouse.y = -((mouseEvent.clientY - rect.top) / rect.height) * 2 + 1
       // const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
@@ -101,72 +101,82 @@ export async function addMediaNode(
 
       // setComponent(rayEntity, LineSegmentComponent, { geometry: lineGeometry })
 
-      startReactor(() => {
-        const assetEntity = useMutableState(GLTFSourceState)[url].value
-        const progress = useOptionalComponent(assetEntity, GLTFComponent)?.progress
-        const material = useChildWithComponents(assetEntity, [MaterialStateComponent])
+      return await new Promise((resolve, reject) =>
+        startReactor(() => {
+          const assetEntity = useMutableState(GLTFSourceState)[url].value
+          const progress = useOptionalComponent(assetEntity, GLTFComponent)?.progress
+          const material = useChildWithComponents(assetEntity, [MaterialStateComponent])
 
-        useEffect(() => {
-          if (!assetEntity) {
-            GLTFSourceState.load(url)
-            return
-          }
-        }, [progress])
+          useEffect(() => {
+            if (!assetEntity) {
+              GLTFSourceState.load(url)
+              return
+            }
+          }, [progress])
 
-        useEffect(() => {
-          if (!material) return
+          useEffect(() => {
+            if (!material) return
 
-          let foundTarget = false
-          for (const intersection of intersections) {
-            iterateEntityNode(intersection.object.entity, (entity: Entity) => {
-              const mesh = getOptionalComponent(entity, MeshComponent)
-              if (!mesh || !mesh.visible) return
-              assignMaterial(entity, material)
-              foundTarget = true
-            })
-            if (foundTarget) break
-          }
-        }, [material])
-        return null
-      })
+            let foundTarget = false
+            for (const intersection of intersections) {
+              iterateEntityNode(intersection.object.entity, (entity: Entity) => {
+                const mesh = getOptionalComponent(entity, MeshComponent)
+                if (!mesh || !mesh.visible) return
+                assignMaterial(entity, material)
+                foundTarget = true
+              })
+              if (foundTarget) break
+            }
+            resolve(null)
+          }, [material])
+          return null
+        })
+      )
     } else if (contentType.startsWith('model/lookdev')) {
       const gltfLoader = getState(AssetLoaderState).gltfLoader
       const spinnerEntity = createLoadingSpinner('lookdev loading spinner', getState(EditorState).rootEntity)
-      gltfLoader.load(
-        url,
-        (gltf) => {
-          const componentJson = gltf.scene.children[0].userData.componentJson
-          EditorControlFunctions.overwriteLookdevObject(
-            [{ name: GLTFComponent.jsonID, props: { src: url } }, ...extraComponentJson],
-            componentJson,
-            parent!,
-            before
-          )
-          removeEntityNodeRecursively(spinnerEntity)
-        },
-        null,
-        (error) => {
-          removeEntityNodeRecursively(spinnerEntity)
-        }
+      return await new Promise((resolve, reject) =>
+        gltfLoader.load(
+          url,
+          (gltf) => {
+            const componentJson = gltf.scene.children[0].userData.componentJson
+            EditorControlFunctions.overwriteLookdevObject(
+              [{ name: GLTFComponent.jsonID, props: { src: url } }, ...extraComponentJson],
+              componentJson,
+              parent!,
+              before
+            )
+            removeEntityNodeRecursively(spinnerEntity)
+            resolve(null)
+          },
+          null,
+          (error) => {
+            removeEntityNodeRecursively(spinnerEntity)
+            reject(error)
+          }
+        )
       )
     } else if (contentType.startsWith('model/prefab')) {
-      loadGLTFFile(url, (gltf) => {
-        if (gltf.nodes) {
-          const uuidReplacements = [] as [EntityUUID, EntityUUID][]
-          gltf.nodes.forEach((node) => {
-            if (node.extensions && node.extensions[UUIDComponent.jsonID]) {
-              const prevUUID = node.extensions[UUIDComponent.jsonID] as EntityUUID
-              const newUUID = generateEntityUUID()
-              node.extensions[UUIDComponent.jsonID] = newUUID
-              uuidReplacements.push([prevUUID, newUUID])
-            }
-          })
-          gltfReplaceUUIDsReferences(gltf, uuidReplacements)
-        }
-        EditorControlFunctions.appendToSnapshot(gltf)
-      })
+      return await new Promise((resolve) =>
+        loadGLTFFile(url, (gltf) => {
+          if (gltf.nodes) {
+            const uuidReplacements = [] as [EntityUUID, EntityUUID][]
+            gltf.nodes.forEach((node) => {
+              if (node.extensions && node.extensions[UUIDComponent.jsonID]) {
+                const prevUUID = node.extensions[UUIDComponent.jsonID] as EntityUUID
+                const newUUID = generateEntityUUID()
+                node.extensions[UUIDComponent.jsonID] = newUUID
+                uuidReplacements.push([prevUUID, newUUID])
+              }
+            })
+            gltfReplaceUUIDsReferences(gltf, uuidReplacements)
+          }
+          EditorControlFunctions.appendToSnapshot(gltf)
+          resolve(null)
+        })
+      )
     } else {
-      EditorControlFunctions.createObjectFromSceneElement(
+      const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
         [
           { name: GLTFComponent.jsonID, props: { src: url, progress: 0, body: null } },
           { name: ShadowComponent.jsonID },
@@ -176,9 +186,10 @@ export async function addMediaNode(
         parent!,
         before
       )
+      return entityUUID
     }
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
-    EditorControlFunctions.createObjectFromSceneElement(
+    const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
       [
         { name: VideoComponent.jsonID },
         { name: PositionalAudioComponent.jsonID },
@@ -188,14 +199,16 @@ export async function addMediaNode(
       parent!,
       before
     )
+    return entityUUID
   } else if (contentType.startsWith('image/')) {
-    EditorControlFunctions.createObjectFromSceneElement(
+    const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
       [{ name: ImageComponent.jsonID, props: { source: url } }, ...extraComponentJson],
       parent!,
       before
     )
+    return entityUUID
   } else if (contentType.startsWith('audio/')) {
-    EditorControlFunctions.createObjectFromSceneElement(
+    const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
       [
         { name: PositionalAudioComponent.jsonID },
         { name: MediaComponent.jsonID, props: { resources: [url] } },
@@ -204,9 +217,10 @@ export async function addMediaNode(
       parent!,
       before
     )
+    return entityUUID
   } else if (url.includes('.uvol')) {
     // TODO: detect whether to add LegacyVolumetricComponent or VolumetricComponent
-    EditorControlFunctions.createObjectFromSceneElement(
+    const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
       [
         { name: VolumetricComponent.jsonID },
         { name: MediaComponent.jsonID, props: { resources: [url] } },
@@ -215,5 +229,7 @@ export async function addMediaNode(
       parent!,
       before
     )
+    return entityUUID
   }
+  return null
 }

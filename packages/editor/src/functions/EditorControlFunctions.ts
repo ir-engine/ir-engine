@@ -61,6 +61,7 @@ import { getMaterial } from '@ir-engine/spatial/src/renderer/materials/materialF
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
+import { appendGLTF } from '@ir-engine/engine/src/gltf/gltfUtils'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
 import { ComponentDropdownState } from '@ir-engine/ui/src/components/editor/ComponentDropdown/ComponentDropdownState'
 import { EditorHelperState } from '../services/EditorHelperState'
@@ -106,30 +107,10 @@ const appendToSnapshot = (toAppend: GLTF.IGLTF, parent = getState(EditorState).r
 
   const sceneID = getComponent(parent, SourceComponent)
   const gltf = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
-  const offset = gltf.data.nodes!.length
 
-  const nodesToAppend = toAppend.scenes[0].nodes
-  for (let i = 0; i < nodesToAppend.length; i++) {
-    const nodeIndex = nodesToAppend[i]
-    const newIndex = appendNode(nodeIndex, toAppend, gltf.data, offset)
-    gltf.data.scenes![0].nodes.push(newIndex)
-  }
+  appendGLTF(toAppend, gltf.data)
 
   dispatchAction(GLTFSnapshotAction.createSnapshot(gltf))
-}
-
-const appendNode = (nodeIndex: number, src: GLTF.IGLTF, dst: GLTF.IGLTF, offset: number): number => {
-  const node = src.nodes![nodeIndex]
-  const offsetIndex = offset + nodeIndex
-  dst.nodes![offsetIndex] = node
-  if (node.children) {
-    node.children = node.children.map((index) => {
-      appendNode(index, src, dst, offset)
-      return offset + index
-    })
-  }
-
-  return offsetIndex
 }
 
 const addOrRemoveComponent = <C extends Component<any, any>>(

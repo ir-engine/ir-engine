@@ -200,6 +200,20 @@ export const GLTFComponent = defineComponent({
     return componentDependenciesLoaded(dependencies) && progress === 100
   },
 
+  getInstanceID: (entity: Entity) => {
+    const uuid = getOptionalComponent(entity, UUIDComponent)
+    const src = getOptionalComponent(entity, GLTFComponent)?.src
+    if (!uuid || !src) return ''
+    return `${uuid}-${src}`
+  },
+
+  useInstanceID: (entity: Entity) => {
+    const uuid = useOptionalComponent(entity, UUIDComponent)?.value
+    const src = useOptionalComponent(entity, GLTFComponent)?.src.value
+    if (!uuid || !src) return ''
+    return `${uuid}-${src}`
+  },
+
   reactor: () => {
     const entity = useEntityContext()
     const gltfComponent = useComponent(entity, GLTFComponent)
@@ -236,20 +250,6 @@ export const GLTFComponent = defineComponent({
         ) : null}
       </>
     )
-  },
-
-  getInstanceID: (entity: Entity) => {
-    const uuid = getOptionalComponent(entity, UUIDComponent)
-    const src = getOptionalComponent(entity, GLTFComponent)?.src
-    if (!uuid || !src) return ''
-    return `${uuid}-${src}`
-  },
-
-  useInstanceID: (entity: Entity) => {
-    const uuid = useOptionalComponent(entity, UUIDComponent)?.value
-    const src = useOptionalComponent(entity, GLTFComponent)?.src.value
-    if (!uuid || !src) return ''
-    return `${uuid}-${src}`
   }
 })
 

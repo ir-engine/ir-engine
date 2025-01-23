@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Not } from 'bitecs'
+import { Not } from '@ir-engine/ecs'
 
 import { PresentationSystemGroup } from '@ir-engine/ecs'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'

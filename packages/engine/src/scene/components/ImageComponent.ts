@@ -98,7 +98,7 @@ export function resizeVideoMesh(mesh: Mesh<any, ShaderMaterial>) {
 
   if (!width || !height) return
 
-  const transform = getComponent(mesh.entity, TransformComponent)
+  const transform = getComponent(mesh.entity!, TransformComponent)
 
   const ratio = (height || 1) / (width || 1)
   const _width = Math.min(1.0, 1.0 / ratio)

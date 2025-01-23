@@ -178,7 +178,7 @@ export function meshHeuristic(intersectionData: Set<IntersectionData>, position:
 
   const hits = _raycaster.intersectObjects(objects, true)
   for (const hit of hits) {
-    intersectionData.add({ entity: hit.object.entity, distance: hit.distance })
+    intersectionData.add({ entity: hit.object.entity!, distance: hit.distance })
   }
 }
 

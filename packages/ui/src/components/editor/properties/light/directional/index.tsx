@@ -72,7 +72,7 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <LightShadowProperties entity={props.entity} component={DirectionalLightComponent} />
-      <InputGroup name="Camera Near" label={t('editor:properties.directionalLight.lbl-cameraNear')}>
+      <InputGroup name="Camera far" label={t('editor:properties.directionalLight.lbl-cameraFar')}>
         <NumericInput
           min={0}
           smallStep={0.01}

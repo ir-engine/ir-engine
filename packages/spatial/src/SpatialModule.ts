@@ -23,10 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-export * from './ReferenceSpaceState'
 export * from './camera/CameraModule'
 export * from './input/InputModule'
 export * from './physics/PhysicsModule'
+export * from './ReferenceSpaceState'
 export * from './renderer/RendererModule'
 export * from './threejsPatches'
 export * from './transform/TransformModule'
