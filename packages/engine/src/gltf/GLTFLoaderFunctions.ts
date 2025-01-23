@@ -1490,8 +1490,6 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
 
   const animationClips = await Promise.all(animationPromises)
 
-  console.log({animationClips})
-
   if (animationClips.length > 0) {
     const obj3d = getComponent(rootEntity, ObjectComponent)
     obj3d.animations = animationClips
