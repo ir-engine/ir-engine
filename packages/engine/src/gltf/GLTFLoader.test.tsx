@@ -132,7 +132,7 @@ describe('GLTF Loader', { retry: 2 }, async () => {
       { timeout: 20000 }
     )
 
-    assert(meshes.length !== usedMeshes.size)
+    assert(meshes.length === usedMeshes.size)
     unmount()
   })
 
