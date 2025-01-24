@@ -374,17 +374,18 @@ export const S = {
       properties: {}
     }) as TSoASchema<T>,
 
-  SoAProxyObject: <T extends TProperties, P extends (entity: Entity) => C, C extends object>(
+  SoAProxyObject: <T extends TProperties, P extends (entity: Entity) => any>(
     factory: P,
     properties: T,
-    options: TSoAProxyObjectSchema<T, P, C>['options']
-  ) =>
-    ({
+    options: TSoAProxyObjectSchema<T, any, ReturnType<P>>['options']
+  ) => {
+    return {
       [Kind]: 'SoAProxyObject',
       options: {
         ...options,
         default: factory
       },
       properties: properties
-    }) as TSoAProxyObjectSchema<T, P, C>
+    } as TSoAProxyObjectSchema<T, P, ReturnType<P>>
+  }
 }
