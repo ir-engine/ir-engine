@@ -24,6 +24,8 @@ import { useTranslation } from 'react-i18next'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useFind, useMutation } from '@ir-engine/common'
+import { config } from '@ir-engine/common/src/config'
+import { ModelTransformStatus, transformModel } from '@ir-engine/common/src/model/ModelTransformFunctions'
 import {
   LocationData,
   LocationID,
@@ -41,10 +43,17 @@ import {
   iterateEntityNode,
   setComponent
 } from '@ir-engine/ecs'
-import { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
+import { LODVariantDescriptor, defaultLODs } from '@ir-engine/editor/src/constants/GLTFPresets'
+import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'
+import exportGLTF, { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
 import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/ModelTransform'
+import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { Heuristic, VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
+import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -56,6 +65,7 @@ import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import { ModalHeader } from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 import { HiLink } from 'react-icons/hi2'
+import { LoaderUtils } from 'three'
 const getDefaultErrors = () => ({
   name: '',
   maxUsers: '',
@@ -111,6 +121,11 @@ export default function AddEditLocationModal(props: {
   const audioEnabled = useHookstate<boolean>(location?.locationSetting.audioEnabled || true)
   const screenSharingEnabled = useHookstate<boolean>(location?.locationSetting.screenSharingEnabled || true)
   const locationType = useHookstate(location?.locationSetting.locationType || 'public')
+  const compressionProgress = useHookstate({
+    progress: 0,
+    caption: ''
+  })
+  const lods = useHookstate<LODVariantDescriptor[]>([])
 
   useEffect(() => {
     if (location) {
@@ -169,7 +184,11 @@ export default function AddEditLocationModal(props: {
         const meshEntity = [] as Entity[]
         setComponent(meshParentEntity, EntityTreeComponent, { parentEntity: rootEntity })
         setComponent(meshParentEntity, NameComponent, 'combined mesh entity')
-        setComponent(meshParentEntity, GLTFComponent)
+        setComponent(meshParentEntity, TransformComponent)
+        const currentUrl = new URL(window.location.href)
+        const srcURL = pathJoin(config.client.fileServer, saveScenePath + '/combined-mesh.gltf')
+        // setComponent(meshParentEntity, SourceComponent )
+        // setComponent(meshParentEntity,GLTFComponent ,{src:srcURL})
         iterateEntityNode(rootEntity, (entity) => {
           if (hasComponent(entity, MeshComponent)) {
             if (meshEntity.includes(entity) || hasComponent(entity, ColliderComponent)) return
@@ -188,7 +207,8 @@ export default function AddEditLocationModal(props: {
         })
         //export parent entities and combined mesh entity
         const exportParentEntity = [] as Entity[]
-        exportRelativeGLTF(meshParentEntity, projectName, 'public/publish/combined-mesh.gltf')
+        await exportRelativeGLTF(meshParentEntity, projectName, 'public/publish/combined-mesh.gltf', false)
+        setComponent(meshParentEntity, GLTFComponent, { src: srcURL })
         // meshEntity.forEach((entity) => {
         //   const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
         //   if (exportParentEntity.includes(parentEntity)) return
@@ -196,18 +216,66 @@ export default function AddEditLocationModal(props: {
         //   const name = getComponent(parentEntity, NameComponent)
         //   exportRelativeGLTF(parentEntity, projectName, 'public/publish/' + name + '.gltf')
         // })
+
         //put combined mesh entity to compression
-        // const url = new URL(file.url)
-        // const srcURL = pathJoin(url.origin, url.pathname)
-        // await transformModel(
-        //   srcURL,
-        //   [DefaultModelTransformParameters],
-        //   (i, key, data) => {
-        //     if (!transformMetadata[i]) transformMetadata[i] = {}
-        //     transformMetadata[i][key] = data
-        //   },
-        //   onProgress
-        // )
+        // const currentUrl = new URL(window.location.href)
+        //const srcURL = 'https://localhost:8642/projects/test/hello-world/public/publish/test.gltf'
+        const transformMetadata: Record<string, any>[] = []
+
+        const progressCaptions: Record<ModelTransformStatus, string> = {
+          [ModelTransformStatus.TransformingModels]: 'editor:properties.model.transform.status.transformingmodels',
+          [ModelTransformStatus.ProcessingTexture]: 'editor:properties.model.transform.status.processingtexture',
+          [ModelTransformStatus.WritingFiles]: 'editor:properties.model.transform.status.writingfiles',
+          [ModelTransformStatus.Complete]: 'editor:properties.model.transform.status.complete'
+        }
+        const fileName = srcURL.split('/').pop()!.split('.').shift()!
+        const defaults = defaultLODs.map((defaultLOD) => {
+          const lod = JSON.parse(JSON.stringify(defaultLOD)) as LODVariantDescriptor
+          lod.params.dst = fileName + lod.suffix
+          lod.params.modelFormat = srcURL.endsWith('.gltf') ? 'gltf' : srcURL.endsWith('.vrm') ? 'vrm' : 'glb'
+          lod.params.resourceUri = ''
+          return lod
+        })
+        lods.set(defaults)
+        let fileLODs = lods.value as LODVariantDescriptor[]
+
+        const lodVariantParams: ModelTransformParameters[] = fileLODs.map((lod) => ({
+          ...lod.params
+        }))
+        await transformModel(
+          srcURL,
+          lodVariantParams,
+          (i, key, data) => {
+            if (!transformMetadata[i]) transformMetadata[i] = {}
+            transformMetadata[i][key] = data
+          },
+          (progress, status, numerator, denominator) => {
+            const caption = t(progressCaptions[status]!, {
+              numerator: numerator! + 1,
+              denominator
+            })
+            compressionProgress.set({ progress, caption })
+          }
+        )
+        const result = createSceneEntity('container')
+        const variant = createSceneEntity('LOD Variant', result)
+        const heuristic = Heuristic.DISTANCE
+        setComponent(variant, VariantComponent, {
+          levels: lods.map((lod, lodIndex) => ({
+            src: `${LoaderUtils.extractUrlBase(srcURL)}${lod.params.dst}.${lod.params.modelFormat}`,
+            metadata: {
+              ...lod.variantMetadata,
+              ...transformMetadata[lodIndex]
+            }
+          })),
+          heuristic
+        })
+        const destinationPath = srcURL.replace(/\.[^.]*$/, `-integrated.gltf`)
+        iterateEntityNode(result, (entity) => setComponent(entity, SourceComponent, destinationPath))
+        await exportGLTF(result, destinationPath, false)
+        // removeEntityNodeRecursively(meshParentEntity)
+        // removeEntityNodeRecursively(result)
+        await addMediaNode('https://localhost:8642/projects/test/hello-world/asset/combined-mesh-LOD0.gltf')
         PopoverState.hidePopupover()
       }
     } catch (error) {
@@ -218,6 +286,7 @@ export default function AddEditLocationModal(props: {
   }
 
   const handlePublish = async () => {
+    await handlePublishFolder()
     errors.set(getDefaultErrors())
 
     if (!name.value) {
