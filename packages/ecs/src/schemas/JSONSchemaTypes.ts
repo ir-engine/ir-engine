@@ -191,16 +191,13 @@ export interface TArraySchema<T extends Schema> extends Schema {
   properties: T
 }
 
-export interface TSoASchema<T extends Type> extends Schema {
+export interface TSoASchema<T extends Type> extends Omit<Schema, 'schema'> {
   [Kind]: 'SoA'
   soa: ArrayByType[T]
   options?: Options<this['static']> & {
     type: T
   }
 }
-
-// P needs to be a factor function that takes an entity and returns a class instance
-// infer C
 
 export interface TSoAProxyObjectSchema<T extends TProperties, P extends (entity: Entity) => C, C extends object>
   extends Schema {

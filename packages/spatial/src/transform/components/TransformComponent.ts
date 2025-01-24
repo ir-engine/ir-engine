@@ -29,7 +29,6 @@ import { EntityTreeComponent, getAncestorWithComponents, S, Types } from '@ir-en
 import { defineComponent, getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
-import { ECSSchema } from '@ir-engine/ecs/src/schemas/ECSSchemas'
 import { isZero } from '../../common/functions/MathFunctions'
 import {
   proxifyQuaternionWithDirty,
@@ -47,34 +46,20 @@ export type TransformComponentType = {
   matrixWorld: Matrix4
 }
 
-export const PoseECS = {
-  position: ECSSchema.Vec3,
-  rotation: ECSSchema.Quaternion
-}
-export const TransformECS = {
-  position: ECSSchema.Vec3,
-  rotation: ECSSchema.Quaternion,
-  scale: ECSSchema.Vec3,
-  dirty: Types.ui8
-  // There might be a way to make this a performance gain, but in testing it's about 15% slower than JS arrays
-  // matrix: ECSSchema.Mat4,
-  // matrixWorld: ECSSchema.Mat4
-}
-
-const Vec3Schema = {
+export const Vec3Schema = {
   x: S.SoA(Types.f64),
   y: S.SoA(Types.f64),
   z: S.SoA(Types.f64)
 }
 
-const QuatSchema = {
+export const QuatSchema = {
   x: S.SoA(Types.f64),
   y: S.SoA(Types.f64),
   z: S.SoA(Types.f64),
   w: S.SoA(Types.f64)
 }
 
-const assignPosition = (entity: Entity): Vector3 & ProxyExtensions =>
+const assignPosition = (entity: Entity): Vector3 & ProxyExtensions => 
   proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirty)
 
 const assignRotation = (entity: Entity): Quaternion & ProxyExtensions =>
@@ -92,36 +77,19 @@ export const TransformComponent = defineComponent({
   jsonID: 'EE_transform',
 
   schema: S.Object({
-    position: S.SoAProxyObject(assignPosition, Vec3Schema, options),
-    rotation: S.SoAProxyObject(assignRotation, QuatSchema, options),
-    scale: S.SoAProxyObject(assignScale, Vec3Schema, options),
+    position: S.SoAProxyObject(assignPosition, Vec3Schema, options) as any,
+    rotation: S.SoAProxyObject(assignRotation, QuatSchema, options) as any,
+    scale: S.SoAProxyObject(assignScale, Vec3Schema, options) as any,
     matrix: T.Mat4(),
     matrixWorld: T.Mat4(),
     dirty: S.SoA(Types.ui8)
   }),
-
-  // schema: TransformECS,
-
-  // onInit: (initial) => {
-  //   const entity = initial.entity
-  //   const dirtyTransforms = TransformComponent.dirty
-  //   const component = {
-  //     position: Vec3ProxyDirty(initial.position, entity, dirtyTransforms),
-  //     rotation: QuaternionProxyDirty(initial.rotation, entity, dirtyTransforms),
-  //     scale: Vec3ProxyDirty(initial.scale, entity, dirtyTransforms, { x: 1, y: 1, z: 1 }),
-  //     matrix: new Matrix4(),
-  //     matrixWorld: new Matrix4()
-  //   } as TransformComponentType
-  //   return component
-  // },
 
   onSet: (entity, component, json) => {
     if (!json) return
     if (json.position) component.position.value.copy(json.position)
     if (json.rotation) component.rotation.value.copy(json.rotation)
     if (json.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
-
-    TransformComponent.matrix
 
     composeMatrix(entity)
     const entityTree = getOptionalComponent(entity, EntityTreeComponent)

@@ -27,48 +27,67 @@ import { NormalizedLandmark } from '@mediapipe/tasks-vision'
 import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 
-import { useEntityContext } from '@ir-engine/ecs'
+import { S, Types, useEntityContext } from '@ir-engine/ecs'
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { ECSSchema } from '@ir-engine/ecs/src/schemas/ECSSchemas'
 
 export const MotionCaptureRigComponent = defineComponent({
   name: 'MotionCaptureRigComponent',
 
-  schema: {
-    rig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, ECSSchema.Quaternion])) as Record<
-      VRMHumanBoneName,
-      typeof ECSSchema.Quaternion
-    >,
-    slerpedRig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, ECSSchema.Quaternion])) as Record<
-      VRMHumanBoneName,
-      typeof ECSSchema.Quaternion
-    >,
-    hipPosition: ECSSchema.Vec3,
-    hipRotation: ECSSchema.Quaternion,
-    footOffset: 'f64',
-    solvingLowerBody: 'ui8'
-  },
+  schema: S.Object({
+    rig: S.Object(
+      Object.fromEntries(
+        VRMHumanBoneList.map((b) => [
+          b,
+          S.Object({
+            x: S.SoA(Types.f64),
+            y: S.SoA(Types.f64),
+            z: S.SoA(Types.f64)
+          })
+        ])
+      )
+    ),
+    slerpedRig: S.Object(
+      Object.fromEntries(
+        VRMHumanBoneList.map((b) => [
+          b,
+          S.Object({
+            x: S.SoA(Types.f64),
+            y: S.SoA(Types.f64),
+            z: S.SoA(Types.f64),
+            w: S.SoA(Types.f64)
+          })
+        ])
+      )
+    ),
+    hipPosition: S.Object({
+      x: S.SoA(Types.f64),
+      y: S.SoA(Types.f64),
+      z: S.SoA(Types.f64)
+    }),
+    hipRotation: S.Object({
+      x: S.SoA(Types.f64),
+      y: S.SoA(Types.f64),
+      z: S.SoA(Types.f64),
+      w: S.SoA(Types.f64)
+    }),
+    footOffset: S.SoA(Types.f64),
+    solvingLowerBody: S.SoA(Types.ui8, 1),
+    prevWorldLandmarks: S.Array(S.Object({ x: S.Number() })),
+    prevScreenLandmarks: S.Array(S.Number())
+  }),
 
-  onInit: (initial) => {
-    return {
-      /** @todo if these have a fixed max length we can move them into the ecs schema */
-      prevWorldLandmarks: null as NormalizedLandmark[] | null,
-      prevScreenLandmarks: null as NormalizedLandmark[] | null
-    }
-  },
+  // reactor: function () {
+  //   const entity = useEntityContext()
 
-  reactor: function () {
-    const entity = useEntityContext()
+  //   useEffect(() => {
+  //     for (const boneName of VRMHumanBoneList) {
+  //       //causes issues with ik solves, commenting out for now
+  //       //proxifyVector3(AvatarRigComponent.rig[boneName].position, entity)
+  //       //proxifyQuaternion(AvatarRigComponent.rig[boneName].rotation, entity)
+  //     }
+  //     MotionCaptureRigComponent.solvingLowerBody[entity] = 1
+  //   }, [])
 
-    useEffect(() => {
-      for (const boneName of VRMHumanBoneList) {
-        //causes issues with ik solves, commenting out for now
-        //proxifyVector3(AvatarRigComponent.rig[boneName].position, entity)
-        //proxifyQuaternion(AvatarRigComponent.rig[boneName].rotation, entity)
-      }
-      MotionCaptureRigComponent.solvingLowerBody[entity] = 1
-    }, [])
-
-    return null
-  }
+  //   return null
+  // }
 })

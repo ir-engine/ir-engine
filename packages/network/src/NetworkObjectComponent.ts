@@ -33,8 +33,8 @@ import {
   Entity,
   getComponent,
   hasComponent,
-  ProxyWithECS,
   removeComponent,
+  S,
   setComponent,
   Types,
   UndefinedEntity,
@@ -50,25 +50,15 @@ let availableNetworkId = 0 as NetworkId
 export const NetworkObjectComponent = defineComponent({
   name: 'NetworkObjectComponent',
 
-  schema: {
-    networkId: Types.ui32
-  },
-
-  onInit: (initial) => {
-    return ProxyWithECS(
-      initial,
-      {
-        /** The user who is authority over this object. */
-        ownerId: '' as UserID,
-        ownerPeer: '' as PeerID,
-        /** The peer who is authority over this object. */
-        authorityPeerID: '' as PeerID,
-        /** The network id for this object (this id is only unique per owner) */
-        networkId: 0 as NetworkId
-      },
-      'networkId'
-    )
-  },
+  schema: S.Object({
+    /** The user who is authority over this object. */
+    ownerId: S.UserID('' as UserID),
+    ownerPeer: S.PeerID('' as PeerID),
+    /** The peer who is authority over this object. */
+    authorityPeerID: S.PeerID('' as PeerID),
+    /** The network id for this object (this id is only unique per owner) */
+    networkId: S.SoA(Types.ui32)
+  }),
 
   reactor: function () {
     const entity = useEntityContext()

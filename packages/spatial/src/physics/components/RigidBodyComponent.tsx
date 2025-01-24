@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEntityContext } from '@ir-engine/ecs'
+import { Entity, S, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   hasComponent,
@@ -32,54 +32,47 @@ import {
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 
-import { ECSSchema } from '@ir-engine/ecs/src/schemas/ECSSchemas'
 import { useEffect } from 'react'
-import { QuaternionProxy, Vec3Proxy } from '../../common/proxies/createThreejsProxy'
+import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Physics } from '../classes/Physics'
 import { Body, BodyTypes } from '../types/PhysicsTypes'
 
 import React from 'react'
+import { QuatSchema, Vec3Schema } from '../../transform/components/TransformComponent'
 
-const SCHEMA = {
-  previousPosition: ECSSchema.Vec3,
-  previousRotation: ECSSchema.Quaternion,
-  position: ECSSchema.Vec3,
-  rotation: ECSSchema.Quaternion,
-  targetKinematicPosition: ECSSchema.Vec3,
-  targetKinematicRotation: ECSSchema.Quaternion,
-  linearVelocity: ECSSchema.Vec3,
-  angularVelocity: ECSSchema.Vec3
+const options = {
+  deserialize: (curr, value) => curr.copy(value)
 }
+
+const assignVec3 = (property: string) => (entity: Entity) => proxifyVector3(RigidBodyComponent[property], entity)
+
+const assignQuat = (property: string) => (entity: Entity) => proxifyQuaternion(RigidBodyComponent[property], entity)
 
 export const RigidBodyComponent = defineComponent({
   name: 'RigidBodyComponent',
   jsonID: 'EE_rigidbody',
-  schema: SCHEMA,
-
-  onInit(initial) {
-    return {
-      type: 'fixed' as Body,
-      ccd: false,
-      allowRolling: true,
-      enabledRotations: [true, true, true] as [boolean, boolean, boolean],
-      // rigidbody desc values
-      canSleep: true,
-      gravityScale: 1,
-      // internal
-      /** @deprecated  @todo make the physics api properly reactive to remove this property  */
-      initialized: false,
-      previousPosition: Vec3Proxy(initial.previousPosition),
-      previousRotation: QuaternionProxy(initial.previousRotation),
-      position: Vec3Proxy(initial.position),
-      rotation: QuaternionProxy(initial.rotation),
-      targetKinematicPosition: Vec3Proxy(initial.targetKinematicPosition),
-      targetKinematicRotation: QuaternionProxy(initial.targetKinematicRotation),
-      linearVelocity: Vec3Proxy(initial.linearVelocity),
-      angularVelocity: Vec3Proxy(initial.angularVelocity),
-      /** If multiplier is 0, ridigbody moves immediately to target pose, linearly interpolating between substeps */
-      targetKinematicLerpMultiplier: 0
-    }
-  },
+  schema: S.Object({
+    type: S.Enum(BodyTypes, BodyTypes.Fixed),
+    ccd: S.Bool(false),
+    allowRolling: S.Bool(true),
+    enabledRotations: S.Tuple([S.Bool(true), S.Bool(true), S.Bool(true)]),
+    // rigidbody desc values
+    canSleep: S.Bool(true),
+    gravityScale: S.Number(1),
+    // internal
+    /** @deprecated  @todo make the physics api properly reactive to remove this property  */
+    initialized: S.Bool(false),
+    previousPosition: S.SoAProxyObject(assignVec3('previousPosition'), Vec3Schema, options),
+    previousRotation: S.SoAProxyObject(assignQuat('previousRotation'), QuatSchema, options),
+    position: S.SoAProxyObject(assignVec3('position'), Vec3Schema, options),
+    rotation: S.SoAProxyObject(assignQuat('rotation'), QuatSchema, options),
+    targetKinematicPosition: S.SoAProxyObject(assignVec3('targetKinematicPosition'), Vec3Schema, options),
+    targetKinematicRotation: S.SoAProxyObject(assignQuat('targetKinematicRotation'), QuatSchema, options),
+    linearVelocity: S.SoAProxyObject(assignVec3('linearVelocity'), Vec3Schema, options),
+    angularVelocity: S.SoAProxyObject(assignVec3('angularVelocity'), Vec3Schema, options),
+    /** If multiplier is 0, ridigbody moves immediately to target pose, linearly interpolating between substeps */
+    targetKinematicLerpMultiplier: S.Number(0)
+  }),
 
   onSet: (entity, component, json) => {
     if (!json) return

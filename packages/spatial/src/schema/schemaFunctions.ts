@@ -86,24 +86,6 @@ export const T = {
         id: 'Vec3'
       }
     ),
-  // Vec3Proxy: (
-  //   store: ReturnType<typeof createResizableTypeArray>,
-  //   init = { x: 0, y: 0, z: 0 },
-  //   options?: Options<Vector3>
-  // ) =>
-  //   S.SerializedClass(
-  //     (entity: Entity) => proxifyVector3(store, entity, new Vector3(init.x, init.y, init.z),
-  //     {
-  //       x: S.Number(),
-  //       y: S.Number(),
-  //       z: S.Number()
-  //     },
-  //     {
-  //       deserialize: (curr, value) => curr.copy(value),
-  //       ...options,
-  //       id: 'Vec3'
-  //     }
-  //   ),
 
   /** Vector2 type schema helper, defaults to { x: 0, y: 0 } */
   Vec2: (init = { x: 0, y: 0 }, options?: Options<Vector2>) =>

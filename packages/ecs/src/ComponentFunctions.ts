@@ -261,24 +261,13 @@ export type ComponentPropertyFromPath<T, Path extends string> = IsDirectProperty
  * ```ts
  * export const MyComponent = defineComponent({
  *   name: 'MyComponent',
- *   schema: {
- *     id: Types.ui32
- *   },
- *   onInit: (entity) => {
- *     return {
- *       myProp: 'My Value'
- *     }
- *   },
- *   toJSON: (component) => {
- *     return {
- *       myProp: component.myProp.value
- *     }
- *   },
+ *   schema: S.Object({
+ *     id: S.SoA(Types.ui32)
+ *   }),
  *   onSet: (entity, component, json) => {
- *     if (typeof json?.myProp === 'string') component.myProp.set(json.myProp)
+ *     // side effects
  *   },
  *   onRemove: (entity, component) => {},
- *   reactor: undefined,
  *   errors: []
  * })
  * ```

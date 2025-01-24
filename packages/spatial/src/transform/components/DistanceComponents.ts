@@ -23,12 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Types, useEntityContext } from '@ir-engine/ecs'
+import { S, Types, useEntityContext } from '@ir-engine/ecs'
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { useLayoutEffect } from 'react'
 
-export const DistanceComponentSchema = { squaredDistance: Types.f32 }
+export const DistanceComponentSchema = S.Object({ squaredDistance: S.SoA(Types.f32) })
 
 export const DistanceFromLocalClientComponent = defineComponent({
   name: 'DistanceFromLocalClientComponent',
@@ -39,10 +39,11 @@ export const DistanceFromCameraComponent = defineComponent({
   schema: DistanceComponentSchema
 })
 
-export const FrustumCullCameraSchema = { isCulled: Types.ui8 }
 export const FrustumCullCameraComponent = defineComponent({
   name: 'FrustumCullCameraComponent',
-  schema: FrustumCullCameraSchema,
+  schema: S.Object({
+    isCulled: S.SoA(Types.ui8)
+  }),
 
   reactor: () => {
     const entity = useEntityContext()

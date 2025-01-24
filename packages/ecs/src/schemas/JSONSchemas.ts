@@ -22,7 +22,7 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { UserID } from '@ir-engine/hyperflux'
+import { PeerID, UserID } from '@ir-engine/hyperflux'
 import { Type } from '../bitecsLegacy'
 import { Entity, EntityUUID, UndefinedEntity } from '../Entity'
 import {
@@ -364,6 +364,11 @@ export const S = {
   UserID: (options?: TTypedSchema<UserID>['options']) =>
     S.String('', { ...options, id: 'UserUUID' }) as unknown as TTypedSchema<UserID>,
 
+  /** PeerID type schema helper, defaults to '' */
+  PeerID: (options?: TTypedSchema<PeerID>['options']) =>
+    S.String('', { ...options, id: 'PeerUUID' }) as unknown as TTypedSchema<PeerID>,
+
+  /** @todo add default value option */
   SoA: <T extends Type>(type: T, options?: TSoASchema<T>['options']) =>
     ({
       [Kind]: 'SoA',

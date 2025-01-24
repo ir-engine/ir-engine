@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Types } from '@ir-engine/ecs'
+import { S, Types } from '@ir-engine/ecs'
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 
@@ -35,8 +35,8 @@ export type WebcamInputComponentType = {
 export const WebcamInputComponent = defineComponent({
   name: 'WebcamInputComponent',
 
-  schema: {
-    expressionValue: Types.f32,
-    expressionIndex: Types.ui8
-  }
+  schema: S.Object({
+    expressionValue: S.SoA(Types.f32),
+    expressionIndex: S.SoA(Types.ui8)
+  })
 })

@@ -52,7 +52,7 @@ export type AvatarIKTargetsType = {
 
 export const AvatarIKTargetComponent = defineComponent({
   name: 'AvatarIKTargetComponent',
-  schema: { blendWeight: Types.f64 },
+  schema: S.Object({ blendWeight: S.SoA(Types.f64) }),
 
   reactor: function () {
     const entity = useEntityContext()
