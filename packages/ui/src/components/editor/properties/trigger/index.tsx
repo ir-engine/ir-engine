@@ -139,7 +139,7 @@ const TriggerProperties: EditorComponentType = (props) => {
         const targetOption = targets.value.find((o) => o.value === trigger.target.value)
         const target = targetOption ? targetOption.value : ''
         return (
-          <div className="-ml-4 h-[calc(100%+1.5rem)] w-[calc(100%+2rem)] bg-[#1A1A1A] pb-1.5">
+          <div className="ml-4 h-[calc(100%+1.5rem)] w-[calc(100%-2rem)] bg-[#1A1A1A] px-1 pb-1.5 pt-1">
             <button
               title={t('editor:properties.triggerVolume.lbl-removeTrigger')}
               className="ml-auto text-sm text-[#8B8B8D]"

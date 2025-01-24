@@ -40,7 +40,6 @@ import { useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hy
 
 import { EntityTreeComponent, UndefinedEntity } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { SelectTagComponent } from '@ir-engine/engine/src/scene/components/SelectTagComponent'
 import { ActiveHelperComponent } from '../../../common/ActiveHelperComponent'
 import { mergeBufferGeometries } from '../../../common/classes/BufferGeometryUtils'
 import { useDisposable } from '../../../resources/resourceHooks'
@@ -123,7 +122,7 @@ export const DirectionalLightComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const renderState = useMutableState(RendererState)
-    const activeHelperComponent = useOptionalComponent(entity, SelectTagComponent)
+    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const debugEnabled = renderState.nodeHelperVisibility
     const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
     const [light] = useDisposable(DirectionalLight, entity)
