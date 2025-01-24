@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 // ensure dependency modules are imported
 import '@ir-engine/hyperflux'
 
-export { getAllEntities, getEntityComponents, Not } from 'bitecs'
+export { Not, getAllEntities, getEntityComponents } from 'bitecs'
 export { Types } from './src/bitecsLegacy'
 export type { Type, TypedArray } from './src/bitecsLegacy'
 
