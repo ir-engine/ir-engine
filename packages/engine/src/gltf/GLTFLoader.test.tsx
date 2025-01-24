@@ -92,7 +92,7 @@ const setupEntity = () => {
   return entity
 }
 
-describe('GLTF Loader', { retry: 2 }, async () => {
+describe('GLTF Loader 1', { retry: 2 }, async () => {
   overrideFileLoaderLoad()
 
   beforeEach(() => {
