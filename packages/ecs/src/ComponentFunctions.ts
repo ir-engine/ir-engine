@@ -55,7 +55,7 @@ import { defineQuery, removeQuery } from './QueryFunctions'
 import { Transitionable, TransitionableTypes, getTransitionableKeyForType } from './Transitionable'
 import * as bitECSLegacy from './bitecsLegacy'
 import { createEntity } from './createEntity'
-import { Kind, Schema, Static, Schema as TSchema, TSoASchema, TTypedSchema } from './schemas/JSONSchemaTypes'
+import { Kind, Schema, SoA, Static, Schema as TSchema, TSoASchema, TTypedSchema } from './schemas/JSONSchemaTypes'
 import {
   createSchemaSoAStores,
   CreateSchemaValue,
@@ -193,10 +193,7 @@ export interface Component<
   __ComponentType: ComponentType
 }
 
-export type SoAComponentType<S extends Schema> = S extends TSchema ? Static<S> : never
-// {
-//   [K in keyof S]: S[K] extends TSchema ? S[K]['static'] : never
-// }
+export type SoAComponentType<S extends Schema> = S extends TSchema ? SoA<S> : unknown
 
 /** @description Generic `type` for all Engine's ECS {@link Component}s. All of its fields are required to not be `null`. */
 export type ComponentType<C extends Component> = C['__ComponentType']
@@ -1024,6 +1021,7 @@ export const LayerComponent = defineComponent({
   name: 'LayerComponent',
 
   schema: S.Object({
+    somethingElse: S.Bool(),
     layer: S.SoA(Types.ui8)
   }),
 

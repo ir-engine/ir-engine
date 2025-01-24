@@ -121,6 +121,8 @@ export const TransformComponent = defineComponent({
     if (json.rotation) component.rotation.value.copy(json.rotation)
     if (json.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
 
+    TransformComponent.matrix
+
     composeMatrix(entity)
     const entityTree = getOptionalComponent(entity, EntityTreeComponent)
     const parentEntity = entityTree?.parentEntity

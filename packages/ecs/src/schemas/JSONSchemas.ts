@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 import { UserID } from '@ir-engine/hyperflux'
+import { Type } from '../bitecsLegacy'
 import { Entity, EntityUUID, UndefinedEntity } from '../Entity'
 import {
   Kind,
@@ -52,7 +53,6 @@ import {
   TUnionSchema,
   TVoidSchema
 } from './JSONSchemaTypes'
-import { Type, TypedArray } from '../bitecsLegacy'
 
 const buildOptions = (init: any | undefined, options?: Options) => {
   const opt =
@@ -374,10 +374,10 @@ export const S = {
       properties: {}
     }) as TSoASchema<T>,
 
-  SoAProxyObject: <T extends TProperties, P>(
-    factory: (entity: Entity) => P,
+  SoAProxyObject: <T extends TProperties, P extends (entity: Entity) => C, C extends object>(
+    factory: P,
     properties: T,
-    options: TSoAProxyObjectSchema<T, P>['options']
+    options: TSoAProxyObjectSchema<T, P, C>['options']
   ) =>
     ({
       [Kind]: 'SoAProxyObject',
@@ -386,5 +386,5 @@ export const S = {
         default: factory
       },
       properties: properties
-    }) as TSoAProxyObjectSchema<T, P>
+    }) as TSoAProxyObjectSchema<T, P, C>
 }

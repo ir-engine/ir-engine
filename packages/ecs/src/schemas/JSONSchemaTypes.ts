@@ -56,11 +56,14 @@ type Kinds =
 export interface Schema {
   [Kind]: Kinds
   static: unknown
+  soa: unknown
   properties?: unknown
   options?: Options<any>
 }
 
 export type Static<T extends Schema> = T['static']
+
+export type SoA<T extends Schema> = T['soa']
 
 export interface Options<V = unknown> {
   id?: string
@@ -140,9 +143,20 @@ type ObjectStatic<T extends TProperties> = {
 } & {
   [K in ObjectOptionalKeys<T>]?: Static<T[K]>
 }
+
+type ObjectIncludesSoA<T extends TProperties> = {
+  [K in keyof T]: SoA<T[K]> extends TypedArray ? K : never
+}[keyof T]
+
+type ObjectSoA<T extends TProperties> = {
+  [K in ObjectIncludesSoA<T>]: SoA<T[K]>
+}
+
 export interface TObjectSchema<T extends TProperties> extends Schema {
   [Kind]: 'Object'
   static: ObjectStatic<T>
+  // optionally include soa based on if child schemas are SoA, otherwise never
+  soa: ObjectSoA<T>
   properties: T
   options?: Options<this['static']>
 }
@@ -179,20 +193,22 @@ export interface TArraySchema<T extends Schema> extends Schema {
 
 export interface TSoASchema<T extends Type> extends Schema {
   [Kind]: 'SoA'
-  /**
-   * @todo returning T here returns the constructor and InstanceType<T> throws an error
-   * how do we get the array type out of that?
-   */
-  // @ts-ignore
-  static: ArrayByType[T]
+  soa: ArrayByType[T]
   options?: Options<this['static']> & {
     type: T
   }
 }
 
-export interface TSoAProxyObjectSchema<T extends TProperties, P> extends Schema {
+// P needs to be a factor function that takes an entity and returns a class instance
+// infer C
+
+export interface TSoAProxyObjectSchema<T extends TProperties, P extends (entity: Entity) => C, C extends object>
+  extends Schema {
   [Kind]: 'SoAProxyObject'
-  static: P
+  static: C
+  soa: {
+    [K in keyof T]: SoA<T[K]>
+  }
   options: Options<this['static']> & {
     deserialize: (curr: P, value: P) => P
   }
