@@ -43,6 +43,8 @@ import {
   TProperties,
   TRecordSchema,
   TRequiredSchema,
+  TSoAProxyObjectSchema,
+  TSoASchema,
   TStringSchema,
   TTupleSchema,
   TTypedSchema,
@@ -50,6 +52,7 @@ import {
   TUnionSchema,
   TVoidSchema
 } from './JSONSchemaTypes'
+import { Type, TypedArray } from '../bitecsLegacy'
 
 const buildOptions = (init: any | undefined, options?: Options) => {
   const opt =
@@ -230,7 +233,7 @@ export const S = {
    * Can provide a serializer function that can be used for custom serialization
    */
   SerializedClass: <T extends TProperties, Class>(
-    init: () => Class,
+    init: (entity: Entity) => Class,
     items: T,
     options?: TClassSchema<T, Class>['options']
   ) =>
@@ -359,5 +362,29 @@ export const S = {
 
   /** UserID type schema helper, defaults to '' */
   UserID: (options?: TTypedSchema<UserID>['options']) =>
-    S.String('', { ...options, id: 'UserUUID' }) as unknown as TTypedSchema<UserID>
+    S.String('', { ...options, id: 'UserUUID' }) as unknown as TTypedSchema<UserID>,
+
+  SoA: <T extends Type>(type: T, options?: TSoASchema<T>['options']) =>
+    ({
+      [Kind]: 'SoA',
+      options: {
+        ...options,
+        type
+      },
+      properties: {}
+    }) as TSoASchema<T>,
+
+  SoAProxyObject: <T extends TProperties, P>(
+    factory: (entity: Entity) => P,
+    properties: T,
+    options: TSoAProxyObjectSchema<T, P>['options']
+  ) =>
+    ({
+      [Kind]: 'SoAProxyObject',
+      options: {
+        ...options,
+        default: factory
+      },
+      properties: properties
+    }) as TSoAProxyObjectSchema<T, P>
 }

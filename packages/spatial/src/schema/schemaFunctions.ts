@@ -25,8 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Box3, Color, ColorRepresentation, Matrix4, Quaternion, Vector2, Vector3 } from 'three'
 
+import { Entity } from '@ir-engine/ecs'
+import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
 import { Options, TProperties } from '@ir-engine/ecs/src/schemas/JSONSchemaTypes'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { proxifyVector3, proxifyVector3WithDirty } from '../common/proxies/createThreejsProxy'
 
 const isColorObj = (color?: ColorRepresentation): color is Color => {
   return color !== undefined && (color as Color).r !== undefined
@@ -41,6 +44,30 @@ export const NonEmptyString = (errMsg: string) => {
 
     return true
   }
+}
+
+const createSchemaObjProxy = (obj, store, entity: Entity) => {
+  const proxy = new Proxy(obj, {
+    get(target, key, receiver) {
+      if (typeof target[key] === 'object') {
+        return target[key]
+      } else if (key === 'entity') return entity
+      return store[key]?.[entity]
+    },
+    set(target, key, value) {
+      if (typeof value === 'object') {
+        for (const innerKey in value) {
+          target[key][innerKey] = value[innerKey]
+        }
+        return true
+      }
+      // target[key] = value
+      store[key][entity] = value
+      return true
+    }
+  })
+
+  return proxy
 }
 
 export const T = {
@@ -59,6 +86,24 @@ export const T = {
         id: 'Vec3'
       }
     ),
+  // Vec3Proxy: (
+  //   store: ReturnType<typeof createResizableTypeArray>,
+  //   init = { x: 0, y: 0, z: 0 },
+  //   options?: Options<Vector3>
+  // ) =>
+  //   S.SerializedClass(
+  //     (entity: Entity) => proxifyVector3(store, entity, new Vector3(init.x, init.y, init.z),
+  //     {
+  //       x: S.Number(),
+  //       y: S.Number(),
+  //       z: S.Number()
+  //     },
+  //     {
+  //       deserialize: (curr, value) => curr.copy(value),
+  //       ...options,
+  //       id: 'Vec3'
+  //     }
+  //   ),
 
   /** Vector2 type schema helper, defaults to { x: 0, y: 0 } */
   Vec2: (init = { x: 0, y: 0 }, options?: Options<Vector2>) =>

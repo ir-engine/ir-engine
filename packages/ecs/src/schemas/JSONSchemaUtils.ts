@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { setNestedObject } from '@ir-engine/hyperflux'
 import { Entity } from '../Entity'
 import {
   Kind,
@@ -41,15 +42,17 @@ import {
   TTupleSchema,
   TUnionSchema
 } from './JSONSchemaTypes'
+import { createResizableTypeArray, Type } from '../bitecsLegacy'
+import { Component } from '../ComponentFunctions'
 
-const CreateDefault = (def) => {
+const CreateDefault = (entity: Entity, def) => {
   return typeof def === 'function' ? def() : structuredClone(def)
 }
 
-const CreateObject = (props?: TProperties) => {
+const CreateObject = (entity: Entity, props?: TProperties) => {
   const obj = {}
   for (const key in props) {
-    obj[key] = CreateSchemaValue(props[key])
+    obj[key] = CreateSchemaValue(entity, props[key])
   }
   return obj
 }
@@ -298,8 +301,8 @@ export const IsSingleValueSchema = <T extends Schema>(schema?: T): boolean => {
   }
 }
 
-export const CreateSchemaValue = <T extends Schema>(schema: T): Static<T> => {
-  if (schema.options && 'default' in schema.options) return CreateDefault(schema.options.default)
+export const CreateSchemaValue = <T extends Schema>(entity: Entity, schema: T): Static<T> => {
+  if (schema.options && 'default' in schema.options) return CreateDefault(entity, schema.options.default)
 
   switch (schema[Kind]) {
     case 'Null':
@@ -322,7 +325,7 @@ export const CreateSchemaValue = <T extends Schema>(schema: T): Static<T> => {
     case 'Object':
     case 'Class': {
       const props = schema.properties as TProperties
-      return CreateObject(props)
+      return CreateObject(entity, props)
     }
 
     case 'Any':
@@ -335,20 +338,65 @@ export const CreateSchemaValue = <T extends Schema>(schema: T): Static<T> => {
     case 'Union': {
       const props = schema.properties as TUnionSchema<Schema[]>['properties']
       if (!props.length) return null
-      return CreateSchemaValue(props[0])
+      return CreateSchemaValue(entity, props[0])
     }
     case 'Func': {
       const props = schema.properties as TFuncSchema<Schema[], Schema>['properties']
-      return () => CreateSchemaValue(props.return)
+      return () => CreateSchemaValue(entity, props.return)
     }
     case 'Required': {
       const props = schema.properties as TRequiredSchema<Schema>['properties']
-      return CreateSchemaValue(props)
+      return CreateSchemaValue(entity, props)
     }
     case 'NonSerialized': {
       const props = schema.properties as TNonSerializedSchema<Schema>['properties']
-      return CreateSchemaValue(props)
+      return CreateSchemaValue(entity, props)
     }
+    default:
+      return undefined
+  }
+}
+
+export const createSchemaSoAStores = <C extends Component, T extends Schema>(component: C, schema: T, path = '') => {
+  switch (schema[Kind]) {
+    case "SoA": {
+      setNestedObject(component, path, createResizableTypeArray(schema.properties as Type))
+      return
+    }
+    case 'SoAProxyObject': {
+      const props = schema.properties as TProperties
+      for (const key in props) {
+        createSchemaSoAStores(component, props[key], path === '' ? key : path + '.' + key)
+      }
+      return
+    }
+    case 'Record':
+    case 'Object': {
+      const props = schema.properties as TProperties
+      for (const key in props) {
+        createSchemaSoAStores(component, props[key], path === '' ? key : path + '.' + key)
+      }
+      return
+    }
+    case 'Array':
+    case 'Tuple':
+      return []
+    case 'Union': {
+      const props = schema.properties as TUnionSchema<Schema[]>['properties']
+      if (!props.length) return null
+      return createSchemaSoAStores(component, props[0], path)
+    }
+
+    // passthrough modifiers
+    case 'Partial':
+    case 'Required':
+    case 'NonSerialized': {
+      const props = schema.properties as TNonSerializedSchema<Schema>['properties']
+      return createSchemaSoAStores(component, props, path)
+    }
+    case 'Class':
+    case 'Any':
+      throw new Error('Cannot create SoA store for non-POD types')
     default:
       return undefined
   }

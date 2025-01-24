@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { ArrayByType, Type, TypedArray } from '../bitecsLegacy'
 import { Entity } from '../Entity'
 
 export const Kind = Symbol('Kind')
@@ -48,6 +49,8 @@ type Kinds =
   | 'Required'
   | 'NonSerialized'
   | 'Class'
+  | 'SoA'
+  | 'SoAProxyObject'
   | 'Any'
 
 export interface Schema {
@@ -170,6 +173,28 @@ export interface TArraySchema<T extends Schema> extends Schema {
   options?: Options<this['static']> & {
     minItem?: number
     maxItem?: number
+  }
+  properties: T
+}
+
+export interface TSoASchema<T extends Type> extends Schema {
+  [Kind]: 'SoA'
+  /**
+   * @todo returning T here returns the constructor and InstanceType<T> throws an error
+   * how do we get the array type out of that?
+   */
+  // @ts-ignore
+  static: ArrayByType[T]
+  options?: Options<this['static']> & {
+    type: T
+  }
+}
+
+export interface TSoAProxyObjectSchema<T extends TProperties, P> extends Schema {
+  [Kind]: 'SoAProxyObject'
+  static: P
+  options: Options<this['static']> & {
+    deserialize: (curr: P, value: P) => P
   }
   properties: T
 }

@@ -145,11 +145,11 @@ export type ArrayByType = {
   f32: Float32Array
   f64: Float64Array
   eid: Uint32Array
-}
+}  
 
 // ... existing code ...
 
-const arrayByTypeMap: { [key in Type]: any } = {
+const arrayByTypeMap = {
   i8: Int8Array,
   ui8: Uint8Array,
   ui8c: Uint8ClampedArray,
@@ -160,7 +160,7 @@ const arrayByTypeMap: { [key in Type]: any } = {
   f32: Float32Array,
   f64: Float64Array,
   eid: Uint32Array
-}
+} as const
 
 export type ComponentType<T extends ISchema> = {
   [key in keyof T]: T[key] extends Type
@@ -174,30 +174,32 @@ export type ComponentType<T extends ISchema> = {
     : unknown
 }
 
-function createResizableTypeArray(type: Type) {
+export function createResizableTypeArray(type: Type) {
   const TypeConstructor = arrayByTypeMap[type]
   if (TypeConstructor) {
-    const buffer = new (ArrayBuffer as any)(0, { maxByteLength: Math.pow(2, 20) })
+    // @ts-ignore - maxByteLength not included in TS definitions
+    const buffer = new ArrayBuffer(0, { maxByteLength: Math.pow(2, 20) })
     return new TypeConstructor(buffer)
   } else {
     throw new Error(`Unsupported SoA type: ${type}`)
   }
 }
 
-export const defineComponent = <T extends ISchema>(schema: T): ComponentType<T> => {
-  const createSoA = <U extends ISchema>(schema: U): ComponentType<U> => {
-    const component = {} as ComponentType<U>
-    for (const key in schema) {
-      if (typeof schema[key] === 'string') {
-        const type = schema[key] as Type
-        component[key] = createResizableTypeArray(type)
-      } else if (typeof schema[key] === 'object') {
-        component[key] = createSoA(schema[key] as ISchema) as any
-      } else {
-        throw new Error(`Unsupported SoA type: ${schema[key]}`)
-      }
+const createSoA = <U extends ISchema>(schema: U): ComponentType<U> => {
+  const component = {} as ComponentType<U>
+  for (const key in schema) {
+    if (typeof schema[key] === 'string') {
+      const type = schema[key] as Type
+      component[key] = createResizableTypeArray(type) as any
+    } else if (typeof schema[key] === 'object') {
+      component[key] = createSoA(schema[key] as ISchema) as any
+    } else {
+      throw new Error(`Unsupported SoA type: ${schema[key]}`)
     }
-    return component
   }
+  return component
+}
+
+export const defineComponent = <T extends ISchema>(schema: T): ComponentType<T> => {
   return createSoA(schema)
 }

@@ -29,7 +29,7 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 
 const { defineProperties } = Object
 
-type Vector3Proxy = { x: number; y: number; z: number }
+export type Vector3Proxy = { x: number; y: number; z: number }
 type QuaternionProxy = { x: number; y: number; z: number; w: number }
 type Mat4Proxy = Float64Array
 
