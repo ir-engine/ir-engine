@@ -100,6 +100,7 @@ describe('GLTF Loader', { retry: 2 }, async () => {
   })
 
   afterEach(() => {
+    console.log('edit 2')
     return destroyEngine()
   })
 
