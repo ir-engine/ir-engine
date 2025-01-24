@@ -206,21 +206,28 @@ function NewMessage() {
   )
 }
 
-function Message({ message }: { message: MessageType }) {
+function Message({ message, hideUsername }: { message: MessageType; hideUsername: boolean }) {
   const user = useMutableState(AuthState).user
   const { newMessages } = useInstanceChatMessages()
 
   return message.isNotification ? (
-    <div className="place-self-center text-center text-sm text-white opacity-[68]">{message.text}</div>
+    <div
+      className="place-self-center text-center text-sm text-white"
+      style={{
+        textShadow: '0px 1px 4px rgba(255, 255, 255, 1);'
+      }}
+    >
+      {message.text}
+    </div>
   ) : (
     <div
       className={twMerge(
-        'mb-[13px] w-full max-w-[15vw] rounded-[11px] bg-white px-2 py-[11px] opacity-50',
+        'w-full max-w-[15vw] rounded-[11px] bg-white px-2 py-[11px] opacity-50',
         message.sender.id === user.id.value && 'place-self-end',
         newMessages.value[message.id] && 'opacity-100'
       )}
     >
-      <div className="font-bold text-[#444444]">{message.sender.name}</div>
+      {!hideUsername && <div className="font-bold text-[#444444]">{message.sender.name}</div>}
       <div className="mt-[9px] text-sm text-[#444444]">{message.text}</div>
     </div>
   )
@@ -232,8 +239,16 @@ function Messages() {
   return (
     <div className="h-[45vh] overflow-y-auto">
       <div className="flex h-full flex-col justify-end gap-y-[13px]">
-        {messages.value.map((message) => (
-          <Message key={message.id} message={message} />
+        {messages.value.map((message, index) => (
+          <Message
+            key={message.id}
+            message={message}
+            hideUsername={
+              index > 0 &&
+              !messages[index - 1].isNotification.value &&
+              message.sender.id === messages[index - 1].sender.id.value
+            }
+          />
         ))}
       </div>
     </div>
