@@ -362,17 +362,18 @@ const DropShadowReactor = () => {
   return null
 }
 
-const shadowOffset = new Vector3(0, 0.01, 0)
+const _shadowOffset = new Vector3(0, 0.01, 0)
 
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(dropShadowComponentQuery, compareDistanceToCamera)
-const sortedEntityTransforms = [] as Entity[]
+const _sortedEntityTransforms = [] as Entity[]
 
 const cameraLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Scene], MeshComponent])
-const updateDropShadowTransforms = () => {
+
+function updateDropShadowTransforms() {
   const { deltaSeconds } = getState(ECSState)
   const { priorityQueue } = getState(ShadowSystemState)
 
-  sortAndApplyPriorityQueue(priorityQueue, sortedEntityTransforms, deltaSeconds)
+  ShadowSystemFunctions.sortAndApplyPriorityQueue(priorityQueue, _sortedEntityTransforms, deltaSeconds)
 
   const sceneObjects = cameraLayerQuery().flatMap((entity) => getComponent(entity, MeshComponent))
 
@@ -400,7 +401,7 @@ const updateDropShadowTransforms = () => {
     shadowRotation.setFromUnitVectors(intersected.face.normal, Vector3_Back)
     dropShadowTransform.rotation.copy(shadowRotation)
     dropShadowTransform.scale.setScalar(finalRadius * 2)
-    dropShadowTransform.position.copy(intersected.point).add(shadowOffset)
+    dropShadowTransform.position.copy(intersected.point).add(_shadowOffset)
   }
 }
 
@@ -470,8 +471,11 @@ export const DropShadowSystem = defineSystem({
   insert: { after: TransformSystem },
   execute: () => {
     const useShadows = getShadowsEnabled()
-    if (!useShadows) {
-      updateDropShadowTransforms()
-    }
+    if (!useShadows) ShadowSystemFunctions.updateDropShadowTransforms()
   }
 })
+
+const ShadowSystemFunctions = {
+  updateDropShadowTransforms,
+  sortAndApplyPriorityQueue
+}
