@@ -194,21 +194,18 @@ export interface TArraySchema<T extends Schema> extends Schema {
 export interface TSoASchema<T extends Type> extends Omit<Schema, 'schema'> {
   [Kind]: 'SoA'
   soa: ArrayByType[T]
-  options?: Options<this['static']> & {
+  options?: Options<ArrayByType[T]> & {
     type: T
   }
 }
 
-export interface TSoAProxyObjectSchema<T extends TProperties, P extends (entity: Entity) => C, C extends object>
-  extends Schema {
+export interface TSoAProxyObjectSchema<T extends TProperties, C> extends Schema {
   [Kind]: 'SoAProxyObject'
   static: C
   soa: {
     [K in keyof T]: SoA<T[K]>
   }
-  options: Options<this['static']> & {
-    deserialize: (curr: P, value: P) => P
-  }
+  options: Options<C>
   properties: T
 }
 

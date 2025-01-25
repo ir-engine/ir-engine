@@ -274,7 +274,7 @@ export const defineComponent = <
   SetJSON = ComponentJSON<DeepReadonly<ComponentType>>,
   ErrorTypes = never,
   ComponentExtras = Record<string, unknown>,
-  SOAComponent = Schema extends TSchema ? SoAComponentType<Schema> : unknown
+  SOAComponent = SoAComponentType<Schema>
 >(
   def: ComponentPartial<Schema, InitializationType, ComponentType, JSON, SetJSON, ErrorTypes> & ComponentExtras
 ) => {

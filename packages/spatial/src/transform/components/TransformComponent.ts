@@ -59,7 +59,7 @@ export const QuatSchema = {
   w: S.SoA(Types.f64)
 }
 
-const assignPosition = (entity: Entity): Vector3 & ProxyExtensions => 
+const assignPosition = (entity: Entity): Vector3 & ProxyExtensions =>
   proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirty)
 
 const assignRotation = (entity: Entity): Quaternion & ProxyExtensions =>
@@ -77,9 +77,9 @@ export const TransformComponent = defineComponent({
   jsonID: 'EE_transform',
 
   schema: S.Object({
-    position: S.SoAProxyObject(assignPosition, Vec3Schema, options) as any,
-    rotation: S.SoAProxyObject(assignRotation, QuatSchema, options) as any,
-    scale: S.SoAProxyObject(assignScale, Vec3Schema, options) as any,
+    position: S.SoAProxyObject(assignPosition, Vec3Schema, options),
+    rotation: S.SoAProxyObject(assignRotation, QuatSchema, options),
+    scale: S.SoAProxyObject(assignScale, Vec3Schema, options),
     matrix: T.Mat4(),
     matrixWorld: T.Mat4(),
     dirty: S.SoA(Types.ui8)
@@ -472,7 +472,6 @@ export const setFromRotationMatrix = (entity: Entity, m: Matrix4) => {
 }
 
 export const TransformGizmoTagComponent = defineComponent({ name: 'TransformGizmoTagComponent' })
-
 
 /**
  * @description
