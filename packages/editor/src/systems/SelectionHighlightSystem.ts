@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, hasComponent, removeComponent, setComponent, traverseEntityNode } from '@ir-engine/ecs'
+import { hasComponent, removeComponent, setComponent, traverseEntityNode } from '@ir-engine/ecs'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { HighlightComponent } from '@ir-engine/spatial/src/renderer/components/HighlightComponent'
