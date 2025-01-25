@@ -63,7 +63,14 @@ export interface Schema {
 
 export type Static<T extends Schema> = T['static']
 
-export type SoA<T extends Schema> = T['soa']
+export type SoA<T extends Schema> = T['soa'] &
+  (T['properties'] extends TSoASchema<any>
+    ? {
+        [K in keyof T['properties']]: T['properties'][K] extends TSoAProxyObjectSchema<any, any>
+          ? T['properties'][K]['soa']
+          : never
+      }
+    : object)
 
 export interface Options<V = unknown> {
   id?: string
@@ -129,7 +136,7 @@ export interface TLiteralSchema<T extends TLiteralValue> extends Schema {
 }
 
 export type TPropertyKeySchema = TStringSchema | TNumberSchema
-export type TPropertyKey = string | number
+export type TPropertyKey = string | number | symbol
 export type TProperties = Record<TPropertyKey, Schema>
 
 type ObjectOptionalKeys<T extends TProperties> = {
@@ -144,12 +151,14 @@ type ObjectStatic<T extends TProperties> = {
   [K in ObjectOptionalKeys<T>]?: Static<T[K]>
 }
 
-type ObjectIncludesSoA<T extends TProperties> = {
-  [K in keyof T]: SoA<T[K]> extends TypedArray ? K : never
-}[keyof T]
+type ObjectIncludesSoA<T extends TProperties> = T extends TProperties
+  ? {
+      [K in keyof T]: T[K]['soa'] extends TypedArray ? K : never
+    }[keyof T]
+  : object
 
 type ObjectSoA<T extends TProperties> = {
-  [K in ObjectIncludesSoA<T>]: SoA<T[K]>
+  [K in keyof T]: T[K]['soa']
 }
 
 export interface TObjectSchema<T extends TProperties> extends Schema {
@@ -203,7 +212,7 @@ export interface TSoAProxyObjectSchema<T extends TProperties, C> extends Schema 
   [Kind]: 'SoAProxyObject'
   static: C
   soa: {
-    [K in keyof T]: SoA<T[K]>
+    [K in keyof T]: T[K]['soa']
   }
   options: Options<C>
   properties: T

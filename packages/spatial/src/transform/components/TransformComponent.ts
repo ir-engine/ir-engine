@@ -325,8 +325,6 @@ export const TransformComponent = defineComponent({
   transformsNeedSorting: false
 })
 
-TransformComponent.position
-
 const vec3 = new Vector3()
 const vec3_2 = new Vector3()
 const quat = new Quaternion()
