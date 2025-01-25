@@ -351,19 +351,16 @@ describe('LayerFunctions', () => {
   }) //:: propagateLayer
 
   describe('getAuthoringCounterpart', () => {
-    /** @todo Shouldn't createEntity trigger an onSet and call createEntity to create a linked entity with AuthoringLayerComponent ?? */
-    it.todo(
-      'should return the entity stored in the `.refs` field of the AuthoringLayerComponent for the given `@param entity`',
-      () => {
-        const Expected = 1234 as Entity
-        // Set the data as expected
-        const testEntity = createEntity(Layers.Simulation)
-        // Sanity check before running
-        // Run and Check the result
-        const result = LayerFunctions.getAuthoringCounterpart(testEntity)
-        expect(result).toBe(Expected)
-      }
-    )
+    it('should return the entity stored in the `.refs` field of the AuthoringLayerComponent for the given `@param entity`', () => {
+      const Expected = 123456 as Entity
+      // Set the data as expected
+      const layer = Layers.Simulation
+      const testEntity = createEntity(layer)
+      LayerComponents[Layers.Authoring].refs[testEntity] = Expected
+      // Run and Check the result
+      const result = LayerFunctions.getAuthoringCounterpart(testEntity)
+      expect(result).toBe(Expected)
+    })
   }) //:: getAuthoringCounterpart
 
   /** @todo */
