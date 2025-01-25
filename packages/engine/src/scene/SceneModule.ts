@@ -34,7 +34,7 @@ import { MountPointSystem } from '../interaction/systems/MountPointSystem'
 import { MaterialLibrarySystem } from '../scene/materials/systems/MaterialLibrarySystem'
 import { CameraSettingsComponent } from './components/CameraSettingsComponent'
 import { EnvMapBakeComponent } from './components/EnvMapBakeComponent'
-import { EnvmapComponent } from './components/EnvmapComponent'
+import { EnvMapComponent } from './components/EnvmapComponent'
 import { GroundPlaneComponent } from './components/GroundPlaneComponent'
 import { HyperspaceTagComponent } from './components/HyperspaceTagComponent'
 import { ImageComponent } from './components/ImageComponent'
@@ -77,7 +77,7 @@ export const SceneComponents = [
   CameraSettingsComponent,
   // CloudComponent,
   EnvMapBakeComponent,
-  EnvmapComponent,
+  EnvMapComponent,
   GroundPlaneComponent,
   HyperspaceTagComponent,
   ImageComponent,

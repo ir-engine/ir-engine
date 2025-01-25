@@ -52,7 +52,7 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { GrabberComponent } from '../../grabbable/GrabbableComponent'
-import { EnvmapComponent } from '../../scene/components/EnvmapComponent'
+import { EnvMapComponent } from '../../scene/components/EnvmapComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { EnvMapSourceType } from '../../scene/constants/EnvMapEnum'
 import { AnimationComponent } from '../components/AnimationComponent'
@@ -73,7 +73,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   setComponent(entity, DistanceFromCameraComponent)
   setComponent(entity, FrustumCullCameraComponent)
 
-  setComponent(entity, EnvmapComponent, {
+  setComponent(entity, EnvMapComponent, {
     type: EnvMapSourceType.Skybox,
     envMapIntensity: 1
   })
