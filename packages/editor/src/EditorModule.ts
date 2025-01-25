@@ -31,7 +31,7 @@ import { CameraGizmoSystem } from './systems/CameraGizmoSystem'
 import { ClickPlacementSystem } from './systems/ClickPlacementSystem'
 import { EditorControlSystem } from './systems/EditorControlSystem'
 import { HelperActiveSystem } from './systems/HelperActiveSystem'
-import { HighlightSystem } from './systems/HighlightSystem'
+import { SelectionHighlightSystem } from './systems/SelectionHighlightSystem'
 import { ModelHandlingSystem } from './systems/ModelHandlingSystem'
 import { ModelLoadingSpinnerSystem } from './systems/ModelLoadingSpinnerSystem'
 import { ObjectGridSnapSystem } from './systems/ObjectGridSnapSystem'
@@ -45,7 +45,7 @@ export {
   ClickPlacementSystem,
   EditorControlSystem,
   HelperActiveSystem,
-  HighlightSystem,
+  SelectionHighlightSystem,
   ModelHandlingSystem,
   ModelLoadingSpinnerSystem,
   ObjectGridSnapSystem,

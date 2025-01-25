@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineQuery, defineSystem, Engine } from '@ir-engine/ecs'
+import { defineQuery, defineSystem, Engine, Entity } from '@ir-engine/ecs'
 import { defineComponent, getComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 
 import { OutlineEffect } from 'postprocessing'
@@ -36,7 +36,7 @@ export const HighlightComponent = defineComponent({ name: 'HighlightComponent' }
 
 const highlightQuery = defineQuery([HighlightComponent, MeshComponent, VisibleComponent])
 
-const getCompObject = (entity) => getComponent(entity, ObjectComponent)
+const getCompObject = (entity: Entity) => getComponent(entity, ObjectComponent)
 
 const execute = () => {
   /** @todo support multiple scenes */
@@ -48,7 +48,7 @@ const execute = () => {
 }
 
 export const HighlightSystem = defineSystem({
-  uuid: 'HighlightSystem',
+  uuid: 'ir.spatial.render.HighlightSystem',
   insert: { before: WebGLRendererSystem },
   execute
 })

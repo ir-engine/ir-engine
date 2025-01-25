@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { hasComponent, removeComponent, setComponent, traverseEntityNode } from '@ir-engine/ecs'
+import { Entity, hasComponent, removeComponent, setComponent, traverseEntityNode } from '@ir-engine/ecs'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { HighlightComponent } from '@ir-engine/spatial/src/renderer/components/HighlightComponent'
@@ -31,14 +31,6 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { useEffect } from 'react'
 import { SelectionState } from '../services/SelectionServices'
-
-function highlightCallback(func: typeof setComponent | typeof removeComponent) {
-  return (child, index) => {
-    if (!hasComponent(child, MeshComponent)) return
-    if (!hasComponent(child, VisibleComponent)) return
-    func(child, HighlightComponent)
-  }
-}
 
 const reactor = () => {
   const selectedEntities = SelectionState.useSelectedEntities()
@@ -49,12 +41,16 @@ const reactor = () => {
     if (!prevSelectedEntities) return
     for (const entity of prevSelectedEntities) {
       setComponent(entity, HighlightComponent)
-      traverseEntityNode(entity, highlightCallback(setComponent))
+      traverseEntityNode(entity, (child) => {
+        if (hasComponent(child, MeshComponent) && hasComponent(child, VisibleComponent))
+          setComponent(child, HighlightComponent)
+      })
     }
     return () => {
       for (const entity of prevSelectedEntities) {
-        removeComponent(entity, HighlightComponent)
-        traverseEntityNode(entity, highlightCallback(removeComponent))
+        traverseEntityNode(entity, (childEntity) => {
+          removeComponent(childEntity, HighlightComponent)
+        })
       }
     }
   }, [selectedEntities])
@@ -62,8 +58,8 @@ const reactor = () => {
   return null
 }
 
-export const HighlightSystem = defineSystem({
-  uuid: 'ee.editor.HighlightSystem',
+export const SelectionHighlightSystem = defineSystem({
+  uuid: 'ir.editor.HighlightSystem',
   insert: { with: AnimationSystemGroup },
   reactor
 })
