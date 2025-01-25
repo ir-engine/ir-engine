@@ -33,20 +33,27 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 
 import { useEffect } from 'react'
-import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
+import { proxifyQuaternion, proxifyVector3, ProxyExtensions } from '../../common/proxies/createThreejsProxy'
 import { Physics } from '../classes/Physics'
 import { Body, BodyTypes } from '../types/PhysicsTypes'
 
 import React from 'react'
+import { Quaternion, Vector3 } from 'three'
 import { QuatSchema, Vec3Schema } from '../../transform/components/TransformComponent'
 
 const options = {
   deserialize: (curr, value) => curr.copy(value)
 }
 
-const assignVec3 = (property: string) => (entity: Entity) => proxifyVector3(RigidBodyComponent[property], entity)
+const assignVec3 =
+  (property: string) =>
+  (entity: Entity): Vector3 & ProxyExtensions =>
+    proxifyVector3(RigidBodyComponent[property], entity)
 
-const assignQuat = (property: string) => (entity: Entity) => proxifyQuaternion(RigidBodyComponent[property], entity)
+const assignQuat =
+  (property: string) =>
+  (entity: Entity): Quaternion & ProxyExtensions =>
+    proxifyQuaternion(RigidBodyComponent[property], entity)
 
 export const RigidBodyComponent = defineComponent({
   name: 'RigidBodyComponent',

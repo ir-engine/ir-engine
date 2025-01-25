@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ArrayByType, Type, TypedArray } from '../bitecsLegacy'
+import { ArrayByType, Type } from '../bitecsLegacy'
 import { Entity } from '../Entity'
 
 export const Kind = Symbol('Kind')
@@ -151,14 +151,18 @@ type ObjectStatic<T extends TProperties> = {
   [K in ObjectOptionalKeys<T>]?: Static<T[K]>
 }
 
-type ObjectIncludesSoA<T extends TProperties> = T extends TProperties
-  ? {
-      [K in keyof T]: T[K]['soa'] extends TypedArray ? K : never
-    }[keyof T]
-  : object
+type ObjectIncludesSoAProxy<T extends TProperties> = {
+  [K in keyof T]: T[K] extends TSoAProxyObjectSchema<any, any> ? K : never
+}[keyof T]
+
+type ObjectIncludesSoA<T extends TProperties> = {
+  [K in keyof T]: T[K] extends TSoASchema<any> ? K : never
+}[keyof T]
 
 type ObjectSoA<T extends TProperties> = {
-  [K in keyof T]: T[K]['soa']
+  [K in ObjectIncludesSoA<T>]: T[K]['soa']
+} & {
+  [K in ObjectIncludesSoAProxy<T>]: T[K] extends TSoAProxyObjectSchema<any, any> ? T[K]['soa'] : never
 }
 
 export interface TObjectSchema<T extends TProperties> extends Schema {
