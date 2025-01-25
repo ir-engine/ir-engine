@@ -553,44 +553,77 @@ describe('LayerComponents', () => {
 
     describe('onSet', () => {
       describe("for every entity,relation pair returned by LayerFunctions.getLayerRelationsTypes for this component's layer ..", () => {
-        /** @todo */
-        it.todo('.. should not do anything for this pair if the relation is not LayerRelationTypes.Propagate', () => {
+        it('.. should not do anything for this pair if the relation is not LayerRelationTypes.Propagate', () => {
           // Set the data as expected
-          const testQuery = defineQuery([])
-          const before1 = testQuery().length
+          const allEntities = defineQuery([])
+          const before1 = allEntities().length
           expect(before1).toBe(0)
           const layer = Layers.Simulation
           const testEntity = createEntity(layer)
           // Sanity check before running
-          expect(LayerFunctions.getLayerRelationsTypes(layer)[0][1]).not.toBe(LayerRelationTypes.Propagate)
-          const before2 = testQuery().length
+          expect(LayerFunctions.getLayerRelationsTypes(layer)?.[0]?.[1]).not.toBe(LayerRelationTypes.Propagate)
+          const before2 = allEntities().length
           expect(before2).toBe(1)
           // Run and Check the result
           LayerComponents[layer].onSet(testEntity, {} as any)
-          const result = testQuery().length
+          const result = allEntities().length
           expect(result).toBe(1)
         })
 
-        it(".. should create a new entity on this pair's layer", () => {
-          // Set the data as expected
-          const testQuery = defineQuery([])
-          const before1 = testQuery().length
-          expect(before1).toBe(0)
-          const layer = Layers.Authoring
-          const testEntity = createEntity(layer)
-          // Sanity check before running
-          expect(LayerFunctions.getLayerRelationsTypes(layer)[0][1]).toBe(LayerRelationTypes.Propagate)
-          const before2 = testQuery().length
-          expect(before2).toBe(1)
-          // Run and Check the result
-          LayerComponents[layer].onSet(testEntity, {} as any)
-          const result = testQuery().length
-          expect(result).toBe(2)
-        })
+        describe('.. when the relation is LayerRelationTypes.Propagate ...', () => {
+          it("... should create a new entity on this pair's layer", () => {
+            // Set the data as expected
+            const allEntities = defineQuery([])
+            const before1 = allEntities().length
+            expect(before1).toBe(0)
+            const layer = Layers.Authoring
+            const testEntity = createEntity(layer)
+            // Sanity check before running
+            expect(LayerFunctions.getLayerRelationsTypes(layer)[0][1]).toBe(LayerRelationTypes.Propagate)
+            const before2 = allEntities().length
+            expect(before2).toBe(1)
+            // Run and Check the result
+            LayerComponents[layer].onSet(testEntity, {} as any)
+            const result = allEntities().length
+            expect(result).toBe(2)
+          })
 
-        /** @todo */
-        it.todo(".. should set the relations on the LayerComponent of this Layer to this pair's entity", () => {})
-        it.todo('.. should set [linkedLayer].refs[linkedEntity] to `@param entity`', () => {})
+          it("... should set the relations on the LayerComponent of this Layer to this pair's entity", () => {
+            // Set the data as expected
+            const allEntities = defineQuery([])
+            expect(allEntities().length).toBe(0)
+            const layer = Layers.Authoring
+            const testEntity = createEntity(layer)
+            // Sanity check before running
+            expect(LayerFunctions.getLayerRelationsTypes(layer)[0][1]).toBe(LayerRelationTypes.Propagate)
+            expect(allEntities().length).toBe(1)
+            // Run and Check the result
+            LayerComponents[layer].onSet(testEntity, {} as any)
+            const linkedLayer = LayerFunctions.getLayerRelationsTypes(layer)[0][0]
+            const linkedEntity = allEntities().at(-1)!
+            const result = getComponent(testEntity, LayerComponents[layer]).relations[linkedLayer]
+            expect(allEntities().length).toBe(2)
+            expect(result).toBe(linkedEntity)
+          })
+
+          it('... should set [linkedLayer].refs[linkedEntity] to `@param entity`', () => {
+            // Set the data as expected
+            const allEntities = defineQuery([])
+            expect(allEntities().length).toBe(0)
+            const layer = Layers.Authoring
+            const testEntity = createEntity(layer)
+            // Sanity check before running
+            expect(LayerFunctions.getLayerRelationsTypes(layer)[0][1]).toBe(LayerRelationTypes.Propagate)
+            expect(allEntities().length).toBe(1)
+            // Run and Check the result
+            LayerComponents[layer].onSet(testEntity, {} as any)
+            const linkedLayer = LayerFunctions.getLayerRelationsTypes(layer)[0][0]
+            const linkedEntity = allEntities().at(-1)!
+            const result = LayerComponents[linkedLayer].refs[linkedEntity]
+            expect(allEntities().length).toBe(2)
+            expect(result).toBe(testEntity)
+          })
+        })
       })
     }) //:: onSet
 
