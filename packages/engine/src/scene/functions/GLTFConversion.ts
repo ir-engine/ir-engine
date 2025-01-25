@@ -27,7 +27,7 @@ import { GLTF } from '@gltf-transform/core'
 import { Matrix4, Object3D } from 'three'
 
 import { EntityUUID, generateEntityUUID, SerializedComponentType, UUIDComponent } from '@ir-engine/ecs'
-import { sceneRelativePathIdentifier } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
+import { pathIndentifiers } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { getState } from '@ir-engine/hyperflux'
@@ -99,7 +99,7 @@ export const handleScenePaths = (gltf: GLTF.IGLTF, mode: 'encode' | 'decode') =>
         }
         if (mode === 'encode') {
           if (typeof v === 'string' && cacheRe.test(v)) {
-            elt[k] = v.replace(cacheRe, sceneRelativePathIdentifier)
+            elt[k] = v.replace(cacheRe, pathIndentifiers.sceneRelative)
           }
         }
         if (mode === 'decode') {

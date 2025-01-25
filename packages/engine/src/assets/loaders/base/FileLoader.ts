@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Cache, LoadingManager } from 'three'
 
+import { parseStorageProviderURLs } from '../../functions/parseSceneJSON'
 import { Loader } from './Loader'
 
 const loading = {}
@@ -42,6 +43,7 @@ class FileLoader<TData = unknown> extends Loader<TData> {
   responseType: undefined | string
 
   constructor(manager?: LoadingManager) {
+    manager?.setURLModifier((url) => parseStorageProviderURLs(url))
     super(manager)
   }
 

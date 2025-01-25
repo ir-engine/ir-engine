@@ -53,6 +53,7 @@ import { FileLoader } from '../loaders/base/FileLoader'
 import { GLTF as GLTFAsset } from '../loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../state/AssetLoaderState'
 import { ResourceLoadingManagerState } from '../state/ResourceLoadingManagerState'
+import { parseStorageProviderURLs } from './parseSceneJSON'
 import { loadResource, setGLTFResource } from './resourceLoaderFunctions'
 
 const defaultLoaders = {
@@ -72,7 +73,7 @@ function useLoader<T extends ResourceAssetType>(
   const error = useHookstate<ErrorEvent | Error | null>(null)
   const progress = useHookstate<ProgressEvent<EventTarget> | null>(null)
   const uuid = useHookstate<string>(uuidv4)
-
+  url = parseStorageProviderURLs(url)
   const unload = () => {
     if (url) ResourceManager.unload(url, entity, uuid.value)
   }
@@ -154,7 +155,7 @@ function useBatchLoader<T extends ResourceAssetType>(
   const values = useHookstate<T[]>(new Array(urls.length).fill(null))
   const errors = useHookstate<(ErrorEvent | Error)[]>(new Array(urls.length).fill(null))
   const progress = useHookstate<ProgressEvent<EventTarget>[]>(new Array(urls.length).fill(null))
-
+  urls = urls.map((url) => parseStorageProviderURLs(url))
   const unload = () => {
     for (const url of urls) ResourceManager.unload(url, entity)
   }
