@@ -137,23 +137,39 @@ export function getNestedObject(object: any, propertyName: string) {
   return { result, finalProp: props[props.length - 1] }
 }
 
-export function setNestedObject(object: any, propertyName: string, value: any) {
-  if (propertyName === '') return value
+export function setNestedObject(object: object, propertyName: string, value: any) {
+  if (propertyName === '') return { result: object, finalProp: '' }
+
   if (propertyName.startsWith('.')) propertyName = propertyName.slice(1)
 
-  console.log('setNestedObject', object, propertyName, value)
+  const props = propertyName.split('.')
+  let last = object
 
-  const { result, finalProp } = getNestedObject(object ?? {}, propertyName.split('.').slice(0, -1).join('.'))
-  console.log({ result, finalProp })
+  for (let i = 0; i < props.length - 1; i++) {
+    if (typeof last !== 'object') continue
+    let isNumber = false
 
-  if (finalProp === '') {
-    object[propertyName] = value
-    return object
+    try {
+      isNumber = !isNaN(Number(props[i]))
+    } catch (e) {
+      isNumber = false
+    }
+
+    let val = props[i] as string | number
+
+    if (isNumber) {
+      val = Number(val)
+    }
+
+    if (!last[val]) {
+      if (isNumber) last[val] = []
+      else last[val] = {}
+    }
+
+    last = last[val]
   }
 
-  result[finalProp] = value
-
-  return result
+  last[props[props.length - 1]] = value
 }
 
 export function useMutableState<S, I, E, R extends ReceptorMap, P extends string>(

@@ -174,7 +174,7 @@ export type ComponentType<T extends ISchema> = {
     : unknown
 }
 
-export function createResizableTypeArray(type: Type) {
+export function createResizableTypeArray(type: Type): TypedArray {
   const TypeConstructor = arrayByTypeMap[type]
   if (TypeConstructor) {
     // @ts-ignore - maxByteLength not included in TS definitions
@@ -183,23 +183,4 @@ export function createResizableTypeArray(type: Type) {
   } else {
     throw new Error(`Unsupported SoA type: ${type}`)
   }
-}
-
-const createSoA = <U extends ISchema>(schema: U): ComponentType<U> => {
-  const component = {} as ComponentType<U>
-  for (const key in schema) {
-    if (typeof schema[key] === 'string') {
-      const type = schema[key] as Type
-      component[key] = createResizableTypeArray(type) as any
-    } else if (typeof schema[key] === 'object') {
-      component[key] = createSoA(schema[key] as ISchema) as any
-    } else {
-      throw new Error(`Unsupported SoA type: ${schema[key]}`)
-    }
-  }
-  return component
-}
-
-export const defineComponent = <T extends ISchema>(schema: T): ComponentType<T> => {
-  return createSoA(schema)
 }

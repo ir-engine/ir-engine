@@ -37,12 +37,12 @@ import {
   HyperFlux,
   NO_PROXY_STEALTH,
   ReactorRoot,
-  SetPartialStateAction,
   State,
   getState,
   hookstate,
   none,
   resolveObject,
+  setNestedObject,
   startReactor,
   useHookstate
 } from '@ir-engine/hyperflux'
@@ -53,24 +53,21 @@ import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext, entityExists, removeEntity } from './EntityFunctions'
 import { defineQuery, removeQuery } from './QueryFunctions'
 import { Transitionable, TransitionableTypes, getTransitionableKeyForType } from './Transitionable'
-import * as bitECSLegacy from './bitecsLegacy'
 import { createEntity } from './createEntity'
-import { Kind, Schema, SoA, Static, Schema as TSchema, TSoASchema, TTypedSchema } from './schemas/JSONSchemaTypes'
+import { Kind, Schema, SoA, Static, Schema as TSchema, TTypedSchema } from './schemas/JSONSchemaTypes'
 import {
   createSchemaSoAStores,
   CreateSchemaValue,
   DeserializeSchemaValue,
   HasRequiredSchema,
   HasRequiredSchemaValues,
-  HasSchemaDeserializers,
   HasSchemaValidators,
   HasValidSchemaValues,
   IsSingleValueSchema,
   SerializeSchema
 } from './schemas/JSONSchemaUtils'
 import { S } from './schemas/JSONSchemas'
-import { error } from 'console'
-import { Types } from './bitecsLegacy'
+import { TypedArray, Types } from './bitecsLegacy'
 
 export const ComponentMap = new Map<string, Component<any, any, any, any, any, any>>()
 export const ComponentJSONIDMap = new Map<string, Component<any, any, any, any, any, any>>() // <jsonID, Component>
@@ -185,6 +182,7 @@ export interface Component<
   onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove: (entity: Entity, component: State<ComponentType>) => void
   reactor?: any
+  stores?: Record<string, TypedArray>
   reactorMap: Map<Entity, ReactorRoot>
   stateMap: Record<Entity, State<ComponentType, Subscribable>>
   valueMap: Record<Entity, ComponentType>
@@ -208,10 +206,6 @@ export type ComponentErrorsType<C extends Component> =
 const schemaIsJSONSchema = (schema?: ComponentSchema): schema is TSchema => {
   return !!(schema as TSchema)?.[Kind]
 }
-
-// const schemaIsECSSchema = (schema?: ComponentSchema): schema is bitECSLegacy.ISchema => {
-//   return !!(schema && (schema as TSchema)[Kind] === undefined)
-// }
 
 type Primitive = string | number | bigint | boolean | undefined | symbol
 export type ComponentPropertyPath<T, Prefix = ''> = {
@@ -296,10 +290,20 @@ export const defineComponent = <
     return validateComponentSchema(def as any, component) as JSON
   }
 
-  if (def.schema) createSchemaSoAStores(Component, def.schema)
-
   Component.errors = []
   Object.assign(Component, def)
+
+  if (def.schema) {
+    const stores = createSchemaSoAStores(def.schema)
+    const entries = Object.entries(stores)
+    if (entries.length) {
+      for (const [path, store] of entries) {
+        setNestedObject(Component, path, store)
+      }
+      Component.stores = stores
+    }
+  }
+
   if (Component.reactor) Object.defineProperty(Component.reactor, 'name', { value: `Internal${Component.name}Reactor` })
   Component.reactorMap = new Map()
   // We have to create an stateful existence map in order to reactively track which entities have a given component.
@@ -397,10 +401,6 @@ export const createInitialComponentValue = <
     const schema = CreateSchemaValue(entity, component.schema) as InitializationType
     if (component.onInit) return component.onInit(schema) as ComponentType
     else return schema as unknown as ComponentType
-    // } else if (schemaIsECSSchema(component.schema)) {
-    //   const proxy = createProxyForECSSchema(entity, component)
-    //   if (component.onInit) return component.onInit(proxy)
-    //   else return proxy as unknown as ComponentType
   } else if (component.onInit) return component.onInit(undefined as InitializationType) as ComponentType
   else return null as ComponentType
 }
@@ -413,24 +413,16 @@ function nextPowerOf2(n: number) {
   return nearestPowerOf2((n - 1) * 2)
 }
 
-const TypedArray = Object.getPrototypeOf(Uint8Array)
-
 const resizeSoA = (arrayOrObject: any, size: number) => {
-  if (arrayOrObject instanceof TypedArray == false) {
-    for (const propertyName in arrayOrObject) {
-      resizeSoA(arrayOrObject[propertyName], size)
-    }
-  } else {
-    const byteLength = size * arrayOrObject.constructor.BYTES_PER_ELEMENT
-    arrayOrObject.buffer.resize(byteLength)
-  }
+  const byteLength = size * arrayOrObject.constructor.BYTES_PER_ELEMENT
+  arrayOrObject.buffer.resize(byteLength)
 }
 
 export const resizeComponent = (component: Component, size: number) => {
-  const schema = component.schema
-  if (!schemaIsECSSchema(schema)) return
-  for (const propertyName in schema) {
-    resizeSoA(component[propertyName], size)
+  const stores = component.stores
+  if (!stores) return
+  for (const propertyName in stores) {
+    resizeSoA(stores[propertyName], size)
   }
   component.storageSize = size
 }
@@ -743,7 +735,7 @@ export const setComponent = <C extends Component>(
     throw new Error('[setComponent]: entity does not exist')
   }
 
-  if (schemaIsECSSchema(component.schema)) {
+  if (component.stores) {
     const nextSize = nextPowerOf2(entity + 1)
     if (component.storageSize < nextSize) resizeComponent(component, nextSize)
   }

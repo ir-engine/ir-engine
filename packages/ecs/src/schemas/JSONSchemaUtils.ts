@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { setNestedObject } from '@ir-engine/hyperflux'
+import { createResizableTypeArray, TypedArray } from '../bitecsLegacy'
 import { Entity } from '../Entity'
 import {
   Kind,
@@ -42,11 +42,9 @@ import {
   TTupleSchema,
   TUnionSchema
 } from './JSONSchemaTypes'
-import { createResizableTypeArray, Type } from '../bitecsLegacy'
-import { Component } from '../ComponentFunctions'
 
 const CreateDefault = (entity: Entity, def) => {
-  return typeof def === 'function' ? def() : structuredClone(def)
+  return typeof def === 'function' ? def(entity) : structuredClone(def)
 }
 
 const CreateObject = (entity: Entity, props?: TProperties) => {
@@ -357,34 +355,33 @@ export const CreateSchemaValue = <T extends Schema>(entity: Entity, schema: T): 
   }
 }
 
-export const createSchemaSoAStores = <C extends Component, T extends Schema>(component: C, schema: T, path = '') => {
+export const createSchemaSoAStores = <T extends Schema>(
+  schema: T | undefined,
+  stores = {} as Record<string, TypedArray>,
+  path = ''
+) => {
+  if (!schema) return
+
   switch (schema[Kind]) {
-    case "SoA": {
-      setNestedObject(component, path, createResizableTypeArray(schema.properties as Type))
-      return
+    case 'SoA': {
+      const store = createResizableTypeArray(schema.options!.type)
+      if (path === '') throw new Error('Root level SoA is not supported')
+      stores[path] = store
+      return stores
     }
-    case 'SoAProxyObject': {
-      const props = schema.properties as TProperties
-      for (const key in props) {
-        createSchemaSoAStores(component, props[key], path === '' ? key : path + '.' + key)
-      }
-      return
-    }
+    case 'SoAProxyObject':
     case 'Record':
     case 'Object': {
       const props = schema.properties as TProperties
       for (const key in props) {
-        createSchemaSoAStores(component, props[key], path === '' ? key : path + '.' + key)
+        createSchemaSoAStores(props[key], stores, path === '' ? key : path + '.' + key)
       }
-      return
+      return stores
     }
-    case 'Array':
-    case 'Tuple':
-      return []
     case 'Union': {
       const props = schema.properties as TUnionSchema<Schema[]>['properties']
       if (!props.length) return null
-      return createSchemaSoAStores(component, props[0], path)
+      return createSchemaSoAStores(props[0], stores, path)
     }
 
     // passthrough modifiers
@@ -392,13 +389,12 @@ export const createSchemaSoAStores = <C extends Component, T extends Schema>(com
     case 'Required':
     case 'NonSerialized': {
       const props = schema.properties as TNonSerializedSchema<Schema>['properties']
-      return createSchemaSoAStores(component, props, path)
+      return createSchemaSoAStores(props, stores, path)
     }
-    case 'Class':
-    case 'Any':
-      throw new Error('Cannot create SoA store for non-POD types')
+
+    // we dont have support for Array, Tuple or primitives because they don't make sense for SoAs
     default:
-      return undefined
+      return stores
   }
 }
 

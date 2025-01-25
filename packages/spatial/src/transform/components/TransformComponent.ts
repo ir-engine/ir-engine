@@ -472,3 +472,18 @@ export const setFromRotationMatrix = (entity: Entity, m: Matrix4) => {
 }
 
 export const TransformGizmoTagComponent = defineComponent({ name: 'TransformGizmoTagComponent' })
+
+
+/**
+ * @description
+ * Sets the `@param entity` as dirty and recursively sets all children entities as dirty.
+ *
+ * @param entity Entity Node where traversal will start
+ */
+export function setChildrenDirtyFast(entity: Entity) {
+  TransformComponent.dirty[entity] = 1
+  const children = getComponent(entity, EntityTreeComponent).children
+  for (const child of children) {
+    setChildrenDirtyFast(child)
+  }
+}
