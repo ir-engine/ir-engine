@@ -36,6 +36,7 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import {
   defineComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
   LayerComponent,
   LayerComponents,
@@ -61,8 +62,42 @@ describe('LayerFunctions', () => {
     destroyEngine()
   })
 
-  /** @todo Has been refactored. Needs a deep revision */
   describe('getLayerRelationsEntities', () => {
+    it('should return an empty array if LayerFunctions.getLayerComponent(`@param entity`) is falsy', () => {
+      const Expected = []
+      // Set the data as expected
+      const layer = Layers.Simulation
+      const testEntity = createEntity(layer)
+      const backup = LayerComponents[layer]
+      LayerComponents[layer] = null as any
+      // Sanity check before running
+      expect(LayerFunctions.getLayerComponent(testEntity)).toBeFalsy()
+      // Run and Check the result
+      const result = LayerFunctions.getLayerRelationsEntities(testEntity)
+      expect(result).toEqual(Expected)
+      // Cleanup after running
+      LayerComponents[layer] = backup
+    })
+
+    /** @todo Removing a component triggers hookstate error 103 */
+    it.todo(
+      'should return an empty array if getOptionalComponent(`@param entity`, LayerFunctions.getLayerComponent(`@param entity`)) is falsy',
+      () => {
+        const Expected = []
+        // Set the data as expected
+        const layer = Layers.Simulation
+        const testEntity = createEntity(layer)
+        /** @todo Removing a component triggers hookstate error 103 */
+        removeComponent(testEntity, LayerFunctions.getLayerComponent(testEntity))
+        // Sanity check before running
+        expect(LayerFunctions.getLayerComponent(testEntity)).toBeTruthy()
+        expect(getOptionalComponent(testEntity, LayerFunctions.getLayerComponent(testEntity))).toBeFalsy()
+        // Run and Check the result
+        const result = LayerFunctions.getLayerRelationsEntities(testEntity)
+        expect(result).toEqual(Expected)
+      }
+    )
+
     it('should return an array of arrays that contains valid layer ID numbers in slot 0 of each subarray', () => {
       // Set the data as expected
       const testEntity = createEntity(Layers.Authoring)
