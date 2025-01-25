@@ -1,5 +1,5 @@
 {
-  "name": "@ir-engine/ecs",
+"name": "@ir-engine/ecs",
   "version": "1.6.0",
   "main": "index.ts",
   "publishConfig": {
@@ -18,7 +18,7 @@
   "license": "CPAL",
   "dependencies": {
     "@ir-engine/hyperflux": "^1.6.0",
-    "bitecs": "0.3.40",
+    "bitecs": "github:NateTheGreatt/bitECS#rc-0-4-0",
     "uuid": "9.0.0"
   },
   "devDependencies": {

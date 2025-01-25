@@ -37,6 +37,7 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { NO_PROXY, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { ActiveHelperComponent } from '../../../common/ActiveHelperComponent'
 import { useHelperEntity } from '../../../common/debug/useHelperEntity'
 import { useDisposable } from '../../../resources/resourceHooks'
 import { T } from '../../../schema/schemaFunctions'
@@ -63,10 +64,12 @@ export const PointLightComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const renderState = useMutableState(RendererState)
-    const debugEnabled = renderState.nodeHelperVisibility
+    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
+    const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
     const pointLightComponent = useComponent(entity, PointLightComponent)
+
     const [light] = useDisposable(PointLight, entity)
-    const helperEntity = useHelperEntity(entity, () => new PointLightHelper(light), debugEnabled.value)
+    const helperEntity = useHelperEntity(entity, () => new PointLightHelper(light), debugEnabled)
     const helper = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as PointLightHelper | undefined
 
     useImmediateEffect(() => {

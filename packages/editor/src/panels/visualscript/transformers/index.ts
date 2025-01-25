@@ -23,5 +23,5 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-export * from './VisualToFlow'
 export * from './flowToVisual'
+export * from './VisualToFlow'

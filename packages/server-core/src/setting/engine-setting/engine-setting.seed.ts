@@ -278,6 +278,148 @@ export async function seed(knex: Knex): Promise<void> {
     'server'
   )
 
+  const awsSeedData = await generateSeedData(
+    [
+      {
+        key: EngineSettings.Aws.S3.AccessKeyId,
+        value: process.env.STORAGE_AWS_ACCESS_KEY_ID || ''
+      },
+      {
+        key: EngineSettings.Aws.S3.AvatarDir,
+        value: process.env.STORAGE_S3_AVATAR_DIRECTORY || ''
+      },
+      {
+        key: EngineSettings.Aws.S3.Endpoint,
+        value: process.env.STORAGE_S3_ENDPOINT || ''
+      },
+      {
+        key: EngineSettings.Aws.S3.Region,
+        value: process.env.STORAGE_S3_REGION || ''
+      },
+      {
+        key: EngineSettings.Aws.S3.RoleArn,
+        value: process.env.STORAGE_AWS_ROLE_ARN || ''
+      },
+      {
+        key: EngineSettings.Aws.S3.SecretAccessKey,
+        value: process.env.STORAGE_AWS_ACCESS_KEY_SECRET || ''
+      },
+      {
+        key: EngineSettings.Aws.S3.S3DevMode,
+        value: process.env.STORAGE_S3_DEV_MODE || ''
+      },
+      {
+        key: EngineSettings.Aws.S3.StaticResourceBucket,
+        value: process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET || ''
+      },
+      {
+        key: EngineSettings.Aws.CloudFront.DistributionId,
+        value: process.env.STORAGE_CLOUDFRONT_DISTRIBUTION_ID || ''
+      },
+      {
+        key: EngineSettings.Aws.CloudFront.Domain,
+        value:
+          process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true'
+            ? process.env.APP_HOST!
+            : process.env.STORAGE_CLOUDFRONT_DOMAIN! || ''
+      },
+      {
+        key: EngineSettings.Aws.CloudFront.Region,
+        value: process.env.STORAGE_CLOUDFRONT_REGION || process.env.STORAGE_S3_REGION || ''
+      },
+      {
+        key: EngineSettings.Aws.SMS.AccessKeyId,
+        value: process.env.AWS_SMS_ACCESS_KEY_ID || ''
+      },
+      {
+        key: EngineSettings.Aws.SMS.SecretAccessKey,
+        value: process.env.AWS_SMS_SECRET_ACCESS_KEY || ''
+      },
+      {
+        key: EngineSettings.Aws.SMS.ApplicationId,
+        value: process.env.AWS_SMS_APPLICATION_ID || ''
+      },
+      {
+        key: EngineSettings.Aws.SMS.Region,
+        value: process.env.AWS_SMS_REGION || ''
+      },
+      {
+        key: EngineSettings.Aws.SMS.SenderId,
+        value: process.env.AWS_SMS_SENDER_ID || ''
+      },
+      {
+        key: EngineSettings.Aws.EKS.AccessKeyId,
+        value: process.env.EKS_AWS_ACCESS_KEY_SECRET || ''
+      },
+      {
+        key: EngineSettings.Aws.EKS.RoleArn,
+        value: process.env.AWS_EKS_ROLE_ARN || ''
+      },
+      {
+        key: EngineSettings.Aws.EKS.SecretAccessKey,
+        value: process.env.EKS_AWS_ACCESS_KEY_ID || ''
+      }
+    ],
+    'aws'
+  )
+
+  const emailSeedData = await generateSeedData(
+    [
+      {
+        key: EngineSettings.EmailSetting.From,
+        value: `${process.env.SMTP_FROM_NAME} <${process.env.SMTP_FROM_EMAIL}>`
+      },
+      {
+        key: EngineSettings.EmailSetting.Smtp.Host,
+        value: process.env.SMTP_HOST || 'test'
+      },
+      {
+        key: EngineSettings.EmailSetting.Smtp.Port,
+        value: process.env.SMTP_PORT || ''
+      },
+      {
+        key: EngineSettings.EmailSetting.Smtp.Secure,
+        value: process.env.SMTP_SECURE || 'true'
+      },
+      {
+        key: EngineSettings.EmailSetting.Smtp.Auth.User,
+        value: process.env.SMTP_USER || 'test'
+      },
+      {
+        key: EngineSettings.EmailSetting.Smtp.Auth.Pass,
+        value: process.env.SMTP_PASS || 'test'
+      },
+      {
+        key: EngineSettings.EmailSetting.SmsNameCharacterLimit,
+        value: process.env.SMTP_SUBJECT_SMS_NAME_CHARACTER_LIMIT || '20'
+      },
+      {
+        key: EngineSettings.EmailSetting.Subject.NewUser,
+        value: process.env.SMTP_SUBJECT_NEW_USER || 'Infinite Reality Engine signup'
+      },
+      {
+        key: EngineSettings.EmailSetting.Subject.Channel,
+        value: process.env.SMTP_SUBJECT_CHANNEL || 'Infinite Reality Engine channel invitation'
+      },
+      {
+        key: EngineSettings.EmailSetting.Subject.Friend,
+        value: process.env.SMTP_SUBJECT_FRIEND || 'Infinite Reality Engine friend request'
+      },
+      {
+        key: EngineSettings.EmailSetting.Subject.Instance,
+        value: process.env.SMTP_SUBJECT_INSTANCE || 'Infinite Reality Engine location link'
+      },
+      {
+        key: EngineSettings.EmailSetting.Subject.Location,
+        value: process.env.SMTP_SUBJECT_LOCATION || 'Infinite Reality Engine location link'
+      },
+      {
+        key: EngineSettings.EmailSetting.Subject.Login,
+        value: process.env.SMTP_SUBJECT_LOGIN || 'Infinite Reality Engine login link'
+      }
+    ],
+    'email'
+  )
   const seedData: EngineSettingType[] = [
     ...taskServerSeedData,
     ...chargebeeSettingSeedData,
@@ -288,7 +430,9 @@ export async function seed(knex: Knex): Promise<void> {
     ...metabaseSeedData,
     ...redisSeedData,
     ...zendeskSettingSeedData,
-    ...helmSeedData
+    ...helmSeedData,
+    ...awsSeedData,
+    ...emailSeedData
   ]
 
   if (forceRefresh || testEnabled) {

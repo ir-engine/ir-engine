@@ -25,12 +25,12 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
-import { Types } from 'bitecs'
 import React, { useEffect } from 'react'
 import { afterEach, beforeEach, describe, it } from 'vitest'
+import { Types } from './bitecsLegacy'
 
 import sinon from 'sinon'
-import { DirectionalLight, Matrix4, Vector3 } from 'three'
+import { DirectionalLight, Vector3 } from 'three'
 import {
   ComponentMap,
   defineComponent,
@@ -62,6 +62,53 @@ describe('ComponentFunctions', async () => {
   })
 
   describe('defineComponent', () => {
+    it('should not deserialize if property does not match schema', () => {
+      const Vector3Component = defineComponent({
+        name: 'Vector3Component',
+        schema: S.Object({
+          x: S.Number(0),
+          y: S.Number(0),
+          z: S.Number(4)
+        })
+      })
+
+      const entity = createEntity()
+      // @ts-expect-error
+      const vector3Component = setComponent(entity, Vector3Component, { otherval: 10 })
+      assert.deepEqual(vector3Component, { x: 0, y: 0, z: 4 })
+    })
+
+    it('should not deserialize if property type does not match schema', () => {
+      const NestedObjectComponent = defineComponent({
+        name: 'NestedObjectComponent',
+        schema: S.Object({
+          obj: S.Object({
+            num: S.Number(0)
+          })
+        })
+      })
+
+      const entity = createEntity()
+      // @ts-expect-error
+      const nestedObjectComponent = setComponent(entity, NestedObjectComponent, { obj: 'test' })
+      assert.deepEqual(nestedObjectComponent, { obj: { num: 0 } })
+    })
+
+    it('should deserialize if values match schema', () => {
+      const Vector3Component = defineComponent({
+        name: 'Vector3Component',
+        schema: S.Object({
+          x: S.Number(0),
+          y: S.Number(0),
+          z: S.Number(4)
+        })
+      })
+
+      const entity = createEntity()
+      const vector3Component = setComponent(entity, Vector3Component, { x: 12, y: 24, z: 36 })
+      assert.deepEqual(vector3Component, { x: 12, y: 24, z: 36 })
+    })
+
     it('should create tag component', () => {
       const TagComponent = defineComponent({ name: 'TagComponent', onInit: () => true })
 
@@ -72,11 +119,6 @@ describe('ComponentFunctions', async () => {
     })
 
     it('should create mapped component with SoA', () => {
-      type Vector3ComponentType = {
-        x: number
-        y: number
-        z: number
-      }
       const { f32 } = Types
       const Vector3Schema = { x: f32, y: f32, z: f32 }
       const Vector3Component = defineComponent({
@@ -370,27 +412,16 @@ describe('ComponentFunctions', async () => {
         schema: {
           position: ECSSchema.Vec3,
           rotation: ECSSchema.Quaternion,
-          scale: ECSSchema.Vec3,
-          matrix: ECSSchema.Mat4
+          scale: ECSSchema.Vec3
         }
       })
 
       const entity = createEntity()
       setComponent(entity, TransformComponent)
       const transformComponent = getComponent(entity, TransformComponent)
-      transformComponent.matrix[12] = 14
-      const mat = TransformComponent.matrix[entity]
-      assert(transformComponent.matrix[12] === 14)
-      assert(transformComponent.matrix[12] === TransformComponent.matrix[entity][12])
-      assert(transformComponent.matrix[12] === mat[12])
-
-      const mat4Elements = new Matrix4().elements
-      transformComponent.matrix.set(mat4Elements)
-
-      for (let i = 0; i < mat4Elements.length; i++) {
-        assert(transformComponent.matrix[i] === mat4Elements[i])
-        assert(TransformComponent.matrix[entity][i] === mat4Elements[i])
-      }
+      transformComponent.position.x = 12
+      assert(transformComponent.position.x === 12)
+      assert(transformComponent.position.x === TransformComponent.position.x[entity])
     })
   })
 
@@ -434,6 +465,7 @@ describe('ComponentFunctions', async () => {
       const TestComponent = defineComponent({ name: 'TestComponent', schema: ValueSchema })
 
       const entity = createEntity()
+      setComponent(entity, TestComponent)
       TestComponent.value[entity] = 3
       assert.equal(TestComponent.value[entity], 3)
     })
@@ -625,7 +657,7 @@ describe('ComponentFunctions', async () => {
       removeComponent(entity, TestComponent)
 
       assert.ok(!hasComponent(entity, TestComponent))
-      assert.ok(TestComponent.stateMap[entity]!.promised === true)
+      assert.ok(TestComponent.stateMap[entity]!.value === undefined)
     })
 
     it('should remove component with AoS values', () => {
@@ -857,7 +889,7 @@ describe('ComponentFunctions Hooks', async () => {
 
       // Run the test case
       const tag = <Reactor />
-      assert.equal(TestComponent.stateMap[entity]!, undefined)
+      assert.equal(TestComponent.stateMap[entity]!.value, undefined)
       const { rerender, unmount } = render(tag)
       assert.equal(result, 1)
 

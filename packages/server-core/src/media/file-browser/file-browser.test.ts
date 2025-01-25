@@ -1308,7 +1308,7 @@ describe('file-browser.test', () => {
 
       const fileName = testFileName2.split('.').slice(0, -1).join('.')
       const extension = testFileName2.split('.').pop()!
-      const newFileName = `${fileName}(1).${extension}`
+      const newFileName = `${fileName}_1.${extension}`
       assert(
         copyDirectoryResult.find((file) => file.key === 'projects/' + testProject1Name + '/public/test/' + newFileName)
       )

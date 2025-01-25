@@ -30,7 +30,7 @@ import {
   userPath,
   UserType
 } from '@ir-engine/common/src/schema.type.module'
-import { AuthError, AuthTask } from '@ir-engine/common/src/world/receiveJoinWorld'
+import { AuthError, AuthTask, ReadyTask } from '@ir-engine/engine/src/avatar/functions/spawnLocalAvatarInWorld'
 import { getState } from '@ir-engine/hyperflux'
 import { Application } from '@ir-engine/server-core/declarations'
 import multiLogger from '@ir-engine/server-core/src/ServerLogger'
@@ -70,11 +70,11 @@ export const setupSocketFunctions = async (app: Application, spark: Spark) => {
 
   if (!ready) {
     /** We are not ready, so we can't accept any new connections. The client will try again. */
-    app.primus.write({ instanceReady: false })
+    app.primus.write({ instanceReady: false } as ReadyTask)
     return
   }
 
-  app.primus.write({ instanceReady: true })
+  app.primus.write({ instanceReady: true } as ReadyTask)
   const network = getServerNetwork(app)
 
   const onAuthenticationRequest = async (data) => {

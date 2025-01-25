@@ -389,7 +389,7 @@ const useLoadBuffer = (options: GLTFParserOptions, bufferIndex) => {
     }
   }, [bufferDef?.type])
 
-  return bufferDef && bufferDef.uri === undefined && bufferIndex === 0 ? options.body : result
+  return !bufferDef || (bufferDef.uri === undefined && bufferIndex === 0) ? options.body : result
 }
 
 export function computeBounds(json: GLTF.IGLTF, geometry: BufferGeometry, primitiveDef: GLTF.IMeshPrimitive) {

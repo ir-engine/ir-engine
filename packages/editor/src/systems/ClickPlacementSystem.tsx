@@ -335,7 +335,7 @@ export const ClickPlacementSystem = defineSystem({
     for (let i = 0; i < intersect.length; i++) {
       const intersected = intersect[i]
       if (intersected.distance > clickState.maxDistance.value) continue
-      if (isPlacementDescendant(intersected.object.entity)) continue
+      if (isPlacementDescendant(intersected.object.entity!)) continue
       targetIntersection = {
         point: intersected.point,
         normal: intersected.face?.normal ?? new Vector3(0, 1, 0)

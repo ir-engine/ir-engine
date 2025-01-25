@@ -23,24 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 
-import {
-  emailSettingDataSchema,
-  emailSettingPatchSchema,
-  emailSettingQuerySchema,
-  emailSettingSchema
-} from '@ir-engine/common/src/schemas/setting/email-setting.schema'
-
-export default createSwaggerServiceOptions({
-  schemas: {
-    emailSettingDataSchema,
-    emailSettingPatchSchema,
-    emailSettingQuerySchema,
-    emailSettingSchema
-  },
-  docs: {
-    description: 'Email setting service description',
-    securities: ['all']
-  }
-})
+export const ActiveHelperComponent = defineComponent({ name: 'ActiveHelperComponent' })
