@@ -29,14 +29,13 @@ import { defineComponent, getComponent, hasComponent } from '@ir-engine/ecs/src/
 import { OutlineEffect } from 'postprocessing'
 import { RendererComponent, WebGLRendererSystem } from '../WebGLRendererSystem'
 import { MeshComponent } from './MeshComponent'
-import { ObjectComponent } from './ObjectComponent'
 import { VisibleComponent } from './VisibleComponent'
 
 export const HighlightComponent = defineComponent({ name: 'HighlightComponent' })
 
 const highlightQuery = defineQuery([HighlightComponent, MeshComponent, VisibleComponent])
 
-const getCompObject = (entity: Entity) => getComponent(entity, ObjectComponent)
+const getCompObject = (entity: Entity) => getComponent(entity, MeshComponent)
 
 const execute = () => {
   /** @todo support multiple scenes */
