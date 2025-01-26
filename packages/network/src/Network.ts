@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -137,29 +137,44 @@ export const createNetwork = <Ext = unknown>(
     },
     ...extension,
     transports: {},
-    get peers() {
-      return getState(NetworkPeerState)[id]?.peers
-    },
-    get peerIndexToPeerID() {
-      return getState(NetworkPeerState)[id]?.peerIndexToPeerID
-    },
-    get peerIDToPeerIndex() {
-      return getState(NetworkPeerState)[id]?.peerIDToPeerIndex
-    },
-    get users() {
-      return getState(NetworkPeerState)[id]?.users
-    },
     hostPeerID,
-    get hostUserID() {
-      return network.hostPeerID && (network.peers[network.hostPeerID]?.userId as UserID | undefined)
-    },
     id,
     ready: false,
-    get isHosting() {
-      return HyperFlux.store.peerID === network.hostPeerID
-    },
     topic
   } as Network<Ext>
+
+  Object.defineProperty(network, 'hostUserId', {
+    get() {
+      return network.hostPeerID && (network.peers[network.hostPeerID]?.userId as UserID | undefined)
+    }
+  })
+  Object.defineProperty(network, 'isHosting', {
+    get() {
+      return HyperFlux.store.peerID === network.hostPeerID
+    }
+  })
+  Object.defineProperty(network, 'peers', {
+    get() {
+      return getState(NetworkPeerState)[id]?.peers
+    }
+  })
+  Object.defineProperty(network, 'peerIndexToPeerID', {
+    get() {
+      return getState(NetworkPeerState)[id]?.peerIndexToPeerID
+    }
+  })
+  Object.defineProperty(network, 'peerIDToPeerIndex', {
+    get() {
+      return getState(NetworkPeerState)[id]?.peerIDToPeerIndex
+    }
+  })
+  Object.defineProperty(network, 'users', {
+    get() {
+      return getState(NetworkPeerState)[id]?.users
+    }
+  })
+
+  console.log(network)
 
   return network
 }

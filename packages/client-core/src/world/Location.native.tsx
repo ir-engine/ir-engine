@@ -32,6 +32,8 @@ import { useLoadScene } from '../components/World/LoadLocationScene'
 import '@ir-engine/client-core/src/world/LocationModule'
 
 import { clientContextParams } from '@ir-engine/client-core/src/util/ClientContextState'
+import { useMediaWindows } from '../components/UserMediaWindows'
+import { useNetwork } from '../components/World/EngineHooks'
 
 const logger = multiLogger.child({ component: 'system:location', modifier: clientContextParams })
 
@@ -48,7 +50,7 @@ const LocationPage = ({ online, params }: Props) => {
   // const { t } = useTranslation()
   // const ready = useMutableState(LoadingUISystemState).ready
 
-  // useNetwork({ online })
+  useNetwork({ online })
 
   if (params.locationName) {
     useLoadLocation({ locationName: params.locationName! })
@@ -57,6 +59,8 @@ const LocationPage = ({ online, params }: Props) => {
   }
 
   AuthService.useAPIListeners()
+
+  useMediaWindows()
   // LocationService.useLocationBanListeners()
 
   // useEffect(() => {

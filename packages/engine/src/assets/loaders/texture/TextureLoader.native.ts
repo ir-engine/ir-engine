@@ -216,7 +216,9 @@ return output;
 
 @fragment
 fn fragmentMain(@location(0) texCoord: vec2<f32>) -> @location(0) vec4<f32> {
-return textureSample(tex, texSampler, texCoord);
+let color = textureSample(tex, texSampler, texCoord);
+// Native texture uses bgra format, swap blue and red values for correct output.
+return vec4f(color.b, color.g, color.r, color.a);
 }
 `
   })
@@ -324,14 +326,5 @@ return textureSample(tex, texSampler, texCoord);
   device.queue.submit([commandEncoder.finish()])
 
   const data = await canvas.getImageData()
-  swizzleBrgaToRgba(data.data)
   return data
-}
-
-const swizzleBrgaToRgba = (data: number[]) => {
-  for (let i = 0; i < data.length; i += 4) {
-    const temp = data[i]
-    data[i] = data[i + 2]
-    data[i + 2] = temp
-  }
 }

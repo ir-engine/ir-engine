@@ -52,7 +52,7 @@ const initializeLogs = async () => {
 };
 
 createHyperStore();
-ClientAPI.createAPI('/location/mariale');
+ClientAPI.createAPI();
 
 const publicDomain = 'https://localhost:8081';
 

@@ -44,7 +44,6 @@ import { ResourceManager, ResourceType } from '@ir-engine/spatial/src/resources/
 import { useReferencedResource } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { traverseEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
-import { getBlobForArrayBuffer } from 'react-native-blob-jsi-helper'
 import {
   AnimationClip,
   Bone,
@@ -105,6 +104,7 @@ import { TextureLoader } from '../assets/loaders/texture/TextureLoader'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
 import { KHRTextureTransformExtensionComponent, MaterialDefinitionComponent } from './MaterialDefinitionComponent'
+import { getResourceURI } from './getResourceURI'
 
 // todo make this a state
 const cache = new GLTFRegistry()
@@ -929,23 +929,12 @@ const useLoadImageSource = (
 
     if (bufferViewSourceURI) {
       isObjectURL = true
-      const blob = getBlobForArrayBuffer(bufferViewSourceURI)
-
-      const fileReaderInstance = new FileReader()
-      fileReaderInstance.onload = () => {
-        const url = fileReaderInstance.result
-        if (typeof url === 'string') {
-          sourceURI.set(url.replace('data:blob', `data:${sourceDef.mimeType!}`))
-        }
-      }
-
-      fileReaderInstance.onerror = (err) => {
-        console.log('failed to load uri', fileReaderInstance.error)
-      }
-
-      fileReaderInstance.readAsDataURL(blob)
+      const cleanup = getResourceURI(bufferViewSourceURI, sourceDef, (url: string) => {
+        sourceURI.set(url)
+      })
 
       return () => {
+        cleanup()
         sourceURI.set('')
       }
     }

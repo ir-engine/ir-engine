@@ -357,7 +357,8 @@ export default defineConfig(async () => {
     ].filter(Boolean),
     resolve: {
       alias: {
-        'react-json-tree': 'react-json-tree/lib/umd/react-json-tree'
+        'react-json-tree': 'react-json-tree/lib/umd/react-json-tree',
+        'react-native': 'react-native-web'
       }
     },
     build: {
