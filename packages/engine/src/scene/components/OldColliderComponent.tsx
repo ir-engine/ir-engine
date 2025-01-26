@@ -28,7 +28,7 @@ import { useLayoutEffect } from 'react'
 import { Mesh } from 'three'
 import matches from 'ts-matches'
 
-import { EntityUUID, iterateEntityNode, useChildWithComponents, useEntityContext } from '@ir-engine/ecs'
+import { EntityUUID, iterateEntityNode, useChildrenWithComponents, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -154,7 +154,7 @@ export const OldColliderComponent = defineComponent({
     const colliderComponent = useComponent(entity, OldColliderComponent)
     const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)
-    const tree = useChildWithComponents(entity, [MeshComponent])
+    const [tree] = useChildrenWithComponents(entity, [MeshComponent])
 
     useLayoutEffect(() => {
       setComponent(entity, InputComponent)

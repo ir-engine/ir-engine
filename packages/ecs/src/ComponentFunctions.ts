@@ -39,6 +39,7 @@ import {
   NO_PROXY_STEALTH,
   ReactorRoot,
   State,
+  destroy,
   getState,
   hookstate,
   none,
@@ -831,7 +832,7 @@ export const removeComponent = <C extends Component>(entity: Entity, component: 
   component.reactorMap.delete(entity)
   if (root?.isRunning) root.stop()
   /** clear state data after reactor stops, to ensure hookstate is still referenceable */
-  component.stateMap[entity]?.set(none)
+  destroy(component.stateMap[entity]) // component.stateMap[entity]?.set(none)
   delete component.valueMap[entity]
 }
 
