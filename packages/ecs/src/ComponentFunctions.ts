@@ -447,9 +447,9 @@ const resizeComponent = (component: Component, size: number) => {
  *  ```
  * */
 function getLayerRelationsEntities(entity: Entity): [LayerID, Entity][] {
-  const LayerComponent = LayerFunctions.getLayerComponent(entity)
-  if (!LayerComponent) return []
-  const layer = getOptionalComponent(entity, LayerComponent)
+  const layerComponent = LayerFunctions.getLayerComponent(entity)
+  if (!layerComponent) return []
+  const layer = getOptionalComponent(entity, layerComponent)
   if (!layer) return []
   return Object.entries(layer.relations).map(
     ([layer, val]): [LayerID, Entity] => [Number(layer), val] as [LayerID, Entity]
