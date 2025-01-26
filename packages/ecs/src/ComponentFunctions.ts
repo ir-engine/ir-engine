@@ -833,6 +833,7 @@ export const removeComponent = <C extends Component>(entity: Entity, component: 
   if (root?.isRunning) root.stop()
   /** clear state data after reactor stops, to ensure hookstate is still referenceable */
   destroy(component.stateMap[entity]) // component.stateMap[entity]?.set(none)
+  delete component.stateMap[entity]
   delete component.valueMap[entity]
 }
 

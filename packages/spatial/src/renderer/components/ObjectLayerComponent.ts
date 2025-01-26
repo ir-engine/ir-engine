@@ -25,10 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Object3D } from 'three'
 
-import { Entity, S } from '@ir-engine/ecs'
+import { Entity } from '@ir-engine/ecs'
 import { defineComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
-import { proxySoAStore } from '../../common/proxies/createThreejsProxy'
 
 const maxBitWidth = 32
 /**
@@ -42,15 +41,11 @@ export const ObjectLayerComponents = Array.from({ length: maxBitWidth }, (_, i) 
 
 export const ObjectLayerMaskDefault = 1 << 0 // enable layer 0
 
-const proxyMask = proxySoAStore(() => ObjectLayerMaskComponent.mask)
-
 export const ObjectLayerMaskComponent = defineComponent({
   name: 'ObjectLayerMaskComponent',
 
-  schema: S.Proxy(S.Number(), proxyMask),
-
   storage: {
-    mask: createResizableTypeArray(Uint32Array)
+    mask: createResizableTypeArray(Int32Array)
   },
 
   /**

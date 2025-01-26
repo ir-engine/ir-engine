@@ -105,9 +105,7 @@ export function destroyEngine() {
   /** Remove all entities */
   const entities = getAllEntities(HyperFlux.store) as Entity[]
 
-  ReactorReconciler.flushSync(() => {
-    for (const entity of entities) removeEntity(entity)
-  })
+  for (const entity of entities) removeEntity(entity)
 
   for (const query of getState(SystemState).reactiveQueryStates) {
     removeQuery(query.query)

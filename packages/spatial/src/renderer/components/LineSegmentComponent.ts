@@ -27,7 +27,7 @@ import { useEffect } from 'react'
 import { BufferGeometry, Color, LineBasicMaterial, LineSegments, Material, NormalBufferAttributes } from 'three'
 
 import { defineComponent, removeComponent, setComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
-import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { NO_PROXY, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
@@ -59,7 +59,7 @@ export const LineSegmentComponent = defineComponent({
         )
     ).value as LineSegments
 
-    useEffect(() => {
+    useImmediateEffect(() => {
       setComponent(entity, ObjectComponent, lineSegment)
       setVisibleComponent(entity, true)
       return () => {
@@ -88,12 +88,18 @@ export const LineSegmentComponent = defineComponent({
     useEffect(() => {
       const geo = component.geometry.get(NO_PROXY) as BufferGeometry<NormalBufferAttributes>
       lineSegment.geometry = geo
+      return () => {
+        geo.dispose()
+      }
     }, [component.geometry])
 
     useEffect(() => {
       const mat = component.material.get(NO_PROXY) as Material
       lineSegment.material = mat
       mat.needsUpdate = true
+      return () => {
+        mat.dispose()
+      }
     }, [component.material])
 
     return null

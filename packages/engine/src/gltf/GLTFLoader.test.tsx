@@ -81,7 +81,8 @@ const setupEntity = () => {
   const parent = createEntity()
   setComponent(parent, SceneComponent)
   setComponent(parent, EntityTreeComponent)
-  const uuid = setComponent(parent, UUIDComponent, generateEntityUUID())
+  const uuid = UUIDComponent.generateUUID()
+  setComponent(parent, UUIDComponent, uuid)
 
   getMutableState(RapierWorldState).merge({
     [uuid]: true as any

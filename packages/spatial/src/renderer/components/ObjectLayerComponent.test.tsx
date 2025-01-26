@@ -196,12 +196,8 @@ describe('ObjectLayerMaskComponent', () => {
 
   describe('ecs schema', () => {
     it('should initialize the ecs schema with the expected values', () => {
-      assert.notEqual(ObjectLayerMaskComponent.schema, undefined)
-      const KeysSchema = Object.keys(ObjectLayerMaskComponent.schema)
-      assert.equal(KeysSchema.length, 1)
-      assert.equal(KeysSchema.includes('mask'), true)
-      assert.notEqual(ObjectLayerMaskComponent.schema.mask, undefined)
-      assert.equal(ObjectLayerMaskComponent.schema.mask, 'i32')
+      assert.equal(ObjectLayerMaskComponent.schema, undefined)
+      assert(ObjectLayerMaskComponent.mask instanceof Int32Array)
     })
   })
 

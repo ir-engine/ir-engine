@@ -47,7 +47,6 @@ import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { TransformDirtyUpdateSystem } from '../systems/TransformSystem'
 import {
   TransformComponent,
-  TransformECS,
   TransformGizmoTagComponent,
   composeMatrix,
   decomposeMatrix,
@@ -93,7 +92,17 @@ describe('TransformComponent', () => {
     })
 
     it('should initialize the *Component.schema field with the expected value', () => {
-      assert.deepEqual(TransformComponent.schema, TransformECS)
+      assert.deepEqual(TransformComponent.storage.position.x, Float64Array)
+      assert.deepEqual(TransformComponent.storage.position.y, Float64Array)
+      assert.deepEqual(TransformComponent.storage.position.z, Float64Array)
+      assert.deepEqual(TransformComponent.storage.rotation.x, Float64Array)
+      assert.deepEqual(TransformComponent.storage.rotation.y, Float64Array)
+      assert.deepEqual(TransformComponent.storage.rotation.z, Float64Array)
+      assert.deepEqual(TransformComponent.storage.rotation.w, Float64Array)
+      assert.deepEqual(TransformComponent.storage.scale.x, Float64Array)
+      assert.deepEqual(TransformComponent.storage.scale.y, Float64Array)
+      assert.deepEqual(TransformComponent.storage.scale.z, Float64Array)
+      assert.deepEqual(TransformComponent.storage.dirty, Uint8Array)
     })
   }) //:: Fields
 

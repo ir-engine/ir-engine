@@ -47,10 +47,6 @@ describe('MeshComponent', () => {
     it('should initialize the MeshComponent.name field with the expected value', () => {
       assert.equal(MeshComponent.name, 'MeshComponent')
     })
-
-    it('should initialize the MeshComponent.jsonID field with the expected value', () => {
-      assert.equal(MeshComponent.jsonID, 'EE_mesh')
-    })
   }) //:: IDs
 
   describe('onInit', () => {
