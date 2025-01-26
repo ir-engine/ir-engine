@@ -683,6 +683,6 @@ export const ResourceState = defineState({
 
 const ObjectReactor = () => {
   const entity = useEntityContext()
-  ResourceState.useEntityResource(entity, useComponent(entity, ObjectComponent) as State<ResourceAssetType>)
+  ResourceState.useEntityResource(entity, useComponent(entity, ObjectComponent) as any as State<ResourceAssetType>)
   return null
 }
