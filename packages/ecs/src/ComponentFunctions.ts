@@ -32,6 +32,7 @@ import React from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
 
+import { Subscribable, subscribable } from '@hookstate/subscribable'
 import {
   DeepReadonly,
   HyperFlux,
@@ -42,21 +43,19 @@ import {
   hookstate,
   none,
   resolveObject,
-  setNestedObject,
   startReactor,
   useHookstate
 } from '@ir-engine/hyperflux'
-import { Subscribable, subscribable } from '@hookstate/subscribable'
 import { ECSState } from './ECSState'
 import { Easing, EasingFunction } from './EasingFunctions'
 import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext, entityExists, removeEntity } from './EntityFunctions'
 import { defineQuery, removeQuery } from './QueryFunctions'
 import { Transitionable, TransitionableTypes, getTransitionableKeyForType } from './Transitionable'
+import { createResizableTypeArray } from './bitecsLegacy'
 import { createEntity } from './createEntity'
-import { Kind, Schema, SoA, Static, Schema as TSchema, TTypedSchema } from './schemas/JSONSchemaTypes'
+import { Kind, Static, Schema as TSchema, TTypedSchema } from './schemas/JSONSchemaTypes'
 import {
-  createSchemaSoAStores,
   CreateSchemaValue,
   DeserializeSchemaValue,
   HasRequiredSchema,
@@ -67,7 +66,6 @@ import {
   SerializeSchema
 } from './schemas/JSONSchemaUtils'
 import { S } from './schemas/JSONSchemas'
-import { TypedArray, Types } from './bitecsLegacy'
 
 export const ComponentMap = new Map<string, Component<any, any, any, any, any, any>>()
 export const ComponentJSONIDMap = new Map<string, Component<any, any, any, any, any, any>>() // <jsonID, Component>
@@ -110,7 +108,8 @@ export interface ComponentPartial<
   ComponentType = InitializationType,
   JSON = ComponentType,
   SetJSON = ComponentJSON<DeepReadonly<ComponentType>>,
-  ErrorTypes = never
+  ErrorTypes = never,
+  StorageType = object
 > {
   /** @description Human readable label for the component. Displayed in the editor and debugging tools. */
   name: string
@@ -152,6 +151,8 @@ export interface ComponentPartial<
    * `@todo` Explain this function
    */
   reactor?: any // previously <React.FC> breaks types
+
+  storage?: StorageType
   /**
    * @todo Explain ComponentPartial.errors[]
    */
@@ -171,7 +172,8 @@ export interface Component<
   ComponentType = InitializationType,
   JSON = ComponentType,
   SetJSON = ComponentJSON<DeepReadonly<ComponentType>>,
-  ErrorTypes = string
+  ErrorTypes = string,
+  StorageType = any
 > {
   isComponent: true
   name: string
@@ -182,7 +184,7 @@ export interface Component<
   onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove: (entity: Entity, component: State<ComponentType>) => void
   reactor?: any
-  stores?: Record<string, TypedArray>
+  storage?: StorageType
   reactorMap: Map<Entity, ReactorRoot>
   stateMap: Record<Entity, State<ComponentType, Subscribable>>
   valueMap: Record<Entity, ComponentType>
@@ -190,8 +192,6 @@ export interface Component<
   storageSize: number
   __ComponentType: ComponentType
 }
-
-export type SoAComponentType<S extends Schema> = S extends TSchema ? SoA<S> : unknown
 
 /** @description Generic `type` for all Engine's ECS {@link Component}s. All of its fields are required to not be `null`. */
 export type ComponentType<C extends Component> = C['__ComponentType']
@@ -256,12 +256,14 @@ export type ComponentPropertyFromPath<T, Path extends string> = IsDirectProperty
  * export const MyComponent = defineComponent({
  *   name: 'MyComponent',
  *   schema: S.Object({
- *     id: S.SoA(Types.ui32)
+ *     prop: S.String('default')
  *   }),
  *   onSet: (entity, component, json) => {
  *     // side effects
  *   },
- *   onRemove: (entity, component) => {},
+ *   onRemove: (entity, component) => {
+ *     // clean up side effects
+ *   },
  *   errors: []
  * })
  * ```
@@ -274,14 +276,23 @@ export const defineComponent = <
   SetJSON = ComponentJSON<DeepReadonly<ComponentType>>,
   ErrorTypes = never,
   ComponentExtras = Record<string, unknown>,
-  SOAComponent = SoAComponentType<Schema>
+  StorageType = object
 >(
-  def: ComponentPartial<Schema, InitializationType, ComponentType, JSON, SetJSON, ErrorTypes> & ComponentExtras
+  def: ComponentPartial<Schema, InitializationType, ComponentType, JSON, SetJSON, ErrorTypes, StorageType> &
+    ComponentExtras
 ) => {
-  const Component = {} as Component<Schema, InitializationType, ComponentType, JSON, SetJSON, ErrorTypes> & {
+  const Component = {} as Component<
+    Schema,
+    InitializationType,
+    ComponentType,
+    JSON,
+    SetJSON,
+    ErrorTypes,
+    StorageType
+  > & {
     _TYPE: ComponentType
   } & ComponentExtras &
-    SOAComponent & { setTransition: typeof setTransition }
+    StorageType & { setTransition: typeof setTransition }
   Component.isComponent = true
 
   Component.onSet = () => {}
@@ -293,15 +304,8 @@ export const defineComponent = <
   Component.errors = []
   Object.assign(Component, def)
 
-  if (def.schema) {
-    const stores = createSchemaSoAStores(def.schema)
-    const entries = Object.entries(stores)
-    if (entries.length) {
-      for (const [path, store] of entries) {
-        setNestedObject(Component, path, store)
-      }
-      Component.stores = stores
-    }
+  if (def.storage) {
+    Object.assign(Component, def.storage)
   }
 
   if (Component.reactor) Object.defineProperty(Component.reactor, 'name', { value: `Internal${Component.name}Reactor` })
@@ -413,16 +417,23 @@ function nextPowerOf2(n: number) {
   return nearestPowerOf2((n - 1) * 2)
 }
 
+const TypedArray = Object.getPrototypeOf(Uint8Array)
+
 const resizeSoA = (arrayOrObject: any, size: number) => {
-  const byteLength = size * arrayOrObject.constructor.BYTES_PER_ELEMENT
-  arrayOrObject.buffer.resize(byteLength)
+  if (arrayOrObject instanceof TypedArray) {
+    const byteLength = size * arrayOrObject.constructor.BYTES_PER_ELEMENT
+    arrayOrObject.buffer.resize(byteLength)
+  } else {
+    for (const propertyName in arrayOrObject) {
+      resizeSoA(arrayOrObject[propertyName], size)
+    }
+  }
 }
 
-export const resizeComponent = (component: Component, size: number) => {
-  const stores = component.stores
-  if (!stores) return
-  for (const propertyName in stores) {
-    resizeSoA(stores[propertyName], size)
+const resizeComponent = (component: Component, size: number) => {
+  const schema = component.storage
+  for (const propertyName in schema) {
+    resizeSoA(component[propertyName], size)
   }
   component.storageSize = size
 }
@@ -567,6 +578,10 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         }
         return null
       }
+      case 'Partial':
+      case 'Required':
+      case 'Proxy':
+      case 'NonSerialized':
       default: {
         let props = schema.properties as any
         if (!props) {
@@ -735,7 +750,7 @@ export const setComponent = <C extends Component>(
     throw new Error('[setComponent]: entity does not exist')
   }
 
-  if (component.stores) {
+  if (component.storage) {
     const nextSize = nextPowerOf2(entity + 1)
     if (component.storageSize < nextSize) resizeComponent(component, nextSize)
   }
@@ -1001,10 +1016,9 @@ export const SimulationLayerComponent = LayerComponents[Layers.Simulation]
 export const LayerComponent = defineComponent({
   name: 'LayerComponent',
 
-  schema: S.Object({
-    somethingElse: S.Bool(),
-    layer: S.SoA(Types.ui8)
-  }),
+  storage: {
+    layer: createResizableTypeArray(Uint8Array)
+  },
 
   onSet(entity, component, layer: LayerID) {
     LayerComponent.layer[entity] = layer

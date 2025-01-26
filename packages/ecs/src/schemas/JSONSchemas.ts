@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 import { PeerID, UserID } from '@ir-engine/hyperflux'
-import { Type } from '../bitecsLegacy'
 import { Entity, EntityUUID, UndefinedEntity } from '../Entity'
 import {
   Kind,
@@ -42,10 +41,9 @@ import {
   TObjectSchema,
   TPartialSchema,
   TProperties,
+  TProxySchema,
   TRecordSchema,
   TRequiredSchema,
-  TSoAProxyObjectSchema,
-  TSoASchema,
   TStringSchema,
   TTupleSchema,
   TTypedSchema,
@@ -368,29 +366,12 @@ export const S = {
   PeerID: (options?: TTypedSchema<PeerID>['options']) =>
     S.String('', { ...options, id: 'PeerUUID' }) as unknown as TTypedSchema<PeerID>,
 
-  /** @todo add default value option */
-  SoA: <T extends Type>(type: T, options?: TSoASchema<T>['options']) =>
+  Proxy: <T extends Schema>(schema: T, proxy: (entity) => PropertyDescriptor) =>
     ({
-      [Kind]: 'SoA',
+      [Kind]: 'Proxy',
       options: {
-        ...options,
-        type
+        default: proxy
       },
-      properties: {}
-    }) as TSoASchema<T>,
-
-  SoAProxyObject: <T extends TProperties, C>(
-    factory: (entity: Entity) => C,
-    properties: T,
-    options: TSoAProxyObjectSchema<T, any>['options']
-  ) => {
-    return {
-      [Kind]: 'SoAProxyObject',
-      options: {
-        ...options,
-        default: factory
-      },
-      properties: properties
-    } as TSoAProxyObjectSchema<T, C>
-  }
+      properties: schema
+    }) as TProxySchema<T>
 }

@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ArrayByType, Type } from '../bitecsLegacy'
 import { Entity } from '../Entity'
 
 export const Kind = Symbol('Kind')
@@ -49,28 +48,17 @@ type Kinds =
   | 'Required'
   | 'NonSerialized'
   | 'Class'
-  | 'SoA'
-  | 'SoAProxyObject'
+  | 'Proxy'
   | 'Any'
 
 export interface Schema {
   [Kind]: Kinds
   static: unknown
-  soa: unknown
   properties?: unknown
   options?: Options<any>
 }
 
 export type Static<T extends Schema> = T['static']
-
-export type SoA<T extends Schema> = T['soa'] &
-  (T['properties'] extends TSoASchema<any>
-    ? {
-        [K in keyof T['properties']]: T['properties'][K] extends TSoAProxyObjectSchema<any, any>
-          ? T['properties'][K]['soa']
-          : never
-      }
-    : object)
 
 export interface Options<V = unknown> {
   id?: string
@@ -136,7 +124,7 @@ export interface TLiteralSchema<T extends TLiteralValue> extends Schema {
 }
 
 export type TPropertyKeySchema = TStringSchema | TNumberSchema
-export type TPropertyKey = string | number | symbol
+export type TPropertyKey = string | number
 export type TProperties = Record<TPropertyKey, Schema>
 
 type ObjectOptionalKeys<T extends TProperties> = {
@@ -151,25 +139,9 @@ type ObjectStatic<T extends TProperties> = {
   [K in ObjectOptionalKeys<T>]?: Static<T[K]>
 }
 
-type ObjectIncludesSoAProxy<T extends TProperties> = {
-  [K in keyof T]: T[K] extends TSoAProxyObjectSchema<any, any> ? K : never
-}[keyof T]
-
-type ObjectIncludesSoA<T extends TProperties> = {
-  [K in keyof T]: T[K] extends TSoASchema<any> ? K : never
-}[keyof T]
-
-type ObjectSoA<T extends TProperties> = {
-  [K in ObjectIncludesSoA<T>]: T[K]['soa']
-} & {
-  [K in ObjectIncludesSoAProxy<T>]: T[K] extends TSoAProxyObjectSchema<any, any> ? T[K]['soa'] : never
-}
-
 export interface TObjectSchema<T extends TProperties> extends Schema {
   [Kind]: 'Object'
   static: ObjectStatic<T>
-  // optionally include soa based on if child schemas are SoA, otherwise never
-  soa: ObjectSoA<T>
   properties: T
   options?: Options<this['static']>
 }
@@ -201,24 +173,6 @@ export interface TArraySchema<T extends Schema> extends Schema {
     minItem?: number
     maxItem?: number
   }
-  properties: T
-}
-
-export interface TSoASchema<T extends Type> extends Omit<Schema, 'schema'> {
-  [Kind]: 'SoA'
-  soa: ArrayByType[T]
-  options?: Options<ArrayByType[T]> & {
-    type: T
-  }
-}
-
-export interface TSoAProxyObjectSchema<T extends TProperties, C> extends Schema {
-  [Kind]: 'SoAProxyObject'
-  static: C
-  soa: {
-    [K in keyof T]: T[K]['soa']
-  }
-  options: Options<C>
   properties: T
 }
 
@@ -298,3 +252,10 @@ export type SerializedType<T> = T extends object
   : T extends TNonSerializable
   ? never
   : T
+
+export interface TProxySchema<T extends Schema> extends Schema {
+  [Kind]: 'Proxy'
+  static: Static<T>
+  properties: T
+  options?: Options<this['static']>
+}

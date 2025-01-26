@@ -44,14 +44,6 @@ import {
 
 export interface IWorld {}
 
-export type ComponentProp = TypedArray | Array<TypedArray>
-
-export interface IComponentProp {}
-
-export interface IComponent {}
-
-export type Component = IComponent | ComponentType<ISchema>
-
 export type Query<W extends IWorld = IWorld> = (world: W) => readonly EntityId[]
 
 export function defineQuery(components: QueryTerm[]) {
@@ -102,27 +94,6 @@ export const hasComponent = (world: IWorld, component: ComponentRef, eid: Entity
 export const removeComponent = (world: IWorld, component: ComponentRef, eid: EntityId) =>
   ecsRemoveComponent(world, eid, component)
 
-export interface ISchema {
-  [key: string]: Type | ListType | ISchema
-}
-
-export type Type = 'i8' | 'ui8' | 'ui8c' | 'i16' | 'ui16' | 'i32' | 'ui32' | 'f32' | 'f64' | 'eid'
-
-export type ListType = readonly [Type, number]
-
-export const Types = {
-  i8: 'i8' as const,
-  ui8: 'ui8' as const,
-  ui8c: 'ui8c' as const,
-  i16: 'i16' as const,
-  ui16: 'ui16' as const,
-  i32: 'i32' as const,
-  ui32: 'ui32' as const,
-  f32: 'f32' as const,
-  f64: 'f64' as const,
-  eid: 'eid' as const
-}
-
 export type TypedArray =
   | Uint8Array
   | Int8Array
@@ -134,53 +105,21 @@ export type TypedArray =
   | Float32Array
   | Float64Array
 
-export type ArrayByType = {
-  i8: Int8Array
-  ui8: Uint8Array
-  ui8c: Uint8ClampedArray
-  i16: Int16Array
-  ui16: Uint16Array
-  i32: Int32Array
-  ui32: Uint32Array
-  f32: Float32Array
-  f64: Float64Array
-  eid: Uint32Array
-}  
+export type TypedArrayConstructor =
+  | Uint8ArrayConstructor
+  | Int8ArrayConstructor
+  | Uint8ClampedArrayConstructor
+  | Int16ArrayConstructor
+  | Uint16ArrayConstructor
+  | Int32ArrayConstructor
+  | Uint32ArrayConstructor
+  | Float32ArrayConstructor
+  | Float64ArrayConstructor
 
-// ... existing code ...
-
-const arrayByTypeMap = {
-  i8: Int8Array,
-  ui8: Uint8Array,
-  ui8c: Uint8ClampedArray,
-  i16: Int16Array,
-  ui16: Uint16Array,
-  i32: Int32Array,
-  ui32: Uint32Array,
-  f32: Float32Array,
-  f64: Float64Array,
-  eid: Uint32Array
-} as const
-
-export type ComponentType<T extends ISchema> = {
-  [key in keyof T]: T[key] extends Type
-    ? ArrayByType[T[key]]
-    : T[key] extends [infer RT, number]
-    ? RT extends Type
-      ? Array<ArrayByType[RT]>
-      : unknown
-    : T[key] extends ISchema
-    ? ComponentType<T[key]>
-    : unknown
+export function createResizableTypeArray<T extends TypedArrayConstructor>(TypeConstructor: T) {
+  // @ts-ignore - maxByteLength not included in TS definitions
+  const buffer = new ArrayBuffer(0, { maxByteLength: Math.pow(2, 20) })
+  return new TypeConstructor(buffer) as InstanceType<T>
 }
 
-export function createResizableTypeArray(type: Type): TypedArray {
-  const TypeConstructor = arrayByTypeMap[type]
-  if (TypeConstructor) {
-    // @ts-ignore - maxByteLength not included in TS definitions
-    const buffer = new ArrayBuffer(0, { maxByteLength: Math.pow(2, 20) })
-    return new TypeConstructor(buffer)
-  } else {
-    throw new Error(`Unsupported SoA type: ${type}`)
-  }
-}
+export type ResizableArray = ReturnType<typeof createResizableTypeArray>

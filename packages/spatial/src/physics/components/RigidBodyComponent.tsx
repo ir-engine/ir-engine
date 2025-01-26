@@ -33,13 +33,14 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 
 import { useEffect } from 'react'
-import { proxifyQuaternion, proxifyVector3, ProxyExtensions } from '../../common/proxies/createThreejsProxy'
+import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Physics } from '../classes/Physics'
 import { Body, BodyTypes } from '../types/PhysicsTypes'
 
+import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
 import React from 'react'
 import { Quaternion, Vector3 } from 'three'
-import { QuatSchema, Vec3Schema } from '../../transform/components/TransformComponent'
+import { T } from '../../schema/schemaFunctions'
 
 const options = {
   deserialize: (curr, value) => curr.copy(value)
@@ -47,12 +48,12 @@ const options = {
 
 const assignVec3 =
   (property: string) =>
-  (entity: Entity): Vector3 & ProxyExtensions =>
+  (entity: Entity): Vector3 =>
     proxifyVector3(RigidBodyComponent[property], entity)
 
 const assignQuat =
   (property: string) =>
-  (entity: Entity): Quaternion & ProxyExtensions =>
+  (entity: Entity): Quaternion =>
     proxifyQuaternion(RigidBodyComponent[property], entity)
 
 export const RigidBodyComponent = defineComponent({
@@ -69,17 +70,63 @@ export const RigidBodyComponent = defineComponent({
     // internal
     /** @deprecated  @todo make the physics api properly reactive to remove this property  */
     initialized: S.Bool(false),
-    previousPosition: S.SoAProxyObject(assignVec3('previousPosition'), Vec3Schema, options),
-    previousRotation: S.SoAProxyObject(assignQuat('previousRotation'), QuatSchema, options),
-    position: S.SoAProxyObject(assignVec3('position'), Vec3Schema, options),
-    rotation: S.SoAProxyObject(assignQuat('rotation'), QuatSchema, options),
-    targetKinematicPosition: S.SoAProxyObject(assignVec3('targetKinematicPosition'), Vec3Schema, options),
-    targetKinematicRotation: S.SoAProxyObject(assignQuat('targetKinematicRotation'), QuatSchema, options),
-    linearVelocity: S.SoAProxyObject(assignVec3('linearVelocity'), Vec3Schema, options),
-    angularVelocity: S.SoAProxyObject(assignVec3('angularVelocity'), Vec3Schema, options),
+    previousPosition: T.Vec3(assignVec3('previousPosition')),
+    previousRotation: T.Quaternion(assignQuat('previousRotation')),
+    position: T.Vec3(assignVec3('position')),
+    rotation: T.Quaternion(assignQuat('rotation')),
+    targetKinematicPosition: T.Vec3(assignVec3('targetKinematicPosition')),
+    targetKinematicRotation: T.Quaternion(assignQuat('targetKinematicRotation')),
+    linearVelocity: T.Vec3(assignVec3('linearVelocity')),
+    angularVelocity: T.Vec3(assignVec3('angularVelocity')),
     /** If multiplier is 0, ridigbody moves immediately to target pose, linearly interpolating between substeps */
     targetKinematicLerpMultiplier: S.Number(0)
   }),
+
+  storage: {
+    previousPosition: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array)
+    },
+    previousRotation: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array),
+      w: createResizableTypeArray(Float64Array)
+    },
+    position: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array)
+    },
+    rotation: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array),
+      w: createResizableTypeArray(Float64Array)
+    },
+    targetKinematicPosition: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array)
+    },
+    targetKinematicRotation: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array),
+      w: createResizableTypeArray(Float64Array)
+    },
+    linearVelocity: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array)
+    },
+    angularVelocity: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array)
+    }
+  },
 
   onSet: (entity, component, json) => {
     if (!json) return

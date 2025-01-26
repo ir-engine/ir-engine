@@ -25,16 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
-import { EntityTreeComponent, getAncestorWithComponents, S, Types } from '@ir-engine/ecs'
+import { EntityTreeComponent, getAncestorWithComponents, S } from '@ir-engine/ecs'
 import { defineComponent, getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
+import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
 import { isZero } from '../../common/functions/MathFunctions'
-import {
-  proxifyQuaternionWithDirty,
-  proxifyVector3WithDirty,
-  ProxyExtensions
-} from '../../common/proxies/createThreejsProxy'
+import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { T } from '../../schema/schemaFunctions'
 
@@ -46,44 +43,46 @@ export type TransformComponentType = {
   matrixWorld: Matrix4
 }
 
-export const Vec3Schema = {
-  x: S.SoA(Types.f64),
-  y: S.SoA(Types.f64),
-  z: S.SoA(Types.f64)
-}
-
-export const QuatSchema = {
-  x: S.SoA(Types.f64),
-  y: S.SoA(Types.f64),
-  z: S.SoA(Types.f64),
-  w: S.SoA(Types.f64)
-}
-
-const assignPosition = (entity: Entity): Vector3 & ProxyExtensions =>
+const assignPosition = (entity: Entity): Vector3 =>
   proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirty)
 
-const assignRotation = (entity: Entity): Quaternion & ProxyExtensions =>
+const assignRotation = (entity: Entity): Quaternion =>
   proxifyQuaternionWithDirty(TransformComponent.rotation, entity, TransformComponent.dirty)
 
-const assignScale = (entity: Entity): Vector3 & ProxyExtensions =>
+const assignScale = (entity: Entity): Vector3 =>
   proxifyVector3WithDirty(TransformComponent.scale, entity, TransformComponent.dirty, new Vector3(1, 1, 1))
-
-const options = {
-  deserialize: (curr, value) => curr.copy(value)
-}
 
 export const TransformComponent = defineComponent({
   name: 'TransformComponent',
   jsonID: 'EE_transform',
 
   schema: S.Object({
-    position: S.SoAProxyObject(assignPosition, Vec3Schema, options),
-    rotation: S.SoAProxyObject(assignRotation, QuatSchema, options),
-    scale: S.SoAProxyObject(assignScale, Vec3Schema, options),
+    position: T.Vec3(assignPosition),
+    rotation: T.Quaternion(assignRotation),
+    scale: T.Vec3(assignScale),
     matrix: T.Mat4(),
-    matrixWorld: T.Mat4(),
-    dirty: S.SoA(Types.ui8)
+    matrixWorld: T.Mat4()
   }),
+
+  storage: {
+    position: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array)
+    },
+    rotation: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array),
+      w: createResizableTypeArray(Float64Array)
+    },
+    scale: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array)
+    },
+    dirty: createResizableTypeArray(Uint8Array)
+  },
 
   onSet: (entity, component, json) => {
     if (!json) return

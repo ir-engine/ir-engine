@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createResizableTypeArray, TypedArray } from '../bitecsLegacy'
 import { Entity } from '../Entity'
 import {
   Kind,
@@ -37,6 +36,7 @@ import {
   TPartialSchema,
   TProperties,
   TPropertyKeySchema,
+  TProxySchema,
   TRecordSchema,
   TRequiredSchema,
   TTupleSchema,
@@ -75,18 +75,15 @@ const IterateSchema = <T extends Schema>(schema: T, pred: (curr: T) => boolean):
       return false
     }
 
-    case 'Partial': {
-      const props = schema.properties as TPartialSchema<Schema>['properties']
-      return IterateSchema(props, pred)
-    }
-
+    case 'Partial':
+    case 'Required':
+    case 'Proxy':
     case 'NonSerialized': {
-      const props = schema.properties as TNonSerializedSchema<Schema>['properties']
-      return IterateSchema(props, pred)
-    }
-
-    case 'Required': {
-      const props = schema.properties as TRequiredSchema<Schema>['properties']
+      const props = schema.properties as
+        | TPartialSchema<Schema>['properties']
+        | TNonSerializedSchema<Schema>['properties']
+        | TRequiredSchema<Schema>['properties']
+        | TProxySchema<Schema>['properties']
       return IterateSchema(props, pred)
     }
 
@@ -146,18 +143,15 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(schema: T, curr: V
       break
     }
 
+    case 'Required':
+    case 'Proxy':
+    case 'NonSerialized':
     case 'Partial': {
-      const props = schema.properties as TPartialSchema<Schema>['properties']
-      return DeserializeSchemaValue(props, curr, value)
-    }
-
-    case 'NonSerialized': {
-      const props = schema.properties as TNonSerializedSchema<Schema>['properties']
-      return DeserializeSchemaValue(props, curr, value)
-    }
-
-    case 'Required': {
-      const props = schema.properties as TRequiredSchema<Schema>['properties']
+      const props = schema.properties as
+        | TPartialSchema<Schema>['properties']
+        | TNonSerializedSchema<Schema>['properties']
+        | TRequiredSchema<Schema>['properties']
+        | TProxySchema<Schema>['properties']
       return DeserializeSchemaValue(props, curr, value)
     }
 
@@ -187,13 +181,13 @@ export const HasRequiredSchemaValues = <T extends Schema>(schema: T, value, curr
       return [true, '']
     }
 
-    case 'Partial': {
-      const props = schema.properties as TPartialSchema<Schema>['properties']
-      return HasRequiredSchemaValues(props, value)
-    }
-
+    case 'Proxy':
+    case 'Partial':
     case 'NonSerialized': {
-      const props = schema.properties as TNonSerializedSchema<Schema>['properties']
+      const props = schema.properties as
+        | TPartialSchema<Schema>['properties']
+        | TNonSerializedSchema<Schema>['properties']
+        | TProxySchema<Schema>['properties']
       return HasRequiredSchemaValues(props, value)
     }
 
@@ -233,18 +227,15 @@ export const HasValidSchemaValues = <T extends Schema, Val>(
       return [true, '']
     }
 
+    case 'Proxy':
+    case 'Required':
+    case 'NonSerialized':
     case 'Partial': {
-      const props = schema.properties as TPartialSchema<Schema>['properties']
-      return HasValidSchemaValues(props, value, prev, entity)
-    }
-
-    case 'NonSerialized': {
-      const props = schema.properties as TNonSerializedSchema<Schema>['properties']
-      return HasValidSchemaValues(props, value, prev, entity)
-    }
-
-    case 'Required': {
-      const props = schema.properties as TRequiredSchema<Schema>['properties']
+      const props = schema.properties as
+        | TPartialSchema<Schema>['properties']
+        | TNonSerializedSchema<Schema>['properties']
+        | TRequiredSchema<Schema>['properties']
+        | TProxySchema<Schema>['properties']
       return HasValidSchemaValues(props, value, prev, entity)
     }
 
@@ -286,12 +277,13 @@ export const IsSingleValueSchema = <T extends Schema>(schema?: T): boolean => {
       return true
     }
 
-    case 'Required': {
-      const props = schema.properties as TRequiredSchema<Schema>['properties']
-      return IsSingleValueSchema(props)
-    }
-    case 'NonSerialized': {
-      const props = schema.properties as TNonSerializedSchema<Schema>['properties']
+    case 'NonSerialized':
+    case 'Required':
+    case 'Proxy': {
+      const props = schema.properties as
+        | TNonSerializedSchema<Schema>['properties']
+        | TRequiredSchema<Schema>['properties']
+        | TProxySchema<Schema>['properties']
       return IsSingleValueSchema(props)
     }
     default:
@@ -350,51 +342,12 @@ export const CreateSchemaValue = <T extends Schema>(entity: Entity, schema: T): 
       const props = schema.properties as TNonSerializedSchema<Schema>['properties']
       return CreateSchemaValue(entity, props)
     }
+    case 'Proxy': {
+      const props = schema.properties as TNonSerializedSchema<Schema>['properties']
+      return CreateSchemaValue(entity, props)
+    }
     default:
       return undefined
-  }
-}
-
-export const createSchemaSoAStores = <T extends Schema>(
-  schema: T | undefined,
-  stores = {} as Record<string, TypedArray>,
-  path = ''
-) => {
-  if (!schema) return
-
-  switch (schema[Kind]) {
-    case 'SoA': {
-      const store = createResizableTypeArray(schema.options!.type)
-      if (path === '') throw new Error('Root level SoA is not supported')
-      stores[path] = store
-      return stores
-    }
-    case 'SoAProxyObject':
-    case 'Record':
-    case 'Object': {
-      const props = schema.properties as TProperties
-      for (const key in props) {
-        createSchemaSoAStores(props[key], stores, path === '' ? key : path + '.' + key)
-      }
-      return stores
-    }
-    case 'Union': {
-      const props = schema.properties as TUnionSchema<Schema[]>['properties']
-      if (!props.length) return null
-      return createSchemaSoAStores(props[0], stores, path)
-    }
-
-    // passthrough modifiers
-    case 'Partial':
-    case 'Required':
-    case 'NonSerialized': {
-      const props = schema.properties as TNonSerializedSchema<Schema>['properties']
-      return createSchemaSoAStores(props, stores, path)
-    }
-
-    // we dont have support for Array, Tuple or primitives because they don't make sense for SoAs
-    default:
-      return stores
   }
 }
 
@@ -548,6 +501,11 @@ export const CheckSchemaValue = <T extends Schema, Val>(schema: T, value: Val) =
       return CheckSchemaValue(props, value)
     }
 
+    case 'Proxy': {
+      const props = schema.properties as TProxySchema<Schema>['properties']
+      return CheckSchemaValue(props, value)
+    }
+
     case 'Func':
     case 'NonSerialized':
       return true
@@ -631,8 +589,12 @@ const ConvertToSchema = <T extends Schema, Val>(schema: T, value: Val) => {
     }
 
     case 'Partial':
-    case 'Required': {
-      const props = schema.properties as TRequiredSchema<Schema>['properties'] | TPartialSchema<Schema>['properties']
+    case 'Required':
+    case 'Proxy': {
+      const props = schema.properties as
+        | TRequiredSchema<Schema>['properties']
+        | TPartialSchema<Schema>['properties']
+        | TProxySchema<Schema>['properties']
       return ConvertToSchema(props, value)
     }
 

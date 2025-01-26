@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { AxesHelper, Quaternion, Vector3 } from 'three'
 
-import { S, Types, UUIDComponent, useEntityContext } from '@ir-engine/ecs'
+import { S, UUIDComponent, useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
@@ -35,6 +35,7 @@ import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { ikTargets } from '../animation/Util'
@@ -52,7 +53,7 @@ export type AvatarIKTargetsType = {
 
 export const AvatarIKTargetComponent = defineComponent({
   name: 'AvatarIKTargetComponent',
-  schema: S.Object({ blendWeight: S.SoA(Types.f64) }),
+  storage: { blendWeight: createResizableTypeArray(Float64Array) },
 
   reactor: function () {
     const entity = useEntityContext()
