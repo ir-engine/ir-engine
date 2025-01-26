@@ -24,13 +24,12 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import { BoxGeometry, Material, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
+import { BoxGeometry, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
   createEntity,
   getComponent,
-  getMutableComponent,
   hasComponent,
   removeComponent,
   removeEntity,
@@ -41,6 +40,7 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { MeshComponent } from './MeshComponent'
+import { ObjectComponent } from './ObjectComponent'
 
 describe('MeshComponent', () => {
   describe('IDs', () => {
@@ -111,16 +111,18 @@ describe('MeshComponent', () => {
       const Expected = new Mesh(new BoxGeometry())
       setComponent(testEntity, MeshComponent, Initial)
       const before = getComponent(testEntity, MeshComponent)
-      assert.equal(before.uuid, Initial.uuid)
+      assert.equal(before, Initial)
       // Run and Check the result
       setComponent(testEntity, MeshComponent, Expected)
       const result = getComponent(testEntity, MeshComponent)
-      assert.notEqual(result.uuid, Initial.uuid)
-      assert.equal(result.uuid, Expected.uuid)
+      assert.notEqual(result, Initial)
+      assert.equal(result, Expected)
+      const obj = getComponent(testEntity, MeshComponent)
+      assert.equal(obj, Expected)
     })
   }) //:: onSet
 
-  describe('reactor', () => {
+  describe('onRemove', () => {
     let testEntity = UndefinedEntity
 
     beforeEach(async () => {
@@ -133,46 +135,15 @@ describe('MeshComponent', () => {
       return destroyEngine()
     })
 
-    it('should trigger when component changes', () => {
-      const Initial = new Mesh(new SphereGeometry())
-      const Expected = new Mesh(new BoxGeometry())
-      setComponent(testEntity, MeshComponent, Initial)
-      const before = getComponent(testEntity, MeshComponent)
-      assert.equal(before.uuid, Initial.uuid)
-      // Run and Check the result
-      getMutableComponent(testEntity, MeshComponent).set(Expected)
-      const result = getComponent(testEntity, MeshComponent)
-      assert.notEqual(result.uuid, Initial.uuid)
-      assert.equal(result.uuid, Expected.uuid)
-    })
+    it('should remove the component from the entity', () => {
+      const geometry = new BoxGeometry(1, 1, 1)
+      const material = new MeshBasicMaterial({ color: 0xffff00 })
 
-    it('should trigger when component.geometry changes', () => {
-      const Initial = new SphereGeometry()
-      const Expected = new BoxGeometry()
-      const mesh = new Mesh(Initial)
-      setComponent(testEntity, MeshComponent, mesh)
-      const before = getComponent(testEntity, MeshComponent).geometry
-      assert.equal(before.uuid, Initial.uuid)
-      // Run and Check the result
-      getMutableComponent(testEntity, MeshComponent).geometry.set(Expected)
-      const result = getComponent(testEntity, MeshComponent).geometry
-      assert.notEqual(result.uuid, Initial.uuid)
-      assert.equal(result.uuid, Expected.uuid)
+      setComponent(testEntity, MeshComponent, new Mesh(geometry, material))
+      assert(hasComponent(testEntity, MeshComponent))
+      removeComponent(testEntity, MeshComponent)
+      assert(!hasComponent(testEntity, MeshComponent))
+      assert(!hasComponent(testEntity, ObjectComponent))
     })
-
-    it('should trigger when component.material changes', () => {
-      const Initial = new Material()
-      const Expected = new Material()
-      const mesh = new Mesh(new BoxGeometry())
-      mesh.material = Initial
-      setComponent(testEntity, MeshComponent, mesh)
-      const before = getComponent(testEntity, MeshComponent).material as Material
-      assert.equal(before.uuid, Initial.uuid)
-      // Run and Check the result
-      getMutableComponent(testEntity, MeshComponent).material.set(Expected)
-      const result = getComponent(testEntity, MeshComponent).material as Material
-      assert.notEqual(result.uuid, Initial.uuid)
-      assert.equal(result.uuid, Expected.uuid)
-    })
-  }) //:: reactor
+  })
 })
