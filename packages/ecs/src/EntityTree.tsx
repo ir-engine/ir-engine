@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { NO_PROXY, none, startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import React, { useLayoutEffect } from 'react'
 import {
   Component,
@@ -262,20 +261,6 @@ export function iterateEntityNode<R>(
     }
   }
   return result
-}
-
-/**
- * @description
- * Sets the `@param entity` as dirty and recursively sets all children entities as dirty.
- *
- * @param entity Entity Node where traversal will start
- */
-export function setChildrenDirtyFast(entity: Entity) {
-  TransformComponent.dirty[entity] = 1
-  const children = getComponent(entity, EntityTreeComponent).children
-  for (const child of children) {
-    setChildrenDirtyFast(child)
-  }
 }
 
 /**

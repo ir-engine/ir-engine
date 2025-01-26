@@ -72,11 +72,6 @@ export const InputPointerComponent = defineComponent({
     cameraEntity: S.Entity()
   }),
 
-  onSet(entity, component, json: { pointerId: number; cameraEntity: Entity }) {
-    if (typeof json.pointerId === 'number') component.pointerId.set(json.pointerId)
-    if (typeof json.cameraEntity === 'number') component.cameraEntity.set(json.cameraEntity)
-  },
-
   reactor: () => {
     const entity = useEntityContext()
     const inputPointerComponent = useComponent(entity, InputPointerComponent)

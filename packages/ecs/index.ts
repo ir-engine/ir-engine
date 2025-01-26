@@ -27,8 +27,6 @@ Infinite Reality Engine. All Rights Reserved.
 import '@ir-engine/hyperflux'
 
 export { Not, getAllEntities, getEntityComponents } from 'bitecs'
-export { Types } from './src/bitecsLegacy'
-export type { Type, TypedArray } from './src/bitecsLegacy'
 
 export * from './src/ComponentFunctions'
 export * from './src/createEntity'
@@ -41,7 +39,6 @@ export * from './src/Entity'
 export * from './src/EntityFunctions'
 export * from './src/EntityTree'
 export * from './src/QueryFunctions'
-export * from './src/schemas/ECSSchemas'
 export * from './src/schemas/JSONSchemas'
 export * from './src/schemas/JSONSchemaTypes'
 export * from './src/SystemFunctions'

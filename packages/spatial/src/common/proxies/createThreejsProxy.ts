@@ -26,10 +26,11 @@ Infinite Reality Engine. All Rights Reserved.
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import { Entity } from '@ir-engine/ecs/src/Entity'
+import { ResizableArray } from '@ir-engine/ecs/src/bitecsLegacy'
 
 const { defineProperties } = Object
 
-type Vector3Proxy = { x: number; y: number; z: number }
+export type Vector3Proxy = { x: number; y: number; z: number }
 type QuaternionProxy = { x: number; y: number; z: number; w: number }
 type Mat4Proxy = Float64Array
 
@@ -311,6 +312,19 @@ export const Mat4Proxy = (mat4Proxy: Mat4Proxy) => {
       configurable: true
     }
   })
+}
+
+export const proxySoAStore = (storeGet: () => ResizableArray) => (entity: Entity) => {
+  const store = storeGet() // Get the store when the proxy is created as the store only exists after the component is defined
+  return {
+    get() {
+      return store[entity]
+    },
+    set(n) {
+      return (store[entity] = n)
+    },
+    configurable: true
+  }
 }
 
 export const proxifyVector3 = (

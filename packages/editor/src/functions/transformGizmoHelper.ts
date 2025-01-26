@@ -374,9 +374,8 @@ export function planeUpdate(gizmoEntity) {
 
   let space = gizmoControl.space
 
-  const planeTransform = setComponent(gizmoControl.planeEntity, TransformComponent, {
-    position: gizmoControl.worldPosition
-  })
+  setComponent(gizmoControl.planeEntity, TransformComponent, { position: gizmoControl.worldPosition })
+  const planeTransform = getComponent(gizmoControl.planeEntity, TransformComponent)
 
   if (gizmoControl.mode === TransformMode.scale) space = TransformSpace.local // scale always oriented to local rotation
 

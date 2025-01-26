@@ -25,14 +25,15 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
-import { EntityTreeComponent, Types, getAncestorWithComponents } from '@ir-engine/ecs'
+import { EntityTreeComponent, getAncestorWithComponents, S } from '@ir-engine/ecs'
 import { defineComponent, getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
-import { ECSSchema } from '@ir-engine/ecs/src/schemas/ECSSchemas'
+import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
 import { isZero } from '../../common/functions/MathFunctions'
-import { QuaternionProxyDirty, Vec3ProxyDirty } from '../../common/proxies/createThreejsProxy'
+import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
+import { T } from '../../schema/schemaFunctions'
 
 export type TransformComponentType = {
   position: Vector3
@@ -42,36 +43,45 @@ export type TransformComponentType = {
   matrixWorld: Matrix4
 }
 
-export const PoseECS = {
-  position: ECSSchema.Vec3,
-  rotation: ECSSchema.Quaternion
-}
-export const TransformECS = {
-  position: ECSSchema.Vec3,
-  rotation: ECSSchema.Quaternion,
-  scale: ECSSchema.Vec3,
-  dirty: Types.ui8
-  // There might be a way to make this a performance gain, but in testing it's about 15% slower than JS arrays
-  // matrix: ECSSchema.Mat4,
-  // matrixWorld: ECSSchema.Mat4
-}
+const assignPosition = (entity: Entity): Vector3 =>
+  proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirty)
+
+const assignRotation = (entity: Entity): Quaternion =>
+  proxifyQuaternionWithDirty(TransformComponent.rotation, entity, TransformComponent.dirty)
+
+const assignScale = (entity: Entity): Vector3 =>
+  proxifyVector3WithDirty(TransformComponent.scale, entity, TransformComponent.dirty, new Vector3(1, 1, 1))
 
 export const TransformComponent = defineComponent({
   name: 'TransformComponent',
   jsonID: 'EE_transform',
-  schema: TransformECS,
 
-  onInit: (initial) => {
-    const entity = initial.entity
-    const dirtyTransforms = TransformComponent.dirty
-    const component = {
-      position: Vec3ProxyDirty(initial.position, entity, dirtyTransforms),
-      rotation: QuaternionProxyDirty(initial.rotation, entity, dirtyTransforms),
-      scale: Vec3ProxyDirty(initial.scale, entity, dirtyTransforms, { x: 1, y: 1, z: 1 }),
-      matrix: new Matrix4(),
-      matrixWorld: new Matrix4()
-    } as TransformComponentType
-    return component
+  schema: S.Object({
+    position: T.Vec3(assignPosition),
+    rotation: T.Quaternion(assignRotation),
+    scale: T.Vec3(assignScale),
+    matrix: T.Mat4(),
+    matrixWorld: T.Mat4()
+  }),
+
+  storage: {
+    position: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array)
+    },
+    rotation: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array),
+      w: createResizableTypeArray(Float64Array)
+    },
+    scale: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array)
+    },
+    dirty: createResizableTypeArray(Uint8Array)
   },
 
   onSet: (entity, component, json) => {
@@ -459,3 +469,17 @@ export const setFromRotationMatrix = (entity: Entity, m: Matrix4) => {
 }
 
 export const TransformGizmoTagComponent = defineComponent({ name: 'TransformGizmoTagComponent' })
+
+/**
+ * @description
+ * Sets the `@param entity` as dirty and recursively sets all children entities as dirty.
+ *
+ * @param entity Entity Node where traversal will start
+ */
+export function setChildrenDirtyFast(entity: Entity) {
+  TransformComponent.dirty[entity] = 1
+  const children = getComponent(entity, EntityTreeComponent).children
+  for (const child of children) {
+    setChildrenDirtyFast(child)
+  }
+}
