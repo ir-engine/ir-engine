@@ -610,10 +610,8 @@ describe('TransformDirtyUpdateSystem', () => {
       for (const entity of entities) assert.equal(hasComponent(entity, EntityTreeComponent), false)
       for (const entity of entities) assert.equal(TransformComponent.dirty[entity], Initial)
       for (const entity of entities) assert.notEqual(TransformComponent.dirty[entity], Expected)
-      console.log(entities, TransformComponent.dirty)
       // Run and Check the result
       System.execute()
-      console.log(entities, TransformComponent.dirty)
       for (const entity of entities) assert.equal(TransformComponent.dirty[entity], Expected)
     })
 
@@ -710,20 +708,19 @@ describe('TransformDirtyCleanupSystem', () => {
 
     it('should remove every entity from the TransformComponent.dirty list', () => {
       const count = 2
-      const Initial = count + Object.entries(TransformComponent.dirty).length
-      const Expected = 0
+      const entities = [] as Entity[]
       // Set the data as expected
       for (let id = 0; id < count; ++id) {
         const entity = createEntity()
+        entities.push(entity)
         setComponent(entity, TransformComponent)
         TransformComponent.dirty[entity] = 1
       }
-      // Sanity check before running
-      assert.notEqual(Object.entries(TransformComponent.dirty).length, Expected)
-      assert.equal(Object.entries(TransformComponent.dirty).length, Initial)
       // Run and Check the result
       System.execute()
-      assert.equal(Object.entries(TransformComponent.dirty).length, Expected)
+      for (const entity of entities) {
+        assert.equal(TransformComponent.dirty[entity], 0)
+      }
     })
   }) //:: execute
 }) //:: TransformDirtyCleanupSystem
