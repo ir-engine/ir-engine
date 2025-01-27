@@ -160,14 +160,10 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(schema: T, curr: V
       const props = schema.properties as TProperties
 
       for (const key of valueKeys) {
-        if (!props[key]) {
-          delete value[key]
-          continue
-        }
+        if (!props[key]) continue
         if (validValue(value[key])) {
           const deserializedValue = DeserializeSchemaValue(props[key], curr[key], value[key])
-          if (!validValue(deserializedValue)) delete value[key]
-          else newValue[key] = deserializedValue
+          if (deserializedValue) newValue[key] = deserializedValue
         }
       }
 
@@ -183,6 +179,7 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(schema: T, curr: V
       const propKeys = Object.keys(props)
 
       for (const key of propKeys) {
+        /** @todo should we be mutating value here? */
         if (validValue(value[key])) value[key] = DeserializeSchemaValue(props[key], curr[key], value[key])
       }
 

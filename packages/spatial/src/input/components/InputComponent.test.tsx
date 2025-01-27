@@ -59,6 +59,7 @@ import { assertArray } from '../../../tests/util/assert'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { initializeSpatialEngine } from '../../initializeEngine'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
+import { ReferenceSpace } from '../../xr/XRState'
 import { ButtonStateMap, MouseScroll, XRStandardGamepadAxes } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 import { DefaultButtonAlias, InputComponent, InputExecutionOrder, InputExecutionSystemGroup } from './InputComponent'
@@ -737,7 +738,10 @@ describe('InputComponent', () => {
       const WrongOther = 21
       setComponent(testEntity, InputSourceComponent)
       const DummyAxes = [HorizontalScroll, VerticalScroll, WrongBigger, WrongOther] as Axes
-      getMutableComponent(testEntity, InputSourceComponent).set(getDummyAxes(DummyAxes))
+      // mock reference space
+      // @ts-ignore
+      ReferenceSpace.viewer = {}
+      setComponent(testEntity, InputSourceComponent, getDummyAxes(DummyAxes))
       const result = InputComponent.getMergedAxesForInputSources([testEntity], SomeAliasList)
       assert.notEqual(result.SomeAxisOne, undefined)
       assert.notEqual(result.SomeWrongAxis, undefined)
@@ -783,8 +787,8 @@ describe('InputComponent', () => {
       setComponent(two, InputSourceComponent)
       const DummyAxes1 = [BiggerX, OtherY, BiggerZ, OtherW] as Axes
       const DummyAxes2 = [OtherX, BiggerY, OtherZ, BiggerW] as Axes
-      getMutableComponent(one, InputSourceComponent).set(getDummyAxes(DummyAxes1))
-      getMutableComponent(two, InputSourceComponent).set(getDummyAxes(DummyAxes2))
+      setComponent(one, InputSourceComponent, getDummyAxes(DummyAxes1))
+      setComponent(two, InputSourceComponent, getDummyAxes(DummyAxes2))
       // Create an inputSink entity that holds entity source one
       const sinkEntity = createEntity()
       setComponent(sinkEntity, InputComponent)
