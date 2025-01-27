@@ -27,6 +27,7 @@ import { Entity } from '../Entity'
 import {
   Kind,
   NonSerializable,
+  Options,
   Schema,
   Static,
   TArraySchema,
@@ -44,13 +45,23 @@ import {
 } from './JSONSchemaTypes'
 
 const CreateDefault = (entity: Entity, def) => {
-  return typeof def === 'function' ? def(entity) : structuredClone(def)
+  const res = typeof def === 'function' ? def(entity) : structuredClone(def)
+  return res
 }
 
 const CreateObject = (entity: Entity, props?: TProperties) => {
   const obj = {}
   for (const key in props) {
-    obj[key] = CreateSchemaValue(entity, props[key])
+    const schema = props[key]
+    if (schema[Kind] === 'Proxy') {
+      const options = schema.options as Options & {
+        create: (entity: Entity, property: string, obj: object) => PropertyDescriptor
+      }
+      const res = options.create(entity, key, obj)
+      obj[key] = res
+    } else {
+      obj[key] = CreateSchemaValue(entity, schema)
+    }
   }
   return obj
 }
@@ -339,10 +350,6 @@ export const CreateSchemaValue = <T extends Schema>(entity: Entity, schema: T): 
       return CreateSchemaValue(entity, props)
     }
     case 'NonSerialized': {
-      const props = schema.properties as TNonSerializedSchema<Schema>['properties']
-      return CreateSchemaValue(entity, props)
-    }
-    case 'Proxy': {
       const props = schema.properties as TNonSerializedSchema<Schema>['properties']
       return CreateSchemaValue(entity, props)
     }

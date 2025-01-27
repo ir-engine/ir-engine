@@ -366,11 +366,11 @@ export const S = {
   PeerID: (options?: TTypedSchema<PeerID>['options']) =>
     S.String('', { ...options, id: 'PeerUUID' }) as unknown as TTypedSchema<PeerID>,
 
-  Proxy: <T extends Schema>(schema: T, proxy: (entity) => PropertyDescriptor) =>
+  Proxy: <T extends Schema>(schema: T, proxy: (entity: Entity, property: string, obj: object) => PropertyDescriptor) =>
     ({
       [Kind]: 'Proxy',
       options: {
-        default: proxy
+        create: proxy
       },
       properties: schema
     }) as TProxySchema<T>

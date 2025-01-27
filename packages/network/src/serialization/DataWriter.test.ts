@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Types } from '@ir-engine/ecs'
 import { strictEqual } from 'assert'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
@@ -35,6 +34,7 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getMutableState, getState, PeerID, UserID } from '@ir-engine/hyperflux'
 import { NetworkId } from '@ir-engine/network/src/NetworkId'
 
+import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
 import { createMockNetwork } from '../../tests/createMockNetwork'
 import { roundNumberToPlaces } from '../../tests/MathTestUtils'
 import { Network, NetworkTopics } from '../Network'
@@ -62,13 +62,20 @@ import {
   ViewCursor
 } from './ViewCursor'
 
-const { f64 } = Types
-
 const MockPoseComponent = defineComponent({
   name: 'MockPoseComponent_Writer',
-  schema: {
-    Vec3: { x: f64, y: f64, z: f64 },
-    Quat: { x: f64, y: f64, z: f64, w: f64 }
+  storage: {
+    Vec3: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array)
+    },
+    Quat: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array),
+      w: createResizableTypeArray(Float64Array)
+    }
   }
 })
 
