@@ -38,6 +38,8 @@ import { SystemState } from './SystemState'
 
 export type { QueryTerm } from 'bitecs'
 
+export const queries = [] as ReturnType<typeof defineQuery>[]
+
 export function defineQuery(components: bitECS.QueryTerm[], layer: LayerID = Layers.Simulation) {
   const query = bitECSLegacy.defineQuery([...components, LayerComponents[layer]])
   const enterQuery = bitECSLegacy.enterQuery(query)
@@ -56,13 +58,20 @@ export function defineQuery(components: bitECS.QueryTerm[], layer: LayerID = Lay
   wrappedQuery._query = query
   wrappedQuery._enterQuery = enterQuery
   wrappedQuery._exitQuery = exitQuery
+
+  queries.push(wrappedQuery)
+
   return wrappedQuery
 }
 
 export function removeQuery(queryOrTerms: ReturnType<typeof defineQuery> | bitECS.QueryTerm[]) {
-  bitECS.removeQuery(HyperFlux.store, Array.isArray(queryOrTerms) ? queryOrTerms : queryOrTerms._query.components)
-  if ('_enterQuery' in queryOrTerms) queryOrTerms._enterQuery.unsubscribe()
-  if ('_exitQuery' in queryOrTerms) queryOrTerms._exitQuery.unsubscribe()
+  try {
+    bitECS.removeQuery(HyperFlux.store, Array.isArray(queryOrTerms) ? queryOrTerms : queryOrTerms._query.components)
+    if ('_enterQuery' in queryOrTerms) queryOrTerms._enterQuery.unsubscribe()
+    if ('_exitQuery' in queryOrTerms) queryOrTerms._exitQuery.unsubscribe()
+  } catch (e) {
+    console.log('Caught error', e, 'likely due to cleaning up a query that doesnt exist')
+  }
 }
 
 export const ReactiveQuerySystem = defineSystem({

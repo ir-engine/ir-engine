@@ -69,6 +69,33 @@ function assertDefinedQuery(Q: Query, expected: Entity[]) {
 const ComponentA = defineComponent({ name: 'ComponentA' })
 const ComponentB = defineComponent({ name: 'ComponentB' })
 
+describe('Engine cross-instance prechecks', () => {
+  it('should not pick up queries from another engine instance', () => {
+    const query = defineQuery([ComponentA])
+
+    createEngine()
+
+    const entity = createEntity()
+    setComponent(entity, ComponentA)
+
+    const queryEnter = query.enter()
+    assert.strictEqual(queryEnter.length, 1)
+    const queryExit = query.exit()
+    assert.strictEqual(queryExit.length, 0)
+
+    destroyEngine()
+
+    createEngine()
+
+    const queryEnter2 = query.enter()
+    assert.strictEqual(queryEnter2.length, 0)
+    const queryExit2 = query.exit()
+    assert.strictEqual(queryExit2.length, 0)
+
+    destroyEngine()
+  })
+})
+
 describe('QueryFunctions', () => {
   const component = defineComponent({ name: 'TestComponent' })
   let entity1 = UndefinedEntity

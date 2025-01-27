@@ -92,17 +92,17 @@ describe('TransformComponent', () => {
     })
 
     it('should initialize the *Component.schema field with the expected value', () => {
-      assert.deepEqual(TransformComponent.storage.position.x, Float64Array)
-      assert.deepEqual(TransformComponent.storage.position.y, Float64Array)
-      assert.deepEqual(TransformComponent.storage.position.z, Float64Array)
-      assert.deepEqual(TransformComponent.storage.rotation.x, Float64Array)
-      assert.deepEqual(TransformComponent.storage.rotation.y, Float64Array)
-      assert.deepEqual(TransformComponent.storage.rotation.z, Float64Array)
-      assert.deepEqual(TransformComponent.storage.rotation.w, Float64Array)
-      assert.deepEqual(TransformComponent.storage.scale.x, Float64Array)
-      assert.deepEqual(TransformComponent.storage.scale.y, Float64Array)
-      assert.deepEqual(TransformComponent.storage.scale.z, Float64Array)
-      assert.deepEqual(TransformComponent.storage.dirty, Uint8Array)
+      assert(TransformComponent.storage.position.x instanceof Float64Array)
+      assert(TransformComponent.storage.position.y instanceof Float64Array)
+      assert(TransformComponent.storage.position.z instanceof Float64Array)
+      assert(TransformComponent.storage.rotation.x instanceof Float64Array)
+      assert(TransformComponent.storage.rotation.y instanceof Float64Array)
+      assert(TransformComponent.storage.rotation.z instanceof Float64Array)
+      assert(TransformComponent.storage.rotation.w instanceof Float64Array)
+      assert(TransformComponent.storage.scale.x instanceof Float64Array)
+      assert(TransformComponent.storage.scale.y instanceof Float64Array)
+      assert(TransformComponent.storage.scale.z instanceof Float64Array)
+      assert(TransformComponent.storage.dirty instanceof Uint8Array)
     })
   }) //:: Fields
 

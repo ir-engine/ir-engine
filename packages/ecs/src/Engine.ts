@@ -27,20 +27,12 @@ import * as bitECS from 'bitecs'
 import { getAllEntities } from 'bitecs'
 
 import * as Hyperflux from '@ir-engine/hyperflux'
-import {
-  createHyperStore,
-  disposeStore,
-  getState,
-  HyperFlux,
-  HyperStore,
-  NO_PROXY_STEALTH,
-  ReactorReconciler
-} from '@ir-engine/hyperflux'
+import { createHyperStore, disposeStore, getState, HyperFlux, HyperStore, NO_PROXY_STEALTH } from '@ir-engine/hyperflux'
 
 import { ECSState } from './ECSState'
 import { Entity } from './Entity'
 import { removeEntity } from './EntityFunctions'
-import { removeQuery } from './QueryFunctions'
+import { queries, removeQuery } from './QueryFunctions'
 import { SystemState } from './SystemState'
 
 export class Engine {
@@ -104,15 +96,17 @@ export function destroyEngine() {
 
   /** Remove all entities */
   const entities = getAllEntities(HyperFlux.store) as Entity[]
-
   for (const entity of entities) removeEntity(entity)
 
-  for (const query of getState(SystemState).reactiveQueryStates) {
-    removeQuery(query.query)
+  /** Remove all queries */
+  for (const query of queries) {
+    removeQuery(query)
   }
+
+  /** Remove world */
+  bitECS.deleteWorld(HyperFlux.store)
 
   disposeStore()
 
-  bitECS.deleteWorld(HyperFlux.store)
   Engine.instance = null!
 }
