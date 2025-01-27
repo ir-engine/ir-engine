@@ -343,7 +343,7 @@ const Select = ({
                 positioning.direction === 'down' && 'top-[calc(100%+0.5rem)]'
               } ${positioning.direction === 'up' && 'bottom-[calc(100%+0.5rem)]'}`}
               style={{
-                maxHeight: positioning.maxHeight
+                maxHeight: '150px'
               }}
             >
               {filteredOptions.length > 0 ? (
