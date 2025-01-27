@@ -27,7 +27,14 @@ import * as bitECS from 'bitecs'
 import { getAllEntities } from 'bitecs'
 
 import * as Hyperflux from '@ir-engine/hyperflux'
-import { createHyperStore, disposeStore, getState, HyperFlux, HyperStore, NO_PROXY_STEALTH } from '@ir-engine/hyperflux'
+import {
+  createHyperStore,
+  getState,
+  HyperFlux,
+  HyperStore,
+  NO_PROXY_STEALTH,
+  stopAllReactors
+} from '@ir-engine/hyperflux'
 
 import { ECSState } from './ECSState'
 import { Entity } from './Entity'
@@ -92,6 +99,7 @@ export function createEngine(hyperstore = createHyperStore()) {
 }
 
 export function destroyEngine() {
+  /** Clear timer */
   getState(ECSState).timer?.clear()
 
   /** Remove all entities */
@@ -103,10 +111,15 @@ export function destroyEngine() {
     removeQuery(query)
   }
 
+  /** Stop all reactors */
+  stopAllReactors()
+
   /** Remove world */
   bitECS.deleteWorld(HyperFlux.store)
 
-  disposeStore()
+  /** Dereference store */
+  HyperFlux.store = null!
 
+  /** Dereference engine */
   Engine.instance = null!
 }

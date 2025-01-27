@@ -34,7 +34,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
 import { ActiveHelperComponent } from '../../../common/ActiveHelperComponent'
 import { useHelperEntity } from '../../../common/debug/useHelperEntity'
@@ -75,10 +75,8 @@ export const SpotLightComponent = defineComponent({
 
     const spotLightComponent = useComponent(entity, SpotLightComponent)
     const light = useHookstate(() => new SpotLight()).value as SpotLight
-    const helperEntity = useHelperEntity(entity, () => new SpotLightHelper(light), debugEnabled)
-    const helper = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as SpotLightHelper | undefined
 
-    useEffect(() => {
+    useImmediateEffect(() => {
       setComponent(entity, LightTagComponent)
       if (isMobileXRHeadset) return
       light.target.position.set(1, 0, 0)
@@ -88,6 +86,9 @@ export const SpotLightComponent = defineComponent({
         removeComponent(entity, ObjectComponent)
       }
     }, [])
+
+    const helperEntity = useHelperEntity(entity, () => new SpotLightHelper(light), debugEnabled)
+    const helper = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as SpotLightHelper | undefined
 
     useEffect(() => {
       light.color.set(spotLightComponent.color.value)

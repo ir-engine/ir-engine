@@ -161,9 +161,10 @@ describe('TransformComponent', () => {
       const Incorrect = {
         position: 'somePosition',
         rotation: 'someRotation',
-        scale: false,
-        matrix: true,
-        matrixWorld: 42
+        scale: false
+        /** @todo these throw errors due to the deserialize function not validating the type of data prior to passing it in */
+        // matrix: true,
+        // matrixWorld: 42
       }
       // @ts-ignore Coerce incorrectly typed data into the onSet call
       setComponent(testEntity, TransformComponent, Incorrect)

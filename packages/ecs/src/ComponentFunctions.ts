@@ -379,11 +379,14 @@ export const getOptionalComponent = <C extends Component>(
   entity: Entity,
   component: C
 ): ComponentType<C> | undefined => {
-  return component.valueMap[entity]
+  if (!bitECS.hasComponent(HyperFlux.store, entity, component)) return undefined
+  return component.stateMap[entity]?.get(NO_PROXY_STEALTH) as ComponentType<C> | undefined
+  // return component.valueMap[entity]
 }
 
 export const getComponent = <C extends Component>(entity: Entity, component: C): ComponentType<C> => {
-  const value = component.valueMap[entity] as ComponentType<C>
+  // const value = component.valueMap[entity] as ComponentType<C>
+  const value = component.stateMap[entity]?.get(NO_PROXY_STEALTH) as ComponentType<C>
   if (value === undefined) {
     console.warn(
       `[getComponent]: entity ${entity} does not have ${component.name}. This will be an error in the future. Use getOptionalComponent if there is uncertainty over whether or not an entity has the specified component.`
@@ -698,7 +701,6 @@ const _mergeComponentState = <C extends Component>(
 
     return
   }
-
 }
 
 // const _mergeStateValuesDeep = (target: State<any>, source: any) => {

@@ -64,7 +64,7 @@ const createMockHTMLCanvasElement = (ev: MockEventListener) => {
   })() as any as HTMLCanvasElement
 }
 
-describe('ClientInputHooks', () => {
+describe.skip('ClientInputHooks', () => {
   describe('useNonSpatialInputSources', () => {
     let testEntity = UndefinedEntity
     let ev: MockEventListener

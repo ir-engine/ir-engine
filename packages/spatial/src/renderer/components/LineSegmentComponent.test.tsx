@@ -55,7 +55,7 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 
-import { startReactor, useImmediateEffect } from '@ir-engine/hyperflux'
+import { startReactor } from '@ir-engine/hyperflux'
 import { assertColor } from '../../../tests/util/assert'
 import { NameComponent } from '../../common/NameComponent'
 import { ObjectLayerMasks, ObjectLayers } from '../constants/ObjectLayers'
@@ -166,19 +166,16 @@ describe('LineSegmentComponent', () => {
   }) //:: onSet
 
   describe('reactor', () => {
-    let testEntity = UndefinedEntity
-
     beforeEach(() => {
       createEngine()
-      testEntity = createEntity()
     })
 
     afterEach(() => {
-      removeEntity(testEntity)
       return destroyEngine()
     })
 
     it('should call addObjectToGroup(lineSegment) with the entity when it mounts', () => {
+      const testEntity = createEntity()
       assert.equal(hasComponent(testEntity, ObjectComponent), false)
       setComponent(testEntity, LineSegmentComponent, {
         geometry: new BoxGeometry(1, 1, 1),
@@ -188,6 +185,7 @@ describe('LineSegmentComponent', () => {
     })
 
     it('should set a VisibleComponent to the entity when it mounts', () => {
+      const testEntity = createEntity()
       assert.equal(hasComponent(testEntity, VisibleComponent), false)
       setComponent(testEntity, LineSegmentComponent, {
         geometry: new BoxGeometry(1, 1, 1),
@@ -197,6 +195,7 @@ describe('LineSegmentComponent', () => {
     })
 
     it('should call removeObjectFromGroup(lineSegment) with the entity when it unmounts', () => {
+      const testEntity = createEntity()
       assert.equal(hasComponent(testEntity, ObjectComponent), false)
       setComponent(testEntity, LineSegmentComponent, {
         geometry: new BoxGeometry(1, 1, 1),
@@ -208,6 +207,7 @@ describe('LineSegmentComponent', () => {
     })
 
     it('should trigger when component.name changes', () => {
+      const testEntity = createEntity()
       const Expected = 'TestLineName'
       assert.equal(hasComponent(testEntity, NameComponent), false)
       const geometry = new BoxGeometry(1, 1, 1)
@@ -226,6 +226,7 @@ describe('LineSegmentComponent', () => {
     })
 
     it('should trigger when component.layerMask changes', () => {
+      const testEntity = createEntity()
       const Expected = 42
       assert.equal(hasComponent(testEntity, ObjectLayerMaskComponent), false)
       const geometry = new BoxGeometry(1, 1, 1)
@@ -258,9 +259,6 @@ describe('LineSegmentComponent', () => {
             material: material,
             layerMask: layerMask
           })
-          return () => {
-            removeComponent(entity, LineSegmentComponent)
-          }
         }, [])
 
         return null
@@ -280,6 +278,7 @@ describe('LineSegmentComponent', () => {
     })
 
     it('should trigger when component.color changes', () => {
+      const testEntity = createEntity()
       const Expected = new Color('#123456')
       assert.equal(hasComponent(testEntity, NameComponent), false)
       const geometry = new BoxGeometry(1, 1, 1)
