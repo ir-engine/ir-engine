@@ -131,7 +131,7 @@ describe('MountPointComponent.ts', async () => {
       }
       setComponent(mountPointTestEntity, MountPointComponent, customData)
       const componentData = getComponent(mountPointTestEntity, MountPointComponent)
-      assert.equal(componentData, customData)
+      assert.deepEqual(componentData, customData)
     })
     describe('Reactor', () => {
       it('Should set mountEntity as callback to entity', () => {

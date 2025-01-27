@@ -699,11 +699,6 @@ const _mergeComponentState = <C extends Component>(
     return
   }
 
-  // if (args === null || args === undefined) return
-
-  // // if no schema, just set the json - assume insecure or internal
-  // if (Array.isArray(args) || typeof args !== 'object' || IsSingleValueSchema(component.schema)) componentState.set(args)
-  // else _mergeStateValuesDeep(componentState, args)
 }
 
 // const _mergeStateValuesDeep = (target: State<any>, source: any) => {

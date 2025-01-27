@@ -31,7 +31,6 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import React, { useEffect, useLayoutEffect } from 'react'
 import { removeCallback, setCallback } from '../../common/CallbackComponent'
 import { Vector3_One } from '../../common/constants/MathConstants'
-import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { T } from '../../schema/schemaFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
@@ -75,7 +74,6 @@ const ColliderReactor = function () {
   const physicsWorld = Physics.useWorld(entity)
   const triggerComponent = useOptionalComponent(entity, TriggerComponent)
   const hasCollider = useState(false)
-  const meshComponent = useOptionalComponent(entity, MeshComponent)
 
   useLayoutEffect(() => {
     if (!rigidbodyComponent?.initialized?.value || !physicsWorld) return

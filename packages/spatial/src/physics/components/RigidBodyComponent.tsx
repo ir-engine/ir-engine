@@ -63,23 +63,23 @@ export const RigidBodyComponent = defineComponent({
     type: S.Enum(BodyTypes, BodyTypes.Fixed),
     ccd: S.Bool(false),
     allowRolling: S.Bool(true),
-    enabledRotations: S.Tuple([S.Bool(true), S.Bool(true), S.Bool(true)]),
+    enabledRotations: S.Tuple([S.Bool(), S.Bool(), S.Bool()], [true, true, true]),
     // rigidbody desc values
     canSleep: S.Bool(true),
     gravityScale: S.Number(1),
     // internal
     /** @deprecated  @todo make the physics api properly reactive to remove this property  */
-    initialized: S.Bool(false),
-    previousPosition: T.Vec3(assignVec3('previousPosition')),
-    previousRotation: T.Quaternion(assignQuat('previousRotation')),
-    position: T.Vec3(assignVec3('position')),
-    rotation: T.Quaternion(assignQuat('rotation')),
-    targetKinematicPosition: T.Vec3(assignVec3('targetKinematicPosition')),
-    targetKinematicRotation: T.Quaternion(assignQuat('targetKinematicRotation')),
-    linearVelocity: T.Vec3(assignVec3('linearVelocity')),
-    angularVelocity: T.Vec3(assignVec3('angularVelocity')),
+    initialized: S.NonSerialized(S.Bool(false)),
+    previousPosition: S.NonSerialized(T.Vec3(assignVec3('previousPosition'))),
+    previousRotation: S.NonSerialized(T.Quaternion(assignQuat('previousRotation'))),
+    position: S.NonSerialized(T.Vec3(assignVec3('position'))),
+    rotation: S.NonSerialized(T.Quaternion(assignQuat('rotation'))),
+    targetKinematicPosition: S.NonSerialized(T.Vec3(assignVec3('targetKinematicPosition'))),
+    targetKinematicRotation: S.NonSerialized(T.Quaternion(assignQuat('targetKinematicRotation'))),
+    linearVelocity: S.NonSerialized(T.Vec3(assignVec3('linearVelocity'))),
+    angularVelocity: S.NonSerialized(T.Vec3(assignVec3('angularVelocity'))),
     /** If multiplier is 0, ridigbody moves immediately to target pose, linearly interpolating between substeps */
-    targetKinematicLerpMultiplier: S.Number(0)
+    targetKinematicLerpMultiplier: S.NonSerialized(S.Number(0))
   }),
 
   storage: {

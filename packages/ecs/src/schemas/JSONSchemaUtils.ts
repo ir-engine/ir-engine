@@ -111,6 +111,41 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(schema: T, curr: V
   if (validValue(value) && schema.options?.deserialize) return schema.options.deserialize(curr, value) as Val
 
   switch (schema[Kind]) {
+    case 'Number': {
+      if (!validValue(value)) return value
+      return typeof value === 'number' ? value : undefined
+    }
+    case 'Bool': {
+      if (!validValue(value)) return value
+      return typeof value === 'boolean' ? value : undefined
+    }
+    case 'String': {
+      if (!validValue(value)) return value
+      if (typeof value !== 'string') return undefined
+      if (value === '__proto__') return undefined
+      return value
+    }
+    case 'Enum': {
+      if (!validValue(value)) return value
+      const enumValues = Object.values(schema.properties as TEnumSchema<Record<string, string | number>>['properties'])
+      return enumValues.includes(value as string | number) ? value : undefined
+    }
+    case 'Literal': {
+      if (!validValue(value)) return value
+      return schema.properties === value ? value : undefined
+    }
+    case 'Array': {
+      if (!validValue(value)) return value
+      if (!Array.isArray(value)) return undefined
+      const props = schema.properties as TArraySchema<Schema>['properties']
+      return value.map((item) => DeserializeSchemaValue(props, curr, item)).filter((item) => validValue(item)) as Val
+    }
+    case 'Tuple': {
+      if (!validValue(value)) return value
+      if (!Array.isArray(value)) return undefined
+      const props = schema.properties as TTupleSchema<Schema[]>['properties']
+      return value.map((item, i) => DeserializeSchemaValue(props[i], curr[i], item) ?? curr[i]) as Val
+    }
     case 'Object': {
       if (!validValue(value)) return value
 
