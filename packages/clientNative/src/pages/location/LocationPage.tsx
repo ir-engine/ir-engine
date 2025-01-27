@@ -36,15 +36,19 @@ import {
 import LocationPage from '@ir-engine/client-core/src/world/Location';
 
 import '../../engine';
+import {createCanvasEventHandler} from '../../polyfill/CanvasEventHandler';
+import {TouchGamepad} from '../../common/components/TouchGamepad';
 
 const {width, height} = Dimensions.get('window');
+
+const {eventListenerRegistry, pointerEvents} = createCanvasEventHandler();
 
 const LocationRoutes = () => {
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
 
   const onContextCreate = useCallback(
     (context: NativeWebGLRenderingContext) => {
-      setCanvas(new NativeHTMLCanvasElement(context));
+      setCanvas(new NativeHTMLCanvasElement(context, eventListenerRegistry));
     },
     [],
   );
@@ -63,13 +67,15 @@ const LocationRoutes = () => {
   }
 
   return (
-    <View>
+    <View {...pointerEvents}>
       <LocationPage
         params={{
-          locationName: 'mariale',
+          locationName: 'default',
         }}
+        online
       />
       <GLView style={{width, height}} onContextCreate={onContextCreate} />
+      <TouchGamepad />
     </View>
   );
 };

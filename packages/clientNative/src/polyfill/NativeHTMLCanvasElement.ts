@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {ExpoWebGLRenderingContext} from 'expo-gl';
+import {EventListenerRegistry} from './CanvasEventHandler';
 
 export type NativeWebGLRenderingContext = ExpoWebGLRenderingContext & {
   drawingBufferWidth: number;
@@ -34,18 +35,25 @@ export class NativeHTMLCanvasElement implements HTMLCanvasElement {
   public width: number;
   public height: number;
   public style: Record<string, string>;
-  public addEventListener = () => {};
-  public removeEventListener = () => {};
+  public addEventListener;
+  public removeEventListener;
   public clientHeight: number;
+  public clientWidth: number;
 
   private context: NativeWebGLRenderingContext;
 
-  constructor(context: NativeWebGLRenderingContext) {
+  constructor(
+    context: NativeWebGLRenderingContext,
+    eventListenerRegistry: EventListenerRegistry,
+  ) {
     this.width = context.drawingBufferWidth;
     this.height = context.drawingBufferHeight;
     this.style = {};
     this.clientHeight = context.drawingBufferHeight;
+    this.clientWidth = context.drawingBufferWidth;
     this.context = context;
+    this.addEventListener = eventListenerRegistry.addEventListener;
+    this.removeEventListener = eventListenerRegistry.removeEventListener;
   }
 
   public getContext(glContext: 'webgl2') {

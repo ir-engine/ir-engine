@@ -22,7 +22,6 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
-
 import '@expo/browser-polyfill';
 import 'react-native-get-random-values';
 import {TextEncoder, TextDecoder} from 'text-encoding-shim';
@@ -49,8 +48,32 @@ global.localStorage = {
     return (this._data = {});
   },
 };
-window.addEventListener = () => {};
-window.removeEventListener = () => {};
+
+// Window polyfill
+const listenerRegistry = new Map();
+
+window.addEventListener = (type, handler) => {
+  let registry = listenerRegistry.get(type);
+  if (!registry) {
+    registry = new Set();
+    listenerRegistry.set(type, registry);
+  }
+  registry.add(handler);
+};
+window.removeEventListener = (type, handler) => {
+  const registry = listenerRegistry.get(type);
+  if (registry) {
+    registry.delete(handler);
+  }
+};
+window.dispatchEvent = (eventType, evt) => {
+  const listeners = listenerRegistry.get(eventType);
+  if (listeners) {
+    for (const listener of listeners) {
+      listener(evt);
+    }
+  }
+};
 
 // Using PixelRatio.get() was causing issues with frame buffers. Let's default to 1.
 window.devicePixelRatio = 1;

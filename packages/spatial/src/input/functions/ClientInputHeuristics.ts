@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -38,7 +38,6 @@ import {
   UndefinedEntity,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { InteractableComponent } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
 import { defineState, getState } from '@ir-engine/hyperflux'
 import { Object3D, Quaternion, Ray, Raycaster, Vector3 } from 'three'
 import { CameraComponent } from '../../camera/components/CameraComponent'
@@ -134,8 +133,8 @@ export function findProximity(
     //sort if more than 1 entry
     closestEntities.sort((a, b) => {
       //prioritize anything with an InteractableComponent if otherwise equal
-      const aNum = hasComponent(a.entity, InteractableComponent) ? -1 : 0
-      const bNum = hasComponent(b.entity, InteractableComponent) ? -1 : 0
+      const aNum = 0
+      const bNum = 0
       //aNum - bNum : 0 if equal, -1 if a has tag and b doesn't, 1 if a doesnt have tag and b does
       return Math.sign(a.distance - b.distance) + (aNum - bNum)
     })
