@@ -70,7 +70,7 @@ const LocationRoutes = () => {
     <View {...pointerEvents}>
       <LocationPage
         params={{
-          locationName: 'default',
+          locationName: 'mariale',
         }}
         online
       />

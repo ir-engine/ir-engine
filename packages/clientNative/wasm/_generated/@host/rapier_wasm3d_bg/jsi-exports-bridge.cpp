@@ -8,6 +8,10 @@
 #include <ReactNativePolygen/Memory.h>
 #include "jsi-exports-bridge.h"
 #include "wasm-rt.h"
+#include "rapier_wasm3d_bg.h"
+
+using namespace facebook;
+using namespace callstack::polygen;
 
 
 double getNumericVal(const facebook::jsi::Value& val) {
@@ -18,7 +22,7 @@ double getNumericVal(const facebook::jsi::Value& val) {
 }
   
 
-namespace facebook::react {
+namespace callstack::polygen::generated {
   std::shared_ptr<Rapier__wasm3d__bgModuleContext> getRapier__wasm3d__bgModuleContextContext(jsi::Runtime& rt, const jsi::Value& val) {
     auto obj = val.asObject(rt);
     assert(obj.hasNativeState(rt));
@@ -27,9 +31,7 @@ namespace facebook::react {
     return ctx;
   }
 
-  jsi::Object createRapier__wasm3d__bgExports(jsi::Runtime &rt, jsi::Object&& importObject) {
-    jsi::Object mod { rt };
-
+  void createRapier__wasm3d__bgExports(jsi::Runtime &rt, jsi::Object& target, jsi::Object&& importObject) {
     if (!wasm_rt_is_initialized()) {
       wasm_rt_init();
     }
@@ -37,7 +39,7 @@ namespace facebook::react {
     auto inst = std::make_shared<Rapier__wasm3d__bgModuleContext>(rt, std::move(importObject));
     wasm2c_rapier__wasm3d__bg_instantiate(&inst->rootCtx, &inst->import_wbgCtx);
 
-    mod.setNativeState(rt, inst);
+    target.setNativeState(rt, inst);
 
     // Memories
     jsi::Object memories {rt};
@@ -50,7 +52,7 @@ namespace facebook::react {
     memories.setProperty(rt, "memory", std::move(holder));
   }
 
-    mod.setProperty(rt, "memories", std::move(memories));
+    target.setProperty(rt, "memories", std::move(memories));
 
     // Exported functions
     jsi::Object exports {rt};
@@ -3961,9 +3963,7 @@ namespace facebook::react {
   }));
 
     exports.setNativeState(rt, inst);
-    mod.setProperty(rt, "exports", std::move(exports));
-
-    return std::move(mod);
+    target.setProperty(rt, "exports", std::move(exports));
   }
 }
   

@@ -166,6 +166,7 @@ export const RendererComponent = defineComponent({
       const effectArray = enabled ? Object.values(effectsVal) : []
       if (effectComposer.OutlineEffect) effectArray.unshift(effectComposer.OutlineEffect as OutlineEffect)
 
+      console.log('setting camera', camera, entity)
       const effectPass = new EffectPass(camera, ...effectArray)
       effectComposerState.EffectPass.set(effectPass)
 
@@ -237,6 +238,7 @@ export const RendererComponent = defineComponent({
 
       const renderer = new WebGLRenderer(options)
       renderer.setSize(context.drawingBufferWidth, context.drawingBufferHeight)
+      renderer.setClearColor(0x6ad6f0)
       rendererComponent.renderer.set(renderer)
       renderer.outputColorSpace = SRGBColorSpace
 
@@ -378,6 +380,7 @@ export const render = (
 
   // TODO: Better detect if we are runing React Native.
   if (global.RN$Bridgeless) {
+    context.flushEXP()
     context.endFrameEXP()
   }
 

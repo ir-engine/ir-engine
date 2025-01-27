@@ -62,6 +62,8 @@ import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
 import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 
+const AVATAR_REFETCH_INTERVAL_MS = 1000
+
 export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   const userID = useMutableState(EngineState).userID.value
   const { sceneEntity } = props
@@ -102,6 +104,17 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   })
 
   const userAvatar = userAvatarQuery.data[0]
+
+  useEffect(() => {
+    if (!userAvatar) {
+      const intervalId = setInterval(() => {
+        userAvatarQuery.refetch()
+      }, AVATAR_REFETCH_INTERVAL_MS)
+      return () => {
+        clearInterval(intervalId)
+      }
+    }
+  }, [userAvatar])
 
   useEffect(() => {
     if (isSpectating || !userAvatar) return

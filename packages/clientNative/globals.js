@@ -22,6 +22,9 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
+import {WebAssembly} from '@callstack/polygen';
+global.WebAssembly = WebAssembly;
+globalThis.WebAssembly = WebAssembly;
 import '@expo/browser-polyfill';
 import 'react-native-get-random-values';
 import {TextEncoder, TextDecoder} from 'text-encoding-shim';

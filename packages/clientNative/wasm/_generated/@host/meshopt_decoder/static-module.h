@@ -9,11 +9,11 @@
 
 namespace callstack::polygen::generated {
 
-std::shared_ptr<callstack::polygen::Module> createRapier__wasm3d__bgModule();
+std::shared_ptr<callstack::polygen::Module> createMeshopt__decoderModule();
 
-class WASMRapier__wasm3d__bgModule: public callstack::polygen::StaticLibraryModule {
+class WASMMeshopt__decoderModule: public callstack::polygen::StaticLibraryModule {
 public:
-  WASMRapier__wasm3d__bgModule(const std::string& name): StaticLibraryModule(name) {}
+  WASMMeshopt__decoderModule(const std::string& name): StaticLibraryModule(name) {}
   const std::vector<ImportInfo>& getImports() const override;
   const std::vector<ExportInfo>& getExports() const override;
   void createInstance(facebook::jsi::Runtime& rt, facebook::jsi::Object& target, facebook::jsi::Object&& importObject) const override;

@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 const path = require('path');
+const fs = require('fs');
 const {makeMetroConfig} = require('@rnx-kit/metro-config');
 const {getDefaultConfig} = require('@react-native/metro-config');
 
@@ -86,6 +87,27 @@ module.exports = makeMetroConfig({
           filePath: path.resolve(__dirname, './emptyPolyfill.js'),
           type: 'sourceFile',
         };
+      }
+      if (moduleName.endsWith('.wasm')) {
+        const cleanName = path.basename(moduleName, '.wasm');
+        const callerDir = path.normalize(
+          path.dirname(context.originModulePath),
+        );
+
+        const mockModulePath = path.resolve(
+          __dirname,
+          './wasm/_generated/modules/' + cleanName + '.js',
+        );
+
+        console.log(mockModulePath);
+
+        if (!fs.existsSync(mockModulePath)) {
+          throw new Error(
+            `Attempting to import unknown WASM module '${moduleName}' from ${context.originModulePath}.\n Did you forget to run \`polygen generate\`?`,
+          );
+        }
+
+        return {type: 'sourceFile', filePath: mockModulePath};
       }
       return context.resolveRequest(context, moduleName, platform);
     },

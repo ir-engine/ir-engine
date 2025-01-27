@@ -136,7 +136,8 @@ const getFileNameFromUrl = (path: string) => {
     const url = new URL(path)
     return url.pathname.split('/').pop() as string
   }
-  return path.split('/').pop() as string
+  const url = path.split('?').at(0) ?? ''
+  return url.split('/').pop() as string
 }
 
 const dataURLStart = 'data:image'

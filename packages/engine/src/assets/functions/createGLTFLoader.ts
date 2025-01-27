@@ -40,6 +40,7 @@ import { RemoveMaterialsExtension } from '../loaders/gltf/extensions/RemoveMater
 import { ResourceManagerLoadExtension } from '../loaders/gltf/extensions/ResourceManagerLoadExtension'
 import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
 import { KTX2Loader } from '../loaders/gltf/KTX2Loader'
+import { MeshoptDecoder } from '../loaders/gltf/meshopt_decoder.module'
 import { loadDRACODecoderNode, NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
 import { DomainConfigState } from '../state/DomainConfigState'
 
@@ -92,12 +93,10 @@ export const createGLTFLoader = (keepMaterials = false) => {
   loader.register((parser) => new CachedImageLoadExtension(parser))
   loader.register((parser) => new ResourceManagerLoadExtension(parser))
 
-  // TODO: MeshOptiomizer is not RN compatible.
-  // if (MeshoptDecoder.useWorkers) {
-  //   MeshoptDecoder.useWorkers(2)
-  // }
-  // loader.setMeshoptDecoder(MeshoptDecoder)
-  console.error('skip setting mesh optimizer decoder')
+  if (MeshoptDecoder.useWorkers) {
+    MeshoptDecoder.useWorkers(2)
+  }
+  loader.setMeshoptDecoder(MeshoptDecoder)
 
   // TODO: Detect React Native better
   if (global.RN$Bridgeless) {
