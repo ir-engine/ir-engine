@@ -23,13 +23,26 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EntityTreeComponent, UUIDComponent, createEntity, setComponent } from '@ir-engine/ecs'
+import {
+  EntityTreeComponent,
+  SystemDefinitions,
+  UUIDComponent,
+  createEntity,
+  generateEntityUUID,
+  getChildrenWithComponents,
+  getComponent,
+  setComponent
+} from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { getMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, startReactor } from '@ir-engine/hyperflux'
 import { RapierWorldState } from '@ir-engine/spatial/src/physics/classes/Physics'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { afterEach, beforeEach, describe } from 'vitest'
+import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { overrideFileLoaderLoad } from '../../tests/util/loadGLTFAssetNode'
+import { GLTFComponent } from './GLTFComponent'
+import { GLTFLoadSystem } from './GLTFState'
 
 const base_url = 'packages/engine/tests/assets'
 const duck_gltf = base_url + '/duck/Duck.gltf'
@@ -62,7 +75,7 @@ const setupEntity = () => {
   return entity
 }
 
-describe.skip('GLTF Loader', { retry: 2 }, async () => {
+describe('GLTF Loader', async () => {
   overrideFileLoaderLoad()
 
   beforeEach(() => {
@@ -73,67 +86,65 @@ describe.skip('GLTF Loader', { retry: 2 }, async () => {
     return destroyEngine()
   })
 
-  // it('can load a mesh', async () => {
-  //   const entity = setupEntity()
+  it('can load a mesh', async () => {
+    const entity = setupEntity()
 
-  //   setComponent(entity, UUIDComponent, generateEntityUUID())
-  //   setComponent(entity, GLTFComponent, { src: duck_gltf })
+    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, GLTFComponent, { src: duck_gltf })
+    const system = SystemDefinitions.get(GLTFLoadSystem)!
+    startReactor(system.reactor!)
 
-  //   const { rerender, unmount } = render(<></>)
-  //   applyIncomingActions()
-  //   await act(async () => rerender(<></>))
+    const document = getComponent(entity, GLTFComponent).document
 
-  //   const instanceID = GLTFComponent.getInstanceID(entity)
-  //   const gltfDocumentState = getState(GLTFDocumentState)
-  //   const gltf = gltfDocumentState[instanceID]
+    const usedMeshes = document!.nodes!.reduce((accum, node) => {
+      if (typeof node.mesh === 'number') accum.add(node.mesh)
+      return accum
+    }, new Set<number>())
 
-  //   const usedMeshes = gltf.nodes!.reduce((accum, node) => {
-  //     if (typeof node.mesh === 'number') accum.add(node.mesh)
-  //     return accum
-  //   }, new Set<number>())
-  //   await act(async () => rerender(<></>))
+    await vi.waitFor(
+      async () => {
+        expect(getChildrenWithComponents(entity, [MeshComponent]).length).toBeTruthy()
+      },
+      { timeout: 1000 }
+    )
 
-  //   const meshes = getChildrenWithComponents(entity, [MeshComponent])
+    const meshes = getChildrenWithComponents(entity, [MeshComponent])
 
-  //   await vi.waitFor(
-  //     async () => {
-  //       expect(getChildrenWithComponents(entity, [MeshComponent]).length).toBeTruthy()
-  //     },
-  //     { timeout: 20000 }
-  //   )
+    assert(meshes.length === usedMeshes.size)
+  })
 
-  //   assert(meshes.length === usedMeshes.size)
-  //   unmount()
-  // })
+  it('can load a material', async () => {
+    const entity = setupEntity()
 
-  // it('can load a material', async () => {
-  //   const entity = setupEntity()
+    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, GLTFComponent, { src: duck_gltf })
 
-  //   setComponent(entity, UUIDComponent, generateEntityUUID())
-  //   setComponent(entity, GLTFComponent, { src: duck_gltf })
+    const system = SystemDefinitions.get(GLTFLoadSystem)!
+    startReactor(system.reactor!)
 
-  //   const { rerender, unmount } = render(<></>)
-  //   applyIncomingActions()
-  //   await act(async () => rerender(<></>))
+    const document = getComponent(entity, GLTFComponent).document
 
-  //   const instanceID = GLTFComponent.getInstanceID(entity)
-  //   const gltfDocumentState = getState(GLTFDocumentState)
-  //   const gltf = gltfDocumentState[instanceID]
+    const usedMaterials = document!.nodes!.reduce((accum, node) => {
+      if (typeof node.mesh === 'number') {
+        const mesh = document!.meshes![node.mesh]
+        for (const primitive of mesh.primitives) {
+          if (typeof primitive.material === 'number') accum.add(primitive.material)
+        }
+      }
+      return accum
+    }, new Set<number>())
 
-  //   const usedMaterials = gltf.nodes!.reduce((accum, node) => {
-  //     if (typeof node.mesh === 'number') {
-  //       const mesh = gltf.meshes![node.mesh]
-  //       for (const primitive of mesh.primitives) {
-  //         if (typeof primitive.material === 'number') accum.add(primitive.material)
-  //       }
-  //     }
-  //     return accum
-  //   }, new Set<number>())
+    await vi.waitFor(
+      async () => {
+        expect(getChildrenWithComponents(entity, [MaterialStateComponent]).length).toBeTruthy()
+      },
+      { timeout: 1000 }
+    )
 
-  //   // const materials = getChildrenWithComponents(entity, [MaterialDefinitionComponent])
-  //   // assert(materials.length === usedMaterials.size)
-  //   unmount()
-  // })
+    const materials = getChildrenWithComponents(entity, [MaterialStateComponent])
+    console.log('materials length', materials)
+    assert(materials.length === usedMaterials.size)
+  })
 
   // it('can load a draco geometry', async () => {
   //   const entity = setupEntity()
