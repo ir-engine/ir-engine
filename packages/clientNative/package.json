@@ -30,7 +30,7 @@
     "react": "18.2.0"
   },
   "dependencies": {
-    "@callstack/polygen": "^0.0.1",
+    "@callstack/polygen": "=0.1.0",
     "@callstack/react-native-basis-universal": "^0.3.0",
     "@callstack/react-native-draco": "^0.3.0",
     "@expo/browser-polyfill": "^1.0.1",

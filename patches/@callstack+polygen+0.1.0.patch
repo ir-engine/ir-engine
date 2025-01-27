@@ -1,0 +1,32 @@
+diff --git a/node_modules/@callstack/polygen/lib/commonjs/api/Memory.js b/node_modules/@callstack/polygen/lib/commonjs/api/Memory.js
+index ceabc2d..5db9988 100644
+--- a/node_modules/@callstack/polygen/lib/commonjs/api/Memory.js
++++ b/node_modules/@callstack/polygen/lib/commonjs/api/Memory.js
+@@ -26,16 +26,26 @@ function isMemoryDescriptor(descriptor) {
+  * @spec https://webassembly.github.io/spec/js-api/index.html#memories
+  */
+ class Memory {
++  #instance;
+   constructor(instance) {
+     if (isMemoryDescriptor(instance)) {
+       _NativePolygen.default.createMemory(this, instance.initial, instance.maximum);
++    } else {
++      this.#instance = instance;
+     }
+   }
+   get buffer() {
++    if (this.#instance) {
++      return _NativePolygen.default.getMemoryBuffer(this.#instance);
++    }
+     return _NativePolygen.default.getMemoryBuffer(this);
+   }
+   grow(delta) {
+-    _NativePolygen.default.growMemory(this, delta);
++    if (this.#instance) {
++      _NativePolygen.default.growMemory(this.#instance, delta);
++    } else {
++      _NativePolygen.default.growMemory(this, delta);
++    }
+   }
+ }
+ exports.Memory = Memory;
