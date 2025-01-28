@@ -38,7 +38,17 @@ const EmbedFrame = ({ src }: Props): JSX.Element => {
       <Box className="h-[90vh]">
         {src ? (
           <div className="h-full w-full">
-            <iframe className="h-full w-full" src={src}></iframe>
+            <iframe
+              className="h-full w-full"
+              src={src}
+              // style="width: 450px; position: fixed; bottom: 0; right: 20px; aspect-ratio: 16/9; background: transparent; z-index: 999999999;"
+              frameborder="0"
+              allow="microphone; camera; autoplay; clipboard-write; encrypted-media"
+              allowtransparency="true"
+              allowfullscreen
+              referrerpolicy="strict-origin-when-cross-origin"
+              title="MentorShop Experience"
+            ></iframe>
           </div>
         ) : (
           <></>
