@@ -39,6 +39,7 @@ import { PopoverState } from '../common/services/PopoverState'
 import { InviteService } from '../social/services/InviteService'
 import { ViewerMenuState } from '../util/ViewerMenuState'
 import EmbedFrame from './menus/avatar/EmbedFrame'
+import { LoadingUISystemState } from '../systems/LoadingUISystem'
 
 const IFrameReactor = () => {
   const entity = useEntityContext()
@@ -136,7 +137,9 @@ export const UserUISystem = defineSystem({
   insert: { after: PresentationSystemGroup },
   reactor: () => {
     const userID = useHookstate(getMutableState(EngineState)).userID.value
-    if (!userID) return null
+    const ready = useHookstate(getMutableState(LoadingUISystemState)).ready
+
+    if (!userID || !ready.value) return null
 
     return <UserSystemReactor />
   }
