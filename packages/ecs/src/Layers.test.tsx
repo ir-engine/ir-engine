@@ -581,9 +581,9 @@ describe('LayerComponents', () => {
       })
     }) //:: onSet
 
-    /** @todo */
     describe('onRemove', () => {
       describe("for every entity,relation pair returned by LayerFunctions.getLayerRelationsTypes for this component's layer ..", () => {
+        /** @todo */
         it.todo('.. should not do anything for this pair if the relation is not LayerRelationTypes.Propagate', () => {})
         it.todo(
           '.. should call removeEntity on the entity stored at getComponent(entity, LayerComponents[layer]).relations[linkedLayer]',
