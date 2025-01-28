@@ -99,11 +99,11 @@ export type Paths<S> = S extends object
     }[keyof S]
   : []
 
-export function resolveObject<O extends object, P extends string>(
+export function resolveObject<O extends object, P extends string | ReadonlyArray<string | number>>(
   obj: O,
-  path: Function.AutoPath<O, P>
-): _Object.Path<O, String.Split<P, '.'>> {
-  const keyPath = Array.isArray(path) ? path : path.split('.')
+  path: P
+): _Object.Path<O, P extends string ? String.Split<P, '.'> : P> {
+  const keyPath = Array.isArray(path) ? path : (path as string).split('.')
   return keyPath.reduce((prev, curr) => prev?.[curr], obj as any)
 }
 
