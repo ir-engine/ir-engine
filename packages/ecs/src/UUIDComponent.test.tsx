@@ -118,8 +118,7 @@ describe('UUIDComponent', () => {
   }) //:: onSet
 
   describe('onRemove', () => {
-    /** @todo Removing a component triggers hookstate error 103 */
-    it.skip('should call UUIDComponentFunctions._getUUIDState with (currentUUID, layer) as arguments and set its value to UndefinedEntity', () => {
+    it('should call UUIDComponentFunctions._getUUIDState with (currentUUID, layer) as arguments and set its value to UndefinedEntity', () => {
       const Expected = UndefinedEntity
       // Set the data as expected
       const layer = Layers.Simulation
@@ -141,8 +140,7 @@ describe('UUIDComponent', () => {
       expect(result).toBe(Expected)
     })
 
-    /** @todo Removing a component triggers hookstate error 103 */
-    it.skip('should remove the component from the entity', () => {
+    it('should remove the component from the entity', () => {
       const uuid = UUIDComponent.generateUUID()
       const testEntity = createEntity()
       setComponent(testEntity, UUIDComponent, uuid)

@@ -79,24 +79,19 @@ describe('LayerFunctions', () => {
       LayerComponents[layer] = backup
     })
 
-    /** @todo Removing a component triggers hookstate error 103 */
-    it.todo(
-      'should return an empty array if getOptionalComponent(`@param entity`, LayerFunctions.getLayerComponent(`@param entity`)) is falsy',
-      () => {
-        const Expected = []
-        // Set the data as expected
-        const layer = Layers.Simulation
-        const testEntity = createEntity(layer)
-        /** @todo Removing a component triggers hookstate error 103 */
-        removeComponent(testEntity, LayerFunctions.getLayerComponent(testEntity))
-        // Sanity check before running
-        expect(LayerFunctions.getLayerComponent(testEntity)).toBeTruthy()
-        expect(getOptionalComponent(testEntity, LayerFunctions.getLayerComponent(testEntity))).toBeFalsy()
-        // Run and Check the result
-        const result = LayerFunctions.getLayerRelationsEntities(testEntity)
-        expect(result).toEqual(Expected)
-      }
-    )
+    it('should return an empty array if getOptionalComponent(`@param entity`, LayerFunctions.getLayerComponent(`@param entity`)) is falsy', () => {
+      const Expected = []
+      // Set the data as expected
+      const layer = Layers.Simulation
+      const testEntity = createEntity(layer)
+      removeComponent(testEntity, LayerFunctions.getLayerComponent(testEntity))
+      // Sanity check before running
+      expect(LayerFunctions.getLayerComponent(testEntity)).toBeTruthy()
+      expect(getOptionalComponent(testEntity, LayerFunctions.getLayerComponent(testEntity))).toBeFalsy()
+      // Run and Check the result
+      const result = LayerFunctions.getLayerRelationsEntities(testEntity)
+      expect(result).toEqual(Expected)
+    })
 
     it('should return an array of arrays that contains valid layer ID numbers in slot 0 of each subarray', () => {
       // Set the data as expected
@@ -586,7 +581,7 @@ describe('LayerComponents', () => {
       })
     }) //:: onSet
 
-    /** @todo Removing a component triggers hookstate error 103 */
+    /** @todo */
     describe('onRemove', () => {
       describe("for every entity,relation pair returned by LayerFunctions.getLayerRelationsTypes for this component's layer ..", () => {
         it.todo('.. should not do anything for this pair if the relation is not LayerRelationTypes.Propagate', () => {})
@@ -680,8 +675,7 @@ describe('LayerComponent', () => {
   }) //:: get
 
   describe('onRemove', () => {
-    /** @todo Removing a component triggers hookstate error 103 */
-    it.skip('should remove the LayerComponent returned by LayerFunctions.getLayerComponent for the `@param entity`', () => {
+    it('should remove the LayerComponent returned by LayerFunctions.getLayerComponent for the `@param entity`', () => {
       // Set the data as expected
       const layer = Layers.Simulation
       const testEntity = createEntity(layer)
@@ -693,8 +687,7 @@ describe('LayerComponent', () => {
       expect(hasComponent(testEntity, component)).not.toBeFalsy() // invert
     })
 
-    /** @todo Removing a component triggers hookstate error 103 */
-    it.skip('should set the `@param entity` entry of the LayerComponent.layer array/list to 0', () => {
+    it('should set the `@param entity` entry of the LayerComponent.layer array/list to 0', () => {
       const Expected = Object.values(Layers)[0]
       const Initial = Object.values(Layers)[1]
       // Set the data as expected
@@ -707,11 +700,8 @@ describe('LayerComponent', () => {
       expect(before).toBe(Initial)
       expect(before).not.toBe(Expected)
       // Run and Check the result
-      // LayerComponent.onRemove(testEntity, {} as any)
-      removeComponent(testEntity, TransformComponent)
+      LayerComponent.onRemove(testEntity, {} as any)
       const result = LayerComponent.layer[testEntity]
-      // expect(result).toBe(Initial)
-      // expect(result).not.toBe(Expected)
       expect(result).not.toBe(Initial)
       expect(result).toBe(Expected)
     })
