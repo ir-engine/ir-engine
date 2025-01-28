@@ -48,6 +48,7 @@ const reactor = () => {
     }
     return () => {
       for (const entity of prevSelectedEntities) {
+        removeComponent(entity, HighlightComponent)
         traverseEntityNode(entity, (childEntity) => {
           removeComponent(childEntity, HighlightComponent)
         })
