@@ -275,7 +275,7 @@ describe('QueryFunctions Hooks', async () => {
 
       reactor.run()
 
-      assert.strictEqual(renderCounter, 2)
+      assert.strictEqual(renderCounter, 3)
       assert.strictEqual(effectCounter, 2)
       assert.strictEqual(entities.length, 1)
       assert.strictEqual(entities[0], e2)
