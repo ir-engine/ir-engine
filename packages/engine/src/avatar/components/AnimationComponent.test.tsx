@@ -47,7 +47,7 @@ import { AnimationComponent } from './AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from './AvatarAnimationComponent'
 import { AvatarComponent } from './AvatarComponent'
 
-import { startEngineReactor } from '../../../tests/runEngineTests'
+import { startEngineReactor } from '../../../tests/startEngineReactor'
 
 const default_url = 'packages/projects/default-project/assets'
 const rings_gltf = default_url + '/rings.glb'
@@ -104,7 +104,7 @@ describe('AnimationComponent', () => {
       return destroyEngine()
     })
 
-    it.only('should bind animation tracks to entities based on node id sourced from entity UUIDs', async () => {
+    it('should bind animation tracks to entities based on node id sourced from entity UUIDs', async () => {
       const entity = createTestGLTFEntity()
 
       setComponent(entity, UUIDComponent, generateEntityUUID())

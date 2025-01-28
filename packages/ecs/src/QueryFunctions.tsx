@@ -101,6 +101,7 @@ export function useQuery(components: bitECS.QueryTerm[], layer: LayerID = Layers
 
     return () => {
       unsubscribe()
+      removeQuery(componentsWithLayer)
     }
   }, [])
 
