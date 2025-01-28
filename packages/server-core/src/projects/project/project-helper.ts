@@ -797,7 +797,7 @@ export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> 
     const awsCredentials = `[default]\naws_access_key_id=${config.aws.eks.accessKeyId}\naws_secret_access_key=${config.aws.eks.secretAccessKey}\n[role]\nrole_arn = ${config.aws.eks.roleArn}\nsource_profile = default`
 
     if (!fs.existsSync(awsPath)) fs.mkdirSync(awsPath, { recursive: true })
-    if (!fs.existsSync(credentialsPath)) fs.writeFileSync(credentialsPath, Buffer.from(awsCredentials))
+    if (!fs.existsSync(credentialsPath)) fs.writeFileSync(credentialsPath, awsCredentials)
 
     const ecr = new ECRPUBLICClient({
       credentials: fromIni({
@@ -835,7 +835,7 @@ export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> 
     const awsCredentials = `[default]\naws_access_key_id=${config.aws.eks.accessKeyId}\naws_secret_access_key=${config.aws.eks.secretAccessKey}\n[role]\nrole_arn = ${config.aws.eks.roleArn}\nsource_profile = default`
 
     if (!fs.existsSync(awsPath)) fs.mkdirSync(awsPath, { recursive: true })
-    if (!fs.existsSync(credentialsPath)) fs.writeFileSync(credentialsPath, Buffer.from(awsCredentials))
+    if (!fs.existsSync(credentialsPath)) fs.writeFileSync(credentialsPath, awsCredentials)
 
     const ecr = new ECRClient({
       credentials: fromIni({
@@ -1622,7 +1622,7 @@ const migrateResourcesJson = (projectName: string, resourceJsonPath: string) => 
       })
     ) as ResourcesJson
   }
-  if (newManifest) fs.writeFileSync(resourceJsonPath, Buffer.from(JSON.stringify(newManifest, null, 2)))
+  if (newManifest) fs.writeFileSync(resourceJsonPath, JSON.stringify(newManifest, null, 2))
 }
 
 const getResourceType = (key: string, resource?: ResourceType) => {

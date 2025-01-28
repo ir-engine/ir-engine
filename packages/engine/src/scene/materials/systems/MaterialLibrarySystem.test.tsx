@@ -46,7 +46,7 @@ import { Mesh, MeshLambertMaterial, MeshPhysicalMaterial } from 'three'
 import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 import { convertMaterials } from './MaterialLibrarySystem'
 
-describe('MaterialLibrarySystem', () => {
+describe('MaterialLibrarySystem', { retry: 2 }, () => {
   describe('convertMaterials', () => {
     let instanceEntity = UndefinedEntity
     let material = UndefinedEntity

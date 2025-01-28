@@ -23,22 +23,25 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { clientSettingPath } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
 import type { Knex } from 'knex'
-
-import { awsSettingPath } from '@ir-engine/common/src/schemas/setting/aws-setting.schema'
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const route53ColumnExists = await knex.schema.hasColumn(awsSettingPath, 'route53')
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  if (route53ColumnExists) {
-    await knex.schema.alterTable(awsSettingPath, async (table) => {
-      table.dropColumn('route53')
+  const gaMeasurementIdColumnExists = await knex.schema.hasColumn(clientSettingPath, 'gaMeasurementId')
+
+  if (gaMeasurementIdColumnExists === true) {
+    await knex.schema.alterTable(clientSettingPath, async (table) => {
+      table.dropColumn('gaMeasurementId')
     })
   }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
 /**
@@ -48,12 +51,20 @@ export async function up(knex: Knex): Promise<void> {
 export async function down(knex: Knex): Promise<void> {
   await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  const route53ColumnExists = await knex.schema.hasColumn(awsSettingPath, 'route53')
+  const gaMeasurementIdColumnExists = await knex.schema.hasColumn(clientSettingPath, 'gaMeasurementId')
 
-  if (!route53ColumnExists) {
-    await knex.schema.alterTable(awsSettingPath, async (table) => {
-      table.json('route53').nullable()
+  if (gaMeasurementIdColumnExists === false) {
+    await knex.schema.alterTable(clientSettingPath, async (table) => {
+      table.string('gaMeasurementId').nullable()
     })
+
+    const clientSettings = await knex.table(clientSettingPath).first()
+
+    if (clientSettings) {
+      await knex.table(clientSettingPath).update({
+        gaMeasurementId: process.env.GOOGLE_ANALYTICS_MEASUREMENT_ID
+      })
+    }
   }
 
   await knex.raw('SET FOREIGN_KEY_CHECKS=1')

@@ -45,7 +45,7 @@ import {
   WebGLCubeRenderTarget,
   WebGLRenderTarget
 } from 'three'
-import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
+import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer.js'
 
 import { defineState, getState } from '@ir-engine/hyperflux'
 import { KTX2EncodeOptions, KTX2Encoder, UASTCFlags } from '@ir-engine/xrui/core/textures/KTX2Encoder'

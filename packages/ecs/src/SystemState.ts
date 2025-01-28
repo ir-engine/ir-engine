@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { defineState, isDev, ReactorRoot, State } from '@ir-engine/hyperflux'
 
 import { Entity } from './Entity'
-import { defineQuery, QueryComponents } from './QueryFunctions'
+import { defineQuery, QueryTerm } from './QueryFunctions'
 import { SystemUUID } from './SystemFunctions'
 
 export const SystemState = defineState({
@@ -38,7 +38,7 @@ export const SystemState = defineState({
     reactiveQueryStates: new Set<{
       query: ReturnType<typeof defineQuery>
       entities: State<Entity[]>
-      components: QueryComponents
+      components: QueryTerm[]
     }>()
   })
 })

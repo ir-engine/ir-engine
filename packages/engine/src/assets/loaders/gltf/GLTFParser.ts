@@ -105,7 +105,7 @@ export function getImageURIMimeType(uri) {
   return 'image/png'
 }
 
-declare module '@gltf-transform/core/dist/types/gltf.d.ts' {
+declare module '@gltf-transform/core' {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace GLTF {
     interface INode {

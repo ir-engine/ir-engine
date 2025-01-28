@@ -23,7 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { DependencyList, EffectCallback, useEffect, useLayoutEffect, useRef } from 'react'
+import { useHookstate } from '@hookstate/core'
+import { DependencyList, EffectCallback, useEffect, useLayoutEffect } from 'react'
+import { NO_PROXY_STEALTH } from '../functions/StateFunctions'
 
 function depsDiff(deps1, deps2) {
   return !(
@@ -39,40 +41,43 @@ function noop() {}
 /**
  * Run an effect immediately on mount and whenever deps change.
  *
- * WARNING: Do not use this hook in a context that may suspend,
- * as the cleanup function will not be called on suspension,
- * and the effect will be run again on resume.
+ * NOTE: this effect only runs after the component is first mounted
  *
  * @param effect
  * @param deps
  */
 export function useImmediateEffect(effect: EffectCallback, deps?: DependencyList) {
-  const cleanupRef = useRef<any>()
-  const depsRef = useRef<any>()
+  const cleanupRef = useHookstate<any>(null)
+  const depsRef = useHookstate<any>(null)
 
-  // only run effect on mount and whenever deps change
-  if (depsDiff(depsRef.current, deps)) {
-    depsRef.current = deps
+  // noop unless component is mounted to ensure we can clean up correctly
+  const isMounted = useHookstate(false)
+  useLayoutEffect(() => {
+    isMounted.set(true)
+  }, [])
+
+  // make sure deps are hooked
+  useEffect(() => {}, deps)
+
+  // only run effect when mounted and whenever deps change
+  if (isMounted.value && depsDiff(depsRef.get(NO_PROXY_STEALTH), deps)) {
+    depsRef.set(deps)
 
     // cleanup previous effect
-    if (cleanupRef.current) {
-      cleanupRef.current()
+    const cleanup = cleanupRef.get(NO_PROXY_STEALTH)
+    if (cleanup) {
+      cleanup()
     }
 
     // run effect
-    cleanupRef.current = effect()
+    cleanupRef.set(() => effect())
   }
-
-  // make sure deps are hooked
-  useEffect(noop, deps)
 
   // make sure final cleanup is called on unmount
   useLayoutEffect(() => {
     return () => {
-      if (cleanupRef.current) {
-        cleanupRef.current()
-        cleanupRef.current = undefined
-      }
+      const cleanup = cleanupRef.get(NO_PROXY_STEALTH)
+      cleanup?.()
     }
   }, [])
 }

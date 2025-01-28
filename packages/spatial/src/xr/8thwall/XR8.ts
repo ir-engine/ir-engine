@@ -209,7 +209,10 @@ const viewerInputSource = {
     index: 0,
     mapping: '',
     timestamp: Date.now() - performance.timeOrigin,
-    vibrationActuator: null
+    vibrationActuator: {
+      playEffect: async () => 'complete',
+      reset: async () => 'complete'
+    }
   },
   profiles: [] as string[]
 } as XRInputSource

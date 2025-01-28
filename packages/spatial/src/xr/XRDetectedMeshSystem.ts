@@ -23,16 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-
-import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
 
 import { XRDetectedMeshComponent } from './XRDetectedMeshComponent'
 import { XRDetectedPlaneComponent } from './XRDetectedPlaneComponent'
-import { ReferenceSpace, XRState } from './XRState'
+import { XRState } from './XRState'
 import { XRSystem } from './XRSystem'
 
 /** https://github.com/immersive-web/webxr-samples/blob/main/proposals/plane-detection.html */
@@ -41,6 +37,9 @@ declare global {
   interface XRFrame {
     /** WebXR implements detectedPlanes on the XRFrame, but the current typescript implementation has it on worldInformation */
     detectedPlanes?: XRPlaneSet
+    worldInformation?: {
+      detectedPlanes?: XRPlaneSet
+    }
   }
 
   interface XRPlane {
@@ -48,91 +47,19 @@ declare global {
   }
 }
 
-const handleDetectedPlanes = (frame: XRFrame) => {
-  const detectedPlanes = frame.worldInformation?.detectedPlanes ?? frame.detectedPlanes
-  if (!detectedPlanes) return
-
-  for (const [plane, entity] of XRDetectedPlaneComponent.detectedPlanesMap) {
-    if (!detectedPlanes.has(plane)) {
-      removeEntity(entity)
-      XRDetectedPlaneComponent.detectedPlanesMap.delete(plane)
-      XRDetectedPlaneComponent.planesLastChangedTimes.delete(plane)
-    }
-  }
-
-  for (const plane of detectedPlanes) {
-    if (!XRDetectedPlaneComponent.detectedPlanesMap.has(plane)) {
-      XRDetectedPlaneComponent.foundPlane(plane)
-    }
-    const entity = XRDetectedPlaneComponent.detectedPlanesMap.get(plane)!
-    const lastKnownTime = XRDetectedPlaneComponent.planesLastChangedTimes.get(plane)!
-    if (plane.lastChangedTime > lastKnownTime) {
-      XRDetectedPlaneComponent.updatePlaneGeometry(entity, getComponent(entity, XRDetectedPlaneComponent).plane)
-    }
-    XRDetectedPlaneComponent.updatePlanePose(entity, plane)
-  }
-}
-
-const handleDetectedMeshes = (frame: XRFrame) => {
-  if (!frame.detectedMeshes) return
-
-  for (const [mesh, entity] of XRDetectedMeshComponent.detectedMeshesMap) {
-    if (!frame.detectedMeshes.has(mesh)) {
-      removeEntity(entity)
-      XRDetectedMeshComponent.detectedMeshesMap.delete(mesh)
-      XRDetectedMeshComponent.meshesLastChangedTimes.delete(mesh)
-    }
-  }
-
-  for (const mesh of frame.detectedMeshes) {
-    if (!XRDetectedMeshComponent.detectedMeshesMap.has(mesh)) {
-      XRDetectedMeshComponent.foundMesh(mesh)
-    }
-    const entity = XRDetectedMeshComponent.detectedMeshesMap.get(mesh)!
-    const lastKnownTime = XRDetectedMeshComponent.meshesLastChangedTimes.get(mesh)!
-    if (mesh.lastChangedTime > lastKnownTime) {
-      XRDetectedMeshComponent.updateMeshGeometry(entity, getComponent(entity, XRDetectedMeshComponent).mesh)
-    }
-    XRDetectedMeshComponent.updateMeshPose(entity, mesh)
-  }
-}
+const emptyPlaneSet = Object.freeze(new Set()) as XRPlaneSet
+const emptyMeshSet = Object.freeze(new Set()) as XRMeshSet
 
 const execute = () => {
   const frame = getState(XRState).xrFrame
-  if (!frame?.session || frame.session.environmentBlendMode === 'opaque' || !ReferenceSpace.localFloor) return
-
-  handleDetectedPlanes(frame)
-  handleDetectedMeshes(frame)
-}
-
-const reactor = () => {
-  const session = useHookstate(getMutableState(XRState).session)
-  useEffect(() => {
-    return () => {
-      if (session.value) return
-      for (const [, entity] of XRDetectedPlaneComponent.detectedPlanesMap) {
-        removeEntity(entity)
-      }
-      XRDetectedPlaneComponent.detectedPlanesMap.clear()
-      XRDetectedPlaneComponent.planesLastChangedTimes.clear()
-      for (const [, entity] of XRDetectedMeshComponent.detectedMeshesMap) {
-        removeEntity(entity)
-      }
-      XRDetectedMeshComponent.detectedMeshesMap.clear()
-      XRDetectedMeshComponent.meshesLastChangedTimes.clear()
-    }
-  }, [session])
-  return null
+  const detectedPlanes = frame?.worldInformation?.detectedPlanes ?? frame?.detectedPlanes ?? emptyPlaneSet
+  const detectedMeshes = frame?.detectedMeshes ?? emptyMeshSet
+  XRDetectedPlaneComponent.updateDetectedPlanes(detectedPlanes)
+  XRDetectedMeshComponent.updateDetectedMeshes(detectedMeshes)
 }
 
 export const XRDetectedMeshSystem = defineSystem({
   uuid: 'ee.engine.XRDetectedMeshSystem',
   insert: { with: XRSystem },
-  execute,
-  reactor
+  execute
 })
-
-export const XRDetectedMeshSystemFunctions = {
-  handleDetectedPlanes,
-  handleDetectedMeshes
-}

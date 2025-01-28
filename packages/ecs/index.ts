@@ -26,8 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 // ensure dependency modules are imported
 import '@ir-engine/hyperflux'
 
-import { getAllEntities, Not, Types } from 'bitecs'
+import { getAllEntities, getEntityComponents, Not } from '@ir-engine/ecs'
 
+import { Types } from './src/bitecsLegacy'
 import {
   defineComponent,
   getAllComponentData,
@@ -94,16 +95,20 @@ const ECS = {
   executeFixedSystem,
   getDAG,
   /** bitECS Functions */
-  Not,
   Types,
-  getAllEntities
+  Not,
+  getAllEntities,
+  getEntityComponents
 }
 
 globalThis.ECS = ECS
 
 export default ECS
 
-export { Not } from 'bitecs'
+export { getAllEntities, getEntityComponents, Not } from 'bitecs'
+export { Types } from './src/bitecsLegacy'
+export type { Type, TypedArray } from './src/bitecsLegacy'
+
 export * from './src/ComponentFunctions'
 export * from './src/EasingFunctions'
 export * from './src/ECSState'

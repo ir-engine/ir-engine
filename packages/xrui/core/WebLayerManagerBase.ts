@@ -242,7 +242,7 @@ export class WebLayerManagerBase {
     const buffer = this._packr.pack(data)
 
     return new Promise<Blob>((resolve, reject) => {
-      compress(buffer, { consume: true }, (err, data) => {
+      compress(new Uint8Array(buffer), { consume: true }, (err, data) => {
         if (err) return reject(err)
         resolve(new Blob([data.buffer]))
       })

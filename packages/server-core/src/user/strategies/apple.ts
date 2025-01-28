@@ -213,7 +213,7 @@ export class AppleStrategy extends CustomOAuthStrategy {
     await this.validateSignInUser(authentication, originalParams, 'apple')
     const entity: string = this.configuration.entity
     const { provider, ...params } = originalParams
-    const profile = await super.getProfile(authentication, params)
+    const profile = await this.getProfile(authentication, params)
     const existingEntity = (await super.findEntity(profile, params)) || (await super.getCurrentEntity(params))
 
     const authEntity = !existingEntity

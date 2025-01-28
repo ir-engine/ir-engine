@@ -28,10 +28,11 @@ import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { getMutableState } from '@ir-engine/hyperflux'
 import { NetworkId } from '@ir-engine/network/src/NetworkId'
 
+import { createEntity, setComponent } from '@ir-engine/ecs'
 import { NetworkObjectComponent } from '../NetworkObjectComponent'
 import {
   createViewCursor,
@@ -176,7 +177,7 @@ describe('ViewCursor read/write', () => {
 
     it('should writeEntityId', () => {
       const view = createViewCursor()
-      const entity = 42 as Entity
+      const entity = createEntity()
       writeEntityId(view, entity)
       strictEqual(view.cursor, Uint32Array.BYTES_PER_ELEMENT)
       strictEqual(view.getUint32(0), entity)
@@ -184,8 +185,9 @@ describe('ViewCursor read/write', () => {
 
     it('should writeNetworkId', () => {
       const view = createViewCursor()
-      const entity = 42 as Entity
+      const entity = createEntity()
       const netId = 5678 as NetworkId
+      setComponent(entity, NetworkObjectComponent)
       NetworkObjectComponent.networkId[entity] = netId
       writeNetworkId(view, entity)
       strictEqual(view.cursor, Uint32Array.BYTES_PER_ELEMENT)
