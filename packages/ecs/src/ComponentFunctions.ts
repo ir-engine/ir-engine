@@ -32,7 +32,6 @@ import React from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
 
-import { Subscribable, subscribable } from '@hookstate/subscribable'
 import {
   DeepReadonly,
   HyperFlux,
@@ -187,7 +186,7 @@ export interface Component<
   reactor?: any
   storage?: StorageType
   reactorMap: Map<Entity, ReactorRoot>
-  stateMap: Record<Entity, State<ComponentType, Subscribable>>
+  stateMap: Record<Entity, State<ComponentType>>
   valueMap: Record<Entity, ComponentType>
   errors: ErrorTypes[]
   storageSize: number
@@ -355,16 +354,13 @@ export const defineComponent = <
 export const getOptionalMutableComponent = <C extends Component>(
   entity: Entity,
   component: C
-): State<ComponentType<C>, Subscribable> | undefined => {
+): State<ComponentType<C>> | undefined => {
   return !bitECS.hasComponent(HyperFlux.store, entity, component)
     ? undefined
-    : (component.stateMap[entity]! as State<ComponentType<C>, Subscribable> | undefined)
+    : (component.stateMap[entity]! as State<ComponentType<C>> | undefined)
 }
 
-export const getMutableComponent = <C extends Component>(
-  entity: Entity,
-  component: C
-): State<ComponentType<C>, Subscribable> => {
+export const getMutableComponent = <C extends Component>(entity: Entity, component: C): State<ComponentType<C>> => {
   const componentState = getOptionalMutableComponent(entity, component)
   if (componentState === undefined) {
     console.warn(
@@ -379,14 +375,14 @@ export const getOptionalComponent = <C extends Component>(
   entity: Entity,
   component: C
 ): ComponentType<C> | undefined => {
-  if (!bitECS.hasComponent(HyperFlux.store, entity, component)) return undefined
-  return component.stateMap[entity]?.get(NO_PROXY_STEALTH) as ComponentType<C> | undefined
-  // return component.valueMap[entity]
+  // if (!bitECS.hasComponent(HyperFlux.store, entity, component)) return undefined
+  // return component.stateMap[entity]?.get(NO_PROXY_STEALTH) as ComponentType<C> | undefined
+  return component.valueMap[entity]
 }
 
 export const getComponent = <C extends Component>(entity: Entity, component: C): ComponentType<C> => {
-  // const value = component.valueMap[entity] as ComponentType<C>
-  const value = component.stateMap[entity]?.get(NO_PROXY_STEALTH) as ComponentType<C>
+  const value = component.valueMap[entity] as ComponentType<C>
+  // const value = component.stateMap[entity]?.get(NO_PROXY_STEALTH) as ComponentType<C>
   if (value === undefined) {
     console.warn(
       `[getComponent]: entity ${entity} does not have ${component.name}. This will be an error in the future. Use getOptionalComponent if there is uncertainty over whether or not an entity has the specified component.`
@@ -647,11 +643,13 @@ export const LayerFunctions = {
 
 const _getComponentState = <C extends Component>(entity: Entity, component: C) => {
   if (!component.stateMap[entity]) {
-    component.stateMap[entity] = hookstate(none, subscribable())
-    // component.stateMap[entity].subscribe(() => {
-    //   component.valueMap[entity] = component.stateMap[entity].get(NO_PROXY_STEALTH)
-    //   LayerFunctions.propagateLayer(entity, component)
-    // })
+    component.stateMap[entity] = hookstate(none, () => ({
+      onSet: (s, d) => {
+        const rootState = component.stateMap[entity]
+        component.valueMap[entity] = rootState.promised ? undefined : rootState.get(NO_PROXY_STEALTH)
+        LayerFunctions.propagateLayer(entity, component)
+      }
+    }))
   }
   return component.stateMap[entity]
 }
@@ -758,15 +756,11 @@ export const setComponent = <C extends Component>(
   if (!hasComponent(entity, component)) {
     state.set(createInitialComponentValue(entity, component))
     bitECS.addComponent(HyperFlux.store, entity, component)
-    // TODO; can remove when hookstate subscription is working
-    component.valueMap[entity] = component.stateMap[entity].get(NO_PROXY_STEALTH)
   }
 
   _mergeComponentState(entity, component, args)
   component.onSet(entity, state, args)
 
-  // TODO; can remove when hookstate subscription is working
-  component.valueMap[entity] = component.stateMap[entity].get(NO_PROXY_STEALTH)
   LayerFunctions.propagateLayer(entity, component)
 
   if (component.reactor && !component.reactorMap.has(entity) && LayerComponent.get(entity) === Layers.Simulation) {
@@ -920,7 +914,7 @@ export function _use(promise) {
 /**
  * Use a component in a reactive context (a React component)
  */
-export function useComponent<C extends Component>(entity: Entity, component: C): State<ComponentType<C>, Subscribable> {
+export function useComponent<C extends Component>(entity: Entity, component: C): State<ComponentType<C>> {
   if (entity === UndefinedEntity) throw new Error('InvalidUsage: useComponent called with UndefinedEntity')
 
   const state = _getComponentState(entity, component)
@@ -930,7 +924,7 @@ export function useComponent<C extends Component>(entity: Entity, component: C):
     ;(React.use ?? _use)(state.promise)
   }
 
-  return useHookstate(state) as State<ComponentType<C>, Subscribable>
+  return useHookstate(state) as State<ComponentType<C>>
 }
 
 /**
@@ -939,8 +933,8 @@ export function useComponent<C extends Component>(entity: Entity, component: C):
 export function useOptionalComponent<C extends Component>(
   entity: Entity,
   component: C
-): State<ComponentType<C>, Subscribable> | undefined {
-  const componentState = useHookstate(_getComponentState(entity, component)) as State<ComponentType<C>, Subscribable>
+): State<ComponentType<C>> | undefined {
+  const componentState = useHookstate(_getComponentState(entity, component)) as State<ComponentType<C>>
   return componentState.promised ? undefined : componentState
 }
 
