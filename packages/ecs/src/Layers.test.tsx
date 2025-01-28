@@ -32,7 +32,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import {
   defineComponent,
   getComponent,
@@ -52,6 +51,8 @@ import { createEngine, destroyEngine } from './Engine'
 import { Entity, UndefinedEntity } from './Entity'
 import { entityExists } from './EntityFunctions'
 import { defineQuery } from './QueryFunctions'
+
+const TestComponent = defineComponent({ name: 'SomeTestComponent' })
 
 describe('LayerFunctions', () => {
   beforeEach(() => {
@@ -248,7 +249,7 @@ describe('LayerFunctions', () => {
         const resultSpy = vi.spyOn(LayerFunctions, 'createLayerPropagationArgs')
         const entityLayer = Layers.Simulation
         const testEntity = createEntity(entityLayer)
-        const component = TransformComponent as any
+        const component = TestComponent as any
         // Sanity check before running
         const linkedLayer = LayerFunctions.getLayerRelationsEntities(testEntity)?.[0]?.[0]
         expect(component).not.toBe(LayerComponent)
@@ -265,7 +266,7 @@ describe('LayerFunctions', () => {
         const entityLayer = Layers.Authoring
         const linkedLayer = Layers.Simulation
         const testEntity = createEntity(entityLayer)
-        const component = TransformComponent
+        const component = TestComponent
         setComponent(testEntity, component)
         const resultSpy = vi.spyOn(LayerFunctions, 'createLayerPropagationArgs')
         // Sanity check before running
@@ -285,7 +286,7 @@ describe('LayerFunctions', () => {
         const entityLayer = Layers.Authoring
         const linkedLayer = Layers.Simulation
         const testEntity = createEntity(entityLayer)
-        const component = TransformComponent as any
+        const component = TestComponent as any
         const linkedEntity = LayerFunctions.getLayerRelationsEntities(testEntity)[0][1]
         setComponent(testEntity, component)
         const resultSpy = vi.spyOn(LayerFunctions, 'createLayerPropagationArgs')
@@ -693,7 +694,7 @@ describe('LayerComponent', () => {
       // Set the data as expected
       const layer = Initial
       const testEntity = createEntity(layer)
-      setComponent(testEntity, TransformComponent)
+      setComponent(testEntity, TestComponent)
       LayerComponent.layer[testEntity] = Initial // Temporary fake layer. Should be replaced by the function
       // Sanity check before running
       const before = LayerComponent.layer[testEntity]
