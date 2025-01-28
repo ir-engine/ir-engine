@@ -31,6 +31,7 @@ import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { Vector3_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
@@ -46,7 +47,7 @@ export const EnvMapBakeComponent = defineComponent({
   schema: S.Object({
     bakePosition: T.Vec3(),
     bakePositionOffset: T.Vec3(),
-    bakeScale: T.Vec3({ x: 1, y: 1, z: 1 }),
+    bakeScale: T.Vec3(Vector3_One),
     bakeType: S.Enum(EnvMapBakeTypes, EnvMapBakeTypes.Baked),
     resolution: S.Number(1024),
     refreshMode: S.Enum(EnvMapBakeRefreshTypes, EnvMapBakeRefreshTypes.OnAwake),

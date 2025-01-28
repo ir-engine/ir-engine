@@ -61,6 +61,7 @@ import { ContentFitTypeSchema } from '@ir-engine/spatial/src/transform/functions
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { Vector2_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { clearErrors } from '../functions/ErrorFunctions'
 import { getTextureSize, PLANE_GEO, resizeVideoMesh, SideSchema, SPHERE_GEO } from './ImageComponent'
@@ -101,11 +102,11 @@ export const VideoComponent = defineComponent({
 
   schema: S.Object({
     side: SideSchema(DoubleSide),
-    size: T.Vec2({ x: 1, y: 1 }),
-    uvOffset: T.Vec2({ x: 0, y: 0 }),
-    uvScale: T.Vec2({ x: 1, y: 1 }),
-    alphaUVOffset: T.Vec2({ x: 0, y: 0 }),
-    alphaUVScale: T.Vec2({ x: 1, y: 1 }),
+    size: T.Vec2(Vector2_One),
+    uvOffset: T.Vec2(),
+    uvScale: T.Vec2(Vector2_One),
+    alphaUVOffset: T.Vec2(),
+    alphaUVScale: T.Vec2(Vector2_One),
     wrapS: WrappingSchema,
     wrapT: WrappingSchema,
     useAlpha: S.Bool(false),

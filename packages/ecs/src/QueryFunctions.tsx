@@ -27,16 +27,15 @@ import * as bitECS from 'bitecs'
 import React, { ErrorInfo, FC, memo, Suspense, useLayoutEffect, useMemo } from 'react'
 import * as bitECSLegacy from './bitecsLegacy'
 
-import { getState, HyperFlux, NO_PROXY_STEALTH, useHookstate } from '@ir-engine/hyperflux'
+import { HyperFlux, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 
 import { LayerComponents, LayerID, Layers } from './ComponentFunctions'
 import { Entity } from './Entity'
 import { EntityContext } from './EntityFunctions'
-import { defineSystem } from './SystemFunctions'
-import { PresentationSystemGroup } from './SystemGroups'
-import { SystemState } from './SystemState'
 
 export type { QueryTerm } from 'bitecs'
+
+export const queries = [] as ReturnType<typeof defineQuery>[]
 
 export function defineQuery(components: bitECS.QueryTerm[], layer: LayerID = Layers.Simulation) {
   const query = bitECSLegacy.defineQuery([...components, LayerComponents[layer]])
@@ -56,26 +55,23 @@ export function defineQuery(components: bitECS.QueryTerm[], layer: LayerID = Lay
   wrappedQuery._query = query
   wrappedQuery._enterQuery = enterQuery
   wrappedQuery._exitQuery = exitQuery
+
+  queries.push(wrappedQuery)
+
   return wrappedQuery
 }
 
 export function removeQuery(queryOrTerms: ReturnType<typeof defineQuery> | bitECS.QueryTerm[]) {
-  bitECS.removeQuery(HyperFlux.store, Array.isArray(queryOrTerms) ? queryOrTerms : queryOrTerms._query.components)
-  if ('_enterQuery' in queryOrTerms) queryOrTerms._enterQuery.unsubscribe()
-  if ('_exitQuery' in queryOrTerms) queryOrTerms._exitQuery.unsubscribe()
+  try {
+    bitECS.removeQuery(HyperFlux.store, Array.isArray(queryOrTerms) ? queryOrTerms : queryOrTerms._query.components)
+    if ('_enterQuery' in queryOrTerms) queryOrTerms._enterQuery.unsubscribe()
+    if ('_exitQuery' in queryOrTerms) queryOrTerms._exitQuery.unsubscribe()
+  } catch (e) {
+    console.log('Caught error', e, 'likely due to cleaning up a query that doesnt exist')
+  }
 }
 
-export const ReactiveQuerySystem = defineSystem({
-  uuid: 'ee.hyperflux.ReactiveQuerySystem',
-  insert: { after: PresentationSystemGroup },
-  execute: () => {
-    for (const { query, entities } of getState(SystemState).reactiveQueryStates) {
-      const entitiesAdded = query.enter().length
-      const entitiesRemoved = query.exit().length
-      if (entitiesAdded || entitiesRemoved) entities.set([...query()])
-    }
-  }
-})
+export const query = (queryTerms: bitECS.QueryTerm[]) => bitECS.query(HyperFlux.store, queryTerms)
 
 /**
  * Use a query in a reactive context (a React component)
@@ -83,27 +79,41 @@ export const ReactiveQuerySystem = defineSystem({
  */
 export function useQuery(components: bitECS.QueryTerm[], layer: LayerID = Layers.Simulation) {
   const state = useHookstate(() => {
-    const query = defineQuery(components, layer)
+    const componentsWithLayer = [...components, LayerComponents[layer]]
     return {
-      query,
-      entities: query()
+      entities: [...query(componentsWithLayer)] as Entity[],
+      invalid: false
     }
   })
 
-  // Use a layout effect to ensure that `queryState`
-  // is deleted from the `reactiveQueryStates` map immediately when the current
-  // component is unmounted, before any other code attempts to set it
-  // (component state can't be modified after a component is unmounted)
   useLayoutEffect(() => {
-    const queryState = { query: state.get(NO_PROXY_STEALTH).query, entities: state.entities, components }
-    getState(SystemState).reactiveQueryStates.add(queryState)
+    const requery = () => state.invalid.set(true)
+
+    const componentsWithLayer = [...components, LayerComponents[layer]]
+
+    const unsubAdd = bitECS.observe(HyperFlux.store, bitECS.onAdd(...componentsWithLayer), requery)
+    const unsubRemove = bitECS.observe(HyperFlux.store, bitECS.onRemove(...componentsWithLayer), requery)
+
+    const unsubscribe = () => {
+      unsubAdd()
+      unsubRemove()
+    }
+
     return () => {
-      removeQuery(queryState.query)
-      getState(SystemState).reactiveQueryStates.delete(queryState)
+      unsubscribe()
+      removeQuery(componentsWithLayer)
     }
   }, [])
 
-  return state.entities.value as Entity[]
+  const stateNoProxy = state.get(NO_PROXY) as { invalid: boolean; entities: Entity[] }
+  if (state.invalid.value) {
+    // unsafely update the state properties, since they are never hooked as proxies
+    stateNoProxy.invalid = false
+    stateNoProxy.entities = [...query([...components, LayerComponents[layer]])] as Entity[]
+  }
+
+  // return the underlying entity object - it should be assumed to be readonly, though that makes types annoying
+  return stateNoProxy.entities as Entity[]
 }
 
 export type Query = ReturnType<typeof defineQuery>

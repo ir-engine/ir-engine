@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { BackSide, Color, Mesh, MeshBasicMaterial, SphereGeometry, Vector2 } from 'three'
 
-import { Entity, EntityTreeComponent, UndefinedEntity, createEntity, useChildWithComponents } from '@ir-engine/ecs'
+import { Entity, EntityTreeComponent, UndefinedEntity, createEntity, useChildrenWithComponents } from '@ir-engine/ecs'
 import {
   getComponent,
   getMutableComponent,
@@ -205,7 +205,7 @@ const LoadingReactor = (props: { sceneEntity: Entity }) => {
 }
 
 const SceneSettingsReactor = (props: { sceneEntity: Entity }) => {
-  const sceneSettingsEntity = useChildWithComponents(props.sceneEntity, [SceneSettingsComponent])
+  const [sceneSettingsEntity] = useChildrenWithComponents(props.sceneEntity, [SceneSettingsComponent])
   if (!sceneSettingsEntity) return null
   return <SceneSettingsChildReactor entity={sceneSettingsEntity} key={sceneSettingsEntity} />
 }

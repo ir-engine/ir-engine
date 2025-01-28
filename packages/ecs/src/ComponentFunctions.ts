@@ -32,13 +32,14 @@ import React from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
 
+import { Subscribable, subscribable } from '@hookstate/subscribable'
 import {
   DeepReadonly,
   HyperFlux,
   NO_PROXY_STEALTH,
   ReactorRoot,
-  SetPartialStateAction,
   State,
+  destroy,
   getState,
   hookstate,
   none,
@@ -46,14 +47,13 @@ import {
   startReactor,
   useHookstate
 } from '@ir-engine/hyperflux'
-import { Subscribable, subscribable } from '@hookstate/subscribable'
 import { ECSState } from './ECSState'
 import { Easing, EasingFunction } from './EasingFunctions'
 import { Entity, UndefinedEntity } from './Entity'
 import { EntityContext, entityExists, removeEntity } from './EntityFunctions'
 import { defineQuery, removeQuery } from './QueryFunctions'
 import { Transitionable, TransitionableTypes, getTransitionableKeyForType } from './Transitionable'
-import * as bitECSLegacy from './bitecsLegacy'
+import { createResizableTypeArray } from './bitecsLegacy'
 import { createEntity } from './createEntity'
 import { Kind, Static, Schema as TSchema, TTypedSchema } from './schemas/JSONSchemaTypes'
 import {
@@ -61,14 +61,12 @@ import {
   DeserializeSchemaValue,
   HasRequiredSchema,
   HasRequiredSchemaValues,
-  HasSchemaDeserializers,
   HasSchemaValidators,
   HasValidSchemaValues,
   IsSingleValueSchema,
   SerializeSchema
 } from './schemas/JSONSchemaUtils'
 import { S } from './schemas/JSONSchemas'
-import { error } from 'console'
 
 export const ComponentMap = new Map<string, Component<any, any, any, any, any, any>>()
 export const ComponentJSONIDMap = new Map<string, Component<any, any, any, any, any, any>>() // <jsonID, Component>
@@ -86,7 +84,7 @@ type SomeStringLiteral = 'a' | 'b' | 'c'
 type StringLiteral<T> = string extends T ? SomeStringLiteral : string
 type Optional<T> = T | undefined
 
-type ComponentSchema = TSchema | bitECSLegacy.ISchema
+type ComponentSchema = TSchema
 
 /** @todo figure out how to make these actually optional */
 type ComponentJSON<T> = PartialIfObject<T>
@@ -96,11 +94,7 @@ type ComponentJSON<T> = PartialIfObject<T>
 //   ? T
 //   : Optional<T>
 
-type ComponentInitializationType<Schema extends ComponentSchema> = Schema extends TSchema
-  ? Static<Schema>
-  : Schema extends bitECSLegacy.ISchema
-  ? ECSComponentType<Schema> & { entity: Entity }
-  : never
+type ComponentInitializationType<Schema extends ComponentSchema> = Schema extends TSchema ? Static<Schema> : never
 
 /**
  * @description
@@ -115,7 +109,8 @@ export interface ComponentPartial<
   ComponentType = InitializationType,
   JSON = ComponentType,
   SetJSON = ComponentJSON<DeepReadonly<ComponentType>>,
-  ErrorTypes = never
+  ErrorTypes = never,
+  StorageType = object
 > {
   /** @description Human readable label for the component. Displayed in the editor and debugging tools. */
   name: string
@@ -157,6 +152,8 @@ export interface ComponentPartial<
    * `@todo` Explain this function
    */
   reactor?: any // previously <React.FC> breaks types
+
+  storage?: StorageType
   /**
    * @todo Explain ComponentPartial.errors[]
    */
@@ -176,7 +173,8 @@ export interface Component<
   ComponentType = InitializationType,
   JSON = ComponentType,
   SetJSON = ComponentJSON<DeepReadonly<ComponentType>>,
-  ErrorTypes = string
+  ErrorTypes = string,
+  StorageType = any
 > {
   isComponent: true
   name: string
@@ -187,6 +185,7 @@ export interface Component<
   onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove: (entity: Entity, component: State<ComponentType>) => void
   reactor?: any
+  storage?: StorageType
   reactorMap: Map<Entity, ReactorRoot>
   stateMap: Record<Entity, State<ComponentType, Subscribable>>
   valueMap: Record<Entity, ComponentType>
@@ -195,29 +194,6 @@ export interface Component<
   __ComponentType: ComponentType
 }
 
-// ECS schema to JS type
-export type ECSComponentType<S extends bitECSLegacy.ISchema> = {
-  [key in keyof S]: S[key] extends bitECSLegacy.ISchema
-    ? ECSComponentType<S[key]>
-    : S[key] extends readonly [infer Type, number]
-    ? Type extends bitECSLegacy.Type
-      ? bitECSLegacy.ArrayByType[Type]
-      : unknown
-    : number
-}
-
-/** Reimplementation of bitECSLegacy.ComponentType, bitECSLegacy.ComponentType seems to have incorrect typing for List types */
-export type SoAComponentType<S extends bitECSLegacy.ISchema> = {
-  [key in keyof S]: S[key] extends bitECSLegacy.Type
-    ? bitECSLegacy.ArrayByType[S[key]]
-    : S[key] extends readonly [infer RT, number]
-    ? RT extends bitECSLegacy.Type
-      ? Array<bitECSLegacy.ArrayByType[RT]>
-      : never
-    : S[key] extends bitECSLegacy.ISchema
-    ? SoAComponentType<S[key]>
-    : never
-}
 /** @description Generic `type` for all Engine's ECS {@link Component}s. All of its fields are required to not be `null`. */
 export type ComponentType<C extends Component> = C['__ComponentType']
 /** @description Generic `type` for {@link Component}s, that takes the shape of the type returned by the its serialization function {@link Component.toJSON}. */
@@ -230,10 +206,6 @@ export type ComponentErrorsType<C extends Component> =
 
 const schemaIsJSONSchema = (schema?: ComponentSchema): schema is TSchema => {
   return !!(schema as TSchema)?.[Kind]
-}
-
-const schemaIsECSSchema = (schema?: ComponentSchema): schema is bitECSLegacy.ISchema => {
-  return !!(schema && (schema as TSchema)[Kind] === undefined)
 }
 
 type Primitive = string | number | bigint | boolean | undefined | symbol
@@ -284,24 +256,15 @@ export type ComponentPropertyFromPath<T, Path extends string> = IsDirectProperty
  * ```ts
  * export const MyComponent = defineComponent({
  *   name: 'MyComponent',
- *   schema: {
- *     id: Types.ui32
- *   },
- *   onInit: (entity) => {
- *     return {
- *       myProp: 'My Value'
- *     }
- *   },
- *   toJSON: (component) => {
- *     return {
- *       myProp: component.myProp.value
- *     }
- *   },
+ *   schema: S.Object({
+ *     prop: S.String('default')
+ *   }),
  *   onSet: (entity, component, json) => {
- *     if (typeof json?.myProp === 'string') component.myProp.set(json.myProp)
+ *     // side effects
  *   },
- *   onRemove: (entity, component) => {},
- *   reactor: undefined,
+ *   onRemove: (entity, component) => {
+ *     // clean up side effects
+ *   },
  *   errors: []
  * })
  * ```
@@ -314,25 +277,23 @@ export const defineComponent = <
   SetJSON = ComponentJSON<DeepReadonly<ComponentType>>,
   ErrorTypes = never,
   ComponentExtras = Record<string, unknown>,
-  SOAComponent = Schema extends TSchema
-    ? unknown
-    : Schema extends bitECSLegacy.ISchema
-    ? SoAComponentType<Schema>
-    : unknown
+  StorageType = object
 >(
-  def: ComponentPartial<Schema, InitializationType, ComponentType, JSON, SetJSON, ErrorTypes> & ComponentExtras
+  def: ComponentPartial<Schema, InitializationType, ComponentType, JSON, SetJSON, ErrorTypes, StorageType> &
+    ComponentExtras
 ) => {
-  const Component = (schemaIsECSSchema(def.schema) ? bitECSLegacy.defineComponent(def.schema) : {}) as Component<
+  const Component = {} as Component<
     Schema,
     InitializationType,
     ComponentType,
     JSON,
     SetJSON,
-    ErrorTypes
+    ErrorTypes,
+    StorageType
   > & {
     _TYPE: ComponentType
   } & ComponentExtras &
-    SOAComponent & { setTransition: typeof setTransition }
+    StorageType & { setTransition: typeof setTransition }
   Component.isComponent = true
 
   Component.onSet = () => {}
@@ -343,6 +304,11 @@ export const defineComponent = <
 
   Component.errors = []
   Object.assign(Component, def)
+
+  if (def.storage) {
+    Object.assign(Component, def.storage)
+  }
+
   if (Component.reactor) Object.defineProperty(Component.reactor, 'name', { value: `Internal${Component.name}Reactor` })
   Component.reactorMap = new Map()
   // We have to create an stateful existence map in order to reactively track which entities have a given component.
@@ -413,90 +379,20 @@ export const getOptionalComponent = <C extends Component>(
   entity: Entity,
   component: C
 ): ComponentType<C> | undefined => {
-  return component.valueMap[entity]
+  if (!bitECS.hasComponent(HyperFlux.store, entity, component)) return undefined
+  return component.stateMap[entity]?.get(NO_PROXY_STEALTH) as ComponentType<C> | undefined
+  // return component.valueMap[entity]
 }
 
 export const getComponent = <C extends Component>(entity: Entity, component: C): ComponentType<C> => {
-  const value = component.valueMap[entity] as ComponentType<C>
+  // const value = component.valueMap[entity] as ComponentType<C>
+  const value = component.stateMap[entity]?.get(NO_PROXY_STEALTH) as ComponentType<C>
   if (value === undefined) {
     console.warn(
       `[getComponent]: entity ${entity} does not have ${component.name}. This will be an error in the future. Use getOptionalComponent if there is uncertainty over whether or not an entity has the specified component.`
     )
   }
   return value
-}
-
-const accessor = Symbol('proxied')
-
-// Uncommenting the target values makes debugging easier, but doubles memory usage of components
-const createSchemaArrProxy = (obj, store, entity: Entity) => {
-  const proxy = new Proxy(obj, {
-    get(target, key, receiver) {
-      if (typeof store[entity][key] === 'function') {
-        return store[entity][key].bind(store[entity])
-        // store[entity][key].bind(store[entity])
-        // target[key].bind(target)
-        // return (...args) => {
-        // store[entity][key](...args)
-        // target[key](...args)
-        // }
-      } else if (key === 'entity') return entity
-      return store[entity][key]
-    },
-    set(target, key, value) {
-      // target[key] = value
-      store[entity][key] = value
-      return true
-    }
-  })
-
-  return proxy
-}
-
-const createSchemaObjProxy = (obj, store, entity: Entity) => {
-  const proxy = new Proxy(obj, {
-    get(target, key, receiver) {
-      if (typeof target[key] === 'object') {
-        return target[key]
-      } else if (key === 'entity') return entity
-      return store[key]?.[entity]
-    },
-    set(target, key, value) {
-      if (typeof value === 'object') {
-        for (const innerKey in value) {
-          target[key][innerKey] = value[innerKey]
-        }
-        return true
-      }
-      // target[key] = value
-      store[key][entity] = value
-      return true
-    }
-  })
-
-  return proxy
-}
-
-const makeSchemaObject = (object: Record<string, any>, entity: Entity, store: any) => {
-  const obj = Object.entries(object).reduce((accum, [key, value]) => {
-    const isArray = Array.isArray(value)
-    if (!isArray && typeof value === 'object') accum[key] = makeSchemaObject(value, entity, store[key])
-    // else if (isArray && value.length === 2) accum[key] = createSchemaArrProxy(new ArrayByType[value[0]](value[1]), store[key], entity)
-    // else accum[key] = 0
-    else if (isArray && value.length === 2) accum[key] = createSchemaArrProxy([], store[key], entity)
-    else accum[key] = accessor
-    return accum
-  }, {})
-
-  return createSchemaObjProxy(obj, store, entity)
-}
-
-const createProxyForECSSchema = <Schema extends ComponentSchema, InitializationType, ComponentType, JSON, SetJSON>(
-  entity: Entity,
-  component: Component<Schema, InitializationType, ComponentType, JSON, SetJSON, unknown>
-) => {
-  const obj = makeSchemaObject(component.schema!, entity, component)
-  return obj as InitializationType
 }
 
 export const createInitialComponentValue = <
@@ -510,13 +406,9 @@ export const createInitialComponentValue = <
   component: Component<Schema, InitializationType, ComponentType, JSON, SetJSON, unknown>
 ): ComponentType => {
   if (schemaIsJSONSchema(component.schema)) {
-    const schema = CreateSchemaValue(component.schema) as InitializationType
+    const schema = CreateSchemaValue(entity, component.schema) as InitializationType
     if (component.onInit) return component.onInit(schema) as ComponentType
     else return schema as unknown as ComponentType
-  } else if (schemaIsECSSchema(component.schema)) {
-    const proxy = createProxyForECSSchema(entity, component)
-    if (component.onInit) return component.onInit(proxy)
-    else return proxy as unknown as ComponentType
   } else if (component.onInit) return component.onInit(undefined as InitializationType) as ComponentType
   else return null as ComponentType
 }
@@ -532,19 +424,18 @@ function nextPowerOf2(n: number) {
 const TypedArray = Object.getPrototypeOf(Uint8Array)
 
 const resizeSoA = (arrayOrObject: any, size: number) => {
-  if (arrayOrObject instanceof TypedArray == false) {
+  if (arrayOrObject instanceof TypedArray) {
+    const byteLength = size * arrayOrObject.constructor.BYTES_PER_ELEMENT
+    arrayOrObject.buffer.resize(byteLength)
+  } else {
     for (const propertyName in arrayOrObject) {
       resizeSoA(arrayOrObject[propertyName], size)
     }
-  } else {
-    const byteLength = size * arrayOrObject.constructor.BYTES_PER_ELEMENT
-    arrayOrObject.buffer.resize(byteLength)
   }
 }
 
-export const resizeComponent = (component: Component, size: number) => {
-  const schema = component.schema
-  if (!schemaIsECSSchema(schema)) return
+const resizeComponent = (component: Component, size: number) => {
+  const schema = component.storage
   for (const propertyName in schema) {
     resizeSoA(component[propertyName], size)
   }
@@ -691,6 +582,10 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         }
         return null
       }
+      case 'Partial':
+      case 'Required':
+      case 'Proxy':
+      case 'NonSerialized':
       default: {
         let props = schema.properties as any
         if (!props) {
@@ -807,17 +702,28 @@ const _mergeComponentState = <C extends Component>(
 
     return
   }
-
-  if (args === null || args === undefined) return
-
-  // if no schema, just set the json - assume insecure or internal
-  if (Array.isArray(args) || typeof args !== 'object' || IsSingleValueSchema(component.schema)) componentState.set(args)
-  else if (args) {
-    for (const key of Object.keys(args)) {
-      componentState[key].set((_) => args?.[key])
-    }
-  } else componentState.merge(args)
 }
+
+// const _mergeStateValuesDeep = (target: State<any>, source: any) => {
+//   console.log({target, source})
+//   if (typeof source !== 'object') {
+//     target.set(source)
+//     return
+//   }
+//   for (const key in target) {
+//     if (typeof source[key] === 'object') {
+//       if (source[key] === null) {
+//         target[key].set(null)
+//         return
+//       }
+//       if (Array.isArray(source[key])) {
+//         target[key].set([...source[key]]) // clone array deeply rather than reference
+//         return
+//       }
+//       _mergeStateValuesDeep(target[key], source[key]) // recurse objects
+//     }
+//   }
+// }
 
 /**
  * @description
@@ -835,7 +741,7 @@ export const setComponent = <C extends Component>(
   entity: Entity,
   component: C,
   args: SetComponentType<C> | undefined = undefined
-): ComponentType<C> => {
+) => {
   if (!entity) {
     throw new Error('[setComponent]: entity is undefined')
   }
@@ -843,7 +749,7 @@ export const setComponent = <C extends Component>(
     throw new Error('[setComponent]: entity does not exist')
   }
 
-  if (schemaIsECSSchema(component.schema)) {
+  if (component.storage) {
     const nextSize = nextPowerOf2(entity + 1)
     if (component.storageSize < nextSize) resizeComponent(component, nextSize)
   }
@@ -864,7 +770,7 @@ export const setComponent = <C extends Component>(
   component.valueMap[entity] = component.stateMap[entity].get(NO_PROXY_STEALTH)
   LayerFunctions.propagateLayer(entity, component)
 
-  if (!component.reactorMap.has(entity) && component.reactor) {
+  if (component.reactor && !component.reactorMap.has(entity) && LayerComponent.get(entity) === Layers.Simulation) {
     const root = startReactor(() => {
       return React.createElement(EntityContext.Provider, { value: entity }, React.createElement(component.reactor, {}))
     }) as ReactorRoot
@@ -872,12 +778,10 @@ export const setComponent = <C extends Component>(
     root['component'] = component.name
     component.reactorMap.set(entity, root)
     root.run()
-    return getComponent(entity, component)
   }
 
   const root = component.reactorMap.get(entity)
   root?.run()
-  return getComponent(entity, component)
 }
 
 export const hasComponent = <C extends Component>(entity: Entity, component: C): boolean => {
@@ -926,7 +830,8 @@ export const removeComponent = <C extends Component>(entity: Entity, component: 
   component.reactorMap.delete(entity)
   if (root?.isRunning) root.stop()
   /** clear state data after reactor stops, to ensure hookstate is still referenceable */
-  component.stateMap[entity]?.set(none)
+  destroy(component.stateMap[entity]) // component.stateMap[entity]?.set(none)
+  delete component.stateMap[entity]
   delete component.valueMap[entity]
 }
 
@@ -1112,8 +1017,8 @@ export const SimulationLayerComponent = LayerComponents[Layers.Simulation]
 export const LayerComponent = defineComponent({
   name: 'LayerComponent',
 
-  schema: {
-    layer: bitECSLegacy.Types.ui8
+  storage: {
+    layer: createResizableTypeArray(Uint8Array)
   },
 
   onSet(entity, component, layer: LayerID) {
@@ -1204,7 +1109,7 @@ export const TransitionComponent = defineComponent({
       (t) => t.componentJsonID === target.componentJsonID && t.propertyPath === target.propertyPath
     )
     if (!transition) {
-      const t = CreateSchemaValue(TransitionComponent.schema.properties)
+      const t = CreateSchemaValue(entity, TransitionComponent.schema.properties)
       transitions.push(t)
       transition = transitions[transitions.length - 1]
       transition.componentJsonID = target.componentJsonID

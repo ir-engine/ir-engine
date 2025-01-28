@@ -321,19 +321,19 @@ describe('TransformSystem', () => {
           for (const entity of entities) {
             setComponent(entity, TransformComponent)
             setComponent(entity, DistanceFromCameraComponent)
-            getMutableComponent(entity, DistanceFromCameraComponent).squaredDistance.set(Initial)
+            DistanceFromCameraComponent.squaredDistance[entity] = Initial
           }
           // Sanity check before running
           for (const entity of entities) {
             assert.equal(Boolean(viewerEntity), true)
-            const before = setComponent(entity, DistanceFromCameraComponent).squaredDistance
+            const before = DistanceFromCameraComponent.squaredDistance[entity]
             assert.equal(before, Initial)
             assert.notEqual(before, Expected)
           }
           // Run and Check the results
           System.execute()
           for (const entity of entities) {
-            const result = setComponent(entity, DistanceFromCameraComponent).squaredDistance
+            const result = DistanceFromCameraComponent.squaredDistance[entity]
             assert.notEqual(result, Initial)
             assert.equal(result, Expected)
           }
@@ -411,18 +411,18 @@ describe('TransformSystem', () => {
           for (const entity of entities) {
             setComponent(entity, TransformComponent)
             setComponent(entity, DistanceFromCameraComponent)
-            getMutableComponent(entity, DistanceFromCameraComponent).squaredDistance.set(Initial)
+            DistanceFromCameraComponent.squaredDistance[entity] = Initial
           }
           // Sanity check before running
           for (const entity of entities) {
             assert.equal(Boolean(viewerEntity), false)
-            const before = setComponent(entity, DistanceFromCameraComponent).squaredDistance
+            const before = DistanceFromCameraComponent.squaredDistance[entity]
             assert.equal(before, Initial)
           }
           // Run and Check the results
           System.execute()
           for (const entity of entities) {
-            const result = setComponent(entity, DistanceFromCameraComponent).squaredDistance
+            const result = DistanceFromCameraComponent.squaredDistance[entity]
             assert.equal(result, Initial)
           }
         })
@@ -567,7 +567,7 @@ describe('TransformDirtyUpdateSystem', () => {
       assert.equal(result, Expected)
     })
 
-    it('should not change the dirtyTransforms value for each entity if its already true', () => {
+    it('should not change the TransformComponent.dirty value for each entity if its already true', () => {
       const Expected = 1
       // Set the data as expected
       const entities: Entity[] = [
@@ -589,7 +589,7 @@ describe('TransformDirtyUpdateSystem', () => {
       for (const entity of entities) assert.equal(TransformComponent.dirty[entity], Expected)
     })
 
-    it('should set the dirtyTransforms value for each entity to true if the entity has a ComputedTransformComponent', () => {
+    it('should set the TransformComponent.dirty value for each entity to true if the entity has a ComputedTransformComponent', () => {
       const Expected = 1
       const Initial = 0
       // Set the data as expected
@@ -610,14 +610,12 @@ describe('TransformDirtyUpdateSystem', () => {
       for (const entity of entities) assert.equal(hasComponent(entity, EntityTreeComponent), false)
       for (const entity of entities) assert.equal(TransformComponent.dirty[entity], Initial)
       for (const entity of entities) assert.notEqual(TransformComponent.dirty[entity], Expected)
-      console.log(entities, TransformComponent.dirty)
       // Run and Check the result
       System.execute()
-      console.log(entities, TransformComponent.dirty)
       for (const entity of entities) assert.equal(TransformComponent.dirty[entity], Expected)
     })
 
-    it('should set the dirtyTransforms value for each entity to true if the dirtyTransforms for its EntityTreeComponent.parentEntity is true', () => {
+    it('should set the TransformComponent.dirty value for each entity to true if the TransformComponent.dirty for its EntityTreeComponent.parentEntity is true', () => {
       const Expected = 1
       const Initial = 0
       const entities: Entity[] = [
@@ -648,9 +646,9 @@ describe('TransformDirtyUpdateSystem', () => {
       for (const entity of entities) assert.equal(TransformComponent.dirty[entity], Expected)
     })
 
-    it('should set the dirtyTransforms value to false when none of the other conditions are true and the parent does not exist in the TransformComponent.dirty list', () => {
+    it('should set the TransformComponent.dirty value to false when none of the other conditions are true and the parent does not exist in the TransformComponent.dirty list', () => {
       const Expected = false
-      const Initial = undefined
+      const Initial = 0
       const entities: Entity[] = [
         createEntity(),
         createEntity(),
@@ -665,8 +663,8 @@ describe('TransformDirtyUpdateSystem', () => {
       for (const id in entities) setComponent(entities[id], EntityTreeComponent, { parentEntity: parents[id] })
       for (const entity of parents) setComponent(entity, TransformComponent)
       for (const entity of entities) setComponent(entity, TransformComponent)
-      for (const entity of parents) delete TransformComponent.dirty[entity]
-      for (const entity of entities) delete TransformComponent.dirty[entity]
+      for (const entity of parents) TransformComponent.dirty[entity] = 0
+      for (const entity of entities) TransformComponent.dirty[entity] = 0
       // Sanity check before running
       for (const entity of entities) assert.equal(hasComponent(entity, TransformComponent), true)
       for (const entity of entities) assert.equal(hasComponent(entity, ComputedTransformComponent), false)
@@ -710,20 +708,19 @@ describe('TransformDirtyCleanupSystem', () => {
 
     it('should remove every entity from the TransformComponent.dirty list', () => {
       const count = 2
-      const Initial = count + Object.entries(TransformComponent.dirty).length
-      const Expected = 0
+      const entities = [] as Entity[]
       // Set the data as expected
       for (let id = 0; id < count; ++id) {
         const entity = createEntity()
+        entities.push(entity)
         setComponent(entity, TransformComponent)
         TransformComponent.dirty[entity] = 1
       }
-      // Sanity check before running
-      assert.notEqual(Object.entries(TransformComponent.dirty).length, Expected)
-      assert.equal(Object.entries(TransformComponent.dirty).length, Initial)
       // Run and Check the result
       System.execute()
-      assert.equal(Object.entries(TransformComponent.dirty).length, Expected)
+      for (const entity of entities) {
+        assert.equal(TransformComponent.dirty[entity], 0)
+      }
     })
   }) //:: execute
 }) //:: TransformDirtyCleanupSystem

@@ -23,33 +23,28 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Types } from '../bitecsLegacy'
+import { SystemDefinitions } from '@ir-engine/ecs'
+import { startReactor } from '@ir-engine/hyperflux'
+import { AvatarAnimationSystem } from '../src/avatar/systems/AvatarAnimationSystem'
+import { GLTFLoadSystem } from '../src/gltf/GLTFState'
+import { MaterialLibrarySystem } from '../src/scene/materials/systems/MaterialLibrarySystem'
 
-const { f64 } = Types
-export const ECSSchema = {
-  Vec3: { x: f64, y: f64, z: f64 },
-  Quaternion: { x: f64, y: f64, z: f64, w: f64 }
+const gltfLoadSystem = SystemDefinitions.get(GLTFLoadSystem)!
+const materialLibrary = SystemDefinitions.get(MaterialLibrarySystem)!
+
+export const startAssetReactor = () => {
+  startReactor(gltfLoadSystem.reactor!)
+  startReactor(materialLibrary.reactor!)
 }
 
-const { defineProperties } = Object
+const avatarAnimationSystem = SystemDefinitions.get(AvatarAnimationSystem)!
 
-export const ProxyWithECS = <T>(store: Record<string | keyof T, any>, obj: T, ...keys: (keyof T)[]) => {
-  return defineProperties(
-    obj,
-    keys.reduce(
-      (accum, key) => {
-        accum[key] = {
-          get() {
-            return store[key]
-          },
-          set(n) {
-            return (store[key] = n)
-          },
-          configurable: true
-        }
-        return accum
-      },
-      {} as Record<keyof T, any>
-    )
-  )
+export const startAvatarReactor = () => {
+  // depends on asset module
+  startReactor(avatarAnimationSystem.reactor!)
+}
+
+export const startEngineReactor = () => {
+  startAssetReactor()
+  startAvatarReactor()
 }

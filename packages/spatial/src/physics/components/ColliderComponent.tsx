@@ -30,7 +30,7 @@ import { useAncestorWithComponents } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import React, { useEffect, useLayoutEffect } from 'react'
 import { removeCallback, setCallback } from '../../common/CallbackComponent'
-import { MeshComponent } from '../../renderer/components/MeshComponent'
+import { Vector3_One } from '../../common/constants/MathConstants'
 import { T } from '../../schema/schemaFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
@@ -54,8 +54,8 @@ export const ColliderComponent = defineComponent({
 
     //shape specific parameters
     matchMesh: S.Bool(true),
-    centerOffset: T.Vec3({ x: 0, y: 0, z: 0 }),
-    boxSize: T.Vec3({ x: 1, y: 1, z: 1 }),
+    centerOffset: T.Vec3(),
+    boxSize: T.Vec3(Vector3_One),
     radius: S.Number(1),
     height: S.Number(2)
   }),
@@ -74,7 +74,6 @@ const ColliderReactor = function () {
   const physicsWorld = Physics.useWorld(entity)
   const triggerComponent = useOptionalComponent(entity, TriggerComponent)
   const hasCollider = useState(false)
-  const meshComponent = useOptionalComponent(entity, MeshComponent)
 
   useLayoutEffect(() => {
     if (!rigidbodyComponent?.initialized?.value || !physicsWorld) return

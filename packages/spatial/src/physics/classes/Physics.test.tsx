@@ -624,7 +624,7 @@ describe('Physics : Rapier->ECS API', () => {
 
       it("shouldn't mark the entity transform as dirty", () => {
         Physics.createRigidBody(physicsWorld, testEntity)
-        assert.ok(TransformComponent.dirtyTransforms[testEntity] == false)
+        assert.ok(TransformComponent.dirty[testEntity] === 0)
       })
 
       it('should assign the correct RigidBodyType enum', () => {

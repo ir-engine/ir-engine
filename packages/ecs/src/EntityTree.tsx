@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { NO_PROXY, none, startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { NO_PROXY, startReactor, useForceUpdate, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import React, { useLayoutEffect } from 'react'
 import {
   Component,
@@ -37,11 +36,12 @@ import {
   hasComponent,
   hasComponents,
   setComponent,
+  useComponent,
   useHasComponents,
   useOptionalComponent
 } from './ComponentFunctions'
 import { Entity, UndefinedEntity } from './Entity'
-import { entityExists, removeEntity } from './EntityFunctions'
+import { entityExists, removeEntity, useEntityContext } from './EntityFunctions'
 import { S } from './schemas/JSONSchemas'
 
 type EntityTreeSetType = {
@@ -78,70 +78,63 @@ export const EntityTreeComponent = defineComponent({
     children: S.NonSerialized(S.Array(S.Entity()))
   }),
 
-  onSet: (entity, component, json?: Readonly<EntityTreeSetType>) => {
-    if (!json) return
+  /** @todo implement this logic without using a reactor, hard part is affecting parent & children data */
+  reactor: () => {
+    const entity = useEntityContext()
+    const treeComponent = useComponent(entity, EntityTreeComponent)
 
-    if (entity === json.parentEntity) {
-      throw new Error('Entity cannot be its own parent: ' + entity)
-    }
+    useImmediateEffect(() => {
+      const parentEntity = treeComponent.parentEntity.value
+      const childIndex = treeComponent.childIndex.value
 
-    const currentParentEntity = component.parentEntity.value
-    // If a previous parentEntity, remove this entity from its children
-    if (currentParentEntity && currentParentEntity !== json.parentEntity) {
-      if (entityExists(currentParentEntity)) {
-        const oldParent = getOptionalMutableComponent(currentParentEntity, EntityTreeComponent)
-        if (oldParent) {
-          const parentChildIndex = oldParent.children.value.findIndex((child) => child === entity)
-          const children = oldParent.children.get(NO_PROXY)
-          oldParent.children.set([...children.slice(0, parentChildIndex), ...children.slice(parentChildIndex + 1)])
-        }
-      }
-    }
-    // set new data
-    if (typeof json.parentEntity !== 'undefined') {
-      component.parentEntity.set(json.parentEntity)
-    }
+      if (parentEntity && entityExists(parentEntity)) {
+        if (!hasComponent(parentEntity, EntityTreeComponent)) setComponent(parentEntity, EntityTreeComponent)
 
-    const parentEntity = component.parentEntity.value
-
-    if (parentEntity && entityExists(parentEntity)) {
-      if (!hasComponent(parentEntity, EntityTreeComponent)) setComponent(parentEntity, EntityTreeComponent)
-
-      const parentState = getMutableComponent(parentEntity, EntityTreeComponent)
-      const parent = getComponent(parentEntity, EntityTreeComponent)
-
-      const prevChildIndex = parent.children.indexOf(entity)
-      const isDifferentIndex = typeof json.childIndex === 'number' ? prevChildIndex !== json.childIndex : false
-
-      if (isDifferentIndex && prevChildIndex !== -1) {
-        parentState.children.set((prevChildren) => [
-          ...prevChildren.slice(0, prevChildIndex),
-          ...prevChildren.slice(prevChildIndex + 1)
-        ])
-      }
-
-      if (isDifferentIndex || prevChildIndex === -1) {
-        if (typeof json.childIndex !== 'undefined')
-          parentState.children.set((prevChildren) => [
-            ...prevChildren.slice(0, json.childIndex),
-            entity,
-            ...prevChildren.slice(json.childIndex)
-          ])
-        else parentState.children.set([...parent.children, entity])
-      }
-    }
-  },
-
-  onRemove: (entity, component) => {
-    const parentEntity = component.parentEntity.value
-    if (parentEntity && entityExists(parentEntity)) {
-      if (hasComponent(parentEntity, EntityTreeComponent)) {
         const parentState = getMutableComponent(parentEntity, EntityTreeComponent)
         const parent = getComponent(parentEntity, EntityTreeComponent)
-        const parentChildIndex = parent.children.findIndex((child) => child === entity)
-        if (parentChildIndex > -1) parentState.children[parentChildIndex].set(none)
+        const prevChildIndex = parent.children.indexOf(entity)
+
+        const hasChildIndex = typeof childIndex === 'number'
+        const existsInChildren = prevChildIndex !== -1
+        const needsMoved = existsInChildren && hasChildIndex && childIndex !== prevChildIndex
+
+        if (needsMoved) {
+          parentState.children.set((prevChildren) => {
+            prevChildren.splice(prevChildIndex, 1)
+            prevChildren.splice(childIndex, 0, entity)
+            return prevChildren
+          })
+        } else if (!existsInChildren) {
+          if (hasChildIndex) {
+            parentState.children.set((prevChildren) => {
+              prevChildren.splice(childIndex, 0, entity)
+              return prevChildren
+            })
+          } else {
+            parentState.children.set((prevChildren) => {
+              prevChildren.push(entity)
+              return prevChildren
+            })
+          }
+        }
       }
-    }
+
+      return () => {
+        // If a previous parentEntity, remove this entity from its children
+        if (parentEntity && entityExists(parentEntity)) {
+          const oldParent = getOptionalMutableComponent(parentEntity, EntityTreeComponent)
+          if (oldParent) {
+            oldParent.children.set((children) => {
+              const childIndex = children.indexOf(entity)
+              children.splice(childIndex, 1)
+              return children
+            })
+          }
+        }
+      }
+    }, [treeComponent.parentEntity.value, treeComponent.childIndex.value])
+
+    return null
   }
 })
 
@@ -262,20 +255,6 @@ export function iterateEntityNode<R>(
     }
   }
   return result
-}
-
-/**
- * @description
- * Sets the `@param entity` as dirty and recursively sets all children entities as dirty.
- *
- * @param entity Entity Node where traversal will start
- */
-export function setChildrenDirtyFast(entity: Entity) {
-  TransformComponent.dirty[entity] = 1
-  const children = getComponent(entity, EntityTreeComponent).children
-  for (const child of children) {
-    setChildrenDirtyFast(child)
-  }
 }
 
 /**
@@ -475,54 +454,6 @@ const _useHasAnyComponents = (entity: Entity, components: ComponentType<any>[]) 
     }
   }
   return result
-}
-
-/**
- * Returns the closest child of an entity that has a component
- * @deprecated use useChildrenWithComponents instead
- * @param rootEntity
- * @param components
- */
-export function useChildWithComponents(rootEntity: Entity, components: ComponentType<any>[]) {
-  const result = useHookstate(UndefinedEntity)
-  const componentsString = components.map((component) => component.name).join()
-  useLayoutEffect(() => {
-    let unmounted = false
-    const ChildSubReactor = (props: { entity: Entity }) => {
-      const tree = useOptionalComponent(props.entity, EntityTreeComponent)
-      const matchesQuery = useHasComponents(props.entity, components)
-
-      useLayoutEffect(() => {
-        if (!matchesQuery) return
-        result.set(props.entity)
-        return () => {
-          if (!unmounted) result.set(UndefinedEntity)
-        }
-      }, [tree?.children?.value, matchesQuery])
-
-      if (matchesQuery) return null
-
-      if (!tree?.children?.value) return null
-
-      return (
-        <>
-          {tree.children.value.map((e) => (
-            <ChildSubReactor key={e} entity={e} />
-          ))}
-        </>
-      )
-    }
-
-    const root = startReactor(function useQueryReactor() {
-      return <ChildSubReactor entity={rootEntity} key={rootEntity} />
-    })
-    return () => {
-      unmounted = true
-      root.stop()
-    }
-  }, [rootEntity, componentsString])
-
-  return result.value
 }
 
 export function useChildrenWithComponents(

@@ -36,7 +36,6 @@ export const MeshComponent = defineComponent({
   schema: S.Required(S.NonSerialized(S.Type<Mesh>())),
 
   onSet(entity, component, json) {
-    component.set(json as Mesh)
     setComponent(entity, ObjectComponent, json as Mesh)
   },
 

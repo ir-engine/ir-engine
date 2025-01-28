@@ -67,14 +67,6 @@ const RigidBodyComponentDefaults = {
   enabledRotations: [true, true, true] as [boolean, boolean, boolean],
   canSleep: true,
   gravityScale: 1,
-  previousPosition: 3,
-  previousRotation: 4,
-  position: 3,
-  rotation: 4,
-  targetKinematicPosition: 3,
-  targetKinematicRotation: 4,
-  linearVelocity: 3,
-  angularVelocity: 3,
   targetKinematicLerpMultiplier: 0
 }
 

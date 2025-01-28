@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEntityContext } from '@ir-engine/ecs'
+import { Entity, S, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   hasComponent,
@@ -32,52 +32,99 @@ import {
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 
-import { ECSSchema } from '@ir-engine/ecs/src/schemas/ECSSchemas'
 import { useEffect } from 'react'
-import { QuaternionProxy, Vec3Proxy } from '../../common/proxies/createThreejsProxy'
+import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { Physics } from '../classes/Physics'
 import { Body, BodyTypes } from '../types/PhysicsTypes'
 
+import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
 import React from 'react'
+import { Quaternion, Vector3 } from 'three'
+import { T } from '../../schema/schemaFunctions'
 
-const SCHEMA = {
-  previousPosition: ECSSchema.Vec3,
-  previousRotation: ECSSchema.Quaternion,
-  position: ECSSchema.Vec3,
-  rotation: ECSSchema.Quaternion,
-  targetKinematicPosition: ECSSchema.Vec3,
-  targetKinematicRotation: ECSSchema.Quaternion,
-  linearVelocity: ECSSchema.Vec3,
-  angularVelocity: ECSSchema.Vec3
+const options = {
+  deserialize: (curr, value) => curr.copy(value)
 }
+
+const assignVec3 =
+  (property: string) =>
+  (entity: Entity): Vector3 =>
+    proxifyVector3(RigidBodyComponent[property], entity)
+
+const assignQuat =
+  (property: string) =>
+  (entity: Entity): Quaternion =>
+    proxifyQuaternion(RigidBodyComponent[property], entity)
 
 export const RigidBodyComponent = defineComponent({
   name: 'RigidBodyComponent',
   jsonID: 'EE_rigidbody',
-  schema: SCHEMA,
+  schema: S.Object({
+    type: S.Enum(BodyTypes, BodyTypes.Fixed),
+    ccd: S.Bool(false),
+    allowRolling: S.Bool(true),
+    enabledRotations: S.Tuple([S.Bool(), S.Bool(), S.Bool()], [true, true, true]),
+    // rigidbody desc values
+    canSleep: S.Bool(true),
+    gravityScale: S.Number(1),
+    // internal
+    /** @deprecated  @todo make the physics api properly reactive to remove this property  */
+    initialized: S.NonSerialized(S.Bool(false)),
+    previousPosition: S.NonSerialized(T.Vec3(assignVec3('previousPosition'))),
+    previousRotation: S.NonSerialized(T.Quaternion(assignQuat('previousRotation'))),
+    position: S.NonSerialized(T.Vec3(assignVec3('position'))),
+    rotation: S.NonSerialized(T.Quaternion(assignQuat('rotation'))),
+    targetKinematicPosition: S.NonSerialized(T.Vec3(assignVec3('targetKinematicPosition'))),
+    targetKinematicRotation: S.NonSerialized(T.Quaternion(assignQuat('targetKinematicRotation'))),
+    linearVelocity: S.NonSerialized(T.Vec3(assignVec3('linearVelocity'))),
+    angularVelocity: S.NonSerialized(T.Vec3(assignVec3('angularVelocity'))),
+    /** If multiplier is 0, ridigbody moves immediately to target pose, linearly interpolating between substeps */
+    targetKinematicLerpMultiplier: S.NonSerialized(S.Number(0))
+  }),
 
-  onInit(initial) {
-    return {
-      type: 'fixed' as Body,
-      ccd: false,
-      allowRolling: true,
-      enabledRotations: [true, true, true] as [boolean, boolean, boolean],
-      // rigidbody desc values
-      canSleep: true,
-      gravityScale: 1,
-      // internal
-      /** @deprecated  @todo make the physics api properly reactive to remove this property  */
-      initialized: false,
-      previousPosition: Vec3Proxy(initial.previousPosition),
-      previousRotation: QuaternionProxy(initial.previousRotation),
-      position: Vec3Proxy(initial.position),
-      rotation: QuaternionProxy(initial.rotation),
-      targetKinematicPosition: Vec3Proxy(initial.targetKinematicPosition),
-      targetKinematicRotation: QuaternionProxy(initial.targetKinematicRotation),
-      linearVelocity: Vec3Proxy(initial.linearVelocity),
-      angularVelocity: Vec3Proxy(initial.angularVelocity),
-      /** If multiplier is 0, ridigbody moves immediately to target pose, linearly interpolating between substeps */
-      targetKinematicLerpMultiplier: 0
+  storage: {
+    previousPosition: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array)
+    },
+    previousRotation: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array),
+      w: createResizableTypeArray(Float64Array)
+    },
+    position: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array)
+    },
+    rotation: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array),
+      w: createResizableTypeArray(Float64Array)
+    },
+    targetKinematicPosition: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array)
+    },
+    targetKinematicRotation: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array),
+      w: createResizableTypeArray(Float64Array)
+    },
+    linearVelocity: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array)
+    },
+    angularVelocity: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array)
     }
   },
 
