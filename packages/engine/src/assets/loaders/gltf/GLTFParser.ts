@@ -109,12 +109,14 @@ export function getImageURIMimeType(uri) {
 declare module '@gltf-transform/core' {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace GLTF {
-    // interface INode {
-    //   isBone?: boolean
-    // }
-    // interface IMesh {
-    //   isSkinnedMesh?: boolean
-    // }
+    /** @deprecated */
+    interface INode {
+      isBone?: boolean
+    }
+    /** @deprecated */
+    interface IMesh {
+      isSkinnedMesh?: boolean
+    }
     interface IBuffer {
       type?: string
     }

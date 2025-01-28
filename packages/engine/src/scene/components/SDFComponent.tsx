@@ -66,7 +66,7 @@ export const SDFComponent = defineComponent({
 
   schema: S.Object({
     color: T.Color(0xffffff),
-    scale: T.Vec3({ x: 0.25, y: 0.001, z: 0.25 }),
+    scale: T.Vec3(new Vector3(0.25, 0.001, 0.25)),
     enable: S.Bool(false),
     mode: S.Enum(SDFMode, SDFMode.TORUS)
   }),

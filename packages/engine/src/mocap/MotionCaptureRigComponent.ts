@@ -33,8 +33,8 @@ export const MotionCaptureRigComponent = defineComponent({
   name: 'MotionCaptureRigComponent',
 
   schema: S.Object({
-    prevWorldLandmarks: S.Array(S.Object({ x: S.Number() })),
-    prevScreenLandmarks: S.Array(S.Number())
+    prevWorldLandmarks: S.Array(S.Object({ x: S.Number(), y: S.Number(), z: S.Number(), visibility: S.Number() })),
+    prevScreenLandmarks: S.Array(S.Object({ x: S.Number(), y: S.Number(), z: S.Number(), visibility: S.Number() }))
   }),
 
   storage: {
@@ -44,7 +44,8 @@ export const MotionCaptureRigComponent = defineComponent({
         {
           x: createResizableTypeArray(Float64Array),
           y: createResizableTypeArray(Float64Array),
-          z: createResizableTypeArray(Float64Array)
+          z: createResizableTypeArray(Float64Array),
+          w: createResizableTypeArray(Float64Array)
         }
       ])
     ),

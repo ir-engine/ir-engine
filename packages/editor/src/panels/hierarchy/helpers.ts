@@ -122,7 +122,7 @@ export function ecsHierarchyTreeWalker(rootEntity: Entity): HierarchyTreeNodeTyp
     const { entity, depth, lastChild, isRendered: originalIsRendered } = frontier.pop()!
     const eTree = getOptionalComponent(entity, EntityTreeComponent)
     const valid = hasComponent(entity, GLTFComponent) || hasComponent(entity, SourceComponent)
-    if (!eTree | !valid) continue
+    if (!eTree || !valid) continue
     const childIndex = eTree.childIndex ?? 0
     const children = eTree.children
     const isLeaf = !children || children.length === 0

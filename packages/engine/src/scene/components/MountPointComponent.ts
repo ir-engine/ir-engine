@@ -144,7 +144,7 @@ export const MountPointComponent = defineComponent({
 
   schema: S.Object({
     type: MountPointTypesSchema,
-    dismountOffset: T.Vec3({ x: 0, y: 0, z: 0.75 }),
+    dismountOffset: T.Vec3(new Vector3(0, 0, 0.75)),
     forceDismountPosition: S.Bool(false)
   }),
 

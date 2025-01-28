@@ -81,7 +81,7 @@ describe('XRLeftHandComponent', () => {
 }) //:: XRLeftHandComponent
 
 describe('XRRightHandComponent', () => {
-describe('Fields', () => {
+  describe('Fields', () => {
     it('should initialize the *Component.name field with the expected value', () => {
       expect(XRRightHandComponent.name).toBe('XRRightHandComponent')
     })

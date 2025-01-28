@@ -23,35 +23,18 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
-import { DoneCallback, afterEach, beforeEach, describe, it } from 'vitest'
-
-import { createEntity, destroyEngine } from '@ir-engine/ecs'
-import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { getState } from '@ir-engine/hyperflux'
-import { ResourceState, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
-
-import Sinon from 'sinon'
-import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
-import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
-import { Loader } from '../loaders/base/Loader'
-import { GLTF } from '../loaders/gltf/GLTFLoader'
-import { loadResource } from './resourceLoaderFunctions'
+import { describe } from 'vitest'
 
 describe.skip('resourceLoaderFunctions', () => {
   // const url = '/packages/projects/default-project/assets/collisioncube.glb'
-
   // overrideFileLoaderLoad()
-
   // beforeEach(async () => {
   //   createEngine()
   //   loadEmptyScene()
   // })
-
   // afterEach(() => {
   //   return destroyEngine()
   // })
-
   // it('Errors when resource is missing', () =>
   //   new Promise((done: DoneCallback) => {
   //     const entity = createEntity()
@@ -77,7 +60,6 @@ describe.skip('resourceLoaderFunctions', () => {
   //       )
   //     }, done)
   //   }))
-
   // it('Loads asset', () =>
   //   new Promise((done: DoneCallback) => {
   //     const entity = createEntity()
@@ -91,7 +73,6 @@ describe.skip('resourceLoaderFunctions', () => {
   //         (response) => {
   //           assert(response.asset)
   //           assert(resourceState.resources[url].status === ResourceStatus.Loaded, 'Asset not loaded')
-
   //           done()
   //         },
   //         (resquest) => {},
@@ -102,7 +83,6 @@ describe.skip('resourceLoaderFunctions', () => {
   //       )
   //     }, done)
   //   }))
-
   // it('Removes asset', () =>
   //   new Promise((done: DoneCallback) => {
   //     const entity = createEntity()
@@ -116,7 +96,6 @@ describe.skip('resourceLoaderFunctions', () => {
   //         (response) => {
   //           ResourceState.unload(url, entity)
   //           assert(resourceState.resources[url] === undefined, 'Asset not removed')
-
   //           done()
   //         },
   //         (resquest) => {},
@@ -127,7 +106,6 @@ describe.skip('resourceLoaderFunctions', () => {
   //       )
   //     }, done)
   //   }))
-
   // it('Loads asset once, but references twice', () =>
   //   new Promise((done: DoneCallback) => {
   //     const entity = createEntity()
@@ -142,7 +120,6 @@ describe.skip('resourceLoaderFunctions', () => {
   //         (response) => {
   //           assert(resourceState.resources[url].references.length === 1, 'References not counted')
   //           assert(resourceState.resources[url].references.indexOf(entity) !== -1, 'Entity not referenced')
-
   //           loadResource<GLTF>(
   //             url,
   //             ResourceType.GLTF,
@@ -153,13 +130,10 @@ describe.skip('resourceLoaderFunctions', () => {
   //               assert(resourceState.resources[url].references.indexOf(entity) !== -1, 'Entity not referenced')
   //               assert(resourceState.resources[url].references.indexOf(entity) !== -1, 'Entity2 not referenced')
   //               ResourceState.unload(url, entity)
-
   //               assert(resourceState.resources[url].references.length.valueOf() === 1, 'Entity reference not removed')
   //               assert(resourceState.resources[url].references.indexOf(entity) === -1)
-
   //               ResourceState.unload(url, entity2)
   //               assert(resourceState.resources[url] === undefined, 'Asset not removed')
-
   //               done()
   //             },
   //             (resquest) => {},
@@ -177,7 +151,6 @@ describe.skip('resourceLoaderFunctions', () => {
   //       )
   //     }, done)
   //   }))
-
   // it('Counts references when entity is the same', () =>
   //   new Promise((done: DoneCallback) => {
   //     const entity = createEntity()
@@ -191,7 +164,6 @@ describe.skip('resourceLoaderFunctions', () => {
   //         (response) => {
   //           assert(resourceState.resources[url].references.length === 1, 'References not counted')
   //           assert(resourceState.resources[url].references.indexOf(entity) !== -1, 'Entity not referenced')
-
   //           loadResource<GLTF>(
   //             url,
   //             ResourceType.GLTF,
@@ -200,13 +172,10 @@ describe.skip('resourceLoaderFunctions', () => {
   //               assert(resourceState.resources[url].references.length === 2, 'References not counted')
   //               assert(resourceState.resources[url].references.indexOf(entity) !== -1, 'Entity not referenced')
   //               ResourceState.unload(url, entity)
-
   //               assert(resourceState.resources[url].references.length.valueOf() === 1, 'Entity reference not removed')
   //               assert(resourceState.resources[url].references.indexOf(entity) !== -1)
-
   //               ResourceState.unload(url, entity)
   //               assert(resourceState.resources[url] === undefined, 'Asset not removed')
-
   //               done()
   //             },
   //             (resquest) => {},
@@ -224,7 +193,6 @@ describe.skip('resourceLoaderFunctions', () => {
   //       )
   //     }, done)
   //   }))
-
   // it('Can load the same asset sequentially', () =>
   //   new Promise((done: DoneCallback) => {
   //     const entity = createEntity()
@@ -268,7 +236,6 @@ describe.skip('resourceLoaderFunctions', () => {
   //       )
   //     }, done)
   //   }))
-
   // it('Tracks assets referenced by GLTFs', () =>
   //   new Promise((done: DoneCallback) => {
   //     const entity = createEntity()
@@ -298,11 +265,9 @@ describe.skip('resourceLoaderFunctions', () => {
   //       )
   //     }, done)
   //   }))
-
   // it('Will use the passed in loader', () => {
   //   const entity = createEntity()
   //   const resourceState = getState(ResourceState)
-
   //   const loader = {
   //     load: (
   //       url: string,
@@ -314,9 +279,7 @@ describe.skip('resourceLoaderFunctions', () => {
   //       onLoad(url)
   //     }
   //   } as Loader
-
   //   const spy = Sinon.spy()
-
   //   const controller = new AbortController()
   //   loadResource(
   //     url,
@@ -332,7 +295,6 @@ describe.skip('resourceLoaderFunctions', () => {
   //     controller.signal,
   //     loader
   //   )
-
   //   assert(spy.calledOnce)
   // })
 })

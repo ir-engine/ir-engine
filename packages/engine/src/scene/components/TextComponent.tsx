@@ -29,7 +29,16 @@ Infinite Reality Engine. All Rights Reserved.
  */
 
 import { useEffect } from 'react'
-import { Color, ColorRepresentation, Material, MathUtils, Mesh, MeshBasicMaterial, MeshStandardMaterial } from 'three'
+import {
+  Color,
+  ColorRepresentation,
+  Material,
+  MathUtils,
+  Mesh,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  Vector2
+} from 'three'
 import { Text as TroikaText } from 'troika-three-text'
 
 import { useEntityContext } from '@ir-engine/ecs'
@@ -197,7 +206,7 @@ export const TextComponent = defineComponent({
     textAlign: TroikaTextAlignmentSchema,
     textWrap: S.Bool(true), // Maps to: troika.Text.whiteSpace as TroikaTextWrap
     textWrapKind: TroikaTextWrapKindSchema, // Maps to troika.Text.overflowWrap
-    textAnchor: T.Vec2({ x: 0, y: 0 }), // range[0..100+], sent to troika as [0..100]% :string
+    textAnchor: T.Vec2(), // range[0..100+], sent to troika as [0..100]% :string
     textDepthOffset: S.Number(0), // For Z-fighting adjustments. Similar to anchor.Z
     textCurveRadius: S.Number(0),
     letterSpacing: S.Number(0),
@@ -213,7 +222,7 @@ export const TextComponent = defineComponent({
     outlineOpacity: S.Number(0, { minimum: 0, maximum: 100 }), // range[0..100], sent to troika as [0..1] :number
     outlineWidth: S.Number(0, { minimum: 0, maximum: 100 }), // range[0..100+], sent to troika as [0..100]% :string
     outlineBlur: S.Number(0, { minimum: 0, maximum: 100 }), // range[0..100+], sent to troika as [0..100]% :string
-    outlineOffset: T.Vec2({ x: 0, y: 100 }), // range[0..100+], sent to troika as [0..100]% :string
+    outlineOffset: T.Vec2(new Vector2(0, 100)), // range[0..100+], sent to troika as [0..100]% :string
     outlineColor: T.Color(0xffffff),
     // Font Stroke Properties
     strokeOpacity: S.Number(0, { minimum: 0, maximum: 100 }), // range[0..100], sent to troika as [0..1] :number
@@ -223,8 +232,8 @@ export const TextComponent = defineComponent({
     // Advanced Configuration
     textOrientation: S.String('+x+y'),
     clipActive: S.Bool(false), // sends []: Array<number> to Text.clipRect when true
-    clipRectMin: T.Vec2({ x: -1024, y: -1024 }), // pixels. Sent to troika as [minX, minY, maxX, maxY] :Array<number>
-    clipRectMax: T.Vec2({ x: 1024, y: 1024 }), // pixels. Sent to troika as [minX, minY, maxX, maxY] :Array<number>
+    clipRectMin: T.Vec2(new Vector2(-1024, -1024)), // pixels. Sent to troika as [minX, minY, maxX, maxY] :Array<number>
+    clipRectMax: T.Vec2(new Vector2(1024, 1024)), // pixels. Sent to troika as [minX, minY, maxX, maxY] :Array<number>
     gpuAccelerated: S.Bool(true),
     glyphResolution: S.Number(6), // Maps to troika.Text.sdfGlyphSize. Sent to troika as 2^N :number
     glyphDetail: S.Number(1), // Maps to troika.Text.glyphGeometryDetail

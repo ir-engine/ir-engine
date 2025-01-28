@@ -89,7 +89,7 @@ function MaterialsLibrary() {
         : materialQuery
             .filter((entity) => LayerComponent.get(entity) === layer.value)
             .map((entity) => getComponent(entity, UUIDComponent))
-            .filter((uuid) => uuid !== MaterialStateComponent.fallbackMaterial)
+            .filter((uuid) => uuid !== MaterialStateComponent.fallbackMaterialUUID)
 
     const materialsBySource = {} as Record<string, string[]>
     for (const uuid of materials) {

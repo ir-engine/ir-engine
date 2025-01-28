@@ -73,7 +73,6 @@ export const TransparencyDitheringPluginComponent = defineComponent({
         material.side = FrontSide
         const plugin = getComponent(entity, TransparencyDitheringPluginComponent)
 
-
         if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition')) {
           shader.vertexShader = shader.vertexShader.replace(
             /#include <common>/,
