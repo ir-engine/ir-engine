@@ -27,7 +27,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { HyperFlux } from '@ir-engine/hyperflux'
 import * as bitECS from 'bitecs'
-import { getComponent, LayerComponent, LayerID, Layers } from './ComponentFunctions'
+import { LayerComponent, LayerID, Layers } from './ComponentFunctions'
 import { createEngine, destroyEngine } from './Engine'
 import { Entity, UndefinedEntity } from './Entity'
 import { entityExists, removeEntity } from './EntityFunctions'
@@ -56,7 +56,7 @@ describe('createEntity', () => {
     // Set the data as expected
     const testEntity = createEntity()
     // Run and Check the result
-    const result = getComponent(testEntity, LayerComponent)
+    const result = LayerComponent.get(testEntity)
     expect(result).toBe(Expected)
   })
 
@@ -73,7 +73,7 @@ describe('createEntity', () => {
     const expectedLayer = Layers.Authoring
     const testEntity = createEntity(expectedLayer)
     // Run and Check the result
-    const result = getComponent(testEntity, LayerComponent)
+    const result = LayerComponent.get(testEntity)
     expect(result).toBeTruthy()
     expect(result).toBe(expectedLayer)
   })
