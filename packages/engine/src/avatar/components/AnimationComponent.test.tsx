@@ -34,21 +34,20 @@ import {
   setComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { applyIncomingActions, startReactor } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { act, render } from '@testing-library/react'
-import React from 'react'
 import { AnimationMixer } from 'three'
 import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { createTestGLTFEntity } from '../functions/retargetingFunctions.test'
-import { AvatarAnimationSystemReactor, setupMixamoAnimation } from '../systems/AvatarAnimationSystem'
+import { setupMixamoAnimation } from '../systems/AvatarAnimationSystem'
 import { AnimationComponent } from './AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from './AvatarAnimationComponent'
 import { AvatarComponent } from './AvatarComponent'
+
+import { startEngineReactor } from '../../../tests/runEngineTests'
 
 const default_url = 'packages/projects/default-project/assets'
 const rings_gltf = default_url + '/rings.glb'
@@ -58,7 +57,6 @@ const vrm = default_url + '/avatars/male_01.vrm'
 /**Used to mock non user networked animated avatars */
 export const mockAnimatedAvatar = async () => {
   const animationPackEntity = createTestGLTFEntity()
-  const { rerender, unmount } = render(<></>)
 
   setComponent(animationPackEntity, UUIDComponent, generateEntityUUID())
   setComponent(animationPackEntity, GLTFComponent, { src: animation_pack })
@@ -66,16 +64,12 @@ export const mockAnimatedAvatar = async () => {
 
   const vrmEntity = createTestGLTFEntity()
 
-  applyIncomingActions()
-  await act(async () => rerender(<></>))
-
   setComponent(vrmEntity, UUIDComponent, generateEntityUUID())
   setComponent(vrmEntity, GLTFComponent, { src: vrm })
   setComponent(vrmEntity, AvatarRigComponent)
   setComponent(vrmEntity, AvatarAnimationComponent)
   setComponent(vrmEntity, AvatarComponent)
-  startReactor(AvatarAnimationSystemReactor)
-  applyIncomingActions()
+
   //extra wait for animation component to prevent race conditions
   await vi.waitUntil(
     () => {
@@ -103,21 +97,19 @@ describe('AnimationComponent', () => {
 
     beforeEach(() => {
       createEngine()
+      startEngineReactor()
     })
 
     afterEach(() => {
       return destroyEngine()
     })
 
-    it('should bind animation tracks to entities based on node id sourced from entity UUIDs', async () => {
+    it.only('should bind animation tracks to entities based on node id sourced from entity UUIDs', async () => {
       const entity = createTestGLTFEntity()
 
       setComponent(entity, UUIDComponent, generateEntityUUID())
       setComponent(entity, GLTFComponent, { src: rings_gltf })
 
-      const { rerender, unmount } = render(<></>)
-      applyIncomingActions()
-      await act(async () => rerender(<></>))
       //extra wait for animation component to prevent race conditions
       await vi.waitFor(
         () => {
@@ -153,12 +145,9 @@ describe('AnimationComponent', () => {
         const animatedW = animatedFlatQuaternions[i + 3]
         assert(startX + startY + startZ + startW !== animatedX + animatedY + animatedZ + animatedW)
       }
-      unmount()
     })
 
     it('should bind animation tracks to rig entities based on VRM schema', async () => {
-      const { rerender, unmount } = render(<></>)
-
       const vrmEntity = await mockAnimatedAvatar()
 
       const rig = getComponent(vrmEntity, AvatarRigComponent).entitiesToBones

@@ -23,9 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { act, render } from '@testing-library/react'
 import assert from 'assert'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { createEntity, removeEntity } from '@ir-engine/ecs'
@@ -33,8 +32,7 @@ import { startReactor } from '@ir-engine/hyperflux'
 import { ComponentMap, defineComponent, hasComponent, removeComponent, setComponent } from './ComponentFunctions'
 import { createEngine, destroyEngine } from './Engine'
 import { Entity, UndefinedEntity } from './Entity'
-import { Query, ReactiveQuerySystem, defineQuery, useQuery } from './QueryFunctions'
-import { SystemDefinitions } from './SystemFunctions'
+import { Query, defineQuery, useQuery } from './QueryFunctions'
 
 export function assertArrayEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are not equal') {
   assert.equal(A.length, B.length, err)
@@ -165,7 +163,6 @@ describe('QueryFunctions Hooks', async () => {
     afterEach(() => {
       removeEntity(entity1)
       removeEntity(entity2)
-      ComponentMap.clear()
       return destroyEngine()
     })
 
@@ -201,7 +198,7 @@ describe('QueryFunctions Hooks', async () => {
       assert.ok(hasComponent(entities[1], ComponentB))
     })
 
-    it('should return entities that match the query', async () => {
+    it('should return entities that match the query', () => {
       const e1 = createEntity()
       setComponent(e1, ComponentA)
       setComponent(e1, ComponentB)
@@ -228,8 +225,9 @@ describe('QueryFunctions Hooks', async () => {
       const e2 = createEntity()
       setComponent(e2, ComponentA)
       setComponent(e2, ComponentB)
-      SystemDefinitions.get(ReactiveQuerySystem)!.execute()
-      await act(async () => render(<></>))
+
+      reactor.run()
+
       assert.strictEqual(entities.length, 2)
       assert.strictEqual(counter, 2)
       assert.strictEqual(entities[0], e1)
@@ -240,7 +238,7 @@ describe('QueryFunctions Hooks', async () => {
       assert.ok(hasComponent(entities[1], ComponentB))
     })
 
-    it('should update the entities when components change', async () => {
+    it('should update the entities when components change', () => {
       const e1 = createEntity()
       const e2 = createEntity()
       setComponent(e1, ComponentA)
@@ -275,8 +273,7 @@ describe('QueryFunctions Hooks', async () => {
       assert.ok(hasComponent(entities[1], ComponentB))
       removeComponent(e1, ComponentB)
 
-      SystemDefinitions.get(ReactiveQuerySystem)!.execute()
-      await act(async () => render(<></>))
+      reactor.run()
 
       assert.strictEqual(renderCounter, 2)
       assert.strictEqual(effectCounter, 2)
@@ -286,7 +283,7 @@ describe('QueryFunctions Hooks', async () => {
       assert.ok(hasComponent(entities[0], ComponentB))
     })
 
-    it('should update the entities when component is removed and added immediately', async () => {
+    it('should update the entities when component is removed and added immediately', () => {
       const e1 = createEntity()
       const e2 = createEntity()
       setComponent(e1, ComponentA)
@@ -319,9 +316,7 @@ describe('QueryFunctions Hooks', async () => {
       removeComponent(e1, ComponentB)
       setComponent(e1, ComponentB)
 
-      SystemDefinitions.get(ReactiveQuerySystem)!.execute()
-      await act(async () => render(<></>))
-
+      reactor.run()
       assert.equal(counter, 2)
       assert.strictEqual(entities.length, 2)
       assert.strictEqual(entities[0], e1)
@@ -332,22 +327,19 @@ describe('QueryFunctions Hooks', async () => {
       assert.ok(hasComponent(entities[1], ComponentB))
     })
 
-    it(`should return an empty array when entities don't have the component`, async () => {
+    it(`should return an empty array when entities don't have the component`, () => {
       const ExpectedValue: ResultType = []
       let counter = 0
 
-      const Reactor = () => {
+      const reactor = startReactor(() => {
         const data = useQuery([component])
         useEffect(() => {
           result = data as ResultType
           ++counter
         }, [data])
         return null
-      }
+      })
 
-      const tag = <Reactor />
-      const { rerender, unmount } = render(tag)
-      await act(() => rerender(tag))
       assert.equal(counter, 1, `The reactor has run an incorrect number of times: ${counter}`)
       assert.notEqual(result, undefined, `The result data did not get assigned.`)
       assertArrayEqual(
@@ -355,27 +347,24 @@ describe('QueryFunctions Hooks', async () => {
         ExpectedValue as Entity[],
         `Did not return the correct data.\n  result = ${result}`
       )
-      unmount()
     })
 
-    it('should return the list of entities that have the component', async () => {
+    it('should return the list of entities that have the component', () => {
       let counter = 0
       const ExpectedValue: ResultType = [entity1, entity2]
       setComponent(entity1, component)
       setComponent(entity2, component)
       assert.equal(counter, 0, "The reactor shouldn't have run before rendering")
 
-      const Reactor = () => {
+      const reactor = startReactor(() => {
         const data = useQuery([component])
         useEffect(() => {
           result = data as ResultType
           ++counter
         }, [data])
         return null
-      }
-      const tag = <Reactor />
-      const { rerender, unmount } = render(tag)
-      await act(() => rerender(tag))
+      })
+
       assert.equal(counter, 1, `The reactor has run an incorrect number of times: ${counter}`)
       assert.notEqual(result, undefined, `The result data did not get assigned.`)
       assertArrayEqual(
@@ -383,7 +372,6 @@ describe('QueryFunctions Hooks', async () => {
         ExpectedValue as Entity[],
         `Did not return the correct data.\n  result = ${result}\n  expected = ${ExpectedValue}`
       )
-      unmount()
     })
   })
 })
