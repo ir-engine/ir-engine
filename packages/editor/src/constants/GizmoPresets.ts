@@ -405,7 +405,7 @@ const _rotation = new Quaternion()
 const _scale = new Vector3()
 const matrix4 = new Matrix4()
 
-function setupGizmo(parentEntity: Entity, gizmoMap: GizmoDefinition) {
+function setupGizmo(parentEntity: Entity, gizmoMap: GizmoDefinition, gizmoLayer: number = ObjectLayers.Gizmos) {
   for (const name in gizmoMap) {
     for (let i = 0; i < gizmoMap[name].length; i++) {
       const object = gizmoMap[name][i][0].clone() as Mesh
@@ -432,7 +432,7 @@ function setupGizmo(parentEntity: Entity, gizmoMap: GizmoDefinition) {
       setComponent(entity, MeshComponent, object)
       setComponent(entity, VisibleComponent)
       object.renderOrder = Infinity
-      ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.TransformGizmo)
+      ObjectLayerMaskComponent.setLayer(entity, gizmoLayer)
     }
   }
 }
