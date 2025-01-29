@@ -216,16 +216,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           value={settings.siteDescription.value || ''}
           onChange={(e) => settings.siteDescription.set(e.target.value)}
         />
-
-        <Input
-          fullWidth
-          labelProps={{
-            text: t('admin:components.setting.googleAnalyticsMeasurementId'),
-            position: 'top'
-          }}
-          value={settings.gaMeasurementId.value || ''}
-          onChange={(e) => settings.gaMeasurementId.set(e.target.value)}
-        />
         <Input
           fullWidth
           labelProps={{

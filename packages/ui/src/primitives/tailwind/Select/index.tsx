@@ -339,11 +339,11 @@ const Select = ({
 
           {open && (
             <div
-              className={`absolute z-50 flex w-full flex-col overflow-y-auto rounded-lg ${
+              className={`absolute z-50 flex w-full flex-col overflow-y-auto overflow-x-hidden rounded-lg ${
                 positioning.direction === 'down' && 'top-[calc(100%+0.5rem)]'
               } ${positioning.direction === 'up' && 'bottom-[calc(100%+0.5rem)]'}`}
               style={{
-                maxHeight: positioning.maxHeight
+                maxHeight: '150px'
               }}
             >
               {filteredOptions.length > 0 ? (

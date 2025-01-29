@@ -30,6 +30,7 @@ import {
   CubeTexture,
   DataTexture,
   EquirectangularReflectionMapping,
+  LinearFilter,
   RGBAFormat,
   SRGBColorSpace
 } from 'three'
@@ -103,6 +104,7 @@ export const SkyboxComponent = defineComponent({
 
       texture.colorSpace = SRGBColorSpace
       texture.mapping = EquirectangularReflectionMapping
+      texture.minFilter = LinearFilter
       setComponent(entity, BackgroundComponent, texture)
     }, [texture, skyboxState.backgroundType])
 
