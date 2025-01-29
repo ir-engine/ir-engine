@@ -65,31 +65,31 @@ export const UUIDComponent = defineComponent({
     // remove old uuid
     if (prev) {
       const currentUUID = prev
-      _getUUIDState(currentUUID, layer).set(UndefinedEntity)
+      UUIDComponentFunctions._getUUIDState(currentUUID, layer).set(UndefinedEntity)
     }
 
     // set new uuid
-    _getUUIDState(uuid, layer).set(entity)
+    UUIDComponentFunctions._getUUIDState(uuid, layer).set(entity)
   },
 
   onRemove: (entity, component) => {
     const uuid = component.value
     const layer = LayerComponent.get(entity)
-    _getUUIDState(uuid, layer).set(UndefinedEntity)
+    UUIDComponentFunctions._getUUIDState(uuid, layer).set(UndefinedEntity)
   },
 
   entitiesByUUIDState: {} as Record<LayerID, Record<EntityUUID, State<Entity>>>,
 
   useEntityByUUID(uuid: EntityUUID, layer = Layers.Simulation as LayerID) {
-    return useHookstate(_getUUIDState(uuid, layer)).value
+    return useHookstate(UUIDComponentFunctions._getUUIDState(uuid, layer)).value
   },
 
   getEntityByUUID(uuid: EntityUUID, layer = Layers.Simulation as LayerID) {
-    return _getUUIDState(uuid, layer).get(NO_PROXY_STEALTH)
+    return UUIDComponentFunctions._getUUIDState(uuid, layer).get(NO_PROXY_STEALTH)
   },
 
   getOrCreateEntityByUUID(uuid: EntityUUID, layer = Layers.Simulation as LayerID) {
-    const state = _getUUIDState(uuid, layer)
+    const state = UUIDComponentFunctions._getUUIDState(uuid, layer)
     if (!state.value) {
       const entity = createEntity(layer)
       setComponent(entity, UUIDComponent, uuid)
@@ -114,4 +114,9 @@ function _getUUIDState(uuid: EntityUUID, layer = Layers.Simulation as LayerID) {
     layerState[uuid] = entityState
   }
   return entityState
+}
+
+export const UUIDComponentFunctions = {
+  /** @private Exposed only for unit tests */
+  _getUUIDState
 }

@@ -638,7 +638,8 @@ export const LayerFunctions = {
   getLayerComponent,
   shouldPropagate,
   createLayerPropagationArgs,
-  propagateLayer
+  propagateLayer,
+  getAuthoringCounterpart
 }
 
 const _getComponentState = <C extends Component>(entity: Entity, component: C) => {
@@ -1006,6 +1007,7 @@ export const LayerComponents = Object.entries(Layers).map(([name, layer]) => {
 
 export const SimulationLayerComponent = LayerComponents[Layers.Simulation]
 
+// @note LayerComponent is the API for setting and getting the layer of an entity
 export const LayerComponent = defineComponent({
   name: 'LayerComponent',
 
@@ -1039,7 +1041,7 @@ export const LayerComponent = defineComponent({
   }
 })
 
-export const getAuthoringCounterpart = (entity: Entity) => {
+export function getAuthoringCounterpart(entity: Entity) {
   return LayerComponents[Layers.Authoring].refs[entity]
 }
 
