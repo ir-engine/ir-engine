@@ -250,6 +250,118 @@ export const defaultExportExtensionList = [
   RemoveRootNodeParentExportExtension
 ] as ExportExtension[]
 
+type TypedArrayConstructor =
+  | Int8ArrayConstructor
+  | Uint8ArrayConstructor
+  | Uint8ClampedArrayConstructor
+  | Int16ArrayConstructor
+  | Uint16ArrayConstructor
+  | Int32ArrayConstructor
+  | Uint32ArrayConstructor
+  | Float32ArrayConstructor
+  | Float64ArrayConstructor
+
+/**
+ * Splits a multi-material Mesh into separate Meshes (one per group).
+ * Fixes the 16-bit/32-bit index buffer bug by checking maximum vertex index.
+ */
+export function splitMeshByMaterials(originalMesh: Mesh): Mesh[] {
+  const { geometry, material } = originalMesh
+
+  if (!geometry.groups || geometry.groups.length === 0) {
+    // No groups => Just clone the mesh
+    return [originalMesh.clone()]
+  }
+
+  const materialsArray = Array.isArray(material) ? material : [material]
+  const outputMeshes: Mesh[] = []
+
+  // For each group, slice out the sub-geometry
+  for (const group of geometry.groups) {
+    const subGeom = createSubGeometry(geometry as BufferGeometry, group.start, group.count)
+    const subMaterial = group.materialIndex
+      ? materialsArray[group.materialIndex] || materialsArray[0]
+      : materialsArray[0]
+
+    const subMesh = new Mesh(subGeom, subMaterial)
+    subMesh.position.copy(originalMesh.position)
+    subMesh.rotation.copy(originalMesh.rotation)
+    subMesh.scale.copy(originalMesh.scale)
+    subMesh.matrix.copy(originalMesh.matrix)
+    subMesh.matrixWorld.copy(originalMesh.matrixWorld)
+
+    outputMeshes.push(subMesh)
+  }
+
+  return outputMeshes
+}
+
+function createSubGeometry(originalGeometry: BufferGeometry, start: number, count: number): BufferGeometry {
+  // If geometry isn't indexed, can't slice by index range
+  if (!originalGeometry.index) {
+    console.warn('Geometry is not indexed. Returning a clone of the full geometry.')
+    return originalGeometry.clone()
+  }
+
+  const subGeometry = new BufferGeometry()
+  const indexArray = originalGeometry.index.array
+
+  // 1) Slice the relevant face indices for this group
+  //    (3 indices per triangle, or more if it's quads, etc.)
+  const groupIndices = indexArray.slice(start, start + count)
+
+  // 2) Determine if we need 32-bit indices by checking the largest index
+  let maxIndex = 0
+  for (let i = 0; i < groupIndices.length; i++) {
+    if (groupIndices[i] > maxIndex) {
+      maxIndex = groupIndices[i]
+    }
+  }
+  const needs32Bits = maxIndex > 65535
+
+  // 3) Build a map from oldIndex -> newIndex in encounter order
+  const indexMap = new Map<number, number>()
+  let nextIndex = 0
+
+  // Prepare newIndices array
+  const IndexArrayType = needs32Bits ? Uint32Array : Uint16Array
+  const newIndices = new IndexArrayType(groupIndices.length)
+
+  for (let i = 0; i < groupIndices.length; i++) {
+    const oldIndex = groupIndices[i]
+    if (!indexMap.has(oldIndex)) {
+      indexMap.set(oldIndex, nextIndex)
+      nextIndex++
+    }
+    newIndices[i] = indexMap.get(oldIndex)!
+  }
+
+  subGeometry.setIndex(new BufferAttribute(newIndices, 1))
+
+  // 4) For each attribute (position, normal, uv, etc.), build the new array
+  for (const attrName in originalGeometry.attributes) {
+    const oldAttr = originalGeometry.attributes[attrName] as BufferAttribute
+    const { itemSize } = oldAttr
+    const oldArray = oldAttr.array
+
+    // e.g. Float32Array, etc.
+    const NewArrayClass = oldArray.constructor as TypedArrayConstructor
+    const newArray = new NewArrayClass(indexMap.size * itemSize)
+
+    // Fill the new attribute array
+    for (const [oldIndex, newIndex] of indexMap.entries()) {
+      for (let dim = 0; dim < itemSize; dim++) {
+        newArray[newIndex * itemSize + dim] = oldArray[oldIndex * itemSize + dim]
+      }
+    }
+
+    const newAttr = new BufferAttribute(newArray, itemSize)
+    subGeometry.setAttribute(attrName, newAttr)
+  }
+
+  return subGeometry
+}
+
 export async function exportGLTFScene(
   entity: Entity,
   projectName: string,
@@ -293,7 +405,7 @@ export async function exportGLTFScene(
     const children = getComponent(entity, EntityTreeComponent).children
     for (const child of children) {
       const index = await exportGLTFSceneNode(child, gltf, context)
-      index && indices.push(index)
+      typeof index === 'number' && indices.push(index)
     }
     gltf.scenes![0].nodes.push(...indices)
   }
@@ -347,14 +459,11 @@ const _transformMatrix = new Matrix4()
 
 const exportMesh = async (mesh: Mesh, gltf: GLTF.IGLTF, context: GLTFSceneExportContext): Promise<number> => {
   if (context.cache.meshes.has(mesh)) return context.cache.meshes.get(mesh)!
-
-  const geometry = mesh.geometry
+  const subMeshes = splitMeshByMaterials(mesh)
 
   const meshDef: GLTF.IMesh = {
     primitives: [] as GLTF.IMeshPrimitive[]
   }
-  const attributes: Record<string, number> = {}
-
   const targets = []
 
   // Conversion between attributes names in threejs and gltf spec
@@ -366,52 +475,53 @@ const exportMesh = async (mesh: Mesh, gltf: GLTF.IGLTF, context: GLTFSceneExport
     skinIndex: 'JOINTS_0'
   }
 
-  for (const attributeName in geometry.attributes) {
-    if (attributeName.slice(0, 5) === 'morph') continue
+  for (const subMesh of subMeshes) {
+    const attributes: Record<string, number> = {}
+    const geometry = subMesh.geometry
+    for (const attributeName in geometry.attributes) {
+      if (attributeName.slice(0, 5) === 'morph') continue
 
-    const attribute = geometry.attributes[attributeName]
-    if (attribute instanceof InterleavedBufferAttribute) {
-      throw new Error('InterleavedBufferAttribute not supported')
+      const attribute = geometry.attributes[attributeName]
+      if (attribute instanceof InterleavedBufferAttribute) {
+        throw new Error('InterleavedBufferAttribute not supported')
+      }
+
+      const convertedName = nameConversion[attributeName] || attributeName.toUpperCase()
+
+      let attributeIndex = -1
+      if (context.cache.attributes.has(attribute)) {
+        attributeIndex = context.cache.attributes.get(attribute)!
+      } else {
+        attributeIndex = exportAccessor(attribute, gltf, context)
+      }
+      attributes[convertedName] = attributeIndex
+      context.cache.attributes.set(attribute, attributeIndex)
     }
 
-    const convertedName = nameConversion[attributeName] || attributeName.toUpperCase()
+    // const isMultiMaterial = Array.isArray(mesh.material)
 
-    let attributeIndex = -1
-    if (context.cache.attributes.has(attribute)) {
-      attributeIndex = context.cache.attributes.get(attribute)!
-    } else {
-      attributeIndex = exportAccessor(attribute, gltf, context)
-    }
-    attributes[convertedName] = attributeIndex
-    context.cache.attributes.set(attribute, attributeIndex)
-  }
+    // const materials: Material[] = isMultiMaterial ? (mesh.material as Material[]) : [mesh.material as Material]
+    // const groups = isMultiMaterial ? geometry.groups : [{ materialIndex: 0, start: undefined, count: undefined }]
 
-  const isMultiMaterial = Array.isArray(mesh.material)
-
-  const materials: Material[] = isMultiMaterial ? (mesh.material as Material[]) : [mesh.material as Material]
-  const groups = isMultiMaterial ? geometry.groups : [{ materialIndex: 0, start: undefined, count: undefined }]
-
-  for (let i = 0; i < groups.length; i++) {
+    // for (let i = 0; i < groups.length; i++) {
     const primitiveDef: GLTF.IMeshPrimitive = {
       attributes
     }
 
-    const group = groups[i]
+    // const group = groups[i]
 
     if (geometry.index !== null) {
-      if (context.cache.attributes.has(geometry.index)) {
-        primitiveDef.indices = context.cache.attributes.get(geometry.index)!
-      } else {
-        primitiveDef.indices = exportAccessor(geometry.index, gltf, context, geometry, group.start, group.count)
-        context.cache.attributes.set(geometry.index, primitiveDef.indices)
-      }
+      // if (context.cache.attributes.has(geometry.index)) {
+      //   primitiveDef.indices = context.cache.attributes.get(geometry.index)!
+      // } else {
+      primitiveDef.indices = exportAccessor(geometry.index, gltf, context, geometry) //, group.start, group.count)
+      // context.cache.attributes.set(geometry.index, primitiveDef.indices)
+      // }
     }
 
-    if (group.materialIndex !== undefined) {
-      const material = materials[group.materialIndex]
-
+    if (subMesh.material) {
+      const material = subMesh.material as Material
       const materialIndex = await exportMaterial(material, gltf, context)
-
       if (materialIndex !== null) primitiveDef.material = materialIndex
     }
 
@@ -425,27 +535,6 @@ const exportMesh = async (mesh: Mesh, gltf: GLTF.IGLTF, context: GLTFSceneExport
   context.cache.meshes.set(mesh, meshIndex)
 
   return meshIndex
-
-  // return new Promise<GLTF.INode>((resolve, reject) => {
-  //   const exporter = createGLTFExporter()
-  //   exporter.parse(
-  //     mesh,
-  //     (meshGLTF: GLTF.IGLTF) => {
-  //       console.log(gltf)
-  //       appendGLTF(meshGLTF, gltf)
-  //       const dstNode = gltf.nodes!.at(-1)!
-  //       resolve(dstNode)
-  //     },
-  //     reject,
-  //     {
-  //       projectName: context.projectName,
-  //       relativePath: context.relativePath,
-  //       onlyVisible: false,
-  //       includeCustomExtensions: false,
-  //       embedImages: false
-  //     }
-  //   )
-  // })
 }
 
 const exportAccessor = (
@@ -457,7 +546,7 @@ const exportAccessor = (
   count?: number
 ): number => {
   const cache = context.cache.attributes
-  if (cache.has(attribute)) return cache.get(attribute)!
+  // if (cache.has(attribute)) return cache.get(attribute)!
 
   const types = {
     1: 'SCALAR',
@@ -752,6 +841,8 @@ const exportGLTFSceneNode = async (
 ): Promise<number | void> => {
   for (const extension of context.exportExtensions) extension.beforeNode?.(entity)
 
+  //ignore entities with no source
+  if (!hasComponent(entity, SourceComponent)) return
   //ignore material entities as they get exported in exportMesh
   const materialComponent = getOptionalComponent(entity, MaterialStateComponent)
   if (materialComponent) return
@@ -771,13 +862,6 @@ const exportGLTFSceneNode = async (
   if (meshComponent && !meshComponent.userData['ignoreOnExport']) {
     node.mesh = await exportMesh(meshComponent, gltf, context)
   }
-
-  //)
-  // if (meshComponent && !meshComponent.userData['ignoreOnExport']) {
-  //   node = await exportMesh(meshComponent, gltf, context)
-  // } else {
-  //   gltf.nodes!.push(node)
-  // }
 
   gltf.nodes!.push(node)
 
@@ -808,10 +892,6 @@ const exportGLTFSceneNode = async (
       }
     } else if (component === MeshComponent) {
       continue
-      // const mesh = getComponent(entity, MeshComponent)
-      // if (mesh.userData['ignoreOnExport']) continue
-      // // might need to do something with the mesh scale first
-      // await exportMesh(mesh, gltf, context)
     } else {
       const compData = serializeComponent(entity, component)
       // Do we not want to serialize tag components?
