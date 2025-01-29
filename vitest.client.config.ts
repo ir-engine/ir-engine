@@ -36,6 +36,7 @@ export default defineConfig({
   test: {
     setupFiles: [path.resolve(appRootPath.path, 'packages/spatial/tests/util/patchNode.ts')],
     environment: 'jsdom',
+    maxConcurrency: 1,
     passWithNoTests: true,
     testTimeout: 10000,
     hookTimeout: 10000,

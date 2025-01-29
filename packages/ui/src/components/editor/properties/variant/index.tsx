@@ -140,7 +140,7 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
                 <InputGroup name="src" label={t('editor:properties.variant.src')}>
                   <ModelInput
                     value={level.src.value}
-                    onRelease={commitProperty(VariantComponent, `levels.${index}.src` as any)}
+                    onRelease={commitProperty(VariantComponent, `levels[${index}].src` as any)}
                   />
                 </InputGroup>
                 {variantComponent.heuristic.value === Heuristic.DEVICE && (
@@ -148,7 +148,7 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
                     <InputGroup name="device" label={t('editor:properties.variant.device')}>
                       <SelectInput
                         value={level.metadata['device'].value}
-                        onChange={commitProperty(VariantComponent, `levels.${index}.metadata.device` as any)}
+                        onChange={commitProperty(VariantComponent, `levels[${index}].metadata.device` as any)}
                         options={[
                           { value: Devices.MOBILE, label: t('editor:properties.variant.device-mobile') },
                           { value: Devices.DESKTOP, label: t('editor:properties.variant.device-desktop') },
@@ -163,13 +163,13 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
                     <InputGroup name="minDistance" label={t('editor:properties.variant.minDistance')}>
                       <NumericInput
                         value={level.metadata['minDistance'].value}
-                        onChange={commitProperty(VariantComponent, `levels.${index}.metadata.minDistance` as any)}
+                        onChange={commitProperty(VariantComponent, `levels[${index}].metadata.minDistance` as any)}
                       />
                     </InputGroup>
                     <InputGroup name="maxDistance" label={t('editor:properties.variant.maxDistance')}>
                       <NumericInput
                         value={level.metadata['maxDistance'].value}
-                        onChange={commitProperty(VariantComponent, `levels.${index}.metadata.maxDistance` as any)}
+                        onChange={commitProperty(VariantComponent, `levels[${index}].metadata.maxDistance` as any)}
                       />
                     </InputGroup>
                   </>

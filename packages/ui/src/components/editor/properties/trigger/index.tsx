@@ -158,7 +158,7 @@ const TriggerProperties: EditorComponentType = (props) => {
             >
               <NodeInput
                 value={trigger.target.value ?? ('' as EntityUUID)}
-                onRelease={commitProperty(TriggerComponent, `triggers.${index}.target` as any)}
+                onRelease={commitProperty(TriggerComponent, `triggers[${index}].target` as any)}
                 disabled={props.multiEdit}
               />
             </InputGroup>
@@ -174,15 +174,15 @@ const TriggerProperties: EditorComponentType = (props) => {
               {targetOption?.callbacks.length ? (
                 <SelectInput
                   value={trigger.onEnter.value!}
-                  onChange={commitProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
+                  onChange={commitProperty(TriggerComponent, `triggers[${index}].onEnter` as any)}
                   options={targetOption?.callbacks ? targetOption.callbacks.slice() : []}
                   disabled={props.multiEdit || !target}
                 />
               ) : (
                 <StringInput
                   value={trigger.onEnter.value!}
-                  onChange={updateProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
-                  onRelease={commitProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
+                  onChange={updateProperty(TriggerComponent, `triggers[${index}].onEnter` as any)}
+                  onRelease={commitProperty(TriggerComponent, `triggers[${index}].onEnter` as any)}
                   disabled={props.multiEdit || !target}
                 />
               )}
@@ -200,15 +200,15 @@ const TriggerProperties: EditorComponentType = (props) => {
               {targetOption?.callbacks.length ? (
                 <SelectInput
                   value={trigger.onExit.value!}
-                  onChange={commitProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
+                  onChange={commitProperty(TriggerComponent, `triggers[${index}].onExit` as any)}
                   options={targetOption?.callbacks ? targetOption.callbacks.slice() : []}
                   disabled={props.multiEdit || !target}
                 />
               ) : (
                 <StringInput
                   value={trigger.onExit.value!}
-                  onRelease={updateProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
-                  onChange={commitProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
+                  onRelease={updateProperty(TriggerComponent, `triggers[${index}].onExit` as any)}
+                  onChange={commitProperty(TriggerComponent, `triggers[${index}].onExit` as any)}
                   disabled={props.multiEdit || !target}
                 />
               )}

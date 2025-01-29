@@ -89,6 +89,7 @@ export const T = {
         w: S.Number()
       },
       {
+        serialize: (value) => value.toJSON(),
         deserialize: (curr, value) => curr.copy(value),
         ...options,
         id: 'Quaternion'

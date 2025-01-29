@@ -107,7 +107,12 @@ export const HasSchemaDeserializers = <T extends Schema>(schema: T): boolean => 
   return IterateSchema(schema, (curr) => !!curr.options?.deserialize)
 }
 
-export const DeserializeSchemaValue = <T extends Schema, Val>(schema: T, curr: Val, value: Val): Val | undefined => {
+export const DeserializeSchemaValue = <T extends Schema, Val>(
+  entity: Entity,
+  schema: T,
+  curr: Val,
+  value: Val
+): Val | undefined => {
   if (validValue(value) && schema.options?.deserialize) return schema.options.deserialize(curr, value) as Val
 
   switch (schema[Kind]) {
@@ -138,13 +143,27 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(schema: T, curr: V
       if (!validValue(value)) return value
       if (!Array.isArray(value)) return undefined
       const props = schema.properties as TArraySchema<Schema>['properties']
-      return value.map((item) => DeserializeSchemaValue(props, curr, item)).filter((item) => validValue(item)) as Val
+      const _curr = curr as Array<any>
+      const currentLength = _curr.length
+      if (currentLength < value.length) {
+        for (let i = currentLength; i < value.length; i++) {
+          _curr.push(CreateSchemaValue(entity, props))
+        }
+      }
+      try {
+        return value
+          .map((item, i) => DeserializeSchemaValue(entity, props, curr[i], item))
+          .filter((item) => validValue(item)) as Val
+      } catch (e) {
+        console.log(e)
+        return curr
+      }
     }
     case 'Tuple': {
       if (!validValue(value)) return value
       if (!Array.isArray(value)) return undefined
       const props = schema.properties as TTupleSchema<Schema[]>['properties']
-      return value.map((item, i) => DeserializeSchemaValue(props[i], curr[i], item) ?? curr[i]) as Val
+      return value.map((item, i) => DeserializeSchemaValue(entity, props[i], curr[i], item) ?? curr[i]) as Val
     }
     case 'Object': {
       if (!validValue(value)) return value
@@ -162,7 +181,7 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(schema: T, curr: V
       for (const key of valueKeys) {
         if (!props[key]) continue
         if (validValue(value[key])) {
-          const deserializedValue = DeserializeSchemaValue(props[key], curr[key], value[key])
+          const deserializedValue = DeserializeSchemaValue(entity, props[key], curr[key], value[key])
           if (deserializedValue) newValue[key] = deserializedValue
         }
       }
@@ -180,7 +199,7 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(schema: T, curr: V
 
       for (const key of propKeys) {
         /** @todo should we be mutating value here? */
-        if (validValue(value[key])) value[key] = DeserializeSchemaValue(props[key], curr[key], value[key])
+        if (validValue(value[key])) value[key] = DeserializeSchemaValue(entity, props[key], curr[key], value[key])
       }
 
       break
@@ -195,7 +214,7 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(schema: T, curr: V
         | TNonSerializedSchema<Schema>['properties']
         | TRequiredSchema<Schema>['properties']
         | TProxySchema<Schema>['properties']
-      return DeserializeSchemaValue(props, curr, value)
+      return DeserializeSchemaValue(entity, props, curr, value)
     }
 
     default:

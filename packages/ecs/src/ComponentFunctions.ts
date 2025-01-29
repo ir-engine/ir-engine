@@ -674,7 +674,7 @@ const _mergeComponentState = <C extends Component>(
 
     if (args === null || args === undefined) return
 
-    const cleanJson = DeserializeSchemaValue(component.schema, componentState.get(NO_PROXY_STEALTH), args)
+    const cleanJson = DeserializeSchemaValue(entity, component.schema, componentState.get(NO_PROXY_STEALTH), args)
 
     if (cleanJson === null || cleanJson === undefined) return
 

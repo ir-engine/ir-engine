@@ -106,7 +106,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
                   onChange={(position) => {
                     commitProperty(
                       SplineComponent,
-                      `elements.${index}.position` as any
+                      `elements[${index}].position` as any
                     )(new Vector3(position.x, position.y, position.z))
                   }}
                 />
@@ -117,7 +117,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
                   quaternion={elem.rotation.value}
                   unit="°"
                   onChange={(quat) => {
-                    commitProperty(SplineComponent, `elements.${index}.quaternion` as any)(quat)
+                    commitProperty(SplineComponent, `elements[${index}].quaternion` as any)(quat)
                   }}
                 />
               </InputGroup>

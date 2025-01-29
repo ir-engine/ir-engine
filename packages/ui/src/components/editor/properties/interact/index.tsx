@@ -200,7 +200,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
                 <SelectInput
                   key={props.entity}
                   value={callback.target.value ?? 'Self'}
-                  onChange={commitProperty(InteractableComponent, `callbacks.${index}.target` as any)}
+                  onChange={commitProperty(InteractableComponent, `callbacks[${index}].target` as any)}
                   options={targets.value as OptionsType}
                   disabled={props.multiEdit}
                 />
@@ -210,15 +210,15 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
                 {targetOption?.callbacks.length == 0 ? (
                   <StringInput
                     value={callback.callbackID.value!}
-                    onChange={updateProperty(InteractableComponent, `callbacks.${index}.callbackID` as any)}
-                    onRelease={commitProperty(InteractableComponent, `callbacks.${index}.callbackID` as any)}
+                    onChange={updateProperty(InteractableComponent, `callbacks[${index}].callbackID` as any)}
+                    onRelease={commitProperty(InteractableComponent, `callbacks[${index}].callbackID` as any)}
                     disabled={props.multiEdit || !target}
                   />
                 ) : (
                   <SelectInput
                     key={props.entity}
                     value={callback.callbackID.value!}
-                    onChange={commitProperty(InteractableComponent, `callbacks.${index}.callbackID` as any)}
+                    onChange={commitProperty(InteractableComponent, `callbacks[${index}].callbackID` as any)}
                     options={
                       targetOption?.callbacks
                         ? (targetOption.callbacks as Array<{

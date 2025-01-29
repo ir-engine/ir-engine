@@ -46,6 +46,7 @@ import {
   hasComponent,
   Layers,
   removeComponent,
+  serializeComponent,
   SerializedComponentType,
   setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -55,7 +56,7 @@ import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxCo
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, setNestedObject } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent } from '@ir-engine/spatial'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { getMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
@@ -108,7 +109,57 @@ const modifyProperty = <C extends Component<any, any>>(
 ) => {
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
-    setComponent(entity, component, properties)
+
+    const currentComponent = hasComponent(entity, component) ? serializeComponent(entity, component) : undefined
+    const newObj = {}
+    for (const [key, val] of Object.entries(properties)) {
+      /**
+       * this annoyingly verbose logic is to ensure that arrays are copied from the current state of the component (if it exists)
+       * such that we do not overwrite the whole array with the partial.
+       * This is due to our schemas not being able to discern a partial array from a full array in setComponent
+       */
+      if (key.includes('[')) {
+        const path = key.replaceAll('[', '.[')
+
+        const keys = path.split('.')
+
+        let obj = newObj
+        let curr = currentComponent!
+
+        for (let i = 0; i < keys.length; i++) {
+          let currentKey = keys[i] as any
+          let nextKey = keys[i + 1] as any
+          if (currentKey.includes('[')) {
+            currentKey = parseInt(currentKey.substring(1, currentKey.length - 1))
+          }
+          if (nextKey && nextKey.includes('[')) {
+            nextKey = parseInt(nextKey.substring(1, nextKey.length - 1))
+          }
+
+          if (typeof nextKey !== 'undefined') {
+            obj[currentKey] = obj[currentKey]
+              ? obj[currentKey]
+              : isNaN(nextKey)
+              ? {}
+              : currentComponent
+              ? curr[currentKey]
+              : []
+            curr[currentKey] = curr[currentKey] ? curr[currentKey] : isNaN(nextKey) ? {} : []
+          } else {
+            obj[currentKey] = val
+            curr[currentKey] = val
+          }
+
+          obj = obj[currentKey]
+          curr = curr[currentKey]
+        }
+      } else if (key.includes('.')) {
+        setNestedObject(newObj, key, val)
+      } else {
+        newObj[key] = val
+      }
+    }
+    setComponent(entity, component, newObj)
   }
 }
 
@@ -228,6 +279,7 @@ const duplicateObject = (entities: Entity[]) => {
 
   const duplicateEntity = (entity: Entity, parentEntity: Entity) => {
     const entityUUID = getComponent(entity, UUIDComponent)
+    const parentUUID = getComponent(parentEntity, UUIDComponent)
     const entityData = serializeEntity(entity)
     const newUUID = generateEntityUUID()
     entityData.splice(
@@ -242,7 +294,7 @@ const duplicateObject = (entities: Entity[]) => {
     for (const component of entityData) {
       setComponent(newEntity, ComponentJSONIDMap.get(component.name)!, component.props)
     }
-    const newParentUUID = uuidMap[entityUUID]
+    const newParentUUID = uuidMap[parentUUID]
     const newParentEntity = UUIDComponent.getEntityByUUID(newParentUUID, Layers.Authoring)
     setComponent(newEntity, EntityTreeComponent, { parentEntity: newParentEntity })
     uuidMap[entityUUID] = newUUID

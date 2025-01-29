@@ -46,7 +46,7 @@ export const SplineComponent = defineComponent({
         position: T.Vec3(),
         rotation: T.Quaternion()
       }),
-      [
+      () => [
         { position: new Vector3(-1, 0, -1), rotation: new Quaternion() },
         {
           position: new Vector3(1, 0, -1),
@@ -62,7 +62,7 @@ export const SplineComponent = defineComponent({
         }
       ]
     ),
-    curve: S.Class(() => new CatmullRomCurve3([], true))
+    curve: S.NonSerialized(S.Class(() => new CatmullRomCurve3([], true)))
   }),
 
   reactor: () => {

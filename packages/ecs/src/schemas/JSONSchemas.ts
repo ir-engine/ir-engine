@@ -173,7 +173,11 @@ export const S = {
    * Schema that infers as an array type of the schema passed in
    * S.Array(S.Number()) -> number[]
    */
-  Array: <T extends Schema, Initial extends any[]>(item: T, init?: Initial, options?: TArraySchema<T>['options']) =>
+  Array: <T extends Schema, Initial extends any[]>(
+    item: T,
+    init?: Initial | (() => Initial),
+    options?: TArraySchema<T>['options']
+  ) =>
     ({
       [Kind]: 'Array',
       options: buildOptions(init ?? [], options),
