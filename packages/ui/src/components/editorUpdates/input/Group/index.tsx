@@ -125,24 +125,31 @@ export function InputGroup({
   dataTestId
 }: InputGroupProps) {
   return (
-    <div className={twMerge('my-1 flex flex-wrap items-center justify-end', containerClassName)}>
+    <div className={twMerge('my-1 ', containerClassName)}>
       <div className="mr-2 flex">
-        <Label
-          className={twMerge(
-            'mr-2.5 text-wrap text-end text-xs ',
-            labelClassName,
-            disabled ? 'text-[#6B6F78]' : 'text-[#A0A1A2]'
+        <div className="w-4/5 items-start text-left">
+          <Label
+            className={twMerge(
+              'mr-2.5 text-wrap text-end text-xs ',
+              labelClassName,
+              disabled ? 'text-[#6B6F78]' : 'text-[#F5F5F5]'
+            )}
+          >
+            {label}
+          </Label>
+        </div>
+        <div className="flex w-1/5 justify-end ">
+          {info && (
+            <Tooltip content={info}>
+              <LuInfo className={twMerge('h-5 w-5', disabled ? 'text-[#42454D]' : 'text-[#A0A1A2]', infoClassName)} />
+            </Tooltip>
           )}
-        >
-          {label}
-        </Label>
-        {info && (
-          <Tooltip content={info}>
-            <LuInfo className={twMerge('h-5 w-5', disabled ? 'text-[#42454D]' : 'text-[#A0A1A2]', infoClassName)} />
-          </Tooltip>
-        )}
+        </div>
       </div>
-      <div className={twMerge('w-3/5', className)} data-testid={dataTestId || ''}>
+      <div
+        className={twMerge('flex w-full flex-wrap items-center justify-end', className)}
+        data-testid={dataTestId || ''}
+      >
         {children}
       </div>
     </div>
