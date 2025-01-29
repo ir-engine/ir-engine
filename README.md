@@ -95,7 +95,7 @@ you find who you need to talk to.
 
 ![msf-member-badge-small](https://user-images.githubusercontent.com/5104160/181168132-57a91f8b-16c9-45f0-a0ee-c89f8f018a80.png)
 
-### [Join our Discord](https://discord.gg/xrf)  [![Discord Chat](https://img.shields.io/discord/692672143053422678.svg)](https://discord.gg/xrf)
+### [Join our Discord](https://discord.gg/CvpwRgnF5s)  [![Discord Chat](https://img.shields.io/discord/692672143053422678.svg)](https://discord.gg/xrf)
 
 ## License
 [CPAL](LICENSE) - Copyright (c) 2021-2024 Infinite Reality.
