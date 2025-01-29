@@ -197,6 +197,15 @@ const PeersReactor = (props: { instance: InstanceType }) => {
     }
   })
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      instanceAttendanceQuery.refetch()
+    }, 5000)
+    return () => {
+      clearInterval(interval)
+    }
+  }, [])
+
   const otherPeers = useHookstate<InstanceAttendanceType[]>([])
 
   useEffect(() => {

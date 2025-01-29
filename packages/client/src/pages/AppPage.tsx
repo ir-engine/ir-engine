@@ -28,7 +28,6 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { initGA, logPageView } from '@ir-engine/client-core/src/common/analytics'
 import { NotificationSnackbar } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { useSearchParamState } from '@ir-engine/client-core/src/common/services/RouterService'
 import { useThemeProvider } from '@ir-engine/client-core/src/common/services/ThemeService'
@@ -56,11 +55,6 @@ const ClientSettings = () => {
 const AppPage = (props: { children: React.ReactNode; fallback?: JSX.Element; loginRequired?: boolean }) => {
   const { t } = useTranslation()
   const isLoggedIn = useAuthenticated()
-
-  useEffect(() => {
-    initGA()
-    logPageView()
-  }, [])
 
   useThemeProvider()
 

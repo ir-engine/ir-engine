@@ -139,9 +139,7 @@ export class S3Provider implements StorageProviderInterface {
         profile: config.aws.s3.roleArn ? 'role' : 'default',
         filepath: credentialsPath
       }),
-      endpoint: config.server.storageProviderExternalEndpoint
-        ? config.server.storageProviderExternalEndpoint
-        : config.aws.s3.endpoint,
+      endpoint: config.server.storageProviderExternalEndpoint || config.aws.s3.endpoint || undefined,
       region: config.aws.s3.region,
       forcePathStyle: true,
       maxAttempts: 5
@@ -166,18 +164,8 @@ export class S3Provider implements StorageProviderInterface {
   minioClient =
     config.aws.s3.s3DevMode === 'local'
       ? new Client({
-          endPoint: new URL(
-            config.server.storageProviderExternalEndpoint
-              ? config.server.storageProviderExternalEndpoint
-              : config.aws.s3.endpoint
-          ).hostname,
-          port: parseInt(
-            new URL(
-              config.server.storageProviderExternalEndpoint
-                ? config.server.storageProviderExternalEndpoint
-                : config.aws.s3.endpoint
-            ).port
-          ),
+          endPoint: new URL(config.server.storageProviderExternalEndpoint || config.aws.s3.endpoint).hostname,
+          port: parseInt(new URL(config.server.storageProviderExternalEndpoint || config.aws.s3.endpoint).port),
           useSSL: true,
           accessKey: config.aws.s3.accessKeyId,
           secretKey: config.aws.s3.secretAccessKey
