@@ -220,7 +220,7 @@ export const EXTMeshGPUInstancingComponent = defineComponent({
     const q = new Quaternion()
     const s = new Vector3(1, 1, 1)
 
-    const instancedMesh = new InstancedMesh(mesh.geometry, mesh.material, count)
+    const instancedMesh = new InstancedMesh(mesh.geometry.clone(), mesh.material, count)
     for (let i = 0; i < count; i++) {
       if (attributes.TRANSLATION) {
         p.fromBufferAttribute(attributes.TRANSLATION, i)
@@ -240,7 +240,7 @@ export const EXTMeshGPUInstancingComponent = defineComponent({
         const attr = attributes[attributeName]
         instancedMesh.instanceColor = new InstancedBufferAttribute(attr.array, attr.itemSize, attr.normalized)
       } else if (attributeName !== 'TRANSLATION' && attributeName !== 'ROTATION' && attributeName !== 'SCALE') {
-        mesh.geometry.setAttribute(attributeName, attributes[attributeName])
+        instancedMesh.geometry.setAttribute(attributeName, attributes[attributeName])
       }
     }
 
@@ -250,7 +250,6 @@ export const EXTMeshGPUInstancingComponent = defineComponent({
     instancedMesh.frustumCulled = false
     instancedMesh.instanceMatrix.needsUpdate = true
 
-    removeComponent(entity, MeshComponent)
     setComponent(entity, MeshComponent, instancedMesh)
 
     setComponent(entity, InstancingComponent, {
