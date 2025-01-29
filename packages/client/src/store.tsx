@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { Suspense, useEffect } from 'react'
-import ReactGA from 'react-ga4'
 import { useTranslation } from 'react-i18next'
 
 import { API as ClientAPI } from '@ir-engine/client-core/src/API'
@@ -36,7 +35,6 @@ import { createHyperStore, getMutableState } from '@ir-engine/hyperflux'
 
 import MetaTags from '@ir-engine/client-core/src/common/components/MetaTags'
 import config from '@ir-engine/common/src/config'
-import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
@@ -48,18 +46,6 @@ const authenticate = async () => {
 
 const initializeLogs = async () => {
   pipeLogs(API.instance)
-}
-
-const initializeGoogleServices = async () => {
-  //@ts-ignore
-  const clientSettings = await API.instance.service(clientSettingPath).find({})
-  const [settings] = clientSettings.data
-
-  // Initialize Google Analytics
-  if (settings?.gaMeasurementId) {
-    ReactGA.initialize(settings.gaMeasurementId)
-    ReactGA.send({ hitType: 'pageview', page: window.location.pathname })
-  }
 }
 
 //@ts-ignore
@@ -80,7 +66,6 @@ export default function ({ children }): JSX.Element {
   useEffect(() => {
     authenticate().then(() => {
       initializeLogs()
-      initializeGoogleServices()
     })
 
     const urlSearchParams = new URLSearchParams(window.location.search)
