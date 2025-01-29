@@ -40,7 +40,7 @@ import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import React, { ReactNode, createContext, useContext } from 'react'
 import { DnDFileType, FileDataType } from '../../constants/AssetTypes'
-import { filterExistingFiles, handleUploadFiles } from '../../functions/assetFunctions'
+import { filterExistingFiles, handleUploadFiles, sanitizeFiles } from '../../functions/assetFunctions'
 import { FilesState } from '../../services/FilesState'
 
 /* CONSTANTS */
@@ -212,7 +212,8 @@ export function useFileBrowserDrop() {
       if (filesToUpload.length) {
         try {
           const uniqueFiles = await filterExistingFiles(filesState.projectName.value, path, filesToUpload)
-          await handleUploadFiles(filesState.projectName.value, path, uniqueFiles)
+          const sanitizedFiles = sanitizeFiles(uniqueFiles)
+          await handleUploadFiles(filesState.projectName.value, path, sanitizedFiles)
         } catch (err) {
           NotificationService.dispatchNotify(err.message, { variant: 'error' })
         }
