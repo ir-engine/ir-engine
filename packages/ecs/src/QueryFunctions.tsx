@@ -107,8 +107,8 @@ export function useQuery(components: bitECS.QueryTerm[], layer: LayerID = Layers
 
   const stateNoProxy = state.get(NO_PROXY) as { invalid: boolean; entities: Entity[] }
   if (state.invalid.value) {
-    // unsafely update the state properties, since they are never hooked as proxies
-    stateNoProxy.invalid = false
+    state.invalid.set(false)
+    // unsafely update since the proxy itself is never hooked, just needs to be stable across re-renders in which the query does not change
     stateNoProxy.entities = [...query([...components, LayerComponents[layer]])] as Entity[]
   }
 

@@ -24,23 +24,26 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
-  EntityTreeComponent,
-  SystemDefinitions,
-  UUIDComponent,
   createEntity,
+  EntityTreeComponent,
   generateEntityUUID,
   getChildrenWithComponents,
   getComponent,
-  setComponent
+  setComponent,
+  SystemDefinitions,
+  UUIDComponent
 } from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { getMutableState, startReactor } from '@ir-engine/hyperflux'
+import { getMutableState, getState, startReactor } from '@ir-engine/hyperflux'
 import { RapierWorldState } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
+import { startEngineReactor } from '../../tests/startEngineReactor'
 import { overrideFileLoaderLoad } from '../../tests/util/loadGLTFAssetNode'
+import { loadDRACODecoderNode, NodeDRACOLoader } from '../assets/loaders/gltf/NodeDracoLoader'
+import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { GLTFComponent } from './GLTFComponent'
 import { GLTFLoadSystem } from './GLTFState'
 
@@ -80,6 +83,7 @@ describe('GLTF Loader', async () => {
 
   beforeEach(() => {
     createEngine()
+    startEngineReactor()
   })
 
   afterEach(() => {
@@ -146,38 +150,40 @@ describe('GLTF Loader', async () => {
     assert(materials.length === usedMaterials.size)
   })
 
-  // it('can load a draco geometry', async () => {
-  //   const entity = setupEntity()
+  it('can load a draco geometry', async () => {
+    const entity = setupEntity()
 
-  //   const dracoLoader = getState(AssetLoaderState).gltfLoader.dracoLoader!
+    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, GLTFComponent, { src: draco_gltf })
+    const system = SystemDefinitions.get(GLTFLoadSystem)!
+    startReactor(system.reactor!)
 
-  //   const spy = Sinon.spy(dracoLoader, 'preload')
-  //   // dracoLoader.preload = () => {
-  //   //   spy()
-  //   //   return dracoLoader
-  //   // }
+    const loader = getState(AssetLoaderState).gltfLoader
+    loadDRACODecoderNode()
+    const dracoLoader = new NodeDRACOLoader()
+    /* @ts-ignore */
+    dracoLoader.preload = () => {
+      return dracoLoader
+    }
+    loader.setDRACOLoader(dracoLoader)
 
-  //   setComponent(entity, UUIDComponent, generateEntityUUID())
-  //   setComponent(entity, GLTFComponent, { src: draco_gltf })
+    const document = getComponent(entity, GLTFComponent).document
 
-  //   const { rerender, unmount } = render(<></>)
-  //   applyIncomingActions()
-  //   await act(async () => rerender(<></>))
+    const usedMeshes = document!.nodes!.reduce((accum, node) => {
+      if (typeof node.mesh === 'number') accum.add(node.mesh)
+      return accum
+    }, new Set<number>())
 
-  //   const instanceID = GLTFComponent.getInstanceID(entity)
-  //   const gltfDocumentState = getState(GLTFDocumentState)
-  //   const gltf = gltfDocumentState[instanceID]
+    await vi.waitFor(
+      async () => {
+        expect(getChildrenWithComponents(entity, [MeshComponent]).length).toBeTruthy()
+      },
+      { timeout: 1000 }
+    )
 
-  //   const usedMeshes = gltf.nodes!.reduce((accum, node) => {
-  //     if (typeof node.mesh === 'number') accum.add(node.mesh)
-  //     return accum
-  //   }, new Set<number>())
-
-  //   const meshes = getChildrenWithComponents(entity, [MeshComponent])
-  //   assert(meshes.length === usedMeshes.size)
-  //   assert(spy.called)
-  //   unmount()
-  // })
+    const meshes = getChildrenWithComponents(entity, [MeshComponent])
+    assert(meshes.length === usedMeshes.size)
+  })
 
   // it('can load an unlit material', async () => {
   //   const entity = setupEntity()
