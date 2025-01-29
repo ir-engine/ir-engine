@@ -51,7 +51,8 @@ import { BackSide, ClampToEdgeWrapping, DoubleSide, FrontSide, MirroredRepeatWra
 import { Slider } from '../../../../../editor'
 import Button from '../../../../primitives/tailwind/Button'
 import ArrayInputGroup from '../../input/Array'
-import InputGroup from '../../input/Group'
+
+import InputGroup from '../../../editorUpdates/input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
 import Vector2Input from '../../input/Vector2'
