@@ -140,17 +140,16 @@ const darkTheme: CSSClasses = {
 
 export const themes: Record<string, Partial<CSSClasses>> = {
   light: lightTheme,
-  dark: darkTheme,
-  custom: {}
+  dark: darkTheme
 }
 
 export const ThemeState = defineState({
   name: 'ThemeState',
   initial: {
-    theme: 'dark' as 'light' | 'dark' | 'custom'
+    theme: 'dark' as 'light' | 'dark'
   },
 
-  setTheme: (theme: 'light' | 'dark' | 'custom') => {
+  setTheme: (theme: 'light' | 'dark') => {
     getMutableState(ThemeState).theme.set(theme)
   },
 
