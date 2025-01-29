@@ -45,6 +45,7 @@ import {
 } from '@ir-engine/ecs'
 import { LODVariantDescriptor, defaultLODs } from '@ir-engine/editor/src/constants/GLTFPresets'
 import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'
+import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import exportGLTF, { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
 import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
@@ -301,7 +302,7 @@ export default function AddEditLocationModal(props: {
         const compressedFilePath = srcURL.replace(/\.[^.]*$/, `-LOD1.gltf`)
         await addMediaNode(compressedFilePath)
         //await addMediaNode('https://localhost:8642/projects/test/hello-world/public/publish/combined-mesh-LOD1.gltf', undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
-        //EditorControlFunctions.removeObject(meshEntity)
+        await EditorControlFunctions.removeObject(meshEntity)
         //EditorControlFunctions.removeObject(exportParentEntity)
         //save current scene before create location
         const newSceneAssetID = getState(EditorState).sceneAssetID
