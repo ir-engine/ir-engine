@@ -27,14 +27,7 @@ import assert from 'assert'
 import { Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
-import {
-  createEntity,
-  ReactiveQuerySystem,
-  removeEntity,
-  setComponent,
-  SystemDefinitions,
-  UndefinedEntity
-} from '@ir-engine/ecs'
+import { createEntity, removeEntity, setComponent, UndefinedEntity } from '@ir-engine/ecs'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { createEngine } from '@ir-engine/ecs/src/Engine'
@@ -132,14 +125,11 @@ describe('ResourceState', () => {
 
         setComponent(testEntity, MeshComponent, mesh)
 
-        const reactiveQuerySystem = SystemDefinitions.get(ReactiveQuerySystem)
-        reactiveQuerySystem?.execute()
         reactor.run()
         const resources = getState(ResourceState).resources
 
         removeEntity(testEntity)
 
-        reactiveQuerySystem?.execute()
         reactor.run()
 
         sinon.assert.calledTwice(spy)

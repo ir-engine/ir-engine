@@ -34,7 +34,6 @@ import {
   EntityTreeComponent,
   EntityUUID,
   getComponent,
-  ReactiveQuerySystem,
   setComponent,
   SystemDefinitions,
   UUIDComponent
@@ -110,9 +109,6 @@ describe.skip('GLTFState', () => {
     Cache.add('/test.gltf', gltf)
 
     const gltfEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity)
-
-    const reactiveQuerySystem = SystemDefinitions.get(ReactiveQuerySystem)
-    reactiveQuerySystem?.execute()
 
     const system = SystemDefinitions.get(GLTFLoadSystem)!
     const reactor = startReactor(system.reactor!)

@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   Entity,
-  ReactiveQuerySystem,
-  SystemDefinitions,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -347,10 +345,9 @@ describe('InputPointerComponent', () => {
       // Update the components and Check the results
       removeComponent(pointerEntity2, InputPointerComponent)
 
-      SystemDefinitions.get(ReactiveQuerySystem)!.execute()
       root.run()
 
-      assert.equal(reactorSpy.callCount, 2)
+      assert.equal(reactorSpy.callCount, 3)
       assert.equal(effectSpy.callCount, 2)
       assert.equal(cameraPointers.length, 1)
     })
