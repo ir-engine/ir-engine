@@ -29,7 +29,7 @@ import type { MediaSettingsType } from './schema.type.module'
 /**
  * Config settings (for client and isomorphic engine usage).
  */
-const localBuildOrDev = process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true'
+const localBuildOrDev = false
 
 export function validateEmail(email: string): boolean {
   return EMAIL_REGEX.test(email)
@@ -55,16 +55,16 @@ const client = {
   clientUrl:
     localBuildOrDev && process.env.VITE_LOCAL_NGINX !== 'true'
       ? `http://${process.env.VITE_APP_HOST}:${process.env.VITE_APP_PORT}`
-      : `http://${process.env.VITE_APP_HOST}`,
+      : `https://${process.env.VITE_APP_HOST}`,
   serverHost: process.env.VITE_SERVER_HOST,
   serverUrl:
     localBuildOrDev && process.env.VITE_LOCAL_NGINX !== 'true'
       ? `http://${process.env.VITE_SERVER_HOST}:${process.env.VITE_SERVER_PORT}`
-      : `http://${process.env.VITE_SERVER_HOST}`,
+      : `https://${process.env.VITE_SERVER_HOST}`,
   instanceserverUrl:
     localBuildOrDev && process.env.VITE_LOCAL_NGINX !== 'true'
       ? `http://${process.env.VITE_INSTANCESERVER_HOST}:${process.env.VITE_INSTANCESERVER_PORT}`
-      : `http://${process.env.VITE_INSTANCESERVER_HOST}`,
+      : `https://${process.env.VITE_INSTANCESERVER_HOST}`,
   fileServer:
     (process.env.TEST === 'true' ? process.env.VITE_TEST_FILE_SERVER : process.env.VITE_FILE_SERVER) ??
     'http://localhost:8642',
@@ -73,7 +73,7 @@ const client = {
     proxyUrl:
       localBuildOrDev && process.env.VITE_LOCAL_NGINX !== 'true'
         ? `http://${process.env.VITE_SERVER_HOST}:${process.env.VITE_CORS_SERVER_PORT}`
-        : `http://${process.env.VITE_SERVER_HOST}/cors-proxy`,
+        : `https://${process.env.VITE_SERVER_HOST}/cors-proxy`,
     serverPort: process.env.VITE_CORS_SERVER_PORT
   },
   logs: {

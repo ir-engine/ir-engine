@@ -71,13 +71,14 @@ export const useLoadLocation = (props: { locationName: string }) => {
       !locationState.currentLocation.location.sceneId.value ||
       locationState.invalidLocation.value ||
       locationState.currentLocation.selfNotAuthorized.value ||
-      !locationState.currentLocation.location.sceneURL.value
+      !scene
     )
       return
-    const sceneURL = locationState.currentLocation.location.sceneURL.value
+    const sceneURL = scene.url
     const sceneID = locationState.currentLocation.location.sceneId.value
+    getMutableState(LocationState).currentLocation.location.sceneURL.set(sceneURL)
     return GLTFAssetState.loadScene(sceneURL, sceneID)
-  }, [locationState.currentLocation.location.sceneId, locationState.currentLocation.location.sceneURL])
+  }, [locationState.currentLocation.location.sceneId, scene])
 }
 
 export const useLoadScene = (props: { projectName: string; sceneName: string }) => {

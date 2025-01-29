@@ -3,6 +3,8 @@
 cd ../..
 ls
 
+cp ../../.env.remote.default ../../.env.local
+
 echo "===== Installling Gems ====="
 echo 'export GEM_HOME=$HOME/gems' >> ~/.zshrc
 echo 'export PATH=$HOME/gems/bin:$PATH' >> ~/.zshrc

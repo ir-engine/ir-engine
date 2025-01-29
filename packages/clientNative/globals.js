@@ -30,6 +30,9 @@ import 'react-native-get-random-values';
 import {TextEncoder, TextDecoder} from 'text-encoding-shim';
 import structuredClone from '@ungap/structured-clone';
 import performance from 'react-native-performance';
+import {URL} from 'whatwg-url-without-unicode';
+
+window.location = new URL('https://mariale.ir.world/location/marbar');
 
 global.performance = performance;
 globalThis.XMLSerializer = class XMLSerializer {};

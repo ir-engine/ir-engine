@@ -34,7 +34,6 @@ import { API as CommonAPI } from '@ir-engine/common'
 import type { ServiceTypes } from '@ir-engine/common/declarations'
 import config from '@ir-engine/common/src/config'
 
-import { HyperFlux } from '@ir-engine/hyperflux'
 import primusClient from './util/primus-client'
 
 declare module '@feathersjs/client' {
@@ -52,14 +51,17 @@ export class API {
   static createAPI = (pathName: string = window?.location?.pathname || 'default') => {
     const feathersClient = feathers()
 
-    const primus = new Primus(
-      `${config.client.serverUrl}?pathName=%2flocation%2f${pathName}&peerID=${HyperFlux.store.peerID}`,
-      {
-        withCredentials: true,
-        pingTimeout: config.websocket.pingTimeout,
-        pingInterval: config.websocket.pingInterval
+    const primus = new Primus(`${config.client.serverUrl}?pathName=${window.location.pathname}`, {
+      withCredentials: true,
+      pingTimeout: config.websocket.pingTimeout,
+      pingInterval: config.websocket.pingInterval,
+      transport: {
+        headers: {
+          Origin: config.client.clientUrl,
+          Host: process.env.VITE_SERVER_HOST
+        }
       }
-    )
+    })
     feathersClient.configure(primusClient(primus, { timeout: 10000 }))
 
     feathersClient.configure(

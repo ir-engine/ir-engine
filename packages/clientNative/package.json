@@ -58,7 +58,8 @@
     "react-native-quick-crypto": "^0.7.11",
     "react-native-wgpu": "^0.1.22",
     "text-encoding-polyfill": "^0.6.7",
-    "text-encoding-shim": "^1.0.5"
+    "text-encoding-shim": "^1.0.5",
+    "whatwg-url-without-unicode": "^8.0.0-3"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

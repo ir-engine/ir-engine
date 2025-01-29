@@ -134,12 +134,13 @@ const getProjectConfigExtensions = async (config: UserConfig) => {
     const staticPath = path.resolve(__dirname, `../projects/projects/`, project, 'vite.config.extension.ts')
     if (fs.existsSync(staticPath)) {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const { default: viteConfigExtension } = await import(
           `../projects/projects/${project}/vite.config.extension.ts`
         )
         if (typeof viteConfigExtension === 'function') {
           const configExtension = (await viteConfigExtension(config)) as UserConfig
-
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           if (configExtension?.plugins) {
             config.plugins = [...config.plugins!, ...configExtension.plugins]
             delete configExtension.plugins
@@ -232,7 +233,10 @@ const updateRootCookieAccessorDomain = (isDevOrLocal) => {
     path.join(appRootPath.path, 'packages', 'client', 'public', 'root-cookie-accessor-template.html')
   ).toString()
 
-  const apiUrl = process.env.VITE_SERVER_URL
+  const apiUrl =
+    isDevOrLocal && process.env.VITE_LOCAL_NGINX !== 'true'
+      ? `https://${process.env.VITE_SERVER_HOST}:${process.env.VITE_SERVER_PORT}`
+      : `https://${process.env.VITE_SERVER_HOST}`
   const updated = localStorageAccessor.replace(/<API_URL>/g, apiUrl)
 
   writeFileSync(
@@ -254,15 +258,13 @@ export default defineConfig(async () => {
 
   updateRootCookieAccessorDomain(isDevOrLocal)
 
-  let base = process.env.APP_URL
-
-  const useHTTPS = process.env.APP_USE_HTTPS
+  let base = `https://${process.env['APP_HOST'] ? process.env['APP_HOST'] : process.env['VITE_APP_HOST']}/`
 
   if (process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true') {
     if (process.env.STORAGE_PROVIDER === 's3') {
       // base = `${path.join(clientSetting.url, 'client', '/')}`
     } else if (process.env.STORAGE_PROVIDER === 'local') {
-      base = `${'http'}://${process.env.LOCAL_STORAGE_PROVIDER}/client/`
+      base = `https://${process.env.LOCAL_STORAGE_PROVIDER}/client/`
     }
   }
 
@@ -293,15 +295,15 @@ export default defineConfig(async () => {
       },
       watch: {
         ignored: ['**/server/upload/**']
-      }
-      // ...(isDevOrLocal && useHTTPS
-      //   ? {
-      //       https: {
-      //         key: fs.readFileSync(path.join(packageRoot.path, process.env.KEY || 'certs/key.pem')),
-      //         cert: fs.readFileSync(path.join(packageRoot.path, process.env.CERT || 'certs/cert.pem'))
-      //       }
-      //     }
-      //   : {})
+      },
+      ...(isDevOrLocal
+        ? {
+            https: {
+              key: fs.readFileSync(path.join(packageRoot.path, process.env.KEY || 'certs/key.pem')),
+              cert: fs.readFileSync(path.join(packageRoot.path, process.env.CERT || 'certs/cert.pem'))
+            }
+          }
+        : {})
     },
     base,
     optimizeDeps: {

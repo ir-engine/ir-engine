@@ -18,6 +18,7 @@ pnpm-lock.yaml
 #local files
 .env*
 !.env.local.default
+!.env.remote.default
 
 #config
 config/*

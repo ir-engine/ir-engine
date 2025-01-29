@@ -122,7 +122,7 @@ const loadAsset = async <T>(
   }
 
   try {
-    return loader.load(url.replace('https', 'http'), onLoad, onProgress, onError, signal)
+    return loader.load(url, onLoad, onProgress, onError, signal)
   } catch (error) {
     onError(error)
   }

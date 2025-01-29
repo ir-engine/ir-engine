@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -171,7 +171,7 @@ const server = {
     ? parseInt(process.env.INSTANCESERVER_UNREACHABLE_TIMEOUT_SECONDS)
     : 10
 }
-const obj = kubernetesEnabled ? { protocol: 'http', hostname: server.hostname } : { protocol: 'http', ...server }
+const obj = kubernetesEnabled ? { protocol: 'https', hostname: server.hostname } : { protocol: 'https', ...server }
 server.url = process.env.SERVER_URL || url.format(obj)
 
 /**
@@ -182,14 +182,14 @@ const client = {
   title: process.env.APP_TITLE!,
   get dist() {
     if (process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' && process.env.STORAGE_PROVIDER === 'local')
-      return `http://${process.env.LOCAL_STORAGE_PROVIDER}/client/`
+      return `https://${process.env.LOCAL_STORAGE_PROVIDER}/client/`
     return client.url
   },
   url:
     process.env.APP_URL ||
     (process.env.VITE_LOCAL_BUILD
       ? 'http://' + process.env.APP_HOST + ':' + process.env.APP_PORT
-      : 'http://' + process.env.APP_HOST + ':' + process.env.APP_PORT),
+      : 'https://' + process.env.APP_HOST + ':' + process.env.APP_PORT),
   port: process.env.APP_PORT || '3000',
   releaseName: process.env.RELEASE_NAME || 'local'
 }
@@ -300,7 +300,7 @@ const authentication = {
         server.hostname !== '127.0.0.1' && server.hostname !== 'localhost'
           ? server.hostname
           : server.hostname + ':' + server.port,
-      protocol: 'http'
+      protocol: 'https'
     },
     apple: {
       key: process.env.APPLE_CLIENT_ID!,
@@ -459,7 +459,7 @@ const config = {
     serviceHost: process.env.KUBERNETES_SERVICE_HOST!,
     tcpPort: process.env.KUBERNETES_PORT_443_TCP_PORT!
   },
-  noSSL: true,
+  noSSL: process.env.NOSSL === 'true',
   localBuild: process.env.VITE_LOCAL_BUILD === 'true',
   testEnabled,
   /** @todo when project versioning is fully implemented, remove 'undefined' check here */

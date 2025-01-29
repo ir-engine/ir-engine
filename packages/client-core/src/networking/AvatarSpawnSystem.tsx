@@ -105,19 +105,11 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
 
   const userAvatar = userAvatarQuery.data[0]
 
-  useEffect(() => {
-    if (!userAvatar) {
-      const intervalId = setInterval(() => {
-        userAvatarQuery.refetch()
-      }, AVATAR_REFETCH_INTERVAL_MS)
-      return () => {
-        clearInterval(intervalId)
-      }
-    }
-  }, [userAvatar])
+  const avatarsQuery = useFind(avatarPath)
+  const avatar = userAvatar?.avatar ?? avatarsQuery.data[0]
 
   useEffect(() => {
-    if (isSpectating || !userAvatar) return
+    if (isSpectating || !userAvatar || !avatar) return
 
     const rootUUID = getComponent(sceneEntity, UUIDComponent)
     const avatarSpawnPose = getRandomSpawnPoint(userID)
@@ -126,7 +118,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
     spawnLocalAvatarInWorld({
       parentUUID: rootUUID,
       avatarSpawnPose,
-      avatarURL: userAvatar.avatar.modelResource!.url!,
+      avatarURL: avatar.modelResource!.url!,
       name: user.name
     })
 
@@ -143,14 +135,12 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
         dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID: getComponent(selfAvatarEntity, UUIDComponent) }))
       }
     }
-  }, [isSpectating, !!userAvatar])
+  }, [isSpectating, !!userAvatar, avatar])
 
   const selfAvatarEntity = AvatarComponent.useSelfAvatarEntity()
   const errorWithAvatar = !!useOptionalComponent(selfAvatarEntity, ErrorComponent)
 
   const userAvatarMutation = useMutation(userAvatarPath)
-
-  const avatarsQuery = useFind(avatarPath)
 
   useEffect(() => {
     if (!errorWithAvatar || !avatarsQuery.data.length) return
@@ -159,14 +149,14 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   }, [errorWithAvatar])
 
   useEffect(() => {
-    if (isSpectating || !userAvatar) return
+    if (isSpectating || !userAvatar || !avatar) return
     dispatchAction(
       AvatarNetworkAction.setAvatarURL({
-        avatarURL: userAvatar.avatar.modelResource!.url,
+        avatarURL: avatar.modelResource!.url,
         entityUUID: (userID + '_avatar') as any as EntityUUID
       })
     )
-  }, [isSpectating, userAvatar])
+  }, [isSpectating, userAvatar, avatar])
 
   return null
 }

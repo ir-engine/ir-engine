@@ -243,25 +243,17 @@ async function _resetToGuestToken(options = { reset: true }) {
   if (options.reset) {
     await API.instance.authentication.reset()
   }
-  let newProvider
-  try {
-    const service = API.instance.service(identityProviderPath)
-    newProvider = await service.create({
-      type: 'guest',
-      token: uuidv4(),
-      userId: '' as UserID
-    })
-  } catch (err) {
-    console.error(err)
-  }
+  const service = API.instance.service(identityProviderPath)
+  const newProvider = await service.create({
+    type: 'guest',
+    token: uuidv4(),
+    userId: '' as UserID
+  })
   const accessToken = newProvider.accessToken!
   await API.instance.authentication.setAccessToken(accessToken as string)
   writeAuthUserToIframe()
   return accessToken
 }
-
-const timeout = (ms) =>
-  new Promise((_, reject) => setTimeout(() => reject(new Error(`Operation timed out after ${ms}ms`)), ms))
 
 export const AuthService = {
   async doLoginAuto(forceClientAuthReset?: boolean) {
@@ -279,10 +271,7 @@ export const AuthService = {
       // if (rootDomainToken?.length > 0) await API.instance.authentication.setAccessToken(rootDomainToken as string)
       console.log('doLoginAuto')
       try {
-        await Promise.race([
-          _resetToGuestToken({ reset: false }),
-          timeout(5000) // 5 second timeout
-        ])
+        await _resetToGuestToken({ reset: false })
         console.log('_resetToGuestToken after')
       } catch (error) {
         if (error.message.includes('timed out')) {

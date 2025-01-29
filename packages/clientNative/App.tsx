@@ -52,9 +52,9 @@ const initializeLogs = async () => {
 };
 
 createHyperStore();
-ClientAPI.createAPI();
+ClientAPI.createAPI('marbar');
 
-const publicDomain = 'https://localhost:8081';
+const publicDomain = config.client.clientUrl;
 
 getMutableState(DomainConfigState).merge({
   publicDomain,
@@ -63,6 +63,7 @@ getMutableState(DomainConfigState).merge({
 });
 
 const LocationPage = lazy(() => import('./src/pages/location/LocationPage'));
+const AppPage = lazy(() => import('./src/pages/AppPage'));
 
 function App(): React.JSX.Element {
   useEffect(() => {
@@ -85,8 +86,10 @@ function App(): React.JSX.Element {
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
       <View>
         {isLoggedIn ? (
-          <Suspense fallback={null}>
-            <LocationPage />
+          <Suspense fallback={<Text>Loading</Text>}>
+            <AppPage fallback={<Text>Loading</Text>}>
+              <LocationPage />
+            </AppPage>
           </Suspense>
         ) : null}
       </View>

@@ -16,7 +16,7 @@ PODS:
     - ReactCommon/turbomodule/core
   - ExpoKeepAwake (14.0.1):
     - ExpoModulesCore
-  - ExpoModulesCore (2.0.4):
+  - ExpoModulesCore (2.2.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1385,8 +1385,26 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - react-native-blob-jsi-helper (0.3.1):
-    - React
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
     - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - react-native-draco (0.3.0):
     - DoubleConversion
     - glog
@@ -1805,7 +1823,7 @@ DEPENDENCIES:
   - ExpoFont (from `../../../node_modules/expo-font/ios`)
   - ExpoGL (from `../../../node_modules/expo-gl`)
   - ExpoKeepAwake (from `../../../node_modules/expo-keep-awake/ios`)
-  - ExpoModulesCore (from `../../../node_modules/expo-modules-core`)
+  - ExpoModulesCore (from `../node_modules/expo-modules-core`)
   - FBLazyVector (from `../../../node_modules/react-native/Libraries/FBLazyVector`)
   - fmt (from `../../../node_modules/react-native/third-party-podspecs/fmt.podspec`)
   - glog (from `../../../node_modules/react-native/third-party-podspecs/glog.podspec`)
@@ -1920,7 +1938,7 @@ EXTERNAL SOURCES:
   ExpoKeepAwake:
     :path: "../../../node_modules/expo-keep-awake/ios"
   ExpoModulesCore:
-    :path: "../../../node_modules/expo-modules-core"
+    :path: "../node_modules/expo-modules-core"
   FBLazyVector:
     :path: "../../../node_modules/react-native/Libraries/FBLazyVector"
   fmt:
@@ -2079,7 +2097,7 @@ SPEC CHECKSUMS:
   ExpoFont: 12b0217e42ac97029d0f317f0486039a8508cf52
   ExpoGL: 9e4ac36b4dfeba548728f835c72fe895364ec3e7
   ExpoKeepAwake: 22173f45d767c7d37403fdf48292726901d69ce7
-  ExpoModulesCore: c0955ffa4581d462da3825849fe946cfa017f555
+  ExpoModulesCore: 231638400651045f797b1da72feccbd86f96dbf5
   FBLazyVector: bc70dcb22ad30ce734a7cce7210791dc737e230f
   Firebase: 7a56fe4f56b5ab81b86a6822f5b8f909ae6fc7e2
   FirebaseCore: 93abc05437f8064cd2bc0a53b768fb0bc5a1d006
@@ -2129,7 +2147,7 @@ SPEC CHECKSUMS:
   React-Mapbuffer: 029b5332e78af8c67c4b5e65edfc717068b8eac1
   React-microtasksnativemodule: f30949ee318ba90b9668de1e325b98838b9a4da2
   react-native-basis-universal: 719cc672527720c789320d6637de8b6c6d99c764
-  react-native-blob-jsi-helper: bd7509e50b0f906044c53ad7ab767786054424c9
+  react-native-blob-jsi-helper: 57d9e5d596efe7155b9ed21431c8445cc3ade7cb
   react-native-draco: b1204c26c72e4037e6686106f627ffc0094b79ad
   react-native-get-random-values: d16467cf726c618e9c7a8c3c39c31faa2244bbba
   react-native-performance: b79ec8b129d8714592ef6f87aa0e45f06895e4b9
