@@ -67,7 +67,7 @@ export default {
           [
             iffElse(
               checkScope('editor', 'write'),
-              verifyProjectPermission(['owner', 'editor', 'reviewer']),
+              verifyProjectPermission(['owner', 'editor']),
               setInContext('type', 'public')
             ) as any
           ]

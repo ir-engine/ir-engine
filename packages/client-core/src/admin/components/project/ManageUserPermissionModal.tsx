@@ -81,7 +81,7 @@ export default function ManageUserPermissionModal({ project }: { project: Immuta
       return
     }
     try {
-      await ProjectService.createPermission(userInviteCode.value, project.id, 'reviewer')
+      await ProjectService.createPermission(userInviteCode.value, project.id, 'editor')
       projectPermissionsFindQuery.refetch()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

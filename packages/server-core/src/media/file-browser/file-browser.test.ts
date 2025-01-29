@@ -216,7 +216,7 @@ describe('file-browser.test', () => {
       )
     })
 
-    it('will not create a directory in project 1 as user 2, who has only reviewer permission', async () => {
+    it('will not create a directory in project 1 as user 2, who has only editor permission', async () => {
       await app.service(projectPermissionPath).remove(null, {
         query: {
           userId: user2.id,
@@ -227,7 +227,7 @@ describe('file-browser.test', () => {
         id: v4(),
         userId: user2.id,
         projectId: project1.id,
-        type: 'reviewer',
+        type: 'editor',
         createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
         updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
       } as any)
@@ -242,7 +242,7 @@ describe('file-browser.test', () => {
       )
     })
 
-    it('will not create a directory in project 2 as user 2, who has only reviewer permission', async () => {
+    it('will not create a directory in project 2 as user 2, who has only editor permission', async () => {
       await app.service(projectPermissionPath).remove(null, {
         query: {
           userId: user2.id,
@@ -253,7 +253,7 @@ describe('file-browser.test', () => {
         id: v4(),
         userId: user2.id,
         projectId: project2.id,
-        type: 'reviewer',
+        type: 'editor',
         createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
         updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
       } as any)
@@ -268,7 +268,7 @@ describe('file-browser.test', () => {
       )
     })
 
-    it('will not create a directory in project 1 as user 2, who has only reviewer permission, if they try to use a relative path from project 2', async () => {
+    it('will not create a directory in project 1 as user 2, who has only editor permission, if they try to use a relative path from project 2', async () => {
       await app.service(projectPermissionPath).remove(null, {
         query: {
           userId: user2.id,
@@ -279,7 +279,7 @@ describe('file-browser.test', () => {
         id: v4(),
         userId: user2.id,
         projectId: project1.id,
-        type: 'reviewer',
+        type: 'editor',
         createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
         updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
       } as any)
@@ -807,7 +807,7 @@ describe('file-browser.test', () => {
       )
     })
 
-    it('will not create a file in project1 if user2, who is only a reviewer on project 1, does so', async () => {
+    it('will not create a file in project1 if user2, who is only a editor on project 1, does so', async () => {
       await app.service(projectPermissionPath).remove(null, {
         query: {
           userId: user2.id,
@@ -818,7 +818,7 @@ describe('file-browser.test', () => {
         id: v4(),
         userId: user2.id,
         projectId: project1.id,
-        type: 'reviewer',
+        type: 'editor',
         createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
         updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
       } as any)
@@ -842,7 +842,7 @@ describe('file-browser.test', () => {
       )
     })
 
-    it('will not create a file in project1 if user2, who is only a reviewer on project 1, does so via a relative path', async () => {
+    it('will not create a file in project1 if user2, who is only a editor on project 1, does so via a relative path', async () => {
       await app.service(projectPermissionPath).remove(null, {
         query: {
           userId: user2.id,
@@ -853,7 +853,7 @@ describe('file-browser.test', () => {
         id: v4(),
         userId: user2.id,
         projectId: project1.id,
-        type: 'reviewer',
+        type: 'editor',
         createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
         updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
       } as any)
@@ -1452,7 +1452,7 @@ describe('file-browser.test', () => {
       await assert.rejects(storageProvider.getObject('projects/' + testProject2Name + '/public/test/' + testFileName3))
     })
 
-    it('does not move a file when performed by user 2, who has only reviewer permissions on the old project and editor on the new project', async () => {
+    it('does not move a file when performed by user 2, who has only editor permissions on the old project and editor on the new project', async () => {
       await app.service(projectPermissionPath).remove(null, {
         query: {
           userId: user2.id,
@@ -1469,7 +1469,7 @@ describe('file-browser.test', () => {
         id: v4(),
         userId: user2.id,
         projectId: project1.id,
-        type: 'reviewer',
+        type: 'editor',
         createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
         updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
       } as any)
@@ -1507,7 +1507,7 @@ describe('file-browser.test', () => {
       await assert.rejects(storageProvider.getObject('projects/' + testProject2Name + '/public/test/' + testFileName3))
     })
 
-    it('does not move a file when performed by user 2, who has only reviewer permissions on the new project and editor on the old project', async () => {
+    it('does not move a file when performed by user 2, who has only editor permissions on the new project and editor on the old project', async () => {
       await app.service(projectPermissionPath).remove(null, {
         query: {
           userId: user2.id,
@@ -1532,7 +1532,7 @@ describe('file-browser.test', () => {
         id: v4(),
         userId: user2.id,
         projectId: project2.id,
-        type: 'reviewer',
+        type: 'editor',
         createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
         updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
       } as any)
@@ -1700,7 +1700,7 @@ describe('file-browser.test', () => {
       await assert.rejects(storageProvider.getObject('projects/' + testProject2Name + '/public/test/' + testFileName3))
     })
 
-    it('does not move a file when performed by user 2, who has only reviewer permissions on the old project and editor on the new project, via a relative path', async () => {
+    it('does not move a file when performed by user 2, who has only editor permissions on the old project and editor on the new project, via a relative path', async () => {
       await app.service(projectPermissionPath).remove(null, {
         query: {
           userId: user2.id,
@@ -1717,7 +1717,7 @@ describe('file-browser.test', () => {
         id: v4(),
         userId: user2.id,
         projectId: project1.id,
-        type: 'reviewer',
+        type: 'editor',
         createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
         updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
       } as any)
@@ -1755,7 +1755,7 @@ describe('file-browser.test', () => {
       await assert.rejects(storageProvider.getObject('projects/' + testProject2Name + '/public/test/' + testFileName3))
     })
 
-    it('does not move a file when performed by user 2, who has only reviewer permissions on the new project and editor on the old project, via a relative path', async () => {
+    it('does not move a file when performed by user 2, who has only editor permissions on the new project and editor on the old project, via a relative path', async () => {
       await app.service(projectPermissionPath).remove(null, {
         query: {
           userId: user2.id,
@@ -1780,7 +1780,7 @@ describe('file-browser.test', () => {
         id: v4(),
         userId: user2.id,
         projectId: project2.id,
-        type: 'reviewer',
+        type: 'editor',
         createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
         updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
       } as any)
@@ -2392,7 +2392,7 @@ describe('file-browser.test', () => {
       await assert.rejects(storageProvider.getObject('projects/' + testProject1Name + '/public/test2/' + testFileName3))
     })
 
-    it('does not move a directory within a project when performed by user 2, who only has reviewer permission on the project', async () => {
+    it('does not move a directory within a project when performed by user 2, who only has editor permission on the project', async () => {
       await app.service(projectPermissionPath).remove(null, {
         query: {
           userId: user2.id,
@@ -2404,7 +2404,7 @@ describe('file-browser.test', () => {
         id: v4(),
         userId: user2.id,
         projectId: project1.id,
-        type: 'reviewer',
+        type: 'editor',
         createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
         updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
       } as any)
@@ -2478,7 +2478,7 @@ describe('file-browser.test', () => {
       await assert.rejects(storageProvider.getObject('projects/' + testProject2Name + '/public/test2/' + testFileName3))
     })
 
-    it('does not move a directory between projects when performed by user 2, who has editor permission on the old project and reviewer permission on the new project', async () => {
+    it('does not move a directory between projects when performed by user 2, who has editor permission on the old project and editor permission on the new project', async () => {
       await app.service(projectPermissionPath).remove(null, {
         query: {
           userId: user2.id,
@@ -2503,7 +2503,7 @@ describe('file-browser.test', () => {
         id: v4(),
         userId: user2.id,
         projectId: project2.id,
-        type: 'reviewer',
+        type: 'editor',
         createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
         updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
       } as any)
@@ -2583,7 +2583,7 @@ describe('file-browser.test', () => {
       await assert.rejects(storageProvider.getObject('projects/' + testProject2Name + '/public/test2/' + testFileName3))
     })
 
-    it('does not move a directory between projects when performed by user 2, who has editor permission on the old project and reviewer permission on the new project, via a relative path', async () => {
+    it('does not move a directory between projects when performed by user 2, who has editor permission on the old project and editor permission on the new project, via a relative path', async () => {
       await app.service(projectPermissionPath).remove(null, {
         query: {
           userId: user2.id,
@@ -2608,7 +2608,7 @@ describe('file-browser.test', () => {
         id: v4(),
         userId: user2.id,
         projectId: project2.id,
-        type: 'reviewer',
+        type: 'editor',
         createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
         updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
       } as any)
@@ -3949,12 +3949,12 @@ describe('file-browser.test', () => {
       await assert.ok(storageProvider.getObject('projects/' + testProject1Name + '/public/' + testFileFullName))
     })
 
-    it('does not remove a file in a project when performed by user2, who has only reviewer permissions on that project', async () => {
+    it('does not remove a file in a project when performed by user2, who has only editor permissions on that project', async () => {
       await app.service(projectPermissionPath)._create({
         id: v4(),
         userId: user2.id,
         projectId: project1.id,
-        type: 'reviewer',
+        type: 'editor',
         createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
         updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
       } as any)
@@ -3997,7 +3997,7 @@ describe('file-browser.test', () => {
       await assert.ok(storageProvider.getObject('projects/' + testProject1Name + '/public/' + testFileFullName))
     })
 
-    it('does not remove a file in another project via relative paths when performed by user2, who has editor permission on the initial project and reviewer permission on the final project', async () => {
+    it('does not remove a file in another project via relative paths when performed by user2, who has editor permission on the initial project and editor permission on the final project', async () => {
       await app.service(projectPermissionPath)._create({
         id: v4(),
         userId: user2.id,
@@ -4010,7 +4010,7 @@ describe('file-browser.test', () => {
         id: v4(),
         userId: user2.id,
         projectId: project2.id,
-        type: 'reviewer',
+        type: 'editor',
         createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
         updatedAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
       } as any)
