@@ -39,6 +39,7 @@ import { render } from '@testing-library/react'
 import React from 'react'
 import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createTestGLTFEntity } from '../../../tests/avatar/mockAnimatedAvatar'
+import { startEngineReactor } from '../../../tests/startEngineReactor'
 import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { mixamoVRMRigMap } from '../AvatarBoneMatching'
@@ -55,6 +56,7 @@ describe('retargetingFunctions', () => {
 
     beforeEach(() => {
       createEngine()
+      startEngineReactor()
     })
 
     afterEach(() => {
