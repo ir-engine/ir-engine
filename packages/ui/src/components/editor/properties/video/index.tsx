@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineVideoCamera } from 'react-icons/hi2'
 
@@ -54,6 +54,7 @@ import ArrayInputGroup from '../../input/Array'
 
 import InputGroup from '../../../editorUpdates/input/Group'
 import NumericInput from '../../input/Numeric'
+import SegmentedControlInput from '../../input/SegmentedControl'
 import SelectInput from '../../input/Select'
 import Vector2Input from '../../input/Vector2'
 import MediaPreview from '../media/preview'
@@ -110,6 +111,18 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
     mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID)
   }
   const mediaElement = getMutableComponent(mediaEntity, MediaElementComponent)
+  const [mediaSourceValue, setMediaSourceValue] = useState('Self')
+
+  const mediaSourceOptions = [
+    {
+      label: 'This Player',
+      value: 'Self'
+    },
+    {
+      label: 'Sync With Other',
+      value: 'Other'
+    }
+  ]
 
   const mediaEntities = useQuery([MediaComponent])
   const mediaOptions = mediaEntities
@@ -117,7 +130,6 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
     .map((entity) => {
       return { label: getComponent(entity, NameComponent), value: getComponent(entity, UUIDComponent) }
     })
-  mediaOptions.unshift({ label: 'Self', value: '' as EntityUUID })
 
   const toggle = () => {
     if (media) {
@@ -128,6 +140,13 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   const reset = () => {
     if (mediaElement && media) {
       setTime(mediaElement.element, media.seekTime.value)
+    }
+  }
+
+  const mediaSourceChange = (val: string) => {
+    setMediaSourceValue(val)
+    if (val === 'Self') {
+      video.mediaUUID.set('' as EntityUUID)
     }
   }
 
@@ -155,11 +174,15 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.video.lbl-media')}
         info={t('editor:properties.video.lbl-media-info')}
       >
-        <SelectInput
-          value={video.mediaUUID.value}
-          onChange={commitProperty(VideoComponent, 'mediaUUID')}
-          options={mediaOptions}
-        />
+        <SegmentedControlInput value={mediaSourceValue} onChange={mediaSourceChange} options={mediaSourceOptions} />
+
+        {mediaSourceValue !== 'Self' && (
+          <SelectInput
+            value={video.mediaUUID.value}
+            onChange={commitProperty(VideoComponent, 'mediaUUID')}
+            options={mediaOptions}
+          />
+        )}
       </InputGroup>
 
       {video.mediaUUID.value == '' && media && (
