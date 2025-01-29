@@ -28,9 +28,9 @@ import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathR
 import { exportGLTFScene } from '@ir-engine/engine/src/gltf/exportGLTFScene'
 import { uploadProjectFiles } from './assetFunctions'
 
-export default async function exportGLTF(entity: Entity, path: string) {
+export default async function exportGLTF(entity: Entity, path: string, exportRoot = true) {
   const [, orgname, pName, fileName] = STATIC_ASSET_REGEX.exec(path)!
-  return exportRelativeGLTF(entity, `${orgname}/${pName}`, fileName)
+  return exportRelativeGLTF(entity, `${orgname}/${pName}`, fileName, exportRoot)
 }
 
 export async function exportRelativeGLTF(entity: Entity, projectName: string, relativePath: string, exportRoot = true) {

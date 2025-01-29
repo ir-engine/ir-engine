@@ -161,9 +161,12 @@ export default function AddEditLocationModal(props: {
     //   //await createNewFolder('publish')
     //   await createPublishFolder()
     // }
-    const { projectName, sceneName, rootEntity, sceneAssetID } = getState(EditorState)
+    const { projectName, sceneName, rootEntity, sceneAssetID, scenePath } = getState(EditorState)
     const abortController = new AbortController()
     try {
+      //save current scene
+      await saveSceneGLTF(sceneAssetID!, projectName!, sceneName!, abortController.signal)
+      // save as duplicate scene
       if (sceneName && projectName) {
         const saveScenePath = getState(EditorState)
           .scenePath!.split('/')
@@ -178,17 +181,22 @@ export default function AddEditLocationModal(props: {
           true,
           saveScenePath
         )
+        const checkPath = (path) => path.replace(/\s+/g, '-')
         //add all mesh into one entity
         const meshParentEntity = createEntity()
         const rootEntity = getState(EditorState).rootEntity
         const meshEntity = [] as Entity[]
+        const exportParentEntity = [] as Entity[]
+        const findMeshRootEntity = (entity: Entity, rootEntity: Entity) => {
+          const parentEntity = getComponent(entity, EntityTreeComponent)?.parentEntity
+          if (!parentEntity) return null
+          if (parentEntity === rootEntity) return entity
+          return findMeshRootEntity(parentEntity, rootEntity)
+        }
         setComponent(meshParentEntity, EntityTreeComponent, { parentEntity: rootEntity })
         setComponent(meshParentEntity, NameComponent, 'combined mesh entity')
         setComponent(meshParentEntity, TransformComponent)
-        const currentUrl = new URL(window.location.href)
         const srcURL = pathJoin(config.client.fileServer, saveScenePath + '/combined-mesh.gltf')
-        // setComponent(meshParentEntity, SourceComponent )
-        // setComponent(meshParentEntity,GLTFComponent ,{src:srcURL})
         iterateEntityNode(rootEntity, (entity) => {
           if (hasComponent(entity, MeshComponent)) {
             if (meshEntity.includes(entity) || hasComponent(entity, ColliderComponent)) return
@@ -202,20 +210,35 @@ export default function AddEditLocationModal(props: {
             transform.position.applyMatrix4(parentEntityTransform.matrixWorld)
             transform.rotation.premultiply(parentEntityTransform.rotation)
             transform.scale.multiply(parentEntityTransform.scale)
+            // const meshRootEntity = findMeshRootEntity(entity, rootEntity)
+            // if (!exportParentEntity.includes(meshRootEntity)){
+            //   exportParentEntity.push(meshRootEntity)
+            // }
             setComponent(entity, EntityTreeComponent, { parentEntity: meshParentEntity })
+            // const parentEntity = getComponent(entity, EntityTreeComponent)?.parentEntity
+            //getComponent(parentEntity, EntityTreeComponent).children= getComponent(parentEntity, EntityTreeComponent).children.filter((childEntity) => childEntity !== entity)
           }
         })
+
         //export parent entities and combined mesh entity
-        const exportParentEntity = [] as Entity[]
         await exportRelativeGLTF(meshParentEntity, projectName, 'public/publish/combined-mesh.gltf', false)
         setComponent(meshParentEntity, GLTFComponent, { src: srcURL })
-        // meshEntity.forEach((entity) => {
-        //   const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
-        //   if (exportParentEntity.includes(parentEntity)) return
-        //   exportParentEntity.push(parentEntity)
-        //   const name = getComponent(parentEntity, NameComponent)
-        //   exportRelativeGLTF(parentEntity, projectName, 'public/publish/' + name + '.gltf')
-        // })
+        meshEntity.forEach((entity) => {
+          //if parent entity's parent entity is root entity export that
+
+          const meshRootEntity = findMeshRootEntity(entity, rootEntity)
+          if (!exportParentEntity.includes(meshRootEntity)) {
+            exportParentEntity.push(meshRootEntity)
+          }
+          //derefrencing mesh entity from parent
+          // const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
+          // getComponent(parentEntity, EntityTreeComponent).children= getComponent(parentEntity, EntityTreeComponent).children.filter((childEntity) => childEntity !== entity)
+        })
+        exportParentEntity.forEach(async (entity) => {
+          const childName = getComponent(getComponent(entity, EntityTreeComponent).children[0], NameComponent)
+          const name = getComponent(getComponent(entity, EntityTreeComponent).children[0], NameComponent)
+          await exportRelativeGLTF(entity, projectName, 'public/publish/' + name + '.gltf', false)
+        })
 
         //put combined mesh entity to compression
         // const currentUrl = new URL(window.location.href)
@@ -273,10 +296,24 @@ export default function AddEditLocationModal(props: {
         const destinationPath = srcURL.replace(/\.[^.]*$/, `-integrated.gltf`)
         iterateEntityNode(result, (entity) => setComponent(entity, SourceComponent, destinationPath))
         await exportGLTF(result, destinationPath, false)
-        // removeEntityNodeRecursively(meshParentEntity)
+
         // removeEntityNodeRecursively(result)
-        await addMediaNode('https://localhost:8642/projects/test/hello-world/asset/combined-mesh-LOD0.gltf')
-        PopoverState.hidePopupover()
+        const compressedFilePath = srcURL.replace(/\.[^.]*$/, `-LOD1.gltf`)
+        await addMediaNode(compressedFilePath)
+        //await addMediaNode('https://localhost:8642/projects/test/hello-world/public/publish/combined-mesh-LOD1.gltf', undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
+        //EditorControlFunctions.removeObject(meshEntity)
+        //EditorControlFunctions.removeObject(exportParentEntity)
+        //save current scene before create location
+        const newSceneAssetID = getState(EditorState).sceneAssetID
+        const newSceneName = getState(EditorState).sceneName
+        await saveSceneGLTF(newSceneAssetID!, projectName!, newSceneName!, abortController.signal)
+
+        await handlePublish()
+        //re-open the original scene
+        //currently the location not connect to original scene, user need publish again if change
+        const studioUrl = `${window.location.origin}/studio?project=${projectName}&scenePath=${scenePath}`
+        window.open(studioUrl, '_blank')?.focus()
+        //PopoverState.hidePopupover()
       }
     } catch (error) {
       PopoverState.showPopupover(
@@ -286,7 +323,6 @@ export default function AddEditLocationModal(props: {
   }
 
   const handlePublish = async () => {
-    await handlePublishFolder()
     errors.set(getDefaultErrors())
 
     if (!name.value) {
@@ -304,7 +340,6 @@ export default function AddEditLocationModal(props: {
     if (Object.values(errors.value).some((value) => value.length > 0)) {
       return
     }
-
     publishLoading.set(true)
 
     if (props.onPublish) {
@@ -316,10 +351,10 @@ export default function AddEditLocationModal(props: {
         return
       }
     }
-
+    const updateSceneID = getState(EditorState).sceneAssetID
     const locationData: LocationData = {
       name: name.value,
-      sceneId: scene.value,
+      sceneId: updateSceneID as string,
       maxUsersPerInstance: maxUsers.value,
       locationSetting: {
         locationId: '' as LocationID,

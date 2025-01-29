@@ -400,11 +400,20 @@ const doUpload = async (projectName, fileName, buffer) => {
     resolver = resolve
   })
   uploadRequestState.queue.set([...queue, { file, projectName, callback: resolver }])
+  if (fileName.includes('combined-mesh')) {
+    uploadRequestState.isOnPublishing.set(true)
+  }
   await promise
 }
 
 const toProjectAndFileName = (fUploadPath: string, srcBaseURL: string): [string, string] => {
-  const pathCheck = /projects\/([^/]+\/[^/]+)\/assets\/([\w\d\s\-|_./]*)$/
+  //const pathCheck = /projects\/([^/]+\/[^/]+)\/assets\/([\w\d\s\-|_./]*)$/
+  let pathCheck
+  if (srcBaseURL.includes('publish')) {
+    pathCheck = /projects\/([^/]+\/[^/]+)\/public\/publish\/([\w\d\s\-|_./]*)$/
+  } else {
+    pathCheck = /projects\/([^/]+\/[^/]+)\/assets\/([\w\d\s\-|_./]*)$/
+  }
   // TODO: remove srcBaseURL if it's unnecessary
   const [_, projectName, fileName] = pathCheck.exec(fUploadPath) ?? pathCheck.exec(pathJoin(srcBaseURL, fUploadPath))!
   return [projectName, fileName]
