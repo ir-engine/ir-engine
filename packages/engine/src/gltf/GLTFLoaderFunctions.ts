@@ -38,7 +38,7 @@ import {
   setComponent,
   traverseEntityNode
 } from '@ir-engine/ecs'
-import { getState } from '@ir-engine/hyperflux'
+import { getState, isClient } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -972,6 +972,11 @@ const loadImageSource = async (
   let isObjectURL = false
 
   if (sourceDef.bufferView !== undefined) {
+    if (!isClient) {
+      const texture = new Texture()
+      texture.userData.mimeType = sourceDef.mimeType || getImageURIMimeType(sourceDef.uri)
+      return texture
+    }
     // Load binary image data from bufferView, if provided.
 
     sourceURI = await GLTFLoaderFunctions.loadBufferView(options, sourceDef.bufferView).then(function (bufferView) {

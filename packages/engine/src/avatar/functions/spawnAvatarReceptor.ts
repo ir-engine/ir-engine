@@ -50,6 +50,7 @@ import {
 } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { isClient } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { GrabberComponent } from '../../grabbable/GrabbableComponent'
 import { EnvMapComponent } from '../../scene/components/EnvmapComponent'
@@ -105,7 +106,9 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   setComponent(entity, ShadowComponent)
   setComponent(entity, GrabberComponent)
-  setComponent(entity, AvatarRigComponent)
+  if (isClient) {
+    setComponent(entity, AvatarRigComponent)
+  }
   setComponent(entity, AvatarIKComponent)
 
   setComponent(entity, InputComponent)

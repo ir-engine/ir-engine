@@ -167,37 +167,38 @@ export const unloadResourcesForEntity = (entity: Entity) => {
  * @returns
  */
 const reloadResource = (url: string) => {
-  const resourceState = getMutableState(ResourceState)
-  const resources = resourceState.nested('resources')
-  const resource = resources[url]
-  if (!resource.value) {
-    console.warn('resourceLoaderFunctions:reloadResource No resource found to update for url: ' + url)
-    return
-  }
-  const onLoads = resource.onLoads.get(NO_PROXY)
-  if (!onLoads) {
-    ResourceState.debugLog('resourceLoaderFunctions:reloadResource No callbacks found to update for url: ' + url)
-    return
-  }
+  /** @todo rewrite this with new resource state */
+  // const resourceState = getMutableState(ResourceState)
+  // const resources = resourceState.nested('resources')
+  // const resource = resources[url]
+  // if (!resource.value) {
+  //   console.warn('resourceLoaderFunctions:reloadResource No resource found to update for url: ' + url)
+  //   return
+  // }
+  // const onLoads = resource.onLoads.get(NO_PROXY)
+  // if (!onLoads) {
+  //   ResourceState.debugLog('resourceLoaderFunctions:reloadResource No callbacks found to update for url: ' + url)
+  //   return
+  // }
 
-  ResourceState.debugLog('resourceLoaderFunctions:reloadResource Updating asset for url: ' + url)
-  const resourceType = resource.type.value
-  ResourceState.__unsafeRemoveResource(url)
-  for (const [uuid, loadObj] of Object.entries(onLoads)) {
-    loadResource(
-      url,
-      resourceType,
-      loadObj.entity,
-      loadObj.onLoad,
-      () => {},
-      (error) => {
-        console.error('resourceLoaderFunctions:reloadResource error updating resource for url: ' + url, error)
-      },
-      new AbortController().signal,
-      undefined,
-      uuid
-    )
-  }
+  // ResourceState.debugLog('resourceLoaderFunctions:reloadResource Updating asset for url: ' + url)
+  // const resourceType = resource.type.value
+  // ResourceState.__unsafeRemoveResource(url)
+  // for (const [uuid, loadObj] of Object.entries(onLoads)) {
+  //   loadResource(
+  //     url,
+  //     resourceType,
+  //     loadObj.entity,
+  //     loadObj.onLoad,
+  //     () => {},
+  //     (error) => {
+  //       console.error('resourceLoaderFunctions:reloadResource error updating resource for url: ' + url, error)
+  //     },
+  //     new AbortController().signal,
+  //     undefined,
+  //     uuid
+  //   )
+  // }
 }
 
 export const ResourceLoaderManager = { reloadResource }

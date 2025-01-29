@@ -35,61 +35,15 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import { TransformComponent } from '@ir-engine/spatial'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { AnimationMixer } from 'three'
 import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { createTestGLTFEntity } from '../functions/retargetingFunctions.test'
-import { setupMixamoAnimation } from '../systems/AvatarAnimationSystem'
 import { AnimationComponent } from './AnimationComponent'
-import { AvatarAnimationComponent, AvatarRigComponent } from './AvatarAnimationComponent'
-import { AvatarComponent } from './AvatarComponent'
+import { AvatarRigComponent } from './AvatarAnimationComponent'
 
+import { createTestGLTFEntity, mockAnimatedAvatar, rings_gltf } from '../../../tests/avatar/mockAnimatedAvatar'
 import { startEngineReactor } from '../../../tests/startEngineReactor'
-
-const default_url = 'packages/projects/default-project/assets'
-const rings_gltf = default_url + '/rings.glb'
-const animation_pack = default_url + '/animations/emotes.glb'
-const vrm = default_url + '/avatars/male_01.vrm'
-
-/**Used to mock non user networked animated avatars */
-export const mockAnimatedAvatar = async () => {
-  const animationPackEntity = createTestGLTFEntity()
-
-  setComponent(animationPackEntity, UUIDComponent, generateEntityUUID())
-  setComponent(animationPackEntity, GLTFComponent, { src: animation_pack })
-  setComponent(animationPackEntity, NameComponent, 'animationPack')
-
-  const vrmEntity = createTestGLTFEntity()
-
-  setComponent(vrmEntity, UUIDComponent, generateEntityUUID())
-  setComponent(vrmEntity, GLTFComponent, { src: vrm })
-  setComponent(vrmEntity, AvatarRigComponent)
-  setComponent(vrmEntity, AvatarAnimationComponent)
-  setComponent(vrmEntity, AvatarComponent)
-
-  //extra wait for animation component to prevent race conditions
-  await vi.waitUntil(
-    () => {
-      return (
-        getOptionalComponent(animationPackEntity, AnimationComponent) &&
-        getOptionalComponent(vrmEntity, AvatarRigComponent)?.vrm?.scene
-      )
-    },
-    { timeout: 20000 }
-  )
-
-  setupMixamoAnimation(animationPackEntity)
-
-  setComponent(vrmEntity, AnimationComponent, {
-    animations: getComponent(animationPackEntity, AnimationComponent).animations,
-    mixer: new AnimationMixer(getComponent(vrmEntity, AvatarRigComponent).vrm.scene)
-  })
-
-  return vrmEntity
-}
 
 describe('AnimationComponent', () => {
   describe('ECS PropertyBinding', () => {
