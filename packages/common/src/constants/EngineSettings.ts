@@ -149,5 +149,50 @@ export const EngineSettings = {
       SecretAccessKey: 'eks.secretAccessKey',
       RoleArn: 'eks.roleArn'
     }
+  },
+  Authentication: {
+    service: 'service',
+    entity: 'entity',
+    secret: 'secret',
+    AuthStrategies: {
+      Jwt: 'authStrategies.[0].jwt',
+      SmsMagicLink: 'authStrategies.[1].smsMagicLink',
+      EmailMagicLink: 'authStrategies.[2].emailMagicLink',
+      Apple: 'authStrategies.[3].apple',
+      Discord: 'authStrategies.[4].discord',
+      Facebook: 'authStrategies.[5].facebook',
+      Github: 'authStrategies.[6].github',
+      Google: 'authStrategies.[7].google',
+      Linkedin: 'authStrategies.[8].linkedin',
+      Twitter: 'authStrategies.[9].twitter',
+      DidWallet: 'authStrategies.[10].didWallet'
+    },
+    JwtAlgorithm: 'jwtAlgorithm',
+    JwtPublicKey: 'jwtPublicKey',
+    JwtOptions: { Algorithm: 'jwtOptions.algorithm', ExpiresIn: 'jwtOptions.expiresIn' },
+    Oauth: {
+      Default: {
+        Host: 'oauth.default.host',
+        Protocol: 'oauth.default.protocol'
+      },
+      Apple: {
+        Key: 'oauth.apple.key',
+        Secret: 'oauth.apple.secret',
+        Scope: {
+          OpenId: 'oauth.apple.scope.[0]',
+          Email: 'oauth.apple.scope.[1]',
+          Name: 'oauth.apple.scope.[2]'
+        },
+        Response: {
+          Raw: 'oauth.apple.response.[0]',
+          Jwt: 'oauth.apple.response.[1]'
+        }
+      },
+      Nonce: true,
+      CustomParams: {
+        ResponseType: 'code id_token',
+        ResponseMode: 'form_post'
+      }
+    }
   }
 }

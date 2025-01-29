@@ -352,6 +352,7 @@ const authentication = {
     }
   }
 }
+export type AuthenticationConfig = typeof authentication
 
 if (authentication.jwtPublicKey && typeof authentication.jwtPublicKey === 'string')
   (authentication.jwtOptions as any).keyid = createHash('sha3-256').update(authentication.jwtPublicKey).digest('hex')

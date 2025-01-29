@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { useFind, useMutation } from '@ir-engine/common'
-import { AuthenticationSettingType, authenticationSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { authenticationSettingPath, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { State, useHookstate } from '@ir-engine/hyperflux'
 import { Button, Input } from '@ir-engine/ui'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
@@ -37,8 +37,9 @@ import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 
+import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
+import { AuthenticationConfig } from '@ir-engine/server-core/src/appconfig'
 import { initialAuthState } from '../../../../common/initialAuthState'
-import { NotificationService } from '../../../../common/services/NotificationService'
 
 const OAUTH_TYPES = {
   APPLE: 'apple',
@@ -53,12 +54,21 @@ const OAUTH_TYPES = {
 const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
 
-  const authSetting = useFind(authenticationSettingPath).data.at(0) as AuthenticationSettingType
-  const id = authSetting?.id
+  // const authSetting = useFind(authenticationSettingPath).data.at(0) as AuthenticationSettingType
+  // const id = authenticationSetting?.id
   const loadingState = useHookstate({
     loading: false,
     errorMessage: ''
   })
+  const engineSettingData = useFind(engineSettingPath, {
+    query: {
+      category: 'authentication',
+      paginate: false
+    }
+  })
+  const authSetting = unflattenArrayToObject(
+    engineSettingData.data.map((el) => ({ key: el.key, value: el.value, dataType: el.dataType }))
+  ) as AuthenticationConfig
   const state = useHookstate(initialAuthState)
   const holdAuth = useHookstate(initialAuthState)
   const keySecret = useHookstate({
@@ -73,7 +83,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
   const patchAuthSettings = useMutation(authenticationSettingPath).patch
 
   useEffect(() => {
-    if (authSetting) {
+    if (engineSettingData.status === 'success') {
       const tempAuthState = { ...initialAuthState }
       authSetting?.authStrategies?.forEach((el) => {
         Object.entries(el).forEach(([strategyName, strategy]) => {
@@ -96,7 +106,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       )
       keySecret.set(tempKeySecret)
     }
-  }, [authSetting])
+  }, [engineSettingData.status])
 
   const handleSubmit = () => {
     loadingState.loading.set(true)
@@ -111,16 +121,16 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       oauth[key] = JSON.parse(JSON.stringify(oauth[key]))
     }
 
-    patchAuthSettings(id, { authStrategies: auth, oauth: oauth })
-      .then(() => {
-        loadingState.set({ loading: false, errorMessage: '' })
-        NotificationService.dispatchNotify(t('admin:components.setting.authSettingsRefreshNotification'), {
-          variant: 'warning'
-        })
-      })
-      .catch((e) => {
-        loadingState.set({ loading: false, errorMessage: e.message })
-      })
+    // patchAuthSettings(id, { authStrategies: auth, oauth: oauth })
+    //   .then(() => {
+    //     loadingState.set({ loading: false, errorMessage: '' })
+    //     NotificationService.dispatchNotify(t('admin:components.setting.authSettingsRefreshNotification'), {
+    //       variant: 'warning'
+    //     })
+    //   })
+    //   .catch((e) => {
+    //     loadingState.set({ loading: false, errorMessage: e.message })
+    //   })
   }
 
   const handleCancel = () => {
