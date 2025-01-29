@@ -62,6 +62,7 @@ getMutableState(DomainConfigState).merge({
 
 export default function ({ children }): JSX.Element {
   const { t } = useTranslation()
+  const isLocation = window.location.pathname.includes('/location')
 
   useEffect(() => {
     authenticate().then(() => {
@@ -87,7 +88,11 @@ export default function ({ children }): JSX.Element {
       </MetaTags>
       <BrowserRouter history={history}>
         <Suspense
-          fallback={<LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingClient')} />}
+          fallback={
+            !isLocation && (
+              <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingClient')} />
+            )
+          }
         >
           {children}
         </Suspense>
