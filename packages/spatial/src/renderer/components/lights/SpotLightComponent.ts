@@ -37,6 +37,7 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { ActiveHelperComponent } from '../../../common/ActiveHelperComponent'
 import { useHelperEntity } from '../../../common/debug/useHelperEntity'
 import { useDisposable } from '../../../resources/resourceHooks'
 import { T } from '../../../schema/schemaFunctions'
@@ -71,10 +72,12 @@ export const SpotLightComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const renderState = useMutableState(RendererState)
-    const debugEnabled = renderState.nodeHelperVisibility
+    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
+    const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
+
     const spotLightComponent = useComponent(entity, SpotLightComponent)
     const [light] = useDisposable(SpotLight, entity)
-    const helperEntity = useHelperEntity(entity, () => new SpotLightHelper(light), debugEnabled.value)
+    const helperEntity = useHelperEntity(entity, () => new SpotLightHelper(light), debugEnabled)
     const helper = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as SpotLightHelper | undefined
 
     useEffect(() => {

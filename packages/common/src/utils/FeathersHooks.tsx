@@ -36,7 +36,7 @@ Infinite Reality Engine. All Rights Reserved.
  */
 
 import { Params, Query } from '@feathersjs/feathers'
-import React, { useCallback, useEffect, useLayoutEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { ServiceTypes } from '../../declarations'
 
 import {
@@ -135,8 +135,8 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
   }
 
   const queryId = `${method.substring(0, 1)}:${hashObject(queryParams)}` as QueryHash
-
-  const fetch = () => {
+  const fetchRef = useRef<() => void>()
+  fetchRef.current = () => {
     if (method === 'get' && (!args || args[0] == null || args[0] === '')) {
       state[serviceName][queryId].merge({
         status: 'error',
@@ -174,6 +174,10 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       })
   }
 
+  const fetch = useCallback(() => {
+    fetchRef.current?.()
+  }, [fetchRef])
+
   // use immediate effect to get the stack trace of the react context, then add it to the state
   useImmediateEffect(() => {
     if (!state.get(NO_PROXY)[serviceName]) state[serviceName].set({})
@@ -204,7 +208,7 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       error,
       refetch: fetch
     }),
-    [data, query?.response, query?.status, query?.error]
+    [data, query?.response, query?.status, query?.error, fetch]
   )
 }
 
