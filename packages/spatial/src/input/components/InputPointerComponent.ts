@@ -101,7 +101,7 @@ export const InputPointerComponent = defineComponent({
 
   usePointersForCamera(cameraEntity: Entity) {
     const pointers = useQuery([InputPointerComponent])
-    return pointers.filter((entity) => getComponent(entity, InputPointerComponent).cameraEntity === cameraEntity)
+    return pointers.filter((entity) => getComponent(entity, InputPointerComponent)?.cameraEntity === cameraEntity)
   },
 
   getPointerByID(cameraEntity: Entity, pointerId: number) {
