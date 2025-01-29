@@ -33,6 +33,7 @@ import {
   Entity,
   getComponent,
   hasComponent,
+  proxySoAStore,
   removeComponent,
   S,
   setComponent,
@@ -44,7 +45,6 @@ import {
 import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
 import { PeerID, UserID } from '@ir-engine/hyperflux'
 import { NetworkId } from '@ir-engine/network/src/NetworkId'
-import { proxySoAStore } from '@ir-engine/spatial/src/common/proxies/createThreejsProxy'
 
 /** ID of last network created. */
 let availableNetworkId = 0 as NetworkId

@@ -33,8 +33,8 @@ import { Easing } from './EasingFunctions'
 import { createEngine, destroyEngine } from './Engine'
 import { executeSystems } from './EngineFunctions'
 import { Entity } from './Entity'
-import { createEntity } from './EntityFunctions'
 import './TransitionSystem'
+import { createEntity } from './createEntity'
 import { S } from './schemas/JSONSchemas'
 
 describe('TransitionSystem', () => {

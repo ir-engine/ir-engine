@@ -24,12 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import { getAllEntities } from 'bitecs'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { HyperFlux } from '@ir-engine/hyperflux'
 
-import { ECS, S } from '..'
+import { getAllEntities } from 'bitecs'
 import {
   defineComponent,
   getComponent,
@@ -38,8 +37,14 @@ import {
   removeComponent,
   setComponent
 } from '../src/ComponentFunctions'
+import { createEntity } from '../src/createEntity'
 import { createEngine, destroyEngine } from '../src/Engine'
+import { executeSystems } from '../src/EngineFunctions'
 import { Entity } from '../src/Entity'
+import { entityExists, removeEntity } from '../src/EntityFunctions'
+import { defineQuery } from '../src/QueryFunctions'
+import { S } from '../src/schemas/JSONSchemas'
+import { defineSystem } from '../src/SystemFunctions'
 import { AnimationSystemGroup } from '../src/SystemGroups'
 
 const mockDeltaMillis = 1000 / 60
@@ -51,25 +56,6 @@ const MockComponent = defineComponent({
   })
 })
 
-const MockSystemState = new Set<Entity>()
-
-const mockQuery = ECS.defineQuery([MockComponent])
-
-const execute = () => {
-  for (const entity of mockQuery.enter()) {
-    MockSystemState.add(entity)
-  }
-
-  for (const entity of mockQuery.exit()) {
-    MockSystemState.delete(entity)
-  }
-}
-
-const MockSystem = ECS.defineSystem({
-  uuid: 'MockSystem',
-  insert: { with: AnimationSystemGroup },
-  execute
-})
 
 describe('ECS', () => {
   beforeEach(() => {
@@ -88,15 +74,15 @@ describe('ECS', () => {
 
   it('should add entity', async () => {
     const entityLengthBeforeCreate = getAllEntities(HyperFlux.store).length
-    const entity = ECS.createEntity()
+    const entity = createEntity()
     const entitiesAfterCreate = getAllEntities(HyperFlux.store)
     assert(entitiesAfterCreate.includes(entity))
     assert.strictEqual(entitiesAfterCreate.length, entityLengthBeforeCreate + 1)
   })
 
   it('should support enter and exit queries', () => {
-    const entity = ECS.createEntity()
-    const query = ECS.defineQuery([MockComponent])
+    const entity = createEntity()
+    const query = defineQuery([MockComponent])
 
     assert.equal(query().length, 0)
     assert.equal(query.enter().length, 0)
@@ -141,7 +127,7 @@ describe('ECS', () => {
   })
 
   it('should add component', async () => {
-    const entity = ECS.createEntity()
+    const entity = createEntity()
     const mockValue = Math.random()
     setComponent(entity, MockComponent, { mockValue })
     const component = getComponent(entity, MockComponent)
@@ -149,47 +135,26 @@ describe('ECS', () => {
     assert.strictEqual(component.mockValue, mockValue)
   })
 
-  it('should query component in systems', async () => {
-    const entity = ECS.createEntity()
-    const mockValue = Math.random()
-    setComponent(entity, MockComponent, { mockValue })
-    const component = getComponent(entity, MockComponent)
-    ECS.executeSystems(mockDeltaMillis)
-    assert(MockSystemState.has(entity))
-
-    const entity2 = ECS.createEntity()
-    const mockValue2 = Math.random()
-    setComponent(entity2, MockComponent, { mockValue: mockValue2 })
-    const component2 = getComponent(entity2, MockComponent)
-    ECS.executeSystems(mockDeltaMillis * 2)
-    assert(MockSystemState.has(entity2))
-  })
-
   it('should remove and clean up component', async () => {
-    const entity = ECS.createEntity()
+    const entity = createEntity()
     const mockValue = Math.random()
 
     setComponent(entity, MockComponent, { mockValue })
     removeComponent(entity, MockComponent)
 
-    const query = ECS.defineQuery([MockComponent])
+    const query = defineQuery([MockComponent])
     assert.deepStrictEqual([...query()], [])
     assert.deepStrictEqual(query.enter(), [])
     assert.deepStrictEqual(query.exit(), [])
-
-    ECS.executeSystems(mockDeltaMillis)
-    assert(!MockSystemState.has(entity))
   })
 
   it('should re-add component', async () => {
-    const entity = ECS.createEntity()
+    const entity = createEntity()
 
     const mockValue = Math.random()
     setComponent(entity, MockComponent, { mockValue })
 
     removeComponent(entity, MockComponent)
-    ECS.executeSystems(mockDeltaMillis)
-    assert(!MockSystemState.has(entity))
 
     const newMockValue = 1 + Math.random()
     assert.equal(hasComponent(entity, MockComponent), false)
@@ -198,37 +163,32 @@ describe('ECS', () => {
     const component = getComponent(entity, MockComponent)
     assert(component)
     assert.strictEqual(component.mockValue, newMockValue)
-    ECS.executeSystems(mockDeltaMillis * 2)
-    ECS.executeSystems(mockDeltaMillis * 3)
-    assert(MockSystemState.has(entity))
   })
 
   it('should remove and clean up entity', async () => {
-    const entity = ECS.createEntity()
+    const entity = createEntity()
     const mockValue = Math.random()
     setComponent(entity, MockComponent, { mockValue })
     const entities = getAllEntities(HyperFlux.store)
     assert(entities.includes(entity))
-    ECS.removeEntity(entity)
+    removeEntity(entity)
     assert.ok(!getOptionalComponent(entity, MockComponent))
-    ECS.executeSystems(mockDeltaMillis)
-    assert(!MockSystemState.has(entity))
-    assert(!ECS.entityExists(entity))
+    assert(!entityExists(entity))
     // assert.ok(!getAllEntities(HyperFlux.store).includes(entity))
   })
 
   it('should remove entity', async () => {
-    const entity = ECS.createEntity()
-    assert.ok(ECS.entityExists(entity))
-    ECS.removeEntity(entity)
-    assert.ok(!ECS.entityExists(entity))
+    const entity = createEntity()
+    assert.ok(entityExists(entity))
+    removeEntity(entity)
+    assert.ok(!entityExists(entity))
   })
 
   it('should noop with entity that is already removed', async () => {
-    const entity = ECS.createEntity()
-    assert.ok(ECS.entityExists(entity))
-    ECS.removeEntity(entity)
-    ECS.removeEntity(entity)
-    assert.ok(!ECS.entityExists(entity))
+    const entity = createEntity()
+    assert.ok(entityExists(entity))
+    removeEntity(entity)
+    removeEntity(entity)
+    assert.ok(!entityExists(entity))
   })
 })

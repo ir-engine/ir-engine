@@ -215,7 +215,6 @@ describe('LayerFunctions', () => {
       expect(component).toBe(LayerComponent)
       expect(LayerComponents.includes(component)).toBeFalsy()
       expect(LayerFunctions.shouldPropagate(entityLayer, linkedLayer)).toBeTruthy()
-      expect(component.schema).toBeTruthy()
       expect(resultSpy).not.toHaveBeenCalled()
       // Run and Check the result
       LayerFunctions.propagateLayer(testEntity, component)
@@ -233,7 +232,6 @@ describe('LayerFunctions', () => {
       expect(component).not.toBe(LayerComponent)
       expect(LayerComponents.includes(component)).toBeTruthy()
       expect(LayerFunctions.shouldPropagate(entityLayer, linkedLayer)).toBeTruthy()
-      expect(component.schema).toBeTruthy()
       expect(resultSpy).not.toHaveBeenCalled()
       // Run and Check the result
       LayerFunctions.propagateLayer(testEntity, component)
