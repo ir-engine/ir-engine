@@ -44,6 +44,8 @@ interface Vector2InputProp {
   max?: number
   labelXOverride?: string
   labelYOverride?: string
+  classNameXOverride?: string
+  classNameYOverride?: string
 }
 
 export const Vector2Input = ({
@@ -59,6 +61,8 @@ export const Vector2Input = ({
   max,
   labelXOverride,
   labelYOverride,
+  classNameXOverride,
+  classNameYOverride,
   ...rest
 }: Vector2InputProp) => {
   const uniformEnabled = useHookstate(uniformScaling)
@@ -111,6 +115,7 @@ export const Vector2Input = ({
             />
           )
         }
+        className={classNameXOverride}
       />
       <NumericInput
         {...rest}
@@ -129,6 +134,7 @@ export const Vector2Input = ({
             />
           )
         }
+        className={classNameYOverride}
       />
     </div>
   )
