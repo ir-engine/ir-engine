@@ -46,7 +46,6 @@ import {
 } from '@ir-engine/ecs'
 import { LODVariantDescriptor, defaultLODs } from '@ir-engine/editor/src/constants/GLTFPresets'
 import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'
-import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import exportGLTF, { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
 import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
@@ -242,7 +241,7 @@ export default function AddEditLocationModal(props: {
           const name = getComponent(getComponent(entity, EntityTreeComponent).children[0], NameComponent)
 
           await exportRelativeGLTF(entity, projectName, 'public/publish/' + name + '.gltf', false)
-          EditorControlFunctions.modifyProperty([entity], GLTFComponent, { src: srcURL.replace('combined-mesh', name) })
+          //EditorControlFunctions.modifyProperty([entity], GLTFComponent, { src: srcURL.replace('combined-mesh', name) })
         })
         //only use removeEntity can't remove the geometry
         // meshEntity.forEach((entity) => {
