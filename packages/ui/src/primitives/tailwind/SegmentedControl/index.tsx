@@ -124,7 +124,7 @@ const SegmentedControl = ({
           <div
             tabIndex={0}
             className={twMerge(
-              ` relative my-[8px] flex w-full items-center rounded-md bg-[#141619] !px-[2px] !py-[4px] ${
+              ` relative my-[0px] flex w-full items-center rounded-md bg-[#141619] !px-[2px] !py-[4px] ${
                 heights[inputHeight]
               } ${disabled && 'cursor-not-allowed bg-[#191B1F] text-[#6B6F78]'} transition-colors duration-300`,
               'focus:outline-none'

@@ -147,7 +147,7 @@ export function InputGroup({
         </div>
       </div>
       <div
-        className={twMerge('flex w-full flex-wrap items-center justify-end', className)}
+        className={twMerge('flex w-full flex-wrap items-center justify-end py-[4px]', className)}
         data-testid={dataTestId || ''}
       >
         {children}

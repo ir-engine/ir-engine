@@ -50,8 +50,8 @@ import { Checkbox } from '@ir-engine/ui'
 import { BackSide, ClampToEdgeWrapping, DoubleSide, FrontSide, MirroredRepeatWrapping, RepeatWrapping } from 'three'
 import { Slider } from '../../../../../editor'
 import Button from '../../../../primitives/tailwind/Button'
-import ArrayInputGroup from '../../input/Array'
 
+import ArrayInputGroup from '../../../editorUpdates/input/Array'
 import InputGroup from '../../../editorUpdates/input/Group'
 import NumericInput from '../../input/Numeric'
 import SegmentedControlInput from '../../input/SegmentedControl'
@@ -175,25 +175,35 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
         info={t('editor:properties.video.lbl-media-info')}
       >
         <SegmentedControlInput value={mediaSourceValue} onChange={mediaSourceChange} options={mediaSourceOptions} />
+      </InputGroup>
 
-        {mediaSourceValue !== 'Self' && (
+      {mediaSourceValue !== 'Self' && (
+        <InputGroup
+          name="SynchronizedMedia"
+          label={t('editor:properties.video.lbl-synchronized-media-source')}
+          info={t('editor:properties.video.lbl-synchronized-media-source-info')}
+        >
           <SelectInput
             value={video.mediaUUID.value}
             onChange={commitProperty(VideoComponent, 'mediaUUID')}
             options={mediaOptions}
           />
-        )}
-      </InputGroup>
+        </InputGroup>
+      )}
 
       {video.mediaUUID.value == '' && media && (
         <>
-          <ArrayInputGroup
+          <InputGroup
+            name="SourcePaths"
             label={t('editor:properties.media.paths')}
-            inputLabel={t('editor:properties.media.path')}
-            values={media.resources.value as string[]}
-            dropTypes={[...ItemTypes.Videos]}
-            onChange={commitProperty(MediaComponent, 'resources')}
-          />
+            info={t('editor:properties.media.paths')}
+          >
+            <ArrayInputGroup
+              values={media.resources.value as string[]}
+              dropTypes={[...ItemTypes.Videos]}
+              onChange={commitProperty(MediaComponent, 'resources')}
+            />
+          </InputGroup>
 
           <Slider
             min={0}

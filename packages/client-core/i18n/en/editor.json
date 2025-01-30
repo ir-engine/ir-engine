@@ -1026,7 +1026,9 @@
       "lbl-alpha-uv-offset": "Alpha UV Offset",
       "lbl-alpha-uv-offset-info": "The offset of the alpha channel in UV space",
       "lbl-alpha-uv-scale": "Alpha UV Scale",
-      "lbl-alpha-uv-scale-info": "The scale of the alpha channel in UV space"
+      "lbl-alpha-uv-scale-info": "The scale of the alpha channel in UV space",
+      "lbl-synchronized-media-source": "Synchronized Media Source",
+      "lbl-synchronized-media-source-info": "Synchronized Media Source"
     },
     "volumetric": {
       "name": "Volumetric",
