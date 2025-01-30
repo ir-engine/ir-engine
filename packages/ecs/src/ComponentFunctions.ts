@@ -63,6 +63,7 @@ import {
   HasSchemaValidators,
   HasValidSchemaValues,
   IsSingleValueSchema,
+  requiresDeserialization,
   SerializeSchema
 } from './schemas/JSONSchemaUtils'
 import { S } from './schemas/JSONSchemas'
@@ -202,10 +203,6 @@ export type SetComponentType<C extends Component> = Parameters<C['onSet']>[2]
 /** @description Generic `type` for {@link Component}s, that takes the shape of the type used by its {@link Component.errors} field. */
 export type ComponentErrorsType<C extends Component> =
   C['errors'][number] /** @todo What is C[...][number] doing here? */
-
-const schemaIsJSONSchema = (schema?: ComponentSchema): schema is TSchema => {
-  return !!(schema as TSchema)?.[Kind]
-}
 
 type Primitive = string | number | bigint | boolean | undefined | symbol
 export type ComponentPropertyPath<T, Prefix = ''> = {
@@ -401,12 +398,13 @@ export const createInitialComponentValue = <
   entity: Entity,
   component: Component<Schema, InitializationType, ComponentType, JSON, SetJSON, unknown>
 ): ComponentType => {
-  if (schemaIsJSONSchema(component.schema)) {
-    const schema = CreateSchemaValue(entity, component.schema) as InitializationType
-    if (component.onInit) return component.onInit(schema) as ComponentType
-    else return schema as unknown as ComponentType
-  } else if (component.onInit) return component.onInit(undefined as InitializationType) as ComponentType
-  else return null as ComponentType
+  if (!component.schema) {
+    if (component.onInit) return component.onInit(undefined as InitializationType) as ComponentType
+    return true as ComponentType // true as tag component
+  }
+  const schema = CreateSchemaValue(entity, component.schema) as InitializationType
+  if (component.onInit) return component.onInit(schema) as ComponentType
+  else return schema as unknown as ComponentType
 }
 
 function nearestPowerOf2(n: number) {
@@ -659,51 +657,42 @@ const _getComponentState = <C extends Component>(entity: Entity, component: C) =
  * @todo we used to have some of the conditionals here cached scoped inside onSet,
  * but now that it is it's own function we may want to precompute and cache these again
  */
-const _mergeComponentState = <C extends Component>(
-  entity: Entity,
-  component: C,
-  args: SetComponentType<C> | undefined = undefined
-) => {
-  const componentState = component.stateMap[entity]
+// const _mergeComponentState = <C extends Component>(
+//   entity: Entity,
+//   component: C,
+//   args: SetComponentType<C> | undefined = undefined
+// ) => {
+//   if (!component.schema) return
+//   const componentState = component.stateMap[entity]
 
-  if (schemaIsJSONSchema(component.schema)) {
-    if (HasRequiredSchema(component.schema)) {
-      const [valid, key] = HasRequiredSchemaValues(component.schema, args)
-      if (!valid) throw new Error(`${component.name}:OnSet Missing required value for key ${key}`)
-    }
+//   if (HasRequiredSchema(component.schema)) {
+//     const [valid, key] = HasRequiredSchemaValues(component.schema, args)
+//     if (!valid) throw new Error(`${component.name}:OnSet Missing required value for key ${key}`)
+//   }
 
-    if (args === null || args === undefined) return
+//   if (args === null || args === undefined) return
 
-    const cleanJson = DeserializeSchemaValue(entity, component.schema, componentState.get(NO_PROXY_STEALTH), args)
+//   const cleanJson = DeserializeSchemaValue(entity, component.schema, componentState.get(NO_PROXY_STEALTH), args)
 
-    if (cleanJson === null || cleanJson === undefined) return
+//   if (cleanJson === null || cleanJson === undefined) return
 
-    if (HasSchemaValidators(component.schema)) {
-      const [valid, key] = HasValidSchemaValues(
-        component.schema,
-        cleanJson,
-        componentState.get(NO_PROXY_STEALTH),
-        entity
-      )
-      if (!valid) throw new Error(`${component.name}:OnSet Invalid value for key ${key} ${JSON.stringify(args)}`)
-    }
+//   if (HasSchemaValidators(component.schema)) {
+//     const [valid, key] = HasValidSchemaValues(component.schema, cleanJson, componentState.get(NO_PROXY_STEALTH), entity)
+//     if (!valid) throw new Error(`${component.name}:OnSet Invalid value for key ${key} ${JSON.stringify(args)}`)
+//   }
 
-    if (Array.isArray(cleanJson) || typeof cleanJson !== 'object' || IsSingleValueSchema(component.schema))
-      componentState.set(cleanJson)
-    else if (cleanJson) {
-      for (const key of Object.keys(cleanJson)) {
-        componentState[key].set((_) => cleanJson?.[key])
-      }
-    } else {
-      componentState.set(cleanJson as any)
-    }
-
-    return
-  }
-}
+//   if (Array.isArray(cleanJson) || typeof cleanJson !== 'object' || IsSingleValueSchema(component.schema))
+//     componentState.set(cleanJson)
+//   else if (cleanJson) {
+//     for (const key of Object.keys(cleanJson)) {
+//       componentState[key].set((_) => cleanJson?.[key])
+//     }
+//   } else {
+//     componentState.set(cleanJson as any)
+//   }
+// }
 
 // const _mergeStateValuesDeep = (target: State<any>, source: any) => {
-//   console.log({target, source})
 //   if (typeof source !== 'object') {
 //     target.set(source)
 //     return
@@ -729,6 +718,7 @@ const _mergeComponentState = <C extends Component>(
  * @notes
  * - If the component already exists, it will be overwritten.
  * - Unlike calling {@link removeComponent} followed by {@link addComponent}, the entry queue will not be rerun.
+ * - Does not run validators or deserialization.
  *
  * @param entity The entity to which the Component will be attached.
  * @param component The Component that will be attached.
@@ -759,7 +749,20 @@ export const setComponent = <C extends Component>(
     bitECS.addComponent(HyperFlux.store, entity, component)
   }
 
-  _mergeComponentState(entity, component, args)
+  // only one level deep is supported
+  // root level boolean is not supported as is redundant
+  if (component.schema && !!args) {
+    if (typeof args === 'object' && !Array.isArray(args) && !IsSingleValueSchema(component.schema)) {
+      if (requiresDeserialization(component.schema)) {
+        state.merge(DeserializeSchemaValue(entity, component.schema, state.get(NO_PROXY_STEALTH), args))
+      } else {
+        state.merge(args)
+      }
+    } else {
+      state.set(args)
+    }
+  }
+
   component.onSet(entity, state, args)
 
   LayerFunctions.propagateLayer(entity, component)
@@ -878,6 +881,13 @@ export const removeAllComponents = (entity: Entity) => {
   }
 }
 
+export const deserializeComponent = <C extends Component>(entity: Entity, component: C, json: ComponentJSON<any>) => {
+  if (!hasComponent(entity, component)) setComponent(entity, component)
+  const current = getComponent(entity, component)
+  const args = component.schema ? DeserializeSchemaValue(entity, component.schema, current, json) : json
+  setComponent(entity, component, args)
+}
+
 export const serializeComponent = <C extends Component>(entity: Entity, Component: C) => {
   const component = getComponent(entity, Component)
   return JSON.parse(JSON.stringify(Component.toJSON(component))) as ReturnType<C['toJSON']>
@@ -885,11 +895,8 @@ export const serializeComponent = <C extends Component>(entity: Entity, Componen
 
 // If we want to add more validation logic (ie. schema migrations), decouple this function from Component.toJSON first
 export const validateComponentSchema = <C extends Component>(Component: C, data: ComponentType<C>) => {
-  if (schemaIsJSONSchema(Component.schema)) {
-    return SerializeSchema(Component.schema, data)
-  }
-
-  return data
+  if (!Component.schema) return data
+  return SerializeSchema(Component.schema, data)
 }
 
 // use seems to be unavailable in the server environment

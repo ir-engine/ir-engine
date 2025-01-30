@@ -73,6 +73,7 @@ export const saveSceneGLTF = async (
   }
 
   const gltfData = await exportGLTFScene(rootEntity, getState(EditorState).projectName!, sceneFile, false)
+  console.log(gltfData)
 
   if (!gltfData) {
     logger.error('Failed to save scene, no gltf data found')

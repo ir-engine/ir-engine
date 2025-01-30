@@ -154,7 +154,7 @@ const useIsUnlit = (entity: Entity) => {
 const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
   const isMesh = useOptionalComponent(props.entity, MeshComponent)
   const isModelColliders = useOptionalComponent(props.parentEntity, RigidBodyComponent)
-  const isVisible = useOptionalComponent(props.entity, VisibleComponent)
+  const isVisible = !!useOptionalComponent(props.entity, VisibleComponent)
   const isUnlit = useIsUnlit(props.entity)
 
   const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)

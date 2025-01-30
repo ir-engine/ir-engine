@@ -68,7 +68,6 @@ export const ObjectLayerMaskComponent = defineComponent({
         removeComponent(entity, ObjectLayerComponents[i])
       }
     }
-    component.set(mask)
     ObjectLayerMaskComponent.mask[entity] = mask
   },
 

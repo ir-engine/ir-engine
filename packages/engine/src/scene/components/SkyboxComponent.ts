@@ -67,7 +67,7 @@ export const SkyboxComponent = defineComponent({
     equirectangularPath: S.String(''),
     cubemapPath: S.String(''),
     backgroundType: S.Number(1),
-    sky: S.Nullable(S.Type<Sky>()),
+    sky: S.NonSerialized(S.Nullable(S.Type<Sky>())),
     skyboxProps: S.Object({
       turbidity: S.Number(10),
       rayleigh: S.Number(1),

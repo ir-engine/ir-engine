@@ -26,13 +26,14 @@ Infinite Reality Engine. All Rights Reserved.
 import { LayoutData } from 'rc-dock'
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { EntityUUID } from '@ir-engine/ecs'
-import { UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { EntityUUID, getOptionalComponent } from '@ir-engine/ecs'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { LinkState } from '@ir-engine/engine/src/scene/components/LinkComponent'
 import { defineState, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 
 export enum UIMode {
   BASIC = 'BASIC',
@@ -64,6 +65,13 @@ export const EditorState = defineState({
     const rootEntity = getState(EditorState).rootEntity
     if (!rootEntity) return false
     return !!getState(AssetModifiedState)[GLTFComponent.getInstanceID(rootEntity)]
+  },
+  markModifiedScene: (entity: Entity) => {
+    const sourceID = getOptionalComponent(entity, SourceComponent)
+    if (!sourceID) return
+
+    const modifiedState = getMutableState(AssetModifiedState)
+    modifiedState[sourceID].set(true)
   },
   reactor: () => {
     const linkState = useMutableState(LinkState)

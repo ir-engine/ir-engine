@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { Component } from '../ComponentFunctions'
 import { Entity } from '../Entity'
 import {
   Kind,
@@ -304,6 +305,10 @@ export const HasValidSchemaValues = <T extends Schema, Val>(
     default:
       return [true, '']
   }
+}
+
+export const requiresDeserialization = <T extends Schema>(schema: T): boolean => {
+  return IterateSchema(schema, (curr) => !!curr.options?.deserialize)
 }
 
 export const IsSingleValueSchema = <T extends Schema>(schema?: T): boolean => {

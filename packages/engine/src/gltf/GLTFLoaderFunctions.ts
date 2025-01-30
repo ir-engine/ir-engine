@@ -31,6 +31,7 @@ import {
   EntityUUID,
   LayerComponent,
   UUIDComponent,
+  deserializeComponent,
   getComponent,
   getMutableComponent,
   hasComponent,
@@ -766,7 +767,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   for (const [extensionName, extension] of extensions) {
     const Component = ComponentJSONIDMap.get(extensionName) as any // todo
     if (!Component) continue
-    setComponent(materialEntity, Component, extension)
+    deserializeComponent(materialEntity, Component, extension)
     if (typeof Component.getMaterialType === 'function') {
       materialConstructor = Component.getMaterialType(materialDef)
     }
@@ -1260,7 +1261,7 @@ const loadMesh = async (options: GLTFParserOptions, entity: Entity, nodeIndex: n
   // for (const extensionName in extensions) {
   //   const Component = ComponentJSONIDMap.get(extensionName)
   //   if (!Component) continue
-  //   setComponent(entity, Component, extensions[extensionName])
+  //   deserializeComponent(entity, Component, extensions[extensionName])
   // }
 
   setComponent(entity, MeshComponent, mesh)
@@ -1389,7 +1390,7 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
                 // expected
               }
             }
-            setComponent(nodeEntity, Component, deserializedValue)
+            deserializeComponent(nodeEntity, Component, deserializedValue)
             if (Component === ColliderComponent) removeComponent(nodeEntity, VisibleComponent)
           }
         }
@@ -1445,7 +1446,7 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
     for (const extension in nodeDef.extensions) {
       const Component = ComponentJSONIDMap.get(extension) as any // todo
       if (!Component) continue
-      setComponent(nodeEntity, Component, nodeDef.extensions[extension])
+      deserializeComponent(nodeEntity, Component, nodeDef.extensions[extension])
       if (typeof Component.loadNode === 'function') {
         extensionPending.push(Component.loadNode(options, nodeIndex))
       }

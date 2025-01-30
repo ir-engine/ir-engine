@@ -90,12 +90,14 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
     } else {
       removeComponent(entity, component)
     }
+    EditorState.markModifiedScene(entity)
   }
 }
 
 const modifyName = (entities: Entity[], name: string) => {
   for (const entity of entities) {
     setComponent(entity, NameComponent, name)
+    EditorState.markModifiedScene(entity)
   }
 }
 
@@ -160,6 +162,7 @@ const modifyProperty = <C extends Component<any, any>>(
       }
     }
     setComponent(entity, component, newObj)
+    EditorState.markModifiedScene(entity)
   }
 }
 
@@ -210,6 +213,7 @@ const overwriteLookdevObject = (
     const sceneEntitiesWithComponent = getChildrenWithComponents(parentEntity, [lookDevComp])
     if (sceneEntitiesWithComponent.length) {
       setComponent(sceneEntitiesWithComponent[0], lookDevComp, componentJson)
+      EditorState.markModifiedScene(parentEntity)
     } else {
       createObjectFromSceneElement(componentJson, parentEntity, beforeEntity)
     }
@@ -267,6 +271,8 @@ const createObjectFromSceneElement = (
     setComponent(entity, ComponentJSONIDMap.get(key)!, value)
   }
 
+  EditorState.markModifiedScene(gltfEntity)
+
   return { entityUUID, sourceID }
 }
 
@@ -314,15 +320,8 @@ const duplicateObject = (entities: Entity[]) => {
     for (const childEntity of children) {
       duplicateEntity(childEntity, rootEntity)
     }
+    EditorState.markModifiedScene(rootEntity)
   }
-}
-
-const applyTransformToChildren = (entity: Entity) => {
-  iterateEntityNode(entity, (entity) => {
-    if (!hasComponent(entity, TransformComponent)) return
-    computeTransformMatrix(entity)
-    TransformComponent.dirty[entity] = 1
-  })
 }
 
 const positionObject = (
@@ -363,7 +362,7 @@ const positionObject = (
 
     setComponent(entity, TransformComponent, { position: transform.position })
 
-    applyTransformToChildren(entity)
+    EditorState.markModifiedScene(entity)
   }
 }
 
@@ -397,7 +396,7 @@ const rotateObject = (nodes: Entity[], rotations: Quaternion[], space = getState
 
     setComponent(entity, TransformComponent, { rotation: transform.rotation })
 
-    applyTransformToChildren(entity)
+    EditorState.markModifiedScene(entity)
   }
 }
 
@@ -422,6 +421,8 @@ const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: V
       .decompose(transform.position, transform.rotation, transform.scale)
 
     setComponent(entity, TransformComponent, { rotation: transform.rotation })
+
+    EditorState.markModifiedScene(entity)
   }
 }
 
@@ -445,6 +446,8 @@ const scaleObject = (entities: Entity[], scales: Vector3[], overrideScale = fals
     )
 
     setComponent(entity, TransformComponent, { scale: transformComponent.scale })
+
+    EditorState.markModifiedScene(entity)
   }
 }
 
@@ -465,6 +468,8 @@ const reparentObject = (
       ? parentTree.children.indexOf(beforeEntity)
       : undefined
     setComponent(entity, EntityTreeComponent, { parentEntity: parent, childIndex: index })
+    /** @todo handle the entity changing sources */
+    EditorState.markModifiedScene(entity)
   }
 }
 
@@ -490,6 +495,7 @@ const groupObjects = (entities: Entity[]) => {
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
     setComponent(entity, EntityTreeComponent, { parentEntity: newParent })
+    EditorState.markModifiedScene(entity)
   }
 }
 
@@ -500,6 +506,7 @@ const removeObject = (entities: Entity[]) => {
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
     removeEntity(entity)
+    EditorState.markModifiedScene(entity)
   }
 }
 
