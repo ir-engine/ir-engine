@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Rows01Md } from '@ir-engine/ui/src/icons'
 import { ArgTypes } from '@storybook/react'
 import React from 'react'
 import SegmentedControl, { OptionType } from './index'
@@ -33,10 +32,10 @@ const argTypes: ArgTypes = {
     control: 'number',
     name: 'Number of List Items'
   },
-  disabled: {
-    control: {
-      type: 'boolean'
-    }
+  layout: {
+    control: 'select',
+    options: [undefined, 'single-row', 'two-row', 'vertical'],
+    name: 'Layout Type'
   }
 }
 
@@ -52,11 +51,12 @@ export default {
   },
   argTypes,
   args: {
-    numberOfListItems: 2
+    numberOfListItems: 2,
+    layout: undefined
   }
 }
 
-const Renderer = ({ numberOfListItems, generateItem, items, ...props }) => {
+const Renderer = ({ numberOfListItems, layout, generateItem, items, ...props }) => {
   const _items = items || ([] as OptionType[])
   for (let i = 0; i < numberOfListItems; i++) {
     if (generateItem) {
@@ -70,36 +70,15 @@ const Renderer = ({ numberOfListItems, generateItem, items, ...props }) => {
     }
   }
 
-  const [value, setValue] = React.useState(-1)
+  const [value, setValue] = React.useState(0)
 
   const onChange = (value: number) => {
     setValue(value)
   }
 
-  return <SegmentedControl options={_items} value={value} onChange={onChange} {...props} />
+  return <SegmentedControl layout={layout} options={_items} value={value} onChange={onChange} {...props} />
 }
 
 export const Default = {
   render: Renderer
-}
-
-export const SecondaryText = {
-  render: Renderer,
-  args: {
-    generateItem: (i: number) => ({ value: i, label: `Account Settings ${i}`, secondaryText: 'secondary' }),
-    showCheckmark: false
-  }
-}
-
-export const SecondaryTextWithIcon = {
-  render: Renderer,
-  args: {
-    generateItem: (i: number) => ({
-      value: i,
-      label: `Account Settings ${i}`,
-      secondaryText: 'secondary',
-      Icon: Rows01Md
-    }),
-    showCheckmark: false
-  }
 }

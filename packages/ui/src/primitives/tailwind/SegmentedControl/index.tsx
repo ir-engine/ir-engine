@@ -23,17 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useLayoutEffect, useRef, useState } from 'react'
-import { twMerge } from 'tailwind-merge'
-import { InputProps } from '../Input'
+import React, { useRef, useState } from 'react'
 
 export interface OptionType {
   value: string | number
   label: string
   Icon?: ({ className }: { className?: string }) => JSX.Element
   /**text shown on the right end */
-  secondaryText?: string
-  disabled?: boolean
+
   selected?: boolean
   className?: string
 }
@@ -42,60 +39,13 @@ export interface SegmentedControlProps<T = string | number> {
   options: OptionType[]
   onChange: (value: T) => void
   value: T
-  state?: InputProps['state']
-  helperText?: InputProps['helperText']
-  required?: boolean
-  disabled?: boolean
-  positioning?: {
-    direction: 'down' | 'up'
-    maxHeight: string
-  }
-  showClearButton?: boolean
+  layout?: 'single-row' | 'two-row' | 'vertical'
 }
 
-const SegmentedControl = ({
-  options,
-  onChange,
-  value,
-  required,
-  disabled,
-  positioning: userPositioning
-}: SegmentedControlProps) => {
-  const [positioning, setPositioning] = useState({
-    direction: 'down' as 'down' | 'up',
-    maxHeight: '0px',
-    ...userPositioning,
-    userSet: false
-  })
+const SegmentedControl = ({ options, onChange, value, layout }: SegmentedControlProps) => {
   const ref = useRef<HTMLDivElement>(null)
   const labelRef = useRef<HTMLLabelElement>(null)
   const [localValue, setLocalValue] = useState(value)
-
-  useLayoutEffect(() => {
-    const updateDirection = () => {
-      if (ref.current && userPositioning === undefined) {
-        const { top, bottom } = ref.current.getBoundingClientRect()
-        const windowHeight = window.innerHeight
-
-        const spaceAbove = top
-        const spaceBelow = windowHeight - bottom
-
-        const newDirection = spaceBelow >= spaceAbove ? 'down' : 'up'
-        const _maxHeight = newDirection === 'down' ? 0.8 * spaceBelow : 0.8 * spaceAbove
-        setPositioning({
-          ...positioning,
-          direction: newDirection,
-          maxHeight: `${_maxHeight}px`
-        })
-      }
-    }
-    updateDirection()
-    window.addEventListener('resize', updateDirection)
-
-    return () => {
-      window.removeEventListener('resize', updateDirection)
-    }
-  }, [])
 
   return (
     <div className={'flex w-full flex-col gap-y-2'}>
@@ -103,18 +53,19 @@ const SegmentedControl = ({
         <div ref={ref} className="relative w-full">
           <div
             tabIndex={0}
-            className={twMerge(
-              ` relative my-[0px] flex w-full items-center rounded-md bg-[#141619] !px-[2px] !py-[4px] 
-              ${disabled && 'cursor-not-allowed bg-[#191B1F] text-[#6B6F78]'} transition-colors duration-300`,
-              'focus:outline-none'
-            )}
+            className={`relative my-[0px] flex grid w-full items-center gap-[4px] rounded-md bg-[#141619] !px-[2px] !py-[2px] focus:outline-none 
+              ${(layout === undefined || layout === 'single-row') && ' grid-flow-col grid-rows-1 '}
+              ${layout === 'two-row' && ' grid-flow-col grid-rows-2'}
+              ${layout === 'vertical' && ' grid-cols-1 '}
+            `}
           >
             {options.length > 0 ? (
-              options.map(({ value: currentValue, ...optionProps }) => (
+              options.map(({ value: currentValue, ...optionProps }, index) => (
                 <button
-                  className={`!mx-[2px] !my-0 h-full flex-auto rounded-md text-[14px] ${
-                    currentValue === localValue && 'bg-[#212226] text-[#F5F5F5]'
-                  } ${currentValue !== localValue && 'bg-[#191B1F] text-[#6B6F78]'}`}
+                  className={`!mx-0 !my-0 h-full flex-auto rounded-md p-[2px] text-[14px]
+                    ${currentValue === localValue && 'bg-[#212226] text-[#F5F5F5]'} 
+                    ${currentValue !== localValue && 'bg-[#191B1F] text-[#6B6F78]'}
+                    `}
                   onClick={() => {
                     setLocalValue(currentValue)
                     onChange(currentValue)
@@ -124,9 +75,7 @@ const SegmentedControl = ({
                 </button>
               ))
             ) : (
-              <div className="flex h-12 items-center justify-center bg-[#141619] text-[#9CA0AA]">
-                No options available
-              </div>
+              <div className="w-full bg-[#141619] text-center text-[#F5F5F5] ">No options available</div>
             )}
           </div>
         </div>
