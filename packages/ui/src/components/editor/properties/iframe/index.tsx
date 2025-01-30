@@ -26,9 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PopupMenuServices } from '@ir-engine/client-core/src/user/components/UserMenu/PopupMenuService'
-import { UserMenus } from '@ir-engine/client-core/src/user/UserUISystem'
-import { getComponent, hasComponent, useComponent, useEntityContext, UUIDComponent } from '@ir-engine/ecs'
+import { getComponent, hasComponent, useComponent, UUIDComponent } from '@ir-engine/ecs'
 import { commitProperty, EditorComponentType, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
@@ -41,21 +39,6 @@ import { IFrameComponent } from '@ir-engine/engine/src/scene/components/IFrameCo
 import { CodeSnippet01Md } from '../../../../icons'
 import InputGroup from '../../input/Group'
 import { ControlledStringInput } from '../../input/String'
-
-export const IFrameReactor = () => {
-  const entity = useEntityContext()
-  const iframeComponent = useComponent(entity, IFrameComponent)
-
-  useEffect(() => {
-    if (iframeComponent.isOpen.value) {
-      PopupMenuServices.showPopupMenu(UserMenus.EmbedFrame, {
-        src: iframeComponent.src.value
-      })
-    }
-  }, [iframeComponent])
-
-  return null
-}
 
 /**
  * IFrameNodeEditor component used to provide the editor with iframe popup

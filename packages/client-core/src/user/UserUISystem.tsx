@@ -33,12 +33,12 @@ import { getMutableState, none } from '@ir-engine/hyperflux'
 import { useHookstate } from '@hookstate/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { EngineState, QueryReactor } from '@ir-engine/ecs'
+import { EngineState, QueryReactor, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { IFrameComponent } from '@ir-engine/engine/src/scene/components/IFrameComponent'
 import { NetworkState } from '@ir-engine/network'
 import { IFrameReactor } from '@ir-engine/ui/src/components/editor/properties/iframe/index.tsx'
 import { InviteService } from '../social/services/InviteService'
-import { PopupMenuState } from './components/UserMenu/PopupMenuService'
+import { PopupMenuServices, PopupMenuState } from './components/UserMenu/PopupMenuService'
 import AvatarCreatorMenu2, { SupportedSdks } from './components/UserMenu/menus/AvatarCreatorMenu2'
 import AvatarModifyMenu from './components/UserMenu/menus/AvatarModifyMenu'
 import AvatarSelectMenu from './components/UserMenu/menus/AvatarSelectMenu'
@@ -48,6 +48,21 @@ import ProfileMenu from './components/UserMenu/menus/ProfileMenu'
 import SettingMenu from './components/UserMenu/menus/SettingMenu'
 import SettingMenu2 from './components/UserMenu/menus/SettingMenu2'
 import ShareMenu from './components/UserMenu/menus/ShareMenu'
+
+const IFrameReactor = () => {
+  const entity = useEntityContext()
+  const iframeComponent = useComponent(entity, IFrameComponent)
+
+  useEffect(() => {
+    if (iframeComponent.isOpen.value) {
+      PopupMenuServices.showPopupMenu(UserMenus.EmbedFrame, {
+        src: iframeComponent.src.value
+      })
+    }
+  }, [iframeComponent])
+
+  return null
+}
 
 export const EmoteIcon = () => (
   <svg width="35px" height="35px" viewBox="0 0 184 184" version="1.1">
