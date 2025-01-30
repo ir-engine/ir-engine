@@ -42,6 +42,8 @@ interface Vector2InputProp {
   onRelease?: (v: Vector2) => void
   min?: number
   max?: number
+  labelXOverride?: string
+  labelYOverride?: string
 }
 
 export const Vector2Input = ({
@@ -55,6 +57,8 @@ export const Vector2Input = ({
   onRelease,
   min,
   max,
+  labelXOverride,
+  labelYOverride,
   ...rest
 }: Vector2InputProp) => {
   const uniformEnabled = useHookstate(uniformScaling)
@@ -103,6 +107,7 @@ export const Vector2Input = ({
               onChange={onChangeAxis('x')}
               onRelease={onReleaseAxis('x')}
               axis="x"
+              axisLabelOverride={labelXOverride}
             />
           )
         }
@@ -120,6 +125,7 @@ export const Vector2Input = ({
               onChange={onChangeAxis('y')}
               onRelease={onReleaseAxis('y')}
               axis="y"
+              axisLabelOverride={labelYOverride}
             />
           )
         }

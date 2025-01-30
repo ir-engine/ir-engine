@@ -139,7 +139,9 @@ export const MediaComponent = defineComponent({
   schema: S.Object({
     controls: S.Bool(false),
     synchronize: S.Bool(true),
-    autoplay: S.Bool(false), //false = personal preference, this is super annoying when it just starts playing once added to a scene while editing
+    autoplayEditor: S.Bool(false), //false = personal preference, this is super annoying when it just starts playing once added to a scene while editing
+    autoplayRuntime: S.Bool(false), //false
+    muteEditor: S.Bool(false), //false
     uiOffset: T.Vec3(),
     xruiEntity: S.Entity(),
     volume: S.Number(1),
@@ -168,7 +170,9 @@ export const MediaComponent = defineComponent({
   toJSON: (component) => {
     return {
       controls: component.controls,
-      autoplay: component.autoplay,
+      autoplayEditor: component.autoplayEditor,
+      autoplayRuntime: component.autoplayRuntime,
+      muteEditor: component.muteEditor,
       resources: [...component.resources].filter(Boolean), // filter empty strings
       volume: component.volume,
       uiOffset: component.uiOffset,
@@ -213,11 +217,12 @@ export function MediaReactor() {
     const handleAutoplay = () => {
       const mediaComponent = getComponent(entity, MediaElementComponent)
       // handle when we dont have autoplay enabled but have programatically started playback
-      if (!media.autoplay.value && !media.paused.value) mediaComponent?.element.play()
+      if (!media.autoplayRuntime.value && !media.paused.value) mediaComponent?.element.play()
       // handle when we have autoplay enabled but have paused playback
-      if (media.autoplay.value && media.paused.value) media.paused.set(false)
+      if (media.autoplayRuntime.value && media.paused.value) media.paused.set(false)
       // handle when we have autoplay and mediaComponent is paused
-      if (media.autoplay.value && !media.paused.value && mediaComponent?.element.paused) mediaComponent.element.play()
+      if (media.autoplayRuntime.value && !media.paused.value && mediaComponent?.element.paused)
+        mediaComponent.element.play()
       window.removeEventListener('pointerup', handleAutoplay)
       window.removeEventListener('keypress', handleAutoplay)
       window.removeEventListener('touchend', handleAutoplay)
@@ -237,7 +242,7 @@ export function MediaReactor() {
     setCallback(entity, StandardCallbacks.PLAY, () => media.paused.set(false))
     setCallback(entity, StandardCallbacks.PAUSE, () => media.paused.set(true))
     setCallback(entity, StandardCallbacks.RESET, () => {
-      media.paused.set(!media.autoplay.value)
+      media.paused.set(!media.autoplayRuntime.value)
 
       //using to force the react to update the seek time if already set to 0
       //due to media's seekTime is not being updated with the media elements current time

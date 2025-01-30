@@ -39,6 +39,7 @@ export interface CheckboxProps extends Omit<React.HTMLAttributes<HTMLInputElemen
   /**position where `label` and `description` will be placed
    * @default right  */
   variantTextPlacement?: 'left' | 'right'
+  variantTextClassname?: string
 }
 
 const variantSizes = {
@@ -78,6 +79,7 @@ const Checkbox = (
     onChange,
     variantSize = 'md',
     variantTextPlacement = 'right',
+    variantTextClassname = '',
     ...props
   }: CheckboxProps,
   ref: React.ForwardedRef<HTMLDivElement>
@@ -154,11 +156,18 @@ const Checkbox = (
           onClick={handleChange}
         >
           <p
-            className={twMerge(!disabled && 'group-hover/checkbox:text-[#F5F5F5] group-focus/checkbox:text-[#F5F5F5]')}
+            className={twMerge(
+              !disabled && 'group-hover/checkbox:text-[#F5F5F5] group-focus/checkbox:text-[#F5F5F5]',
+              variantTextClassname
+            )}
           >
             {label}
           </p>
-          <p className={twMerge('block text-wrap', variantSizes.maxDescriptionWidth[variantSize])}>{description}</p>
+          <p
+            className={twMerge('block text-wrap', variantSizes.maxDescriptionWidth[variantSize], variantTextClassname)}
+          >
+            {description}
+          </p>
         </div>
       )}
     </div>
