@@ -96,7 +96,7 @@ export default function AddEditLocationModal(props: {
   onPublish?: () => Promise<void>
 }) {
   const { t } = useTranslation()
-
+  const compressionLoading = useHookstate(false)
   const locationID = useHookstate(props.location?.id || null)
 
   const params = {
@@ -274,6 +274,11 @@ export default function AddEditLocationModal(props: {
         const lodVariantParams: ModelTransformParameters[] = fileLODs.map((lod) => ({
           ...lod.params
         }))
+        compressionLoading.set(true)
+        compressionProgress.set({
+          progress: 0,
+          caption: 'start compression'
+        })
         await transformModel(
           srcURL,
           lodVariantParams,
@@ -323,6 +328,7 @@ export default function AddEditLocationModal(props: {
         //currently the location not connect to original scene, user need publish again if change
         const studioUrl = `${window.location.origin}/studio?project=${projectName}&scenePath=${scenePath}`
         window.open(studioUrl, '_blank')?.focus()
+        compressionLoading.set(false)
         //PopoverState.hidePopupover()
       }
     } catch (error) {
@@ -560,6 +566,21 @@ export default function AddEditLocationModal(props: {
             <Button onClick={handlePublishFolder}>{t('save duplicate scene and publish')}</Button>
           </div>
         </div>
+      </div>
+      <div className="flex justify-end justify-items-stretch px-8">
+        {compressionLoading.value ? (
+          <div className="flex w-full flex-col">
+            <div className="h-4 w-full overflow-hidden rounded bg-white">
+              <div
+                className="h-4 w-full origin-left bg-blue-primary transition-transform"
+                style={{
+                  transform: `scaleX(${compressionProgress.progress.value})`
+                }}
+              />
+            </div>
+            {compressionProgress.caption.value}
+          </div>
+        ) : null}
       </div>
     </div>
   )
