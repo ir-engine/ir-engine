@@ -126,7 +126,7 @@ export default function ArrayInputGroup({
         }`}
       >
         {values.length > 0 && (
-          <div className="flex w-full space-y-1 py-1.5">
+          <div className="flex grid w-full grid-cols-1 space-y-1 py-1.5 ">
             {values.map((value, idx) => (
               <DiscardableInput
                 key={value + idx}
