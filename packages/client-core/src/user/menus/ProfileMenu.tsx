@@ -364,7 +364,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     <div className="relative z-50 h-fit max-h-[60vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-theme-surface-main p-10">
       <div className="grid w-full grid-cols-2 gap-x-2">
         <div className="grid grid-cols-3 gap-x-2">
-          <div className="relative col-span-1 h-20 w-20">
+          <div className="relative col-span-1 h-[3.75rem] w-[3.75rem]">
             <AvatarImage size="fill" src={avatarThumbnail} />
             <button
               onClick={() => {
@@ -408,7 +408,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
 
         <div className="grid grid-cols-3 gap-x-2">
           <button
-            className="col-span-1 flex h-20 w-20 items-center justify-center rounded-full bg-[#616161] p-2"
+            className="col-span-1 flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-[#616161] p-2"
             onClick={() => {
               PopoverState.showPopupover(<SettingsMenu />)
             }}
