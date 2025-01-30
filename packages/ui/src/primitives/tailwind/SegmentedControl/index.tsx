@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
-import { InputProps, heights } from '../Input'
+import { InputProps } from '../Input'
 
 export interface OptionType {
   value: string | number
@@ -40,16 +40,12 @@ export interface OptionType {
 
 export interface SegmentedControlProps<T = string | number> {
   options: OptionType[]
-  width?: 'sm' | 'md' | 'lg' | 'full'
-  inputHeight?: InputProps['height']
   onChange: (value: T) => void
   value: T
-  labelProps?: InputProps['labelProps']
   state?: InputProps['state']
   helperText?: InputProps['helperText']
   required?: boolean
   disabled?: boolean
-  searchMode?: 'prefix' | 'substring' | 'fuzzy'
   positioning?: {
     direction: 'down' | 'up'
     maxHeight: string
@@ -57,20 +53,10 @@ export interface SegmentedControlProps<T = string | number> {
   showClearButton?: boolean
 }
 
-const variantToWidth: Record<NonNullable<SegmentedControlProps['width']>, string> = {
-  sm: '240px',
-  md: '320px',
-  lg: '520px',
-  full: '100%'
-}
-
 const SegmentedControl = ({
   options,
-  width = 'md',
-  inputHeight = 'l',
   onChange,
   value,
-  labelProps,
   required,
   disabled,
   positioning: userPositioning
@@ -112,21 +98,14 @@ const SegmentedControl = ({
   }, [])
 
   return (
-    <div className={`flex flex-col gap-y-2 ${width === 'full' ? 'w-full' : 'w-fit'}`}>
-      <div className={twMerge('flex', width === 'full' ? 'w-full' : 'w-fit')}>
-        <div
-          ref={ref}
-          className="relative"
-          style={{
-            width: variantToWidth[width]
-          }}
-        >
+    <div className={'flex w-full flex-col gap-y-2'}>
+      <div className={'flex w-full'}>
+        <div ref={ref} className="relative w-full">
           <div
             tabIndex={0}
             className={twMerge(
-              ` relative my-[0px] flex w-full items-center rounded-md bg-[#141619] !px-[2px] !py-[4px] ${
-                heights[inputHeight]
-              } ${disabled && 'cursor-not-allowed bg-[#191B1F] text-[#6B6F78]'} transition-colors duration-300`,
+              ` relative my-[0px] flex w-full items-center rounded-md bg-[#141619] !px-[2px] !py-[4px] 
+              ${disabled && 'cursor-not-allowed bg-[#191B1F] text-[#6B6F78]'} transition-colors duration-300`,
               'focus:outline-none'
             )}
           >
