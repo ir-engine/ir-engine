@@ -46,6 +46,7 @@ import {
 } from '@ir-engine/ecs'
 import { LODVariantDescriptor, defaultLODs } from '@ir-engine/editor/src/constants/GLTFPresets'
 import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'
+import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import exportGLTF, { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
 import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
@@ -174,30 +175,23 @@ export default function AddEditLocationModal(props: {
           .slice(0, -1)
           .join('/')
           .replace('scenes', 'publish')
-        await saveSceneGLTF(
-          sceneAssetID!,
-          projectName,
-          sceneName + '-duplicated',
-          abortController.signal,
-          true,
-          saveScenePath
-        )
-        const checkPath = (path) => path.replace(/\s+/g, '-')
+
+        const scenename = getState(EditorState).sceneName
         //add all mesh into one entity
-        const meshParentEntity = createEntity()
+        const combinedMeshEntity = createEntity() //export entity need compress
         const rootEntity = getState(EditorState).rootEntity
-        const meshEntity = [] as Entity[]
-        const exportParentEntity = [] as Entity[]
+        const meshEntity = [] as Entity[] //entity with mesh
+        const exportParentEntity = [] as Entity[] //parent entity without mesh
         const findMeshRootEntity = (entity: Entity, rootEntity: Entity) => {
           const parentEntity = getComponent(entity, EntityTreeComponent)?.parentEntity
           if (!parentEntity) return null
           if (parentEntity === rootEntity) return entity
           return findMeshRootEntity(parentEntity, rootEntity)
         }
-        setComponent(meshParentEntity, EntityTreeComponent, { parentEntity: rootEntity })
-        setComponent(meshParentEntity, NameComponent, 'combined mesh entity')
-        setComponent(meshParentEntity, TransformComponent)
-        setComponent(meshParentEntity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(combinedMeshEntity, EntityTreeComponent, { parentEntity: rootEntity })
+        setComponent(combinedMeshEntity, NameComponent, 'combined mesh entity')
+        setComponent(combinedMeshEntity, TransformComponent)
+        setComponent(combinedMeshEntity, UUIDComponent, UUIDComponent.generateUUID())
 
         const srcURL = pathJoin(config.client.fileServer, saveScenePath + '/combined-mesh.gltf')
         iterateEntityNode(rootEntity, (entity) => {
@@ -213,40 +207,38 @@ export default function AddEditLocationModal(props: {
             transform.position.applyMatrix4(parentEntityTransform.matrixWorld)
             transform.rotation.premultiply(parentEntityTransform.rotation)
             transform.scale.multiply(parentEntityTransform.scale)
-            // const meshRootEntity = findMeshRootEntity(entity, rootEntity)
-            // if (!exportParentEntity.includes(meshRootEntity)){
-            //   exportParentEntity.push(meshRootEntity)
-            // }
-            setComponent(entity, EntityTreeComponent, { parentEntity: meshParentEntity })
+            const meshRootEntity = findMeshRootEntity(entity, rootEntity)
+            if (!exportParentEntity.includes(meshRootEntity)) {
+              exportParentEntity.push(meshRootEntity)
+            }
+
+            setComponent(entity, EntityTreeComponent, { parentEntity: combinedMeshEntity })
             // const parentEntity = getComponent(entity, EntityTreeComponent)?.parentEntity
             //getComponent(parentEntity, EntityTreeComponent).children= getComponent(parentEntity, EntityTreeComponent).children.filter((childEntity) => childEntity !== entity)
           }
         })
         //export parent entities and combined mesh entity
-        await exportRelativeGLTF(meshParentEntity, projectName, 'public/publish/combined-mesh.gltf', false)
-        setComponent(meshParentEntity, GLTFComponent, { src: srcURL })
-        meshEntity.forEach((entity) => {
-          //if parent entity's parent entity is root entity export that
-          const meshRootEntity = findMeshRootEntity(entity, rootEntity)
-          if (!exportParentEntity.includes(meshRootEntity)) {
-            exportParentEntity.push(meshRootEntity)
-          }
-          //derefrencing mesh entity from parent
-          // const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
-          // getComponent(parentEntity, EntityTreeComponent).children= getComponent(parentEntity, EntityTreeComponent).children.filter((childEntity) => childEntity !== entity)
-        })
-        exportParentEntity.forEach(async (entity) => {
+        await exportRelativeGLTF(combinedMeshEntity, projectName, 'public/publish/combined-mesh.gltf', false)
+        setComponent(combinedMeshEntity, GLTFComponent, { src: srcURL })
+
+        for (const entity of exportParentEntity) {
           const childName = getComponent(getComponent(entity, EntityTreeComponent).children[0], NameComponent)
           const uuid = getComponent(entity, UUIDComponent)
           const name = getComponent(getComponent(entity, EntityTreeComponent).children[0], NameComponent)
+          const url = getComponent(entity, GLTFComponent).src
+          const saveName = url.split('/').pop()?.split('.').shift()
+          await exportRelativeGLTF(entity, projectName, 'public/publish/' + saveName + '.gltf', false)
+        }
 
-          await exportRelativeGLTF(entity, projectName, 'public/publish/' + name + '.gltf', false)
-          //EditorControlFunctions.modifyProperty([entity], GLTFComponent, { src: srcURL.replace('combined-mesh', name) })
-        })
         //only use removeEntity can't remove the geometry
-        // meshEntity.forEach((entity) => {
-        //   removeEntity(entity)
-        // })
+        for (const entity of exportParentEntity) {
+          const url = getComponent(entity, GLTFComponent).src
+          const saveName = url.split('/').pop()?.split('.').shift()
+          EditorControlFunctions.modifyProperty([entity], GLTFComponent, {
+            src: srcURL.replace('combined-mesh', saveName as string)
+          })
+        }
+        // EditorControlFunctions.removeObject(meshEntity)
         //use remove object can remove the geometry but platform can't remove
         //EditorControlFunctions.removeObject(meshEntity)
 
@@ -279,7 +271,7 @@ export default function AddEditLocationModal(props: {
         })
         await transformModel(
           srcURL,
-          lodVariantParams,
+          [lodVariantParams[2]],
           (i, key, data) => {
             if (!transformMetadata[i]) transformMetadata[i] = {}
             transformMetadata[i][key] = data
@@ -310,11 +302,10 @@ export default function AddEditLocationModal(props: {
         await exportGLTF(result, destinationPath, false)
 
         // removeEntityNodeRecursively(result)
-        const compressedFilePath = srcURL.replace(/\.[^.]*$/, `-LOD1.gltf`)
+        const compressedFilePath = srcURL.replace(/\.[^.]*$/, `-LOD3.gltf`)
         await addMediaNode(compressedFilePath)
         //await addMediaNode('https://localhost:8642/projects/test/hello-world/public/publish/combined-mesh-LOD1.gltf', undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
         //await EditorControlFunctions.removeObject(meshEntity)
-
         //EditorControlFunctions.removeObject(exportParentEntity)
         //save current scene before create location
         const newSceneAssetID = getState(EditorState).sceneAssetID
@@ -327,6 +318,14 @@ export default function AddEditLocationModal(props: {
         const studioUrl = `${window.location.origin}/studio?project=${projectName}&scenePath=${scenePath}`
         window.open(studioUrl, '_blank')?.focus()
         compressionLoading.set(false)
+        await saveSceneGLTF(
+          sceneAssetID!,
+          projectName,
+          sceneName + '-duplicated',
+          abortController.signal,
+          true,
+          saveScenePath
+        )
         //PopoverState.hidePopupover()
       }
     } catch (error) {
