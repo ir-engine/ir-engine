@@ -404,7 +404,7 @@ const doUpload = async (projectName, fileName, buffer) => {
 }
 
 const toProjectAndFileName = (fUploadPath: string, srcBaseURL: string): [string, string] => {
-  const pathCheck = /projects\/([^/]+\/[^/]+)\/assets\/([\w\d\s\-|_./]*)$/
+  const pathCheck = /projects\/([^/]+\/[^/]+)\/(?:assets\/)?([\w\d\s\-|_./]*)$/
   // TODO: remove srcBaseURL if it's unnecessary
   const [_, projectName, fileName] = pathCheck.exec(fUploadPath) ?? pathCheck.exec(pathJoin(srcBaseURL, fUploadPath))!
   return [projectName, fileName]
