@@ -23,15 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import ReactGA from 'react-ga4'
+import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 
-import config from '@ir-engine/common/src/config'
-
-export const initGA = () => {
-  if (config.client.gaMeasurementId && config.client.gaMeasurementId.length > 0)
-    ReactGA.initialize(config.client.gaMeasurementId)
-}
-
-export const logPageView = () => {
-  ReactGA.send({ hitType: 'pageview', page: window.location.pathname })
-}
+export const ActiveHelperComponent = defineComponent({ name: 'ActiveHelperComponent' })

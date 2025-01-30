@@ -366,7 +366,7 @@
         "EE_visible": true,
         "EE_skybox": {
           "backgroundColor": 3026478,
-          "equirectangularPath": "__$project$__/ir-engine/default-project/assets/generic_midday_02.png?hash=96ae3d",
+          "equirectangularPath": "__$project$__/ir-engine/default-project/assets/generic_midday_02.ktx2?hash=19535b",
           "cubemapPath": "__$project$__/ir-engine/default-project/assets/skyboxsun25deg/",
           "backgroundType": 2,
           "skyboxProps": {
@@ -449,8 +449,7 @@
           "cameraFar": 200,
           "castShadow": true,
           "shadowBias": -0.00001,
-          "shadowRadius": 1,
-          "helper": null
+          "shadowRadius": 1
         },
         "EE_visible": true
       }
@@ -460,8 +459,7 @@
       "extensions": {
         "EE_model": {
           "src": "__$project$__/ir-engine/default-project/assets/platform.glb",
-          "cameraOcclusion": true,
-          "convertToVRM": false
+          "cameraOcclusion": true
         },
         "EE_uuid": "685c48da-e2a0-4a9a-af7c-c5a3c187c99a",
         "EE_visible": true,
@@ -471,7 +469,6 @@
         },
         "EE_envmap": {
           "type": "Skybox",
-          "envMapTextureType": "Equirectangular",
           "envMapSourceColor": 4095,
           "envMapSourceURL": "",
           "envMapSourceEntityUUID": "",
