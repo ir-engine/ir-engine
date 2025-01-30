@@ -245,9 +245,13 @@ export default function AddEditLocationModal(props: {
           await exportRelativeGLTF(entity, projectName, 'public/publish/' + name + '.gltf', false)
           EditorControlFunctions.modifyProperty([entity], GLTFComponent, { src: srcURL.replace('combined-mesh', name) })
         })
+        //only use removeEntity can't remove the geometry
         meshEntity.forEach((entity) => {
           removeEntity(entity)
         })
+        //use remove object can remove the geometry but platform can't remove
+        //EditorControlFunctions.removeObject(meshEntity)
+
         //put combined mesh entity to compression
         const transformMetadata: Record<string, any>[] = []
         const progressCaptions: Record<ModelTransformStatus, string> = {
