@@ -38,6 +38,7 @@ import {
   getOptionalComponent,
   hasComponent,
   Layers,
+  removeComponent,
   removeEntity,
   setComponent,
   UndefinedEntity,
@@ -65,6 +66,7 @@ import {
   BINARY_EXTENSION_HEADER_MAGIC
 } from '../assets/loaders/gltf/GLTFExtensions'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
+import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { ErrorComponent } from '../scene/components/ErrorComponent'
 import { SceneDynamicLoadComponent } from '../scene/components/SceneDynamicLoadComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
@@ -231,6 +233,7 @@ export const GLTFComponentReactor = (props: { entity: Entity }) => {
         for (const entity of loadedEntities) removeEntity(entity)
       }
     })
+    removeComponent(entity, AnimationComponent)
     return () => {
       documentLoaded.set(false)
       GLTFLoaderFunctions.unloadScene(url, entity)

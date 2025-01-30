@@ -86,8 +86,13 @@ export const AvatarAnimationState = defineState({
 })
 
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
-const avatarComponentQuery = defineQuery([AvatarComponent, RigidBodyComponent, AvatarAnimationComponent])
-const avatarRigQuery = defineQuery([AvatarRigComponent])
+const avatarComponentQuery = defineQuery([
+  AnimationComponent,
+  AvatarComponent,
+  RigidBodyComponent,
+  AvatarAnimationComponent
+])
+const avatarRigQuery = defineQuery([AnimationComponent, AvatarRigComponent])
 
 const _vector3 = new Vector3()
 
