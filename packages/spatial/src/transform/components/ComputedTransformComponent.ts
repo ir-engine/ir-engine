@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { TransformComponent } from './TransformComponent'
 
 export const ComputedTransformComponent = defineComponent({
   name: 'ComputedTransformComponent',
@@ -33,13 +32,5 @@ export const ComputedTransformComponent = defineComponent({
   schema: S.Object({
     referenceEntities: S.Array(S.Entity()),
     computeFunction: S.Call()
-  }),
-
-  onSet(entity, component, json) {
-    TransformComponent.transformsNeedSorting = true
-  },
-
-  onRemove(entity, component) {
-    TransformComponent.transformsNeedSorting = true
-  }
+  })
 })

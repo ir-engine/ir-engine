@@ -128,25 +128,6 @@ export const RigidBodyComponent = defineComponent({
     }
   },
 
-  onSet: (entity, component, json) => {
-    if (!json) return
-
-    if (typeof json.type === 'string') component.type.set(json.type)
-    if (typeof json.ccd === 'boolean') component.ccd.set(json.ccd)
-    if (typeof json.allowRolling === 'boolean') component.allowRolling.set(json.allowRolling)
-    if (typeof json.canSleep === 'boolean') component.canSleep.set(json.canSleep)
-    if (typeof json.gravityScale === 'number') component.gravityScale.set(json.gravityScale)
-    if (
-      Array.isArray(json.enabledRotations) &&
-      json.enabledRotations.length === 3 &&
-      typeof json.enabledRotations[0] === 'boolean' &&
-      typeof json.enabledRotations[1] === 'boolean' &&
-      typeof json.enabledRotations[2] === 'boolean'
-    ) {
-      component.enabledRotations.set(json.enabledRotations)
-    }
-  },
-
   reactor: () => {
     return <RigidBodyReactor />
   }

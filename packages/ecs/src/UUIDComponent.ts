@@ -70,6 +70,8 @@ export const UUIDComponent = defineComponent({
 
     // set new uuid
     UUIDComponentFunctions._getUUIDState(uuid, layer).set(entity)
+
+    component.set(uuid)
   },
 
   onRemove: (entity, component) => {

@@ -37,6 +37,7 @@ import {
   HyperFlux,
   NO_PROXY_STEALTH,
   ReactorRoot,
+  SetPartialStateAction,
   State,
   destroy,
   getState,
@@ -60,6 +61,7 @@ import {
   DeserializeSchemaValue,
   HasRequiredSchema,
   HasRequiredSchemaValues,
+  HasSchemaDeserializers,
   HasSchemaValidators,
   HasValidSchemaValues,
   IsSingleValueSchema,
@@ -292,7 +294,79 @@ export const defineComponent = <
     StorageType & { setTransition: typeof setTransition }
   Component.isComponent = true
 
-  Component.onSet = () => {}
+  // Memoize as much tree walking as possible during component creation
+  const hasRequiredSchema = def.schema && HasRequiredSchema(def.schema)
+  const hasSchemaValidators = def.schema && HasSchemaValidators(def.schema)
+  const isSingleValueSchema = def.schema && IsSingleValueSchema(def.schema)
+
+  Component.onSet = (entity, component, json) => {
+    if (!json) return
+
+    if (!def.schema) {
+      // if no schema, just set the json - assume insecure or internal
+      if (Array.isArray(json) || typeof json !== 'object' || isSingleValueSchema) component.set(json as ComponentType)
+      else if (json) {
+        for (const key of Object.keys(json)) {
+          ;(component[key] as any).set((_) => json?.[key])
+        }
+      } else component.merge(json as SetPartialStateAction<ComponentType>)
+
+      return
+    }
+
+    if (hasRequiredSchema) {
+      const [valid, key] = HasRequiredSchemaValues(def.schema as TSchema, json)
+      if (!valid) throw new Error(`${def.name}:OnSet Missing required value for key ${key}`)
+    }
+
+    if (json === null || json === undefined) return
+
+    const cleanJson = DeserializeSchemaValue(
+      entity,
+      def.schema as TSchema,
+      component.get(NO_PROXY_STEALTH) as ComponentType,
+      json as any
+    )
+
+    if (cleanJson === null || cleanJson === undefined) return
+
+    if (hasSchemaValidators) {
+      const [valid, key] = HasValidSchemaValues(
+        def.schema as TSchema,
+        cleanJson as ComponentType,
+        component.get(NO_PROXY_STEALTH) as ComponentType,
+        entity
+      )
+      if (!valid) throw new Error(`${def.name}:OnSet Invalid value for key ${key}`)
+    }
+
+    if (Array.isArray(cleanJson) || typeof cleanJson !== 'object' || isSingleValueSchema)
+      component.set(cleanJson as ComponentType)
+    else if (cleanJson) {
+      for (const key of Object.keys(cleanJson)) {
+        ;(component[key] as any).set((_) => cleanJson?.[key])
+      }
+    } else {
+      component.set(cleanJson as any)
+    }
+
+    if (json === null || json === undefined) return
+    // only one level deep is supported
+    // root level boolean is not supported as is redundant
+    // if (Component.schema && !!json) {
+    //   if (typeof json === 'object' && !Array.isArray(json) && !isSingleValueSchema) {
+    //     if (requiresDeserialization(Component.schema)) {
+    //       component.merge(
+    //         DeserializeSchemaValue(entity, Component.schema, component.get(NO_PROXY_STEALTH), json as any)
+    //       )
+    //     } else {
+    //       component.merge(json as any)
+    //     }
+    //   } else {
+    //     component.set(json as any)
+    //   }
+    // }
+  }
   Component.onRemove = () => {}
   Component.toJSON = (component: ComponentType) => {
     return validateComponentSchema(def as any, component) as JSON
@@ -747,20 +821,6 @@ export const setComponent = <C extends Component>(
   if (!hasComponent(entity, component)) {
     state.set(createInitialComponentValue(entity, component))
     bitECS.addComponent(HyperFlux.store, entity, component)
-  }
-
-  // only one level deep is supported
-  // root level boolean is not supported as is redundant
-  if (component.schema && !!args) {
-    if (typeof args === 'object' && !Array.isArray(args) && !IsSingleValueSchema(component.schema)) {
-      if (requiresDeserialization(component.schema)) {
-        state.merge(DeserializeSchemaValue(entity, component.schema, state.get(NO_PROXY_STEALTH), args))
-      } else {
-        state.merge(args)
-      }
-    } else {
-      state.set(args)
-    }
   }
 
   component.onSet(entity, state, args)

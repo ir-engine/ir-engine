@@ -43,6 +43,14 @@ export const SourceComponent = defineComponent({
   ),
 
   onSet: (entity, component, source: string) => {
+    const currentSource = component.value
+    if (currentSource) {
+      if (currentSource === source) return
+      if (currentSource && currentSource !== source) {
+        SourceComponent.onRemove(entity, component)
+      }
+    }
+    component.set(source)
     const entitiesBySourceState = SourceComponent.entitiesBySourceState[source]
     if (!entitiesBySourceState.value) {
       entitiesBySourceState.set([entity])

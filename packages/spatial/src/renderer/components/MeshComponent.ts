@@ -33,10 +33,11 @@ import { ObjectComponent } from './ObjectComponent'
 export const MeshComponent = defineComponent({
   name: 'MeshComponent',
 
-  schema: S.Required(S.NonSerialized(S.Type<Mesh>())),
+  schema: S.Required(S.Type<Mesh>()),
 
   onSet(entity, component, json) {
     setComponent(entity, ObjectComponent, json as Mesh)
+    component.set(json as Mesh)
   },
 
   onRemove(entity, component) {

@@ -50,6 +50,7 @@ import { composeMatrix, TransformComponent } from '../components/TransformCompon
 import { TransformSerialization } from '../TransformSerialization'
 
 const transformQuery = defineQuery([TransformComponent])
+const computedTransformQuery = defineQuery([ComputedTransformComponent])
 
 const boundingBoxQuery = defineQuery([BoundingBoxComponent])
 
@@ -118,7 +119,10 @@ const sortAndMakeDirtyEntities = () => {
    * Sort transforms if needed
    */
 
-  let needsSorting = TransformComponent.transformsNeedSorting
+  let needsSorting =
+    TransformComponent.transformsNeedSorting ||
+    computedTransformQuery.enter().length ||
+    computedTransformQuery.exit().length
 
   for (const entity of transformQuery.enter()) {
     _sortedTransformEntities.push(entity)

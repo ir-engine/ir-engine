@@ -48,6 +48,8 @@ export const NameComponent = defineComponent({
   onSet: (entity, component, name: string) => {
     const prevName = component.value
 
+    component.set(name)
+
     const entitiesByName = getState(NameComponentState).entitiesByName
 
     if (entitiesByName[prevName]) {
