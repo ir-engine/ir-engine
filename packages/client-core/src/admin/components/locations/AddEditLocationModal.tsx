@@ -37,10 +37,12 @@ import {
 import {
   Entity,
   EntityTreeComponent,
+  UUIDComponent,
   createEntity,
   getComponent,
   hasComponent,
   iterateEntityNode,
+  removeEntity,
   setComponent
 } from '@ir-engine/ecs'
 import { LODVariantDescriptor, defaultLODs } from '@ir-engine/editor/src/constants/GLTFPresets'
@@ -197,6 +199,8 @@ export default function AddEditLocationModal(props: {
         setComponent(meshParentEntity, EntityTreeComponent, { parentEntity: rootEntity })
         setComponent(meshParentEntity, NameComponent, 'combined mesh entity')
         setComponent(meshParentEntity, TransformComponent)
+        setComponent(meshParentEntity, UUIDComponent, UUIDComponent.generateUUID())
+
         const srcURL = pathJoin(config.client.fileServer, saveScenePath + '/combined-mesh.gltf')
         iterateEntityNode(rootEntity, (entity) => {
           if (hasComponent(entity, MeshComponent)) {
@@ -220,13 +224,11 @@ export default function AddEditLocationModal(props: {
             //getComponent(parentEntity, EntityTreeComponent).children= getComponent(parentEntity, EntityTreeComponent).children.filter((childEntity) => childEntity !== entity)
           }
         })
-
         //export parent entities and combined mesh entity
         await exportRelativeGLTF(meshParentEntity, projectName, 'public/publish/combined-mesh.gltf', false)
         setComponent(meshParentEntity, GLTFComponent, { src: srcURL })
         meshEntity.forEach((entity) => {
           //if parent entity's parent entity is root entity export that
-
           const meshRootEntity = findMeshRootEntity(entity, rootEntity)
           if (!exportParentEntity.includes(meshRootEntity)) {
             exportParentEntity.push(meshRootEntity)
@@ -237,15 +239,17 @@ export default function AddEditLocationModal(props: {
         })
         exportParentEntity.forEach(async (entity) => {
           const childName = getComponent(getComponent(entity, EntityTreeComponent).children[0], NameComponent)
+          const uuid = getComponent(entity, UUIDComponent)
           const name = getComponent(getComponent(entity, EntityTreeComponent).children[0], NameComponent)
+
           await exportRelativeGLTF(entity, projectName, 'public/publish/' + name + '.gltf', false)
+          EditorControlFunctions.modifyProperty([entity], GLTFComponent, { src: srcURL.replace('combined-mesh', name) })
         })
-
+        meshEntity.forEach((entity) => {
+          removeEntity(entity)
+        })
         //put combined mesh entity to compression
-        // const currentUrl = new URL(window.location.href)
-        //const srcURL = 'https://localhost:8642/projects/test/hello-world/public/publish/test.gltf'
         const transformMetadata: Record<string, any>[] = []
-
         const progressCaptions: Record<ModelTransformStatus, string> = {
           [ModelTransformStatus.TransformingModels]: 'editor:properties.model.transform.status.transformingmodels',
           [ModelTransformStatus.ProcessingTexture]: 'editor:properties.model.transform.status.processingtexture',
@@ -302,7 +306,8 @@ export default function AddEditLocationModal(props: {
         const compressedFilePath = srcURL.replace(/\.[^.]*$/, `-LOD1.gltf`)
         await addMediaNode(compressedFilePath)
         //await addMediaNode('https://localhost:8642/projects/test/hello-world/public/publish/combined-mesh-LOD1.gltf', undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
-        await EditorControlFunctions.removeObject(meshEntity)
+        //await EditorControlFunctions.removeObject(meshEntity)
+
         //EditorControlFunctions.removeObject(exportParentEntity)
         //save current scene before create location
         const newSceneAssetID = getState(EditorState).sceneAssetID
@@ -548,7 +553,7 @@ export default function AddEditLocationModal(props: {
                 : t('editor:toolbar.publishLocation.title')}
               {publishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
             </Button>
-            <Button onClick={handlePublishFolder}>{t('save duplicate scene')}</Button>
+            <Button onClick={handlePublishFolder}>{t('save duplicate scene and publish')}</Button>
           </div>
         </div>
       </div>
