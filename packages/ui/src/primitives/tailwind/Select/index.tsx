@@ -242,12 +242,12 @@ const Select = ({
           labelProps?.position === 'left' && 'flex-row items-center gap-x-2'
         )}
       >
-        {labelProps?.text && (
+        {labelProps?.text && labelProps?.position !== 'inside' && (
           <label className="block text-xs font-medium" ref={labelRef}>
             <div className="flex flex-row items-center gap-x-1.5">
               <div className="flex flex-row items-center gap-x-0.5">
                 {required && <span className="text-sm text-[#E11D48]">*</span>}
-                <span className="text-xs text-[#D3D5D9]">{labelProps.text}</span>
+                <span className={twMerge('text-xs text-[#D3D5D9]', labelProps.className)}>{labelProps.text}</span>
               </div>
 
               {labelProps?.infoText && (
@@ -303,6 +303,10 @@ const Select = ({
               }
             }}
           >
+            {labelProps?.text && labelProps?.position === 'inside' && (
+              <span className={twMerge('text-xs text-[#D3D5D9]', labelProps.className)}>{labelProps.text}</span>
+            )}
+
             <input
               onClick={() => {
                 if (!disabled) {

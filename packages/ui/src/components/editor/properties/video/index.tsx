@@ -344,27 +344,36 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
             />
           </InputGroup>
           <InputGroup
-            name="Wrap S"
-            label={t('editor:properties.video.lbl-wrap-s')}
-            info={t('editor:properties.video.lbl-wrap-s-info')}
+            name="Wrap"
+            label={t('editor:properties.video.lbl-wrap')}
+            info={t('editor:properties.video.lbl-wrap-info')}
           >
-            <SelectInput
-              value={video.wrapS.value}
-              onChange={commitProperty(VideoComponent, 'wrapS')}
-              options={wrappingOptions}
-            />
-          </InputGroup>
-
-          <InputGroup
-            name="Wrap T"
-            label={t('editor:properties.video.lbl-wrap-t')}
-            info={t('editor:properties.video.lbl-wrap-t-info')}
-          >
-            <SelectInput
-              value={video.wrapT.value}
-              onChange={commitProperty(VideoComponent, 'wrapT')}
-              options={wrappingOptions}
-            />
+            <div className="flex w-full">
+              <div className="flex w-1/2">
+                <SelectInput
+                  labelProps={{
+                    text: t('editor:properties.video.lbl-wrap-s'),
+                    position: 'inside',
+                    className: 'text-red-500'
+                  }}
+                  value={video.wrapS.value}
+                  onChange={commitProperty(VideoComponent, 'wrapS')}
+                  options={wrappingOptions}
+                />
+              </div>
+              <div className="flex w-1/2">
+                <SelectInput
+                  labelProps={{
+                    text: t('editor:properties.video.lbl-wrap-t'),
+                    position: 'inside',
+                    className: 'text-green-400'
+                  }}
+                  value={video.wrapT.value}
+                  onChange={commitProperty(VideoComponent, 'wrapT')}
+                  options={wrappingOptions}
+                />
+              </div>
+            </div>
           </InputGroup>
 
           {mediaElement && media.resources.length > 0 && (
