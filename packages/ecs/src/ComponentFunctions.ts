@@ -764,7 +764,11 @@ export const setComponent = <C extends Component>(
 
   LayerFunctions.propagateLayer(entity, component)
 
-  if (component.reactor && !component.reactorMap.has(entity) && LayerComponent.get(entity) === Layers.Simulation) {
+  if (
+    component.reactor &&
+    !component.reactorMap.has(entity) &&
+    (LayerComponent.get(entity) === Layers.Simulation || component.name === 'EntityTreeComponent') // EntityTreeComponent is a temporary hack until we have entity relations
+  ) {
     const root = startReactor(() => {
       return React.createElement(EntityContext.Provider, { value: entity }, React.createElement(component.reactor, {}))
     }) as ReactorRoot
