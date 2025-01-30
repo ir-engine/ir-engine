@@ -26,45 +26,16 @@ Infinite Reality Engine. All Rights Reserved.
 import { Rows01Md } from '@ir-engine/ui/src/icons'
 import { ArgTypes } from '@storybook/react'
 import React from 'react'
-import SegmentedControl, { OptionType, SegmentedControlProps } from './index'
+import SegmentedControl, { OptionType } from './index'
 
 const argTypes: ArgTypes = {
   numberOfListItems: {
     control: 'number',
     name: 'Number of List Items'
   },
-  width: {
-    control: 'select',
-    options: ['sm', 'md', 'lg', 'full']
-  },
-  inputHeight: {
-    control: 'select',
-    options: ['xs', 'l', 'xl']
-  },
-  labelText: {
-    control: {
-      type: 'text'
-    }
-  },
-  labelPosition: {
-    control: {
-      type: 'select'
-    },
-    options: ['top', 'left']
-  },
-  showCheckmark: {
-    control: {
-      type: 'boolean'
-    }
-  },
   disabled: {
     control: {
       type: 'boolean'
-    }
-  },
-  helperText: {
-    control: {
-      type: 'text'
     }
   }
 }
@@ -105,9 +76,7 @@ const Renderer = ({ numberOfListItems, generateItem, items, ...props }) => {
     setValue(value)
   }
 
-  const [labelProps, setLabelProps] = React.useState(undefined as SegmentedControlProps['labelProps'] | undefined)
-
-  return <SegmentedControl options={_items} value={value} onChange={onChange} labelProps={labelProps} {...props} />
+  return <SegmentedControl options={_items} value={value} onChange={onChange} {...props} />
 }
 
 export const Default = {
