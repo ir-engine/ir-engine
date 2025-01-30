@@ -249,7 +249,7 @@ export default function AddEditLocationModal(props: {
         //   removeEntity(entity)
         // })
         //use remove object can remove the geometry but platform can't remove
-        EditorControlFunctions.removeObject(meshEntity)
+        //EditorControlFunctions.removeObject(meshEntity)
 
         //put combined mesh entity to compression
         const transformMetadata: Record<string, any>[] = []
