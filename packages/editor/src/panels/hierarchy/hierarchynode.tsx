@@ -379,7 +379,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
     })
     const [permission] = data
     if (!permission) {
-      return canSaveNodeChanges.set(false)
+      canSaveNodeChanges.set(false)
       return
     }
     canSaveNodeChanges.set(userHasProjectPermission(permission, ['owner', 'editor']))
