@@ -238,7 +238,7 @@ type GLTFSceneExportContext = {
     meshes: Map<Mesh, number>
     materials: Map<Material, number>
     textures: Map<Texture, number>
-    images: Map<ImageBitmap, number>
+    images: Map<ImageBitmap | string, number>
     attributes: Map<BufferAttribute | InterleavedBufferAttribute, number>
   }
 }
@@ -384,7 +384,7 @@ export async function exportGLTFScene(
     meshes: new Map<Mesh, number>(),
     materials: new Map<Material, number>(),
     textures: new Map<Texture, number>(),
-    images: new Map<ImageBitmap, number>(),
+    images: new Map<ImageBitmap | string, number>(),
     attributes: new Map<BufferAttribute | InterleavedBufferAttribute, number>()
   }
 
@@ -812,7 +812,9 @@ const exportTexture = async (texture: Texture, gltf: GLTF.IGLTF, context: GLTFSc
 
 const exportImage = async (image: any, gltf: GLTF.IGLTF, context: GLTFSceneExportContext): Promise<number> => {
   const cache = context.cache.images
-  if (cache.has(image)) return cache.get(image)!
+  if (typeof image.src === 'string') {
+    if (cache.has(image.src)) return cache.get(image.src)!
+  } else if (cache.has(image)) return cache.get(image)!
 
   gltf.images ??= []
   const relativeSrc = STATIC_ASSET_REGEX.exec(image.src)![3]
@@ -831,6 +833,9 @@ const exportImage = async (image: any, gltf: GLTF.IGLTF, context: GLTFSceneExpor
   gltf.images ??= []
   const imageIndex = gltf.images.length
   gltf.images.push(imageDef)
+
+  cache.set(image.src, imageIndex)
+
   return imageIndex
 }
 
