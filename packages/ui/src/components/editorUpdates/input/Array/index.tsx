@@ -60,12 +60,12 @@ const DiscardableInput = ({
   }))
 
   return (
-    <div className="flex w-full flex-col px-3">
+    <div className=" flex w-full px-0">
       <div
         ref={dropRef}
-        className={twMerge('mb-2 flex w-full items-center', isDroppable && 'outline outline-2 outline-white')}
+        className={twMerge(' mb-2 flex w-full justify-end', isDroppable && 'outline outline-2 outline-white')}
       >
-        <Input value={value} onChange={(event) => onChange(event.target.value, index)} />
+        <Input fullWidth={true} value={value} onChange={(event) => onChange(event.target.value, index)} />
         <HiOutlineVideoCamera className=" ml-[4px] h-[32px] w-[32px] rounded-md bg-[#42454D] p-[4px] " />
         {/*<PiTrashSimple className="ml-2.5 cursor-pointer text-[#444]" onClick={() => onRemove(index)} />*/}
       </div>
@@ -126,7 +126,7 @@ export default function ArrayInputGroup({
         }`}
       >
         {values.length > 0 && (
-          <div className=" flex w-full flex-col space-y-1 py-1.5">
+          <div className="flex w-full space-y-1 py-1.5">
             {values.map((value, idx) => (
               <DiscardableInput
                 key={value + idx}
