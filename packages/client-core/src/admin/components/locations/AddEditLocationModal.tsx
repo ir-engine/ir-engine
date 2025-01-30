@@ -42,7 +42,6 @@ import {
   getComponent,
   hasComponent,
   iterateEntityNode,
-  removeEntity,
   setComponent
 } from '@ir-engine/ecs'
 import { LODVariantDescriptor, defaultLODs } from '@ir-engine/editor/src/constants/GLTFPresets'
@@ -246,11 +245,11 @@ export default function AddEditLocationModal(props: {
           EditorControlFunctions.modifyProperty([entity], GLTFComponent, { src: srcURL.replace('combined-mesh', name) })
         })
         //only use removeEntity can't remove the geometry
-        meshEntity.forEach((entity) => {
-          removeEntity(entity)
-        })
+        // meshEntity.forEach((entity) => {
+        //   removeEntity(entity)
+        // })
         //use remove object can remove the geometry but platform can't remove
-        //EditorControlFunctions.removeObject(meshEntity)
+        EditorControlFunctions.removeObject(meshEntity)
 
         //put combined mesh entity to compression
         const transformMetadata: Record<string, any>[] = []
