@@ -434,15 +434,10 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
               aria-label="alphaThreshold"
             />
 
-            <Checkbox
+            <InputGroup
               label={t('editor:properties.video.lbl-use-alpha-uv-transform')}
-              variantTextPlacement={'right'}
-              variantTextClassname={'text-[#B2B5BD]'}
-              checked={video.useAlphaUVTransform.value}
-              onChange={commitProperty(VideoComponent, 'useAlphaUVTransform')}
-            />
-
-            {video.useAlphaUVTransform.value && (
+              info={t('editor:properties.video.lbl-use-alpha-uv-transform-info')}
+            >
               <Vector2Input
                 value={video.alphaUVOffset.value}
                 onChange={updateProperty(VideoComponent, 'alphaUVOffset')}
@@ -452,7 +447,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                 classNameXOverride={'w-1/2'}
                 classNameYOverride={'w-1/2'}
               />
-            )}
+            </InputGroup>
           </>
         )}
       </InputGroup>

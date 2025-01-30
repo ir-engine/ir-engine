@@ -111,7 +111,6 @@ export const VideoComponent = defineComponent({
     wrapT: WrappingSchema,
     useAlpha: S.Bool(false),
     useAlphaInvert: S.Bool(false),
-    useAlphaUVTransform: S.Bool(false),
     alphaThreshold: S.Number(0.5),
     fit: ContentFitTypeSchema('contain'),
     projection: ProjectionSchema,
@@ -159,7 +158,7 @@ function VideoReactor() {
           useAlpha: { value: false },
           useAlphaInvert: { value: false },
           alphaThreshold: { value: 0.5 },
-          useAlphaUVTransform: { value: false },
+          useAlphaUVTransform: { value: true },
           alphaUVOffset: { value: new Vector2(0, 0) },
           alphaUVScale: { value: new Vector2(1, 1) },
           wrapS: { value: ClampToEdgeWrapping },
@@ -376,11 +375,6 @@ function VideoReactor() {
       video.uvScale.y.value * fitPlacementUvScale.y.value
     )
   }, [video.uvScale, fitPlacementUvScale])
-
-  useEffect(() => {
-    const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
-    uniforms.useAlphaUVTransform.value = video.useAlphaUVTransform.value
-  }, [video.useAlphaUVTransform])
 
   useEffect(() => {
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
