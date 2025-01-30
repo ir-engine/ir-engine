@@ -544,13 +544,17 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               }}
               placeholder={getConnectPlaceholder()}
               state={error.value ? 'error' : undefined}
-              helperText={getErrorText()}
+              helperText={error.value ? getErrorText() : ''}
               endComponent={
                 <button className="h-4 w-4" onMouseDown={handleGuestSubmit}>
                   <Send01Lg />
                 </button>
               }
               fullWidth
+              value={emailPhone.value}
+              onChange={(e) => {
+                emailPhone.set(e.target.value)
+              }}
             />
           </>
         )}
