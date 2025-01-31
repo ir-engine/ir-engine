@@ -488,11 +488,11 @@ const resizeComponent = (component: Component, size: number) => {
  *  for ([layer, linkedEntity] of getLayerRelations(entity)) { ..... }
  *  ```
  * */
-function getLayerRelationsEntities(entity: Entity): [LayerID, Entity][] {
+function getLayerRelationsEntities(entity: Entity): [LayerID, Entity][] | undefined {
   const layerComponent = LayerFunctions.getLayerComponent(entity)
-  if (!layerComponent) return []
+  if (!layerComponent) return
   const layer = getOptionalComponent(entity, layerComponent)
-  if (!layer) return []
+  if (!layer) return
   return Object.entries(layer.relations).map(
     ([layer, val]): [LayerID, Entity] => [Number(layer), val] as [LayerID, Entity]
   )
@@ -652,12 +652,10 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
  * */
 function propagateLayer<C extends Component>(entity: Entity, component: C) {
   if ((component as any) === LayerComponent || LayerComponents.includes(component as any)) return
+  const relations = LayerFunctions.getLayerRelationsEntities(entity)
+  if (!relations) return
   const entityLayer = LayerComponent.get(entity)
-  for (const [linkedLayer, linkedEntity] of LayerFunctions.getLayerRelationsEntities(entity)) {
-    if (!hasComponent(entity, component)) {
-      removeComponent(linkedEntity, component)
-      continue
-    }
+  for (const [linkedLayer, linkedEntity] of relations) {
     if (!LayerFunctions.shouldPropagate(entityLayer, linkedLayer)) continue
     const newArgs = LayerFunctions.createLayerPropagationArgs(entity, linkedLayer, component)
     setComponent(linkedEntity, component, newArgs)
@@ -688,7 +686,9 @@ const _getComponentState = <C extends Component>(entity: Entity, component: C) =
       onSet: (s, d) => {
         const rootState = component.stateMap[entity]
         component.valueMap[entity] = rootState.promised ? undefined : rootState.get(NO_PROXY_STEALTH)
-        LayerFunctions.propagateLayer(entity, component)
+        if (bitECS.hasComponent(HyperFlux.store, entity, component)) {
+          LayerFunctions.propagateLayer(entity, component)
+        }
       }
     }))
   }
@@ -727,12 +727,17 @@ export const setComponent = <C extends Component>(
 
   const state = _getComponentState(entity, component)
 
-  if (!hasComponent(entity, component)) {
-    state.set(createInitialComponentValue(entity, component))
-    bitECS.addComponent(HyperFlux.store, entity, component)
-  }
+  const exists = hasComponent(entity, component)
 
-  component.onSet(entity, state, args)
+  if (!exists) {
+    // we must call onSet before setting the component in the ECS, such that the propagation
+    // callback does not propagate data that may be required but not set yet
+    state.set(createInitialComponentValue(entity, component))
+    component.onSet(entity, state, args)
+    bitECS.addComponent(HyperFlux.store, entity, component)
+  } else {
+    component.onSet(entity, state, args)
+  }
 
   LayerFunctions.propagateLayer(entity, component)
 
@@ -788,10 +793,13 @@ export function useHasComponents<C extends Component>(entity: Entity, components
 export const removeComponent = <C extends Component>(entity: Entity, component: C) => {
   if (!hasComponent(entity, component)) return
 
-  const entityLayer = LayerComponent.get(entity)
-  for (const [layer, linkedEntity] of LayerFunctions.getLayerRelationsEntities(entity)) {
-    if (!LayerFunctions.shouldPropagate(entityLayer, layer)) continue
-    removeComponent(linkedEntity, component)
+  const relations = LayerFunctions.getLayerRelationsEntities(entity)
+  if (relations) {
+    const entityLayer = LayerComponent.get(entity)
+    for (const [layer, linkedEntity] of relations) {
+      if (!LayerFunctions.shouldPropagate(entityLayer, layer)) continue
+      removeComponent(linkedEntity, component)
+    }
   }
 
   component.onRemove(entity, component.stateMap[entity]!)
@@ -991,7 +999,7 @@ export const LayerComponents = Object.entries(Layers).map(([name, layer]) => {
       for (const [linkedLayer, relation] of LayerFunctions.getLayerRelationsTypes(layer)) {
         if (relation === LayerRelationTypes.Propagate) {
           const linkedEntity = createEntity(linkedLayer as LayerID)
-          getMutableComponent(entity, LayerComponents[layer]).relations[linkedLayer].set(linkedEntity)
+          _component.relations[linkedLayer].set(linkedEntity)
           LayerComponents[linkedLayer].refs[linkedEntity] = entity
         }
       }
