@@ -31,6 +31,7 @@ import {
   Entity,
   EntityTreeComponent,
   generateEntityUUID,
+  getComponent,
   getOptionalComponent,
   removeEntity,
   setComponent,
@@ -53,7 +54,8 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
   parentEntity: Entity,
   helperFactory: () => TObject,
   enabled: boolean,
-  layerMask = ObjectLayerMasks.NodeHelper
+  layerMask = ObjectLayerMasks.NodeHelper,
+  nameSuffix = 'helper'
 ): Entity {
   const helperEntityState = useHookstate(UndefinedEntity)
   const nameComponent = useOptionalComponent(parentEntity, NameComponent)
@@ -66,17 +68,9 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
   useEffect(() => {
     if (!enabled) return
 
-    const helperEntity = createEntity()
-    const helper = helperFactory()
-    helper.preserveChildren = true
-    // workaround for hemisphere light helper having child mesh internally
+    const helperEntity = createHelperEntity(parentEntity, helperFactory, layerMask)
+    const helper = getComponent(helperEntity, ObjectComponent) as TObject
     const helperMesh = helper.children[0] as Mesh<any, any> | undefined
-    setComponent(helperEntity, EntityTreeComponent, { parentEntity: parentEntity })
-    setComponent(helperEntity, TransformComponent)
-    setComponent(helperEntity, ObjectComponent, helper)
-    setComponent(helperEntity, UUIDComponent, generateEntityUUID())
-    setComponent(helperEntity, ObjectLayerMaskComponent, layerMask)
-    setComponent(helperEntity, VisibleComponent, true)
     helperEntityState.set(helperEntity)
     if (typeof helper.update === 'function') helper.update()
 
@@ -92,7 +86,7 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
 
   useEffect(() => {
     if (!helperEntityState.value) return
-    setComponent(helperEntityState.value, NameComponent, `${nameComponent?.value ?? parentEntity}-helper`)
+    setComponent(helperEntityState.value, NameComponent, `${nameComponent?.value ?? parentEntity}-${nameSuffix}`)
   }, [helperEntityState.value, nameComponent, enabled])
 
   useEffect(() => {
@@ -103,4 +97,25 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
   }, [transform, helperEntityState.value, enabled])
 
   return helperEntityState.value
+}
+
+export function createHelperEntity<TObject extends DisposableObject3D>(
+  parentEntity: Entity,
+  helperFactory: () => TObject,
+  layerMask = ObjectLayerMasks.NodeHelper,
+  nameSuffix = '-helper'
+): Entity {
+  const helperEntity = createEntity()
+  const name = getComponent(parentEntity, NameComponent)
+  const helper = helperFactory()
+  helper.preserveChildren = true
+  setComponent(helperEntity, EntityTreeComponent, { parentEntity: parentEntity })
+  setComponent(helperEntity, TransformComponent)
+  setComponent(helperEntity, ObjectComponent, helper)
+  setComponent(helperEntity, UUIDComponent, generateEntityUUID())
+  setComponent(helperEntity, ObjectLayerMaskComponent, layerMask)
+  setComponent(helperEntity, VisibleComponent, true)
+  setComponent(helperEntity, NameComponent, `${name ?? parentEntity}-${nameSuffix}`)
+
+  return helperEntity
 }

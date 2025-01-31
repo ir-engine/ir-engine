@@ -62,7 +62,7 @@ export const SpawnPointComponent = defineComponent({
 
     const debugEnabled =
       renderState.nodeHelperVisibility.value ||
-      (activeHelperComponent !== undefined && activeHelperComponent.value === true)
+      (activeHelperComponent !== undefined && activeHelperComponent.enabled.value)
 
     const debugGLTF = useGLTFComponent(debugEnabled ? GLTF_PATH : '', entity)
 
@@ -70,6 +70,7 @@ export const SpawnPointComponent = defineComponent({
       if (!debugGLTF || !debugEnabled) return
 
       const boundsHelperEntity = createEntity()
+      setComponent(entity, ActiveHelperComponent, { helperSelectedGizmo: boundsHelperEntity })
       setComponent(boundsHelperEntity, TransformComponent)
       setComponent(boundsHelperEntity, EntityTreeComponent, { parentEntity: entity })
       setComponent(boundsHelperEntity, VisibleComponent)

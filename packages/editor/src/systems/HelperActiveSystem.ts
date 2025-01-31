@@ -25,39 +25,22 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { EntityTreeComponent, useQuery, UUIDComponent } from '@ir-engine/ecs'
-import { ComponentJSONIDMap, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { createEntity, entityExists, generateEntityUUID } from '@ir-engine/ecs/src/EntityFunctions'
+import { UndefinedEntity, useQuery, UUIDComponent } from '@ir-engine/ecs'
+import { ComponentJSONIDMap, getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { GLTFNodeState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { getMutableState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
-import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
-import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { createHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { CircleGeometry, Mesh } from 'three'
+import { BoxGeometry, Mesh } from 'three'
 import { ComponentStudioIconState } from '../services/ComponentStudioIcons'
 import { SelectionState } from '../services/SelectionServices'
 
-const sphereGeometry = new CircleGeometry(0.5, 64)
-
-const createIconHelper = (name, icon, parentEntity) => {
-  console.log('DEBUG: creating icon helper for ', name)
-  const helperEntity = createEntity()
-  const helper = new Mesh(sphereGeometry)
-  setComponent(helperEntity, NameComponent, `${name ?? parentEntity}-icon-helper`)
-  setComponent(helperEntity, EntityTreeComponent, { parentEntity: parentEntity })
-  setComponent(helperEntity, TransformComponent)
-  setComponent(helperEntity, ObjectComponent, helper)
-  setComponent(helperEntity, UUIDComponent, generateEntityUUID())
-  setComponent(helperEntity, ObjectLayerMaskComponent, ObjectLayerMasks.NodeHelper)
-  setComponent(helperEntity, VisibleComponent, true)
-  return helperEntity
-}
+//const circleGeometry = new CircleGeometry(0.5, 64)
+const circleGeometry = new BoxGeometry(1, 1, 1)
 
 const reactor = () => {
   const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities)
@@ -68,12 +51,12 @@ const reactor = () => {
     const entities = [...selectedEntities.value].map(UUIDComponent.getEntityByUUID)
     for (const entity of entities) {
       if (!entityExists(entity)) continue
-      setComponent(entity, ActiveHelperComponent, true)
+      setComponent(entity, ActiveHelperComponent, { enabled: true })
     }
     return () => {
       for (const entity of entities) {
         if (!entityExists(entity)) continue
-        setComponent(entity, ActiveHelperComponent, false)
+        setComponent(entity, ActiveHelperComponent, { enabled: false })
       }
     }
   }, [selectedEntities])
@@ -83,6 +66,7 @@ const reactor = () => {
     for (const entity of helperQuery) {
       //find the top most component
       //set icon helper accordingly
+      if (getComponent(entity, ActiveHelperComponent).helperDefaultGizmo !== UndefinedEntity) continue
       const componentStudioIcon = componentStudioIconState.get(NO_PROXY)
       const node = GLTFNodeState.getMutableNode(entity).get(NO_PROXY)
       let targetComponent: any = undefined
@@ -93,8 +77,14 @@ const reactor = () => {
           break
         }
       }
-      createIconHelper(targetComponent.name, componentStudioIcon[targetComponent.name], entity)
 
+      const iconHelperState = createHelperEntity(
+        entity,
+        () => new Mesh(circleGeometry),
+        ObjectLayerMasks.NodeHelper,
+        'icon-helper'
+      )
+      setComponent(entity, ActiveHelperComponent, { helperDefaultGizmo: iconHelperState })
       // create the icon helper
     }
   }, [helperQuery])

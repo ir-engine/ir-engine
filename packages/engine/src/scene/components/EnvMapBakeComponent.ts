@@ -34,6 +34,7 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
+import { useEffect } from 'react'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
 
@@ -61,9 +62,13 @@ export const EnvMapBakeComponent = defineComponent({
     const renderState = useMutableState(RendererState)
     const debugEnabled =
       renderState.nodeHelperVisibility.value ||
-      (activeHelperComponent !== undefined && activeHelperComponent.value === true)
+      (activeHelperComponent !== undefined && activeHelperComponent.enabled.value)
 
-    useHelperEntity(entity, () => new Mesh(sphereGeometry, helperMeshMaterial), debugEnabled)
+    const helperEntity = useHelperEntity(entity, () => new Mesh(sphereGeometry, helperMeshMaterial), debugEnabled)
+
+    useEffect(() => {
+      activeHelperComponent?.helperSelectedGizmo.set(helperEntity)
+    }, [helperEntity])
 
     return null
   }

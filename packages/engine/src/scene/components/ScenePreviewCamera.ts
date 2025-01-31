@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useLayoutEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import { CameraHelper, Euler, PerspectiveCamera } from 'three'
 
 import { EngineState, useExecute } from '@ir-engine/ecs'
@@ -60,7 +60,7 @@ export const ScenePreviewCameraComponent = defineComponent({
     const renderState = useMutableState(RendererState)
     const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const debugEnabled =
-      renderState.nodeHelperVisibility || (activeHelperComponent !== undefined && activeHelperComponent.value === true)
+      renderState.nodeHelperVisibility || (activeHelperComponent !== undefined && activeHelperComponent.enabled.value)
     const previewCamera = useComponent(entity, ScenePreviewCameraComponent)
     const previewCameraTransform = useComponent(entity, TransformComponent)
     const engineCameraTransform = useOptionalComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
@@ -95,8 +95,15 @@ export const ScenePreviewCameraComponent = defineComponent({
       previewCamera.camera.value.rotation.copy(new Euler().setFromQuaternion(previewCameraTransform.rotation.value))
     }, [previewCameraTransform])
 
-    useHelperEntity(entity, () => new CameraHelper(previewCamera.camera.value as PerspectiveCamera), debugEnabled.value)
+    const helperEntity = useHelperEntity(
+      entity,
+      () => new CameraHelper(previewCamera.camera.value as PerspectiveCamera),
+      debugEnabled.value
+    )
 
+    useEffect(() => {
+      activeHelperComponent?.helperSelectedGizmo.set(helperEntity)
+    }, [helperEntity])
     return null
   }
 })

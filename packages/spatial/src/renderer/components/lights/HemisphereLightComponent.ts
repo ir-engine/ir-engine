@@ -62,7 +62,7 @@ export const HemisphereLightComponent = defineComponent({
     const renderState = useMutableState(RendererState)
     const debugEnabled =
       renderState.nodeHelperVisibility.value ||
-      (activeHelperComponent !== undefined && activeHelperComponent.value === true)
+      (activeHelperComponent !== undefined && activeHelperComponent.enabled.value)
 
     const [light] = useDisposable(HemisphereLight, entity)
     const helperEntity = useHelperEntity(entity, () => new HemisphereLightHelper(light, 100), debugEnabled)
@@ -73,6 +73,7 @@ export const HemisphereLightComponent = defineComponent({
     useEffect(() => {
       setComponent(entity, LightTagComponent)
       setComponent(entity, ObjectComponent, light)
+      setComponent(entity, ActiveHelperComponent, { helperSelectedGizmo: helperEntity })
       return () => {
         removeComponent(entity, ObjectComponent)
       }
