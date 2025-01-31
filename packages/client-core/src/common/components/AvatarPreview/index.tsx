@@ -29,7 +29,6 @@ import { useTranslation } from 'react-i18next'
 
 import commonStyles from '@ir-engine/client-core/src/common/components/common.module.scss'
 import Text from '@ir-engine/client-core/src/common/components/Text'
-import { useRender3DPanelSystem } from '@ir-engine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import {
   createEntity,
   EntityTreeComponent,
@@ -59,6 +58,7 @@ import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarC
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { AnimationClip } from 'three'
+import { useRender3DPanelSystem } from '../../../hooks/useRender3DPanelSystem'
 import styles from './index.module.scss'
 
 interface Props {
