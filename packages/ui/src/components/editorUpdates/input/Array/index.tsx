@@ -25,8 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 import { SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import React, { useCallback, useState } from 'react'
 import { useDrop } from 'react-dnd'
-import { HiMinus, HiOutlineVideoCamera, HiPlus } from 'react-icons/hi'
+import { HiMinus, HiPlus } from 'react-icons/hi'
+import { MdDragIndicator } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
+import Button from '../../../../primitives/tailwind/Button'
 import Input from '../../../../primitives/tailwind/Input'
 
 export interface ArrayInputProps {
@@ -34,20 +36,28 @@ export interface ArrayInputProps {
   containerClassName?: string
   values: string[]
   onChange: (values: string[]) => void
+  onSelect?: (index: number) => void
   dropTypes?: string[]
+  SelectIcon?: ({ className }: { className?: string }) => JSX.Element
+  selectedIndex?: number
+  selected?: number
 }
 
 const DiscardableInput = ({
   value,
   index,
   onChange,
-  onRemove,
-  dropTypes
+  onSelect,
+  dropTypes,
+  SelectIcon,
+  selected
 }: {
   value: string
   index: number
   onChange: (val: string, idx: number) => void
-  onRemove: (idx: number) => void
+  onSelect?: (idx: number) => void
+  SelectIcon?: ({ className }: { className?: string }) => JSX.Element
+  selected?: boolean
 } & Pick<ArrayInputProps, 'dropTypes'>) => {
   const [{ isDroppable }, dropRef] = useDrop(() => ({
     accept: dropTypes ?? [...SupportedFileTypes],
@@ -65,9 +75,23 @@ const DiscardableInput = ({
         ref={dropRef}
         className={twMerge(' mb-2 flex w-full justify-end', isDroppable && 'outline outline-2 outline-white')}
       >
+        <MdDragIndicator className=" mr-[4px] h-[32px] w-[20px] text-[#9CA0AA]" />
         <Input fullWidth={true} value={value} onChange={(event) => onChange(event.target.value, index)} />
-        <HiOutlineVideoCamera className=" ml-[4px] h-[32px] w-[32px] rounded-md bg-[#42454D] p-[4px] " />
-        {/*<PiTrashSimple className="ml-2.5 cursor-pointer text-[#444]" onClick={() => onRemove(index)} />*/}
+        {SelectIcon && (
+          <Button
+            className={twMerge(
+              'ml-[4px] h-[32px] w-[32px] rounded-md p-[4px] ',
+              selected ? 'bg-[#375DAF] text-[#FFFFFF]' : 'bg-[#42454D] text-[#9CA0AA]'
+            )}
+            onClick={() => {
+              if (onSelect) {
+                onSelect(index)
+              }
+            }}
+          >
+            <SelectIcon className="h-full w-full" />
+          </Button>
+        )}
       </div>
     </div>
   )
@@ -78,7 +102,11 @@ export default function ArrayInputGroup({
   containerClassName,
   values: initialValues,
   onChange,
-  dropTypes
+  dropTypes,
+  SelectIcon,
+  onSelect,
+  selectedIndex,
+  selected
 }: ArrayInputProps) {
   const [values, setValues] = useState(initialValues)
 
@@ -133,8 +161,10 @@ export default function ArrayInputGroup({
                 value={value}
                 index={idx}
                 onChange={handleChange}
-                onRemove={(index) => handleChange('', index, 'remove')}
                 dropTypes={dropTypes}
+                SelectIcon={SelectIcon}
+                onSelect={onSelect}
+                selected={selectedIndex === idx}
               />
             ))}
           </div>

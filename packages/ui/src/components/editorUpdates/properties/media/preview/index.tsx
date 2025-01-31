@@ -29,9 +29,10 @@ import { useTranslation } from 'react-i18next'
 
 interface MediaPlayerProps {
   resources: State<string[]> //  State<ArrayStatic<TStringSchema>, {}>// ReadonlyArray<string>
+  selectedIndex?: number
 }
 
-const MediaPreview: React.FC<MediaPlayerProps> = ({ resources }) => {
+const MediaPreview: React.FC<MediaPlayerProps> = ({ resources, selectedIndex = 0 }) => {
   const { t } = useTranslation()
 
   // Get the array of URLs as strings based on the type
@@ -61,8 +62,8 @@ const MediaPreview: React.FC<MediaPlayerProps> = ({ resources }) => {
   }
 
   useEffect(() => {
-    handleMediaChange(resourceList[0] ?? '')
-  }, [resources])
+    handleMediaChange(resourceList[selectedIndex] ?? '')
+  }, [resources, selectedIndex])
 
   return (
     <div id={'media-preview-root-div'} className={'flex-grow space-y-1'}>

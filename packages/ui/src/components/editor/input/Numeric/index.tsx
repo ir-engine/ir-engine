@@ -68,6 +68,8 @@ export interface NumericInputProp extends Omit<React.HTMLAttributes<HTMLInputEle
   prefixClassName?: string
   PreFixIcon?: ({ className }: { className?: string }) => JSX.Element
   prefixIconClassName?: string
+  SuffixIcon?: ({ className }: { className?: string }) => JSX.Element
+  suffixIconClassName?: string
 }
 
 const NumericInput = ({
@@ -89,6 +91,8 @@ const NumericInput = ({
   prefixClassName,
   PreFixIcon,
   prefixIconClassName,
+  SuffixIcon,
+  suffixIconClassName,
   ...rest
 }: NumericInputProp) => {
   const tempValue = useHookstate(0)
@@ -181,6 +185,7 @@ const NumericInput = ({
           {unit}
         </Text>
       )}
+      {SuffixIcon && <SuffixIcon className={suffixIconClassName} />}
     </div>
   )
 }

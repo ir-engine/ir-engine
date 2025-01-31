@@ -55,6 +55,7 @@ import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components
 import { DistanceModel, DistanceModelOptions } from '@ir-engine/engine/src/audio/constants/AudioConstants'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { FaAngleLeft } from 'react-icons/fa'
+import { RiExpandUpDownLine } from 'react-icons/ri'
 import { TfiAngleLeft } from 'react-icons/tfi'
 import ArrayInputGroup from '../../../editorUpdates/input/Array'
 import InputGroup from '../../../editorUpdates/input/Group'
@@ -162,7 +163,12 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
     }
   }
 
+  const handleSourcePathSelect = (index: number) => {
+    sourcePathSelectedIndex.set(index)
+  }
+
   const localAudioMode = useHookstate(hasComponent(props.entity, PositionalAudioComponent) ? 'positional' : 'ambient')
+  const sourcePathSelectedIndex = useHookstate(-1)
 
   useEffect(() => {
     if (!hasComponent(props.entity, MediaComponent)) {
@@ -170,6 +176,16 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
       EditorControlFunctions.addOrRemoveComponent(nodes, MediaComponent, true)
     }
   }, [])
+
+  useEffect(() => {
+    console.log('sourcePathSelectedIndex- ' + sourcePathSelectedIndex.value)
+  }, [sourcePathSelectedIndex])
+
+  useEffect(() => {
+    if (!media || media.resources.length < 1 || media.resources.length <= sourcePathSelectedIndex.value) {
+      sourcePathSelectedIndex.set(-1)
+    }
+  }, [media?.resources])
 
   return (
     <NodeEditor
@@ -212,11 +228,16 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
             label={t('editor:properties.media.paths')}
             info={t('editor:properties.media.paths')}
           >
-            {media.resources.length > 0 && <MediaPreview resources={media.resources} />}
+            {media.resources.length > 0 && sourcePathSelectedIndex.value >= 0 && (
+              <MediaPreview resources={media.resources} selectedIndex={sourcePathSelectedIndex.value} />
+            )}
             <ArrayInputGroup
               values={media.resources.value as string[]}
               dropTypes={[...ItemTypes.Videos]}
               onChange={commitProperty(MediaComponent, 'resources')}
+              selectedIndex={sourcePathSelectedIndex.value}
+              SelectIcon={HiOutlineVideoCamera}
+              onSelect={handleSourcePathSelect}
             />
           </InputGroup>
 
@@ -318,6 +339,8 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
               >
                 <div className="grid w-full grid-flow-col grid-rows-1 gap-[8px]">
                   <NumericScrubber
+                    SuffixIcon={RiExpandUpDownLine}
+                    suffixIconClassName={'text-[#9CA0AA] ml-[4px] w-[30px] h-[30px]'}
                     PreFixIcon={FaAngleLeft}
                     prefixIconClassName={'text-[#9CA0AA] mr-[4px]'}
                     prefix={t('editor:properties.audio.lbl-coneOuterAngle').toUpperCase()}
@@ -339,6 +362,8 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                   />
 
                   <NumericScrubber
+                    SuffixIcon={RiExpandUpDownLine}
+                    suffixIconClassName={'text-[#9CA0AA] ml-[4px] w-[30px] h-[30px]'}
                     PreFixIcon={TfiAngleLeft}
                     prefixIconClassName={'text-[#9CA0AA] mr-[4px]'}
                     prefix={t('editor:properties.audio.lbl-coneInnerAngle').toUpperCase()}
