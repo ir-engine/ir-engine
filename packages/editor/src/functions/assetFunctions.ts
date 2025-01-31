@@ -105,7 +105,7 @@ function isValidFileType(file): { isValid: boolean; errorMessage?: string } {
   }
 }
 
-function sanitizeFiles(files: FileList): File[] {
+export function sanitizeFiles(files: FileList | File[]): File[] {
   const { maxFileSizeToUpload } = config.client
 
   const invalidSizeFiles: string[] = []

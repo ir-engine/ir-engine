@@ -32,10 +32,10 @@ import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 import React from 'react'
 import { HiPencil } from 'react-icons/hi2'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
-import { UserMenus } from '../../../user/UserUISystem'
-import { PopupMenuServices } from '../../../user/components/UserMenu/PopupMenuService'
-import { useUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThumbnail'
+import { useUserAvatarThumbnail } from '../../../hooks/useUserAvatarThumbnail'
+import AvatarSelectMenu from '../../../user/menus/avatar/AvatarSelectMenu'
 import { AuthState } from '../../../user/services/AuthService'
+import { PopoverState } from '../../services/PopoverState'
 import { ThemeState } from '../../services/ThemeService'
 
 const ProfilePill = () => {
@@ -76,7 +76,7 @@ const ProfilePill = () => {
               className="absolute bottom-0 left-10 rounded-full p-1 text-[#F5F5F5]"
               onClick={() => {
                 popUpOpened.set(false)
-                PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)
+                PopoverState.showPopupover(<AvatarSelectMenu showBackButton={false} />)
               }}
             >
               <HiPencil />

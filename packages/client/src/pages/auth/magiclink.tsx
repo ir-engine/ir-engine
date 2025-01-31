@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
-import AuthMagicLink from '@ir-engine/client-core/src/user/components/MagicLink/AuthMagicLink'
+import AuthMagicLink from '@ir-engine/client-core/src/user/oauth/AuthMagicLink'
 
 export const AuthMagicLinkPage = () => <AuthMagicLink />
 
