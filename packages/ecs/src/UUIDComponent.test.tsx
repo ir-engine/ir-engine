@@ -93,7 +93,7 @@ describe('UUIDComponent', () => {
       const testEntity = createEntity()
       expect(before).not.toBe(testEntity)
       // run via setComponent
-      setComponent(testEntity, UUIDComponent, uuid) 
+      setComponent(testEntity, UUIDComponent, uuid)
       expect(resultSpy).toHaveBeenCalledTimes(1)
       expect(UUIDComponentFunctions._getUUIDState(uuid).get()).toBe(testEntity)
     })

@@ -28,19 +28,13 @@ import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { createEntity, removeEntity } from '@ir-engine/ecs'
-import {
-  getComponent,
-  hasComponent,
-  removeComponent,
-  serializeComponent,
-  setComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { UndefinedEntity } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { ObjectComponent } from './ObjectComponent'
-import { Layer, ObjectLayerComponents, ObjectLayerMaskComponent, ObjectLayerMaskDefault } from './ObjectLayerComponent'
+import { Layer, ObjectLayerComponents, ObjectLayerMaskComponent } from './ObjectLayerComponent'
 
 const maxBitWidth = 32
 
