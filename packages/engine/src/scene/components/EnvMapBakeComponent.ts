@@ -25,12 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Mesh, MeshPhysicalMaterial, SphereGeometry } from 'three'
 
-import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
@@ -56,9 +57,13 @@ export const EnvMapBakeComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
+    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
+    const renderState = useMutableState(RendererState)
+    const debugEnabled =
+      renderState.nodeHelperVisibility.value ||
+      (activeHelperComponent !== undefined && activeHelperComponent.value === true)
 
-    useHelperEntity(entity, () => new Mesh(sphereGeometry, helperMeshMaterial), debugEnabled.value)
+    useHelperEntity(entity, () => new Mesh(sphereGeometry, helperMeshMaterial), debugEnabled)
 
     return null
   }

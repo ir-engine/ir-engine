@@ -29,7 +29,6 @@ import { BufferGeometry, DirectionalLight, Float32BufferAttribute } from 'three'
 import {
   defineComponent,
   getMutableComponent,
-  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
@@ -132,6 +131,7 @@ export const DirectionalLightComponent = defineComponent({
       setComponent(entity, LightTagComponent)
       directionalLightComponent.light.set(light)
       setComponent(entity, ObjectComponent, light)
+      setComponent(entity, ActiveHelperComponent)
 
       return () => {
         removeComponent(entity, ObjectComponent)
@@ -176,7 +176,8 @@ export const DirectionalLightComponent = defineComponent({
     }, [renderState.shadowMapResolution])
 
     useEffect(() => {
-      if (!debugEnabled.value && !hasComponent(entity, ActiveHelperComponent)) return
+      if (!(debugEnabled.value || (activeHelperComponent !== undefined && activeHelperComponent.value === true))) return
+
       helperEntity.set(createEntity())
       setComponent(helperEntity.value, EntityTreeComponent, { parentEntity: entity })
       setComponent(helperEntity.value, LineSegmentComponent, {

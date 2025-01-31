@@ -23,6 +23,19 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+export { default as BoundingBoxStudioIcon } from './editor/BoundingBox'
+export { default as EnvMapBakeStudioIcon } from './editor/EnvMapBake'
+export { default as AmbientLightStudioIcon } from './editor/lights/Ambient'
+export { default as DirectionalLightStudioIcon } from './editor/lights/Directional'
+export { default as HemisphereLightStudioIcon } from './editor/lights/Hemisphere'
+export { default as PointLightStudioIcon } from './editor/lights/Point'
+export { default as SpotLightStudioIcon } from './editor/lights/Spot'
+export { default as MediaStudioIcon } from './editor/Media'
+export { default as MountPointStudioIcon } from './editor/MountPoint'
+export { default as PortalStudioIcon } from './editor/Portal'
+export { default as PositionalAudioStudioIcon } from './editor/PositionalAudio'
+export { default as ScenePreviewCameraStudioIcon } from './editor/ScenePreviewCamera'
+export { default as SpawnPointStudioIcon } from './editor/SpawnPoint'
 export { default as AdminMd } from './files/AdminMd'
 export { default as AdminSm } from './files/AdminSm'
 export { default as AdminXl } from './files/AdminXl'

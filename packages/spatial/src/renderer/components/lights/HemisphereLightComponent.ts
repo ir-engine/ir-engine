@@ -60,7 +60,9 @@ export const HemisphereLightComponent = defineComponent({
     const hemisphereLightComponent = useComponent(entity, HemisphereLightComponent)
     const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const renderState = useMutableState(RendererState)
-    const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
+    const debugEnabled =
+      renderState.nodeHelperVisibility.value ||
+      (activeHelperComponent !== undefined && activeHelperComponent.value === true)
 
     const [light] = useDisposable(HemisphereLight, entity)
     const helperEntity = useHelperEntity(entity, () => new HemisphereLightHelper(light, 100), debugEnabled)

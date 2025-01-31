@@ -45,6 +45,7 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { ActiveHelperComponent } from '../ActiveHelperComponent'
 
 type DisposableObject3D = Object3D & { update?: () => void; dispose?: () => void }
 
@@ -57,6 +58,10 @@ export function useHelperEntity<TObject extends DisposableObject3D>(
   const helperEntityState = useHookstate(UndefinedEntity)
   const nameComponent = useOptionalComponent(parentEntity, NameComponent)
   const transform = useOptionalComponent(helperEntityState.value, TransformComponent)
+
+  useEffect(() => {
+    setComponent(parentEntity, ActiveHelperComponent)
+  }, [])
 
   useEffect(() => {
     if (!enabled) return
