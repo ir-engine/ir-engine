@@ -526,11 +526,9 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
   if (!component.schema) return
   const componentSchema = component.schema as TTypedSchema<C>
   const layer = LayerComponent.get(entity)
-
   const createArgs = (schema: TTypedSchema<C>, key: string | number, data: any) => {
     const obj = key === '' ? data : data[key]
     if (obj === undefined || obj == null || obj === UndefinedEntity) return obj
-
     switch (schema[Kind] as any) {
       case 'Null':
       case 'Undefined':
@@ -656,6 +654,10 @@ function propagateLayer<C extends Component>(entity: Entity, component: C) {
   if ((component as any) === LayerComponent || LayerComponents.includes(component as any)) return
   const entityLayer = LayerComponent.get(entity)
   for (const [linkedLayer, linkedEntity] of LayerFunctions.getLayerRelationsEntities(entity)) {
+    if (!hasComponent(entity, component)) {
+      removeComponent(linkedEntity, component)
+      continue
+    }
     if (!LayerFunctions.shouldPropagate(entityLayer, linkedLayer)) continue
     const newArgs = LayerFunctions.createLayerPropagationArgs(entity, linkedLayer, component)
     setComponent(linkedEntity, component, newArgs)
