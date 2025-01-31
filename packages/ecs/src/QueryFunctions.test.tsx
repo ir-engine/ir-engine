@@ -239,7 +239,7 @@ describe('QueryFunctions Hooks', async () => {
       assert.ok(hasComponent(entities[1], ComponentB))
     })
 
-    it.only('should update the entities when components change', async () => {
+    it('should update the entities when components change', async () => {
       const e1 = createEntity()
       const e2 = createEntity()
       setComponent(e1, ComponentA)

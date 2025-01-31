@@ -399,7 +399,6 @@ describe('ComponentFunctions', async () => {
 
       deserializeComponent(entity, Vec3Component)
       let vec3Component = getComponent(entity, Vec3Component)
-      console.log(vec3Component)
       assert(vec3Component instanceof Vector3)
       assert(vec3Component.x === 0 && vec3Component.y === 0 && vec3Component.z === 0)
 
