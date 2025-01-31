@@ -312,7 +312,7 @@ export default {
       setLoggedInUserData('createdBy'),
       ensureInviteCode,
       checkExistingPermissions,
-      ensureTypeInData
+      iff(isProvider('external'), ensureTypeInData)
     ],
     update: [disallow()],
     patch: [
@@ -326,7 +326,7 @@ export default {
       ),
       schemaHooks.validateData(projectPermissionPatchValidator),
       schemaHooks.resolveData(projectPermissionPatchResolver),
-      ensureTypeInData
+      iff(isProvider('external'), ensureTypeInData)
     ],
     remove: [
       disallowNonId,
@@ -338,7 +338,7 @@ export default {
           [resolvePermissionId, verifyProjectPermission(['owner', 'editor'])]
         )
       ),
-      restrictOnType
+      iff(isProvider('external'), restrictOnType)
     ]
   },
 
