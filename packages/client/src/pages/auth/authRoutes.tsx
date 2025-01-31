@@ -27,7 +27,7 @@ import { t } from 'i18next'
 import React, { Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
-import ErrorPage from '@ir-engine/client-core/src/user/components/Oauth/ErrorPage'
+import ErrorPage from '@ir-engine/client-core/src/user/oauth/ErrorPage'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import $magiclink from './magiclink'
 

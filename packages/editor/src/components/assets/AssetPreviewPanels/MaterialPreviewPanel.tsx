@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect, useRef } from 'react'
 import { Mesh, SphereGeometry } from 'three'
 
-import { useRender3DPanelSystem } from '@ir-engine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
+import { useRender3DPanelSystem } from '@ir-engine/client-core/src/hooks/useRender3DPanelSystem'
 import { generateEntityUUID, getMutableComponent, setComponent, useComponent, UUIDComponent } from '@ir-engine/ecs'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
