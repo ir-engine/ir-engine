@@ -27,11 +27,272 @@ import { defineState, getMutableState, syncStateWithLocalStorage, useMutableStat
 
 import { useEffect } from 'react'
 
-export interface CSSClasses {}
+export interface CSSClasses {
+  /* Surface Colors */
+  '--surface-0': string
+  '--surface-1': string
+  '--surface-2': string
+  '--surface-3': string
+  '--surface-4': string
+  '--surface-error': string
+  '--surface-warning': string
+  '--surface-success': string
 
-const lightTheme: CSSClasses = {}
+  /* Surface Outline */
+  '--surface-outline-1-1': string
+  '--surface-outline-2-1': string
+  '--surface-outline-3-1': string
+  '--surface-outline-4-1': string
+  '--surface-outline-5-1': string
 
-const darkTheme: CSSClasses = {}
+  /* UI Elements / Default */
+  '--ui-background': string
+  '--ui-outline': string
+  '--ui-primary': string
+  '--ui-secondary': string
+  '--ui-tertiary': string
+  '--ui-quadrary': string
+  '--ui-error': string
+  '--ui-warning': string
+  '--ui-success': string
+
+  /* UI Elements / Hover */
+  '--ui-hover-background': string
+  '--ui-hover-outline': string
+  '--ui-hover-primary': string
+  '--ui-hover-secondary': string
+  '--ui-hover-tertiary': string
+  '--ui-hover-quadrary': string
+  '--ui-hover-error': string
+  '--ui-hover-warning': string
+  '--ui-hover-success': string
+
+  /* UI Elements / Select */
+  '--ui-select-background': string
+  '--ui-select-outline': string
+  '--ui-select-primary': string
+  '--ui-select-secondary': string
+  '--ui-select-tertiary': string
+  '--ui-select-quadrary': string
+  '--ui-select-error': string
+  '--ui-select-warning': string
+  '--ui-select-success': string
+
+  /* UI Elements / Inactive */
+  '--ui-inactive-background': string
+  '--ui-inactive-outline': string
+  '--ui-inactive-primary': string
+  '--ui-inactive-secondary': string
+  '--ui-inactive-tertiary': string
+  '--ui-inactive-quadrary': string
+  '--ui-inactive-error': string
+  '--ui-inactive-warning': string
+  '--ui-inactive-success': string
+
+  /* Text Colors */
+  '--text-primary-button': string
+  '--text-primary': string
+  '--text-secondary': string
+  '--text-tertiary': string
+  '--text-inactive': string
+  '--text-link': string
+  '--text-error': string
+  '--text-warning': string
+  '--text-success': string
+
+  /* Chart Colors */
+  '--chart-100': string
+  '--chart-200': string
+  '--chart-300': string
+  '--chart-400': string
+  '--chart-500': string
+  '--chart-600': string
+  '--chart-700': string
+  '--chart-800': string
+  '--chart-900': string
+  '--chart-1000': string
+  '--chart-1100': string
+  '--chart-1200': string
+  '--chart-1300': string
+}
+
+const lightTheme: CSSClasses = {
+  /* Surface Colors */
+  '--surface-0': '#070708',
+  '--surface-1': '#0F1012',
+  '--surface-2': '#16191C',
+  '--surface-3': '#1F2126',
+  '--surface-4': '#23262B',
+  '--surface-error': '#571D10',
+  '--surface-warning': '#54330D',
+  '--surface-success': '#05471B',
+
+  /* Surface Outline */
+  '--surface-outline-1-1': '#191B1F',
+  '--surface-outline-2-1': '#1F2226',
+  '--surface-outline-3-1': '#23262B',
+  '--surface-outline-4-1': '#2C2E33',
+  '--surface-outline-5-1': '#9CA0AA',
+
+  /* UI Elements / Default */
+  '--ui-background': '#16191C',
+  '--ui-outline': '#42454D',
+  '--ui-primary': '#375DAF',
+  '--ui-secondary': '#1B2844',
+  '--ui-tertiary': '#42454D',
+  '--ui-quadrary': '#2C2E33',
+  '--ui-error': '#8C331F',
+  '--ui-warning': '#B2761B',
+  '--ui-success': '#0B8634',
+
+  /* UI Elements / Hover */
+  '--ui-hover-background': '#1F2126',
+  '--ui-hover-outline': '#42454D',
+  '--ui-hover-primary': '#4D71BF',
+  '--ui-hover-secondary': '#213869',
+  '--ui-hover-tertiary': '#5A5E66',
+  '--ui-hover-quadrary': '#42454D',
+  '--ui-hover-error': '#A8442D',
+  '--ui-hover-warning': '#C99A32',
+  '--ui-hover-success': '#0D943A',
+
+  /* UI Elements / Select */
+  '--ui-select-background': '#1F2126',
+  '--ui-select-outline': '#616161',
+  '--ui-select-primary': '#2BADA3',
+  '--ui-select-secondary': '#16203B',
+  '--ui-select-tertiary': '#42454D',
+  '--ui-select-quadrary': '#2C2E33',
+  '--ui-select-error': '#8C331F',
+  '--ui-select-warning': '#B2761B',
+  '--ui-select-success': '#076326',
+
+  /* UI Elements / Inactive */
+  '--ui-inactive-background': '#1B1D21',
+  '--ui-inactive-outline': '#2C2E33',
+  '--ui-inactive-primary': '#4B577A',
+  '--ui-inactive-secondary': '#2F3A4D',
+  '--ui-inactive-tertiary': '#5A5E66',
+  '--ui-inactive-quadrary': '#42454D',
+  '--ui-inactive-error': '#D1654D',
+  '--ui-inactive-warning': '#F5D164',
+  '--ui-inactive-success': '#6AC689',
+
+  /* Text Colors */
+  '--text-primary-button': '#FFFFFF',
+  '--text-primary': '#F4F3F5',
+  '--text-secondary': '#B2B5BD',
+  '--text-tertiary': '#9CA0AA',
+  '--text-inactive': '#7C808A',
+  '--text-link': '#5F7DBF',
+  '--text-error': '#DB4726',
+  '--text-warning': '#F0C654',
+  '--text-success': '#29CF60',
+
+  /* Chart Colors */
+  '--chart-100': '#FDA4AF',
+  '--chart-200': '#C78FB4',
+  '--chart-300': '#A24482',
+  '--chart-400': '#F43F5E',
+  '--chart-500': '#FDE047',
+  '--chart-600': '#CA8A04',
+  '--chart-700': '#A7F3D0',
+  '--chart-800': '#34D399',
+  '--chart-900': '#10B981',
+  '--chart-1000': '#879ECF',
+  '--chart-1100': '#375DAF',
+  '--chart-1200': '#A188DE',
+  '--chart-1300': '#6943C6'
+}
+
+const darkTheme: CSSClasses = {
+  /* Surface Colors */
+  '--surface-0': '#070708',
+  '--surface-1': '#0F1012',
+  '--surface-2': '#16191C',
+  '--surface-3': '#1F2126',
+  '--surface-4': '#23262B',
+  '--surface-error': '#571D10',
+  '--surface-warning': '#54330D',
+  '--surface-success': '#05471B',
+
+  /* Surface Outline */
+  '--surface-outline-1-1': '#191B1F',
+  '--surface-outline-2-1': '#1F2226',
+  '--surface-outline-3-1': '#23262B',
+  '--surface-outline-4-1': '#2C2E33',
+  '--surface-outline-5-1': '#9CA0AA',
+
+  /* UI Elements / Default */
+  '--ui-background': '#16191C',
+  '--ui-outline': '#42454D',
+  '--ui-primary': '#375DAF',
+  '--ui-secondary': '#1B2844',
+  '--ui-tertiary': '#42454D',
+  '--ui-quadrary': '#2C2E33',
+  '--ui-error': '#8C331F',
+  '--ui-warning': '#B2761B',
+  '--ui-success': '#0B8634',
+
+  /* UI Elements / Hover */
+  '--ui-hover-background': '#1F2126',
+  '--ui-hover-outline': '#42454D',
+  '--ui-hover-primary': '#4D71BF',
+  '--ui-hover-secondary': '#213869',
+  '--ui-hover-tertiary': '#5A5E66',
+  '--ui-hover-quadrary': '#42454D',
+  '--ui-hover-error': '#A8442D',
+  '--ui-hover-warning': '#C99A32',
+  '--ui-hover-success': '#0D943A',
+
+  /* UI Elements / Select */
+  '--ui-select-background': '#1F2126',
+  '--ui-select-outline': '#616161',
+  '--ui-select-primary': '#2BADA3',
+  '--ui-select-secondary': '#16203B',
+  '--ui-select-tertiary': '#42454D',
+  '--ui-select-quadrary': '#2C2E33',
+  '--ui-select-error': '#8C331F',
+  '--ui-select-warning': '#B2761B',
+  '--ui-select-success': '#076326',
+
+  /* UI Elements / Inactive */
+  '--ui-inactive-background': '#1B1D21',
+  '--ui-inactive-outline': '#2C2E33',
+  '--ui-inactive-primary': '#4B577A',
+  '--ui-inactive-secondary': '#2F3A4D',
+  '--ui-inactive-tertiary': '#5A5E66',
+  '--ui-inactive-quadrary': '#42454D',
+  '--ui-inactive-error': '#D1654D',
+  '--ui-inactive-warning': '#F5D164',
+  '--ui-inactive-success': '#6AC689',
+
+  /* Text Colors */
+  '--text-primary-button': '#FFFFFF',
+  '--text-primary': '#F4F3F5',
+  '--text-secondary': '#B2B5BD',
+  '--text-tertiary': '#9CA0AA',
+  '--text-inactive': '#7C808A',
+  '--text-link': '#5F7DBF',
+  '--text-error': '#DB4726',
+  '--text-warning': '#F0C654',
+  '--text-success': '#29CF60',
+
+  /* Chart Colors */
+  '--chart-100': '#FDA4AF',
+  '--chart-200': '#C78FB4',
+  '--chart-300': '#A24482',
+  '--chart-400': '#F43F5E',
+  '--chart-500': '#FDE047',
+  '--chart-600': '#CA8A04',
+  '--chart-700': '#A7F3D0',
+  '--chart-800': '#34D399',
+  '--chart-900': '#10B981',
+  '--chart-1000': '#879ECF',
+  '--chart-1100': '#375DAF',
+  '--chart-1200': '#A188DE',
+  '--chart-1300': '#6943C6'
+}
 
 export const themes: Record<string, Partial<CSSClasses>> = {
   light: lightTheme,
@@ -55,7 +316,7 @@ export const updateTheme = (themeClasses: Partial<CSSClasses>) => {
   if (themeClasses) {
     const root = document.querySelector(':root') as any
     for (const variable of Object.keys(themeClasses)) {
-      root.style.setProperty('--' + variable, themeClasses[variable])
+      root.style.setProperty(variable, themeClasses[variable])
     }
   }
 }
