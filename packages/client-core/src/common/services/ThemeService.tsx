@@ -248,7 +248,7 @@ const darkTheme: CSSClasses = {
   /* UI Elements / Select */
   '--ui-select-background': '#1F2126',
   '--ui-select-outline': '#616161',
-  '--ui-select-primary': '#2BADA3',
+  '--ui-select-primary': '#3368A1',
   '--ui-select-secondary': '#16203B',
   '--ui-select-tertiary': '#42454D',
   '--ui-select-quadrary': '#2C2E33',
