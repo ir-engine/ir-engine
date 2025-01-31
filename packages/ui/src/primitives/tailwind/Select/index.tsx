@@ -246,13 +246,13 @@ const Select = ({
           <label className="block text-xs font-medium" ref={labelRef}>
             <div className="flex flex-row items-center gap-x-1.5">
               <div className="flex flex-row items-center gap-x-0.5">
-                {required && <span className="text-sm text-[#E11D48]">*</span>}
-                <span className="text-xs text-[#D3D5D9]">{labelProps.text}</span>
+                {required && <span className="text-sm text-ui-error">*</span>}
+                <span className="text-xs text-text-secondary">{labelProps.text}</span>
               </div>
 
               {labelProps?.infoText && (
                 <Tooltip content={labelProps.infoText}>
-                  <HelpIconSm className="text-[#9CA0AA]" />
+                  <HelpIconSm className="text-text-tertiary" />
                 </Tooltip>
               )}
             </div>
@@ -269,12 +269,14 @@ const Select = ({
           <div
             tabIndex={0}
             className={twMerge(
-              `relative flex w-full items-center gap-x-2 rounded-md border-[0.5px] border-[#42454D] bg-[#141619] text-[#9CA0AA] ${
+              `relative flex w-full items-center gap-x-2 rounded-md bg-ui-background text-text-tertiary hover:text-text-primary ${
                 heights[inputHeight]
-              } ${disabled && 'cursor-not-allowed bg-[#191B1F] text-[#6B6F78]'} transition-colors duration-300`,
+              } ${
+                disabled && 'cursor-not-allowed bg-ui-inactive-background text-ui-inactive-outline'
+              } transition-colors duration-300`,
               'focus:outline-none',
-              state === 'success' && 'border-[#10B981]',
-              state === 'error' && 'border-[#C3324B]'
+              state === 'success' && 'border-ui-success',
+              state === 'error' && 'border-ui-error'
             )}
             onKeyUp={(e) => {
               if (disabled || !open) return
@@ -378,7 +380,7 @@ const Select = ({
                   />
                 ))
               ) : (
-                <div className="flex h-12 items-center justify-center bg-[#141619] text-[#9CA0AA]">
+                <div className="flex h-12 items-center justify-center bg-ui-background text-text-secondary">
                   No options available
                 </div>
               )}
@@ -390,7 +392,7 @@ const Select = ({
 
       {helperText && !open && (
         <span
-          className={`text-xs ${state === 'success' && 'text-[#0D9467]'} ${state === 'error' && 'text-[#C3324B]'}`}
+          className={`text-xs ${state === 'success' && 'text-ui-success'} ${state === 'error' && 'text-ui-error'}`}
           style={{
             translate: helperOffset
           }}
