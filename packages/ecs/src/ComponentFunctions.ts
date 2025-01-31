@@ -829,15 +829,20 @@ export const removeAllComponents = (entity: Entity) => {
   }
 }
 
-export const deserializeComponent = <C extends Component>(entity: Entity, Component: C, json: ComponentJSON<any>) => {
+export const deserializeComponent = <C extends Component>(
+  entity: Entity,
+  Component: C,
+  json: SetComponentType<C> | undefined = undefined
+) => {
   if (Component.schema && HasRequiredSchema(Component.schema)) {
     const [valid, key] = HasRequiredSchemaValues(Component.schema as TSchema, json)
     if (!valid) throw new Error(`${Component.name}:OnSet Missing required value for key ${key}`)
   }
 
+  if (!hasComponent(entity, Component)) setComponent(entity, Component)
+
   if (json === null || json === undefined) return
 
-  if (!hasComponent(entity, Component)) setComponent(entity, Component)
   const component = getComponent(entity, Component)
 
   const args = Component.schema ? DeserializeSchemaValue(entity, Component.schema, component, json) : json

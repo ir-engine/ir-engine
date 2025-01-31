@@ -180,6 +180,7 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(
 
       for (const key of valueKeys) {
         if (!props[key]) continue
+        newValue[key] = curr[key]
         if (validValue(value[key])) {
           const deserializedValue = DeserializeSchemaValue(entity, props[key], curr[key], value[key])
           if (deserializedValue) newValue[key] = deserializedValue
@@ -200,6 +201,7 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(
       for (const key of propKeys) {
         /** @todo should we be mutating value here? */
         if (validValue(value[key])) value[key] = DeserializeSchemaValue(entity, props[key], curr[key], value[key])
+        else value[key] = curr[key]
       }
 
       break

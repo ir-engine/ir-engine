@@ -34,6 +34,7 @@ import { DirectionalLight, Vector3 } from 'three'
 import {
   ComponentMap,
   defineComponent,
+  deserializeComponent,
   getAllComponents,
   getComponent,
   hasComponent,
@@ -95,7 +96,7 @@ describe('ComponentFunctions', async () => {
 
       const entity = createEntity()
       // @ts-expect-error
-      setComponent(entity, Vector3Component, { otherval: 10 })
+      deserializeComponent(entity, Vector3Component, { otherval: 10 })
       const vector3Component = getComponent(entity, Vector3Component)
       assert.deepEqual(vector3Component, { x: 0, y: 0, z: 4 })
     })
@@ -112,7 +113,7 @@ describe('ComponentFunctions', async () => {
 
       const entity = createEntity()
       // @ts-expect-error
-      setComponent(entity, NestedObjectComponent, { obj: 'test' })
+      deserializeComponent(entity, NestedObjectComponent, { obj: 'test' })
       const nestedObjectComponent = getComponent(entity, NestedObjectComponent)
       assert.deepEqual(nestedObjectComponent, { obj: { num: 0 } })
     })
@@ -295,7 +296,7 @@ describe('ComponentFunctions', async () => {
       assert(nonJson === null)
     })
 
-    it('throws error when onSet is called without required fields', () => {
+    it('throws error when deserializeComponent is called without required fields', () => {
       const ObjComponent = defineComponent({
         name: 'ObjComponent',
         schema: S.Object({
@@ -311,10 +312,10 @@ describe('ComponentFunctions', async () => {
 
       const entity = createEntity()
       const light = new DirectionalLight()
-      assert.throws(() => setComponent(entity, ObjComponent, { other: 12 }))
-      assert.doesNotThrow(() => setComponent(entity, ObjComponent, { light }))
-      assert.throws(() => setComponent(entity, TopLevelComponent))
-      assert.doesNotThrow(() => setComponent(entity, TopLevelComponent, light))
+      assert.throws(() => deserializeComponent(entity, ObjComponent, { other: 12 }))
+      assert.doesNotThrow(() => deserializeComponent(entity, ObjComponent, { light }))
+      assert.throws(() => deserializeComponent(entity, TopLevelComponent), undefined)
+      assert.doesNotThrow(() => deserializeComponent(entity, TopLevelComponent, light))
     })
 
     it('uses schema initializers if they exist', () => {
@@ -379,30 +380,31 @@ describe('ComponentFunctions', async () => {
 
       const entity = createEntity()
 
-      setComponent(entity, ObjComponent, { val: 12 })
+      deserializeComponent(entity, ObjComponent, { val: 12 })
       const objComponent = getComponent(entity, ObjComponent)
       assert(objComponent.val === 12 * 2)
       assert(spy.calledOnce)
 
-      setComponent(entity, TopLevelComponent, 6)
+      deserializeComponent(entity, TopLevelComponent, 6)
       const topLevelComponent = getComponent(entity, TopLevelComponent)
       assert(topLevelComponent === 6 * 3)
       assert(spy.calledTwice)
 
       const vec3 = new Vector3(12, 13, 14)
-      setComponent(entity, Vector3Component, new Vector3(12, 13, 14))
+      deserializeComponent(entity, Vector3Component, new Vector3(12, 13, 14))
       const vector3Component = getComponent(entity, Vector3Component)
       assert(!(vector3Component instanceof Vector3))
       assert(vec3.x === vector3Component.x && vec3.y === vector3Component.y && vec3.z === vector3Component.z)
       assert(vec3 !== vector3Component)
 
-      setComponent(entity, Vec3Component)
+      deserializeComponent(entity, Vec3Component)
       let vec3Component = getComponent(entity, Vec3Component)
+      console.log(vec3Component)
       assert(vec3Component instanceof Vector3)
       assert(vec3Component.x === 0 && vec3Component.y === 0 && vec3Component.z === 0)
 
       const vec3Obj = { x: 11, y: 12, z: 13 }
-      setComponent(entity, Vec3Component, vec3Obj)
+      deserializeComponent(entity, Vec3Component, vec3Obj)
       vec3Component = getComponent(entity, Vec3Component)
       assert(vec3Obj.x === vec3Component.x && vec3Obj.y === vec3Component.y && vec3Obj.z === vec3Component.z)
       assert(vec3Obj !== vec3Component)
