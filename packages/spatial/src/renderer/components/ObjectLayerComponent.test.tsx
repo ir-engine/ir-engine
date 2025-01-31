@@ -62,7 +62,7 @@ describe('ObjectLayerComponent : todo.Organize', () => {
     setComponent(entity, ObjectLayerMaskComponent, layerMask)
 
     assert(hasComponent(entity, ObjectLayerMaskComponent))
-    const componentLayerMask = getComponent(entity, ObjectLayerMaskComponent)
+    const componentLayerMask = ObjectLayerMaskComponent.mask[entity]
     assert(componentLayerMask === layerMask)
     assert(componentLayerMask !== layer)
     assert(hasComponent(entity, ObjectLayerComponents[layer]))
@@ -214,11 +214,6 @@ describe('ObjectLayerMaskComponent', () => {
       removeEntity(testEntity)
       return destroyEngine()
     })
-
-    it('should initialize the component with the expected default values', () => {
-      const data = getComponent(testEntity, ObjectLayerMaskComponent)
-      assertObjectLayerMaskComponentEq(data, ObjectLayerMaskDefault)
-    })
   }) //:: onInit
 
   describe('onSet', () => {
@@ -232,13 +227,6 @@ describe('ObjectLayerMaskComponent', () => {
     afterEach(() => {
       removeEntity(testEntity)
       return destroyEngine()
-    })
-
-    it('should set the value of the component to `@param mask`', () => {
-      const Expected = 42
-      setComponent(testEntity, ObjectLayerMaskComponent, Expected)
-      const result = getComponent(testEntity, ObjectLayerMaskComponent)
-      assert.equal(result, Expected)
     })
 
     it('should set the mask value for the entity to `@param mask`', () => {
@@ -295,32 +283,10 @@ describe('ObjectLayerMaskComponent', () => {
     })
 
     it("should set component's value to 0", () => {
-      assert.equal(getComponent(testEntity, ObjectLayerMaskComponent), 42)
       removeComponent(testEntity, ObjectLayerMaskComponent)
       assert.equal(hasComponent(testEntity, ObjectLayerMaskComponent), false)
     })
   }) //:: onRemove
-
-  describe('toJSON', () => {
-    let testEntity = UndefinedEntity
-
-    beforeEach(async () => {
-      createEngine()
-      testEntity = createEntity()
-      setComponent(testEntity, ObjectLayerMaskComponent, 42)
-    })
-
-    afterEach(() => {
-      removeEntity(testEntity)
-      return destroyEngine()
-    })
-
-    it('should return the serialized data correctly', () => {
-      const result = serializeComponent(testEntity, ObjectLayerMaskComponent)
-      assert.equal(typeof result, 'number')
-      assert.equal(result, 42)
-    })
-  }) //:: toJSON
 
   describe('setLayer', () => {
     let testEntity = UndefinedEntity
@@ -340,7 +306,7 @@ describe('ObjectLayerMaskComponent', () => {
       ObjectLayerMaskComponent.setLayer(testEntity, Layer)
       assert.equal(hasComponent(testEntity, ObjectLayerMaskComponent), true)
       assert.equal(hasComponent(testEntity, ObjectLayerComponents[Layer]), true)
-      assert.equal(getComponent(testEntity, ObjectLayerMaskComponent), 1 << Layer)
+      assert.equal(ObjectLayerMaskComponent.mask[testEntity], 1 << Layer)
     })
   }) //:: setLayer
 
@@ -508,13 +474,6 @@ describe('ObjectLayerMaskComponent', () => {
       return destroyEngine()
     })
 
-    it('should set the value of the component to `@param mask`', () => {
-      const Expected = 42
-      ObjectLayerMaskComponent.setMask(testEntity, Expected)
-      const result = getComponent(testEntity, ObjectLayerMaskComponent)
-      assert.equal(result, Expected)
-    })
-
     it('should set the mask value for the entity to `@param mask`', () => {
       const Expected = 42
       ObjectLayerMaskComponent.setMask(testEntity, Expected)
@@ -624,7 +583,7 @@ describe('Layer', () => {
       layer.set(Expected)
       assert.equal(hasComponent(testEntity, ObjectLayerMaskComponent), true)
       assert.equal(hasComponent(testEntity, ObjectLayerComponents[Expected]), true)
-      assert.equal(getComponent(testEntity, ObjectLayerMaskComponent), 1 << Expected)
+      assert.equal(ObjectLayerMaskComponent.mask[testEntity], 1 << Expected)
     })
   }) //:: set
 
