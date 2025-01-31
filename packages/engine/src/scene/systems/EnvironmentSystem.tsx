@@ -97,7 +97,7 @@ const IntensityReactor = (props: { rootEntity: Entity; entity: Entity }) => {
   const material = useComponent(entity, MaterialStateComponent).material as State<MeshStandardMaterial, Subscribable>
   useEffect(() => {
     material.envMapIntensity.set(envMapComponent.envMapIntensity.value)
-  }, [envMapComponent.envMapIntensity, material])
+  }, [envMapComponent.envMapIntensity.value, material.uuid.value])
   return null
 }
 
@@ -112,7 +112,7 @@ const EnvMapSkyboxReactor = (props: { entity: Entity; rootEntity: Entity }) => {
     if (!backgroundComponent) return
     const material = materialComponent.material as State<MeshStandardMaterial, Subscribable>
     material.envMap.set(backgroundComponent as any)
-  }, [backgroundQuery, materialComponent])
+  }, [backgroundQuery, materialComponent.material.uuid.value])
 
   return <IntensityReactor entity={entity} rootEntity={rootEntity} />
 }
@@ -263,7 +263,7 @@ const EnvMapColorReactor = (props: { entity: Entity; rootEntity: Entity }) => {
     return () => {
       texture.dispose()
     }
-  }, [envMapComponent.envMapSourceColor, materialComponent.material, envMapComponent.type])
+  }, [envMapComponent.envMapSourceColor, materialComponent.material.uuid.value, envMapComponent.type])
 
   return <IntensityReactor entity={entity} rootEntity={rootEntity} />
 }

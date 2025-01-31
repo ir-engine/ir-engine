@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Entity } from '@ir-engine/ecs'
-import { getMutableState, getState, NO_PROXY, none } from '@ir-engine/hyperflux'
+import { getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { ResourceAssetType, ResourceState, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 
 import { AssetLoader } from '../classes/AssetLoader'
@@ -180,7 +180,6 @@ const reloadResource = (url: string) => {
   //   ResourceState.debugLog('resourceLoaderFunctions:reloadResource No callbacks found to update for url: ' + url)
   //   return
   // }
-
   // ResourceState.debugLog('resourceLoaderFunctions:reloadResource Updating asset for url: ' + url)
   // const resourceType = resource.type.value
   // ResourceState.__unsafeRemoveResource(url)

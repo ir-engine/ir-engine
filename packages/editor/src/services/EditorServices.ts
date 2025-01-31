@@ -31,9 +31,9 @@ import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { LinkState } from '@ir-engine/engine/src/scene/components/LinkComponent'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { defineState, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 
 export enum UIMode {
   BASIC = 'BASIC',

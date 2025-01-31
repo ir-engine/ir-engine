@@ -86,7 +86,7 @@ describe('AvatarIKSystem', () => {
       const bone = getOptionalComponent(entity as unknown as Entity, NormalizedBoneComponent)
       if (bone) bone.quaternion.fastSlerp = Quaternion.prototype.fastSlerp
     }
-    console.log('WOW THE RIG', rig)
+
     await vi.waitFor(() => {
       expect(
         getOptionalComponent(rig.bonesToEntities.rightUpperArm, IKMatrixComponent) &&

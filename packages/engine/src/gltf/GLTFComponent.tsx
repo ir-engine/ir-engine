@@ -43,6 +43,7 @@ import {
   setComponent,
   UndefinedEntity,
   useComponent,
+  useHasComponent,
   useHasComponents,
   useOptionalComponent,
   useQuery,
@@ -357,7 +358,7 @@ const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: stri
   const layer = LayerComponent.get(gltfComponentEntity)
   const entity = UUIDComponent.useEntityByUUID(uuid as EntityUUID, layer) as Entity | undefined
   const hasComponents = useHasComponents(entity ?? UndefinedEntity, components)
-  const dynamicLoad = !!useOptionalComponent(entity ?? UndefinedEntity, SceneDynamicLoadComponent)
+  const dynamicLoad = useHasComponent(entity ?? UndefinedEntity, SceneDynamicLoadComponent)
   return entity && !dynamicLoad && hasComponents ? (
     <>
       {components.map((component) => {
@@ -582,9 +583,9 @@ export const parseBinaryData = (data) => {
  * @returns {boolean}
  */
 export const useHasModelOrIndependentMesh = (entity: Entity) => {
-  const hasModel = !!useOptionalComponent(entity, GLTFComponent)
+  const hasModel = useHasComponent(entity, GLTFComponent)
   const isChildOfModel = !!useAncestorWithComponents(entity, [GLTFComponent, SceneComponent])
-  const hasMesh = !!useOptionalComponent(entity, MeshComponent)
+  const hasMesh = useHasComponent(entity, MeshComponent)
   return hasModel || (hasMesh && !isChildOfModel)
 }
 

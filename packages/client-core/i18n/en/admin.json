@@ -661,8 +661,9 @@
         "avatar": "Avatar",
         "accountIdentifier": "Linked Accounts",
         "lastLogin": "Last Login",
-        "acceptedTOS": "ToS Agreed",
+        "ageVerified": "Age Verified (13 or above)",
         "isGuest": "Is Guest",
+        "createdAt": "Created",
         "action": "Action"
       },
       "users": "Users",

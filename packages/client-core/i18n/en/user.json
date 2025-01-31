@@ -474,5 +474,10 @@
     "locationRequired": "Please provide a location name.",
     "roomCodeLength": "Room code must be of 6 digits. No zeros allowed",
     "invalidRoomCode": "Unable to find a room with this code. Please enter a valid room code."
+  },
+  "instanceChat": {
+    "wantToChat": "Want to chat with others?",
+    "register": "Become a registered user",
+    "verifyAge": "Verify your age"
   }
 }

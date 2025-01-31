@@ -311,7 +311,6 @@ uniform float minDistance;`
   return null
 }
 
-
 /** @todo needs to be re-implemented */
 // const buildBudgetVariantMetadata = (
 //   level: VariantLevel,

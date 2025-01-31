@@ -34,6 +34,7 @@ import {
   removeComponent,
   setComponent,
   useComponent,
+  useHasComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
@@ -94,7 +95,7 @@ export const AvatarControllerComponent = defineComponent({
     const camera = useComponent(Engine.instance.cameraEntity, CameraComponent)
     const world = Physics.useWorld(entity)
     const gltfComponent = useOptionalComponent(entity, GLTFComponent)
-    const cameraHasTargetRotation = !!useOptionalComponent(
+    const cameraHasTargetRotation = useHasComponent(
       avatarControllerComponent.cameraEntity.value,
       TargetCameraRotationComponent
     )

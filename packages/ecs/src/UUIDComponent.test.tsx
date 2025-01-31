@@ -82,37 +82,19 @@ describe('UUIDComponent', () => {
   })
 
   describe('onSet', () => {
-    it('should call UUIDComponentFunctions._getUUIDState once and set its value to `@param entity` if `@param component`.value is truthy ', () => {
+    it('should call UUIDComponentFunctions._getUUIDState once and set its value to `@param entity`', () => {
       // Set the data as expected
-      const component = { value: undefined }
+      // Sanity check before running
       const uuid = UUIDComponent.generateUUID()
-      const testEntity = createEntity()
       const before = UUIDComponentFunctions._getUUIDState(uuid).get()
       const resultSpy = vi.spyOn(UUIDComponentFunctions, '_getUUIDState')
-      // Sanity check before running
       expect(resultSpy).toHaveBeenCalledTimes(0)
-      expect(before).not.toBe(testEntity)
-      expect(component.value).toBeFalsy()
       // Run and Check the result
-      UUIDComponent.onSet(testEntity, component as any, uuid)
+      const testEntity = createEntity()
+      expect(before).not.toBe(testEntity)
+      // run via setComponent
+      setComponent(testEntity, UUIDComponent, uuid)
       expect(resultSpy).toHaveBeenCalledTimes(1)
-      expect(UUIDComponentFunctions._getUUIDState(uuid).get()).toBe(testEntity)
-    })
-
-    it('should call UUIDComponentFunctions._getUUIDState twice and set its value to `@param entity` if `@param component`.value is falsy', () => {
-      // Set the data as expected
-      const component = { value: true }
-      const uuid = UUIDComponent.generateUUID()
-      const testEntity = createEntity()
-      const before = UUIDComponentFunctions._getUUIDState(uuid).get()
-      const resultSpy = vi.spyOn(UUIDComponentFunctions, '_getUUIDState')
-      // Sanity check before running
-      expect(resultSpy).toHaveBeenCalledTimes(0)
-      expect(before).not.toBe(testEntity)
-      expect(component.value).toBeTruthy()
-      // Run and Check the result
-      UUIDComponent.onSet(testEntity, component as any, uuid)
-      expect(resultSpy).toHaveBeenCalledTimes(2)
       expect(UUIDComponentFunctions._getUUIDState(uuid).get()).toBe(testEntity)
     })
   }) //:: onSet

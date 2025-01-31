@@ -33,7 +33,6 @@ import {
   generateEntityUUID,
   getAncestorWithComponents,
   getChildrenWithComponents,
-  iterateEntityNode,
   removeEntity,
   SetComponentType,
   UUIDComponent
@@ -56,12 +55,11 @@ import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxCo
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
-import { getMutableState, getState, setNestedObject } from '@ir-engine/hyperflux'
+import { getMutableState, getState, HyperFlux, setNestedObject } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent } from '@ir-engine/spatial'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { getMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { serializeEntity } from '@ir-engine/engine/src/scene/functions/serializeWorld'

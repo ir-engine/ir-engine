@@ -312,7 +312,7 @@ const renderThumbnail = (
     const camera = getComponent(cameraEntity, CameraComponent)
     const viewCamera = camera.cameras[0]
 
-    viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
+    viewCamera.layers.mask = ObjectLayerMaskComponent.mask[cameraEntity]
     setComponent(cameraEntity, RendererComponent, { scenes: [entity, lightEntity, skyboxEntity] })
 
     const renderer = getComponent(cameraEntity, RendererComponent)
