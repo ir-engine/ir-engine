@@ -23,10 +23,35 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 
-import AuthMagicLink from '@ir-engine/client-core/src/user/oauth/AuthMagicLink'
+export default function useClickAway(cb: (e: Event) => void, isTopMost: boolean) {
+  const ref = useRef(null)
+  const refCb = useRef(cb)
 
-export const AuthMagicLinkPage = () => <AuthMagicLink />
+  useLayoutEffect(() => {
+    refCb.current = cb
+  })
 
-export default AuthMagicLinkPage
+  useEffect(() => {
+    const handler = (e: Event) => {
+      if (!isTopMost) {
+        return
+      }
+      const element = ref.current
+      if (element && !(element as any).contains(e.target)) {
+        refCb.current(e)
+      }
+    }
+
+    document.addEventListener('mousedown', handler)
+    document.addEventListener('touchstart', handler)
+
+    return () => {
+      document.removeEventListener('mousedown', handler)
+      document.removeEventListener('touchstart', handler)
+    }
+  }, [isTopMost])
+
+  return ref
+}

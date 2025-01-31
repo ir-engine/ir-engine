@@ -44,9 +44,6 @@ const config: ProjectConfigInterface = {
     '/studio': {
       component: () => import('@ir-engine/client/src/pages/editor')
     },
-    '/room': {
-      component: () => import('@ir-engine/client/src/pages/room')
-    },
     '/capture': {
       component: () => import('@ir-engine/client/src/pages/capture')
     },

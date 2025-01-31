@@ -23,10 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import { defineState } from '@ir-engine/hyperflux'
 
-import AuthMagicLink from '@ir-engine/client-core/src/user/oauth/AuthMagicLink'
-
-export const AuthMagicLinkPage = () => <AuthMagicLink />
-
-export default AuthMagicLinkPage
+export const ViewerMenuState = defineState({
+  name: 'ViewerMenuState',
+  initial: () => ({
+    userMenus: {
+      profile: true,
+      settings: false,
+      readyplayer: false,
+      avaturn: false,
+      avatarselect: false,
+      avatarmodify: false,
+      share: false,
+      emote: false,
+      friends: false,
+      social: false,
+      embedframe: true
+    }
+  })
+})
