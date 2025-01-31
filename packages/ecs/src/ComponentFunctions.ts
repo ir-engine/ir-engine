@@ -301,16 +301,15 @@ export const defineComponent = <
     Component.onSet = (entity, component, json) => {
       if (!json) return
 
+      if (def.name === 'ComputedTransformComponent')
+        console.log(json, Array.isArray(json), typeof json, isSingleValueSchema)
+
       // don't use schema, just set the json - assume insecure or internal
       if (Array.isArray(json) || typeof json !== 'object' || isSingleValueSchema) {
-        // if (component.value === json) return
         component.set(json as ComponentType)
-      } else if (json) {
-        for (const key of Object.keys(json)) {
-          // if (component[key].value === json[key]) continue
-          component[key].set(json?.[key])
-        }
-      } else component.merge(json as SetPartialStateAction<ComponentType>)
+      } else {
+        component.merge(json as SetPartialStateAction<ComponentType>)
+      }
     }
   else Component.onSet = () => {}
 
