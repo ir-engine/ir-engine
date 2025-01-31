@@ -142,10 +142,10 @@ function VideoReactor() {
   const mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID) || entity
   const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
 
-  const videoMeshEntity = useHookstate(createEntity)
-  useEffect(() => {
+  const videoMeshEntity = useHookstate(() => {
+    const videoMeshEntity = createEntity()
     setComponent(
-      videoMeshEntity.value,
+      videoMeshEntity,
       MeshComponent,
       new Mesh(
         PLANE_GEO(),
@@ -243,47 +243,47 @@ function VideoReactor() {
         })
       )
     )
+    return videoMeshEntity
+  }).value
+
+  useEffect(() => {
     return () => {
-      removeComponent(videoMeshEntity.value, MeshComponent)
+      removeComponent(videoMeshEntity, MeshComponent)
     }
   }, [])
 
   const fitPlacementUvOffset = useState(new Vector2(0, 0))
   const fitPlacementUvScale = useState(new Vector2(1, 1))
 
-  const mesh = useOptionalComponent(videoMeshEntity.value, MeshComponent) as any as State<
+  const mesh = useComponent(videoMeshEntity, MeshComponent) as any as State<
     Mesh<PlaneGeometry | SphereGeometry, ShaderMaterial>
   >
 
   useEffect(() => {
-    const videoEntity = videoMeshEntity.value
+    const videoEntity = videoMeshEntity
     video.videoMeshEntity.set(videoEntity)
     setComponent(videoEntity, EntityTreeComponent, { parentEntity: entity })
-    setComponent(videoEntity, NameComponent, mesh.name.value)
+    setComponent(videoEntity, NameComponent, mesh?.name?.value)
     return () => {
       removeEntity(videoEntity)
     }
   }, [])
 
   useEffect(() => {
-    if (!mesh) return
     mesh.name.set(`video-group-${entity}`)
   }, [mesh])
 
   useEffect(() => {
-    setVisibleComponent(videoMeshEntity.value, !!visible)
+    setVisibleComponent(videoMeshEntity, !!visible)
   }, [visible])
 
   // update side
   useEffect(() => {
-    if (!mesh) return
     mesh.material.side.set(video.side.value)
   }, [mesh, video.side])
 
   // update mesh
   useEffect(() => {
-    if (!mesh) return
-
     const videoMesh = mesh.value as Mesh<PlaneGeometry | SphereGeometry, ShaderMaterial>
     resizeVideoMesh(videoMesh)
 
@@ -334,10 +334,9 @@ function VideoReactor() {
 
     fitPlacementUvOffset.set(uvOffset)
     fitPlacementUvScale.set(uvScale)
-  }, [mesh, video.size, video.fit, video.texture, mesh.material])
+  }, [mesh, video.size, video.fit, video.texture, mesh?.material])
 
   useEffect(() => {
-    if (!mesh) return
     mesh.geometry.set(video.projection.value === 'Flat' ? PLANE_GEO() : SPHERE_GEO())
     mesh.geometry.attributes.position.needsUpdate.set(true)
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
