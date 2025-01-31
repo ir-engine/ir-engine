@@ -23,10 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import React from 'react'
-import Menu from '../../../../common/components/Menu'
-import { PopupMenuServices } from '../PopupMenuService'
 
 type Props = {
   src: string
@@ -34,8 +31,8 @@ type Props = {
 
 const EmbedFrame = ({ src }: Props): JSX.Element => {
   return (
-    <Menu unset={true} open isPopover={false} onClose={() => PopupMenuServices.showPopupMenu()}>
-      <Box className="h-[90vh]">
+    <div className="relative z-50 h-fit max-h-[60vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-theme-surface-main px-10 py-6">
+      <div className="h-[90vh]">
         {src ? (
           <div className="h-full w-full">
             <iframe
@@ -53,8 +50,8 @@ const EmbedFrame = ({ src }: Props): JSX.Element => {
         ) : (
           <></>
         )}
-      </Box>
-    </Menu>
+      </div>
+    </div>
   )
 }
 

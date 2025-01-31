@@ -35,7 +35,6 @@ import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { EngineState, QueryReactor, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { IFrameComponent } from '@ir-engine/engine/src/scene/components/IFrameComponent'
 import { NetworkState } from '@ir-engine/network'
-import { IFrameReactor } from '@ir-engine/ui/src/components/editor/properties/iframe/index.tsx'
 import { PopoverState } from '../common/services/PopoverState'
 import { InviteService } from '../social/services/InviteService'
 import { ViewerMenuState } from '../util/ViewerMenuState'
@@ -46,6 +45,7 @@ const IFrameReactor = () => {
   const iframeComponent = useComponent(entity, IFrameComponent)
 
   useEffect(() => {
+    console.log('iframe reacttor')
     if (iframeComponent.isOpen.value) {
       PopoverState.showPopupover(<EmbedFrame src={iframeComponent.src.value} />)
     }
