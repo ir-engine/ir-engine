@@ -33,7 +33,7 @@ import {
   removeComponent,
   setComponent,
   useComponent,
-  useOptionalComponent
+  useHasComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { FogComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 
@@ -67,7 +67,7 @@ export const FogSettingsComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const fog = useComponent(entity, FogSettingsComponent)
-    const isVisible = !!useOptionalComponent(entity, VisibleComponent)
+    const isVisible = useHasComponent(entity, VisibleComponent)
 
     useEffect(() => {
       if (!isVisible) return

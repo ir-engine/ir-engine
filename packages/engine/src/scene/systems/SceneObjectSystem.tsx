@@ -32,6 +32,7 @@ import {
   hasComponent,
   removeComponent,
   setComponent,
+  useHasComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
@@ -135,7 +136,7 @@ const ModelEntityReactor = () => {
 }
 
 const useIsUnlit = (entity: Entity) => {
-  let isUnlit = !!useOptionalComponent(entity, KHRUnlitExtensionComponent)
+  let isUnlit = useHasComponent(entity, KHRUnlitExtensionComponent)
   const materialInstanceUUIDs = useOptionalComponent(entity, MaterialInstanceComponent)?.uuid.value
 
   if (materialInstanceUUIDs) {
@@ -152,9 +153,9 @@ const useIsUnlit = (entity: Entity) => {
 }
 
 const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
-  const isMesh = useOptionalComponent(props.entity, MeshComponent)
-  const isModelColliders = useOptionalComponent(props.parentEntity, RigidBodyComponent)
-  const isVisible = !!useOptionalComponent(props.entity, VisibleComponent)
+  const isMesh = useHasComponent(props.entity, MeshComponent)
+  const isModelColliders = useHasComponent(props.parentEntity, RigidBodyComponent)
+  const isVisible = useHasComponent(props.entity, VisibleComponent)
   const isUnlit = useIsUnlit(props.entity)
 
   const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)

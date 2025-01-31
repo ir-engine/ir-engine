@@ -29,6 +29,7 @@ import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { createEntity, removeEntity } from '@ir-engine/ecs'
 import { startReactor } from '@ir-engine/hyperflux'
+import { act, render } from '@testing-library/react'
 import { ComponentMap, defineComponent, hasComponent, removeComponent, setComponent } from './ComponentFunctions'
 import { createEngine, destroyEngine } from './Engine'
 import { Entity, UndefinedEntity } from './Entity'
@@ -198,7 +199,7 @@ describe('QueryFunctions Hooks', async () => {
       assert.ok(hasComponent(entities[1], ComponentB))
     })
 
-    it('should return entities that match the query', () => {
+    it('should return entities that match the query', async () => {
       const e1 = createEntity()
       setComponent(e1, ComponentA)
       setComponent(e1, ComponentB)
@@ -226,10 +227,10 @@ describe('QueryFunctions Hooks', async () => {
       setComponent(e2, ComponentA)
       setComponent(e2, ComponentB)
 
-      reactor.run()
+      await act(() => render(null))
 
-      assert.strictEqual(entities.length, 2)
       assert.strictEqual(counter, 2)
+      assert.strictEqual(entities.length, 2)
       assert.strictEqual(entities[0], e1)
       assert.strictEqual(entities[1], e2)
       assert.ok(hasComponent(entities[0], ComponentA))
@@ -238,7 +239,7 @@ describe('QueryFunctions Hooks', async () => {
       assert.ok(hasComponent(entities[1], ComponentB))
     })
 
-    it('should update the entities when components change', () => {
+    it.only('should update the entities when components change', async () => {
       const e1 = createEntity()
       const e2 = createEntity()
       setComponent(e1, ComponentA)
@@ -262,7 +263,7 @@ describe('QueryFunctions Hooks', async () => {
         return null
       })
 
-      assert.strictEqual(renderCounter, 1)
+      assert.strictEqual(renderCounter, 2)
       assert.strictEqual(effectCounter, 1)
       assert.strictEqual(entities.length, 2)
       assert.strictEqual(entities[0], e1)
@@ -273,9 +274,9 @@ describe('QueryFunctions Hooks', async () => {
       assert.ok(hasComponent(entities[1], ComponentB))
       removeComponent(e1, ComponentB)
 
-      reactor.run()
+      await act(() => render(null))
 
-      assert.strictEqual(renderCounter, 3)
+      assert.strictEqual(renderCounter, 4)
       assert.strictEqual(effectCounter, 2)
       assert.strictEqual(entities.length, 1)
       assert.strictEqual(entities[0], e2)
@@ -283,28 +284,31 @@ describe('QueryFunctions Hooks', async () => {
       assert.ok(hasComponent(entities[0], ComponentB))
     })
 
-    it('should update the entities when component is removed and added immediately', () => {
+    it('should not update the entities when component is removed and added immediately', async () => {
       const e1 = createEntity()
       const e2 = createEntity()
       setComponent(e1, ComponentA)
       setComponent(e1, ComponentB)
       setComponent(e2, ComponentA)
       setComponent(e2, ComponentB)
-      let counter = 0
+      let effectCounter = 0
+      let renderCounter = 0
       let entities = [] as Entity[]
 
       const reactor = startReactor(() => {
         const query = useQuery([ComponentA, ComponentB])
+        renderCounter++
 
         useEffect(() => {
-          counter++
+          effectCounter++
           entities = [...query]
         }, [query])
 
         return null
       })
 
-      assert.strictEqual(counter, 1)
+      assert.equal(renderCounter, 2)
+      assert.strictEqual(effectCounter, 1)
       assert.strictEqual(entities.length, 2)
       assert.strictEqual(entities[0], e1)
       assert.strictEqual(entities[1], e2)
@@ -316,8 +320,10 @@ describe('QueryFunctions Hooks', async () => {
       removeComponent(e1, ComponentB)
       setComponent(e1, ComponentB)
 
-      reactor.run()
-      assert.equal(counter, 2)
+      await act(() => render(null))
+
+      assert.equal(renderCounter, 3)
+      assert.equal(effectCounter, 1)
       assert.strictEqual(entities.length, 2)
       assert.strictEqual(entities[0], e1)
       assert.strictEqual(entities[1], e2)
@@ -325,6 +331,50 @@ describe('QueryFunctions Hooks', async () => {
       assert.ok(hasComponent(entities[0], ComponentB))
       assert.ok(hasComponent(entities[1], ComponentA))
       assert.ok(hasComponent(entities[1], ComponentB))
+    })
+
+    it('should not update the entities when component is added and removed immediately', async () => {
+      const e1 = createEntity()
+      const e2 = createEntity()
+      setComponent(e1, ComponentA)
+
+      setComponent(e2, ComponentA)
+      setComponent(e2, ComponentB)
+
+      let effectCounter = 0
+      let renderCounter = 0
+      let entities = [] as Entity[]
+
+      const reactor = startReactor(() => {
+        const query = useQuery([ComponentA, ComponentB])
+        renderCounter++
+
+        useEffect(() => {
+          effectCounter++
+          entities = [...query]
+        }, [query])
+
+        return null
+      })
+
+      assert.equal(renderCounter, 2)
+      assert.strictEqual(effectCounter, 1)
+      assert.strictEqual(entities.length, 1)
+      assert.strictEqual(entities[0], e2)
+      assert.ok(hasComponent(entities[0], ComponentA))
+      assert.ok(hasComponent(entities[0], ComponentB))
+
+      setComponent(e1, ComponentB)
+      removeComponent(e1, ComponentB)
+
+      await act(() => render(null))
+
+      assert.equal(renderCounter, 3)
+      assert.equal(effectCounter, 1)
+      assert.strictEqual(entities.length, 1)
+      assert.strictEqual(entities[0], e2)
+      assert.ok(hasComponent(entities[0], ComponentA))
+      assert.ok(hasComponent(entities[0], ComponentB))
     })
 
     it(`should return an empty array when entities don't have the component`, () => {

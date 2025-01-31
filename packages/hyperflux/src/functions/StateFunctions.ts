@@ -131,6 +131,27 @@ export const setNestedObject = (obj: any, path: string, val: any) => {
   }
 }
 
+/** @todo unused */
+const _mergeStateValuesDeep = (target: State<any>, source: any) => {
+  if (typeof source !== 'object') {
+    target.set(source)
+    return
+  }
+  for (const key in target) {
+    if (typeof source[key] === 'object') {
+      if (source[key] === null) {
+        target[key].set(null)
+        return
+      }
+      if (Array.isArray(source[key])) {
+        target[key].set([...source[key]]) // clone array deeply rather than reference
+        return
+      }
+      _mergeStateValuesDeep(target[key], source[key]) // recurse objects
+    }
+  }
+}
+
 export function useMutableState<S, I, E, R extends ReceptorMap, P extends string>(
   StateDefinition: StateDefinition<S, I, E, R>
 ): State<S, I & E & Identifiable>

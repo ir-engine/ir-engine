@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Component } from '../ComponentFunctions'
 import { Entity } from '../Entity'
 import {
   Kind,

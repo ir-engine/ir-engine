@@ -33,7 +33,6 @@ import {
   generateEntityUUID,
   getAncestorWithComponents,
   getChildrenWithComponents,
-  iterateEntityNode,
   removeEntity,
   SetComponentType,
   UUIDComponent
@@ -61,7 +60,6 @@ import { DirectionalLightComponent, HemisphereLightComponent } from '@ir-engine/
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { getMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { serializeEntity } from '@ir-engine/engine/src/scene/functions/serializeWorld'

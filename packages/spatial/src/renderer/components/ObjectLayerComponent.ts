@@ -75,7 +75,6 @@ export const ObjectLayerMaskComponent = defineComponent({
     for (let i = 0; i < maxBitWidth; i++) {
       removeComponent(entity, ObjectLayerComponents[i])
     }
-    component.set(0)
   },
 
   setLayer(entity: Entity, layer: number) {

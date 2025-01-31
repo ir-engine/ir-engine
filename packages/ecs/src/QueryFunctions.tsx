@@ -24,10 +24,18 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import * as bitECS from 'bitecs'
-import React, { ErrorInfo, FC, memo, Suspense, useLayoutEffect, useMemo } from 'react'
+import React, { ErrorInfo, FC, memo, Suspense, useEffect, useLayoutEffect, useMemo } from 'react'
 import * as bitECSLegacy from './bitecsLegacy'
 
-import { HyperFlux, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import {
+  HyperFlux,
+  NO_PROXY,
+  startReactor,
+  State,
+  useForceUpdate,
+  useHookstate,
+  useImmediateEffect
+} from '@ir-engine/hyperflux'
 
 import { LayerComponents, LayerID, Layers } from './ComponentFunctions'
 import { Entity } from './Entity'
@@ -73,47 +81,72 @@ export function removeQuery(queryOrTerms: ReturnType<typeof defineQuery> | bitEC
 
 export const query = (queryTerms: bitECS.QueryTerm[]) => bitECS.query(HyperFlux.store, queryTerms)
 
-/**
- * Use a query in a reactive context (a React component)
- * - "components" argument must not change
- */
+const UseQuerySubreactorCache = {} as Record<string, Set<State<Entity[]>>>
+globalThis.UseQuerySubreactorCache = UseQuerySubreactorCache
+
+const sortAndJoinComponents = (components: bitECS.QueryTerm[]) =>
+  components
+    .map((c) => c.name)
+    .sort()
+    .join()
+
 export function useQuery(components: bitECS.QueryTerm[], layer: LayerID = Layers.Simulation) {
-  const state = useHookstate(() => {
-    const componentsWithLayer = [...components, LayerComponents[layer]]
-    return {
-      entities: [...query(componentsWithLayer)] as Entity[],
-      invalid: false
-    }
+  const entitiesState = useHookstate(() => {
+    return [...query([...components, LayerComponents[layer]])] as Entity[]
   })
 
-  useLayoutEffect(() => {
-    const requery = () => state.invalid.set(true)
-
+  useImmediateEffect(() => {
     const componentsWithLayer = [...components, LayerComponents[layer]]
 
-    const unsubAdd = bitECS.observe(HyperFlux.store, bitECS.onAdd(...componentsWithLayer), requery)
-    const unsubRemove = bitECS.observe(HyperFlux.store, bitECS.onRemove(...componentsWithLayer), requery)
+    const key = sortAndJoinComponents(componentsWithLayer)
 
-    const unsubscribe = () => {
-      unsubAdd()
-      unsubRemove()
-    }
+    if (!UseQuerySubreactorCache[key]) UseQuerySubreactorCache[key] = new Set()
+
+    const cache = UseQuerySubreactorCache[key]
+    cache.add(entitiesState)
+
+    const subreactor =
+      cache.size === 1
+        ? startReactor(() => {
+            const update = useForceUpdate()
+
+            const entities = query(componentsWithLayer) as Entity[]
+            useEffect(() => {
+              for (const state of cache) {
+                state.set([...entities])
+              }
+            }, [JSON.stringify(entities)])
+
+            useLayoutEffect(() => {
+              const componentsWithLayer = [...components, LayerComponents[layer]]
+
+              const unsubAdd = bitECS.observe(HyperFlux.store, bitECS.onAdd(...componentsWithLayer), update)
+              const unsubRemove = bitECS.observe(HyperFlux.store, bitECS.onRemove(...componentsWithLayer), update)
+
+              const unsubscribe = () => {
+                unsubAdd()
+                unsubRemove()
+              }
+
+              return () => {
+                unsubscribe()
+                removeQuery(componentsWithLayer)
+              }
+            }, [])
+
+            return null
+          })
+        : null
 
     return () => {
-      unsubscribe()
-      removeQuery(componentsWithLayer)
+      cache.delete(entitiesState)
+      if (subreactor) subreactor.stop()
     }
   }, [])
 
-  const stateNoProxy = state.get(NO_PROXY) as { invalid: boolean; entities: Entity[] }
-  if (state.invalid.value) {
-    state.invalid.set(false)
-    // unsafely update since the proxy itself is never hooked, just needs to be stable across re-renders in which the query does not change
-    stateNoProxy.entities = [...query([...components, LayerComponents[layer]])] as Entity[]
-  }
+  const entities = entitiesState.get(NO_PROXY) as Entity[]
 
-  // return the underlying entity object - it should be assumed to be readonly, though that makes types annoying
-  return stateNoProxy.entities as Entity[]
+  return useMemo(() => [...entities], [JSON.stringify(entities)])
 }
 
 export type Query = ReturnType<typeof defineQuery>

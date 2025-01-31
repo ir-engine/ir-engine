@@ -39,13 +39,9 @@ import {
 } from '../src/ComponentFunctions'
 import { createEntity } from '../src/createEntity'
 import { createEngine, destroyEngine } from '../src/Engine'
-import { executeSystems } from '../src/EngineFunctions'
-import { Entity } from '../src/Entity'
 import { entityExists, removeEntity } from '../src/EntityFunctions'
 import { defineQuery } from '../src/QueryFunctions'
 import { S } from '../src/schemas/JSONSchemas'
-import { defineSystem } from '../src/SystemFunctions'
-import { AnimationSystemGroup } from '../src/SystemGroups'
 
 const mockDeltaMillis = 1000 / 60
 
@@ -55,7 +51,6 @@ const MockComponent = defineComponent({
     mockValue: S.Number(0)
   })
 })
-
 
 describe('ECS', () => {
   beforeEach(() => {

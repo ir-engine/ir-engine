@@ -30,9 +30,9 @@ import { defineState, getMutableState } from '@ir-engine/hyperflux'
 
 import { ECSState } from './ECSState'
 import { createEngine, destroyEngine } from './Engine'
+import { executeSystems } from './EngineFunctions'
 import { defineSystem } from './SystemFunctions'
 import { SimulationSystemGroup } from './SystemGroups'
-import { executeSystems } from './EngineFunctions'
 
 const MockState = defineState({
   name: 'MockState',

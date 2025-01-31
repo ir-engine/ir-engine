@@ -41,7 +41,6 @@ import {
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { AssetState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { SplineComponent } from '@ir-engine/engine/src/scene/components/SplineComponent'
 import { getMutableState } from '@ir-engine/hyperflux'
 import { HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'

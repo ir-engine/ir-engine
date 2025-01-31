@@ -295,78 +295,25 @@ export const defineComponent = <
   Component.isComponent = true
 
   // Memoize as much tree walking as possible during component creation
-  const hasRequiredSchema = def.schema && HasRequiredSchema(def.schema)
-  const hasSchemaValidators = def.schema && HasSchemaValidators(def.schema)
   const isSingleValueSchema = def.schema && IsSingleValueSchema(def.schema)
 
-  Component.onSet = (entity, component, json) => {
-    if (!json) return
+  if (def.schema)
+    Component.onSet = (entity, component, json) => {
+      if (!json) return
 
-    if (!def.schema) {
-      // if no schema, just set the json - assume insecure or internal
-      if (Array.isArray(json) || typeof json !== 'object' || isSingleValueSchema) component.set(json as ComponentType)
-      else if (json) {
+      // don't use schema, just set the json - assume insecure or internal
+      if (Array.isArray(json) || typeof json !== 'object' || isSingleValueSchema) {
+        // if (component.value === json) return
+        component.set(json as ComponentType)
+      } else if (json) {
         for (const key of Object.keys(json)) {
-          ;(component[key] as any).set((_) => json?.[key])
+          // if (component[key].value === json[key]) continue
+          component[key].set(json?.[key])
         }
       } else component.merge(json as SetPartialStateAction<ComponentType>)
-
-      return
     }
+  else Component.onSet = () => {}
 
-    if (hasRequiredSchema) {
-      const [valid, key] = HasRequiredSchemaValues(def.schema as TSchema, json)
-      if (!valid) throw new Error(`${def.name}:OnSet Missing required value for key ${key}`)
-    }
-
-    if (json === null || json === undefined) return
-
-    const cleanJson = DeserializeSchemaValue(
-      entity,
-      def.schema as TSchema,
-      component.get(NO_PROXY_STEALTH) as ComponentType,
-      json as any
-    )
-
-    if (cleanJson === null || cleanJson === undefined) return
-
-    if (hasSchemaValidators) {
-      const [valid, key] = HasValidSchemaValues(
-        def.schema as TSchema,
-        cleanJson as ComponentType,
-        component.get(NO_PROXY_STEALTH) as ComponentType,
-        entity
-      )
-      if (!valid) throw new Error(`${def.name}:OnSet Invalid value for key ${key}`)
-    }
-
-    if (Array.isArray(cleanJson) || typeof cleanJson !== 'object' || isSingleValueSchema)
-      component.set(cleanJson as ComponentType)
-    else if (cleanJson) {
-      for (const key of Object.keys(cleanJson)) {
-        ;(component[key] as any).set((_) => cleanJson?.[key])
-      }
-    } else {
-      component.set(cleanJson as any)
-    }
-
-    if (json === null || json === undefined) return
-    // only one level deep is supported
-    // root level boolean is not supported as is redundant
-    // if (Component.schema && !!json) {
-    //   if (typeof json === 'object' && !Array.isArray(json) && !isSingleValueSchema) {
-    //     if (requiresDeserialization(Component.schema)) {
-    //       component.merge(
-    //         DeserializeSchemaValue(entity, Component.schema, component.get(NO_PROXY_STEALTH), json as any)
-    //       )
-    //     } else {
-    //       component.merge(json as any)
-    //     }
-    //   } else {
-    //     component.set(json as any)
-    //   }
-    // }
-  }
   Component.onRemove = () => {}
   Component.toJSON = (component: ComponentType) => {
     return validateComponentSchema(def as any, component) as JSON
@@ -728,65 +675,6 @@ const _getComponentState = <C extends Component>(entity: Entity, component: C) =
 }
 
 /**
- * @todo we used to have some of the conditionals here cached scoped inside onSet,
- * but now that it is it's own function we may want to precompute and cache these again
- */
-// const _mergeComponentState = <C extends Component>(
-//   entity: Entity,
-//   component: C,
-//   args: SetComponentType<C> | undefined = undefined
-// ) => {
-//   if (!component.schema) return
-//   const componentState = component.stateMap[entity]
-
-//   if (HasRequiredSchema(component.schema)) {
-//     const [valid, key] = HasRequiredSchemaValues(component.schema, args)
-//     if (!valid) throw new Error(`${component.name}:OnSet Missing required value for key ${key}`)
-//   }
-
-//   if (args === null || args === undefined) return
-
-//   const cleanJson = DeserializeSchemaValue(entity, component.schema, componentState.get(NO_PROXY_STEALTH), args)
-
-//   if (cleanJson === null || cleanJson === undefined) return
-
-//   if (HasSchemaValidators(component.schema)) {
-//     const [valid, key] = HasValidSchemaValues(component.schema, cleanJson, componentState.get(NO_PROXY_STEALTH), entity)
-//     if (!valid) throw new Error(`${component.name}:OnSet Invalid value for key ${key} ${JSON.stringify(args)}`)
-//   }
-
-//   if (Array.isArray(cleanJson) || typeof cleanJson !== 'object' || IsSingleValueSchema(component.schema))
-//     componentState.set(cleanJson)
-//   else if (cleanJson) {
-//     for (const key of Object.keys(cleanJson)) {
-//       componentState[key].set((_) => cleanJson?.[key])
-//     }
-//   } else {
-//     componentState.set(cleanJson as any)
-//   }
-// }
-
-// const _mergeStateValuesDeep = (target: State<any>, source: any) => {
-//   if (typeof source !== 'object') {
-//     target.set(source)
-//     return
-//   }
-//   for (const key in target) {
-//     if (typeof source[key] === 'object') {
-//       if (source[key] === null) {
-//         target[key].set(null)
-//         return
-//       }
-//       if (Array.isArray(source[key])) {
-//         target[key].set([...source[key]]) // clone array deeply rather than reference
-//         return
-//       }
-//       _mergeStateValuesDeep(target[key], source[key]) // recurse objects
-//     }
-//   }
-// }
-
-/**
  * @description
  * Assigns the given component to the given entity, and returns the component.
  * @notes
@@ -941,11 +829,25 @@ export const removeAllComponents = (entity: Entity) => {
   }
 }
 
-export const deserializeComponent = <C extends Component>(entity: Entity, component: C, json: ComponentJSON<any>) => {
-  if (!hasComponent(entity, component)) setComponent(entity, component)
-  const current = getComponent(entity, component)
-  const args = component.schema ? DeserializeSchemaValue(entity, component.schema, current, json) : json
-  setComponent(entity, component, args)
+export const deserializeComponent = <C extends Component>(entity: Entity, Component: C, json: ComponentJSON<any>) => {
+  if (Component.schema && HasRequiredSchema(Component.schema)) {
+    const [valid, key] = HasRequiredSchemaValues(Component.schema as TSchema, json)
+    if (!valid) throw new Error(`${Component.name}:OnSet Missing required value for key ${key}`)
+  }
+
+  if (json === null || json === undefined) return
+
+  if (!hasComponent(entity, Component)) setComponent(entity, Component)
+  const component = getComponent(entity, Component)
+
+  const args = Component.schema ? DeserializeSchemaValue(entity, Component.schema, component, json) : json
+
+  if (Component.schema && HasSchemaValidators(Component.schema)) {
+    const [valid, key] = HasValidSchemaValues(Component.schema, args, component, entity)
+    if (!valid) throw new Error(`${component.name}:OnSet Invalid value for key ${key} ${JSON.stringify(args)}`)
+  }
+
+  setComponent(entity, Component, args)
 }
 
 export const serializeComponent = <C extends Component>(entity: Entity, Component: C) => {
@@ -997,6 +899,11 @@ export function useComponent<C extends Component>(entity: Entity, component: C):
   }
 
   return useHookstate(state) as State<ComponentType<C>>
+}
+
+export function useHasComponent<C extends Component>(entity: Entity, component: C): boolean {
+  const componentState = useHookstate(_getComponentState(entity, component)) as State<ComponentType<C>>
+  return componentState.promised ? false : true
 }
 
 /**
