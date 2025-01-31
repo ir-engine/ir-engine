@@ -23,45 +23,19 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { HookContext } from '../../declarations'
+import { HookContext } from '@feathersjs/feathers'
 
-/**
- * This hook is used to set a string value in the context.
- * If you want a value to be based on another value then use
- * following setField hook.
- * https://hooks-common.feathersjs.com/hooks.html#setfield
- */
+import { Application } from '../../declarations'
+import verifyProjectPermission from './verify-project-permission'
 
-export enum ContextScope {
-  Query,
-  Data,
-  Root
-}
+export default (types: string[]) => {
+  return async (context: HookContext<Application>) => {
+    try {
+      await verifyProjectPermission(types)(context)
 
-export default (propertyName: string, propertyValue: string, scope?: ContextScope) => {
-  return (context: HookContext): HookContext => {
-    if (scope === ContextScope.Data) {
-      if (Array.isArray(context.data)) {
-        context.data = context.data.map((item) => {
-          return {
-            ...item,
-            [propertyName]: propertyValue
-          }
-        })
-      } else {
-        context.data = {
-          ...context.data,
-          [propertyName]: propertyValue
-        }
-      }
-    } else if (scope === ContextScope.Root) {
-      context[propertyName] = propertyValue
-    } else {
-      context.params.query = {
-        ...context.params.query,
-        [propertyName]: propertyValue
-      }
+      return true
+    } catch {
+      return false
     }
-    return context
   }
 }

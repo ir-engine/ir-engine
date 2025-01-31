@@ -84,7 +84,7 @@ export default {
         iffElse(
           checkScope('projects', 'write'),
           [],
-          [verifyScope('editor', 'write'), verifyProjectPermission(['owner'])]
+          [verifyScope('editor', 'write'), verifyProjectPermission(['owner', 'editor'])]
         )
       )
     ],
@@ -108,7 +108,7 @@ export default {
         iffElse(
           checkScope('projects', 'write'),
           [],
-          [verifyScope('editor', 'write'), verifyProjectPermission(['owner'])]
+          [verifyScope('editor', 'write'), verifyProjectPermission(['owner', 'editor'])]
         )
       )
     ]
