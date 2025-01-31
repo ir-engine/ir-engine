@@ -301,9 +301,6 @@ export const defineComponent = <
     Component.onSet = (entity, component, json) => {
       if (!json) return
 
-      if (def.name === 'ComputedTransformComponent')
-        console.log(json, Array.isArray(json), typeof json, isSingleValueSchema)
-
       // don't use schema, just set the json - assume insecure or internal
       if (Array.isArray(json) || typeof json !== 'object' || isSingleValueSchema) {
         component.set(json as ComponentType)
