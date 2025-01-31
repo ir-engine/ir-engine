@@ -235,13 +235,13 @@ describe('LineSegmentComponent', () => {
         material: new MeshBasicMaterial({ color: 0x111111 })
       })
       assert.equal(hasComponent(testEntity, ObjectLayerMaskComponent), true)
-      assert.notEqual(getComponent(testEntity, ObjectLayerMaskComponent), Expected)
+      assert.notEqual(ObjectLayerMaskComponent.mask[testEntity], Expected)
       setComponent(testEntity, LineSegmentComponent, {
         layerMask: Expected,
         geometry: geometry,
         material: new MeshBasicMaterial({ color: 0x111111 })
       })
-      assert.equal(getComponent(testEntity, ObjectLayerMaskComponent), Expected)
+      assert.equal(ObjectLayerMaskComponent.mask[testEntity], Expected)
     })
 
     it('should set the LineSegment layerMask correctly', () => {

@@ -294,21 +294,48 @@ export const defineComponent = <
     StorageType & { setTransition: typeof setTransition }
   Component.isComponent = true
 
-  // Memoize as much tree walking as possible during component creation
-  const isSingleValueSchema = def.schema && IsSingleValueSchema(def.schema)
-
-  if (def.schema)
-    Component.onSet = (entity, component, json) => {
-      if (!json) return
-
-      // don't use schema, just set the json - assume insecure or internal
-      if (Array.isArray(json) || typeof json !== 'object' || isSingleValueSchema) {
-        component.set(json as ComponentType)
+  // move all branching out of hot path and into definition
+  if (def.schema) {
+    if (IsSingleValueSchema(def.schema)) {
+      if (HasRequiredSchema(def.schema)) {
+        Component.onSet = (entity, component, json) => {
+          const [valid, key] = HasRequiredSchemaValues(def.schema as TSchema, json)
+          if (!valid) throw new Error(`${def.name}:OnSet Missing required value for key ${key}`)
+          component.set(json as ComponentType)
+        }
       } else {
-        component.merge(json as SetPartialStateAction<ComponentType>)
+        Component.onSet = (entity, component, json) => {
+          if (!json) return
+          component.set(json as ComponentType)
+        }
+      }
+    } else {
+      if (HasRequiredSchema(def.schema)) {
+        Component.onSet = (entity, component, json) => {
+          const [valid, key] = HasRequiredSchemaValues(def.schema as TSchema, json)
+          if (!valid) throw new Error(`${def.name}:OnSet Missing required value for key ${key}`)
+
+          if (Array.isArray(json) || typeof json !== 'object') {
+            component.set(json as ComponentType)
+          } else {
+            component.merge(json as SetPartialStateAction<ComponentType>)
+          }
+        }
+      } else {
+        Component.onSet = (entity, component, json) => {
+          if (!json) return
+
+          if (Array.isArray(json) || typeof json !== 'object') {
+            component.set(json as ComponentType)
+          } else {
+            component.merge(json as SetPartialStateAction<ComponentType>)
+          }
+        }
       }
     }
-  else Component.onSet = () => {}
+  } else {
+    Component.onSet = () => {}
+  }
 
   Component.onRemove = () => {}
   Component.toJSON = (component: ComponentType) => {
@@ -629,10 +656,6 @@ function propagateLayer<C extends Component>(entity: Entity, component: C) {
   if ((component as any) === LayerComponent || LayerComponents.includes(component as any)) return
   const entityLayer = LayerComponent.get(entity)
   for (const [linkedLayer, linkedEntity] of LayerFunctions.getLayerRelationsEntities(entity)) {
-    if (!hasComponent(entity, component)) {
-      removeComponent(linkedEntity, component)
-      continue
-    }
     if (!LayerFunctions.shouldPropagate(entityLayer, linkedLayer)) continue
     const newArgs = LayerFunctions.createLayerPropagationArgs(entity, linkedLayer, component)
     setComponent(linkedEntity, component, newArgs)

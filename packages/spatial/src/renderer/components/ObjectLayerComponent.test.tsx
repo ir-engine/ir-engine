@@ -122,8 +122,6 @@ describe('ObjectLayerComponent : todo.Organize', () => {
     const layer = new Layer(entity)
 
     assert(layer.isEnabled(0))
-    const layerMaskComponent = getComponent(entity, ObjectLayerMaskComponent)
-    assert(layerMaskComponent === 1)
     assert(ObjectLayerMaskComponent.mask[entity] === 1)
     assert(hasComponent(entity, ObjectLayerComponents[0]))
 

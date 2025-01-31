@@ -27,6 +27,7 @@ import { GLTF } from '@gltf-transform/core'
 import assert from 'assert'
 import { Cache, Color, MathUtils } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
+import * as bitECS from 'bitecs'
 
 import { UserID } from '@ir-engine/common/src/schema.type.module'
 import {
@@ -42,7 +43,7 @@ import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { AssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SplineComponent } from '@ir-engine/engine/src/scene/components/SplineComponent'
-import { getMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, HyperFlux } from '@ir-engine/hyperflux'
 import { HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
@@ -61,8 +62,6 @@ describe('EditorControlFunctions', () => {
   let physicsWorldEntity: Entity
 
   beforeEach(async () => {
-    Cache.enabled = true
-
     createEngine()
     getMutableState(EngineState).isEditing.set(true)
     getMutableState(EngineState).isEditor.set(true)
@@ -81,7 +80,6 @@ describe('EditorControlFunctions', () => {
   })
 
   afterEach(() => {
-    Cache.enabled = false
     return destroyEngine()
   })
 
@@ -112,6 +110,8 @@ describe('EditorControlFunctions', () => {
       await waitForScene(rootEntity)
 
       const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
+
+      assert(nodeEntity)
 
       EditorControlFunctions.addOrRemoveComponent([nodeEntity], VisibleComponent, true)
 

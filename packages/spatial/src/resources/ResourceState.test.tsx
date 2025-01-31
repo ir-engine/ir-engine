@@ -31,7 +31,8 @@ import { createEntity, removeEntity, setComponent, UndefinedEntity } from '@ir-e
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { getState, HyperFlux, startReactor } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
+import { act, render } from '@testing-library/react'
 import sinon from 'sinon'
 import { MeshComponent } from '../renderer/components/MeshComponent'
 import { ResourceState } from './ResourceState'
@@ -50,16 +51,15 @@ describe('ResourceState', () => {
         return destroyEngine()
       })
 
-      it('should track mesh in state', () => {
-        const Reactor = ResourceState.reactor
-
-        const reactor = startReactor(Reactor)
+      it('should track mesh in state', async () => {
+        // invoke state to start reactor
+        getState(ResourceState)
 
         const mesh = new Mesh(new SphereGeometry(), new MeshBasicMaterial())
 
         setComponent(testEntity, MeshComponent, mesh)
 
-        reactor.run()
+        await act(() => render(null))
 
         // @ts-expect-error
         const meshResourceID = mesh.resourceID
@@ -112,11 +112,9 @@ describe('ResourceState', () => {
         assert(uvAssetEntry.entity === testEntity)
       })
 
-      it('should dispose when component unmounts', () => {
-        // invoke state
+      it('should dispose when component unmounts', async () => {
+        // invoke state to start reactor
         getState(ResourceState)
-
-        const reactor = HyperFlux.store.stateReactors[ResourceState.name]
 
         const mesh = new Mesh(new SphereGeometry(), new MeshBasicMaterial())
         const spy = sinon.spy()
@@ -125,12 +123,13 @@ describe('ResourceState', () => {
 
         setComponent(testEntity, MeshComponent, mesh)
 
-        reactor.run()
+        await act(() => render(null))
+
         const resources = getState(ResourceState).resources
 
         removeEntity(testEntity)
 
-        reactor.run()
+        await act(() => render(null))
 
         sinon.assert.calledTwice(spy)
 

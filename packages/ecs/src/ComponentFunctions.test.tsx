@@ -296,27 +296,28 @@ describe('ComponentFunctions', async () => {
       assert(nonJson === null)
     })
 
-    it('throws error when deserializeComponent is called without required fields', () => {
-      const ObjComponent = defineComponent({
-        name: 'ObjComponent',
-        schema: S.Object({
-          light: S.Required(S.Class(() => new DirectionalLight())),
-          other: S.Number(0)
-        })
-      })
+    /** @todo this doesn't make any sense anymore, since a deserialized component will never deserialize into a required class, only ever into something like a vec3, color etc */
+    // it('throws error when deserializeComponent is called without required fields', () => {
+    //   const ObjComponent = defineComponent({
+    //     name: 'ObjComponent',
+    //     schema: S.Object({
+    //       light: S.Required(S.Class(() => new DirectionalLight())),
+    //       other: S.Number(0)
+    //     })
+    //   })
 
-      const TopLevelComponent = defineComponent({
-        name: 'ObjComponent',
-        schema: S.Required(S.Class(() => new DirectionalLight()))
-      })
+    //   const TopLevelComponent = defineComponent({
+    //     name: 'ObjComponent',
+    //     schema: S.Required(S.Class(() => new DirectionalLight()))
+    //   })
 
-      const entity = createEntity()
-      const light = new DirectionalLight()
-      assert.throws(() => deserializeComponent(entity, ObjComponent, { other: 12 }))
-      assert.doesNotThrow(() => deserializeComponent(entity, ObjComponent, { light }))
-      assert.throws(() => deserializeComponent(entity, TopLevelComponent), undefined)
-      assert.doesNotThrow(() => deserializeComponent(entity, TopLevelComponent, light))
-    })
+    //   const entity = createEntity()
+    //   const light = new DirectionalLight()
+    //   assert.throws(() => deserializeComponent(entity, ObjComponent, { other: 12 }))
+    //   assert.doesNotThrow(() => deserializeComponent(entity, ObjComponent, { light }))
+    //   assert.throws(() => deserializeComponent(entity, TopLevelComponent), undefined)
+    //   assert.doesNotThrow(() => deserializeComponent(entity, TopLevelComponent, light))
+    // })
 
     it('uses schema initializers if they exist', () => {
       const spy = sinon.spy()
