@@ -54,6 +54,8 @@ import Button from '../../../../primitives/tailwind/Button'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { DistanceModel, DistanceModelOptions } from '@ir-engine/engine/src/audio/constants/AudioConstants'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { FaAngleLeft } from 'react-icons/fa'
+import { TfiAngleLeft } from 'react-icons/tfi'
 import ArrayInputGroup from '../../../editorUpdates/input/Array'
 import InputGroup from '../../../editorUpdates/input/Group'
 import MediaPreview from '../../../editorUpdates/properties/media/preview'
@@ -316,7 +318,10 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
               >
                 <div className="grid w-full grid-flow-col grid-rows-1 gap-[8px]">
                   <NumericScrubber
-                    prefix="test"
+                    PreFixIcon={FaAngleLeft}
+                    prefixIconClassName={'text-[#9CA0AA] mr-[4px]'}
+                    prefix={t('editor:properties.audio.lbl-coneOuterAngle').toUpperCase()}
+                    prefixClassName={'text-[#9CA0AA] mr-[4px]'}
                     min={0}
                     max={360}
                     smallStep={0.1}
@@ -330,9 +335,14 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                       updateConeAngle(value, true, true, audio.coneInnerAngle.value, audio.coneOuterAngle.value)
                     }
                     unit="°"
+                    inputClassName="text-right"
                   />
 
                   <NumericScrubber
+                    PreFixIcon={TfiAngleLeft}
+                    prefixIconClassName={'text-[#9CA0AA] mr-[4px]'}
+                    prefix={t('editor:properties.audio.lbl-coneInnerAngle').toUpperCase()}
+                    prefixClassName={'text-[#9CA0AA] mr-[4px]'}
                     min={0}
                     max={360}
                     smallStep={0.1}
@@ -346,6 +356,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                       updateConeAngle(value, false, true, audio.coneInnerAngle.value, audio.coneOuterAngle.value)
                     }
                     unit="°"
+                    inputClassName="text-right"
                   />
                 </div>
               </InputGroup>
