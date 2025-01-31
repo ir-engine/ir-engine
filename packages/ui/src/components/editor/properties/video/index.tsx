@@ -51,12 +51,17 @@ import { BackSide, ClampToEdgeWrapping, DoubleSide, FrontSide, MirroredRepeatWra
 import { Slider } from '../../../../../editor'
 import Button from '../../../../primitives/tailwind/Button'
 
+import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
+import { DistanceModel, DistanceModelOptions } from '@ir-engine/engine/src/audio/constants/AudioConstants'
+import { useHookstate } from '@ir-engine/hyperflux'
 import ArrayInputGroup from '../../../editorUpdates/input/Array'
 import InputGroup from '../../../editorUpdates/input/Group'
 import MediaPreview from '../../../editorUpdates/properties/media/preview'
+import NumericScrubber from '../../input/Numeric/Scrubber'
 import SegmentedControlInput from '../../input/SegmentedControl'
 import SelectInput from '../../input/Select'
 import Vector2Input from '../../input/Vector2'
+import { updateConeAngle } from '../audio/positional'
 
 const PlayModeOptions = [
   {
@@ -75,6 +80,11 @@ const PlayModeOptions = [
     label: 'SingleLoop',
     value: PlayMode.singleloop
   }
+]
+
+const audioModeOptions = [
+  { label: 'Positional', value: 'positional' },
+  { label: 'Ambient', value: 'ambient' }
 ]
 
 const fitOptions = [
@@ -103,6 +113,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
 
   const video = useComponent(props.entity, VideoComponent)
   const media = useOptionalComponent(props.entity, MediaComponent)
+  const audio = getMutableComponent(props.entity, PositionalAudioComponent)
 
   const mediaUUID = video.mediaUUID.value
   let mediaEntity = props.entity
@@ -148,6 +159,8 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
       video.mediaUUID.set('' as EntityUUID)
     }
   }
+
+  const localAudioMode = useHookstate(hasComponent(props.entity, PositionalAudioComponent) ? 'positional' : 'ambient')
 
   useEffect(() => {
     if (!hasComponent(props.entity, MediaComponent)) {
@@ -271,6 +284,129 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
               onChange={commitProperty(MediaComponent, 'playMode')}
             />
           </InputGroup>
+
+          <InputGroup name="Audio Mode" label={t('editor:properties.media.audiomode')}>
+            <SegmentedControlInput
+              value={localAudioMode.value}
+              onChange={(val) => {
+                let addFlag = false
+                if (val === 'positional') {
+                  addFlag = true
+                }
+                EditorControlFunctions.addOrRemoveComponent([props.entity], PositionalAudioComponent, addFlag)
+              }}
+              options={audioModeOptions}
+            />
+          </InputGroup>
+
+          {audio && (
+            <>
+              <InputGroup name="Distance Modal" label={t('editor:properties.audio.lbl-distanceModel')}>
+                <SegmentedControlInput
+                  value={audio.distanceModel.value}
+                  options={DistanceModelOptions}
+                  onChange={commitProperty(PositionalAudioComponent, 'distanceModel')}
+                />
+              </InputGroup>
+
+              <InputGroup
+                name="Cone Angle"
+                label={t('editor:properties.audio.lbl-coneAngle')}
+                info={t('editor:properties.audio.info-coneAngle')}
+              >
+                <div className="grid w-full grid-flow-col grid-rows-1 gap-[8px]">
+                  <NumericScrubber
+                    prefix="test"
+                    min={0}
+                    max={360}
+                    smallStep={0.1}
+                    mediumStep={1}
+                    largeStep={10}
+                    value={audio.coneInnerAngle.value}
+                    onChange={(value) =>
+                      updateConeAngle(value, true, false, audio.coneInnerAngle.value, audio.coneOuterAngle.value)
+                    }
+                    onRelease={(value) =>
+                      updateConeAngle(value, true, true, audio.coneInnerAngle.value, audio.coneOuterAngle.value)
+                    }
+                    unit="°"
+                  />
+
+                  <NumericScrubber
+                    min={0}
+                    max={360}
+                    smallStep={0.1}
+                    mediumStep={1}
+                    largeStep={10}
+                    value={audio.coneOuterAngle.value}
+                    onChange={(value) =>
+                      updateConeAngle(value, false, false, audio.coneInnerAngle.value, audio.coneOuterAngle.value)
+                    }
+                    onRelease={(value) =>
+                      updateConeAngle(value, false, true, audio.coneInnerAngle.value, audio.coneOuterAngle.value)
+                    }
+                    unit="°"
+                  />
+                </div>
+              </InputGroup>
+
+              <div className="grid w-full grid-flow-col grid-rows-1 gap-[8px]">
+                <InputGroup
+                  name="Rolloff Factor"
+                  label={t('editor:properties.audio.lbl-rolloffFactor')}
+                  info={t('editor:properties.audio.info-rfInfinity')}
+                >
+                  <NumericScrubber
+                    min={0}
+                    smallStep={0.1}
+                    mediumStep={1}
+                    largeStep={10}
+                    value={audio.rolloffFactor.value}
+                    onChange={updateProperty(PositionalAudioComponent, 'rolloffFactor')}
+                    onRelease={commitProperty(PositionalAudioComponent, 'rolloffFactor')}
+                  />
+                </InputGroup>
+
+                <InputGroup
+                  name="Max Distance"
+                  disabled={audio.distanceModel.value !== DistanceModel.Linear}
+                  label={t('editor:properties.audio.lbl-maxDistance')}
+                  info={
+                    audio.distanceModel.value !== DistanceModel.Linear
+                      ? t('editor:properties.audio.info-maxDistanceDisabled')
+                      : t('editor:properties.audio.info-maxDistance')
+                  }
+                >
+                  <NumericScrubber
+                    min={0.00001}
+                    disabled={audio.distanceModel.value !== DistanceModel.Linear}
+                    smallStep={0.1}
+                    mediumStep={1}
+                    largeStep={10}
+                    value={audio.maxDistance.value}
+                    onChange={updateProperty(PositionalAudioComponent, 'maxDistance')}
+                    onRelease={commitProperty(PositionalAudioComponent, 'maxDistance')}
+                    unit="m"
+                  />
+                </InputGroup>
+              </div>
+
+              <InputGroup
+                name="Cone Inner Angle"
+                label={t('editor:properties.audio.lbl-coreOuterGain')}
+                info={t('editor:properties.audio.info-coreOuterGain')}
+              >
+                <Slider
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={audio.coneOuterGain.value}
+                  onChange={updateProperty(PositionalAudioComponent, 'coneOuterGain')}
+                  onRelease={commitProperty(PositionalAudioComponent, 'coneOuterGain')}
+                />
+              </InputGroup>
+            </>
+          )}
 
           <InputGroup
             name="Video Fit"

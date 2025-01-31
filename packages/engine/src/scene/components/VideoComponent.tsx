@@ -115,7 +115,6 @@ export const VideoComponent = defineComponent({
     fit: ContentFitTypeSchema('contain'),
     projection: ProjectionSchema,
     mediaUUID: S.EntityUUID(),
-
     // internal
     videoMeshEntity: S.Entity(),
     texture: S.NonSerialized(S.Nullable(S.Type<VideoTexturePriorityQueue>()))
