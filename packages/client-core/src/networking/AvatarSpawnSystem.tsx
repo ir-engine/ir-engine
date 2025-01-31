@@ -109,6 +109,17 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   const avatar = userAvatar?.avatar ?? avatarsQuery.data[0]
 
   useEffect(() => {
+    if (!userAvatar) {
+      const intervalId = setInterval(() => {
+        userAvatarQuery.refetch()
+      }, AVATAR_REFETCH_INTERVAL_MS)
+      return () => {
+        clearInterval(intervalId)
+      }
+    }
+  }, [userAvatar])
+
+  useEffect(() => {
     if (isSpectating || !userAvatar || !avatar) return
 
     const rootUUID = getComponent(sceneEntity, UUIDComponent)

@@ -29,17 +29,44 @@ import { GPUOffscreenCanvas } from 'react-native-wgpu'
 import THREE, { DataTexture, LoadingManager, Texture } from 'three'
 import { Loader } from '../base/Loader'
 
-const iOSMaxResolution = 1024
+const iOSMaxResolution = 256
 
 export class TextureLoader extends Loader<Texture> {
-  maxResolution: number | undefined
+  maxResolution: number = 256
   autoDetectBitmap: boolean | undefined
+  deviceContext: Promise<{ device: any; context: any; canvas: GPUOffscreenCanvas }>
 
   constructor(manager?: LoadingManager, autoDetectBitmap?: boolean, maxResolution?: number) {
     super(manager)
     if (maxResolution) this.maxResolution = maxResolution
     else if (Platform.OS === 'ios') this.maxResolution = iOSMaxResolution
     this.autoDetectBitmap = autoDetectBitmap
+
+    this.deviceContext = new Promise(async (resolve, reject) => {
+      const adapter = await navigator.gpu.requestAdapter()
+      if (!adapter) {
+        reject(new Error('No GPU adapter'))
+        return
+      }
+      const device = await adapter.requestDevice()
+
+      const canvas = new GPUOffscreenCanvas(this.maxResolution, this.maxResolution)
+      const context = canvas.getContext('webgpu')
+      if (!context) {
+        reject(new Error('Could not get webgpu context'))
+        return
+      }
+
+      const presentationFormat = navigator.gpu.getPreferredCanvasFormat()
+      console.log(presentationFormat)
+      context?.configure({
+        device: device!,
+        format: presentationFormat,
+        alphaMode: 'premultiplied'
+      })
+
+      resolve({ device, context, canvas })
+    })
   }
 
   override async load(
@@ -66,7 +93,7 @@ export class TextureLoader extends Loader<Texture> {
     }
 
     if (this.maxResolution && calculateResizingFactor(this.maxResolution, nativeAsset.height, nativeAsset.width) < 1) {
-      const data = await getScaledTextureData(nativeAsset.localUri!, this.maxResolution)
+      const data = await getScaledTextureData(nativeAsset.localUri!, this.maxResolution, this.deviceContext)
 
       try {
         // TODO: why is the texture the wrong color?
@@ -132,26 +159,9 @@ async function createTextureFromBase64(device: GPUDevice, imageURI: string) {
   return texture
 }
 
-const getScaledTextureData = async (imageURI: string, maxResolution: number) => {
-  const adapter = await navigator.gpu.requestAdapter()
-  if (!adapter) {
-    throw new Error('No adapter')
-  }
-  const device = await adapter.requestDevice()
-
-  const canvas = new GPUOffscreenCanvas(maxResolution, maxResolution)
-  const context = canvas.getContext('webgpu')
-  if (!context) {
-    throw new Error('Could not get webgpu context')
-  }
-
+const getScaledTextureData = async (imageURI: string, maxResolution: number, devicePromise: Promise<any>) => {
+  const { device, context, canvas } = await devicePromise
   const presentationFormat = navigator.gpu.getPreferredCanvasFormat()
-  console.log(presentationFormat)
-  context?.configure({
-    device: device!,
-    format: presentationFormat,
-    alphaMode: 'premultiplied'
-  })
 
   const vertices = new Float32Array([
     // positions    // texture coordinates
@@ -192,35 +202,7 @@ const getScaledTextureData = async (imageURI: string, maxResolution: number) => 
 
   // Create shader module
   const shaderModule = device.createShaderModule({
-    code: `
-struct VertexInput {
-@location(0) position: vec2<f32>,
-@location(1) texCoord: vec2<f32>,
-};
-
-struct VertexOutput {
-@builtin(position) position: vec4<f32>,
-@location(0) texCoord: vec2<f32>,
-};
-
-@vertex
-fn vertexMain(input: VertexInput) -> VertexOutput {
-var output: VertexOutput;
-output.position = vec4<f32>(input.position, 0.0, 1.0);
-output.texCoord = input.texCoord;
-return output;
-}
-
-@group(0) @binding(0) var texSampler: sampler;
-@group(0) @binding(1) var tex: texture_2d<f32>;
-
-@fragment
-fn fragmentMain(@location(0) texCoord: vec2<f32>) -> @location(0) vec4<f32> {
-let color = textureSample(tex, texSampler, texCoord);
-// Native texture uses bgra format, swap blue and red values for correct output.
-return vec4f(color.b, color.g, color.r, color.a);
-}
-`
+    code: shader
   })
 
   const texture = await createTextureFromBase64(device, imageURI)
@@ -326,5 +308,36 @@ return vec4f(color.b, color.g, color.r, color.a);
   device.queue.submit([commandEncoder.finish()])
 
   const data = await canvas.getImageData()
+  texture.destroy()
   return data
 }
+
+const shader = `
+struct VertexInput {
+@location(0) position: vec2<f32>,
+@location(1) texCoord: vec2<f32>,
+};
+
+struct VertexOutput {
+@builtin(position) position: vec4<f32>,
+@location(0) texCoord: vec2<f32>,
+};
+
+@vertex
+fn vertexMain(input: VertexInput) -> VertexOutput {
+var output: VertexOutput;
+output.position = vec4<f32>(input.position, 0.0, 1.0);
+output.texCoord = input.texCoord;
+return output;
+}
+
+@group(0) @binding(0) var texSampler: sampler;
+@group(0) @binding(1) var tex: texture_2d<f32>;
+
+@fragment
+fn fragmentMain(@location(0) texCoord: vec2<f32>) -> @location(0) vec4<f32> {
+let color = textureSample(tex, texSampler, texCoord);
+// Native texture uses bgra format, swap blue and red values for correct output.
+return vec4f(color.b, color.g, color.r, color.a);
+}
+`

@@ -1,5 +1,18 @@
+diff --git a/node_modules/@callstack/polygen/cpp/wasm-rt/wasm-rt-mem-impl.c b/node_modules/@callstack/polygen/cpp/wasm-rt/wasm-rt-mem-impl.c
+index b8a383e..14f5c3b 100644
+--- a/node_modules/@callstack/polygen/cpp/wasm-rt/wasm-rt-mem-impl.c
++++ b/node_modules/@callstack/polygen/cpp/wasm-rt/wasm-rt-mem-impl.c
+@@ -140,7 +140,7 @@ static uint64_t get_alloc_size_for_mmap(uint64_t max_pages, bool is64) {
+     assert(!is64 && "memory64 is not yet compatible with WASM_RT_USE_MMAP");
+ #if WASM_RT_MEMCHECK_GUARD_PAGES
+     /* Reserve 8GiB. */
+-    const uint64_t max_size = 0x200000000ul;
++    const uint64_t max_size = 0x002000000ul;
+     return max_size;
+ #else
+     if (max_pages != 0) {
 diff --git a/node_modules/@callstack/polygen/lib/commonjs/api/Memory.js b/node_modules/@callstack/polygen/lib/commonjs/api/Memory.js
-index ceabc2d..5db9988 100644
+index ceabc2d..86b1039 100644
 --- a/node_modules/@callstack/polygen/lib/commonjs/api/Memory.js
 +++ b/node_modules/@callstack/polygen/lib/commonjs/api/Memory.js
 @@ -26,16 +26,26 @@ function isMemoryDescriptor(descriptor) {

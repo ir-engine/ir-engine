@@ -51,6 +51,7 @@
 		89C6BE57DB24E9ADA2F236DE /* Pods-clientNative-clientNativeTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-clientNative-clientNativeTests.release.xcconfig"; path = "Target Support Files/Pods-clientNative-clientNativeTests/Pods-clientNative-clientNativeTests.release.xcconfig"; sourceTree = "<group>"; };
 		973490C22D00A5550028D747 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		9766F85E2D3FEF69001D9D41 /* ci_pre_xcodebuild.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = ci_pre_xcodebuild.sh; sourceTree = "<group>"; };
+		97722E092D4BE68400CEA3A3 /* clientNativeRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = clientNativeRelease.entitlements; path = clientNative/clientNativeRelease.entitlements; sourceTree = "<group>"; };
 		DFEADA8748D0F5D363835FF4 /* libPods-clientNative.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-clientNative.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		FD274900ADF8AA12BBA7EA5C /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-clientNative-clientNativeTests/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
@@ -97,6 +98,7 @@
 		13B07FAE1A68108700A75B9A /* clientNative */ = {
 			isa = PBXGroup;
 			children = (
+				97722E092D4BE68400CEA3A3 /* clientNativeRelease.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -624,6 +626,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = clientNative/clientNativeRelease.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;

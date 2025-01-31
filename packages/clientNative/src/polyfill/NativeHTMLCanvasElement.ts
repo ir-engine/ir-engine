@@ -29,6 +29,8 @@ import {EventListenerRegistry} from './CanvasEventHandler';
 export type NativeWebGLRenderingContext = ExpoWebGLRenderingContext & {
   drawingBufferWidth: number;
   drawingBufferHeight: number;
+  pixelStorei: (param1: number | boolean, param2: number) => void;
+  UNPACK_FLIP_Y_WEBGL: boolean;
 };
 
 export class NativeHTMLCanvasElement implements HTMLCanvasElement {

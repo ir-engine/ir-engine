@@ -48,6 +48,15 @@ const LocationRoutes = () => {
 
   const onContextCreate = useCallback(
     (context: NativeWebGLRenderingContext) => {
+      const pixelStorei = context.pixelStorei.bind(context);
+      context.pixelStorei = function (...args) {
+        const [parameter] = args;
+        switch (parameter) {
+          case context.UNPACK_FLIP_Y_WEBGL:
+            return pixelStorei(...args);
+        }
+      };
+
       setCanvas(new NativeHTMLCanvasElement(context, eventListenerRegistry));
     },
     [],
@@ -74,7 +83,11 @@ const LocationRoutes = () => {
         }}
         online
       />
-      <GLView style={{width, height}} onContextCreate={onContextCreate} />
+      <GLView
+        style={{width, height}}
+        onContextCreate={onContextCreate}
+        msaaSamples={0}
+      />
       <TouchGamepad />
     </View>
   );

@@ -1,0 +1,138 @@
+diff --git a/node_modules/expo-gl/ios/GLView.swift b/node_modules/expo-gl/ios/GLView.swift
+index e3ce5fe..104d004 100644
+--- a/node_modules/expo-gl/ios/GLView.swift
++++ b/node_modules/expo-gl/ios/GLView.swift
+@@ -25,8 +25,6 @@ internal final class GLView: ExpoView, EXGLContextDelegate {
+   var viewFramebuffer: GLuint = 0
+   var viewColorbuffer: GLuint = 0
+   var viewDepthStencilbuffer: GLuint = 0
+-  var msaaFramebuffer: GLuint = 0
+-  var msaaRenderbuffer: GLuint = 0
+ 
+   var displayLink: CADisplayLink?
+   var isAfterLayout: Bool = false
+@@ -138,37 +136,12 @@ internal final class GLView: ExpoView, EXGLContextDelegate {
+         &layerHeight
+       )
+         
+-      // Set up MSAA framebuffer/renderbuffer
+-      glGenFramebuffers(1, &msaaFramebuffer)
+-      glGenRenderbuffers(1, &msaaRenderbuffer)
+-      glBindFramebuffer(GLenum(GL_FRAMEBUFFER), msaaFramebuffer)
+-      glBindRenderbuffer(GLenum(GL_RENDERBUFFER), msaaRenderbuffer)
+-      glRenderbufferStorageMultisample(
+-        GLenum(GL_RENDERBUFFER),
+-        GLsizei(msaaSamples),
+-        GLenum(GL_RGBA8),
+-        layerWidth,
+-        layerHeight
+-      )
+-      glFramebufferRenderbuffer(
+-        GLenum(GL_FRAMEBUFFER),
+-        GLenum(GL_COLOR_ATTACHMENT0),
+-        GLenum(GL_RENDERBUFFER),
+-        msaaRenderbuffer
+-      )
+-
+-      EXGLContextSetDefaultFramebuffer(glContext.contextId, GLint(msaaFramebuffer))
++      EXGLContextSetDefaultFramebuffer(glContext.contextId, GLint(viewFramebuffer))
+ 
+       // Set up new depth+stencil renderbuffer
+       glGenRenderbuffers(1, &viewDepthStencilbuffer)
+       glBindRenderbuffer(GLenum(GL_RENDERBUFFER), viewDepthStencilbuffer)
+-      glRenderbufferStorageMultisample(
+-        GLenum(GL_RENDERBUFFER),
+-        GLsizei(msaaSamples),
+-        GLenum(GL_DEPTH24_STENCIL8),
+-        layerWidth,
+-        layerHeight
+-      )
++      glRenderbufferStorage(GLenum(GL_RENDERBUFFER), GLenum(GL_DEPTH24_STENCIL8), layerWidth, layerHeight)
+       glFramebufferRenderbuffer(
+         GLenum(GL_FRAMEBUFFER),
+         GLenum(GL_DEPTH_ATTACHMENT),
+@@ -220,13 +193,20 @@ internal final class GLView: ExpoView, EXGLContextDelegate {
+     if glContext.isInitialized() && viewFramebuffer != 0 {
+       // Present current state of view buffers
+       // This happens exactly at `gl.endFrameEXP()` in the queue
++      
+       if viewColorbuffer != 0 && !isRenderbufferPresented {
+         // bind renderbuffer and present it on the layer
++        var prevRenderBuffer: GLuint = 0
++        glGetIntegerv(GLenum(GL_RENDERBUFFER_BINDING), &prevRenderBuffer)
+         glContext.runAsync {
+           glBindRenderbuffer(GLenum(GL_RENDERBUFFER), self.viewColorbuffer)
+           self.eaglContext.presentRenderbuffer(Int(GL_RENDERBUFFER))
+         }
+           
++        if prevRenderBuffer != 0 {
++          glBindRenderbuffer(GLenum(GL_RENDERBUFFER_BINDING), prevRenderBuffer)
++        }
++
+         // mark renderbuffer as presented
+         isRenderbufferPresented = true
+       }
+@@ -237,40 +217,6 @@ internal final class GLView: ExpoView, EXGLContextDelegate {
+   // about presenting the new content of the renderbuffer on the next draw call
+   func blitFramebuffers() {
+     if glContext.isInitialized() && viewFramebuffer != 0 && viewColorbuffer != 0 {
+-      // Save surrounding framebuffer
+-      var prevFramebuffer: GLuint = 0
+-      glGetIntegerv(GLenum(GL_FRAMEBUFFER_BINDING), &prevFramebuffer)
+-      if prevFramebuffer == viewFramebuffer {
+-        prevFramebuffer = 0
+-      }
+-
+-      // Resolve multisampling and present
+-      glBindFramebuffer(GLenum(GL_READ_FRAMEBUFFER), msaaFramebuffer)
+-      glBindFramebuffer(GLenum(GL_DRAW_FRAMEBUFFER), viewFramebuffer)
+-
+-      // glBlitFramebuffer works only on OpenGL ES 3.0, so we need a fallback to Apple's extension for OpenGL ES 2.0
+-      if glContext.eaglCtx.api == .openGLES3 {
+-        glBlitFramebuffer(
+-          0,
+-          0,
+-          layerWidth,
+-          layerHeight,
+-          0,
+-          0,
+-          layerWidth,
+-          layerHeight,
+-          GLbitfield(GL_COLOR_BUFFER_BIT),
+-          GLenum(GL_NEAREST)
+-        )
+-      } else {
+-        glResolveMultisampleFramebufferAPPLE()
+-      }
+-
+-      // Restore surrounding framebuffer
+-      if prevFramebuffer != 0 {
+-        glBindFramebuffer(GLenum(GL_FRAMEBUFFER), prevFramebuffer)
+-      }
+-
+       // mark renderbuffer as not presented
+       isRenderbufferPresented = false
+     }
+@@ -289,14 +235,6 @@ internal final class GLView: ExpoView, EXGLContextDelegate {
+       glDeleteFramebuffers(1, &viewFramebuffer)
+       viewFramebuffer = 0
+     }
+-    if msaaRenderbuffer != 0 {
+-      glDeleteRenderbuffers(1, &msaaRenderbuffer)
+-      msaaRenderbuffer = 0
+-    }
+-    if msaaFramebuffer != 0 {
+-      glDeleteFramebuffers(1, &msaaFramebuffer)
+-      msaaFramebuffer = 0
+-    }
+   }
+ 
+   // MARK: - EXGLContextDelegate
+@@ -324,6 +262,6 @@ internal final class GLView: ExpoView, EXGLContextDelegate {
+   }
+ 
+   func glContextGetDefaultFramebuffer() -> EXGLObjectId {
+-    return msaaFramebuffer
++      return viewFramebuffer
+   }
+ }

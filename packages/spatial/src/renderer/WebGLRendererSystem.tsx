@@ -223,8 +223,8 @@ export const RendererComponent = defineComponent({
       } as HTMLCanvasElement
 
       const options: WebGLRendererParameters = {
-        precision: 'highp',
-        powerPreference: 'high-performance',
+        precision: 'lowp',
+        powerPreference: 'default',
         stencil: false,
         antialias: false,
         depth: true,
@@ -238,7 +238,6 @@ export const RendererComponent = defineComponent({
 
       const renderer = new WebGLRenderer(options)
       renderer.setSize(context.drawingBufferWidth, context.drawingBufferHeight)
-      renderer.setClearColor(0x6ad6f0)
       rendererComponent.renderer.set(renderer)
       renderer.outputColorSpace = SRGBColorSpace
 
