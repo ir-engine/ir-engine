@@ -336,7 +336,7 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         )}
 
         <div className="col-span-1 grid grid-cols-4 gap-6">
-          <Button size="sm" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
+          <Button size="sm" className="text-primary col-span-1 " fullWidth onClick={handleCancel}>
             {t('admin:components.common.reset')}
           </Button>
           <Button size="sm" variant="primary" className="col-span-1" fullWidth onClick={handleSubmit}>

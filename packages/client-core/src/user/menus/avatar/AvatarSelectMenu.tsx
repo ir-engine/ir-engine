@@ -149,7 +149,7 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
       hideFooter={true}
       rawChildren={
         <div className="grid h-full w-full grid-rows-[3.5rem,1fr]">
-          <div className="grid h-14 w-full grid-cols-[2rem,1fr,2rem] border-b border-b-theme-primary px-8">
+          <div className="grid h-14 w-full grid-cols-[2rem,1fr,2rem] border-b px-8">
             {showBackButton && (
               <Button
                 data-testid="edit-avatar-button"

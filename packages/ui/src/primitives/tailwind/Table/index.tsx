@@ -33,12 +33,7 @@ interface TableCellProps extends React.HTMLAttributes<HTMLTableCellElement> {
 }
 
 const TableHeaderCell = ({ className, children, ...props }: TableCellProps) => {
-  const twClassName = twMerge(
-    'text-neutral-600 dark:text-white',
-    'p-4',
-    'border border-[0.5px] border-theme-primary',
-    className
-  )
+  const twClassName = twMerge('text-neutral-600 dark:text-white', 'p-4', 'border border-[0.5px] ', className)
   return (
     <th className={twClassName} {...props}>
       {children}
@@ -56,7 +51,7 @@ const TableHeadRow = ({
   children: JSX.Element | JSX.Element[]
 }) => {
   const twClassName = twMerge('text-left capitalize', className)
-  const twClassNameThead = twMerge('sticky top-[-2px] z-10 bg-theme-table-secondary', theadClassName)
+  const twClassNameThead = twMerge('sticky top-[-2px] z-10 ', theadClassName)
   return (
     <thead className={twClassNameThead}>
       <tr className={twClassName}>{children}</tr>
@@ -65,12 +60,7 @@ const TableHeadRow = ({
 }
 
 const TableCell = ({ className, children, ...props }: TableCellProps) => {
-  const twClassName = twMerge(
-    'p-4',
-    'border border-[0.5px] border-theme-primary',
-    'text-left text-neutral-600 dark:text-white',
-    className
-  )
+  const twClassName = twMerge('p-4', 'border border-[0.5px] ', 'text-left text-neutral-600 dark:text-white', className)
   return (
     <td className={twClassName} {...props}>
       {children}
@@ -83,7 +73,7 @@ interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   children?: ReactNode
 }
 const TableRow = ({ className, children, ...props }: TableRowProps) => {
-  const twClassName = twMerge('bg-theme-surface-main even:bg-theme-table-secondary', className)
+  const twClassName = twMerge(' even:', className)
   return (
     <tr className={twClassName} {...props}>
       {children}

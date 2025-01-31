@@ -62,14 +62,14 @@ const AdminTopBar = () => {
   }
 
   return (
-    <div className="flex h-16 w-full items-center justify-between bg-theme-surface-main px-8 py-4">
+    <div className="flex h-16 w-full items-center justify-between  px-8 py-4">
       <img src="static/ir.svg" alt="iR Engine Logo" className={`h-7 w-7${theme.value === 'light' ? ' invert' : ''}`} />
       <div className="flex gap-4">
         <Button onClick={toggleTheme} className="pointer-events-auto bg-transparent p-0">
           {theme.value === 'light' ? (
-            <HiMiniMoon className="text-theme-primary" size="1.5rem" />
+            <HiMiniMoon className="" size="1.5rem" />
           ) : (
-            <HiMiniSun className="text-theme-primary" size="1.5rem" />
+            <HiMiniSun className="" size="1.5rem" />
           )}
         </Button>
         <Tooltip content={tooltip}>
@@ -92,7 +92,7 @@ const AdminSideBar = () => {
   const relativePath = fullPathName.split('/').slice(2).join('/')
 
   return (
-    <aside className="mx-8 h-fit overflow-y-auto overflow-x-hidden rounded-2xl bg-theme-surface-main px-2 py-4">
+    <aside className="mx-8 h-fit overflow-y-auto overflow-x-hidden rounded-2xl  px-2 py-4">
       <ul className="space-y-2">
         {Object.entries(allowedRoutes)
           .filter(([_, sidebarItem]) => sidebarItem.access)
@@ -101,10 +101,8 @@ const AdminSideBar = () => {
               <li key={index}>
                 <Link to={path}>
                   <Button
-                    className={`hover:bg-theme-highlight] flex w-72 items-center justify-start rounded-xl px-2 py-3 font-medium text-theme-secondary ${
-                      relativePath === path
-                        ? 'bg-theme-highlight font-semibold text-theme-primary '
-                        : 'bg-theme-surface-main'
+                    className={`hover:] flex w-72 items-center justify-start rounded-xl px-2 py-3 font-medium  ${
+                      relativePath === path ? ' font-semibold  ' : ''
                     }`}
                   >
                     {sidebarItem.icon}

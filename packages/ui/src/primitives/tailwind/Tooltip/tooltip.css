@@ -26,7 +26,7 @@
   width: 8px;
   height: 8px;
   background-color: #191b1f;
-  border: 1px solid var(--theme-primary);
+  border: 1px solid #191b1f;
   position: absolute;
   z-index: 10000;
 }

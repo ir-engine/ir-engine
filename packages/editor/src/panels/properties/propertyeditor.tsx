@@ -89,7 +89,7 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
 
   return (
     <>
-      <div className="flex w-full justify-end bg-theme-highlight" id="add-component-popover">
+      <div className="flex w-full justify-end " id="add-component-popover">
         <Popup
           keepInside
           position={'left center'}

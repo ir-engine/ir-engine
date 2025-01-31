@@ -85,7 +85,7 @@ export default function MaterialLayerNode(props: ListChildComponentProps<{ nodes
       ref={drag}
       id={node[0]}
       className={twMerge(
-        props.index % 2 ? 'bg-theme-surfaceInput' : 'bg-zinc-800',
+        props.index % 2 ? '' : 'bg-zinc-800',
         materialSelection.value === node ? 'border border-gray-100' : 'border-none'
       )}
       onClick={onClickNode}

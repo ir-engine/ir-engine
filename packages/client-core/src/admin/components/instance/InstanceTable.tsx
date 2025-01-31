@@ -77,7 +77,7 @@ export default function InstanceTable({ search }: { search: string }) {
       action: (
         <div className="flex items-center justify-start gap-3 px-2 py-1">
           <Button
-            className="bg-theme-blue-secondary text-blue-700 dark:text-white"
+            className=" text-blue-700 dark:text-white"
             onClick={() => {
               PopoverState.showPopupover(<ViewModal instanceId={row.id} />)
             }}
@@ -87,7 +87,7 @@ export default function InstanceTable({ search }: { search: string }) {
             {t('admin:components.instance.actions.view')}
           </Button>
           <Button
-            className="h-8 w-8 justify-center border border-theme-primary bg-transparent p-0"
+            className="h-8 w-8 justify-center border  bg-transparent p-0"
             onClick={() => {
               PopoverState.showPopupover(
                 <ConfirmDialog
@@ -99,7 +99,7 @@ export default function InstanceTable({ search }: { search: string }) {
               )
             }}
           >
-            <HiTrash className="place-self-center text-theme-iconRed" />
+            <HiTrash className="place-self-center " />
           </Button>
         </div>
       )

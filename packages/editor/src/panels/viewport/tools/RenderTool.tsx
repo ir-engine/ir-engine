@@ -90,7 +90,7 @@ const RenderModeTool = () => {
           </button>
         }
       >
-        <div className="w-52 rounded-md bg-theme-primary p-2">
+        <div className="w-52 rounded-md  p-2">
           <InputGroup
             name="Use Post Processing"
             label={t('editor:toolbar.render-settings.lbl-usePostProcessing')}

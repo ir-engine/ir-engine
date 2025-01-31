@@ -113,7 +113,7 @@ export default function InviteTable({
             {t('admin:components:invite.update')}
           </Button>
           <Button variant="tertiary" onClick={() => PopoverState.showPopupover(<RemoveInviteModal invites={[row]} />)}>
-            <HiTrash className="text-theme-iconRed" />
+            <HiTrash className="" />
           </Button>
         </div>
       )

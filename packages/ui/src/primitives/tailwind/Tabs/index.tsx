@@ -98,8 +98,8 @@ const Tabs = ({
             <button
               key={index}
               className={twMerge(
-                'p-3 text-sm text-theme-secondary disabled:cursor-not-allowed disabled:opacity-50 dark:hover:border-b dark:hover:border-b-blue-400',
-                currentTab.value === index ? 'border-b border-b-blue-primary font-semibold text-theme-primary' : '',
+                'p-3 text-sm  disabled:cursor-not-allowed disabled:opacity-50 dark:hover:border-b dark:hover:border-b-blue-400',
+                currentTab.value === index ? 'border-b font-semibold ' : '',
                 tab.disabled ? 'border-none' : '',
                 tabClassName
               )}

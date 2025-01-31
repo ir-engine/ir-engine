@@ -36,7 +36,7 @@ const Label = ({ className, htmlFor, children, ...props }: LabelProps) => {
     <label
       htmlFor={htmlFor}
       className={twMerge(
-        'inline-block text-sm font-medium leading-none text-theme-secondary peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+        'inline-block text-sm font-medium leading-none  peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
         className
       )}
       {...props}

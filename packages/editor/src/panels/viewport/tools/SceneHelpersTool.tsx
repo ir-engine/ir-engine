@@ -51,7 +51,7 @@ export default function SceneHelpersTool() {
               onClick={() => editorHelperState.placementMode.set(PlacementMode.CLICK)}
               selected={editorHelperState.placementMode.value === PlacementMode.CLICK}
             >
-              <LuMousePointerClick className="text-theme-input" />
+              <LuMousePointerClick className="" />
             </ViewportButton>
           </Tooltip>
           <Tooltip content={t('editor:toolbar.placement.drag')} position="bottom">
@@ -59,7 +59,7 @@ export default function SceneHelpersTool() {
               onClick={() => editorHelperState.placementMode.set(PlacementMode.DRAG)}
               selected={editorHelperState.placementMode.value === PlacementMode.DRAG}
             >
-              <LuMove3D className="text-theme-input" />
+              <LuMove3D className="" />
             </ViewportButton>
           </Tooltip>
         </>

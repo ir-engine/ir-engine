@@ -97,7 +97,7 @@ export default function ChannelTable({
             title={t('admin:components.common.view')}
             onClick={() => PopoverState.showPopupover(<AddEditChannelModal channel={row} />)}
           >
-            <HiPencil className="text-theme-iconGreen" />
+            <HiPencil className="" />
           </Button>
           <Button
             variant="tertiary"
@@ -114,7 +114,7 @@ export default function ChannelTable({
               )
             }
           >
-            <HiTrash className="text-theme-iconRed" />
+            <HiTrash className="" />
           </Button>
         </div>
       )

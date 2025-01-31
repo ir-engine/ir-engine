@@ -78,7 +78,7 @@ function ScenesPanel() {
       <div className="mb-4 h-8 w-full overflow-hidden bg-[#212226]">
         <Button
           disabled={isCreatingScene.value}
-          className="ml-auto h-8 bg-theme-highlight px-2"
+          className="ml-auto h-8  px-2"
           size="sm"
           data-testid="scene-panel-add-scene-button"
           onClick={handleCreateScene}

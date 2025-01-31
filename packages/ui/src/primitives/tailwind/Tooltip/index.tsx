@@ -192,10 +192,10 @@ function Tooltip(
           >
             <div className="relative flex max-w-xs flex-col items-center shadow-lg">
               <div
-                className={`tooltip-arrow absolute tooltip-arrow-${tooltipPosition} h-3 w-3 rotate-45 transform border-b border-theme-primary bg-[#191B1F]`}
+                className={`tooltip-arrow absolute tooltip-arrow-${tooltipPosition} h-3 w-3 rotate-45 transform border-b  bg-[#191B1F]`}
               ></div>
 
-              <div className="rounded border border-theme-primary bg-[#191B1F] px-4 py-2 text-center text-xs text-white">
+              <div className="rounded border  bg-[#191B1F] px-4 py-2 text-center text-xs text-white">
                 {title && <div className="mb-1 text-sm font-semibold text-white">{title}</div>}
                 <div>{content}</div>
               </div>

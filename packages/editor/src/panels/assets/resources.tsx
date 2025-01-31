@@ -96,7 +96,7 @@ function ResourceFileContextMenu({
       onClose={() => anchorEvent.set(undefined)}
       className="gap-1"
     >
-      <div className="w-full rounded-lg bg-theme-surface-main px-4 py-2 text-sm text-white">
+      <div className="w-full rounded-lg  px-4 py-2 text-sm text-white">
         <MetadataTable
           rows={[
             { label: t('editor:assetMetadata.name'), value: `${name}` },

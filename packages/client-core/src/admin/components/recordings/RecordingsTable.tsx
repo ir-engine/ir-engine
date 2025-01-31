@@ -72,11 +72,11 @@ export default function RecordingsTable({ search }: { search: string }) {
       schema: JSON.stringify(row.schema),
       action: (
         <div className="flex w-full justify-center px-2 py-1">
-          {/* <Button className="border-theme-primary h-8 w-8 justify-center border bg-transparent p-0" rounded>
+          {/* <Button className=" h-8 w-8 justify-center border bg-transparent p-0" rounded>
             <HiEye className="place-self-center" />
           </Button> */}
           <Button
-            className="h-8 w-8 justify-center border border-theme-primary bg-transparent p-0"
+            className="h-8 w-8 justify-center border  bg-transparent p-0"
             onClick={() => {
               PopoverState.showPopupover(
                 <ConfirmDialog

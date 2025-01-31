@@ -193,7 +193,7 @@ export default function AddEditLocationModal(props: {
   }
 
   return (
-    <div className="relative z-50 w-[50vw] bg-theme-surface-main">
+    <div className="relative z-50 w-[50vw] ">
       <div className="relative rounded-lg shadow">
         <ModalHeader
           onClose={PopoverState.hidePopupover}
@@ -207,10 +207,7 @@ export default function AddEditLocationModal(props: {
                 className="flex w-full cursor-default items-center justify-center gap-x-1 text-left text-xs font-medium"
                 data-testid="publish-panel-copy-link-buttons-group"
               >
-                <div
-                  className="cursor-pointer text-blue-primary hover:underline"
-                  onClick={() => window.open(new URL(location.url))}
-                >
+                <div className="cursor-pointer hover:underline" onClick={() => window.open(new URL(location.url))}>
                   {location.url}
                 </div>
                 <HiLink
@@ -313,7 +310,7 @@ export default function AddEditLocationModal(props: {
           </div>
         </div>
 
-        <div className="grid grid-flow-col border-t border-t-theme-primary px-6 py-5">
+        <div className="grid grid-flow-col border-t px-6 py-5">
           <Button
             variant="tertiary"
             data-testid="publish-panel-cancel-button"

@@ -112,7 +112,7 @@ export default function AvatarTable({ search }: { search: string }) {
             title={t('admin:components.common.view')}
             onClick={() => PopoverState.showPopupover(<AddEditAvatarModal avatar={row} />)}
           >
-            <HiPencil className="text-theme-iconGreen" />
+            <HiPencil className="" />
           </Button>
           <Button
             variant="tertiary"
@@ -129,7 +129,7 @@ export default function AvatarTable({ search }: { search: string }) {
               )
             }}
           >
-            <HiTrash className="text-theme-iconRed" />
+            <HiTrash className="" />
           </Button>
         </div>
       )

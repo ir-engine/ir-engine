@@ -27,116 +27,11 @@ import { defineState, getMutableState, syncStateWithLocalStorage, useMutableStat
 
 import { useEffect } from 'react'
 
-export interface CSSClasses {
-  'bg-primary': string
-  'bg-secondary': string
-  'bg-highlight': string
-  'bg-surface-bg': string
-  'bg-surface-main': string
-  'bg-surface-dropdown': string
-  'bg-surface-input': string
-  'bg-surface-card': string
-  'bg-table-secondary': string
-  'bg-blue-secondary': string
-  'bg-studio-surface': string
-  'bg-banner-informative': string
+export interface CSSClasses {}
 
-  'bg-tag-green': string
-  'bg-tag-lime': string
-  'bg-tag-red': string
-  'bg-tag-yellow': string
+const lightTheme: CSSClasses = {}
 
-  'text-input': string
-  'text-primary': string
-  'text-secondary': string
-  'text-highlight': string
-  'text-gray3': string
-  'text-menu-default': string
-
-  'icon-green': string
-  'icon-red': string
-
-  'border-primary': string
-  'border-input': string
-  'border-focus': string
-
-  'blue-primary': string
-  selection: string
-}
-
-const lightTheme: CSSClasses = {
-  'bg-primary': '#F5F5F5',
-  'bg-secondary': '#FFFFFF',
-  'bg-highlight': '#D9D9D9',
-  'bg-surface-bg': '#FFFFFF',
-  'bg-surface-main': '#FFFFFF',
-  'bg-surface-dropdown': '#FFFFFF',
-  'bg-surface-input': '#FFFFFF',
-  'bg-surface-card': '#FFFFFF',
-  'bg-table-secondary': '#F9FAFB',
-  'bg-blue-secondary': '#D4DFF7',
-  'bg-studio-surface': '#F5F5F5',
-  'bg-banner-informative': '#FFFBEB',
-
-  'bg-tag-green': '#10B981',
-  'bg-tag-lime': '#9ACD32',
-  'bg-tag-red': '#D1004B',
-  'bg-tag-yellow': '#FEF3C7',
-
-  'text-input': '#9CA0AA',
-  'text-primary': '#262626',
-  'text-secondary': '#6B7280',
-  'text-highlight': '#000000',
-  'text-gray3': '#D3D5D9',
-  'text-menu-default': '#9CA0AA',
-
-  'icon-green': '#0D9488 ',
-  'icon-red': '#E11D48',
-
-  'border-primary': '#E5E7EB',
-  'border-input': '#42454D',
-  'border-focus': '#375DAF',
-
-  'blue-primary': '#375DAF',
-  selection: '#3166D0'
-}
-
-const darkTheme: CSSClasses = {
-  'bg-primary': '#111113',
-  'bg-secondary': '#000000',
-  'bg-highlight': '#212226',
-  'bg-surface-bg': '#080808',
-  'bg-surface-main': '#1A1B1E',
-  'bg-surface-dropdown': '#141619',
-  'bg-surface-input': '#141619',
-  'bg-surface-card': '#292a2c',
-  'bg-table-secondary': '#212226',
-  'bg-blue-secondary': '#2A3753',
-  'bg-studio-surface': '#191B1F',
-  'bg-banner-informative': '#D9770633',
-
-  'bg-tag-green': '#064E3B',
-  'bg-tag-lime': '#9ACD32',
-  'bg-tag-red': '#B30911',
-  'bg-tag-yellow': '#CA8A04',
-
-  'text-input': '#9CA0AA',
-  'text-primary': '#F5F5F5',
-  'text-secondary': '#D4D4D4',
-  'text-highlight': '#FFFFFF',
-  'text-gray3': '#D3D5D9',
-  'text-menu-default': '#9CA0AA',
-
-  'icon-green': '#0D9488 ',
-  'icon-red': '#FB7185',
-
-  'border-primary': '#2B2C30',
-  'border-input': '#42454D',
-  'border-focus': '#375DAF',
-
-  'blue-primary': '#375DAF',
-  selection: '#1E4273'
-}
+const darkTheme: CSSClasses = {}
 
 export const themes: Record<string, Partial<CSSClasses>> = {
   light: lightTheme,

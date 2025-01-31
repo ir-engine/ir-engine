@@ -37,10 +37,10 @@ import { useServerInfoFind } from '../../services/ServerInfoQuery'
 import ServerLogsModal from './ServerLogsModal'
 
 const containerColor = {
-  Running: 'bg-theme-tagLime',
-  Terminated: 'bg-theme-tagGreen',
-  Undefined: 'bg-theme-tagRed',
-  Waiting: 'bg-theme-tagYellow'
+  Running: '',
+  Terminated: '',
+  Undefined: '',
+  Waiting: ''
 }
 
 function ServerStatus({ serverPodInfo }: { serverPodInfo: ServerPodInfoType }) {
@@ -121,7 +121,7 @@ export default function ServerTable({
               )
             }}
           >
-            <HiTrash className="place-self-center text-theme-iconRed" />
+            <HiTrash className="place-self-center " />
           </Button>
         </div>
       )

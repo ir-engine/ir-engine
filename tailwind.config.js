@@ -61,47 +61,15 @@ module.exports = {
         }, {})
       },
       textColor: {
-        theme: {
-          input: 'var(--text-input)',
-          primary: 'var(--text-primary)',
-          secondary: 'var(--text-secondary)',
-          highlight: 'var(--text-highlight)',
-          gray3: 'var(--text-gray3)',
-          iconGreen: 'var(--icon-green)',
-          iconRed: 'var(--icon-red)',
-          'menu-default': 'var(--text-menu-default)'
-        }
+        theme: {}
       },
       backgroundColor: {
-        theme: {
-          primary: 'var(--bg-primary)',
-          secondary: 'var(--bg-secondary)',
-          highlight: 'var(--bg-highlight)',
-          surfaceInput: 'var(--bg-surface-input)',
-          'surface-bg': 'var(--bg-surface-bg)',
-          'surface-main': 'var(--bg-surface-main)',
-          'surface-dropdown': 'var(--bg-surface-dropdown)',
-          'surface-card': 'var(--bg-surface-card)',
-          'table-secondary': 'var(--bg-table-secondary)',
-          'blue-secondary': 'var(--bg-blue-secondary)',
-          'studio-surface': 'var(--bg-studio-surface)',
-          bannerInformative: 'var(--bg-banner-informative)',
-          tagGreen: 'var(--bg-tag-green)',
-          tagLime: 'var(--bg-tag-lime)',
-          tagRed: 'var(--bg-tag-red)',
-          tagYellow: 'var(--bg-tag-yellow)'
-        }
+        theme: {}
       },
       borderColor: {
-        theme: {
-          primary: 'var(--border-primary)',
-          input: 'var(--border-input)',
-          focus: 'var(--border-focus)'
-        }
+        theme: {}
       },
-      colors: {
-        'blue-primary': 'var(--blue-primary)'
-      },
+      colors: {},
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
         figtree: ['Figtree', 'sans-serif'],

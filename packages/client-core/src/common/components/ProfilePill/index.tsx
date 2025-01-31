@@ -54,7 +54,7 @@ const ProfilePill = () => {
       onOpen={() => popUpOpened.set(true)}
       onClose={() => popUpOpened.set(false)}
       trigger={
-        <button className="flex h-8 w-16 items-center justify-center gap-2 rounded-full bg-[#191B1F] focus:ring-1 focus:ring-blue-primary">
+        <button className="flex h-8 w-16 items-center justify-center gap-2 rounded-full bg-[#191B1F] focus:ring-1">
           <div className="ml-1 h-6 w-6 overflow-hidden rounded-full">
             <img src={avatarThumbnail} className="h-full w-full" />
           </div>

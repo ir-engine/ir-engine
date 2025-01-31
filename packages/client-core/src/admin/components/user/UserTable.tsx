@@ -176,9 +176,9 @@ export default function UserTable({
         lastLogin: <RenderLogin />,
 
         ageVerified: row.ageVerified ? (
-          <FaRegCircleCheck className="h-5 w-5 text-theme-iconGreen" />
+          <FaRegCircleCheck className="h-5 w-5 " />
         ) : (
-          <FaRegCircleXmark className="h-5 w-5 text-theme-iconRed" />
+          <FaRegCircleXmark className="h-5 w-5 " />
         ),
         isGuest: row.isGuest.toString(),
         createdAt: toDisplayDateTime(row.createdAt),
@@ -191,7 +191,7 @@ export default function UserTable({
               title={t('admin:components.common.view')}
               onClick={() => PopoverState.showPopupover(<AddEditUserModal user={row} />)}
             >
-              <HiPencil className="text-theme-iconGreen" />
+              <HiPencil className="" />
             </Button>
             <Button
               variant="tertiary"
@@ -209,7 +209,7 @@ export default function UserTable({
                 )
               }}
             >
-              <HiTrash className="text-theme-iconRed" />
+              <HiTrash className="" />
             </Button>
           </div>
         )

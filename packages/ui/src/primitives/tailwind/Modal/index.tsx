@@ -57,9 +57,9 @@ export const ModalHeader = ({
   title?: string
   onClose?: (isHeader: boolean) => void
 }) => {
-  // sticky top-0 z-10 bg-theme-surface-main
+  // sticky top-0 z-10
   return (
-    <div className="relative flex items-center justify-center border-b border-b-theme-primary px-6 py-5">
+    <div className="relative flex items-center justify-center border-b px-6 py-5">
       {title && <Text data-testid="modal-title-text">{title}</Text>}
       <Button
         variant="tertiary"
@@ -96,7 +96,7 @@ export const ModalFooter = ({
 }) => {
   const { t } = useTranslation()
   return (
-    <div className="grid grid-flow-col border-t border-t-theme-primary px-6 py-5">
+    <div className="grid grid-flow-col border-t px-6 py-5">
       {showCloseButton && (
         <Button
           data-testid="modal-cancel-button"
@@ -138,7 +138,7 @@ const Modal = ({
   submitButtonDisabled,
   showCloseButton = true
 }: ModalProps) => {
-  const twClassName = twMerge('relative z-50 w-full bg-theme-surface-main', className)
+  const twClassName = twMerge('relative z-50 w-full ', className)
   return (
     <div data-test-id={id} className={twClassName}>
       <div className="relative rounded-lg shadow">
