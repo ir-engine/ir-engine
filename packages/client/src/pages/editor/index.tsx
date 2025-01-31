@@ -30,7 +30,6 @@ import '../../engine'
 
 import { RouterState } from '@ir-engine/client-core/src/common/services/RouterService'
 import Debug from '@ir-engine/client-core/src/components/Debug'
-import { PopupMenuInline } from '@ir-engine/client-core/src/user/components/UserMenu/PopupMenuInline'
 import { useFind } from '@ir-engine/common'
 import { ScopeType, scopePath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs'
@@ -48,7 +47,6 @@ export const EditorRouter = () => {
     <Suspense
       fallback={<LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingStudio')} />}
     >
-      <PopupMenuInline />
       <Routes>
         <Route path="*" element={<EditorPage />} />
       </Routes>

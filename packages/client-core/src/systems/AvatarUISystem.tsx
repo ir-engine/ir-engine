@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { CircleGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
 import multiLogger from '@ir-engine/common/src/logger'
@@ -33,38 +33,33 @@ import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { defineQuery, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
+import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { applyVideoToTexture } from '@ir-engine/engine/src/scene/functions/applyScreenshareToTexture'
-import { getMutableState, getState, none } from '@ir-engine/hyperflux'
-import { NetworkObjectComponent, NetworkObjectOwnedTag, NetworkState } from '@ir-engine/network'
+import { getState } from '@ir-engine/hyperflux'
+import { NetworkObjectComponent, NetworkState } from '@ir-engine/network'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
 import { easeOutElastic } from '@ir-engine/spatial/src/common/functions/MathFunctions'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
-import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { Physics, RaycastArgs } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@ir-engine/spatial/src/physics/functions/getInteractionGroups'
 import { SceneQueryType } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
-import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 
-import { EntityTreeComponent, Not } from '@ir-engine/ecs'
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { PeerMediaChannelState } from '../media/PeerMediaChannelState'
 import { XruiNameplateComponent } from '../social/components/XruiNameplateComponent'
-import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
-import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
-import { AvatarUIContextMenuState } from './ui/UserMenuView'
 
 const logger = multiLogger.child({ component: 'client-core:systems' })
 
@@ -105,19 +100,6 @@ let videoPreviewTimer = 0
 const applyingVideo = new Map()
 
 /** XRUI Clickaway */
-const onPrimaryClick = () => {
-  const state = getMutableState(AvatarUIContextMenuState)
-  if (state.id.value !== '') {
-    const layer = getComponent(state.ui.entity.value, XRUIComponent)
-    const pointerScreenRaycaster = getState(InputState).pointerScreenRaycaster
-    const hit = layer.hitTest(pointerScreenRaycaster.ray)
-    if (!hit) {
-      state.id.set('')
-      setVisibleComponent(state.ui.entity.value, false)
-    }
-  }
-}
-
 const interactionGroups = getInteractionGroups(CollisionGroups.Default, CollisionGroups.Avatars)
 const raycastComponentData = {
   type: SceneQueryType.Closest,
@@ -139,21 +121,17 @@ const onSecondaryClick = () => {
     pointerPosition,
     raycastComponentData
   )
-  const state = getMutableState(AvatarUIContextMenuState)
   if (hits.length) {
     const hit = hits[0]
     const hitEntity = hit.body.entity
     if (typeof hitEntity !== 'undefined' && hitEntity !== AvatarComponent.getSelfAvatarEntity()) {
       if (hasComponent(hitEntity, NetworkObjectComponent)) {
         const userId = getComponent(hitEntity, NetworkObjectComponent).ownerId
-        state.id.set(userId)
         // setVisibleComponent(state.ui.entity.value, true)
         return // successful hit
       }
     }
   }
-
-  state.id.set('')
 }
 
 const execute = () => {
@@ -165,7 +143,6 @@ const execute = () => {
   const buttons = InputComponent.getMergedButtons(viewerEntity)
 
   // const buttons = InputSourceComponent.getMergedButtons()
-  if (buttons.PrimaryClick?.down) onPrimaryClick()
   if (buttons.SecondaryClick?.down) onSecondaryClick()
 
   videoPreviewTimer += ecsState.deltaSeconds
@@ -279,33 +256,6 @@ const execute = () => {
     AvatarUI.delete(userEntity)
     AvatarUITransitions.delete(userEntity)
   }
-
-  const state = getState(AvatarUIContextMenuState)
-  if (state.id !== '') {
-    renderAvatarContextMenu(state.id as UserID, state.ui.entity)
-  }
-}
-
-const reactor = () => {
-  useEffect(() => {
-    getMutableState(PopupMenuState).menus.merge({
-      [AvatarMenus.AvatarContext]: AvatarContextMenu
-    })
-
-    return () => {
-      removeEntity(getState(AvatarUIContextMenuState).ui.entity)
-      getMutableState(PopupMenuState).menus[AvatarMenus.AvatarContext].set(none)
-    }
-  }, [])
-
-  return (
-    <>
-      <QueryReactor
-        Components={[AvatarComponent, TransformComponent, NetworkObjectComponent, Not(NetworkObjectOwnedTag)]}
-        ChildEntityReactor={AvatarInstanceReactor}
-      />
-    </>
-  )
 }
 
 const AvatarInstanceReactor = () => {
