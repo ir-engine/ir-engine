@@ -69,7 +69,7 @@ function GeneralTab() {
   const xrSupported = xrSupportedModes['immersive-ar'].value || xrSupportedModes['immersive-vr'].value
 
   return (
-    <div className="h-[328px] w-[684px]">
+    <div className="h-full w-full">
       {!isMobile && !xrSupported && (
         <>
           <div className="m-2 rounded-md bg-[#191B1F]">
@@ -97,7 +97,7 @@ function AudioTab() {
   console.log('debug1 the audiostate', audioState)
 
   return (
-    <div className="w-[594px]">
+    <div className="h-full w-full">
       {isChromeDesktop && (
         <div className="py-2 text-xs">
           {t('user:usermenu.setting.chromeAEC')}
@@ -243,7 +243,7 @@ function GraphicsTab() {
     logger.info({ event_name: `automatic_qp`, event_value: false })
   }
   return (
-    <div className="w-[620px]">
+    <div className="h-full w-full">
       <div className="mx-auto my-1 w-3/4">
         <Slider
           max={5}
@@ -357,7 +357,7 @@ export default function SettingsMenu() {
   const { t } = useTranslation()
 
   return (
-    <div className="pointer-events-auto rounded-[32px] bg-[#CDCDCD] p-6 text-[#616161]">
+    <div className="relative z-50 h-fit max-h-[60vh] min-h-[50vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-[#CDCDCD] p-10 text-[#616161]">
       <div className="mb-[17px]">
         <button onClick={() => PopoverState.hidePopupover()}>
           <ArrowLeftLg />
