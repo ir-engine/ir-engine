@@ -23,13 +23,25 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 import { SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
-import React, { useCallback, useState } from 'react'
-import { useDrop } from 'react-dnd'
+import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import React, { useCallback, useEffect } from 'react'
+import { DndProvider, useDrag, useDrop } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 import { HiMinus, HiPlus } from 'react-icons/hi'
 import { MdDragIndicator } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
+import { v4 as uuidv4 } from 'uuid'
 import Button from '../../../../primitives/tailwind/Button'
 import Input from '../../../../primitives/tailwind/Input'
+
+const ItemType = {
+  inputElement: 'inputElement'
+}
+
+interface InputElement {
+  uuid: string
+  value: string
+}
 
 export interface ArrayInputProps {
   name?: string
@@ -40,7 +52,7 @@ export interface ArrayInputProps {
   dropTypes?: string[]
   SelectIcon?: ({ className }: { className?: string }) => JSX.Element
   selectedIndex?: number
-  selected?: number
+  onReorder?: (index: number) => void
 }
 
 const DiscardableInput = ({
@@ -50,7 +62,10 @@ const DiscardableInput = ({
   onSelect,
   dropTypes,
   SelectIcon,
-  selected
+  selected,
+  inputElement,
+  moveInputElement,
+  findInputElement
 }: {
   value: string
   index: number
@@ -58,8 +73,42 @@ const DiscardableInput = ({
   onSelect?: (idx: number) => void
   SelectIcon?: ({ className }: { className?: string }) => JSX.Element
   selected?: boolean
+  inputElement: InputElement
+  moveInputElement: (inputElementUUID: string, atIndex: number) => void
+  findInputElement: (inputElementUUID: string) => {
+    inputElement: InputElement | undefined
+    index: number
+  }
 } & Pick<ArrayInputProps, 'dropTypes'>) => {
-  const [{ isDroppable }, dropRef] = useDrop(() => ({
+  const originalIndex = () => {
+    if (findInputElement) {
+      return findInputElement(value).index
+    } else {
+      return undefined
+    }
+  }
+  const [{ opacity }, dragSourceRef, previewRef] = useDrag({
+    type: ItemType.inputElement,
+    item: { uuid: inputElement?.uuid, index: originalIndex },
+    collect: (monitor) => ({
+      opacity: monitor.isDragging() ? 0 : 1
+    })
+  })
+
+  const [{ isDroppable: isInputElementDroppable }, inputElementDropRef] = useDrop(() => ({
+    accept: ItemType.inputElement,
+    hover({ uuid: draggedtrackUUID }: { uuid: string; index: number }) {
+      if (draggedtrackUUID !== inputElement.uuid) {
+        const { index: overIndex } = findInputElement(inputElement.uuid)
+        moveInputElement(draggedtrackUUID, overIndex)
+      }
+    },
+    collect: (monitor) => ({
+      isDroppable: monitor.canDrop() && monitor.isOver()
+    })
+  }))
+
+  const [{ isDroppable: isFileDroppable }, fileDropRef] = useDrop(() => ({
     accept: dropTypes ?? [...SupportedFileTypes],
     drop: (item: { url: string }) => {
       onChange(item.url, index)
@@ -70,12 +119,19 @@ const DiscardableInput = ({
   }))
 
   return (
-    <div className=" flex w-full px-0">
+    <div
+      className={twMerge(' flex w-full px-0', isInputElementDroppable && 'outline outline-2 outline-white')}
+      ref={(node) => {
+        inputElementDropRef(previewRef(node))
+      }}
+    >
       <div
-        ref={dropRef}
-        className={twMerge(' mb-2 flex w-full justify-end', isDroppable && 'outline outline-2 outline-white')}
+        ref={fileDropRef}
+        className={twMerge(' mb-2 flex w-full justify-end', isFileDroppable && 'outline outline-2 outline-white')}
       >
-        <MdDragIndicator className=" mr-[4px] h-[32px] w-[20px] text-[#9CA0AA]" />
+        <div ref={dragSourceRef} className=" mr-[4px] h-[32px] w-[20px] cursor-move text-2xl text-[#9CA0AA]">
+          <MdDragIndicator />
+        </div>
         <Input fullWidth={true} value={value} onChange={(event) => onChange(event.target.value, index)} />
         {SelectIcon && (
           <Button
@@ -106,26 +162,43 @@ export default function ArrayInputGroup({
   SelectIcon,
   onSelect,
   selectedIndex,
-  selected
+  onReorder
 }: ArrayInputProps) {
-  const [values, setValues] = useState(initialValues)
+  const buildInputElements = () => {
+    const returnArray = [] as InputElement[]
+    initialValues.forEach(function (val) {
+      returnArray.push({
+        uuid: uuidv4(),
+        value: val
+      })
+    })
+    return returnArray
+  }
+
+  const inputElements = useHookstate(buildInputElements() as InputElement[])
+
+  const buildValueArrayFromInputElements = (inputElements: InputElement[]) => {
+    const returnArray = [] as string[]
+    inputElements.forEach(function (inputElement) {
+      returnArray.push(inputElement.value)
+    })
+    return returnArray
+  }
 
   const handleChange = useCallback(
     (value: string, index: number, addRemove?: 'add' | 'remove') => {
-      setValues((prevValues) => {
-        let newValues
+      const prevValues = inputElements.get(NO_PROXY)
 
-        if (addRemove === 'add') {
-          newValues = [...prevValues, value]
-        } else if (addRemove === 'remove') {
-          newValues = prevValues.filter((_, idx) => idx !== index)
-        } else {
-          newValues = prevValues.map((v, idx) => (idx === index ? value : v))
-        }
+      let newValues = [] as InputElement[]
 
-        onChange(newValues)
-        return newValues
-      })
+      if (addRemove === 'add') {
+        newValues = [...prevValues, { uuid: uuidv4(), value: value }]
+      } else if (addRemove === 'remove') {
+        newValues = prevValues.filter((_, idx) => idx !== index)
+      } else {
+        newValues = prevValues.map((v, idx) => (idx === index ? { uuid: prevValues[idx].uuid, value: value } : v))
+      }
+      inputElements.set(newValues)
     },
     [onChange]
   )
@@ -146,6 +219,46 @@ export default function ArrayInputGroup({
     [handleChange]
   )
 
+  const addInputElement = () => {
+    const newValues = inputElements.get(NO_PROXY) as InputElement[]
+    newValues.push({
+      uuid: uuidv4(),
+      value: ''
+    })
+    inputElements.set(newValues)
+  }
+
+  const findInputElement = (inputElementUUID: string) => {
+    for (let i = 0; i < inputElements.length; i++) {
+      if (inputElements.value[i].uuid === inputElementUUID) {
+        return {
+          inputElement: inputElements.get(NO_PROXY)[i],
+          index: i
+        }
+      }
+    }
+    return {
+      inputElement: undefined,
+      index: -1
+    }
+  }
+
+  const moveInputElement = (inputElementUUID: string, atIndex: number) => {
+    const { inputElement, index } = findInputElement(inputElementUUID)
+    if (inputElement && index !== -1) {
+      const newinputElements = inputElements.get(NO_PROXY) as InputElement[]
+      newinputElements.splice(index, 1)
+      newinputElements.splice(atIndex, 0, inputElement)
+      inputElements.set(newinputElements)
+    }
+  }
+
+  const [, drop] = useDrop(() => ({ accept: ItemType.inputElement }))
+
+  useEffect(() => {
+    onChange(buildValueArrayFromInputElements(inputElements.value as InputElement[]))
+  }, [inputElements])
+
   return (
     <div ref={groupDropRef} aria-label={name} className={twMerge('w-full ', containerClassName)}>
       <div
@@ -153,28 +266,33 @@ export default function ArrayInputGroup({
           isGroupDroppable ? 'outline-white' : 'outline-transparent'
         }`}
       >
-        {values.length > 0 && (
-          <div className="flex grid w-full grid-cols-1 space-y-1 py-1.5 ">
-            {values.map((value, idx) => (
-              <DiscardableInput
-                key={value + idx}
-                value={value}
-                index={idx}
-                onChange={handleChange}
-                dropTypes={dropTypes}
-                SelectIcon={SelectIcon}
-                onSelect={onSelect}
-                selected={selectedIndex === idx}
-              />
-            ))}
-          </div>
+        {inputElements.length > 0 && (
+          <DndProvider backend={HTML5Backend} key="InputElementDropArea">
+            <div ref={drop} className="flex grid w-full grid-cols-1 space-y-1 py-1.5 ">
+              {inputElements.value.map((inputElement, idx) => (
+                <DiscardableInput
+                  key={inputElement.value + idx}
+                  value={inputElement.value}
+                  index={idx}
+                  onChange={handleChange}
+                  dropTypes={dropTypes}
+                  SelectIcon={SelectIcon}
+                  onSelect={onSelect}
+                  selected={selectedIndex === idx}
+                  inputElement={inputElement}
+                  moveInputElement={moveInputElement}
+                  findInputElement={findInputElement}
+                />
+              ))}
+            </div>
+          </DndProvider>
         )}
         <div className="my-[4px] flex w-full justify-end ">
-          {values.length > 0 && (
+          {inputElements.length > 0 && (
             <HiMinus
               className=" cursor-pointer rounded-md bg-[#42454D] px-[8px] py-[4px] text-white"
               size="32px"
-              onClick={() => handleChange('', values.length - 1, 'remove')}
+              onClick={() => handleChange('', inputElements.length - 1, 'remove')}
             />
           )}
           <HiPlus

@@ -62,6 +62,7 @@ const SegmentedControl = ({ options, onChange, value, layout }: SegmentedControl
             {options.length > 0 ? (
               options.map(({ value: currentValue, ...optionProps }, index) => (
                 <button
+                  key={index}
                   className={`!mx-0 !my-0 h-full flex-auto rounded-md p-[2px] text-[14px]
                     ${currentValue === localValue && 'bg-[#212226] text-[#F5F5F5]'} 
                     ${currentValue !== localValue && 'bg-[#191B1F] text-[#6B6F78]'}
