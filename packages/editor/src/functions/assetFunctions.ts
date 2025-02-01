@@ -122,7 +122,6 @@ export function sanitizeFiles(files: FileList | File[]): File[] {
         i18n.t('editor:errors.fileNotSupported', { file: file.name, errorMessage: errorMessage || '' }) as string,
         { variant: 'warning' }
       )
-      continue
     }
     newFiles.push(newFile)
   }
