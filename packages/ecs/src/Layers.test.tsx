@@ -32,6 +32,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import assert from 'assert'
 import {
   defineComponent,
   getComponent,
@@ -51,7 +52,6 @@ import { createEngine, destroyEngine } from './Engine'
 import { Entity, UndefinedEntity } from './Entity'
 import { entityExists } from './EntityFunctions'
 import { defineQuery } from './QueryFunctions'
-import assert from 'assert'
 
 const TestComponent = defineComponent({ name: 'SomeTestComponent' })
 

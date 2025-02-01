@@ -28,7 +28,7 @@ import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { createEntity, removeEntity } from '@ir-engine/ecs'
-import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
 import { UndefinedEntity } from '@ir-engine/ecs'
