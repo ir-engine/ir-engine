@@ -155,15 +155,14 @@ export const GLTFLoadSystem = defineSystem({
   uuid: 'ee.engine.gltf.GLTFLoadSystem',
   insert: { after: PresentationSystemGroup },
   reactor: () => {
-    const gltfSimulationEntities = useQuery([GLTFComponent])
+    const gltfSimulationEntities = useQuery([GLTFComponent]).filter((e) => !LayerComponent.hasUpstreamEntity(e))
     const gltfAuthoringEntities = useQuery([GLTFComponent], Layers.Authoring)
     const gltfEntities = [...gltfSimulationEntities, ...gltfAuthoringEntities]
     return (
       <>
-        {gltfEntities.map((entity) => {
-          if (LayerComponent.hasUpstreamEntity(entity)) return null
-          return <GLTFComponentReactor key={entity} entity={entity} />
-        })}
+        {gltfEntities.map((entity) => (
+          <GLTFComponentReactor key={entity} entity={entity} />
+        ))}
       </>
     )
   }

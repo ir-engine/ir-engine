@@ -51,6 +51,7 @@ import { createEngine, destroyEngine } from './Engine'
 import { Entity, UndefinedEntity } from './Entity'
 import { entityExists } from './EntityFunctions'
 import { defineQuery } from './QueryFunctions'
+import assert from 'assert'
 
 const TestComponent = defineComponent({ name: 'SomeTestComponent' })
 
@@ -64,8 +65,8 @@ describe('LayerFunctions', () => {
   })
 
   describe('getLayerRelationsEntities', () => {
-    it('should return an empty array if LayerFunctions.getLayerComponent(`@param entity`) is falsy', () => {
-      const Expected = []
+    it('should return undefined if LayerFunctions.getLayerComponent(`@param entity`) is falsy', () => {
+      const Expected = undefined
       // Set the data as expected
       const layer = Layers.Simulation
       const testEntity = createEntity(layer)
@@ -80,8 +81,8 @@ describe('LayerFunctions', () => {
       LayerComponents[layer] = backup
     })
 
-    it('should return an empty array if getOptionalComponent(`@param entity`, LayerFunctions.getLayerComponent(`@param entity`)) is falsy', () => {
-      const Expected = []
+    it('should return undefined if getOptionalComponent(`@param entity`, LayerFunctions.getLayerComponent(`@param entity`)) is falsy', () => {
+      const Expected = undefined
       // Set the data as expected
       const layer = Layers.Simulation
       const testEntity = createEntity(layer)
@@ -99,6 +100,7 @@ describe('LayerFunctions', () => {
       const testEntity = createEntity(Layers.Authoring)
       // Run and Check the result
       const result = LayerFunctions.getLayerRelationsEntities(testEntity)
+      assert(result)
       expect(Array.isArray(result)).toBeTruthy()
       expect(Array.isArray(result[0])).toBeTruthy()
       expect(Object.values(Layers).includes(result[0][0] as LayerID)).toBeTruthy()
@@ -109,6 +111,7 @@ describe('LayerFunctions', () => {
       const testEntity = createEntity(Layers.Authoring)
       // Run and Check the result
       const result = LayerFunctions.getLayerRelationsEntities(testEntity)
+      assert(result)
       expect(Array.isArray(result)).toBeTruthy()
       expect(Array.isArray(result[0])).toBeTruthy()
       expect(entityExists(result[0][1])).toBeTruthy()
@@ -119,6 +122,7 @@ describe('LayerFunctions', () => {
       const testEntity = createEntity(Layers.Authoring)
       // Run and Check the result
       const result = LayerFunctions.getLayerRelationsEntities(testEntity)
+      assert(result)
       expect(Array.isArray(result)).toBeTruthy()
       expect(result.length).toBe(1)
       expect(result[0][0]).toBe(Layers.Simulation)
@@ -250,9 +254,10 @@ describe('LayerFunctions', () => {
         const component = TestComponent as any
         // Sanity check before running
         const linkedLayer = LayerFunctions.getLayerRelationsEntities(testEntity)?.[0]?.[0]
+        assert.equal(linkedLayer, undefined)
         expect(component).not.toBe(LayerComponent)
         expect(LayerComponents.includes(component)).toBeFalsy()
-        expect(LayerFunctions.shouldPropagate(entityLayer, linkedLayer)).toBeFalsy()
+        expect(LayerFunctions.shouldPropagate(entityLayer, linkedLayer!)).toBeFalsy()
         expect(resultSpy).not.toHaveBeenCalled()
         // Run and Check the result
         LayerFunctions.propagateLayer(testEntity, component)
@@ -285,7 +290,7 @@ describe('LayerFunctions', () => {
         const linkedLayer = Layers.Simulation
         const testEntity = createEntity(entityLayer)
         const component = TestComponent as any
-        const linkedEntity = LayerFunctions.getLayerRelationsEntities(testEntity)[0][1]
+        const linkedEntity = LayerFunctions.getLayerRelationsEntities(testEntity)![0][1]
         setComponent(testEntity, component)
         const resultSpy = vi.spyOn(LayerFunctions, 'createLayerPropagationArgs')
         removeComponent(linkedEntity, component) // Remove the component that was already propagated
@@ -392,7 +397,7 @@ describe('removeComponent', () => {
       setComponent(testEntity, component)
       const list = [] as Entity[]
       const relationLayer = LayerFunctions.getLayerRelationsEntities(testEntity)?.[0]?.[0] as LayerID
-      for (const relation of LayerFunctions.getLayerRelationsEntities(testEntity)) list.push(relation[1])
+      for (const relation of LayerFunctions.getLayerRelationsEntities(testEntity)!) list.push(relation[1])
       // Sanity check before running
       expect(LayerFunctions.shouldPropagate(entityLayer, relationLayer)).toBeFalsy()
       expect(list.length).toBe(0)
@@ -409,8 +414,8 @@ describe('removeComponent', () => {
       const testEntity = createEntity(entityLayer)
       setComponent(testEntity, component)
       const list = [] as Entity[]
-      const relationLayer = LayerFunctions.getLayerRelationsEntities(testEntity)[0][0] as LayerID
-      for (const relation of LayerFunctions.getLayerRelationsEntities(testEntity)) list.push(relation[1])
+      const relationLayer = LayerFunctions.getLayerRelationsEntities(testEntity)![0][0] as LayerID
+      for (const relation of LayerFunctions.getLayerRelationsEntities(testEntity)!) list.push(relation[1])
       // Sanity check before running
       expect(LayerFunctions.shouldPropagate(entityLayer, relationLayer)).toBeTruthy()
       for (const linkedEntity of list) expect(hasComponent(linkedEntity, component)).toBeTruthy()
@@ -536,7 +541,7 @@ describe('LayerComponents', () => {
             const before2 = allEntities().length
             expect(before2).toBe(1)
             // Run and Check the result
-            LayerComponents[layer].onSet(testEntity, {} as any)
+            setComponent(testEntity, LayerComponents[layer])
             const result = allEntities().length
             expect(result).toBe(2)
           })
@@ -551,7 +556,7 @@ describe('LayerComponents', () => {
             expect(LayerFunctions.getLayerRelationsTypes(layer)[0][1]).toBe(LayerRelationTypes.Propagate)
             expect(allEntities().length).toBe(1)
             // Run and Check the result
-            LayerComponents[layer].onSet(testEntity, {} as any)
+            setComponent(testEntity, LayerComponents[layer])
             const linkedLayer = LayerFunctions.getLayerRelationsTypes(layer)[0][0]
             const linkedEntity = allEntities().at(-1)!
             const result = getComponent(testEntity, LayerComponents[layer]).relations[linkedLayer]
@@ -569,7 +574,7 @@ describe('LayerComponents', () => {
             expect(LayerFunctions.getLayerRelationsTypes(layer)[0][1]).toBe(LayerRelationTypes.Propagate)
             expect(allEntities().length).toBe(1)
             // Run and Check the result
-            LayerComponents[layer].onSet(testEntity, {} as any)
+            setComponent(testEntity, LayerComponents[layer])
             const linkedLayer = LayerFunctions.getLayerRelationsTypes(layer)[0][0]
             const linkedEntity = allEntities().at(-1)!
             const result = LayerComponents[linkedLayer].refs[linkedEntity]
