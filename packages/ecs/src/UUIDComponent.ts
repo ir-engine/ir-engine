@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { NO_PROXY_STEALTH, State, hookstate, useHookstate } from '@ir-engine/hyperflux'
+import { NO_PROXY_STEALTH, State, destroy, hookstate, useHookstate } from '@ir-engine/hyperflux'
 import { v4 as uuidv4 } from 'uuid'
 import { LayerComponent, LayerID, Layers, defineComponent, setComponent } from './ComponentFunctions'
 import { Entity, EntityUUID, UndefinedEntity } from './Entity'
@@ -65,7 +65,8 @@ export const UUIDComponent = defineComponent({
     // remove old uuid
     if (prev) {
       const currentUUID = prev
-      UUIDComponentFunctions._getUUIDState(currentUUID, layer).set(UndefinedEntity)
+      destroy(UUIDComponent.entitiesByUUIDState[layer][currentUUID])
+      delete UUIDComponent.entitiesByUUIDState[layer][currentUUID]
     }
 
     // set new uuid
@@ -77,7 +78,8 @@ export const UUIDComponent = defineComponent({
   onRemove: (entity, component) => {
     const uuid = component.value
     const layer = LayerComponent.get(entity)
-    UUIDComponentFunctions._getUUIDState(uuid, layer).set(UndefinedEntity)
+    destroy(UUIDComponent.entitiesByUUIDState[layer][uuid])
+    delete UUIDComponent.entitiesByUUIDState[layer][uuid]
   },
 
   entitiesByUUIDState: {} as Record<LayerID, Record<EntityUUID, State<Entity>>>,

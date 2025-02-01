@@ -116,7 +116,8 @@ describe('UUIDComponent', () => {
       // Run and Check the result
       removeComponent(testEntity, UUIDComponent)
       expect(resultSpy).toHaveBeenCalled()
-      expect(resultSpy).toHaveBeenCalledTimes(2)
+      expect(resultSpy).toHaveBeenCalledTimes(1)
+      expect(UUIDComponent.entitiesByUUIDState[layer][uuid]).toBeUndefined()
       const result = UUIDComponentFunctions._getUUIDState(uuid, layer).get()
       expect(result).not.toBe(testEntity)
       expect(result).toBe(Expected)

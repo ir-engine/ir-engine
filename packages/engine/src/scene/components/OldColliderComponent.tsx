@@ -36,6 +36,7 @@ import {
   removeComponent,
   setComponent,
   useComponent,
+  useHasComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
@@ -55,7 +56,7 @@ import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/Objec
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
-import { GLTFLoadedComponent } from './GLTFLoadedComponent'
+import { SourceComponent } from './SourceComponent'
 
 /** @deprecated - use the new API */
 export const OldColliderComponent = defineComponent({
@@ -152,7 +153,7 @@ export const OldColliderComponent = defineComponent({
 
     const transformComponent = useComponent(entity, TransformComponent)
     const colliderComponent = useComponent(entity, OldColliderComponent)
-    const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
+    const isLoadedFromGLTF = useHasComponent(entity, SourceComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)
     const [tree] = useChildrenWithComponents(entity, [MeshComponent])
 
@@ -161,7 +162,7 @@ export const OldColliderComponent = defineComponent({
 
       const isMeshCollider = [ShapeType.TriMesh, ShapeType.ConvexPolyhedron].includes(colliderComponent.shapeType.value)
 
-      if (isLoadedFromGLTF?.value || isMeshCollider) {
+      if (isLoadedFromGLTF || isMeshCollider) {
         const colliderComponent = getComponent(entity, OldColliderComponent)
 
         iterateEntityNode(entity, computeTransformMatrix)

@@ -68,6 +68,7 @@ export const NameComponent = defineComponent({
     getState(NameComponentState).entitiesByName[name].delete(entity)
   },
 
+  /** @deprecated - will be removed in the future */
   getEntitiesByName: (name: string) => {
     return [...getState(NameComponentState).entitiesByName[name]]
   }

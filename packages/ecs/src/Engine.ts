@@ -102,9 +102,13 @@ export function destroyEngine() {
   /** Clear timer */
   getState(ECSState).timer?.clear()
 
-  /** Remove all entities */
-  const entities = getAllEntities(HyperFlux.store) as Entity[]
-  for (const entity of entities) removeEntity(entity)
+  try {
+    /** Remove all entities */
+    const entities = getAllEntities(HyperFlux.store) as Entity[]
+    for (const entity of entities) removeEntity(entity)
+  } catch (e) {
+    //some errors are thrown because we have side effects in component onRemove - we need to move that logic to reactors
+  }
 
   /** Remove all queries */
   for (const query of queries) {

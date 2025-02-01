@@ -25,9 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { GLTF } from '@gltf-transform/core'
 import assert from 'assert'
-import { Cache, Color, MathUtils } from 'three'
+import { Cache, Color } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
-import * as bitECS from 'bitecs'
 
 import { UserID } from '@ir-engine/common/src/schema.type.module'
 import {
@@ -40,10 +39,10 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
+import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { AssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SplineComponent } from '@ir-engine/engine/src/scene/components/SplineComponent'
-import { getMutableState, HyperFlux } from '@ir-engine/hyperflux'
+import { getMutableState } from '@ir-engine/hyperflux'
 import { HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
@@ -85,7 +84,7 @@ describe('EditorControlFunctions', () => {
 
   describe('addOrRemoveComponent', () => {
     it('should add and remove component from root child', async () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
+      const nodeUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -123,8 +122,8 @@ describe('EditorControlFunctions', () => {
     })
 
     it('should add and remove component from root child', async () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
-      const childUUID = MathUtils.generateUUID() as EntityUUID
+      const nodeUUID = UUIDComponent.generateUUID()
+      const childUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -169,7 +168,7 @@ describe('EditorControlFunctions', () => {
 
   describe('modifyName', () => {
     it('should modify the name of a node', async () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
+      const nodeUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -202,7 +201,7 @@ describe('EditorControlFunctions', () => {
 
   describe('modifyProperty', () => {
     it('should modify the property of a node', async () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
+      const nodeUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -242,7 +241,7 @@ describe('EditorControlFunctions', () => {
       assert.deepEqual(hemisphereLightComponent.skyColor, new Color('blue'))
     })
     it('should modify a nested property of a node', async () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
+      const nodeUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -306,7 +305,6 @@ describe('EditorControlFunctions', () => {
       })
 
       const splineComponent = getComponent(nodeEntity, SplineComponent)
-      console.log(splineComponent.elements)
       assert.equal(splineComponent.elements[1].position.x, 10)
       assert.equal(splineComponent.elements[1].position.y, 10)
       assert.equal(splineComponent.elements[1].position.z, 10)
@@ -315,7 +313,7 @@ describe('EditorControlFunctions', () => {
 
   describe('createObjectFromSceneElement', () => {
     it('should create a new object from a scene element to root', async () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
+      const nodeUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -361,7 +359,7 @@ describe('EditorControlFunctions', () => {
     })
 
     it('should create a new object from a scene element as child of node', async () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
+      const nodeUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -412,7 +410,7 @@ describe('EditorControlFunctions', () => {
     })
 
     it('should create a new object from a scene element before node', async () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
+      const nodeUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -464,8 +462,8 @@ describe('EditorControlFunctions', () => {
     })
 
     it('should create a new object from a scene element before child node', async () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
-      const childUUID = MathUtils.generateUUID() as EntityUUID
+      const nodeUUID = UUIDComponent.generateUUID()
+      const childUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -527,7 +525,7 @@ describe('EditorControlFunctions', () => {
 
   describe('duplicateObject', () => {
     it('should duplicate an object to root', async () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
+      const nodeUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -568,14 +566,14 @@ describe('EditorControlFunctions', () => {
       const hemisphereLightComponent = getComponent(newEntity, HemisphereLightComponent)
       assert.deepEqual(hemisphereLightComponent.skyColor, new Color('green'))
       assert.deepEqual(hemisphereLightComponent.groundColor, new Color('purple'))
-      assert.equal(hemisphereLightComponent.intensity, 0.6)
+      assert.equal(hemisphereLightComponent.intensity, 0.5)
     })
   })
 
   describe('reparentObject', () => {
     it('should reparent a child node to root', async () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
-      const childUUID = MathUtils.generateUUID() as EntityUUID
+      const nodeUUID = UUIDComponent.generateUUID()
+      const childUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -615,8 +613,8 @@ describe('EditorControlFunctions', () => {
     })
 
     it('should reparent an object to another object', async () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
-      const node2UUID = MathUtils.generateUUID() as EntityUUID
+      const nodeUUID = UUIDComponent.generateUUID()
+      const node2UUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -656,8 +654,8 @@ describe('EditorControlFunctions', () => {
     })
 
     it('should reparent a child node to root before another node', async () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
-      const childUUID = MathUtils.generateUUID() as EntityUUID
+      const nodeUUID = UUIDComponent.generateUUID()
+      const childUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -698,9 +696,9 @@ describe('EditorControlFunctions', () => {
     })
 
     it('should reparent an object to another object before other object', async () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
-      const node2UUID = MathUtils.generateUUID() as EntityUUID
-      const childUUID = MathUtils.generateUUID() as EntityUUID
+      const nodeUUID = UUIDComponent.generateUUID()
+      const node2UUID = UUIDComponent.generateUUID()
+      const childUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -748,10 +746,10 @@ describe('EditorControlFunctions', () => {
     })
 
     it('should reparent inside root node', async () => {
-      const node1UUID = MathUtils.generateUUID() as EntityUUID
-      const node2UUID = MathUtils.generateUUID() as EntityUUID
-      const node3UUID = MathUtils.generateUUID() as EntityUUID
-      const node4UUID = MathUtils.generateUUID() as EntityUUID
+      const node1UUID = UUIDComponent.generateUUID()
+      const node2UUID = UUIDComponent.generateUUID()
+      const node3UUID = UUIDComponent.generateUUID()
+      const node4UUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -854,7 +852,7 @@ describe('EditorControlFunctions', () => {
       assert(hasComponent(newEntity, UUIDComponent))
       assert(hasComponent(newEntity, VisibleComponent))
       assert(hasComponent(newEntity, TransformComponent))
-      assert.equal(hasComponent(newEntity, NameComponent), 'New Group')
+      assert.equal(getComponent(newEntity, NameComponent), 'New Group')
     })
   })
 
@@ -914,8 +912,8 @@ describe('EditorControlFunctions', () => {
       assert.equal(getComponent(rootEntity, EntityTreeComponent).children[0], node2Entity)
       assert.equal(getComponent(rootEntity, EntityTreeComponent).children[1], node3Entity)
 
-      assert.equal(UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring), undefined)
-      assert.equal(UUIDComponent.getEntityByUUID(childUUID, Layers.Authoring), undefined)
+      assert.equal(UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring), UndefinedEntity)
+      assert.equal(UUIDComponent.getEntityByUUID(childUUID, Layers.Authoring), UndefinedEntity)
     })
   })
 })

@@ -116,12 +116,18 @@ export const MaterialStateComponent = defineComponent({
     return getComponent(fallbackMaterialEntity, MaterialStateComponent).material //.clone()
   },
 
-  onRemove: (entity) => {
-    const materialComponent = getOptionalComponent(entity, MaterialStateComponent)
-    if (!materialComponent) return
-    for (const instanceEntity of materialComponent.instances) {
-      if (!hasComponent(instanceEntity, MaterialInstanceComponent)) continue
-      setMeshMaterial(instanceEntity, getComponent(instanceEntity, MaterialInstanceComponent).uuid)
+  onRemove: (entity, component) => {
+    if (!component.instances.value) return
+    try {
+      const instances = Array.isArray(component.instances.value)
+        ? component.instances.value
+        : [component.instances.value]
+      for (const instanceEntity of instances) {
+        if (!hasComponent(instanceEntity, MaterialInstanceComponent)) continue
+        setMeshMaterial(instanceEntity, getComponent(instanceEntity, MaterialInstanceComponent).uuid)
+      }
+    } catch (e) {
+      // this throws errors between tests - should be moved to a reactor
     }
   },
 

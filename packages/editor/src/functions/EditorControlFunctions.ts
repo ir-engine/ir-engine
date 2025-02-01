@@ -33,21 +33,23 @@ import {
   generateEntityUUID,
   getAncestorWithComponents,
   getChildrenWithComponents,
-  removeEntity,
-  SetComponentType,
+  removeEntityNodeRecursively,
   UUIDComponent
 } from '@ir-engine/ecs'
 import {
   Component,
   componentJsonDefaults,
   ComponentJSONIDMap,
+  deserializeComponent,
   getComponent,
   hasComponent,
+  LayerComponent,
   Layers,
   removeComponent,
   serializeComponent,
   SerializedComponentType,
-  setComponent
+  setComponent,
+  SetComponentType
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
@@ -259,14 +261,14 @@ const createObjectFromSceneElement = (
       ...componentJsonDefaults(TransformComponent),
       ...extensions[TransformComponent.jsonID]
     }
-    setComponent(entity, TransformComponent, { ...comp })
+    deserializeComponent(entity, TransformComponent, { ...comp })
   }
 
   setComponent(entity, EntityTreeComponent, { parentEntity })
 
   for (const [key, value] of Object.entries(extensions)) {
     if (key === TransformComponent.jsonID) continue
-    setComponent(entity, ComponentJSONIDMap.get(key)!, value)
+    deserializeComponent(entity, ComponentJSONIDMap.get(key)!, value)
   }
 
   EditorState.markModifiedScene(gltfEntity)
@@ -281,22 +283,22 @@ const duplicateObject = (entities: Entity[]) => {
   const rootEntities = findRootAncestors(entities)
   const uuidMap = {} as { [entityUUID: EntityUUID]: EntityUUID }
 
-  const duplicateEntity = (entity: Entity, parentEntity: Entity) => {
+  const duplicateEntity = (entity: Entity) => {
+    const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
     const entityUUID = getComponent(entity, UUIDComponent)
     const parentUUID = getComponent(parentEntity, UUIDComponent)
-    const entityData = serializeEntity(entity)
+    const entityData = serializeEntity(entity).filter((c) => c.name !== UUIDComponent.jsonID)
     const newUUID = generateEntityUUID()
-    entityData.splice(
-      entityData.indexOf((c) => c.name === UUIDComponent.jsonID),
-      1
-    )
+    const layer = LayerComponent.get(entity)
     const originalSource = getComponent(entity, SourceComponent)
-    const newEntity = createEntity()
+    const newEntity = createEntity(layer)
+    const name = getComponent(entity, NameComponent)
     setComponent(newEntity, VisibleComponent)
+    setComponent(newEntity, NameComponent, name)
     setComponent(newEntity, UUIDComponent, newUUID)
     setComponent(newEntity, SourceComponent, originalSource)
     for (const component of entityData) {
-      setComponent(newEntity, ComponentJSONIDMap.get(component.name)!, component.props)
+      deserializeComponent(newEntity, ComponentJSONIDMap.get(component.name)!, component.props)
     }
     const newParentUUID = uuidMap[parentUUID]
     const newParentEntity = UUIDComponent.getEntityByUUID(newParentUUID, Layers.Authoring)
@@ -305,19 +307,16 @@ const duplicateObject = (entities: Entity[]) => {
 
     const children = getComponent(entity, EntityTreeComponent).children
     for (const childEntity of children) {
-      duplicateEntity(childEntity, newEntity)
+      duplicateEntity(childEntity)
     }
   }
 
   for (const rootEntity of rootEntities) {
     if (hasComponent(rootEntity, SceneComponent)) continue
-    const rootUUID = getComponent(rootEntity, UUIDComponent)
-    const { parentEntity, children } = getComponent(rootEntity, EntityTreeComponent)
+    const { parentEntity } = getComponent(rootEntity, EntityTreeComponent)
     const rootParentUUID = getComponent(parentEntity, UUIDComponent)
-    uuidMap[rootUUID] = rootParentUUID
-    for (const childEntity of children) {
-      duplicateEntity(childEntity, rootEntity)
-    }
+    uuidMap[rootParentUUID] = rootParentUUID
+    duplicateEntity(rootEntity)
     EditorState.markModifiedScene(rootEntity)
   }
 }
@@ -480,7 +479,8 @@ const groupObjects = (entities: Entity[]) => {
   const firstEntity = entities[0]
   if (hasComponent(firstEntity, SceneComponent)) return
   const parentEntity = getComponent(firstEntity, EntityTreeComponent).parentEntity
-  const newParent = createEntity()
+  const layer = LayerComponent.get(firstEntity)
+  const newParent = createEntity(layer)
   setComponent(newParent, UUIDComponent, generateEntityUUID())
   setComponent(newParent, NameComponent, 'New Group')
   setComponent(newParent, EntityTreeComponent, { parentEntity })
@@ -503,7 +503,7 @@ const removeObject = (entities: Entity[]) => {
 
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
-    removeEntity(entity)
+    removeEntityNodeRecursively(entity)
     EditorState.markModifiedScene(entity)
   }
 }

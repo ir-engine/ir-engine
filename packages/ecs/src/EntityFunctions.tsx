@@ -29,13 +29,28 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { HyperFlux } from '@ir-engine/hyperflux'
 
-import { removeAllComponents } from './ComponentFunctions'
+import { LayerComponent, LayerComponents, LayerFunctions, removeComponent } from './ComponentFunctions'
 import { Entity, EntityUUID, UndefinedEntity } from './Entity'
 
 export const removeEntity = (entity: Entity) => {
   if (!entity || !entityExists(entity)) return ///throw new Error(`[removeEntity]: Entity ${entity} does not exist in the world`)
 
-  removeAllComponents(entity)
+  const relations = LayerFunctions.getLayerRelationsEntities(entity)
+  const entityLayer = LayerComponent.get(entity)
+  if (relations) {
+    for (const [layer, linkedEntity] of relations) {
+      if (!LayerFunctions.shouldPropagate(entityLayer, layer)) continue
+      removeEntity(linkedEntity)
+    }
+  }
+
+  for (const component of bitECS.getEntityComponents(HyperFlux.store, entity)) {
+    if (component === LayerComponent || LayerComponents.includes(component)) continue
+    removeComponent(entity, component)
+  }
+
+  // always ensure layer component is removed last (it removes the specific layer component too)
+  removeComponent(entity, LayerComponent)
 
   bitECS.removeEntity(HyperFlux.store, entity)
 }

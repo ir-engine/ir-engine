@@ -798,8 +798,8 @@ export const removeComponent = <C extends Component>(entity: Entity, component: 
     }
   }
 
-  component.onRemove(entity, component.stateMap[entity]!)
   bitECS.removeComponent(HyperFlux.store, entity, component)
+  component.onRemove(entity, component.stateMap[entity]!)
   const root = component.reactorMap.get(entity)
   component.reactorMap.delete(entity)
   if (root?.isRunning) root.stop()
