@@ -383,7 +383,7 @@ export default function Resources() {
   const { resourcesLoading, staticResourcesPagination, refetchResources } = useAssetsQuery()
 
   return (
-    <div id="asset-panel" className="relative flex h-full w-full flex-col overflow-auto">
+    <div id="asset-panel" className="relative flex h-full w-full flex-col overflow-auto bg-surface-1">
       <InfiniteScroll
         disableEvent={staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || resourcesLoading}
         onScrollBottom={() => {

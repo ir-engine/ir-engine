@@ -74,7 +74,7 @@ function ScenesPanel() {
   }
 
   return (
-    <div className="h-full bg-[#0E0F11]">
+    <div className="h-full bg-surface-1">
       <div className="mb-4 h-8 w-full overflow-hidden bg-[#212226]">
         <Button
           disabled={isCreatingScene.value}
@@ -88,7 +88,7 @@ function ScenesPanel() {
           {isCreatingScene.value && <LoadingView spinnerOnly className="h-4 w-4" />}
         </Button>
       </div>
-      <div className="h-full bg-[#0E0F11]">
+      <div className="h-full bg-surface-1">
         {scenesLoading ? (
           <LoadingView title={t('editor:loadingScenes')} fullSpace className="block h-12 w-12" />
         ) : (

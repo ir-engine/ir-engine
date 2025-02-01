@@ -101,7 +101,7 @@ export function VerticalDivider({
       }}
     >
       {leftChildren}
-      <div className="flex w-5 cursor-pointer items-center" data-testid="assets-panel-vertical-divider">
+      <div className="flex w-5 cursor-pointer items-center bg-surface-1" data-testid="assets-panel-vertical-divider">
         <HiDotsVertical
           onMouseDown={(event) => {
             event?.preventDefault()
