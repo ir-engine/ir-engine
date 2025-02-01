@@ -230,9 +230,10 @@ export default function ArrayInputGroup({
 
   const findInputElement = (inputElementUUID: string) => {
     for (let i = 0; i < inputElements.length; i++) {
-      if (inputElements.value[i].uuid === inputElementUUID) {
+      const ie = inputElements.get(NO_PROXY)[i]
+      if (ie.uuid === inputElementUUID) {
         return {
-          inputElement: inputElements.get(NO_PROXY)[i],
+          inputElement: ie,
           index: i
         }
       }
@@ -256,7 +257,7 @@ export default function ArrayInputGroup({
   const [, drop] = useDrop(() => ({ accept: ItemType.inputElement }))
 
   useEffect(() => {
-    onChange(buildValueArrayFromInputElements(inputElements.value as InputElement[]))
+    onChange(buildValueArrayFromInputElements(inputElements.get(NO_PROXY) as InputElement[]))
   }, [inputElements])
 
   return (
