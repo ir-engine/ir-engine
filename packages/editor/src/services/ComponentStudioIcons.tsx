@@ -36,34 +36,22 @@ import {
   PointLightComponent,
   SpotLightComponent
 } from '@ir-engine/spatial'
-
-import {
-  DirectionalLightStudioIcon,
-  EnvMapBakeStudioIcon,
-  HemisphereLightStudioIcon,
-  MediaStudioIcon,
-  MountPointStudioIcon,
-  PointLightStudioIcon,
-  PortalStudioIcon,
-  PositionalAudioStudioIcon,
-  ScenePreviewCameraStudioIcon,
-  SpotLightStudioIcon
-} from '@ir-engine/ui/src/icons'
+import IREngineLogo from '/root/ir-engine/PoweredByIR.png'
 
 export const ComponentStudioIconState = defineState({
   name: 'ee.editor.ComponentStudioIconState',
   initial: () => {
     return {
-      [DirectionalLightComponent.name]: DirectionalLightStudioIcon,
-      [EnvMapBakeComponent.name]: EnvMapBakeStudioIcon,
-      [MediaComponent.name]: MediaStudioIcon,
-      [HemisphereLightComponent.name]: HemisphereLightStudioIcon,
-      [MountPointComponent.name]: MountPointStudioIcon,
-      [PointLightComponent.name]: PointLightStudioIcon,
-      [PositionalAudioComponent.name]: PositionalAudioStudioIcon,
-      [PortalComponent.name]: PortalStudioIcon,
-      [ScenePreviewCameraComponent.name]: ScenePreviewCameraStudioIcon,
-      [SpotLightComponent.name]: SpotLightStudioIcon
+      [DirectionalLightComponent.name]: IREngineLogo, // point to texture files
+      [EnvMapBakeComponent.name]: IREngineLogo,
+      [MediaComponent.name]: IREngineLogo,
+      [HemisphereLightComponent.name]: IREngineLogo,
+      [MountPointComponent.name]: IREngineLogo,
+      [PointLightComponent.name]: IREngineLogo,
+      [PositionalAudioComponent.name]: IREngineLogo,
+      [PortalComponent.name]: IREngineLogo,
+      [ScenePreviewCameraComponent.name]: IREngineLogo,
+      [SpotLightComponent.name]: IREngineLogo
     } as Record<string, any>
   }
 })

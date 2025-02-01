@@ -35,12 +35,15 @@ import { getMutableState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { createHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { BoxGeometry, Mesh } from 'three'
+import { Sprite, SpriteMaterial, TextureLoader } from 'three'
 import { ComponentStudioIconState } from '../services/ComponentStudioIcons'
 import { SelectionState } from '../services/SelectionServices'
 
-//const circleGeometry = new CircleGeometry(0.5, 64)
-const circleGeometry = new BoxGeometry(1, 1, 1)
+const createIconGizmo = (textureURL) => {
+  const texture = new TextureLoader().load(textureURL)
+  const material = new SpriteMaterial({ map: texture })
+  return new Sprite(material)
+}
 
 const reactor = () => {
   const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities)
@@ -62,7 +65,6 @@ const reactor = () => {
   }, [selectedEntities])
 
   useEffect(() => {
-    console.log('DEBUG: helper query ', helperQuery)
     for (const entity of helperQuery) {
       //find the top most component
       //set icon helper accordingly
@@ -80,7 +82,7 @@ const reactor = () => {
 
       const iconHelperState = createHelperEntity(
         entity,
-        () => new Mesh(circleGeometry),
+        () => createIconGizmo(componentStudioIcon[targetComponent?.name]),
         ObjectLayerMasks.NodeHelper,
         'icon-helper'
       )
