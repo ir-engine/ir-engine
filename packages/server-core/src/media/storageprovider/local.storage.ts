@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import appRootPath from 'app-root-path'
-import { ChildProcess } from 'child_process'
 import fs from 'fs'
 import fsStore from 'fs-blob-store'
 import glob from 'glob'
@@ -90,33 +89,51 @@ export class LocalStorage implements StorageProviderInterface {
       kill(8642, 'tcp')
         .catch(() => {})
         .finally(() => {
-          const child: ChildProcess = require('child_process').spawn(
-            'npx',
-            [
-              'http-server',
-              `${this.PATH_PREFIX}`,
-              '--ssl',
-              '--cert',
-              `${config.server.certPath}`,
-              '--key',
-              `${config.server.keyPath}`,
-              '--port',
-              '8642',
-              '--cors=*',
-              '--brotli',
-              '--gzip',
-              '-a',
-              '::'
-            ],
-            {
-              cwd: process.cwd(),
-              stdio: 'inherit',
-              detached: true
+          const express = require('express')
+          const app = express()
+
+          // Handle URL encoding for special characters
+          app.use((req, res, next) => {
+            try {
+              req.url = decodeURIComponent(req.url)
+            } catch (e) {
+              console.log('Error decoding URL:', e)
             }
-          )
-          process.on('exit', async () => {
-            process.kill(-child.pid!, 'SIGINT')
+            next()
           })
+
+          // Direct static file serving from projects/projects
+          app.use(
+            '/projects',
+            express.static(path.join(appRootPath.path, 'packages/projects/projects'), {
+              dotfiles: 'allow',
+              index: false,
+              setHeaders: (res) => {
+                res.set('Access-Control-Allow-Origin', '*')
+              }
+            })
+          )
+
+          // Serve upload directory
+          app.use(
+            express.static(this.PATH_PREFIX, {
+              dotfiles: 'allow',
+              setHeaders: (res) => {
+                res.set('Access-Control-Allow-Origin', '*')
+              }
+            })
+          )
+
+          const https = require('https')
+          const server = https.createServer(
+            {
+              cert: fs.readFileSync(config.server.certPath),
+              key: fs.readFileSync(config.server.keyPath)
+            },
+            app
+          )
+
+          server.listen(8642, '::')
         })
     }
     this.getOriginURLs().then((result) => (this.originURLs = result))
@@ -160,6 +177,9 @@ export class LocalStorage implements StorageProviderInterface {
     if (!fs.existsSync(filePath)) return { Contents: [] }
     // glob all files and directories
     let globResult = glob.sync(path.join(filePath, '**'), {
+      // "**" means you search on the whole folder
+      cwd: path.dirname(filePath), // folder path
+      absolute: true, // you have to set glob to return absolute path not only file names
       dot: true
     })
     globResult = globResult.filter(
