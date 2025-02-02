@@ -95,25 +95,25 @@ function BreadcrumbItems() {
   breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx >= nestedIndex)
 
   return (
-    <div className="flex h-6 w-96 items-center gap-2 rounded-lg border border-[#42454D] bg-[#141619] px-2">
-      <FolderSm className="text-sm text-[#A3A3A3]" />
+    <div className="flex h-6 w-96 items-center gap-2 px-2">
+      <FolderSm className="text-sm text-text-primary" />
       {breadcrumbDirectoryFiles.map((file, index, arr) => (
         <Fragment key={index}>
-          {index !== 0 && <span className="cursor-default items-center text-sm text-[#A3A3A3]"> {'>'} </span>}
+          {index !== 0 && <span className="cursor-default items-center text-sm text-text-secondary"> {'>'} </span>}
           {index === arr.length - 1 ? (
             <span
-              className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3] hover:underline"
+              className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-text-secondary hover:underline"
               data-testid={'files-panel-breadcrumb-current-directory'}
             >
               {file}
             </span>
           ) : (
             <a
-              className="hover: focus: inline-flex cursor-pointer items-center overflow-hidden text-sm text-[#A3A3A3] hover:underline"
+              className="hover: focus: inline-flex cursor-pointer items-center overflow-hidden text-sm text-text-secondary hover:underline"
               onClick={() => handleBreadcrumbDirectoryClick(file)}
               data-testid={`files-panel-breadcrumb-nested-level-${index}`}
             >
-              <span className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3] hover:underline">
+              <span className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-text-secondary hover:underline">
                 {file}
               </span>
             </a>
@@ -212,135 +212,133 @@ export default function FilesToolbar() {
   const { backDirectory, refreshDirectory, createNewFolder } = useCurrentFiles()
 
   return (
-    <>
-      <div className="mb-1 flex h-8 items-center gap-2 bg-[#191B1F] py-1">
-        <div className="ml-2" />
-        {showBackButton && (
-          <div>
-            <Tooltip content={t('editor:layout.filebrowser.back')}>
-              <StudioButton
-                size="sm"
-                variant="tertiary"
-                data-testid="files-panel-back-directory-button"
-                onClick={backDirectory}
-                rounded
-              >
-                <ArrowLeftSm />
-              </StudioButton>
-            </Tooltip>
-          </div>
-        )}
-
+    <div className="flex h-8 items-center gap-2 bg-surface-4 py-1">
+      <div className="ml-2" />
+      {showBackButton && (
         <div>
-          <Tooltip content={t('editor:layout.filebrowser.refresh')}>
+          <Tooltip content={t('editor:layout.filebrowser.back')}>
             <StudioButton
               size="sm"
               variant="tertiary"
-              data-testid="files-panel-refresh-directory-button"
-              onClick={refreshDirectory}
+              data-testid="files-panel-back-directory-button"
+              onClick={backDirectory}
+              rounded
             >
-              <Refresh1Sm />
+              <ArrowLeftSm />
             </StudioButton>
           </Tooltip>
         </div>
+      )}
 
-        <ViewModeSettings />
-        <div className="ml-10 flex h-7 items-center gap-2 rounded bg-[#2F3137] p-2">
-          <FaList
-            className={twMerge(
-              'h-5 w-5 cursor-pointer text-[#9CA0AA]',
-              filesViewMode.value === 'list' && 'cursor-auto text-[#F5F5F5]'
-            )}
-            onClick={() => filesViewMode.set('list')}
-          />
-          <Grid01Sm
-            className={twMerge(
-              'h-5 w-5 cursor-pointer text-[#9CA0AA]',
-              filesViewMode.value === 'icons' && 'cursor-auto text-[#F5F5F5]'
-            )}
-            onClick={() => filesViewMode.set('icons')}
-          />
-        </div>
-
-        <div className="align-center flex h-6 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
-          <BreadcrumbItems />
-          <Input
-            placeholder={t('editor:layout.filebrowser.search-placeholder')}
-            value={filesState.searchText.value}
-            onChange={(e) => {
-              filesState.searchText.set(e.target.value)
-            }}
-            height="xs"
-            startComponent={<SearchSmSm className="h-[14px] w-[14px] text-[#9CA0AA]" />}
-            data-testid="files-panel-search-input"
-          />
-        </div>
-
-        <div id="downloadProject">
-          <Tooltip
-            content={
-              showDownloadButtons
-                ? t('editor:layout.filebrowser.downloadProject')
-                : t('editor:layout.filebrowser.downloadProjectUnavailable')
-            }
-          >
-            <StudioButton
-              size="sm"
-              variant="tertiary"
-              onClick={() => handleDownloadProject(filesState.projectName.value, filesState.selectedDirectory.value)}
-              data-testid="files-panel-download-project-button"
-            >
-              <Download01Sm />
-            </StudioButton>
-          </Tooltip>
-        </div>
-
-        <div className="w-fit">
+      <div>
+        <Tooltip content={t('editor:layout.filebrowser.refresh')}>
           <StudioButton
-            size="l"
+            size="sm"
             variant="tertiary"
-            disabled={!showUploadButtons}
-            onClick={() =>
-              inputFileWithAddToScene({
-                projectName: filesState.projectName.value,
-                directoryPath: filesState.selectedDirectory.get(NO_PROXY).slice(1)
-              })
-                .then(() => refreshDirectory())
-                .catch((err) => {
-                  NotificationService.dispatchNotify(err.message, { variant: 'error' })
-                })
-            }
-            data-testid="files-panel-upload-files-button"
-            className="disabled:bg-[#212226]"
+            data-testid="files-panel-refresh-directory-button"
+            onClick={refreshDirectory}
           >
-            <FolderSm />
-            <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFiles')}</span>
+            <Refresh1Sm />
           </StudioButton>
-        </div>
-        <div className="w-fit">
-          <StudioButton
-            size="l"
-            disabled={!showUploadButtons}
-            variant="tertiary"
-            className="disabled:bg-[#212226]"
-            onClick={() =>
-              inputFileWithAddToScene({
-                projectName: filesState.projectName.value,
-                directoryPath: filesState.selectedDirectory.get(NO_PROXY).slice(1),
-                preserveDirectory: true
-              })
-                .then(refreshDirectory)
-                .catch((err) => {
-                  NotificationService.dispatchNotify(err.message, { variant: 'error' })
-                })
-            }
-            data-testid="files-panel-upload-folder-button"
-          >
-            <PlusCircleSm />
-            <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFolder')}</span>
-          </StudioButton>
-        </div>
+        </Tooltip>
       </div>
-    </>
+
+      <ViewModeSettings />
+      <div className="ml-10 flex h-7 items-center gap-2 rounded p-2">
+        <FaList
+          className={twMerge(
+            'h-5 w-5 cursor-pointer text-[#9CA0AA]',
+            filesViewMode.value === 'list' && 'cursor-auto text-[#F5F5F5]'
+          )}
+          onClick={() => filesViewMode.set('list')}
+        />
+        <Grid01Sm
+          className={twMerge(
+            'h-5 w-5 cursor-pointer text-[#9CA0AA]',
+            filesViewMode.value === 'icons' && 'cursor-auto text-[#F5F5F5]'
+          )}
+          onClick={() => filesViewMode.set('icons')}
+        />
+      </div>
+
+      <div className="align-center flex h-6 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
+        <BreadcrumbItems />
+        <Input
+          placeholder={t('editor:layout.filebrowser.search-placeholder')}
+          value={filesState.searchText.value}
+          onChange={(e) => {
+            filesState.searchText.set(e.target.value)
+          }}
+          height="xs"
+          startComponent={<SearchSmSm className="h-[14px] w-[14px] text-text-secondary" />}
+          data-testid="files-panel-search-input"
+        />
+      </div>
+
+      <div id="downloadProject">
+        <Tooltip
+          content={
+            showDownloadButtons
+              ? t('editor:layout.filebrowser.downloadProject')
+              : t('editor:layout.filebrowser.downloadProjectUnavailable')
+          }
+        >
+          <StudioButton
+            size="sm"
+            variant="tertiary"
+            onClick={() => handleDownloadProject(filesState.projectName.value, filesState.selectedDirectory.value)}
+            data-testid="files-panel-download-project-button"
+          >
+            <Download01Sm />
+          </StudioButton>
+        </Tooltip>
+      </div>
+
+      <div className="w-fit">
+        <StudioButton
+          size="l"
+          variant="tertiary"
+          disabled={!showUploadButtons}
+          onClick={() =>
+            inputFileWithAddToScene({
+              projectName: filesState.projectName.value,
+              directoryPath: filesState.selectedDirectory.get(NO_PROXY).slice(1)
+            })
+              .then(() => refreshDirectory())
+              .catch((err) => {
+                NotificationService.dispatchNotify(err.message, { variant: 'error' })
+              })
+          }
+          data-testid="files-panel-upload-files-button"
+          className="disabled:bg-[#212226]"
+        >
+          <FolderSm />
+          <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFiles')}</span>
+        </StudioButton>
+      </div>
+      <div className="w-fit">
+        <StudioButton
+          size="l"
+          disabled={!showUploadButtons}
+          variant="tertiary"
+          className="disabled:bg-[#212226]"
+          onClick={() =>
+            inputFileWithAddToScene({
+              projectName: filesState.projectName.value,
+              directoryPath: filesState.selectedDirectory.get(NO_PROXY).slice(1),
+              preserveDirectory: true
+            })
+              .then(refreshDirectory)
+              .catch((err) => {
+                NotificationService.dispatchNotify(err.message, { variant: 'error' })
+              })
+          }
+          data-testid="files-panel-upload-folder-button"
+        >
+          <PlusCircleSm />
+          <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFolder')}</span>
+        </StudioButton>
+      </div>
+    </div>
   )
 }

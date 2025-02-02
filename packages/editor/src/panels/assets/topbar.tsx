@@ -103,14 +103,14 @@ export function AssetsBreadcrumbs() {
 
   return (
     <div
-      className="flex h-6 w-96 items-center gap-2 rounded-lg border border-[#42454D] bg-[#141619] px-2"
+      className="flex h-6 w-96 items-center gap-2 rounded-lg bg-surface-4 px-2"
       data-testid="assets-panel-breadcrumbs"
     >
-      <FolderSm onClick={() => handleSelectParentCategory(0)} className="cursor-pointer text-xs text-[#42454D]" />
+      <FolderSm onClick={() => handleSelectParentCategory(0)} className="cursor-pointer text-xs text-text-secondary" />
       {parentCategories.map((category, idx) => (
         <span
           key={category.name.value}
-          className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3]"
+          className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-text-secondary"
           data-testid={`assets-panel-breadcrumb-nested-level-${idx}`}
           onClick={() => handleSelectParentCategory(idx)}
         >
@@ -120,7 +120,7 @@ export function AssetsBreadcrumbs() {
       ))}
       {currentCategory && (
         <span
-          className="overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3]"
+          className="overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-text-secondary"
           data-testid="assets-panel-breadcrumb-current-category"
         >
           {currentCategory.name.value}
@@ -152,7 +152,7 @@ export default function Topbar() {
   }, [search.query])
 
   return (
-    <div className="mb-1 flex h-8 items-center gap-2 bg-[#191B1F] py-1" data-testid="assets-panel-top-bar">
+    <div className="flex h-8 items-center gap-2 bg-surface-4 py-1" data-testid="assets-panel-top-bar">
       <div className="ml-2" />
       <div>
         <Tooltip content={t('editor:layout.filebrowser.back')}>
@@ -175,7 +175,7 @@ export default function Topbar() {
           inputProps={{
             placeholder: t('editor:layout.scene-assets.search-placeholder'),
             height: 'xs',
-            startComponent: <SearchSmSm className="h-3.5 w-3.5 text-[#A3A3A3]" />
+            startComponent: <SearchSmSm className="h-3.5 w-3.5" />
           }}
           search={search}
         />

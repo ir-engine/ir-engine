@@ -158,8 +158,12 @@ const Input = (
             autoComplete={autoComplete}
             {...props}
           />
-          {startComponent && <div className="order-1 flex items-center justify-center ">{startComponent}</div>}
-          {endComponent && <div className="order-3 flex items-center justify-center ">{endComponent}</div>}
+          {startComponent && (
+            <div className="order-1 flex items-center justify-center text-text-tertiary">{startComponent}</div>
+          )}
+          {endComponent && (
+            <div className="order-3 flex items-center justify-center text-text-tertiary">{endComponent}</div>
+          )}
         </div>
       </div>
 

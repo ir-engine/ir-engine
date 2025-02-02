@@ -142,13 +142,13 @@ const PropertiesEditor = () => {
   const uuid = lockedNode.value ? lockedNode.value : selectedEntities[selectedEntities.length - 1]
 
   return (
-    <div className="flex h-full flex-col gap-0.5 overflow-y-auto bg-[#0E0F11]">
+    <div className="flex h-full flex-col gap-0.5 overflow-y-auto bg-surface-1">
       {materialUUID ? (
         <MaterialEditor materialUUID={materialUUID} />
       ) : uuid ? (
         <NodeEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
       ) : (
-        <div className="flex h-full items-center justify-center text-gray-500">
+        <div className="flex h-full items-center justify-center text-text-secondary">
           {t('editor:properties.noNodeSelected')}
         </div>
       )}
