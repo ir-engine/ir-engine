@@ -33,7 +33,7 @@ import Scrubber from '../../layout/Scrubber'
 import NumericInput from '../Numeric'
 
 interface Vector3ScrubberProps {
-  axis: 'x' | 'y' | 'z' | string
+  axis?: 'x' | 'y' | 'z' | string
   value: number
   onChange: (v: number) => void
   onRelease?: (v: number) => void
@@ -56,7 +56,7 @@ export const Vector3Scrubber = ({ axis, disabled, onChange, onRelease, value, ..
   })()
 
   props.className = twMerge(`w-fit whitespace-nowrap text-${color}`)
-  const content = `${axis.toUpperCase()} - `
+  const content = `${axis?.toUpperCase()} - `
   return (
     <Scrubber onChange={onChange} onRelease={onRelease} value={value} disabled={disabled} {...props}>
       {content}
