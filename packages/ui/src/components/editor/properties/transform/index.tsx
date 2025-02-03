@@ -111,9 +111,8 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
         label={t('editor:properties.lbl-dynamicLoad')}
         labelClassName="font-normal text-[#6B6D78]"
         className="flex w-auto flex-row-reverse flex-nowrap items-center gap-1"
-        containerClassName="mb-4"
       >
-        <Checkbox checked={hasDynamicLoad} onChange={onChangeDynamicLoad} className="mr-2" />
+        <Checkbox checked={hasDynamicLoad} onChange={onChangeDynamicLoad} />
         {hasDynamicLoad && (
           <NumericInput
             min={1}

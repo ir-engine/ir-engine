@@ -26,7 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect, useId, useRef, useState } from 'react'
 import { LuInfo } from 'react-icons/lu'
 import { twMerge } from 'tailwind-merge'
+import Label from '../../../primitives/tailwind/Label'
 import Tooltip from '../../../primitives/tailwind/Tooltip'
+import NumericInput from '../input/Numeric'
 
 export interface SliderProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   value: number
@@ -61,15 +63,8 @@ const Slider = ({
   const parentRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(0)
 
-  const handleInputChange = (value: string) => {
-    const fractionLength = step.toString().split('.')[1]?.length || 0
-    let newValue = parseFloat(value)
-    if (isNaN(newValue)) {
-      newValue = min
-    } else {
-      newValue = Math.min(Math.max(newValue, min), max)
-    }
-    onChange?.(+newValue.toFixed(fractionLength))
+  const handleInputChange = (value: number) => {
+    onChange?.(value)
   }
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,48 +83,65 @@ const Slider = ({
   }, [])
 
   return (
-    <div ref={parentRef} className="group/editor-slider flex flex-nowrap items-center gap-2" {...props}>
-      {label && (
-        <label className="mr-2 text-sm text-[#B2B5BD] group-hover/editor-slider:text-[#D3D5D9]" htmlFor={id}>
-          {label}
-        </label>
-      )}
-      {info && (
-        <Tooltip content={info}>
-          <LuInfo className={twMerge('h-5 w-5', 'text-[#A0A1A2]')} />
-        </Tooltip>
-      )}
-      <input
-        id={id}
-        min={min}
-        max={max}
-        value={value}
-        onChange={(event) => handleInputChange(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.key === 'ArrowUp') {
-            handleInputChange(value + step + '')
-          } else if (event.key === 'ArrowDown') {
-            handleInputChange(value - step + '')
-          }
-        }}
-        onBlur={() => onRelease?.(value)}
-        className="m-0 h-8 w-14 rounded bg-[#141619] text-center text-sm font-normal leading-[21px] text-[#9CA0AA] group-hover/editor-slider:bg-[#191B1F] group-hover/editor-slider:text-[#F5F5F5]"
-        data-testid="slider-text-value-input"
-      />
-      <input
-        id={'slider' + id}
-        min={min}
-        max={max}
-        value={value}
-        onChange={handleChange}
-        onPointerUp={() => onRelease?.(value)}
-        step={step}
-        type="range"
-        style={{
-          width: width + 'px',
-          background: `linear-gradient(to right, #375DAF ${gradientPercent}%, #191B1F ${gradientPercent}%)`
-        }}
-        className="h-8 min-w-20 cursor-pointer appearance-none overflow-hidden rounded bg-[#191B1F] focus:outline-none
+    <div ref={parentRef} className="group/editor-slider grid w-full grid-cols-1 gap-y-2 py-1.5 pl-8 pr-3.5" {...props}>
+      <div className="flex w-full justify-between">
+        <Label>{label}</Label>
+        {info && (
+          <Tooltip content={info}>
+            <LuInfo className={twMerge('h-5 w-5 text-text-inactive hover:text-text-primary')} />
+          </Tooltip>
+        )}
+      </div>
+
+      <div className="flex w-full items-center justify-between gap-x-2">
+        {/* <input
+          id={id}
+          min={min}
+          max={max}
+          value={value}
+          onChange={(event) => handleInputChange(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'ArrowUp') {
+              handleInputChange(value + step + '')
+            } else if (event.key === 'ArrowDown') {
+              handleInputChange(value - step + '')
+            }
+          }}
+          onBlur={() => onRelease?.(value)}
+          className="m-0 h-8 w-14 rounded bg-[#141619] text-center text-sm font-normal leading-[21px] text-[#9CA0AA] group-hover/editor-slider:bg-[#191B1F] group-hover/editor-slider:text-[#F5F5F5]"
+          data-testid="slider-text-value-input"
+        /> */}
+
+        <NumericInput
+          min={min}
+          max={max}
+          value={value}
+          className="w-14"
+          onChange={(event) => handleInputChange(event)}
+          onKeyDown={(event) => {
+            if (event.key === 'ArrowUp') {
+              handleInputChange(value + step)
+            } else if (event.key === 'ArrowDown') {
+              handleInputChange(value - step)
+            }
+          }}
+          onBlur={() => onRelease?.(value)}
+        />
+
+        <input
+          id={'slider' + id}
+          min={min}
+          max={max}
+          value={value}
+          onChange={handleChange}
+          onPointerUp={() => onRelease?.(value)}
+          step={step}
+          type="range"
+          style={{
+            width: width + 'px',
+            background: `linear-gradient(to right, #375DAF ${gradientPercent}%, #191B1F ${gradientPercent}%)`
+          }}
+          className="h-8 w-full min-w-20 cursor-pointer appearance-none overflow-hidden rounded bg-[#191B1F] focus:outline-none
           disabled:pointer-events-none disabled:opacity-50
           [&::-moz-range-progress]:bg-[#375DAF]
           [&::-moz-range-thumb]:h-full
@@ -158,8 +170,9 @@ const Slider = ({
           [&::-webkit-slider-thumb]:ease-in-out
           group-hover/editor-slider:[&::-webkit-slider-thumb]:bg-[#AFBEDF]
         "
-        data-testid="slider-draggable-value-input"
-      />
+          data-testid="slider-draggable-value-input"
+        />
+      </div>
     </div>
   )
 }

@@ -67,7 +67,7 @@ export const EulerInput = (props: EulerInputProps) => {
   }
 
   return (
-    <div className="flex flex-wrap justify-end gap-1.5">
+    <div className="grid w-full grid-cols-3 gap-x-2">
       <NumericInput
         value={angle.x}
         onChange={onSetEuler('x')}

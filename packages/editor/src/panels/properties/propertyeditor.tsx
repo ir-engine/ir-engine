@@ -89,19 +89,14 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
 
   return (
     <>
-      <div className="flex w-full justify-end " id="add-component-popover">
+      <div className="flex w-full justify-end bg-surface-3 p-1" id="add-component-popover">
         <Popup
           keepInside
           position={'left center'}
           open={isAddComponentMenuOpen}
           onClose={() => setIsAddComponentMenuOpen(false)}
           trigger={
-            <Button
-              variant="secondary"
-              className="ml-auto w-40 bg-[#212226] px-2"
-              size="sm"
-              onClick={() => setIsAddComponentMenuOpen(true)}
-            >
+            <Button size="sm" onClick={() => setIsAddComponentMenuOpen(true)}>
               <PlusCircleSm />
               {t('editor:properties.lbl-addComponent')}
             </Button>

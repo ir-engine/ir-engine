@@ -125,24 +125,16 @@ export function InputGroup({
   dataTestId
 }: InputGroupProps) {
   return (
-    <div className={twMerge('my-1 flex flex-wrap items-center justify-end', containerClassName)}>
-      <div className="mr-2 flex">
-        <Label
-          className={twMerge(
-            'mr-2.5 text-wrap text-end text-xs ',
-            labelClassName,
-            disabled ? 'text-[#6B6F78]' : 'text-[#A0A1A2]'
-          )}
-        >
-          {label}
-        </Label>
+    <div className={twMerge('flex w-full flex-col gap-y-2 py-1.5 pl-8 pr-3.5', containerClassName)}>
+      <div className="flex w-full justify-between">
+        <Label>{label}</Label>
         {info && (
           <Tooltip content={info}>
-            <LuInfo className={twMerge('h-5 w-5', disabled ? 'text-[#42454D]' : 'text-[#A0A1A2]', infoClassName)} />
+            <LuInfo className={twMerge('h-5 w-5 text-text-inactive hover:text-text-primary', infoClassName)} />
           </Tooltip>
         )}
       </div>
-      <div className={twMerge('w-3/5', className)} data-testid={dataTestId || ''}>
+      <div className={twMerge('w-full', className)} data-testid={dataTestId || ''}>
         {children}
       </div>
     </div>

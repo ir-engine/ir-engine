@@ -79,39 +79,42 @@ export default function ComponentDropdown({
   }
 
   return (
-    <div
-      className={twMerge('group/component-dropdown w-full rounded bg-surface-3 p-2', isMinimized.value && 'h-10')}
-      tabIndex={0}
-    >
-      <div className="flex cursor-pointer items-center" onClick={toggleMinimized}>
-        <Tooltip content={isMinimized.value ? 'maximize' : 'minimize'}>
-          <button
-            className="my-1 text-text-secondary"
-            // title={isMinimized.value ? 'maximize' : 'minimize'}
-            onClick={toggleMinimized}
-          >
-            {isMinimized.value ? (
-              <HiOutlineChevronRight className="h-4 w-4" />
-            ) : (
-              <HiOutlineChevronDown className="h-4 w-4" />
-            )}
-          </button>
-        </Tooltip>
+    <div className={twMerge('group/component-dropdown w-full bg-surface-3 ', isMinimized.value && 'h-10')} tabIndex={0}>
+      <div className="grid w-full cursor-pointer grid-cols-1 items-center p-2" onClick={toggleMinimized}>
+        <div className="col-span-1 flex w-full items-center">
+          <Tooltip content={isMinimized.value ? 'maximize' : 'minimize'}>
+            <button
+              className="my-1 text-text-secondary"
+              // title={isMinimized.value ? 'maximize' : 'minimize'}
+              onClick={toggleMinimized}
+            >
+              {isMinimized.value ? (
+                <HiOutlineChevronRight className="h-4 w-4" />
+              ) : (
+                <HiOutlineChevronDown className="h-4 w-4" />
+              )}
+            </button>
+          </Tooltip>
 
-        <button className="ml-2 text-text-secondary group-hover/component-dropdown:text-text-primary group-focus/component-dropdown:text-text-primary">
-          <Icon className="h-5 w-5" />
-        </button>
-        <span className="ml-1 text-sm leading-6 text-text-secondary group-hover/component-dropdown:text-text-primary group-focus/component-dropdown:text-text-primary">
-          {name}
-        </span>
-        {onClose && (
-          <button className="ml-auto text-text-inactive" onClick={onClose}>
-            <HiMiniXMark className="h-4 w-4" />
+          <button className="ml-2 text-text-secondary group-hover/component-dropdown:text-text-primary group-focus/component-dropdown:text-text-primary">
+            <Icon className="h-5 w-5" />
           </button>
+          <span className="ml-1 text-sm leading-6 text-text-secondary group-hover/component-dropdown:text-text-primary group-focus/component-dropdown:text-text-primary">
+            {name}
+          </span>
+          {onClose && (
+            <button className="ml-auto text-text-inactive" onClick={onClose}>
+              <HiMiniXMark className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        {!isMinimized.value && (
+          <div className="col-span-1 ml-6 mt-2 w-full text-start text-xs text-text-secondary">{description}</div>
         )}
       </div>
-      {!isMinimized.value && <div className="text-center text-xs text-text-secondary">{description}</div>}
-      <div className={twMerge('mt-4', isMinimized.value && 'hidden')}>{children}</div>
+
+      <div className={isMinimized.value ? 'hidden' : ''}>{children}</div>
     </div>
   )
 }
