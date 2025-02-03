@@ -63,7 +63,6 @@ import {
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '../components/TransformComponent'
-import { generateMeshBVH } from './bvhWorkerPool'
 
 declare module 'three-mesh-bvh' {
   export interface MeshBVHHelper {
@@ -173,10 +172,10 @@ const MeshBVHReactor = () => {
   useEffect(() => {
     const abortController = new AbortController()
     if (ValidMeshForBVH(mesh)) {
-      generateMeshBVH(mesh!, abortController.signal, { indirect: true }).then(() => {
-        if (abortController.signal.aborted) return
-        hasMeshBVH.set(true)
-      })
+      // generateMeshBVH(mesh!, abortController.signal, { indirect: true }).then(() => {
+      //   if (abortController.signal.aborted) return
+      //   hasMeshBVH.set(true)
+      // })
     }
     return () => {
       hasMeshBVH.set(false)

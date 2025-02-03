@@ -42,7 +42,7 @@
     "i18next": "21.6.16",
     "lodash": "4.17.21",
     "potpack": "^2.0.0",
-    "postprocessing": "6.34.1",
+    "postprocessing": "6.36.6",
     "rc-dock": "3.2.18",
     "react": "18.2.0",
     "react-dnd": "16.0.1",
@@ -61,7 +61,7 @@
     "@types/node": "18.15.5",
     "@types/react": "18.2.0",
     "@types/react-dom": "18.2.0",
-    "@types/three": "0.158.0",
+    "@types/three": "0.173.0",
     "@types/uuid": "^9.0.1",
     "rimraf": "4.4.0",
     "trace-unhandled": "2.0.1"

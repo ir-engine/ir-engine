@@ -38,7 +38,7 @@ import {
   Vector3
 } from 'three'
 
-import { createEntity, removeEntity } from '@ir-engine/ecs'
+import { createEntity } from '@ir-engine/ecs'
 import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
@@ -47,7 +47,7 @@ import { EntityTreeComponent } from '@ir-engine/ecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { NameComponent } from '../../common/NameComponent'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
-import { addOBCPlugin, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
+import { removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -383,43 +383,34 @@ export class CSM {
   }
 
   setupMaterial(mesh: Mesh): void {
-    const material = mesh.material as Material
-    if (!material.userData) material.userData = {}
-    const materials = this.materials
-    if (material.userData.IGNORE_CSM) return
-    if (materials.has(material)) return
-    materials.add(material)
-    material.defines = material.defines || {}
-    material.defines.USE_CSM = 1
-    material.defines.CSM_CASCADES = this.cascades
-
-    if (this.fade) material.defines.CSM_FADE = ''
-
-    const shaders = this.shaders
-
-    shaders.delete(material)
-
-    material.userData.CSMPlugin = {
-      id: 'CSM' + Math.random(),
-      compile: (shader: ShaderType) => {
-        // if (shaders.has(material)) return
-
-        const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
-        const far = Math.min(camera.far, this.maxFar)
-        const near = Math.min(this.maxFar, camera.near)
-
-        if (!shader.uniforms.CSM_cascades) shader.uniforms.CSM_cascades = { value: [] }
-        this.getExtendedBreaks(shader.uniforms.CSM_cascades.value)
-
-        shader.uniforms.cameraNear = { value: near }
-        shader.uniforms.shadowFar = { value: far }
-
-        shaders.set(material, shader)
-        this.needsUpdate = true
-      }
-    }
-
-    addOBCPlugin(material, material.userData.CSMPlugin)
+    // const material = mesh.material as Material
+    // if (!material.userData) material.userData = {}
+    // const materials = this.materials
+    // if (material.userData.IGNORE_CSM) return
+    // if (materials.has(material)) return
+    // materials.add(material)
+    // material.defines = material.defines || {}
+    // material.defines.USE_CSM = 1
+    // material.defines.CSM_CASCADES = this.cascades
+    // if (this.fade) material.defines.CSM_FADE = ''
+    // const shaders = this.shaders
+    // shaders.delete(material)
+    // material.userData.CSMPlugin = {
+    //   id: 'CSM' + Math.random(),
+    //   compile: (shader: ShaderType) => {
+    //     // if (shaders.has(material)) return
+    //     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    //     const far = Math.min(camera.far, this.maxFar)
+    //     const near = Math.min(this.maxFar, camera.near)
+    //     if (!shader.uniforms.CSM_cascades) shader.uniforms.CSM_cascades = { value: [] }
+    //     this.getExtendedBreaks(shader.uniforms.CSM_cascades.value)
+    //     shader.uniforms.cameraNear = { value: near }
+    //     shader.uniforms.shadowFar = { value: far }
+    //     shaders.set(material, shader)
+    //     this.needsUpdate = true
+    //   }
+    // }
+    // addOBCPlugin(material, material.userData.CSMPlugin)
   }
 
   teardownMaterial(material: Material): void {
@@ -480,30 +471,30 @@ export class CSM {
   }
 
   updateFrustums(): void {
-    this.getBreaks()
-    this.initCascades()
-    this.updateShadowBounds()
-    this.updateUniforms()
+    // this.getBreaks()
+    // this.initCascades()
+    // this.updateShadowBounds()
+    // this.updateUniforms()
   }
 
   remove(): void {
-    this.lightEntities.forEach((entity) => {
-      removeEntity(entity)
-    })
-    this.lights.forEach((light) => {
-      light.dispose()
-    })
-    this.lightEntities = []
-    this.lights = []
+    // this.lightEntities.forEach((entity) => {
+    //   removeEntity(entity)
+    // })
+    // this.lights.forEach((light) => {
+    //   light.dispose()
+    // })
+    // this.lightEntities = []
+    // this.lights = []
   }
 
   dispose(): void {
-    this.materials.forEach((material: Material) => {
-      this.teardownMaterial(material)
-    })
-    this.materials.clear()
-    this.shaders.clear()
-    this.remove()
-    this.removeInclude()
+    // this.materials.forEach((material: Material) => {
+    //   this.teardownMaterial(material)
+    // })
+    // this.materials.clear()
+    // this.shaders.clear()
+    // this.remove()
+    // this.removeInclude()
   }
 }

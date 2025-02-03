@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { Fragment, useEffect } from 'react'
-import { ColorSpace, DisplayP3ColorSpace, LinearSRGBColorSpace, SRGBColorSpace, Texture, Vector2 } from 'three'
+import { ColorSpace, LinearSRGBColorSpace, SRGBColorSpace, Texture, Vector2 } from 'three'
 
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
@@ -38,7 +38,8 @@ import InputGroup from '../Group'
 import SelectInput from '../Select'
 import { StringInputProps } from '../String'
 import { Vector2Input } from '../Vector2'
-
+/**@todo just a test */
+const DisplayP3ColorSpace = 'display-p3'
 /**
  * VideoInput used to render component view for video inputs.
  */

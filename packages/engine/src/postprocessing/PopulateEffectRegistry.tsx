@@ -41,16 +41,14 @@ import { lut1DAddToEffectRegistry } from './LUT1DEffect'
 import { lut3DAddToEffectRegistry } from './LUT3DEffect'
 import { lensDistortionAddToEffectRegistry } from './LensDistortionEffect'
 import { linearTosRGBAddToEffectRegistry } from './LinearTosRGBEffect'
-import { motionBlurAddToEffectRegistry } from './MotionBlurEffect'
+//import { motionBlurAddToEffectRegistry } from './MotionBlurEffect'
 import { noiseAddToEffectRegistry } from './NoiseEffect'
 import { pixelationAddToEffectRegistry } from './PixelationEffect'
 import { smaaAddToEffectRegistry } from './SMAAEffect'
 import { ssaoAddToEffectRegistry } from './SSAOEffect'
-import { ssgiAddToEffectRegistry } from './SSGIEffect'
-import { ssrAddToEffectRegistry } from './SSREffect'
+//import { ssgiAddToEffectRegistry } from './SSGIEffect'
 import { scanlineAddToEffectRegistry } from './ScanlineEffect'
 import { shockWaveAddToEffectRegistry } from './ShockWaveEffect'
-import { traaAddToEffectRegistry } from './TRAAEffect'
 import { textureAddToEffectRegistry } from './TextureEffect'
 import { tiltShiftAddToEffectRegistry } from './TiltShiftEffect'
 import { toneMappingAddToEffectRegistry } from './ToneMappingEffect'
@@ -74,19 +72,19 @@ export const populateEffectRegistry = () => {
   linearTosRGBAddToEffectRegistry()
   lut1DAddToEffectRegistry()
   lut3DAddToEffectRegistry()
-  motionBlurAddToEffectRegistry()
+  //motionBlurAddToEffectRegistry()
   noiseAddToEffectRegistry()
   pixelationAddToEffectRegistry()
   scanlineAddToEffectRegistry()
   shockWaveAddToEffectRegistry()
   smaaAddToEffectRegistry()
   ssaoAddToEffectRegistry()
-  ssrAddToEffectRegistry()
-  ssgiAddToEffectRegistry()
+  //ssrAddToEffectRegistry()
+  //ssgiAddToEffectRegistry()
   textureAddToEffectRegistry()
   tiltShiftAddToEffectRegistry()
   toneMappingAddToEffectRegistry()
-  traaAddToEffectRegistry()
+  //traaAddToEffectRegistry()
   vignetteAddToEffectRegistry()
 }
 

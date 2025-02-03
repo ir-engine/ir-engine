@@ -29,7 +29,6 @@ import {
   ArrayCamera,
   Color,
   CubeTexture,
-  FogBase,
   Object3D,
   Scene,
   SRGBColorSpace,
@@ -169,7 +168,7 @@ export const RendererComponent = defineComponent({
       rendererComponent.renderPass.set(renderPass)
 
       // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
-      renderer.debug.checkShaderErrors = false
+      renderer.debug.checkShaderErrors = true
 
       const xrManager = createWebXRManager(renderer)
       renderer.xr = xrManager as any
@@ -329,7 +328,7 @@ export const render = (
       camera.updateProjectionMatrix()
     }
 
-    state.useShadows && renderer.csm?.updateFrustums()
+    //state.useShadows && renderer.csm?.updateFrustums()
 
     if (renderer.effectComposer) {
       renderer.effectComposer.setSize(width, height, true)
@@ -372,7 +371,7 @@ export const getSceneParameters = (entities: Entity[], cameraEntity: Entity) => 
   const vals = {
     background: null as Color | Texture | CubeTexture | null,
     environment: null as Texture | null,
-    fog: null as FogBase | null,
+    // fog: null as FogBase | null,
     children: [] as Object3D[]
   }
 
@@ -386,7 +385,7 @@ export const getSceneParameters = (entities: Entity[], cameraEntity: Entity) => 
       vals.background = getComponent(entity, BackgroundComponent as any) as Color | Texture | CubeTexture
     }
     if (hasComponent(entity, FogComponent)) {
-      vals.fog = getComponent(entity, FogComponent)
+      //vals.fog = getComponent(entity, FogComponent)
     }
     // layer mask is faster with bitecs here than going through the object's proxy
     const shouldRender = (ObjectLayerMaskComponent.mask[entity] & cameraLayers) !== 0
@@ -408,7 +407,7 @@ const execute = () => {
     const _scene = renderer.scene!
 
     const entitiesToRender = renderer.scenes.map(getNestedVisibleChildren).flat()
-    const { background, environment, fog, children } = getSceneParameters(entitiesToRender, entity)
+    const { background, environment, children } = getSceneParameters(entitiesToRender, entity)
     _scene.children = children
 
     const renderMode = getState(RendererState).renderMode
@@ -419,7 +418,7 @@ const execute = () => {
 
     _scene.environment = environment
 
-    _scene.fog = fog
+    //_scene.fog = fog
 
     render(renderer, _scene, camera, deltaSeconds)
   }

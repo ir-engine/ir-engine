@@ -28,7 +28,7 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa'
 import { MdAutoFixHigh } from 'react-icons/md'
-import { Color, DisplayP3ColorSpace, LinearDisplayP3ColorSpace, LinearSRGBColorSpace, SRGBColorSpace } from 'three'
+import { Color, LinearSRGBColorSpace, SRGBColorSpace } from 'three'
 
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
@@ -67,6 +67,10 @@ enum PropertyTypes {
   Vector3,
   VignetteTechnique
 }
+
+/**@todo just a test */
+const DisplayP3ColorSpace = 'display-p3'
+export const LinearDisplayP3ColorSpace = 'display-p3-linear'
 
 const SMAAPresetSelect = Object.entries(SMAAPreset).map(([label, value]) => {
   return { label, value }

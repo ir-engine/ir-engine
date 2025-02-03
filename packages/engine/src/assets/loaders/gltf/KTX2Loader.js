@@ -44,13 +44,11 @@ import {
 	CompressedCubeTexture,
 	Data3DTexture,
 	DataTexture,
-	DisplayP3ColorSpace,
 	FloatType,
 	HalfFloatType,
 	NoColorSpace,
 	LinearFilter,
 	LinearMipmapLinearFilter,
-	LinearDisplayP3ColorSpace,
 	LinearSRGBColorSpace,
 	RedFormat,
 	RGB_ETC1_Format,
@@ -106,6 +104,8 @@ let _activeLoaders = 0;
 
 let _zstd;
 
+/**@todo just a test */
+const DisplayP3ColorSpace = 'display-p3';
 class KTX2Loader extends Loader {
 
 	constructor( manager ) {

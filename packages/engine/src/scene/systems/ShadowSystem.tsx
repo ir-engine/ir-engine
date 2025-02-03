@@ -213,19 +213,16 @@ const EntityChildCSMReactor = (props: { rendererEntity: Entity }) => {
   const csm = useComponent(rendererEntity, RendererComponent).csm.value
 
   useEffect(() => {
-    if (!csm || !shadowComponent.receive.value) return
-
-    if (!obj) return
-
-    if (obj.material) {
-      csm.setupMaterial(obj)
-    }
-
-    return () => {
-      if (obj.material) {
-        csm.teardownMaterial(obj.material as any)
-      }
-    }
+    // if (!csm || !shadowComponent.receive.value) return
+    // if (!obj) return
+    // if (obj.material) {
+    //   csm.setupMaterial(obj)
+    // }
+    // return () => {
+    //   if (obj.material) {
+    //     csm.teardownMaterial(obj.material as any)
+    //   }
+    // }
   }, [shadowComponent.receive, csm])
 
   return null
@@ -285,6 +282,7 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
 
   if (!renderSettingsComponent.csm.value || !activeLightEntity.value || !directionalLight?.value) return null
 
+  return null
   return (
     <EntityCSMReactor
       key={activeLightEntity.value}
