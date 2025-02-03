@@ -27,7 +27,7 @@ import type Hls from 'hls.js'
 import { useEffect, useLayoutEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-import { ComponentType } from '@ir-engine/ecs'
+import { ComponentType, EngineState } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -42,7 +42,7 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { entityExists, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { State, getState, isClient, useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, State, getState, isClient, useMutableState } from '@ir-engine/hyperflux'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
@@ -287,6 +287,14 @@ export function MediaReactor() {
       }
     }
   }, [media.paused, mediaElement])
+
+  useEffect(() => {
+    if (!mediaElement) return
+    const isEditing = getState(EngineState).isEditing
+    const isMuted = isEditing ? media.muteEditor.value : false
+    const test = mediaElement.element.get(NO_PROXY) as HTMLMediaElement
+    test.muted = isMuted
+  }, [media.muteEditor, mediaElement])
 
   useEffect(() => {
     if (mediaElement && !mediaElement.element.paused.value) {
