@@ -190,11 +190,11 @@ const ensureTypeInData = async (context: HookContext<ProjectPermissionService>) 
   }
 
   const data = context.data as ProjectPermissionPatch | ProjectPermissionData
-  let type = data.type
+  const type = data.type ?? 'editor'
 
   const hasOwnerPermission = context.projectPermissions?.find((item) => item.type === 'owner')
-  if (context.hasProjectScope !== 'true' && !hasOwnerPermission) {
-    type = 'editor'
+  if (context.hasProjectScope !== 'true' && !hasOwnerPermission && type === 'owner') {
+    throw new Forbidden(`You don't have permission to set an owner permission`)
   }
 
   if (context.method === 'patch') {
@@ -316,6 +316,7 @@ export default {
     ],
     update: [disallow()],
     patch: [
+      disallowNonId,
       iff(
         isProvider('external'),
         iffElse(
@@ -326,7 +327,7 @@ export default {
       ),
       schemaHooks.validateData(projectPermissionPatchValidator),
       schemaHooks.resolveData(projectPermissionPatchResolver),
-      iff(isProvider('external'), ensureTypeInData)
+      iff(isProvider('external'), restrictOnType, ensureTypeInData)
     ],
     remove: [
       disallowNonId,
