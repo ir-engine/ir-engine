@@ -74,7 +74,7 @@ const RenderModeTool = () => {
   }
 
   return (
-    <div className="flex h-full items-center gap-1 rounded bg-[#141619]">
+    <div className="flex h-full items-center gap-1 rounded">
       {renderModes.map((mode) => (
         <Tooltip key={mode.name} content={mode.name} position="bottom">
           <button onClick={() => rendererState.renderMode.set(mode.name)} className="px-3.5 py-1.5">

@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { getState, useMutableState } from '@ir-engine/hyperflux'
 import { Button, Tooltip } from '@ir-engine/ui'
-import { Slider, StudioButton } from '@ir-engine/ui/editor'
+import { Slider, ViewportButton } from '@ir-engine/ui/editor'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import SearchBar from '@ir-engine/ui/src/components/tailwind/SearchBar'
 import { ArrowLeftSm, CogSm, FolderSm, PlusCircleSm, Refresh1Sm, SearchSmSm } from '@ir-engine/ui/src/icons'
@@ -49,9 +49,7 @@ const ViewModeSettings = () => {
       position={'bottom left'}
       trigger={
         <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-          <StudioButton size="sm" variant="tertiary" data-testid="assets-panel-view-options-button">
-            <CogSm />
-          </StudioButton>
+          <ViewportButton data-testid="assets-panel-view-options-button" icon={CogSm} />
         </Tooltip>
       }
     >
@@ -102,25 +100,25 @@ export function AssetsBreadcrumbs() {
   }
 
   return (
-    <div
-      className="flex h-6 w-96 items-center gap-2 rounded-lg bg-surface-4 px-2"
-      data-testid="assets-panel-breadcrumbs"
-    >
-      <FolderSm onClick={() => handleSelectParentCategory(0)} className="cursor-pointer text-xs text-text-secondary" />
+    <div className="flex w-96 items-center gap-2 rounded-lg bg-surface-4 px-2" data-testid="assets-panel-breadcrumbs">
+      <FolderSm
+        onClick={() => handleSelectParentCategory(0)}
+        className="cursor-pointer text-base text-text-secondary"
+      />
       {parentCategories.map((category, idx) => (
         <span
           key={category.name.value}
-          className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-text-secondary"
+          className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-base text-text-secondary"
           data-testid={`assets-panel-breadcrumb-nested-level-${idx}`}
           onClick={() => handleSelectParentCategory(idx)}
         >
           <span className="hover:underline">{category.name.value}</span>
-          <span>{' > '}</span>
+          <span>{' / '}</span>
         </span>
       ))}
       {currentCategory && (
         <span
-          className="overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-text-secondary"
+          className="overflow-hidden overflow-ellipsis whitespace-nowrap text-base text-text-secondary"
           data-testid="assets-panel-breadcrumb-current-category"
         >
           {currentCategory.name.value}
@@ -152,46 +150,34 @@ export default function Topbar() {
   }, [search.query])
 
   return (
-    <div className="flex h-8 items-center gap-2 bg-surface-4 py-1" data-testid="assets-panel-top-bar">
+    <div className="flex items-center gap-2 bg-surface-4 p-1" data-testid="assets-panel-top-bar">
       <div className="ml-2" />
       <div>
         <Tooltip content={t('editor:layout.filebrowser.back')}>
-          <StudioButton size="sm" variant="tertiary" data-testid="assets-panel-back-button" onClick={handleBack}>
-            <ArrowLeftSm />
-          </StudioButton>
+          <ViewportButton data-testid="assets-panel-back-button" onClick={handleBack} icon={ArrowLeftSm} />
         </Tooltip>
       </div>
       <div>
         <Tooltip content={t('editor:layout.filebrowser.refresh')}>
-          <StudioButton size="sm" variant="tertiary" data-testid="assets-panel-refresh-button" onClick={handleRefresh}>
-            <Refresh1Sm />
-          </StudioButton>
+          <ViewportButton data-testid="assets-panel-refresh-button" onClick={handleRefresh} icon={Refresh1Sm} />
         </Tooltip>
       </div>
       <ViewModeSettings />
-      <div className="align-center flex h-6 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
+      <div className="flex w-full items-center justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
         <AssetsBreadcrumbs />
         <SearchBar
           inputProps={{
             placeholder: t('editor:layout.scene-assets.search-placeholder'),
-            height: 'xs',
+            height: 'l',
             startComponent: <SearchSmSm className="h-3.5 w-3.5" />
           }}
           search={search}
         />
       </div>
-      <div className="w-fit">
-        <Button
-          size="l"
-          variant="secondary"
-          data-testid="assets-panel-upload-button"
-          className="bg-[#212226]"
-          onClick={() => uploadFiles().then(handleRefresh)}
-        >
-          <PlusCircleSm />
-          <span className="text-nowrap">{t('editor:layout.filebrowser.uploadAssets')}</span>
-        </Button>
-      </div>
+      <Button size="l" data-testid="assets-panel-upload-button" onClick={() => uploadFiles().then(handleRefresh)}>
+        <PlusCircleSm />
+        <span className="text-nowrap">{t('editor:layout.filebrowser.uploadAssets')}</span>
+      </Button>
     </div>
   )
 }

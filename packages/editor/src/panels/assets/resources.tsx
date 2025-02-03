@@ -294,7 +294,7 @@ function BottomPaginationNavBar({ handleScrollToPage }) {
 
   return (
     <div className="flex h-20 flex-col items-center justify-center">
-      <div className="text-[10px] text-white">
+      <div className="text-[10px] text-text-secondary">
         {t('editor:layout.scene-assets.total-assets', { total: resources.length })}
       </div>
       <div className="m-3 flex h-[1px] w-36 flex-row gap-[0.19rem]">
@@ -331,7 +331,7 @@ function ResourceItems() {
       <div className="relative flex w-[95%] flex-col">
         {' '}
         {resources.length === 0 && (
-          <div className="col-start-2 flex h-full w-full items-center justify-center text-white">
+          <div className="col-start-2 flex h-full w-full items-center justify-center text-text-secondary">
             {t('editor:layout.scene-assets.no-search-results')}
           </div>
         )}

@@ -75,7 +75,7 @@ function ScenesPanel() {
 
   return (
     <div className="h-full bg-surface-1">
-      <div className="mb-4 h-8 w-full overflow-hidden bg-[#212226]">
+      <div className="mb-4 w-full overflow-hidden bg-surface-4 p-1">
         <Button
           disabled={isCreatingScene.value}
           className="ml-auto h-8  px-2"

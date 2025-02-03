@@ -61,7 +61,9 @@ export function DropdownItem({
         'flex items-center',
         active ? 'text-text-primary' : '',
         selected ? 'bg-ui-select-background text-text-primary' : '',
-        disabled ? 'text-ui-inactive-primary-outline cursor-not-allowed bg-ui-inactive-background' : '',
+        disabled
+          ? 'text-ui-inactive-primary-outline cursor-not-allowed bg-ui-inactive-background'
+          : 'hover:bg-ui-hover-background hover:text-text-primary',
         className
       )}
       {...props}

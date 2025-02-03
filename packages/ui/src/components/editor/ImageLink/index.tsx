@@ -26,6 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { ImgHTMLAttributes, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
+import { Input } from '../../..'
+import { XCloseLg } from '../../../icons'
 import ImageUrlFallback from './image-url-fallback.png'
 
 export interface ImageLinkProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'onChange' | 'onBlur'> {
@@ -82,7 +84,7 @@ export default function ImageLink({ src, onChange, onBlur, variant = 'full', ...
   }, [src])
 
   return (
-    <div className={twMerge('flex flex-col rounded-[10px] bg-[#191B1F]', containerVariants[variant])}>
+    <div className={twMerge('flex flex-col bg-ui-background', containerVariants[variant])}>
       <img
         src={src}
         className={twMerge(
@@ -94,23 +96,23 @@ export default function ImageLink({ src, onChange, onBlur, variant = 'full', ...
         {...props}
       />
       {(onChange || onBlur) && (
-        <>
-          <button
-            className="text-right text-sm text-[#AFBEDF]"
-            onClick={() => {
-              onChange?.('')
-              onBlur?.('')
-            }}
-          >
-            {t('common:components.clear')}
-          </button>
-          <input
-            value={src}
-            onChange={(event) => onChange?.(event.target.value)}
-            onBlur={(event) => onBlur?.(event.target.value)}
-            className="w-full rounded bg-[#080808] px-2 py-1 text-xs text-[#9CA3AF]"
-          />
-        </>
+        <Input
+          value={src}
+          onChange={(event) => onChange?.(event.target.value)}
+          onBlur={(event) => onBlur?.(event.target.value)}
+          fullWidth
+          endComponent={
+            <button
+              className="h-4 w-4 text-text-secondary"
+              onMouseDown={() => {
+                onChange?.('')
+                onBlur?.('')
+              }}
+            >
+              <XCloseLg />
+            </button>
+          }
+        />
       )}
     </div>
   )

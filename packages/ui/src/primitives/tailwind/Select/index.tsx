@@ -336,7 +336,14 @@ const Select = ({
               />
             )}
 
-            <ChevronDownSm className={`${open && 'rotate-180'} duration-300`} />
+            <ChevronDownSm
+              onClick={() => {
+                if (!disabled) {
+                  setOpen((v) => !v)
+                }
+              }}
+              className={`cursor-pointer ${open && 'rotate-180'} duration-300`}
+            />
           </div>
 
           {open && (

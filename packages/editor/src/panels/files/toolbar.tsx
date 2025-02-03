@@ -26,8 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
-import { Checkbox, Input, Tooltip } from '@ir-engine/ui'
-import { Slider, StudioButton } from '@ir-engine/ui/editor'
+import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
+import { Slider, ViewportButton } from '@ir-engine/ui/editor'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import {
   ArrowLeftSm,
@@ -95,14 +95,14 @@ function BreadcrumbItems() {
   breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx >= nestedIndex)
 
   return (
-    <div className="flex h-6 w-96 items-center gap-2 px-2">
-      <FolderSm className="text-sm text-text-primary" />
+    <div className="flex w-96 items-center gap-2 px-2">
+      <FolderSm className="text-base text-text-primary" />
       {breadcrumbDirectoryFiles.map((file, index, arr) => (
         <Fragment key={index}>
-          {index !== 0 && <span className="cursor-default items-center text-sm text-text-secondary"> {'>'} </span>}
+          {index !== 0 && <span className="cursor-default items-center text-base text-text-secondary"> {'/'} </span>}
           {index === arr.length - 1 ? (
             <span
-              className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-text-secondary hover:underline"
+              className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-base text-text-secondary hover:underline"
               data-testid={'files-panel-breadcrumb-current-directory'}
             >
               {file}
@@ -113,7 +113,7 @@ function BreadcrumbItems() {
               onClick={() => handleBreadcrumbDirectoryClick(file)}
               data-testid={`files-panel-breadcrumb-nested-level-${index}`}
             >
-              <span className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-text-secondary hover:underline">
+              <span className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-base text-text-secondary hover:underline">
                 {file}
               </span>
             </a>
@@ -135,9 +135,7 @@ const ViewModeSettings = () => {
       position={'bottom left'}
       trigger={
         <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-          <StudioButton size="sm" variant="tertiary" data-testid="files-panel-view-options-button">
-            <CogSm />
-          </StudioButton>
+          <ViewportButton data-testid="files-panel-view-options-button" icon={CogSm} />
         </Tooltip>
       }
     >
@@ -212,34 +210,27 @@ export default function FilesToolbar() {
   const { backDirectory, refreshDirectory, createNewFolder } = useCurrentFiles()
 
   return (
-    <div className="flex h-8 items-center gap-2 bg-surface-4 py-1">
+    <div className="flex items-center gap-2 bg-surface-4 p-1">
       <div className="ml-2" />
       {showBackButton && (
         <div>
           <Tooltip content={t('editor:layout.filebrowser.back')}>
-            <StudioButton
-              size="sm"
-              variant="tertiary"
+            <ViewportButton
               data-testid="files-panel-back-directory-button"
               onClick={backDirectory}
-              rounded
-            >
-              <ArrowLeftSm />
-            </StudioButton>
+              icon={ArrowLeftSm}
+            />
           </Tooltip>
         </div>
       )}
 
       <div>
         <Tooltip content={t('editor:layout.filebrowser.refresh')}>
-          <StudioButton
-            size="sm"
-            variant="tertiary"
+          <ViewportButton
             data-testid="files-panel-refresh-directory-button"
             onClick={refreshDirectory}
-          >
-            <Refresh1Sm />
-          </StudioButton>
+            icon={Refresh1Sm}
+          />
         </Tooltip>
       </div>
 
@@ -261,7 +252,7 @@ export default function FilesToolbar() {
         />
       </div>
 
-      <div className="align-center flex h-6 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
+      <div className="flex h-6 w-full items-center justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
         <BreadcrumbItems />
         <Input
           placeholder={t('editor:layout.filebrowser.search-placeholder')}
@@ -269,7 +260,7 @@ export default function FilesToolbar() {
           onChange={(e) => {
             filesState.searchText.set(e.target.value)
           }}
-          height="xs"
+          height="l"
           startComponent={<SearchSmSm className="h-[14px] w-[14px] text-text-secondary" />}
           data-testid="files-panel-search-input"
         />
@@ -283,21 +274,17 @@ export default function FilesToolbar() {
               : t('editor:layout.filebrowser.downloadProjectUnavailable')
           }
         >
-          <StudioButton
-            size="sm"
-            variant="tertiary"
+          <ViewportButton
             onClick={() => handleDownloadProject(filesState.projectName.value, filesState.selectedDirectory.value)}
             data-testid="files-panel-download-project-button"
-          >
-            <Download01Sm />
-          </StudioButton>
+            icon={Download01Sm}
+          />
         </Tooltip>
       </div>
 
       <div className="w-fit">
-        <StudioButton
+        <Button
           size="l"
-          variant="tertiary"
           disabled={!showUploadButtons}
           onClick={() =>
             inputFileWithAddToScene({
@@ -314,13 +301,12 @@ export default function FilesToolbar() {
         >
           <FolderSm />
           <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFiles')}</span>
-        </StudioButton>
+        </Button>
       </div>
       <div className="w-fit">
-        <StudioButton
+        <Button
           size="l"
           disabled={!showUploadButtons}
-          variant="tertiary"
           className="disabled:bg-[#212226]"
           onClick={() =>
             inputFileWithAddToScene({
@@ -337,7 +323,7 @@ export default function FilesToolbar() {
         >
           <PlusCircleSm />
           <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFolder')}</span>
-        </StudioButton>
+        </Button>
       </div>
     </div>
   )

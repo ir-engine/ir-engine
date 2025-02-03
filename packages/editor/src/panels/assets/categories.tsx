@@ -73,7 +73,7 @@ export default function CategoriesList() {
 
   return (
     <div
-      className="mb-8 h-full space-y-1 overflow-x-hidden overflow-y-scroll bg-[#0E0F11] pb-8 pl-1 pr-2 pt-2"
+      className="mb-8 h-full space-y-1 overflow-x-hidden overflow-y-scroll bg-ui-background pb-8 pl-1 pr-2 pt-2"
       style={{ width: sidebarWidth.value }}
     >
       {categories.value.map((category, index) => (

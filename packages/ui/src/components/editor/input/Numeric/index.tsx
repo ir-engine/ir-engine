@@ -149,7 +149,7 @@ const NumericInput = ({
   return (
     <div
       className={twMerge(
-        'w-full px-2 py-2.5',
+        'w-full px-2',
         'flex h-8 items-center rounded-sm border border-ui-outline bg-ui-background',
         className
       )}
