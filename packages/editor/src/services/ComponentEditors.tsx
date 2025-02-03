@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { VisualScriptComponent } from '@ir-engine/engine'
-import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GrabbableComponent } from '@ir-engine/engine/src/grabbable/GrabbableComponent'
@@ -80,7 +79,6 @@ import { PersistentAnchorComponent } from '@ir-engine/spatial/src/xr/XRAnchorCom
 import PersistentAnchorNodeEditor from '@ir-engine/ui/src/components/editor/properties/anchor'
 import LoopAnimationNodeEditor from '@ir-engine/ui/src/components/editor/properties/animation'
 import AudioAnalysisEditor from '@ir-engine/ui/src/components/editor/properties/audio/analysis'
-import PositionalAudioNodeEditor from '@ir-engine/ui/src/components/editor/properties/audio/positional'
 import CameraNodeEditor from '@ir-engine/ui/src/components/editor/properties/camera'
 import CameraPropertiesNodeEditor from '@ir-engine/ui/src/components/editor/properties/cameraProperties'
 import ColliderComponentEditor from '@ir-engine/ui/src/components/editor/properties/collider'
@@ -164,7 +162,6 @@ export const ComponentEditorsState = defineState({
       [SkyboxComponent.name]: SkyboxNodeEditor,
       [SpawnPointComponent.name]: SpawnPointNodeEditor,
       [ImageComponent.name]: ImageNodeEditor,
-      [PositionalAudioComponent.name]: PositionalAudioNodeEditor,
       [AudioAnalysisComponent.name]: AudioAnalysisEditor,
       [VideoComponent.name]: VideoNodeEditor,
       [LegacyVolumetricComponent.name]: LegacyVolumetricNodeEditor,

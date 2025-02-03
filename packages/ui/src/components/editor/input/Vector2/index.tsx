@@ -42,12 +42,17 @@ interface Vector2InputProp {
   onRelease?: (v: Vector2) => void
   min?: number
   max?: number
+  labels?: string[]
   labelXOverride?: string
   labelYOverride?: string
   classNameXOverride?: string
   classNameYOverride?: string
 }
 
+/**
+ *
+ * @param labels an array for label overrides, index 0 for X, index 1 for Y
+ */
 export const Vector2Input = ({
   uniformScaling,
   smallStep,
@@ -59,8 +64,7 @@ export const Vector2Input = ({
   onRelease,
   min,
   max,
-  labelXOverride,
-  labelYOverride,
+  labels = ['x', 'y'],
   classNameXOverride,
   classNameYOverride,
   ...rest
@@ -101,6 +105,7 @@ export const Vector2Input = ({
       <NumericInput
         {...rest}
         value={vx}
+        inputClassName={'text-center '}
         onChange={onChangeAxis('x')}
         onRelease={onReleaseAxis('x')}
         prefix={
@@ -111,7 +116,7 @@ export const Vector2Input = ({
               onChange={onChangeAxis('x')}
               onRelease={onReleaseAxis('x')}
               axis="x"
-              axisLabelOverride={labelXOverride}
+              axisLabel={labels[0]}
             />
           )
         }
@@ -120,6 +125,7 @@ export const Vector2Input = ({
       <NumericInput
         {...rest}
         value={vy}
+        inputClassName={'text-center'}
         onChange={onChangeAxis('y')}
         onRelease={onReleaseAxis('y')}
         prefix={
@@ -130,7 +136,7 @@ export const Vector2Input = ({
               onChange={onChangeAxis('y')}
               onRelease={onReleaseAxis('y')}
               axis="y"
-              axisLabelOverride={labelYOverride}
+              axisLabel={labels[1]}
             />
           )
         }

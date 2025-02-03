@@ -614,8 +614,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                 value={video.alphaUVOffset.value}
                 onChange={updateProperty(VideoComponent, 'alphaUVOffset')}
                 onRelease={commitProperty(VideoComponent, 'alphaUVOffset')}
-                labelXOverride={'U'}
-                labelYOverride={'V'}
+                labels={['U', 'V']}
                 classNameXOverride={'w-1/2'}
                 classNameYOverride={'w-1/2'}
               />

@@ -40,7 +40,7 @@ interface Vector3ScrubberProps {
   children?: any
   className?: string
   disabled?: boolean
-  axisLabelOverride?: string
+  axisLabel?: string
 }
 
 export const Vector3Scrubber = ({
@@ -50,7 +50,7 @@ export const Vector3Scrubber = ({
   onRelease,
   value,
   children,
-  axisLabelOverride,
+  axisLabel,
   ...props
 }: Vector3ScrubberProps) => {
   const color = (() => {
@@ -66,9 +66,9 @@ export const Vector3Scrubber = ({
     }
   })()
 
-  props.className = twMerge(`w-full text-${color}`)
-  const axisLabel = axisLabelOverride ?? axis
-  const content = children ?? `${axisLabel?.toUpperCase()} - `
+  props.className = twMerge(`w-full  text-${color}`)
+  const label = axisLabel ?? axis
+  const content = children ?? `${label?.toUpperCase()}`
   return (
     <Scrubber onChange={onChange} onRelease={onRelease} value={value} disabled={disabled} {...props}>
       {content}
