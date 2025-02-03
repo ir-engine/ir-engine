@@ -106,7 +106,6 @@ export const VideoComponent = defineComponent({
     uvOffset: T.Vec2({ x: 0, y: 0 }),
     uvScale: T.Vec2({ x: 1, y: 1 }),
     alphaUVOffset: T.Vec2({ x: 0, y: 0 }),
-    alphaUVScale: T.Vec2({ x: 1, y: 1 }),
     wrapS: WrappingSchema,
     wrapT: WrappingSchema,
     useAlpha: S.Bool(false),
@@ -157,9 +156,7 @@ function VideoReactor() {
           useAlpha: { value: false },
           useAlphaInvert: { value: false },
           alphaThreshold: { value: 0.5 },
-          useAlphaUVTransform: { value: true },
           alphaUVOffset: { value: new Vector2(0, 0) },
-          alphaUVScale: { value: new Vector2(1, 1) },
           wrapS: { value: ClampToEdgeWrapping },
           wrapT: { value: ClampToEdgeWrapping }
         },
@@ -176,12 +173,11 @@ function VideoReactor() {
         uniform sampler2D map;
       #endif
         uniform bool useAlpha;
+        uniform bool useAlphaInvert;
         uniform float alphaThreshold;
         uniform vec2 uvOffset;
         uniform vec2 uvScale;
-        uniform bool useAlphaUVTransform;
         uniform vec2 alphaUVOffset;
-        uniform vec2 alphaUVScale;
         uniform int wrapS;
         uniform int wrapT;
 
@@ -221,18 +217,21 @@ function VideoReactor() {
           vec4 color = texture2D(map, mapUv);
           color.rgb = pow(color.rgb, vec3(2.2));
           if (useAlpha) {
-            if (useAlphaUVTransform) {
-                vec2 alphaMapUv = applyWrapping(vUv * alphaUVScale + alphaUVOffset, wrapS, wrapT);
-                vec4 alphaColor = texture2D(map, alphaMapUv);
-                float intensity = alphaColor.r * 0.3 + alphaColor.g * 0.59 + alphaColor.b * 0.11;
-                if (intensity < alphaThreshold) discard;
-            } else {
-                float intensity = color.r * 0.3 + color.g * 0.59 + color.b * 0.11;
-                if (intensity < alphaThreshold) discard;
+            float intensity = 0.0;
+            vec2 alphaMapUv = applyWrapping(vUv + alphaUVOffset, wrapS, wrapT);
+            vec4 alphaColor = texture2D(map, alphaMapUv);
+            intensity = alphaColor.r * 0.333  + alphaColor.g * 0.333 + alphaColor.b * 0.333;
+            if (useAlphaInvert) {
+              intensity = 1.0 - intensity;
             }
+            if (intensity < alphaThreshold) discard;
           }          
           if( adjustedUv.y < 0.0 || adjustedUv.y > 1.0 || adjustedUv.x < 0.0 || adjustedUv.x > 1.0) {
-            color = vec4(0.0, 0.0, 0.0, 1.0);
+            if( useAlpha){
+              discard;
+            } else {
+              color = vec4(0.0, 0.0, 0.0, 1.0);
+            }
           }          
           gl_FragColor = color;
         #else
@@ -354,6 +353,11 @@ function VideoReactor() {
 
   useEffect(() => {
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
+    uniforms.useAlphaInvert.value = video.useAlphaInvert.value
+  }, [video.useAlphaInvert])
+
+  useEffect(() => {
+    const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
     uniforms.alphaThreshold.value = video.alphaThreshold.value
   }, [video.alphaThreshold])
 
@@ -367,8 +371,6 @@ function VideoReactor() {
 
   useEffect(() => {
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
-    uniforms.uvScale.value = video.uvScale.value
-
     uniforms.uvScale.value = new Vector2(
       video.uvScale.x.value * fitPlacementUvScale.x.value,
       video.uvScale.y.value * fitPlacementUvScale.y.value
@@ -379,11 +381,6 @@ function VideoReactor() {
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
     uniforms.alphaUVOffset.value = video.alphaUVOffset.value
   }, [video.alphaUVOffset])
-
-  useEffect(() => {
-    const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
-    uniforms.alphaUVScale.value = video.alphaUVScale.value
-  }, [video.alphaUVScale])
 
   useEffect(() => {
     if (!mediaEntity || !mediaElement) return

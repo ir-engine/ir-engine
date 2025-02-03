@@ -228,8 +228,11 @@ export function MediaReactor() {
       // handle when we have autoplay enabled but have paused playback
       if (media.autoplayRuntime.value && media.paused.value) media.paused.set(false)
       // handle when we have autoplay and mediaComponent is paused
-      if (media.autoplayRuntime.value && !media.paused.value && mediaComponent?.element.paused)
+      if (media.autoplayRuntime.value && !media.paused.value && mediaComponent?.element.paused) {
         mediaComponent.element.play()
+        const autoplay = getAutoPlay()
+        media.paused.set(!autoplay)
+      }
       window.removeEventListener('pointerup', handleAutoplay)
       window.removeEventListener('keypress', handleAutoplay)
       window.removeEventListener('touchend', handleAutoplay)
@@ -249,7 +252,8 @@ export function MediaReactor() {
     setCallback(entity, StandardCallbacks.PLAY, () => media.paused.set(false))
     setCallback(entity, StandardCallbacks.PAUSE, () => media.paused.set(true))
     setCallback(entity, StandardCallbacks.RESET, () => {
-      media.paused.set(!getAutoPlay())
+      const autoPlay = getAutoPlay()
+      media.paused.set(!autoPlay)
 
       //using to force the react to update the seek time if already set to 0
       //due to media's seekTime is not being updated with the media elements current time
@@ -283,7 +287,14 @@ export function MediaReactor() {
 
   useEffect(() => {
     if (!mediaElement) return
-    media.paused.set(!getAutoPlay())
+    const htmlMedia = mediaElement.element.get(NO_PROXY) as HTMLMediaElement
+    //htmlMedia.controls = media.controls.value
+  }, [media.controls, mediaElement])
+
+  useEffect(() => {
+    if (!mediaElement) return
+    const autoPlay = getAutoPlay()
+    media.paused.set(!autoPlay)
   }, [media.autoplayEditor, media.autoplayRuntime, mediaElement, getState(EngineState).isEditing])
 
   useEffect(() => {
@@ -304,8 +315,8 @@ export function MediaReactor() {
     if (!mediaElement) return
     const isEditing = getState(EngineState).isEditing
     const isMuted = isEditing ? media.muteEditor.value : false
-    const test = mediaElement.element.get(NO_PROXY) as HTMLMediaElement
-    test.muted = isMuted
+    const htmlMedia = mediaElement.element.get(NO_PROXY) as HTMLMediaElement
+    htmlMedia.muted = isMuted
   }, [media.muteEditor, mediaElement])
 
   useEffect(() => {
