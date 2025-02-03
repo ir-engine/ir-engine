@@ -489,8 +489,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
               value={video.size.value}
               onChange={updateProperty(VideoComponent, 'size')}
               onRelease={commitProperty(VideoComponent, 'size')}
-              classNameXOverride={'w-1/2'}
-              classNameYOverride={'w-1/2'}
+              axisClassNames={['w-1/2', 'w-1/2']}
             />
           </InputGroup>
 
@@ -503,8 +502,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
               value={video.uvOffset.value}
               onChange={updateProperty(VideoComponent, 'uvOffset')}
               onRelease={commitProperty(VideoComponent, 'uvOffset')}
-              classNameXOverride={'w-1/2'}
-              classNameYOverride={'w-1/2'}
+              axisClassNames={['w-1/2', 'w-1/2']}
             />
           </InputGroup>
 
@@ -517,8 +515,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
               value={video.uvScale.value}
               onChange={updateProperty(VideoComponent, 'uvScale')}
               onRelease={commitProperty(VideoComponent, 'uvScale')}
-              classNameXOverride={'w-1/2'}
-              classNameYOverride={'w-1/2'}
+              axisClassNames={['w-1/2', 'w-1/2']}
             />
           </InputGroup>
           <InputGroup
@@ -614,9 +611,8 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                 value={video.alphaUVOffset.value}
                 onChange={updateProperty(VideoComponent, 'alphaUVOffset')}
                 onRelease={commitProperty(VideoComponent, 'alphaUVOffset')}
-                labels={['U', 'V']}
-                classNameXOverride={'w-1/2'}
-                classNameYOverride={'w-1/2'}
+                axisLabels={['U', 'V']}
+                axisClassNames={['w-1/2', 'w-1/2']}
               />
             </InputGroup>
           </>

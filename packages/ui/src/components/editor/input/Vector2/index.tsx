@@ -42,16 +42,14 @@ interface Vector2InputProp {
   onRelease?: (v: Vector2) => void
   min?: number
   max?: number
-  labels?: string[]
-  labelXOverride?: string
-  labelYOverride?: string
-  classNameXOverride?: string
-  classNameYOverride?: string
+  axisLabels?: string[]
+  axisClassNames?: string[]
 }
 
 /**
  *
- * @param labels an array for label overrides, index 0 for X, index 1 for Y
+ * @param axisLlabels an array for label overrides, index 0 for X, index 1 for Y
+ * @param axisClassNames an array for label overrides, index 0 for X axis, index 1 for Y axis
  */
 export const Vector2Input = ({
   uniformScaling,
@@ -64,9 +62,8 @@ export const Vector2Input = ({
   onRelease,
   min,
   max,
-  labels = ['x', 'y'],
-  classNameXOverride,
-  classNameYOverride,
+  axisLabels = ['x', 'y'],
+  axisClassNames = [] as string[],
   ...rest
 }: Vector2InputProp) => {
   const uniformEnabled = useHookstate(uniformScaling)
@@ -116,11 +113,11 @@ export const Vector2Input = ({
               onChange={onChangeAxis('x')}
               onRelease={onReleaseAxis('x')}
               axis="x"
-              axisLabel={labels[0]}
+              axisLabel={axisLabels[0]}
             />
           )
         }
-        className={classNameXOverride}
+        className={axisClassNames.length > 0 ? axisClassNames[0] : undefined}
       />
       <NumericInput
         {...rest}
@@ -136,11 +133,11 @@ export const Vector2Input = ({
               onChange={onChangeAxis('y')}
               onRelease={onReleaseAxis('y')}
               axis="y"
-              axisLabel={labels[1]}
+              axisLabel={axisLabels[1]}
             />
           )
         }
-        className={classNameYOverride}
+        className={axisClassNames.length > 1 ? axisClassNames[1] : undefined}
       />
     </div>
   )
