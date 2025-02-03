@@ -129,7 +129,10 @@ const DiscardableInput = ({
         ref={fileDropRef}
         className={twMerge(' mb-2 flex w-full justify-end', isFileDroppable && 'outline outline-2 outline-white')}
       >
-        <div ref={dragSourceRef} className=" mr-[4px] h-[32px] w-[20px] cursor-move text-2xl text-[#9CA0AA]">
+        <div
+          ref={dragSourceRef}
+          className=" mr-[4px] flex h-full w-[24px] cursor-move items-center text-2xl text-[#9CA0AA]"
+        >
           <MdDragIndicator />
         </div>
         <Input fullWidth={true} value={value} onChange={(event) => onChange(event.target.value, index)} />
