@@ -207,6 +207,11 @@ export function MediaReactor() {
     }
   }
 
+  const getAutoPlay = () => {
+    const isEditing = getState(EngineState).isEditing
+    return isEditing ? media.autoplayEditor.value : media.autoplayRuntime.value
+  }
+
   useEffect(() => {
     if (!rendererEntity) return
     setComponent(entity, BoundingBoxComponent)
@@ -214,8 +219,10 @@ export function MediaReactor() {
     const renderer = getComponent(rendererEntity, RendererComponent).renderer!
     // This must be outside of the normal ECS flow by necessity, since we have to respond to user-input synchronously
     // in order to ensure media will play programmatically
+
     const handleAutoplay = () => {
       const mediaComponent = getComponent(entity, MediaElementComponent)
+
       // handle when we dont have autoplay enabled but have programatically started playback
       if (!media.autoplayRuntime.value && !media.paused.value) mediaComponent?.element.play()
       // handle when we have autoplay enabled but have paused playback
@@ -242,7 +249,7 @@ export function MediaReactor() {
     setCallback(entity, StandardCallbacks.PLAY, () => media.paused.set(false))
     setCallback(entity, StandardCallbacks.PAUSE, () => media.paused.set(true))
     setCallback(entity, StandardCallbacks.RESET, () => {
-      media.paused.set(!media.autoplayRuntime.value)
+      media.paused.set(!getAutoPlay())
 
       //using to force the react to update the seek time if already set to 0
       //due to media's seekTime is not being updated with the media elements current time
@@ -273,6 +280,11 @@ export function MediaReactor() {
       removeCallback(entity, StandardCallbacks.RESET)
     }
   }, [rendererEntity])
+
+  useEffect(() => {
+    if (!mediaElement) return
+    media.paused.set(!getAutoPlay())
+  }, [media.autoplayEditor, media.autoplayRuntime, mediaElement, getState(EngineState).isEditing])
 
   useEffect(() => {
     if (!mediaElement) return
