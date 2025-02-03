@@ -79,7 +79,7 @@ export const IFrameComponent = defineComponent({
       return () => {
         removeCallback(entity, iframeCallbackName)
       }
-    }, [entity])
+    }, [])
 
     return null
   }

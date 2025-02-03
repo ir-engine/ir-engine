@@ -45,7 +45,6 @@ const IFrameReactor = () => {
   const iframeComponent = useComponent(entity, IFrameComponent)
 
   useEffect(() => {
-    console.log('iframe reacttor')
     if (iframeComponent.isOpen.value) {
       PopoverState.showPopupover(<EmbedFrame src={iframeComponent.src.value} />)
     }
@@ -57,7 +56,6 @@ const IFrameReactor = () => {
 const UserSystemReactor = () => {
   InviteService.useAPIListeners()
 
-  console.log('REACTORING >.....')
   const [emotesEnabled, avaturnEnabled, rpmEnabled, socialsEnabled] = useFeatureFlags([
     FeatureFlags.Client.Menu.Emote,
     FeatureFlags.Client.Menu.Avaturn,
