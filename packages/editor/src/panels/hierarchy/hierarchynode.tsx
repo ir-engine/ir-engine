@@ -107,7 +107,7 @@ function IconComponent({ entity }: { entity: Entity }) {
   )
 }
 
-export default function HierarchyTreeNode(props: ListChildComponentProps<undefined>) {
+export default React.memo(function HierarchyTreeNode(props: ListChildComponentProps<undefined>) {
   const { t } = useTranslation()
   const nodes = useHierarchyNodes()
   const node = nodes[props.index]
@@ -485,4 +485,4 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
       </div>
     </li>
   )
-}
+})
