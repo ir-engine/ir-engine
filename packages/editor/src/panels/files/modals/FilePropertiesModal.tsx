@@ -222,7 +222,8 @@ export default function FilePropertiesModal() {
         const _thumbnailKey = thumbnailURL.href.replace(config.client.fileServer + '/', '')
         API.instance.service(staticResourcePath).patch(resource.id, {
           thumbnailKey: _thumbnailKey,
-          thumbnailMode: 'custom'
+          thumbnailMode: 'custom',
+          project: projectName
         })
       }
     }

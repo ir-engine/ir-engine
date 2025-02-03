@@ -26,11 +26,11 @@ Infinite Reality Engine. All Rights Reserved.
 import { Resizable } from 're-resizable'
 import React, { useEffect, useRef, useState } from 'react'
 
-import { useUserAvatarThumbnail } from '@ir-engine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 
+import { useUserAvatarThumbnail } from '@ir-engine/client-core/src/hooks/useUserAvatarThumbnail'
 import NotificationIcon from './assets/attach-file2.svg'
 import BoxSearch from './assets/bxbxsearchalt2.svg'
 import AddSquare from './assets/fluentaddsquare24filled.svg'

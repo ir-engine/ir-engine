@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { t } from 'i18next'
 import React, { useEffect, useRef } from 'react'
 
-import { useRender3DPanelSystem } from '@ir-engine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
+import { useRender3DPanelSystem } from '@ir-engine/client-core/src/hooks/useRender3DPanelSystem'
 import { EntityTreeComponent, createEntity, removeComponent, removeEntity, setComponent } from '@ir-engine/ecs'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { useHookstate } from '@ir-engine/hyperflux'

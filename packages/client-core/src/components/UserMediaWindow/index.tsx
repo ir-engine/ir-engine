@@ -50,10 +50,10 @@ import Tooltip from '@ir-engine/ui/src/primitives/mui/Tooltip'
 import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
 
 import { useTranslation } from 'react-i18next'
+import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 import { useZendesk } from '../../hooks/useZendesk'
 import { MediaStreamState } from '../../media/MediaStreamState'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../media/PeerMediaChannelState'
-import { useUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
 import Draggable from './Draggable'
 import styles from './index.module.scss'
 
