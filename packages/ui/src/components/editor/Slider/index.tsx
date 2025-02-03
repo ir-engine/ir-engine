@@ -28,7 +28,6 @@ import { LuInfo } from 'react-icons/lu'
 import { twMerge } from 'tailwind-merge'
 import Label from '../../../primitives/tailwind/Label'
 import Tooltip from '../../../primitives/tailwind/Tooltip'
-import NumericInput from '../input/Numeric'
 
 export interface SliderProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   value: number
@@ -63,8 +62,15 @@ const Slider = ({
   const parentRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(0)
 
-  const handleInputChange = (value: number) => {
-    onChange?.(value)
+  const handleInputChange = (value: string) => {
+    const fractionLength = step.toString().split('.')[1]?.length || 0
+    let newValue = parseFloat(value)
+    if (isNaN(newValue)) {
+      newValue = min
+    } else {
+      newValue = Math.min(Math.max(newValue, min), max)
+    }
+    onChange?.(+newValue.toFixed(fractionLength))
   }
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,7 +100,7 @@ const Slider = ({
       </div>
 
       <div className="flex w-full items-center justify-between gap-x-2">
-        {/* <input
+        <input
           id={id}
           min={min}
           max={max}
@@ -108,24 +114,8 @@ const Slider = ({
             }
           }}
           onBlur={() => onRelease?.(value)}
-          className="m-0 h-8 w-14 rounded bg-[#141619] text-center text-sm font-normal leading-[21px] text-[#9CA0AA] group-hover/editor-slider:bg-[#191B1F] group-hover/editor-slider:text-[#F5F5F5]"
+          className="m-0 h-8 w-14 rounded bg-ui-background text-center text-sm font-normal text-text-secondary outline-none group-hover/editor-slider:bg-ui-hover-background group-hover/editor-slider:text-text-primary group-focus/editor-slider:bg-ui-select-background group-focus/editor-slider:text-text-primary"
           data-testid="slider-text-value-input"
-        /> */}
-
-        <NumericInput
-          min={min}
-          max={max}
-          value={value}
-          className="w-14"
-          onChange={(event) => handleInputChange(event)}
-          onKeyDown={(event) => {
-            if (event.key === 'ArrowUp') {
-              handleInputChange(value + step)
-            } else if (event.key === 'ArrowDown') {
-              handleInputChange(value - step)
-            }
-          }}
-          onBlur={() => onRelease?.(value)}
         />
 
         <input
@@ -139,24 +129,24 @@ const Slider = ({
           type="range"
           style={{
             width: width + 'px',
-            background: `linear-gradient(to right, #375DAF ${gradientPercent}%, #191B1F ${gradientPercent}%)`
+            background: `linear-gradient(to right, var(--ui-inactive-secondary) ${gradientPercent}%, var(--ui-background) ${gradientPercent}%)`
           }}
-          className="h-8 w-full min-w-20 cursor-pointer appearance-none overflow-hidden rounded bg-[#191B1F] focus:outline-none
-          disabled:pointer-events-none disabled:opacity-50
-          [&::-moz-range-progress]:bg-[#375DAF]
+          className="h-8 w-full min-w-20 cursor-pointer appearance-none overflow-hidden rounded bg-ui-background outline-none
+          disabled:pointer-events-none disabled:bg-ui-inactive-background
+          [&::-moz-range-progress]:bg-ui-primary
           [&::-moz-range-thumb]:h-full
           [&::-moz-range-thumb]:w-4
           [&::-moz-range-thumb]:appearance-none
           [&::-moz-range-thumb]:rounded
-          [&::-moz-range-thumb]:bg-[#879ECF]
+          [&::-moz-range-thumb]:bg-ui-primary
           [&::-moz-range-thumb]:transition-all
           [&::-moz-range-thumb]:duration-150
           [&::-moz-range-thumb]:ease-in-out
-          group-hover/editor-slider:[&::-moz-range-thumb]:bg-[#AFBEDF]
+          group-hover/editor-slider:[&::-moz-range-thumb]:bg-ui-hover-primary
           [&::-moz-range-track]:h-full
           [&::-moz-range-track]:w-full
           [&::-moz-range-track]:rounded
-          [&::-moz-range-track]:bg-[#191B1F]
+          [&::-moz-range-track]:bg-ui-background
           [&::-webkit-slider-runnable-track]:h-full
           [&::-webkit-slider-runnable-track]:w-full
           [&::-webkit-slider-runnable-track]:rounded
@@ -164,11 +154,11 @@ const Slider = ({
           [&::-webkit-slider-thumb]:w-4
           [&::-webkit-slider-thumb]:appearance-none
           [&::-webkit-slider-thumb]:rounded
-          [&::-webkit-slider-thumb]:bg-[#879ECF]
+          [&::-webkit-slider-thumb]:bg-ui-primary
           [&::-webkit-slider-thumb]:transition-all
           [&::-webkit-slider-thumb]:duration-150
           [&::-webkit-slider-thumb]:ease-in-out
-          group-hover/editor-slider:[&::-webkit-slider-thumb]:bg-[#AFBEDF]
+          group-hover/editor-slider:[&::-webkit-slider-thumb]:bg-ui-hover-primary
         "
           data-testid="slider-draggable-value-input"
         />

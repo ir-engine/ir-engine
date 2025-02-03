@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { Entity, UUIDComponent, getComponent } from '@ir-engine/ecs'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import React, { useEffect } from 'react'
-import { HiCube, HiMiniXMark, HiOutlineChevronDown, HiOutlineChevronRight } from 'react-icons/hi2'
+import { HiCube, HiMiniXMark, HiOutlineChevronRight } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
 import { Tooltip } from '../../..'
 import { ComponentDropdownState } from './ComponentDropdownState'
@@ -88,11 +88,9 @@ export default function ComponentDropdown({
               // title={isMinimized.value ? 'maximize' : 'minimize'}
               onClick={toggleMinimized}
             >
-              {isMinimized.value ? (
-                <HiOutlineChevronRight className="h-4 w-4" />
-              ) : (
-                <HiOutlineChevronDown className="h-4 w-4" />
-              )}
+              <HiOutlineChevronRight
+                className={twMerge('h-4 w-4 transition-transform duration-300', !isMinimized.value ? 'rotate-90' : '')}
+              />
             </button>
           </Tooltip>
 
