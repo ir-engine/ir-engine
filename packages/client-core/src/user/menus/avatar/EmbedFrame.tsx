@@ -41,9 +41,9 @@ const EmbedFrame = ({ src }: Props): JSX.Element => {
               // style="width: 450px; position: fixed; bottom: 0; right: 20px; aspect-ratio: 16/9; background: transparent; z-index: 999999999;"
               frameBorder="0"
               allow="microphone; camera; autoplay; clipboard-write; encrypted-media"
-              allowtransparency="true"
-              allowfullscreen
-              referrerpolicy="strict-origin-when-cross-origin"
+              allowTransparency={true}
+              allowFullScreen
+              referrerPolicy="strict-origin-when-cross-origin"
               title="MentorShop Experience"
             ></iframe>
           </div>
