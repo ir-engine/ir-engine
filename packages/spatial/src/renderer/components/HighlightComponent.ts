@@ -23,41 +23,31 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineQuery, defineSystem, Engine } from '@ir-engine/ecs'
+import { defineQuery, defineSystem, Engine, Entity } from '@ir-engine/ecs'
 import { defineComponent, getComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 
-import { traverseEntityNode } from '@ir-engine/ecs'
 import { OutlineEffect } from 'postprocessing'
-import { Object3D } from 'three'
 import { RendererComponent, WebGLRendererSystem } from '../WebGLRendererSystem'
 import { MeshComponent } from './MeshComponent'
-import { ObjectComponent } from './ObjectComponent'
 import { VisibleComponent } from './VisibleComponent'
 
 export const HighlightComponent = defineComponent({ name: 'HighlightComponent' })
 
-const highlightQuery = defineQuery([HighlightComponent, VisibleComponent])
+const highlightQuery = defineQuery([HighlightComponent, MeshComponent, VisibleComponent])
+
+const getCompObject = (entity: Entity) => getComponent(entity, MeshComponent)
 
 const execute = () => {
   /** @todo support multiple scenes */
   if (!hasComponent(Engine.instance.viewerEntity, RendererComponent)) return
 
-  const highlightObjects = new Set<Object3D>()
-  for (const entity of highlightQuery()) {
-    traverseEntityNode(entity, (child, index) => {
-      if (!hasComponent(child, MeshComponent)) return
-      if (!hasComponent(child, ObjectComponent)) return
-      if (!hasComponent(child, VisibleComponent)) return
-      highlightObjects.add(getComponent(child, MeshComponent))
-    })
-  }
   const rendererComponent = getComponent(Engine.instance.viewerEntity, RendererComponent)
   const outlineEffect = rendererComponent?.effectInstances?.OutlineEffect as OutlineEffect
-  outlineEffect?.selection.set(highlightObjects)
+  outlineEffect?.selection.set(highlightQuery().map(getCompObject))
 }
 
 export const HighlightSystem = defineSystem({
-  uuid: 'HighlightSystem',
+  uuid: 'ir.spatial.render.HighlightSystem',
   insert: { before: WebGLRendererSystem },
   execute
 })
