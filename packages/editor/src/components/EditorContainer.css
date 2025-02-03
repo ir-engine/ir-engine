@@ -10,7 +10,7 @@
 }
 
 .dock.dock-top {
-  background: var(--bg-primary);
+  background: var(--surface-0);
 }
 
 .dock-nav-list {
