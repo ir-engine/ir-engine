@@ -32,7 +32,7 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
-  useOptionalComponent
+  useHasComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
@@ -115,7 +115,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
   const fixedSizeListStyles = props.style
   const uuid = getComponent(entity, UUIDComponent) // intentionally non reactive
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities).value.includes(uuid)
-  const visible = useOptionalComponent(entity, VisibleComponent)
+  const visible = useHasComponent(entity, VisibleComponent)
   const { rootEntity } = useMutableState(EditorState).value
   const { collapseChildren, expandChildren, collapseNode, expandNode } = useNodeCollapseExpand()
   const renamingNode = useRenamingNode()

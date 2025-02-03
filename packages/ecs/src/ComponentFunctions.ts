@@ -779,8 +779,8 @@ export function hasComponents<C extends Component>(entity: Entity, components: C
 export function useHasComponents<C extends Component>(entity: Entity, components: C[]): boolean {
   let hasAllComponents = true
   for (const component of components) {
-    const exists = !!useOptionalComponent(entity, component)
-    if (!exists) hasAllComponents = false
+    useOptionalComponent(entity, component)?.value
+    if (!hasComponent(entity, component)) hasAllComponents = false
   }
 
   return hasAllComponents
@@ -804,7 +804,8 @@ export const removeComponent = <C extends Component>(entity: Entity, component: 
   component.reactorMap.delete(entity)
   if (root?.isRunning) root.stop()
   /** clear state data after reactor stops, to ensure hookstate is still referenceable */
-  destroy(component.stateMap[entity]) // component.stateMap[entity]?.set(none)
+  component.stateMap[entity]?.set(none)
+  destroy(component.stateMap[entity])
   delete component.stateMap[entity]
   delete component.valueMap[entity]
 }
@@ -932,8 +933,8 @@ export function useComponent<C extends Component>(entity: Entity, component: C):
 }
 
 export function useHasComponent<C extends Component>(entity: Entity, component: C): boolean {
-  const componentState = useHookstate(_getComponentState(entity, component)) as State<ComponentType<C>>
-  return componentState.promised ? false : true
+  useOptionalComponent(entity, component)?.value
+  return hasComponent(entity, component)
 }
 
 /**
