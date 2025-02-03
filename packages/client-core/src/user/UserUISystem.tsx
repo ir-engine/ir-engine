@@ -32,7 +32,7 @@ import { getMutableState } from '@ir-engine/hyperflux'
 import { useHookstate } from '@hookstate/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { EngineState, QueryReactor, useComponent, useEntityContext } from '@ir-engine/ecs'
+import { EngineState, QueryReactor, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
 import { IFrameComponent } from '@ir-engine/engine/src/scene/components/IFrameComponent'
 import { NetworkState } from '@ir-engine/network'
 import { PopoverState } from '../common/services/PopoverState'
@@ -42,11 +42,11 @@ import EmbedFrame from './menus/avatar/EmbedFrame'
 
 const IFrameReactor = () => {
   const entity = useEntityContext()
-  const iframeComponent = useComponent(entity, IFrameComponent)
+  const iframeComponent = useOptionalComponent(entity, IFrameComponent)
 
   useEffect(() => {
-    if (iframeComponent.isOpen.value) {
-      PopoverState.showPopupover(<EmbedFrame src={iframeComponent.src.value} />)
+    if (iframeComponent?.isOpen.value) {
+      PopoverState.showPopupover(<EmbedFrame src={iframeComponent?.src.value} />)
     }
   }, [iframeComponent])
 
