@@ -39,7 +39,7 @@ const EmbedFrame = ({ src }: Props): JSX.Element => {
               className="h-full w-full"
               src={src}
               // style="width: 450px; position: fixed; bottom: 0; right: 20px; aspect-ratio: 16/9; background: transparent; z-index: 999999999;"
-              frameborder="0"
+              frameBorder="0"
               allow="microphone; camera; autoplay; clipboard-write; encrypted-media"
               allowtransparency="true"
               allowfullscreen
