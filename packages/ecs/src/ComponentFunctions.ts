@@ -963,7 +963,6 @@ function propagateLayer<C extends Component>(entity: Entity, component: C) {
   for (const [linkedLayer, linkedEntity] of relations) {
     if (!LayerFunctions.shouldPropagate(entityLayer, linkedLayer)) continue
     const newArgs = LayerFunctions.createLayerPropagationArgs(entity, linkedLayer, component)
-    if (component.name === 'DirectionalLightComponent') console.log(component, newArgs)
     setComponent(linkedEntity, component, newArgs)
   }
 }
