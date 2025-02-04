@@ -26,16 +26,16 @@ Ethereal Engine. All Rights Reserved.
 import { Mesh } from '@gltf-transform/core'
 import {
   ComponentType,
-  EntityTreeComponent,
-  S,
-  UUIDComponent,
   defineComponent,
+  EntityTreeComponent,
   getAncestorWithComponents,
   getComponent,
   removeComponent,
+  S,
   setComponent,
   useComponent,
-  useEntityContext
+  useEntityContext,
+  UUIDComponent
 } from '@ir-engine/ecs'
 import { DirectionalLightComponent, PointLightComponent, SpotLightComponent } from '@ir-engine/spatial'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
