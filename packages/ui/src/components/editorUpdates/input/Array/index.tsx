@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 import { SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
-import { NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { NO_PROXY, useHookstate, useState } from '@ir-engine/hyperflux'
 import React, { useCallback, useEffect } from 'react'
 import { DndProvider, useDrag, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -52,7 +52,6 @@ export interface ArrayInputProps {
   dropTypes?: string[]
   SelectIcon?: ({ className }: { className?: string }) => JSX.Element
   selectedIndex?: number
-  onReorder?: (index: number) => void
 }
 
 const DiscardableInput = ({
@@ -164,8 +163,7 @@ export default function ArrayInputGroup({
   dropTypes,
   SelectIcon,
   onSelect,
-  selectedIndex,
-  onReorder
+  selectedIndex
 }: ArrayInputProps) {
   const buildInputElements = () => {
     const returnArray = [] as InputElement[]
@@ -178,6 +176,9 @@ export default function ArrayInputGroup({
     return returnArray
   }
 
+  const localSelectIndex = useState(selectedIndex)
+  localSelectIndex.set(selectedIndex)
+  console.log(localSelectIndex.value)
   const inputElements = useHookstate(buildInputElements() as InputElement[])
 
   const buildValueArrayFromInputElements = (inputElements: InputElement[]) => {
@@ -282,7 +283,7 @@ export default function ArrayInputGroup({
                   dropTypes={dropTypes}
                   SelectIcon={SelectIcon}
                   onSelect={onSelect}
-                  selected={selectedIndex === idx}
+                  selected={localSelectIndex.value === idx}
                   inputElement={inputElement}
                   moveInputElement={moveInputElement}
                   findInputElement={findInputElement}

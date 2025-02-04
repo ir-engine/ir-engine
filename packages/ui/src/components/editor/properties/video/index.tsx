@@ -178,14 +178,14 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   }, [])
 
   useEffect(() => {
-    console.log('sourcePathSelectedIndex- ' + sourcePathSelectedIndex.value)
-  }, [sourcePathSelectedIndex])
-
-  useEffect(() => {
     if (!media || media.resources.length < 1 || media.resources.length <= sourcePathSelectedIndex.value) {
       sourcePathSelectedIndex.set(-1)
     }
   }, [media?.resources])
+
+  useEffect(() => {
+    console.log(sourcePathSelectedIndex.value)
+  }, [sourcePathSelectedIndex])
 
   return (
     <NodeEditor

@@ -287,12 +287,6 @@ export function MediaReactor() {
 
   useEffect(() => {
     if (!mediaElement) return
-    const htmlMedia = mediaElement.element.get(NO_PROXY) as HTMLMediaElement
-    //htmlMedia.controls = media.controls.value
-  }, [media.controls, mediaElement])
-
-  useEffect(() => {
-    if (!mediaElement) return
     const autoPlay = getAutoPlay()
     media.paused.set(!autoPlay)
   }, [media.autoplayEditor, media.autoplayRuntime, mediaElement, getState(EngineState).isEditing])
