@@ -23,10 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import appRootPath from 'app-root-path'
+import { koa } from '@feathersjs/koa'
+import { default as appRootPath } from 'app-root-path'
 import fs from 'fs'
 import fsStore from 'fs-blob-store'
 import glob from 'glob'
+import https from 'https'
+import kill from 'kill-port'
+import serve from 'koa-static'
 import path from 'path/posix'
 import { PassThrough, Readable } from 'stream'
 
@@ -47,7 +51,7 @@ import {
   StorageProviderInterface
 } from './storageprovider.interface'
 
-import kill from 'kill-port'
+const port = config.server.localStorageProviderPort ? parseInt(config.server.localStorageProviderPort) : undefined
 
 /**
  * Storage provide class to communicate with Local http file server.
@@ -86,54 +90,33 @@ export class LocalStorage implements StorageProviderInterface {
     this._store = fsStore(this.PATH_PREFIX)
 
     if (getState(ServerState).serverMode === ServerMode.API) {
-      kill(8642, 'tcp')
+      kill(port, 'tcp')
         .catch(() => {})
         .finally(() => {
-          const express = require('express')
-          const app = express()
+          const certOptions = {
+            cert: fs.readFileSync(config.server.certPath),
+            key: fs.readFileSync(config.server.keyPath)
+          }
 
-          // Handle URL encoding for special characters
-          app.use((req, res, next) => {
-            try {
-              req.url = decodeURIComponent(req.url)
-            } catch (e) {
-              console.log('Error decoding URL:', e)
-            }
-            next()
-          })
-
-          // Direct static file serving from projects/projects
+          const app = koa()
           app.use(
-            '/projects',
-            express.static(path.join(appRootPath.path, 'packages/projects/projects'), {
-              dotfiles: 'allow',
-              index: false,
-              setHeaders: (res) => {
-                res.set('Access-Control-Allow-Origin', '*')
+            serve(this.PATH_PREFIX, {
+              brotli: true,
+              setHeaders: (ctx) => {
+                ctx.setHeader('Access-Control-Allow-Origin', '*')
+                ctx.setHeader('Origin-Agent-Cluster', '?1')
               }
             })
           )
+          // @ts-ignore
+          app.listen = function () {
+            const server = https.createServer(certOptions as any, this.callback())
+            // @ts-ignore
+            // eslint-disable-next-line prefer-spread, prefer-rest-params
+            return server.listen.apply(server, arguments)
+          }
 
-          // Serve upload directory
-          app.use(
-            express.static(this.PATH_PREFIX, {
-              dotfiles: 'allow',
-              setHeaders: (res) => {
-                res.set('Access-Control-Allow-Origin', '*')
-              }
-            })
-          )
-
-          const https = require('https')
-          const server = https.createServer(
-            {
-              cert: fs.readFileSync(config.server.certPath),
-              key: fs.readFileSync(config.server.keyPath)
-            },
-            app
-          )
-
-          server.listen(8642, '::')
+          app.listen(port, () => console.log(`File server listening on port: ${port}`))
         })
     }
     this.getOriginURLs().then((result) => (this.originURLs = result))
