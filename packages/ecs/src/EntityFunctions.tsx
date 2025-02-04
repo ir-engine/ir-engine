@@ -23,48 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import * as bitECS from 'bitecs'
-import React from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
-import { HyperFlux } from '@ir-engine/hyperflux'
+import { EntityUUID } from './Entity'
 
-import { LayerComponent, LayerComponents, LayerFunctions, removeComponent } from './ComponentFunctions'
-import { Entity, EntityUUID, UndefinedEntity } from './Entity'
+/**
+ * Due to cyclical module level references, pretty much the whole ECS wrapper.
+ */
+export * from './ComponentFunctions'
 
-export const removeEntity = (entity: Entity) => {
-  if (!entity || !entityExists(entity)) return ///throw new Error(`[removeEntity]: Entity ${entity} does not exist in the world`)
-
-  const relations = LayerFunctions.getLayerRelationsEntities(entity)
-  const entityLayer = LayerComponent.get(entity)
-  if (relations) {
-    for (const [layer, linkedEntity] of relations) {
-      if (!LayerFunctions.shouldPropagate(entityLayer, layer)) continue
-      removeEntity(linkedEntity)
-    }
-  }
-
-  for (const component of bitECS.getEntityComponents(HyperFlux.store, entity)) {
-    if (component === LayerComponent || LayerComponents.includes(component)) continue
-    removeComponent(entity, component)
-  }
-
-  // always ensure layer component is removed last (it removes the specific layer component too)
-  removeComponent(entity, LayerComponent)
-
-  bitECS.removeEntity(HyperFlux.store, entity)
-}
-
-export const entityExists = (entity: Entity) => {
-  return bitECS.entityExists(HyperFlux.store, entity)
-}
-
-export const EntityContext = React.createContext(UndefinedEntity)
-
-export const useEntityContext = () => {
-  return React.useContext(EntityContext)
-}
-
+/** @deprecated use UUIDComponent.generateUUID() instead */
 export const generateEntityUUID = () => {
   return uuidv4() as EntityUUID
 }

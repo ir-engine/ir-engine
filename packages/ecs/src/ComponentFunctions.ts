@@ -50,25 +50,28 @@ import {
 import { ECSState } from './ECSState'
 import { Easing, EasingFunction } from './EasingFunctions'
 import { Entity, UndefinedEntity } from './Entity'
-import { EntityContext, entityExists, removeEntity } from './EntityFunctions'
 import { defineQuery, removeQuery } from './QueryFunctions'
+import { defineSystem } from './SystemFunctions'
+import { PresentationSystemGroup } from './SystemGroups'
 import { Transitionable, TransitionableTypes, getTransitionableKeyForType } from './Transitionable'
 import { createResizableTypeArray } from './bitecsLegacy'
-import { createEntity } from './createEntity'
 import { Kind, Static, Schema as TSchema, TTypedSchema } from './schemas/JSONSchemaTypes'
 import {
   CreateSchemaValue,
   DeserializeSchemaValue,
   HasRequiredSchema,
   HasRequiredSchemaValues,
-  HasSchemaDeserializers,
   HasSchemaValidators,
   HasValidSchemaValues,
   IsSingleValueSchema,
-  requiresDeserialization,
   SerializeSchema
 } from './schemas/JSONSchemaUtils'
 import { S } from './schemas/JSONSchemas'
+
+/**
+ * === SECTION ===
+ * Component Functions
+ */
 
 export const ComponentMap = new Map<string, Component<any, any, any, any, any, any>>()
 export const ComponentJSONIDMap = new Map<string, Component<any, any, any, any, any, any>>() // <jsonID, Component>
@@ -480,6 +483,298 @@ const resizeComponent = (component: Component, size: number) => {
   component.storageSize = size
 }
 
+const _getComponentState = <C extends Component>(entity: Entity, component: C) => {
+  if (!component.stateMap[entity]) {
+    component.stateMap[entity] = hookstate(none, () => ({
+      onSet: (s, d) => {
+        const rootState = component.stateMap[entity]
+        component.valueMap[entity] = rootState.promised ? undefined : rootState.get(NO_PROXY_STEALTH)
+        if (bitECS.hasComponent(HyperFlux.store, entity, component)) {
+          LayerFunctions.propagateLayer(entity, component)
+        }
+      }
+    }))
+  }
+  return component.stateMap[entity]
+}
+
+/**
+ * @description
+ * Assigns the given component to the given entity, and returns the component.
+ * @notes
+ * - If the component already exists, it will be overwritten.
+ * - Unlike calling {@link removeComponent} followed by {@link addComponent}, the entry queue will not be rerun.
+ * - Does not run validators or deserialization.
+ *
+ * @param entity The entity to which the Component will be attached.
+ * @param component The Component that will be attached.
+ * @param args `@todo` Explain what `setComponent(   args)` is
+ * @returns The component that was attached.
+ */
+export const setComponent = <C extends Component>(
+  entity: Entity,
+  component: C,
+  args: SetComponentType<C> | undefined = undefined
+) => {
+  if (!entity) {
+    throw new Error('[setComponent]: entity is undefined')
+  }
+  if (!entityExists(entity)) {
+    console.trace({ entity, component: component.name, args })
+    throw new Error('[setComponent]: entity does not exist')
+  }
+
+  if (component.storage) {
+    const nextSize = nextPowerOf2(entity + 1)
+    if (component.storageSize < nextSize) resizeComponent(component, nextSize)
+  }
+
+  const state = _getComponentState(entity, component)
+
+  const exists = hasComponent(entity, component)
+
+  if (!exists) {
+    // we must call onSet before setting the component in the ECS, such that the propagation
+    // callback does not propagate data that may be required but not set yet
+    state.set(createInitialComponentValue(entity, component))
+    component.onSet(entity, state, args)
+    bitECS.addComponent(HyperFlux.store, entity, component)
+  } else {
+    component.onSet(entity, state, args)
+  }
+
+  /** @todo this might be unnecessayr now that we have propagation via the store */
+  LayerFunctions.propagateLayer(entity, component)
+
+  if (component.reactor && !component.reactorMap.has(entity) && LayerComponent.get(entity) === Layers.Simulation) {
+    const root = startReactor(() => {
+      return React.createElement(EntityContext.Provider, { value: entity }, React.createElement(component.reactor, {}))
+    }) as ReactorRoot
+    root['entity'] = entity
+    root['component'] = component.name
+    component.reactorMap.set(entity, root)
+    root.run()
+  }
+
+  const root = component.reactorMap.get(entity)
+  root?.run()
+}
+
+export const hasComponent = <C extends Component>(entity: Entity, component: C): boolean => {
+  if (!component) throw new Error('[hasComponent]: component is undefined')
+  if (!entity) return false
+  return bitECS.hasComponent(HyperFlux.store, entity, component)
+}
+
+/**
+ * Returns true if the entity has all the specified components, false if it is missing any
+ * @param entity
+ * @param components
+ */
+export function hasComponents<C extends Component>(entity: Entity, components: C[]): boolean {
+  if (!components) throw new Error('[hasComponent]: component is undefined')
+  if (components.length < 1 || !entity) return false
+
+  for (const component of components) {
+    if (!hasComponent(entity, component)) return false
+  }
+  return true
+}
+
+export function useHasComponents<C extends Component>(entity: Entity, components: C[]): boolean {
+  let hasAllComponents = true
+  for (const component of components) {
+    useOptionalComponent(entity, component)?.value
+    if (!hasComponent(entity, component)) hasAllComponents = false
+  }
+
+  return hasAllComponents
+}
+
+export const removeComponent = <C extends Component>(entity: Entity, component: C) => {
+  if (!hasComponent(entity, component)) return
+
+  const relations = LayerFunctions.getLayerRelationsEntities(entity)
+  if (relations) {
+    const entityLayer = LayerComponent.get(entity)
+    for (const [layer, linkedEntity] of relations) {
+      if (!LayerFunctions.shouldPropagate(entityLayer, layer)) continue
+      removeComponent(linkedEntity, component)
+    }
+  }
+
+  bitECS.removeComponent(HyperFlux.store, entity, component)
+  component.onRemove(entity, component.stateMap[entity]!)
+  const root = component.reactorMap.get(entity)
+  component.reactorMap.delete(entity)
+  if (root?.isRunning) root.stop()
+  /** clear state data after reactor stops, to ensure hookstate is still referenceable */
+  component.stateMap[entity]?.set(none)
+  destroy(component.stateMap[entity])
+  delete component.stateMap[entity]
+  delete component.valueMap[entity]
+}
+
+/**
+ * @description
+ * Initializes a temporary Component of the same type that the given Component, using its {@link Component.onInit} function, and returns its serialized JSON data.
+ * @notes The temporary Component won't be inserted into the ECS system, and its data will be GC'ed at the end of this function.
+ * @param component The desired Component.
+ * @returns JSON object containing the requested data.
+ */
+export const componentJsonDefaults = <C extends Component>(component: C) => {
+  const initial = createInitialComponentValue(UndefinedEntity, component)
+  return component.toJSON(initial)
+}
+
+/**
+ * @description Returns a array of all {@link Component}s associated with the given {@link Entity}.
+ * @param entity The desired Entity.
+ * @returns An array containing all of the Entity's associated components.
+ */
+export const getAllComponents = (entity: Entity): Component[] => {
+  if (!entityExists(entity)) return []
+  return bitECS.getEntityComponents(HyperFlux.store, entity) as Component[]
+}
+
+/**
+ * @description Returns an {@link Object} containing the data of all {@link Component}s of the given {@link Entity}.
+ * @param entity The desired Entity.
+ * @returns An {@link Object} where each component of the given {@link Entity} has its own field.
+ */
+export const getAllComponentData = (entity: Entity): { [name: string]: ComponentType<any> } => {
+  return Object.fromEntries(getAllComponents(entity).map((C) => [C.name, getComponent(entity, C)]))
+}
+
+export const removeAllComponents = (entity: Entity) => {
+  if (!entityExists(entity)) return
+  try {
+    for (const component of bitECS.getEntityComponents(HyperFlux.store, entity)) {
+      try {
+        removeComponent(entity, component as Component)
+      } catch (e) {
+        console.error(e)
+      }
+    }
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+export const deserializeComponent = <C extends Component>(
+  entity: Entity,
+  Component: C,
+  json: SetComponentType<C> | undefined = undefined
+) => {
+  if (Component.schema && HasRequiredSchema(Component.schema)) {
+    const [valid, key] = HasRequiredSchemaValues(Component.schema as TSchema, json)
+    if (!valid) throw new Error(`${Component.name}:OnSet Missing required value for key ${key}`)
+  }
+
+  if (!hasComponent(entity, Component)) setComponent(entity, Component)
+
+  if (json === null || json === undefined) return
+
+  const component = getComponent(entity, Component)
+
+  const args = Component.schema ? DeserializeSchemaValue(entity, Component.schema, component, json) : json
+
+  if (Component.schema && HasSchemaValidators(Component.schema)) {
+    const [valid, key] = HasValidSchemaValues(Component.schema, args, component, entity)
+    if (!valid) throw new Error(`${component.name}:OnSet Invalid value for key ${key} ${JSON.stringify(args)}`)
+  }
+
+  setComponent(entity, Component, args)
+}
+
+export const serializeComponent = <C extends Component>(entity: Entity, Component: C) => {
+  const component = getComponent(entity, Component)
+  return JSON.parse(JSON.stringify(Component.toJSON(component))) as ReturnType<C['toJSON']>
+}
+
+// If we want to add more validation logic (ie. schema migrations), decouple this function from Component.toJSON first
+export const validateComponentSchema = <C extends Component>(Component: C, data: ComponentType<C>) => {
+  if (!Component.schema) return data
+  return SerializeSchema(Component.schema, data)
+}
+
+// use seems to be unavailable in the server environment
+export function _use(promise) {
+  if (promise.status === 'fulfilled') {
+    return promise.value
+  } else if (promise.status === 'rejected') {
+    throw promise.reason
+  } else if (promise.status === 'pending') {
+    throw promise
+  } else {
+    promise.status = 'pending'
+    promise.then(
+      (result) => {
+        promise.status = 'fulfilled'
+        promise.value = result
+      },
+      (reason) => {
+        promise.status = 'rejected'
+        promise.reason = reason
+      }
+    )
+    throw promise
+  }
+}
+
+/**
+ * Use a component in a reactive context (a React component)
+ */
+export function useComponent<C extends Component>(entity: Entity, component: C): State<ComponentType<C>> {
+  if (entity === UndefinedEntity) throw new Error('InvalidUsage: useComponent called with UndefinedEntity')
+
+  const state = _getComponentState(entity, component)
+
+  // use() will suspend the component (by throwing a promise) and resume when the promise is resolved
+  if (state.promise) {
+    ;(React.use ?? _use)(state.promise)
+  }
+
+  return useHookstate(state) as State<ComponentType<C>>
+}
+
+export function useHasComponent<C extends Component>(entity: Entity, component: C): boolean {
+  useOptionalComponent(entity, component)?.value
+  return hasComponent(entity, component)
+}
+
+/**
+ * Use a component in a reactive context (a React component)
+ */
+export function useOptionalComponent<C extends Component>(
+  entity: Entity,
+  component: C
+): State<ComponentType<C>> | undefined {
+  const componentState = useHookstate(_getComponentState(entity, component)) as State<ComponentType<C>>
+  return componentState.promised ? undefined : componentState
+}
+
+export const getComponentCountOfType = <C extends Component>(component: C): number => {
+  const query = defineQuery([component])
+  const length = query().length
+  removeQuery(query)
+  return length
+}
+
+export const getAllComponentsOfType = <C extends Component>(component: C): ComponentType<C>[] => {
+  const query = defineQuery([component])
+  const entities = query()
+  removeQuery(query)
+  return entities.map((e) => {
+    return getComponent(e, component)!
+  })
+}
+
+/**
+ * === SECTION ===
+ * Entity Layers
+ */
+
 /**
  * @description Returns array of relations that, for each entry, contains:
  *  - Layer number at slot 0
@@ -680,290 +975,6 @@ export const LayerFunctions = {
   getAuthoringCounterpart
 }
 
-const _getComponentState = <C extends Component>(entity: Entity, component: C) => {
-  if (!component.stateMap[entity]) {
-    component.stateMap[entity] = hookstate(none, () => ({
-      onSet: (s, d) => {
-        const rootState = component.stateMap[entity]
-        component.valueMap[entity] = rootState.promised ? undefined : rootState.get(NO_PROXY_STEALTH)
-        if (bitECS.hasComponent(HyperFlux.store, entity, component)) {
-          LayerFunctions.propagateLayer(entity, component)
-        }
-      }
-    }))
-  }
-  return component.stateMap[entity]
-}
-
-/**
- * @description
- * Assigns the given component to the given entity, and returns the component.
- * @notes
- * - If the component already exists, it will be overwritten.
- * - Unlike calling {@link removeComponent} followed by {@link addComponent}, the entry queue will not be rerun.
- * - Does not run validators or deserialization.
- *
- * @param entity The entity to which the Component will be attached.
- * @param component The Component that will be attached.
- * @param args `@todo` Explain what `setComponent(   args)` is
- * @returns The component that was attached.
- */
-export const setComponent = <C extends Component>(
-  entity: Entity,
-  component: C,
-  args: SetComponentType<C> | undefined = undefined
-) => {
-  if (!entity) {
-    throw new Error('[setComponent]: entity is undefined')
-  }
-  if (!bitECS.entityExists(HyperFlux.store, entity)) {
-    throw new Error('[setComponent]: entity does not exist')
-  }
-
-  if (component.storage) {
-    const nextSize = nextPowerOf2(entity + 1)
-    if (component.storageSize < nextSize) resizeComponent(component, nextSize)
-  }
-
-  const state = _getComponentState(entity, component)
-
-  const exists = hasComponent(entity, component)
-
-  if (!exists) {
-    // we must call onSet before setting the component in the ECS, such that the propagation
-    // callback does not propagate data that may be required but not set yet
-    state.set(createInitialComponentValue(entity, component))
-    component.onSet(entity, state, args)
-    bitECS.addComponent(HyperFlux.store, entity, component)
-  } else {
-    component.onSet(entity, state, args)
-  }
-
-  LayerFunctions.propagateLayer(entity, component)
-
-  if (component.reactor && !component.reactorMap.has(entity) && LayerComponent.get(entity) === Layers.Simulation) {
-    const root = startReactor(() => {
-      return React.createElement(EntityContext.Provider, { value: entity }, React.createElement(component.reactor, {}))
-    }) as ReactorRoot
-    root['entity'] = entity
-    root['component'] = component.name
-    component.reactorMap.set(entity, root)
-    root.run()
-  }
-
-  const root = component.reactorMap.get(entity)
-  root?.run()
-}
-
-export const hasComponent = <C extends Component>(entity: Entity, component: C): boolean => {
-  if (!component) throw new Error('[hasComponent]: component is undefined')
-  if (!entity) return false
-  return bitECS.hasComponent(HyperFlux.store, entity, component)
-}
-
-/**
- * Returns true if the entity has all the specified components, false if it is missing any
- * @param entity
- * @param components
- */
-export function hasComponents<C extends Component>(entity: Entity, components: C[]): boolean {
-  if (!components) throw new Error('[hasComponent]: component is undefined')
-  if (components.length < 1 || !entity) return false
-
-  for (const component of components) {
-    if (!hasComponent(entity, component)) return false
-  }
-  return true
-}
-
-export function useHasComponents<C extends Component>(entity: Entity, components: C[]): boolean {
-  let hasAllComponents = true
-  for (const component of components) {
-    useOptionalComponent(entity, component)?.value
-    if (!hasComponent(entity, component)) hasAllComponents = false
-  }
-
-  return hasAllComponents
-}
-
-export const removeComponent = <C extends Component>(entity: Entity, component: C) => {
-  if (!hasComponent(entity, component)) return
-
-  const relations = LayerFunctions.getLayerRelationsEntities(entity)
-  if (relations) {
-    const entityLayer = LayerComponent.get(entity)
-    for (const [layer, linkedEntity] of relations) {
-      if (!LayerFunctions.shouldPropagate(entityLayer, layer)) continue
-      removeComponent(linkedEntity, component)
-    }
-  }
-
-  bitECS.removeComponent(HyperFlux.store, entity, component)
-  component.onRemove(entity, component.stateMap[entity]!)
-  const root = component.reactorMap.get(entity)
-  component.reactorMap.delete(entity)
-  if (root?.isRunning) root.stop()
-  /** clear state data after reactor stops, to ensure hookstate is still referenceable */
-  component.stateMap[entity]?.set(none)
-  destroy(component.stateMap[entity])
-  delete component.stateMap[entity]
-  delete component.valueMap[entity]
-}
-
-/**
- * @description
- * Initializes a temporary Component of the same type that the given Component, using its {@link Component.onInit} function, and returns its serialized JSON data.
- * @notes The temporary Component won't be inserted into the ECS system, and its data will be GC'ed at the end of this function.
- * @param component The desired Component.
- * @returns JSON object containing the requested data.
- */
-export const componentJsonDefaults = <C extends Component>(component: C) => {
-  const initial = createInitialComponentValue(UndefinedEntity, component)
-  return component.toJSON(initial)
-}
-
-/**
- * @description Returns a array of all {@link Component}s associated with the given {@link Entity}.
- * @param entity The desired Entity.
- * @returns An array containing all of the Entity's associated components.
- */
-export const getAllComponents = (entity: Entity): Component[] => {
-  if (!bitECS.entityExists(HyperFlux.store, entity)) return []
-  return bitECS.getEntityComponents(HyperFlux.store, entity) as Component[]
-}
-
-/**
- * @description Returns an {@link Object} containing the data of all {@link Component}s of the given {@link Entity}.
- * @param entity The desired Entity.
- * @returns An {@link Object} where each component of the given {@link Entity} has its own field.
- */
-export const getAllComponentData = (entity: Entity): { [name: string]: ComponentType<any> } => {
-  return Object.fromEntries(getAllComponents(entity).map((C) => [C.name, getComponent(entity, C)]))
-}
-
-export const removeAllComponents = (entity: Entity) => {
-  try {
-    for (const component of bitECS.getEntityComponents(HyperFlux.store, entity)) {
-      try {
-        removeComponent(entity, component as Component)
-      } catch (e) {
-        console.error(e)
-      }
-    }
-  } catch (e) {
-    console.error(e)
-  }
-}
-
-export const deserializeComponent = <C extends Component>(
-  entity: Entity,
-  Component: C,
-  json: SetComponentType<C> | undefined = undefined
-) => {
-  if (Component.schema && HasRequiredSchema(Component.schema)) {
-    const [valid, key] = HasRequiredSchemaValues(Component.schema as TSchema, json)
-    if (!valid) throw new Error(`${Component.name}:OnSet Missing required value for key ${key}`)
-  }
-
-  if (!hasComponent(entity, Component)) setComponent(entity, Component)
-
-  if (json === null || json === undefined) return
-
-  const component = getComponent(entity, Component)
-
-  const args = Component.schema ? DeserializeSchemaValue(entity, Component.schema, component, json) : json
-
-  if (Component.schema && HasSchemaValidators(Component.schema)) {
-    const [valid, key] = HasValidSchemaValues(Component.schema, args, component, entity)
-    if (!valid) throw new Error(`${component.name}:OnSet Invalid value for key ${key} ${JSON.stringify(args)}`)
-  }
-
-  setComponent(entity, Component, args)
-}
-
-export const serializeComponent = <C extends Component>(entity: Entity, Component: C) => {
-  const component = getComponent(entity, Component)
-  return JSON.parse(JSON.stringify(Component.toJSON(component))) as ReturnType<C['toJSON']>
-}
-
-// If we want to add more validation logic (ie. schema migrations), decouple this function from Component.toJSON first
-export const validateComponentSchema = <C extends Component>(Component: C, data: ComponentType<C>) => {
-  if (!Component.schema) return data
-  return SerializeSchema(Component.schema, data)
-}
-
-// use seems to be unavailable in the server environment
-export function _use(promise) {
-  if (promise.status === 'fulfilled') {
-    return promise.value
-  } else if (promise.status === 'rejected') {
-    throw promise.reason
-  } else if (promise.status === 'pending') {
-    throw promise
-  } else {
-    promise.status = 'pending'
-    promise.then(
-      (result) => {
-        promise.status = 'fulfilled'
-        promise.value = result
-      },
-      (reason) => {
-        promise.status = 'rejected'
-        promise.reason = reason
-      }
-    )
-    throw promise
-  }
-}
-
-/**
- * Use a component in a reactive context (a React component)
- */
-export function useComponent<C extends Component>(entity: Entity, component: C): State<ComponentType<C>> {
-  if (entity === UndefinedEntity) throw new Error('InvalidUsage: useComponent called with UndefinedEntity')
-
-  const state = _getComponentState(entity, component)
-
-  // use() will suspend the component (by throwing a promise) and resume when the promise is resolved
-  if (state.promise) {
-    ;(React.use ?? _use)(state.promise)
-  }
-
-  return useHookstate(state) as State<ComponentType<C>>
-}
-
-export function useHasComponent<C extends Component>(entity: Entity, component: C): boolean {
-  useOptionalComponent(entity, component)?.value
-  return hasComponent(entity, component)
-}
-
-/**
- * Use a component in a reactive context (a React component)
- */
-export function useOptionalComponent<C extends Component>(
-  entity: Entity,
-  component: C
-): State<ComponentType<C>> | undefined {
-  const componentState = useHookstate(_getComponentState(entity, component)) as State<ComponentType<C>>
-  return componentState.promised ? undefined : componentState
-}
-
-export const getComponentCountOfType = <C extends Component>(component: C): number => {
-  const query = defineQuery([component])
-  const length = query().length
-  removeQuery(query)
-  return length
-}
-
-export const getAllComponentsOfType = <C extends Component>(component: C): ComponentType<C>[] => {
-  const query = defineQuery([component])
-  const entities = query()
-  removeQuery(query)
-  return entities.map((e) => {
-    return getComponent(e, component)!
-  })
-}
-
 export const Layers = {
   Simulation: 0 as const,
   Authoring: 1 as const
@@ -1053,6 +1064,11 @@ export const LayerComponent = defineComponent({
 export function getAuthoringCounterpart(entity: Entity) {
   return LayerComponents[Layers.Authoring].refs[entity]
 }
+
+/**
+ * === SECTION ===
+ * Component Transitions
+ */
 
 export const TransitionComponent = defineComponent({
   name: 'TransitionComponent',
@@ -1212,3 +1228,96 @@ export const TransitionComponent = defineComponent({
     }
   }
 })
+
+/**
+ * === SECTION ===
+ * Entity Functions
+ */
+
+/**
+ * $RemovedComponent
+ * - internal to the ECS
+ * - used as a component to mark an entity as existing, and it's store 'exists' is set to 0
+ *       immediately upon calling removeEntity, thus we can use it for entity existence
+ */
+export const $RemovedComponent = defineComponent({
+  name: '$RemovedComponent',
+  storage: { exists: createResizableTypeArray(Uint8Array) }
+})
+
+// precalc initial few unnecessary resizes
+resizeComponent($RemovedComponent, Math.pow(2, 8))
+
+// add a delay such that we ensure any deletions never happen on the same animation frame to ensure reactors have enough time to run effects
+let lastMarkedForRemoval = 0
+const delay = 100 // 100ms - usually enough for a few frames on low end devices
+
+const _markEntityForRemoval = (eid: Entity): void => {
+  bitECS.addComponent(HyperFlux.store, eid, $RemovedComponent)
+  $RemovedComponent.exists[eid] = 0
+  // updating to now ensures we are at least <delay> time from the last mark, which ensures reactors always have enough time to run
+  lastMarkedForRemoval = Date.now()
+}
+
+export const _removeMarkedEntity = (eid: Entity): void => {
+  bitECS.removeComponent(HyperFlux.store, eid, $RemovedComponent)
+  bitECS.removeEntity(HyperFlux.store, eid)
+}
+
+export const _removeMarkedEntities = (): void => {
+  const now = Date.now()
+  if (now - lastMarkedForRemoval > delay) return
+
+  for (const eid of bitECS.query(HyperFlux.store, [$RemovedComponent]) as Entity[]) _removeMarkedEntity(eid)
+}
+
+export const $EntityRemovalSystem = defineSystem({
+  uuid: '$EntityRemovalSystem',
+  insert: { after: PresentationSystemGroup },
+  execute: _removeMarkedEntities
+})
+
+export const createEntity = (layerID: LayerID = Layers.Simulation): Entity => {
+  if (!LayerComponents[layerID]) throw new Error('createEntity: argument layerID must be a valid LayerID value')
+  const entity = bitECS.addEntity(HyperFlux.store) as Entity
+  if ($RemovedComponent.exists.length <= entity) {
+    const nextSize = nextPowerOf2(entity + 1)
+    if ($RemovedComponent.storageSize < nextSize) resizeComponent($RemovedComponent, nextSize)
+  }
+  $RemovedComponent.exists[entity] = 1
+  setComponent(entity, LayerComponent, layerID)
+  return entity
+}
+
+export const removeEntity = (entity: Entity) => {
+  if (!entity || !entityExists(entity)) return ///throw new Error(`[removeEntity]: Entity ${entity} does not exist in the world`)
+
+  const relations = LayerFunctions.getLayerRelationsEntities(entity)
+  const entityLayer = LayerComponent.get(entity)
+  if (relations) {
+    for (const [layer, linkedEntity] of relations) {
+      if (!LayerFunctions.shouldPropagate(entityLayer, layer)) continue
+      removeEntity(linkedEntity)
+    }
+  }
+
+  for (const component of bitECS.getEntityComponents(HyperFlux.store, entity)) {
+    if (component === LayerComponent || LayerComponents.includes(component)) continue
+    removeComponent(entity, component)
+  }
+
+  // always ensure layer component is removed last (it removes the specific layer component too)
+  removeComponent(entity, LayerComponent)
+
+  _markEntityForRemoval(entity)
+}
+
+export const entityExists = (entity: Entity) => {
+  return $RemovedComponent.exists[entity] === 1
+}
+
+export const EntityContext = React.createContext(UndefinedEntity)
+
+export const useEntityContext = () => {
+  return React.useContext(EntityContext)
+}

@@ -27,19 +27,10 @@ import * as bitECS from 'bitecs'
 import React, { ErrorInfo, FC, memo, Suspense, useEffect, useLayoutEffect, useMemo } from 'react'
 import * as bitECSLegacy from './bitecsLegacy'
 
-import {
-  HyperFlux,
-  NO_PROXY,
-  startReactor,
-  State,
-  useForceUpdate,
-  useHookstate,
-  useImmediateEffect
-} from '@ir-engine/hyperflux'
+import { HyperFlux, NO_PROXY, startReactor, State, useForceUpdate, useHookstate } from '@ir-engine/hyperflux'
 
-import { LayerComponents, LayerID, Layers } from './ComponentFunctions'
+import { EntityContext, LayerComponents, LayerID, Layers } from './ComponentFunctions'
 import { Entity } from './Entity'
-import { EntityContext } from './EntityFunctions'
 
 export type { QueryTerm } from 'bitecs'
 
@@ -81,8 +72,8 @@ export function removeQuery(queryOrTerms: ReturnType<typeof defineQuery> | bitEC
 
 export const query = (queryTerms: bitECS.QueryTerm[]) => bitECS.query(HyperFlux.store, queryTerms)
 
-const UseQuerySubreactorCache = {} as Record<string, Set<State<Entity[]>>>
-globalThis.UseQuerySubreactorCache = UseQuerySubreactorCache
+const UseQuerySubreactorEntityCache = {} as Record<string, Set<State<Entity[]>>>
+const UseQuerySubreactorCache = {} as Record<string, ReturnType<typeof startReactor>>
 
 const sortAndJoinComponents = (components: bitECS.QueryTerm[]) =>
   components
@@ -95,52 +86,57 @@ export function useQuery(components: bitECS.QueryTerm[], layer: LayerID = Layers
     return [...query([...components, LayerComponents[layer]])] as Entity[]
   })
 
-  useImmediateEffect(() => {
+  useEffect(() => {
     const componentsWithLayer = [...components, LayerComponents[layer]]
 
     const key = sortAndJoinComponents(componentsWithLayer)
 
-    if (!UseQuerySubreactorCache[key]) UseQuerySubreactorCache[key] = new Set()
+    const exists = !!UseQuerySubreactorEntityCache[key]
+    if (!UseQuerySubreactorEntityCache[key]) UseQuerySubreactorEntityCache[key] = new Set()
 
-    const cache = UseQuerySubreactorCache[key]
+    const cache = UseQuerySubreactorEntityCache[key]
     cache.add(entitiesState)
+    if (!exists) {
+      const subreactor = startReactor(() => {
+        const update = useForceUpdate()
 
-    const subreactor =
-      cache.size === 1
-        ? startReactor(() => {
-            const update = useForceUpdate()
+        const entities = query(componentsWithLayer) as Entity[]
+        useEffect(() => {
+          for (const state of cache) {
+            state.set([...entities])
+          }
+        }, [JSON.stringify(entities)])
 
-            const entities = query(componentsWithLayer) as Entity[]
-            useEffect(() => {
-              for (const state of cache) {
-                state.set([...entities])
-              }
-            }, [JSON.stringify(entities)])
+        useLayoutEffect(() => {
+          const componentsWithLayer = [...components, LayerComponents[layer]]
 
-            useLayoutEffect(() => {
-              const componentsWithLayer = [...components, LayerComponents[layer]]
+          const unsubAdd = bitECS.observe(HyperFlux.store, bitECS.onAdd(...componentsWithLayer), update)
+          const unsubRemove = bitECS.observe(HyperFlux.store, bitECS.onRemove(...componentsWithLayer), update)
 
-              const unsubAdd = bitECS.observe(HyperFlux.store, bitECS.onAdd(...componentsWithLayer), update)
-              const unsubRemove = bitECS.observe(HyperFlux.store, bitECS.onRemove(...componentsWithLayer), update)
+          const unsubscribe = () => {
+            unsubAdd()
+            unsubRemove()
+          }
 
-              const unsubscribe = () => {
-                unsubAdd()
-                unsubRemove()
-              }
+          return () => {
+            unsubscribe()
+            removeQuery(componentsWithLayer)
+          }
+        }, [])
 
-              return () => {
-                unsubscribe()
-                removeQuery(componentsWithLayer)
-              }
-            }, [])
+        return null
+      })
 
-            return null
-          })
-        : null
+      UseQuerySubreactorCache[key] = subreactor
+    }
 
     return () => {
       cache.delete(entitiesState)
-      if (subreactor) subreactor.stop()
+      if (cache.size === 0) {
+        const subreactor = UseQuerySubreactorCache[key]
+        subreactor.stop()
+        delete UseQuerySubreactorEntityCache[key]
+      }
     }
   }, [])
 

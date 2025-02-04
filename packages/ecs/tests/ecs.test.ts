@@ -37,9 +37,8 @@ import {
   removeComponent,
   setComponent
 } from '../src/ComponentFunctions'
-import { createEntity } from '../src/createEntity'
 import { createEngine, destroyEngine } from '../src/Engine'
-import { entityExists, removeEntity } from '../src/EntityFunctions'
+import { createEntity, entityExists, removeEntity } from '../src/EntityFunctions'
 import { defineQuery } from '../src/QueryFunctions'
 import { S } from '../src/schemas/JSONSchemas'
 

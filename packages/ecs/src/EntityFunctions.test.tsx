@@ -27,11 +27,10 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { HyperFlux } from '@ir-engine/hyperflux'
 import * as bitECS from 'bitecs'
-import { LayerComponent, LayerID, Layers } from './ComponentFunctions'
+import { LayerComponent, LayerID, Layers, _removeMarkedEntity } from './ComponentFunctions'
 import { createEngine, destroyEngine } from './Engine'
 import { Entity, UndefinedEntity } from './Entity'
-import { entityExists, removeEntity } from './EntityFunctions'
-import { createEntity } from './createEntity'
+import { createEntity, entityExists, removeEntity } from './EntityFunctions'
 
 describe('createEntity', () => {
   beforeEach(() => {
@@ -105,7 +104,10 @@ describe('removeEntity', () => {
     // Run and Check the result
     removeEntity(testEntity)
     const result = bitECS.entityExists(HyperFlux.store, testEntity)
-    expect(result).toBeFalsy()
+    expect(result).equals(true)
+    _removeMarkedEntity(testEntity)
+    const result2 = bitECS.entityExists(HyperFlux.store, testEntity)
+    expect(result2).equals(false)
   })
 
   /**

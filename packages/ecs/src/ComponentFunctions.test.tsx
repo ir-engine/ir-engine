@@ -46,9 +46,9 @@ import {
 } from './ComponentFunctions'
 import { createEngine, destroyEngine } from './Engine'
 import { Entity, EntityUUID, UndefinedEntity } from './Entity'
+import { createEntity } from './EntityFunctions'
 import { UUIDComponent } from './UUIDComponent'
 import { createResizableTypeArray } from './bitecsLegacy'
-import { createEntity } from './createEntity'
 import { CheckSchemaValue, CreateSchemaValue } from './schemas/JSONSchemaUtils'
 import { S } from './schemas/JSONSchemas'
 

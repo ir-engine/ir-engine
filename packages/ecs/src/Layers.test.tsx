@@ -47,10 +47,9 @@ import {
   removeComponent,
   setComponent
 } from './ComponentFunctions'
-import { createEntity } from './createEntity'
 import { createEngine, destroyEngine } from './Engine'
 import { Entity, UndefinedEntity } from './Entity'
-import { entityExists } from './EntityFunctions'
+import { createEntity, entityExists } from './EntityFunctions'
 import { defineQuery } from './QueryFunctions'
 
 const TestComponent = defineComponent({ name: 'SomeTestComponent' })
