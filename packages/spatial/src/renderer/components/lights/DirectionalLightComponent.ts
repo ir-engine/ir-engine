@@ -41,7 +41,7 @@ import {
   useEntityContext,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import { useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
 import { ActiveHelperComponent } from '../../../common/ActiveHelperComponent'
 import { mergeBufferGeometries } from '../../../common/classes/BufferGeometryUtils'
