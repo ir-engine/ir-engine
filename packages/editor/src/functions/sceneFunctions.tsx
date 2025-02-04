@@ -78,16 +78,13 @@ export const saveSceneGLTF = async (
   if (!gltfData) {
     logger.error('Failed to save scene, no gltf data found')
   }
-  const encodedGLTF = handleScenePaths(gltfData, 'encode')
-  const blob = [JSON.stringify(encodedGLTF, null, 2)]
-  const file = new File(blob, `${sceneName}.gltf`)
 
   const currentScene = await API.instance.service(staticResourcePath).get(sceneAssetID)
 
   const [[newPath]] = await Promise.all(
     uploadProjectFiles(
       projectName,
-      [file],
+      gltfData,
       [currentSceneDirectory],
       [
         {

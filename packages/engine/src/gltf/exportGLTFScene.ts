@@ -66,9 +66,9 @@ import {
   Texture
 } from 'three'
 import { baseName, pathJoin, relativePathTo } from '../assets/functions/miscUtils'
-import { cleanStorageProviderURLs } from '../assets/functions/parseSceneJSON'
 import { STATIC_ASSET_REGEX } from '../assets/functions/pathResolver'
 import { SourceComponent } from '../scene/components/SourceComponent'
+import { handleScenePaths } from '../scene/functions/GLTFConversion'
 import { GLTFComponent } from './GLTFComponent'
 
 const WEBGL_CONSTANTS = {
@@ -362,7 +362,7 @@ export async function exportGLTFScene(
   }
 
   if (context.extensionsUsed.size) gltf.extensionsUsed = [...context.extensionsUsed]
-  cleanStorageProviderURLs(gltf)
+  handleScenePaths(gltf, 'encode')
 
   const files: File[] = []
   //combine buffers
