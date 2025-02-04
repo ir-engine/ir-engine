@@ -54,7 +54,8 @@ import Button from '../../../../primitives/tailwind/Button'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { DistanceModel, DistanceModelOptions } from '@ir-engine/engine/src/audio/constants/AudioConstants'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { FaAngleLeft } from 'react-icons/fa'
+import { FaAngleLeft, FaRegPauseCircle } from 'react-icons/fa'
+import { FaRegCirclePlay } from 'react-icons/fa6'
 import { RiExpandUpDownLine } from 'react-icons/ri'
 import { TfiAngleLeft } from 'react-icons/tfi'
 import ArrayInputGroup from '../../../editorUpdates/input/Array'
@@ -164,11 +165,20 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   }
 
   const handleSourcePathSelect = (index: number) => {
-    sourcePathSelectedIndex.set(index)
+    if (media) {
+      media.selectedTrackIndex.set(index)
+    }
+  }
+
+  function formatSeconds(seconds) {
+    const minutes = Math.floor((seconds % 3600) / 60)
+    const remainingSeconds = Math.round(seconds % 60)
+    const formattedMinutes = minutes.toString().padStart(2, '0')
+    const formattedSeconds = remainingSeconds.toString().padStart(2, '0')
+    return `${formattedMinutes}:${formattedSeconds}`
   }
 
   const localAudioMode = useHookstate(hasComponent(props.entity, PositionalAudioComponent) ? 'positional' : 'ambient')
-  const sourcePathSelectedIndex = useHookstate(-1)
 
   useEffect(() => {
     if (!hasComponent(props.entity, MediaComponent)) {
@@ -178,14 +188,10 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   }, [])
 
   useEffect(() => {
-    if (!media || media.resources.length < 1 || media.resources.length <= sourcePathSelectedIndex.value) {
-      sourcePathSelectedIndex.set(-1)
+    if (media && (media.resources.length < 1 || media.resources.length <= media.selectedTrackIndex.value)) {
+      media.selectedTrackIndex.set(-1)
     }
   }, [media?.resources])
-
-  useEffect(() => {
-    console.log(sourcePathSelectedIndex.value)
-  }, [sourcePathSelectedIndex])
 
   return (
     <NodeEditor
@@ -228,14 +234,67 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
             label={t('editor:properties.media.paths')}
             info={t('editor:properties.media.paths')}
           >
-            {media.resources.length > 0 && sourcePathSelectedIndex.value >= 0 && (
-              <MediaPreview resources={media.resources} selectedIndex={sourcePathSelectedIndex.value} />
+            {media.resources.length > 0 && media.selectedTrackIndex.value >= 0 && (
+              <MediaPreview resources={media.resources} selectedIndex={media.selectedTrackIndex.value} />
             )}
+            <div className="flex h-[28px] justify-between bg-[#141619]">
+              <div onClick={toggle} className="text-[#B2B5BD]">
+                {media.paused.value && <FaRegCirclePlay />}
+                {!media.paused.value && <FaRegPauseCircle />}
+              </div>
+              <div>
+                <input
+                  id={'media_scrub_slider'}
+                  min={0}
+                  max={media.currentTrackDuration.value}
+                  value={media.currentTrackTime.value}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    const val = parseFloat(event.target.value)
+                    setTime(mediaElement.element, val)
+                  }}
+                  step={1}
+                  type="range"
+                  className="h-8 min-w-20 cursor-pointer appearance-none overflow-hidden rounded bg-[#191B1F] focus:outline-none
+          disabled:pointer-events-none disabled:opacity-50
+          [&::-moz-range-progress]:bg-[#375DAF]
+          [&::-moz-range-thumb]:h-full
+          [&::-moz-range-thumb]:w-4
+          [&::-moz-range-thumb]:appearance-none
+          [&::-moz-range-thumb]:rounded
+          [&::-moz-range-thumb]:bg-[#879ECF]
+          [&::-moz-range-thumb]:transition-all
+          [&::-moz-range-thumb]:duration-150
+          [&::-moz-range-thumb]:ease-in-out
+          group-hover/editor-slider:[&::-moz-range-thumb]:bg-[#AFBEDF]
+          [&::-moz-range-track]:h-full
+          [&::-moz-range-track]:w-full
+          [&::-moz-range-track]:rounded
+          [&::-moz-range-track]:bg-[#191B1F]
+          [&::-webkit-slider-runnable-track]:h-full
+          [&::-webkit-slider-runnable-track]:w-full
+          [&::-webkit-slider-runnable-track]:rounded
+          [&::-webkit-slider-thumb]:h-full
+          [&::-webkit-slider-thumb]:w-4
+          [&::-webkit-slider-thumb]:appearance-none
+          [&::-webkit-slider-thumb]:rounded
+          [&::-webkit-slider-thumb]:bg-[#879ECF]
+          [&::-webkit-slider-thumb]:transition-all
+          [&::-webkit-slider-thumb]:duration-150
+          [&::-webkit-slider-thumb]:ease-in-out
+          group-hover/editor-slider:[&::-webkit-slider-thumb]:bg-[#AFBEDF]
+        "
+                  data-testid="slider-draggable-value-input"
+                />
+              </div>
+              <div className="text-[12px] text-[#B2B5BD]">
+                {formatSeconds(media.currentTrackTime.value)}/{formatSeconds(media.currentTrackDuration.value)}
+              </div>
+            </div>
             <ArrayInputGroup
               values={media.resources.value as string[]}
               dropTypes={[...ItemTypes.Videos]}
               onChange={commitProperty(MediaComponent, 'resources')}
-              selectedIndex={sourcePathSelectedIndex.value}
+              selectedIndex={media.selectedTrackIndex.value}
               SelectIcon={HiOutlineVideoCamera}
               onSelect={handleSourcePathSelect}
             />

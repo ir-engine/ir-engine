@@ -178,7 +178,6 @@ export default function ArrayInputGroup({
 
   const localSelectIndex = useState(selectedIndex)
   localSelectIndex.set(selectedIndex)
-  console.log(localSelectIndex.value)
   const inputElements = useHookstate(buildInputElements() as InputElement[])
 
   const buildValueArrayFromInputElements = (inputElements: InputElement[]) => {

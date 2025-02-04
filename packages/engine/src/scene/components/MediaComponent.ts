@@ -156,7 +156,10 @@ export const MediaComponent = defineComponent({
     ended: S.Bool(true),
     waiting: S.Bool(false),
     track: S.Number(-1),
-    trackDurations: S.Array(S.Number())
+    trackDurations: S.Array(S.Number()),
+    selectedTrackIndex: S.Number(-1),
+    currentTrackTime: S.Number(0),
+    currentTrackDuration: S.Number(0)
     /**
      * TODO: refactor this into a ScheduleComponent for invoking callbacks at scheduled times
      * The auto start time for the playlist, in Unix/Epoch time (milliseconds).
@@ -179,7 +182,10 @@ export const MediaComponent = defineComponent({
       synchronize: component.synchronize,
       playMode: component.playMode,
       isMusic: component.isMusic,
-      seekTime: component.seekTime // we can start media from a specific point if needed
+      seekTime: component.seekTime, // we can start media from a specific point if needed
+      selectedTrackIndex: component.selectedTrackIndex,
+      currentTrackTime: component.currentTrackTime,
+      currentTrackDuration: component.currentTrackDuration
     }
   },
 
@@ -210,6 +216,65 @@ export function MediaReactor() {
   const getAutoPlay = () => {
     const isEditing = getState(EngineState).isEditing
     return isEditing ? media.autoplayEditor.value : media.autoplayRuntime.value
+  }
+
+  const playTrack = () => {
+    let nextTrack = media.selectedTrackIndex.value
+    if (nextTrack === -1) return
+
+    let path = media.resources.value[nextTrack]
+
+    while (!path) {
+      // we already remove the case where we dont have any track
+      // if current path is null, we simply skip over and move to next proper track
+      nextTrack = (nextTrack + 1) % media.resources.length
+      path = media.resources[nextTrack].value
+    }
+
+    const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
+
+    if (assetClass !== 'audio' && assetClass !== 'video') {
+      addError(entity, MediaComponent, 'UNSUPPORTED_ASSET_CLASS')
+      return
+    }
+
+    media.ended.set(false)
+    media.currentTrackDuration.set(0)
+    media.currentTrackDuration.set(0)
+    media.track.set(nextTrack)
+
+    if (!mediaElement || mediaElement.element.nodeName.value.toLowerCase() !== assetClass) {
+      setUpMediaElement(entity, path, media, audioContext, gainNodeMixBuses)
+    }
+
+    setComponent(entity, MediaElementComponent)
+    const mediaElementState = getMutableComponent(entity, MediaElementComponent)
+
+    mediaElementState.hls.value?.destroy()
+    mediaElementState.hls.set(undefined)
+    ;(mediaElementState.element.value as HTMLMediaElement).crossOrigin = 'anonymous'
+    ;(mediaElementState.element.value as HTMLMediaElement).ontimeupdate = (event) => {
+      const time = (mediaElementState.element.value as HTMLMediaElement).currentTime
+      media.currentTrackTime.set(time)
+    }
+    ;(mediaElementState.element.value as HTMLMediaElement).onloadeddata = (event) => {
+      const time = (mediaElementState.element.value as HTMLMediaElement).duration
+      media.currentTrackDuration.set(time)
+    }
+
+    if (isHLS(path)) {
+      setupHLS(entity, path).then((hls) => {
+        mediaElementState.hls.set(hls)
+        mediaElementState.hls.value!.attachMedia(mediaElementState.element.value as HTMLMediaElement)
+      })
+    } else {
+      mediaElementState.element.src.set(path)
+    }
+
+    if (!media.paused.value) {
+      mediaElementState.value.element.play()
+    }
+    validateTime()
   }
 
   useEffect(() => {
@@ -368,6 +433,11 @@ export function MediaReactor() {
     [media.resources]
   )
 
+  useEffect(() => {
+    if (!isClient) return
+    playTrack()
+  }, [media.selectedTrackIndex])
+
   useEffect(
     function updateMediaElement() {
       if (!media.ended.value) return // If current track is not ended, don't change the track
@@ -378,54 +448,13 @@ export function MediaReactor() {
 
       const mediaElement = getOptionalComponent(entity, MediaElementComponent)
       const track = media.track.value
-      let nextTrack = getNextTrack(track, media.resources.length, media.playMode.value)
+      const nextTrack = getNextTrack(track, media.resources.length, media.playMode.value)
 
       //check if we haven't set up for single play yet, or if our sources don't match the new resources
       //** todo  make this more robust in a refactor, feels very error prone with edge cases */
       if (nextTrack === -1) return
 
-      let path = media.resources.value[nextTrack]
-
-      while (!path) {
-        // we already remove the case where we dont have any track
-        // if current path is null, we simply skip over and move to next proper track
-        nextTrack = (nextTrack + 1) % media.resources.length
-        path = media.resources[nextTrack].value
-      }
-
-      const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
-
-      if (assetClass !== 'audio' && assetClass !== 'video') {
-        addError(entity, MediaComponent, 'UNSUPPORTED_ASSET_CLASS')
-        return
-      }
-
-      media.ended.set(false)
-      media.track.set(nextTrack)
-
-      if (!mediaElement || mediaElement.element.nodeName.toLowerCase() !== assetClass) {
-        setUpMediaElement(entity, path, media, audioContext, gainNodeMixBuses)
-      }
-
-      setComponent(entity, MediaElementComponent)
-      const mediaElementState = getMutableComponent(entity, MediaElementComponent)
-
-      mediaElementState.hls.value?.destroy()
-      mediaElementState.hls.set(undefined)
-      ;(mediaElementState.element.value as HTMLMediaElement).crossOrigin = 'anonymous'
-      if (isHLS(path)) {
-        setupHLS(entity, path).then((hls) => {
-          mediaElementState.hls.set(hls)
-          mediaElementState.hls.value!.attachMedia(mediaElementState.element.value as HTMLMediaElement)
-        })
-      } else {
-        mediaElementState.element.src.set(path)
-      }
-
-      if (!media.paused.value) {
-        mediaElementState.value.element.play()
-      }
-      validateTime()
+      media.selectedTrackIndex.set(nextTrack)
     },
     [media.resources, media.ended, media.playMode]
   )
