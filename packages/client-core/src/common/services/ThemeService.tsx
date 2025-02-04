@@ -226,7 +226,7 @@ const darkTheme: CSSClasses = {
   /* UI Elements / Default */
   '--ui-background': '#16191C',
   '--ui-outline': '#42454D',
-  '--ui-primary': '#375DAF',
+  '--ui-primary': '#3771AF',
   '--ui-secondary': '#1B2844',
   '--ui-tertiary': '#42454D',
   '--ui-quadrary': '#2C2E33',
