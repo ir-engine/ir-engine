@@ -772,7 +772,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
       materialConstructor = Component.getMaterialType(materialDef)
     }
     if (typeof Component.extendMaterialParams === 'function') {
-      promises.push(Component.extendMaterialParams(options, materialParams, materialDef))
+      promises.push(Component.extendMaterialParams(options, materialParams, materialDef, materialIndex))
     }
   }
 

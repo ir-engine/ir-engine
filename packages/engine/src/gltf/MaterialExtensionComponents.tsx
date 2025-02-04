@@ -24,14 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
-import { ComponentType, S, defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
-import { NO_PROXY } from '@ir-engine/hyperflux'
+import { ComponentType, defineComponent, S } from '@ir-engine/ecs'
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
-import {
-  MaterialPrototypeDefinitions,
-  MaterialStateComponent
-} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { useEffect } from 'react'
+import { MaterialPrototypeDefinitions } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import {
   CanvasTexture,
   Color,
@@ -43,8 +38,7 @@ import {
   Vector2
 } from 'three'
 import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
-import { getGLTFOptions } from './GLTFComponent'
-import { GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
+import { getDependency, GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
 
 const TextureInfoSchema = S.Object({
   index: S.Number(),
@@ -676,39 +670,35 @@ export const MozillaHubsLightMapComponent = defineComponent({
     intensity: S.Number(1.0)
   }),
 
-  /** @todo need to refactor this into whatever API three uses, as we clean up the buffers before it can be loaded */
-  reactor: () => {
-    const entity = useEntityContext()
-    const component = useComponent(entity, MozillaHubsLightMapComponent)
-    const materialStateComponent = useComponent(entity, MaterialStateComponent)
+  extendMaterialParams(
+    options: GLTFParserOptions,
+    materialParams: any,
+    materialDef: GLTF.IMaterial,
+    materialIndex: number
+  ) {
+    const pending = [] as Promise<any>[]
 
-    useEffect(() => {
-      const material = materialStateComponent.material.value as MeshPhysicalMaterial
-      // Multiply by pi for MeshBasicMaterial shading
-      const lightMapIntensity =
-        component.intensity.value * (materialStateComponent.material instanceof MeshBasicMaterial ? Math.PI : 1.0)
+    const extensionDef = materialDef.extensions![MozillaHubsLightMapComponent.jsonID] as ComponentType<
+      typeof MozillaHubsLightMapComponent
+    >
 
-      material.lightMapIntensity = lightMapIntensity
-      material.needsUpdate = true
-    }, [component.intensity.value])
-
-    const options = getGLTFOptions(entity)
-
-    useEffect(() => {
-      GLTFLoaderFunctions.assignTexture(options, component.get(NO_PROXY)).then((lightMap) => {
-        if (!lightMap) return
-
-        const material = materialStateComponent.material.value as MeshPhysicalMaterial
-
+    pending.push(
+      getDependency(options, 'texture', extensionDef.index).then((result) => {
+        const lightMap: Texture = result!.clone()
         lightMap.channel = 1
-        material.lightMap = lightMap
+        materialParams.lightMap = lightMap
+        materialParams.lightMapIntensity = extensionDef.intensity ?? 1.0
 
-        material.setValues({ lightMap: lightMap })
-        material.needsUpdate = true
+        getDependency(options, 'material', materialIndex).then((result) => {
+          // fix for change to MeshBasicMaterial shading WRT lightmaps
+          if (result.type === 'MeshBasicMaterial') {
+            result.lightMapIntensity *= Math.PI
+          }
+        })
       })
-    }, [component])
+    )
 
-    return null
+    return Promise.all(pending)
   }
 })
 
