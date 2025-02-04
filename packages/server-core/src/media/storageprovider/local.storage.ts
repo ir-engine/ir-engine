@@ -23,14 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { koa } from '@feathersjs/koa'
 import { default as appRootPath } from 'app-root-path'
 import fs from 'fs'
 import fsStore from 'fs-blob-store'
 import glob from 'glob'
-import https from 'https'
 import kill from 'kill-port'
-import serve from 'koa-static'
 import path from 'path/posix'
 import { PassThrough, Readable } from 'stream'
 
@@ -38,6 +35,7 @@ import { MULTIPART_CUTOFF_SIZE } from '@ir-engine/common/src/constants/FileSizeC
 import { FileBrowserContentType } from '@ir-engine/common/src/schemas/media/file-browser.schema'
 import { getState } from '@ir-engine/hyperflux'
 
+import { ChildProcess } from 'child_process'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
@@ -51,7 +49,7 @@ import {
   StorageProviderInterface
 } from './storageprovider.interface'
 
-const port = config.server.localStorageProviderPort ? parseInt(config.server.localStorageProviderPort) : undefined
+const port = config.server.localStorageProviderPort
 
 /**
  * Storage provide class to communicate with Local http file server.
@@ -93,30 +91,33 @@ export class LocalStorage implements StorageProviderInterface {
       kill(port, 'tcp')
         .catch(() => {})
         .finally(() => {
-          const certOptions = {
-            cert: fs.readFileSync(config.server.certPath),
-            key: fs.readFileSync(config.server.keyPath)
-          }
-
-          const app = koa()
-          app.use(
-            serve(this.PATH_PREFIX, {
-              brotli: true,
-              setHeaders: (ctx) => {
-                ctx.setHeader('Access-Control-Allow-Origin', '*')
-                ctx.setHeader('Origin-Agent-Cluster', '?1')
-              }
-            })
+          const child: ChildProcess = require('child_process').spawn(
+            'npx',
+            [
+              'http-server',
+              `${this.PATH_PREFIX}`,
+              '--ssl',
+              '--cert',
+              `${config.server.certPath}`,
+              '--key',
+              `${config.server.keyPath}`,
+              '--port',
+              `${port}`,
+              '--cors=*',
+              '--brotli',
+              '--gzip',
+              '-a',
+              '::'
+            ],
+            {
+              cwd: process.cwd(),
+              stdio: 'inherit',
+              detached: true
+            }
           )
-          // @ts-ignore
-          app.listen = function () {
-            const server = https.createServer(certOptions as any, this.callback())
-            // @ts-ignore
-            // eslint-disable-next-line prefer-spread, prefer-rest-params
-            return server.listen.apply(server, arguments)
-          }
-
-          app.listen(port, () => console.log(`File server listening on port: ${port}`))
+          process.on('exit', async () => {
+            process.kill(-child.pid!, 'SIGINT')
+          })
         })
     }
     this.getOriginURLs().then((result) => (this.originURLs = result))
@@ -160,9 +161,6 @@ export class LocalStorage implements StorageProviderInterface {
     if (!fs.existsSync(filePath)) return { Contents: [] }
     // glob all files and directories
     let globResult = glob.sync(path.join(filePath, '**'), {
-      // "**" means you search on the whole folder
-      cwd: path.dirname(filePath), // folder path
-      absolute: true, // you have to set glob to return absolute path not only file names
       dot: true
     })
     globResult = globResult.filter(

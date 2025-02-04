@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import multiLogger from '@ir-engine/common/src/logger'
 import fs from 'fs'
 import path from 'path'
 
@@ -63,14 +62,8 @@ const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/
         await Promise.all(
           projects.map(async (projectName) => {
             try {
-              const projectConfigPath = `../../projects/projects/${projectName}/xrengine.config.ts`
-              try {
-                require(projectConfigPath)
-              } catch (err) {
-                multiLogger.info(`Skipping missing project config: ${projectConfigPath}`)
-                return null
-              }
-              let config: ProjectConfigInterface = require(projectConfigPath).default
+              const configPath = `../../projects/projects/${projectName}/xrengine.config.ts`
+              let config: ProjectConfigInterface = (await import(configPath)).default
               if (!config.services) return null
               return path.join(projectName, config.services as string)
             } catch (e) {
