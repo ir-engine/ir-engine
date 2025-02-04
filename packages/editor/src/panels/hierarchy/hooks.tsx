@@ -32,9 +32,11 @@ import {
   getComponent,
   isAncestor,
   traverseEntityNode,
-  UndefinedEntity
+  UndefinedEntity,
+  useQuery
 } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import React, { createContext, ReactNode, useContext, useEffect, useMemo } from 'react'
@@ -95,10 +97,11 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
   const [showModelChildren] = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowModelChildren])
   const renamingEntity = useHookstate<Entity | null>(null)
   const contextMenu = useHookstate({ entity: UndefinedEntity, anchorEvent: undefined as React.MouseEvent | undefined })
+  const entities = useQuery([SourceComponent])
 
   const hierarchyNodes = useMemo(
     () => ecsHierarchyTreeWalker(rootEntity),
-    [hierarchyTreeState.expandedNodes[sourceID], selectionState.selectedEntities, showModelChildren]
+    [hierarchyTreeState.expandedNodes[sourceID], selectionState.selectedEntities, showModelChildren, entities]
   )
 
   const displayedNodes = useMemo(() => {
