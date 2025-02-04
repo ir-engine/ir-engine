@@ -92,6 +92,7 @@ import PrimitiveGeometryNodeEditor from '@ir-engine/ui/src/components/editor/pro
 import GLTFNodeEditor from '@ir-engine/ui/src/components/editor/properties/gltf/loader'
 import GrabbableComponentNodeEditor from '@ir-engine/ui/src/components/editor/properties/grab'
 import GroundPlaneNodeEditor from '@ir-engine/ui/src/components/editor/properties/groundPlane'
+import IFrameNodeEditor from '@ir-engine/ui/src/components/editor/properties/iframe'
 import ImageNodeEditor from '@ir-engine/ui/src/components/editor/properties/image'
 import InputComponentNodeEditor from '@ir-engine/ui/src/components/editor/properties/input'
 import InstancingNodeEditor from '@ir-engine/ui/src/components/editor/properties/instance'
@@ -121,6 +122,7 @@ import SkyboxNodeEditor from '@ir-engine/ui/src/components/editor/properties/sky
 import SpawnPointNodeEditor from '@ir-engine/ui/src/components/editor/properties/spawnPoint'
 import SplineNodeEditor from '@ir-engine/ui/src/components/editor/properties/spline'
 
+import { IFrameComponent } from '@ir-engine/engine/src/scene/components/IFrameComponent'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import PlaylistNodeEditor from '@ir-engine/ui/src/components/editor/properties/playlist'
 import SplineTrackNodeEditor from '@ir-engine/ui/src/components/editor/properties/spline/track'
@@ -182,6 +184,7 @@ export const ComponentEditorsState = defineState({
       [SplineTrackComponent.name]: SplineTrackNodeEditor,
       [VisualScriptComponent.name]: VisualScriptNodeEditor,
       [LinkComponent.name]: LinkNodeEditor,
+      [IFrameComponent.name]: IFrameNodeEditor,
       [InteractableComponent.name]: InteractableComponentNodeEditor,
       [InputComponent.name]: InputComponentNodeEditor,
       [GrabbableComponent.name]: GrabbableComponentNodeEditor,
