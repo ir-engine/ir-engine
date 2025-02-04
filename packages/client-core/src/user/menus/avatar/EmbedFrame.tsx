@@ -23,23 +23,36 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineState } from '@ir-engine/hyperflux'
+import React from 'react'
 
-export const ViewerMenuState = defineState({
-  name: 'ViewerMenuState',
-  initial: () => ({
-    userMenus: {
-      profile: true,
-      settings: false,
-      readyplayer: false,
-      avaturn: false,
-      avatarselect: false,
-      avatarmodify: false,
-      share: false,
-      emote: false,
-      friends: false,
-      social: false,
-      embedframe: true
-    }
-  })
-})
+type Props = {
+  src: string
+}
+
+const EmbedFrame = ({ src }: Props): JSX.Element => {
+  return (
+    <div className="relative z-50 h-fit w-[70vw] max-w-2xl overflow-y-auto rounded-2xl bg-theme-surface-main px-10 py-6">
+      <div className="h-[90vh]">
+        {src ? (
+          <div className="h-full w-full">
+            <iframe
+              className="h-full w-full"
+              src={src}
+              // style="width: 450px; position: fixed; bottom: 0; right: 20px; aspect-ratio: 16/9; background: transparent; z-index: 999999999;"
+              frameBorder="0"
+              allow="microphone; camera; autoplay; clipboard-write; encrypted-media"
+              allowTransparency={true}
+              allowFullScreen
+              referrerPolicy="strict-origin-when-cross-origin"
+              title="MentorShop Experience"
+            ></iframe>
+          </div>
+        ) : (
+          <></>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default EmbedFrame

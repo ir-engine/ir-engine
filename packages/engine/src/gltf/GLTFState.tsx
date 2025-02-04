@@ -850,7 +850,7 @@ const MeshReactor = (props: { nodeIndex: number; documentID: string; entity: Ent
   const mesh = documentState.meshes.get(NO_PROXY)![node.mesh!]
 
   useEffect(() => {
-    setComponent(props.entity, VisibleComponent)
+    if (!hasComponent(props.entity, ColliderComponent)) setComponent(props.entity, VisibleComponent)
   }, [])
 
   const isSinglePrimitive = mesh.primitives.length === 1
