@@ -89,7 +89,7 @@ const Slider = ({
   }, [])
 
   return (
-    <div ref={parentRef} className="group/editor-slider grid w-full grid-cols-1 gap-y-2 py-1.5 pl-8 pr-3.5" {...props}>
+    <div ref={parentRef} className="group/editor-slider grid w-full grid-cols-1 gap-y-2" {...props}>
       <div className="flex w-full justify-between">
         <Label>{label}</Label>
         {info && (
@@ -155,7 +155,7 @@ const Slider = ({
           [&::-webkit-slider-thumb]:appearance-none
           [&::-webkit-slider-thumb]:rounded
           [&::-webkit-slider-thumb]:bg-ui-primary
-          [&::-webkit-slider-thumb]:transition-all
+          [&::-webkit-slider-thumb]:transition-colors
           [&::-webkit-slider-thumb]:duration-150
           [&::-webkit-slider-thumb]:ease-in-out
           group-hover/editor-slider:[&::-webkit-slider-thumb]:bg-ui-hover-primary

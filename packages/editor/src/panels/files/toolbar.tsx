@@ -131,7 +131,13 @@ const ViewModeSettings = () => {
 
   return (
     <Popup
-      contentStyle={{ background: '#15171b', border: 'solid', borderColor: '#5d646c' }}
+      contentStyle={{
+        background: 'var(--surface-1)',
+        border: 'solid',
+        borderColor: 'var(--ui-outline)',
+        borderWidth: '2px',
+        borderRadius: '0.5rem'
+      }}
       position={'bottom left'}
       trigger={
         <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
@@ -141,40 +147,36 @@ const ViewModeSettings = () => {
     >
       {filesViewMode.value === 'icons' ? (
         <div className="flex justify-end">
-          <div className="w-3/5">
+          <Slider
+            label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}
+            min={10}
+            max={100}
+            step={0.5}
+            value={viewModeSettings.icons.iconSize.value}
+            onChange={viewModeSettings.icons.iconSize.set}
+            onRelease={viewModeSettings.icons.iconSize.set}
+            data-testid="files-panel-view-options-icon-size-value-input-group"
+          />
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-y-1">
+          <div className="flex justify-end">
             <Slider
-              label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}
+              label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
+              data-testid="files-panel-view-options-list-font-size-value-input-group"
               min={10}
               max={100}
               step={0.5}
-              value={viewModeSettings.icons.iconSize.value}
-              onChange={viewModeSettings.icons.iconSize.set}
-              onRelease={viewModeSettings.icons.iconSize.set}
-              data-testid="files-panel-view-options-icon-size-value-input-group"
+              value={viewModeSettings.list.fontSize.value}
+              onChange={viewModeSettings.list.fontSize.set}
+              onRelease={viewModeSettings.list.fontSize.set}
             />
           </div>
-        </div>
-      ) : (
-        <div className="flex flex-col items-center">
-          <div className="flex justify-end">
-            <div className="w-3/5">
-              <Slider
-                label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
-                data-testid="files-panel-view-options-list-font-size-value-input-group"
-                min={10}
-                max={100}
-                step={0.5}
-                value={viewModeSettings.list.fontSize.value}
-                onChange={viewModeSettings.list.fontSize.set}
-                onRelease={viewModeSettings.list.fontSize.set}
-              />
+          <div className="flex w-full flex-col gap-y-1">
+            <div className="mt-1 flex flex-auto font-semibold text-text-primary">
+              <h3>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</h3>
             </div>
-          </div>
-          <div className="w-full">
-            <div className="mt-1 flex flex-auto text-white">
-              <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
-            </div>
-            <div>
+            <div className="flex flex-col gap-y-0.5">
               {availableTableColumns.map((column, index) => (
                 <Checkbox
                   checked={viewModeSettings.list.selectedTableColumns[column].value}

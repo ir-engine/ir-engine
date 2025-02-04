@@ -269,11 +269,10 @@ const Select = ({
           <div
             tabIndex={0}
             className={twMerge(
-              `relative flex w-full items-center gap-x-2 rounded-md bg-ui-background text-text-tertiary hover:text-text-primary ${
-                heights[inputHeight]
-              } ${
-                disabled && 'cursor-not-allowed bg-ui-inactive-background text-ui-inactive-outline'
-              } transition-colors duration-300`,
+              `relative flex w-full items-center gap-x-2 rounded-md bg-ui-background text-text-tertiary ${heights[inputHeight]} transition-colors duration-300`,
+              disabled
+                ? 'cursor-not-allowed bg-ui-inactive-background text-ui-inactive-outline'
+                : 'hover:text-text-primary',
               'focus:outline-none',
               state === 'success' && 'border-ui-success',
               state === 'error' && 'border-ui-error'
@@ -314,7 +313,8 @@ const Select = ({
               type="text"
               className={twMerge(
                 'w-full bg-inherit focus:outline-none',
-                searchMode === undefined ? 'cursor-pointer' : 'cursor-text'
+                searchMode === undefined ? 'cursor-pointer' : 'cursor-text',
+                disabled ? 'cursor-not-allowed' : ''
               )}
               value={displayText}
               readOnly={searchMode === undefined}

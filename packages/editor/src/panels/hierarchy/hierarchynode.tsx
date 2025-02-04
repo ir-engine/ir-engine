@@ -338,7 +338,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
       style={fixedSizeListStyles}
       className={twMerge(
         'cursor-pointer text-text-secondary hover:bg-ui-hover-background hover:text-text-primary',
-        props.index & 1 ? 'bg-ui-background' : 'bg-ui-hover-background',
+        'bg-ui-background',
         !visible ? 'text-text-inactive' : '',
         selected ? 'rounded-sm border border-ui-select-outline bg-ui-select-background text-text-primary' : '',
         isOverOn && canDropOn ? 'border border-dotted' : ''

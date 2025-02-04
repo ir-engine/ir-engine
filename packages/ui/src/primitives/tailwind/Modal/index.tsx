@@ -65,7 +65,11 @@ export const ModalHeader = ({
           {title}
         </Text>
       )}
-      <button className="text-text-primary" data-testid="modal-close-button" onClick={() => onClose && onClose(true)}>
+      <button
+        className="absolute right-0 top-0 p-[inherit] text-text-primary"
+        data-testid="modal-close-button"
+        onClick={() => onClose && onClose(true)}
+      >
         <MdClose />
       </button>
     </div>
