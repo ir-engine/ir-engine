@@ -24,8 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useArgs } from '@storybook/preview-api'
+import { ArgTypes } from '@storybook/react'
 import React from 'react'
-import { ArgTypes } from 'storybook/internal/types'
 import ImageLink, { ImageLinkProps } from './index'
 
 const argTypes: ArgTypes = {

@@ -23,12 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Not } from 'bitecs'
 import React, { useEffect } from 'react'
 import { Vector3 } from 'three'
 
+import { ECSState, Not } from '@ir-engine/ecs'
 import { ComponentType, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { QueryReactor, defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
@@ -52,7 +51,7 @@ import {
   MediaElementComponent,
   createAudioNodeGroup
 } from '@ir-engine/engine/src/scene/components/MediaComponent'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { PeerMediaChannelState } from '../media/PeerMediaChannelState'
 
 const _vec3 = new Vector3()
@@ -192,7 +191,7 @@ const execute = () => {
     updateAudioPanner(panner, _vec3, rotation, endTime, mediaSettings)
   }
 
-  const viewerEntity = getState(EngineState).viewerEntity
+  const viewerEntity = getState(ReferenceSpaceState).viewerEntity
   if (!viewerEntity) return
 
   /**

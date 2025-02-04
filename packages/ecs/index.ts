@@ -26,8 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 // ensure dependency modules are imported
 import '@ir-engine/hyperflux'
 
-import { getAllEntities, Not, Types } from 'bitecs'
+import { getAllEntities, getEntityComponents, Not } from '@ir-engine/ecs'
 
+import { Types } from './src/bitecsLegacy'
 import {
   defineComponent,
   getAllComponentData,
@@ -48,6 +49,7 @@ import {
 import { executeFixedSystem, executeSystems, getDAG } from './src/EngineFunctions'
 import { UndefinedEntity } from './src/Entity'
 import { createEntity, entityExists, removeEntity, useEntityContext } from './src/EntityFunctions'
+import { EntityTreeComponent } from './src/EntityTree'
 import { defineQuery, QueryReactor, removeQuery, useQuery } from './src/QueryFunctions'
 import { defineSystem, destroySystem, executeSystem, useExecute } from './src/SystemFunctions'
 import { UUIDComponent } from './src/UUIDComponent'
@@ -76,6 +78,8 @@ const ECS = {
   entityExists,
   useEntityContext,
   UndefinedEntity,
+  /** Hierarchy */
+  EntityTreeComponent,
   /** System API */
   executeSystem,
   defineSystem,
@@ -91,22 +95,29 @@ const ECS = {
   executeFixedSystem,
   getDAG,
   /** bitECS Functions */
-  Not,
   Types,
-  getAllEntities
+  Not,
+  getAllEntities,
+  getEntityComponents
 }
 
 globalThis.ECS = ECS
 
 export default ECS
 
-export { Not } from 'bitecs'
+export { getAllEntities, getEntityComponents, Not } from 'bitecs'
+export { Types } from './src/bitecsLegacy'
+export type { Type, TypedArray } from './src/bitecsLegacy'
+
 export * from './src/ComponentFunctions'
+export * from './src/EasingFunctions'
 export * from './src/ECSState'
 export * from './src/Engine'
 export * from './src/EngineFunctions'
+export * from './src/EngineState'
 export * from './src/Entity'
 export * from './src/EntityFunctions'
+export * from './src/EntityTree'
 export * from './src/QueryFunctions'
 export * from './src/schemas/ECSSchemas'
 export * from './src/schemas/JSONSchemas'
@@ -114,5 +125,6 @@ export * from './src/schemas/JSONSchemaTypes'
 export * from './src/SystemFunctions'
 export * from './src/SystemGroups'
 export * from './src/Timer'
+export * from './src/TransitionSystem'
 export * from './src/UUIDComponent'
 export { ECS }

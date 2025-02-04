@@ -56,9 +56,7 @@ const client = {
     localBuildOrDev && globalThis.process.env.VITE_LOCAL_NGINX !== 'true'
       ? `https://${globalThis.process.env.VITE_APP_HOST}:${globalThis.process.env.VITE_APP_PORT}`
       : `https://${globalThis.process.env.VITE_APP_HOST}`,
-  hostOriginOverride: globalThis.process.env.APP_HOST_ORIGIN_OVERRIDE
-    ? `https://${globalThis.process.env.APP_HOST_ORIGIN_OVERRIDE}:${globalThis.process.env.VITE_APP_PORT}`
-    : null,
+  rootDomainEnabled: globalThis.process.env.VITE_ROOT_DOMAIN_ENABLED === 'false' ? false : true, // default to true
   serverHost: globalThis.process.env.VITE_SERVER_HOST,
   serverUrl:
     localBuildOrDev && globalThis.process.env.VITE_LOCAL_NGINX !== 'true'
@@ -92,12 +90,14 @@ const client = {
   avaturnAPI: globalThis.process.env.VITE_AVATURN_API,
   key8thWall: globalThis.process.env.VITE_8TH_WALL!,
   featherStoreKey: globalThis.process.env.VITE_FEATHERS_STORE_KEY,
-  gaMeasurementId: globalThis.process.env.VITE_GA_MEASUREMENT_ID,
   zendesk: {
     enabled: globalThis.process.env.VITE_ZENDESK_ENABLED,
     authenticationEnabled: globalThis.process.env.VITE_ZENDESK_AUTHENTICATION_ENABLED,
     key: globalThis.process.env.VITE_ZENDESK_KEY
-  }
+  },
+  maxFileSizeToUpload: globalThis.process.env.VITE_MAX_FILE_SIZE_TO_UPLOAD_MB
+    ? parseInt(globalThis.process.env.VITE_MAX_FILE_SIZE_TO_UPLOAD_MB, 10) * 1024 * 1024
+    : 1000 * 1024 * 1024 // 1000 MB or 1GB
 }
 
 /**

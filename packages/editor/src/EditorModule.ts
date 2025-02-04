@@ -26,15 +26,16 @@ Infinite Reality Engine. All Rights Reserved.
 import { AvatarSpawnSystem } from '@ir-engine/client-core/src/networking/AvatarSpawnSystem'
 import { RenderInfoSystem } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
 // import { EditorInstanceNetworkingSystem } from './components/realtime/EditorInstanceNetworkingSystem'
-import { PositionalAudioSystem } from '@ir-engine/client-core/src/systems/PositionalAudioSystem.tsx'
+import { PositionalAudioSystem } from '@ir-engine/client-core/src/systems/PositionalAudioSystem'
 import { CameraGizmoSystem } from './systems/CameraGizmoSystem'
 import { ClickPlacementSystem } from './systems/ClickPlacementSystem'
 import { EditorControlSystem } from './systems/EditorControlSystem'
-import { HighlightSystem } from './systems/HighlightSystem'
+import { HelperActiveSystem } from './systems/HelperActiveSystem'
 import { ModelHandlingSystem } from './systems/ModelHandlingSystem'
 import { ModelLoadingSpinnerSystem } from './systems/ModelLoadingSpinnerSystem'
 import { ObjectGridSnapSystem } from './systems/ObjectGridSnapSystem'
 import { RenderMonitorSystem } from './systems/RenderMonitorSystem'
+import { SelectionHighlightSystem } from './systems/SelectionHighlightSystem'
 import { TransformGizmoSystem } from './systems/TransformGizmoSystem'
 import { UploadRequestSystem } from './systems/UploadRequestSystem'
 
@@ -43,13 +44,14 @@ export {
   CameraGizmoSystem,
   ClickPlacementSystem,
   EditorControlSystem,
-  HighlightSystem,
+  HelperActiveSystem,
   ModelHandlingSystem,
   ModelLoadingSpinnerSystem,
   ObjectGridSnapSystem,
   PositionalAudioSystem,
   RenderInfoSystem,
   RenderMonitorSystem,
+  SelectionHighlightSystem,
   // EditorInstanceNetworkingSystem,
   TransformGizmoSystem,
   UploadRequestSystem

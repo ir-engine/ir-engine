@@ -26,11 +26,11 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { LocationIcons } from '@ir-engine/client-core/src/components/LocationIcons'
 import { useLoadLocation, useLoadScene } from '@ir-engine/client-core/src/components/World/LoadLocationScene'
 import { AuthService } from '@ir-engine/client-core/src/user/services/AuthService'
 import { ThemeContextProvider } from '@ir-engine/client/src/pages/themeContext'
 import { useMutableState } from '@ir-engine/hyperflux'
+import { TopButtons } from '../components/TopButtons'
 
 import '@ir-engine/client-core/src/util/GlobalStyle.css'
 
@@ -91,7 +91,7 @@ const LocationPage = ({ online }: Props) => {
           {!ready.value && (
             <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingEngine')} />
           )}
-          <LocationIcons />
+          <TopButtons />
         </StyledEngineProvider>
       </ThemeContextProvider>
     </>

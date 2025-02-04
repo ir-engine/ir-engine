@@ -60,7 +60,6 @@ import { VariantComponent } from './components/VariantComponent'
 import { VideoComponent } from './components/VideoComponent'
 import { VolumetricComponent } from './components/VolumetricComponent'
 import { EnvironmentSystem } from './systems/EnvironmentSystem'
-import { MeshBVHSystem } from './systems/MeshBVHSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
 import { PortalSystem } from './systems/PortalSystem'
 import { SceneKillHeightSystem } from './systems/SceneKillHeightSystem'
@@ -115,7 +114,6 @@ export {
   EnvironmentSystem,
   FogSystem,
   MaterialLibrarySystem,
-  MeshBVHSystem,
   MountPointSystem,
   NoiseOffsetSystem,
   ParticleSystem,

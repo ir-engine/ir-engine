@@ -26,9 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { Matrix4, Object3D, Quaternion, Vector3 } from 'three'
 
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import { getComponent, getOptionalComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
@@ -46,7 +46,7 @@ export const updateVRMRetargeting = (avatarEntity: Entity) => {
     if (boneNode != null) {
       const rigBoneNode = humanoidRig.getBoneNode(boneName)! as Object3D
 
-      delete TransformComponent.dirtyTransforms[rigBoneNode.entity]
+      delete TransformComponent.dirtyTransforms[rigBoneNode.entity!]
 
       const parentWorldRotation = humanoidRig._parentWorldRotations[boneName]!
       const invParentWorldRotation = _quatA.copy(parentWorldRotation).invert()
@@ -59,7 +59,7 @@ export const updateVRMRetargeting = (avatarEntity: Entity) => {
         .multiply(boneRotation)
 
       if (boneName === 'hips') {
-        const entity = boneNode.entity
+        const entity = boneNode.entity!
         const parentEntity = getOptionalComponent(entity, EntityTreeComponent)?.parentEntity
         if (!parentEntity) continue
         const parentBone =

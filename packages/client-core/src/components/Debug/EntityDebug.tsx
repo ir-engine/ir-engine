@@ -23,12 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getAllEntities, getEntityComponents } from 'bitecs'
+import { getAllEntities, getEntityComponents } from '@ir-engine/ecs'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'
 
-import { UUIDComponent } from '@ir-engine/ecs'
+import { EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
 import {
   Component,
   ComponentMap,
@@ -53,7 +53,6 @@ import {
   useMutableState
 } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { Input } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 

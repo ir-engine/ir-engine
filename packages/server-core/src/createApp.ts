@@ -54,7 +54,7 @@ import { default as appConfig } from './appconfig'
 import authenticate from './hooks/authenticate'
 import { logError } from './hooks/log-error'
 import persistHeaders from './hooks/persist-headers'
-import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
+import { createDefaultStorageProvider } from './media/storageprovider/storageprovider'
 import mysql from './mysql'
 import services from './services'
 import authentication from './user/authentication'
@@ -192,10 +192,6 @@ export const createFeathersKoaApp = async (
 
   createDefaultStorageProvider()
 
-  if (appConfig.ipfs.enabled) {
-    createIPFSStorageProvider()
-  }
-
   const app = koa(feathers()) as Application
   API.instance = app
 
@@ -205,7 +201,9 @@ export const createFeathersKoaApp = async (
   // hard-code http as the protocol, so manually mashing host + port together if in local.
   app.set(
     'host',
-    appConfig.server.local ? appConfig.server.hostname + ':' + appConfig.server.port : appConfig.server.hostname
+    (appConfig.server.local as any) === '1' || appConfig.server.local === true
+      ? appConfig.server.hostname + ':' + appConfig.server.port
+      : appConfig.server.hostname
   )
   app.set('port', appConfig.server.port)
 

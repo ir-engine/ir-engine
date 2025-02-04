@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
-import { entityExists, UUIDComponent } from '@ir-engine/ecs'
+import { entityExists, EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
 import {
   getAllComponents,
   getComponent,
@@ -38,6 +38,7 @@ import {
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
+import { EntityHierarchyLockState } from '@ir-engine/editor/src/services/EntityHierarchyLockState'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
@@ -46,11 +47,10 @@ import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, getState, none, useHookstate, useMutableState, useState } from '@ir-engine/hyperflux'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { Button } from '@ir-engine/ui'
 import TransformPropertyGroup from '@ir-engine/ui/src/components/editor/properties/transform'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
@@ -60,7 +60,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import { IoArrowUndo, IoSaveOutline } from 'react-icons/io5'
 import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
-import { PiEyeBold, PiEyeClosedBold } from 'react-icons/pi'
+import { PiEyeBold, PiEyeClosedBold, PiLockBold, PiLockOpenBold } from 'react-icons/pi'
 import { ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
@@ -118,6 +118,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
   const uuid = useComponent(entity, UUIDComponent)
   const selected = useHookstate(getMutableState(SelectionState).selectedEntities).value.includes(uuid.value)
   const visible = useOptionalComponent(entity, VisibleComponent)
+  const locked = useHookstate(getMutableState(EntityHierarchyLockState).lockedEntities).value[entity] ?? false
   const { rootEntity } = useMutableState(EditorState).value
   const { collapseChildren, expandChildren, collapseNode, expandNode } = useNodeCollapseExpand()
   const renamingNode = useRenamingNode()
@@ -293,7 +294,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
         firstSelectedEntity.set(entity)
       }
     } else if (event.detail === 2) {
-      const cameraEntity = getState(EngineState).viewerEntity
+      const cameraEntity = getState(ReferenceSpaceState).viewerEntity
       if (entity && getOptionalComponent(cameraEntity, CameraOrbitComponent)) {
         const editorCameraState = getMutableComponent(cameraEntity, CameraOrbitComponent)
         editorCameraState.focusedEntities.set([entity])
@@ -317,6 +318,16 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
     }
     setVisibleComponent(entity, !hasComponent(entity, VisibleComponent))
   }
+
+  const onLockUnlockNode = (event: React.MouseEvent) => {
+    event.stopPropagation()
+    if (locked) {
+      EntityHierarchyLockState.updateLocked(entity, false)
+    } else {
+      EntityHierarchyLockState.updateLocked(entity, true)
+    }
+  }
+
   const isModelRoot = hasComponent(entity, GLTFComponent)
   const isModified = isModelRoot && !!getState(GLTFModifiedState)[GLTFComponent.getInstanceID(entity)]
 
@@ -462,6 +473,19 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
                 </Button>
               </div>
             )}
+
+            <button
+              type="button"
+              className="m-0 h-5 w-5 flex-shrink-0 border-none p-0 hover:opacity-80"
+              data-testid={`hierarchy-panel-scene-item-${visible ? 'hide' : 'unhide'}-button`}
+              onClick={onLockUnlockNode}
+            >
+              {locked ? (
+                <PiLockBold className="font-small text-[#6B7280]" />
+              ) : (
+                <PiLockOpenBold className="font-small text-[#42454d]" />
+              )}
+            </button>
             <button
               type="button"
               className="m-0 h-5 w-5 flex-shrink-0 border-none p-0 hover:opacity-80"

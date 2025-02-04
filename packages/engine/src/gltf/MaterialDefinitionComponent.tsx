@@ -130,7 +130,7 @@ export const MaterialDefinitionComponent = defineComponent({
   }
 })
 
-declare module 'three/src/materials/MeshPhysicalMaterial' {
+declare module 'three/src/materials/MeshPhysicalMaterial.js' {
   export interface MeshPhysicalMaterial {
     setValues(parameters: MeshPhysicalMaterialParameters): void
   }

@@ -46,7 +46,7 @@ import { useZendesk } from '@ir-engine/client-core/src/hooks/useZendesk'
 import { API } from '@ir-engine/common'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { EntityUUID } from '@ir-engine/ecs'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { useSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import { Button, Tooltip } from '@ir-engine/ui'
 import 'rc-dock/dist/rc-dock.css'
@@ -184,7 +184,7 @@ const EditorContainer = () => {
 
   useSpatialEngine()
 
-  const originEntity = useMutableState(EngineState).originEntity.value
+  const originEntity = useMutableState(ReferenceSpaceState).originEntity.value
 
   useEffect(() => {
     if (!sceneAssetID.value || !currentLoadedSceneURL.value || !originEntity) return

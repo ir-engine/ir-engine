@@ -26,11 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import { defineComponent, useComponent, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
 import { useState } from '@ir-engine/hyperflux'
 
+import { useAncestorWithComponents } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useEffect, useLayoutEffect } from 'react'
 import { removeCallback, setCallback } from '../../common/CallbackComponent'
+import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { T } from '../../schema/schemaFunctions'
-import { useAncestorWithComponents } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
@@ -49,7 +50,14 @@ export const ColliderComponent = defineComponent({
     friction: S.Number(0.5),
     restitution: S.Number(0.5),
     collisionLayer: S.Enum(CollisionGroups, CollisionGroups.Default),
-    collisionMask: S.Number(DefaultCollisionMask)
+    collisionMask: S.Number(DefaultCollisionMask),
+
+    //shape specific parameters
+    matchMesh: S.Bool(true),
+    centerOffset: T.Vec3({ x: 0, y: 0, z: 0 }),
+    boxSize: T.Vec3({ x: 1, y: 1, z: 1 }),
+    radius: S.Number(1),
+    height: S.Number(2)
   }),
 
   reactor: function () {
@@ -61,6 +69,7 @@ export const ColliderComponent = defineComponent({
     const physicsWorld = Physics.useWorld(entity)
     const triggerComponent = useOptionalComponent(entity, TriggerComponent)
     const hasCollider = useState(false)
+    const meshComponent = useOptionalComponent(entity, MeshComponent)
 
     useLayoutEffect(() => {
       if (!rigidbodyComponent?.initialized?.value || !physicsWorld) return
@@ -76,7 +85,24 @@ export const ColliderComponent = defineComponent({
         Physics.removeCollider(physicsWorld, entity)
         hasCollider.set(false)
       }
-    }, [physicsWorld, component.shape, !!rigidbodyComponent?.initialized?.value, transform.scale])
+    }, [
+      physicsWorld,
+      component.shape,
+      !!rigidbodyComponent?.initialized?.value,
+      transform.scale,
+      component.centerOffset,
+      component.boxSize,
+      component.radius,
+      component.height
+    ])
+
+    useEffect(() => {
+      return () => {
+        if (!physicsWorld) return
+        Physics.removeCollider(physicsWorld, entity)
+        hasCollider.set(false)
+      }
+    }, [])
 
     useLayoutEffect(() => {
       if (!physicsWorld) return

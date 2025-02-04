@@ -37,7 +37,7 @@ import {
 
 import { Engine, Entity, getOptionalComponent, UndefinedEntity } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, NO_PROXY, none, State } from '@ir-engine/hyperflux'
-import { removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 
 import { Geometry } from '../common/constants/Geometry'
 import iterateObject3D from '../common/functions/iterateObject3D'

@@ -23,39 +23,31 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineQuery, defineSystem, Engine } from '@ir-engine/ecs'
+import { defineQuery, defineSystem, Engine, Entity } from '@ir-engine/ecs'
 import { defineComponent, getComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 
-import { Object3D } from 'three'
-import { traverseEntityNode } from '../../transform/components/EntityTree'
+import { OutlineEffect } from 'postprocessing'
 import { RendererComponent, WebGLRendererSystem } from '../WebGLRendererSystem'
-import { GroupComponent } from './GroupComponent'
 import { MeshComponent } from './MeshComponent'
 import { VisibleComponent } from './VisibleComponent'
 
 export const HighlightComponent = defineComponent({ name: 'HighlightComponent' })
 
-const highlightQuery = defineQuery([HighlightComponent, VisibleComponent])
+const highlightQuery = defineQuery([HighlightComponent, MeshComponent, VisibleComponent])
+
+const getCompObject = (entity: Entity) => getComponent(entity, MeshComponent)
 
 const execute = () => {
   /** @todo support multiple scenes */
   if (!hasComponent(Engine.instance.viewerEntity, RendererComponent)) return
 
-  const highlightObjects = new Set<Object3D>()
-  for (const entity of highlightQuery()) {
-    traverseEntityNode(entity, (child, index) => {
-      if (!hasComponent(child, MeshComponent)) return
-      if (!hasComponent(child, GroupComponent)) return
-      if (!hasComponent(child, VisibleComponent)) return
-      highlightObjects.add(getComponent(child, MeshComponent))
-    })
-  }
   const rendererComponent = getComponent(Engine.instance.viewerEntity, RendererComponent)
-  rendererComponent.effectComposer?.OutlineEffect?.selection.set(highlightObjects)
+  const outlineEffect = rendererComponent?.effectInstances?.OutlineEffect as OutlineEffect
+  outlineEffect?.selection.set(highlightQuery().map(getCompObject))
 }
 
 export const HighlightSystem = defineSystem({
-  uuid: 'HighlightSystem',
+  uuid: 'ir.spatial.render.HighlightSystem',
   insert: { before: WebGLRendererSystem },
   execute
 })

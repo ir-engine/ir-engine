@@ -28,15 +28,17 @@ import ProgressBar from '@ir-engine/client-core/src/systems/ui/LoadingDetailView
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
-import { State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { Button, Tooltip } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import InfiniteScroll from '@ir-engine/ui/src/components/tailwind/InfiniteScroll'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React, { useEffect, useRef, useState } from 'react'
 import { DragPreviewImage, useDrag } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
+import { FilesViewModeSettings } from '../../services/FilesState'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
 import { FileIcon } from '../files/fileicon'
 import DeleteFileModal from '../files/modals/DeleteFileModal'
@@ -170,6 +172,7 @@ function ResourceFile({
   }, [preview])
 
   const isSelected = useMutableState(ClickPlacementState).selectedAsset.value === resource.url
+  const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
 
   const handleLoad = () => {
     onLoad?.()
@@ -180,8 +183,9 @@ function ResourceFile({
   }
 
   return (
-    <>
+    <div className="h-min">
       <DragPreviewImage connect={preview} src={resource.thumbnailURL || ''} />
+      {/* // todo: move to reusuable component with FileItemCard */}
       <div
         key={resource.id}
         ref={drag}
@@ -192,16 +196,20 @@ function ResourceFile({
           anchorEvent.set(event)
         }}
         className={twMerge(
-          'resource-file mb-3 flex h-40 w-40 cursor-pointer flex-col items-center text-center',
-          isSelected && 'rounded bg-[#212226]'
+          'resource-file max-h-38 w-30 flex h-auto cursor-pointer flex-col items-center p-1.5 text-center'
         )}
         data-testid="assets-panel-resource-file"
       >
         <div
           className={twMerge(
-            'mx-auto mt-2 flex h-full w-28 items-center justify-center',
-            'max-h-40 min-h-20 min-w-20 max-w-40'
+            `box-border rounded border border-0 font-figtree`,
+            isSelected ? 'rounded border border-2 border-[#375DAF] bg-[#2C2E30]' : 'group-hover:bg-[#202225]'
           )}
+          style={{
+            height: iconSize,
+            width: iconSize,
+            fontSize: iconSize
+          }}
           data-testid="assets-panel-resource-file-icon"
         >
           <FileIcon
@@ -213,17 +221,22 @@ function ResourceFile({
         </div>
 
         <Tooltip content={name}>
-          <span
-            className="line-clamp-2 w-full text-wrap break-all text-sm text-[#F5F5F5]"
+          <Text
+            theme="secondary"
+            fontSize="sm"
+            className={twMerge(
+              'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2',
+              isSelected ? 'rounded bg-[#375DAF]' : 'rounded group-hover:bg-[#2F3137]'
+            )}
             data-testid="assets-panel-resource-file-name"
           >
             {name}
-          </span>
+          </Text>
         </Tooltip>
-
+        <span className="text-xs text-[#375DAF]">{resource?.mimeType}</span>
         <ResourceFileContextMenu resource={resource} anchorEvent={anchorEvent} />
       </div>
-    </>
+    </div>
   )
 }
 
@@ -239,7 +252,7 @@ function SideNavBar({ handleScrollToPage }) {
         id="minimap-nav"
         className={twMerge(
           'duration-250 fixed ml-6 mt-1.5 flex w-6 flex-col items-end overflow-visible rounded-[4px] text-[10px] transition-[margin,padding]',
-          navBarActivated ? 'py-2 pr-6' : 'p-0.5 pr-1'
+          navBarActivated ? 'py-2 pr-6' : 'py-2.5 pr-3'
         )}
         onMouseEnter={() => setNavBarActivated(true)}
         onMouseLeave={() => setNavBarActivated(false)}
@@ -250,9 +263,8 @@ function SideNavBar({ handleScrollToPage }) {
             key={i}
             className={twMerge(
               'nav-item duration-250 flex w-10 flex-row items-center justify-end gap-1 text-gray-500  transition-[padding]',
-              navBarActivated ? 'h-auto' : 'h-2',
-              hoveredIndex === i ? 'cursor-pointer py-1.5 first:pb-0 first:pt-1.5 last:pt-1.5' : 'py-0.5',
-              ''
+              navBarActivated ? 'h-auto' : 'h-3.5',
+              hoveredIndex === i ? 'cursor-pointer py-1.5 first:pb-0 first:pt-1.5 last:pt-1.5' : 'py-0.5'
             )}
             onMouseEnter={() => setHoveredIndex(i)}
             onMouseLeave={() => setHoveredIndex(null)}
@@ -296,6 +308,7 @@ function SideNavBar({ handleScrollToPage }) {
 }
 
 function BottomPaginationNavBar({ handleScrollToPage }) {
+  const { t } = useTranslation()
   const { resources, staticResourcesPagination } = useAssetsQuery()
   const totalPages = Math.ceil(staticResourcesPagination.total.value / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
   const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
@@ -303,7 +316,7 @@ function BottomPaginationNavBar({ handleScrollToPage }) {
   return (
     <div className="flex h-20 flex-col items-center justify-center">
       <div className="text-[10px] text-white">
-        Showing <span>{resources.length}</span> of {staticResourcesPagination.total.value}
+        {t('editor:layout.scene-assets.total-assets', { total: resources.length })}
       </div>
       <div className="m-3 flex h-[1px] w-36 flex-row gap-[0.19rem]">
         {Array.from({ length: totalPages }, (_, i) =>
@@ -314,7 +327,7 @@ function BottomPaginationNavBar({ handleScrollToPage }) {
               key={i}
               className="duration-250 h-[10px] w-1/4 border-t-[1px] border-solid border-gray-400 transition-all hover:border-t-[10px]"
               onClick={() => handleScrollToPage(i)}
-            ></div>
+            />
           )
         )}
       </div>
@@ -361,10 +374,10 @@ function ResourceItems() {
               <div className="mt-4 flex h-2.5 w-[calc(100%_-_16px)] flex-row border-t-[0.5px] border-solid border-[#42454D] pt-1 text-[smaller]">
                 {i > 0 && (
                   <button
-                    className="mr-auto flex items-center justify-center px-4 py-2 text-xs text-[#42454D]"
+                    className="mr-auto flex items-center justify-center px-0 py-2 text-xs text-[#42454D]"
                     onClick={() => handleScrollToPage(i - 1)} // Scroll to the previous page
                   >
-                    {'Previous'}
+                    {t('editor:layout.scene-assets.previous')}
                   </button>
                 )}
                 <span className="ml-auto text-[#42454D]">
@@ -372,8 +385,7 @@ function ResourceItems() {
                   {Math.min(
                     (i + 1) * (ASSETS_PAGE_LIMIT + calculateItemsToFetch()),
                     staticResourcesPagination.total.value
-                  )}{' '}
-                  of {staticResourcesPagination.total.value}
+                  )}
                 </span>
               </div>
               <div
@@ -390,7 +402,7 @@ function ResourceItems() {
                     <ResourceFile
                       onLoadStart={handleFileIconLoadStart}
                       onLoad={handleFileIconLoad}
-                      key={index}
+                      key={resource.id}
                       resource={resource as StaticResourceType}
                     />
                   ))}

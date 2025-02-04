@@ -23,18 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { render } from '@testing-library/react'
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React, { useEffect } from 'react'
-import { act } from 'react-dom/test-utils'
 import sinon from 'sinon'
 import { DoneCallback, afterAll, afterEach, beforeAll, beforeEach, describe, it } from 'vitest'
 
 import { ComponentType, destroyEngine } from '@ir-engine/ecs'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 
+import { EngineState } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { EngineState } from '../EngineState'
 import { initializeSpatialEngine } from '../initializeEngine'
 import { PerformanceManager, PerformanceState } from './PerformanceState'
 import { RendererState } from './RendererState'

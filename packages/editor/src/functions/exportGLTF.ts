@@ -33,24 +33,21 @@ export default async function exportGLTF(entity: Entity, path: string) {
   return exportRelativeGLTF(entity, `${orgname}/${pName}`, fileName)
 }
 
-export async function exportRelativeGLTF(entity: Entity, projectName: string, relativePath: string) {
+export async function exportRelativeGLTF(entity: Entity, projectName: string, relativePath: string, exportRoot = true) {
   const isGLTF = /\.gltf$/.test(relativePath)
-  const gltf = exportGLTFScene(entity)
-  if (!gltf) return
-  const blob = [new Blob([JSON.stringify(gltf, null, 2)])]
-  const file = new File(blob, relativePath)
+  // const gltf = await exportGLTFScene(entity, projectName, relativePath, exportRoot)
+  // if (!gltf) return
+  // const blob = [new Blob([JSON.stringify(gltf, null, 2)])]
+  // const file = new File(blob, relativePath)
+  const files = await exportGLTFScene(entity, projectName, relativePath, exportRoot)
+  const paths = files.map(() => '')
   const urls = await Promise.all(
-    uploadProjectFiles(
-      projectName,
-      [file],
-      [``],
-      [
-        {
-          contentType: 'model/gltf+json',
-          type: 'asset'
-        }
-      ]
-    ).promises
+    uploadProjectFiles(projectName, files, paths, [
+      {
+        contentType: 'model/gltf+json',
+        type: 'asset'
+      }
+    ]).promises
   )
   console.log('exported model data to ', ...urls)
 }

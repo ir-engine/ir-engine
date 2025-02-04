@@ -40,8 +40,8 @@ type EulerInputProps = {
   onChange: (quat: Quaternion) => any
   onRelease?: () => any
   unit?: string
+  disabled?: boolean
 }
-
 const getBoundedRoundedAngle = (angle: number) => {
   const multiplier = Math.ceil(Math.abs(angle) / 360)
   angle += multiplier * 360
@@ -50,8 +50,8 @@ const getBoundedRoundedAngle = (angle: number) => {
 }
 
 const tempEuler = new Euler() // we need the persistance, the hookstate doesnt register the dynamically allocated euler and quat value otherwise, thus we cannot assign new variable to the same
-export const EulerInput = (props: EulerInputProps) => {
-  tempEuler.setFromQuaternion(props.quaternion, 'YXZ')
+export const EulerInput = ({ disabled, quaternion, onRelease, unit, onChange, ...rest }: EulerInputProps) => {
+  tempEuler.setFromQuaternion(quaternion, 'YXZ')
   const angle = {
     x: getBoundedRoundedAngle(tempEuler.x * RAD2DEG),
     y: getBoundedRoundedAngle(tempEuler.y * RAD2DEG),
@@ -63,37 +63,68 @@ export const EulerInput = (props: EulerInputProps) => {
 
     const euler = new Euler(angle.x * DEG2RAD, angle.y * DEG2RAD, angle.z * DEG2RAD, 'YXZ')
     const quaternion = new Quaternion().setFromEuler(euler)
-    props.onChange?.(quaternion)
+    onChange?.(quaternion)
   }
 
   return (
     <div className="flex flex-wrap justify-end gap-1.5">
       <NumericInput
+        disabled={disabled}
         value={angle.x}
         onChange={onSetEuler('x')}
-        onRelease={props.onRelease}
-        unit={props.unit}
-        prefix={<Vector3Scrubber value={angle.x} onChange={onSetEuler('x')} onRelease={props.onRelease} axis="x" />}
+        onRelease={onRelease}
+        unit={unit}
+        prefix={
+          <Vector3Scrubber
+            {...rest}
+            disabled={disabled}
+            value={angle.x}
+            onChange={onSetEuler('x')}
+            onRelease={onRelease}
+            axis="x"
+          />
+        }
       />
       <NumericInput
+        disabled={disabled}
         value={angle.y}
         onChange={onSetEuler('y')}
-        onRelease={props.onRelease}
-        unit={props.unit}
-        prefix={<Vector3Scrubber value={angle.y} onChange={onSetEuler('y')} onRelease={props.onRelease} axis="y" />}
+        onRelease={onRelease}
+        unit={unit}
+        prefix={
+          <Vector3Scrubber
+            {...rest}
+            disabled={disabled}
+            value={angle.y}
+            onChange={onSetEuler('y')}
+            onRelease={onRelease}
+            axis="y"
+          />
+        }
       />
       <NumericInput
+        disabled={disabled}
         value={angle.z}
         onChange={onSetEuler('z')}
-        onRelease={props.onRelease}
-        unit={props.unit}
-        prefix={<Vector3Scrubber value={angle.z} onChange={onSetEuler('z')} onRelease={props.onRelease} axis="z" />}
+        onRelease={onRelease}
+        unit={unit}
+        prefix={
+          <Vector3Scrubber
+            {...rest}
+            disabled={disabled}
+            value={angle.z}
+            onChange={onSetEuler('z')}
+            onRelease={onRelease}
+            axis="z"
+          />
+        }
       />
     </div>
   )
 }
 
 EulerInput.defaultProps = {
-  quaternion: Q_IDENTITY
+  quaternion: Q_IDENTITY,
+  disabled: false
 }
 export default EulerInput

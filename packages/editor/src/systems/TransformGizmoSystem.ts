@@ -28,9 +28,19 @@ import { useEffect } from 'react'
 import { getComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
+import { InputSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 
+import { EngineState } from '@ir-engine/ecs'
+import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { CameraGizmoTagComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { InputHeuristicState, IntersectionData } from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { Raycaster, Vector3 } from 'three'
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
 import { TransformGizmoControlledComponent } from '../classes/gizmo/transform/TransformGizmoControlledComponent'
 import { controlUpdate, gizmoUpdate, planeUpdate } from '../functions/transformGizmoHelper'
@@ -53,7 +63,58 @@ const execute = () => {
   }
 }
 
+/**Editor InputComponent raycast query */
+const inputObjectsQuery = defineQuery([InputComponent, VisibleComponent, ObjectComponent])
+const gizmoPickerObjectsQuery = defineQuery([
+  InputComponent,
+  ObjectComponent,
+  VisibleComponent,
+  TransformGizmoTagComponent
+])
+
+//prevent query from detecting CameraGizmoVisualEntity which has no ObjectComponent but has CameraGizmoTagComponent
+const cameraGizmoQuery = defineQuery([CameraGizmoTagComponent, InputComponent, VisibleComponent, ObjectComponent])
+
+const raycaster = new Raycaster()
+raycaster.layers.enable(ObjectLayers.Gizmos)
+
+export function editorInputHeuristic(intersectionData: Set<IntersectionData>, position: Vector3, direction: Vector3) {
+  const isEditing = getState(EngineState).isEditing
+  if (!isEditing) return
+
+  raycaster.set(position, direction)
+
+  const [...pickerObj] = gizmoPickerObjectsQuery() // gizmo heuristic
+  const [...cameraGizmo] = cameraGizmoQuery() //camera gizmo heuristic
+
+  //concatenating cameraGizmo to both pickerObjects(transformGizmo) and inputObjects
+  const allGizmos = cameraGizmo.concat(pickerObj)
+  const inputObj = [...inputObjectsQuery()].concat(cameraGizmo)
+
+  const objects = (pickerObj.length > 0 ? allGizmos : inputObj) // gizmo heuristic
+    .map((eid) => getComponent(eid, ObjectComponent))
+
+  //camera gizmos layer should always be active here, since it doesn't disable based on transformGizmo existing
+  pickerObj.length > 0
+    ? raycaster.layers.enable(ObjectLayers.TransformGizmo)
+    : raycaster.layers.disable(ObjectLayers.TransformGizmo)
+
+  const hits = raycaster.intersectObjects(objects, true)
+  for (const hit of hits) {
+    intersectionData.add({ entity: hit.object.entity!, distance: hit.distance })
+  }
+}
+
 const reactor = () => {
+  useEffect(() => {
+    getMutableState(InputHeuristicState).merge([
+      {
+        order: 1,
+        heuristic: editorInputHeuristic
+      }
+    ])
+  }, [])
+
   const selectedEntities = SelectionState.useSelectedEntities()
 
   for (const entity of sourceQuery()) removeComponent(entity, TransformGizmoControlledComponent)
@@ -70,7 +131,7 @@ const reactor = () => {
 
 export const TransformGizmoSystem = defineSystem({
   uuid: 'ee.editor.TransformGizmoSystem',
-  insert: { with: AnimationSystemGroup },
+  insert: { with: InputSystemGroup },
   execute,
   reactor
 })

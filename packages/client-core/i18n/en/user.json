@@ -233,7 +233,6 @@
       "addSocial": "Connect your Social Logins",
       "logIn": "Log In",
       "agreeToRequired": "Please agree to all iR Studio requirements before proceeding:",
-      "agreeToRequiredPal": "Please agree to all iR PAL requirements before proceeding:",
       "agreeTOS": "I agree to the ",
       "termsOfService": "Infinite Reality Terms of Service",
       "agreeToMarketing": "I agree to opt-in to marketing communications",
@@ -397,7 +396,8 @@
     "InputAvatarName": "Name Your Avatar",
     "saveAvatar": "Save Avatar",
     "savingAvatar": "Saving {{avatar}}",
-    "packagingAvatar": "Packaging & adding avatar to your Account..."
+    "packagingAvatar": "Packaging & adding avatar to your Account...",
+    "avatarPreviewDisabledMessage": "Preview Image not Available"
   },
   "menu": {
     "settings": "Profile",
@@ -474,5 +474,10 @@
     "locationRequired": "Please provide a location name.",
     "roomCodeLength": "Room code must be of 6 digits. No zeros allowed",
     "invalidRoomCode": "Unable to find a room with this code. Please enter a valid room code."
+  },
+  "instanceChat": {
+    "wantToChat": "Want to chat with others?",
+    "register": "Become a registered user",
+    "verifyAge": "Verify your age"
   }
 }

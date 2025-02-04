@@ -23,7 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent, getComponent, hasComponent, useComponent, useQuery } from '@ir-engine/ecs'
+import {
+  EntityTreeComponent,
+  EntityUUID,
+  UUIDComponent,
+  getComponent,
+  hasComponent,
+  useAncestorWithComponents,
+  useComponent,
+  useQuery
+} from '@ir-engine/ecs'
 import {
   EditorComponentType,
   commitProperties,
@@ -41,7 +50,6 @@ import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/Ri
 import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
 import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
-import { EntityTreeComponent, useAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { GiTriggerHurt } from 'react-icons/gi'
@@ -84,7 +92,7 @@ const TriggerProperties: EditorComponentType = (props) => {
       })
     }
     targets.set(options)
-  }, [callbackQuery])
+  }, [JSON.stringify(callbackQuery)])
 
   return (
     <NodeEditor
@@ -131,7 +139,7 @@ const TriggerProperties: EditorComponentType = (props) => {
         const targetOption = targets.value.find((o) => o.value === trigger.target.value)
         const target = targetOption ? targetOption.value : ''
         return (
-          <div className="-ml-4 h-[calc(100%+1.5rem)] w-[calc(100%+2rem)] bg-[#1A1A1A] pb-1.5">
+          <div className="ml-4 h-[calc(100%+1.5rem)] w-[calc(100%-2rem)] bg-[#1A1A1A] px-1 pb-1.5 pt-1">
             <button
               title={t('editor:properties.triggerVolume.lbl-removeTrigger')}
               className="ml-auto text-sm text-[#8B8B8D]"

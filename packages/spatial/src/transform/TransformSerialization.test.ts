@@ -73,6 +73,7 @@ describe('TransformSerialization', () => {
 
       it('should read the TransformComponent.position into the `@param cursor` ViewCursor correctly', () => {
         const Expected = new Vector3(40, 41, 42)
+        setComponent(testEntity, TransformComponent, { position: Expected })
         TransformComponent.position.x[testEntity] = Expected.x
         TransformComponent.position.y[testEntity] = Expected.y
         TransformComponent.position.z[testEntity] = Expected.z
@@ -109,9 +110,7 @@ describe('TransformSerialization', () => {
 
       it('should read the TransformComponent.rotation into the `@param cursor` ViewCursor correctly', () => {
         const Expected = new Quaternion(40, 41, 42, 43).normalize()
-        TransformComponent.rotation.x[testEntity] = Expected.x
-        TransformComponent.rotation.y[testEntity] = Expected.y
-        TransformComponent.rotation.z[testEntity] = Expected.z
+        setComponent(testEntity, TransformComponent, { rotation: Expected })
 
         // Set the data as expected
         const cursor: ViewCursor = createViewCursor()
@@ -121,7 +120,7 @@ describe('TransformSerialization', () => {
 
         // Sanity check before running
         const beforeCursor = 0
-        const afterCursor = Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT
+        const afterCursor = Uint8Array.BYTES_PER_ELEMENT + 4 * Float64Array.BYTES_PER_ELEMENT
         assert.equal(view.cursor, beforeCursor)
         // Run and Check the result
         readRotation(view, testEntity)
@@ -145,9 +144,7 @@ describe('TransformSerialization', () => {
 
       it('should readPosition into the `@param v` ViewCursor when position is marked as changed (1<<1)', () => {
         const Expected = new Vector3(40, 41, 42)
-        TransformComponent.position.x[testEntity] = Expected.x
-        TransformComponent.position.y[testEntity] = Expected.y
-        TransformComponent.position.z[testEntity] = Expected.z
+        setComponent(testEntity, TransformComponent, { position: Expected })
 
         // Set the data as expected
         const cursor: ViewCursor = createViewCursor()
@@ -166,10 +163,7 @@ describe('TransformSerialization', () => {
 
       it('should readRotation into the `@param v` ViewCursor when rotation is marked as changed (1<<2)', () => {
         const Expected = new Quaternion(40, 41, 42, 43).normalize()
-        TransformComponent.rotation.x[testEntity] = Expected.x
-        TransformComponent.rotation.y[testEntity] = Expected.y
-        TransformComponent.rotation.z[testEntity] = Expected.z
-        TransformComponent.rotation.w[testEntity] = Expected.w
+        setComponent(testEntity, TransformComponent, { rotation: Expected })
 
         // Set the data as expected
         const cursor: ViewCursor = createViewCursor()
@@ -221,10 +215,7 @@ describe('TransformSerialization', () => {
 
       it('should write the TransformComponent.position into the ViewCursor correctly', () => {
         const Expected = new Vector3(40, 41, 42)
-        // Set the data as expected
-        TransformComponent.position.x[testEntity] = Expected.x
-        TransformComponent.position.y[testEntity] = Expected.y
-        TransformComponent.position.z[testEntity] = Expected.z
+        setComponent(testEntity, TransformComponent, { position: Expected })
         const cursor: ViewCursor = createViewCursor()
         // Run and Check the result
         const position = writePosition(cursor, testEntity) as ViewCursor
@@ -251,11 +242,7 @@ describe('TransformSerialization', () => {
 
       it('should write the TransformComponent.rotation into the ViewCursor correctly', () => {
         const Expected = new Quaternion(40, 41, 42, 43).normalize()
-        // Set the data as expected
-        TransformComponent.rotation.x[testEntity] = Expected.x
-        TransformComponent.rotation.y[testEntity] = Expected.y
-        TransformComponent.rotation.z[testEntity] = Expected.z
-        TransformComponent.rotation.w[testEntity] = Expected.w
+        setComponent(testEntity, TransformComponent, { rotation: Expected })
         const cursor: ViewCursor = createViewCursor()
         // Run and Check the result
         const rotation = writeRotation(cursor, testEntity) as ViewCursor

@@ -175,12 +175,13 @@ export default function UserTable({
         accountIdentifier: <AccountIdentifiers user={row} />,
         lastLogin: <RenderLogin />,
 
-        acceptedTOS: row.acceptedTOS ? (
+        ageVerified: row.ageVerified ? (
           <FaRegCircleCheck className="h-5 w-5 text-theme-iconGreen" />
         ) : (
           <FaRegCircleXmark className="h-5 w-5 text-theme-iconRed" />
         ),
         isGuest: row.isGuest.toString(),
+        createdAt: toDisplayDateTime(row.createdAt),
         action: (
           <div className="flex items-center justify-start gap-3">
             <Button

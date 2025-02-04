@@ -36,7 +36,7 @@ Infinite Reality Engine. All Rights Reserved.
  */
 
 import { Params, Query } from '@feathersjs/feathers'
-import React, { useCallback, useEffect, useLayoutEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { ServiceTypes } from '../../declarations'
 
 import {
@@ -135,8 +135,8 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
   }
 
   const queryId = `${method.substring(0, 1)}:${hashObject(queryParams)}` as QueryHash
-
-  const fetch = () => {
+  const fetchRef = useRef<() => void>()
+  fetchRef.current = () => {
     if (method === 'get' && (!args || args[0] == null || args[0] === '')) {
       state[serviceName][queryId].merge({
         status: 'error',
@@ -144,7 +144,7 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       })
       return
     }
-    state[serviceName][queryId].merge({
+    state[serviceName][queryId]?.merge({
       status: 'pending',
       error: ''
     })
@@ -153,12 +153,13 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       Error.captureStackTrace?.(trace, fetch)
       const stack = trace.stack.split('\n')
       stack.shift()
-      state[serviceName][queryId].merge({ $stack: stack })
+      state[serviceName][queryId]?.merge({ $stack: stack })
     }
     // prettier-ignore
     return API.instance.service(serviceName)[method](...args)
       .then((res) => {
-        state[serviceName][queryId].merge({
+        //console.log(`API: ${serviceName}.${method}`, ...args, res)
+        state[serviceName][queryId]?.merge({
           response: res,
           status: 'success',
           error: ''
@@ -166,12 +167,16 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       })
       .catch((error) => {
         console.error(`Error in service: ${serviceName}, method: ${method}, args: ${JSON.stringify(args)}`, error)
-        state[serviceName][queryId].merge({
+        state[serviceName][queryId]?.merge({
           status: 'error',
           error: error.message
         })
       })
   }
+
+  const fetch = useCallback(() => {
+    fetchRef.current?.()
+  }, [fetchRef])
 
   // use immediate effect to get the stack trace of the react context, then add it to the state
   useImmediateEffect(() => {
@@ -188,7 +193,7 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       })
       fetch()
     }
-  }, [serviceName, method, ...args])
+  }, [serviceName, method, queryId])
 
   const query = state[serviceName]?.[queryId]
   const queryObj = state.get(NO_PROXY)[serviceName]?.[queryId]
@@ -203,7 +208,7 @@ export const useService = <S extends keyof ServiceTypes, M extends Methods>(
       error,
       refetch: fetch
     }),
-    [data, query?.response, query?.status, query?.error]
+    [data, query?.response, query?.status, query?.error, fetch]
   )
 }
 

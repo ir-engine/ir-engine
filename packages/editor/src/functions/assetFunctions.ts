@@ -30,6 +30,7 @@ import {
   uploadToFeathersService
 } from '@ir-engine/client-core/src/util/upload'
 import { API } from '@ir-engine/common'
+import config from '@ir-engine/common/src/config'
 import {
   assetLibraryPath,
   fileBrowserPath,
@@ -43,6 +44,7 @@ import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { getMutableState } from '@ir-engine/hyperflux'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
+import i18n from 'i18next'
 import { showMultipleFileModal } from '../panels/files/toolbar'
 import { ImportSettingsState } from '../services/ImportSettingsState'
 
@@ -69,7 +71,7 @@ const supportedFiles = {
   [FileType.VIDEO]: new Set(['.mp4', '.mkv', '.avi'])
 }
 
-function findMimeType(file): FileType {
+function findMimeType(file: File): FileType {
   let fileType = FileType.UNKNOWN
   if (file.type.startsWith('image/')) {
     fileType = FileType.IMAGE
@@ -103,15 +105,35 @@ function isValidFileType(file): { isValid: boolean; errorMessage?: string } {
   }
 }
 
-function sanitizeFiles(files): File[] {
+export function sanitizeFiles(files: FileList | File[]): File[] {
+  const { maxFileSizeToUpload } = config.client
+
+  const invalidSizeFiles: string[] = []
   const newFiles: File[] = []
   for (const file of files) {
+    if (file.size > maxFileSizeToUpload) {
+      invalidSizeFiles.push(file.name)
+      continue
+    }
     const newFile = cleanFileNameFile(file)
     const { isValid, errorMessage } = isValidFileType(newFile)
     if (!isValid) {
-      NotificationService.dispatchNotify(`${file.name} is not supported. ${errorMessage}`, { variant: 'warning' })
+      NotificationService.dispatchNotify(
+        i18n.t('editor:errors.fileNotSupported', { file: file.name, errorMessage: errorMessage || '' }) as string,
+        { variant: 'warning' }
+      )
     }
     newFiles.push(newFile)
+  }
+
+  if (invalidSizeFiles.length > 0) {
+    NotificationService.dispatchNotify(
+      i18n.t('editor:errors.maxUploadFileWeightExceed', {
+        maxFileSizeToUploadMB: maxFileSizeToUpload / (1024 * 1024),
+        fileNames: invalidSizeFiles.join(', ')
+      }) as string,
+      { variant: 'warning' }
+    )
   }
 
   return newFiles
@@ -212,7 +234,9 @@ export const handleUploadFiles = (projectName: string, directoryPath: string, fi
             contentType: file.type
           }
         ]
-      }).promise
+      }).promise.catch(() => {
+        NotificationService.dispatchNotify(i18n.t('editor:errors.fileUploadFailed') as string, { variant: 'error' })
+      })
     })
   )
 }
@@ -245,7 +269,6 @@ export const inputFileWithAddToScene = ({
         if (el.files?.length) {
           const newFiles = sanitizeFiles(el.files)
           const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
-
           await handleUploadFiles(projectName, directoryPath, uniqueFiles)
         }
         resolve(null)

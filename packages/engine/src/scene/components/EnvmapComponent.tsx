@@ -56,12 +56,12 @@ import { isClient } from '@ir-engine/hyperflux'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
 
+import { useChildrenWithComponents } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { setPlugin } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
-import { useChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import {
   envmapParsReplaceLambert,
@@ -164,17 +164,19 @@ const EnvmapColorReactor = () => {
 
 const EnvmapProbesReactor = () => {
   const entity = useEntityContext()
-  const component = useComponent(entity, EnvmapComponent)
+
   const probeQuery = useQuery([ReflectionProbeComponent])
 
   useEffect(() => {
     return () => {
+      const component = getMutableComponent(entity, EnvmapComponent)
       if (entityExists(entity)) component.envmap.set(null)
     }
   }, [])
 
   useEffect(() => {
     const [renderTexture, unload] = createReflectionProbeRenderTarget(entity, probeQuery)
+    const component = getMutableComponent(entity, EnvmapComponent)
     component.envmap.set(renderTexture)
     return () => {
       unload()
@@ -242,39 +244,34 @@ export const EnvmapComponent = defineComponent({
       }
     }, [childrenMesh, component.envMapIntensity, component.envmap, hasRootMesh])
 
-    const getEnvmapChildReactor = () => {
-      switch (component.type.value) {
-        case 'Bake': {
-          if (bakeEntity) {
-            return (
-              <EnvBakeComponentReactor
-                key={bakeEntity}
-                envmapEntity={entity}
-                bakeEntity={bakeEntity}
-                childrenMesh={childrenMesh}
-              />
-            )
-          }
-          break
+    switch (component.type.value) {
+      case 'Bake': {
+        if (bakeEntity) {
+          return (
+            <EnvBakeComponentReactor
+              key={bakeEntity}
+              envmapEntity={entity}
+              bakeEntity={bakeEntity}
+              childrenMesh={childrenMesh}
+            />
+          )
         }
-        case 'Cubemap':
-          return <EnvmapCubemapReactor />
-        case 'Equirectangular':
-          return <EnvmapEquirectangularReactor />
-        case 'Color':
-          return <EnvmapColorReactor />
-        case 'Probes':
-          return <EnvmapProbesReactor />
-        case 'Skybox':
-        /** Setting the value from the skybox can be found in EnvironmentSystem */
-        default:
-          break
+        break
       }
-
-      return null
+      case 'Cubemap':
+        return <EnvmapCubemapReactor key={'EnvmapCubemapReactor'} />
+      case 'Equirectangular':
+        return <EnvmapEquirectangularReactor key={'EnvmapEquirectangularReactor'} />
+      case 'Color':
+        return <EnvmapColorReactor key={'EnvmapColorReactor'} />
+      case 'Probes':
+        return <EnvmapProbesReactor key={'EnvmapProbesReactor'} />
+      case 'Skybox':
+      /** Setting the value from the skybox can be found in EnvironmentSystem */
+      default:
+        break
     }
-
-    return <>{getEnvmapChildReactor()}</>
+    return null
   },
 
   errors: ['MISSING_FILE']

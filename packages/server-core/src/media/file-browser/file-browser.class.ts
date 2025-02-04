@@ -333,6 +333,9 @@ export class FileBrowserService
           data.newProject
       )
 
+    if (data.oldName === data.newName && data.oldPath !== data.newPath && data.newPath.startsWith(data.oldPath))
+      throw new Error('Cannot move a folder into itself')
+
     const oldDirectory = data.oldPath.endsWith('/')
       ? data.oldPath.split('/').slice(0, -1).join('/')
       : data.oldPath.split('/').join('/')
@@ -511,6 +514,14 @@ export class FileBrowserService
   }
 
   /**
+   *  Used to verify when a scene is deleted and has the default thumbnail.
+   * This prevents the default thumbnail from being deleted.
+   */
+  private isDefaultThumbnail(thumbnail: StaticResourceType): boolean {
+    return thumbnail.name === 'default.thumbnail.jpg' && thumbnail.project === 'ir-engine/default-project'
+  }
+
+  /**
    * Remove a directory
    */
   async remove(key: string, params?: FileBrowserParams) {
@@ -548,8 +559,7 @@ export class FileBrowserService
               query: { key: { $like: `%${resource.thumbnailKey}%` }, type: 'thumbnail' },
               paginate: false
             })) as any as StaticResourceType[]
-
-            if (thumbnail.length > 0) {
+            if (thumbnail.length > 0 && !this.isDefaultThumbnail(thumbnail[0])) {
               await storageProvider.deleteResources([thumbnail[0].key])
               await this.app.service(staticResourcePath).remove(thumbnail[0].id)
             }

@@ -23,13 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { WebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import {
   engineSettingMethods,
   engineSettingPath,
   EngineSettingType
 } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
+import { parseValue } from '@ir-engine/common/src/utils/dataTypeUtils'
+import { unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { Application } from '@ir-engine/server-core/declarations'
-import appConfig from '../../appconfig'
+import appConfig, { updateNestedConfig } from '../../appconfig'
 import { EngineSettingService } from './engine-setting.class'
 import engineSettingDocs from './engine-setting.docs'
 import hooks from './engine-setting.hooks'
@@ -60,9 +64,56 @@ export default (app: Application): void => {
   service.hooks(hooks)
 
   const onUpdateAppConfig = (...args: EngineSettingType[]) => {
-    args.forEach((setting) => {
+    args.forEach(async (setting) => {
       if (appConfig[setting.category]) {
-        appConfig[setting.category][setting.key] = setting.value
+        if (setting.key.includes('.')) {
+          updateNestedConfig(appConfig, setting)
+        } else {
+          appConfig[setting.category][setting.key] = parseValue(setting.value, setting.dataType)
+        }
+      }
+      const categoriesToUnflatten = ['email', 'aws']
+      if (categoriesToUnflatten.includes(setting.category)) {
+        const categorySettings = await service.find({
+          query: {
+            category: setting.category
+          },
+          paginate: false
+        })
+
+        appConfig[setting.category] = unflattenArrayToObject(
+          categorySettings.map((setting) => {
+            return {
+              key: setting.key,
+              value: setting.value,
+              dataType: setting.dataType
+            }
+          })
+        )
+      }
+      if (
+        appConfig[setting.category] &&
+        setting.category == 'instance-server-webrtc' &&
+        setting.jsonKey &&
+        setting.jsonKey == EngineSettings.InstanceServer.WebRTCSettings
+      ) {
+        const webRTCConfigSettings = await service.find({
+          query: {
+            category: setting.category,
+            jsonKey: setting.jsonKey
+          },
+          paginate: false
+        })
+
+        appConfig[setting.category].webRTCSettings = unflattenArrayToObject(
+          webRTCConfigSettings.map((setting) => {
+            return {
+              key: setting.key,
+              value: setting.value,
+              dataType: setting.dataType
+            }
+          })
+        ) as WebRTCSettings
       }
     })
   }

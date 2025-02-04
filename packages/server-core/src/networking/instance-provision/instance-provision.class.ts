@@ -489,7 +489,9 @@ export async function getP2PInstance({
   })) as any as InstanceType[]
 
   const activeInstances = instances.filter(
-    (instance) => instance.currentUsers < config.instanceserver.p2pMaxConnections
+    (instance) =>
+      (instance.location ? instance.currentUsers < instance.location.maxUsersPerInstance : true) &&
+      instance.currentUsers < config['instance-server'].p2pMaxConnections
   )
   if (activeInstances.length > 0) {
     // console.log(`\n\n\nProvisioned existing P2P ${activeInstances[0].locationId ? 'world' : 'media'} instance`, activeInstances[0])
@@ -710,7 +712,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
           throw new BadRequest(`Invalid channel ID: ${channelId}`)
         }
 
-        if (config.instanceserver.p2pEnabled) {
+        if (config['instance-server'].p2pEnabled) {
           return getP2PInstance({
             app: this.app,
             headers: params.headers || {},
@@ -778,7 +780,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
           } as InstanceParams
 
           // ensure that if we switch from p2p to non-p2p, we don't get a p2p instance
-          if (!config.instanceserver.p2pEnabled) {
+          if (!config['instance-server'].p2pEnabled) {
             instanceQuery.query!.ipAddress = {
               $ne: 'null'
             }
@@ -788,7 +790,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         }
 
         if ((roomCode && (!instance || instance.ended)) || createPrivateRoom) {
-          if (config.instanceserver.p2pEnabled) {
+          if (config['instance-server'].p2pEnabled) {
             return getP2PInstance({
               app: this.app,
               headers: params.headers || {},
@@ -812,7 +814,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         let isCleanup
 
         if (instance) {
-          if (config.instanceserver.p2pEnabled) {
+          if (config['instance-server'].p2pEnabled) {
             return getP2PInstance({
               app: this.app,
               headers: params.headers || {},
@@ -908,7 +910,7 @@ export class InstanceProvisionService implements ServiceInterface<InstanceProvis
         //   }
         // }
 
-        if (config.instanceserver.p2pEnabled) {
+        if (config['instance-server'].p2pEnabled) {
           return getP2PInstance({
             app: this.app,
             headers: params.headers || {},

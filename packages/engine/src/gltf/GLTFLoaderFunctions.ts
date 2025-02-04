@@ -32,6 +32,7 @@ import {
   UndefinedEntity,
   getComponent,
   getOptionalComponent,
+  traverseEntityNode,
   useOptionalComponent
 } from '@ir-engine/ecs'
 import { NO_PROXY, getState, isClient, startReactor, useHookstate } from '@ir-engine/hyperflux'
@@ -42,7 +43,6 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { MaterialPrototypeComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { ResourceManager, ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
 import { useReferencedResource } from '@ir-engine/spatial/src/resources/resourceHooks'
-import { traverseEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { useEffect } from 'react'
 import {
   AnimationClip,
@@ -389,7 +389,7 @@ const useLoadBuffer = (options: GLTFParserOptions, bufferIndex) => {
     }
   }, [bufferDef?.type])
 
-  return bufferDef && bufferDef.uri === undefined && bufferIndex === 0 ? options.body : result
+  return !bufferDef || (bufferDef.uri === undefined && bufferIndex === 0) ? options.body : result
 }
 
 export function computeBounds(json: GLTF.IGLTF, geometry: BufferGeometry, primitiveDef: GLTF.IMeshPrimitive) {

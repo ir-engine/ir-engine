@@ -37,6 +37,7 @@ import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/
 import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { GroundPlaneComponent } from '@ir-engine/engine/src/scene/components/GroundPlaneComponent'
+import { IFrameComponent } from '@ir-engine/engine/src/scene/components/IFrameComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { LegacyVolumetricComponent } from '@ir-engine/engine/src/scene/components/LegacyVolumetricComponent'
 import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkComponent'
@@ -44,6 +45,7 @@ import { MountPointComponent } from '@ir-engine/engine/src/scene/components/Moun
 import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
 import { PortalComponent } from '@ir-engine/engine/src/scene/components/PortalComponent'
 import { PrimitiveGeometryComponent } from '@ir-engine/engine/src/scene/components/PrimitiveGeometryComponent'
+import { ReflectionProbeComponent } from '@ir-engine/engine/src/scene/components/ReflectionProbeComponent.tsx'
 import { RenderSettingsComponent } from '@ir-engine/engine/src/scene/components/RenderSettingsComponent'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
@@ -77,10 +79,17 @@ export const ComponentShelfCategoriesState = defineState({
   name: 'ee.editor.ComponentShelfCategories',
   initial: () => {
     return {
-      Files: [GLTFComponent, PositionalAudioComponent, AudioAnalysisComponent, VideoComponent, ImageComponent],
+      Files: [GLTFComponent, PositionalAudioComponent, VideoComponent, ImageComponent],
       'Scene Composition': [CameraComponent, PrimitiveGeometryComponent, GroundPlaneComponent, VariantComponent],
       Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
-      Interaction: [SpawnPointComponent, LinkComponent, MountPointComponent, InteractableComponent, InputComponent],
+      Interaction: [
+        SpawnPointComponent,
+        LinkComponent,
+        MountPointComponent,
+        InteractableComponent,
+        InputComponent,
+        IFrameComponent
+      ],
       Lighting: [
         AmbientLightComponent,
         PointLightComponent,
@@ -102,7 +111,8 @@ export const ComponentShelfCategoriesState = defineState({
         SkyboxComponent,
         TextComponent,
         LookAtComponent,
-        FogSettingsComponent
+        FogSettingsComponent,
+        ReflectionProbeComponent
       ]
     } as Record<string, Component[]>
   },

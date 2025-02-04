@@ -23,16 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useLayoutEffect } from 'react'
-import { MeshPhysicalMaterial, SphereGeometry } from 'three'
+import { Mesh, MeshPhysicalMaterial, SphereGeometry } from 'three'
 
-import { defineComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { DebugMeshComponent } from '@ir-engine/spatial/src/common/debug/DebugMeshComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
@@ -59,19 +58,7 @@ export const EnvMapBakeComponent = defineComponent({
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
 
-    useLayoutEffect(() => {
-      if (debugEnabled.value) {
-        setComponent(entity, DebugMeshComponent, {
-          name: 'envmap-bake-helper',
-          geometry: sphereGeometry,
-          material: helperMeshMaterial
-        })
-      }
-
-      return () => {
-        removeComponent(entity, DebugMeshComponent)
-      }
-    }, [debugEnabled])
+    useHelperEntity(entity, () => new Mesh(sphereGeometry, helperMeshMaterial), debugEnabled.value)
 
     return null
   }

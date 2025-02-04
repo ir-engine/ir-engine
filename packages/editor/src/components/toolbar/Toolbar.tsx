@@ -28,7 +28,7 @@ import ProfilePill from '@ir-engine/client-core/src/common/components/ProfilePil
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { RouterState } from '@ir-engine/client-core/src/common/services/RouterService'
-import { useProjectPermissions } from '@ir-engine/client-core/src/user/useUserProjectPermission'
+import { useProjectPermissions } from '@ir-engine/client-core/src/hooks/useUserProjectPermission'
 import { useFind } from '@ir-engine/common'
 import { ScopeType, locationPath, scopePath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs'
@@ -241,6 +241,7 @@ export default function Toolbar() {
         <div className="w-[180px]" tabIndex={0}>
           {toolbarMenu.map(({ name, action, hotkey }, index) => (
             <DropdownItem
+              key={name + '' + index}
               label={name}
               secondaryText={hotkey}
               onClick={() => {

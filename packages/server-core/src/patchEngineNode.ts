@@ -46,3 +46,7 @@ globalThis.Headers = Headers as any
 globalThis.self = globalThis as Window & typeof globalThis
 
 globalThis.Blob = Blob as any
+
+// @ts-ignore
+if (!URL.createObjectURL) URL.createObjectURL = () => {}
+if (!URL.revokeObjectURL) URL.revokeObjectURL = () => {}

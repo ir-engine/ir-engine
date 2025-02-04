@@ -1308,7 +1308,7 @@ describe('file-browser.test', () => {
 
       const fileName = testFileName2.split('.').slice(0, -1).join('.')
       const extension = testFileName2.split('.').pop()!
-      const newFileName = `${fileName}(1).${extension}`
+      const newFileName = `${fileName}_1.${extension}`
       assert(
         copyDirectoryResult.find((file) => file.key === 'projects/' + testProject1Name + '/public/test/' + newFileName)
       )
@@ -3653,6 +3653,38 @@ describe('file-browser.test', () => {
       await assert.rejects(
         storageProvider.getObject('projects/' + testProject1Name + '/public/test/' + longFileExtension)
       )
+    })
+
+    it('does not move a folder into itself', async () => {
+      // create folder
+      await app.service(fileBrowserPath).create('projects/' + testProject1Name + '/public/subfolder/', {
+        user: user1
+      })
+
+      // move folder into itself
+      await assert.rejects(
+        async () =>
+          app.service(fileBrowserPath).update(
+            null,
+            {
+              oldProject: testProject1Name,
+              newProject: testProject1Name,
+              oldName: 'subfolder',
+              newName: 'subfolder',
+              oldPath: 'projects/' + testProject1Name + '/public/',
+              newPath: 'projects/' + testProject1Name + '/public/subfolder'
+            },
+            {
+              user: user1
+            }
+          ),
+        {
+          message: 'Cannot move a folder into itself'
+        }
+      )
+
+      const storageProvider = getStorageProvider()
+      await assert.rejects(storageProvider.getObject('projects/' + testProject1Name + '/public/subfolder/subfolder'))
     })
   })
 

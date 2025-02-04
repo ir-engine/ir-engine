@@ -36,13 +36,13 @@ import { createEntity, removeEntity } from './EntityFunctions'
 import { Query, ReactiveQuerySystem, defineQuery, useQuery } from './QueryFunctions'
 import { SystemDefinitions } from './SystemFunctions'
 
-function assertArrayEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are not equal') {
+export function assertArrayEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are not equal') {
   assert.equal(A.length, B.length, err)
   for (let id = 0; id < A.length && id < B.length; id++) {
     assert.deepEqual(A[id], B[id], err)
   }
 }
-function assertArrayNotEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are equal') {
+export function assertArrayNotEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are equal') {
   for (let id = 0; id < A.length && id < B.length; id++) {
     assert.notDeepEqual(A[id], B[id], err)
   }
@@ -203,8 +203,8 @@ describe('QueryFunctions Hooks', async () => {
       setComponent(e2, ComponentB)
       SystemDefinitions.get(ReactiveQuerySystem)!.execute()
       await act(async () => render(<></>))
-      assert.strictEqual(counter, 2)
       assert.strictEqual(entities.length, 2)
+      assert.strictEqual(counter, 2)
       assert.strictEqual(entities[0], e1)
       assert.strictEqual(entities[1], e2)
       assert.ok(hasComponent(entities[0], ComponentA))
