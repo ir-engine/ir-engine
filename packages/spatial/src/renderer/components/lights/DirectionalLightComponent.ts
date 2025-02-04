@@ -130,9 +130,9 @@ export const DirectionalLightComponent = defineComponent({
     const light = useHookstate(() => new DirectionalLight()).value as DirectionalLight
     const helperEntity = useHookstate(UndefinedEntity)
 
-    useImmediateEffect(() => {
+    useEffect(() => {
       setComponent(entity, LightTagComponent)
-      directionalLightComponent.light.set(light)
+      getMutableComponent(entity, DirectionalLightComponent).light.set(light)
       setComponent(entity, ObjectComponent, light)
 
       return () => {

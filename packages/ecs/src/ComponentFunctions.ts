@@ -823,7 +823,7 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
   const layer = LayerComponent.get(entity)
   const createArgs = (schema: TTypedSchema<C>, key: string | number, data: any) => {
     const obj = key === '' ? data : data[key]
-    if (obj === undefined || obj == null || obj === UndefinedEntity) return obj
+    if (obj === undefined || obj === null || obj === UndefinedEntity) return obj
     switch (schema[Kind] as any) {
       case 'Null':
       case 'Undefined':
@@ -874,6 +874,7 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         const args = {} as any
         for (const k in props) {
           const parsed = createArgs(props[k], k, obj)
+          if (typeof parsed === 'undefined') continue
           args[k] = parsed
         }
         return args
@@ -883,6 +884,7 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         const args = {} as any
         for (const k in obj) {
           const parsed = createArgs(value, k, obj)
+          if (typeof parsed === 'undefined') continue
           args[k] = parsed
         }
         return args
@@ -935,7 +937,15 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
     }
   }
 
-  return createArgs(componentSchema, '', getComponent(entity, component))
+  const vals = createArgs(componentSchema, '', getComponent(entity, component))
+
+  for (const key in vals) {
+    if (typeof vals[key] === 'undefined') {
+      delete vals[key]
+    }
+  }
+
+  return vals
 }
 
 /**
@@ -953,6 +963,7 @@ function propagateLayer<C extends Component>(entity: Entity, component: C) {
   for (const [linkedLayer, linkedEntity] of relations) {
     if (!LayerFunctions.shouldPropagate(entityLayer, linkedLayer)) continue
     const newArgs = LayerFunctions.createLayerPropagationArgs(entity, linkedLayer, component)
+    if (component.name === 'DirectionalLightComponent') console.log(component, newArgs)
     setComponent(linkedEntity, component, newArgs)
   }
 }
