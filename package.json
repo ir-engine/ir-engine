@@ -109,12 +109,13 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.1.0",
-    "@eslint/js": "9.5.0",
+    "@eslint/js": "^9.5.0",
     "@ianvs/prettier-plugin-sort-imports": "4.1.0",
     "@rollup/plugin-dynamic-import-vars": "2.1.2",
     "@testing-library/react": "15.0.4",
     "@types/app-root-path": "1.2.4",
     "@types/cli": "0.11.21",
+    "@types/eslint__js": "^8.42.3",
     "@types/primus": "^7.3.6",
     "@types/three": "0.158.0",
     "@typescript-eslint/eslint-plugin": "7.13.1",
@@ -126,6 +127,8 @@
     "deep-object-diff": "^1.1.9",
     "depcheck": "1.4.3",
     "eslint": "9.5.0",
+    "eslint-import-resolver-typescript": "^3.6.3",
+    "eslint-plugin-import": "^2.31.0",
     "globals": "15.6.0",
     "kill-port": "2.0.1",
     "lerna": "6.5.1",
@@ -142,6 +145,7 @@
     "stylelint-config-standard-scss": "^7.0.1",
     "stylelint-scss": "^4.5.0",
     "supertest": "6.3.3",
+    "typescript-eslint": "^8.13.0",
     "vitest": "2.1.1"
   },
   "dependencies": {
