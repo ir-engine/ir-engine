@@ -81,7 +81,7 @@ export default function ({ children }): JSX.Element {
     <ThemeProvider theme={theme}>
       <MetaTags>
         <link
-          href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;600;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;800&display=swap"
           rel="stylesheet"
         />
       </MetaTags>

@@ -29,9 +29,7 @@ import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceCo
 import { getMaterialsFromScene } from '@ir-engine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { getMutableState } from '@ir-engine/hyperflux'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { Button } from '@ir-engine/ui'
-import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
-import StringInput from '@ir-engine/ui/src/components/editor/input/String'
+import { Button, Input } from '@ir-engine/ui'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import { TabData } from 'rc-dock'
 import React, { useEffect } from 'react'
@@ -93,24 +91,24 @@ function MaterialsLibrary() {
   }, [materialQuery.length, selectedEntities, showLayers])
 
   return (
-    <div className="h-full overflow-scroll">
+    <div className="h-full overflow-scroll bg-surface-3">
       <div className="w-full rounded-md p-3">
         <MaterialPreviewer />
-        <div className="mt-4 flex h-5 items-center gap-2">
-          <InputGroup name="File Path" label="Save to" className="flex-grow">
-            <StringInput value={srcPath.value} onChange={srcPath.set} />
-          </InputGroup>
-          <Button
-            className="flex w-5 flex-grow items-center justify-center text-xs"
-            variant="tertiary"
-            onClick={() => saveMaterial(srcPath.value)}
-          >
+        <div className="mt-4 flex w-full items-center justify-between gap-x-3">
+          <Input
+            labelProps={{
+              text: 'Save to',
+              position: 'left'
+            }}
+            value={srcPath.value}
+            onChange={(e) => srcPath.set(e.target.value)}
+            fullWidth
+          />
+          <Button variant="secondary" onClick={() => saveMaterial(srcPath.value)}>
             {t('common:components.save')}
           </Button>
-          <div className="mx-2 h-full border-l" />
           <Button
-            className="flex w-10 flex-grow items-center justify-center text-xs"
-            variant="tertiary"
+            variant="secondary"
             onClick={() => {
               showLayers.set((prevValue) => !prevValue)
             }}
@@ -119,7 +117,9 @@ function MaterialsLibrary() {
           </Button>
         </div>
       </div>
-      <FixedSizeListWrapper nodes={nodes.value}>{MaterialLayerNode}</FixedSizeListWrapper>
+      <div className="h-full w-full rounded border border-ui-background bg-ui-background p-1">
+        <FixedSizeListWrapper nodes={nodes.value}>{MaterialLayerNode}</FixedSizeListWrapper>
+      </div>
     </div>
   )
 }

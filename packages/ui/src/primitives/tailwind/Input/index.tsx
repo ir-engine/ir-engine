@@ -125,7 +125,7 @@ const Input = (
             <div className="flex flex-row items-center gap-x-1.5">
               <div className="flex flex-row items-center gap-x-0.5">
                 {required && <span className="text-sm text-ui-error">*</span>}
-                <span className="text-xs text-text-secondary">{labelProps.text}</span>
+                <span className="whitespace-nowrap text-xs text-text-secondary">{labelProps.text}</span>
               </div>
 
               {labelProps?.infoText && (
