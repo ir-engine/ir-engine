@@ -102,7 +102,6 @@ const Select = ({
   const [filteredOptions, setFilteredOptions] = useState(options)
   const [searchString, setSearchString] = useState('')
   const fuseRef = useRef<Fuse<OptionType> | null>(null)
-  const [localValue, setLocalValue] = useState(value)
 
   useEffect(() => {
     if (searchMode === 'fuzzy' && fuseRef.current !== null) {
@@ -164,7 +163,7 @@ const Select = ({
   }, [selectedOptionIndex])
 
   useEffect(() => {
-    if (localValue === '') {
+    if (value === '') {
       setDisplayText('')
       return
     }
@@ -172,13 +171,13 @@ const Select = ({
     if (
       0 <= selectedOptionIndex &&
       selectedOptionIndex < filteredOptions.length &&
-      filteredOptions[selectedOptionIndex].value === localValue
+      filteredOptions[selectedOptionIndex].value === value
     ) {
       setDisplayText(filteredOptions[selectedOptionIndex].label)
       return
     }
 
-    const index = filteredOptions.findIndex((option) => option.value === localValue)
+    const index = filteredOptions.findIndex((option) => option.value === value)
 
     if (index === -1) {
       if (searchMode === undefined) {
@@ -189,7 +188,7 @@ const Select = ({
     } else {
       setDisplayText(filteredOptions[index].label)
     }
-  }, [localValue, selectedOptionIndex])
+  }, [value, selectedOptionIndex])
 
   useEffect(() => {
     if (onOpen) {
@@ -296,10 +295,9 @@ const Select = ({
               setActiveIndex(newIndex)
               if (['Enter', ' '].includes(e.code)) {
                 setOpen(false)
-                setLocalValue(filteredOptions[newIndex].value)
+                onChange(filteredOptions[newIndex].value)
                 setSelectedOptionIndex(newIndex)
                 setDisplayText(filteredOptions[newIndex].label)
-                onChange(filteredOptions[newIndex].value)
               }
             }}
           >
@@ -351,11 +349,10 @@ const Select = ({
                   <DropdownItem
                     key={index}
                     {...optionProps}
-                    selected={localValue === currentValue}
+                    selected={value === currentValue}
                     active={index === activeIndex}
                     onClick={() => {
                       setOpen(false)
-                      setLocalValue(currentValue)
                       setSelectedOptionIndex(index)
                       setDisplayText(optionProps.label)
                       onChange(currentValue)
@@ -369,9 +366,6 @@ const Select = ({
                     onKeyUp={(e) => {
                       if (e.code === 'Enter') {
                         setOpen(false)
-                        setLocalValue(currentValue)
-                        setSelectedOptionIndex(index)
-                        setDisplayText(optionProps.label)
                         onChange(currentValue)
                       }
                     }}
