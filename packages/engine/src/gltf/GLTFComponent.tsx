@@ -520,9 +520,10 @@ const useGLTFDocument = (entity: Entity) => {
     return () => {
       abortController.abort()
       if (!hasComponent(entity, GLTFComponent)) return
-      state.document.set(null)
-      state.body.set(null)
-      state.progress.set(0)
+      const gltfComponent = getMutableComponent(entity, GLTFComponent)
+      gltfComponent.document.set(null)
+      gltfComponent.body.set(null)
+      gltfComponent.progress.set(0)
     }
   }, [url, dynamicLoadAndNotEditing])
 }
