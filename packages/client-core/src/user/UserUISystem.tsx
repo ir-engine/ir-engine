@@ -27,7 +27,7 @@ import React, { useEffect } from 'react'
 
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { getMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState } from '@ir-engine/hyperflux'
 
 import { useHookstate } from '@hookstate/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
@@ -46,26 +46,16 @@ const PopoverReactor = () => {
   const popoverComponentState = getMutableState(PopoverComponentState)
 
   useEffect(() => {
-    const popoverComponentState = getMutableState(PopoverComponentState)
     popoverComponentState.merge({
-      iframe: true
-    })
-
-    return popoverComponentState.merge({
-      iframe: false
+      iframe: EmbedFrame
     })
   }, [])
 
-  const popoverComponentMap = {
-    iframe: () => <EmbedFrame src={popoverComponent?.src.value} />
-  }
-
   useEffect(() => {
-    const activePopoverKey = Object.keys(popoverComponentMap).find((key) => popoverComponentState[key])
-
-    if (activePopoverKey && popoverComponent?.isOpen.value) {
-      const ComponentToShow = popoverComponentMap[activePopoverKey]
-      PopoverState.showPopupover(<ComponentToShow />)
+    if (popoverComponent?.isOpen.value) {
+      const popoverType = popoverComponent?.type.value || 'iframe'
+      const Component = getState(PopoverComponentState)[popoverType]
+      PopoverState.showPopupover(<Component src={popoverComponent?.src.value} />)
     }
   }, [popoverComponentState, popoverComponent])
 

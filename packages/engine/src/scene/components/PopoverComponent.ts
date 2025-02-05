@@ -44,7 +44,7 @@ const toggleOpen = (popoverEntity: Entity) => {
 
 export const PopoverComponentState = defineState({
   name: 'ir.engine.interaction.PopupState',
-  initial: {} as Record<string, boolean>
+  initial: {} as Record<string, any>
 })
 
 export const PopoverComponent = defineComponent({
