@@ -27,7 +27,7 @@ import { useEffect } from 'react'
 
 import { defineComponent, getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { isClient } from '@ir-engine/hyperflux'
+import { defineState, isClient } from '@ir-engine/hyperflux'
 import { removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 
 import { Entity } from '@ir-engine/ecs/src/Entity'
@@ -42,12 +42,22 @@ const toggleOpen = (iframeEntity: Entity) => {
   setComponent(iframeEntity, IFrameComponent, { isOpen: !iframeComponent.isOpen })
 }
 
+export const PopoverComponentState = defineState({
+  name: 'ir.engine.interaction.PopupState',
+  initial: {} as Record<PopoverType, boolean>
+})
+
+export enum PopoverType {
+  IFRAME = 'iframe'
+}
+
 export const IFrameComponent = defineComponent({
   name: 'IFrameComponent',
   jsonID: 'IR_iframe',
 
   schema: S.Object({
-    src: S.String(''),
+    src: S.Enum(PopoverType),
+    type: S.String(PopoverType.IFRAME),
     isOpen: S.NonSerialized(S.Bool(false))
   }),
 
@@ -75,7 +85,6 @@ export const IFrameComponent = defineComponent({
 
     useEffect(() => {
       setCallback(entity, iframeCallbackName, () => toggleOpen(entity))
-
       return () => {
         removeCallback(entity, iframeCallbackName)
       }
