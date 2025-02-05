@@ -42,6 +42,7 @@ import {
   ComponentJSONIDMap,
   deserializeComponent,
   getComponent,
+  getMutableComponent,
   hasComponent,
   LayerComponent,
   Layers,
@@ -318,6 +319,7 @@ const positionObject = (
     }
 
     setComponent(entity, TransformComponent, { position: transform.position })
+    getMutableComponent(entity, TransformComponent).position.set((v) => v)
 
     EditorState.markModifiedScene(entity)
   }
@@ -352,6 +354,7 @@ const rotateObject = (nodes: Entity[], rotations: Quaternion[], space = getState
     }
 
     setComponent(entity, TransformComponent, { rotation: transform.rotation })
+    getMutableComponent(entity, TransformComponent).rotation.set((v) => v)
 
     EditorState.markModifiedScene(entity)
   }
@@ -378,6 +381,7 @@ const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: V
       .decompose(transform.position, transform.rotation, transform.scale)
 
     setComponent(entity, TransformComponent, { rotation: transform.rotation })
+    getMutableComponent(entity, TransformComponent).rotation.set((v) => v)
 
     EditorState.markModifiedScene(entity)
   }
@@ -403,6 +407,7 @@ const scaleObject = (entities: Entity[], scales: Vector3[], overrideScale = fals
     )
 
     setComponent(entity, TransformComponent, { scale: transformComponent.scale })
+    getMutableComponent(entity, TransformComponent).scale.set((v) => v)
 
     EditorState.markModifiedScene(entity)
   }
