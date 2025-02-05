@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useId, useRef, useState } from 'react'
+import React, { useId, useRef } from 'react'
 import { LuInfo } from 'react-icons/lu'
 import { twMerge } from 'tailwind-merge'
 import Label from '../../../primitives/tailwind/Label'
@@ -60,7 +60,6 @@ const Slider = ({
 }: SliderProps) => {
   const id = useId()
   const parentRef = useRef<HTMLDivElement>(null)
-  const [width, setWidth] = useState(0)
 
   const handleInputChange = (value: string) => {
     const fractionLength = step.toString().split('.')[1]?.length || 0
@@ -79,14 +78,6 @@ const Slider = ({
   }
 
   const gradientPercent = Math.round(((value - min) / (max - min)) * 100)
-
-  useEffect(() => {
-    const observer = new ResizeObserver(() => {
-      if (parentRef.current) setWidth(parentRef.current?.offsetWidth)
-    })
-    observer.observe(parentRef.current as Element)
-    return () => observer.disconnect()
-  }, [])
 
   return (
     <div ref={parentRef} className="group/editor-slider grid w-full grid-cols-1 gap-y-2" {...props}>
@@ -128,7 +119,6 @@ const Slider = ({
           step={step}
           type="range"
           style={{
-            width: width + 'px',
             background: `linear-gradient(to right, var(--ui-inactive-secondary) ${gradientPercent}%, var(--ui-background) ${gradientPercent}%)`
           }}
           className="h-8 w-full min-w-20 cursor-pointer appearance-none overflow-hidden rounded bg-ui-background outline-none
