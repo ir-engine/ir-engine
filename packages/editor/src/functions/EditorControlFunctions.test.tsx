@@ -297,7 +297,7 @@ describe('EditorControlFunctions', () => {
       const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
 
       EditorControlFunctions.modifyProperty([nodeEntity], SplineComponent, {
-        [`elements[${1}].position` as string]: {
+        [`elements.${1}.position` as string]: {
           x: 10,
           y: 10,
           z: 10
