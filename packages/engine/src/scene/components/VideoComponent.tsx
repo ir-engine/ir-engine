@@ -116,7 +116,8 @@ export const VideoComponent = defineComponent({
     mediaUUID: S.EntityUUID(),
     // internal
     videoMeshEntity: S.Entity(),
-    texture: S.NonSerialized(S.Nullable(S.Type<VideoTexturePriorityQueue>()))
+    texture: S.NonSerialized(S.Nullable(S.Type<VideoTexturePriorityQueue>())),
+    currentVideoSize: T.Vec2({ x: 0, y: 0 })
   }),
 
   onRemove: (entity, component) => {
@@ -284,6 +285,7 @@ function VideoReactor() {
     videoMesh.scale.y = containerHeight
 
     const imageSize = getTextureSize(videoMesh.material.uniforms.map.value as Texture | CompressedTexture)
+    video.currentVideoSize.set(imageSize)
     const imageRatio = imageSize.x / imageSize.y || 1
 
     let isPlacementHorz = true

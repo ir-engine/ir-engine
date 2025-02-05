@@ -23,10 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { HiOutlineVideoCamera } from 'react-icons/hi2'
-
 import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import {
   getComponent,
@@ -38,6 +34,10 @@ import {
 import { MediaComponent, MediaElementComponent, setTime } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import React, { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { CgArrowsExpandRight } from 'react-icons/cg'
+import { HiOutlineVideoCamera } from 'react-icons/hi2'
 
 import { useQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
@@ -56,6 +56,7 @@ import { DistanceModel, DistanceModelOptions } from '@ir-engine/engine/src/audio
 import { useHookstate } from '@ir-engine/hyperflux'
 import { FaAngleLeft, FaRegPauseCircle } from 'react-icons/fa'
 import { FaRegCirclePlay } from 'react-icons/fa6'
+import { IoCloseSharp } from 'react-icons/io5'
 import { RiExpandUpDownLine } from 'react-icons/ri'
 import { TfiAngleLeft } from 'react-icons/tfi'
 import Video from '../../../../primitives/tailwind/Video'
@@ -207,13 +208,18 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   }, [media?.currentTrackDuration, media?.currentTrackTime])
 
   const videoRef = useRef(null)
+  const showVideoPreview = useHookstate(false)
+  const videoPreviewHeight = useHookstate(0)
+  const videoPreviewWidth = useHookstate(0)
+  const videoPreviewParentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const previewVideo = videoRef.current as unknown as HTMLVideoElement
-    if (!previewVideo) return
+    if (!showVideoPreview.value) return
     if (!mediaElement) return
     const sourceVideo = mediaElement.element.value as HTMLVideoElement
     if (!sourceVideo) return
+    const previewVideo = videoRef.current as unknown as HTMLVideoElement
+    if (!previewVideo) return
     const src = media?.resources.value[media?.selectedTrackIndex.value]
     previewVideo.src = src ? src : ''
     if (!sourceVideo.paused) {
@@ -221,21 +227,41 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
     } else {
       previewVideo.pause()
     }
-  }, [media?.selectedTrackIndex])
+  }, [media?.selectedTrackIndex, showVideoPreview])
 
   useEffect(() => {
-    const previewVideo = videoRef.current as unknown as HTMLVideoElement
-    if (!previewVideo) return
+    if (!showVideoPreview.value) return
     if (!mediaElement) return
     const sourceVideo = mediaElement.element.value as HTMLVideoElement
     if (!sourceVideo) return
+    const previewVideo = videoRef.current as unknown as HTMLVideoElement
+    if (!previewVideo) return
     previewVideo.currentTime = sourceVideo.currentTime
     if (!sourceVideo.paused) {
       previewVideo.play()
     } else {
       previewVideo.pause()
     }
-  }, [media?.currentTrackTime])
+  }, [media?.currentTrackTime, showVideoPreview])
+
+  useEffect(() => {
+    const ratio = video.currentVideoSize.x.value / video.currentVideoSize.y.value || 1
+    const height = videoPreviewWidth.value / ratio
+    videoPreviewHeight.set(height)
+  }, [video.currentVideoSize, videoPreviewWidth])
+
+  useEffect(() => {
+    if (!showVideoPreview.value) return
+    const resize = () => {
+      if (videoPreviewParentRef.current) videoPreviewWidth.set(videoPreviewParentRef.current?.offsetWidth)
+    }
+    const observer = new ResizeObserver(() => {
+      resize()
+    })
+    observer.observe(videoPreviewParentRef.current as Element)
+    resize()
+    return () => observer.disconnect()
+  }, [showVideoPreview])
 
   return (
     <NodeEditor
@@ -280,27 +306,53 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
           >
             {mediaElement && (
               <>
-                <Video volume={0} autoPlay={false} ref={videoRef} className="h-[185px] w-[310px]" />
-                <div className="flex h-[28px] justify-between gap-[10px] rounded bg-[#141619] px-[8px] ">
-                  <div onClick={toggle} className="my-[4px] h-[20px] w-[20px] text-[#B2B5BD]">
-                    {media.paused.value && <FaRegCirclePlay className="h-full w-full" />}
-                    {!media.paused.value && <FaRegPauseCircle className="h-full w-full" />}
+                {showVideoPreview.value && (
+                  <div ref={videoPreviewParentRef} className="my-[4px]">
+                    <div
+                      className={`relative `}
+                      style={{
+                        width: videoPreviewWidth.value + 'px',
+                        height: videoPreviewHeight.value + 'px'
+                      }}
+                    >
+                      <Video
+                        volume={0}
+                        autoPlay={false}
+                        ref={videoRef}
+                        className="absolute right-0 top-0 h-full w-full "
+                      />
+                      <button
+                        className="absolute right-0 top-0 h-[32px] w-[32px] place-items-center text-[#9CA0AA]"
+                        onClick={() => {
+                          showVideoPreview.set(false)
+                        }}
+                      >
+                        <IoCloseSharp />
+                      </button>
+                    </div>
                   </div>
-                  <input
-                    id={'vidoeScrubber'}
-                    min={currentTrackMin.value}
-                    max={currentTrackMax.value}
-                    step={0.05}
-                    value={media.currentTrackTime.value}
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      const val = parseFloat(event.target.value)
-                      setTime(mediaElement.element, val)
-                    }}
-                    type="range"
-                    style={{
-                      background: `linear-gradient(to right, #375DAF ${currentTrackPercent.value}%, #B2B5BD ${currentTrackPercent.value}%)`
-                    }}
-                    className={`my-[12px] h-[4px] w-full min-w-20 cursor-pointer appearance-none overflow-hidden rounded bg-[#B2B5BD] focus:outline-none
+                )}
+                <div className="flex w-full justify-between gap-[10px] ">
+                  <div className="flex h-[28px] w-full justify-between gap-[10px] rounded bg-[#141619] px-[8px] ">
+                    <div onClick={toggle} className="my-[4px] h-[20px] w-[20px] text-[#B2B5BD]">
+                      {media.paused.value && <FaRegCirclePlay className="h-full w-full" />}
+                      {!media.paused.value && <FaRegPauseCircle className="h-full w-full" />}
+                    </div>
+                    <input
+                      id={'videoScrubber'}
+                      min={currentTrackMin.value}
+                      max={currentTrackMax.value}
+                      step={0.05}
+                      value={media.currentTrackTime.value}
+                      onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                        const val = parseFloat(event.target.value)
+                        setTime(mediaElement.element, val)
+                      }}
+                      type="range"
+                      style={{
+                        background: `linear-gradient(to right, #375DAF ${currentTrackPercent.value}%, #B2B5BD ${currentTrackPercent.value}%)`
+                      }}
+                      className={`my-[12px] h-[4px] w-full min-w-20 cursor-pointer appearance-none overflow-hidden rounded bg-[#B2B5BD] focus:outline-none
                         disabled:pointer-events-none disabled:opacity-50
                         [&::-moz-range-progress]:bg-[#375DAF]
                         [&::-moz-range-thumb]:h-full
@@ -329,11 +381,22 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                         [&::-webkit-slider-thumb]:ease-in-out
                         group-hover/editor-slider:[&::-webkit-slider-thumb]:bg-[#AFBEDF]
                       `}
-                    data-testid="slider-draggable-value-input"
-                  />
-                  <div className="my-[6px] inline-block h-full align-middle text-[12px] text-[#B2B5BD]">
-                    {formatSeconds(media.currentTrackTime.value)}/{formatSeconds(media.currentTrackDuration.value)}
+                      data-testid="slider-draggable-value-input"
+                    />
+                    <div className="my-[6px] inline-block h-full align-middle text-[12px] text-[#B2B5BD]">
+                      {formatSeconds(media.currentTrackTime.value)}/{formatSeconds(media.currentTrackDuration.value)}
+                    </div>
                   </div>
+                  {!showVideoPreview.value && (
+                    <button
+                      className="h-[28px] w-[32px] place-items-center rounded bg-[#141619] text-[#9CA0AA]"
+                      onClick={() => {
+                        showVideoPreview.set(true)
+                      }}
+                    >
+                      <CgArrowsExpandRight />
+                    </button>
+                  )}
                 </div>
               </>
             )}

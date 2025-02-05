@@ -182,10 +182,7 @@ export const MediaComponent = defineComponent({
       synchronize: component.synchronize,
       playMode: component.playMode,
       isMusic: component.isMusic,
-      seekTime: component.seekTime, // we can start media from a specific point if needed
-      selectedTrackIndex: component.selectedTrackIndex,
-      currentTrackTime: component.currentTrackTime,
-      currentTrackDuration: component.currentTrackDuration
+      seekTime: component.seekTime // we can start media from a specific point if needed
     }
   },
 
@@ -387,6 +384,8 @@ export function MediaReactor() {
   useEffect(
     function updateTrackMetadata() {
       clearErrors(entity, MediaComponent)
+
+      media.selectedTrackIndex.set(-1)
 
       const paths = media.resources.value
 
