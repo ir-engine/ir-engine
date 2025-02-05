@@ -179,6 +179,9 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   }
 
   const localAudioMode = useHookstate(hasComponent(props.entity, PositionalAudioComponent) ? 'positional' : 'ambient')
+  const currentTrackMin = useHookstate(0)
+  const currentTrackMax = useHookstate(1)
+  const currentTrackPercent = useHookstate(0)
 
   useEffect(() => {
     if (!hasComponent(props.entity, MediaComponent)) {
@@ -192,6 +195,16 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
       media.selectedTrackIndex.set(-1)
     }
   }, [media?.resources])
+
+  useEffect(() => {
+    if (!media) return
+    currentTrackMax.set(media.currentTrackDuration.value)
+    currentTrackPercent.set(
+      Math.round(
+        ((media.currentTrackTime.value - currentTrackMin.value) / (currentTrackMax.value - currentTrackMin.value)) * 100
+      )
+    )
+  }, [media?.currentTrackDuration, media?.currentTrackTime])
 
   return (
     <NodeEditor
@@ -237,56 +250,57 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
             {media.resources.length > 0 && media.selectedTrackIndex.value >= 0 && (
               <MediaPreview resources={media.resources} selectedIndex={media.selectedTrackIndex.value} />
             )}
-            <div className="flex h-[28px] justify-between bg-[#141619]">
-              <div onClick={toggle} className="text-[#B2B5BD]">
-                {media.paused.value && <FaRegCirclePlay />}
-                {!media.paused.value && <FaRegPauseCircle />}
+            <div className="flex h-[28px] justify-between gap-[10px] rounded bg-[#141619] px-[8px] ">
+              <div onClick={toggle} className="my-[4px] h-[20px] w-[20px] text-[#B2B5BD]">
+                {media.paused.value && <FaRegCirclePlay className="h-full w-full" />}
+                {!media.paused.value && <FaRegPauseCircle className="h-full w-full" />}
               </div>
-              <div>
-                <input
-                  id={'media_scrub_slider'}
-                  min={0}
-                  max={media.currentTrackDuration.value}
-                  value={media.currentTrackTime.value}
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                    const val = parseFloat(event.target.value)
-                    setTime(mediaElement.element, val)
-                  }}
-                  step={1}
-                  type="range"
-                  className="h-8 min-w-20 cursor-pointer appearance-none overflow-hidden rounded bg-[#191B1F] focus:outline-none
-          disabled:pointer-events-none disabled:opacity-50
-          [&::-moz-range-progress]:bg-[#375DAF]
-          [&::-moz-range-thumb]:h-full
-          [&::-moz-range-thumb]:w-4
-          [&::-moz-range-thumb]:appearance-none
-          [&::-moz-range-thumb]:rounded
-          [&::-moz-range-thumb]:bg-[#879ECF]
-          [&::-moz-range-thumb]:transition-all
-          [&::-moz-range-thumb]:duration-150
-          [&::-moz-range-thumb]:ease-in-out
-          group-hover/editor-slider:[&::-moz-range-thumb]:bg-[#AFBEDF]
-          [&::-moz-range-track]:h-full
-          [&::-moz-range-track]:w-full
-          [&::-moz-range-track]:rounded
-          [&::-moz-range-track]:bg-[#191B1F]
-          [&::-webkit-slider-runnable-track]:h-full
-          [&::-webkit-slider-runnable-track]:w-full
-          [&::-webkit-slider-runnable-track]:rounded
-          [&::-webkit-slider-thumb]:h-full
-          [&::-webkit-slider-thumb]:w-4
-          [&::-webkit-slider-thumb]:appearance-none
-          [&::-webkit-slider-thumb]:rounded
-          [&::-webkit-slider-thumb]:bg-[#879ECF]
-          [&::-webkit-slider-thumb]:transition-all
-          [&::-webkit-slider-thumb]:duration-150
-          [&::-webkit-slider-thumb]:ease-in-out
-          group-hover/editor-slider:[&::-webkit-slider-thumb]:bg-[#AFBEDF]
-        "
-                  data-testid="slider-draggable-value-input"
-                />
-              </div>
-              <div className="text-[12px] text-[#B2B5BD]">
+              <input
+                id={'vidoeScrubber'}
+                min={currentTrackMin.value}
+                max={currentTrackMax.value}
+                step={0.05}
+                value={media.currentTrackTime.value}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                  const val = parseFloat(event.target.value)
+                  setTime(mediaElement.element, val)
+                }}
+                type="range"
+                style={{
+                  background: `linear-gradient(to right, #375DAF ${currentTrackPercent.value}%, #B2B5BD ${currentTrackPercent.value}%)`
+                }}
+                className={`my-[12px] h-[4px] w-full min-w-20 cursor-pointer appearance-none overflow-hidden rounded bg-[#B2B5BD] focus:outline-none
+                        disabled:pointer-events-none disabled:opacity-50
+                        [&::-moz-range-progress]:bg-[#375DAF]
+                        [&::-moz-range-thumb]:h-full
+                        [&::-moz-range-thumb]:w-[8px]
+                        [&::-moz-range-thumb]:appearance-none
+                        [&::-moz-range-thumb]:rounded
+                        [&::-moz-range-thumb]:bg-[#213869]
+                        [&::-moz-range-thumb]:transition-all
+                        [&::-moz-range-thumb]:duration-150
+                        [&::-moz-range-thumb]:ease-in-out
+                        group-hover/editor-slider:[&::-moz-range-thumb]:bg-[#AFBEDF]
+                        [&::-moz-range-track]:h-full
+                        [&::-moz-range-track]:w-full
+                        [&::-moz-range-track]:rounded
+                        [&::-moz-range-track]:bg-[#B2B5BD]
+                        [&::-webkit-slider-runnable-track]:h-full
+                        [&::-webkit-slider-runnable-track]:w-full
+                        [&::-webkit-slider-runnable-track]:rounded
+                        [&::-webkit-slider-thumb]:h-full
+                        [&::-webkit-slider-thumb]:w-[8px]
+                        [&::-webkit-slider-thumb]:appearance-none
+                        [&::-webkit-slider-thumb]:rounded
+                        [&::-webkit-slider-thumb]:bg-[#213869]
+                        [&::-webkit-slider-thumb]:transition-all
+                        [&::-webkit-slider-thumb]:duration-150
+                        [&::-webkit-slider-thumb]:ease-in-out
+                        group-hover/editor-slider:[&::-webkit-slider-thumb]:bg-[#AFBEDF]
+                      `}
+                data-testid="slider-draggable-value-input"
+              />
+              <div className="my-[6px] inline-block h-full align-middle text-[12px] text-[#B2B5BD]">
                 {formatSeconds(media.currentTrackTime.value)}/{formatSeconds(media.currentTrackDuration.value)}
               </div>
             </div>
