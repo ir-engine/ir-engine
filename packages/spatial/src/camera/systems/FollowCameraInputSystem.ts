@@ -37,7 +37,7 @@ import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/
 import { TargetCameraRotationComponent } from '@ir-engine/spatial/src/camera/components/TargetCameraRotationComponent'
 import { setTargetCameraRotation } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { FollowCameraMode } from '@ir-engine/spatial/src/camera/types/FollowCameraMode'
-import { DefaultAxisAlias, InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { DefaultAxisBindings, InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
 import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
 import { getThumbstickOrThumbpadAxes } from '@ir-engine/spatial/src/input/functions/getThumbstickOrThumbpadAxes'
@@ -88,7 +88,7 @@ const onFollowCameraShoulderCam = (cameraEntity: Entity) => {
  */
 export const handleFollowCameraScroll = (
   cameraEntity: Entity,
-  axes: AxisValueMap<typeof DefaultAxisAlias>,
+  axes: AxisValueMap<typeof DefaultAxisBindings>,
   deltaTime: number
 ): void => {
   const follow = getComponent(cameraEntity, FollowCameraComponent)

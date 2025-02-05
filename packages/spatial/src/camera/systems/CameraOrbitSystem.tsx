@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
 
 import {
-  defineQuery,
   defineSystem,
   Engine,
   EngineState,
@@ -34,7 +33,7 @@ import {
   getMutableComponent,
   getOptionalComponent,
   InputSystemGroup,
-  Not,
+  query,
   setComponent,
   UndefinedEntity
 } from '@ir-engine/ecs'
@@ -49,7 +48,6 @@ import { InputState } from '../../input/state/InputState'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { FlyControlComponent } from '../components/FlyControlComponent'
 const ZOOM_SPEED = 0.1
 const MAX_FOCUS_DISTANCE = 1000
 const PAN_SPEED = 1
@@ -62,12 +60,7 @@ const sphere = new Sphere()
 const spherical = new Spherical()
 
 // const throttleZoom = throttle(doZoom, 30, { leading: true, trailing: false })
-const orbitCameraQuery = defineQuery([
-  RendererComponent,
-  CameraOrbitComponent,
-  InputComponent,
-  Not(FlyControlComponent)
-])
+const orbitCameraQueryTerms = [RendererComponent, CameraOrbitComponent, InputComponent]
 
 const execute = () => {
   if (!isClient) return
@@ -77,7 +70,7 @@ const execute = () => {
   /**
    * assign active orbit camera based on which input source registers input
    */
-  for (const cameraEid of orbitCameraQuery()) {
+  for (const cameraEid of query(orbitCameraQueryTerms)) {
     if (getState(InputState).capturingCameraOrbitEnabled) {
       const inputPointerEntity = InputPointerComponent.getPointersForCamera(cameraEid)[0]
 
@@ -204,5 +197,9 @@ const execute = () => {
 export const CameraOrbitSystem = defineSystem({
   uuid: 'ee.engine.CameraOrbitSystem',
   insert: { after: InputSystemGroup },
-  execute
+  execute,
+  reactor: () => {
+    const cameraOrbits = useQuery(orbitCameraQuery)
+    return null
+  }
 })

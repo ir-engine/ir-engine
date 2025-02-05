@@ -35,14 +35,14 @@ import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { ButtonStateMap } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
-import { DefaultButtonAlias } from './InputComponent'
+import { DefaultButtonBindings } from './InputComponent'
 
 export const InputSourceComponent = defineComponent({
   name: 'InputSourceComponent',
 
   schema: S.Object({
     source: S.Type<XRInputSource>({} as XRInputSource),
-    buttons: S.Type<Readonly<ButtonStateMap<typeof DefaultButtonAlias>>>({}),
+    buttons: S.Type<Readonly<ButtonStateMap<typeof DefaultButtonBindings>>>({}),
     raycaster: S.Class(() => new Raycaster()),
     intersections: S.Array(
       S.Object({

@@ -77,6 +77,8 @@ import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { InputButtonBindings } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { KeyboardButton } from '@ir-engine/spatial/src/input/state/ButtonState'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { TransformGizmoControlledComponent } from '../classes/gizmo/transform/TransformGizmoControlledComponent'
 import { EditorState } from '../services/EditorServices'
@@ -84,53 +86,38 @@ import { SelectionState } from '../services/SelectionServices'
 import { ClickPlacementState } from './ClickPlacementSystem'
 import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 
+export const EditorButtonAlias = {
+  Undo: [[KeyboardButton.ControlLeft, KeyboardButton.KeyZ]],
+  Redo: [[KeyboardButton.ControlLeft, KeyboardButton.ShiftLeft, KeyboardButton.KeyZ]],
+  ObjectGridSnap: [KeyboardButton.KeyB],
+  TransformModeTranslate: [KeyboardButton.KeyW],
+  TransformModeRotate: [KeyboardButton.KeyE],
+  TransformModeScale: [KeyboardButton.KeyR],
+  TogglePlacementMode: [KeyboardButton.KeyP],
+  ToggleSnapMode: [KeyboardButton.KeyC],
+  ToggleTransformPivot: [KeyboardButton.KeyX],
+  ToggleTransformSpace: [KeyboardButton.KeyZ],
+  CameraFocus: [KeyboardButton.KeyF],
+  IncreaseGridHeight: [KeyboardButton.Equal],
+  DecreaseGridHeight: [KeyboardButton.Minus],
+  CancelSelection: [KeyboardButton.Escape],
+  DeleteSelection: [KeyboardButton.Delete]
+} satisfies InputButtonBindings
+
 const raycaster = new Raycaster()
 const raycasterResults: Intersection<Object3D>[] = []
 
-// const gizmoControlledQuery = defineQuery([TransformGizmoControlledComponent])
-// let primaryClickAccum = 0
-
-const onKeyB = () => {
+const onObjectGridSnap = () => {
   getMutableState(ObjectGridSnapState).enabled.set(!getState(ObjectGridSnapState).enabled)
 }
 
-const onKeyF = () => {
+const onCameraFocus = () => {
   getMutableComponent(Engine.instance.cameraEntity, CameraOrbitComponent).focusedEntities.set(
     SelectionState.getSelectedEntities()
   )
 }
 
-// const onKeyQ = () => {
-//   const nodes = SelectionState.getSelectedEntities()
-//   const gizmo = gizmoControlledQuery()
-//   if (gizmo.length === 0) return
-//   const gizmoEntity = gizmo[gizmo.length - 1]
-//   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
-//   const editorHelperState = getState(EditorHelperState)
-//   EditorControlFunctions.rotateAround(
-//     nodes,
-//     Vector3_Up,
-//     editorHelperState.rotationSnap * MathUtils.DEG2RAD,
-//     gizmoTransform.position
-//   )
-// }
-
-// const onKeyE = () => {
-//   const nodes = SelectionState.getSelectedEntities()
-//   const gizmo = gizmoControlledQuery()
-//   if (gizmo.length === 0) return
-//   const gizmoEntity = gizmo[gizmo.length - 1]
-//   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
-//   const editorHelperState = getState(EditorHelperState)
-//   EditorControlFunctions.rotateAround(
-//     nodes,
-//     Vector3_Up,
-//     -editorHelperState.rotationSnap * MathUtils.DEG2RAD,
-//     gizmoTransform.position
-//   )
-// }
-
-const onEscape = () => {
+const onCancelSelection = () => {
   EditorControlFunctions.replaceSelection([])
   const element = document.activeElement
   if (element instanceof HTMLElement) {
@@ -138,11 +125,11 @@ const onEscape = () => {
   }
 }
 
-const onKeyW = () => {
+const onTransformModeTranslate = () => {
   setTransformMode(TransformMode.translate)
 }
 
-const onKeyP = () => {
+const onTogglePlacementMode = () => {
   const editorHelperState = getMutableState(EditorHelperState)
   if (editorHelperState.placementMode.value === PlacementMode.CLICK) {
     editorHelperState.placementMode.set(PlacementMode.DRAG)
@@ -151,47 +138,51 @@ const onKeyP = () => {
   }
 }
 
-const onKeyE = () => {
+const onTransformModeRotate = () => {
   setTransformMode(TransformMode.rotate)
 }
 
-const onKeyR = () => {
+const onTransformModeScale = () => {
   setTransformMode(TransformMode.scale)
 }
 
-const onKeyC = () => {
+const onToggleSnapMode = () => {
   toggleSnapMode()
 }
 
-const onKeyX = () => {
+const onToggleTransformPivot = () => {
   toggleTransformPivot()
 }
 
-const onKeyZ = (control: boolean, shift: boolean) => {
-  const rootEntity = getState(EditorState).rootEntity
-  if (!rootEntity) return
-  if (control) {
-    if (shift) {
-      // redo
-    } else {
-      // undo
-    }
-  } else {
-    toggleTransformSpace()
-  }
+// Add new onToggleTransformSpace callback to toggle transform space
+const onToggleTransformSpace = () => {
+  toggleTransformSpace()
 }
 
-const onEqual = () => {
+// New callbacks for undo/redo
+const onUndo = () => {
+  const rootEntity = getState(EditorState).rootEntity
+  if (!rootEntity) return
+  // undo logic placeholder
+}
+
+const onRedo = () => {
+  const rootEntity = getState(EditorState).rootEntity
+  if (!rootEntity) return
+  // redo logic placeholder
+}
+
+const onIncreaseGridHeight = () => {
   const rendererState = useMutableState(RendererState)
   rendererState.gridHeight.set(rendererState.gridHeight.value + 1)
 }
 
-const onMinus = () => {
+const onDecreaseGridHeight = () => {
   const rendererState = useMutableState(RendererState)
   rendererState.gridHeight.set(rendererState.gridHeight.value - 1)
 }
 
-const onDelete = () => {
+const onDeleteSelection = () => {
   EditorControlFunctions.removeObject(SelectionState.getSelectedEntities())
 }
 
@@ -281,27 +272,29 @@ const execute = () => {
   const entity = AvatarComponent.getSelfAvatarEntity()
   if (entity) return
 
-  if (hasComponent(Engine.instance.cameraEntity, FlyControlComponent)) return
-
+  const viewerEntity = getState(ReferenceSpaceState).viewerEntity
+  const buttons = InputComponent.getMergedButtons(viewerEntity, EditorButtonAlias)
   const selectedEntities = SelectionState.getSelectedEntities()
+
+  if (hasComponent(viewerEntity, FlyControlComponent)) return
 
   const inputSources = inputQuery()
 
-  const buttons = InputComponent.getMergedButtonsForInputSources(inputSources)
-
-  if (buttons.KeyB?.down) onKeyB()
-  if (buttons.KeyE?.down) onKeyE()
-  if (buttons.KeyP?.down) onKeyP()
-  if (buttons.KeyR?.down) onKeyR()
-  if (buttons.KeyW?.down) onKeyW()
-  if (buttons.KeyC?.down) onKeyC()
-  if (buttons.KeyX?.down) onKeyX()
-  if (buttons.KeyF?.down) onKeyF()
-  if (buttons.KeyZ?.down) onKeyZ(!!buttons.ControlLeft?.pressed, !!buttons.ShiftLeft?.pressed)
-  if (buttons.Equal?.down) onEqual()
-  if (buttons.Minus?.down) onMinus()
-  if (buttons.Escape?.down) onEscape()
-  if (buttons.Delete?.down) onDelete()
+  if (buttons.ObjectGridSnap?.down) onObjectGridSnap()
+  if (buttons.TransformModeRotate?.down) onTransformModeRotate()
+  if (buttons.TogglePlacementMode?.down) onTogglePlacementMode()
+  if (buttons.TransformModeScale?.down) onTransformModeScale()
+  if (buttons.TransformModeTranslate?.down) onTransformModeTranslate()
+  if (buttons.ToggleSnapMode?.down) onToggleSnapMode()
+  if (buttons.ToggleTransformPivot?.down) onToggleTransformPivot()
+  if (buttons.ToggleTransformSpace?.down) onToggleTransformSpace()
+  if (buttons.CameraFocus?.down) onCameraFocus()
+  if (buttons.Undo?.down) onUndo()
+  if (buttons.Redo?.down) onRedo()
+  if (buttons.IncreaseGridHeight?.down) onIncreaseGridHeight()
+  if (buttons.DecreaseGridHeight?.down) onDecreaseGridHeight()
+  if (buttons.CancelSelection?.down) onCancelSelection()
+  if (buttons.DeleteSelection?.down) onDeleteSelection()
 
   if (selectedEntities) {
     const lastSelection = selectedEntities[selectedEntities.length - 1]

@@ -45,7 +45,7 @@ import { PI, Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstan
 import { TransformComponent, TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
-import { DefaultButtonAlias, InputComponent } from '../components/InputComponent'
+import { DefaultButtonBindings, InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import { ButtonState, ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
@@ -158,7 +158,7 @@ export function updatePointerDragging(pointerEntity: Entity, event: PointerEvent
   const inputSourceComponent = getOptionalComponent(pointerEntity, InputSourceComponent)
   if (!inputSourceComponent) return
 
-  const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
+  const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonBindings>
 
   let button = MouseButton.PrimaryClick
   if (event.type === 'pointermove') {

@@ -47,7 +47,9 @@ import {
   AnyButton,
   AxisMapping,
   AxisValueMap,
+  ButtonState,
   ButtonStateMap,
+  createInitialButtonState,
   KeyboardButton,
   MouseButton,
   MouseScroll,
@@ -58,23 +60,27 @@ import { InputState } from '../state/InputState'
 import { InputSinkComponent } from './InputSinkComponent'
 import { InputSourceComponent } from './InputSourceComponent'
 
-export type InputAlias = Record<string, (string | number)[]>
+// Types for input bindings
+export type ButtonBinding = AnyButton | AnyButton[]
+export type AxisBinding = AnyAxis
+export type InputButtonBindings = Record<string, ButtonBinding[]>
+export type InputAxisBindings = Record<string, AxisBinding[]>
 
-export const DefaultButtonAlias = {
+export const DefaultButtonBindings = {
   Interact: [MouseButton.PrimaryClick, XRStandardGamepadButton.XRStandardGamepadTrigger, KeyboardButton.KeyE],
   FollowCameraModeCycle: [KeyboardButton.KeyV],
   FollowCameraFirstPerson: [KeyboardButton.KeyF],
   FollowCameraShoulderCam: [KeyboardButton.KeyC]
-} satisfies Record<string, Array<AnyButton>>
+} satisfies InputButtonBindings
 
-export const DefaultAxisAlias = {
+export const DefaultAxisBindings = {
   FollowCameraZoomScroll: [
     MouseScroll.VerticalScroll,
     XRStandardGamepadAxes.XRStandardGamepadThumbstickY,
     XRStandardGamepadAxes.XRStandardGamepadTouchpadY
   ],
   FollowCameraShoulderCamScroll: [MouseScroll.HorizontalScroll]
-} satisfies Record<string, Array<AnyAxis>>
+} satisfies InputAxisBindings
 
 export const InputComponent = defineComponent({
   name: 'InputComponent',
@@ -126,48 +132,78 @@ export const InputComponent = defineComponent({
     }, [])
   },
 
-  getMergedButtons<AliasType extends InputAlias = typeof DefaultButtonAlias>(
+  getMergedButtons<BindingsType extends InputButtonBindings = typeof DefaultButtonBindings>(
     entityContext: Entity,
-    inputAlias: AliasType = DefaultButtonAlias as unknown as AliasType
+    inputBindings: BindingsType = DefaultButtonBindings as unknown as BindingsType
   ) {
     const inputSourceEntities = InputComponent.getInputSourceEntities(entityContext)
-    return InputComponent.getMergedButtonsForInputSources(inputSourceEntities, inputAlias)
+    return InputComponent.getMergedButtonsForInputSources(inputSourceEntities, inputBindings)
   },
 
-  getMergedAxes<AliasType extends InputAlias = typeof DefaultAxisAlias>(
+  getMergedAxes<BindingsType extends InputAxisBindings = typeof DefaultAxisBindings>(
     entityContext: Entity,
-    inputAlias: AliasType = DefaultAxisAlias as unknown as AliasType
+    inputBindings: BindingsType = DefaultAxisBindings as unknown as BindingsType
   ) {
     const inputSourceEntities = InputComponent.getInputSourceEntities(entityContext)
-    return InputComponent.getMergedAxesForInputSources(inputSourceEntities, inputAlias)
+    return InputComponent.getMergedAxesForInputSources(inputSourceEntities, inputBindings)
   },
 
   /**
    * @description Returns an object that:
    * - Contains all of the buttons described by the InputSourceComponent.buttons of all `@param inputSourceEntities`
    * - Has synchronized the state of the buttons described by all entries of `@param inputAlias` into fields of the same name.  */
-  getMergedButtonsForInputSources<AliasType extends InputAlias = typeof DefaultButtonAlias>(
+  getMergedButtonsForInputSources<BindingsType extends InputButtonBindings = typeof DefaultButtonBindings>(
     inputSourceEntities: Entity[],
-    inputAlias: AliasType = DefaultButtonAlias as unknown as AliasType
+    inputBindings: BindingsType = DefaultButtonBindings as unknown as BindingsType
   ) {
-    const buttons = Object.assign(
+    // Get the merged button states from all input sources
+    const buttonStates = Object.assign(
       {},
       ...inputSourceEntities.map((eid) => {
         return getComponent(eid, InputSourceComponent).buttons
       })
-    ) as ButtonStateMap<AliasType>
+    ) as Record<AnyButton, ButtonState | undefined>
 
-    for (const key of Object.keys(inputAlias)) {
-      const k = key as keyof AliasType
-      buttons[k] = inputAlias[key].reduce((acc: any, alias) => acc || buttons[alias], undefined)
+    const result = { ...buttonStates } as ButtonStateMap<BindingsType>
+
+    // Process each binding
+    for (const key of Object.keys(inputBindings)) {
+      const k = key as keyof BindingsType
+      const bindings = inputBindings[key]
+
+      // Check each binding
+      const isActive = bindings.some((binding) => {
+        if (Array.isArray(binding)) {
+          // For combo bindings, check if all buttons in the combo are down
+          return binding.every((btn) => buttonStates[btn]?.down)
+        } else {
+          // Single button binding
+          return buttonStates[binding]?.down
+        }
+      })
+
+      // If any binding is active, set the alias state
+      if (isActive && inputSourceEntities.length > 0) {
+        result[k] = createInitialButtonState(inputSourceEntities[0], {
+          down: true,
+          pressed: true,
+          touched: false,
+          up: false,
+          value: 1,
+          dragging: false,
+          rotating: false
+        })
+      } else {
+        result[k] = undefined
+      }
     }
 
-    return buttons
+    return result
   },
 
-  getMergedAxesForInputSources<AliasType extends InputAlias = typeof DefaultAxisAlias>(
+  getMergedAxesForInputSources<BindingsType extends InputAxisBindings = typeof DefaultAxisBindings>(
     inputSourceEntities: Entity[],
-    inputAlias: AliasType = DefaultAxisAlias as unknown as AliasType
+    inputBindings: BindingsType = DefaultAxisBindings as unknown as BindingsType
   ) {
     const axes = {
       0: 0,
@@ -188,13 +224,14 @@ export const InputComponent = defineComponent({
       }
     }
 
-    for (const key of Object.keys(inputAlias)) {
-      axes[key as any] = inputAlias[key].reduce<number>((prev, alias) => {
-        return getLargestMagnitudeNumber(prev, axes[alias] ?? 0)
+    for (const key of Object.keys(inputBindings)) {
+      const bindings = inputBindings[key]
+      axes[key] = bindings.reduce<number>((prev, binding) => {
+        return getLargestMagnitudeNumber(prev, axes[binding] ?? 0)
       }, 0)
     }
 
-    return axes as AxisValueMap<AliasType>
+    return axes as AxisValueMap<BindingsType>
   },
 
   useHasFocus() {

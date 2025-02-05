@@ -48,7 +48,7 @@ import { NameComponent } from '../../common/NameComponent'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
-import { DefaultButtonAlias, InputComponent } from '../components/InputComponent'
+import { DefaultButtonBindings, InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import { AnyButton, ButtonState, ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
@@ -177,7 +177,7 @@ export const useXRInputSources = () => {
       if (!eid) return
       const inputSourceComponent = getComponent(eid, InputSourceComponent)
       if (!inputSourceComponent) return
-      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
+      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonBindings>
       state.PrimaryClick = createInitialButtonState(eid)
     }
     const onXRSelectEnd = (event: XRInputSourceEvent) => {
@@ -185,7 +185,7 @@ export const useXRInputSources = () => {
       if (!eid) return
       const inputSourceComponent = getComponent(eid, InputSourceComponent)
       if (!inputSourceComponent) return
-      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
+      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonBindings>
       if (!state.PrimaryClick) return
       state.PrimaryClick.up = true
     }
@@ -261,7 +261,7 @@ export const CanvasInputReactor = () => {
       if (event.button === 1) button = MouseButton.AuxiliaryClick
       else if (event.button === 2) button = MouseButton.SecondaryClick
 
-      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
+      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonBindings>
       if (down) {
         state[button] = createInitialButtonState(pointerEntity) //down, pressed, touched = true
 

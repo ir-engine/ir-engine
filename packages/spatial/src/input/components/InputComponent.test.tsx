@@ -60,9 +60,23 @@ import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { initializeSpatialEngine } from '../../initializeEngine'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { ReferenceSpace } from '../../xr/XRState'
-import { ButtonStateMap, MouseScroll, XRStandardGamepadAxes } from '../state/ButtonState'
+import {
+  AnyButton,
+  ButtonState,
+  ButtonStateMap,
+  KeyboardButton,
+  MouseScroll,
+  XRStandardGamepadAxes,
+  createInitialButtonState
+} from '../state/ButtonState'
 import { InputState } from '../state/InputState'
-import { DefaultButtonAlias, InputComponent, InputExecutionOrder, InputExecutionSystemGroup } from './InputComponent'
+import {
+  DefaultButtonBindings,
+  InputButtonBindings,
+  InputComponent,
+  InputExecutionOrder,
+  InputExecutionSystemGroup
+} from './InputComponent'
 import { InputSinkComponent } from './InputSinkComponent'
 import { InputSourceComponent } from './InputSourceComponent'
 
@@ -144,7 +158,7 @@ function getDummyAxes(axes: Axes) {
       targetRayMode: 'screen',
       targetRaySpace: {}
     } as unknown as XRInputSource,
-    buttons: {} as Readonly<ButtonStateMap<typeof DefaultButtonAlias>>,
+    buttons: {} as Readonly<ButtonStateMap<typeof DefaultButtonBindings>>,
     raycaster: new Raycaster(),
     intersections: [] as Array<{ entity: Entity; distance: number }>
   }
@@ -385,11 +399,21 @@ describe('InputComponent', () => {
 
     it('should copy all buttons defined by the InputSourceComponent.buttons of all `@param inputSourceEntities` into the resulting object', () => {
       // Create the list of expected keys
-      const Expected = ['0', '1', '2', '3']
+      const Expected = [0, 1, 2, 3] as AnyButton[]
+      // Create test entity
+      const entity = createEntity()
       // Create the list of buttons that should be returned
-      const Down = { down: true }
-      const Buttons1 = {}
-      const Buttons2 = {}
+      const Down = createInitialButtonState(entity, {
+        down: true,
+        pressed: false,
+        touched: false,
+        up: false,
+        value: 1,
+        dragging: false,
+        rotating: false
+      })
+      const Buttons1 = {} as Record<AnyButton, ButtonState>
+      const Buttons2 = {} as Record<AnyButton, ButtonState>
       Buttons1[Expected[0]] = Down
       Buttons1[Expected[1]] = Down
       Buttons2[Expected[2]] = Down
@@ -413,7 +437,7 @@ describe('InputComponent', () => {
     it('should return an object with the default shape when `@param inputAlias` is omitted', () => {
       // Create the list of expected keys
       const Expected = ['0', '1', '2', '3']
-      for (const key of Object.keys(DefaultButtonAlias)) {
+      for (const key of Object.keys(DefaultButtonBindings)) {
         Expected.push(key)
       }
       // Create the list of buttons that should be returned
@@ -475,12 +499,12 @@ describe('InputComponent', () => {
       }
     })
 
-    it('should collapse the state of the button aliases described by `@param inputAlias` (or the default) into a single field of the same name in the result object', () => {
+    it('should collapse the state of the button aliases described by `@param inputAlias` into a single field of the same name in the result object', () => {
       // Create the `@param inputAlias` object
       const SomeAliasList = {
-        SomeKeyOne: ['0', '1'],
-        SomeKeyTwo: ['2', '3']
-      }
+        SomeKeyOne: [0 as AnyButton, 1 as AnyButton],
+        SomeKeyTwo: [2 as AnyButton, 3 as AnyButton]
+      } satisfies InputButtonBindings
       // Create the list of expected keys
       const Expected = ['0', '1', '2', '3']
       for (const key of Object.keys(SomeAliasList)) {
@@ -513,6 +537,69 @@ describe('InputComponent', () => {
       assert.equal(result[Expected[3]].down, false)
       assert.equal(result[Expected[4]].down, true)
       assert.equal(result[Expected[5]].down, true)
+    })
+
+    // Add new tests for combo buttons
+    it('should handle combo button bindings correctly', () => {
+      // Create test buttons
+      const buttonAlias = {
+        SingleButton: [KeyboardButton.KeyA],
+        ComboButtons: [[KeyboardButton.ControlLeft, KeyboardButton.KeyZ]], // Ctrl+Z combo
+        MultipleBindings: [
+          KeyboardButton.KeyB, // Single button
+          [KeyboardButton.ControlLeft, KeyboardButton.KeyC] // Ctrl+C combo
+        ]
+      } satisfies InputButtonBindings
+
+      // Create test entity with button states
+      const entity = createEntity()
+      setComponent(entity, InputSourceComponent)
+
+      // Test case 1: No buttons pressed
+      getMutableComponent(entity, InputSourceComponent).buttons.set({})
+      let result = InputComponent.getMergedButtonsForInputSources([entity], buttonAlias)
+      assert.equal(result.SingleButton, undefined)
+      assert.equal(result.ComboButtons, undefined)
+      assert.equal(result.MultipleBindings, undefined)
+
+      // Test case 2: Single button pressed
+      getMutableComponent(entity, InputSourceComponent).buttons.set({
+        [KeyboardButton.KeyA]: createInitialButtonState(entity, { down: true })
+      })
+      result = InputComponent.getMergedButtonsForInputSources([entity], buttonAlias)
+      assert.ok(result.SingleButton?.down)
+      assert.equal(result.ComboButtons, undefined)
+      assert.ok(result.SingleButton?.down)
+
+      // Test case 3: Partial combo pressed (should not trigger)
+      getMutableComponent(entity, InputSourceComponent).buttons.set({
+        [KeyboardButton.ControlLeft]: createInitialButtonState(entity, { down: true })
+      })
+      result = InputComponent.getMergedButtonsForInputSources([entity], buttonAlias)
+      assert.equal(result.ComboButtons, undefined)
+
+      // Test case 4: Full combo pressed
+      getMutableComponent(entity, InputSourceComponent).buttons.set({
+        [KeyboardButton.ControlLeft]: createInitialButtonState(entity, { down: true }),
+        [KeyboardButton.KeyZ]: createInitialButtonState(entity, { down: true })
+      })
+      result = InputComponent.getMergedButtonsForInputSources([entity], buttonAlias)
+      assert.ok(result.ComboButtons?.down)
+
+      // Test case 5: Multiple bindings - single button of multiple options pressed
+      getMutableComponent(entity, InputSourceComponent).buttons.set({
+        [KeyboardButton.KeyB]: createInitialButtonState(entity, { down: true })
+      })
+      result = InputComponent.getMergedButtonsForInputSources([entity], buttonAlias)
+      assert.ok(result.MultipleBindings?.down)
+
+      // Test case 6: Multiple bindings - combo of multiple options pressed
+      getMutableComponent(entity, InputSourceComponent).buttons.set({
+        [KeyboardButton.ControlLeft]: createInitialButtonState(entity, { down: true }),
+        [KeyboardButton.KeyC]: createInitialButtonState(entity, { down: true })
+      })
+      result = InputComponent.getMergedButtonsForInputSources([entity], buttonAlias)
+      assert.ok(result.MultipleBindings?.down)
     })
   })
 
@@ -578,9 +665,9 @@ describe('InputComponent', () => {
     it('should collapse the state of all buttons described by the given `@param inputAlias` into keys of the same name in the resulting object', () => {
       // Create the `@param inputAlias` object
       const SomeAliasList = {
-        SomeKeyOne: ['0', '1'],
-        SomeKeyTwo: ['2', '3']
-      }
+        SomeKeyOne: [0 as AnyButton, 1 as AnyButton],
+        SomeKeyTwo: [2 as AnyButton, 3 as AnyButton]
+      } satisfies InputButtonBindings
       const Down = { down: true }
       const NotDown = { down: false }
       const Buttons1 = {}
