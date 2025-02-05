@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import capitalizeFirstLetter from '@ir-engine/common/src/utils/capitalizeFirstLetter'
 import { getComponent, hasComponent, useComponent, UUIDComponent } from '@ir-engine/ecs'
 import { commitProperty, EditorComponentType, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
@@ -35,9 +36,11 @@ import {
   XRUIActivationType
 } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
-import { PopoverComponent } from '@ir-engine/engine/src/scene/components/PopoverComponent'
+import { PopoverComponent, PopoverComponentState } from '@ir-engine/engine/src/scene/components/PopoverComponent'
+import { getMutableState } from '@ir-engine/hyperflux'
 import { CodeSnippet01Md } from '../../../../icons'
 import InputGroup from '../../input/Group'
+import SelectInput from '../../input/Select'
 import { ControlledStringInput } from '../../input/String'
 
 /**
@@ -47,6 +50,7 @@ export const PopoverNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const popoverComponent = useComponent(props.entity, PopoverComponent)
+  const popoverComponentState = getMutableState(PopoverComponentState)
   const errors = getEntityErrors(props.entity, PopoverComponent)
 
   useEffect(() => {
@@ -67,11 +71,19 @@ export const PopoverNodeEditor: EditorComponentType = (props) => {
     }
   }, [])
 
+  const getAvailablePopoverType = () => {
+    const values = popoverComponentState.value || [{ label: 'Iframe', value: 'iframe' }]
+    return Object.keys(values).map((key) => ({
+      label: capitalizeFirstLetter(key),
+      value: key
+    }))
+  }
+
   return (
     <NodeEditor
       {...props}
-      name={t('editor:properties.iframe.title')}
-      description={t('editor:properties.iframe.description')}
+      name={t('editor:properties.popover.title')}
+      description={t('editor:properties.popover.description')}
       Icon={PopoverNodeEditor.iconComponent}
     >
       {errors
@@ -81,11 +93,20 @@ export const PopoverNodeEditor: EditorComponentType = (props) => {
             </div>
           ))
         : null}
-      <InputGroup name="IFrame" label={'IFrame'}>
+      <InputGroup name="src" label={'URL (Optional)'}>
         <ControlledStringInput
           value={popoverComponent.src.value}
           onChange={updateProperty(PopoverComponent, 'src')}
           onRelease={commitProperty(PopoverComponent, 'src')}
+        />
+      </InputGroup>
+
+      <InputGroup name="Popover type" label={'Popover type'}>
+        <SelectInput
+          key={props.entity}
+          value={popoverComponent.type.value}
+          options={getAvailablePopoverType()}
+          onChange={commitProperty(PopoverComponent, `type`)}
         />
       </InputGroup>
     </NodeEditor>
