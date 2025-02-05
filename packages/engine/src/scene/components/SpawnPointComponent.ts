@@ -70,7 +70,7 @@ export const SpawnPointComponent = defineComponent({
       if (!debugGLTF || !debugEnabled) return
 
       const boundsHelperEntity = createEntity()
-      setComponent(entity, ActiveHelperComponent, { helperSelectedGizmo: boundsHelperEntity })
+      setComponent(entity, ActiveHelperComponent, { helperSelectedGizmo: boundsHelperEntity, directional: true })
       setComponent(boundsHelperEntity, TransformComponent)
       setComponent(boundsHelperEntity, EntityTreeComponent, { parentEntity: entity })
       setComponent(boundsHelperEntity, VisibleComponent)

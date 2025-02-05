@@ -50,6 +50,7 @@ import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { useDisposable, useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
@@ -124,6 +125,7 @@ export const PortalComponent = defineComponent({
           }
         ]
       })
+      setComponent(entity, ActiveHelperComponent, { directional: true })
     }, [])
 
     useHelperEntity(entity, () => new ArrowHelper(Vector3_Right, Vector3_Zero, 1, 0x000000), debugEnabled.value)

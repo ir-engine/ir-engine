@@ -86,6 +86,8 @@ export const SpotLightComponent = defineComponent({
       light.target.position.set(1, 0, 0)
       light.target.name = 'light-target'
       setComponent(entity, ObjectComponent, light)
+      setComponent(entity, ActiveHelperComponent, { directional: true })
+
       return () => {
         removeComponent(entity, ObjectComponent)
       }

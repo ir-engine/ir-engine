@@ -86,7 +86,7 @@ export const PositionalAudioComponent = defineComponent({
         setComponent(entity, PositionalAudioHelperComponent, {
           name: name ? `${name}-positional-audio-helper` : undefined
         })
-        setComponent(entity, ActiveHelperComponent, { helperSelectedGizmo: entity }) // we have multiple child helpers so we use the entity as the selected gizmo
+        setComponent(entity, ActiveHelperComponent, { helperSelectedGizmo: entity, directional: true }) // we have multiple child helpers so we use the entity as the selected gizmo
       }
       return () => {
         removeComponent(entity, PositionalAudioHelperComponent)

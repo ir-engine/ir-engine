@@ -130,7 +130,7 @@ export const DirectionalLightComponent = defineComponent({
       setComponent(entity, LightTagComponent)
       directionalLightComponent.light.set(light)
       setComponent(entity, ObjectComponent, light)
-      setComponent(entity, ActiveHelperComponent)
+      setComponent(entity, ActiveHelperComponent, { directional: true })
 
       return () => {
         removeComponent(entity, ObjectComponent)

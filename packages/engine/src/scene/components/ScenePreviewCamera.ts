@@ -75,6 +75,8 @@ export const ScenePreviewCameraComponent = defineComponent({
       cameraTransform.rotation.copy(transform.rotation)
       const camera = previewCamera.camera.value as PerspectiveCamera
       setComponent(entity, ObjectComponent, camera)
+      setComponent(entity, ActiveHelperComponent, { directional: true })
+
       return () => {
         removeComponent(entity, ObjectComponent)
       }
