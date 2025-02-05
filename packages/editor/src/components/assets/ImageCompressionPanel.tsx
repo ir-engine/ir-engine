@@ -130,7 +130,6 @@ export default function ImageCompressionPanel({
       <div className="mx-auto grid w-4/5 min-w-[400px] justify-center gap-y-2">
         <InputGroup
           containerClassName="w-full justify-start flex-nowrap"
-          labelClassName="w-24 "
           name="mode"
           label={t('editor:properties.model.transform.dst')}
         >
@@ -139,7 +138,6 @@ export default function ImageCompressionPanel({
         <div className="w-full border border-[#2B2C30]" />
         <InputGroup
           containerClassName="w-full justify-start flex-nowrap"
-          labelClassName="w-20 "
           infoClassName=""
           name="mode"
           label={t('editor:properties.model.transform.mode')}
@@ -156,7 +154,6 @@ export default function ImageCompressionPanel({
         </InputGroup>
         <InputGroup
           containerClassName="w-full justify-start flex-nowrap"
-          labelClassName="w-20 "
           infoClassName=""
           className="w-min"
           name="flipY"
@@ -167,7 +164,6 @@ export default function ImageCompressionPanel({
         </InputGroup>
         <InputGroup
           containerClassName="w-full justify-start flex-nowrap"
-          labelClassName="w-20 "
           infoClassName=""
           className="w-min"
           name="linear"
@@ -178,7 +174,6 @@ export default function ImageCompressionPanel({
         </InputGroup>
         <InputGroup
           containerClassName="w-full justify-start flex-nowrap"
-          labelClassName="w-20 "
           infoClassName=""
           name="mipmaps"
           className="w-min"
@@ -189,7 +184,6 @@ export default function ImageCompressionPanel({
         </InputGroup>
         <InputGroup
           containerClassName="w-full justify-start flex-nowrap"
-          labelClassName="w-20 "
           infoClassName=""
           name="normalMap"
           className="w-min"
@@ -202,7 +196,6 @@ export default function ImageCompressionPanel({
           <>
             <InputGroup
               containerClassName="w-full justify-start flex-nowrap"
-              labelClassName="w-20 "
               infoClassName=""
               name="quality"
               label={t('editor:properties.model.transform.quality')}
@@ -220,7 +213,6 @@ export default function ImageCompressionPanel({
             </InputGroup>
             <InputGroup
               containerClassName="w-full justify-start flex-nowrap"
-              labelClassName="w-20 "
               infoClassName=""
               name="compressionLevel"
               label={t('editor:properties.model.transform.compressionLevel')}
@@ -242,7 +234,6 @@ export default function ImageCompressionPanel({
           <>
             <InputGroup
               containerClassName="w-full justify-start flex-nowrap"
-              labelClassName="w-20 "
               infoClassName=""
               name="uastcFlags"
               label={t('editor:properties.model.transform.uastcFlags')}
@@ -256,7 +247,6 @@ export default function ImageCompressionPanel({
             </InputGroup>
             <InputGroup
               containerClassName="w-full justify-start flex-nowrap"
-              labelClassName="w-20 "
               infoClassName=""
               name="uastcZstandard"
               label={t('editor:properties.model.transform.uastcZstandard')}
