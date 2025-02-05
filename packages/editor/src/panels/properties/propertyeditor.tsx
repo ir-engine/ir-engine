@@ -134,12 +134,13 @@ const PropertiesEditor = () => {
   const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities).value
   const lockedNode = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
   const materialUUID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial).value
+  const materialEntity = UUIDComponent.useEntityByUUID(materialUUID!, Layers.Authoring)
   const multiEdit = selectedEntities.length > 1
   const uuid = lockedNode.value ? lockedNode.value : selectedEntities[selectedEntities.length - 1]
 
   return (
     <div className="flex h-full flex-col gap-0.5 overflow-y-auto bg-[#0E0F11]">
-      {materialUUID ? (
+      {materialUUID && materialEntity ? (
         <MaterialEditor materialUUID={materialUUID} />
       ) : uuid ? (
         <EntityEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
