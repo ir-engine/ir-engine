@@ -183,7 +183,7 @@ export const DeserializeSchemaValue = <T extends Schema, Val>(
         newValue[key] = curr[key]
         if (validValue(value[key])) {
           const deserializedValue = DeserializeSchemaValue(entity, props[key], curr[key], value[key])
-          if (deserializedValue) newValue[key] = deserializedValue
+          if (typeof deserializedValue !== 'undefined') newValue[key] = deserializedValue
         }
       }
 
