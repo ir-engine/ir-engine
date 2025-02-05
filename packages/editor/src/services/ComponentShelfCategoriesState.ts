@@ -37,12 +37,12 @@ import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/
 import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { GroundPlaneComponent } from '@ir-engine/engine/src/scene/components/GroundPlaneComponent'
-import { IFrameComponent } from '@ir-engine/engine/src/scene/components/IFrameComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { LegacyVolumetricComponent } from '@ir-engine/engine/src/scene/components/LegacyVolumetricComponent'
 import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkComponent'
 import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
 import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
+import { PopoverComponent } from '@ir-engine/engine/src/scene/components/PopoverComponent'
 import { PortalComponent } from '@ir-engine/engine/src/scene/components/PortalComponent'
 import { PrimitiveGeometryComponent } from '@ir-engine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { ReflectionProbeComponent } from '@ir-engine/engine/src/scene/components/ReflectionProbeComponent.tsx'
@@ -88,7 +88,7 @@ export const ComponentShelfCategoriesState = defineState({
         MountPointComponent,
         InteractableComponent,
         InputComponent,
-        IFrameComponent
+        PopoverComponent
       ],
       Lighting: [
         AmbientLightComponent,

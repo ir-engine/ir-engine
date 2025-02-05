@@ -35,33 +35,29 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 
 const interactMessage = 'Click'
-const iframeCallbackName = 'iframeCallback'
+const popoverCallbackName = 'popoverCallback'
 
-const toggleOpen = (iframeEntity: Entity) => {
-  const iframeComponent = getComponent(iframeEntity, IFrameComponent)
-  setComponent(iframeEntity, IFrameComponent, { isOpen: !iframeComponent.isOpen })
+const toggleOpen = (popoverEntity: Entity) => {
+  const popoverComponent = getComponent(popoverEntity, PopoverComponent)
+  setComponent(popoverEntity, PopoverComponent, { isOpen: !popoverComponent.isOpen })
 }
 
 export const PopoverComponentState = defineState({
   name: 'ir.engine.interaction.PopupState',
-  initial: {} as Record<PopoverType, boolean>
+  initial: {} as Record<string, boolean>
 })
 
-export enum PopoverType {
-  IFRAME = 'iframe'
-}
-
-export const IFrameComponent = defineComponent({
-  name: 'IFrameComponent',
-  jsonID: 'IR_iframe',
+export const PopoverComponent = defineComponent({
+  name: 'PopoverComponent',
+  jsonID: 'IR_popover_component',
 
   schema: S.Object({
-    src: S.Enum(PopoverType),
-    type: S.String(PopoverType.IFRAME),
+    src: S.String(''),
+    type: S.String(''),
     isOpen: S.NonSerialized(S.Bool(false))
   }),
 
-  iframeCallbackName,
+  popoverCallbackName,
   interactMessage,
   toggleOpen,
 
@@ -70,23 +66,23 @@ export const IFrameComponent = defineComponent({
   reactor: function () {
     if (!isClient) return null
     const entity = useEntityContext()
-    const iframeComponent = useComponent(entity, IFrameComponent)
+    const popoverComponent = useComponent(entity, PopoverComponent)
 
     useEffect(() => {
-      clearErrors(entity, IFrameComponent)
-      if (iframeComponent.src.value) return
+      clearErrors(entity, PopoverComponent)
+      if (popoverComponent.src.value) return
       try {
-        new URL(iframeComponent.src.value)
+        new URL(popoverComponent.src.value)
       } catch {
-        return addError(entity, IFrameComponent, 'INVALID_URL', 'Please enter a valid URL.')
+        return addError(entity, PopoverComponent, 'INVALID_URL', 'Please enter a valid URL.')
       }
       return
-    }, [iframeComponent.src])
+    }, [popoverComponent.src])
 
     useEffect(() => {
-      setCallback(entity, iframeCallbackName, () => toggleOpen(entity))
+      setCallback(entity, popoverCallbackName, () => toggleOpen(entity))
       return () => {
-        removeCallback(entity, iframeCallbackName)
+        removeCallback(entity, popoverCallbackName)
       }
     }, [])
 

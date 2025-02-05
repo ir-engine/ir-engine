@@ -33,7 +33,7 @@ import { useHookstate } from '@hookstate/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { EngineState, QueryReactor, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
-import { IFrameComponent, PopoverComponentState } from '@ir-engine/engine/src/scene/components/IFrameComponent'
+import { PopoverComponent, PopoverComponentState } from '@ir-engine/engine/src/scene/components/PopoverComponent'
 import { NetworkState } from '@ir-engine/network'
 import { PopoverState } from '../common/services/PopoverState'
 import { InviteService } from '../social/services/InviteService'
@@ -42,7 +42,7 @@ import EmbedFrame from './menus/avatar/EmbedFrame'
 
 const PopoverReactor = () => {
   const entity = useEntityContext()
-  const iframeComponent = useOptionalComponent(entity, IFrameComponent)
+  const popoverComponent = useOptionalComponent(entity, PopoverComponent)
   const popoverComponentState = getMutableState(PopoverComponentState)
 
   useEffect(() => {
@@ -56,22 +56,18 @@ const PopoverReactor = () => {
     })
   }, [])
 
-  // Define a mapping of popover state keys to components
   const popoverComponentMap = {
-    iframe: () => <EmbedFrame src={iframeComponent?.src.value} />
-    // productDetails: () => <ProductDetails entity={entity} />,
-    // userProfile: () => <UserProfile entity={entity} />,
-    // settings: () => <SettingsPanel entity={entity} />
+    iframe: () => <EmbedFrame src={popoverComponent?.src.value} />
   }
 
   useEffect(() => {
     const activePopoverKey = Object.keys(popoverComponentMap).find((key) => popoverComponentState[key])
 
-    if (activePopoverKey && iframeComponent?.isOpen.value) {
+    if (activePopoverKey && popoverComponent?.isOpen.value) {
       const ComponentToShow = popoverComponentMap[activePopoverKey]
       PopoverState.showPopupover(<ComponentToShow />)
     }
-  }, [popoverComponentState, iframeComponent])
+  }, [popoverComponentState, popoverComponent])
 
   return null
 }
@@ -151,7 +147,7 @@ const UserSystemReactor = () => {
       })
   }, [worldHostId])
 
-  return <QueryReactor Components={[IFrameComponent]} ChildEntityReactor={PopoverReactor} />
+  return <QueryReactor Components={[PopoverComponent]} ChildEntityReactor={PopoverReactor} />
 }
 
 export const UserUISystem = defineSystem({

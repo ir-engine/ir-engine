@@ -35,31 +35,31 @@ import {
   XRUIActivationType
 } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
-import { IFrameComponent } from '@ir-engine/engine/src/scene/components/IFrameComponent'
+import { PopoverComponent } from '@ir-engine/engine/src/scene/components/PopoverComponent'
 import { CodeSnippet01Md } from '../../../../icons'
 import InputGroup from '../../input/Group'
 import { ControlledStringInput } from '../../input/String'
 
 /**
- * IFrameNodeEditor component used to provide the editor with iframe popup
+ * PopoverNodeEditor component used to provide the editor with iframe popup
  */
-export const IFrameNodeEditor: EditorComponentType = (props) => {
+export const PopoverNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const iframeComponent = useComponent(props.entity, IFrameComponent)
-  const errors = getEntityErrors(props.entity, IFrameComponent)
+  const popoverComponent = useComponent(props.entity, PopoverComponent)
+  const errors = getEntityErrors(props.entity, PopoverComponent)
 
   useEffect(() => {
     // add an interactable component if it doesnt exist (this is required to interact with entity)
     if (!hasComponent(props.entity, InteractableComponent)) {
       EditorControlFunctions.addOrRemoveComponent([props.entity], InteractableComponent, true, {
-        label: IFrameComponent.interactMessage,
+        label: PopoverComponent.interactMessage,
         uiInteractable: false, // todo: this should be true
         clickInteract: true,
         uiActivationType: XRUIActivationType.hover,
         callbacks: [
           {
-            callbackID: IFrameComponent.iframeCallbackName,
+            callbackID: PopoverComponent.popoverCallbackName,
             target: getComponent(props.entity, UUIDComponent)
           }
         ]
@@ -72,7 +72,7 @@ export const IFrameNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.iframe.title')}
       description={t('editor:properties.iframe.description')}
-      Icon={IFrameNodeEditor.iconComponent}
+      Icon={PopoverNodeEditor.iconComponent}
     >
       {errors
         ? Object.entries(errors).map(([err, message]) => (
@@ -83,15 +83,15 @@ export const IFrameNodeEditor: EditorComponentType = (props) => {
         : null}
       <InputGroup name="IFrame" label={'IFrame'}>
         <ControlledStringInput
-          value={iframeComponent.src.value}
-          onChange={updateProperty(IFrameComponent, 'src')}
-          onRelease={commitProperty(IFrameComponent, 'src')}
+          value={popoverComponent.src.value}
+          onChange={updateProperty(PopoverComponent, 'src')}
+          onRelease={commitProperty(PopoverComponent, 'src')}
         />
       </InputGroup>
     </NodeEditor>
   )
 }
 
-IFrameNodeEditor.iconComponent = CodeSnippet01Md
+PopoverNodeEditor.iconComponent = CodeSnippet01Md
 
-export default IFrameNodeEditor
+export default PopoverNodeEditor
