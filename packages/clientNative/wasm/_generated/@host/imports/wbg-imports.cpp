@@ -11,13 +11,6 @@
   using namespace facebook;
   using namespace callstack::polygen;
 
-  double getNumericVal(const facebook::jsi::Value& val) {
-    if (val.isBool()) {
-      return (double)val.asBool();
-    }
-    return val.asNumber();
-  }
-
   #ifdef __cplusplus
   extern "C" {
   #endif
@@ -26,7 +19,8 @@
   /* import: 'wbg' '__wbindgen_object_drop_ref' */
   void w2c_wbg_0x5F_wbindgen_object_drop_ref(w2c_wbg* ctx, u32 arg0){
   auto fn = ctx->importObj.getPropertyAsFunction(ctx->rt, "__wbindgen_object_drop_ref");
-  fn.call(ctx->rt, jsi::Value { (double)arg0 });
+  fn.call(ctx->rt, jsi::Value { (double)(arg0) });
+  return;
 }
 
 
@@ -34,7 +28,8 @@
   /* import: 'wbg' '__wbindgen_number_new' */
   u32 w2c_wbg_0x5F_wbindgen_number_new(w2c_wbg* ctx, f64 arg0){
   auto fn = ctx->importObj.getPropertyAsFunction(ctx->rt, "__wbindgen_number_new");
-  return getNumericVal(fn.call(ctx->rt, jsi::Value { (double)arg0 }));
+  auto res = fn.call(ctx->rt, jsi::Value { (double)(arg0) });
+  return coerceToNumber<u32>(res);
 }
 
 
@@ -42,7 +37,8 @@
   /* import: 'wbg' '__wbindgen_number_get' */
   void w2c_wbg_0x5F_wbindgen_number_get(w2c_wbg* ctx, u32 arg0, u32 arg1){
   auto fn = ctx->importObj.getPropertyAsFunction(ctx->rt, "__wbindgen_number_get");
-  fn.call(ctx->rt, jsi::Value { (double)arg0 }, jsi::Value { (double)arg1 });
+  fn.call(ctx->rt, jsi::Value { (double)(arg0) }, jsi::Value { (double)(arg1) });
+  return;
 }
 
 
@@ -50,7 +46,8 @@
   /* import: 'wbg' '__wbindgen_boolean_get' */
   u32 w2c_wbg_0x5F_wbindgen_boolean_get(w2c_wbg* ctx, u32 arg0){
   auto fn = ctx->importObj.getPropertyAsFunction(ctx->rt, "__wbindgen_boolean_get");
-  return getNumericVal(fn.call(ctx->rt, jsi::Value { (double)arg0 }));
+  auto res = fn.call(ctx->rt, jsi::Value { (double)(arg0) });
+  return coerceToNumber<u32>(res);
 }
 
 
@@ -58,7 +55,8 @@
   /* import: 'wbg' '__wbindgen_is_function' */
   u32 w2c_wbg_0x5F_wbindgen_is_function(w2c_wbg* ctx, u32 arg0){
   auto fn = ctx->importObj.getPropertyAsFunction(ctx->rt, "__wbindgen_is_function");
-  return getNumericVal(fn.call(ctx->rt, jsi::Value { (double)arg0 }));
+  auto res = fn.call(ctx->rt, jsi::Value { (double)(arg0) });
+  return coerceToNumber<u32>(res);
 }
 
 
@@ -66,7 +64,8 @@
   /* import: 'wbg' '__wbg_rawraycolliderintersection_new' */
   u32 w2c_wbg_0x5F_wbg_rawraycolliderintersection_new(w2c_wbg* ctx, u32 arg0){
   auto fn = ctx->importObj.getPropertyAsFunction(ctx->rt, "__wbg_rawraycolliderintersection_new");
-  return getNumericVal(fn.call(ctx->rt, jsi::Value { (double)arg0 }));
+  auto res = fn.call(ctx->rt, jsi::Value { (double)(arg0) });
+  return coerceToNumber<u32>(res);
 }
 
 
@@ -74,7 +73,8 @@
   /* import: 'wbg' '__wbg_rawcontactforceevent_new' */
   u32 w2c_wbg_0x5F_wbg_rawcontactforceevent_new(w2c_wbg* ctx, u32 arg0){
   auto fn = ctx->importObj.getPropertyAsFunction(ctx->rt, "__wbg_rawcontactforceevent_new");
-  return getNumericVal(fn.call(ctx->rt, jsi::Value { (double)arg0 }));
+  auto res = fn.call(ctx->rt, jsi::Value { (double)(arg0) });
+  return coerceToNumber<u32>(res);
 }
 
 
@@ -82,7 +82,8 @@
   /* import: 'wbg' '__wbg_call_168da88779e35f61' */
   u32 w2c_wbg_0x5F_wbg_call_168da88779e35f61(w2c_wbg* ctx, u32 arg0, u32 arg1, u32 arg2){
   auto fn = ctx->importObj.getPropertyAsFunction(ctx->rt, "__wbg_call_168da88779e35f61");
-  return getNumericVal(fn.call(ctx->rt, jsi::Value { (double)arg0 }, jsi::Value { (double)arg1 }, jsi::Value { (double)arg2 }));
+  auto res = fn.call(ctx->rt, jsi::Value { (double)(arg0) }, jsi::Value { (double)(arg1) }, jsi::Value { (double)(arg2) });
+  return coerceToNumber<u32>(res);
 }
 
 
@@ -90,7 +91,8 @@
   /* import: 'wbg' '__wbg_call_3999bee59e9f7719' */
   u32 w2c_wbg_0x5F_wbg_call_3999bee59e9f7719(w2c_wbg* ctx, u32 arg0, u32 arg1, u32 arg2, u32 arg3){
   auto fn = ctx->importObj.getPropertyAsFunction(ctx->rt, "__wbg_call_3999bee59e9f7719");
-  return getNumericVal(fn.call(ctx->rt, jsi::Value { (double)arg0 }, jsi::Value { (double)arg1 }, jsi::Value { (double)arg2 }, jsi::Value { (double)arg3 }));
+  auto res = fn.call(ctx->rt, jsi::Value { (double)(arg0) }, jsi::Value { (double)(arg1) }, jsi::Value { (double)(arg2) }, jsi::Value { (double)(arg3) });
+  return coerceToNumber<u32>(res);
 }
 
 
@@ -98,7 +100,8 @@
   /* import: 'wbg' '__wbg_call_e1f72c051cdab859' */
   u32 w2c_wbg_0x5F_wbg_call_e1f72c051cdab859(w2c_wbg* ctx, u32 arg0, u32 arg1, u32 arg2, u32 arg3, u32 arg4){
   auto fn = ctx->importObj.getPropertyAsFunction(ctx->rt, "__wbg_call_e1f72c051cdab859");
-  return getNumericVal(fn.call(ctx->rt, jsi::Value { (double)arg0 }, jsi::Value { (double)arg1 }, jsi::Value { (double)arg2 }, jsi::Value { (double)arg3 }, jsi::Value { (double)arg4 }));
+  auto res = fn.call(ctx->rt, jsi::Value { (double)(arg0) }, jsi::Value { (double)(arg1) }, jsi::Value { (double)(arg2) }, jsi::Value { (double)(arg3) }, jsi::Value { (double)(arg4) });
+  return coerceToNumber<u32>(res);
 }
 
 
@@ -106,7 +109,8 @@
   /* import: 'wbg' '__wbg_bind_10dfe70e95d2a480' */
   u32 w2c_wbg_0x5F_wbg_bind_10dfe70e95d2a480(w2c_wbg* ctx, u32 arg0, u32 arg1, u32 arg2, u32 arg3){
   auto fn = ctx->importObj.getPropertyAsFunction(ctx->rt, "__wbg_bind_10dfe70e95d2a480");
-  return getNumericVal(fn.call(ctx->rt, jsi::Value { (double)arg0 }, jsi::Value { (double)arg1 }, jsi::Value { (double)arg2 }, jsi::Value { (double)arg3 }));
+  auto res = fn.call(ctx->rt, jsi::Value { (double)(arg0) }, jsi::Value { (double)(arg1) }, jsi::Value { (double)(arg2) }, jsi::Value { (double)(arg3) });
+  return coerceToNumber<u32>(res);
 }
 
 
@@ -114,7 +118,8 @@
   /* import: 'wbg' '__wbg_buffer_3f3d764d4747d564' */
   u32 w2c_wbg_0x5F_wbg_buffer_3f3d764d4747d564(w2c_wbg* ctx, u32 arg0){
   auto fn = ctx->importObj.getPropertyAsFunction(ctx->rt, "__wbg_buffer_3f3d764d4747d564");
-  return getNumericVal(fn.call(ctx->rt, jsi::Value { (double)arg0 }));
+  auto res = fn.call(ctx->rt, jsi::Value { (double)(arg0) });
+  return coerceToNumber<u32>(res);
 }
 
 
@@ -122,7 +127,8 @@
   /* import: 'wbg' '__wbg_newwithbyteoffsetandlength_d9aa266703cb98be' */
   u32 w2c_wbg_0x5F_wbg_newwithbyteoffsetandlength_d9aa266703cb98be(w2c_wbg* ctx, u32 arg0, u32 arg1, u32 arg2){
   auto fn = ctx->importObj.getPropertyAsFunction(ctx->rt, "__wbg_newwithbyteoffsetandlength_d9aa266703cb98be");
-  return getNumericVal(fn.call(ctx->rt, jsi::Value { (double)arg0 }, jsi::Value { (double)arg1 }, jsi::Value { (double)arg2 }));
+  auto res = fn.call(ctx->rt, jsi::Value { (double)(arg0) }, jsi::Value { (double)(arg1) }, jsi::Value { (double)(arg2) });
+  return coerceToNumber<u32>(res);
 }
 
 
@@ -130,7 +136,8 @@
   /* import: 'wbg' '__wbg_new_8c3f0052272a457a' */
   u32 w2c_wbg_0x5F_wbg_new_8c3f0052272a457a(w2c_wbg* ctx, u32 arg0){
   auto fn = ctx->importObj.getPropertyAsFunction(ctx->rt, "__wbg_new_8c3f0052272a457a");
-  return getNumericVal(fn.call(ctx->rt, jsi::Value { (double)arg0 }));
+  auto res = fn.call(ctx->rt, jsi::Value { (double)(arg0) });
+  return coerceToNumber<u32>(res);
 }
 
 
@@ -138,7 +145,8 @@
   /* import: 'wbg' '__wbg_set_83db9690f9353e79' */
   void w2c_wbg_0x5F_wbg_set_83db9690f9353e79(w2c_wbg* ctx, u32 arg0, u32 arg1, u32 arg2){
   auto fn = ctx->importObj.getPropertyAsFunction(ctx->rt, "__wbg_set_83db9690f9353e79");
-  fn.call(ctx->rt, jsi::Value { (double)arg0 }, jsi::Value { (double)arg1 }, jsi::Value { (double)arg2 });
+  fn.call(ctx->rt, jsi::Value { (double)(arg0) }, jsi::Value { (double)(arg1) }, jsi::Value { (double)(arg2) });
+  return;
 }
 
 
@@ -146,7 +154,8 @@
   /* import: 'wbg' '__wbg_length_9e1ae1900cb0fbd5' */
   u32 w2c_wbg_0x5F_wbg_length_9e1ae1900cb0fbd5(w2c_wbg* ctx, u32 arg0){
   auto fn = ctx->importObj.getPropertyAsFunction(ctx->rt, "__wbg_length_9e1ae1900cb0fbd5");
-  return getNumericVal(fn.call(ctx->rt, jsi::Value { (double)arg0 }));
+  auto res = fn.call(ctx->rt, jsi::Value { (double)(arg0) });
+  return coerceToNumber<u32>(res);
 }
 
 
@@ -154,7 +163,8 @@
   /* import: 'wbg' '__wbg_newwithbyteoffsetandlength_be22e5fcf4f69ab4' */
   u32 w2c_wbg_0x5F_wbg_newwithbyteoffsetandlength_be22e5fcf4f69ab4(w2c_wbg* ctx, u32 arg0, u32 arg1, u32 arg2){
   auto fn = ctx->importObj.getPropertyAsFunction(ctx->rt, "__wbg_newwithbyteoffsetandlength_be22e5fcf4f69ab4");
-  return getNumericVal(fn.call(ctx->rt, jsi::Value { (double)arg0 }, jsi::Value { (double)arg1 }, jsi::Value { (double)arg2 }));
+  auto res = fn.call(ctx->rt, jsi::Value { (double)(arg0) }, jsi::Value { (double)(arg1) }, jsi::Value { (double)(arg2) });
+  return coerceToNumber<u32>(res);
 }
 
 
@@ -162,7 +172,8 @@
   /* import: 'wbg' '__wbg_set_0e0314cf6675c1b9' */
   void w2c_wbg_0x5F_wbg_set_0e0314cf6675c1b9(w2c_wbg* ctx, u32 arg0, u32 arg1, u32 arg2){
   auto fn = ctx->importObj.getPropertyAsFunction(ctx->rt, "__wbg_set_0e0314cf6675c1b9");
-  fn.call(ctx->rt, jsi::Value { (double)arg0 }, jsi::Value { (double)arg1 }, jsi::Value { (double)arg2 });
+  fn.call(ctx->rt, jsi::Value { (double)(arg0) }, jsi::Value { (double)(arg1) }, jsi::Value { (double)(arg2) });
+  return;
 }
 
 
@@ -170,7 +181,8 @@
   /* import: 'wbg' '__wbg_length_9a2deed95d22668d' */
   u32 w2c_wbg_0x5F_wbg_length_9a2deed95d22668d(w2c_wbg* ctx, u32 arg0){
   auto fn = ctx->importObj.getPropertyAsFunction(ctx->rt, "__wbg_length_9a2deed95d22668d");
-  return getNumericVal(fn.call(ctx->rt, jsi::Value { (double)arg0 }));
+  auto res = fn.call(ctx->rt, jsi::Value { (double)(arg0) });
+  return coerceToNumber<u32>(res);
 }
 
 
@@ -178,7 +190,8 @@
   /* import: 'wbg' '__wbg_newwithlength_a7168e4a1e8f5e12' */
   u32 w2c_wbg_0x5F_wbg_newwithlength_a7168e4a1e8f5e12(w2c_wbg* ctx, u32 arg0){
   auto fn = ctx->importObj.getPropertyAsFunction(ctx->rt, "__wbg_newwithlength_a7168e4a1e8f5e12");
-  return getNumericVal(fn.call(ctx->rt, jsi::Value { (double)arg0 }));
+  auto res = fn.call(ctx->rt, jsi::Value { (double)(arg0) });
+  return coerceToNumber<u32>(res);
 }
 
 
@@ -186,7 +199,8 @@
   /* import: 'wbg' '__wbindgen_throw' */
   void w2c_wbg_0x5F_wbindgen_throw(w2c_wbg* ctx, u32 arg0, u32 arg1){
   auto fn = ctx->importObj.getPropertyAsFunction(ctx->rt, "__wbindgen_throw");
-  fn.call(ctx->rt, jsi::Value { (double)arg0 }, jsi::Value { (double)arg1 });
+  fn.call(ctx->rt, jsi::Value { (double)(arg0) }, jsi::Value { (double)(arg1) });
+  return;
 }
 
 
@@ -194,7 +208,8 @@
   /* import: 'wbg' '__wbindgen_memory' */
   u32 w2c_wbg_0x5F_wbindgen_memory(w2c_wbg* ctx){
   auto fn = ctx->importObj.getPropertyAsFunction(ctx->rt, "__wbindgen_memory");
-  return getNumericVal(fn.call(ctx->rt));
+  auto res = fn.call(ctx->rt);
+  return coerceToNumber<u32>(res);
 }
 
 

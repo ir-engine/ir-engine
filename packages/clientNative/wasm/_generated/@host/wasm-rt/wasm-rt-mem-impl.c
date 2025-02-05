@@ -140,7 +140,7 @@ static uint64_t get_alloc_size_for_mmap(uint64_t max_pages, bool is64) {
     assert(!is64 && "memory64 is not yet compatible with WASM_RT_USE_MMAP");
 #if WASM_RT_MEMCHECK_GUARD_PAGES
     /* Reserve 8GiB. */
-    const uint64_t max_size = 0x002000000ul;
+    const uint64_t max_size = 0x200000000ul;
     return max_size;
 #else
     if (max_pages != 0) {

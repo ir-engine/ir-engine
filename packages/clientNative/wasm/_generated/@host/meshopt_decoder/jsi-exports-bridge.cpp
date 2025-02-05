@@ -5,7 +5,7 @@
 //
 
 #include <ReactNativePolygen/gen-utils.h>
-#include <ReactNativePolygen/Memory.h>
+#include <ReactNativePolygen/WebAssembly.h>
 #include "jsi-exports-bridge.h"
 #include "wasm-rt.h"
 #include "meshopt_decoder.h"
@@ -13,24 +13,7 @@
 using namespace facebook;
 using namespace callstack::polygen;
 
-
-double getNumericVal(const facebook::jsi::Value& val) {
-  if (val.isBool()) {
-    return (double)val.asBool();
-  }
-  return val.asNumber();
-}
-  
-
 namespace callstack::polygen::generated {
-  std::shared_ptr<Meshopt__decoderModuleContext> getMeshopt__decoderModuleContextContext(jsi::Runtime& rt, const jsi::Value& val) {
-    auto obj = val.asObject(rt);
-    assert(obj.hasNativeState(rt));
-    auto ctx = std::dynamic_pointer_cast<Meshopt__decoderModuleContext>(obj.getNativeState(rt));
-    assert(ctx != nullptr);
-    return ctx;
-  }
-
   void createMeshopt__decoderExports(jsi::Runtime &rt, jsi::Object& target, jsi::Object&& importObject) {
     if (!wasm_rt_is_initialized()) {
       wasm_rt_init();
@@ -54,78 +37,67 @@ namespace callstack::polygen::generated {
 
     target.setProperty(rt, "memories", std::move(memories));
 
+    // Tables
+    jsi::Object tables {rt};
+    
+    target.setProperty(rt, "tables", std::move(tables));
+
     // Exported functions
     jsi::Object exports {rt};
     
   /* export: '__wasm_call_ctors' */
   exports.setProperty(rt, "__wasm_call_ctors", HOSTFN("__wasm_call_ctors", 0) {
-    auto nativeState = getMeshopt__decoderModuleContextContext(rt, thisValue);
-    assert(nativeState != nullptr);
-    w2c_meshopt__decoder_0x5F_wasm_call_ctors(&nativeState->rootCtx);
+    w2c_meshopt__decoder_0x5F_wasm_call_ctors(&inst->rootCtx);
     return jsi::Value::undefined();
   }));
 
     
   /* export: 'meshopt_decodeVertexBuffer' */
   exports.setProperty(rt, "meshopt_decodeVertexBuffer", HOSTFN("meshopt_decodeVertexBuffer", 5) {
-    auto nativeState = getMeshopt__decoderModuleContextContext(rt, thisValue);
-    assert(nativeState != nullptr);
-    auto res = w2c_meshopt__decoder_meshopt_decodeVertexBuffer(&nativeState->rootCtx, getNumericVal(args[0]), getNumericVal(args[1]), getNumericVal(args[2]), getNumericVal(args[3]), getNumericVal(args[4]));
-    return jsi::Value { (double)res };;
+    auto res = w2c_meshopt__decoder_meshopt_decodeVertexBuffer(&inst->rootCtx, coerceToNumber<u32>(args[0]), coerceToNumber<u32>(args[1]), coerceToNumber<u32>(args[2]), coerceToNumber<u32>(args[3]), coerceToNumber<u32>(args[4]));
+    return jsi::Value { (double)(res) };
   }));
 
     
   /* export: 'meshopt_decodeIndexBuffer' */
   exports.setProperty(rt, "meshopt_decodeIndexBuffer", HOSTFN("meshopt_decodeIndexBuffer", 5) {
-    auto nativeState = getMeshopt__decoderModuleContextContext(rt, thisValue);
-    assert(nativeState != nullptr);
-    auto res = w2c_meshopt__decoder_meshopt_decodeIndexBuffer(&nativeState->rootCtx, getNumericVal(args[0]), getNumericVal(args[1]), getNumericVal(args[2]), getNumericVal(args[3]), getNumericVal(args[4]));
-    return jsi::Value { (double)res };;
+    auto res = w2c_meshopt__decoder_meshopt_decodeIndexBuffer(&inst->rootCtx, coerceToNumber<u32>(args[0]), coerceToNumber<u32>(args[1]), coerceToNumber<u32>(args[2]), coerceToNumber<u32>(args[3]), coerceToNumber<u32>(args[4]));
+    return jsi::Value { (double)(res) };
   }));
 
     
   /* export: 'meshopt_decodeIndexSequence' */
   exports.setProperty(rt, "meshopt_decodeIndexSequence", HOSTFN("meshopt_decodeIndexSequence", 5) {
-    auto nativeState = getMeshopt__decoderModuleContextContext(rt, thisValue);
-    assert(nativeState != nullptr);
-    auto res = w2c_meshopt__decoder_meshopt_decodeIndexSequence(&nativeState->rootCtx, getNumericVal(args[0]), getNumericVal(args[1]), getNumericVal(args[2]), getNumericVal(args[3]), getNumericVal(args[4]));
-    return jsi::Value { (double)res };;
+    auto res = w2c_meshopt__decoder_meshopt_decodeIndexSequence(&inst->rootCtx, coerceToNumber<u32>(args[0]), coerceToNumber<u32>(args[1]), coerceToNumber<u32>(args[2]), coerceToNumber<u32>(args[3]), coerceToNumber<u32>(args[4]));
+    return jsi::Value { (double)(res) };
   }));
 
     
   /* export: 'meshopt_decodeFilterOct' */
   exports.setProperty(rt, "meshopt_decodeFilterOct", HOSTFN("meshopt_decodeFilterOct", 3) {
-    auto nativeState = getMeshopt__decoderModuleContextContext(rt, thisValue);
-    assert(nativeState != nullptr);
-    w2c_meshopt__decoder_meshopt_decodeFilterOct(&nativeState->rootCtx, getNumericVal(args[0]), getNumericVal(args[1]), getNumericVal(args[2]));
+    w2c_meshopt__decoder_meshopt_decodeFilterOct(&inst->rootCtx, coerceToNumber<u32>(args[0]), coerceToNumber<u32>(args[1]), coerceToNumber<u32>(args[2]));
     return jsi::Value::undefined();
   }));
 
     
   /* export: 'meshopt_decodeFilterQuat' */
   exports.setProperty(rt, "meshopt_decodeFilterQuat", HOSTFN("meshopt_decodeFilterQuat", 3) {
-    auto nativeState = getMeshopt__decoderModuleContextContext(rt, thisValue);
-    assert(nativeState != nullptr);
-    w2c_meshopt__decoder_meshopt_decodeFilterQuat(&nativeState->rootCtx, getNumericVal(args[0]), getNumericVal(args[1]), getNumericVal(args[2]));
+    w2c_meshopt__decoder_meshopt_decodeFilterQuat(&inst->rootCtx, coerceToNumber<u32>(args[0]), coerceToNumber<u32>(args[1]), coerceToNumber<u32>(args[2]));
     return jsi::Value::undefined();
   }));
 
     
   /* export: 'meshopt_decodeFilterExp' */
   exports.setProperty(rt, "meshopt_decodeFilterExp", HOSTFN("meshopt_decodeFilterExp", 3) {
-    auto nativeState = getMeshopt__decoderModuleContextContext(rt, thisValue);
-    assert(nativeState != nullptr);
-    w2c_meshopt__decoder_meshopt_decodeFilterExp(&nativeState->rootCtx, getNumericVal(args[0]), getNumericVal(args[1]), getNumericVal(args[2]));
+    w2c_meshopt__decoder_meshopt_decodeFilterExp(&inst->rootCtx, coerceToNumber<u32>(args[0]), coerceToNumber<u32>(args[1]), coerceToNumber<u32>(args[2]));
     return jsi::Value::undefined();
   }));
 
     
   /* export: 'sbrk' */
   exports.setProperty(rt, "sbrk", HOSTFN("sbrk", 1) {
-    auto nativeState = getMeshopt__decoderModuleContextContext(rt, thisValue);
-    assert(nativeState != nullptr);
-    auto res = w2c_meshopt__decoder_sbrk(&nativeState->rootCtx, getNumericVal(args[0]));
-    return jsi::Value { (double)res };;
+    auto res = w2c_meshopt__decoder_sbrk(&inst->rootCtx, coerceToNumber<u32>(args[0]));
+    return jsi::Value { (double)(res) };
   }));
 
     exports.setNativeState(rt, inst);

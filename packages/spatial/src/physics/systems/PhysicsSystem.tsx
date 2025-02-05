@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -140,19 +140,19 @@ export function spatialInputRaycastHeuristic(
   const isEditing = getState(EngineState).isEditing
   if (isEditing) return
 
-  _inputRaycast.origin.copy(position)
-  _inputRaycast.direction.copy(direction)
+  // _inputRaycast.origin.copy(position)
+  // _inputRaycast.direction.copy(direction)
 
-  for (const entity of sceneQuery()) {
-    const world = Physics.getWorld(entity)
-    if (!world) continue
+  // for (const entity of sceneQuery()) {
+  //   const world = Physics.getWorld(entity)
+  //   if (!world) continue
 
-    const hits = Physics.castRay(world, _inputRaycast)
-    for (const hit of hits) {
-      if (!hit.entity) continue
-      intersectionData.add({ entity: hit.entity, distance: hit.distance })
-    }
-  }
+  //   const hits = Physics.castRay(world, _inputRaycast)
+  //   for (const hit of hits) {
+  //     if (!hit.entity) continue
+  //     intersectionData.add({ entity: hit.entity, distance: hit.distance })
+  //   }
+  // }
 }
 
 const reactor = () => {

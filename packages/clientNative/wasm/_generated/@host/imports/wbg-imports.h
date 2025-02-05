@@ -5,7 +5,7 @@
 //
 
 #pragma once
-#include <jsi/jsi.h>
+#include <wasm-rt.h>
 #include <ReactNativePolygen/gen-utils.h>
 
 struct w2c_wbg {

@@ -1,45 +1,714 @@
-diff --git a/node_modules/@callstack/polygen/cpp/wasm-rt/wasm-rt-mem-impl.c b/node_modules/@callstack/polygen/cpp/wasm-rt/wasm-rt-mem-impl.c
-index b8a383e..14f5c3b 100644
---- a/node_modules/@callstack/polygen/cpp/wasm-rt/wasm-rt-mem-impl.c
-+++ b/node_modules/@callstack/polygen/cpp/wasm-rt/wasm-rt-mem-impl.c
-@@ -140,7 +140,7 @@ static uint64_t get_alloc_size_for_mmap(uint64_t max_pages, bool is64) {
-     assert(!is64 && "memory64 is not yet compatible with WASM_RT_USE_MMAP");
- #if WASM_RT_MEMCHECK_GUARD_PAGES
-     /* Reserve 8GiB. */
--    const uint64_t max_size = 0x200000000ul;
-+    const uint64_t max_size = 0x002000000ul;
-     return max_size;
- #else
-     if (max_pages != 0) {
+diff --git a/node_modules/@callstack/polygen/cpp/ReactNativePolygen.cpp b/node_modules/@callstack/polygen/cpp/ReactNativePolygen.cpp
+index 000f300..6648b18 100644
+--- a/node_modules/@callstack/polygen/cpp/ReactNativePolygen.cpp
++++ b/node_modules/@callstack/polygen/cpp/ReactNativePolygen.cpp
+@@ -24,6 +24,16 @@ ReactNativePolygen::~ReactNativePolygen() {
+   wasm_rt_free();
+ }
+ 
++bool ReactNativePolygen::copyNativeHandle(jsi::Runtime &rt, jsi::Object holder, jsi::Object source) {
++  auto hasNativeState = source.hasNativeState(rt);
++
++  if (hasNativeState) {
++    holder.setNativeState(rt, source.getNativeState(rt));
++  }
++
++  return hasNativeState;
++}
++
+ 
+ jsi::Object ReactNativePolygen::loadModule(jsi::Runtime &rt, jsi::Object holder, jsi::Object moduleData) {
+   auto buffer = moduleData.getArrayBuffer(rt);
+diff --git a/node_modules/@callstack/polygen/cpp/ReactNativePolygen.h b/node_modules/@callstack/polygen/cpp/ReactNativePolygen.h
+index 352fd43..b6c6981 100644
+--- a/node_modules/@callstack/polygen/cpp/ReactNativePolygen.h
++++ b/node_modules/@callstack/polygen/cpp/ReactNativePolygen.h
+@@ -54,6 +54,8 @@ public:
+   explicit ReactNativePolygen(std::shared_ptr<CallInvoker> jsInvoker);
+   virtual ~ReactNativePolygen();
+ 
++  bool copyNativeHandle(jsi::Runtime &rt, jsi::Object holder, jsi::Object source) override;
++
+   // Modules
+   jsi::Object loadModule(jsi::Runtime &rt, jsi::Object holder, jsi::Object moduleData) override;
+   void unloadModule(jsi::Runtime &rt, jsi::Object moduleHolder) override;
+diff --git a/node_modules/@callstack/polygen/cpp/bridge.cpp b/node_modules/@callstack/polygen/cpp/bridge.cpp
+index 32a91de..65cca11 100644
+--- a/node_modules/@callstack/polygen/cpp/bridge.cpp
++++ b/node_modules/@callstack/polygen/cpp/bridge.cpp
+@@ -10,4 +10,10 @@ namespace callstack::polygen {
+ 
+ LoaderError::LoaderError(const std::string& what): std::runtime_error(what) {}
+ 
++TrapError::TrapError(wasm_rt_trap_t type): std::runtime_error(wasm_rt_strerror(type)), type(type) {}
++
++void polygen_trap_handler(wasm_rt_trap_t trap) {
++  throw TrapError(trap);
++}
++
+ }
+diff --git a/node_modules/@callstack/polygen/cpp/bridge.h b/node_modules/@callstack/polygen/cpp/bridge.h
+index 66b4ace..66c0f3b 100644
+--- a/node_modules/@callstack/polygen/cpp/bridge.h
++++ b/node_modules/@callstack/polygen/cpp/bridge.h
+@@ -10,6 +10,7 @@
+ #include <memory>
+ #include <string>
+ #include <vector>
++#include <wasm-rt.h>
+ #include "Module.h"
+ 
+ namespace callstack::polygen {
+@@ -42,4 +43,18 @@ public:
+   explicit LoaderError(const std::string& what);
+ };
+ 
++/**
++ * Thrown when WebAssembly module evaluation traps.
++ */
++class TrapError: public std::runtime_error {
++public:
++  wasm_rt_trap_t type;
++  explicit TrapError(wasm_rt_trap_t type);
++};
++
++extern "C"
++[[noreturn]]
++void polygen_trap_handler(wasm_rt_trap_t trap);
++
+ }
++
+diff --git a/node_modules/@callstack/polygen/cpp/gen-utils.h b/node_modules/@callstack/polygen/cpp/gen-utils.h
+index 79bcb79..eb0af92 100644
+--- a/node_modules/@callstack/polygen/cpp/gen-utils.h
++++ b/node_modules/@callstack/polygen/cpp/gen-utils.h
+@@ -6,6 +6,8 @@
+  */
+ #pragma once
+ #include <cinttypes>
++#include <type_traits>
++#include <jsi/jsi.h>
+ 
+ #define INIT_IMPORT_CTX(field, importName) field{&rootCtx, rt, this->importObject.getPropertyAsObject(rt, importName)}
+ 
+@@ -26,3 +28,20 @@ typedef uint64_t u64;
+ typedef int64_t s64;
+ typedef float f32;
+ typedef double f64;
++
++namespace callstack::polygen {
++
++template <typename T>
++T coerceToNumber(const facebook::jsi::Value& value) {
++  if (value.isUndefined() || value.isNull()) {
++    return (T)0;
++  }
++  
++  if (value.isBool()) {
++    return (T)value.asBool();
++  }
++  
++  return (T)value.asNumber();
++}
++
++};
+diff --git a/node_modules/@callstack/polygen/cpp/wasm-rt/wasm-rt-impl.c b/node_modules/@callstack/polygen/cpp/wasm-rt/wasm-rt-impl.c
+index 46d90fa..91523d7 100644
+--- a/node_modules/@callstack/polygen/cpp/wasm-rt/wasm-rt-impl.c
++++ b/node_modules/@callstack/polygen/cpp/wasm-rt/wasm-rt-impl.c
+@@ -42,6 +42,11 @@
+ #define DEBUG_PRINTF(...)
+ #endif
+ 
++/**
++ * Polygen customisation
++ */
++#define WASM_RT_TRAP_HANDLER polygen_trap_handler
++
+ #if WASM_RT_INSTALL_SIGNAL_HANDLER
+ static bool g_signal_handler_installed = false;
+ #ifdef _WIN32
+diff --git a/node_modules/@callstack/polygen/cpp/webassembly/ExternRefTable.h b/node_modules/@callstack/polygen/cpp/webassembly/ExternRefTable.h
+index b11379f..a0ea341 100644
+--- a/node_modules/@callstack/polygen/cpp/webassembly/ExternRefTable.h
++++ b/node_modules/@callstack/polygen/cpp/webassembly/ExternRefTable.h
+@@ -66,6 +66,10 @@ public:
+     throw TableElementTypeError {"Passed invalid element type to Table of 'externref' elementtype."};
+   }
+   
++  wasm_rt_externref_table_t* getTableData() {
++    return table_;
++  }
++  
+ protected:
+   std::optional<size_t> maxSize_;
+   wasm_rt_externref_table_t ownedTable_;
+diff --git a/node_modules/@callstack/polygen/cpp/webassembly/FuncRefTable.h b/node_modules/@callstack/polygen/cpp/webassembly/FuncRefTable.h
+index eef5d54..c5c0f32 100644
+--- a/node_modules/@callstack/polygen/cpp/webassembly/FuncRefTable.h
++++ b/node_modules/@callstack/polygen/cpp/webassembly/FuncRefTable.h
+@@ -67,6 +67,11 @@ public:
+     throw TableElementTypeError {"Passed invalid element type to Table of 'anyfunc' elementtype."};
+   }
+   
++  wasm_rt_funcref_table_t* getTableData() {
++    return table_;
++  }
++  
++  
+ protected:
+   std::optional<size_t> maxSize_;
+   wasm_rt_funcref_table_t ownedTable_;
+diff --git a/node_modules/@callstack/polygen/cpp/webassembly/Memory.h b/node_modules/@callstack/polygen/cpp/webassembly/Memory.h
+index dfbd52e..35977b7 100644
+--- a/node_modules/@callstack/polygen/cpp/webassembly/Memory.h
++++ b/node_modules/@callstack/polygen/cpp/webassembly/Memory.h
+@@ -30,6 +30,10 @@ public:
+     return this->memory_;
+   }
+   
++  wasm_rt_memory_t* getMemory() {
++    return this->memory_;
++  }
++  
+   bool isOwned() const {
+     return this->memory_ == &this->ownedMemory_;
+   }
+diff --git a/node_modules/@callstack/polygen/lib/commonjs/NativePolygen.js.map b/node_modules/@callstack/polygen/lib/commonjs/NativePolygen.js.map
+index ec00948..e529110 100644
+--- a/node_modules/@callstack/polygen/lib/commonjs/NativePolygen.js.map
++++ b/node_modules/@callstack/polygen/lib/commonjs/NativePolygen.js.map
+@@ -1 +1 @@
+-{"version":3,"names":["_reactNative","require","NativeType","exports","NativeTableElementType","NativeSymbolKind","_default","default","TurboModuleRegistry","getEnforcing"],"sourceRoot":"../../src","sources":["NativePolygen.ts"],"mappings":";;;;;;AACA,IAAAA,YAAA,GAAAC,OAAA;AAMA;AACA;AACA;AAFA,IAGYC,UAAU,GAAAC,OAAA,CAAAD,UAAA,0BAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAA,OAAVA,UAAU;AAAA;AAStB;AACA;AACA;AAFA,IAGYE,sBAAsB,GAAAD,OAAA,CAAAC,sBAAA,0BAAtBA,sBAAsB;EAAtBA,sBAAsB,CAAtBA,sBAAsB;EAAtBA,sBAAsB,CAAtBA,sBAAsB;EAAA,OAAtBA,sBAAsB;AAAA;AAKlC;AACA;AACA;AAFA,IAGYC,gBAAgB,GAAAF,OAAA,CAAAE,gBAAA,0BAAhBA,gBAAgB;EAAhBA,gBAAgB;EAAhBA,gBAAgB;EAAhBA,gBAAgB;EAAhBA,gBAAgB;EAAA,OAAhBA,gBAAgB;AAAA;AAO5B;AACA;AACA;AACA;AACA;AACA;AACA;AAaA;AACA;AACA;AACA;AACA;AACA;AACA;AAkBA;AACA;AACA;AAwBA;AACA;AACA;AAGA;AACA;AACA;AAGA;AACA;AACA;AAGA;AACA;AACA;AAGA;AACA;AACA;AAFA,IAAAC,QAAA,GAAAH,OAAA,CAAAI,OAAA,GAwDeC,gCAAmB,CAACC,YAAY,CAAO,SAAS,CAAC","ignoreList":[]}
++{"version":3,"names":["_reactNative","require","NativeType","exports","NativeTableElementType","NativeSymbolKind","_default","default","TurboModuleRegistry","getEnforcing"],"sourceRoot":"../../src","sources":["NativePolygen.ts"],"mappings":";;;;;;AACA,IAAAA,YAAA,GAAAC,OAAA;AAMA;AACA;AACA;AAFA,IAGYC,UAAU,GAAAC,OAAA,CAAAD,UAAA,0BAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAA,OAAVA,UAAU;AAAA;AAStB;AACA;AACA;AAFA,IAGYE,sBAAsB,GAAAD,OAAA,CAAAC,sBAAA,0BAAtBA,sBAAsB;EAAtBA,sBAAsB,CAAtBA,sBAAsB;EAAtBA,sBAAsB,CAAtBA,sBAAsB;EAAA,OAAtBA,sBAAsB;AAAA;AAKlC;AACA;AACA;AAFA,IAGYC,gBAAgB,GAAAF,OAAA,CAAAE,gBAAA,0BAAhBA,gBAAgB;EAAhBA,gBAAgB;EAAhBA,gBAAgB;EAAhBA,gBAAgB;EAAhBA,gBAAgB;EAAA,OAAhBA,gBAAgB;AAAA;AAO5B;AACA;AACA;AACA;AACA;AACA;AACA;AAaA;AACA;AACA;AACA;AACA;AACA;AACA;AAkBA;AACA;AACA;AAwBA;AACA;AACA;AAGA;AACA;AACA;AAGA;AACA;AACA;AAGA;AACA;AACA;AAGA;AACA;AACA;AAFA,IAAAC,QAAA,GAAAH,OAAA,CAAAI,OAAA,GA0DeC,gCAAmB,CAACC,YAAY,CAAO,SAAS,CAAC","ignoreList":[]}
+diff --git a/node_modules/@callstack/polygen/lib/commonjs/api/Global.js b/node_modules/@callstack/polygen/lib/commonjs/api/Global.js
+index 04161af..ed77385 100644
+--- a/node_modules/@callstack/polygen/lib/commonjs/api/Global.js
++++ b/node_modules/@callstack/polygen/lib/commonjs/api/Global.js
+@@ -41,6 +41,8 @@ class Global {
+         type: TypeMapping[instance.type],
+         isMutable: instance.mutable ?? false
+       }, initialValue ?? 0);
++    } else {
++      _NativePolygen.default.copyNativeHandle(this, instance);
+     }
+   }
+   get value() {
+diff --git a/node_modules/@callstack/polygen/lib/commonjs/api/Global.js.map b/node_modules/@callstack/polygen/lib/commonjs/api/Global.js.map
+index cd8be3d..d9acef3 100644
+--- a/node_modules/@callstack/polygen/lib/commonjs/api/Global.js.map
++++ b/node_modules/@callstack/polygen/lib/commonjs/api/Global.js.map
+@@ -1 +1 @@
+-{"version":3,"names":["_NativePolygen","_interopRequireWildcard","require","_getRequireWildcardCache","e","WeakMap","r","t","__esModule","default","has","get","n","__proto__","a","Object","defineProperty","getOwnPropertyDescriptor","u","hasOwnProperty","call","i","set","isGlobalDescriptor","descriptor","TypeMapping","i32","NativeType","I32","u32","U32","i64","I64","u64","U64","f32","F32","f64","F64","Global","constructor","instance","initialValue","NativeWASM","createGlobal","type","isMutable","mutable","value","getGlobalValue","newValue","setGlobalValue","exports"],"sourceRoot":"../../../src","sources":["api/Global.ts"],"mappings":";;;;;;AAAA,IAAAA,cAAA,GAAAC,uBAAA,CAAAC,OAAA;AAG0B,SAAAC,yBAAAC,CAAA,6BAAAC,OAAA,mBAAAC,CAAA,OAAAD,OAAA,IAAAE,CAAA,OAAAF,OAAA,YAAAF,wBAAA,YAAAA,CAAAC,CAAA,WAAAA,CAAA,GAAAG,CAAA,GAAAD,CAAA,KAAAF,CAAA;AAAA,SAAAH,wBAAAG,CAAA,EAAAE,CAAA,SAAAA,CAAA,IAAAF,CAAA,IAAAA,CAAA,CAAAI,UAAA,SAAAJ,CAAA,eAAAA,CAAA,uBAAAA,CAAA,yBAAAA,CAAA,WAAAK,OAAA,EAAAL,CAAA,QAAAG,CAAA,GAAAJ,wBAAA,CAAAG,CAAA,OAAAC,CAAA,IAAAA,CAAA,CAAAG,GAAA,CAAAN,CAAA,UAAAG,CAAA,CAAAI,GAAA,CAAAP,CAAA,OAAAQ,CAAA,KAAAC,SAAA,UAAAC,CAAA,GAAAC,MAAA,CAAAC,cAAA,IAAAD,MAAA,CAAAE,wBAAA,WAAAC,CAAA,IAAAd,CAAA,oBAAAc,CAAA,OAAAC,cAAA,CAAAC,IAAA,CAAAhB,CAAA,EAAAc,CAAA,SAAAG,CAAA,GAAAP,CAAA,GAAAC,MAAA,CAAAE,wBAAA,CAAAb,CAAA,EAAAc,CAAA,UAAAG,CAAA,KAAAA,CAAA,CAAAV,GAAA,IAAAU,CAAA,CAAAC,GAAA,IAAAP,MAAA,CAAAC,cAAA,CAAAJ,CAAA,EAAAM,CAAA,EAAAG,CAAA,IAAAT,CAAA,CAAAM,CAAA,IAAAd,CAAA,CAAAc,CAAA,YAAAN,CAAA,CAAAH,OAAA,GAAAL,CAAA,EAAAG,CAAA,IAAAA,CAAA,CAAAe,GAAA,CAAAlB,CAAA,EAAAQ,CAAA,GAAAA,CAAA;AAG1B;AACA;AACA;AACA;AACA;AACA;;AAaA;AACA;AACA;AACA;AACA;AACA,SAASW,kBAAkBA,CAACC,UAAe,EAAkC;EAC3E,OAAO,MAAM,IAAIA,UAAU;AAC7B;AAEA,MAAMC,WAAgD,GAAG;EACvDC,GAAG,EAAEC,yBAAU,CAACC,GAAG;EACnBC,GAAG,EAAEF,yBAAU,CAACG,GAAG;EACnBC,GAAG,EAAEJ,yBAAU,CAACK,GAAG;EACnBC,GAAG,EAAEN,yBAAU,CAACO,GAAG;EACnBC,GAAG,EAAER,yBAAU,CAACS,GAAG;EACnBC,GAAG,EAAEV,yBAAU,CAACW;AAClB,CAAC;;AAED;AACA;AACA;AACO,MAAMC,MAAM,CAAC;EAClBC,WAAWA,CACTC,QAAqD,EACrDC,YAAqB,EACrB;IACA,IAAInB,kBAAkB,CAACkB,QAAQ,CAAC,EAAE;MAChCE,sBAAU,CAACC,YAAY,CACrB,IAAI,EACJ;QACEC,IAAI,EAAEpB,WAAW,CAACgB,QAAQ,CAACI,IAAI,CAAC;QAChCC,SAAS,EAAEL,QAAQ,CAACM,OAAO,IAAI;MACjC,CAAC,EACDL,YAAY,IAAI,CAClB,CAAC;IACH;EACF;EAEA,IAAIM,KAAKA,CAAA,EAAG;IACV,OAAOL,sBAAU,CAACM,cAAc,CAAC,IAAI,CAAC;EACxC;EAEA,IAAID,KAAKA,CAACE,QAAgB,EAAE;IAC1BP,sBAAU,CAACQ,cAAc,CAAC,IAAI,EAAED,QAAQ,CAAC;EAC3C;AACF;AAACE,OAAA,CAAAb,MAAA,GAAAA,MAAA","ignoreList":[]}
++{"version":3,"names":["_NativePolygen","_interopRequireWildcard","require","_getRequireWildcardCache","e","WeakMap","r","t","__esModule","default","has","get","n","__proto__","a","Object","defineProperty","getOwnPropertyDescriptor","u","hasOwnProperty","call","i","set","isGlobalDescriptor","descriptor","TypeMapping","i32","NativeType","I32","u32","U32","i64","I64","u64","U64","f32","F32","f64","F64","Global","constructor","instance","initialValue","NativeWASM","createGlobal","type","isMutable","mutable","copyNativeHandle","value","getGlobalValue","newValue","setGlobalValue","exports"],"sourceRoot":"../../../src","sources":["api/Global.ts"],"mappings":";;;;;;AAAA,IAAAA,cAAA,GAAAC,uBAAA,CAAAC,OAAA;AAG0B,SAAAC,yBAAAC,CAAA,6BAAAC,OAAA,mBAAAC,CAAA,OAAAD,OAAA,IAAAE,CAAA,OAAAF,OAAA,YAAAF,wBAAA,YAAAA,CAAAC,CAAA,WAAAA,CAAA,GAAAG,CAAA,GAAAD,CAAA,KAAAF,CAAA;AAAA,SAAAH,wBAAAG,CAAA,EAAAE,CAAA,SAAAA,CAAA,IAAAF,CAAA,IAAAA,CAAA,CAAAI,UAAA,SAAAJ,CAAA,eAAAA,CAAA,uBAAAA,CAAA,yBAAAA,CAAA,WAAAK,OAAA,EAAAL,CAAA,QAAAG,CAAA,GAAAJ,wBAAA,CAAAG,CAAA,OAAAC,CAAA,IAAAA,CAAA,CAAAG,GAAA,CAAAN,CAAA,UAAAG,CAAA,CAAAI,GAAA,CAAAP,CAAA,OAAAQ,CAAA,KAAAC,SAAA,UAAAC,CAAA,GAAAC,MAAA,CAAAC,cAAA,IAAAD,MAAA,CAAAE,wBAAA,WAAAC,CAAA,IAAAd,CAAA,oBAAAc,CAAA,OAAAC,cAAA,CAAAC,IAAA,CAAAhB,CAAA,EAAAc,CAAA,SAAAG,CAAA,GAAAP,CAAA,GAAAC,MAAA,CAAAE,wBAAA,CAAAb,CAAA,EAAAc,CAAA,UAAAG,CAAA,KAAAA,CAAA,CAAAV,GAAA,IAAAU,CAAA,CAAAC,GAAA,IAAAP,MAAA,CAAAC,cAAA,CAAAJ,CAAA,EAAAM,CAAA,EAAAG,CAAA,IAAAT,CAAA,CAAAM,CAAA,IAAAd,CAAA,CAAAc,CAAA,YAAAN,CAAA,CAAAH,OAAA,GAAAL,CAAA,EAAAG,CAAA,IAAAA,CAAA,CAAAe,GAAA,CAAAlB,CAAA,EAAAQ,CAAA,GAAAA,CAAA;AAG1B;AACA;AACA;AACA;AACA;AACA;;AAaA;AACA;AACA;AACA;AACA;AACA,SAASW,kBAAkBA,CAACC,UAAe,EAAkC;EAC3E,OAAO,MAAM,IAAIA,UAAU;AAC7B;AAEA,MAAMC,WAAgD,GAAG;EACvDC,GAAG,EAAEC,yBAAU,CAACC,GAAG;EACnBC,GAAG,EAAEF,yBAAU,CAACG,GAAG;EACnBC,GAAG,EAAEJ,yBAAU,CAACK,GAAG;EACnBC,GAAG,EAAEN,yBAAU,CAACO,GAAG;EACnBC,GAAG,EAAER,yBAAU,CAACS,GAAG;EACnBC,GAAG,EAAEV,yBAAU,CAACW;AAClB,CAAC;;AAED;AACA;AACA;AACO,MAAMC,MAAM,CAAC;EAClBC,WAAWA,CACTC,QAAqD,EACrDC,YAAqB,EACrB;IACA,IAAInB,kBAAkB,CAACkB,QAAQ,CAAC,EAAE;MAChCE,sBAAU,CAACC,YAAY,CACrB,IAAI,EACJ;QACEC,IAAI,EAAEpB,WAAW,CAACgB,QAAQ,CAACI,IAAI,CAAC;QAChCC,SAAS,EAAEL,QAAQ,CAACM,OAAO,IAAI;MACjC,CAAC,EACDL,YAAY,IAAI,CAClB,CAAC;IACH,CAAC,MAAM;MACLC,sBAAU,CAACK,gBAAgB,CAAC,IAAI,EAAEP,QAAQ,CAAC;IAC7C;EACF;EAEA,IAAIQ,KAAKA,CAAA,EAAG;IACV,OAAON,sBAAU,CAACO,cAAc,CAAC,IAAI,CAAC;EACxC;EAEA,IAAID,KAAKA,CAACE,QAAgB,EAAE;IAC1BR,sBAAU,CAACS,cAAc,CAAC,IAAI,EAAED,QAAQ,CAAC;EAC3C;AACF;AAACE,OAAA,CAAAd,MAAA,GAAAA,MAAA","ignoreList":[]}
+diff --git a/node_modules/@callstack/polygen/lib/commonjs/api/Instance.js b/node_modules/@callstack/polygen/lib/commonjs/api/Instance.js
+index c055801..f7bda5f 100644
+--- a/node_modules/@callstack/polygen/lib/commonjs/api/Instance.js
++++ b/node_modules/@callstack/polygen/lib/commonjs/api/Instance.js
+@@ -8,17 +8,17 @@ var _NativePolygen = _interopRequireDefault(require("../NativePolygen.js"));
+ var _Global = require("./Global.js");
+ var _Memory = require("./Memory.js");
+ var _Module = require("./Module.js");
++var _Table = require("./Table.js");
+ var _errors = require("./errors.js");
+ function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
+ class Instance {
+   // @ts-ignore
+   #imports;
+   memories = {};
++  tables = {};
+   constructor(module, imports = {}) {
+     this.#imports = imports;
+-    console.log('create instance');
+     if (module instanceof _Module.Module) {
+-      console.log('is module');
+       validateImports(imports, module.metadata);
+     } else {
+       throw new TypeError('Invalid module type');
+@@ -27,14 +27,13 @@ class Instance {
+     for (const memoryName in this.memories) {
+       this.exports[memoryName] = new _Memory.Memory(this.memories[memoryName]);
+     }
++    for (const tableName in this.tables) {
++      this.exports[tableName] = new _Table.Table(this.tables[tableName]);
++    }
+   }
+ }
+ exports.Instance = Instance;
+ function validateImports(imports, metadata) {
+-  console.log('validate imports', {
+-    imports,
+-    metadata
+-  });
+   for (const importDesc of metadata.imports) {
+     const mod = imports[importDesc.module];
+     if (!mod) {
+diff --git a/node_modules/@callstack/polygen/lib/commonjs/api/Instance.js.map b/node_modules/@callstack/polygen/lib/commonjs/api/Instance.js.map
+index 34a6c75..9208c21 100644
+--- a/node_modules/@callstack/polygen/lib/commonjs/api/Instance.js.map
++++ b/node_modules/@callstack/polygen/lib/commonjs/api/Instance.js.map
+@@ -1 +1 @@
+-{"version":3,"names":["_NativePolygen","_interopRequireDefault","require","_Global","_Memory","_Module","_errors","e","__esModule","default","Instance","imports","memories","constructor","module","console","log","Module","validateImports","metadata","TypeError","NativeWASM","createModuleInstance","memoryName","exports","Memory","importDesc","mod","LinkError","value","name","kind","Global","Error"],"sourceRoot":"../../../src","sources":["api/Instance.ts"],"mappings":";;;;;;AAAA,IAAAA,cAAA,GAAAC,sBAAA,CAAAC,OAAA;AAIA,IAAAC,OAAA,GAAAD,OAAA;AACA,IAAAE,OAAA,GAAAF,OAAA;AACA,IAAAG,OAAA,GAAAH,OAAA;AAEA,IAAAI,OAAA,GAAAJ,OAAA;AAAqC,SAAAD,uBAAAM,CAAA,WAAAA,CAAA,IAAAA,CAAA,CAAAC,UAAA,GAAAD,CAAA,KAAAE,OAAA,EAAAF,CAAA;AAE9B,MAAMG,QAAQ,CAAC;EACpB;EACA,CAACC,OAAO;EAGAC,QAAQ,GAAqC,CAAC,CAAC;EAEvDC,WAAWA,CAACC,MAAc,EAAEH,OAAqB,GAAG,CAAC,CAAC,EAAE;IACtD,IAAI,CAAC,CAACA,OAAO,GAAGA,OAAO;IAEvBI,OAAO,CAACC,GAAG,CAAC,iBAAiB,CAAC;IAC9B,IAAIF,MAAM,YAAYG,cAAM,EAAE;MAC5BF,OAAO,CAACC,GAAG,CAAC,WAAW,CAAC;MACxBE,eAAe,CAACP,OAAO,EAAEG,MAAM,CAACK,QAAQ,CAAC;IAC3C,CAAC,MAAM;MACL,MAAM,IAAIC,SAAS,CAAC,qBAAqB,CAAC;IAC5C;IAEAC,sBAAU,CAACC,oBAAoB,CAAC,IAAI,EAAER,MAAM,EAAEH,OAAO,CAAC;IAEtD,KAAK,MAAMY,UAAU,IAAI,IAAI,CAACX,QAAQ,EAAE;MACtC,IAAI,CAACY,OAAO,CAACD,UAAU,CAAC,GAAG,IAAIE,cAAM,CAAC,IAAI,CAACb,QAAQ,CAACW,UAAU,CAAE,CAAC;IACnE;EACF;AACF;AAACC,OAAA,CAAAd,QAAA,GAAAA,QAAA;AAED,SAASQ,eAAeA,CACtBP,OAAqB,EACrBQ,QAAgC,EAChC;EACAJ,OAAO,CAACC,GAAG,CAAC,kBAAkB,EAAE;IAAEL,OAAO;IAAEQ;EAAS,CAAC,CAAC;EACtD,KAAK,MAAMO,UAAU,IAAIP,QAAQ,CAACR,OAAO,EAAE;IACzC,MAAMgB,GAAG,GAAGhB,OAAO,CAACe,UAAU,CAACZ,MAAM,CAAC;IACtC,IAAI,CAACa,GAAG,EAAE;MACR,MAAM,IAAIC,iBAAS,CACjB,mBAAmBF,UAAU,CAACZ,MAAM,kBACtC,CAAC;IACH;IAEA,MAAMe,KAAK,GAAGF,GAAG,CAACD,UAAU,CAACI,IAAI,CAAC;IAClC,IAAI,CAACD,KAAK,EAAE;MACV,MAAM,IAAID,iBAAS,CACjB,mBAAmBF,UAAU,CAACZ,MAAM,IAAIY,UAAU,CAACI,IAAI,kBACzD,CAAC;IACH;IAEA,QAAQJ,UAAU,CAACK,IAAI;MACrB,KAAK,UAAU;QACb,IAAI,OAAOF,KAAK,KAAK,UAAU,EAAE;UAC/B,MAAM,IAAIT,SAAS,CACjB,mBAAmBM,UAAU,CAACZ,MAAM,IAAIY,UAAU,CAACI,IAAI,oBACzD,CAAC;QACH;QACA;MACF,KAAK,QAAQ;QACX,IAAI,EAAED,KAAK,YAAYG,cAAM,CAAC,EAAE;UAC9B,MAAM,IAAIZ,SAAS,CACjB,mBAAmBM,UAAU,CAACZ,MAAM,IAAIY,UAAU,CAACI,IAAI,kBACzD,CAAC;QACH;QACA;MACF,KAAK,QAAQ;QACX,IAAI,EAAED,KAAK,YAAYJ,cAAM,CAAC,EAAE;UAC9B,MAAM,IAAIL,SAAS,CACjB,mBAAmBM,UAAU,CAACZ,MAAM,IAAIY,UAAU,CAACI,IAAI,kBACzD,CAAC;QACH;QACA;MACF,KAAK,OAAO;QACV,MAAM,IAAIG,KAAK,CAAC,uCAAuC,CAAC;IAC5D;EACF;AACF","ignoreList":[]}
++{"version":3,"names":["_NativePolygen","_interopRequireDefault","require","_Global","_Memory","_Module","_Table","_errors","e","__esModule","default","Instance","imports","memories","tables","constructor","module","Module","validateImports","metadata","TypeError","NativeWASM","createModuleInstance","memoryName","exports","Memory","tableName","Table","importDesc","mod","LinkError","value","name","kind","Global","Error"],"sourceRoot":"../../../src","sources":["api/Instance.ts"],"mappings":";;;;;;AAAA,IAAAA,cAAA,GAAAC,sBAAA,CAAAC,OAAA;AACA,IAAAC,OAAA,GAAAD,OAAA;AACA,IAAAE,OAAA,GAAAF,OAAA;AACA,IAAAG,OAAA,GAAAH,OAAA;AACA,IAAAI,MAAA,GAAAJ,OAAA;AAEA,IAAAK,OAAA,GAAAL,OAAA;AAAqC,SAAAD,uBAAAO,CAAA,WAAAA,CAAA,IAAAA,CAAA,CAAAC,UAAA,GAAAD,CAAA,KAAAE,OAAA,EAAAF,CAAA;AAE9B,MAAMG,QAAQ,CAAC;EACpB;EACA,CAACC,OAAO;EAGAC,QAAQ,GAA2B,CAAC,CAAC;EACrCC,MAAM,GAA2B,CAAC,CAAC;EAE3CC,WAAWA,CAACC,MAAc,EAAEJ,OAAqB,GAAG,CAAC,CAAC,EAAE;IACtD,IAAI,CAAC,CAACA,OAAO,GAAGA,OAAO;IAEvB,IAAII,MAAM,YAAYC,cAAM,EAAE;MAC5BC,eAAe,CAACN,OAAO,EAAEI,MAAM,CAACG,QAAQ,CAAC;IAC3C,CAAC,MAAM;MACL,MAAM,IAAIC,SAAS,CAAC,qBAAqB,CAAC;IAC5C;IAEAC,sBAAU,CAACC,oBAAoB,CAAC,IAAI,EAAEN,MAAM,EAAEJ,OAAO,CAAC;IAEtD,KAAK,MAAMW,UAAU,IAAI,IAAI,CAACV,QAAQ,EAAE;MACtC,IAAI,CAACW,OAAO,CAACD,UAAU,CAAC,GAAG,IAAIE,cAAM,CAAC,IAAI,CAACZ,QAAQ,CAACU,UAAU,CAAE,CAAC;IACnE;IAEA,KAAK,MAAMG,SAAS,IAAI,IAAI,CAACZ,MAAM,EAAE;MACnC,IAAI,CAACU,OAAO,CAACE,SAAS,CAAC,GAAG,IAAIC,YAAK,CAAC,IAAI,CAACb,MAAM,CAACY,SAAS,CAAE,CAAC;IAC9D;EACF;AACF;AAACF,OAAA,CAAAb,QAAA,GAAAA,QAAA;AAED,SAASO,eAAeA,CACtBN,OAAqB,EACrBO,QAAgC,EAChC;EACA,KAAK,MAAMS,UAAU,IAAIT,QAAQ,CAACP,OAAO,EAAE;IACzC,MAAMiB,GAAG,GAAGjB,OAAO,CAACgB,UAAU,CAACZ,MAAM,CAAC;IACtC,IAAI,CAACa,GAAG,EAAE;MACR,MAAM,IAAIC,iBAAS,CACjB,mBAAmBF,UAAU,CAACZ,MAAM,kBACtC,CAAC;IACH;IAEA,MAAMe,KAAK,GAAGF,GAAG,CAACD,UAAU,CAACI,IAAI,CAAC;IAClC,IAAI,CAACD,KAAK,EAAE;MACV,MAAM,IAAID,iBAAS,CACjB,mBAAmBF,UAAU,CAACZ,MAAM,IAAIY,UAAU,CAACI,IAAI,kBACzD,CAAC;IACH;IAEA,QAAQJ,UAAU,CAACK,IAAI;MACrB,KAAK,UAAU;QACb,IAAI,OAAOF,KAAK,KAAK,UAAU,EAAE;UAC/B,MAAM,IAAIX,SAAS,CACjB,mBAAmBQ,UAAU,CAACZ,MAAM,IAAIY,UAAU,CAACI,IAAI,oBACzD,CAAC;QACH;QACA;MACF,KAAK,QAAQ;QACX,IAAI,EAAED,KAAK,YAAYG,cAAM,CAAC,EAAE;UAC9B,MAAM,IAAId,SAAS,CACjB,mBAAmBQ,UAAU,CAACZ,MAAM,IAAIY,UAAU,CAACI,IAAI,kBACzD,CAAC;QACH;QACA;MACF,KAAK,QAAQ;QACX,IAAI,EAAED,KAAK,YAAYN,cAAM,CAAC,EAAE;UAC9B,MAAM,IAAIL,SAAS,CACjB,mBAAmBQ,UAAU,CAACZ,MAAM,IAAIY,UAAU,CAACI,IAAI,kBACzD,CAAC;QACH;QACA;MACF,KAAK,OAAO;QACV,MAAM,IAAIG,KAAK,CAAC,uCAAuC,CAAC;IAC5D;EACF;AACF","ignoreList":[]}
 diff --git a/node_modules/@callstack/polygen/lib/commonjs/api/Memory.js b/node_modules/@callstack/polygen/lib/commonjs/api/Memory.js
-index ceabc2d..86b1039 100644
+index ceabc2d..5b14530 100644
 --- a/node_modules/@callstack/polygen/lib/commonjs/api/Memory.js
 +++ b/node_modules/@callstack/polygen/lib/commonjs/api/Memory.js
-@@ -26,16 +26,26 @@ function isMemoryDescriptor(descriptor) {
-  * @spec https://webassembly.github.io/spec/js-api/index.html#memories
-  */
- class Memory {
-+  #instance;
+@@ -29,6 +29,8 @@ class Memory {
    constructor(instance) {
      if (isMemoryDescriptor(instance)) {
        _NativePolygen.default.createMemory(this, instance.initial, instance.maximum);
 +    } else {
-+      this.#instance = instance;
++      _NativePolygen.default.copyNativeHandle(this, instance);
      }
    }
    get buffer() {
-+    if (this.#instance) {
-+      return _NativePolygen.default.getMemoryBuffer(this.#instance);
-+    }
-     return _NativePolygen.default.getMemoryBuffer(this);
-   }
-   grow(delta) {
--    _NativePolygen.default.growMemory(this, delta);
-+    if (this.#instance) {
-+      _NativePolygen.default.growMemory(this.#instance, delta);
+diff --git a/node_modules/@callstack/polygen/lib/commonjs/api/Memory.js.map b/node_modules/@callstack/polygen/lib/commonjs/api/Memory.js.map
+index 494e247..89f6502 100644
+--- a/node_modules/@callstack/polygen/lib/commonjs/api/Memory.js.map
++++ b/node_modules/@callstack/polygen/lib/commonjs/api/Memory.js.map
+@@ -1 +1 @@
+-{"version":3,"names":["_NativePolygen","_interopRequireDefault","require","e","__esModule","default","isMemoryDescriptor","descriptor","Memory","constructor","instance","NativeWASM","createMemory","initial","maximum","buffer","getMemoryBuffer","grow","delta","growMemory","exports"],"sourceRoot":"../../../src","sources":["api/Memory.ts"],"mappings":";;;;;;AAAA,IAAAA,cAAA,GAAAC,sBAAA,CAAAC,OAAA;AAA6E,SAAAD,uBAAAE,CAAA,WAAAA,CAAA,IAAAA,CAAA,CAAAC,UAAA,GAAAD,CAAA,KAAAE,OAAA,EAAAF,CAAA;AAE7E;AACA;AACA;AACA;AACA;AACA;;AAaA;AACA;AACA;AACA;AACA;AACA,SAASG,kBAAkBA,CAACC,UAAe,EAAkC;EAC3E,OAAO,SAAS,IAAIA,UAAU;AAChC;;AAEA;AACA;AACA;AACO,MAAMC,MAAM,CAAC;EAClBC,WAAWA,CAACC,QAAqD,EAAE;IACjE,IAAIJ,kBAAkB,CAACI,QAAQ,CAAC,EAAE;MAChCC,sBAAU,CAACC,YAAY,CAAC,IAAI,EAAEF,QAAQ,CAACG,OAAO,EAAEH,QAAQ,CAACI,OAAO,CAAC;IACnE;EACF;EAEA,IAAIC,MAAMA,CAAA,EAAG;IACX,OAAOJ,sBAAU,CAACK,eAAe,CAAC,IAAI,CAAC;EACzC;EAEOC,IAAIA,CAACC,KAAa,EAAE;IACzBP,sBAAU,CAACQ,UAAU,CAAC,IAAI,EAAED,KAAK,CAAC;EACpC;AACF;AAACE,OAAA,CAAAZ,MAAA,GAAAA,MAAA","ignoreList":[]}
++{"version":3,"names":["_NativePolygen","_interopRequireDefault","require","e","__esModule","default","isMemoryDescriptor","descriptor","Memory","constructor","instance","NativeWASM","createMemory","initial","maximum","copyNativeHandle","buffer","getMemoryBuffer","grow","delta","growMemory","exports"],"sourceRoot":"../../../src","sources":["api/Memory.ts"],"mappings":";;;;;;AAAA,IAAAA,cAAA,GAAAC,sBAAA,CAAAC,OAAA;AAA6E,SAAAD,uBAAAE,CAAA,WAAAA,CAAA,IAAAA,CAAA,CAAAC,UAAA,GAAAD,CAAA,KAAAE,OAAA,EAAAF,CAAA;AAE7E;AACA;AACA;AACA;AACA;AACA;;AAaA;AACA;AACA;AACA;AACA;AACA,SAASG,kBAAkBA,CAACC,UAAe,EAAkC;EAC3E,OAAO,SAAS,IAAIA,UAAU;AAChC;;AAEA;AACA;AACA;AACO,MAAMC,MAAM,CAAC;EAClBC,WAAWA,CAACC,QAAqD,EAAE;IACjE,IAAIJ,kBAAkB,CAACI,QAAQ,CAAC,EAAE;MAChCC,sBAAU,CAACC,YAAY,CAAC,IAAI,EAAEF,QAAQ,CAACG,OAAO,EAAEH,QAAQ,CAACI,OAAO,CAAC;IACnE,CAAC,MAAM;MACLH,sBAAU,CAACI,gBAAgB,CAAC,IAAI,EAAEL,QAAQ,CAAC;IAC7C;EACF;EAEA,IAAIM,MAAMA,CAAA,EAAG;IACX,OAAOL,sBAAU,CAACM,eAAe,CAAC,IAAI,CAAC;EACzC;EAEOC,IAAIA,CAACC,KAAa,EAAE;IACzBR,sBAAU,CAACS,UAAU,CAAC,IAAI,EAAED,KAAK,CAAC;EACpC;AACF;AAACE,OAAA,CAAAb,MAAA,GAAAA,MAAA","ignoreList":[]}
+diff --git a/node_modules/@callstack/polygen/lib/commonjs/api/Table.js b/node_modules/@callstack/polygen/lib/commonjs/api/Table.js
+index 0f48715..8bc5996 100644
+--- a/node_modules/@callstack/polygen/lib/commonjs/api/Table.js
++++ b/node_modules/@callstack/polygen/lib/commonjs/api/Table.js
+@@ -34,6 +34,8 @@ class Table {
+         initialSize: instance.initial,
+         maxSize: instance.maximum
+       }, value);
 +    } else {
-+      _NativePolygen.default.growMemory(this, delta);
++      _NativePolygen.default.copyNativeHandle(this, instance);
+     }
+   }
+   get length() {
+diff --git a/node_modules/@callstack/polygen/lib/commonjs/api/Table.js.map b/node_modules/@callstack/polygen/lib/commonjs/api/Table.js.map
+index d814809..2942555 100644
+--- a/node_modules/@callstack/polygen/lib/commonjs/api/Table.js.map
++++ b/node_modules/@callstack/polygen/lib/commonjs/api/Table.js.map
+@@ -1 +1 @@
+-{"version":3,"names":["_NativePolygen","_interopRequireWildcard","require","_getRequireWildcardCache","e","WeakMap","r","t","__esModule","default","has","get","n","__proto__","a","Object","defineProperty","getOwnPropertyDescriptor","u","hasOwnProperty","call","i","set","isTableDescriptor","descriptor","Table","constructor","instance","value","NativeWASM","createTable","element","NativeTableElementType","AnyFunc","ExternRef","initialSize","initial","maxSize","maximum","length","getTableSize","grow","delta","growTable","index","getTableElement","setTableElement","exports"],"sourceRoot":"../../../src","sources":["api/Table.ts"],"mappings":";;;;;;AAAA,IAAAA,cAAA,GAAAC,uBAAA,CAAAC,OAAA;AAG0B,SAAAC,yBAAAC,CAAA,6BAAAC,OAAA,mBAAAC,CAAA,OAAAD,OAAA,IAAAE,CAAA,OAAAF,OAAA,YAAAF,wBAAA,YAAAA,CAAAC,CAAA,WAAAA,CAAA,GAAAG,CAAA,GAAAD,CAAA,KAAAF,CAAA;AAAA,SAAAH,wBAAAG,CAAA,EAAAE,CAAA,SAAAA,CAAA,IAAAF,CAAA,IAAAA,CAAA,CAAAI,UAAA,SAAAJ,CAAA,eAAAA,CAAA,uBAAAA,CAAA,yBAAAA,CAAA,WAAAK,OAAA,EAAAL,CAAA,QAAAG,CAAA,GAAAJ,wBAAA,CAAAG,CAAA,OAAAC,CAAA,IAAAA,CAAA,CAAAG,GAAA,CAAAN,CAAA,UAAAG,CAAA,CAAAI,GAAA,CAAAP,CAAA,OAAAQ,CAAA,KAAAC,SAAA,UAAAC,CAAA,GAAAC,MAAA,CAAAC,cAAA,IAAAD,MAAA,CAAAE,wBAAA,WAAAC,CAAA,IAAAd,CAAA,oBAAAc,CAAA,OAAAC,cAAA,CAAAC,IAAA,CAAAhB,CAAA,EAAAc,CAAA,SAAAG,CAAA,GAAAP,CAAA,GAAAC,MAAA,CAAAE,wBAAA,CAAAb,CAAA,EAAAc,CAAA,UAAAG,CAAA,KAAAA,CAAA,CAAAV,GAAA,IAAAU,CAAA,CAAAC,GAAA,IAAAP,MAAA,CAAAC,cAAA,CAAAJ,CAAA,EAAAM,CAAA,EAAAG,CAAA,IAAAT,CAAA,CAAAM,CAAA,IAAAd,CAAA,CAAAc,CAAA,YAAAN,CAAA,CAAAH,OAAA,GAAAL,CAAA,EAAAG,CAAA,IAAAA,CAAA,CAAAe,GAAA,CAAAlB,CAAA,EAAAQ,CAAA,GAAAA,CAAA;AAE1B;AACA;AACA;AACA;AACA;AACA;;AAkBA;AACA;AACA;AACA;AACA;AACA,SAASW,iBAAiBA,CAACC,UAAe,EAAiC;EACzE,OAAO,SAAS,IAAIA,UAAU,IAAI,SAAS,IAAIA,UAAU;AAC3D;;AAEA;AACA;AACA;AACO,MAAMC,KAAK,CAAC;EACjBC,WAAWA,CACTC,QAAmD,EACnDC,KAAW,EACX;IACA,IAAIL,iBAAiB,CAACI,QAAQ,CAAC,EAAE;MAC/BE,sBAAU,CAACC,WAAW,CACpB,IAAI,EACJ;QACEC,OAAO,EACLJ,QAAQ,CAACI,OAAO,KAAK,SAAS,GAC1BC,qCAAsB,CAACC,OAAO,GAC9BD,qCAAsB,CAACE,SAAS;QACtCC,WAAW,EAAER,QAAQ,CAACS,OAAO;QAC7BC,OAAO,EAAEV,QAAQ,CAACW;MACpB,CAAC,EACDV,KACF,CAAC;IACH;EACF;EAEA,IAAWW,MAAMA,CAAA,EAAW;IAC1B,OAAOV,sBAAU,CAACW,YAAY,CAAC,IAAI,CAAC;EACtC;EAEOC,IAAIA,CAACC,KAAa,EAAE;IACzBb,sBAAU,CAACc,SAAS,CAAC,IAAI,EAAED,KAAK,CAAC;EACnC;EAEO/B,GAAGA,CAACiC,KAAa,EAAE;IACxB,OAAOf,sBAAU,CAACgB,eAAe,CAAC,IAAI,EAAED,KAAK,CAAC;EAChD;EAEOtB,GAAGA,CAACsB,KAAa,EAAEhB,KAAU,EAAE;IACpCC,sBAAU,CAACiB,eAAe,CAAC,IAAI,EAAEF,KAAK,EAAEhB,KAAK,CAAC;EAChD;AACF;AAACmB,OAAA,CAAAtB,KAAA,GAAAA,KAAA","ignoreList":[]}
++{"version":3,"names":["_NativePolygen","_interopRequireWildcard","require","_getRequireWildcardCache","e","WeakMap","r","t","__esModule","default","has","get","n","__proto__","a","Object","defineProperty","getOwnPropertyDescriptor","u","hasOwnProperty","call","i","set","isTableDescriptor","descriptor","Table","constructor","instance","value","NativeWASM","createTable","element","NativeTableElementType","AnyFunc","ExternRef","initialSize","initial","maxSize","maximum","copyNativeHandle","length","getTableSize","grow","delta","growTable","index","getTableElement","setTableElement","exports"],"sourceRoot":"../../../src","sources":["api/Table.ts"],"mappings":";;;;;;AAAA,IAAAA,cAAA,GAAAC,uBAAA,CAAAC,OAAA;AAG0B,SAAAC,yBAAAC,CAAA,6BAAAC,OAAA,mBAAAC,CAAA,OAAAD,OAAA,IAAAE,CAAA,OAAAF,OAAA,YAAAF,wBAAA,YAAAA,CAAAC,CAAA,WAAAA,CAAA,GAAAG,CAAA,GAAAD,CAAA,KAAAF,CAAA;AAAA,SAAAH,wBAAAG,CAAA,EAAAE,CAAA,SAAAA,CAAA,IAAAF,CAAA,IAAAA,CAAA,CAAAI,UAAA,SAAAJ,CAAA,eAAAA,CAAA,uBAAAA,CAAA,yBAAAA,CAAA,WAAAK,OAAA,EAAAL,CAAA,QAAAG,CAAA,GAAAJ,wBAAA,CAAAG,CAAA,OAAAC,CAAA,IAAAA,CAAA,CAAAG,GAAA,CAAAN,CAAA,UAAAG,CAAA,CAAAI,GAAA,CAAAP,CAAA,OAAAQ,CAAA,KAAAC,SAAA,UAAAC,CAAA,GAAAC,MAAA,CAAAC,cAAA,IAAAD,MAAA,CAAAE,wBAAA,WAAAC,CAAA,IAAAd,CAAA,oBAAAc,CAAA,OAAAC,cAAA,CAAAC,IAAA,CAAAhB,CAAA,EAAAc,CAAA,SAAAG,CAAA,GAAAP,CAAA,GAAAC,MAAA,CAAAE,wBAAA,CAAAb,CAAA,EAAAc,CAAA,UAAAG,CAAA,KAAAA,CAAA,CAAAV,GAAA,IAAAU,CAAA,CAAAC,GAAA,IAAAP,MAAA,CAAAC,cAAA,CAAAJ,CAAA,EAAAM,CAAA,EAAAG,CAAA,IAAAT,CAAA,CAAAM,CAAA,IAAAd,CAAA,CAAAc,CAAA,YAAAN,CAAA,CAAAH,OAAA,GAAAL,CAAA,EAAAG,CAAA,IAAAA,CAAA,CAAAe,GAAA,CAAAlB,CAAA,EAAAQ,CAAA,GAAAA,CAAA;AAE1B;AACA;AACA;AACA;AACA;AACA;;AAkBA;AACA;AACA;AACA;AACA;AACA,SAASW,iBAAiBA,CAACC,UAAe,EAAiC;EACzE,OAAO,SAAS,IAAIA,UAAU,IAAI,SAAS,IAAIA,UAAU;AAC3D;;AAEA;AACA;AACA;AACO,MAAMC,KAAK,CAAC;EACjBC,WAAWA,CACTC,QAAmD,EACnDC,KAAW,EACX;IACA,IAAIL,iBAAiB,CAACI,QAAQ,CAAC,EAAE;MAC/BE,sBAAU,CAACC,WAAW,CACpB,IAAI,EACJ;QACEC,OAAO,EACLJ,QAAQ,CAACI,OAAO,KAAK,SAAS,GAC1BC,qCAAsB,CAACC,OAAO,GAC9BD,qCAAsB,CAACE,SAAS;QACtCC,WAAW,EAAER,QAAQ,CAACS,OAAO;QAC7BC,OAAO,EAAEV,QAAQ,CAACW;MACpB,CAAC,EACDV,KACF,CAAC;IACH,CAAC,MAAM;MACLC,sBAAU,CAACU,gBAAgB,CAAC,IAAI,EAAEZ,QAAQ,CAAC;IAC7C;EACF;EAEA,IAAWa,MAAMA,CAAA,EAAW;IAC1B,OAAOX,sBAAU,CAACY,YAAY,CAAC,IAAI,CAAC;EACtC;EAEOC,IAAIA,CAACC,KAAa,EAAE;IACzBd,sBAAU,CAACe,SAAS,CAAC,IAAI,EAAED,KAAK,CAAC;EACnC;EAEOhC,GAAGA,CAACkC,KAAa,EAAE;IACxB,OAAOhB,sBAAU,CAACiB,eAAe,CAAC,IAAI,EAAED,KAAK,CAAC;EAChD;EAEOvB,GAAGA,CAACuB,KAAa,EAAEjB,KAAU,EAAE;IACpCC,sBAAU,CAACkB,eAAe,CAAC,IAAI,EAAEF,KAAK,EAAEjB,KAAK,CAAC;EAChD;AACF;AAACoB,OAAA,CAAAvB,KAAA,GAAAA,KAAA","ignoreList":[]}
+diff --git a/node_modules/@callstack/polygen/lib/module/NativePolygen.js.map b/node_modules/@callstack/polygen/lib/module/NativePolygen.js.map
+index 2c8688c..7bffae4 100644
+--- a/node_modules/@callstack/polygen/lib/module/NativePolygen.js.map
++++ b/node_modules/@callstack/polygen/lib/module/NativePolygen.js.map
+@@ -1 +1 @@
+-{"version":3,"names":["TurboModuleRegistry","NativeType","NativeTableElementType","NativeSymbolKind","getEnforcing"],"sourceRoot":"../../src","sources":["NativePolygen.ts"],"mappings":";;AACA,SAASA,mBAAmB,QAAQ,cAAc;AAMlD;AACA;AACA;AACA,WAAYC,UAAU,0BAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAA,OAAVA,UAAU;AAAA;;AAStB;AACA;AACA;AACA,WAAYC,sBAAsB,0BAAtBA,sBAAsB;EAAtBA,sBAAsB,CAAtBA,sBAAsB;EAAtBA,sBAAsB,CAAtBA,sBAAsB;EAAA,OAAtBA,sBAAsB;AAAA;;AAKlC;AACA;AACA;AACA,WAAYC,gBAAgB,0BAAhBA,gBAAgB;EAAhBA,gBAAgB;EAAhBA,gBAAgB;EAAhBA,gBAAgB;EAAhBA,gBAAgB;EAAA,OAAhBA,gBAAgB;AAAA;;AAO5B;AACA;AACA;AACA;AACA;AACA;AACA;;AAaA;AACA;AACA;AACA;AACA;AACA;AACA;;AAkBA;AACA;AACA;;AAwBA;AACA;AACA;;AAGA;AACA;AACA;;AAGA;AACA;AACA;;AAGA;AACA;AACA;;AAGA;AACA;AACA;;AAsDA,eAAeH,mBAAmB,CAACI,YAAY,CAAO,SAAS,CAAC","ignoreList":[]}
++{"version":3,"names":["TurboModuleRegistry","NativeType","NativeTableElementType","NativeSymbolKind","getEnforcing"],"sourceRoot":"../../src","sources":["NativePolygen.ts"],"mappings":";;AACA,SAASA,mBAAmB,QAAQ,cAAc;AAMlD;AACA;AACA;AACA,WAAYC,UAAU,0BAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAVA,UAAU,CAAVA,UAAU;EAAA,OAAVA,UAAU;AAAA;;AAStB;AACA;AACA;AACA,WAAYC,sBAAsB,0BAAtBA,sBAAsB;EAAtBA,sBAAsB,CAAtBA,sBAAsB;EAAtBA,sBAAsB,CAAtBA,sBAAsB;EAAA,OAAtBA,sBAAsB;AAAA;;AAKlC;AACA;AACA;AACA,WAAYC,gBAAgB,0BAAhBA,gBAAgB;EAAhBA,gBAAgB;EAAhBA,gBAAgB;EAAhBA,gBAAgB;EAAhBA,gBAAgB;EAAA,OAAhBA,gBAAgB;AAAA;;AAO5B;AACA;AACA;AACA;AACA;AACA;AACA;;AAaA;AACA;AACA;AACA;AACA;AACA;AACA;;AAkBA;AACA;AACA;;AAwBA;AACA;AACA;;AAGA;AACA;AACA;;AAGA;AACA;AACA;;AAGA;AACA;AACA;;AAGA;AACA;AACA;;AAwDA,eAAeH,mBAAmB,CAACI,YAAY,CAAO,SAAS,CAAC","ignoreList":[]}
+diff --git a/node_modules/@callstack/polygen/lib/module/api/Global.js b/node_modules/@callstack/polygen/lib/module/api/Global.js
+index dbe77df..50e59b1 100644
+--- a/node_modules/@callstack/polygen/lib/module/api/Global.js
++++ b/node_modules/@callstack/polygen/lib/module/api/Global.js
+@@ -36,6 +36,8 @@ export class Global {
+         type: TypeMapping[instance.type],
+         isMutable: instance.mutable ?? false
+       }, initialValue ?? 0);
++    } else {
++      NativeWASM.copyNativeHandle(this, instance);
+     }
+   }
+   get value() {
+diff --git a/node_modules/@callstack/polygen/lib/module/api/Global.js.map b/node_modules/@callstack/polygen/lib/module/api/Global.js.map
+index 2f371e3..314c0ee 100644
+--- a/node_modules/@callstack/polygen/lib/module/api/Global.js.map
++++ b/node_modules/@callstack/polygen/lib/module/api/Global.js.map
+@@ -1 +1 @@
+-{"version":3,"names":["NativeWASM","NativeType","isGlobalDescriptor","descriptor","TypeMapping","i32","I32","u32","U32","i64","I64","u64","U64","f32","F32","f64","F64","Global","constructor","instance","initialValue","createGlobal","type","isMutable","mutable","value","getGlobalValue","newValue","setGlobalValue"],"sourceRoot":"../../../src","sources":["api/Global.ts"],"mappings":";;AAAA,OAAOA,UAAU,IAEfC,UAAU,QACL,qBAAkB;;AAGzB;AACA;AACA;AACA;AACA;AACA;;AAaA;AACA;AACA;AACA;AACA;AACA,SAASC,kBAAkBA,CAACC,UAAe,EAAkC;EAC3E,OAAO,MAAM,IAAIA,UAAU;AAC7B;AAEA,MAAMC,WAAgD,GAAG;EACvDC,GAAG,EAAEJ,UAAU,CAACK,GAAG;EACnBC,GAAG,EAAEN,UAAU,CAACO,GAAG;EACnBC,GAAG,EAAER,UAAU,CAACS,GAAG;EACnBC,GAAG,EAAEV,UAAU,CAACW,GAAG;EACnBC,GAAG,EAAEZ,UAAU,CAACa,GAAG;EACnBC,GAAG,EAAEd,UAAU,CAACe;AAClB,CAAC;;AAED;AACA;AACA;AACA,OAAO,MAAMC,MAAM,CAAC;EAClBC,WAAWA,CACTC,QAAqD,EACrDC,YAAqB,EACrB;IACA,IAAIlB,kBAAkB,CAACiB,QAAQ,CAAC,EAAE;MAChCnB,UAAU,CAACqB,YAAY,CACrB,IAAI,EACJ;QACEC,IAAI,EAAElB,WAAW,CAACe,QAAQ,CAACG,IAAI,CAAC;QAChCC,SAAS,EAAEJ,QAAQ,CAACK,OAAO,IAAI;MACjC,CAAC,EACDJ,YAAY,IAAI,CAClB,CAAC;IACH;EACF;EAEA,IAAIK,KAAKA,CAAA,EAAG;IACV,OAAOzB,UAAU,CAAC0B,cAAc,CAAC,IAAI,CAAC;EACxC;EAEA,IAAID,KAAKA,CAACE,QAAgB,EAAE;IAC1B3B,UAAU,CAAC4B,cAAc,CAAC,IAAI,EAAED,QAAQ,CAAC;EAC3C;AACF","ignoreList":[]}
++{"version":3,"names":["NativeWASM","NativeType","isGlobalDescriptor","descriptor","TypeMapping","i32","I32","u32","U32","i64","I64","u64","U64","f32","F32","f64","F64","Global","constructor","instance","initialValue","createGlobal","type","isMutable","mutable","copyNativeHandle","value","getGlobalValue","newValue","setGlobalValue"],"sourceRoot":"../../../src","sources":["api/Global.ts"],"mappings":";;AAAA,OAAOA,UAAU,IAEfC,UAAU,QACL,qBAAkB;;AAGzB;AACA;AACA;AACA;AACA;AACA;;AAaA;AACA;AACA;AACA;AACA;AACA,SAASC,kBAAkBA,CAACC,UAAe,EAAkC;EAC3E,OAAO,MAAM,IAAIA,UAAU;AAC7B;AAEA,MAAMC,WAAgD,GAAG;EACvDC,GAAG,EAAEJ,UAAU,CAACK,GAAG;EACnBC,GAAG,EAAEN,UAAU,CAACO,GAAG;EACnBC,GAAG,EAAER,UAAU,CAACS,GAAG;EACnBC,GAAG,EAAEV,UAAU,CAACW,GAAG;EACnBC,GAAG,EAAEZ,UAAU,CAACa,GAAG;EACnBC,GAAG,EAAEd,UAAU,CAACe;AAClB,CAAC;;AAED;AACA;AACA;AACA,OAAO,MAAMC,MAAM,CAAC;EAClBC,WAAWA,CACTC,QAAqD,EACrDC,YAAqB,EACrB;IACA,IAAIlB,kBAAkB,CAACiB,QAAQ,CAAC,EAAE;MAChCnB,UAAU,CAACqB,YAAY,CACrB,IAAI,EACJ;QACEC,IAAI,EAAElB,WAAW,CAACe,QAAQ,CAACG,IAAI,CAAC;QAChCC,SAAS,EAAEJ,QAAQ,CAACK,OAAO,IAAI;MACjC,CAAC,EACDJ,YAAY,IAAI,CAClB,CAAC;IACH,CAAC,MAAM;MACLpB,UAAU,CAACyB,gBAAgB,CAAC,IAAI,EAAEN,QAAQ,CAAC;IAC7C;EACF;EAEA,IAAIO,KAAKA,CAAA,EAAG;IACV,OAAO1B,UAAU,CAAC2B,cAAc,CAAC,IAAI,CAAC;EACxC;EAEA,IAAID,KAAKA,CAACE,QAAgB,EAAE;IAC1B5B,UAAU,CAAC6B,cAAc,CAAC,IAAI,EAAED,QAAQ,CAAC;EAC3C;AACF","ignoreList":[]}
+diff --git a/node_modules/@callstack/polygen/lib/module/api/Instance.js b/node_modules/@callstack/polygen/lib/module/api/Instance.js
+index 5a8efe2..5b279ff 100644
+--- a/node_modules/@callstack/polygen/lib/module/api/Instance.js
++++ b/node_modules/@callstack/polygen/lib/module/api/Instance.js
+@@ -4,16 +4,16 @@ import NativeWASM from "../NativePolygen.js";
+ import { Global } from "./Global.js";
+ import { Memory } from "./Memory.js";
+ import { Module } from "./Module.js";
++import { Table } from "./Table.js";
+ import { LinkError } from "./errors.js";
+ export class Instance {
+   // @ts-ignore
+   #imports;
+   memories = {};
++  tables = {};
+   constructor(module, imports = {}) {
+     this.#imports = imports;
+-    console.log('create instance');
+     if (module instanceof Module) {
+-      console.log('is module');
+       validateImports(imports, module.metadata);
+     } else {
+       throw new TypeError('Invalid module type');
+@@ -22,13 +22,12 @@ export class Instance {
+     for (const memoryName in this.memories) {
+       this.exports[memoryName] = new Memory(this.memories[memoryName]);
+     }
++    for (const tableName in this.tables) {
++      this.exports[tableName] = new Table(this.tables[tableName]);
 +    }
    }
  }
- exports.Memory = Memory;
+ function validateImports(imports, metadata) {
+-  console.log('validate imports', {
+-    imports,
+-    metadata
+-  });
+   for (const importDesc of metadata.imports) {
+     const mod = imports[importDesc.module];
+     if (!mod) {
+diff --git a/node_modules/@callstack/polygen/lib/module/api/Instance.js.map b/node_modules/@callstack/polygen/lib/module/api/Instance.js.map
+index bd5da0c..9f9564e 100644
+--- a/node_modules/@callstack/polygen/lib/module/api/Instance.js.map
++++ b/node_modules/@callstack/polygen/lib/module/api/Instance.js.map
+@@ -1 +1 @@
+-{"version":3,"names":["NativeWASM","Global","Memory","Module","LinkError","Instance","imports","memories","constructor","module","console","log","validateImports","metadata","TypeError","createModuleInstance","memoryName","exports","importDesc","mod","value","name","kind","Error"],"sourceRoot":"../../../src","sources":["api/Instance.ts"],"mappings":";;AAAA,OAAOA,UAAU,MAGV,qBAAkB;AACzB,SAASC,MAAM,QAAQ,aAAU;AACjC,SAASC,MAAM,QAA+B,aAAU;AACxD,SAASC,MAAM,QAAQ,aAAU;AAEjC,SAASC,SAAS,QAAQ,aAAU;AAEpC,OAAO,MAAMC,QAAQ,CAAC;EACpB;EACA,CAACC,OAAO;EAGAC,QAAQ,GAAqC,CAAC,CAAC;EAEvDC,WAAWA,CAACC,MAAc,EAAEH,OAAqB,GAAG,CAAC,CAAC,EAAE;IACtD,IAAI,CAAC,CAACA,OAAO,GAAGA,OAAO;IAEvBI,OAAO,CAACC,GAAG,CAAC,iBAAiB,CAAC;IAC9B,IAAIF,MAAM,YAAYN,MAAM,EAAE;MAC5BO,OAAO,CAACC,GAAG,CAAC,WAAW,CAAC;MACxBC,eAAe,CAACN,OAAO,EAAEG,MAAM,CAACI,QAAQ,CAAC;IAC3C,CAAC,MAAM;MACL,MAAM,IAAIC,SAAS,CAAC,qBAAqB,CAAC;IAC5C;IAEAd,UAAU,CAACe,oBAAoB,CAAC,IAAI,EAAEN,MAAM,EAAEH,OAAO,CAAC;IAEtD,KAAK,MAAMU,UAAU,IAAI,IAAI,CAACT,QAAQ,EAAE;MACtC,IAAI,CAACU,OAAO,CAACD,UAAU,CAAC,GAAG,IAAId,MAAM,CAAC,IAAI,CAACK,QAAQ,CAACS,UAAU,CAAE,CAAC;IACnE;EACF;AACF;AAEA,SAASJ,eAAeA,CACtBN,OAAqB,EACrBO,QAAgC,EAChC;EACAH,OAAO,CAACC,GAAG,CAAC,kBAAkB,EAAE;IAAEL,OAAO;IAAEO;EAAS,CAAC,CAAC;EACtD,KAAK,MAAMK,UAAU,IAAIL,QAAQ,CAACP,OAAO,EAAE;IACzC,MAAMa,GAAG,GAAGb,OAAO,CAACY,UAAU,CAACT,MAAM,CAAC;IACtC,IAAI,CAACU,GAAG,EAAE;MACR,MAAM,IAAIf,SAAS,CACjB,mBAAmBc,UAAU,CAACT,MAAM,kBACtC,CAAC;IACH;IAEA,MAAMW,KAAK,GAAGD,GAAG,CAACD,UAAU,CAACG,IAAI,CAAC;IAClC,IAAI,CAACD,KAAK,EAAE;MACV,MAAM,IAAIhB,SAAS,CACjB,mBAAmBc,UAAU,CAACT,MAAM,IAAIS,UAAU,CAACG,IAAI,kBACzD,CAAC;IACH;IAEA,QAAQH,UAAU,CAACI,IAAI;MACrB,KAAK,UAAU;QACb,IAAI,OAAOF,KAAK,KAAK,UAAU,EAAE;UAC/B,MAAM,IAAIN,SAAS,CACjB,mBAAmBI,UAAU,CAACT,MAAM,IAAIS,UAAU,CAACG,IAAI,oBACzD,CAAC;QACH;QACA;MACF,KAAK,QAAQ;QACX,IAAI,EAAED,KAAK,YAAYnB,MAAM,CAAC,EAAE;UAC9B,MAAM,IAAIa,SAAS,CACjB,mBAAmBI,UAAU,CAACT,MAAM,IAAIS,UAAU,CAACG,IAAI,kBACzD,CAAC;QACH;QACA;MACF,KAAK,QAAQ;QACX,IAAI,EAAED,KAAK,YAAYlB,MAAM,CAAC,EAAE;UAC9B,MAAM,IAAIY,SAAS,CACjB,mBAAmBI,UAAU,CAACT,MAAM,IAAIS,UAAU,CAACG,IAAI,kBACzD,CAAC;QACH;QACA;MACF,KAAK,OAAO;QACV,MAAM,IAAIE,KAAK,CAAC,uCAAuC,CAAC;IAC5D;EACF;AACF","ignoreList":[]}
++{"version":3,"names":["NativeWASM","Global","Memory","Module","Table","LinkError","Instance","imports","memories","tables","constructor","module","validateImports","metadata","TypeError","createModuleInstance","memoryName","exports","tableName","importDesc","mod","value","name","kind","Error"],"sourceRoot":"../../../src","sources":["api/Instance.ts"],"mappings":";;AAAA,OAAOA,UAAU,MAAkC,qBAAkB;AACrE,SAASC,MAAM,QAAQ,aAAU;AACjC,SAASC,MAAM,QAAQ,aAAU;AACjC,SAASC,MAAM,QAAQ,aAAU;AACjC,SAASC,KAAK,QAAQ,YAAS;AAE/B,SAASC,SAAS,QAAQ,aAAU;AAEpC,OAAO,MAAMC,QAAQ,CAAC;EACpB;EACA,CAACC,OAAO;EAGAC,QAAQ,GAA2B,CAAC,CAAC;EACrCC,MAAM,GAA2B,CAAC,CAAC;EAE3CC,WAAWA,CAACC,MAAc,EAAEJ,OAAqB,GAAG,CAAC,CAAC,EAAE;IACtD,IAAI,CAAC,CAACA,OAAO,GAAGA,OAAO;IAEvB,IAAII,MAAM,YAAYR,MAAM,EAAE;MAC5BS,eAAe,CAACL,OAAO,EAAEI,MAAM,CAACE,QAAQ,CAAC;IAC3C,CAAC,MAAM;MACL,MAAM,IAAIC,SAAS,CAAC,qBAAqB,CAAC;IAC5C;IAEAd,UAAU,CAACe,oBAAoB,CAAC,IAAI,EAAEJ,MAAM,EAAEJ,OAAO,CAAC;IAEtD,KAAK,MAAMS,UAAU,IAAI,IAAI,CAACR,QAAQ,EAAE;MACtC,IAAI,CAACS,OAAO,CAACD,UAAU,CAAC,GAAG,IAAId,MAAM,CAAC,IAAI,CAACM,QAAQ,CAACQ,UAAU,CAAE,CAAC;IACnE;IAEA,KAAK,MAAME,SAAS,IAAI,IAAI,CAACT,MAAM,EAAE;MACnC,IAAI,CAACQ,OAAO,CAACC,SAAS,CAAC,GAAG,IAAId,KAAK,CAAC,IAAI,CAACK,MAAM,CAACS,SAAS,CAAE,CAAC;IAC9D;EACF;AACF;AAEA,SAASN,eAAeA,CACtBL,OAAqB,EACrBM,QAAgC,EAChC;EACA,KAAK,MAAMM,UAAU,IAAIN,QAAQ,CAACN,OAAO,EAAE;IACzC,MAAMa,GAAG,GAAGb,OAAO,CAACY,UAAU,CAACR,MAAM,CAAC;IACtC,IAAI,CAACS,GAAG,EAAE;MACR,MAAM,IAAIf,SAAS,CACjB,mBAAmBc,UAAU,CAACR,MAAM,kBACtC,CAAC;IACH;IAEA,MAAMU,KAAK,GAAGD,GAAG,CAACD,UAAU,CAACG,IAAI,CAAC;IAClC,IAAI,CAACD,KAAK,EAAE;MACV,MAAM,IAAIhB,SAAS,CACjB,mBAAmBc,UAAU,CAACR,MAAM,IAAIQ,UAAU,CAACG,IAAI,kBACzD,CAAC;IACH;IAEA,QAAQH,UAAU,CAACI,IAAI;MACrB,KAAK,UAAU;QACb,IAAI,OAAOF,KAAK,KAAK,UAAU,EAAE;UAC/B,MAAM,IAAIP,SAAS,CACjB,mBAAmBK,UAAU,CAACR,MAAM,IAAIQ,UAAU,CAACG,IAAI,oBACzD,CAAC;QACH;QACA;MACF,KAAK,QAAQ;QACX,IAAI,EAAED,KAAK,YAAYpB,MAAM,CAAC,EAAE;UAC9B,MAAM,IAAIa,SAAS,CACjB,mBAAmBK,UAAU,CAACR,MAAM,IAAIQ,UAAU,CAACG,IAAI,kBACzD,CAAC;QACH;QACA;MACF,KAAK,QAAQ;QACX,IAAI,EAAED,KAAK,YAAYnB,MAAM,CAAC,EAAE;UAC9B,MAAM,IAAIY,SAAS,CACjB,mBAAmBK,UAAU,CAACR,MAAM,IAAIQ,UAAU,CAACG,IAAI,kBACzD,CAAC;QACH;QACA;MACF,KAAK,OAAO;QACV,MAAM,IAAIE,KAAK,CAAC,uCAAuC,CAAC;IAC5D;EACF;AACF","ignoreList":[]}
+diff --git a/node_modules/@callstack/polygen/lib/module/api/Memory.js b/node_modules/@callstack/polygen/lib/module/api/Memory.js
+index 906466b..459a1ca 100644
+--- a/node_modules/@callstack/polygen/lib/module/api/Memory.js
++++ b/node_modules/@callstack/polygen/lib/module/api/Memory.js
+@@ -25,6 +25,8 @@ export class Memory {
+   constructor(instance) {
+     if (isMemoryDescriptor(instance)) {
+       NativeWASM.createMemory(this, instance.initial, instance.maximum);
++    } else {
++      NativeWASM.copyNativeHandle(this, instance);
+     }
+   }
+   get buffer() {
+diff --git a/node_modules/@callstack/polygen/lib/module/api/Memory.js.map b/node_modules/@callstack/polygen/lib/module/api/Memory.js.map
+index 7cd2835..4619a30 100644
+--- a/node_modules/@callstack/polygen/lib/module/api/Memory.js.map
++++ b/node_modules/@callstack/polygen/lib/module/api/Memory.js.map
+@@ -1 +1 @@
+-{"version":3,"names":["NativeWASM","isMemoryDescriptor","descriptor","Memory","constructor","instance","createMemory","initial","maximum","buffer","getMemoryBuffer","grow","delta","growMemory"],"sourceRoot":"../../../src","sources":["api/Memory.ts"],"mappings":";;AAAA,OAAOA,UAAU,MAAyC,qBAAkB;;AAE5E;AACA;AACA;AACA;AACA;AACA;;AAaA;AACA;AACA;AACA;AACA;AACA,SAASC,kBAAkBA,CAACC,UAAe,EAAkC;EAC3E,OAAO,SAAS,IAAIA,UAAU;AAChC;;AAEA;AACA;AACA;AACA,OAAO,MAAMC,MAAM,CAAC;EAClBC,WAAWA,CAACC,QAAqD,EAAE;IACjE,IAAIJ,kBAAkB,CAACI,QAAQ,CAAC,EAAE;MAChCL,UAAU,CAACM,YAAY,CAAC,IAAI,EAAED,QAAQ,CAACE,OAAO,EAAEF,QAAQ,CAACG,OAAO,CAAC;IACnE;EACF;EAEA,IAAIC,MAAMA,CAAA,EAAG;IACX,OAAOT,UAAU,CAACU,eAAe,CAAC,IAAI,CAAC;EACzC;EAEOC,IAAIA,CAACC,KAAa,EAAE;IACzBZ,UAAU,CAACa,UAAU,CAAC,IAAI,EAAED,KAAK,CAAC;EACpC;AACF","ignoreList":[]}
++{"version":3,"names":["NativeWASM","isMemoryDescriptor","descriptor","Memory","constructor","instance","createMemory","initial","maximum","copyNativeHandle","buffer","getMemoryBuffer","grow","delta","growMemory"],"sourceRoot":"../../../src","sources":["api/Memory.ts"],"mappings":";;AAAA,OAAOA,UAAU,MAAyC,qBAAkB;;AAE5E;AACA;AACA;AACA;AACA;AACA;;AAaA;AACA;AACA;AACA;AACA;AACA,SAASC,kBAAkBA,CAACC,UAAe,EAAkC;EAC3E,OAAO,SAAS,IAAIA,UAAU;AAChC;;AAEA;AACA;AACA;AACA,OAAO,MAAMC,MAAM,CAAC;EAClBC,WAAWA,CAACC,QAAqD,EAAE;IACjE,IAAIJ,kBAAkB,CAACI,QAAQ,CAAC,EAAE;MAChCL,UAAU,CAACM,YAAY,CAAC,IAAI,EAAED,QAAQ,CAACE,OAAO,EAAEF,QAAQ,CAACG,OAAO,CAAC;IACnE,CAAC,MAAM;MACLR,UAAU,CAACS,gBAAgB,CAAC,IAAI,EAAEJ,QAAQ,CAAC;IAC7C;EACF;EAEA,IAAIK,MAAMA,CAAA,EAAG;IACX,OAAOV,UAAU,CAACW,eAAe,CAAC,IAAI,CAAC;EACzC;EAEOC,IAAIA,CAACC,KAAa,EAAE;IACzBb,UAAU,CAACc,UAAU,CAAC,IAAI,EAAED,KAAK,CAAC;EACpC;AACF","ignoreList":[]}
+diff --git a/node_modules/@callstack/polygen/lib/module/api/Table.js b/node_modules/@callstack/polygen/lib/module/api/Table.js
+index a2cd16c..748eca0 100644
+--- a/node_modules/@callstack/polygen/lib/module/api/Table.js
++++ b/node_modules/@callstack/polygen/lib/module/api/Table.js
+@@ -29,6 +29,8 @@ export class Table {
+         initialSize: instance.initial,
+         maxSize: instance.maximum
+       }, value);
++    } else {
++      NativeWASM.copyNativeHandle(this, instance);
+     }
+   }
+   get length() {
+diff --git a/node_modules/@callstack/polygen/lib/module/api/Table.js.map b/node_modules/@callstack/polygen/lib/module/api/Table.js.map
+index c35a47c..c1f097a 100644
+--- a/node_modules/@callstack/polygen/lib/module/api/Table.js.map
++++ b/node_modules/@callstack/polygen/lib/module/api/Table.js.map
+@@ -1 +1 @@
+-{"version":3,"names":["NativeWASM","NativeTableElementType","isTableDescriptor","descriptor","Table","constructor","instance","value","createTable","element","AnyFunc","ExternRef","initialSize","initial","maxSize","maximum","length","getTableSize","grow","delta","growTable","get","index","getTableElement","set","setTableElement"],"sourceRoot":"../../../src","sources":["api/Table.ts"],"mappings":";;AAAA,OAAOA,UAAU,IACfC,sBAAsB,QAEjB,qBAAkB;;AAEzB;AACA;AACA;AACA;AACA;AACA;;AAkBA;AACA;AACA;AACA;AACA;AACA,SAASC,iBAAiBA,CAACC,UAAe,EAAiC;EACzE,OAAO,SAAS,IAAIA,UAAU,IAAI,SAAS,IAAIA,UAAU;AAC3D;;AAEA;AACA;AACA;AACA,OAAO,MAAMC,KAAK,CAAC;EACjBC,WAAWA,CACTC,QAAmD,EACnDC,KAAW,EACX;IACA,IAAIL,iBAAiB,CAACI,QAAQ,CAAC,EAAE;MAC/BN,UAAU,CAACQ,WAAW,CACpB,IAAI,EACJ;QACEC,OAAO,EACLH,QAAQ,CAACG,OAAO,KAAK,SAAS,GAC1BR,sBAAsB,CAACS,OAAO,GAC9BT,sBAAsB,CAACU,SAAS;QACtCC,WAAW,EAAEN,QAAQ,CAACO,OAAO;QAC7BC,OAAO,EAAER,QAAQ,CAACS;MACpB,CAAC,EACDR,KACF,CAAC;IACH;EACF;EAEA,IAAWS,MAAMA,CAAA,EAAW;IAC1B,OAAOhB,UAAU,CAACiB,YAAY,CAAC,IAAI,CAAC;EACtC;EAEOC,IAAIA,CAACC,KAAa,EAAE;IACzBnB,UAAU,CAACoB,SAAS,CAAC,IAAI,EAAED,KAAK,CAAC;EACnC;EAEOE,GAAGA,CAACC,KAAa,EAAE;IACxB,OAAOtB,UAAU,CAACuB,eAAe,CAAC,IAAI,EAAED,KAAK,CAAC;EAChD;EAEOE,GAAGA,CAACF,KAAa,EAAEf,KAAU,EAAE;IACpCP,UAAU,CAACyB,eAAe,CAAC,IAAI,EAAEH,KAAK,EAAEf,KAAK,CAAC;EAChD;AACF","ignoreList":[]}
++{"version":3,"names":["NativeWASM","NativeTableElementType","isTableDescriptor","descriptor","Table","constructor","instance","value","createTable","element","AnyFunc","ExternRef","initialSize","initial","maxSize","maximum","copyNativeHandle","length","getTableSize","grow","delta","growTable","get","index","getTableElement","set","setTableElement"],"sourceRoot":"../../../src","sources":["api/Table.ts"],"mappings":";;AAAA,OAAOA,UAAU,IACfC,sBAAsB,QAEjB,qBAAkB;;AAEzB;AACA;AACA;AACA;AACA;AACA;;AAkBA;AACA;AACA;AACA;AACA;AACA,SAASC,iBAAiBA,CAACC,UAAe,EAAiC;EACzE,OAAO,SAAS,IAAIA,UAAU,IAAI,SAAS,IAAIA,UAAU;AAC3D;;AAEA;AACA;AACA;AACA,OAAO,MAAMC,KAAK,CAAC;EACjBC,WAAWA,CACTC,QAAmD,EACnDC,KAAW,EACX;IACA,IAAIL,iBAAiB,CAACI,QAAQ,CAAC,EAAE;MAC/BN,UAAU,CAACQ,WAAW,CACpB,IAAI,EACJ;QACEC,OAAO,EACLH,QAAQ,CAACG,OAAO,KAAK,SAAS,GAC1BR,sBAAsB,CAACS,OAAO,GAC9BT,sBAAsB,CAACU,SAAS;QACtCC,WAAW,EAAEN,QAAQ,CAACO,OAAO;QAC7BC,OAAO,EAAER,QAAQ,CAACS;MACpB,CAAC,EACDR,KACF,CAAC;IACH,CAAC,MAAM;MACLP,UAAU,CAACgB,gBAAgB,CAAC,IAAI,EAAEV,QAAQ,CAAC;IAC7C;EACF;EAEA,IAAWW,MAAMA,CAAA,EAAW;IAC1B,OAAOjB,UAAU,CAACkB,YAAY,CAAC,IAAI,CAAC;EACtC;EAEOC,IAAIA,CAACC,KAAa,EAAE;IACzBpB,UAAU,CAACqB,SAAS,CAAC,IAAI,EAAED,KAAK,CAAC;EACnC;EAEOE,GAAGA,CAACC,KAAa,EAAE;IACxB,OAAOvB,UAAU,CAACwB,eAAe,CAAC,IAAI,EAAED,KAAK,CAAC;EAChD;EAEOE,GAAGA,CAACF,KAAa,EAAEhB,KAAU,EAAE;IACpCP,UAAU,CAAC0B,eAAe,CAAC,IAAI,EAAEH,KAAK,EAAEhB,KAAK,CAAC;EAChD;AACF","ignoreList":[]}
+diff --git a/node_modules/@callstack/polygen/lib/typescript/commonjs/NativePolygen.d.ts b/node_modules/@callstack/polygen/lib/typescript/commonjs/NativePolygen.d.ts
+index deebd44..4820faa 100644
+--- a/node_modules/@callstack/polygen/lib/typescript/commonjs/NativePolygen.d.ts
++++ b/node_modules/@callstack/polygen/lib/typescript/commonjs/NativePolygen.d.ts
+@@ -110,6 +110,7 @@ export type OpaqueGlobalNativeHandle = UnsafeObject;
+  */
+ export type OpaqueTableNativeHandle = UnsafeObject;
+ export interface Spec extends TurboModule {
++    copyNativeHandle(holder: UnsafeObject, from: UnsafeObject): boolean;
+     loadModule(holder: OpaqueModuleNativeHandle, moduleData: UnsafeArrayBuffer): InternalModuleMetadata;
+     unloadModule(module: OpaqueModuleNativeHandle): void;
+     getModuleMetadata(module: OpaqueModuleNativeHandle): InternalModuleMetadata;
+diff --git a/node_modules/@callstack/polygen/lib/typescript/commonjs/NativePolygen.d.ts.map b/node_modules/@callstack/polygen/lib/typescript/commonjs/NativePolygen.d.ts.map
+index 209a843..1e2691e 100644
+--- a/node_modules/@callstack/polygen/lib/typescript/commonjs/NativePolygen.d.ts.map
++++ b/node_modules/@callstack/polygen/lib/typescript/commonjs/NativePolygen.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"NativePolygen.d.ts","sourceRoot":"","sources":["../../../src/NativePolygen.ts"],"names":[],"mappings":"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"}
+\ No newline at end of file
++{"version":3,"file":"NativePolygen.d.ts","sourceRoot":"","sources":["../../../src/NativePolygen.ts"],"names":[],"mappings":"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"}
+\ No newline at end of file
+diff --git a/node_modules/@callstack/polygen/lib/typescript/commonjs/api/Global.d.ts.map b/node_modules/@callstack/polygen/lib/typescript/commonjs/api/Global.d.ts.map
+index b962a7f..5ac9a63 100644
+--- a/node_modules/@callstack/polygen/lib/typescript/commonjs/api/Global.d.ts.map
++++ b/node_modules/@callstack/polygen/lib/typescript/commonjs/api/Global.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"Global.d.ts","sourceRoot":"","sources":["../../../../src/api/Global.ts"],"names":[],"mappings":"AAAA,OAAmB,EACjB,KAAK,wBAAwB,EAE9B,MAAM,kBAAkB,CAAC;AAC1B,OAAO,KAAK,EAAE,eAAe,EAAE,MAAM,UAAU,CAAC;AAEhD;;;;;GAKG;AACH,MAAM,WAAW,gBAAgB;IAC/B;;OAEG;IACH,IAAI,EAAE,eAAe,CAAC;IAEtB;;OAEG;IACH,OAAO,CAAC,EAAE,OAAO,CAAC;CACnB;AAoBD;;GAEG;AACH,qBAAa,MAAM;gBAEf,QAAQ,EAAE,wBAAwB,GAAG,gBAAgB,EACrD,YAAY,CAAC,EAAE,MAAM;IAcvB,IAAI,KAAK,IAIW,MAAM,CAFzB;IAED,IAAI,KAAK,CAAC,QAAQ,EAAE,MAAM,EAEzB;CACF"}
+\ No newline at end of file
++{"version":3,"file":"Global.d.ts","sourceRoot":"","sources":["../../../../src/api/Global.ts"],"names":[],"mappings":"AAAA,OAAmB,EACjB,KAAK,wBAAwB,EAE9B,MAAM,kBAAkB,CAAC;AAC1B,OAAO,KAAK,EAAE,eAAe,EAAE,MAAM,UAAU,CAAC;AAEhD;;;;;GAKG;AACH,MAAM,WAAW,gBAAgB;IAC/B;;OAEG;IACH,IAAI,EAAE,eAAe,CAAC;IAEtB;;OAEG;IACH,OAAO,CAAC,EAAE,OAAO,CAAC;CACnB;AAoBD;;GAEG;AACH,qBAAa,MAAM;gBAEf,QAAQ,EAAE,wBAAwB,GAAG,gBAAgB,EACrD,YAAY,CAAC,EAAE,MAAM;IAgBvB,IAAI,KAAK,IAIW,MAAM,CAFzB;IAED,IAAI,KAAK,CAAC,QAAQ,EAAE,MAAM,EAEzB;CACF"}
+\ No newline at end of file
+diff --git a/node_modules/@callstack/polygen/lib/typescript/commonjs/api/Instance.d.ts b/node_modules/@callstack/polygen/lib/typescript/commonjs/api/Instance.d.ts
+index 4db9a07..d883b1d 100644
+--- a/node_modules/@callstack/polygen/lib/typescript/commonjs/api/Instance.d.ts
++++ b/node_modules/@callstack/polygen/lib/typescript/commonjs/api/Instance.d.ts
+@@ -4,6 +4,7 @@ export declare class Instance {
+     #private;
+     exports: any;
+     private memories;
++    private tables;
+     constructor(module: Module, imports?: ImportObject);
+ }
+ //# sourceMappingURL=Instance.d.ts.map
+\ No newline at end of file
+diff --git a/node_modules/@callstack/polygen/lib/typescript/commonjs/api/Instance.d.ts.map b/node_modules/@callstack/polygen/lib/typescript/commonjs/api/Instance.d.ts.map
+index 8f938a3..38f2a79 100644
+--- a/node_modules/@callstack/polygen/lib/typescript/commonjs/api/Instance.d.ts.map
++++ b/node_modules/@callstack/polygen/lib/typescript/commonjs/api/Instance.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"Instance.d.ts","sourceRoot":"","sources":["../../../../src/api/Instance.ts"],"names":[],"mappings":"AAMA,OAAO,EAAE,MAAM,EAAE,MAAM,UAAU,CAAC;AAClC,OAAO,KAAK,EAAE,YAAY,EAAE,MAAM,eAAe,CAAC;AAGlD,qBAAa,QAAQ;;IAIZ,OAAO,EAAE,GAAG,CAAC;IACpB,OAAO,CAAC,QAAQ,CAAwC;gBAE5C,MAAM,EAAE,MAAM,EAAE,OAAO,GAAE,YAAiB;CAiBvD"}
+\ No newline at end of file
++{"version":3,"file":"Instance.d.ts","sourceRoot":"","sources":["../../../../src/api/Instance.ts"],"names":[],"mappings":"AAGA,OAAO,EAAE,MAAM,EAAE,MAAM,UAAU,CAAC;AAElC,OAAO,KAAK,EAAE,YAAY,EAAE,MAAM,eAAe,CAAC;AAGlD,qBAAa,QAAQ;;IAIZ,OAAO,EAAE,GAAG,CAAC;IACpB,OAAO,CAAC,QAAQ,CAA8B;IAC9C,OAAO,CAAC,MAAM,CAA8B;gBAEhC,MAAM,EAAE,MAAM,EAAE,OAAO,GAAE,YAAiB;CAmBvD"}
+\ No newline at end of file
+diff --git a/node_modules/@callstack/polygen/lib/typescript/commonjs/api/Memory.d.ts.map b/node_modules/@callstack/polygen/lib/typescript/commonjs/api/Memory.d.ts.map
+index 93abfdb..ba3a087 100644
+--- a/node_modules/@callstack/polygen/lib/typescript/commonjs/api/Memory.d.ts.map
++++ b/node_modules/@callstack/polygen/lib/typescript/commonjs/api/Memory.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"Memory.d.ts","sourceRoot":"","sources":["../../../../src/api/Memory.ts"],"names":[],"mappings":"AAAA,OAAmB,EAAE,KAAK,wBAAwB,EAAE,MAAM,kBAAkB,CAAC;AAE7E;;;;;GAKG;AACH,MAAM,WAAW,gBAAgB;IAC/B;;OAEG;IACH,OAAO,EAAE,MAAM,CAAC;IAEhB;;OAEG;IACH,OAAO,CAAC,EAAE,MAAM,CAAC;CAClB;AAWD;;GAEG;AACH,qBAAa,MAAM;gBACL,QAAQ,EAAE,wBAAwB,GAAG,gBAAgB;IAMjE,IAAI,MAAM,WAET;IAEM,IAAI,CAAC,KAAK,EAAE,MAAM;CAG1B"}
+\ No newline at end of file
++{"version":3,"file":"Memory.d.ts","sourceRoot":"","sources":["../../../../src/api/Memory.ts"],"names":[],"mappings":"AAAA,OAAmB,EAAE,KAAK,wBAAwB,EAAE,MAAM,kBAAkB,CAAC;AAE7E;;;;;GAKG;AACH,MAAM,WAAW,gBAAgB;IAC/B;;OAEG;IACH,OAAO,EAAE,MAAM,CAAC;IAEhB;;OAEG;IACH,OAAO,CAAC,EAAE,MAAM,CAAC;CAClB;AAWD;;GAEG;AACH,qBAAa,MAAM;gBACL,QAAQ,EAAE,wBAAwB,GAAG,gBAAgB;IAQjE,IAAI,MAAM,WAET;IAEM,IAAI,CAAC,KAAK,EAAE,MAAM;CAG1B"}
+\ No newline at end of file
+diff --git a/node_modules/@callstack/polygen/lib/typescript/commonjs/api/Table.d.ts.map b/node_modules/@callstack/polygen/lib/typescript/commonjs/api/Table.d.ts.map
+index 8fc98ff..3227d74 100644
+--- a/node_modules/@callstack/polygen/lib/typescript/commonjs/api/Table.d.ts.map
++++ b/node_modules/@callstack/polygen/lib/typescript/commonjs/api/Table.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"Table.d.ts","sourceRoot":"","sources":["../../../../src/api/Table.ts"],"names":[],"mappings":"AAAA,OAAmB,EAEjB,KAAK,uBAAuB,EAC7B,MAAM,kBAAkB,CAAC;AAE1B;;;;;GAKG;AACH,MAAM,WAAW,eAAe;IAC9B;;OAEG;IACH,OAAO,EAAE,SAAS,GAAG,WAAW,CAAC;IAEjC;;OAEG;IACH,OAAO,EAAE,MAAM,CAAC;IAEhB;;OAEG;IACH,OAAO,CAAC,EAAE,MAAM,CAAC;CAClB;AAWD;;GAEG;AACH,qBAAa,KAAK;gBAEd,QAAQ,EAAE,uBAAuB,GAAG,eAAe,EACnD,KAAK,CAAC,EAAE,GAAG;IAkBb,IAAW,MAAM,IAAI,MAAM,CAE1B;IAEM,IAAI,CAAC,KAAK,EAAE,MAAM;IAIlB,GAAG,CAAC,KAAK,EAAE,MAAM;IAIjB,GAAG,CAAC,KAAK,EAAE,MAAM,EAAE,KAAK,EAAE,GAAG;CAGrC"}
+\ No newline at end of file
++{"version":3,"file":"Table.d.ts","sourceRoot":"","sources":["../../../../src/api/Table.ts"],"names":[],"mappings":"AAAA,OAAmB,EAEjB,KAAK,uBAAuB,EAC7B,MAAM,kBAAkB,CAAC;AAE1B;;;;;GAKG;AACH,MAAM,WAAW,eAAe;IAC9B;;OAEG;IACH,OAAO,EAAE,SAAS,GAAG,WAAW,CAAC;IAEjC;;OAEG;IACH,OAAO,EAAE,MAAM,CAAC;IAEhB;;OAEG;IACH,OAAO,CAAC,EAAE,MAAM,CAAC;CAClB;AAWD;;GAEG;AACH,qBAAa,KAAK;gBAEd,QAAQ,EAAE,uBAAuB,GAAG,eAAe,EACnD,KAAK,CAAC,EAAE,GAAG;IAoBb,IAAW,MAAM,IAAI,MAAM,CAE1B;IAEM,IAAI,CAAC,KAAK,EAAE,MAAM;IAIlB,GAAG,CAAC,KAAK,EAAE,MAAM;IAIjB,GAAG,CAAC,KAAK,EAAE,MAAM,EAAE,KAAK,EAAE,GAAG;CAGrC"}
+\ No newline at end of file
+diff --git a/node_modules/@callstack/polygen/lib/typescript/module/NativePolygen.d.ts b/node_modules/@callstack/polygen/lib/typescript/module/NativePolygen.d.ts
+index deebd44..4820faa 100644
+--- a/node_modules/@callstack/polygen/lib/typescript/module/NativePolygen.d.ts
++++ b/node_modules/@callstack/polygen/lib/typescript/module/NativePolygen.d.ts
+@@ -110,6 +110,7 @@ export type OpaqueGlobalNativeHandle = UnsafeObject;
+  */
+ export type OpaqueTableNativeHandle = UnsafeObject;
+ export interface Spec extends TurboModule {
++    copyNativeHandle(holder: UnsafeObject, from: UnsafeObject): boolean;
+     loadModule(holder: OpaqueModuleNativeHandle, moduleData: UnsafeArrayBuffer): InternalModuleMetadata;
+     unloadModule(module: OpaqueModuleNativeHandle): void;
+     getModuleMetadata(module: OpaqueModuleNativeHandle): InternalModuleMetadata;
+diff --git a/node_modules/@callstack/polygen/lib/typescript/module/NativePolygen.d.ts.map b/node_modules/@callstack/polygen/lib/typescript/module/NativePolygen.d.ts.map
+index 209a843..1e2691e 100644
+--- a/node_modules/@callstack/polygen/lib/typescript/module/NativePolygen.d.ts.map
++++ b/node_modules/@callstack/polygen/lib/typescript/module/NativePolygen.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"NativePolygen.d.ts","sourceRoot":"","sources":["../../../src/NativePolygen.ts"],"names":[],"mappings":"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"}
+\ No newline at end of file
++{"version":3,"file":"NativePolygen.d.ts","sourceRoot":"","sources":["../../../src/NativePolygen.ts"],"names":[],"mappings":"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"}
+\ No newline at end of file
+diff --git a/node_modules/@callstack/polygen/lib/typescript/module/api/Global.d.ts.map b/node_modules/@callstack/polygen/lib/typescript/module/api/Global.d.ts.map
+index b962a7f..5ac9a63 100644
+--- a/node_modules/@callstack/polygen/lib/typescript/module/api/Global.d.ts.map
++++ b/node_modules/@callstack/polygen/lib/typescript/module/api/Global.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"Global.d.ts","sourceRoot":"","sources":["../../../../src/api/Global.ts"],"names":[],"mappings":"AAAA,OAAmB,EACjB,KAAK,wBAAwB,EAE9B,MAAM,kBAAkB,CAAC;AAC1B,OAAO,KAAK,EAAE,eAAe,EAAE,MAAM,UAAU,CAAC;AAEhD;;;;;GAKG;AACH,MAAM,WAAW,gBAAgB;IAC/B;;OAEG;IACH,IAAI,EAAE,eAAe,CAAC;IAEtB;;OAEG;IACH,OAAO,CAAC,EAAE,OAAO,CAAC;CACnB;AAoBD;;GAEG;AACH,qBAAa,MAAM;gBAEf,QAAQ,EAAE,wBAAwB,GAAG,gBAAgB,EACrD,YAAY,CAAC,EAAE,MAAM;IAcvB,IAAI,KAAK,IAIW,MAAM,CAFzB;IAED,IAAI,KAAK,CAAC,QAAQ,EAAE,MAAM,EAEzB;CACF"}
+\ No newline at end of file
++{"version":3,"file":"Global.d.ts","sourceRoot":"","sources":["../../../../src/api/Global.ts"],"names":[],"mappings":"AAAA,OAAmB,EACjB,KAAK,wBAAwB,EAE9B,MAAM,kBAAkB,CAAC;AAC1B,OAAO,KAAK,EAAE,eAAe,EAAE,MAAM,UAAU,CAAC;AAEhD;;;;;GAKG;AACH,MAAM,WAAW,gBAAgB;IAC/B;;OAEG;IACH,IAAI,EAAE,eAAe,CAAC;IAEtB;;OAEG;IACH,OAAO,CAAC,EAAE,OAAO,CAAC;CACnB;AAoBD;;GAEG;AACH,qBAAa,MAAM;gBAEf,QAAQ,EAAE,wBAAwB,GAAG,gBAAgB,EACrD,YAAY,CAAC,EAAE,MAAM;IAgBvB,IAAI,KAAK,IAIW,MAAM,CAFzB;IAED,IAAI,KAAK,CAAC,QAAQ,EAAE,MAAM,EAEzB;CACF"}
+\ No newline at end of file
+diff --git a/node_modules/@callstack/polygen/lib/typescript/module/api/Instance.d.ts b/node_modules/@callstack/polygen/lib/typescript/module/api/Instance.d.ts
+index 4db9a07..d883b1d 100644
+--- a/node_modules/@callstack/polygen/lib/typescript/module/api/Instance.d.ts
++++ b/node_modules/@callstack/polygen/lib/typescript/module/api/Instance.d.ts
+@@ -4,6 +4,7 @@ export declare class Instance {
+     #private;
+     exports: any;
+     private memories;
++    private tables;
+     constructor(module: Module, imports?: ImportObject);
+ }
+ //# sourceMappingURL=Instance.d.ts.map
+\ No newline at end of file
+diff --git a/node_modules/@callstack/polygen/lib/typescript/module/api/Instance.d.ts.map b/node_modules/@callstack/polygen/lib/typescript/module/api/Instance.d.ts.map
+index 8f938a3..38f2a79 100644
+--- a/node_modules/@callstack/polygen/lib/typescript/module/api/Instance.d.ts.map
++++ b/node_modules/@callstack/polygen/lib/typescript/module/api/Instance.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"Instance.d.ts","sourceRoot":"","sources":["../../../../src/api/Instance.ts"],"names":[],"mappings":"AAMA,OAAO,EAAE,MAAM,EAAE,MAAM,UAAU,CAAC;AAClC,OAAO,KAAK,EAAE,YAAY,EAAE,MAAM,eAAe,CAAC;AAGlD,qBAAa,QAAQ;;IAIZ,OAAO,EAAE,GAAG,CAAC;IACpB,OAAO,CAAC,QAAQ,CAAwC;gBAE5C,MAAM,EAAE,MAAM,EAAE,OAAO,GAAE,YAAiB;CAiBvD"}
+\ No newline at end of file
++{"version":3,"file":"Instance.d.ts","sourceRoot":"","sources":["../../../../src/api/Instance.ts"],"names":[],"mappings":"AAGA,OAAO,EAAE,MAAM,EAAE,MAAM,UAAU,CAAC;AAElC,OAAO,KAAK,EAAE,YAAY,EAAE,MAAM,eAAe,CAAC;AAGlD,qBAAa,QAAQ;;IAIZ,OAAO,EAAE,GAAG,CAAC;IACpB,OAAO,CAAC,QAAQ,CAA8B;IAC9C,OAAO,CAAC,MAAM,CAA8B;gBAEhC,MAAM,EAAE,MAAM,EAAE,OAAO,GAAE,YAAiB;CAmBvD"}
+\ No newline at end of file
+diff --git a/node_modules/@callstack/polygen/lib/typescript/module/api/Memory.d.ts.map b/node_modules/@callstack/polygen/lib/typescript/module/api/Memory.d.ts.map
+index 93abfdb..ba3a087 100644
+--- a/node_modules/@callstack/polygen/lib/typescript/module/api/Memory.d.ts.map
++++ b/node_modules/@callstack/polygen/lib/typescript/module/api/Memory.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"Memory.d.ts","sourceRoot":"","sources":["../../../../src/api/Memory.ts"],"names":[],"mappings":"AAAA,OAAmB,EAAE,KAAK,wBAAwB,EAAE,MAAM,kBAAkB,CAAC;AAE7E;;;;;GAKG;AACH,MAAM,WAAW,gBAAgB;IAC/B;;OAEG;IACH,OAAO,EAAE,MAAM,CAAC;IAEhB;;OAEG;IACH,OAAO,CAAC,EAAE,MAAM,CAAC;CAClB;AAWD;;GAEG;AACH,qBAAa,MAAM;gBACL,QAAQ,EAAE,wBAAwB,GAAG,gBAAgB;IAMjE,IAAI,MAAM,WAET;IAEM,IAAI,CAAC,KAAK,EAAE,MAAM;CAG1B"}
+\ No newline at end of file
++{"version":3,"file":"Memory.d.ts","sourceRoot":"","sources":["../../../../src/api/Memory.ts"],"names":[],"mappings":"AAAA,OAAmB,EAAE,KAAK,wBAAwB,EAAE,MAAM,kBAAkB,CAAC;AAE7E;;;;;GAKG;AACH,MAAM,WAAW,gBAAgB;IAC/B;;OAEG;IACH,OAAO,EAAE,MAAM,CAAC;IAEhB;;OAEG;IACH,OAAO,CAAC,EAAE,MAAM,CAAC;CAClB;AAWD;;GAEG;AACH,qBAAa,MAAM;gBACL,QAAQ,EAAE,wBAAwB,GAAG,gBAAgB;IAQjE,IAAI,MAAM,WAET;IAEM,IAAI,CAAC,KAAK,EAAE,MAAM;CAG1B"}
+\ No newline at end of file
+diff --git a/node_modules/@callstack/polygen/lib/typescript/module/api/Table.d.ts.map b/node_modules/@callstack/polygen/lib/typescript/module/api/Table.d.ts.map
+index 8fc98ff..3227d74 100644
+--- a/node_modules/@callstack/polygen/lib/typescript/module/api/Table.d.ts.map
++++ b/node_modules/@callstack/polygen/lib/typescript/module/api/Table.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"Table.d.ts","sourceRoot":"","sources":["../../../../src/api/Table.ts"],"names":[],"mappings":"AAAA,OAAmB,EAEjB,KAAK,uBAAuB,EAC7B,MAAM,kBAAkB,CAAC;AAE1B;;;;;GAKG;AACH,MAAM,WAAW,eAAe;IAC9B;;OAEG;IACH,OAAO,EAAE,SAAS,GAAG,WAAW,CAAC;IAEjC;;OAEG;IACH,OAAO,EAAE,MAAM,CAAC;IAEhB;;OAEG;IACH,OAAO,CAAC,EAAE,MAAM,CAAC;CAClB;AAWD;;GAEG;AACH,qBAAa,KAAK;gBAEd,QAAQ,EAAE,uBAAuB,GAAG,eAAe,EACnD,KAAK,CAAC,EAAE,GAAG;IAkBb,IAAW,MAAM,IAAI,MAAM,CAE1B;IAEM,IAAI,CAAC,KAAK,EAAE,MAAM;IAIlB,GAAG,CAAC,KAAK,EAAE,MAAM;IAIjB,GAAG,CAAC,KAAK,EAAE,MAAM,EAAE,KAAK,EAAE,GAAG;CAGrC"}
+\ No newline at end of file
++{"version":3,"file":"Table.d.ts","sourceRoot":"","sources":["../../../../src/api/Table.ts"],"names":[],"mappings":"AAAA,OAAmB,EAEjB,KAAK,uBAAuB,EAC7B,MAAM,kBAAkB,CAAC;AAE1B;;;;;GAKG;AACH,MAAM,WAAW,eAAe;IAC9B;;OAEG;IACH,OAAO,EAAE,SAAS,GAAG,WAAW,CAAC;IAEjC;;OAEG;IACH,OAAO,EAAE,MAAM,CAAC;IAEhB;;OAEG;IACH,OAAO,CAAC,EAAE,MAAM,CAAC;CAClB;AAWD;;GAEG;AACH,qBAAa,KAAK;gBAEd,QAAQ,EAAE,uBAAuB,GAAG,eAAe,EACnD,KAAK,CAAC,EAAE,GAAG;IAoBb,IAAW,MAAM,IAAI,MAAM,CAE1B;IAEM,IAAI,CAAC,KAAK,EAAE,MAAM;IAIlB,GAAG,CAAC,KAAK,EAAE,MAAM;IAIjB,GAAG,CAAC,KAAK,EAAE,MAAM,EAAE,KAAK,EAAE,GAAG;CAGrC"}
+\ No newline at end of file
+diff --git a/node_modules/@callstack/polygen/polygen.rb b/node_modules/@callstack/polygen/polygen.rb
+new file mode 100644
+index 0000000..7af2d42
+--- /dev/null
++++ b/node_modules/@callstack/polygen/polygen.rb
+@@ -0,0 +1,7 @@
++def install_polygen()
++  pre_install do |installer|
++    system("polygen generate")
++  end
++
++  pod 'ReactNativeWebAssemblyHost', :path => "../node_modules/.polygen-out/@host"
++end
+diff --git a/node_modules/@callstack/polygen/react-native.config.js b/node_modules/@callstack/polygen/react-native.config.js
+new file mode 100644
+index 0000000..a8ff2d5
+--- /dev/null
++++ b/node_modules/@callstack/polygen/react-native.config.js
+@@ -0,0 +1,16 @@
++/**
++ * @type {import('@react-native-community/cli-types').UserDependencyConfig}
++ */
++module.exports = {
++  resolver: {
++    unstable_enablePackageExports: true,
++  },
++  dependency: {
++    platforms: {
++      android: {
++        cmakeListsPath: 'build/generated/source/polygen/jni/CMakeLists.txt',
++      },
++      ios: {},
++    },
++  },
++};
+diff --git a/node_modules/@callstack/polygen/src/NativePolygen.ts b/node_modules/@callstack/polygen/src/NativePolygen.ts
+index 107ff3f..229ef41 100644
+--- a/node_modules/@callstack/polygen/src/NativePolygen.ts
++++ b/node_modules/@callstack/polygen/src/NativePolygen.ts
+@@ -130,6 +130,8 @@ export type OpaqueGlobalNativeHandle = UnsafeObject;
+ export type OpaqueTableNativeHandle = UnsafeObject;
+ 
+ export interface Spec extends TurboModule {
++  copyNativeHandle(holder: UnsafeObject, from: UnsafeObject): boolean;
++
+   // Modules
+   loadModule(
+     holder: OpaqueModuleNativeHandle,
+diff --git a/node_modules/@callstack/polygen/src/api/Global.ts b/node_modules/@callstack/polygen/src/api/Global.ts
+index e6d14da..4649f81 100644
+--- a/node_modules/@callstack/polygen/src/api/Global.ts
++++ b/node_modules/@callstack/polygen/src/api/Global.ts
+@@ -57,6 +57,8 @@ export class Global {
+         },
+         initialValue ?? 0
+       );
++    } else {
++      NativeWASM.copyNativeHandle(this, instance);
+     }
+   }
+ 
+diff --git a/node_modules/@callstack/polygen/src/api/Instance.ts b/node_modules/@callstack/polygen/src/api/Instance.ts
+index b066b44..f780686 100644
+--- a/node_modules/@callstack/polygen/src/api/Instance.ts
++++ b/node_modules/@callstack/polygen/src/api/Instance.ts
+@@ -1,10 +1,8 @@
+-import NativeWASM, {
+-  InternalModuleMetadata,
+-  type OpaqueModuleNativeHandle,
+-} from '../NativePolygen';
++import NativeWASM, { InternalModuleMetadata } from '../NativePolygen';
+ import { Global } from './Global';
+-import { Memory, type MemoryDescriptor } from './Memory';
++import { Memory } from './Memory';
+ import { Module } from './Module';
++import { Table } from './Table';
+ import type { ImportObject } from './WebAssembly';
+ import { LinkError } from './errors';
+ 
+@@ -13,14 +11,13 @@ export class Instance {
+   #imports: ImportObject;
+ 
+   public exports: any;
+-  private memories: Record<string, MemoryDescriptor> = {};
++  private memories: Record<string, object> = {};
++  private tables: Record<string, object> = {};
+ 
+   constructor(module: Module, imports: ImportObject = {}) {
+     this.#imports = imports;
+ 
+-    console.log('create instance');
+     if (module instanceof Module) {
+-      console.log('is module');
+       validateImports(imports, module.metadata);
+     } else {
+       throw new TypeError('Invalid module type');
+@@ -31,6 +28,10 @@ export class Instance {
+     for (const memoryName in this.memories) {
+       this.exports[memoryName] = new Memory(this.memories[memoryName]!);
+     }
++
++    for (const tableName in this.tables) {
++      this.exports[tableName] = new Table(this.tables[tableName]!);
++    }
+   }
+ }
+ 
+@@ -38,7 +39,6 @@ function validateImports(
+   imports: ImportObject,
+   metadata: InternalModuleMetadata
+ ) {
+-  console.log('validate imports', { imports, metadata });
+   for (const importDesc of metadata.imports) {
+     const mod = imports[importDesc.module];
+     if (!mod) {
+diff --git a/node_modules/@callstack/polygen/src/api/Memory.ts b/node_modules/@callstack/polygen/src/api/Memory.ts
+index 09d752f..178a4b3 100644
+--- a/node_modules/@callstack/polygen/src/api/Memory.ts
++++ b/node_modules/@callstack/polygen/src/api/Memory.ts
+@@ -34,6 +34,8 @@ export class Memory {
+   constructor(instance: OpaqueMemoryNativeHandle | MemoryDescriptor) {
+     if (isMemoryDescriptor(instance)) {
+       NativeWASM.createMemory(this, instance.initial, instance.maximum);
++    } else {
++      NativeWASM.copyNativeHandle(this, instance);
+     }
+   }
+ 
+diff --git a/node_modules/@callstack/polygen/src/api/Table.ts b/node_modules/@callstack/polygen/src/api/Table.ts
+index d7bee42..bdabbf6 100644
+--- a/node_modules/@callstack/polygen/src/api/Table.ts
++++ b/node_modules/@callstack/polygen/src/api/Table.ts
+@@ -56,6 +56,8 @@ export class Table {
+         },
+         value
+       );
++    } else {
++      NativeWASM.copyNativeHandle(this, instance);
+     }
+   }
+ 
+diff --git a/node_modules/@callstack/polygen/tsconfig.build.json b/node_modules/@callstack/polygen/tsconfig.build.json
+new file mode 100644
+index 0000000..e962a1c
+--- /dev/null
++++ b/node_modules/@callstack/polygen/tsconfig.build.json
+@@ -0,0 +1,7 @@
++{
++  "extends": "./tsconfig",
++  "exclude": ["example", "lib"],
++  "compilerOptions": {
++    "noEmit": false
++  }
++}
+diff --git a/node_modules/@callstack/polygen/tsconfig.json b/node_modules/@callstack/polygen/tsconfig.json
+new file mode 100644
+index 0000000..9979653
+--- /dev/null
++++ b/node_modules/@callstack/polygen/tsconfig.json
+@@ -0,0 +1,8 @@
++{
++  "extends": "@callstack/polygen-typescript-config",
++  "include": ["src"],
++  "compilerOptions": {
++    "rootDir": "./src",
++    "noEmit": true
++  }
++}

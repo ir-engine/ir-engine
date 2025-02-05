@@ -56,7 +56,7 @@
       ]
     },
     "parameterTypeNames": [
-      "f64"
+      "f32"
     ],
     "returnTypeName": "u32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawkinematiccharactercontroller_new",
@@ -115,7 +115,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawkinematiccharactercontroller_offset",
     "mangledName": "rawkinematiccharactercontroller_offset"
   },
@@ -132,7 +132,7 @@
     },
     "parameterTypeNames": [
       "u32",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawkinematiccharactercontroller_setOffset",
@@ -267,8 +267,8 @@
     },
     "parameterTypeNames": [
       "u32",
-      "f64",
-      "f64",
+      "f32",
+      "f32",
       "u32"
     ],
     "returnTypeName": "void",
@@ -307,7 +307,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawkinematiccharactercontroller_maxSlopeClimbAngle",
     "mangledName": "rawkinematiccharactercontroller_maxSlopeClimbAngle"
   },
@@ -324,7 +324,7 @@
     },
     "parameterTypeNames": [
       "u32",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawkinematiccharactercontroller_setMaxSlopeClimbAngle",
@@ -345,7 +345,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawkinematiccharactercontroller_minSlopeSlideAngle",
     "mangledName": "rawkinematiccharactercontroller_minSlopeSlideAngle"
   },
@@ -362,7 +362,7 @@
     },
     "parameterTypeNames": [
       "u32",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawkinematiccharactercontroller_setMinSlopeSlideAngle",
@@ -400,7 +400,7 @@
     },
     "parameterTypeNames": [
       "u32",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawkinematiccharactercontroller_enableSnapToGround",
@@ -467,7 +467,7 @@
     },
     "parameterTypeNames": [
       "u32",
-      "f64",
+      "f32",
       "u32",
       "u32",
       "u32",
@@ -475,7 +475,7 @@
       "u32",
       "u32",
       "u32",
-      "f64",
+      "f32",
       "u32",
       "u32",
       "u32",
@@ -669,7 +669,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcharactercollision_toi",
     "mangledName": "rawcharactercollision_toi"
   },
@@ -1054,7 +1054,7 @@
       "f64",
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawimpulsejointset_jointLimitsMin",
     "mangledName": "rawimpulsejointset_jointLimitsMin"
   },
@@ -1077,7 +1077,7 @@
       "f64",
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawimpulsejointset_jointLimitsMax",
     "mangledName": "rawimpulsejointset_jointLimitsMax"
   },
@@ -1099,8 +1099,8 @@
       "u32",
       "f64",
       "u32",
-      "f64",
-      "f64"
+      "f32",
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawimpulsejointset_jointSetLimits",
@@ -1147,8 +1147,8 @@
       "u32",
       "f64",
       "u32",
-      "f64",
-      "f64"
+      "f32",
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawimpulsejointset_jointConfigureMotorVelocity",
@@ -1173,9 +1173,9 @@
       "u32",
       "f64",
       "u32",
-      "f64",
-      "f64",
-      "f64"
+      "f32",
+      "f32",
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawimpulsejointset_jointConfigureMotorPosition",
@@ -1201,10 +1201,10 @@
       "u32",
       "f64",
       "u32",
-      "f64",
-      "f64",
-      "f64",
-      "f64"
+      "f32",
+      "f32",
+      "f32",
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawimpulsejointset_jointConfigureMotor",
@@ -1417,7 +1417,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawintegrationparameters_dt",
     "mangledName": "rawintegrationparameters_dt"
   },
@@ -1436,7 +1436,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawintegrationparameters_allowedLinearError",
     "mangledName": "rawintegrationparameters_allowedLinearError"
   },
@@ -1455,7 +1455,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawintegrationparameters_predictionDistance",
     "mangledName": "rawintegrationparameters_predictionDistance"
   },
@@ -1567,7 +1567,7 @@
     },
     "parameterTypeNames": [
       "u32",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawintegrationparameters_set_dt",
@@ -1586,7 +1586,7 @@
     },
     "parameterTypeNames": [
       "u32",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawintegrationparameters_set_erp",
@@ -1605,7 +1605,7 @@
     },
     "parameterTypeNames": [
       "u32",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawintegrationparameters_set_allowedLinearError",
@@ -1624,7 +1624,7 @@
     },
     "parameterTypeNames": [
       "u32",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawintegrationparameters_set_predictionDistance",
@@ -1836,8 +1836,8 @@
       "u32",
       "u32",
       "u32",
-      "f64",
-      "f64"
+      "f32",
+      "f32"
     ],
     "returnTypeName": "u32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawgenericjoint_prismatic",
@@ -2080,7 +2080,7 @@
       "f64",
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawmultibodyjointset_jointLimitsMin",
     "mangledName": "rawmultibodyjointset_jointLimitsMin"
   },
@@ -2103,7 +2103,7 @@
       "f64",
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawmultibodyjointset_jointLimitsMax",
     "mangledName": "rawmultibodyjointset_jointLimitsMax"
   },
@@ -2411,9 +2411,9 @@
     "parameterTypeNames": [
       "u32",
       "f64",
-      "f64",
-      "f64",
-      "f64",
+      "f32",
+      "f32",
+      "f32",
       "u32"
     ],
     "returnTypeName": "void",
@@ -2439,10 +2439,10 @@
     "parameterTypeNames": [
       "u32",
       "f64",
-      "f64",
-      "f64",
-      "f64",
-      "f64",
+      "f32",
+      "f32",
+      "f32",
+      "f32",
       "u32"
     ],
     "returnTypeName": "void",
@@ -2512,9 +2512,9 @@
     "parameterTypeNames": [
       "u32",
       "f64",
-      "f64",
-      "f64",
-      "f64"
+      "f32",
+      "f32",
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawrigidbodyset_rbSetNextKinematicTranslation",
@@ -2538,10 +2538,10 @@
     "parameterTypeNames": [
       "u32",
       "f64",
-      "f64",
-      "f64",
-      "f64",
-      "f64"
+      "f32",
+      "f32",
+      "f32",
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawrigidbodyset_rbSetNextKinematicRotation",
@@ -2584,7 +2584,7 @@
     "parameterTypeNames": [
       "u32",
       "f64",
-      "f64",
+      "f32",
       "u32"
     ],
     "returnTypeName": "void",
@@ -2610,7 +2610,7 @@
     "parameterTypeNames": [
       "u32",
       "f64",
-      "f64",
+      "f32",
       "u32",
       "u32",
       "u32",
@@ -2842,7 +2842,7 @@
       "u32",
       "f64"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawrigidbodyset_rbMass",
     "mangledName": "rawrigidbodyset_rbMass"
   },
@@ -2863,7 +2863,7 @@
       "u32",
       "f64"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawrigidbodyset_rbInvMass",
     "mangledName": "rawrigidbodyset_rbInvMass"
   },
@@ -3243,7 +3243,7 @@
       "u32",
       "f64"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawrigidbodyset_rbLinearDamping",
     "mangledName": "rawrigidbodyset_rbLinearDamping"
   },
@@ -3264,7 +3264,7 @@
       "u32",
       "f64"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawrigidbodyset_rbAngularDamping",
     "mangledName": "rawrigidbodyset_rbAngularDamping"
   },
@@ -3283,7 +3283,7 @@
     "parameterTypeNames": [
       "u32",
       "f64",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawrigidbodyset_rbSetLinearDamping",
@@ -3304,7 +3304,7 @@
     "parameterTypeNames": [
       "u32",
       "f64",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawrigidbodyset_rbSetAngularDamping",
@@ -3369,7 +3369,7 @@
       "u32",
       "f64"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawrigidbodyset_rbGravityScale",
     "mangledName": "rawrigidbodyset_rbGravityScale"
   },
@@ -3389,7 +3389,7 @@
     "parameterTypeNames": [
       "u32",
       "f64",
-      "f64",
+      "f32",
       "u32"
     ],
     "returnTypeName": "void",
@@ -3695,8 +3695,8 @@
       "u32",
       "u32",
       "u32",
-      "f64",
-      "f64",
+      "f32",
+      "f32",
       "u32",
       "u32",
       "u32",
@@ -3709,8 +3709,8 @@
       "u32",
       "u32",
       "u32",
-      "f64",
-      "f64",
+      "f32",
+      "f32",
       "u32",
       "u32",
       "u32",
@@ -3917,9 +3917,9 @@
     "parameterTypeNames": [
       "u32",
       "f64",
-      "f64",
-      "f64",
-      "f64"
+      "f32",
+      "f32",
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcolliderset_coSetTranslation",
@@ -3942,9 +3942,9 @@
     "parameterTypeNames": [
       "u32",
       "f64",
-      "f64",
-      "f64",
-      "f64"
+      "f32",
+      "f32",
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcolliderset_coSetTranslationWrtParent",
@@ -3968,10 +3968,10 @@
     "parameterTypeNames": [
       "u32",
       "f64",
-      "f64",
-      "f64",
-      "f64",
-      "f64"
+      "f32",
+      "f32",
+      "f32",
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcolliderset_coSetRotation",
@@ -3995,10 +3995,10 @@
     "parameterTypeNames": [
       "u32",
       "f64",
-      "f64",
-      "f64",
-      "f64",
-      "f64"
+      "f32",
+      "f32",
+      "f32",
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcolliderset_coSetRotationWrtParent",
@@ -4145,7 +4145,7 @@
     "parameterTypeNames": [
       "u32",
       "f64",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcolliderset_coSetRadius",
@@ -4187,7 +4187,7 @@
     "parameterTypeNames": [
       "u32",
       "f64",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcolliderset_coSetHalfHeight",
@@ -4229,7 +4229,7 @@
     "parameterTypeNames": [
       "u32",
       "f64",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcolliderset_coSetRoundRadius",
@@ -4441,7 +4441,7 @@
       "u32",
       "f64"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcolliderset_coFriction",
     "mangledName": "rawcolliderset_coFriction"
   },
@@ -4462,7 +4462,7 @@
       "u32",
       "f64"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcolliderset_coRestitution",
     "mangledName": "rawcolliderset_coRestitution"
   },
@@ -4483,7 +4483,7 @@
       "u32",
       "f64"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcolliderset_coDensity",
     "mangledName": "rawcolliderset_coDensity"
   },
@@ -4504,7 +4504,7 @@
       "u32",
       "f64"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcolliderset_coMass",
     "mangledName": "rawcolliderset_coMass"
   },
@@ -4525,7 +4525,7 @@
       "u32",
       "f64"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcolliderset_coVolume",
     "mangledName": "rawcolliderset_coVolume"
   },
@@ -4651,7 +4651,7 @@
       "u32",
       "f64"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcolliderset_coContactForceEventThreshold",
     "mangledName": "rawcolliderset_coContactForceEventThreshold"
   },
@@ -4706,7 +4706,7 @@
       "u32",
       "u32",
       "u32",
-      "f64",
+      "f32",
       "u32"
     ],
     "returnTypeName": "u32",
@@ -4737,7 +4737,7 @@
       "u32",
       "f64",
       "u32",
-      "f64",
+      "f32",
       "u32"
     ],
     "returnTypeName": "u32",
@@ -4794,7 +4794,7 @@
       "u32",
       "u32",
       "u32",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "u32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcolliderset_coContactShape",
@@ -4819,7 +4819,7 @@
       "u32",
       "f64",
       "f64",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "u32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcolliderset_coContactCollider",
@@ -4871,7 +4871,7 @@
       "f64",
       "u32",
       "u32",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "u32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcolliderset_coIntersectsRay",
@@ -4899,10 +4899,10 @@
       "f64",
       "u32",
       "u32",
-      "f64",
+      "f32",
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcolliderset_coCastRay",
     "mangledName": "rawcolliderset_coCastRay"
   },
@@ -4928,7 +4928,7 @@
       "f64",
       "u32",
       "u32",
-      "f64",
+      "f32",
       "u32"
     ],
     "returnTypeName": "u32",
@@ -4971,7 +4971,7 @@
     "parameterTypeNames": [
       "u32",
       "f64",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcolliderset_coSetRestitution",
@@ -4992,7 +4992,7 @@
     "parameterTypeNames": [
       "u32",
       "f64",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcolliderset_coSetFriction",
@@ -5223,7 +5223,7 @@
     "parameterTypeNames": [
       "u32",
       "f64",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcolliderset_coSetContactForceEventThreshold",
@@ -5244,7 +5244,7 @@
     "parameterTypeNames": [
       "u32",
       "f64",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcolliderset_coSetDensity",
@@ -5265,7 +5265,7 @@
     "parameterTypeNames": [
       "u32",
       "f64",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcolliderset_coSetMass",
@@ -5289,7 +5289,7 @@
     "parameterTypeNames": [
       "u32",
       "f64",
-      "f64",
+      "f32",
       "u32",
       "u32",
       "u32"
@@ -5413,22 +5413,22 @@
       "u32",
       "u32",
       "u32",
-      "f64",
+      "f32",
       "u32",
       "u32",
       "u32",
-      "f64",
-      "f64",
-      "f64",
-      "u32",
-      "u32",
-      "u32",
-      "u32",
+      "f32",
+      "f32",
+      "f32",
       "u32",
       "u32",
       "u32",
       "u32",
-      "f64",
+      "u32",
+      "u32",
+      "u32",
+      "u32",
+      "f32",
       "u32",
       "f64",
       "u32"
@@ -5513,7 +5513,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawshapecontact_distance",
     "mangledName": "rawshapecontact_distance"
   },
@@ -5905,7 +5905,7 @@
       "u32",
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcontactmanifold_contact_dist",
     "mangledName": "rawcontactmanifold_contact_dist"
   },
@@ -5968,7 +5968,7 @@
       "u32",
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcontactmanifold_contact_impulse",
     "mangledName": "rawcontactmanifold_contact_impulse"
   },
@@ -5989,7 +5989,7 @@
       "u32",
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcontactmanifold_contact_tangent_impulse_x",
     "mangledName": "rawcontactmanifold_contact_tangent_impulse_x"
   },
@@ -6010,7 +6010,7 @@
       "u32",
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcontactmanifold_contact_tangent_impulse_y",
     "mangledName": "rawcontactmanifold_contact_tangent_impulse_y"
   },
@@ -6071,7 +6071,7 @@
       "u32",
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcontactmanifold_solver_contact_dist",
     "mangledName": "rawcontactmanifold_solver_contact_dist"
   },
@@ -6092,7 +6092,7 @@
       "u32",
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcontactmanifold_solver_contact_friction",
     "mangledName": "rawcontactmanifold_solver_contact_friction"
   },
@@ -6113,7 +6113,7 @@
       "u32",
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcontactmanifold_solver_contact_restitution",
     "mangledName": "rawcontactmanifold_solver_contact_restitution"
   },
@@ -6318,7 +6318,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawraycolliderintersection_toi",
     "mangledName": "rawraycolliderintersection_toi"
   },
@@ -6409,9 +6409,9 @@
       ]
     },
     "parameterTypeNames": [
-      "f64",
-      "f64",
-      "f64"
+      "f32",
+      "f32",
+      "f32"
     ],
     "returnTypeName": "u32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawshape_cuboid",
@@ -6433,10 +6433,10 @@
       ]
     },
     "parameterTypeNames": [
-      "f64",
-      "f64",
-      "f64",
-      "f64"
+      "f32",
+      "f32",
+      "f32",
+      "f32"
     ],
     "returnTypeName": "u32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawshape_roundCuboid",
@@ -6455,7 +6455,7 @@
       ]
     },
     "parameterTypeNames": [
-      "f64"
+      "f32"
     ],
     "returnTypeName": "u32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawshape_ball",
@@ -6494,8 +6494,8 @@
       ]
     },
     "parameterTypeNames": [
-      "f64",
-      "f64"
+      "f32",
+      "f32"
     ],
     "returnTypeName": "u32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawshape_capsule",
@@ -6515,8 +6515,8 @@
       ]
     },
     "parameterTypeNames": [
-      "f64",
-      "f64"
+      "f32",
+      "f32"
     ],
     "returnTypeName": "u32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawshape_cylinder",
@@ -6537,9 +6537,9 @@
       ]
     },
     "parameterTypeNames": [
-      "f64",
-      "f64",
-      "f64"
+      "f32",
+      "f32",
+      "f32"
     ],
     "returnTypeName": "u32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawshape_roundCylinder",
@@ -6559,8 +6559,8 @@
       ]
     },
     "parameterTypeNames": [
-      "f64",
-      "f64"
+      "f32",
+      "f32"
     ],
     "returnTypeName": "u32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawshape_cone",
@@ -6581,9 +6581,9 @@
       ]
     },
     "parameterTypeNames": [
-      "f64",
-      "f64",
-      "f64"
+      "f32",
+      "f32",
+      "f32"
     ],
     "returnTypeName": "u32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawshape_roundCone",
@@ -6729,7 +6729,7 @@
       "u32",
       "u32",
       "u32",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "u32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawshape_roundTriangle",
@@ -6773,7 +6773,7 @@
     "parameterTypeNames": [
       "u32",
       "u32",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "u32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawshape_roundConvexHull",
@@ -6825,7 +6825,7 @@
       "u32",
       "u32",
       "u32",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "u32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawshape_roundConvexMesh",
@@ -6861,7 +6861,7 @@
       "u32",
       "u32",
       "u32",
-      "f64",
+      "f32",
       "u32"
     ],
     "returnTypeName": "u32",
@@ -6922,7 +6922,7 @@
       "u32",
       "u32",
       "u32",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "u32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawshape_contactShape",
@@ -7003,7 +7003,7 @@
       "u32",
       "u32",
       "u32",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "u32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawshape_intersectsRay",
@@ -7033,10 +7033,10 @@
       "u32",
       "u32",
       "u32",
-      "f64",
+      "f32",
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawshape_castRay",
     "mangledName": "rawshape_castRay"
   },
@@ -7064,7 +7064,7 @@
       "u32",
       "u32",
       "u32",
-      "f64",
+      "f32",
       "u32"
     ],
     "returnTypeName": "u32",
@@ -7216,10 +7216,10 @@
       ]
     },
     "parameterTypeNames": [
-      "f64",
-      "f64",
-      "f64",
-      "f64"
+      "f32",
+      "f32",
+      "f32",
+      "f32"
     ],
     "returnTypeName": "u32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawrotation_new",
@@ -7255,7 +7255,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawrotation_y",
     "mangledName": "rawrotation_y"
   },
@@ -7274,7 +7274,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawrotation_w",
     "mangledName": "rawrotation_w"
   },
@@ -7308,9 +7308,9 @@
       ]
     },
     "parameterTypeNames": [
-      "f64",
-      "f64",
-      "f64"
+      "f32",
+      "f32",
+      "f32"
     ],
     "returnTypeName": "u32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawvector_new",
@@ -7329,7 +7329,7 @@
     },
     "parameterTypeNames": [
       "u32",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawvector_set_y",
@@ -7652,7 +7652,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcontactforceevent_total_force_magnitude",
     "mangledName": "rawcontactforceevent_total_force_magnitude"
   },
@@ -7690,7 +7690,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawcontactforceevent_max_force_magnitude",
     "mangledName": "rawcontactforceevent_max_force_magnitude"
   },
@@ -7967,7 +7967,7 @@
       "u32",
       "u32",
       "u32",
-      "f64",
+      "f32",
       "u32",
       "u32",
       "u32",
@@ -8014,7 +8014,7 @@
       "u32",
       "u32",
       "u32",
-      "f64",
+      "f32",
       "u32",
       "u32",
       "u32",
@@ -8060,7 +8060,7 @@
       "u32",
       "u32",
       "u32",
-      "f64",
+      "f32",
       "u32",
       "u32",
       "u32",
@@ -8282,7 +8282,7 @@
       "u32",
       "u32",
       "u32",
-      "f64",
+      "f32",
       "u32",
       "u32",
       "u32",
@@ -8709,7 +8709,7 @@
     },
     "parameterTypeNames": [
       "u32",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawvector_set_x",
@@ -8728,7 +8728,7 @@
     },
     "parameterTypeNames": [
       "u32",
-      "f64"
+      "f32"
     ],
     "returnTypeName": "void",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawvector_set_z",
@@ -9013,7 +9013,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawintegrationparameters_erp",
     "mangledName": "rawintegrationparameters_erp"
   },
@@ -9032,7 +9032,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawrayintersection_toi",
     "mangledName": "rawrayintersection_toi"
   },
@@ -9051,7 +9051,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawraycollidertoi_toi",
     "mangledName": "rawraycollidertoi_toi"
   },
@@ -9070,7 +9070,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawshapetoi_toi",
     "mangledName": "rawshapetoi_toi"
   },
@@ -9089,7 +9089,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawshapecollidertoi_toi",
     "mangledName": "rawshapecollidertoi_toi"
   },
@@ -9108,7 +9108,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawrotation_x",
     "mangledName": "rawrotation_x"
   },
@@ -9127,7 +9127,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawrotation_z",
     "mangledName": "rawrotation_z"
   },
@@ -9146,7 +9146,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawvector_x",
     "mangledName": "rawvector_x"
   },
@@ -9165,7 +9165,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawvector_y",
     "mangledName": "rawvector_y"
   },
@@ -9184,7 +9184,7 @@
     "parameterTypeNames": [
       "u32"
     ],
-    "returnTypeName": "f64",
+    "returnTypeName": "f32",
     "generatedFunctionName": "w2c_rapier__wasm3d__bg_rawvector_z",
     "mangledName": "rawvector_z"
   },

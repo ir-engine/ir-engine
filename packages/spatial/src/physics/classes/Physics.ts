@@ -888,30 +888,30 @@ function castRay(world: PhysicsWorld, raycastQuery: RaycastArgs, filterPredicate
   const excludeRigidBody = raycastQuery.excludeRigidBody && world.Rigidbodies.get(raycastQuery.excludeRigidBody)
 
   const hits = [] as RaycastHit[]
-  // const hitWithNormal = world.castRayAndGetNormal(
-  //   ray,
-  //   maxToi,
-  //   solid,
-  //   flags ?? QueryFilterFlags.EXCLUDE_SENSORS,
-  //   groups,
-  //   excludeCollider,
-  //   excludeRigidBody,
-  //   filterPredicate
-  // )
-  // if (hitWithNormal?.collider) {
-  //   const body = hitWithNormal.collider.parent() as RigidBody
-  //   if (!body) {
-  //     //console.warn('No rigid body found for collider', hitWithNormal.collider)
-  //   } else
-  //     hits.push({
-  //       collider: hitWithNormal.collider,
-  //       distance: hitWithNormal.toi,
-  //       position: ray.pointAt(hitWithNormal.toi),
-  //       normal: hitWithNormal.normal,
-  //       body,
-  //       entity: body.entity
-  //     })
-  // }
+  const hitWithNormal = world.castRayAndGetNormal(
+    ray,
+    maxToi,
+    solid,
+    flags,
+    groups,
+    excludeCollider,
+    excludeRigidBody,
+    filterPredicate
+  )
+  if (hitWithNormal?.collider) {
+    const body = hitWithNormal.collider.parent() as RigidBody
+    if (!body) {
+      //console.warn('No rigid body found for collider', hitWithNormal.collider)
+    } else
+      hits.push({
+        collider: hitWithNormal.collider,
+        distance: hitWithNormal.toi,
+        position: ray.pointAt(hitWithNormal.toi),
+        normal: hitWithNormal.normal,
+        body,
+        entity: body.entity
+      })
+  }
 
   return hits
 }
