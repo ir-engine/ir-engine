@@ -132,7 +132,7 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
 
   useEffect(() => clearTimeout(debouncedSearchQueryRef.current), [])
 
-  const handleClose = async () => {
+  const handleClose = () => {
     PopoverState.hidePopupover()
   }
 
