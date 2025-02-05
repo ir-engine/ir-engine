@@ -58,7 +58,7 @@ import { FaAngleLeft, FaRegPauseCircle } from 'react-icons/fa'
 import { FaRegCirclePlay } from 'react-icons/fa6'
 import { RiExpandUpDownLine } from 'react-icons/ri'
 import { TfiAngleLeft } from 'react-icons/tfi'
-import Canvas from '../../../../primitives/tailwind/Canvas'
+import Video from '../../../../primitives/tailwind/Video'
 import ArrayInputGroup from '../../../editorUpdates/input/Array'
 import InputGroup from '../../../editorUpdates/input/Group'
 import NumericScrubber from '../../input/Numeric/Scrubber'
@@ -206,30 +206,36 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
     )
   }, [media?.currentTrackDuration, media?.currentTrackTime])
 
-  const canvasRef = useRef(null)
+  const videoRef = useRef(null)
+
   useEffect(() => {
-    const canvas = canvasRef.current as unknown as HTMLCanvasElement
-    if (!canvas) return
+    const previewVideo = videoRef.current as unknown as HTMLVideoElement
+    if (!previewVideo) return
     if (!mediaElement) return
-    const vid = mediaElement.element.value as HTMLVideoElement
-    if (!vid) return
-
-    const context = canvas.getContext('2d')
-
-    const draw = () => {
-      if (vid.readyState === vid.HAVE_ENOUGH_DATA) {
-        if (!context) return
-        context.drawImage(vid, 0, 0, canvas.width, canvas.height)
-      }
+    const sourceVideo = mediaElement.element.value as HTMLVideoElement
+    if (!sourceVideo) return
+    const src = media?.resources.value[media?.selectedTrackIndex.value]
+    previewVideo.src = src ? src : ''
+    if (!sourceVideo.paused) {
+      previewVideo.play()
+    } else {
+      previewVideo.pause()
     }
+  }, [media?.selectedTrackIndex])
 
-    vid.addEventListener('timeupdate', draw)
-    draw()
-
-    return () => {
-      vid.removeEventListener('timeupdate', draw)
+  useEffect(() => {
+    const previewVideo = videoRef.current as unknown as HTMLVideoElement
+    if (!previewVideo) return
+    if (!mediaElement) return
+    const sourceVideo = mediaElement.element.value as HTMLVideoElement
+    if (!sourceVideo) return
+    previewVideo.currentTime = sourceVideo.currentTime
+    if (!sourceVideo.paused) {
+      previewVideo.play()
+    } else {
+      previewVideo.pause()
     }
-  }, [mediaElement])
+  }, [media?.currentTrackTime])
 
   return (
     <NodeEditor
@@ -274,7 +280,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
           >
             {mediaElement && (
               <>
-                <Canvas ref={canvasRef} className="h-[185px] w-[310px]" />
+                <Video volume={0} autoPlay={false} ref={videoRef} className="h-[185px] w-[310px]" />
                 <div className="flex h-[28px] justify-between gap-[10px] rounded bg-[#141619] px-[8px] ">
                   <div onClick={toggle} className="my-[4px] h-[20px] w-[20px] text-[#B2B5BD]">
                     {media.paused.value && <FaRegCirclePlay className="h-full w-full" />}
