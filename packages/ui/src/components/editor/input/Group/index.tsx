@@ -104,7 +104,6 @@ export interface InputGroupProps {
   disabled?: boolean
   children: React.ReactNode
   containerClassName?: string
-  labelClassName?: string
   infoClassName?: string
   className?: string
   dataTestId?: string
@@ -118,7 +117,6 @@ export function InputGroup({
   info,
   label,
   containerClassName,
-  labelClassName,
   infoClassName,
   className,
   disabled,

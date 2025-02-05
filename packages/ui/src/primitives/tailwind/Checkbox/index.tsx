@@ -105,7 +105,7 @@ const Checkbox = (
     >
       <div
         className={twMerge(
-          'relative',
+          'relative shrink-0',
           'grid place-items-center rounded',
           variantSizes.checkboxSizes[variantSize],
           'border border-ui-outline bg-ui-background outline-none',

@@ -25,8 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useHookstate } from '@ir-engine/hyperflux'
 import { Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { Lock01Lg, LockUnlocked01Lg } from '@ir-engine/ui/src/icons'
 import React from 'react'
-import { LuLock, LuUnlock } from 'react-icons/lu'
 import { twMerge } from 'tailwind-merge'
 import { Vector3 } from 'three'
 import Scrubber from '../../layout/Scrubber'
@@ -121,13 +121,13 @@ export const Vector3Input = ({
   const vz = value.z
 
   return (
-    <div className="flex w-full items-center gap-x-1">
+    <div className="flex w-full items-center gap-x-1.5">
       {uniformScaling && (
         <button onClick={onToggleUniform} className="w-fit" tabIndex={-1} disabled={disabled}>
           {uniformEnabled.value ? (
-            <LuLock className="text-text-secondary hover:text-text-primary" />
+            <Lock01Lg className="text-text-secondary hover:text-text-primary" />
           ) : (
-            <LuUnlock className="text-text-secondary hover:text-text-primary" />
+            <LockUnlocked01Lg className="text-text-secondary hover:text-text-primary" />
           )}
         </button>
       )}
