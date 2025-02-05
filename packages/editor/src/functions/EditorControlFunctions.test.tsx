@@ -61,6 +61,7 @@ describe('EditorControlFunctions', () => {
   let physicsWorldEntity: Entity
 
   beforeEach(async () => {
+    Cache.enabled = true
     createEngine()
     getMutableState(EngineState).isEditing.set(true)
     getMutableState(EngineState).isEditor.set(true)
@@ -79,6 +80,7 @@ describe('EditorControlFunctions', () => {
   })
 
   afterEach(() => {
+    Cache.enabled = false
     return destroyEngine()
   })
 
