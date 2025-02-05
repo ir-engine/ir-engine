@@ -29,7 +29,6 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
-  LayerComponent,
   LayerID,
   Layers,
   useQuery,
@@ -87,7 +86,6 @@ function MaterialsLibrary() {
       selectedEntities.value.length && showLayers.value
         ? getMaterialsFromScene(UUIDComponent.getEntityByUUID(selectedEntities.value[0], layer.value))
         : materialQuery
-            .filter((entity) => LayerComponent.get(entity) === layer.value)
             .map((entity) => getComponent(entity, UUIDComponent))
             .filter((uuid) => uuid !== MaterialStateComponent.fallbackMaterialUUID)
 

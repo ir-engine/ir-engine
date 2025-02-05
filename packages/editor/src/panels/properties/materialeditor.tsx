@@ -193,8 +193,6 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
     )
   }, [currentSelectedMaterial])
 
-  useEffect(() => {})
-
   //for each parameter type, default values
   const pluginParameters = useHookstate({})
   //for the current values of the parameters
