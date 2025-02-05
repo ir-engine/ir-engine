@@ -58,7 +58,6 @@ function pointerHover(helperEntity: Entity) {
   const intersect = intersectObjectWithRay(spriteObject, _raycaster, true)
 
   if (intersect) {
-    console.log('DEBUG hovering on the sprite object')
     setComponent(helperEntity, AnimateScaleComponent)
   } else {
     removeComponent(helperEntity, AnimateScaleComponent)
