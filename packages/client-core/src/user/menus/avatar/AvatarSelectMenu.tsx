@@ -136,10 +136,6 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
     PopoverState.hidePopupover()
   }
 
-  const handleSaveChanges = async () => {
-    await handleConfirmAvatar()
-  }
-
   return (
     <Modal
       id="select-avatar-modal"
@@ -254,7 +250,7 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
                   <Button onClick={handleClose} variant="tertiary" disabled={selectedAvatarId.value === userAvatarId}>
                     {t('user:avatar.discardChanges')}
                   </Button>
-                  <Button onClick={handleSaveChanges} disabled={selectedAvatarId.value === userAvatarId}>
+                  <Button onClick={handleConfirmAvatar} disabled={selectedAvatarId.value === userAvatarId}>
                     {t('user:avatar.saveChanges')}
                   </Button>
                 </div>
