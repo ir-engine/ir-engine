@@ -44,6 +44,7 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { InputComponent } from '../../input/components/InputComponent'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ActiveHelperComponent } from '../ActiveHelperComponent'
@@ -116,6 +117,6 @@ export function createHelperEntity<TObject extends DisposableObject3D>(
   setComponent(helperEntity, ObjectLayerMaskComponent, layerMask)
   setComponent(helperEntity, VisibleComponent, true)
   setComponent(helperEntity, NameComponent, `${name ?? parentEntity}-${nameSuffix}`)
-
+  setComponent(helperEntity, InputComponent, { grow: true })
   return helperEntity
 }

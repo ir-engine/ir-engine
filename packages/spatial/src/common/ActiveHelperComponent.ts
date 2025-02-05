@@ -23,8 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { S, UndefinedEntity } from '@ir-engine/ecs'
-import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S, UndefinedEntity, useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { InputComponent, InputExecutionOrder } from '../input/components/InputComponent'
+import { onPointerHover } from './functions/activeHelperFunctions'
 
 export const ActiveHelperComponent = defineComponent({
   name: 'ActiveHelperComponent',
@@ -32,6 +34,25 @@ export const ActiveHelperComponent = defineComponent({
   schema: S.Object({
     enabled: S.Bool(false),
     helperDefaultGizmo: S.Entity(UndefinedEntity), // manages the icon and minor gizmo
-    helperSelectedGizmo: S.Entity(UndefinedEntity) // manages the elaborate gizmo
-  })
+    helperSelectedGizmo: S.Entity(UndefinedEntity), // manages the elaborate gizmo
+    directional: S.Bool(false)
+  }),
+
+  reactor: () => {
+    const entity = useEntityContext()
+
+    InputComponent.useExecuteWithInput(
+      () => {
+        const activeHelperComponent = getComponent(entity, ActiveHelperComponent)
+        if (!activeHelperComponent.helperDefaultGizmo) return
+
+        onPointerHover(activeHelperComponent.helperDefaultGizmo)
+
+        //const defaultGizmoButtons = InputComponent.getMergedButtons(activeHelperComponent.helperDefaultGizmo)
+      },
+      true,
+      InputExecutionOrder.Before
+    )
+    return null
+  }
 })

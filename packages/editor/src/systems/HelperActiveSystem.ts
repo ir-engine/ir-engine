@@ -25,17 +25,23 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { UndefinedEntity, useQuery, UUIDComponent } from '@ir-engine/ecs'
+import { defineQuery, EngineState, UndefinedEntity, useQuery, UUIDComponent } from '@ir-engine/ecs'
 import { ComponentJSONIDMap, getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { GLTFNodeState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
-import { getMutableState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { createHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
-import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { Sprite, SpriteMaterial, TextureLoader } from 'three'
+import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { InputHeuristicState, IntersectionData } from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { Raycaster, Sprite, SpriteMaterial, TextureLoader, Vector3 } from 'three'
 import { ComponentStudioIconState } from '../services/ComponentStudioIcons'
 import { SelectionState } from '../services/SelectionServices'
 
@@ -43,6 +49,35 @@ const createIconGizmo = (textureURL) => {
   const texture = new TextureLoader().load(textureURL)
   const material = new SpriteMaterial({ map: texture })
   return new Sprite(material)
+}
+
+const raycaster = new Raycaster()
+raycaster.layers.enable(ObjectLayers.NodeHelper)
+
+const inputObjectsQuery = defineQuery([InputComponent, VisibleComponent, ObjectComponent])
+
+export function nodeHelperInputHeuristic(
+  intersectionData: Set<IntersectionData>,
+  position: Vector3,
+  direction: Vector3
+) {
+  const isEditing = getState(EngineState).isEditing
+  if (!isEditing) return
+
+  raycaster.set(position, direction)
+  raycaster.camera = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent).cameras[0]
+
+  //concatenating cameraGizmo to both pickerObjects(transformGizmo) and inputObjects
+  const inputObj = inputObjectsQuery()
+
+  const objects = inputObj.map((eid) => getComponent(eid, ObjectComponent))
+  // gizmo heuristic
+
+  //camera gizmos layer should always be active here, since it doesn't disable based on transformGizmo existing
+  const hits = raycaster.intersectObjects(objects, true)
+  for (const hit of hits) {
+    intersectionData.add({ entity: hit.object.entity!, distance: hit.distance })
+  }
 }
 
 const reactor = () => {
@@ -80,16 +115,25 @@ const reactor = () => {
         }
       }
 
-      const iconHelperState = createHelperEntity(
+      const iconHelper = createHelperEntity(
         entity,
         () => createIconGizmo(componentStudioIcon[targetComponent?.name]),
         ObjectLayerMasks.NodeHelper,
         'icon-helper'
       )
-      setComponent(entity, ActiveHelperComponent, { helperDefaultGizmo: iconHelperState })
+      setComponent(entity, ActiveHelperComponent, { helperDefaultGizmo: iconHelper })
       // create the icon helper
     }
   }, [helperQuery])
+
+  useEffect(() => {
+    getMutableState(InputHeuristicState).merge([
+      {
+        order: 1,
+        heuristic: nodeHelperInputHeuristic
+      }
+    ])
+  }, [])
 
   return null
 }
