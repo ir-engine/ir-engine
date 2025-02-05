@@ -55,28 +55,28 @@ export const proxifyVector3 = (
     dirtyRecord: { value: {}, configurable: true, writable: true },
     x: {
       get() {
-        return this.store.x[this.entity]
+        return store.x[entity]
       },
       set(n) {
-        return (this.store.x[this.entity] = n)
+        return (store.x[entity] = n)
       },
       configurable: true
     },
     y: {
       get() {
-        return this.store.y[this.entity]
+        return store.y[entity]
       },
       set(n) {
-        return (this.store.y[this.entity] = n)
+        return (store.y[entity] = n)
       },
       configurable: true
     },
     z: {
       get() {
-        return this.store.z[this.entity]
+        return store.z[entity]
       },
       set(n) {
-        return (this.store.z[this.entity] = n)
+        return (store.z[entity] = n)
       },
       configurable: true
     }
@@ -100,31 +100,31 @@ export const proxifyVector3WithDirty = (
     dirtyRecord: { value: dirty, configurable: true, writable: true },
     x: {
       get() {
-        return this.store.x[this.entity]
+        return store.x[entity]
       },
       set(n) {
-        this.dirtyRecord[this.entity] = 1
-        return (this.store.x[this.entity] = n)
+        dirty[entity] = 1
+        return (store.x[entity] = n)
       },
       configurable: true
     },
     y: {
       get() {
-        return this.store.y[this.entity]
+        return store.y[entity]
       },
       set(n) {
-        this.dirtyRecord[this.entity] = 1
-        return (this.store.y[this.entity] = n)
+        dirty[entity] = 1
+        return (store.y[entity] = n)
       },
       configurable: true
     },
     z: {
       get() {
-        return this.store.z[this.entity]
+        return store.z[entity]
       },
       set(n) {
-        this.dirtyRecord[this.entity] = 1
-        return (this.store.z[this.entity] = n)
+        dirty[entity] = 1
+        return (store.z[entity] = n)
       },
       configurable: true
     }
@@ -147,37 +147,73 @@ export const proxifyQuaternion = (
     dirtyRecord: { value: {}, configurable: true, writable: true },
     _x: {
       get() {
-        return this.store.x[this.entity]
+        return store.x[entity]
       },
       set(n) {
-        return (this.store.x[this.entity] = n)
+        return (store.x[entity] = n)
       },
       configurable: true
     },
     _y: {
       get() {
-        return this.store.y[this.entity]
+        return store.y[entity]
       },
       set(n) {
-        return (this.store.y[this.entity] = n)
+        return (store.y[entity] = n)
       },
       configurable: true
     },
     _z: {
       get() {
-        return this.store.z[this.entity]
+        return store.z[entity]
       },
       set(n) {
-        return (this.store.z[this.entity] = n)
+        return (store.z[entity] = n)
       },
       configurable: true
     },
     _w: {
       get() {
-        return this.store.w[this.entity]
+        return store.w[entity]
       },
       set(n) {
-        return (this.store.w[this.entity] = n)
+        return (store.w[entity] = n)
+      },
+      configurable: true
+    },
+    x: {
+      get() {
+        return store.x[entity]
+      },
+      set(n) {
+        return (store.x[entity] = n)
+      },
+      configurable: true
+    },
+    y: {
+      get() {
+        return store.y[entity]
+      },
+      set(n) {
+        return (store.y[entity] = n)
+      },
+      configurable: true
+    },
+    z: {
+      get() {
+        return store.z[entity]
+      },
+      set(n) {
+        return (store.z[entity] = n)
+      },
+      configurable: true
+    },
+    w: {
+      get() {
+        return store.w[entity]
+      },
+      set(n) {
+        return (store.w[entity] = n)
       },
       configurable: true
     }
@@ -202,41 +238,81 @@ export const proxifyQuaternionWithDirty = (
     dirtyRecord: { value: dirty, configurable: true, writable: true },
     _x: {
       get() {
-        return this.store.x[this.entity]
+        return store.x[entity]
       },
       set(n) {
-        this.dirtyRecord[this.entity] = 1
-        return (this.store.x[this.entity] = n)
+        dirty[entity] = 1
+        return (store.x[entity] = n)
       },
       configurable: true
     },
     _y: {
       get() {
-        return this.store.y[this.entity]
+        return store.y[entity]
       },
       set(n) {
-        this.dirtyRecord[this.entity] = 1
-        return (this.store.y[this.entity] = n)
+        dirty[entity] = 1
+        return (store.y[entity] = n)
       },
       configurable: true
     },
     _z: {
       get() {
-        return this.store.z[this.entity]
+        return store.z[entity]
       },
       set(n) {
-        this.dirtyRecord[this.entity] = 1
-        return (this.store.z[this.entity] = n)
+        dirty[entity] = 1
+        return (store.z[entity] = n)
       },
       configurable: true
     },
     _w: {
       get() {
-        return this.store.w[this.entity]
+        return store.w[entity]
       },
       set(n) {
-        this.dirtyRecord[this.entity] = 1
-        return (this.store.w[this.entity] = n)
+        dirty[entity] = 1
+        return (store.w[entity] = n)
+      },
+      configurable: true
+    },
+    x: {
+      get() {
+        return store.x[entity]
+      },
+      set(n) {
+        dirty[entity] = 1
+        return (store.x[entity] = n)
+      },
+      configurable: true
+    },
+    y: {
+      get() {
+        return store.y[entity]
+      },
+      set(n) {
+        dirty[entity] = 1
+        return (store.y[entity] = n)
+      },
+      configurable: true
+    },
+    z: {
+      get() {
+        return store.z[entity]
+      },
+      set(n) {
+        dirty[entity] = 1
+        return (store.z[entity] = n)
+      },
+      configurable: true
+    },
+    w: {
+      get() {
+        return store.w[entity]
+      },
+      set(n) {
+        dirty[entity] = 1
+        return (store.w[entity] = n)
       },
       configurable: true
     }
