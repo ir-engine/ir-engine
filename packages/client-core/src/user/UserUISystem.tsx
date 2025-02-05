@@ -55,7 +55,12 @@ const PopoverReactor = () => {
     if (popoverComponent?.isOpen.value) {
       const popoverType = popoverComponent?.type.value || 'iframe'
       const Component = getState(PopoverComponentState)[popoverType]
-      PopoverState.showPopupover(<Component src={popoverComponent?.src.value} />)
+      PopoverState.showPopupover(
+        // todo: add more animation type and save it in ecs
+        <div className="animate-slideIn">
+          <Component src={popoverComponent?.src.value} />
+        </div>
+      )
     }
   }, [popoverComponentState, popoverComponent])
 

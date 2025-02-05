@@ -31,14 +31,13 @@ type Props = {
 
 const EmbedFrame = ({ src }: Props): JSX.Element => {
   return (
-    <div className="relative z-50 h-fit w-[70vw] max-w-2xl overflow-y-auto rounded-2xl bg-theme-surface-main px-10 py-6">
+    <div className="relative z-50 h-fit w-[70vw] overflow-y-auto rounded-2xl bg-theme-surface-main px-10 py-6">
       <div className="h-[90vh]">
         {src ? (
           <div className="h-full w-full">
             <iframe
               className="h-full w-full"
               src={src}
-              // style="width: 450px; position: fixed; bottom: 0; right: 20px; aspect-ratio: 16/9; background: transparent; z-index: 999999999;"
               frameBorder="0"
               allow="microphone; camera; autoplay; clipboard-write; encrypted-media"
               allowTransparency={true}
@@ -47,9 +46,7 @@ const EmbedFrame = ({ src }: Props): JSX.Element => {
               title="MentorShop Experience"
             ></iframe>
           </div>
-        ) : (
-          <></>
-        )}
+        ) : null}
       </div>
     </div>
   )
