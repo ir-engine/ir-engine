@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineVideoCamera } from 'react-icons/hi2'
 
@@ -58,9 +58,9 @@ import { FaAngleLeft, FaRegPauseCircle } from 'react-icons/fa'
 import { FaRegCirclePlay } from 'react-icons/fa6'
 import { RiExpandUpDownLine } from 'react-icons/ri'
 import { TfiAngleLeft } from 'react-icons/tfi'
+import Canvas from '../../../../primitives/tailwind/Canvas'
 import ArrayInputGroup from '../../../editorUpdates/input/Array'
 import InputGroup from '../../../editorUpdates/input/Group'
-import MediaPreview from '../../../editorUpdates/properties/media/preview'
 import NumericScrubber from '../../input/Numeric/Scrubber'
 import SegmentedControlInput from '../../input/SegmentedControl'
 import SelectInput from '../../input/Select'
@@ -206,6 +206,31 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
     )
   }, [media?.currentTrackDuration, media?.currentTrackTime])
 
+  const canvasRef = useRef(null)
+  useEffect(() => {
+    const canvas = canvasRef.current as unknown as HTMLCanvasElement
+    if (!canvas) return
+    if (!mediaElement) return
+    const vid = mediaElement.element.value as HTMLVideoElement
+    if (!vid) return
+
+    const context = canvas.getContext('2d')
+
+    const draw = () => {
+      if (vid.readyState === vid.HAVE_ENOUGH_DATA) {
+        if (!context) return
+        context.drawImage(vid, 0, 0, canvas.width, canvas.height)
+      }
+    }
+
+    vid.addEventListener('timeupdate', draw)
+    draw()
+
+    return () => {
+      vid.removeEventListener('timeupdate', draw)
+    }
+  }, [mediaElement])
+
   return (
     <NodeEditor
       {...props}
@@ -247,29 +272,29 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
             label={t('editor:properties.media.paths')}
             info={t('editor:properties.media.paths')}
           >
-            {media.resources.length > 0 && media.selectedTrackIndex.value >= 0 && (
-              <MediaPreview resources={media.resources} selectedIndex={media.selectedTrackIndex.value} />
-            )}
-            <div className="flex h-[28px] justify-between gap-[10px] rounded bg-[#141619] px-[8px] ">
-              <div onClick={toggle} className="my-[4px] h-[20px] w-[20px] text-[#B2B5BD]">
-                {media.paused.value && <FaRegCirclePlay className="h-full w-full" />}
-                {!media.paused.value && <FaRegPauseCircle className="h-full w-full" />}
-              </div>
-              <input
-                id={'vidoeScrubber'}
-                min={currentTrackMin.value}
-                max={currentTrackMax.value}
-                step={0.05}
-                value={media.currentTrackTime.value}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                  const val = parseFloat(event.target.value)
-                  setTime(mediaElement.element, val)
-                }}
-                type="range"
-                style={{
-                  background: `linear-gradient(to right, #375DAF ${currentTrackPercent.value}%, #B2B5BD ${currentTrackPercent.value}%)`
-                }}
-                className={`my-[12px] h-[4px] w-full min-w-20 cursor-pointer appearance-none overflow-hidden rounded bg-[#B2B5BD] focus:outline-none
+            {mediaElement && (
+              <>
+                <Canvas ref={canvasRef} className="h-[185px] w-[310px]" />
+                <div className="flex h-[28px] justify-between gap-[10px] rounded bg-[#141619] px-[8px] ">
+                  <div onClick={toggle} className="my-[4px] h-[20px] w-[20px] text-[#B2B5BD]">
+                    {media.paused.value && <FaRegCirclePlay className="h-full w-full" />}
+                    {!media.paused.value && <FaRegPauseCircle className="h-full w-full" />}
+                  </div>
+                  <input
+                    id={'vidoeScrubber'}
+                    min={currentTrackMin.value}
+                    max={currentTrackMax.value}
+                    step={0.05}
+                    value={media.currentTrackTime.value}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                      const val = parseFloat(event.target.value)
+                      setTime(mediaElement.element, val)
+                    }}
+                    type="range"
+                    style={{
+                      background: `linear-gradient(to right, #375DAF ${currentTrackPercent.value}%, #B2B5BD ${currentTrackPercent.value}%)`
+                    }}
+                    className={`my-[12px] h-[4px] w-full min-w-20 cursor-pointer appearance-none overflow-hidden rounded bg-[#B2B5BD] focus:outline-none
                         disabled:pointer-events-none disabled:opacity-50
                         [&::-moz-range-progress]:bg-[#375DAF]
                         [&::-moz-range-thumb]:h-full
@@ -298,12 +323,14 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                         [&::-webkit-slider-thumb]:ease-in-out
                         group-hover/editor-slider:[&::-webkit-slider-thumb]:bg-[#AFBEDF]
                       `}
-                data-testid="slider-draggable-value-input"
-              />
-              <div className="my-[6px] inline-block h-full align-middle text-[12px] text-[#B2B5BD]">
-                {formatSeconds(media.currentTrackTime.value)}/{formatSeconds(media.currentTrackDuration.value)}
-              </div>
-            </div>
+                    data-testid="slider-draggable-value-input"
+                  />
+                  <div className="my-[6px] inline-block h-full align-middle text-[12px] text-[#B2B5BD]">
+                    {formatSeconds(media.currentTrackTime.value)}/{formatSeconds(media.currentTrackDuration.value)}
+                  </div>
+                </div>
+              </>
+            )}
             <ArrayInputGroup
               values={media.resources.value as string[]}
               dropTypes={[...ItemTypes.Videos]}
@@ -321,8 +348,8 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
           >
             <Slider
               min={0}
-              max={100}
-              step={1}
+              max={10}
+              step={0.1}
               value={media.volume.value}
               onChange={updateProperty(MediaComponent, 'volume')}
               onRelease={commitProperty(MediaComponent, 'volume')}
