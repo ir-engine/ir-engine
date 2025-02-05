@@ -84,6 +84,7 @@ const sceneURL = '/empty.gltf'
 describe('AvatarSpawnSystem', async () => {
   let sceneEntity: Entity
   beforeEach(async () => {
+    Cache.enabled = true
     createEngine()
     initializeSpatialEngine()
     startEngineReactor()
@@ -175,6 +176,7 @@ describe('AvatarSpawnSystem', async () => {
     url.search = ''
     history.replaceState(history.state, null!, url.href)
 
+    Cache.enabled = false
     return destroyEngine()
   })
 

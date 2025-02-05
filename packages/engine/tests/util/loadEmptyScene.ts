@@ -38,5 +38,6 @@ export const loadEmptyScene = () => {
     nodes: []
   }
   Cache.add('/test.gltf', gltf)
+  Cache.enabled = true
   return AssetState.load('/test.gltf')
 }
