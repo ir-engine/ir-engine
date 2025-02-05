@@ -141,6 +141,7 @@ function VideoReactor() {
   const visible = useOptionalComponent(entity, VisibleComponent)
   const mediaUUID = video.mediaUUID.value
   const mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID) || entity
+  const media = useOptionalComponent(mediaEntity, MediaComponent)
   const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
 
   const videoMeshEntity = useHookstate(createEntity)
@@ -271,22 +272,29 @@ function VideoReactor() {
 
   // update mesh
   useEffect(() => {
+    if (!media) return
+    if (!media.isCurrentTrackLoaded.value) return
+
     const videoMesh = mesh.value as Mesh<PlaneGeometry | SphereGeometry, ShaderMaterial>
     resizeVideoMesh(videoMesh)
 
     const uvOffset = new Vector2(0, 0)
     const uvScale = new Vector2(1, 1)
 
-    const size = video.size.value
-    const [containerWidth, containerHeight] = [size.x, size.y]
-    const containerRatio = containerWidth / containerHeight
-
-    videoMesh.scale.x = containerWidth
-    videoMesh.scale.y = containerHeight
-
     const imageSize = getTextureSize(videoMesh.material.uniforms.map.value as Texture | CompressedTexture)
     video.currentVideoSize.set(imageSize)
     const imageRatio = imageSize.x / imageSize.y || 1
+
+    const size = video.size.value
+    let [containerWidth, containerHeight] = [size.x, size.y]
+    let containerRatio = containerWidth / containerHeight
+
+    if (imageRatio < containerRatio) {
+      containerWidth = imageRatio * containerHeight
+    } else {
+      containerHeight = containerWidth / imageRatio
+    }
+    containerRatio = containerWidth / containerHeight
 
     let isPlacementHorz = true
     if (video.fit.value == 'horizontal') {
@@ -310,19 +318,12 @@ function VideoReactor() {
       }
     }
 
-    if (isPlacementHorz) {
-      uvScale.y = imageRatio / containerRatio
-      uvScale.x = 1
-      uvOffset.y = (1 - uvScale.y) / 2
-    } else {
-      uvScale.x = 1 / imageRatio / (1 / containerRatio)
-      uvScale.y = 1
-      uvOffset.x = (1 - uvScale.x) / 2
-    }
+    videoMesh.scale.x = containerWidth
+    videoMesh.scale.y = containerHeight
 
     fitPlacementUvOffset.set(uvOffset)
     fitPlacementUvScale.set(uvScale)
-  }, [video.size, video.fit, video.texture, mesh.material])
+  }, [video.size, video.fit, video.texture, mesh.material, media?.isCurrentTrackLoaded])
 
   useEffect(() => {
     mesh.geometry.set(video.projection.value === 'Flat' ? PLANE_GEO() : SPHERE_GEO())

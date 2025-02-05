@@ -159,7 +159,8 @@ export const MediaComponent = defineComponent({
     trackDurations: S.Array(S.Number()),
     selectedTrackIndex: S.Number(-1),
     currentTrackTime: S.Number(0),
-    currentTrackDuration: S.Number(0)
+    currentTrackDuration: S.Number(0),
+    isCurrentTrackLoaded: S.Bool(false)
     /**
      * TODO: refactor this into a ScheduleComponent for invoking callbacks at scheduled times
      * The auto start time for the playlist, in Unix/Epoch time (milliseconds).
@@ -254,11 +255,12 @@ export function MediaReactor() {
       const time = (mediaElementState.element.value as HTMLMediaElement).currentTime
       media.currentTrackTime.set(time)
     }
+    media.isCurrentTrackLoaded.set(false)
     ;(mediaElementState.element.value as HTMLMediaElement).onloadeddata = (event) => {
       const time = (mediaElementState.element.value as HTMLMediaElement).duration
       media.currentTrackDuration.set(time)
+      media.isCurrentTrackLoaded.set(true)
     }
-
     if (isHLS(path)) {
       setupHLS(entity, path).then((hls) => {
         mediaElementState.hls.set(hls)
