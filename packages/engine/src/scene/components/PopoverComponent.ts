@@ -35,7 +35,7 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 
 const interactMessage = 'Click'
-const popoverCallbackName = 'popoverCallback'
+const popoverCallbackName = 'onOpenMenu'
 
 const toggleOpen = (popoverEntity: Entity) => {
   const popoverComponent = getComponent(popoverEntity, PopoverComponent)
@@ -44,7 +44,7 @@ const toggleOpen = (popoverEntity: Entity) => {
 
 export const PopoverComponentState = defineState({
   name: 'ir.engine.interaction.PopupState',
-  initial: {} as Record<string, any>
+  initial: {} as Record<string, React.FC>
 })
 
 export const PopoverComponent = defineComponent({
