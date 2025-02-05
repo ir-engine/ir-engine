@@ -229,11 +229,7 @@ function VideoReactor() {
             if (intensity < alphaThreshold) discard;
           }          
           if( adjustedUv.y < 0.0 || adjustedUv.y > 1.0 || adjustedUv.x < 0.0 || adjustedUv.x > 1.0) {
-            if( useAlpha){
-              discard;
-            } else {
-              color = vec4(0.0, 0.0, 0.0, 1.0);
-            }
+              discard;    
           }          
           gl_FragColor = color;
         #else
@@ -289,12 +285,14 @@ function VideoReactor() {
     let [containerWidth, containerHeight] = [size.x, size.y]
     let containerRatio = containerWidth / containerHeight
 
+    /*
     if (imageRatio < containerRatio) {
       containerWidth = imageRatio * containerHeight
     } else {
       containerHeight = containerWidth / imageRatio
     }
     containerRatio = containerWidth / containerHeight
+    */
 
     let isPlacementHorz = true
     if (video.fit.value == 'horizontal') {
@@ -316,6 +314,16 @@ function VideoReactor() {
       } else {
         isPlacementHorz = true
       }
+    }
+
+    if (isPlacementHorz) {
+      uvScale.y = imageRatio / containerRatio
+      uvScale.x = 1
+      uvOffset.y = (1 - uvScale.y) / 2
+    } else {
+      uvScale.x = 1 / imageRatio / (1 / containerRatio)
+      uvScale.y = 1
+      uvOffset.x = (1 - uvScale.x) / 2
     }
 
     videoMesh.scale.x = containerWidth
