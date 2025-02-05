@@ -87,7 +87,7 @@ const Tabs = ({
   return (
     <div className="relative overflow-y-auto">
       {tabsData[currentTab.value]?.title && (
-        <Text fontSize="xl" className="mb-6">
+        <Text fontSize="xl" className="mb-6 text-text-primary">
           {tabsData[currentTab.value]?.title}
         </Text>
       )}
@@ -98,7 +98,7 @@ const Tabs = ({
             <button
               key={index}
               className={twMerge(
-                'p-3 text-sm  disabled:cursor-not-allowed disabled:opacity-50 dark:hover:border-b dark:hover:border-b-blue-400',
+                'p-3 text-sm text-text-secondary hover:border-b hover:border-b-ui-primary disabled:cursor-not-allowed disabled:opacity-50',
                 currentTab.value === index ? 'border-b font-semibold ' : '',
                 tab.disabled ? 'border-none' : '',
                 tabClassName

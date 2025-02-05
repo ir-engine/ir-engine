@@ -28,9 +28,9 @@ import React from 'react'
 import { TouchGamepad } from '@ir-engine/client-core/src/common/components/TouchGamepad'
 import UserMenu from '@ir-engine/client-core/src/user/menus'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
 
 import { EngineState } from '@ir-engine/ecs'
+import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { LoadingSystemState } from '../../systems/state/LoadingState'
 import InstanceChat from '../../user/InstanceChat'
 import { ARPlacement } from '../ARPlacement'
@@ -59,7 +59,7 @@ export const TopButtons = () => {
       </div>
 
       <div className="pointer-events-auto absolute bottom-0 left-0 pb-[inherit] pl-[inherit]">
-        {!iOS && <Fullscreen />}
+        {!isMobile && <Fullscreen />}
       </div>
 
       <div className="pointer-events-auto absolute bottom-0 right-0 pb-[inherit] pr-[inherit]">

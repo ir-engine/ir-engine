@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { HTMLProps, useMemo, useState } from 'react'
+import React, { HTMLProps, useLayoutEffect, useMemo, useState } from 'react'
 
 import { UUIDComponent } from '@ir-engine/ecs'
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -31,7 +31,7 @@ import { emoteAnimations, preloadedAnimations } from '@ir-engine/engine/src/avat
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import { dispatchAction } from '@ir-engine/hyperflux'
-
+import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { PopoverState } from '../../common/services/PopoverState'
 
 const EmoteMenu = (): JSX.Element => {
@@ -244,11 +244,22 @@ const EmoteMenu = (): JSX.Element => {
 
   const [currentIconsPage, setCurrentIconsPage] = useState(0)
 
+  const [dimensions, setDimensions] = useState({ width: 474, height: 440 })
+
+  useLayoutEffect(() => {
+    if (isMobile) {
+      setDimensions((prev) => ({
+        width: prev.width * 0.75,
+        height: prev.height * 0.75
+      }))
+    }
+  }, [])
+
   return (
     <svg
       className="pointer-events-auto"
-      width="474"
-      height="440"
+      width={dimensions.width}
+      height={dimensions.height}
       viewBox="0 0 474 440"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

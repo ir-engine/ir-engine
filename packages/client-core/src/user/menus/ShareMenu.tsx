@@ -200,14 +200,17 @@ const ShareMenu = (): JSX.Element => {
   }
 
   return (
-    <div className="relative z-50 h-fit max-h-[60vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-1 p-10">
+    <div className="relative z-50 h-fit max-h-[90vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-1 p-6 mdh:max-h-[60vh] mdh:p-10">
       <div className="mb-3 flex w-full items-center justify-center">
         <div className="flex justify-center gap-x-4">
           <button className="rounded-3xl bg-gray-800 px-6 py-2" onClick={() => window.open(questShareLink, '_blank')}>
             {t('user:usermenu.share.shareQuest')}
           </button>
 
-          <button onClick={() => copyToClipboard(questShareLink.toString())}>
+          <button
+            className="text-text-secondary hover:text-text-primary"
+            onClick={() => copyToClipboard(questShareLink.toString())}
+          >
             <Copy03Lg />
           </button>
         </div>
