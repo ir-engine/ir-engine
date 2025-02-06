@@ -1,34 +1,9 @@
-/*
-CPAL-1.0 License
-
-The contents of this file are subject to the Common Public Attribution License
-Version 1.0. (the "License"); you may not use this file except in compliance
-with the License. You may obtain a copy of the License at
-https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
-The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
-Exhibit A has been modified to be consistent with Exhibit B.
-
-Software distributed under the License is distributed on an "AS IS" basis,
-WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
-specific language governing rights and limitations under the License.
-
-The Original Code is Infinite Reality Engine.
-
-The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Infinite Reality Engine team.
-
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
-Infinite Reality Engine. All Rights Reserved.
-*/
-
 import { GLTF } from '@gltf-transform/core'
 import assert from 'assert'
-import { Color, Mesh, MeshStandardMaterial, SphereGeometry, Vector3 } from 'three'
+import { Color, Mesh, MeshStandardMaterial, SphereGeometry, Texture, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
-import { createEntity, SerializedComponentType, setComponent, UUIDComponent } from '@ir-engine/ecs'
+import { createEntity, defineComponent, S, SerializedComponentType, setComponent, UUIDComponent } from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 
@@ -221,5 +196,119 @@ describe('exportGLTFScene', () => {
       assert.strictEqual(serializedColor2[key], color2[key])
     }
     assert.strictEqual(eeMaterial2.prototype, 'MeshStandardMaterial')
+  })
+
+  const createDudMesh = () => {
+    const meshEntity = createSceneEntity('mesh')
+    setComponent(meshEntity, SourceComponent, 'test')
+
+    // Create a sphere geometry.
+    const geometry = new SphereGeometry(1, 8, 8)
+
+    // Create a texture and assign its userData.src field.
+    const textureUrl = '/projects/dud-org/dud-project/base/folder1/image.png'
+    const texture = new Texture()
+    texture.userData = { src: textureUrl }
+    texture.image = {}
+
+    // Create a MeshStandardMaterial with a texture map.
+    const color = new Color(Math.random(), Math.random(), Math.random())
+    const material = new MeshStandardMaterial({
+      color,
+      name: 'material-with-map',
+      map: texture
+    })
+
+    // Initialize the material prototype (only once).
+    createMaterialPrototype(MeshStandardMaterialPrototype)
+
+    // Create a material entity for the material.
+    const materialEntity = createEntity()
+    setComponent(materialEntity, UUIDComponent, material.uuid)
+    setComponent(materialEntity, MaterialStateComponent, {
+      prototypeEntity: getPrototypeEntityFromName('MeshStandardMaterial'),
+      material
+    })
+    setComponent(materialEntity, NameComponent, material.name)
+
+    // Create a mesh using the geometry and material.
+    const mesh = new Mesh(geometry, material)
+    setComponent(meshEntity, MeshComponent, mesh)
+    return { meshEntity, materialEntity }
+  }
+
+  it('export mesh with material texture map', async () => {
+    const { meshEntity } = createDudMesh()
+    // Export the scene. The first element is the GLTF JSON.
+    const [gltf, ...files] = (await exportGLTFScene(meshEntity, 'dud-project', 'base/folder1/test.gltf')) as [
+      GLTF.IGLTF
+    ]
+
+    // Validate that the GLTF contains a single node referencing mesh index 0.
+    assert(Array.isArray(gltf.nodes))
+    assert.strictEqual(gltf.nodes.length, 1)
+    const node = gltf.nodes[0]
+    assert.strictEqual(node.mesh, 0)
+
+    // Validate that one mesh was exported with one primitive.
+    assert(Array.isArray(gltf.meshes))
+    assert.strictEqual(gltf.meshes.length, 1)
+    const exportedMesh = gltf.meshes[0]
+    assert(Array.isArray(exportedMesh.primitives))
+    assert.strictEqual(exportedMesh.primitives.length, 1)
+    const primitive = exportedMesh.primitives[0]
+    assert.strictEqual(primitive.material, 0)
+
+    // Validate that one material was exported.
+    assert(Array.isArray(gltf.materials))
+    assert.strictEqual(gltf.materials.length, 1)
+    const exportedMaterial = gltf.materials[0]
+
+    // Check that the exported material contains the EE_material extension.
+    assert.strictEqual(typeof exportedMaterial.extensions![EEMaterialComponent.jsonID], 'object')
+    const eeMaterial = exportedMaterial.extensions![EEMaterialComponent.jsonID] as SerializedComponentType<
+      typeof EEMaterialComponent
+    >
+
+    // Verify that the texture URL was correctly serialized into the material's "map" field.
+    assert.strictEqual(eeMaterial.args['map']?.contents?.index, 0)
+
+    assert.strictEqual(gltf.images?.length, 1)
+    const image = gltf.images[0]
+    assert.strictEqual(image.uri, './image.png')
+  })
+
+  it('export mesh with material texture map into new folder', async () => {
+    const { meshEntity } = createDudMesh()
+    const [gltf, ...files] = (await exportGLTFScene(meshEntity, 'dud-project', 'base/folder2/test.gltf')) as [
+      GLTF.IGLTF
+    ]
+    assert.strictEqual(gltf.images?.[0]?.uri, '../folder1/image.png')
+  })
+
+  it('export custom ECS data', async () => {
+    const TestComponent = defineComponent({
+      name: 'TestComponent',
+      jsonID: 'IR_test-component',
+      schema: S.Object({
+        string: S.String('value'),
+        number: S.Number(1)
+      })
+    })
+    const entity = createSceneEntity('test')
+    setComponent(entity, SourceComponent, 'base/test.gltf')
+    const num = Math.random()
+    setComponent(entity, TestComponent, {
+      string: 'value',
+      number: num
+    })
+
+    const [gltf] = (await exportGLTFScene(entity, 'dud-project', 'base/test.gltf')) as [GLTF.IGLTF]
+    const ecsExtension = gltf.nodes?.[0]?.extensions?.['IR_test-component'] as SerializedComponentType<
+      typeof TestComponent
+    >
+    assert.strictEqual(typeof ecsExtension, 'object')
+    assert.strictEqual(ecsExtension.number, num)
+    assert.strictEqual(ecsExtension.string, 'value')
   })
 })
