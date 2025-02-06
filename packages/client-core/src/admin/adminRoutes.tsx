@@ -42,6 +42,7 @@ import { identityProviderPath, scopePath } from '@ir-engine/common/src/schema.ty
 import { Engine } from '@ir-engine/ecs'
 import { Button, Tooltip } from '@ir-engine/ui'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
+import { twMerge } from 'tailwind-merge'
 import { RouterState } from '../common/services/RouterService'
 import { DefaultAdminRoutes } from './DefaultAdminRoutes'
 
@@ -91,6 +92,11 @@ const AdminSideBar = () => {
 
   const relativePath = fullPathName.split('/').slice(2).join('/')
 
+  useEffect(() => {
+    console.log('allowedRoutes', allowedRoutes)
+    console.log('relativePath', relativePath)
+  }, [])
+
   return (
     <aside className="col-span-4 mx-8 h-fit overflow-y-auto overflow-x-hidden rounded-2xl px-2 py-4 lg:col-span-3 2xl:col-span-2">
       <ul className="space-y-2">
@@ -101,9 +107,10 @@ const AdminSideBar = () => {
               <li key={index}>
                 <Link to={path}>
                   <button
-                    className={`flex w-full items-center justify-start gap-x-1 rounded-xl bg-surface-1 px-2 py-3 font-medium text-text-secondary hover:bg-ui-hover-quadrary hover:text-text-primary ${
-                      relativePath === path ? ' font-semibold  ' : ''
-                    }`}
+                    className={twMerge(
+                      'flex w-full items-center justify-start gap-x-1 rounded-xl bg-surface-1 px-2 py-3 font-medium text-text-secondary hover:bg-ui-hover-quadrary hover:text-text-primary',
+                      relativePath === path ? 'bg-ui-select-background font-semibold text-text-primary' : ''
+                    )}
                   >
                     {sidebarItem.icon}
                     {t(sidebarItem.name)}
