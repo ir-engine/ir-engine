@@ -26,10 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { Color, Material, Mesh, Texture } from 'three'
 
 import {
-  createEntity,
   Entity,
   EntityUUID,
-  generateEntityUUID,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -39,16 +37,13 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 
-import { NameComponent } from '../../common/NameComponent'
+import { getState } from '@ir-engine/hyperflux'
 import { MeshComponent } from '../components/MeshComponent'
 import {
   MaterialInstanceComponent,
-  MaterialPrototypeComponent,
-  MaterialPrototypeDefinition,
-  MaterialPrototypeObjectConstructor,
+  MaterialPrototypeDefinitions,
   MaterialStateComponent,
-  PrototypeArgument,
-  prototypeQuery
+  PrototypeArgument
 } from './MaterialComponent'
 
 export const extractDefaults = (defaultArgs: PrototypeArgument) => {
@@ -83,18 +78,6 @@ export const formatMaterialArgs = (args: any, defaultArgs?: PrototypeArgument) =
       })
       .filter(([_, v]) => v !== undefined)
   )
-}
-
-export const createMaterialPrototype = (prototype: MaterialPrototypeDefinition) => {
-  const prototypeEntity = createEntity()
-  const prototypeObject = {} as MaterialPrototypeObjectConstructor
-  prototypeObject[prototype.prototypeId] = prototype.prototypeConstructor
-  setComponent(prototypeEntity, MaterialPrototypeComponent, {
-    prototypeConstructor: prototypeObject,
-    prototypeArguments: prototype.arguments
-  })
-  setComponent(prototypeEntity, NameComponent, prototype.prototypeId)
-  setComponent(prototypeEntity, UUIDComponent, generateEntityUUID())
 }
 
 export const getMaterial = (uuid: EntityUUID) => {
@@ -135,7 +118,7 @@ export const materialPrototypeMatches = (materialEntity: Entity) => {
   if (!materialComponent) return false
   const prototypeEntity = materialComponent.prototypeEntity
   if (!prototypeEntity) return false
-  const prototypeComponent = getOptionalComponent(prototypeEntity, MaterialPrototypeComponent)
+  const prototypeComponent = getState(MaterialPrototypeDefinitions)[materialComponent.material.type]
   if (!prototypeComponent) return false
   if (!prototypeComponent.prototypeConstructor) return false
   const prototypeName = Object.keys(prototypeComponent.prototypeConstructor)[0]
@@ -149,18 +132,14 @@ export const materialPrototypeMatches = (materialEntity: Entity) => {
 export const updateMaterialPrototype = (materialEntity: Entity) => {
   const materialComponent = getOptionalComponent(materialEntity, MaterialStateComponent)
   if (!materialComponent) return
-  const prototypeEntity = materialComponent.prototypeEntity
-  if (!prototypeEntity) return
-  const prototypeName = getOptionalComponent(prototypeEntity, NameComponent)
-  if (!prototypeName) return
-  const prototypeComponent = getOptionalComponent(prototypeEntity, MaterialPrototypeComponent)
-  if (!prototypeComponent) return
-  const prototypeConstructor = prototypeComponent.prototypeConstructor[prototypeName]
   const material = materialComponent.material
+  const prototypeName = material.type
+
+  const prototype = getState(MaterialPrototypeDefinitions)[prototypeName]
   if (!material || material.type === prototypeName) return
-  const fullParameters = { ...extractDefaults(prototypeComponent.prototypeArguments) }
-  if (!prototypeConstructor) return
-  const newMaterial = new prototypeConstructor(fullParameters) as Material
+  const fullParameters = { ...extractDefaults(prototype.arguments) }
+  if (!prototype) return
+  const newMaterial = new prototype.prototypeConstructor(fullParameters) as Material
   if (newMaterial.plugins) {
     newMaterial.customProgramCacheKey = () =>
       (newMaterial.shader ? newMaterial.shader.fragmentShader + newMaterial.shader.vertexShader : '') +
@@ -217,13 +196,10 @@ export const getMaterialIndices = (entity: Entity, materialUUID: EntityUUID): nu
     .filter((x) => x !== undefined) as number[]
 }
 
-export const getPrototypeEntityFromName = (name: string) =>
-  prototypeQuery().find((entity) => getOptionalComponent(entity, NameComponent) === name)
-
 export const injectMaterialDefaults = (materialUUID: EntityUUID) => {
   const material = getOptionalComponent(UUIDComponent.getEntityByUUID(materialUUID), MaterialStateComponent)
-  if (!material?.prototypeEntity) return
-  const prototype = getComponent(material.prototypeEntity, MaterialPrototypeComponent).prototypeArguments
+  if (!material) return
+  const prototype = getState(MaterialPrototypeDefinitions)[material.material.type].arguments
   if (!prototype) return
   return Object.fromEntries(
     Object.entries(prototype).map(([k, v]: [string, any]) => [k, { ...v, default: material.parameters![k] }])
