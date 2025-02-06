@@ -815,7 +815,7 @@ export const EEMaterialComponent = defineComponent({
 
   getMaterialType(materialDef: GLTF.IMaterial) {
     const extension = materialDef.extensions![EEMaterialComponent.jsonID] as ComponentType<typeof EEMaterialComponent>
-    return MaterialPrototypeDefinitions.find((e) => e.prototypeId === extension.prototype)!.prototypeConstructor
+    return MaterialPrototypeDefinitions.find((e) => e.prototypeId === extension.prototype)?.prototypeConstructor
   },
 
   extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {
