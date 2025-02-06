@@ -219,7 +219,7 @@ export function MediaReactor() {
   const playTrack = () => {
     let nextTrack = media.selectedTrackIndex.value
     if (nextTrack === -1) return
-    let path = media.resources.value[nextTrack]
+    const path = media.resources.value[nextTrack]
 
     if (nextTrack >= media.resources.length || !path) {
       // we already remove the case where we dont have any track
@@ -386,12 +386,6 @@ export function MediaReactor() {
 
   useEffect(
     function updateTrackMetadata() {
-      /*
-      if (media.selectedTrackIndex.value >= media.resources.length) {
-        media.selectedTrackIndex.set(-1)
-        return
-      }
-*/
       clearErrors(entity, MediaComponent)
 
       const paths = media.resources.value

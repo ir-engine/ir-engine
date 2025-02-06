@@ -285,15 +285,6 @@ function VideoReactor() {
     const [containerWidth, containerHeight] = [size.x, size.y]
     const containerRatio = containerWidth / containerHeight
 
-    /*
-    if (imageRatio < containerRatio) {
-      containerWidth = imageRatio * containerHeight
-    } else {
-      containerHeight = containerWidth / imageRatio
-    }
-    containerRatio = containerWidth / containerHeight
-    */
-
     let isPlacementHorz = true
     if (video.fit.value == 'horizontal') {
       isPlacementHorz = true
