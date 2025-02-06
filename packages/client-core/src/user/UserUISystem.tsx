@@ -27,7 +27,7 @@ import React, { useEffect } from 'react'
 
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 
 import { useHookstate } from '@hookstate/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
@@ -43,7 +43,7 @@ import EmbedFrame from './menus/avatar/EmbedFrame'
 const PopoverReactor = () => {
   const entity = useEntityContext()
   const popoverComponent = useOptionalComponent(entity, PopoverComponent)
-  const popoverComponentState = getMutableState(PopoverComponentState)
+  const popoverComponentState = useMutableState(PopoverComponentState)
 
   useEffect(() => {
     popoverComponentState.merge({
@@ -53,10 +53,10 @@ const PopoverReactor = () => {
 
   useEffect(() => {
     if (popoverComponent?.isOpen.value) {
-      const popoverType = popoverComponent?.type.value || 'iframe'
+      const popoverType = popoverComponent?.type.value
+      if (!popoverType) return
       const Component = getState(PopoverComponentState)[popoverType]
       PopoverState.showPopupover(
-        // todo: add more animation type and save it in ecs
         <div className="animate-slideIn">
           <Component src={popoverComponent?.src.value} />
         </div>

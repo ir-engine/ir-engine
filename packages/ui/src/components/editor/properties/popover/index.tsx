@@ -37,7 +37,7 @@ import {
 } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { PopoverComponent, PopoverComponentState } from '@ir-engine/engine/src/scene/components/PopoverComponent'
-import { getMutableState } from '@ir-engine/hyperflux'
+import { useMutableState } from '@ir-engine/hyperflux'
 import { CodeSnippet01Md } from '../../../../icons'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
@@ -50,7 +50,7 @@ export const PopoverNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const popoverComponent = useComponent(props.entity, PopoverComponent)
-  const popoverComponentState = getMutableState(PopoverComponentState)
+  const popoverComponentState = useMutableState(PopoverComponentState)
   const errors = getEntityErrors(props.entity, PopoverComponent)
 
   useEffect(() => {
@@ -72,11 +72,14 @@ export const PopoverNodeEditor: EditorComponentType = (props) => {
   }, [])
 
   const getAvailablePopoverType = () => {
-    const values = popoverComponentState.value || [{ label: 'Iframe', value: 'iframe' }]
-    return Object.keys(values).map((key) => ({
-      label: capitalizeFirstLetter(key),
-      value: key
-    }))
+    console.log(popoverComponentState)
+    const values = popoverComponentState.value
+    return values.length
+      ? Object.keys(values).map((key) => ({
+          label: capitalizeFirstLetter(key),
+          value: key
+        }))
+      : [{ label: 'Iframe', value: 'iframe' }]
   }
 
   return (
