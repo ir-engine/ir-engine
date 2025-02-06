@@ -31,16 +31,16 @@ import {
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { Engine } from '@ir-engine/ecs'
 import { State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { Button, Checkbox } from '@ir-engine/ui'
+import { Checkbox } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
+import { Edit01Lg, InfoCircleLg, Trash04Lg } from '@ir-engine/ui/src/icons'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { truncateText } from '@ir-engine/ui/src/primitives/tailwind/TruncatedText'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRegCircleCheck, FaRegCircleXmark } from 'react-icons/fa6'
-import { HiPencil, HiTrash } from 'react-icons/hi2'
-import { LuInfo } from 'react-icons/lu'
+import { twMerge } from 'tailwind-merge'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { AuthState } from '../../../user/services/AuthService'
 import DataTable from '../../common/Table'
@@ -134,7 +134,7 @@ export default function UserTable({
                 </>
               }
             >
-              <LuInfo className="ml-2 h-5 w-5 bg-transparent" />
+              <InfoCircleLg className="ml-2 h-5 w-5 bg-transparent text-text-secondary hover:text-text-primary" />
             </Tooltip>
           </div>
         ) : (
@@ -184,18 +184,24 @@ export default function UserTable({
         createdAt: toDisplayDateTime(row.createdAt),
         action: (
           <div className="flex items-center justify-start gap-3">
-            <Button
-              variant="tertiary"
-              className="h-8 w-8"
+            <button
+              className={twMerge(
+                'p-1',
+                userHasAccess ? 'text-text-secondary hover:text-text-primary' : 'cursor-not-allowed text-text-inactive'
+              )}
               disabled={!userHasAccess}
               title={t('admin:components.common.view')}
               onClick={() => PopoverState.showPopupover(<AddEditUserModal user={row} />)}
             >
-              <HiPencil className="" />
-            </Button>
-            <Button
-              variant="tertiary"
-              className="h-8 w-8"
+              <Edit01Lg className="h-6 w-6" />
+            </button>
+            <button
+              className={twMerge(
+                'p-1',
+                user.id.value !== row.id
+                  ? 'text-text-secondary hover:text-text-primary'
+                  : 'cursor-not-allowed text-text-inactive'
+              )}
               disabled={user.id.value === row.id}
               title={t('admin:components.common.delete')}
               onClick={() => {
@@ -209,8 +215,8 @@ export default function UserTable({
                 )
               }}
             >
-              <HiTrash className="" />
-            </Button>
+              <Trash04Lg className="h-6 w-6" />
+            </button>
           </div>
         )
       }
