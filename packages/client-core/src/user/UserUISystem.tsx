@@ -27,7 +27,7 @@ import React, { useEffect } from 'react'
 
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState } from '@ir-engine/hyperflux'
 
 import { useHookstate } from '@hookstate/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
@@ -135,10 +135,8 @@ const UserSystemReactor = () => {
       })
   }, [worldHostId])
 
-  const popoverComponentState = useMutableState(PopoverComponentState)
-
   useEffect(() => {
-    popoverComponentState.merge({
+    getMutableState(PopoverComponentState).merge({
       iframe: EmbedFrame
     })
   }, [])

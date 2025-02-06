@@ -37,11 +37,13 @@ import {
 } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { PopoverComponent, PopoverComponentState } from '@ir-engine/engine/src/scene/components/PopoverComponent'
-import { useMutableState } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
 import { CodeSnippet01Md } from '../../../../icons'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
 import { ControlledStringInput } from '../../input/String'
+
+const DEFAULT_OPTIONS = [{ label: 'Iframe', value: 'iframe' }]
 
 /**
  * PopoverNodeEditor component used to provide the editor with iframe popup
@@ -50,15 +52,13 @@ export const PopoverNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const popoverComponent = useComponent(props.entity, PopoverComponent)
-  const popoverComponentState = useMutableState(PopoverComponentState)
   const errors = getEntityErrors(props.entity, PopoverComponent)
 
   useEffect(() => {
-    // add an interactable component if it doesnt exist (this is required to interact with entity)
     if (!hasComponent(props.entity, InteractableComponent)) {
       EditorControlFunctions.addOrRemoveComponent([props.entity], InteractableComponent, true, {
         label: PopoverComponent.interactMessage,
-        uiInteractable: false, // todo: this should be true
+        uiInteractable: false,
         clickInteract: true,
         uiActivationType: XRUIActivationType.hover,
         callbacks: [
@@ -72,17 +72,17 @@ export const PopoverNodeEditor: EditorComponentType = (props) => {
   }, [])
 
   const getAvailablePopoverType = () => {
-    console.log(popoverComponentState)
-    const values = popoverComponentState.value
-    return values.length
-      ? Object.keys(values).map((key) => ({
-          label: capitalizeFirstLetter(key),
-          value: key
-        }))
-      : [
-          { label: 'Iframe', value: 'iframe' },
-          { label: 'Product Details', value: 'productDetails' }
-        ]
+    const state = getState(PopoverComponentState)
+    const optionKeys = Object.keys(state)
+    let options: { label: string; value: string }[] = []
+    if (optionKeys.length > 0) {
+      options = optionKeys.map((key) => ({
+        label: capitalizeFirstLetter(key),
+        value: key
+      }))
+    }
+
+    return [...options, ...DEFAULT_OPTIONS]
   }
 
   return (
