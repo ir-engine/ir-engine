@@ -45,6 +45,7 @@ import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import { twMerge } from 'tailwind-merge'
 import { RouterState } from '../common/services/RouterService'
 import { DefaultAdminRoutes } from './DefaultAdminRoutes'
+import ActionButton from './components/ActionButton'
 
 const $allowed = lazy(() => import('@ir-engine/client-core/src/admin/allowedRoutes'))
 
@@ -65,16 +66,10 @@ const AdminTopBar = () => {
   return (
     <div className="flex h-16 w-full items-center justify-between  px-8 py-4">
       <img src="static/ir.svg" alt="iR Engine Logo" className={`h-7 w-7${theme.value === 'light' ? ' invert' : ''}`} />
-      <div className="flex gap-4">
-        <Button onClick={toggleTheme} className="pointer-events-auto bg-transparent p-0">
-          {theme.value === 'light' ? (
-            <HiMiniMoon className="" size="1.5rem" />
-          ) : (
-            <HiMiniSun className="" size="1.5rem" />
-          )}
-        </Button>
+      <div className="pointer-events-auto flex gap-4">
+        <ActionButton onClick={toggleTheme} icon={theme.value === 'light' ? HiMiniMoon : HiMiniSun} />
         <Tooltip content={tooltip}>
-          <Button className="pointer-events-auto" size="sm" onClick={() => AuthService.logoutUser()}>
+          <Button size="sm" onClick={() => AuthService.logoutUser()}>
             {t('admin:components.common.logOut')}
           </Button>
         </Tooltip>
