@@ -294,7 +294,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
       </div>
 
-      <hr className="my-6 border border-theme-primary" />
+      <hr className="my-6 border " />
       <div className="grid grid-cols-3 gap-4">
         {holdAuth?.apple?.value && (
           <div className="col-span-1 grid gap-y-2">
@@ -573,7 +573,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       </div>
 
       <div className="mt-6 grid grid-cols-8 gap-6">
-        <Button size="sm" className="text-primary col-span-1 bg-theme-highlight" onClick={handleCancel} fullWidth>
+        <Button size="sm" className="text-primary col-span-1 " onClick={handleCancel} fullWidth>
           {t('admin:components.common.reset')}
         </Button>
 

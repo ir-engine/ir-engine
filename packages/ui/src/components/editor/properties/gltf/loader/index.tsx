@@ -40,7 +40,7 @@ import { getState, useHookstate } from '@ir-engine/hyperflux'
 import { supportedColliderShapes } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { Checkbox } from '@ir-engine/ui'
+import { Checkbox, Input } from '@ir-engine/ui'
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoIosArrowBack, IoIosArrowDown } from 'react-icons/io'
@@ -52,7 +52,6 @@ import Text from '../../../../../primitives/tailwind/Text'
 import InputGroup from '../../../input/Group'
 import ModelInput from '../../../input/Model'
 import SelectInput from '../../../input/Select'
-import StringInput from '../../../input/String'
 
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
@@ -181,11 +180,11 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
       )) ||
         ''}
       <Accordion
-        className="space-y-4 p-4"
+        className="space-y-4 py-1.5 pl-9 pr-3.5"
         title={t('editor:properties.model.lbl-export')}
-        expandIcon={<IoIosArrowBack className="text-xl text-gray-300" />}
-        shrinkIcon={<IoIosArrowDown className="text-xl text-gray-300" />}
-        titleClassName="text-gray-300"
+        expandIcon={<IoIosArrowBack className="text-xl text-text-secondary hover:text-text-primary" />}
+        shrinkIcon={<IoIosArrowDown className="text-xl text-text-secondary hover:text-text-primary" />}
+        titleClassName="text-text-secondary hover:text-text-primary"
         titleFontSize="base"
       >
         {!exporting.value && (
@@ -203,7 +202,7 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
               />
             </InputGroup>
             <InputGroup name="File Path" label="File Path">
-              <StringInput value={srcPath.value} onChange={srcPath.set} />
+              <Input fullWidth value={srcPath.value} onChange={(e) => srcPath.set(e.target.value)} />
             </InputGroup>
             <InputGroup name="Export Type" label={t('editor:properties.model.lbl-exportType')}>
               <SelectInput
@@ -221,7 +220,7 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
                 onChange={(val) => exportType.set(val as string)}
               />
             </InputGroup>
-            <Button className="self-end" onClick={onExportModel}>
+            <Button className="self-end" onClick={onExportModel} fullWidth>
               {t('editor:properties.model.saveChanges')}
             </Button>
           </>

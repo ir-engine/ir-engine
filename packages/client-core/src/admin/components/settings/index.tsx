@@ -131,7 +131,7 @@ export default function Settings() {
       tabsData={tabsData}
       currentTabIndex={getInitialTabIndex()}
       onTabChange={onTabChange}
-      tabcontainerClassName="bg-theme-primary"
+      tabcontainerClassName=""
     />
   )
 }

@@ -132,10 +132,7 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
 
   useEffect(() => clearTimeout(debouncedSearchQueryRef.current), [])
 
-  const handleClose = async () => {
-    if (userAvatarId !== selectedAvatarId.value) {
-      await handleConfirmAvatar()
-    }
+  const handleClose = () => {
     PopoverState.hidePopupover()
   }
 
@@ -149,7 +146,7 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
       hideFooter={true}
       rawChildren={
         <div className="grid h-full w-full grid-rows-[3.5rem,1fr]">
-          <div className="grid h-14 w-full grid-cols-[2rem,1fr,2rem] border-b border-b-theme-primary px-8">
+          <div className="grid h-14 w-full grid-cols-[2rem,1fr,2rem] border-b px-8">
             {showBackButton && (
               <Button
                 data-testid="edit-avatar-button"
@@ -234,8 +231,8 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
                   </Button>
                 )}
               </div>
-              <div className="max-h-[calc(95vh-7.5rem)] overflow-y-auto pb-6 pr-2">
-                <div className="grid grid-cols-1 gap-2">
+              <div className="flex max-h-[calc(95vh-7.5rem)] flex-col pb-6 pr-2">
+                <div className="flex flex-1 flex-col gap-2 overflow-y-auto">
                   {avatarsData.map((avatar) => (
                     <div key={avatar.id} className="w-full">
                       <Avatar
@@ -248,6 +245,14 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
                       />
                     </div>
                   ))}
+                </div>
+                <div className="mt-4 flex justify-end gap-2">
+                  <Button onClick={handleClose} variant="tertiary" disabled={selectedAvatarId.value === userAvatarId}>
+                    {t('user:avatar.discardChanges')}
+                  </Button>
+                  <Button onClick={handleConfirmAvatar} disabled={selectedAvatarId.value === userAvatarId}>
+                    {t('user:avatar.saveChanges')}
+                  </Button>
                 </div>
               </div>
             </div>

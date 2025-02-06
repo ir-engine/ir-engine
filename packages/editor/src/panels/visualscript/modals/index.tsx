@@ -47,7 +47,7 @@ export const Modal: React.FC<PropsWithChildren<ModalProps>> = ({ open = false, o
   return (
     <>
       <div className="fixed inset-0 z-20 h-full w-full overflow-y-auto bg-transparent" onClick={onClose}></div>
-      <div className="border-borderStyle relative top-[2px] z-20 mx-auto w-96 rounded-md border bg-theme-primary text-sm text-gray-800 shadow-[0_2px_4px_var(--background2)]">
+      <div className="border-borderStyle relative top-[2px] z-20 mx-auto w-96 rounded-md border  text-sm text-gray-800 shadow-[0_2px_4px_var(--background2)]">
         <div className="border-b border-gray-600 p-3">
           <h2 className="text-center text-lg font-bold text-white">{title}</h2>
         </div>

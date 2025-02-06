@@ -108,24 +108,43 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
       Icon={TransformPropertyGroup.iconComponent}
       entity={props.entity}
     >
-      <InputGroup
+      <div className="flex w-full gap-x-2 py-1.5 pl-8 pr-3.5">
+        <Checkbox
+          checked={hasDynamicLoad}
+          onChange={onChangeDynamicLoad}
+          label={t('editor:properties.lbl-dynamicLoad')}
+        />
+        {hasDynamicLoad && (
+          <InputGroup label="Distance">
+            <NumericInput
+              min={1}
+              max={100}
+              value={getComponent(props.entity, SceneDynamicLoadTagComponent).distance}
+              onChange={updateProperty(SceneDynamicLoadTagComponent, 'distance')}
+              onRelease={commitProperty(SceneDynamicLoadTagComponent, 'distance')}
+            />
+          </InputGroup>
+        )}
+      </div>
+
+      {/* <InputGroup
         name="Dynamically Load Children"
         label={t('editor:properties.lbl-dynamicLoad')}
-        labelClassName="font-normal text-[#6B6D78]"
         className="flex w-auto flex-row-reverse flex-nowrap items-center gap-1"
-        containerClassName="mb-4"
       >
-        <Checkbox checked={hasDynamicLoad} onChange={onChangeDynamicLoad} className="mr-2" />
+        <Checkbox checked={hasDynamicLoad} onChange={onChangeDynamicLoad} />
         {hasDynamicLoad && (
-          <NumericInput
-            min={1}
-            max={100}
-            value={getComponent(props.entity, SceneDynamicLoadTagComponent).distance}
-            onChange={updateProperty(SceneDynamicLoadTagComponent, 'distance')}
-            onRelease={commitProperty(SceneDynamicLoadTagComponent, 'distance')}
-          />
+          <InputGroup label="Distance">
+            <NumericInput
+              min={1}
+              max={100}
+              value={getComponent(props.entity, SceneDynamicLoadTagComponent).distance}
+              onChange={updateProperty(SceneDynamicLoadTagComponent, 'distance')}
+              onRelease={commitProperty(SceneDynamicLoadTagComponent, 'distance')}
+            />
+          </InputGroup>
         )}
-      </InputGroup>
+      </InputGroup> */}
       <InputGroup name="Position" label={t('editor:properties.transform.lbl-position')} className="w-auto">
         <Vector3Input
           disabled={locked}

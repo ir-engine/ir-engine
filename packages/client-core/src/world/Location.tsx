@@ -37,7 +37,6 @@ import '@ir-engine/client-core/src/util/GlobalStyle.css'
 import './LocationModule'
 
 import multiLogger from '@ir-engine/common/src/logger'
-import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import { StyledEngineProvider } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 import { NotificationService } from '../common/services/NotificationService'
@@ -88,9 +87,6 @@ const LocationPage = ({ online }: Props) => {
     <>
       <ThemeContextProvider>
         <StyledEngineProvider injectFirst>
-          {!ready.value && (
-            <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingEngine')} />
-          )}
           <TopButtons />
         </StyledEngineProvider>
       </ThemeContextProvider>
