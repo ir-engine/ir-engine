@@ -92,7 +92,7 @@ const AdminSideBar = () => {
   const relativePath = fullPathName.split('/').slice(2).join('/')
 
   return (
-    <aside className="mx-8 h-fit overflow-y-auto overflow-x-hidden rounded-2xl  px-2 py-4">
+    <aside className="col-span-4 mx-8 h-fit overflow-y-auto overflow-x-hidden rounded-2xl px-2 py-4 lg:col-span-3 2xl:col-span-2">
       <ul className="space-y-2">
         {Object.entries(allowedRoutes)
           .filter(([_, sidebarItem]) => sidebarItem.access)
@@ -100,14 +100,14 @@ const AdminSideBar = () => {
             return (
               <li key={index}>
                 <Link to={path}>
-                  <Button
-                    className={`hover:] flex w-72 items-center justify-start rounded-xl px-2 py-3 font-medium  ${
+                  <button
+                    className={`flex w-full items-center justify-start gap-x-1 rounded-xl bg-surface-1 px-2 py-3 font-medium text-text-secondary hover:bg-ui-hover-quadrary hover:text-text-primary ${
                       relativePath === path ? ' font-semibold  ' : ''
                     }`}
                   >
                     {sidebarItem.icon}
                     {t(sidebarItem.name)}
-                  </Button>
+                  </button>
                 </Link>
               </li>
             )
@@ -155,9 +155,9 @@ const AdminRoutes = () => {
   return (
     <div className="flex flex-col gap-6">
       <AdminTopBar />
-      <main className="pointer-events-auto flex h-[calc(100vh_-_88px_-_4rem)] gap-1.5 overflow-y-auto">
+      <main className="pointer-events-auto grid h-[calc(100vh_-_88px_-_4rem)] grid-cols-12 gap-1.5 overflow-y-auto">
         <AdminSideBar />
-        <div className="h-full w-full overflow-x-auto overflow-y-auto px-3">
+        <div className="col-span-8 h-full w-full overflow-x-auto overflow-y-auto px-3 lg:col-span-9 2xl:col-span-10">
           <Routes>
             <Route path="/*" element={<$allowed />} />
           </Routes>
