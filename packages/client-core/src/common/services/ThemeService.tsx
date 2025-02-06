@@ -241,9 +241,9 @@ const darkTheme: CSSClasses = {
   '--ui-hover-secondary': '#214469',
   '--ui-hover-tertiary': '#5A5E66',
   '--ui-hover-quadrary': '#42454D',
-  '--ui-hover-error': '#A67A28',
+  '--ui-hover-error': '#732424',
   '--ui-hover-warning': '#D8AB32',
-  '--ui-hover-success': '#D8AB32',
+  '--ui-hover-success': '#2C914E',
 
   /* UI Elements / Select */
   '--ui-select-background': '#1F2126',

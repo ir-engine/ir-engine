@@ -40,11 +40,11 @@ import { truncateText } from '@ir-engine/ui/src/primitives/tailwind/TruncatedTex
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRegCircleCheck, FaRegCircleXmark } from 'react-icons/fa6'
-import { twMerge } from 'tailwind-merge'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { AuthState } from '../../../user/services/AuthService'
 import DataTable from '../../common/Table'
 import { UserRowType, userColumns } from '../../common/constants/user'
+import ActionButton from '../ActionButton'
 import AccountIdentifiers from './AccountIdentifiers'
 import AddEditUserModal from './AddEditUserModal'
 
@@ -184,25 +184,15 @@ export default function UserTable({
         createdAt: toDisplayDateTime(row.createdAt),
         action: (
           <div className="flex items-center justify-start gap-3">
-            <button
-              className={twMerge(
-                'p-1',
-                userHasAccess ? 'text-text-secondary hover:text-text-primary' : 'cursor-not-allowed text-text-inactive'
-              )}
-              disabled={!userHasAccess}
+            <ActionButton
+              icon={Edit01Lg}
               title={t('admin:components.common.view')}
               onClick={() => PopoverState.showPopupover(<AddEditUserModal user={row} />)}
-            >
-              <Edit01Lg className="h-6 w-6" />
-            </button>
-            <button
-              className={twMerge(
-                'p-1',
-                user.id.value !== row.id
-                  ? 'text-text-secondary hover:text-text-primary'
-                  : 'cursor-not-allowed text-text-inactive'
-              )}
-              disabled={user.id.value === row.id}
+              variant="green"
+            />
+
+            <ActionButton
+              icon={Trash04Lg}
               title={t('admin:components.common.delete')}
               onClick={() => {
                 PopoverState.showPopupover(
@@ -214,9 +204,8 @@ export default function UserTable({
                   />
                 )
               }}
-            >
-              <Trash04Lg className="h-6 w-6" />
-            </button>
+              variant="red"
+            />
           </div>
         )
       }
