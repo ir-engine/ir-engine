@@ -27,6 +27,8 @@ import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import {
   getComponent,
   getMutableComponent,
+  getOptionalComponent,
+  getOptionalMutableComponent,
   hasComponent,
   useComponent,
   useOptionalComponent
@@ -49,7 +51,6 @@ import { PlayMode } from '@ir-engine/engine/src/scene/constants/PlayMode'
 import { Checkbox } from '@ir-engine/ui'
 import { BackSide, ClampToEdgeWrapping, DoubleSide, FrontSide, MirroredRepeatWrapping, RepeatWrapping } from 'three'
 import { Slider } from '../../../../../editor'
-import Button from '../../../../primitives/tailwind/Button'
 
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { DistanceModel, DistanceModelOptions } from '@ir-engine/engine/src/audio/constants/AudioConstants'
@@ -118,7 +119,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
 
   const video = useComponent(props.entity, VideoComponent)
   const media = useOptionalComponent(props.entity, MediaComponent)
-  const audio = getMutableComponent(props.entity, PositionalAudioComponent)
+  const audio = getOptionalMutableComponent(props.entity, PositionalAudioComponent)
 
   const mediaUUID = video.mediaUUID.value
   let mediaEntity = props.entity
@@ -143,7 +144,10 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   const mediaOptions = mediaEntities
     .filter((entity) => entity !== props.entity)
     .map((entity) => {
-      return { label: getComponent(entity, NameComponent), value: getComponent(entity, UUIDComponent) }
+      return {
+        label: getComponent(entity, NameComponent),
+        value: getOptionalComponent(entity, UUIDComponent) as EntityUUID
+      }
     })
 
   const toggle = () => {
@@ -719,22 +723,6 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
               </div>
             </div>
           </InputGroup>
-
-          {mediaElement && media.resources.length > 0 && (
-            <InputGroup
-              name="media-controls"
-              info={t('editor:properties.media.info-mediaControls')}
-              label={t('editor:properties.media.lbl-mediaControls')}
-              className="mb-2 flex gap-2"
-            >
-              <Button variant="tertiary" onClick={toggle}>
-                {media.paused.value ? t('editor:properties.media.playtitle') : t('editor:properties.media.pausetitle')}
-              </Button>
-              <Button variant="tertiary" onClick={reset}>
-                {t('editor:properties.media.resettitle')}
-              </Button>
-            </InputGroup>
-          )}
         </>
       )}
 

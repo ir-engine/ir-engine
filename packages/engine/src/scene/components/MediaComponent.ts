@@ -219,14 +219,14 @@ export function MediaReactor() {
   const playTrack = () => {
     let nextTrack = media.selectedTrackIndex.value
     if (nextTrack === -1) return
-
     let path = media.resources.value[nextTrack]
 
-    while (!path) {
+    if (nextTrack >= media.resources.length || !path) {
       // we already remove the case where we dont have any track
       // if current path is null, we simply skip over and move to next proper track
       nextTrack = (nextTrack + 1) % media.resources.length
-      path = media.resources[nextTrack].value
+      media.selectedTrackIndex.set(nextTrack)
+      return
     }
 
     const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
@@ -241,7 +241,7 @@ export function MediaReactor() {
     media.currentTrackDuration.set(0)
     media.track.set(nextTrack)
 
-    if (!mediaElement || mediaElement.element.nodeName.value.toLowerCase() !== assetClass) {
+    if (!mediaElement || !mediaElement.element || mediaElement.element.nodeName.value.toLowerCase() !== assetClass) {
       setUpMediaElement(entity, path, media, audioContext, gainNodeMixBuses)
     }
 
@@ -252,6 +252,7 @@ export function MediaReactor() {
     mediaElementState.hls.set(undefined)
     ;(mediaElementState.element.value as HTMLMediaElement).crossOrigin = 'anonymous'
     ;(mediaElementState.element.value as HTMLMediaElement).ontimeupdate = (event) => {
+      if (!mediaElementState.element) return
       const time = (mediaElementState.element.value as HTMLMediaElement).currentTime
       media.currentTrackTime.set(time)
     }
@@ -285,7 +286,7 @@ export function MediaReactor() {
     // in order to ensure media will play programmatically
 
     const handleAutoplay = () => {
-      const mediaComponent = getComponent(entity, MediaElementComponent)
+      const mediaComponent = getOptionalComponent(entity, MediaElementComponent)
 
       // handle when we dont have autoplay enabled but have programatically started playback
       if (!media.autoplayRuntime.value && !media.paused.value) mediaComponent?.element.play()
@@ -385,9 +386,13 @@ export function MediaReactor() {
 
   useEffect(
     function updateTrackMetadata() {
+      /*
+      if (media.selectedTrackIndex.value >= media.resources.length) {
+        media.selectedTrackIndex.set(-1)
+        return
+      }
+*/
       clearErrors(entity, MediaComponent)
-
-      media.selectedTrackIndex.set(-1)
 
       const paths = media.resources.value
 
@@ -435,30 +440,27 @@ export function MediaReactor() {
   )
 
   useEffect(() => {
+    if (!media.ended.value) return // If current track is not ended, don't change the track
+
+    if (!isClient) return
+
+    if (media.resources.value.every((resource) => !resource)) return // if all resources are empty, we dont move to next track
+
+    const mediaElement = getOptionalComponent(entity, MediaElementComponent)
+    const track = media.track.value
+    const nextTrack = getNextTrack(track, media.resources.length, media.playMode.value)
+
+    //check if we haven't set up for single play yet, or if our sources don't match the new resources
+    //** todo  make this more robust in a refactor, feels very error prone with edge cases */
+    if (nextTrack === -1) return
+
+    media.selectedTrackIndex.set(nextTrack)
+  }, [media.resources, media.ended, media.playMode])
+
+  useEffect(() => {
     if (!isClient) return
     playTrack()
-  }, [media.selectedTrackIndex])
-
-  useEffect(
-    function updateMediaElement() {
-      if (!media.ended.value) return // If current track is not ended, don't change the track
-
-      if (!isClient) return
-
-      if (media.resources.value.every((resource) => !resource)) return // if all resources are empty, we dont move to next track
-
-      const mediaElement = getOptionalComponent(entity, MediaElementComponent)
-      const track = media.track.value
-      const nextTrack = getNextTrack(track, media.resources.length, media.playMode.value)
-
-      //check if we haven't set up for single play yet, or if our sources don't match the new resources
-      //** todo  make this more robust in a refactor, feels very error prone with edge cases */
-      if (nextTrack === -1) return
-
-      media.selectedTrackIndex.set(nextTrack)
-    },
-    [media.resources, media.ended, media.playMode]
-  )
+  }, [media.selectedTrackIndex, media.resources])
 
   useEffect(
     function updateVolume() {

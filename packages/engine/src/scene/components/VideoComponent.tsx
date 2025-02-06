@@ -282,8 +282,8 @@ function VideoReactor() {
     const imageRatio = imageSize.x / imageSize.y || 1
 
     const size = video.size.value
-    let [containerWidth, containerHeight] = [size.x, size.y]
-    let containerRatio = containerWidth / containerHeight
+    const [containerWidth, containerHeight] = [size.x, size.y]
+    const containerRatio = containerWidth / containerHeight
 
     /*
     if (imageRatio < containerRatio) {
@@ -331,7 +331,7 @@ function VideoReactor() {
 
     fitPlacementUvOffset.set(uvOffset)
     fitPlacementUvScale.set(uvScale)
-  }, [video.size, video.fit, video.texture, mesh.material, media?.isCurrentTrackLoaded])
+  }, [video.size, video.fit, mesh.material, media?.isCurrentTrackLoaded])
 
   useEffect(() => {
     mesh.geometry.set(video.projection.value === 'Flat' ? PLANE_GEO() : SPHERE_GEO())
@@ -398,6 +398,7 @@ function VideoReactor() {
     const sourceVideoComponent = getOptionalComponent(mediaEntity, VideoComponent)
     const sourceMeshComponent = getOptionalComponent(mediaEntity, MeshComponent)
     const sourceTexture = sourceVideoComponent?.texture
+
     if (video.texture.value) {
       //needed to set up the self-referencing source video texture
       ;(video.texture.value.image as HTMLVideoElement) = mediaElement.element.value as HTMLVideoElement
