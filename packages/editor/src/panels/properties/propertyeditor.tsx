@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { calculateAndApplyYOffset } from '@ir-engine/common/src/utils/offsets'
 import { Entity, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
-import { Component, Layers, getAllComponents, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Component, Layers, getAllComponents, useHasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ComponentEditorsState } from '@ir-engine/editor/src/services/ComponentEditors'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
@@ -50,7 +50,7 @@ const EntityComponentEditor = ({
   component: Component
   multiEdit: boolean
 }) => {
-  const componentMounted = useOptionalComponent(entity, component)
+  const componentMounted = useHasComponent(entity, component)
   const Editor = getState(ComponentEditorsState)[component.name]!
   if (!componentMounted) return null
   // nodeEntity is used as key here to signal to React when the entity has changed,
@@ -86,7 +86,7 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
 
   const [isAddComponentMenuOpen, setIsAddComponentMenuOpen] = useState(false)
 
-  const hasTransform = useOptionalComponent(entity, TransformComponent)
+  const hasTransform = useHasComponent(entity, TransformComponent)
 
   if (!entity) return null
 
