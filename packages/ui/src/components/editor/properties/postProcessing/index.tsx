@@ -245,6 +245,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         break
       default:
         renderVal = <>Can't Determine type of property</>
+        break
     }
 
     return (

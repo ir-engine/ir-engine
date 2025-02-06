@@ -56,7 +56,7 @@ import { defineState, getMutableState, getState, NO_PROXY, none, State, useMutab
 
 import { getNestedChildren } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { Effect, EffectComposer, EffectPass, OutlineEffect } from 'postprocessing'
+import { Effect, EffectComposer, EffectPass, OutlineEffect, Pass } from 'postprocessing'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
 import { XRState } from '../xr/XRState'
@@ -94,6 +94,7 @@ export const RendererComponent = defineComponent({
 
       renderPass: S.Nullable(S.Type<RenderPass>()),
       normalPass: S.Nullable(S.Type<NormalPass>()),
+      passes: S.Record(S.String(), S.Type<Pass>()),
       renderContext: S.Nullable(S.Type<WebGLRenderingContext | WebGL2RenderingContext>()),
       effects: S.Record(S.String(), EffectSchema),
       effectInstances: S.Record(S.String(), S.Type<Effect>()),
@@ -267,6 +268,11 @@ export const RendererComponent = defineComponent({
       }
 
       try {
+        if (rendererComponent.passes.value) {
+          for (const pass of Object.values(rendererComponent.passes.value as Record<string, Pass>)) {
+            effectComposer.addPass(pass)
+          }
+        }
         effectComposer.addPass(effectPass)
       } catch (e) {
         console.warn(e) /** @todo Implement user messaging Ex: (Can not use multiple convolution effects) */
