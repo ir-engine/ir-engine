@@ -42,6 +42,7 @@ import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/Obje
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { Raycaster, Sprite, SpriteMaterial, TextureLoader, Vector3 } from 'three'
+import { iconGizmoArrow, setupGizmo } from '../constants/GizmoPresets'
 import { ComponentStudioIconState } from '../services/ComponentStudioIcons'
 import { SelectionState } from '../services/SelectionServices'
 
@@ -117,7 +118,12 @@ const reactor = () => {
 
       const iconHelper = createHelperEntity(
         entity,
-        () => createIconGizmo(componentStudioIcon[targetComponent?.name]),
+        () => {
+          const iconGizmo = createIconGizmo(componentStudioIcon[targetComponent?.name])
+          if (getComponent(entity, ActiveHelperComponent).directional)
+            setupGizmo(entity, iconGizmoArrow, ObjectLayers.NodeHelper)
+          return iconGizmo
+        },
         ObjectLayerMasks.NodeHelper,
         'icon-helper'
       )

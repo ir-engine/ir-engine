@@ -258,6 +258,12 @@ interface GizmoDefinition {
 }
 
 // Gizmo definitions - custom hierarchy definitions for setupGizmo() function
+const iconGizmoArrow: GizmoDefinition = {
+  ARROW: [
+    [new Mesh(arrowGeometry, matWhiteTransparent.clone()), [0, 0, 0.5], [Math.PI / 2, 0, 0]],
+    [new Mesh(lineGeometry3, matWhiteTransparent.clone()), null, [Math.PI / 2, 0, 0]]
+  ]
+}
 
 const cameraGizmo: GizmoDefinition = {
   X: [
@@ -468,6 +474,7 @@ export {
   helperRotate,
   helperScale,
   helperTranslate,
+  iconGizmoArrow,
   matBlue,
   matBlueTransparent,
   matGray,
