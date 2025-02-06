@@ -125,7 +125,7 @@ export default function SceneItem({
           </Button>
           <ul
             className={twMerge(
-              'dropdown-menu absolute left-6 top-2  z-10  block w-[180px] rounded-lg  px-4 py-3 pr-10',
+              'dropdown-menu absolute left-6 top-2 z-10  block  w-[180px] rounded-lg bg-surface-4 p-1',
               isOptionsPopupOpen.value ? 'visible' : 'hidden'
             )}
             data-testid="project-options-list"
@@ -133,7 +133,7 @@ export default function SceneItem({
             <li className="h-8">
               <Button
                 variant="tertiary"
-                className="h-full w-full justify-start gap-2 border-0 p-0  text-zinc-400 hover:text-[var(--text-primary)]"
+                className="h-full w-full justify-start gap-2 border-0 p-2 text-text-primary hover:bg-ui-hover-background"
                 data-testid="scene-rename-button"
                 onClick={() => {
                   isOptionsPopupOpen.set(false)
@@ -154,7 +154,7 @@ export default function SceneItem({
             <li className="h-8">
               <Button
                 variant="tertiary"
-                className="h-full w-full justify-start gap-2 border-0 p-0 text-zinc-400 hover:text-[var(--text-primary)]"
+                className="h-full w-full justify-start gap-2 border-0 p-2 text-text-primary hover:bg-ui-hover-background"
                 data-testid="scene-delete-button"
                 onClick={() => {
                   isOptionsPopupOpen.set(false)
