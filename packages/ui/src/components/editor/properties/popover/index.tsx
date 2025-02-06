@@ -79,7 +79,10 @@ export const PopoverNodeEditor: EditorComponentType = (props) => {
           label: capitalizeFirstLetter(key),
           value: key
         }))
-      : [{ label: 'Iframe', value: 'iframe' }]
+      : [
+          { label: 'Iframe', value: 'iframe' },
+          { label: 'Product Details', value: 'productDetails' }
+        ]
   }
 
   return (

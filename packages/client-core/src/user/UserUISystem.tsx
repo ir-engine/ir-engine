@@ -43,13 +43,6 @@ import EmbedFrame from './menus/avatar/EmbedFrame'
 const PopoverReactor = () => {
   const entity = useEntityContext()
   const popoverComponent = useOptionalComponent(entity, PopoverComponent)
-  const popoverComponentState = useMutableState(PopoverComponentState)
-
-  useEffect(() => {
-    popoverComponentState.merge({
-      iframe: EmbedFrame
-    })
-  }, [])
 
   useEffect(() => {
     if (popoverComponent?.isOpen.value) {
@@ -62,7 +55,7 @@ const PopoverReactor = () => {
         </div>
       )
     }
-  }, [popoverComponentState, popoverComponent])
+  }, [popoverComponent?.isOpen.value])
 
   return null
 }
@@ -141,6 +134,14 @@ const UserSystemReactor = () => {
         share: false
       })
   }, [worldHostId])
+
+  const popoverComponentState = useMutableState(PopoverComponentState)
+
+  useEffect(() => {
+    popoverComponentState.merge({
+      iframe: EmbedFrame
+    })
+  }, [])
 
   return <QueryReactor Components={[PopoverComponent]} ChildEntityReactor={PopoverReactor} />
 }
