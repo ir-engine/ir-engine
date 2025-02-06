@@ -449,9 +449,9 @@ export async function exportGLTFScene(
 
   if (!gltf) return []
 
-  const blob = [new Blob([JSON.stringify(gltf, null, 2)], { type: 'application/gltf+json' })]
-  const gltfFile = new File(blob, relativePath)
-  return [gltfFile, ...files]
+  // const blob = [new Blob([JSON.stringify(gltf, null, 2)], { type: 'application/gltf+json' })]
+  // const gltfFile = new File(blob, relativePath)
+  return [gltf, ...files]
 }
 
 const _diffMatrix = new Matrix4()
@@ -857,7 +857,7 @@ const exportGLTFSceneNode = async (
   if (children && children.length > 0) {
     for (const child of children) {
       const childIndex = await exportGLTFSceneNode(child, gltf, context)
-      childIndex && childrenIndicies.push(childIndex)
+      typeof childIndex === 'number' && childrenIndicies.push(childIndex)
     }
   }
 
