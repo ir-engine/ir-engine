@@ -81,7 +81,7 @@ const Slider = ({
 
   useEffect(() => {
     const observer = new ResizeObserver(() => {
-      if (parentRef.current) setWidth(parentRef.current?.offsetWidth)
+      if (parentRef.current) setWidth(Math.floor((parentRef.current?.offsetWidth * 3) / 5))
     })
     observer.observe(parentRef.current as Element)
     return () => observer.disconnect()
