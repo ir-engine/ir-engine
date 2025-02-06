@@ -26,15 +26,13 @@ Infinite Reality Engine. All Rights Reserved.
 import { Color, Material, SRGBColorSpace } from 'three'
 import matches from 'ts-matches'
 
-import { getComponent, getOptionalComponent, UUIDComponent } from '@ir-engine/ecs'
+import { getOptionalComponent, UUIDComponent } from '@ir-engine/ecs'
 import {
-  MaterialPrototypeComponent,
   MaterialPrototypeObjectConstructor,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 
 import {
-  getPrototypeEntityFromName,
   injectMaterialDefaults,
   PrototypeNotFoundError
 } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
@@ -56,10 +54,10 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     const eeMaterial: EEMaterialExtensionType = materialDef.extensions[this.name] as any
     let constructor: MaterialPrototypeObjectConstructor | null = null
     try {
-      constructor = getComponent(
-        getPrototypeEntityFromName(eeMaterial.prototype)!,
-        MaterialPrototypeComponent
-      ).prototypeConstructor
+      // constructor = getComponent(
+      //   getPrototypeEntityFromName(eeMaterial.prototype)!,
+      //   MaterialPrototypeComponent
+      // ).prototypeConstructor
     } catch (e) {
       if (e instanceof PrototypeNotFoundError) {
         console.warn('prototype ' + eeMaterial.prototype + ' not found')
@@ -69,9 +67,9 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     }
     return constructor
       ? (function (args) {
-          const material = new constructor![eeMaterial.prototype](args)
-          typeof eeMaterial.uuid === 'string' && (material.uuid = eeMaterial.uuid)
-          return material
+          // const material = new constructor![eeMaterial.prototype](args)
+          // typeof eeMaterial.uuid === 'string' && (material.uuid = eeMaterial.uuid)
+          // return material
         } as unknown as typeof Material)
       : null
   }
@@ -103,8 +101,8 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
       injectMaterialDefaults(extension.uuid)
     } else {
       try {
-        getComponent(getPrototypeEntityFromName(extension.prototype)!, MaterialPrototypeComponent).prototypeArguments
-        foundPrototype = true
+        // getComponent(getPrototypeEntityFromName(extension.prototype)!, MaterialPrototypeComponent).prototypeArguments
+        // foundPrototype = true
       } catch (e) {
         if (e instanceof PrototypeNotFoundError) {
           console.warn('prototype ' + extension.prototype + ' not found')

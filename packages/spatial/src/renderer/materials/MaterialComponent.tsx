@@ -29,7 +29,6 @@ import {
   Component,
   UUIDComponent,
   defineComponent,
-  defineQuery,
   getComponent,
   getOptionalComponent,
   getOptionalMutableComponent,
@@ -42,6 +41,7 @@ import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { PluginType } from '@ir-engine/spatial/src/common/functions/OnBeforeCompilePlugin'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { defineState } from '@ir-engine/hyperflux'
 import React, { useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { MeshComponent } from '../components/MeshComponent'
@@ -57,8 +57,6 @@ import MeshStandardMaterial from './prototypes/MeshStandardMaterial.mat'
 import MeshToonMaterial from './prototypes/MeshToonMaterial.mat'
 import { ShaderMaterial } from './prototypes/ShaderMaterial.mat'
 import { ShadowMaterial } from './prototypes/ShadowMaterial.mat'
-
-export type MaterialWithEntity = Material & { entity: Entity }
 
 export type MaterialPrototypeConstructor = new (...args: any) => any
 export type MaterialPrototypeObjectConstructor = { [key: string]: MaterialPrototypeConstructor }
@@ -81,17 +79,21 @@ export type PrototypeArgument = {
   [_: string]: PrototypeArgumentValue
 }
 
-export const MaterialPrototypeDefinitions = [
-  MeshBasicMaterial,
-  MeshStandardMaterial,
-  MeshMatcapMaterial,
-  MeshPhysicalMaterial,
-  MeshLambertMaterial,
-  MeshPhongMaterial,
-  MeshToonMaterial,
-  ShaderMaterial,
-  ShadowMaterial
-] as MaterialPrototypeDefinition[]
+export const MaterialPrototypeDefinitions = defineState({
+  name: 'MaterialPrototypeDefinitions',
+  initial: () =>
+    ({
+      MeshBasicMaterial,
+      MeshLambertMaterial,
+      MeshMatcapMaterial,
+      MeshPhongMaterial,
+      MeshPhysicalMaterial,
+      MeshStandardMaterial,
+      MeshToonMaterial,
+      ShaderMaterial,
+      ShadowMaterial
+    }) as Record<string, MaterialPrototypeDefinition>
+})
 
 export const MaterialPlugins = { TransparencyDitheringPluginComponent, NoiseOffsetPluginComponent } as Record<
   string,
@@ -213,17 +215,6 @@ const MaterialInstanceSubReactor = (props: { array: boolean; uuid: EntityUUID; e
 
   return null
 }
-
-export const MaterialPrototypeComponent = defineComponent({
-  name: 'MaterialPrototypeComponent',
-
-  schema: S.Object({
-    prototypeArguments: S.Type<PrototypeArgument>({}),
-    prototypeConstructor: S.Type<MaterialPrototypeObjectConstructor>({})
-  })
-})
-
-export const prototypeQuery = defineQuery([MaterialPrototypeComponent])
 
 declare module 'three/src/materials/Material.js' {
   export interface Material {
