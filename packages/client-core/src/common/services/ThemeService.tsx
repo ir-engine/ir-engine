@@ -125,7 +125,7 @@ const lightTheme: CSSClasses = {
   '--surface-4': '#F5F5F5',
   '--surface-error': '#E56E5C',
   '--surface-warning': '#FFDB6E',
-  '--surface-success': '#9CE5B4',
+  '--surface-success': '#6AC689',
 
   /* Surface Outline */
   '--surface-outline-1-1': '#D1D1D1',
@@ -143,10 +143,10 @@ const lightTheme: CSSClasses = {
   '--ui-quadrary': '#C6CBD1',
   '--ui-error': '#BD4B31',
   '--ui-warning': '#D4AA2C',
-  '--ui-success': '#6AC689',
+  '--ui-success': '#2C914E',
 
   /* UI Elements / Hover */
-  '--ui-hover-background': '#F5F5F5',
+  '--ui-hover-background': '#DBDBDB',
   '--ui-hover-outline': '#E6E6E6',
   '--ui-hover-primary': '#3368A1',
   '--ui-hover-secondary': '#3771AF',
@@ -154,7 +154,7 @@ const lightTheme: CSSClasses = {
   '--ui-hover-quadrary': '#DDE1E5',
   '--ui-hover-error': '#D1664D',
   '--ui-hover-warning': '#EEBA19',
-  '--ui-hover-success': '#0D943A',
+  '--ui-hover-success': '#5AC97F',
 
   /* UI Elements / Select */
   '--ui-select-background': '#F0F0F0',
@@ -165,7 +165,7 @@ const lightTheme: CSSClasses = {
   '--ui-select-quadrary': '#E0E0E0',
   '--ui-select-error': '#A8442D',
   '--ui-select-warning': '#EEBA19',
-  '--ui-select-success': '#10B948',
+  '--ui-select-success': '#18863D',
 
   /* UI Elements / Inactive */
   '--ui-inactive-background': '#E6E6E6',
@@ -174,9 +174,9 @@ const lightTheme: CSSClasses = {
   '--ui-inactive-secondary': '#B4CFEC',
   '--ui-inactive-tertiary': '#E6E6E6',
   '--ui-inactive-quadrary': '#E0E0E0',
-  '--ui-inactive-error': '#FF9182',
+  '--ui-inactive-error': '#FF8282',
   '--ui-inactive-warning': '#FFDB6E',
-  '--ui-inactive-success': '#BBEACB',
+  '--ui-inactive-success': '#ADE5C0',
 
   /* Text Colors */
   '--text-primary-button': '#F7F8FA',
@@ -185,7 +185,7 @@ const lightTheme: CSSClasses = {
   '--text-tertiary': '#7C808A',
   '--text-inactive': '#616161',
   '--text-link': '#5F8DBF',
-  '--text-error': '#DB4726',
+  '--text-error': '#CE2C2C',
   '--text-warning': '#EEBA19',
   '--text-success': '#29CF60',
 
@@ -212,14 +212,14 @@ const darkTheme: CSSClasses = {
   '--surface-2': '#16191C',
   '--surface-3': '#1F2126',
   '--surface-4': '#23262B',
-  '--surface-error': '#571D10',
-  '--surface-warning': '#54330D',
-  '--surface-success': '#05471B',
+  '--surface-error': '#31140D',
+  '--surface-warning': '#C4901F',
+  '--surface-success': '#2C914E',
 
   /* Surface Outline */
-  '--surface-outline-1-1': '#191B1F',
-  '--surface-outline-2-1': '#1F2226',
-  '--surface-outline-3-1': '#23262B',
+  '--surface-outline-1-1': '#1F2126',
+  '--surface-outline-2-1': '#23262B',
+  '--surface-outline-3-1': '#272A30',
   '--surface-outline-4-1': '#2C2E33',
   '--surface-outline-5-1': '#9CA0AA',
 
@@ -230,20 +230,20 @@ const darkTheme: CSSClasses = {
   '--ui-secondary': '#1B2844',
   '--ui-tertiary': '#42454D',
   '--ui-quadrary': '#2C2E33',
-  '--ui-error': '#8C331F',
-  '--ui-warning': '#B2761B',
-  '--ui-success': '#0B8634',
+  '--ui-error': '#571717',
+  '--ui-warning': '#A67A28',
+  '--ui-success': '#11632C',
 
   /* UI Elements / Hover */
   '--ui-hover-background': '#1F2126',
   '--ui-hover-outline': '#42454D',
-  '--ui-hover-primary': '#4D71BF',
-  '--ui-hover-secondary': '#213869',
+  '--ui-hover-primary': '#4D84BF',
+  '--ui-hover-secondary': '#214469',
   '--ui-hover-tertiary': '#5A5E66',
   '--ui-hover-quadrary': '#42454D',
-  '--ui-hover-error': '#A8442D',
-  '--ui-hover-warning': '#C99A32',
-  '--ui-hover-success': '#0D943A',
+  '--ui-hover-error': '#A67A28',
+  '--ui-hover-warning': '#D8AB32',
+  '--ui-hover-success': '#D8AB32',
 
   /* UI Elements / Select */
   '--ui-select-background': '#1F2126',
@@ -252,9 +252,9 @@ const darkTheme: CSSClasses = {
   '--ui-select-secondary': '#16203B',
   '--ui-select-tertiary': '#42454D',
   '--ui-select-quadrary': '#2C2E33',
-  '--ui-select-error': '#8C331F',
-  '--ui-select-warning': '#B2761B',
-  '--ui-select-success': '#076326',
+  '--ui-select-error': '#962E2E',
+  '--ui-select-warning': '#C4901F',
+  '--ui-select-success': '#18863D',
 
   /* UI Elements / Inactive */
   '--ui-inactive-background': '#1B1D21',
@@ -264,18 +264,18 @@ const darkTheme: CSSClasses = {
   '--ui-inactive-tertiary': '#5A5E66',
   '--ui-inactive-quadrary': '#42454D',
   '--ui-inactive-error': '#D1654D',
-  '--ui-inactive-warning': '#F5D164',
+  '--ui-inactive-warning': '#E8BE3F',
   '--ui-inactive-success': '#6AC689',
 
   /* Text Colors */
-  '--text-primary-button': '#FFFFFF',
-  '--text-primary': '#F4F3F5',
+  '--text-primary-button': '#F7F8FA',
+  '--text-primary': '#F7F8FA',
   '--text-secondary': '#B2B5BD',
-  '--text-tertiary': '#9CA0AA',
-  '--text-inactive': '#7C808A',
-  '--text-link': '#5F7DBF',
+  '--text-tertiary': '#7C808A',
+  '--text-inactive': '#B2B5BD',
+  '--text-link': '#5F8DBF',
   '--text-error': '#DB4726',
-  '--text-warning': '#F0C654',
+  '--text-warning': '#D4AA2C',
   '--text-success': '#29CF60',
 
   /* Chart Colors */
