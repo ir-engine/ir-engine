@@ -44,6 +44,7 @@ import { Raycaster, Vector3 } from 'three'
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
 import { TransformGizmoControlledComponent } from '../classes/gizmo/transform/TransformGizmoControlledComponent'
 import { controlUpdate, gizmoUpdate, planeUpdate } from '../functions/transformGizmoHelper'
+import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
 
 const sourceQuery = defineQuery([SourceComponent, TransformGizmoControlledComponent])
@@ -81,6 +82,9 @@ raycaster.layers.enable(ObjectLayers.Gizmos)
 export function editorInputHeuristic(intersectionData: Set<IntersectionData>, position: Vector3, direction: Vector3) {
   const isEditing = getState(EngineState).isEditing
   if (!isEditing) return
+
+  const gizmoEnabled = getState(EditorHelperState).gizmoEnabled
+  if (!gizmoEnabled) return
 
   raycaster.set(position, direction)
 
