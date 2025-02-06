@@ -171,7 +171,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
 
   const handleSourcePathSelect = (index: number) => {
     if (media) {
-      media.selectedTrackIndex.set(index)
+      media.track.set(index)
     }
   }
 
@@ -196,8 +196,8 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   }, [])
 
   useEffect(() => {
-    if (media && (media.resources.length < 1 || media.resources.length <= media.selectedTrackIndex.value)) {
-      media.selectedTrackIndex.set(-1)
+    if (media && (media.resources.length < 1 || media.resources.length <= media.track.value)) {
+      media.track.set(-1)
     }
   }, [media?.resources])
 
@@ -224,14 +224,9 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
     if (!sourceVideo) return
     const previewVideo = videoRef.current as unknown as HTMLVideoElement
     if (!previewVideo) return
-    const src = media?.resources.value[media?.selectedTrackIndex.value]
+    const src = media?.resources.value[media?.track.value]
     previewVideo.src = src ? src : ''
-    if (!sourceVideo.paused) {
-      previewVideo.play()
-    } else {
-      previewVideo.pause()
-    }
-  }, [media?.selectedTrackIndex, showVideoPreview])
+  }, [media?.track, showVideoPreview])
 
   useEffect(() => {
     if (!showVideoPreview.value) return
@@ -408,7 +403,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
               values={media.resources.value as string[]}
               dropTypes={[...ItemTypes.Videos]}
               onChange={commitProperty(MediaComponent, 'resources')}
-              selectedIndex={media.selectedTrackIndex.value}
+              selectedIndex={media.track.value}
               SelectIcon={HiOutlineVideoCamera}
               onSelect={handleSourcePathSelect}
             />

@@ -385,18 +385,21 @@ function VideoReactor() {
   }, [video.alphaUVOffset])
 
   useEffect(() => {
-    if (!mediaEntity || !mediaElement) return
-    const sourceVideoComponent = getOptionalComponent(mediaEntity, VideoComponent)
+    if (!mediaEntity || !mediaElement) {
+      video.texture.set(null)
+      return
+    }
+    const sourceVideoComponent = getOptionalComponent(entity, VideoComponent)
     const sourceMeshComponent = getOptionalComponent(mediaEntity, MeshComponent)
-    const sourceTexture = sourceVideoComponent?.texture
+    const sourceTexture = sourceVideoComponent?.texture ? sourceVideoComponent?.texture : null
 
     if (video.texture.value) {
       //needed to set up the self-referencing source video texture
       ;(video.texture.value.image as HTMLVideoElement) = mediaElement.element.value as HTMLVideoElement
 
       //if we're a videoComponent pointing to a different source, this will update the initial texture when we set source
-      if (entity !== mediaEntity && sourceVideoComponent) {
-        video.texture.set(sourceVideoComponent.texture)
+      if (sourceVideoComponent) {
+        video.texture.set(sourceTexture)
       }
       clearErrors(entity, VideoComponent)
     } else {
@@ -414,6 +417,6 @@ function VideoReactor() {
         }
       }
     }
-  }, [video.texture, video.mediaUUID, mediaEntity, mediaElement])
+  }, [video.mediaUUID, mediaEntity, mediaElement])
   return null
 }
