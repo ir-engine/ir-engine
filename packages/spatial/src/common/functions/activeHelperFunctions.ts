@@ -58,7 +58,7 @@ function pointerHover(helperEntity: Entity) {
   const intersect = intersectObjectWithRay(spriteObject, _raycaster, true)
 
   if (intersect) {
-    setComponent(helperEntity, AnimateScaleComponent)
+    setComponent(helperEntity, AnimateScaleComponent, { multiplier: 1.1, duration: 250 })
   } else {
     removeComponent(helperEntity, AnimateScaleComponent)
   }

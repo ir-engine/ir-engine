@@ -233,6 +233,7 @@ const scaleHandleGeometry = new BoxGeometry(0.08, 0.08, 0.08).translate(0, 0.04,
 const lineGeometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute([0, 0, 0, 1, 0, 0], 3))
 const lineGeometry2 = new CylinderGeometry(0.0075, 0.0075, 0.5, 4).translate(0, 0.25, 0)
 const lineGeometry3 = new CylinderGeometry(0.02, 0.02, 0.5, 4).translate(0, 0.25, 0)
+const lineGeometry4 = new CylinderGeometry(0.02, 0.02, 0.2, 4).translate(0, 0.25, 0)
 
 function CircleGeometry(radius: number, arc: number) {
   const geometry = new TorusGeometry(radius, 0.0075, 3, 64, arc * Math.PI * 2)
@@ -260,8 +261,8 @@ interface GizmoDefinition {
 // Gizmo definitions - custom hierarchy definitions for setupGizmo() function
 const iconGizmoArrow: GizmoDefinition = {
   ARROW: [
-    [new Mesh(arrowGeometry, matWhiteTransparent.clone()), [0, 0, 0.5], [Math.PI / 2, 0, 0]],
-    [new Mesh(lineGeometry3, matWhiteTransparent.clone()), null, [Math.PI / 2, 0, 0]]
+    [new Mesh(arrowGeometry, matGray.clone()), [0, 0, 0.5], [Math.PI / 2, 0, 0]],
+    [new Mesh(lineGeometry4, matGray.clone()), [0, 0, 0.2], [Math.PI / 2, 0, 0]]
   ]
 }
 

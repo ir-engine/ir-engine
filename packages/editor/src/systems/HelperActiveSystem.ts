@@ -48,7 +48,12 @@ import { SelectionState } from '../services/SelectionServices'
 
 const createIconGizmo = (textureURL) => {
   const texture = new TextureLoader().load(textureURL)
-  const material = new SpriteMaterial({ map: texture })
+  const material = new SpriteMaterial({
+    map: texture,
+    transparent: true, // Allow transparency
+    opacity: 1
+  })
+  material.depthTest = false // Disable depth testing
   return new Sprite(material)
 }
 
@@ -120,8 +125,11 @@ const reactor = () => {
         entity,
         () => {
           const iconGizmo = createIconGizmo(componentStudioIcon[targetComponent?.name])
+          iconGizmo.renderOrder = -1
+
           if (getComponent(entity, ActiveHelperComponent).directional)
             setupGizmo(entity, iconGizmoArrow, ObjectLayers.NodeHelper)
+          // add text
           return iconGizmo
         },
         ObjectLayerMasks.NodeHelper,

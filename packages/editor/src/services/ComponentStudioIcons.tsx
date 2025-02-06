@@ -29,6 +29,7 @@ import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComp
 import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
 import { PortalComponent } from '@ir-engine/engine/src/scene/components/PortalComponent'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
+import { SpawnPointComponent } from '@ir-engine/engine/src/scene/components/SpawnPointComponent'
 import { defineState } from '@ir-engine/hyperflux'
 import {
   DirectionalLightComponent,
@@ -36,22 +37,39 @@ import {
   PointLightComponent,
   SpotLightComponent
 } from '@ir-engine/spatial'
-import IREngineLogo from '/root/ir-engine/PoweredByIR.png'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
+import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
+import CameraIcon from '@ir-engine/ui/src/components/editor/assets/camera.png'
+import DirectionalLightIcon from '@ir-engine/ui/src/components/editor/assets/directional.png'
+import EnvMapBakeIcon from '@ir-engine/ui/src/components/editor/assets/envMap.png'
+import HemisphereLightIcon from '@ir-engine/ui/src/components/editor/assets/hemisphere.png'
+import MediaIcon from '@ir-engine/ui/src/components/editor/assets/media.png'
+import MountPointIcon from '@ir-engine/ui/src/components/editor/assets/mountPoint.png'
+import PointLightIcon from '@ir-engine/ui/src/components/editor/assets/point.png'
+import PortalIcon from '@ir-engine/ui/src/components/editor/assets/portal.png'
+import PositionalAudioIcon from '@ir-engine/ui/src/components/editor/assets/positionalAudio.png'
+import RigidBodyIcon from '@ir-engine/ui/src/components/editor/assets/rigidBody.png'
+import SpawnPointIcon from '@ir-engine/ui/src/components/editor/assets/spawnPoint.png'
+import SpotLightIcon from '@ir-engine/ui/src/components/editor/assets/spot.png'
+import TriggerIcon from '@ir-engine/ui/src/components/editor/assets/trigger.png'
 
 export const ComponentStudioIconState = defineState({
   name: 'ee.editor.ComponentStudioIconState',
   initial: () => {
     return {
-      [DirectionalLightComponent.name]: IREngineLogo, // point to texture files
-      [EnvMapBakeComponent.name]: IREngineLogo,
-      [MediaComponent.name]: IREngineLogo,
-      [HemisphereLightComponent.name]: IREngineLogo,
-      [MountPointComponent.name]: IREngineLogo,
-      [PointLightComponent.name]: IREngineLogo,
-      [PositionalAudioComponent.name]: IREngineLogo,
-      [PortalComponent.name]: IREngineLogo,
-      [ScenePreviewCameraComponent.name]: IREngineLogo,
-      [SpotLightComponent.name]: IREngineLogo
+      [DirectionalLightComponent.name]: DirectionalLightIcon, // point to texture files
+      [EnvMapBakeComponent.name]: EnvMapBakeIcon,
+      [MediaComponent.name]: MediaIcon,
+      [HemisphereLightComponent.name]: HemisphereLightIcon,
+      [MountPointComponent.name]: MountPointIcon,
+      [PointLightComponent.name]: PointLightIcon,
+      [PositionalAudioComponent.name]: PositionalAudioIcon,
+      [PortalComponent.name]: PortalIcon,
+      [ScenePreviewCameraComponent.name]: CameraIcon,
+      [SpotLightComponent.name]: SpotLightIcon,
+      [SpawnPointComponent.name]: SpawnPointIcon,
+      [RigidBodyComponent.name]: RigidBodyIcon,
+      [TriggerComponent.name]: TriggerIcon
     } as Record<string, any>
   }
 })
