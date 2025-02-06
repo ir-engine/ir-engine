@@ -142,7 +142,7 @@ const Input = (
             'flex w-full items-center gap-x-2 rounded-md border-[0.5px] border-ui-outline bg-ui-background placeholder-text-tertiary transition-colors duration-300',
             heights[height],
             disabled
-              ? 'border-text-inactive bg-ui-inactive-background text-text-inactive'
+              ? 'border-ui-inactive-outline bg-ui-inactive-background text-text-inactive'
               : 'border-ui-outline bg-ui-background text-text-tertiary hover:border-ui-hover-outline hover:bg-ui-hover-background has-[:focus]:border-ui-primary has-[:focus]:bg-ui-select-background has-[:focus]:text-text-primary',
             state === 'success' ? 'border-ui-success' : '',
             state === 'error' ? 'border-ui-error' : ''

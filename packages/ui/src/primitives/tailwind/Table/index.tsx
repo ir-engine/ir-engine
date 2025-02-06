@@ -33,7 +33,7 @@ interface TableCellProps extends React.HTMLAttributes<HTMLTableCellElement> {
 }
 
 const TableHeaderCell = ({ className, children, ...props }: TableCellProps) => {
-  const twClassName = twMerge('text-neutral-600 dark:text-white', 'p-4', 'border border-[0.5px] ', className)
+  const twClassName = twMerge('text-text-primary', 'p-4', 'border border-[0.5px] border-ui-outline ', className)
   return (
     <th className={twClassName} {...props}>
       {children}
@@ -60,7 +60,12 @@ const TableHeadRow = ({
 }
 
 const TableCell = ({ className, children, ...props }: TableCellProps) => {
-  const twClassName = twMerge('p-4', 'border border-[0.5px] ', 'text-left text-neutral-600 dark:text-white', className)
+  const twClassName = twMerge(
+    'p-4',
+    'border border-[0.5px] border-ui-outline ',
+    'text-left text-text-primary',
+    className
+  )
   return (
     <td className={twClassName} {...props}>
       {children}
@@ -126,10 +131,10 @@ const TablePagination = ({
   onPageChange: (newPage: number) => void
 }) => {
   const { t } = useTranslation()
-  const commonClasses = twMerge('pt-4 text-sm font-medium text-[#9CA0AA] enabled:hover:opacity-80')
-  const controlsClasses = twMerge(commonClasses, 'px-2 pt-5 enabled:text-white')
+  const commonClasses = twMerge('pt-4 text-sm font-medium text-text-secondary enabled:hover:text-text-primary')
+  const controlsClasses = twMerge(commonClasses, 'px-2 pt-5 enabled:text-text-primary')
   const pageClasses = twMerge(commonClasses, 'px-4')
-  const currentPageClasses = twMerge(pageClasses, 'border-t-2 border-[#375DAF] text-[#375DAF]')
+  const currentPageClasses = twMerge(pageClasses, 'border-t-2 border-ui-primary text-ui-primary')
 
   const prevPages = [] as number[]
   for (let i = currentPage - 1; i >= Math.max(0, currentPage - neighbours); i--) {
