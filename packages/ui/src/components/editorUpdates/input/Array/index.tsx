@@ -222,15 +222,6 @@ export default function ArrayInputGroup({
     [handleChange]
   )
 
-  const addInputElement = () => {
-    const newValues = inputElements.get(NO_PROXY) as InputElement[]
-    newValues.push({
-      uuid: uuidv4(),
-      value: ''
-    })
-    inputElements.set(newValues)
-  }
-
   const findInputElement = (inputElementUUID: string) => {
     for (let i = 0; i < inputElements.length; i++) {
       const ie = inputElements.get(NO_PROXY)[i]
