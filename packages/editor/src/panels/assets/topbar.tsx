@@ -45,7 +45,13 @@ const ViewModeSettings = () => {
 
   return (
     <Popup
-      contentStyle={{ background: '#15171b', border: 'solid', borderColor: '#5d646c' }}
+      contentStyle={{
+        background: 'var(--surface-1)',
+        border: 'solid',
+        borderColor: 'var(--ui-outline)',
+        borderWidth: '2px',
+        borderRadius: '0.5rem'
+      }}
       position={'bottom left'}
       trigger={
         <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
@@ -53,18 +59,16 @@ const ViewModeSettings = () => {
         </Tooltip>
       }
     >
-      <div className="flex flex-col justify-end">
-        <div className="w-3/5">
-          <Slider
-            label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
-            min={10}
-            max={100}
-            step={0.5}
-            value={viewModeSettings.list.fontSize.value}
-            onChange={viewModeSettings.list.fontSize.set}
-            onRelease={viewModeSettings.list.fontSize.set}
-          />
-        </div>
+      <div className="flex justify-end">
+        <Slider
+          label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
+          min={10}
+          max={100}
+          step={0.5}
+          value={viewModeSettings.list.fontSize.value}
+          onChange={viewModeSettings.list.fontSize.set}
+          onRelease={viewModeSettings.list.fontSize.set}
+        />
       </div>
     </Popup>
   )
