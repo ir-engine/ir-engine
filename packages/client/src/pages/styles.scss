@@ -165,12 +165,6 @@
   --dockBackground: rgb(73 66 152 / 85%);
 }
 
-::selection {
-  /* Code for Firefox */
-  background: var(--selection);
-  color: white;
-}
-
 ::-webkit-scrollbar {
   width: 0.5rem;
 }
