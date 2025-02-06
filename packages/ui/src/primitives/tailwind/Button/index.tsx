@@ -39,7 +39,7 @@ const variants = {
   secondary:
     'bg-ui-secondary text-text-primary-button hover:bg-ui-hover-secondary focus:bg-ui-select-secondary disabled:bg-ui-inactive-secondary disabled:text-text-inactive',
   tertiary:
-    'text-text-primary-button border border-ui-secondary hover:border-ui-hover-secondary focus:border-ui-select-secondary disabled:border-ui-inactive-secondary disabled:text-text-inactive',
+    'text-text-primary border border-ui-secondary hover:border-ui-hover-secondary focus:border-ui-select-secondary disabled:border-ui-inactive-secondary disabled:text-text-inactive',
   green:
     'bg-ui-success text-text-primary-button hover:bg-ui-hover-success focus:bg-ui-select-success disabled:bg-ui-inactive-success disabled:text-text-inactive',
   red: 'bg-ui-error text-text-primary-button hover:bg-ui-hover-error focus:bg-ui-select-error disabled:bg-ui-inactive-error disabled:text-text-inactive'
