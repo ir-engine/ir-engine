@@ -165,6 +165,8 @@ export const MediaComponent = defineComponent({
 })
 
 export function MediaReactor() {
+  if (!isClient) return null
+
   const entity = useEntityContext()
   const media = useComponent(entity, MediaComponent)
   const mediaElement = useOptionalComponent(entity, MediaElementComponent)
@@ -172,9 +174,8 @@ export function MediaReactor() {
   const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
   const rendererEntity = useRendererEntity(entity)
 
-  if (!isClient) return null
-
   function validateTime() {
+    if (!hasComponent(entity, MediaElementComponent)) return
     const mediaElementComponent = getMutableComponent(entity, MediaElementComponent)
     const element = mediaElementComponent.element.value as HTMLMediaElement
     if (element.currentTime < media.seekTime.value) {
