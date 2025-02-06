@@ -200,7 +200,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
     const userName = useGet(userPath, props.user.id).data?.name ?? 'User'
     const thumbnail = useUserAvatarThumbnail(user.id as UserID)
     return (
-      <div key={user.id} className="m-2 flex items-center gap-2">
+      <div key={user.id} className="m-2 flex items-center gap-2 text-text-secondary hover:text-text-primary">
         <AvatarImage src={thumbnail} size="medium" />
 
         <Text className="w-full">{userName}</Text>
@@ -260,7 +260,9 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
     return (
       <div className="flex flex-col gap-2">
         {displayList.length > 0 && displayList.map((value) => <Friend user={value} />)}
-        {displayList.length === 0 && <Text>{t('user:friends.noUsers')}</Text>}
+        {displayList.length === 0 && (
+          <Text className="text-center text-text-secondary">{t('user:friends.noUsers')}</Text>
+        )}
       </div>
     )
   }
