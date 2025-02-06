@@ -32,10 +32,26 @@ import { getMutableState } from '@ir-engine/hyperflux'
 import { useHookstate } from '@hookstate/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { EngineState } from '@ir-engine/ecs'
+import { EngineState, QueryReactor, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
+import { IFrameComponent } from '@ir-engine/engine/src/scene/components/IFrameComponent'
 import { NetworkState } from '@ir-engine/network'
+import { PopoverState } from '../common/services/PopoverState'
 import { InviteService } from '../social/services/InviteService'
 import { ViewerMenuState } from '../util/ViewerMenuState'
+import EmbedFrame from './menus/avatar/EmbedFrame'
+
+const IFrameReactor = () => {
+  const entity = useEntityContext()
+  const iframeComponent = useOptionalComponent(entity, IFrameComponent)
+
+  useEffect(() => {
+    if (iframeComponent?.isOpen.value) {
+      PopoverState.showPopupover(<EmbedFrame src={iframeComponent?.src.value} />)
+    }
+  }, [iframeComponent])
+
+  return null
+}
 
 const UserSystemReactor = () => {
   InviteService.useAPIListeners()
@@ -112,7 +128,7 @@ const UserSystemReactor = () => {
       })
   }, [worldHostId])
 
-  return null
+  return <QueryReactor Components={[IFrameComponent]} ChildEntityReactor={IFrameReactor} />
 }
 
 export const UserUISystem = defineSystem({

@@ -22,24 +22,29 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import { Entity } from '@ir-engine/ecs'
+import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 
-import { defineState } from '@ir-engine/hyperflux'
-
-export const ViewerMenuState = defineState({
-  name: 'ViewerMenuState',
+export const EntityHierarchyLockState = defineState({
+  name: 'ir.editor.EntityHierarchyLockState',
   initial: () => ({
-    userMenus: {
-      profile: true,
-      settings: false,
-      readyplayer: false,
-      avaturn: false,
-      avatarselect: false,
-      avatarmodify: false,
-      share: false,
-      emote: false,
-      friends: false,
-      social: false,
-      embedframe: true
-    }
-  })
+    lockedEntities: {} as Record<Entity, boolean> // Map to store locked state of entities
+  }),
+  // Updates the locked state of a specific entity
+  updateLocked: (entity: Entity, isLocked: boolean) => {
+    const state = getMutableState(EntityHierarchyLockState)
+    state.lockedEntities[entity].set(isLocked) // Replace the Map entirely
+  },
+
+  // Retrieves the lock status of a specific entity
+  isEntityLocked: (entity: Entity): boolean => {
+    const state = getState(EntityHierarchyLockState)
+    return state.lockedEntities[entity] ?? false // Default to false if not set
+  },
+
+  // Clears all locked entities
+  clearLockedEntities: () => {
+    const state = getState(EntityHierarchyLockState)
+    state.lockedEntities = {} // Replace the Map entirely with an empty one
+  }
 })
