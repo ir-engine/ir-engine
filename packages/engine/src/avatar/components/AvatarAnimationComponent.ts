@@ -154,9 +154,6 @@ export function createVRM(rootEntity: Entity) {
       bone?.matrixWorld.identity()
       bone?.quaternion.set(0, 0, 0, 1)
 
-      if (bone?.rotation) bone.rotation._onChangeCallback = () => {}
-      if (bone) bone.quaternion._onChangeCallback = () => {}
-
       if (entity !== bones.hips.node.parent?.entity) bone?.matrixWorld.makeRotationY(Math.PI)
     })
     bones.hips.node.rotateY(Math.PI)
@@ -187,6 +184,17 @@ export function createVRM(rootEntity: Entity) {
 
     setComponent(rootEntity, AvatarRigComponent, { vrm })
     linkNormalizedBones(vrm)
+
+    const humanoidAfter = vrm.humanoid as any
+    Object.values(humanoidAfter._normalizedHumanBones.humanBones).forEach((o: any) => {
+      const bone = o.node as Object3D
+      if (bone?.rotation) bone.rotation._onChangeCallback = () => {}
+      if (bone) bone.quaternion._onChangeCallback = () => {}
+    })
+    humanoidAfter._normalizedHumanBones.root.traverse((bone: Object3D) => {
+      if (bone?.rotation) bone.rotation._onChangeCallback = () => {}
+      if (bone) bone.quaternion._onChangeCallback = () => {}
+    })
 
     return vrm
   }
