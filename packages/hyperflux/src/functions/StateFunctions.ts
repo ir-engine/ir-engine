@@ -107,28 +107,54 @@ export function resolveObject<O extends object, P extends string | ReadonlyArray
   return keyPath.reduce((prev, curr) => prev?.[curr], obj as any)
 }
 
-export const setNestedObject = (obj: any, path: string, val: any) => {
-  path = path.replaceAll('[', '.[')
-  const keys = path.split('.')
-
-  for (let i = 0; i < keys.length; i++) {
-    let currentKey = keys[i] as any
-    let nextKey = keys[i + 1] as any
-    if (currentKey.includes('[')) {
-      currentKey = parseInt(currentKey.substring(1, currentKey.length - 1))
+export function getNestedObject(object: any, propertyName: string) {
+  if (propertyName === '') return { result: object, finalProp: '' }
+  if (propertyName.startsWith('.')) propertyName = propertyName.slice(1)
+  const props = propertyName.split('.')
+  let result = object
+  for (let i = 0; i < props.length; i++) {
+    if (typeof result !== 'object') continue
+    let isNumber = false
+    try {
+      isNumber = !isNaN(Number(props[i]))
+    } catch (e) {
+      isNumber = false
     }
-    if (nextKey && nextKey.includes('[')) {
-      nextKey = parseInt(nextKey.substring(1, nextKey.length - 1))
+    let val = props[i] as string | number
+    if (isNumber) {
+      val = Number(val)
     }
-
-    if (typeof nextKey !== 'undefined') {
-      obj[currentKey] = obj[currentKey] ? obj[currentKey] : isNaN(nextKey) ? {} : []
-    } else {
-      obj[currentKey] = val
-    }
-
-    obj = obj[currentKey]
+    result = result[val]
   }
+  return { result, finalProp: props[props.length - 1] }
+}
+
+export function setNestedObject(object: object, propertyName: string, value: any) {
+  if (propertyName === '') return { result: object, finalProp: '' }
+  if (propertyName.startsWith('.')) propertyName = propertyName.slice(1)
+  const props = propertyName.split('.')
+  let last = object
+  for (let i = 0; i < props.length - 1; i++) {
+    if (typeof last !== 'object') continue
+    let isNumber = false
+    try {
+      isNumber = !isNaN(Number(props[i]))
+    } catch (e) {
+      isNumber = false
+    }
+    let val = props[i] as string | number
+    if (isNumber) {
+      val = Number(val)
+    }
+
+    if (!last[val]) {
+      if (isNumber) last[val] = []
+      else last[val] = {}
+    }
+
+    last = last[val]
+  }
+  last[props[props.length - 1]] = value
 }
 
 /** @todo unused */

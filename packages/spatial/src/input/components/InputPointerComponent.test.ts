@@ -303,7 +303,7 @@ describe('InputPointerComponent', () => {
         return null
       }
       const root = startReactor(Reactor)
-      assert.equal(reactorSpy.callCount, 3)
+      assert.equal(reactorSpy.callCount, 1)
       assert.equal(effectSpy.callCount, 1)
       // Check that the assumptions are correct
       assert.equal(cameraPointers.length, 2)
@@ -335,7 +335,7 @@ describe('InputPointerComponent', () => {
         return null
       }
       const root = startReactor(Reactor)
-      assert.equal(reactorSpy.callCount, 2)
+      assert.equal(reactorSpy.callCount, 1)
       assert.equal(effectSpy.callCount, 1)
       // Check the basic assumptions
       assert.equal(cameraPointers.length, 2)
@@ -347,7 +347,7 @@ describe('InputPointerComponent', () => {
 
       root.run()
 
-      assert.equal(reactorSpy.callCount, 3)
+      assert.equal(reactorSpy.callCount, 2)
       assert.equal(effectSpy.callCount, 2)
       assert.equal(cameraPointers.length, 1)
     })

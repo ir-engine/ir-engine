@@ -40,6 +40,7 @@ import {
   defineComponent,
   getComponent,
   getMutableComponent,
+  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -247,7 +248,7 @@ const ChildMeshReactor = (props: { variantEntity: Entity; modelEntity: Entity; m
     const instancedMesh =
       mesh instanceof InstancedMesh
         ? mesh
-        : new InstancedMesh(mesh.geometry, mesh.material, instancingComponent.instanceMatrix.count)
+        : new InstancedMesh(mesh.geometry.clone(), mesh.material, instancingComponent.instanceMatrix.count)
     instancedMesh.instanceMatrix.copy(instancingComponent.instanceMatrix)
     instancedMesh.frustumCulled = false
 
@@ -283,6 +284,7 @@ uniform float minDistance;`
       })
     }
 
+    removeComponent(props.meshEntity, MeshComponent)
     setComponent(props.meshEntity, MeshComponent, instancedMesh)
   }, [])
 

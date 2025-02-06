@@ -61,6 +61,7 @@ describe('EditorControlFunctions', () => {
   let physicsWorldEntity: Entity
 
   beforeEach(async () => {
+    Cache.enabled = true
     createEngine()
     getMutableState(EngineState).isEditing.set(true)
     getMutableState(EngineState).isEditor.set(true)
@@ -79,6 +80,7 @@ describe('EditorControlFunctions', () => {
   })
 
   afterEach(() => {
+    Cache.enabled = false
     return destroyEngine()
   })
 
@@ -297,7 +299,7 @@ describe('EditorControlFunctions', () => {
       const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
 
       EditorControlFunctions.modifyProperty([nodeEntity], SplineComponent, {
-        [`elements[${1}].position` as string]: {
+        [`elements.${1}.position` as string]: {
           x: 10,
           y: 10,
           z: 10

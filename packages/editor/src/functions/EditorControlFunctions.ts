@@ -42,6 +42,7 @@ import {
   ComponentJSONIDMap,
   deserializeComponent,
   getComponent,
+  getMutableComponent,
   hasComponent,
   LayerComponent,
   Layers,
@@ -112,56 +113,16 @@ const modifyProperty = <C extends Component<any, any>>(
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
 
-    const currentComponent = hasComponent(entity, component) ? serializeComponent(entity, component) : undefined
-    const newObj = {}
+    const currentComponent = hasComponent(entity, component) ? serializeComponent(entity, component) : {}
     for (const [key, val] of Object.entries(properties)) {
-      /**
-       * this annoyingly verbose logic is to ensure that arrays are copied from the current state of the component (if it exists)
-       * such that we do not overwrite the whole array with the partial.
-       * This is due to our schemas not being able to discern a partial array from a full array in setComponent
-       */
-      if (key.includes('[')) {
-        const path = key.replaceAll('[', '.[')
-
-        const keys = path.split('.')
-
-        let obj = newObj
-        let curr = currentComponent!
-
-        for (let i = 0; i < keys.length; i++) {
-          let currentKey = keys[i] as any
-          let nextKey = keys[i + 1] as any
-          if (currentKey.includes('[')) {
-            currentKey = parseInt(currentKey.substring(1, currentKey.length - 1))
-          }
-          if (nextKey && nextKey.includes('[')) {
-            nextKey = parseInt(nextKey.substring(1, nextKey.length - 1))
-          }
-
-          if (typeof nextKey !== 'undefined') {
-            obj[currentKey] = obj[currentKey]
-              ? obj[currentKey]
-              : isNaN(nextKey)
-              ? {}
-              : currentComponent
-              ? curr[currentKey]
-              : []
-            curr[currentKey] = curr[currentKey] ? curr[currentKey] : isNaN(nextKey) ? {} : []
-          } else {
-            obj[currentKey] = val
-            curr[currentKey] = val
-          }
-
-          obj = obj[currentKey]
-          curr = curr[currentKey]
-        }
-      } else if (key.includes('.')) {
-        setNestedObject(newObj, key, val)
+      if (key.includes('.')) {
+        setNestedObject(currentComponent, key, val)
+        console.log(currentComponent, key, val)
       } else {
-        newObj[key] = val
+        currentComponent[key] = val
       }
     }
-    setComponent(entity, component, newObj)
+    deserializeComponent(entity, component, currentComponent)
     EditorState.markModifiedScene(entity)
   }
 }
@@ -358,6 +319,7 @@ const positionObject = (
     }
 
     setComponent(entity, TransformComponent, { position: transform.position })
+    getMutableComponent(entity, TransformComponent).position.set((v) => v)
 
     EditorState.markModifiedScene(entity)
   }
@@ -392,6 +354,7 @@ const rotateObject = (nodes: Entity[], rotations: Quaternion[], space = getState
     }
 
     setComponent(entity, TransformComponent, { rotation: transform.rotation })
+    getMutableComponent(entity, TransformComponent).rotation.set((v) => v)
 
     EditorState.markModifiedScene(entity)
   }
@@ -418,6 +381,7 @@ const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: V
       .decompose(transform.position, transform.rotation, transform.scale)
 
     setComponent(entity, TransformComponent, { rotation: transform.rotation })
+    getMutableComponent(entity, TransformComponent).rotation.set((v) => v)
 
     EditorState.markModifiedScene(entity)
   }
@@ -443,6 +407,7 @@ const scaleObject = (entities: Entity[], scales: Vector3[], overrideScale = fals
     )
 
     setComponent(entity, TransformComponent, { scale: transformComponent.scale })
+    getMutableComponent(entity, TransformComponent).scale.set((v) => v)
 
     EditorState.markModifiedScene(entity)
   }

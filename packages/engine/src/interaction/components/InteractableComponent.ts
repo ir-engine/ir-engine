@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { MathUtils, Vector2, Vector3 } from 'three'
+import { MathUtils, Vector3 } from 'three'
 
 import {
   ECSState,
@@ -48,7 +48,6 @@ import { getState, isClient, useImmediateEffect, useMutableState } from '@ir-eng
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
 import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
-import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import {
   BoundingBoxComponent,
@@ -92,25 +91,24 @@ export enum XRUIActivationType {
 }
 
 const xrDistVec3 = new Vector3()
-const inputPointerPosition = new Vector2()
-let inputPointerEntity = UndefinedEntity
 
-const updateXrDistVec3 = (selfAvatarEntity: Entity) => {
-  //TODO change from using rigidbody to use the transform position (+ height of avatar)
-  const selfAvatarRigidBodyComponent = getComponent(selfAvatarEntity, RigidBodyComponent)
-  const avatar = getComponent(selfAvatarEntity, AvatarComponent)
-  xrDistVec3.copy(selfAvatarRigidBodyComponent.position)
-  xrDistVec3.y += avatar.avatarHeight
+const updateXrDistVec3 = (targetEntity: Entity) => {
+  const transformComponent = getComponent(targetEntity, TransformComponent)
+  xrDistVec3.copy(transformComponent.position)
+  if (hasComponent(targetEntity, AvatarComponent)) {
+    const avatar = getComponent(targetEntity, AvatarComponent)
+    xrDistVec3.y += avatar.avatarHeight
+  }
 }
 
 const _center = new Vector3()
 const _size = new Vector3()
 
 export const updateInteractableUI = (entity: Entity) => {
-  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
+  const targetEntity = AvatarComponent.getSelfAvatarEntity() ?? getState(ReferenceSpaceState).viewerEntity
   const interactable = getOptionalComponent(entity, InteractableComponent)
 
-  if (!selfAvatarEntity || !interactable || interactable.uiEntity == UndefinedEntity) return
+  if (!targetEntity || !interactable || interactable.uiEntity == UndefinedEntity) return
 
   const xrui = getOptionalComponent(interactable.uiEntity, XRUIComponent)
   const xruiTransform = getOptionalComponent(interactable.uiEntity, TransformComponent)
@@ -118,7 +116,7 @@ export const updateInteractableUI = (entity: Entity) => {
 
   const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
 
-  updateXrDistVec3(selfAvatarEntity)
+  updateXrDistVec3(targetEntity)
 
   const hasVisibleComponent = hasComponent(interactable.uiEntity, VisibleComponent)
   if (hasVisibleComponent) {

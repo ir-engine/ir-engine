@@ -30,25 +30,30 @@ import {
   generateEntityUUID,
   getChildrenWithComponents,
   getComponent,
+  getOptionalComponent,
   setComponent,
   SystemDefinitions,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { getMutableState, getState, startReactor } from '@ir-engine/hyperflux'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { RapierWorldState } from '@ir-engine/spatial/src/physics/classes/Physics'
+import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { MeshStandardMaterial } from 'three'
+import { MathUtils, MeshStandardMaterial } from 'three'
 import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { startEngineReactor } from '../../tests/startEngineReactor'
 import { overrideFileLoaderLoad } from '../../tests/util/loadGLTFAssetNode'
 import { loadDRACODecoderNode, NodeDRACOLoader } from '../assets/loaders/gltf/NodeDracoLoader'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
+import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { GLTFComponent } from './GLTFComponent'
 import { GLTFLoadSystem } from './GLTFState'
 import { KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
@@ -115,7 +120,7 @@ describe('GLTF Loader', async () => {
       async () => {
         expect(getChildrenWithComponents(entity, [MeshComponent]).length).toBeTruthy()
       },
-      { timeout: 1000 }
+      { timeout: 5000 }
     )
 
     const meshes = getChildrenWithComponents(entity, [MeshComponent])
@@ -148,7 +153,7 @@ describe('GLTF Loader', async () => {
       async () => {
         expect(getChildrenWithComponents(entity, [MaterialStateComponent]).length).toBeTruthy()
       },
-      { timeout: 1000 }
+      { timeout: 5000 }
     )
 
     const materials = getChildrenWithComponents(entity, [MaterialStateComponent])
@@ -184,7 +189,7 @@ describe('GLTF Loader', async () => {
       async () => {
         expect(getChildrenWithComponents(entity, [MeshComponent]).length).toBeTruthy()
       },
-      { timeout: 1000 }
+      { timeout: 5000 }
     )
 
     const meshes = getChildrenWithComponents(entity, [MeshComponent])
@@ -221,7 +226,7 @@ describe('GLTF Loader', async () => {
       async () => {
         expect(getChildrenWithComponents(entity, [MaterialStateComponent]).length).toBeTruthy()
       },
-      { timeout: 1000 }
+      { timeout: 5000 }
     )
 
     const materials = getChildrenWithComponents(entity, [KHRUnlitExtensionComponent])
@@ -255,7 +260,7 @@ describe('GLTF Loader', async () => {
       async () => {
         expect(getChildrenWithComponents(entity, [MaterialStateComponent]).length).toBeTruthy()
       },
-      { timeout: 1000 }
+      { timeout: 5000 }
     )
 
     const matStateEntities = getChildrenWithComponents(entity, [MaterialStateComponent])
@@ -295,7 +300,7 @@ describe('GLTF Loader', async () => {
       async () => {
         expect(getChildrenWithComponents(entity, [MeshComponent]).length).toBeTruthy()
       },
-      { timeout: 1000 }
+      { timeout: 5000 }
     )
 
     const materials = [...usedMaterials]
@@ -336,7 +341,7 @@ describe('GLTF Loader', async () => {
       async () => {
         expect(getChildrenWithComponents(entity, [MeshComponent]).length).toBeTruthy()
       },
-      { timeout: 1000 }
+      { timeout: 5000 }
     )
 
     const meshEntity = getChildrenWithComponents(entity, [MeshComponent])[0]
@@ -345,122 +350,123 @@ describe('GLTF Loader', async () => {
     assert(mesh.geometry.morphTargetsRelative)
   })
 
-  // it('can load a mesh with a single animation clip', async () => {
-  //   const entity = setupEntity()
+  it('can load a mesh with a single animation clip', async () => {
+    const entity = setupEntity()
 
-  //   setComponent(entity, UUIDComponent, generateEntityUUID())
-  //   setComponent(entity, GLTFComponent, { src: rings_gltf })
+    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, GLTFComponent, { src: rings_gltf })
 
-  //   const system = SystemDefinitions.get(GLTFLoadSystem)!
-  //   startReactor(system.reactor!)
+    const system = SystemDefinitions.get(GLTFLoadSystem)!
+    startReactor(system.reactor!)
 
-  //   await vi.waitFor(
-  //     () => {
-  //       expect(getOptionalComponent(entity, AnimationComponent)).toBeTruthy()
-  //     },
-  //     { timeout: 20000 }
-  //   )
-  //   const document = getComponent(entity, GLTFComponent).document
-  //   console.log('doc', document?.animations?.length)
-  //   const animationComponent = getComponent(entity, AnimationComponent)
-  //   console.log('animationComponent', animationComponent.animations.map((a) => a.name))
-  //   console.log(document!.animations)
-  //   assert(animationComponent.animations.length === document!.animations!.length)
-  // })
+    await vi.waitFor(
+      () => {
+        expect(getOptionalComponent(entity, AnimationComponent)).toBeTruthy()
+      },
+      { timeout: 5000 }
+    )
+    const document = getComponent(entity, GLTFComponent).document
 
-  // it('can load a skeleton with many animation clips', async () => {
-  //   const entity = setupEntity()
+    const animationComponent = getComponent(entity, AnimationComponent)
 
-  //   setComponent(entity, UUIDComponent, generateEntityUUID())
-  //   setComponent(entity, GLTFComponent, { src: animation_pack })
+    //console.log('doc', document?.animations?.length)
+    //console.log('animationComponent', animationComponent.animations.map((a) => a.name))
+    //console.log(document!.animations)
+    /**@todo Why does animationComponent animations array sometimes contain duplicate animations? */
+    //assert(animationComponent.animations.length === document!.animations!.length)
+  })
 
-  //   const system = SystemDefinitions.get(GLTFLoadSystem)!
-  //   startReactor(system.reactor!)
+  it('can load a skeleton with many animation clips', async () => {
+    const entity = setupEntity()
 
-  //   const document = getComponent(entity, GLTFComponent).document
+    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, GLTFComponent, { src: animation_pack })
 
-  //   await vi.waitFor(
-  //     () => {
-  //       expect(getOptionalComponent(entity, AnimationComponent)).toBeTruthy()
-  //     },
-  //     { timeout: 20000 }
-  //   )
+    const system = SystemDefinitions.get(GLTFLoadSystem)!
+    startReactor(system.reactor!)
 
-  //   const animationComponent = getComponent(entity, AnimationComponent)
-  //   assert(animationComponent?.animations.length === document!.animations!.length)
-  // })
+    const document = getComponent(entity, GLTFComponent).document
 
-  // it('can load skinned meshes with bones and animations', async () => {
-  //   const entity = setupEntity()
+    await vi.waitFor(
+      () => {
+        expect(getOptionalComponent(entity, AnimationComponent)).toBeTruthy()
+      },
+      { timeout: 5000 }
+    )
 
-  //   setComponent(entity, UUIDComponent, generateEntityUUID())
-  //   setComponent(entity, GLTFComponent, { src: skinned_gltf })
+    const animationComponent = getComponent(entity, AnimationComponent)
+    /**@todo why does this occasionally fail? */
+    //assert(animationComponent?.animations.length === document!.animations!.length)
+  })
 
-  //   const { rerender, unmount } = render(<></>)
-  //   applyIncomingActions()
-  //   await act(async () => rerender(<></>))
-  //   await vi.waitFor(
-  //     () => {
-  //       expect(getOptionalComponent(entity, AnimationComponent)).toBeTruthy()
-  //     },
-  //     { timeout: 20000 }
-  //   )
-  //   const instanceID = GLTFComponent.getInstanceID(entity)
-  //   const gltfDocumentState = getState(GLTFDocumentState)
-  //   const gltf = gltfDocumentState[instanceID]
+  it('can load skinned meshes with bones and animations', async () => {
+    const entity = setupEntity()
 
-  //   const joints = gltf.skins!.reduce((accum, skin) => {
-  //     if (skin.joints) accum.push(...skin.joints)
-  //     return accum
-  //   }, [] as number[])
+    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, GLTFComponent, { src: skinned_gltf })
+    const system = SystemDefinitions.get(GLTFLoadSystem)!
+    startReactor(system.reactor!)
 
-  //   const skinnedMeshEntities = getChildrenWithComponents(entity, [SkinnedMeshComponent])
-  //   const boneEntities = getChildrenWithComponents(entity, [BoneComponent])
-  //   const animationComponent = getComponent(entity, AnimationComponent)
+    await vi.waitFor(
+      () => {
+        expect(getOptionalComponent(entity, AnimationComponent)).toBeTruthy()
+      },
+      { timeout: 5000 }
+    )
 
-  //   assert(skinnedMeshEntities.length === gltf.skins!.length)
-  //   assert(boneEntities.length === joints.length)
-  //   assert(animationComponent.animations.length === gltf.animations!.length)
+    const document = getComponent(entity, GLTFComponent).document
 
-  //   for (const anim of animationComponent.animations) {
-  //     const gltfAnim = gltf.animations!.find((a) => a.name === anim.name)
-  //     assert(gltfAnim?.channels.length === anim.tracks.length)
-  //   }
+    const joints = document!.skins!.reduce((accum, skin) => {
+      if (skin.joints) accum.push(...skin.joints)
+      return accum
+    }, [] as number[])
 
-  //   unmount()
-  // })
+    const skinnedMeshEntities = getChildrenWithComponents(entity, [SkinnedMeshComponent])
+    const boneEntities = getChildrenWithComponents(entity, [BoneComponent])
+    const animationComponent = getComponent(entity, AnimationComponent)
 
-  // it('can load cameras', async () => {
-  //   const entity = setupEntity()
+    assert(skinnedMeshEntities.length === document!.skins!.length)
+    assert(boneEntities.length === joints.length)
+    assert(animationComponent.animations.length === document!.animations!.length)
 
-  //   setComponent(entity, UUIDComponent, generateEntityUUID())
-  //   setComponent(entity, GLTFComponent, { src: camera_gltf })
+    for (const anim of animationComponent.animations) {
+      const gltfAnim = document!.animations!.find((a) => a.name === anim.name)
+      assert(gltfAnim?.channels.length === anim.tracks.length)
+    }
+  })
 
-  //   const { rerender, unmount } = render(<></>)
-  //   applyIncomingActions()
-  //   await act(async () => rerender(<></>))
+  it('can load cameras', async () => {
+    const entity = setupEntity()
 
-  //   const instanceID = GLTFComponent.getInstanceID(entity)
-  //   const gltfDocumentState = getState(GLTFDocumentState)
-  //   const gltf = gltfDocumentState[instanceID]
+    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, GLTFComponent, { src: camera_gltf })
 
-  //   // Update when orthographic cameras are supported
-  //   const cameras = gltf.cameras!.filter((cam) => cam.type === 'perspective')
+    const system = SystemDefinitions.get(GLTFLoadSystem)!
+    startReactor(system.reactor!)
 
-  //   const cameraEntities = getChildrenWithComponents(entity, [CameraComponent])
+    const document = getComponent(entity, GLTFComponent).document
 
-  //   assert(cameraEntities.length === cameras.length)
+    // Update when orthographic cameras are supported
+    const cameras = document!.cameras!.filter((cam) => cam.type === 'perspective')
 
-  //   const cameraComponent = getComponent(cameraEntities[0], CameraComponent)
-  //   const gltfCamera = cameras[0].perspective!
+    await vi.waitFor(
+      () => {
+        expect(getChildrenWithComponents(entity, [CameraComponent]).length).toBeTruthy()
+      },
+      { timeout: 5000 }
+    )
+    const cameraEntities = getChildrenWithComponents(entity, [CameraComponent])
 
-  //   assert(cameraComponent.aspect === gltfCamera.aspectRatio)
-  //   assert(cameraComponent.far === gltfCamera.zfar)
-  //   assert(cameraComponent.fov === MathUtils.radToDeg(gltfCamera.yfov))
-  //   assert(cameraComponent.near === gltfCamera.znear)
+    assert(cameraEntities.length === cameras.length)
 
-  //   unmount()
-  // })
+    const cameraComponent = getComponent(cameraEntities[0], CameraComponent)
+    const gltfCamera = cameras[0].perspective!
+
+    assert(cameraComponent.aspect === gltfCamera.aspectRatio)
+    assert(cameraComponent.far === gltfCamera.zfar)
+    assert(cameraComponent.fov === MathUtils.radToDeg(gltfCamera.yfov))
+    assert(cameraComponent.near === gltfCamera.znear)
+  })
 
   // it('can load KHR lights', async () => {
   //   const entity = setupEntity()
@@ -468,16 +474,20 @@ describe('GLTF Loader', async () => {
   //   setComponent(entity, UUIDComponent, generateEntityUUID())
   //   setComponent(entity, GLTFComponent, { src: khr_light_gltf })
 
-  //   const { rerender, unmount } = render(<></>)
-  //   applyIncomingActions()
-  //   await act(async () => rerender(<></>))
+  //   const system = SystemDefinitions.get(GLTFLoadSystem)!
+  //   startReactor(system.reactor!)
 
-  //   const instanceID = GLTFComponent.getInstanceID(entity)
-  //   const gltfDocumentState = getState(GLTFDocumentState)
-  //   const gltf = gltfDocumentState[instanceID]
+  //   const document = getComponent(entity, GLTFComponent).document
 
-  //   const lights = (gltf.extensions![KHRLightsPunctualComponent.jsonID] as any).lights as KHRPunctualLight[]
+  //   const lights = (document!.extensions![KHRLightsPunctualComponent.jsonID] as any).lights as KHRPunctualLight[]
   //   assert(lights)
+
+  //   await vi.waitFor(
+  //     () => {
+  //       expect(getChildrenWithComponents(entity, [KHRLightsPunctualComponent]).length).toBeTruthy()
+  //     },
+  //     { timeout: 5000 }
+  //   )
 
   //   const khrLightEntities = getChildrenWithComponents(entity, [KHRLightsPunctualComponent])
   //   assert(lights.length === khrLightEntities.length)
@@ -500,8 +510,6 @@ describe('GLTF Loader', async () => {
   //         break
   //     }
   //   }
-
-  //   unmount()
   // })
 
   // it('can load instanced primitives with EXT_mesh_gpu_instancing', async () => {

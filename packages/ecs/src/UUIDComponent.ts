@@ -27,7 +27,7 @@ import { NO_PROXY_STEALTH, State, destroy, hookstate, useHookstate } from '@ir-e
 import { v4 as uuidv4 } from 'uuid'
 import { LayerComponent, LayerID, Layers, defineComponent, setComponent } from './ComponentFunctions'
 import { Entity, EntityUUID, UndefinedEntity } from './Entity'
-import { createEntity } from './createEntity'
+import { createEntity } from './EntityFunctions'
 import { S } from './schemas/JSONSchemas'
 
 export const UUIDComponent = defineComponent({

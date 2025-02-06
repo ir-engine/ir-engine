@@ -50,25 +50,28 @@ import {
 import { ECSState } from './ECSState'
 import { Easing, EasingFunction } from './EasingFunctions'
 import { Entity, UndefinedEntity } from './Entity'
-import { EntityContext, entityExists, removeEntity } from './EntityFunctions'
 import { defineQuery, removeQuery } from './QueryFunctions'
+import { defineSystem } from './SystemFunctions'
+import { PresentationSystemGroup } from './SystemGroups'
 import { Transitionable, TransitionableTypes, getTransitionableKeyForType } from './Transitionable'
 import { createResizableTypeArray } from './bitecsLegacy'
-import { createEntity } from './createEntity'
 import { Kind, Static, Schema as TSchema, TTypedSchema } from './schemas/JSONSchemaTypes'
 import {
   CreateSchemaValue,
   DeserializeSchemaValue,
   HasRequiredSchema,
   HasRequiredSchemaValues,
-  HasSchemaDeserializers,
   HasSchemaValidators,
   HasValidSchemaValues,
   IsSingleValueSchema,
-  requiresDeserialization,
   SerializeSchema
 } from './schemas/JSONSchemaUtils'
 import { S } from './schemas/JSONSchemas'
+
+/**
+ * === SECTION ===
+ * Component Functions
+ */
 
 export const ComponentMap = new Map<string, Component<any, any, any, any, any, any>>()
 export const ComponentJSONIDMap = new Map<string, Component<any, any, any, any, any, any>>() // <jsonID, Component>
@@ -480,206 +483,6 @@ const resizeComponent = (component: Component, size: number) => {
   component.storageSize = size
 }
 
-/**
- * @description Returns array of relations that, for each entry, contains:
- *  - Layer number at slot 0
- *  - Entity ID at slot 1
- *  @example ```ts
- *  for ([layer, linkedEntity] of getLayerRelations(entity)) { ..... }
- *  ```
- * */
-function getLayerRelationsEntities(entity: Entity): [LayerID, Entity][] | undefined {
-  const layerComponent = LayerFunctions.getLayerComponent(entity)
-  if (!layerComponent) return
-  const layer = getOptionalComponent(entity, layerComponent)
-  if (!layer) return
-  return Object.entries(layer.relations).map(
-    ([layer, val]): [LayerID, Entity] => [Number(layer), val] as [LayerID, Entity]
-  )
-}
-
-function getLayerRelationsTypes(layer: LayerID): [LayerID, keyof typeof LayerRelationTypes][] {
-  return Object.entries(LayerRelations[layer]).map(
-    ([layer, val]) => [Number(layer), val] as [LayerID, keyof typeof LayerRelationTypes]
-  )
-}
-
-/**
- * @description Returns the LayerComponent used by this entity from the LayerComponents map.
- * */
-function getLayerComponent(entity: Entity) {
-  return LayerComponents[LayerComponent.get(entity)]
-}
-
-/**
- * @description Returns true if the given entity/layer pair should trigger propagation behavior.
- * */
-function shouldPropagate(entityLayer: LayerID, layer: LayerID): boolean {
-  return LayerRelations[entityLayer][layer] === LayerRelationTypes.Propagate
-}
-
-/**
- * @description Runs the `@param linkedLayer` propagation process for the schema of the given `@param C` Component
- * @note Checking whether this process/behavior should be run or not is done with the {@link shouldPropagate} helper function.
- * */
-function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedLayer: LayerID, component: C) {
-  if (!component.schema) return
-  const componentSchema = component.schema as TTypedSchema<C>
-  const layer = LayerComponent.get(entity)
-  const createArgs = (schema: TTypedSchema<C>, key: string | number, data: any) => {
-    const obj = key === '' ? data : data[key]
-    if (obj === undefined || obj == null || obj === UndefinedEntity) return obj
-    switch (schema[Kind] as any) {
-      case 'Null':
-      case 'Undefined':
-      case 'Void':
-      case 'Bool':
-      case 'String':
-      case 'Enum':
-      case 'Literal': {
-        return obj
-      }
-      case 'Number': {
-        if ((schema[Kind] as any) === 'Number' && schema?.options?.['id'] === 'Entity') {
-          const referencedEntity = obj as Entity
-
-          // if the entity is already in the linked layer, return the current arg
-          if (LayerComponent.get(referencedEntity) === linkedLayer) return referencedEntity
-
-          // otherwise return the linked entity
-          return getComponent(referencedEntity, LayerComponents[layer]).relations[linkedLayer]
-        } else {
-          return obj
-        }
-      }
-      case 'Any': {
-        if (typeof obj === 'object' && 'clone' in obj && typeof obj.clone === 'function') {
-          return obj.clone()
-        } else if (Array.isArray(obj)) {
-          return [...obj] as any[]
-        } else {
-          return structuredClone(obj)
-        }
-      }
-      case 'Class': {
-        if ('clone' in obj && typeof obj.clone === 'function') {
-          return obj.clone()
-        } else {
-          try {
-            return structuredClone(obj)
-          } catch (error) {
-            throw new Error(
-              `[propagateSchema]: ${entity} ${component.name} ${key} is not a cloneable class. ` + error.message
-            )
-          }
-        }
-      }
-      case 'Object': {
-        const props = schema.properties as any
-        const args = {} as any
-        for (const k in props) {
-          const parsed = createArgs(props[k], k, obj)
-          args[k] = parsed
-        }
-        return args
-      }
-      case 'Record': {
-        const { key, value } = schema.properties as { key: any; value: any }
-        const args = {} as any
-        for (const k in obj) {
-          const parsed = createArgs(value, k, obj)
-          args[k] = parsed
-        }
-        return args
-      }
-      case 'Array': {
-        const props = schema.properties as any
-        const args = [] as any[]
-        for (let i = 0; i < obj.length; i++) {
-          const parsed = createArgs(props, i, obj)
-          args[i] = parsed
-        }
-        return args
-      }
-      case 'Tuple': {
-        const props = schema.properties as any
-        const args = [] as any[]
-        for (let i = 0; i < props.length; i++) {
-          const parsed = createArgs(props[i], i, obj)
-          args[i] = parsed
-        }
-        return args
-      }
-      case 'Union': {
-        const props = schema.properties as any
-        for (const prop of props) {
-          const parsed = createArgs(prop, '', obj)
-          if (parsed) return parsed
-        }
-        return null
-      }
-      case 'Partial':
-      case 'Required':
-      case 'Proxy':
-      case 'NonSerialized':
-      default: {
-        let props = schema.properties as any
-        if (!props) {
-          // must be SoA data
-          if (typeof obj === 'object') {
-            props = {
-              properties: Object.fromEntries(Object.keys(schema).map((key) => [key, { [Kind]: 'Any' }])),
-              [Kind]: 'Object'
-            }
-          } else if (typeof obj === 'number') {
-            return obj
-          }
-        }
-        return createArgs(props, '', obj)
-      }
-    }
-  }
-
-  return createArgs(componentSchema, '', getComponent(entity, component))
-}
-
-/**
- * @description
- * Runs the `@param linkedLayer` propagation process for the given `@param entity`/`@param component` pair
- * It will also trigger Schema propagation when `@param component`.schema is truthy.
- *
- * @note Checking whether this process/behavior should be run or not is done with the {@link shouldPropagate} helper function.
- * */
-function propagateLayer<C extends Component>(entity: Entity, component: C) {
-  if ((component as any) === LayerComponent || LayerComponents.includes(component as any)) return
-  const relations = LayerFunctions.getLayerRelationsEntities(entity)
-  if (!relations) return
-  const entityLayer = LayerComponent.get(entity)
-  for (const [linkedLayer, linkedEntity] of relations) {
-    if (!LayerFunctions.shouldPropagate(entityLayer, linkedLayer)) continue
-    const newArgs = LayerFunctions.createLayerPropagationArgs(entity, linkedLayer, component)
-    setComponent(linkedEntity, component, newArgs)
-  }
-}
-
-/**
- * @description
- * Collection of ECSLayers Helper functions.
- *
- * @note
- * Usage of these functions through this object is preferable.
- * Simplifies unit testing by allowing the definition of function spies directly from this object.
- * */
-export const LayerFunctions = {
-  getLayerRelationsEntities,
-  getLayerRelationsTypes,
-  getLayerComponent,
-  shouldPropagate,
-  createLayerPropagationArgs,
-  propagateLayer,
-  getAuthoringCounterpart
-}
-
 const _getComponentState = <C extends Component>(entity: Entity, component: C) => {
   if (!component.stateMap[entity]) {
     component.stateMap[entity] = hookstate(none, () => ({
@@ -716,7 +519,8 @@ export const setComponent = <C extends Component>(
   if (!entity) {
     throw new Error('[setComponent]: entity is undefined')
   }
-  if (!bitECS.entityExists(HyperFlux.store, entity)) {
+  if (!entityExists(entity)) {
+    console.trace({ entity, component: component.name, args })
     throw new Error('[setComponent]: entity does not exist')
   }
 
@@ -739,6 +543,7 @@ export const setComponent = <C extends Component>(
     component.onSet(entity, state, args)
   }
 
+  /** @todo this might be unnecessayr now that we have propagation via the store */
   LayerFunctions.propagateLayer(entity, component)
 
   if (component.reactor && !component.reactorMap.has(entity) && LayerComponent.get(entity) === Layers.Simulation) {
@@ -779,8 +584,8 @@ export function hasComponents<C extends Component>(entity: Entity, components: C
 export function useHasComponents<C extends Component>(entity: Entity, components: C[]): boolean {
   let hasAllComponents = true
   for (const component of components) {
-    const exists = !!useOptionalComponent(entity, component)
-    if (!exists) hasAllComponents = false
+    useOptionalComponent(entity, component)?.value
+    if (!hasComponent(entity, component)) hasAllComponents = false
   }
 
   return hasAllComponents
@@ -804,7 +609,8 @@ export const removeComponent = <C extends Component>(entity: Entity, component: 
   component.reactorMap.delete(entity)
   if (root?.isRunning) root.stop()
   /** clear state data after reactor stops, to ensure hookstate is still referenceable */
-  destroy(component.stateMap[entity]) // component.stateMap[entity]?.set(none)
+  component.stateMap[entity]?.set(none)
+  destroy(component.stateMap[entity])
   delete component.stateMap[entity]
   delete component.valueMap[entity]
 }
@@ -827,7 +633,7 @@ export const componentJsonDefaults = <C extends Component>(component: C) => {
  * @returns An array containing all of the Entity's associated components.
  */
 export const getAllComponents = (entity: Entity): Component[] => {
-  if (!bitECS.entityExists(HyperFlux.store, entity)) return []
+  if (!entityExists(entity)) return []
   return bitECS.getEntityComponents(HyperFlux.store, entity) as Component[]
 }
 
@@ -841,6 +647,7 @@ export const getAllComponentData = (entity: Entity): { [name: string]: Component
 }
 
 export const removeAllComponents = (entity: Entity) => {
+  if (!entityExists(entity)) return
   try {
     for (const component of bitECS.getEntityComponents(HyperFlux.store, entity)) {
       try {
@@ -932,8 +739,8 @@ export function useComponent<C extends Component>(entity: Entity, component: C):
 }
 
 export function useHasComponent<C extends Component>(entity: Entity, component: C): boolean {
-  const componentState = useHookstate(_getComponentState(entity, component)) as State<ComponentType<C>>
-  return componentState.promised ? false : true
+  useOptionalComponent(entity, component)?.value
+  return hasComponent(entity, component)
 }
 
 /**
@@ -961,6 +768,221 @@ export const getAllComponentsOfType = <C extends Component>(component: C): Compo
   return entities.map((e) => {
     return getComponent(e, component)!
   })
+}
+
+/**
+ * === SECTION ===
+ * Entity Layers
+ */
+
+/**
+ * @description Returns array of relations that, for each entry, contains:
+ *  - Layer number at slot 0
+ *  - Entity ID at slot 1
+ *  @example ```ts
+ *  for ([layer, linkedEntity] of getLayerRelations(entity)) { ..... }
+ *  ```
+ * */
+function getLayerRelationsEntities(entity: Entity): [LayerID, Entity][] | undefined {
+  const layerComponent = LayerFunctions.getLayerComponent(entity)
+  if (!layerComponent) return
+  const layer = getOptionalComponent(entity, layerComponent)
+  if (!layer) return
+  return Object.entries(layer.relations).map(
+    ([layer, val]): [LayerID, Entity] => [Number(layer), val] as [LayerID, Entity]
+  )
+}
+
+function getLayerRelationsTypes(layer: LayerID): [LayerID, keyof typeof LayerRelationTypes][] {
+  return Object.entries(LayerRelations[layer]).map(
+    ([layer, val]) => [Number(layer), val] as [LayerID, keyof typeof LayerRelationTypes]
+  )
+}
+
+/**
+ * @description Returns the LayerComponent used by this entity from the LayerComponents map.
+ * */
+function getLayerComponent(entity: Entity) {
+  return LayerComponents[LayerComponent.get(entity)]
+}
+
+/**
+ * @description Returns true if the given entity/layer pair should trigger propagation behavior.
+ * */
+function shouldPropagate(entityLayer: LayerID, layer: LayerID): boolean {
+  return LayerRelations[entityLayer][layer] === LayerRelationTypes.Propagate
+}
+
+/**
+ * @description Runs the `@param linkedLayer` propagation process for the schema of the given `@param C` Component
+ * @note Checking whether this process/behavior should be run or not is done with the {@link shouldPropagate} helper function.
+ * */
+function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedLayer: LayerID, component: C) {
+  if (!component.schema) return
+  const componentSchema = component.schema as TTypedSchema<C>
+  const layer = LayerComponent.get(entity)
+  const createArgs = (schema: TTypedSchema<C>, key: string | number, data: any) => {
+    const obj = key === '' ? data : data[key]
+    if (obj === undefined || obj === null || obj === UndefinedEntity) return obj
+    switch (schema[Kind] as any) {
+      case 'Null':
+      case 'Undefined':
+      case 'Void':
+      case 'Bool':
+      case 'String':
+      case 'Enum':
+      case 'Literal': {
+        return obj
+      }
+      case 'Number': {
+        if ((schema[Kind] as any) === 'Number' && schema?.options?.['id'] === 'Entity') {
+          const referencedEntity = obj as Entity
+
+          // if the entity is already in the linked layer, return the current arg
+          if (LayerComponent.get(referencedEntity) === linkedLayer) return referencedEntity
+
+          // otherwise return the linked entity
+          return getComponent(referencedEntity, LayerComponents[layer]).relations[linkedLayer]
+        } else {
+          return obj
+        }
+      }
+      case 'Any': {
+        if (typeof obj === 'object' && 'clone' in obj && typeof obj.clone === 'function') {
+          return obj.clone()
+        } else if (Array.isArray(obj)) {
+          return [...obj] as any[]
+        } else {
+          return structuredClone(obj)
+        }
+      }
+      case 'Class': {
+        if ('clone' in obj && typeof obj.clone === 'function') {
+          return obj.clone()
+        } else {
+          try {
+            return structuredClone(obj)
+          } catch (error) {
+            throw new Error(
+              `[propagateSchema]: ${entity} ${component.name} ${key} is not a cloneable class. ` + error.message
+            )
+          }
+        }
+      }
+      case 'Object': {
+        const props = schema.properties as any
+        const args = {} as any
+        for (const k in props) {
+          const parsed = createArgs(props[k], k, obj)
+          if (typeof parsed === 'undefined') continue
+          args[k] = parsed
+        }
+        return args
+      }
+      case 'Record': {
+        const { key, value } = schema.properties as { key: any; value: any }
+        const args = {} as any
+        for (const k in obj) {
+          const parsed = createArgs(value, k, obj)
+          if (typeof parsed === 'undefined') continue
+          args[k] = parsed
+        }
+        return args
+      }
+      case 'Array': {
+        const props = schema.properties as any
+        const args = [] as any[]
+        for (let i = 0; i < obj.length; i++) {
+          const parsed = createArgs(props, i, obj)
+          args[i] = parsed
+        }
+        return args
+      }
+      case 'Tuple': {
+        const props = schema.properties as any
+        const args = [] as any[]
+        for (let i = 0; i < props.length; i++) {
+          const parsed = createArgs(props[i], i, obj)
+          args[i] = parsed
+        }
+        return args
+      }
+      case 'Union': {
+        const props = schema.properties as any
+        for (const prop of props) {
+          const parsed = createArgs(prop, '', obj)
+          if (parsed) return parsed
+        }
+        return null
+      }
+      case 'Partial':
+      case 'Required':
+      case 'Proxy':
+      case 'NonSerialized':
+      default: {
+        let props = schema.properties as any
+        if (!props) {
+          // must be SoA data
+          if (typeof obj === 'object') {
+            props = {
+              properties: Object.fromEntries(Object.keys(schema).map((key) => [key, { [Kind]: 'Any' }])),
+              [Kind]: 'Object'
+            }
+          } else if (typeof obj === 'number') {
+            return obj
+          }
+        }
+        return createArgs(props, '', obj)
+      }
+    }
+  }
+
+  const vals = createArgs(componentSchema, '', getComponent(entity, component))
+
+  for (const key in vals) {
+    if (typeof vals[key] === 'undefined') {
+      delete vals[key]
+    }
+  }
+
+  return vals
+}
+
+/**
+ * @description
+ * Runs the `@param linkedLayer` propagation process for the given `@param entity`/`@param component` pair
+ * It will also trigger Schema propagation when `@param component`.schema is truthy.
+ *
+ * @note Checking whether this process/behavior should be run or not is done with the {@link shouldPropagate} helper function.
+ * */
+function propagateLayer<C extends Component>(entity: Entity, component: C) {
+  if ((component as any) === LayerComponent || LayerComponents.includes(component as any)) return
+  const relations = LayerFunctions.getLayerRelationsEntities(entity)
+  if (!relations) return
+  const entityLayer = LayerComponent.get(entity)
+  for (const [linkedLayer, linkedEntity] of relations) {
+    if (!LayerFunctions.shouldPropagate(entityLayer, linkedLayer)) continue
+    const newArgs = LayerFunctions.createLayerPropagationArgs(entity, linkedLayer, component)
+    setComponent(linkedEntity, component, newArgs)
+  }
+}
+
+/**
+ * @description
+ * Collection of ECSLayers Helper functions.
+ *
+ * @note
+ * Usage of these functions through this object is preferable.
+ * Simplifies unit testing by allowing the definition of function spies directly from this object.
+ * */
+export const LayerFunctions = {
+  getLayerRelationsEntities,
+  getLayerRelationsTypes,
+  getLayerComponent,
+  shouldPropagate,
+  createLayerPropagationArgs,
+  propagateLayer,
+  getAuthoringCounterpart
 }
 
 export const Layers = {
@@ -1052,6 +1074,11 @@ export const LayerComponent = defineComponent({
 export function getAuthoringCounterpart(entity: Entity) {
   return LayerComponents[Layers.Authoring].refs[entity]
 }
+
+/**
+ * === SECTION ===
+ * Component Transitions
+ */
 
 export const TransitionComponent = defineComponent({
   name: 'TransitionComponent',
@@ -1211,3 +1238,96 @@ export const TransitionComponent = defineComponent({
     }
   }
 })
+
+/**
+ * === SECTION ===
+ * Entity Functions
+ */
+
+/**
+ * $RemovedComponent
+ * - internal to the ECS
+ * - used as a component to mark an entity as existing, and it's store 'exists' is set to 0
+ *       immediately upon calling removeEntity, thus we can use it for entity existence
+ */
+export const $RemovedComponent = defineComponent({
+  name: '$RemovedComponent',
+  storage: { exists: createResizableTypeArray(Uint8Array) }
+})
+
+// precalc initial few unnecessary resizes
+resizeComponent($RemovedComponent, Math.pow(2, 8))
+
+// add a delay such that we ensure any deletions never happen on the same animation frame to ensure reactors have enough time to run effects
+let lastMarkedForRemoval = 0
+const delay = 100 // 100ms - usually enough for a few frames on low end devices
+
+const _markEntityForRemoval = (eid: Entity): void => {
+  bitECS.addComponent(HyperFlux.store, eid, $RemovedComponent)
+  $RemovedComponent.exists[eid] = 0
+  // updating to now ensures we are at least <delay> time from the last mark, which ensures reactors always have enough time to run
+  lastMarkedForRemoval = Date.now()
+}
+
+export const _removeMarkedEntity = (eid: Entity): void => {
+  bitECS.removeComponent(HyperFlux.store, eid, $RemovedComponent)
+  bitECS.removeEntity(HyperFlux.store, eid)
+}
+
+export const _removeMarkedEntities = (): void => {
+  const now = Date.now()
+  if (now - lastMarkedForRemoval > delay) return
+
+  for (const eid of bitECS.query(HyperFlux.store, [$RemovedComponent]) as Entity[]) _removeMarkedEntity(eid)
+}
+
+export const $EntityRemovalSystem = defineSystem({
+  uuid: '$EntityRemovalSystem',
+  insert: { after: PresentationSystemGroup },
+  execute: _removeMarkedEntities
+})
+
+export const createEntity = (layerID: LayerID = Layers.Simulation): Entity => {
+  if (!LayerComponents[layerID]) throw new Error('createEntity: argument layerID must be a valid LayerID value')
+  const entity = bitECS.addEntity(HyperFlux.store) as Entity
+  if ($RemovedComponent.exists.length <= entity) {
+    const nextSize = nextPowerOf2(entity + 1)
+    if ($RemovedComponent.storageSize < nextSize) resizeComponent($RemovedComponent, nextSize)
+  }
+  $RemovedComponent.exists[entity] = 1
+  setComponent(entity, LayerComponent, layerID)
+  return entity
+}
+
+export const removeEntity = (entity: Entity) => {
+  if (!entity || !entityExists(entity)) return ///throw new Error(`[removeEntity]: Entity ${entity} does not exist in the world`)
+
+  const relations = LayerFunctions.getLayerRelationsEntities(entity)
+  const entityLayer = LayerComponent.get(entity)
+  if (relations) {
+    for (const [layer, linkedEntity] of relations) {
+      if (!LayerFunctions.shouldPropagate(entityLayer, layer)) continue
+      removeEntity(linkedEntity)
+    }
+  }
+
+  for (const component of bitECS.getEntityComponents(HyperFlux.store, entity)) {
+    if (component === LayerComponent || LayerComponents.includes(component)) continue
+    removeComponent(entity, component)
+  }
+
+  // always ensure layer component is removed last (it removes the specific layer component too)
+  removeComponent(entity, LayerComponent)
+
+  _markEntityForRemoval(entity)
+}
+
+export const entityExists = (entity: Entity) => {
+  return $RemovedComponent.exists[entity] === 1
+}
+
+export const EntityContext = React.createContext(UndefinedEntity)
+
+export const useEntityContext = () => {
+  return React.useContext(EntityContext)
+}

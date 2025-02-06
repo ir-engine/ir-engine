@@ -38,7 +38,7 @@ import {
 
 import { ECSState } from './ECSState'
 import { Entity } from './Entity'
-import { removeEntity } from './EntityFunctions'
+import { $RemovedComponent, removeEntity } from './EntityFunctions'
 import { queries, removeQuery } from './QueryFunctions'
 import { SystemState } from './SystemState'
 
@@ -109,6 +109,8 @@ export function destroyEngine() {
   } catch (e) {
     //some errors are thrown because we have side effects in component onRemove - we need to move that logic to reactors
   }
+
+  $RemovedComponent.exists.fill(0)
 
   /** Remove all queries */
   for (const query of queries) {

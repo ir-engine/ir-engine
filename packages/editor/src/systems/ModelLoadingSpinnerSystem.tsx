@@ -27,12 +27,12 @@ import { useHookstate } from '@hookstate/core'
 import {
   Entity,
   Layers,
-  Not,
   PresentationSystemGroup,
   UndefinedEntity,
   defineSystem,
   removeEntityNodeRecursively,
   useComponent,
+  useHasComponent,
   useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
@@ -47,6 +47,7 @@ const LoadingSpinnerReactor = (props: { entity: Entity }) => {
   const gltfComponent = useComponent(entity, GLTFComponent)
   const errors = !!useOptionalComponent(entity, ErrorComponent)?.value?.[GLTFComponent.name]
   const loaded = GLTFComponent.useSceneLoaded(entity)
+  const isScene = useHasComponent(entity, SceneComponent)
 
   const loadingEntity = useHookstate<Entity>(UndefinedEntity)
 
@@ -62,17 +63,20 @@ const LoadingSpinnerReactor = (props: { entity: Entity }) => {
   }
 
   useEffect(() => {
+    if (isScene) return
     if (loadingEntity.value) return
     if (!gltfComponent.src.value) return
     createLoadingGeo()
   }, [gltfComponent.src.value])
 
   useEffect(() => {
+    if (isScene) return
     if (!errors) return
     removeLoadingGeo()
   }, [errors])
 
   useEffect(() => {
+    if (isScene) return
     if (!loaded) return
     removeLoadingGeo()
   }, [loaded])
@@ -81,7 +85,7 @@ const LoadingSpinnerReactor = (props: { entity: Entity }) => {
 }
 
 const reactor = () => {
-  const entities = useQuery([GLTFComponent, Not(SceneComponent)], Layers.Authoring)
+  const entities = useQuery([GLTFComponent], Layers.Authoring)
   return (
     <>
       {entities.map((entity) => (

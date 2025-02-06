@@ -59,8 +59,6 @@ export default function MaterialLayerNode(props: ListChildComponentProps<{ nodes
   const onClickNode = () => {
     if (!source) {
       materialSelection.set(node)
-      console.log(node)
-      console.log(materialEntity)
     }
   }
 

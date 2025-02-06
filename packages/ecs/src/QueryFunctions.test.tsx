@@ -263,7 +263,7 @@ describe('QueryFunctions Hooks', async () => {
         return null
       })
 
-      assert.strictEqual(renderCounter, 2)
+      assert.strictEqual(renderCounter, 1)
       assert.strictEqual(effectCounter, 1)
       assert.strictEqual(entities.length, 2)
       assert.strictEqual(entities[0], e1)
@@ -276,7 +276,7 @@ describe('QueryFunctions Hooks', async () => {
 
       await act(() => render(null))
 
-      assert.strictEqual(renderCounter, 4)
+      assert.strictEqual(renderCounter, 3)
       assert.strictEqual(effectCounter, 2)
       assert.strictEqual(entities.length, 1)
       assert.strictEqual(entities[0], e2)
@@ -307,7 +307,7 @@ describe('QueryFunctions Hooks', async () => {
         return null
       })
 
-      assert.equal(renderCounter, 2)
+      assert.equal(renderCounter, 1)
       assert.strictEqual(effectCounter, 1)
       assert.strictEqual(entities.length, 2)
       assert.strictEqual(entities[0], e1)
@@ -322,7 +322,7 @@ describe('QueryFunctions Hooks', async () => {
 
       await act(() => render(null))
 
-      assert.equal(renderCounter, 3)
+      assert.equal(renderCounter, 2)
       assert.equal(effectCounter, 1)
       assert.strictEqual(entities.length, 2)
       assert.strictEqual(entities[0], e1)
@@ -357,7 +357,7 @@ describe('QueryFunctions Hooks', async () => {
         return null
       })
 
-      assert.equal(renderCounter, 2)
+      assert.equal(renderCounter, 1)
       assert.strictEqual(effectCounter, 1)
       assert.strictEqual(entities.length, 1)
       assert.strictEqual(entities[0], e2)
@@ -369,7 +369,7 @@ describe('QueryFunctions Hooks', async () => {
 
       await act(() => render(null))
 
-      assert.equal(renderCounter, 3)
+      assert.equal(renderCounter, 2)
       assert.equal(effectCounter, 1)
       assert.strictEqual(entities.length, 1)
       assert.strictEqual(entities[0], e2)
@@ -421,6 +421,47 @@ describe('QueryFunctions Hooks', async () => {
         result as Entity[],
         ExpectedValue as Entity[],
         `Did not return the correct data.\n  result = ${result}\n  expected = ${ExpectedValue}`
+      )
+    })
+
+    it('should unmount and mount if an entity is removed and added immediately', async () => {
+      let counter = 0
+      const ExpectedValue: ResultType = [entity1]
+      setComponent(entity1, component)
+      assert.equal(counter, 0, "The reactor shouldn't have run before rendering")
+
+      const reactor = startReactor(() => {
+        const data = useQuery([component])
+        useEffect(() => {
+          result = data as ResultType
+          ++counter
+        }, [data])
+        return null
+      })
+
+      assert.equal(counter, 1, `The reactor has run an incorrect number of times: ${counter}`)
+      assert.notEqual(result, undefined, `The result data did not get assigned.`)
+      assertArrayEqual(
+        result as Entity[],
+        ExpectedValue as Entity[],
+        `Did not return the correct data.\n  result = ${result}\n  expected = ${ExpectedValue}`
+      )
+
+      removeEntity(entity1)
+      const entity3 = createEntity()
+
+      setComponent(entity3, component)
+
+      await act(() => render(null))
+
+      const nextExpectedValue: ResultType = [entity3]
+
+      assert.equal(counter, 2, `The reactor has run an incorrect number of times: ${counter}`)
+      assert.notEqual(result, undefined, `The result data did not get assigned.`)
+      assertArrayEqual(
+        result as Entity[],
+        nextExpectedValue as Entity[],
+        `Did not return the correct data.\n  result = ${result}\n  expected = ${nextExpectedValue}`
       )
     })
   })

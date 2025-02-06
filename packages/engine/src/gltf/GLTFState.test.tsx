@@ -65,6 +65,7 @@ describe.skip('GLTFState', () => {
   let physicsWorldEntity: Entity
 
   beforeEach(async () => {
+    Cache.enabled = true
     createEngine()
 
     await Physics.load()
@@ -82,6 +83,7 @@ describe.skip('GLTFState', () => {
   })
 
   afterEach(() => {
+    Cache.enabled = false
     globalThis.setTimeout = timeout
 
     return destroyEngine()

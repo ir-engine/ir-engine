@@ -38,7 +38,6 @@ import { Layers } from '@ir-engine/ecs/src/ComponentFunctions'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { AssetModifiedState, SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { exportGLTFScene } from '@ir-engine/engine/src/gltf/exportGLTFScene'
-import { handleScenePaths } from '@ir-engine/engine/src/scene/functions/GLTFConversion'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
@@ -78,16 +77,13 @@ export const saveSceneGLTF = async (
   if (!gltfData) {
     logger.error('Failed to save scene, no gltf data found')
   }
-  const encodedGLTF = handleScenePaths(gltfData, 'encode')
-  const blob = [JSON.stringify(encodedGLTF, null, 2)]
-  const file = new File(blob, `${sceneName}.gltf`)
 
   const currentScene = await API.instance.service(staticResourcePath).get(sceneAssetID)
 
   const [[newPath]] = await Promise.all(
     uploadProjectFiles(
       projectName,
-      [file],
+      gltfData,
       [currentSceneDirectory],
       [
         {

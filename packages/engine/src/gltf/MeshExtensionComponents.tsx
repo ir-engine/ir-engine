@@ -26,15 +26,16 @@ Ethereal Engine. All Rights Reserved.
 import { Mesh } from '@gltf-transform/core'
 import {
   ComponentType,
-  EntityTreeComponent,
-  S,
-  UUIDComponent,
   defineComponent,
+  EntityTreeComponent,
+  getAncestorWithComponents,
   getComponent,
   removeComponent,
+  S,
   setComponent,
   useComponent,
-  useEntityContext
+  useEntityContext,
+  UUIDComponent
 } from '@ir-engine/ecs'
 import { DirectionalLightComponent, PointLightComponent, SpotLightComponent } from '@ir-engine/spatial'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -43,7 +44,7 @@ import { BufferAttribute, Color, InstancedBufferAttribute, InstancedMesh, Matrix
 import { WEBGL_CONSTANTS } from '../assets/loaders/gltf/GLTFConstants'
 import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
 import { InstancingComponent } from '../scene/components/InstancingComponent'
-import { getGLTFOptions } from './GLTFComponent'
+import { getGLTFOptions, GLTFComponent } from './GLTFComponent'
 import { getDependency, getNodeUUID } from './GLTFLoaderFunctions'
 
 export type KHRPunctualLight = {
@@ -70,7 +71,8 @@ export const KHRLightsPunctualComponent = defineComponent({
     useComponent(entity, EntityTreeComponent)
     const component = useComponent(entity, KHRLightsPunctualComponent)
 
-    const options = getGLTFOptions(entity)
+    const gltfEntity = getAncestorWithComponents(entity, [GLTFComponent])
+    const options = getGLTFOptions(gltfEntity)
     const json = options.document
     const extensions: {
       lights?: KHRPunctualLight[]

@@ -41,7 +41,7 @@ import {
   useEntityContext,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import { useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
 import { ActiveHelperComponent } from '../../../common/ActiveHelperComponent'
 import { mergeBufferGeometries } from '../../../common/classes/BufferGeometryUtils'
@@ -130,9 +130,9 @@ export const DirectionalLightComponent = defineComponent({
     const light = useHookstate(() => new DirectionalLight()).value as DirectionalLight
     const helperEntity = useHookstate(UndefinedEntity)
 
-    useImmediateEffect(() => {
+    useEffect(() => {
       setComponent(entity, LightTagComponent)
-      directionalLightComponent.light.set(light)
+      getMutableComponent(entity, DirectionalLightComponent).light.set(light)
       setComponent(entity, ObjectComponent, light)
 
       return () => {

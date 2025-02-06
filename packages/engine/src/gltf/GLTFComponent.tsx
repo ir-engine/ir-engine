@@ -37,6 +37,7 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
+  isAncestor,
   Layers,
   removeComponent,
   removeEntity,
@@ -228,20 +229,27 @@ export const GLTFComponentReactor = (props: { entity: Entity }) => {
     let aborted = false
     let loadedEntities = null as Entity[] | null
     removeComponent(entity, AnimationComponent)
+
+    const unloadEntities = () => {
+      if (loadedEntities) {
+        // only remove entities that are still children of the root entity
+        const loadedAndStillChildEntities = loadedEntities.filter((child) => isAncestor(entity, child, false))
+        for (const entity of loadedAndStillChildEntities) removeEntity(entity)
+      }
+    }
+
     GLTFLoaderFunctions.loadScene(options, sceneIndex).then(() => {
       documentLoaded.set(true)
       loadedEntities = SourceComponent.getEntitiesBySource(entity)
       if (aborted) {
-        for (const entity of loadedEntities) removeEntity(entity)
+        unloadEntities()
       }
     })
     return () => {
       documentLoaded.set(false)
       GLTFLoaderFunctions.unloadScene(url, entity)
       aborted = true
-      if (loadedEntities) {
-        for (const entity of loadedEntities) removeEntity(entity)
-      }
+      unloadEntities()
       if (hasComponent(entity, GLTFComponent)) {
         getMutableComponent(entity, GLTFComponent).progress.set(0)
       }
@@ -520,9 +528,10 @@ const useGLTFDocument = (entity: Entity) => {
     return () => {
       abortController.abort()
       if (!hasComponent(entity, GLTFComponent)) return
-      state.document.set(null)
-      state.body.set(null)
-      state.progress.set(0)
+      const gltfComponent = getMutableComponent(entity, GLTFComponent)
+      gltfComponent.document.set(null)
+      gltfComponent.body.set(null)
+      gltfComponent.progress.set(0)
     }
   }, [url, dynamicLoadAndNotEditing])
 }

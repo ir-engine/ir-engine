@@ -36,6 +36,7 @@ import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/
 import { RenderSettingsComponent } from '@ir-engine/engine/src/scene/components/RenderSettingsComponent'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial'
 import { Button } from '@ir-engine/ui'
 import StringInput from '@ir-engine/ui/src/components/editor/input/String'
 import { PlusCircleSm } from '@ir-engine/ui/src/icons'
@@ -94,7 +95,11 @@ const PrefabListItem = ({ item, onSelect }: { item: PrefabShelfItem; onSelect: (
       onClick={() => {
         const url = item.url
         if (!url.length) {
-          EditorControlFunctions.createObjectFromSceneElement()
+          EditorControlFunctions.createObjectFromSceneElement([
+            {
+              name: TransformComponent.jsonID
+            }
+          ])
         } else {
           addMediaNode(url)
         }

@@ -95,7 +95,7 @@ export const disposeObject3D = (obj: Object3D) => {
   if (typeof light.dispose === 'function') light.dispose()
 }
 
-const objectQuery = defineQuery([ObjectComponent])
+const visibleObjectQuery = defineQuery([ObjectComponent, VisibleComponent])
 const updatableQuery = defineQuery([UpdatableComponent, CallbackComponent])
 
 const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
@@ -106,7 +106,7 @@ const execute = () => {
     const callbacks = getComponent(entity, CallbackComponent)
     callbacks.get(UpdatableCallback)?.(delta)
   }
-  for (const entity of objectQuery()) {
+  for (const entity of visibleObjectQuery()) {
     const obj = getComponent(entity, ObjectComponent)
     const hasDistance = hasComponent(entity, DistanceFromCameraComponent)
     const inRange = hasDistance
@@ -115,7 +115,7 @@ const execute = () => {
     /**
      * do frustum culling here, but only if the object is more than 5 units away
      */
-    const visible = hasComponent(entity, VisibleComponent) && !(FrustumCullCameraComponent.isCulled[entity] && inRange)
+    const visible = !(FrustumCullCameraComponent.isCulled[entity] && inRange)
 
     obj.visible = visible
   }

@@ -111,7 +111,7 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
                     <SelectInput
                       key={props.entity}
                       value={sink ?? 'Self'}
-                      onChange={commitProperty(InputComponent, `inputSinks[${index}]` as any)}
+                      onChange={commitProperty(InputComponent, `inputSinks.${index}` as any)}
                       options={options}
                       disabled={props.multiEdit}
                     />

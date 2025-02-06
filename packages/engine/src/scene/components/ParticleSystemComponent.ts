@@ -995,7 +995,8 @@ export const ParticleSystemComponent = defineComponent({
       const emitterAsObj3D = nuSystem.emitter
       emitterAsObj3D.userData['_refresh'] = component._refresh
       setComponent(entity, ObjectComponent, emitterAsObj3D)
-      emitterAsObj3D.parent = renderer
+      setComponent(entity, EntityTreeComponent, { parentEntity: renderer.entity })
+      // emitterAsObj3D.parent = renderer
       const transformComponent = getComponent(entity, TransformComponent)
       emitterAsObj3D.matrix = transformComponent.matrix
       componentState.system.set(nuSystem)

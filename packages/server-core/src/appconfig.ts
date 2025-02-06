@@ -171,7 +171,9 @@ const server = {
   edgeCachingEnabled: process.env.STORAGE_PROVIDER! === 's3' && process.env.S3_DEV_MODE! !== 'local',
   instanceserverUnreachableTimeoutSeconds: process.env.INSTANCESERVER_UNREACHABLE_TIMEOUT_SECONDS
     ? parseInt(process.env.INSTANCESERVER_UNREACHABLE_TIMEOUT_SECONDS)
-    : 10
+    : 10,
+  requireAgeVerification:
+    typeof process.env.REQUIRE_AGE_VERIFICATION === 'string' ? process.env.REQUIRE_AGE_VERIFICATION === 'true' : true
 }
 const obj = kubernetesEnabled ? { protocol: 'https', hostname: server.hostname } : { protocol: 'https', ...server }
 server.url = process.env.SERVER_URL || url.format(obj)

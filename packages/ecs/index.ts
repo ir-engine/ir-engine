@@ -29,7 +29,6 @@ import '@ir-engine/hyperflux'
 export { Not, getAllEntities, getEntityComponents } from 'bitecs'
 
 export * from './src/ComponentFunctions'
-export * from './src/createEntity'
 export * from './src/EasingFunctions'
 export * from './src/ECSState'
 export * from './src/Engine'
