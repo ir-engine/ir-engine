@@ -130,7 +130,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
             max={effectSettingState.max}
             step={effectSettingState.step}
             value={effectSettingValue}
-            onChange={updateProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
             onRelease={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
           />
         )

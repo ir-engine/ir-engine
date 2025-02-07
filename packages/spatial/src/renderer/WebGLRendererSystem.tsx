@@ -290,6 +290,11 @@ export const RendererComponent = defineComponent({
         }
         effectComposer.EffectPass.dispose()
         effectComposer.removePass(effectPass)
+        if (rendererComponent.passes.value) {
+          for (const pass of Object.values(rendererComponent.passes.value as Record<string, Pass>)) {
+            effectComposer.removePass(pass)
+          }
+        }
       }
     }, [
       rendererComponent.effects,
