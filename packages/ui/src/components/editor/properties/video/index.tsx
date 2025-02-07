@@ -249,19 +249,6 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
     videoPreviewHeight.set(height)
   }, [video.currentVideoSize, videoPreviewWidth])
 
-  useEffect(() => {
-    if (!showVideoPreview.value) return
-    const resize = () => {
-      if (videoPreviewParentRef.current) videoPreviewWidth.set(videoPreviewParentRef.current?.offsetWidth)
-    }
-    const observer = new ResizeObserver(() => {
-      resize()
-    })
-    observer.observe(videoPreviewParentRef.current as Element)
-    resize()
-    return () => observer.disconnect()
-  }, [showVideoPreview])
-
   return (
     <NodeEditor
       {...props}
@@ -306,14 +293,8 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
             {mediaElement && (
               <>
                 {showVideoPreview.value && (
-                  <div ref={videoPreviewParentRef} className="my-[4px]">
-                    <div
-                      className={`relative `}
-                      style={{
-                        width: videoPreviewWidth.value + 'px',
-                        height: videoPreviewHeight.value + 'px'
-                      }}
-                    >
+                  <div ref={videoPreviewParentRef} className="my-1">
+                    <div className={'relative aspect-video w-full'}>
                       <Video
                         volume={0}
                         autoPlay={false}
@@ -321,7 +302,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                         className="absolute right-0 top-0 h-full w-full "
                       />
                       <button
-                        className="absolute right-0 top-0 h-[32px] w-[32px] place-items-center text-text-primary-button"
+                        className="absolute right-0 top-0 h-6 w-6 place-items-center text-text-primary-button"
                         onClick={() => {
                           showVideoPreview.set(false)
                         }}
@@ -331,11 +312,11 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                     </div>
                   </div>
                 )}
-                <div className=" flex w-full justify-between gap-[10px] ">
-                  <div className="flex h-[28px] w-full justify-between gap-[10px] rounded bg-surface-2 px-[8px] ">
-                    <div onClick={toggle} className="my-[4px] h-[20px] w-[20px]">
-                      {media.paused.value && <FaRegCirclePlay className="h-full w-full text-text-primary-button" />}
-                      {!media.paused.value && <FaRegPauseCircle className="h-full w-full text-text-primary-button" />}
+                <div className=" flex w-full justify-between gap-1 ">
+                  <div className="flex h-8 w-full justify-between gap-2 rounded bg-surface-2 px-2">
+                    <div onClick={toggle} className="my-auto h-6 w-6 text-text-primary-button">
+                      {media.paused.value && <FaRegCirclePlay className="h-full w-full " />}
+                      {!media.paused.value && <FaRegPauseCircle className="h-full w-full " />}
                     </div>
                     <input
                       id={'videoScrubber'}
@@ -351,12 +332,12 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                       style={{
                         background: `linear-gradient(to right, var(--ui-select-primary) ${currentTrackPercent.value}%, var(--ui-inactive-tertiary) ${currentTrackPercent.value}%)`
                       }}
-                      className={`[&::-moz-range-track]:bg-ui-inactive-tertiar my-[12px] h-[4px] w-full min-w-20 cursor-pointer appearance-none overflow-hidden rounded bg-ui-inactive-tertiary
+                      className={`[&::-moz-range-track]:bg-ui-inactive-tertiar my-auto h-1 w-full min-w-20 cursor-pointer appearance-none overflow-hidden rounded bg-ui-inactive-tertiary
                         focus:outline-none disabled:pointer-events-none
                         disabled:opacity-50
                         [&::-moz-range-progress]:bg-ui-select-primary
                         [&::-moz-range-thumb]:h-full
-                        [&::-moz-range-thumb]:w-[8px]
+                        [&::-moz-range-thumb]:w-2
                         [&::-moz-range-thumb]:appearance-none
                         [&::-moz-range-thumb]:rounded
                         [&::-moz-range-thumb]:bg-ui-select-secondary
@@ -371,7 +352,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                         [&::-webkit-slider-runnable-track]:w-full
                         [&::-webkit-slider-runnable-track]:rounded
                         [&::-webkit-slider-thumb]:h-full
-                        [&::-webkit-slider-thumb]:w-[8px]
+                        [&::-webkit-slider-thumb]:w-2
                         [&::-webkit-slider-thumb]:appearance-none
                         [&::-webkit-slider-thumb]:rounded
                         [&::-webkit-slider-thumb]:bg-ui-select-secondary
@@ -382,13 +363,13 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                       `}
                       data-testid="slider-draggable-value-input"
                     />
-                    <div className="my-[6px] inline-block h-full align-middle text-[12px] text-text-secondary ">
+                    <div className="my-auto inline-block text-xs text-text-secondary ">
                       {formatSeconds(media.currentTrackTime.value)}/{formatSeconds(media.currentTrackDuration.value)}
                     </div>
                   </div>
                   {!showVideoPreview.value && (
                     <button
-                      className="h-[28px] w-[32px] place-items-center rounded bg-surface-2 text-text-primary-button"
+                      className="my-auto h-8 w-8 place-items-center rounded bg-surface-2 text-text-primary-button"
                       onClick={() => {
                         showVideoPreview.set(true)
                       }}
@@ -500,14 +481,14 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                 label={t('editor:properties.audio.lbl-coneAngle')}
                 info={t('editor:properties.audio.info-coneAngle')}
               >
-                <div className="grid w-full grid-flow-col grid-rows-1 gap-[8px]">
+                <div className="grid w-full grid-flow-col grid-rows-1 gap-1">
                   <NumericScrubber
                     SuffixIcon={RiExpandUpDownLine}
-                    suffixIconClassName={'text-text-inactive ml-[4px] w-[30px] h-[30px]'}
+                    suffixIconClassName={'text-text-inactive ml-1 w-7 h-7'}
                     PreFixIcon={FaAngleLeft}
-                    prefixIconClassName={'text-text-inactive mr-[4px]'}
+                    prefixIconClassName={'text-text-inactive mr-1'}
                     prefix={t('editor:properties.audio.lbl-coneOuterAngle').toUpperCase()}
-                    prefixClassName={'text-text-inactive mr-[4px]'}
+                    prefixClassName={'text-text-inactive mr-1'}
                     min={0}
                     max={360}
                     smallStep={0.1}
@@ -526,11 +507,11 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
 
                   <NumericScrubber
                     SuffixIcon={RiExpandUpDownLine}
-                    suffixIconClassName={'text-text-inactive ml-[4px] w-[30px] h-[30px]'}
+                    suffixIconClassName={'text-text-inactive ml-1 w-7 h-7'}
                     PreFixIcon={TfiAngleLeft}
-                    prefixIconClassName={'text-text-inactive mr-[4px]'}
+                    prefixIconClassName={'text-text-inactive mr-1]'}
                     prefix={t('editor:properties.audio.lbl-coneInnerAngle').toUpperCase()}
-                    prefixClassName={'text-text-inactive mr-[4px]'}
+                    prefixClassName={'text-text-inactive mr-1'}
                     min={0}
                     max={360}
                     smallStep={0.1}
@@ -549,11 +530,12 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                 </div>
               </InputGroup>
 
-              <div className="grid w-full grid-flow-col grid-rows-1 gap-[8px]">
+              <div className="grid w-full grid-flow-col grid-rows-1 gap-3 ">
                 <InputGroup
                   name="Rolloff Factor"
                   label={t('editor:properties.audio.lbl-rolloffFactor')}
                   info={t('editor:properties.audio.info-rfInfinity')}
+                  containerClassName="pr-0 "
                 >
                   <NumericScrubber
                     min={0}
@@ -570,6 +552,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                   name="Max Distance"
                   disabled={audio.distanceModel.value !== DistanceModel.Linear}
                   label={t('editor:properties.audio.lbl-maxDistance')}
+                  containerClassName="!pl-0 "
                   info={
                     audio.distanceModel.value !== DistanceModel.Linear
                       ? t('editor:properties.audio.info-maxDistanceDisabled')
