@@ -103,7 +103,7 @@ function MaterialsLibrary() {
   }, [materialQuery.length, selectedEntities, showLayers, layer])
 
   return (
-    <div className="bg-surface-3 h-full overflow-scroll">
+    <div className="h-full overflow-scroll bg-surface-3">
       <div className="w-full rounded-md p-3">
         <MaterialPreviewer />
         <div className="mt-4 flex w-full items-center justify-between gap-x-3">
@@ -139,7 +139,7 @@ function MaterialsLibrary() {
           </Button>
         </div>
       </div>
-      <div className="border-ui-background bg-ui-background h-full w-full rounded border p-1">
+      <div className="h-full w-full rounded border border-ui-background bg-ui-background p-1">
         <FixedSizeListWrapper nodes={nodes.value}>{MaterialLayerNode}</FixedSizeListWrapper>
       </div>
     </div>

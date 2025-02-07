@@ -350,10 +350,10 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
       key={node.depth + ' ' + props.index + ' ' + entity}
       style={fixedSizeListStyles}
       className={twMerge(
-        'text-text-secondary hover:bg-ui-hover-background hover:text-text-primary cursor-pointer',
+        'cursor-pointer text-text-secondary hover:bg-ui-hover-background hover:text-text-primary',
         'bg-ui-background',
         !visible ? 'text-text-inactive' : '',
-        selected ? 'border-ui-select-outline bg-ui-select-background text-text-primary rounded-sm border' : '',
+        selected ? 'rounded-sm border border-ui-select-outline bg-ui-select-background text-text-primary' : '',
         isOverOn && canDropOn ? 'border border-dotted' : ''
       )}
       data-testid="hierarchy-panel-scene-item"

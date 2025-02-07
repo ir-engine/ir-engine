@@ -236,7 +236,7 @@ export const TextComponent = defineComponent({
     clipRectMax: T.Vec2(new Vector2(1024, 1024)), // pixels. Sent to troika as [minX, minY, maxX, maxY] :Array<number>
     gpuAccelerated: S.Bool(true),
     glyphResolution: S.Number(6), // Maps to troika.Text.sdfGlyphSize. Sent to troika as 2^N :number
-    glyphDetail: S.Number(1), // Maps to troika.Text.glyphGeometryDetail
+    glyphDetail: S.Number(1) // Maps to troika.Text.glyphGeometryDetail
   }),
 
   reactor: function () {

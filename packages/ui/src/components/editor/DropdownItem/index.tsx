@@ -56,7 +56,7 @@ export default function EditorDropdownItem({
   ...props
 }: EditorDropdownItemProps) {
   const iconClassname = twMerge(
-    'text-text-secondary h-4 w-4',
+    'h-4 w-4 text-text-secondary',
     disabled ? 'text-text-inactive' : 'group-hover/editor-dropdownitem:text-text-primary'
   )
 
@@ -67,7 +67,7 @@ export default function EditorDropdownItem({
         'cursor-pointer rounded px-2 py-1',
         'group/editor-dropdownitem',
         disabled
-          ? 'bg-ui-inactive-background text-text-inactive cursor-not-allowed'
+          ? 'cursor-not-allowed bg-ui-inactive-background text-text-inactive'
           : 'bg-ui-background text-text-secondary hover:text-text-primary',
         selected ? 'bg-ui-select-background' : '',
         className
