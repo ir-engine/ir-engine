@@ -80,6 +80,9 @@ export function editorInputHeuristic(intersectionData: Set<IntersectionData>, po
   const isEditing = getState(EngineState).isEditing
   if (!isEditing) return
 
+  const gizmoEnabled = getState(EditorHelperState).gizmoEnabled
+  if (!gizmoEnabled) return
+
   raycaster.set(position, direction)
 
   const [...pickerObj] = gizmoPickerObjectsQuery() // gizmo heuristic

@@ -28,7 +28,7 @@ import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { getMutableState, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { Button, Tooltip } from '@ir-engine/ui'
+import { Button } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import InfiniteScroll from '@ir-engine/ui/src/components/tailwind/InfiniteScroll'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
@@ -62,9 +62,9 @@ const MetadataTable = ({ rows }: { rows: MetadataTableRowProps[] }) => (
 
 const MetadataTableRow = ({ label, value }: MetadataTableRowProps) => (
   <tr>
-    <td className="font-semibold">{label}</td>
+    <td className="font-semibold text-text-primary">{label}</td>
     <td
-      className="cursor-default select-text pl-4"
+      className="cursor-default select-text pl-4 text-text-secondary"
       onContextMenu={(e) => {
         e.stopPropagation() // allow user to copy selected text
       }}
@@ -96,7 +96,7 @@ function ResourceFileContextMenu({
       onClose={() => anchorEvent.set(undefined)}
       className="gap-1"
     >
-      <div className="w-full rounded-lg bg-theme-surface-main px-4 py-2 text-sm text-white">
+      <div className="w-full rounded-lg border border-ui-outline bg-surface-2 px-4 py-2 text-sm">
         <MetadataTable
           rows={[
             { label: t('editor:assetMetadata.name'), value: `${name}` },
@@ -199,19 +199,17 @@ function ResourceFile({ resource }: { resource: StaticResourceType }) {
           <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
         </div>
 
-        <Tooltip content={name}>
-          <Text
-            theme="secondary"
-            fontSize="sm"
-            className={twMerge(
-              'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2',
-              isSelected ? 'rounded bg-[#375DAF]' : 'rounded group-hover:bg-[#2F3137]'
-            )}
-            data-testid="assets-panel-resource-file-name"
-          >
-            {name}
-          </Text>
-        </Tooltip>
+        <Text
+          theme="secondary"
+          fontSize="sm"
+          className={twMerge(
+            'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2',
+            isSelected ? 'rounded bg-[#375DAF]' : 'rounded group-hover:bg-[#2F3137]'
+          )}
+          data-testid="assets-panel-resource-file-name"
+        >
+          {name}
+        </Text>
         <span className="text-xs text-[#375DAF]">{resource?.mimeType}</span>
         <ResourceFileContextMenu resource={resource} anchorEvent={anchorEvent} />
       </div>
@@ -294,7 +292,7 @@ function BottomPaginationNavBar({ handleScrollToPage }) {
 
   return (
     <div className="flex h-20 flex-col items-center justify-center">
-      <div className="text-[10px] text-white">
+      <div className="text-[10px] text-text-secondary">
         {t('editor:layout.scene-assets.total-assets', { total: resources.length })}
       </div>
       <div className="m-3 flex h-[1px] w-36 flex-row gap-[0.19rem]">
@@ -331,7 +329,7 @@ function ResourceItems() {
       <div className="relative flex w-[95%] flex-col">
         {' '}
         {resources.length === 0 && (
-          <div className="col-start-2 flex h-full w-full items-center justify-center text-white">
+          <div className="col-start-2 flex h-full w-full items-center justify-center text-text-secondary">
             {t('editor:layout.scene-assets.no-search-results')}
           </div>
         )}
@@ -383,7 +381,7 @@ export default function Resources() {
   const { resourcesLoading, staticResourcesPagination, refetchResources } = useAssetsQuery()
 
   return (
-    <div id="asset-panel" className="relative flex h-full w-full flex-col overflow-auto">
+    <div id="asset-panel" className="relative flex h-full w-full flex-col overflow-auto bg-surface-1">
       <InfiniteScroll
         disableEvent={staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || resourcesLoading}
         onScrollBottom={() => {

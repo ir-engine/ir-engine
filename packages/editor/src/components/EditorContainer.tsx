@@ -236,11 +236,7 @@ const EditorContainer = () => {
 
   return (
     <main className="pointer-events-auto">
-      <div
-        id="editor-container"
-        className="flex flex-col bg-black"
-        style={scenePath.value ? { background: 'transparent' } : {}}
-      >
+      <div id="editor-container" className="flex flex-col" style={scenePath.value ? { background: 'transparent' } : {}}>
         {uiEnabled.value && (
           <DndWrapper id="editor-container">
             <DragLayer />

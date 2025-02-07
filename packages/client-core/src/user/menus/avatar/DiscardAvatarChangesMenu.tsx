@@ -56,7 +56,7 @@ export const DiscardAvatarChangesMenu = ({ handleConfirm, handleCancel }: Props)
           <Text fontSize="xl" fontWeight="bold" className="capitalize">
             {t('user:avatar.discardAvatarChanges')}
           </Text>
-          <Text fontSize="base" className="mt-2 text-theme-secondary">
+          <Text fontSize="base" className="mt-2 ">
             {t('user:common.changesLostAlert')}
           </Text>
 

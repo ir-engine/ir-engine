@@ -80,7 +80,7 @@ export default function SceneItem({
   return (
     <div
       data-testid="scene-container"
-      className="col-span-2 inline-flex h-64 w-64 min-w-64 max-w-64 cursor-pointer flex-col items-start justify-start gap-3 rounded-lg bg-[#191B1F] p-3 lg:col-span-1"
+      className="col-span-2 inline-flex h-64 w-64 min-w-64 max-w-64 cursor-pointer flex-col items-start justify-start gap-3 rounded-lg border border-ui-outline bg-ui-background p-3 lg:col-span-1"
     >
       <img
         className="shrink grow basis-0 self-stretch rounded"
@@ -92,19 +92,22 @@ export default function SceneItem({
       <div className="inline-flex items-start justify-between self-stretch">
         <div className="inline-flex w-full flex-col items-start justify-start">
           <div className="space-between flex w-full flex-row">
-            <Text component="h3" fontWeight="light" className="leading-6 text-neutral-100">
-              <Tooltip content={sceneName}>
-                <div className="w-52 truncate" data-testid="scene-name">
-                  {sceneName}
-                </div>
-              </Tooltip>
-            </Text>
+            <Tooltip content={sceneName}>
+              <Text
+                component="h3"
+                fontWeight="semibold"
+                className="w-52 truncate leading-6 text-text-primary"
+                data-testid="scene-name"
+                fontSize="xl"
+              >
+                {sceneName}
+              </Text>
+            </Tooltip>
           </div>
           <Text
             component="h3"
-            fontSize="xs"
-            fontWeight="light"
-            className="h-3.5 w-40 leading-5 text-neutral-100"
+            fontSize="sm"
+            className="h-3.5 w-40 leading-5 text-text-primary"
             data-testid="scene-updated-at"
           >
             {t('editor:hierarchy.lbl-edited')} {t('common:timeAgo', { time: timeAgo(new Date(scene.updatedAt)) })}
@@ -118,11 +121,11 @@ export default function SceneItem({
             data-testid="scene-options-button"
             onClick={() => isOptionsPopupOpen.set((displayed) => !displayed)}
           >
-            <BsThreeDotsVertical className="text-neutral-100" />
+            <BsThreeDotsVertical className="text-text-primary" />
           </Button>
           <ul
             className={twMerge(
-              'dropdown-menu absolute left-6 top-2  z-10  block w-[180px] rounded-lg bg-theme-primary px-4 py-3 pr-10',
+              'dropdown-menu absolute left-6 top-2 z-10  block  w-[180px] rounded-lg bg-surface-4 p-1',
               isOptionsPopupOpen.value ? 'visible' : 'hidden'
             )}
             data-testid="project-options-list"
@@ -130,7 +133,7 @@ export default function SceneItem({
             <li className="h-8">
               <Button
                 variant="tertiary"
-                className="h-full w-full justify-start gap-2 border-0 p-0  text-zinc-400 hover:text-[var(--text-primary)]"
+                className="h-full w-full justify-start gap-2 border-0 p-2 text-text-primary hover:bg-ui-hover-background"
                 data-testid="scene-rename-button"
                 onClick={() => {
                   isOptionsPopupOpen.set(false)
@@ -151,7 +154,7 @@ export default function SceneItem({
             <li className="h-8">
               <Button
                 variant="tertiary"
-                className="h-full w-full justify-start gap-2 border-0 p-0 text-zinc-400 hover:text-[var(--text-primary)]"
+                className="h-full w-full justify-start gap-2 border-0 p-2 text-text-primary hover:bg-ui-hover-background"
                 data-testid="scene-delete-button"
                 onClick={() => {
                   isOptionsPopupOpen.set(false)

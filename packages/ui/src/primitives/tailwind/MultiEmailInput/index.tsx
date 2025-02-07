@@ -130,16 +130,13 @@ const MultiEmailInput = ({ emailList, error, label, disabled }: LabelProps) => {
       {label && <Label className="self-stretch">{label}</Label>}
 
       {emailList.length > 0 && (
-        <div className="flex flex-wrap gap-2 rounded-lg border	border-theme-primary bg-theme-surfaceInput px-3.5 py-1.5">
+        <div className="flex flex-wrap gap-2 rounded-lg border	  px-3.5 py-1.5">
           {emailList.value.map((item) => (
-            <div
-              className="flex w-fit items-center justify-between gap-1 rounded bg-theme-surface-main px-2 py-1 text-black text-theme-primary"
-              key={item}
-            >
+            <div className="flex w-fit items-center justify-between gap-1 rounded  px-2 py-1 text-black " key={item}>
               {item}
               <Button
                 disabled={disabled}
-                className="button bg-theme-surface-main p-1 text-[#6B7280] disabled:opacity-50 dark:text-[#A3A3A3] [&>*]:m-0"
+                className="button  p-1 text-[#6B7280] disabled:opacity-50 dark:text-[#A3A3A3] [&>*]:m-0"
                 onClick={() => handleDelete(item)}
               >
                 <IoMdClose />
@@ -160,7 +157,7 @@ const MultiEmailInput = ({ emailList, error, label, disabled }: LabelProps) => {
         ref={ref}
       />
 
-      {errorLabel && <p className="error text-theme-iconRed">{errorLabel}</p>}
+      {errorLabel && <p className="error ">{errorLabel}</p>}
     </>
   )
 }
