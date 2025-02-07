@@ -43,7 +43,10 @@ function LocationIconButton({ tooltip, icon: Icon, iconProps, className, ...prop
 
     return (
       <button
-        className={twMerge('flex h-16 w-16 items-center justify-center rounded-full bg-white', className)}
+        className={twMerge(
+          'flex h-12 w-12 items-center justify-center rounded-full bg-white mdh:h-16 mdh:w-16',
+          className
+        )}
         onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         {...props}
       >

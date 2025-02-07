@@ -157,7 +157,9 @@ export const MediaIconsBox = () => {
         <>
           <Tooltip content={t('user:menu.toggleVideo')} position="bottom">
             <button
-              className={twMerge('relative flex h-16 w-16 items-center justify-center rounded-full bg-white ')}
+              className={twMerge(
+                'relative flex h-12 w-12 items-center justify-center rounded-full bg-white mdh:h-16 mdh:w-16 '
+              )}
               onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               id="UserVideo"
               onClick={() => {
