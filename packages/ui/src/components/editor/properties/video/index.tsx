@@ -369,7 +369,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                   </div>
                   {!showVideoPreview.value && (
                     <button
-                      className="my-auto h-8 w-8 place-items-center rounded bg-surface-2 text-text-primary-button"
+                      className="my-auto h-8 w-9 place-items-center rounded bg-surface-2 text-text-primary-button"
                       onClick={() => {
                         showVideoPreview.set(true)
                       }}

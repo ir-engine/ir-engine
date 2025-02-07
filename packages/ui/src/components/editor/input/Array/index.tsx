@@ -119,27 +119,24 @@ const DiscardableInput = ({
 
   return (
     <div
-      className={twMerge(' flex w-full px-0', isInputElementDroppable && 'outline outline-2 outline-white')}
+      className={twMerge(' flex w-full gap-2', isInputElementDroppable && 'outline outline-2 outline-white')}
       ref={(node) => {
         inputElementDropRef(previewRef(node))
       }}
     >
       <div
         ref={fileDropRef}
-        className={twMerge(' mb-2 flex w-full justify-end', isFileDroppable && 'outline outline-2 outline-white')}
+        className={twMerge('flex w-full justify-end gap-1', isFileDroppable && 'outline outline-2 outline-white')}
       >
-        <div
-          ref={dragSourceRef}
-          className=" mr-[4px] flex h-full w-[24px] cursor-move items-center text-2xl text-[#9CA0AA]"
-        >
+        <div ref={dragSourceRef} className=" flex h-full w-6 cursor-move items-center text-2xl text-text-inactive">
           <MdDragIndicator />
         </div>
         <Input fullWidth={true} value={value} onChange={(event) => onChange(event.target.value, index)} />
         {SelectIcon && (
           <Button
             className={twMerge(
-              'ml-[4px] h-[32px] w-[32px] rounded-md p-[4px] ',
-              selected ? 'bg-[#375DAF] text-[#FFFFFF]' : 'bg-[#42454D] text-[#9CA0AA]'
+              'h-8 w-9 rounded-md p-1',
+              selected ? 'bg-ui-primary text-text-primary-button' : 'bg-surface-2 text-text-inactive'
             )}
             onClick={() => {
               if (onSelect) {
@@ -147,7 +144,7 @@ const DiscardableInput = ({
               }
             }}
           >
-            <SelectIcon className="h-full w-full" />
+            <SelectIcon className="h-6 w-6" />
           </Button>
         )}
       </div>
@@ -282,19 +279,21 @@ export default function ArrayInputGroup({
             </div>
           </DndProvider>
         )}
-        <div className="my-[4px] flex w-full justify-end ">
+        <div className="my-1 flex w-full justify-end gap-1">
           {inputElements.length > 0 && (
-            <HiMinus
-              className=" cursor-pointer rounded-md bg-[#42454D] px-[8px] py-[4px] text-white"
-              size="32px"
+            <button
+              className=" h-8 w-9 cursor-pointer rounded-md bg-surface-2 text-text-primary-button"
               onClick={() => handleChange('', inputElements.length - 1, 'remove')}
-            />
+            >
+              <HiMinus className="m-auto" />
+            </button>
           )}
-          <HiPlus
-            className=" ml-[2px] cursor-pointer rounded-md bg-[#42454D] px-[8px] py-[4px] text-white"
-            size="32px"
+          <button
+            className=" h-8 w-8 cursor-pointer rounded-md bg-surface-2 text-text-primary-button"
             onClick={() => handleChange('', 0, 'add')}
-          />
+          >
+            <HiPlus className="m-auto" />
+          </button>
         </div>
       </div>
     </div>
