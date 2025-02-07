@@ -23,13 +23,22 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-const { readFileSync, readdirSync } = require('fs')
-const path = require('path')
+import { lstatSync, readFileSync, readdirSync, writeFileSync } from 'fs'
+import path from 'path'
+import pixelmatch from 'pixelmatch'
+import { PNG } from 'pngjs'
 
 function expectBitmapsToBeEqual(imagePath, expectedImagePath) {
-  const bitmapBuffer = readFileSync(imagePath)
-  const expectedBitmapBuffer = readFileSync(expectedImagePath)
-  if (!bitmapBuffer.equals(expectedBitmapBuffer)) {
+  console.log('comparing:', imagePath, 'to:', expectedImagePath)
+  const image = PNG.sync.read(readFileSync(imagePath))
+  const expectedImage = PNG.sync.read(readFileSync(expectedImagePath))
+  const { width, height } = image
+  const diff = new PNG({ width, height })
+
+  const result = pixelmatch(image.data, expectedImage.data, diff.data, width, height, { threshold: 0.1 })
+
+  if (result !== 0) {
+    writeFileSync('diff.png', PNG.sync.write(diff))
     throw new Error(
       `Expected image at ${imagePath} to be equal to image at ${expectedImagePath}, but it was different!`
     )
@@ -46,6 +55,8 @@ function screenshotTest() {
   for (const file of files) {
     const screenshot = screenshotsPath + '/' + file
     const expectedScreenshot = expectedScreenshotsPath + '/' + file
+    if (lstatSync(screenshot).isDirectory() || lstatSync(expectedScreenshot).isDirectory()) continue
+    if (!file.endsWith('png')) continue
     expectBitmapsToBeEqual(expectedScreenshot, screenshot)
   }
 }

@@ -1,5 +1,5 @@
 GIT
-  remote: git@github.com:okwasniewski/cocoapods-swift-modular-headers.git
+  remote: https://github.com/okwasniewski/cocoapods-swift-modular-headers.git
   revision: 7b9a5e757854557211b8a1adc9a672811f41c423
   branch: main
   specs:

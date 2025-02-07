@@ -69,6 +69,12 @@ jobs:
           token: ${{ secrets.MARIALE_ACCESS_TOKEN }}
           path: packages/projects/projects/theinfinitereality/irpro-mariale
 
+      - name: setup bundler
+        run: |
+          cd packages/clientNative
+          gem install bundler:2.4.10
+          bundle install
+
       - name: build javascript bundle
         run: |
           npm install
@@ -85,7 +91,8 @@ jobs:
         if: steps.cache-xcarchive.outputs.cache-hit != 'true'
         run: |
           cd packages/clientNative
-          pod install --project-directory=ios
+          bundle --version
+          bundle exec pod install --project-directory=ios
 
           xcodebuild -scheme "clientNative" \
           -archivePath "clientNative.xcarchive" \
@@ -140,14 +147,19 @@ jobs:
       - uses: actions/cache/restore@v4
         id: cache-screenshots
         with:
-          path: packages/screenshot-testing/expectedScreenshots
+          path: ./packages/screenshot-testing/screenshots/**/*.png
           key: ${{ runner.os }}-expected-screenshots-${{ hashFiles('packages/screenshot-testing/**/*.png') }}
           restore-keys: |
             ${{ runner.os }}-expected-screenshots-${{ hashFiles('packages/screenshot-testing/**/*.png') }}
             ${{ runner.os }}-expected-screenshots
 
+      - name: Move screenshots
+        run: |
+          mv ./packages/screenshot-testing/screenshots ./packages/screenshot-testing/expectedScreenshots
+          ls ./packages/screenshot-testing/expectedScreenshots
+
       - name: Create Appium Test Zip
-        run: npm run bundle -w screenshot-testing
+        run: npm run bundle -w appium-tests
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -176,8 +188,8 @@ jobs:
               },
               "test": {
                 "type": "APPIUM_NODE",
-                "testPackageArn": "packages/screenshot-testing/MyTests.zip",
-                "testSpecArn": "packages/screenshot-testing/testSpec.yaml"
+                "testPackageArn": "packages/appium-tests/MyTests.zip",
+                "testSpecArn": "packages/appium-tests/testSpec.yaml"
               }
             }
           artifact-types: ALL
@@ -194,13 +206,21 @@ jobs:
 
       - name: Extract screenshots from artifacts
         run: |
-          ./scripts/unzipArchive.sh ${{ steps.run-benchmark.outputs.artifact-folder }} packages/screenshot-testing/screenshots
+          ./scripts/unzipArchive.sh ${{ steps.run-benchmark.outputs.artifact-folder }} ./packages/screenshot-testing/screenshots
 
       - name: Compare Screenshots
-        run: npm run screenshot-test -w screenshot-testing
+        run: |
+          npm run screenshot-test -w screenshot-testing
+
+      - name: Upload artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: expectedScreenshots
+          path: ./packages/screenshot-testing/**/*.png
 
       - uses: actions/cache/save@v4
         if: failure() && inputs.overwrite_screenshots
         with:
-          path: packages/screenshot-testing/screenshots
+          path: ./packages/screenshot-testing/screenshots/**/*.png
           key: ${{ runner.os }}-expected-screenshots-${{ hashFiles('packages/screenshot-testing/**/*.png') }}

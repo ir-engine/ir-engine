@@ -1,18 +1,21 @@
 {
-  "name": "screenshot-testing",
+  "name": "appium-tests",
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "screenshot-test": "node compareScreenshots.mjs"
+    "test": "node main.js",
+    "bundle": "./bundle.sh"
   },
   "dependencies": {
-    "pixelmatch": "^6.0.0",
-    "pngjs": "^7.0.0"
+    "webdriverio": "^9.0.6"
   },
   "engines": {
     "node": ">=18"
   },
   "devDependencies": {
     "typescript": "^5.0.4"
-  }
+  },
+  "bundleDependencies": [
+    "webdriverio"
+  ]
 }

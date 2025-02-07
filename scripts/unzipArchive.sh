@@ -19,9 +19,12 @@ do
 
   find "$2/$deviceType/output" -name '*.png' | while read screenshot; do
     echo "$screenshot"
-    convert "$screenshot" -crop 1178x2400+0+156 "$screenshot"
+    convert "$screenshot" -crop 2400x1176+156+0 "$screenshot"
     mv "$screenshot" "$2/$deviceType"
   done
+  echo "Added files for: $deviceType"
+  ls "$2/$deviceType"
 
   rm -rf "$2/$deviceType/output"
 done;
+
