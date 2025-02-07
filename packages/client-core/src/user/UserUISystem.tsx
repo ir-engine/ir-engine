@@ -37,9 +37,9 @@ import { IFrameComponent } from '@ir-engine/engine/src/scene/components/IFrameCo
 import { NetworkState } from '@ir-engine/network'
 import { PopoverState } from '../common/services/PopoverState'
 import { InviteService } from '../social/services/InviteService'
+import { LoadingUISystemState } from '../systems/LoadingUISystem'
 import { ViewerMenuState } from '../util/ViewerMenuState'
 import EmbedFrame from './menus/avatar/EmbedFrame'
-import { LoadingUISystemState } from '../systems/LoadingUISystem'
 
 const IFrameReactor = () => {
   const entity = useEntityContext()
