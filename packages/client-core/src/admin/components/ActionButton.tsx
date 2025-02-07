@@ -23,43 +23,32 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ArgTypes, StoryObj } from '@storybook/react'
+import { ButtonProps } from '@ir-engine/ui'
 import React from 'react'
+import { twMerge } from 'tailwind-merge'
 
-import { RulerUnitsMd } from '@ir-engine/ui/src/icons'
-import ToolbarButton, { ToolbarButtonProps } from './index'
+type VariantType = 'default' | 'green' | 'red'
 
-const argTypes: ArgTypes = {
-  selected: {
-    control: 'boolean'
-  }
+interface ActionButtonProps extends Omit<ButtonProps, 'variant' | 'className'> {
+  icon: (({ className }: { className?: string }) => JSX.Element) | React.ElementType
+  variant?: VariantType
 }
 
-export default {
-  title: 'Components/Editor/ToolbarButton',
-  component: ToolbarButton,
-  parameters: {
-    componentSubtitle: 'ToolbarButton',
-    design: {
-      type: 'figma',
-      url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=3349-16983&node-type=symbol&m=dev'
-    }
-  },
-  argTypes
-}
+const variantClasses: Record<VariantType, string> = {
+  default: 'text-text-secondary hover:text-text-primary',
+  green: 'text-ui-success hover:text-ui-hover-success',
+  red: 'text-ui-error hover:text-ui-hover-error'
+} as const
 
-type Story = StoryObj<typeof ToolbarButton>
-
-const ToolbarButtonRenderer = (args: ToolbarButtonProps) => {
+export default function ActionButton({ icon: Icon, disabled, variant = 'default', ...props }: ActionButtonProps) {
   return (
-    <ToolbarButton {...args}>
-      <RulerUnitsMd />
-    </ToolbarButton>
+    <button
+      className="rounded-full border-[0.5px] border-ui-outline bg-ui-background p-2 hover:bg-ui-hover-background"
+      {...props}
+    >
+      <Icon
+        className={twMerge('h-6 w-6', disabled ? 'cursor-not-allowed text-text-inactive' : variantClasses[variant])}
+      />
+    </button>
   )
-}
-
-export const Default: Story = {
-  name: 'Primary',
-  args: {},
-  render: ToolbarButtonRenderer
 }

@@ -36,9 +36,9 @@ const PropertiesPanelTitle = () => {
   return (
     <div>
       <PanelDragContainer>
-        <PanelTitle>
-          <Tooltip content={t('editor:properties.info')}>{t('editor:properties.title')}</Tooltip>
-        </PanelTitle>
+        <Tooltip content={t('editor:properties.info')}>
+          <PanelTitle>{t('editor:properties.title')}</PanelTitle>
+        </Tooltip>
       </PanelDragContainer>
     </div>
   )
