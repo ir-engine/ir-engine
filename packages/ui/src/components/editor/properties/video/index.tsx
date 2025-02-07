@@ -226,7 +226,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
     if (!previewVideo) return
     const src = media?.resources.value[media?.track.value]
     previewVideo.src = src ? src : ''
-  }, [media?.track, showVideoPreview])
+  }, [media?.track, showVideoPreview, mediaElement])
 
   useEffect(() => {
     if (!showVideoPreview.value) return
