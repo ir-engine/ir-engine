@@ -14,7 +14,7 @@
 		4DD8E2F753AA27AC2306FDC1 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD274900ADF8AA12BBA7EA5C /* ExpoModulesProvider.swift */; };
 		4F143C2F47F4397D4C42FD33 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 296367BD0B2B148996AFC29F /* ExpoModulesProvider.swift */; };
 		53E2ECB9D782E07E201A4BF8 /* libPods-clientNative.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DFEADA8748D0F5D363835FF4 /* libPods-clientNative.a */; };
-		5F283C2968018475289142FA /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		5F283C2968018475289142FA /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		68F6E56F714A5A26E559CEB6 /* libPods-clientNative-clientNativeTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A4AEF1DA89869799E1505AE /* libPods-clientNative-clientNativeTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		91A4452BAF64279B403765D3 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
@@ -52,6 +52,7 @@
 		973490C22D00A5550028D747 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		9766F85E2D3FEF69001D9D41 /* ci_pre_xcodebuild.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = ci_pre_xcodebuild.sh; sourceTree = "<group>"; };
 		97722E092D4BE68400CEA3A3 /* clientNativeRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = clientNativeRelease.entitlements; path = clientNative/clientNativeRelease.entitlements; sourceTree = "<group>"; };
+		97ED3ACE2D53ED8B00E349FC /* clientNativeDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = clientNativeDebug.entitlements; path = clientNative/clientNativeDebug.entitlements; sourceTree = "<group>"; };
 		DFEADA8748D0F5D363835FF4 /* libPods-clientNative.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-clientNative.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		FD274900ADF8AA12BBA7EA5C /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-clientNative-clientNativeTests/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
@@ -70,7 +71,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5F283C2968018475289142FA /* BuildFile in Frameworks */,
+				5F283C2968018475289142FA /* (null) in Frameworks */,
 				53E2ECB9D782E07E201A4BF8 /* libPods-clientNative.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -98,6 +99,7 @@
 		13B07FAE1A68108700A75B9A /* clientNative */ = {
 			isa = PBXGroup;
 			children = (
+				97ED3ACE2D53ED8B00E349FC /* clientNativeDebug.entitlements */,
 				97722E092D4BE68400CEA3A3 /* clientNativeRelease.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
@@ -592,6 +594,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = clientNative/clientNativeDebug.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -732,10 +735,7 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -816,10 +816,7 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;

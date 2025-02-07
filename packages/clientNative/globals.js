@@ -31,6 +31,7 @@ import {TextEncoder, TextDecoder} from 'text-encoding-shim';
 import structuredClone from '@ungap/structured-clone';
 import performance from 'react-native-performance';
 import {URL} from 'whatwg-url-without-unicode';
+import {Dimensions} from 'react-native';
 
 window.location = new URL('https://mariale.ir.world/location/marbar');
 
@@ -57,9 +58,16 @@ global.localStorage = {
 
 // Window polyfill
 const listenerRegistry = new Map();
+const resizeSubscriptions = new Map();
 
 window.addEventListener = (type, handler) => {
+  if (type === 'resize') {
+    const subscription = Dimensions.addEventListener('change', handler);
+    resizeSubscriptions.set(handler, subscription);
+    return;
+  }
   let registry = listenerRegistry.get(type);
+
   if (!registry) {
     registry = new Set();
     listenerRegistry.set(type, registry);
@@ -67,6 +75,13 @@ window.addEventListener = (type, handler) => {
   registry.add(handler);
 };
 window.removeEventListener = (type, handler) => {
+  if (type === 'resize') {
+    const subscription = resizeSubscriptions.get(handler);
+    subscription?.remove();
+    resizeSubscriptions.delete(handler);
+    return;
+  }
+
   const registry = listenerRegistry.get(type);
   if (registry) {
     registry.delete(handler);

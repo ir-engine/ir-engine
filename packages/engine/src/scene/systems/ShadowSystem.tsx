@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
@@ -85,7 +85,6 @@ import { createDisposable } from '@ir-engine/spatial/src/resources/resourceHooks
 import { TransformSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
-import { useHasModelOrIndependentMesh } from '../../gltf/GLTFComponent'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
@@ -312,7 +311,9 @@ const vec3 = new Vector3()
 
 const DropShadowReactor = () => {
   const entity = useEntityContext()
-  const hasMeshOrModel = useHasModelOrIndependentMesh(entity)
+  // Deviation: this causes an infinite loop in react native due to the use of 'useForceUpdate'
+  // const hasMeshOrModel = useHasModelOrIndependentMesh(entity)
+  const hasMeshOrModel = false
   const shadow = useComponent(entity, ShadowComponent)
 
   useEffect(() => {

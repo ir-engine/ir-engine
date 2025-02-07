@@ -27,7 +27,7 @@ import {useEngineInjection} from '@ir-engine/client-core/src/components/World/En
 import {useEngineCanvas} from '@ir-engine/client-core/src/hooks/useEngineCanvas';
 import {useSpatialEngine} from '@ir-engine/spatial/src/initializeEngine';
 import {GLView} from 'expo-gl';
-import {useCallback, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {Text, View, Dimensions} from 'react-native';
 import {
   NativeHTMLCanvasElement,
@@ -38,8 +38,6 @@ import LocationPage from '@ir-engine/client-core/src/world/Location';
 import '../../engine';
 import {createCanvasEventHandler} from '../../polyfill/CanvasEventHandler';
 import {TouchGamepad} from '../../common/components/TouchGamepad';
-
-const {width, height} = Dimensions.get('window');
 
 const {eventListenerRegistry, pointerEvents} = createCanvasEventHandler();
 
@@ -67,6 +65,18 @@ const LocationRoutes = () => {
 
   const projectsLoaded = useEngineInjection();
 
+  const [dimensions, setDimensions] = useState(() => Dimensions.get('window'));
+
+  useEffect(() => {
+    const subscription = Dimensions.addEventListener('change', ({window}) => {
+      setDimensions(window);
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
   if (!projectsLoaded) {
     return (
       <View>
@@ -77,6 +87,7 @@ const LocationRoutes = () => {
 
   return (
     <View {...pointerEvents}>
+      <TouchGamepad />
       <LocationPage
         params={{
           locationName: 'marbar',
@@ -84,11 +95,13 @@ const LocationRoutes = () => {
         online
       />
       <GLView
-        style={{width, height}}
+        style={{
+          width: dimensions.width,
+          height: dimensions.height,
+        }}
         onContextCreate={onContextCreate}
         msaaSamples={0}
       />
-      <TouchGamepad />
     </View>
   );
 };

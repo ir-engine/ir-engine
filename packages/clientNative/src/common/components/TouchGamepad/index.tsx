@@ -52,23 +52,38 @@ const moveRight = handleMove.bind(null, {x: 0.5, y: 0});
 export const TouchGamepad = () => {
   return (
     <>
-      <Pressable onPressIn={moveUp} onPressOut={handleStop} style={styles.up}>
+      <Pressable
+        onPressIn={e => {
+          e.preventDefault();
+          moveUp();
+        }}
+        onPressOut={handleStop}
+        style={styles.up}>
         <Text>W</Text>
       </Pressable>
       <Pressable
-        onPressIn={moveLeft}
+        onPressIn={e => {
+          e.preventDefault();
+          moveLeft();
+        }}
         onPressOut={handleStop}
         style={styles.left}>
         <Text>A</Text>
       </Pressable>
       <Pressable
-        onPressIn={moveDown}
+        onPressIn={e => {
+          e.preventDefault();
+          moveDown();
+        }}
         onPressOut={handleStop}
         style={styles.down}>
         <Text>S</Text>
       </Pressable>
       <Pressable
-        onPressIn={moveRight}
+        onPressIn={e => {
+          e.preventDefault();
+          moveRight();
+        }}
         onPressOut={handleStop}
         style={styles.right}>
         <Text>D</Text>
@@ -79,6 +94,7 @@ export const TouchGamepad = () => {
 
 const BUTTON_SIZE = 40;
 const X_OFFSET = 10;
+const Y_OFFSET = X_OFFSET;
 
 const buttonStyle: ViewStyle = {
   position: 'absolute',
@@ -96,22 +112,22 @@ const buttonStyle: ViewStyle = {
 const styles = StyleSheet.create({
   up: {
     ...buttonStyle,
-    top: 0,
+    bottom: BUTTON_SIZE * 3 + Y_OFFSET,
     left: BUTTON_SIZE + X_OFFSET,
   },
   left: {
     ...buttonStyle,
-    top: BUTTON_SIZE,
+    bottom: BUTTON_SIZE * 2 + Y_OFFSET,
     left: X_OFFSET,
   },
   right: {
     ...buttonStyle,
-    top: BUTTON_SIZE,
+    bottom: BUTTON_SIZE * 2 + Y_OFFSET,
     left: BUTTON_SIZE * 2 + X_OFFSET,
   },
   down: {
     ...buttonStyle,
-    top: BUTTON_SIZE * 2,
+    bottom: BUTTON_SIZE + Y_OFFSET,
     left: BUTTON_SIZE + X_OFFSET,
   },
 });

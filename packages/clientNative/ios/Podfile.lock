@@ -11,7 +11,7 @@ PODS:
     - ExpoModulesCore
   - ExpoFont (13.0.1):
     - ExpoModulesCore
-  - ExpoGL (15.0.2):
+  - ExpoGL (15.0.4):
     - ExpoModulesCore
     - ReactCommon/turbomodule/core
   - ExpoKeepAwake (14.0.1):
@@ -2095,7 +2095,7 @@ SPEC CHECKSUMS:
   ExpoAsset: d2d2cbc6a4efadf51a3da27d85d589935abd0b98
   ExpoFileSystem: 818e82dbb71175414d1ca310e926c48ff0d07348
   ExpoFont: 12b0217e42ac97029d0f317f0486039a8508cf52
-  ExpoGL: 9e4ac36b4dfeba548728f835c72fe895364ec3e7
+  ExpoGL: 60cdb51cc4a46e57a25f5e013c08e9ef411c3949
   ExpoKeepAwake: 22173f45d767c7d37403fdf48292726901d69ce7
   ExpoModulesCore: 231638400651045f797b1da72feccbd86f96dbf5
   FBLazyVector: bc70dcb22ad30ce734a7cce7210791dc737e230f

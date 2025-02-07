@@ -151,7 +151,7 @@ index 66f8755..b3ec652 100644
  }
  
 diff --git a/node_modules/expo-gl/ios/GLView.swift b/node_modules/expo-gl/ios/GLView.swift
-index e3ce5fe..104d004 100644
+index e3ce5fe..961aa9f 100644
 --- a/node_modules/expo-gl/ios/GLView.swift
 +++ b/node_modules/expo-gl/ios/GLView.swift
 @@ -25,8 +25,6 @@ internal final class GLView: ExpoView, EXGLContextDelegate {
@@ -166,7 +166,7 @@ index e3ce5fe..104d004 100644
 @@ -138,37 +136,12 @@ internal final class GLView: ExpoView, EXGLContextDelegate {
          &layerHeight
        )
-         
+ 
 -      // Set up MSAA framebuffer/renderbuffer
 -      glGenFramebuffers(1, &msaaFramebuffer)
 -      glGenRenderbuffers(1, &msaaRenderbuffer)
@@ -216,7 +216,7 @@ index e3ce5fe..104d004 100644
            glBindRenderbuffer(GLenum(GL_RENDERBUFFER), self.viewColorbuffer)
            self.eaglContext.presentRenderbuffer(Int(GL_RENDERBUFFER))
          }
-           
+ 
 +        if prevRenderBuffer != 0 {
 +          glBindRenderbuffer(GLenum(GL_RENDERBUFFER_BINDING), prevRenderBuffer)
 +        }

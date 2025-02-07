@@ -45,7 +45,7 @@
     "expo": "^52.0.0",
     "expo-asset": "^11.0.2",
     "expo-asset-utils": "^3.0.0",
-    "expo-gl": "^15.0.2",
+    "expo-gl": "15.0.4",
     "expo-modules-core": "^2.0.4",
     "primus-client": "^7.3.4",
     "react": "18.2.0",
