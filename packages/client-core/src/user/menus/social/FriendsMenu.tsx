@@ -200,7 +200,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
     const userName = useGet(userPath, props.user.id).data?.name ?? 'User'
     const thumbnail = useUserAvatarThumbnail(user.id as UserID)
     return (
-      <div key={user.id} className="m-2 flex items-center gap-2">
+      <div key={user.id} className="m-2 flex items-center gap-2 text-text-secondary hover:text-text-primary">
         <AvatarImage src={thumbnail} size="medium" />
 
         <Text className="w-full">{userName}</Text>
@@ -260,13 +260,15 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
     return (
       <div className="flex flex-col gap-2">
         {displayList.length > 0 && displayList.map((value) => <Friend user={value} />)}
-        {displayList.length === 0 && <Text>{t('user:friends.noUsers')}</Text>}
+        {displayList.length === 0 && (
+          <Text className="text-center text-text-secondary">{t('user:friends.noUsers')}</Text>
+        )}
       </div>
     )
   }
 
   return (
-    <div className="relative z-50 h-fit max-h-[60vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-theme-surface-main px-10 py-6">
+    <div className="relative z-50 h-fit max-h-[60vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-1 px-10 py-6">
       <Tabs
         tabcontainerClassName="w-full justify-center gap-x-6"
         currentTabIndex={selectedTabIndex.value}

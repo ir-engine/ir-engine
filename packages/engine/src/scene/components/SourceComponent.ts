@@ -27,7 +27,7 @@ import { iterateEntityNode } from '@ir-engine/ecs'
 import { defineComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { hookstate, none } from '@ir-engine/hyperflux'
+import { hookstate, none, useHookstate } from '@ir-engine/hyperflux'
 import { NonEmptyString } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 
@@ -68,6 +68,11 @@ export const SourceComponent = defineComponent({
     } else {
       SourceComponent.entitiesBySourceState[component.value].set(entities)
     }
+  },
+
+  useEntitiesBySource: (rootEntity: Entity) => {
+    const source = GLTFComponent.useInstanceID(rootEntity)
+    return useHookstate(SourceComponent.entitiesBySourceState[source]).value as Entity[]
   },
 
   getEntitiesBySource: (rootEntity: Entity) => {

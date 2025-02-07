@@ -31,7 +31,7 @@ type Props = {
 
 const EmbedFrame = ({ src }: Props): JSX.Element => {
   return (
-    <div className="relative z-50 h-fit w-[70vw] max-w-2xl overflow-y-auto rounded-2xl bg-theme-surface-main px-10 py-6">
+    <div className="bg-theme-surface-main relative z-50 h-fit w-[70vw] max-w-2xl overflow-y-auto rounded-2xl px-10 py-6">
       <div className="h-[90vh]">
         {src ? (
           <div className="h-full w-full">

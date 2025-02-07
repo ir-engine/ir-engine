@@ -245,8 +245,6 @@ const resourceCallbacks = {
     ) => {
       if (!asset.image) return
       resource.metadata.merge({ onGPU: false, discarded: false })
-      asset.wrapS = RepeatWrapping
-      asset.wrapT = RepeatWrapping
       asset.onUpdate = () => {
         resource.metadata.merge({ onGPU: true, discarded: discardUponUpload })
         //@ts-ignore

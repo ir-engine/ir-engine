@@ -60,7 +60,7 @@ const Avatar = ({ alt, imageSrc, isSelected, name, showChangeButton, type, size,
         onPointerEnter={handleSoundEffect}
         className={twMerge(
           'relative box-border flex h-32 max-h-[149px] min-h-32 max-w-[410px] cursor-pointer items-start gap-3 rounded-lg bg-[#191B1F] p-3',
-          isSelected ? 'border-2 border-blue-primary' : 'border border-[#42454D] hover:border hover:border-blue-primary'
+          isSelected ? 'border-2' : 'border border-[#42454D] hover:border'
         )}
       >
         <img className="h-full w-24 max-w-24" src={imageSrc} alt={alt} crossOrigin="anonymous" />
@@ -76,7 +76,7 @@ const Avatar = ({ alt, imageSrc, isSelected, name, showChangeButton, type, size,
             <FiEdit2 size={16} />
           </Button>
         )}
-        <span className="line-clamp-2 w-full text-base font-semibold text-theme-primary">{name}</span>
+        <span className="line-clamp-2 w-full text-base font-semibold ">{name}</span>
       </div>
     )
   } else if (type === 'thumbnail') {

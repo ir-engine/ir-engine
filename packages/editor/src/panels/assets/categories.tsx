@@ -73,7 +73,7 @@ export default function CategoriesList() {
 
   return (
     <div
-      className="mb-8 h-full space-y-1 overflow-x-hidden overflow-y-scroll bg-[#0E0F11] pb-8 pl-1 pr-2 pt-2"
+      className="mb-8 h-full space-y-1 overflow-x-hidden overflow-y-scroll bg-ui-background pb-8 pl-1 pr-2 pt-2"
       style={{ width: sidebarWidth.value }}
     >
       {categories.value.map((category, index) => (
@@ -101,7 +101,7 @@ export function VerticalDivider({
       }}
     >
       {leftChildren}
-      <div className="flex w-5 cursor-pointer items-center" data-testid="assets-panel-vertical-divider">
+      <div className="flex w-5 cursor-pointer items-center bg-surface-1" data-testid="assets-panel-vertical-divider">
         <HiDotsVertical
           onMouseDown={(event) => {
             event?.preventDefault()
