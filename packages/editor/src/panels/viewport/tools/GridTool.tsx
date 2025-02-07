@@ -26,11 +26,11 @@ Infinite Reality Engine. All Rights Reserved.
 import { useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { Tooltip } from '@ir-engine/ui'
+import { ViewportButton } from '@ir-engine/ui/editor'
 import NumericInput from '@ir-engine/ui/src/components/editor/input/Numeric'
 import { GridDotsMd } from '@ir-engine/ui/src/icons'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { twMerge } from 'tailwind-merge'
 
 const GridTool = () => {
   const { t } = useTranslation()
@@ -48,19 +48,14 @@ const GridTool = () => {
   }, [])
 
   return (
-    <div className="flex items-center rounded bg-[#0E0F11] p-1">
+    <div className="flex items-center gap-x-1">
       <Tooltip content={t('editor:toolbar.grid.info-toggleGridVisibility')} position="bottom">
-        <GridDotsMd
-          onClick={onToggleGridVisible}
-          className={twMerge('text-[#9CA0AA]', rendererState.gridVisibility.value && 'text-[#F5F5F5]')}
-        />
+        <ViewportButton onClick={onToggleGridVisible} icon={GridDotsMd} selected={rendererState.gridVisibility.value} />
       </Tooltip>
       <Tooltip content={t('editor:toolbar.grid.info-gridHeight')} position="bottom">
         <NumericInput
           value={rendererState.gridHeight.value}
           onChange={(value) => rendererState.gridHeight.set(value)}
-          className="h-5 w-16 rounded-sm border-theme-input bg-transparent px-2 py-1"
-          inputClassName="text-theme-gray3"
           precision={0.01}
           smallStep={0.5}
           mediumStep={1}

@@ -27,7 +27,16 @@ import * as bitECS from 'bitecs'
 import React, { ErrorInfo, FC, memo, Suspense, useEffect, useLayoutEffect, useMemo } from 'react'
 import * as bitECSLegacy from './bitecsLegacy'
 
-import { HyperFlux, NO_PROXY, startReactor, State, useForceUpdate, useHookstate } from '@ir-engine/hyperflux'
+import {
+  defineState,
+  getMutableState,
+  HyperFlux,
+  NO_PROXY,
+  startReactor,
+  State,
+  useForceUpdate,
+  useHookstate
+} from '@ir-engine/hyperflux'
 
 import { EntityContext, LayerComponents, LayerID, Layers } from './ComponentFunctions'
 import { Entity } from './Entity'
@@ -147,11 +156,27 @@ export function useQuery(components: bitECS.QueryTerm[], layer: LayerID = Layers
 
 export type Query = ReturnType<typeof defineQuery>
 
-const QuerySubReactor = memo((props: { entity: Entity; ChildEntityReactor: FC; props?: any }) => {
+export const SuspendedQueryChildState = defineState({
+  name: 'ir.ecs.SuspendedQueryChildState',
+  initial: [] as Array<{ entity: Entity; ChildEntityReactor: FC; props?: any }>
+})
+
+const Suspended = (props: { entity: Entity; ChildEntityReactor: FC; props?: any }) => {
+  useEffect(() => {
+    const state = getMutableState(SuspendedQueryChildState)
+    state.merge([props])
+    return () => {
+      state.set((v) => v.filter((v) => v !== props))
+    }
+  }, [])
+  return null
+}
+
+export const QuerySubReactor = memo((props: { entity: Entity; ChildEntityReactor: FC; props?: any }) => {
   return (
     <>
       <QueryReactorErrorBoundary>
-        <Suspense fallback={null}>
+        <Suspense fallback={<Suspended {...props} />}>
           <EntityContext.Provider value={props.entity}>
             <props.ChildEntityReactor {...props.props} />
           </EntityContext.Provider>

@@ -87,7 +87,7 @@ export const StatsPanel = (props: { show: boolean }) => {
         {renderInfoState.visible.value ? 'Hide' : 'Show'}
       </Button>
       {info && (
-        <ul className="list-none text-sm text-theme-secondary">
+        <ul className="list-none text-sm ">
           <li>
             {t('editor:viewport.state.memory')}
             <ul className="ml-2 list-none">

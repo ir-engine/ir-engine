@@ -35,6 +35,7 @@ import {
   LayerID,
   Layers,
   PresentationSystemGroup,
+  QuerySubReactor,
   UUIDComponent,
   UndefinedEntity,
   createEntity,
@@ -161,7 +162,7 @@ export const GLTFLoadSystem = defineSystem({
     return (
       <>
         {gltfEntities.map((entity) => (
-          <GLTFComponentReactor key={entity} entity={entity} />
+          <QuerySubReactor ChildEntityReactor={GLTFComponentReactor} key={entity} entity={entity} />
         ))}
       </>
     )

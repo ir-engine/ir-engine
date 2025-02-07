@@ -39,7 +39,7 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { defineQuery, removeQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { SuspendedQueryChildState, defineQuery, removeQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
@@ -155,6 +155,22 @@ export const EntityDebug = () => {
 
   const namedEntities = useHookstate({})
   const erroredComponents = useHookstate([] as any[])
+  const suspendedEntities = useMutableState(SuspendedQueryChildState)
+    .get(NO_PROXY)
+    .map((c) => [c.entity, { props: c.props, reactor: c.ChildEntityReactor }] as [Entity, any])
+    .reduce(
+      (acc, v) => {
+        const [entity, vals] = v
+        const entityLabel = `${
+          getOptionalComponent(entity, NameComponent) ?? getOptionalComponent(entity, UUIDComponent)
+        } - ${entity}`
+        if (!(entityLabel in acc)) acc[entityLabel] = []
+        acc[entityLabel].push(vals)
+        return acc
+      },
+      {} as Record<Entity, Array<any>>
+    )
+
   const entityTree = useHookstate({ siimulation: {}, authoring: {} } as any)
   const entitySearch = useMutableState(EntitySearchState).search
   const entityQuery = useMutableState(EntitySearchState).query
@@ -204,6 +220,10 @@ export const EntityDebug = () => {
         />
         <Input placeholder="Query..." value={entityQuery.value} onChange={(e) => entityQuery.set(e.target.value)} />
         <JSONTree data={namedEntities.get(NO_PROXY)} />
+      </div>
+      <div className="my-1">
+        <Text>{t('common:debug.suspendedEntities')}</Text>
+        <JSONTree data={suspendedEntities} />
       </div>
       <div className="my-1">
         <Text>{t('common:debug.erroredEntities')}</Text>

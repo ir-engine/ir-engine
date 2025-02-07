@@ -95,12 +95,12 @@ export default function GLTFTransformProperties({
     transformParms && (
       <>
         {itemCount === 1 && (
-          <div className="mb-6 grid grid-cols-4 gap-2 border-b border-theme-primary pb-6">
+          <div className="mb-6 grid grid-cols-4 gap-2 border-b  pb-6">
             <div className="col-span-1 flex flex-col justify-around gap-y-2">
               <Text
                 fontSize="xs"
                 fontWeight="medium"
-                className="block px-2 py-0.5 text-right leading-[1.125rem] text-theme-gray3"
+                className="block px-2 py-0.5 text-right leading-[1.125rem] "
                 style={{
                   textWrap: 'nowrap' // tailwind class is not working
                 }}
@@ -110,7 +110,7 @@ export default function GLTFTransformProperties({
               <Text
                 fontSize="xs"
                 fontWeight="medium"
-                className="px-2 py-0.5 text-right leading-[1.125rem] text-theme-gray3"
+                className="px-2 py-0.5 text-right leading-[1.125rem] "
                 style={{
                   textWrap: 'nowrap' // tailwind class is not working
                 }}
@@ -135,12 +135,12 @@ export default function GLTFTransformProperties({
           </div>
         )}
         {itemCount > 1 && (
-          <div className="mb-6 grid grid-cols-4 gap-2 border-b border-theme-primary pb-6">
+          <div className="mb-6 grid grid-cols-4 gap-2 border-b  pb-6">
             <div className="col-span-1 flex flex-col justify-around gap-y-2">
               <Text
                 fontSize="xs"
                 fontWeight="medium"
-                className="block px-2 py-0.5 text-right leading-[1.125rem] text-theme-gray3"
+                className="block px-2 py-0.5 text-right leading-[1.125rem] "
                 style={{
                   textWrap: 'nowrap' // tailwind class is not working
                 }}
@@ -159,7 +159,7 @@ export default function GLTFTransformProperties({
           expandIcon={<HiPlusSmall />}
           shrinkIcon={<HiMinus />}
           titleFontSize="sm"
-          className="mb-2 rounded bg-theme-highlight p-2"
+          className="mb-2 rounded  p-2"
         >
           <div className="my-1 grid grid-cols-4 items-center gap-x-2">
             <div className="col-span-1 col-start-2 text-right">
@@ -256,7 +256,7 @@ export default function GLTFTransformProperties({
           expandIcon={<HiPlusSmall />}
           shrinkIcon={<HiMinus />}
           titleFontSize="sm"
-          className="mb-2 rounded bg-theme-highlight p-2"
+          className="mb-2 rounded  p-2"
         >
           <CheckBoxParam label={t('editor:properties.model.transform.instance')} state={transformParms.instance} />
 
@@ -283,7 +283,7 @@ export default function GLTFTransformProperties({
           expandIcon={<HiPlusSmall />}
           shrinkIcon={<HiMinus />}
           titleFontSize="sm"
-          className="mb-2 rounded bg-theme-highlight p-2"
+          className="mb-2 rounded  p-2"
         >
           <CheckBoxParam label={t('editor:properties.model.transform.removeDuplicates')} state={transformParms.dedup} />
           <CheckBoxParam label={t('editor:properties.model.transform.flatten')} state={transformParms.flatten} />
@@ -296,7 +296,7 @@ export default function GLTFTransformProperties({
           expandIcon={<HiPlusSmall />}
           shrinkIcon={<HiMinus />}
           titleFontSize="sm"
-          className="mb-2 rounded bg-theme-highlight p-2"
+          className="mb-2 rounded  p-2"
         >
           <CheckBoxParam
             label={t('editor:properties.model.transform.resampleAnimations')}

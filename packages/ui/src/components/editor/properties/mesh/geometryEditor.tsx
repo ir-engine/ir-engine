@@ -77,7 +77,7 @@ export default function GeometryEditor({ geometry }: { ['geometry']: BufferGeome
         <div className="relative flex flex-col border border-gray-500 px-3 py-2" key={attribute.name.value + idx}>
           <Button
             variant="tertiary"
-            className="absolute right-0 top-1 text-theme-iconRed"
+            className="absolute right-0 top-1 "
             onClick={() => deleteBufferAttribute(attribute.name.value)}
           >
             <HiTrash />

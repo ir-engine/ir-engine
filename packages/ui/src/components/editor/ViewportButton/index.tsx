@@ -26,25 +26,28 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
 
-export interface ViewportButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ViewportButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
+  icon: (({ className }: { className?: string }) => JSX.Element) | React.ElementType
   selected?: boolean
 }
 
 function ViewportButton(
-  { selected, className, ...props }: ViewportButtonProps,
+  { selected, className, icon: Icon, ...props }: ViewportButtonProps,
   ref: React.ForwardedRef<HTMLButtonElement>
 ) {
   return (
     <button
       ref={ref}
       className={twMerge(
-        'rounded-sm p-1',
-        'bg-[#141619] text-[#9CA0AA] hover:bg-[#191B1F] hover:text-[#F5F5F5]',
-        selected && 'bg-[#191B1F] text-[#F5F5F5]',
+        'flex h-8 w-8 items-center justify-center',
+        'text-text-secondary hover:text-text-primary',
+        selected && 'text-ui-primary',
         className
       )}
       {...props}
-    />
+    >
+      <Icon className="h-5 w-5" />
+    </button>
   )
 }
 

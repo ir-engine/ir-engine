@@ -260,7 +260,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
       hideFooter={true}
       rawChildren={
         <div className="flex h-full w-full flex-1 flex-col">
-          <div className="grid h-14 w-full grid-cols-[2rem,1fr,2rem] border-b border-b-theme-primary px-8">
+          <div className="grid h-14 w-full grid-cols-[2rem,1fr,2rem] border-b px-8">
             <Button
               data-testid="edit-avatar-button"
               className=" h-6 w-6 self-center bg-transparent hover:bg-transparent focus:bg-transparent"
