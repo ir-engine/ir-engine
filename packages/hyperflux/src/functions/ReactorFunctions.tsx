@@ -107,6 +107,8 @@ export function createErrorBoundary<P extends { children: React.ReactNode }>(
     componentDidCatch(error: Error, info: React.ErrorInfo) {
       if (errorHandler) {
         errorHandler(error, info)
+      } else {
+        console.error(error, info)
       }
     }
 

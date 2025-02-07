@@ -44,6 +44,7 @@ import {
   setComponent,
   UndefinedEntity,
   useComponent,
+  useEntityContext,
   useHasComponent,
   useHasComponents,
   useOptionalComponent,
@@ -196,8 +197,8 @@ const buildComponentDependencies = (json: GLTF.IGLTF) => {
   return dependencies
 }
 
-export const GLTFComponentReactor = (props: { entity: Entity }) => {
-  const entity = props.entity
+export const GLTFComponentReactor = () => {
+  const entity = useEntityContext()
   const gltfComponent = useComponent(entity, GLTFComponent)
   const documentLoaded = useHookstate(false)
 
