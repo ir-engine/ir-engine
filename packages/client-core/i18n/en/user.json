@@ -397,7 +397,9 @@
     "saveAvatar": "Save Avatar",
     "savingAvatar": "Saving {{avatar}}",
     "packagingAvatar": "Packaging & adding avatar to your Account...",
-    "avatarPreviewDisabledMessage": "Preview Image not Available"
+    "avatarPreviewDisabledMessage": "Preview Image not Available",
+    "discardChanges": "Discard changes",
+    "saveChanges": "Save changes"
   },
   "menu": {
     "settings": "Profile",
@@ -419,7 +421,6 @@
     "exitFullScreen": "Exit FullScreen",
     "hide": "Hide",
     "show": "Show"
-    
   },
   "personMenu": {
     "inviteToParty": "Invite To Party",
