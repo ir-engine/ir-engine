@@ -53,7 +53,7 @@ const SegmentedControl = ({ options, onChange, value, layout }: SegmentedControl
         <div ref={ref} className="relative w-full">
           <div
             tabIndex={0}
-            className={`relative my-[0px] flex grid w-full items-center gap-[4px] rounded-md bg-[#141619] !px-[2px] !py-[2px] focus:outline-none 
+            className={`relative my-[0px] flex grid w-full items-center gap-[4px] rounded-md bg-surface-1 !px-[2px] !py-[2px] focus:outline-none 
               ${(layout === undefined || layout === 'single-row') && ' grid-flow-col grid-rows-1 '}
               ${layout === 'two-row' && ' grid-flow-col grid-rows-2'}
               ${layout === 'vertical' && ' grid-cols-1 '}
@@ -64,8 +64,8 @@ const SegmentedControl = ({ options, onChange, value, layout }: SegmentedControl
                 <button
                   key={index}
                   className={`!mx-0 !my-0 h-full flex-auto rounded-md p-[2px] text-[14px]
-                    ${currentValue === localValue && 'bg-[#212226] text-[#F5F5F5]'} 
-                    ${currentValue !== localValue && 'bg-[#191B1F] text-[#6B6F78]'}
+                    ${currentValue === localValue && 'bg-surface-4 text-text-primary-button'} 
+                    ${currentValue !== localValue && 'bg-surface-2 text-text-inactive'}
                     `}
                   onClick={() => {
                     setLocalValue(currentValue)
@@ -76,7 +76,7 @@ const SegmentedControl = ({ options, onChange, value, layout }: SegmentedControl
                 </button>
               ))
             ) : (
-              <div className="w-full bg-[#141619] text-center text-[#F5F5F5] ">No options available</div>
+              <div className="w-full bg-surface-2 text-center text-text-inactive ">No options available</div>
             )}
           </div>
         </div>

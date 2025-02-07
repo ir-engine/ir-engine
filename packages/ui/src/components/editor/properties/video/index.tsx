@@ -321,7 +321,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                         className="absolute right-0 top-0 h-full w-full "
                       />
                       <button
-                        className="absolute right-0 top-0 h-[32px] w-[32px] place-items-center text-[#9CA0AA]"
+                        className="absolute right-0 top-0 h-[32px] w-[32px] place-items-center text-text-primary-button"
                         onClick={() => {
                           showVideoPreview.set(false)
                         }}
@@ -331,11 +331,11 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                     </div>
                   </div>
                 )}
-                <div className="flex w-full justify-between gap-[10px] ">
-                  <div className="flex h-[28px] w-full justify-between gap-[10px] rounded bg-[#141619] px-[8px] ">
-                    <div onClick={toggle} className="my-[4px] h-[20px] w-[20px] text-[#B2B5BD]">
-                      {media.paused.value && <FaRegCirclePlay className="h-full w-full" />}
-                      {!media.paused.value && <FaRegPauseCircle className="h-full w-full" />}
+                <div className=" flex w-full justify-between gap-[10px] ">
+                  <div className="flex h-[28px] w-full justify-between gap-[10px] rounded bg-surface-2 px-[8px] ">
+                    <div onClick={toggle} className="my-[4px] h-[20px] w-[20px]">
+                      {media.paused.value && <FaRegCirclePlay className="h-full w-full text-text-primary-button" />}
+                      {!media.paused.value && <FaRegPauseCircle className="h-full w-full text-text-primary-button" />}
                     </div>
                     <input
                       id={'videoScrubber'}
@@ -349,24 +349,24 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                       }}
                       type="range"
                       style={{
-                        background: `linear-gradient(to right, #375DAF ${currentTrackPercent.value}%, #B2B5BD ${currentTrackPercent.value}%)`
+                        background: `linear-gradient(to right, var(--ui-select-primary) ${currentTrackPercent.value}%, var(--ui-inactive-tertiary) ${currentTrackPercent.value}%)`
                       }}
-                      className={`my-[12px] h-[4px] w-full min-w-20 cursor-pointer appearance-none overflow-hidden rounded bg-[#B2B5BD] focus:outline-none
-                        disabled:pointer-events-none disabled:opacity-50
-                        [&::-moz-range-progress]:bg-[#375DAF]
+                      className={`[&::-moz-range-track]:bg-ui-inactive-tertiar my-[12px] h-[4px] w-full min-w-20 cursor-pointer appearance-none overflow-hidden rounded bg-ui-inactive-tertiary
+                        focus:outline-none disabled:pointer-events-none
+                        disabled:opacity-50
+                        [&::-moz-range-progress]:bg-ui-select-primary
                         [&::-moz-range-thumb]:h-full
                         [&::-moz-range-thumb]:w-[8px]
                         [&::-moz-range-thumb]:appearance-none
                         [&::-moz-range-thumb]:rounded
-                        [&::-moz-range-thumb]:bg-[#213869]
+                        [&::-moz-range-thumb]:bg-ui-select-secondary
                         [&::-moz-range-thumb]:transition-all
                         [&::-moz-range-thumb]:duration-150
                         [&::-moz-range-thumb]:ease-in-out
-                        group-hover/editor-slider:[&::-moz-range-thumb]:bg-[#AFBEDF]
+                        group-hover/editor-slider:[&::-moz-range-thumb]:bg-ui-select-secondary 
                         [&::-moz-range-track]:h-full
                         [&::-moz-range-track]:w-full
                         [&::-moz-range-track]:rounded
-                        [&::-moz-range-track]:bg-[#B2B5BD]
                         [&::-webkit-slider-runnable-track]:h-full
                         [&::-webkit-slider-runnable-track]:w-full
                         [&::-webkit-slider-runnable-track]:rounded
@@ -374,21 +374,21 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                         [&::-webkit-slider-thumb]:w-[8px]
                         [&::-webkit-slider-thumb]:appearance-none
                         [&::-webkit-slider-thumb]:rounded
-                        [&::-webkit-slider-thumb]:bg-[#213869]
+                        [&::-webkit-slider-thumb]:bg-ui-select-secondary
                         [&::-webkit-slider-thumb]:transition-all
                         [&::-webkit-slider-thumb]:duration-150
                         [&::-webkit-slider-thumb]:ease-in-out
-                        group-hover/editor-slider:[&::-webkit-slider-thumb]:bg-[#AFBEDF]
+                        group-hover/editor-slider:[&::-webkit-slider-thumb]:bg-ui-select-secondary 
                       `}
                       data-testid="slider-draggable-value-input"
                     />
-                    <div className="my-[6px] inline-block h-full align-middle text-[12px] text-[#B2B5BD]">
+                    <div className="my-[6px] inline-block h-full align-middle text-[12px] text-text-secondary ">
                       {formatSeconds(media.currentTrackTime.value)}/{formatSeconds(media.currentTrackDuration.value)}
                     </div>
                   </div>
                   {!showVideoPreview.value && (
                     <button
-                      className="h-[28px] w-[32px] place-items-center rounded bg-[#141619] text-[#9CA0AA]"
+                      className="h-[28px] w-[32px] place-items-center rounded bg-surface-2 text-text-primary-button"
                       onClick={() => {
                         showVideoPreview.set(true)
                       }}
@@ -433,35 +433,30 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
             <Checkbox
               label={t('editor:properties.media.lbl-controls')}
               variantTextPlacement={'right'}
-              variantTextClassname={'text-[#B2B5BD]'}
               checked={media.controls.value}
               onChange={commitProperty(MediaComponent, 'controls')}
             />
             <Checkbox
               label={t('editor:properties.media.lbl-mediaSynchronize')}
               variantTextPlacement={'right'}
-              variantTextClassname={'text-[#B2B5BD]'}
               checked={media.synchronize.value}
               onChange={commitProperty(MediaComponent, 'synchronize')}
             />
             <Checkbox
               label={t('editor:properties.media.lbl-autoplayRuntime')}
               variantTextPlacement={'right'}
-              variantTextClassname={'text-[#B2B5BD]'}
               checked={media.autoplayRuntime.value}
               onChange={commitProperty(MediaComponent, 'autoplayRuntime')}
             />
             <Checkbox
               label={t('editor:properties.media.lbl-autoplayEditor')}
               variantTextPlacement={'right'}
-              variantTextClassname={'text-[#B2B5BD]'}
               checked={media.autoplayEditor.value}
               onChange={commitProperty(MediaComponent, 'autoplayEditor')}
             />
             <Checkbox
               label={t('editor:properties.media.lbl-muteEditor')}
               variantTextPlacement={'right'}
-              variantTextClassname={'text-[#B2B5BD]'}
               checked={media.muteEditor.value}
               onChange={commitProperty(MediaComponent, 'muteEditor')}
             />
@@ -508,11 +503,11 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                 <div className="grid w-full grid-flow-col grid-rows-1 gap-[8px]">
                   <NumericScrubber
                     SuffixIcon={RiExpandUpDownLine}
-                    suffixIconClassName={'text-[#9CA0AA] ml-[4px] w-[30px] h-[30px]'}
+                    suffixIconClassName={'text-text-inactive ml-[4px] w-[30px] h-[30px]'}
                     PreFixIcon={FaAngleLeft}
-                    prefixIconClassName={'text-[#9CA0AA] mr-[4px]'}
+                    prefixIconClassName={'text-text-inactive mr-[4px]'}
                     prefix={t('editor:properties.audio.lbl-coneOuterAngle').toUpperCase()}
-                    prefixClassName={'text-[#9CA0AA] mr-[4px]'}
+                    prefixClassName={'text-text-inactive mr-[4px]'}
                     min={0}
                     max={360}
                     smallStep={0.1}
@@ -531,11 +526,11 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
 
                   <NumericScrubber
                     SuffixIcon={RiExpandUpDownLine}
-                    suffixIconClassName={'text-[#9CA0AA] ml-[4px] w-[30px] h-[30px]'}
+                    suffixIconClassName={'text-text-inactive ml-[4px] w-[30px] h-[30px]'}
                     PreFixIcon={TfiAngleLeft}
-                    prefixIconClassName={'text-[#9CA0AA] mr-[4px]'}
+                    prefixIconClassName={'text-text-inactive mr-[4px]'}
                     prefix={t('editor:properties.audio.lbl-coneInnerAngle').toUpperCase()}
-                    prefixClassName={'text-[#9CA0AA] mr-[4px]'}
+                    prefixClassName={'text-text-inactive mr-[4px]'}
                     min={0}
                     max={360}
                     smallStep={0.1}
@@ -697,7 +692,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                   labelProps={{
                     text: t('editor:properties.video.lbl-wrap-s'),
                     position: 'inside',
-                    className: 'text-red-500'
+                    className: 'text-ui-error'
                   }}
                   value={video.wrapS.value}
                   onChange={commitProperty(VideoComponent, 'wrapS')}
@@ -709,7 +704,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
                   labelProps={{
                     text: t('editor:properties.video.lbl-wrap-t'),
                     position: 'inside',
-                    className: 'text-green-400'
+                    className: 'text-ui-success'
                   }}
                   value={video.wrapT.value}
                   onChange={commitProperty(VideoComponent, 'wrapT')}
@@ -729,7 +724,6 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
         <Checkbox
           label={t('editor:properties.video.lbl-use-alphaEnable')}
           variantTextPlacement={'right'}
-          variantTextClassname={'text-[#B2B5BD]'}
           checked={video.useAlpha.value}
           onChange={commitProperty(VideoComponent, 'useAlpha')}
         />
@@ -739,7 +733,6 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
             <Checkbox
               label={t('editor:properties.video.lbl-use-alphaInvert')}
               variantTextPlacement={'right'}
-              variantTextClassname={'text-[#B2B5BD]'}
               checked={video.useAlphaInvert.value}
               onChange={commitProperty(VideoComponent, 'useAlphaInvert')}
             />
