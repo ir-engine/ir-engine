@@ -53,7 +53,7 @@ const SegmentedControl = ({ options, onChange, value, layout }: SegmentedControl
         <div ref={ref} className="relative w-full">
           <div
             tabIndex={0}
-            className={`relative my-[0px] flex grid w-full items-center gap-[4px] rounded-md bg-surface-1 !px-[2px] !py-[2px] focus:outline-none 
+            className={`relative my-0 flex grid w-full items-center gap-1 rounded-md bg-surface-1 !px-0.5 !py-0.5 focus:outline-none 
               ${(layout === undefined || layout === 'single-row') && ' grid-flow-col grid-rows-1 '}
               ${layout === 'two-row' && ' grid-flow-col grid-rows-2'}
               ${layout === 'vertical' && ' grid-cols-1 '}
@@ -63,7 +63,7 @@ const SegmentedControl = ({ options, onChange, value, layout }: SegmentedControl
               options.map(({ value: currentValue, ...optionProps }, index) => (
                 <button
                   key={index}
-                  className={`!mx-0 !my-0 h-full flex-auto rounded-md p-[2px] text-[14px]
+                  className={`!mx-0 !my-0 h-full flex-auto rounded-md p-0.5 text-sm
                     ${currentValue === localValue && 'bg-surface-4 text-text-primary-button'} 
                     ${currentValue !== localValue && 'bg-surface-2 text-text-inactive'}
                     `}
