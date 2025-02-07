@@ -305,7 +305,7 @@ const Select = ({
             }}
           >
             {labelProps?.text && labelProps?.position === 'inside' && (
-              <span className={twMerge('text-xs text-[#D3D5D9]', labelProps.className)}>{labelProps.text}</span>
+              <span className={twMerge('text-xs text-text-inactive', labelProps.className)}>{labelProps.text}</span>
             )}
 
             <input
