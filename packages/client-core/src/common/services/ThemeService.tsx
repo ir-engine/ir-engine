@@ -28,129 +28,284 @@ import { defineState, getMutableState, syncStateWithLocalStorage, useMutableStat
 import { useEffect } from 'react'
 
 export interface CSSClasses {
-  'bg-primary': string
-  'bg-secondary': string
-  'bg-highlight': string
-  'bg-surface-bg': string
-  'bg-surface-main': string
-  'bg-surface-dropdown': string
-  'bg-surface-input': string
-  'bg-surface-card': string
-  'bg-table-secondary': string
-  'bg-blue-secondary': string
-  'bg-studio-surface': string
-  'bg-banner-informative': string
+  /* Surface Colors */
+  '--surface-0': string
+  '--surface-1': string
+  '--surface-2': string
+  '--surface-3': string
+  '--surface-4': string
+  '--surface-error': string
+  '--surface-warning': string
+  '--surface-success': string
 
-  'bg-tag-green': string
-  'bg-tag-lime': string
-  'bg-tag-red': string
-  'bg-tag-yellow': string
+  /* Surface Outline */
+  '--surface-outline-1-1': string
+  '--surface-outline-2-1': string
+  '--surface-outline-3-1': string
+  '--surface-outline-4-1': string
+  '--surface-outline-5-1': string
 
-  'text-input': string
-  'text-primary': string
-  'text-secondary': string
-  'text-highlight': string
-  'text-gray3': string
-  'text-menu-default': string
+  /* UI Elements / Default */
+  '--ui-background': string
+  '--ui-outline': string
+  '--ui-primary': string
+  '--ui-secondary': string
+  '--ui-tertiary': string
+  '--ui-quadrary': string
+  '--ui-error': string
+  '--ui-warning': string
+  '--ui-success': string
 
-  'icon-green': string
-  'icon-red': string
+  /* UI Elements / Hover */
+  '--ui-hover-background': string
+  '--ui-hover-outline': string
+  '--ui-hover-primary': string
+  '--ui-hover-secondary': string
+  '--ui-hover-tertiary': string
+  '--ui-hover-quadrary': string
+  '--ui-hover-error': string
+  '--ui-hover-warning': string
+  '--ui-hover-success': string
 
-  'border-primary': string
-  'border-input': string
-  'border-focus': string
+  /* UI Elements / Select */
+  '--ui-select-background': string
+  '--ui-select-outline': string
+  '--ui-select-primary': string
+  '--ui-select-secondary': string
+  '--ui-select-tertiary': string
+  '--ui-select-quadrary': string
+  '--ui-select-error': string
+  '--ui-select-warning': string
+  '--ui-select-success': string
 
-  'blue-primary': string
-  selection: string
+  /* UI Elements / Inactive */
+  '--ui-inactive-background': string
+  '--ui-inactive-outline': string
+  '--ui-inactive-primary': string
+  '--ui-inactive-secondary': string
+  '--ui-inactive-tertiary': string
+  '--ui-inactive-quadrary': string
+  '--ui-inactive-error': string
+  '--ui-inactive-warning': string
+  '--ui-inactive-success': string
+
+  /* Text Colors */
+  '--text-primary-button': string
+  '--text-primary': string
+  '--text-secondary': string
+  '--text-tertiary': string
+  '--text-inactive': string
+  '--text-link': string
+  '--text-error': string
+  '--text-warning': string
+  '--text-success': string
+
+  /* Chart Colors */
+  '--chart-100': string
+  '--chart-200': string
+  '--chart-300': string
+  '--chart-400': string
+  '--chart-500': string
+  '--chart-600': string
+  '--chart-700': string
+  '--chart-800': string
+  '--chart-900': string
+  '--chart-1000': string
+  '--chart-1100': string
+  '--chart-1200': string
+  '--chart-1300': string
 }
 
 const lightTheme: CSSClasses = {
-  'bg-primary': '#F5F5F5',
-  'bg-secondary': '#FFFFFF',
-  'bg-highlight': '#D9D9D9',
-  'bg-surface-bg': '#FFFFFF',
-  'bg-surface-main': '#FFFFFF',
-  'bg-surface-dropdown': '#FFFFFF',
-  'bg-surface-input': '#FFFFFF',
-  'bg-surface-card': '#FFFFFF',
-  'bg-table-secondary': '#F9FAFB',
-  'bg-blue-secondary': '#D4DFF7',
-  'bg-studio-surface': '#F5F5F5',
-  'bg-banner-informative': '#FFFBEB',
+  /* Surface Colors */
+  '--surface-0': '#DBDBDB',
+  '--surface-1': '#E6E6E6',
+  '--surface-2': '#EBEBEB',
+  '--surface-3': '#F0F0F0',
+  '--surface-4': '#F5F5F5',
+  '--surface-error': '#E56E5C',
+  '--surface-warning': '#FFDB6E',
+  '--surface-success': '#6AC689',
 
-  'bg-tag-green': '#10B981',
-  'bg-tag-lime': '#9ACD32',
-  'bg-tag-red': '#D1004B',
-  'bg-tag-yellow': '#FEF3C7',
+  /* Surface Outline */
+  '--surface-outline-1-1': '#D1D1D1',
+  '--surface-outline-2-1': '#DBDBDB',
+  '--surface-outline-3-1': '#E0E0E0',
+  '--surface-outline-4-1': '#EBEBEB',
+  '--surface-outline-5-1': '#4F5259',
 
-  'text-input': '#9CA0AA',
-  'text-primary': '#262626',
-  'text-secondary': '#6B7280',
-  'text-highlight': '#000000',
-  'text-gray3': '#D3D5D9',
-  'text-menu-default': '#9CA0AA',
+  /* UI Elements / Default */
+  '--ui-background': '#EBEBEB',
+  '--ui-outline': '#B2B5BD',
+  '--ui-primary': '#4D84BF',
+  '--ui-secondary': '#7487A0',
+  '--ui-tertiary': '#DDE1E5',
+  '--ui-quadrary': '#C6CBD1',
+  '--ui-error': '#BD4B31',
+  '--ui-warning': '#D4AA2C',
+  '--ui-success': '#2C914E',
 
-  'icon-green': '#0D9488 ',
-  'icon-red': '#E11D48',
+  /* UI Elements / Hover */
+  '--ui-hover-background': '#DBDBDB',
+  '--ui-hover-outline': '#E6E6E6',
+  '--ui-hover-primary': '#3368A1',
+  '--ui-hover-secondary': '#3771AF',
+  '--ui-hover-tertiary': '#EDEFF1',
+  '--ui-hover-quadrary': '#DDE1E5',
+  '--ui-hover-error': '#D1664D',
+  '--ui-hover-warning': '#EEBA19',
+  '--ui-hover-success': '#5AC97F',
 
-  'border-primary': '#E5E7EB',
-  'border-input': '#42454D',
-  'border-focus': '#375DAF',
+  /* UI Elements / Select */
+  '--ui-select-background': '#F0F0F0',
+  '--ui-select-outline': '#DBDBDB',
+  '--ui-select-primary': '#3C6399',
+  '--ui-select-secondary': '#214469',
+  '--ui-select-tertiary': '#E6E6E6',
+  '--ui-select-quadrary': '#E0E0E0',
+  '--ui-select-error': '#A8442D',
+  '--ui-select-warning': '#EEBA19',
+  '--ui-select-success': '#18863D',
 
-  'blue-primary': '#375DAF',
-  selection: '#3166D0'
+  /* UI Elements / Inactive */
+  '--ui-inactive-background': '#E6E6E6',
+  '--ui-inactive-outline': '#E0E0E0',
+  '--ui-inactive-primary': '#8CB6E2',
+  '--ui-inactive-secondary': '#B4CFEC',
+  '--ui-inactive-tertiary': '#E6E6E6',
+  '--ui-inactive-quadrary': '#E0E0E0',
+  '--ui-inactive-error': '#FF8282',
+  '--ui-inactive-warning': '#FFDB6E',
+  '--ui-inactive-success': '#ADE5C0',
+
+  /* Text Colors */
+  '--text-primary-button': '#F7F8FA',
+  '--text-primary': '#2C2E33',
+  '--text-secondary': '#5A5E66',
+  '--text-tertiary': '#7C808A',
+  '--text-inactive': '#616161',
+  '--text-link': '#5F8DBF',
+  '--text-error': '#CE2C2C',
+  '--text-warning': '#EEBA19',
+  '--text-success': '#29CF60',
+
+  /* Chart Colors */
+  '--chart-100': '#FDA4AF',
+  '--chart-200': '#C78FB4',
+  '--chart-300': '#A24482',
+  '--chart-400': '#F43F5E',
+  '--chart-500': '#FDE047',
+  '--chart-600': '#CA8A04',
+  '--chart-700': '#A7F3D0',
+  '--chart-800': '#34D399',
+  '--chart-900': '#10B981',
+  '--chart-1000': '#879ECF',
+  '--chart-1100': '#375DAF',
+  '--chart-1200': '#A188DE',
+  '--chart-1300': '#6943C6'
 }
 
 const darkTheme: CSSClasses = {
-  'bg-primary': '#111113',
-  'bg-secondary': '#000000',
-  'bg-highlight': '#212226',
-  'bg-surface-bg': '#080808',
-  'bg-surface-main': '#1A1B1E',
-  'bg-surface-dropdown': '#141619',
-  'bg-surface-input': '#141619',
-  'bg-surface-card': '#292a2c',
-  'bg-table-secondary': '#212226',
-  'bg-blue-secondary': '#2A3753',
-  'bg-studio-surface': '#191B1F',
-  'bg-banner-informative': '#D9770633',
+  /* Surface Colors */
+  '--surface-0': '#070708',
+  '--surface-1': '#0F1012',
+  '--surface-2': '#16191C',
+  '--surface-3': '#1F2126',
+  '--surface-4': '#23262B',
+  '--surface-error': '#31140D',
+  '--surface-warning': '#C4901F',
+  '--surface-success': '#2C914E',
 
-  'bg-tag-green': '#064E3B',
-  'bg-tag-lime': '#9ACD32',
-  'bg-tag-red': '#B30911',
-  'bg-tag-yellow': '#CA8A04',
+  /* Surface Outline */
+  '--surface-outline-1-1': '#1F2126',
+  '--surface-outline-2-1': '#23262B',
+  '--surface-outline-3-1': '#272A30',
+  '--surface-outline-4-1': '#2C2E33',
+  '--surface-outline-5-1': '#9CA0AA',
 
-  'text-input': '#9CA0AA',
-  'text-primary': '#F5F5F5',
-  'text-secondary': '#D4D4D4',
-  'text-highlight': '#FFFFFF',
-  'text-gray3': '#D3D5D9',
-  'text-menu-default': '#9CA0AA',
+  /* UI Elements / Default */
+  '--ui-background': '#16191C',
+  '--ui-outline': '#42454D',
+  '--ui-primary': '#3771AF',
+  '--ui-secondary': '#1B2844',
+  '--ui-tertiary': '#42454D',
+  '--ui-quadrary': '#2C2E33',
+  '--ui-error': '#571717',
+  '--ui-warning': '#A67A28',
+  '--ui-success': '#11632C',
 
-  'icon-green': '#0D9488 ',
-  'icon-red': '#FB7185',
+  /* UI Elements / Hover */
+  '--ui-hover-background': '#1F2126',
+  '--ui-hover-outline': '#42454D',
+  '--ui-hover-primary': '#4D84BF',
+  '--ui-hover-secondary': '#214469',
+  '--ui-hover-tertiary': '#5A5E66',
+  '--ui-hover-quadrary': '#42454D',
+  '--ui-hover-error': '#732424',
+  '--ui-hover-warning': '#D8AB32',
+  '--ui-hover-success': '#2C914E',
 
-  'border-primary': '#2B2C30',
-  'border-input': '#42454D',
-  'border-focus': '#375DAF',
+  /* UI Elements / Select */
+  '--ui-select-background': '#1F2126',
+  '--ui-select-outline': '#616161',
+  '--ui-select-primary': '#3368A1',
+  '--ui-select-secondary': '#16203B',
+  '--ui-select-tertiary': '#42454D',
+  '--ui-select-quadrary': '#2C2E33',
+  '--ui-select-error': '#962E2E',
+  '--ui-select-warning': '#C4901F',
+  '--ui-select-success': '#18863D',
 
-  'blue-primary': '#375DAF',
-  selection: '#1E4273'
+  /* UI Elements / Inactive */
+  '--ui-inactive-background': '#1B1D21',
+  '--ui-inactive-outline': '#2C2E33',
+  '--ui-inactive-primary': '#4B577A',
+  '--ui-inactive-secondary': '#2F3A4D',
+  '--ui-inactive-tertiary': '#5A5E66',
+  '--ui-inactive-quadrary': '#42454D',
+  '--ui-inactive-error': '#D1654D',
+  '--ui-inactive-warning': '#E8BE3F',
+  '--ui-inactive-success': '#6AC689',
+
+  /* Text Colors */
+  '--text-primary-button': '#F7F8FA',
+  '--text-primary': '#F7F8FA',
+  '--text-secondary': '#B2B5BD',
+  '--text-tertiary': '#7C808A',
+  '--text-inactive': '#B2B5BD',
+  '--text-link': '#5F8DBF',
+  '--text-error': '#DB4726',
+  '--text-warning': '#D4AA2C',
+  '--text-success': '#29CF60',
+
+  /* Chart Colors */
+  '--chart-100': '#FDA4AF',
+  '--chart-200': '#C78FB4',
+  '--chart-300': '#A24482',
+  '--chart-400': '#F43F5E',
+  '--chart-500': '#FDE047',
+  '--chart-600': '#CA8A04',
+  '--chart-700': '#A7F3D0',
+  '--chart-800': '#34D399',
+  '--chart-900': '#10B981',
+  '--chart-1000': '#879ECF',
+  '--chart-1100': '#375DAF',
+  '--chart-1200': '#A188DE',
+  '--chart-1300': '#6943C6'
 }
 
 export const themes: Record<string, Partial<CSSClasses>> = {
   light: lightTheme,
-  dark: darkTheme,
-  custom: {}
+  dark: darkTheme
 }
 
 export const ThemeState = defineState({
   name: 'ThemeState',
   initial: {
-    theme: 'dark' as 'light' | 'dark' | 'custom'
+    theme: 'dark' as 'light' | 'dark'
   },
 
-  setTheme: (theme: 'light' | 'dark' | 'custom') => {
+  setTheme: (theme: 'light' | 'dark') => {
     getMutableState(ThemeState).theme.set(theme)
   },
 
@@ -161,7 +316,7 @@ export const updateTheme = (themeClasses: Partial<CSSClasses>) => {
   if (themeClasses) {
     const root = document.querySelector(':root') as any
     for (const variable of Object.keys(themeClasses)) {
-      root.style.setProperty('--' + variable, themeClasses[variable])
+      root.style.setProperty(variable, themeClasses[variable])
     }
   }
 }

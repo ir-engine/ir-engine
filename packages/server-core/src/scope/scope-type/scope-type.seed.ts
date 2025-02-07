@@ -133,6 +133,12 @@ export const scopeTypeSeed = [
   },
   {
     type: 'recording:write' as ScopeType
+  },
+  {
+    type: 'moderation:read' as ScopeType
+  },
+  {
+    type: 'moderation:write' as ScopeType
   }
 ]
 

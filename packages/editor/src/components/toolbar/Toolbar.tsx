@@ -179,7 +179,7 @@ export default function Toolbar() {
 
   return (
     <>
-      <div className="flex h-10 items-center justify-between bg-theme-primary">
+      <div className="flex h-10 items-center justify-between px-4 py-0.5">
         <div className="flex items-center">
           <div className="ml-3 mr-6 cursor-pointer" onClick={onCloseProject}>
             <img src="ir-studio-icon.svg" alt="iR Engine Logo" className={`h-6 w-6`} />
@@ -198,12 +198,12 @@ export default function Toolbar() {
         {/* TO BE ADDED */}
         {/* <div className="flex items-center gap-2.5 rounded-full bg-[#212226] p-0.5">
           <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-simple')}</div>
-          <div className="rounded-2xl bg-blue-primary px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
+          <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
         </div> */}
         <div className="flex items-center gap-2.5">
-          <span className="text-[#B2B5BD]">{projectName.value}</span>
-          <span>/</span>
-          <span>{sceneName.value}</span>
+          <span className="text-text-secondary">{projectName.value}</span>
+          <span className="text-text-secondary">{' / '}</span>
+          <span className="text-text-primary">{sceneName.value}</span>
         </div>
 
         <div className="flex items-center justify-center gap-2">

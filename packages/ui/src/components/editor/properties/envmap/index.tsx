@@ -110,7 +110,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
       {(envmapComponent.type.value === EnvMapSourceType.Cubemap ||
         envmapComponent.type.value === EnvMapSourceType.Equirectangular) && (
         <div>
-          <InputGroup name="Texture URL" label={t('editor:properties.envmap.lbl-textureUrl')} labelClassName="mr-16">
+          <InputGroup name="Texture URL" label={t('editor:properties.envmap.lbl-textureUrl')}>
             {envmapComponent.type.value === EnvMapSourceType.Cubemap && (
               <FolderInput value={envmapComponent.envMapCubemapURL.value} onRelease={onChangeCubemapURLSource} />
             )}
@@ -138,19 +138,21 @@ export const EnvMapEditor: EditorComponentType = (props) => {
           {t('editor:properties.envmap.bake-reflection-probes')}
         </Button>
       )}
-      {envmapComponent.type.value !== EnvMapSourceType.None && (
-        <Slider
-          min={0}
-          step={0.01}
-          max={10}
-          value={envmapComponent.envMapIntensity.value}
-          onChange={updateProperty(EnvmapComponent, 'envMapIntensity')}
-          onRelease={commitProperty(EnvmapComponent, 'envMapIntensity')}
-          aria-label="EnvMap Intensity"
-          label={t('editor:properties.envmap.lbl-intensity')}
-          info={t('editor:properties.envmap.info-intensity')}
-        />
-      )}
+      <div className="w-full py-1.5 pl-8 pr-3.5">
+        {envmapComponent.type.value !== EnvMapSourceType.None && (
+          <Slider
+            min={0}
+            step={0.01}
+            max={10}
+            value={envmapComponent.envMapIntensity.value}
+            onChange={updateProperty(EnvmapComponent, 'envMapIntensity')}
+            onRelease={commitProperty(EnvmapComponent, 'envMapIntensity')}
+            aria-label="EnvMap Intensity"
+            label={t('editor:properties.envmap.lbl-intensity')}
+            info={t('editor:properties.envmap.info-intensity')}
+          />
+        )}
+      </div>
     </NodeEditor>
   )
 }

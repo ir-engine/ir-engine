@@ -328,7 +328,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
             {webRTCSettings?.iceServers?.map &&
               webRTCSettings?.iceServers?.map((iceServer, index) => {
                 return (
-                  <div className="col-span-1 mb-4 rounded-2xl border-4 border-theme-input p-4" key={index}>
+                  <div className="col-span-1 mb-4 rounded-2xl border-4  p-4" key={index}>
                     <div className="flex items-center">
                       <Text component="h4" fontSize="xl" fontWeight="semibold" className="col-span-full">
                         {t('admin:components.setting.webRTCSettings.iceServer') + (index + 1)}
@@ -519,7 +519,7 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       </div>
 
       <div className="mt-6 grid grid-cols-8 gap-6">
-        <Button size="sm" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
+        <Button size="sm" className="text-primary col-span-1 " fullWidth onClick={handleCancel}>
           {t('admin:components.common.reset')}
         </Button>
         <Button size="sm" variant="primary" className="col-span-1 mb-1" fullWidth onClick={handleSubmit}>

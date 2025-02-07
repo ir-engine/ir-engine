@@ -102,7 +102,7 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
       Icon={VariantNodeEditor.iconComponent}
       {...props}
     >
-      <div className="m-4 flex flex-col rounded-lg bg-theme-primary p-4">
+      <div className="m-4 flex flex-col rounded-lg  p-4">
         <InputGroup name="lodHeuristic" label={t('editor:properties.variant.heuristic')}>
           <SelectInput
             value={variantComponent.heuristic.value}
@@ -140,7 +140,7 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
           list={variantComponent.levels}
           element={(level: State<VariantLevel>, index) => {
             return (
-              <div className="m-2 flex flex-col gap-1 bg-theme-secondary py-1">
+              <div className="m-2 flex flex-col gap-1  py-1">
                 <InputGroup name="src" label={t('editor:properties.variant.src')}>
                   <ModelInput
                     value={level.src.value}
