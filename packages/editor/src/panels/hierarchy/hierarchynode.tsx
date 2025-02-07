@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { userHasProjectPermission } from '@ir-engine/client-core/src/hooks/useUserProjectPermission'
 import { API } from '@ir-engine/common'
 import { projectPermissionPath } from '@ir-engine/common/src/schema.type.module'
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
@@ -78,7 +79,6 @@ import {
   useNodeCollapseExpand,
   useRenamingNode
 } from './hooks'
-import { userHasProjectPermission } from '@ir-engine/client-core/src/hooks/useUserProjectPermission'
 
 type DragItemType = {
   type: (typeof ItemTypes)[keyof typeof ItemTypes]
@@ -461,7 +461,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
                 </span>
               </div>
             )}
-            {isModified &&  canSaveNodeChanges.value && (
+            {isModified && canSaveNodeChanges.value && (
               <div className="flex items-center gap-1">
                 <Button
                   variant="tertiary"
