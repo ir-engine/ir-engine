@@ -400,9 +400,9 @@ export async function exportGLTFScene(
 
   if (!gltf) return []
 
-  const blob = [new Blob([JSON.stringify(gltf, null, 2)], { type: 'application/gltf+json' })]
-  const gltfFile = new File(blob, relativePath)
-  return [gltfFile, ...files]
+  // const blob = [new Blob([JSON.stringify(gltf, null, 2)], { type: 'application/gltf+json' })]
+  // const gltfFile = new File(blob, relativePath)
+  return [gltf, ...files]
 }
 
 const _diffMatrix = new Matrix4()
