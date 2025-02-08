@@ -44,10 +44,10 @@ const handleStop = () => {
   });
 };
 
-const moveUp = handleMove.bind(null, {x: 0, y: 0.5});
-const moveDown = handleMove.bind(null, {x: 0, y: -0.5});
-const moveLeft = handleMove.bind(null, {x: -0.5, y: 0});
-const moveRight = handleMove.bind(null, {x: 0.5, y: 0});
+const moveUp = handleMove.bind(null, {x: 0, y: 0.25});
+const moveDown = handleMove.bind(null, {x: 0, y: -0.25});
+const moveLeft = handleMove.bind(null, {x: -0.25, y: 0});
+const moveRight = handleMove.bind(null, {x: 0.25, y: 0});
 
 export const TouchGamepad = () => {
   return (

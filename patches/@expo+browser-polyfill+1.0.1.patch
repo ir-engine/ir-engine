@@ -1,0 +1,37 @@
+diff --git a/node_modules/@expo/browser-polyfill/src/resize.js b/node_modules/@expo/browser-polyfill/src/resize.js
+index d26a7b6..8fd2ce0 100644
+--- a/node_modules/@expo/browser-polyfill/src/resize.js
++++ b/node_modules/@expo/browser-polyfill/src/resize.js
+@@ -12,18 +12,18 @@ window.screen = window.screen || {};
+ window.screen.orientation =
+   window.screen.orientation || window.clientWidth < window.clientHeight ? 0 : 90;
+ 
+-if (!global.__EXPO_BROWSER_POLYFILL_RESIZE) {
+-  global.__EXPO_BROWSER_POLYFILL_RESIZE = true;
+-  Dimensions.addEventListener('change', ({ screen: { width, height, scale } }) => {
+-    window.devicePixelRatio = scale;
+-    window.innerWidth = width;
+-    window.clientWidth = width;
+-    window.innerHeight = height;
+-    window.clientHeight = height;
++// if (!global.__EXPO_BROWSER_POLYFILL_RESIZE) {
++//   global.__EXPO_BROWSER_POLYFILL_RESIZE = true;
++//   Dimensions.addEventListener('change', ({ screen: { width, height, scale } }) => {
++//     window.devicePixelRatio = scale;
++//     window.innerWidth = width;
++//     window.clientWidth = width;
++//     window.innerHeight = height;
++//     window.clientHeight = height;
+ 
+-    window.screen.orientation = width < height ? 0 : 90;
+-    if (window.emitter && window.emitter.emit) {
+-      window.emitter.emit('resize');
+-    }
+-  });
+-}
++//     window.screen.orientation = width < height ? 0 : 90;
++//     if (window.emitter && window.emitter.emit) {
++//       window.emitter.emit('resize');
++//     }
++//   });
++// }

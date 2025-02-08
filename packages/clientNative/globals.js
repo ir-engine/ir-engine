@@ -22,6 +22,7 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
+global.__EXPO_BROWSER_POLYFILL_RESIZE = true;
 import {WebAssembly} from '@callstack/polygen';
 global.WebAssembly = WebAssembly;
 globalThis.WebAssembly = WebAssembly;
@@ -61,11 +62,11 @@ const listenerRegistry = new Map();
 const resizeSubscriptions = new Map();
 
 window.addEventListener = (type, handler) => {
-  if (type === 'resize') {
-    const subscription = Dimensions.addEventListener('change', handler);
-    resizeSubscriptions.set(handler, subscription);
-    return;
-  }
+  // if (type === 'resize') {
+  //   const subscription = Dimensions.addEventListener('change', handler);
+  //   resizeSubscriptions.set(handler, subscription);
+  //   return;
+  // }
   let registry = listenerRegistry.get(type);
 
   if (!registry) {
@@ -75,12 +76,12 @@ window.addEventListener = (type, handler) => {
   registry.add(handler);
 };
 window.removeEventListener = (type, handler) => {
-  if (type === 'resize') {
-    const subscription = resizeSubscriptions.get(handler);
-    subscription?.remove();
-    resizeSubscriptions.delete(handler);
-    return;
-  }
+  // if (type === 'resize') {
+  //   const subscription = resizeSubscriptions.get(handler);
+  //   subscription?.remove();
+  //   resizeSubscriptions.delete(handler);
+  //   return;
+  // }
 
   const registry = listenerRegistry.get(type);
   if (registry) {

@@ -223,7 +223,7 @@ export const RendererComponent = defineComponent({
       } as HTMLCanvasElement
 
       const options: WebGLRendererParameters = {
-        precision: 'lowp',
+        precision: 'highp',
         powerPreference: 'default',
         stencil: false,
         antialias: false,
@@ -241,12 +241,15 @@ export const RendererComponent = defineComponent({
       rendererComponent.renderer.set(renderer)
       renderer.outputColorSpace = SRGBColorSpace
 
-      const composer = new EffectComposer(renderer)
-      composer.setSize(context.drawingBufferWidth, context.drawingBufferHeight)
-      rendererComponent.effectComposer.set(composer)
-      const renderPass = new RenderPass()
-      composer.addPass(renderPass)
-      rendererComponent.renderPass.set(renderPass)
+      let composer: EffectComposer | null = null
+      if (global.RN$Bridgeless) {
+        composer = new EffectComposer(renderer)
+        composer.setSize(context.drawingBufferWidth, context.drawingBufferHeight)
+        rendererComponent.effectComposer.set(composer)
+        const renderPass = new RenderPass()
+        composer.addPass(renderPass)
+        rendererComponent.renderPass.set(renderPass)
+      }
       rendererComponent.needsResize.set(true)
 
       // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
@@ -311,7 +314,7 @@ export const RendererComponent = defineComponent({
         // canvas.removeEventListener('webglcontextrestored', handleWebGLContextRestore)
 
         renderer.dispose()
-        composer.dispose()
+        composer?.dispose()
       }
     }, [rendererComponent.renderContext.value])
 
