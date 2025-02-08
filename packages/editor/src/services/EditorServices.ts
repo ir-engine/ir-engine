@@ -67,7 +67,7 @@ export const EditorState = defineState({
     return !!getState(AssetModifiedState)[GLTFComponent.getInstanceID(rootEntity)]
   },
   markModifiedScene: (entity: Entity) => {
-    const sourceID = getOptionalComponent(entity, SourceComponent)
+    const sourceID = getOptionalComponent(entity, SourceComponent) || GLTFComponent.getInstanceID(entity)
     if (!sourceID) return
 
     const modifiedState = getMutableState(AssetModifiedState)
