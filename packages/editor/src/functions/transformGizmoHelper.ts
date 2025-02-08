@@ -130,7 +130,7 @@ export function gizmoUpdate(gizmoControlEntity) {
     removeComponent(helperEntity, VisibleComponent)
     const transform = getComponent(helperEntity, TransformComponent)
     transform.rotation.identity()
-    transform.scale.set(1, 1, 1).multiplyScalar((factor * gizmoControl.size) / 4)
+    transform.scale.set(1, 1, 1).multiplyScalar(factor * gizmoControl.size * 0.25)
     transform.position.set(0, 0, 0)
     const name = getComponent(helperEntity, NameComponent)
 
@@ -227,7 +227,7 @@ export function gizmoUpdate(gizmoControlEntity) {
     const transform = getComponent(handleEntity, TransformComponent)
     transform.rotation.identity()
     transform.position.set(0, 0, 0)
-    transform.scale.set(1, 1, 1).multiplyScalar((factor * gizmoControl.size) / 4)
+    transform.scale.set(1, 1, 1).multiplyScalar(factor * gizmoControl.size * 0.25)
 
     // Align handles to current local or world rotation
 

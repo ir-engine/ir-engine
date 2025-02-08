@@ -36,6 +36,7 @@ import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { createHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
+import { gizmoIconUpdate } from '@ir-engine/spatial/src/common/functions/activeHelperFunctions'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { InputHeuristicState, IntersectionData } from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
@@ -86,6 +87,22 @@ export function nodeHelperInputHeuristic(
   }
 }
 
+const helperQuery = defineQuery([ActiveHelperComponent])
+
+const execute = () => {
+  for (const entity of helperQuery()) {
+    const activeHelperComponent = getComponent(entity, ActiveHelperComponent)
+    if (!activeHelperComponent.helperDefaultGizmo) continue
+    gizmoIconUpdate(entity)
+
+    const defaultGizmoButtons = InputComponent.getMergedButtons(activeHelperComponent.helperDefaultGizmo)
+
+    if (defaultGizmoButtons.PrimaryClick?.down) {
+      SelectionState.updateSelection([getComponent(entity, UUIDComponent)])
+    }
+  }
+}
+
 const reactor = () => {
   const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities)
   const componentStudioIconState = useHookstate(getMutableState(ComponentStudioIconState))
@@ -127,8 +144,10 @@ const reactor = () => {
           const iconGizmo = createIconGizmo(componentStudioIcon[targetComponent?.name])
           iconGizmo.renderOrder = -1
 
-          if (getComponent(entity, ActiveHelperComponent).directional)
-            setupGizmo(entity, iconGizmoArrow, ObjectLayers.NodeHelper)
+          if (getComponent(entity, ActiveHelperComponent).directional) {
+            const directionalEntity = setupGizmo(entity, iconGizmoArrow, ObjectLayers.NodeHelper)
+            setComponent(entity, ActiveHelperComponent, { directionalEntity: directionalEntity })
+          }
           // add text
           return iconGizmo
         },
@@ -155,5 +174,6 @@ const reactor = () => {
 export const HelperActiveSystem = defineSystem({
   uuid: 'ee.engine.HelperActiveSystem',
   insert: { before: PresentationSystemGroup },
+  execute,
   reactor
 })

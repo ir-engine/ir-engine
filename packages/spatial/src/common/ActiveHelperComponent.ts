@@ -35,7 +35,9 @@ export const ActiveHelperComponent = defineComponent({
     enabled: S.Bool(false),
     helperDefaultGizmo: S.Entity(UndefinedEntity), // manages the icon and minor gizmo
     helperSelectedGizmo: S.Entity(UndefinedEntity), // manages the elaborate gizmo
-    directional: S.Bool(false)
+    directional: S.Bool(false),
+    directionalEntity: S.Array(S.Entity(UndefinedEntity)),
+    sizeFactor: S.Number(0.25)
   }),
 
   reactor: () => {
@@ -46,9 +48,7 @@ export const ActiveHelperComponent = defineComponent({
         const activeHelperComponent = getComponent(entity, ActiveHelperComponent)
         if (!activeHelperComponent.helperDefaultGizmo) return
 
-        onPointerHover(activeHelperComponent.helperDefaultGizmo)
-
-        //const defaultGizmoButtons = InputComponent.getMergedButtons(activeHelperComponent.helperDefaultGizmo)
+        onPointerHover(entity)
       },
       true,
       InputExecutionOrder.Before

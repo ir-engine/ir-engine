@@ -23,17 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Engine, Entity, getComponent, getOptionalComponent, removeComponent, setComponent } from '@ir-engine/ecs'
+import { Engine, Entity, getComponent, getMutableComponent, getOptionalComponent, setComponent } from '@ir-engine/ecs'
+import { getState } from '@ir-engine/hyperflux'
 import { Object3D, Raycaster } from 'three'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { InputPointerComponent } from '../../input/components/InputPointerComponent'
-import { AnimateScaleComponent } from '../../renderer/components/AnimateScaleComponent'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
+import { TransformComponent } from '../../SpatialModule'
+import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
+import { ActiveHelperComponent } from '../ActiveHelperComponent'
 
 const _raycaster = new Raycaster()
 _raycaster.layers.set(ObjectLayers.NodeHelper)
 _raycaster.firstHitOnly = true
+
+const _interpolationFactor = 0.3
 
 export function intersectObjectWithRay(object: Object3D, raycaster: Raycaster, includeInvisible?: boolean) {
   const allIntersections = raycaster.intersectObject(object, true)
@@ -47,8 +53,29 @@ export function intersectObjectWithRay(object: Object3D, raycaster: Raycaster, i
   return false
 }
 
-function pointerHover(helperEntity: Entity) {
-  const spriteObject = getComponent(helperEntity, ObjectComponent)
+export function gizmoIconUpdate(parentEntity: Entity) {
+  const activeHelperComponent = getComponent(parentEntity, ActiveHelperComponent)
+  const transform = getComponent(activeHelperComponent.helperDefaultGizmo, TransformComponent)
+  const size = transform.scale
+  const camera = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent)
+  const camDistSquared = getComponent(
+    activeHelperComponent.helperDefaultGizmo,
+    DistanceFromCameraComponent
+  ).squaredDistance
+  const factor = (camera as any).isOrthographicCamera
+    ? ((camera as any).top - (camera as any).bottom) / camera.zoom
+    : Math.pow(camDistSquared, 0.5) * Math.min((1.9 * Math.tan((Math.PI * camera.fov) / 360)) / camera.zoom, 7)
+
+  const finalSize = size.set(1, 1, 1).multiplyScalar(factor * size.z * activeHelperComponent.sizeFactor)
+  setComponent(activeHelperComponent.helperDefaultGizmo, TransformComponent, { scale: finalSize })
+  for (const entity of activeHelperComponent.directionalEntity) {
+    setComponent(entity, TransformComponent, { scale: finalSize })
+  }
+}
+
+function pointerHover(parentEntity: Entity) {
+  const activeHelperComponent = getMutableComponent(parentEntity, ActiveHelperComponent)
+  const spriteObject = getComponent(activeHelperComponent.helperDefaultGizmo.value, ObjectComponent)
   const inputPointerEntity = InputPointerComponent.getPointersForCamera(Engine.instance.viewerEntity)[0]
   if (!inputPointerEntity) return
   const pointerPosition = getComponent(inputPointerEntity, InputPointerComponent).position
@@ -56,17 +83,16 @@ function pointerHover(helperEntity: Entity) {
   _raycaster.setFromCamera(pointerPosition, camera)
 
   const intersect = intersectObjectWithRay(spriteObject, _raycaster, true)
-
-  if (intersect) {
-    setComponent(helperEntity, AnimateScaleComponent, { multiplier: 1.1, duration: 250 })
-  } else {
-    removeComponent(helperEntity, AnimateScaleComponent)
-  }
+  const targetSize = intersect ? 0.3 : 0.25 // 0.3 is the hover size, 0.25 is the default size
+  const originalSize = activeHelperComponent.sizeFactor.value
+  const interpolatedSize = originalSize + (targetSize - originalSize) * _interpolationFactor
+  activeHelperComponent.sizeFactor.set(interpolatedSize)
 }
 
-export function onPointerHover(helperEntity) {
-  const spriteObject = getOptionalComponent(helperEntity, ObjectComponent)
+export function onPointerHover(entity) {
+  const activeHelperComponent = getComponent(entity, ActiveHelperComponent)
+  const spriteObject = getOptionalComponent(activeHelperComponent.helperDefaultGizmo, ObjectComponent)
   if (spriteObject === undefined) return
 
-  pointerHover(helperEntity)
+  pointerHover(entity)
 }
