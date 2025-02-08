@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Object3D } from 'three'
 
-import { Entity } from '@ir-engine/ecs'
+import { Entity, entityExists } from '@ir-engine/ecs'
 import { defineComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
 
@@ -83,6 +83,7 @@ export const ObjectLayerMaskComponent = defineComponent({
   },
 
   enableLayer(entity: Entity, layer: number) {
+    if (!entityExists(entity)) return
     if (!hasComponent(entity, ObjectLayerMaskComponent)) setComponent(entity, ObjectLayerMaskComponent)
     const currentMask = ObjectLayerMaskComponent.mask[entity]
     const mask = currentMask | ((1 << layer) | 0)
@@ -100,6 +101,7 @@ export const ObjectLayerMaskComponent = defineComponent({
   },
 
   disableLayer(entity: Entity, layer: number) {
+    if (!entityExists(entity)) return
     if (!hasComponent(entity, ObjectLayerMaskComponent)) setComponent(entity, ObjectLayerMaskComponent)
     const currentMask = ObjectLayerMaskComponent.mask[entity]
     const mask = currentMask & ~((1 << layer) | 0)
