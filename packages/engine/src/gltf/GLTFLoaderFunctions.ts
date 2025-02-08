@@ -248,7 +248,7 @@ const loadPrimitive = async (
     }
     GLTFLoaderFunctions.computeBounds(json, geometry, primitiveDef)
     assignExtrasToUserData(geometry, primitiveDef as GLTF.IMeshPrimitive)
-    const [material] = await Promise.all([materialPromise, promises])
+    const [material] = await Promise.all([materialPromise, ...promises])
     assignFinalMaterial(primitiveDef, material)
     if (primitiveDef.targets) await addMorphTargets(options, geometry, primitiveDef.targets)
     return [geometry, material]

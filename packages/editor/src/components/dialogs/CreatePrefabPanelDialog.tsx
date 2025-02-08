@@ -44,14 +44,14 @@ import PrefabConfirmationPanelDialog from '@ir-engine/editor/src/components/dial
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
-import { getMutableState, getState, startReactor, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { getMutableState, getState, startReactor, useHookstate } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
 import { Button, Input } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Scene } from 'three'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -156,7 +156,7 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
       const entity = UUIDComponent.useEntityByUUID(entityUUID)
       const gltfComponent = useOptionalComponent(entity, GLTFComponent)
 
-      useImmediateEffect(() => {
+      useEffect(() => {
         if (!gltfComponent) return
         const name = prefabName.value
         setComponent(entity, NameComponent, name)

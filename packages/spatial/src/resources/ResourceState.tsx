@@ -34,7 +34,6 @@ import {
   Material,
   Mesh,
   Object3D,
-  RepeatWrapping,
   SkinnedMesh,
   Texture
 } from 'three'
