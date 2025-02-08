@@ -520,7 +520,6 @@ export const setComponent = <C extends Component>(
     throw new Error('[setComponent]: entity is undefined')
   }
   if (!entityExists(entity)) {
-    console.trace({ entity, component: component.name, args })
     throw new Error('[setComponent]: entity does not exist')
   }
 
