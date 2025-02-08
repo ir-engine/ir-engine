@@ -245,6 +245,7 @@ export const GLTFComponentReactor = () => {
       documentLoaded.set(true)
       loadedEntities = SourceComponent.getEntitiesBySource(entity)
 
+      /** @todo dirty does not propagate, so force the whole tree to be dirty in simulation layer upon load */
       const simulationEntity = LayerFunctions.getLayerRelationsEntities(entity)?.[0]?.[1]
       if (simulationEntity) TransformComponent.dirty[simulationEntity] = 1
       else TransformComponent.dirty[entity] = 1
