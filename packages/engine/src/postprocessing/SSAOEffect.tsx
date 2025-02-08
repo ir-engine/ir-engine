@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, getComponent, getMutableComponent } from '@ir-engine/ecs'
+import { Entity, getComponent } from '@ir-engine/ecs'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { EffectReactorProps, PostProcessingEffectState } from '@ir-engine/spatial/src/renderer/effects/EffectRegistry'
@@ -52,7 +52,6 @@ export const SSAOEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
 }) => {
   const { isActive, rendererEntity, effectData, effects, scene, passes } = props
   const effectState = getState(PostProcessingEffectState)
-  const rendererComponent = getMutableComponent(rendererEntity, RendererComponent)
 
   useEffect(() => {
     if (effectData[effectKey].value) return
@@ -64,14 +63,32 @@ export const SSAOEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
       if (effects[effectKey].value) effects[effectKey].set(none)
       return
     }
-    const camera = getComponent(rendererEntity, CameraComponent)
-    const customNormalPass = new CustomNormalPass(scene, camera)
-    passes['normalPass'].set(customNormalPass)
-    const depthDownSamplingPass = new DepthDownsamplingPass({
-      normalBuffer: customNormalPass.texture,
-      resolutionScale: 0.5
+
+    // const camera = getComponent(rendererEntity, CameraComponent)
+    // const customNormalPass = new CustomNormalPass(scene, camera)
+    // passes['normalPass'].set(customNormalPass)
+    // const depthDownSamplingPass = new DepthDownsamplingPass({
+    //   normalBuffer: customNormalPass.texture,
+    //   resolutionScale: 0.5
+    // })
+    // passes['depthDownSamplingPass'].set(depthDownSamplingPass)
+
+    RendererComponent.registerPass(rendererEntity, CustomNormalPass, (rendererEntity) => {
+      const camera = getComponent(rendererEntity, CameraComponent)
+      return new CustomNormalPass(scene, camera)
     })
-    passes['depthDownSamplingPass'].set(depthDownSamplingPass)
+
+    RendererComponent.registerPass(rendererEntity, DepthDownsamplingPass, (rendererEntity) => {
+      const customNormalPass = RendererComponent.getPass(rendererEntity, CustomNormalPass)
+      return new DepthDownsamplingPass({
+        normalBuffer: customNormalPass.texture,
+        resolutionScale: 0.5
+      })
+    })
+
+    const camera = getComponent(rendererEntity, CameraComponent)
+    const customNormalPass = RendererComponent.getPass(rendererEntity, CustomNormalPass)
+    const depthDownSamplingPass = RendererComponent.getPass(rendererEntity, DepthDownsamplingPass)
 
     const eff = new SSAOEffect(camera as ArrayCamera, customNormalPass.texture, {
       ...effectData[effectKey].value,

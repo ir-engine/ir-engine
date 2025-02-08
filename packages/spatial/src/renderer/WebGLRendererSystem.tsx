@@ -46,6 +46,7 @@ import {
   ECSState,
   Entity,
   getComponent,
+  getMutableComponent,
   hasComponent,
   PresentationSystemGroup,
   QueryReactor,
@@ -82,6 +83,11 @@ declare module 'postprocessing' {
   }
 }
 
+type PassCount = {
+  pass: Pass
+  count: number
+}
+
 export const EffectSchema = S.Union([S.Any(), S.Type<Effect>(undefined, { isActive: S.Bool() })])
 
 export const RendererComponent = defineComponent({
@@ -95,6 +101,8 @@ export const RendererComponent = defineComponent({
       renderPass: S.Nullable(S.Type<RenderPass>()),
       normalPass: S.Nullable(S.Type<NormalPass>()),
       passes: S.Record(S.String(), S.Type<Pass>()),
+      passesFakeMap: S.Record(S.String(), S.Type<PassCount>()),
+
       renderContext: S.Nullable(S.Type<WebGLRenderingContext | WebGL2RenderingContext>()),
       effects: S.Record(S.String(), EffectSchema),
       effectInstances: S.Record(S.String(), S.Type<Effect>()),
@@ -121,6 +129,56 @@ export const RendererComponent = defineComponent({
     initial.scene.matrixWorldAutoUpdate = false
     initial.scene.layers.set(ObjectLayers.Scene)
     return initial
+  },
+
+  //TODO finish hashing this out
+  passExists<T extends Pass>(entity: Entity, passType: new (...args: any[]) => T): boolean {
+    //return class name as string from constructor implicit name
+    const key = passType.name
+
+    const rendererComponent = getMutableComponent(entity, RendererComponent)
+    const count = rendererComponent.passesFakeMap[key] ? rendererComponent.passesFakeMap[key].count.value : 0
+    return count > 0
+  },
+
+  getPass<T extends Pass>(entity: Entity, passType: new (...args: any[]) => T): T {
+    //return class name as string from constructor implicit name
+    const key = passType.name
+
+    const rendererComponent = getComponent(entity, RendererComponent)
+    return rendererComponent.passesFakeMap[key].pass as T
+  },
+
+  registerPass<T extends Pass>(
+    rendererEntity: Entity,
+    passType: new (...args: any[]) => T,
+    passFunction: (rendererEntity: Entity) => Pass
+  ) {
+    //return class name as string from constructor implicit name
+    const key = passType.name
+
+    const rendererComponent = getMutableComponent(rendererEntity, RendererComponent)
+    if (rendererComponent.passesFakeMap[key].value) {
+      const count = rendererComponent.passesFakeMap[key].count.value
+      const existingPass = rendererComponent.passesFakeMap[key].pass.value
+      rendererComponent.passesFakeMap[key].set({ pass: existingPass, count: count + 1 })
+    } else {
+      const generatedPass = passFunction(rendererEntity)
+      rendererComponent.passesFakeMap[key].set({ pass: generatedPass, count: 1 })
+    }
+  },
+
+  unregisterPass<T extends Pass>(entity: Entity, passType: new (...args: any[]) => T) {
+    //return class name as string from constructor implicit name
+    const key = passType.name
+
+    const rendererComponent = getMutableComponent(entity, RendererComponent)
+    const count = rendererComponent.passesFakeMap[key].count.value
+    if (count > 1) {
+      rendererComponent.passesFakeMap[key].count.set(count - 1)
+    } else {
+      rendererComponent.passesFakeMap[key].set(none)
+    }
   },
 
   reactor: () => {
