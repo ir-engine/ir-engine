@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions.ts'
+import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
 import {
   FilesState,
   FilesViewModeSettings,

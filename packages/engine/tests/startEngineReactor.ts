@@ -23,10 +23,28 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ComponentType, defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { SystemDefinitions } from '@ir-engine/ecs'
+import { startReactor } from '@ir-engine/hyperflux'
+import { AvatarAnimationSystem } from '../src/avatar/systems/AvatarAnimationSystem'
+import { GLTFLoadSystem } from '../src/gltf/GLTFState'
+import { MaterialLibrarySystem } from '../src/scene/materials/systems/MaterialLibrarySystem'
 
-export const GLTFLoadedComponent = defineComponent({
-  name: 'GLTFLoadedComponent',
-  schema: S.Array(S.Type<ComponentType<any>>())
-})
+const gltfLoadSystem = SystemDefinitions.get(GLTFLoadSystem)!
+const materialLibrary = SystemDefinitions.get(MaterialLibrarySystem)!
+
+export const startAssetReactor = () => {
+  startReactor(gltfLoadSystem.reactor!)
+  startReactor(materialLibrary.reactor!)
+}
+
+const avatarAnimationSystem = SystemDefinitions.get(AvatarAnimationSystem)!
+
+export const startAvatarReactor = () => {
+  // depends on asset module
+  startReactor(avatarAnimationSystem.reactor!)
+}
+
+export const startEngineReactor = () => {
+  startAssetReactor()
+  startAvatarReactor()
+}

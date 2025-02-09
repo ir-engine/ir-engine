@@ -23,33 +23,19 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Types } from '../bitecsLegacy'
+import { ResizableArray } from '../bitecsLegacy'
+import { Entity } from '../Entity'
 
-const { f64 } = Types
-export const ECSSchema = {
-  Vec3: { x: f64, y: f64, z: f64 },
-  Quaternion: { x: f64, y: f64, z: f64, w: f64 }
-}
-
-const { defineProperties } = Object
-
-export const ProxyWithECS = <T>(store: Record<string | keyof T, any>, obj: T, ...keys: (keyof T)[]) => {
-  return defineProperties(
-    obj,
-    keys.reduce(
-      (accum, key) => {
-        accum[key] = {
-          get() {
-            return store[key]
-          },
-          set(n) {
-            return (store[key] = n)
-          },
-          configurable: true
-        }
-        return accum
-      },
-      {} as Record<keyof T, any>
-    )
-  )
+export const proxySoAStore = (storeGet: () => ResizableArray) => (entity: Entity, property: string, obj: object) => {
+  const store = storeGet() // Get the store when the proxy is created as the store only exists after the component is defined
+  return Object.defineProperty(obj, property, {
+    get() {
+      return store[entity]
+    },
+    set(n) {
+      return (store[entity] = n)
+    },
+    enumerable: true,
+    configurable: true
+  })[property]
 }

@@ -39,7 +39,14 @@ import {
   Vector3
 } from 'three'
 
-import { AnimationSystemGroup, Engine, UUIDComponent } from '@ir-engine/ecs'
+import {
+  AnimationSystemGroup,
+  createEntity,
+  Engine,
+  removeEntity,
+  useEntityContext,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import {
   getComponent,
   getOptionalComponent,
@@ -51,7 +58,6 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineQuery, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem, useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { defineState, getMutableState, getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
@@ -84,7 +90,6 @@ import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { RenderModes } from '@ir-engine/spatial/src/renderer/constants/RenderModes'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
-import { createDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { TransformSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
@@ -337,8 +342,7 @@ const DropShadowReactor = () => {
     const radius = Math.max(sphere.radius * 2, minRadius)
     const center = sphere.center.sub(TransformComponent.getWorldPosition(entity, vec3))
     const shadowEntity = createEntity()
-    const [shadowObject, unload] = createDisposable(Mesh, shadowEntity, shadowGeometry.clone(), shadowMaterial.clone())
-    setComponent(shadowEntity, MeshComponent, shadowObject)
+    setComponent(shadowEntity, MeshComponent, new Mesh(shadowGeometry.clone(), shadowMaterial.clone()))
     setComponent(shadowEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setComponent(
       shadowEntity,
@@ -352,24 +356,24 @@ const DropShadowReactor = () => {
     return () => {
       removeComponent(entity, DropShadowComponent)
       removeEntity(shadowEntity)
-      unload()
     }
   }, [hasMeshOrModel, shadow])
 
   return null
 }
 
-const shadowOffset = new Vector3(0, 0.01, 0)
+const _shadowOffset = new Vector3(0, 0.01, 0)
 
 const sortAndApplyPriorityQueue = createSortAndApplyPriorityQueue(dropShadowComponentQuery, compareDistanceToCamera)
-const sortedEntityTransforms = [] as Entity[]
+const _sortedEntityTransforms = [] as Entity[]
 
 const cameraLayerQuery = defineQuery([ObjectLayerComponents[ObjectLayers.Scene], MeshComponent])
-const updateDropShadowTransforms = () => {
+
+function updateDropShadowTransforms() {
   const { deltaSeconds } = getState(ECSState)
   const { priorityQueue } = getState(ShadowSystemState)
 
-  sortAndApplyPriorityQueue(priorityQueue, sortedEntityTransforms, deltaSeconds)
+  ShadowSystemFunctions.sortAndApplyPriorityQueue(priorityQueue, _sortedEntityTransforms, deltaSeconds)
 
   const sceneObjects = cameraLayerQuery().flatMap((entity) => getComponent(entity, MeshComponent))
 
@@ -397,7 +401,7 @@ const updateDropShadowTransforms = () => {
     shadowRotation.setFromUnitVectors(intersected.face.normal, Vector3_Back)
     dropShadowTransform.rotation.copy(shadowRotation)
     dropShadowTransform.scale.setScalar(finalRadius * 2)
-    dropShadowTransform.position.copy(intersected.point).add(shadowOffset)
+    dropShadowTransform.position.copy(intersected.point).add(_shadowOffset)
   }
 }
 
@@ -467,8 +471,11 @@ export const DropShadowSystem = defineSystem({
   insert: { after: TransformSystem },
   execute: () => {
     const useShadows = getShadowsEnabled()
-    if (!useShadows) {
-      updateDropShadowTransforms()
-    }
+    if (!useShadows) ShadowSystemFunctions.updateDropShadowTransforms()
   }
 })
+
+const ShadowSystemFunctions = {
+  updateDropShadowTransforms,
+  sortAndApplyPriorityQueue
+}

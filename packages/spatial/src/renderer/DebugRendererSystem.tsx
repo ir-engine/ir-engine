@@ -26,9 +26,16 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from 'three'
 
-import { Entity, EntityUUID, QueryReactor, UUIDComponent } from '@ir-engine/ecs'
+import {
+  createEntity,
+  Entity,
+  EntityUUID,
+  QueryReactor,
+  removeEntity,
+  useEntityContext,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import { getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 

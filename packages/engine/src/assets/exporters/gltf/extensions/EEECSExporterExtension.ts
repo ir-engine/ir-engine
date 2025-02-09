@@ -40,7 +40,6 @@ export class EEECSExporterExtension extends ExporterExtension implements GLTFExp
     if (!object.entity) return
     const entity = object.entity
     if (!hasComponent(entity, SourceComponent)) return
-    //const gltfLoaded = getComponent(entity, GLTFLoadedComponent)
     const components = getAllComponents(entity)
     if (hasComponent(entity, NameComponent)) {
       nodeDef.name = getComponent(entity, NameComponent)

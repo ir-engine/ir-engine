@@ -124,13 +124,14 @@ describe('MountPointComponent.ts', async () => {
     })
 
     it('Should set the mount point component initial data', () => {
-      const customData = setComponent(mountPointTestEntity, MountPointComponent, {
-        type: 'seat',
+      const customData = {
+        type: 'seat' as const,
         dismountOffset: new Vector3(0, 0, 0.75),
         forceDismountPosition: true
-      })
+      }
+      setComponent(mountPointTestEntity, MountPointComponent, customData)
       const componentData = getComponent(mountPointTestEntity, MountPointComponent)
-      assert.equal(componentData, customData)
+      assert.deepEqual(componentData, customData)
     })
     describe('Reactor', () => {
       it('Should set mountEntity as callback to entity', () => {

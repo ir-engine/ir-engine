@@ -26,20 +26,19 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import { UUIDComponent } from '@ir-engine/ecs'
-import { removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Layers, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { SelectionState } from '../services/SelectionServices'
 
 const reactor = () => {
   const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities)
-  const rendererState = useHookstate(getMutableState(RendererState))
+
   useEffect(() => {
-    const entities = [...selectedEntities.value].map(UUIDComponent.getEntityByUUID)
+    const entities = [...selectedEntities.value].map((e) => UUIDComponent.getEntityByUUID(e, Layers.Authoring))
     for (const entity of entities) {
       if (!entityExists(entity)) continue
       setComponent(entity, ActiveHelperComponent)

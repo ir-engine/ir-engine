@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { getMutableState } from '@ir-engine/hyperflux'
-import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { Vector3 } from 'three'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { TransitionComponent, defineComponent, getComponent, setComponent } from './ComponentFunctions'
@@ -42,7 +41,18 @@ describe('TransitionSystem', () => {
     name: 'TestComponent',
     jsonID: 'EE_test',
     schema: S.Object({
-      position: T.Vec3(),
+      position: S.SerializedClass(
+        () => new Vector3(),
+        {
+          x: S.Number(),
+          y: S.Number(),
+          z: S.Number()
+        },
+        {
+          deserialize: (curr, value) => curr.copy(value),
+          id: 'Vec3'
+        }
+      ),
       number: S.Number()
     })
   })

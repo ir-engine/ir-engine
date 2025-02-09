@@ -50,9 +50,10 @@ import {
 } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { isClient } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { GrabberComponent } from '../../grabbable/GrabbableComponent'
-import { EnvmapComponent } from '../../scene/components/EnvmapComponent'
+import { EnvMapComponent } from '../../scene/components/EnvmapComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { EnvMapSourceType } from '../../scene/constants/EnvMapEnum'
 import { AnimationComponent } from '../components/AnimationComponent'
@@ -73,7 +74,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   setComponent(entity, DistanceFromCameraComponent)
   setComponent(entity, FrustumCullCameraComponent)
 
-  setComponent(entity, EnvmapComponent, {
+  setComponent(entity, EnvMapComponent, {
     type: EnvMapSourceType.Skybox,
     envMapIntensity: 1
   })
@@ -105,7 +106,9 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   setComponent(entity, ShadowComponent)
   setComponent(entity, GrabberComponent)
-  setComponent(entity, AvatarRigComponent)
+  if (isClient) {
+    setComponent(entity, AvatarRigComponent)
+  }
   setComponent(entity, AvatarIKComponent)
 
   setComponent(entity, InputComponent)

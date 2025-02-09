@@ -23,10 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { UUIDComponent } from '@ir-engine/ecs'
-import { Component, SerializedComponentType, updateComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Layers, UUIDComponent } from '@ir-engine/ecs'
+import {
+  Component,
+  deserializeComponent,
+  hasComponent,
+  serializeComponent,
+  SerializedComponentType
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { getMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, setNestedObject } from '@ir-engine/hyperflux'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorState } from '../../services/EditorServices'
@@ -62,11 +68,19 @@ export const updateProperties = <C extends Component>(
   const affectedNodes = nodes
     ? nodes
     : editorState.lockPropertiesPanel.value
-    ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value)]
+    ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value, Layers.Authoring)]
     : SelectionState.getSelectedEntities()
   for (let i = 0; i < affectedNodes.length; i++) {
-    const node = affectedNodes[i]
-    updateComponent(node, component, properties)
+    const entity = affectedNodes[i]
+    const currentComponent = hasComponent(entity, component) ? serializeComponent(entity, component) : {}
+    for (const [key, val] of Object.entries(properties)) {
+      if (key.includes('.')) {
+        setNestedObject(currentComponent, key, val)
+      } else {
+        currentComponent[key] = val
+      }
+    }
+    deserializeComponent(entity, component, currentComponent)
   }
 }
 
@@ -90,7 +104,7 @@ export const commitProperties = <C extends Component>(
   const affectedNodes = nodes
     ? nodes
     : editorState.lockPropertiesPanel.value
-    ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value)]
+    ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value, Layers.Authoring)]
     : SelectionState.getSelectedEntities()
 
   EditorControlFunctions.modifyProperty(affectedNodes, component, properties)

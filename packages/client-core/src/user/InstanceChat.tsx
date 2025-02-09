@@ -266,7 +266,7 @@ export default function InstanceChat() {
 
   return (
     <InstanceChatProvider>
-      {isGuest || !ageVerified ? (
+      {!ageVerified ? (
         <div className="rounded-lg bg-[#C6C6C6] p-4">
           <div className="mx-auto text-center font-semibold text-[#3B3A3A]">{t('user:instanceChat.wantToChat')}</div>
           <button

@@ -23,12 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEntityContext } from '@ir-engine/ecs'
-import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { iterateEntityNode } from '@ir-engine/ecs'
+import { defineComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { hookstate, none, useImmediateEffect } from '@ir-engine/hyperflux'
+import { hookstate, none, useHookstate } from '@ir-engine/hyperflux'
 import { NonEmptyString } from '@ir-engine/spatial/src/schema/schemaFunctions'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
 
 const entitiesBySource = {} as Record<string, Entity[]>
 
@@ -41,30 +42,49 @@ export const SourceComponent = defineComponent({
     })
   ),
 
-  reactor: () => {
-    const entity = useEntityContext()
-    const sourceComponent = useComponent(entity, SourceComponent)
-
-    useImmediateEffect(() => {
-      const source = sourceComponent.value
-      const entitiesBySourceState = SourceComponent.entitiesBySourceState[source]
-      if (!entitiesBySourceState.value) {
-        entitiesBySourceState.set([entity])
-      } else {
-        entitiesBySourceState.merge([entity])
+  onSet: (entity, component, source: string) => {
+    const currentSource = component.value
+    if (currentSource) {
+      if (currentSource === source) return
+      if (currentSource && currentSource !== source) {
+        SourceComponent.onRemove(entity, component)
       }
+    }
+    component.set(source)
+    const entitiesBySourceState = SourceComponent.entitiesBySourceState[source]
+    if (!entitiesBySourceState.value) {
+      entitiesBySourceState.set([entity])
+    } else {
+      if (!entitiesBySourceState.value.includes(entity)) entitiesBySourceState.merge([entity])
+    }
+  },
 
-      return () => {
-        const entities = SourceComponent.entitiesBySource[source].filter((currentEntity) => currentEntity !== entity)
-        if (entities.length === 0) {
-          SourceComponent.entitiesBySourceState[source].set(none)
-        } else {
-          SourceComponent.entitiesBySourceState[source].set(entities)
-        }
-      }
-    }, [sourceComponent])
+  onRemove: (entity, component) => {
+    const entities = SourceComponent.entitiesBySource[component.value].filter(
+      (currentEntity) => currentEntity !== entity
+    )
+    if (entities.length === 0) {
+      SourceComponent.entitiesBySourceState[component.value].set(none)
+    } else {
+      SourceComponent.entitiesBySourceState[component.value].set(entities)
+    }
+  },
 
-    return null
+  useEntitiesBySource: (rootEntity: Entity) => {
+    const source = GLTFComponent.useInstanceID(rootEntity)
+    return useHookstate(SourceComponent.entitiesBySourceState[source]).value as Entity[]
+  },
+
+  getEntitiesBySource: (rootEntity: Entity) => {
+    const source = GLTFComponent.getInstanceID(rootEntity)
+    const entities = [] as Entity[]
+    iterateEntityNode(rootEntity, (childEntity) => {
+      if (rootEntity === childEntity) return
+      const src = getOptionalComponent(childEntity, SourceComponent)
+      if (src !== source) return
+      entities.push(childEntity)
+    })
+    return entities
   },
 
   entitiesBySourceState: hookstate(entitiesBySource),

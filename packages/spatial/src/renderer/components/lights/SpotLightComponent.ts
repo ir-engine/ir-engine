@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { SpotLight, SpotLightHelper } from 'three'
 
+import { S, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   removeComponent,
@@ -33,13 +34,10 @@ import {
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ActiveHelperComponent } from '../../../common/ActiveHelperComponent'
 import { useHelperEntity } from '../../../common/debug/useHelperEntity'
-import { useDisposable } from '../../../resources/resourceHooks'
 import { T } from '../../../schema/schemaFunctions'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { RendererState } from '../../RendererState'
@@ -76,11 +74,9 @@ export const SpotLightComponent = defineComponent({
     const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
 
     const spotLightComponent = useComponent(entity, SpotLightComponent)
-    const [light] = useDisposable(SpotLight, entity)
-    const helperEntity = useHelperEntity(entity, () => new SpotLightHelper(light), debugEnabled)
-    const helper = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as SpotLightHelper | undefined
+    const light = useHookstate(() => new SpotLight()).value as SpotLight
 
-    useEffect(() => {
+    useImmediateEffect(() => {
       setComponent(entity, LightTagComponent)
       if (isMobileXRHeadset) return
       light.target.position.set(1, 0, 0)
@@ -90,6 +86,9 @@ export const SpotLightComponent = defineComponent({
         removeComponent(entity, ObjectComponent)
       }
     }, [])
+
+    const helperEntity = useHelperEntity(entity, () => new SpotLightHelper(light), debugEnabled)
+    const helper = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as SpotLightHelper | undefined
 
     useEffect(() => {
       light.color.set(spotLightComponent.color.value)

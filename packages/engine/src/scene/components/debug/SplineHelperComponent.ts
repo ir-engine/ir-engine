@@ -23,31 +23,24 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, Line, LineBasicMaterial, MeshBasicMaterial, Vector3 } from 'three'
 
-import {
-  EntityTreeComponent,
-  createEntity,
-  defineComponent,
-  removeEntity,
-  setComponent,
-  useComponent,
-  useEntityContext
-} from '@ir-engine/ecs'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
-import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { defineComponent, getComponent, setComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { useMutableState } from '@ir-engine/hyperflux'
+import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { useEffect } from 'react'
 import { SplineComponent } from '../SplineComponent'
 
 const ARC_SEGMENTS = 200
 const _point = new Vector3()
 
-const lineMaterial = new LineBasicMaterial({ color: 'white', opacity: 0.35 })
+const lineMaterial = () => new LineBasicMaterial({ color: 'white', opacity: 0.35 })
 const createLineGeom = () => {
   const lineGeometry = new BufferGeometry()
   lineGeometry.setAttribute('position', new BufferAttribute(new Float32Array(ARC_SEGMENTS * 3), 3))
@@ -64,8 +57,67 @@ export const SplineHelperComponent = defineComponent({
     const entity = useEntityContext()
     const component = useComponent(entity, SplineHelperComponent)
     const spline = useComponent(entity, SplineComponent)
+    const nodeHelperVisibility = useMutableState(RendererState).nodeHelperVisibility.value
 
-    const [lineGeometry] = useResource(createLineGeom, entity)
+    const helperEntity = useHelperEntity(
+      entity,
+      () => {
+        // const gizmoEntities = [] as Entity[]
+        // const curve = spline.curve.value
+        // const elements = spline.elements
+        // if (elements.length < 3) return
+        // const lineEntity = createEntity()
+
+        // Geometry and material are created in module scope and reused, do not dispose
+        const line = new Line(createLineGeom(), lineMaterial())
+        line.name = `SplineHelperComponent-${entity}`
+
+        // setComponent(lineEntity, NameComponent, line.name)
+        // setComponent(lineEntity, EntityTreeComponent, { parentEntity: entity })
+        // setComponent(lineEntity, ObjectComponent, line)
+
+        // setVisibleComponent(lineEntity, true)
+
+        // if (elements.length > 0) {
+        //   const first = elements[0].value
+        //   greenSphere.position.copy(first.position)
+        //   addObjectToGroup(lineEntity, greenSphere)
+        // }
+
+        // if (elements.length > 1) {
+        //   const last = elements[elements.length - 1].value
+        //   redSphere.position.copy(last.position)
+        //   addObjectToGroup(lineEntity, redSphere)
+        // }
+
+        // let id = 0
+        // for (const elem of elements.value) {
+        //   const gizmoEntity = createEntity()
+        //   gizmoEntities.push(gizmoEntity)
+        //   setComponent(gizmoEntity, EntityTreeComponent, { parentEntity: lineEntity })
+        //   setComponent(gizmoEntity, TransformComponent, {
+        //     position: elem.position,
+        //     rotation: elem.quaternion
+        //   })
+        //   setComponent(gizmoEntity, AxesHelperComponent, { name: `spline-gizmo-${++id}` })
+        // }
+
+        // setComponent(lineEntity, ObjectLayerMaskComponent, component.layerMask.value)
+
+        // const positions = line.geometry.attributes.position
+        // for (let i = 0; i < ARC_SEGMENTS; i++) {
+        //   const t = i / (ARC_SEGMENTS - 1)
+        //   curve.getPoint(t, _point)
+        //   positions.setXYZ(i, _point.x, _point.y, _point.z)
+        // }
+        // positions.needsUpdate = true
+
+        return line
+      },
+      nodeHelperVisibility && spline.elements.length < 3
+    )
+
+    // const [lineGeometry] = useResource(createLineGeom, entity)
     /** @todo these are probably unnecessary and were just used for debugging the implementation */
     // const [sphereGeometry] = useResource(() => new SphereGeometry(0.05, 4, 2), entity)
 
@@ -86,47 +138,12 @@ export const SplineHelperComponent = defineComponent({
     // )
 
     useEffect(() => {
-      // const gizmoEntities = [] as Entity[]
+      if (!helperEntity) return
+
+      setComponent(helperEntity, ObjectLayerMaskComponent, component.layerMask.value)
+
+      const line = getComponent(helperEntity, ObjectComponent) as Line
       const curve = spline.curve.value
-      const elements = spline.elements
-      if (elements.length < 3) return
-      const lineEntity = createEntity()
-
-      // Geometry and material are created in module scope and reused, do not dispose
-      const line = new Line(lineGeometry.value as BufferGeometry, lineMaterial)
-      line.name = `SplineHelperComponent-${entity}`
-
-      setComponent(lineEntity, NameComponent, line.name)
-      setComponent(lineEntity, EntityTreeComponent, { parentEntity: entity })
-      setComponent(lineEntity, ObjectComponent, line)
-
-      setVisibleComponent(lineEntity, true)
-
-      // if (elements.length > 0) {
-      //   const first = elements[0].value
-      //   greenSphere.position.copy(first.position)
-      //   addObjectToGroup(lineEntity, greenSphere)
-      // }
-
-      // if (elements.length > 1) {
-      //   const last = elements[elements.length - 1].value
-      //   redSphere.position.copy(last.position)
-      //   addObjectToGroup(lineEntity, redSphere)
-      // }
-
-      // let id = 0
-      // for (const elem of elements.value) {
-      //   const gizmoEntity = createEntity()
-      //   gizmoEntities.push(gizmoEntity)
-      //   setComponent(gizmoEntity, EntityTreeComponent, { parentEntity: lineEntity })
-      //   setComponent(gizmoEntity, TransformComponent, {
-      //     position: elem.position,
-      //     rotation: elem.quaternion
-      //   })
-      //   setComponent(gizmoEntity, AxesHelperComponent, { name: `spline-gizmo-${++id}` })
-      // }
-
-      // setComponent(lineEntity, ObjectLayerMaskComponent, component.layerMask.value)
 
       const positions = line.geometry.attributes.position
       for (let i = 0; i < ARC_SEGMENTS; i++) {
@@ -137,10 +154,9 @@ export const SplineHelperComponent = defineComponent({
       positions.needsUpdate = true
 
       return () => {
-        if (lineEntity) removeEntity(lineEntity)
         // for (const gizmoEntity of gizmoEntities) removeEntity(gizmoEntity)
       }
-    }, [spline.curve, component.layerMask])
+    }, [helperEntity, spline.curve, component.layerMask])
 
     return null
   }

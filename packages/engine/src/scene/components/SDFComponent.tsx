@@ -37,10 +37,9 @@ import {
   WebGLRenderTarget
 } from 'three'
 
-import { AnimationSystemGroup, defineSystem, ECSState, Entity } from '@ir-engine/ecs'
+import { AnimationSystemGroup, defineSystem, ECSState, Entity, useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { createSDFShader } from '@ir-engine/spatial/src/renderer/effects/sdf/SDFShader'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
@@ -67,7 +66,7 @@ export const SDFComponent = defineComponent({
 
   schema: S.Object({
     color: T.Color(0xffffff),
-    scale: T.Vec3({ x: 0.25, y: 0.001, z: 0.25 }),
+    scale: T.Vec3(new Vector3(0.25, 0.001, 0.25)),
     enable: S.Bool(false),
     mode: S.Enum(SDFMode, SDFMode.TORUS)
   }),

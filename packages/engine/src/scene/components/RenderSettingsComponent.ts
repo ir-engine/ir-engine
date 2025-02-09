@@ -37,8 +37,8 @@ import {
   VSMShadowMap
 } from 'three'
 
+import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
