@@ -44,7 +44,10 @@ export interface ToggleProps {
 
 const Toggle = ({ size, label, value, onChange, disabled }: ToggleProps) => {
   return (
-    <div className="flex items-center gap-4" data-testid="toggle-input-container">
+    <div
+      className={twMerge('flex items-center gap-4', disabled ? 'cursor-not-allowed' : 'cursor-pointer')}
+      data-testid="toggle-input-container"
+    >
       <input
         data-testid="toggle-input"
         disabled={disabled}
