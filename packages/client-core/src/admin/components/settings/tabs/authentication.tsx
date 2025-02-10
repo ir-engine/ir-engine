@@ -249,9 +249,6 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
           return (
             <Toggle
               key={i}
-              className="col-span-1 capitalize"
-              containerClassName="justify-start"
-              labelClassName="capitalize"
               label={displayStrategyName}
               value={state[strategyName].value}
               disabled={strategyName === 'jwt'}

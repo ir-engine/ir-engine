@@ -112,7 +112,6 @@ const FeatureItem = ({ feature }: { feature: FeatureFlagSettingType }) => {
   return (
     <div key={feature.id} className="flex items-center">
       <Toggle
-        containerClassName="justify-start"
         label={feature.flagName}
         value={feature.flagValue}
         onChange={(value) => createOrUpdateFeatureFlag(feature, value)}

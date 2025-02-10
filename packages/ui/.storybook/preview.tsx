@@ -39,7 +39,7 @@ import i18n from './i18n'
 
 const ThemeProvider = () => {
   useThemeProvider()
-  useEffect(() => ThemeState.setTheme('dark'), [])
+  useEffect(() => ThemeState.setTheme('light'), [])
   return null
 }
 

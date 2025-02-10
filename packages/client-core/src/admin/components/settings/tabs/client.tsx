@@ -242,7 +242,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Toggle
-          containerClassName="justify-start col-span-full"
           label={t('admin:components.setting.homepageLinkButtonEnabled')}
           value={settings.homepageLinkButtonEnabled.value}
           onChange={(value) => settings.homepageLinkButtonEnabled.set(value)}

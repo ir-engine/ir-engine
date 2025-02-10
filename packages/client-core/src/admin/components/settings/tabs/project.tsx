@@ -167,7 +167,6 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
       open={open}
     >
       <Toggle
-        className="mt-2"
         label={t('admin:components.setting.project.showAssetOnly')}
         value={showAssetOnlyProjects.value}
         onChange={showAssetOnlyProjects.set}

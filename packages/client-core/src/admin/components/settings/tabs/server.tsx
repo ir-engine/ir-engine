@@ -308,7 +308,6 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
 
         <div className="col-span-1 mt-5 grid grid-cols-2">
           <Toggle
-            className="col-span-1"
             label={t('admin:components.setting.performDryRun')}
             value={dryRun.value}
             disabled
@@ -316,7 +315,6 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           />
 
           <Toggle
-            className="col-span-1"
             label={t('admin:components.setting.local')}
             value={local.value}
             disabled
