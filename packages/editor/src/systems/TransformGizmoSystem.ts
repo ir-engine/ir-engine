@@ -30,7 +30,7 @@ import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 
-import { EngineState, Entity } from '@ir-engine/ecs'
+import { EngineState, Entity, UndefinedEntity } from '@ir-engine/ecs'
 import { SnapMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 import { CameraGizmoTagComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
@@ -42,6 +42,7 @@ import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLa
 import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { MathUtils, Raycaster, Vector3 } from 'three'
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
+import { TransformGizmoControlledComponent } from '../classes/gizmo/transform/TransformGizmoControlledComponent'
 import { controlUpdate, gizmoUpdate, planeUpdate } from '../functions/transformGizmoHelper'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
@@ -111,7 +112,11 @@ const useGizmoControl = (entities: Entity[]) => {
 
   const controlledEntity = entities[entities.length - 1]
 
-  const gizmoControlComponent = useOptionalComponent(controlledEntity, TransformGizmoControlComponent)
+  const gizmoControlledComponent = useOptionalComponent(controlledEntity, TransformGizmoControlledComponent)
+  const gizmoControlComponent = useOptionalComponent(
+    gizmoControlledComponent ? gizmoControlledComponent.controller.value : UndefinedEntity,
+    TransformGizmoControlComponent
+  )
   const editorHelperState = useMutableState(EditorHelperState)
 
   useEffect(() => {

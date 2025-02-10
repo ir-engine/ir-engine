@@ -38,6 +38,7 @@ import {
   getOptionalComponent,
   hasComponent,
   isAncestor,
+  LayerFunctions,
   Layers,
   removeComponent,
   removeEntity,
@@ -56,6 +57,7 @@ import { getMutableState, getState, NO_PROXY_STEALTH, none, State, useHookstate 
 
 import { LayerComponent, useAncestorWithComponents } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { TransformComponent } from '@ir-engine/spatial'
 import { ShapeSchema } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
@@ -242,6 +244,12 @@ export const GLTFComponentReactor = () => {
     GLTFLoaderFunctions.loadScene(options, sceneIndex).then(() => {
       documentLoaded.set(true)
       loadedEntities = SourceComponent.getEntitiesBySource(entity)
+
+      /** @todo dirty does not propagate, so force the whole tree to be dirty in simulation layer upon load */
+      const simulationEntity = LayerFunctions.getLayerRelationsEntities(entity)?.[0]?.[1]
+      if (simulationEntity) TransformComponent.dirty[simulationEntity] = 1
+      else TransformComponent.dirty[entity] = 1
+
       if (aborted) {
         unloadEntities()
       }

@@ -235,7 +235,7 @@ export function splitMeshByMaterials(originalMesh: Mesh): Mesh[] {
 
     const subMesh = new Mesh(subGeom, subMaterial)
     subMesh.position.copy(originalMesh.position)
-    subMesh.rotation.copy(originalMesh.rotation)
+    subMesh.quaternion.copy(originalMesh.quaternion)
     subMesh.scale.copy(originalMesh.scale)
     subMesh.matrix.copy(originalMesh.matrix)
     subMesh.matrixWorld.copy(originalMesh.matrixWorld)
@@ -339,7 +339,9 @@ export async function exportGLTFScene(
   }
 
   const context: GLTFSceneExportContext = {
-    sourceID: GLTFComponent.getInstanceID(entity),
+    sourceID: hasComponent(entity, GLTFComponent)
+      ? GLTFComponent.getInstanceID(entity)
+      : getComponent(entity, SourceComponent),
     buffers: [] as ArrayBuffer[],
     extensionsUsed: new Set<string>(),
     exportExtensions,
@@ -400,9 +402,9 @@ export async function exportGLTFScene(
 
   if (!gltf) return []
 
-  const blob = [new Blob([JSON.stringify(gltf, null, 2)], { type: 'application/gltf+json' })]
-  const gltfFile = new File(blob, relativePath)
-  return [gltfFile, ...files]
+  // const blob = [new Blob([JSON.stringify(gltf, null, 2)], { type: 'application/gltf+json' })]
+  // const gltfFile = new File(blob, relativePath)
+  return [gltf, ...files]
 }
 
 const _diffMatrix = new Matrix4()

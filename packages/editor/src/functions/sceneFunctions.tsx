@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import i18n from 'i18next'
 
+import { GLTF } from '@gltf-transform/core'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { createScene } from '@ir-engine/client-core/src/world/SceneAPI'
@@ -71,19 +72,23 @@ export const saveSceneGLTF = async (
     if (existingScene.data.length > 0) throw new Error(i18n.t('editor:errors.sceneAlreadyExists'))
   }
 
-  const gltfData = await exportGLTFScene(rootEntity, getState(EditorState).projectName!, sceneFile, false)
-  console.log(gltfData)
+  const response = await exportGLTFScene(rootEntity, getState(EditorState).projectName!, sceneFile, false)
+  const gltfData = response[0] as GLTF.IGLTF
+  const files = response.slice(1) as File[]
 
   if (!gltfData) {
     logger.error('Failed to save scene, no gltf data found')
   }
+
+  const blob = [new Blob([JSON.stringify(gltfData, null, 2)], { type: 'application/gltf+json' })]
+  const gltfFile = new File(blob, sceneFile)
 
   const currentScene = await API.instance.service(staticResourcePath).get(sceneAssetID)
 
   const [[newPath]] = await Promise.all(
     uploadProjectFiles(
       projectName,
-      gltfData,
+      [gltfFile, ...files],
       [currentSceneDirectory],
       [
         {

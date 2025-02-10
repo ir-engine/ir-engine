@@ -520,7 +520,6 @@ export const setComponent = <C extends Component>(
     throw new Error('[setComponent]: entity is undefined')
   }
   if (!entityExists(entity)) {
-    console.trace({ entity, component: component.name, args })
     throw new Error('[setComponent]: entity does not exist')
   }
 
@@ -863,9 +862,13 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
           try {
             return structuredClone(obj)
           } catch (error) {
-            throw new Error(
+            // throw new Error(
+            //   `[propagateSchema]: ${entity} ${component.name} ${key} is not a cloneable class. ` + error.message
+            // )
+            console.warn(
               `[propagateSchema]: ${entity} ${component.name} ${key} is not a cloneable class. ` + error.message
             )
+            return obj
           }
         }
       }

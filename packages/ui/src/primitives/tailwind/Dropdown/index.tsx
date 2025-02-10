@@ -41,6 +41,8 @@ export interface DropdownItemProps extends Omit<React.HTMLAttributes<HTMLDivElem
    * Whether the item is hovered (or navigated through arrow keys)
    */
   active?: boolean
+  /** truncate overflowing label text with an ellipsis */
+  truncate?: boolean
 }
 
 export function DropdownItem({
@@ -51,6 +53,7 @@ export function DropdownItem({
   selected,
   secondaryText,
   className,
+  truncate = true,
   ...props
 }: DropdownItemProps) {
   return (
@@ -68,9 +71,9 @@ export function DropdownItem({
       )}
       {...props}
     >
-      <span className="flex items-center gap-2">
+      <span className="flex min-w-0 flex-1 items-center gap-2">
         {Icon && <Icon className="h-3 w-3" />}
-        {label}
+        <span className={truncate ? 'truncate' : ''}>{label}</span>
       </span>
       {secondaryText && <span className="ml-auto">{secondaryText}</span>}
       {selected && <HiCheck className="ml-auto h-3 w-3 stroke-2" />}

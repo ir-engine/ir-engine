@@ -344,14 +344,14 @@ export const render = (
   /** Postprocessing does not support multipass yet, so just use basic renderer when in VR */
   for (const c of camera.cameras) c.layers.mask = camera.layers.mask
 
-  if (xrFrame || !effectComposer || !renderer.effectComposer) {
-    renderer.renderer!.clear()
-    renderer.renderer!.render(scene, camera)
-  } else {
-    renderer.effectComposer.setMainScene(scene)
-    renderer.effectComposer.setMainCamera(camera)
-    renderer.effectComposer.render(delta)
-  }
+  // if (xrFrame || !effectComposer || !renderer.effectComposer) {
+  renderer.renderer!.clear()
+  renderer.renderer!.render(scene, camera)
+  // } else {
+  //   renderer.effectComposer.setMainScene(scene)
+  //   renderer.effectComposer.setMainCamera(camera)
+  //   renderer.effectComposer.render(delta)
+  // }
 
   ObjectComponent.activeRender = false
 }

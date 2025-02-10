@@ -28,6 +28,7 @@ import { Intersection, Raycaster, Vector2 } from 'three'
 import { getContentType } from '@ir-engine/common/src/utils/getContentType'
 import {
   EntityTreeComponent,
+  getAncestorWithComponents,
   getChildrenWithComponents,
   iterateEntityNode,
   removeEntity,
@@ -154,6 +155,9 @@ export async function addMediaNode(
             setComponent(childEntity, EntityTreeComponent, { parentEntity: parent ?? rootEntity })
           }
           removeEntity(entity)
+
+          const gltfEntity = getAncestorWithComponents(parent ?? rootEntity, [GLTFComponent])
+          EditorState.markModifiedScene(gltfEntity)
         }
       )
     } else {
