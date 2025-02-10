@@ -415,14 +415,8 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
             <Checkbox
               label={t('editor:properties.media.lbl-autoplayRuntime')}
               variantTextPlacement={'right'}
-              checked={media.autoplayRuntime.value}
-              onChange={commitProperty(MediaComponent, 'autoplayRuntime')}
-            />
-            <Checkbox
-              label={t('editor:properties.media.lbl-autoplayEditor')}
-              variantTextPlacement={'right'}
-              checked={media.autoplayEditor.value}
-              onChange={commitProperty(MediaComponent, 'autoplayEditor')}
+              checked={media.autoplay.value}
+              onChange={commitProperty(MediaComponent, 'autoplay')}
             />
             <Checkbox
               label={t('editor:properties.media.lbl-muteEditor')}
