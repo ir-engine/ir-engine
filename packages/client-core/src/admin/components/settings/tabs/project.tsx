@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { useFind, useGet, useMutation } from '@ir-engine/common'
 import { ProjectSettingType, projectPath, projectSettingPath } from '@ir-engine/common/src/schema.type.module'
@@ -164,8 +163,6 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
     <Accordion
       title={t('admin:components.setting.project.header')}
       subtitle={t('admin:components.setting.project.subtitle')}
-      expandIcon={<HiPlusSmall />}
-      shrinkIcon={<HiMinus />}
       ref={ref}
       open={open}
     >

@@ -34,7 +34,6 @@ import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
@@ -140,8 +139,6 @@ const MetabaseTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
     <Accordion
       title={t('admin:components.setting.metabase.header')}
       subtitle={t('admin:components.setting.metabase.subtitle')}
-      expandIcon={<HiPlusSmall />}
-      shrinkIcon={<HiMinus />}
       ref={ref}
       open={open}
     >
