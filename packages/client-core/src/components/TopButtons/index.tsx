@@ -39,7 +39,7 @@ import { MediaIconsBox } from '../MediaIconsBox'
 import { UserMediaWindows } from '../UserMediaWindows'
 import { XRLoading } from '../XRLoading'
 
-export const TopButtons = () => {
+export const ViewerInteractions = () => {
   const userID = useHookstate(getMutableState(EngineState).userID).value
   const loadingScreenOpacity = useHookstate(getMutableState(LoadingSystemState).loadingScreenOpacity)
   if (!userID) return null

@@ -96,20 +96,18 @@ export const TouchGamepad = () => {
     !appState.showTouchPad.value ||
     hasGamepad.value
   )
-    return <></>
+    return null
 
-  const buttons = buttonsConfig.map((value, index) => {
-    return (
-      <div
-        key={index}
-        className={styles.controllButton + ' ' + styles[`gamepadButton_${value.label}`] + ' ' + styles.availableButton}
-        onPointerDown={(): void => triggerButton(value.button, true)}
-        onPointerUp={(): void => triggerButton(value.button, false)}
-      >
-        {value.label}
-      </div>
-    )
-  })
+  const buttons = buttonsConfig.map((value, index) => (
+    <div
+      key={index}
+      className={styles.controllButton + ' ' + styles[`gamepadButton_${value.label}`] + ' ' + styles.availableButton}
+      onPointerDown={(): void => triggerButton(value.button, true)}
+      onPointerUp={(): void => triggerButton(value.button, false)}
+    >
+      {value.label}
+    </div>
+  ))
 
   return (
     <>
