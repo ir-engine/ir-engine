@@ -29,6 +29,7 @@ import {
   getMutableComponent,
   getOptionalComponent,
   getOptionalMutableComponent,
+  getSimulationCounterpart,
   hasComponent,
   useComponent,
   useOptionalComponent
@@ -122,7 +123,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   const audio = getOptionalMutableComponent(props.entity, PositionalAudioComponent)
 
   const mediaUUID = video.mediaUUID.value
-  let mediaEntity = props.entity
+  let mediaEntity = getSimulationCounterpart(props.entity)
   if (mediaUUID && mediaUUID != '') {
     mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID)
   }
