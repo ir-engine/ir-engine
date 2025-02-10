@@ -23,7 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useId, useRef, useState } from 'react'
+import { useHookstate } from '@ir-engine/hyperflux'
+import React, { useId, useRef } from 'react'
 import { LuInfo } from 'react-icons/lu'
 import { twMerge } from 'tailwind-merge'
 import Label from '../../../primitives/tailwind/Label'
@@ -61,7 +62,7 @@ const Slider = ({
   const id = useId()
   const parentRef = useRef<HTMLDivElement>(null)
 
-  const [localValue, setLocalValue] = useState(value)
+  const localValue = useHookstate(value)
 
   const handleInputChange = (value: string) => {
     const fractionLength = step.toString().split('.')[1]?.length || 0
@@ -72,17 +73,17 @@ const Slider = ({
       newValue = Math.min(Math.max(newValue, min), max)
     }
     const setLocalValueNewValue = +newValue.toFixed(fractionLength)
-    setLocalValue(setLocalValueNewValue)
+    localValue.set(setLocalValueNewValue)
     onChange?.(setLocalValueNewValue)
   }
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = parseFloat(event.target.value)
-    setLocalValue(newValue)
+    localValue.set(newValue)
     onChange?.(newValue)
   }
 
-  const gradientPercent = Math.round(((localValue - min) / (max - min)) * 100)
+  const gradientPercent = Math.round(((localValue.value - min) / (max - min)) * 100)
 
   return (
     <div ref={parentRef} className="group/editor-slider grid w-full grid-cols-1 gap-y-2" {...props}>
