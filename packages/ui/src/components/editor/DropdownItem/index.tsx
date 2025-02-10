@@ -30,7 +30,7 @@ import { twMerge } from 'tailwind-merge'
 export interface EditorDropdownItemProps extends React.HTMLAttributes<HTMLDivElement> {
   selected?: boolean
   disabled?: boolean
-  ItemIcon?: ({ className }: { className: string }) => JSX.Element
+  ItemIcon?: (({ className }: { className?: string }) => JSX.Element) | React.ElementType
   onClick?: () => void
   label: string
   RightIcon1?: ({ className, onClick }: { className: string; onClick?: () => void }) => JSX.Element
