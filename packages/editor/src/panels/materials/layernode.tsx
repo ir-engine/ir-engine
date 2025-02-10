@@ -23,22 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent, getOptionalComponent, hasComponent } from '@ir-engine/ecs'
+import { EntityUUID, Layers, UUIDComponent, getOptionalComponent, hasComponent } from '@ir-engine/ecs'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { ContainerLg, Image05, MaterialsLg } from '@ir-engine/ui/src/icons'
 import React from 'react'
 import { useDrag } from 'react-dnd'
-import { HiOutlineArchiveBox } from 'react-icons/hi2'
-import { SiRoundcube } from 'react-icons/si'
 import { ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
 
 const getNodeDisplayName = (uuid: EntityUUID) => {
-  const entity = UUIDComponent.getEntityByUUID(uuid)
+  const entity = UUIDComponent.getEntityByUUID(uuid, Layers.Authoring)
   return (
     getOptionalComponent(entity, MaterialStateComponent)?.material?.name ||
     getOptionalComponent(entity, NameComponent) ||
@@ -52,14 +51,13 @@ export default function MaterialLayerNode(props: ListChildComponentProps<{ nodes
   const materialSelection = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
   const selectionState = useMutableState(SelectionState)
 
+  const materialEntity = UUIDComponent.getEntityByUUID(node, Layers.Authoring)
   /**@todo use asset source decoupled from uuid to make this less brittle */
-  const source = !hasComponent(UUIDComponent.getEntityByUUID(node), MaterialStateComponent)
+  const source = !hasComponent(materialEntity, MaterialStateComponent)
 
   const onClickNode = () => {
     if (!source) {
       materialSelection.set(node)
-      console.log(node)
-      console.log(UUIDComponent.getEntityByUUID(node))
     }
   }
 
@@ -80,36 +78,30 @@ export default function MaterialLayerNode(props: ListChildComponentProps<{ nodes
   })
 
   return (
-    <li
-      style={props.style}
-      ref={drag}
-      id={node[0]}
-      className={twMerge(
-        props.index % 2 ? 'bg-theme-surfaceInput' : 'bg-zinc-800',
-        materialSelection.value === node ? 'border border-gray-100' : 'border-none'
-      )}
-      onClick={onClickNode}
-    >
-      <div ref={drag} id={node[0]} tabIndex={0} onClick={onClickNode}>
+    <li style={props.style} ref={drag} onClick={onClickNode}>
+      <div ref={drag} tabIndex={0} onClick={onClickNode}>
         {source ? (
-          <div className="flex items-center pl-3.5 pr-2">
-            <div className="flex flex-1 items-center bg-inherit py-0.5 pl-0 pr-1">
-              <HiOutlineArchiveBox className="h-5 w-5 flex-shrink-0 text-white dark:text-[#A3A3A3]" />
-              <div className="flex flex-1 items-center">
-                <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-[#A3A3A3]">
-                  <span className="text-nowrap text-sm leading-4">{node.split('/')?.pop()?.split('?')[0]}</span>
-                </div>
+          <div className="flex w-full items-center justify-start gap-x-1 bg-ui-background py-0.5 pl-3.5 pr-3">
+            <ContainerLg className="text-base text-text-primary" />
+            <Image05 className="text-base text-text-primary" />
+            <div className="flex items-center">
+              <div className="ml-2 min-w-0 text-nowrap rounded px-0.5 py-0 text-text-primary">
+                <span className="text-nowrap text-sm leading-4">{node.split('/')?.pop()?.split('?')[0]}</span>
               </div>
             </div>
           </div>
         ) : (
-          <div className="flex items-center pl-9 pr-6">
-            <div className="flex flex-1 items-center bg-inherit py-0.5 pl-0 pr-1">
-              <SiRoundcube className="h-5 w-5 flex-shrink-0 text-white dark:text-[#A3A3A3]" />
-              <div className="flex flex-1 items-center">
-                <div className="ml-2 min-w-0 flex-1 text-nowrap rounded bg-transparent px-0.5 py-0 text-inherit text-white dark:text-[#A3A3A3]">
-                  <span className="text-nowrap text-sm leading-4">{getNodeDisplayName(node)}</span>
-                </div>
+          <div
+            className={twMerge(
+              'flex w-full cursor-pointer items-center justify-start bg-ui-background pl-9 pr-6 text-text-secondary hover:bg-ui-hover-background hover:text-text-primary',
+              materialSelection.value === node ? 'text-text-primary' : '',
+              materialSelection.value === node ? 'rounded border border-ui-select-primary' : 'border-none'
+            )}
+          >
+            <MaterialsLg className="text-base" />
+            <div className="flex items-center">
+              <div className="ml-2 min-w-0 text-nowrap rounded bg-transparent px-0.5 py-0">
+                <span className="text-nowrap text-sm leading-4">{getNodeDisplayName(node)}</span>
               </div>
             </div>
           </div>

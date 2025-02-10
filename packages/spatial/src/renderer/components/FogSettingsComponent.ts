@@ -26,15 +26,15 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Fog, FogExp2 } from 'three'
 
+import { useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getOptionalComponent,
   removeComponent,
   setComponent,
   useComponent,
-  useOptionalComponent
+  useHasComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { FogComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
@@ -67,12 +67,10 @@ export const FogSettingsComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const fog = useComponent(entity, FogSettingsComponent)
-    const isVisible = useOptionalComponent(entity, VisibleComponent)
+    const isVisible = useHasComponent(entity, VisibleComponent)
 
     useEffect(() => {
-      if (!isVisible) {
-        return
-      }
+      if (!isVisible) return
 
       const fogData = fog.value
       switch (fogData.type) {

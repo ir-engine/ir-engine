@@ -164,7 +164,7 @@ describe('MaterialStateComponent', () => {
 
     it("should call setMeshMaterial for every entity in the  `@param entity`.MaterialStateComponent.instances list, using that instanceEntity's UUID", () => {
       // Setup the fallbackMaterial
-      const fallbackUUID = MaterialStateComponent.fallbackMaterial
+      const fallbackUUID = MaterialStateComponent.fallbackMaterialUUID
       const fallbackEntity = createEntity()
       setComponent(fallbackEntity, UUIDComponent, fallbackUUID)
       setComponent(fallbackEntity, MaterialStateComponent, {
@@ -223,7 +223,7 @@ describe('MaterialStateComponent', () => {
 
     it('should not do anything if the entity does not have a MaterialStateComponent', () => {
       // Setup the fallbackMaterial
-      const fallbackUUID = MaterialStateComponent.fallbackMaterial
+      const fallbackUUID = MaterialStateComponent.fallbackMaterialUUID
       const fallbackEntity = createEntity()
       setComponent(fallbackEntity, UUIDComponent, fallbackUUID)
       setComponent(fallbackEntity, MaterialStateComponent, {

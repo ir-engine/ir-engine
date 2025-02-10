@@ -62,6 +62,7 @@ getMutableState(DomainConfigState).merge({
 
 export default function ({ children }): JSX.Element {
   const { t } = useTranslation()
+  const isLocation = window.location.pathname.includes('/location')
 
   useEffect(() => {
     authenticate().then(() => {
@@ -81,13 +82,17 @@ export default function ({ children }): JSX.Element {
     <ThemeProvider theme={theme}>
       <MetaTags>
         <link
-          href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;600;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;800&display=swap"
           rel="stylesheet"
         />
       </MetaTags>
       <BrowserRouter history={history}>
         <Suspense
-          fallback={<LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingClient')} />}
+          fallback={
+            !isLocation && (
+              <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingClient')} />
+            )
+          }
         >
           {children}
         </Suspense>

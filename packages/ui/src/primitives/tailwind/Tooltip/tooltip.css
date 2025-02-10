@@ -2,31 +2,38 @@
   bottom: -4px;
   left: calc(50% - 4px);
   transform: translateX(-50%) rotate(45deg);
+  border-bottom: 1px solid var(--ui-outline);
+  border-right: 1px solid var(--ui-outline);
 }
 
 .tooltip-arrow-bottom {
   top: -4px;
   left: calc(50% - 4px);
   transform: translateX(-50%) rotate(45deg);
+  border-left: 1px solid var(--ui-outline);
+  border-top: 1px solid var(--ui-outline);
 }
 
 .tooltip-arrow-left {
   right: -4px;
   top: calc(50% - 6px);
   transform: translateY(-50%) rotate(45deg);
+  border-right: 1px solid var(--ui-outline);
+  border-top: 1px solid var(--ui-outline);
 }
 
 .tooltip-arrow-right {
   left: -4px;
   top: calc(50% - 6px);
   transform: translateY(-50%) rotate(45deg);
+  border-left: 1px solid var(--ui-outline);
+  border-bottom: 1px solid var(--ui-outline);
 }
 
 .tooltip-arrow {
   width: 8px;
   height: 8px;
-  background-color: #191b1f;
-  border: 1px solid var(--theme-primary);
+  background-color: var(--surface-4);
   position: absolute;
   z-index: 10000;
 }

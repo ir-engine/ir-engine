@@ -42,19 +42,20 @@ import {
   Vector3
 } from 'three'
 
+import { createEntity, removeEntity } from '@ir-engine/ecs'
 import { getComponent, getOptionalComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { getState } from '@ir-engine/hyperflux'
-import { Vector3_Right, Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { addObjectToGroup, ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { Vector3_Right, Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { NormalizedBoneComponent } from '../avatar/components/NormalizedBoneComponent'
@@ -160,7 +161,7 @@ const drawMocapDebug = (label: string) => {
         const mesh = new Mesh(new SphereGeometry(0.01), new MeshBasicMaterial({ color }))
         const entity = createEntity()
         debugEntities[key] = entity
-        addObjectToGroup(entity, mesh)
+        setComponent(entity, MeshComponent, mesh)
         setVisibleComponent(entity, true)
         setComponent(entity, NameComponent, `Mocap Debug ${label} ${LandmarkNames[key]}`)
         setObjectLayers(mesh, ObjectLayers.AvatarHelper)
@@ -184,7 +185,7 @@ const drawMocapDebug = (label: string) => {
 
     if (!lineSegmentEntity) {
       lineSegmentEntity = createEntity()
-      addObjectToGroup(lineSegmentEntity, positionLineSegment)
+      setComponent(lineSegmentEntity, ObjectComponent, positionLineSegment)
       setVisibleComponent(lineSegmentEntity, true)
       setComponent(lineSegmentEntity, NameComponent, 'Mocap Debug Line Segment ' + label)
       setObjectLayers(positionLineSegment, ObjectLayers.AvatarHelper)

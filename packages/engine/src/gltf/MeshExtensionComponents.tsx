@@ -23,34 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Mesh } from '@gltf-transform/core'
 import {
-  Entity,
-  S,
+  ComponentType,
   defineComponent,
+  EntityTreeComponent,
+  getAncestorWithComponents,
+  getComponent,
   removeComponent,
+  S,
   setComponent,
   useComponent,
   useEntityContext,
-  useOptionalComponent
+  UUIDComponent
 } from '@ir-engine/ecs'
-import { NO_PROXY, State, none, useHookstate } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, PointLightComponent, SpotLightComponent } from '@ir-engine/spatial'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import React, { useEffect } from 'react'
-import {
-  BufferAttribute,
-  Color,
-  InstancedBufferAttribute,
-  InstancedMesh,
-  Matrix4,
-  Mesh,
-  Object3D,
-  Quaternion,
-  Vector3
-} from 'three'
+import { useEffect } from 'react'
+import { BufferAttribute, Color, InstancedBufferAttribute, InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
+import { WEBGL_CONSTANTS } from '../assets/loaders/gltf/GLTFConstants'
+import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
 import { InstancingComponent } from '../scene/components/InstancingComponent'
-import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
-import { getParserOptions } from './GLTFState'
+import { getGLTFOptions, GLTFComponent } from './GLTFComponent'
+import { getDependency, getNodeUUID } from './GLTFLoaderFunctions'
 
 export type KHRPunctualLight = {
   color?: [number, number, number]
@@ -70,11 +65,14 @@ export const KHRLightsPunctualComponent = defineComponent({
     light: S.Optional(S.Number())
   }),
 
+  /** @todo need to refactor this into whatever API three uses, as we clean up the buffers before it can be loaded */
   reactor: () => {
     const entity = useEntityContext()
+    useComponent(entity, EntityTreeComponent)
     const component = useComponent(entity, KHRLightsPunctualComponent)
 
-    const options = getParserOptions(entity)
+    const gltfEntity = getAncestorWithComponents(entity, [GLTFComponent])
+    const options = getGLTFOptions(gltfEntity)
     const json = options.document
     const extensions: {
       lights?: KHRPunctualLight[]
@@ -157,6 +155,12 @@ export const KHRLightsPunctualComponent = defineComponent({
   }
 })
 
+/**
+ * GPU Instancing Extension
+ *
+ * Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Vendor/EXT_mesh_gpu_instancing
+ *
+ */
 export const EXTMeshGPUInstancingComponent = defineComponent({
   name: 'EXTMeshGPUInstancingComponent',
   jsonID: 'EXT_mesh_gpu_instancing',
@@ -164,105 +168,94 @@ export const EXTMeshGPUInstancingComponent = defineComponent({
     attributes: S.Record(S.String(), S.Number())
   }),
 
-  reactor: () => {
-    const entity = useEntityContext()
-    const component = useComponent(entity, EXTMeshGPUInstancingComponent)
-    const meshComponent = useOptionalComponent(entity, MeshComponent)
+  loadNode: async (options: GLTFParserOptions, nodeIndex: number) => {
+    const pending = [] as Promise<any>[]
 
-    const attributes = component.attributes.get(NO_PROXY)
+    const json = options.document
+    const nodeDef = json.nodes![nodeIndex]
 
-    const accessorsState = useHookstate({} as Record<string, BufferAttribute>)
+    const meshDef = json.meshes![nodeDef.mesh!]
 
-    useEffect(() => {
-      if (!meshComponent || !attributes) return
-      // ensure all accessors are loaded
-      if (Object.keys(attributes).length === 0 || Object.keys(attributes).length !== accessorsState.keys.length) return
-      processGPUInstancing(entity, accessorsState.get(NO_PROXY), meshComponent.get(NO_PROXY)! as Mesh)
-    }, [accessorsState, !!meshComponent])
+    for (const primitive of meshDef.primitives) {
+      if (
+        primitive.mode !== WEBGL_CONSTANTS.TRIANGLES &&
+        primitive.mode !== WEBGL_CONSTANTS.TRIANGLE_STRIP &&
+        primitive.mode !== WEBGL_CONSTANTS.TRIANGLE_FAN &&
+        primitive.mode !== undefined
+      ) {
+        return null
+      }
+    }
 
-    return (
-      <>
-        {attributes &&
-          Object.entries(attributes).map(([attribute, accessorIndex]) => (
-            <MeshGPUInstancingAttributeReactor
-              key={attribute}
-              accessorsState={accessorsState}
-              entity={entity}
-              attribute={attribute}
-              accessorIndex={accessorIndex}
-            />
-          ))}
-      </>
-    )
+    const extensionDef = nodeDef.extensions![EXTMeshGPUInstancingComponent.jsonID] as ComponentType<
+      typeof EXTMeshGPUInstancingComponent
+    >
+
+    const attributesDef = extensionDef.attributes
+
+    const attributes = {} as { [key: string]: BufferAttribute }
+
+    for (const key in attributesDef) {
+      pending.push(
+        getDependency(options, 'accessor', attributesDef[key]).then((accessor) => {
+          attributes[key] = accessor
+          return attributes[key]
+        })
+      )
+    }
+
+    if (pending.length < 1) {
+      return null
+    }
+
+    const results = await Promise.all(pending)
+
+    const nodeUUID = getNodeUUID(nodeDef, options.documentID, nodeIndex)
+    const entity = UUIDComponent.getEntityByUUID(nodeUUID)
+    const mesh = getComponent(entity, MeshComponent)
+
+    const count = results[0].count // All attribute counts should be same
+
+    // For Working
+    const m = new Matrix4()
+    const p = new Vector3()
+    const q = new Quaternion()
+    const s = new Vector3(1, 1, 1)
+
+    const instancedMesh = new InstancedMesh(mesh.geometry.clone(), mesh.material, count)
+    for (let i = 0; i < count; i++) {
+      if (attributes.TRANSLATION) {
+        p.fromBufferAttribute(attributes.TRANSLATION, i)
+      }
+      if (attributes.ROTATION) {
+        q.fromBufferAttribute(attributes.ROTATION, i)
+      }
+      if (attributes.SCALE) {
+        s.fromBufferAttribute(attributes.SCALE, i)
+      }
+      // @TODO: Support _ID and others
+      instancedMesh.setMatrixAt(i, m.compose(p, q, s))
+    }
+
+    for (const attributeName in attributes) {
+      if (attributeName === '_COLOR_0') {
+        const attr = attributes[attributeName]
+        instancedMesh.instanceColor = new InstancedBufferAttribute(attr.array, attr.itemSize, attr.normalized)
+      } else if (attributeName !== 'TRANSLATION' && attributeName !== 'ROTATION' && attributeName !== 'SCALE') {
+        instancedMesh.geometry.setAttribute(attributeName, attributes[attributeName])
+      }
+    }
+
+    // Just in case
+    Mesh.prototype.copy.call(instancedMesh, mesh as any)
+
+    instancedMesh.frustumCulled = false
+    instancedMesh.instanceMatrix.needsUpdate = true
+
+    setComponent(entity, MeshComponent, instancedMesh)
+
+    setComponent(entity, InstancingComponent, {
+      instanceMatrix: instancedMesh.instanceMatrix
+    })
   }
 })
-
-const MeshGPUInstancingAttributeReactor = (props: {
-  accessorsState: State<Record<string, BufferAttribute>>
-  entity: Entity
-  attribute: string
-  accessorIndex: number
-}) => {
-  const { accessorsState, entity, accessorIndex } = props
-  const options = getParserOptions(entity)
-  const accessor = GLTFLoaderFunctions.useLoadAccessor(options, accessorIndex)
-
-  useEffect(() => {
-    if (!accessor) return
-    accessorsState[props.attribute].set(accessor)
-    return () => {
-      accessorsState[props.attribute].set(none)
-    }
-  }, [accessor])
-
-  return null
-}
-
-const processGPUInstancing = (entity: Entity, attributes: Record<string, BufferAttribute>, mesh: Mesh) => {
-  // get any attribute to get the count
-  const attribute0 = Object.values(attributes)[0]
-  const count = attribute0.count // All attribute counts should be same
-
-  // For Working
-  const m = new Matrix4()
-  const p = new Vector3()
-  const q = new Quaternion()
-  const s = new Vector3(1, 1, 1)
-
-  const instancedMesh = new InstancedMesh(mesh.geometry, mesh.material, count)
-  for (let i = 0; i < count; i++) {
-    if (attributes.TRANSLATION) {
-      p.fromBufferAttribute(attributes.TRANSLATION, i)
-    }
-    if (attributes.ROTATION) {
-      q.fromBufferAttribute(attributes.ROTATION, i)
-    }
-    if (attributes.SCALE) {
-      s.fromBufferAttribute(attributes.SCALE, i)
-    }
-    // @TODO: Support _ID and others
-    instancedMesh.setMatrixAt(i, m.compose(p, q, s))
-  }
-
-  for (const attributeName in attributes) {
-    if (attributeName === '_COLOR_0') {
-      const attr = attributes[attributeName]
-      instancedMesh.instanceColor = new InstancedBufferAttribute(attr.array, attr.itemSize, attr.normalized)
-    } else if (attributeName !== 'TRANSLATION' && attributeName !== 'ROTATION' && attributeName !== 'SCALE') {
-      mesh.geometry.setAttribute(attributeName, attributes[attributeName])
-    }
-  }
-
-  // Just in case
-  Object3D.prototype.copy.call(instancedMesh, mesh)
-
-  instancedMesh.frustumCulled = false
-  instancedMesh.instanceMatrix.needsUpdate = true
-
-  removeComponent(entity, MeshComponent)
-  setComponent(entity, MeshComponent, instancedMesh)
-
-  setComponent(entity, InstancingComponent, {
-    instanceMatrix: instancedMesh.instanceMatrix
-  })
-}

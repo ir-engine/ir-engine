@@ -23,11 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { NO_PROXY_STEALTH, State, destroy, hookstate, useHookstate } from '@ir-engine/hyperflux'
 import { v4 as uuidv4 } from 'uuid'
-
-import { hookstate, NO_PROXY_STEALTH, State, useHookstate } from '@ir-engine/hyperflux'
-
-import { defineComponent, setComponent } from './ComponentFunctions'
+import { LayerComponent, LayerID, Layers, defineComponent, setComponent } from './ComponentFunctions'
 import { Entity, EntityUUID, UndefinedEntity } from './Entity'
 import { createEntity } from './EntityFunctions'
 import { S } from './schemas/JSONSchemas'
@@ -44,46 +42,60 @@ export const UUIDComponent = defineComponent({
           return false
         }
         if (uuid === prev) return true
-
+        const layer = LayerComponent.get(entity)
+        if (!UUIDComponent.entitiesByUUIDState[layer]) {
+          UUIDComponent.entitiesByUUIDState[layer] = {}
+          return true
+        }
         // throw error if uuid is already in use
-        const currentEntity = UUIDComponent.getEntityByUUID(uuid)
-        if (currentEntity !== UndefinedEntity && currentEntity !== entity) {
-          console.error(`UUID ${uuid} is already in use`)
+        const currentEntity = UUIDComponent.entitiesByUUIDState[layer][uuid]?.value
+        if (currentEntity && currentEntity !== entity) {
+          console.error(`UUID ${uuid} is already in use`, currentEntity, entity)
           return false
         }
 
-        // remove old uuid
-        if (prev) {
-          const currentUUID = prev
-          _getUUIDState(currentUUID).set(UndefinedEntity)
-        }
-
-        // set new uuid
-        _getUUIDState(uuid).set(entity)
         return true
       }
     })
   ),
 
+  onSet(entity, component, uuid: EntityUUID) {
+    const layer = LayerComponent.get(entity)
+    const prev = component.value
+    // remove old uuid
+    if (prev) {
+      const currentUUID = prev
+      destroy(UUIDComponent.entitiesByUUIDState[layer][currentUUID])
+      delete UUIDComponent.entitiesByUUIDState[layer][currentUUID]
+    }
+
+    // set new uuid
+    UUIDComponentFunctions._getUUIDState(uuid, layer).set(entity)
+
+    component.set(uuid)
+  },
+
   onRemove: (entity, component) => {
     const uuid = component.value
-    _getUUIDState(uuid).set(UndefinedEntity)
+    const layer = LayerComponent.get(entity)
+    destroy(UUIDComponent.entitiesByUUIDState[layer][uuid])
+    delete UUIDComponent.entitiesByUUIDState[layer][uuid]
   },
 
-  entitiesByUUIDState: {} as Record<EntityUUID, State<Entity>>,
+  entitiesByUUIDState: {} as Record<LayerID, Record<EntityUUID, State<Entity>>>,
 
-  useEntityByUUID(uuid: EntityUUID) {
-    return useHookstate(_getUUIDState(uuid)).value
+  useEntityByUUID(uuid: EntityUUID, layer = Layers.Simulation as LayerID) {
+    return useHookstate(UUIDComponentFunctions._getUUIDState(uuid, layer)).value
   },
 
-  getEntityByUUID(uuid: EntityUUID) {
-    return _getUUIDState(uuid).get(NO_PROXY_STEALTH)
+  getEntityByUUID(uuid: EntityUUID, layer = Layers.Simulation as LayerID) {
+    return UUIDComponentFunctions._getUUIDState(uuid, layer).get(NO_PROXY_STEALTH)
   },
 
-  getOrCreateEntityByUUID(uuid: EntityUUID) {
-    const state = _getUUIDState(uuid)
+  getOrCreateEntityByUUID(uuid: EntityUUID, layer = Layers.Simulation as LayerID) {
+    const state = UUIDComponentFunctions._getUUIDState(uuid, layer)
     if (!state.value) {
-      const entity = createEntity()
+      const entity = createEntity(layer)
       setComponent(entity, UUIDComponent, uuid)
     }
     return state.value
@@ -94,11 +106,21 @@ export const UUIDComponent = defineComponent({
   }
 })
 
-function _getUUIDState(uuid: EntityUUID) {
-  let entityState = UUIDComponent.entitiesByUUIDState[uuid]
+function _getUUIDState(uuid: EntityUUID, layer = Layers.Simulation as LayerID) {
+  let layerState = UUIDComponent.entitiesByUUIDState[layer]
+  if (!layerState) {
+    layerState = {}
+    UUIDComponent.entitiesByUUIDState[layer] = layerState
+  }
+  let entityState = layerState[uuid]
   if (!entityState) {
     entityState = hookstate(UndefinedEntity)
-    UUIDComponent.entitiesByUUIDState[uuid] = entityState
+    layerState[uuid] = entityState
   }
   return entityState
+}
+
+export const UUIDComponentFunctions = {
+  /** @private Exposed only for unit tests */
+  _getUUIDState
 }

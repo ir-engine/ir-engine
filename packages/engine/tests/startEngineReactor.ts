@@ -23,43 +23,28 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ArgTypes, StoryObj } from '@storybook/react'
-import React from 'react'
+import { SystemDefinitions } from '@ir-engine/ecs'
+import { startReactor } from '@ir-engine/hyperflux'
+import { AvatarAnimationSystem } from '../src/avatar/systems/AvatarAnimationSystem'
+import { GLTFLoadSystem } from '../src/gltf/GLTFState'
+import { MaterialLibrarySystem } from '../src/scene/materials/systems/MaterialLibrarySystem'
 
-import { RulerUnitsMd } from '@ir-engine/ui/src/icons'
-import ToolbarButton, { ToolbarButtonProps } from './index'
+const gltfLoadSystem = SystemDefinitions.get(GLTFLoadSystem)!
+const materialLibrary = SystemDefinitions.get(MaterialLibrarySystem)!
 
-const argTypes: ArgTypes = {
-  selected: {
-    control: 'boolean'
-  }
+export const startAssetReactor = () => {
+  startReactor(gltfLoadSystem.reactor!)
+  startReactor(materialLibrary.reactor!)
 }
 
-export default {
-  title: 'Components/Editor/ToolbarButton',
-  component: ToolbarButton,
-  parameters: {
-    componentSubtitle: 'ToolbarButton',
-    design: {
-      type: 'figma',
-      url: 'https://www.figma.com/design/ln2VDACenFEkjVeHkowxyi/iR-Engine-Design-Library-File?node-id=3349-16983&node-type=symbol&m=dev'
-    }
-  },
-  argTypes
+const avatarAnimationSystem = SystemDefinitions.get(AvatarAnimationSystem)!
+
+export const startAvatarReactor = () => {
+  // depends on asset module
+  startReactor(avatarAnimationSystem.reactor!)
 }
 
-type Story = StoryObj<typeof ToolbarButton>
-
-const ToolbarButtonRenderer = (args: ToolbarButtonProps) => {
-  return (
-    <ToolbarButton {...args}>
-      <RulerUnitsMd />
-    </ToolbarButton>
-  )
-}
-
-export const Default: Story = {
-  name: 'Primary',
-  args: {},
-  render: ToolbarButtonRenderer
+export const startEngineReactor = () => {
+  startAssetReactor()
+  startAvatarReactor()
 }

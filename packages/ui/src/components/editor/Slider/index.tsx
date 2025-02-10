@@ -23,9 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useId, useRef, useState } from 'react'
+import React, { useId, useRef } from 'react'
 import { LuInfo } from 'react-icons/lu'
 import { twMerge } from 'tailwind-merge'
+import Label from '../../../primitives/tailwind/Label'
 import Tooltip from '../../../primitives/tailwind/Tooltip'
 
 export interface SliderProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
@@ -59,7 +60,6 @@ const Slider = ({
 }: SliderProps) => {
   const id = useId()
   const parentRef = useRef<HTMLDivElement>(null)
-  const [width, setWidth] = useState(0)
 
   const handleInputChange = (value: string) => {
     const fractionLength = step.toString().split('.')[1]?.length || 0
@@ -79,72 +79,64 @@ const Slider = ({
 
   const gradientPercent = Math.round(((value - min) / (max - min)) * 100)
 
-  useEffect(() => {
-    const observer = new ResizeObserver(() => {
-      if (parentRef.current) setWidth(parentRef.current?.offsetWidth)
-    })
-    observer.observe(parentRef.current as Element)
-    return () => observer.disconnect()
-  }, [])
-
   return (
-    <div ref={parentRef} className="group/editor-slider flex flex-nowrap items-center gap-2" {...props}>
-      {label && (
-        <label className="mr-2 text-sm text-[#B2B5BD] group-hover/editor-slider:text-[#D3D5D9]" htmlFor={id}>
-          {label}
-        </label>
-      )}
-      {info && (
-        <Tooltip content={info}>
-          <LuInfo className={twMerge('h-5 w-5', 'text-[#A0A1A2]')} />
-        </Tooltip>
-      )}
-      <input
-        id={id}
-        min={min}
-        max={max}
-        value={value}
-        onChange={(event) => handleInputChange(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.key === 'ArrowUp') {
-            handleInputChange(value + step + '')
-          } else if (event.key === 'ArrowDown') {
-            handleInputChange(value - step + '')
-          }
-        }}
-        onBlur={() => onRelease?.(value)}
-        className="m-0 h-8 w-14 rounded bg-[#141619] text-center text-sm font-normal leading-[21px] text-[#9CA0AA] group-hover/editor-slider:bg-[#191B1F] group-hover/editor-slider:text-[#F5F5F5]"
-        data-testid="slider-text-value-input"
-      />
-      <input
-        id={'slider' + id}
-        min={min}
-        max={max}
-        value={value}
-        onChange={handleChange}
-        onPointerUp={() => onRelease?.(value)}
-        step={step}
-        type="range"
-        style={{
-          width: width + 'px',
-          background: `linear-gradient(to right, #375DAF ${gradientPercent}%, #191B1F ${gradientPercent}%)`
-        }}
-        className="h-8 min-w-20 cursor-pointer appearance-none overflow-hidden rounded bg-[#191B1F] focus:outline-none
-          disabled:pointer-events-none disabled:opacity-50
-          [&::-moz-range-progress]:bg-[#375DAF]
+    <div ref={parentRef} className="group/editor-slider grid w-full grid-cols-1 gap-y-2" {...props}>
+      <div className="flex w-full justify-between">
+        <Label>{label}</Label>
+        {info && (
+          <Tooltip content={info}>
+            <LuInfo className={twMerge('h-5 w-5 text-text-inactive hover:text-text-primary')} />
+          </Tooltip>
+        )}
+      </div>
+
+      <div className="flex w-full items-center justify-between gap-x-2">
+        <input
+          id={id}
+          min={min}
+          max={max}
+          value={value}
+          onChange={(event) => handleInputChange(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'ArrowUp') {
+              handleInputChange(value + step + '')
+            } else if (event.key === 'ArrowDown') {
+              handleInputChange(value - step + '')
+            }
+          }}
+          onBlur={() => onRelease?.(value)}
+          className="m-0 h-8 w-14 rounded bg-ui-background text-center text-sm font-normal text-text-secondary outline-none group-hover/editor-slider:bg-ui-hover-background group-hover/editor-slider:text-text-primary group-focus/editor-slider:bg-ui-select-background group-focus/editor-slider:text-text-primary"
+          data-testid="slider-text-value-input"
+        />
+
+        <input
+          id={'slider' + id}
+          min={min}
+          max={max}
+          value={value}
+          onChange={handleChange}
+          onPointerUp={() => onRelease?.(value)}
+          step={step}
+          type="range"
+          style={{
+            background: `linear-gradient(to right, var(--ui-inactive-secondary) ${gradientPercent}%, var(--ui-background) ${gradientPercent}%)`
+          }}
+          className="h-8 w-full min-w-20 cursor-pointer appearance-none overflow-hidden rounded bg-ui-background outline-none
+          disabled:pointer-events-none disabled:bg-ui-inactive-background
+          [&::-moz-range-progress]:bg-ui-primary
           [&::-moz-range-thumb]:h-full
           [&::-moz-range-thumb]:w-4
           [&::-moz-range-thumb]:appearance-none
           [&::-moz-range-thumb]:rounded
-          [&::-moz-range-thumb]:bg-[#879ECF]
+          [&::-moz-range-thumb]:bg-ui-primary
           [&::-moz-range-thumb]:transition-all
           [&::-moz-range-thumb]:duration-150
           [&::-moz-range-thumb]:ease-in-out
-          group-hover/editor-slider:[&::-moz-range-thumb]:bg-[#AFBEDF]
+          group-hover/editor-slider:[&::-moz-range-thumb]:bg-ui-hover-primary
           [&::-moz-range-track]:h-full
           [&::-moz-range-track]:w-full
           [&::-moz-range-track]:rounded
-          [&::-moz-range-track]:bg-[#191B1F]
+          [&::-moz-range-track]:bg-ui-background
           [&::-webkit-slider-runnable-track]:h-full
           [&::-webkit-slider-runnable-track]:w-full
           [&::-webkit-slider-runnable-track]:rounded
@@ -152,14 +144,15 @@ const Slider = ({
           [&::-webkit-slider-thumb]:w-4
           [&::-webkit-slider-thumb]:appearance-none
           [&::-webkit-slider-thumb]:rounded
-          [&::-webkit-slider-thumb]:bg-[#879ECF]
-          [&::-webkit-slider-thumb]:transition-all
+          [&::-webkit-slider-thumb]:bg-ui-primary
+          [&::-webkit-slider-thumb]:transition-colors
           [&::-webkit-slider-thumb]:duration-150
           [&::-webkit-slider-thumb]:ease-in-out
-          group-hover/editor-slider:[&::-webkit-slider-thumb]:bg-[#AFBEDF]
+          group-hover/editor-slider:[&::-webkit-slider-thumb]:bg-ui-hover-primary
         "
-        data-testid="slider-draggable-value-input"
-      />
+          data-testid="slider-draggable-value-input"
+        />
+      </div>
     </div>
   )
 }

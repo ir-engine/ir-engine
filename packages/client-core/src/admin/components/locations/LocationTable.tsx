@@ -25,19 +25,19 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiPencil, HiTrash } from 'react-icons/hi2'
 import { validate as isValidUUID } from 'uuid'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import { locationPath, LocationType, scopePath, ScopeType } from '@ir-engine/common/src/schema.type.module'
-import { Button } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 
 import config from '@ir-engine/common/src/config'
 import { Engine } from '@ir-engine/ecs'
+import { Edit01Lg, Trash04Lg } from '@ir-engine/ui/src/icons'
 import { locationColumns, LocationRowType } from '../../common/constants/location'
 import DataTable from '../../common/Table'
+import ActionButton from '../ActionButton'
 import AddEditLocationModal from './AddEditLocationModal'
 
 const getStudioURLfromScene = (url: string) => {
@@ -112,18 +112,15 @@ export default function LocationTable({ search }: { search: string }) {
         : t('admin:components.common.no'),
       action: (
         <div className="flex items-center justify-start gap-3">
-          <Button
-            variant="tertiary"
-            className="h-8 w-8"
-            disabled={!userHasAccess}
+          <ActionButton
+            icon={Edit01Lg}
             title={t('admin:components.common.view')}
             onClick={() => PopoverState.showPopupover(<AddEditLocationModal action="admin" location={row} />)}
-          >
-            <HiPencil className="text-theme-iconGreen" />
-          </Button>
-          <Button
-            variant="tertiary"
-            className="h-8 w-8"
+            variant="green"
+          />
+
+          <ActionButton
+            icon={Trash04Lg}
             title={t('admin:components.common.delete')}
             onClick={() =>
               PopoverState.showPopupover(
@@ -135,9 +132,8 @@ export default function LocationTable({ search }: { search: string }) {
                 />
               )
             }
-          >
-            <HiTrash className="place-self-center text-theme-iconRed" />
-          </Button>
+            variant="red"
+          />
         </div>
       )
     }))

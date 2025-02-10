@@ -18,6 +18,7 @@
   "license": "CPAL",
   "dependencies": {
     "@ir-engine/hyperflux": "^1.6.0",
+    "@hookstate/subscribable": "4.0.0",
     "bitecs": "github:NateTheGreatt/bitECS#rc-0-4-0",
     "uuid": "9.0.0"
   },
