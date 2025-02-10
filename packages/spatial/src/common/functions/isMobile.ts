@@ -45,9 +45,9 @@ export const iOS =
 
 export const isSafari = hasUserAgent && /^((?!chrome|android).)*safari/i.test(navigator.userAgent.toLowerCase())
 
-export const isMobile = mobileOrTablet
+export const isMobile = mobileOrTablet || global.RN$Bridgeless
 
-export const isIPhone = hasUserAgent && navigator.userAgent.match(/iPhone/i) !== null
+export const isIPhone = (hasUserAgent && navigator.userAgent.match(/iPhone/i) !== null) || global.RN$Bridgeless
 
 export const isFirefox = hasUserAgent && navigator.userAgent.indexOf('Firefox') > -1
 export const firefoxVersion = isFirefox ? parseInt(navigator.userAgent.match(/Firefox\/([0-9]+)\./)![1]) : -1
