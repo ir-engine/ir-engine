@@ -119,7 +119,7 @@ export const VideoComponent = defineComponent({
     // internal
     videoMeshEntity: S.Entity(),
     texture: S.NonSerialized(S.Nullable(S.Type<VideoTexturePriorityQueue>())),
-    currentVideoSize: T.Vec2({ x: 0, y: 0 })
+    currentVideoSize: T.Vec2(Vector2_One)
   }),
 
   onRemove: (entity, component) => {
