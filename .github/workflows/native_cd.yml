@@ -144,20 +144,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - uses: actions/cache/restore@v4
-        id: cache-screenshots
-        with:
-          path: ./packages/screenshot-testing/screenshots/**/*.png
-          key: ${{ runner.os }}-expected-screenshots-${{ hashFiles('packages/screenshot-testing/**/*.png') }}
-          restore-keys: |
-            ${{ runner.os }}-expected-screenshots-${{ hashFiles('packages/screenshot-testing/**/*.png') }}
-            ${{ runner.os }}-expected-screenshots
-
-      - name: Move screenshots
-        run: |
-          mv ./packages/screenshot-testing/screenshots ./packages/screenshot-testing/expectedScreenshots
-          ls ./packages/screenshot-testing/expectedScreenshots
-
       - name: Create Appium Test Zip
         run: npm run bundle -w appium-tests
 
@@ -200,11 +186,27 @@ jobs:
           name: ScreenshotTestOutputFiles
           path: ${{ steps.run-benchmark.outputs.artifact-folder }}
 
+      - uses: actions/cache/restore@v4
+        id: cache-screenshots
+        with:
+          path: ./packages/screenshot-testing/screenshots/**/*.png
+          key: ${{ runner.os }}-expected-screenshots-${{ hashFiles('packages/screenshot-testing/**/*.png') }}
+          restore-keys: |
+            ${{ runner.os }}-expected-screenshots-${{ hashFiles('packages/screenshot-testing/**/*.png') }}
+            ${{ runner.os }}-expected-screenshots
+
+      - name: Move screenshots
+        run: |
+          mv ./packages/screenshot-testing/screenshots ./packages/screenshot-testing/expectedScreenshots
+          ls ./packages/screenshot-testing/expectedScreenshots
+
       - name: Install ImageMagick
+        if: always()
         run: |
           sudo apt-get install imagemagick
 
       - name: Extract screenshots from artifacts
+        if: always()
         run: |
           ./scripts/unzipArchive.sh ${{ steps.run-benchmark.outputs.artifact-folder }} ./packages/screenshot-testing/screenshots
 
