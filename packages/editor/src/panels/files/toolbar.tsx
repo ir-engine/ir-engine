@@ -230,110 +230,99 @@ export default function FilesToolbar() {
   const { backDirectory, refreshDirectory } = useCurrentFiles()
 
   return (
-    <>
-      <PanelToolbar
-        onBackDirectory={backDirectory}
-        onRefreshDirectory={refreshDirectory}
-        breadcrumbComponent={<BreadcrumbItems />}
-        searchbar={
-          <Input
-            placeholder={t('editor:layout.filebrowser.search-placeholder')}
-            value={filesState.searchText.value}
-            onChange={(e) => {
-              filesState.searchText.set(e.target.value)
-            }}
-            height="xs"
-            startComponent={<SearchSmSm className="h-[14px] w-[14px] text-[#9CA0AA]" />}
-            data-testid="files-panel-search-input"
-          />
-        }
-        dataTestIdJson={{}}
-        utilsComponent={
-          <>
-            <div id="downloadProject">
-              <Tooltip
-                content={
-                  showDownloadButtons
-                    ? t('editor:layout.filebrowser.downloadProject')
-                    : t('editor:layout.filebrowser.downloadProjectUnavailable')
-                }
-              >
-                <ViewportButton
-                  onClick={() =>
-                    handleDownloadProject(filesState.projectName.value, filesState.selectedDirectory.value)
-                  }
-                  data-testid="files-panel-download-project-button"
-                  icon={Download01Sm}
-                />
-              </Tooltip>
-            </div>
-            <div className="flex h-7 items-center gap-2 rounded p-2">
+    <PanelToolbar
+      onBackDirectory={backDirectory}
+      onRefreshDirectory={refreshDirectory}
+      breadcrumbComponent={<BreadcrumbItems />}
+      searchbar={
+        <Input
+          placeholder={t('editor:layout.filebrowser.search-placeholder')}
+          value={filesState.searchText.value}
+          onChange={(e) => {
+            filesState.searchText.set(e.target.value)
+          }}
+          height="xs"
+          startComponent={<SearchSmSm className="h-[14px] w-[14px] text-[#9CA0AA]" />}
+          data-testid="files-panel-search-input"
+        />
+      }
+      dataTestIdJson={{}}
+      utilsComponent={
+        <>
+          <Tooltip
+            content={
+              showDownloadButtons
+                ? t('editor:layout.filebrowser.downloadProject')
+                : t('editor:layout.filebrowser.downloadProjectUnavailable')
+            }
+          >
+            <ViewportButton
+              onClick={() => handleDownloadProject(filesState.projectName.value, filesState.selectedDirectory.value)}
+              data-testid="files-panel-download-project-button"
+              icon={Download01Sm}
+              id="downloadProject"
+            />
+          </Tooltip>
+          <div className="flex h-7 items-center gap-2 rounded p-2">
+            <button className="p-1 text-text-secondary hover:text-text-primary">
               <FaList
-                className={twMerge(
-                  'h-5 w-5 cursor-pointer text-[#9CA0AA]',
-                  filesViewMode.value === 'list' && 'cursor-auto text-[#F5F5F5]'
-                )}
+                className={twMerge('h-5 w-5', filesViewMode.value === 'list' ? 'cursor-auto text-ui-primary' : '')}
                 onClick={() => filesViewMode.set('list')}
               />
+            </button>
+            <button className="p-1 text-text-secondary hover:text-text-primary">
               <Grid01Sm
-                className={twMerge(
-                  'h-5 w-5 cursor-pointer text-[#9CA0AA]',
-                  filesViewMode.value === 'icons' && 'cursor-auto text-[#F5F5F5]'
-                )}
+                className={twMerge('h-5 w-5', filesViewMode.value === 'icons' ? 'cursor-auto text-ui-primary' : '')}
                 onClick={() => filesViewMode.set('icons')}
               />
-            </div>
-          </>
-        }
-        uploadButton={
-          <>
-            <div className="w-fit">
-              <Button
-                size="l"
-                disabled={!showUploadButtons}
-                onClick={() =>
-                  inputFileWithAddToScene({
-                    projectName: filesState.projectName.value,
-                    directoryPath: filesState.selectedDirectory.get(NO_PROXY).slice(1)
-                  })
-                    .then(() => refreshDirectory())
-                    .catch((err) => {
-                      NotificationService.dispatchNotify(err.message, { variant: 'error' })
-                    })
-                }
-                data-testid="files-panel-upload-files-button"
-                className="disabled:bg-[#212226]"
-              >
-                <FolderSm />
-                <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFiles')}</span>
-              </Button>
-            </div>
-            <div className="w-fit">
-              <Button
-                size="l"
-                disabled={!showUploadButtons}
-                className="disabled:bg-[#212226]"
-                onClick={() =>
-                  inputFileWithAddToScene({
-                    projectName: filesState.projectName.value,
-                    directoryPath: filesState.selectedDirectory.get(NO_PROXY).slice(1),
-                    preserveDirectory: true
-                  })
-                    .then(refreshDirectory)
-                    .catch((err) => {
-                      NotificationService.dispatchNotify(err.message, { variant: 'error' })
-                    })
-                }
-                data-testid="files-panel-upload-folder-button"
-              >
-                <PlusCircleSm />
-                <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFolder')}</span>
-              </Button>
-            </div>
-          </>
-        }
-      />
-    </>
+            </button>
+          </div>
+        </>
+      }
+      uploadButton={
+        <>
+          <Button
+            size="l"
+            disabled={!showUploadButtons}
+            onClick={() =>
+              inputFileWithAddToScene({
+                projectName: filesState.projectName.value,
+                directoryPath: filesState.selectedDirectory.get(NO_PROXY).slice(1)
+              })
+                .then(() => refreshDirectory())
+                .catch((err) => {
+                  NotificationService.dispatchNotify(err.message, { variant: 'error' })
+                })
+            }
+            data-testid="files-panel-upload-files-button"
+            className="disabled:bg-[#212226]"
+          >
+            <FolderSm />
+            <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFiles')}</span>
+          </Button>
+          <Button
+            size="l"
+            disabled={!showUploadButtons}
+            className="disabled:bg-[#212226]"
+            onClick={() =>
+              inputFileWithAddToScene({
+                projectName: filesState.projectName.value,
+                directoryPath: filesState.selectedDirectory.get(NO_PROXY).slice(1),
+                preserveDirectory: true
+              })
+                .then(refreshDirectory)
+                .catch((err) => {
+                  NotificationService.dispatchNotify(err.message, { variant: 'error' })
+                })
+            }
+            data-testid="files-panel-upload-folder-button"
+          >
+            <PlusCircleSm />
+            <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFolder')}</span>
+          </Button>
+        </>
+      }
+    />
   )
 }
 
@@ -351,12 +340,12 @@ export function PanelToolbar({
 
   return (
     <div
-      className="mb-1 flex h-8 items-center justify-between gap-2 bg-[#1E1F22] bg-surface-4 px-2 py-1"
+      className="mb-1 flex items-center justify-between gap-2 bg-[#1E1F22] bg-surface-4 px-2 py-1"
       data-testid={dataTestIdJson?.topbarId}
     >
       {/* Tools */}
-      <div className="flex items-center divide-x divide-[#F5F5F5]">
-        <div className="flex h-6 items-center">
+      <div className="flex items-center gap-x-1 divide-x divide-ui-outline">
+        <div className="flex items-center">
           <div>
             <Tooltip content={t('editor:layout.filebrowser.back')}>
               <ViewportButton data-testid={dataTestIdJson.backButtonId} onClick={onBackDirectory} icon={ArrowLeftSm} />
@@ -376,8 +365,8 @@ export function PanelToolbar({
           </Tooltip>
           <ViewModeSettings />
         </div>
-        {utilsComponent && <div className="flex h-6 items-center">{utilsComponent}</div>}
-        <div className="flex h-6 items-center">{uploadButton}</div>
+        {utilsComponent && <div className="flex items-center">{utilsComponent}</div>}
+        <div className="flex items-center gap-x-2 px-1">{uploadButton}</div>
       </div>
 
       {/* Breadcrumb */}
