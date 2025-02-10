@@ -45,6 +45,11 @@ type benchmarkAsync = (testId: string, driver: Browser, skipIfJavaScriptCore: bo
 async function runScreenshotTest(testId: string, driver: Browser, skipIfJavaScriptCore: boolean) {
   const outputPath = `${perfTraceDir}/${testId}Screenshot.png`
 
+  console.log('waiting for load')
+  await new Promise((resolve) => {
+    setTimeout(resolve, 20000)
+  })
+
   const screenshot = await driver.takeScreenshot()
   const buffer = Buffer.from(screenshot, 'base64')
 
