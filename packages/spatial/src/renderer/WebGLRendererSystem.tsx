@@ -132,6 +132,11 @@ export const RendererComponent = defineComponent({
   },
 
   //TODO finish hashing this out
+  /**
+   * Returns whether a postprocessing render pass is already registered (uses reference counting)
+   * @param entity
+   * @param passType
+   */
   passExists<T extends Pass>(entity: Entity, passType: new (...args: any[]) => T): boolean {
     //return class name as string from constructor implicit name
     const key = passType.name
@@ -149,11 +154,18 @@ export const RendererComponent = defineComponent({
     return rendererComponent.passesFakeMap[key].pass as T
   },
 
+  /**
+   * Registers a postprocessing render pass, and either creates a new instance or increments the reference count of the existing one.
+   * @param rendererEntity entity of the RendererComponent
+   * @param passType The type of pass to be registered, uses this as a unique key
+   * @param passFunction A function that returns a new instance of the pass (for custom initialization needs)
+   * @returns The pass instance
+   */
   registerPass<T extends Pass>(
     rendererEntity: Entity,
     passType: new (...args: any[]) => T,
     passFunction: (rendererEntity: Entity) => Pass
-  ) {
+  ): T {
     //return class name as string from constructor implicit name
     const key = passType.name
 
@@ -166,8 +178,14 @@ export const RendererComponent = defineComponent({
       const generatedPass = passFunction(rendererEntity)
       rendererComponent.passesFakeMap[key].set({ pass: generatedPass, count: 1 })
     }
+    return rendererComponent.passesFakeMap[key].value.pass as T
   },
 
+  /**
+   * Unregisters a postprocessing render pass, and either decrements the reference count or removes the pass entirely.
+   * @param entity entity of the RendererComponent
+   * @param passType The type of pass to be unregistered, uses this as a unique key
+   */
   unregisterPass<T extends Pass>(entity: Entity, passType: new (...args: any[]) => T) {
     //return class name as string from constructor implicit name
     const key = passType.name
@@ -326,11 +344,16 @@ export const RendererComponent = defineComponent({
       }
 
       try {
-        if (rendererComponent.passes.value) {
-          for (const pass of Object.values(rendererComponent.passes.value as Record<string, Pass>)) {
-            effectComposer.addPass(pass)
+        if (rendererComponent.passesFakeMap.value) {
+          for (const pass of Object.values(rendererComponent.passesFakeMap.value as Record<string, PassCount>)) {
+            effectComposer.addPass(pass.pass)
           }
         }
+        // if (rendererComponent.passes.value) {
+        //   for (const pass of Object.values(rendererComponent.passes.value as Record<string, Pass>)) {
+        //     effectComposer.addPass(pass)
+        //   }
+        // }
         effectComposer.addPass(effectPass)
       } catch (e) {
         console.warn(e) /** @todo Implement user messaging Ex: (Can not use multiple convolution effects) */
