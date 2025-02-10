@@ -29,11 +29,7 @@ import { twMerge } from 'tailwind-merge'
 export interface OptionType {
   value: string | number
   label: string
-  Icon?: ({ className }: { className?: string }) => JSX.Element
-  /**text shown on the right end */
-
   selected?: boolean
-  className?: string
 }
 
 export interface SegmentedControlProps<T = string | number> {
