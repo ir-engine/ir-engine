@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useRef, useState } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 export interface OptionType {
   value: string | number
@@ -53,20 +54,23 @@ const SegmentedControl = ({ options, onChange, value, layout }: SegmentedControl
         <div ref={ref} className="relative w-full">
           <div
             tabIndex={0}
-            className={`relative my-0 grid w-full items-center gap-1 rounded-md bg-surface-1 !px-0.5 !py-0.5 focus:outline-none 
-              ${(layout === undefined || layout === 'single-row') && ' grid-flow-col grid-rows-1 '}
-              ${layout === 'two-row' && ' grid-flow-col grid-rows-2'}
-              ${layout === 'vertical' && ' grid-cols-1 '}
-            `}
+            className={twMerge(
+              'relative my-0 grid w-full items-center gap-1 rounded-md bg-surface-1 !px-0.5 !py-0.5 focus:outline-none',
+              (layout === undefined || layout === 'single-row') && ' grid-flow-col grid-rows-1 ',
+              layout === 'two-row' && ' grid-flow-col grid-rows-2',
+              layout === 'vertical' && ' grid-cols-1 '
+            )}
           >
             {options.length > 0 ? (
               options.map(({ value: currentValue, ...optionProps }, index) => (
                 <button
                   key={index}
-                  className={`!mx-0 !my-0 h-full flex-auto rounded-md p-0.5 text-sm
-                    ${currentValue === localValue && 'bg-surface-4 text-text-primary-button'} 
-                    ${currentValue !== localValue && 'bg-surface-2 text-text-inactive'}
-                    `}
+                  className={twMerge(
+                    '!mx-0 !my-0 h-full flex-auto rounded-md p-0.5 text-sm',
+                    currentValue === localValue
+                      ? 'bg-surface-4 text-text-primary-button'
+                      : 'bg-surface-2 text-text-inactive'
+                  )}
                   onClick={() => {
                     setLocalValue(currentValue)
                     onChange(currentValue)
