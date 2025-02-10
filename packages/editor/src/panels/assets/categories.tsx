@@ -96,7 +96,7 @@ const SideBarIcons = {
   files: File04Lg
 }
 
-function SidebarSection({ Icon, label, items = [], onClick, isActive }) {
+function SidebarSection({ Icon, label, items, onClick, isActive }) {
   const [isHover, setIsHover] = React.useState(false)
   const toggleDropdown = () => {
     if (isActive) {

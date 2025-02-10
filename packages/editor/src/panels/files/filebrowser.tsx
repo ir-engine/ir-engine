@@ -81,7 +81,7 @@ export function Browser() {
         $in: files.map((file) => file.key)
       },
       project: projectName.value,
-      $select: ['key', 'userId', 'stats', 'createdAt'],
+      $select: ['key', 'userId', 'user', 'stats', 'createdAt'],
       $limit: FILES_PAGE_LIMIT
     }
   })
@@ -92,7 +92,7 @@ export function Browser() {
     staticResourceDataQuery.data.forEach((data: StaticResourceType) => {
       additionalData[data.key] = {
         createdAt: new Date(data.createdAt).toLocaleString(),
-        author: data.userId || 'iR Starter Content',
+        author: data.user ? data.user.name : 'iR Starter Content',
         statistics: Object.keys({ ...data.stats }).length ? JSON.stringify(data.stats) : ''
       }
     })

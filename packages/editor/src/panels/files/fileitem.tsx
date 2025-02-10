@@ -138,11 +138,21 @@ function FileItemRow({
     >
       {availableTableColumns
         .filter((header) => selectedTableColumns[header])
-        .map((header, idx) => (
-          <td key={idx} style={{ fontSize: `${fontSize}px` }} data-testid={`files-panel-file-item-${header}`}>
-            {tableColumns[header]}
-          </td>
-        ))}
+        .map((header, idx) => {
+          let content = tableColumns[header]
+          if (header === 'statistics') {
+            content = (
+              <pre>
+                <code>{tableColumns[header]}</code>
+              </pre>
+            )
+          }
+          return (
+            <td key={idx} style={{ fontSize: `${fontSize}px` }} data-testid={`files-panel-file-item-${header}`}>
+              {content}
+            </td>
+          )
+        })}
     </tr>
   )
 }
