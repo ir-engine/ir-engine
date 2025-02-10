@@ -32,9 +32,10 @@ import { isTouchAvailable } from '@ir-engine/spatial/src/common/functions/Detect
 import { AnyButton, XRStandardGamepadButton } from '@ir-engine/spatial/src/input/state/ButtonState'
 import { XRState, isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
-
+import { IJoystickUpdateEvent } from 'react-joystick-component/build/lib/Joystick'
 import { AppState } from '../../services/AppService'
-import styles from './index.module.scss'
+import BasepadImage from './basepad.png'
+import StickypadImage from './stickypad.png'
 
 const triggerButton = (button: AnyButton, pressed: boolean): void => {
   const eventType = pressed ? 'touchgamepadbuttondown' : 'touchgamepadbuttonup'
@@ -42,7 +43,9 @@ const triggerButton = (button: AnyButton, pressed: boolean): void => {
   document.dispatchEvent(event)
 }
 
-const handleMove = (e) => {
+const handleMove = (e: IJoystickUpdateEvent) => {
+  if (!e.x || !e.y) return
+
   const event = new CustomEvent('touchstickmove', {
     detail: {
       stick: 'LeftStick',
@@ -101,7 +104,7 @@ export const TouchGamepad = () => {
   const buttons = buttonsConfig.map((value, index) => (
     <div
       key={index}
-      className={styles.controllButton + ' ' + styles[`gamepadButton_${value.label}`] + ' ' + styles.availableButton}
+      className="bg-[rgb(255,255,255, 0.4)] bottom-5 h-[3em] w-[3em] border border-white text-center text-xl shadow-[0_0_10px_rgba(255,255,0,1)]"
       onPointerDown={(): void => triggerButton(value.button, true)}
       onPointerUp={(): void => triggerButton(value.button, false)}
     >
@@ -111,9 +114,12 @@ export const TouchGamepad = () => {
 
   return (
     <>
-      <div className={styles.stickLeft}>
+      <div className="max-[478px]:left-[25px] max-[478px]:bottom-[30px] pointer-events-auto fixed bottom-[110px] left-0 w-1/2 [&>div]:m-auto">
         <Joystick
+          baseImage={BasepadImage}
+          stickImage={StickypadImage}
           size={100}
+          stickSize={27}
           throttle={100}
           minDistance={40}
           move={handleMove}
@@ -122,7 +128,9 @@ export const TouchGamepad = () => {
           stickColor="rgba(255, 255, 255, 0.8)"
         />
       </div>
-      {availableInteractable && <div className={styles.controlButtonContainer}>{buttons}</div>}
+      {availableInteractable && (
+        <div className="fixed bottom-[10px] right-[150px] rounded-[50%] leading-[4em]">{buttons}</div>
+      )}
     </>
   )
 }

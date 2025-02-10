@@ -30,7 +30,7 @@ import { useLoadLocation, useLoadScene } from '@ir-engine/client-core/src/compon
 import { AuthService } from '@ir-engine/client-core/src/user/services/AuthService'
 import { ThemeContextProvider } from '@ir-engine/client/src/pages/themeContext'
 import { useMutableState } from '@ir-engine/hyperflux'
-import { ViewerInteractions } from '../components/TopButtons'
+import { ViewerInteractions } from '../components/ViewerInteractions'
 
 import '@ir-engine/client-core/src/util/GlobalStyle.css'
 
