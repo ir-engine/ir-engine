@@ -62,7 +62,7 @@ const SegmentedControl = ({ options, onChange, value, layout }: SegmentedControl
                 <button
                   key={index}
                   className={twMerge(
-                    '!mx-0 !my-0 h-full flex-auto rounded-md p-0.5 text-sm',
+                    '!mx-0 !my-0 h-full flex-auto rounded-md px-10 py-1 text-sm',
                     currentValue === localValue
                       ? 'bg-surface-4 text-text-primary-button'
                       : 'bg-surface-2 text-text-inactive'
