@@ -24,9 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
+  ArrayCamera,
   DepthFormat,
   DepthStencilFormat,
   DepthTexture,
+  RenderTargetOptions,
   RGBAFormat,
   TextureDataType,
   UnsignedByteType,
@@ -36,8 +38,10 @@ import {
   WebGLMultiviewRenderTarget,
   WebGLRenderer,
   WebGLRenderTarget,
-  WebGLRenderTargetOptions
+  WebXRArrayCamera
 } from 'three'
+
+import { WebXRDepthSensing } from 'three/src/renderers/webxr/WebXRDepthSensing'
 
 import { getComponent } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, NO_PROXY } from '@ir-engine/hyperflux'
@@ -65,7 +69,7 @@ declare module 'three/src/renderers/WebGLRenderer.js' {
 
 declare module 'three' {
   class WebGLMultiviewRenderTarget extends WebGLRenderTarget {
-    constructor(width: number, height: number, numViews: number, options: WebGLRenderTargetOptions)
+    constructor(width: number, height: number, numViews: number, options: RenderTargetOptions)
     numViews: number
     static isWebGLMultiviewRenderTarget: true
   }
@@ -289,7 +293,7 @@ function createRenderTarget(
   } else {
     result = new WebGLRenderTarget(glProjLayer.textureWidth, glProjLayer.textureHeight, rtOptions)
   }
-  const renderTargetProperties = renderer.properties.get(result)
+  const renderTargetProperties = renderer.properties.get(result) as any // @todo - what type should this be?
   renderTargetProperties.__ignoreDepthValues = glProjLayer.ignoreDepthValues
 
   return result
@@ -386,6 +390,17 @@ export function createWebXRManager(renderer: WebGLRenderer) {
   result.hasEventListener = function (type: string, listener: EventListener) {}
   result.removeEventListener = function (type: string, listener: EventListener) {}
   result.dispatchEvent = function (event: Event) {}
+
+  const depthSensing = new WebXRDepthSensing()
+  const cameraXR = new ArrayCamera()
+
+  result.hasDepthSensing = function () {
+    return depthSensing.texture !== null
+  }
+
+  result.getDepthSensingMesh = function () {
+    return depthSensing.getMesh(cameraXR as WebXRArrayCamera)
+  }
 
   return result
 }
