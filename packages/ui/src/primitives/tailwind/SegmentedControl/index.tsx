@@ -53,7 +53,7 @@ const SegmentedControl = ({ options, onChange, value, layout }: SegmentedControl
         <div ref={ref} className="relative w-full">
           <div
             tabIndex={0}
-            className={`relative my-0 flex grid w-full items-center gap-1 rounded-md bg-surface-1 !px-0.5 !py-0.5 focus:outline-none 
+            className={`relative my-0 grid w-full items-center gap-1 rounded-md bg-surface-1 !px-0.5 !py-0.5 focus:outline-none 
               ${(layout === undefined || layout === 'single-row') && ' grid-flow-col grid-rows-1 '}
               ${layout === 'two-row' && ' grid-flow-col grid-rows-2'}
               ${layout === 'vertical' && ' grid-cols-1 '}
