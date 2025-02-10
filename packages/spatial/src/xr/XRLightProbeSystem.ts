@@ -26,10 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Color, CubeTexture, LightProbe, Vector3, WebGLCubeRenderTarget } from 'three'
 
-import { Engine } from '@ir-engine/ecs'
+import { Engine, createEntity } from '@ir-engine/ecs'
 import { getComponent, getMutableComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 

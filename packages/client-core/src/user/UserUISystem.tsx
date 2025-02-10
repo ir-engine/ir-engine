@@ -37,6 +37,7 @@ import { IFrameComponent } from '@ir-engine/engine/src/scene/components/IFrameCo
 import { NetworkState } from '@ir-engine/network'
 import { PopoverState } from '../common/services/PopoverState'
 import { InviteService } from '../social/services/InviteService'
+import { LoadingUISystemState } from '../systems/LoadingUISystem'
 import { ViewerMenuState } from '../util/ViewerMenuState'
 import EmbedFrame from './menus/avatar/EmbedFrame'
 
@@ -136,7 +137,9 @@ export const UserUISystem = defineSystem({
   insert: { after: PresentationSystemGroup },
   reactor: () => {
     const userID = useHookstate(getMutableState(EngineState)).userID.value
-    if (!userID) return null
+    const ready = useHookstate(getMutableState(LoadingUISystemState)).ready
+
+    if (!userID || !ready.value) return null
 
     return <UserSystemReactor />
   }

@@ -156,12 +156,6 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
     }
   }
 
-  const reset = () => {
-    if (mediaElement && media) {
-      setTime(mediaElement.element, media.seekTime.value)
-    }
-  }
-
   const mediaSourceChange = (val: string) => {
     setMediaSourceValue(val)
     if (val === 'Self') {
@@ -256,11 +250,6 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.video.description')}
       Icon={VideoNodeEditor.iconComponent}
     >
-      {/*<ProgressBar
-        value={0}
-        paused={false}
-        totalTime={0}
-      />*/}
       <InputGroup
         name="Media"
         label={t('editor:properties.video.lbl-media')}

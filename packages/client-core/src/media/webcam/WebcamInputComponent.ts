@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Types } from '@ir-engine/ecs'
+import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 
@@ -35,8 +35,8 @@ export type WebcamInputComponentType = {
 export const WebcamInputComponent = defineComponent({
   name: 'WebcamInputComponent',
 
-  schema: {
-    expressionValue: Types.f32,
-    expressionIndex: Types.ui8
+  storage: {
+    expressionValue: createResizableTypeArray(Float32Array),
+    expressionIndex: createResizableTypeArray(Uint8Array)
   }
 })

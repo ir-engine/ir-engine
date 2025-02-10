@@ -41,27 +41,29 @@ import {
   VideoTexture
 } from 'three'
 
-import { EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
+import { createEntity, EntityTreeComponent, removeEntity, useEntityContext, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
+  getComponent,
   getOptionalComponent,
   removeComponent,
   setComponent,
   useComponent,
+  useHasComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { defineState, NO_PROXY, useHookstate, useState } from '@ir-engine/hyperflux'
+import { defineState, NO_PROXY, State, useHookstate, useState } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { createPriorityQueue } from '@ir-engine/spatial/src/common/functions/PriorityQueue'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { MeshComponent, useMeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ContentFitTypeSchema } from '@ir-engine/spatial/src/transform/functions/ObjectFitFunctions'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { Vector2_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { clearErrors } from '../functions/ErrorFunctions'
 import { getTextureSize, PLANE_GEO, resizeVideoMesh, SideSchema, SPHERE_GEO } from './ImageComponent'
@@ -102,10 +104,10 @@ export const VideoComponent = defineComponent({
 
   schema: S.Object({
     side: SideSchema(DoubleSide),
-    size: T.Vec2({ x: 1, y: 1 }),
-    uvOffset: T.Vec2({ x: 0, y: 0 }),
-    uvScale: T.Vec2({ x: 1, y: 1 }),
-    alphaUVOffset: T.Vec2({ x: 0, y: 0 }),
+    size: T.Vec2(Vector2_One),
+    uvOffset: T.Vec2(),
+    uvScale: T.Vec2(Vector2_One),
+    alphaUVOffset: T.Vec2(),
     wrapS: WrappingSchema,
     wrapT: WrappingSchema,
     useAlpha: S.Bool(false),
@@ -138,31 +140,33 @@ export const VideoComponent = defineComponent({
 function VideoReactor() {
   const entity = useEntityContext()
   const video = useComponent(entity, VideoComponent)
-  const visible = useOptionalComponent(entity, VisibleComponent)
+  const visible = useHasComponent(entity, VisibleComponent)
   const mediaUUID = video.mediaUUID.value
   const mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID) || entity
   const media = useOptionalComponent(mediaEntity, MediaComponent)
-  const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
+  const hasMediaElementComponent = useHasComponent(mediaEntity, MediaElementComponent)
 
-  const videoMeshEntity = useHookstate(createEntity)
-  const mesh = useMeshComponent<PlaneGeometry | SphereGeometry, ShaderMaterial>(
-    videoMeshEntity.value,
-    PLANE_GEO,
-    () =>
-      new ShaderMaterial({
-        uniforms: {
-          map: { value: null },
-          alphaMap: { value: null },
-          uvOffset: { value: new Vector2(0, 0) },
-          uvScale: { value: new Vector2(1, 1) },
-          useAlpha: { value: false },
-          useAlphaInvert: { value: false },
-          alphaThreshold: { value: 0.5 },
-          alphaUVOffset: { value: new Vector2(0, 0) },
-          wrapS: { value: ClampToEdgeWrapping },
-          wrapT: { value: ClampToEdgeWrapping }
-        },
-        vertexShader: `
+  const videoMeshEntity = useHookstate(() => {
+    const videoMeshEntity = createEntity()
+    setComponent(
+      videoMeshEntity,
+      MeshComponent,
+      new Mesh(
+        PLANE_GEO(),
+        new ShaderMaterial({
+          uniforms: {
+            map: { value: null },
+            alphaMap: { value: null },
+            uvOffset: { value: new Vector2(0, 0) },
+            uvScale: { value: new Vector2(1, 1) },
+            useAlpha: { value: false },
+            alphaThreshold: { value: 0.5 },
+            useAlphaInvert: { value: false },
+            alphaUVOffset: { value: new Vector2(0, 0) },
+            wrapS: { value: ClampToEdgeWrapping },
+            wrapT: { value: ClampToEdgeWrapping }
+          },
+          vertexShader: `
         varying vec2 vUv;
         void main() {
           vUv = uv;
@@ -170,7 +174,7 @@ function VideoReactor() {
         }
 
       `,
-        fragmentShader: `
+          fragmentShader: `
       #ifdef USE_MAP
         uniform sampler2D map;
       #endif
@@ -237,18 +241,30 @@ function VideoReactor() {
         #endif
         }
       `
-      })
-  )
+        })
+      )
+    )
+    return videoMeshEntity
+  }).value
+
+  useEffect(() => {
+    return () => {
+      removeComponent(videoMeshEntity, MeshComponent)
+    }
+  }, [])
 
   const fitPlacementUvOffset = useState(new Vector2(0, 0))
   const fitPlacementUvScale = useState(new Vector2(1, 1))
 
+  const mesh = useComponent(videoMeshEntity, MeshComponent) as any as State<
+    Mesh<PlaneGeometry | SphereGeometry, ShaderMaterial>
+  >
+
   useEffect(() => {
-    const videoEntity = videoMeshEntity.value
+    const videoEntity = videoMeshEntity
     video.videoMeshEntity.set(videoEntity)
-    mesh.name.set(`video-group-${entity}`)
     setComponent(videoEntity, EntityTreeComponent, { parentEntity: entity })
-    setComponent(videoEntity, NameComponent, mesh.name.value)
+    setComponent(videoEntity, NameComponent, mesh?.name?.value)
     setComponent(videoEntity, MediaComponent)
     video.mediaUUID.set('' as EntityUUID)
 
@@ -258,18 +274,21 @@ function VideoReactor() {
   }, [])
 
   useEffect(() => {
-    setVisibleComponent(videoMeshEntity.value, !!visible)
+    mesh.name.set(`video-group-${entity}`)
+  }, [!!mesh])
+
+  useEffect(() => {
+    setVisibleComponent(videoMeshEntity, !!visible)
   }, [visible])
 
   // update side
   useEffect(() => {
     mesh.material.side.set(video.side.value)
-  }, [video.side])
+  }, [!!mesh, video.side])
 
   // update mesh
   useEffect(() => {
-    if (!media) return
-    if (!media.isCurrentTrackLoaded.value) return
+    if (!media || !media.isCurrentTrackLoaded.value) return
 
     const videoMesh = mesh.value as Mesh<PlaneGeometry | SphereGeometry, ShaderMaterial>
     resizeVideoMesh(videoMesh)
@@ -322,7 +341,7 @@ function VideoReactor() {
 
     fitPlacementUvOffset.set(uvOffset)
     fitPlacementUvScale.set(uvScale)
-  }, [video.size, video.fit, mesh.material, media?.isCurrentTrackLoaded])
+  }, [!!mesh, video.size, video.fit, video.texture, mesh?.material, media?.isCurrentTrackLoaded])
 
   useEffect(() => {
     mesh.geometry.set(video.projection.value === 'Flat' ? PLANE_GEO() : SPHERE_GEO())
@@ -336,24 +355,28 @@ function VideoReactor() {
       delete defines.USE_MAP
     }
     mesh.material.needsUpdate.set(true)
-  }, [video.texture, video.projection])
+  }, [!!mesh, video.texture, video.projection])
 
   useEffect(() => {
+    if (!mesh) return
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
     uniforms.wrapS.value = video.wrapS.value
-  }, [video.wrapS])
+  }, [!!mesh, video.wrapS])
 
   useEffect(() => {
+    if (!mesh) return
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
     uniforms.wrapT.value = video.wrapT.value
-  }, [video.wrapT])
+  }, [!!mesh, video.wrapT])
 
   useEffect(() => {
+    if (!mesh) return
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
     uniforms.useAlpha.value = video.useAlpha.value
-  }, [video.useAlpha])
+  }, [!!mesh, video.useAlpha])
 
   useEffect(() => {
+    if (!mesh) return
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
     uniforms.useAlphaInvert.value = video.useAlphaInvert.value
   }, [video.useAlphaInvert])
@@ -361,41 +384,42 @@ function VideoReactor() {
   useEffect(() => {
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
     uniforms.alphaThreshold.value = video.alphaThreshold.value
-  }, [video.alphaThreshold])
+  }, [!!mesh, video.alphaThreshold])
 
   useEffect(() => {
+    if (!mesh) return
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
     uniforms.uvOffset.value = new Vector2(
       video.uvOffset.x.value + fitPlacementUvOffset.x.value,
       video.uvOffset.y.value + fitPlacementUvOffset.y.value
     )
-  }, [video.uvOffset, fitPlacementUvOffset])
+  }, [!!mesh, video.uvOffset, fitPlacementUvOffset])
 
   useEffect(() => {
+    if (!mesh) return
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
     uniforms.uvScale.value = new Vector2(
       video.uvScale.x.value * fitPlacementUvScale.x.value,
       video.uvScale.y.value * fitPlacementUvScale.y.value
     )
-  }, [video.uvScale, fitPlacementUvScale])
+  }, [!!mesh, video.uvScale, fitPlacementUvScale])
 
   useEffect(() => {
+    if (!mesh) return
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
     uniforms.alphaUVOffset.value = video.alphaUVOffset.value
-  }, [video.alphaUVOffset])
+  }, [!!mesh, video.alphaUVOffset])
 
   useEffect(() => {
-    if (!mediaEntity || !mediaElement) {
-      video.texture.set(null)
-      return
-    }
-    const sourceVideoComponent = getOptionalComponent(entity, VideoComponent)
+    if (!mesh || !mediaEntity || !hasMediaElementComponent) return
+    const sourceVideoComponent = getOptionalComponent(mediaEntity, VideoComponent)
     const sourceMeshComponent = getOptionalComponent(mediaEntity, MeshComponent)
-    const sourceTexture = sourceVideoComponent?.texture ? sourceVideoComponent?.texture : null
+    const mediaElement = getComponent(mediaEntity, MediaElementComponent)
 
+    const sourceTexture = sourceVideoComponent?.texture ? sourceVideoComponent?.texture : null
     if (video.texture.value) {
       //needed to set up the self-referencing source video texture
-      ;(video.texture.value.image as HTMLVideoElement) = mediaElement.element.value as HTMLVideoElement
+      ;(video.texture.value.image as HTMLVideoElement) = mediaElement.element as HTMLVideoElement
 
       //if we're a videoComponent pointing to a different source, this will update the initial texture when we set source
       if (sourceVideoComponent) {
@@ -407,7 +431,7 @@ function VideoReactor() {
         mesh.material.set(sourceMeshComponent.material as ShaderMaterial)
         clearErrors(entity, VideoComponent)
       } else {
-        video.texture.set(new VideoTexturePriorityQueue(mediaElement.element.value as HTMLVideoElement))
+        video.texture.set(new VideoTexturePriorityQueue(mediaElement.element as HTMLVideoElement))
         VideoComponent.uniqueVideoEntities.push(mediaEntity)
         clearErrors(entity, VideoComponent)
         return () => {
@@ -417,6 +441,7 @@ function VideoReactor() {
         }
       }
     }
-  }, [video.mediaUUID, mediaEntity, mediaElement])
+  }, [!!mesh, video.texture, video.mediaUUID, mediaEntity, hasMediaElementComponent])
+
   return null
 }

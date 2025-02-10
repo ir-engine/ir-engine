@@ -27,22 +27,24 @@ import { useEffect } from 'react'
 import { BufferGeometry, DirectionalLight, Float32BufferAttribute } from 'three'
 
 import {
+  EntityTreeComponent,
+  S,
+  UndefinedEntity,
+  createEntity,
   defineComponent,
   getMutableComponent,
   hasComponent,
   removeComponent,
+  removeEntity,
   setComponent,
   useComponent,
+  useEntityContext,
   useOptionalComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+} from '@ir-engine/ecs'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
-import { EntityTreeComponent, UndefinedEntity } from '@ir-engine/ecs'
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ActiveHelperComponent } from '../../../common/ActiveHelperComponent'
 import { mergeBufferGeometries } from '../../../common/classes/BufferGeometryUtils'
-import { useDisposable } from '../../../resources/resourceHooks'
 import { T } from '../../../schema/schemaFunctions'
 import { RendererState } from '../../RendererState'
 import { LineSegmentComponent } from '../LineSegmentComponent'
@@ -125,12 +127,12 @@ export const DirectionalLightComponent = defineComponent({
     const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const debugEnabled = renderState.nodeHelperVisibility
     const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
-    const [light] = useDisposable(DirectionalLight, entity)
+    const light = useHookstate(() => new DirectionalLight()).value as DirectionalLight
     const helperEntity = useHookstate(UndefinedEntity)
 
-    useImmediateEffect(() => {
+    useEffect(() => {
       setComponent(entity, LightTagComponent)
-      directionalLightComponent.light.set(light)
+      getMutableComponent(entity, DirectionalLightComponent).light.set(light)
       setComponent(entity, ObjectComponent, light)
 
       return () => {

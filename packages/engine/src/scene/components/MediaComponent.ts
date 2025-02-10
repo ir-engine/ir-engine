@@ -23,17 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type Hls from 'hls.js'
-import { useEffect, useLayoutEffect } from 'react'
-import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
-
-import { ComponentType, EngineState } from '@ir-engine/ecs'
+import { ComponentType, EngineState, entityExists, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
-  getOptionalMutableComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -41,18 +36,19 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { entityExists, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { NO_PROXY, State, getState, isClient, useMutableState } from '@ir-engine/hyperflux'
-import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
-import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
-
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { NO_PROXY, State, getState, isClient, useMutableState } from '@ir-engine/hyperflux'
 import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
+import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
+import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
+import type Hls from 'hls.js'
+import { useEffect, useLayoutEffect } from 'react'
+import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AudioState } from '../../audio/AudioState'
@@ -96,10 +92,6 @@ export const MediaElementComponent = defineComponent({
     abortController: S.Class(() => new AbortController())
   }),
 
-  toJSON: () => {
-    return null! as { element: HTMLMediaElement }
-  },
-
   onSet: (entity, component, json) => {
     if (!json) return
     if (typeof json.element === 'object' && json.element !== component.element.get({ noproxy: true }))
@@ -139,8 +131,7 @@ export const MediaComponent = defineComponent({
   schema: S.Object({
     controls: S.Bool(false),
     synchronize: S.Bool(true),
-    autoplayEditor: S.Bool(false), //false = personal preference, this is super annoying when it just starts playing once added to a scene while editing
-    autoplayRuntime: S.Bool(false), //false
+    autoplay: S.Bool(false), //false = personal preference, this is super annoying when it just starts playing once added to a scene while editing
     muteEditor: S.Bool(false), //false
     uiOffset: T.Vec3(),
     xruiEntity: S.Entity(),
@@ -169,28 +160,14 @@ export const MediaComponent = defineComponent({
     // autoStartTime: -1
   }),
 
-  toJSON: (component) => {
-    return {
-      controls: component.controls,
-      autoplayEditor: component.autoplayEditor,
-      autoplayRuntime: component.autoplayRuntime,
-      muteEditor: component.muteEditor,
-      resources: [...component.resources].filter(Boolean), // filter empty strings
-      volume: component.volume,
-      uiOffset: component.uiOffset,
-      synchronize: component.synchronize,
-      playMode: component.playMode,
-      isMusic: component.isMusic,
-      seekTime: component.seekTime // we can start media from a specific point if needed
-    }
-  },
-
   reactor: MediaReactor,
 
   errors: ['LOADING_ERROR', 'UNSUPPORTED_ASSET_CLASS', 'INVALID_URL']
 })
 
 export function MediaReactor() {
+  if (!isClient) return null
+
   const entity = useEntityContext()
   const media = useComponent(entity, MediaComponent)
   const mediaElement = useOptionalComponent(entity, MediaElementComponent)
@@ -198,11 +175,10 @@ export function MediaReactor() {
   const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
   const rendererEntity = useRendererEntity(entity)
 
-  if (!isClient) return null
-
   function validateTime() {
-    const mediaElementComponent = getOptionalMutableComponent(entity, MediaElementComponent)
-    if (!mediaElementComponent) return
+    if (!hasComponent(entity, MediaElementComponent)) return
+    const mediaElementComponent = getMutableComponent(entity, MediaElementComponent)
+
     const element = mediaElementComponent.element.value as HTMLMediaElement
     if (element.currentTime < media.seekTime.value) {
       setTime(mediaElementComponent.element, media.seekTime.value)
@@ -211,7 +187,7 @@ export function MediaReactor() {
 
   const getAutoPlay = () => {
     const isEditing = getState(EngineState).isEditing
-    return isEditing ? media.autoplayEditor.value : media.autoplayRuntime.value
+    return isEditing ? false : media.autoplay.value
   }
 
   useEffect(() => {
@@ -226,11 +202,11 @@ export function MediaReactor() {
       const mediaComponent = getOptionalComponent(entity, MediaElementComponent)
 
       // handle when we dont have autoplay enabled but have programatically started playback
-      if (!media.autoplayRuntime.value && !media.paused.value) mediaComponent?.element.play()
+      if (!media.autoplay.value && !media.paused.value) mediaComponent?.element.play()
       // handle when we have autoplay enabled but have paused playback
-      if (media.autoplayRuntime.value && media.paused.value) media.paused.set(false)
+      if (media.autoplay.value && media.paused.value) media.paused.set(false)
       // handle when we have autoplay and mediaComponent is paused
-      if (media.autoplayRuntime.value && !media.paused.value && mediaComponent?.element.paused) {
+      if (media.autoplay.value && !media.paused.value && mediaComponent?.element.paused) {
         mediaComponent.element.play()
         const autoplay = getAutoPlay()
         media.paused.set(!autoplay)
@@ -291,7 +267,7 @@ export function MediaReactor() {
     if (!mediaElement) return
     const autoPlay = getAutoPlay()
     media.paused.set(!autoPlay)
-  }, [media.autoplayEditor, media.autoplayRuntime, mediaElement, getState(EngineState).isEditing])
+  }, [media.autoplay, mediaElement, getState(EngineState).isEditing])
 
   useEffect(() => {
     if (!mediaElement) return

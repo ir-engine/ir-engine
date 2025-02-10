@@ -36,7 +36,7 @@ import {
   useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
-import { defineState, getMutableState, getState, isClient, useMutableState } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 import {
   createPriorityQueue,
   createSortAndApplyPriorityQueue
@@ -86,8 +86,13 @@ export const AvatarAnimationState = defineState({
 })
 
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
-const avatarComponentQuery = defineQuery([AvatarComponent, RigidBodyComponent, AvatarAnimationComponent])
-const avatarRigQuery = defineQuery([AvatarRigComponent])
+const avatarComponentQuery = defineQuery([
+  AnimationComponent,
+  AvatarComponent,
+  RigidBodyComponent,
+  AvatarAnimationComponent
+])
+const avatarRigQuery = defineQuery([AnimationComponent, AvatarRigComponent])
 
 const _vector3 = new Vector3()
 
@@ -266,10 +271,7 @@ export const AvatarAnimationSystem = defineSystem({
   uuid: 'ee.engine.AvatarAnimationSystem',
   insert: { after: AnimationSystem },
   execute,
-  reactor: () => {
-    if (!isClient) return null
-    return AvatarAnimationSystemReactor()
-  }
+  reactor: AvatarAnimationSystemReactor
 })
 
 const skinnedMeshQuery = defineQuery([SkinnedMeshComponent])
