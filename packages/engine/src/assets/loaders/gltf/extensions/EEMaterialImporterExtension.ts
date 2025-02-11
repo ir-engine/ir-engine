@@ -28,10 +28,12 @@ import matches from 'ts-matches'
 
 import { getOptionalComponent, UUIDComponent } from '@ir-engine/ecs'
 import {
-  MaterialPrototypeObjectConstructor,
+  MaterialPrototypeConstructor,
+  MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 
+import { getState } from '@ir-engine/hyperflux'
 import {
   injectMaterialDefaults,
   PrototypeNotFoundError
@@ -52,12 +54,9 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     const materialDef = parser.json.materials![materialIndex]
     if (!materialDef.extensions?.[this.name]) return null
     const eeMaterial: EEMaterialExtensionType = materialDef.extensions[this.name] as any
-    let constructor: MaterialPrototypeObjectConstructor | null = null
+    let constructor: MaterialPrototypeConstructor | null = null
     try {
-      // constructor = getComponent(
-      //   getPrototypeEntityFromName(eeMaterial.prototype)!,
-      //   MaterialPrototypeComponent
-      // ).prototypeConstructor
+      constructor = getState(MaterialPrototypeDefinitions)[eeMaterial.prototype].prototypeConstructor
     } catch (e) {
       if (e instanceof PrototypeNotFoundError) {
         console.warn('prototype ' + eeMaterial.prototype + ' not found')
@@ -67,9 +66,9 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     }
     return constructor
       ? (function (args) {
-          // const material = new constructor![eeMaterial.prototype](args)
-          // typeof eeMaterial.uuid === 'string' && (material.uuid = eeMaterial.uuid)
-          // return material
+          const material = new constructor(args)
+          typeof eeMaterial.uuid === 'string' && (material.uuid = eeMaterial.uuid)
+          return material
         } as unknown as typeof Material)
       : null
   }
