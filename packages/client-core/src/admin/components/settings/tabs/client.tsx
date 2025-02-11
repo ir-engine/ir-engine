@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { clientSettingPath, ClientSettingType } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, State, useHookstate } from '@ir-engine/hyperflux'
@@ -127,8 +126,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
     <Accordion
       title={t('admin:components.setting.client.header')}
       subtitle={t('admin:components.setting.client.subtitle')}
-      expandIcon={<HiPlusSmall />}
-      shrinkIcon={<HiMinus />}
       ref={ref}
       open={open}
     >
@@ -245,7 +242,6 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
         />
 
         <Toggle
-          containerClassName="justify-start col-span-full"
           label={t('admin:components.setting.homepageLinkButtonEnabled')}
           value={settings.homepageLinkButtonEnabled.value}
           onChange={(value) => settings.homepageLinkButtonEnabled.set(value)}
