@@ -37,10 +37,7 @@ export const featureFlagSettingMethods = ['find', 'get', 'create', 'patch', 'rem
 // Main data model schema
 export const featureFlagSettingSchema = Type.Object(
   {
-    id: Type.String({
-      format: 'uuid'
-    }),
-    flagName: Type.String(),
+    id: Type.String(),
     flagValue: Type.Boolean(),
     userId: Type.Optional(
       TypedString<UserID>({
@@ -55,19 +52,22 @@ export const featureFlagSettingSchema = Type.Object(
 export interface FeatureFlagSettingType extends Static<typeof featureFlagSettingSchema> {}
 
 // Schema for creating new entries
-export const featureFlagSettingDataSchema = Type.Pick(featureFlagSettingSchema, ['flagName', 'flagValue', 'userId'], {
+export const featureFlagSettingDataSchema = Type.Pick(featureFlagSettingSchema, ['id', 'flagValue', 'userId'], {
   $id: 'FeatureFlagSettingData'
 })
 export interface FeatureFlagSettingData extends Static<typeof featureFlagSettingDataSchema> {}
 
 // Schema for updating existing entries
-export const featureFlagSettingPatchSchema = Type.Partial(featureFlagSettingSchema, {
-  $id: 'FeatureFlagSettingPatch'
-})
+export const featureFlagSettingPatchSchema = Type.Partial(
+  Type.Pick(featureFlagSettingSchema, ['id', 'flagValue', 'userId']),
+  {
+    $id: 'FeatureFlagSettingPatch'
+  }
+)
 export interface FeatureFlagSettingPatch extends Static<typeof featureFlagSettingPatchSchema> {}
 
 // Schema for allowed query properties
-export const featureFlagSettingQueryProperties = Type.Pick(featureFlagSettingSchema, ['id', 'flagName', 'flagValue'])
+export const featureFlagSettingQueryProperties = Type.Pick(featureFlagSettingSchema, ['id', 'flagValue'])
 export const featureFlagSettingQuerySchema = Type.Intersect(
   [
     querySyntax(featureFlagSettingQueryProperties),
