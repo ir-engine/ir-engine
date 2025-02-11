@@ -24,14 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
-import { getState, startReactor } from '@ir-engine/hyperflux'
-import { useEffect } from 'react'
+import { getState } from '@ir-engine/hyperflux'
 import { BufferGeometry, NormalBufferAttributes } from 'three'
 import { ATTRIBUTES, WEBGL_COMPONENT_TYPES } from '../assets/loaders/gltf/GLTFConstants'
 import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
-import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
-import { GLTFLoaderFunctions } from './GLTFLoaderFunctions'
+import { GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
 
 export const KHR_DRACO_MESH_COMPRESSION = {
   decodePrimitive(options: GLTFParserOptions, primitive: GLTF.IMeshPrimitive) {
@@ -61,33 +59,22 @@ export const KHR_DRACO_MESH_COMPRESSION = {
       }
     }
 
-    return new Promise<BufferGeometry<NormalBufferAttributes>>(function (resolve) {
-      /**
-       * Using an inline reactor here allows us to use reference counting & resource caching,
-       * and release the uncompressed buffer as soon as it is no longer required
-       */
-      const reactor = startReactor(() => {
-        const bufferView = GLTFLoaderFunctions.useLoadBufferView(options, bufferViewIndex)
-        useEffect(() => {
-          if (!bufferView) return
-          const dracoLoader = getState(AssetLoaderState).gltfLoader.dracoLoader!
-          dracoLoader.preload().decodeDracoFile(
-            bufferView,
-            function (geometry) {
-              for (const attributeName in geometry.attributes) {
-                const attribute = geometry.attributes[attributeName]
-                const normalized = attributeNormalizedMap[attributeName]
-                if (normalized !== undefined) attribute.normalized = normalized
-              }
-              resolve(geometry)
-              reactor.stop()
-            },
-            threeAttributeMap,
-            attributeTypeMap
-          )
-        }, [bufferView])
-        return null
-      })
+    return new Promise<BufferGeometry<NormalBufferAttributes>>(async (resolve) => {
+      const bufferView = (await GLTFLoaderFunctions.loadBufferView(options, bufferViewIndex))!
+      const dracoLoader = getState(AssetLoaderState).gltfLoader.dracoLoader!
+      dracoLoader.preload().decodeDracoFile(
+        bufferView,
+        function (geometry) {
+          for (const attributeName in geometry.attributes) {
+            const attribute = geometry.attributes[attributeName]
+            const normalized = attributeNormalizedMap[attributeName]
+            if (normalized !== undefined) attribute.normalized = normalized
+          }
+          resolve(geometry)
+        },
+        threeAttributeMap,
+        attributeTypeMap
+      )
     })
   }
 }
@@ -158,7 +145,7 @@ export const EXT_MESHOPT_COMPRESSION = {
             })
           }
         })
-    ] as [number | null, (bufferView: ArrayBuffer) => Promise<ArrayBuffer | null>]
+    ] as [number, (bufferView: ArrayBuffer) => Promise<ArrayBuffer>]
   }
 }
 
@@ -170,16 +157,11 @@ type GLTFExtensionType = {
   loadBuffer?: (
     options: GLTFParserOptions,
     index: number
-  ) => [number | null, (bufferView: ArrayBuffer) => Promise<ArrayBuffer | null>]
+  ) => [number, (bufferView: ArrayBuffer) => Promise<ArrayBuffer>]
 }
 
-export const getBufferIndex = (options: GLTFParserOptions, bufferViewIndex?: number) => {
+export const getBufferIndex = (options: GLTFParserOptions, bufferViewIndex: number) => {
   const json = options.document
-  if (typeof bufferViewIndex !== 'number')
-    return [null, async (buffer: ArrayBuffer) => buffer] as [
-      number | null,
-      (bufferView: ArrayBuffer) => Promise<ArrayBuffer | null>
-    ]
   const bufferViewDef = json.bufferViews![bufferViewIndex]
   for (const extensionName in bufferViewDef.extensions) {
     const extension = GLTFExtensions[extensionName]
@@ -194,7 +176,7 @@ export const getBufferIndex = (options: GLTFParserOptions, bufferViewIndex?: num
       const byteOffset = bufferViewDef!.byteOffset || 0
       return buffer.slice(byteOffset, byteOffset + byteLength)
     }
-  ] as [number | null, (bufferView: ArrayBuffer) => Promise<ArrayBuffer | null>]
+  ] as [number, (bufferView: ArrayBuffer) => Promise<ArrayBuffer>]
 }
 
 export const GLTFExtensions = {

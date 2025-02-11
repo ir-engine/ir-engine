@@ -26,20 +26,23 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, Mesh, MeshBasicMaterial, ShadowMaterial } from 'three'
 
-import { EntityTreeComponent } from '@ir-engine/ecs'
 import {
+  Engine,
+  Entity,
+  EntityTreeComponent,
+  S,
+  createEntity,
   defineComponent,
   getComponent,
   getMutableComponent,
+  removeEntity,
   setComponent,
-  useComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
-import { Entity } from '@ir-engine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+  useComponent,
+  useEntityContext
+} from '@ir-engine/ecs'
+
 import { getState } from '@ir-engine/hyperflux'
 
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../common/NameComponent'
 import { MeshComponent } from '../renderer/components/MeshComponent'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'

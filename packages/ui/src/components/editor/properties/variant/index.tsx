@@ -28,67 +28,22 @@ import { useTranslation } from 'react-i18next'
 import { MdDeblur } from 'react-icons/md'
 
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { Entity } from '@ir-engine/ecs/src/Entity'
 import { EditorComponentType, commitProperties, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import { loadResource } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
 import {
   Devices,
   Heuristic,
   VariantComponent,
   VariantLevel
 } from '@ir-engine/engine/src/scene/components/VariantComponent'
-import { State, getState } from '@ir-engine/hyperflux'
-import {
-  ResourceManager,
-  ResourceState,
-  ResourceStatus,
-  ResourceType
-} from '@ir-engine/spatial/src/resources/ResourceState'
+import { State } from '@ir-engine/hyperflux'
 import Button from '../../../../primitives/tailwind/Button'
 import InputGroup from '../../input/Group'
 import ModelInput from '../../input/Model'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
 import PaginatedList from '../../layout/PaginatedList'
-
-const buildBudgetVariantMetadata = (
-  level: VariantLevel,
-  signal: AbortSignal,
-  callback: (maxTextureSize: number, vertexCount: number) => void
-) => {
-  const src = level.src
-  const resources = getState(ResourceState).resources
-  if (resources[src] && resources[src].status == ResourceStatus.Loaded) {
-    const metadata = getState(ResourceState).resources[src].metadata as { verts: number; textureWidths: number[] }
-    const maxTextureSize = metadata.textureWidths ? Math.max(...metadata.textureWidths) : 0
-    const verts = metadata.verts
-    callback(maxTextureSize, verts)
-    return
-  }
-
-  loadResource(
-    src,
-    ResourceType.GLTF,
-    UndefinedEntity,
-    () => {
-      const metadata = getState(ResourceState).resources[src].metadata as { verts: number; textureWidths: number[] }
-      const maxTextureSize = metadata.textureWidths ? Math.max(...metadata.textureWidths) : 0
-      const verts = metadata.verts
-      callback(maxTextureSize, verts)
-      ResourceManager.unload(src, UndefinedEntity)
-    },
-    () => {},
-    (error) => {
-      console.warn(
-        `VariantNodeEditor:buildBudgetVariantMetadata: error loading ${src} to build variant metadata`,
-        error
-      )
-      callback(0, 0)
-    },
-    signal
-  )
-}
 
 export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
   const { t } = useTranslation()

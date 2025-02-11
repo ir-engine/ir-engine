@@ -342,7 +342,7 @@ function ResourceItems() {
                     className="mr-auto flex items-center justify-center px-0 py-2 text-xs text-[#42454D]"
                     onClick={() => handleScrollToPage(i - 1)} // Scroll to the previous page
                   >
-                    {t('editor:layout.scene-assets.previous')}
+                    ▲ {t('editor:layout.scene-assets.previous')}
                   </button>
                 )}
                 <span className="ml-auto text-[#42454D]">

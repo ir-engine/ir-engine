@@ -28,7 +28,13 @@ import { useTranslation } from 'react-i18next'
 import { MdOutlinePanTool } from 'react-icons/md'
 
 import { EntityTreeComponent, getOptionalComponent, useQuery, UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  hasComponent,
+  LayerComponents,
+  Layers,
+  useComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   commitProperties,
   commitProperty,
@@ -77,7 +83,9 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
       EditorControlFunctions.addOrRemoveComponent([props.entity], InputComponent, true)
     }
 
-    const entityCallbacks = getOptionalComponent(props.entity, CallbackComponent)
+    const simulationEntity = LayerComponents[Layers.Authoring].refs[props.entity]
+
+    const entityCallbacks = getOptionalComponent(simulationEntity, CallbackComponent)
     if (entityCallbacks) {
       options.push({
         label: 'Self',
@@ -94,7 +102,7 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
       })
     }
     for (const entity of callbackQuery) {
-      if (entity === props.entity || !hasComponent(entity, EntityTreeComponent)) continue
+      if (entity === simulationEntity || !hasComponent(entity, EntityTreeComponent)) continue
       const callbacks = getComponent(entity, CallbackComponent)
       options.push({
         label: getComponent(entity, NameComponent),

@@ -26,9 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { PerspectiveCamera, Vector2 } from 'three'
 
 import { getCanvasBlob } from '@ir-engine/client-core/src/common/utils'
-import { EntityTreeComponent } from '@ir-engine/ecs'
+import { EntityTreeComponent, createEntity } from '@ir-engine/ecs'
 import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@ir-engine/hyperflux'

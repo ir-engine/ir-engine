@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-
 // TODO: Current version of web-worker does not support importScripts on server side
 // Related PR: https://github.com/developit/web-worker/pull/9
 
@@ -42,7 +40,7 @@ onmessage = function ({ data }) {
     }
     options.lazyGeneration = false
     const bvh = new MeshBVHLib.MeshBVH(geometry, options)
-    const serialized = MeshBVHLib.MeshBVH.serialize(bvh, { copyIndexBuffer: false })
+    const serialized = MeshBVHLib.MeshBVH.serialize(bvh, { cloneBuffers: false, indirect: true })
     postMessage(
       {
         error: null,

@@ -26,14 +26,13 @@ Infinite Reality Engine. All Rights Reserved.
 import type { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 
-import { Engine, UndefinedEntity } from '@ir-engine/ecs'
+import { Engine, UndefinedEntity, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { NO_PROXY, getState, useImmediateEffect } from '@ir-engine/hyperflux'
 
 import { EntityTreeComponent } from '@ir-engine/ecs'

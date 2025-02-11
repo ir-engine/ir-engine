@@ -34,68 +34,16 @@ import {
   setComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { applyIncomingActions, startReactor } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { act, render } from '@testing-library/react'
-import React from 'react'
-import { AnimationMixer } from 'three'
 import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { createTestGLTFEntity } from '../functions/retargetingFunctions.test'
-import { AvatarAnimationSystemReactor, setupMixamoAnimation } from '../systems/AvatarAnimationSystem'
 import { AnimationComponent } from './AnimationComponent'
-import { AvatarAnimationComponent, AvatarRigComponent } from './AvatarAnimationComponent'
-import { AvatarComponent } from './AvatarComponent'
+import { AvatarRigComponent } from './AvatarAnimationComponent'
 
-const default_url = 'packages/projects/default-project/assets'
-const rings_gltf = default_url + '/rings.glb'
-const animation_pack = default_url + '/animations/emotes.glb'
-const vrm = default_url + '/avatars/male_01.vrm'
-
-/**Used to mock non user networked animated avatars */
-export const mockAnimatedAvatar = async () => {
-  const animationPackEntity = createTestGLTFEntity()
-  const { rerender, unmount } = render(<></>)
-
-  setComponent(animationPackEntity, UUIDComponent, generateEntityUUID())
-  setComponent(animationPackEntity, GLTFComponent, { src: animation_pack })
-  setComponent(animationPackEntity, NameComponent, 'animationPack')
-
-  const vrmEntity = createTestGLTFEntity()
-
-  applyIncomingActions()
-  await act(async () => rerender(<></>))
-
-  setComponent(vrmEntity, UUIDComponent, generateEntityUUID())
-  setComponent(vrmEntity, GLTFComponent, { src: vrm })
-  setComponent(vrmEntity, AvatarRigComponent)
-  setComponent(vrmEntity, AvatarAnimationComponent)
-  setComponent(vrmEntity, AvatarComponent)
-  startReactor(AvatarAnimationSystemReactor)
-  applyIncomingActions()
-  //extra wait for animation component to prevent race conditions
-  await vi.waitUntil(
-    () => {
-      return (
-        getOptionalComponent(animationPackEntity, AnimationComponent) &&
-        getOptionalComponent(vrmEntity, AvatarRigComponent)?.vrm?.scene
-      )
-    },
-    { timeout: 20000 }
-  )
-
-  setupMixamoAnimation(animationPackEntity)
-
-  setComponent(vrmEntity, AnimationComponent, {
-    animations: getComponent(animationPackEntity, AnimationComponent).animations,
-    mixer: new AnimationMixer(getComponent(vrmEntity, AvatarRigComponent).vrm.scene)
-  })
-
-  return vrmEntity
-}
+import { createTestGLTFEntity, mockAnimatedAvatar, rings_gltf } from '../../../tests/avatar/mockAnimatedAvatar'
+import { startEngineReactor } from '../../../tests/startEngineReactor'
 
 describe('AnimationComponent', () => {
   describe('ECS PropertyBinding', () => {
@@ -103,6 +51,7 @@ describe('AnimationComponent', () => {
 
     beforeEach(() => {
       createEngine()
+      startEngineReactor()
     })
 
     afterEach(() => {
@@ -115,9 +64,6 @@ describe('AnimationComponent', () => {
       setComponent(entity, UUIDComponent, generateEntityUUID())
       setComponent(entity, GLTFComponent, { src: rings_gltf })
 
-      const { rerender, unmount } = render(<></>)
-      applyIncomingActions()
-      await act(async () => rerender(<></>))
       //extra wait for animation component to prevent race conditions
       await vi.waitFor(
         () => {
@@ -153,12 +99,9 @@ describe('AnimationComponent', () => {
         const animatedW = animatedFlatQuaternions[i + 3]
         assert(startX + startY + startZ + startW !== animatedX + animatedY + animatedZ + animatedW)
       }
-      unmount()
     })
 
     it('should bind animation tracks to rig entities based on VRM schema', async () => {
-      const { rerender, unmount } = render(<></>)
-
       const vrmEntity = await mockAnimatedAvatar()
 
       const rig = getComponent(vrmEntity, AvatarRigComponent).entitiesToBones

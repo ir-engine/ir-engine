@@ -317,7 +317,7 @@
           "weight": 1
         },
         "EE_envmap": {
-          "type": "Texture",
+          "type": "Skybox",
           "envMapTextureType": "Equirectangular",
           "envMapSourceColor": 1193046,
           "envMapSourceURL": "__$project$__/ir-engine/default-project/assets/sky_skybox.jpg",
