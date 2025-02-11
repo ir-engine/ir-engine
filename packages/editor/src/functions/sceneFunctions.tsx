@@ -76,9 +76,6 @@ export const saveSceneGLTF = async (
   const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
 
   if (saveAs) {
-    const existingScene = await API.instance.service(staticResourcePath).find({
-      query: { key: `${currentSceneDirectory}/${sceneName}.gltf`, $limit: 1 }
-    })
     const isSceneExists = await confirmSceneExists(sceneFile)
     if (isSceneExists) throw new Error(i18n.t('editor:errors.sceneAlreadyExists'))
   }
