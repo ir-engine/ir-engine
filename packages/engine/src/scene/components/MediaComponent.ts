@@ -148,8 +148,8 @@ export const MediaComponent = defineComponent({
     waiting: S.Bool(false),
     track: S.Number(-1),
     currentTrackTime: S.Number(0),
-    currentTrackDuration: S.Number(0),
-    isCurrentTrackLoaded: S.Bool(false)
+    currentTrackDuration: S.NonSerialized(S.Number(0)),
+    isCurrentTrackLoaded: S.NonSerialized(S.Bool(false))
     /**
      * TODO: refactor this into a ScheduleComponent for invoking callbacks at scheduled times
      * The auto start time for the playlist, in Unix/Epoch time (milliseconds).

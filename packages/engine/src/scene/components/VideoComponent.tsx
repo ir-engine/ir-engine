@@ -411,10 +411,13 @@ function VideoReactor() {
   }, [!!mesh, video.alphaUVOffset])
 
   useEffect(() => {
-    if (!mesh || !mediaEntity || !hasMediaElementComponent) {
+    if (!mesh || !mediaEntity) return
+
+    if (!hasMediaElementComponent) {
       video.texture.set(null)
       return
     }
+
     const sourceVideoComponent = getOptionalComponent(mediaEntity, VideoComponent)
     const sourceMeshComponent = getOptionalComponent(mediaEntity, MeshComponent)
     const mediaElement = getComponent(mediaEntity, MediaElementComponent)
@@ -425,7 +428,7 @@ function VideoReactor() {
       ;(video.texture.value.image as HTMLVideoElement) = mediaElement.element as HTMLVideoElement
 
       //if we're a videoComponent pointing to a different source, this will update the initial texture when we set source
-      if (sourceVideoComponent) {
+      if (mediaEntity !== entity && sourceVideoComponent) {
         video.texture.set(sourceTexture)
       }
       clearErrors(entity, VideoComponent)
