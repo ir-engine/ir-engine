@@ -118,12 +118,14 @@ const wrappingOptions = [
 export const VideoNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const video = useComponent(props.entity, VideoComponent)
-  const media = useOptionalComponent(props.entity, MediaComponent)
-  const audio = getOptionalMutableComponent(props.entity, PositionalAudioComponent)
+  const simulationEntity = getSimulationCounterpart(props.entity)
+  const video = useComponent(simulationEntity, VideoComponent)
+  const media = useOptionalComponent(simulationEntity, MediaComponent)
+  const audio = getOptionalMutableComponent(simulationEntity, PositionalAudioComponent)
 
   const mediaUUID = video.mediaUUID.value
-  let mediaEntity = getSimulationCounterpart(props.entity)
+
+  let mediaEntity = simulationEntity
   if (mediaUUID && mediaUUID != '') {
     mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID)
   }
@@ -165,9 +167,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   }
 
   const handleSourcePathSelect = (index: number) => {
-    if (media) {
-      media.track.set(index)
-    }
+    media?.track.set(index)
   }
 
   function formatSeconds(seconds) {
