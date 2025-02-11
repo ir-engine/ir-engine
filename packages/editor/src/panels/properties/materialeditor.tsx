@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
-  Entity,
   EntityUUID,
   Layers,
   UUIDComponent,
@@ -54,7 +53,8 @@ import { getDefaultType } from '@ir-engine/spatial/src/renderer/materials/consta
 import {
   extractValues,
   formatMaterialArgs,
-  getMaterial
+  getMaterial,
+  updateMaterialPrototype
 } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { Button, Tooltip } from '@ir-engine/ui'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
@@ -85,10 +85,10 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   const materialComponent = useComponent(entity, MaterialStateComponent)
   const material = materialComponent.material.get(NO_PROXY) as Material
 
-  const prototypeName = useHookstate('')
-  prototypeName.set(material.userData.type || material.type)
+  const prototypeName = useHookstate(material.type)
 
   const definitions = useMutableState(MaterialPrototypeDefinitions)
+
   const prototypes = Object.entries(definitions.value).map(([key, value]) => ({
     label: key,
     value: key
@@ -184,7 +184,6 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
 
   useEffect(() => {
     materialParameters.set({})
-    if (!prototypeEntity) return
     materialParameters.set(
       Object.fromEntries(
         Object.keys(extractValues(definitions.value[prototypeName.value].arguments as PrototypeArgument, material)).map(
@@ -220,6 +219,13 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
       return
     }
   }, [selectedPlugin, useOptionalComponent(entity, MaterialPlugins[selectedPlugin.value])])
+
+  useEffect(() => {
+    console.log('prototypeName', prototypeName.value, material.type)
+    if (prototypeName.value === material.type) return
+    updateMaterialPrototype(entity, prototypeName.value)
+  }, [prototypeName])
+
   return (
     <div className="relative flex flex-col gap-2">
       <InputGroup name="Name" label={t('editor:properties.mesh.material.name')}>
@@ -242,12 +248,12 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
       <br />
       <InputGroup name="Prototype" label={t('editor:properties.mesh.material.prototype')}>
         <SelectInput
-          value={prototypeEntity}
+          value={prototypeName.value}
           options={prototypes}
-          onChange={(prototypeEntity: Entity) => {
-            if (materialComponent.prototypeEntity.value)
-              materialComponent.prototypeEntity.set(prototypeEntity as Entity)
-            prototypeName.set(materialComponent.material.value.userData.type)
+          onChange={(value) => {
+            prototypeName.set(value as string)
+            console.log('prototypeName', prototypeName.value)
+            console.log(value)
           }}
         />
       </InputGroup>

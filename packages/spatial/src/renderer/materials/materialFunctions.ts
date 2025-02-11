@@ -127,16 +127,14 @@ export const materialPrototypeMatches = (materialEntity: Entity) => {
   return materialType === prototypeName
 }
 
-/**Updates the material entity's threejs material prototype to match its
- * current prototype entity */
-export const updateMaterialPrototype = (materialEntity: Entity) => {
+/**Updates the materialEntity's threejs material using the the newPrototype to look up the new constructor */
+export const updateMaterialPrototype = (materialEntity: Entity, newPrototype: string) => {
   const materialComponent = getOptionalComponent(materialEntity, MaterialStateComponent)
   if (!materialComponent) return
   const material = materialComponent.material
-  const prototypeName = material.type
 
-  const prototype = getState(MaterialPrototypeDefinitions)[prototypeName]
-  if (!material || material.type === prototypeName) return
+  if (!material || newPrototype === material.type) return
+  const prototype = getState(MaterialPrototypeDefinitions)[newPrototype]
   const fullParameters = { ...extractDefaults(prototype.arguments) }
   if (!prototype) return
   const newMaterial = new prototype.prototypeConstructor(fullParameters) as Material

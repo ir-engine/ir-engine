@@ -34,10 +34,11 @@ import {
   serializeComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { getState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import {
-  MaterialPrototypeComponent,
+  MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { injectMaterialDefaults } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
@@ -716,7 +717,7 @@ const exportMaterial = async (
     result[field] = argEntry
   }
   const materialComponent = getComponent(materialEntity, MaterialStateComponent)
-  const prototype = getComponent(materialComponent.prototypeEntity!, MaterialPrototypeComponent)
+  const prototype = getState(MaterialPrototypeDefinitions)[materialComponent.material.type]
   //@todo: plugins
   materialDef.extensions = materialDef.extensions ?? {}
   materialDef.extensions['EE_material'] = {
