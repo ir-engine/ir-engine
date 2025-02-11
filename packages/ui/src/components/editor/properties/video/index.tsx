@@ -414,7 +414,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
               onChange={commitProperty(MediaComponent, 'synchronize')}
             />
             <Checkbox
-              label={t('editor:properties.media.lbl-autoplayRuntime')}
+              label={t('editor:properties.media.lbl-autoplay')}
               variantTextPlacement={'right'}
               checked={media.autoplay.value}
               onChange={commitProperty(MediaComponent, 'autoplay')}
