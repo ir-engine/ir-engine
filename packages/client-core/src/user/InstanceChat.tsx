@@ -25,11 +25,12 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useFind, useMutation } from '@ir-engine/common'
 import { InstanceID, MessageType, messagePath } from '@ir-engine/common/src/schema.type.module'
+import { useTouchOutside } from '@ir-engine/common/src/utils/useClickOutside'
 import { State, dispatchAction, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
-import { MessageTextSquare01Lg, Send01Lg, XCloseLg } from '@ir-engine/ui/src/icons'
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
+import { MessageTextSquare01Lg, Send01Lg, Send01Sm, XCloseLg } from '@ir-engine/ui/src/icons'
+import React, { createContext, useContext, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import { useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
@@ -162,31 +163,25 @@ function NewMessage() {
     return () => clearTimeout(delayDebounce)
   }, [composedMessage.value])
 
-  const [isMounted, setIsMounted] = useState(false)
-
-  useEffect(() => {
-    if (!isChatOpen.value || !inputRef.current) {
-      setIsMounted(false)
-      return
-    }
-
-    setIsMounted(true)
-  }, [isChatOpen])
-
   return (
     <div className="mt-5 flex w-full items-center justify-end">
       <div className="relative w-16">
         {!isChatOpen.value && unreadMessages.value && (
           <div className="absolute right-0 top-0 h-4 w-4 rounded-full bg-blue-500" />
         )}
-        <LocationIconButton
-          icon={isChatOpen.value ? XCloseLg : MessageTextSquare01Lg}
-          onClick={() => isChatOpen.set(!isChatOpen.value)}
-        />
+        {!isMobile && (
+          <LocationIconButton
+            icon={isChatOpen.value ? XCloseLg : MessageTextSquare01Lg}
+            onClick={() => isChatOpen.set(!isChatOpen.value)}
+          />
+        )}
+        {isMobile && !isChatOpen.value && (
+          <LocationIconButton icon={MessageTextSquare01Lg} onClick={() => isChatOpen.set(!isChatOpen.value)} />
+        )}
       </div>
       <div
         className={twMerge(
-          'height-[74px] ml-[13px] flex  items-center justify-between rounded-[37px] bg-black/50 transition-[width,transform] duration-500',
+          'lg:height-[74px] height-[30px] flex items-center justify-between rounded-[37px] bg-ui-background transition-[width,transform] duration-500 lg:ml-[13px] lg:bg-black/50',
           isChatOpen.value ? 'w-full translate-x-0' : 'w-0 translate-x-[100%]'
         )}
       >
@@ -195,12 +190,12 @@ function NewMessage() {
           value={composedMessage.value}
           spellCheck={false}
           autoComplete="off"
-          className="my-auto ml-8 mr-4 flex w-full resize-none items-center justify-start bg-transparent text-base text-white outline-none"
+          className="my-auto ml-5 flex w-full resize-none items-center justify-start bg-transparent text-sm text-text-primary outline-none lg:ml-8 lg:mr-4 lg:text-base lg:text-white"
           onKeyUp={(event) => event.key === 'Enter' && sendMessage()}
           onChange={handleComposedMessage}
         />
-        <span className="m-[5px]">
-          <LocationIconButton icon={Send01Lg} onClick={sendMessage} />
+        <span className="sm:m-[5px]">
+          {isMobile ? <Send01Sm onClick={sendMessage} /> : <LocationIconButton icon={Send01Lg} onClick={sendMessage} />}
         </span>
       </div>
     </div>
@@ -213,7 +208,7 @@ function Message({ message, hideUsername }: { message: MessageType; hideUsername
 
   return message.isNotification ? (
     <div
-      className="my-4 place-self-center text-center text-sm text-text-primary"
+      className="my-4 place-self-center text-center text-xs text-text-primary lg:text-sm"
       style={{
         textShadow: '0px 1px 4px rgb(255, 255, 255)'
       }}
@@ -223,17 +218,18 @@ function Message({ message, hideUsername }: { message: MessageType; hideUsername
   ) : (
     <div
       className={twMerge(
-        'my-4 place-self-end rounded-[11px] bg-surface-3 px-2 py-2.5 opacity-50',
-        'max-sm:rounded-[14px] max-sm:py-0.5',
+        'my-4 place-self-end rounded-[14px] bg-surface-3 px-2 py-0.5 opacity-50 lg:rounded-[11px] lg:py-2.5',
         message.sender.id === user.id.value && 'place-self-start bg-[#C7C7C7]',
         newMessages.value[message.id] && 'opacity-100',
         hideUsername && '-mt-3'
       )}
     >
       {message.sender.id !== user.id.value && !hideUsername && (
-        <div className="max-sm:text-xs text-lg font-bold text-text-primary">{message.sender.name}</div>
+        <div className="text-xs font-bold text-text-primary lg:text-lg">{message.sender.name}</div>
       )}
-      <div className="max-sm:text-sm max-sm:tracking-[-0.14px] text-base text-text-primary">{message.text}</div>
+      <div className="text-sm tracking-[-0.14px] lg:text-base lg:tracking-normal lg:text-text-primary">
+        {message.text}
+      </div>
     </div>
   )
 }
@@ -242,7 +238,7 @@ function Messages() {
   const { messages, isChatOpen } = useInstanceChatMessages()
   if (!isChatOpen.value) return null
   return (
-    <div className="max-sm:max-h-[65vh] flex max-h-[45vh] flex-col justify-end">
+    <div className="flex max-h-[65vh] flex-col justify-end lg:max-h-[45vh]">
       <div className="min-h-0 flex-1 overflow-y-auto">
         {messages.value.map((message, index) => (
           <Message
@@ -256,6 +252,22 @@ function Messages() {
           />
         ))}
       </div>
+    </div>
+  )
+}
+
+function MessagesWrapper() {
+  const ref = useRef<HTMLDivElement>(null)
+  const { isChatOpen } = useInstanceChatMessages()
+  useTouchOutside(ref, () => {
+    if (!isChatOpen.value) return
+    isChatOpen.set(false)
+  })
+
+  return (
+    <div className="w-[25vw]" ref={ref}>
+      <Messages />
+      <NewMessage />
     </div>
   )
 }
@@ -282,10 +294,7 @@ export default function InstanceChat() {
           </button>
         </div>
       ) : (
-        <div className="w-[25vw]">
-          <Messages />
-          <NewMessage />
-        </div>
+        <MessagesWrapper />
       )}
     </InstanceChatProvider>
   )
