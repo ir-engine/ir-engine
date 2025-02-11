@@ -27,13 +27,14 @@ import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React, { useEffect } from 'react'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import { Types } from './bitecsLegacy'
 
+import { proxySoAStore, removeEntity } from '@ir-engine/ecs'
 import sinon from 'sinon'
 import { DirectionalLight, Vector3 } from 'three'
 import {
   ComponentMap,
   defineComponent,
+  deserializeComponent,
   getAllComponents,
   getComponent,
   hasComponent,
@@ -45,11 +46,32 @@ import {
 } from './ComponentFunctions'
 import { createEngine, destroyEngine } from './Engine'
 import { Entity, EntityUUID, UndefinedEntity } from './Entity'
-import { createEntity, removeEntity } from './EntityFunctions'
+import { createEntity } from './EntityFunctions'
 import { UUIDComponent } from './UUIDComponent'
-import { ECSSchema } from './schemas/ECSSchemas'
+import { createResizableTypeArray } from './bitecsLegacy'
 import { CheckSchemaValue, CreateSchemaValue } from './schemas/JSONSchemaUtils'
 import { S } from './schemas/JSONSchemas'
+
+class ProxyClass {
+  x = 0
+}
+
+const proxifyClass = (store: { x: Float32Array }, entity: Entity, proxiedClass = new ProxyClass()): ProxyClass => {
+  store.x[entity] = proxiedClass.x
+  return Object.defineProperties(proxiedClass as ProxyClass, {
+    entity: { value: entity, configurable: true, writable: true },
+    store: { value: store, configurable: true, writable: true },
+    x: {
+      get() {
+        return this.store.x[this.entity]
+      },
+      set(n) {
+        return (this.store.x[this.entity] = n)
+      },
+      configurable: true
+    }
+  })
+}
 
 describe('ComponentFunctions', async () => {
   beforeEach(() => {
@@ -74,7 +96,8 @@ describe('ComponentFunctions', async () => {
 
       const entity = createEntity()
       // @ts-expect-error
-      const vector3Component = setComponent(entity, Vector3Component, { otherval: 10 })
+      deserializeComponent(entity, Vector3Component, { otherval: 10 })
+      const vector3Component = getComponent(entity, Vector3Component)
       assert.deepEqual(vector3Component, { x: 0, y: 0, z: 4 })
     })
 
@@ -90,7 +113,8 @@ describe('ComponentFunctions', async () => {
 
       const entity = createEntity()
       // @ts-expect-error
-      const nestedObjectComponent = setComponent(entity, NestedObjectComponent, { obj: 'test' })
+      deserializeComponent(entity, NestedObjectComponent, { obj: 'test' })
+      const nestedObjectComponent = getComponent(entity, NestedObjectComponent)
       assert.deepEqual(nestedObjectComponent, { obj: { num: 0 } })
     })
 
@@ -105,7 +129,8 @@ describe('ComponentFunctions', async () => {
       })
 
       const entity = createEntity()
-      const vector3Component = setComponent(entity, Vector3Component, { x: 12, y: 24, z: 36 })
+      setComponent(entity, Vector3Component, { x: 12, y: 24, z: 36 })
+      const vector3Component = getComponent(entity, Vector3Component)
       assert.deepEqual(vector3Component, { x: 12, y: 24, z: 36 })
     })
 
@@ -119,15 +144,19 @@ describe('ComponentFunctions', async () => {
     })
 
     it('should create mapped component with SoA', () => {
-      const { f32 } = Types
-      const Vector3Schema = { x: f32, y: f32, z: f32 }
       const Vector3Component = defineComponent({
         name: 'Vector3Component',
-        schema: Vector3Schema
+        storage: {
+          x: createResizableTypeArray(Float32Array),
+          y: createResizableTypeArray(Float32Array),
+          z: createResizableTypeArray(Float32Array)
+        }
       })
 
       assert.equal(Vector3Component.name, 'Vector3Component')
-      assert.equal(Vector3Component.schema, Vector3Schema)
+      assert(Vector3Component.x instanceof Float32Array)
+      assert(Vector3Component.y instanceof Float32Array)
+      assert(Vector3Component.z instanceof Float32Array)
       assert.equal(ComponentMap.size, 1)
     })
 
@@ -145,7 +174,7 @@ describe('ComponentFunctions', async () => {
       setComponent(entity, Vector3Component)
       const vector3Component = getComponent(entity, Vector3Component)
       const json = Vector3Component.toJSON(vector3Component)
-      const fromSchema = CreateSchemaValue(Vector3Component.schema)
+      const fromSchema = CreateSchemaValue(entity, Vector3Component.schema)
       assert.deepEqual(vector3Component, fromSchema)
       assert.deepEqual(json, fromSchema)
       assert.deepEqual(json, vector3Component)
@@ -167,7 +196,7 @@ describe('ComponentFunctions', async () => {
       const vector3Component = getComponent(entity, Vector3Component)
       assert(CheckSchemaValue(Vector3Component.schema, vector3Component))
       assert(vector3Component.x === setValue.x && vector3Component.y === setValue.y)
-      assert(vector3Component.z === CreateSchemaValue(Vector3Component.schema).z)
+      assert(vector3Component.z === CreateSchemaValue(entity, Vector3Component.schema).z)
     })
 
     it('should override runtime data if onInit is specified', () => {
@@ -185,7 +214,7 @@ describe('ComponentFunctions', async () => {
       const entity = createEntity()
       setComponent(entity, Vector3Component, setValue)
       const vector3Component = getComponent(entity, Vector3Component)
-      const fromSchema = CreateSchemaValue(Vector3Component.schema)
+      const fromSchema = CreateSchemaValue(entity, Vector3Component.schema)
       assert(vector3Component instanceof Vector3)
       assert(vector3Component.isVector3)
       assert(vector3Component.x === setValue.x && vector3Component.y === setValue.y)
@@ -252,40 +281,43 @@ describe('ComponentFunctions', async () => {
       })
 
       const entity = createEntity()
-      const objComponent = setComponent(entity, ObjComponent, { other: 12 })
+      setComponent(entity, ObjComponent, { other: 12 })
+      const objComponent = getComponent(entity, ObjComponent)
       const json = ObjComponent.toJSON(objComponent)
       assert(!('light' in json))
       assert('other' in json)
       // The previous assert erases type for some reason
       assert((json as any).other === 12)
 
-      const topLevel = setComponent(entity, TopLevelComponent, 4)
+      setComponent(entity, TopLevelComponent, 4)
+      const topLevel = getComponent(entity, TopLevelComponent)
       assert(topLevel === 4)
       const nonJson = TopLevelComponent.toJSON(topLevel)
       assert(nonJson === null)
     })
 
-    it('throws error when onSet is called without required fields', () => {
-      const ObjComponent = defineComponent({
-        name: 'ObjComponent',
-        schema: S.Object({
-          light: S.Required(S.Class(() => new DirectionalLight())),
-          other: S.Number(0)
-        })
-      })
+    /** @todo this doesn't make any sense anymore, since a deserialized component will never deserialize into a required class, only ever into something like a vec3, color etc */
+    // it('throws error when deserializeComponent is called without required fields', () => {
+    //   const ObjComponent = defineComponent({
+    //     name: 'ObjComponent',
+    //     schema: S.Object({
+    //       light: S.Required(S.Class(() => new DirectionalLight())),
+    //       other: S.Number(0)
+    //     })
+    //   })
 
-      const TopLevelComponent = defineComponent({
-        name: 'ObjComponent',
-        schema: S.Required(S.Class(() => new DirectionalLight()))
-      })
+    //   const TopLevelComponent = defineComponent({
+    //     name: 'ObjComponent',
+    //     schema: S.Required(S.Class(() => new DirectionalLight()))
+    //   })
 
-      const entity = createEntity()
-      const light = new DirectionalLight()
-      assert.throws(() => setComponent(entity, ObjComponent, { other: 12 }))
-      assert.doesNotThrow(() => setComponent(entity, ObjComponent, { light }))
-      assert.throws(() => setComponent(entity, TopLevelComponent))
-      assert.doesNotThrow(() => setComponent(entity, TopLevelComponent, light))
-    })
+    //   const entity = createEntity()
+    //   const light = new DirectionalLight()
+    //   assert.throws(() => deserializeComponent(entity, ObjComponent, { other: 12 }))
+    //   assert.doesNotThrow(() => deserializeComponent(entity, ObjComponent, { light }))
+    //   assert.throws(() => deserializeComponent(entity, TopLevelComponent), undefined)
+    //   assert.doesNotThrow(() => deserializeComponent(entity, TopLevelComponent, light))
+    // })
 
     it('uses schema initializers if they exist', () => {
       const spy = sinon.spy()
@@ -349,79 +381,78 @@ describe('ComponentFunctions', async () => {
 
       const entity = createEntity()
 
-      const objComponent = setComponent(entity, ObjComponent, { val: 12 })
+      deserializeComponent(entity, ObjComponent, { val: 12 })
+      const objComponent = getComponent(entity, ObjComponent)
       assert(objComponent.val === 12 * 2)
       assert(spy.calledOnce)
 
-      const topLevelComponent = setComponent(entity, TopLevelComponent, 6)
+      deserializeComponent(entity, TopLevelComponent, 6)
+      const topLevelComponent = getComponent(entity, TopLevelComponent)
       assert(topLevelComponent === 6 * 3)
       assert(spy.calledTwice)
 
       const vec3 = new Vector3(12, 13, 14)
-      const vector3Component = setComponent(entity, Vector3Component, new Vector3(12, 13, 14))
+      deserializeComponent(entity, Vector3Component, new Vector3(12, 13, 14))
+      const vector3Component = getComponent(entity, Vector3Component)
       assert(!(vector3Component instanceof Vector3))
       assert(vec3.x === vector3Component.x && vec3.y === vector3Component.y && vec3.z === vector3Component.z)
       assert(vec3 !== vector3Component)
 
-      let vec3Component = setComponent(entity, Vec3Component)
+      deserializeComponent(entity, Vec3Component)
+      let vec3Component = getComponent(entity, Vec3Component)
       assert(vec3Component instanceof Vector3)
       assert(vec3Component.x === 0 && vec3Component.y === 0 && vec3Component.z === 0)
 
       const vec3Obj = { x: 11, y: 12, z: 13 }
-      vec3Component = setComponent(entity, Vec3Component, vec3Obj)
+      deserializeComponent(entity, Vec3Component, vec3Obj)
+      vec3Component = getComponent(entity, Vec3Component)
       assert(vec3Obj.x === vec3Component.x && vec3Obj.y === vec3Component.y && vec3Obj.z === vec3Component.z)
       assert(vec3Obj !== vec3Component)
       assert(vec3Component instanceof Vector3)
     })
 
-    it('ECS Schema is proxied', () => {
-      const Vector3Component = defineComponent({
-        name: 'Vector3Component',
-        schema: ECSSchema.Vec3
-      })
+    it('ECS Schema number is proxied via proxySoAStore', () => {
+      const proxyNumber = proxySoAStore(() => ProxyComponent.x)
 
-      const entity = createEntity()
-      setComponent(entity, Vector3Component)
-      const vector3Component = getComponent(entity, Vector3Component)
-      vector3Component.x = 12
-      assert(vector3Component.x === 12)
-      assert(vector3Component.x === Vector3Component.x[entity])
-    })
-
-    it('ECS Schema is proxied, nested objects', () => {
-      const TransformComponent = defineComponent({
-        name: 'Vector3Component',
-        schema: {
-          position: ECSSchema.Vec3,
-          rotation: ECSSchema.Quaternion,
-          scale: ECSSchema.Vec3
+      const ProxyComponent = defineComponent({
+        name: 'ProxyComponent',
+        schema: S.Object({
+          x: S.Proxy(S.Number(), proxyNumber)
+        }),
+        storage: {
+          x: createResizableTypeArray(Float32Array)
         }
       })
 
       const entity = createEntity()
-      setComponent(entity, TransformComponent)
-      const transformComponent = getComponent(entity, TransformComponent)
-      transformComponent.position.x = 12
-      assert(transformComponent.position.x === 12)
-      assert(transformComponent.position.x === TransformComponent.position.x[entity])
+      setComponent(entity, ProxyComponent)
+      const proxyComponent = getComponent(entity, ProxyComponent)
+      proxyComponent.x = 12
+      assert(proxyComponent.x === 12)
+      assert(proxyComponent.x === ProxyComponent.x[entity])
     })
 
-    it('ECS Schema is proxied, arrays', () => {
-      const TransformComponent = defineComponent({
-        name: 'Vector3Component',
-        schema: {
-          position: ECSSchema.Vec3,
-          rotation: ECSSchema.Quaternion,
-          scale: ECSSchema.Vec3
+    it('ECS Schema class is proxied', () => {
+      const assignProxy = (entity: Entity): ProxyClass => proxifyClass(ProxyComponent.position, entity)
+
+      const ProxyComponent = defineComponent({
+        name: 'ProxyComponent',
+        schema: S.Object({
+          position: S.SerializedClass(assignProxy, { x: S.Number() })
+        }),
+        storage: {
+          position: {
+            x: createResizableTypeArray(Float32Array)
+          }
         }
       })
 
       const entity = createEntity()
-      setComponent(entity, TransformComponent)
-      const transformComponent = getComponent(entity, TransformComponent)
-      transformComponent.position.x = 12
-      assert(transformComponent.position.x === 12)
-      assert(transformComponent.position.x === TransformComponent.position.x[entity])
+      setComponent(entity, ProxyComponent)
+      const proxiedComponent = getComponent(entity, ProxyComponent)
+      proxiedComponent.position.x = 12
+      assert(proxiedComponent.position.x === 12)
+      assert(proxiedComponent.position.x === ProxyComponent.position.x[entity])
     })
   })
 
@@ -457,17 +488,6 @@ describe('ComponentFunctions', async () => {
 
       assert.ok(component)
       assert.equal(component.val, 5)
-    })
-
-    it('should add component with SoA values', () => {
-      const { f32 } = Types
-      const ValueSchema = { value: f32 }
-      const TestComponent = defineComponent({ name: 'TestComponent', schema: ValueSchema })
-
-      const entity = createEntity()
-      setComponent(entity, TestComponent)
-      TestComponent.value[entity] = 3
-      assert.equal(TestComponent.value[entity], 3)
     })
 
     it('should throw on null entity argument', () => {
@@ -545,17 +565,6 @@ describe('ComponentFunctions', async () => {
       assert.ok(hasComponent(entity, TestComponent))
     })
 
-    it('should have component with SoA values', () => {
-      const { f32 } = Types
-      const ValueSchema = { value: f32 }
-      const TestComponent = defineComponent({ name: 'TestComponent', schema: ValueSchema })
-
-      const entity = createEntity()
-      setComponent(entity, TestComponent)
-
-      assert.ok(hasComponent(entity, TestComponent))
-    })
-
     it('should return false for nullish entity argument', () => {
       const TestComponent = defineComponent({ name: 'TestComponent' })
       assert(!hasComponent(null!, TestComponent))
@@ -613,19 +622,6 @@ describe('ComponentFunctions', async () => {
       assert.ok(hasComponents(entity, [TestComponent, TestComponent2]))
     })
 
-    it('should have components with SoA values', () => {
-      const { f32 } = Types
-      const ValueSchema = { value: f32 }
-      const TestComponent = defineComponent({ name: 'TestComponent', schema: ValueSchema })
-      const TestComponent2 = defineComponent({ name: 'TestComponent2', schema: ValueSchema })
-
-      const entity = createEntity()
-      setComponent(entity, TestComponent)
-      setComponent(entity, TestComponent2)
-
-      assert.ok(hasComponents(entity, [TestComponent, TestComponent2]))
-    })
-
     it('should return false for nullish entity argument', () => {
       const TestComponent = defineComponent({ name: 'TestComponent' })
       const TestComponent2 = defineComponent({ name: 'TestComponent2' })
@@ -657,7 +653,7 @@ describe('ComponentFunctions', async () => {
       removeComponent(entity, TestComponent)
 
       assert.ok(!hasComponent(entity, TestComponent))
-      assert.ok(TestComponent.stateMap[entity]!.value === undefined)
+      assert.ok(TestComponent.stateMap[entity] === undefined)
     })
 
     it('should remove component with AoS values', () => {
@@ -676,21 +672,6 @@ describe('ComponentFunctions', async () => {
 
       const entity = createEntity()
       setComponent(entity, TestComponent, { val: 2 })
-
-      assert.ok(hasComponent(entity, TestComponent))
-
-      removeComponent(entity, TestComponent)
-
-      assert.ok(!hasComponent(entity, TestComponent))
-    })
-
-    it('should remove component with SoA values', () => {
-      const { f32 } = Types
-      const ValueSchema = { value: f32 }
-      const TestComponent = defineComponent({ name: 'TestComponent', schema: ValueSchema })
-
-      const entity = createEntity()
-      setComponent(entity, TestComponent)
 
       assert.ok(hasComponent(entity, TestComponent))
 
@@ -889,7 +870,7 @@ describe('ComponentFunctions Hooks', async () => {
 
       // Run the test case
       const tag = <Reactor />
-      assert.equal(TestComponent.stateMap[entity]!.value, undefined)
+      assert.equal(TestComponent.stateMap[entity], undefined)
       const { rerender, unmount } = render(tag)
       assert.equal(result, 1)
 

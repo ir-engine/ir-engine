@@ -89,7 +89,7 @@ const execute = () => {
     TransformComponent.rotation.y[eid] = _rayRotation.y
     TransformComponent.rotation.z[eid] = _rayRotation.z
     TransformComponent.rotation.w[eid] = _rayRotation.w
-    TransformComponent.dirtyTransforms[eid] = true
+    TransformComponent.dirty[eid] = 1
   }
 
   // remove stale pointers
@@ -111,7 +111,7 @@ const execute = () => {
     TransformComponent.rotation.y[eid] = pose.transform.orientation.y
     TransformComponent.rotation.z[eid] = pose.transform.orientation.z
     TransformComponent.rotation.w[eid] = pose.transform.orientation.w
-    TransformComponent.dirtyTransforms[eid] = true
+    TransformComponent.dirty[eid] = 1
   }
 
   // assign input sources (InputSourceComponent) to input sinks (InputComponent), foreach on InputSourceComponents

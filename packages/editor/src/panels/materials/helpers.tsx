@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { API } from '@ir-engine/common'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
+import { EntityUUID, Layers, UUIDComponent } from '@ir-engine/ecs'
 import exportMaterialsGLTF from '@ir-engine/engine/src/assets/functions/exportMaterialsGLTF'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
@@ -88,7 +88,7 @@ export async function saveMaterial(sourcePath: string) {
     sourcePath += '.material.gltf'
   }
   const relativePath = pathJoin('assets', sourcePath)
-  const gltf = (await exportMaterialsGLTF([UUIDComponent.getEntityByUUID(materialUUID)], {
+  const gltf = (await exportMaterialsGLTF([UUIDComponent.getEntityByUUID(materialUUID, Layers.Authoring)], {
     binary: false,
     relativePath,
     projectName

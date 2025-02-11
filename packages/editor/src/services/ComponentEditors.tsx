@@ -32,7 +32,6 @@ import { InteractableComponent } from '@ir-engine/engine/src/interaction/compone
 import { AudioAnalysisComponent } from '@ir-engine/engine/src/scene/components/AudioAnalysisComponent'
 import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/CameraSettingsComponent'
 import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvMapBakeComponent'
-import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { GroundPlaneComponent } from '@ir-engine/engine/src/scene/components/GroundPlaneComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { InstancingComponent } from '@ir-engine/engine/src/scene/components/InstancingComponent'
@@ -92,6 +91,7 @@ import PrimitiveGeometryNodeEditor from '@ir-engine/ui/src/components/editor/pro
 import GLTFNodeEditor from '@ir-engine/ui/src/components/editor/properties/gltf/loader'
 import GrabbableComponentNodeEditor from '@ir-engine/ui/src/components/editor/properties/grab'
 import GroundPlaneNodeEditor from '@ir-engine/ui/src/components/editor/properties/groundPlane'
+import IFrameNodeEditor from '@ir-engine/ui/src/components/editor/properties/iframe'
 import ImageNodeEditor from '@ir-engine/ui/src/components/editor/properties/image'
 import InputComponentNodeEditor from '@ir-engine/ui/src/components/editor/properties/input'
 import InstancingNodeEditor from '@ir-engine/ui/src/components/editor/properties/instance'
@@ -121,6 +121,8 @@ import SkyboxNodeEditor from '@ir-engine/ui/src/components/editor/properties/sky
 import SpawnPointNodeEditor from '@ir-engine/ui/src/components/editor/properties/spawnPoint'
 import SplineNodeEditor from '@ir-engine/ui/src/components/editor/properties/spline'
 
+import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
+import { IFrameComponent } from '@ir-engine/engine/src/scene/components/IFrameComponent'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import PlaylistNodeEditor from '@ir-engine/ui/src/components/editor/properties/playlist'
 import SplineTrackNodeEditor from '@ir-engine/ui/src/components/editor/properties/spline/track'
@@ -173,7 +175,7 @@ export const ComponentEditorsState = defineState({
       [LegacyVolumetricComponent.name]: LegacyVolumetricNodeEditor,
       [VolumetricComponent.name]: VolumetricNodeEditor,
       [PlaylistComponent.name]: PlaylistNodeEditor,
-      [EnvmapComponent.name]: EnvMapEditor,
+      [EnvMapComponent.name]: EnvMapEditor,
       [EnvMapBakeComponent.name]: EnvMapBakeNodeEditor,
       [InstancingComponent.name]: InstancingNodeEditor,
       [PersistentAnchorComponent.name]: PersistentAnchorNodeEditor,
@@ -182,6 +184,7 @@ export const ComponentEditorsState = defineState({
       [SplineTrackComponent.name]: SplineTrackNodeEditor,
       [VisualScriptComponent.name]: VisualScriptNodeEditor,
       [LinkComponent.name]: LinkNodeEditor,
+      [IFrameComponent.name]: IFrameNodeEditor,
       [InteractableComponent.name]: InteractableComponentNodeEditor,
       [InputComponent.name]: InputComponentNodeEditor,
       [GrabbableComponent.name]: GrabbableComponentNodeEditor,

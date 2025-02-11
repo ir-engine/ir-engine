@@ -952,12 +952,16 @@
       "description": "A point where people will appear when they enter your scene.\nThe icon in the Viewport represents the actual size of an avatar."
     },
     "linkComp": {
-      "title": "link Component",
+      "title": "Link Component",
       "lbl-url": "Link URL",
       "lbl-navigateScene": "Scene navigation",
       "lbl-locaiton": "Location Name",
       "lbl-newTab": "Open in new tab",
       "description": "Adds an interactable that opens links or navigates scene"
+    },
+    "iframe": {
+      "title": "Iframe",
+      "description": "Adds iframe as a popover when it's being interacted in the scene"
     },
     "spotLight": {
       "name": "Spot Light",
@@ -1294,7 +1298,8 @@
         "postprocessing": "Add postprocessing effects to your scene",
         "primitive-geometry": "Add basic Geometry to the scene",
         "link": "Add clickable Link to entity to route to different webpage",
-        "dynamic-load": "Load entities dynamically"
+        "dynamic-load": "Load entities dynamically",
+        "iframe": "Create popup based on iframe"
       },
       "placeObject": "Place Object",
       "placeObjectAtOrigin": "Place Object at Origin"

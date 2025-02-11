@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { BlendFunction, SMAAPreset, VignetteTechnique } from 'postprocessing'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa'
 import { MdAutoFixHigh } from 'react-icons/md'
 import { Color, DisplayP3ColorSpace, LinearDisplayP3ColorSpace, LinearSRGBColorSpace, SRGBColorSpace } from 'three'
 
@@ -43,7 +42,6 @@ import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/compone
 import { PostProcessingEffectState } from '@ir-engine/spatial/src/renderer/effects/EffectRegistry'
 import { Checkbox } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
-import { GiMagickTrick } from 'react-icons/gi'
 import Accordion from '../../../../primitives/tailwind/Accordion'
 import ColorInput from '../../../../primitives/tailwind/Color'
 import InputGroup from '../../input/Group'
@@ -301,14 +299,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
       </InputGroup>
       {postprocessing.enabled.value && (
         <>
-          <Accordion
-            className="bg-none p-2 text-white"
-            onClick={() => setOpenSettings(!openSettings)}
-            title={t('editor:properties.postprocessing.name')}
-            prefixIcon={<GiMagickTrick />}
-            expandIcon={<FaChevronDown />}
-            shrinkIcon={<FaChevronUp />}
-          >
+          <Accordion onClick={() => setOpenSettings(!openSettings)} title={t('editor:properties.postprocessing.name')}>
             {renderEffects()}
           </Accordion>
         </>

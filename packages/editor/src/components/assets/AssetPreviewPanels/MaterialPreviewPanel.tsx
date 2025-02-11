@@ -26,9 +26,16 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect, useRef } from 'react'
 import { Mesh, SphereGeometry } from 'three'
 
-import { useRender3DPanelSystem } from '@ir-engine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import { generateEntityUUID, getMutableComponent, setComponent, useComponent, UUIDComponent } from '@ir-engine/ecs'
-import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
+import { useRender3DPanelSystem } from '@ir-engine/client-core/src/hooks/useRender3DPanelSystem'
+import {
+  generateEntityUUID,
+  getMutableComponent,
+  Layers,
+  setComponent,
+  useComponent,
+  UUIDComponent
+} from '@ir-engine/ecs'
+import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { getState, useMutableState } from '@ir-engine/hyperflux'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
@@ -52,13 +59,14 @@ export const MaterialPreviewCanvas = () => {
     const material = getMaterial(getState(MaterialSelectionState).selectedMaterial!)
     if (!material) return
     setComponent(sceneEntity, MeshComponent, new Mesh(new SphereGeometry(5, 32, 32), material))
-    setComponent(sceneEntity, EnvmapComponent, { type: 'Skybox', envMapIntensity: 2 })
+    setComponent(sceneEntity, EnvMapComponent, { type: 'Skybox', envMapIntensity: 2 })
     const orbitCamera = getMutableComponent(cameraEntity, CameraOrbitComponent)
     orbitCamera.focusedEntities.set([sceneEntity])
     orbitCamera.refocus.set(true)
   }, [
     selectedMaterial,
-    useComponent(UUIDComponent.getEntityByUUID(selectedMaterial.value!), MaterialStateComponent).material
+    useComponent(UUIDComponent.getEntityByUUID(selectedMaterial.value!, Layers.Authoring), MaterialStateComponent)
+      .material
   ])
   return (
     <>

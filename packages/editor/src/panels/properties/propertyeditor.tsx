@@ -25,13 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { calculateAndApplyYOffset } from '@ir-engine/common/src/utils/offsets'
 import { Entity, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
-import { Component, ComponentJSONIDMap, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Component, Layers, getAllComponents, useHasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ComponentEditorsState } from '@ir-engine/editor/src/services/ComponentEditors'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
-import { GLTFNodeState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { NO_PROXY, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { Button } from '@ir-engine/ui'
 import TransformPropertyGroup from '@ir-engine/ui/src/components/editor/properties/transform'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
@@ -50,7 +50,7 @@ const EntityComponentEditor = ({
   component: Component
   multiEdit: boolean
 }) => {
-  const componentMounted = useOptionalComponent(entity, component)
+  const componentMounted = useHasComponent(entity, component)
   const Editor = getState(ComponentEditorsState)[component.name]!
   if (!componentMounted) return null
   // nodeEntity is used as key here to signal to React when the entity has changed,
@@ -62,13 +62,12 @@ const EntityComponentEditor = ({
 const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multiEdit: boolean }) => {
   const { t } = useTranslation()
 
-  const entity = UUIDComponent.getEntityByUUID(entityUUID)
+  const entity = UUIDComponent.getEntityByUUID(entityUUID, Layers.Authoring)
   const componentEditors = useHookstate(getMutableState(ComponentEditorsState)).get(NO_PROXY)
-  const node = useHookstate(GLTFNodeState.getMutableNode(entity))
   const components: Component[] = []
-  for (const jsonID of Object.keys(node.extensions.value!)) {
-    const component = ComponentJSONIDMap.get(jsonID)!
-    if (!componentEditors[component?.name]) continue
+  const entityComponents = getAllComponents(entity)
+  for (const component of entityComponents) {
+    if (!componentEditors[component.name ?? '']) continue
     components.push(component)
   }
 
@@ -87,21 +86,20 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
 
   const [isAddComponentMenuOpen, setIsAddComponentMenuOpen] = useState(false)
 
+  const hasTransform = useHasComponent(entity, TransformComponent)
+
+  if (!entity) return null
+
   return (
     <>
-      <div className="flex w-full justify-end bg-theme-highlight" id="add-component-popover">
+      <div className="flex w-full justify-end bg-surface-3 p-1" id="add-component-popover">
         <Popup
           keepInside
           position={'left center'}
           open={isAddComponentMenuOpen}
           onClose={() => setIsAddComponentMenuOpen(false)}
           trigger={
-            <Button
-              variant="secondary"
-              className="ml-auto w-40 bg-[#212226] px-2"
-              size="sm"
-              onClick={() => setIsAddComponentMenuOpen(true)}
-            >
+            <Button size="sm" onClick={() => setIsAddComponentMenuOpen(true)}>
               <PlusCircleSm />
               {t('editor:properties.lbl-addComponent')}
             </Button>
@@ -113,7 +111,7 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
           </div>
         </Popup>
       </div>
-      <TransformPropertyGroup entity={entity} />
+      {hasTransform && <TransformPropertyGroup entity={entity} />}
       {components.map((c) => (
         <EntityComponentEditor
           key={`${entityUUID + entity}-${c.name}`}
@@ -126,29 +124,23 @@ const EntityEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multi
   )
 }
 
-const NodeEditor = ({ entityUUID, multiEdit }: { entityUUID: EntityUUID; multiEdit: boolean }) => {
-  const entity = UUIDComponent.useEntityByUUID(entityUUID)
-  const node = GLTFNodeState.useMutableNode(entity)
-  if (!node) return null
-  return <EntityEditor entityUUID={entityUUID} multiEdit={multiEdit} />
-}
-
 const PropertiesEditor = () => {
   const { t } = useTranslation()
   const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities).value
   const lockedNode = useHookstate(getMutableState(EditorState).lockPropertiesPanel)
   const materialUUID = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial).value
+  const materialEntity = UUIDComponent.useEntityByUUID(materialUUID!, Layers.Authoring)
   const multiEdit = selectedEntities.length > 1
   const uuid = lockedNode.value ? lockedNode.value : selectedEntities[selectedEntities.length - 1]
 
   return (
-    <div className="flex h-full flex-col gap-0.5 overflow-y-auto bg-[#0E0F11]">
-      {materialUUID ? (
+    <div className="flex h-full flex-col gap-0.5 overflow-y-auto bg-surface-1">
+      {materialUUID && materialEntity ? (
         <MaterialEditor materialUUID={materialUUID} />
       ) : uuid ? (
-        <NodeEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
+        <EntityEditor entityUUID={uuid} key={uuid} multiEdit={multiEdit} />
       ) : (
-        <div className="flex h-full items-center justify-center text-gray-500">
+        <div className="flex h-full items-center justify-center text-text-secondary">
           {t('editor:properties.noNodeSelected')}
         </div>
       )}

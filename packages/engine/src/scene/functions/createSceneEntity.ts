@@ -45,8 +45,10 @@ export const createSceneEntity = (name: string, parentEntity: Entity = Undefined
   setComponent(entity, NameComponent, name)
   setComponent(entity, VisibleComponent)
   setComponent(entity, TransformComponent)
+  setComponent(entity, EntityTreeComponent)
   if (parentEntity !== UndefinedEntity) {
     setComponent(entity, EntityTreeComponent, { parentEntity })
+    EntityTreeComponent.reactorMap.get(parentEntity)?.run()
   }
   const sceneID = getOptionalComponent(parentEntity, SourceComponent)
   if (sceneID != null) {

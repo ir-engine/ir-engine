@@ -45,7 +45,7 @@ const createWorker = () => {
 export const bvhWorkerPool = new WorkerPool(1)
 bvhWorkerPool.setWorkerCreator(createWorker)
 
-export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options = {} as any) {
+export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options = { indirect: true } as any) {
   if (
     !mesh.isMesh ||
     (mesh as InstancedMesh).isInstancedMesh ||
@@ -79,14 +79,6 @@ export async function generateMeshBVH(mesh: Mesh, signal: AbortSignal, options =
   if (error) {
     return console.error(error)
   } else {
-    if (serialized.index) {
-      if (geometry.index) {
-        geometry.index.array = serialized.index as any
-      } else {
-        geometry.setIndex(new BufferAttribute(serialized.index as any, 1))
-      }
-    }
-
     const bvh = MeshBVH.deserialize(serialized, geometry, { setIndex: false })
     const boundsOptions = Object.assign(
       {

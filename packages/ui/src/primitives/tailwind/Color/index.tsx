@@ -104,13 +104,13 @@ export function ColorInput({
       onClick={handleTogglePicker} //opens the color picker
     >
       <div
-        className={`group h-5 w-5 cursor-pointer rounded border border-black focus:border-theme-primary`}
+        className={`focus: group h-5 w-5 cursor-pointer rounded border border-black`}
         style={{ backgroundColor: hexColor }}
       >
         {isPickerOpen && ( //state to track open/close of color picker
           <div ref={pickerRef}>
             <SketchPicker
-              className={twMerge('absolute right-4 z-10 mt-5 bg-theme-surface-main', sketchPickerClassName)}
+              className={twMerge('absolute right-4 z-10 mt-5 ', sketchPickerClassName)}
               color={hexColor}
               onChange={handleChange}
               disableAlpha={true}

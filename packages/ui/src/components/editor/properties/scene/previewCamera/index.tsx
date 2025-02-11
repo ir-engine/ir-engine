@@ -32,7 +32,6 @@ import { getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/Com
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
-import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbnailState'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
@@ -58,7 +57,6 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
     scenePreviewCamera.camera.position.copy(position)
     scenePreviewCamera.camera.rotation.copy(new Euler().setFromQuaternion(rotation))
     computeTransformMatrix(props.entity)
-    EditorControlFunctions.commitTransformSave([props.entity])
   }
 
   const updateScenePreview = async () => {

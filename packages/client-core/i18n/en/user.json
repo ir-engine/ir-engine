@@ -397,7 +397,9 @@
     "saveAvatar": "Save Avatar",
     "savingAvatar": "Saving {{avatar}}",
     "packagingAvatar": "Packaging & adding avatar to your Account...",
-    "avatarPreviewDisabledMessage": "Preview Image not Available"
+    "avatarPreviewDisabledMessage": "Preview Image not Available",
+    "discardChanges": "Discard changes",
+    "saveChanges": "Save changes"
   },
   "menu": {
     "settings": "Profile",
@@ -419,7 +421,6 @@
     "exitFullScreen": "Exit FullScreen",
     "hide": "Hide",
     "show": "Show"
-    
   },
   "personMenu": {
     "inviteToParty": "Invite To Party",
@@ -474,5 +475,10 @@
     "locationRequired": "Please provide a location name.",
     "roomCodeLength": "Room code must be of 6 digits. No zeros allowed",
     "invalidRoomCode": "Unable to find a room with this code. Please enter a valid room code."
+  },
+  "instanceChat": {
+    "wantToChat": "Want to chat with others?",
+    "register": "Become a registered user",
+    "verifyAge": "Verify your age"
   }
 }

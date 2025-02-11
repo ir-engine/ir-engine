@@ -208,12 +208,12 @@ describe('LookAtSystem', () => {
           assert.equal(hasComponent(testEntity, TransformComponent), true)
           assert.equal(hasComponent(testEntity, LookAtComponent), true)
           assert.equal(Boolean(getComponent(testEntity, LookAtComponent).target), true)
-          const before = TransformComponent.dirtyTransforms[testEntity]
-          assert.equal(before, undefined)
+          const before = TransformComponent.dirty[testEntity]
+          assert.equal(before, 0)
           // Run and Check the result
           System.execute()
-          const result = TransformComponent.dirtyTransforms[testEntity]
-          assert.equal(result, true)
+          const result = TransformComponent.dirty[testEntity]
+          assert.equal(result, 1)
         })
       })
     })

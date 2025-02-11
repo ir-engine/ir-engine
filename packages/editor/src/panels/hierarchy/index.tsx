@@ -23,10 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
-import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { useMutableState } from '@ir-engine/hyperflux'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import { TabData } from 'rc-dock'
@@ -57,17 +55,14 @@ export const HierarchyPanelTab: TabData = {
 
 function HierarchyPanelWrapper() {
   const { scenePath, rootEntity } = useMutableState(EditorState).value
-  const sourceId = useOptionalComponent(rootEntity, SourceComponent)?.value
+  const sourceID = GLTFComponent.useInstanceID(rootEntity)
 
-  if (!scenePath || !rootEntity || !sourceId) return null
+  if (!scenePath || !rootEntity || !sourceID) return null
 
-  return <HierarchyPanel sourceId={sourceId} />
+  return <HierarchyPanel />
 }
 
-function HierarchyPanel({ sourceId }: { sourceId: string }) {
-  const index = GLTFSnapshotState.useSnapshotIndex(sourceId)
-  if (index === undefined) return null
-
+function HierarchyPanel() {
   return (
     <HierarchyPanelProvider>
       <Topbar />

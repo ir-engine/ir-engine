@@ -105,7 +105,7 @@ function isValidFileType(file): { isValid: boolean; errorMessage?: string } {
   }
 }
 
-function sanitizeFiles(files: FileList): File[] {
+export function sanitizeFiles(files: FileList | File[]): File[] {
   const { maxFileSizeToUpload } = config.client
 
   const invalidSizeFiles: string[] = []
@@ -122,7 +122,6 @@ function sanitizeFiles(files: FileList): File[] {
         i18n.t('editor:errors.fileNotSupported', { file: file.name, errorMessage: errorMessage || '' }) as string,
         { variant: 'warning' }
       )
-      continue
     }
     newFiles.push(newFile)
   }

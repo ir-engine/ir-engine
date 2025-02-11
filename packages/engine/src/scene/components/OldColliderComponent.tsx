@@ -28,7 +28,7 @@ import { useLayoutEffect } from 'react'
 import { Mesh } from 'three'
 import matches from 'ts-matches'
 
-import { EntityUUID, iterateEntityNode, useChildWithComponents } from '@ir-engine/ecs'
+import { EntityUUID, iterateEntityNode, useChildrenWithComponents, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -36,9 +36,9 @@ import {
   removeComponent,
   setComponent,
   useComponent,
+  useHasComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { ColliderComponent as NewColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
@@ -56,7 +56,7 @@ import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/Objec
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
-import { GLTFLoadedComponent } from './GLTFLoadedComponent'
+import { SourceComponent } from './SourceComponent'
 
 /** @deprecated - use the new API */
 export const OldColliderComponent = defineComponent({
@@ -153,16 +153,16 @@ export const OldColliderComponent = defineComponent({
 
     const transformComponent = useComponent(entity, TransformComponent)
     const colliderComponent = useComponent(entity, OldColliderComponent)
-    const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
+    const isLoadedFromGLTF = useHasComponent(entity, SourceComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)
-    const tree = useChildWithComponents(entity, [MeshComponent])
+    const [tree] = useChildrenWithComponents(entity, [MeshComponent])
 
     useLayoutEffect(() => {
       setComponent(entity, InputComponent)
 
       const isMeshCollider = [ShapeType.TriMesh, ShapeType.ConvexPolyhedron].includes(colliderComponent.shapeType.value)
 
-      if (isLoadedFromGLTF?.value || isMeshCollider) {
+      if (isLoadedFromGLTF || isMeshCollider) {
         const colliderComponent = getComponent(entity, OldColliderComponent)
 
         iterateEntityNode(entity, computeTransformMatrix)

@@ -24,14 +24,21 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
-import { EntityUUID, getComponent, getOptionalComponent, hasComponent, useQuery, UUIDComponent } from '@ir-engine/ecs'
+import {
+  EntityUUID,
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  LayerID,
+  Layers,
+  useQuery,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getMaterialsFromScene } from '@ir-engine/engine/src/scene/materials/functions/materialSourcingFunctions'
 import { getMutableState } from '@ir-engine/hyperflux'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { Button } from '@ir-engine/ui'
-import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
-import StringInput from '@ir-engine/ui/src/components/editor/input/String'
+import { Button, Input } from '@ir-engine/ui'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import { TabData } from 'rc-dock'
 import React, { useEffect } from 'react'
@@ -70,18 +77,21 @@ function MaterialsLibrary() {
   const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities)
   const showLayers = useHookstate(false)
 
+  const layer = useHookstate<LayerID>(Layers.Authoring)
+
   useEffect(() => {
     const materials =
       selectedEntities.value.length && showLayers.value
-        ? getMaterialsFromScene(UUIDComponent.getEntityByUUID(selectedEntities.value[0]))
+        ? getMaterialsFromScene(UUIDComponent.getEntityByUUID(selectedEntities.value[0], layer.value))
         : materialQuery
             .map((entity) => getComponent(entity, UUIDComponent))
-            .filter((uuid) => uuid !== MaterialStateComponent.fallbackMaterial)
+            .filter((uuid) => uuid !== MaterialStateComponent.fallbackMaterialUUID)
 
     const materialsBySource = {} as Record<string, string[]>
     for (const uuid of materials) {
-      const source = getOptionalComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), SourceComponent) ?? ''
-      if (!hasComponent(UUIDComponent.getEntityByUUID(uuid as EntityUUID), MaterialStateComponent)) continue
+      const materialEntity = UUIDComponent.getEntityByUUID(uuid as EntityUUID, layer.value)
+      const source = getOptionalComponent(materialEntity, SourceComponent) ?? ''
+      if (!hasComponent(materialEntity, MaterialStateComponent)) continue
       materialsBySource[source] = materialsBySource[source] ? [...materialsBySource[source], uuid] : [uuid]
     }
     const materialsBySourceArray = Object.entries(materialsBySource)
@@ -90,27 +100,37 @@ function MaterialsLibrary() {
       []
     ) as EntityUUID[]
     nodes.set(flattenedMaterials)
-  }, [materialQuery.length, selectedEntities, showLayers])
+  }, [materialQuery.length, selectedEntities, showLayers, layer])
 
   return (
-    <div className="h-full overflow-scroll">
+    <div className="h-full overflow-scroll bg-surface-3">
       <div className="w-full rounded-md p-3">
         <MaterialPreviewer />
-        <div className="mt-4 flex h-5 items-center gap-2">
-          <InputGroup name="File Path" label="Save to" className="flex-grow">
-            <StringInput value={srcPath.value} onChange={srcPath.set} />
-          </InputGroup>
-          <Button
-            className="flex w-5 flex-grow items-center justify-center text-xs"
-            variant="tertiary"
-            onClick={() => saveMaterial(srcPath.value)}
-          >
+        <div className="mt-4 flex w-full items-center justify-between gap-x-3">
+          <Input
+            labelProps={{
+              text: 'Save to',
+              position: 'left'
+            }}
+            value={srcPath.value}
+            onChange={(e) => srcPath.set(e.target.value)}
+            fullWidth
+          />
+          <Button variant="secondary" onClick={() => saveMaterial(srcPath.value)}>
             {t('common:components.save')}
+          </Button>
+          <Button
+            onClick={() => {
+              layer.set(
+                (prevValue) => (prevValue === Layers.Authoring ? Layers.Simulation : Layers.Authoring) as LayerID
+              )
+            }}
+          >
+            {layer.value}
           </Button>
           <div className="mx-2 h-full border-l" />
           <Button
-            className="flex w-10 flex-grow items-center justify-center text-xs"
-            variant="tertiary"
+            variant="secondary"
             onClick={() => {
               showLayers.set((prevValue) => !prevValue)
             }}
@@ -119,7 +139,9 @@ function MaterialsLibrary() {
           </Button>
         </div>
       </div>
-      <FixedSizeListWrapper nodes={nodes.value}>{MaterialLayerNode}</FixedSizeListWrapper>
+      <div className="h-full w-full rounded border border-ui-background bg-ui-background p-1">
+        <FixedSizeListWrapper nodes={nodes.value}>{MaterialLayerNode}</FixedSizeListWrapper>
+      </div>
     </div>
   )
 }

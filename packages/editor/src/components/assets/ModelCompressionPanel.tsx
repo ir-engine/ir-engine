@@ -279,7 +279,7 @@ export default function ModelCompressionPanel({
             <span key={index} className="flex items-center">
               <button
                 className={`rounded-none px-1 pb-4 text-sm font-medium ${
-                  selectedLODIndex.value === index ? 'border-b border-blue-primary text-blue-primary' : 'text-[#9CA0AA]'
+                  selectedLODIndex.value === index ? 'border-b' : 'text-[#9CA0AA]'
                 }`}
                 onClick={() => selectedLODIndex.set(Math.min(index, lods.length - 1))}
               >
@@ -304,7 +304,7 @@ export default function ModelCompressionPanel({
           </button>
         </div>
 
-        <div className="my-8 flex items-center justify-around gap-x-1 overflow-x-auto rounded-lg border border-theme-input p-2">
+        <div className="my-8 flex items-center justify-around gap-x-1 overflow-x-auto rounded-lg border  p-2">
           {presetList.value.map((lodItem: LODVariantDescriptor, index) => (
             <button
               key={index}
@@ -337,7 +337,7 @@ export default function ModelCompressionPanel({
             <div className="flex w-full flex-col">
               <div className="h-4 w-full overflow-hidden rounded bg-white">
                 <div
-                  className="h-4 w-full origin-left bg-blue-primary transition-transform"
+                  className="h-4 w-full origin-left transition-transform"
                   style={{
                     transform: `scaleX(${compressionProgress.progress.value})`
                   }}

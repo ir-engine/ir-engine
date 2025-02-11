@@ -53,7 +53,6 @@ import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/Avat
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { SelectionState } from '../services/SelectionServices'
 import { ClickPlacementState } from './ClickPlacementSystem'
 
@@ -248,8 +247,6 @@ export const ObjectGridSnapState = defineState({
       TransformComponent.updateFromWorldMatrix(selectedParent)
       toCommit.push(selectedParent)
     }
-
-    EditorControlFunctions.commitTransformSave(toCommit)
   }
 })
 

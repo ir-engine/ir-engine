@@ -23,21 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { GLTF } from '@gltf-transform/core'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import {
   Entity,
-  entityExists,
-  EntityUUID,
+  EntityTreeComponent,
   getComponent,
+  getOptionalComponent,
   hasComponent,
-  UndefinedEntity,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { AllFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { nodeIsChild } from '@ir-engine/engine/src/gltf/gltfUtils'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { t } from 'i18next'
@@ -55,8 +51,6 @@ export type HierarchyTreeNodeType = {
   isCollapsed?: boolean
   isRendered?: boolean
 }
-
-type NestedHierarchyTreeNode = HierarchyTreeNodeType & { children: NestedHierarchyTreeNode[] }
 
 /* COMMON */
 
@@ -114,126 +108,41 @@ export const pasteNodes = (entity?: Entity) => {
     })
 }
 
-/* HIERARCHY TREE WALKER */
-
-function buildHierarchyTree(
-  depth: number,
-  childIndex: number,
-  node: GLTF.INode,
-  nodes: GLTF.INode[],
-  array: NestedHierarchyTreeNode[],
-  lastChild: boolean,
-  sceneID: string,
-  showModelChildren: boolean,
+type WalkerEntry = {
+  entity: Entity
+  depth: number
+  lastChild: boolean
   isRendered: boolean
-) {
-  const uuid = node.extensions && (node.extensions[UUIDComponent.jsonID] as EntityUUID)
-  const entity = UUIDComponent.getEntityByUUID(uuid!)
-  if (!entity || !entityExists(entity)) return
+}
 
-  const item = {
-    depth,
-    childIndex,
-    entity: entity,
-    isCollapsed: !getState(HierarchyTreeState).expandedNodes[sceneID]?.[entity],
-    children: [],
-    isLeaf: !(node.children && node.children.length > 0),
-    lastChild: lastChild,
-    isRendered: isRendered
-  }
-  array.push(item)
-
-  if (hasComponent(entity, GLTFComponent) && showModelChildren) {
-    const scene = GLTFComponent.getInstanceID(entity)
-    const snapshotState = getState(GLTFSnapshotState)
-    const snapshots = snapshotState[scene]
-    if (snapshots) {
-      const snapshotNodes = snapshots.snapshots[snapshots.index].nodes
-      if (snapshotNodes && snapshotNodes.length > 0) {
-        item.isLeaf = false
-        buildHierarchyTreeForNodes(
-          depth + 1,
-          snapshotNodes,
-          item.children,
-          sceneID,
-          showModelChildren,
-          isRendered && !item.isCollapsed
-        )
+export function ecsHierarchyTreeWalker(rootEntity: Entity): HierarchyTreeNodeType[] {
+  const result: HierarchyTreeNodeType[] = []
+  const frontier: WalkerEntry[] = [{ entity: rootEntity, depth: 0, lastChild: true, isRendered: true }]
+  while (frontier.length > 0) {
+    const { entity, depth, lastChild, isRendered: originalIsRendered } = frontier.pop()!
+    const eTree = getOptionalComponent(entity, EntityTreeComponent)
+    const valid = hasComponent(entity, GLTFComponent) || hasComponent(entity, SourceComponent)
+    if (!eTree || !valid) continue
+    const childIndex = eTree.childIndex ?? 0
+    const children = eTree.children
+    const isLeaf = !children || children.length === 0
+    const sourceID = GLTFComponent.getInstanceID(rootEntity)
+    const isCollapsed = !getState(HierarchyTreeState).expandedNodes[sourceID]?.[entity]
+    const isRendered = originalIsRendered && !isCollapsed
+    result.push({
+      entity,
+      depth,
+      childIndex,
+      lastChild,
+      isLeaf,
+      isCollapsed,
+      isRendered: originalIsRendered
+    })
+    if (children) {
+      for (let i = children.length - 1; i >= 0; i--) {
+        frontier.push({ entity: children[i], depth: depth + 1, lastChild: i === 0, isRendered })
       }
     }
   }
-
-  if (node.children) {
-    for (let i = 0; i < node.children.length; i++) {
-      const childIndex = node.children[i]
-      buildHierarchyTree(
-        depth + 1,
-        i,
-        nodes[childIndex],
-        nodes,
-        item.children,
-        i === node.children.length - 1,
-        sceneID,
-        showModelChildren,
-        isRendered && !item.isCollapsed
-      )
-    }
-  }
-}
-
-function buildHierarchyTreeForNodes(
-  depth: number,
-  nodes: GLTF.INode[],
-  outArray: NestedHierarchyTreeNode[],
-  sceneID: string,
-  showModelChildren: boolean,
-  isRendered: boolean
-) {
-  for (let i = 0; i < nodes.length; i++) {
-    if (nodeIsChild(i, nodes)) continue
-    buildHierarchyTree(depth, i, nodes[i], nodes, outArray, false, sceneID, showModelChildren, isRendered)
-  }
-  if (!outArray.length) return
-  outArray[outArray.length - 1].lastChild = true
-}
-
-function flattenTree(array: NestedHierarchyTreeNode[], outArray: HierarchyTreeNodeType[]) {
-  for (const item of array) {
-    if (!item.entity) continue
-    outArray.push({
-      depth: item.depth,
-      entity: item.entity,
-      childIndex: item.childIndex,
-      lastChild: item.lastChild,
-      isLeaf: item.isLeaf,
-      isCollapsed: item.isCollapsed,
-      isRendered: item.isRendered
-    })
-    flattenTree(item.children, outArray)
-  }
-}
-
-export function gltfHierarchyTreeWalker(
-  rootEntity: Entity,
-  nodes: GLTF.INode[],
-  showModelChildren: boolean
-): HierarchyTreeNodeType[] {
-  const outArray = [] as NestedHierarchyTreeNode[]
-
-  const sceneID = getComponent(rootEntity, SourceComponent)
-  const rootNode = {
-    depth: 0,
-    entity: rootEntity,
-    parentEntity: UndefinedEntity,
-    childIndex: 0,
-    lastChild: true,
-    isCollapsed: !getState(HierarchyTreeState).expandedNodes[sceneID]?.[rootEntity],
-    isRendered: true
-  }
-  const tree = [rootNode] as HierarchyTreeNodeType[]
-
-  buildHierarchyTreeForNodes(1, nodes, outArray, sceneID, showModelChildren, !rootNode.isCollapsed)
-  flattenTree(outArray, tree)
-
-  return tree
+  return result
 }
