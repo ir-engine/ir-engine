@@ -27,10 +27,10 @@ import { AvatarSpawnSystem } from '@ir-engine/client-core/src/networking/AvatarS
 import { RenderInfoSystem } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
 // import { EditorInstanceNetworkingSystem } from './components/realtime/EditorInstanceNetworkingSystem'
 import { PositionalAudioSystem } from '@ir-engine/client-core/src/systems/PositionalAudioSystem'
+import { ActiveHelperSystem } from './systems/ActiveHelperSystem'
 import { CameraGizmoSystem } from './systems/CameraGizmoSystem'
 import { ClickPlacementSystem } from './systems/ClickPlacementSystem'
 import { EditorControlSystem } from './systems/EditorControlSystem'
-import { HelperActiveSystem } from './systems/HelperActiveSystem'
 import { HighlightSystem } from './systems/HighlightSystem'
 import { ModelHandlingSystem } from './systems/ModelHandlingSystem'
 import { ModelLoadingSpinnerSystem } from './systems/ModelLoadingSpinnerSystem'
@@ -40,11 +40,11 @@ import { TransformGizmoSystem } from './systems/TransformGizmoSystem'
 import { UploadRequestSystem } from './systems/UploadRequestSystem'
 
 export {
+  ActiveHelperSystem,
   AvatarSpawnSystem,
   CameraGizmoSystem,
   ClickPlacementSystem,
   EditorControlSystem,
-  HelperActiveSystem,
   HighlightSystem,
   ModelHandlingSystem,
   ModelLoadingSpinnerSystem,

@@ -105,6 +105,14 @@ matInvisible.visible = false
 const matHelper = gizmoLineMaterial.clone()
 matHelper.opacity = gizmoMaterialProperties[GizmoMaterial.HELPER].opacity
 
+const matHelperRed = gizmoLineMaterial.clone()
+matHelperRed.color.setHex(gizmoMaterialProperties[GizmoMaterial.RED].color)
+matHelperRed.opacity = gizmoMaterialProperties[GizmoMaterial.HELPER].opacity
+
+const matHelperBlue = gizmoLineMaterial.clone()
+matHelperBlue.color.setHex(gizmoMaterialProperties[GizmoMaterial.BLUE].color)
+matHelperBlue.opacity = gizmoMaterialProperties[GizmoMaterial.HELPER].opacity
+
 const matRed = gizmoMaterial.clone()
 matRed.color.setHex(gizmoMaterialProperties[GizmoMaterial.RED].color)
 
@@ -264,6 +272,19 @@ const iconGizmoArrow: GizmoDefinition = {
     [new Mesh(arrowGeometry, matGray.clone()), [0, 0, 0.5], [Math.PI / 2, 0, 0]],
     [new Mesh(lineGeometry4, matGray.clone()), [0, 0, 0.2], [Math.PI / 2, 0, 0]]
   ]
+}
+
+const iconGizmoYHelper: GizmoDefinition = {
+  DELTAY: [
+    [new Line(TranslateHelperGeometry(), matHelper), null, null, null],
+    [new Mesh(CircleGeometry(0.1, 1), matHelper), null, [0, 0, -Math.PI / 2]]
+  ]
+}
+
+const iconGizmoHelper: GizmoDefinition = {
+  DELTAX: [[new Line(TranslateHelperGeometry(), matHelperRed), null, null, null]],
+  ...iconGizmoYHelper,
+  DELTAZ: [[new Line(TranslateHelperGeometry(), matHelperBlue), null, null, null]]
 }
 
 const cameraGizmo: GizmoDefinition = {
@@ -480,6 +501,8 @@ export {
   helperScale,
   helperTranslate,
   iconGizmoArrow,
+  iconGizmoHelper,
+  iconGizmoYHelper,
   matBlue,
   matBlueTransparent,
   matGray,

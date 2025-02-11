@@ -32,18 +32,22 @@ import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { GLTFNodeState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { getMutableState, getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
-import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { createHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
-import { gizmoIconUpdate } from '@ir-engine/spatial/src/common/functions/activeHelperFunctions'
+import {
+  gizmoIconHelperYUpdate,
+  gizmoIconUpdate,
+  onPointerHover
+} from '@ir-engine/spatial/src/common/functions/activeHelperFunctions'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { InputHeuristicState, IntersectionData } from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
-import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { Raycaster, Sprite, SpriteMaterial, TextureLoader, Vector3 } from 'three'
-import { iconGizmoArrow, setupGizmo } from '../constants/GizmoPresets'
+import { iconGizmoArrow, iconGizmoYHelper, setupGizmo } from '../constants/GizmoPresets'
 import { ComponentStudioIconState } from '../services/ComponentStudioIcons'
 import { SelectionState } from '../services/SelectionServices'
 
@@ -60,6 +64,7 @@ const createIconGizmo = (textureURL) => {
 
 const raycaster = new Raycaster()
 raycaster.layers.enable(ObjectLayers.NodeHelper)
+raycaster.firstHitOnly = true
 
 const inputObjectsQuery = defineQuery([InputComponent, VisibleComponent, ObjectComponent])
 
@@ -93,7 +98,18 @@ const execute = () => {
   for (const entity of helperQuery()) {
     const activeHelperComponent = getComponent(entity, ActiveHelperComponent)
     if (!activeHelperComponent.helperDefaultGizmo) continue
+    const selectedEntities = SelectionState.getSelectedEntities()
+
     gizmoIconUpdate(entity)
+
+    const intersect = onPointerHover(entity)
+
+    for (const lineEntity of activeHelperComponent.lineEntities) {
+      setVisibleComponent(lineEntity, intersect ? true : false)
+      gizmoIconHelperYUpdate(lineEntity, getComponent(entity, TransformComponent).position)
+    }
+
+    if (!(selectedEntities.find((e) => e === entity) === undefined)) continue
 
     const defaultGizmoButtons = InputComponent.getMergedButtons(activeHelperComponent.helperDefaultGizmo)
 
@@ -146,7 +162,13 @@ const reactor = () => {
 
           if (getComponent(entity, ActiveHelperComponent).directional) {
             const directionalEntity = setupGizmo(entity, iconGizmoArrow, ObjectLayers.NodeHelper)
-            setComponent(entity, ActiveHelperComponent, { directionalEntity: directionalEntity })
+            setComponent(entity, ActiveHelperComponent, { directionalEntities: directionalEntity })
+            const lineEntitites = setupGizmo(
+              getState(ReferenceSpaceState).originEntity,
+              iconGizmoYHelper,
+              ObjectLayers.NodeHelper
+            )
+            setComponent(entity, ActiveHelperComponent, { lineEntities: lineEntitites })
           }
           // add text
           return iconGizmo
@@ -171,8 +193,8 @@ const reactor = () => {
   return null
 }
 
-export const HelperActiveSystem = defineSystem({
-  uuid: 'ee.engine.HelperActiveSystem',
+export const ActiveHelperSystem = defineSystem({
+  uuid: 'ee.engine.ActiveHelperSystem',
   insert: { before: PresentationSystemGroup },
   execute,
   reactor

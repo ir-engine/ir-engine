@@ -53,6 +53,7 @@ import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/Obje
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 
+import { gizmoIconHelperUpdate } from '@ir-engine/spatial/src/common/functions/activeHelperFunctions'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
@@ -130,7 +131,7 @@ export function gizmoUpdate(gizmoControlEntity) {
     removeComponent(helperEntity, VisibleComponent)
     const transform = getComponent(helperEntity, TransformComponent)
     transform.rotation.identity()
-    transform.scale.set(1, 1, 1).multiplyScalar(factor * gizmoControl.size * 0.25)
+    transform.scale.set(1, 1, 1).multiplyScalar(factor * gizmoControl.size * 0.3)
     transform.position.set(0, 0, 0)
     const name = getComponent(helperEntity, NameComponent)
 
@@ -201,6 +202,9 @@ export function gizmoUpdate(gizmoControlEntity) {
       _tempVector.applyQuaternion(gizmoControl.worldQuaternionStart.clone().invert())
       transform.scale.copy(_tempVector)
       if (gizmoControl.dragging) setComponent(helperEntity, VisibleComponent)
+    } else if (name.includes('DELTA') && name.length > 'DELTA'.length) {
+      gizmoIconHelperUpdate(helperEntity, gizmoControl.worldPositionStart, gizmoControl.worldPosition)
+      if (gizmoControl.dragging) setComponent(helperEntity, VisibleComponent)
     } else {
       transform.rotation.copy(quaternion)
 
@@ -227,7 +231,7 @@ export function gizmoUpdate(gizmoControlEntity) {
     const transform = getComponent(handleEntity, TransformComponent)
     transform.rotation.identity()
     transform.position.set(0, 0, 0)
-    transform.scale.set(1, 1, 1).multiplyScalar(factor * gizmoControl.size * 0.25)
+    transform.scale.set(1, 1, 1).multiplyScalar(factor * gizmoControl.size * 0.3)
 
     // Align handles to current local or world rotation
 

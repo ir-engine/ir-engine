@@ -49,7 +49,7 @@ import {
   TransformGizmoTagComponent
 } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { Object3D } from 'three'
-import { gizmo, helper, picker, setupGizmo } from '../../../constants/GizmoPresets'
+import { gizmo, helper, iconGizmoHelper, picker, setupGizmo } from '../../../constants/GizmoPresets'
 import { EditorHelperState } from '../../../services/EditorHelperState'
 
 export const TransformGizmoVisualComponent = defineComponent({
@@ -89,6 +89,7 @@ export const TransformGizmoVisualComponent = defineComponent({
       setComponent(helperEntity, TransformComponent)
       setComponent(helperEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
       setupGizmo(helperEntity, helper[mode], ObjectLayers.TransformGizmo)
+      setupGizmo(helperEntity, iconGizmoHelper, ObjectLayers.NodeHelper)
       visualComponent.helper.set(helperEntity)
       entities.push(helperEntity)
 
