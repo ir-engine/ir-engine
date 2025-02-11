@@ -223,16 +223,17 @@ function Message({ message, hideUsername }: { message: MessageType; hideUsername
   ) : (
     <div
       className={twMerge(
-        'my-4 place-self-end rounded-[14px] bg-surface-3 bg-white px-2 py-0.5 opacity-50',
+        'my-4 place-self-end rounded-[11px] bg-surface-3 px-2 py-2.5 opacity-50',
+        'max-sm:rounded-[14px] max-sm:py-0.5',
         message.sender.id === user.id.value && 'place-self-start bg-[#C7C7C7]',
         newMessages.value[message.id] && 'opacity-100',
         hideUsername && '-mt-3'
       )}
     >
       {message.sender.id !== user.id.value && !hideUsername && (
-        <div className="text-xs font-bold text-black text-text-primary">{message.sender.name}</div>
+        <div className="max-sm:text-xs text-lg font-bold text-text-primary">{message.sender.name}</div>
       )}
-      <div className="text-sm tracking-[-0.14px] text-black text-text-primary">{message.text}</div>
+      <div className="max-sm:text-sm max-sm:tracking-[-0.14px] text-base text-text-primary">{message.text}</div>
     </div>
   )
 }
@@ -241,7 +242,7 @@ function Messages() {
   const { messages, isChatOpen } = useInstanceChatMessages()
   if (!isChatOpen.value) return null
   return (
-    <div className={twMerge('flex max-h-[45vh] flex-col justify-end', isMobile && 'max-h-[65vh]')}>
+    <div className="max-sm:max-h-[65vh] flex max-h-[45vh] flex-col justify-end">
       <div className="min-h-0 flex-1 overflow-y-auto">
         {messages.value.map((message, index) => (
           <Message
@@ -261,12 +262,10 @@ function Messages() {
 
 export default function InstanceChat() {
   const { t } = useTranslation()
-  // const ageVerified = useMutableState(AuthState).user.ageVerified.value
+  const ageVerified = useMutableState(AuthState).user.ageVerified.value
   const mediaNetworkState = useMediaNetwork()
   const networkState = useMutableState(NetworkState)
-  // const isGuest = useMutableState(AuthState).user.isGuest.value
-  const isGuest = false
-  const ageVerified = true
+  const isGuest = useMutableState(AuthState).user.isGuest.value
 
   if (networkState.config.media.value && !mediaNetworkState?.ready.value) return null
 
