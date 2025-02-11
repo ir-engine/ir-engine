@@ -1079,6 +1079,10 @@ export function getAuthoringCounterpart(entity: Entity) {
 }
 
 export function getSimulationCounterpart(entity: Entity) {
+  const layer = LayerComponent.get(entity)
+  if (layer === Layers.Simulation) {
+    return entity
+  }
   const relations = LayerFunctions.getLayerRelationsEntities(entity)
   if (!relations) return UndefinedEntity
   const entityLayer = LayerComponent.get(entity)
