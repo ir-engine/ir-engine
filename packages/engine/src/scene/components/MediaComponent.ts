@@ -178,9 +178,15 @@ export function MediaReactor() {
     if (!hasComponent(entity, MediaElementComponent)) return
     const mediaElementComponent = getMutableComponent(entity, MediaElementComponent)
     const element = mediaElementComponent.element.value as HTMLMediaElement
-    if (element.currentTime < media.seekTime.value) {
-      setTime(mediaElementComponent.element, media.seekTime.value)
+    let time = media.seekTime.value
+
+    if (time > element.duration) {
+      time = element.duration
     }
+    if (time < 0) {
+      time = 0
+    }
+    setTime(mediaElementComponent.element, time)
   }
 
   useEffect(() => {
