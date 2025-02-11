@@ -36,7 +36,7 @@ import {
   Vector3
 } from 'three'
 
-import { EntityTreeComponent } from '@ir-engine/ecs'
+import { EntityTreeComponent, createEntity } from '@ir-engine/ecs'
 import {
   ComponentType,
   getComponent,
@@ -48,7 +48,6 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineQuery, useQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { defineActionQueue, defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'

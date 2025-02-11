@@ -37,6 +37,7 @@ import { useDraggable } from '../../hooks/useDraggable'
 import { APIDebug } from './APIDebug'
 import DebugButtons from './DebugButtons'
 import { EntityDebug } from './EntityDebug'
+import { ResourceDebug } from './ResourceDebug'
 import { StateDebug } from './StateDebug'
 import { StatsPanel } from './StatsPanel'
 import { SystemDebug } from './SystemDebug'
@@ -64,15 +65,17 @@ const DebugTabs = {
   All: (
     <>
       <EntityDebug />
+      <APIDebug />
       <SystemDebug />
       <StateDebug />
-      <APIDebug />
+      <ResourceDebug />
     </>
   ),
   Entities: <EntityDebug />,
   API: <APIDebug />,
   Systems: <SystemDebug />,
-  State: <StateDebug />
+  State: <StateDebug />,
+  Resources: <ResourceDebug />
 }
 
 const tabsData: TabProps['tabsData'] = Object.keys(DebugTabs).map((tabLabel) => ({

@@ -25,26 +25,26 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
+import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, hasComponent, removeComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { CallbackComponent, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 
 const LoadTagModeSchema = S.LiteralUnion(['distance', 'trigger'], 'distance')
 
-export const SceneDynamicLoadTagComponent = defineComponent({
-  name: 'SceneDynamicLoadTagComponent',
+export const SceneDynamicLoadComponent = defineComponent({
+  name: 'SceneDynamicLoadComponent',
   jsonID: 'EE_dynamic_load',
 
   schema: S.Object({
     mode: LoadTagModeSchema,
     distance: S.Number(20),
-    loaded: S.Bool(false)
+    loaded: S.NonSerialized(S.Bool(false))
   }),
 
   reactor: () => {
     const entity = useEntityContext()
-    const component = useComponent(entity, SceneDynamicLoadTagComponent)
+    const component = useComponent(entity, SceneDynamicLoadComponent)
 
     /** Trigger mode */
     useEffect(() => {

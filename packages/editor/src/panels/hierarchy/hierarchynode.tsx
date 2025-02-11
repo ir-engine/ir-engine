@@ -32,8 +32,7 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
-  useComponent,
-  useOptionalComponent
+  useHasComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
@@ -43,14 +42,14 @@ import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices
 import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/resourceLoaderFunctions'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { GLTFLoaderFunctions } from '@ir-engine/engine/src/gltf/GLTFLoaderFunctions'
+import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, getState, none, useHookstate, useMutableState, useState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { Button, Input } from '@ir-engine/ui'
 import TransformPropertyGroup from '@ir-engine/ui/src/components/editor/properties/transform'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
@@ -105,25 +104,25 @@ function IconComponent({ entity }: { entity: Entity }) {
   )
 }
 
-export default function HierarchyTreeNode(props: ListChildComponentProps<undefined>) {
+export default React.memo(function HierarchyTreeNode(props: ListChildComponentProps<undefined>) {
   const { t } = useTranslation()
   const nodes = useHierarchyNodes()
   const node = nodes[props.index]
   const entity = node.entity
   const fixedSizeListStyles = props.style
-  const uuid = useComponent(entity, UUIDComponent)
-  const selected = useHookstate(getMutableState(SelectionState).selectedEntities).value.includes(uuid.value)
-  const visible = useOptionalComponent(entity, VisibleComponent)
+  const uuid = getComponent(entity, UUIDComponent)
+  const selected = useHookstate(getMutableState(SelectionState).selectedEntities).value.includes(uuid)
+  const visible = useHasComponent(entity, VisibleComponent)
   const locked = useHookstate(getMutableState(EntityHierarchyLockState).lockedEntities).value[entity] ?? false
   const { rootEntity } = useMutableState(EditorState).value
   const { collapseChildren, expandChildren, collapseNode, expandNode } = useNodeCollapseExpand()
   const renamingNode = useRenamingNode()
   const { expandedNodes, firstSelectedEntity } = useMutableState(HierarchyTreeState)
-  const sourceId = useOptionalComponent(rootEntity, SourceComponent)!.value
+  const sourceID = GLTFComponent.useInstanceID(rootEntity)
   const currentRenameNode = useHookstate(getComponent(entity, NameComponent))
   const { setMenu } = useHierarchyTreeContextMenu()
   const renameRef = useRef<HTMLInputElement>(null)
-  let isRenameOpen = useState(false)
+  const isRenameOpen = useState(false)
 
   const handleRenameOpen = () => {
     if (!isRenameOpen.value) {
@@ -301,7 +300,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
 
   const onCollapseExpandNode = (event: React.MouseEvent) => {
     event.stopPropagation()
-    if (expandedNodes.value[sourceId][entity]) collapseNode(entity)
+    if (expandedNodes.value[sourceID][entity]) collapseNode(entity)
     else expandNode(entity)
   }
 
@@ -312,7 +311,7 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
     } else {
       EditorControlFunctions.addOrRemoveComponent([entity], VisibleComponent, true)
     }
-    setVisibleComponent(entity, !hasComponent(entity, VisibleComponent))
+    // setVisibleComponent(entity, !hasComponent(entity, VisibleComponent))
   }
 
   const onLockUnlockNode = (event: React.MouseEvent) => {
@@ -325,23 +324,25 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
   }
 
   const isModelRoot = hasComponent(entity, GLTFComponent)
-  const isModified = isModelRoot && !!getState(GLTFModifiedState)[GLTFComponent.getInstanceID(entity)]
+  const isModified = isModelRoot && !!getState(AssetModifiedState)[GLTFComponent.getInstanceID(entity)]
 
   const onSaveChanges = () => {
     const gltfComponent = getComponent(node.entity, GLTFComponent)
     const [_, orgName, projectName, fileName] = STATIC_ASSET_REGEX.exec(gltfComponent.src)!
     const fullProjectName = `${orgName}/${projectName}`
     const parsedName = fileName.split('?')[0]
-    exportRelativeGLTF(node.entity, fullProjectName, parsedName).then(() => {
-      ResourceLoaderManager.reloadResource(gltfComponent.src)
-      getMutableState(GLTFModifiedState)[GLTFComponent.getInstanceID(entity)].set(none)
+    exportRelativeGLTF(node.entity, fullProjectName, parsedName).then((newSRC) => {
+      EditorControlFunctions.modifyProperty([node.entity], GLTFComponent, { src: newSRC })
+      getMutableState(AssetModifiedState)[GLTFComponent.getInstanceID(entity)].set(none)
     })
   }
 
   const onRevert = () => {
     const gltfComponent = getComponent(node.entity, GLTFComponent)
+    GLTFLoaderFunctions.unloadScene(gltfComponent.src, node.entity)
+    EditorControlFunctions.modifyProperty([node.entity], GLTFComponent, { src: gltfComponent.src })
     ResourceLoaderManager.reloadResource(gltfComponent.src)
-    getMutableState(GLTFModifiedState)[GLTFComponent.getInstanceID(entity)].set(none)
+    getMutableState(AssetModifiedState)[GLTFComponent.getInstanceID(entity)].set(none)
   }
 
   return (
@@ -484,4 +485,4 @@ export default function HierarchyTreeNode(props: ListChildComponentProps<undefin
       </div>
     </li>
   )
-}
+})

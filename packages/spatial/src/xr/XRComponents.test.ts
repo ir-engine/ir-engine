@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { UndefinedEntity, createEngine, createEntity, destroyEngine, setComponent } from '@ir-engine/ecs'
+import { UndefinedEntity, createEngine, createEntity, destroyEngine, getComponent, setComponent } from '@ir-engine/ecs'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { assertArray } from '../../tests/util/assert'
 import {
@@ -73,7 +73,8 @@ describe('XRLeftHandComponent', () => {
     })
 
     it("should initialize the Component's data with the expected default values", () => {
-      const result = setComponent(testEntity, XRLeftHandComponent)
+      setComponent(testEntity, XRLeftHandComponent)
+      const result = getComponent(testEntity, XRLeftHandComponent)
       assertXRHandComponentDefaults(result)
     })
   }) //:: onInit
@@ -99,7 +100,8 @@ describe('XRRightHandComponent', () => {
     })
 
     it("should initialize the Component's data with the expected default values", () => {
-      const result = setComponent(testEntity, XRLeftHandComponent)
+      setComponent(testEntity, XRRightHandComponent)
+      const result = getComponent(testEntity, XRRightHandComponent)
       assertXRHandComponentDefaults(result)
     })
   }) //:: onInit

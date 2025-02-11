@@ -27,14 +27,15 @@ import {
   Engine,
   Entity,
   PresentationSystemGroup,
+  QueryReactor,
   UUIDComponent,
   defineQuery,
   defineSystem,
   getComponent,
   getOptionalComponent,
   setComponent,
-  useOptionalComponent,
-  useQuery
+  useEntityContext,
+  useOptionalComponent
 } from '@ir-engine/ecs'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
 import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
@@ -98,22 +99,13 @@ const execute = () => {
 
 export const AvatarTransparencySystem = defineSystem({
   uuid: 'AvatarTransparencySystem',
-  execute,
   insert: { with: PresentationSystemGroup },
-  reactor: () => {
-    const avatarQuery = useQuery([AvatarComponent])
-    return (
-      <>
-        {avatarQuery.map((childEntity) => (
-          <AvatarReactor key={childEntity} entity={childEntity} />
-        ))}
-      </>
-    )
-  }
+  execute,
+  reactor: () => <QueryReactor Components={[AvatarComponent]} ChildEntityReactor={AvatarReactor} />
 })
 
-const AvatarReactor = (props: { entity: Entity }) => {
-  const entity = props.entity
+const AvatarReactor = () => {
+  const entity = useEntityContext()
   const sceneInstanceID = GLTFComponent.useInstanceID(entity)
   const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
   return (

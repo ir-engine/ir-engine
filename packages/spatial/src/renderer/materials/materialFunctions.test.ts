@@ -113,7 +113,7 @@ describe('materialFunctions', () => {
 
     it('should return MaterialStateComponent.fallbackMaterial.material when the entity does not have a MaterialStateComponent', () => {
       const Expected = new Material()
-      const uuid = MaterialStateComponent.fallbackMaterial
+      const uuid = MaterialStateComponent.fallbackMaterialUUID
       // Set the data as expected
       const fallbackEntity = createEntity()
       setComponent(fallbackEntity, UUIDComponent, uuid)
@@ -249,7 +249,7 @@ describe('materialFunctions', () => {
     it('should add all items of `@param newMaterialUUIDs` to MeshComponent.material when MeshComponent.material is an array', () => {
       // Set the fallback material
       const fallbackMaterial = new Material()
-      const fallbackUUID = MaterialStateComponent.fallbackMaterial
+      const fallbackUUID = MaterialStateComponent.fallbackMaterialUUID
       const fallbackEntity = createEntity()
       setComponent(fallbackEntity, UUIDComponent, fallbackUUID)
       setComponent(fallbackEntity, MaterialStateComponent, { instances: [UndefinedEntity], material: fallbackMaterial })

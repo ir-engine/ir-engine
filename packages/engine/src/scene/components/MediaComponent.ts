@@ -27,7 +27,7 @@ import type Hls from 'hls.js'
 import { useEffect, useLayoutEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-import { ComponentType } from '@ir-engine/ecs'
+import { ComponentType, entityExists, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -40,7 +40,6 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { entityExists, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { State, getState, isClient, useMutableState } from '@ir-engine/hyperflux'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
@@ -94,10 +93,6 @@ export const MediaElementComponent = defineComponent({
     hls: S.Optional(S.Type<Hls>()),
     abortController: S.Class(() => new AbortController())
   }),
-
-  toJSON: () => {
-    return null! as { element: HTMLMediaElement }
-  },
 
   onSet: (entity, component, json) => {
     if (!json) return
@@ -164,26 +159,14 @@ export const MediaComponent = defineComponent({
     // autoStartTime: -1
   }),
 
-  toJSON: (component) => {
-    return {
-      controls: component.controls,
-      autoplay: component.autoplay,
-      resources: [...component.resources].filter(Boolean), // filter empty strings
-      volume: component.volume,
-      uiOffset: component.uiOffset,
-      synchronize: component.synchronize,
-      playMode: component.playMode,
-      isMusic: component.isMusic,
-      seekTime: component.seekTime // we can start media from a specific point if needed
-    }
-  },
-
   reactor: MediaReactor,
 
   errors: ['LOADING_ERROR', 'UNSUPPORTED_ASSET_CLASS', 'INVALID_URL']
 })
 
 export function MediaReactor() {
+  if (!isClient) return null
+
   const entity = useEntityContext()
   const media = useComponent(entity, MediaComponent)
   const mediaElement = useOptionalComponent(entity, MediaElementComponent)
@@ -191,9 +174,8 @@ export function MediaReactor() {
   const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
   const rendererEntity = useRendererEntity(entity)
 
-  if (!isClient) return null
-
   function validateTime() {
+    if (!hasComponent(entity, MediaElementComponent)) return
     const mediaElementComponent = getMutableComponent(entity, MediaElementComponent)
     const element = mediaElementComponent.element.value as HTMLMediaElement
     if (element.currentTime < media.seekTime.value) {

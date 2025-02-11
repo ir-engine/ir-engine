@@ -129,7 +129,7 @@ export const useGamepadInputSources = () => {
     }
     const removeGamepad = (e: GamepadEvent) => {
       console.log('[ClientInputSystem] lost gamepad', e.gamepad)
-      NameComponent.entitiesByName['InputSource-gamepad-' + e.gamepad.id]?.forEach(removeEntity)
+      NameComponent.getEntitiesByName('InputSource-gamepad-' + e.gamepad.id).forEach(removeEntity)
     }
     window.addEventListener('gamepadconnected', addGamepad)
     window.addEventListener('gamepaddisconnected', removeGamepad)

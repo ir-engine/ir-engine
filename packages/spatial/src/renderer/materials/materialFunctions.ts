@@ -100,7 +100,7 @@ export const createMaterialPrototype = (prototype: MaterialPrototypeDefinition) 
 export const getMaterial = (uuid: EntityUUID) => {
   return (
     getOptionalComponent(UUIDComponent.getEntityByUUID(uuid), MaterialStateComponent)?.material ??
-    getComponent(UUIDComponent.getEntityByUUID(MaterialStateComponent.fallbackMaterial), MaterialStateComponent)
+    getComponent(UUIDComponent.getEntityByUUID(MaterialStateComponent.fallbackMaterialUUID), MaterialStateComponent)
       .material
   )
 }

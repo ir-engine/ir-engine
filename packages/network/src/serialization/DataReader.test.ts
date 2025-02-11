@@ -23,19 +23,18 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Types } from '@ir-engine/ecs'
 import assert, { strictEqual } from 'assert'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
-import { EngineState } from '@ir-engine/ecs'
+import { EngineState, createEntity } from '@ir-engine/ecs'
 import { defineComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Engine, createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { PeerID, UserID, applyIncomingActions, dispatchAction, getMutableState, getState } from '@ir-engine/hyperflux'
 import { NetworkId } from '@ir-engine/network/src/NetworkId'
 
+import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
 import { roundNumberToPlaces } from '../../tests/MathTestUtils'
 import { createMockNetwork } from '../../tests/createMockNetwork'
 import { Network, NetworkTopics } from '../Network'
@@ -76,13 +75,20 @@ import {
   writeProp
 } from './ViewCursor'
 
-const { f64 } = Types
-
 const MockPoseComponent = defineComponent({
   name: 'MockPoseComponent_Reader',
-  schema: {
-    Vec3: { x: f64, y: f64, z: f64 },
-    Quat: { x: f64, y: f64, z: f64, w: f64 }
+  storage: {
+    Vec3: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array)
+    },
+    Quat: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array),
+      w: createResizableTypeArray(Float64Array)
+    }
   }
 })
 
