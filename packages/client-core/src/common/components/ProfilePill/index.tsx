@@ -54,7 +54,7 @@ const ProfilePill = () => {
       onOpen={() => popUpOpened.set(true)}
       onClose={() => popUpOpened.set(false)}
       trigger={
-        <button className="flex h-8 w-16 items-center justify-center gap-2 rounded-full bg-[#191B1F] focus:ring-1">
+        <button className="flex h-8 w-16 items-center justify-center gap-2 rounded-full bg-ui-background focus:ring-1">
           <div className="ml-1 h-6 w-6 overflow-hidden rounded-full">
             <img src={avatarThumbnail} className="h-full w-full" />
           </div>
@@ -65,7 +65,7 @@ const ProfilePill = () => {
         </button>
       }
     >
-      <div className="flex w-80 min-w-fit max-w-[30wv]  -translate-x-1/2 flex-col gap-1 truncate rounded-lg bg-[#141619] p-6 shadow-lg">
+      <div className="flex w-80 min-w-fit max-w-[30wv] -translate-x-1/2 flex-col gap-1 truncate rounded-lg border border-ui-outline bg-surface-1 p-6 shadow-lg">
         <div className="flex items-center gap-6">
           <div className="relative h-14 w-14">
             <img className="rounded-full" src={avatarThumbnail} />
@@ -92,11 +92,11 @@ const ProfilePill = () => {
           />
 
           <div className="flex flex-col gap-1">
-            <span className="text-xl font-medium text-[#F5F5F5]">{user.value.name}</span>
-            <span className="text-base text-[#B2B5BD]">{email}</span>
+            <span className="text-xl font-medium text-text-primary">{user.value.name}</span>
+            <span className="text-base text-text-secondary">{email}</span>
           </div>
         </div>
-        <div className="mb-1 mt-4 w-full border border-[#212226]" />
+        <hr className="mb-1 mt-4 w-full border border-ui-outline" />
       </div>
     </Popup>
   )

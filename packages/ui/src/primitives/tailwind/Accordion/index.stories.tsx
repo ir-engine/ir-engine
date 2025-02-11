@@ -50,7 +50,7 @@ export const Default = {
     shrinkIcon: <HiMinus />,
     children: (
       <>
-        <div className="my-6 flex w-full justify-between gap-4">
+        <div className="flex w-full justify-between gap-4">
           <Input
             labelProps={{
               text: 'Port',

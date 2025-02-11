@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { useFind, useMutation } from '@ir-engine/common'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
@@ -143,8 +142,6 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
     <Accordion
       title={t('admin:components.setting.server.header')}
       subtitle={t('admin:components.setting.server.subtitle')}
-      expandIcon={<HiPlusSmall />}
-      shrinkIcon={<HiMinus />}
       ref={ref}
       open={open}
     >
@@ -311,7 +308,6 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
 
         <div className="col-span-1 mt-5 grid grid-cols-2">
           <Toggle
-            className="col-span-1"
             label={t('admin:components.setting.performDryRun')}
             value={dryRun.value}
             disabled
@@ -319,7 +315,6 @@ const ServerTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           />
 
           <Toggle
-            className="col-span-1"
             label={t('admin:components.setting.local')}
             value={local.value}
             disabled
