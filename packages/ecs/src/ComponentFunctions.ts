@@ -918,10 +918,12 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         }
         return null
       }
+      case 'NonSerialized': {
+        return null
+      }
       case 'Partial':
       case 'Required':
       case 'Proxy':
-      case 'NonSerialized':
       default: {
         let props = schema.properties as any
         if (!props) {
