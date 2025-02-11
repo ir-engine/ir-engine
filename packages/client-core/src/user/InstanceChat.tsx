@@ -27,6 +27,7 @@ import { useFind, useMutation } from '@ir-engine/common'
 import { InstanceID, MessageType, messagePath } from '@ir-engine/common/src/schema.type.module'
 import { State, dispatchAction, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
+import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { MessageTextSquare01Lg, Send01Lg, XCloseLg } from '@ir-engine/ui/src/icons'
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -51,14 +52,14 @@ const InstanceChatProvider = ({ children }: { children: React.ReactNode }) => {
   const messages = useHookstate<MessageType[]>([])
   const newMessages = useHookstate<{ [mid: MessageType['id']]: boolean }>({})
   const unreadMessages = useHookstate(false)
-  const isChatOpen = useHookstate(true)
+  const isChatOpen = useHookstate(isMobile ? false : true)
   const user = useMutableState(AuthState).user
   const targetChannelId = useMutableState(ChannelState).targetChannelId
   const channelState = useMutableState(ChannelState)
   const messagesResponse = useFind(messagePath, {
     query: {
       channelId: targetChannelId.value,
-      $limit: 20,
+      $limit: 100,
       $sort: { createdAt: -1 }
     }
   })
@@ -212,9 +213,9 @@ function Message({ message, hideUsername }: { message: MessageType; hideUsername
 
   return message.isNotification ? (
     <div
-      className="place-self-center text-center text-sm text-white"
+      className="my-4 place-self-center text-center text-sm text-text-primary"
       style={{
-        textShadow: '0px 1px 4px rgba(255, 255, 255, 1);'
+        textShadow: '0px 1px 4px rgb(255, 255, 255)'
       }}
     >
       {message.text}
@@ -222,13 +223,16 @@ function Message({ message, hideUsername }: { message: MessageType; hideUsername
   ) : (
     <div
       className={twMerge(
-        'w-full max-w-[15vw] rounded-[11px] bg-white px-2 py-[11px] opacity-50',
-        message.sender.id === user.id.value && 'place-self-end',
-        newMessages.value[message.id] && 'opacity-100'
+        'my-4 place-self-end rounded-[14px] bg-surface-3 bg-white px-2 py-0.5 opacity-50',
+        message.sender.id === user.id.value && 'place-self-start bg-[#C7C7C7]',
+        newMessages.value[message.id] && 'opacity-100',
+        hideUsername && '-mt-3'
       )}
     >
-      {!hideUsername && <div className="font-bold text-[#444444]">{message.sender.name}</div>}
-      <div className="mt-[9px] text-sm text-[#444444]">{message.text}</div>
+      {message.sender.id !== user.id.value && !hideUsername && (
+        <div className="text-xs font-bold text-black text-text-primary">{message.sender.name}</div>
+      )}
+      <div className="text-sm tracking-[-0.14px] text-black text-text-primary">{message.text}</div>
     </div>
   )
 }
@@ -237,8 +241,8 @@ function Messages() {
   const { messages, isChatOpen } = useInstanceChatMessages()
   if (!isChatOpen.value) return null
   return (
-    <div className="h-[45vh] overflow-y-auto">
-      <div className="flex h-full flex-col justify-end gap-y-[13px]">
+    <div className={twMerge('flex max-h-[45vh] flex-col justify-end', isMobile && 'max-h-[65vh]')}>
+      <div className="min-h-0 flex-1 overflow-y-auto">
         {messages.value.map((message, index) => (
           <Message
             key={message.id}
@@ -257,10 +261,12 @@ function Messages() {
 
 export default function InstanceChat() {
   const { t } = useTranslation()
-  const ageVerified = useMutableState(AuthState).user.ageVerified.value
+  // const ageVerified = useMutableState(AuthState).user.ageVerified.value
   const mediaNetworkState = useMediaNetwork()
   const networkState = useMutableState(NetworkState)
-  const isGuest = useMutableState(AuthState).user.isGuest.value
+  // const isGuest = useMutableState(AuthState).user.isGuest.value
+  const isGuest = false
+  const ageVerified = true
 
   if (networkState.config.media.value && !mediaNetworkState?.ready.value) return null
 
