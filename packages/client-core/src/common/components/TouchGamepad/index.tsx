@@ -34,8 +34,8 @@ import { XRState, isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import { IJoystickUpdateEvent } from 'react-joystick-component/build/lib/Joystick'
 import { AppState } from '../../services/AppService'
-import BasepadImage from './basepad.png'
-import StickypadImage from './stickypad.png'
+import BasepadImage from './basepad.svg'
+import StickypadImage from './stickypad.svg'
 
 const triggerButton = (button: AnyButton, pressed: boolean): void => {
   const eventType = pressed ? 'touchgamepadbuttondown' : 'touchgamepadbuttonup'
