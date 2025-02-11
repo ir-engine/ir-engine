@@ -1760,7 +1760,7 @@ PODS:
     - React-logger (= 0.76.2)
     - React-perflogger (= 0.76.2)
     - React-utils (= 0.76.2)
-  - ReactNativePolygen (0.1.0):
+  - ReactNativePolygen (0.2.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2180,8 +2180,8 @@ SPEC CHECKSUMS:
   React-utils: c8c0c746031419a29cfd8c72a394fdeac0684a84
   ReactCodegen: 1c1c1d970deff508aca3def05e0ef2953ff35530
   ReactCommon: 7b9403030ff3430ccffed63cd25c8aeab2a3ea7e
-  ReactNativePolygen: cc189fc9a1e73e4c43d05ae20b9cc5dc788ba0ae
-  ReactNativeWebAssemblyHost: 1a92338ad55cf30f9dad222f2c63797dbec774a8
+  ReactNativePolygen: edc2211537052e6b53243cb8ef04512a013e6337
+  ReactNativeWebAssemblyHost: 9b70e1a344ab5069767f86ffd490c4af2038ef6d
   RNFBApp: dba4effde174e4ba103548822a13b37e5c4f40d1
   RNFBCrashlytics: 252dcf70e34e3266a32b7d66626a3e77bc124ec1
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748

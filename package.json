@@ -108,7 +108,7 @@
     ]
   },
   "devDependencies": {
-    "@callstack/polygen": "0.1.0",
+    "@callstack/polygen": "0.2.0",
     "@eslint/eslintrc": "3.1.0",
     "@eslint/js": "9.5.0",
     "@ianvs/prettier-plugin-sort-imports": "4.1.0",
