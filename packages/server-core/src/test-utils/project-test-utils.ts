@@ -25,6 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Params } from '@feathersjs/feathers'
 import { UserApiKeyType } from '@ir-engine/common/src/schema.type.module'
+import {
+  ProjectPermissionQuery,
+  projectPermissionPath
+} from '@ir-engine/common/src/schemas/projects/project-permission.schema'
 import { ProjectType, projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
 import {
   ProjectSettingQuery,
@@ -55,6 +59,45 @@ export const createProject = async (app: Application, projectName?: string, user
   )
 
   return { project, user }
+}
+
+/**
+ * Method to create permission on a project
+ * @param app
+ * @param type
+ * @param projectId
+ * @param user
+ * @returns
+ */
+export const createProjectPermission = async (app: Application, type: string, projectId: string, user: UserType) => {
+  const permission = await app.service(projectPermissionPath).create({
+    type,
+    projectId,
+    userId: user.id
+  })
+
+  return permission
+}
+
+/**
+ * Helper method used to remove project permission.
+ * @param app
+ * @param projectPermissionId
+ * @param query
+ * @returns
+ */
+export const removeProjectPermission = async (
+  app: Application,
+  projectPermissionId?: string,
+  query?: ProjectPermissionQuery
+) => {
+  const projectPermission = await app.service(projectPermissionPath).remove(projectPermissionId ?? null, {
+    query: {
+      ...query
+    }
+  })
+
+  return projectPermission
 }
 
 /**
