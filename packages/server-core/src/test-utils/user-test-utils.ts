@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Paginated, Params } from '@feathersjs/feathers'
 import { ScopeTypeType, scopeTypePath } from '@ir-engine/common/src/schemas/scope/scope-type.schema'
-import { scopePath } from '@ir-engine/common/src/schemas/scope/scope.schema'
+import { ScopeType, scopePath } from '@ir-engine/common/src/schemas/scope/scope.schema'
 import { AvatarType, avatarPath } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import { UserApiKeyType, userApiKeyPath } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { InviteCode, UserName, UserType, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
@@ -90,6 +90,11 @@ export const createUser = async (app: Application) => {
   return user
 }
 
+/**
+ * Method to create an admin user with all scopes
+ * @param app
+ * @returns
+ */
 export const createAdmin = async (app: Application) => {
   const user = await createUser(app)
   const scopeType = (await app.service(scopeTypePath).find({
@@ -103,6 +108,20 @@ export const createAdmin = async (app: Application) => {
     }))
   )
   return user
+}
+
+/**
+ * Method to create an admin user with all scopes
+ * @param app
+ * @param scope
+ * @param user
+ * @returns
+ */
+export const createUserScope = async (app: Application, scope: ScopeType, user: UserType) => {
+  await app.service(scopePath).create({
+    type: scope,
+    userId: user.id
+  })
 }
 
 /**

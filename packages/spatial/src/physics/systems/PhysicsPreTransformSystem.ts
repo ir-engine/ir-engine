@@ -187,10 +187,10 @@ export const execute = () => {
   const dirtyRigidbodyEntities = allRigidbodyEntities.filter(isDirty)
   const dirtyColliderEntities = colliderQuery().filter(isDirty)
 
-  /** Ff rigidbody transforms have been dirtied, teleport the rigidbody to the transform */
+  /** If rigidbody transforms have been dirtied, teleport the rigidbody to the transform */
   for (const entity of dirtyRigidbodyEntities) copyTransformToRigidBody(entity)
 
-  /** Ff collider transforms have been dirtied, update them */
+  /** If collider transforms have been dirtied, update them */
   for (const entity of dirtyColliderEntities) copyTransformToCollider(entity)
 
   /** Lerp awake clean rigidbody entities (and make their transforms dirty) */
