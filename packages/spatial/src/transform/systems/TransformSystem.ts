@@ -33,7 +33,9 @@ import {
   Entity,
   getComponent,
   getOptionalComponent,
-  hasComponent
+  hasComponent,
+  LayerComponents,
+  Layers
 } from '@ir-engine/ecs'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
@@ -105,6 +107,8 @@ const compareReferenceDepth = (a: Entity, b: Entity) => {
   return aDepth - bDepth
 }
 
+const dirtyAuthoringTransformQuery = defineQuery([TransformComponent], Layers.Authoring)
+
 export const isDirty = (entity: Entity) => TransformComponent.dirty[entity] === 1
 
 const _sortedTransformEntities = [] as Entity[]
@@ -140,6 +144,15 @@ const sortAndMakeDirtyEntities = () => {
     for (const entity of _sortedTransformEntities) updateTransformDepth(entity)
     insertionSort(_sortedTransformEntities, compareReferenceDepth) // Insertion sort is speedy O(n) for mostly sorted arrays
     TransformComponent.transformsNeedSorting = false
+  }
+
+  /** Mark the corresponding simulation entity of any authoring layer entities as dirty */
+  const dirtyAuthoringEntities = dirtyAuthoringTransformQuery().filter(isDirty)
+  for (const entity of dirtyAuthoringEntities) {
+    const authoringComponent = getComponent(entity, LayerComponents[Layers.Authoring])
+    const linkedEntity = authoringComponent.relations[Layers.Simulation]
+    TransformComponent.dirty[entity] = 0
+    TransformComponent.dirty[linkedEntity] = 1
   }
 
   // entities with dirty parent or reference entities, or computed transforms, should also be dirty

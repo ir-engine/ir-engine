@@ -129,7 +129,6 @@ export default function Servers() {
             bottomComponent: <ApiJobsTable />
           }
         ]}
-        tabcontainerClassName=""
       />
     </>
   )
