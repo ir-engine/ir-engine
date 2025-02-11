@@ -541,10 +541,9 @@ export const setComponent = <C extends Component>(
   } else {
     component.onSet(entity, state, args)
   }
-
-  /** @todo this might be unnecessayr now that we have propagation via the store */
+  
   LayerFunctions.propagateLayer(entity, component)
-
+  
   if (component.reactor && !component.reactorMap.has(entity) && LayerComponent.get(entity) === Layers.Simulation) {
     const root = startReactor(() => {
       return React.createElement(EntityContext.Provider, { value: entity }, React.createElement(component.reactor, {}))
