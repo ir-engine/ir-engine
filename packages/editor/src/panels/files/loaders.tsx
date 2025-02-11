@@ -120,7 +120,7 @@ export function ProjectDownloadProgress() {
       {isDownloading && (
         <div className="flex h-auto w-full justify-center pb-2 pt-2">
           <div className="flex w-1/2">
-            <span className="inline-block pr-2 text-xs font-normal leading-none text-theme-primary">
+            <span className="inline-block pr-2 text-xs font-normal leading-none ">
               {t('editor:layout.filebrowser.downloadingProject', { completed, total })}
             </span>
             <div className="basis-1/2">
@@ -148,7 +148,7 @@ export function FileUploadProgress() {
   return total ? (
     <div className="flex h-auto w-full justify-center pb-2 pt-2">
       <div className="flex w-1/2">
-        <span className="inline-block pr-2 text-xs font-normal leading-none text-theme-primary">
+        <span className="inline-block pr-2 text-xs font-normal leading-none ">
           {t('editor:layout.filebrowser.uploadingFiles', { completed, total })}
         </span>
         <div className="basis-1/2">

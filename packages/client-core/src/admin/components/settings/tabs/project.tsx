@@ -243,7 +243,7 @@ const ProjectTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
                 title={t('admin:components.common.delete')}
                 onClick={() => handleRemoveSetting(setting)}
               >
-                <HiTrash className="text-theme-iconRed" />
+                <HiTrash className="" />
               </button>
             </div>
           ))}

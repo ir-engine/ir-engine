@@ -118,7 +118,7 @@ export default function AddEditLocationModal(props: {
   const handlePublish = async () => {
     errors.set(getDefaultErrors())
 
-    if (!name.value) {
+    if (!name.value.trim()) {
       errors.name.set(t('admin:components.location.nameCantEmpty'))
     }
     if (!maxUsers.value) {
@@ -147,7 +147,7 @@ export default function AddEditLocationModal(props: {
     }
 
     const locationData: LocationData = {
-      name: name.value,
+      name: name.value.trim(),
       sceneId: scene.value,
       maxUsersPerInstance: maxUsers.value,
       locationSetting: {
@@ -193,7 +193,7 @@ export default function AddEditLocationModal(props: {
   }
 
   return (
-    <div className="relative z-50 w-[50vw] bg-theme-surface-main">
+    <div className="relative z-50 w-[50vw] bg-surface-1">
       <div className="relative rounded-lg shadow">
         <ModalHeader
           onClose={PopoverState.hidePopupover}
@@ -208,7 +208,7 @@ export default function AddEditLocationModal(props: {
                 data-testid="publish-panel-copy-link-buttons-group"
               >
                 <div
-                  className="cursor-pointer text-blue-primary hover:underline"
+                  className="cursor-pointer text-ui-primary hover:underline"
                   onClick={() => window.open(new URL(location.url))}
                 >
                   {location.url}
@@ -313,7 +313,7 @@ export default function AddEditLocationModal(props: {
           </div>
         </div>
 
-        <div className="grid grid-flow-col border-t border-t-theme-primary px-6 py-5">
+        <div className="grid grid-flow-col border-t border-t-ui-outline px-6 py-5">
           <Button
             variant="tertiary"
             data-testid="publish-panel-cancel-button"

@@ -25,16 +25,18 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useFind } from '@ir-engine/common'
 import { identityProviderPath } from '@ir-engine/common/src/schema.type.module'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { Button } from '@ir-engine/ui'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
+import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 import React from 'react'
 import { HiPencil } from 'react-icons/hi2'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
-import { UserMenus } from '../../../user/UserUISystem'
-import { PopupMenuServices } from '../../../user/components/UserMenu/PopupMenuService'
-import { useUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThumbnail'
+import { useUserAvatarThumbnail } from '../../../hooks/useUserAvatarThumbnail'
+import AvatarSelectMenu from '../../../user/menus/avatar/AvatarSelectMenu'
 import { AuthState } from '../../../user/services/AuthService'
+import { PopoverState } from '../../services/PopoverState'
+import { ThemeState } from '../../services/ThemeService'
 
 const ProfilePill = () => {
   const user = getMutableState(AuthState).user
@@ -42,6 +44,8 @@ const ProfilePill = () => {
   const identityProvidersQuery = useFind(identityProviderPath)
   const email = identityProvidersQuery.data.find((ip) => ip.type === 'email')?.accountIdentifier
   const popUpOpened = useHookstate(false)
+  const themeState = useMutableState(ThemeState)
+
   return (
     <Popup
       position={'bottom center'}
@@ -50,7 +54,7 @@ const ProfilePill = () => {
       onOpen={() => popUpOpened.set(true)}
       onClose={() => popUpOpened.set(false)}
       trigger={
-        <button className="flex h-8 w-16 items-center justify-center gap-2 rounded-full bg-[#191B1F] focus:ring-1 focus:ring-blue-primary">
+        <button className="flex h-8 w-16 items-center justify-center gap-2 rounded-full bg-[#191B1F] focus:ring-1">
           <div className="ml-1 h-6 w-6 overflow-hidden rounded-full">
             <img src={avatarThumbnail} className="h-full w-full" />
           </div>
@@ -72,12 +76,20 @@ const ProfilePill = () => {
               className="absolute bottom-0 left-10 rounded-full p-1 text-[#F5F5F5]"
               onClick={() => {
                 popUpOpened.set(false)
-                PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)
+                PopoverState.showPopupover(<AvatarSelectMenu showBackButton={false} />)
               }}
             >
               <HiPencil />
             </Button>
           </div>
+
+          <Toggle
+            value={themeState.theme.value === 'dark'}
+            onChange={() => {
+              ThemeState.setTheme(themeState.theme.value === 'light' ? 'dark' : 'light')
+            }}
+            label="Dark Mode"
+          />
 
           <div className="flex flex-col gap-1">
             <span className="text-xl font-medium text-[#F5F5F5]">{user.value.name}</span>

@@ -58,9 +58,9 @@ export const cleanStorageProviderURLs = (
       data[key] = cleanStorageProviderURLs(val)
     }
     if (typeof val === 'string') {
-      if (val.includes(domains.cloudDomain + '/projects')) {
+      if (domains.cloudDomain && val.includes(domains.cloudDomain + '/projects')) {
         data[key] = val.replace(domains.cloudDomain + '/projects', sceneRelativePathIdentifier)
-      } else if (val.startsWith(domains.proxyDomain)) {
+      } else if (domains.proxyDomain && val.startsWith(domains.proxyDomain)) {
         data[key] = val.replace(domains.proxyDomain, sceneCorsPathIdentifier)
       }
     }

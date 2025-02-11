@@ -43,7 +43,7 @@ export function Topbar() {
   const isAddEntityMenuOpen = useHookstate(false)
 
   return (
-    <div className="flex h-8 items-center justify-between gap-2 bg-[#212226]" data-testid="hierarchy-panel-top-bar">
+    <div className="flex items-center justify-between gap-x-4 bg-surface-3 p-1" data-testid="hierarchy-panel-top-bar">
       <SearchBar inputProps={{ fullWidth: true }} search={search} debounceTime={100} />
       <Popup
         keepInside
@@ -51,11 +51,10 @@ export function Topbar() {
         onClose={() => isAddEntityMenuOpen.set(false)}
         trigger={
           <Button
-            variant="secondary"
-            size="l"
+            // variant="secondary"
+            size="xs"
             data-testid="hierarchy-panel-add-entity-button"
             onClick={() => isAddEntityMenuOpen.set(true)}
-            className="bg-[#212226]"
           >
             <PlusCircleSm />
             <span className="text-nowrap">{t('editor:hierarchy.lbl-addEntity')}</span>
