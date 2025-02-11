@@ -468,8 +468,8 @@ const removeObject = (entities: Entity[]) => {
 
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
-    removeEntityNodeRecursively(entity)
     EditorState.markModifiedScene(entity)
+    removeEntityNodeRecursively(entity)
   }
 }
 
