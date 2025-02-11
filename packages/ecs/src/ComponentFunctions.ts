@@ -919,7 +919,7 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         return null
       }
       case 'NonSerialized': {
-        return null
+        return
       }
       case 'Partial':
       case 'Required':
