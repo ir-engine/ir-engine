@@ -39,7 +39,6 @@ export interface CheckboxProps extends Omit<React.HTMLAttributes<HTMLInputElemen
   /**position where `label` and `description` will be placed
    * @default right  */
   variantTextPlacement?: 'left' | 'right'
-  variantTextClassname?: string
 }
 
 const variantSizes = {
@@ -79,7 +78,6 @@ const Checkbox = (
     onChange,
     variantSize = 'md',
     variantTextPlacement = 'right',
-    variantTextClassname = '',
     ...props
   }: CheckboxProps,
   ref: React.ForwardedRef<HTMLDivElement>
@@ -150,8 +148,7 @@ const Checkbox = (
             variantTextPlacement === 'left' && 'text-right',
             disabled ? 'cursor-not-allowed text-text-inactive' : 'group-hover/checkbox:text-text-primary',
             description && 'grid gap-y-1',
-            variantSizes.textLineHeight[variantSize],
-            variantTextClassname
+            variantSizes.textLineHeight[variantSize]
           )}
           onClick={handleChange}
         >
