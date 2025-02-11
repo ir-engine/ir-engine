@@ -44,7 +44,6 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { getMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { MATERIALS_PANEL_ID } from './helpers'
 
@@ -65,7 +64,10 @@ function MaterialPreviewCanvas() {
     const uuid = generateEntityUUID()
     setComponent(sceneEntity, UUIDComponent, uuid)
     setComponent(sceneEntity, VisibleComponent, true)
-    const material = getMaterial(getState(MaterialSelectionState).selectedMaterial!)
+    const material = getComponent(
+      UUIDComponent.getEntityByUUID(getState(MaterialSelectionState).selectedMaterial!),
+      MaterialStateComponent
+    ).material
     if (!material) return
     const sphereMesh = new Mesh(new SphereGeometry(5, 32, 32), material)
     sphereMesh.geometry.attributes['color'] = new BufferAttribute(

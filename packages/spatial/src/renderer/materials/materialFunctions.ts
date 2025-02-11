@@ -80,23 +80,20 @@ export const formatMaterialArgs = (args: any, defaultArgs?: PrototypeArgument) =
   )
 }
 
-export const getMaterial = (uuid: EntityUUID) => {
-  return (
-    getOptionalComponent(UUIDComponent.getEntityByUUID(uuid), MaterialStateComponent)?.material ??
-    getComponent(UUIDComponent.getEntityByUUID(MaterialStateComponent.fallbackMaterialUUID), MaterialStateComponent)
-      .material
-  )
-}
-
 export const setMeshMaterial = (groupEntity: Entity, newMaterialUUIDs: EntityUUID[]) => {
   if (!groupEntity) return
   if (!hasComponent(groupEntity, MeshComponent)) return
   if (newMaterialUUIDs.length === 0) return
 
   const mesh = getComponent(groupEntity, MeshComponent) as Mesh
-  if (!Array.isArray(mesh.material)) mesh.material = getMaterial(newMaterialUUIDs[0])
+  if (!Array.isArray(mesh.material))
+    mesh.material = getComponent(UUIDComponent.getEntityByUUID(newMaterialUUIDs[0]), MaterialStateComponent).material
   else
-    for (let i = 0; i < (mesh.material as Material[]).length; i++) mesh.material[i] = getMaterial(newMaterialUUIDs[i])
+    for (let i = 0; i < (mesh.material as Material[]).length; i++)
+      mesh.material[i] = getComponent(
+        UUIDComponent.getEntityByUUID(newMaterialUUIDs[0]),
+        MaterialStateComponent
+      ).material
 }
 
 export const setPlugin = (material: Material, callback) => {

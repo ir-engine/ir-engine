@@ -53,7 +53,6 @@ import { getDefaultType } from '@ir-engine/spatial/src/renderer/materials/consta
 import {
   extractValues,
   formatMaterialArgs,
-  getMaterial,
   updateMaterialPrototype
 } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { Button, Tooltip } from '@ir-engine/ui'
@@ -276,9 +275,6 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
             )
             if (materialComponent.parameters.value) materialComponent.parameters[key].set(property)
             await checkThumbs()
-          }}
-          onModify={() => {
-            getMaterial(materialComponent.material.value.uuid as EntityUUID).needsUpdate = true
           }}
           defaults={prototype.arguments!.value}
           thumbnails={toBlobs(thumbnails.value)}

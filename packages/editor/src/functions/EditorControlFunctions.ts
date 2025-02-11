@@ -61,7 +61,6 @@ import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 import { getMutableState, getState, setNestedObject } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent } from '@ir-engine/spatial'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { getMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
@@ -69,6 +68,7 @@ import { serializeEntity } from '@ir-engine/engine/src/scene/functions/serialize
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
@@ -131,7 +131,8 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
     if (typeof node !== 'string') return
-    const material = getMaterial(materialId)
+    const materialEntity = UUIDComponent.getEntityByUUID(materialId, Layers.Authoring)
+    const material = getComponent(materialEntity, MaterialStateComponent).material
     if (!material) return
     const props = properties[i] ?? properties[0]
     Object.entries(props).map(([k, v]) => {
@@ -147,7 +148,6 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
         material[k] = v
       }
     })
-    const materialEntity = UUIDComponent.getEntityByUUID(materialId, Layers.Authoring)
     const sceneID = getComponent(materialEntity, SourceComponent)
     getMutableState(AssetModifiedState)[sceneID].set(true)
     material.needsUpdate = true
