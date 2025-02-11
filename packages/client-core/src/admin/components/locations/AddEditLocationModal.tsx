@@ -32,8 +32,9 @@ import {
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Button, Input, Select } from '@ir-engine/ui'
-import { CheckCircleLg, Copy02Sm } from '@ir-engine/ui/src/icons'
+import { Button, DropdownItem, Input, Select } from '@ir-engine/ui'
+import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
+import { CheckCircleLg, Copy02Sm, EllipsisVertical } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -204,6 +205,7 @@ export default function AddEditLocationModal(props: {
       unPublishLoading.set(false)
     }
   }
+  const anchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
 
   return (
     <div className="relative z-50 w-[60vw] bg-surface-1 px-8 pt-6">
@@ -212,11 +214,16 @@ export default function AddEditLocationModal(props: {
           <h2 className="text-xl">
             {location?.id ? t('editor:toolbar.publishLocation.update') : t('editor:toolbar.publishLocation.create')}
           </h2>
-          {location ? (
-            <span className="text-green-500">{formatPublishedDate(location.createdAt)}</span>
-          ) : (
-            <span className="text-text-primary">Not Yet Published</span>
-          )}
+          <div className="flex items-center gap-3">
+            {location ? (
+              <span className="text-xs text-green-500">{formatPublishedDate(location.createdAt)}</span>
+            ) : (
+              <span className="text-text-primary">Not Yet Published</span>
+            )}
+            <button onClick={(event) => anchorEvent.set(event)}>
+              <EllipsisVertical />
+            </button>
+          </div>
         </div>
 
         <div className="h-fit max-h-[60vh] w-full overflow-y-auto">
@@ -368,6 +375,16 @@ export default function AddEditLocationModal(props: {
           </div>
         </div>
       </div>
+
+      <ContextMenu
+        anchorEvent={anchorEvent.value as React.MouseEvent<HTMLElement>}
+        onClose={() => anchorEvent.set(null)}
+        className="z-9999"
+      >
+        <div className="w-[180px]" tabIndex={0}>
+          <DropdownItem className="text-red-500" label={'Unpublish'} onClick={unPublishLocation} />
+        </div>
+      </ContextMenu>
     </div>
   )
 }
@@ -395,7 +412,7 @@ const LocationPublishSuccess = ({ published, url }: { published: boolean; url: s
   return (
     <div className={`${published ? 'border-b border-t border-black' : ''}`}>
       <div
-        className={`flex items-center justify-between rounded-lg p-4 ${
+        className={`flex items-center justify-between rounded p-3 ${
           published ? 'bg-transparent shadow' : 'bg-[#2c914e]'
         }`}
       >
@@ -408,7 +425,7 @@ const LocationPublishSuccess = ({ published, url }: { published: boolean; url: s
             <h3 className={`font-semibold text-white`}>
               {published ? 'Location Published Successfully' : 'Public URL'}
             </h3>
-            <span className={`py-1 text-sm font-light text-white`} onClick={() => window.open(url)}>
+            <span className="cursor-pointer py-1 text-sm font-light text-white" onClick={() => window.open(url)}>
               {url}
             </span>
           </div>

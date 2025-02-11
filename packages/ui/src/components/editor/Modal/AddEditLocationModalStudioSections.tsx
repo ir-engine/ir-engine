@@ -21,9 +21,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useQuery } from '@ir-engine/ecs'
 import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbnailState'
-import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { ImageLink } from '@ir-engine/ui/editor'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
@@ -32,7 +30,6 @@ import { Image01Sm } from '../../../icons'
 export default function AddEditLocationModalStudioSections() {
   const { t } = useTranslation()
 
-  const sceneSettingsEntities = useQuery([SceneSettingsComponent])
   const sceneThumbnailState = useHookstate(getMutableState(SceneThumbnailState))
 
   return (
@@ -52,8 +49,8 @@ export default function AddEditLocationModalStudioSections() {
         )}
       </div>
 
-      <div className="mt-4 flex flex-row justify-between gap-2">
-        <Button className="w-full md:w-auto">Preview</Button>
+      <div className="mt-4 flex flex-row justify-end gap-2">
+        {/* <Button className="w-full md:w-auto">Preview</Button> */}
         <Button onClick={() => SceneThumbnailState.createThumbnail()} className="w-full md:w-auto">
           {t('editor:properties.sceneSettings.generate')}
         </Button>
