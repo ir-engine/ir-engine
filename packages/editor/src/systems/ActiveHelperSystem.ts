@@ -79,13 +79,10 @@ export function nodeHelperInputHeuristic(
   raycaster.set(position, direction)
   raycaster.camera = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent).cameras[0]
 
-  //concatenating cameraGizmo to both pickerObjects(transformGizmo) and inputObjects
   const inputObj = inputObjectsQuery()
 
   const objects = inputObj.map((eid) => getComponent(eid, ObjectComponent))
-  // gizmo heuristic
 
-  //camera gizmos layer should always be active here, since it doesn't disable based on transformGizmo existing
   const hits = raycaster.intersectObjects(objects, true)
   for (const hit of hits) {
     intersectionData.add({ entity: hit.object.entity!, distance: hit.distance })
@@ -98,17 +95,16 @@ const execute = () => {
   for (const entity of helperQuery()) {
     const activeHelperComponent = getComponent(entity, ActiveHelperComponent)
     if (!activeHelperComponent.helperDefaultGizmo) continue
-    const selectedEntities = SelectionState.getSelectedEntities()
 
     gizmoIconUpdate(entity)
 
     const intersect = onPointerHover(entity)
-
     for (const lineEntity of activeHelperComponent.lineEntities) {
       setVisibleComponent(lineEntity, intersect ? true : false)
       gizmoIconHelperYUpdate(lineEntity, getComponent(entity, TransformComponent).position)
     }
 
+    const selectedEntities = SelectionState.getSelectedEntities()
     if (!(selectedEntities.find((e) => e === entity) === undefined)) continue
 
     const defaultGizmoButtons = InputComponent.getMergedButtons(activeHelperComponent.helperDefaultGizmo)
@@ -140,8 +136,6 @@ const reactor = () => {
 
   useEffect(() => {
     for (const entity of helperQuery) {
-      //find the top most component
-      //set icon helper accordingly
       if (getComponent(entity, ActiveHelperComponent).helperDefaultGizmo !== UndefinedEntity) continue
       const componentStudioIcon = componentStudioIconState.get(NO_PROXY)
       const node = GLTFNodeState.getMutableNode(entity).get(NO_PROXY)
