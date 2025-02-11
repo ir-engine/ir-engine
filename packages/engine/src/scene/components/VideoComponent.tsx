@@ -411,7 +411,10 @@ function VideoReactor() {
   }, [!!mesh, video.alphaUVOffset])
 
   useEffect(() => {
-    if (!mesh || !mediaEntity || !hasMediaElementComponent) return
+    if (!mesh || !mediaEntity || !hasMediaElementComponent) {
+      video.texture.set(null)
+      return
+    }
     const sourceVideoComponent = getOptionalComponent(mediaEntity, VideoComponent)
     const sourceMeshComponent = getOptionalComponent(mediaEntity, MeshComponent)
     const mediaElement = getComponent(mediaEntity, MediaElementComponent)
