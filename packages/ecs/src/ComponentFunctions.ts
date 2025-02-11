@@ -856,7 +856,23 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         }
       }
       case 'Class': {
-        if ('clone' in obj && typeof obj.clone === 'function') {
+        if (
+          schema.options &&
+          'id' in schema.options &&
+          schema.options.id === 'SerializedClass' &&
+          typeof schema.options.default === 'function'
+        ) {
+          // when propagating a class, we don't want to clone it, we want to use whatever default initializer and copy functionality exists copy it
+          // this is a bit messy because the component initializer does this too
+          // @todo how can we make this cleaner?
+          const layerComponent = LayerComponents[layer]
+          const linkedEntity = getComponent(entity, layerComponent).relations[linkedLayer]
+          const val = schema.options.default(linkedEntity)
+          if ('copy' in obj && typeof obj.copy === 'function') {
+            val.copy(obj)
+          }
+          return val
+        } else if ('clone' in obj && typeof obj.clone === 'function') {
           return obj.clone()
         } else {
           try {

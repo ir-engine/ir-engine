@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Subscribable } from '@hookstate/subscribable'
 import React, { useEffect } from 'react'
 
 import {
@@ -96,7 +95,7 @@ const EnvMapReactor = () => {
 const IntensityReactor = (props: { rootEntity: Entity; entity: Entity }) => {
   const { rootEntity, entity } = props
   const envMapComponent = useComponent(rootEntity, EnvMapComponent)
-  const material = useComponent(entity, MaterialStateComponent).material as State<MeshStandardMaterial, Subscribable>
+  const material = useComponent(entity, MaterialStateComponent).material as State<MeshStandardMaterial>
   useEffect(() => {
     material.envMapIntensity.set(envMapComponent.envMapIntensity.value)
   }, [envMapComponent.envMapIntensity.value, material.uuid.value])
@@ -112,7 +111,7 @@ const EnvMapSkyboxReactor = (props: { entity: Entity; rootEntity: Entity }) => {
     for (i; i < backgroundQuery.length; i++) if (haveCommonAncestor(entity, backgroundQuery[i])) break
     const backgroundComponent = getOptionalComponent(backgroundQuery[i], BackgroundComponent)
     if (!backgroundComponent) return
-    const material = materialComponent.material as State<MeshStandardMaterial, Subscribable>
+    const material = materialComponent.material as State<MeshStandardMaterial>
     material.envMap.set(backgroundComponent as any)
   }, [backgroundQuery, materialComponent.material.uuid.value])
 
@@ -125,7 +124,7 @@ const EnvMapCubemapReactor = (props: { entity: Entity; rootEntity: Entity }) => 
   const envMapComponent = useComponent(rootEntity, EnvMapComponent)
   useEffect(() => {
     return () => {
-      ;(materialComponent.material as State<MeshStandardMaterial, Subscribable>).envMap.set(null)
+      ;(materialComponent.material as State<MeshStandardMaterial>).envMap.set(null)
     }
   }, [])
 
@@ -136,13 +135,13 @@ const EnvMapCubemapReactor = (props: { entity: Entity; rootEntity: Entity }) => 
         if (texture) {
           texture.mapping = CubeReflectionMapping
           texture.colorSpace = SRGBColorSpace
-          ;(materialComponent.material as State<MeshStandardMaterial, Subscribable>).envMap.set(texture)
+          ;(materialComponent.material as State<MeshStandardMaterial>).envMap.set(texture)
           removeError(entity, EnvMapComponent, 'MISSING_FILE')
         }
       },
       undefined,
       (_) => {
-        ;(materialComponent.material as State<MeshStandardMaterial, Subscribable>).envMap.set(null)
+        ;(materialComponent.material as State<MeshStandardMaterial>).envMap.set(null)
         addError(entity, EnvMapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
       }
     )
@@ -159,13 +158,13 @@ const EnvmapProbesReactor = (props: { entity: Entity; rootEntity: Entity }) => {
 
   useEffect(() => {
     return () => {
-      ;(materialComponent.material as State<MeshStandardMaterial, Subscribable>).envMap.set(null)
+      ;(materialComponent.material as State<MeshStandardMaterial>).envMap.set(null)
     }
   }, [])
 
   useEffect(() => {
     const [renderTexture, unload] = createReflectionProbeRenderTarget(entity, probeQuery)
-    ;(materialComponent.material as State<MeshStandardMaterial, Subscribable>).envMap.set(renderTexture)
+    ;(materialComponent.material as State<MeshStandardMaterial>).envMap.set(renderTexture)
     return () => {
       unload()
     }
@@ -177,10 +176,7 @@ const EnvmapProbesReactor = (props: { entity: Entity; rootEntity: Entity }) => {
 const EnvMapEquirectangularReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   const { entity, rootEntity } = props
   const envMapComponent = useComponent(rootEntity, EnvMapComponent)
-  const materialComponent = useComponent(entity, MaterialStateComponent).material as State<
-    MeshStandardMaterial,
-    Subscribable
-  >
+  const materialComponent = useComponent(entity, MaterialStateComponent).material as State<MeshStandardMaterial>
   const [envMapTexture, error] = useTexture(envMapComponent.envMapSourceURL.value, entity)
 
   useEffect(() => {
@@ -218,7 +214,7 @@ const EnvMapBakeReactor = (props: { entity: Entity; rootEntity: Entity }) => {
     const texture = envMaptexture
     if (!texture) return
     texture.mapping = EquirectangularReflectionMapping
-    ;(materialComponent.material as State<MeshStandardMaterial, Subscribable>).envMap.set(texture)
+    ;(materialComponent.material as State<MeshStandardMaterial>).envMap.set(texture)
   }, [envMaptexture, envMapComponent.type])
 
   useEffect(() => {
@@ -249,7 +245,7 @@ const EnvMapColorReactor = (props: { entity: Entity; rootEntity: Entity }) => {
 
   useEffect(() => {
     return () => {
-      ;(materialComponent.material as State<MeshStandardMaterial, Subscribable>).envMap.set(null)
+      ;(materialComponent.material as State<MeshStandardMaterial>).envMap.set(null)
     }
   }, [])
 
@@ -261,7 +257,7 @@ const EnvMapColorReactor = (props: { entity: Entity; rootEntity: Entity }) => {
     texture.needsUpdate = true
     texture.colorSpace = SRGBColorSpace
     texture.mapping = EquirectangularReflectionMapping
-    ;(materialComponent.material as State<MeshStandardMaterial, Subscribable>).envMap.set(texture)
+    ;(materialComponent.material as State<MeshStandardMaterial>).envMap.set(texture)
     return () => {
       texture.dispose()
     }
