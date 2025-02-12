@@ -23,11 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity } from '@ir-engine/ecs'
+import { Entity, getComponent } from '@ir-engine/ecs'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent.ts'
 import { EffectReactorProps, PostProcessingEffectState } from '@ir-engine/spatial/src/renderer/effects/EffectRegistry'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem.tsx'
+import { EffectComposer } from 'postprocessing'
 import React, { useEffect } from 'react'
-import { SSGIEffect } from 'realism-effects'
+import { SSGIEffect, VelocityDepthNormalPass } from 'realism-effects'
+import { ArrayCamera } from 'three'
 import { PropertyTypes } from './PostProcessingRegister'
 
 declare module 'postprocessing' {
@@ -42,9 +46,11 @@ export const SSGIEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
   isActive
   rendererEntity: Entity
   effectData
+  scene
+  composer: EffectComposer
   effects
 }) => {
-  const { isActive, rendererEntity, effectData, effects } = props
+  const { isActive, rendererEntity, effectData, effects, scene, composer } = props
   const effectState = getState(PostProcessingEffectState)
 
   useEffect(() => {
@@ -58,7 +64,18 @@ export const SSGIEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
       return
     }
 
-    const eff = new SSGIEffect(effectData[effectKey].value)
+    const velocityDepthNormalPass = RendererComponent.registerPass(
+      rendererEntity,
+      VelocityDepthNormalPass,
+      (rendererEntity) => {
+        const camera = getComponent(rendererEntity, CameraComponent) as ArrayCamera
+        return new VelocityDepthNormalPass(scene, camera)
+      }
+    )
+    const camera = getComponent(rendererEntity, CameraComponent) as ArrayCamera
+
+    const eff = new SSGIEffect(composer, scene, camera, { ...effectData[effectKey].value, velocityDepthNormalPass })
+
     effects[effectKey].set(eff)
     return () => {
       effects[effectKey].set(none)
