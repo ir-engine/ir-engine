@@ -118,7 +118,7 @@ export const VideoComponent = defineComponent({
     mediaUUID: S.EntityUUID(),
 
     // internal
-    videoMeshEntity: S.Entity(),
+    videoMeshEntity: S.NonSerialized(S.Entity()),
     texture: S.NonSerialized(S.Nullable(S.Type<VideoTexturePriorityQueue>()))
   }),
 
