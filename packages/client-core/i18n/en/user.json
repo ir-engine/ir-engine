@@ -478,7 +478,7 @@
     "invalidRoomCode": "Unable to find a room with this code. Please enter a valid room code."
   },
   "instanceChat": {
-    "wantToChat": "Want to chat with others?",
+    "wantToChat": "Want to chat with testing?",
     "register": "Become a registered user",
     "verifyAge": "Verify your age"
   }
