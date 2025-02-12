@@ -43,13 +43,13 @@ import {
 } from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { assertVec } from '../../../tests/util/assert'
-import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
-import { ReferenceSpaceState } from '../../ReferenceSpaceState'
+import { assertVec } from '@ir-engine/spatial/tests/util/assert'
+import { mockSpatialEngine } from '@ir-engine/spatial/tests/util/mockSpatialEngine'
+import { ReferenceSpaceState } from '@ir-engine/spatial/src/ReferenceSpaceState'
 import { LookAtComponent } from '../components/LookAtComponent'
-import { TransformComponent } from '../components/TransformComponent'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { LookAtSystem } from './LookAtSystem'
-import { TransformDirtyCleanupSystem, TransformDirtyUpdateSystem } from './TransformSystem'
+import { TransformDirtyCleanupSystem, TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
 describe('LookAtSystem', () => {
   const System = SystemDefinitions.get(LookAtSystem)!

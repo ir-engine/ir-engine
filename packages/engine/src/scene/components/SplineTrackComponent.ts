@@ -40,6 +40,7 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { PhysicsSystem } from '@ir-engine/spatial/src/physics/systems/PhysicsSystem'
+import { NodeIDComponent, NodeIDSchema } from '../../gltf/NodeIDComponent'
 import { SplineComponent } from './SplineComponent'
 
 const _euler = new Euler()
@@ -52,7 +53,7 @@ export const SplineTrackComponent = defineComponent({
   jsonID: 'EE_spline_track',
 
   schema: S.Object({
-    splineEntityUUID: S.EntityUUID(),
+    splineEntityUUID: NodeIDSchema(),
     velocity: S.Number(1.0),
     enableRotation: S.Bool(false),
     lockToXZPlane: S.Bool(true),
@@ -72,7 +73,7 @@ export const SplineTrackComponent = defineComponent({
         const { deltaSeconds } = getState(ECSState)
         if (isEditing) return
         if (!component.splineEntityUUID.value) return
-        const splineTargetEntity = UUIDComponent.getEntityByUUID(component.splineEntityUUID.value)
+        const splineTargetEntity = NodeIDComponent.getEntityFromNodeID(entity, component.splineEntityUUID.value)
         if (!splineTargetEntity) return
 
         const splineComponent = getOptionalComponent(splineTargetEntity, SplineComponent)
@@ -152,7 +153,7 @@ export const SplineTrackComponent = defineComponent({
 
     useEffect(() => {
       if (!component.splineEntityUUID.value) return
-      const splineTargetEntity = UUIDComponent.getEntityByUUID(component.splineEntityUUID.value)
+      const splineTargetEntity = NodeIDComponent.getEntityFromNodeID(entity, component.splineEntityUUID.value)
       if (!splineTargetEntity) return
       const splineComponent = getOptionalComponent(splineTargetEntity, SplineComponent)
       if (!splineComponent) return

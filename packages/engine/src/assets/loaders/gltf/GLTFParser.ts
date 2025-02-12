@@ -98,6 +98,7 @@ import {
   updateMorphTargets
 } from './GLTFLoaderFunctions'
 import { KTX2Loader } from './KTX2Loader'
+import { SourceID } from '../../../scene/components/SourceComponent'
 
 export function getImageURIMimeType(uri) {
   if (uri.search(/\.jpe?g($|\?)/i) > 0 || uri.search(/^data\:image\/jpeg/) === 0) return 'image/jpeg'
@@ -109,12 +110,12 @@ export function getImageURIMimeType(uri) {
 declare module '@gltf-transform/core' {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace GLTF {
-    /** @deprecated */
     interface INode {
+      /** @deprecated */
       isBone?: boolean
     }
-    /** @deprecated */
     interface IMesh {
+      /** @deprecated */
       isSkinnedMesh?: boolean
     }
     interface IBuffer {
@@ -129,7 +130,7 @@ declare module '@gltf-transform/core' {
 export type GLTFParserOptions = {
   entity: Entity
   body: null | ArrayBuffer
-  documentID: string
+  documentID: SourceID
   document: GLTF.IGLTF
   ktx2Loader: KTX2Loader
   manager: LoadingManager

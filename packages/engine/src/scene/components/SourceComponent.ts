@@ -23,26 +23,34 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { iterateEntityNode } from '@ir-engine/ecs'
+import { iterateEntityNode, TTypedSchema } from '@ir-engine/ecs'
 import { defineComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { hookstate, none, useHookstate } from '@ir-engine/hyperflux'
+import { hookstate, none, OpaqueType } from '@ir-engine/hyperflux'
 import { NonEmptyString } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 
-const entitiesBySource = {} as Record<string, Entity[]>
+/**
+ * A source ID is expeced to in the format of `<nodeid>-<src>` where src is the source of the model and nodeid is the node id of the entity
+ */
+
+export type SourceID = OpaqueType<'SourceID'> & string
+
+const entitiesBySource = {} as Record<SourceID, Entity[]>
+
+export const SourceIDSchema = () =>
+  S.String('', {
+    validate: NonEmptyString('SourceComponent expects a non-empty string'),
+    id: 'SourceID'
+  }) as unknown as TTypedSchema<SourceID>
 
 export const SourceComponent = defineComponent({
   name: 'SourceComponent',
 
-  schema: S.Required(
-    S.String('', {
-      validate: NonEmptyString('SourceComponent expects a non-empty string')
-    })
-  ),
+  schema: S.Required(SourceIDSchema()),
 
-  onSet: (entity, component, source: string) => {
+  onSet: (entity, component, source: SourceID) => {
     const currentSource = component.value
     if (currentSource) {
       if (currentSource === source) return
@@ -68,11 +76,6 @@ export const SourceComponent = defineComponent({
     } else {
       SourceComponent.entitiesBySourceState[component.value].set(entities)
     }
-  },
-
-  useEntitiesBySource: (rootEntity: Entity) => {
-    const source = GLTFComponent.useInstanceID(rootEntity)
-    return useHookstate(SourceComponent.entitiesBySourceState[source]).value as Entity[]
   },
 
   getEntitiesBySource: (rootEntity: Entity) => {

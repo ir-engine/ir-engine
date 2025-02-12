@@ -42,21 +42,21 @@ import {
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
-import { setCallback } from '../../common/CallbackComponent'
-import { SceneComponent } from '../../renderer/components/SceneComponents'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { Physics, PhysicsWorld } from '../classes/Physics'
-import { ColliderComponent } from '../components/ColliderComponent'
-import { CollisionComponent } from '../components/CollisionComponent'
-import { RigidBodyComponent } from '../components/RigidBodyComponent'
-import { TriggerComponent } from '../components/TriggerComponent'
-import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
-import { TriggerSystem, triggerEnterOrExit } from './TriggerSystem'
+import { TransformComponent } from '@ir-engine/spatial'
+import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
+import { Physics, PhysicsWorld } from '@ir-engine/spatial/src/physics/classes/Physics'
+import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
+import { CollisionComponent } from '@ir-engine/spatial/src/physics/components/CollisionComponent'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
+import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
+import { ColliderHitEvent, CollisionEvents } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
+import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { TriggerCallbackSystem, triggerEnterOrExit } from './TriggerCallbackSystem'
 
-describe('TriggerSystem', () => {
+describe('TriggerCallbackSystem', () => {
   describe('IDs', () => {
-    it("should define the TriggerSystem's UUID with the expected value", () => {
-      assert.equal(TriggerSystem, 'ee.engine.TriggerSystem' as SystemUUID)
+    it("should define the TriggerCallbackSystem's UUID with the expected value", () => {
+      assert.equal(TriggerCallbackSystem, 'ee.engine.TriggerCallbackSystem' as SystemUUID)
     })
   })
 
@@ -93,7 +93,7 @@ describe('TriggerSystem', () => {
     setComponent(physicsWorldEntity, SceneComponent)
     setComponent(physicsWorldEntity, TransformComponent)
     setComponent(physicsWorldEntity, EntityTreeComponent)
-    physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+    physicsWorld = Physics.createWorld(physicsWorldEntity)
     physicsWorld.timestep = 1 / 60
 
     // Create the entity
@@ -193,7 +193,7 @@ describe('TriggerSystem', () => {
   })
 
   describe('execute', () => {
-    const triggerSystemExecute = SystemDefinitions.get(TriggerSystem)!.execute
+    const triggerCallbackSystemExecute = SystemDefinitions.get(TriggerCallbackSystem)!.execute
 
     it('should only run for entities that have both a TriggerComponent and a CollisionComponent  (aka. collisionQuery)', () => {
       const triggerTestStartHit = {
@@ -216,7 +216,7 @@ describe('TriggerSystem', () => {
       assert.equal(enterVal, beforeEnter)
       assert.equal(exitVal, beforeExit)
       console.log(enterVal, exitVal)
-      triggerSystemExecute()
+      triggerCallbackSystemExecute()
       assert.equal(enterVal, beforeEnter)
       assert.equal(exitVal, beforeExit)
     })
@@ -239,7 +239,7 @@ describe('TriggerSystem', () => {
       setComponent(triggerEntity, CollisionComponent)
       const collision = getComponent(triggerEntity, CollisionComponent)
       collision?.set(testEntity, triggerTestStartHit)
-      triggerSystemExecute()
+      triggerCallbackSystemExecute()
       // Check after
       assert.notEqual(enterVal, beforeEnter)
     })
@@ -262,7 +262,7 @@ describe('TriggerSystem', () => {
       setComponent(triggerEntity, CollisionComponent)
       const collision = getComponent(triggerEntity, CollisionComponent)
       collision?.set(testEntity, triggerTestEndHit)
-      triggerSystemExecute()
+      triggerCallbackSystemExecute()
       // Check after
       assert.notEqual(exitVal, beforeExit)
     })

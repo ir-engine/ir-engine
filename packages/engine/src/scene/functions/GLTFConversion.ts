@@ -33,6 +33,7 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { getState } from '@ir-engine/hyperflux'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { EntityJsonType, SceneJsonType } from '../types/SceneTypes'
+import { NodeIDComponent } from '../../gltf/NodeIDComponent'
 
 export const nodeToEntityJson = (node: any): EntityJsonType => {
   const parentId = node.extras?.parent ? { parent: node.extras.parent } : {}
@@ -117,7 +118,7 @@ export function entityJSONToGLTFNode(entityJson: EntityJsonType, entityUUID: Ent
   const node: GLTF.INode = {
     name: entityJson.name,
     extensions: {
-      [UUIDComponent.jsonID]: entityUUID
+      [NodeIDComponent.jsonID]: entityUUID
     }
   }
   if (entityJson.components) {

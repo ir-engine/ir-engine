@@ -72,6 +72,7 @@ import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/Scene
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
+import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 
 const tempMatrix4 = new Matrix4()
 const tempVector = new Vector3()
@@ -188,7 +189,7 @@ const createObjectFromSceneElement = (
   requestedName?: string
 ): { entityUUID: EntityUUID; sourceID: string } => {
   const entityUUID: EntityUUID =
-    componentJson.find((comp) => comp.name === UUIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
+    componentJson.find((comp) => comp.name === NodeIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
 
   const gltfEntity = getAncestorWithComponents(parentEntity, [GLTFComponent])
   const sourceID = GLTFComponent.getInstanceID(gltfEntity)
@@ -204,8 +205,8 @@ const createObjectFromSceneElement = (
       ...comp.props
     }
   }
-  if (!extensions[UUIDComponent.jsonID]) {
-    extensions[UUIDComponent.jsonID] = entityUUID
+  if (!extensions[NodeIDComponent.jsonID]) {
+    extensions[NodeIDComponent.jsonID] = entityUUID
   }
   if (!extensions[VisibleComponent.jsonID]) {
     extensions[VisibleComponent.jsonID] = true
@@ -248,7 +249,7 @@ const duplicateObject = (entities: Entity[]) => {
     const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
     const entityUUID = getComponent(entity, UUIDComponent)
     const parentUUID = getComponent(parentEntity, UUIDComponent)
-    const entityData = serializeEntity(entity).filter((c) => c.name !== UUIDComponent.jsonID)
+    const entityData = serializeEntity(entity).filter((c) => c.name !== NodeIDComponent.jsonID)
     const newUUID = generateEntityUUID()
     const layer = LayerComponent.get(entity)
     const originalSource = getComponent(entity, SourceComponent)
