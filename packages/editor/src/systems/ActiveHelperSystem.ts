@@ -47,9 +47,11 @@ import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/Obje
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { Raycaster, Sprite, SpriteMaterial, TextureLoader, Vector3 } from 'three'
+import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
 import { iconGizmoArrow, iconGizmoYHelper, setupGizmo } from '../constants/GizmoPresets'
 import { ComponentStudioIconState } from '../services/ComponentStudioIcons'
 import { SelectionState } from '../services/SelectionServices'
+import { transformGizmoControllerQuery } from './TransformGizmoSystem'
 
 const createIconGizmo = (textureURL) => {
   const texture = new TextureLoader().load(textureURL)
@@ -94,6 +96,8 @@ const helperQuery = defineQuery([ActiveHelperComponent])
 const execute = () => {
   for (const entity of helperQuery()) {
     const activeHelperComponent = getComponent(entity, ActiveHelperComponent)
+    const transformGizmoControllerEntity = transformGizmoControllerQuery()
+
     if (!activeHelperComponent.helperDefaultGizmo) continue
 
     gizmoIconUpdate(entity)
@@ -106,6 +110,12 @@ const execute = () => {
 
     const selectedEntities = SelectionState.getSelectedEntities()
     if (!(selectedEntities.find((e) => e === entity) === undefined)) continue
+
+    if (
+      transformGizmoControllerEntity.length > 0 &&
+      getComponent(transformGizmoControllerEntity[0], TransformGizmoControlComponent).dragging
+    )
+      continue
 
     const defaultGizmoButtons = InputComponent.getMergedButtons(activeHelperComponent.helperDefaultGizmo)
 
@@ -153,16 +163,16 @@ const reactor = () => {
         () => {
           const iconGizmo = createIconGizmo(componentStudioIcon[targetComponent?.name])
           iconGizmo.renderOrder = -1
+          const lineEntitites = setupGizmo(
+            getState(ReferenceSpaceState).originEntity,
+            iconGizmoYHelper,
+            ObjectLayers.NodeHelper
+          )
+          setComponent(entity, ActiveHelperComponent, { lineEntities: lineEntitites })
 
           if (getComponent(entity, ActiveHelperComponent).directional) {
             const directionalEntity = setupGizmo(entity, iconGizmoArrow, ObjectLayers.NodeHelper)
             setComponent(entity, ActiveHelperComponent, { directionalEntities: directionalEntity })
-            const lineEntitites = setupGizmo(
-              getState(ReferenceSpaceState).originEntity,
-              iconGizmoYHelper,
-              ObjectLayers.NodeHelper
-            )
-            setComponent(entity, ActiveHelperComponent, { lineEntities: lineEntitites })
           }
           // add text
           return iconGizmo
