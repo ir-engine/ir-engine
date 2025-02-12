@@ -64,7 +64,7 @@ export default {
         iffElse(
           checkScope('projects', 'read'),
           [],
-          [iffElse(checkProjectPermission(['owner', 'editor', 'reviewer']), [], setInContext('type', 'public')) as any]
+          [iffElse(checkProjectPermission(['owner', 'editor']), [], setInContext('type', 'public')) as any]
         )
       )
     ],
@@ -73,7 +73,10 @@ export default {
       setLoggedInUserInData('userId'),
       schemaHooks.validateData(projectSettingDataValidator),
       schemaHooks.resolveData(projectSettingDataResolver),
-      iff(isProvider('external'), iffElse(checkScope('projects', 'write'), [], [verifyProjectPermission(['owner'])]))
+      iff(
+        isProvider('external'),
+        iffElse(checkScope('projects', 'write'), [], [verifyProjectPermission(['owner', 'editor'])])
+      )
     ],
     patch: [
       setLoggedInUserInData('userId'),
@@ -86,7 +89,10 @@ export default {
     ],
     update: [],
     remove: [
-      iff(isProvider('external'), iffElse(checkScope('projects', 'write'), [], [verifyProjectPermission(['owner'])]))
+      iff(
+        isProvider('external'),
+        iffElse(checkScope('projects', 'write'), [], [verifyProjectPermission(['owner', 'editor'])])
+      )
     ]
   },
 
