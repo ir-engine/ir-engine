@@ -117,9 +117,9 @@ export const VideoComponent = defineComponent({
     projection: ProjectionSchema,
     mediaUUID: S.EntityUUID(),
     // internal
-    videoMeshEntity: S.Entity(),
+    videoMeshEntity: S.NonSerialized(S.Entity()),
     texture: S.NonSerialized(S.Nullable(S.Type<VideoTexturePriorityQueue>())),
-    currentVideoSize: T.Vec2(Vector2_One)
+    currentVideoSize: S.NonSerialized(T.Vec2(Vector2_One))
   }),
 
   onRemove: (entity, component) => {
