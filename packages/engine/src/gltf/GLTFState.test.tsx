@@ -25,14 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { GLTF } from '@gltf-transform/core'
 import assert from 'assert'
-import { Cache, Color, Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+import { Cache, Color, Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 
 import {
   createEntity,
   Entity,
   EntityTreeComponent,
-  EntityUUID,
   getComponent,
   setComponent,
   SystemDefinitions,
@@ -49,6 +48,7 @@ import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/Scene
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { AssetState, GLTFLoadSystem } from './GLTFState'
+import { NodeIDComponent } from './NodeIDComponent'
 
 const assertSignificantFigures = (actual: number[], expected: number[], figures = 8) => {
   assert.deepStrictEqual(toSignificantFigures(actual, figures), toSignificantFigures(expected, figures))
@@ -74,7 +74,7 @@ describe.skip('GLTFState', () => {
     setComponent(physicsWorldEntity, SceneComponent)
     setComponent(physicsWorldEntity, TransformComponent)
     setComponent(physicsWorldEntity, EntityTreeComponent)
-    const physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+    const physicsWorld = Physics.createWorld(physicsWorldEntity)
     physicsWorld.timestep = 1 / 60
 
     // patch setTimeout to run the callback immediately
@@ -90,7 +90,7 @@ describe.skip('GLTFState', () => {
   })
 
   it('should load a GLTF file with a single node', async () => {
-    const nodeUUID = MathUtils.generateUUID() as EntityUUID
+    const nodeUUID = NodeIDComponent.generate()
 
     const gltf: GLTF.IGLTF = {
       asset: {
@@ -102,7 +102,7 @@ describe.skip('GLTFState', () => {
         {
           name: 'node',
           extensions: {
-            [UUIDComponent.jsonID]: nodeUUID
+            [NodeIDComponent.jsonID]: nodeUUID
           }
         }
       ]
@@ -115,9 +115,9 @@ describe.skip('GLTFState', () => {
     const system = SystemDefinitions.get(GLTFLoadSystem)!
     const reactor = startReactor(system.reactor!)
 
-    await vi.waitUntil(() => UUIDComponent.getEntityByUUID(nodeUUID), { timeout: 10000 })
+    await vi.waitUntil(() => NodeIDComponent.getEntityFromNodeID(gltfEntity, nodeUUID), { timeout: 10000 })
 
-    const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
+    const nodeEntity = NodeIDComponent.getEntityFromNodeID(gltfEntity, nodeUUID)
 
     const nodeEntityTree = getComponent(nodeEntity, EntityTreeComponent)
     const nodeName = getComponent(nodeEntity, NameComponent)
@@ -133,12 +133,12 @@ describe.skip('GLTFState', () => {
 
     AssetState.unload(gltfEntity)
 
-    assert(!UUIDComponent.getEntityByUUID(nodeUUID))
+    assert(!NodeIDComponent.getEntityFromNodeID(gltfEntity, nodeUUID))
   })
 
   it('should load a GLTF file with a node and child', () => {
-    const nodeUUID = MathUtils.generateUUID() as EntityUUID
-    const childUUID = MathUtils.generateUUID() as EntityUUID
+    const nodeUUID = NodeIDComponent.generate()
+    const childUUID = NodeIDComponent.generate()
 
     const gltf: GLTF.IGLTF = {
       asset: {
@@ -151,13 +151,13 @@ describe.skip('GLTFState', () => {
           name: 'node',
           children: [1],
           extensions: {
-            [UUIDComponent.jsonID]: nodeUUID
+            [NodeIDComponent.jsonID]: nodeUUID
           }
         },
         {
           name: 'child',
           extensions: {
-            [UUIDComponent.jsonID]: childUUID
+            [NodeIDComponent.jsonID]: childUUID
           }
         }
       ]
@@ -169,8 +169,8 @@ describe.skip('GLTFState', () => {
 
     applyIncomingActions()
 
-    const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
-    const childEntity = UUIDComponent.getEntityByUUID(childUUID)
+    const nodeEntity = NodeIDComponent.getEntityFromNodeID(gltfEntity, nodeUUID)
+    const childEntity = NodeIDComponent.getEntityFromNodeID(gltfEntity, childUUID)
 
     assert(nodeEntity)
     assert(childEntity)
@@ -191,14 +191,14 @@ describe.skip('GLTFState', () => {
 
     applyIncomingActions()
 
-    assert(!UUIDComponent.getEntityByUUID(nodeUUID))
-    assert(!UUIDComponent.getEntityByUUID(childUUID))
+    assert(!NodeIDComponent.getEntityFromNodeID(gltfEntity, nodeUUID))
+    assert(!NodeIDComponent.getEntityFromNodeID(gltfEntity, childUUID))
   })
 
   it('should load a GLTF file with a node and child with a child', () => {
-    const nodeUUID = MathUtils.generateUUID() as EntityUUID
-    const childUUID = MathUtils.generateUUID() as EntityUUID
-    const grandchildUUID = MathUtils.generateUUID() as EntityUUID
+    const nodeUUID = NodeIDComponent.generate()
+    const childUUID = NodeIDComponent.generate()
+    const grandchildUUID = NodeIDComponent.generate()
 
     const gltf: GLTF.IGLTF = {
       asset: {
@@ -211,20 +211,20 @@ describe.skip('GLTFState', () => {
           name: 'node',
           children: [1],
           extensions: {
-            [UUIDComponent.jsonID]: nodeUUID
+            [NodeIDComponent.jsonID]: nodeUUID
           }
         },
         {
           name: 'child',
           children: [2],
           extensions: {
-            [UUIDComponent.jsonID]: childUUID
+            [NodeIDComponent.jsonID]: childUUID
           }
         },
         {
           name: 'grandchild',
           extensions: {
-            [UUIDComponent.jsonID]: grandchildUUID
+            [NodeIDComponent.jsonID]: grandchildUUID
           }
         }
       ]
@@ -236,9 +236,9 @@ describe.skip('GLTFState', () => {
 
     applyIncomingActions()
 
-    const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
-    const childEntity = UUIDComponent.getEntityByUUID(childUUID)
-    const grandChildEntity = UUIDComponent.getEntityByUUID(grandchildUUID)
+    const nodeEntity = NodeIDComponent.getEntityFromNodeID(gltfEntity, nodeUUID)
+    const childEntity = NodeIDComponent.getEntityFromNodeID(gltfEntity, childUUID)
+    const grandChildEntity = NodeIDComponent.getEntityFromNodeID(gltfEntity, grandchildUUID)
 
     assert(nodeEntity)
     assert(childEntity)
@@ -264,14 +264,14 @@ describe.skip('GLTFState', () => {
 
     applyIncomingActions()
 
-    assert(!UUIDComponent.getEntityByUUID(nodeUUID))
-    assert(!UUIDComponent.getEntityByUUID(childUUID))
-    assert(!UUIDComponent.getEntityByUUID(grandchildUUID))
+    assert(!NodeIDComponent.getEntityFromNodeID(gltfEntity, nodeUUID))
+    assert(!NodeIDComponent.getEntityFromNodeID(gltfEntity, childUUID))
+    assert(!NodeIDComponent.getEntityFromNodeID(gltfEntity, grandchildUUID))
   })
 
   it('should load a GLTF file with a node and child with correct transforms', () => {
-    const nodeUUID = MathUtils.generateUUID() as EntityUUID
-    const childUUID = MathUtils.generateUUID() as EntityUUID
+    const nodeUUID = NodeIDComponent.generate()
+    const childUUID = NodeIDComponent.generate()
 
     const nodeMatrix = new Matrix4()
       .compose(new Vector3(1, 2, 3), new Quaternion().setFromEuler(new Euler(1, 2, 3)), new Vector3(2, 3, 4))
@@ -294,14 +294,14 @@ describe.skip('GLTFState', () => {
           // non identity position, rotation and scale
           matrix: nodeMatrix,
           extensions: {
-            [UUIDComponent.jsonID]: nodeUUID
+            [NodeIDComponent.jsonID]: nodeUUID
           }
         },
         {
           name: 'child',
           matrix: childMatrix,
           extensions: {
-            [UUIDComponent.jsonID]: childUUID
+            [NodeIDComponent.jsonID]: childUUID
           }
         }
       ]
@@ -309,12 +309,12 @@ describe.skip('GLTFState', () => {
 
     Cache.add('/test.gltf', gltf)
 
-    AssetState.load('/test.gltf', undefined, physicsWorldEntity)
+    const gltfEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity)
 
     applyIncomingActions()
 
-    const node = UUIDComponent.getEntityByUUID(nodeUUID)!
-    const child = UUIDComponent.getEntityByUUID(childUUID)!
+    const node = NodeIDComponent.getEntityFromNodeID(gltfEntity, nodeUUID)!
+    const child = NodeIDComponent.getEntityFromNodeID(gltfEntity, childUUID)!
 
     assert(node)
     assert(child)
@@ -343,7 +343,7 @@ describe.skip('GLTFState', () => {
   })
 
   it('should load a GLTF file with a node with ECS extension data', () => {
-    const nodeUUID = MathUtils.generateUUID() as EntityUUID
+    const nodeUUID = NodeIDComponent.generate()
 
     const gltf: GLTF.IGLTF = {
       asset: {
@@ -355,7 +355,7 @@ describe.skip('GLTFState', () => {
         {
           name: 'node',
           extensions: {
-            [UUIDComponent.jsonID]: nodeUUID,
+            [NodeIDComponent.jsonID]: nodeUUID,
             [VisibleComponent.jsonID]: true,
             [HemisphereLightComponent.jsonID!]: {
               skyColor: new Color('green').getHex(),
@@ -373,7 +373,7 @@ describe.skip('GLTFState', () => {
 
     applyIncomingActions()
 
-    const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
+    const nodeEntity = NodeIDComponent.getEntityFromNodeID(gltfEntity, nodeUUID)
 
     assert.equal(getComponent(nodeEntity!, VisibleComponent), true)
     assert(getComponent(nodeEntity!, HemisphereLightComponent))

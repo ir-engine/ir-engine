@@ -141,7 +141,7 @@ function VideoReactor() {
   const video = useComponent(entity, VideoComponent)
   const visible = useHasComponent(entity, VisibleComponent)
   const mediaUUID = video.mediaUUID.value
-  const mediaEntity = NodeIDComponent.getEntityFromNodeID(entity, mediaUUID) || entity
+  const mediaEntity = NodeIDComponent.useEntityFromNodeID(entity, mediaUUID) || entity
   const hasMediaElementComponent = useHasComponent(mediaEntity, MediaElementComponent)
 
   const videoMeshEntity = useHookstate(() => {

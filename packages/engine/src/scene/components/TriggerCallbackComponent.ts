@@ -23,8 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@ir-engine/ecs'
+import { defineComponent, removeComponent, setComponent, useEntityContext } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
+import { useEffect } from 'react'
 import { NodeIDSchema } from '../../gltf/NodeIDComponent'
 
 export const TriggerCallbackComponent = defineComponent({
@@ -48,5 +50,18 @@ export const TriggerCallbackComponent = defineComponent({
         target: NodeIDSchema()
       })
     )
-  })
+  }),
+
+  reactor: () => {
+    const entity = useEntityContext()
+
+    useEffect(() => {
+      setComponent(entity, TriggerComponent)
+      return () => {
+        removeComponent(entity, TriggerComponent)
+      }
+    }, [])
+
+    return null
+  }
 })

@@ -50,6 +50,7 @@ import { LookAtComponent } from '../components/LookAtComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { LookAtSystem } from './LookAtSystem'
 import { TransformDirtyCleanupSystem, TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+import { NodeID, NodeIDComponent } from '../../gltf/NodeIDComponent'
 
 describe('LookAtSystem', () => {
   const System = SystemDefinitions.get(LookAtSystem)!
@@ -95,7 +96,7 @@ describe('LookAtSystem', () => {
         setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42) })
         setComponent(facerEntity, UUIDComponent, UUIDComponent.generateUUID())
         setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22), rotation: Initial })
-        setComponent(testEntity, LookAtComponent, { target: getComponent(facerEntity, UUIDComponent) })
+        setComponent(testEntity, LookAtComponent, { target: getComponent(facerEntity, NodeIDComponent) })
         // Sanity check before running
         assert.equal(Boolean(getState(ReferenceSpaceState).viewerEntity), false)
         assert.equal(hasComponent(testEntity, TransformComponent), true)
@@ -134,7 +135,7 @@ describe('LookAtSystem', () => {
           setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42), rotation: Initial })
           setComponent(facerEntity, UUIDComponent, UUIDComponent.generateUUID())
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
-          setComponent(testEntity, LookAtComponent, { target: 'invalidTestUUID' as EntityUUID })
+          setComponent(testEntity, LookAtComponent, { target: 'invalidTestUUID' as NodeID })
           // Sanity check before running
           assert.equal(Boolean(getState(ReferenceSpaceState).viewerEntity), true)
           assert.equal(hasComponent(testEntity, TransformComponent), true)
@@ -154,7 +155,7 @@ describe('LookAtSystem', () => {
           setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42), rotation: Initial })
           setComponent(facerEntity, UUIDComponent, UUIDComponent.generateUUID())
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
-          setComponent(testEntity, LookAtComponent, { target: '' as EntityUUID })
+          setComponent(testEntity, LookAtComponent, { target: '' as NodeID })
           // Sanity check before running
           assert.equal(Boolean(getState(ReferenceSpaceState).viewerEntity), true)
           assert.equal(hasComponent(testEntity, TransformComponent), true)
@@ -175,7 +176,7 @@ describe('LookAtSystem', () => {
           setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42), rotation: Initial })
           setComponent(facerEntity, UUIDComponent, UUIDComponent.generateUUID())
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
-          setComponent(testEntity, LookAtComponent, { target: '' as EntityUUID })
+          setComponent(testEntity, LookAtComponent, { target: '' as NodeID })
           // Sanity check before running
           assert.equal(Boolean(getState(ReferenceSpaceState).viewerEntity), true)
           assert.equal(hasComponent(testEntity, TransformComponent), true)
@@ -201,7 +202,7 @@ describe('LookAtSystem', () => {
           setComponent(facerEntity, TransformComponent, { matrixWorld: Initial })
           setComponent(facerEntity, UUIDComponent, UUIDComponent.generateUUID())
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
-          setComponent(testEntity, LookAtComponent, { target: getComponent(facerEntity, UUIDComponent) })
+          setComponent(testEntity, LookAtComponent, { target: getComponent(facerEntity, NodeIDComponent) })
           CleanupSystem.execute()
           // Sanity check before running
           assert.equal(Boolean(getState(ReferenceSpaceState).viewerEntity), true)

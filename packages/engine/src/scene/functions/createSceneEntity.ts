@@ -30,7 +30,6 @@ import {
   UndefinedEntity,
   createEntity,
   generateEntityUUID,
-  getOptionalComponent,
   setComponent
 } from '@ir-engine/ecs'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -38,6 +37,7 @@ import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/Obje
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { Group } from 'three'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { SourceComponent } from '../components/SourceComponent'
 
 export const createSceneEntity = (name: string, parentEntity: Entity = UndefinedEntity): Entity => {
@@ -50,8 +50,8 @@ export const createSceneEntity = (name: string, parentEntity: Entity = Undefined
     setComponent(entity, EntityTreeComponent, { parentEntity })
     EntityTreeComponent.reactorMap.get(parentEntity)?.run()
   }
-  const sceneID = getOptionalComponent(parentEntity, SourceComponent)
-  if (sceneID != null) {
+  const sceneID = GLTFComponent.getInstanceID(parentEntity)
+  if (sceneID) {
     setComponent(entity, SourceComponent, sceneID)
   }
 

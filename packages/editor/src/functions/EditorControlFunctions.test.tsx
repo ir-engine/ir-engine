@@ -39,7 +39,7 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { AssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SplineComponent } from '@ir-engine/engine/src/scene/components/SplineComponent'
 import { getMutableState } from '@ir-engine/hyperflux'
@@ -48,6 +48,7 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 
 import { EntityTreeComponent } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { startEngineReactor } from '@ir-engine/engine/tests/startEngineReactor'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
@@ -73,7 +74,7 @@ describe('EditorControlFunctions', () => {
     setComponent(physicsWorldEntity, SceneComponent)
     setComponent(physicsWorldEntity, TransformComponent)
     setComponent(physicsWorldEntity, EntityTreeComponent)
-    const physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+    const physicsWorld = Physics.createWorld(physicsWorldEntity)
     physicsWorld.timestep = 1 / 60
 
     startEngineReactor()
@@ -86,7 +87,7 @@ describe('EditorControlFunctions', () => {
 
   describe('addOrRemoveComponent', () => {
     it('should add and remove component from root child', async () => {
-      const nodeUUID = UUIDComponent.generateUUID()
+      const nodeUUID = NodeIDComponent.generate()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -98,7 +99,7 @@ describe('EditorControlFunctions', () => {
           {
             name: 'node',
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           }
         ]
@@ -110,7 +111,7 @@ describe('EditorControlFunctions', () => {
 
       await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
+      const nodeEntity = NodeIDComponent.getEntityFromNodeID(rootEntity, nodeUUID, Layers.Authoring)
 
       assert(nodeEntity)
 
@@ -124,8 +125,8 @@ describe('EditorControlFunctions', () => {
     })
 
     it('should add and remove component from root child', async () => {
-      const nodeUUID = UUIDComponent.generateUUID()
-      const childUUID = UUIDComponent.generateUUID()
+      const nodeUUID = NodeIDComponent.generate()
+      const childUUID = NodeIDComponent.generate()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -138,13 +139,13 @@ describe('EditorControlFunctions', () => {
             name: 'node',
             children: [1],
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           },
           {
             name: 'child',
             extensions: {
-              [UUIDComponent.jsonID]: childUUID
+              [NodeIDComponent.jsonID]: childUUID
             }
           }
         ]
@@ -156,7 +157,7 @@ describe('EditorControlFunctions', () => {
 
       await waitForScene(rootEntity)
 
-      const childEntity = UUIDComponent.getEntityByUUID(childUUID, Layers.Authoring)
+      const childEntity = NodeIDComponent.getEntityFromNodeID(rootEntity, childUUID, Layers.Authoring)!
 
       EditorControlFunctions.addOrRemoveComponent([childEntity], VisibleComponent, true)
 
@@ -170,7 +171,7 @@ describe('EditorControlFunctions', () => {
 
   describe('modifyName', () => {
     it('should modify the name of a node', async () => {
-      const nodeUUID = UUIDComponent.generateUUID()
+      const nodeUUID = NodeIDComponent.generate()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -182,7 +183,7 @@ describe('EditorControlFunctions', () => {
           {
             name: 'node',
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           }
         ]
@@ -193,7 +194,7 @@ describe('EditorControlFunctions', () => {
       getMutableState(EditorState).rootEntity.set(rootEntity)
       await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
+      const nodeEntity = NodeIDComponent.getEntityFromNodeID(rootEntity, nodeUUID, Layers.Authoring)!
 
       EditorControlFunctions.modifyName([nodeEntity], 'newName')
 
@@ -203,7 +204,7 @@ describe('EditorControlFunctions', () => {
 
   describe('modifyProperty', () => {
     it('should modify the property of a node', async () => {
-      const nodeUUID = UUIDComponent.generateUUID()
+      const nodeUUID = NodeIDComponent.generate()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -215,7 +216,7 @@ describe('EditorControlFunctions', () => {
           {
             name: 'node',
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID,
+              [NodeIDComponent.jsonID]: nodeUUID,
               [HemisphereLightComponent.jsonID!]: {
                 skyColor: new Color('green').getHex(),
                 groundColor: new Color('purple').getHex(),
@@ -231,7 +232,7 @@ describe('EditorControlFunctions', () => {
       getMutableState(EditorState).rootEntity.set(rootEntity)
       await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
+      const nodeEntity = NodeIDComponent.getEntityFromNodeID(rootEntity, nodeUUID, Layers.Authoring)!
 
       EditorControlFunctions.modifyProperty([nodeEntity], HemisphereLightComponent, {
         skyColor: new Color('blue'),
@@ -243,7 +244,7 @@ describe('EditorControlFunctions', () => {
       assert.deepEqual(hemisphereLightComponent.skyColor, new Color('blue'))
     })
     it('should modify a nested property of a node', async () => {
-      const nodeUUID = UUIDComponent.generateUUID()
+      const nodeUUID = NodeIDComponent.generate()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -255,7 +256,7 @@ describe('EditorControlFunctions', () => {
           {
             name: 'node',
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID,
+              [NodeIDComponent.jsonID]: nodeUUID,
               [SplineComponent.jsonID!]: {
                 elements: [
                   {
@@ -296,7 +297,7 @@ describe('EditorControlFunctions', () => {
       getMutableState(EditorState).rootEntity.set(rootEntity)
       await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
+      const nodeEntity = NodeIDComponent.getEntityFromNodeID(rootEntity, nodeUUID, Layers.Authoring)!
 
       EditorControlFunctions.modifyProperty([nodeEntity], SplineComponent, {
         [`elements.${1}.position` as string]: {
@@ -315,7 +316,7 @@ describe('EditorControlFunctions', () => {
 
   describe('createObjectFromSceneElement', () => {
     it('should create a new object from a scene element to root', async () => {
-      const nodeUUID = UUIDComponent.generateUUID()
+      const nodeUUID = NodeIDComponent.generate()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -327,7 +328,7 @@ describe('EditorControlFunctions', () => {
           {
             name: 'node',
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           }
         ]
@@ -361,7 +362,7 @@ describe('EditorControlFunctions', () => {
     })
 
     it('should create a new object from a scene element as child of node', async () => {
-      const nodeUUID = UUIDComponent.generateUUID()
+      const nodeUUID = NodeIDComponent.generate()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -373,7 +374,7 @@ describe('EditorControlFunctions', () => {
           {
             name: 'node',
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           }
         ]
@@ -384,7 +385,7 @@ describe('EditorControlFunctions', () => {
       getMutableState(EditorState).rootEntity.set(rootEntity)
       await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
+      const nodeEntity = NodeIDComponent.getEntityFromNodeID(rootEntity, nodeUUID, Layers.Authoring)!
 
       const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
         [
@@ -412,7 +413,7 @@ describe('EditorControlFunctions', () => {
     })
 
     it('should create a new object from a scene element before node', async () => {
-      const nodeUUID = UUIDComponent.generateUUID()
+      const nodeUUID = NodeIDComponent.generate()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -424,7 +425,7 @@ describe('EditorControlFunctions', () => {
           {
             name: 'node',
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           }
         ]
@@ -435,7 +436,7 @@ describe('EditorControlFunctions', () => {
       getMutableState(EditorState).rootEntity.set(rootEntity)
       await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
+      const nodeEntity = NodeIDComponent.getEntityFromNodeID(rootEntity, nodeUUID, Layers.Authoring)!
 
       const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
         [
@@ -464,8 +465,8 @@ describe('EditorControlFunctions', () => {
     })
 
     it('should create a new object from a scene element before child node', async () => {
-      const nodeUUID = UUIDComponent.generateUUID()
-      const childUUID = UUIDComponent.generateUUID()
+      const nodeUUID = NodeIDComponent.generate()
+      const childUUID = NodeIDComponent.generate()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -478,13 +479,13 @@ describe('EditorControlFunctions', () => {
             name: 'node',
             children: [1],
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           },
           {
             name: 'child',
             extensions: {
-              [UUIDComponent.jsonID]: childUUID
+              [NodeIDComponent.jsonID]: childUUID
             }
           }
         ]
@@ -495,8 +496,8 @@ describe('EditorControlFunctions', () => {
       getMutableState(EditorState).rootEntity.set(rootEntity)
       await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
-      const childEntity = UUIDComponent.getEntityByUUID(childUUID, Layers.Authoring)
+      const nodeEntity = NodeIDComponent.getEntityFromNodeID(rootEntity, nodeUUID, Layers.Authoring)!
+      const childEntity = NodeIDComponent.getEntityFromNodeID(rootEntity, childUUID, Layers.Authoring)!
 
       const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
         [
@@ -527,7 +528,7 @@ describe('EditorControlFunctions', () => {
 
   describe('duplicateObject', () => {
     it('should duplicate an object to root', async () => {
-      const nodeUUID = UUIDComponent.generateUUID()
+      const nodeUUID = NodeIDComponent.generate()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -539,7 +540,7 @@ describe('EditorControlFunctions', () => {
           {
             name: 'node',
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID,
+              [NodeIDComponent.jsonID]: nodeUUID,
               [HemisphereLightComponent.jsonID!]: {
                 skyColor: new Color('green').getHex(),
                 groundColor: new Color('purple').getHex(),
@@ -555,7 +556,7 @@ describe('EditorControlFunctions', () => {
       getMutableState(EditorState).rootEntity.set(rootEntity)
       await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
+      const nodeEntity = NodeIDComponent.getEntityFromNodeID(rootEntity, nodeUUID, Layers.Authoring)!
 
       EditorControlFunctions.duplicateObject([nodeEntity])
 
@@ -574,8 +575,8 @@ describe('EditorControlFunctions', () => {
 
   describe('reparentObject', () => {
     it('should reparent a child node to root', async () => {
-      const nodeUUID = UUIDComponent.generateUUID()
-      const childUUID = UUIDComponent.generateUUID()
+      const nodeUUID = NodeIDComponent.generate()
+      const childUUID = NodeIDComponent.generate()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -588,13 +589,13 @@ describe('EditorControlFunctions', () => {
             name: 'node',
             children: [1],
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           },
           {
             name: 'child',
             extensions: {
-              [UUIDComponent.jsonID]: childUUID
+              [NodeIDComponent.jsonID]: childUUID
             }
           }
         ]
@@ -605,7 +606,7 @@ describe('EditorControlFunctions', () => {
       getMutableState(EditorState).rootEntity.set(rootEntity)
       await waitForScene(rootEntity)
 
-      const childEntity = UUIDComponent.getEntityByUUID(childUUID, Layers.Authoring)
+      const childEntity = NodeIDComponent.getEntityFromNodeID(rootEntity, childUUID, Layers.Authoring)!
 
       EditorControlFunctions.reparentObject([childEntity], null, null, rootEntity)
 
@@ -615,8 +616,8 @@ describe('EditorControlFunctions', () => {
     })
 
     it('should reparent an object to another object', async () => {
-      const nodeUUID = UUIDComponent.generateUUID()
-      const node2UUID = UUIDComponent.generateUUID()
+      const nodeUUID = NodeIDComponent.generate()
+      const node2UUID = NodeIDComponent.generate()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -628,13 +629,13 @@ describe('EditorControlFunctions', () => {
           {
             name: 'node',
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           },
           {
             name: 'node2',
             extensions: {
-              [UUIDComponent.jsonID]: node2UUID
+              [NodeIDComponent.jsonID]: node2UUID
             }
           }
         ]
@@ -645,8 +646,8 @@ describe('EditorControlFunctions', () => {
       getMutableState(EditorState).rootEntity.set(rootEntity)
       await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
-      const node2Entity = UUIDComponent.getEntityByUUID(node2UUID, Layers.Authoring)
+      const nodeEntity = NodeIDComponent.getEntityFromNodeID(rootEntity, nodeUUID, Layers.Authoring)!
+      const node2Entity = NodeIDComponent.getEntityFromNodeID(rootEntity, node2UUID, Layers.Authoring)!
 
       EditorControlFunctions.reparentObject([node2Entity], null, null, nodeEntity)
 
@@ -656,8 +657,8 @@ describe('EditorControlFunctions', () => {
     })
 
     it('should reparent a child node to root before another node', async () => {
-      const nodeUUID = UUIDComponent.generateUUID()
-      const childUUID = UUIDComponent.generateUUID()
+      const nodeUUID = NodeIDComponent.generate()
+      const childUUID = NodeIDComponent.generate()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -670,13 +671,13 @@ describe('EditorControlFunctions', () => {
             name: 'node',
             children: [1],
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           },
           {
             name: 'child',
             extensions: {
-              [UUIDComponent.jsonID]: childUUID
+              [NodeIDComponent.jsonID]: childUUID
             }
           }
         ]
@@ -687,8 +688,8 @@ describe('EditorControlFunctions', () => {
       getMutableState(EditorState).rootEntity.set(rootEntity)
       await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
-      const childEntity = UUIDComponent.getEntityByUUID(childUUID, Layers.Authoring)
+      const nodeEntity = NodeIDComponent.getEntityFromNodeID(rootEntity, nodeUUID, Layers.Authoring)!
+      const childEntity = NodeIDComponent.getEntityFromNodeID(rootEntity, childUUID, Layers.Authoring)!
 
       EditorControlFunctions.reparentObject([childEntity], nodeEntity, null, rootEntity)
 
@@ -698,9 +699,9 @@ describe('EditorControlFunctions', () => {
     })
 
     it('should reparent an object to another object before other object', async () => {
-      const nodeUUID = UUIDComponent.generateUUID()
-      const node2UUID = UUIDComponent.generateUUID()
-      const childUUID = UUIDComponent.generateUUID()
+      const nodeUUID = NodeIDComponent.generate()
+      const node2UUID = NodeIDComponent.generate()
+      const childUUID = NodeIDComponent.generate()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -713,19 +714,19 @@ describe('EditorControlFunctions', () => {
             name: 'node',
             children: [2],
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeUUID
             }
           },
           {
             name: 'node2',
             extensions: {
-              [UUIDComponent.jsonID]: node2UUID
+              [NodeIDComponent.jsonID]: node2UUID
             }
           },
           {
             name: 'child',
             extensions: {
-              [UUIDComponent.jsonID]: childUUID
+              [NodeIDComponent.jsonID]: childUUID
             }
           }
         ]
@@ -736,9 +737,9 @@ describe('EditorControlFunctions', () => {
       getMutableState(EditorState).rootEntity.set(rootEntity)
       await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
-      const node2Entity = UUIDComponent.getEntityByUUID(node2UUID, Layers.Authoring)
-      const childEntity = UUIDComponent.getEntityByUUID(childUUID, Layers.Authoring)
+      const nodeEntity = NodeIDComponent.getEntityFromNodeID(rootEntity, nodeUUID, Layers.Authoring)!
+      const node2Entity = NodeIDComponent.getEntityFromNodeID(rootEntity, node2UUID, Layers.Authoring)!
+      const childEntity = NodeIDComponent.getEntityFromNodeID(rootEntity, childUUID, Layers.Authoring)!
 
       EditorControlFunctions.reparentObject([node2Entity], childEntity, null, nodeEntity)
 
@@ -748,10 +749,10 @@ describe('EditorControlFunctions', () => {
     })
 
     it('should reparent inside root node', async () => {
-      const node1UUID = UUIDComponent.generateUUID()
-      const node2UUID = UUIDComponent.generateUUID()
-      const node3UUID = UUIDComponent.generateUUID()
-      const node4UUID = UUIDComponent.generateUUID()
+      const node1UUID = NodeIDComponent.generate()
+      const node2UUID = NodeIDComponent.generate()
+      const node3UUID = NodeIDComponent.generate()
+      const node4UUID = NodeIDComponent.generate()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -763,25 +764,25 @@ describe('EditorControlFunctions', () => {
           {
             name: 'node1',
             extensions: {
-              [UUIDComponent.jsonID]: node1UUID
+              [NodeIDComponent.jsonID]: node1UUID
             }
           },
           {
             name: 'node2',
             extensions: {
-              [UUIDComponent.jsonID]: node2UUID
+              [NodeIDComponent.jsonID]: node2UUID
             }
           },
           {
             name: 'node3',
             extensions: {
-              [UUIDComponent.jsonID]: node3UUID
+              [NodeIDComponent.jsonID]: node3UUID
             }
           },
           {
             name: 'node4',
             extensions: {
-              [UUIDComponent.jsonID]: node4UUID
+              [NodeIDComponent.jsonID]: node4UUID
             }
           }
         ]
@@ -792,8 +793,8 @@ describe('EditorControlFunctions', () => {
       getMutableState(EditorState).rootEntity.set(rootEntity)
       await waitForScene(rootEntity)
 
-      const node2Entity = UUIDComponent.getEntityByUUID(node2UUID, Layers.Authoring)
-      const node4Entity = UUIDComponent.getEntityByUUID(node4UUID, Layers.Authoring)
+      const node2Entity = NodeIDComponent.getEntityFromNodeID(rootEntity, node2UUID, Layers.Authoring)!
+      const node4Entity = NodeIDComponent.getEntityFromNodeID(rootEntity, node4UUID, Layers.Authoring)!
 
       EditorControlFunctions.reparentObject([node4Entity], undefined, node2Entity, rootEntity)
 
@@ -805,9 +806,9 @@ describe('EditorControlFunctions', () => {
 
   describe('groupObjects', () => {
     it('should group objects without affecting existing hierarchy relationships', async () => {
-      const nodeUUID = 'nodeUUID' as EntityUUID
-      const node2UUID = 'node2UUID' as EntityUUID
-      const childUUID = 'childUUID' as EntityUUID
+      const nodeID = 'nodeID' as NodeID
+      const node2ID = 'node2ID' as NodeID
+      const childID = 'childID' as NodeID
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -820,19 +821,19 @@ describe('EditorControlFunctions', () => {
             name: 'node',
             children: [2],
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeID
             }
           },
           {
             name: 'node2',
             extensions: {
-              [UUIDComponent.jsonID]: node2UUID
+              [NodeIDComponent.jsonID]: node2ID
             }
           },
           {
             name: 'child',
             extensions: {
-              [UUIDComponent.jsonID]: childUUID
+              [NodeIDComponent.jsonID]: childID
             }
           }
         ]
@@ -843,8 +844,8 @@ describe('EditorControlFunctions', () => {
       getMutableState(EditorState).rootEntity.set(rootEntity)
       await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
-      const node2Entity = UUIDComponent.getEntityByUUID(node2UUID, Layers.Authoring)
+      const nodeEntity = NodeIDComponent.getEntityFromNodeID(rootEntity, nodeID, Layers.Authoring)!
+      const node2Entity = NodeIDComponent.getEntityFromNodeID(rootEntity, node2ID, Layers.Authoring)!
 
       EditorControlFunctions.groupObjects([nodeEntity, node2Entity])
 
@@ -860,10 +861,10 @@ describe('EditorControlFunctions', () => {
 
   describe('removeObject', () => {
     it('should remove an object and children from the scene', async () => {
-      const nodeUUID = 'nodeUUID' as EntityUUID
-      const node2UUID = 'node2UUID' as EntityUUID
-      const node3UUID = 'node3UUID' as EntityUUID
-      const childUUID = 'childUUID' as EntityUUID
+      const nodeID = 'nodeID' as NodeID
+      const node2ID = 'node2ID' as NodeID
+      const node3ID = 'node3ID' as NodeID
+      const childID = 'childID' as NodeID
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -876,25 +877,25 @@ describe('EditorControlFunctions', () => {
             name: 'node',
             children: [2],
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeID
             }
           },
           {
             name: 'node2',
             extensions: {
-              [UUIDComponent.jsonID]: node2UUID
+              [NodeIDComponent.jsonID]: node2ID
             }
           },
           {
             name: 'child',
             extensions: {
-              [UUIDComponent.jsonID]: childUUID
+              [NodeIDComponent.jsonID]: childID
             }
           },
           {
             name: 'node3',
             extensions: {
-              [UUIDComponent.jsonID]: node3UUID
+              [NodeIDComponent.jsonID]: node3ID
             }
           }
         ]
@@ -905,17 +906,17 @@ describe('EditorControlFunctions', () => {
       getMutableState(EditorState).rootEntity.set(rootEntity)
       await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
-      const node2Entity = UUIDComponent.getEntityByUUID(node2UUID, Layers.Authoring)
-      const node3Entity = UUIDComponent.getEntityByUUID(node3UUID, Layers.Authoring)
+      const nodeEntity = NodeIDComponent.getEntityFromNodeID(rootEntity, nodeID, Layers.Authoring)!
+      const node2Entity = NodeIDComponent.getEntityFromNodeID(rootEntity, node2ID, Layers.Authoring)!
+      const node3Entity = NodeIDComponent.getEntityFromNodeID(rootEntity, node3ID, Layers.Authoring)!
 
       EditorControlFunctions.removeObject([nodeEntity])
 
       assert.equal(getComponent(rootEntity, EntityTreeComponent).children[0], node2Entity)
       assert.equal(getComponent(rootEntity, EntityTreeComponent).children[1], node3Entity)
 
-      assert.equal(UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring), UndefinedEntity)
-      assert.equal(UUIDComponent.getEntityByUUID(childUUID, Layers.Authoring), UndefinedEntity)
+      assert.equal(NodeIDComponent.getEntityFromNodeID(rootEntity, nodeID, Layers.Authoring), UndefinedEntity)!
+      assert.equal(NodeIDComponent.getEntityFromNodeID(rootEntity, childID, Layers.Authoring), UndefinedEntity)!
     })
   })
 })

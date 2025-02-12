@@ -24,20 +24,27 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
+  createEntity,
   defineComponent,
   Entity,
   EntityUUID,
   getComponent,
   hasComponent,
+  LayerComponent,
+  LayerID,
+  Layers,
   S,
+  setComponent,
   TTypedSchema,
-  useComponent,
+  UndefinedEntity,
   useEntityContext,
-  useOptionalComponent
+  useOptionalComponent,
+  UUIDComponent
 } from '@ir-engine/ecs'
-import { defineState, getMutableState, getState, none, OpaqueType } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, none, OpaqueType, useHookstate } from '@ir-engine/hyperflux'
 import { NonEmptyString } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { useEffect } from 'react'
+import { v4 as uuidv4 } from 'uuid'
 import { SourceComponent, SourceID } from '../scene/components/SourceComponent'
 
 export type NodeID = OpaqueType<'NodeID'> & string
@@ -46,7 +53,7 @@ export const NodeIDSchema = () => S.String('', { id: 'NodeID' }) as unknown as T
 
 export const NodesBySourceState = defineState({
   name: 'ir.world.NodesBySourceState',
-  initial: {} as Record<SourceID, Record<NodeID, Entity>>
+  initial: {} as Record<LayerID, Record<SourceID, Record<NodeID, Entity>>>
 })
 
 export const NodeIDComponent = defineComponent({
@@ -63,24 +70,27 @@ export const NodeIDComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const nodeID = useComponent(entity, NodeIDComponent)
     const sourceID = useOptionalComponent(entity, SourceComponent)?.value
 
     useEffect(() => {
       if (!sourceID) return
 
+      const nodeID = getComponent(entity, NodeIDComponent)
       const state = getMutableState(NodesBySourceState)
+      const layer = LayerComponent.get(entity)
 
-      if (!state.value[sourceID]) state[sourceID].set({})
+      if (!state.value[layer]) state[layer].set({})
 
-      if (!state[sourceID].value[nodeID.value]) state[sourceID][nodeID.value].set(entity)
+      if (!state[layer].value[sourceID]) state[layer][sourceID].set({})
+
+      if (!state[layer][sourceID].value[nodeID]) state[layer][sourceID][nodeID].set(entity)
 
       return () => {
-        state[sourceID][nodeID.value].set(none)
+        state[layer][sourceID][nodeID].set(none)
 
-        if (!state[sourceID].value[nodeID.value]) state[sourceID].set(none)
+        if (!state[layer][sourceID].keys.length) state[layer][sourceID].set(none)
       }
-    }, [])
+    }, [sourceID])
 
     return null
   },
@@ -88,13 +98,39 @@ export const NodeIDComponent = defineComponent({
   /**
    * For most cases, we can assume that the instance of a node we are looking for is from the same asset and in the same source instance as the node we are looking for.
    */
-  getEntityFromNodeID: (sameSourceEntity: Entity, nodeID: NodeID) => {
-    if (!hasComponent(sameSourceEntity, SourceComponent)) return
+  getEntityFromNodeID: (sameSourceEntity: Entity, nodeID: NodeID, layer = Layers.Simulation as LayerID) => {
+    if (!hasComponent(sameSourceEntity, SourceComponent)) return UndefinedEntity
 
     const sourceID = getComponent(sameSourceEntity, SourceComponent)
 
-    return getState(NodesBySourceState)[sourceID][nodeID] as Entity | undefined
+    return getState(NodesBySourceState)[layer][sourceID][nodeID] || UndefinedEntity
   },
 
-  getUUIDBySourceAndNodeID: (source: SourceID, nodeID: NodeID) => `${source}-${nodeID}` as EntityUUID
+  /**
+   * For most cases, we can assume that the instance of a node we are looking for is from the same asset and in the same source instance as the node we are looking for.
+   */
+  useEntityFromNodeID: (sameSourceEntity: Entity, nodeID: NodeID, layer = Layers.Simulation as LayerID) => {
+    const state = useHookstate(getMutableState(NodesBySourceState)[layer])
+    const sourceID = useOptionalComponent(sameSourceEntity, SourceComponent)?.value
+
+    if (!sourceID) return UndefinedEntity
+
+    return state[sourceID]?.[nodeID]?.value || UndefinedEntity
+  },
+
+  getUUIDBySourceAndNodeID: (source: SourceID, nodeID: NodeID) => `${source}-${nodeID}` as EntityUUID,
+
+  /**
+   * Creates a new entity with the NodeIDComponent and SourceComponent.
+   * - Also sets the UUIDComponent to the NodeIDComponent's UUID.
+   */
+  create: (sourceID: SourceID, nodeID: NodeID, layer = Layers.Simulation as LayerID) => {
+    const entity = createEntity(layer)
+    setComponent(entity, NodeIDComponent, nodeID)
+    setComponent(entity, SourceComponent, sourceID)
+    setComponent(entity, UUIDComponent, NodeIDComponent.getUUIDBySourceAndNodeID(sourceID, nodeID))
+    return entity
+  },
+
+  generate: () => uuidv4() as NodeID
 })

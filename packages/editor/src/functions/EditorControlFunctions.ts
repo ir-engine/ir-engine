@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import {
-  createEntity,
   EntityTreeComponent,
   EntityUUID,
   findRootAncestors,
@@ -44,7 +43,6 @@ import {
   getComponent,
   getMutableComponent,
   hasComponent,
-  LayerComponent,
   Layers,
   removeComponent,
   serializeComponent,
@@ -65,6 +63,7 @@ import { getMaterial } from '@ir-engine/spatial/src/renderer/materials/materialF
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { serializeEntity } from '@ir-engine/engine/src/scene/functions/serializeWorld'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
@@ -72,7 +71,6 @@ import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/Scene
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
-import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 
 const tempMatrix4 = new Matrix4()
 const tempVector = new Vector3()
@@ -188,7 +186,7 @@ const createObjectFromSceneElement = (
   beforeEntity?: Entity,
   requestedName?: string
 ): { entityUUID: EntityUUID; sourceID: string } => {
-  const entityUUID: EntityUUID =
+  const nodeID: NodeID =
     componentJson.find((comp) => comp.name === NodeIDComponent.jsonID)?.props.uuid ?? generateEntityUUID()
 
   const gltfEntity = getAncestorWithComponents(parentEntity, [GLTFComponent])
@@ -206,17 +204,15 @@ const createObjectFromSceneElement = (
     }
   }
   if (!extensions[NodeIDComponent.jsonID]) {
-    extensions[NodeIDComponent.jsonID] = entityUUID
+    extensions[NodeIDComponent.jsonID] = nodeID
   }
   if (!extensions[VisibleComponent.jsonID]) {
     extensions[VisibleComponent.jsonID] = true
   }
 
-  const entity = UUIDComponent.getOrCreateEntityByUUID(entityUUID, Layers.Authoring)
+  const entity = NodeIDComponent.create(sourceID, nodeID, Layers.Authoring)
 
   setComponent(entity, NameComponent, name)
-
-  setComponent(entity, SourceComponent, sourceID)
 
   if (extensions[TransformComponent.jsonID]) {
     const comp = {
@@ -235,7 +231,7 @@ const createObjectFromSceneElement = (
 
   EditorState.markModifiedScene(gltfEntity)
 
-  return { entityUUID, sourceID }
+  return { entityUUID: getComponent(entity, UUIDComponent), sourceID }
 }
 
 /**
@@ -251,14 +247,13 @@ const duplicateObject = (entities: Entity[]) => {
     const parentUUID = getComponent(parentEntity, UUIDComponent)
     const entityData = serializeEntity(entity).filter((c) => c.name !== NodeIDComponent.jsonID)
     const newUUID = generateEntityUUID()
-    const layer = LayerComponent.get(entity)
     const originalSource = getComponent(entity, SourceComponent)
-    const newEntity = createEntity(layer)
+
+    const newEntity = NodeIDComponent.create(originalSource, NodeIDComponent.generate(), Layers.Authoring)
+
     const name = getComponent(entity, NameComponent)
     setComponent(newEntity, VisibleComponent)
     setComponent(newEntity, NameComponent, name)
-    setComponent(newEntity, UUIDComponent, newUUID)
-    setComponent(newEntity, SourceComponent, originalSource)
     for (const component of entityData) {
       deserializeComponent(newEntity, ComponentJSONIDMap.get(component.name)!, component.props)
     }
@@ -445,16 +440,13 @@ const groupObjects = (entities: Entity[]) => {
   const firstEntity = entities[0]
   if (hasComponent(firstEntity, SceneComponent)) return
   const parentEntity = getComponent(firstEntity, EntityTreeComponent).parentEntity
-  const layer = LayerComponent.get(firstEntity)
-  const newParent = createEntity(layer)
-  setComponent(newParent, UUIDComponent, generateEntityUUID())
+  const gltfEntity = getAncestorWithComponents(firstEntity, [GLTFComponent])
+  const sourceID = GLTFComponent.getInstanceID(gltfEntity)
+  const newParent = NodeIDComponent.create(sourceID, NodeIDComponent.generate(), Layers.Authoring)
   setComponent(newParent, NameComponent, 'New Group')
   setComponent(newParent, EntityTreeComponent, { parentEntity })
   setComponent(newParent, VisibleComponent)
   setComponent(newParent, TransformComponent, { position: new Vector3(0, 0, 0) })
-  const gltfEntity = getAncestorWithComponents(firstEntity, [GLTFComponent])
-  const sourceID = GLTFComponent.getInstanceID(gltfEntity)
-  setComponent(newParent, SourceComponent, sourceID)
 
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue

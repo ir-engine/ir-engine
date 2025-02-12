@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { iterateEntityNode, TTypedSchema } from '@ir-engine/ecs'
 import { defineComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { hookstate, none, OpaqueType } from '@ir-engine/hyperflux'
 import { NonEmptyString } from '@ir-engine/spatial/src/schema/schemaFunctions'
@@ -89,6 +89,8 @@ export const SourceComponent = defineComponent({
     })
     return entities
   },
+
+  getSourceID: (uuid: EntityUUID, src: string) => `${uuid}-${src}` as SourceID,
 
   entitiesBySourceState: hookstate(entitiesBySource),
   entitiesBySource: entitiesBySource as Readonly<typeof entitiesBySource>

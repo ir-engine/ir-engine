@@ -70,6 +70,7 @@ import { STATIC_ASSET_REGEX } from '../assets/functions/pathResolver'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { handleScenePaths } from '../scene/functions/GLTFConversion'
 import { GLTFComponent } from './GLTFComponent'
+import { NodeIDComponent } from './NodeIDComponent'
 
 const WEBGL_CONSTANTS = {
   POINTS: 0x0000,
@@ -720,7 +721,7 @@ const exportMaterial = async (
   //@todo: plugins
   materialDef.extensions = materialDef.extensions ?? {}
   materialDef.extensions['EE_material'] = {
-    uuid: getComponent(materialEntity, UUIDComponent),
+    uuid: getComponent(materialEntity, NodeIDComponent),
     name: getComponent(materialEntity, NameComponent),
     prototype: Object.keys(prototype.prototypeConstructor!)[0],
     args: result,
