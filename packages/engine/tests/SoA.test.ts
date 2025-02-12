@@ -26,9 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import assert from 'assert'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
+import { createEntity } from '@ir-engine/ecs'
 import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { proxifyQuaternion, proxifyVector3 } from '@ir-engine/spatial/src/common/proxies/createThreejsProxy'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 

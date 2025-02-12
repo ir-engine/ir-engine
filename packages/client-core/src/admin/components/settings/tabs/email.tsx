@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { useFind, useMutation } from '@ir-engine/common'
 import { EngineSettingType, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
@@ -158,8 +157,6 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
     <Accordion
       title={t('admin:components.setting.email.header')}
       subtitle={t('admin:components.setting.email.subtitle')}
-      expandIcon={<HiPlusSmall />}
-      shrinkIcon={<HiMinus />}
       ref={ref}
       open={open}
     >

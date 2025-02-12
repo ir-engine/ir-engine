@@ -25,30 +25,43 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { GLTF } from '@gltf-transform/core'
 import assert from 'assert'
-import { Cache, Color, MathUtils } from 'three'
-import { afterEach, beforeEach, describe, it } from 'vitest'
+import { Cache, Color } from 'three'
+import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 
 import { UserID } from '@ir-engine/common/src/schema.type.module'
-import { createEntity, EngineState, getComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
+import {
+  createEntity,
+  EngineState,
+  getComponent,
+  hasComponent,
+  Layers,
+  setComponent,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
-import { GLTFSnapshotState, GLTFSourceState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { AssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SplineComponent } from '@ir-engine/engine/src/scene/components/SplineComponent'
-import { applyIncomingActions, getMutableState, getState } from '@ir-engine/hyperflux'
+import { getMutableState } from '@ir-engine/hyperflux'
 import { HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
 import { EntityTreeComponent } from '@ir-engine/ecs'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { startEngineReactor } from '@ir-engine/engine/tests/startEngineReactor'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
+const waitForScene = (entity: Entity) => vi.waitUntil(() => GLTFComponent.isSceneLoaded(entity), { timeout: 5000 })
+
 describe('EditorControlFunctions', () => {
   let physicsWorldEntity: Entity
 
   beforeEach(async () => {
+    Cache.enabled = true
     createEngine()
     getMutableState(EngineState).isEditing.set(true)
     getMutableState(EngineState).isEditor.set(true)
@@ -62,15 +75,18 @@ describe('EditorControlFunctions', () => {
     setComponent(physicsWorldEntity, EntityTreeComponent)
     const physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
     physicsWorld.timestep = 1 / 60
+
+    startEngineReactor()
   })
 
   afterEach(() => {
+    Cache.enabled = false
     return destroyEngine()
   })
 
   describe('addOrRemoveComponent', () => {
-    it('should add and remove component from root child', () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
+    it('should add and remove component from root child', async () => {
+      const nodeUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -89,31 +105,27 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
       getMutableState(EditorState).rootEntity.set(rootEntity)
-      applyIncomingActions()
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
-      const sourceID = getComponent(nodeEntity, SourceComponent)
+      await waitForScene(rootEntity)
+
+      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
+
+      assert(nodeEntity)
 
       EditorControlFunctions.addOrRemoveComponent([nodeEntity], VisibleComponent, true)
 
-      applyIncomingActions()
-
-      const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
-      assert(newSnapshot.nodes![0].extensions![VisibleComponent.jsonID])
+      assert(hasComponent(nodeEntity, VisibleComponent))
 
       EditorControlFunctions.addOrRemoveComponent([nodeEntity], VisibleComponent, false)
 
-      applyIncomingActions()
-
-      const newSnapshot2 = getState(GLTFSnapshotState)[sourceID].snapshots[2]
-      assert(!newSnapshot2.nodes![0].extensions![VisibleComponent.jsonID])
+      assert(!hasComponent(nodeEntity, VisibleComponent))
     })
 
-    it('should add and remove component from root child', () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
-      const childUUID = MathUtils.generateUUID() as EntityUUID
+    it('should add and remove component from root child', async () => {
+      const nodeUUID = UUIDComponent.generateUUID()
+      const childUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -139,32 +151,26 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
       getMutableState(EditorState).rootEntity.set(rootEntity)
-      applyIncomingActions()
 
-      const childEntity = UUIDComponent.getEntityByUUID(childUUID)
-      const sourceID = getComponent(childEntity, SourceComponent)
+      await waitForScene(rootEntity)
+
+      const childEntity = UUIDComponent.getEntityByUUID(childUUID, Layers.Authoring)
 
       EditorControlFunctions.addOrRemoveComponent([childEntity], VisibleComponent, true)
 
-      applyIncomingActions()
-
-      const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
-      assert(newSnapshot.nodes![1].extensions![VisibleComponent.jsonID])
+      assert(hasComponent(childEntity, VisibleComponent))
 
       EditorControlFunctions.addOrRemoveComponent([childEntity], VisibleComponent, false)
 
-      applyIncomingActions()
-
-      const newSnapshot2 = getState(GLTFSnapshotState)[sourceID].snapshots[2]
-      assert(!newSnapshot2.nodes![1].extensions![VisibleComponent.jsonID])
+      assert(!hasComponent(childEntity, VisibleComponent))
     })
   })
 
   describe('modifyName', () => {
-    it('should modify the name of a node', () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
+    it('should modify the name of a node', async () => {
+      const nodeUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -183,25 +189,21 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
       getMutableState(EditorState).rootEntity.set(rootEntity)
-      applyIncomingActions()
+      await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
-      const sourceID = getComponent(nodeEntity, SourceComponent)
+      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
 
       EditorControlFunctions.modifyName([nodeEntity], 'newName')
 
-      applyIncomingActions()
-
-      const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
-      assert(newSnapshot.nodes![0].name === 'newName')
+      assert.equal(getComponent(nodeEntity, NameComponent), 'newName')
     })
   })
 
   describe('modifyProperty', () => {
-    it('should modify the property of a node', () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
+    it('should modify the property of a node', async () => {
+      const nodeUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -225,27 +227,23 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
       getMutableState(EditorState).rootEntity.set(rootEntity)
-      applyIncomingActions()
+      await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
-      const sourceID = getComponent(nodeEntity, SourceComponent)
+      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
 
       EditorControlFunctions.modifyProperty([nodeEntity], HemisphereLightComponent, {
-        skyColor: new Color('blue').getHex() as any,
-        groundColor: new Color('red').getHex() as any,
+        skyColor: new Color('blue'),
+        groundColor: new Color('red'),
         intensity: 0.7
       })
 
-      applyIncomingActions()
-
-      const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
-      const extensionData = newSnapshot.nodes![0].extensions![HemisphereLightComponent.jsonID!] as any
-      assert.equal(extensionData.skyColor, new Color('blue').getHex() as any)
+      const hemisphereLightComponent = getComponent(nodeEntity, HemisphereLightComponent)
+      assert.deepEqual(hemisphereLightComponent.skyColor, new Color('blue'))
     })
-    it('should modify a nested property of a node', () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
+    it('should modify a nested property of a node', async () => {
+      const nodeUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -294,12 +292,11 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
       getMutableState(EditorState).rootEntity.set(rootEntity)
-      applyIncomingActions()
+      await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
-      const sourceID = getComponent(nodeEntity, SourceComponent)
+      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
 
       EditorControlFunctions.modifyProperty([nodeEntity], SplineComponent, {
         [`elements.${1}.position` as string]: {
@@ -309,19 +306,16 @@ describe('EditorControlFunctions', () => {
         }
       })
 
-      applyIncomingActions()
-
-      const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
-      const extensionData = newSnapshot.nodes![0].extensions![SplineComponent.jsonID!] as any
-      assert.equal(extensionData.elements[1].position.x, 10)
-      assert.equal(extensionData.elements[1].position.y, 10)
-      assert.equal(extensionData.elements[1].position.z, 10)
+      const splineComponent = getComponent(nodeEntity, SplineComponent)
+      assert.equal(splineComponent.elements[1].position.x, 10)
+      assert.equal(splineComponent.elements[1].position.y, 10)
+      assert.equal(splineComponent.elements[1].position.z, 10)
     })
   })
 
   describe('createObjectFromSceneElement', () => {
-    it('should create a new object from a scene element to root', () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
+    it('should create a new object from a scene element to root', async () => {
+      const nodeUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -340,14 +334,11 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
       getMutableState(EditorState).rootEntity.set(rootEntity)
-      applyIncomingActions()
+      await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
-      const sourceID = getComponent(nodeEntity, SourceComponent)
-
-      EditorControlFunctions.createObjectFromSceneElement([
+      const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement([
         {
           name: HemisphereLightComponent.jsonID,
           props: {
@@ -358,23 +349,19 @@ describe('EditorControlFunctions', () => {
         }
       ])
 
-      applyIncomingActions()
+      const newEntity = UUIDComponent.getEntityByUUID(entityUUID, Layers.Authoring)
+      assert(newEntity)
+      assert.equal(getComponent(newEntity, NameComponent), 'New Object')
+      assert.equal(getComponent(newEntity, EntityTreeComponent).parentEntity, rootEntity)
 
-      const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
-      assert(newSnapshot.nodes![1])
-      assert.equal(newSnapshot.nodes![1].name, 'New Object')
-      assert(!newSnapshot.nodes![0].children)
-      assert.equal(newSnapshot.scenes![0].nodes![0], 0)
-      assert.equal(newSnapshot.scenes![0].nodes![1], 1)
-
-      const extensionData = newSnapshot.nodes![1].extensions![HemisphereLightComponent.jsonID!] as any
-      assert.equal(extensionData.skyColor, new Color('blue').getHex() as any)
-      assert.equal(extensionData.groundColor, new Color('red').getHex() as any)
-      assert.equal(extensionData.intensity, 0.7)
+      const hemisphereLightComponent = getComponent(newEntity, HemisphereLightComponent)
+      assert.deepEqual(hemisphereLightComponent.skyColor, new Color('blue'))
+      assert.deepEqual(hemisphereLightComponent.groundColor, new Color('red'))
+      assert.equal(hemisphereLightComponent.intensity, 0.7)
     })
 
-    it('should create a new object from a scene element as child of node', () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
+    it('should create a new object from a scene element as child of node', async () => {
+      const nodeUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -393,14 +380,13 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
       getMutableState(EditorState).rootEntity.set(rootEntity)
-      applyIncomingActions()
+      await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
-      const sourceID = getComponent(nodeEntity, SourceComponent)
+      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
 
-      EditorControlFunctions.createObjectFromSceneElement(
+      const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
         [
           {
             name: HemisphereLightComponent.jsonID,
@@ -414,21 +400,19 @@ describe('EditorControlFunctions', () => {
         nodeEntity
       )
 
-      applyIncomingActions()
+      const newEntity = UUIDComponent.getEntityByUUID(entityUUID, Layers.Authoring)
+      assert(newEntity)
+      assert.equal(getComponent(newEntity, NameComponent), 'New Object')
+      assert.equal(getComponent(newEntity, EntityTreeComponent).parentEntity, nodeEntity)
 
-      const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
-      assert(newSnapshot.nodes![1])
-      assert.equal(newSnapshot.nodes![1].name, 'New Object')
-      assert(newSnapshot.nodes![0].children![0] === 1)
-
-      const extensionData = newSnapshot.nodes![1].extensions![HemisphereLightComponent.jsonID!] as any
-      assert.equal(extensionData.skyColor, new Color('blue').getHex() as any)
-      assert.equal(extensionData.groundColor, new Color('red').getHex() as any)
-      assert.equal(extensionData.intensity, 0.7)
+      const hemisphereLightComponent = getComponent(newEntity, HemisphereLightComponent)
+      assert.deepEqual(hemisphereLightComponent.skyColor, new Color('blue'))
+      assert.deepEqual(hemisphereLightComponent.groundColor, new Color('red'))
+      assert.equal(hemisphereLightComponent.intensity, 0.7)
     })
 
-    it('should create a new object from a scene element before node', () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
+    it('should create a new object from a scene element before node', async () => {
+      const nodeUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -447,14 +431,13 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
       getMutableState(EditorState).rootEntity.set(rootEntity)
-      applyIncomingActions()
+      await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
-      const sourceID = getComponent(nodeEntity, SourceComponent)
+      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
 
-      EditorControlFunctions.createObjectFromSceneElement(
+      const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
         [
           {
             name: HemisphereLightComponent.jsonID,
@@ -469,23 +452,20 @@ describe('EditorControlFunctions', () => {
         nodeEntity
       )
 
-      applyIncomingActions()
+      const newEntity = UUIDComponent.getEntityByUUID(entityUUID, Layers.Authoring)
+      assert(newEntity)
+      assert.equal(getComponent(newEntity, NameComponent), 'New Object')
+      assert.equal(getComponent(newEntity, EntityTreeComponent).parentEntity, rootEntity)
 
-      const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
-      assert(newSnapshot.nodes![1])
-      assert.equal(newSnapshot.nodes![1].name, 'New Object')
-      assert.equal(newSnapshot.scenes![0].nodes![1], 0)
-      assert.equal(newSnapshot.scenes![0].nodes![0], 1)
-
-      const extensionData = newSnapshot.nodes![1].extensions![HemisphereLightComponent.jsonID!] as any
-      assert.equal(extensionData.skyColor, new Color('blue').getHex() as any)
-      assert.equal(extensionData.groundColor, new Color('red').getHex() as any)
-      assert.equal(extensionData.intensity, 0.7)
+      const hemisphereLightComponent = getComponent(newEntity, HemisphereLightComponent)
+      assert.deepEqual(hemisphereLightComponent.skyColor, new Color('blue'))
+      assert.deepEqual(hemisphereLightComponent.groundColor, new Color('red'))
+      assert.equal(hemisphereLightComponent.intensity, 0.7)
     })
 
-    it('should create a new object from a scene element before child node', () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
-      const childUUID = MathUtils.generateUUID() as EntityUUID
+    it('should create a new object from a scene element before child node', async () => {
+      const nodeUUID = UUIDComponent.generateUUID()
+      const childUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -511,15 +491,14 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
       getMutableState(EditorState).rootEntity.set(rootEntity)
-      applyIncomingActions()
+      await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
-      const childEntity = UUIDComponent.getEntityByUUID(childUUID)
-      const sourceID = getComponent(nodeEntity, SourceComponent)
+      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
+      const childEntity = UUIDComponent.getEntityByUUID(childUUID, Layers.Authoring)
 
-      EditorControlFunctions.createObjectFromSceneElement(
+      const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
         [
           {
             name: HemisphereLightComponent.jsonID,
@@ -534,24 +513,21 @@ describe('EditorControlFunctions', () => {
         childEntity
       )
 
-      applyIncomingActions()
+      const newEntity = UUIDComponent.getEntityByUUID(entityUUID, Layers.Authoring)
+      assert(newEntity)
+      assert.equal(getComponent(newEntity, NameComponent), 'New Object')
+      assert.equal(getComponent(newEntity, EntityTreeComponent).parentEntity, nodeEntity)
 
-      const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
-      assert(newSnapshot.nodes![2])
-      assert.equal(newSnapshot.nodes![2].name, 'New Object')
-      assert.equal(newSnapshot.nodes![0].children![0], 2)
-      assert.equal(newSnapshot.nodes![0].children![1], 1)
-
-      const extensionData = newSnapshot.nodes![2].extensions![HemisphereLightComponent.jsonID!] as any
-      assert.equal(extensionData.skyColor, new Color('blue').getHex() as any)
-      assert.equal(extensionData.groundColor, new Color('red').getHex() as any)
-      assert.equal(extensionData.intensity, 0.7)
+      const hemisphereLightComponent = getComponent(newEntity, HemisphereLightComponent)
+      assert.deepEqual(hemisphereLightComponent.skyColor, new Color('blue'))
+      assert.deepEqual(hemisphereLightComponent.groundColor, new Color('red'))
+      assert.equal(hemisphereLightComponent.intensity, 0.7)
     })
   })
 
   describe('duplicateObject', () => {
-    it('should duplicate an object to root', () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
+    it('should duplicate an object to root', async () => {
+      const nodeUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -575,34 +551,31 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
       getMutableState(EditorState).rootEntity.set(rootEntity)
-      applyIncomingActions()
+      await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
-      const sourceID = getComponent(nodeEntity, SourceComponent)
+      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
 
       EditorControlFunctions.duplicateObject([nodeEntity])
 
-      applyIncomingActions()
+      const newEntity = getComponent(rootEntity, EntityTreeComponent).children[1]
 
-      const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
-      assert(newSnapshot.nodes![1])
-      assert.equal(newSnapshot.nodes![1].name, 'node')
-      assert.equal(newSnapshot.scenes![0].nodes![0], 0)
-      assert.equal(newSnapshot.scenes![0].nodes![1], 1)
-      const newNode = newSnapshot.nodes![1]
-      const extensionData = newNode.extensions![HemisphereLightComponent.jsonID!] as any
-      assert.equal(extensionData.skyColor, new Color('green').getHex() as any)
-      assert.equal(extensionData.groundColor, new Color('purple').getHex() as any)
-      assert.equal(extensionData.intensity, 0.5)
+      assert.equal(getComponent(newEntity, NameComponent), 'node')
+      assert.equal(getComponent(newEntity, EntityTreeComponent).parentEntity, rootEntity)
+      assert.equal(getComponent(newEntity, EntityTreeComponent).childIndex, 1)
+
+      const hemisphereLightComponent = getComponent(newEntity, HemisphereLightComponent)
+      assert.deepEqual(hemisphereLightComponent.skyColor, new Color('green'))
+      assert.deepEqual(hemisphereLightComponent.groundColor, new Color('purple'))
+      assert.equal(hemisphereLightComponent.intensity, 0.5)
     })
   })
 
   describe('reparentObject', () => {
-    it('should reparent a child node to root', () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
-      const childUUID = MathUtils.generateUUID() as EntityUUID
+    it('should reparent a child node to root', async () => {
+      const nodeUUID = UUIDComponent.generateUUID()
+      const childUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -628,27 +601,22 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
       getMutableState(EditorState).rootEntity.set(rootEntity)
-      applyIncomingActions()
+      await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
-      const childEntity = UUIDComponent.getEntityByUUID(childUUID)
-      const sourceID = getComponent(nodeEntity, SourceComponent)
+      const childEntity = UUIDComponent.getEntityByUUID(childUUID, Layers.Authoring)
 
       EditorControlFunctions.reparentObject([childEntity], null, null, rootEntity)
 
-      applyIncomingActions()
-
-      const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
-      assert.equal(newSnapshot.scenes![0].nodes![0], 0)
-      assert.equal(newSnapshot.scenes![0].nodes![1], 1)
-      assert.equal(newSnapshot.nodes![0].children!.length, 0)
+      const newEntity = getComponent(rootEntity, EntityTreeComponent).children[1]
+      assert(newEntity)
+      assert.equal(getComponent(newEntity, UUIDComponent), childUUID)
     })
 
-    it('should reparent an object to another object', () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
-      const node2UUID = MathUtils.generateUUID() as EntityUUID
+    it('should reparent an object to another object', async () => {
+      const nodeUUID = UUIDComponent.generateUUID()
+      const node2UUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -673,27 +641,23 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
       getMutableState(EditorState).rootEntity.set(rootEntity)
-      applyIncomingActions()
+      await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
-      const node2Entity = UUIDComponent.getEntityByUUID(node2UUID)
-      const sourceID = getComponent(nodeEntity, SourceComponent)
+      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
+      const node2Entity = UUIDComponent.getEntityByUUID(node2UUID, Layers.Authoring)
 
       EditorControlFunctions.reparentObject([node2Entity], null, null, nodeEntity)
 
-      applyIncomingActions()
-
-      const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
-      assert.equal(newSnapshot.scenes![0].nodes![0], 0)
-      assert.equal(newSnapshot.scenes![0].nodes.length, 1)
-      assert.equal(newSnapshot.nodes![0].children![0], 1)
+      const newEntity = getComponent(nodeEntity, EntityTreeComponent).children[0]
+      assert.equal(newEntity, node2Entity)
+      assert.equal(getComponent(newEntity, UUIDComponent), node2UUID)
     })
 
-    it('should reparent a child node to root before another node', () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
-      const childUUID = MathUtils.generateUUID() as EntityUUID
+    it('should reparent a child node to root before another node', async () => {
+      const nodeUUID = UUIDComponent.generateUUID()
+      const childUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -719,28 +683,24 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
       getMutableState(EditorState).rootEntity.set(rootEntity)
-      applyIncomingActions()
+      await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
-      const childEntity = UUIDComponent.getEntityByUUID(childUUID)
-      const sourceID = getComponent(nodeEntity, SourceComponent)
+      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
+      const childEntity = UUIDComponent.getEntityByUUID(childUUID, Layers.Authoring)
 
       EditorControlFunctions.reparentObject([childEntity], nodeEntity, null, rootEntity)
 
-      applyIncomingActions()
-
-      const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
-      assert.equal(newSnapshot.nodes![0].name, 'child')
-      assert.equal(newSnapshot.nodes![1].name, 'node')
-      assert(!newSnapshot.nodes![0].children)
+      const newEntity = getComponent(rootEntity, EntityTreeComponent).children[0]
+      assert.equal(newEntity, childEntity)
+      assert.equal(getComponent(newEntity, UUIDComponent), childUUID)
     })
 
-    it('should reparent an object to another object before other object', () => {
-      const nodeUUID = MathUtils.generateUUID() as EntityUUID
-      const node2UUID = MathUtils.generateUUID() as EntityUUID
-      const childUUID = MathUtils.generateUUID() as EntityUUID
+    it('should reparent an object to another object before other object', async () => {
+      const nodeUUID = UUIDComponent.generateUUID()
+      const node2UUID = UUIDComponent.generateUUID()
+      const childUUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -772,31 +732,26 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
       getMutableState(EditorState).rootEntity.set(rootEntity)
-      applyIncomingActions()
+      await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
-      const node2Entity = UUIDComponent.getEntityByUUID(node2UUID)
-      const childEntity = UUIDComponent.getEntityByUUID(childUUID)
-      const sourceID = getComponent(nodeEntity, SourceComponent)
+      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
+      const node2Entity = UUIDComponent.getEntityByUUID(node2UUID, Layers.Authoring)
+      const childEntity = UUIDComponent.getEntityByUUID(childUUID, Layers.Authoring)
 
       EditorControlFunctions.reparentObject([node2Entity], childEntity, null, nodeEntity)
 
-      applyIncomingActions()
-
-      const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
-      assert.equal(newSnapshot.scenes![0].nodes![0], 0)
-      assert.equal(newSnapshot.scenes![0].nodes.length, 1)
-      assert.equal(newSnapshot.nodes![0].children![0], 1)
-      assert.equal(newSnapshot.nodes![0].children![1], 2)
+      const newEntity = getComponent(nodeEntity, EntityTreeComponent).children[0]
+      assert.equal(newEntity, node2Entity)
+      assert.equal(getComponent(newEntity, UUIDComponent), node2UUID)
     })
 
-    it('should reparent inside root node', () => {
-      const node1UUID = MathUtils.generateUUID() as EntityUUID
-      const node2UUID = MathUtils.generateUUID() as EntityUUID
-      const node3UUID = MathUtils.generateUUID() as EntityUUID
-      const node4UUID = MathUtils.generateUUID() as EntityUUID
+    it('should reparent inside root node', async () => {
+      const node1UUID = UUIDComponent.generateUUID()
+      const node2UUID = UUIDComponent.generateUUID()
+      const node3UUID = UUIDComponent.generateUUID()
+      const node4UUID = UUIDComponent.generateUUID()
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -833,39 +788,23 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
       getMutableState(EditorState).rootEntity.set(rootEntity)
-      applyIncomingActions()
+      await waitForScene(rootEntity)
 
-      const node2Entity = UUIDComponent.getEntityByUUID(node2UUID)
-      const node4Entity = UUIDComponent.getEntityByUUID(node4UUID)
+      const node2Entity = UUIDComponent.getEntityByUUID(node2UUID, Layers.Authoring)
+      const node4Entity = UUIDComponent.getEntityByUUID(node4UUID, Layers.Authoring)
 
-      const sourceID = getComponent(rootEntity, SourceComponent)
+      EditorControlFunctions.reparentObject([node4Entity], undefined, node2Entity, rootEntity)
 
-      const currentSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[0]
-      assert.equal(currentSnapshot.nodes?.length, 4)
-      assert.equal(currentSnapshot.nodes?.[3].name, gltf.nodes![3].name)
-
-      const targetNodeIndex = currentSnapshot.nodes!.findIndex(
-        (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(node4Entity, UUIDComponent)
-      )
-      const targetNodeName = currentSnapshot.nodes![targetNodeIndex].name
-      const beforeNodeIndex = currentSnapshot.nodes!.findIndex(
-        (n) => n.extensions?.[UUIDComponent.jsonID] === getComponent(node2Entity, UUIDComponent)
-      )
-
-      EditorControlFunctions.reparentObject([node4Entity], node2Entity, rootEntity)
-      applyIncomingActions()
-
-      const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
-      console.log('newSnapshot', newSnapshot)
-      assert.equal(newSnapshot.nodes?.length, 4)
-      assert.equal(newSnapshot.nodes?.[beforeNodeIndex].name, targetNodeName)
+      const newEntity = getComponent(rootEntity, EntityTreeComponent).children[2]
+      assert.equal(newEntity, node4Entity)
+      assert.equal(getComponent(newEntity, UUIDComponent), node4UUID)
     })
   })
 
   describe('groupObjects', () => {
-    it('should group objects without affecting existing hierarchy relationships', () => {
+    it('should group objects without affecting existing hierarchy relationships', async () => {
       const nodeUUID = 'nodeUUID' as EntityUUID
       const node2UUID = 'node2UUID' as EntityUUID
       const childUUID = 'childUUID' as EntityUUID
@@ -900,32 +839,27 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
       getMutableState(EditorState).rootEntity.set(rootEntity)
-      applyIncomingActions()
+      await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
-      const node2Entity = UUIDComponent.getEntityByUUID(node2UUID)
-      const sourceID = getComponent(nodeEntity, SourceComponent)
+      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
+      const node2Entity = UUIDComponent.getEntityByUUID(node2UUID, Layers.Authoring)
 
       EditorControlFunctions.groupObjects([nodeEntity, node2Entity])
 
-      applyIncomingActions()
-
-      const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
-      assert.equal(newSnapshot.scenes![0].nodes![0], 3)
-      assert.equal(newSnapshot.scenes![0].nodes.length, 1)
-      assert.equal(newSnapshot.nodes![3].name, 'New Group')
-      assert(newSnapshot.nodes![3].extensions![UUIDComponent.jsonID])
-      assert(newSnapshot.nodes![3].extensions![TransformComponent.jsonID])
-      assert(newSnapshot.nodes![3].extensions![VisibleComponent.jsonID])
-      assert.equal(newSnapshot.nodes![3].children![0], 0)
-      assert.equal(newSnapshot.nodes![3].children![1], 1)
+      const newEntity = getComponent(rootEntity, EntityTreeComponent).children[0]
+      assert.equal(getComponent(newEntity, EntityTreeComponent).children[0], nodeEntity)
+      assert.equal(getComponent(newEntity, EntityTreeComponent).children[1], node2Entity)
+      assert(hasComponent(newEntity, UUIDComponent))
+      assert(hasComponent(newEntity, VisibleComponent))
+      assert(hasComponent(newEntity, TransformComponent))
+      assert.equal(getComponent(newEntity, NameComponent), 'New Group')
     })
   })
 
   describe('removeObject', () => {
-    it('should remove an object and children from the scene', () => {
+    it('should remove an object and children from the scene', async () => {
       const nodeUUID = 'nodeUUID' as EntityUUID
       const node2UUID = 'node2UUID' as EntityUUID
       const node3UUID = 'node3UUID' as EntityUUID
@@ -967,110 +901,21 @@ describe('EditorControlFunctions', () => {
       }
 
       Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
       getMutableState(EditorState).rootEntity.set(rootEntity)
-      applyIncomingActions()
+      await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID)
-      const sourceID = getComponent(nodeEntity, SourceComponent)
+      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
+      const node2Entity = UUIDComponent.getEntityByUUID(node2UUID, Layers.Authoring)
+      const node3Entity = UUIDComponent.getEntityByUUID(node3UUID, Layers.Authoring)
 
       EditorControlFunctions.removeObject([nodeEntity])
 
-      applyIncomingActions()
+      assert.equal(getComponent(rootEntity, EntityTreeComponent).children[0], node2Entity)
+      assert.equal(getComponent(rootEntity, EntityTreeComponent).children[1], node3Entity)
 
-      const newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
-      assert.equal(newSnapshot.scenes![0].nodes![0], 0)
-      assert.equal(newSnapshot.scenes![0].nodes![1], 1)
-      assert.equal(newSnapshot.scenes![0].nodes.length, 2)
-      assert.equal(newSnapshot.nodes![0].name, 'node2')
-      assert.equal(newSnapshot.nodes![1].name, 'node3')
-    })
-
-    it('should correctly update state when removing objects in hierarchy', () => {
-      const rootUUID = 'rootUUID' as EntityUUID
-      const parentUUID = 'parentUUID' as EntityUUID
-      const child1UUID = 'child1UUID' as EntityUUID
-      const child2UUID = 'child2UUID' as EntityUUID
-      const grandchildUUID = 'grandchildUUID' as EntityUUID
-
-      const gltf: GLTF.IGLTF = {
-        asset: {
-          version: '2.0'
-        },
-        scenes: [{ nodes: [0] }],
-        scene: 0,
-        nodes: [
-          {
-            name: 'root',
-            children: [1],
-            extensions: {
-              [UUIDComponent.jsonID]: rootUUID
-            }
-          },
-          {
-            name: 'parent',
-            children: [2, 3],
-            extensions: {
-              [UUIDComponent.jsonID]: parentUUID
-            }
-          },
-          {
-            name: 'child1',
-            children: [4],
-            extensions: {
-              [UUIDComponent.jsonID]: child1UUID
-            }
-          },
-          {
-            name: 'child2',
-            extensions: {
-              [UUIDComponent.jsonID]: child2UUID
-            }
-          },
-          {
-            name: 'grandchild',
-            extensions: {
-              [UUIDComponent.jsonID]: grandchildUUID
-            }
-          }
-        ]
-      }
-
-      Cache.add('/test.gltf', gltf)
-      const rootEntity = GLTFSourceState.load('/test.gltf', undefined, physicsWorldEntity)
-      getMutableState(EditorState).rootEntity.set(rootEntity)
-      applyIncomingActions()
-
-      const parentEntity = UUIDComponent.getEntityByUUID(parentUUID)
-      const child1Entity = UUIDComponent.getEntityByUUID(child1UUID)
-      const sourceID = getComponent(parentEntity, SourceComponent)
-
-      // remove child1 (which also has a grandchild)
-      EditorControlFunctions.removeObject([child1Entity])
-
-      applyIncomingActions()
-
-      let newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[1]
-
-      // check that child1 and grandchild are removed, but child2 remains
-      assert.equal(newSnapshot.nodes!.length, 3)
-      assert.equal(newSnapshot.nodes![0].extensions![UUIDComponent.jsonID], rootUUID)
-      assert.equal(newSnapshot.nodes![1].extensions![UUIDComponent.jsonID], parentUUID)
-      assert.equal(newSnapshot.nodes![2].extensions![UUIDComponent.jsonID], child2UUID)
-      assert.deepEqual(newSnapshot.nodes![1].children, [2])
-
-      // now remove the parent
-      EditorControlFunctions.removeObject([parentEntity])
-
-      applyIncomingActions()
-
-      newSnapshot = getState(GLTFSnapshotState)[sourceID].snapshots[2]
-
-      // check that only the root remains
-      assert.equal(newSnapshot.nodes!.length, 1)
-      assert.equal(newSnapshot.nodes![0].extensions![UUIDComponent.jsonID], rootUUID)
-      assert.equal(newSnapshot.nodes![0].children?.length, 0)
-      assert.deepEqual(newSnapshot.scenes![0].nodes, [0])
+      assert.equal(UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring), UndefinedEntity)
+      assert.equal(UUIDComponent.getEntityByUUID(childUUID, Layers.Authoring), UndefinedEntity)
     })
   })
 })

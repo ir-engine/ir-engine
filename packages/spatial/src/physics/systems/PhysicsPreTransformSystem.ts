@@ -29,9 +29,9 @@ import { defineQuery, defineSystem, Entity, getComponent } from '@ir-engine/ecs'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { getState } from '@ir-engine/hyperflux'
 
-import { EntityTreeComponent, getAncestorWithComponents, iterateEntityNode } from '@ir-engine/ecs'
+import { EntityTreeComponent, getAncestorWithComponents } from '@ir-engine/ecs'
 import { Vector3_One, Vector3_Zero } from '../../common/constants/MathConstants'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { setChildrenDirtyFast, TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix, isDirty, TransformDirtyUpdateSystem } from '../../transform/systems/TransformSystem'
 import { Physics } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'
@@ -44,8 +44,6 @@ const _position = new Vector3()
 const _rotation = new Quaternion()
 const _scale = new Vector3()
 const _mat4 = new Matrix4()
-
-const setDirty = (entity: Entity) => (TransformComponent.dirtyTransforms[entity] = true)
 
 /**
  * Lerp the transform of a rigidbody entity from the previous frame to the current frame.
@@ -103,8 +101,8 @@ export const lerpTransformFromRigidbody = (entity: Entity, alpha: number) => {
   transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
 
   /** set all children dirty deeply, but set this entity to clean */
-  iterateEntityNode(entity, setDirty)
-  TransformComponent.dirtyTransforms[entity] = false
+  setChildrenDirtyFast(entity)
+  TransformComponent.dirty[entity] = 0
 }
 
 export const copyTransformToRigidBody = (entity: Entity) => {
@@ -149,8 +147,8 @@ export const copyTransformToRigidBody = (entity: Entity) => {
   Physics.setRigidbodyPose(world, entity, rigidbody.position, rigidbody.rotation, Vector3_Zero, Vector3_Zero)
 
   /** set all children dirty deeply, but set this entity to clean */
-  iterateEntityNode(entity, setDirty)
-  TransformComponent.dirtyTransforms[entity] = false
+  setChildrenDirtyFast(entity)
+  TransformComponent.dirty[entity] = 0
 }
 
 const copyTransformToCollider = (entity: Entity) => {
@@ -172,9 +170,9 @@ const colliderQuery = defineQuery([TransformComponent, ColliderComponent, Entity
 const filterAwakeCleanRigidbodies = (entity: Entity) => {
   // if the entity has a parent that is dirty, we need to update the transform
   const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
-  if (TransformComponent.dirtyTransforms[parentEntity]) return true
+  if (TransformComponent.dirty[parentEntity]) return true
   // if the entity is dirty, we don't need to update the transform
-  if (TransformComponent.dirtyTransforms[entity]) return false
+  if (TransformComponent.dirty[entity]) return false
   const world = Physics.getWorld(entity)
   if (!world) return false
   // if the entity is not dirty, we only need to update the transform if it is awake
@@ -189,10 +187,10 @@ export const execute = () => {
   const dirtyRigidbodyEntities = allRigidbodyEntities.filter(isDirty)
   const dirtyColliderEntities = colliderQuery().filter(isDirty)
 
-  /** Ff rigidbody transforms have been dirtied, teleport the rigidbody to the transform */
+  /** If rigidbody transforms have been dirtied, teleport the rigidbody to the transform */
   for (const entity of dirtyRigidbodyEntities) copyTransformToRigidBody(entity)
 
-  /** Ff collider transforms have been dirtied, update them */
+  /** If collider transforms have been dirtied, update them */
   for (const entity of dirtyColliderEntities) copyTransformToCollider(entity)
 
   /** Lerp awake clean rigidbody entities (and make their transforms dirty) */

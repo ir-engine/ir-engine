@@ -23,14 +23,20 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useLayoutEffect } from 'react'
-import { MeshStandardMaterial } from 'three'
+import { useEffect } from 'react'
+import { Mesh, MeshStandardMaterial } from 'three'
 
-import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { useEntityContext } from '@ir-engine/ecs'
+import {
+  defineComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { Geometry } from '@ir-engine/spatial/src/common/constants/Geometry'
-import { useMeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { GeometryTypeEnum, GeometryTypeToFactory } from '../constants/GeometryTypeEnum'
 
 const createGeometry = (geometryType: GeometryTypeEnum, geometryParams: Record<string, any>): Geometry => {
@@ -51,15 +57,27 @@ export const PrimitiveGeometryComponent = defineComponent({
   reactor: () => {
     const entity = useEntityContext()
     const geometryComponent = useComponent(entity, PrimitiveGeometryComponent)
-    const mesh = useMeshComponent(
-      entity,
-      () => createGeometry(geometryComponent.geometryType.value, geometryComponent.geometryParams.value),
-      () => new MeshStandardMaterial()
-    )
 
-    useLayoutEffect(() => {
+    useEffect(() => {
+      setComponent(
+        entity,
+        MeshComponent,
+        new Mesh(
+          createGeometry(geometryComponent.geometryType.value, geometryComponent.geometryParams.value),
+          new MeshStandardMaterial()
+        )
+      )
+      return () => {
+        removeComponent(entity, MeshComponent)
+      }
+    }, [])
+
+    const mesh = useOptionalComponent(entity, MeshComponent)
+
+    useEffect(() => {
+      if (!mesh) return
       mesh.geometry.set(createGeometry(geometryComponent.geometryType.value, geometryComponent.geometryParams.value))
-    }, [geometryComponent.geometryType, geometryComponent.geometryParams])
+    }, [!!mesh, geometryComponent.geometryType, geometryComponent.geometryParams])
 
     return null
   }

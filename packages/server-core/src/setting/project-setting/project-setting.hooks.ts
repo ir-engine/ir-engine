@@ -33,7 +33,7 @@ import {
   projectSettingQueryValidator
 } from '@ir-engine/common/src/schemas/setting/project-setting.schema'
 
-import verifyScope from '@ir-engine/server-core/src/hooks/verify-scope'
+import checkProjectPermission from '../../hooks/check-project-permission'
 import checkScope from '../../hooks/check-scope'
 import setInContext from '../../hooks/set-in-context'
 import verifyProjectPermission from '../../hooks/verify-project-permission'
@@ -64,13 +64,7 @@ export default {
         iffElse(
           checkScope('projects', 'read'),
           [],
-          [
-            iffElse(
-              checkScope('editor', 'write'),
-              verifyProjectPermission(['owner', 'editor', 'reviewer']),
-              setInContext('type', 'public')
-            ) as any
-          ]
+          [iffElse(checkProjectPermission(['owner', 'editor', 'reviewer']), [], setInContext('type', 'public')) as any]
         )
       )
     ],
@@ -79,14 +73,7 @@ export default {
       setLoggedInUserInData('userId'),
       schemaHooks.validateData(projectSettingDataValidator),
       schemaHooks.resolveData(projectSettingDataResolver),
-      iff(
-        isProvider('external'),
-        iffElse(
-          checkScope('projects', 'write'),
-          [],
-          [verifyScope('editor', 'write'), verifyProjectPermission(['owner'])]
-        )
-      )
+      iff(isProvider('external'), iffElse(checkScope('projects', 'write'), [], [verifyProjectPermission(['owner'])]))
     ],
     patch: [
       setLoggedInUserInData('userId'),
@@ -94,23 +81,12 @@ export default {
       schemaHooks.resolveData(projectSettingPatchResolver),
       iff(
         isProvider('external'),
-        iffElse(
-          checkScope('projects', 'write'),
-          [],
-          [verifyScope('editor', 'write'), verifyProjectPermission(['owner', 'editor'])]
-        )
+        iffElse(checkScope('projects', 'write'), [], [verifyProjectPermission(['owner', 'editor'])])
       )
     ],
     update: [],
     remove: [
-      iff(
-        isProvider('external'),
-        iffElse(
-          checkScope('projects', 'write'),
-          [],
-          [verifyScope('editor', 'write'), verifyProjectPermission(['owner'])]
-        )
-      )
+      iff(isProvider('external'), iffElse(checkScope('projects', 'write'), [], [verifyProjectPermission(['owner'])]))
     ]
   },
 

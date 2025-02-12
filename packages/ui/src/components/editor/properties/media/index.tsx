@@ -23,15 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineVideoCamera } from 'react-icons/hi2'
 
-import { useComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import { MediaComponent, MediaElementComponent, setTime } from '@ir-engine/engine/src/scene/components/MediaComponent'
+import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { PlayMode } from '@ir-engine/engine/src/scene/constants/PlayMode'
 import { Checkbox } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
@@ -68,18 +68,13 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const media = useComponent(props.entity, MediaComponent)
-  const element = useOptionalComponent(props.entity, MediaElementComponent)
-
-  useEffect(() => {}, [media.resources.value])
 
   const toggle = () => {
     media.paused.set(!media.paused.value)
   }
 
   const reset = () => {
-    if (element) {
-      setTime(element.element, media.seekTime.value)
-    }
+    media.seekTime.set(0)
   }
 
   return (

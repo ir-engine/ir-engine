@@ -379,7 +379,6 @@ export default function SettingsMenu() {
           }
         ]}
         tabClassName="text-[#616161]"
-        tabcontainerClassName="bg-[#CDCDCD] w-full"
       />
     </div>
   )

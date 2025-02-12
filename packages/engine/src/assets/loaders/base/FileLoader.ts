@@ -63,7 +63,10 @@ class FileLoader<TData = unknown> extends Loader<TData> {
     if (cached !== undefined) {
       this.manager.itemStart(url)
 
-      if (onLoad) onLoad(cached)
+      // for some reason, not having setTimeout can cause weird issues with reactors when coming from the cache
+      setTimeout(() => {
+        if (onLoad) onLoad(cached)
+      }, 0)
 
       this.manager.itemEnd(url)
 

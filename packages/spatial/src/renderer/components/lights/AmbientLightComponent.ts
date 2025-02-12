@@ -26,12 +26,10 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { AmbientLight } from 'three'
 
-import { defineComponent, removeComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { defineComponent, removeComponent, setComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { useImmediateEffect } from '@ir-engine/hyperflux'
-import { useDisposable } from '../../../resources/resourceHooks'
+import { useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { T } from '../../../schema/schemaFunctions'
 import { ObjectComponent } from '../ObjectComponent'
 import { LightTagComponent } from './LightTagComponent'
@@ -48,7 +46,7 @@ export const AmbientLightComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const ambientLightComponent = useComponent(entity, AmbientLightComponent)
-    const [light] = useDisposable(AmbientLight, entity)
+    const light = useHookstate(() => new AmbientLight()).value as AmbientLight
 
     useImmediateEffect(() => {
       setComponent(entity, LightTagComponent)

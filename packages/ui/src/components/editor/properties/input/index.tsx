@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useQuery, UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   commitProperties,
   commitProperty,
@@ -64,7 +64,7 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
   const addSink = () => {
     const sinks = [...(inputComponent.inputSinks.value ?? []), getComponent(props.entity, UUIDComponent)]
 
-    if (!EditorControlFunctions.hasComponentInAuthoringLayer(props.entity, InputComponent)) {
+    if (!hasComponent(props.entity, InputComponent)) {
       EditorControlFunctions.addOrRemoveComponent([props.entity], InputComponent, true, {
         inputSinks: JSON.parse(JSON.stringify(sinks))
       })

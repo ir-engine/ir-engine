@@ -28,9 +28,9 @@ import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { defineState, getMutableState } from '@ir-engine/hyperflux'
 
-import { ECS } from '..'
 import { ECSState } from './ECSState'
 import { createEngine, destroyEngine } from './Engine'
+import { executeSystems } from './EngineFunctions'
 import { defineSystem } from './SystemFunctions'
 import { SimulationSystemGroup } from './SystemGroups'
 
@@ -66,7 +66,7 @@ describe('SystemFunctions', () => {
     const simulationDelay = (ticks * 1001) / 60
     const ecsState = getMutableState(ECSState)
     ecsState.simulationTime.set(performance.timeOrigin - simulationDelay)
-    ECS.executeSystems(0)
+    executeSystems(0)
     assert.equal(mockState.count.value, ticks)
   })
 
@@ -78,7 +78,7 @@ describe('SystemFunctions', () => {
 
     const simulationDelay = 1000 * 60 // 1 minute should be too much to catch up to wihtout skipping
     ecsState.simulationTime.set(performance.timeOrigin - simulationDelay)
-    ECS.executeSystems(0)
+    executeSystems(0)
 
     assert(performance.timeOrigin - ecsState.simulationTime.value < ecsState.simulationTimestep.value)
     assert.equal(mockState.count.value, 1)

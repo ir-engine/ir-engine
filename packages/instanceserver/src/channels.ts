@@ -51,7 +51,7 @@ import {
 import { EntityUUID, getComponent, UUIDComponent } from '@ir-engine/ecs'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { dispatchAction, getMutableState, getState, HyperFlux, Identifiable, PeerID, State } from '@ir-engine/hyperflux'
 import { addNetwork, NetworkActions, NetworkState, NetworkTopics } from '@ir-engine/network'
 import { loadEngineInjection } from '@ir-engine/projects/loadEngineInjection'
@@ -230,7 +230,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
     const sceneUpdatedListener = async () => {
       const scene = await app.service(staticResourcePath).get(sceneId, { headers })
       if (unload) unload()
-      unload = GLTFAssetState.loadScene(scene.url, scene.id as EntityUUID)
+      unload = SceneState.loadScene(scene.url, scene.id as EntityUUID)
       const entity = UUIDComponent.getEntityByUUID(scene.id as EntityUUID)
 
       /** @todo - quick hack to wait until scene has loaded */

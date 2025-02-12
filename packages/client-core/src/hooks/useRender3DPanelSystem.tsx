@@ -33,9 +33,11 @@ import {
   createEntity,
   generateEntityUUID,
   hasComponent,
+  removeComponent,
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
@@ -78,6 +80,8 @@ export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvas
     return () => {
       // cleanup entities and state associated with this 3d panel
       removeEntity(cameraEntity)
+      /**@todo why is this necessary to prevent gltf system stopping? */
+      if (hasComponent(sceneEntity, GLTFComponent)) removeComponent(sceneEntity, GLTFComponent)
       removeEntity(sceneEntity)
     }
   }, [])
