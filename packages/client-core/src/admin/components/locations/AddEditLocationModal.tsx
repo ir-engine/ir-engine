@@ -193,7 +193,7 @@ export default function AddEditLocationModal(props: {
   }
 
   return (
-    <div className="relative z-50 w-[50vw] bg-surface-1">
+    <div className="absolute z-50 w-[50vw] animate-expandModal bg-surface-1 will-change-transform">
       <div className="relative rounded-lg shadow">
         <ModalHeader
           onClose={PopoverState.hidePopupover}

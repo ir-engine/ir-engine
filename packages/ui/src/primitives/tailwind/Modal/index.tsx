@@ -141,7 +141,7 @@ const Modal = ({
   submitButtonDisabled,
   showCloseButton = true
 }: ModalProps) => {
-  const twClassName = twMerge('absolute z-50 w-full bg-surface-1', className)
+  const twClassName = twMerge('absolute z-50 w-full animate-expandModal bg-surface-1 will-change-transform', className)
   return (
     <div data-test-id={id} className={twClassName}>
       <div className="relative rounded-lg shadow">
