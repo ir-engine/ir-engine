@@ -349,11 +349,6 @@ export const RendererComponent = defineComponent({
             effectComposer.addPass(pass.pass)
           }
         }
-        // if (rendererComponent.passes.value) {
-        //   for (const pass of Object.values(rendererComponent.passes.value as Record<string, Pass>)) {
-        //     effectComposer.addPass(pass)
-        //   }
-        // }
         effectComposer.addPass(effectPass)
       } catch (e) {
         console.warn(e) /** @todo Implement user messaging Ex: (Can not use multiple convolution effects) */
@@ -379,7 +374,7 @@ export const RendererComponent = defineComponent({
       }
     }, [
       rendererComponent.effects,
-      rendererComponent.effectComposer.value,
+      // rendererComponent.effectComposer.value,
       rendererComponent?.effectInstances?.OutlineEffect.value,
       renderSettings.usePostProcessing.value
     ])
