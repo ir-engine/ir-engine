@@ -32,17 +32,11 @@ import ClickawayListener from '../ClickawayListener'
 
 const PopupMenu = () => {
   const popoverElement = useHookstate(getMutableState(PopoverState).elements)
-  return (
-    <>
-      {popoverElement.get(NO_PROXY).map((element, idx) => {
-        return (
-          <div key={idx} className="block">
-            <ClickawayListener isTopMost={idx === popoverElement.length - 1}>{element ?? undefined}</ClickawayListener>
-          </div>
-        )
-      })}
-    </>
-  )
+  if (popoverElement.length === 0) {
+    return null
+  }
+
+  return <ClickawayListener>{popoverElement.get(NO_PROXY).map((element, idx) => element)}</ClickawayListener>
 }
 PopupMenu.displayName = 'PopupMenu'
 
