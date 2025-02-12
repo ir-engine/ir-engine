@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
+import { spawnLocalAvatarInWorld } from '@ir-engine/common/src/world/receiveJoinWorld'
 import {
   defineSystem,
   Entity,
@@ -37,7 +38,6 @@ import {
 } from '@ir-engine/ecs'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { getRandomSpawnPoint } from '@ir-engine/engine/src/avatar/functions/getSpawnPoint'
-import { spawnLocalAvatarInWorld } from '@ir-engine/engine/src/avatar/functions/spawnLocalAvatarInWorld'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import {
   dispatchAction,
@@ -52,10 +52,11 @@ import { SpectateActions } from '@ir-engine/spatial/src/camera/systems/SpectateS
 
 import { useFind, useMutation } from '@ir-engine/common'
 import { avatarPath, userAvatarPath } from '@ir-engine/common/src/schema.type.module'
-import { EngineState, useChildrenWithComponents } from '@ir-engine/ecs'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { useChildrenWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { SearchParamState } from '../common/services/RouterService'
 import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
 import { LocationState } from '../social/services/LocationService'

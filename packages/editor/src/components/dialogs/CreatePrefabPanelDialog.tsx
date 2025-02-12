@@ -30,15 +30,12 @@ import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import {
   Component,
   Entity,
-  EntityTreeComponent,
   EntityUUID,
   UUIDComponent,
   createEntity,
   entityExists,
   getComponent,
   hasComponent,
-  iterateEntityNode,
-  removeEntityNodeRecursively,
   setComponent,
   useOptionalComponent
 } from '@ir-engine/ecs'
@@ -51,8 +48,14 @@ import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceCo
 import { getMutableState, getState, startReactor, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
+import { proxifyParentChildRelationships } from '@ir-engine/spatial/src/renderer/functions/proxifyParentChildRelationships'
+import {
+  EntityTreeComponent,
+  iterateEntityNode,
+  removeEntityNodeRecursively
+} from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { Button, Input } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React, { useEffect } from 'react'
@@ -91,7 +94,8 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
     ]
     const prefabEntity = createEntity()
     const obj = new Scene()
-    setComponent(prefabEntity, ObjectComponent, obj)
+    addObjectToGroup(prefabEntity, obj)
+    proxifyParentChildRelationships(obj)
     const rootEntity = getState(EditorState).rootEntity
     iterateEntityNode(rootEntity, (entity) => {
       lookDevComponent.forEach((component) => {

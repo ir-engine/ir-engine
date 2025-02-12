@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import type Hls from 'hls.js'
 import { useEffect, useLayoutEffect } from 'react'
-import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
+import { DoubleSide, MeshBasicMaterial, PlaneGeometry } from 'three'
 
 import { ComponentType } from '@ir-engine/ecs'
 import {
@@ -42,6 +42,7 @@ import {
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { entityExists, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { State, getState, isClient, useMutableState } from '@ir-engine/hyperflux'
+import { DebugMeshComponent } from '@ir-engine/spatial/src/common/debug/DebugMeshComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
@@ -49,7 +50,6 @@ import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/component
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { StandardCallbacks, removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
-import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
@@ -437,11 +437,21 @@ export function MediaReactor() {
   const rendererState = useMutableState(RendererState)
   const [audioHelperTexture] = useTexture(rendererState.nodeHelperVisibility.value ? AUDIO_TEXTURE_PATH : '', entity)
 
-  useHelperEntity(
-    entity,
-    () => new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide })),
-    rendererState.nodeHelperVisibility.value && !!audioHelperTexture
-  )
+  useEffect(() => {
+    if (rendererState.nodeHelperVisibility.value && audioHelperTexture) {
+      const material = new MeshBasicMaterial({ transparent: true, side: DoubleSide })
+      material.map = audioHelperTexture
+      setComponent(entity, DebugMeshComponent, {
+        name: 'audio-helper',
+        geometry: new PlaneGeometry(),
+        material: material
+      })
+    }
+
+    return () => {
+      removeComponent(entity, DebugMeshComponent)
+    }
+  }, [rendererState.nodeHelperVisibility, audioHelperTexture])
 
   useEffect(() => {
     validateTime()

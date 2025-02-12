@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import { afterEach, beforeEach, describe, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { Entity, EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -50,7 +50,7 @@ import { SpawnObjectActions } from '@ir-engine/spatial/src/transform/SpawnObject
 import { loadEmptyScene } from '../../tests/util/loadEmptyScene'
 import { AvatarNetworkAction } from '../avatar/state/AvatarNetworkActions'
 
-import { EngineState } from '@ir-engine/ecs'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import '@ir-engine/spatial/src/transform/SpawnPoseState'
 import { act, render } from '@testing-library/react'
 import React from 'react'
@@ -285,10 +285,14 @@ describe('GrabbableSystem', () => {
 
     applyIncomingActions()
 
-    await vi.waitFor(() => {
-      // should now have authority
-      assert.equal(getComponent(grabbableEntity, NetworkObjectComponent).authorityPeerID, peerID)
-      assert.ok(hasComponent(grabbableEntity, GrabbedComponent))
-    })
+    // wait for the authority transfer to be processed by the GrabbableState reactor
+    const { rerender, unmount } = render(<></>)
+    await act(async () => rerender(<></>))
+
+    // should now have authority
+    assert.equal(getComponent(grabbableEntity, NetworkObjectComponent).authorityPeerID, peerID)
+    assert.ok(hasComponent(grabbableEntity, GrabbedComponent))
+
+    unmount()
   })
 })

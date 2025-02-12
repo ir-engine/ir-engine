@@ -48,7 +48,7 @@ import {
 } from '@ir-engine/hyperflux'
 import { matchesUserID, NetworkTopics, WorldNetworkAction } from '@ir-engine/network'
 
-import { ReferenceSpaceState } from '../../ReferenceSpaceState'
+import { EngineState } from '../../EngineState'
 import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { FlyControlComponent } from '../components/FlyControlComponent'
@@ -106,7 +106,7 @@ const SpectatorReactor = () => {
   const state = useHookstate(getMutableState(SpectateEntityState)[Engine.instance.userID])
 
   useEffect(() => {
-    const cameraEntity = getState(ReferenceSpaceState).viewerEntity
+    const cameraEntity = getState(EngineState).viewerEntity
 
     if (!state.spectating.value) {
       setComponent(cameraEntity, FlyControlComponent, {
@@ -132,7 +132,7 @@ const SpectatingUserReactor = (props: { entityUUID: EntityUUID }) => {
   useEffect(() => {
     if (!spectateEntity) return
 
-    const cameraEntity = getState(ReferenceSpaceState).viewerEntity
+    const cameraEntity = getState(EngineState).viewerEntity
     const cameraTransform = getComponent(cameraEntity, TransformComponent)
     setComponent(cameraEntity, ComputedTransformComponent, {
       referenceEntities: [spectateEntity],

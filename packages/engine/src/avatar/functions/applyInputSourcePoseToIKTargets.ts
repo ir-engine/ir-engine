@@ -25,11 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { defineQuery, UUIDComponent } from '@ir-engine/ecs'
+import { defineQuery } from '@ir-engine/ecs'
 import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { getState } from '@ir-engine/hyperflux'
+import { UserID, getState } from '@ir-engine/hyperflux'
 import { Q_Y_180 } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
@@ -124,16 +124,18 @@ const inputSourceQuery = defineQuery([InputSourceComponent])
 /**
  * Pulls pose data from input sources into the ECS
  */
-export const applyInputSourcePoseToIKTargets = () => {
+export const applyInputSourcePoseToIKTargets = (userID: UserID) => {
   const xrFrame = getState(XRState).xrFrame!
   const referenceSpace = ReferenceSpace.origin
-  const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
-  const uuid = getComponent(selfAvatarEntity, UUIDComponent)
-  const ikTargetLeftHand = AvatarIKTargetComponent.getTargetEntity(uuid, ikTargets.leftHand)
-  const ikTargetRightHand = AvatarIKTargetComponent.getTargetEntity(uuid, ikTargets.rightHand)
-  const ikTargetHead = AvatarIKTargetComponent.getTargetEntity(uuid, ikTargets.head)
-  const ikTargetLeftFoot = AvatarIKTargetComponent.getTargetEntity(uuid, ikTargets.leftFoot)
-  const ikTargetRightFoot = AvatarIKTargetComponent.getTargetEntity(uuid, ikTargets.rightFoot)
+
+  const localClientEntity = AvatarComponent.getUserAvatarEntity(userID)
+
+  const ikTargetLeftHand = AvatarIKTargetComponent.getTargetEntity(userID, ikTargets.leftHand)
+  const ikTargetRightHand = AvatarIKTargetComponent.getTargetEntity(userID, ikTargets.rightHand)
+  const ikTargetHead = AvatarIKTargetComponent.getTargetEntity(userID, ikTargets.head)
+  const ikTargetLeftFoot = AvatarIKTargetComponent.getTargetEntity(userID, ikTargets.leftFoot)
+  const ikTargetRightFoot = AvatarIKTargetComponent.getTargetEntity(userID, ikTargets.rightFoot)
+
   // reset all IK targets
   if (ikTargetHead) AvatarIKTargetComponent.blendWeight[ikTargetHead] = 0
   if (ikTargetLeftHand) AvatarIKTargetComponent.blendWeight[ikTargetLeftHand] = 0
@@ -155,10 +157,10 @@ export const applyInputSourcePoseToIKTargets = () => {
     ikTransform.position.copy(cameraTransform.position)
     ikTransform.rotation.copy(cameraTransform.rotation).multiply(Q_Y_180)
     AvatarIKTargetComponent.blendWeight[ikTargetHead] = 1
-    const rigComponent = getComponent(selfAvatarEntity, AvatarRigComponent)
-    const avatar = getComponent(selfAvatarEntity, AvatarComponent)
+    const rigComponent = getComponent(localClientEntity, AvatarRigComponent)
+    const avatar = getComponent(localClientEntity, AvatarComponent)
     if (rigComponent) {
-      const avatarTransform = getComponent(selfAvatarEntity, TransformComponent)
+      const avatarTransform = getComponent(localClientEntity, TransformComponent)
       if (cameraTransform.position.y - avatarTransform.position.y < avatar.avatarHeight) {
         AvatarIKTargetComponent.blendWeight[ikTargetLeftFoot] = 1
         AvatarIKTargetComponent.blendWeight[ikTargetRightFoot] = 1
@@ -171,7 +173,7 @@ export const applyInputSourcePoseToIKTargets = () => {
 
   const inverseWorldScale = 1 / XRState.worldScale
 
-  const localClientTransform = getComponent(selfAvatarEntity, TransformComponent)
+  const localClientTransform = getComponent(localClientEntity, TransformComponent)
 
   for (const inputSourceEntity of inputSourceQuery()) {
     const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
@@ -185,8 +187,8 @@ export const applyInputSourcePoseToIKTargets = () => {
       const hand = inputSourceComponent.source.hand as XRHand | undefined
       /** detect hand joint pose support */
       if (hand && xrFrame.fillPoses && xrFrame.getJointPose) {
-        if (!hasComponent(selfAvatarEntity, XRHandComponent)) {
-          setComponent(selfAvatarEntity, XRHandComponent, { hand })
+        if (!hasComponent(localClientEntity, XRHandComponent)) {
+          setComponent(localClientEntity, XRHandComponent, { hand })
         }
         const wrist = hand.get('wrist')
         if (wrist) {
@@ -201,11 +203,11 @@ export const applyInputSourcePoseToIKTargets = () => {
               .multiply(handedness === 'right' ? rightControllerOffset : leftControllerOffset)
           }
         }
-        applyHandPose(inputSourceComponent.source, selfAvatarEntity)
+        applyHandPose(inputSourceComponent.source, localClientEntity)
 
         AvatarIKTargetComponent.blendWeight[entity] = 1
       } else {
-        removeComponent(selfAvatarEntity, XRHandComponent)
+        removeComponent(localClientEntity, XRHandComponent)
         if (inputSourceComponent.source.gripSpace) {
           const pose = xrFrame.getPose(inputSourceComponent.source.gripSpace, referenceSpace)
           if (pose) {

@@ -23,15 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  Engine,
-  EntityTreeComponent,
-  EntityUUID,
-  UUIDComponent,
-  getComponent,
-  hasComponent,
-  setComponent
-} from '@ir-engine/ecs'
+import { Engine, EntityUUID, UUIDComponent, getComponent, hasComponent, setComponent } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
@@ -39,6 +31,7 @@ import {
   BoundingBoxComponent,
   updateBoundingBox
 } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React, { useEffect, useState } from 'react'
 import { Frustum, Plane, Vector3 } from 'three'
 import { EditorState } from '../../../services/EditorServices'

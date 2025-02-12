@@ -43,10 +43,8 @@ import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identit
 import { loginPath } from '@ir-engine/common/src/schemas/user/login.schema'
 
 import { HookContext } from '@feathersjs/feathers'
-import { defaultWebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
-import { EngineSettingType, instanceSignalingPath, projectsPath } from '@ir-engine/common/src/schema.type.module'
+import { instanceSignalingPath, projectsPath } from '@ir-engine/common/src/schema.type.module'
 import { jwtPublicKeyPath } from '@ir-engine/common/src/schemas/user/jwt-public-key.schema'
-import { parseValue } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { createHash } from 'crypto'
 import {
   APPLE_SCOPES,
@@ -211,9 +209,6 @@ const instanceserver = {
   locationName: process.env.PRELOAD_LOCATION_NAME!,
   shutdownDelayMs: parseInt(process.env.INSTANCESERVER_SHUTDOWN_DELAY_MS!) || 0
 }
-const instanceServerWebRtc = {
-  webRTCSettings: defaultWebRTCSettings
-}
 
 /**
  * Task server generator
@@ -236,8 +231,10 @@ const email = {
       pass: process.env.SMTP_PASS!
     }
   },
+  // Name and email of default sender (for login emails, etc)
   from: `${process.env.SMTP_FROM_NAME}` + ` <${process.env.SMTP_FROM_EMAIL}>`,
   subject: {
+    // Subject of the Login Link email
     'new-user': 'IR Engine Signup',
     location: 'IR Engine Location invitation',
     instance: 'IR Engine Location invitation',
@@ -247,7 +244,6 @@ const email = {
   },
   smsNameCharacterLimit: 20
 }
-export type EmailConfigType = typeof email
 
 type WhiteListItem = {
   path: string
@@ -422,6 +418,10 @@ const blockchain = {
   blockchainUrlSecret: process.env.BLOCKCHAIN_URL_SECRET
 }
 
+const ipfs = {
+  enabled: process.env.USE_IPFS
+}
+
 const zendesk = {
   name: process.env.ZENDESK_KEY_NAME,
   secret: process.env.ZENDESK_SECRET,
@@ -447,8 +447,8 @@ const config = {
   coil,
   db,
   email,
-  'instance-server': instanceserver,
-  'instance-server-webrtc': instanceServerWebRtc,
+  instanceserver,
+  ipfs,
   server,
   'task-server': taskserver,
   redis,
@@ -474,23 +474,5 @@ chargebeeInst.configure({
   site: process.env.CHARGEBEE_SITE!,
   api_key: config.chargebee.apiKey
 })
-
-/**
- * Updates a nested configuration value in the appConfig object.
- * @param key - The key of the nested configuration value, in dot notation.
- * @param value - The value to set for the nested configuration.
- * @param category - The category of the configuration.
- */
-export function updateNestedConfig(appConfig: Record<string, any>, setting: EngineSettingType) {
-  const { key, value, dataType, category } = setting
-  const keys = key.split('.')
-  if (keys.length !== 2) {
-    return
-  }
-  if (!appConfig[category][keys[0]]) {
-    appConfig[category][keys[0]] = {}
-  }
-  appConfig[category][keys[0]][keys[1]] = parseValue(value, dataType)
-}
 
 export default config

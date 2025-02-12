@@ -30,11 +30,12 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { Material, Matrix4, Mesh, Shader, ShaderMaterial, ShadowMaterial, Vector2 } from 'three'
 
-import { QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
+import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
 import { addOBCPlugin, removeOBCPlugin } from '../common/functions/OnBeforeCompilePlugin'
+import { GroupComponent, GroupQueryReactor } from '../renderer/components/GroupComponent'
 import { VisibleComponent } from '../renderer/components/VisibleComponent'
 import { DepthCanvasTexture } from './DepthCanvasTexture'
 import { DepthDataTexture } from './DepthDataTexture'
@@ -180,11 +181,6 @@ type getDepthInformationType = {
   getDepthInformation: (view: XRView) => XRCPUDepthInformation
 }
 
-/**
- * Updates materials with XR depth map uniforms
- * @param world
- * @returns
- */
 function updateDepthMaterials(
   frame: XRFrame & getDepthInformationType,
   referenceSpace: XRReferenceSpace,
@@ -193,16 +189,18 @@ function updateDepthMaterials(
   if (!frame || !referenceSpace) return
   const xrState = getMutableState(XRState)
   const viewerPose = frame.getViewerPose(referenceSpace)
-  if (!viewerPose) return
-  for (const view of viewerPose.views) {
-    const depthInfo = frame.getDepthInformation(view)
-    if (!depthInfo) continue
-    if (!xrState.depthDataTexture.value) {
-      xrState.depthDataTexture.set(new DepthDataTexture(depthInfo.width, depthInfo.height))
+  if (viewerPose) {
+    for (const view of viewerPose.views) {
+      const depthInfo = frame.getDepthInformation(view)
+      if (depthInfo) {
+        if (!xrState.depthDataTexture.value) {
+          xrState.depthDataTexture.set(new DepthDataTexture(depthInfo.width, depthInfo.height))
+        }
+        xrState.depthDataTexture.value!.updateDepth(depthInfo)
+        XRDepthOcclusion.updateUniforms(XRDepthOcclusionMaterials, depthInfo)
+        depthTexture?.updateDepth(depthInfo)
+      }
     }
-    xrState.depthDataTexture.value!.updateDepth(depthInfo)
-    XRDepthOcclusion.updateUniforms(XRDepthOcclusionMaterials, depthInfo)
-    depthTexture?.updateDepth(depthInfo)
   }
 }
 
@@ -220,11 +218,12 @@ function updateUniforms(materials: XRDepthOcclusionMaterialType[], depthInfo: XR
   const width = Math.floor(window.devicePixelRatio * window.innerWidth)
   const height = Math.floor(window.devicePixelRatio * window.innerHeight)
   for (const material of materials) {
-    if (!(material.userData.DepthOcclusionPlugin && material.shader)) continue
-    material.shader.uniforms.uResolution.value.set(width, height)
-    /** invert matrix as physics looks down +z, and webxr looks down -z */
-    material.shader.uniforms.uUvTransform.value.fromArray(normTextureFromNormViewMatrix).invert()
-    material.shader.uniforms.uRawValueToMeters.value = rawValueToMeters
+    if (material.userData.DepthOcclusionPlugin && material.shader) {
+      material.shader.uniforms.uResolution.value.set(width, height)
+      /** invert matrix as physics looks down +z, and webxr looks down -z */
+      material.shader.uniforms.uUvTransform.value.fromArray(normTextureFromNormViewMatrix).invert()
+      material.shader.uniforms.uRawValueToMeters.value = rawValueToMeters
+    }
   }
 }
 
@@ -247,6 +246,13 @@ const _createDepthDebugCanvas = (enabled: boolean) => {
   depthCanvas.style.borderRadius = '20px'
   return depthTexture
 }
+
+/**
+ * Updates materials with XR depth map uniforms
+ * @param world
+ * @returns
+ */
+const groupQuery = defineQuery([GroupComponent])
 
 const useDepthTextureDebug = false
 const depthTexture = _createDepthDebugCanvas(useDepthTextureDebug)
@@ -289,7 +295,7 @@ const reactor = () => {
     }
   }, [xrState.sessionActive])
 
-  return <QueryReactor ChildEntityReactor={DepthOcclusionReactor} Components={[VisibleComponent]} />
+  return <GroupQueryReactor GroupChildReactor={DepthOcclusionReactor} Components={[VisibleComponent]} />
 }
 
 export const XRDepthOcclusionSystem = defineSystem({

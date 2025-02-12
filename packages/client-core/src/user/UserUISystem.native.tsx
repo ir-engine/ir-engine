@@ -32,8 +32,8 @@ import { getMutableState } from '@ir-engine/hyperflux'
 import { useHookstate } from '@hookstate/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { EngineState } from '@ir-engine/ecs'
 import { NetworkState } from '@ir-engine/network'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InviteService } from '../social/services/InviteService'
 
 export const UserMenus = {

@@ -40,14 +40,9 @@ export const LoadWebappInjection = (props: { children: React.ReactNode; fallback
 
   useEffect(() => {
     if (!projects.data.length) return
-    loadWebappInjection(projects.data as string[])
-      .then((result) => {
-        projectComponents.set(result)
-      })
-      .catch((e) => {
-        console.error(`Failed to import webapp load event for project ${projects.data} with reason ${e}`)
-        projectComponents.set([])
-      })
+    loadWebappInjection(projects.data as string[]).then((result) => {
+      projectComponents.set(result)
+    })
   }, [projects.data])
 
   if (!projectComponents.value) {

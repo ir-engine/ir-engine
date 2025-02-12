@@ -23,24 +23,27 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EngineState, EntityTreeComponent, iterateEntityNode } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
   hasComponent,
   removeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { getMutableState, useDidMount, useHookstate, useState } from '@ir-engine/hyperflux'
+import { getMutableState, useDidMount, useState } from '@ir-engine/hyperflux'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/DebugComponentUtils'
 import { LineSegmentComponent } from '@ir-engine/spatial/src/renderer/components/LineSegmentComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
+import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { useEffect } from 'react'
@@ -106,49 +109,45 @@ export const BoundingBoxHelperComponent = defineComponent({
   name: 'BoundingBoxHelperComponent',
 
   schema: S.Object({
+    name: S.String('bounding-box-helper'),
     bbox: S.Required(S.Type<Box3>()),
     density: S.Number(2),
     color: T.Color(0xff0000),
     layerMask: S.Number(ObjectLayerMasks.NodeHelper),
-    helperEntity: S.Optional(S.Entity())
+    entity: S.Entity()
   }),
 
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, BoundingBoxHelperComponent)
+    const helper = useHelperEntity(entity, component)
+    const lineSegment = useOptionalComponent(helper, LineSegmentComponent)
 
-    const lineSegmentedEntity = useHookstate(() => {
-      const helperEntity = createEntity()
+    useEffect(() => {
       const bbox = component.bbox.value
       const density = component.density.value
-      setComponent(helperEntity, LineSegmentComponent, {
+      setComponent(helper, LineSegmentComponent, {
         name: 'bbox-line-segment-' + entity,
         geometry: createBBoxGridGeometry(new Matrix4().identity(), bbox, density),
         material: new LineBasicMaterial({ color: component.color.value }),
         layerMask: component.layerMask.value
       })
-      component.helperEntity.set(helperEntity)
-      return helperEntity
-    }).value
-    const lineSegment = useComponent(lineSegmentedEntity, LineSegmentComponent)
-
-    useEffect(() => {
-      return () => {
-        removeEntity(lineSegmentedEntity)
-      }
     }, [])
 
     useDidMount(() => {
+      if (!lineSegment) return
       const bbox = component.bbox.value
       const density = component.density.value
       lineSegment.geometry.set(createBBoxGridGeometry(new Matrix4().identity(), bbox, density))
     }, [component.bbox])
 
     useEffect(() => {
+      if (!lineSegment) return
       lineSegment.color.set(component.color.value)
     }, [component.color, lineSegment])
 
     useEffect(() => {
+      if (!lineSegment) return
       lineSegment.layerMask.set(component.layerMask.value)
     }, [component.layerMask, lineSegment])
 

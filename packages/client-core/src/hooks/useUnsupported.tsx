@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import { defineState, getState, isDev, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
+import { defineState, syncStateWithLocalStorage, useMutableState } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import React, { useEffect } from 'react'
 import { NotificationService } from '../common/services/NotificationService'
@@ -34,10 +34,9 @@ import { UnsupportedDevice } from '../components/modals/UnsupportedDevice'
 export const BrowserSupportState = defineState({
   name: 'ir.client-core.BrowserSupportState',
   initial: () => ({
-    acknowledgedUnsupportedBrowser: isDev,
-    acknowledgedUnsupportedDevice: isDev
+    acknowledgedUnsupportedBrowser: false
   }),
-  extension: syncStateWithLocalStorage(['acknowledgedUnsupportedBrowser', 'acknowledgedUnsupportedDevice'])
+  extension: syncStateWithLocalStorage(['acknowledgedUnsupportedBrowser'])
 })
 
 type Props = {
@@ -46,13 +45,16 @@ type Props = {
 }
 
 export const useUnsupported = ({ device = false, browser = false }: Props) => {
+  const acknowledged = useMutableState(BrowserSupportState).acknowledgedUnsupportedBrowser.value
+
   useEffect(() => {
-    const { acknowledgedUnsupportedBrowser, acknowledgedUnsupportedDevice } = getState(BrowserSupportState)
-    if (!acknowledgedUnsupportedDevice && isMobile && device) {
+    if (acknowledged) return
+
+    if (isMobile && device) {
       PopoverState.showPopupover(<UnsupportedDevice />)
       return
     }
-    if (!acknowledgedUnsupportedBrowser && !isSupportedBrowser() && browser) {
+    if (!isSupportedBrowser() && browser) {
       PopoverState.showPopupover(<UnsupportedBrowser />)
       return
     }
@@ -68,16 +70,17 @@ export const isSupportedBrowser = () => {
 }
 
 export const useBrowserCheck = () => {
+  const acknowledged = useMutableState(BrowserSupportState).acknowledgedUnsupportedBrowser.value
+
   useEffect(() => {
-    const { acknowledgedUnsupportedBrowser, acknowledgedUnsupportedDevice } = getState(BrowserSupportState)
-    if (!isSupportedBrowser() && !acknowledgedUnsupportedBrowser) {
+    if (!isSupportedBrowser() && !acknowledged) {
       NotificationService.dispatchNotify(
         'The browser you are on is not supported. For the best experience please use Google Chrome.',
         { variant: 'warning' }
       )
     }
 
-    if (isMobile && !acknowledgedUnsupportedDevice) {
+    if (isMobile) {
       NotificationService.dispatchNotify(
         'Not optimized for mobile, experience might have issues. For best experience use desktop Chrome.',
         {

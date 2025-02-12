@@ -38,6 +38,7 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import assert from 'assert'
+import { isArray } from 'lodash'
 import sinon from 'sinon'
 import { BoxGeometry, Color, Material, Mesh, Texture } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
@@ -242,7 +243,7 @@ describe('materialFunctions', () => {
       // Run and Check the result
       setMeshMaterial(testEntity, newMaterialUUIDs)
       const result = getComponent(testEntity, MeshComponent).material
-      assert.equal(Array.isArray(result), false)
+      assert.equal(isArray(result), false)
       assert.equal((result as Material).uuid, Expected)
     })
 
@@ -286,7 +287,7 @@ describe('materialFunctions', () => {
       // Run and Check the result
       setMeshMaterial(testEntity, newMaterialUUIDs)
       const result = getComponent(testEntity, MeshComponent).material as Material[]
-      assert.equal(Array.isArray(result), true)
+      assert.equal(isArray(result), true)
       for (const material of result) {
         assert.notEqual(material.uuid, DummyUUID)
         assert.notEqual(material.uuid, fallbackUUID)
@@ -312,7 +313,7 @@ describe('materialFunctions', () => {
       // Run and Check the result
       setMeshMaterial(UndefinedEntity, newMaterialUUIDs)
       const result = getComponent(testEntity, MeshComponent).material
-      assert.equal(Array.isArray(result), false)
+      assert.equal(isArray(result), false)
       assert.notEqual((result as Material).uuid, Expected)
     })
 
@@ -334,7 +335,7 @@ describe('materialFunctions', () => {
       // Run and Check the result
       setMeshMaterial(testEntity, newMaterialUUIDs)
       const result = getOptionalComponent(testEntity, MeshComponent)?.material
-      assert.equal(Array.isArray(result), false)
+      assert.equal(isArray(result), false)
       assert.equal(result, undefined)
     })
 
@@ -356,7 +357,7 @@ describe('materialFunctions', () => {
       // Run and Check the result
       setMeshMaterial(testEntity, newMaterialUUIDs)
       const result = getComponent(testEntity, MeshComponent).material
-      assert.equal(Array.isArray(result), false)
+      assert.equal(isArray(result), false)
       assert.notEqual((result as Material).uuid, Expected)
     })
   }) //:: setMeshMaterial
@@ -1082,4 +1083,12 @@ describe('materialFunctions', () => {
     it("should return the resulting material when it completed its process successfully", () => {})
     */
   }) //:: updateMaterialPrototype
+
+  /**
+  // @deprecated until the GLTF ECS Loader is merged : https://github.com/ir-engine/ir-engine/pull/11
+  describe('loadMaterialGLTF', () => {}) //:: loadMaterialGLTF
+  describe('assignMaterial', () => {}) //:: assignMaterial
+  describe('createAndAssignMaterial', () => {}) //:: createAndAssignMaterial
+  describe('createMaterialEntity', () => {}) //:: createMaterialEntity
+  */
 }) //:: materialFunctions

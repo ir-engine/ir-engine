@@ -31,7 +31,6 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   defineQuery,
   Entity,
-  getAncestorWithComponents,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -42,6 +41,7 @@ import {
 } from '@ir-engine/ecs'
 import { Quaternion, Vector3 } from 'three'
 import { PI, Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
+import { getAncestorWithComponents } from '../../transform/components/EntityTree'
 import { TransformComponent, TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'

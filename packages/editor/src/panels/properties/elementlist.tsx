@@ -66,7 +66,7 @@ const ComponentListItem = ({ item, onSelect }: { item: Component; onSelect: () =
   return (
     <Button
       fullWidth
-      className="h-full bg-[#2C2E33] p-2 text-[#B2B5BD]"
+      className="w-full bg-[#2C2E33] p-2 text-[#B2B5BD]"
       onClick={() => {
         const entities = SelectionState.getSelectedEntities()
         EditorControlFunctions.addOrRemoveComponent(entities, item, true)
@@ -163,23 +163,21 @@ const useComponentShelfCategories = (search: string) => {
     return [category, filteredComponents]
   }
 
-  const filteredCategories = useMemo(() => {
-    if (!search) {
-      return Object.entries(getState(ComponentShelfCategoriesState))
-        .map(mapSettingsComponents)
-        .filter(([_, items]) => !!items.length)
-    }
-
+  if (!search) {
     return Object.entries(getState(ComponentShelfCategoriesState))
-      .map(([category, items]) => {
-        const filteredItems = items.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()))
-        return [category, filteredItems] as [string, Component[]]
-      })
       .map(mapSettingsComponents)
       .filter(([_, items]) => !!items.length)
-  }, [search])
+  }
 
-  return filteredCategories
+  const searchString = search.toLowerCase()
+
+  return Object.entries(getState(ComponentShelfCategoriesState))
+    .map(([category, items]) => {
+      const filteredItems = items.filter((item) => item.name.toLowerCase().includes(searchString))
+      return [category, filteredItems] as [string, Component[]]
+    })
+    .map(mapSettingsComponents)
+    .filter(([_, items]) => !!items.length)
 }
 
 const usePrefabShelfCategories = (search: string): [string, PrefabShelfItem[]][] => {
@@ -201,19 +199,18 @@ const usePrefabShelfCategories = (search: string): [string, PrefabShelfItem[]][]
     return shelves
   }, [prefabState])
 
-  const filteredCategories = useMemo(() => {
-    if (!search) {
-      return Object.entries(prefabShelves)
-    }
+  if (!search) {
     return Object.entries(prefabShelves)
-      .map(([category, items]) => {
-        const filteredItems = items.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()))
-        return [category, filteredItems] as [string, PrefabShelfItem[]]
-      })
-      .filter(([_, items]) => !!items.length)
-  }, [search])
+  }
 
-  return filteredCategories
+  const searchString = search.toLowerCase()
+
+  return Object.entries(prefabShelves)
+    .map(([category, items]) => {
+      const filteredItems = items.filter((item) => item.name.toLowerCase().includes(searchString))
+      return [category, filteredItems] as [string, PrefabShelfItem[]]
+    })
+    .filter(([_, items]) => !!items.length)
 }
 
 export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: () => void }) {
@@ -221,6 +218,7 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
   const search = useHookstate({ local: '', query: '' })
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const selectedCategories = useHookstate([] as number[])
+  const isInSearchMode = useHookstate(false)
   const prevSearchQuery = useRef('')
 
   const onClickCategory = (index: number) => {
@@ -240,22 +238,26 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
       : usePrefabShelfCategories(search.query.value)
   const inputReference = useRef<HTMLInputElement>(null)
 
+  const allCategories: number[] = useMemo(() => {
+    return Array.from({ length: shelves.length }, (_, index) => index)
+  }, [shelves])
+
   useEffect(() => {
     inputReference.current?.focus()
   }, [])
 
-  const isInSearchMode = search.query.value.length > 0
-
   useEffect(() => {
     if (!search.query.value) {
+      isInSearchMode.set(false)
       if (prevSearchQuery.current) {
         selectedCategories.set([])
       }
     } else {
-      selectedCategories.set(Array.from({ length: shelves.length }, (_, index) => index))
+      isInSearchMode.set(true)
+      selectedCategories.set(allCategories)
     }
     prevSearchQuery.current = search.query.value
-  }, [search.query, shelves])
+  }, [search.query, allCategories])
 
   const onSearch = (text: string) => {
     search.local.set(text)
@@ -279,7 +281,7 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
         />
       </div>
 
-      {!isInSearchMode && (
+      {!isInSearchMode.value && (
         <div className="grid grid-cols-4 gap-1">
           {shelves.map(([category, _items], index) => (
             <SceneElementListItem
@@ -292,9 +294,9 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
         </div>
       )}
 
-      {(isInSearchMode || selectedCategories.value.length > 0) && (
+      {(isInSearchMode.value || selectedCategories.value.length > 0) && (
         <ul className="flex w-full flex-col space-y-1 pt-3" data-testid="prefabs-category-item-list">
-          {shelves.flatMap(([_, items], index: number) =>
+          {shelves.flatMap(([_, items], index) =>
             selectedCategories.value.includes(index)
               ? items.map((item: Component | PrefabShelfItem) =>
                   type === 'components' ? (

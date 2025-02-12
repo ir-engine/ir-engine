@@ -30,7 +30,8 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { defineAction, defineActionQueue } from '@ir-engine/hyperflux'
+import { defineAction, defineActionQueue, getState } from '@ir-engine/hyperflux'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 
 import { VisualScriptComponent } from '../VisualScriptModule'
 
@@ -58,6 +59,8 @@ export const visualScriptQuery = defineQuery([VisualScriptComponent])
 const executeQueue = defineActionQueue(VisualScriptActions.execute.matches)
 const stopQueue = defineActionQueue(VisualScriptActions.stop.matches)
 const execute = () => {
+  if (getState(EngineState).isEditor) return
+
   for (const action of executeQueue()) {
     const entity = action.entity
     if (hasComponent(entity, VisualScriptComponent)) setComponent(entity, VisualScriptComponent, { run: true })

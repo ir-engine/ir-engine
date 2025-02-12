@@ -48,21 +48,26 @@ import {
 } from '@ir-engine/hyperflux'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createMediaWidget } from './createMediaWidget'
-import { EntityTreeComponent } from '@ir-engine/ecs'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Vector3_Back, Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
 import { XRStandardGamepadButton } from '@ir-engine/spatial/src/input/state/ButtonState'
-import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-import { ObjectFitFunctions } from '@ir-engine/spatial/src/transform/functions/ObjectFitFunctions'
 import { TransformSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
-import { ReferenceSpace, XRState, isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
-import { RegisteredWidgets, WidgetAppActions, WidgetAppService, WidgetAppState } from './WidgetAppService'
+import { isMobileXRHeadset, ReferenceSpace, XRState } from '@ir-engine/spatial/src/xr/XRState'
+import { ObjectFitFunctions } from '@ir-engine/spatial/src/xrui/functions/ObjectFitFunctions'
+import {
+  RegisteredWidgets,
+  WidgetAppActions,
+  WidgetAppService,
+  WidgetAppState
+} from '@ir-engine/spatial/src/xrui/WidgetAppService'
 
-import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import React from 'react'
 import { createAnchorWidget } from './createAnchorWidget'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
@@ -118,7 +123,7 @@ const unregisterWidgetQueue = defineActionQueue(WidgetAppActions.unregisterWidge
 
 const execute = () => {
   const { widgetMenuUI } = getState(WidgetUISystemState)
-  const { viewerEntity, localFloorEntity } = getState(ReferenceSpaceState)
+  const { viewerEntity, localFloorEntity } = getState(EngineState)
   if (!widgetMenuUI || !viewerEntity) return
 
   const widgetState = getState(WidgetAppState)
@@ -241,7 +246,7 @@ export const WidgetUISystem = defineSystem({
   insert: { before: TransformSystem },
   execute,
   reactor: () => {
-    if (!useMutableState(ReferenceSpaceState).viewerEntity.value) return null
+    if (!useMutableState(EngineState).viewerEntity.value) return null
     return <Reactor />
   }
 })

@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
-  EntityTreeComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -38,14 +37,14 @@ import {
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
-import { Color, ColorRepresentation, DirectionalLight } from 'three'
+import { BoxGeometry, Color, ColorRepresentation, DirectionalLight, Mesh, MeshBasicMaterial } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { destroySpatialEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { RendererState } from '../../RendererState'
+import { GroupComponent, addObjectToGroup } from '../GroupComponent'
 import { LineSegmentComponent } from '../LineSegmentComponent'
-import { ObjectComponent } from '../ObjectComponent'
 import { DirectionalLightComponent } from './DirectionalLightComponent'
 import { LightTagComponent } from './LightTagComponent'
 
@@ -220,29 +219,42 @@ describe('DirectionalLightComponent', () => {
       assert.equal(hasComponent(testEntity, LightTagComponent), true)
     })
 
-    it('should create a new DirectionalLight object and add it to the ObjectComponent of the entity when it is mounted', () => {
+    it('should create a new DirectionalLight object and add it to the GroupComponent of the entity when it is mounted', () => {
+      setComponent(testEntity, GroupComponent)
+
       // Sanity check before running
-      const before = getComponent(testEntity, ObjectComponent)
-      assert.equal(!!before, false)
+      const before = getComponent(testEntity, GroupComponent)
+      assert.equal(before.length, 0)
 
       // Run and Check the result
       setComponent(testEntity, DirectionalLightComponent)
-      const after = getComponent(testEntity, ObjectComponent)
-      assert.equal(!!after, true)
-      const result = after.type === 'DirectionalLight'
+      const after = getComponent(testEntity, GroupComponent)
+      assert.notEqual(after.length, 0)
+      assert.equal(after.length, 1)
+      const result = after[0].type === 'DirectionalLight'
       assert.equal(result, true)
     })
 
-    it('should remove the DirectionalLight object from the ObjectComponent of the entityContext when it is unmounted', () => {
+    it('should remove the DirectionalLight object from the GroupComponent of the entityContext when it is unmounted', () => {
+      setComponent(testEntity, GroupComponent)
+      const DummyObject = new Mesh(new BoxGeometry())
+
       // Sanity check before running
-      const before1 = getComponent(testEntity, ObjectComponent)
-      assert.equal(!!before1, false)
+      const before1 = getComponent(testEntity, GroupComponent)
+      assert.equal(before1.length, 0)
       setComponent(testEntity, DirectionalLightComponent)
+      addObjectToGroup(testEntity, DummyObject)
+      const before2 = getComponent(testEntity, GroupComponent)
+      assert.notEqual(before2.length, 0)
+      assert.equal(before2.length, 2)
+      assert.equal(before2[0].type, 'DirectionalLight')
 
       // Run and Check the result
       removeComponent(testEntity, DirectionalLightComponent)
-      const after = getComponent(testEntity, ObjectComponent)
-      assert.equal(!!after, false)
+      const after = getComponent(testEntity, GroupComponent)
+      assert.notEqual(after.length, 2)
+      assert.equal(after.length, 1)
+      assert.notEqual(after[0].type, 'DirectionalLight')
     })
 
     it('should react when directionalLightComponent.color changes', () => {
@@ -265,7 +277,9 @@ describe('DirectionalLightComponent', () => {
       const Expected = new Color(0x123456)
 
       // Set the data as expected
-      getMutableState(RendererState).nodeHelperVisibility.set(true)
+      const geometry = new BoxGeometry(1, 1, 1)
+      const material = new MeshBasicMaterial({ color: 0xffff00 })
+      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       setComponent(testEntity, DirectionalLightComponent)
 
       // Sanity check before running
@@ -275,9 +289,7 @@ describe('DirectionalLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, DirectionalLightComponent, { color: Expected })
-
-      const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
-      const result = getComponent(childEntity1, LineSegmentComponent).color
+      const result = getComponent(testEntity, LineSegmentComponent).color
       assert.equal(new Color(result).getHex(), Expected.getHex())
     })
 
@@ -285,6 +297,9 @@ describe('DirectionalLightComponent', () => {
       const Expected = 42
 
       // Set the data as expected
+      const geometry = new BoxGeometry(1, 1, 1)
+      const material = new MeshBasicMaterial({ color: 0xffff00 })
+      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       setComponent(testEntity, DirectionalLightComponent)
 
       // Sanity check before running
@@ -302,6 +317,9 @@ describe('DirectionalLightComponent', () => {
       const Expected = 42
 
       // Set the data as expected
+      const geometry = new BoxGeometry(1, 1, 1)
+      const material = new MeshBasicMaterial({ color: 0xffff00 })
+      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       setComponent(testEntity, DirectionalLightComponent)
 
       // Sanity check before running
@@ -319,6 +337,9 @@ describe('DirectionalLightComponent', () => {
       const Expected = 42
 
       // Set the data as expected
+      const geometry = new BoxGeometry(1, 1, 1)
+      const material = new MeshBasicMaterial({ color: 0xffff00 })
+      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       setComponent(testEntity, DirectionalLightComponent)
 
       // Sanity check before running
@@ -336,6 +357,9 @@ describe('DirectionalLightComponent', () => {
       const Expected = 42
 
       // Set the data as expected
+      const geometry = new BoxGeometry(1, 1, 1)
+      const material = new MeshBasicMaterial({ color: 0xffff00 })
+      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       setComponent(testEntity, DirectionalLightComponent)
 
       // Sanity check before running
@@ -353,17 +377,21 @@ describe('DirectionalLightComponent', () => {
       const Initial = 21
       const Expected = 42
 
+      // Set the data as expected
+      const geometry = new BoxGeometry(1, 1, 1)
+      const material = new MeshBasicMaterial({ color: 0xffff00 })
+      setComponent(testEntity, LineSegmentComponent, { geometry: geometry, material: material })
       getMutableState(RendererState).shadowMapResolution.set(Initial)
 
       // Run and Check the result
       setComponent(testEntity, DirectionalLightComponent)
-      const before = getComponent(testEntity, ObjectComponent) as DirectionalLight
+      const before = getComponent(testEntity, GroupComponent)[1] as DirectionalLight
       assert.equal(before.shadow.mapSize.x, Initial)
 
       // Re-run and Check the result again
       getMutableState(RendererState).shadowMapResolution.set(Expected)
       DirectionalLightComponent.reactorMap.get(testEntity)!.run()
-      const result = getComponent(testEntity, ObjectComponent) as DirectionalLight
+      const result = getComponent(testEntity, GroupComponent)[1] as DirectionalLight
       assert.equal(result.shadow.mapSize.x, Expected)
     })
 
@@ -377,19 +405,18 @@ describe('DirectionalLightComponent', () => {
 
       // Run and Check the Initial result
       setComponent(testEntity, DirectionalLightComponent)
+      assert.equal(hasComponent(testEntity, LineSegmentComponent), Initial)
 
       // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(Expected)
       DirectionalLightComponent.reactorMap.get(testEntity)!.run()
-
-      const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
-      assert.equal(hasComponent(childEntity1, LineSegmentComponent), Expected)
-      assert.equal(getComponent(childEntity1, LineSegmentComponent).name, 'directional-light-helper')
+      assert.equal(hasComponent(testEntity, LineSegmentComponent), Expected)
+      assert.equal(getComponent(testEntity, LineSegmentComponent).name, 'directional-light-helper')
 
       // Re-run and Check the unmount case
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)
       DirectionalLightComponent.reactorMap.get(testEntity)!.run()
-      assert.equal(hasComponent(childEntity1, LineSegmentComponent), Initial)
+      assert.equal(hasComponent(testEntity, LineSegmentComponent), Initial)
     })
   }) //:: reactor
 })

@@ -26,14 +26,15 @@ Infinite Reality Engine. All Rights Reserved.
 import assert, { strictEqual } from 'assert'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
+import { EntityUUID, getComponent, UUIDComponent } from '@ir-engine/ecs'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { createEngine, destroyEngine, Engine } from '@ir-engine/ecs/src/Engine'
-import { ActionRecipients, applyIncomingActions, defineAction, getMutableState, getState } from '@ir-engine/hyperflux'
+import { ActionRecipients, applyIncomingActions, getMutableState, getState, UserID } from '@ir-engine/hyperflux'
+import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
+import { SpawnObjectActions } from '@ir-engine/spatial/src/transform/SpawnObjectActions'
 
 import { createMockNetwork } from '../../tests/createMockNetwork'
 import { NetworkTopics } from '../Network'
-
-const TestAction = defineAction({ type: 'test' })
 
 describe('IncomingActionSystem Unit Tests', async () => {
   beforeEach(() => {
@@ -43,6 +44,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
       return getState(ECSState).simulationTime
     }
     createMockNetwork()
+    initializeSpatialEngine()
   })
 
   afterEach(() => {
@@ -56,10 +58,13 @@ describe('IncomingActionSystem Unit Tests', async () => {
       ecsState.simulationTime.set(0)
 
       /* mock */
-      const action = TestAction({
+      const action = SpawnObjectActions.spawnObject({
+        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+        ownerID: '0' as UserID,
         // incoming action from future
         $time: 2,
-        $to: '0' as ActionRecipients
+        $to: '0' as ActionRecipients,
+        entityUUID: '0' as EntityUUID
       })
       action.$topic = NetworkTopics.world
 
@@ -81,10 +86,13 @@ describe('IncomingActionSystem Unit Tests', async () => {
 
     it('should immediately apply incoming action from the past or present', () => {
       /* mock */
-      const action = TestAction({
+      const action = SpawnObjectActions.spawnObject({
+        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+        ownerID: '0' as UserID,
         // incoming action from past
         $time: -1,
-        $to: '0' as ActionRecipients
+        $to: '0' as ActionRecipients,
+        entityUUID: '0' as EntityUUID
       })
       action.$topic = NetworkTopics.world
 
@@ -101,11 +109,14 @@ describe('IncomingActionSystem Unit Tests', async () => {
   describe('applyAndArchiveIncomingAction', () => {
     it('should cache actions where $cache = true', () => {
       /* mock */
-      const action = TestAction({
+      const action = SpawnObjectActions.spawnObject({
+        parentUUID: getComponent(Engine.instance.originEntity, UUIDComponent),
+        ownerID: '0' as UserID,
         // incoming action from past
         $time: 0,
         $to: '0' as ActionRecipients,
-        $cache: true
+        $cache: true,
+        entityUUID: '0' as EntityUUID
       })
       action.$topic = NetworkTopics.world
 

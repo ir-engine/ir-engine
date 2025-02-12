@@ -24,20 +24,28 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { defineQuery, defineSystem, getComponent } from '@ir-engine/ecs'
-import { SpotLight, Vector3 } from 'three'
+import { DirectionalLight, SpotLight, Vector3 } from 'three'
 import { TransformSystem } from '../transform/systems/TransformSystem'
-import { ObjectComponent } from './components/ObjectComponent'
+import { GroupComponent } from './components/GroupComponent'
 import { DirectionalLightComponent } from './components/lights/DirectionalLightComponent'
 import { SpotLightComponent } from './components/lights/SpotLightComponent'
 
 const _vec3 = new Vector3()
 
-const spotLightQuery = defineQuery([ObjectComponent, SpotLightComponent])
-const directionalLightQuery = defineQuery([ObjectComponent, DirectionalLightComponent])
+const spotLightQuery = defineQuery([GroupComponent, SpotLightComponent])
+const directionalLightQuery = defineQuery([GroupComponent, DirectionalLightComponent])
 
+/** @todo will be simplified after ObjectComponent refactor */
 const execute = () => {
-  for (const entity of [...directionalLightQuery(), ...spotLightQuery()]) {
-    const light = getComponent(entity, ObjectComponent) as SpotLight
+  for (const entity of spotLightQuery()) {
+    const light = getComponent(entity, GroupComponent).find((c) => c instanceof SpotLight) as SpotLight
+    if (!light?.target) continue
+    light.getWorldDirection(_vec3)
+    light.getWorldPosition(light.target.position).add(_vec3)
+    light.target.updateMatrixWorld()
+  }
+  for (const entity of directionalLightQuery()) {
+    const light = getComponent(entity, GroupComponent).find((c) => c instanceof DirectionalLight) as DirectionalLight
     if (!light?.target) continue
     light.getWorldDirection(_vec3)
     light.getWorldPosition(light.target.position).add(_vec3)

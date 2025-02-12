@@ -26,16 +26,23 @@ Infinite Reality Engine. All Rights Reserved.
 import { Types } from 'bitecs'
 import { Object3D } from 'three'
 
+import { entityExists } from '@ir-engine/ecs'
 import { defineComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 
 const maxBitWidth = 32
-/**
- * @note - do not use ObjectLayerComponent directly, use ObjectLayerMaskComponent instead
- */
+
 export const ObjectLayerComponents = Array.from({ length: maxBitWidth }, (_, i) => {
   return defineComponent({
-    name: `ObjectLayer${i}`
+    name: `ObjectLayer${i}`,
+
+    onSet(entity, component) {
+      ObjectLayerMaskComponent.mask[entity] |= (1 << i) | 0
+    },
+
+    onRemove(entity, component) {
+      ObjectLayerMaskComponent.mask[entity] &= ~((1 << i) | 0)
+    }
   })
 })
 
@@ -86,44 +93,39 @@ export const ObjectLayerMaskComponent = defineComponent({
   },
 
   enableLayer(entity: Entity, layer: number) {
+    if (!entityExists(entity)) return
     if (!hasComponent(entity, ObjectLayerMaskComponent)) setComponent(entity, ObjectLayerMaskComponent)
-    const currentMask = ObjectLayerMaskComponent.mask[entity]
-    const mask = currentMask | ((1 << layer) | 0)
-    setComponent(entity, ObjectLayerMaskComponent, mask)
+    setComponent(entity, ObjectLayerComponents[layer])
   },
 
   enableLayers(entity: Entity, ...layers: number[]) {
     if (!hasComponent(entity, ObjectLayerMaskComponent)) setComponent(entity, ObjectLayerMaskComponent)
-    const currentMask = ObjectLayerMaskComponent.mask[entity]
-    let mask = currentMask
     for (const layer of layers) {
-      mask |= (1 << layer) | 0
+      setComponent(entity, ObjectLayerComponents[layer])
     }
-    setComponent(entity, ObjectLayerMaskComponent, mask)
   },
 
   disableLayer(entity: Entity, layer: number) {
+    if (!entityExists(entity)) return
     if (!hasComponent(entity, ObjectLayerMaskComponent)) setComponent(entity, ObjectLayerMaskComponent)
-    const currentMask = ObjectLayerMaskComponent.mask[entity]
-    const mask = currentMask & ~((1 << layer) | 0)
-    setComponent(entity, ObjectLayerMaskComponent, mask)
+    removeComponent(entity, ObjectLayerComponents[layer])
   },
 
   disableLayers(entity: Entity, ...layers: number[]) {
     if (!hasComponent(entity, ObjectLayerMaskComponent)) setComponent(entity, ObjectLayerMaskComponent)
-    const currentMask = ObjectLayerMaskComponent.mask[entity]
-    let mask = currentMask
     for (const layer of layers) {
-      mask &= ~((1 << layer) | 0)
+      removeComponent(entity, ObjectLayerComponents[layer])
     }
-    setComponent(entity, ObjectLayerMaskComponent, mask)
   },
 
   toggleLayer(entity: Entity, layer: number) {
     if (!hasComponent(entity, ObjectLayerMaskComponent)) setComponent(entity, ObjectLayerMaskComponent)
-    const currentMask = ObjectLayerMaskComponent.mask[entity]
-    const mask = currentMask ^ ((1 << layer) | 0)
-    setComponent(entity, ObjectLayerMaskComponent, mask)
+    const ObjectLayerComponent = ObjectLayerComponents[layer]
+    if (hasComponent(entity, ObjectLayerComponent)) {
+      removeComponent(entity, ObjectLayerComponent)
+    } else {
+      setComponent(entity, ObjectLayerComponent)
+    }
   },
 
   setMask(entity: Entity, mask: number) {
@@ -182,11 +184,18 @@ export class Layer {
  */
 export function setObjectLayers(object: Object3D, ...layers: number[]) {
   object.traverse((obj: Object3D) => {
-    if (obj.entity) ObjectLayerMaskComponent.setMask(obj.entity, 0)
     obj.layers.disableAll()
     for (const layer of layers) {
-      if (obj.entity) ObjectLayerMaskComponent.enableLayer(obj.entity, layers[0])
       obj.layers.enable(layer)
     }
+  })
+}
+
+/**
+ * @deprecated use ObjectLayerMaskComponent instead
+ */
+export function enableObjectLayer(object: Object3D, layer: number, enable: boolean) {
+  object.traverse((obj: Object3D) => {
+    enable ? obj.layers.enable(layer) : obj.layers.disable(layer)
   })
 }

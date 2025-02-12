@@ -61,8 +61,7 @@ export const createEngineSetting = async (
       key,
       value,
       type,
-      category,
-      dataType: 'string'
+      category
     },
     {
       user

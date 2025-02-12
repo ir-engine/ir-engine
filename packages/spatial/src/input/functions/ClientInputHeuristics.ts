@@ -29,7 +29,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   defineQuery,
-  EngineState,
   Entity,
   EntityUUID,
   getComponent,
@@ -40,15 +39,17 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import { defineState, getState } from '@ir-engine/hyperflux'
-import { Quaternion, Ray, Raycaster, Vector3 } from 'three'
+import { Object3D, Quaternion, Ray, Raycaster, Vector3 } from 'three'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/MathConstants'
+import { EngineState } from '../../EngineState'
+import { GroupComponent } from '../../renderer/components/GroupComponent'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
-import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { Object3DUtils } from '../../transform/Object3DUtils'
 import { XRScenePlacementComponent } from '../../xr/XRScenePlacementComponent'
 import { XRState } from '../../xr/XRState'
 import { InputComponent } from '../components/InputComponent'
@@ -130,16 +131,18 @@ export function findProximity(
   if (closestEntities.length === 0) return
   if (closestEntities.length > 1) {
     //sort if more than 1 entry
-    closestEntities.sort(sortDistance)
+    closestEntities.sort((a, b) => {
+      //prioritize anything with an InteractableComponent if otherwise equal
+      const aNum = 0
+      const bNum = 0
+      //aNum - bNum : 0 if equal, -1 if a has tag and b doesn't, 1 if a doesnt have tag and b does
+      return Math.sign(a.distance - b.distance) + (aNum - bNum)
+    })
   }
   sortedIntersections.push({
     entity: closestEntities[0].entity,
     distance: Math.sqrt(closestEntities[0].distance)
   })
-}
-
-const sortDistance = (a: IntersectionData, b: IntersectionData) => {
-  return Math.sign(a.distance - b.distance)
 }
 
 const hitTarget = new Vector3()
@@ -171,14 +174,18 @@ export function meshHeuristic(intersectionData: Set<IntersectionData>, position:
   const isEditing = getState(EngineState).isEditing
   const inputState = getState(InputState)
   const objects = (isEditing ? meshesQuery() : Array.from(inputState.inputMeshes))
-    .filter((eid) => hasComponent(eid, ObjectComponent))
-    .map((eid) => getComponent(eid, ObjectComponent))
+    .filter((eid) => hasComponent(eid, GroupComponent))
+    .map((eid) => getComponent(eid, GroupComponent))
+    .flat()
 
   _raycaster.set(position, direction)
 
-  const hits = _raycaster.intersectObjects(objects, true)
+  const hits = _raycaster.intersectObjects<Object3D>(objects, true)
   for (const hit of hits) {
-    intersectionData.add({ entity: hit.object.entity, distance: hit.distance })
+    const parentObject = Object3DUtils.findAncestor(hit.object, (obj) => obj.entity != undefined)
+    if (parentObject) {
+      intersectionData.add({ entity: parentObject.entity, distance: hit.distance })
+    }
   }
 }
 

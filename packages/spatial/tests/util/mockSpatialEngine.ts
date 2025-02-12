@@ -28,7 +28,7 @@ import { mockEngineRenderer } from './MockEngineRenderer'
 
 import { ECSState, Timer, setComponent } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
-import { ReferenceSpaceState } from '../../src/ReferenceSpaceState'
+import { EngineState } from '../../src/EngineState'
 import { RendererComponent } from '../../src/renderer/WebGLRendererSystem'
 import { XRState } from '../../src/xr/XRState'
 
@@ -43,7 +43,7 @@ export const mockSpatialEngine = () => {
   })
   getMutableState(ECSState).timer.set(timer)
 
-  const { originEntity, localFloorEntity, viewerEntity } = getState(ReferenceSpaceState)
+  const { originEntity, localFloorEntity, viewerEntity } = getState(EngineState)
   mockEngineRenderer(viewerEntity)
   setComponent(viewerEntity, RendererComponent, { scenes: [originEntity, localFloorEntity, viewerEntity] })
 }

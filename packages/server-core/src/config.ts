@@ -44,22 +44,22 @@ export const config = {
       listenInfos: [
         {
           protocol: 'udp',
-          ip: configFile['instance-server'].domain! || '0.0.0.0',
+          ip: configFile.instanceserver.domain! || '0.0.0.0',
           announcedIp: null! as string,
-          port: process.env.DEV_CHANNEL === 'true' ? 30000 : configFile['instance-server'].rtcStartPrt
+          port: process.env.DEV_CHANNEL === 'true' ? 30000 : configFile.instanceserver.rtcStartPrt
         },
         {
           protocol: 'tcp',
-          ip: configFile['instance-server'].domain! || '0.0.0.0',
+          ip: configFile.instanceserver.domain! || '0.0.0.0',
           announcedIp: null! as string,
-          port: process.env.DEV_CHANNEL === 'true' ? 30000 : configFile['instance-server'].rtcStartPrt
+          port: process.env.DEV_CHANNEL === 'true' ? 30000 : configFile.instanceserver.rtcStartPrt
         }
       ]
     },
     worker: {
-      rtcMinPort: process.env.DEV_CHANNEL === 'true' ? 30000 : configFile['instance-server'].rtcStartPrt,
+      rtcMinPort: process.env.DEV_CHANNEL === 'true' ? 30000 : configFile.instanceserver.rtcStartPrt,
       rtcMaxPort:
-        (process.env.DEV_CHANNEL === 'true' ? 30000 : configFile['instance-server'].rtcStartPrt) + NUM_RTC_PORTS - 1,
+        (process.env.DEV_CHANNEL === 'true' ? 30000 : configFile.instanceserver.rtcStartPrt) + NUM_RTC_PORTS - 1,
       logLevel: 'info',
       logTags: ['info', 'ice', 'dtls', 'rtp', 'srtp', 'rtcp']
     },

@@ -23,16 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  Entity,
-  EntityTreeComponent,
-  UndefinedEntity,
-  getOptionalComponent,
-  useOptionalComponent,
-  useQuery
-} from '@ir-engine/ecs'
+import { Entity, UndefinedEntity, getOptionalComponent, useOptionalComponent, useQuery } from '@ir-engine/ecs'
 import { startReactor, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import React, { useLayoutEffect } from 'react'
+import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { RendererComponent } from '../WebGLRendererSystem'
 
 /**

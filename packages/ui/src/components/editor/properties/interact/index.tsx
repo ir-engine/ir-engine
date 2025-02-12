@@ -27,7 +27,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlinePanTool } from 'react-icons/md'
 
-import { EntityTreeComponent, getOptionalComponent, useQuery, UUIDComponent } from '@ir-engine/ecs'
+import { getOptionalComponent, useQuery, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   commitProperties,
@@ -45,6 +45,7 @@ import { useHookstate } from '@ir-engine/hyperflux'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { Checkbox } from '@ir-engine/ui'
 import Button from '../../../../primitives/tailwind/Button'
 import InputGroup from '../../input/Group'

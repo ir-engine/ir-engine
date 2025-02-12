@@ -28,7 +28,7 @@
     "config": "config/"
   },
   "engines": {
-    "node": ">= 22.11.0"
+    "node": ">= 18.12.0"
   },
   "scripts": {
     "check-errors": "tsc --noemit",

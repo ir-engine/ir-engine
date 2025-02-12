@@ -26,14 +26,10 @@ Infinite Reality Engine. All Rights Reserved.
 import { Knex } from 'knex'
 import { v4 as uuidv4 } from 'uuid'
 
-import { defaultWebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { engineSettingPath, EngineSettingType } from '@ir-engine/common/src/schemas/setting/engine-setting.schema'
-import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
-import { flattenObjectToArray } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import appConfig from '@ir-engine/server-core/src/appconfig'
-import appRootPath from 'app-root-path'
 
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
@@ -57,7 +53,7 @@ export async function seed(knex: Knex): Promise<void> {
     ],
     'chargebee'
   )
-  const zendeskSettingSeedData = await generateSeedData(
+  const zendeskSettingSeedData: EngineSettingType[] = await Promise.all(
     [
       {
         key: EngineSettings.Zendesk.Name,
@@ -71,8 +67,14 @@ export async function seed(knex: Knex): Promise<void> {
         key: EngineSettings.Zendesk.Kid,
         value: process.env.ZENDESK_KID || ''
       }
-    ],
-    'zendesk'
+    ].map(async (item) => ({
+      ...item,
+      id: uuidv4(),
+      type: 'private' as EngineSettingType['type'],
+      category: 'zendesk' as EngineSettingType['category'],
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }))
   )
 
   const coilSeedData = await generateSeedData(
@@ -83,73 +85,7 @@ export async function seed(knex: Knex): Promise<void> {
     ],
     'coil'
   )
-  const instanceServerSeedData = await generateSeedData(
-    [
-      {
-        key: EngineSettings.InstanceServer.ClientHost,
-        value: process.env.APP_HOST || ''
-      },
-      {
-        key: EngineSettings.InstanceServer.RtcStartPort,
-        value: process.env.RTC_START_PORT || ''
-      },
-      {
-        key: EngineSettings.InstanceServer.RtcEndPort,
-        value: process.env.RTC_END_PORT || ''
-      },
-      {
-        key: EngineSettings.InstanceServer.RtcPortBlockSize,
-        value: process.env.RTC_PORT_BLOCK_SIZE || ''
-      },
-      {
-        key: EngineSettings.InstanceServer.IdentifierDigits,
-        value: '5'
-      },
-      {
-        key: EngineSettings.InstanceServer.Local,
-        value: `${process.env.LOCAL === 'true'}`
-      },
-      {
-        key: EngineSettings.InstanceServer.Domain,
-        value: process.env.INSTANCESERVER_DOMAIN || 'instanceserver.etherealengine.com'
-      },
-      {
-        key: EngineSettings.InstanceServer.ReleaseName,
-        value: process.env.RELEASE_NAME || 'local'
-      },
-      {
-        key: EngineSettings.InstanceServer.Port,
-        value: process.env.INSTANCESERVER_PORT || '3031'
-      },
-      {
-        key: EngineSettings.InstanceServer.Mode,
-        value: process.env.INSTANCESERVER_MODE || 'dev'
-      },
-      {
-        key: EngineSettings.InstanceServer.LocationName,
-        value: process.env.PRELOAD_LOCATION_NAME || ''
-      },
-      {
-        key: EngineSettings.InstanceServer.ShutdownDelayMs,
-        value: process.env.INSTANCESERVER_SHUTDOWN_DELAY_MS || '0'
-      }
-    ],
-    'instance-server'
-  )
 
-  const instanceServerWebRtc: EngineSettingType[] = await Promise.all(
-    flattenObjectToArray(defaultWebRTCSettings).map(async ({ key, value }) => ({
-      id: uuidv4(),
-      key,
-      value,
-      dataType: getDataType(`${value}`),
-      jsonKey: EngineSettings.InstanceServer.WebRTCSettings,
-      type: 'private' as EngineSettingType['type'],
-      category: 'instance-server-webrtc',
-      createdAt: await getDateTimeSql(),
-      updatedAt: await getDateTimeSql()
-    }))
-  )
   const metabaseSeedData = await generateSeedData(
     [
       {
@@ -212,141 +148,14 @@ export async function seed(knex: Knex): Promise<void> {
     'helm'
   )
 
-  const serverSeedData = await generateSeedData(
-    [
-      {
-        key: EngineSettings.Server.Port,
-        value: process.env.SERVER_PORT || '3030'
-      },
-      {
-        key: EngineSettings.Server.Hostname,
-        value: process.env.SERVER_HOSTNAME || 'localhost'
-      },
-      {
-        key: EngineSettings.Server.Mode,
-        value: process.env.NODE_ENV || 'development'
-      },
-      {
-        key: EngineSettings.Server.ClientHost,
-        value: process.env.CLIENT_HOST || 'localhost'
-      },
-      {
-        key: EngineSettings.Server.RootDirectory,
-        value: process.env.ROOT_DIR || ''
-      },
-      {
-        key: EngineSettings.Server.PublicDirectory,
-        value: process.env.PUBLIC_DIR || ''
-      },
-      {
-        key: EngineSettings.Server.NodeModulesDirectory,
-        value: process.env.NODE_MODULES_DIR || ''
-      },
-      {
-        key: EngineSettings.Server.LocalStorageProvider,
-        value: process.env.LOCAL_STORAGE_PROVIDER || ''
-      },
-      {
-        key: EngineSettings.Server.PerformDryRun,
-        value: process.env.PERFORM_DRY_RUN || 'false'
-      },
-      {
-        key: EngineSettings.Server.StorageProvider,
-        value: process.env.STORAGE_PROVIDER || ''
-      },
-      {
-        key: EngineSettings.Server.Hub.Endpoint,
-        value: process.env.HUB_ENDPOINT || ''
-      },
-      {
-        key: EngineSettings.Server.Url,
-        value: process.env.SERVER_URL || ''
-      },
-      {
-        key: EngineSettings.Server.Local,
-        value: process.env.LOCAL || 'false'
-      },
-      {
-        key: EngineSettings.Server.CertPath,
-        value: appRootPath.path.toString() + '/' + process.env.CERT || ''
-      },
-      {
-        key: EngineSettings.Server.KeyPath,
-        value: appRootPath.path.toString() + '/' + process.env.KEY || ''
-      }
-    ],
-    'server'
-  )
-
-  const emailSeedData = await generateSeedData(
-    [
-      {
-        key: EngineSettings.EmailSetting.From,
-        value: `${process.env.SMTP_FROM_NAME} <${process.env.SMTP_FROM_EMAIL}>`
-      },
-      {
-        key: EngineSettings.EmailSetting.Smtp.Host,
-        value: process.env.SMTP_HOST || 'test'
-      },
-      {
-        key: EngineSettings.EmailSetting.Smtp.Port,
-        value: process.env.SMTP_PORT || ''
-      },
-      {
-        key: EngineSettings.EmailSetting.Smtp.Secure,
-        value: process.env.SMTP_SECURE || 'true'
-      },
-      {
-        key: EngineSettings.EmailSetting.Smtp.Auth.User,
-        value: process.env.SMTP_USER || 'test'
-      },
-      {
-        key: EngineSettings.EmailSetting.Smtp.Auth.Pass,
-        value: process.env.SMTP_PASS || 'test'
-      },
-      {
-        key: EngineSettings.EmailSetting.SmsNameCharacterLimit,
-        value: process.env.SMTP_SUBJECT_SMS_NAME_CHARACTER_LIMIT || '20'
-      },
-      {
-        key: EngineSettings.EmailSetting.Subject.NewUser,
-        value: process.env.SMTP_SUBJECT_NEW_USER || 'Infinite Reality Engine signup'
-      },
-      {
-        key: EngineSettings.EmailSetting.Subject.Channel,
-        value: process.env.SMTP_SUBJECT_CHANNEL || 'Infinite Reality Engine channel invitation'
-      },
-      {
-        key: EngineSettings.EmailSetting.Subject.Friend,
-        value: process.env.SMTP_SUBJECT_FRIEND || 'Infinite Reality Engine friend request'
-      },
-      {
-        key: EngineSettings.EmailSetting.Subject.Instance,
-        value: process.env.SMTP_SUBJECT_INSTANCE || 'Infinite Reality Engine location link'
-      },
-      {
-        key: EngineSettings.EmailSetting.Subject.Location,
-        value: process.env.SMTP_SUBJECT_LOCATION || 'Infinite Reality Engine location link'
-      },
-      {
-        key: EngineSettings.EmailSetting.Subject.Login,
-        value: process.env.SMTP_SUBJECT_LOGIN || 'Infinite Reality Engine login link'
-      }
-    ],
-    'email'
-  )
   const seedData: EngineSettingType[] = [
     ...taskServerSeedData,
     ...chargebeeSettingSeedData,
     ...coilSeedData,
-    ...instanceServerWebRtc,
-    ...instanceServerSeedData,
-    ...serverSeedData,
     ...metabaseSeedData,
     ...redisSeedData,
     ...zendeskSettingSeedData,
-    ...helmSeedData,
-    ...emailSeedData
+    ...helmSeedData
   ]
 
   if (forceRefresh || testEnabled) {
@@ -375,7 +184,6 @@ export async function generateSeedData(
     items.map(async (item) => ({
       ...item,
       id: uuidv4(),
-      dataType: getDataType(item.value),
       type: type,
       category: category,
       createdAt: await getDateTimeSql(),

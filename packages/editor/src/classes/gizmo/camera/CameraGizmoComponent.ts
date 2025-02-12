@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { EntityTreeComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -36,12 +35,13 @@ import {
 import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { UndefinedEntity } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { TransformAxis } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getState, useImmediateEffect } from '@ir-engine/hyperflux'
-import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { CameraGizmoTagComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
@@ -77,7 +77,7 @@ export const CameraGizmoComponent = defineComponent({
     useEffect(() => {
       const gizmoVisualEntity = createEntity()
       setComponent(gizmoVisualEntity, EntityTreeComponent, {
-        parentEntity: cameraGizmoComponent.sceneEntity.value ?? getState(ReferenceSpaceState).originEntity
+        parentEntity: cameraGizmoComponent.sceneEntity.value ?? getState(EngineState).originEntity
       })
 
       setComponent(entity, NameComponent, 'cameraGizmoEntity')
@@ -112,7 +112,7 @@ export const CameraGizmoComponent = defineComponent({
     InputComponent.useExecuteWithInput(
       () => {
         if (!cameraGizmoComponent.enabled.value || !cameraGizmoComponent.visualEntity.value) return
-        if (!cameraGizmoComponent.cameraEntity.value || !getState(ReferenceSpaceState).viewerEntity) return
+        if (!cameraGizmoComponent.cameraEntity.value || !getState(EngineState).viewerEntity) return
 
         onPointerHover(entity)
 

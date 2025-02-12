@@ -131,8 +131,3 @@ export const XRDetectedMeshSystem = defineSystem({
   execute,
   reactor
 })
-
-export const XRDetectedMeshSystemFunctions = {
-  handleDetectedPlanes,
-  handleDetectedMeshes
-}

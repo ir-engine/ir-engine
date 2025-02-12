@@ -23,16 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  EntityTreeComponent,
-  EntityUUID,
-  UUIDComponent,
-  getComponent,
-  hasComponent,
-  useAncestorWithComponents,
-  useComponent,
-  useQuery
-} from '@ir-engine/ecs'
+import { EntityUUID, UUIDComponent, getComponent, hasComponent, useComponent, useQuery } from '@ir-engine/ecs'
 import {
   EditorComponentType,
   commitProperties,
@@ -50,6 +41,7 @@ import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/Ri
 import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
 import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
+import { EntityTreeComponent, useAncestorWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { GiTriggerHurt } from 'react-icons/gi'

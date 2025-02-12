@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { PointLight, PointLightHelper } from 'three'
+import { PointLight } from 'three'
 
 import {
   defineComponent,
@@ -34,15 +34,15 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { NO_PROXY, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+import { useMutableState } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { useHelperEntity } from '../../../common/debug/useHelperEntity'
+import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
 import { useDisposable } from '../../../resources/resourceHooks'
 import { T } from '../../../schema/schemaFunctions'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { RendererState } from '../../RendererState'
-import { ObjectComponent } from '../ObjectComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../GroupComponent'
 import { LightTagComponent } from './LightTagComponent'
 
 export const PointLightComponent = defineComponent({
@@ -55,7 +55,7 @@ export const PointLightComponent = defineComponent({
     range: S.Number(0),
     decay: S.Number(2),
     castShadow: S.Bool(false),
-    shadowBias: S.Number(0),
+    shadowBias: S.Number(0.5),
     shadowRadius: S.Number(1),
     helperEntity: S.Entity()
   }),
@@ -66,22 +66,21 @@ export const PointLightComponent = defineComponent({
     const debugEnabled = renderState.nodeHelperVisibility
     const pointLightComponent = useComponent(entity, PointLightComponent)
     const [light] = useDisposable(PointLight, entity)
-    const helperEntity = useHelperEntity(entity, () => new PointLightHelper(light), debugEnabled.value)
-    const helper = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as PointLightHelper | undefined
+    const lightHelper = useOptionalComponent(entity, LightHelperComponent)
 
-    useImmediateEffect(() => {
+    useEffect(() => {
       setComponent(entity, LightTagComponent)
       if (isMobileXRHeadset) return
-      setComponent(entity, ObjectComponent, light)
+      addObjectToGroup(entity, light)
       return () => {
-        removeComponent(entity, ObjectComponent)
+        removeObjectFromGroup(entity, light)
       }
     }, [])
 
     useEffect(() => {
       light.color.set(pointLightComponent.color.value)
-      if (helper) helper.color = pointLightComponent.color.value
-    }, [!!helper, pointLightComponent.color])
+      if (lightHelper) lightHelper.color.set(pointLightComponent.color.value)
+    }, [pointLightComponent.color])
 
     useEffect(() => {
       light.intensity = pointLightComponent.intensity.value
@@ -116,6 +115,15 @@ export const PointLightComponent = defineComponent({
         light.shadow.needsUpdate = true
       }
     }, [renderState.shadowMapResolution])
+
+    useEffect(() => {
+      if (debugEnabled.value) {
+        setComponent(entity, LightHelperComponent, { name: 'point-light-helper', light: light })
+      }
+      return () => {
+        removeComponent(entity, LightHelperComponent)
+      }
+    }, [debugEnabled])
 
     return null
   }

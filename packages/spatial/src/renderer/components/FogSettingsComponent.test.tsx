@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   Entity,
-  EntityTreeComponent,
   EntityUUID,
   UUIDComponent,
   UndefinedEntity,
@@ -45,8 +44,9 @@ import { Fog, FogExp2, MathUtils, ShaderChunk } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { assertFloat } from '../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
-import { ReferenceSpaceState } from '../../ReferenceSpaceState'
+import { EngineState } from '../../EngineState'
 import { destroySpatialEngine, initializeSpatialEngine } from '../../initializeEngine'
+import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { FogShaders as FogShadersList } from '../FogSystem'
 import { RendererComponent } from '../WebGLRendererSystem'
 import { FogSettingsComponent, FogType } from './FogSettingsComponent'
@@ -349,7 +349,7 @@ describe('FogSettingsComponent', () => {
 
       mockSpatialEngine()
 
-      rootEntity = getState(ReferenceSpaceState).viewerEntity
+      rootEntity = getState(EngineState).viewerEntity
 
       entity = createEntity()
       setComponent(entity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)

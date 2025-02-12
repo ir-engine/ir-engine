@@ -36,7 +36,6 @@ export const ECSState = defineState({
     frameTime: Date.now(),
     simulationTime: Date.now(),
     deltaSeconds: 0,
-    maxDeltaSeconds: 0.1,
     elapsedSeconds: 0,
     lastSystemExecutionDuration: 0
   }

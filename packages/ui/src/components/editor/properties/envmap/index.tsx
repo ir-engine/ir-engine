@@ -148,7 +148,6 @@ export const EnvMapEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(EnvmapComponent, 'envMapIntensity')}
           aria-label="EnvMap Intensity"
           label={t('editor:properties.envmap.lbl-intensity')}
-          info={t('editor:properties.envmap.info-intensity')}
         />
       )}
     </NodeEditor>

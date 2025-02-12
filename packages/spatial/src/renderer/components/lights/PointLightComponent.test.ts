@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   Entity,
-  EntityTreeComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -43,12 +42,12 @@ import { BoxGeometry, ColorRepresentation, MeshBasicMaterial, PointLight } from 
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { assertColor } from '../../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
-import { NameComponent } from '../../../common/NameComponent'
+import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
 import { destroySpatialEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { RendererState } from '../../RendererState'
+import { GroupComponent } from '../GroupComponent'
 import { LineSegmentComponent } from '../LineSegmentComponent'
-import { ObjectComponent } from '../ObjectComponent'
 import { LightTagComponent } from './LightTagComponent'
 import { PointLightComponent } from './PointLightComponent'
 
@@ -69,7 +68,7 @@ const PointLightComponentDefaults: PointLightComponentData = {
   range: 0,
   decay: 2,
   castShadow: false,
-  shadowBias: 0,
+  shadowBias: 0.5,
   shadowRadius: 1,
   helperEntity: UndefinedEntity
 }
@@ -240,7 +239,7 @@ describe('PointLightComponent', () => {
       const result = getComponent(testEntity, PointLightComponent).color
       assertColor.eq(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent) as PointLight
+      const light = getComponent(testEntity, GroupComponent)[0] as PointLight
       assert.equal(light.color.getHex(), Expected)
     })
 
@@ -263,7 +262,7 @@ describe('PointLightComponent', () => {
       const result = getComponent(testEntity, PointLightComponent).intensity
       assert.equal(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent) as PointLight
+      const light = getComponent(testEntity, GroupComponent)[1] as PointLight
       assert.equal(light.intensity, Expected)
     })
 
@@ -286,7 +285,7 @@ describe('PointLightComponent', () => {
       const result = getComponent(testEntity, PointLightComponent).range
       assert.equal(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent) as PointLight
+      const light = getComponent(testEntity, GroupComponent)[1] as PointLight
       assert.equal(light.distance, Expected)
     })
 
@@ -309,7 +308,7 @@ describe('PointLightComponent', () => {
       const result = getComponent(testEntity, PointLightComponent).decay
       assert.equal(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent) as PointLight
+      const light = getComponent(testEntity, GroupComponent)[1] as PointLight
       assert.equal(light.decay, Expected)
     })
 
@@ -332,7 +331,7 @@ describe('PointLightComponent', () => {
       const result = getComponent(testEntity, PointLightComponent).castShadow
       assert.equal(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent) as PointLight
+      const light = getComponent(testEntity, GroupComponent)[1] as PointLight
       assert.equal(light.castShadow, Expected)
     })
 
@@ -355,7 +354,7 @@ describe('PointLightComponent', () => {
       const result = getComponent(testEntity, PointLightComponent).shadowBias
       assert.equal(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent) as PointLight
+      const light = getComponent(testEntity, GroupComponent)[1] as PointLight
       assert.equal(light.shadow.bias, Expected)
     })
 
@@ -378,7 +377,7 @@ describe('PointLightComponent', () => {
       const result = getComponent(testEntity, PointLightComponent).shadowRadius
       assert.equal(result, Expected)
       // Check side-effect
-      const light = getComponent(testEntity, ObjectComponent) as PointLight
+      const light = getComponent(testEntity, GroupComponent)[1] as PointLight
       assert.equal(light.shadow.radius, Expected)
     })
 
@@ -394,13 +393,13 @@ describe('PointLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, PointLightComponent)
-      const before = getComponent(testEntity, ObjectComponent) as PointLight
+      const before = getComponent(testEntity, GroupComponent)[1] as PointLight
       assert.equal(before.shadow.mapSize.x, Initial)
 
       // Re-run and Check the result again
       getMutableState(RendererState).shadowMapResolution.set(Expected)
       PointLightComponent.reactorMap.get(testEntity)!.run()
-      const result = getComponent(testEntity, ObjectComponent) as PointLight
+      const result = getComponent(testEntity, GroupComponent)[1] as PointLight
       assert.equal(result.shadow.mapSize.x, Expected)
     })
 
@@ -414,20 +413,18 @@ describe('PointLightComponent', () => {
 
       // Run and Check the Initial result
       setComponent(testEntity, PointLightComponent)
-      setComponent(testEntity, NameComponent, 'point-light')
+      assert.equal(hasComponent(testEntity, LightHelperComponent), Initial)
 
       // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(Expected)
       PointLightComponent.reactorMap.get(testEntity)!.run()
-
-      const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
-      assert.equal(hasComponent(childEntity1, ObjectComponent), Expected)
-      assert.equal(getComponent(childEntity1, NameComponent), 'point-light-helper')
+      assert.equal(hasComponent(testEntity, LightHelperComponent), Expected)
+      assert.equal(getComponent(testEntity, LightHelperComponent).name, 'point-light-helper')
 
       // Re-run and Check the unmount case
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)
       PointLightComponent.reactorMap.get(testEntity)!.run()
-      assert.equal(hasComponent(childEntity1, ObjectComponent), Initial)
+      assert.equal(hasComponent(testEntity, LightHelperComponent), Initial)
     })
   }) //:: reactor
 }) //:: PointLightComponent

@@ -96,7 +96,7 @@ export default function ImageCompressionPanel({
       await uploadToFeathersService(fileBrowserUploadPath, [file], {
         args: [
           {
-            project: orgName + '/' + projectName,
+            project: projectName,
             path: relativePath + file.name,
             contentType: file.type
           }

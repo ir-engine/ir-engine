@@ -161,13 +161,7 @@ export const locationQuerySchema = Type.Intersect(
       }
     }),
     // Add additional query properties here
-    Type.Object(
-      {
-        action: Type.Optional(Type.String()),
-        search: Type.Optional(Type.String())
-      },
-      { additionalProperties: false }
-    )
+    Type.Object({ action: Type.Optional(Type.String()) }, { additionalProperties: false })
   ],
   { additionalProperties: false }
 )

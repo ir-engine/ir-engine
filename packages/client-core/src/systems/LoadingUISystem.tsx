@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { BackSide, Color, Mesh, MeshBasicMaterial, SphereGeometry, Vector2 } from 'three'
 
-import { Entity, EntityTreeComponent, UndefinedEntity, useChildWithComponents } from '@ir-engine/ecs'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs'
 import {
   getComponent,
   getMutableComponent,
@@ -43,31 +43,27 @@ import { useTexture } from '@ir-engine/engine/src/assets/functions/resourceLoade
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
-import { NO_PROXY, defineState, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
-import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { addObjectToGroup, GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
-import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
+import { EntityTreeComponent, useChildWithComponents } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-import { ObjectFitFunctions } from '@ir-engine/spatial/src/transform/functions/ObjectFitFunctions'
 import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
+import { ObjectFitFunctions } from '@ir-engine/spatial/src/xrui/functions/ObjectFitFunctions'
 import type { WebLayer3D } from '@ir-engine/xrui'
 
-import { EngineState } from '@ir-engine/ecs'
-import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
-import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { ReferenceSpaceState } from '@ir-engine/spatial'
-import { SpectateEntityState } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
-import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { useRemoveEngineCanvas } from '@ir-engine/spatial/src/renderer/functions/useEngineCanvas'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
+import { useRemoveEngineCanvas } from '../hooks/useEngineCanvas'
 import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
 import { LocationState } from '../social/services/LocationService'
 import { LoadingSystemState } from './state/LoadingState'
@@ -117,13 +113,11 @@ export const LoadingUISystemState = defineState({
       }
     })
 
-    setComponent(meshEntity, TransformComponent)
-
     setComponent(ui.entity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setComponent(meshEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
 
     setComponent(meshEntity, VisibleComponent)
-    setComponent(meshEntity, MeshComponent, mesh)
+    addObjectToGroup(meshEntity, mesh)
     mesh.renderOrder = 1
     setObjectLayers(mesh, ObjectLayers.UI)
 
@@ -140,11 +134,7 @@ const LoadingReactor = (props: { sceneEntity: Entity }) => {
   const { sceneEntity } = props
   const gltfComponent = useComponent(sceneEntity, GLTFComponent)
   const loadingProgress = gltfComponent.progress.value
-  const avatarEntity = AvatarComponent.useSelfAvatarEntity()
-  const avatarLoaded = AvatarRigComponent.useAvatarLoaded(avatarEntity)
-  const userID = useMutableState(EngineState).userID.value
-  const spectatorLoaded = !!useMutableState(SpectateEntityState).value[userID]
-  const viewerReady = avatarLoaded || spectatorLoaded
+  const sceneLoaded = GLTFComponent.useSceneLoaded(sceneEntity)
   const locationState = useMutableState(LocationState)
   const state = useMutableState(LoadingUISystemState)
 
@@ -160,18 +150,18 @@ const LoadingReactor = (props: { sceneEntity: Entity }) => {
   /** Scene is loading */
   useEffect(() => {
     const transition = getState(LoadingUISystemState).transition
-    if (transition.state === 'OUT' && state.ready.value && !viewerReady) transition.setState('IN')
+    if (transition.state === 'OUT' && state.ready.value && !sceneLoaded) transition.setState('IN')
   }, [state.ready])
 
   /** Scene has loaded */
   useEffect(() => {
-    if (viewerReady && !state.ready.value) state.ready.set(true)
+    if (sceneLoaded && !state.ready.value) state.ready.set(true)
     const transition = getState(LoadingUISystemState).transition
-    if (transition.state === 'IN' && viewerReady) transition.setState('OUT')
+    if (transition.state === 'IN' && sceneLoaded) transition.setState('OUT')
     /** used by the PWA service worker */
     /** @TODO find a better place for this */
     window.dispatchEvent(new Event('load'))
-  }, [viewerReady])
+  }, [sceneLoaded])
 
   useEffect(() => {
     const ui = state.ui.get(NO_PROXY)!
@@ -223,7 +213,7 @@ const SceneSettingsChildReactor = (props: { entity: Entity }) => {
   useEffect(() => {
     if (!loadingTexture) return
 
-    const mesh = getComponent(meshEntity, ObjectComponent) as any as Mesh<SphereGeometry, MeshBasicMaterial>
+    const mesh = getComponent(meshEntity, GroupComponent)[0] as any as Mesh<SphereGeometry, MeshBasicMaterial>
     if (sceneComponent && sceneComponent.loadingScreenURL && mesh.userData.url !== sceneComponent.loadingScreenURL) {
       mesh.userData.url = sceneComponent.loadingScreenURL
     }
@@ -325,7 +315,7 @@ const execute = () => {
 
   setVisibleComponent(meshEntity, isReady)
 
-  const mesh = getComponent(meshEntity, ObjectComponent) as any as Mesh<SphereGeometry, MeshBasicMaterial>
+  const mesh = getComponent(meshEntity, GroupComponent)[0] as any as Mesh<SphereGeometry, MeshBasicMaterial>
   mesh.material.opacity = opacity
 
   xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
@@ -361,7 +351,7 @@ export const LoadingUISystem = defineSystem({
   insert: { before: TransformDirtyUpdateSystem },
   execute,
   reactor: () => {
-    if (!useMutableState(ReferenceSpaceState).viewerEntity.value) return null
+    if (!useMutableState(EngineState).viewerEntity.value) return null
     return <Reactor />
   }
 })

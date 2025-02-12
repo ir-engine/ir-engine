@@ -33,9 +33,9 @@ export default async function exportGLTF(entity: Entity, path: string) {
   return exportRelativeGLTF(entity, `${orgname}/${pName}`, fileName)
 }
 
-export async function exportRelativeGLTF(entity: Entity, projectName: string, relativePath: string, exportRoot = true) {
+export async function exportRelativeGLTF(entity: Entity, projectName: string, relativePath: string) {
   const isGLTF = /\.gltf$/.test(relativePath)
-  const gltf = await exportGLTFScene(entity, projectName, relativePath, exportRoot)
+  const gltf = exportGLTFScene(entity)
   if (!gltf) return
   const blob = [new Blob([JSON.stringify(gltf, null, 2)])]
   const file = new File(blob, relativePath)

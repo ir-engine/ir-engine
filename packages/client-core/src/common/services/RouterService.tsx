@@ -102,13 +102,18 @@ export const useSearchParamState = () => {
         if (current[props.keyID] === value) return
 
         setSearchParams({ ...current, [props.keyID]: value })
+      }, [value])
+
+      useEffect(() => {
+        const location = new URL(window.location as any)
+        const params = new URLSearchParams(location.search)
 
         return () => {
           const current = Object.fromEntries([...params.entries()])
           delete current[props.keyID]
           setSearchParams(current)
         }
-      }, [value])
+      }, [])
 
       return null
     }

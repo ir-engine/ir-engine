@@ -28,7 +28,6 @@ import { MathUtils, Vector2, Vector3 } from 'three'
 import {
   ECSState,
   Entity,
-  EntityTreeComponent,
   getComponent,
   getMutableComponent,
   removeComponent,
@@ -55,21 +54,21 @@ import {
   updateBoundingBox
 } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '@ir-engine/spatial/src/transform/components/ComputedTransformComponent'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 import { WebLayer3D } from '@ir-engine/xrui'
 
-import { EngineState } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { useXRUIState } from '@ir-engine/engine/src/xrui/useXRUIState'
-import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { inFrustum } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { smootheLerpAlpha } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import {
   DistanceFromCameraComponent,
   DistanceFromLocalClientComponent
 } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { useXRUIState } from '@ir-engine/spatial/src/xrui/functions/useXRUIState'
 import { useEffect } from 'react'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { createUI } from '../functions/createUI'
@@ -132,7 +131,7 @@ export const updateInteractableUI = (entity: Entity) => {
       xruiTransform.position.z = center.z
       xruiTransform.position.y = MathUtils.lerp(xruiTransform.position.y, center.y + 0.7 * size.y, alpha)
 
-      const cameraTransform = getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
+      const cameraTransform = getComponent(getState(EngineState).viewerEntity, TransformComponent)
       xruiTransform.rotation.copy(cameraTransform.rotation)
     } else {
       TransformComponent.getWorldPosition(entity, _center)
@@ -141,7 +140,7 @@ export const updateInteractableUI = (entity: Entity) => {
       xruiTransform.position.z = _center.z
       xruiTransform.position.y = MathUtils.lerp(xruiTransform.position.y, _center.y + 0.5, alpha)
 
-      const cameraTransform = getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
+      const cameraTransform = getComponent(getState(EngineState).viewerEntity, TransformComponent)
       xruiTransform.rotation.copy(cameraTransform.rotation)
     }
   }
@@ -227,9 +226,9 @@ const addInteractableUI = (entity: Entity) => {
     uiTransform.position.copy(_center)
   }
   getMutableComponent(entity, InteractableComponent).uiEntity.set(uiEntity)
-  setComponent(uiEntity, EntityTreeComponent, { parentEntity: getState(ReferenceSpaceState).originEntity })
+  setComponent(uiEntity, EntityTreeComponent, { parentEntity: getState(EngineState).originEntity })
   setComponent(uiEntity, ComputedTransformComponent, {
-    referenceEntities: [entity, getState(ReferenceSpaceState).viewerEntity],
+    referenceEntities: [entity, getState(EngineState).viewerEntity],
     computeFunction: () => updateInteractableUI(entity)
   })
 

@@ -57,7 +57,6 @@ const client = {
       ? `http://${process.env.VITE_APP_HOST}:${process.env.VITE_APP_PORT}`
       : `https://${process.env.VITE_APP_HOST}`,
   serverHost: process.env.VITE_SERVER_HOST,
-  rootDomainEnabled: process.env.VITE_ROOT_DOMAIN_ENABLED === 'false' ? false : true, // default to true
   serverUrl:
     localBuildOrDev && process.env.VITE_LOCAL_NGINX !== 'true'
       ? `http://${process.env.VITE_SERVER_HOST}:${process.env.VITE_SERVER_PORT}`
@@ -95,10 +94,7 @@ const client = {
     enabled: process.env.VITE_ZENDESK_ENABLED,
     authenticationEnabled: process.env.VITE_ZENDESK_AUTHENTICATION_ENABLED,
     key: process.env.VITE_ZENDESK_KEY
-  },
-  maxFileSizeToUpload: process.env.VITE_MAX_FILE_SIZE_TO_UPLOAD_MB
-    ? parseInt(process.env.VITE_MAX_FILE_SIZE_TO_UPLOAD_MB, 10) * 1024 * 1024
-    : 1000 * 1024 * 1024 // 1000 MB or 1GB
+  }
 }
 
 /**

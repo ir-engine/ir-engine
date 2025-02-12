@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Quaternion } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import {
   ComponentType,
@@ -46,7 +46,11 @@ import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/In
 import { StandardGamepadButton } from '@ir-engine/spatial/src/input/state/ButtonState'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { ClientInputSystem } from '@ir-engine/spatial/src/input/systems/ClientInputSystem'
+import { RaycastArgs } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { RigidBodyFixedTagComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
+import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
+import { getInteractionGroups } from '@ir-engine/spatial/src/physics/functions/getInteractionGroups'
+import { SceneQueryType } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
@@ -107,15 +111,15 @@ export const AvatarAxesControlSchemeBehavior = {
     }
   }
 }
-// const interactionGroups = getInteractionGroups(CollisionGroups.Default, CollisionGroups.Avatars)
+const interactionGroups = getInteractionGroups(CollisionGroups.Default, CollisionGroups.Avatars)
 
-// const raycastComponentData = {
-//   type: SceneQueryType.Closest,
-//   origin: new Vector3(),
-//   direction: new Vector3(),
-//   maxDistance: 100,
-//   groups: interactionGroups
-// } as RaycastArgs
+const raycastComponentData = {
+  type: SceneQueryType.Closest,
+  origin: new Vector3(),
+  direction: new Vector3(),
+  maxDistance: 100,
+  groups: interactionGroups
+} as RaycastArgs
 
 const onShiftLeft = () => {
   const entity = AvatarComponent.getSelfAvatarEntity()
@@ -143,11 +147,11 @@ const onShiftLeft = () => {
 //   return false
 // }
 
-// let clickCount = 0
-// const clickTimeout = 0.6
-// let douubleClickTimer = 0
-// const secondClickTimeout = 0.2
-// let secondClickTimer = 0
+let clickCount = 0
+const clickTimeout = 0.6
+let douubleClickTimer = 0
+const secondClickTimeout = 0.2
+let secondClickTimer = 0
 
 // TODO: this should be done using the input system components,
 // which already performs raycasts and has the necessary data
@@ -189,10 +193,10 @@ const execute = () => {
   const selfAvatarEntity = AvatarComponent.getSelfAvatarEntity()
   if (!selfAvatarEntity) return
 
-  applyInputSourcePoseToIKTargets()
+  applyInputSourcePoseToIKTargets(Engine.instance.userID)
 
   const { deltaSeconds } = getState(ECSState)
-  setIkFootTarget(deltaSeconds)
+  setIkFootTarget(Engine.instance.userID, deltaSeconds)
 
   const inputState = getState(InputState)
   const avatarInputSettings = getState(AvatarInputSettingsState)

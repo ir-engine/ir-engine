@@ -27,16 +27,16 @@ import {
   createEngine,
   createEntity,
   destroyEngine,
-  EntityTreeComponent,
   generateEntityUUID,
   getComponent,
   getOptionalComponent,
   setComponent,
-  traverseEntityNode,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { applyIncomingActions } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { EntityTreeComponent, traverseEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { render } from '@testing-library/react'
 import React from 'react'
 import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -47,8 +47,9 @@ import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { retargetAnimationClips } from './retargetingFunctions'
 
-export const createTestGLTFEntity = () => {
+const setupEntity = () => {
   const parent = createEntity()
+  setComponent(parent, SceneComponent)
   setComponent(parent, EntityTreeComponent)
   setComponent(parent, UUIDComponent, generateEntityUUID())
   const entity = createEntity()
@@ -72,7 +73,7 @@ describe('retargetingFunctions', () => {
     })
 
     it('should bind animation tracks to rig entities based on VRM schema', async () => {
-      const entity = createTestGLTFEntity()
+      const entity = setupEntity()
 
       setComponent(entity, UUIDComponent, generateEntityUUID())
       setComponent(entity, GLTFComponent, { src: animation_pack })

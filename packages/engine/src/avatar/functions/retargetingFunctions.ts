@@ -25,16 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { AnimationClip, Quaternion, QuaternionKeyframeTrack, Vector3, VectorKeyframeTrack } from 'three'
 
-import {
-  Entity,
-  EntityTreeComponent,
-  EntityUUID,
-  getComponent,
-  getMutableComponent,
-  UUIDComponent
-} from '@ir-engine/ecs'
+import { Entity, EntityUUID, getComponent, getMutableComponent, UUIDComponent } from '@ir-engine/ecs'
 import { TransformComponent } from '@ir-engine/spatial'
-import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { getHips } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
@@ -51,7 +45,7 @@ export const normalizeAnimationClips = (gltfEntity: Entity) => {
   const hips = getHips(gltfEntity)
   if (!hips) return
   const hipsPositionScale = TransformComponent.getWorldScale(hips, _scale).y
-  getComponent(hips, ObjectComponent).updateWorldMatrix(false, true)
+  getComponent(hips, GroupComponent)[0].updateWorldMatrix(false, true)
 
   for (const clip of getComponent(gltfEntity, AnimationComponent).animations)
     for (let i = 0; i < clip.tracks.length; i++) {

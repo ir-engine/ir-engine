@@ -37,11 +37,9 @@ import {
 import {
   createEntity,
   defineComponent,
-  EntityTreeComponent,
   getComponent,
   getOptionalComponent,
   hasComponent,
-  removeComponent,
   removeEntity,
   S,
   setComponent,
@@ -49,16 +47,16 @@ import {
   useEntityContext,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import { getMutableState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { NameComponent } from '../../common/NameComponent'
 import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
+import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { RendererState } from '../RendererState'
 import { BoneComponent } from './BoneComponent'
-import { MeshComponent } from './MeshComponent'
-import { addObjectToGroup } from './ObjectComponent'
+import { addObjectToGroup } from './GroupComponent'
 import { setObjectLayers } from './ObjectLayerComponent'
 import { setVisibleComponent, VisibleComponent } from './VisibleComponent'
 
@@ -69,14 +67,6 @@ export const SkinnedMeshComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, SkinnedMeshComponent)
-
-    useImmediateEffect(() => {
-      setComponent(entity, MeshComponent, getComponent(entity, SkinnedMeshComponent))
-      return () => {
-        removeComponent(entity, MeshComponent)
-      }
-    }, [])
-
     const debugEnabled = useHookstate(getMutableState(RendererState).avatarDebug)
     const visible = useOptionalComponent(entity, VisibleComponent)
 

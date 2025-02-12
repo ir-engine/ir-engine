@@ -25,77 +25,48 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   createEngine,
+  createEntity,
   destroyEngine,
   generateEntityUUID,
   getComponent,
   getOptionalComponent,
   hasComponent,
-  iterateEntityNode,
   setComponent,
+  SystemDefinitions,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { applyIncomingActions, startReactor } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { act, render } from '@testing-library/react'
+import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { render } from '@testing-library/react'
 import React from 'react'
+import { act } from 'react-dom/test-utils'
 import { AnimationMixer } from 'three'
 import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { createTestGLTFEntity } from '../functions/retargetingFunctions.test'
-import { AvatarAnimationSystemReactor, setupMixamoAnimation } from '../systems/AvatarAnimationSystem'
+import { AvatarAnimationSystem, setupMixamoAnimation } from '../systems/AvatarAnimationSystem'
 import { AnimationComponent } from './AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from './AvatarAnimationComponent'
 import { AvatarComponent } from './AvatarComponent'
+
+const setupEntity = () => {
+  const parent = createEntity()
+  setComponent(parent, SceneComponent)
+  setComponent(parent, EntityTreeComponent)
+  setComponent(parent, UUIDComponent, generateEntityUUID())
+  const entity = createEntity()
+  setComponent(entity, EntityTreeComponent, { parentEntity: parent })
+  return entity
+}
 
 const default_url = 'packages/projects/default-project/assets'
 const rings_gltf = default_url + '/rings.glb'
 const animation_pack = default_url + '/animations/emotes.glb'
 const vrm = default_url + '/avatars/male_01.vrm'
-
-/**Used to mock non user networked animated avatars */
-export const mockAnimatedAvatar = async () => {
-  const animationPackEntity = createTestGLTFEntity()
-  const { rerender, unmount } = render(<></>)
-
-  setComponent(animationPackEntity, UUIDComponent, generateEntityUUID())
-  setComponent(animationPackEntity, GLTFComponent, { src: animation_pack })
-  setComponent(animationPackEntity, NameComponent, 'animationPack')
-
-  const vrmEntity = createTestGLTFEntity()
-
-  applyIncomingActions()
-  await act(async () => rerender(<></>))
-
-  setComponent(vrmEntity, UUIDComponent, generateEntityUUID())
-  setComponent(vrmEntity, GLTFComponent, { src: vrm })
-  setComponent(vrmEntity, AvatarRigComponent)
-  setComponent(vrmEntity, AvatarAnimationComponent)
-  setComponent(vrmEntity, AvatarComponent)
-  startReactor(AvatarAnimationSystemReactor)
-  applyIncomingActions()
-  //extra wait for animation component to prevent race conditions
-  await vi.waitFor(
-    () => {
-      expect(
-        getOptionalComponent(animationPackEntity, AnimationComponent) &&
-          getOptionalComponent(vrmEntity, AvatarRigComponent)?.vrm?.scene
-      ).toBeTruthy()
-    },
-    { timeout: 20000 }
-  )
-
-  setupMixamoAnimation(animationPackEntity)
-
-  setComponent(vrmEntity, AnimationComponent, {
-    animations: getComponent(animationPackEntity, AnimationComponent).animations,
-    mixer: new AnimationMixer(getComponent(vrmEntity, AvatarRigComponent).vrm.scene)
-  })
-
-  return vrmEntity
-}
 
 describe('AnimationComponent', () => {
   describe('ECS PropertyBinding', () => {
@@ -110,7 +81,7 @@ describe('AnimationComponent', () => {
     })
 
     it('should bind animation tracks to entities based on node id sourced from entity UUIDs', async () => {
-      const entity = createTestGLTFEntity()
+      const entity = setupEntity()
 
       setComponent(entity, UUIDComponent, generateEntityUUID())
       setComponent(entity, GLTFComponent, { src: rings_gltf })
@@ -157,10 +128,42 @@ describe('AnimationComponent', () => {
     })
 
     it('should bind animation tracks to rig entities based on VRM schema', async () => {
+      const animationPackEntity = setupEntity()
       const { rerender, unmount } = render(<></>)
 
-      const vrmEntity = await mockAnimatedAvatar()
+      setComponent(animationPackEntity, UUIDComponent, generateEntityUUID())
+      setComponent(animationPackEntity, GLTFComponent, { src: animation_pack })
+      setComponent(animationPackEntity, NameComponent, 'animationPack')
 
+      const vrmEntity = setupEntity()
+
+      applyIncomingActions()
+      await act(async () => rerender(<></>))
+
+      setComponent(vrmEntity, UUIDComponent, generateEntityUUID())
+      setComponent(vrmEntity, GLTFComponent, { src: vrm })
+      setComponent(vrmEntity, AvatarRigComponent)
+      setComponent(vrmEntity, AvatarAnimationComponent)
+      setComponent(vrmEntity, AvatarComponent)
+      startReactor(SystemDefinitions.get(AvatarAnimationSystem)!.reactor!)
+      applyIncomingActions()
+      //extra wait for animation component to prevent race conditions
+      await vi.waitFor(
+        () => {
+          expect(
+            getOptionalComponent(animationPackEntity, AnimationComponent) &&
+              getOptionalComponent(vrmEntity, AvatarRigComponent)?.vrm?.scene
+          ).toBeTruthy()
+        },
+        { timeout: 20000 }
+      )
+
+      setupMixamoAnimation(animationPackEntity)
+
+      const animationComponent = setComponent(vrmEntity, AnimationComponent, {
+        animations: getComponent(animationPackEntity, AnimationComponent).animations,
+        mixer: new AnimationMixer(getComponent(vrmEntity, AvatarRigComponent).vrm.scene)
+      })
       const rig = getComponent(vrmEntity, AvatarRigComponent).entitiesToBones
 
       const startRigQuaternions = [] as number[]
@@ -169,7 +172,6 @@ describe('AnimationComponent', () => {
           startRigQuaternions.push(...getComponent(rig[bone], TransformComponent).rotation.toArray())
       }
 
-      const animationComponent = getComponent(vrmEntity, AnimationComponent)
       animationComponent.mixer.clipAction(animationComponent.animations[0]).play()
       animationComponent.mixer.update(0.1)
 
@@ -190,7 +192,8 @@ describe('AnimationComponent', () => {
         const animatedW = animatedRigQuaternions[i + 3]
         assert(startX + startY + startZ + startW !== animatedX + animatedY + animatedZ + animatedW)
       }
-      // unmount()
+
+      unmount()
     })
   })
 })

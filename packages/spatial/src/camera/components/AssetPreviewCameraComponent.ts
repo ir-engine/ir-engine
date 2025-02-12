@@ -23,10 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent, useChildrenWithComponents, useComponent, useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useEffect } from 'react'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
+import { useChildrenWithComponents } from '../../transform/components/EntityTree'
 import { CameraOrbitComponent } from './CameraOrbitComponent'
 
 export const AssetPreviewCameraComponent = defineComponent({

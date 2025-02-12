@@ -65,7 +65,7 @@ import './InstanceServerModule'
 
 import { NotAuthenticated } from '@feathersjs/errors'
 import { projectsPath } from '@ir-engine/common/src/schemas/projects/projects.schema'
-import { EngineState } from '@ir-engine/ecs'
+import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, handleDisconnect, setupIPs } from './NetworkFunctions'
@@ -212,11 +212,7 @@ const loadEngine = async ({ app, sceneId, headers }: { app: Application; sceneId
   )
 
   const projects = await app.service(projectsPath).find()
-  try {
-    await loadEngineInjection(projects)
-  } catch (e) {
-    logger.error('Failed to load engine injection', e)
-  }
+  await loadEngineInjection(projects)
 
   if (instanceServerState.isMediaInstance) {
     getMutableState(NetworkState).hostIds.media.set(hostId)
@@ -425,7 +421,7 @@ const handleUserDisconnect = async ({
 
   app.channel(`instanceIds/${instanceId}`).leave(connection)
 
-  await new Promise((resolve) => setTimeout(resolve, config['instance-server'].shutdownDelayMs))
+  await new Promise((resolve) => setTimeout(resolve, config.instanceserver.shutdownDelayMs))
 
   const network = getServerNetwork(app)
 
@@ -505,9 +501,9 @@ export const onConnection = (app: Application) => async (connection: RealTimeCon
 
   if (userId) {
     const user = await app.service(userPath).get(userId)
-    // disallow users from joining media servers if they aren't age verified
-    if (channelId && !user.ageVerified) {
-      logger.warn('User tried to connect without specifying they are age verified')
+    // disallow users from joining media servers if they haven't accepted the TOS
+    if (channelId && !user.acceptedTOS) {
+      logger.warn('User tried to connect without accepting TOS')
       return
     }
   }

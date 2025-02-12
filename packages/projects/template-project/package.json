@@ -2,7 +2,7 @@
   "name": "@ir-engine/ir-template",
   "version": "0.0.0",
   "scripts": {
-    "test": "exit 0",
+    "test": "cross-env TEST=true vitest run",
     "check-errors": "tsc --noemit",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "format-scss": "stylelint \"**/*.scss\" --fix",

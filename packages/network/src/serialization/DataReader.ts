@@ -61,7 +61,6 @@ export const checkBitflag = (mask: number, flag: number) => (mask & flag) === fl
 /**
  * Reads a component dynamically
  * (less efficient than statically due to inner loop)
- * @unused @deprecated
  *
  * @param  {any} component
  */

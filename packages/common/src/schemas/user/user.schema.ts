@@ -62,8 +62,7 @@ export const userSchema = Type.Object(
     name: TypedString<UserName>({
       maxLength: USERNAME_MAX_LENGTH
     }),
-    // @todo consider moving this to user-settings and make private
-    ageVerified: Type.Boolean(),
+    acceptedTOS: Type.Boolean(),
     isGuest: Type.Boolean(),
     inviteCode: Type.Optional(TypedString<InviteCode>()),
     lastLogin: Type.Optional(Type.Ref(userLoginSchema)),

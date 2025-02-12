@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { SpotLight, SpotLightHelper } from 'three'
+import { SpotLight } from 'three'
 
 import {
   defineComponent,
@@ -34,15 +34,15 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
+import { useMutableState } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { useHelperEntity } from '../../../common/debug/useHelperEntity'
+import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
 import { useDisposable } from '../../../resources/resourceHooks'
 import { T } from '../../../schema/schemaFunctions'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { RendererState } from '../../RendererState'
-import { ObjectComponent } from '../ObjectComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../GroupComponent'
 import { LightTagComponent } from './LightTagComponent'
 
 // const ringGeom = new TorusGeometry(0.1, 0.025, 8, 12)
@@ -64,7 +64,7 @@ export const SpotLightComponent = defineComponent({
     angle: S.Number(Math.PI / 3),
     penumbra: S.Number(1),
     castShadow: S.Bool(false),
-    shadowBias: S.Number(0),
+    shadowBias: S.Number(0.00001),
     shadowRadius: S.Number(1)
   }),
 
@@ -74,24 +74,23 @@ export const SpotLightComponent = defineComponent({
     const debugEnabled = renderState.nodeHelperVisibility
     const spotLightComponent = useComponent(entity, SpotLightComponent)
     const [light] = useDisposable(SpotLight, entity)
-    const helperEntity = useHelperEntity(entity, () => new SpotLightHelper(light), debugEnabled.value)
-    const helper = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as SpotLightHelper | undefined
+    const lightHelper = useOptionalComponent(entity, LightHelperComponent)
 
     useEffect(() => {
       setComponent(entity, LightTagComponent)
       if (isMobileXRHeadset) return
       light.target.position.set(1, 0, 0)
       light.target.name = 'light-target'
-      setComponent(entity, ObjectComponent, light)
+      addObjectToGroup(entity, light)
       return () => {
-        removeComponent(entity, ObjectComponent)
+        removeObjectFromGroup(entity, light)
       }
     }, [])
 
     useEffect(() => {
       light.color.set(spotLightComponent.color.value)
-      if (helper) helper.color = spotLightComponent.color.value
-    }, [!!helper, spotLightComponent.color])
+      if (lightHelper) lightHelper.color.set(spotLightComponent.color.value)
+    }, [spotLightComponent.color, lightHelper])
 
     useEffect(() => {
       light.intensity = spotLightComponent.intensity.value
@@ -134,6 +133,15 @@ export const SpotLightComponent = defineComponent({
         light.shadow.needsUpdate = true
       }
     }, [renderState.shadowMapResolution])
+
+    useEffect(() => {
+      if (debugEnabled.value) {
+        setComponent(entity, LightHelperComponent, { name: 'spot-light-helper', light: light })
+      }
+      return () => {
+        removeComponent(entity, LightHelperComponent)
+      }
+    }, [debugEnabled])
 
     return null
   }

@@ -23,55 +23,40 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  EntityTreeComponent,
-  createEntity,
-  defineQuery,
-  defineSystem,
-  getComponent,
-  removeEntity,
-  setComponent
-} from '@ir-engine/ecs'
+import { defineQuery, defineSystem, getComponent } from '@ir-engine/ecs'
 import { getState, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
-import { Light } from 'three'
-import { ReferenceSpaceState } from '../ReferenceSpaceState'
-import { NameComponent } from '../common/NameComponent'
-import { AmbientLightComponent, TransformComponent } from './RendererModule'
+import { AmbientLight } from 'three'
+import { EngineState } from '../EngineState'
 import { RendererState } from './RendererState'
 import { WebGLRendererSystem } from './WebGLRendererSystem'
-import { ObjectComponent } from './components/ObjectComponent'
-import { VisibleComponent } from './components/VisibleComponent'
+import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './components/GroupComponent'
 import { LightTagComponent } from './components/lights/LightTagComponent'
 import { RenderModes } from './constants/RenderModes'
 
-const lightQuery = defineQuery([LightTagComponent, ObjectComponent])
+const _tempAmbientLight = new AmbientLight()
+
+const lightQuery = defineQuery([LightTagComponent, GroupComponent])
 
 const execute = () => {
   const renderMode = getState(RendererState).renderMode
   if (renderMode === RenderModes.UNLIT) {
     for (const entity of lightQuery()) {
-      const object = getComponent(entity, ObjectComponent) as Light
-      object.visible = !object.isLight
+      const groupComponent = getComponent(entity, GroupComponent)
+      groupComponent.forEach((child: any) => {
+        child.visible = !child.isLight
+      })
     }
   }
 }
 
 const reactor = () => {
   const renderer = useMutableState(RendererState)
-
   useEffect(() => {
-    if (renderer.renderMode.value !== RenderModes.UNLIT) return
-
-    const ambientLightEntity = createEntity()
-    setComponent(ambientLightEntity, NameComponent, 'Origin Ambient Light')
-    setComponent(ambientLightEntity, AmbientLightComponent)
-    setComponent(ambientLightEntity, VisibleComponent)
-    setComponent(ambientLightEntity, EntityTreeComponent, { parentEntity: getState(ReferenceSpaceState).originEntity })
-    setComponent(ambientLightEntity, TransformComponent)
-    return () => {
-      removeEntity(ambientLightEntity)
-    }
+    const root = getState(EngineState).originEntity
+    renderer.renderMode.value === RenderModes.UNLIT
+      ? addObjectToGroup(root, _tempAmbientLight)
+      : removeObjectFromGroup(root, _tempAmbientLight)
   }, [renderer.renderMode])
 
   return null

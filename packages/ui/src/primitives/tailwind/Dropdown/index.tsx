@@ -35,7 +35,6 @@ export interface DropdownItemProps extends Omit<React.HTMLAttributes<HTMLDivElem
   secondaryText?: string
   disabled?: boolean
   selected?: boolean
-  className?: string
 
   /**
    * Whether the item is hovered (or navigated through arrow keys)
@@ -43,16 +42,7 @@ export interface DropdownItemProps extends Omit<React.HTMLAttributes<HTMLDivElem
   active?: boolean
 }
 
-export function DropdownItem({
-  label,
-  disabled,
-  active,
-  Icon,
-  selected,
-  secondaryText,
-  className,
-  ...props
-}: DropdownItemProps) {
+export function DropdownItem({ label, disabled, active, Icon, selected, secondaryText, ...props }: DropdownItemProps) {
   return (
     <div
       tabIndex={0}
@@ -61,9 +51,7 @@ export function DropdownItem({
         'flex items-center',
         !disabled && active && 'text-[#F5F5F5]',
         !disabled && selected && 'bg-[#191B1F] text-[#375DAF]',
-        disabled ? '' : 'hover:bg-[#2C4A8C]',
-        disabled && 'cursor-not-allowed bg-[#191B1F] text-[#42454D] text-opacity-30',
-        className
+        disabled && 'cursor-not-allowed bg-[#191B1F] text-[#42454D]'
       )}
       {...props}
     >

@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
-  EntityTreeComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -41,12 +40,11 @@ import { BoxGeometry, Color, ColorRepresentation, MeshBasicMaterial } from 'thre
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { assertColor } from '../../../../tests/util/assert'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
-import { NameComponent } from '../../../common/NameComponent'
+import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
 import { destroySpatialEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { RendererState } from '../../RendererState'
 import { LineSegmentComponent } from '../LineSegmentComponent'
-import { ObjectComponent } from '../ObjectComponent'
 import { HemisphereLightComponent } from './HemisphereLightComponent'
 import { LightTagComponent } from './LightTagComponent'
 
@@ -253,20 +251,18 @@ describe('HemisphereLightComponent', () => {
 
       // Run and Check the Initial result
       setComponent(testEntity, HemisphereLightComponent)
-      setComponent(testEntity, NameComponent, 'hemisphere-light')
+      assert.equal(hasComponent(testEntity, LightHelperComponent), Initial)
 
       // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(Expected)
       HemisphereLightComponent.reactorMap.get(testEntity)!.run()
-
-      const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
-      assert.equal(hasComponent(childEntity1, ObjectComponent), Expected)
-      assert.equal(getComponent(childEntity1, NameComponent), 'hemisphere-light-helper')
+      assert.equal(hasComponent(testEntity, LightHelperComponent), Expected)
+      assert.equal(getComponent(testEntity, LightHelperComponent).name, 'hemisphere-light-helper')
 
       // Re-run and Check the unmount case
       getMutableState(RendererState).nodeHelperVisibility.set(Initial)
       HemisphereLightComponent.reactorMap.get(testEntity)!.run()
-      assert.equal(hasComponent(childEntity1, ObjectComponent), Initial)
+      assert.equal(hasComponent(testEntity, LightHelperComponent), Initial)
     })
   }) //:: reactor
 }) //:: HemisphereLightComponent

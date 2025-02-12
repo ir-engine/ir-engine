@@ -36,13 +36,13 @@ import { createEntity, removeEntity } from './EntityFunctions'
 import { Query, ReactiveQuerySystem, defineQuery, useQuery } from './QueryFunctions'
 import { SystemDefinitions } from './SystemFunctions'
 
-export function assertArrayEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are not equal') {
+function assertArrayEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are not equal') {
   assert.equal(A.length, B.length, err)
   for (let id = 0; id < A.length && id < B.length; id++) {
     assert.deepEqual(A[id], B[id], err)
   }
 }
-export function assertArrayNotEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are equal') {
+function assertArrayNotEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are equal') {
   for (let id = 0; id < A.length && id < B.length; id++) {
     assert.notDeepEqual(A[id], B[id], err)
   }

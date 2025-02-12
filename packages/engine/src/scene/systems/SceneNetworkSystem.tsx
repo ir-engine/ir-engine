@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   Entity,
-  EntityTreeComponent,
   PresentationSystemGroup,
   QueryReactor,
   UUIDComponent,
@@ -38,6 +37,7 @@ import {
 import { dispatchAction, useHookstate } from '@ir-engine/hyperflux'
 import { NetworkState, ScenePeer, SceneUser, WorldNetworkAction } from '@ir-engine/network'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import React, { useEffect } from 'react'
 import { SourceComponent } from '../components/SourceComponent'
 

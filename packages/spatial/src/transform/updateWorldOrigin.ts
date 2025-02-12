@@ -26,10 +26,10 @@ Infinite Reality Engine. All Rights Reserved.
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { getState } from '@ir-engine/hyperflux'
 
-import { EntityTreeComponent } from '@ir-engine/ecs'
-import { ReferenceSpaceState } from '../ReferenceSpaceState'
+import { EngineState } from '../EngineState'
 import { Vector3_One } from '../common/constants/MathConstants'
 import { ReferenceSpace, XRState } from '../xr/XRState'
+import { EntityTreeComponent } from './components/EntityTree'
 import { TransformComponent } from './components/TransformComponent'
 import { computeTransformMatrix } from './systems/TransformSystem'
 
@@ -39,10 +39,10 @@ export const updateWorldOriginFromScenePlacement = () => {
   const scenePosition = xrState.scenePosition
   const sceneRotation = xrState.sceneRotation
   const worldScale = XRState.worldScale
-  const originTransform = getComponent(getState(ReferenceSpaceState).localFloorEntity, TransformComponent)
+  const originTransform = getComponent(getState(EngineState).localFloorEntity, TransformComponent)
   originTransform.position.copy(scenePosition)
   originTransform.rotation.copy(sceneRotation)
-  const children = getComponent(getState(ReferenceSpaceState).originEntity, EntityTreeComponent).children
+  const children = getComponent(getState(EngineState).originEntity, EntityTreeComponent).children
   for (const child of children) {
     const childTransform = getComponent(child, TransformComponent)
     childTransform.scale.setScalar(worldScale)
@@ -58,13 +58,13 @@ export const updateWorldOriginFromScenePlacement = () => {
 
 export const updateWorldOrigin = () => {
   if (ReferenceSpace.localFloor) {
-    const originTransform = getComponent(getState(ReferenceSpaceState).localFloorEntity, TransformComponent)
+    const originTransform = getComponent(getState(EngineState).localFloorEntity, TransformComponent)
     const xrRigidTransform = new XRRigidTransform(originTransform.position, originTransform.rotation)
     ReferenceSpace.origin = ReferenceSpace.localFloor.getOffsetReferenceSpace(xrRigidTransform.inverse)
   }
 }
 
 export const computeAndUpdateWorldOrigin = () => {
-  computeTransformMatrix(getState(ReferenceSpaceState).localFloorEntity)
+  computeTransformMatrix(getState(EngineState).localFloorEntity)
   updateWorldOrigin()
 }

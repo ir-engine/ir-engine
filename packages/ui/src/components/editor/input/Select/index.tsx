@@ -40,8 +40,7 @@ SelectInput.defaultProps = {
     { label: 'Cube', value: 'c', icon: <MdOutlineWindPower /> }
   ],
   value: 'a',
-  onChange: () => {},
-  width: 'full'
+  onChange: () => {}
 }
 
 export default SelectInput

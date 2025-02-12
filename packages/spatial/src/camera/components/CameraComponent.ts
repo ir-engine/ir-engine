@@ -26,10 +26,10 @@ Infinite Reality Engine. All Rights Reserved.
 import { ArrayCamera, PerspectiveCamera } from 'three'
 
 import { useEntityContext } from '@ir-engine/ecs'
-import { defineComponent, removeComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useImmediateEffect } from '@ir-engine/hyperflux'
-import { ObjectComponent } from '../../renderer/components/ObjectComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../../renderer/components/GroupComponent'
 
 export const CameraComponent = defineComponent({
   name: 'CameraComponent',
@@ -50,9 +50,9 @@ export const CameraComponent = defineComponent({
 
     useImmediateEffect(() => {
       const camera = cameraComponent.value as ArrayCamera
-      setComponent(entity, ObjectComponent, camera)
+      addObjectToGroup(entity, camera)
       return () => {
-        removeComponent(entity, ObjectComponent)
+        removeObjectFromGroup(entity, camera)
       }
     }, [])
     return null

@@ -32,7 +32,6 @@ import {
   createEntity,
   defineComponent,
   Entity,
-  EntityTreeComponent,
   EntityUUID,
   getComponent,
   setComponent,
@@ -43,6 +42,7 @@ import { applyIncomingActions, dispatchAction, getState } from '@ir-engine/hyper
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { HemisphereLightComponent } from '@ir-engine/spatial/src/renderer/components/lights/HemisphereLightComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'

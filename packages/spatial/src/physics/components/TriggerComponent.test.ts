@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
-  EntityTreeComponent,
   EntityUUID,
   UUIDComponent,
   UndefinedEntity,
@@ -42,6 +41,7 @@ import { Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { assertArray } from '../../../tests/util/assert'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
+import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics, PhysicsWorld } from '../classes/Physics'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'

@@ -175,7 +175,7 @@ export default function UserTable({
         accountIdentifier: <AccountIdentifiers user={row} />,
         lastLogin: <RenderLogin />,
 
-        ageVerified: row.ageVerified ? (
+        acceptedTOS: row.acceptedTOS ? (
           <FaRegCircleCheck className="h-5 w-5 text-theme-iconGreen" />
         ) : (
           <FaRegCircleXmark className="h-5 w-5 text-theme-iconRed" />

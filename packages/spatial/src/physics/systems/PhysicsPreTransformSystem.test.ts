@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   Entity,
-  EntityTreeComponent,
   SystemDefinitions,
   SystemUUID,
   UUIDComponent,
@@ -35,7 +34,6 @@ import {
   destroyEngine,
   getComponent,
   hasComponent,
-  iterateEntityNode,
   removeEntity,
   setComponent
 } from '@ir-engine/ecs'
@@ -44,6 +42,7 @@ import { Quaternion, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { assertVec } from '../../../tests/util/assert'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
+import { EntityTreeComponent, iterateEntityNode } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TransformDirtyUpdateSystem, isDirty } from '../../transform/systems/TransformSystem'
 import { Physics, PhysicsWorld } from '../classes/Physics'

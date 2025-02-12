@@ -37,6 +37,7 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { getState, startReactor } from '@ir-engine/hyperflux'
+import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import { useEffect } from 'react'
 import sinon from 'sinon'
@@ -348,7 +349,7 @@ describe('InputPointerComponent', () => {
       removeComponent(pointerEntity2, InputPointerComponent)
 
       SystemDefinitions.get(ReactiveQuerySystem)!.execute()
-      root.run()
+      await act(async () => render(null))
 
       assert.equal(reactorSpy.callCount, 2)
       assert.equal(effectSpy.callCount, 2)

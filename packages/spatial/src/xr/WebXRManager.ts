@@ -44,7 +44,7 @@ import { defineState, getMutableState, getState, NO_PROXY } from '@ir-engine/hyp
 
 import { createAnimationLoop, ECSState } from '@ir-engine/ecs'
 import { CameraComponent } from '../camera/components/CameraComponent'
-import { ReferenceSpaceState } from '../ReferenceSpaceState'
+import { EngineState } from '../EngineState'
 import { XRState } from './XRState'
 
 // augment PerspectiveCamera
@@ -109,7 +109,7 @@ function getSession() {
 /**
  * @description Factory function that creates the `onSessionEnd` member function of the {@link WebXRManager} class-like object
  * */
-function createFunctionOnSessionEnd(renderer: WebGLRenderer, manager: WebXRManager) {
+function createFunctionOnSessionEnd(renderer: WebGLRenderer, scope) {
   const onSessionEnd = () => {
     const xrState = getState(XRState)
     const xrRendererState = getMutableState(XRRendererState)
@@ -119,6 +119,7 @@ function createFunctionOnSessionEnd(renderer: WebGLRenderer, manager: WebXRManag
     xrState.session!.removeEventListener('end', onSessionEnd)
 
     // restore framebuffer/rendering state
+
     renderer.setRenderTarget(xrRendererState.initialRenderTarget.value as WebGLRenderTarget)
 
     xrRendererState.glBaseLayer.set(null)
@@ -130,7 +131,7 @@ function createFunctionOnSessionEnd(renderer: WebGLRenderer, manager: WebXRManag
     animation.stop()
     animation.start()
 
-    manager.isPresenting = false
+    scope.isPresenting = false
   }
   return onSessionEnd
 }
@@ -148,7 +149,7 @@ function getEnvironmentBlendMode() {
  * @description Member function of the {@link WebXRManager} class-like object
  * */
 function getCamera() {
-  return getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent)
+  return getComponent(getState(EngineState).viewerEntity, CameraComponent)
 }
 
 /**
@@ -197,14 +198,17 @@ function createRenderTargetLegacy(
   renderer: WebGLRenderer,
   _: WebXRManager
 ): WebGLRenderTarget {
-  const glBaseLayer = new XRWebGLLayer(session, gl, {
+  const xrRendererState = getMutableState(XRRendererState)
+  const layerInit = {
     antialias: session.renderState.layers === undefined ? attributes.antialias : true,
     alpha: attributes.alpha,
     depth: attributes.depth,
     stencil: attributes.stencil,
     framebufferScaleFactor: framebufferScaleFactor
-  })
-  getMutableState(XRRendererState).glBaseLayer.set(glBaseLayer)
+  }
+
+  const glBaseLayer = new XRWebGLLayer(session, gl, layerInit)
+  xrRendererState.glBaseLayer.set(glBaseLayer)
 
   session.updateRenderState({ baseLayer: glBaseLayer })
 
@@ -229,9 +233,9 @@ function createRenderTarget(
   manager: WebXRManager
 ): WebGLRenderTarget {
   let result = null as WebGLRenderTarget | null
-  let glDepthFormat: number | undefined
   let depthFormat: number | undefined
   let depthType: TextureDataType | undefined
+  let glDepthFormat: number | undefined
 
   const xrRendererState = getMutableState(XRRendererState)
 
@@ -241,6 +245,7 @@ function createRenderTarget(
     depthType = attributes.stencil ? UnsignedInt248Type : UnsignedIntType
   }
 
+  // @ts-ignore
   const extensions = renderer.extensions
   manager.isMultiview = manager.useMultiview && extensions.has('OCULUS_multiview')
 
@@ -284,7 +289,7 @@ function createRenderTarget(
 
   if (manager.isMultiview) {
     const extension = extensions.get('OCULUS_multiview')
-    manager.maxNumViews = gl.getParameter(extension.MAX_VIEWS_OVR)
+    this.maxNumViews = gl.getParameter(extension.MAX_VIEWS_OVR)
     result = new WebGLMultiviewRenderTarget(glProjLayer.textureWidth, glProjLayer.textureHeight, 2, rtOptions)
   } else {
     result = new WebGLRenderTarget(glProjLayer.textureWidth, glProjLayer.textureHeight, rtOptions)
@@ -324,22 +329,15 @@ function createFunctionSetSession(renderer: WebGLRenderer, manager: WebXRManager
 
     const newRenderTarget =
       session.renderState.layers === undefined || renderer.capabilities.isWebGL2 === false
-        ? WebXRManagerFunctions.createRenderTargetLegacy(
-            session,
-            framebufferScaleFactor,
-            gl,
-            attributes,
-            renderer,
-            manager
-          )
-        : WebXRManagerFunctions.createRenderTarget(session, framebufferScaleFactor, gl, attributes, renderer, manager)
+        ? createRenderTargetLegacy(session, framebufferScaleFactor, gl, attributes, renderer, manager)
+        : createRenderTarget(session, framebufferScaleFactor, gl, attributes, renderer, manager)
 
     // @ts-expect-error @todo Remove scope when possible, see #23278
     newRenderTarget.isXRRenderTarget = true
     xrRendererState.newRenderTarget.set(newRenderTarget)
 
     // Set foveation to maximum.
-    // manager.setFoveation(1.0)
+    // scope.setFoveation(1.0)
     manager.setFoveation(0)
 
     animation.setContext(session)
@@ -362,23 +360,22 @@ export function createWebXRManager(renderer: WebGLRenderer) {
 
   result.isPresenting = false
   result.isMultiview = false
-  result.maxNumViews = 0
 
   /** this is needed by WebGLBackground */
-  result.getSession = WebXRManagerFunctions.getSession
-  result.onSessionEnd = WebXRManagerFunctions.createFunctionOnSessionEnd(renderer, result)
+  result.getSession = getSession
+  result.onSessionEnd = createFunctionOnSessionEnd(renderer, result)
 
-  result.setSession = WebXRManagerFunctions.createFunctionSetSession(renderer, result)
+  result.setSession = createFunctionSetSession(renderer, result)
 
-  result.getEnvironmentBlendMode = WebXRManagerFunctions.getEnvironmentBlendMode
+  result.getEnvironmentBlendMode = getEnvironmentBlendMode
 
   result.updateCamera = function () {}
-  result.getCamera = WebXRManagerFunctions.getCamera
+  result.getCamera = getCamera
 
-  result.getFoveation = WebXRManagerFunctions.getFoveation
+  result.getFoveation = getFoveation
 
   /** @todo put foveation in state and make a reactor to update it */
-  result.setFoveation = WebXRManagerFunctions.setFoveation
+  result.setFoveation = setFoveation
 
   result.setAnimationLoop = function () {}
   result.dispose = function () {}

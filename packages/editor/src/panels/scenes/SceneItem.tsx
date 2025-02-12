@@ -32,7 +32,6 @@ import RenameSceneModal from '@ir-engine/editor/src/panels/scenes/RenameSceneMod
 import { useHookstate } from '@ir-engine/hyperflux'
 import { Button, Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import { Edit01Sm, Trash04Sm } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { default as React, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -114,7 +113,7 @@ export default function SceneItem({
           <Button
             variant="tertiary"
             size="sm"
-            className="border-0 px-2 py-1.5"
+            className="px-2 py-1.5"
             data-testid="scene-options-button"
             onClick={() => isOptionsPopupOpen.set((displayed) => !displayed)}
           >
@@ -130,7 +129,7 @@ export default function SceneItem({
             <li className="h-8">
               <Button
                 variant="tertiary"
-                className="h-full w-full justify-start gap-2 border-0 p-0  text-zinc-400 hover:text-[var(--text-primary)]"
+                className="h-full p-0 text-zinc-400 hover:text-[var(--text-primary)]"
                 data-testid="scene-rename-button"
                 onClick={() => {
                   isOptionsPopupOpen.set(false)
@@ -144,14 +143,13 @@ export default function SceneItem({
                   )
                 }}
               >
-                <Edit01Sm />
                 {t('editor:hierarchy.lbl-rename')}
               </Button>
             </li>
             <li className="h-8">
               <Button
                 variant="tertiary"
-                className="h-full w-full justify-start gap-2 border-0 p-0 text-zinc-400 hover:text-[var(--text-primary)]"
+                className="h-full p-0 text-zinc-400 hover:text-[var(--text-primary)]"
                 data-testid="scene-delete-button"
                 onClick={() => {
                   isOptionsPopupOpen.set(false)
@@ -164,7 +162,6 @@ export default function SceneItem({
                   )
                 }}
               >
-                <Trash04Sm />
                 {t('editor:hierarchy.lbl-delete')}
               </Button>
             </li>

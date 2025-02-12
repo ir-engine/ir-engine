@@ -35,7 +35,6 @@ import {
   UniformsUtils
 } from 'three'
 
-import { iterateEntityNode } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -48,6 +47,7 @@ import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
+import { iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 export type MaterialMap = {
   entity: Entity
