@@ -49,10 +49,10 @@ const OverlayReactor = () => {
     if (overlayComponent?.isOpen.value) {
       const popoverType = overlayComponent?.type.value
       if (!popoverType) return
-      const Component = getState(OverlayComponentState)[popoverType]
+      const OverlayComponent = getState(OverlayComponentState)[popoverType]
       PopoverState.showPopupover(
         <div className="animate-slideIn">
-          <Component src={overlayComponent?.src.value} />
+          <OverlayComponent component={overlayComponent.value} />
         </div>
       )
     }

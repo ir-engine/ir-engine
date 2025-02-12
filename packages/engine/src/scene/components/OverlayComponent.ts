@@ -44,7 +44,7 @@ const toggleOpen = (overlayEntity: Entity) => {
 
 export const OverlayComponentState = defineState({
   name: 'ir.engine.interaction.PopupState',
-  initial: {} as Record<string, React.FC>
+  initial: {}
 })
 
 export const OverlayComponent = defineComponent({

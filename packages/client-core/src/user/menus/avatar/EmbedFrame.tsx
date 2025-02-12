@@ -25,11 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
-type Props = {
-  src: string
-}
-
-const EmbedFrame = ({ src }: Props): JSX.Element => {
+const EmbedFrame = ({ component }) => {
+  const src = component.src
   return (
     <div className="relative z-50 h-fit w-[70vw] overflow-y-auto rounded-2xl px-10 py-6">
       <div className="h-[90vh]">
