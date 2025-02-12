@@ -135,7 +135,6 @@ export const MediaComponent = defineComponent({
     synchronize: S.Bool(true),
     autoplay: S.Bool(false), //false = personal preference, this is super annoying when it just starts playing once added to a scene while editing
     uiOffset: T.Vec3(),
-    xruiEntity: S.Entity(),
     volume: S.Number(1),
     resources: S.Array(S.String()),
     playMode: S.Enum(PlayMode, PlayMode.loop),
@@ -144,6 +143,7 @@ export const MediaComponent = defineComponent({
     /**@deprecated */
     paths: S.Array(S.String()),
     // runtime props
+    xruiEntity: S.NonSerialized(S.Entity()),
     paused: S.Bool(true),
     ended: S.Bool(true),
     waiting: S.Bool(false),

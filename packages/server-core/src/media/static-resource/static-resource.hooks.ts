@@ -380,7 +380,7 @@ export default {
             verifyScope('editor', 'write'),
             iffElse(
               hasProjectField,
-              [resolveProjectId(), verifyProjectPermission(['owner', 'editor', 'reviewer'])],
+              [resolveProjectId(), verifyProjectPermission(['owner', 'editor'])],
               [resolveProjectsByPermission()]
             ) as any
           ]
