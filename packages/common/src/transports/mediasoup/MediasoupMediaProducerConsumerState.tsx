@@ -410,15 +410,21 @@ export const MediasoupMediaProducerConsumerState = defineState({
       if (producers)
         for (const producer of Object.values(producers)) {
           const transport = getState(MediasoupTransportState)[action.$network]?.[producer.transportID]
-          if (transport && action.peerID === transport.peerID) continue
-          getMutableState(MediasoupMediaProducerConsumerState)[action.$network].producers[producer.producerID].set(none)
+          if (transport && action.peerID === transport.peerID) {
+            getMutableState(MediasoupMediaProducerConsumerState)[action.$network].producers[producer.producerID].set(
+              none
+            )
+          }
         }
       const consumers = state[action.$network]?.consumers
       if (consumers)
         for (const consumer of Object.values(consumers)) {
           const transport = getState(MediasoupTransportState)[action.$network]?.[consumer.transportID]
-          if (transport && action.peerID === transport.peerID) continue
-          getMutableState(MediasoupMediaProducerConsumerState)[action.$network].consumers[consumer.consumerID].set(none)
+          if (transport && action.peerID === transport.peerID) {
+            getMutableState(MediasoupMediaProducerConsumerState)[action.$network].consumers[consumer.consumerID].set(
+              none
+            )
+          }
         }
     })
   },

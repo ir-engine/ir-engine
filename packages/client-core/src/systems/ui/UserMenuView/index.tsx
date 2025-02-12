@@ -28,10 +28,10 @@ import { useTranslation } from 'react-i18next'
 
 import { UserID } from '@ir-engine/common/src/schema.type.module'
 import { removeComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { XRUI, createXRUI } from '@ir-engine/engine/src/xrui/createXRUI'
 import { defineState, getMutableState, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { XRUI, createXRUI } from '@ir-engine/spatial/src/xrui/functions/createXRUI'
 
 import { FriendService, FriendState } from '../../../social/services/FriendService'
 import { useUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThumbnail'

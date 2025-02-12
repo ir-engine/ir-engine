@@ -32,10 +32,13 @@ import {
   createEntity,
   Engine,
   Entity,
+  EntityTreeComponent,
   getComponent,
   getOptionalComponent,
   removeEntity,
   setComponent,
+  useAncestorWithComponents,
+  useComponent,
   useEntityContext
 } from '@ir-engine/ecs'
 import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
@@ -43,7 +46,6 @@ import { useEffect } from 'react'
 import { Vector3 } from 'three'
 import { NameComponent } from '../../common/NameComponent'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
-import { EntityTreeComponent, useAncestorWithComponents } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
 import { DefaultButtonAlias, InputComponent } from '../components/InputComponent'
@@ -203,12 +205,14 @@ export const useXRInputSources = () => {
 export const CanvasInputReactor = () => {
   const cameraEntity = useEntityContext()
   const xrState = useMutableState(XRState)
+  const rendererComponent = useComponent(cameraEntity, RendererComponent)
+
   useEffect(() => {
     console.log('Loaded Canvas Input Reactor')
     if (xrState.session.value) return // pointer input sources are automatically handled by webxr
 
-    const rendererComponent = getComponent(cameraEntity, RendererComponent)
-    const canvas = rendererComponent.canvas!
+    const canvas = rendererComponent.canvas.value
+    if (!canvas) return
 
     /** Clear mouse events */
     const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick'] as AnyButton[]
@@ -279,7 +283,7 @@ export const CanvasInputReactor = () => {
       const pointerComponent = getOptionalComponent(pointerEntity, InputPointerComponent)
       if (!pointerComponent) return
 
-      if (document.pointerLockElement === canvas) {
+      if (document.pointerLockElement === (canvas as HTMLCanvasElement)) {
         pointerComponent.position.set(
           pointerComponent.position.x + event.movementX / canvas.clientWidth,
           pointerComponent.position.y - event.movementY / canvas.clientHeight
@@ -349,14 +353,14 @@ export const CanvasInputReactor = () => {
       canvas.removeEventListener('click', onClick)
       canvas.removeEventListener('wheel', onWheelEvent)
     }
-  }, [xrState.session])
+  }, [xrState.session, rendererComponent.canvas])
 
   return null
 }
 
 export const MeshInputReactor = () => {
   const entity = useEntityContext()
-  const shouldReceiveInput = !!useAncestorWithComponents(entity, [InputComponent])
+  const shouldReceiveInput = useAncestorWithComponents(entity, [InputComponent])
 
   useImmediateEffect(() => {
     const inputState = getState(InputState)
@@ -368,7 +372,7 @@ export const MeshInputReactor = () => {
 
 export const BoundingBoxInputReactor = () => {
   const entity = useEntityContext()
-  const shouldReceiveInput = !!useAncestorWithComponents(entity, [InputComponent])
+  const shouldReceiveInput = useAncestorWithComponents(entity, [InputComponent])
   useImmediateEffect(() => {
     const inputState = getState(InputState)
     if (shouldReceiveInput) inputState.inputBoundingBoxes.add(entity)

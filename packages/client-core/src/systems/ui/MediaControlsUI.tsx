@@ -31,10 +31,10 @@ import { getMutableComponent, getOptionalComponent, hasComponent } from '@ir-eng
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { MediaComponent, MediaElementComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
+import { createXRUI } from '@ir-engine/engine/src/xrui/createXRUI'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
-import { createXRUI } from '@ir-engine/spatial/src/xrui/functions/createXRUI'
 
 export function createMediaControlsView(entity: Entity) {
   const MediaControls = () => <MediaControlsView entity={entity} />

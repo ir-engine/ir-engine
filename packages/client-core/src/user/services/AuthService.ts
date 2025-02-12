@@ -54,6 +54,7 @@ import {
   userAvatarPath,
   userPath
 } from '@ir-engine/common/src/schema.type.module'
+import { EngineState } from '@ir-engine/ecs'
 import {
   defineState,
   getMutableState,
@@ -62,9 +63,8 @@ import {
   syncStateWithLocalStorage,
   useHookstate
 } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { MessageResponse } from '../../common/iframeCOM'
-// import { NotificationService } from '../../common/services/NotificationService'
+import { NotificationService } from '../../common/services/NotificationService'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
@@ -76,7 +76,7 @@ export const UserSeed: UserType = {
   id: '' as UserID,
   name: '' as UserName,
   isGuest: true,
-  acceptedTOS: false,
+  ageVerified: false,
   createdAt: '',
   updatedAt: ''
 }
@@ -133,8 +133,6 @@ const getToken = async (): Promise<string> => {
   // const hasAccess = (await communicator
   //   .sendMessage('checkAccess')
   //   .then((message) => {
-  //     if (message?.data?.skipCrossOriginCookieCheck === true || message?.data?.storageAccessPermission === 'denied')
-  //       localStorage.setItem('skipCrossOriginCookieCheck', 'true')
   //     return message.data
   //   })
   //   .catch((message) => {
@@ -158,7 +156,7 @@ const getToken = async (): Promise<string> => {
           if (e.origin !== config.client.clientUrl) return
           try {
             const data = e?.data?.data
-            if (data.skipCrossOriginCookieCheck === true || data.storageAccessPermission === 'denied') {
+            if (data.skipCrossOriginCookieCheck === true) {
               localStorage.setItem('skipCrossOriginCookieCheck', 'true')
               // iframe.style.display = 'none'
               // iframe.style.visibility = 'hidden'
@@ -264,11 +262,17 @@ export const AuthService = {
     if (location.pathname.startsWith('/auth')) return
     const authState = getMutableState(AuthState)
     try {
-      // const rootDomainToken = await getToken()
-      //
+      // const rootDomainToken = config.client.rootDomainEnabled
+      //   ? await getToken()
+      //   : forceClientAuthReset
+      //   ? undefined
+      //   : authState?.authUser?.accessToken?.value
+
       // if (forceClientAuthReset) await API.instance.authentication.reset()
-      //
-      // if (rootDomainToken?.length > 0) await API.instance.authentication.setAccessToken(rootDomainToken as string)
+
+      // if (rootDomainToken && rootDomainToken.length > 0)
+      //   await API.instance.authentication.setAccessToken(rootDomainToken as string)
+      // else await _resetToGuestToken({ reset: false })
       console.log('doLoginAuto')
       try {
         await _resetToGuestToken({ reset: false })

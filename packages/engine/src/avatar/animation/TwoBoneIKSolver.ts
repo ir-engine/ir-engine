@@ -23,16 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { Bone, MathUtils, Matrix4, Mesh, Object3D, Quaternion, Vector3 } from 'three'
+import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { Entity, getComponent } from '@ir-engine/ecs'
 import { Vector3_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
 
-import { AvatarRigComponent, Matrices } from '../components/AvatarAnimationComponent'
+import { Matrices } from '../components/AvatarAnimationComponent'
+import { IKMatrixComponent } from '../components/AvatarIKComponents'
 import { NormalizedBoneComponent } from '../components/NormalizedBoneComponent'
-
-const sqrEpsilon = 1e-8
 
 /**
  * Returns angle 'a' in radians given lengths of sides of a triangle
@@ -53,34 +51,31 @@ export function constrainTargetPosition(targetPosition: Vector3, constraintCente
   distVector.clampLength(0, distance)
   targetPosition.copy(constraintCenter).add(distVector)
 }
-
-const hintHelpers = {} as Record<string, Mesh>
-
 /**
  * Solves Two-Bone IK.
  * targetOffset is assumed to have no parents
- * @param {Bone} root root joint
- * @param {Bone} mid mid joint
- * @param {Bone} tip tip joint
- * @param {Object3D} target goal transform
- * @param {Object3D} hint Position of the hint
- * @param {Object3D} targetOffset Offset transform applied to the target
- * @param {number} targetPosWeight
- * @param {number} targetRotWeight
- * @param {number} hintWeight
+ * @param {Matrix4} root the normalized parent bone's matrix, tethers the ik solve to the rig
+ * @param {Matrices} root the root bone matrices from the ikComponent
+ * @param {Matrices} mid the mid bone matrices from the ikComponent
+ * @param {Matrices} tip the tip bone matrices from the ikComponent
+ * @param {Vector3} targetPosition the target position in world space
+ * @param {Quaternion} targetRotation the target rotation in world space to apply to the tip
+ * @param {Vector3} hint the hint position in world space, no hint will be applied if null
  */
 export function solveTwoBoneIK(
   parentMatrix: Matrix4,
   root: Matrices,
   mid: Matrices,
   tip: Matrices,
-  targetPosition: Vector3, // world space
-  targetRotation: Quaternion, // world space
+  targetPosition: Vector3,
+  targetRotation: Quaternion,
   hint: Vector3 | null = null
 ) {
+  // copy target position and rotation to avoid mutating the original
   targetPos.copy(targetPosition)
   targetRot.copy(targetRotation)
 
+  // propagate world matrices
   root.world.multiplyMatrices(parentMatrix, root.local)
   rootBoneWorldPosition.setFromMatrixPosition(root.world)
 
@@ -90,72 +85,78 @@ export function solveTwoBoneIK(
   tip.world.multiplyMatrices(mid.world, tip.local)
   tipBoneWorldPosition.setFromMatrixPosition(tip.world)
 
+  // calculate vectors between bones and target
   rootToMidVector.subVectors(midBoneWorldPosition, rootBoneWorldPosition)
   midToTipVector.subVectors(tipBoneWorldPosition, midBoneWorldPosition)
   rootToTipVector.subVectors(tipBoneWorldPosition, rootBoneWorldPosition)
   rootToTargetVector.subVectors(targetPos, rootBoneWorldPosition)
 
+  // get lengths between root to mid, mid to tip and root to tip
   const rootToMidLength = rootToMidVector.length()
   const midToTipLength = midToTipVector.length()
   const rootToTipLength = rootToTipVector.length()
+
+  // check if target is out of reach to avoid popping
   const maxLength = rootToMidLength + midToTipLength
-  if (rootToTargetVector.lengthSq() > maxLength * maxLength) {
+  let rootToTargetLength = rootToTargetVector.length()
+  if (rootToTargetLength > maxLength) {
     rootToTargetVector.normalize().multiplyScalar((rootToMidLength + midToTipLength) * 0.999)
+    rootToTargetLength = rootToTargetVector.length()
   }
 
-  const rootToTargetLength = rootToTargetVector.length()
-
+  // calculate the triangle angle
   const oldAngle = triangleAngle(rootToTipLength, rootToMidLength, midToTipLength)
   const newAngle = triangleAngle(rootToTargetLength, rootToMidLength, midToTipLength)
   const rotAngle = oldAngle - newAngle
 
+  // calculate the rotation axis and use for the world mid bone rotation from the angle
   rotAxis.crossVectors(rootToMidVector, midToTipVector)
-
   worldBoneRotation.setFromAxisAngle(rotAxis.normalize(), rotAngle)
+  // apply the rotation to the mid bone in world space and convert back to local
   const midWorldRot = getWorldQuaternion(mid.world, new Quaternion())
   midWorldRot.premultiply(worldBoneRotation)
   worldQuaternionToLocal(midWorldRot, root.world)
   mid.local.compose(position.setFromMatrixPosition(mid.local), midWorldRot, Vector3_One)
+  // propagate the new world matrices
   mid.world.multiplyMatrices(root.world, mid.local)
   tip.world.multiplyMatrices(mid.world, tip.local)
 
+  // calculate the rotation from the root to the target
   worldBoneRotation.setFromUnitVectors(
     acNorm.copy(rootToTipVector).normalize(),
     atNorm.copy(rootToTargetVector).normalize()
   )
+  //apply the rotation to the root bone in world space and convert back to local
+  getWorldQuaternion(root.world, rootWorldRotation)
+  rootWorldRotation.premultiply(worldBoneRotation)
+  worldQuaternionToLocal(rootWorldRotation, parentMatrix)
+  root.local.compose(position.setFromMatrixPosition(root.local), rootWorldRotation, Vector3_One)
 
-  const rootWorldRot = getWorldQuaternion(root.world, new Quaternion())
-  rootWorldRot.premultiply(worldBoneRotation)
-  worldQuaternionToLocal(rootWorldRot, parentMatrix)
-  root.local.compose(position.setFromMatrixPosition(root.local), rootWorldRot, Vector3_One)
-
-  /** Apply hint */
+  // apply hint if available
   if (hint) {
-    if (rootToTipLength > 0) {
-      mid.world.multiplyMatrices(root.world, mid.local)
-      tip.world.multiplyMatrices(mid.world, tip.local)
-      root.world.multiplyMatrices(parentMatrix, root.local)
+    root.world.multiplyMatrices(parentMatrix, root.local)
 
-      midBoneWorldPosition.setFromMatrixPosition(mid.world)
-      tipBoneWorldPosition.setFromMatrixPosition(tip.world)
-      rootToMidVector.subVectors(midBoneWorldPosition, rootBoneWorldPosition)
-      rootToTipVector.subVectors(tipBoneWorldPosition, rootBoneWorldPosition)
-      rootToHintVector.copy(hint).sub(rootBoneWorldPosition)
+    // calculate vectors from root to hint and root to tip
+    rootToHintVector.copy(hint).sub(rootBoneWorldPosition)
+    acNorm.subVectors(rootBoneWorldPosition, tipBoneWorldPosition).normalize()
 
-      acNorm.copy(rootToTipVector).divideScalar(rootToTipLength)
-      abProj.copy(rootToMidVector).addScaledVector(acNorm, -rootToMidVector.dot(acNorm)) // Prependicular component of vector projection
-      ahProj.copy(rootToHintVector).addScaledVector(acNorm, -rootToHintVector.dot(acNorm))
+    // project rootToMidVector and rootToHintVector onto plane perpendicular to acNorm
+    abProj.copy(rootToMidVector).addScaledVector(acNorm, -rootToMidVector.dot(acNorm))
+    ahProj.copy(rootToHintVector).addScaledVector(acNorm, -rootToHintVector.dot(acNorm))
 
-      if (ahProj.lengthSq() > 0) {
-        worldBoneRotation.setFromUnitVectors(abProj, ahProj)
-        const rootWorldRot = getWorldQuaternion(root.world, new Quaternion())
-        rootWorldRot.premultiply(worldBoneRotation)
-        worldQuaternionToLocal(rootWorldRot, parentMatrix)
-        root.local.compose(position.setFromMatrixPosition(root.local), rootWorldRot, Vector3_One)
-      }
+    if (ahProj.lengthSq() > 0) {
+      // rotate abProj to ahProj
+      worldBoneRotation.setFromUnitVectors(abProj.normalize(), ahProj.normalize())
+      // apply root world rotation to the new world bone rotation
+      getWorldQuaternion(root.world, rootWorldRotation)
+      rootWorldRotation.premultiply(worldBoneRotation)
+      // convert back to local space for the root node
+      worldQuaternionToLocal(rootWorldRotation, parentMatrix)
+      root.local.compose(position.setFromMatrixPosition(root.local), rootWorldRotation, Vector3_One)
     }
   }
-  /** Apply tip rotation */
+
+  //apply tip rotation
   worldQuaternionToLocal(targetRot, mid.world)
   tip.local.compose(position.setFromMatrixPosition(tip.local), targetRot, Vector3_One)
 }
@@ -221,18 +222,15 @@ const targetPos = new Vector3(),
   abProj = new Vector3(),
   ahProj = new Vector3(),
   targetRot = new Quaternion(),
-  position = new Vector3()
+  position = new Vector3(),
+  rootWorldRotation = new Quaternion()
 
 const nodeQuaternion = new Quaternion()
-export const blendIKChain = (entity: Entity, bones: VRMHumanBoneName[], weight) => {
-  const rigComponent = getComponent(entity, AvatarRigComponent)
-
+export const blendIKChain = (bones: Entity[], weight) => {
   for (const bone of bones) {
-    const boneMatrices = rigComponent.ikMatrices[bone]
-    if (boneMatrices) {
-      const node = getComponent(rigComponent.bonesToEntities[bone], NormalizedBoneComponent)
-      nodeQuaternion.setFromRotationMatrix(boneMatrices.local)
-      node.quaternion.fastSlerp(nodeQuaternion, weight)
-    }
+    const node = getComponent(bone, NormalizedBoneComponent)
+    const ikMatrix = getComponent(bone, IKMatrixComponent).local
+    nodeQuaternion.setFromRotationMatrix(ikMatrix)
+    node.quaternion.fastSlerp(nodeQuaternion, weight)
   }
 }

@@ -118,8 +118,8 @@ export class AppleStrategy extends CustomOAuthStrategy {
       profile.userId = user.id
       const newIP = await super.createEntity(profile, params)
       if (entity.type === 'guest') {
-        if (profile.email) {
-          const profileEmail = profile.email
+        if (newIP.email) {
+          const profileEmail = newIP.email
           const existingIdentityProviders = await this.app.service(identityProviderPath).find({
             query: {
               $or: [

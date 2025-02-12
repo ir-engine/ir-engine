@@ -27,6 +27,7 @@ import assert from 'assert'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
+  EntityTreeComponent,
   EntityUUID,
   SystemDefinitions,
   SystemUUID,
@@ -43,7 +44,6 @@ import {
 } from '@ir-engine/ecs'
 import { setCallback } from '../../common/CallbackComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics, PhysicsWorld } from '../classes/Physics'
 import { ColliderComponent } from '../components/ColliderComponent'

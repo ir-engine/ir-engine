@@ -26,7 +26,14 @@ Infinite Reality Engine. All Rights Reserved.
 import { Vector3 } from 'three'
 
 import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
-import { Engine, getMutableComponent, InputSystemGroup, UndefinedEntity } from '@ir-engine/ecs'
+import {
+  Engine,
+  EngineState,
+  EntityTreeComponent,
+  getMutableComponent,
+  InputSystemGroup,
+  UndefinedEntity
+} from '@ir-engine/ecs'
 import { getComponent, getOptionalComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Entity } from '@ir-engine/ecs/src/Entity'
@@ -36,11 +43,9 @@ import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComp
 import { getState } from '@ir-engine/hyperflux'
 import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 import { WebLayer3D } from '@ir-engine/xrui'

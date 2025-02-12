@@ -42,7 +42,7 @@ import {
 import { defineState, getMutableState, none, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkObjectOwnedTag, NetworkObjectSendPeriodicUpdatesTag, WorldNetworkAction } from '@ir-engine/network'
 
-import { EngineState } from '../../EngineState'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { ComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraSettingsState } from '../CameraSceneMetadata'
@@ -116,7 +116,7 @@ function CameraReactor() {
 
 const OwnedCameraReactor = () => {
   const entity = useEntityContext()
-  const viewerEntity = useMutableState(EngineState).viewerEntity.value
+  const viewerEntity = useMutableState(ReferenceSpaceState).viewerEntity.value
 
   useEffect(() => {
     setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
@@ -142,7 +142,7 @@ export const CameraSystem = defineSystem({
   uuid: 'ee.engine.CameraSystem',
   insert: { with: AnimationSystemGroup },
   reactor: () => {
-    if (!useMutableState(EngineState).viewerEntity.value) return null
+    if (!useMutableState(ReferenceSpaceState).viewerEntity.value) return null
     return <CameraReactor />
   }
 })

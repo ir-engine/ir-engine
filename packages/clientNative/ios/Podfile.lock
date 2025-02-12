@@ -1385,26 +1385,8 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - react-native-blob-jsi-helper (0.3.1):
-    - DoubleConversion
-    - glog
-    - hermes-engine
-    - RCT-Folly (= 2024.01.01.00)
-    - RCTRequired
-    - RCTTypeSafety
+    - React
     - React-Core
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - Yoga
   - react-native-draco (0.3.0):
     - DoubleConversion
     - glog
@@ -2147,7 +2129,7 @@ SPEC CHECKSUMS:
   React-Mapbuffer: 029b5332e78af8c67c4b5e65edfc717068b8eac1
   React-microtasksnativemodule: f30949ee318ba90b9668de1e325b98838b9a4da2
   react-native-basis-universal: 719cc672527720c789320d6637de8b6c6d99c764
-  react-native-blob-jsi-helper: 57d9e5d596efe7155b9ed21431c8445cc3ade7cb
+  react-native-blob-jsi-helper: bd7509e50b0f906044c53ad7ab767786054424c9
   react-native-draco: b1204c26c72e4037e6686106f627ffc0094b79ad
   react-native-get-random-values: d16467cf726c618e9c7a8c3c39c31faa2244bbba
   react-native-performance: b79ec8b129d8714592ef6f87aa0e45f06895e4b9

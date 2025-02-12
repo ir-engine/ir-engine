@@ -30,6 +30,7 @@ import {
   transformModel as clientSideTransformModel,
   ModelTransformStatus
 } from '@ir-engine/common/src/model/ModelTransformFunctions'
+import { iterateEntityNode, removeEntityNodeRecursively } from '@ir-engine/ecs'
 import { setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   DefaultModelTransformParameters as defaultParams,
@@ -37,7 +38,6 @@ import {
 } from '@ir-engine/engine/src/assets/classes/ModelTransform'
 import { Heuristic, VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
 import { NO_PROXY, none, useHookstate } from '@ir-engine/hyperflux'
-import { iterateEntityNode, removeEntityNodeRecursively } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useTranslation } from 'react-i18next'

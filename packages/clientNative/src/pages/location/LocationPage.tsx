@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {useEngineInjection} from '@ir-engine/client-core/src/components/World/EngineHooks';
-import {useEngineCanvas} from '@ir-engine/client-core/src/hooks/useEngineCanvas';
 import {useSpatialEngine} from '@ir-engine/spatial/src/initializeEngine';
 import {GLView} from 'expo-gl';
 import {useCallback, useEffect, useState} from 'react';
@@ -38,6 +37,7 @@ import LocationPage from '@ir-engine/client-core/src/world/Location';
 import '../../engine';
 import {createCanvasEventHandler} from '../../polyfill/CanvasEventHandler';
 import {TouchGamepad} from '../../common/components/TouchGamepad';
+import {useEngineCanvas} from '@ir-engine/spatial/src/renderer/functions/useEngineCanvas';
 
 const {eventListenerRegistry, pointerEvents} = createCanvasEventHandler();
 

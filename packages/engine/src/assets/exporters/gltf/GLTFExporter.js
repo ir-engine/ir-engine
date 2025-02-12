@@ -582,9 +582,9 @@ export class GLTFWriter {
 		// Update bytelength of the single buffer.
 
 		if ( options.binary === true ) {
+			// Merge buffers.
 			const blob = new Blob( buffers, { type: 'application/octet-stream' } );
 			if ( json.buffers && json.buffers.length > 0 ) json.buffers[ 0 ].byteLength = blob.size;
-			// Merge buffers.
 			
 			// https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#glb-file-format-specification
 
@@ -634,22 +634,34 @@ export class GLTFWriter {
 
 		} else {
 
-			/*if ( json.buffers && json.buffers.length > 0 ) {
+			if ( json.buffers && json.buffers.length > 0 ) {
 
-				const reader = new FileReader();
-				reader.readAsDataURL( blob );
-				reader.onloadend = function () {
+				const buildBufferData = async (buffer) => {
+					return new Promise(function (resolve, reject) {
+						const blob = new Blob([buffer], { type: 'application/octet-stream' } );
 
-					const base64data = reader.result;
-					json.buffers[ 0 ].uri = base64data;
-					onDone( json );
+						const reader = new FileReader();
+						reader.readAsDataURL(blob);
+						reader.onerror = reject
+						reader.onloadend = function() {
+							const base64data = reader.result;
+							resolve({ uri: base64data, byteLength: blob.size })
+						};
+			
+					} );
+				}
 
-				};
+				for (let i = 0, len = buffers.length; i < len; i++) {
+					const bufferData = await buildBufferData(buffers[i])
+					json.buffers[i] = bufferData;
+				}
 
-			} else {*/
 				onDone( json );
-			//}
+
+			} else {
+				onDone( json );
 			}
+		}
 	}
 
 	/**

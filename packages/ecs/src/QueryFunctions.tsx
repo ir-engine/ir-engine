@@ -28,7 +28,6 @@ import React, { ErrorInfo, FC, memo, Suspense, useLayoutEffect, useMemo } from '
 
 import { getState, HyperFlux, NO_PROXY_STEALTH, useHookstate } from '@ir-engine/hyperflux'
 
-import { Component } from './ComponentFunctions'
 import { Entity } from './Entity'
 import { EntityContext } from './EntityFunctions'
 import { defineSystem } from './SystemFunctions'
@@ -62,7 +61,7 @@ export function removeQuery(query: ReturnType<typeof defineQuery>) {
   bitECS.removeQuery(HyperFlux.store, query._exitQuery)
 }
 
-export type QueryComponents = (Component<any> | bitECS.QueryModifier | bitECS.Component)[]
+export type QueryComponents = (bitECS.QueryModifier | bitECS.Component)[]
 
 export const ReactiveQuerySystem = defineSystem({
   uuid: 'ee.hyperflux.ReactiveQuerySystem',
@@ -80,7 +79,7 @@ export const ReactiveQuerySystem = defineSystem({
  * Use a query in a reactive context (a React component)
  * - "components" argument must not change
  */
-export function useQuery(components: QueryComponents) {
+export function useQuery(components: (bitECS.Component | bitECS.QueryModifier)[]) {
   const state = useHookstate(() => {
     const query = defineQuery(components)
     return {
@@ -121,17 +120,24 @@ const QuerySubReactor = memo((props: { entity: Entity; ChildEntityReactor: FC; p
   )
 })
 
-export const QueryReactor = memo((props: { Components: QueryComponents; ChildEntityReactor: FC; props?: any }) => {
-  const entities = useQuery(props.Components)
-  const MemoChildEntityReactor = useMemo(() => memo(props.ChildEntityReactor), [props.ChildEntityReactor])
-  return (
-    <>
-      {entities.map((entity) => (
-        <QuerySubReactor key={entity} entity={entity} ChildEntityReactor={MemoChildEntityReactor} props={props.props} />
-      ))}
-    </>
-  )
-})
+export const QueryReactor = memo(
+  (props: { Components: (bitECS.Component | bitECS.QueryModifier)[]; ChildEntityReactor: FC; props?: any }) => {
+    const entities = useQuery(props.Components)
+    const MemoChildEntityReactor = useMemo(() => memo(props.ChildEntityReactor), [props.ChildEntityReactor])
+    return (
+      <>
+        {entities.map((entity) => (
+          <QuerySubReactor
+            key={entity}
+            entity={entity}
+            ChildEntityReactor={MemoChildEntityReactor}
+            props={props.props}
+          />
+        ))}
+      </>
+    )
+  }
+)
 
 interface ErrorState {
   error: Error | null
