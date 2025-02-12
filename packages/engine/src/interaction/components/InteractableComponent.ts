@@ -244,7 +244,7 @@ export const InteractableComponent = defineComponent({
   schema: S.Object({
     canInteract: S.NonSerialized(S.Bool(false)),
     uiInteractable: S.NonSerialized(S.Bool(true)),
-    uiEntity: S.Entity(),
+    uiEntity: S.NonSerialized(S.Entity()),
     label: S.String('E'),
     uiVisibilityOverride: S.NonSerialized(S.Enum(XRUIVisibilityOverride, XRUIVisibilityOverride.none)),
     uiActivationType: S.NonSerialized(S.Enum(XRUIActivationType, XRUIActivationType.proximity)),
