@@ -35,21 +35,21 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 
 const interactMessage = 'Click'
-const popoverCallbackName = 'onOpenMenu'
+const overlayCallbackName = 'onOpenMenu'
 
-const toggleOpen = (popoverEntity: Entity) => {
-  const popoverComponent = getComponent(popoverEntity, PopoverComponent)
-  setComponent(popoverEntity, PopoverComponent, { isOpen: !popoverComponent.isOpen })
+const toggleOpen = (overlayEntity: Entity) => {
+  const overlayComponent = getComponent(overlayEntity, OverlayComponent)
+  setComponent(overlayEntity, OverlayComponent, { isOpen: !overlayComponent.isOpen })
 }
 
-export const PopoverComponentState = defineState({
+export const OverlayComponentState = defineState({
   name: 'ir.engine.interaction.PopupState',
   initial: {} as Record<string, React.FC>
 })
 
-export const PopoverComponent = defineComponent({
-  name: 'PopoverComponent',
-  jsonID: 'IR_popover_component',
+export const OverlayComponent = defineComponent({
+  name: 'OverlayComponent',
+  jsonID: 'IR_overlay_component',
 
   schema: S.Object({
     src: S.String(''),
@@ -57,7 +57,7 @@ export const PopoverComponent = defineComponent({
     isOpen: S.NonSerialized(S.Bool(false))
   }),
 
-  popoverCallbackName,
+  overlayCallbackName,
   interactMessage,
   toggleOpen,
 
@@ -66,23 +66,23 @@ export const PopoverComponent = defineComponent({
   reactor: function () {
     if (!isClient) return null
     const entity = useEntityContext()
-    const popoverComponent = useComponent(entity, PopoverComponent)
+    const overlayComponent = useComponent(entity, OverlayComponent)
 
     useEffect(() => {
-      clearErrors(entity, PopoverComponent)
-      if (popoverComponent.src.value) return
+      clearErrors(entity, OverlayComponent)
+      if (overlayComponent.src.value) return
       try {
-        new URL(popoverComponent.src.value)
+        new URL(overlayComponent.src.value)
       } catch {
-        return addError(entity, PopoverComponent, 'INVALID_URL', 'Please enter a valid URL.')
+        return addError(entity, OverlayComponent, 'INVALID_URL', 'Please enter a valid URL.')
       }
       return
-    }, [popoverComponent.src])
+    }, [overlayComponent.src])
 
     useEffect(() => {
-      setCallback(entity, popoverCallbackName, () => toggleOpen(entity))
+      setCallback(entity, overlayCallbackName, () => toggleOpen(entity))
       return () => {
-        removeCallback(entity, popoverCallbackName)
+        removeCallback(entity, overlayCallbackName)
       }
     }, [])
 

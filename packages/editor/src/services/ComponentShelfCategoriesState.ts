@@ -41,8 +41,8 @@ import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComp
 import { LegacyVolumetricComponent } from '@ir-engine/engine/src/scene/components/LegacyVolumetricComponent'
 import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkComponent'
 import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
+import { OverlayComponent } from '@ir-engine/engine/src/scene/components/OverlayComponent'
 import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
-import { PopoverComponent } from '@ir-engine/engine/src/scene/components/PopoverComponent'
 import { PortalComponent } from '@ir-engine/engine/src/scene/components/PortalComponent'
 import { PrimitiveGeometryComponent } from '@ir-engine/engine/src/scene/components/PrimitiveGeometryComponent'
 import { ReflectionProbeComponent } from '@ir-engine/engine/src/scene/components/ReflectionProbeComponent.tsx'
@@ -88,7 +88,7 @@ export const ComponentShelfCategoriesState = defineState({
         MountPointComponent,
         InteractableComponent,
         InputComponent,
-        PopoverComponent
+        OverlayComponent
       ],
       Lighting: [
         AmbientLightComponent,

@@ -33,7 +33,7 @@ import { useHookstate } from '@hookstate/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { EngineState, QueryReactor, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
-import { PopoverComponent, PopoverComponentState } from '@ir-engine/engine/src/scene/components/PopoverComponent'
+import { OverlayComponent, OverlayComponentState } from '@ir-engine/engine/src/scene/components/OverlayComponent'
 import { NetworkState } from '@ir-engine/network'
 import { PopoverState } from '../common/services/PopoverState'
 import { InviteService } from '../social/services/InviteService'
@@ -41,22 +41,22 @@ import { LoadingUISystemState } from '../systems/LoadingUISystem'
 import { ViewerMenuState } from '../util/ViewerMenuState'
 import EmbedFrame from './menus/avatar/EmbedFrame'
 
-const PopoverReactor = () => {
+const OverlayReactor = () => {
   const entity = useEntityContext()
-  const popoverComponent = useOptionalComponent(entity, PopoverComponent)
+  const overlayComponent = useOptionalComponent(entity, OverlayComponent)
 
   useEffect(() => {
-    if (popoverComponent?.isOpen.value) {
-      const popoverType = popoverComponent?.type.value
+    if (overlayComponent?.isOpen.value) {
+      const popoverType = overlayComponent?.type.value
       if (!popoverType) return
-      const Component = getState(PopoverComponentState)[popoverType]
+      const Component = getState(OverlayComponentState)[popoverType]
       PopoverState.showPopupover(
         <div className="animate-slideIn">
-          <Component src={popoverComponent?.src.value} />
+          <Component src={overlayComponent?.src.value} />
         </div>
       )
     }
-  }, [popoverComponent?.isOpen.value])
+  }, [overlayComponent?.isOpen.value])
 
   return null
 }
@@ -137,12 +137,12 @@ const UserSystemReactor = () => {
   }, [worldHostId])
 
   useEffect(() => {
-    getMutableState(PopoverComponentState).merge({
+    getMutableState(OverlayComponentState).merge({
       iframe: EmbedFrame
     })
   }, [])
 
-  return <QueryReactor Components={[PopoverComponent]} ChildEntityReactor={PopoverReactor} />
+  return <QueryReactor Components={[OverlayComponent]} ChildEntityReactor={OverlayReactor} />
 }
 
 export const UserUISystem = defineSystem({
