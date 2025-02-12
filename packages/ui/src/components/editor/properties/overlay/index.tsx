@@ -36,7 +36,7 @@ import {
   XRUIActivationType
 } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
-import { PopoverComponent, PopoverComponentState } from '@ir-engine/engine/src/scene/components/PopoverComponent'
+import { OverlayComponent, OverlayComponentState } from '@ir-engine/engine/src/scene/components/OverlayComponent'
 import { getState } from '@ir-engine/hyperflux'
 import { CodeSnippet01Md } from '../../../../icons'
 import InputGroup from '../../input/Group'
@@ -46,24 +46,24 @@ import { ControlledStringInput } from '../../input/String'
 const DEFAULT_OPTIONS = [{ label: 'Iframe', value: 'iframe' }]
 
 /**
- * PopoverNodeEditor component used to provide the editor with iframe popup
+ * OverlayNodeEditor component used to provide the editor with iframe popup
  */
-export const PopoverNodeEditor: EditorComponentType = (props) => {
+export const OverlayNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const popoverComponent = useComponent(props.entity, PopoverComponent)
-  const errors = getEntityErrors(props.entity, PopoverComponent)
+  const overlayComponent = useComponent(props.entity, OverlayComponent)
+  const errors = getEntityErrors(props.entity, OverlayComponent)
 
   useEffect(() => {
     if (!hasComponent(props.entity, InteractableComponent)) {
       EditorControlFunctions.addOrRemoveComponent([props.entity], InteractableComponent, true, {
-        label: PopoverComponent.interactMessage,
+        label: OverlayComponent.interactMessage,
         uiInteractable: false,
         clickInteract: true,
         uiActivationType: XRUIActivationType.hover,
         callbacks: [
           {
-            callbackID: PopoverComponent.popoverCallbackName,
+            callbackID: OverlayComponent.overlayCallbackName,
             target: getComponent(props.entity, UUIDComponent)
           }
         ]
@@ -71,8 +71,8 @@ export const PopoverNodeEditor: EditorComponentType = (props) => {
     }
   }, [])
 
-  const getAvailablePopoverType = () => {
-    const state = getState(PopoverComponentState)
+  const getAvailableOverlayType = () => {
+    const state = getState(OverlayComponentState)
     const optionKeys = Object.keys(state)
     let options: { label: string; value: string }[] = []
     if (optionKeys.length > 0) {
@@ -88,9 +88,9 @@ export const PopoverNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor
       {...props}
-      name={t('editor:properties.popover.title')}
-      description={t('editor:properties.popover.description')}
-      Icon={PopoverNodeEditor.iconComponent}
+      name={t('editor:properties.overlay.title')}
+      description={t('editor:properties.overlay.description')}
+      Icon={OverlayNodeEditor.iconComponent}
     >
       {errors
         ? Object.entries(errors).map(([err, message]) => (
@@ -101,24 +101,24 @@ export const PopoverNodeEditor: EditorComponentType = (props) => {
         : null}
       <InputGroup name="src" label={'URL (Optional)'}>
         <ControlledStringInput
-          value={popoverComponent.src.value}
-          onChange={updateProperty(PopoverComponent, 'src')}
-          onRelease={commitProperty(PopoverComponent, 'src')}
+          value={overlayComponent.src.value}
+          onChange={updateProperty(OverlayComponent, 'src')}
+          onRelease={commitProperty(OverlayComponent, 'src')}
         />
       </InputGroup>
 
-      <InputGroup name="Popover type" label={'Popover type'}>
+      <InputGroup name="Overlay type" label={'Overlay type'}>
         <SelectInput
           key={props.entity}
-          value={popoverComponent.type.value}
-          options={getAvailablePopoverType()}
-          onChange={commitProperty(PopoverComponent, `type`)}
+          value={overlayComponent.type.value}
+          options={getAvailableOverlayType()}
+          onChange={commitProperty(OverlayComponent, `type`)}
         />
       </InputGroup>
     </NodeEditor>
   )
 }
 
-PopoverNodeEditor.iconComponent = CodeSnippet01Md
+OverlayNodeEditor.iconComponent = CodeSnippet01Md
 
-export default PopoverNodeEditor
+export default OverlayNodeEditor
