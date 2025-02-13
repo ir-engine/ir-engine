@@ -278,7 +278,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
         </InputGroup>
       )}
 
-      {video.mediaUUID.value == '' && media && (
+      {mediaSourceValue === 'Self' && video.mediaUUID.value == '' && media && (
         <>
           <InputGroup
             name="SourcePaths"
