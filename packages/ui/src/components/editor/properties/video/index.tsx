@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import {
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
   getOptionalMutableComponent,
   getSimulationCounterpart,
@@ -129,7 +128,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   if (mediaUUID && mediaUUID != '') {
     mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID)
   }
-  const mediaElement = getMutableComponent(mediaEntity, MediaElementComponent)
+  const mediaElement = getOptionalMutableComponent(mediaEntity, MediaElementComponent)
   const [mediaSourceValue, setMediaSourceValue] = useState(video.mediaUUID.value === '' ? 'Self' : 'Other')
 
   const mediaSourceOptions = [

@@ -566,7 +566,7 @@ export const setupHLS = async (entity: Entity, url: string): Promise<Hls> => {
 }
 
 export function setTime(element: State<HTMLMediaElement>, time: number) {
-  if (!element.value || time < 0 || element.value.currentTime === time) return
+  if (!element.value || time < 0 || element.value.currentTime === time || time > element.value.duration) return
   element.currentTime.set(time)
 }
 
