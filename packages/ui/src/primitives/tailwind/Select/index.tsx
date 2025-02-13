@@ -87,7 +87,6 @@ const Select = ({
   positioning: userPositioning,
   showClearButton = false
 }: SelectProps) => {
-  // const [open, setOpen] = useState(false)
   const [positioning, setPositioning] = useState({
     direction: 'down' as 'down' | 'up',
     maxHeight: '0px',
