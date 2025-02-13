@@ -51,6 +51,12 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { LookAtSystem } from './LookAtSystem'
 import { TransformDirtyCleanupSystem, TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { NodeID, NodeIDComponent } from '../../gltf/NodeIDComponent'
+import { SourceID } from '../components/SourceComponent'
+import { act, render } from '@testing-library/react'
+
+const sourceID = 'sourceID' as SourceID
+const facerNodeID = 'facerNodeID' as NodeID
+const testNodeID = 'testNodeID' as NodeID
 
 describe('LookAtSystem', () => {
   const System = SystemDefinitions.get(LookAtSystem)!
@@ -77,11 +83,12 @@ describe('LookAtSystem', () => {
       let testEntity = UndefinedEntity
       let facerEntity = UndefinedEntity
 
-      beforeEach(() => {
+      beforeEach(async () => {
         createEngine()
         // mockSpatialEngine()   // Do not set EngineState.viewerEntity
-        facerEntity = createEntity()
-        testEntity = createEntity()
+        facerEntity = NodeIDComponent.create(sourceID, facerNodeID)
+        testEntity = NodeIDComponent.create(sourceID, testNodeID)
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -94,7 +101,6 @@ describe('LookAtSystem', () => {
         const Initial = new Quaternion(2, 3, 4, 5).normalize()
         // Set the data as expected
         setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42) })
-        setComponent(facerEntity, UUIDComponent, UUIDComponent.generateUUID())
         setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22), rotation: Initial })
         setComponent(testEntity, LookAtComponent, { target: getComponent(facerEntity, NodeIDComponent) })
         // Sanity check before running
@@ -116,11 +122,12 @@ describe('LookAtSystem', () => {
         let testEntity = UndefinedEntity
         let facerEntity = UndefinedEntity
 
-        beforeEach(() => {
+        beforeEach(async () => {
           createEngine()
           mockSpatialEngine() // Set EngineState.viewerEntity
-          facerEntity = createEntity()
-          testEntity = createEntity()
+          facerEntity = NodeIDComponent.create(sourceID, facerNodeID)
+          testEntity = NodeIDComponent.create(sourceID, testNodeID)
+          await act(() => render(null))
         })
 
         afterEach(() => {
@@ -129,13 +136,12 @@ describe('LookAtSystem', () => {
           return destroyEngine()
         })
 
-        it('should not do anything for that entity if its LookAtComponent.target UUID is truthy but it does not point to a valid entity', () => {
+        it('should not do anything for that entity if its LookAtComponent.target nodeID is truthy but it does not point to a valid entity', () => {
           const Initial = new Quaternion(2, 3, 4, 5).normalize()
           // Set the data as expected
           setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42), rotation: Initial })
-          setComponent(facerEntity, UUIDComponent, UUIDComponent.generateUUID())
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
-          setComponent(testEntity, LookAtComponent, { target: 'invalidTestUUID' as NodeID })
+          setComponent(testEntity, LookAtComponent, { target: 'invalidTestNodeID' as NodeID })
           // Sanity check before running
           assert.equal(Boolean(getState(ReferenceSpaceState).viewerEntity), true)
           assert.equal(hasComponent(testEntity, TransformComponent), true)
@@ -153,7 +159,6 @@ describe('LookAtSystem', () => {
           const Initial = new Quaternion(2, 3, 4, 5).normalize()
           // Set the data as expected
           setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42), rotation: Initial })
-          setComponent(facerEntity, UUIDComponent, UUIDComponent.generateUUID())
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
           setComponent(testEntity, LookAtComponent, { target: '' as NodeID })
           // Sanity check before running
@@ -174,7 +179,6 @@ describe('LookAtSystem', () => {
           const Initial = new Quaternion(2, 3, 4, 5).normalize()
           // Set the data as expected
           setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42), rotation: Initial })
-          setComponent(facerEntity, UUIDComponent, UUIDComponent.generateUUID())
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
           setComponent(testEntity, LookAtComponent, { target: '' as NodeID })
           // Sanity check before running
@@ -200,7 +204,6 @@ describe('LookAtSystem', () => {
           setComponent(parentEntity, TransformComponent, { position: new Vector3().setScalar(123) })
           setComponent(facerEntity, EntityTreeComponent, { parentEntity: parentEntity })
           setComponent(facerEntity, TransformComponent, { matrixWorld: Initial })
-          setComponent(facerEntity, UUIDComponent, UUIDComponent.generateUUID())
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
           setComponent(testEntity, LookAtComponent, { target: getComponent(facerEntity, NodeIDComponent) })
           CleanupSystem.execute()
@@ -209,6 +212,8 @@ describe('LookAtSystem', () => {
           assert.equal(hasComponent(testEntity, TransformComponent), true)
           assert.equal(hasComponent(testEntity, LookAtComponent), true)
           assert.equal(Boolean(getComponent(testEntity, LookAtComponent).target), true)
+          console.log(getComponent(testEntity, LookAtComponent).target)
+          assert.equal(NodeIDComponent.getEntityFromNodeID(testEntity, getComponent(testEntity, LookAtComponent).target), facerEntity)
           const before = TransformComponent.dirty[testEntity]
           assert.equal(before, 0)
           // Run and Check the result

@@ -86,6 +86,8 @@ export const NodeIDComponent = defineComponent({
       if (!state[layer][sourceID].value[nodeID]) state[layer][sourceID][nodeID].set(entity)
 
       return () => {
+        if (!getState(NodesBySourceState)?.[layer]?.[sourceID]?.[nodeID]) return
+
         state[layer][sourceID][nodeID].set(none)
 
         if (!state[layer][sourceID].keys.length) state[layer][sourceID].set(none)
@@ -103,7 +105,7 @@ export const NodeIDComponent = defineComponent({
 
     const sourceID = getComponent(sameSourceEntity, SourceComponent)
 
-    return getState(NodesBySourceState)[layer][sourceID][nodeID] || UndefinedEntity
+    return getState(NodesBySourceState)[layer]?.[sourceID]?.[nodeID] || UndefinedEntity
   },
 
   /**

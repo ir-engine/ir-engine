@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
-import React, { useEffect } from 'react'
+import React, { Suspense, useEffect } from 'react'
 
 import {
   Component,
@@ -375,12 +375,14 @@ const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: stri
     <>
       {components.map((component) => {
         return (
-          <ComponentReactor
-            key={component.jsonID}
-            gltfComponentEntity={gltfComponentEntity}
-            entity={entity}
-            component={component}
-          />
+          <Suspense key={component.jsonID} fallback={null}>
+            <ComponentReactor
+              key={component.jsonID}
+              gltfComponentEntity={gltfComponentEntity}
+              entity={entity}
+              component={component}
+            />
+          </Suspense>
         )
       })}
     </>

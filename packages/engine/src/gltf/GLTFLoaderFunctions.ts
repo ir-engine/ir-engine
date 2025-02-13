@@ -611,14 +611,8 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   const layer = LayerComponent.get(entity)
   const materialDef = json.materials![materialIndex]
 
-  const materialEntity = createEntity(layer)
-  setComponent(materialEntity, NodeIDComponent, 'material-' + materialIndex)
-  setComponent(materialEntity, SourceComponent, options.documentID)
-  const uuid = NodeIDComponent.getUUIDBySourceAndNodeID(
-    options.documentID,
-    getComponent(materialEntity, NodeIDComponent)
-  )
-  setComponent(materialEntity, UUIDComponent, uuid)
+  const nodeID = ('material-' + materialIndex) as NodeID
+  const materialEntity = NodeIDComponent.create(options.documentID, nodeID, layer)
   setComponent(materialEntity, EntityTreeComponent, { parentEntity: entity, childIndex: materialIndex })
   setComponent(materialEntity, NameComponent, materialDef.name ?? 'Material-' + materialIndex)
 
@@ -787,6 +781,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   await Promise.all(promises)
 
   const material = new materialConstructor(materialParams)
+  const uuid = getComponent(materialEntity, UUIDComponent)
   material.uuid = uuid
   material.name = materialDef.name || 'Material-' + materialIndex
 

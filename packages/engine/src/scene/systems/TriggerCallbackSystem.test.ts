@@ -52,6 +52,10 @@ import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/Trig
 import { ColliderHitEvent, CollisionEvents } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { TriggerCallbackSystem, triggerEnterOrExit } from './TriggerCallbackSystem'
+import { NodeID, NodeIDComponent } from '../../gltf/NodeIDComponent'
+import { SourceID } from '../components/SourceComponent'
+import { TriggerCallbackComponent } from '../components/TriggerCallbackComponent'
+import { act, render } from '@testing-library/react'
 
 describe('TriggerCallbackSystem', () => {
   describe('IDs', () => {
@@ -60,7 +64,7 @@ describe('TriggerCallbackSystem', () => {
     })
   })
 
-  const InvalidEntityUUID = 'dummyID-123456' as EntityUUID
+  const InvalidEntityNodeID = 'dummyID-123456' as NodeID
 
   /** @todo Refactor: Simplify by using sinon.spy functions */
   const EnterStartValue = 42 // Start testOnEnter at 42
@@ -81,9 +85,12 @@ describe('TriggerCallbackSystem', () => {
   let triggerEntity = UndefinedEntity
   let targetEntity = UndefinedEntity
   let testEntity = UndefinedEntity
-  let targetEntityUUID = '' as EntityUUID
+  let targetEntityNodeID: NodeID
   let physicsWorld: PhysicsWorld
   let physicsWorldEntity = UndefinedEntity
+  const sourceID = 'sourceID' as SourceID
+  const targetNodeID = 'targetNodeID' as NodeID
+  const testNodeID = 'testNodeID' as NodeID
 
   beforeEach(async () => {
     createEngine()
@@ -103,20 +110,22 @@ describe('TriggerCallbackSystem', () => {
     setComponent(testEntity, RigidBodyComponent)
     setComponent(testEntity, ColliderComponent)
 
-    targetEntity = createEntity()
+    targetEntity = NodeIDComponent.create(sourceID, targetNodeID)
     setComponent(targetEntity, UUIDComponent, UUIDComponent.generateUUID())
     setCallback(targetEntity, TestOnEnterName, testOnEnter)
     setCallback(targetEntity, TestOnExitName, testOnExit)
-    targetEntityUUID = getComponent(targetEntity, UUIDComponent)
+    targetEntityNodeID = getComponent(targetEntity, NodeIDComponent)
 
-    triggerEntity = createEntity()
+    triggerEntity = NodeIDComponent.create(sourceID, testNodeID)
     setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
     setComponent(triggerEntity, TransformComponent)
     setComponent(triggerEntity, RigidBodyComponent)
     setComponent(triggerEntity, ColliderComponent)
-    setComponent(triggerEntity, TriggerComponent, {
-      triggers: [{ onEnter: TestOnEnterName, onExit: TestOnExitName, target: targetEntityUUID }]
+    setComponent(triggerEntity, TriggerCallbackComponent, {
+      triggers: [{ onEnter: TestOnEnterName, onExit: TestOnExitName, target: targetEntityNodeID }]
     })
+
+    await act(() => render(null))
   })
 
   afterEach(() => {
@@ -130,8 +139,8 @@ describe('TriggerCallbackSystem', () => {
     const Hit = { type: CollisionEvents.TRIGGER_START } as ColliderHitEvent // @todo The hitEvent argument is currently ignored in the function body
     describe('for all entity.triggerComponent.triggers ...', () => {
       it('... should only run if trigger.target defines the UUID of a valid entity', () => {
-        setComponent(triggerEntity, TriggerComponent, {
-          triggers: [{ onEnter: TestOnEnterName, onExit: TestOnExitName, target: InvalidEntityUUID }]
+        setComponent(triggerEntity, TriggerCallbackComponent, {
+          triggers: [{ onEnter: TestOnEnterName, onExit: TestOnExitName, target: InvalidEntityNodeID }]
         })
         assert.equal(enterVal, EnterStartValue)
         triggerEnterOrExit(triggerEntity, targetEntity, Hit)
@@ -139,11 +148,10 @@ describe('TriggerCallbackSystem', () => {
       })
 
       it('... should only run if trigger.onEnter callback has a value and is part of the target.CallbackComponent.callbacks map', () => {
-        const noEnterEntity = createEntity()
-        setComponent(noEnterEntity, UUIDComponent, UUIDComponent.generateUUID())
+        const noEnterEntity = NodeIDComponent.create(sourceID, targetNodeID)
         setCallback(noEnterEntity, TestOnExitName, testOnExit)
-        const noEnterEntityUUID = getComponent(noEnterEntity, UUIDComponent)
-        setComponent(triggerEntity, TriggerComponent, {
+        const noEnterEntityUUID = getComponent(noEnterEntity, NodeIDComponent)
+        setComponent(triggerEntity, TriggerCallbackComponent, {
           triggers: [{ onEnter: '', onExit: TestOnExitName, target: noEnterEntityUUID }]
         })
         assert.equal(enterVal, EnterStartValue)
@@ -163,8 +171,8 @@ describe('TriggerCallbackSystem', () => {
     const Hit = { type: CollisionEvents.TRIGGER_END } as ColliderHitEvent // @todo The hitEvent argument is currently ignored in the function body
     describe('for all entity.triggerComponent.triggers ...', () => {
       it('... should only run if trigger.target defines the UUID of a valid entity', () => {
-        setComponent(triggerEntity, TriggerComponent, {
-          triggers: [{ onEnter: TestOnEnterName, onExit: TestOnExitName, target: InvalidEntityUUID }]
+        setComponent(triggerEntity, TriggerCallbackComponent, {
+          triggers: [{ onEnter: TestOnEnterName, onExit: TestOnExitName, target: InvalidEntityNodeID }]
         })
         assert.equal(exitVal, ExitStartValue)
         triggerEnterOrExit(triggerEntity, targetEntity, Hit)
@@ -172,11 +180,10 @@ describe('TriggerCallbackSystem', () => {
       })
 
       it('... should only run if trigger.onExit callback has a value and is part of the target.CallbackComponent.callbacks map', () => {
-        const noExitEntity = createEntity()
-        setComponent(noExitEntity, UUIDComponent, UUIDComponent.generateUUID())
+        const noExitEntity = NodeIDComponent.create(sourceID, targetNodeID)
         setCallback(noExitEntity, TestOnExitName, testOnExit)
-        const noExitEntityUUID = getComponent(noExitEntity, UUIDComponent)
-        setComponent(triggerEntity, TriggerComponent, {
+        const noExitEntityUUID = getComponent(noExitEntity, NodeIDComponent)
+        setComponent(triggerEntity, TriggerCallbackComponent, {
           triggers: [{ onEnter: TestOnEnterName, onExit: '', target: noExitEntityUUID }]
         })
         assert.equal(exitVal, ExitStartValue)
@@ -206,7 +213,7 @@ describe('TriggerCallbackSystem', () => {
         totalForce: null
       } as ColliderHitEvent
 
-      removeComponent(triggerEntity, TriggerComponent)
+      removeComponent(triggerEntity, TriggerCallbackComponent)
       setComponent(triggerEntity, CollisionComponent)
       const collision = getComponent(triggerEntity, CollisionComponent)
       collision?.set(testEntity, triggerTestStartHit)
