@@ -44,13 +44,12 @@ export default function AddEditLocationModalStudioSections() {
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center gap-2 rounded-lg bg-surface-3 p-5 text-center text-gray-500">
             <Image01Sm className="h-12 w-12" />
-            {'Publish Scene to Generate a Preview Image'}
+            {t('editor:toolbar.publishLocation.noThumbnailPlaceholder')}
           </div>
         )}
       </div>
 
       <div className="mt-4 flex flex-row justify-end gap-2">
-        {/* <Button className="w-full md:w-auto">Preview</Button> */}
         <Button onClick={() => SceneThumbnailState.createThumbnail()} className="w-full md:w-auto">
           {t('editor:properties.sceneSettings.generate')}
         </Button>

@@ -48,7 +48,7 @@ function formatPublishedDate(isoString) {
   const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true, timeZoneName: 'short' }
   const formattedTime = date.toLocaleTimeString('en-US', timeOptions)
 
-  return `✓ Published ${formattedDate} at ${formattedTime}`
+  return { formattedDate, formattedTime }
 }
 
 const getDefaultErrors = () => ({
@@ -205,20 +205,23 @@ export default function AddEditLocationModal(props: {
       unPublishLoading.set(false)
     }
   }
+
   const anchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
 
   return (
-    <div className="relative z-50 w-[60vw] bg-surface-1 px-8 pt-6">
+    <div className="relative z-50 w-[60vw] bg-surface-2 px-8 pt-6">
       <div className="relative rounded-lg py-2">
         <div className="flex justify-between pb-6">
-          <h2 className="text-xl">
+          <span className="text-xl">
             {location?.id ? t('editor:toolbar.publishLocation.update') : t('editor:toolbar.publishLocation.create')}
-          </h2>
+          </span>
           <div className="flex items-center gap-3">
             {location ? (
-              <span className="text-xs text-green-500">{formatPublishedDate(location.createdAt)}</span>
+              <span className="text-xs text-green-500">
+                {t('editor:toolbar.publishLocation.publishDate', formatPublishedDate(location.createdAt))}
+              </span>
             ) : (
-              <span className="text-text-primary">Not Yet Published</span>
+              <span className="text-text-primary">{t('editor:toolbar.publishLocation.notYetPublished')}</span>
             )}
             <button onClick={(event) => anchorEvent.set(event)}>
               <EllipsisVertical />
@@ -300,10 +303,8 @@ export default function AddEditLocationModal(props: {
 
               <div className="grid h-full grid-rows-[auto,1fr] gap-5">
                 <div className="flex h-auto flex-col self-start">
-                  <h5>Multiplayer Features</h5>
-                  <span className="text-xs">
-                    Choose which features visitors can use when visiting your published space with others.
-                  </span>
+                  <h5>{t('editor:toolbar.publishLocation.multiplayerFeatures')}</h5>
+                  <span className="text-xs">{t('editor:toolbar.publishLocation.multiplayerDescription')}</span>
                 </div>
 
                 <div className="flex flex-col gap-5">
@@ -382,7 +383,11 @@ export default function AddEditLocationModal(props: {
         className="z-9999"
       >
         <div className="w-[180px]" tabIndex={0}>
-          <DropdownItem className="text-red-500" label={'Unpublish'} onClick={unPublishLocation} />
+          <DropdownItem
+            className="text-red-500"
+            label={t('editor:toolbar.publishLocation.unpublish')}
+            onClick={unPublishLocation}
+          />
         </div>
       </ContextMenu>
     </div>
@@ -410,10 +415,10 @@ const LocationPublishSuccess = ({ published, url }: { published: boolean; url: s
   }
 
   return (
-    <div className={`${published ? 'border-b border-t border-black' : ''}`}>
+    <div className={published ? 'border-b border-t border-black' : ''}>
       <div
         className={`flex items-center justify-between rounded p-3 ${
-          published ? 'bg-transparent shadow' : 'bg-[#2c914e]'
+          published ? 'bg-transparent shadow' : 'bg-surface-success'
         }`}
       >
         <div className="flex items-center gap-4">
@@ -423,7 +428,7 @@ const LocationPublishSuccess = ({ published, url }: { published: boolean; url: s
 
           <div className="flex flex-col">
             <h3 className={`font-semibold text-white`}>
-              {published ? 'Location Published Successfully' : 'Public URL'}
+              {published ? t('editor:toolbar.publishLocation.publishSuccess') : 'Public URL'}
             </h3>
             <span className="cursor-pointer py-1 text-sm font-light text-white" onClick={() => window.open(url)}>
               {url}
@@ -435,11 +440,11 @@ const LocationPublishSuccess = ({ published, url }: { published: boolean; url: s
           <button
             onClick={handleCopy}
             className={`flex items-center gap-2 rounded-lg px-4 py-2 text-white transition ${
-              published ? 'bg-[#11632C] hover:bg-[#0e5026]' : 'bg-black bg-opacity-50'
+              published ? 'bg-ui-success hover:bg-[#0e5026]' : 'bg-black bg-opacity-50'
             }`}
           >
             <Copy02Sm className="text-white" />
-            {published ? 'Copy' : 'Copy Public URL'}
+            {published ? t('editor:toolbar.publishLocation.copy') : t('editor:toolbar.publishLocation.copyPublicUrl')}
           </button>
         </div>
       </div>
