@@ -157,7 +157,7 @@ const AdminRoutes = () => {
   return (
     <div className="flex flex-col gap-6">
       <AdminTopBar />
-      <main className="pointer-events-auto grid h-[calc(100vh_-_88px_-_4rem)] grid-cols-12 gap-1.5 overflow-y-auto">
+      <main className="pointer-events-auto grid h-[calc(100vh_-_88px_-_4rem)] grid-cols-12 gap-1.5">
         <AdminSideBar />
         <div className="col-span-8 h-full w-full overflow-x-auto overflow-y-auto px-3 lg:col-span-9 2xl:col-span-10">
           <Routes>

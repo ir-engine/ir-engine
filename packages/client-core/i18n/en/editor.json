@@ -214,9 +214,18 @@
       "title": "Publish",
       "create": "Publish Location",
       "update": "Update Published Location",
-      "unpublish": "Unpublish Location",
+      "unpublish": "Unpublish",
       "saveAndPublish": "Save and Publish",
-      "locationLinkCopied": "Location link copied"
+      "locationLinkCopied": "Location link copied",
+      "publishDate": "✓ Published {{formattedDate}} at {{formattedTime}}",
+      "notYetPublished": "Not Yet Published",
+      "multiplayerFeatures": "Multiplayer Features",
+      "multiplayerDescription": "Choose which features visitors can use when visiting your published space with others.",
+      "copy": "Copy",
+      "copyPublicUrl": "Copy Public URL",
+      "publicUrl": "Public URL",
+      "publishSuccess": "Location Published Successfully",
+      "noThumbnailPlaceholder": "Publish Scene to Generate a Preview Image"
     }
   },
   "properties": {
