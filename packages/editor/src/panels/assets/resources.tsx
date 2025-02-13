@@ -173,7 +173,7 @@ export function FileCard({
         <div
           className={twMerge(
             `box-border rounded border border-0 font-figtree`,
-            isSelected ? 'rounded border border-2 border-[#375DAF] bg-[#2C2E30]' : 'group-hover:bg-[#202225]'
+            isSelected ? 'rounded border border-[#375DAF] bg-[#2C2E30]' : 'group-hover:bg-[#202225]'
           )}
           style={{
             height: iconSize,

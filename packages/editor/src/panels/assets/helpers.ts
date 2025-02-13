@@ -78,3 +78,16 @@ export function findCategoryByPath(nodes: AssetCategoryNode[], targetPath: strin
 
   return null
 }
+
+export function convertToHierarchy(obj: Record<string, any>, depth = 0, parentPath = ''): AssetCategoryNode[] {
+  return Object.entries(obj).map(([key, value]) => {
+    const currentPath = parentPath ? `${parentPath}/${key}` : key
+
+    return {
+      name: key,
+      path: currentPath,
+      depth,
+      children: convertToHierarchy(value, depth + 1, currentPath)
+    }
+  })
+}
