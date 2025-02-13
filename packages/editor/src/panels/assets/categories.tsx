@@ -53,7 +53,7 @@ function NodeHierarchyItem({ node, onClick }: { node: AssetCategoryNode; onClick
     <>
       <EditorDropdownItem
         label={node.name}
-        ItemIcon={Folder}
+        ItemIcon={({ className }: { className: string }) => <Folder className={className} />}
         collapsed={!isOpen}
         onClick={handleClick}
         style={{ paddingLeft: `${32 * node.depth}px` }}
