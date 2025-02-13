@@ -343,18 +343,6 @@ function VideoReactor() {
   }, [!!mesh, video.size, video.fit, texture, mesh?.material, media?.isCurrentTrackLoaded])
 
   useEffect(() => {
-    console.log('mesh')
-  }, [!!mesh])
-
-  useEffect(() => {
-    console.log('texture')
-  }, [texture])
-
-  useEffect(() => {
-    console.log('video.projection')
-  }, [video.projection])
-
-  useEffect(() => {
     mesh.geometry.set(video.projection.value === 'Flat' ? PLANE_GEO() : SPHERE_GEO())
     mesh.geometry.attributes.position.needsUpdate.set(true)
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
