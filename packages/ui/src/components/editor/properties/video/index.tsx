@@ -145,7 +145,12 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
 
   const mediaEntities = useQuery([MediaComponent])
   const mediaOptions = mediaEntities
-    .filter((entity) => entity !== props.entity && getOptionalComponent(entity, NameComponent) !== undefined)
+    .filter(
+      (entity) =>
+        entity !== props.entity &&
+        entity !== simulationEntity &&
+        getOptionalComponent(entity, NameComponent) !== undefined
+    )
     .map((entity) => {
       return {
         label: getComponent(entity, NameComponent),
