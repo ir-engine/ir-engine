@@ -415,7 +415,7 @@ const LocationPublishSuccess = ({ published, url }: { published: boolean; url: s
         })
       })
       .catch((err) => {
-        alert('Failed to copy URL: ', err)
+        alert(`Failed to copy URL: ${err}`)
       })
   }
 
