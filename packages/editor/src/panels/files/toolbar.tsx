@@ -334,6 +334,14 @@ export function PanelToolbar({
   dataTestIdJson,
   uploadButton,
   utilsComponent
+}: {
+  onBackDirectory: () => void
+  onRefreshDirectory: () => void
+  breadcrumbComponent?: React.ReactNode
+  searchbar?: React.ReactNode
+  dataTestIdJson?: Record<string, string>
+  uploadButton?: React.ReactNode
+  utilsComponent?: React.ReactNode
 }) {
   const { t } = useTranslation()
   const { createNewFolder } = useCurrentFiles()
@@ -348,13 +356,13 @@ export function PanelToolbar({
         <div className="flex items-center">
           <div>
             <Tooltip content={t('editor:layout.filebrowser.back')}>
-              <ViewportButton data-testid={dataTestIdJson.backButtonId} onClick={onBackDirectory} icon={ArrowLeftSm} />
+              <ViewportButton data-testid={dataTestIdJson?.backButtonId} onClick={onBackDirectory} icon={ArrowLeftSm} />
             </Tooltip>
           </div>
           <div>
             <Tooltip content={t('editor:layout.filebrowser.refresh')}>
               <ViewportButton
-                data-testid={dataTestIdJson.refreshButtonId}
+                data-testid={dataTestIdJson?.refreshButtonId}
                 onClick={onRefreshDirectory}
                 icon={Refresh1Sm}
               />
