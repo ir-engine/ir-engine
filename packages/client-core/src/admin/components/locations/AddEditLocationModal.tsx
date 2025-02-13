@@ -432,11 +432,11 @@ const LocationPublishSuccess = ({ published, url }: { published: boolean; url: s
           </div>
 
           <div className="flex flex-col">
-            <h3 className={`font-semibold text-text-primary`}>
+            <span className="font-semibold text-text-primary">
               {published
                 ? t('editor:toolbar.publishLocation.publishSuccess')
                 : t('editor:toolbar.publishLocation.publicUrl')}
-            </h3>
+            </span>
             <span className="cursor-pointer py-1 text-sm font-light text-text-primary" onClick={() => window.open(url)}>
               {url}
             </span>
