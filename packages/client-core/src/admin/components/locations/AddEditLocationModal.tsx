@@ -42,10 +42,15 @@ import { NotificationService } from '../../../common/services/NotificationServic
 function formatPublishedDate(isoString) {
   const date = new Date(isoString)
 
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+  const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
   const formattedDate = date.toLocaleDateString('en-US', options)
 
-  const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true, timeZoneName: 'short' }
+  const timeOptions: Intl.DateTimeFormatOptions = {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZoneName: 'short'
+  }
   const formattedTime = date.toLocaleTimeString('en-US', timeOptions)
 
   return { formattedDate, formattedTime }
@@ -427,10 +432,12 @@ const LocationPublishSuccess = ({ published, url }: { published: boolean; url: s
           </div>
 
           <div className="flex flex-col">
-            <h3 className={`font-semibold text-white`}>
-              {published ? t('editor:toolbar.publishLocation.publishSuccess') : 'Public URL'}
+            <h3 className={`font-semibold text-text-primary`}>
+              {published
+                ? t('editor:toolbar.publishLocation.publishSuccess')
+                : t('editor:toolbar.publishLocation.publicUrl')}
             </h3>
-            <span className="cursor-pointer py-1 text-sm font-light text-white" onClick={() => window.open(url)}>
+            <span className="cursor-pointer py-1 text-sm font-light text-text-primary" onClick={() => window.open(url)}>
               {url}
             </span>
           </div>

@@ -223,6 +223,7 @@
       "multiplayerDescription": "Choose which features visitors can use when visiting your published space with others.",
       "copy": "Copy",
       "copyPublicUrl": "Copy Public URL",
+      "publicUrl": "Public URL",
       "publishSuccess": "Location Published Successfully",
       "noThumbnailPlaceholder": "Publish Scene to Generate a Preview Image"
     }
