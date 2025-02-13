@@ -542,7 +542,6 @@ export const setComponent = <C extends Component>(
     component.onSet(entity, state, args)
   }
 
-  /** @todo this might be unnecessayr now that we have propagation via the store */
   LayerFunctions.propagateLayer(entity, component)
 
   if (component.reactor && !component.reactorMap.has(entity) && LayerComponent.get(entity) === Layers.Simulation) {
@@ -918,10 +917,12 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         }
         return null
       }
+      case 'NonSerialized': {
+        return
+      }
       case 'Partial':
       case 'Required':
       case 'Proxy':
-      case 'NonSerialized':
       default: {
         let props = schema.properties as any
         if (!props) {

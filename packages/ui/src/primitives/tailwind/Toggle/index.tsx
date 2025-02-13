@@ -28,44 +28,26 @@ import { twMerge } from 'tailwind-merge'
 
 import Label from '../Label'
 
+const sizeMap = {
+  sm: 'w-9 h-5 after:w-4 after:h-4',
+  md: 'w-11 h-6 after:w-5 after:h-5'
+} as const
+
 export interface ToggleProps {
   value: boolean
-  size?: 'sm' | 'md' | 'lg'
+  size?: keyof typeof sizeMap
   label?: string
-  labelClassName?: string
-  containerClassName?: string
   className?: string
   onChange: (value: boolean) => void
   disabled?: boolean
 }
 
-const sizeMap = {
-  sm: 'w-8 h-5 after:w-4 after:h-4 after:top-[2px] after:start-[2px]',
-  md: 'w-11 h-6 after:w-5 after:h-5 after:top-[2px] after:start-[2px]',
-  lg: 'w-16 h-9 after:w-7 after:h-7 after:top-[4px] after:start-[5px]'
-}
-
-const Toggle = ({
-  containerClassName,
-  className,
-  labelClassName,
-  size,
-  label,
-  value,
-  onChange,
-  disabled
-}: ToggleProps) => {
-  const twClassName = twMerge(
-    "peer relative cursor-pointer rounded-full bg-ui-background after:absolute after:rounded-full after:border after:border-ui-outline after:bg-text-primary after:transition-all after:content-['']",
-    'peer-checked:after:translate-x-full peer-checked:after:border-ui-outline  peer-focus:bg-ui-primary peer-focus:ring-4',
-    'peer-disabled:ui-inactive-background peer-disabled:pointer-events-none',
-    className,
-    sizeMap[size ?? 'md']
-  )
-  const containerTwClassName = twMerge('flex items-center gap-4', containerClassName)
-
+const Toggle = ({ size, label, value, onChange, disabled }: ToggleProps) => {
   return (
-    <div className={containerTwClassName} data-testid="toggle-input-container">
+    <div
+      className={twMerge('flex items-center gap-4', disabled ? 'cursor-not-allowed' : 'cursor-pointer')}
+      data-testid="toggle-input-container"
+    >
       <input
         data-testid="toggle-input"
         disabled={disabled}
@@ -74,12 +56,19 @@ const Toggle = ({
         checked={value}
         onChange={() => onChange(!value)}
       />
-      <div className={twClassName} onClick={() => onChange(!value)} />
-      {label && (
-        <Label className={labelClassName} data-testid="toggle-input-label">
-          {label}
-        </Label>
-      )}
+      <div
+        className={twMerge(
+          "peer relative rounded-full border border-ui-outline after:absolute after:left-[0.0625rem] after:top-1/2 after:-translate-y-1/2  after:rounded-full after:transition-all after:content-['']",
+          'peer-checked:border-ui-inactive-primary peer-checked:after:translate-x-full peer-checked:after:border-ui-outline',
+          'peer-disabled:ui-inactive-background peer-disabled:pointer-events-none',
+          sizeMap[size ?? 'md'],
+          disabled
+            ? 'bg-ui-inactive-background after:bg-text-inactive peer-checked:bg-ui-inactive-primary'
+            : 'bg-ui-background after:bg-text-primary peer-checked:bg-ui-primary'
+        )}
+        onClick={() => onChange(!value)}
+      />
+      {label && <Label data-testid="toggle-input-label">{label}</Label>}
     </div>
   )
 }

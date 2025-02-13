@@ -35,11 +35,7 @@ export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
 
-  const seedData: ProjectPermissionTypeType[] = await Promise.all([
-    { type: 'owner' },
-    { type: 'editor' },
-    { type: 'reviewer' }
-  ])
+  const seedData: ProjectPermissionTypeType[] = await Promise.all([{ type: 'owner' }, { type: 'editor' }])
 
   if (forceRefresh || testEnabled) {
     // Deletes ALL existing entries

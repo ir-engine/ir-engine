@@ -106,8 +106,8 @@ export const MaterialStateComponent = defineComponent({
     material: S.Type<Material>({} as Material),
     parameters: S.Record(S.String(), S.Any()),
     // all entities using this material. an undefined entity at index 0 is a fake user
-    instances: S.Array(S.Entity()),
-    prototypeEntity: S.Entity()
+    instances: S.NonSerialized(S.Array(S.Entity())),
+    prototypeEntity: S.NonSerialized(S.Entity())
   }),
 
   fallbackMaterialUUID: uuidv4() as EntityUUID,
