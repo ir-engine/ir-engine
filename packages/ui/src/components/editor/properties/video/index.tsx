@@ -130,7 +130,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
     mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID)
   }
   const mediaElement = getMutableComponent(mediaEntity, MediaElementComponent)
-  const [mediaSourceValue, setMediaSourceValue] = useState('Self')
+  const [mediaSourceValue, setMediaSourceValue] = useState(video.mediaUUID.value === '' ? 'Self' : 'Other')
 
   const mediaSourceOptions = [
     {
