@@ -1,0 +1,18 @@
+diff --git a/node_modules/react-native/scripts/codegen/generate-artifacts-executor.js b/node_modules/react-native/scripts/codegen/generate-artifacts-executor.js
+index df2d16a..faeee02 100644
+--- a/node_modules/react-native/scripts/codegen/generate-artifacts-executor.js
++++ b/node_modules/react-native/scripts/codegen/generate-artifacts-executor.js
+@@ -702,7 +712,12 @@ function execute(projectRoot, targetPlatform, baseOutputPath) {
+         platform,
+       );
+ 
+-      const schemaInfos = generateSchemaInfos(libraries);
++
++      // Skip analyzing the libraries if they include generated code. 
++      // This can be removed after React Native 0.77 is released. It's needed for react-native-draco (https://github.com/facebook/react-native/pull/47452).
++      const librariesToGenerate = libraries.filter(library => !library.config?.includesGeneratedCode);
++
++      const schemaInfos = generateSchemaInfos(librariesToGenerate);
+       generateNativeCode(
+         outputPath,
+         schemaInfos.filter(schemaInfo =>
