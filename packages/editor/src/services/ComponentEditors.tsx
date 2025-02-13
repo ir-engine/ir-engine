@@ -32,7 +32,6 @@ import { InteractableComponent } from '@ir-engine/engine/src/interaction/compone
 import { AudioAnalysisComponent } from '@ir-engine/engine/src/scene/components/AudioAnalysisComponent'
 import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/CameraSettingsComponent'
 import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvMapBakeComponent'
-import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { GroundPlaneComponent } from '@ir-engine/engine/src/scene/components/GroundPlaneComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { InstancingComponent } from '@ir-engine/engine/src/scene/components/InstancingComponent'
@@ -122,6 +121,7 @@ import SkyboxNodeEditor from '@ir-engine/ui/src/components/editor/properties/sky
 import SpawnPointNodeEditor from '@ir-engine/ui/src/components/editor/properties/spawnPoint'
 import SplineNodeEditor from '@ir-engine/ui/src/components/editor/properties/spline'
 
+import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { IFrameComponent } from '@ir-engine/engine/src/scene/components/IFrameComponent'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import PlaylistNodeEditor from '@ir-engine/ui/src/components/editor/properties/playlist'
@@ -145,7 +145,7 @@ export const ComponentEditorsState = defineState({
       [CameraSettingsComponent.name]: CameraPropertiesNodeEditor,
       [ColliderComponent.name]: ColliderComponentEditor,
       [DirectionalLightComponent.name]: DirectionalLightNodeEditor,
-      [EnvmapComponent.name]: EnvMapEditor,
+      [EnvMapComponent.name]: EnvMapEditor,
       [EnvMapBakeComponent.name]: EnvMapBakeNodeEditor,
       [FogSettingsComponent.name]: FogSettingsEditor,
       [GrabbableComponent.name]: GrabbableComponentNodeEditor,
@@ -180,6 +180,19 @@ export const ComponentEditorsState = defineState({
       [ShadowComponent.name]: ShadowNodeEditor,
       [SkyboxComponent.name]: SkyboxNodeEditor,
       [SpawnPointComponent.name]: SpawnPointNodeEditor,
+      [MediaComponent.name]: MediaNodeEditor,
+      [ImageComponent.name]: ImageNodeEditor,
+      [PositionalAudioComponent.name]: PositionalAudioNodeEditor,
+      [AudioAnalysisComponent.name]: AudioAnalysisEditor,
+      [VideoComponent.name]: VideoNodeEditor,
+      [LegacyVolumetricComponent.name]: LegacyVolumetricNodeEditor,
+      [VolumetricComponent.name]: VolumetricNodeEditor,
+      [PlaylistComponent.name]: PlaylistNodeEditor,
+      [EnvMapComponent.name]: EnvMapEditor,
+      [EnvMapBakeComponent.name]: EnvMapBakeNodeEditor,
+      [InstancingComponent.name]: InstancingNodeEditor,
+      [PersistentAnchorComponent.name]: PersistentAnchorNodeEditor,
+      [VariantComponent.name]: VariantNodeEditor,
       [SplineComponent.name]: SplineNodeEditor,
       [SplineTrackComponent.name]: SplineTrackNodeEditor,
       [SpotLightComponent.name]: SpotLightNodeEditor,

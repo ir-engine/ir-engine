@@ -134,7 +134,7 @@ export const generateEnvmapBake = (resolution = 2048) => {
 
   const rootEntity = getState(EditorState).rootEntity
   const entitiesToRender = getNestedVisibleChildren(rootEntity)
-  const sceneData = getSceneParameters(entitiesToRender)
+  const sceneData = getSceneParameters(entitiesToRender, Engine.instance.viewerEntity)
   const scene = new Scene()
   scene.children = sceneData.children
   scene.background = sceneData.background

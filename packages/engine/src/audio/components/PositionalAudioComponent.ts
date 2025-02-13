@@ -31,9 +31,9 @@ import {
   removeComponent,
   setComponent,
   useComponent,
+  useEntityContext,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { AudioNodeGroups, MediaElementComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'

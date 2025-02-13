@@ -32,7 +32,7 @@ import { useProjectPermissions } from '@ir-engine/client-core/src/hooks/useUserP
 import { useFind } from '@ir-engine/common'
 import { ScopeType, locationPath, scopePath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs'
-import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
+import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { Button, DropdownItem } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
@@ -90,7 +90,7 @@ export const onCloseProject = async () => {
   if (!(await confirmSceneSaveIfModified())) return
 
   const editorState = getMutableState(EditorState)
-  getMutableState(GLTFModifiedState).set({})
+  getMutableState(AssetModifiedState).set({})
   editorState.projectName.set(null)
   editorState.scenePath.set(null)
   editorState.sceneName.set(null)

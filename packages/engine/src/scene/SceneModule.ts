@@ -34,7 +34,7 @@ import { MountPointSystem } from '../interaction/systems/MountPointSystem'
 import { MaterialLibrarySystem } from '../scene/materials/systems/MaterialLibrarySystem'
 import { CameraSettingsComponent } from './components/CameraSettingsComponent'
 import { EnvMapBakeComponent } from './components/EnvMapBakeComponent'
-import { EnvmapComponent } from './components/EnvmapComponent'
+import { EnvMapComponent } from './components/EnvmapComponent'
 import { GroundPlaneComponent } from './components/GroundPlaneComponent'
 import { HyperspaceTagComponent } from './components/HyperspaceTagComponent'
 import { ImageComponent } from './components/ImageComponent'
@@ -46,7 +46,7 @@ import { OldColliderComponent } from './components/OldColliderComponent'
 import { ParticleSystemComponent } from './components/ParticleSystemComponent'
 import { PrimitiveGeometryComponent } from './components/PrimitiveGeometryComponent'
 import { RenderSettingsComponent } from './components/RenderSettingsComponent'
-import { SceneDynamicLoadTagComponent } from './components/SceneDynamicLoadTagComponent'
+import { SceneDynamicLoadComponent } from './components/SceneDynamicLoadComponent'
 import { ScenePreviewCameraComponent } from './components/ScenePreviewCamera'
 import { SceneSettingsComponent } from './components/SceneSettingsComponent'
 import { ScreenshareTargetComponent } from './components/ScreenshareTargetComponent'
@@ -77,7 +77,7 @@ export const SceneComponents = [
   CameraSettingsComponent,
   // CloudComponent,
   EnvMapBakeComponent,
-  EnvmapComponent,
+  EnvMapComponent,
   GroundPlaneComponent,
   HyperspaceTagComponent,
   ImageComponent,
@@ -90,7 +90,7 @@ export const SceneComponents = [
   PostProcessingComponent,
   PrimitiveGeometryComponent,
   RenderSettingsComponent,
-  SceneDynamicLoadTagComponent,
+  SceneDynamicLoadComponent,
   ScenePreviewCameraComponent,
   SceneSettingsComponent,
   ScreenshareTargetComponent,

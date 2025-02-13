@@ -61,6 +61,7 @@ import { CameraComponent } from '../camera/components/CameraComponent'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
 import { XRState } from '../xr/XRState'
 import { ObjectComponent } from './components/ObjectComponent'
+import { ObjectLayerMaskComponent } from './components/ObjectLayerComponent'
 import { BackgroundComponent, EnvironmentMapComponent, FogComponent } from './components/SceneComponents'
 import { VisibleComponent } from './components/VisibleComponent'
 import { ObjectLayers } from './constants/ObjectLayers'
@@ -367,13 +368,15 @@ const rendererQuery = defineQuery([RendererComponent, CameraComponent])
 
 export const filterVisible = (entity: Entity) => hasComponent(entity, VisibleComponent)
 export const getNestedVisibleChildren = (entity: Entity) => getNestedChildren(entity, filterVisible)
-export const getSceneParameters = (entities: Entity[]) => {
+export const getSceneParameters = (entities: Entity[], cameraEntity: Entity) => {
   const vals = {
     background: null as Color | Texture | CubeTexture | null,
     environment: null as Texture | null,
     fog: null as FogBase | null,
     children: [] as Object3D[]
   }
+
+  const cameraLayers = ObjectLayerMaskComponent.mask[cameraEntity]
 
   for (const entity of entities) {
     if (hasComponent(entity, EnvironmentMapComponent)) {
@@ -385,7 +388,9 @@ export const getSceneParameters = (entities: Entity[]) => {
     if (hasComponent(entity, FogComponent)) {
       vals.fog = getComponent(entity, FogComponent)
     }
-    if (hasComponent(entity, ObjectComponent)) {
+    // layer mask is faster with bitecs here than going through the object's proxy
+    const shouldRender = (ObjectLayerMaskComponent.mask[entity] & cameraLayers) !== 0
+    if (shouldRender && hasComponent(entity, ObjectComponent)) {
       vals.children.push(getComponent(entity, ObjectComponent))
     }
   }
@@ -403,7 +408,7 @@ const execute = () => {
     const _scene = renderer.scene!
 
     const entitiesToRender = renderer.scenes.map(getNestedVisibleChildren).flat()
-    const { background, environment, fog, children } = getSceneParameters(entitiesToRender)
+    const { background, environment, fog, children } = getSceneParameters(entitiesToRender, entity)
     _scene.children = children
 
     const renderMode = getState(RendererState).renderMode

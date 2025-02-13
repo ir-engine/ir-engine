@@ -28,7 +28,15 @@ import assert from 'assert'
 import { Color, Mesh, MeshStandardMaterial, SphereGeometry, Texture, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
-import { createEntity, defineComponent, S, SerializedComponentType, setComponent, UUIDComponent } from '@ir-engine/ecs'
+import {
+  createEntity,
+  defineComponent,
+  EntityUUID,
+  S,
+  SerializedComponentType,
+  setComponent,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 
@@ -44,7 +52,7 @@ import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { createSceneEntity } from '../scene/functions/createSceneEntity'
 import { exportGLTFScene } from './exportGLTFScene'
-import { EEMaterialComponent } from './MaterialDefinitionComponent'
+import { EEMaterialComponent } from './MaterialExtensionComponents'
 
 describe('exportGLTFScene', () => {
   beforeEach(() => {
@@ -92,7 +100,7 @@ describe('exportGLTFScene', () => {
     const originalMaterial = new MeshStandardMaterial({ color, name: 'test material' })
     const materialEntity = createEntity()
     createMaterialPrototype(MeshStandardMaterialPrototype)
-    setComponent(materialEntity, UUIDComponent, originalMaterial.uuid)
+    setComponent(materialEntity, UUIDComponent, originalMaterial.uuid as EntityUUID)
     setComponent(materialEntity, MaterialStateComponent, {
       prototypeEntity: getPrototypeEntityFromName('MeshStandardMaterial'),
       material: originalMaterial
@@ -146,7 +154,7 @@ describe('exportGLTFScene', () => {
     const color1 = new Color(Math.random(), Math.random(), Math.random())
     const material1 = new MeshStandardMaterial({ color: color1, name: 'material1' })
     const materialEntity1 = createEntity()
-    setComponent(materialEntity1, UUIDComponent, material1.uuid)
+    setComponent(materialEntity1, UUIDComponent, material1.uuid as EntityUUID)
     setComponent(materialEntity1, MaterialStateComponent, {
       prototypeEntity: getPrototypeEntityFromName('MeshStandardMaterial'),
       material: material1
@@ -157,7 +165,7 @@ describe('exportGLTFScene', () => {
     const color2 = new Color(Math.random(), Math.random(), Math.random())
     const material2 = new MeshStandardMaterial({ color: color2, name: 'material2' })
     const materialEntity2 = createEntity()
-    setComponent(materialEntity2, UUIDComponent, material2.uuid)
+    setComponent(materialEntity2, UUIDComponent, material2.uuid as EntityUUID)
     setComponent(materialEntity2, MaterialStateComponent, {
       prototypeEntity: getPrototypeEntityFromName('MeshStandardMaterial'),
       material: material2
@@ -249,7 +257,7 @@ describe('exportGLTFScene', () => {
 
     // Create a material entity for the material.
     const materialEntity = createEntity()
-    setComponent(materialEntity, UUIDComponent, material.uuid)
+    setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
     setComponent(materialEntity, MaterialStateComponent, {
       prototypeEntity: getPrototypeEntityFromName('MeshStandardMaterial'),
       material

@@ -53,7 +53,7 @@ import { gizmo, helper, iconGizmoHelper, picker, setupGizmo } from '../../../con
 import { EditorHelperState } from '../../../services/EditorHelperState'
 
 export const TransformGizmoVisualComponent = defineComponent({
-  name: 'TransformGizmoVisual',
+  name: 'TransformGizmoVisualComponent',
 
   schema: S.Object({
     gizmo: S.Entity(),
