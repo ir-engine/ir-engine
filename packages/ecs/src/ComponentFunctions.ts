@@ -821,7 +821,7 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
   const layer = LayerComponent.get(entity)
   const createArgs = (schema: TTypedSchema<C>, key: string | number, data: any) => {
     const obj = key === '' ? data : data[key]
-    if (obj === undefined || obj === null || obj === UndefinedEntity) return obj
+    if (obj === undefined || obj === UndefinedEntity) return obj
     switch (schema[Kind] as any) {
       case 'Null':
       case 'Undefined':
@@ -846,6 +846,9 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         }
       }
       case 'Any': {
+        if (obj === null) {
+          return
+        }
         if (typeof obj === 'object' && 'clone' in obj && typeof obj.clone === 'function') {
           return obj.clone()
         } else if (Array.isArray(obj)) {
@@ -855,6 +858,9 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         }
       }
       case 'Class': {
+        if (obj === null) {
+          return
+        }
         if ('clone' in obj && typeof obj.clone === 'function') {
           return obj.clone()
         } else {
