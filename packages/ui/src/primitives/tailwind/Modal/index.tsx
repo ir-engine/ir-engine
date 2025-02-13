@@ -154,10 +154,7 @@ const Modal = ({
   headerIconSrc,
   showCloseButton = true
 }: ModalProps) => {
-  const twClassName = twMerge(
-    'absolute z-50 w-full animate-expandModal rounded-xl border border-surface-1 bg-surface-1 will-change-transform',
-    className
-  )
+  const twClassName = twMerge('absolute z-50 w-full rounded-xl border border-surface-1 bg-surface-1', className)
   return (
     <div data-test-id={id} className={twClassName}>
       {onClose && <ModalHeader title={title} onClose={onClose} headerIconSrc={headerIconSrc} />}

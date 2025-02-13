@@ -158,15 +158,10 @@ module.exports = {
           '0%': { opacity: '0.6' },
           '50%': { opacity: '1' },
           '100%': { opacity: '0.6' }
-        },
-        expandModal: {
-          "0%": { transform: "scaleY(0)", opacity: "0" },
-          "100%": { transform: "scaleY(1)", opacity: "1" },
-        },
+        }
       },
       animation: {
-        twinkling: 'twinkling 5s alternate infinite',
-        expandModal: "expandModal 0.25s ease-out",
+        twinkling: 'twinkling 5s alternate infinite'
       }
     }
   },
