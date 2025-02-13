@@ -270,7 +270,6 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
   return (
     <div className="relative z-50 h-fit max-h-[60vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-1 px-10 py-6">
       <Tabs
-        tabcontainerClassName="w-full justify-center gap-x-6"
         currentTabIndex={selectedTabIndex.value}
         onTabChange={handleTabChange}
         tabsData={[

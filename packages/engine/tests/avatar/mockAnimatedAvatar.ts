@@ -54,7 +54,7 @@ export const createTestGLTFEntity = () => {
 export const default_url = 'packages/projects/default-project/assets'
 export const rings_gltf = default_url + '/rings.glb'
 export const animation_pack = default_url + '/animations/emotes.glb'
-export const vrm = default_url + '/avatars/male_01.vrm'
+export const vrm = default_url + '/avatars/irRobot.vrm'
 
 /**Used to mock non user networked animated avatars */
 export const mockAnimatedAvatar = async () => {

@@ -128,7 +128,10 @@ export default {
       schemaHooks.resolveQuery(projectHistoryQueryResolver)
     ],
     find: [
-      iff(isProvider('external'), iffElse(checkScope('projects', 'read'), [], verifyProjectPermission(['owner'])))
+      iff(
+        isProvider('external'),
+        iffElse(checkScope('projects', 'read'), [], verifyProjectPermission(['owner', 'editor']))
+      )
     ],
     get: [disallow('external')],
     create: [

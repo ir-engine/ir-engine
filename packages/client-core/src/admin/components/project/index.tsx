@@ -140,7 +140,6 @@ export default function AdminProject() {
             disabled: false //config.client.localBuildOrDev
           }
         ]}
-        tabcontainerClassName=""
       />
     </>
   )
