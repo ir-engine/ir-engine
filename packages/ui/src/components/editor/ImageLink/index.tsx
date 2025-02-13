@@ -37,7 +37,7 @@ export interface ImageLinkProps extends Omit<ImgHTMLAttributes<HTMLImageElement>
 }
 
 const containerVariants = {
-  full: 'h-[405px] w-full p-4 gap-y-2',
+  full: 'h-full w-full gap-y-2',
   lg: 'h-[405px] w-[330px] p-4 gap-y-2',
   md: 'h-[280px] w-[280px] p-2 gap-y-1',
   sm: 'h-[190px] w-[190px] p-2 gap-y-1'
