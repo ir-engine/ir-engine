@@ -29,8 +29,7 @@ import {
   Entity,
   EntityUUID,
   getComponent,
-  hasComponent,
-  LayerComponent,
+  getOptionalComponent,
   LayerID,
   Layers,
   S,
@@ -46,6 +45,7 @@ import { NonEmptyString } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { SourceComponent, SourceID } from '../scene/components/SourceComponent'
+import { GLTFComponent } from './GLTFComponent'
 
 export type NodeID = OpaqueType<'NodeID'> & string
 
@@ -53,7 +53,7 @@ export const NodeIDSchema = () => S.String('', { id: 'NodeID' }) as unknown as T
 
 export const NodesBySourceState = defineState({
   name: 'ir.world.NodesBySourceState',
-  initial: {} as Record<LayerID, Record<SourceID, Record<NodeID, Entity>>>
+  initial: {} as Record<SourceID, Record<NodeID, Entity>>
 })
 
 export const NodeIDComponent = defineComponent({
@@ -77,20 +77,17 @@ export const NodeIDComponent = defineComponent({
 
       const nodeID = getComponent(entity, NodeIDComponent)
       const state = getMutableState(NodesBySourceState)
-      const layer = LayerComponent.get(entity)
 
-      if (!state.value[layer]) state[layer].set({})
+      if (!state.value[sourceID]) state[sourceID].set({})
 
-      if (!state[layer].value[sourceID]) state[layer][sourceID].set({})
-
-      if (!state[layer][sourceID].value[nodeID]) state[layer][sourceID][nodeID].set(entity)
+      if (!state[sourceID].value[nodeID]) state[sourceID][nodeID].set(entity)
 
       return () => {
-        if (!getState(NodesBySourceState)?.[layer]?.[sourceID]?.[nodeID]) return
+        if (!getState(NodesBySourceState)?.[sourceID]?.[nodeID]) return
 
-        state[layer][sourceID][nodeID].set(none)
+        state[sourceID][nodeID].set(none)
 
-        if (!state[layer][sourceID].keys.length) state[layer][sourceID].set(none)
+        if (!state[sourceID].keys.length) state[sourceID].set(none)
       }
     }, [sourceID])
 
@@ -100,24 +97,25 @@ export const NodeIDComponent = defineComponent({
   /**
    * For most cases, we can assume that the instance of a node we are looking for is from the same asset and in the same source instance as the node we are looking for.
    */
-  getEntityFromNodeID: (sameSourceEntity: Entity, nodeID: NodeID, layer = Layers.Simulation as LayerID) => {
-    if (!hasComponent(sameSourceEntity, SourceComponent)) return UndefinedEntity
+  getEntityFromNodeID: (sameSourceEntity: Entity, nodeID: NodeID) => {
+    const sourceID =
+      getOptionalComponent(sameSourceEntity, SourceComponent) || GLTFComponent.getInstanceID(sameSourceEntity)
+    if (!sourceID) return UndefinedEntity
 
-    const sourceID = getComponent(sameSourceEntity, SourceComponent)
-
-    return getState(NodesBySourceState)[layer]?.[sourceID]?.[nodeID] || UndefinedEntity
+    return getState(NodesBySourceState)?.[sourceID]?.[nodeID] || UndefinedEntity
   },
 
   /**
    * For most cases, we can assume that the instance of a node we are looking for is from the same asset and in the same source instance as the node we are looking for.
    */
-  useEntityFromNodeID: (sameSourceEntity: Entity, nodeID: NodeID, layer = Layers.Simulation as LayerID) => {
-    const state = useHookstate(getMutableState(NodesBySourceState)[layer])
+  useEntityFromNodeID: (sameSourceEntity: Entity, nodeID: NodeID) => {
+    const state = useHookstate(getMutableState(NodesBySourceState))
     const sourceID = useOptionalComponent(sameSourceEntity, SourceComponent)?.value
+    const sourceInstanceID = GLTFComponent.useInstanceID(sameSourceEntity)
 
-    if (!sourceID) return UndefinedEntity
+    if (!sourceID || !sourceInstanceID) return UndefinedEntity
 
-    return state[sourceID]?.[nodeID]?.value || UndefinedEntity
+    return state[sourceID ?? sourceInstanceID]?.[nodeID]?.value || UndefinedEntity
   },
 
   getUUIDBySourceAndNodeID: (source: SourceID, nodeID: NodeID) => `${source}-${nodeID}` as EntityUUID,

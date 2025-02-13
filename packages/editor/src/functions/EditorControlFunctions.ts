@@ -116,7 +116,6 @@ const modifyProperty = <C extends Component<any, any>>(
     for (const [key, val] of Object.entries(properties)) {
       if (key.includes('.')) {
         setNestedObject(currentComponent, key, val)
-        console.log(currentComponent, key, val)
       } else {
         currentComponent[key] = val
       }

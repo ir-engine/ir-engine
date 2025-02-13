@@ -1076,7 +1076,7 @@ export const LayerComponent = defineComponent({
 })
 
 export function getAuthoringCounterpart(entity: Entity) {
-  return LayerComponents[Layers.Authoring].refs[entity]
+  return LayerComponents[Layers.Simulation].refs[entity]
 }
 
 /**
