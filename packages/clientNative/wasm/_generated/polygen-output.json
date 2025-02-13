@@ -1,0 +1,24 @@
+{
+  "files": {
+    "@host/meshopt_decoder/jsi-exports-bridge.h": 1739302893688.7087,
+    "@host/meshopt_decoder/static-module.h": 1739302893688.7188,
+    "@host/meshopt_decoder/static-module.cpp": 1739302893688.7407,
+    "@host/meshopt_decoder/meshopt_decoder.exports.json": 1739302893688.7402,
+    "@host/meshopt_decoder/jsi-exports-bridge.cpp": 1739302893688.8357,
+    "@host/meshopt_decoder/meshopt_decoder.imports.json": 1739302893689.0596,
+    "modules/#local/src/meshopt_decoder.js": 1739302893755.9104,
+    "@host/rapier_wasm3d_bg/jsi-exports-bridge.h": 1739302893765.8992,
+    "@host/rapier_wasm3d_bg/static-module.cpp": 1739302893766.0117,
+    "@host/rapier_wasm3d_bg/static-module.h": 1739302893765.9207,
+    "@host/rapier_wasm3d_bg/jsi-exports-bridge.cpp": 1739302893766.4993,
+    "@host/rapier_wasm3d_bg/rapier_wasm3d_bg.exports.json": 1739302893766.1428,
+    "@host/rapier_wasm3d_bg/rapier_wasm3d_bg.imports.json": 1739302893766.8982,
+    "modules/#local/src/rapier_wasm3d_bg.js": 1739302897762.3574,
+    "@host/loader.cpp": 1739302897764.2737,
+    "@host/ReactNativeWebAssemblyHost.podspec": 1739302897764.2769,
+    "@host/wasm-rt": 1739302897769.5786,
+    "@host/imports/wbg-imports.h": 1739302897770.6646,
+    "@host/imports/wbg-imports.cpp": 1739302897770.677
+  },
+  "externalPackages": {}
+}

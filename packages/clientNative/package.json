@@ -1,0 +1,93 @@
+{
+  "name": "clientNative",
+  "version": "0.0.1",
+  "description": "Infinite Reality Engine React Native App",
+  "author": {
+    "name": "Infinite Reality Engine",
+    "email": "info@ir-engine.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ir-engine/ir-engine.git"
+  },
+  "homepage": "https://github.com/ir-engine/ir-engine.git",
+  "license": "CPAL",
+  "private": true,
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "lint": "eslint .",
+    "start": "react-native start",
+    "test": "jest",
+    "build:ios:release": "react-native bundle --entry-file index.js --platform ios --dev false --bundle-output ios/main.ios.jsbundle"
+  },
+  "overrides": {
+    "@types/react": "18.2.0",
+    "react": "18.2.0"
+  },
+  "peerDependencies": {
+    "@types/react": "18.2.0",
+    "react": "18.2.0"
+  },
+  "dependencies": {
+    "@callstack/polygen": "=0.2.0",
+    "@callstack/react-native-basis-universal": "^0.3.0",
+    "@callstack/react-native-draco": "^0.3.0",
+    "@expo/browser-polyfill": "^1.0.1",
+    "@ir-engine/common": "^1.6.0",
+    "@ir-engine/engine": "^1.6.0",
+    "@ir-engine/hyperflux": "^1.6.0",
+    "@ir-engine/ui": "^1.6.0",
+    "@react-native-firebase/app": "=21.6.1",
+    "@react-native-firebase/crashlytics": "=21.6.1",
+    "@ungap/structured-clone": "^1.2.0",
+    "base-64": "^1.0.0",
+    "expo": "^52.0.0",
+    "expo-asset": "^11.0.2",
+    "expo-asset-utils": "^3.0.0",
+    "expo-gl": "15.0.4",
+    "expo-modules-core": "^2.0.4",
+    "primus-client": "^7.3.4",
+    "react": "18.2.0",
+    "react-native": "0.76.2",
+    "react-native-blob-jsi-helper": "^0.3.1",
+    "react-native-dotenv": "^3.4.11",
+    "react-native-get-random-values": "^1.11.0",
+    "react-native-nitro-modules": "^0.20.1",
+    "react-native-performance": "^5.1.2",
+    "react-native-quick-crypto": "^0.7.11",
+    "react-native-wgpu": "^0.1.22",
+    "text-encoding-polyfill": "^0.6.7",
+    "text-encoding-shim": "^1.0.5",
+    "whatwg-url-without-unicode": "^8.0.0-3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.3",
+    "@babel/runtime": "^7.25.0",
+    "@callstack/polygen-cli": "^0.2.0",
+    "@callstack/polygen-config": "^0.2.0",
+    "@callstack/polygen-metro-config": "^0.2.0",
+    "@react-native-community/cli": "15.0.1",
+    "@react-native-community/cli-platform-android": "15.0.1",
+    "@react-native-community/cli-platform-ios": "15.0.1",
+    "@react-native/babel-preset": "0.76.2",
+    "@react-native/eslint-config": "0.76.2",
+    "@react-native/metro-config": "0.76.2",
+    "@react-native/typescript-config": "0.76.2",
+    "@rnx-kit/metro-config": "^2.0.1",
+    "@types/base-64": "^1.0.2",
+    "@types/react": "18.2.0",
+    "@types/react-test-renderer": "18.0.0",
+    "babel-jest": "^29.6.3",
+    "babel-plugin-module-resolver": "^4.1.0",
+    "eslint": "^8.19.0",
+    "jest": "^29.6.3",
+    "prettier": "2.8.8",
+    "react-test-renderer": "18.2.0",
+    "typescript": "5.0.4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

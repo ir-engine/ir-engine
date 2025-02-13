@@ -1,0 +1,188 @@
+[
+  {
+    "kind": "export",
+    "name": "memory",
+    "target": {
+      "kind": "memory",
+      "minSize": 1
+    },
+    "mangledName": "memory",
+    "generatedFunctionName": "w2c_meshopt__decoder_memory"
+  },
+  {
+    "kind": "export",
+    "name": "__wasm_call_ctors",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [],
+      "resultTypes": []
+    },
+    "parameterTypeNames": [],
+    "returnTypeName": "void",
+    "generatedFunctionName": "w2c_meshopt__decoder_0x5F_wasm_call_ctors",
+    "mangledName": "0x5F_wasm_call_ctors"
+  },
+  {
+    "kind": "export",
+    "name": "meshopt_decodeVertexBuffer",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32",
+        "i32",
+        "i32",
+        "i32",
+        "i32"
+      ],
+      "resultTypes": [
+        "i32"
+      ]
+    },
+    "parameterTypeNames": [
+      "u32",
+      "u32",
+      "u32",
+      "u32",
+      "u32"
+    ],
+    "returnTypeName": "u32",
+    "generatedFunctionName": "w2c_meshopt__decoder_meshopt_decodeVertexBuffer",
+    "mangledName": "meshopt_decodeVertexBuffer"
+  },
+  {
+    "kind": "export",
+    "name": "meshopt_decodeIndexBuffer",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32",
+        "i32",
+        "i32",
+        "i32",
+        "i32"
+      ],
+      "resultTypes": [
+        "i32"
+      ]
+    },
+    "parameterTypeNames": [
+      "u32",
+      "u32",
+      "u32",
+      "u32",
+      "u32"
+    ],
+    "returnTypeName": "u32",
+    "generatedFunctionName": "w2c_meshopt__decoder_meshopt_decodeIndexBuffer",
+    "mangledName": "meshopt_decodeIndexBuffer"
+  },
+  {
+    "kind": "export",
+    "name": "meshopt_decodeIndexSequence",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32",
+        "i32",
+        "i32",
+        "i32",
+        "i32"
+      ],
+      "resultTypes": [
+        "i32"
+      ]
+    },
+    "parameterTypeNames": [
+      "u32",
+      "u32",
+      "u32",
+      "u32",
+      "u32"
+    ],
+    "returnTypeName": "u32",
+    "generatedFunctionName": "w2c_meshopt__decoder_meshopt_decodeIndexSequence",
+    "mangledName": "meshopt_decodeIndexSequence"
+  },
+  {
+    "kind": "export",
+    "name": "meshopt_decodeFilterOct",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32",
+        "i32",
+        "i32"
+      ],
+      "resultTypes": []
+    },
+    "parameterTypeNames": [
+      "u32",
+      "u32",
+      "u32"
+    ],
+    "returnTypeName": "void",
+    "generatedFunctionName": "w2c_meshopt__decoder_meshopt_decodeFilterOct",
+    "mangledName": "meshopt_decodeFilterOct"
+  },
+  {
+    "kind": "export",
+    "name": "meshopt_decodeFilterQuat",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32",
+        "i32",
+        "i32"
+      ],
+      "resultTypes": []
+    },
+    "parameterTypeNames": [
+      "u32",
+      "u32",
+      "u32"
+    ],
+    "returnTypeName": "void",
+    "generatedFunctionName": "w2c_meshopt__decoder_meshopt_decodeFilterQuat",
+    "mangledName": "meshopt_decodeFilterQuat"
+  },
+  {
+    "kind": "export",
+    "name": "meshopt_decodeFilterExp",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32",
+        "i32",
+        "i32"
+      ],
+      "resultTypes": []
+    },
+    "parameterTypeNames": [
+      "u32",
+      "u32",
+      "u32"
+    ],
+    "returnTypeName": "void",
+    "generatedFunctionName": "w2c_meshopt__decoder_meshopt_decodeFilterExp",
+    "mangledName": "meshopt_decodeFilterExp"
+  },
+  {
+    "kind": "export",
+    "name": "sbrk",
+    "target": {
+      "kind": "function",
+      "parametersTypes": [
+        "i32"
+      ],
+      "resultTypes": [
+        "i32"
+      ]
+    },
+    "parameterTypeNames": [
+      "u32"
+    ],
+    "returnTypeName": "u32",
+    "generatedFunctionName": "w2c_meshopt__decoder_sbrk",
+    "mangledName": "sbrk"
+  }
+]
