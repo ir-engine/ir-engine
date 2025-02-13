@@ -68,7 +68,7 @@ import {
   onPointerLost,
   onPointerMove,
   onPointerUp
-} from '../../../functions/transformGizmoHelper'
+} from '../../../functions/gizmos/transformGizmoHelper'
 import { TransformGizmoControlledComponent } from './TransformGizmoControlledComponent'
 import { TransformGizmoVisualComponent } from './TransformGizmoVisualComponent'
 

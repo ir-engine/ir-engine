@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Color, Euler, Matrix4, MeshBasicMaterial, Object3D, Quaternion, Raycaster, Vector3 } from 'three'
+import { Color, Euler, Matrix4, MeshBasicMaterial, Quaternion, Raycaster, Vector3 } from 'three'
 
 import {
   ComponentType,
@@ -55,14 +55,15 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 
 import { EntityHierarchyLockState } from '@ir-engine/editor/src/services/EntityHierarchyLockState'
-import { gizmoIconHelperUpdate } from '@ir-engine/spatial/src/common/functions/activeHelperFunctions'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
-import { TransformGizmoVisualComponent } from '../classes/gizmo/transform/TransformGizmoVisualComponent'
-import { GizmoMaterial, gizmoMaterialProperties } from '../constants/GizmoPresets'
-import { ObjectGridSnapState } from '../systems/ObjectGridSnapSystem'
-import { EditorControlFunctions } from './EditorControlFunctions'
+import { TransformGizmoControlComponent } from '../../classes/gizmo/transform/TransformGizmoControlComponent'
+import { TransformGizmoVisualComponent } from '../../classes/gizmo/transform/TransformGizmoVisualComponent'
+import { GizmoMaterial, gizmoMaterialProperties } from '../../constants/GizmoPresets'
+import { ObjectGridSnapState } from '../../systems/ObjectGridSnapSystem'
+import { EditorControlFunctions } from '../EditorControlFunctions'
+import { intersectObjectWithRay } from './gizmoCommonFunctions'
+import { gizmoIconHelperUpdate } from './studioIconGizmoHelper'
 
 const _raycaster = new Raycaster()
 _raycaster.layers.set(ObjectLayers.TransformGizmo)
@@ -101,7 +102,7 @@ const _v1 = new Vector3()
 const _v2 = new Vector3()
 const _v3 = new Vector3()
 
-export function gizmoUpdate(gizmoControlEntity) {
+export function transformGizmoUpdate(gizmoControlEntity) {
   const gizmoControl = getComponent(gizmoControlEntity, TransformGizmoControlComponent)
   if (gizmoControl === undefined) return
   const mode = gizmoControl.mode
@@ -987,18 +988,6 @@ export function onPointerUp(gizmoEntity) {
   if (!gizmoControl.enabled) return
 
   pointerUp(gizmoEntity)
-}
-
-export function intersectObjectWithRay(object: Object3D, raycaster: Raycaster, includeInvisible?: boolean) {
-  const allIntersections = raycaster.intersectObject(object, true)
-
-  for (let i = 0; i < allIntersections.length; i++) {
-    if (allIntersections[i].object.visible || includeInvisible) {
-      return allIntersections[i]
-    }
-  }
-
-  return false
 }
 
 export function onPointerLost(gizmoEntity: Entity) {

@@ -31,7 +31,8 @@ import {
   getComponent,
   LayerComponents,
   Layers,
-  setComponent
+  setComponent,
+  SimulationLayerComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
@@ -41,41 +42,33 @@ import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { createHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
-import {
-  gizmoIconHelperYUpdate,
-  gizmoIconUpdate,
-  onPointerHover
-} from '@ir-engine/spatial/src/common/functions/activeHelperFunctions'
+
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { InputHeuristicState, IntersectionData } from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { Raycaster, Sprite, SpriteMaterial, TextureLoader, Vector3 } from 'three'
+import { Raycaster, Vector3 } from 'three'
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
 import { iconGizmoArrow, iconGizmoYHelper, setupGizmo } from '../constants/GizmoPresets'
+import {
+  createIconGizmo,
+  gizmoIconHelperYAxisUpdate,
+  gizmoIconUpdate,
+  onPointerHover
+} from '../functions/gizmos/studioIconGizmoHelper'
 import { ComponentStudioIconState } from '../services/ComponentStudioIcons'
+import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
 import { transformGizmoControllerQuery } from './TransformGizmoSystem'
 
-const createIconGizmo = (textureURL) => {
-  const texture = new TextureLoader().load(textureURL)
-  const material = new SpriteMaterial({
-    map: texture,
-    transparent: true, // Allow transparency
-    opacity: 1
-  })
-  material.depthTest = false // Disable depth testing
-  return new Sprite(material)
-}
-
-const raycaster = new Raycaster()
-raycaster.layers.enable(ObjectLayers.NodeHelper)
-raycaster.firstHitOnly = true
+const _raycaster = new Raycaster()
+_raycaster.layers.enable(ObjectLayers.NodeHelper)
+_raycaster.firstHitOnly = true
 
 const inputObjectsQuery = defineQuery([InputComponent, VisibleComponent, ObjectComponent])
 
-export function nodeHelperInputHeuristic(
+export function studioIconGizmoInputHeuristic(
   intersectionData: Set<IntersectionData>,
   position: Vector3,
   direction: Vector3
@@ -83,14 +76,15 @@ export function nodeHelperInputHeuristic(
   const isEditing = getState(EngineState).isEditing
   if (!isEditing) return
 
-  raycaster.set(position, direction)
-  raycaster.camera = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent).cameras[0]
+  const gizmoEnabled = getState(EditorHelperState).gizmoEnabled
+  if (!gizmoEnabled) return
 
-  const inputObj = inputObjectsQuery()
+  _raycaster.set(position, direction)
+  _raycaster.camera = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent).cameras[0]
 
-  const objects = inputObj.map((eid) => getComponent(eid, ObjectComponent))
+  const objects = inputObjectsQuery().map((eid) => getComponent(eid, ObjectComponent))
 
-  const hits = raycaster.intersectObjects(objects, true)
+  const hits = _raycaster.intersectObjects(objects, true)
   for (const hit of hits) {
     intersectionData.add({ entity: hit.object.entity!, distance: hit.distance })
   }
@@ -109,7 +103,7 @@ const execute = () => {
     const intersect = onPointerHover(entity)
     for (const lineEntity of activeHelperComponent.lineEntities) {
       setVisibleComponent(lineEntity, intersect ? true : false)
-      gizmoIconHelperYUpdate(lineEntity, getComponent(entity, TransformComponent).position)
+      gizmoIconHelperYAxisUpdate(lineEntity, getComponent(entity, TransformComponent).position)
     }
 
     const transformGizmoControllerEntity = transformGizmoControllerQuery()
@@ -130,29 +124,9 @@ const execute = () => {
   }
 }
 
-const reactor = () => {
-  const selectedEntities = SelectionState.useSelectedEntities() // all authoring layer
-
-  const refs = LayerComponents[Layers.Simulation].refs
-  const simulationEntities = Object.keys(refs).filter((key) =>
-    selectedEntities.includes(refs[key])
-  ) as unknown as Entity[]
-
+const useStudioIconGizmo = () => {
   const componentStudioIconState = useHookstate(getMutableState(ComponentStudioIconState))
-  const helperQuery = useQuery([ActiveHelperComponent])
-
-  useEffect(() => {
-    for (const entity of simulationEntities) {
-      if (!entityExists(entity)) continue
-      setComponent(entity, ActiveHelperComponent, { enabled: true })
-    }
-    return () => {
-      for (const entity of simulationEntities) {
-        if (!entityExists(entity)) continue
-        setComponent(entity, ActiveHelperComponent, { enabled: false })
-      }
-    }
-  }, [selectedEntities])
+  const helperQuery = useQuery([ActiveHelperComponent, SimulationLayerComponent])
 
   useEffect(() => {
     for (const entity of helperQuery) {
@@ -162,7 +136,6 @@ const reactor = () => {
       const targetComponent: any = entityComponents.find((component) =>
         Object.keys(componentStudioIcon).find((key) => key === component.name)
       )
-
       const iconHelper = createHelperEntity(
         entity,
         () => {
@@ -174,7 +147,6 @@ const reactor = () => {
             ObjectLayers.NodeHelper
           )
           setComponent(entity, ActiveHelperComponent, { lineEntities: lineEntitites })
-
           if (getComponent(entity, ActiveHelperComponent).directional) {
             const directionalEntity = setupGizmo(entity, iconGizmoArrow, ObjectLayers.NodeHelper)
             setComponent(entity, ActiveHelperComponent, { directionalEntities: directionalEntity })
@@ -189,16 +161,39 @@ const reactor = () => {
       // create the icon helper
     }
   }, [helperQuery])
+}
 
+const useActiveHelper = (entities) => {
+  const refs = LayerComponents[Layers.Simulation].refs
+  const simulationEntities = Object.keys(refs).filter((key) => entities.includes(refs[key])) as unknown as Entity[]
+  useEffect(() => {
+    for (const entity of simulationEntities) {
+      if (!entityExists(entity)) continue
+      setComponent(entity, ActiveHelperComponent, { enabled: true })
+    }
+    return () => {
+      for (const entity of simulationEntities) {
+        if (!entityExists(entity)) continue
+        setComponent(entity, ActiveHelperComponent, { enabled: false })
+      }
+    }
+  }, [entities])
+}
+
+const reactor = () => {
   useEffect(() => {
     getMutableState(InputHeuristicState).merge([
       {
         order: 1,
-        heuristic: nodeHelperInputHeuristic
+        heuristic: studioIconGizmoInputHeuristic
       }
     ])
   }, [])
 
+  const selectedEntities = SelectionState.useSelectedEntities() // all authoring layer
+
+  useStudioIconGizmo()
+  useActiveHelper(selectedEntities)
   return null
 }
 

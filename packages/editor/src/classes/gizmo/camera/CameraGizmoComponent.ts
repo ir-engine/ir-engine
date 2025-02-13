@@ -50,7 +50,7 @@ import {
   onPointerHover,
   onPointerLost,
   onPointerUp
-} from '../../../functions/cameraGizmoHelper'
+} from '../../../functions/gizmos/cameraGizmoHelper'
 import { CameraGizmoVisualComponent } from './CameraGizmoVisualComponent'
 
 // camera synced to the visual entity
