@@ -97,7 +97,6 @@ const execute = () => {
     const activeHelperComponent = getComponent(entity, ActiveHelperComponent)
 
     if (!activeHelperComponent.helperDefaultGizmo) continue
-    console.log('DEBUG activeHelperComponent ', activeHelperComponent.helperDefaultGizmo)
 
     gizmoIconUpdate(entity)
 
@@ -126,18 +125,17 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities)
+  const selectedEntities = SelectionState.useSelectedEntities() // all authoring layer
   const componentStudioIconState = useHookstate(getMutableState(ComponentStudioIconState))
   const helperQuery = useQuery([ActiveHelperComponent])
 
   useEffect(() => {
-    const entities = [...selectedEntities.value].map((e) => UUIDComponent.getEntityByUUID(e))
-    for (const entity of entities) {
+    for (const entity of selectedEntities) {
       if (!entityExists(entity)) continue
       setComponent(entity, ActiveHelperComponent, { enabled: true })
     }
     return () => {
-      for (const entity of entities) {
+      for (const entity of selectedEntities) {
         if (!entityExists(entity)) continue
         setComponent(entity, ActiveHelperComponent, { enabled: false })
       }
@@ -153,7 +151,6 @@ const reactor = () => {
         Object.keys(componentStudioIcon).find((key) => key === component.name)
       )
 
-      console.log('DEBUG: targetComponent', targetComponent.name)
       const iconHelper = createHelperEntity(
         entity,
         () => {
