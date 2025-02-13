@@ -28,7 +28,6 @@ import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import EditorDropdownItem from '@ir-engine/ui/src/components/editor/DropdownItem'
 import { CubeOutlineLg, File04Lg, Folder, Pin02Lg } from '@ir-engine/ui/src/icons'
 import React from 'react'
-import { RxHamburgerMenu } from 'react-icons/rx'
 import { twMerge } from 'tailwind-merge'
 import { EditorState } from '../../services/EditorServices'
 import { FilesState } from '../../services/FilesState'
@@ -132,7 +131,6 @@ function SidebarSection({ Icon, label, items, onClick, isActive }) {
             <Icon />
             <span>{capitalizeFirstLetter(label)}</span>
           </div>
-          {isHover && <RxHamburgerMenu />}
         </button>
       </div>
 
