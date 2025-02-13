@@ -25,8 +25,14 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { defineQuery, EngineState, UndefinedEntity, useQuery, UUIDComponent } from '@ir-engine/ecs'
-import { getAllComponents, getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineQuery, EngineState, Entity, UndefinedEntity, useQuery, UUIDComponent } from '@ir-engine/ecs'
+import {
+  getAllComponents,
+  getComponent,
+  LayerComponents,
+  Layers,
+  setComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
@@ -126,16 +132,22 @@ const execute = () => {
 
 const reactor = () => {
   const selectedEntities = SelectionState.useSelectedEntities() // all authoring layer
+
+  const refs = LayerComponents[Layers.Simulation].refs
+  const simulationEntities = Object.keys(refs).filter((key) =>
+    selectedEntities.includes(refs[key])
+  ) as unknown as Entity[]
+
   const componentStudioIconState = useHookstate(getMutableState(ComponentStudioIconState))
   const helperQuery = useQuery([ActiveHelperComponent])
 
   useEffect(() => {
-    for (const entity of selectedEntities) {
+    for (const entity of simulationEntities) {
       if (!entityExists(entity)) continue
       setComponent(entity, ActiveHelperComponent, { enabled: true })
     }
     return () => {
-      for (const entity of selectedEntities) {
+      for (const entity of simulationEntities) {
         if (!entityExists(entity)) continue
         setComponent(entity, ActiveHelperComponent, { enabled: false })
       }

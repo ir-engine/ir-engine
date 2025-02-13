@@ -113,7 +113,6 @@ export function findProximity(
 
   //TODO spatialInputObjects or inputObjects?  - inputObjects requires visible and group components
   for (const inputEntity of spatialInputObjectsQuery()) {
-    console.log('DEBUG: inputEntity', inputEntity)
     if (inputEntity === selfAvatarEntity) continue
     const inputComponent = getComponent(inputEntity, InputComponent)
 

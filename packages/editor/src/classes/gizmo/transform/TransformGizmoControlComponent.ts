@@ -232,7 +232,7 @@ export const TransformGizmoControlComponent = defineComponent({
 
     const pivotEntity = useHookstate(() => {
       const pivotEntity = createEntity()
-      setComponent(pivotEntity, NameComponent, 'transfromGizmoPivotEntity')
+      setComponent(pivotEntity, NameComponent, 'transformGizmoPivotEntity')
       setComponent(pivotEntity, TransformComponent)
       setComponent(pivotEntity, VisibleComponent)
       setComponent(pivotEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
