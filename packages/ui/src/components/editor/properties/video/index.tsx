@@ -145,10 +145,10 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
 
   const mediaEntities = useQuery([MediaComponent])
   const mediaOptions = mediaEntities
-    .filter((entity) => entity !== props.entity)
+    .filter((entity) => entity !== props.entity && getOptionalComponent(entity, NameComponent) !== undefined)
     .map((entity) => {
       return {
-        label: hasComponent(entity, NameComponent) ? getComponent(entity, NameComponent) : '',
+        label: getComponent(entity, NameComponent),
         value: getOptionalComponent(entity, UUIDComponent) as EntityUUID
       }
     })
