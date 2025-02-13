@@ -45,6 +45,14 @@ export const cleanFileNameString = (fullFileName: string, useStorageProviderLeng
     let nameWithoutExtension = fileName.substring(0, lastDotIndex)
     const extension = fileName.substring(lastDotIndex + 1).toLowerCase()
 
+    // Sanitize the name: replace special chars and ensure alphanumeric start/end
+    nameWithoutExtension = nameWithoutExtension
+      .replace(/[^a-zA-Z0-9\s()_-]/g, '-') // Replace special chars with dash
+      .replace(/\s+/g, '-') // Replace spaces with dash
+      .replace(/^[^a-zA-Z0-9]+/, '') // Remove non-alphanumeric from start
+      .replace(/[^a-zA-Z0-9]+$/, '') // Remove non-alphanumeric from end
+      .replace(/-+/g, '-') // Replace multiple dashes with single dash
+
     //Used by backend uploads to storage provider, which has different length restrictions than other uses
     if (useStorageProviderLengthRestrictions) {
       if (nameWithoutExtension.length > 1024) nameWithoutExtension = nameWithoutExtension.slice(0, 1024)
@@ -53,8 +61,7 @@ export const cleanFileNameString = (fullFileName: string, useStorageProviderLeng
       if (nameWithoutExtension.length > 64) {
         nameWithoutExtension = nameWithoutExtension.slice(0, 64)
       } else if (nameWithoutExtension.length < 4) {
-        //file names need to be longer than 3 characters to be valid for s3 - https://docs.weka.io/additional-protocols/s3/s3-limitations
-        nameWithoutExtension = nameWithoutExtension + '0000'
+        nameWithoutExtension = nameWithoutExtension.padEnd(4, '0')
       }
     }
 
