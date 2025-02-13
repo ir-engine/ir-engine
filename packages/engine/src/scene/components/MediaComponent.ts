@@ -358,6 +358,9 @@ export function MediaReactor() {
     }
 
     if (path === '') {
+      media.isCurrentTrackLoaded.set(false)
+      media.currentTrackTime.set(0)
+      media.currentTrackDuration.set(0)
       removeComponent(entity, MediaElementComponent)
       return
     }
@@ -370,7 +373,6 @@ export function MediaReactor() {
     }
 
     media.ended.set(false)
-    media.currentTrackDuration.set(0)
 
     if (!mediaElement || !mediaElement.element || mediaElement.element.nodeName.value.toLowerCase() !== assetClass) {
       setUpMediaElement(entity, path, media, audioContext, gainNodeMixBuses)
@@ -378,6 +380,12 @@ export function MediaReactor() {
 
     setComponent(entity, MediaElementComponent)
     const mediaElementState = getMutableComponent(entity, MediaElementComponent)
+
+    if (mediaElementState.element.src.value === path && media.isCurrentTrackLoaded.value) {
+      const duration = mediaElementState.element.duration.value
+      media.currentTrackDuration.set(duration)
+      return
+    }
 
     mediaElementState.hls.value?.destroy()
     mediaElementState.hls.set(undefined)
