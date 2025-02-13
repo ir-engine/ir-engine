@@ -45,7 +45,6 @@ import { createEntity, EntityTreeComponent, removeEntity, useEntityContext, UUID
 import {
   defineComponent,
   getComponent,
-  getOptionalComponent,
   removeComponent,
   setComponent,
   useComponent,
@@ -118,7 +117,6 @@ export const VideoComponent = defineComponent({
     mediaUUID: S.EntityUUID(),
     // internal
     videoMeshEntity: S.NonSerialized(S.Entity()),
-    texture: S.NonSerialized(S.Nullable(S.Type<VideoTexturePriorityQueue>())),
     currentVideoSize: S.NonSerialized(T.Vec2(Vector2_One))
   }),
 
@@ -145,6 +143,7 @@ function VideoReactor() {
   const mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID) || entity
   const media = useOptionalComponent(mediaEntity, MediaComponent)
   const hasMediaElementComponent = useHasComponent(mediaEntity, MediaElementComponent)
+  const texture = useHookstate<VideoTexturePriorityQueue | null>(null)
 
   const videoMeshEntity = useHookstate(() => {
     const videoMeshEntity = createEntity()
@@ -341,21 +340,33 @@ function VideoReactor() {
 
     fitPlacementUvOffset.set(uvOffset)
     fitPlacementUvScale.set(uvScale)
-  }, [!!mesh, video.size, video.fit, video.texture, mesh?.material, media?.isCurrentTrackLoaded])
+  }, [!!mesh, video.size, video.fit, texture, mesh?.material, media?.isCurrentTrackLoaded])
+
+  useEffect(() => {
+    console.log('mesh')
+  }, [!!mesh])
+
+  useEffect(() => {
+    console.log('texture')
+  }, [texture])
+
+  useEffect(() => {
+    console.log('video.projection')
+  }, [video.projection])
 
   useEffect(() => {
     mesh.geometry.set(video.projection.value === 'Flat' ? PLANE_GEO() : SPHERE_GEO())
     mesh.geometry.attributes.position.needsUpdate.set(true)
     const uniforms = mesh.material.uniforms.get(NO_PROXY) as Record<string, Uniform>
-    uniforms.map.value = video.texture.value
+    uniforms.map.value = texture.value
     const defines = mesh.material.defines.get(NO_PROXY) as Record<string, any>
-    if (video.texture.value) {
+    if (texture.value) {
       defines.USE_MAP = ''
     } else {
       delete defines.USE_MAP
     }
     mesh.material.needsUpdate.set(true)
-  }, [!!mesh, video.texture, video.projection])
+  }, [!!mesh, texture, video.projection])
 
   useEffect(() => {
     if (!mesh) return
@@ -414,40 +425,27 @@ function VideoReactor() {
     if (!mesh || !mediaEntity) return
 
     if (!hasMediaElementComponent) {
-      video.texture.set(null)
+      texture.set(null)
       return
     }
 
-    const sourceVideoComponent = getOptionalComponent(mediaEntity, VideoComponent)
-    const sourceMeshComponent = getOptionalComponent(mediaEntity, MeshComponent)
     const mediaElement = getComponent(mediaEntity, MediaElementComponent)
 
-    const sourceTexture = sourceVideoComponent?.texture ? sourceVideoComponent?.texture : null
-    if (video.texture.value) {
+    if (texture.value) {
       //needed to set up the self-referencing source video texture
-      ;(video.texture.value.image as HTMLVideoElement) = mediaElement.element as HTMLVideoElement
-
-      //if we're a videoComponent pointing to a different source, this will update the initial texture when we set source
-      if (mediaEntity !== entity && sourceVideoComponent) {
-        video.texture.set(sourceTexture)
-      }
+      ;(texture.value.image as HTMLVideoElement) = mediaElement.element as HTMLVideoElement
       clearErrors(entity, VideoComponent)
     } else {
-      if (sourceTexture && sourceMeshComponent) {
-        mesh.material.set(sourceMeshComponent.material as ShaderMaterial)
-        clearErrors(entity, VideoComponent)
-      } else {
-        video.texture.set(new VideoTexturePriorityQueue(mediaElement.element as HTMLVideoElement))
-        VideoComponent.uniqueVideoEntities.push(mediaEntity)
-        clearErrors(entity, VideoComponent)
-        return () => {
-          if (VideoComponent.uniqueVideoEntities.includes(entity)) {
-            VideoComponent.uniqueVideoEntities.splice(VideoComponent.uniqueVideoEntities.indexOf(entity), 1)
-          }
+      texture.set(new VideoTexturePriorityQueue(mediaElement.element as HTMLVideoElement))
+      VideoComponent.uniqueVideoEntities.push(mediaEntity)
+      clearErrors(entity, VideoComponent)
+      return () => {
+        if (VideoComponent.uniqueVideoEntities.includes(entity)) {
+          VideoComponent.uniqueVideoEntities.splice(VideoComponent.uniqueVideoEntities.indexOf(entity), 1)
         }
       }
     }
-  }, [!!mesh, video.texture, video.mediaUUID, mediaEntity, hasMediaElementComponent])
+  }, [!!mesh, texture, video.mediaUUID, mediaEntity, hasMediaElementComponent])
 
   return null
 }
