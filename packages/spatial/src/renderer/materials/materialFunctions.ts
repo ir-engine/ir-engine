@@ -151,6 +151,8 @@ export const updateMaterialPrototype = (materialEntity: Entity, newPrototype: st
       ...Object.fromEntries(Object.entries(material.userData).filter(([k, _v]) => k !== 'type'))
     }
   }
+  newMaterial.type = newPrototype
+  newMaterial.name = material.name
   setComponent(materialEntity, MaterialStateComponent, {
     material: newMaterial,
     parameters: fullParameters

@@ -182,7 +182,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   const materialParameters = useHookstate({})
 
   useEffect(() => {
-    materialParameters.set({})
+    if (currentSelectedMaterial.value !== null) materialParameters.set({})
     materialParameters.set(
       Object.fromEntries(
         Object.keys(extractValues(definitions.value[prototypeName.value].arguments as PrototypeArgument, material)).map(
@@ -198,7 +198,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   const pluginValues = useHookstate({})
 
   useEffect(() => {
-    pluginValues.set({})
+    if (currentSelectedMaterial.value) pluginValues.set({})
     pluginParameters.set({})
   }, [selectedPlugin, currentSelectedMaterial])
 
@@ -220,7 +220,8 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   }, [selectedPlugin, useOptionalComponent(entity, MaterialPlugins[selectedPlugin.value])])
 
   useEffect(() => {
-    console.log('prototypeName', prototypeName.value, material.type)
+    console.log('switching to ', prototypeName.value, ' from ', material.type)
+    console.log('entity', entity)
     if (prototypeName.value === material.type) return
     updateMaterialPrototype(entity, prototypeName.value)
   }, [prototypeName])

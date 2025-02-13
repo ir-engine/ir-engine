@@ -38,7 +38,7 @@ import {
 } from '@ir-engine/ecs'
 import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
-import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -64,12 +64,7 @@ function MaterialPreviewCanvas() {
     const uuid = generateEntityUUID()
     setComponent(sceneEntity, UUIDComponent, uuid)
     setComponent(sceneEntity, VisibleComponent, true)
-    const material = getComponent(
-      UUIDComponent.getEntityByUUID(getState(MaterialSelectionState).selectedMaterial!),
-      MaterialStateComponent
-    ).material
-    if (!material) return
-    const sphereMesh = new Mesh(new SphereGeometry(5, 32, 32), material)
+    const sphereMesh = new Mesh(new SphereGeometry(5, 32, 32))
     sphereMesh.geometry.attributes['color'] = new BufferAttribute(
       new Float32Array(sphereMesh.geometry.attributes.position.count * 3).fill(1),
       3
@@ -77,6 +72,7 @@ function MaterialPreviewCanvas() {
     sphereMesh.geometry.attributes['uv1'] = sphereMesh.geometry.attributes['uv']
     setComponent(sceneEntity, MeshComponent, sphereMesh)
     setComponent(sceneEntity, EnvMapComponent, { type: 'Skybox', envMapIntensity: 2 })
+    //setComponent(sceneEntity, MaterialInstanceComponent, {uuid: [selectedMaterial.value]})
     const orbitCamera = getMutableComponent(cameraEntity, CameraOrbitComponent)
     orbitCamera.focusedEntities.set([sceneEntity])
     orbitCamera.refocus.set(true)

@@ -33,7 +33,6 @@ import {
   getOptionalComponent,
   getOptionalMutableComponent,
   hasComponent,
-  useComponent,
   useEntityContext,
   useOptionalComponent
 } from '@ir-engine/ecs'
@@ -47,7 +46,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { MeshComponent } from '../components/MeshComponent'
 import { NoiseOffsetPluginComponent } from './constants/plugins/NoiseOffsetPlugin'
 import { TransparencyDitheringPluginComponent } from './constants/plugins/TransparencyDitheringComponent'
-import { materialPrototypeMatches, setMeshMaterial, updateMaterialPrototype } from './materialFunctions'
+import { setMeshMaterial } from './materialFunctions'
 import MeshBasicMaterial from './prototypes/MeshBasicMaterial.mat'
 import MeshLambertMaterial from './prototypes/MeshLambertMaterial.mat'
 import MeshMatcapMaterial from './prototypes/MeshMatcapMaterial.mat'
@@ -131,17 +130,6 @@ export const MaterialStateComponent = defineComponent({
     } catch (e) {
       // this throws errors between tests - should be moved to a reactor
     }
-  },
-
-  reactor: () => {
-    const entity = useEntityContext()
-    const materialComponent = useComponent(entity, MaterialStateComponent)
-
-    useEffect(() => {
-      if (materialComponent.prototypeEntity.value && !materialPrototypeMatches(entity)) updateMaterialPrototype(entity)
-    }, [materialComponent.prototypeEntity])
-
-    return null
   }
 })
 
