@@ -74,7 +74,7 @@ export const SourceComponent = defineComponent({
 
   onRemove: (entity, component) => {
     const layer = LayerComponent.get(entity)
-    const entities = getState(EntitiesBySourceState)[component.value].filter(
+    const entities = getState(EntitiesBySourceState)[layer][component.value].filter(
       (currentEntity) => currentEntity !== entity
     )
     const layerState = getMutableState(EntitiesBySourceState)[layer]
