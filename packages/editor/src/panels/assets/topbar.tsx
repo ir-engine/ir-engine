@@ -37,7 +37,7 @@ import { ImportSettingsState } from '../../services/ImportSettingsState'
 import { BreadCrumbSlash, PanelToolbar } from '../files/toolbar'
 import { AssetCategoryNode } from './categories'
 import { findCategoryByPath } from './helpers'
-import { useAssetsCategory, useAssetsQuery } from './hooks'
+import { assetCategories, useAssetsCategory, useAssetsQuery } from './hooks'
 
 export const uploadFiles = () => {
   const projectName = getState(EditorState).projectName
@@ -58,7 +58,7 @@ export const uploadFiles = () => {
 }
 
 export function AssetsBreadcrumbs() {
-  const { categories, currentCategoryPath } = useAssetsCategory()
+  const { currentCategoryPath } = useAssetsCategory()
   const { refetchResources } = useAssetsQuery()
   const currentCategory = currentCategoryPath.get({ noproxy: true }) as AssetCategoryNode
 
@@ -71,7 +71,7 @@ export function AssetsBreadcrumbs() {
 
   const handleSelectParentCategory = (index: number) => {
     const selectedPath = breadcrumbTrail[index].path
-    const newParent = findCategoryByPath(categories.get({ noproxy: true }) as AssetCategoryNode[], selectedPath)
+    const newParent = findCategoryByPath(assetCategories as AssetCategoryNode[], selectedPath)
     currentCategoryPath.set(newParent || undefined)
     refetchResources()
   }
@@ -98,7 +98,7 @@ export function AssetsBreadcrumbs() {
 export default function Topbar() {
   const { t } = useTranslation()
   const { search } = useAssetsQuery()
-  const { categories, currentCategoryPath } = useAssetsCategory()
+  const { currentCategoryPath } = useAssetsCategory()
   const { refetchResources, staticResourcesPagination } = useAssetsQuery()
 
   const handleBack = () => {
@@ -108,7 +108,7 @@ export default function Topbar() {
       return
     }
     const selectedPath = path.slice(0, path.length - 1).join('/')
-    const foundCategory = findCategoryByPath(categories.get({ noproxy: true }) as AssetCategoryNode[], selectedPath)
+    const foundCategory = findCategoryByPath(assetCategories as AssetCategoryNode[], selectedPath)
     currentCategoryPath.set(foundCategory || undefined)
     refetchResources()
   }
