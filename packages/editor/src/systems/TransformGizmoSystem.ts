@@ -47,7 +47,7 @@ import { controlUpdate, gizmoUpdate, planeUpdate } from '../functions/transformG
 import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
 
-const transformGizmoControllerQuery = defineQuery([TransformGizmoControlComponent])
+export const transformGizmoControllerQuery = defineQuery([TransformGizmoControlComponent])
 
 const execute = () => {
   for (const gizmoEntity of transformGizmoControllerQuery()) {

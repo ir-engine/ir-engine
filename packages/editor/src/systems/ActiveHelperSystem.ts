@@ -26,11 +26,10 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 
 import { defineQuery, EngineState, UndefinedEntity, useQuery, UUIDComponent } from '@ir-engine/ecs'
-import { ComponentJSONIDMap, getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getAllComponents, getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { GLTFNodeState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { getMutableState, getState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
@@ -96,9 +95,9 @@ const helperQuery = defineQuery([ActiveHelperComponent])
 const execute = () => {
   for (const entity of helperQuery()) {
     const activeHelperComponent = getComponent(entity, ActiveHelperComponent)
-    const transformGizmoControllerEntity = transformGizmoControllerQuery()
 
     if (!activeHelperComponent.helperDefaultGizmo) continue
+    console.log('DEBUG activeHelperComponent ', activeHelperComponent.helperDefaultGizmo)
 
     gizmoIconUpdate(entity)
 
@@ -108,6 +107,7 @@ const execute = () => {
       gizmoIconHelperYUpdate(lineEntity, getComponent(entity, TransformComponent).position)
     }
 
+    const transformGizmoControllerEntity = transformGizmoControllerQuery()
     const selectedEntities = SelectionState.getSelectedEntities()
     if (!(selectedEntities.find((e) => e === entity) === undefined)) continue
 
@@ -131,7 +131,7 @@ const reactor = () => {
   const helperQuery = useQuery([ActiveHelperComponent])
 
   useEffect(() => {
-    const entities = [...selectedEntities.value].map(UUIDComponent.getEntityByUUID)
+    const entities = [...selectedEntities.value].map((e) => UUIDComponent.getEntityByUUID(e))
     for (const entity of entities) {
       if (!entityExists(entity)) continue
       setComponent(entity, ActiveHelperComponent, { enabled: true })
@@ -148,16 +148,12 @@ const reactor = () => {
     for (const entity of helperQuery) {
       if (getComponent(entity, ActiveHelperComponent).helperDefaultGizmo !== UndefinedEntity) continue
       const componentStudioIcon = componentStudioIconState.get(NO_PROXY)
-      const node = GLTFNodeState.getMutableNode(entity).get(NO_PROXY)
-      let targetComponent: any = undefined
-      for (const jsonID of Object.keys(node.extensions!)) {
-        const component = ComponentJSONIDMap.get(jsonID)!
-        if (componentStudioIcon[component?.name]) {
-          targetComponent = component
-          break
-        }
-      }
+      const entityComponents = getAllComponents(entity)
+      const targetComponent: any = entityComponents.find((component) =>
+        Object.keys(componentStudioIcon).find((key) => key === component.name)
+      )
 
+      console.log('DEBUG: targetComponent', targetComponent.name)
       const iconHelper = createHelperEntity(
         entity,
         () => {

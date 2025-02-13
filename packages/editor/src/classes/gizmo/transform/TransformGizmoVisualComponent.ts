@@ -71,7 +71,7 @@ export const TransformGizmoVisualComponent = defineComponent({
 
       const gizmoEntity = createEntity()
       setComponent(gizmoEntity, ObjectComponent, new Object3D())
-      setComponent(gizmoEntity, NameComponent, `gizmoEntity`)
+      setComponent(gizmoEntity, NameComponent, `transformGizmoEntity`)
       setComponent(gizmoEntity, TransformGizmoTagComponent)
       setComponent(gizmoEntity, TransformComponent)
       setComponent(gizmoEntity, VisibleComponent)
@@ -83,7 +83,7 @@ export const TransformGizmoVisualComponent = defineComponent({
 
       const helperEntity = createEntity()
       setComponent(helperEntity, ObjectComponent, new Object3D())
-      setComponent(helperEntity, NameComponent, `gizmoHelperEntity`)
+      setComponent(helperEntity, NameComponent, `transformGizmoHelperEntity`)
       setComponent(helperEntity, TransformGizmoTagComponent)
       setComponent(helperEntity, VisibleComponent)
       setComponent(helperEntity, TransformComponent)
@@ -95,7 +95,7 @@ export const TransformGizmoVisualComponent = defineComponent({
 
       const pickerEntity = createEntity()
       setComponent(pickerEntity, ObjectComponent, new Object3D())
-      setComponent(pickerEntity, NameComponent, `gizmoPickerEntity`)
+      setComponent(pickerEntity, NameComponent, `transformGizmoPickerEntity`)
       setComponent(pickerEntity, TransformGizmoTagComponent)
       setComponent(pickerEntity, VisibleComponent)
       setComponent(pickerEntity, TransformComponent)

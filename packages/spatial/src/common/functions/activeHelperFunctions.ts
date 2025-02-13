@@ -33,7 +33,6 @@ import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
 import { TransformComponent } from '../../SpatialModule'
-import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
 import { ActiveHelperComponent } from '../ActiveHelperComponent'
 import { NameComponent } from '../NameComponent'
 
@@ -81,12 +80,11 @@ export function gizmoIconUpdate(parentEntity: Entity) {
   const transform = getComponent(activeHelperComponent.helperDefaultGizmo, TransformComponent)
   const size = transform.scale
   const camera = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent)
-  const camDistSquared = getOptionalComponent(activeHelperComponent.helperDefaultGizmo, DistanceFromCameraComponent)
-    ?.squaredDistance
-  if (camDistSquared === undefined) return
+
   const factor = (camera as any).isOrthographicCamera
     ? ((camera as any).top - (camera as any).bottom) / camera.zoom
-    : Math.pow(camDistSquared, 0.5) * Math.min((1.9 * Math.tan((Math.PI * camera.fov) / 360)) / camera.zoom, 7)
+    : transform.position.distanceTo(camera.position) *
+      Math.min((1.9 * Math.tan((Math.PI * camera.fov) / 360)) / camera.zoom, 7)
 
   const finalSize = size.set(1, 1, 1).multiplyScalar(factor * size.z * activeHelperComponent.sizeFactor)
   setComponent(activeHelperComponent.helperDefaultGizmo, TransformComponent, { scale: finalSize })
