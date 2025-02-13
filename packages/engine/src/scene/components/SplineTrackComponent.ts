@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { EngineState, EntityTreeComponent, UUIDComponent, useEntityContext } from '@ir-engine/ecs'
+import { EngineState, EntityTreeComponent, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -40,7 +40,8 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { PhysicsSystem } from '@ir-engine/spatial/src/physics/systems/PhysicsSystem'
-import { NodeIDComponent, NodeIDSchema } from '../../gltf/NodeIDComponent'
+import { NodeFunctions } from '../../gltf/NodeFunctions'
+import { NodeIDSchema } from '../../gltf/NodeIDComponent'
 import { SplineComponent } from './SplineComponent'
 
 const _euler = new Euler()
@@ -73,7 +74,7 @@ export const SplineTrackComponent = defineComponent({
         const { deltaSeconds } = getState(ECSState)
         if (isEditing) return
         if (!component.splineEntityUUID.value) return
-        const splineTargetEntity = NodeIDComponent.getEntityFromNodeID(entity, component.splineEntityUUID.value)
+        const splineTargetEntity = NodeFunctions.getEntityFromNodeID(entity, component.splineEntityUUID.value)
         if (!splineTargetEntity) return
 
         const splineComponent = getOptionalComponent(splineTargetEntity, SplineComponent)
@@ -153,7 +154,7 @@ export const SplineTrackComponent = defineComponent({
 
     useEffect(() => {
       if (!component.splineEntityUUID.value) return
-      const splineTargetEntity = NodeIDComponent.getEntityFromNodeID(entity, component.splineEntityUUID.value)
+      const splineTargetEntity = NodeFunctions.getEntityFromNodeID(entity, component.splineEntityUUID.value)
       if (!splineTargetEntity) return
       const splineComponent = getOptionalComponent(splineTargetEntity, SplineComponent)
       if (!splineComponent) return

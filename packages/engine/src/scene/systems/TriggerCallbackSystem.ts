@@ -32,7 +32,7 @@ import { CollisionComponent } from '@ir-engine/spatial/src/physics/components/Co
 import { PhysicsSystem } from '@ir-engine/spatial/src/physics/systems/PhysicsSystem'
 import { ColliderHitEvent, CollisionEvents } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 
-import { NodeIDComponent } from '../../gltf/NodeIDComponent'
+import { NodeFunctions } from '../../gltf/NodeFunctions'
 import { TriggerCallbackComponent } from '../components/TriggerCallbackComponent'
 
 export const triggerEnterOrExit = (triggerEntity: Entity, otherEntity: Entity, hit: ColliderHitEvent) => {
@@ -40,9 +40,9 @@ export const triggerEnterOrExit = (triggerEntity: Entity, otherEntity: Entity, h
   const triggerComponent = getOptionalComponent(contextEntity, TriggerCallbackComponent)
   if (!triggerComponent) return
   for (const trigger of triggerComponent.triggers) {
-    if (trigger.target && !NodeIDComponent.getEntityFromNodeID(contextEntity, trigger.target)) continue
+    if (trigger.target && !NodeFunctions.getEntityFromNodeID(contextEntity, trigger.target)) continue
     const targetEntity = trigger.target
-      ? NodeIDComponent.getEntityFromNodeID(contextEntity, trigger.target)
+      ? NodeFunctions.getEntityFromNodeID(contextEntity, trigger.target)
       : triggerEntity
     if (targetEntity && (trigger.onEnter || trigger.onExit)) {
       const callbacks = getOptionalComponent(targetEntity, CallbackComponent)

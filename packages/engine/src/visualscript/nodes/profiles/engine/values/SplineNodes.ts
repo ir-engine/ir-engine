@@ -33,7 +33,8 @@ import { SplineComponent } from '@ir-engine/engine/src/scene/components/SplineCo
 import { SplineTrackComponent } from '@ir-engine/engine/src/scene/components/SplineTrackComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Assert, NodeCategory, makeAsyncNodeDefinition, makeFunctionNodeDefinition } from '@ir-engine/visual-script'
-import { NodeID, NodeIDComponent } from '../../../../../gltf/NodeIDComponent'
+import { NodeFunctions } from '../../../../../gltf/NodeFunctions'
+import { NodeID } from '../../../../../gltf/NodeIDComponent'
 
 const splineQuery = defineQuery([SplineComponent])
 
@@ -112,7 +113,7 @@ export const addSplineTrack = makeAsyncNodeDefinition({
         // can we hook into the spline track reactor somehow? this feels wasteful, but probably the right way to do it
         const splineTrack = getComponent(entity, SplineTrackComponent)
         if (splineTrack.loop) return
-        const splineEntity = NodeIDComponent.getEntityFromNodeID(entity, splineTrack.splineEntityUUID!)
+        const splineEntity = NodeFunctions.getEntityFromNodeID(entity, splineTrack.splineEntityUUID!)
         if (!splineEntity) return
         const spline = getOptionalComponent(splineEntity, SplineComponent)
         if (!spline) return

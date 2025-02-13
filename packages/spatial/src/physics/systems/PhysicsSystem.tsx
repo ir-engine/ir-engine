@@ -34,7 +34,7 @@ import { SimulationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 
-import { EngineState, Not, useEntityContext, UUIDComponent } from '@ir-engine/ecs'
+import { EngineState, Not, useEntityContext } from '@ir-engine/ecs'
 import React from 'react'
 import { Vector3 } from 'three'
 import { InputHeuristicState, IntersectionData } from '../../input/functions/ClientInputHeuristics'

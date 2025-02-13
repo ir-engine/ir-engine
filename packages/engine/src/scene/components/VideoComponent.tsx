@@ -64,7 +64,8 @@ import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { Vector2_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
-import { NodeIDComponent, NodeIDSchema } from '../../gltf/NodeIDComponent'
+import { NodeFunctions } from '../../gltf/NodeFunctions'
+import { NodeIDSchema } from '../../gltf/NodeIDComponent'
 import { clearErrors } from '../functions/ErrorFunctions'
 import { getTextureSize, PLANE_GEO, resizeVideoMesh, SideSchema, SPHERE_GEO } from './ImageComponent'
 import { MediaElementComponent } from './MediaComponent'
@@ -141,7 +142,7 @@ function VideoReactor() {
   const video = useComponent(entity, VideoComponent)
   const visible = useHasComponent(entity, VisibleComponent)
   const mediaUUID = video.mediaUUID.value
-  const mediaEntity = NodeIDComponent.useEntityFromNodeID(entity, mediaUUID) || entity
+  const mediaEntity = NodeFunctions.useEntityFromNodeID(entity, mediaUUID) || entity
   const hasMediaElementComponent = useHasComponent(mediaEntity, MediaElementComponent)
 
   const videoMeshEntity = useHookstate(() => {

@@ -27,6 +27,7 @@ import { useQuery } from '@ir-engine/ecs'
 import { getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { NodeFunctions } from '@ir-engine/engine/src/gltf/NodeFunctions'
 import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { RenderSettingsComponent } from '@ir-engine/engine/src/scene/components/RenderSettingsComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
@@ -124,7 +125,7 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
   )
 
   useEffect(() => {
-    if (!NodeIDComponent.getEntityFromNodeID(entity, rendererSettingsState.primaryLight.value)) {
+    if (!NodeFunctions.getEntityFromNodeID(entity, rendererSettingsState.primaryLight.value)) {
       setComponent(entity, RenderSettingsComponent, {
         csm: false,
         primaryLight: '' as NodeID

@@ -73,6 +73,7 @@ import {
 import { toTrianglesDrawMode } from '@ir-engine/spatial/src/common/classes/BufferGeometryUtils'
 
 import { Entity } from '@ir-engine/ecs'
+import { SourceID } from '../../../scene/components/SourceComponent'
 import { FileLoader } from '../base/FileLoader'
 import { TextureLoader } from '../texture/TextureLoader'
 import {
@@ -98,7 +99,6 @@ import {
   updateMorphTargets
 } from './GLTFLoaderFunctions'
 import { KTX2Loader } from './KTX2Loader'
-import { SourceID } from '../../../scene/components/SourceComponent'
 
 export function getImageURIMimeType(uri) {
   if (uri.search(/\.jpe?g($|\?)/i) > 0 || uri.search(/^data\:image\/jpeg/) === 0) return 'image/jpeg'

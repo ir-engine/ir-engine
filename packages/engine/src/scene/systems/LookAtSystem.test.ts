@@ -28,10 +28,8 @@ import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
   EntityTreeComponent,
-  EntityUUID,
   SystemDefinitions,
   SystemUUID,
-  UUIDComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -42,17 +40,21 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
-import { Matrix4, Quaternion, Vector3 } from 'three'
+import { ReferenceSpaceState } from '@ir-engine/spatial/src/ReferenceSpaceState'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import {
+  TransformDirtyCleanupSystem,
+  TransformDirtyUpdateSystem
+} from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { assertVec } from '@ir-engine/spatial/tests/util/assert'
 import { mockSpatialEngine } from '@ir-engine/spatial/tests/util/mockSpatialEngine'
-import { ReferenceSpaceState } from '@ir-engine/spatial/src/ReferenceSpaceState'
-import { LookAtComponent } from '../components/LookAtComponent'
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-import { LookAtSystem } from './LookAtSystem'
-import { TransformDirtyCleanupSystem, TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
-import { NodeID, NodeIDComponent } from '../../gltf/NodeIDComponent'
-import { SourceID } from '../components/SourceComponent'
 import { act, render } from '@testing-library/react'
+import { Matrix4, Quaternion, Vector3 } from 'three'
+import { NodeFunctions } from '../../gltf/NodeFunctions'
+import { NodeID, NodeIDComponent } from '../../gltf/NodeIDComponent'
+import { LookAtComponent } from '../components/LookAtComponent'
+import { SourceID } from '../components/SourceComponent'
+import { LookAtSystem } from './LookAtSystem'
 
 const sourceID = 'sourceID' as SourceID
 const facerNodeID = 'facerNodeID' as NodeID
@@ -213,7 +215,10 @@ describe('LookAtSystem', () => {
           assert.equal(hasComponent(testEntity, LookAtComponent), true)
           assert.equal(Boolean(getComponent(testEntity, LookAtComponent).target), true)
           console.log(getComponent(testEntity, LookAtComponent).target)
-          assert.equal(NodeIDComponent.getEntityFromNodeID(testEntity, getComponent(testEntity, LookAtComponent).target), facerEntity)
+          assert.equal(
+            NodeFunctions.getEntityFromNodeID(testEntity, getComponent(testEntity, LookAtComponent).target),
+            facerEntity
+          )
           const before = TransformComponent.dirty[testEntity]
           assert.equal(before, 0)
           // Run and Check the result

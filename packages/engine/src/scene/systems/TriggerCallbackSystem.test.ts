@@ -28,7 +28,6 @@ import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
   EntityTreeComponent,
-  EntityUUID,
   SystemDefinitions,
   SystemUUID,
   UUIDComponent,
@@ -48,14 +47,13 @@ import { Physics, PhysicsWorld } from '@ir-engine/spatial/src/physics/classes/Ph
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { CollisionComponent } from '@ir-engine/spatial/src/physics/components/CollisionComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
-import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
 import { ColliderHitEvent, CollisionEvents } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { TriggerCallbackSystem, triggerEnterOrExit } from './TriggerCallbackSystem'
+import { act, render } from '@testing-library/react'
 import { NodeID, NodeIDComponent } from '../../gltf/NodeIDComponent'
 import { SourceID } from '../components/SourceComponent'
 import { TriggerCallbackComponent } from '../components/TriggerCallbackComponent'
-import { act, render } from '@testing-library/react'
+import { TriggerCallbackSystem, triggerEnterOrExit } from './TriggerCallbackSystem'
 
 describe('TriggerCallbackSystem', () => {
   describe('IDs', () => {

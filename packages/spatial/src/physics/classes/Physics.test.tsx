@@ -58,7 +58,6 @@ import { getInteractionGroups } from '../functions/getInteractionGroups'
 import {
   Entity,
   EntityTreeComponent,
-  EntityUUID,
   SystemDefinitions,
   UUIDComponent,
   UndefinedEntity,

@@ -30,7 +30,7 @@ import { Vector3_Up, Vector3_Zero } from '@ir-engine/spatial/src/common/constant
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { NodeIDComponent } from '../../gltf/NodeIDComponent'
+import { NodeFunctions } from '../../gltf/NodeFunctions'
 import { LookAtComponent } from '../components/LookAtComponent'
 
 const facerQuery = defineQuery([LookAtComponent, TransformComponent])
@@ -51,7 +51,7 @@ export const LookAtSystem = defineSystem({
 
     for (const entity of facerQuery()) {
       const facer = getComponent(entity, LookAtComponent)
-      const targetEntity = facer.target ? NodeIDComponent.getEntityFromNodeID(entity, facer.target) : viewerEntity
+      const targetEntity = facer.target ? NodeFunctions.getEntityFromNodeID(entity, facer.target) : viewerEntity
       if (!targetEntity) continue
       TransformComponent.getWorldPosition(entity, _srcPosition)
       TransformComponent.getWorldPosition(targetEntity, _dstPosition)

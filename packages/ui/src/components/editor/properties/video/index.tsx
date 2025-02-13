@@ -37,6 +37,7 @@ import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import { NodeFunctions } from '@ir-engine/engine/src/gltf/NodeFunctions'
 import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { Checkbox } from '@ir-engine/ui'
 import { BackSide, ClampToEdgeWrapping, DoubleSide, FrontSide, MirroredRepeatWrapping, RepeatWrapping } from 'three'
@@ -71,7 +72,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
 
   const video = useComponent(props.entity, VideoComponent)
   const mediaUUID = video.mediaUUID.value
-  const mediaEntity = NodeIDComponent.getEntityFromNodeID(props.entity, mediaUUID)
+  const mediaEntity = NodeFunctions.getEntityFromNodeID(props.entity, mediaUUID)
   const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
   const mediaEntities = useQuery([MediaComponent])
   const mediaOptions = mediaEntities

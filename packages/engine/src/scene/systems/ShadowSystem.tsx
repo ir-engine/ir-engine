@@ -94,7 +94,7 @@ import { TransformSystem } from '@ir-engine/spatial/src/transform/systems/Transf
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { useHasModelOrIndependentMesh } from '../../gltf/GLTFComponent'
-import { NodeIDComponent } from '../../gltf/NodeIDComponent'
+import { NodeFunctions } from '../../gltf/NodeFunctions'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
@@ -254,7 +254,7 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
   const renderSettingsComponent = useComponent(renderSettingsEntity, RenderSettingsComponent)
   const xrLightProbeEntity = useHookstate(getMutableState(XRLightProbeState).directionalLightEntity)
   const activeLightEntity = useHookstate(
-    NodeIDComponent.getEntityFromNodeID(renderSettingsEntity, renderSettingsComponent.primaryLight.value)
+    NodeFunctions.getEntityFromNodeID(renderSettingsEntity, renderSettingsComponent.primaryLight.value)
   )
   const directionalLight = useOptionalComponent(activeLightEntity.value, DirectionalLightComponent)
 
@@ -280,7 +280,7 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
 
     if (renderSettingsComponent.primaryLight.value) {
       activeLightEntity.set(
-        NodeIDComponent.getEntityFromNodeID(renderSettingsEntity, renderSettingsComponent.primaryLight.value)
+        NodeFunctions.getEntityFromNodeID(renderSettingsEntity, renderSettingsComponent.primaryLight.value)
       )
       return
     }

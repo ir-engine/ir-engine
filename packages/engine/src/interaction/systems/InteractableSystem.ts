@@ -39,7 +39,7 @@ import { DistanceFromCameraComponent } from '@ir-engine/spatial/src/transform/co
 import { TransformSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { NodeIDComponent } from '../../gltf/NodeIDComponent'
+import { NodeFunctions } from '../../gltf/NodeFunctions'
 import { InteractableComponent } from '../components/InteractableComponent'
 import {
   gatherAvailableInteractables,
@@ -135,8 +135,8 @@ const clickInteract = (entity: Entity) => {
   const interactable = getOptionalComponent(entity, InteractableComponent)
   if (!interactable) return
   for (const callback of interactable.callbacks) {
-    if (callback.target && !NodeIDComponent.getEntityFromNodeID(entity, callback.target)) continue
-    const targetEntity = callback.target ? NodeIDComponent.getEntityFromNodeID(entity, callback.target) : entity
+    if (callback.target && !NodeFunctions.getEntityFromNodeID(entity, callback.target)) continue
+    const targetEntity = callback.target ? NodeFunctions.getEntityFromNodeID(entity, callback.target) : entity
     if (targetEntity && callback.callbackID) {
       const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
       if (!callbacks) continue
@@ -151,9 +151,9 @@ const interactWithClosestInteractable = () => {
     const interactable = getOptionalComponent(interactableEntity, InteractableComponent)
     if (interactable) {
       for (const callback of interactable.callbacks) {
-        if (callback.target && !NodeIDComponent.getEntityFromNodeID(interactableEntity, callback.target)) continue
+        if (callback.target && !NodeFunctions.getEntityFromNodeID(interactableEntity, callback.target)) continue
         const targetEntity = callback.target
-          ? NodeIDComponent.getEntityFromNodeID(interactableEntity, callback.target)
+          ? NodeFunctions.getEntityFromNodeID(interactableEntity, callback.target)
           : interactableEntity
         if (targetEntity && callback.callbackID) {
           const callbacks = getOptionalComponent(targetEntity, CallbackComponent)

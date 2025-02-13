@@ -48,6 +48,7 @@ import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/Scene
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { SourceComponent } from '../scene/components/SourceComponent'
 import { AssetState, GLTFLoadSystem } from './GLTFState'
+import { NodeFunctions } from './NodeFunctions'
 import { NodeIDComponent } from './NodeIDComponent'
 
 const assertSignificantFigures = (actual: number[], expected: number[], figures = 8) => {
@@ -115,9 +116,9 @@ describe.skip('GLTFState', () => {
     const system = SystemDefinitions.get(GLTFLoadSystem)!
     const reactor = startReactor(system.reactor!)
 
-    await vi.waitUntil(() => NodeIDComponent.getEntityFromNodeID(gltfEntity, nodeUUID), { timeout: 10000 })
+    await vi.waitUntil(() => NodeFunctions.getEntityFromNodeID(gltfEntity, nodeUUID), { timeout: 10000 })
 
-    const nodeEntity = NodeIDComponent.getEntityFromNodeID(gltfEntity, nodeUUID)
+    const nodeEntity = NodeFunctions.getEntityFromNodeID(gltfEntity, nodeUUID)
 
     const nodeEntityTree = getComponent(nodeEntity, EntityTreeComponent)
     const nodeName = getComponent(nodeEntity, NameComponent)
@@ -133,7 +134,7 @@ describe.skip('GLTFState', () => {
 
     AssetState.unload(gltfEntity)
 
-    assert(!NodeIDComponent.getEntityFromNodeID(gltfEntity, nodeUUID))
+    assert(!NodeFunctions.getEntityFromNodeID(gltfEntity, nodeUUID))
   })
 
   it('should load a GLTF file with a node and child', () => {
@@ -169,8 +170,8 @@ describe.skip('GLTFState', () => {
 
     applyIncomingActions()
 
-    const nodeEntity = NodeIDComponent.getEntityFromNodeID(gltfEntity, nodeUUID)
-    const childEntity = NodeIDComponent.getEntityFromNodeID(gltfEntity, childUUID)
+    const nodeEntity = NodeFunctions.getEntityFromNodeID(gltfEntity, nodeUUID)
+    const childEntity = NodeFunctions.getEntityFromNodeID(gltfEntity, childUUID)
 
     assert(nodeEntity)
     assert(childEntity)
@@ -191,8 +192,8 @@ describe.skip('GLTFState', () => {
 
     applyIncomingActions()
 
-    assert(!NodeIDComponent.getEntityFromNodeID(gltfEntity, nodeUUID))
-    assert(!NodeIDComponent.getEntityFromNodeID(gltfEntity, childUUID))
+    assert(!NodeFunctions.getEntityFromNodeID(gltfEntity, nodeUUID))
+    assert(!NodeFunctions.getEntityFromNodeID(gltfEntity, childUUID))
   })
 
   it('should load a GLTF file with a node and child with a child', () => {
@@ -236,9 +237,9 @@ describe.skip('GLTFState', () => {
 
     applyIncomingActions()
 
-    const nodeEntity = NodeIDComponent.getEntityFromNodeID(gltfEntity, nodeUUID)
-    const childEntity = NodeIDComponent.getEntityFromNodeID(gltfEntity, childUUID)
-    const grandChildEntity = NodeIDComponent.getEntityFromNodeID(gltfEntity, grandchildUUID)
+    const nodeEntity = NodeFunctions.getEntityFromNodeID(gltfEntity, nodeUUID)
+    const childEntity = NodeFunctions.getEntityFromNodeID(gltfEntity, childUUID)
+    const grandChildEntity = NodeFunctions.getEntityFromNodeID(gltfEntity, grandchildUUID)
 
     assert(nodeEntity)
     assert(childEntity)
@@ -264,9 +265,9 @@ describe.skip('GLTFState', () => {
 
     applyIncomingActions()
 
-    assert(!NodeIDComponent.getEntityFromNodeID(gltfEntity, nodeUUID))
-    assert(!NodeIDComponent.getEntityFromNodeID(gltfEntity, childUUID))
-    assert(!NodeIDComponent.getEntityFromNodeID(gltfEntity, grandchildUUID))
+    assert(!NodeFunctions.getEntityFromNodeID(gltfEntity, nodeUUID))
+    assert(!NodeFunctions.getEntityFromNodeID(gltfEntity, childUUID))
+    assert(!NodeFunctions.getEntityFromNodeID(gltfEntity, grandchildUUID))
   })
 
   it('should load a GLTF file with a node and child with correct transforms', () => {
@@ -313,8 +314,8 @@ describe.skip('GLTFState', () => {
 
     applyIncomingActions()
 
-    const node = NodeIDComponent.getEntityFromNodeID(gltfEntity, nodeUUID)!
-    const child = NodeIDComponent.getEntityFromNodeID(gltfEntity, childUUID)!
+    const node = NodeFunctions.getEntityFromNodeID(gltfEntity, nodeUUID)!
+    const child = NodeFunctions.getEntityFromNodeID(gltfEntity, childUUID)!
 
     assert(node)
     assert(child)
@@ -373,7 +374,7 @@ describe.skip('GLTFState', () => {
 
     applyIncomingActions()
 
-    const nodeEntity = NodeIDComponent.getEntityFromNodeID(gltfEntity, nodeUUID)
+    const nodeEntity = NodeFunctions.getEntityFromNodeID(gltfEntity, nodeUUID)
 
     assert.equal(getComponent(nodeEntity!, VisibleComponent), true)
     assert(getComponent(nodeEntity!, HemisphereLightComponent))

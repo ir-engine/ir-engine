@@ -122,6 +122,7 @@ import SplineNodeEditor from '@ir-engine/ui/src/components/editor/properties/spl
 import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { IFrameComponent } from '@ir-engine/engine/src/scene/components/IFrameComponent'
 import { LookAtComponent } from '@ir-engine/engine/src/scene/components/LookAtComponent'
+import { TriggerCallbackComponent } from '@ir-engine/engine/src/scene/components/TriggerCallbackComponent'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import PlaylistNodeEditor from '@ir-engine/ui/src/components/editor/properties/playlist'
 import SplineTrackNodeEditor from '@ir-engine/ui/src/components/editor/properties/spline/track'
@@ -133,7 +134,6 @@ import VisualScriptNodeEditor from '@ir-engine/ui/src/components/editor/properti
 import VolumetricNodeEditor from '@ir-engine/ui/src/components/editor/properties/volumetric'
 import LegacyVolumetricNodeEditor from '@ir-engine/ui/src/components/editor/properties/volumetric/legacy'
 import { EditorComponentType } from '../components/properties/Util'
-import { TriggerCallbackComponent } from '@ir-engine/engine/src/scene/components/TriggerCallbackComponent'
 
 export const ComponentEditorsState = defineState({
   name: 'ee.editor.ComponentEditorsState',
