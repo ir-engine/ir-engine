@@ -18,7 +18,6 @@ pnpm-lock.yaml
 #local files
 .env*
 !.env.local.default
-!.env.remote.default
 
 #config
 config/*
@@ -175,5 +174,3 @@ packages/ui/tests/jest-test-results.json
 certs/tailscale
 
 **/credentials
-
-packages/screenshot-testing/*.zip
