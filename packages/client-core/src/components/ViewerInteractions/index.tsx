@@ -34,10 +34,10 @@ import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { useTranslation } from 'react-i18next'
 import { LoadingSystemState } from '../../systems/state/LoadingState'
 import InstanceChat from '../../user/InstanceChat'
+import { VideoWindows } from '../../user/VideoWindows'
 import { ARPlacement } from '../ARPlacement'
 import { Fullscreen } from '../Fullscreen'
 import { MediaIconsBox } from '../MediaIconsBox'
-import { UserMediaWindows } from '../UserMediaWindows'
 import { XRLoading } from '../XRLoading'
 import ScreenRotateImage from './screen-rotate.svg'
 
@@ -77,13 +77,13 @@ export const ViewerInteractions = () => {
   }
 
   return (
-    <div style={{ opacity: 1 - loadingScreenOpacity.value }} className="relative h-screen w-full p-6">
+    <div style={{ opacity: 1 - loadingScreenOpacity.value }} className="relative h-dvh w-full p-6">
       <div className="pointer-events-auto absolute top-0 h-fit w-full pt-[inherit]">
         <MediaIconsBox />
       </div>
 
       <div className="pointer-events-auto absolute left-0 top-0 pl-[inherit] pt-[inherit]">
-        <UserMediaWindows />
+        <VideoWindows />
       </div>
 
       <div className="pointer-events-auto absolute bottom-0 h-fit w-full pb-[inherit]">
