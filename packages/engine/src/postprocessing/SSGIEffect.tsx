@@ -81,7 +81,6 @@ export const SSGIEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
 
     effects[effectKey].set(eff)
     return () => {
-      //effects[effectKey].dispose()
       effects[effectKey].set(none)
       RendererComponent.unregisterPass(rendererEntity, VelocityDepthNormalPass)
     }

@@ -46,7 +46,6 @@ import {
   ECSState,
   Entity,
   getComponent,
-  getMutableComponent,
   hasComponent,
   PresentationSystemGroup,
   QueryReactor,
@@ -141,8 +140,8 @@ export const RendererComponent = defineComponent({
     //return class name as string from constructor implicit name
     const key = passType.name
 
-    const rendererComponent = getMutableComponent(entity, RendererComponent)
-    const count = rendererComponent.passesFakeMap[key] ? rendererComponent.passesFakeMap[key].count.value : 0
+    const rendererComponent = getComponent(entity, RendererComponent)
+    const count = rendererComponent.passesFakeMap[key] ? rendererComponent.passesFakeMap[key].count : 0
     return count > 0
   },
 
@@ -169,16 +168,16 @@ export const RendererComponent = defineComponent({
     //return class name as string from constructor implicit name
     const key = passType.name
 
-    const rendererComponent = getMutableComponent(rendererEntity, RendererComponent)
-    if (rendererComponent.passesFakeMap[key].value) {
-      const count = rendererComponent.passesFakeMap[key].count.value
-      const existingPass = rendererComponent.passesFakeMap[key].pass.value
-      rendererComponent.passesFakeMap[key].set({ pass: existingPass, count: count + 1 })
+    const rendererComponent = getComponent(rendererEntity, RendererComponent)
+    if (rendererComponent.passesFakeMap[key]) {
+      const count = rendererComponent.passesFakeMap[key].count
+      const existingPass = rendererComponent.passesFakeMap[key].pass
+      rendererComponent.passesFakeMap[key] = { pass: existingPass, count: count + 1 }
     } else {
       const generatedPass = passFunction(rendererEntity)
-      rendererComponent.passesFakeMap[key].set({ pass: generatedPass, count: 1 })
+      rendererComponent.passesFakeMap[key] = { pass: generatedPass, count: 1 }
     }
-    return rendererComponent.passesFakeMap[key].value.pass as T
+    return rendererComponent.passesFakeMap[key].pass as T
   },
 
   /**
@@ -190,15 +189,16 @@ export const RendererComponent = defineComponent({
     //return class name as string from constructor implicit name
     const key = passType.name
 
-    const rendererComponent = getMutableComponent(entity, RendererComponent)
-    const count = rendererComponent.passesFakeMap[key].count.value
+    const rendererComponent = getComponent(entity, RendererComponent)
+    const count = rendererComponent.passesFakeMap[key].count
     if (count > 1) {
-      rendererComponent.passesFakeMap[key].count.set(count - 1)
+      rendererComponent.passesFakeMap[key].count = count - 1
     } else {
-      const effectComposerState = rendererComponent.effectComposer as State<EffectComposer>
+      const effectComposerState = rendererComponent.effectComposer as EffectComposer
       const pass = RendererComponent.getPass(entity, passType)
-      effectComposerState.get(NO_PROXY).removePass(pass)
-      rendererComponent.passesFakeMap[key].set(none)
+      effectComposerState.removePass(pass)
+      rendererComponent.passesFakeMap[key] = none
+      delete rendererComponent.passesFakeMap[key]
     }
   },
 
@@ -360,20 +360,20 @@ export const RendererComponent = defineComponent({
       effectComposer.setRenderer(rendererComponent.renderer.value as WebGLRenderer)
 
       return () => {
-        // if (!hasComponent(entity, RendererComponent)) return
-        // if (enabled) {
-        //   for (const effect in effectsVal) {
-        //     effectsVal[effect].dispose()
-        //     effectComposerState[effect].set(none)
-        //   }
-        // }
-        // effectComposer.EffectPass.dispose()
-        // effectComposer.removePass(effectPass)
-        // if (rendererComponent.passesFakeMap.value) {
-        //   for (const pass of Object.values(rendererComponent.passesFakeMap.value as Record<string, PassCount>)) {
-        //     effectComposer.removePass(pass.pass)
-        //   }
-        // }
+        if (!hasComponent(entity, RendererComponent)) return
+        if (enabled) {
+          for (const effect in effectsVal) {
+            effectsVal[effect].dispose()
+            effectComposerState[effect].set(none)
+          }
+        }
+        effectComposer.EffectPass.dispose()
+        effectComposer.removePass(effectPass)
+        if (rendererComponent.passesFakeMap.value) {
+          for (const pass of Object.values(rendererComponent.passesFakeMap.value as Record<string, PassCount>)) {
+            effectComposer.removePass(pass.pass)
+          }
+        }
       }
     }, [
       rendererComponent.effects,

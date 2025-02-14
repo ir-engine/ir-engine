@@ -77,7 +77,7 @@ export const SSREffectProcessReactor: React.FC<EffectReactorProps> = (props: {
     const eff = new SSREffect(scene, camera.value as ArrayCamera, velocityDepthNormalPass, effectData[effectKey].value)
     effects[effectKey].set(eff)
     return () => {
-      // effects[effectKey].set(none)
+      effects[effectKey].set(none)
       RendererComponent.unregisterPass(rendererEntity, VelocityDepthNormalPass)
     }
   }, [isActive])
