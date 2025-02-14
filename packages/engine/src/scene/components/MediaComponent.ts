@@ -265,6 +265,8 @@ export function MediaReactor() {
 
   useEffect(() => {
     if (!mediaElement) return
+    const isEditing = getState(EngineState).isEditing
+    if (isEditing) return
     const autoPlay = getAutoPlay()
     media.paused.set(!autoPlay)
   }, [media.autoplay, mediaElement, getState(EngineState).isEditing])
