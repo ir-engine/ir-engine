@@ -420,6 +420,10 @@ function VideoReactor() {
       }
     } else {
       if (video.texture.get(NO_PROXY) !== localTextureRef.get(NO_PROXY)) {
+        //force the html media element to update it's image that is used for the texture, by setting the current time
+        const media = getComponent(mediaEntity, MediaComponent)
+        const mediaElement = getComponent(mediaEntity, MediaElementComponent)
+        mediaElement.element.currentTime = media.currentTrackTime
         video.texture.set(localTextureRef.get(NO_PROXY))
       }
     }
