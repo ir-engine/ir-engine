@@ -46,8 +46,6 @@ import { noiseAddToEffectRegistry } from './NoiseEffect'
 import { pixelationAddToEffectRegistry } from './PixelationEffect'
 import { smaaAddToEffectRegistry } from './SMAAEffect'
 import { ssaoAddToEffectRegistry } from './SSAOEffect'
-import { ssgiAddToEffectRegistry } from './SSGIEffect'
-import { ssrAddToEffectRegistry } from './SSREffect'
 import { scanlineAddToEffectRegistry } from './ScanlineEffect'
 import { shockWaveAddToEffectRegistry } from './ShockWaveEffect'
 import { traaAddToEffectRegistry } from './TRAAEffect'
@@ -81,8 +79,8 @@ export const populateEffectRegistry = () => {
   shockWaveAddToEffectRegistry()
   smaaAddToEffectRegistry()
   ssaoAddToEffectRegistry()
-  ssrAddToEffectRegistry()
-  ssgiAddToEffectRegistry()
+  // ssrAddToEffectRegistry()
+  // ssgiAddToEffectRegistry()
   textureAddToEffectRegistry()
   tiltShiftAddToEffectRegistry()
   toneMappingAddToEffectRegistry()
