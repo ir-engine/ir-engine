@@ -143,10 +143,10 @@ export const MediaComponent = defineComponent({
     paths: S.Array(S.String()),
     // runtime props
     xruiEntity: S.NonSerialized(S.Entity()),
-    paused: S.Bool(true),
-    ended: S.Bool(true),
-    waiting: S.Bool(false),
-    track: S.Number(-1),
+    paused: S.NonSerialized(S.Bool(true)),
+    ended: S.NonSerialized(S.Bool(true)),
+    waiting: S.NonSerialized(S.Bool(false)),
+    track: S.NonSerialized(S.Number(-1)),
     currentTrackTime: S.Number(0),
     currentTrackDuration: S.NonSerialized(S.Number(0)),
     isCurrentTrackLoaded: S.NonSerialized(S.Bool(false))
