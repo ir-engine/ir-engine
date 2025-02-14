@@ -123,7 +123,6 @@ const Select = ({
 
         const newDirection = spaceBelow >= spaceAbove ? 'down' : 'up'
         const _maxHeight = newDirection === 'down' ? 0.8 * spaceBelow : 0.8 * spaceAbove
-        console.log(options, newDirection, _maxHeight)
         setPositioning({
           ...positioning,
           direction: newDirection,
@@ -428,7 +427,6 @@ const Select = ({
             No options available
           </div>
         )}
-        {/* {} */}
       </div>
     </Popup>
   )
