@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useLayoutEffect } from 'react'
 
 import { TouchGamepad } from '@ir-engine/client-core/src/common/components/TouchGamepad'
-import UserMenu from '@ir-engine/client-core/src/user/menus'
+import UserMenus from '@ir-engine/client-core/src/user/menus'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 
 import { EngineState } from '@ir-engine/ecs'
@@ -87,7 +87,7 @@ export const ViewerInteractions = () => {
       </div>
 
       <div className="pointer-events-auto absolute bottom-0 h-fit w-full pb-[inherit]">
-        <UserMenu />
+        <UserMenus />
       </div>
 
       <div className="pointer-events-auto absolute bottom-0 left-0 pb-[inherit] pl-[inherit]">
