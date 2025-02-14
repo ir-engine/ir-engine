@@ -130,12 +130,7 @@ export async function addMediaNode(
         (entity) => {
           const firstChild = getComponent(entity, EntityTreeComponent).children[0]
           const json = serializeEntity(firstChild)
-          EditorControlFunctions.overwriteLookdevObject(
-            [{ name: GLTFComponent.jsonID, props: { src: url } }, ...extraComponentJson],
-            json,
-            parent!,
-            before
-          )
+          EditorControlFunctions.overwriteLookdevObject([...json, ...extraComponentJson], parent!, before)
           removeEntity(entity)
         }
       )
