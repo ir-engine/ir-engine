@@ -821,7 +821,7 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
   const layer = LayerComponent.get(entity)
   const createArgs = (schema: TTypedSchema<C>, key: string | number, data: any) => {
     const obj = key === '' ? data : data[key]
-    if (obj === undefined || obj === null || obj === UndefinedEntity) return obj
+    if (typeof obj === 'undefined') return
     switch (schema[Kind] as any) {
       case 'Null':
       case 'Undefined':
@@ -833,6 +833,7 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         return obj
       }
       case 'Number': {
+        if (obj === UndefinedEntity) return obj
         if ((schema[Kind] as any) === 'Number' && schema?.options?.['id'] === 'Entity') {
           const referencedEntity = obj as Entity
 
@@ -846,6 +847,7 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         }
       }
       case 'Any': {
+        if (!obj) return
         if (typeof obj === 'object' && 'clone' in obj && typeof obj.clone === 'function') {
           return obj.clone()
         } else if (Array.isArray(obj)) {
@@ -855,6 +857,7 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         }
       }
       case 'Class': {
+        if (!obj) return
         if ('clone' in obj && typeof obj.clone === 'function') {
           return obj.clone()
         } else {
@@ -872,6 +875,7 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         }
       }
       case 'Object': {
+        if (!obj) return
         const props = schema.properties as any
         const args = {} as any
         for (const k in props) {
@@ -882,6 +886,7 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         return args
       }
       case 'Record': {
+        if (!obj) return
         const { key, value } = schema.properties as { key: any; value: any }
         const args = {} as any
         for (const k in obj) {
@@ -892,6 +897,7 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         return args
       }
       case 'Array': {
+        if (!obj) return
         const props = schema.properties as any
         const args = [] as any[]
         for (let i = 0; i < obj.length; i++) {
@@ -901,6 +907,7 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         return args
       }
       case 'Tuple': {
+        if (!obj) return
         const props = schema.properties as any
         const args = [] as any[]
         for (let i = 0; i < props.length; i++) {
