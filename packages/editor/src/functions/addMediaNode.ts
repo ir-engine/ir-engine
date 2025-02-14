@@ -79,7 +79,6 @@ export async function addMediaNode(
 ): Promise<EntityUUID | null> {
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
-  console.log(contentType)
 
   if (contentType.startsWith('model/')) {
     if (contentType.startsWith('model/material')) {
