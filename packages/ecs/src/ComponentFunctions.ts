@@ -878,6 +878,7 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         }
       }
       case 'Object': {
+        if (!obj) return
         const props = schema.properties as any
         const args = {} as any
         for (const k in props) {
@@ -888,6 +889,7 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         return args
       }
       case 'Record': {
+        if (!obj) return
         const { key, value } = schema.properties as { key: any; value: any }
         const args = {} as any
         for (const k in obj) {
@@ -898,6 +900,7 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         return args
       }
       case 'Array': {
+        if (!obj) return
         const props = schema.properties as any
         const args = [] as any[]
         for (let i = 0; i < obj.length; i++) {
@@ -907,6 +910,7 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         return args
       }
       case 'Tuple': {
+        if (!obj) return
         const props = schema.properties as any
         const args = [] as any[]
         for (let i = 0; i < props.length; i++) {
