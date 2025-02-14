@@ -226,9 +226,7 @@ function VideoReactor() {
           color.rgb = pow(color.rgb, vec3(2.2));
           if (useAlpha) {
             float intensity = 0.0;
-            vec2 alphaMapUv = applyWrapping(vUv + alphaUVOffset, wrapS, wrapT);
-            vec4 alphaColor = texture2D(map, alphaMapUv);
-            intensity = alphaColor.r * 0.333  + alphaColor.g * 0.333 + alphaColor.b * 0.333;
+            intensity = color.r * 0.333  + color.g * 0.333 + color.b * 0.333;
             if (useAlphaInvert) {
               intensity = 1.0 - intensity;
             }
