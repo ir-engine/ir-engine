@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { OverlayComponentState } from '@ir-engine/client-core/src/systems/OverlaySystem'
 import capitalizeFirstLetter from '@ir-engine/common/src/utils/capitalizeFirstLetter'
 import { getComponent, hasComponent, useComponent, UUIDComponent } from '@ir-engine/ecs'
 import { commitProperty, EditorComponentType, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
@@ -36,7 +37,7 @@ import {
   XRUIActivationType
 } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
-import { OverlayComponent, OverlayComponentState } from '@ir-engine/engine/src/scene/components/OverlayComponent'
+import { OverlayComponent } from '@ir-engine/engine/src/scene/components/OverlayComponent'
 import { getState } from '@ir-engine/hyperflux'
 import { CodeSnippet01Md } from '../../../../icons'
 import InputGroup from '../../input/Group'

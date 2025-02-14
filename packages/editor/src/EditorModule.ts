@@ -24,6 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { AvatarSpawnSystem } from '@ir-engine/client-core/src/networking/AvatarSpawnSystem'
+import { OverlaySystem } from '@ir-engine/client-core/src/systems/OverlaySystem'
+import { UserUISystem } from '@ir-engine/client-core/src/user/UserUISystem'
 import { RenderInfoSystem } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
 // import { EditorInstanceNetworkingSystem } from './components/realtime/EditorInstanceNetworkingSystem'
 import { PositionalAudioSystem } from '@ir-engine/client-core/src/systems/PositionalAudioSystem'
@@ -48,11 +50,13 @@ export {
   ModelHandlingSystem,
   ModelLoadingSpinnerSystem,
   ObjectGridSnapSystem,
+  OverlaySystem,
   PositionalAudioSystem,
   RenderInfoSystem,
   RenderMonitorSystem,
   SelectionHighlightSystem,
   // EditorInstanceNetworkingSystem,
   TransformGizmoSystem,
-  UploadRequestSystem
+  UploadRequestSystem,
+  UserUISystem
 }

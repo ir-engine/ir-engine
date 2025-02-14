@@ -33,13 +33,13 @@ import { useHookstate } from '@hookstate/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { EngineState, QueryReactor, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
-import { OverlayComponent, OverlayComponentState } from '@ir-engine/engine/src/scene/components/OverlayComponent'
+import { OverlayComponent } from '@ir-engine/engine/src/scene/components/OverlayComponent'
 import { NetworkState } from '@ir-engine/network'
 import { PopoverState } from '../common/services/PopoverState'
 import { InviteService } from '../social/services/InviteService'
 import { LoadingUISystemState } from '../systems/LoadingUISystem'
+import { OverlayComponentState } from '../systems/OverlaySystem'
 import { ViewerMenuState } from '../util/ViewerMenuState'
-import EmbedFrame from './menus/avatar/EmbedFrame'
 
 const OverlayReactor = () => {
   const entity = useEntityContext()
@@ -135,12 +135,6 @@ const UserSystemReactor = () => {
         share: false
       })
   }, [worldHostId])
-
-  useEffect(() => {
-    getMutableState(OverlayComponentState).merge({
-      iframe: EmbedFrame
-    })
-  }, [])
 
   return <QueryReactor Components={[OverlayComponent]} ChildEntityReactor={OverlayReactor} />
 }

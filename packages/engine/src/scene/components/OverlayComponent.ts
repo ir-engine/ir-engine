@@ -27,7 +27,6 @@ import { useEffect } from 'react'
 
 import { defineComponent, getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { defineState, isClient } from '@ir-engine/hyperflux'
 import { removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 
 import { Entity } from '@ir-engine/ecs/src/Entity'
@@ -41,11 +40,6 @@ const toggleOpen = (overlayEntity: Entity) => {
   const overlayComponent = getComponent(overlayEntity, OverlayComponent)
   setComponent(overlayEntity, OverlayComponent, { isOpen: !overlayComponent.isOpen })
 }
-
-export const OverlayComponentState = defineState({
-  name: 'ir.engine.interaction.PopupState',
-  initial: {}
-})
 
 export const OverlayComponent = defineComponent({
   name: 'OverlayComponent',
@@ -64,7 +58,6 @@ export const OverlayComponent = defineComponent({
   errors: ['INVALID_URL'],
 
   reactor: function () {
-    if (!isClient) return null
     const entity = useEntityContext()
     const overlayComponent = useComponent(entity, OverlayComponent)
 
