@@ -46,7 +46,7 @@ const sortScreensBeforeCameras = (a: WindowType, b: WindowType) => {
   return 0
 }
 
-const useMediaWindows = () => {
+export const useMediaWindows = () => {
   const peerMediaChannelState = useMutableState(PeerMediaChannelState)
   const mediaNetworkInstanceState = useMediaNetwork()
   const mediaNetwork = NetworkState.mediaNetwork
