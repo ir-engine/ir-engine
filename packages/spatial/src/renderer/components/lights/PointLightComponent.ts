@@ -64,7 +64,10 @@ export const PointLightComponent = defineComponent({
     const entity = useEntityContext()
     const renderState = useMutableState(RendererState)
     const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
-    const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
+    const debugEnabled =
+      renderState.nodeHelperVisibility.value ||
+      (activeHelperComponent !== undefined && activeHelperComponent.enabled.value === true)
+
     const pointLightComponent = useComponent(entity, PointLightComponent)
     const light = useHookstate(() => new PointLight()).value as PointLight
     const helperEntity = useHelperEntity(entity, () => new PointLightHelper(light), debugEnabled)

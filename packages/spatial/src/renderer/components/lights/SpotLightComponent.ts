@@ -71,7 +71,9 @@ export const SpotLightComponent = defineComponent({
     const entity = useEntityContext()
     const renderState = useMutableState(RendererState)
     const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
-    const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
+    const debugEnabled =
+      renderState.nodeHelperVisibility.value ||
+      (activeHelperComponent !== undefined && activeHelperComponent.enabled.value === true)
 
     const spotLightComponent = useComponent(entity, SpotLightComponent)
     const light = useHookstate(() => new SpotLight()).value as SpotLight
