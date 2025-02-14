@@ -29,7 +29,7 @@ import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
-import React from 'react'
+import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
 import { Vector3 } from 'three'
@@ -255,7 +255,7 @@ export function FileContextMenu({
           .filter((action) => action.condition || Object.keys(action).length === 0)
           .map((action, index) => {
             return (
-              <>
+              <Fragment key={action.label}>
                 {Object.keys(action).length === 0 && <hr className="w-[80%] border-surface-outline-3-1" />}
                 {Object.keys(action).length > 0 && (
                   <span
@@ -270,7 +270,7 @@ export function FileContextMenu({
                     {action.label || ''}
                   </span>
                 )}
-              </>
+              </Fragment>
             )
           })}
       </div>
