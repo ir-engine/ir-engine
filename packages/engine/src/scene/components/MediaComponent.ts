@@ -190,6 +190,77 @@ export function MediaReactor() {
     return isEditing ? false : media.autoplay.value
   }
 
+  const playTrack = () => {
+    let nextTrack = media.track.value
+    const path = nextTrack === -1 ? '' : media.resources.value[nextTrack]
+
+    if (nextTrack !== -1 && nextTrack >= media.resources.length) {
+      // we already remove the case where we dont have any track
+      // if current path is null, we simply skip over and move to next proper track
+      nextTrack = (nextTrack + 1) % media.resources.length
+      media.track.set(nextTrack)
+      return
+    }
+
+    if (path === '') {
+      media.isCurrentTrackLoaded.set(false)
+      media.currentTrackTime.set(0)
+      media.currentTrackDuration.set(0)
+      removeComponent(entity, MediaElementComponent)
+      return
+    }
+
+    const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
+
+    if (assetClass !== 'audio' && assetClass !== 'video') {
+      addError(entity, MediaComponent, 'UNSUPPORTED_ASSET_CLASS')
+      return
+    }
+
+    media.ended.set(false)
+
+    if (!mediaElement || !mediaElement.element || mediaElement.element.nodeName.value.toLowerCase() !== assetClass) {
+      setUpMediaElement(entity, path, media, audioContext, gainNodeMixBuses)
+    }
+
+    setComponent(entity, MediaElementComponent)
+    const mediaElementState = getMutableComponent(entity, MediaElementComponent)
+
+    if (mediaElementState.element.src.value === path && media.isCurrentTrackLoaded.value) {
+      const duration = mediaElementState.element.duration.value
+      media.currentTrackDuration.set(duration)
+      return
+    }
+
+    mediaElementState.hls.value?.destroy()
+    mediaElementState.hls.set(undefined)
+    ;(mediaElementState.element.value as HTMLMediaElement).crossOrigin = 'anonymous'
+    ;(mediaElementState.element.value as HTMLMediaElement).ontimeupdate = (event) => {
+      if (!mediaElementState.element) return
+      const time = (mediaElementState.element.value as HTMLMediaElement).currentTime
+      media.currentTrackTime.set(time)
+    }
+    media.isCurrentTrackLoaded.set(false)
+    ;(mediaElementState.element.value as HTMLMediaElement).onloadeddata = (event) => {
+      const time = (mediaElementState.element.value as HTMLMediaElement).duration
+      media.currentTrackDuration.set(time)
+      media.isCurrentTrackLoaded.set(true)
+    }
+    if (isHLS(path)) {
+      setupHLS(entity, path).then((hls) => {
+        mediaElementState.hls.set(hls)
+        mediaElementState.hls.value!.attachMedia(mediaElementState.element.value as HTMLMediaElement)
+      })
+    } else {
+      mediaElementState.element.src.set(path)
+    }
+
+    if (!media.paused.value) {
+      mediaElementState.value.element.play()
+    }
+    validateTime()
+  }
+
   useEffect(() => {
     if (!rendererEntity) return
     setComponent(entity, BoundingBoxComponent)
@@ -309,12 +380,19 @@ export function MediaReactor() {
       // and signal to move to next track if one exists
       if (hasComponent(entity, MediaElementComponent)) {
         const mediaElement = getComponent(entity, MediaElementComponent).element
-        if (paths.length === 0 || !paths.includes(mediaElement.src)) {
+
+        if (paths.length === 0 || media.track.value >= paths.length) {
           mediaElement.pause()
           mediaElement.src = ''
           mediaElement.load()
           removeComponent(entity, MediaElementComponent)
           media.track.set(-1)
+        } else {
+          const currentSrc = paths[media.track.value]
+          //if the currently played track has been updated to a new src path
+          if (currentSrc !== mediaElement.src) {
+            playTrack()
+          }
         }
       }
 
@@ -357,74 +435,7 @@ export function MediaReactor() {
   useEffect(() => {
     if (!isClient) return
 
-    let nextTrack = media.track.value
-    const path = nextTrack === -1 ? '' : media.resources.value[nextTrack]
-
-    if (nextTrack !== -1 && nextTrack >= media.resources.length) {
-      // we already remove the case where we dont have any track
-      // if current path is null, we simply skip over and move to next proper track
-      nextTrack = (nextTrack + 1) % media.resources.length
-      media.track.set(nextTrack)
-      return
-    }
-
-    if (path === '') {
-      media.isCurrentTrackLoaded.set(false)
-      media.currentTrackTime.set(0)
-      media.currentTrackDuration.set(0)
-      removeComponent(entity, MediaElementComponent)
-      return
-    }
-
-    const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
-
-    if (assetClass !== 'audio' && assetClass !== 'video') {
-      addError(entity, MediaComponent, 'UNSUPPORTED_ASSET_CLASS')
-      return
-    }
-
-    media.ended.set(false)
-
-    if (!mediaElement || !mediaElement.element || mediaElement.element.nodeName.value.toLowerCase() !== assetClass) {
-      setUpMediaElement(entity, path, media, audioContext, gainNodeMixBuses)
-    }
-
-    setComponent(entity, MediaElementComponent)
-    const mediaElementState = getMutableComponent(entity, MediaElementComponent)
-
-    if (mediaElementState.element.src.value === path && media.isCurrentTrackLoaded.value) {
-      const duration = mediaElementState.element.duration.value
-      media.currentTrackDuration.set(duration)
-      return
-    }
-
-    mediaElementState.hls.value?.destroy()
-    mediaElementState.hls.set(undefined)
-    ;(mediaElementState.element.value as HTMLMediaElement).crossOrigin = 'anonymous'
-    ;(mediaElementState.element.value as HTMLMediaElement).ontimeupdate = (event) => {
-      if (!mediaElementState.element) return
-      const time = (mediaElementState.element.value as HTMLMediaElement).currentTime
-      media.currentTrackTime.set(time)
-    }
-    media.isCurrentTrackLoaded.set(false)
-    ;(mediaElementState.element.value as HTMLMediaElement).onloadeddata = (event) => {
-      const time = (mediaElementState.element.value as HTMLMediaElement).duration
-      media.currentTrackDuration.set(time)
-      media.isCurrentTrackLoaded.set(true)
-    }
-    if (isHLS(path)) {
-      setupHLS(entity, path).then((hls) => {
-        mediaElementState.hls.set(hls)
-        mediaElementState.hls.value!.attachMedia(mediaElementState.element.value as HTMLMediaElement)
-      })
-    } else {
-      mediaElementState.element.src.set(path)
-    }
-
-    if (!media.paused.value) {
-      mediaElementState.value.element.play()
-    }
-    validateTime()
+    playTrack()
   }, [media.track])
 
   useEffect(
