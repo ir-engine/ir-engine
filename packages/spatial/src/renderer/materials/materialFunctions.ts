@@ -124,43 +124,6 @@ export const materialPrototypeMatches = (materialEntity: Entity) => {
   return materialType === prototypeName
 }
 
-/**Updates the materialEntity's threejs material using the the newPrototype to look up the new constructor */
-export const updateMaterialPrototype = (materialEntity: Entity, newPrototype: string) => {
-  const materialComponent = getOptionalComponent(materialEntity, MaterialStateComponent)
-  if (!materialComponent) return
-  const material = materialComponent.material
-
-  if (!material || newPrototype === material.type) return
-  const prototype = getState(MaterialPrototypeDefinitions)[newPrototype]
-  const fullParameters = { ...extractDefaults(prototype.arguments) }
-  if (!prototype) return
-  const newMaterial = new prototype.prototypeConstructor(fullParameters) as Material
-  if (newMaterial.plugins) {
-    newMaterial.customProgramCacheKey = () =>
-      (newMaterial.shader ? newMaterial.shader.fragmentShader + newMaterial.shader.vertexShader : '') +
-      newMaterial.plugins!.map((plugin) => plugin?.toString() ?? '').reduce((x, y) => x + y, '')
-  }
-  newMaterial.uuid = material.uuid
-  if (material.defines?.['USE_COLOR']) {
-    newMaterial.defines = newMaterial.defines ?? {}
-    newMaterial.defines!['USE_COLOR'] = material.defines!['USE_COLOR']
-  }
-  if (material.userData) {
-    newMaterial.userData = {
-      ...newMaterial.userData,
-      ...Object.fromEntries(Object.entries(material.userData).filter(([k, _v]) => k !== 'type'))
-    }
-  }
-  newMaterial.type = newPrototype
-  newMaterial.name = material.name
-  setComponent(materialEntity, MaterialStateComponent, {
-    material: newMaterial,
-    parameters: fullParameters
-  })
-
-  return newMaterial
-}
-
 export function MaterialNotFoundError(message: string) {
   this.name = 'MaterialNotFound'
   this.message = message

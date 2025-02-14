@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
+import { Euler, Material, Matrix4, Quaternion, Vector3 } from 'three'
 
 import {
   createEntity,
@@ -43,6 +43,7 @@ import {
   deserializeComponent,
   getComponent,
   getMutableComponent,
+  getOptionalMutableComponent,
   hasComponent,
   LayerComponent,
   Layers,
@@ -68,7 +69,11 @@ import { serializeEntity } from '@ir-engine/engine/src/scene/functions/serialize
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
-import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import {
+  MaterialPrototypeDefinitions,
+  MaterialStateComponent
+} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { extractDefaults } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
@@ -127,6 +132,47 @@ const modifyProperty = <C extends Component<any, any>>(
   }
 }
 
+/**Updates the materialEntity's threejs material using the the newPrototype to look up the new constructor */
+const updateMaterialPrototype = (materialEntity: Entity, newPrototype: string) => {
+  const materialComponent = getOptionalMutableComponent(materialEntity, MaterialStateComponent)
+  if (!materialComponent) return
+  const material = materialComponent.material.value
+
+  if (!material || newPrototype === material.type) return
+  const prototype = getState(MaterialPrototypeDefinitions)[newPrototype]
+  const fullParameters = { ...extractDefaults(prototype.arguments) }
+  if (!prototype) return
+  const newMaterial = new prototype.prototypeConstructor(fullParameters) as Material
+
+  if (newMaterial.plugins) {
+    newMaterial.customProgramCacheKey = () =>
+      (newMaterial.shader ? newMaterial.shader.fragmentShader + newMaterial.shader.vertexShader : '') +
+      newMaterial.plugins!.map((plugin) => plugin?.toString() ?? '').reduce((x, y) => x + y, '')
+  }
+  newMaterial.uuid = material.uuid
+  if (material.defines?.['USE_COLOR']) {
+    newMaterial.defines = newMaterial.defines ?? {}
+    newMaterial.defines!['USE_COLOR'] = material.defines!['USE_COLOR']
+  }
+  if (material.userData) {
+    newMaterial.userData = {
+      ...newMaterial.userData,
+      ...Object.fromEntries(Object.entries(material.userData).filter(([k, _v]) => k !== 'type'))
+    }
+  }
+  newMaterial.type = newPrototype
+  newMaterial.name = material.name
+
+  materialComponent.material.set(newMaterial)
+  materialComponent.parameters.set({})
+  for (const key in prototype.arguments) materialComponent.parameters[key].set(prototype.arguments[key].default)
+
+  const sceneID = getComponent(materialEntity, SourceComponent)
+  getMutableState(AssetModifiedState)[sceneID].set(true)
+
+  return newMaterial
+}
+
 const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [_: string]: any }[]) => {
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
@@ -150,7 +196,6 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
     })
     const sceneID = getComponent(materialEntity, SourceComponent)
     getMutableState(AssetModifiedState)[sceneID].set(true)
-    material.needsUpdate = true
   }
 }
 
@@ -524,6 +569,7 @@ export const EditorControlFunctions = {
   modifyProperty,
   modifyName,
   modifyMaterial,
+  updateMaterialPrototype,
   createObjectFromSceneElement,
   duplicateObject,
   positionObject,

@@ -50,11 +50,7 @@ import {
   PrototypeArgument
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { getDefaultType } from '@ir-engine/spatial/src/renderer/materials/constants/DefaultArgs'
-import {
-  extractValues,
-  formatMaterialArgs,
-  updateMaterialPrototype
-} from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { extractValues, formatMaterialArgs } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { Button, Tooltip } from '@ir-engine/ui'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
@@ -157,8 +153,6 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
     clearThumbs().then(createThumbnails).then(checkThumbs)
   }, [prototypeName, currentSelectedMaterial])
 
-  const prototypeEntity = materialComponent.prototypeEntity.value
-
   const shouldLoadTexture = async (value, key: string, parametersObject) => {
     let prop
     if (parametersObject[key].type === 'texture') {
@@ -220,10 +214,8 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   }, [selectedPlugin, useOptionalComponent(entity, MaterialPlugins[selectedPlugin.value])])
 
   useEffect(() => {
-    console.log('switching to ', prototypeName.value, ' from ', material.type)
-    console.log('entity', entity)
     if (prototypeName.value === material.type) return
-    updateMaterialPrototype(entity, prototypeName.value)
+    EditorControlFunctions.updateMaterialPrototype(entity, prototypeName.value)
   }, [prototypeName])
 
   return (
@@ -252,8 +244,6 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
           options={prototypes}
           onChange={(value) => {
             prototypeName.set(value as string)
-            console.log('prototypeName', prototypeName.value)
-            console.log(value)
           }}
         />
       </InputGroup>
