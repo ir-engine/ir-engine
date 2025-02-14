@@ -346,7 +346,7 @@ export function MediaReactor() {
     }
     media.ended.set(false)
     if (media.track.value === nextTrack) {
-      if (media.playMode.value == PlayMode.singleloop && !media.paused.value) {
+      if (!media.paused.value) {
         mediaElement?.element.value.play()
       }
     } else {
