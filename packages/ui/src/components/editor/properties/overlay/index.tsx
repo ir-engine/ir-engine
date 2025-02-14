@@ -100,7 +100,7 @@ export const OverlayNodeEditor: EditorComponentType = (props) => {
             </div>
           ))
         : null}
-      <InputGroup name="src" label={'URL (Optional)'}>
+      <InputGroup name={t('editor:properties.overlay.src')} label={t('editor:properties.overlay.optionalUrl')}>
         <ControlledStringInput
           value={overlayComponent.src.value}
           onChange={updateProperty(OverlayComponent, 'src')}
@@ -108,7 +108,7 @@ export const OverlayNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
 
-      <InputGroup name="Overlay type" label={'Overlay type'}>
+      <InputGroup name={t('editor:properties.overlay.overlayType')} label={t('editor:properties.overlay.overlayType')}>
         <SelectInput
           key={props.entity}
           value={overlayComponent.type.value}
