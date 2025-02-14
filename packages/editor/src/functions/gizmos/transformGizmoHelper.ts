@@ -62,7 +62,7 @@ import { TransformGizmoVisualComponent } from '../../classes/gizmo/transform/Tra
 import { GizmoMaterial, gizmoMaterialProperties } from '../../constants/GizmoPresets'
 import { ObjectGridSnapState } from '../../systems/ObjectGridSnapSystem'
 import { EditorControlFunctions } from '../EditorControlFunctions'
-import { intersectObjectWithRay } from './gizmoCommonFunctions'
+import { getCameraFactor, intersectObjectWithRay } from './gizmoCommonFunctions'
 import { gizmoIconHelperUpdate } from './studioIconGizmoHelper'
 
 const _raycaster = new Raycaster()
@@ -117,15 +117,9 @@ export function transformGizmoUpdate(gizmoControlEntity) {
   const gizmo = getComponent(gizmoControl.visualEntity, TransformGizmoVisualComponent)
   if (gizmo === undefined) return
 
-  const camera = getComponent(Engine.instance?.cameraEntity, CameraComponent)
-
-  const factor = (camera as any).isOrthographicCamera
-    ? ((camera as any).top - (camera as any).bottom) / camera.zoom
-    : gizmoControl.worldPosition.distanceTo(camera.position) *
-      Math.min((1.9 * Math.tan((Math.PI * camera.fov) / 360)) / camera.zoom, 7)
-
   if (gizmo.gizmo === UndefinedEntity) return
 
+  const finalSize = getCameraFactor(gizmoControl.worldPosition, gizmoControl.size, 0.3)
   setComponent(gizmo.gizmo, TransformComponent, { position: gizmoControl.worldPosition })
   setComponent(gizmo.picker, TransformComponent, { position: gizmoControl.worldPosition })
   setComponent(gizmo.helper, TransformComponent, { position: Vector3_Zero })
@@ -134,7 +128,7 @@ export function transformGizmoUpdate(gizmoControlEntity) {
     removeComponent(helperEntity, VisibleComponent)
     const transform = getComponent(helperEntity, TransformComponent)
     transform.rotation.identity()
-    transform.scale.set(1, 1, 1).multiplyScalar(factor * gizmoControl.size * 0.3)
+    transform.scale.set(1, 1, 1).multiplyScalar(finalSize)
     transform.position.set(0, 0, 0)
     const name = getComponent(helperEntity, NameComponent)
 
@@ -234,12 +228,12 @@ export function transformGizmoUpdate(gizmoControlEntity) {
     const transform = getComponent(handleEntity, TransformComponent)
     transform.rotation.identity()
     transform.position.set(0, 0, 0)
-    transform.scale.set(1, 1, 1).multiplyScalar(factor * gizmoControl.size * 0.3)
+    transform.scale.set(1, 1, 1).multiplyScalar(finalSize)
 
     // Align handles to current local or world rotation
     transform.rotation.copy(quaternion)
     transform.position.set(0, 0, 0)
-    transform.scale.set(1, 1, 1).multiplyScalar((factor * gizmoControl.size) / 4)
+    transform.scale.set(1, 1, 1).multiplyScalar(finalSize)
 
     if (gizmoControl.mode === TransformMode.translate || gizmoControl.mode === TransformMode.scale) {
       // Hide translate and scale axis facing the camera

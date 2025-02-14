@@ -25,6 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { EngineState, getComponent } from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { IntersectionData } from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { Object3D, Raycaster, Vector3 } from 'three'
@@ -61,4 +63,16 @@ export function templateGizmoInputHeuristic(gizmoInputRaycast: Raycaster, gizmoO
   }
 
   return gizmoInputHeuristic
+}
+
+export function getCameraFactor(
+  position: Vector3,
+  size,
+  multiplier = 0.3,
+  camera = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent)
+) {
+  const factor = (camera as any).isOrthographicCamera
+    ? ((camera as any).top - (camera as any).bottom) / camera.zoom
+    : position.distanceTo(camera.position) * Math.min((1.9 * Math.tan((Math.PI * camera.fov) / 360)) / camera.zoom, 7)
+  return factor * size * multiplier
 }

@@ -24,18 +24,16 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Engine, Entity, getComponent, getMutableComponent, getOptionalComponent, setComponent } from '@ir-engine/ecs'
-import { getState } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
-import { ReferenceSpaceState } from '@ir-engine/spatial/src/ReferenceSpaceState'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '@ir-engine/spatial/src/SpatialModule'
 import { Line, Raycaster, Sprite, SpriteMaterial, TextureLoader } from 'three'
-import { intersectObjectWithRay } from './gizmoCommonFunctions'
+import { getCameraFactor, intersectObjectWithRay } from './gizmoCommonFunctions'
 
 const _raycaster = new Raycaster()
 _raycaster.layers.set(ObjectLayers.NodeHelper)
@@ -79,14 +77,7 @@ export function gizmoIconUpdate(parentEntity: Entity) {
   const activeHelperComponent = getComponent(parentEntity, ActiveHelperComponent)
   const transform = getComponent(activeHelperComponent.helperDefaultGizmo, TransformComponent)
   const size = transform.scale
-  const camera = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent)
-
-  const factor = (camera as any).isOrthographicCamera
-    ? ((camera as any).top - (camera as any).bottom) / camera.zoom
-    : transform.position.distanceTo(camera.position) *
-      Math.min((1.9 * Math.tan((Math.PI * camera.fov) / 360)) / camera.zoom, 7)
-
-  const finalSize = size.set(1, 1, 1).multiplyScalar(factor * size.z * activeHelperComponent.sizeFactor)
+  const finalSize = size.set(1, 1, 1).multiplyScalar(getCameraFactor(transform.position, size.z))
   setComponent(activeHelperComponent.helperDefaultGizmo, TransformComponent, { scale: finalSize })
   for (const entity of activeHelperComponent.directionalEntities) {
     setComponent(entity, TransformComponent, { scale: finalSize })
