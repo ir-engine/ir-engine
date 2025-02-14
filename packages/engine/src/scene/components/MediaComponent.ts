@@ -341,6 +341,7 @@ export function MediaReactor() {
     if (nextTrack === -1) return
 
     media.track.set(nextTrack)
+    media.ended.set(false)
   }, [media.ended, media.playMode])
 
   useEffect(() => {
