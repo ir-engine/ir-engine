@@ -166,7 +166,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   const mediaSourceChange = (val: string) => {
     setMediaSourceValue(val)
     if (val === 'Self') {
-      video.mediaUUID.set('' as EntityUUID)
+      commitProperty(VideoComponent, 'mediaUUID')('' as EntityUUID)
     }
   }
 
@@ -236,9 +236,9 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
     if (!previewVideo) return
     previewVideo.currentTime = sourceVideo.currentTime
     if (!sourceVideo.paused) {
-      //previewVideo.play()
+      previewVideo.play()
     } else {
-      //previewVideo.pause()
+      previewVideo.pause()
     }
   }, [media?.currentTrackTime, showVideoPreview])
 
