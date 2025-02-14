@@ -162,7 +162,6 @@ const lookDevComponent: Component[] = [
 ]
 
 const overwriteLookdevObject = (
-  beforeComponentJson: ComponentJsonType[] = [],
   componentJson: ComponentJsonType[] = [],
   parentEntity = getState(EditorState).rootEntity,
   beforeEntity?: Entity
@@ -173,7 +172,7 @@ const overwriteLookdevObject = (
     if (!lookDevComp) continue
     const sceneEntitiesWithComponent = getChildrenWithComponents(parentEntity, [lookDevComp])
     if (sceneEntitiesWithComponent.length) {
-      setComponent(sceneEntitiesWithComponent[0], lookDevComp, componentJson)
+      deserializeComponent(sceneEntitiesWithComponent[0], lookDevComp, props)
       EditorState.markModifiedScene(parentEntity)
     } else {
       createObjectFromSceneElement(componentJson, parentEntity, beforeEntity)

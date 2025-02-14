@@ -918,4 +918,67 @@ describe('EditorControlFunctions', () => {
       assert.equal(UUIDComponent.getEntityByUUID(childUUID, Layers.Authoring), UndefinedEntity)
     })
   })
+
+  describe('overwriteLookdevObject', () => {
+    it('should overwrite a lookdev object with new components', async () => {
+      const nodeUUID = 'nodeUUID' as EntityUUID
+      const childUUID = 'childUUID' as EntityUUID
+
+      const gltf: GLTF.IGLTF = {
+        asset: {
+          version: '2.0'
+        },
+        scenes: [{ nodes: [0] }],
+        scene: 0,
+        nodes: [
+          {
+            name: 'node',
+            children: [1],
+            extensions: {
+              [UUIDComponent.jsonID]: nodeUUID
+            }
+          },
+          {
+            name: 'child',
+            extensions: {
+              [UUIDComponent.jsonID]: childUUID,
+              [HemisphereLightComponent.jsonID]: {
+                skyColor: new Color('purple').getHex(),
+                groundColor: new Color('green').getHex(),
+                intensity: 0.5
+              }
+            }
+          }
+        ]
+      }
+
+      Cache.add('/test.gltf', gltf)
+      const rootEntity = AssetState.load('/test.gltf', undefined, physicsWorldEntity, Layers.Authoring)
+      getMutableState(EditorState).rootEntity.set(rootEntity)
+      await waitForScene(rootEntity)
+
+      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
+
+      EditorControlFunctions.overwriteLookdevObject(
+        [
+          {
+            name: HemisphereLightComponent.jsonID,
+            props: {
+              skyColor: new Color('blue').getHex(),
+              groundColor: new Color('red').getHex(),
+              intensity: 0.7
+            }
+          }
+        ],
+        rootEntity
+      )
+
+      const childEntity = getComponent(nodeEntity, EntityTreeComponent).children[0]
+
+      const hemisphereLightComponent = getComponent(childEntity, HemisphereLightComponent)
+      assert.deepEqual(hemisphereLightComponent.skyColor, new Color('blue'))
+      assert.deepEqual(hemisphereLightComponent.groundColor, new Color('red'))
+      assert.equal(hemisphereLightComponent.intensity, 0.7)
+    })
+  })
 })
