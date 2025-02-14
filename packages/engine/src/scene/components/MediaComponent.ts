@@ -147,7 +147,7 @@ export const MediaComponent = defineComponent({
     ended: S.NonSerialized(S.Bool(true)),
     waiting: S.NonSerialized(S.Bool(false)),
     track: S.NonSerialized(S.Number(-1)),
-    currentTrackTime: S.Number(0),
+    currentTrackTime: S.NonSerialized(S.Number(0)),
     currentTrackDuration: S.NonSerialized(S.Number(0)),
     isCurrentTrackLoaded: S.NonSerialized(S.Bool(false))
     /**
