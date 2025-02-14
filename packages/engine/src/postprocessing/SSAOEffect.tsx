@@ -100,7 +100,10 @@ export const SSAOEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
     })
     effects[effectKey].set(eff)
     return () => {
+      //effects[effectKey].dispose()
       effects[effectKey].set(none)
+      RendererComponent.unregisterPass(rendererEntity, DepthDownsamplingPass)
+      RendererComponent.unregisterPass(rendererEntity, CustomNormalPass)
     }
   }, [isActive])
 
@@ -195,7 +198,7 @@ export const ssaoAddToEffectRegistry = () => {
           step: 0.01
         },
         blur: { propertyType: PropertyTypes.Boolean, name: 'Blur' },
-        kernelSize: { propertyType: PropertyTypes.KernelSize, name: 'Kerne Size', min: 1, max: 5, step: 1 }
+        kernelSize: { propertyType: PropertyTypes.KernelSize, name: 'Kernel Size', min: 1, max: 5, step: 1 }
       }
     }
   })

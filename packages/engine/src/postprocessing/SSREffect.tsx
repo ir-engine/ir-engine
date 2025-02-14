@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, getComponent } from '@ir-engine/ecs'
+import { Entity, getComponent, useComponent } from '@ir-engine/ecs'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { EffectReactorProps, PostProcessingEffectState } from '@ir-engine/spatial/src/renderer/effects/EffectRegistry'
@@ -52,6 +52,7 @@ export const SSREffectProcessReactor: React.FC<EffectReactorProps> = (props: {
 }) => {
   const { isActive, rendererEntity, effectData, effects, composer, scene } = props
   const effectState = getState(PostProcessingEffectState)
+  const camera = useComponent(rendererEntity, CameraComponent)
 
   useEffect(() => {
     if (effectData[effectKey].value) return
@@ -73,14 +74,11 @@ export const SSREffectProcessReactor: React.FC<EffectReactorProps> = (props: {
       }
     )
 
-    const camera = getComponent(rendererEntity, CameraComponent) as ArrayCamera
-    const eff = new SSREffect(composer, scene, camera, {
-      ...effectData[effectKey].value,
-      velocityDepthNormalPass
-    })
+    const eff = new SSREffect(scene, camera.value as ArrayCamera, velocityDepthNormalPass, effectData[effectKey].value)
     effects[effectKey].set(eff)
     return () => {
-      effects[effectKey].set(none)
+      // effects[effectKey].set(none)
+      RendererComponent.unregisterPass(rendererEntity, VelocityDepthNormalPass)
     }
   }, [isActive])
 

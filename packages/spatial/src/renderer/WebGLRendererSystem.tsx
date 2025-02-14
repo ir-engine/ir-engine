@@ -195,6 +195,9 @@ export const RendererComponent = defineComponent({
     if (count > 1) {
       rendererComponent.passesFakeMap[key].count.set(count - 1)
     } else {
+      const effectComposerState = rendererComponent.effectComposer as State<EffectComposer>
+      const pass = RendererComponent.getPass(entity, passType)
+      effectComposerState.get(NO_PROXY).removePass(pass)
       rendererComponent.passesFakeMap[key].set(none)
     }
   },
@@ -325,16 +328,16 @@ export const RendererComponent = defineComponent({
     }, [!!rendererComponent.effectComposer.value, hightlightState])
 
     useEffect(() => {
-      const effectComposer = effectComposerState.value
+      const effectComposer = effectComposerState.get(NO_PROXY)
       if (!effectComposer) return
 
       const effectsVal = rendererComponent.effects.get(NO_PROXY) as Record<string, Effect>
 
-      const enabled = renderSettings.usePostProcessing.value
+      const enabled = renderSettings.usePostProcessing.get(NO_PROXY) as boolean
 
       const effectArray = enabled ? Object.values(effectsVal) : []
-      if (rendererComponent.effectInstances.OutlineEffect.value)
-        effectArray.unshift(rendererComponent.effectInstances.OutlineEffect.value as OutlineEffect)
+      if (rendererComponent.effectInstances.OutlineEffect.get(NO_PROXY))
+        effectArray.unshift(rendererComponent.effectInstances.OutlineEffect.get(NO_PROXY) as OutlineEffect)
 
       const effectPass = new EffectPass(camera, ...effectArray)
       effectComposerState.EffectPass.set(effectPass)
@@ -357,20 +360,20 @@ export const RendererComponent = defineComponent({
       effectComposer.setRenderer(rendererComponent.renderer.value as WebGLRenderer)
 
       return () => {
-        if (!hasComponent(entity, RendererComponent)) return
-        if (enabled) {
-          for (const effect in effectsVal) {
-            effectsVal[effect].dispose()
-            effectComposerState[effect].set(none)
-          }
-        }
-        effectComposer.EffectPass.dispose()
-        effectComposer.removePass(effectPass)
-        if (rendererComponent.passesFakeMap.value) {
-          for (const pass of Object.values(rendererComponent.passesFakeMap.value as Record<string, PassCount>)) {
-            effectComposer.removePass(pass.pass)
-          }
-        }
+        // if (!hasComponent(entity, RendererComponent)) return
+        // if (enabled) {
+        //   for (const effect in effectsVal) {
+        //     effectsVal[effect].dispose()
+        //     effectComposerState[effect].set(none)
+        //   }
+        // }
+        // effectComposer.EffectPass.dispose()
+        // effectComposer.removePass(effectPass)
+        // if (rendererComponent.passesFakeMap.value) {
+        //   for (const pass of Object.values(rendererComponent.passesFakeMap.value as Record<string, PassCount>)) {
+        //     effectComposer.removePass(pass.pass)
+        //   }
+        // }
       }
     }, [
       rendererComponent.effects,
