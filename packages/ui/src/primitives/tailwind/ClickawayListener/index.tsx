@@ -31,13 +31,10 @@ import { getState } from '@ir-engine/hyperflux'
 import { useEffect, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-export function useClickAway(cb: (e: Event) => void) {
+const ClickawayListener = (props: { children: React.ReactNode; onClickOutside: VoidFunction | null }) => {
+  const backdropMode = getState(PopoverState).backdrop
+  const callbackRef = useRef<VoidFunction | null>(null)
   const backdropRef = useRef<HTMLDivElement>(null)
-  const callbackRef = useRef(cb)
-
-  useEffect(() => {
-    callbackRef.current = cb
-  }, [cb])
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -55,8 +52,8 @@ export function useClickAway(cb: (e: Event) => void) {
         }
       }
 
-      if (!isClickedInside) {
-        callbackRef.current(e)
+      if (!isClickedInside && callbackRef.current) {
+        callbackRef.current()
       }
     }
 
@@ -69,16 +66,13 @@ export function useClickAway(cb: (e: Event) => void) {
     }
   }, [])
 
-  return backdropRef
-}
-
-const ClickawayListener = (props: { children: React.ReactNode }) => {
-  const ref = useClickAway(() => PopoverState.hidePopupover())
-  const backdropMode = getState(PopoverState).backdrop
+  useEffect(() => {
+    callbackRef.current = props.onClickOutside || null
+  }, [props.onClickOutside])
 
   return (
     <div
-      ref={ref}
+      ref={backdropRef}
       className={twMerge(
         'fixed inset-0 z-[1000] flex h-full w-full items-center justify-center',
         backdropMode === 'blur' ? 'backdrop-blur-[50px]' : 'bg-transparent/50'

@@ -23,20 +23,31 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import { getMutableState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
+import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 
 import ClickawayListener from '../ClickawayListener'
 
 const PopupMenu = () => {
-  const popoverElement = useHookstate(getMutableState(PopoverState).elements)
-  if (popoverElement.length === 0) {
+  const popups = useMutableState(PopoverState).popups
+
+  const currentOnClose = useRef<VoidFunction | null>(null)
+
+  useEffect(() => {
+    currentOnClose.current = popups[popups.length - 1].value.onClickOutside
+  }, [popups])
+
+  if (popups.length === 0) {
     return null
   }
 
-  return <ClickawayListener>{popoverElement.get(NO_PROXY).map((element, idx) => element)}</ClickawayListener>
+  return (
+    <ClickawayListener onClickOutside={currentOnClose.current}>
+      {popups.get(NO_PROXY).map((popupData, idx) => popupData.element)}
+    </ClickawayListener>
+  )
 }
 PopupMenu.displayName = 'PopupMenu'
 
