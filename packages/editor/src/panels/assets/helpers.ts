@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { AssetsPanelCategories } from '../../services/AssetPanelCategoriesState'
+import { AssetCategoryNode } from './categories'
 
 export type Category = {
   name: string
@@ -31,16 +31,19 @@ export type Category = {
   collapsed: boolean
   isLeaf: boolean
   depth: number
+  path?: string
 }
 
-export function iterativelyListTags(obj: object): string[] {
+export function iterativelyListTags(categories): string[] {
   const tags: string[] = []
-  for (const key in obj) {
-    tags.push(key)
-    if (typeof obj[key] === 'object') {
-      tags.push(...iterativelyListTags(obj[key]))
+
+  for (const category of categories) {
+    tags.push(category.name)
+    if (category.children.length > 0) {
+      tags.push(...iterativelyListTags(category.children))
     }
   }
+
   return tags
 }
 
@@ -61,52 +64,30 @@ export const calculateItemsToFetch = () => {
   return itemsInRow * numberOfRows
 }
 
-export function mapCategoriesHelper(collapsedCategories: { [key: string]: boolean }) {
-  const result: Category[] = []
-  const generateCategories = (node: object, depth = 0) => {
-    for (const key in node) {
-      const isLeaf = Object.keys(node[key]).length === 0
-      const category: Category = {
-        name: key,
-        object: node[key],
-        collapsed: collapsedCategories[key] ?? true,
-        depth,
-        isLeaf
-      }
-      result.push(category)
-      if (typeof node[key] === 'object' && !category.collapsed) {
-        generateCategories(node[key], depth + 1)
-      }
+export function findCategoryByPath(nodes: AssetCategoryNode[], targetPath: string): AssetCategoryNode | null {
+  for (const node of nodes) {
+    if (node.path === targetPath) {
+      return node
+    }
+
+    const foundInChildren = findCategoryByPath(node.children, targetPath)
+    if (foundInChildren) {
+      return foundInChildren
     }
   }
-  generateCategories(AssetsPanelCategories.initial)
-  return result
+
+  return null
 }
 
-export function getParentCategories(categories: readonly Category[], target: string) {
-  const findNestingCategories = (nestedCategory: Record<string, any>, parentCategory: string): Category[] => {
-    for (const key in nestedCategory) {
-      if (key === target) {
-        const foundCategory = categories.find((c) => c.name === parentCategory)
-        if (foundCategory) {
-          return [foundCategory]
-        }
-        return []
-      } else if (typeof nestedCategory[key] === 'object' && nestedCategory[key] !== null) {
-        const nestedCategories = findNestingCategories(nestedCategory[key], key)
-        if (nestedCategories.length) {
-          return [categories.find((c) => c.name === parentCategory)!, ...nestedCategories]
-        }
-      }
-    }
-    return []
-  }
+export function convertToHierarchy(obj: Record<string, any>, depth = 0, parentPath = ''): AssetCategoryNode[] {
+  return Object.entries(obj).map(([key, value]) => {
+    const currentPath = parentPath ? `${parentPath}/${key}` : key
 
-  for (const category of categories) {
-    const parentCategories = findNestingCategories(category.object, category.name)
-    if (parentCategories.length) {
-      return parentCategories
+    return {
+      name: key,
+      path: currentPath,
+      depth,
+      children: convertToHierarchy(value, depth + 1, currentPath)
     }
-  }
-  return []
+  })
 }
