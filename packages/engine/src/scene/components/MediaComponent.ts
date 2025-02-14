@@ -340,10 +340,18 @@ export function MediaReactor() {
 
     //check if we haven't set up for single play yet, or if our sources don't match the new resources
     //** todo  make this more robust in a refactor, feels very error prone with edge cases */
-    if (nextTrack === -1) return
-
-    media.track.set(nextTrack)
+    if (nextTrack === -1) {
+      media.paused.set(true)
+      return
+    }
     media.ended.set(false)
+    if (media.track.value === nextTrack) {
+      if (media.playMode.value == PlayMode.singleloop && !media.paused.value) {
+        mediaElement?.element.value.play()
+      }
+    } else {
+      media.track.set(nextTrack)
+    }
   }, [media.ended, media.playMode])
 
   useEffect(() => {
