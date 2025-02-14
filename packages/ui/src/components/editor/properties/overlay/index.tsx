@@ -39,7 +39,7 @@ import {
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { OverlayComponent } from '@ir-engine/engine/src/scene/components/OverlayComponent'
 import { getState } from '@ir-engine/hyperflux'
-import { CodeSnippet01Md } from '../../../../icons'
+import { BrowserSm } from '../../../../icons'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
 import { ControlledStringInput } from '../../input/String'
@@ -75,6 +75,9 @@ export const OverlayNodeEditor: EditorComponentType = (props) => {
   const getAvailableOverlayType = () => {
     const state = getState(OverlayComponentState)
     const optionKeys = Object.keys(state)
+
+    if (optionKeys.length === 0) return DEFAULT_OPTIONS
+
     let options: { label: string; value: string }[] = []
     if (optionKeys.length > 0) {
       options = optionKeys.map((key) => ({
@@ -83,7 +86,17 @@ export const OverlayNodeEditor: EditorComponentType = (props) => {
       }))
     }
 
-    return [...options, ...DEFAULT_OPTIONS]
+    return [...options]
+  }
+
+  const contentSourceGroup = {
+    iframe: (
+      <ControlledStringInput
+        value={overlayComponent.src.value}
+        onChange={updateProperty(OverlayComponent, 'src')}
+        onRelease={commitProperty(OverlayComponent, 'src')}
+      />
+    )
   }
 
   return (
@@ -100,26 +113,29 @@ export const OverlayNodeEditor: EditorComponentType = (props) => {
             </div>
           ))
         : null}
-      <InputGroup name={t('editor:properties.overlay.src')} label={t('editor:properties.overlay.optionalUrl')}>
-        <ControlledStringInput
-          value={overlayComponent.src.value}
-          onChange={updateProperty(OverlayComponent, 'src')}
-          onRelease={commitProperty(OverlayComponent, 'src')}
-        />
-      </InputGroup>
-
-      <InputGroup name={t('editor:properties.overlay.overlayType')} label={t('editor:properties.overlay.overlayType')}>
+      <InputGroup
+        name={t('editor:properties.overlay.contentSource')}
+        label={t('editor:properties.overlay.contentSource')}
+        className="flex flex-col gap-2"
+      >
         <SelectInput
           key={props.entity}
           value={overlayComponent.type.value}
           options={getAvailableOverlayType()}
           onChange={commitProperty(OverlayComponent, `type`)}
         />
+        {contentSourceGroup[overlayComponent.type.value]}
       </InputGroup>
+      {/* <InputGroup
+        name={t('editor:properties.overlay.overlayPosition')}
+        label={t('editor:properties.overlay.overlayPosition')}
+      >
+        
+      </InputGroup> */}
     </NodeEditor>
   )
 }
 
-OverlayNodeEditor.iconComponent = CodeSnippet01Md
+OverlayNodeEditor.iconComponent = BrowserSm
 
 export default OverlayNodeEditor

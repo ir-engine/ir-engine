@@ -970,8 +970,9 @@
     },
     "overlay": {
       "title": "Overlay",
-      "description": "Adds a overlay when it's being interacted in the scene",
-      "overlayType": "Overlay Type",
+      "description": "Places content over the scene view as overlay.",
+      "contentSource": "Content Source",
+      "overlayPosition": "Overlay Position",
       "optionalUrl": "URL (Optional)",
       "src": "src"
     },
