@@ -52,7 +52,7 @@ export const HierarchyPanelTab: TabData = {
   title: <HierarchyPanelTitle />,
   content: (
     <ErrorBoundary fallback={<div>Error occured with the Hierarchy tab</div>}>
-      <Suspense >
+      <Suspense>
         <HierarchyPanelWrapper />
       </Suspense>
     </ErrorBoundary>

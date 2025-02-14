@@ -197,7 +197,7 @@ export const ViewportPanelTab: TabData = {
   closable: true,
   title: <ViewportPanelTitle />,
   content: (
-    <ErrorBoundary  fallback={<div>Error occured with the Viewport tab</div>}>
+    <ErrorBoundary fallback={<div>Error occured with the Viewport tab</div>}>
       <Suspense>
         <ViewportContainer />
       </Suspense>
