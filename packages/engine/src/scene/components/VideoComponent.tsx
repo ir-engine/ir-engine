@@ -45,6 +45,7 @@ import { createEntity, EntityTreeComponent, removeEntity, useEntityContext, UUID
 import {
   defineComponent,
   getComponent,
+  getOptionalComponent,
   removeComponent,
   setComponent,
   useComponent,
@@ -144,6 +145,8 @@ function VideoReactor() {
   const mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID) || entity
   const media = useOptionalComponent(mediaEntity, MediaComponent)
   const hasMediaElementComponent = useHasComponent(mediaEntity, MediaElementComponent)
+  const localTextureRef = useHookstate<VideoTexturePriorityQueue | null>(null)
+  const sourceVideoComponent = useOptionalComponent(mediaEntity, VideoComponent)
 
   const videoMeshEntity = useHookstate(() => {
     const videoMeshEntity = createEntity()
@@ -411,30 +414,53 @@ function VideoReactor() {
   }, [!!mesh, video.alphaUVOffset])
 
   useEffect(() => {
+    if (entity !== mediaEntity && sourceVideoComponent) {
+      if (video.texture.get(NO_PROXY) !== sourceVideoComponent.get(NO_PROXY).texture) {
+        video.texture.set(sourceVideoComponent.get(NO_PROXY).texture)
+      }
+    } else {
+      if (video.texture.get(NO_PROXY) !== localTextureRef.get(NO_PROXY)) {
+        video.texture.set(localTextureRef.get(NO_PROXY))
+      }
+    }
+    clearErrors(entity, VideoComponent)
+  }, [sourceVideoComponent?.texture])
+
+  useEffect(() => {
     if (!mesh || !mediaEntity) return
 
     if (!hasMediaElementComponent) {
-      video.texture.set(null)
+      if (video.texture.value !== null) {
+        video.texture.set(null)
+      }
+      return
+    }
+    if (entity !== mediaEntity) {
       return
     }
 
+    const sourceMeshComponent = getOptionalComponent(mediaEntity, MeshComponent)
     const mediaElement = getComponent(mediaEntity, MediaElementComponent)
+    const sourceTexture = sourceVideoComponent?.texture
 
     if (video.texture.value) {
-      //if we're a videoComponent pointing to a different source, this will update the initial texture when we set source
-
       //needed to set up the self-referencing source video texture
       ;(video.texture.value.image as HTMLVideoElement) = mediaElement.element as HTMLVideoElement
-
       clearErrors(entity, VideoComponent)
     } else {
-      video.texture.set(new VideoTexturePriorityQueue(mediaElement.element as HTMLVideoElement))
-      VideoComponent.uniqueVideoEntities.push(mediaEntity)
-      clearErrors(entity, VideoComponent)
-
-      return () => {
-        if (VideoComponent.uniqueVideoEntities.includes(entity)) {
-          VideoComponent.uniqueVideoEntities.splice(VideoComponent.uniqueVideoEntities.indexOf(entity), 1)
+      if (sourceTexture && sourceMeshComponent) {
+        mesh.material.set(sourceMeshComponent.material as ShaderMaterial)
+        clearErrors(entity, VideoComponent)
+      } else {
+        const textrue = new VideoTexturePriorityQueue(mediaElement.element as HTMLVideoElement)
+        localTextureRef.set(textrue)
+        video.texture.set(textrue)
+        VideoComponent.uniqueVideoEntities.push(mediaEntity)
+        clearErrors(entity, VideoComponent)
+        return () => {
+          if (VideoComponent.uniqueVideoEntities.includes(entity)) {
+            VideoComponent.uniqueVideoEntities.splice(VideoComponent.uniqueVideoEntities.indexOf(entity), 1)
+          }
         }
       }
     }
