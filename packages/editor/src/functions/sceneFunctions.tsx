@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import i18n from 'i18next'
 
+import { GLTF } from '@gltf-transform/core'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { createScene } from '@ir-engine/client-core/src/world/SceneAPI'
@@ -34,14 +35,12 @@ import multiLogger from '@ir-engine/common/src/logger'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { cleanString } from '@ir-engine/common/src/utils/cleanString'
 import { EngineState, EntityUUID, UndefinedEntity } from '@ir-engine/ecs'
-import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Layers } from '@ir-engine/ecs/src/ComponentFunctions'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { GLTFDocumentState, GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
-import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { handleScenePaths } from '@ir-engine/engine/src/scene/functions/GLTFConversion'
+import { AssetModifiedState, SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { exportGLTFScene } from '@ir-engine/engine/src/gltf/exportGLTFScene'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
-import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
 import React from 'react'
 import { EditorState } from '../services/EditorServices'
@@ -61,7 +60,6 @@ export const saveSceneGLTF = async (
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
 
   const { rootEntity } = getState(EditorState)
-  const sourceID = GLTFComponent.getInstanceID(rootEntity)
 
   const sceneName = cleanString(sceneFile!.replace('.scene.json', '').replace('.gltf', ''))
   const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
@@ -74,20 +72,23 @@ export const saveSceneGLTF = async (
     if (existingScene.data.length > 0) throw new Error(i18n.t('editor:errors.sceneAlreadyExists'))
   }
 
-  const gltfData = getState(GLTFDocumentState)[sourceID]
+  const response = await exportGLTFScene(rootEntity, getState(EditorState).projectName!, sceneFile, false)
+  const gltfData = response[0] as GLTF.IGLTF
+  const files = response.slice(1) as File[]
+
   if (!gltfData) {
     logger.error('Failed to save scene, no gltf data found')
   }
-  const encodedGLTF = handleScenePaths(gltfData, 'encode')
-  const blob = [JSON.stringify(encodedGLTF, null, 2)]
-  const file = new File(blob, `${sceneName}.gltf`)
+
+  const blob = [new Blob([JSON.stringify(gltfData, null, 2)], { type: 'application/gltf+json' })]
+  const gltfFile = new File(blob, sceneFile)
 
   const currentScene = await API.instance.service(staticResourcePath).get(sceneAssetID)
 
   const [[newPath]] = await Promise.all(
     uploadProjectFiles(
       projectName,
-      [file],
+      [gltfFile, ...files],
       [currentSceneDirectory],
       [
         {
@@ -144,9 +145,9 @@ export const onNewScene = async (
 
 export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
   getMutableState(EngineState).isEditing.set(true)
-  const unload = GLTFAssetState.loadScene(sceneURL, uuid)
-  const gltfEntity = getState(GLTFAssetState)[sceneURL]
-  setComponent(gltfEntity, SceneComponent)
+  const viewerEntity = getState(ReferenceSpaceState).viewerEntity
+  const unload = SceneState.loadScene(sceneURL, uuid, viewerEntity, Layers.Authoring)
+  const gltfEntity = getState(SceneState)[sceneURL]
   getMutableState(EditorState).rootEntity.set(gltfEntity)
   return () => {
     unload()
@@ -174,8 +175,8 @@ export const onSaveScene = async () => {
   try {
     await saveSceneGLTF(sceneAssetID!, projectName!, sceneName!, abortController.signal)
     NotificationService.dispatchNotify(`${i18n.t('editor:dialog.saveScene.info-save-success')}`, { variant: 'success' })
-    const sourceID = getComponent(rootEntity, SourceComponent)
-    getMutableState(GLTFModifiedState)[sourceID].set(none)
+    const sourceID = GLTFComponent.getInstanceID(rootEntity)
+    getMutableState(AssetModifiedState)[sourceID].set(none)
 
     PopoverState.hidePopupover()
   } catch (error) {

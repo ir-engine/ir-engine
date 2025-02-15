@@ -27,9 +27,9 @@ import { useEffect } from 'react'
 import { DefaultLoadingManager, LoadingManager } from 'three'
 
 import { defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
-import { ResourceManager, ResourceState, ResourceStatus } from '@ir-engine/spatial/src/resources/ResourceState'
 
 import { ResourceLoadingManager } from '../loaders/base/ResourceLoadingManager'
+import { AssetCacheState, ResourceStatus } from './AssetCacheState'
 
 export const setDefaultLoadingManager = (
   loadingManager: LoadingManager = new ResourceLoadingManager(
@@ -51,33 +51,39 @@ export const setDefaultLoadingManager = (
 }
 
 const onItemStart = (url: string) => {
-  const resourceState = getMutableState(ResourceState)
-  const resources = resourceState.nested('resources')
-  if (!resources[url].value) {
-    // console.warn('ResourceManager: asset loaded outside of the resource manager, url: ' + url)
+  const assetCacheState = getMutableState(AssetCacheState)
+  if (!assetCacheState[url].value) {
+    // console.warn('ResourceState: asset loaded outside of the resource manager, url: ' + url)
     return
   }
-
-  const resource = resources[url]
+  const resource = assetCacheState[url]
   if (resource.status.value === ResourceStatus.Unloaded) {
     resource.status.set(ResourceStatus.Loading)
   }
 }
 
-const onStart = (url: string, loaded: number, total: number) => {}
-const onLoad = () => {
-  const debug = getState(ResourceState).debug
-  if (debug) {
-    const totalSize = ResourceManager.budgets.getTotalSizeOfResources()
-    const totalVerts = ResourceManager.budgets.getTotalVertexCount()
-    const totalBuff = ResourceManager.budgets.getTotalBufferSize()
-    ResourceState.debugLog(
-      `ResourceState:onLoad: Loaded ${totalSize} bytes of resources, ${totalVerts} vertices, ${totalBuff} bytes in buffer`
-    )
-  }
-}
+// const gltfQuery = defineQuery([GLTFComponent])
 
-const onProgress = (url: string, loaded: number, total: number) => {}
+const onStart = (url: string, loaded: number, total: number) => {}
+const onLoad = () => {}
+
+const onProgress = (url: string, loaded: number, total: number) => {
+  if (loaded !== total) return
+
+  // const debug = getState(ResourceState).debug
+  // if (debug) {
+  //   const gltfEntity = gltfQuery().find((entity) => getComponent(entity, GLTFComponent).src === url)
+  //   if (!gltfEntity) return
+  //   const sceneAncestor = getAncestorWithComponents(gltfEntity, [SceneComponent])
+  //   // todo, we no longer track resources by url, but instead scene, so this debug helper doesnt make sense
+  //   const totalSize = ResourceState.budgets.getTotalSizeOfResources(sceneAncestor)
+  //   const totalVerts = ResourceState.budgets.getTotalVertexCount(sceneAncestor)
+  //   const totalBuff = ResourceState.budgets.getTotalBufferSize(sceneAncestor)
+  //   ResourceState.debugLog(
+  //     `ResourceState:onLoad: Loaded ${totalSize} bytes of resources, ${totalVerts} vertices, ${totalBuff} bytes in buffer`
+  //   )
+  // }
+}
 const onError = (url: string) => {}
 
 export const ResourceLoadingManagerState = defineState({

@@ -25,11 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { CylinderGeometry, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from 'three'
 
+import { createEntity } from '@ir-engine/ecs'
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'

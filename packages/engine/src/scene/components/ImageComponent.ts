@@ -46,12 +46,20 @@ import {
   Vector2
 } from 'three'
 
-import { defineComponent, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { useMeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { useEntityContext } from '@ir-engine/ecs'
+import {
+  defineComponent,
+  getComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
+import { State } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
@@ -134,11 +142,15 @@ export function ImageReactor() {
   const entity = useEntityContext()
   const image = useComponent(entity, ImageComponent)
   const [texture, error] = useTexture(image.source.value, entity)
-  const mesh = useMeshComponent<PlaneGeometry | SphereGeometry, MeshBasicMaterial>(
-    entity,
-    PLANE_GEO,
-    () => new MeshBasicMaterial()
-  )
+  useEffect(() => {
+    setComponent(entity, MeshComponent, new Mesh(PLANE_GEO(), new MeshBasicMaterial()))
+    return () => {
+      removeComponent(entity, MeshComponent)
+    }
+  }, [])
+  const mesh = useOptionalComponent(entity, MeshComponent) as any as State<
+    Mesh<PlaneGeometry | SphereGeometry, MeshBasicMaterial>
+  >
 
   useEffect(() => {
     if (!error) return
@@ -146,59 +158,54 @@ export function ImageReactor() {
   }, [error])
 
   useEffect(() => {
-    if (!image.source.value) {
-      addError(entity, ImageComponent, `MISSING_TEXTURE_SOURCE`)
-      return
-    }
+    // if (!image.source.value) { /** @todo Just validate that the source is a valid url. Being undefined is not an error*/
+    //   addError(entity, ImageComponent, `MISSING_TEXTURE_SOURCE`)
+    //   return
+    // }
 
-    const assetType = AssetLoader.getAssetClass(image.source.value)
-    if (assetType !== AssetType.Image) {
-      addError(entity, ImageComponent, `UNSUPPORTED_ASSET_CLASS`)
-    }
-  }, [image.source])
-
-  useEffect(
-    function updateTexture() {
-      if (!texture) return
-
-      clearErrors(entity, ImageComponent)
-
-      texture.colorSpace = SRGBColorSpace
-      texture.minFilter = LinearMipmapLinearFilter
-
-      mesh.material.map.set(texture)
-      mesh.visible.set(true)
-    },
-    [texture]
-  )
-
-  useEffect(
-    function updateGeometry() {
-      if (!mesh.material.map.value) return
-
-      const flippedTexture = mesh.material.map.value.flipY
-      switch (image.projection.value) {
-        case ImageProjection.Equirectangular360:
-          mesh.geometry.set(flippedTexture ? SPHERE_GEO() : SPHERE_GEO_FLIPPED())
-          mesh.scale.value.set(-1, 1, 1)
-          break
-        case ImageProjection.Flat:
-        default:
-          mesh.geometry.set(flippedTexture ? PLANE_GEO() : PLANE_GEO_FLIPPED())
-          resizeImageMesh(mesh.value as Mesh<PlaneGeometry, MeshBasicMaterial>)
+    if (image.source.value) {
+      const assetType = AssetLoader.getAssetClass(image.source.value)
+      if (assetType !== AssetType.Image) {
+        addError(entity, ImageComponent, `UNSUPPORTED_ASSET_CLASS`)
       }
-    },
-    [mesh.material.map.value, image.projection.value]
-  )
+    }
+  }, [image.source.value]) // runs on any image change rn
 
-  useEffect(
-    function updateMaterial() {
-      mesh.material.transparent.set(image.alphaMode.value !== ImageAlphaMode.Opaque)
-      mesh.material.alphaTest.set(image.alphaMode.value === 'Mask' ? image.alphaCutoff.value : 0)
-      mesh.material.side.set(image.side.value)
-    },
-    [image.alphaMode, image.alphaCutoff, image.side]
-  )
+  useEffect(() => {
+    if (!texture || !mesh) return
+
+    clearErrors(entity, ImageComponent)
+
+    texture.colorSpace = SRGBColorSpace
+    texture.minFilter = LinearMipmapLinearFilter
+
+    mesh.material.map.set(texture)
+    mesh.material.needsUpdate.set(true)
+    mesh.visible.set(true)
+  }, [!!mesh?.value, texture])
+
+  useEffect(() => {
+    if (!mesh || !texture || !mesh.material.map.value) return
+
+    const flippedTexture = mesh.material.map.value.flipY
+    switch (image.projection.value) {
+      case ImageProjection.Equirectangular360:
+        mesh.geometry.set(flippedTexture ? SPHERE_GEO() : SPHERE_GEO_FLIPPED())
+        mesh.scale.value.set(-1, 1, 1)
+        break
+      case ImageProjection.Flat:
+      default:
+        mesh.geometry.set(flippedTexture ? PLANE_GEO() : PLANE_GEO_FLIPPED())
+        resizeImageMesh(mesh.value as Mesh<PlaneGeometry, MeshBasicMaterial>)
+    }
+  }, [!!mesh?.value, image.projection, !!texture])
+
+  useEffect(() => {
+    if (!mesh) return
+    mesh.material.transparent.set(image.alphaMode.value !== ImageAlphaMode.Opaque)
+    mesh.material.alphaTest.set(image.alphaMode.value === 'Mask' ? image.alphaCutoff.value : 0)
+    mesh.material.side.set(image.side.value)
+  }, [!!mesh?.value, image.alphaMode, image.alphaCutoff, image.side])
 
   return null
 }

@@ -33,7 +33,7 @@ import {
   getComponent,
   getOptionalComponent,
   PresentationSystemGroup,
-  useOptionalComponent,
+  useHasComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
@@ -130,7 +130,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   }, [isSpectating, !!userAvatar])
 
   const selfAvatarEntity = AvatarComponent.useSelfAvatarEntity()
-  const errorWithAvatar = !!useOptionalComponent(selfAvatarEntity, ErrorComponent)
+  const errorWithAvatar = useHasComponent(selfAvatarEntity, ErrorComponent)
 
   const userAvatarMutation = useMutation(userAvatarPath)
 

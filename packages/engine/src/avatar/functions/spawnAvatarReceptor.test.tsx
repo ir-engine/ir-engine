@@ -52,7 +52,7 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 
-const avatarUrl = 'packages/projects/default-project/assets/avatars/male_01.vrm'
+const avatarUrl = 'packages/projects/default-project/assets/avatars/irRobot.vrm'
 
 describe('spawnAvatarReceptor', () => {
   let sceneEntity: Entity
@@ -65,7 +65,7 @@ describe('spawnAvatarReceptor', () => {
     sceneEntity = loadEmptyScene()
 
     setComponent(sceneEntity, SceneComponent)
-    const physicsWorld = Physics.createWorld(getComponent(sceneEntity, UUIDComponent))
+    const physicsWorld = Physics.createWorld(sceneEntity)
     physicsWorld.timestep = 1 / 60
 
     createMockNetwork(NetworkTopics.world, Engine.instance.store.peerID, Engine.instance.userID)

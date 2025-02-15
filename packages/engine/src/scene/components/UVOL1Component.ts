@@ -37,7 +37,7 @@ import {
   Vector3
 } from 'three'
 
-import { Engine } from '@ir-engine/ecs'
+import { Engine, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -49,7 +49,6 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
@@ -119,16 +118,6 @@ export const UVOL1Component = defineComponent({
     loadingEffectStarted: S.Bool(false),
     loadingEffectEnded: S.Bool(false)
   }),
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (json.manifestPath) {
-      component.manifestPath.set(json.manifestPath)
-    }
-    if (json.data) {
-      component.data.set(json.data)
-    }
-  },
 
   reactor: UVOL1Reactor
 })

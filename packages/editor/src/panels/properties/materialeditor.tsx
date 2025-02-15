@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   Entity,
   EntityUUID,
+  Layers,
   UUIDComponent,
   getComponent,
   getOptionalComponent,
@@ -85,8 +86,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
     value: prototype
   }))
 
-  const entity = UUIDComponent.getEntityByUUID(props.materialUUID)
-  console.log(entity)
+  const entity = UUIDComponent.useEntityByUUID(props.materialUUID, Layers.Authoring)
   const materialComponent = useComponent(entity, MaterialStateComponent)
   const material = materialComponent.material.get(NO_PROXY) as Material
   const thumbnails = useHookstate<Record<string, ThumbnailData>>({})
@@ -149,7 +149,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
 
   const currentSelectedMaterial = useMutableState(MaterialSelectionState).selectedMaterial
   const materialName = useOptionalComponent(
-    UUIDComponent.getEntityByUUID(currentSelectedMaterial.value!),
+    UUIDComponent.getEntityByUUID(currentSelectedMaterial.value!, Layers.Authoring),
     NameComponent
   )
 
@@ -157,8 +157,8 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
     clearThumbs().then(createThumbnails).then(checkThumbs)
   }, [prototypeName, currentSelectedMaterial])
 
-  const prototypeEntity = materialComponent.prototypeEntity.value!
-  const prototype = useComponent(prototypeEntity, MaterialPrototypeComponent)
+  const prototypeEntity = materialComponent.prototypeEntity.value
+  const prototype = useOptionalComponent(prototypeEntity, MaterialPrototypeComponent)
 
   const shouldLoadTexture = async (value, key: string, parametersObject: State<any>) => {
     let prop
@@ -184,6 +184,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
 
   useEffect(() => {
     materialParameters.set({})
+    if (!prototypeEntity) return
     materialParameters.set(
       Object.fromEntries(
         Object.keys(
@@ -192,8 +193,6 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
       )
     )
   }, [currentSelectedMaterial])
-
-  useEffect(() => {})
 
   //for each parameter type, default values
   const pluginParameters = useHookstate({})
@@ -253,30 +252,32 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         />
       </InputGroup>
 
-      <ParameterInput
-        entity={props.materialUUID}
-        values={materialParameters.get(NO_PROXY)}
-        onChange={(key) => async (value) => {
-          const property = await shouldLoadTexture(value, key, prototype.prototypeArguments)
-          const texture = property as Texture
-          if (texture?.isTexture) {
-            texture.flipY = false
-            texture.needsUpdate = true
-          }
-          EditorControlFunctions.modifyMaterial(
-            [materialComponent.material.value!.uuid],
-            materialComponent.material.value!.uuid as EntityUUID,
-            [{ [key]: property }]
-          )
-          if (materialComponent.parameters.value) materialComponent.parameters[key].set(property)
-          await checkThumbs()
-        }}
-        onModify={() => {
-          getMaterial(materialComponent.material.value.uuid as EntityUUID).needsUpdate = true
-        }}
-        defaults={prototype.prototypeArguments!.value}
-        thumbnails={toBlobs(thumbnails.value)}
-      />
+      {prototype && (
+        <ParameterInput
+          entity={props.materialUUID}
+          values={materialParameters.get(NO_PROXY)}
+          onChange={(key) => async (value) => {
+            const property = await shouldLoadTexture(value, key, prototype.prototypeArguments)
+            const texture = property as Texture
+            if (texture?.isTexture) {
+              texture.flipY = false
+              texture.needsUpdate = true
+            }
+            EditorControlFunctions.modifyMaterial(
+              [materialComponent.material.value!.uuid],
+              materialComponent.material.value!.uuid as EntityUUID,
+              [{ [key]: property }]
+            )
+            if (materialComponent.parameters.value) materialComponent.parameters[key].set(property)
+            await checkThumbs()
+          }}
+          onModify={() => {
+            getMaterial(materialComponent.material.value.uuid as EntityUUID).needsUpdate = true
+          }}
+          defaults={prototype.prototypeArguments!.value}
+          thumbnails={toBlobs(thumbnails.value)}
+        />
+      )}
 
       <br />
       <div className="border-grey-500 flex flex-row justify-between rounded-lg border-2 border-solid p-1 align-middle">

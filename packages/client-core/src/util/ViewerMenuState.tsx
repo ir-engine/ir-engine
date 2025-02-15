@@ -38,7 +38,8 @@ export const ViewerMenuState = defineState({
       share: false,
       emote: false,
       friends: false,
-      social: false
+      social: false,
+      embedframe: true
     }
   })
 })

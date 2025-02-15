@@ -27,7 +27,7 @@ import { render } from '@testing-library/react'
 import React, { useEffect } from 'react'
 import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
-import { EntityUUID, hasComponents, S, UUIDComponent } from '@ir-engine/ecs'
+import { createEntity, entityExists, EntityUUID, hasComponents, removeEntity, S, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -37,7 +37,6 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { createEntity, entityExists, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 
 import {
   EntityTreeComponent,
@@ -56,8 +55,7 @@ import {
   traverseEntityNodeChildFirst,
   traverseEntityNodeParent,
   useAncestorWithComponents,
-  useChildrenWithComponents,
-  useChildWithComponents
+  useChildrenWithComponents
 } from './EntityTree'
 
 function assertArrayEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are not equal') {
@@ -156,7 +154,7 @@ describe('EntityTreeComponent', () => {
       }
       const Expected = {
         parentEntity: parentEntity,
-        childIndex: 3,
+        childIndex: 1,
         children: [] as Entity[] // Dummy Array, won't be used by onSet. Meant to be internal/"readonly"
       }
       // Sanity check before running
@@ -169,127 +167,125 @@ describe('EntityTreeComponent', () => {
     })
   }) //:: onSet
 
-  describe('reactor', () => {
-    describe('whenever entityContext.EntityTreeComponent.{parentEntity, childIndex} change', () => {
-      describe('when entity.EntityTreeComponent.parentEntity is truthy, exists, and has an EntitytTreeComponent', () => {
-        let testEntity = UndefinedEntity
-        let parentEntity = UndefinedEntity
-        let childEntity = UndefinedEntity
+  describe('whenever entityContext.EntityTreeComponent.{parentEntity, childIndex} change', () => {
+    describe('when entity.EntityTreeComponent.parentEntity is truthy, exists, and has an EntitytTreeComponent', () => {
+      let testEntity = UndefinedEntity
+      let parentEntity = UndefinedEntity
+      let childEntity = UndefinedEntity
 
-        beforeEach(async () => {
-          createEngine()
-          parentEntity = createEntity()
-          childEntity = createEntity()
-          testEntity = createEntity()
-        })
+      beforeEach(async () => {
+        createEngine()
+        parentEntity = createEntity()
+        childEntity = createEntity()
+        testEntity = createEntity()
+      })
 
-        afterEach(() => {
-          removeEntity(testEntity)
-          removeEntity(childEntity)
-          removeEntity(parentEntity)
-          return destroyEngine()
-        })
+      afterEach(() => {
+        removeEntity(testEntity)
+        removeEntity(childEntity)
+        removeEntity(parentEntity)
+        return destroyEngine()
+      })
 
-        it("should add an EntityTreeComponent to the parentEntity if it doesn't have one", () => {
-          const Expected = true
-          const Initial = !Expected
-          // Sanity check before running
-          const before = hasComponent(parentEntity, EntityTreeComponent)
-          assert.equal(before, Initial)
-          // Run and Check the result
-          setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
-          const result = hasComponent(parentEntity, EntityTreeComponent)
-          assert.equal(result, Expected)
-        })
+      it("should add an EntityTreeComponent to the parentEntity if it doesn't have one", () => {
+        const Expected = true
+        const Initial = !Expected
+        // Sanity check before running
+        const before = hasComponent(parentEntity, EntityTreeComponent)
+        assert.equal(before, Initial)
+        // Run and Check the result
+        setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
+        const result = hasComponent(parentEntity, EntityTreeComponent)
+        assert.equal(result, Expected)
+      })
 
-        it(`should move the position of the entityContext's id on the parentEntity.EntityTreeComponent.children list
+      it(`should move the position of the entityContext's id on the parentEntity.EntityTreeComponent.children list
             when entityContext.EntityTreeComponent.childIndex is specified
             and the entity is already stored in the list at a different index`, () => {
-          const Expected = 0
-          const Initial = 1
-          // Set the data as expected
-          setComponent(parentEntity, EntityTreeComponent)
-          setComponent(childEntity, EntityTreeComponent, { parentEntity: parentEntity })
-          setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
-          // Sanity check before running
-          assert.equal(hasComponent(parentEntity, EntityTreeComponent), true)
-          assert.equal(getComponent(testEntity, EntityTreeComponent).childIndex, undefined)
-          const before = getComponent(parentEntity, EntityTreeComponent).children.indexOf(testEntity)
-          assert.equal(before, Initial)
-          // Run and Check the result
-          setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity, childIndex: Expected })
-          const result = getComponent(parentEntity, EntityTreeComponent).children.indexOf(testEntity)
-          assert.equal(result, Expected)
-        })
+        const Expected = 0
+        const Initial = 1
+        // Set the data as expected
+        setComponent(parentEntity, EntityTreeComponent)
+        setComponent(childEntity, EntityTreeComponent, { parentEntity: parentEntity })
+        setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
+        // Sanity check before running
+        assert.equal(hasComponent(parentEntity, EntityTreeComponent), true)
+        assert.equal(getComponent(testEntity, EntityTreeComponent).childIndex, 1)
+        const before = getComponent(parentEntity, EntityTreeComponent).children.indexOf(testEntity)
+        assert.equal(before, Initial)
+        // Run and Check the result
+        setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity, childIndex: Expected })
+        const result = getComponent(parentEntity, EntityTreeComponent).children.indexOf(testEntity)
+        assert.equal(result, Expected)
+      })
 
-        it(`should add the entityContext's id to the end of the parentEntity.EntityTreeComponent.children list
+      it(`should add the entityContext's id to the end of the parentEntity.EntityTreeComponent.children list
             when the entity is not already stored in the list
             and entityContext.EntityTreeComponent.childIndex is specified`, () => {
-          const Expected = 1
-          const Initial = -1
-          // Set the data as expected
-          setComponent(parentEntity, EntityTreeComponent)
-          setComponent(childEntity, EntityTreeComponent, { parentEntity: parentEntity })
-          // Sanity check before running
-          assert.equal(hasComponent(parentEntity, EntityTreeComponent), true)
-          assert.equal(getComponent(parentEntity, EntityTreeComponent).children.length, 1)
-          assert.equal(hasComponent(testEntity, EntityTreeComponent), false)
-          assert.notEqual(getComponent(parentEntity, EntityTreeComponent).children.indexOf(childEntity), -1)
-          const before = getComponent(parentEntity, EntityTreeComponent).children.indexOf(testEntity)
-          assert.equal(before, Initial)
-          // Run and Check the result
-          setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity, childIndex: Expected })
-          assert.notEqual(getComponent(testEntity, EntityTreeComponent).childIndex, undefined)
-          const result = getComponent(parentEntity, EntityTreeComponent).children.indexOf(testEntity)
-          assert.equal(result, Expected)
-        })
+        const Expected = 1
+        const Initial = -1
+        // Set the data as expected
+        setComponent(parentEntity, EntityTreeComponent)
+        setComponent(childEntity, EntityTreeComponent, { parentEntity: parentEntity })
+        // Sanity check before running
+        assert.equal(hasComponent(parentEntity, EntityTreeComponent), true)
+        assert.equal(getComponent(parentEntity, EntityTreeComponent).children.length, 1)
+        assert.equal(hasComponent(testEntity, EntityTreeComponent), false)
+        assert.notEqual(getComponent(parentEntity, EntityTreeComponent).children.indexOf(childEntity), -1)
+        const before = getComponent(parentEntity, EntityTreeComponent).children.indexOf(testEntity)
+        assert.equal(before, Initial)
+        // Run and Check the result
+        setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity, childIndex: Expected })
+        assert.notEqual(getComponent(testEntity, EntityTreeComponent).childIndex, 0)
+        const result = getComponent(parentEntity, EntityTreeComponent).children.indexOf(testEntity)
+        assert.equal(result, Expected)
+      })
 
-        it(`should add the entityContext's id to the end of the parentEntity.EntityTreeComponent.children list
+      it(`should add the entityContext's id to the end of the parentEntity.EntityTreeComponent.children list
             when the entity is not already stored in the list
             and entityContext.EntityTreeComponent.childIndex is not specified`, () => {
-          const Expected = 1
-          const Initial = -1
-          // Set the data as expected
-          setComponent(parentEntity, EntityTreeComponent)
-          setComponent(childEntity, EntityTreeComponent, { parentEntity: parentEntity })
-          // Sanity check before running
-          assert.equal(hasComponent(parentEntity, EntityTreeComponent), true)
-          assert.equal(getComponent(parentEntity, EntityTreeComponent).children.length, 1)
-          assert.equal(hasComponent(testEntity, EntityTreeComponent), false)
-          assert.notEqual(getComponent(parentEntity, EntityTreeComponent).children.indexOf(childEntity), -1)
-          const before = getComponent(parentEntity, EntityTreeComponent).children.indexOf(testEntity)
-          assert.equal(before, Initial)
-          // Run and Check the result
-          setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
-          assert.equal(getComponent(testEntity, EntityTreeComponent).childIndex, undefined)
-          const result = getComponent(parentEntity, EntityTreeComponent).children.indexOf(testEntity)
-          assert.equal(result, Expected)
-        })
+        const Expected = 1
+        const Initial = -1
+        // Set the data as expected
+        setComponent(parentEntity, EntityTreeComponent)
+        setComponent(childEntity, EntityTreeComponent, { parentEntity: parentEntity })
+        // Sanity check before running
+        assert.equal(hasComponent(parentEntity, EntityTreeComponent), true)
+        assert.equal(getComponent(parentEntity, EntityTreeComponent).children.length, 1)
+        assert.equal(hasComponent(testEntity, EntityTreeComponent), false)
+        assert.notEqual(getComponent(parentEntity, EntityTreeComponent).children.indexOf(childEntity), -1)
+        const before = getComponent(parentEntity, EntityTreeComponent).children.indexOf(testEntity)
+        assert.equal(before, Initial)
+        // Run and Check the result
+        setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
+        assert.equal(getComponent(testEntity, EntityTreeComponent).childIndex, 1)
+        const result = getComponent(parentEntity, EntityTreeComponent).children.indexOf(testEntity)
+        assert.equal(result, Expected)
+      })
 
-        it('should remove the entity, when its EntityTreeComponent unmounts, from its EntityTreeComponent.parentEntity.EntityTreeComponent.children list', () => {
-          const Expected = -1
-          const Initial = 1
-          // Set the data as expected
-          setComponent(parentEntity, EntityTreeComponent)
-          setComponent(childEntity, EntityTreeComponent, { parentEntity: parentEntity })
-          setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
-          // Sanity check before running
-          assert.equal(hasComponent(parentEntity, EntityTreeComponent), true)
-          assert.equal(getComponent(parentEntity, EntityTreeComponent).children.length, 2)
-          assert.equal(hasComponent(testEntity, EntityTreeComponent), true)
-          assert.notEqual(getComponent(parentEntity, EntityTreeComponent).children.indexOf(childEntity), -1)
-          assert.notEqual(getComponent(parentEntity, EntityTreeComponent).children.indexOf(testEntity), -1)
-          const before = getComponent(parentEntity, EntityTreeComponent).children.indexOf(testEntity)
-          assert.equal(before, Initial)
-          // Run and Check the result
-          removeComponent(testEntity, EntityTreeComponent)
-          assert.equal(hasComponent(testEntity, EntityTreeComponent), false)
-          const result = getComponent(parentEntity, EntityTreeComponent).children.indexOf(testEntity)
-          assert.equal(result, Expected)
-        })
+      it('should remove the entity, when its EntityTreeComponent unmounts, from its EntityTreeComponent.parentEntity.EntityTreeComponent.children list', () => {
+        const Expected = -1
+        const Initial = 1
+        // Set the data as expected
+        setComponent(parentEntity, EntityTreeComponent)
+        setComponent(childEntity, EntityTreeComponent, { parentEntity: parentEntity })
+        setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
+        // Sanity check before running
+        assert.equal(hasComponent(parentEntity, EntityTreeComponent), true)
+        assert.equal(getComponent(parentEntity, EntityTreeComponent).children.length, 2)
+        assert.equal(hasComponent(testEntity, EntityTreeComponent), true)
+        assert.notEqual(getComponent(parentEntity, EntityTreeComponent).children.indexOf(childEntity), -1)
+        assert.notEqual(getComponent(parentEntity, EntityTreeComponent).children.indexOf(testEntity), -1)
+        const before = getComponent(parentEntity, EntityTreeComponent).children.indexOf(testEntity)
+        assert.equal(before, Initial)
+        // Run and Check the result
+        removeComponent(testEntity, EntityTreeComponent)
+        assert.equal(hasComponent(testEntity, EntityTreeComponent), false)
+        const result = getComponent(parentEntity, EntityTreeComponent).children.indexOf(testEntity)
+        assert.equal(result, Expected)
       })
     })
-  }) //:: reactor
+  })
 
   describe('General Purpose', () => {
     beforeEach(() => {
@@ -1207,121 +1203,6 @@ describe('useAncestorWithComponents', () => {
     removeEntityNodeRecursively(rootEntity)
   })
 }) //:: useAncestorWithComponents
-
-describe('useChildWithComponents', () => {
-  // Run before every test case
-  beforeEach(() => {
-    createEngine()
-  })
-  afterEach(() => {
-    return destroyEngine()
-  })
-
-  it('should return the closest child of `@param entity` that has all of the requested `@param component`', async () => {
-    // Initialize with dummy data for the test
-    let result = UndefinedEntity
-    let rootEntity = createEntity()
-    let child_1 = createEntity()
-    let child_2 = createEntity()
-    const component1 = ComponentA
-    const component2 = ComponentB
-    const components = [component1, component2]
-
-    // Define the Reactor that will run the tested hook
-    const Reactor = () => {
-      const entity = useChildWithComponents(rootEntity, components)
-      useEffect(() => {
-        result = entity
-      }, [entity])
-      return null
-    }
-    const tag = <Reactor />
-
-    /** @case 1:  rootEntity -> child_1 (with component) */
-    // Case 1: Initialize
-    setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, ComponentC, 'rootEntity')
-    setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
-    for (const component of components) setComponent(child_1, component)
-    // Case1: Validate
-    assertEntityHierarchy('rootEntity', rootEntity)
-    assertEntityHierarchy('child_1', child_1, rootEntity)
-    assert.equal(hasComponents(child_1, components), true)
-    // Case1: Check
-    const R1 = render(tag)
-    assertEntityHierarchy('Case1: result', result, rootEntity)
-    assert.equal(child_1, result, `Case1: Did not return the correct entity. result = ${result}`)
-    // Case1: Terminate
-    removeEntityNodeRecursively(rootEntity)
-    R1.unmount()
-
-    /** @case 2:  rootEntity -> child_1 -> child_2 (with component) */
-    // Case 2: Initialize
-    rootEntity = createEntity()
-    child_1 = createEntity()
-    child_2 = createEntity()
-    setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, ComponentC, 'rootEntity')
-    setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
-    setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
-    for (const component of components) setComponent(child_2, component)
-    // Case2: Validate
-    assertEntityHierarchy('rootEntity', rootEntity)
-    assertEntityHierarchy('child_1', child_1, rootEntity)
-    assertEntityHierarchy('child_2', child_2, child_1)
-    assert.equal(hasComponents(child_2, components), true)
-    // Case2: Check
-    const R2 = render(tag)
-    assertEntityHierarchy('Case2: result', result, child_1)
-    assert.equal(child_2, result, `Case2: Did not return the correct entity. result = ${result}`)
-    // Case2: Terminate
-    removeEntityNodeRecursively(rootEntity)
-    R2.unmount()
-
-    /** @case 3:  rootEntity -> child_1 -> child_2    (none have the component) */
-    // Case 3: Initialize
-    rootEntity = createEntity()
-    child_1 = createEntity()
-    child_2 = createEntity()
-    setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, ComponentC, 'rootEntity')
-    setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
-    setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
-    //setComponent(child_2, component)  // The Component for the third case is not set at all
-    // Case3: Validate
-    assertEntityHierarchy('rootEntity', rootEntity)
-    assertEntityHierarchy('child_1', child_1, rootEntity)
-    assertEntityHierarchy('child_2', child_2, child_1)
-    // Case3: Check
-    const R3 = render(tag)
-    assert.equal(result, UndefinedEntity, `Case3: Resulting entity is not UndefinedEntity. result = ${result}`)
-    // Case3: Terminate
-    removeEntityNodeRecursively(rootEntity)
-    R3.unmount()
-
-    /** @case 4:  rootEntity -> child_1 (with component) -> child_2 */
-    // Case 4: Initialize
-    rootEntity = createEntity()
-    child_1 = createEntity()
-    child_2 = createEntity()
-    setComponent(rootEntity, EntityTreeComponent)
-    setComponent(rootEntity, ComponentC, 'rootEntity')
-    setComponent(child_1, EntityTreeComponent, { parentEntity: rootEntity })
-    setComponent(child_2, EntityTreeComponent, { parentEntity: child_1 })
-    for (const component of components) setComponent(child_1, component)
-    // Case4: Validate
-    assertEntityHierarchy('rootEntity', rootEntity)
-    assertEntityHierarchy('child_1', child_1, rootEntity)
-    assertEntityHierarchy('child_2', child_2, child_1)
-    // Case4: Check
-    const R4 = render(tag)
-    assert.equal(child_1, result, `Case4: Did not return the correct entity. result = ${result}`)
-    assert.notEqual(child_2, result, `Case4: Did not return the correct entity. result = ${result}`)
-    // Case4: Terminate
-    removeEntityNodeRecursively(rootEntity)
-    R4.unmount()
-  })
-}) //:: useChildWithComponents
 
 describe('useChildrenWithComponents', () => {
   // Run before every test case

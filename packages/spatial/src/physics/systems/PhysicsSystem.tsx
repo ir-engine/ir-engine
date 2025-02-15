@@ -28,19 +28,18 @@ import { useEffect } from 'react'
 import { getComponent, removeComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { QueryReactor, defineQuery, useQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { defineQuery, QueryReactor, useQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { SimulationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 
-import { EngineState, Not, UUIDComponent, useEntityContext } from '@ir-engine/ecs'
+import { EngineState, Not, useEntityContext } from '@ir-engine/ecs'
 import React from 'react'
 import { Vector3 } from 'three'
 import { InputHeuristicState, IntersectionData } from '../../input/functions/ClientInputHeuristics'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { PhysicsSerialization } from '../PhysicsSerialization'
 import { Physics, RaycastArgs } from '../classes/Physics'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
@@ -50,6 +49,7 @@ import {
 } from '../components/RigidBodyComponent'
 import { CollisionGroups } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
+import { PhysicsSerialization } from '../PhysicsSerialization'
 import { ColliderHitEvent, CollisionEvents, SceneQueryType } from '../types/PhysicsTypes'
 
 const nonFixedRigidbodyQuery = defineQuery([RigidBodyComponent, Not(RigidBodyFixedTagComponent)])
@@ -106,16 +106,15 @@ const execute = () => {
 
 const PhysicsSceneReactor = () => {
   const entity = useEntityContext()
-  const uuid = useComponent(entity, UUIDComponent).value
   const scene = useComponent(entity, SceneComponent)
 
   useEffect(() => {
     if (!scene.active.value) return
-    Physics.createWorld(uuid)
+    Physics.createWorld(entity)
     return () => {
-      Physics.destroyWorld(uuid)
+      Physics.destroyWorld(entity)
     }
-  }, [uuid, scene.active.value])
+  }, [scene.active.value])
   return null
 }
 

@@ -30,6 +30,7 @@ import {
   defineComponent,
   getComponent,
   getOptionalComponent,
+  LayerComponent,
   removeComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -45,7 +46,7 @@ import {
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { useEffect } from 'react'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { GLTFSourceState } from '../../gltf/GLTFState'
+import { AssetState } from '../../gltf/GLTFState'
 import { SourceComponent } from '../../scene/components/SourceComponent'
 import { AvatarRigComponent } from './AvatarAnimationComponent'
 import { NormalizedBoneComponent } from './NormalizedBoneComponent'
@@ -78,23 +79,34 @@ export const useLoadAnimationFromGLTF = (url: string, keepEntity = false) => {
   useEffect(() => {
     if (animation.value || !url) return
     if (!assetEntity.value) {
-      assetEntity.set(GLTFSourceState.load(url))
-      return
+      assetEntity.set(AssetState.load(url))
     }
   }, [url, progress])
 
   useEffect(() => {
-    if (!animationComponent?.animations || !animationComponent.animations.length || animation.value) return
-    iterateEntityNode(assetEntity.value, (entity) => {
-      removeComponent(entity, MeshComponent)
-      removeComponent(entity, SkinnedMeshComponent)
-      removeComponent(entity, MaterialStateComponent)
-      removeComponent(entity, MaterialInstanceComponent)
-    })
+    if (
+      !assetEntity?.value ||
+      !animationComponent?.animations ||
+      !animationComponent.animations.length ||
+      animation.value
+    )
+      return
     animation.set(getComponent(assetEntity.value, AnimationComponent).animations)
-    if (!keepEntity) removeEntity(assetEntity.value)
-  }, [animationComponent?.animations])
-  return [animation, keepEntity ? assetEntity.value : UndefinedEntity] as [State<AnimationClip[]>, Entity]
+    if (keepEntity) {
+      iterateEntityNode(assetEntity.value, (entity) => {
+        removeComponent(entity, MeshComponent)
+        removeComponent(entity, SkinnedMeshComponent)
+        removeComponent(entity, MaterialStateComponent)
+        removeComponent(entity, MaterialInstanceComponent)
+      })
+    } else {
+      removeEntity(assetEntity.value)
+    }
+  }, [animationComponent?.animations, assetEntity?.value])
+  return [animation, keepEntity ? assetEntity?.value ?? UndefinedEntity : UndefinedEntity] as [
+    State<AnimationClip[]>,
+    Entity
+  ]
 }
 
 PropertyBinding.parseTrackName = function (trackName) {
@@ -121,8 +133,8 @@ export const getTrackId = (entity: Entity) =>
   getComponent(entity, UUIDComponent).replace(getComponent(entity, SourceComponent) + '-', '')
 
 PropertyBinding.findNode = (root: Object3D, nodeName: string) => {
-  const sceneInstanceID = GLTFComponent.getInstanceID(root.entity!)
-  const childEntities = SourceComponent.entitiesBySource[sceneInstanceID]
+  const sceneInstanceID = GLTFComponent.getInstanceID(root.entity)
+  const childEntities = SourceComponent.getEntitiesBySource(sceneInstanceID, LayerComponent.get(root.entity))
 
   let entity = UndefinedEntity
   /**if AvatarRigComponent is present, use VRM schema */

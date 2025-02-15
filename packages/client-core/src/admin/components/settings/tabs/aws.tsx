@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { useFind, useMutation } from '@ir-engine/common'
 import { EngineSettingType, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
@@ -150,8 +149,6 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
     <Accordion
       title={t('admin:components.setting.aws.header')}
       subtitle={t('admin:components.setting.aws.subtitle')}
-      expandIcon={<HiPlusSmall />}
-      shrinkIcon={<HiMinus />}
       ref={ref}
       open={open}
     >
@@ -354,7 +351,7 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
         </div>
       )}
       <div className="grid grid-cols-8 gap-6">
-        <Button size="sm" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
+        <Button size="sm" className="text-primary col-span-1 " fullWidth onClick={handleCancel}>
           {t('admin:components.common.reset')}
         </Button>
         <Button size="sm" variant="primary" className="col-span-1" fullWidth onClick={handleSubmit}>

@@ -35,7 +35,7 @@ import {
 } from '@pixiv/three-vrm'
 import type * as V0VRM from '@pixiv/types-vrm-0.0'
 
-import { AnimationAction, Euler, Group, Matrix4, Object3D, Vector3 } from 'three'
+import { AnimationAction, Euler, Group, Matrix4, Object3D, Quaternion, Vector3 } from 'three'
 
 import { GLTF } from '@gltf-transform/core'
 import { EntityTreeComponent, UUIDComponent, iterateEntityNode } from '@ir-engine/ecs'
@@ -50,14 +50,12 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { getState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { GLTFDocumentState } from '../../gltf/GLTFDocumentState'
 import { hipsRegex, mixamoVRMRigMap } from '../AvatarBoneMatching'
 import { NormalizedBoneComponent } from './NormalizedBoneComponent'
 
@@ -121,7 +119,7 @@ const linkNormalizedBones = (vrm: VRM) => {
 
 export function createVRM(rootEntity: Entity) {
   const documentID = GLTFComponent.getInstanceID(rootEntity)
-  const gltf = getState(GLTFDocumentState)[documentID]
+  const gltf = getComponent(rootEntity, GLTFComponent).document!
 
   //formats an object of human bones to be used in the VRM constructor
   const formatHumanBones = (humanBones: { [key: string]: { node: number } }) => {
@@ -155,11 +153,18 @@ export function createVRM(rootEntity: Entity) {
       const bone = getOptionalComponent(entity, BoneComponent)
       bone?.matrixWorld.identity()
       bone?.quaternion.set(0, 0, 0, 1)
+
       if (entity !== bones.hips.node.parent?.entity) bone?.matrixWorld.makeRotationY(Math.PI)
     })
     bones.hips.node.rotateY(Math.PI)
 
     const humanoid = new VRMHumanoid(bones)
+    ;(humanoid as any)._normalizedHumanBones._parentWorldRotationInverses = Object.fromEntries(
+      Object.entries((humanoid as any)._normalizedHumanBones._parentWorldRotations).map(([key, value]) => [
+        key,
+        (value as Quaternion).clone().invert()
+      ])
+    )
 
     const scene = getComponent(rootEntity, ObjectComponent)
 
@@ -180,10 +185,28 @@ export function createVRM(rootEntity: Entity) {
     setComponent(rootEntity, AvatarRigComponent, { vrm })
     linkNormalizedBones(vrm)
 
+    const humanoidAfter = vrm.humanoid as any
+    Object.values(humanoidAfter._normalizedHumanBones.humanBones).forEach((o: any) => {
+      const bone = o.node as Object3D
+      if (bone?.rotation) bone.rotation._onChangeCallback = () => {}
+      if (bone) bone.quaternion._onChangeCallback = () => {}
+    })
+    humanoidAfter._normalizedHumanBones.root.traverse((bone: Object3D) => {
+      if (bone?.rotation) bone.rotation._onChangeCallback = () => {}
+      if (bone) bone.quaternion._onChangeCallback = () => {}
+    })
+
     return vrm
   }
 
   return createVRMFromGLTF(rootEntity, gltf)
+}
+
+declare module '@pixiv/three-vrm-core' {
+  export interface VRMHumanoid {
+    _parentWorldRotations: { [key: string]: Quaternion }
+    _parentWorldRotationInverses: { [key: string]: Quaternion }
+  }
 }
 
 export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
@@ -244,6 +267,12 @@ export const createVRMFromGLTF = (rootEntity: Entity, gltf: GLTF.IGLTF) => {
   transform?.matrixWorld.identity()
 
   const humanoid = new VRMHumanoid(bones)
+  ;(humanoid as any)._normalizedHumanBones._parentWorldRotationInverses = Object.fromEntries(
+    Object.entries((humanoid as any)._normalizedHumanBones._parentWorldRotations).map(([key, value]) => [
+      key,
+      (value as Quaternion).clone().invert()
+    ])
+  )
   const scene = getComponent(rootEntity, ObjectComponent)
   const children = getComponent(rootEntity, EntityTreeComponent).children
   const childName = getComponent(children[0], NameComponent)
@@ -323,10 +352,10 @@ export const enforceTPose = (entity: Entity) => {
     const thumb = bones[`${side}ThumbMetacarpal`]
     const angle = thumbAngle[`${side}ThumbAngle`]
     const hand = bones[`${side}Hand`]
-    getComponent(thumb, TransformComponent).rotation.setFromEuler(angle)
+    getOptionalComponent(thumb, TransformComponent)?.rotation.setFromEuler(angle)
     iterateEntityNode(thumb, (entity) => {
-      getComponent(entity, BoneComponent)
-        .matrixWorld.makeRotationFromEuler(angle)
+      getOptionalComponent(entity, BoneComponent)
+        ?.matrixWorld.makeRotationFromEuler(angle)
         .multiply(getComponent(hand, TransformComponent).matrixWorld)
     })
   }

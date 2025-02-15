@@ -29,9 +29,10 @@ import { useEffect } from 'react'
 import { LocationService, LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { useFind } from '@ir-engine/common'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
+import { SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { NotificationService } from '../../common/services/NotificationService'
 import { RouterState } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'
@@ -83,7 +84,8 @@ export const useLoadLocation = (props: { locationName: string }) => {
       return
     const sceneURL = locationState.currentLocation.location.sceneURL.value
     const sceneID = locationState.currentLocation.location.sceneId.value
-    return GLTFAssetState.loadScene(sceneURL, sceneID)
+    const viewerEntity = getState(ReferenceSpaceState).viewerEntity
+    return SceneState.loadScene(sceneURL, sceneID, viewerEntity)
   }, [locationState.currentLocation.location.sceneId, locationState.currentLocation.location.sceneURL])
 }
 
@@ -100,7 +102,8 @@ export const useLoadScene = (props: { projectName: string; sceneName: string }) 
     const resource = resourceQuery.data[0]
     getMutableState(LocationState).currentLocation.location.sceneId.set(resource.id)
     getMutableState(LocationState).currentLocation.location.sceneURL.set(resource.url)
-    const unload = GLTFAssetState.loadScene(resource.url, resource.id)
+    const viewerEntity = getState(ReferenceSpaceState).viewerEntity
+    const unload = SceneState.loadScene(resource.url, resource.id, viewerEntity)
     return () => {
       getMutableState(LocationState).currentLocation.location.sceneId.set('')
       getMutableState(LocationState).currentLocation.location.sceneURL.set('')

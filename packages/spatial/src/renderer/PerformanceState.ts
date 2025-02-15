@@ -96,7 +96,7 @@ const tieredSettings = {
   [5]: {
     engine: {
       useShadows: true,
-      shadowMapResolution: 2048,
+      shadowMapResolution: 1024, // @todo we should probably make this opt in or only allow on high end GPUs
       usePostProcessing: true,
       forceBasicMaterials: false,
       renderScale: 1

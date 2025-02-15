@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Box3, Color, ColorRepresentation, Matrix4, Quaternion, Vector2, Vector3 } from 'three'
 
+import { Entity } from '@ir-engine/ecs'
 import { Options, TProperties } from '@ir-engine/ecs/src/schemas/JSONSchemaTypes'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
@@ -43,11 +44,13 @@ export const NonEmptyString = (errMsg: string) => {
   }
 }
 
+type Init<T> = T | ((entity: Entity) => T)
+
 export const T = {
   /** Vector3 type schema helper, defaults to { x: 0, y: 0, z: 0 } */
-  Vec3: (init = { x: 0, y: 0, z: 0 }, options?: Options<Vector3>) =>
+  Vec3: (init = { x: 0, y: 0, z: 0 } as Init<Vector3>, options?: Options<Vector3>) =>
     S.SerializedClass(
-      () => new Vector3(init.x, init.y, init.z),
+      typeof init === 'function' ? init : () => new Vector3(init.x, init.y, init.z),
       {
         x: S.Number(),
         y: S.Number(),
@@ -61,9 +64,9 @@ export const T = {
     ),
 
   /** Vector2 type schema helper, defaults to { x: 0, y: 0 } */
-  Vec2: (init = { x: 0, y: 0 }, options?: Options<Vector2>) =>
+  Vec2: (init = { x: 0, y: 0 } as Init<Vector2>, options?: Options<Vector2>) =>
     S.SerializedClass(
-      () => new Vector2(init.x, init.y),
+      typeof init === 'function' ? init : () => new Vector2(init.x, init.y),
       {
         x: S.Number(),
         y: S.Number()
@@ -76,9 +79,9 @@ export const T = {
     ),
 
   /** Quaternion type schema helper, defaults to { x: 0, y: 0, z: 0, w: 1 } */
-  Quaternion: (init = { x: 0, y: 0, z: 0, w: 1 }, options?: Options<Quaternion>) =>
+  Quaternion: (init = { x: 0, y: 0, z: 0, w: 1 } as Init<Quaternion>, options?: Options<Quaternion>) =>
     S.SerializedClass(
-      () => new Quaternion(init.x, init.y, init.z, init.w),
+      typeof init === 'function' ? init : () => new Quaternion(init.x, init.y, init.z, init.w),
       {
         x: S.Number(),
         y: S.Number(),
@@ -86,6 +89,7 @@ export const T = {
         w: S.Number()
       },
       {
+        serialize: (value) => value.toJSON(),
         deserialize: (curr, value) => curr.copy(value),
         ...options,
         id: 'Quaternion'
@@ -110,9 +114,9 @@ export const T = {
     ),
 
   /** Vector3 type schema helper, defaults to { x: 0, y: 0, z: 0 } */
-  Box3: (init?: Box3, options?: Options<Box3>) =>
+  Box3: (init?: Init<Box3>, options?: Options<Box3>) =>
     S.SerializedClass(
-      () => new Box3(init?.min, init?.max),
+      typeof init === 'function' ? init : () => new Box3(init?.min, init?.max),
       {
         min: T.Vec3(),
         max: T.Vec3()
@@ -133,9 +137,11 @@ export const T = {
    * @param options schema options
    * @returns
    */
-  Color: (init?: ColorRepresentation, options?: Options<ColorRepresentation>) =>
+  Color: (init?: Init<ColorRepresentation>, options?: Options<ColorRepresentation>) =>
     S.SerializedClass<TProperties, ColorRepresentation>(
-      () => (isColorObj(init) ? new Color(init.r, init.g, init.b) : new Color(init)),
+      typeof init === 'function'
+        ? init
+        : () => (isColorObj(init) ? new Color(init.r, init.g, init.b) : new Color(init)),
       {
         r: S.Number(),
         g: S.Number(),

@@ -48,11 +48,6 @@ export async function up(knex: Knex): Promise<void> {
       if (!hasEditorType) {
         await knex.from(projectPermissionTypePath).insert({ type: 'editor' })
       }
-
-      const hasReviewerType = currentTypes.find((item) => item.type === 'reviewer')
-      if (!hasReviewerType) {
-        await knex.from(projectPermissionTypePath).insert({ type: 'reviewer' })
-      }
     }
   }
 
@@ -79,11 +74,6 @@ export async function down(knex: Knex): Promise<void> {
       const hasEditorType = currentTypes.find((item) => item.type === 'editor')
       if (hasEditorType) {
         await knex.from(projectPermissionTypePath).where({ type: 'editor' }).del()
-      }
-
-      const hasReviewerType = currentTypes.find((item) => item.type === 'reviewer')
-      if (hasReviewerType) {
-        await knex.from(projectPermissionTypePath).where({ type: 'reviewer' }).del()
       }
     }
   }

@@ -52,7 +52,17 @@ import {
 } from 'three.quarks'
 import matches from 'ts-matches'
 
-import { Entity, EntityTreeComponent, UUIDComponent, getChildrenWithComponents } from '@ir-engine/ecs'
+import {
+  Entity,
+  EntityTreeComponent,
+  UUIDComponent,
+  createEntity,
+  generateEntityUUID,
+  getAncestorWithComponents,
+  getChildrenWithComponents,
+  removeEntity,
+  useEntityContext
+} from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -61,30 +71,18 @@ import {
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { createEntity, generateEntityUUID, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
-import {
-  NO_PROXY,
-  defineState,
-  dispatchAction,
-  getMutableState,
-  getState,
-  none,
-  useHookstate
-} from '@ir-engine/hyperflux'
+import { NO_PROXY, defineState, getMutableState, none, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Vector3_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { useDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useGLTFComponent, useTexture } from '../../assets/functions/resourceLoaderHooks'
-import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
-import { GLTFSnapshotState, GLTFSourceState } from '../../gltf/GLTFState'
 import { mergeGeometries } from '../util/meshUtils'
 import { SourceComponent } from './SourceComponent'
 
@@ -94,10 +92,11 @@ export type ParticleSystemRendererInstance = {
   instanceCount: number
 }
 
-const createBatchedRenderer: (sceneID: string) => ParticleSystemRendererInstance = (sceneID) => {
+const createBatchedRenderer = (entity: Entity) => {
+  const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
   const particleState = getMutableState(ParticleState)
-  if (particleState.renderers[sceneID].value) {
-    const instance = particleState.renderers[sceneID].get(NO_PROXY) as ParticleSystemRendererInstance
+  if (particleState.renderers[sceneEntity].value) {
+    const instance = particleState.renderers[sceneEntity].get(NO_PROXY) as ParticleSystemRendererInstance
     instance.instanceCount++
     return instance
   } else {
@@ -106,8 +105,8 @@ const createBatchedRenderer: (sceneID: string) => ParticleSystemRendererInstance
     setComponent(rendererEntity, UUIDComponent, generateEntityUUID())
     setComponent(rendererEntity, VisibleComponent)
     setComponent(rendererEntity, NameComponent, 'Particle Renderer')
-    const sourceState = getState(GLTFSourceState)
-    setComponent(rendererEntity, EntityTreeComponent, { parentEntity: sourceState[sceneID] })
+    const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
+    setComponent(rendererEntity, EntityTreeComponent, { parentEntity: sceneEntity })
     renderer.preserveChildren = true
     renderer.parent = {
       type: 'Scene',
@@ -117,7 +116,7 @@ const createBatchedRenderer: (sceneID: string) => ParticleSystemRendererInstance
     renderer.matrixWorld = new Matrix4().identity()
     setComponent(rendererEntity, ObjectComponent, renderer)
     const instance: ParticleSystemRendererInstance = { renderer, rendererEntity, instanceCount: 1 }
-    particleState.renderers[sceneID].set(instance)
+    particleState.renderers[sceneEntity].set(instance)
     return instance
   }
 }
@@ -143,7 +142,7 @@ const removeBatchedRenderer: (sceneID: string) => void = (sceneID) => {
 export const ParticleState = defineState({
   name: 'ParticleState',
   initial: () => ({
-    renderers: {} as Record<string, ParticleSystemRendererInstance>
+    renderers: {} as Record<Entity, ParticleSystemRendererInstance>
   })
 })
 
@@ -894,9 +893,6 @@ export const ParticleSystemComponent = defineComponent({
     const componentState = useComponent(entity, ParticleSystemComponent)
     const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
     const sceneID = useOptionalComponent(entity, SourceComponent)?.value
-    const rootEntity = useHookstate(getMutableState(GLTFSourceState))[sceneID ?? ''].value
-    const gltfComponent = useOptionalComponent(rootEntity, GLTFComponent)
-    const refreshed = useHookstate(false)
 
     //for particle meshes
     const geoDependencyEntity = useGLTFComponent(componentState.value.systemParameters.instancingGeometry, entity)
@@ -954,25 +950,16 @@ export const ParticleSystemComponent = defineComponent({
       dudMaterial.map = null
     })
 
-    const [dudMaterial] = useDisposable(MeshBasicMaterial, entity, {
-      color: 0xffffff,
-      transparent: componentState.value.systemParameters.transparent ?? true,
-      blending: componentState.value.systemParameters.blending as Blending,
-      side: DoubleSide
-    })
-
-    //@todo: this is a hack to make trail rendering mode work correctly. We need to find out why an additional snapshot is needed
-    useEffect(() => {
-      if (!sceneID) return
-      if (gltfComponent?.value && !GLTFComponent.isSceneLoaded(rootEntity)) return
-      if (refreshed.value) return
-
-      //if (componentState.systemParameters.renderMode.value === RenderMode.Trail) {
-      const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID!)
-      dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
-      //}
-      refreshed.set(true)
-    }, [gltfComponent?.progress])
+    /** @todo track this in resource manager */
+    const dudMaterial = useHookstate(
+      () =>
+        new MeshBasicMaterial({
+          color: 0xffffff,
+          transparent: componentState.value.systemParameters.transparent ?? true,
+          blending: componentState.value.systemParameters.blending as Blending,
+          side: DoubleSide
+        })
+    ).value as MeshBasicMaterial
 
     useEffect(() => {
       //add dud material
@@ -992,7 +979,7 @@ export const ParticleSystemComponent = defineComponent({
       if (!componentState._loadIndex.value) return
 
       const component = componentState.get(NO_PROXY)
-      const rendererInstance = createBatchedRenderer(sceneID!)
+      const rendererInstance = createBatchedRenderer(entity)
       const renderer = rendererInstance.renderer
 
       const systemParameters = JSON.parse(JSON.stringify(component.systemParameters)) as ExpandedSystemJSON
@@ -1008,7 +995,8 @@ export const ParticleSystemComponent = defineComponent({
       const emitterAsObj3D = nuSystem.emitter
       emitterAsObj3D.userData['_refresh'] = component._refresh
       setComponent(entity, ObjectComponent, emitterAsObj3D)
-      emitterAsObj3D.parent = renderer
+      setComponent(entity, EntityTreeComponent, { parentEntity: renderer.entity })
+      // emitterAsObj3D.parent = renderer
       const transformComponent = getComponent(entity, TransformComponent)
       emitterAsObj3D.matrix = transformComponent.matrix
       componentState.system.set(nuSystem)

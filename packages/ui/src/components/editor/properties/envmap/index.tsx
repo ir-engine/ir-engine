@@ -26,10 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvMapBakeComponent'
-import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
+import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { EnvMapSourceType } from '@ir-engine/engine/src/scene/constants/EnvMapEnum'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -37,6 +36,7 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { useQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { ImageLink, Slider } from '@ir-engine/ui/editor'
 import { IoMapOutline } from 'react-icons/io5'
 import Button from '../../../../primitives/tailwind/Button'
@@ -60,23 +60,23 @@ export const EnvMapEditor: EditorComponentType = (props) => {
   const bakeEntities = useQuery([EnvMapBakeComponent]).map((entity) => {
     return {
       label: getComponent(entity, NameComponent),
-      value: getComponent(entity, UUIDComponent)
+      value: getComponent(entity, NodeIDComponent)
     }
   })
 
   const onChangeCubemapURLSource = useCallback((value) => {
     const directory = value[value.length - 1] === '/' ? value.substring(0, value.length - 1) : value
-    commitProperty(EnvmapComponent, 'envMapCubemapURL')(directory)
+    commitProperty(EnvMapComponent, 'envMapCubemapURL')(directory)
   }, [])
 
-  const envmapComponent = useComponent(entity, EnvmapComponent)
+  const envmapComponent = useComponent(entity, EnvMapComponent)
 
-  const errors = getEntityErrors(props.entity, EnvmapComponent)
+  const errors = getEntityErrors(props.entity, EnvMapComponent)
 
   return (
     <NodeEditor
       {...props}
-      component={EnvmapComponent}
+      component={EnvMapComponent}
       name={t('editor:properties.envmap.name')}
       description={t('editor:properties.envmap.description')}
       Icon={EnvMapEditor.iconComponent}
@@ -86,15 +86,15 @@ export const EnvMapEditor: EditorComponentType = (props) => {
           key={props.entity}
           options={EnvMapSourceOptions}
           value={envmapComponent.type.value}
-          onChange={commitProperty(EnvmapComponent, 'type')}
+          onChange={commitProperty(EnvMapComponent, 'type')}
         />
       </InputGroup>
       {envmapComponent.type.value === EnvMapSourceType.Color && (
         <InputGroup name="EnvMapColor" label={t('editor:properties.envmap.lbl-color')}>
           <ColorInput
             value={envmapComponent.envMapSourceColor.value}
-            onChange={commitProperty(EnvmapComponent, 'envMapSourceColor')}
-            onRelease={commitProperty(EnvmapComponent, 'envMapSourceColor')}
+            onChange={commitProperty(EnvMapComponent, 'envMapSourceColor')}
+            onRelease={commitProperty(EnvMapComponent, 'envMapSourceColor')}
           />
         </InputGroup>
       )}
@@ -103,21 +103,21 @@ export const EnvMapEditor: EditorComponentType = (props) => {
           <SelectInput
             options={bakeEntities}
             value={envmapComponent.envMapSourceEntityUUID.value}
-            onChange={commitProperty(EnvmapComponent, 'envMapSourceEntityUUID')}
+            onChange={commitProperty(EnvMapComponent, 'envMapSourceEntityUUID')}
           />
         </InputGroup>
       )}
       {(envmapComponent.type.value === EnvMapSourceType.Cubemap ||
         envmapComponent.type.value === EnvMapSourceType.Equirectangular) && (
         <div>
-          <InputGroup name="Texture URL" label={t('editor:properties.envmap.lbl-textureUrl')} labelClassName="mr-16">
+          <InputGroup name="Texture URL" label={t('editor:properties.envmap.lbl-textureUrl')}>
             {envmapComponent.type.value === EnvMapSourceType.Cubemap && (
               <FolderInput value={envmapComponent.envMapCubemapURL.value} onRelease={onChangeCubemapURLSource} />
             )}
             {envmapComponent.type.value === EnvMapSourceType.Equirectangular && (
               <ImageLink
                 src={envmapComponent.envMapSourceURL.value}
-                onBlur={commitProperty(EnvmapComponent, 'envMapSourceURL')}
+                onBlur={commitProperty(EnvMapComponent, 'envMapSourceURL')}
               />
             )}
             {errors?.MISSING_FILE && (
@@ -129,28 +129,30 @@ export const EnvMapEditor: EditorComponentType = (props) => {
       {envmapComponent.type.value === EnvMapSourceType.Probes && (
         <Button
           onClick={() => {
-            commitProperty(EnvmapComponent, 'type')(EnvMapSourceType.None)
+            commitProperty(EnvMapComponent, 'type')(EnvMapSourceType.None)
             setTimeout(() => {
-              commitProperty(EnvmapComponent, 'type')(EnvMapSourceType.Probes)
+              commitProperty(EnvMapComponent, 'type')(EnvMapSourceType.Probes)
             }, 1000)
           }}
         >
           {t('editor:properties.envmap.bake-reflection-probes')}
         </Button>
       )}
-      {envmapComponent.type.value !== EnvMapSourceType.None && (
-        <Slider
-          min={0}
-          step={0.01}
-          max={10}
-          value={envmapComponent.envMapIntensity.value}
-          onChange={updateProperty(EnvmapComponent, 'envMapIntensity')}
-          onRelease={commitProperty(EnvmapComponent, 'envMapIntensity')}
-          aria-label="EnvMap Intensity"
-          label={t('editor:properties.envmap.lbl-intensity')}
-          info={t('editor:properties.envmap.info-intensity')}
-        />
-      )}
+      <div className="w-full py-1.5 pl-8 pr-3.5">
+        {envmapComponent.type.value !== EnvMapSourceType.None && (
+          <Slider
+            min={0}
+            step={0.01}
+            max={10}
+            value={envmapComponent.envMapIntensity.value}
+            onChange={updateProperty(EnvMapComponent, 'envMapIntensity')}
+            onRelease={commitProperty(EnvMapComponent, 'envMapIntensity')}
+            aria-label="EnvMap Intensity"
+            label={t('editor:properties.envmap.lbl-intensity')}
+            info={t('editor:properties.envmap.info-intensity')}
+          />
+        )}
+      </div>
     </NodeEditor>
   )
 }

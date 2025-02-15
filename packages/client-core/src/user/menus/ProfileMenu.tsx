@@ -361,7 +361,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   const enableConnect = authState?.value?.emailMagicLink || authState?.value?.smsMagicLink
 
   return (
-    <div className="relative z-50 h-fit max-h-[60vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-theme-surface-main p-10">
+    <div className="relative z-50 h-fit max-h-[60vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-1 p-10">
       <div className="grid w-full grid-cols-2 gap-x-2">
         <div className="grid grid-cols-3 gap-x-2">
           <div className="relative col-span-1 h-[3.75rem] w-[3.75rem]">
@@ -372,32 +372,32 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               }}
               className="absolute -bottom-3 -right-3 flex h-8 w-8 items-center justify-center rounded-full bg-[#DDE1E5] p-2"
             >
-              <Edit01Lg className="place-items-center text-black" />
+              <Edit01Lg className="place-items-center text-text-secondary" />
             </button>
           </div>
 
           <div className="col-span-2 grid grid-cols-1 gap-y-1">
-            <Text fontSize="xl" fontWeight="semibold">
+            <Text fontSize="xl" fontWeight="semibold" className="text-text-primary">
               {hasAdminAccess ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
               <span className={commonStyles.bold}>{hasAdminAccess ? ' Admin' : isGuest ? ' Guest' : ' User'}</span>.
             </Text>
 
             {acceptedTOS && selfUser?.inviteCode.value && (
-              <Text fontSize="sm">
+              <Text fontSize="sm" className="text-text-secondary">
                 {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode.value}
               </Text>
             )}
 
             {acceptedTOS && (
               <button className="w-fit" onClick={() => showUserId.set(!showUserId.value)}>
-                <Text fontSize="sm">
+                <Text fontSize="sm" className="text-text-secondary">
                   {showUserId.value ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
                 </Text>
               </button>
             )}
 
             {acceptedTOS && apiKey?.id && (
-              <button onClick={() => showApiKey.set(!showApiKey.value)} className="w-fit">
+              <button onClick={() => showApiKey.set(!showApiKey.value)} className="w-fit text-text-secondary">
                 <Text fontSize="sm">
                   {showApiKey.value ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
                 </Text>
@@ -408,18 +408,18 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
 
         <div className="grid grid-cols-3 gap-x-2">
           <button
-            className="col-span-1 flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-[#616161] p-2"
+            className="col-span-1 flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-surface-0 p-2"
             onClick={() => {
               PopoverState.showPopupover(<SettingsMenu />)
             }}
           >
-            <CogLg className="h-10 w-10 text-white" />
+            <CogLg className="h-10 w-10 text-text-primary" />
           </button>
 
           {initialized && (
             <div className="col-span-2 grid grid-cols-1 gap-y-2">
               <button
-                className="flex w-full items-center justify-center gap-x-2 rounded-md bg-[#616161] p-1"
+                className="flex w-full items-center justify-center gap-x-2 rounded-md bg-[#616161] p-1 text-text-primary-button"
                 onClick={openChat}
               >
                 <HelpIconLg />
@@ -427,7 +427,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               </button>
 
               <button
-                className="flex w-full items-center justify-center gap-x-2 rounded-md bg-[#C3324B] p-1"
+                className="flex w-full items-center justify-center gap-x-2 rounded-md bg-[#C3324B] p-1 text-text-primary-button"
                 onClick={openChat}
               >
                 <ReportWebsiteDefaullg />
@@ -562,13 +562,16 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
 
       {!isGuest && (
         <div className="mt-5 grid w-1/2 grid-cols-1 gap-y-2 px-5">
-          <button className="flex w-full items-center justify-start gap-x-2 p-2" onClick={handleLogout}>
+          <button
+            className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
+            onClick={handleLogout}
+          >
             <LogIn01Lg />
             {t('user:usermenu.profile.logout')}
           </button>
 
           <button
-            className="flex w-full items-center justify-start gap-x-2 p-2"
+            className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
             onClick={() => {
               PopoverState.showPopupover(
                 <ConfirmDialog
@@ -685,7 +688,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
       )}
 
       <a href={clientSetting?.privacyPolicy} target="_blank">
-        <Text className="mt-5 w-full text-center" fontSize="sm">
+        <Text className="mt-5 w-full text-center text-text-tertiary" fontSize="sm">
           {t('user:usermenu.profile.privacyPolicy')}
         </Text>
       </a>

@@ -39,7 +39,7 @@ import {
   UndefinedEntity,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
+import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { EnvMapSourceType } from '@ir-engine/engine/src/scene/constants/EnvMapEnum'
 import { AmbientLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { AssetPreviewCameraComponent } from '@ir-engine/spatial/src/camera/components/AssetPreviewCameraComponent'
@@ -80,7 +80,7 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     if (!avatarUrl) return
 
     setComponent(sceneEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
-    setComponent(sceneEntity, EnvmapComponent, { type: EnvMapSourceType.Skybox })
+    setComponent(sceneEntity, EnvMapComponent, { type: EnvMapSourceType.Skybox })
     setComponent(sceneEntity, AvatarComponent)
     setComponent(sceneEntity, GLTFComponent, { src: avatarUrl })
     setComponent(sceneEntity, AvatarAnimationComponent)

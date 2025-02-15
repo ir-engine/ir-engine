@@ -106,18 +106,28 @@ export const MaterialStateComponent = defineComponent({
     material: S.Type<Material>({} as Material),
     parameters: S.Record(S.String(), S.Any()),
     // all entities using this material. an undefined entity at index 0 is a fake user
-    instances: S.Array(S.Entity()),
-    prototypeEntity: S.Entity()
+    instances: S.NonSerialized(S.Array(S.Entity())),
+    prototypeEntity: S.NonSerialized(S.Entity())
   }),
 
-  fallbackMaterial: uuidv4() as EntityUUID,
+  fallbackMaterialUUID: uuidv4() as EntityUUID,
+  fallbackMaterial: () => {
+    const fallbackMaterialEntity = UUIDComponent.getEntityByUUID(MaterialStateComponent.fallbackMaterialUUID)
+    return getComponent(fallbackMaterialEntity, MaterialStateComponent).material //.clone()
+  },
 
-  onRemove: (entity) => {
-    const materialComponent = getOptionalComponent(entity, MaterialStateComponent)
-    if (!materialComponent) return
-    for (const instanceEntity of materialComponent.instances) {
-      if (!hasComponent(instanceEntity, MaterialInstanceComponent)) continue
-      setMeshMaterial(instanceEntity, getComponent(instanceEntity, MaterialInstanceComponent).uuid)
+  onRemove: (entity, component) => {
+    if (!component.instances.value) return
+    try {
+      const instances = Array.isArray(component.instances.value)
+        ? component.instances.value
+        : [component.instances.value]
+      for (const instanceEntity of instances) {
+        if (!hasComponent(instanceEntity, MaterialInstanceComponent)) continue
+        setMeshMaterial(instanceEntity, getComponent(instanceEntity, MaterialInstanceComponent).uuid)
+      }
+    } catch (e) {
+      // this throws errors between tests - should be moved to a reactor
     }
   },
 
@@ -159,7 +169,13 @@ export const MaterialInstanceComponent = defineComponent({
       return (
         <>
           {materialComponent.uuid.value.map((uuid, index) => (
-            <MaterialInstanceSubReactor array={true} key={uuid} index={index} uuid={uuid} entity={entity} />
+            <MaterialInstanceSubReactor
+              array={true}
+              key={uuid + '-' + index}
+              index={index}
+              uuid={uuid}
+              entity={entity}
+            />
           ))}
         </>
       )

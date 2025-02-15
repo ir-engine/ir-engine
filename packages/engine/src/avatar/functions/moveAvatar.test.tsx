@@ -61,7 +61,7 @@ describe('moveAvatar function tests', () => {
     sceneEntity = loadEmptyScene()
 
     setComponent(sceneEntity, SceneComponent)
-    physicsWorld = Physics.createWorld(getComponent(sceneEntity, UUIDComponent))
+    physicsWorld = Physics.createWorld(sceneEntity)
     physicsWorld.timestep = 1 / 60
 
     createMockNetwork(NetworkTopics.world, Engine.instance.store.peerID, Engine.instance.userID)
@@ -71,7 +71,7 @@ describe('moveAvatar function tests', () => {
     return destroyEngine()
   })
 
-  const avatarUrl = 'packages/projects/default-project/assets/avatars/male_01.vrm'
+  const avatarUrl = 'packages/projects/default-project/assets/avatars/irRobot.vrm'
 
   it('should apply world.fixedDelta @ 60 tick to avatar movement, consistent with physics simulation', async () => {
     const ecsState = getMutableState(ECSState)

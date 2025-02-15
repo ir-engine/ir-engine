@@ -31,17 +31,20 @@ import {
   EntityUUID,
   Static,
   UUIDComponent,
-  useChildrenWithComponents
+  createEntity,
+  removeEntity,
+  useChildrenWithComponents,
+  useEntityContext
 } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
   getMutableComponent,
+  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
@@ -87,7 +90,7 @@ const deviceMetadataSchema = S.Object({
 export type VariantMetadata = Static<typeof distanceMetadataSchema> | Static<typeof deviceMetadataSchema>
 
 export const VariantComponent = defineComponent({
-  name: 'EE_variant',
+  name: 'VariantComponent',
   jsonID: 'EE_variant',
 
   schema: S.Object({
@@ -245,8 +248,8 @@ const ChildMeshReactor = (props: { variantEntity: Entity; modelEntity: Entity; m
     const instancedMesh =
       mesh instanceof InstancedMesh
         ? mesh
-        : new InstancedMesh(mesh.geometry, mesh.material, instancingComponent.instanceMatrix.count)
-    instancedMesh.instanceMatrix = instancingComponent.instanceMatrix
+        : new InstancedMesh(mesh.geometry.clone(), mesh.material, instancingComponent.instanceMatrix.count)
+    instancedMesh.instanceMatrix.copy(instancingComponent.instanceMatrix)
     instancedMesh.frustumCulled = false
 
     //add distance culling shader plugin
@@ -281,6 +284,7 @@ uniform float minDistance;`
       })
     }
 
+    removeComponent(props.meshEntity, MeshComponent)
     setComponent(props.meshEntity, MeshComponent, instancedMesh)
   }, [])
 
@@ -291,7 +295,7 @@ uniform float minDistance;`
     const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
 
     for (const material of materials) {
-      if (!material.shader) continue
+      if (!material.shader?.uniforms?.minDistance) continue
       material.shader.uniforms.minDistance.value = level.metadata['minDistance']
     }
   }, [level.metadata['minDistance']])
@@ -301,10 +305,49 @@ uniform float minDistance;`
     const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
 
     for (const material of materials) {
-      if (!material.shader) continue
+      if (!material.shader?.uniforms?.maxDistance) continue
       material.shader.uniforms.maxDistance.value = level.metadata['maxDistance']
     }
   }, [level.metadata['minDistance']])
 
   return null
 }
+
+/** @todo needs to be re-implemented */
+// const buildBudgetVariantMetadata = (
+//   level: VariantLevel,
+//   signal: AbortSignal,
+//   callback: (maxTextureSize: number, vertexCount: number) => void
+// ) => {
+//   const src = level.src
+//   const resources = getState(ResourceState).resources
+//   if (resources[src] && resources[src].status == ResourceStatus.Loaded) {
+//     const metadata = getState(ResourceState).resources[src].metadata as { verts: number; textureWidths: number[] }
+//     const maxTextureSize = metadata.textureWidths ? Math.max(...metadata.textureWidths) : 0
+//     const verts = metadata.verts
+//     callback(maxTextureSize, verts)
+//     return
+//   }
+
+//   loadResource(
+//     src,
+//     ResourceType.GLTF,
+//     UndefinedEntity,
+//     () => {
+//       const metadata = getState(ResourceState).resources[src].metadata as { verts: number; textureWidths: number[] }
+//       const maxTextureSize = metadata.textureWidths ? Math.max(...metadata.textureWidths) : 0
+//       const verts = metadata.verts
+//       callback(maxTextureSize, verts)
+//       ResourceState.unload(src, UndefinedEntity)
+//     },
+//     () => {},
+//     (error) => {
+//       console.warn(
+//         `VariantNodeEditor:buildBudgetVariantMetadata: error loading ${src} to build variant metadata`,
+//         error
+//       )
+//       callback(0, 0)
+//     },
+//     signal
+//   )
+// }

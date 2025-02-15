@@ -71,7 +71,9 @@ const AppPage = (props: { children: React.ReactNode; fallback?: JSX.Element; log
   return (
     <>
       <NotificationSnackbar />
-      <LoadWebappInjection fallback={props.fallback}>{props.children}</LoadWebappInjection>
+      <LoadWebappInjection isLocationPage={!props.loginRequired} fallback={props.fallback}>
+        {props.children}
+      </LoadWebappInjection>
       {isLoggedIn && <ClientSettings />}
     </>
   )
