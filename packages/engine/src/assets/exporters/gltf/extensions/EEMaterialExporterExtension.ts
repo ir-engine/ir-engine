@@ -134,7 +134,7 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     materialDef.extensions[this.name] = {
       uuid: getComponent(materialEntity, UUIDComponent),
       name: getComponent(materialEntity, NameComponent),
-      prototype: prototype,
+      prototype: prototype.name,
       plugins: plugins,
       args: result
     }

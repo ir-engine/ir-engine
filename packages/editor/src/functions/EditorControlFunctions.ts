@@ -46,6 +46,7 @@ import {
   getOptionalMutableComponent,
   hasComponent,
   LayerComponent,
+  LayerFunctions,
   Layers,
   removeComponent,
   serializeComponent,
@@ -140,6 +141,7 @@ const updateMaterialPrototype = (materialEntity: Entity, newPrototype: string) =
 
   if (!material || newPrototype === material.type) return
   const prototype = getState(MaterialPrototypeDefinitions)[newPrototype]
+  if (!prototype) return
   const fullParameters = { ...extractDefaults(prototype.arguments) }
   if (!prototype) return
   const newMaterial = new prototype.prototypeConstructor(fullParameters) as Material
@@ -195,6 +197,10 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
       }
     })
     const sceneID = getComponent(materialEntity, SourceComponent)
+    getMutableComponent(
+      LayerFunctions.getLayerRelationsEntities(materialEntity)![0][1],
+      MaterialStateComponent
+    ).material.plugins.set(material.plugins)
     getMutableState(AssetModifiedState)[sceneID].set(true)
   }
 }

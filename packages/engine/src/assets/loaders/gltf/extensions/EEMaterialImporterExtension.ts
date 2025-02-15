@@ -96,12 +96,12 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     )
     let foundPrototype = false
     if (materialComponent) {
-      foundPrototype = !!materialComponent.prototypeEntity
+      foundPrototype = !!getState(MaterialPrototypeDefinitions)[materialComponent.material.type]
       injectMaterialDefaults(extension.uuid)
     } else {
       try {
-        // getComponent(getPrototypeEntityFromName(extension.prototype)!, MaterialPrototypeComponent).prototypeArguments
-        // foundPrototype = true
+        getState(MaterialPrototypeDefinitions)[materialComponent!.material.type].prototypeConstructor
+        foundPrototype = true
       } catch (e) {
         if (e instanceof PrototypeNotFoundError) {
           console.warn('prototype ' + extension.prototype + ' not found')

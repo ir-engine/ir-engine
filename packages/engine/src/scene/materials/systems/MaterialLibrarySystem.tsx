@@ -138,7 +138,6 @@ export const convertMaterials = (material: Entity, forceBasicMaterials: boolean)
     newBasicMaterial.uuid = basicUuid
     newBasicMaterial.alphaTest = prevMaterial.alphaTest
     newBasicMaterial.side = prevMaterial.side
-    newBasicMaterial.plugins = undefined
 
     const newMaterialEntity = createEntity()
     setComponent(newMaterialEntity, MaterialStateComponent, {

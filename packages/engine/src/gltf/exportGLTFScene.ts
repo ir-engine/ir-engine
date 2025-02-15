@@ -723,7 +723,7 @@ const exportMaterial = async (
   materialDef.extensions['EE_material'] = {
     uuid: getComponent(materialEntity, UUIDComponent),
     name: getComponent(materialEntity, NameComponent),
-    prototype: Object.keys(prototype.prototypeConstructor!)[0],
+    prototype: prototype.prototypeConstructor.name,
     args: result,
     plugins: []
   }

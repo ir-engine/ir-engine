@@ -267,7 +267,7 @@ export class EEMaterialExtension extends CopyableExtension {
           eeMaterial.args = processedArgs
         }
         if (eeDef.plugins) {
-          eeMaterial.plugins = eeDef.plugins
+          //eeMaterial.plugins = eeDef.plugins
         }
       }
     })

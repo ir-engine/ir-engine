@@ -176,7 +176,10 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   const materialParameters = useHookstate({})
 
   useEffect(() => {
-    if (currentSelectedMaterial.value !== null) materialParameters.set({})
+    prototypeName.set(material.type)
+
+    if (currentSelectedMaterial.value === null) return
+    materialParameters.set({})
     materialParameters.set(
       Object.fromEntries(
         Object.keys(extractValues(definitions.value[prototypeName.value].arguments as PrototypeArgument, material)).map(

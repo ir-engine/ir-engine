@@ -87,11 +87,14 @@ export const setMeshMaterial = (groupEntity: Entity, newMaterialUUIDs: EntityUUI
 
   const mesh = getComponent(groupEntity, MeshComponent) as Mesh
   if (!Array.isArray(mesh.material))
-    mesh.material = getComponent(UUIDComponent.getEntityByUUID(newMaterialUUIDs[0]), MaterialStateComponent).material
+    mesh.material = getComponent(
+      UUIDComponent.getEntityByUUID(newMaterialUUIDs[0]) ?? MaterialStateComponent.fallbackMaterialUUID,
+      MaterialStateComponent
+    ).material
   else
     for (let i = 0; i < (mesh.material as Material[]).length; i++)
       mesh.material[i] = getComponent(
-        UUIDComponent.getEntityByUUID(newMaterialUUIDs[0]),
+        UUIDComponent.getEntityByUUID(newMaterialUUIDs[i]) ?? MaterialStateComponent.fallbackMaterialUUID,
         MaterialStateComponent
       ).material
 }
@@ -108,20 +111,6 @@ export const hasPlugin = (material: Material, callback) =>
 export const removePlugin = (material: Material, callback) => {
   const pluginIndex = material.plugins?.findIndex((plugin) => plugin === callback)
   if (pluginIndex !== undefined) material.plugins?.splice(pluginIndex, 1)
-}
-
-export const materialPrototypeMatches = (materialEntity: Entity) => {
-  const materialComponent = getOptionalComponent(materialEntity, MaterialStateComponent)
-  if (!materialComponent) return false
-  const prototypeEntity = materialComponent.prototypeEntity
-  if (!prototypeEntity) return false
-  const prototypeComponent = getState(MaterialPrototypeDefinitions)[materialComponent.material.type]
-  if (!prototypeComponent) return false
-  if (!prototypeComponent.prototypeConstructor) return false
-  const prototypeName = Object.keys(prototypeComponent.prototypeConstructor)[0]
-  const material = materialComponent.material
-  const materialType = material.userData.type || material.type
-  return materialType === prototypeName
 }
 
 export function MaterialNotFoundError(message: string) {

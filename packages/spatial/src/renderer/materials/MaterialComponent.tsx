@@ -107,8 +107,7 @@ export const MaterialStateComponent = defineComponent({
     material: S.Type<Material>({} as Material),
     parameters: S.Record(S.String(), S.Any()),
     // all entities using this material. an undefined entity at index 0 is a fake user
-    instances: S.NonSerialized(S.Array(S.Entity())),
-    prototypeEntity: S.NonSerialized(S.Entity())
+    instances: S.NonSerialized(S.Array(S.Entity()))
   }),
 
   fallbackMaterialUUID: uuidv4() as EntityUUID,
@@ -184,10 +183,10 @@ export const MaterialInstanceComponent = defineComponent({
 
 const MaterialInstanceSubReactor = (props: { array: boolean; uuid: EntityUUID; entity: Entity; index: number }) => {
   const { uuid, entity, index } = props
+
   const materialStateEntity = UUIDComponent.useEntityByUUID(uuid)
   const materialStateComponent = useOptionalComponent(materialStateEntity, MaterialStateComponent)
   const meshComponent = useOptionalComponent(entity, MeshComponent)
-
   useEffect(() => {
     if (!meshComponent || !materialStateComponent) return
     const material = getComponent(materialStateEntity, MaterialStateComponent).material
