@@ -32,7 +32,6 @@ import { S } from './schemas/JSONSchemas'
 
 export const UUIDComponent = defineComponent({
   name: 'UUIDComponent',
-  jsonID: 'EE_uuid',
 
   schema: S.Required(
     S.EntityUUID({

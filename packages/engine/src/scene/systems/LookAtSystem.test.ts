@@ -28,10 +28,8 @@ import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
   EntityTreeComponent,
-  EntityUUID,
   SystemDefinitions,
   SystemUUID,
-  UUIDComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
@@ -42,14 +40,25 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
+import { ReferenceSpaceState } from '@ir-engine/spatial/src/ReferenceSpaceState'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import {
+  TransformDirtyCleanupSystem,
+  TransformDirtyUpdateSystem
+} from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+import { assertVec } from '@ir-engine/spatial/tests/util/assert'
+import { mockSpatialEngine } from '@ir-engine/spatial/tests/util/mockSpatialEngine'
+import { act, render } from '@testing-library/react'
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { assertVec } from '../../../tests/util/assert'
-import { mockSpatialEngine } from '../../../tests/util/mockSpatialEngine'
-import { ReferenceSpaceState } from '../../ReferenceSpaceState'
+import { NodeFunctions } from '../../gltf/NodeFunctions'
+import { NodeID, NodeIDComponent } from '../../gltf/NodeIDComponent'
 import { LookAtComponent } from '../components/LookAtComponent'
-import { TransformComponent } from '../components/TransformComponent'
+import { SourceID } from '../components/SourceComponent'
 import { LookAtSystem } from './LookAtSystem'
-import { TransformDirtyCleanupSystem, TransformDirtyUpdateSystem } from './TransformSystem'
+
+const sourceID = 'sourceID' as SourceID
+const facerNodeID = 'facerNodeID' as NodeID
+const testNodeID = 'testNodeID' as NodeID
 
 describe('LookAtSystem', () => {
   const System = SystemDefinitions.get(LookAtSystem)!
@@ -76,11 +85,12 @@ describe('LookAtSystem', () => {
       let testEntity = UndefinedEntity
       let facerEntity = UndefinedEntity
 
-      beforeEach(() => {
+      beforeEach(async () => {
         createEngine()
         // mockSpatialEngine()   // Do not set EngineState.viewerEntity
-        facerEntity = createEntity()
-        testEntity = createEntity()
+        facerEntity = NodeIDComponent.create(sourceID, facerNodeID)
+        testEntity = NodeIDComponent.create(sourceID, testNodeID)
+        await act(() => render(null))
       })
 
       afterEach(() => {
@@ -93,9 +103,8 @@ describe('LookAtSystem', () => {
         const Initial = new Quaternion(2, 3, 4, 5).normalize()
         // Set the data as expected
         setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42) })
-        setComponent(facerEntity, UUIDComponent, UUIDComponent.generateUUID())
         setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22), rotation: Initial })
-        setComponent(testEntity, LookAtComponent, { target: getComponent(facerEntity, UUIDComponent) })
+        setComponent(testEntity, LookAtComponent, { target: getComponent(facerEntity, NodeIDComponent) })
         // Sanity check before running
         assert.equal(Boolean(getState(ReferenceSpaceState).viewerEntity), false)
         assert.equal(hasComponent(testEntity, TransformComponent), true)
@@ -115,11 +124,12 @@ describe('LookAtSystem', () => {
         let testEntity = UndefinedEntity
         let facerEntity = UndefinedEntity
 
-        beforeEach(() => {
+        beforeEach(async () => {
           createEngine()
           mockSpatialEngine() // Set EngineState.viewerEntity
-          facerEntity = createEntity()
-          testEntity = createEntity()
+          facerEntity = NodeIDComponent.create(sourceID, facerNodeID)
+          testEntity = NodeIDComponent.create(sourceID, testNodeID)
+          await act(() => render(null))
         })
 
         afterEach(() => {
@@ -128,13 +138,12 @@ describe('LookAtSystem', () => {
           return destroyEngine()
         })
 
-        it('should not do anything for that entity if its LookAtComponent.target UUID is truthy but it does not point to a valid entity', () => {
+        it('should not do anything for that entity if its LookAtComponent.target nodeID is truthy but it does not point to a valid entity', () => {
           const Initial = new Quaternion(2, 3, 4, 5).normalize()
           // Set the data as expected
           setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42), rotation: Initial })
-          setComponent(facerEntity, UUIDComponent, UUIDComponent.generateUUID())
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
-          setComponent(testEntity, LookAtComponent, { target: 'invalidTestUUID' as EntityUUID })
+          setComponent(testEntity, LookAtComponent, { target: 'invalidTestNodeID' as NodeID })
           // Sanity check before running
           assert.equal(Boolean(getState(ReferenceSpaceState).viewerEntity), true)
           assert.equal(hasComponent(testEntity, TransformComponent), true)
@@ -152,9 +161,8 @@ describe('LookAtSystem', () => {
           const Initial = new Quaternion(2, 3, 4, 5).normalize()
           // Set the data as expected
           setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42), rotation: Initial })
-          setComponent(facerEntity, UUIDComponent, UUIDComponent.generateUUID())
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
-          setComponent(testEntity, LookAtComponent, { target: '' as EntityUUID })
+          setComponent(testEntity, LookAtComponent, { target: '' as NodeID })
           // Sanity check before running
           assert.equal(Boolean(getState(ReferenceSpaceState).viewerEntity), true)
           assert.equal(hasComponent(testEntity, TransformComponent), true)
@@ -173,9 +181,8 @@ describe('LookAtSystem', () => {
           const Initial = new Quaternion(2, 3, 4, 5).normalize()
           // Set the data as expected
           setComponent(facerEntity, TransformComponent, { position: new Vector3().setScalar(42), rotation: Initial })
-          setComponent(facerEntity, UUIDComponent, UUIDComponent.generateUUID())
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
-          setComponent(testEntity, LookAtComponent, { target: '' as EntityUUID })
+          setComponent(testEntity, LookAtComponent, { target: '' as NodeID })
           // Sanity check before running
           assert.equal(Boolean(getState(ReferenceSpaceState).viewerEntity), true)
           assert.equal(hasComponent(testEntity, TransformComponent), true)
@@ -199,15 +206,19 @@ describe('LookAtSystem', () => {
           setComponent(parentEntity, TransformComponent, { position: new Vector3().setScalar(123) })
           setComponent(facerEntity, EntityTreeComponent, { parentEntity: parentEntity })
           setComponent(facerEntity, TransformComponent, { matrixWorld: Initial })
-          setComponent(facerEntity, UUIDComponent, UUIDComponent.generateUUID())
           setComponent(testEntity, TransformComponent, { position: new Vector3().setScalar(22) })
-          setComponent(testEntity, LookAtComponent, { target: getComponent(facerEntity, UUIDComponent) })
+          setComponent(testEntity, LookAtComponent, { target: getComponent(facerEntity, NodeIDComponent) })
           CleanupSystem.execute()
           // Sanity check before running
           assert.equal(Boolean(getState(ReferenceSpaceState).viewerEntity), true)
           assert.equal(hasComponent(testEntity, TransformComponent), true)
           assert.equal(hasComponent(testEntity, LookAtComponent), true)
           assert.equal(Boolean(getComponent(testEntity, LookAtComponent).target), true)
+          console.log(getComponent(testEntity, LookAtComponent).target)
+          assert.equal(
+            NodeFunctions.getEntityFromNodeID(testEntity, getComponent(testEntity, LookAtComponent).target),
+            facerEntity
+          )
           const before = TransformComponent.dirty[testEntity]
           assert.equal(before, 0)
           // Run and Check the result

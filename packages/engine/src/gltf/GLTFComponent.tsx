@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
-import React, { useEffect } from 'react'
+import React, { Suspense, useEffect } from 'react'
 
 import {
   Component,
@@ -32,12 +32,10 @@ import {
   defineComponent,
   Entity,
   EntityUUID,
-  generateEntityUUID,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
-  isAncestor,
   Layers,
   removeComponent,
   removeEntity,
@@ -73,13 +71,13 @@ import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { ErrorComponent } from '../scene/components/ErrorComponent'
 import { SceneDynamicLoadComponent } from '../scene/components/SceneDynamicLoadComponent'
-import { SourceComponent } from '../scene/components/SourceComponent'
+import { SourceComponent, SourceID } from '../scene/components/SourceComponent'
 import { addError, removeError } from '../scene/functions/ErrorFunctions'
 import { SceneJsonType } from '../scene/types/SceneTypes'
 import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
 import { GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
 import { AssetState } from './GLTFState'
-import { gltfReplaceUUIDsReferences } from './gltfUtils'
+import { NodeID, NodeIDComponent } from './NodeIDComponent'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
 import { useApplyCollidersToChildMeshesEffect } from './useApplyCollidersToChildMeshesEffect'
 
@@ -128,17 +126,19 @@ export const GLTFComponent = defineComponent({
   },
 
   getInstanceID: (entity: Entity) => {
+    if (!hasComponent(entity, GLTFComponent)) return getOptionalComponent(entity, SourceComponent) ?? ('' as SourceID)
     const uuid = getOptionalComponent(entity, UUIDComponent)
     const src = getOptionalComponent(entity, GLTFComponent)?.src
-    if (!uuid || !src) return ''
-    return `${uuid}-${src}`
+    if (!uuid || !src) return '' as SourceID
+    return SourceComponent.getSourceID(uuid, src)
   },
 
   useInstanceID: (entity: Entity) => {
     const uuid = useOptionalComponent(entity, UUIDComponent)?.value
     const src = useOptionalComponent(entity, GLTFComponent)?.src.value
-    if (!uuid || !src) return ''
-    return `${uuid}-${src}`
+    const source = useOptionalComponent(entity, SourceComponent)?.value
+    if (!uuid || !src) return source ?? ('' as SourceID)
+    return SourceComponent.getSourceID(uuid, src)
   }
 })
 
@@ -164,7 +164,7 @@ const loadDependencies = {
   ]
 } as Record<string, DependencyEval[]>
 
-const buildComponentDependencies = (json: GLTF.IGLTF) => {
+const buildComponentDependencies = (entity: Entity, json: GLTF.IGLTF) => {
   const dependencies = {
     componentDependencies: {}
   } as ComponentDependencies
@@ -174,8 +174,10 @@ const buildComponentDependencies = (json: GLTF.IGLTF) => {
 
   if (!json.nodes) return dependencies
   for (const node of json.nodes) {
-    if (node.extensions && node.extensions[UUIDComponent.jsonID]) {
-      const uuid = node.extensions[UUIDComponent.jsonID] as EntityUUID
+    if (node.extensions && node.extensions[NodeIDComponent.jsonID]) {
+      const nodeID = node.extensions[NodeIDComponent.jsonID] as NodeID
+      const sourceID = GLTFComponent.getInstanceID(entity)
+      const uuid = NodeIDComponent.getUUIDBySourceAndNodeID(sourceID, nodeID)
       const extensions = Object.keys(node.extensions)
       if (typeof node.extensions[SceneDynamicLoadComponent.jsonID] !== 'undefined') continue
       for (const extension of extensions) {
@@ -229,20 +231,15 @@ export const GLTFComponentReactor = () => {
 
     const sceneIndex = options.document.scene || 0
     let aborted = false
-    let loadedEntities = null as Entity[] | null
     removeComponent(entity, AnimationComponent)
 
     const unloadEntities = () => {
-      if (loadedEntities) {
-        // only remove entities that are still children of the root entity
-        const loadedAndStillChildEntities = loadedEntities.filter((child) => isAncestor(entity, child, false))
-        for (const entity of loadedAndStillChildEntities) removeEntity(entity)
-      }
+      const loadedEntities = SourceComponent.getEntitiesBySource(sourceID)
+      for (const entity of loadedEntities) removeEntity(entity)
     }
 
     GLTFLoaderFunctions.loadScene(options, sceneIndex).then(() => {
       documentLoaded.set(true)
-      loadedEntities = SourceComponent.getEntitiesBySource(entity)
 
       // force transform update for all entities in the model.
       // required to propagate dirty update auth to sim layers
@@ -378,12 +375,14 @@ const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: stri
     <>
       {components.map((component) => {
         return (
-          <ComponentReactor
-            key={component.jsonID}
-            gltfComponentEntity={gltfComponentEntity}
-            entity={entity}
-            component={component}
-          />
+          <Suspense key={component.jsonID} fallback={null}>
+            <ComponentReactor
+              key={component.jsonID}
+              gltfComponentEntity={gltfComponentEntity}
+              entity={entity}
+              component={component}
+            />
+          </Suspense>
         )
       })}
     </>
@@ -491,8 +490,6 @@ const useGLTFDocument = (entity: Entity) => {
       return
     }
 
-    const layer = LayerComponent.get(entity)
-
     const abortController = new AbortController()
     const signal = abortController.signal
 
@@ -505,26 +502,7 @@ const useGLTFDocument = (entity: Entity) => {
       (gltf, body) => {
         if (body) state.body.set(body)
         state.document.set(gltf)
-        if (gltf.nodes) {
-          const uuidReplacements = [] as [EntityUUID, EntityUUID][]
-          for (const node of gltf.nodes) {
-            if (node.extensions && node.extensions[UUIDComponent.jsonID]) {
-              let uuid = node.extensions[UUIDComponent.jsonID] as EntityUUID
-              //check if uuid already exists
-              if (UUIDComponent.entitiesByUUIDState[layer][uuid]?.value) {
-                //regenerate uuid if it already exists
-                const prevUUID = uuid
-                uuid = generateEntityUUID()
-                node.extensions[UUIDComponent.jsonID] = uuid
-                uuidReplacements.push([prevUUID, uuid])
-              }
-            }
-          }
-          // Replace references in the GLTF of replaced uuids
-          gltfReplaceUUIDsReferences(gltf, uuidReplacements)
-        }
-
-        const dependencies = buildComponentDependencies(gltf)
+        const dependencies = buildComponentDependencies(entity, gltf)
         state.dependencies.set(dependencies)
       },
       onProgress,

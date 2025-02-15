@@ -31,6 +31,7 @@ import {
   EntityUUID,
   LayerComponent,
   UUIDComponent,
+  createEntity,
   deserializeComponent,
   getComponent,
   getMutableComponent,
@@ -123,10 +124,11 @@ import { TextureLoader } from '../assets/loaders/texture/TextureLoader'
 import { AssetCacheState } from '../assets/state/AssetCacheState'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
-import { SourceComponent } from '../scene/components/SourceComponent'
+import { SourceComponent, SourceID } from '../scene/components/SourceComponent'
 import { GLTFComponent } from './GLTFComponent'
 import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
 import { KHRTextureTransformExtensionComponent, KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
+import { NodeID, NodeIDComponent } from './NodeIDComponent'
 
 const assignFinalMaterial = (primitiveDef: GLTF.IMeshPrimitive, material: MeshPhysicalMaterial) => {
   const useDerivativeTangents = primitiveDef.attributes.TANGENT === undefined
@@ -609,10 +611,8 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   const layer = LayerComponent.get(entity)
   const materialDef = json.materials![materialIndex]
 
-  const uuid = (options.documentID + '-material-' + materialIndex) as EntityUUID
-  const materialEntity = UUIDComponent.getOrCreateEntityByUUID(uuid, layer)
-  setComponent(materialEntity, UUIDComponent, uuid)
-  setComponent(materialEntity, SourceComponent, options.documentID)
+  const nodeID = ('material-' + materialIndex) as NodeID
+  const materialEntity = NodeIDComponent.create(options.documentID, nodeID, layer)
   setComponent(materialEntity, EntityTreeComponent, { parentEntity: entity, childIndex: materialIndex })
   setComponent(materialEntity, NameComponent, materialDef.name ?? 'Material-' + materialIndex)
 
@@ -781,6 +781,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   await Promise.all(promises)
 
   const material = new materialConstructor(materialParams)
+  const uuid = getComponent(materialEntity, UUIDComponent)
   material.uuid = uuid
   material.name = materialDef.name || 'Material-' + materialIndex
 
@@ -1346,12 +1347,15 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
 
   const layerID = LayerComponent.get(options.entity)
 
-  const uuid = getNodeUUID(nodeDef, options.documentID, nodeIndex)
-  const nodeEntity = UUIDComponent.getOrCreateEntityByUUID(uuid, layerID)
+  const nodeID = getNodeID(nodeDef, options.documentID, nodeIndex)
+  const nodeEntity = createEntity(layerID)
+  setComponent(nodeEntity, NodeIDComponent, nodeID)
+  const uuid = NodeIDComponent.getUUIDBySourceAndNodeID(options.documentID, nodeID)
+  setComponent(nodeEntity, SourceComponent, options.documentID)
 
+  setComponent(nodeEntity, UUIDComponent, uuid)
   setComponent(nodeEntity, NameComponent, nodeDef.name ?? 'Node-' + nodeIndex)
   setComponent(nodeEntity, TransformComponent)
-  setComponent(nodeEntity, SourceComponent, options.documentID)
 
   if (nodeDef.matrix) {
     const mat4 = new Matrix4().fromArray(nodeDef.matrix)
@@ -1368,7 +1372,7 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
   }
 
   /** Always set visible extension if this is not an ECS node */
-  if (!nodeDef.extensions?.[UUIDComponent.jsonID]) setComponent(nodeEntity, VisibleComponent)
+  if (!nodeDef.extensions?.[NodeIDComponent.jsonID]) setComponent(nodeEntity, VisibleComponent)
 
   //handle legacy ECS embedding
   const extras = nodeDef.extras
@@ -1599,12 +1603,12 @@ const DependencyMap = {
   camera: loadCamera
 } as Record<DependencyType, (options: GLTFParserOptions, ...args: any[]) => any>
 
-export const getNodeUUID = (node: GLTF.INode, documentID: string, nodeIndex: number) =>
-  (node.extensions?.[UUIDComponent.jsonID] as EntityUUID) ?? (`${documentID}-${nodeIndex}` as EntityUUID)
+export const getNodeID = (node: GLTF.INode, documentID: SourceID, nodeIndex: number) =>
+  (node.extensions?.[NodeIDComponent.jsonID] as NodeID) ?? (`${nodeIndex}` as NodeID)
 
 export type GLTFParserOptions = {
   url: string
-  documentID: string
+  documentID: SourceID
   document: GLTF.IGLTF
   entity: Entity
   body: null | ArrayBuffer
