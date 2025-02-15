@@ -82,7 +82,7 @@ export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvas
       removeEntity(cameraEntity)
       /**@todo why is this necessary to prevent gltf system stopping? */
       if (hasComponent(sceneEntity, GLTFComponent)) removeComponent(sceneEntity, GLTFComponent)
-      //removeEntity(sceneEntity)
+      removeEntity(sceneEntity)
     }
   }, [])
 
