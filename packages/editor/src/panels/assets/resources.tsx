@@ -28,7 +28,7 @@ import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { getMutableState, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { Button } from '@ir-engine/ui'
+import { Button, Tooltip } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import InfiniteScroll from '@ir-engine/ui/src/components/tailwind/InfiniteScroll'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
@@ -143,6 +143,67 @@ function ResourceFileContextMenu({
   )
 }
 
+export function FileCard({
+  item,
+  name,
+  onClick,
+  onContextMenu,
+  isSelected,
+  info,
+  dataTestIdJson,
+  assetType,
+  onDoubleClick,
+  className
+}) {
+  const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
+  const thumbnailURL = item.thumbnailURL
+  return (
+    <>
+      <div
+        key={item.id}
+        onClick={onClick}
+        onDoubleClick={onDoubleClick}
+        onContextMenu={onContextMenu}
+        className={twMerge(
+          'max-h-38 w-30 flex h-auto cursor-pointer flex-col items-center p-1.5 text-center',
+          className
+        )}
+        data-testid={dataTestIdJson?.fileItemId}
+      >
+        <div
+          className={twMerge(
+            `box-border rounded border border-0 font-figtree`,
+            isSelected ? 'rounded border border-[#375DAF] bg-[#2C2E30]' : 'group-hover:bg-[#202225]'
+          )}
+          style={{
+            height: iconSize,
+            width: iconSize,
+            fontSize: iconSize
+          }}
+          data-testid={dataTestIdJson?.fileIconId}
+        >
+          <FileIcon thumbnailURL={thumbnailURL} type={assetType} isFolder={item?.isFolder} />
+        </div>
+
+        <Tooltip content={name} position="bottom">
+          <Text
+            theme="secondary"
+            fontSize="sm"
+            className={twMerge(
+              'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2',
+              isSelected ? 'rounded bg-[#375DAF]' : 'rounded group-hover:bg-[#2F3137]'
+            )}
+            data-testid={dataTestIdJson?.fileNameId}
+          >
+            {name}
+          </Text>
+        </Tooltip>
+        <span className="text-xs text-[#375DAF]">{info}</span>
+      </div>
+    </>
+  )
+}
+
 function ResourceFile({ resource }: { resource: StaticResourceType }) {
   const anchorEvent = useHookstate<React.MouseEvent | undefined>(undefined)
 
@@ -164,55 +225,33 @@ function ResourceFile({ resource }: { resource: StaticResourceType }) {
   }, [preview])
 
   const isSelected = useMutableState(ClickPlacementState).selectedAsset.value === resource.url
-  const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
 
   return (
     <div className="h-min">
       <DragPreviewImage connect={preview} src={resource.thumbnailURL || ''} />
-      {/* // todo: move to reusuable component with FileItemCard */}
-      <div
-        key={resource.id}
-        ref={drag}
-        onClick={() => ClickPlacementState.setSelectedAsset(resource.url)}
-        onContextMenu={(event) => {
-          event.preventDefault()
-          event.stopPropagation()
-          anchorEvent.set(event)
-        }}
-        className={twMerge(
-          'resource-file max-h-38 w-30 flex h-auto cursor-pointer flex-col items-center p-1.5 text-center'
-        )}
-        data-testid="assets-panel-resource-file"
-      >
-        <div
-          className={twMerge(
-            `box-border rounded border border-0 font-figtree`,
-            isSelected ? 'rounded border border-2 border-[#375DAF] bg-[#2C2E30]' : 'group-hover:bg-[#202225]'
-          )}
-          style={{
-            height: iconSize,
-            width: iconSize,
-            fontSize: iconSize
+      <div ref={drag}>
+        <FileCard
+          item={resource}
+          name={name}
+          onClick={() => ClickPlacementState.setSelectedAsset(resource.url)}
+          onContextMenu={(event) => {
+            event.preventDefault()
+            event.stopPropagation()
+            anchorEvent.set(event)
           }}
-          data-testid="assets-panel-resource-file-icon"
-        >
-          <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
-        </div>
-
-        <Text
-          theme="secondary"
-          fontSize="sm"
-          className={twMerge(
-            'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2',
-            isSelected ? 'rounded bg-[#375DAF]' : 'rounded group-hover:bg-[#2F3137]'
-          )}
-          data-testid="assets-panel-resource-file-name"
-        >
-          {name}
-        </Text>
-        <span className="text-xs text-[#375DAF]">{resource?.mimeType}</span>
-        <ResourceFileContextMenu resource={resource} anchorEvent={anchorEvent} />
+          isSelected={isSelected}
+          info={resource.mimeType}
+          assetType={assetType}
+          dataTestIdJson={{
+            fileIconId: 'assets-panel-resource-file-icon',
+            fileNameId: 'assets-panel-resource-file-name',
+            fileItemId: 'assets-panel-resource-file'
+          }}
+          onDoubleClick={() => {}}
+          className="resource-file"
+        />
       </div>
+      <ResourceFileContextMenu resource={resource} anchorEvent={anchorEvent} />
     </div>
   )
 }
