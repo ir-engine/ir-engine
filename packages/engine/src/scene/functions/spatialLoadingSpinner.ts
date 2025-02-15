@@ -28,10 +28,10 @@ import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { LookAtComponent } from '@ir-engine/spatial/src/transform/components/LookAtComponent'
 import { TweenComponent } from '@ir-engine/spatial/src/transform/components/TweenComponent'
 import { Tween } from '@tweenjs/tween.js'
 import { CircleGeometry, DoubleSide, Euler, Mesh, MeshBasicMaterial, RingGeometry, Vector3 } from 'three'
+import { LookAtComponent } from '../components/LookAtComponent'
 
 export function createLoadingSpinner(name = 'loading spinner', parentEntity = UndefinedEntity) {
   const rootEntity = createEntity()

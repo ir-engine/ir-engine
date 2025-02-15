@@ -26,10 +26,11 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent, getMutableComponent, hasComponent, useComponent, UUIDComponent } from '@ir-engine/ecs'
+import { getComponent, getMutableComponent, hasComponent, useComponent } from '@ir-engine/ecs'
 import { commitProperty, EditorComponentType, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { InteractableComponent } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
 import { MountPoint, MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
 import { NO_PROXY } from '@ir-engine/hyperflux'
@@ -60,7 +61,7 @@ export const MountPointNodeEditor: EditorComponentType = (props) => {
         callbacks: [
           {
             callbackID: MountPointComponent.mountCallbackName,
-            target: getComponent(props.entity, UUIDComponent)
+            target: getComponent(props.entity, NodeIDComponent)
           }
         ]
       })
