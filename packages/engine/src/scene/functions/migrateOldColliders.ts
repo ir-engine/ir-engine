@@ -25,8 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
-import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
 
+import { TriggerCallbackComponent } from '../components/TriggerCallbackComponent'
 import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
 
 const oldColliderJSONID = 'collider'
@@ -68,7 +68,7 @@ export const migrateOldColliders = (oldJSON: EntityJsonType) => {
       })
     if (data.isTrigger) {
       newComponents.push({
-        name: TriggerComponent.jsonID,
+        name: TriggerCallbackComponent.jsonID,
         props: { triggers: data.triggers }
       })
     }

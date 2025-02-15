@@ -92,7 +92,7 @@ describe('PhysicsSystem', () => {
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)
       setComponent(physicsWorldEntity, EntityTreeComponent)
-      physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+      physicsWorld = Physics.createWorld(physicsWorldEntity)
       physicsWorld.timestep = 1 / steps
     })
 
@@ -241,7 +241,7 @@ describe('PhysicsSystem', () => {
         setComponent(physicsWorldEntity, SceneComponent)
         setComponent(physicsWorldEntity, TransformComponent)
         setComponent(physicsWorldEntity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+        physicsWorld = Physics.createWorld(physicsWorldEntity)
         physicsWorld.timestep = 1 / steps
 
         testEntity = createEntity()
@@ -300,11 +300,9 @@ describe('PhysicsSystem', () => {
 
       /** @todo Why is the world not recreated as expected ?? */
       it("should create a new physics world whenever the UUIDComponent of a SceneComponent's entityContext changes", async () => {
-        const uuid = getComponent(physicsWorldEntity, UUIDComponent)
-
         // Sanity check before running
         assert.equal(hasComponent(physicsWorldEntity, SceneComponent), false)
-        assert.throws(() => Physics.destroyWorld(uuid))
+        assert.throws(() => Physics.destroyWorld(physicsWorldEntity))
         // Run and Check the result
         const root = startReactor(physicsSystemReactor!)
         setComponent(physicsWorldEntity, SceneComponent, { active: true })
@@ -315,7 +313,7 @@ describe('PhysicsSystem', () => {
 
         await vi.waitFor(
           () => {
-            assert.ok(getState(RapierWorldState)[uuid])
+            assert.ok(getState(RapierWorldState)[physicsWorldEntity])
           },
           { timeout: 20000 }
         )
@@ -337,7 +335,7 @@ describe('PhysicsSystem', () => {
         setComponent(physicsWorldEntity, EntityTreeComponent)
         setComponent(physicsWorldEntity, TransformComponent)
         setComponent(physicsWorldEntity, SceneComponent)
-        physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+        physicsWorld = Physics.createWorld(physicsWorldEntity)
         physicsWorld!.timestep = 1 / 60
 
         testEntity = createEntity()

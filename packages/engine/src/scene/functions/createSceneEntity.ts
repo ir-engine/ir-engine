@@ -23,39 +23,29 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  Entity,
-  EntityTreeComponent,
-  UUIDComponent,
-  UndefinedEntity,
-  createEntity,
-  generateEntityUUID,
-  getOptionalComponent,
-  setComponent
-} from '@ir-engine/ecs'
+import { Entity, EntityTreeComponent, UUIDComponent, UndefinedEntity, createEntity, setComponent } from '@ir-engine/ecs'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { Group } from 'three'
-import { SourceComponent } from '../components/SourceComponent'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
+import { NodeIDComponent } from '../../gltf/NodeIDComponent'
 
 export const createSceneEntity = (name: string, parentEntity: Entity = UndefinedEntity): Entity => {
-  const entity = createEntity()
+  const sourceID = GLTFComponent.getInstanceID(parentEntity)
+
+  const entity = sourceID ? NodeIDComponent.create(sourceID, NodeIDComponent.generate()) : createEntity()
   setComponent(entity, NameComponent, name)
   setComponent(entity, VisibleComponent)
   setComponent(entity, TransformComponent)
   setComponent(entity, EntityTreeComponent)
   if (parentEntity !== UndefinedEntity) {
     setComponent(entity, EntityTreeComponent, { parentEntity })
-    EntityTreeComponent.reactorMap.get(parentEntity)?.run()
   }
-  const sceneID = getOptionalComponent(parentEntity, SourceComponent)
-  if (sceneID != null) {
-    setComponent(entity, SourceComponent, sceneID)
+  if (!sourceID) {
+    setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
   }
-
-  setComponent(entity, UUIDComponent, generateEntityUUID())
 
   // These additional properties and relations are required for
   // the current GLTF exporter to successfully generate a GLTF.

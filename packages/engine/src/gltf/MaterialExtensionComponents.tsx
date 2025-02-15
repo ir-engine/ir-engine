@@ -39,6 +39,7 @@ import {
 } from 'three'
 import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
 import { getDependency, GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
+import { NodeIDSchema } from './NodeIDComponent'
 
 const TextureInfoSchema = S.Object({
   index: S.Number(),
@@ -800,7 +801,7 @@ export const EEMaterialComponent = defineComponent({
   name: 'EEMaterialComponent',
   jsonID: 'EE_material',
   schema: S.Object({
-    uuid: S.EntityUUID(),
+    uuid: NodeIDSchema(),
     name: S.String(),
     prototype: S.String(),
     args: S.Record(

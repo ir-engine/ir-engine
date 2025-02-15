@@ -25,10 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { useMutableState } from '@ir-engine/hyperflux'
+import { ErrorBoundary, useMutableState } from '@ir-engine/hyperflux'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import { TabData } from 'rc-dock'
-import React from 'react'
+import React, { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import HierarchyTreeContextMenu from './contextmenu'
 import { Contents, Topbar } from './hierarchytree'
@@ -50,7 +50,13 @@ export const HierarchyPanelTab: TabData = {
   id: 'hierarchyPanel',
   closable: true,
   title: <HierarchyPanelTitle />,
-  content: <HierarchyPanelWrapper />
+  content: (
+    <ErrorBoundary fallback={<div>Error occured with the Hierarchy tab</div>}>
+      <Suspense>
+        <HierarchyPanelWrapper />
+      </Suspense>
+    </ErrorBoundary>
+  )
 }
 
 function HierarchyPanelWrapper() {

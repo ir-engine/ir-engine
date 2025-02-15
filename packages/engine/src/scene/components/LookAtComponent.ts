@@ -23,24 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
-import { TabData } from 'rc-dock'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
-import FileBrowser from './filebrowser'
+import { defineComponent } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { NodeIDSchema } from '../../gltf/NodeIDComponent'
 
-const FilesPanelTitle = () => {
-  const { t } = useTranslation()
-  return (
-    <PanelDragContainer dataTestId="files-panel-tab">
-      <PanelTitle>{t('editor:layout.filebrowser.tab-name')}</PanelTitle>
-    </PanelDragContainer>
-  )
-}
+export const LookAtComponent = defineComponent({
+  name: 'LookAtComponent',
+  jsonID: 'IR_lookAt',
 
-export const FilesPanelTab: TabData = {
-  id: 'filesPanel',
-  closable: true,
-  title: <FilesPanelTitle />,
-  content: <FileBrowser />
-}
+  schema: S.Object({
+    target: NodeIDSchema(),
+    xAxis: S.Bool(true),
+    yAxis: S.Bool(true)
+  })
+})
