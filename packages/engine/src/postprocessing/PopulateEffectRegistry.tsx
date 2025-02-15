@@ -49,7 +49,6 @@ import { ssaoAddToEffectRegistry } from './SSAOEffect'
 import { scanlineAddToEffectRegistry } from './ScanlineEffect'
 import { shockWaveAddToEffectRegistry } from './ShockWaveEffect'
 import { traaAddToEffectRegistry } from './TRAAEffect'
-import { textureAddToEffectRegistry } from './TextureEffect'
 import { tiltShiftAddToEffectRegistry } from './TiltShiftEffect'
 import { toneMappingAddToEffectRegistry } from './ToneMappingEffect'
 import { vignetteAddToEffectRegistry } from './VignetteEffect'
@@ -70,8 +69,8 @@ export const populateEffectRegistry = () => {
   hueSaturationAddToEffectRegistry()
   lensDistortionAddToEffectRegistry()
   linearTosRGBAddToEffectRegistry()
-  lut1DAddToEffectRegistry()
-  lut3DAddToEffectRegistry()
+  lut1DAddToEffectRegistry() //could use better user-messaging
+  lut3DAddToEffectRegistry() //could use better user-messaging
   motionBlurAddToEffectRegistry()
   noiseAddToEffectRegistry()
   pixelationAddToEffectRegistry()
@@ -79,9 +78,9 @@ export const populateEffectRegistry = () => {
   shockWaveAddToEffectRegistry()
   smaaAddToEffectRegistry()
   ssaoAddToEffectRegistry()
-  // ssrAddToEffectRegistry()
-  // ssgiAddToEffectRegistry()
-  textureAddToEffectRegistry()
+  // ssrAddToEffectRegistry() // realism-effect - issue = no visual change
+  // ssgiAddToEffectRegistry() // realism-effect - issue = no visual change
+  // textureAddToEffectRegistry() // issue = engine freezes when assigning texture
   tiltShiftAddToEffectRegistry()
   toneMappingAddToEffectRegistry()
   traaAddToEffectRegistry()
