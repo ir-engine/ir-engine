@@ -27,15 +27,7 @@ import React, { useEffect, useRef } from 'react'
 import { BufferAttribute, Mesh, SphereGeometry } from 'three'
 
 import { useRender3DPanelSystem } from '@ir-engine/client-core/src/hooks/useRender3DPanelSystem'
-import {
-  getComponent,
-  getMutableComponent,
-  getOptionalComponent,
-  Layers,
-  setComponent,
-  useOptionalComponent,
-  UUIDComponent
-} from '@ir-engine/ecs'
+import { getComponent, getMutableComponent, getOptionalComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
@@ -43,10 +35,7 @@ import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/C
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import {
-  MaterialInstanceComponent,
-  MaterialStateComponent
-} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { MATERIALS_PANEL_ID } from './helpers'
 
@@ -54,8 +43,6 @@ function MaterialPreviewCanvas() {
   const panelRef = useRef() as React.MutableRefObject<HTMLCanvasElement>
   const renderPanel = useRender3DPanelSystem(panelRef)
   const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
-  const selectedMaterialEntity = UUIDComponent.useEntityByUUID(selectedMaterial.value!, Layers.Authoring)
-  const params = useOptionalComponent(selectedMaterialEntity, MaterialStateComponent)?.material
   const panel = document.getElementById(MATERIALS_PANEL_ID)
   useEffect(() => {
     const { sceneEntity, cameraEntity } = renderPanel
@@ -82,7 +69,7 @@ function MaterialPreviewCanvas() {
     orbitCamera.refocus.set(true)
 
     return () => {}
-  }, [selectedMaterial, params])
+  }, [selectedMaterial])
 
   useEffect(() => {
     if (!panelRef?.current) return
