@@ -65,7 +65,7 @@ describe('spawnAvatarReceptor', () => {
     sceneEntity = loadEmptyScene()
 
     setComponent(sceneEntity, SceneComponent)
-    const physicsWorld = Physics.createWorld(getComponent(sceneEntity, UUIDComponent))
+    const physicsWorld = Physics.createWorld(sceneEntity)
     physicsWorld.timestep = 1 / 60
 
     createMockNetwork(NetworkTopics.world, Engine.instance.store.peerID, Engine.instance.userID)

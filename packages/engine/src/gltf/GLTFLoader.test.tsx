@@ -36,14 +36,12 @@ import {
   getOptionalComponent,
   hasComponent,
   setComponent,
-  SystemDefinitions,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { applyIncomingActions, getMutableState, getState, startReactor } from '@ir-engine/hyperflux'
+import { applyIncomingActions, getState } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, PointLightComponent, SpotLightComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { RapierWorldState } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
@@ -60,7 +58,6 @@ import { loadDRACODecoderNode, NodeDRACOLoader } from '../assets/loaders/gltf/No
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { GLTFComponent } from './GLTFComponent'
-import { GLTFLoadSystem } from './GLTFState'
 import { KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
 import { EXTMeshGPUInstancingComponent, KHRLightsPunctualComponent, KHRPunctualLight } from './MeshExtensionComponents'
 
@@ -86,10 +83,6 @@ const setupEntity = () => {
   const uuid = UUIDComponent.generateUUID()
   setComponent(parent, UUIDComponent, uuid)
 
-  getMutableState(RapierWorldState).merge({
-    [uuid]: true as any
-  })
-
   const entity = createEntity()
   setComponent(entity, EntityTreeComponent, { parentEntity: parent })
   return entity
@@ -98,9 +91,11 @@ const setupEntity = () => {
 describe('GLTF Loader', async () => {
   overrideFileLoaderLoad()
 
-  beforeEach(() => {
+  beforeEach(async () => {
     createEngine()
     startEngineReactor()
+
+    await act(() => render(null))
   })
 
   afterEach(() => {
@@ -112,8 +107,8 @@ describe('GLTF Loader', async () => {
 
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: duck_gltf })
-    const system = SystemDefinitions.get(GLTFLoadSystem)!
-    startReactor(system.reactor!)
+
+    await act(() => render(null))
 
     const document = getComponent(entity, GLTFComponent).document
 
@@ -140,8 +135,7 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: duck_gltf })
 
-    const system = SystemDefinitions.get(GLTFLoadSystem)!
-    startReactor(system.reactor!)
+    await act(() => render(null))
 
     const document = getComponent(entity, GLTFComponent).document
 
@@ -163,17 +157,11 @@ describe('GLTF Loader', async () => {
     )
 
     const materials = getChildrenWithComponents(entity, [MaterialStateComponent])
-    console.log('materials length', materials)
     assert(materials.length === usedMaterials.size)
   })
 
   it('can load a draco geometry', async () => {
     const entity = setupEntity()
-
-    setComponent(entity, UUIDComponent, generateEntityUUID())
-    setComponent(entity, GLTFComponent, { src: draco_gltf })
-    const system = SystemDefinitions.get(GLTFLoadSystem)!
-    startReactor(system.reactor!)
 
     const loader = getState(AssetLoaderState).gltfLoader
     loadDRACODecoderNode()
@@ -183,6 +171,11 @@ describe('GLTF Loader', async () => {
       return dracoLoader
     }
     loader.setDRACOLoader(dracoLoader)
+
+    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, GLTFComponent, { src: draco_gltf })
+
+    await act(() => render(null))
 
     const document = getComponent(entity, GLTFComponent).document
 
@@ -208,8 +201,7 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: unlit_gltf })
 
-    const system = SystemDefinitions.get(GLTFLoadSystem)!
-    startReactor(system.reactor!)
+    await act(() => render(null))
 
     const document = getComponent(entity, GLTFComponent).document
 
@@ -245,8 +237,7 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: textured_gltf })
 
-    const system = SystemDefinitions.get(GLTFLoadSystem)!
-    startReactor(system.reactor!)
+    await act(() => render(null))
 
     const document = getComponent(entity, GLTFComponent).document
 
@@ -282,8 +273,7 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: multiple_mesh_primitives_gltf })
 
-    const system = SystemDefinitions.get(GLTFLoadSystem)!
-    startReactor(system.reactor!)
+    await act(() => render(null))
 
     const document = getComponent(entity, GLTFComponent).document
     const nodes = document!.nodes
@@ -340,8 +330,7 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: morph_gltf })
 
-    const system = SystemDefinitions.get(GLTFLoadSystem)!
-    startReactor(system.reactor!)
+    await act(() => render(null))
 
     await vi.waitFor(
       async () => {
@@ -362,8 +351,7 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: rings_gltf })
 
-    const system = SystemDefinitions.get(GLTFLoadSystem)!
-    startReactor(system.reactor!)
+    await act(() => render(null))
 
     await vi.waitFor(
       () => {
@@ -375,11 +363,7 @@ describe('GLTF Loader', async () => {
 
     const animationComponent = getComponent(entity, AnimationComponent)
 
-    //console.log('doc', document?.animations?.length)
-    //console.log('animationComponent', animationComponent.animations.map((a) => a.name))
-    //console.log(document!.animations)
-    /**@todo Why does animationComponent animations array sometimes contain duplicate animations? */
-    //assert(animationComponent.animations.length === document!.animations!.length)
+    assert(animationComponent.animations.length === document!.animations!.length)
   })
 
   it('can load a skeleton with many animation clips', async () => {
@@ -388,8 +372,7 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: animation_pack })
 
-    const system = SystemDefinitions.get(GLTFLoadSystem)!
-    startReactor(system.reactor!)
+    await act(() => render(null))
 
     const document = getComponent(entity, GLTFComponent).document
 
@@ -410,8 +393,7 @@ describe('GLTF Loader', async () => {
 
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: skinned_gltf })
-    const system = SystemDefinitions.get(GLTFLoadSystem)!
-    startReactor(system.reactor!)
+    await act(() => render(null))
 
     await vi.waitFor(
       () => {
@@ -447,8 +429,7 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: camera_gltf })
 
-    const system = SystemDefinitions.get(GLTFLoadSystem)!
-    startReactor(system.reactor!)
+    await act(() => render(null))
 
     const document = getComponent(entity, GLTFComponent).document
 
@@ -486,16 +467,13 @@ describe('GLTF Loader', async () => {
 
   /* @todo Where is KHRLightsPunctualComponent.reactor expected to be run from ??
    * Manually for the test, by some other reactor, or something else ?? */
-  it.todo('can load KHR lights', async () => {
-    const System = SystemDefinitions.get(GLTFLoadSystem)!
-
+  it('can load KHR lights', async () => {
     const testEntity = setupEntity()
     setComponent(testEntity, UUIDComponent, UUIDComponent.generateUUID())
     setComponent(testEntity, GLTFComponent, { src: khr_light_gltf })
 
-    startReactor(System.reactor!)
+    await act(() => render(null))
     // @todo @important This line makes the test pass, but only intermitently
-    startReactor(KHRLightsPunctualComponent.reactor!)
 
     const document = getComponent(testEntity, GLTFComponent).document
 
@@ -515,9 +493,6 @@ describe('GLTF Loader', async () => {
     for (const khrLightEntity of khrLightEntities) {
       const khrLightComponent = getComponent(khrLightEntity, KHRLightsPunctualComponent)
       const light = lights[khrLightComponent.light!]
-      console.log(lights)
-      console.log(khrLightEntity)
-      console.log(khrLightComponent)
       expect(light).toBeTruthy()
 
       switch (light.type) {
@@ -543,14 +518,12 @@ describe('GLTF Loader', async () => {
   })
 
   it('can load instanced primitives with EXT_mesh_gpu_instancing', async () => {
-    const System = SystemDefinitions.get(GLTFLoadSystem)!
-
     const testEntity = setupEntity()
 
     setComponent(testEntity, UUIDComponent, UUIDComponent.generateUUID())
     setComponent(testEntity, GLTFComponent, { src: instanced_gltf })
 
-    startReactor(System.reactor!)
+    await act(() => render(null))
 
     await vi.waitFor(
       () => {

@@ -27,7 +27,6 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineVideoCamera } from 'react-icons/hi2'
 
-import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, hasComponent, useComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { MediaComponent, MediaElementComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
@@ -38,6 +37,8 @@ import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import { NodeFunctions } from '@ir-engine/engine/src/gltf/NodeFunctions'
+import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { Checkbox } from '@ir-engine/ui'
 import { BackSide, ClampToEdgeWrapping, DoubleSide, FrontSide, MirroredRepeatWrapping, RepeatWrapping } from 'three'
 import InputGroup from '../../input/Group'
@@ -71,15 +72,15 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
 
   const video = useComponent(props.entity, VideoComponent)
   const mediaUUID = video.mediaUUID.value
-  const mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID)
+  const mediaEntity = NodeFunctions.getEntityFromNodeID(props.entity, mediaUUID)
   const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
   const mediaEntities = useQuery([MediaComponent])
   const mediaOptions = mediaEntities
     .filter((entity) => entity !== props.entity)
     .map((entity) => {
-      return { label: getComponent(entity, NameComponent), value: getComponent(entity, UUIDComponent) }
+      return { label: getComponent(entity, NameComponent), value: getComponent(entity, NodeIDComponent) }
     })
-  mediaOptions.unshift({ label: 'Self', value: '' as EntityUUID })
+  mediaOptions.unshift({ label: 'Self', value: '' as NodeID })
 
   useEffect(() => {
     if (!hasComponent(props.entity, MediaComponent)) {

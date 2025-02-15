@@ -26,13 +26,14 @@ Infinite Reality Engine. All Rights Reserved.
 import { GLTF } from '@gltf-transform/core'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
-import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
+import { EntityUUID } from '@ir-engine/ecs'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { migrateDirectionalLightUseInCSM } from '../scene/functions/migrateDirectionalLightUseInCSM'
 import { migrateOldColliders } from '../scene/functions/migrateOldColliders'
 import { migrateOldComponentJSONIDs } from '../scene/functions/migrateOldComponentJSONIDs'
 import { migrateSceneSettings } from '../scene/functions/migrateSceneSettings'
+import { NodeIDComponent } from './NodeIDComponent'
 
 export type ComponentJsonType = {
   name: string
@@ -95,8 +96,8 @@ export const convertSceneJSONToGLTF = (json: SceneJsonType): GLTF.IGLTF => {
       extensions: {}
     } as GLTF.INode
 
-    node.extensions![UUIDComponent.jsonID] = uuid
-    if (!gltf.extensionsUsed!.includes(UUIDComponent.jsonID)) gltf.extensionsUsed!.push(UUIDComponent.jsonID)
+    node.extensions![NodeIDComponent.jsonID] = uuid
+    if (!gltf.extensionsUsed!.includes(NodeIDComponent.jsonID)) gltf.extensionsUsed!.push(NodeIDComponent.jsonID)
 
     for (const component of entity.components) {
       if (component.name === TransformComponent.jsonID) {
@@ -119,7 +120,7 @@ export const convertSceneJSONToGLTF = (json: SceneJsonType): GLTF.IGLTF => {
   // populate parent/child relationships
   for (const [uuid, entity] of Object.entries(json.entities)) {
     if (entity.parent === json.root) {
-      const nodeIndex = gltf.nodes!.findIndex((n) => n.extensions![UUIDComponent.jsonID] === uuid)!
+      const nodeIndex = gltf.nodes!.findIndex((n) => n.extensions![NodeIDComponent.jsonID] === uuid)!
       const childIndex = entity.index
       if (typeof childIndex === 'number') {
         gltf.scenes![0].nodes!.splice(childIndex, 0, nodeIndex)
@@ -127,8 +128,8 @@ export const convertSceneJSONToGLTF = (json: SceneJsonType): GLTF.IGLTF => {
         gltf.scenes![0].nodes!.push(nodeIndex)
       }
     } else {
-      const parentNode = gltf.nodes!.find((n) => n.extensions![UUIDComponent.jsonID] === entity.parent)!
-      const nodeIndex = gltf.nodes!.findIndex((n) => n.extensions![UUIDComponent.jsonID] === uuid)
+      const parentNode = gltf.nodes!.find((n) => n.extensions![NodeIDComponent.jsonID] === entity.parent)!
+      const nodeIndex = gltf.nodes!.findIndex((n) => n.extensions![NodeIDComponent.jsonID] === uuid)
       if (!parentNode.children) parentNode.children = []
       const childIndex = entity.index
       if (typeof childIndex === 'number') {

@@ -23,23 +23,45 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, removeComponent, setComponent, useEntityContext } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
+import { useEffect } from 'react'
+import { NodeIDSchema } from '../../gltf/NodeIDComponent'
 
-export const DefaultKillHeight = -10
-
-export const SceneSettingsComponent = defineComponent({
-  name: 'SceneSettingsComponent',
-  jsonID: 'EE_scene_settings',
+export const TriggerCallbackComponent = defineComponent({
+  name: 'TriggerCallbackComponent',
+  jsonID: 'EE_trigger',
 
   schema: S.Object({
-    thumbnailURL: S.String(''),
-    loadingScreenURL: S.String(''),
-    primaryColor: S.String('#000000'),
-    backgroundColor: S.String('#FFFFFF'),
-    alternativeColor: S.String('#000000'),
-    sceneKillHeight: S.Number(DefaultKillHeight),
-    /** @todo we need some kind of "Either" type in our schemas to allow either a UserID or a NodeID here, rather than an EntityUUID */
-    spectateEntity: S.EntityUUID()
-  })
+    triggers: S.Array(
+      S.Object({
+        /**
+         * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
+         */
+        onEnter: S.String(),
+        /**
+         * The function to call on the CallbackComponent of the targetEntity when the trigger volume is exited.
+         */
+        onExit: S.String(),
+        /**
+         * empty string represents self
+         */
+        target: NodeIDSchema()
+      })
+    )
+  }),
+
+  reactor: () => {
+    const entity = useEntityContext()
+
+    useEffect(() => {
+      setComponent(entity, TriggerComponent)
+      return () => {
+        removeComponent(entity, TriggerComponent)
+      }
+    }, [])
+
+    return null
+  }
 })

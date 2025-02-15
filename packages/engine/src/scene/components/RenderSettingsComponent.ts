@@ -42,6 +42,7 @@ import { defineComponent, getComponent, useComponent } from '@ir-engine/ecs/src/
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
+import { NodeIDSchema } from '../../gltf/NodeIDComponent'
 
 const ToneMappingSchema = S.LiteralUnion(
   [NoToneMapping, LinearToneMapping, ReinhardToneMapping, CineonToneMapping, ACESFilmicToneMapping, CustomToneMapping],
@@ -55,7 +56,7 @@ export const RenderSettingsComponent = defineComponent({
   jsonID: 'EE_render_settings',
 
   schema: S.Object({
-    primaryLight: S.EntityUUID(),
+    primaryLight: NodeIDSchema(),
     csm: S.Bool(true),
     cascades: S.Number(5),
     toneMapping: ToneMappingSchema,
