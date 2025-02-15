@@ -47,7 +47,6 @@ import { pixelationAddToEffectRegistry } from './PixelationEffect'
 import { smaaAddToEffectRegistry } from './SMAAEffect'
 import { ssaoAddToEffectRegistry } from './SSAOEffect'
 import { scanlineAddToEffectRegistry } from './ScanlineEffect'
-import { shockWaveAddToEffectRegistry } from './ShockWaveEffect'
 import { traaAddToEffectRegistry } from './TRAAEffect'
 import { tiltShiftAddToEffectRegistry } from './TiltShiftEffect'
 import { toneMappingAddToEffectRegistry } from './ToneMappingEffect'
@@ -75,7 +74,7 @@ export const populateEffectRegistry = () => {
   noiseAddToEffectRegistry()
   pixelationAddToEffectRegistry()
   scanlineAddToEffectRegistry()
-  shockWaveAddToEffectRegistry()
+  // shockWaveAddToEffectRegistry()
   smaaAddToEffectRegistry()
   ssaoAddToEffectRegistry()
   // ssrAddToEffectRegistry() // realism-effect - issue = no visual change
