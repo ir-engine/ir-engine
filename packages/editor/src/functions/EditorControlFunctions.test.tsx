@@ -963,8 +963,8 @@ describe('EditorControlFunctions', () => {
 
   describe('overwriteLookdevObject', () => {
     it('should overwrite a lookdev object with new components', async () => {
-      const nodeUUID = 'nodeUUID' as EntityUUID
-      const childUUID = 'childUUID' as EntityUUID
+      const nodeID = 'nodeID' as NodeID
+      const childID = 'childID' as NodeID
 
       const gltf: GLTF.IGLTF = {
         asset: {
@@ -977,13 +977,13 @@ describe('EditorControlFunctions', () => {
             name: 'node',
             children: [1],
             extensions: {
-              [UUIDComponent.jsonID]: nodeUUID
+              [NodeIDComponent.jsonID]: nodeID
             }
           },
           {
             name: 'child',
             extensions: {
-              [UUIDComponent.jsonID]: childUUID,
+              [NodeIDComponent.jsonID]: childID,
               [HemisphereLightComponent.jsonID]: {
                 skyColor: new Color('purple').getHex(),
                 groundColor: new Color('green').getHex(),
@@ -999,7 +999,8 @@ describe('EditorControlFunctions', () => {
       getMutableState(EditorState).rootEntity.set(rootEntity)
       await waitForScene(rootEntity)
 
-      const nodeEntity = UUIDComponent.getEntityByUUID(nodeUUID, Layers.Authoring)
+      const simulationNodeEntity = NodeFunctions.getEntityFromNodeID(rootEntity, nodeID)!
+      const authoringNodeEntity = LayerFunctions.getAuthoringCounterpart(simulationNodeEntity)
 
       EditorControlFunctions.overwriteLookdevObject(
         [
@@ -1015,7 +1016,7 @@ describe('EditorControlFunctions', () => {
         rootEntity
       )
 
-      const childEntity = getComponent(nodeEntity, EntityTreeComponent).children[0]
+      const childEntity = getComponent(authoringNodeEntity, EntityTreeComponent).children[0]
 
       const hemisphereLightComponent = getComponent(childEntity, HemisphereLightComponent)
       assert.deepEqual(hemisphereLightComponent.skyColor, new Color('blue'))
