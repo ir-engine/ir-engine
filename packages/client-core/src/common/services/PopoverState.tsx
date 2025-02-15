@@ -29,7 +29,7 @@ type BackdropType = 'blur' | 'transparent'
 
 export interface PopupData {
   element: JSX.Element | null
-  onClickOutside: () => void
+  onClickOutside: VoidFunction
 }
 
 /**

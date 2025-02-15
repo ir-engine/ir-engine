@@ -23,20 +23,28 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
 import ClickawayListener from '../ClickawayListener'
 
 const PopupMenu = () => {
   const popups = useMutableState(PopoverState).popups
 
-  const currentOnClose = useRef<VoidFunction | null>(null)
+  const currentOnClose = useHookstate<{
+    callback: VoidFunction | null
+  }>({
+    callback: null
+  })
 
   useEffect(() => {
-    currentOnClose.current = popups[popups.length - 1].value.onClickOutside
+    if (popups.length > 0) {
+      currentOnClose.set({
+        callback: popups[popups.length - 1].get(NO_PROXY).onClickOutside
+      })
+    }
   }, [popups])
 
   if (popups.length === 0) {
@@ -44,8 +52,10 @@ const PopupMenu = () => {
   }
 
   return (
-    <ClickawayListener onClickOutside={currentOnClose.current}>
-      {popups.get(NO_PROXY).map((popupData, idx) => popupData.element)}
+    <ClickawayListener onClickOutside={currentOnClose.get(NO_PROXY).callback}>
+      {popups.get(NO_PROXY).map((popupData, idx) => (
+        <React.Fragment key={idx}>{popupData.element}</React.Fragment>
+      ))}
     </ClickawayListener>
   )
 }
