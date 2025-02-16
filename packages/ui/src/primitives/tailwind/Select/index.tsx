@@ -60,6 +60,7 @@ export interface SelectProps<T = string | number> {
     direction: 'down' | 'up'
     maxHeight: string
   }
+  startComponent?: InputProps['startComponent']
   showClearButton?: boolean
 }
 
@@ -84,6 +85,7 @@ const Select = ({
   disabled,
   searchMode,
   positioning: userPositioning,
+  startComponent,
   showClearButton = false
 }: SelectProps) => {
   const [open, setOpen] = useState(false)
@@ -242,12 +244,12 @@ const Select = ({
           labelProps?.position === 'left' && 'flex-row items-center gap-x-2'
         )}
       >
-        {labelProps?.text && labelProps?.position !== 'inside' && (
+        {labelProps?.text && (
           <label className="block text-xs font-medium" ref={labelRef}>
             <div className="flex flex-row items-center gap-x-1.5">
               <div className="flex flex-row items-center gap-x-0.5">
                 {required && <span className="text-sm text-ui-error">*</span>}
-                <span className={twMerge('text-xs text-text-secondary', labelProps.className)}>{labelProps.text}</span>
+                <span className="text-xs text-text-secondary">{labelProps.text}</span>
               </div>
 
               {labelProps?.infoText && (
@@ -304,10 +306,6 @@ const Select = ({
               }
             }}
           >
-            {labelProps?.text && labelProps?.position === 'inside' && (
-              <span className={twMerge('text-xs text-text-inactive', labelProps.className)}>{labelProps.text}</span>
-            )}
-
             <input
               onClick={() => {
                 if (!disabled) {
@@ -316,7 +314,7 @@ const Select = ({
               }}
               type="text"
               className={twMerge(
-                'w-full bg-inherit focus:outline-none',
+                'order-2 w-full bg-inherit focus:outline-none',
                 searchMode === undefined ? 'cursor-pointer' : 'cursor-text',
                 disabled ? 'cursor-not-allowed' : ''
               )}
@@ -331,12 +329,16 @@ const Select = ({
               }}
             />
 
+            {startComponent && (
+              <div className="order-1 flex items-center justify-center text-text-tertiary">{startComponent}</div>
+            )}
+
             {showClearButton && (
               <XCloseSm
                 onClick={() => {
                   onChange('')
                 }}
-                className="cursor-pointer"
+                className="order-3 cursor-pointer"
               />
             )}
 
@@ -346,7 +348,7 @@ const Select = ({
                   setOpen((v) => !v)
                 }
               }}
-              className={`cursor-pointer ${open && 'rotate-180'} duration-300`}
+              className={`order-4 cursor-pointer ${open && 'rotate-180'} duration-300`}
             />
           </div>
 

@@ -67,9 +67,8 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
 
   labelProps?: {
     text: string
-    position: 'top' | 'left' | 'inside'
+    position: 'top' | 'left'
     infoText?: string
-    className?: string
   }
 }
 

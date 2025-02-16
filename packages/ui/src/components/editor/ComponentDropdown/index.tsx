@@ -111,6 +111,7 @@ export default function ComponentDropdown({
           <div className="col-span-1 ml-6 mt-2 w-full text-start text-xs text-text-secondary">{description}</div>
         )}
       </div>
+
       <div className={isMinimized.value ? 'hidden' : ''}>{children}</div>
     </div>
   )

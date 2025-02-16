@@ -660,11 +660,9 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
             <div className="flex w-full">
               <div className="flex w-1/2">
                 <SelectInput
-                  labelProps={{
-                    text: t('editor:properties.video.lbl-wrap-s'),
-                    position: 'inside',
-                    className: 'text-ui-error'
-                  }}
+                  startComponent={
+                    <span className="text-xs text-ui-error">{t('editor:properties.video.lbl-wrap-s')}</span>
+                  }
                   value={video.wrapS.value}
                   onChange={commitProperty(VideoComponent, 'wrapS')}
                   options={wrappingOptions}
@@ -672,11 +670,9 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
               </div>
               <div className="flex w-1/2">
                 <SelectInput
-                  labelProps={{
-                    text: t('editor:properties.video.lbl-wrap-t'),
-                    position: 'inside',
-                    className: 'text-ui-success'
-                  }}
+                  startComponent={
+                    <span className="text-xs text-ui-success">{t('editor:properties.video.lbl-wrap-t')}</span>
+                  }
                   value={video.wrapT.value}
                   onChange={commitProperty(VideoComponent, 'wrapT')}
                   options={wrappingOptions}
