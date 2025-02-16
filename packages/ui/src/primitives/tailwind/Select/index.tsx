@@ -403,7 +403,9 @@ const Select = ({
               {...optionProps}
               selected={localValue === currentValue}
               active={index === activeIndex}
-              onClick={() => {
+              onMouseDown={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
                 closePopup()
                 setLocalValue(currentValue)
                 setSelectedOptionIndex(index)

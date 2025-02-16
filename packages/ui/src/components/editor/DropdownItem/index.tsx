@@ -72,14 +72,7 @@ export default function EditorDropdownItem({
         selected ? 'bg-ui-select-background' : '',
         className
       )}
-      onClick={(e) => {
-        // Prevent the click event from propagating up to the parent, which would cause the Modal to close, due to the ClickawayListener
-        e.preventDefault()
-        e.stopPropagation()
-        if (!disabled && onClick) {
-          onClick()
-        }
-      }}
+      onClick={() => !disabled && onClick?.()}
       tabIndex={0}
       onKeyUp={(event) => {
         if (!disabled && ['Enter', ' '].includes(event.key)) onClick?.()
