@@ -44,11 +44,11 @@ export default function useClickAway(cb: (e: Event) => void, isTopMost: boolean)
       }
     }
 
-    document.addEventListener('click', handler)
+    document.addEventListener('mousedown', handler)
     document.addEventListener('touchstart', handler)
 
     return () => {
-      document.removeEventListener('click', handler)
+      document.removeEventListener('mousedown', handler)
       document.removeEventListener('touchstart', handler)
     }
   }, [isTopMost])
