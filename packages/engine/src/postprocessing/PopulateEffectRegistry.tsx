@@ -70,7 +70,7 @@ export const populateEffectRegistry = () => {
   linearTosRGBAddToEffectRegistry()
   lut1DAddToEffectRegistry() //could use better user-messaging
   lut3DAddToEffectRegistry() //could use better user-messaging
-  motionBlurAddToEffectRegistry()
+  // motionBlurAddToEffectRegistry() // realism-effect
   noiseAddToEffectRegistry()
   pixelationAddToEffectRegistry()
   scanlineAddToEffectRegistry()
@@ -82,7 +82,7 @@ export const populateEffectRegistry = () => {
   // textureAddToEffectRegistry() // issue = engine freezes when assigning texture
   tiltShiftAddToEffectRegistry()
   toneMappingAddToEffectRegistry()
-  traaAddToEffectRegistry()
+  //traaAddToEffectRegistry() // realism-effect - issue = crashing and freezing
   vignetteAddToEffectRegistry()
 }
 
