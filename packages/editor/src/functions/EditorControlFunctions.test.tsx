@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { GLTF } from '@gltf-transform/core'
 import assert from 'assert'
-import { Cache, Color } from 'three'
+import { Cache, Color, MeshPhysicalMaterial, MeshStandardMaterial } from 'three'
 import { afterEach, beforeEach, describe, it, vi } from 'vitest'
 
 import { UserID } from '@ir-engine/common/src/schema.type.module'
@@ -36,6 +36,7 @@ import {
   hasComponent,
   LayerFunctions,
   Layers,
+  removeEntity,
   setComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
@@ -55,6 +56,8 @@ import { startEngineReactor } from '@ir-engine/engine/tests/startEngineReactor'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { mockSpatialEngine } from '@ir-engine/spatial/tests/util/mockSpatialEngine'
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
@@ -69,7 +72,7 @@ describe('EditorControlFunctions', () => {
     getMutableState(EngineState).isEditing.set(true)
     getMutableState(EngineState).isEditor.set(true)
     getMutableState(EngineState).userID.set('user' as UserID)
-
+    mockSpatialEngine()
     await Physics.load()
     physicsWorldEntity = createEntity()
     setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
@@ -173,6 +176,64 @@ describe('EditorControlFunctions', () => {
       EditorControlFunctions.addOrRemoveComponent([authoringChildEntity], VisibleComponent, false)
 
       assert(!hasComponent(authoringChildEntity, VisibleComponent))
+    })
+  })
+
+  describe('updateMaterialPrototype', () => {
+    let materialEntity = UndefinedEntity
+
+    beforeEach(() => {
+      materialEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(materialEntity)
+    })
+    class MockMaterial {
+      constructor() {}
+    }
+
+    it('should return undefined if the `@param materialEntity` does not have a MaterialStateComponent', () => {
+      // Sanity check before running
+      assert.equal(hasComponent(materialEntity, MaterialStateComponent), false)
+      // Run and Check the result
+      const result = EditorControlFunctions.updateMaterialPrototype(materialEntity, 'MeshStandardMaterial')
+      assert.equal(result, undefined)
+    })
+
+    it('should return undefined if the prototype does not exist', () => {
+      const nonexistantType = 'kodachrome'
+      // Set the data as expected
+      setComponent(materialEntity, MaterialStateComponent)
+      // Sanity check before running
+      assert.equal(hasComponent(materialEntity, MaterialStateComponent), true)
+      // Run and Check the result
+      const result = EditorControlFunctions.updateMaterialPrototype(materialEntity, nonexistantType)
+      assert.equal(result, undefined)
+    })
+
+    it('should return undefined if the existing prototype is the same as the new prototype', () => {
+      const nonexistantType = 'kodachrome'
+      // Set the data as expected
+      setComponent(materialEntity, MaterialStateComponent, { material: new MeshStandardMaterial() })
+      // Sanity check before running
+      assert.equal(hasComponent(materialEntity, MaterialStateComponent), true)
+      // Run and Check the result
+      const result = EditorControlFunctions.updateMaterialPrototype(materialEntity, nonexistantType)
+      assert.equal(result, undefined)
+    })
+
+    it('should update the material prototype given valid conditions', () => {
+      const newType = 'MeshStandardMaterial'
+      // Set the data as expected
+      setComponent(materialEntity, MaterialStateComponent, { material: new MeshPhysicalMaterial() })
+      // Sanity check before running
+      assert.equal(hasComponent(materialEntity, MaterialStateComponent), true)
+      // Run and Check the result
+      EditorControlFunctions.updateMaterialPrototype(materialEntity, newType)
+      // Check the result
+      const materialStateComponent = getComponent(materialEntity, MaterialStateComponent)
+      assert.equal(materialStateComponent.material.constructor.name, newType)
     })
   })
 
