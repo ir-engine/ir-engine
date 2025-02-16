@@ -37,21 +37,25 @@ import {
   serializeComponent,
   setComponent
 } from '@ir-engine/ecs'
+import { Physics, PhysicsWorld } from '@ir-engine/spatial/src/physics/classes/Physics'
+import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
+import {
+  ColliderComponentDefaults,
+  assertColliderComponentEquals
+} from '@ir-engine/spatial/src/physics/components/ColliderComponent.test'
+import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
+import { CollisionGroups, DefaultCollisionMask } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
+import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
+import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { assertArray } from '@ir-engine/spatial/tests/util/assert'
 import assert from 'assert'
 import { Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
-import { assertArray } from '../../../tests/util/assert'
-import { SceneComponent } from '../../renderer/components/SceneComponents'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { Physics, PhysicsWorld } from '../classes/Physics'
-import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
-import { Shapes } from '../types/PhysicsTypes'
-import { ColliderComponent } from './ColliderComponent'
-import { ColliderComponentDefaults, assertColliderComponentEquals } from './ColliderComponent.test'
-import { RigidBodyComponent } from './RigidBodyComponent'
-import { TriggerComponent } from './TriggerComponent'
+import { NodeID } from '../../gltf/NodeIDComponent'
+import { TriggerCallbackComponent } from './TriggerCallbackComponent'
 
-const TriggerComponentDefaults = {
+const TriggerCallbackComponentDefaults = {
   triggers: [] as Array<{
     onEnter: null | string
     onExit: null | string
@@ -59,21 +63,21 @@ const TriggerComponentDefaults = {
   }>
 }
 
-function assertTriggerComponentEqual(data, expected) {
+function assertTriggerCallbackComponentEqual(data, expected) {
   assertArray.eq(data.triggers, expected.triggers)
 }
 
-function assertTriggerComponentNotEqual(data, expected) {
+function assertTriggerCallbackComponentNotEqual(data, expected) {
   assertArray.anyNotEq(data.triggers, expected.triggers)
 }
 
-describe('TriggerComponent', () => {
+describe('TriggerCallbackComponent', () => {
   describe('IDs', () => {
-    it('should initialize the TriggerComponent.name field with the expected value', () => {
-      assert.equal(TriggerComponent.name, 'TriggerComponent')
+    it('should initialize the TriggerCallbackComponent.name field with the expected value', () => {
+      assert.equal(TriggerCallbackComponent.name, 'TriggerCallbackComponent')
     })
-    it('should initialize the TriggerComponent.jsonID field with the expected value', () => {
-      assert.equal(TriggerComponent.jsonID, 'EE_trigger')
+    it('should initialize the TriggerCallbackComponent.jsonID field with the expected value', () => {
+      assert.equal(TriggerCallbackComponent.jsonID, 'EE_trigger')
     })
   })
 
@@ -83,7 +87,7 @@ describe('TriggerComponent', () => {
     beforeEach(async () => {
       createEngine()
       testEntity = createEntity()
-      setComponent(testEntity, TriggerComponent)
+      setComponent(testEntity, TriggerCallbackComponent)
     })
 
     afterEach(() => {
@@ -92,8 +96,8 @@ describe('TriggerComponent', () => {
     })
 
     it('should initialize the component with the expected default values', () => {
-      const data = getComponent(testEntity, TriggerComponent)
-      assertTriggerComponentEqual(data, TriggerComponentDefaults)
+      const data = getComponent(testEntity, TriggerCallbackComponent)
+      assertTriggerCallbackComponentEqual(data, TriggerCallbackComponentDefaults)
     })
   }) // << onInit
 
@@ -103,7 +107,7 @@ describe('TriggerComponent', () => {
     beforeEach(async () => {
       createEngine()
       testEntity = createEntity()
-      setComponent(testEntity, TriggerComponent)
+      setComponent(testEntity, TriggerCallbackComponent)
     })
 
     afterEach(() => {
@@ -111,22 +115,22 @@ describe('TriggerComponent', () => {
       return destroyEngine()
     })
 
-    it('should change the values of an initialized TriggerComponent', () => {
+    it('should change the values of an initialized TriggerCallbackComponent', () => {
       const Expected = {
         triggers: [
           {
             onEnter: 'onEnter.Expected',
             onExit: 'onExit.Expected',
-            target: 'target' as EntityUUID
+            target: 'target' as NodeID
           }
         ]
       }
-      const before = getComponent(testEntity, TriggerComponent)
-      assertTriggerComponentEqual(before, TriggerComponentDefaults)
-      setComponent(testEntity, TriggerComponent, Expected)
+      const before = getComponent(testEntity, TriggerCallbackComponent)
+      assertTriggerCallbackComponentEqual(before, TriggerCallbackComponentDefaults)
+      setComponent(testEntity, TriggerCallbackComponent, Expected)
 
-      const data = getComponent(testEntity, TriggerComponent)
-      assertTriggerComponentEqual(data, Expected)
+      const data = getComponent(testEntity, TriggerCallbackComponent)
+      assertTriggerCallbackComponentEqual(data, Expected)
     })
   }) // << onSet
 
@@ -137,7 +141,7 @@ describe('TriggerComponent', () => {
       createEngine()
       await Physics.load()
       testEntity = createEntity()
-      setComponent(testEntity, TriggerComponent)
+      setComponent(testEntity, TriggerCallbackComponent)
     })
 
     afterEach(() => {
@@ -146,8 +150,8 @@ describe('TriggerComponent', () => {
     })
 
     it("should serialize the component's data correctly", () => {
-      const json = serializeComponent(testEntity, TriggerComponent)
-      assert.deepEqual(json, TriggerComponentDefaults)
+      const json = serializeComponent(testEntity, TriggerCallbackComponent)
+      assert.deepEqual(json, TriggerCallbackComponentDefaults)
     })
   }) // << toJson
 
@@ -164,7 +168,7 @@ describe('TriggerComponent', () => {
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)
       setComponent(physicsWorldEntity, EntityTreeComponent)
-      physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+      physicsWorld = Physics.createWorld(physicsWorldEntity)
       physicsWorld!.timestep = 1 / 60
 
       testEntity = createEntity()
@@ -172,7 +176,7 @@ describe('TriggerComponent', () => {
       setComponent(testEntity, TransformComponent)
       setComponent(testEntity, RigidBodyComponent)
       setComponent(testEntity, ColliderComponent)
-      setComponent(testEntity, TriggerComponent)
+      setComponent(testEntity, TriggerCallbackComponent)
     })
 
     afterEach(() => {

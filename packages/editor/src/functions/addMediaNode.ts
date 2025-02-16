@@ -79,7 +79,6 @@ export async function addMediaNode(
 ): Promise<EntityUUID | null> {
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
-  console.log(contentType)
 
   if (contentType.startsWith('model/')) {
     if (contentType.startsWith('model/material')) {
@@ -130,12 +129,7 @@ export async function addMediaNode(
         (entity) => {
           const firstChild = getComponent(entity, EntityTreeComponent).children[0]
           const json = serializeEntity(firstChild)
-          EditorControlFunctions.overwriteLookdevObject(
-            [{ name: GLTFComponent.jsonID, props: { src: url } }, ...extraComponentJson],
-            json,
-            parent!,
-            before
-          )
+          EditorControlFunctions.overwriteLookdevObject([...json, ...extraComponentJson], parent!, before)
           removeEntity(entity)
         }
       )
@@ -145,7 +139,8 @@ export async function addMediaNode(
        */
       AssetState.loadAsync(url, false, UUIDComponent.generateUUID(), UndefinedEntity, Layers.Authoring as LayerID).then(
         (entity) => {
-          const entities = SourceComponent.getEntitiesBySource(entity)
+          const currentSource = GLTFComponent.getInstanceID(entity)
+          const entities = SourceComponent.getEntitiesBySource(currentSource)
           const rootEntity = getState(EditorState).rootEntity
           const newSource = GLTFComponent.getInstanceID(rootEntity)
           for (const entity of entities) {

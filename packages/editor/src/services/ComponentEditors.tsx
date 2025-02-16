@@ -69,11 +69,9 @@ import {
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
-import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
 import { FogSettingsComponent } from '@ir-engine/spatial/src/renderer/components/FogSettingsComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
-import { LookAtComponent } from '@ir-engine/spatial/src/transform/components/LookAtComponent'
 import { PersistentAnchorComponent } from '@ir-engine/spatial/src/xr/XRAnchorComponents'
 
 // everything above still needs to be built
@@ -122,7 +120,9 @@ import SpawnPointNodeEditor from '@ir-engine/ui/src/components/editor/properties
 import SplineNodeEditor from '@ir-engine/ui/src/components/editor/properties/spline'
 
 import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
+import { LookAtComponent } from '@ir-engine/engine/src/scene/components/LookAtComponent'
 import { OverlayComponent } from '@ir-engine/engine/src/scene/components/OverlayComponent'
+import { TriggerCallbackComponent } from '@ir-engine/engine/src/scene/components/TriggerCallbackComponent'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import PlaylistNodeEditor from '@ir-engine/ui/src/components/editor/properties/playlist'
 import SplineTrackNodeEditor from '@ir-engine/ui/src/components/editor/properties/spline/track'
@@ -163,7 +163,7 @@ export const ComponentEditorsState = defineState({
       [MountPointComponent.name]: MountPointNodeEditor,
       [RigidBodyComponent.name]: RigidBodyComponentEditor,
       [ColliderComponent.name]: ColliderComponentEditor,
-      [TriggerComponent.name]: TriggerComponentEditor,
+      [TriggerCallbackComponent.name]: TriggerComponentEditor,
       [ScenePreviewCameraComponent.name]: ScenePreviewCameraNodeEditor,
       [SkyboxComponent.name]: SkyboxNodeEditor,
       [SpawnPointComponent.name]: SpawnPointNodeEditor,

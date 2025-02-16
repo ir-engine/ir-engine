@@ -30,8 +30,13 @@ import {
   transformModel as clientSideTransformModel,
   ModelTransformStatus
 } from '@ir-engine/common/src/model/ModelTransformFunctions'
-import { iterateEntityNode, removeEntityNodeRecursively } from '@ir-engine/ecs'
-import { setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  getAncestorWithComponents,
+  iterateEntityNode,
+  removeEntityNodeRecursively,
+  UUIDComponent
+} from '@ir-engine/ecs'
+import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   DefaultModelTransformParameters as defaultParams,
   ModelTransformParameters
@@ -45,6 +50,7 @@ import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTF
 import exportGLTF from '../../functions/exportGLTF'
 
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
 import { Button } from '@ir-engine/ui'
@@ -105,7 +111,10 @@ const createLODVariants = async (
       heuristic
     })
     const destinationPath = srcURL.replace(/\.[^.]*$/, `-integrated.gltf`)
-    iterateEntityNode(result, (entity) => setComponent(entity, SourceComponent, destinationPath))
+    const gltfEntity = getAncestorWithComponents(result, [GLTFComponent])
+    const uuid = getComponent(gltfEntity, UUIDComponent)
+    const sourceID = SourceComponent.getSourceID(uuid, destinationPath)
+    iterateEntityNode(result, (entity) => setComponent(entity, SourceComponent, sourceID))
     await exportGLTF(result, destinationPath)
     removeEntityNodeRecursively(result)
   }

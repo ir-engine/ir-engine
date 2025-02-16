@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { GLTF } from '@gltf-transform/core'
 import { ComponentType, defineComponent, S } from '@ir-engine/ecs'
+import { getState } from '@ir-engine/hyperflux'
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
 import { MaterialPrototypeDefinitions } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import {
@@ -39,6 +40,7 @@ import {
 } from 'three'
 import { EXTENSIONS } from '../assets/loaders/gltf/GLTFExtensions'
 import { getDependency, GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
+import { NodeIDSchema } from './NodeIDComponent'
 
 const TextureInfoSchema = S.Object({
   index: S.Number(),
@@ -800,7 +802,7 @@ export const EEMaterialComponent = defineComponent({
   name: 'EEMaterialComponent',
   jsonID: 'EE_material',
   schema: S.Object({
-    uuid: S.EntityUUID(),
+    uuid: NodeIDSchema(),
     name: S.String(),
     prototype: S.String(),
     args: S.Record(
@@ -815,7 +817,7 @@ export const EEMaterialComponent = defineComponent({
 
   getMaterialType(materialDef: GLTF.IMaterial) {
     const extension = materialDef.extensions![EEMaterialComponent.jsonID] as ComponentType<typeof EEMaterialComponent>
-    return MaterialPrototypeDefinitions.find((e) => e.prototypeId === extension.prototype)?.prototypeConstructor
+    return getState(MaterialPrototypeDefinitions)[extension.prototype]?.prototypeConstructor
   },
 
   extendMaterialParams(options: GLTFParserOptions, materialParams: any, materialDef: GLTF.IMaterial) {

@@ -295,8 +295,7 @@ describe('MountPointComponent.ts', async () => {
       setComponent(physicsWorldEntity, UUIDComponent, v4() as EntityUUID)
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)
-      const physicsWorldUUID = getComponent(physicsWorldEntity, UUIDComponent)
-      physicsWorld = Physics.createWorld(physicsWorldUUID)
+      physicsWorld = Physics.createWorld(physicsWorldEntity)
       physicsWorld.timestep = 1 / 60
       setComponent(avatarTestEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
       setComponent(mountPointTestEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
