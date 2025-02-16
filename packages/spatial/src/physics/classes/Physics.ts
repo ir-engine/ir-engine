@@ -51,16 +51,10 @@ import {
   Vector3
 } from 'three'
 
-import {
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  setComponent,
-  useOptionalComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { getComponent, getOptionalComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 
-import { UUIDComponent, getAncestorWithComponents, useAncestorWithComponents } from '@ir-engine/ecs'
+import { getAncestorWithComponents, useAncestorWithComponents } from '@ir-engine/ecs'
 import { NO_PROXY, defineState, getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '@ir-engine/network'
 import { Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
@@ -87,7 +81,7 @@ import {
 } from '../types/PhysicsTypes'
 
 export type PhysicsWorld = World & {
-  id: EntityUUID
+  id: Entity
   substeps: number
   cameraAttachedRigidbodyEntity: Entity
   Colliders: Map<Entity, Collider>
@@ -114,10 +108,10 @@ async function load() {
 
 export const RapierWorldState = defineState({
   name: 'ir.spatial.physics.RapierWorldState',
-  initial: {} as Record<EntityUUID, PhysicsWorld>
+  initial: {} as Record<Entity, PhysicsWorld>
 })
 
-function createWorld(id: EntityUUID, args = { gravity: { x: 0.0, y: -9.81, z: 0.0 }, substeps: 1 }) {
+function createWorld(id: Entity, args = { gravity: { x: 0.0, y: -9.81, z: 0.0 }, substeps: 1 }) {
   const world = new World(args.gravity) as PhysicsWorld
 
   world.id = id
@@ -141,7 +135,7 @@ function createWorld(id: EntityUUID, args = { gravity: { x: 0.0, y: -9.81, z: 0.
   return world
 }
 
-function destroyWorld(id: EntityUUID) {
+function destroyWorld(id: Entity) {
   const world = getState(RapierWorldState)[id]
   if (!world) throw new Error('Physics world not found')
   getMutableState(RapierWorldState)[id].set(none)
@@ -154,16 +148,13 @@ function destroyWorld(id: EntityUUID) {
 function getWorld(entity: Entity) {
   const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
   if (!sceneEntity) return
-  const sceneUUID = getOptionalComponent(sceneEntity, UUIDComponent)
-  if (!sceneUUID) return
-  return getState(RapierWorldState)[sceneUUID]
+  return getState(RapierWorldState)[sceneEntity]
 }
 
 function useWorld(entity: Entity) {
   const sceneEntity = useAncestorWithComponents(entity, [SceneComponent])
-  const sceneUUID = useOptionalComponent(sceneEntity, UUIDComponent)?.value
   const worlds = useHookstate(getMutableState(RapierWorldState))
-  return sceneUUID ? (worlds[sceneUUID].get(NO_PROXY) as PhysicsWorld) : undefined
+  return sceneEntity ? (worlds[sceneEntity].get(NO_PROXY) as PhysicsWorld) : undefined
 }
 
 function smoothKinematicBody(physicsWorld: PhysicsWorld, entity: Entity, dt: number, substep: number) {
@@ -864,7 +855,7 @@ const _vector3 = new Vector3()
  * Raycast from a world position and direction
  */
 function castRay(world: PhysicsWorld, raycastQuery: RaycastArgs, filterPredicate?: (collider: Collider) => boolean) {
-  const worldEntity = UUIDComponent.getEntityByUUID(world.id)
+  const worldEntity = world.id
   const worldTransform = getComponent(worldEntity, TransformComponent)
   _worldInverseMatrix.copy(worldTransform.matrixWorld).invert()
 
@@ -922,7 +913,7 @@ function castRayFromCamera(
   raycastQuery: RaycastArgs,
   filterPredicate?: (collider: Collider) => boolean
 ) {
-  const worldEntity = UUIDComponent.getEntityByUUID(world.id)
+  const worldEntity = world.id
   const worldTransform = getComponent(worldEntity, TransformComponent)
 
   if ((camera as PerspectiveCamera).isPerspectiveCamera) {

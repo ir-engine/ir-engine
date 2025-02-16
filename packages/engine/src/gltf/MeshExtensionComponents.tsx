@@ -42,10 +42,10 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { useEffect } from 'react'
 import { BufferAttribute, Color, InstancedBufferAttribute, InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
 import { WEBGL_CONSTANTS } from '../assets/loaders/gltf/GLTFConstants'
-import { GLTFParserOptions } from '../assets/loaders/gltf/GLTFParser'
 import { InstancingComponent } from '../scene/components/InstancingComponent'
 import { getGLTFOptions, GLTFComponent } from './GLTFComponent'
-import { getDependency, getNodeUUID } from './GLTFLoaderFunctions'
+import { getDependency, getNodeID, GLTFParserOptions } from './GLTFLoaderFunctions'
+import { NodeIDComponent } from './NodeIDComponent'
 
 export type KHRPunctualLight = {
   color?: [number, number, number]
@@ -210,7 +210,8 @@ export const EXTMeshGPUInstancingComponent = defineComponent({
 
     const results = await Promise.all(pending)
 
-    const nodeUUID = getNodeUUID(nodeDef, options.documentID, nodeIndex)
+    const nodeID = getNodeID(nodeDef, options.documentID, nodeIndex)
+    const nodeUUID = NodeIDComponent.getUUIDBySourceAndNodeID(options.documentID, nodeID)
     const entity = UUIDComponent.getEntityByUUID(nodeUUID)
     const mesh = getComponent(entity, MeshComponent)
 

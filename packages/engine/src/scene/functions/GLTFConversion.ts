@@ -26,12 +26,13 @@ Infinite Reality Engine. All Rights Reserved.
 import { GLTF } from '@gltf-transform/core'
 import { Matrix4, Object3D } from 'three'
 
-import { EntityUUID, generateEntityUUID, SerializedComponentType, UUIDComponent } from '@ir-engine/ecs'
+import { EntityUUID, generateEntityUUID, SerializedComponentType } from '@ir-engine/ecs'
 import { sceneRelativePathIdentifier } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { getState } from '@ir-engine/hyperflux'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
+import { NodeIDComponent } from '../../gltf/NodeIDComponent'
 import { EntityJsonType, SceneJsonType } from '../types/SceneTypes'
 
 export const nodeToEntityJson = (node: any): EntityJsonType => {
@@ -117,7 +118,7 @@ export function entityJSONToGLTFNode(entityJson: EntityJsonType, entityUUID: Ent
   const node: GLTF.INode = {
     name: entityJson.name,
     extensions: {
-      [UUIDComponent.jsonID]: entityUUID
+      [NodeIDComponent.jsonID]: entityUUID
     }
   }
   if (entityJson.components) {

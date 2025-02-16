@@ -23,14 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, UUIDComponent, defineQuery, defineSystem, getComponent } from '@ir-engine/ecs'
+import { defineQuery, defineSystem, getComponent } from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
+import { ReferenceSpaceState } from '@ir-engine/spatial/src/ReferenceSpaceState'
+import { Vector3_Up, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { ReferenceSpaceState } from '../../ReferenceSpaceState'
-import { Vector3_Up, Vector3_Zero } from '../../common/constants/MathConstants'
+import { NodeFunctions } from '../../gltf/NodeFunctions'
 import { LookAtComponent } from '../components/LookAtComponent'
-import { TransformComponent } from '../components/TransformComponent'
-import { TransformDirtyUpdateSystem } from './TransformSystem'
 
 const facerQuery = defineQuery([LookAtComponent, TransformComponent])
 const _srcPosition = new Vector3()
@@ -50,7 +51,7 @@ export const LookAtSystem = defineSystem({
 
     for (const entity of facerQuery()) {
       const facer = getComponent(entity, LookAtComponent)
-      const targetEntity: Entity | null = facer.target ? UUIDComponent.getEntityByUUID(facer.target) : viewerEntity
+      const targetEntity = facer.target ? NodeFunctions.getEntityFromNodeID(entity, facer.target) : viewerEntity
       if (!targetEntity) continue
       TransformComponent.getWorldPosition(entity, _srcPosition)
       TransformComponent.getWorldPosition(targetEntity, _dstPosition)

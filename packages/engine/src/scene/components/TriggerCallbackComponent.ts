@@ -23,40 +23,44 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { Mesh } from 'three'
-
-import { useEntityContext } from '@ir-engine/ecs'
-import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { defineComponent, removeComponent, setComponent, useEntityContext } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { NO_PROXY } from '@ir-engine/hyperflux'
-import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
+import { useEffect } from 'react'
+import { NodeIDSchema } from '../../gltf/NodeIDComponent'
 
-export const ShadowComponent = defineComponent({
-  name: 'ShadowComponent',
-  jsonID: 'EE_shadow',
+export const TriggerCallbackComponent = defineComponent({
+  name: 'TriggerCallbackComponent',
+  jsonID: 'EE_trigger',
 
   schema: S.Object({
-    cast: S.Bool(true),
-    receive: S.Bool(true)
+    triggers: S.Array(
+      S.Object({
+        /**
+         * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
+         */
+        onEnter: S.String(),
+        /**
+         * The function to call on the CallbackComponent of the targetEntity when the trigger volume is exited.
+         */
+        onExit: S.String(),
+        /**
+         * empty string represents self
+         */
+        target: NodeIDSchema()
+      })
+    )
   }),
 
   reactor: () => {
     const entity = useEntityContext()
-    const shadowComponent = useComponent(entity, ShadowComponent)
-    const object = useComponent(entity, ObjectComponent).get(NO_PROXY) as Mesh
 
     useEffect(() => {
+      setComponent(entity, TriggerComponent)
       return () => {
-        object.castShadow = false
-        object.receiveShadow = false
+        removeComponent(entity, TriggerComponent)
       }
     }, [])
-
-    useEffect(() => {
-      object.castShadow = shadowComponent.cast.value
-      object.receiveShadow = shadowComponent.receive.value
-    }, [!!object, shadowComponent.cast, shadowComponent.receive])
 
     return null
   }

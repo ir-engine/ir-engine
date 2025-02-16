@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   Engine,
   Entity,
+  EntityArrayBoundary,
   PresentationSystemGroup,
   QueryReactor,
   UUIDComponent,
@@ -34,10 +35,9 @@ import {
   getComponent,
   getOptionalComponent,
   setComponent,
-  useEntityContext,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import { getState, useHookstate } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
 import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
@@ -104,16 +104,17 @@ export const AvatarTransparencySystem = defineSystem({
   reactor: () => <QueryReactor Components={[AvatarComponent]} ChildEntityReactor={AvatarReactor} />
 })
 
-const AvatarReactor = () => {
-  const entity = useEntityContext()
+const AvatarReactor = (props: { entity: Entity }) => {
+  const entity = props.entity
   const sceneInstanceID = GLTFComponent.useInstanceID(entity)
-  const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
+  const childEntities = SourceComponent.useEntitiesBySource(sceneInstanceID)
+
   return (
-    <>
-      {childEntities.value?.map((childEntity) => (
-        <DitherChildReactor key={childEntity} entity={childEntity} rootEntity={entity} />
-      ))}
-    </>
+    <EntityArrayBoundary
+      entities={childEntities}
+      ChildEntityReactor={DitherChildReactor}
+      props={{ rootEntity: entity }}
+    />
   )
 }
 
