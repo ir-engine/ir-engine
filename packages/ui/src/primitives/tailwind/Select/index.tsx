@@ -58,7 +58,6 @@ export interface SelectProps<T = string | number> {
   disabled?: boolean
   searchMode?: 'prefix' | 'substring' | 'fuzzy'
   positioning?: {
-    direction: 'down' | 'up'
     maxHeight: string
   }
   showClearButton?: boolean
@@ -88,10 +87,8 @@ const Select = ({
   showClearButton = false
 }: SelectProps) => {
   const [positioning, setPositioning] = useState({
-    direction: 'down' as 'down' | 'up',
     maxHeight: '0px',
-    ...userPositioning,
-    userSet: false
+    ...userPositioning
   })
   const ref = useRef<HTMLDivElement>(null)
   const [displayText, setDisplayText] = useState('')
@@ -103,6 +100,9 @@ const Select = ({
   const [searchString, setSearchString] = useState('')
   const fuseRef = useRef<Fuse<OptionType> | null>(null)
   const [localValue, setLocalValue] = useState(value)
+  const id = useId()
+  const [triggerWidth, setTriggerWidth] = useState(0)
+  const popupRef = useRef<PopupActions>(null)
 
   useEffect(() => {
     if (searchMode === 'fuzzy' && fuseRef.current !== null) {
@@ -125,7 +125,7 @@ const Select = ({
         const _maxHeight = newDirection === 'down' ? 0.8 * spaceBelow : 0.8 * spaceAbove
         setPositioning({
           ...positioning,
-          direction: newDirection,
+          // direction: newDirection,
           maxHeight: `${_maxHeight}px`
         })
       }
@@ -222,17 +222,24 @@ const Select = ({
     }
   }, [options, searchString])
 
-  const id = useId()
-  const [triggerWidth, setTriggerWidth] = useState(0)
-
   useEffect(() => {
     const element = document.getElementById(id)
+    const updateTriggerWidth = () => {
+      if (element) {
+        setTriggerWidth(element.offsetWidth)
+      }
+    }
+
+    const resizeObserver = new ResizeObserver(updateTriggerWidth)
     if (element) {
-      setTriggerWidth(element.offsetWidth)
+      resizeObserver.observe(element)
+    }
+    updateTriggerWidth()
+
+    return () => {
+      resizeObserver.disconnect()
     }
   }, [])
-
-  const popupRef = useRef<PopupActions>(null)
 
   const togglePopup = () => {
     if (popupRef.current) {
@@ -351,14 +358,12 @@ const Select = ({
       closeOnDocumentClick
       arrow={false}
       ref={popupRef}
-      position={positioning.direction === 'down' ? 'bottom left' : 'top left'}
+      position={['bottom left', 'top left']}
       repositionOnResize={true}
       contentStyle={{ padding: '0px', border: 'none' }}
     >
       <div
-        className={`z-50 flex flex-col overflow-y-auto overflow-x-hidden rounded-lg ${
-          positioning.direction === 'down' && 'mt-2'
-        } ${positioning.direction === 'up' && 'mb-2'}`}
+        className={`z-50 flex flex-col overflow-y-auto overflow-x-hidden rounded-lg`}
         style={{
           width: triggerWidth,
           maxHeight: positioning.maxHeight
