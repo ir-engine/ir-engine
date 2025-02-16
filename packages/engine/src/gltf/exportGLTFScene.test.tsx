@@ -42,11 +42,6 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import {
-  createMaterialPrototype,
-  getPrototypeEntityFromName
-} from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import MeshStandardMaterialPrototype from '@ir-engine/spatial/src/renderer/materials/prototypes/MeshStandardMaterial.mat'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { SourceComponent, SourceID } from '../scene/components/SourceComponent'
@@ -98,10 +93,8 @@ describe('exportGLTFScene', () => {
     const color = new Color(Math.random(), Math.random(), Math.random())
     const originalMaterial = new MeshStandardMaterial({ color, name: 'test material' })
     const materialEntity = createEntity()
-    createMaterialPrototype(MeshStandardMaterialPrototype)
     setComponent(materialEntity, UUIDComponent, originalMaterial.uuid as EntityUUID)
     setComponent(materialEntity, MaterialStateComponent, {
-      prototypeEntity: getPrototypeEntityFromName('MeshStandardMaterial'),
       material: originalMaterial
     })
     setComponent(materialEntity, NameComponent, originalMaterial.name)
@@ -146,16 +139,12 @@ describe('exportGLTFScene', () => {
     geometry.addGroup(0, half, 0) // First half: use material at index 0.
     geometry.addGroup(half, indexCount - half, 1) // Second half: use material at index 1.
 
-    // Initialize the material prototype (only once)
-    createMaterialPrototype(MeshStandardMaterialPrototype)
-
     // Create the first material instance with its own material entity.
     const color1 = new Color(Math.random(), Math.random(), Math.random())
     const material1 = new MeshStandardMaterial({ color: color1, name: 'material1' })
     const materialEntity1 = createEntity()
     setComponent(materialEntity1, UUIDComponent, material1.uuid as EntityUUID)
     setComponent(materialEntity1, MaterialStateComponent, {
-      prototypeEntity: getPrototypeEntityFromName('MeshStandardMaterial'),
       material: material1
     })
     setComponent(materialEntity1, NameComponent, material1.name)
@@ -166,7 +155,6 @@ describe('exportGLTFScene', () => {
     const materialEntity2 = createEntity()
     setComponent(materialEntity2, UUIDComponent, material2.uuid as EntityUUID)
     setComponent(materialEntity2, MaterialStateComponent, {
-      prototypeEntity: getPrototypeEntityFromName('MeshStandardMaterial'),
       material: material2
     })
     setComponent(materialEntity2, NameComponent, material2.name)
@@ -251,14 +239,10 @@ describe('exportGLTFScene', () => {
       map: texture
     })
 
-    // Initialize the material prototype (only once).
-    createMaterialPrototype(MeshStandardMaterialPrototype)
-
     // Create a material entity for the material.
     const materialEntity = createEntity()
     setComponent(materialEntity, UUIDComponent, material.uuid as EntityUUID)
     setComponent(materialEntity, MaterialStateComponent, {
-      prototypeEntity: getPrototypeEntityFromName('MeshStandardMaterial'),
       material
     })
     setComponent(materialEntity, NameComponent, material.name)
