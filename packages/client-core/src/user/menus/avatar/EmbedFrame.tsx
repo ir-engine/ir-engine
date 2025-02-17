@@ -40,7 +40,6 @@ const EmbedFrame = ({ component }) => {
               allowTransparency={true}
               allowFullScreen
               referrerPolicy="strict-origin-when-cross-origin"
-              title="MentorShop Experience"
             ></iframe>
           </div>
         ) : null}

@@ -32,7 +32,7 @@ import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { useHookstate } from '@hookstate/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { EngineState, QueryReactor, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
+import { EngineState, QueryReactor, setComponent, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
 import { OverlayComponent } from '@ir-engine/engine/src/scene/components/OverlayComponent'
 import { NetworkState } from '@ir-engine/network'
 import { PopoverState } from '../common/services/PopoverState'
@@ -44,17 +44,24 @@ import { ViewerMenuState } from '../util/ViewerMenuState'
 const OverlayReactor = () => {
   const entity = useEntityContext()
   const overlayComponent = useOptionalComponent(entity, OverlayComponent)
+  const [isPopoverOpen, setIsPopoverOpen] = React.useState(false)
 
   useEffect(() => {
-    if (overlayComponent?.isOpen.value) {
+    if (overlayComponent?.isOpen.value && !isPopoverOpen) {
       const popoverType = overlayComponent?.type.value
       if (!popoverType) return
-      const OverlayComponent = getState(OverlayComponentState)[popoverType]
+      const Component = getState(OverlayComponentState)[popoverType]
       PopoverState.showPopupover(
         <div className="animate-slideIn">
-          <OverlayComponent component={overlayComponent.value} />
-        </div>
+          <Component component={overlayComponent.value} />
+        </div>,
+        () => {
+          setComponent(entity, OverlayComponent, { isOpen: false })
+          PopoverState.hidePopupover()
+          setIsPopoverOpen(false)
+        }
       )
+      setIsPopoverOpen(true)
     }
   }, [overlayComponent?.isOpen.value])
 
