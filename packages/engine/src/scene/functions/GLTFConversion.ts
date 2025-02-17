@@ -30,6 +30,7 @@ import { EntityUUID, generateEntityUUID, SerializedComponentType } from '@ir-eng
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { getState } from '@ir-engine/hyperflux'
+import { pathIndentifiers } from '../../assets/functions/parseSceneJSON'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { NodeIDComponent } from '../../gltf/NodeIDComponent'
 import { EntityJsonType, SceneJsonType } from '../types/SceneTypes'
