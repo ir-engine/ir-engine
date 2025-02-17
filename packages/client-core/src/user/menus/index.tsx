@@ -72,7 +72,7 @@ export default function UserMenus() {
               position: 'top'
             }}
             icon={Emote}
-            onClick={() => PopoverState.showPopupover(<EmoteMenu />)}
+            onClick={() => PopoverState.showPopupover(<EmoteMenu />, undefined, 'transparent')}
           />
         )}
         {userMenus.social && (

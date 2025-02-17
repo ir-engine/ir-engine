@@ -228,7 +228,7 @@ describe('RigidBodyComponent', () => {
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)
       setComponent(physicsWorldEntity, EntityTreeComponent)
-      physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+      physicsWorld = Physics.createWorld(physicsWorldEntity)
       physicsWorld!.timestep = 1 / 60
 
       testEntity = createEntity()
@@ -257,7 +257,7 @@ describe('RigidBodyComponent', () => {
       setComponent(newPhysicsEntity, SceneComponent)
       setComponent(newPhysicsEntity, TransformComponent)
       setComponent(newPhysicsEntity, EntityTreeComponent)
-      newPhysicsWorld = Physics.createWorld(getComponent(newPhysicsEntity, UUIDComponent))
+      newPhysicsWorld = Physics.createWorld(newPhysicsEntity)
       newPhysicsWorld!.timestep = 1 / 60
 
       // Change the world

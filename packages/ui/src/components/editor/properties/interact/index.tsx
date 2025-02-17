@@ -27,7 +27,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MdOutlinePanTool } from 'react-icons/md'
 
-import { EntityTreeComponent, getOptionalComponent, useQuery, UUIDComponent } from '@ir-engine/ecs'
+import { EntityTreeComponent, getOptionalComponent, useQuery } from '@ir-engine/ecs'
 import {
   getComponent,
   hasComponent,
@@ -43,6 +43,7 @@ import {
 } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import {
   InteractableComponent,
   XRUIActivationType
@@ -61,16 +62,16 @@ import StringInput from '../../input/String'
 type OptionsType = Array<{
   callbacks: Array<{
     label: string
-    value: string
+    value: NodeID | 'Self'
   }>
   label: string
-  value: string
+  value: NodeID | 'Self'
 }>
 
 export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const targets = useHookstate<OptionsType>([
-    { label: 'Self', value: getComponent(props.entity, UUIDComponent), callbacks: [] }
+    { label: 'Self', value: getComponent(props.entity, NodeIDComponent), callbacks: [] }
   ])
   const callbackQuery = useQuery([CallbackComponent])
 
@@ -89,9 +90,9 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
     if (entityCallbacks) {
       options.push({
         label: 'Self',
-        value: getComponent(props.entity, UUIDComponent),
+        value: getComponent(props.entity, NodeIDComponent),
         callbacks: Object.keys(entityCallbacks).map((cb) => {
-          return { label: cb, value: cb }
+          return { label: cb, value: cb as NodeID }
         })
       })
     } else {
@@ -106,9 +107,9 @@ export const InteractableComponentNodeEditor: EditorComponentType = (props) => {
       const callbacks = getComponent(entity, CallbackComponent)
       options.push({
         label: getComponent(entity, NameComponent),
-        value: getComponent(entity, UUIDComponent),
+        value: getComponent(entity, NodeIDComponent),
         callbacks: Object.keys(callbacks).map((cb) => {
-          return { label: cb, value: cb }
+          return { label: cb, value: cb as NodeID }
         })
       })
     }

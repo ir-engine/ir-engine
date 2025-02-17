@@ -23,26 +23,37 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { iterateEntityNode } from '@ir-engine/ecs'
-import { defineComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import { TTypedSchema } from '@ir-engine/ecs'
+import { defineComponent, LayerComponent, LayerID, Layers } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { hookstate, none, useHookstate } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, none, OpaqueType, useHookstate } from '@ir-engine/hyperflux'
 import { NonEmptyString } from '@ir-engine/spatial/src/schema/schemaFunctions'
-import { GLTFComponent } from '../../gltf/GLTFComponent'
 
-const entitiesBySource = {} as Record<string, Entity[]>
+/**
+ * A source ID is expeced to in the format of `<nodeid>-<src>` where src is the source of the model and nodeid is the node id of the entity
+ */
+
+export type SourceID = OpaqueType<'SourceID'> & string
+
+export const EntitiesBySourceState = defineState({
+  name: 'ir.world.EntitiesBySourceState',
+  initial: {} as Record<LayerID, Record<SourceID, Entity[]>>
+})
+
+export const SourceIDSchema = () =>
+  S.String('', {
+    validate: NonEmptyString('SourceComponent expects a non-empty string'),
+    id: 'SourceID'
+  }) as unknown as TTypedSchema<SourceID>
 
 export const SourceComponent = defineComponent({
   name: 'SourceComponent',
 
-  schema: S.Required(
-    S.String('', {
-      validate: NonEmptyString('SourceComponent expects a non-empty string')
-    })
-  ),
+  schema: S.Required(SourceIDSchema()),
 
-  onSet: (entity, component, source: string) => {
+  onSet: (entity, component, source: SourceID) => {
+    const layer = LayerComponent.get(entity)
     const currentSource = component.value
     if (currentSource) {
       if (currentSource === source) return
@@ -51,7 +62,9 @@ export const SourceComponent = defineComponent({
       }
     }
     component.set(source)
-    const entitiesBySourceState = SourceComponent.entitiesBySourceState[source]
+    const state = getMutableState(EntitiesBySourceState)
+    if (!getState(EntitiesBySourceState)[layer]) state[layer].set({})
+    const entitiesBySourceState = state[layer][source]
     if (!entitiesBySourceState.value) {
       entitiesBySourceState.set([entity])
     } else {
@@ -60,33 +73,26 @@ export const SourceComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
-    const entities = SourceComponent.entitiesBySource[component.value].filter(
+    const layer = LayerComponent.get(entity)
+    const entities = getState(EntitiesBySourceState)[layer][component.value].filter(
       (currentEntity) => currentEntity !== entity
     )
+    const layerState = getMutableState(EntitiesBySourceState)[layer]
     if (entities.length === 0) {
-      SourceComponent.entitiesBySourceState[component.value].set(none)
+      layerState[component.value].set(none)
     } else {
-      SourceComponent.entitiesBySourceState[component.value].set(entities)
+      layerState[component.value].set(entities)
     }
   },
 
-  useEntitiesBySource: (rootEntity: Entity) => {
-    const source = GLTFComponent.useInstanceID(rootEntity)
-    return useHookstate(SourceComponent.entitiesBySourceState[source]).value as Entity[]
+  useEntitiesBySource: (sourceID: SourceID, layer = Layers.Simulation as LayerID) => {
+    const state = useHookstate(getMutableState(EntitiesBySourceState)[layer]).value
+    return state?.[sourceID] || []
   },
 
-  getEntitiesBySource: (rootEntity: Entity) => {
-    const source = GLTFComponent.getInstanceID(rootEntity)
-    const entities = [] as Entity[]
-    iterateEntityNode(rootEntity, (childEntity) => {
-      if (rootEntity === childEntity) return
-      const src = getOptionalComponent(childEntity, SourceComponent)
-      if (src !== source) return
-      entities.push(childEntity)
-    })
-    return entities
+  getEntitiesBySource: (sourceID: SourceID, layer = Layers.Simulation as LayerID) => {
+    return getState(EntitiesBySourceState)[layer]?.[sourceID] || []
   },
 
-  entitiesBySourceState: hookstate(entitiesBySource),
-  entitiesBySource: entitiesBySource as Readonly<typeof entitiesBySource>
+  getSourceID: (uuid: EntityUUID, src: string) => `${uuid}-${src}` as SourceID
 })

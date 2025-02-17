@@ -130,13 +130,17 @@ export const ReactorErrorBoundary = createErrorBoundary<{ children: React.ReactN
   }
 )
 
-export const ErrorBoundary = createErrorBoundary(function error(props, error?: Error) {
-  if (error) {
-    return null
-  } else {
-    return <React.Fragment>{props.children}</React.Fragment>
+export const ErrorBoundary = createErrorBoundary<{ children: React.ReactNode; fallback?: React.ReactNode }>(
+  function error(props, error?: Error) {
+    if (error) {
+      console.error(error)
+      if (props.fallback) return <>{props.fallback}</>
+      return null
+    } else {
+      return <React.Fragment>{props.children}</React.Fragment>
+    }
   }
-})
+)
 
 const ReactorRootContext = React.createContext<ReactorRoot>(undefined as any)
 

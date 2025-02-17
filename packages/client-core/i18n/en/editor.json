@@ -968,9 +968,13 @@
       "lbl-newTab": "Open in new tab",
       "description": "Adds an interactable that opens links or navigates scene"
     },
-    "iframe": {
-      "title": "Iframe",
-      "description": "Adds iframe as a popover when it's being interacted in the scene"
+    "overlay": {
+      "title": "Overlay",
+      "description": "Places content over the scene view as overlay.",
+      "contentSource": "Content Source",
+      "overlayPosition": "Overlay Position",
+      "optionalUrl": "URL (Optional)",
+      "src": "src"
     },
     "spotLight": {
       "name": "Spot Light",
@@ -1308,7 +1312,7 @@
         "primitive-geometry": "Add basic Geometry to the scene",
         "link": "Add clickable Link to entity to route to different webpage",
         "dynamic-load": "Load entities dynamically",
-        "iframe": "Create popup based on iframe"
+        "overlay": "Create overlay based on iframe"
       },
       "placeObject": "Place Object",
       "placeObjectAtOrigin": "Place Object at Origin"

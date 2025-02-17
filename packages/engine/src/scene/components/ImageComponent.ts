@@ -158,16 +158,18 @@ export function ImageReactor() {
   }, [error])
 
   useEffect(() => {
-    if (!image.source.value) {
-      addError(entity, ImageComponent, `MISSING_TEXTURE_SOURCE`)
-      return
-    }
+    // if (!image.source.value) { /** @todo Just validate that the source is a valid url. Being undefined is not an error*/
+    //   addError(entity, ImageComponent, `MISSING_TEXTURE_SOURCE`)
+    //   return
+    // }
 
-    const assetType = AssetLoader.getAssetClass(image.source.value)
-    if (assetType !== AssetType.Image) {
-      addError(entity, ImageComponent, `UNSUPPORTED_ASSET_CLASS`)
+    if (image.source.value) {
+      const assetType = AssetLoader.getAssetClass(image.source.value)
+      if (assetType !== AssetType.Image) {
+        addError(entity, ImageComponent, `UNSUPPORTED_ASSET_CLASS`)
+      }
     }
-  }, [image.source])
+  }, [image.source.value]) // runs on any image change rn
 
   useEffect(() => {
     if (!texture || !mesh) return
@@ -178,11 +180,12 @@ export function ImageReactor() {
     texture.minFilter = LinearMipmapLinearFilter
 
     mesh.material.map.set(texture)
+    mesh.material.needsUpdate.set(true)
     mesh.visible.set(true)
-  }, [mesh, texture])
+  }, [!!mesh?.value, texture])
 
   useEffect(() => {
-    if (!mesh || !mesh.material.map.value) return
+    if (!mesh || !texture || !mesh.material.map.value) return
 
     const flippedTexture = mesh.material.map.value.flipY
     switch (image.projection.value) {
@@ -195,14 +198,14 @@ export function ImageReactor() {
         mesh.geometry.set(flippedTexture ? PLANE_GEO() : PLANE_GEO_FLIPPED())
         resizeImageMesh(mesh.value as Mesh<PlaneGeometry, MeshBasicMaterial>)
     }
-  }, [mesh, mesh?.material?.map?.value, image.projection.value])
+  }, [!!mesh?.value, image.projection, !!texture])
 
   useEffect(() => {
     if (!mesh) return
     mesh.material.transparent.set(image.alphaMode.value !== ImageAlphaMode.Opaque)
     mesh.material.alphaTest.set(image.alphaMode.value === 'Mask' ? image.alphaCutoff.value : 0)
     mesh.material.side.set(image.side.value)
-  }, [image.alphaMode, image.alphaCutoff, image.side])
+  }, [!!mesh?.value, image.alphaMode, image.alphaCutoff, image.side])
 
   return null
 }

@@ -33,14 +33,14 @@ import { cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
 import { useComponent, useQuery } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ResourcePendingComponent } from '@ir-engine/engine/src/gltf/ResourcePendingComponent'
-import { useMutableState } from '@ir-engine/hyperflux'
+import { ErrorBoundary, useMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { useEngineCanvas } from '@ir-engine/spatial/src/renderer/functions/useEngineCanvas'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { TabData } from 'rc-dock'
-import React from 'react'
+import React, { Suspense } from 'react'
 import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
@@ -196,5 +196,11 @@ export const ViewportPanelTab: TabData = {
   id: 'viewPanel',
   closable: true,
   title: <ViewportPanelTitle />,
-  content: <ViewportContainer />
+  content: (
+    <ErrorBoundary fallback={<div>Error occured with the Viewport tab</div>}>
+      <Suspense>
+        <ViewportContainer />
+      </Suspense>
+    </ErrorBoundary>
+  )
 }

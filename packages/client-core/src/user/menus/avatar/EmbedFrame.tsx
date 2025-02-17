@@ -25,31 +25,24 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
-type Props = {
-  src: string
-}
-
-const EmbedFrame = ({ src }: Props): JSX.Element => {
+const EmbedFrame = ({ component }) => {
+  const src = component.src
   return (
-    <div className="bg-theme-surface-main relative z-50 h-fit w-[70vw] max-w-2xl overflow-y-auto rounded-2xl px-10 py-6">
+    <div className="relative z-50 h-fit w-[70vw] overflow-y-auto rounded-2xl px-10 py-6">
       <div className="h-[90vh]">
         {src ? (
           <div className="h-full w-full">
             <iframe
               className="h-full w-full"
               src={src}
-              // style="width: 450px; position: fixed; bottom: 0; right: 20px; aspect-ratio: 16/9; background: transparent; z-index: 999999999;"
               frameBorder="0"
               allow="microphone; camera; autoplay; clipboard-write; encrypted-media"
               allowTransparency={true}
               allowFullScreen
               referrerPolicy="strict-origin-when-cross-origin"
-              title="MentorShop Experience"
             ></iframe>
           </div>
-        ) : (
-          <></>
-        )}
+        ) : null}
       </div>
     </div>
   )
