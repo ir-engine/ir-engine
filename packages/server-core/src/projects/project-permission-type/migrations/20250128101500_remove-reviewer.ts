@@ -23,26 +23,38 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef } from 'react'
+import type { Knex } from 'knex'
 
-const ClickAwayListener = ({ onClickAway, children }) => {
-  const wrapperRef = useRef(null)
+import { projectPermissionTypePath } from '@ir-engine/common/src/schemas/projects/project-permission-type.schema'
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (wrapperRef.current && !(wrapperRef.current! as HTMLElement).contains(event.target)) {
-        onClickAway()
-      }
-    }
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-    document.addEventListener('mousedown', handleClickOutside)
+  const tableExists = await knex.schema.hasTable(projectPermissionTypePath)
 
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [onClickAway])
+  if (tableExists) {
+    await knex.from(projectPermissionTypePath).where({ type: 'reviewer' }).del()
+  }
 
-  return <div ref={wrapperRef}>{children}</div>
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
-export default ClickAwayListener
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const tableExists = await knex.schema.hasTable(projectPermissionTypePath)
+
+  if (tableExists) {
+    await knex(projectPermissionTypePath).insert({ type: 'reviewer' })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+}

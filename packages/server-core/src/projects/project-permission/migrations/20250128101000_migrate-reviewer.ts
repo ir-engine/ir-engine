@@ -23,24 +23,28 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
-import { TabData } from 'rc-dock'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
-import FileBrowser from './filebrowser'
+import type { Knex } from 'knex'
 
-const FilesPanelTitle = () => {
-  const { t } = useTranslation()
-  return (
-    <PanelDragContainer dataTestId="files-panel-tab">
-      <PanelTitle>{t('editor:layout.filebrowser.tab-name')}</PanelTitle>
-    </PanelDragContainer>
-  )
+import { projectPermissionPath } from '@ir-engine/common/src/schemas/projects/project-permission.schema'
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const tableExists = await knex.schema.hasTable(projectPermissionPath)
+
+  if (tableExists) {
+    await knex(projectPermissionPath).where({ type: 'reviewer' }).update({ type: 'editor' })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
-export const FilesPanelTab: TabData = {
-  id: 'filesPanel',
-  closable: true,
-  title: <FilesPanelTitle />,
-  content: <FileBrowser />
-}
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {}

@@ -36,12 +36,12 @@ import {
 } from '@ir-engine/ecs'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { getMaterialsFromScene } from '@ir-engine/engine/src/scene/materials/functions/materialSourcingFunctions'
-import { getMutableState } from '@ir-engine/hyperflux'
+import { ErrorBoundary, getMutableState } from '@ir-engine/hyperflux'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { Button, Input } from '@ir-engine/ui'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import { TabData } from 'rc-dock'
-import React, { useEffect } from 'react'
+import React, { Suspense, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiFilter, HiGlobeAlt } from 'react-icons/hi'
 import { SelectionState } from '../../services/SelectionServices'
@@ -66,7 +66,13 @@ export const MaterialsPanelTab: TabData = {
   id: MATERIALS_PANEL_ID,
   closable: true,
   title: <MaterialsPanelTitle />,
-  content: <MaterialsLibrary />
+  content: (
+    <ErrorBoundary fallback={<div>Error occured with the Materials tab</div>}>
+      <Suspense>
+        <MaterialsLibrary />
+      </Suspense>
+    </ErrorBoundary>
+  )
 }
 
 function MaterialsLibrary() {

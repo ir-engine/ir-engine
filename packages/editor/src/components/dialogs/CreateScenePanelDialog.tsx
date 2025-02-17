@@ -41,11 +41,11 @@ export default function CreateSceneDialog() {
       className="w-[15vw] max-w-2xl"
       onClose={PopoverState.hidePopupover}
     >
-      <div className="flex justify-center">
+      <div className="flex w-full flex-col justify-center gap-1">
         <Button
           size="sm"
           variant="tertiary"
-          className="w-[10vw]"
+          className="w-[10vw] break-keep"
           onClick={() => {
             onNewScene()
             PopoverState.hidePopupover()
@@ -53,8 +53,8 @@ export default function CreateSceneDialog() {
         >
           {t('editor:dialog.createScene.create')}
         </Button>
+        {Object.values(element).map((value) => value)}
       </div>
-      <div className="flex justify-center">{Object.values(element).map((value) => value)}</div>
     </Modal>
   )
 }

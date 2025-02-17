@@ -10,7 +10,7 @@
         "videoEnabled": "Video Enabled",
         "action": "Action"
       },
-      "lbl-name": "Name",
+      "lbl-name": "Title",
       "lbl-maxuser": "Max Users",
       "lbl-scene": "Scene",
       "lbl-ve": "Video Enabled",

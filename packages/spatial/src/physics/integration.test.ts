@@ -135,7 +135,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
       setComponent(physicsWorldEntity, EntityTreeComponent)
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)
-      physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+      physicsWorld = Physics.createWorld(physicsWorldEntity)
       physicsWorld.timestep = 1 / 60
 
       testEntity = createEntity()
@@ -261,7 +261,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
       setComponent(physicsWorldEntity, EntityTreeComponent)
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)
-      physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+      physicsWorld = Physics.createWorld(physicsWorldEntity)
       physicsWorld.timestep = 1 / 60
 
       testEntity = createEntity()

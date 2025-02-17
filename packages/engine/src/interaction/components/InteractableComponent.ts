@@ -35,8 +35,7 @@ import {
   removeEntity,
   setComponent,
   UndefinedEntity,
-  useEntityContext,
-  UUIDComponent
+  useEntityContext
 } from '@ir-engine/ecs'
 import {
   defineComponent,
@@ -71,6 +70,8 @@ import {
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { useEffect } from 'react'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { NodeFunctions } from '../../gltf/NodeFunctions'
+import { NodeIDSchema } from '../../gltf/NodeIDComponent'
 import { createUI } from '../functions/createUI'
 import { InteractableState, InteractableTransitions } from '../functions/interactableFunctions'
 import { InteractiveModalState } from '../ui/InteractiveModalView'
@@ -244,7 +245,7 @@ export const InteractableComponent = defineComponent({
   schema: S.Object({
     canInteract: S.NonSerialized(S.Bool(false)),
     uiInteractable: S.NonSerialized(S.Bool(true)),
-    uiEntity: S.Entity(),
+    uiEntity: S.NonSerialized(S.Entity()),
     label: S.String('E'),
     uiVisibilityOverride: S.NonSerialized(S.Enum(XRUIVisibilityOverride, XRUIVisibilityOverride.none)),
     uiActivationType: S.NonSerialized(S.Enum(XRUIActivationType, XRUIActivationType.proximity)),
@@ -260,7 +261,7 @@ export const InteractableComponent = defineComponent({
         /**
          * empty string represents self
          */
-        target: S.EntityUUID()
+        target: NodeIDSchema()
       })
     )
   }),
@@ -325,8 +326,8 @@ export const InteractableComponent = defineComponent({
 const callInteractCallbacks = (entity: Entity) => {
   const interactable = getComponent(entity, InteractableComponent)
   for (const callback of interactable.callbacks) {
-    if (callback.target && !UUIDComponent.getEntityByUUID(callback.target)) continue
-    const targetEntity = callback.target ? UUIDComponent.getEntityByUUID(callback.target) : entity
+    if (callback.target && !NodeFunctions.getEntityFromNodeID(entity, callback.target)) continue
+    const targetEntity = callback.target ? NodeFunctions.getEntityFromNodeID(entity, callback.target) : entity
     if (targetEntity && callback.callbackID) {
       const callbacks = getOptionalComponent(targetEntity, CallbackComponent)
       if (!callbacks) continue
