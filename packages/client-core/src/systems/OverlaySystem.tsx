@@ -23,24 +23,22 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
-import { TabData } from 'rc-dock'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
-import FileBrowser from './filebrowser'
+import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
+import { defineState, getMutableState } from '@ir-engine/hyperflux'
+import EmbedFrame from '../user/menus/avatar/EmbedFrame'
 
-const FilesPanelTitle = () => {
-  const { t } = useTranslation()
-  return (
-    <PanelDragContainer dataTestId="files-panel-tab">
-      <PanelTitle>{t('editor:layout.filebrowser.tab-name')}</PanelTitle>
-    </PanelDragContainer>
-  )
-}
+export const OverlayComponentState = defineState({
+  name: 'ir.engine.interaction.PopupState',
+  initial: () => ({
+    iframe: EmbedFrame
+  })
+})
 
-export const FilesPanelTab: TabData = {
-  id: 'filesPanel',
-  closable: true,
-  title: <FilesPanelTitle />,
-  content: <FileBrowser />
-}
+export const OverlaySystem = defineSystem({
+  uuid: 'ir.client.OverlaySystem',
+  insert: {},
+  reactor: () => {
+    getMutableState(OverlayComponentState)
+    return null
+  }
+})

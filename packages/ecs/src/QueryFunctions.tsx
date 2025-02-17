@@ -31,6 +31,7 @@ import {
   defineState,
   getMutableState,
   HyperFlux,
+  ImmutableArray,
   NO_PROXY,
   startReactor,
   State,
@@ -161,7 +162,7 @@ export const SuspendedQueryChildState = defineState({
   initial: [] as Array<{ entity: Entity; ChildEntityReactor: FC; props?: any }>
 })
 
-const Suspended = (props: { entity: Entity; ChildEntityReactor: FC; props?: any }) => {
+const Suspended = (props: any) => {
   useEffect(() => {
     const state = getMutableState(SuspendedQueryChildState)
     state.merge([props])
@@ -172,13 +173,31 @@ const Suspended = (props: { entity: Entity; ChildEntityReactor: FC; props?: any 
   return null
 }
 
+export const EntityArrayBoundary = memo(
+  (props: { entities: Entity[] | ImmutableArray<Entity>; ChildEntityReactor: FC; props?: any }) => {
+    const MemoChildEntityReactor = useMemo(() => memo(props.ChildEntityReactor), [props.ChildEntityReactor])
+    return (
+      <>
+        {props.entities.map((entity) => (
+          <QuerySubReactor
+            key={entity}
+            entity={entity}
+            ChildEntityReactor={MemoChildEntityReactor}
+            props={props.props}
+          />
+        ))}
+      </>
+    )
+  }
+)
+
 export const QuerySubReactor = memo((props: { entity: Entity; ChildEntityReactor: FC; props?: any }) => {
   return (
     <>
       <QueryReactorErrorBoundary>
         <Suspense fallback={<Suspended {...props} />}>
           <EntityContext.Provider value={props.entity}>
-            <props.ChildEntityReactor {...props.props} />
+            <props.ChildEntityReactor {...props.props} entity={props.entity} />
           </EntityContext.Provider>
         </Suspense>
       </QueryReactorErrorBoundary>

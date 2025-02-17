@@ -30,13 +30,13 @@ import { MdClose } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import Button from '../Button'
 import LoadingView from '../LoadingView'
-import Text from '../Text'
 
 export interface ModalProps {
   id?: string
   title?: string
   hideFooter?: boolean
   className?: string
+  headerIconSrc?: string
   rawChildren?: ReactNode
   children?: ReactNode
   submitLoading?: boolean
@@ -51,19 +51,31 @@ export interface ModalProps {
 
 export const ModalHeader = ({
   title,
-  onClose
+  onClose,
+  headerIconSrc
 }: {
   closeIcon?: boolean
   title?: string
   onClose?: (isHeader: boolean) => void
+  headerIconSrc?: string
 }) => {
-  // sticky top-0 z-10
   return (
-    <div className="relative flex items-center justify-center border-b-[0.5px] border-b-surface-outline-3-1 px-6 py-5">
+    <div
+      className={twMerge(
+        'relative flex justify-center border-b-[0.5px] border-b-surface-outline-3-1 px-6 py-5',
+        headerIconSrc ? 'h-32 items-end' : 'items-center'
+      )}
+    >
+      {headerIconSrc && (
+        <div className="absolute -top-14 left-1/2 -translate-x-1/2 transform">
+          <img src={headerIconSrc} alt="Infinite Reality Engine Logo" className="h-32 w-32" />
+        </div>
+      )}
+
       {title && (
-        <Text className="text-text-primary" data-testid="modal-title-text">
+        <h1 className="text-text-primary" data-testid="modal-title-text">
           {title}
-        </Text>
+        </h1>
       )}
       <button
         className="absolute right-0 top-0 p-[inherit] text-text-primary"
@@ -139,30 +151,29 @@ const Modal = ({
   submitButtonText,
   closeButtonDisabled,
   submitButtonDisabled,
+  headerIconSrc,
   showCloseButton = true
 }: ModalProps) => {
-  const twClassName = twMerge('relative z-50 w-full bg-surface-1', className)
+  const twClassName = twMerge('absolute z-50 w-full rounded-xl border border-surface-1 bg-surface-1', className)
   return (
     <div data-test-id={id} className={twClassName}>
-      <div className="relative rounded-lg shadow">
-        {onClose && <ModalHeader title={title} onClose={onClose} />}
-        {rawChildren}
-        {children && <div className="h-fit max-h-[60vh] w-full overflow-y-auto px-10 py-6">{children}</div>}
+      {onClose && <ModalHeader title={title} onClose={onClose} headerIconSrc={headerIconSrc} />}
+      {rawChildren}
+      {children && <div className="h-fit max-h-[60vh] w-full overflow-y-auto px-10 py-6">{children}</div>}
 
-        {!hideFooter && (
-          <ModalFooter
-            id={id}
-            closeButtonText={closeButtonText}
-            submitButtonText={submitButtonText}
-            closeButtonDisabled={closeButtonDisabled}
-            submitButtonDisabled={submitButtonDisabled}
-            onCancel={onClose}
-            onSubmit={onSubmit}
-            submitLoading={submitLoading}
-            showCloseButton={showCloseButton}
-          />
-        )}
-      </div>
+      {!hideFooter && (
+        <ModalFooter
+          id={id}
+          closeButtonText={closeButtonText}
+          submitButtonText={submitButtonText}
+          closeButtonDisabled={closeButtonDisabled}
+          submitButtonDisabled={submitButtonDisabled}
+          onCancel={onClose}
+          onSubmit={onSubmit}
+          submitLoading={submitLoading}
+          showCloseButton={showCloseButton}
+        />
+      )}
     </div>
   )
 }
