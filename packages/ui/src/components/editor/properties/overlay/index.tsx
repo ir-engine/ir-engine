@@ -30,8 +30,10 @@ import { OverlayComponentState } from '@ir-engine/client-core/src/systems/Overla
 import capitalizeFirstLetter from '@ir-engine/common/src/utils/capitalizeFirstLetter'
 import { getComponent, hasComponent, useComponent } from '@ir-engine/ecs'
 import { commitProperty, EditorComponentType, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { ImageFileTypes, VideoFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import {
   InteractableComponent,
@@ -41,9 +43,9 @@ import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorCom
 import { OverlayComponent } from '@ir-engine/engine/src/scene/components/OverlayComponent'
 import { getState } from '@ir-engine/hyperflux'
 import { BrowserSm } from '../../../../icons'
+import FileBrowserInput from '../../input/FileBrowser'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
-import { ControlledStringInput } from '../../input/String'
 
 const DEFAULT_OPTIONS = [{ label: 'Iframe', value: 'iframe' }]
 
@@ -92,7 +94,9 @@ export const OverlayNodeEditor: EditorComponentType = (props) => {
 
   const contentSourceGroup = {
     iframe: (
-      <ControlledStringInput
+      <FileBrowserInput
+        acceptFileTypes={[...ImageFileTypes, ...VideoFileTypes]}
+        acceptDropItems={[...ItemTypes.Images, ...ItemTypes.Videos]}
         value={overlayComponent.src.value}
         onChange={updateProperty(OverlayComponent, 'src')}
         onRelease={commitProperty(OverlayComponent, 'src')}
