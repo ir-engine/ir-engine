@@ -30,6 +30,7 @@ import {
   defineComponent,
   getComponent,
   getOptionalComponent,
+  LayerComponent,
   removeComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -132,8 +133,8 @@ export const getTrackId = (entity: Entity) =>
   getComponent(entity, UUIDComponent).replace(getComponent(entity, SourceComponent) + '-', '')
 
 PropertyBinding.findNode = (root: Object3D, nodeName: string) => {
-  const sceneInstanceID = GLTFComponent.getInstanceID(root.entity!)
-  const childEntities = SourceComponent.entitiesBySource[sceneInstanceID]
+  const sceneInstanceID = GLTFComponent.getInstanceID(root.entity)
+  const childEntities = SourceComponent.getEntitiesBySource(sceneInstanceID, LayerComponent.get(root.entity))
 
   let entity = UndefinedEntity
   /**if AvatarRigComponent is present, use VRM schema */

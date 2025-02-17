@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
 import {
   getComponent,
   getOptionalComponent,
@@ -47,6 +46,8 @@ import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import { NodeFunctions } from '@ir-engine/engine/src/gltf/NodeFunctions'
+import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { PlayMode } from '@ir-engine/engine/src/scene/constants/PlayMode'
 import { Checkbox } from '@ir-engine/ui'
 import { BackSide, ClampToEdgeWrapping, DoubleSide, FrontSide, MirroredRepeatWrapping, RepeatWrapping } from 'three'
@@ -123,13 +124,13 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   const audio = getOptionalMutableComponent(simulationEntity, PositionalAudioComponent)
 
   const mediaUUID = video.mediaUUID.value
+  const mediaEntity =
+    video.mediaUUID.value === ('' as NodeID)
+      ? simulationEntity
+      : NodeFunctions.getEntityFromNodeID(simulationEntity, mediaUUID)
 
-  let mediaEntity = simulationEntity
-  if (mediaUUID && mediaUUID != '') {
-    mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID)
-  }
   const mediaElement = getOptionalMutableComponent(mediaEntity, MediaElementComponent)
-  const [mediaSourceValue, setMediaSourceValue] = useState(video.mediaUUID.value === '' ? 'Self' : 'Other')
+  const [mediaSourceValue, setMediaSourceValue] = useState(video.mediaUUID.value === ('' as NodeID) ? 'Self' : 'Other')
 
   const mediaSourceOptions = [
     {
@@ -153,9 +154,10 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
     .map((entity) => {
       return {
         label: getComponent(entity, NameComponent),
-        value: getOptionalComponent(entity, UUIDComponent) as EntityUUID
+        value: getComponent(entity, NodeIDComponent)
       }
     })
+  mediaOptions.unshift({ label: 'Self', value: '' as NodeID })
 
   const toggle = () => {
     if (media) {
@@ -166,7 +168,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   const mediaSourceChange = (val: string) => {
     setMediaSourceValue(val)
     if (val === 'Self') {
-      commitProperty(VideoComponent, 'mediaUUID')('' as EntityUUID)
+      commitProperty(VideoComponent, 'mediaUUID')('' as NodeID)
     }
   }
 
@@ -277,7 +279,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
         </InputGroup>
       )}
 
-      {mediaSourceValue === 'Self' && video.mediaUUID.value == '' && media && (
+      {mediaSourceValue === 'Self' && video.mediaUUID.value === ('' as NodeID) && media && (
         <>
           <InputGroup
             name="SourcePaths"
@@ -660,9 +662,6 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
             <div className="flex w-full">
               <div className="flex w-1/2">
                 <SelectInput
-                  startComponent={
-                    <span className="text-xs text-ui-error">{t('editor:properties.video.lbl-wrap-s')}</span>
-                  }
                   value={video.wrapS.value}
                   onChange={commitProperty(VideoComponent, 'wrapS')}
                   options={wrappingOptions}
@@ -670,9 +669,6 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
               </div>
               <div className="flex w-1/2">
                 <SelectInput
-                  startComponent={
-                    <span className="text-xs text-ui-success">{t('editor:properties.video.lbl-wrap-t')}</span>
-                  }
                   value={video.wrapT.value}
                   onChange={commitProperty(VideoComponent, 'wrapT')}
                   options={wrappingOptions}

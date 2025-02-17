@@ -28,6 +28,7 @@ import {
   EntityTreeComponent,
   PresentationSystemGroup,
   QueryReactor,
+  QuerySubReactor,
   UUIDComponent,
   defineSystem,
   getComponent,
@@ -39,35 +40,27 @@ import { dispatchAction, useHookstate } from '@ir-engine/hyperflux'
 import { NetworkState, ScenePeer, SceneUser, WorldNetworkAction } from '@ir-engine/network'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import React, { useEffect } from 'react'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { SourceComponent } from '../components/SourceComponent'
 
 /**
  * For p2p networking, entities need to be spawned deterministically for the scene to be consistent across peers, since there is no host.
  * @todo we may replace ScenePeer with the InstanceID/NetworkID
  */
-const SourcedEntityReactor = (props: { entity: Entity }) => {
-  const parentEntity = useComponent(props.entity, EntityTreeComponent).parentEntity.value
+const SourcedEntityReactor = () => {
+  const entity = useEntityContext()
+  const parentEntity = useComponent(entity, EntityTreeComponent).parentEntity.value
   const parentUUID = useComponent(parentEntity, UUIDComponent).value
 
   useEffect(() => {
-    const entityUUID = getComponent(props.entity, UUIDComponent)
-    dispatchAction(
-      WorldNetworkAction.spawnEntity({
-        ownerID: SceneUser,
-        entityUUID,
-        parentUUID,
-        $network: undefined,
-        $topic: undefined,
-        $peer: ScenePeer
-      })
-    )
+    const entityUUID = getComponent(entity, UUIDComponent)
     return () => {
       dispatchAction(WorldNetworkAction.destroyEntity({ entityUUID }))
     }
   }, [])
 
   useEffect(() => {
-    const entityUUID = getComponent(props.entity, UUIDComponent)
+    const entityUUID = getComponent(entity, UUIDComponent)
     dispatchAction(
       WorldNetworkAction.spawnEntity({
         ownerID: SceneUser,
@@ -87,13 +80,27 @@ const filterSpatialEntities = (entity: Entity) => hasComponent(entity, EntityTre
 
 const SourcedSceneReactor = () => {
   const entity = useEntityContext()
-  const source = useComponent(entity, SourceComponent)
-  const sourcedEntities = useHookstate(SourceComponent.entitiesBySourceState[source.value]).value
+  const sourceID = useComponent(entity, SourceComponent).value
+  const sourcedEntities = SourceComponent.useEntitiesBySource(sourceID)
 
   return (
     <>
       {sourcedEntities.filter(filterSpatialEntities).map((sourcedEntity) => (
-        <SourcedEntityReactor key={sourcedEntity} entity={sourcedEntity} />
+        <QuerySubReactor key={sourcedEntity} entity={sourcedEntity} ChildEntityReactor={SourcedEntityReactor} />
+      ))}
+    </>
+  )
+}
+
+const SceneReactor = () => {
+  const entity = useEntityContext()
+  const source = GLTFComponent.useInstanceID(entity)
+  const sourcedEntities = SourceComponent.useEntitiesBySource(source)
+
+  return (
+    <>
+      {sourcedEntities.map((sourcedEntity) => (
+        <QuerySubReactor key={sourcedEntity} entity={sourcedEntity} ChildEntityReactor={SourcedSceneReactor} />
       ))}
     </>
   )
@@ -104,7 +111,7 @@ const reactor = () => {
 
   if (!ready) return null
 
-  return <QueryReactor ChildEntityReactor={SourcedSceneReactor} Components={[SourceComponent, SceneComponent]} />
+  return <QueryReactor ChildEntityReactor={SceneReactor} Components={[SceneComponent, GLTFComponent]} />
 }
 
 export const SceneNetworkSystem = defineSystem({

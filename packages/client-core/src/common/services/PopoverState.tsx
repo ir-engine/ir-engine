@@ -25,26 +25,52 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { defineState, getMutableState } from '@ir-engine/hyperflux'
 
+type BackdropType = 'blur' | 'transparent'
+
+export interface PopupData {
+  element: JSX.Element | null
+  onClickOutside: VoidFunction
+}
+
 /**
  * Popover state for tailwind routes
  */
 export const PopoverState = defineState({
   name: 'ee.client.PopoverState',
   initial: {
-    elements: [] as (JSX.Element | null)[]
+    popups: [] as PopupData[],
+    backdrop: 'blur' as BackdropType
   },
 
   /**shows a popupover. if a previous popover was already present, the `element` popover will be current showed */
-  showPopupover: (element: JSX.Element) => {
-    getMutableState(PopoverState).elements.merge([element])
+  showPopupover: (
+    element: JSX.Element,
+    onClickOutside?: PopupData['onClickOutside'],
+    backdrop = 'blur' as BackdropType
+  ) => {
+    getMutableState(PopoverState).popups.merge([
+      {
+        element,
+        onClickOutside: onClickOutside || PopoverState.hidePopupover
+      }
+    ])
+    if (backdrop === 'transparent') {
+      /* if atleast one Modal is asking to use transparent backdrop, all the Modals "in this nesting" will use transparent backdrop. */
+      getMutableState(PopoverState).backdrop.set('transparent')
+    }
   },
   /**close the current popover. if a previous popover was present, the previous one will be shown */
   hidePopupover: () => {
-    getMutableState(PopoverState).elements.set((prevElements) => {
+    const currentCount = getMutableState(PopoverState).popups.length
+    getMutableState(PopoverState).popups.set((prevElements) => {
       prevElements.pop()
       return prevElements
     })
+    if (currentCount === 1) {
+      /* if the current popover is the last one, the backdrop will be reset to blur */
+      getMutableState(PopoverState).backdrop.set('blur')
+    }
   },
   /**Returns true if there are any open popovers, false otherwise, based on the length of the elements array in PopoverState.*/
-  isPopupoverOpen: () => getMutableState(PopoverState).elements.length > 0
+  isPopupoverOpen: () => getMutableState(PopoverState).popups.length > 0
 })

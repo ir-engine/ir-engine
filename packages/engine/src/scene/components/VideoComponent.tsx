@@ -41,7 +41,7 @@ import {
   VideoTexture
 } from 'three'
 
-import { createEntity, EntityTreeComponent, removeEntity, useEntityContext, UUIDComponent } from '@ir-engine/ecs'
+import { createEntity, EntityTreeComponent, removeEntity, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -52,7 +52,7 @@ import {
   useHasComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
+import { Entity } from '@ir-engine/ecs/src/Entity'
 import { defineState, NO_PROXY, State, useHookstate, useState } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { createPriorityQueue } from '@ir-engine/spatial/src/common/functions/PriorityQueue'
@@ -65,6 +65,8 @@ import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { Vector2_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
+import { NodeFunctions } from '../../gltf/NodeFunctions'
+import { NodeID, NodeIDSchema } from '../../gltf/NodeIDComponent'
 import { clearErrors } from '../functions/ErrorFunctions'
 import { getTextureSize, PLANE_GEO, resizeVideoMesh, SideSchema, SPHERE_GEO } from './ImageComponent'
 import { MediaComponent, MediaElementComponent } from './MediaComponent'
@@ -115,7 +117,8 @@ export const VideoComponent = defineComponent({
     alphaThreshold: S.Number(0.5),
     fit: ContentFitTypeSchema('contain'),
     projection: ProjectionSchema,
-    mediaUUID: S.EntityUUID(),
+    mediaUUID: NodeIDSchema(),
+
     // internal
     videoMeshEntity: S.NonSerialized(S.Entity()),
     currentVideoSize: S.NonSerialized(T.Vec2(Vector2_One)),
@@ -142,7 +145,8 @@ function VideoReactor() {
   const video = useComponent(entity, VideoComponent)
   const visible = useHasComponent(entity, VisibleComponent)
   const mediaUUID = video.mediaUUID.value
-  const mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID) || entity
+
+  const mediaEntity = NodeFunctions.useEntityFromNodeID(entity, mediaUUID) || entity
   const media = useOptionalComponent(mediaEntity, MediaComponent)
   const hasMediaElementComponent = useHasComponent(mediaEntity, MediaElementComponent)
   const localTextureRef = useHookstate<VideoTexturePriorityQueue | null>(null)
@@ -266,7 +270,7 @@ function VideoReactor() {
     setComponent(videoEntity, EntityTreeComponent, { parentEntity: entity })
     setComponent(videoEntity, NameComponent, mesh?.name?.value)
     setComponent(videoEntity, MediaComponent)
-    video.mediaUUID.set('' as EntityUUID)
+    video.mediaUUID.set('' as NodeID)
 
     return () => {
       removeEntity(videoEntity)

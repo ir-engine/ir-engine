@@ -65,7 +65,7 @@ async function installAllProjects() {
     const updatedProject = await app
       .service(projectPath)
       .update('', { sourceURL: 'ir-engine/default-project' }, { isInternal: true, isJob: true })
-    const projectConfig = getProjectConfig('ir-engine/default-project')
+    const projectConfig = await getProjectConfig('ir-engine/default-project')
     if (projectConfig && projectConfig.onEvent)
       await onProjectEvent(app, updatedProject, projectConfig.onEvent, 'onUpdate')
     process.exit(0)
