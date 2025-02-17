@@ -26,13 +26,14 @@ Infinite Reality Engine. All Rights Reserved.
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
-import { Checkbox, Input, Tooltip } from '@ir-engine/ui'
-import { Slider, StudioButton } from '@ir-engine/ui/editor'
+import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
+import { Slider, ViewportButton } from '@ir-engine/ui/editor'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import {
   ArrowLeftSm,
   CogSm,
   Download01Sm,
+  FolderPlusSm,
   FolderSm,
   Grid01Sm,
   PlusCircleSm,
@@ -49,6 +50,21 @@ import { EditorState } from '../../services/EditorServices'
 import { FilesState, FilesViewModeSettings, FilesViewModeState } from '../../services/FilesState'
 import { availableTableColumns, useCurrentFiles } from './helpers'
 import { handleDownloadProject } from './loaders'
+
+// keeping this here for now, Move this to icons or static folder
+export function BreadCrumbSlash() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g id="Breadcrumb">
+        <path
+          id="Icon"
+          d="M4.38843 12.4435L9.98843 1.24347L10.6142 1.55707L5.01423 12.7571L4.38843 12.4435Z"
+          fill="#B2B5BD"
+        />
+      </g>
+    </svg>
+  )
+}
 
 export const showMultipleFileModal = (projectName: string, directoryPath: string, files: File[]) => {
   const fileNames = files.map((file) => file.name)
@@ -89,31 +105,33 @@ function BreadcrumbItems() {
   }
 
   let breadcrumbDirectoryFiles = filesState.selectedDirectory.value.slice(1, -1).split('/')
-
   const nestedIndex = breadcrumbDirectoryFiles.indexOf('projects')
-
-  breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx >= nestedIndex)
+  breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx > nestedIndex)
 
   return (
-    <div className="flex h-6 w-96 items-center gap-2 rounded-lg border border-[#42454D] bg-[#141619] px-2">
-      <FolderSm className="text-sm text-[#A3A3A3]" />
+    <div className="flex items-center gap-2">
+      <FolderSm className="text-base text-text-primary" />
       {breadcrumbDirectoryFiles.map((file, index, arr) => (
         <Fragment key={index}>
-          {index !== 0 && <span className="cursor-default items-center text-sm text-[#A3A3A3]"> {'>'} </span>}
+          {index !== 0 && (
+            <span className="cursor-default items-center text-base text-text-primary">
+              <BreadCrumbSlash />
+            </span>
+          )}
           {index === arr.length - 1 ? (
             <span
-              className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3] hover:underline"
+              className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-base text-text-secondary hover:underline"
               data-testid={'files-panel-breadcrumb-current-directory'}
             >
               {file}
             </span>
           ) : (
             <a
-              className="inline-flex cursor-pointer items-center overflow-hidden text-sm text-[#A3A3A3] hover:text-theme-highlight hover:underline focus:text-theme-highlight"
+              className="hover: focus: inline-flex cursor-pointer items-center overflow-hidden text-sm text-text-secondary hover:underline"
               onClick={() => handleBreadcrumbDirectoryClick(file)}
               data-testid={`files-panel-breadcrumb-nested-level-${index}`}
             >
-              <span className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3] hover:underline">
+              <span className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-base text-text-secondary hover:underline">
                 {file}
               </span>
             </a>
@@ -131,52 +149,52 @@ const ViewModeSettings = () => {
 
   return (
     <Popup
-      contentStyle={{ background: '#15171b', border: 'solid', borderColor: '#5d646c' }}
+      contentStyle={{
+        background: 'var(--surface-1)',
+        border: 'solid',
+        borderColor: 'var(--ui-outline)',
+        borderWidth: '2px',
+        borderRadius: '0.5rem'
+      }}
       position={'bottom left'}
       trigger={
         <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
-          <StudioButton size="sm" variant="tertiary" data-testid="files-panel-view-options-button">
-            <CogSm />
-          </StudioButton>
+          <ViewportButton data-testid="files-panel-view-options-button" icon={CogSm} />
         </Tooltip>
       }
     >
       {filesViewMode.value === 'icons' ? (
         <div className="flex justify-end">
-          <div className="w-3/5">
+          <Slider
+            label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}
+            min={10}
+            max={100}
+            step={0.5}
+            value={viewModeSettings.icons.iconSize.value}
+            onChange={viewModeSettings.icons.iconSize.set}
+            onRelease={viewModeSettings.icons.iconSize.set}
+            data-testid="files-panel-view-options-icon-size-value-input-group"
+          />
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-y-1">
+          <div className="flex justify-end">
             <Slider
-              label={t('editor:layout.filebrowser.view-mode.settings.iconSize')}
+              label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
+              data-testid="files-panel-view-options-list-font-size-value-input-group"
               min={10}
               max={100}
               step={0.5}
-              value={viewModeSettings.icons.iconSize.value}
-              onChange={viewModeSettings.icons.iconSize.set}
-              onRelease={viewModeSettings.icons.iconSize.set}
-              data-testid="files-panel-view-options-icon-size-value-input-group"
+              value={viewModeSettings.list.fontSize.value}
+              onChange={viewModeSettings.list.fontSize.set}
+              onRelease={viewModeSettings.list.fontSize.set}
             />
           </div>
-        </div>
-      ) : (
-        <div className="flex flex-col items-center">
-          <div className="flex justify-end">
-            <div className="w-3/5">
-              <Slider
-                label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
-                data-testid="files-panel-view-options-list-font-size-value-input-group"
-                min={10}
-                max={100}
-                step={0.5}
-                value={viewModeSettings.list.fontSize.value}
-                onChange={viewModeSettings.list.fontSize.set}
-                onRelease={viewModeSettings.list.fontSize.set}
-              />
+          <div className="flex w-full flex-col gap-y-1">
+            <div className="mt-1 flex flex-auto font-semibold text-text-primary">
+              <h3>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</h3>
             </div>
-          </div>
-          <div className="w-full">
-            <div className="mt-1 flex flex-auto text-white">
-              <label>{t('editor:layout.filebrowser.view-mode.settings.select-listColumns')}</label>
-            </div>
-            <div>
+            <div className="flex flex-col gap-y-0.5">
               {availableTableColumns.map((column, index) => (
                 <Checkbox
                   checked={viewModeSettings.list.selectedTableColumns[column].value}
@@ -209,74 +227,28 @@ export default function FilesToolbar() {
     filesState.selectedDirectory.value.startsWith('/projects/' + filesState.projectName.value + '/public/') ||
     filesState.selectedDirectory.value.startsWith('/projects/' + filesState.projectName.value + '/assets/')
 
-  const { backDirectory, refreshDirectory, createNewFolder } = useCurrentFiles()
+  const { backDirectory, refreshDirectory } = useCurrentFiles()
 
   return (
-    <>
-      <div className="mb-1 flex h-8 items-center gap-2 bg-[#191B1F] py-1">
-        <div className="ml-2" />
-        {showBackButton && (
-          <div>
-            <Tooltip content={t('editor:layout.filebrowser.back')}>
-              <StudioButton
-                size="sm"
-                variant="tertiary"
-                data-testid="files-panel-back-directory-button"
-                onClick={backDirectory}
-                rounded
-              >
-                <ArrowLeftSm />
-              </StudioButton>
-            </Tooltip>
-          </div>
-        )}
-
-        <div>
-          <Tooltip content={t('editor:layout.filebrowser.refresh')}>
-            <StudioButton
-              size="sm"
-              variant="tertiary"
-              data-testid="files-panel-refresh-directory-button"
-              onClick={refreshDirectory}
-            >
-              <Refresh1Sm />
-            </StudioButton>
-          </Tooltip>
-        </div>
-
-        <ViewModeSettings />
-        <div className="ml-10 flex h-7 items-center gap-2 rounded bg-[#2F3137] p-2">
-          <FaList
-            className={twMerge(
-              'h-5 w-5 cursor-pointer text-[#9CA0AA]',
-              filesViewMode.value === 'list' && 'cursor-auto text-[#F5F5F5]'
-            )}
-            onClick={() => filesViewMode.set('list')}
-          />
-          <Grid01Sm
-            className={twMerge(
-              'h-5 w-5 cursor-pointer text-[#9CA0AA]',
-              filesViewMode.value === 'icons' && 'cursor-auto text-[#F5F5F5]'
-            )}
-            onClick={() => filesViewMode.set('icons')}
-          />
-        </div>
-
-        <div className="align-center flex h-6 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
-          <BreadcrumbItems />
-          <Input
-            placeholder={t('editor:layout.filebrowser.search-placeholder')}
-            value={filesState.searchText.value}
-            onChange={(e) => {
-              filesState.searchText.set(e.target.value)
-            }}
-            height="xs"
-            startComponent={<SearchSmSm className="h-[14px] w-[14px] text-[#9CA0AA]" />}
-            data-testid="files-panel-search-input"
-          />
-        </div>
-
-        <div id="downloadProject">
+    <PanelToolbar
+      onBackDirectory={backDirectory}
+      onRefreshDirectory={refreshDirectory}
+      breadcrumbComponent={<BreadcrumbItems />}
+      searchbar={
+        <Input
+          placeholder={t('editor:layout.filebrowser.search-placeholder')}
+          value={filesState.searchText.value}
+          onChange={(e) => {
+            filesState.searchText.set(e.target.value)
+          }}
+          height="xs"
+          startComponent={<SearchSmSm className="h-[14px] w-[14px] text-[#9CA0AA]" />}
+          data-testid="files-panel-search-input"
+        />
+      }
+      dataTestIdJson={{}}
+      utilsComponent={
+        <>
           <Tooltip
             content={
               showDownloadButtons
@@ -284,21 +256,33 @@ export default function FilesToolbar() {
                 : t('editor:layout.filebrowser.downloadProjectUnavailable')
             }
           >
-            <StudioButton
-              size="sm"
-              variant="tertiary"
+            <ViewportButton
               onClick={() => handleDownloadProject(filesState.projectName.value, filesState.selectedDirectory.value)}
               data-testid="files-panel-download-project-button"
-            >
-              <Download01Sm />
-            </StudioButton>
+              icon={Download01Sm}
+              id="downloadProject"
+            />
           </Tooltip>
-        </div>
-
-        <div className="w-fit">
-          <StudioButton
+          <div className="flex h-7 items-center gap-2 rounded p-2">
+            <button className="p-1 text-text-secondary hover:text-text-primary">
+              <FaList
+                className={twMerge('h-5 w-5', filesViewMode.value === 'list' ? 'cursor-auto text-ui-primary' : '')}
+                onClick={() => filesViewMode.set('list')}
+              />
+            </button>
+            <button className="p-1 text-text-secondary hover:text-text-primary">
+              <Grid01Sm
+                className={twMerge('h-5 w-5', filesViewMode.value === 'icons' ? 'cursor-auto text-ui-primary' : '')}
+                onClick={() => filesViewMode.set('icons')}
+              />
+            </button>
+          </div>
+        </>
+      }
+      uploadButton={
+        <>
+          <Button
             size="l"
-            variant="tertiary"
             disabled={!showUploadButtons}
             onClick={() =>
               inputFileWithAddToScene({
@@ -315,13 +299,10 @@ export default function FilesToolbar() {
           >
             <FolderSm />
             <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFiles')}</span>
-          </StudioButton>
-        </div>
-        <div className="w-fit">
-          <StudioButton
+          </Button>
+          <Button
             size="l"
             disabled={!showUploadButtons}
-            variant="tertiary"
             className="disabled:bg-[#212226]"
             onClick={() =>
               inputFileWithAddToScene({
@@ -338,9 +319,69 @@ export default function FilesToolbar() {
           >
             <PlusCircleSm />
             <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFolder')}</span>
-          </StudioButton>
+          </Button>
+        </>
+      }
+    />
+  )
+}
+
+export function PanelToolbar({
+  onBackDirectory,
+  onRefreshDirectory,
+  breadcrumbComponent,
+  searchbar,
+  dataTestIdJson,
+  uploadButton,
+  utilsComponent
+}: {
+  onBackDirectory: () => void
+  onRefreshDirectory: () => void
+  breadcrumbComponent?: React.ReactNode
+  searchbar?: React.ReactNode
+  dataTestIdJson?: Record<string, string>
+  uploadButton?: React.ReactNode
+  utilsComponent?: React.ReactNode
+}) {
+  const { t } = useTranslation()
+  const { createNewFolder } = useCurrentFiles()
+
+  return (
+    <div
+      className="mb-1 flex items-center justify-between gap-2 bg-[#1E1F22] bg-surface-4 px-2 py-1"
+      data-testid={dataTestIdJson?.topbarId}
+    >
+      {/* Tools */}
+      <div className="flex items-center gap-x-1 divide-x divide-ui-outline">
+        <div className="flex items-center">
+          <div>
+            <Tooltip content={t('editor:layout.filebrowser.back')}>
+              <ViewportButton data-testid={dataTestIdJson?.backButtonId} onClick={onBackDirectory} icon={ArrowLeftSm} />
+            </Tooltip>
+          </div>
+          <div>
+            <Tooltip content={t('editor:layout.filebrowser.refresh')}>
+              <ViewportButton
+                data-testid={dataTestIdJson?.refreshButtonId}
+                onClick={onRefreshDirectory}
+                icon={Refresh1Sm}
+              />
+            </Tooltip>
+          </div>
+          <Tooltip content={t('editor:layout.filebrowser.addNewFolder')}>
+            <ViewportButton onClick={createNewFolder} icon={FolderPlusSm} />
+          </Tooltip>
+          <ViewModeSettings />
         </div>
+        {utilsComponent && <div className="flex items-center">{utilsComponent}</div>}
+        <div className="flex items-center gap-x-2 px-1">{uploadButton}</div>
       </div>
-    </>
+
+      {/* Breadcrumb */}
+      <div className="flex items-center justify-between">{breadcrumbComponent}</div>
+
+      {/* Search */}
+      <div>{searchbar}</div>
+    </div>
   )
 }

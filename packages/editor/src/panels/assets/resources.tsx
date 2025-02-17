@@ -62,9 +62,9 @@ const MetadataTable = ({ rows }: { rows: MetadataTableRowProps[] }) => (
 
 const MetadataTableRow = ({ label, value }: MetadataTableRowProps) => (
   <tr>
-    <td className="font-semibold">{label}</td>
+    <td className="font-semibold text-text-primary">{label}</td>
     <td
-      className="cursor-default select-text pl-4"
+      className="cursor-default select-text pl-4 text-text-secondary"
       onContextMenu={(e) => {
         e.stopPropagation() // allow user to copy selected text
       }}
@@ -96,7 +96,7 @@ function ResourceFileContextMenu({
       onClose={() => anchorEvent.set(undefined)}
       className="gap-1"
     >
-      <div className="w-full rounded-lg bg-theme-surface-main px-4 py-2 text-sm text-white">
+      <div className="w-full rounded-lg border border-ui-outline bg-surface-2 px-4 py-2 text-sm">
         <MetadataTable
           rows={[
             { label: t('editor:assetMetadata.name'), value: `${name}` },
@@ -143,6 +143,67 @@ function ResourceFileContextMenu({
   )
 }
 
+export function FileCard({
+  item,
+  name,
+  onClick,
+  onContextMenu,
+  isSelected,
+  info,
+  dataTestIdJson,
+  assetType,
+  onDoubleClick,
+  className
+}) {
+  const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
+  const thumbnailURL = item.thumbnailURL
+  return (
+    <>
+      <div
+        key={item.id}
+        onClick={onClick}
+        onDoubleClick={onDoubleClick}
+        onContextMenu={onContextMenu}
+        className={twMerge(
+          'max-h-38 w-30 flex h-auto cursor-pointer flex-col items-center p-1.5 text-center',
+          className
+        )}
+        data-testid={dataTestIdJson?.fileItemId}
+      >
+        <div
+          className={twMerge(
+            `box-border rounded border border-0 font-figtree`,
+            isSelected ? 'rounded border border-[#375DAF] bg-[#2C2E30]' : 'group-hover:bg-[#202225]'
+          )}
+          style={{
+            height: iconSize,
+            width: iconSize,
+            fontSize: iconSize
+          }}
+          data-testid={dataTestIdJson?.fileIconId}
+        >
+          <FileIcon thumbnailURL={thumbnailURL} type={assetType} isFolder={item?.isFolder} />
+        </div>
+
+        <Tooltip content={name} position="bottom">
+          <Text
+            theme="secondary"
+            fontSize="sm"
+            className={twMerge(
+              'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2',
+              isSelected ? 'rounded bg-[#375DAF]' : 'rounded group-hover:bg-[#2F3137]'
+            )}
+            data-testid={dataTestIdJson?.fileNameId}
+          >
+            {name}
+          </Text>
+        </Tooltip>
+        <span className="text-xs text-[#375DAF]">{info}</span>
+      </div>
+    </>
+  )
+}
+
 function ResourceFile({ resource }: { resource: StaticResourceType }) {
   const anchorEvent = useHookstate<React.MouseEvent | undefined>(undefined)
 
@@ -164,57 +225,33 @@ function ResourceFile({ resource }: { resource: StaticResourceType }) {
   }, [preview])
 
   const isSelected = useMutableState(ClickPlacementState).selectedAsset.value === resource.url
-  const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
 
   return (
     <div className="h-min">
       <DragPreviewImage connect={preview} src={resource.thumbnailURL || ''} />
-      {/* // todo: move to reusuable component with FileItemCard */}
-      <div
-        key={resource.id}
-        ref={drag}
-        onClick={() => ClickPlacementState.setSelectedAsset(resource.url)}
-        onContextMenu={(event) => {
-          event.preventDefault()
-          event.stopPropagation()
-          anchorEvent.set(event)
-        }}
-        className={twMerge(
-          'resource-file max-h-38 w-30 flex h-auto cursor-pointer flex-col items-center p-1.5 text-center'
-        )}
-        data-testid="assets-panel-resource-file"
-      >
-        <div
-          className={twMerge(
-            `box-border rounded border border-0 font-figtree`,
-            isSelected ? 'rounded border border-2 border-[#375DAF] bg-[#2C2E30]' : 'group-hover:bg-[#202225]'
-          )}
-          style={{
-            height: iconSize,
-            width: iconSize,
-            fontSize: iconSize
+      <div ref={drag}>
+        <FileCard
+          item={resource}
+          name={name}
+          onClick={() => ClickPlacementState.setSelectedAsset(resource.url)}
+          onContextMenu={(event) => {
+            event.preventDefault()
+            event.stopPropagation()
+            anchorEvent.set(event)
           }}
-          data-testid="assets-panel-resource-file-icon"
-        >
-          <FileIcon thumbnailURL={resource.thumbnailURL} type={assetType} />
-        </div>
-
-        <Tooltip content={name}>
-          <Text
-            theme="secondary"
-            fontSize="sm"
-            className={twMerge(
-              'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2',
-              isSelected ? 'rounded bg-[#375DAF]' : 'rounded group-hover:bg-[#2F3137]'
-            )}
-            data-testid="assets-panel-resource-file-name"
-          >
-            {name}
-          </Text>
-        </Tooltip>
-        <span className="text-xs text-[#375DAF]">{resource?.mimeType}</span>
-        <ResourceFileContextMenu resource={resource} anchorEvent={anchorEvent} />
+          isSelected={isSelected}
+          info={resource.mimeType}
+          assetType={assetType}
+          dataTestIdJson={{
+            fileIconId: 'assets-panel-resource-file-icon',
+            fileNameId: 'assets-panel-resource-file-name',
+            fileItemId: 'assets-panel-resource-file'
+          }}
+          onDoubleClick={() => {}}
+          className="resource-file"
+        />
       </div>
+      <ResourceFileContextMenu resource={resource} anchorEvent={anchorEvent} />
     </div>
   )
 }
@@ -294,7 +331,7 @@ function BottomPaginationNavBar({ handleScrollToPage }) {
 
   return (
     <div className="flex h-20 flex-col items-center justify-center">
-      <div className="text-[10px] text-white">
+      <div className="text-[10px] text-text-secondary">
         {t('editor:layout.scene-assets.total-assets', { total: resources.length })}
       </div>
       <div className="m-3 flex h-[1px] w-36 flex-row gap-[0.19rem]">
@@ -331,7 +368,7 @@ function ResourceItems() {
       <div className="relative flex w-[95%] flex-col">
         {' '}
         {resources.length === 0 && (
-          <div className="col-start-2 flex h-full w-full items-center justify-center text-white">
+          <div className="col-start-2 flex h-full w-full items-center justify-center text-text-secondary">
             {t('editor:layout.scene-assets.no-search-results')}
           </div>
         )}
@@ -344,7 +381,7 @@ function ResourceItems() {
                     className="mr-auto flex items-center justify-center px-0 py-2 text-xs text-[#42454D]"
                     onClick={() => handleScrollToPage(i - 1)} // Scroll to the previous page
                   >
-                    {t('editor:layout.scene-assets.previous')}
+                    ▲ {t('editor:layout.scene-assets.previous')}
                   </button>
                 )}
                 <span className="ml-auto text-[#42454D]">
@@ -383,7 +420,7 @@ export default function Resources() {
   const { resourcesLoading, staticResourcesPagination, refetchResources } = useAssetsQuery()
 
   return (
-    <div id="asset-panel" className="relative flex h-full w-full flex-col overflow-auto">
+    <div id="asset-panel" className="relative flex h-full w-full flex-col overflow-auto bg-surface-1">
       <InfiniteScroll
         disableEvent={staticResourcesPagination.skip.value >= staticResourcesPagination.total.value || resourcesLoading}
         onScrollBottom={() => {

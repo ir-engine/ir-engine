@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { forwardRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { useFind } from '@ir-engine/common'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
@@ -55,8 +54,6 @@ const RedisTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
     <Accordion
       title={t('admin:components.setting.redis.header')}
       subtitle={t('admin:components.setting.redis.subtitle')}
-      expandIcon={<HiPlusSmall />}
-      shrinkIcon={<HiMinus />}
       ref={ref}
       open={open}
     >

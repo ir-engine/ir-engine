@@ -25,18 +25,19 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiPencil, HiTrash } from 'react-icons/hi2'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import { channelPath, ChannelType } from '@ir-engine/common/src/schema.type.module'
 import { State } from '@ir-engine/hyperflux'
-import { Button, Checkbox } from '@ir-engine/ui'
+import { Checkbox } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import { validate as isValidUUID } from 'uuid'
 
+import { Edit01Lg, Trash04Lg } from '@ir-engine/ui/src/icons'
 import { channelColumns, ChannelRowType } from '../../common/constants/channel'
 import DataTable from '../../common/Table'
+import ActionButton from '../ActionButton'
 import AddEditChannelModal from './AddEditChannelModal'
 
 export default function ChannelTable({
@@ -91,17 +92,15 @@ export default function ChannelTable({
       name: row.name,
       action: (
         <div className="flex items-center justify-start gap-3">
-          <Button
-            variant="tertiary"
-            className="h-8 w-8"
+          <ActionButton
+            icon={Edit01Lg}
             title={t('admin:components.common.view')}
             onClick={() => PopoverState.showPopupover(<AddEditChannelModal channel={row} />)}
-          >
-            <HiPencil className="text-theme-iconGreen" />
-          </Button>
-          <Button
-            variant="tertiary"
-            className="h-8 w-8"
+            variant="green"
+          />
+
+          <ActionButton
+            icon={Trash04Lg}
             title={t('admin:components.common.delete')}
             onClick={() =>
               PopoverState.showPopupover(
@@ -113,9 +112,8 @@ export default function ChannelTable({
                 />
               )
             }
-          >
-            <HiTrash className="text-theme-iconRed" />
-          </Button>
+            variant="red"
+          />
         </div>
       )
     }))

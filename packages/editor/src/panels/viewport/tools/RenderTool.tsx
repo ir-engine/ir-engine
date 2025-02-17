@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { ShadowMapResolutionOptions } from '@ir-engine/client-core/src/user/components/UserMenu/menus/SettingMenu'
+import { ShadowMapResolutionOptions } from '@ir-engine/client-core/src/user/menus/SettingsMenu'
 import { useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { RenderModes, RenderModesType } from '@ir-engine/spatial/src/renderer/constants/RenderModes'
@@ -74,7 +74,7 @@ const RenderModeTool = () => {
   }
 
   return (
-    <div className="flex h-full items-center gap-1 rounded bg-[#141619]">
+    <div className="flex h-full items-center gap-1 rounded bg-surface-1">
       {renderModes.map((mode) => (
         <Tooltip key={mode.name} content={mode.name} position="bottom">
           <button onClick={() => rendererState.renderMode.set(mode.name)} className="px-3.5 py-1.5">
@@ -90,7 +90,7 @@ const RenderModeTool = () => {
           </button>
         }
       >
-        <div className="w-52 rounded-md bg-theme-primary p-2">
+        <div className="w-52 rounded-md bg-surface-0 p-2">
           <InputGroup
             name="Use Post Processing"
             label={t('editor:toolbar.render-settings.lbl-usePostProcessing')}

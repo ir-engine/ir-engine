@@ -26,9 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, LineBasicMaterial, LineSegments } from 'three'
 
-import { Entity, EntityUUID, QueryReactor, UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { createEntity, Entity, QueryReactor, removeEntity, useEntityContext } from '@ir-engine/ecs'
+import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 
@@ -45,7 +44,7 @@ import { WebGLRendererSystem } from '../renderer/WebGLRendererSystem'
 import { createInfiniteGridHelper } from './components/InfiniteGridHelper'
 import { SceneComponent } from './components/SceneComponents'
 
-const PhysicsDebugEntities = new Map<EntityUUID, Entity>()
+const PhysicsDebugEntities = new Map<Entity, Entity>()
 
 const execute = () => {
   for (const [id, physicsDebugEntity] of Array.from(PhysicsDebugEntities)) {
@@ -60,7 +59,6 @@ const execute = () => {
 
 const PhysicsReactor = () => {
   const entity = useEntityContext()
-  const uuid = useComponent(entity, UUIDComponent).value
   const engineRendererSettings = useMutableState(RendererState)
 
   useEffect(() => {
@@ -79,13 +77,13 @@ const PhysicsReactor = () => {
     setComponent(lineSegmentsEntity, EntityTreeComponent, { parentEntity: entity })
 
     setObjectLayers(lineSegments, ObjectLayers.PhysicsHelper)
-    PhysicsDebugEntities.set(uuid, lineSegmentsEntity)
+    PhysicsDebugEntities.set(entity, lineSegmentsEntity)
 
     return () => {
       removeEntity(lineSegmentsEntity)
-      PhysicsDebugEntities.delete(uuid)
+      PhysicsDebugEntities.delete(entity)
     }
-  }, [engineRendererSettings.physicsDebug, uuid])
+  }, [engineRendererSettings.physicsDebug])
 
   return null
 }

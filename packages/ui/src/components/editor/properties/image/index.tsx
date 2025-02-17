@@ -50,11 +50,7 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.image.description')}
       Icon={ImageNodeEditor.iconComponent}
     >
-      <InputGroup
-        name="Image Url"
-        label={t('editor:properties.image.lbl-imgURL')}
-        labelClassName="text-nowrap text-[#A0A1A2]"
-      >
+      <InputGroup name="Image Url" label={t('editor:properties.image.lbl-imgURL')}>
         <DroppableImageInput src={imageComponent.source.value} onBlur={commitProperty(ImageComponent, 'source')} />
       </InputGroup>
       {errors ? (

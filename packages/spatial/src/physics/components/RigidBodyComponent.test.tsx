@@ -34,6 +34,7 @@ import {
   UndefinedEntity,
   createEngine,
   createEntity,
+  deserializeComponent,
   destroyEngine,
   getComponent,
   hasComponent,
@@ -67,14 +68,6 @@ const RigidBodyComponentDefaults = {
   enabledRotations: [true, true, true] as [boolean, boolean, boolean],
   canSleep: true,
   gravityScale: 1,
-  previousPosition: 3,
-  previousRotation: 4,
-  position: 3,
-  rotation: 4,
-  targetKinematicPosition: 3,
-  targetKinematicRotation: 4,
-  linearVelocity: 3,
-  angularVelocity: 3,
   targetKinematicLerpMultiplier: 0
 }
 
@@ -173,7 +166,7 @@ describe('RigidBodyComponent', () => {
       assert.equal(after.enabledRotations[2], Expected.enabledRotations[2])
     })
 
-    it('should not change values of an initialized RigidBodyComponent when the data passed had incorrect types', () => {
+    it('should not change values of an initialized RigidBodyComponent when deserialized incorrect types', () => {
       const Incorrect = {
         type: 1,
         ccd: 'ccd',
@@ -186,7 +179,7 @@ describe('RigidBodyComponent', () => {
       assertRigidBodyComponentEqual(before, RigidBodyComponentDefaults)
 
       // @ts-ignore    Pass an incorrect type to setComponent
-      setComponent(testEntity, RigidBodyComponent, Incorrect)
+      deserializeComponent(testEntity, RigidBodyComponent, Incorrect)
       const after = getComponent(testEntity, RigidBodyComponent)
       assertRigidBodyComponentEqual(after, RigidBodyComponentDefaults)
     })
@@ -235,7 +228,7 @@ describe('RigidBodyComponent', () => {
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)
       setComponent(physicsWorldEntity, EntityTreeComponent)
-      physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+      physicsWorld = Physics.createWorld(physicsWorldEntity)
       physicsWorld!.timestep = 1 / 60
 
       testEntity = createEntity()
@@ -264,7 +257,7 @@ describe('RigidBodyComponent', () => {
       setComponent(newPhysicsEntity, SceneComponent)
       setComponent(newPhysicsEntity, TransformComponent)
       setComponent(newPhysicsEntity, EntityTreeComponent)
-      newPhysicsWorld = Physics.createWorld(getComponent(newPhysicsEntity, UUIDComponent))
+      newPhysicsWorld = Physics.createWorld(newPhysicsEntity)
       newPhysicsWorld!.timestep = 1 / 60
 
       // Change the world

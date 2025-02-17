@@ -33,6 +33,7 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   UndefinedEntity
@@ -53,6 +54,7 @@ import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/Obje
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 
+import { EntityHierarchyLockState } from '@ir-engine/editor/src/services/EntityHierarchyLockState'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
@@ -225,13 +227,11 @@ export function gizmoUpdate(gizmoControlEntity) {
     setComponent(handleEntity, VisibleComponent)
     const name = getComponent(handleEntity, NameComponent)
     const transform = getComponent(handleEntity, TransformComponent)
-    transform.rotation.identity()
-    transform.position.set(0, 0, 0)
-    transform.scale.set(1, 1, 1).multiplyScalar((factor * gizmoControl.size) / 4)
 
     // Align handles to current local or world rotation
-
     transform.rotation.copy(quaternion)
+    transform.position.set(0, 0, 0)
+    transform.scale.set(1, 1, 1).multiplyScalar((factor * gizmoControl.size) / 4)
 
     if (gizmoControl.mode === TransformMode.translate || gizmoControl.mode === TransformMode.scale) {
       // Hide translate and scale axis facing the camera
@@ -375,9 +375,8 @@ export function planeUpdate(gizmoEntity) {
 
   let space = gizmoControl.space
 
-  const planeTransform = setComponent(gizmoControl.planeEntity, TransformComponent, {
-    position: gizmoControl.worldPosition
-  })
+  setComponent(gizmoControl.planeEntity, TransformComponent, { position: gizmoControl.worldPosition })
+  const planeTransform = getComponent(gizmoControl.planeEntity, TransformComponent)
 
   if (gizmoControl.mode === TransformMode.scale) space = TransformSpace.local // scale always oriented to local rotation
 
@@ -452,14 +451,10 @@ export function controlUpdate(gizmoEntity: Entity) {
       : gizmoControl.controlledEntities.get(NO_PROXY)[0]
   if (targetEntity === UndefinedEntity) return
 
-  let parentEntity = UndefinedEntity
-  const parent = getComponent(targetEntity, EntityTreeComponent)
+  const parentEntity = getOptionalComponent(targetEntity, EntityTreeComponent)?.parentEntity
 
-  if (parent && parent.parentEntity !== UndefinedEntity) {
-    parentEntity = parent.parentEntity!
-  }
-
-  if (parentEntity) _parentScale.copy(getComponent(parentEntity!, TransformComponent).scale)
+  if (parentEntity && hasComponent(parentEntity, TransformComponent))
+    _parentScale.copy(getComponent(parentEntity!, TransformComponent).scale)
   else _parentScale.set(1, 1, 1)
 
   const currentMatrix = getComponent(targetEntity, TransformComponent).matrixWorld
@@ -467,7 +462,8 @@ export function controlUpdate(gizmoEntity: Entity) {
   gizmoControl.worldPosition.set(_worldPosition)
   gizmoControl.worldQuaternion.set(_worldQuaternion)
 
-  if (parentEntity) _parentQuaternionInv.copy(getComponent(parentEntity!, TransformComponent).rotation).invert()
+  if (parentEntity && hasComponent(parentEntity, TransformComponent))
+    _parentQuaternionInv.copy(getComponent(parentEntity!, TransformComponent).rotation).invert()
   else _parentQuaternionInv.set(0, 0, 0, 1).invert()
   _worldQuaternionInv.copy(getComponent(targetEntity, TransformComponent).rotation).invert()
 
@@ -582,7 +578,11 @@ function applyTranslate(
       space === TransformSpace.local && axis !== TransformAxis.XYZ ? _quaternionStart : _parentQuaternionInv
     )
     .divide(_parentScale)
+
   const newPosition = getComponent(entity, TransformComponent).position
+  const locked = EntityHierarchyLockState.isEntityLocked(entity)
+
+  if (locked) return newPosition
   newPosition.copy(_offset.add(pivotControlledEntity ? _positionMultiStart[entity] : _positionStart))
   // Apply translation snap
   if (translationSnap) {
@@ -668,6 +668,9 @@ function applyScale(
 
   // Apply scale
   const newScale = getComponent(entity, TransformComponent).scale
+  const locked = EntityHierarchyLockState.isEntityLocked(entity)
+
+  if (locked) return newScale
   newScale.copy(pivotControlledEntity ? _scaleMultiStart[entity] : _scaleStart).multiply(_tempVector2)
 
   if (scaleSnap) {
@@ -749,6 +752,9 @@ function applyRotation(
         gizmoControlComponent.rotationSnap.value
     )
   const newRotation = getComponent(entity, TransformComponent).rotation
+  const locked = EntityHierarchyLockState.isEntityLocked(entity)
+
+  if (locked) return newRotation
   // Apply rotate
   if (space === TransformSpace.local && axis !== TransformAxis.E && axis !== TransformAxis.XYZE) {
     newRotation.copy(gizmoControlComponent.worldQuaternionStart.value)
@@ -922,9 +928,7 @@ export function onGizmoCommit(gizmoEntity) {
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
   if (gizmoControlComponent.dragging && gizmoControlComponent.axis !== null) {
     //check for snap modes
-    if (!getState(ObjectGridSnapState).enabled) {
-      EditorControlFunctions.commitTransformSave(gizmoControlComponent.controlledEntities.get(NO_PROXY) as Entity[])
-    } else {
+    if (getState(ObjectGridSnapState).enabled) {
       ObjectGridSnapState.apply()
     }
   }

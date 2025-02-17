@@ -124,13 +124,14 @@ describe('MountPointComponent.ts', async () => {
     })
 
     it('Should set the mount point component initial data', () => {
-      const customData = setComponent(mountPointTestEntity, MountPointComponent, {
-        type: 'seat',
+      const customData = {
+        type: 'seat' as const,
         dismountOffset: new Vector3(0, 0, 0.75),
         forceDismountPosition: true
-      })
+      }
+      setComponent(mountPointTestEntity, MountPointComponent, customData)
       const componentData = getComponent(mountPointTestEntity, MountPointComponent)
-      assert.equal(componentData, customData)
+      assert.deepEqual(componentData, customData)
     })
     describe('Reactor', () => {
       it('Should set mountEntity as callback to entity', () => {
@@ -294,8 +295,7 @@ describe('MountPointComponent.ts', async () => {
       setComponent(physicsWorldEntity, UUIDComponent, v4() as EntityUUID)
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)
-      const physicsWorldUUID = getComponent(physicsWorldEntity, UUIDComponent)
-      physicsWorld = Physics.createWorld(physicsWorldUUID)
+      physicsWorld = Physics.createWorld(physicsWorldEntity)
       physicsWorld.timestep = 1 / 60
       setComponent(avatarTestEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
       setComponent(mountPointTestEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })

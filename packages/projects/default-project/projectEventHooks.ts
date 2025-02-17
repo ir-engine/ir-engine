@@ -24,7 +24,6 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
-import fs from 'fs'
 import path from 'path'
 
 import {
@@ -39,11 +38,9 @@ import { createLocations } from '@ir-engine/projects/createLocations'
 import { ProjectEventHooks } from '@ir-engine/projects/ProjectConfigInterface'
 import { Application } from '@ir-engine/server-core/declarations'
 
-import { patchStaticResourceAsAvatar, supportedAvatars } from '@ir-engine/server-core/src/user/avatar/avatar-helper'
-import appRootPath from 'app-root-path'
+import updateAvatarRecords from '@ir-engine/server-core/src/util/updateAvatarRecords'
 import manifestJson from './manifest.json'
 
-const projectRelativeFolder = path.resolve(appRootPath.path, 'packages/projects')
 const avatarsFolder = path.resolve(__dirname, 'assets/avatars')
 
 const handleOEmbedRequest = async (app: Application, project: ProjectType, url: URL, currentOEmbed: OembedType) => {
@@ -114,22 +111,11 @@ const config = {
       default: 'public/scenes/default.gltf',
       ['sky-station']: 'public/scenes/sky-station.gltf'
     })
-    await Promise.all(
-      fs
-        .readdirSync(avatarsFolder)
-        .filter((file) => supportedAvatars.includes(file.split('.').pop()!))
-        .map((file) =>
-          patchStaticResourceAsAvatar(
-            app,
-            manifestJson.name,
-            path.resolve(avatarsFolder, file).replace(projectRelativeFolder + '/', '')
-          )
-        )
-    )
+    await updateAvatarRecords(app, avatarsFolder, manifestJson.name)
   },
-  // onUpdate: (app: Application) => {
-  //   return installAvatarsFromProject(app, avatarsFolder)
-  // },
+  onUpdate: async (app: Application) => {
+    await updateAvatarRecords(app, avatarsFolder, manifestJson.name)
+  },
   onOEmbedRequest: handleOEmbedRequest
   // TODO: remove avatars
   // onUninstall: (app: Application) => {
