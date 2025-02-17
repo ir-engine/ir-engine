@@ -214,7 +214,7 @@ export default function AddEditLocationModal(props: {
   const anchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
 
   return (
-    <div className="relative z-50 w-[60vw] bg-surface-2 px-8 pt-6">
+    <div className="absolute z-50 w-[60vw] bg-surface-2 px-8 pt-6">
       <div className="relative rounded-lg py-2">
         <div className="flex justify-between pb-6">
           <span className="text-xl">
