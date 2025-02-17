@@ -276,7 +276,7 @@ const resourceCallbacks = {
       // if ((asset as CompressedTexture).isCompressedTexture) {
       //   const id = resource.id.value
       //   if (id.endsWith('ktx2')) asset.source.data.src = id
-      // }
+      // }`
       resource.metadata.merge({ textureWidth: asset.image.width })
       resourceState.totalBufferCount.set(resourceState.totalBufferCount.value + resource.metadata.size.value!)
     },

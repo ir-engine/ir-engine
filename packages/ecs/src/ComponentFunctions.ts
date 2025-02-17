@@ -1083,7 +1083,7 @@ export const LayerComponent = defineComponent({
 })
 
 export function getAuthoringCounterpart(entity: Entity) {
-  return LayerComponents[Layers.Authoring].refs[entity]
+  return LayerComponents[Layers.Simulation].refs[entity]
 }
 
 /**
@@ -1339,6 +1339,7 @@ export const entityExists = (entity: Entity) => {
 
 export const EntityContext = React.createContext(UndefinedEntity)
 
+/** @deprecated entity is now passed in as a prop 'entity' to query and array child reactors */
 export const useEntityContext = () => {
   return React.useContext(EntityContext)
 }

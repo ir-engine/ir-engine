@@ -45,14 +45,9 @@ import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import {
   MaterialInstanceComponent,
-  MaterialPrototypeDefinition,
-  MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import {
-  createMaterialPrototype,
-  getMaterialIndices
-} from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { getMaterialIndices } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import React from 'react'
@@ -60,10 +55,6 @@ import { FrontSide, MeshLambertMaterial, MeshPhysicalMaterial, MeshStandardMater
 
 const reactor = () => {
   useEffect(() => {
-    MaterialPrototypeDefinitions.map((prototype: MaterialPrototypeDefinition, uuid) =>
-      createMaterialPrototype(prototype)
-    )
-
     // default material according to GLTF spec. see https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#default-material
     const fallbackMaterial = new MeshStandardMaterial({
       name: 'Fallback Material',
@@ -147,7 +138,6 @@ export const convertMaterials = (material: Entity, forceBasicMaterials: boolean)
     newBasicMaterial.uuid = basicUuid
     newBasicMaterial.alphaTest = prevMaterial.alphaTest
     newBasicMaterial.side = prevMaterial.side
-    newBasicMaterial.plugins = undefined
 
     const newMaterialEntity = createEntity()
     setComponent(newMaterialEntity, MaterialStateComponent, {

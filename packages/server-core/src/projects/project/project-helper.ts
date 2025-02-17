@@ -1578,7 +1578,7 @@ export const deleteProjectFilesInStorageProvider = async (
 ) => {
   const storageProvider = getStorageProvider(storageProviderName)
   try {
-    const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
+    const existingFiles = await getFileKeysRecursive(`projects/${projectName}/`)
     if (existingFiles.length) {
       await storageProvider.deleteResources(existingFiles)
       if (config.server.edgeCachingEnabled)

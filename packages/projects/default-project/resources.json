@@ -671,5 +671,15 @@
     "name": "sky-station.loadingscreen.ktx2",
     "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_sky-station.loadingscreen.ktx2-thumbnail.png",
     "thumbnailMode": "automatic"
+  },
+  "assets/avatars/irRobot.vrm": {
+    "type": "asset",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [
+      "projects/ir-engine/default-project/assets/avatars/irRobot.png"
+    ],
+    "name": "irRobot.vrm"
   }
 }

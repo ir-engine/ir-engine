@@ -47,6 +47,13 @@ export const ShadowComponent = defineComponent({
     const object = useComponent(entity, ObjectComponent).get(NO_PROXY) as Mesh
 
     useEffect(() => {
+      return () => {
+        object.castShadow = false
+        object.receiveShadow = false
+      }
+    }, [])
+
+    useEffect(() => {
       object.castShadow = shadowComponent.cast.value
       object.receiveShadow = shadowComponent.receive.value
     }, [!!object, shadowComponent.cast, shadowComponent.receive])

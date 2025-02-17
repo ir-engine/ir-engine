@@ -26,15 +26,59 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import useClickAway from './useClickaway'
 
-const ClickawayListener = (props: { children: JSX.Element; isTopMost: boolean }) => {
-  const ref = useClickAway(() => PopoverState.hidePopupover(), props.isTopMost)
+import { getState } from '@ir-engine/hyperflux'
+import { useEffect, useRef } from 'react'
+import { twMerge } from 'tailwind-merge'
+
+const ClickawayListener = (props: { children: React.ReactNode; onClickOutside: VoidFunction | null }) => {
+  const backdropMode = getState(PopoverState).backdrop
+  const callbackRef = useRef<VoidFunction | null>(null)
+  const backdropRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const element = backdropRef.current
+      if (!element) {
+        return
+      }
+
+      let isClickedInside = false
+
+      for (const child of element.children) {
+        if (child.contains(e.target as Node)) {
+          isClickedInside = true
+          break
+        }
+      }
+
+      if (!isClickedInside && callbackRef.current) {
+        callbackRef.current()
+      }
+    }
+
+    document.addEventListener('mousedown', handler)
+    document.addEventListener('touchstart', handler)
+
+    return () => {
+      document.removeEventListener('mousedown', handler)
+      document.removeEventListener('touchstart', handler)
+    }
+  }, [])
+
+  useEffect(() => {
+    callbackRef.current = props.onClickOutside || null
+  }, [props.onClickOutside])
+
   return (
-    <div className="fixed inset-0 z-[1000] flex h-full w-full items-center justify-center bg-gray-800 bg-opacity-50">
-      <div className="flex h-fit w-fit items-center justify-center" ref={ref}>
-        {props.children}
-      </div>
+    <div
+      ref={backdropRef}
+      className={twMerge(
+        'fixed inset-0 z-[1000] flex h-full w-full items-center justify-center',
+        backdropMode === 'blur' ? 'backdrop-blur-[50px]' : 'bg-transparent/50'
+      )}
+    >
+      {props.children}
     </div>
   )
 }

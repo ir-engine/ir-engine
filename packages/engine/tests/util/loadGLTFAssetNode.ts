@@ -50,7 +50,7 @@ export function overrideFileLoaderLoad() {
       try {
         const assetPathAbsolute = path.join(appRootPath.path, url)
         const buffer = toArrayBuffer(fs.readFileSync(assetPathAbsolute))
-        onLoad(buffer)
+        setTimeout(() => onLoad(buffer), 0)
       } catch (e) {
         onError(e)
       }
