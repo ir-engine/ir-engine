@@ -37,6 +37,7 @@ import {
 import {
   Entity,
   EntityTreeComponent,
+  Layers,
   UUIDComponent,
   createEntity,
   getComponent,
@@ -45,7 +46,6 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import { LODVariantDescriptor, defaultLODs } from '@ir-engine/editor/src/constants/GLTFPresets'
-import { addMediaNode } from '@ir-engine/editor/src/functions/addMediaNode'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import exportGLTF, { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
 import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
@@ -61,13 +61,15 @@ import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { Button, Input, Select } from '@ir-engine/ui'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import { ModalHeader } from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 import { HiLink } from 'react-icons/hi2'
-import { LoaderUtils } from 'three'
+import { LoaderUtils, Quaternion, Vector3 } from 'three'
 const getDefaultErrors = () => ({
   name: '',
   maxUsers: '',
@@ -178,7 +180,7 @@ export default function AddEditLocationModal(props: {
 
         const scenename = getState(EditorState).sceneName
         //add all mesh into one entity
-        const combinedMeshEntity = createEntity() //export entity need compress
+        const combinedMeshEntity = createEntity(Layers.Authoring) //export entity need compress
         const rootEntity = getState(EditorState).rootEntity
         const meshEntity = [] as Entity[] //entity with mesh
         const exportParentEntity = [] as Entity[] //parent entity without mesh
@@ -198,51 +200,43 @@ export default function AddEditLocationModal(props: {
           if (hasComponent(entity, MeshComponent)) {
             if (meshEntity.includes(entity) || hasComponent(entity, ColliderComponent)) return
             meshEntity.push(entity)
-            //preserve transform
-            const parentEntityTransform = getComponent(
-              getComponent(entity, EntityTreeComponent).parentEntity,
-              TransformComponent
-            )
             const transform = getComponent(entity, TransformComponent)
-            transform.position.applyMatrix4(parentEntityTransform.matrixWorld)
-            transform.rotation.premultiply(parentEntityTransform.rotation)
-            transform.scale.multiply(parentEntityTransform.scale)
             const meshRootEntity = findMeshRootEntity(entity, rootEntity)
             if (!exportParentEntity.includes(meshRootEntity)) {
               exportParentEntity.push(meshRootEntity)
             }
 
-            setComponent(entity, EntityTreeComponent, { parentEntity: combinedMeshEntity })
-            // const parentEntity = getComponent(entity, EntityTreeComponent)?.parentEntity
-            //getComponent(parentEntity, EntityTreeComponent).children= getComponent(parentEntity, EntityTreeComponent).children.filter((childEntity) => childEntity !== entity)
+            computeTransformMatrix(entity)
+            const worldpos = new Vector3()
+            const worldrot = new Quaternion()
+            const getWorldScale = new Vector3()
+            transform.matrixWorld.decompose(worldpos, worldrot, getWorldScale)
+            EditorControlFunctions.modifyProperty([entity], TransformComponent, {
+              position: worldpos,
+              rotation: worldrot,
+              scale: getWorldScale
+            })
+
+            //reparent to combined mesh entity
+            EditorControlFunctions.modifyProperty([entity], EntityTreeComponent, { parentEntity: combinedMeshEntity })
           }
         })
         //export parent entities and combined mesh entity
         await exportRelativeGLTF(combinedMeshEntity, projectName, 'public/publish/combined-mesh.gltf', false)
-        setComponent(combinedMeshEntity, GLTFComponent, { src: srcURL })
+        EditorControlFunctions.modifyProperty([combinedMeshEntity], GLTFComponent, { src: srcURL })
+        EditorControlFunctions.modifyProperty([combinedMeshEntity], VisibleComponent, { visible: true })
 
         for (const entity of exportParentEntity) {
-          const childName = getComponent(getComponent(entity, EntityTreeComponent).children[0], NameComponent)
-          const uuid = getComponent(entity, UUIDComponent)
-          const name = getComponent(getComponent(entity, EntityTreeComponent).children[0], NameComponent)
           const url = getComponent(entity, GLTFComponent).src
           const saveName = url.split('/').pop()?.split('.').shift()
           await exportRelativeGLTF(entity, projectName, 'public/publish/' + saveName + '.gltf', false)
-        }
-
-        //only use removeEntity can't remove the geometry
-        for (const entity of exportParentEntity) {
-          const url = getComponent(entity, GLTFComponent).src
-          const saveName = url.split('/').pop()?.split('.').shift()
           EditorControlFunctions.modifyProperty([entity], GLTFComponent, {
             src: srcURL.replace('combined-mesh', saveName as string)
           })
+          setComponent(entity, VisibleComponent, true)
         }
-        // EditorControlFunctions.removeObject(meshEntity)
-        //use remove object can remove the geometry but platform can't remove
-        //EditorControlFunctions.removeObject(meshEntity)
 
-        //put combined mesh entity to compression
+        //combined mesh entity to compression
         const transformMetadata: Record<string, any>[] = []
         const progressCaptions: Record<ModelTransformStatus, string> = {
           [ModelTransformStatus.TransformingModels]: 'editor:properties.model.transform.status.transformingmodels',
@@ -300,13 +294,9 @@ export default function AddEditLocationModal(props: {
         const destinationPath = srcURL.replace(/\.[^.]*$/, `-integrated.gltf`)
         iterateEntityNode(result, (entity) => setComponent(entity, SourceComponent, destinationPath))
         await exportGLTF(result, destinationPath, false)
-
-        // removeEntityNodeRecursively(result)
         const compressedFilePath = srcURL.replace(/\.[^.]*$/, `-LOD3.gltf`)
-        await addMediaNode(compressedFilePath)
-        //await addMediaNode('https://localhost:8642/projects/test/hello-world/public/publish/combined-mesh-LOD1.gltf', undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
-        //await EditorControlFunctions.removeObject(meshEntity)
-        //EditorControlFunctions.removeObject(exportParentEntity)
+        //update src from combined mesh to compressed mesh
+        EditorControlFunctions.modifyProperty([combinedMeshEntity], GLTFComponent, { src: compressedFilePath })
         //save current scene before create location
         const newSceneAssetID = getState(EditorState).sceneAssetID
         const newSceneName = getState(EditorState).sceneName
@@ -314,7 +304,6 @@ export default function AddEditLocationModal(props: {
 
         await handlePublish()
         //re-open the original scene
-        //currently the location not connect to original scene, user need publish again if change
         const studioUrl = `${window.location.origin}/studio?project=${projectName}&scenePath=${scenePath}`
         window.open(studioUrl, '_blank')?.focus()
         compressionLoading.set(false)
