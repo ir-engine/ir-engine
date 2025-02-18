@@ -185,6 +185,10 @@ export const GeneralAudioNodeEditor: EditorComponentType = (props) => {
     setMediaSourceValue(val)
     if (val === 'Self') {
       commitProperty(GeneralAudioComponent, 'mediaUUID')('' as NodeID)
+    } else {
+      if (media) {
+        media.paused.set(true)
+      }
     }
   }
 

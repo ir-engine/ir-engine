@@ -168,6 +168,10 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
     setMediaSourceValue(val)
     if (val === 'Self') {
       commitProperty(VideoComponent, 'mediaUUID')('' as NodeID)
+    } else {
+      if (media) {
+        media.paused.set(true)
+      }
     }
   }
 
