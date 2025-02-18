@@ -218,3 +218,65 @@ export const Searchable = {
     searchMode: 'prefix'
   }
 }
+
+export const WithStartComponent = {
+  render: Renderer,
+  args: {
+    items: [
+      {
+        value: 1,
+        label: 'Apple',
+        secondaryText: 'A sweet red fruit rich in fiber and vitamins'
+      },
+      {
+        value: 2,
+        label: 'Banana',
+        secondaryText: 'A tropical fruit high in potassium'
+      },
+      {
+        value: 3,
+        label: 'Carrot',
+        secondaryText: 'A root vegetable great for vision health'
+      },
+      {
+        value: 4,
+        label: 'Dragon Fruit',
+        secondaryText: 'An exotic fruit with a vibrant pink skin'
+      },
+      {
+        value: 5,
+        label: 'Eggplant',
+        secondaryText: 'A versatile vegetable commonly used in cooking'
+      },
+      {
+        value: 6,
+        label: 'Fig',
+        secondaryText: 'A small fruit with a unique, sweet flavor'
+      },
+      {
+        value: 7,
+        label: 'Grape',
+        secondaryText: 'A juicy fruit used to make wine'
+      },
+      {
+        value: 8,
+        label: 'Honeydew Melon',
+        secondaryText: 'A refreshing melon with a pale green flesh'
+      },
+      {
+        value: 9,
+        label: 'Iceberg Lettuce',
+        secondaryText: 'A crisp, leafy vegetable often used in salads'
+      },
+      {
+        value: 10,
+        label: 'Jackfruit',
+        secondaryText: 'A large fruit with a sweet and distinctive flavor'
+      }
+    ],
+    width: 'lg',
+    showCheckmark: false,
+    startComponent: <span className="text-xs text-text-inactive">X</span>,
+    searchMode: 'prefix'
+  }
+}
