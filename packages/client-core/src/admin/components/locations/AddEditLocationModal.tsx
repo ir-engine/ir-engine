@@ -39,6 +39,7 @@ import {
   Layers,
   UUIDComponent,
   createEntity,
+  getAncestorWithComponents,
   getComponent,
   hasComponent,
   iterateEntityNode,
@@ -312,7 +313,10 @@ export default function AddEditLocationModal(props: {
           heuristic
         })
         const destinationPath = srcURL.replace(/\.[^.]*$/, `-integrated.gltf`)
-        iterateEntityNode(result, (entity) => setComponent(entity, SourceComponent, destinationPath))
+        const gltfEntity = getAncestorWithComponents(result, [GLTFComponent])
+        const uuid = getComponent(gltfEntity, UUIDComponent)
+        const sourceID = SourceComponent.getSourceID(uuid, destinationPath)
+        iterateEntityNode(result, (entity) => setComponent(entity, SourceComponent, sourceID))
         await exportGLTF(result, destinationPath, false)
         const compressedFilePath = srcURL.replace(/\.[^.]*$/, `-LOD3.gltf`)
         //update src from combined mesh to compressed mesh
