@@ -89,7 +89,7 @@ describe('PhysicsPreTransformFunctions', () => {
         setComponent(physicsWorldEntity, EntityTreeComponent)
         setComponent(physicsWorldEntity, TransformComponent)
         setComponent(physicsWorldEntity, SceneComponent)
-        physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+        physicsWorld = Physics.createWorld(physicsWorldEntity)
 
         testEntity = createEntity()
         setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
@@ -161,7 +161,7 @@ describe('PhysicsPreTransformFunctions', () => {
         setComponent(physicsWorldEntity, EntityTreeComponent)
         setComponent(physicsWorldEntity, TransformComponent)
         setComponent(physicsWorldEntity, SceneComponent)
-        physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+        physicsWorld = Physics.createWorld(physicsWorldEntity)
 
         testEntity = createEntity()
         setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
@@ -217,7 +217,7 @@ describe('PhysicsPreTransformFunctions', () => {
         setComponent(physicsWorldEntity, EntityTreeComponent)
         setComponent(physicsWorldEntity, TransformComponent)
         setComponent(physicsWorldEntity, SceneComponent)
-        physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+        physicsWorld = Physics.createWorld(physicsWorldEntity)
 
         testEntity = createEntity()
         setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
@@ -327,7 +327,7 @@ describe('PhysicsPreTransformFunctions', () => {
         setComponent(physicsWorldEntity, EntityTreeComponent)
         setComponent(physicsWorldEntity, TransformComponent)
         setComponent(physicsWorldEntity, SceneComponent)
-        physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+        physicsWorld = Physics.createWorld(physicsWorldEntity)
 
         testEntity = createEntity()
         setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
@@ -439,7 +439,7 @@ describe('PhysicsPreTransformFunctions', () => {
         setComponent(physicsWorldEntity, EntityTreeComponent)
         setComponent(physicsWorldEntity, TransformComponent)
         setComponent(physicsWorldEntity, SceneComponent)
-        physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+        physicsWorld = Physics.createWorld(physicsWorldEntity)
 
         testEntity = createEntity()
         setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })

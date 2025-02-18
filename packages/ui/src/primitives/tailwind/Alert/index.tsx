@@ -23,10 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { AlertCircleLg, CheckCircleLg, InfoCircleLg, Warning } from '@ir-engine/ui/src/icons'
 import { isEmpty } from 'lodash'
 import React, { forwardRef, ReactNode } from 'react'
-import { HiCheckCircle, HiExclamationCircle, HiInformationCircle } from 'react-icons/hi2'
-import { PiWarningFill } from 'react-icons/pi'
 import { twMerge } from 'tailwind-merge'
 
 export enum AlertVariantEnum {
@@ -50,24 +49,24 @@ type AlertVariant = {
 
 const variantMap: Record<string, AlertVariant> = {
   success: {
-    containerClass: 'bg-teal-100',
+    containerClass: 'bg-ui-background',
     iconClass: 'text-teal-500',
-    icon: <HiCheckCircle />
+    icon: <CheckCircleLg />
   },
   danger: {
-    containerClass: 'bg-[#310d13]',
+    containerClass: 'bg-ui-background',
     iconClass: 'text-red-500',
-    icon: <PiWarningFill color="#c3324b" />
+    icon: <AlertCircleLg />
   },
   info: {
-    containerClass: 'bg-blue-100',
+    containerClass: 'bg-ui-background',
     iconClass: 'text-blue-500',
-    icon: <HiInformationCircle />
+    icon: <InfoCircleLg />
   },
   warning: {
-    containerClass: 'bg-[#3A2715]',
-    iconClass: 'text-[#EAB308]',
-    icon: <HiExclamationCircle />
+    containerClass: 'bg-ui-background',
+    iconClass: 'text-text-warning',
+    icon: <Warning />
   }
 }
 
@@ -78,11 +77,11 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>(({ title, message, variant,
 
   return (
     <div className={twContainerClass} role="alert" ref={ref}>
-      <div className="flex">
+      <div className="flex items-center gap-x-4">
         <div className={twIconClass}>{icon}</div>
         <div>
           {title && <p className="font-medium">{title}</p>}
-          {isEmpty(children) && <p className="text-sm text-gray-400">{message}</p>}
+          {isEmpty(children) && <p className="text-sm text-text-tertiary">{message}</p>}
           {!isEmpty(children) && <>{children}</>}
         </div>
       </div>

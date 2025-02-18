@@ -23,26 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef } from 'react'
+import { defineComponent } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { NodeIDSchema } from '../../gltf/NodeIDComponent'
 
-const ClickAwayListener = ({ onClickAway, children }) => {
-  const wrapperRef = useRef(null)
+export const LookAtComponent = defineComponent({
+  name: 'LookAtComponent',
+  jsonID: 'IR_lookAt',
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (wrapperRef.current && !(wrapperRef.current! as HTMLElement).contains(event.target)) {
-        onClickAway()
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [onClickAway])
-
-  return <div ref={wrapperRef}>{children}</div>
-}
-
-export default ClickAwayListener
+  schema: S.Object({
+    target: NodeIDSchema(),
+    xAxis: S.Bool(true),
+    yAxis: S.Bool(true)
+  })
+})

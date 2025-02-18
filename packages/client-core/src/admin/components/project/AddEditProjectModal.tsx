@@ -480,8 +480,7 @@ export default function AddEditProjectModal({
                 position: 'top'
               }}
               positioning={{
-                maxHeight: '200px',
-                direction: 'down'
+                maxHeight: '200px'
               }}
               value={projectUpdateStatus.value?.selectedBranch}
               options={branchSelectOptions}
@@ -512,8 +511,7 @@ export default function AddEditProjectModal({
                 position: 'top'
               }}
               positioning={{
-                maxHeight: '200px',
-                direction: 'down'
+                maxHeight: '200px'
               }}
               value={projectUpdateStatus.value?.selectedSHA}
               onChange={handleCommitChange}

@@ -41,7 +41,7 @@ import {
   VideoTexture
 } from 'three'
 
-import { createEntity, EntityTreeComponent, removeEntity, useEntityContext, UUIDComponent } from '@ir-engine/ecs'
+import { createEntity, EntityTreeComponent, removeEntity, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -64,6 +64,8 @@ import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { Vector2_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
+import { NodeFunctions } from '../../gltf/NodeFunctions'
+import { NodeIDSchema } from '../../gltf/NodeIDComponent'
 import { clearErrors } from '../functions/ErrorFunctions'
 import { getTextureSize, PLANE_GEO, resizeVideoMesh, SideSchema, SPHERE_GEO } from './ImageComponent'
 import { MediaElementComponent } from './MediaComponent'
@@ -115,7 +117,7 @@ export const VideoComponent = defineComponent({
     alphaThreshold: S.Number(0.5),
     fit: ContentFitTypeSchema('contain'),
     projection: ProjectionSchema,
-    mediaUUID: S.EntityUUID(),
+    mediaUUID: NodeIDSchema(),
 
     // internal
     videoMeshEntity: S.NonSerialized(S.Entity()),
@@ -140,7 +142,7 @@ function VideoReactor() {
   const video = useComponent(entity, VideoComponent)
   const visible = useHasComponent(entity, VisibleComponent)
   const mediaUUID = video.mediaUUID.value
-  const mediaEntity = UUIDComponent.getEntityByUUID(mediaUUID) || entity
+  const mediaEntity = NodeFunctions.useEntityFromNodeID(entity, mediaUUID) || entity
   const hasMediaElementComponent = useHasComponent(mediaEntity, MediaElementComponent)
 
   const videoMeshEntity = useHookstate(() => {

@@ -37,11 +37,12 @@ import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/
 import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { GroundPlaneComponent } from '@ir-engine/engine/src/scene/components/GroundPlaneComponent'
-import { IFrameComponent } from '@ir-engine/engine/src/scene/components/IFrameComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { LegacyVolumetricComponent } from '@ir-engine/engine/src/scene/components/LegacyVolumetricComponent'
 import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkComponent'
+import { LookAtComponent } from '@ir-engine/engine/src/scene/components/LookAtComponent'
 import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
+import { OverlayComponent } from '@ir-engine/engine/src/scene/components/OverlayComponent'
 import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
 import { PortalComponent } from '@ir-engine/engine/src/scene/components/PortalComponent'
 import { PrimitiveGeometryComponent } from '@ir-engine/engine/src/scene/components/PrimitiveGeometryComponent'
@@ -54,6 +55,7 @@ import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowCo
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@ir-engine/engine/src/scene/components/SpawnPointComponent'
 import { TextComponent } from '@ir-engine/engine/src/scene/components/TextComponent'
+import { TriggerCallbackComponent } from '@ir-engine/engine/src/scene/components/TriggerCallbackComponent'
 import { VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
@@ -69,10 +71,8 @@ import { CameraComponent } from '@ir-engine/spatial/src/camera/components/Camera
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
-import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
 import { FogSettingsComponent } from '@ir-engine/spatial/src/renderer/components/FogSettingsComponent'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
-import { LookAtComponent } from '@ir-engine/spatial/src/transform/components/LookAtComponent'
 import { useEffect } from 'react'
 
 export const ComponentShelfCategoriesState = defineState({
@@ -81,14 +81,14 @@ export const ComponentShelfCategoriesState = defineState({
     return {
       Files: [GLTFComponent, PositionalAudioComponent, VideoComponent, ImageComponent],
       'Scene Composition': [CameraComponent, PrimitiveGeometryComponent, GroundPlaneComponent, VariantComponent],
-      Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
+      Physics: [ColliderComponent, RigidBodyComponent, TriggerCallbackComponent],
       Interaction: [
         SpawnPointComponent,
         LinkComponent,
         MountPointComponent,
         InteractableComponent,
         InputComponent,
-        IFrameComponent
+        OverlayComponent
       ],
       Lighting: [
         AmbientLightComponent,

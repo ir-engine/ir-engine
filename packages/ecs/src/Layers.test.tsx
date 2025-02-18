@@ -310,12 +310,12 @@ describe('LayerFunctions', () => {
   }) //:: propagateLayer
 
   describe('getAuthoringCounterpart', () => {
-    it('should return the entity stored in the `.refs` field of the AuthoringLayerComponent for the given `@param entity`', () => {
+    it('should return the entity stored in the `.refs` field of the SimulationLayerComponent for the given `@param entity`', () => {
       const Expected = 123456 as Entity
       // Set the data as expected
       const layer = Layers.Simulation
       const testEntity = createEntity(layer)
-      LayerComponents[Layers.Authoring].refs[testEntity] = Expected
+      LayerComponents[Layers.Simulation].refs[testEntity] = Expected
       // Run and Check the result
       const result = LayerFunctions.getAuthoringCounterpart(testEntity)
       expect(result).toBe(Expected)
@@ -726,6 +726,8 @@ describe('LayerComponent', () => {
     describe('when LayerComponent.get(entity) is Layers.Simulation ..', () => {
       it('.. should return false if LayerComponents[Layers.Simulation].refs[entity] is undefined', () => {
         const Expected = false
+        // Reset data
+        LayerComponents[Layers.Simulation].refs = {}
         // Set the data as expected
         const layer = Layers.Simulation
         const ref = undefined

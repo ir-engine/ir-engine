@@ -23,35 +23,22 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
+import { defineState, getMutableState } from '@ir-engine/hyperflux'
+import EmbedFrame from '../user/menus/avatar/EmbedFrame'
 
-export default function useClickAway(cb: (e: Event) => void, isTopMost: boolean) {
-  const ref = useRef(null)
-  const refCb = useRef(cb)
-
-  useLayoutEffect(() => {
-    refCb.current = cb
+export const OverlayComponentState = defineState({
+  name: 'ir.engine.interaction.PopupState',
+  initial: () => ({
+    iframe: EmbedFrame
   })
+})
 
-  useEffect(() => {
-    const handler = (e: Event) => {
-      if (!isTopMost) {
-        return
-      }
-      const element = ref.current
-      if (element && !(element as any).contains(e.target)) {
-        refCb.current(e)
-      }
-    }
-
-    document.addEventListener('mousedown', handler)
-    document.addEventListener('touchstart', handler)
-
-    return () => {
-      document.removeEventListener('mousedown', handler)
-      document.removeEventListener('touchstart', handler)
-    }
-  }, [isTopMost])
-
-  return ref
-}
+export const OverlaySystem = defineSystem({
+  uuid: 'ir.client.OverlaySystem',
+  insert: {},
+  reactor: () => {
+    getMutableState(OverlayComponentState)
+    return null
+  }
+})

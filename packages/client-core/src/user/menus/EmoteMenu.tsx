@@ -32,6 +32,7 @@ import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarC
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import { dispatchAction } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { ChevronLeftLg, ChevronRightLg } from '@ir-engine/ui/src/icons'
 import { PopoverState } from '../../common/services/PopoverState'
 
 const iconItems = [
@@ -282,8 +283,7 @@ const EmoteMenu = (): JSX.Element => {
         />
       ))}
 
-      {/* TODO: After receiving icons for second page emotes, enable the arrows */}
-      {/* <svg
+      <svg
         x="90"
         y="375"
         width="2.5rem"
@@ -307,7 +307,7 @@ const EmoteMenu = (): JSX.Element => {
         height="2.5rem"
         className="cursor-pointer"
         onClick={() => {
-          if (currentIconsPage < Math.floor(items.length / 6)) {
+          if (currentIconsPage < Math.floor(iconItems.length / 6)) {
             setCurrentIconsPage(currentIconsPage + 1)
           }
         }}
@@ -315,7 +315,7 @@ const EmoteMenu = (): JSX.Element => {
         <circle cx="50%" cy="50%" r="20" fill="transparent" className="hover:fill-gray-200" />
 
         <ChevronRightLg width="100%" height="100%" />
-      </svg> */}
+      </svg>
     </svg>
   )
 }
