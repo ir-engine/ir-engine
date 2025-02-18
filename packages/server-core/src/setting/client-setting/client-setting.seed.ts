@@ -70,6 +70,8 @@ export const clientSettingSeedData = {
   themeModes: JSON.stringify(defaultThemeModes),
   key8thWall: process.env.VITE_8TH_WALL || '',
   privacyPolicy: 'https://www.ir.world/privacy-policy',
+  termsOfService: 'https://www.ir.world/terms-of-service',
+  assistanceLink: 'https://help.theinfinitereality.com/hc/en-us',
   homepageLinkButtonEnabled: false,
   homepageLinkButtonRedirect: '',
   homepageLinkButtonText: '',

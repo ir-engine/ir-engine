@@ -50,6 +50,17 @@ const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
 
 const fileServer = config.client.fileServer
 
+export const confirmSceneExists = async (sceneFile: string) => {
+  const sceneName = cleanString(sceneFile!.replace('.scene.json', '').replace('.gltf', ''))
+  const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
+
+  const existingScene = await API.instance.service(staticResourcePath).find({
+    query: { key: `${currentSceneDirectory}/${sceneName}.gltf`, $limit: 1 }
+  })
+
+  return existingScene.data.length > 0
+}
+
 export const saveSceneGLTF = async (
   sceneAssetID: string,
   projectName: string,
@@ -65,11 +76,8 @@ export const saveSceneGLTF = async (
   const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
 
   if (saveAs) {
-    const existingScene = await API.instance.service(staticResourcePath).find({
-      query: { key: `${currentSceneDirectory}/${sceneName}.gltf`, $limit: 1 }
-    })
-
-    if (existingScene.data.length > 0) throw new Error(i18n.t('editor:errors.sceneAlreadyExists'))
+    const isSceneExists = await confirmSceneExists(sceneFile)
+    if (isSceneExists) throw new Error(i18n.t('editor:errors.sceneAlreadyExists'))
   }
 
   const response = await exportGLTFScene(rootEntity, getState(EditorState).projectName!, sceneFile, false)
