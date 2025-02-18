@@ -172,20 +172,6 @@ export default function AddEditLocationModal(props: {
     }
   })
   const handlePublishFolder = async () => {
-    // if (!createNewFolder) {
-    //   console.error('Cannot create folder because createNewFolder is undefined.')
-    //   return
-    // }
-    // //if exist publish folder dont create\
-
-    // const ifFolderExist = files.some((file) => file.fullName === 'publish' && file.type === 'folder')
-    // if (ifFolderExist) {
-    //   console.log('Publish folder already exist')
-    //   //return
-    // } else {
-    //   //await createNewFolder('publish')
-    //   await createPublishFolder()
-    // }
     const { projectName, sceneName, rootEntity, sceneAssetID, scenePath } = getState(EditorState)
     const abortController = new AbortController()
     try {

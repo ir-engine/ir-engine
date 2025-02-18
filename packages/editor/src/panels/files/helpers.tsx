@@ -62,8 +62,7 @@ const FilesQueryContext = createContext({
   changeDirectoryByPath: (_path: string) => {},
   backDirectory: () => {},
   refreshDirectory: async () => {},
-  createNewFolder: () => {},
-  createPublishFolder: () => {}
+  createNewFolder: () => {}
 })
 
 export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }) => {
@@ -113,7 +112,6 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
   }
 
   const createNewFolder = () => fileService.create(`${filesState.selectedDirectory.value}New-Folder`)
-  const createPublishFolder = () => fileService.create(`/projects/${filesState.projectName.value}/public/publish`)
   const files = filesQuery.data.map((file) => {
     const isFolder = file.type === 'folder'
     const fullName = isFolder ? file.name : file.name + '.' + file.type
@@ -189,17 +187,11 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
       value={{
         categories,
         filesQuery,
-
         files,
-
         changeDirectoryByPath,
-
         backDirectory,
-
         refreshDirectory,
-
-        createNewFolder,
-        createPublishFolder
+        createNewFolder
       }}
     >
       {children}
