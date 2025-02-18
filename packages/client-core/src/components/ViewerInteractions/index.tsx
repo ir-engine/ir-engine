@@ -65,7 +65,7 @@ export const ViewerInteractions = () => {
 
   if (!userID) return null
 
-  if (isPortrait.value) {
+  if (isPortrait.value && isMobile) {
     return (
       <div className="grid h-screen w-screen place-items-center bg-[#070708]">
         <div className="flex flex-col items-center justify-center gap-y-4">
