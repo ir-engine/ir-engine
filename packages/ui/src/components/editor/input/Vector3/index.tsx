@@ -39,9 +39,18 @@ interface Vector3ScrubberProps {
   onRelease?: (v: number) => void
   className?: string
   disabled?: boolean
+  axisLabel?: string
 }
 
-export const Vector3Scrubber = ({ axis, disabled, onChange, onRelease, value, ...props }: Vector3ScrubberProps) => {
+export const Vector3Scrubber = ({
+  axis,
+  disabled,
+  onChange,
+  onRelease,
+  axisLabel,
+  value,
+  ...props
+}: Vector3ScrubberProps) => {
   const color = (() => {
     switch (axis) {
       case 'x':
@@ -56,7 +65,9 @@ export const Vector3Scrubber = ({ axis, disabled, onChange, onRelease, value, ..
   })()
 
   props.className = twMerge(`w-fit whitespace-nowrap text-${color}`)
-  const content = `${axis?.toUpperCase()} - `
+  const label = axisLabel ? axisLabel : axis
+  const content = `${label?.toUpperCase()}`
+
   return (
     <Scrubber onChange={onChange} onRelease={onRelease} value={value} disabled={disabled} {...props}>
       {content}

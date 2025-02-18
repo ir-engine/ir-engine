@@ -23,13 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, useComponent } from '@ir-engine/ecs'
-import { getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
+import { Entity, getComponent } from '@ir-engine/ecs'
+import { getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { EffectReactorProps, PostProcessingEffectState } from '@ir-engine/spatial/src/renderer/effects/EffectRegistry'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem.tsx'
 import React, { useEffect } from 'react'
 import { MotionBlurEffect, VelocityDepthNormalPass } from 'realism-effects'
-import { Scene } from 'three'
+import { ArrayCamera } from 'three'
 import { PropertyTypes } from './PostProcessingRegister'
 
 declare module 'postprocessing' {
@@ -45,13 +46,10 @@ export const MotionBlurEffectProcessReactor: React.FC<EffectReactorProps> = (pro
   rendererEntity: Entity
   effectData
   effects
+  scene
 }) => {
-  const { isActive, rendererEntity, effectData, effects } = props
+  const { isActive, rendererEntity, effectData, effects, scene } = props
   const effectState = getState(PostProcessingEffectState)
-  const camera = useComponent(rendererEntity, CameraComponent)
-  const scene = useHookstate<Scene>(() => new Scene())
-  const velocityDepthNormalPass = useHookstate(new VelocityDepthNormalPass(scene, camera))
-  const useVelocityDepthNormalPass = useHookstate(false)
 
   useEffect(() => {
     if (effectData[effectKey].value) return
@@ -63,10 +61,20 @@ export const MotionBlurEffectProcessReactor: React.FC<EffectReactorProps> = (pro
       if (effects[effectKey].value) effects[effectKey].set(none)
       return
     }
+    const velocityDepthNormalPass = RendererComponent.registerPass(
+      rendererEntity,
+      VelocityDepthNormalPass,
+      (rendererEntity) => {
+        const camera = getComponent(rendererEntity, CameraComponent) as ArrayCamera
+        return new VelocityDepthNormalPass(scene, camera)
+      }
+    )
+
     const eff = new MotionBlurEffect(velocityDepthNormalPass, effectData[effectKey].value)
     effects[effectKey].set(eff)
     return () => {
       effects[effectKey].set(none)
+      RendererComponent.unregisterPass(rendererEntity, VelocityDepthNormalPass)
     }
   }, [isActive])
 
