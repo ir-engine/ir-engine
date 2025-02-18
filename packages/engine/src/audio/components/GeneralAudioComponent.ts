@@ -27,102 +27,51 @@ import { useEffect } from 'react'
 
 import {
   defineComponent,
-  getOptionalComponent,
   removeComponent,
   setComponent,
   useComponent,
   useEntityContext,
+  useHasComponent,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import {
-  AudioNodeGroups,
-  MediaComponent,
-  MediaElementComponent
-} from '@ir-engine/engine/src/scene/components/MediaComponent'
+import { MediaComponent, MediaElementComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { useMutableState } from '@ir-engine/hyperflux'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ActiveHelperComponent } from '../../../../spatial/src/common/ActiveHelperComponent'
 import { NodeFunctions } from '../../gltf/NodeFunctions'
 import { NodeIDSchema } from '../../gltf/NodeIDComponent'
-import { PositionalAudioHelperComponent } from './PositionalAudioHelperComponent'
 
-export interface PositionalAudioInterface {
-  refDistance: number
-  rolloffFactor: number
-  maxDistance: number
-  distanceModel: DistanceModelType
-  coneInnerAngle: number
-  coneOuterAngle: number
-  coneOuterGain: number
-}
+export const GeneralAudioComponent = defineComponent({
+  name: 'EE_generalAudio',
 
-const distanceModel = S.LiteralUnion(['exponential', 'inverse', 'linear'], 'inverse')
-
-export const PositionalAudioComponent = defineComponent({
-  name: 'EE_positionalAudio',
-
-  jsonID: 'EE_audio',
+  jsonID: 'EE_audio_general',
 
   schema: S.Object({
-    distanceModel,
-    rolloffFactor: S.Number(1),
-    refDistance: S.Number(1),
-    maxDistance: S.Number(40),
-    coneInnerAngle: S.Number(360),
-    coneOuterAngle: S.Number(360),
-    coneOuterGain: S.Number(0),
     mediaUUID: NodeIDSchema()
   }),
+
+  onRemove: (entity, component) => {
+    removeComponent(entity, MediaComponent)
+  },
 
   reactor: function () {
     const entity = useEntityContext()
     const renderState = useMutableState(RendererState)
     const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
-    const audio = useComponent(entity, PositionalAudioComponent)
+    const audio = useComponent(entity, GeneralAudioComponent)
     const mediaUUID = audio.mediaUUID.value
     const mediaEntity = NodeFunctions.useEntityFromNodeID(entity, mediaUUID) || entity
+    const media = useOptionalComponent(mediaEntity, MediaComponent)
+    const hasMediaElementComponent = useHasComponent(mediaEntity, MediaElementComponent)
+
     const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
 
     useEffect(() => {
       setComponent(entity, MediaComponent)
     }, [])
-
-    useEffect(() => {
-      if (debugEnabled) {
-        const name = getOptionalComponent(entity, NameComponent)
-        setComponent(entity, PositionalAudioHelperComponent, {
-          name: name ? `${name}-positional-audio-helper` : undefined
-        })
-      }
-      return () => {
-        removeComponent(entity, PositionalAudioHelperComponent)
-      }
-    }, [debugEnabled, mediaElement?.element, audio.maxDistance, audio.coneInnerAngle, audio.coneOuterAngle])
-
-    useEffect(() => {
-      if (!mediaElement?.element.value) return
-      const audioNodes = AudioNodeGroups.get(mediaElement.element.value as HTMLMediaElement)
-      if (!audioNodes?.panner) return
-      audioNodes.panner.refDistance = audio.refDistance.value
-      audioNodes.panner.rolloffFactor = audio.rolloffFactor.value
-      audioNodes.panner.maxDistance = audio.maxDistance.value
-      audioNodes.panner.distanceModel = audio.distanceModel.value
-      audioNodes.panner.coneInnerAngle = audio.coneInnerAngle.value
-      audioNodes.panner.coneOuterAngle = audio.coneOuterAngle.value
-      audioNodes.panner.coneOuterGain = audio.coneOuterGain.value
-    }, [
-      audio.refDistance,
-      audio.rolloffFactor,
-      audio.maxDistance,
-      audio.distanceModel,
-      audio.coneInnerAngle,
-      audio.coneOuterAngle,
-      audio.coneOuterGain
-    ])
 
     return null
   }
