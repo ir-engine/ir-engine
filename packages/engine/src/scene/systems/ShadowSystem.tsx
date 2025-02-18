@@ -156,7 +156,8 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
   /** Must run after scene object system to ensure source light is not lit */
   useExecute(
     () => {
-      if (!directionalLight || !directionalLightComponent.castShadow.value) return
+      if (!directionalLight) return
+      if (!getOptionalComponent(entity, DirectionalLightComponent)?.castShadow) return
       directionalLight.visible = false
     },
     { after: SceneObjectSystem }
