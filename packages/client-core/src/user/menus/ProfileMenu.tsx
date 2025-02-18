@@ -448,7 +448,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
                 label={t('user:usermenu.profile.agreeTOS')}
               />
               <a
-                className="inline text-sm text-text-primary hover:text-ui-hover-primary hover:underline"
+                className="inline text-sm text-text-primary underline-offset-4 hover:text-ui-hover-primary hover:underline"
                 href="https://www.ir.world/terms-of-service"
                 target="_blank"
               >
