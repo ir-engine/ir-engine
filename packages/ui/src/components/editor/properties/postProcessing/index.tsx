@@ -37,6 +37,7 @@ import {
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { PropertyTypes } from '@ir-engine/engine/src/postprocessing/PostProcessingRegister.tsx'
 import { NO_PROXY, getState } from '@ir-engine/hyperflux'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
 import { PostProcessingEffectState } from '@ir-engine/spatial/src/renderer/effects/EffectRegistry'
@@ -49,22 +50,6 @@ import SelectInput from '../../input/Select'
 import TexturePreviewInput from '../../input/Texture'
 import Vector2Input from '../../input/Vector2'
 import Vector3Input from '../../input/Vector3'
-
-enum PropertyTypes {
-  BlendFunction,
-  Number,
-  Boolean,
-  Color,
-  ColorSpace,
-  KernelSize,
-  SMAAPreset,
-  EdgeDetectionMode,
-  PredicationMode,
-  Texture,
-  Vector2,
-  Vector3,
-  VignetteTechnique
-}
 
 const SMAAPresetSelect = Object.entries(SMAAPreset).map(([label, value]) => {
   return { label, value }
@@ -128,7 +113,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
             max={effectSettingState.max}
             step={effectSettingState.step}
             value={effectSettingValue}
-            onChange={updateProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
             onRelease={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
           />
         )
@@ -243,6 +228,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         break
       default:
         renderVal = <>Can't Determine type of property</>
+        break
     }
 
     return (

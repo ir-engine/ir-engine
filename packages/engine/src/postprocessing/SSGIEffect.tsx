@@ -23,11 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity } from '@ir-engine/ecs'
+import { Entity, getComponent, useComponent } from '@ir-engine/ecs'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent.ts'
 import { EffectReactorProps, PostProcessingEffectState } from '@ir-engine/spatial/src/renderer/effects/EffectRegistry'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem.tsx'
+import { EffectComposer, Resolution } from 'postprocessing'
 import React, { useEffect } from 'react'
-import { SSGIEffect } from 'realism-effects'
+import { SSGIEffect, VelocityDepthNormalPass } from 'realism-effects'
+import { ArrayCamera } from 'three'
 import { PropertyTypes } from './PostProcessingRegister'
 
 declare module 'postprocessing' {
@@ -42,10 +46,13 @@ export const SSGIEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
   isActive
   rendererEntity: Entity
   effectData
+  scene
+  composer: EffectComposer
   effects
 }) => {
-  const { isActive, rendererEntity, effectData, effects } = props
+  const { isActive, rendererEntity, effectData, effects, scene, composer } = props
   const effectState = getState(PostProcessingEffectState)
+  const camera = useComponent(rendererEntity, CameraComponent)
 
   useEffect(() => {
     if (effectData[effectKey].value) return
@@ -58,10 +65,24 @@ export const SSGIEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
       return
     }
 
-    const eff = new SSGIEffect(effectData[effectKey].value)
+    const velocityDepthNormalPass = RendererComponent.registerPass(
+      rendererEntity,
+      VelocityDepthNormalPass,
+      (rendererEntity) => {
+        const camera = getComponent(rendererEntity, CameraComponent) as ArrayCamera
+        return new VelocityDepthNormalPass(scene, camera)
+      }
+    )
+
+    //TODO pass width and height here manually, or figure out why the defaults aren't working
+    // const width = Resolution.AUTO_SIZE
+    // const height = Resolution.AUTO_SIZE
+    const eff = new SSGIEffect(scene, camera.value as ArrayCamera, velocityDepthNormalPass, effectData[effectKey].value)
+
     effects[effectKey].set(eff)
     return () => {
       effects[effectKey].set(none)
+      RendererComponent.unregisterPass(rendererEntity, VelocityDepthNormalPass)
     }
   }, [isActive])
 
@@ -94,7 +115,9 @@ export const ssgiAddToEffectRegistry = () => {
         steps: 20,
         refineSteps: 5,
         resolutionScale: 1,
-        missedRays: false
+        missedRays: false,
+        width: Resolution.AUTO_SIZE,
+        height: Resolution.AUTO_SIZE
       },
       schema: {
         distance: { propertyType: PropertyTypes.Number, name: 'Distance', min: 0.001, max: 10, step: 0.01 },
@@ -113,6 +136,8 @@ export const ssgiAddToEffectRegistry = () => {
         envBlur: { propertyType: PropertyTypes.Number, name: 'Environment Blur', min: 0, max: 1, step: 0.01 },
         importanceSampling: { propertyType: PropertyTypes.Boolean, name: 'Importance Sampling' },
         steps: { propertyType: PropertyTypes.Number, name: 'Steps', min: 0, max: 256, step: 1 },
+        width: { propertyType: PropertyTypes.Number, name: 'Width', min: -1, max: 4096, step: 1 },
+        height: { propertyType: PropertyTypes.Number, name: 'Height', min: -1, max: 4096, step: 1 },
         refineSteps: { propertyType: PropertyTypes.Number, name: 'Refine Steps', min: 0, max: 16, step: 1 },
         resolutionScale: {
           propertyType: PropertyTypes.Number,

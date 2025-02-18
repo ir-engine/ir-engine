@@ -73,6 +73,8 @@ const locationTypeOptions = [
   { label: 'Showroom', value: 'showroom' }
 ]
 
+const LOCATION_MAX = 5
+
 export default function AddEditLocationModal(props: {
   action: string
   location?: LocationType
@@ -105,7 +107,7 @@ export default function AddEditLocationModal(props: {
   const errors = useHookstate(getDefaultErrors())
 
   const name = useHookstate(location?.name || '')
-  const maxUsers = useHookstate(location?.maxUsersPerInstance || 5)
+  const maxUsers = useHookstate(LOCATION_MAX)
 
   const scene = useHookstate((location ? location.sceneId : props.sceneID) || '')
   const videoEnabled = useHookstate<boolean>(location?.locationSetting.videoEnabled || true)
@@ -214,7 +216,7 @@ export default function AddEditLocationModal(props: {
   const anchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
 
   return (
-    <div className="absolute z-50 w-[60vw] bg-surface-2 px-8 pt-6">
+    <div className="absolute z-50 bg-surface-2 px-8 pt-6">
       <div className="relative rounded-lg py-2">
         <div className="flex justify-between pb-6">
           <span className="text-xl">
@@ -297,7 +299,7 @@ export default function AddEditLocationModal(props: {
               inputSizeVariant="xl"
             />*/}
 
-            <div className="grid grid-cols-2 gap-12 border-t border-t-ui-outline py-6">
+            <div className="grid grid-cols-[276px_minmax(0,1fr)] gap-12 border-t border-t-ui-outline py-6">
               <div className="flex flex-col">
                 {props.inStudio && (
                   <React.Suspense fallback={null}>
@@ -391,7 +393,11 @@ export default function AddEditLocationModal(props: {
           <DropdownItem
             className="text-red-500"
             label={t('editor:toolbar.publishLocation.unpublish')}
-            onClick={unPublishLocation}
+            onMouseDown={(e) => {
+              e.stopPropagation()
+              unPublishLocation()
+              anchorEvent.set(null)
+            }}
           />
         </div>
       </ContextMenu>

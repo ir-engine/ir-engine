@@ -364,6 +364,25 @@ const ClientTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRef
           value={settings.privacyPolicy.value}
           onChange={(e) => settings.privacyPolicy.set(e.target.value)}
         />
+        <Input
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.termsOfService'),
+            position: 'top'
+          }}
+          value={settings.termsOfService.value}
+          onChange={(e) => settings.termsOfService.set(e.target.value)}
+        />
+
+        <Input
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.assistanceLink'),
+            position: 'top'
+          }}
+          value={settings.assistanceLink.value}
+          onChange={(e) => settings.assistanceLink.set(e.target.value)}
+        />
 
         <Input
           fullWidth
