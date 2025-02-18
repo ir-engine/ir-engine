@@ -174,7 +174,6 @@ export const GeneralAudioNodeEditor: EditorComponentType = (props) => {
         value: getComponent(entity, NodeIDComponent)
       }
     })
-  mediaOptions.unshift({ label: 'Self', value: '' as NodeID })
 
   const toggle = () => {
     if (media) {
