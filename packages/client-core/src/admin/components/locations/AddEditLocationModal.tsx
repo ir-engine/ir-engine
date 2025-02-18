@@ -396,6 +396,7 @@ export default function AddEditLocationModal(props: {
             onMouseDown={(e) => {
               e.stopPropagation()
               unPublishLocation()
+              anchorEvent.set(null)
             }}
           />
         </div>
