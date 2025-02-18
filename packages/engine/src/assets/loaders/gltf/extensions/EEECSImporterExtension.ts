@@ -67,7 +67,7 @@ export default class EEECSImporterExtension extends ImporterExtension implements
         if (component === UUIDComponent) {
           const uuid = ecsExtensions[jsonID]
           //check if uuid already exists
-          if (UUIDComponent.entitiesByUUIDState[uuid]?.value) {
+          if (UUIDComponent.entitiesByUUIDState['simulation'][uuid]?.value) {
             //regenerate uuid if it already exists
             const newUUID = generateEntityUUID()
             ecsExtensions[jsonID] = newUUID

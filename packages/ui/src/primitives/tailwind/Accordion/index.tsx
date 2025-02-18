@@ -23,75 +23,75 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { ReactNode, forwardRef, useEffect } from 'react'
-
-import { useHookstate } from '@ir-engine/hyperflux'
+import React, { ReactNode, forwardRef, useEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
-import Text from '../Text'
+import { ChevronDownLg } from '../../../icons'
 
 export interface AccordionProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string
   subtitle?: string
-  expandIcon: ReactNode
-  shrinkIcon: ReactNode
-  prefixIcon?: ReactNode
   children?: ReactNode
-  titleClassName?: string
-  titleFontSize?: 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl'
-  className?: string
   open?: boolean
 }
 
 const Accordion = forwardRef(
   (
-    {
-      title,
-      subtitle,
-      expandIcon,
-      shrinkIcon,
-      prefixIcon,
-      children,
-      className,
-      titleClassName,
-      titleFontSize = 'xl',
-      open,
-      ...props
-    }: AccordionProps,
+    { title, subtitle, children, className, open, ...props }: AccordionProps,
     ref: React.MutableRefObject<HTMLDivElement>
   ): JSX.Element => {
-    const twClassName = twMerge('w-full rounded-2xl  p-6 ', className)
-    const twClassNameTitle = twMerge('flex flex-row items-center', titleClassName)
-    const openState = useHookstate(false)
+    const [openState, setOpenState] = useState(false)
+    const [maxHeight, setMaxHeight] = useState('0px')
+    const contentRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-      openState.set(!!open)
+      setOpenState(!!open)
     }, [open])
 
+    useEffect(() => {
+      if (contentRef.current) {
+        const content = contentRef.current
+        if (openState) {
+          const height = content.scrollHeight
+          setMaxHeight(`${height}px`)
+        } else {
+          setMaxHeight('0px')
+        }
+      }
+    }, [openState, children])
+
     return (
-      <div className={twClassName} {...props} ref={ref}>
+      <div className="w-full" {...props} ref={ref}>
         <div
-          className="hover: flex w-full cursor-pointer items-center justify-between"
+          className={twMerge(
+            'flex w-full cursor-pointer flex-col items-center justify-between gap-y-2 border-[0.5px] border-ui-outline bg-surface-3 p-2',
+            openState ? 'rounded-t-md' : ''
+          )}
           onClick={() => {
-            openState.set((v) => !v)
+            setOpenState((v) => !v)
           }}
         >
-          <div className={twClassNameTitle}>
-            {prefixIcon && <div className="mr-2">{prefixIcon}</div>}
-            <Text component="h2" fontSize={titleFontSize!} fontWeight="semibold">
-              {title}
-            </Text>
+          <div className="flex w-full items-center justify-between p-4">
+            <h2 className="text-base font-semibold leading-4 text-text-primary">{title}</h2>
+            <ChevronDownLg
+              className={twMerge('h-5 w-5 text-text-primary duration-300', openState ? 'rotate-180' : '')}
+            />
           </div>
 
-          {openState.value ? shrinkIcon : expandIcon}
+          {subtitle && <p className="w-full text-base text-text-secondary">{subtitle}</p>}
         </div>
 
-        {!openState.value && subtitle && (
-          <Text component="h3" fontSize="base" fontWeight="light" className="mt-2 w-full dark:text-[#A3A3A3]">
-            {subtitle}
-          </Text>
-        )}
-
-        {openState.value && children}
+        <div
+          className={twMerge(
+            'w-full origin-top overflow-hidden border-[0.5px] border-ui-outline bg-surface-1 transition-[max-height] duration-300 ease-in-out',
+            openState ? 'rounded-b-md' : ''
+          )}
+          style={{
+            maxHeight
+          }}
+          ref={contentRef}
+        >
+          <div className="p-2">{children}</div>
+        </div>
       </div>
     )
   }

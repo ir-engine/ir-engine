@@ -37,7 +37,6 @@ import assert from 'assert'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { assertArray } from '../../../tests/util/assert'
 import { ComputedTransformComponent } from './ComputedTransformComponent'
-import { TransformComponent } from './TransformComponent'
 
 type ComputedTransformComponentData = {
   referenceEntities: Entity[]
@@ -113,24 +112,4 @@ describe('ComputedTransformComponent', () => {
       assertComputedTransformComponentEq(after, Expected)
     })
   }) //:: onSet
-
-  describe('reactor', () => {
-    beforeEach(async () => {
-      createEngine()
-    })
-
-    afterEach(() => {
-      return destroyEngine()
-    })
-
-    it('should set TransformComponent.transformsNeedSorting to true when it first mounts', () => {
-      // Set the data as expected
-      TransformComponent.transformsNeedSorting = false
-      // Sanity check before running
-      assert.equal(TransformComponent.transformsNeedSorting, false)
-      // Run and Check the result
-      setComponent(createEntity(), ComputedTransformComponent)
-      assert.equal(TransformComponent.transformsNeedSorting, true)
-    })
-  }) //:: reactor
 }) //:: ComputedTransformComponent

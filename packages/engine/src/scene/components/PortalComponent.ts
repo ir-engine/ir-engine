@@ -24,9 +24,9 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { ArrowHelper, BackSide, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
+import { ArrowHelper, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 
-import { EntityTreeComponent, EntityUUID } from '@ir-engine/ecs'
+import { EntityTreeComponent, EntityUUID, createEntity, useEntityContext } from '@ir-engine/ecs'
 import {
   ComponentType,
   defineComponent,
@@ -35,7 +35,6 @@ import {
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { createEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -46,12 +45,10 @@ import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/Trig
 import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
-import { useDisposable, useResource } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
@@ -80,7 +77,8 @@ export const PortalComponent = defineComponent({
   jsonID: 'EE_portal',
 
   schema: S.Object({
-    linkedPortalId: S.EntityUUID(),
+    linkedPortalId:
+      S.EntityUUID() /** @todo due to the NodeID refactor, we have to re-think how we reference entities in other assets/scenes, so this will no longer work */,
     location: S.String(''),
     effectType: S.String('None'),
     previewType: S.String(PortalPreviewTypeSimple),
@@ -128,22 +126,22 @@ export const PortalComponent = defineComponent({
 
     useHelperEntity(entity, () => new ArrowHelper(Vector3_Right, Vector3_Zero, 1, 0x000000), debugEnabled.value)
 
-    const [portalGeometry] = useResource<SphereGeometry>(new SphereGeometry(1, 32, 32), entity)
-    const [portalMesh] = useDisposable(
-      Mesh<SphereGeometry, MeshBasicMaterial>,
-      entity,
-      portalGeometry.value as SphereGeometry,
-      new MeshBasicMaterial({ side: BackSide })
-    )
+    // const [portalGeometry] = useResource<SphereGeometry>(new SphereGeometry(1, 32, 32), entity)
+    // const [portalMesh] = useDisposable(
+    //   Mesh<SphereGeometry, MeshBasicMaterial>,
+    //   entity,
+    //   portalGeometry.value as SphereGeometry,
+    //   new MeshBasicMaterial({ side: BackSide })
+    // )
 
-    useEffect(() => {
-      if (portalComponent.previewType.value !== PortalPreviewTypeSpherical) return
-      portalComponent.mesh.set(portalMesh)
-      addObjectToGroup(entity, portalMesh)
-      return () => {
-        removeObjectFromGroup(entity, portalMesh)
-      }
-    }, [portalComponent.previewType.value])
+    // useEffect(() => {
+    //   if (portalComponent.previewType.value !== PortalPreviewTypeSpherical) return
+    //   portalComponent.mesh.set(portalMesh)
+    //   addObjectToGroup(entity, portalMesh)
+    //   return () => {
+    //     removeObjectFromGroup(entity, portalMesh)
+    //   }
+    // }, [portalComponent.previewType.value])
 
     /** @todo - reimplement once spawn points are refactored */
     // const portalDetails = useGet(spawnPointPath, portalComponent.linkedPortalId.value)

@@ -25,9 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Tween } from '@tweenjs/tween.js'
 
+import { createEntity, removeEntity } from '@ir-engine/ecs'
 import { getMutableComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { createEntity, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { LegacyVolumetricComponent } from '@ir-engine/engine/src/scene/components/LegacyVolumetricComponent'
 import { TweenComponent } from '@ir-engine/spatial/src/transform/components/TweenComponent'
 import { NodeCategory, makeFlowNodeDefinition } from '@ir-engine/visual-script'

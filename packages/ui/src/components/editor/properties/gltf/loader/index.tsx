@@ -43,7 +43,6 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { Checkbox, Input } from '@ir-engine/ui'
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { IoIosArrowBack, IoIosArrowDown } from 'react-icons/io'
 import { MdOutlineViewInAr } from 'react-icons/md'
 import Accordion from '../../../../../primitives/tailwind/Accordion'
 import Button from '../../../../../primitives/tailwind/Button'
@@ -179,14 +178,7 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
         </InputGroup>
       )) ||
         ''}
-      <Accordion
-        className="space-y-4 py-1.5 pl-9 pr-3.5"
-        title={t('editor:properties.model.lbl-export')}
-        expandIcon={<IoIosArrowBack className="text-xl text-text-secondary hover:text-text-primary" />}
-        shrinkIcon={<IoIosArrowDown className="text-xl text-text-secondary hover:text-text-primary" />}
-        titleClassName="text-text-secondary hover:text-text-primary"
-        titleFontSize="base"
-      >
+      <Accordion title={t('editor:properties.model.lbl-export')}>
         {!exporting.value && (
           <>
             <InputGroup name="Export Project" label="Project">

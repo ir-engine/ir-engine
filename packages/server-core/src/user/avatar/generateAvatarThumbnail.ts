@@ -39,7 +39,7 @@ import {
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
 } from '@ir-engine/common/src/constants/AvatarConstants'
-import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
+import { createEntity } from '@ir-engine/ecs'
 import { createGLTFLoader } from '@ir-engine/engine/src/assets/functions/createGLTFLoader'
 import { loadDRACODecoderNode } from '@ir-engine/engine/src/assets/loaders/gltf/NodeDracoLoader'
 import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'

@@ -27,28 +27,43 @@ import React, { useEffect } from 'react'
 
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { getMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState } from '@ir-engine/hyperflux'
 
 import { useHookstate } from '@hookstate/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { EngineState, QueryReactor, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
-import { IFrameComponent } from '@ir-engine/engine/src/scene/components/IFrameComponent'
+import { EngineState, QueryReactor, setComponent, useEntityContext, useOptionalComponent } from '@ir-engine/ecs'
+import { OverlayComponent } from '@ir-engine/engine/src/scene/components/OverlayComponent'
 import { NetworkState } from '@ir-engine/network'
 import { PopoverState } from '../common/services/PopoverState'
 import { InviteService } from '../social/services/InviteService'
+import { LoadingUISystemState } from '../systems/LoadingUISystem'
+import { OverlayComponentState } from '../systems/OverlaySystem'
 import { ViewerMenuState } from '../util/ViewerMenuState'
-import EmbedFrame from './menus/avatar/EmbedFrame'
 
-const IFrameReactor = () => {
+const OverlayReactor = () => {
   const entity = useEntityContext()
-  const iframeComponent = useOptionalComponent(entity, IFrameComponent)
+  const overlayComponent = useOptionalComponent(entity, OverlayComponent)
+  const [isPopoverOpen, setIsPopoverOpen] = React.useState(false)
 
   useEffect(() => {
-    if (iframeComponent?.isOpen.value) {
-      PopoverState.showPopupover(<EmbedFrame src={iframeComponent?.src.value} />)
+    if (overlayComponent?.isOpen.value && !isPopoverOpen) {
+      const popoverType = overlayComponent?.type.value
+      if (!popoverType) return
+      const Component = getState(OverlayComponentState)[popoverType]
+      PopoverState.showPopupover(
+        <div className="animate-slideIn">
+          <Component component={overlayComponent.value} />
+        </div>,
+        () => {
+          setComponent(entity, OverlayComponent, { isOpen: false })
+          PopoverState.hidePopupover()
+          setIsPopoverOpen(false)
+        }
+      )
+      setIsPopoverOpen(true)
     }
-  }, [iframeComponent])
+  }, [overlayComponent?.isOpen.value])
 
   return null
 }
@@ -128,7 +143,7 @@ const UserSystemReactor = () => {
       })
   }, [worldHostId])
 
-  return <QueryReactor Components={[IFrameComponent]} ChildEntityReactor={IFrameReactor} />
+  return <QueryReactor Components={[OverlayComponent]} ChildEntityReactor={OverlayReactor} />
 }
 
 export const UserUISystem = defineSystem({
@@ -136,7 +151,9 @@ export const UserUISystem = defineSystem({
   insert: { after: PresentationSystemGroup },
   reactor: () => {
     const userID = useHookstate(getMutableState(EngineState)).userID.value
-    if (!userID) return null
+    const ready = useHookstate(getMutableState(LoadingUISystemState)).ready
+
+    if (!userID || !ready.value) return null
 
     return <UserSystemReactor />
   }

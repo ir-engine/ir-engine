@@ -25,11 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { cloneDeep, isEqual, uniqueId } from 'lodash'
 
-import { UUIDComponent } from '@ir-engine/ecs'
+import { UUIDComponent, removeEntity } from '@ir-engine/ecs'
 import { ComponentMap, getComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { SystemUUID, defineSystem, destroySystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@ir-engine/ecs/src/SystemGroups'

@@ -25,20 +25,15 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
-import { EntityTreeComponent, getAncestorWithComponents, useEntityContext } from '@ir-engine/ecs'
-import {
-  defineComponent,
-  getComponent,
-  getOptionalComponent,
-  useComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
+import { EntityTreeComponent, getAncestorWithComponents, S } from '@ir-engine/ecs'
+import { defineComponent, getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { useImmediateEffect } from '@ir-engine/hyperflux'
 
-import { ECSSchema } from '@ir-engine/ecs/src/schemas/ECSSchemas'
+import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
 import { isZero } from '../../common/functions/MathFunctions'
-import { QuaternionProxyDirty, Vec3ProxyDirty } from '../../common/proxies/createThreejsProxy'
+import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
+import { T } from '../../schema/schemaFunctions'
 
 export type TransformComponentType = {
   position: Vector3
@@ -48,35 +43,45 @@ export type TransformComponentType = {
   matrixWorld: Matrix4
 }
 
-export const PoseECS = {
-  position: ECSSchema.Vec3,
-  rotation: ECSSchema.Quaternion
-}
-export const TransformECS = {
-  position: ECSSchema.Vec3,
-  rotation: ECSSchema.Quaternion,
-  scale: ECSSchema.Vec3
-  // There might be a way to make this a performance gain, but in testing it's about 15% slower than JS arrays
-  // matrix: ECSSchema.Mat4,
-  // matrixWorld: ECSSchema.Mat4
-}
+const assignPosition = (entity: Entity): Vector3 =>
+  proxifyVector3WithDirty(TransformComponent.position, entity, TransformComponent.dirty)
+
+const assignRotation = (entity: Entity): Quaternion =>
+  proxifyQuaternionWithDirty(TransformComponent.rotation, entity, TransformComponent.dirty)
+
+const assignScale = (entity: Entity): Vector3 =>
+  proxifyVector3WithDirty(TransformComponent.scale, entity, TransformComponent.dirty, new Vector3(1, 1, 1))
 
 export const TransformComponent = defineComponent({
   name: 'TransformComponent',
   jsonID: 'EE_transform',
-  schema: TransformECS,
 
-  onInit: (initial) => {
-    const entity = initial.entity
-    const dirtyTransforms = TransformComponent.dirtyTransforms
-    const component = {
-      position: Vec3ProxyDirty(initial.position, entity, dirtyTransforms),
-      rotation: QuaternionProxyDirty(initial.rotation, entity, dirtyTransforms),
-      scale: Vec3ProxyDirty(initial.scale, entity, dirtyTransforms, { x: 1, y: 1, z: 1 }),
-      matrix: new Matrix4(),
-      matrixWorld: new Matrix4()
-    } as TransformComponentType
-    return component
+  schema: S.Object({
+    position: T.Vec3(assignPosition),
+    rotation: T.Quaternion(assignRotation),
+    scale: T.Vec3(assignScale),
+    matrix: T.Mat4(),
+    matrixWorld: T.Mat4()
+  }),
+
+  storage: {
+    position: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array)
+    },
+    rotation: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array),
+      w: createResizableTypeArray(Float64Array)
+    },
+    scale: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array)
+    },
+    dirty: createResizableTypeArray(Uint8Array)
   },
 
   onSet: (entity, component, json) => {
@@ -84,6 +89,21 @@ export const TransformComponent = defineComponent({
     if (json.position) component.position.value.copy(json.position)
     if (json.rotation) component.rotation.value.copy(json.rotation)
     if (json.scale && !isZero(json.scale)) component.scale.value.copy(json.scale)
+
+    composeMatrix(entity)
+    const entityTree = getOptionalComponent(entity, EntityTreeComponent)
+    const parentEntity = entityTree?.parentEntity
+    if (parentEntity) {
+      const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
+      if (parentTransform)
+        component.matrixWorld.value.multiplyMatrices(parentTransform.matrixWorld, component.matrix.value as Matrix4)
+    } else {
+      component.matrixWorld.value.copy(component.matrix.value as Matrix4)
+    }
+  },
+
+  onRemove: (entity, component) => {
+    TransformComponent.dirty[entity] = 0
   },
 
   toJSON: (component) => {
@@ -92,30 +112,6 @@ export const TransformComponent = defineComponent({
       rotation: component.rotation,
       scale: component.scale
     }
-  },
-
-  reactor: () => {
-    const entity = useEntityContext()
-    const transformComponent = useComponent(entity, TransformComponent)
-
-    useImmediateEffect(() => {
-      const transform = transformComponent.value as TransformComponentType
-      composeMatrix(entity)
-      const entityTree = getOptionalComponent(entity, EntityTreeComponent)
-      const parentEntity = entityTree?.parentEntity
-      if (parentEntity) {
-        const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
-        if (parentTransform) transform.matrixWorld.multiplyMatrices(parentTransform.matrixWorld, transform.matrix)
-      } else {
-        transform.matrixWorld.copy(transform.matrix)
-      }
-
-      return () => {
-        delete TransformComponent.dirtyTransforms[entity]
-      }
-    }, [])
-
-    return null
   },
 
   getWorldPosition: (entity: Entity, vec3: Vector3) => {
@@ -246,7 +242,7 @@ export const TransformComponent = defineComponent({
       transform.matrix.copy(transform.matrixWorld)
     }
     decomposeMatrix(entity)
-    TransformComponent.dirtyTransforms[entity] = true
+    TransformComponent.dirty[entity] = 1
   },
 
   /**
@@ -325,7 +321,6 @@ export const TransformComponent = defineComponent({
     return outVector
   },
 
-  dirtyTransforms: {} as Record<Entity, boolean>,
   transformsNeedSorting: false
 })
 
@@ -474,3 +469,17 @@ export const setFromRotationMatrix = (entity: Entity, m: Matrix4) => {
 }
 
 export const TransformGizmoTagComponent = defineComponent({ name: 'TransformGizmoTagComponent' })
+
+/**
+ * @description
+ * Sets the `@param entity` as dirty and recursively sets all children entities as dirty.
+ *
+ * @param entity Entity Node where traversal will start
+ */
+export function setChildrenDirtyFast(entity: Entity) {
+  TransformComponent.dirty[entity] = 1
+  const children = getComponent(entity, EntityTreeComponent).children
+  for (const child of children) {
+    setChildrenDirtyFast(child)
+  }
+}

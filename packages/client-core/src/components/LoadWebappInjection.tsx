@@ -42,7 +42,7 @@ export const LoadWebappInjection = (props: {
   const projects = useFind(projectsPath)
 
   useEffect(() => {
-    if (!projects.data.length) return
+    if (!projects.data.length || projectComponents.value) return
     loadWebappInjection(projects.data as string[])
       .then((result) => {
         projectComponents.set(result)

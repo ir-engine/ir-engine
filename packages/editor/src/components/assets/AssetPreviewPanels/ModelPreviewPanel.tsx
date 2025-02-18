@@ -28,7 +28,7 @@ import React, { useEffect, useRef } from 'react'
 
 import { useRender3DPanelSystem } from '@ir-engine/client-core/src/hooks/useRender3DPanelSystem'
 import { EntityTreeComponent, createEntity, removeComponent, removeEntity, setComponent } from '@ir-engine/ecs'
-import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
+import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { AmbientLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { AssetPreviewCameraComponent } from '@ir-engine/spatial/src/camera/components/AssetPreviewCameraComponent'
@@ -51,7 +51,7 @@ export const ModelPreviewPanel = (props) => {
     const { sceneEntity, cameraEntity } = renderPanel
     setComponent(sceneEntity, NameComponent, '3D Preview Entity')
     setComponent(sceneEntity, GLTFComponent, { src: url, cameraOcclusion: false })
-    setComponent(sceneEntity, EnvmapComponent, { type: 'Skybox', envMapIntensity: 2 }) // todo remove when lighting works
+    setComponent(sceneEntity, EnvMapComponent, { type: 'Skybox', envMapIntensity: 2 }) // todo remove when lighting works
     setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: sceneEntity })
 
     const lightEntity = createEntity()
@@ -65,7 +65,7 @@ export const ModelPreviewPanel = (props) => {
     return () => {
       loading.set(true)
       removeComponent(sceneEntity, GLTFComponent)
-      removeComponent(sceneEntity, EnvmapComponent)
+      removeComponent(sceneEntity, EnvMapComponent)
       removeComponent(cameraEntity, AssetPreviewCameraComponent)
       removeEntity(lightEntity)
     }

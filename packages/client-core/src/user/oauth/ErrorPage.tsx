@@ -77,8 +77,12 @@ export default function ErrorPage({ name }: ErrorPageProps) {
     const loginId = search.get('loginId') as string
     const loginToken = search.get('loginToken') as string
     const instanceId = search.get('instanceId') as InstanceID
-    let redirect = config.client.clientUrl
-    if (path != null) redirect += path
+    let redirect
+    if (/https:\/\//.test(path)) redirect = path
+    else {
+      redirect = config.client.clientUrl
+      if (path != null) redirect += path
+    }
     if (instanceId != null) redirect += `?instanceId=${instanceId}`
     window.location.href = `${
       config.client.serverUrl

@@ -31,6 +31,7 @@ import {
   SystemDefinitions,
   Timer,
   UUIDComponent,
+  UndefinedEntity,
   createEntity,
   destroyEngine,
   getComponent,
@@ -117,7 +118,7 @@ describe('WebGl Renderer System', () => {
   })
 
   it('Test Background, Environment, Fog Components', async () => {
-    const { background, environment, fog, children } = getSceneParameters([rootEntity])
+    const { background, environment, fog, children } = getSceneParameters([rootEntity], UndefinedEntity)
     SystemDefinitions.get(WebGLRendererSystem)?.execute()
     assert(background, 'background component exists')
     const backgroundColor = background as Color
