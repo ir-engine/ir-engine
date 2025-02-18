@@ -63,13 +63,6 @@ describe('UUIDComponent', () => {
     })
   }) //:: name
 
-  describe('jsonID', () => {
-    it('should have the expected value', () => {
-      expect(UUIDComponent.jsonID).toBeTruthy()
-      expect(UUIDComponent.jsonID).toBe('EE_uuid')
-    })
-  }) //:: jsonID
-
   describe('serialize', () => {
     it('should return correctly serialized data', () => {
       const Expected = UUIDComponent.generateUUID()

@@ -65,204 +65,6 @@
     "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsapartment.glb-thumbnail.png",
     "thumbnailMode": "automatic"
   },
-  "assets/avatars/female_01.png": {
-    "type": "asset",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": [],
-    "name": "female_01.png",
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsavatarsfemale_01.png-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/avatars/female_01.vrm": {
-    "type": "asset",
-    "tags": [
-      "Model"
-    ],
-    "dependencies": [
-      "projects/ir-engine/default-project/assets/avatars/female_01.png"
-    ],
-    "name": "female_01.vrm"
-  },
-  "assets/avatars/female_02.png": {
-    "type": "asset",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": [],
-    "name": "female_02.png",
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsavatarsfemale_02.png-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/avatars/female_02.vrm": {
-    "type": "asset",
-    "tags": [
-      "Model"
-    ],
-    "dependencies": [
-      "projects/ir-engine/default-project/assets/avatars/female_02.png"
-    ],
-    "name": "female_02.vrm"
-  },
-  "assets/avatars/female_03.png": {
-    "type": "asset",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": [],
-    "name": "female_03.png",
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsavatarsfemale_03.png-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/avatars/female_03.vrm": {
-    "type": "asset",
-    "tags": [
-      "Model"
-    ],
-    "dependencies": [
-      "projects/ir-engine/default-project/assets/avatars/female_03.png"
-    ],
-    "name": "female_03.vrm",
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsavatarsfemale_03.vrm-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/avatars/female_04.png": {
-    "type": "asset",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": [],
-    "name": "female_04.png"
-  },
-  "assets/avatars/female_04.vrm": {
-    "type": "asset",
-    "tags": [
-      "Model"
-    ],
-    "dependencies": [
-      "projects/ir-engine/default-project/assets/avatars/female_04.png"
-    ],
-    "name": "female_04.vrm"
-  },
-  "assets/avatars/female_05.png": {
-    "type": "asset",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": [],
-    "name": "female_05.png"
-  },
-  "assets/avatars/female_05.vrm": {
-    "type": "asset",
-    "tags": [
-      "Model"
-    ],
-    "dependencies": [
-      "projects/ir-engine/default-project/assets/avatars/female_05.png"
-    ],
-    "name": "female_05.vrm"
-  },
-  "assets/avatars/female_06.png": {
-    "type": "asset",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": [],
-    "name": "female_06.png"
-  },
-  "assets/avatars/female_06.vrm": {
-    "type": "asset",
-    "tags": [
-      "Model"
-    ],
-    "dependencies": [
-      "projects/ir-engine/default-project/assets/avatars/female_06.png"
-    ],
-    "name": "female_06.vrm"
-  },
-  "assets/avatars/male_01.png": {
-    "type": "asset",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": [],
-    "name": "male_01.png",
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsavatarsmale_01.png-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/avatars/male_01.vrm": {
-    "type": "asset",
-    "tags": [
-      "Model"
-    ],
-    "dependencies": [
-      "projects/ir-engine/default-project/assets/avatars/male_01.png"
-    ],
-    "name": "male_01.vrm",
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsavatarsmale_01.vrm-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/avatars/male_02.png": {
-    "type": "asset",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": [],
-    "name": "male_02.png"
-  },
-  "assets/avatars/male_02.vrm": {
-    "type": "asset",
-    "tags": [
-      "Model"
-    ],
-    "dependencies": [
-      "projects/ir-engine/default-project/assets/avatars/male_02.png"
-    ],
-    "name": "male_02.vrm",
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsavatarsmale_02.vrm-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/avatars/male_03.png": {
-    "type": "asset",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": [],
-    "name": "male_03.png",
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsavatarsmale_03.png-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/avatars/male_03.vrm": {
-    "type": "asset",
-    "tags": [
-      "Model"
-    ],
-    "dependencies": [
-      "projects/ir-engine/default-project/assets/avatars/male_03.png"
-    ],
-    "name": "male_03.vrm",
-    "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/default-projectassetsavatarsmale_03.vrm-thumbnail.png",
-    "thumbnailMode": "automatic"
-  },
-  "assets/avatars/male_04.png": {
-    "type": "asset",
-    "tags": [
-      "Image"
-    ],
-    "dependencies": [],
-    "name": "male_04.png"
-  },
-  "assets/avatars/male_04.vrm": {
-    "type": "asset",
-    "tags": [
-      "Model"
-    ],
-    "dependencies": [
-      "projects/ir-engine/default-project/assets/avatars/male_04.png"
-    ],
-    "name": "male_04.vrm"
-  },
   "assets/cloud.png": {
     "type": "asset",
     "tags": [
@@ -869,5 +671,15 @@
     "name": "sky-station.loadingscreen.ktx2",
     "thumbnailKey": "projects/ir-engine/default-project/public/thumbnails/public_scenes_sky-station.loadingscreen.ktx2-thumbnail.png",
     "thumbnailMode": "automatic"
+  },
+  "assets/avatars/irRobot.vrm": {
+    "type": "asset",
+    "tags": [
+      "Model"
+    ],
+    "dependencies": [
+      "projects/ir-engine/default-project/assets/avatars/irRobot.png"
+    ],
+    "name": "irRobot.vrm"
   }
 }

@@ -31,8 +31,10 @@ import {
   EntityTreeComponent,
   getComponent,
   isAncestor,
+  Layers,
   traverseEntityNode,
-  UndefinedEntity
+  UndefinedEntity,
+  useQuery
 } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
@@ -96,7 +98,7 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
   const [showModelChildren] = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowModelChildren])
   const renamingEntity = useHookstate<Entity | null>(null)
   const contextMenu = useHookstate({ entity: UndefinedEntity, anchorEvent: undefined as React.MouseEvent | undefined })
-  const entities = SourceComponent.useEntitiesBySource(rootEntity)
+  const entities = useQuery([SourceComponent], Layers.Authoring)
 
   const hierarchyNodes = useMemo(
     () => ecsHierarchyTreeWalker(rootEntity),

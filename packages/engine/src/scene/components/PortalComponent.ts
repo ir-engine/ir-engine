@@ -77,7 +77,8 @@ export const PortalComponent = defineComponent({
   jsonID: 'EE_portal',
 
   schema: S.Object({
-    linkedPortalId: S.EntityUUID(),
+    linkedPortalId:
+      S.EntityUUID() /** @todo due to the NodeID refactor, we have to re-think how we reference entities in other assets/scenes, so this will no longer work */,
     location: S.String(''),
     effectType: S.String('None'),
     previewType: S.String(PortalPreviewTypeSimple),

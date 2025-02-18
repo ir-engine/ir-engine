@@ -82,7 +82,7 @@ export const SceneState = defineState({
     return () => {
       if (viewerEntity) {
         getMutableComponent(viewerEntity, RendererComponent).scenes.set((current) =>
-          current.splice(current.indexOf(simulationEntity), 1)
+          current.filter((scene) => scene !== simulationEntity)
         )
       }
       AssetState.unload(gltfEntity)

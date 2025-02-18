@@ -191,7 +191,7 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
   }
 
   return (
-    <div className="relative z-50 h-fit max-h-[60vh] w-[50vw] min-w-[500px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-1 px-10 py-6">
+    <div className="absolute z-50 h-fit max-h-[60vh] w-[50vw] min-w-[500px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-1 px-10 py-6">
       <Text fontWeight="semibold" fontSize="lg" component="h2">
         {props.name}
       </Text>

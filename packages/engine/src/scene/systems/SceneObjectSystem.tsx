@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { Light, Material, Mesh, Object3D, SkinnedMesh, Texture } from 'three'
 
-import { useEntityContext, UUIDComponent } from '@ir-engine/ecs'
+import { UUIDComponent } from '@ir-engine/ecs'
 import {
   getComponent,
   hasComponent,
@@ -37,10 +37,10 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { defineQuery, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
+import { defineQuery, EntityArrayBoundary, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { getState, useHookstate } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
@@ -121,17 +121,13 @@ const execute = () => {
   }
 }
 
-const ModelEntityReactor = () => {
-  const entity = useEntityContext()
+const ModelEntityReactor = (props: { entity: Entity }) => {
+  const entity = props.entity
   const modelInstanceID = GLTFComponent.useInstanceID(entity)
-  const childEntities = useHookstate(SourceComponent.entitiesBySourceState[modelInstanceID])
+  const childEntities = SourceComponent.useEntitiesBySource(modelInstanceID)
 
   return (
-    <>
-      {childEntities.value?.map((childEntity: Entity) => (
-        <ChildReactor key={childEntity} entity={childEntity} parentEntity={entity} />
-      ))}
-    </>
+    <EntityArrayBoundary entities={childEntities} ChildEntityReactor={ChildReactor} props={{ parentEntity: entity }} />
   )
 }
 
@@ -193,7 +189,7 @@ const reactor = () => {
     </>
   )
 }
-//<QueryReactor Components={[SourceComponent]} ChildEntityReactor={SceneObjectEntityReactor} />
+
 export const SceneObjectSystem = defineSystem({
   uuid: 'ee.engine.SceneObjectSystem',
   insert: { after: AnimationSystemGroup },

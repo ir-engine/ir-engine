@@ -199,8 +199,9 @@ const updateUserAvatars = async (context: HookContext<AvatarService>) => {
   })
 
   if (avatars.data.length > 0) {
+    avatars.data = avatars.data.filter((avatar) => avatar.modelResource && avatar.thumbnailResource)
     const randomReplacementAvatar = avatars.data[Math.floor(Math.random() * avatars.data.length)]
-    await context.app.service(userAvatarPath).patch(
+    await context.app.service(userAvatarPath)._patch(
       null,
       {
         avatarId: randomReplacementAvatar.id as AvatarID
@@ -208,8 +209,7 @@ const updateUserAvatars = async (context: HookContext<AvatarService>) => {
       {
         query: {
           avatarId: context.id?.toString() as AvatarID
-        },
-        user: context.params.user
+        }
       }
     )
   }

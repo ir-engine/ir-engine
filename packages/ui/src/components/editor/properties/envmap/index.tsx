@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { UUIDComponent } from '@ir-engine/ecs'
 import { getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
@@ -37,6 +36,7 @@ import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { useQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { ImageLink, Slider } from '@ir-engine/ui/editor'
 import { IoMapOutline } from 'react-icons/io5'
 import Button from '../../../../primitives/tailwind/Button'
@@ -60,7 +60,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
   const bakeEntities = useQuery([EnvMapBakeComponent]).map((entity) => {
     return {
       label: getComponent(entity, NameComponent),
-      value: getComponent(entity, UUIDComponent)
+      value: getComponent(entity, NodeIDComponent)
     }
   })
 

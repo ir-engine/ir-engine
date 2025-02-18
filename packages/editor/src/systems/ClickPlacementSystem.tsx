@@ -178,7 +178,7 @@ const updatePlacementEntitySnapshot = (placementEntity: Entity) => {
   // const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
   // const uuid = getComponent(placementEntity, UUIDComponent)
   // const nodeIndex = snapshot.data.nodes!.findIndex(
-  //   (value) => value.extensions && value.extensions[UUIDComponent.jsonID] === uuid
+  //   (value) => value.extensions && value.extensions[NodeIDComponent.jsonID] === uuid
   // )
   // const entityJson = toEntityJson(placementEntity)
   // const entityGLTFNode = entityJSONToGLTFNode(entityJson, uuid)

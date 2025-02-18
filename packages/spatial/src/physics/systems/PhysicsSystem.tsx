@@ -34,7 +34,7 @@ import { SimulationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 
-import { EngineState, Not, useEntityContext, UUIDComponent } from '@ir-engine/ecs'
+import { EngineState, Not, useEntityContext } from '@ir-engine/ecs'
 import React from 'react'
 import { Vector3 } from 'three'
 import { InputHeuristicState, IntersectionData } from '../../input/functions/ClientInputHeuristics'
@@ -106,16 +106,15 @@ const execute = () => {
 
 const PhysicsSceneReactor = () => {
   const entity = useEntityContext()
-  const uuid = useComponent(entity, UUIDComponent).value
   const scene = useComponent(entity, SceneComponent)
 
   useEffect(() => {
     if (!scene.active.value) return
-    Physics.createWorld(uuid)
+    Physics.createWorld(entity)
     return () => {
-      Physics.destroyWorld(uuid)
+      Physics.destroyWorld(entity)
     }
-  }, [uuid, scene.active.value])
+  }, [scene.active.value])
   return null
 }
 
