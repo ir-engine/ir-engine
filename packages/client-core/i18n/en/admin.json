@@ -540,6 +540,8 @@
       "screenshareMidResMaxBitrate": "Screenshare mid-res video max bitrate (kbps)",
       "screenshareHighResMaxBitrate": "Screenshare high-res video max bitrate (kbps)",
       "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms Of Service",
+      "assistanceLink": "Assistance",
       "webRTCSettings": {
         "main": "WebRTC Settings",
         "useCustomICEServers": "Use custom iceServers configuration",
