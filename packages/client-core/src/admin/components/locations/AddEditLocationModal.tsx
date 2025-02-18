@@ -299,7 +299,7 @@ export default function AddEditLocationModal(props: {
               inputSizeVariant="xl"
             />*/}
 
-            <div className="grid grid-cols-2 gap-12 border-t border-t-ui-outline py-6">
+            <div className="grid grid-cols-[276px_minmax(0,1fr)] gap-12 border-t border-t-ui-outline py-6">
               <div className="flex flex-col">
                 {props.inStudio && (
                   <React.Suspense fallback={null}>
