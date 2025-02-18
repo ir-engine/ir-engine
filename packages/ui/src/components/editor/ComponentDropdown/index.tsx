@@ -86,6 +86,7 @@ export default function ComponentDropdown({
             <button
               className="my-1 text-text-secondary"
               //title={isMinimized.value ? 'maximize' : 'minimize'}
+              onClick={toggleMinimized}
             >
               <HiOutlineChevronRight
                 className={twMerge('h-4 w-4 transition-transform duration-300', !isMinimized.value ? 'rotate-90' : '')}
