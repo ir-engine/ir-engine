@@ -60,13 +60,13 @@ export function DropdownItem({
     <div
       tabIndex={0}
       className={twMerge(
-        'h-[38px] w-full cursor-pointer bg-ui-background px-4 py-2.5 text-xs text-text-tertiary outline-none',
+        'h-[38px] w-full cursor-pointer bg-ui-background px-4 py-2.5 text-sm text-text-tertiary outline-none',
         'flex items-center',
-        active ? 'text-text-primary' : '',
+        active ? 'bg-ui-hover-background' : '',
         selected ? 'bg-ui-select-background text-text-primary' : '',
         disabled
           ? 'text-ui-inactive-primary-outline cursor-not-allowed bg-ui-inactive-background'
-          : 'hover:bg-ui-hover-background hover:text-text-primary',
+          : 'hover:bg-ui-hover-background',
         className
       )}
       {...props}

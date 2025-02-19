@@ -68,21 +68,6 @@
         },
         "EE_postprocessing": {
           "effects": {
-            "SSAOEffect": {
-              "isActive": false,
-              "blendFunction": 21,
-              "distanceScaling": true,
-              "depthAwareUpsampling": true,
-              "samples": 16,
-              "rings": 7,
-              "distanceThreshold": 0.125,
-              "distanceFalloff": 0.02,
-              "minRadiusScale": 1,
-              "bias": 0.25,
-              "radius": 0.01,
-              "intensity": 2,
-              "fade": 0.05
-            },
             "SSREffect": {
               "isActive": false,
               "distance": 10,
@@ -311,6 +296,37 @@
               "eskil": false,
               "offset": 0.5,
               "darkness": 0.5
+            },
+            "SMAAEffect": {
+              "isActive": false,
+              "preset": 1,
+              "edgeDetectionMode": 2,
+              "predicationMode": 0
+            },
+            "SSAOEffect": {
+              "isActive": true,
+              "blendFunction": 21,
+              "distanceScaling": true,
+              "depthAwareUpsampling": true,
+              "samples": 9,
+              "rings": 7,
+              "distanceThreshold": 0.97,
+              "distanceFalloff": 0.03,
+              "rangeThreshold": 0.0005,
+              "rangeFalloff": 0.001,
+              "minRadiusScale": 0.1,
+              "luminanceInfluence": 0.7,
+              "bias": 0.025,
+              "radius": 0.1825,
+              "intensity": 1,
+              "fade": 0.01,
+              "resolutionScale": 1,
+              "resolutionX": -1,
+              "resolutionY": -1,
+              "width": -1,
+              "height": -1,
+              "blur": false,
+              "kernelSize": 1
             }
           },
           "enabled": false

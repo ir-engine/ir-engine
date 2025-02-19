@@ -23,33 +23,25 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { WidgetAppServiceReceptorSystem } from '../systems/WidgetAppService'
+import React from 'react'
+import { MdOutlineHeatPump, MdOutlineWatch, MdOutlineWindPower } from 'react-icons/md'
+import SegmentedControl, { SegmentedControlProps } from '../../../../primitives/tailwind/SegmentedControl'
 
-import { OverlaySystem } from '@ir-engine/client-core/src/systems/OverlaySystem'
-import { AvatarSpawnSystem } from '../networking/AvatarSpawnSystem'
-import { AvatarUISystem } from '../systems/AvatarUISystem'
-import { LoadingUISystem } from '../systems/LoadingUISystem'
-import { MediaControlSystem } from '../systems/MediaControlSystem'
-import { PositionalAudioSystem } from '../systems/PositionalAudioSystem'
-import { WarningUISystem } from '../systems/WarningUISystem'
-import { WidgetUISystem } from '../systems/WidgetUISystem'
-import { UserUISystem } from '../user/UserUISystem'
-import { LinkRedirectSystem } from './LinkRedirectSystem'
-import { PortalRedirectSystem } from './PortalRedirectSystem'
-
-import './ClientNetworkModule'
-
-export {
-  AvatarSpawnSystem,
-  AvatarUISystem,
-  LinkRedirectSystem,
-  LoadingUISystem,
-  MediaControlSystem,
-  OverlaySystem,
-  PortalRedirectSystem,
-  PositionalAudioSystem,
-  UserUISystem,
-  WarningUISystem,
-  WidgetAppServiceReceptorSystem,
-  WidgetUISystem
+/**Tailwind `Select` styled for studio */
+const SegmentedControlInput = (props: SegmentedControlProps) => {
+  return <SegmentedControl {...props} />
 }
+
+SegmentedControlInput.displayName = 'SegmentedControlInput'
+SegmentedControlInput.defaultProps = {
+  options: [
+    { label: 'Cuboid', value: 'a', icon: <MdOutlineWatch /> },
+    { label: 'Cylinder', value: 'b', icon: <MdOutlineHeatPump /> },
+    { label: 'Cube', value: 'c', icon: <MdOutlineWindPower /> }
+  ],
+  value: 'a',
+  onChange: () => {},
+  width: 'full'
+}
+
+export default SegmentedControlInput
