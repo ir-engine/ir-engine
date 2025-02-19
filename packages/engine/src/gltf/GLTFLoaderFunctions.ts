@@ -30,6 +30,8 @@ import {
   EntityTreeComponent,
   EntityUUID,
   LayerComponent,
+  LayerFunctions,
+  Layers,
   UUIDComponent,
   deserializeComponent,
   getComponent,
@@ -1501,7 +1503,11 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   const animationClips = await Promise.all(animationPromises)
 
   if (animationClips.length > 0) {
-    const obj3d = getComponent(rootEntity, ObjectComponent)
+    // obj3d should always come from the simulation layer
+    const obj3d = getComponent(
+      LayerFunctions.getLayerRelationsEntities(rootEntity)?.[Layers.Simulation]?.[1] ?? rootEntity,
+      ObjectComponent
+    )
     obj3d.animations = animationClips
     if (!hasComponent(rootEntity, AnimationComponent)) {
       setComponent(rootEntity, AnimationComponent, {

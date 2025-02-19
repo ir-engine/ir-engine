@@ -1086,6 +1086,22 @@ export function getAuthoringCounterpart(entity: Entity) {
   return LayerComponents[Layers.Simulation].refs[entity]
 }
 
+export function getSimulationCounterpart(entity: Entity) {
+  const layer = LayerComponent.get(entity)
+  if (layer === Layers.Simulation) {
+    return entity
+  }
+  const relations = LayerFunctions.getLayerRelationsEntities(entity)
+  if (!relations) return UndefinedEntity
+  const entityLayer = LayerComponent.get(entity)
+  for (const [linkedLayer, linkedEntity] of relations) {
+    if (linkedLayer === Layers.Simulation) {
+      return linkedEntity
+    }
+  }
+  return UndefinedEntity
+}
+
 /**
  * === SECTION ===
  * Component Transitions

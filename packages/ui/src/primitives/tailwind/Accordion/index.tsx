@@ -57,7 +57,7 @@ const Accordion = forwardRef(
           setMaxHeight('0px')
         }
       }
-    }, [openState])
+    }, [openState, children])
 
     return (
       <div className="w-full" {...props} ref={ref}>
