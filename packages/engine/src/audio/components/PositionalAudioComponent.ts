@@ -27,6 +27,7 @@ import { useEffect } from 'react'
 
 import {
   defineComponent,
+  getAuthoringCounterpart,
   getOptionalComponent,
   removeComponent,
   setComponent,
@@ -45,8 +46,7 @@ import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ActiveHelperComponent } from '../../../../spatial/src/common/ActiveHelperComponent'
-import { NodeFunctions } from '../../gltf/NodeFunctions'
-import { NodeIDSchema } from '../../gltf/NodeIDComponent'
+import { GeneralAudioComponent } from './GeneralAudioComponent'
 import { PositionalAudioHelperComponent } from './PositionalAudioHelperComponent'
 
 export interface PositionalAudioInterface {
@@ -73,8 +73,7 @@ export const PositionalAudioComponent = defineComponent({
     maxDistance: S.Number(40),
     coneInnerAngle: S.Number(360),
     coneOuterAngle: S.Number(360),
-    coneOuterGain: S.Number(0),
-    mediaUUID: NodeIDSchema()
+    coneOuterGain: S.Number(0)
   }),
 
   reactor: function () {
@@ -83,12 +82,14 @@ export const PositionalAudioComponent = defineComponent({
     const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
     const audio = useComponent(entity, PositionalAudioComponent)
-    const mediaUUID = audio.mediaUUID.value
-    const mediaEntity = NodeFunctions.useEntityFromNodeID(entity, mediaUUID) || entity
-    const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
+    const mediaElement = useOptionalComponent(entity, MediaElementComponent)
 
     useEffect(() => {
-      setComponent(entity, MediaComponent)
+      const authEntity = getAuthoringCounterpart(entity)
+      if (authEntity) {
+        setComponent(authEntity, GeneralAudioComponent)
+        setComponent(authEntity, MediaComponent)
+      }
     }, [])
 
     useEffect(() => {
