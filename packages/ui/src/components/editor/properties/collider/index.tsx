@@ -46,6 +46,8 @@ import NumericInput from '../../input/Numeric'
 import NumericScrubber from '../../input/Numeric/Scrubber'
 import SelectInput from '../../input/Select'
 import Vector3Input from '../../input/Vector3'
+import { dispatchAction } from '@ir-engine/hyperflux'
+import { EditorHistoryActions, EditorHistoryFunctions } from '@ir-engine/editor/src/services/EditorHistoryState'
 
 const shapeTypeOptions = Object.entries(Shapes)
   .filter(([_, value]) => supportedColliderShapes.includes(value as any))
@@ -98,7 +100,7 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
             className="text-sm text-[#FFFFFF]"
             onClick={() => {
               const nodes = SelectionState.getSelectedEntities()
-              EditorControlFunctions.addOrRemoveComponent(nodes, RigidBodyComponent, true, { type: 'fixed' })
+              EditorHistoryFunctions.setComponent(nodes, RigidBodyComponent, { type: 'fixed' })
             }}
           >
             <HiPlus />

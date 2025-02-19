@@ -205,8 +205,8 @@ export const QuerySubReactor = memo((props: { entity: Entity; ChildEntityReactor
   )
 })
 
-export const QueryReactor = memo((props: { Components: bitECS.QueryTerm[]; ChildEntityReactor: FC; props?: any }) => {
-  const entities = useQuery(props.Components)
+export const QueryReactor = memo((props: { Components: bitECS.QueryTerm[]; ChildEntityReactor: FC; props?: any; layer?: LayerID }) => {
+  const entities = useQuery(props.Components, props.layer)
   const MemoChildEntityReactor = useMemo(() => memo(props.ChildEntityReactor), [props.ChildEntityReactor])
   return (
     <>

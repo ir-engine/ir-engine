@@ -32,7 +32,7 @@ import {
   generateEntityUUID,
   getAncestorWithComponents,
   getChildrenWithComponents,
-  removeEntityNodeRecursively,
+  iterateEntityNode,
   UUIDComponent
 } from '@ir-engine/ecs'
 import {
@@ -47,6 +47,7 @@ import {
   LayerFunctions,
   Layers,
   removeComponent,
+  removeEntity,
   serializeComponent,
   SerializedComponentType,
   setComponent,
@@ -88,7 +89,9 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
   args: SetComponentType<C> | undefined = undefined
 ) => {
   const sceneComponentID = component.jsonID
-  if (!sceneComponentID) return
+  if (!sceneComponentID) return []
+
+  const modifiedNodes = [] as NodeID[]
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
     if (add) {
@@ -96,15 +99,21 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
     } else {
       removeComponent(entity, component)
     }
+    modifiedNodes.push(getComponent(entity, NodeIDComponent))
     EditorState.markModifiedScene(entity)
   }
+
+  return modifiedNodes
 }
 
 const modifyName = (entities: Entity[], name: string) => {
+  const modifiedNodes = [] as NodeID[]
   for (const entity of entities) {
     setComponent(entity, NameComponent, name)
     EditorState.markModifiedScene(entity)
+    modifiedNodes.push(getComponent(entity, NodeIDComponent))
   }
+  return modifiedNodes
 }
 
 /**
@@ -115,6 +124,7 @@ const modifyProperty = <C extends Component<any, any>>(
   component: C,
   properties: Partial<SerializedComponentType<C>>
 ) => {
+  const affectedNodes = [] as NodeID[]
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
 
@@ -128,7 +138,11 @@ const modifyProperty = <C extends Component<any, any>>(
     }
     deserializeComponent(entity, component, currentComponent)
     EditorState.markModifiedScene(entity)
+
+    affectedNodes.push(getComponent(entity, NodeIDComponent))
   }
+
+  return affectedNodes
 }
 
 /**Updates the materialEntity's threejs material using the the newPrototype to look up the new constructor */
@@ -508,11 +522,23 @@ const removeObject = (entities: Entity[]) => {
   /** we have to manually set this here or it will cause react errors when entities are removed */
   getMutableState(SelectionState).selectedEntities.set([])
 
+  const affectedNodes = [] as NodeID[]
+
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
+    const sourceID = getComponent(entity, SourceComponent)
     EditorState.markModifiedScene(entity)
-    removeEntityNodeRecursively(entity)
+    iterateEntityNode(
+      entity,
+      (node) => {
+        affectedNodes.push(getComponent(node, NodeIDComponent))
+        removeEntity(node)
+      },
+      (child) => getComponent(child, SourceComponent) === sourceID
+    )
   }
+
+  return affectedNodes
 }
 
 const replaceSelection = (entities: EntityUUID[]) => {

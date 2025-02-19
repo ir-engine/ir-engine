@@ -65,6 +65,7 @@ import { twMerge } from 'tailwind-merge'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { ComponentEditorsState } from '../../services/ComponentEditors'
 import { EditorHelperState, PlacementMode } from '../../services/EditorHelperState'
+import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { deleteNode, HierarchyTreeNodeType } from './helpers'
@@ -307,11 +308,10 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const onHideUnhideNode = (event: React.MouseEvent) => {
     event.stopPropagation()
     if (visible) {
-      EditorControlFunctions.addOrRemoveComponent([entity], VisibleComponent, false)
+      EditorHistoryFunctions.setComponent([entity], VisibleComponent)
     } else {
-      EditorControlFunctions.addOrRemoveComponent([entity], VisibleComponent, true)
+      EditorHistoryFunctions.removeComponent([entity], VisibleComponent)
     }
-    // setVisibleComponent(entity, !hasComponent(entity, VisibleComponent))
   }
 
   const onLockUnlockNode = (event: React.MouseEvent) => {

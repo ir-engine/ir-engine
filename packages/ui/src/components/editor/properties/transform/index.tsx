@@ -43,6 +43,7 @@ import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices
 import { TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { TransformComponent } from '@ir-engine/spatial'
 
+import { EditorHistoryFunctions } from '@ir-engine/editor/src/services/EditorHistoryState'
 import { Checkbox } from '@ir-engine/ui'
 import ComponentDropdown from '../../ComponentDropdown'
 import EulerInput from '../../input/Euler'
@@ -81,7 +82,9 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   const onChangeDynamicLoad = (value) => {
     const selectedEntities = SelectionState.getSelectedEntities()
-    EditorControlFunctions.addOrRemoveComponent(selectedEntities, SceneDynamicLoadComponent, value)
+
+    if (value === true) EditorHistoryFunctions.setComponent(selectedEntities, SceneDynamicLoadComponent)
+    else EditorHistoryFunctions.removeComponent(selectedEntities, SceneDynamicLoadComponent)
   }
 
   const onChangePosition = (value: Vector3) => {

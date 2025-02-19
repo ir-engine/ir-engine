@@ -32,9 +32,11 @@ import {
   SerializedComponentType
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { getMutableState, setNestedObject } from '@ir-engine/hyperflux'
+import { dispatchAction, getMutableState, getState, setNestedObject } from '@ir-engine/hyperflux'
 
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { EditorHistoryActions, EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 
@@ -107,5 +109,5 @@ export const commitProperties = <C extends Component>(
     ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value, Layers.Authoring)]
     : SelectionState.getSelectedEntities()
 
-  EditorControlFunctions.modifyProperty(affectedNodes, component, properties)
+  EditorHistoryFunctions.setComponent(affectedNodes, component, properties)
 }
