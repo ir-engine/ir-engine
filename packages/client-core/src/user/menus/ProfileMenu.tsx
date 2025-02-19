@@ -443,11 +443,20 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
       <div className="mt-5 grid w-full grid-cols-1 gap-y-4">
         {isGuest && !originallyAcceptedTOS && (
           <>
-            <Checkbox
-              checked={checkedTOS.value}
-              onChange={() => checkedTOS.set((v) => !v)}
-              label={t('user:usermenu.profile.agreeTOS')}
-            />
+            <div className="flex w-full items-center justify-start gap-x-1">
+              <Checkbox
+                checked={checkedTOS.value}
+                onChange={() => checkedTOS.set((v) => !v)}
+                label={t('user:usermenu.profile.agreeTOS')}
+              />
+              <a
+                className="inline text-sm text-text-primary underline-offset-4 hover:text-ui-hover-primary hover:underline"
+                href={clientSetting?.termsOfService}
+                target="_blank"
+              >
+                {t('user:usermenu.profile.termsOfService')}
+              </a>
+            </div>
             <Checkbox
               checked={checked13OrOver.value}
               onChange={() => checked13OrOver.set((v) => !v)}
