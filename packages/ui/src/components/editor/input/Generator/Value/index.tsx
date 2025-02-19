@@ -128,7 +128,7 @@ export default function ValueGenerator({
         {
           <PaginatedList // we still need to make paginated list in tailwind
             list={bezierScope.functions}
-            element={(element: State<BezierFunctionJSON>) => (
+            element={(element: State<BezierFunctionJSON>, index: number) => (
               <div
                 style={{
                   margin: '2rem',
@@ -138,22 +138,37 @@ export default function ValueGenerator({
                 }}
               >
                 <InputGroup label={'p0'}>
-                  <NumericInput value={element.function.p0.value} onChange={onChange(path + '.function.p0')} />
+                  <NumericInput
+                    value={element.function.p0.value}
+                    onChange={onChange(path + '.functions.' + index + '.function.p0')}
+                  />
                 </InputGroup>
                 <InputGroup label={'p1'}>
-                  <NumericInput value={element.function.p1.value} onChange={onChange(path + '.function.p1')} />
+                  <NumericInput
+                    value={element.function.p1.value}
+                    onChange={onChange(path + '.functions.' + index + '.function.p1')}
+                  />
                 </InputGroup>
                 <InputGroup label={'p2'}>
-                  <NumericInput value={element.function.p2.value} onChange={onChange(path + '.function.p2')} />
+                  <NumericInput
+                    value={element.function.p2.value}
+                    onChange={onChange(path + '.functions.' + index + '.function.p2')}
+                  />
                 </InputGroup>
                 <InputGroup label={'p3'}>
-                  <NumericInput value={element.function.p3.value} onChange={onChange(path + '.function.p3')} />
+                  <NumericInput
+                    value={element.function.p3.value}
+                    onChange={onChange(path + '.functions.' + index + '.function.p3')}
+                  />
                 </InputGroup>
                 <br />
                 <hr />
                 <br />
                 <InputGroup label={'start'}>
-                  <NumericInput value={element.start.value} onChange={onChange(path + '.start')} />
+                  <NumericInput
+                    value={element.start.value}
+                    onChange={onChange(path + '.functions.' + index + '.start')}
+                  />
                 </InputGroup>
                 <br />
                 <Button onClick={onRemoveBezier(element)}>Remove</Button>
