@@ -449,7 +449,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               />
               <a
                 className="inline text-sm text-text-primary underline-offset-4 hover:text-ui-hover-primary hover:underline"
-                href="https://www.ir.world/terms-of-service"
+                href={clientSetting?.termsOfService}
                 target="_blank"
               >
                 {t('user:usermenu.profile.termsOfService')}
