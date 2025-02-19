@@ -528,14 +528,16 @@ const removeObject = (entities: Entity[]) => {
     if (hasComponent(entity, SceneComponent)) continue
     const sourceID = getComponent(entity, SourceComponent)
     EditorState.markModifiedScene(entity)
+    const entitiesToRemove = [] as Entity[]
     iterateEntityNode(
       entity,
       (node) => {
         affectedNodes.push(getComponent(node, NodeIDComponent))
-        removeEntity(node)
+        entitiesToRemove.push(node)
       },
       (child) => getComponent(child, SourceComponent) === sourceID
     )
+    for (const node of entitiesToRemove) removeEntity(node)
   }
 
   return affectedNodes
