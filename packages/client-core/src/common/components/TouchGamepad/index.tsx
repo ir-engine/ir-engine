@@ -114,7 +114,7 @@ export const TouchGamepad = () => {
 
   return (
     <>
-      <div className="pointer-events-auto fixed bottom-[15%] left-[165px] lg:bottom-[110px] lg:left-0 [&>div]:m-auto">
+      <div className="pointer-events-auto fixed bottom-[110px] bottom-[15%] left-0 left-[165px] [&>div]:m-auto">
         <Joystick
           baseImage={BasepadImage}
           stickImage={StickypadImage}
