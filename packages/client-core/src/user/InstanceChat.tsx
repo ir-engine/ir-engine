@@ -227,9 +227,7 @@ function Message({ message, hideUsername }: { message: MessageType; hideUsername
       {message.sender.id !== user.id.value && !hideUsername && (
         <div className="text-xs font-bold text-text-primary lg:text-lg">{message.sender.name}</div>
       )}
-      <div className="text-sm tracking-[-0.14px] lg:text-base lg:tracking-normal lg:text-text-primary">
-        {message.text}
-      </div>
+      <div className="text-sm tracking-[-0.14px] text-text-primary lg:text-base lg:tracking-normal">{message.text}</div>
     </div>
   )
 }

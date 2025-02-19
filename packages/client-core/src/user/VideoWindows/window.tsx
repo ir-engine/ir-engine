@@ -390,7 +390,7 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
     <div
       tabIndex={0}
       id={peerID + '_' + type + '_container'}
-      className="pointer-events-auto relative h-[131px] w-[131px] overflow-hidden rounded-[90px]"
+      className="pointer-events-auto relative h-[80px] w-[80px] overflow-hidden rounded-[90px] lg:h-[131px] lg:w-[131px]"
       onClick={() => {
         if (isScreen && isPiP) togglePiP()
       }}
