@@ -688,7 +688,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
                   }
                 }}
               >
-                <FaApple className="h-10 w-10" />
+                <FaApple className="h-10 w-10 text-text-primary" />
                 {oauthConnectedState.apple.value && (
                   <CheckLg className="absolute -right-1 -top-1 font-semibold text-green-400" />
                 )}
