@@ -32,11 +32,9 @@ import {
   SerializedComponentType
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { dispatchAction, getMutableState, getState, setNestedObject } from '@ir-engine/hyperflux'
+import { getMutableState, setNestedObject } from '@ir-engine/hyperflux'
 
-import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { EditorHistoryActions, EditorHistoryFunctions } from '../../services/EditorHistoryState'
+import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 

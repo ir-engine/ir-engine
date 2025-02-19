@@ -60,10 +60,10 @@ import { PropertiesPanelTab } from '../panels/properties'
 import { ScenePanelTab } from '../panels/scenes'
 import { ViewportPanelTab } from '../panels/viewport'
 import { VisualScriptPanelTab } from '../panels/visualscript'
+import { EditorHistoryState } from '../services/EditorHistoryState'
 import { EditorWarningState } from '../services/EditorWarningServices'
 import { UIAddonsState } from '../services/UIAddonsState'
 import './EditorContainer.css'
-import { EditorHistoryState } from '../services/EditorHistoryState'
 
 export const DockContainer = ({ children, id = 'editor-dock', dividerAlpha = 0 }) => {
   const dockContainerStyles = {

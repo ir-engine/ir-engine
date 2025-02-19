@@ -31,7 +31,6 @@ import {
   EntityUUID,
   LayerComponent,
   UUIDComponent,
-  createEntity,
   deserializeComponent,
   getComponent,
   getMutableComponent,
@@ -124,7 +123,7 @@ import { TextureLoader } from '../assets/loaders/texture/TextureLoader'
 import { AssetCacheState } from '../assets/state/AssetCacheState'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
-import { SourceComponent, SourceID } from '../scene/components/SourceComponent'
+import { SourceID } from '../scene/components/SourceComponent'
 import { GLTFComponent } from './GLTFComponent'
 import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
 import { KHRTextureTransformExtensionComponent, KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
