@@ -25,22 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import {
-  defineComponent,
-  removeComponent,
-  setComponent,
-  useComponent,
-  useEntityContext,
-  useHasComponent,
-  useOptionalComponent
-} from '@ir-engine/ecs'
-import { MediaComponent, MediaElementComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
-import { useMutableState } from '@ir-engine/hyperflux'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { defineComponent, removeComponent, setComponent, useEntityContext } from '@ir-engine/ecs'
+import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { ActiveHelperComponent } from '../../../../spatial/src/common/ActiveHelperComponent'
-import { NodeFunctions } from '../../gltf/NodeFunctions'
 import { NodeIDSchema } from '../../gltf/NodeIDComponent'
 
 export const GeneralAudioComponent = defineComponent({
@@ -58,16 +46,6 @@ export const GeneralAudioComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const renderState = useMutableState(RendererState)
-    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
-    const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
-    const audio = useComponent(entity, GeneralAudioComponent)
-    const mediaUUID = audio.mediaUUID.value
-    const mediaEntity = NodeFunctions.useEntityFromNodeID(entity, mediaUUID) || entity
-    const media = useOptionalComponent(mediaEntity, MediaComponent)
-    const hasMediaElementComponent = useHasComponent(mediaEntity, MediaElementComponent)
-
-    const mediaElement = useOptionalComponent(mediaEntity, MediaElementComponent)
 
     useEffect(() => {
       setComponent(entity, MediaComponent)
