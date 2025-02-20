@@ -43,7 +43,6 @@ import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import multiLogger from '@ir-engine/common/src/logger'
 import { EngineState } from '@ir-engine/ecs'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
-import { Tooltip } from '@ir-engine/ui'
 import {
   Microphone01Lg,
   MicrophoneOff,
@@ -54,7 +53,6 @@ import {
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import { IoAccessibility } from 'react-icons/io5'
 import { MdFlipCameraAndroid, MdOutlineViewInAr } from 'react-icons/md'
-import { twMerge } from 'tailwind-merge'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
 import { SearchParamState } from '../../common/services/RouterService'
 import { MediaStreamService, MediaStreamState } from '../../media/MediaStreamState'
@@ -161,28 +159,18 @@ export const MediaIconsBox = () => {
       ) : null}
       {videoEnabled && hasVideoDevice && mediaNetworkReady && mediaNetworkState?.ready.value ? (
         <>
-          <Tooltip content={t('user:menu.toggleVideo')} position="bottom">
-            <button
-              className={twMerge(
-                'relative flex h-12 w-12 items-center justify-center rounded-full bg-white mdh:h-16 mdh:w-16 '
-              )}
-              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-              id="UserVideo"
-              onClick={() => {
-                MediaStreamState.toggleWebcamPaused()
-                logger.info({ event_name: 'toggle_camera', value: isCamVideoEnabled })
-              }}
-            >
-              {isCamVideoEnabled ? (
-                <VideoRecorderLg className="h-6 w-6 text-[#080808]" />
-              ) : (
-                <VideoRecorderOffLg className="h-6 w-6 text-[#080808]" />
-              )}
-              {!!mediaStreamState.webcamMediaStream.value != mediaStreamState.webcamEnabled.value && (
-                <LoadingView className="absolute bottom-0 left-0 top-0 h-16 w-16" />
-              )}
-            </button>
-          </Tooltip>
+          <LocationIconButton
+            tooltip={{
+              title: t('user:menu.toggleVideo')
+            }}
+            icon={isCamVideoEnabled ? VideoRecorderLg : VideoRecorderOffLg}
+            id="UserVideo"
+            onClick={() => {
+              MediaStreamState.toggleWebcamPaused()
+              logger.info({ event_name: 'toggle_camera', value: isCamVideoEnabled })
+            }}
+            loadingState={!!mediaStreamState.webcamMediaStream.value != mediaStreamState.webcamEnabled.value}
+          />
 
           {isCamVideoEnabled && numVideoDevices > 1 && (
             <LocationIconButton

@@ -78,7 +78,7 @@ export const ViewerInteractions = () => {
 
   return (
     <div style={{ opacity: 1 - loadingScreenOpacity.value }} className="relative h-dvh w-full p-6">
-      <div className="pointer-events-auto absolute top-0 h-fit w-full pt-[inherit]">
+      <div className="pointer-events-auto absolute left-0 top-0 h-fit w-full pt-[inherit]">
         <MediaIconsBox />
       </div>
 
@@ -86,7 +86,7 @@ export const ViewerInteractions = () => {
         <VideoWindows />
       </div>
 
-      <div className="pointer-events-auto absolute bottom-0 h-fit w-full pb-[inherit]">
+      <div className="pointer-events-auto absolute bottom-0 left-0 h-fit w-full pb-[inherit]">
         <UserMenus />
       </div>
 
