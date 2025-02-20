@@ -197,11 +197,6 @@ export default function AddEditLocationModal(props: {
           return findMeshRootEntity(parentEntity, rootEntity)
         }
         EditorControlFunctions.modifyProperty([combinedMeshEntity], EntityTreeComponent, { parentEntity: rootEntity })
-        // EditorControlFunctions.modifyProperty([combinedMeshEntity], NameComponent, 'combined mesh entity')
-        // EditorControlFunctions.modifyProperty([combinedMeshEntity], TransformComponent, {})
-        // EditorControlFunctions.modifyProperty([combinedMeshEntity], UUIDComponent, UUIDComponent.generateUUID())
-
-        //setComponent(combinedMeshEntity, EntityTreeComponent, { parentEntity: rootEntity })
         setComponent(combinedMeshEntity, NameComponent, 'combined mesh entity')
         setComponent(combinedMeshEntity, TransformComponent)
         setComponent(combinedMeshEntity, UUIDComponent, UUIDComponent.generateUUID())
@@ -324,10 +319,6 @@ export default function AddEditLocationModal(props: {
           saveScenePath
         )
 
-        //save current scene before create location
-        // const newSceneAssetID = getState(EditorState).sceneAssetID
-        // const newSceneName = getState(EditorState).sceneName
-        // await saveSceneGLTF(newSceneAssetID!, projectName!, newSceneName!, abortController.signal)
         await handlePublish()
         //re-open the original scene
         const studioUrl = `${window.location.origin}/studio?project=${projectName}&scenePath=${scenePath}`
