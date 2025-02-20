@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import multiLogger from '@ir-engine/common/src/logger'
 import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
-import { useMutableState } from '@ir-engine/hyperflux'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
@@ -33,8 +33,8 @@ import { Checkbox, Select } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
 import { ArrowLeftLg } from '@ir-engine/ui/src/icons'
 import { OptionType } from '@ir-engine/ui/src/primitives/tailwind/Select'
-import Tabs from '@ir-engine/ui/src/primitives/tailwind/Tabs'
-import React from 'react'
+import SidebarNavigation from '@ir-engine/ui/src/primitives/tailwind/SidebarNavigation'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PopoverState } from '../../common/services/PopoverState'
 import { XruiNameplateState } from '../../social/XruiNameplateState'
@@ -300,6 +300,21 @@ function GraphicsTab() {
 export default function SettingsMenu() {
   const { t } = useTranslation()
 
+  const currentTabIndex = useHookstate(0)
+  const labels = [
+    t('user:usermenu.setting.general'),
+    t('user:usermenu.setting.audio'),
+    t('user:usermenu.setting.graphics')
+  ]
+
+  const componentMap: Record<string, React.ReactNode> = {
+    0: <GeneralTab />,
+    1: <AudioTab />,
+    2: <GraphicsTab />
+  }
+
+  useEffect(() => {}, [])
+
   return (
     <div className="absolute z-50 h-fit max-h-[90vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-1 p-6 text-text-secondary mdh:max-h-[60vh] mdh:p-10">
       <div className="mb-[17px]">
@@ -307,23 +322,14 @@ export default function SettingsMenu() {
           <ArrowLeftLg />
         </button>
       </div>
-      <Tabs
-        tabsData={[
-          {
-            tabLabel: t('user:usermenu.setting.general'),
-            bottomComponent: <GeneralTab />
-          },
-          {
-            tabLabel: t('user:usermenu.setting.audio'),
-            bottomComponent: <AudioTab />
-          },
-          {
-            tabLabel: t('user:usermenu.setting.graphics'),
-            bottomComponent: <GraphicsTab />
-          }
-        ]}
-        tabClassName="text-[#616161]"
+      <SidebarNavigation
+        currentTabIndex={currentTabIndex.value}
+        labels={labels}
+        onChange={(index) => {
+          currentTabIndex.set(index)
+        }}
       />
+      {componentMap[currentTabIndex.value]}
     </div>
   )
 }
