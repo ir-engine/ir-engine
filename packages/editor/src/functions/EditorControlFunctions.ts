@@ -63,6 +63,7 @@ import { DirectionalLightComponent, HemisphereLightComponent } from '@ir-engine/
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { SceneDeltaState } from '@ir-engine/ecs/src/SceneDeltaState'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { serializeEntity } from '@ir-engine/engine/src/scene/functions/serializeWorld'
@@ -117,7 +118,12 @@ const modifyProperty = <C extends Component<any, any>>(
 ) => {
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
-
+    const sourceID = getComponent(entity, SourceComponent)
+    const rootEntity = getState(EditorState).rootEntity
+    const rootSourceID = GLTFComponent.getInstanceID(rootEntity)
+    if (sourceID !== rootSourceID) {
+      SceneDeltaState.registerDelta(entity, component, properties)
+    }
     const currentComponent = hasComponent(entity, component) ? serializeComponent(entity, component) : {}
     for (const [key, val] of Object.entries(properties)) {
       if (key.includes('.')) {
