@@ -48,7 +48,6 @@ export const ViewerInteractions = () => {
   const { t } = useTranslation()
 
   useLayoutEffect(() => {
-    ;(screen.orientation as any).lock?.('landscape')
     const orientationChangeHandler = () => {
       if (screen.orientation.type.match('portrait')) {
         isPortrait.set(true)
@@ -58,14 +57,13 @@ export const ViewerInteractions = () => {
     }
     screen.orientation.addEventListener('change', orientationChangeHandler)
     return () => {
-      screen.orientation.unlock()
       screen.orientation.removeEventListener('change', orientationChangeHandler)
     }
   }, [])
 
   if (!userID) return null
 
-  if (isPortrait.value && isMobile) {
+  if (isMobile && isPortrait.value) {
     return (
       <div className="grid h-screen w-screen place-items-center bg-[#070708]">
         <div className="flex flex-col items-center justify-center gap-y-4">
