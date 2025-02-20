@@ -33,12 +33,12 @@ import { Entity } from '@ir-engine/ecs/src/Entity'
 import { defineActionQueue, getState } from '@ir-engine/hyperflux'
 import { lerp } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
 
+import { NetworkObjectComponent, NetworkState } from '@ir-engine/network'
 import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { preloadedAnimations } from './Util'
-import { NetworkObjectComponent, NetworkState } from '@ir-engine/network'
 
 /** @todo replace this with event sourcing */
 const animationQueue = defineActionQueue(AvatarNetworkAction.setAnimationState.matches)

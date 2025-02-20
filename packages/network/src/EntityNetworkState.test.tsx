@@ -587,8 +587,7 @@ describe('EntityNetworkState', () => {
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), false)
     })
 
-
-    it.only('should not despawn entity if action sent by non-owner', async () => {
+    it('should not despawn entity if action sent by non-owner', async () => {
       const hostUserId = 'host user' as UserID
       const hostPeerID = 'host peer' as PeerID
 
