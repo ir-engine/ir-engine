@@ -396,7 +396,13 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
       }}
     >
       {(!videoMediaStream || videoStreamPaused) && (
-        <img src={avatarThumbnail} alt={t('user:avatar.avatar')} crossOrigin="anonymous" draggable={false} />
+        <img
+          src={avatarThumbnail}
+          alt={t('user:avatar.avatar')}
+          crossOrigin="anonymous"
+          draggable={false}
+          className="h-[131px] w-[131px]"
+        />
       )}
       <span
         className="[&>video]:h-full [&>video]:w-full [&>video]:object-cover"

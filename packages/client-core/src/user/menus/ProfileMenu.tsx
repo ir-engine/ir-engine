@@ -366,13 +366,13 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     <div className="absolute z-50 h-fit max-h-[90vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 mdh:max-h-[60vh] mdh:px-8 mdh:py-6">
       <div className="relative grid w-full grid-cols-5 gap-x-2">
         <div className="col-span-3 grid grid-cols-3 gap-x-2">
-          <div className="relative col-span-1 h-[3.75rem] w-[3.75rem]">
-            <AvatarImage size="fill" src={avatarThumbnail} />
+          <div className="relative col-span-1 h-20 w-20">
+            <AvatarImage size="large" src={avatarThumbnail} className="object-cover" />
             <button
               onClick={() => {
                 PopoverState.showPopupover(<AvatarSelectMenu showBackButton={true} previewEnabled={true} />)
               }}
-              className="absolute -bottom-3 -right-3 flex h-8 w-8 items-center justify-center rounded-full bg-[#DDE1E5] p-2"
+              className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#DDE1E5] p-2"
             >
               <Edit01Lg className="place-items-center text-text-secondary" />
             </button>
@@ -475,6 +475,8 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             label={t('user:usermenu.profile.confirmAge18')}
           />
         )}
+
+        <div className="mt-1" />
 
         <Input
           value={username.value || ('' as UserName)}
