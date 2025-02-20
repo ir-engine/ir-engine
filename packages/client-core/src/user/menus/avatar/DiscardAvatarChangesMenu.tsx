@@ -46,25 +46,27 @@ export const DiscardAvatarChangesMenu = ({ handleConfirm, handleCancel }: Props)
 
   return (
     <Modal
-      className="max-h-1/3 pointer-events-auto h-fit w-1/4 rounded-lg"
+      className="max-h-1/3 pointer-events-auto h-fit w-1/4 rounded-lg md:h-72 md:w-96"
       hideFooter
       rawChildren={
-        <div className="flex flex-col p-6 text-center">
-          <div className="mx-auto mb-12 flex h-14 w-14 rounded-full bg-[#191b1f]">
-            <GoAlert className="m-auto text-3xl text-[#C3324B]" />
+        <div className="grid h-full grid-flow-row grid-rows-[auto,1fr,auto] p-6">
+          <div className="flex h-14 w-14 justify-self-center rounded-full bg-surface-4">
+            <GoAlert className="m-auto text-3xl text-ui-hover-error" />
           </div>
-          <Text fontSize="xl" fontWeight="bold" className="capitalize">
-            {t('user:avatar.discardAvatarChanges')}
-          </Text>
-          <Text fontSize="base" className="mt-2 ">
-            {t('user:common.changesLostAlert')}
-          </Text>
+          <div className="flex flex-col items-center justify-center">
+            <Text fontSize="xl" fontWeight="bold" className="capitalize text-text-primary">
+              {t('user:avatar.discardAvatarChanges')}
+            </Text>
+            <Text fontSize="base" className="mt-2 text-text-secondary">
+              {t('user:common.changesLostAlert')}
+            </Text>
+          </div>
 
-          <div className="mt-10 flex justify-center">
-            <Button className="text-sm" onClick={handleClose}>
+          <div className="flex justify-center gap-6">
+            <Button className="rounded-md" fullWidth onClick={handleClose}>
               {t('common:components.back')}
             </Button>
-            <Button className="ml-2 text-sm" onClick={handleConfirm}>
+            <Button className="rounded-md" fullWidth onClick={handleConfirm}>
               {t('user:common.discard')}
             </Button>
           </div>
