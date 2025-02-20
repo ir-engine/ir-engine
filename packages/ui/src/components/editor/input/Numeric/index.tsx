@@ -65,6 +65,11 @@ export interface NumericInputProp extends Omit<React.HTMLAttributes<HTMLInputEle
   largeStep?: number
   min?: number
   max?: number
+  prefixClassName?: string
+  PreFixIcon?: ({ className }: { className?: string }) => JSX.Element
+  prefixIconClassName?: string
+  SuffixIcon?: ({ className }: { className?: string }) => JSX.Element
+  suffixIconClassName?: string
 }
 
 const NumericInput = ({
@@ -83,6 +88,11 @@ const NumericInput = ({
   largeStep,
   min,
   max,
+  prefixClassName,
+  PreFixIcon,
+  prefixIconClassName,
+  SuffixIcon,
+  suffixIconClassName,
   ...rest
 }: NumericInputProp) => {
   const tempValue = useHookstate(0)
@@ -154,7 +164,8 @@ const NumericInput = ({
         className
       )}
     >
-      {prefix}
+      {PreFixIcon && <PreFixIcon className={prefixIconClassName} />}
+      {prefix && <div className={prefixClassName}>{prefix}</div>}
       <input
         className={twMerge(
           'h-full w-full bg-inherit text-center text-xs font-normal leading-normal text-text-primary focus:outline-none disabled:text-text-inactive',
@@ -174,6 +185,7 @@ const NumericInput = ({
           {unit}
         </Text>
       )}
+      {SuffixIcon && <SuffixIcon className={suffixIconClassName} />}
     </div>
   )
 }

@@ -136,8 +136,6 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       {/*</InputGroup>*/}
 
       <ArrayInputGroup
-        label={t('editor:properties.media.paths')}
-        inputLabel={t('editor:properties.media.path')}
         values={media.resources.value as string[]}
         dropTypes={[...ItemTypes.Audios, ...ItemTypes.Videos]}
         onChange={commitProperty(MediaComponent, 'resources')}

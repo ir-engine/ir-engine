@@ -24,8 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { userHasProjectPermission } from '@ir-engine/client-core/src/hooks/useUserProjectPermission'
+import { API } from '@ir-engine/common'
+import { projectPermissionPath } from '@ir-engine/common/src/schema.type.module'
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
-import { entityExists, EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
+import { EngineState, entityExists, EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
 import {
   getAllComponents,
   getComponent,
@@ -123,6 +126,8 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const { setMenu } = useHierarchyTreeContextMenu()
   const renameRef = useRef<HTMLInputElement>(null)
   const isRenameOpen = useState(false)
+  const canSaveNodeChanges = useState(false)
+  const permissionToChangeNodeVerified = useState(false)
 
   const handleRenameOpen = () => {
     if (!isRenameOpen.value) {
@@ -345,6 +350,42 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     getMutableState(AssetModifiedState)[GLTFComponent.getInstanceID(entity)].set(none)
   }
 
+  useEffect(() => {
+    if (isModified) {
+      checkIfUserCanSaveNodeChanges()
+    }
+  }, [isModified])
+
+  const checkIfUserCanSaveNodeChanges = async () => {
+    if (permissionToChangeNodeVerified.value) return
+    permissionToChangeNodeVerified.set(true)
+
+    const gltfComponent = getComponent(node.entity, GLTFComponent)
+    const [, orgName, projectName] = STATIC_ASSET_REGEX.exec(gltfComponent.src)!
+    const fullProjectName = `${orgName}/${projectName}`
+
+    const { projectName: stateProjectName } = getState(EditorState)
+
+    if (stateProjectName === fullProjectName) {
+      canSaveNodeChanges.set(true)
+      return
+    }
+
+    const userID = getState(EngineState).userID
+    const { data } = await API.instance.service(projectPermissionPath).find({
+      query: {
+        project: fullProjectName,
+        userId: userID
+      }
+    })
+    const [permission] = data
+    if (!permission) {
+      canSaveNodeChanges.set(false)
+      return
+    }
+    canSaveNodeChanges.set(userHasProjectPermission(permission, ['owner', 'editor']))
+  }
+
   return (
     <li
       key={node.depth + ' ' + props.index + ' ' + entity}
@@ -421,7 +462,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
                 </span>
               </div>
             )}
-            {isModified && (
+            {isModified && canSaveNodeChanges.value && (
               <div className="flex items-center gap-1">
                 <Button
                   variant="tertiary"
