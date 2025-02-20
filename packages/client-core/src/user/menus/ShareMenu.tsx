@@ -269,7 +269,7 @@ const ShareMenu = (): JSX.Element => {
         </div>
       </div>
       <div className="mt-4 flex w-full items-center justify-center border-t-[0.5px] border-[#212226] py-[11px]">
-        <Button variant="secondary" size="l" onClick={() => window.open(questShareLink, '_blank')}>
+        <Button variant="secondary" size="l" onClick={() => navigator.share({ url: shareLink })}>
           <Share06Sm />
           {t('user:usermenu.share.lbl-share')}
         </Button>
