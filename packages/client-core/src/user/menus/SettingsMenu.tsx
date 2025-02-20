@@ -111,21 +111,7 @@ function AudioTab() {
           }}
         />
       </div> */}
-      <div className="mx-auto grid grid-cols-[1fr_2fr] items-center gap-x-4 lg:w-3/4">
-        <div className="mt-2 text-right text-sm text-text-tertiary">{t('user:usermenu.setting.lbl-volume')}</div>
-        <Slider
-          max={1}
-          min={0}
-          step={0.01}
-          value={audioState.masterVolume.value}
-          onChange={(value: number) => {
-            audioState.masterVolume.set(value)
-            logger.info({ event_name: `set_total_volume`, event_value: value })
-          }}
-          onRelease={() => {}}
-          label=""
-        />
-        <div className="mt-2 text-right text-sm text-text-tertiary">{t('user:usermenu.setting.lbl-microphone')}</div>
+      <div className="mx-auto grid grid-cols-1 items-center gap-x-4 gap-y-4 lg:w-3/4">
         <Slider
           max={1}
           min={0}
@@ -136,11 +122,20 @@ function AudioTab() {
             logger.info({ event_name: `set_microphone_volume`, event_value: value })
           }}
           onRelease={() => {}}
-          label=""
+          label={t('user:usermenu.setting.lbl-microphone')}
         />
-        <div className="mt-2 text-right text-sm text-text-tertiary">
-          {t('user:usermenu.setting.lbl-media-instance')}
-        </div>
+        <Slider
+          max={1}
+          min={0}
+          step={0.01}
+          value={audioState.masterVolume.value}
+          onChange={(value: number) => {
+            audioState.masterVolume.set(value)
+            logger.info({ event_name: `set_total_volume`, event_value: value })
+          }}
+          onRelease={() => {}}
+          label={t('user:usermenu.setting.lbl-volume')}
+        />
         <Slider
           max={1}
           min={0}
@@ -151,9 +146,8 @@ function AudioTab() {
             logger.info({ event_name: `set_user_volume`, event_value: value })
           }}
           onRelease={() => {}}
-          label=""
+          label={t('user:usermenu.setting.lbl-media-instance')}
         />
-        <div className="mt-2 text-right text-sm text-text-tertiary">{t('user:usermenu.setting.lbl-notification')}</div>
         <Slider
           max={1}
           min={0}
@@ -164,9 +158,8 @@ function AudioTab() {
             logger.info({ event_name: `set_notification_volume`, event_value: value })
           }}
           onRelease={() => {}}
-          label=""
+          label={t('user:usermenu.setting.lbl-notification')}
         />
-        <div className="mt-2 text-right text-sm text-text-tertiary">{t('user:usermenu.setting.lbl-sound-effect')}</div>
         <Slider
           max={1}
           min={0}
@@ -177,11 +170,8 @@ function AudioTab() {
             logger.info({ event_name: `set_scene_volume`, event_value: value })
           }}
           onRelease={() => {}}
-          label=""
+          label={t('user:usermenu.setting.lbl-sound-effect')}
         />
-        <div className="mt-2 text-right text-sm text-text-tertiary">
-          {t('user:usermenu.setting.lbl-background-music-volume')}
-        </div>
         <Slider
           max={1}
           min={0}
@@ -192,7 +182,7 @@ function AudioTab() {
             logger.info({ event_name: `set_music_volume`, event_value: value })
           }}
           onRelease={() => {}}
-          label=""
+          label={t('user:usermenu.setting.lbl-background-music-volume')}
         />
       </div>
     </div>
