@@ -442,6 +442,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               <Checkbox
                 checked={checkedTOS.value}
                 onChange={() => checkedTOS.set((v) => !v)}
+                disabled={checkedTOS.value}
                 label={t('user:usermenu.profile.agreeTOS')}
               />
               <a
@@ -455,6 +456,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             <Checkbox
               checked={checked13OrOver.value}
               onChange={() => checked13OrOver.set((v) => !v)}
+              disabled={checked13OrOver.value}
               label={t('user:usermenu.profile.confirmAge13')}
             />
           </div>

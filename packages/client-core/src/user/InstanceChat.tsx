@@ -29,6 +29,7 @@ import { useTouchOutside } from '@ir-engine/common/src/utils/useClickOutside'
 import { State, dispatchAction, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
+import { Button } from '@ir-engine/ui'
 import { ArrowTopRightOnSquareMd, MessageTextSquare01Lg, Send01Lg, Send01Sm, XCloseLg } from '@ir-engine/ui/src/icons'
 import React, { createContext, useContext, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -282,15 +283,16 @@ export default function InstanceChat() {
   return (
     <InstanceChatProvider>
       {!ageVerified ? (
-        <div className="rounded-lg bg-[#C6C6C6] p-4">
+        <div className="rounded-lg bg-surface-4 p-4">
           <div className="mx-auto text-center font-semibold text-[#3B3A3A]">{t('user:instanceChat.wantToChat')}</div>
-          <button
-            className="mt-4 flex items-center justify-center gap-x-1 rounded-[20px] bg-ui-secondary px-[30px] py-1.5 text-[#F7F8FA] hover:bg-ui-hover-secondary focus:bg-ui-select-secondary"
+          <Button
+            variant="secondary"
+            className="mt-4 rounded-[20px]"
             onClick={() => PopoverState.showPopupover(<ProfileMenu />)}
           >
             {isGuest ? t('user:instanceChat.register') : t('user:instanceChat.verifyAge')}
             <ArrowTopRightOnSquareMd />
-          </button>
+          </Button>
         </div>
       ) : (
         <MessagesWrapper />
