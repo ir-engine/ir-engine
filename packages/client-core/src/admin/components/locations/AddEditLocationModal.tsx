@@ -73,7 +73,7 @@ const locationTypeOptions = [
   { label: 'Showroom', value: 'showroom' }
 ]
 
-const LOCATION_MAX = 5
+const LOCATION_MAX = 10
 
 export default function AddEditLocationModal(props: {
   action: string
@@ -144,7 +144,7 @@ export default function AddEditLocationModal(props: {
     if (!maxUsers.value) {
       errors.maxUsers.set(t('admin:components.location.maxUserCantEmpty'))
     }
-    if (maxUsers.value > 5) {
+    if (maxUsers.value > LOCATION_MAX) {
       errors.maxUsers.set(t('admin:components.location.maxUserExceeded'))
     }
     if (!scene.value) {
