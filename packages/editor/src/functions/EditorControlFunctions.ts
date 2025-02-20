@@ -32,6 +32,7 @@ import {
   generateEntityUUID,
   getAncestorWithComponents,
   getChildrenWithComponents,
+  iterateEntityNode,
   removeEntityNodeRecursively,
   UUIDComponent
 } from '@ir-engine/ecs'
@@ -74,6 +75,7 @@ import {
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { extractDefaults } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
@@ -365,6 +367,7 @@ const positionObject = (
 
     setComponent(entity, TransformComponent, { position: transform.position })
     getMutableComponent(entity, TransformComponent).position.set((v) => v)
+    iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
     EditorState.markModifiedScene(entity)
   }

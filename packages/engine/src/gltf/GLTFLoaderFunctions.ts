@@ -56,6 +56,7 @@ import {
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { ResourceType } from '@ir-engine/spatial/src/resources/ResourceState'
+import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import {
   AnimationClip,
   AnimationMixer,
@@ -1416,6 +1417,7 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
           parentEntity: nodeEntity,
           childIndex: i
         })
+        computeTransformMatrix(childEntity)
       })
     }
   }
@@ -1494,6 +1496,7 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
 
   for (const entity of loadedNodeEntities) {
     setComponent(entity, EntityTreeComponent, { parentEntity: options.entity })
+    computeTransformMatrix(entity)
   }
 
   const rootEntity = options.entity
