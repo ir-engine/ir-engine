@@ -29,8 +29,6 @@ Infinite Reality Engine. All Rights Reserved.
  * @why Ergonomics. Allows all imports to come from a single file.
  * */
 
-import '../util/patchNode'
-
 import { PRIVATE as XRSESSION_SYMBOL } from 'webxr-polyfill/src/api/XRSession'
 import { PRIVATE as XRWEBGLLAYER_SYMBOL } from 'webxr-polyfill/src/api/XRWebGLLayer'
 import { PRIVATE as EVENTTARGET_SYMBOL } from 'webxr-polyfill/src/lib/EventTarget'
