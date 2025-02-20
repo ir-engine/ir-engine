@@ -38,6 +38,7 @@ import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarNetworkAction } from '../state/AvatarNetworkActions'
 import { preloadedAnimations } from './Util'
+import { NetworkObjectComponent, NetworkState } from '@ir-engine/network'
 
 /** @todo replace this with event sourcing */
 const animationQueue = defineActionQueue(AvatarNetworkAction.setAnimationState.matches)
@@ -59,6 +60,11 @@ const epsilon = 0.01
 export const updateAnimationGraph = (avatarEntities: Entity[]) => {
   for (const newAnimation of animationQueue()) {
     const targetEntity = UUIDComponent.getEntityByUUID(newAnimation.entityUUID)
+    /** @todo this validation will require some more advanced tooling in event source state once we convert this module to use that paradigm */
+    const networkState = NetworkState.worldNetwork
+    if (networkState) {
+      if (newAnimation.$peer !== getComponent(targetEntity, NetworkObjectComponent).authorityPeerID) continue
+    }
     if (!hasComponent(targetEntity, AvatarAnimationComponent)) {
       console.warn(
         '[updateAnimationGraph]: AvatarAnimationComponent not found on entity',
