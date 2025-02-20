@@ -132,7 +132,10 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
 
   useEffect(() => clearTimeout(debouncedSearchQueryRef.current), [])
 
-  const handleClose = () => {
+  const handleClose = async () => {
+    if (userAvatarId !== selectedAvatarId.value) {
+      await handleConfirmAvatar()
+    }
     PopoverState.hidePopupover()
   }
 
@@ -150,29 +153,25 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
             {showBackButton && (
               <button
                 data-testid="edit-avatar-button"
-                className="h-6 w-6 self-center text-text-secondary hover:text-text-primary focus:text-text-primary"
-                onClick={async () => {
-                  if (userAvatarId !== selectedAvatarId.value) {
-                    await handleConfirmAvatar()
-                  }
-                  PopoverState.hidePopupover()
-                }}
+                className=" h-6 w-6 self-center bg-transparent text-text-primary hover:bg-transparent focus:bg-transparent"
+                onClick={handleClose}
               >
                 <IoArrowBackOutline size={16} />
               </button>
             )}
-            <Text className="col-start-2  place-self-center self-center text-text-primary">
+            <Text className="col-start-2 place-self-center self-center text-text-primary">
               {t('user:avatar.titleSelectAvatar')}
             </Text>
-            <button
+            <Button
+              fullWidth={false}
               data-testid="edit-avatar-button"
-              className="h-6 w-6 self-center text-text-secondary hover:text-text-primary focus:text-text-primary"
+              className="h-6 w-6 self-center bg-transparent  text-text-primary hover:bg-transparent focus:bg-transparent"
               onClick={handleClose}
             >
               <span>
                 <IoCloseOutline size={16} />
               </span>
-            </button>
+            </Button>
           </div>
           <div
             className={twMerge(
@@ -244,14 +243,6 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
                       />
                     </div>
                   ))}
-                </div>
-                <div className="mt-4 flex justify-end gap-2">
-                  <Button onClick={handleClose} variant="tertiary" disabled={selectedAvatarId.value === userAvatarId}>
-                    {t('user:avatar.discardChanges')}
-                  </Button>
-                  <Button onClick={handleConfirmAvatar} disabled={selectedAvatarId.value === userAvatarId}>
-                    {t('user:avatar.saveChanges')}
-                  </Button>
                 </div>
               </div>
             </div>
