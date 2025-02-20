@@ -151,7 +151,6 @@ export default function AddEditLocationModal(props: {
     caption: ''
   })
   const lods = useHookstate<LODVariantDescriptor[]>([])
-
   useEffect(() => {
     if (location) {
       name.set(location.name)
@@ -197,11 +196,17 @@ export default function AddEditLocationModal(props: {
           if (parentEntity === rootEntity) return entity
           return findMeshRootEntity(parentEntity, rootEntity)
         }
-        setComponent(combinedMeshEntity, EntityTreeComponent, { parentEntity: rootEntity })
+        EditorControlFunctions.modifyProperty([combinedMeshEntity], EntityTreeComponent, { parentEntity: rootEntity })
+        // EditorControlFunctions.modifyProperty([combinedMeshEntity], NameComponent, 'combined mesh entity')
+        // EditorControlFunctions.modifyProperty([combinedMeshEntity], TransformComponent, {})
+        // EditorControlFunctions.modifyProperty([combinedMeshEntity], UUIDComponent, UUIDComponent.generateUUID())
+
+        //setComponent(combinedMeshEntity, EntityTreeComponent, { parentEntity: rootEntity })
         setComponent(combinedMeshEntity, NameComponent, 'combined mesh entity')
         setComponent(combinedMeshEntity, TransformComponent)
         setComponent(combinedMeshEntity, UUIDComponent, UUIDComponent.generateUUID())
-
+        const newSource = GLTFComponent.getInstanceID(rootEntity)
+        setComponent(combinedMeshEntity, SourceComponent, newSource)
         const srcURL = pathJoin(config.client.fileServer, saveScenePath + '/combined-mesh.gltf')
         iterateEntityNode(rootEntity, (entity) => {
           if (hasComponent(entity, MeshComponent)) {
@@ -304,27 +309,29 @@ export default function AddEditLocationModal(props: {
         const sourceID = SourceComponent.getSourceID(uuid, destinationPath)
         iterateEntityNode(result, (entity) => setComponent(entity, SourceComponent, sourceID))
         await exportGLTF(result, destinationPath, false)
-        const compressedFilePath = srcURL.replace(/\.[^.]*$/, `-LOD3.gltf`)
+        const compressedFilePath = srcURL.replace(/\.[^.]*$/, `-LOD2.gltf`)
         //update src from combined mesh to compressed mesh
-        EditorControlFunctions.modifyProperty([combinedMeshEntity], GLTFComponent, { src: compressedFilePath })
-        //save current scene before create location
-        const newSceneAssetID = getState(EditorState).sceneAssetID
-        const newSceneName = getState(EditorState).sceneName
-        await saveSceneGLTF(newSceneAssetID!, projectName!, newSceneName!, abortController.signal)
-
-        await handlePublish()
-        //re-open the original scene
-        const studioUrl = `${window.location.origin}/studio?project=${projectName}&scenePath=${scenePath}`
-        window.open(studioUrl, '_blank')?.focus()
         compressionLoading.set(false)
+        EditorControlFunctions.modifyProperty([combinedMeshEntity], GLTFComponent, { src: compressedFilePath })
+
+        //save duplicated scene and publish that
         await saveSceneGLTF(
           sceneAssetID!,
           projectName,
-          sceneName + '-duplicated',
+          sceneName.replace('.gltf', '-duplicated.gltf'),
           abortController.signal,
           true,
           saveScenePath
         )
+
+        //save current scene before create location
+        // const newSceneAssetID = getState(EditorState).sceneAssetID
+        // const newSceneName = getState(EditorState).sceneName
+        // await saveSceneGLTF(newSceneAssetID!, projectName!, newSceneName!, abortController.signal)
+        await handlePublish()
+        //re-open the original scene
+        const studioUrl = `${window.location.origin}/studio?project=${projectName}&scenePath=${scenePath}`
+        window.open(studioUrl, '_blank')?.focus()
         //PopoverState.hidePopupover()
       }
     } catch (error) {
@@ -366,7 +373,7 @@ export default function AddEditLocationModal(props: {
     const updateSceneID = getState(EditorState).sceneAssetID
     const locationData: LocationData = {
       name: name.value.trim(),
-      sceneId: scene.value,
+      sceneId: updateSceneID as string,
       maxUsersPerInstance: maxUsers.value,
       locationSetting: {
         locationId: '' as LocationID,
