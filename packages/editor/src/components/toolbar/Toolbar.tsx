@@ -28,11 +28,11 @@ import ProfilePill from '@ir-engine/client-core/src/common/components/ProfilePil
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { RouterState } from '@ir-engine/client-core/src/common/services/RouterService'
-import { useProjectPermissions } from '@ir-engine/client-core/src/user/useUserProjectPermission'
+import { useProjectPermissions } from '@ir-engine/client-core/src/hooks/useUserProjectPermission'
 import { useFind } from '@ir-engine/common'
 import { ScopeType, locationPath, scopePath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs'
-import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
+import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { Button, DropdownItem } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
@@ -40,7 +40,7 @@ import { ChevronDownSm, SquaresLg } from '@ir-engine/ui/src/icons'
 import { t } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { onNewScene, onSaveScene, saveSceneGLTF } from '../../functions/sceneFunctions'
+import { confirmSceneExists, onNewScene, onSaveScene, saveSceneGLTF } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { uploadFiles } from '../../panels/assets/topbar'
 import { EditorState } from '../../services/EditorServices'
@@ -64,9 +64,12 @@ const onImportAsset = async () => {
 }
 
 export const confirmSceneSaveIfModified = async () => {
+  const { sceneName } = getState(EditorState)
+  const isSceneExists = sceneName ? await confirmSceneExists(sceneName) : false
+
   const isModified = EditorState.isModified()
 
-  if (isModified) {
+  if (isModified && isSceneExists) {
     return new Promise((resolve) => {
       PopoverState.showPopupover(<QuitToDashboardConfirmationDialog resolve={resolve} />)
     })
@@ -90,7 +93,7 @@ export const onCloseProject = async () => {
   if (!(await confirmSceneSaveIfModified())) return
 
   const editorState = getMutableState(EditorState)
-  getMutableState(GLTFModifiedState).set({})
+  getMutableState(AssetModifiedState).set({})
   editorState.projectName.set(null)
   editorState.scenePath.set(null)
   editorState.sceneName.set(null)
@@ -179,7 +182,7 @@ export default function Toolbar() {
 
   return (
     <>
-      <div className="flex h-10 items-center justify-between bg-theme-primary">
+      <div className="flex h-10 items-center justify-between px-4 py-0.5">
         <div className="flex items-center">
           <div className="ml-3 mr-6 cursor-pointer" onClick={onCloseProject}>
             <img src="ir-studio-icon.svg" alt="iR Engine Logo" className={`h-6 w-6`} />
@@ -198,12 +201,12 @@ export default function Toolbar() {
         {/* TO BE ADDED */}
         {/* <div className="flex items-center gap-2.5 rounded-full bg-[#212226] p-0.5">
           <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-simple')}</div>
-          <div className="rounded-2xl bg-blue-primary px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
+          <div className="rounded-2xl px-2.5">{t('editor:toolbar.lbl-advanced')}</div>
         </div> */}
         <div className="flex items-center gap-2.5">
-          <span className="text-[#B2B5BD]">{projectName.value}</span>
-          <span>/</span>
-          <span>{sceneName.value}</span>
+          <span className="text-text-secondary">{projectName.value}</span>
+          <span className="text-text-secondary">{' / '}</span>
+          <span className="text-text-primary">{sceneName.value}</span>
         </div>
 
         <div className="flex items-center justify-center gap-2">

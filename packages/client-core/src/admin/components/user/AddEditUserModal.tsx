@@ -198,7 +198,7 @@ export default function AddEditUserModal({ user }: { user?: UserType }) {
             </Button>
             <Button
               size="sm"
-              className="bg-theme-blue-secondary text-blue-700 dark:text-white"
+              className=" text-blue-700 dark:text-white"
               onClick={() =>
                 scopes.set(scopeTypeOptions.filter((st) => !st.disabled).map((st) => ({ type: st.value as ScopeType })))
               }

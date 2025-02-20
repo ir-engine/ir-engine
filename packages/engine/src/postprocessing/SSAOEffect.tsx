@@ -23,13 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, useComponent } from '@ir-engine/ecs'
+import { Entity, getComponent } from '@ir-engine/ecs'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { EffectReactorProps, PostProcessingEffectState } from '@ir-engine/spatial/src/renderer/effects/EffectRegistry'
-import { BlendFunction, Resolution, SSAOEffect } from 'postprocessing'
+import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
+import { BlendFunction, DepthDownsamplingPass, KernelSize, Resolution, SSAOEffect } from 'postprocessing'
 import React, { useEffect } from 'react'
 import { ArrayCamera } from 'three'
+import { CustomNormalPass } from './passes/CustomNormalPass'
 import { PropertyTypes } from './PostProcessingRegister'
 
 declare module 'postprocessing' {
@@ -45,8 +47,10 @@ export const SSAOEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
   rendererEntity: Entity
   effectData
   effects
+  scene
+  passes
 }) => {
-  const { isActive, rendererEntity, effectData, effects } = props
+  const { isActive, rendererEntity, effectData, effects, scene, passes } = props
   const effectState = getState(PostProcessingEffectState)
 
   useEffect(() => {
@@ -59,11 +63,35 @@ export const SSAOEffectProcessReactor: React.FC<EffectReactorProps> = (props: {
       if (effects[effectKey].value) effects[effectKey].set(none)
       return
     }
-    const camera = useComponent(rendererEntity, CameraComponent)
-    const eff = new SSAOEffect(camera.value as ArrayCamera, effectData[effectKey].value)
+
+    const camera = getComponent(rendererEntity, CameraComponent)
+
+    const customNormalPass = RendererComponent.registerPass(rendererEntity, CustomNormalPass, (rendererEntity) => {
+      const camera = getComponent(rendererEntity, CameraComponent)
+      return new CustomNormalPass(scene, camera)
+    })
+
+    const depthDownSamplingPass = RendererComponent.registerPass(
+      rendererEntity,
+      DepthDownsamplingPass,
+      (rendererEntity) => {
+        const customNormalPass = RendererComponent.getPass(rendererEntity, CustomNormalPass)
+        return new DepthDownsamplingPass({
+          normalBuffer: customNormalPass.texture,
+          resolutionScale: 0.5
+        })
+      }
+    )
+
+    const eff = new SSAOEffect(camera as ArrayCamera, customNormalPass.texture, {
+      ...effectData[effectKey].value,
+      normalDepthBuffer: depthDownSamplingPass.texture
+    })
     effects[effectKey].set(eff)
     return () => {
       effects[effectKey].set(none)
+      RendererComponent.unregisterPass(rendererEntity, DepthDownsamplingPass)
+      RendererComponent.unregisterPass(rendererEntity, CustomNormalPass)
     }
   }, [isActive])
 
@@ -103,10 +131,62 @@ export const ssaoAddToEffectRegistry = () => {
         resolutionX: Resolution.AUTO_SIZE,
         resolutionY: Resolution.AUTO_SIZE,
         width: Resolution.AUTO_SIZE,
-        height: Resolution.AUTO_SIZE
+        height: Resolution.AUTO_SIZE,
+        blur: false,
+        kernelSize: KernelSize.SMALL
       },
       schema: {
-        preset: { propertyType: PropertyTypes.SMAAPreset, name: 'Preset' }
+        blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
+        distanceScaling: { propertyType: PropertyTypes.Boolean, name: 'Distance Scaling' },
+        depthAwareUpsampling: { propertyType: PropertyTypes.Boolean, name: 'Depth Aware Upsampling' },
+        samples: { propertyType: PropertyTypes.Number, name: 'Samples', min: 1, max: 32, step: 1 },
+        rings: { propertyType: PropertyTypes.Number, name: 'Rings', min: -1, max: 1, step: 0.01 },
+
+        rangeThreshold: {
+          propertyType: PropertyTypes.Number,
+          name: 'Range Threshold',
+          min: -1,
+          max: 1,
+          step: 0.0001
+        }, // Occlusion proximity of ~0.3 world units
+        rangeFalloff: { propertyType: PropertyTypes.Number, name: 'Range Falloff', min: -1, max: 1, step: 0.0001 }, // with ~0.1 units of falloff.
+        // Render up to a distance of ~20 world units.
+        distanceThreshold: {
+          propertyType: PropertyTypes.Number,
+          name: 'Distance Threshold',
+          min: -1,
+          max: 1,
+          step: 0.01
+        },
+        luminanceInfluence: {
+          propertyType: PropertyTypes.Number,
+          name: 'Luminance Influence',
+          min: -1,
+          max: 1,
+          step: 0.01
+        },
+        // with an additional ~2.5 units of falloff.
+        distanceFalloff: {
+          propertyType: PropertyTypes.Number,
+          name: 'Distance Falloff',
+          min: -1,
+          max: 1,
+          step: 0.001
+        },
+        minRadiusScale: { propertyType: PropertyTypes.Number, name: 'Min Radius Scale', min: -1, max: 1, step: 0.01 },
+        bias: { propertyType: PropertyTypes.Number, name: 'Bias', min: -1, max: 1, step: 0.01 },
+        radius: { propertyType: PropertyTypes.Number, name: 'Radius', min: -1, max: 1, step: 0.01 },
+        intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: 0, max: 10, step: 0.01 },
+        fade: { propertyType: PropertyTypes.Number, name: 'Fade', min: -1, max: 1, step: 0.01 },
+        resolutionScale: {
+          propertyType: PropertyTypes.Number,
+          name: 'Resolution Scale',
+          min: -10,
+          max: 10,
+          step: 0.01
+        },
+        blur: { propertyType: PropertyTypes.Boolean, name: 'Blur' },
+        kernelSize: { propertyType: PropertyTypes.KernelSize, name: 'Kernel Size', min: 1, max: 5, step: 1 }
       }
     }
   })

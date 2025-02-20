@@ -28,7 +28,6 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { initGA, logPageView } from '@ir-engine/client-core/src/common/analytics'
 import { NotificationSnackbar } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { useSearchParamState } from '@ir-engine/client-core/src/common/services/RouterService'
 import { useThemeProvider } from '@ir-engine/client-core/src/common/services/ThemeService'
@@ -57,11 +56,6 @@ const AppPage = (props: { children: React.ReactNode; fallback?: JSX.Element; log
   const { t } = useTranslation()
   const isLoggedIn = useAuthenticated()
 
-  useEffect(() => {
-    initGA()
-    logPageView()
-  }, [])
-
   useThemeProvider()
 
   useSearchParamState()
@@ -77,7 +71,9 @@ const AppPage = (props: { children: React.ReactNode; fallback?: JSX.Element; log
   return (
     <>
       <NotificationSnackbar />
-      <LoadWebappInjection fallback={props.fallback}>{props.children}</LoadWebappInjection>
+      <LoadWebappInjection isLocationPage={!props.loginRequired} fallback={props.fallback}>
+        {props.children}
+      </LoadWebappInjection>
       {isLoggedIn && <ClientSettings />}
     </>
   )

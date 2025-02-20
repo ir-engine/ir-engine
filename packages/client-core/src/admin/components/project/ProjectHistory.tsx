@@ -342,7 +342,7 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
   }
 
   return (
-    <div className="mb-3 flex w-full items-center justify-between gap-x-2 rounded-lg bg-[#191B1F] px-5 py-2">
+    <div className="mb-3 flex w-full items-center justify-between gap-x-2 rounded-lg bg-surface-1 px-5 py-2 text-text-secondary hover:text-text-primary">
       <AvatarImage
         className="inline-grid min-h-10 min-w-10 rounded-full"
         src={projectHistory.userAvatarURL}

@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Quaternion, Raycaster, Vector3 } from 'three'
+import { BufferGeometry, Color, Mesh, MeshBasicMaterial, Quaternion, Raycaster, Vector3 } from 'three'
 
 import {
   Entity,
@@ -39,17 +39,18 @@ import { getState } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 
 import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { Vector3_Forward } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { CameraGizmoComponent } from '../classes/gizmo/camera/CameraGizmoComponent'
 import { CameraGizmoVisualComponent } from '../classes/gizmo/camera/CameraGizmoVisualComponent'
 import { cameraGizmo, GizmoMaterial, gizmoMaterialProperties } from '../constants/GizmoPresets'
 
 const _raycaster = new Raycaster()
-_raycaster.layers.set(ObjectLayers.Gizmos)
+_raycaster.layers.enable(ObjectLayers.Gizmos)
+_raycaster.firstHitOnly = true
 
 export function gizmoUpdate(gizmoEntity) {
   const cameraGizmo = getComponent(gizmoEntity, CameraGizmoComponent)
@@ -62,9 +63,15 @@ export function gizmoUpdate(gizmoEntity) {
   if (gizmo.gizmo === UndefinedEntity) return
 
   for (const childEntity of getComponent(gizmo.gizmo, EntityTreeComponent).children) {
-    const handle = getComponent(childEntity, ObjectComponent) as any
+    const handle = getComponent(childEntity, ObjectComponent) as Mesh<
+      BufferGeometry,
+      MeshBasicMaterial & {
+        _color: Color
+        _opacity: number
+      }
+    >
     handle.visible = true
-    handle.rotation.set(0, 0, 0)
+    handle.quaternion.identity()
     handle.position.set(0, 0, 0)
 
     // Hide disabled axes

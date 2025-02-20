@@ -81,7 +81,7 @@ export default function ManageUserPermissionModal({ project }: { project: Immuta
       return
     }
     try {
-      await ProjectService.createPermission(userInviteCode.value, project.id, 'reviewer')
+      await ProjectService.createPermission(userInviteCode.value, project.id, 'editor')
       projectPermissionsFindQuery.refetch()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -90,7 +90,7 @@ export default function ManageUserPermissionModal({ project }: { project: Immuta
 
   const handlePatchPermission = async (permission: ProjectPermissionType) => {
     try {
-      await ProjectService.patchPermission(permission.id, permission.type === 'owner' ? 'user' : 'owner')
+      await ProjectService.patchPermission(permission.id, permission.type === 'owner' ? 'editor' : 'owner')
       projectPermissionsFindQuery.refetch()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

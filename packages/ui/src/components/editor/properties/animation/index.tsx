@@ -23,11 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getOptionalComponent, useComponent, useOptionalComponent } from '@ir-engine/ecs'
+import { getOptionalComponent, LayerFunctions, useComponent, useOptionalComponent } from '@ir-engine/ecs'
 import {
-  EditorComponentType,
   commitProperties,
   commitProperty,
+  EditorComponentType,
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
@@ -78,7 +78,8 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
     commitProperties(LoopAnimationComponent, {
       activeClipIndex: index
     })
-    getCallback(props.entity, 'xre.play')!()
+    const simulationEntity = LayerFunctions.getLayerRelationsEntities(entity)?.[0]?.[1]
+    if (simulationEntity) getCallback(simulationEntity, 'xre.play')!()
   }
 
   return (

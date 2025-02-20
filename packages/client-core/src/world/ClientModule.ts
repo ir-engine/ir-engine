@@ -25,8 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { WidgetAppServiceReceptorSystem } from '../systems/WidgetAppService'
 
+import { OverlaySystem } from '@ir-engine/client-core/src/systems/OverlaySystem'
 import { AvatarSpawnSystem } from '../networking/AvatarSpawnSystem'
-// import { AvatarUISystem } from '../systems/AvatarUISystem'
+import { AvatarUISystem } from '../systems/AvatarUISystem'
 import { LoadingUISystem } from '../systems/LoadingUISystem'
 import { MediaControlSystem } from '../systems/MediaControlSystem'
 import { PositionalAudioSystem } from '../systems/PositionalAudioSystem'
@@ -40,10 +41,11 @@ import './ClientNetworkModule'
 
 export {
   AvatarSpawnSystem,
-  // AvatarUISystem,
+  AvatarUISystem,
   LinkRedirectSystem,
   LoadingUISystem,
   MediaControlSystem,
+  OverlaySystem,
   PortalRedirectSystem,
   PositionalAudioSystem,
   UserUISystem,

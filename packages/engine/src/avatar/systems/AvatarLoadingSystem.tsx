@@ -26,9 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { SRGBColorSpace } from 'three'
 
+import { createEntity, useEntityContext } from '@ir-engine/ecs'
 import { getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
-import { createEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { QueryReactor, defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { getMutableState, getState, isClient, useHookstate } from '@ir-engine/hyperflux'
@@ -61,7 +61,7 @@ const execute = () => {
   const delta = getState(ECSState).deltaSeconds
 
   for (const entity of growQuery()) {
-    TransformComponent.dirtyTransforms[entity] = true
+    TransformComponent.dirty[entity] = 1
 
     const { opacityMultiplier, plateEntity, lightEntities } = getComponent(entity, SpawnEffectComponent)
     if (!plateEntity) continue
@@ -118,9 +118,7 @@ const AvatarPendingReactor = () => {
   return null
 }
 
-const reactor = () => {
-  if (!isClient) return null
-
+const LoadingAssetReactor = () => {
   const assetsReady = useHookstate(false)
 
   const [itemLight] = useTexture('/static/itemLight.png')
@@ -155,9 +153,7 @@ const reactor = () => {
     SpawnEffectComponent.plateMesh.name = 'plate_obj'
   }, [])
 
-  const loadingEffect = useHookstate(getMutableState(AnimationState).avatarLoadingEffect)
-
-  if (!loadingEffect.value || !assetsReady.value) return null
+  if (!assetsReady.value) return null
 
   return <QueryReactor Components={[AvatarRigComponent, GLTFComponent]} ChildEntityReactor={AvatarPendingReactor} />
 }
@@ -166,5 +162,13 @@ export const AvatarLoadingSystem = defineSystem({
   uuid: 'ee.engine.AvatarLoadingSystem',
   insert: { after: AvatarAnimationSystem },
   execute,
-  reactor
+  reactor: () => {
+    if (!isClient) return null
+
+    const loadingEffect = useHookstate(getMutableState(AnimationState).avatarLoadingEffect)
+
+    if (!loadingEffect.value) return null
+
+    return <LoadingAssetReactor />
+  }
 })

@@ -27,18 +27,18 @@ import { useEffect } from 'react'
 import { HemisphereLight, HemisphereLightHelper } from 'three'
 
 import {
+  S,
   defineComponent,
   removeComponent,
   setComponent,
   useComponent,
+  useEntityContext,
   useOptionalComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
+} from '@ir-engine/ecs'
+import { NO_PROXY, useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { ActiveHelperComponent } from '../../../common/ActiveHelperComponent'
 import { useHelperEntity } from '../../../common/debug/useHelperEntity'
-import { useDisposable } from '../../../resources/resourceHooks'
 import { T } from '../../../schema/schemaFunctions'
 import { RendererState } from '../../RendererState'
 import { ObjectComponent } from '../ObjectComponent'
@@ -57,15 +57,13 @@ export const HemisphereLightComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
     const hemisphereLightComponent = useComponent(entity, HemisphereLightComponent)
+    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const renderState = useMutableState(RendererState)
-    const debugEnabled = renderState.nodeHelperVisibility
-    const [light] = useDisposable(HemisphereLight, entity)
-    const helperEntity = useHelperEntity(entity, () => new HemisphereLightHelper(light, 100), debugEnabled.value)
-    const helper = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as
-      | HemisphereLightHelper
-      | undefined
+    const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
+    const light = useHookstate(() => new HemisphereLight()).get(NO_PROXY) as HemisphereLight
+    const helperEntity = useHelperEntity(entity, () => new HemisphereLightHelper(light, 100), debugEnabled)
 
-    useEffect(() => {
+    useImmediateEffect(() => {
       setComponent(entity, LightTagComponent)
       setComponent(entity, ObjectComponent, light)
       return () => {
@@ -76,6 +74,10 @@ export const HemisphereLightComponent = defineComponent({
     useEffect(() => {
       light.groundColor.set(hemisphereLightComponent.groundColor.value)
     }, [hemisphereLightComponent.groundColor])
+
+    const helper = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as
+      | HemisphereLightHelper
+      | undefined
 
     useEffect(() => {
       light.color.set(hemisphereLightComponent.skyColor.value)

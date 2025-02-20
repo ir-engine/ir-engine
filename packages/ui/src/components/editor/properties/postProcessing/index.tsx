@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { BlendFunction, SMAAPreset, VignetteTechnique } from 'postprocessing'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa'
 import { MdAutoFixHigh } from 'react-icons/md'
 import { Color, DisplayP3ColorSpace, LinearDisplayP3ColorSpace, LinearSRGBColorSpace, SRGBColorSpace } from 'three'
 
@@ -38,12 +37,12 @@ import {
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { PropertyTypes } from '@ir-engine/engine/src/postprocessing/PostProcessingRegister.tsx'
 import { NO_PROXY, getState } from '@ir-engine/hyperflux'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
 import { PostProcessingEffectState } from '@ir-engine/spatial/src/renderer/effects/EffectRegistry'
 import { Checkbox } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
-import { GiMagickTrick } from 'react-icons/gi'
 import Accordion from '../../../../primitives/tailwind/Accordion'
 import ColorInput from '../../../../primitives/tailwind/Color'
 import InputGroup from '../../input/Group'
@@ -51,22 +50,6 @@ import SelectInput from '../../input/Select'
 import TexturePreviewInput from '../../input/Texture'
 import Vector2Input from '../../input/Vector2'
 import Vector3Input from '../../input/Vector3'
-
-enum PropertyTypes {
-  BlendFunction,
-  Number,
-  Boolean,
-  Color,
-  ColorSpace,
-  KernelSize,
-  SMAAPreset,
-  EdgeDetectionMode,
-  PredicationMode,
-  Texture,
-  Vector2,
-  Vector3,
-  VignetteTechnique
-}
 
 const SMAAPresetSelect = Object.entries(SMAAPreset).map(([label, value]) => {
   return { label, value }
@@ -130,7 +113,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
             max={effectSettingState.max}
             step={effectSettingState.step}
             value={effectSettingValue}
-            onChange={updateProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
+            onChange={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
             onRelease={commitProperty(PostProcessingComponent, `effects.${effectName}.${property}` as any)}
           />
         )
@@ -245,6 +228,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         break
       default:
         renderVal = <>Can't Determine type of property</>
+        break
     }
 
     return (
@@ -301,14 +285,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
       </InputGroup>
       {postprocessing.enabled.value && (
         <>
-          <Accordion
-            className="bg-none p-2 text-white"
-            onClick={() => setOpenSettings(!openSettings)}
-            title={t('editor:properties.postprocessing.name')}
-            prefixIcon={<GiMagickTrick />}
-            expandIcon={<FaChevronDown />}
-            shrinkIcon={<FaChevronUp />}
-          >
+          <Accordion onClick={() => setOpenSettings(!openSettings)} title={t('editor:properties.postprocessing.name')}>
             {renderEffects()}
           </Accordion>
         </>

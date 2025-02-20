@@ -27,6 +27,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
+import { userPath } from '@ir-engine/common/src/schema.type.module'
 import {
   StaticResourceDatabaseType,
   StaticResourceType
@@ -95,6 +96,9 @@ export const staticResourceResolver = resolve<StaticResourceType, HookContext>(
     }),
     thumbnailURL: virtual(async (staticResource, context) => {
       return getThumbnailURL(staticResource, context)
+    }),
+    user: virtual(async (rawData, context) => {
+      if (rawData.userId) return await context.app.service(userPath).get(rawData.userId)
     })
   },
   {

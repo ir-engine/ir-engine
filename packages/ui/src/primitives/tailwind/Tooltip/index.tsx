@@ -23,7 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import React, { ReactNode, useEffect, useImperativeHandle, useRef, useState } from 'react'
+
 import ReactDOM from 'react-dom'
 import './tooltip.css'
 
@@ -173,6 +175,10 @@ function Tooltip(
     }
   }, [visibleState, title, content])
 
+  if (isMobile) {
+    return <>{children}</>
+  }
+
   return (
     <div
       ref={triggerRef}
@@ -187,16 +193,16 @@ function Tooltip(
             ref={tooltipRef}
             className={`tooltip ${
               visibleState === 'visible' ? 'tooltip-visible' : ''
-            } absolute min-w-max transform transition duration-300`}
+            } absolute min-w-max transition-transform duration-150`}
             style={{ ...tooltipStyles, zIndex: 9999, position: 'absolute' }}
           >
             <div className="relative flex max-w-xs flex-col items-center shadow-lg">
               <div
-                className={`tooltip-arrow absolute tooltip-arrow-${tooltipPosition} h-3 w-3 rotate-45 transform border-b border-theme-primary bg-[#191B1F]`}
+                className={`tooltip-arrow absolute tooltip-arrow-${tooltipPosition} h-3 w-3 rotate-45 transform bg-surface-4`}
               ></div>
 
-              <div className="rounded border border-theme-primary bg-[#191B1F] px-4 py-2 text-center text-xs text-white">
-                {title && <div className="mb-1 text-sm font-semibold text-white">{title}</div>}
+              <div className="rounded border border-ui-outline bg-surface-4 px-4 py-2 text-center text-xs text-text-primary">
+                {title && <div className="mb-1 text-sm font-semibold text-text-primary">{title}</div>}
                 <div>{content}</div>
               </div>
             </div>

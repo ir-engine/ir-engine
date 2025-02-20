@@ -25,8 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   EntityTreeComponent,
-  EntityUUID,
-  UUIDComponent,
   getComponent,
   hasComponent,
   useAncestorWithComponents,
@@ -42,12 +40,13 @@ import {
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
+import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
+import { TriggerCallbackComponent } from '@ir-engine/engine/src/scene/components/TriggerCallbackComponent'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
-import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
 import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import React, { useEffect } from 'react'
@@ -67,10 +66,10 @@ const TriggerProperties: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const targets = useHookstate<TargetOptionType[]>([{ label: '', value: '', callbacks: [] }])
 
-  const triggerComponent = useComponent(props.entity, TriggerComponent)
+  const triggerComponent = useComponent(props.entity, TriggerCallbackComponent)
   const hasRigidbody = useAncestorWithComponents(props.entity, [RigidBodyComponent])
 
-  const callbackQuery = useQuery([CallbackComponent, NameComponent, UUIDComponent, EntityTreeComponent])
+  const callbackQuery = useQuery([CallbackComponent, NameComponent, NodeIDComponent, EntityTreeComponent])
 
   useEffect(() => {
     if (!hasComponent(props.entity, ColliderComponent)) {
@@ -87,7 +86,7 @@ const TriggerProperties: EditorComponentType = (props) => {
       const callbacks = getComponent(entity, CallbackComponent)
       options.push({
         label: getComponent(entity, NameComponent),
-        value: getComponent(entity, UUIDComponent),
+        value: getComponent(entity, NodeIDComponent),
         callbacks: Object.keys(callbacks).map((cb) => ({ label: cb, value: cb }))
       })
     }
@@ -129,7 +128,9 @@ const TriggerProperties: EditorComponentType = (props) => {
                 onExit: ''
               }
             ]
-            commitProperties(TriggerComponent, { triggers: JSON.parse(JSON.stringify(triggers)) }, [props.entity])
+            commitProperties(TriggerCallbackComponent, { triggers: JSON.parse(JSON.stringify(triggers)) }, [
+              props.entity
+            ])
           }}
         >
           <HiPlus />
@@ -139,14 +140,16 @@ const TriggerProperties: EditorComponentType = (props) => {
         const targetOption = targets.value.find((o) => o.value === trigger.target.value)
         const target = targetOption ? targetOption.value : ''
         return (
-          <div className="-ml-4 h-[calc(100%+1.5rem)] w-[calc(100%+2rem)] bg-[#1A1A1A] pb-1.5">
+          <div className="ml-4 h-[calc(100%+1.5rem)] w-[calc(100%-2rem)] bg-[#1A1A1A] px-1 pb-1.5 pt-1">
             <button
               title={t('editor:properties.triggerVolume.lbl-removeTrigger')}
               className="ml-auto text-sm text-[#8B8B8D]"
               onClick={() => {
                 const triggers = [...triggerComponent.triggers.value]
                 triggers.splice(index, 1)
-                commitProperties(TriggerComponent, { triggers: JSON.parse(JSON.stringify(triggers)) }, [props.entity])
+                commitProperties(TriggerCallbackComponent, { triggers: JSON.parse(JSON.stringify(triggers)) }, [
+                  props.entity
+                ])
               }}
             >
               <HiTrash />
@@ -157,8 +160,8 @@ const TriggerProperties: EditorComponentType = (props) => {
               info={t('editor:properties.triggerVolume.info-target')}
             >
               <NodeInput
-                value={trigger.target.value ?? ('' as EntityUUID)}
-                onRelease={commitProperty(TriggerComponent, `triggers.${index}.target` as any)}
+                value={trigger.target.value ?? ('' as NodeID)}
+                onRelease={commitProperty(TriggerCallbackComponent, `triggers.${index}.target` as any)}
                 disabled={props.multiEdit}
               />
             </InputGroup>
@@ -174,15 +177,15 @@ const TriggerProperties: EditorComponentType = (props) => {
               {targetOption?.callbacks.length ? (
                 <SelectInput
                   value={trigger.onEnter.value!}
-                  onChange={commitProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
+                  onChange={commitProperty(TriggerCallbackComponent, `triggers.${index}.onEnter` as any)}
                   options={targetOption?.callbacks ? targetOption.callbacks.slice() : []}
                   disabled={props.multiEdit || !target}
                 />
               ) : (
                 <StringInput
                   value={trigger.onEnter.value!}
-                  onChange={updateProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
-                  onRelease={commitProperty(TriggerComponent, `triggers.${index}.onEnter` as any)}
+                  onChange={updateProperty(TriggerCallbackComponent, `triggers.${index}.onEnter` as any)}
+                  onRelease={commitProperty(TriggerCallbackComponent, `triggers.${index}.onEnter` as any)}
                   disabled={props.multiEdit || !target}
                 />
               )}
@@ -200,15 +203,15 @@ const TriggerProperties: EditorComponentType = (props) => {
               {targetOption?.callbacks.length ? (
                 <SelectInput
                   value={trigger.onExit.value!}
-                  onChange={commitProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
+                  onChange={commitProperty(TriggerCallbackComponent, `triggers.${index}.onExit` as any)}
                   options={targetOption?.callbacks ? targetOption.callbacks.slice() : []}
                   disabled={props.multiEdit || !target}
                 />
               ) : (
                 <StringInput
                   value={trigger.onExit.value!}
-                  onRelease={updateProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
-                  onChange={commitProperty(TriggerComponent, `triggers.${index}.onExit` as any)}
+                  onRelease={updateProperty(TriggerCallbackComponent, `triggers.${index}.onExit` as any)}
+                  onChange={commitProperty(TriggerCallbackComponent, `triggers.${index}.onExit` as any)}
                   disabled={props.multiEdit || !target}
                 />
               )}

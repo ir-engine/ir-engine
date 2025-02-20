@@ -36,11 +36,9 @@ import {
   setComponent
 } from '@ir-engine/ecs'
 import {
-  DistanceComponentSchema,
   DistanceFromCameraComponent,
   DistanceFromLocalClientComponent,
-  FrustumCullCameraComponent,
-  FrustumCullCameraSchema
+  FrustumCullCameraComponent
 } from './DistanceComponents'
 
 describe('DistanceFromLocalClientComponent', () => {
@@ -49,8 +47,8 @@ describe('DistanceFromLocalClientComponent', () => {
       assert.equal(DistanceFromLocalClientComponent.name, 'DistanceFromLocalClientComponent')
     })
 
-    it('should intitialize the *Component.schema field with the expected value', () => {
-      assert.equal(DistanceFromLocalClientComponent.schema, DistanceComponentSchema)
+    it('should intitialize the *Component.squaredDistance field with the expected value', () => {
+      assert(DistanceFromLocalClientComponent.squaredDistance instanceof Float32Array)
     })
   }) //:: Fields
 }) //:: DistanceFromLocalClientComponent
@@ -61,8 +59,8 @@ describe('DistanceFromCameraComponent', () => {
       assert.equal(DistanceFromCameraComponent.name, 'DistanceFromCameraComponent')
     })
 
-    it('should intitialize the *Component.schema field with the expected value', () => {
-      assert.equal(DistanceFromCameraComponent.schema, DistanceComponentSchema)
+    it('should intitialize the *Component.squaredDistance field with the expected value', () => {
+      assert(DistanceFromCameraComponent.squaredDistance instanceof Float32Array)
     })
   }) //:: Fields
 }) //:: DistanceFromCameraComponent
@@ -73,8 +71,8 @@ describe('FrustumCullCameraComponent', () => {
       assert.equal(FrustumCullCameraComponent.name, 'FrustumCullCameraComponent')
     })
 
-    it('should intitialize the *Component.schema field with the expected value', () => {
-      assert.equal(FrustumCullCameraComponent.schema, FrustumCullCameraSchema)
+    it('should intitialize the *Component.isCulled field with the expected value', () => {
+      assert(FrustumCullCameraComponent.isCulled instanceof Uint8Array)
     })
   }) //:: Fields
 

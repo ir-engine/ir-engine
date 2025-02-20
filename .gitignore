@@ -174,3 +174,4 @@ packages/ui/tests/jest-test-results.json
 certs/tailscale
 
 **/credentials
+.aider*

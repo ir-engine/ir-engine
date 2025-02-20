@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions.ts'
+import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
 import {
   FilesState,
   FilesViewModeSettings,
@@ -31,8 +31,6 @@ import {
   SelectedFilesState
 } from '@ir-engine/editor/src/services/FilesState'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { Tooltip } from '@ir-engine/ui'
-import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React, { MouseEventHandler, useEffect } from 'react'
 import { ConnectDragSource, ConnectDropTarget, useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
@@ -43,6 +41,7 @@ import { VscBlank } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
 import { FileDataType, SupportedFileTypes } from '../../constants/AssetTypes'
 import { ClickPlacementState } from '../../systems/ClickPlacementSystem'
+import { FileCard } from '../assets/resources'
 import { FileIcon } from './fileicon'
 import { availableTableColumns, canDropOnFileBrowser, useCurrentFiles, useFileBrowserDrop } from './helpers'
 
@@ -139,11 +138,21 @@ function FileItemRow({
     >
       {availableTableColumns
         .filter((header) => selectedTableColumns[header])
-        .map((header, idx) => (
-          <td key={idx} style={{ fontSize: `${fontSize}px` }} data-testid={`files-panel-file-item-${header}`}>
-            {tableColumns[header]}
-          </td>
-        ))}
+        .map((header, idx) => {
+          let content = tableColumns[header]
+          if (header === 'statistics') {
+            content = (
+              <pre>
+                <code>{tableColumns[header]}</code>
+              </pre>
+            )
+          }
+          return (
+            <td key={idx} style={{ fontSize: `${fontSize}px` }} data-testid={`files-panel-file-item-${header}`}>
+              {content}
+            </td>
+          )
+        })}
     </tr>
   )
 }
@@ -159,50 +168,27 @@ function FileItemCard({
   onContextMenu,
   className
 }: DisplayTypeProps) {
-  const iconSize = useHookstate(getMutableState(FilesViewModeSettings).icons.iconSize).value
-  const thumbnailURL = file?.thumbnailURL
-
   return (
     <div
       ref={(ref) => drag(drop(ref))}
       className={twMerge('group box-border h-min', isOver && 'border-2 border-gray-400', className)}
       onContextMenu={onContextMenu}
     >
-      <div
-        className={twMerge('max-h-38 w-30 flex h-auto cursor-pointer flex-col items-center p-1.5 text-center')}
-        onDoubleClick={file?.isFolder ? onDoubleClick : undefined}
-        data-testid="files-panel-file-item"
+      <FileCard
+        item={file}
+        name={file?.fullName}
         onClick={onClick}
-      >
-        <div
-          className={twMerge(
-            `box-border rounded border border-0 font-figtree`,
-            isSelected ? 'border-2 border-[#375DAF] bg-[#2C2E30]' : 'group-hover:bg-[#202225]'
-          )}
-          style={{
-            height: iconSize,
-            width: iconSize,
-            fontSize: iconSize
-          }}
-        >
-          <FileIcon thumbnailURL={thumbnailURL} type={file?.type} isFolder={file?.isFolder} color="text-[#375DAF]" />
-        </div>
-
-        <Tooltip content={file?.fullName} position="bottom">
-          <Text
-            theme="secondary"
-            fontSize="sm"
-            className={twMerge(
-              'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2',
-              isSelected ? 'rounded bg-[#375DAF]' : 'rounded group-hover:bg-[#2F3137]'
-            )}
-            data-testid="files-panel-file-item-name"
-          >
-            {file?.fullName}
-          </Text>
-        </Tooltip>
-        <span className="text-xs text-[#375DAF]">{file?.size}</span>
-      </div>
+        onDoubleClick={file?.isFolder ? onDoubleClick : undefined}
+        onContextMenu={() => {}}
+        isSelected={isSelected}
+        info={file?.size}
+        assetType={file?.type}
+        dataTestIdJson={{
+          fileNameId: 'files-panel-file-item-name',
+          fileItemId: 'files-panel-file-item'
+        }}
+        className=""
+      />
     </div>
   )
 }

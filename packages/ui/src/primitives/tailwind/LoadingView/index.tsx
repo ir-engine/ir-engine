@@ -22,11 +22,10 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
-
-import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import LoadingAnimation from './assets/animation.webp'
 
 const LoadingView = ({
   title,
@@ -36,7 +35,8 @@ const LoadingView = ({
   fullSpace,
   containerClassName,
   titleClassname,
-  spinnerOnly
+  spinnerOnly,
+  animated
 }: {
   title?: string
   description?: string
@@ -46,6 +46,7 @@ const LoadingView = ({
   containerClassName?: string
   titleClassname?: string
   spinnerOnly?: boolean
+  animated?: boolean
 }) => {
   const loader = (
     <div role="status" className={twMerge('relative mx-auto my-0 block h-full w-full', className)}>
@@ -72,6 +73,7 @@ const LoadingView = ({
     loader
   ) : (
     <div
+      role="status"
       className={twMerge(
         'flex flex-col items-center justify-center',
         fullScreen && 'h-screen w-screen',
@@ -80,8 +82,14 @@ const LoadingView = ({
       )}
       data-testid="loading-view-spinner"
     >
-      {loader}
-      {title && <Text className={twMerge('mt-1', titleClassname)}>{title}</Text>}
+      {animated ? (
+        <div className="h-50% w-50% bg-cover bg-center">
+          <img src={LoadingAnimation} alt="loading spinner"></img>
+        </div>
+      ) : (
+        loader
+      )}
+      {title && <Text className={titleClassname}>{title}</Text>}
       {description && <Text className="opacity-65">{description}</Text>}
     </div>
   )

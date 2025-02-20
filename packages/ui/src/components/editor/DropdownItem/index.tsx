@@ -55,33 +55,21 @@ export default function EditorDropdownItem({
   collapsed,
   ...props
 }: EditorDropdownItemProps) {
-  const chevronArrowClassName = twMerge(
-    'text-[#9CA0AA] transition-all ease-out',
-    !disabled && 'group-hover/editor-dropdownitem:text-[#F5F5F5] group-focus/editor-dropdownitem:text-[#F5F5F5]',
-    disabled && 'text-[#6B6F78]'
+  const iconClassname = twMerge(
+    'h-4 w-4 text-text-secondary',
+    disabled ? 'text-text-inactive' : 'group-hover/editor-dropdownitem:text-text-primary'
   )
-  const itemIconClassName = twMerge(
-    'h-4 w-4 text-[#9CA0AA]',
-    !disabled && 'group-hover/editor-dropdownitem:text-[#F5F5F5] group-focus/editor-dropdownitem:text-[#F5F5F5]',
-    disabled && 'text-[#42454D]'
-  )
-  const rightIconClassName = twMerge(
-    'h-4 w-4 text-[#6B6F78]',
-    !disabled && 'group-hover/editor-dropdownitem:text-[#9CA0AA]',
-    disabled && 'text-[#42454D]'
-  )
-
-  console.log('the props style', props.style)
 
   return (
     <div
       className={twMerge(
         'flex w-full items-center gap-x-2',
-        'cursor-pointer rounded px-2 py-1',
+        'cursor-pointer rounded py-1',
         'group/editor-dropdownitem',
-        !disabled && 'bg-[#141619] hover:bg-[#141619] focus:bg-[#2C2E33]',
-        selected && 'bg-[#2C2E33]',
-        disabled && 'cursor-not-allowed bg-[#191B1F]',
+        disabled
+          ? 'cursor-not-allowed bg-ui-inactive-background text-text-inactive'
+          : 'bg-ui-background text-text-secondary hover:text-text-primary',
+        selected ? 'bg-ui-select-background' : '',
         className
       )}
       onClick={() => !disabled && onClick?.()}
@@ -91,23 +79,11 @@ export default function EditorDropdownItem({
       }}
       {...props}
     >
-      {collapsed ? (
-        <ChevronRightSm className={chevronArrowClassName} />
-      ) : (
-        <ChevronDownSm className={chevronArrowClassName} />
-      )}
-      {ItemIcon ? <ItemIcon className={itemIconClassName} /> : <Maximize02Sm className={itemIconClassName} />}
-      <span
-        className={twMerge(
-          'flex-1 text-sm text-[#B2B5BD]',
-          !disabled && 'group-hover/editor-dropdownitem:text-[#F5F5F5] group-focus/editor-dropdownitem:text-[#F5F5F5]',
-          disabled && 'text-[#42454D]'
-        )}
-      >
-        {label}
-      </span>
-      {RightIcon1 && <RightIcon1 className={rightIconClassName} onClick={onRightIcon1Click} />}
-      {RightIcon2 && <RightIcon2 className={rightIconClassName} onClick={onRightIcon2Click} />}
+      {collapsed ? <ChevronRightSm className={iconClassname} /> : <ChevronDownSm className={iconClassname} />}
+      {ItemIcon ? <ItemIcon className={iconClassname} /> : <Maximize02Sm className={iconClassname} />}
+      <span className="flex-1 text-sm">{label}</span>
+      {RightIcon1 && <RightIcon1 className={iconClassname} onClick={onRightIcon1Click} />}
+      {RightIcon2 && <RightIcon2 className={iconClassname} onClick={onRightIcon2Click} />}
     </div>
   )
 }

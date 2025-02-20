@@ -47,12 +47,16 @@ cameraL.layers.enable(1)
 cameraL.viewport = new Vector4()
 cameraL.matrixAutoUpdate = false
 cameraL.matrixWorldAutoUpdate = false
+cameraL.rotation._onChangeCallback = () => {}
+cameraL.quaternion._onChangeCallback = () => {}
 
 const cameraR = new PerspectiveCamera()
 cameraR.layers.enable(2)
 cameraR.viewport = new Vector4()
 cameraR.matrixAutoUpdate = false
 cameraR.matrixWorldAutoUpdate = false
+cameraR.rotation._onChangeCallback = () => {}
+cameraR.quaternion._onChangeCallback = () => {}
 
 const cameraPool = [cameraL, cameraR]
 
@@ -214,6 +218,8 @@ const _vec = new Vector2()
 
 export function updateXRCamera() {
   const viewerEntity = getState(ReferenceSpaceState).viewerEntity
+  if (!viewerEntity) return
+
   const renderer = getOptionalComponent(viewerEntity, RendererComponent)?.renderer
   if (!renderer) return
 

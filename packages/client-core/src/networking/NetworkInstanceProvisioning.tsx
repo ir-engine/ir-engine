@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Groups from '@mui/icons-material/Groups'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -48,9 +47,7 @@ import { NetworkState } from '@ir-engine/network'
 import { FriendService } from '../social/services/FriendService'
 import { connectToInstance } from '../transports/mediasoup/MediasoupClientFunctions'
 import { PeerToPeerNetworkState } from '../transports/p2p/PeerToPeerNetworkState'
-import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
-import FriendsMenu from '../user/components/UserMenu/menus/FriendsMenu'
-import MessagesMenu from '../user/components/UserMenu/menus/MessagesMenu'
+import { ViewerMenuState } from '../util/ViewerMenuState'
 
 export const WorldInstanceProvisioning = () => {
   const locationState = useMutableState(LocationState)
@@ -253,25 +250,11 @@ export const FriendMenus = () => {
   useEffect(() => {
     if (!socialsEnabled) return
 
-    const popupMenuState = getMutableState(PopupMenuState)
-    popupMenuState.menus.merge({
-      [SocialMenus.Friends]: FriendsMenu,
-      [SocialMenus.Messages]: MessagesMenu
-    })
-
-    popupMenuState.hotbar.merge({
-      [SocialMenus.Friends]: { icon: <Groups />, tooltip: t('user:menu.friends') }
-    })
+    const viewerMenuState = getMutableState(ViewerMenuState)
+    viewerMenuState.userMenus.friends.set(true)
 
     return () => {
-      popupMenuState.menus.merge({
-        [SocialMenus.Friends]: none,
-        [SocialMenus.Messages]: none
-      })
-
-      popupMenuState.hotbar.merge({
-        [SocialMenus.Friends]: none
-      })
+      viewerMenuState.userMenus.friends.set(false)
     }
   }, [socialsEnabled])
 

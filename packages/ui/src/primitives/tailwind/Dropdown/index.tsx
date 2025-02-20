@@ -41,6 +41,8 @@ export interface DropdownItemProps extends Omit<React.HTMLAttributes<HTMLDivElem
    * Whether the item is hovered (or navigated through arrow keys)
    */
   active?: boolean
+  /** truncate overflowing label text with an ellipsis */
+  truncate?: boolean
 }
 
 export function DropdownItem({
@@ -51,28 +53,30 @@ export function DropdownItem({
   selected,
   secondaryText,
   className,
+  truncate = true,
   ...props
 }: DropdownItemProps) {
   return (
     <div
       tabIndex={0}
       className={twMerge(
-        'h-[38px] w-full cursor-pointer bg-[#141619] px-4 py-2.5 text-xs text-[#9CA0AA] outline-none',
+        'h-[38px] w-full cursor-pointer bg-ui-background px-4 py-2.5 text-sm text-text-tertiary outline-none',
         'flex items-center',
-        !disabled && active && 'text-[#F5F5F5]',
-        !disabled && selected && 'bg-[#191B1F] text-[#375DAF]',
-        disabled ? '' : 'hover:bg-[#2C4A8C]',
-        disabled && 'cursor-not-allowed bg-[#191B1F] text-[#42454D] text-opacity-30',
+        active ? 'bg-ui-hover-background' : '',
+        selected ? 'bg-ui-select-background text-text-primary' : '',
+        disabled
+          ? 'text-ui-inactive-primary-outline cursor-not-allowed bg-ui-inactive-background'
+          : 'hover:bg-ui-hover-background',
         className
       )}
       {...props}
     >
-      <span className="flex items-center gap-2">
-        {Icon && <Icon className={twMerge('h-3 w-3', selected && 'text-[#F5F5F5]')} />}
-        {label}
+      <span className="flex min-w-0 flex-1 items-center gap-2">
+        {Icon && <Icon className="h-3 w-3" />}
+        <span className={truncate ? 'truncate' : ''}>{label}</span>
       </span>
       {secondaryText && <span className="ml-auto">{secondaryText}</span>}
-      {!secondaryText && selected && <HiCheck className="ml-auto h-3 w-3 stroke-2" />}
+      {selected && <HiCheck className="ml-auto h-3 w-3 stroke-2" />}
     </div>
   )
 }

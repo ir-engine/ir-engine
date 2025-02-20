@@ -30,11 +30,12 @@ import {
   CubeTexture,
   DataTexture,
   EquirectangularReflectionMapping,
+  LinearFilter,
   RGBAFormat,
   SRGBColorSpace
 } from 'three'
 
-import { Engine } from '@ir-engine/ecs'
+import { Engine, entityExists, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -43,13 +44,11 @@ import {
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { entityExists, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { isClient, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { createDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { Sky } from '../classes/Sky'
@@ -68,7 +67,7 @@ export const SkyboxComponent = defineComponent({
     equirectangularPath: S.String(''),
     cubemapPath: S.String(''),
     backgroundType: S.Number(1),
-    sky: S.Nullable(S.Type<Sky>()),
+    sky: S.NonSerialized(S.Nullable(S.Type<Sky>())),
     skyboxProps: S.Object({
       turbidity: S.Number(10),
       rayleigh: S.Number(1),
@@ -103,6 +102,7 @@ export const SkyboxComponent = defineComponent({
 
       texture.colorSpace = SRGBColorSpace
       texture.mapping = EquirectangularReflectionMapping
+      texture.minFilter = LinearFilter
       setComponent(entity, BackgroundComponent, texture)
     }, [texture, skyboxState.backgroundType])
 
@@ -119,21 +119,17 @@ export const SkyboxComponent = defineComponent({
 
       const col = skyboxState.backgroundColor.value ?? tempColor
       const resolution = 64 // Min value required
-      const [texture, unload] = createDisposable(
-        DataTexture,
-        entity,
-        getRGBArray(new Color(col)),
-        resolution,
-        resolution,
-        RGBAFormat
-      )
+      /** @todo track this in resource manager */
+      const texture = new DataTexture(getRGBArray(new Color(col)), resolution, resolution, RGBAFormat)
+      // ResourceState.addResource(texture, texture.uuid, entity)
       texture.needsUpdate = true
       texture.colorSpace = SRGBColorSpace
       texture.mapping = EquirectangularReflectionMapping
       setComponent(entity, BackgroundComponent, texture)
 
       return () => {
-        unload()
+        // ResourceState.unload(texture.uuid, entity)
+        texture.dispose()
         removeComponent(entity, BackgroundComponent)
       }
     }, [skyboxState.backgroundType, skyboxState.backgroundColor])

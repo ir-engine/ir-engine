@@ -42,8 +42,15 @@ interface Vector2InputProp {
   onRelease?: (v: Vector2) => void
   min?: number
   max?: number
+  axisLabels?: string[]
+  axisClassNames?: string[]
 }
 
+/**
+ *
+ * @param axisLlabels an array for label overrides, index 0 for X, index 1 for Y
+ * @param axisClassNames an array for label overrides, index 0 for X axis, index 1 for Y axis
+ */
 export const Vector2Input = ({
   uniformScaling,
   smallStep,
@@ -55,6 +62,8 @@ export const Vector2Input = ({
   onRelease,
   min,
   max,
+  axisLabels = ['x', 'y'],
+  axisClassNames = [] as string[],
   ...rest
 }: Vector2InputProp) => {
   const uniformEnabled = useHookstate(uniformScaling)
@@ -93,6 +102,7 @@ export const Vector2Input = ({
       <NumericInput
         {...rest}
         value={vx}
+        inputClassName={'text-center '}
         onChange={onChangeAxis('x')}
         onRelease={onReleaseAxis('x')}
         prefix={
@@ -103,13 +113,16 @@ export const Vector2Input = ({
               onChange={onChangeAxis('x')}
               onRelease={onReleaseAxis('x')}
               axis="x"
+              axisLabel={axisLabels[0]}
             />
           )
         }
+        className={axisClassNames.length > 0 ? axisClassNames[0] : undefined}
       />
       <NumericInput
         {...rest}
         value={vy}
+        inputClassName={'text-center'}
         onChange={onChangeAxis('y')}
         onRelease={onReleaseAxis('y')}
         prefix={
@@ -120,9 +133,11 @@ export const Vector2Input = ({
               onChange={onChangeAxis('y')}
               onRelease={onReleaseAxis('y')}
               axis="y"
+              axisLabel={axisLabels[1]}
             />
           )
         }
+        className={axisClassNames.length > 1 ? axisClassNames[1] : undefined}
       />
     </div>
   )
