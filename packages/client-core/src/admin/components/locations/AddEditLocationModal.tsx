@@ -209,8 +209,8 @@ export default function AddEditLocationModal(props: {
             meshEntity.push(entity)
             const transform = getComponent(entity, TransformComponent)
             const meshRootEntity = findMeshRootEntity(entity, rootEntity)
-            if (!exportParentEntity.includes(meshRootEntity) && meshRootEntity) {
-              exportParentEntity.push(meshRootEntity)
+            if (!exportParentEntity.includes(meshRootEntity) && meshRootEntity !== null) {
+              exportParentEntity.push(meshRootEntity as Entity)
             }
 
             computeTransformMatrix(entity)
