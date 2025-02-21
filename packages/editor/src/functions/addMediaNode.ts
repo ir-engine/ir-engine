@@ -37,6 +37,7 @@ import {
 import {
   getComponent,
   getOptionalComponent,
+  hasComponent,
   LayerID,
   Layers,
   setComponent
@@ -56,6 +57,7 @@ import { serializeEntity } from '@ir-engine/engine/src/scene/functions/serialize
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 import { getState } from '@ir-engine/hyperflux'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { assignMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
@@ -111,10 +113,11 @@ export async function addMediaNode(
           const [material] = getChildrenWithComponents(assetEntity, [MaterialStateComponent])
           let foundTarget = false
           for (const intersection of intersections) {
-            console.log(intersection.object.entity)
+            if (!hasComponent(intersection.object.entity, VisibleComponent)) continue
             iterateEntityNode(intersection.object.entity, (entity: Entity) => {
               const mesh = getOptionalComponent(entity, MeshComponent)
-              if (!mesh || !mesh.visible) return
+              if (!mesh) return
+              console.log('assigning to ', entity)
               assignMaterial(entity, material)
               foundTarget = true
             })
