@@ -195,6 +195,7 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
       } else {
         material[k] = v
       }
+      getMutableComponent(materialEntity, MaterialStateComponent).parameters[k].set(v)
     })
     const sceneID = getComponent(materialEntity, SourceComponent)
     getMutableComponent(
