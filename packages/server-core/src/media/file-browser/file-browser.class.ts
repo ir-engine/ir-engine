@@ -120,14 +120,14 @@ const ensureProjectPermissionAndPublicOrAssetsDirectory = async (
   const publicRegExp = new RegExp(`^${resolvedProjectPath}/public/`)
   const assetsRegExp = new RegExp(`^${resolvedProjectPath}/assets/`)
 
-  //   if (!publicRegExp.test(resolvedPath) && !assetsRegExp.test(resolvedPath))
-  //     throw new Error(
-  //       'Not allowed to access this directory or file: ' +
-  //         path.join(inputPath) +
-  //         ' as it does not match the specified project: ' +
-  //         projectName +
-  //         ' or it is not in the public or assets folder'
-  //     )
+  if (!publicRegExp.test(resolvedPath) && !assetsRegExp.test(resolvedPath))
+    throw new Error(
+      'Not allowed to access this directory or file: ' +
+        path.join(inputPath) +
+        ' as it does not match the specified project: ' +
+        projectName +
+        ' or it is not in the public or assets folder'
+    )
 }
 
 /**
