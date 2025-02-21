@@ -38,6 +38,7 @@ import {
   getComponent,
   getMutableComponent,
   hasComponent,
+  iterateEntityNode,
   removeComponent,
   setComponent,
   traverseEntityNode
@@ -1419,7 +1420,6 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
           parentEntity: nodeEntity,
           childIndex: i
         })
-        computeTransformMatrix(childEntity)
       })
     }
   }
@@ -1498,7 +1498,7 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
 
   for (const entity of loadedNodeEntities) {
     setComponent(entity, EntityTreeComponent, { parentEntity: options.entity })
-    computeTransformMatrix(entity)
+    iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
   }
 
   const rootEntity = options.entity
