@@ -272,7 +272,7 @@ export const GeneralAudioNodeEditor: EditorComponentType = (props) => {
               <>
                 <div className=" flex w-full justify-between gap-1 ">
                   <div className="flex h-8 w-full justify-between gap-2 rounded bg-surface-2 px-2">
-                    <div onClick={toggle} className="my-auto h-6 w-6 text-text-primary-button">
+                    <div onClick={toggle} className="my-auto h-6 w-6 cursor-pointer text-text-primary-button">
                       {media.paused.value && <FaRegCirclePlay className="h-full w-full " />}
                       {!media.paused.value && <FaRegPauseCircle className="h-full w-full " />}
                     </div>
