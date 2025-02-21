@@ -59,8 +59,10 @@ import { getState } from '@ir-engine/hyperflux'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { assignMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import {
+  MaterialInstanceComponent,
+  MaterialStateComponent
+} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
@@ -114,11 +116,20 @@ export async function addMediaNode(
           let foundTarget = false
           for (const intersection of intersections) {
             if (!hasComponent(intersection.object.entity, VisibleComponent)) continue
+
             iterateEntityNode(intersection.object.entity, (entity: Entity) => {
               const mesh = getOptionalComponent(entity, MeshComponent)
               if (!mesh) return
-              console.log('assigning to ', entity)
-              assignMaterial(entity, material)
+              let materialIndex = 0
+              for (const g of mesh.geometry.groups) {
+                if (intersection.faceIndex! * 3 >= g.start && intersection.faceIndex! * 3 < g.start + g.count) {
+                  materialIndex = g.materialIndex!
+                  break
+                }
+              }
+              const uuids = getComponent(entity, MaterialInstanceComponent).uuid
+              uuids[materialIndex] = getComponent(material, UUIDComponent)
+              setComponent(entity, MaterialInstanceComponent, { uuid: uuids })
               foundTarget = true
             })
             if (foundTarget) break
