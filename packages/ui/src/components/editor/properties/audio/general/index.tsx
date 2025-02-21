@@ -360,12 +360,6 @@ export const GeneralAudioNodeEditor: EditorComponentType = (props) => {
             info={t('editor:properties.media.info-mediaOptions')}
           >
             <Checkbox
-              label={t('editor:properties.media.lbl-controls')}
-              variantTextPlacement={'right'}
-              checked={media.controls.value}
-              onChange={commitProperty(MediaComponent, 'controls')}
-            />
-            <Checkbox
               label={t('editor:properties.media.lbl-mediaSynchronize')}
               variantTextPlacement={'right'}
               checked={media.synchronize.value}
