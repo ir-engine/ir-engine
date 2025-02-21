@@ -132,7 +132,10 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
 
   useEffect(() => clearTimeout(debouncedSearchQueryRef.current), [])
 
-  const handleClose = () => {
+  const handleClose = async () => {
+    if (userAvatarId !== selectedAvatarId.value) {
+      await handleConfirmAvatar()
+    }
     PopoverState.hidePopupover()
   }
 
@@ -148,26 +151,21 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
         <div className="grid h-full w-full grid-rows-[3.5rem,1fr]">
           <div className="grid h-14 w-full grid-cols-[2rem,1fr,2rem] border-b px-8">
             {showBackButton && (
-              <Button
+              <button
                 data-testid="edit-avatar-button"
-                className=" h-6 w-6 self-center bg-transparent hover:bg-transparent focus:bg-transparent"
-                onClick={async () => {
-                  if (userAvatarId !== selectedAvatarId.value) {
-                    await handleConfirmAvatar()
-                  }
-                  PopoverState.hidePopupover()
-                }}
+                className=" h-6 w-6 self-center bg-transparent text-text-primary hover:bg-transparent focus:bg-transparent"
+                onClick={handleClose}
               >
-                <span>
-                  <IoArrowBackOutline size={16} />
-                </span>
-              </Button>
+                <IoArrowBackOutline size={16} />
+              </button>
             )}
-            <Text className="col-start-2  place-self-center self-center">{t('user:avatar.titleSelectAvatar')}</Text>
+            <Text className="col-start-2 place-self-center self-center text-text-primary">
+              {t('user:avatar.titleSelectAvatar')}
+            </Text>
             <Button
               fullWidth={false}
               data-testid="edit-avatar-button"
-              className="h-6 w-6 self-center bg-transparent hover:bg-transparent focus:bg-transparent"
+              className="h-6 w-6 self-center bg-transparent  text-text-primary hover:bg-transparent focus:bg-transparent"
               onClick={handleClose}
             >
               <span>
@@ -245,14 +243,6 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
                       />
                     </div>
                   ))}
-                </div>
-                <div className="mt-4 flex justify-end gap-2">
-                  <Button onClick={handleClose} variant="tertiary" disabled={selectedAvatarId.value === userAvatarId}>
-                    {t('user:avatar.discardChanges')}
-                  </Button>
-                  <Button onClick={handleConfirmAvatar} disabled={selectedAvatarId.value === userAvatarId}>
-                    {t('user:avatar.saveChanges')}
-                  </Button>
                 </div>
               </div>
             </div>
