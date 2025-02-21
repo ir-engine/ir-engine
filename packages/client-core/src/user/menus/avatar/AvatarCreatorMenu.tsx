@@ -263,7 +263,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
           <div className="grid h-14 w-full grid-cols-[2rem,1fr,2rem] border-b px-8">
             <Button
               data-testid="edit-avatar-button"
-              className=" h-6 w-6 self-center bg-transparent hover:bg-transparent focus:bg-transparent"
+              className=" h-6 w-6 self-center  bg-transparent text-text-primary hover:bg-transparent focus:bg-transparent"
               onClick={() => {
                 PopoverState.hidePopupover()
               }}
@@ -272,7 +272,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
                 <IoArrowBackOutline size={16} />
               </span>
             </Button>
-            <Text className="col-start-2  place-self-center self-center">
+            <Text className="col-start-2  place-self-center self-center text-text-primary">
               {loading.value !== LoadingState.Uploading
                 ? t('user:avatar.titleCustomizeAvatar')
                 : t('user:avatar.savingAvatar', { avatar: avatarName.value })}
@@ -280,11 +280,12 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
             <Button
               fullWidth={false}
               data-testid="edit-avatar-button"
-              className=" h-6 w-6 self-center bg-transparent hover:bg-transparent focus:bg-transparent"
+              className=" h-6 w-6 self-center  bg-transparent text-text-primary hover:bg-transparent focus:bg-transparent"
               onClick={() =>
                 PopoverState.showPopupover(
                   <DiscardAvatarChangesMenu
                     handleConfirm={() => {
+                      PopoverState.hidePopupover()
                       PopoverState.hidePopupover()
                     }}
                   />
@@ -331,16 +332,16 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
           </div>
           {avatarPreviewLoaded && (
             <div className="mx-auto mb-2 flex items-center gap-2 py-2">
-              <Text className="" fontSize="sm">
+              <Text className="text-text-secondary" fontSize="sm">
                 {t('user:avatar.InputAvatarName')}
               </Text>
               <Input value={avatarName.value || ''} onChange={(e) => avatarName.set(e.target.value)} />
               <Button
-                size="sm"
+                size="xs"
                 disabled={loading.value !== LoadingState.None}
                 data-testid="upload-avatar-button"
                 onClick={uploadAvatar}
-                className="w-fit place-self-center text-sm"
+                className="w-fit place-self-center rounded-md"
               >
                 {t('user:avatar.saveAvatar')}
               </Button>
@@ -349,7 +350,8 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
           {loading.value !== LoadingState.None && loading.value !== LoadingState.LoadingCreator && (
             <div className="mx-auto flex justify-between py-2">
               <LoadingView
-                className="mr-2 h-6 max-h-6 w-6 justify-between"
+                className="mr-2 h-6 max-h-6 w-6 justify-between text-text-primary"
+                titleClassname="text-text-primary"
                 containerClassName="flex-row"
                 title={loadingTitle}
               />
