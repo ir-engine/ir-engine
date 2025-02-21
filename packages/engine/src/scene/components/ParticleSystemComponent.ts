@@ -863,7 +863,7 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS = S.Object({
     followLocalOrigin: S.Bool(true)
   }),
   renderMode: S.Enum(RenderMode, RenderMode.BillBoard),
-  texture: S.String('/static/editor/dot.png'),
+  texture: S.String(''),
   /**
    * particle mesh geometry
    */
