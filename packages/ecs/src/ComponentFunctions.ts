@@ -920,7 +920,7 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         const props = schema.properties as any
         for (const prop of props) {
           const parsed = createArgs(prop, '', obj)
-          if (parsed) return parsed
+          if (typeof parsed !== 'undefined') return parsed
         }
         return null
       }
