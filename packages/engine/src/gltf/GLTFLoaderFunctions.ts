@@ -623,7 +623,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   const materialExtensions = materialDef.extensions || {}
 
   let materialConstructor = MeshStandardMaterial
-
+  console.log(materialExtensions)
   if (!materialExtensions[EXTENSIONS.EE_MATERIAL] && materialExtensions[EXTENSIONS.KHR_MATERIALS_UNLIT]) {
     const kmuExtension = KHRUnlitExtensionComponent
     materialConstructor = kmuExtension.getMaterialType() as any
@@ -764,14 +764,17 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   }
 
   const extensions = Object.entries(materialDef.extensions || {})
+  console.log(extensions)
+
   for (const [extensionName, extension] of extensions) {
+    console.log(extension)
     const Component = ComponentJSONIDMap.get(extensionName) as any // todo
     if (!Component) continue
     deserializeComponent(materialEntity, Component, extension)
     if (typeof Component.getMaterialType === 'function') {
       const ext = Component.getMaterialType(materialDef)
       if (ext) materialConstructor = ext
-      else console.warn('GLTFLoaderFunctions: Material type not found.')
+      else console.warn('GLTFLoaderFunctions: Material type ' + extensionName + ' not found.')
     }
     if (typeof Component.extendMaterialParams === 'function') {
       promises.push(Component.extendMaterialParams(options, materialParams, materialDef, materialIndex))

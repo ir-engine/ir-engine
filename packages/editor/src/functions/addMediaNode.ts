@@ -111,6 +111,7 @@ export async function addMediaNode(
           const [material] = getChildrenWithComponents(assetEntity, [MaterialStateComponent])
           let foundTarget = false
           for (const intersection of intersections) {
+            console.log(intersection.object.entity)
             iterateEntityNode(intersection.object.entity, (entity: Entity) => {
               const mesh = getOptionalComponent(entity, MeshComponent)
               if (!mesh || !mesh.visible) return
