@@ -26,8 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { useGet } from '@ir-engine/common'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { EngineState } from '@ir-engine/ecs'
+import { EngineState, getComponent } from '@ir-engine/ecs'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { Tooltip } from '@ir-engine/ui'
 import { PauseSquareLg, PlayLg } from '@ir-engine/ui/src/icons'
@@ -48,7 +49,9 @@ const PlayModeTool: React.FC = () => {
 
   useEffect(() => {
     if (engineState.isEditing.value || !staticResource.data) return
-    getMutableState(LocationState).currentLocation.location.sceneURL.set(staticResource.data.url)
+    /** @todo upon saving the scene, the GLTFComponent src is not with the new hash, so we need to get the old src */
+    const loadedSceneURL = getComponent(editorState.rootEntity.value, GLTFComponent).src
+    getMutableState(LocationState).currentLocation.location.sceneURL.set(loadedSceneURL)
     return () => {
       getMutableState(LocationState).currentLocation.location.sceneURL.set('')
     }
