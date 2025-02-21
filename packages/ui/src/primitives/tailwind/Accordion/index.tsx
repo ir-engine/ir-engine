@@ -71,7 +71,7 @@ const Accordion = forwardRef(
           }}
         >
           <div className="flex w-full items-center justify-between p-4">
-            <h2 className="text-base font-semibold leading-4 text-text-primary">{title}</h2>
+            <h2 className="truncate text-base font-semibold leading-4 text-text-primary">{title}</h2>
             <ChevronDownLg
               className={twMerge('h-5 w-5 text-text-primary duration-300', openState ? 'rotate-180' : '')}
             />

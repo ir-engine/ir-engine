@@ -31,10 +31,9 @@ import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { Tooltip } from '@ir-engine/ui'
 import { ViewportButton } from '@ir-engine/ui/editor'
-import { Cursor03Default, Refresh1Md, Scale02Md, TransformMd } from '@ir-engine/ui/src/icons'
+import { Cursor03Default, MoveMd, Refresh1Md, Scale02Md, TransformMd } from '@ir-engine/ui/src/icons'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { TbMarquee2 } from 'react-icons/tb'
 import { EditorHelperState } from '../../../services/EditorHelperState'
 import { SelectionBoxState } from './SelectionBoxTool'
 
@@ -97,6 +96,15 @@ export default function TransformGizmoTool() {
             icon={Cursor03Default}
           />
         </Tooltip>
+        <Tooltip content={t('disable orbit camera and enable selection box')} position="right">
+          <ViewportButton
+            onClick={handleClickSelectionBox}
+            selected={toolSelected === GizmoTools.selectionBox}
+            icon={TransformMd}
+          />
+        </Tooltip>
+      </div>
+      <div className="mt-2 flex flex-col overflow-hidden rounded bg-surface-3">
         <Tooltip content={t('editor:toolbar.gizmo.translate')} position="right">
           <ViewportButton
             onClick={() => {
@@ -104,7 +112,7 @@ export default function TransformGizmoTool() {
               setToolSelected(GizmoTools.translate)
             }}
             selected={toolSelected === GizmoTools.translate}
-            icon={Scale02Md}
+            icon={MoveMd}
           />
         </Tooltip>
         <Tooltip content={t('editor:toolbar.gizmo.rotate')} position="right">
@@ -124,14 +132,7 @@ export default function TransformGizmoTool() {
               setToolSelected(GizmoTools.scale)
             }}
             selected={toolSelected === GizmoTools.scale}
-            icon={TransformMd}
-          />
-        </Tooltip>
-        <Tooltip content={t('disable orbit camera and enable selection box')} position="right">
-          <ViewportButton
-            onClick={handleClickSelectionBox}
-            selected={toolSelected === GizmoTools.selectionBox}
-            icon={TbMarquee2}
+            icon={Scale02Md}
           />
         </Tooltip>
       </div>
