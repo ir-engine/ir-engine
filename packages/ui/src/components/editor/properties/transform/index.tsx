@@ -78,6 +78,8 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
     if (bboxSnapState.enabled) {
       ObjectGridSnapState.apply()
     }
+    const selectedEntities = SelectionState.getSelectedEntities()
+    EditorHistoryFunctions.setComponent(selectedEntities, TransformComponent)
   }
 
   const onChangeDynamicLoad = (value) => {

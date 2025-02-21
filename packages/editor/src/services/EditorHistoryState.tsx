@@ -66,12 +66,6 @@ export type StateSnapshotCommand = {
 export type HistoryCommand = UndoCommand | RedoCommand | StateSnapshotCommand
 
 export const EditorHistoryActions = {
-  initialize: defineAction({
-    type: 'ir.editor.history.INITIALIZE',
-    sourceID: matches.string as Validator<unknown, SourceID>,
-    initial: matches.object as Validator<unknown, SourceData>
-  }),
-
   undo: defineAction({
     type: 'ir.editor.history.UNDO',
     sourceID: matches.string as Validator<unknown, SourceID>
@@ -97,13 +91,6 @@ export const EditorHistoryState = defineState({
   >,
 
   receptors: {
-    initialize: EditorHistoryActions.initialize.receive((action) => {
-      getMutableState(EditorHistoryState)[action.sourceID].set({
-        commands: {},
-        initial: action.initial,
-        current: action.initial
-      })
-    }),
     undo: EditorHistoryActions.undo.receive((action) => {
       const history = getMutableState(EditorHistoryState)[action.sourceID]
       if (!history.value.commands) history.commands.set({})
@@ -133,6 +120,13 @@ export const EditorHistoryState = defineState({
       ])
     }),
     snapshot: EditorHistoryActions.snapshot.receive((action) => {
+      if (!getState(EditorHistoryState)[action.sourceID]) {
+        getMutableState(EditorHistoryState)[action.sourceID].set({
+          commands: {},
+          initial: action.partialState,
+          current: action.partialState
+        })
+      }
       const history = getMutableState(EditorHistoryState)[action.sourceID]
       if (!history.value.commands) history.commands.set({})
       const peerID = action.$peer
@@ -181,7 +175,7 @@ const SourceReactor = (props: { entity: Entity }) => {
 
     const sourceData = getSourceSnapshot(sourceID)
 
-    dispatchAction(EditorHistoryActions.initialize({ sourceID, initial: sourceData }))
+    dispatchAction(EditorHistoryActions.snapshot({ sourceID, partialState: sourceData }))
   }, [loaded])
 
   return null
@@ -204,6 +198,7 @@ const SourceHistoryReactor = (props: { sourceID: SourceID }) => {
 
     // parse our undo/redo stack and return a new list of commands that represent the final graph path
     const { doneStack } = computeCommands(commands)
+    if (doneStack.length <= 1) return
 
     // get the final state of the history
     const finalState = doneStack[doneStack.length - 1] as StateSnapshotCommand
@@ -297,7 +292,7 @@ export const applyCommandsToECS = (sourceID: SourceID, currentState: SourceData,
 }
 
 export const getSourceSnapshot = (sourceID: SourceID) => {
-  const sourceEntities = SourceComponent.getEntitiesBySource(sourceID)
+  const sourceEntities = SourceComponent.getEntitiesBySource(sourceID, Layers.Authoring)
 
   const sourceData = {} as SourceData
 
