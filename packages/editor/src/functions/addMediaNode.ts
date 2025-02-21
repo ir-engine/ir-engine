@@ -43,6 +43,7 @@ import {
   setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { GeneralAudioComponent } from '@ir-engine/engine/src/audio/components/GeneralAudioComponent'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { AssetState } from '@ir-engine/engine/src/gltf/GLTFState'
@@ -205,7 +206,7 @@ export async function addMediaNode(
   } else if (contentType.startsWith('audio/')) {
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
       [
-        { name: PositionalAudioComponent.jsonID },
+        { name: GeneralAudioComponent.jsonID },
         { name: MediaComponent.jsonID, props: { resources: [url] } },
         ...extraComponentJson
       ],
