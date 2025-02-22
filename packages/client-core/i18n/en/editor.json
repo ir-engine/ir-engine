@@ -388,8 +388,8 @@
       }
     },
     "audio": {
-      "name": "Positional Audio",
-      "description": "Positional audio settings",
+      "name": "Audio",
+      "description": "Audio settings",
       "lbl-distanceModel": "Distance Model",
       "info-distanceModel": "The algorithim used to calculate audio rolloff.",
       "lbl-rolloffFactor": "Rolloff Factor",
@@ -410,7 +410,9 @@
       "info-coreOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard.",
       "lbl-play": "Play",
       "lbl-pause": "Pause",
-      "error-url": "Error Loading From URL"
+      "error-url": "Error Loading From URL",
+      "lbl-media" : "Media Source",
+      "lbl-media-info" :"Media Source"
     },
     "collider": {
       "name": "Collider",
@@ -1299,7 +1301,7 @@
         "volumetric": "Import volumetric files. Accepts DRCS, UVOL, or Manifest Files. Links to cloud hosting.",
         "video": "Imports a 2D plane that accepts .mp4, .mkv, .avi",
         "variant": "Add model variant for level of detail",
-        "audio": "Import audio clips, .mp3, .flac, .ogg, .wav, .m4a",
+        "generalAudio": "Import audio clips, .mp3, .flac, .ogg, .wav, .m4a",
         "image": "Imports an image into the scene",
         "ground-plane": "Create collision ground plane.",
         "group": "Collection of models or assets.",

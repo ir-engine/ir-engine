@@ -27,6 +27,7 @@ import { useEffect } from 'react'
 
 import {
   defineComponent,
+  getAuthoringCounterpart,
   getOptionalComponent,
   removeComponent,
   setComponent,
@@ -34,13 +35,18 @@ import {
   useEntityContext,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import { AudioNodeGroups, MediaElementComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
+import {
+  AudioNodeGroups,
+  MediaComponent,
+  MediaElementComponent
+} from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ActiveHelperComponent } from '../../../../spatial/src/common/ActiveHelperComponent'
+import { GeneralAudioComponent } from './GeneralAudioComponent'
 import { PositionalAudioHelperComponent } from './PositionalAudioHelperComponent'
 
 export interface PositionalAudioInterface {
@@ -77,6 +83,14 @@ export const PositionalAudioComponent = defineComponent({
     const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
     const audio = useComponent(entity, PositionalAudioComponent)
     const mediaElement = useOptionalComponent(entity, MediaElementComponent)
+
+    useEffect(() => {
+      const authEntity = getAuthoringCounterpart(entity)
+      if (authEntity) {
+        setComponent(authEntity, GeneralAudioComponent)
+        setComponent(authEntity, MediaComponent)
+      }
+    }, [])
 
     useEffect(() => {
       if (debugEnabled) {
