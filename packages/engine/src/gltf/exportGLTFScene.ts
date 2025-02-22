@@ -747,8 +747,10 @@ const exportTexture = async (texture: Texture, gltf: GLTF.IGLTF, context: GLTFSc
   if (mimeType === 'image/webp') mimeType = 'image/png'
 
   const src = texture.userData.src
-
-  if (src) {
+  const url = texture.userData.url
+  if (url) {
+    texture.image.src = url
+  } else if (src) {
     texture.image.src = src
   }
   if (mimeType) {
