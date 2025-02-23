@@ -52,7 +52,7 @@ elif [ "$DESTINATION_REPO_PROVIDER" == "gcp" ]; then
   # Apply environment-specific suffixes based on APP_HOST
   if [[ "$APP_HOST" =~ "ir-engine-mt-rc-int" ]]; then
       SUFFIX="mt-rc-int"
-  if [[ "$APP_HOST" =~ "ir-engine-mt-qat" ]]; then
+  elif [[ "$APP_HOST" =~ "ir-engine-mt-qat" ]]; then
       SUFFIX="mt-qat"
   elif [[ "$APP_HOST" =~ "ir-engine-mt" ]]; then
       SUFFIX="mt"
@@ -66,7 +66,6 @@ elif [ "$DESTINATION_REPO_PROVIDER" == "gcp" ]; then
   if [ -n "$SUFFIX" ]; then
       DESTINATION_REPO_NAME="$DESTINATION_REPO_NAME_STEM-$PACKAGE-$SUFFIX/$DESTINATION_REPO_NAME_STEM-$PACKAGE"
   fi    
-fi
 
   gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
   # Insert GCP credentials fetching here, and apply that to docker login
