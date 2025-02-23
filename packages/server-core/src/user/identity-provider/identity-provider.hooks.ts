@@ -309,6 +309,30 @@ const isSearchQuery = (context: HookContext) => {
   return queryLength === 3 && query.email && !query.email.$like && !query.email.$notlike
 }
 
+const ensureUniqueIdentity = async (context: HookContext) => {
+  const { userId } = context.data
+  if (!userId) {
+    return
+  }
+  try {
+    const { data, total } = await context.app.service(identityProviderPath).find({
+      query: {
+        userId
+      }
+    })
+
+    if (total > 0) {
+      await Promise.all(
+        data.map(async (identity) => {
+          await context.app.service(identityProviderPath).remove(identity.id)
+        })
+      )
+    }
+  } catch (err) {
+    throw new NotFound()
+  }
+}
+
 export default {
   around: {
     all: [
@@ -347,6 +371,7 @@ export default {
       persistData,
       validateAuthParams,
       addIdentityProviderType,
+      ensureUniqueIdentity,
       iff((context: HookContext<IdentityProviderService>) => !context.existingUser, createNewUser),
       (context: HookContext<IdentityProviderService>) =>
         ((context.data as IdentityProviderData).userId = context.existingUser!.id)
