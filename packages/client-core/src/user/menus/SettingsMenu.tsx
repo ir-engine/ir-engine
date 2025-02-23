@@ -38,6 +38,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PopoverState } from '../../common/services/PopoverState'
 import { XruiNameplateState } from '../../social/XruiNameplateState'
+import ControllerMappingMobileImage from './images/controller-mapping-mobile.svg'
 import ControllerMappingImage from './images/controller-mapping.png'
 import KeyboardMappingImage from './images/keyboard-mapping.png'
 import MouseMappingImage from './images/mouse-mapping.png'
@@ -82,7 +83,7 @@ function GeneralTab() {
           </div>
         </>
       )}
-      {isMobile && <img src="/static/Mobile_Tutorial.png" alt="Mobile Controls" />}
+      {isMobile && <img src={ControllerMappingMobileImage} alt="Mobile Controls" />}
       {xrSupported && <img src="/static/XR_Tutorial.png" alt="XR Controls" />}
     </div>
   )
