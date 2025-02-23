@@ -211,7 +211,7 @@ function Message({ message, hideUsername }: { message: MessageType; hideUsername
     <div
       className="my-4 place-self-center text-center text-xs text-text-primary lg:text-sm"
       style={{
-        textShadow: '0px 1px 4px rgb(255, 255, 255)'
+        textShadow: isMobile ? '' : '0px 1px 4px rgb(255, 255, 255)'
       }}
     >
       {message.text}
@@ -237,7 +237,7 @@ function Messages() {
   const { messages, isChatOpen } = useInstanceChatMessages()
   if (!isChatOpen.value) return null
   return (
-    <div className="flex max-h-[65vh] flex-col justify-end lg:max-h-[45vh]">
+    <div className="flex max-h-[65dvh] flex-col justify-end lg:max-h-[45vh]">
       <div className="min-h-0 flex-1 overflow-y-auto">
         {messages.value.map((message, index) => (
           <Message
