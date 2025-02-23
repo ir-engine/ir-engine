@@ -219,8 +219,8 @@ function Message({ message, hideUsername }: { message: MessageType; hideUsername
   ) : (
     <div
       className={twMerge(
-        'my-4 w-fit place-self-end rounded-[14px] bg-surface-3 px-2 py-0.5 opacity-50 lg:rounded-[11px] lg:py-2.5',
-        message.sender.id === user.id.value && 'place-self-start bg-[#C7C7C7]',
+        'my-4 w-fit place-self-start rounded-[14px] bg-surface-3 px-2 py-0.5 opacity-50 lg:rounded-[11px] lg:py-2.5',
+        message.sender.id === user.id.value && 'place-self-end bg-[#C7C7C7]',
         newMessages.value[message.id] && 'opacity-100',
         hideUsername && '-mt-3'
       )}
