@@ -267,7 +267,6 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
               materialComponent.material.value!.uuid as EntityUUID,
               [{ [key]: property }]
             )
-            if (materialComponent.parameters.value) materialComponent.parameters[key].set(property)
             await checkThumbs()
           }}
           defaults={prototype.arguments!.value}

@@ -75,6 +75,7 @@ import {
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { extractDefaults } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
@@ -207,6 +208,7 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
       } else {
         material[k] = v
       }
+      getMutableComponent(materialEntity, MaterialStateComponent).parameters[k].set(v)
     })
     const sceneID = getComponent(materialEntity, SourceComponent)
     getMutableComponent(
@@ -379,6 +381,7 @@ const positionObject = (
 
     setComponent(entity, TransformComponent, { position: transform.position })
     getMutableComponent(entity, TransformComponent).position.set((v) => v)
+    iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
     EditorState.markModifiedScene(entity)
   }
@@ -414,6 +417,7 @@ const rotateObject = (nodes: Entity[], rotations: Quaternion[], space = getState
 
     setComponent(entity, TransformComponent, { rotation: transform.rotation })
     getMutableComponent(entity, TransformComponent).rotation.set((v) => v)
+    iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
     EditorState.markModifiedScene(entity)
   }
@@ -441,6 +445,7 @@ const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: V
 
     setComponent(entity, TransformComponent, { rotation: transform.rotation })
     getMutableComponent(entity, TransformComponent).rotation.set((v) => v)
+    iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
     EditorState.markModifiedScene(entity)
   }
@@ -467,6 +472,7 @@ const scaleObject = (entities: Entity[], scales: Vector3[], overrideScale = fals
 
     setComponent(entity, TransformComponent, { scale: transformComponent.scale })
     getMutableComponent(entity, TransformComponent).scale.set((v) => v)
+    iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
     EditorState.markModifiedScene(entity)
   }
