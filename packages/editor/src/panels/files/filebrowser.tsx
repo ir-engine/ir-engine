@@ -43,7 +43,6 @@ import {
   useCurrentFiles,
   useFileBrowserDrop
 } from './helpers'
-import FilesLoaders from './loaders'
 
 export function Browser() {
   const [anchorEvent, setAnchorEvent] = useState<undefined | React.MouseEvent>(undefined)
@@ -201,7 +200,6 @@ export default function FileBrowser() {
 
   return (
     <CurrentFilesQueryProvider>
-      <FilesLoaders />
       <Browser />
     </CurrentFilesQueryProvider>
   )
