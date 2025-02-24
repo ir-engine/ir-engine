@@ -62,6 +62,7 @@ import {
   Edit01Lg,
   FacebookOriginalFalse,
   GithubOriginalFalse,
+  GoogleOriginalFalse,
   HelpIconLg,
   LogIn01Lg,
   Refresh1Lg,
@@ -72,6 +73,7 @@ import {
 } from '@ir-engine/ui/src/icons'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { FaApple } from 'react-icons/fa'
 import { initialAuthState, initialOAuthConnectedState } from '../../common/initialAuthState'
 import { NotificationService } from '../../common/services/NotificationService'
 import { PopoverState } from '../../common/services/PopoverState'
@@ -361,7 +363,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   const enableConnect = authState?.value?.emailMagicLink || authState?.value?.smsMagicLink
 
   return (
-    <div className="relative z-50 h-fit max-h-[60vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-theme-surface-main p-10">
+    <div className="absolute z-50 h-fit max-h-[90vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-1 p-6 mdh:max-h-[60vh] mdh:p-10">
       <div className="grid w-full grid-cols-2 gap-x-2">
         <div className="grid grid-cols-3 gap-x-2">
           <div className="relative col-span-1 h-[3.75rem] w-[3.75rem]">
@@ -372,32 +374,32 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               }}
               className="absolute -bottom-3 -right-3 flex h-8 w-8 items-center justify-center rounded-full bg-[#DDE1E5] p-2"
             >
-              <Edit01Lg className="place-items-center text-black" />
+              <Edit01Lg className="place-items-center text-text-secondary" />
             </button>
           </div>
 
           <div className="col-span-2 grid grid-cols-1 gap-y-1">
-            <Text fontSize="xl" fontWeight="semibold">
+            <Text fontSize="xl" fontWeight="semibold" className="text-text-primary">
               {hasAdminAccess ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
               <span className={commonStyles.bold}>{hasAdminAccess ? ' Admin' : isGuest ? ' Guest' : ' User'}</span>.
             </Text>
 
             {acceptedTOS && selfUser?.inviteCode.value && (
-              <Text fontSize="sm">
+              <Text fontSize="sm" className="text-text-secondary">
                 {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode.value}
               </Text>
             )}
 
             {acceptedTOS && (
               <button className="w-fit" onClick={() => showUserId.set(!showUserId.value)}>
-                <Text fontSize="sm">
+                <Text fontSize="sm" className="text-text-secondary">
                   {showUserId.value ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
                 </Text>
               </button>
             )}
 
             {acceptedTOS && apiKey?.id && (
-              <button onClick={() => showApiKey.set(!showApiKey.value)} className="w-fit">
+              <button onClick={() => showApiKey.set(!showApiKey.value)} className="w-fit text-text-secondary">
                 <Text fontSize="sm">
                   {showApiKey.value ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
                 </Text>
@@ -408,18 +410,18 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
 
         <div className="grid grid-cols-3 gap-x-2">
           <button
-            className="col-span-1 flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-[#616161] p-2"
+            className="col-span-1 flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-surface-0 p-2"
             onClick={() => {
               PopoverState.showPopupover(<SettingsMenu />)
             }}
           >
-            <CogLg className="h-10 w-10 text-white" />
+            <CogLg className="h-10 w-10 text-text-primary" />
           </button>
 
           {initialized && (
-            <div className="col-span-2 grid grid-cols-1 gap-y-2">
+            <div className="col-span-2 grid grid-cols-1 gap-y-1 mdh:gap-y-2">
               <button
-                className="flex w-full items-center justify-center gap-x-2 rounded-md bg-[#616161] p-1"
+                className="flex w-full items-center justify-center gap-x-2 rounded-md bg-[#616161] p-1 text-text-primary-button"
                 onClick={openChat}
               >
                 <HelpIconLg />
@@ -427,7 +429,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               </button>
 
               <button
-                className="flex w-full items-center justify-center gap-x-2 rounded-md bg-[#C3324B] p-1"
+                className="flex w-full items-center justify-center gap-x-2 rounded-md bg-[#C3324B] p-1 text-text-primary-button"
                 onClick={openChat}
               >
                 <ReportWebsiteDefaullg />
@@ -438,14 +440,23 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
         </div>
       </div>
 
-      <div className="mt-5 grid w-full grid-cols-1 gap-y-4">
+      <div className="mt-1 grid w-full grid-cols-1 gap-y-4 mdh:mt-5">
         {isGuest && !originallyAcceptedTOS && (
           <>
-            <Checkbox
-              checked={checkedTOS.value}
-              onChange={() => checkedTOS.set((v) => !v)}
-              label={t('user:usermenu.profile.agreeTOS')}
-            />
+            <div className="flex w-full items-center justify-start gap-x-1">
+              <Checkbox
+                checked={checkedTOS.value}
+                onChange={() => checkedTOS.set((v) => !v)}
+                label={t('user:usermenu.profile.agreeTOS')}
+              />
+              <a
+                className="inline text-sm text-text-primary underline-offset-4 hover:text-ui-hover-primary hover:underline"
+                href={clientSetting?.termsOfService}
+                target="_blank"
+              >
+                {t('user:usermenu.profile.termsOfService')}
+              </a>
+            </div>
             <Checkbox
               checked={checked13OrOver.value}
               onChange={() => checked13OrOver.set((v) => !v)}
@@ -561,14 +572,17 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
       </div>
 
       {!isGuest && (
-        <div className="mt-5 grid w-1/2 grid-cols-1 gap-y-2 px-5">
-          <button className="flex w-full items-center justify-start gap-x-2 p-2" onClick={handleLogout}>
+        <div className="grid w-1/2 grid-cols-1 gap-y-1 px-5 mdh:mt-5 mdh:gap-y-2">
+          <button
+            className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
+            onClick={handleLogout}
+          >
             <LogIn01Lg />
             {t('user:usermenu.profile.logout')}
           </button>
 
           <button
-            className="flex w-full items-center justify-start gap-x-2 p-2"
+            className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
             onClick={() => {
               PopoverState.showPopupover(
                 <ConfirmDialog
@@ -589,7 +603,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
         </div>
       )}
 
-      <hr className="mb-5 mt-5 border-[#616161]" />
+      <hr className="mb-1 mt-1 border-ui-outline mdh:mb-5 mdh:mt-5" />
 
       {!hideLogin && acceptedTOS && enableSocial && (
         <div className="flex w-full items-center justify-center gap-x-2">
@@ -632,6 +646,50 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               >
                 <TwitterOriginalFalse className="h-10 w-10" />
                 {oauthConnectedState.twitter.value && (
+                  <CheckLg className="absolute -right-1 -top-1 font-semibold text-green-400" />
+                )}
+              </button>
+            </Tooltip>
+          )}
+          {authState?.value?.google && (
+            <Tooltip
+              position="top"
+              content={`Click to ${oauthConnectedState.google.value ? 'unlink' : 'link'} your Google account`}
+            >
+              <button
+                className="relative h-10 w-10"
+                onClick={() => {
+                  if (oauthConnectedState.google.value) {
+                    handleRemoveOAuthServiceClick('google')
+                  } else {
+                    handleOAuthServiceClick('google')
+                  }
+                }}
+              >
+                <GoogleOriginalFalse className="h-10 w-10" />
+                {oauthConnectedState.google.value && (
+                  <CheckLg className="absolute -right-1 -top-1 font-semibold text-green-400" />
+                )}
+              </button>
+            </Tooltip>
+          )}
+          {authState?.value?.apple && (
+            <Tooltip
+              position="top"
+              content={`Click to ${oauthConnectedState.apple.value ? 'unlink' : 'link'} your Apple account`}
+            >
+              <button
+                className="relative h-10 w-10"
+                onClick={() => {
+                  if (oauthConnectedState.apple.value) {
+                    handleRemoveOAuthServiceClick('apple')
+                  } else {
+                    handleOAuthServiceClick('apple')
+                  }
+                }}
+              >
+                <FaApple className="h-10 w-10 text-text-primary" />
+                {oauthConnectedState.apple.value && (
                   <CheckLg className="absolute -right-1 -top-1 font-semibold text-green-400" />
                 )}
               </button>
@@ -685,7 +743,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
       )}
 
       <a href={clientSetting?.privacyPolicy} target="_blank">
-        <Text className="mt-5 w-full text-center" fontSize="sm">
+        <Text className="mt-1 w-full text-center text-text-tertiary mdh:mt-5" fontSize="sm">
           {t('user:usermenu.profile.privacyPolicy')}
         </Text>
       </a>

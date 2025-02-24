@@ -110,6 +110,12 @@ export class AppleStrategy extends CustomOAuthStrategy {
     if (entity.type !== 'guest' && identityProvider.type === 'guest') {
       await this.app.service(identityProviderPath).remove(identityProvider.id)
       await this.app.service(userPath).remove(identityProvider.userId)
+      await this.app.service(identityProviderPath).remove(null, {
+        query: {
+          type: 'guest',
+          userId: entity.userId
+        }
+      })
       await this.userLoginEntry(entity, params)
       return super.updateEntity(entity, profile, params)
     }
@@ -152,9 +158,21 @@ export class AppleStrategy extends CustomOAuthStrategy {
         }
         await this.app.service(identityProviderPath).remove(entity.id)
       }
+      await this.app.service(identityProviderPath).remove(null, {
+        query: {
+          type: 'guest',
+          userId: existingEntity.userId
+        }
+      })
       await this.userLoginEntry(newIP, params)
       return newIP
     } else if (existingEntity.userId === identityProvider.userId) {
+      await this.app.service(identityProviderPath).remove(null, {
+        query: {
+          type: 'guest',
+          userId: existingEntity.userId
+        }
+      })
       await this.userLoginEntry(existingEntity, params)
       return existingEntity
     } else {

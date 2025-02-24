@@ -120,7 +120,7 @@ export default function ProjectTable(props: { search: string }) {
       <div className="flex items-center justify-evenly p-1">
         <Button
           size="sm"
-          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="mr-2 h-min whitespace-pre  text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={project.name === 'ir-engine/default-project'}
           onClick={() => {
             activeProjectId.set(project.id)
@@ -134,7 +134,7 @@ export default function ProjectTable(props: { search: string }) {
         </Button>
         <Button
           size="sm"
-          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="mr-2 h-min whitespace-pre  text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={!project || !project.repositoryPath || project.name === 'ir-engine/default-project'}
           onClick={() => {
             PopoverState.showPopupover(
@@ -155,7 +155,7 @@ export default function ProjectTable(props: { search: string }) {
 
         <Button
           size="sm"
-          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="mr-2 h-min whitespace-pre  text-[#214AA6] disabled:opacity-50 dark:text-white"
           onClick={() => {
             activeProjectId.set(project.id)
             PopoverState.showPopupover(<ManageUserPermissionModal project={project} />)
@@ -166,7 +166,7 @@ export default function ProjectTable(props: { search: string }) {
         </Button>
         <Button
           size="sm"
-          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="mr-2 h-min whitespace-pre  text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={config.client.localBuildOrDev}
           onClick={() => {
             PopoverState.showPopupover(
@@ -182,16 +182,13 @@ export default function ProjectTable(props: { search: string }) {
           <HiOutlineCommandLine />
           {t('admin:components.project.actions.invalidateCache')}
         </Button>
-        <Button
-          size="sm"
-          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
-        >
+        <Button size="sm" className="mr-2 h-min whitespace-pre  text-[#214AA6] disabled:opacity-50 dark:text-white">
           <HiOutlineFolder />
           {t('admin:components.common.view')}
         </Button>
         <Button
           size="sm"
-          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="mr-2 h-min whitespace-pre  text-[#214AA6] disabled:opacity-50 dark:text-white"
           onClick={() => {
             PopoverState.showPopupover(<ProjectHistoryModal projectId={project.id} projectName={project.name} />)
           }}
@@ -201,7 +198,7 @@ export default function ProjectTable(props: { search: string }) {
         </Button>
         <Button
           size="sm"
-          className="h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
+          className="h-min whitespace-pre  text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={project.name === 'ir-engine/default-project'}
           onClick={() => {
             PopoverState.showPopupover(
@@ -226,11 +223,7 @@ export default function ProjectTable(props: { search: string }) {
       return {
         name: (
           <div className="flex items-center gap-2">
-            <a
-              target="_blank"
-              href={`/studio?project=${row.name}`}
-              className={row.needsRebuild ? 'text-blue-400' : 'text-theme-primary'}
-            >
+            <a target="_blank" href={`/studio?project=${row.name}`} className={row.needsRebuild ? 'text-blue-400' : ''}>
               {row.name}
             </a>
             {!!row.needsRebuild && (

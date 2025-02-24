@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, useComponent } from '@ir-engine/ecs'
+import { Entity, getComponent } from '@ir-engine/ecs'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { EffectReactorProps, PostProcessingEffectState } from '@ir-engine/spatial/src/renderer/effects/EffectRegistry'
@@ -59,8 +59,8 @@ export const DepthOfFieldEffectProcessReactor: React.FC<EffectReactorProps> = (p
       if (effects[effectKey].value) effects[effectKey].set(none)
       return
     }
-    const camera = useComponent(rendererEntity, CameraComponent)
-    const eff = new DepthOfFieldEffect(camera.value as ArrayCamera, effectData[effectKey].value)
+    const camera = getComponent(rendererEntity, CameraComponent)
+    const eff = new DepthOfFieldEffect(camera as ArrayCamera, effectData[effectKey].value)
     effects[effectKey].set(eff)
     return () => {
       effects[effectKey].set(none)

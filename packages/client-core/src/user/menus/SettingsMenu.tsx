@@ -357,7 +357,7 @@ export default function SettingsMenu() {
   const { t } = useTranslation()
 
   return (
-    <div className="relative z-50 h-fit max-h-[60vh] min-h-[50vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-[#CDCDCD] p-10 text-[#616161]">
+    <div className="absolute z-50 h-fit max-h-[90vh] min-h-[50vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-1 p-6 text-text-secondary mdh:max-h-[60vh] mdh:p-10">
       <div className="mb-[17px]">
         <button onClick={() => PopoverState.hidePopupover()}>
           <ArrowLeftLg />
@@ -379,7 +379,6 @@ export default function SettingsMenu() {
           }
         ]}
         tabClassName="text-[#616161]"
-        tabcontainerClassName="bg-[#CDCDCD] w-full"
       />
     </div>
   )

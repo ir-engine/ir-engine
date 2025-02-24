@@ -25,12 +25,10 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { defineComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
 export const VisibleComponent = defineComponent({
   name: 'VisibleComponent',
-  jsonID: 'EE_visible',
-  schema: S.Bool(true)
+  jsonID: 'EE_visible'
 })
 
 export const setVisibleComponent = (entity: Entity, visible: boolean) => {

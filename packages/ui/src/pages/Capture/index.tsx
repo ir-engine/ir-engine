@@ -49,7 +49,7 @@ import {
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
 import {
   MotionCaptureFunctions,
   MotionCaptureResults,
@@ -72,6 +72,7 @@ import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
 import Video from '@ir-engine/ui/src/primitives/tailwind/Video'
 
 import { SocketWebRTCClientNetwork } from '@ir-engine/client-core/src/transports/mediasoup/MediasoupClientFunctions'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { useVideoFrameCallback } from '@ir-engine/spatial/src/common/functions/useVideoFrameCallback'
 import { Slider } from '../../../editor'
 import Button from '../../primitives/tailwind/Button'
@@ -485,7 +486,8 @@ const PlaybackMode = () => {
       !scene
     )
       return
-    return GLTFAssetState.loadScene(scene.url, scene.id)
+    const viewerEntity = getState(ReferenceSpaceState).viewerEntity
+    return SceneState.loadScene(scene.url, scene.id, viewerEntity)
   }, [scene])
 
   const ActiveRecording = () => {

@@ -26,7 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { MeshBasicMaterial, VideoTexture } from 'three'
 
-import { getComponent, getMutableComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  hasComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
@@ -130,13 +135,15 @@ const execute = () => {
   /** Use a priority queue with videos to ensure only a few are updated each frame */
   for (const entity of VideoComponent.uniqueVideoEntities) {
     const videoMeshEntity = getComponent(entity, VideoComponent).videoMeshEntity
-    const videoTexture = (getComponent(videoMeshEntity, MeshComponent)?.material as MeshBasicMaterial)
-      ?.map as VideoTexture
-    if (videoTexture?.isVideoTexture) {
-      const video = videoTexture.image
-      const hasVideoFrameCallback = 'requestVideoFrameCallback' in video
-      if (hasVideoFrameCallback === false || video.readyState < video.HAVE_CURRENT_DATA) continue
-      videoPriorityQueue.addPriority(entity, 1)
+    const videoMesh = getOptionalComponent(videoMeshEntity, MeshComponent)
+    if (videoMesh) {
+      const videoTexture = (videoMesh.material as MeshBasicMaterial)?.map as VideoTexture
+      if (videoTexture?.isVideoTexture) {
+        const video = videoTexture.image
+        const hasVideoFrameCallback = 'requestVideoFrameCallback' in video
+        if (hasVideoFrameCallback === false || video.readyState < video.HAVE_CURRENT_DATA) continue
+        videoPriorityQueue.addPriority(entity, 1)
+      }
     }
   }
 

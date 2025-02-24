@@ -138,6 +138,8 @@ const server = {
   hostname: process.env.SERVER_HOST!,
   port: process.env.SERVER_PORT!,
   clientHost: process.env.APP_HOST!,
+  // DNS Provider Config
+  dnsProvider: process.env.DNS_PROVIDER || 'aws',
   // Public directory (used for favicon.ico, logo, etc)
   rootDir:
     process.env.BUILD_MODE! === 'individual'
@@ -171,7 +173,9 @@ const server = {
   edgeCachingEnabled: process.env.STORAGE_PROVIDER! === 's3' && process.env.S3_DEV_MODE! !== 'local',
   instanceserverUnreachableTimeoutSeconds: process.env.INSTANCESERVER_UNREACHABLE_TIMEOUT_SECONDS
     ? parseInt(process.env.INSTANCESERVER_UNREACHABLE_TIMEOUT_SECONDS)
-    : 10
+    : 10,
+  requireAgeVerification:
+    typeof process.env.REQUIRE_AGE_VERIFICATION === 'string' ? process.env.REQUIRE_AGE_VERIFICATION === 'true' : true
 }
 const obj = kubernetesEnabled ? { protocol: 'https', hostname: server.hostname } : { protocol: 'https', ...server }
 server.url = process.env.SERVER_URL || url.format(obj)

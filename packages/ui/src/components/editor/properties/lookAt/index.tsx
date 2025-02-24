@@ -30,10 +30,10 @@ import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 
 import { FaRegFaceFlushed } from 'react-icons/fa6'
 
-import { EntityUUID } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import { LookAtComponent } from '@ir-engine/spatial/src/transform/components/LookAtComponent'
+import { NodeID } from '@ir-engine/engine/src/gltf/NodeIDComponent'
+import { LookAtComponent } from '@ir-engine/engine/src/scene/components/LookAtComponent'
 import { Checkbox } from '@ir-engine/ui'
 import InputGroup from '../../input/Group'
 import NodeInput from '../../input/Node'
@@ -56,7 +56,7 @@ export const LookAtNodeEditor: EditorComponentType = (props) => {
     >
       <InputGroup name="Target" label={t('editor:properties.lookAt.target')}>
         <NodeInput
-          value={lookAtComponent.target.value ?? ('' as EntityUUID)}
+          value={lookAtComponent.target.value ?? ('' as NodeID)}
           onRelease={commitProperty(LookAtComponent, 'target')}
           onChange={commitProperty(LookAtComponent, 'target')}
         />

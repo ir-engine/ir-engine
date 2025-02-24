@@ -26,11 +26,11 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Color, DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 
+import { createEntity, entityExists, removeEntity } from '@ir-engine/ecs'
 import { getComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { createEntity, entityExists, removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { defineActionQueue, defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 

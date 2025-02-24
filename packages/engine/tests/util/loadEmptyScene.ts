@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { GLTF } from '@gltf-transform/core'
 import { Cache } from 'three'
 
-import { GLTFSourceState } from '../../src/gltf/GLTFState'
+import { AssetState } from '../../src/gltf/GLTFState'
 
 export const loadEmptyScene = () => {
   const gltf: GLTF.IGLTF = {
@@ -38,5 +38,6 @@ export const loadEmptyScene = () => {
     nodes: []
   }
   Cache.add('/test.gltf', gltf)
-  return GLTFSourceState.load('/test.gltf')
+  Cache.enabled = true
+  return AssetState.load('/test.gltf')
 }

@@ -80,16 +80,20 @@ const TransformSnapTool = () => {
   }
 
   return (
-    <div className="flex items-center rounded bg-[#141619] py-1">
+    <div className="flex items-center gap-x-1 rounded">
       <Tooltip content={t('editor:toolbar.transformSnapTool.toggleBBoxSnap')} position="bottom">
-        <ViewportButton onClick={toggleAttachmentPointSnap} selected={objectSnapState.enabled.value}>
-          <LuUtilityPole />
-        </ViewportButton>
+        <ViewportButton
+          onClick={toggleAttachmentPointSnap}
+          selected={objectSnapState.enabled.value}
+          icon={LuUtilityPole}
+        />
       </Tooltip>
       <Tooltip content={t('editor:toolbar.transformSnapTool.toggleSnapMode')} position="bottom">
-        <ViewportButton onClick={toggleSnapMode} selected={editorHelperState.gridSnap.value === SnapMode.Grid}>
-          <SnappingToolMd />
-        </ViewportButton>
+        <ViewportButton
+          onClick={toggleSnapMode}
+          selected={editorHelperState.gridSnap.value === SnapMode.Grid}
+          icon={SnappingToolMd}
+        />
       </Tooltip>
 
       <ToolbarDropdown
@@ -98,8 +102,8 @@ const TransformSnapTool = () => {
         options={translationSnapOptions}
         value={editorHelperState.translationSnap.value}
         width="full"
-        inputHeight="xs"
-        dropdownParentClassName="w-[82px] p-1"
+        inputHeight="l"
+        dropdownParentClassName="w-[82px]"
       />
 
       <ToolbarDropdown
@@ -108,8 +112,8 @@ const TransformSnapTool = () => {
         options={rotationSnapOptions}
         value={editorHelperState.rotationSnap.value}
         width="full"
-        inputHeight="xs"
-        dropdownParentClassName="w-[65px] p-1"
+        inputHeight="l"
+        dropdownParentClassName="w-[65px]"
       />
     </div>
   )

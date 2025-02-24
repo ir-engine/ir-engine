@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall, HiUser } from 'react-icons/hi2'
+import { HiUser } from 'react-icons/hi2'
 
 import { useHookstate } from '@hookstate/core'
 import { useFind, useMutation } from '@ir-engine/common'
@@ -77,8 +77,6 @@ const FeaturesTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableR
     <Accordion
       title={t('admin:components.setting.features.header')}
       subtitle={t('admin:components.setting.features.subtitle')}
-      expandIcon={<HiPlusSmall />}
-      shrinkIcon={<HiMinus />}
       ref={ref}
       open={open}
     >
@@ -114,7 +112,6 @@ const FeatureItem = ({ feature }: { feature: FeatureFlagSettingType }) => {
   return (
     <div key={feature.id} className="flex items-center">
       <Toggle
-        containerClassName="justify-start"
         label={feature.flagName}
         value={feature.flagValue}
         onChange={(value) => createOrUpdateFeatureFlag(feature, value)}

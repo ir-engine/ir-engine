@@ -21,7 +21,6 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { lazy, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useFind, useMutation } from '@ir-engine/common'
 import {
@@ -33,11 +32,29 @@ import {
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { Button, Input, Select } from '@ir-engine/ui'
+import { Button, DropdownItem, Input, Select } from '@ir-engine/ui'
+import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
+import { CheckCircleLg, Copy02Sm, EllipsisVertical } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
-import { ModalHeader } from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
-import { HiLink } from 'react-icons/hi2'
+import { NotificationService } from '../../../common/services/NotificationService'
+
+function formatPublishedDate(isoString) {
+  const date = new Date(isoString)
+
+  const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+  const formattedDate = date.toLocaleDateString('en-US', options)
+
+  const timeOptions: Intl.DateTimeFormatOptions = {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZoneName: 'short'
+  }
+  const formattedTime = date.toLocaleTimeString('en-US', timeOptions)
+
+  return { formattedDate, formattedTime }
+}
 
 const getDefaultErrors = () => ({
   name: '',
@@ -55,6 +72,8 @@ const locationTypeOptions = [
   { label: 'Public', value: 'public' },
   { label: 'Showroom', value: 'showroom' }
 ]
+
+const LOCATION_MAX = 5
 
 export default function AddEditLocationModal(props: {
   action: string
@@ -83,11 +102,12 @@ export default function AddEditLocationModal(props: {
 
   const publishLoading = useHookstate(false)
   const unPublishLoading = useHookstate(false)
+  const isNewPublished = useHookstate(false)
   const isLoading = locationQuery.status === 'pending' || publishLoading.value || unPublishLoading.value
   const errors = useHookstate(getDefaultErrors())
 
   const name = useHookstate(location?.name || '')
-  const maxUsers = useHookstate(location?.maxUsersPerInstance || 5)
+  const maxUsers = useHookstate(LOCATION_MAX)
 
   const scene = useHookstate((location ? location.sceneId : props.sceneID) || '')
   const videoEnabled = useHookstate<boolean>(location?.locationSetting.videoEnabled || true)
@@ -118,7 +138,7 @@ export default function AddEditLocationModal(props: {
   const handlePublish = async () => {
     errors.set(getDefaultErrors())
 
-    if (!name.value) {
+    if (!name.value.trim()) {
       errors.name.set(t('admin:components.location.nameCantEmpty'))
     }
     if (!maxUsers.value) {
@@ -147,7 +167,7 @@ export default function AddEditLocationModal(props: {
     }
 
     const locationData: LocationData = {
-      name: name.value,
+      name: name.value.trim(),
       sceneId: scene.value,
       maxUsersPerInstance: maxUsers.value,
       locationSetting: {
@@ -172,6 +192,7 @@ export default function AddEditLocationModal(props: {
         locationID.set(response.id)
       }
       await locationQuery.refetch()
+      isNewPublished.set(true)
     } catch (err) {
       errors.serverError.set(err.message)
     }
@@ -192,38 +213,39 @@ export default function AddEditLocationModal(props: {
     }
   }
 
+  const anchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
+
   return (
-    <div className="relative z-50 w-[50vw] bg-theme-surface-main">
-      <div className="relative rounded-lg shadow">
-        <ModalHeader
-          onClose={PopoverState.hidePopupover}
-          title={location?.id ? t('editor:toolbar.publishLocation.update') : t('editor:toolbar.publishLocation.create')}
-        />
-        <div className="h-fit max-h-[60vh] w-full overflow-y-auto px-10 py-6">
+    <div className="absolute z-50 bg-surface-2 px-8 pt-6">
+      <div className="relative rounded-lg py-2">
+        <div className="flex justify-between pb-6">
+          <span className="text-xl">
+            {location?.id ? t('editor:toolbar.publishLocation.update') : t('editor:toolbar.publishLocation.create')}
+          </span>
+          <div className="flex items-center gap-3">
+            {location ? (
+              <span className="text-xs text-green-500">
+                {t('editor:toolbar.publishLocation.publishDate', formatPublishedDate(location.createdAt))}
+              </span>
+            ) : (
+              <span className="text-text-primary">{t('editor:toolbar.publishLocation.notYetPublished')}</span>
+            )}
+            <button onClick={(event) => anchorEvent.set(event)}>
+              <EllipsisVertical />
+            </button>
+          </div>
+        </div>
+
+        <div className="h-fit max-h-[60vh] w-full overflow-y-auto">
           <div className="relative grid w-full gap-6">
             {errors.serverError.value && <p className="mb-3 text-red-700">{errors.serverError.value}</p>}
-            {location && (
-              <button
-                className="flex w-full cursor-default items-center justify-center gap-x-1 text-left text-xs font-medium"
-                data-testid="publish-panel-copy-link-buttons-group"
-              >
-                <div
-                  className="cursor-pointer text-blue-primary hover:underline"
-                  onClick={() => window.open(new URL(location.url))}
-                >
-                  {location.url}
-                </div>
-                <HiLink
-                  className="z-10 h-4 w-4 cursor-pointer"
-                  onClick={() => {
-                    navigator.clipboard.writeText(new URL(location.url).href)
-                    NotificationService.dispatchNotify(t('editor:toolbar.publishLocation.locationLinkCopied'), {
-                      variant: 'success'
-                    })
-                  }}
-                />
-              </button>
-            )}
+            {
+              <div className={location ? 'border-y border-y-ui-outline' : ''}>
+                {location && (
+                  <LocationPublishSuccess published={isNewPublished.value ? false : !!location} url={location.url} />
+                )}
+              </div>
+            }
             <Input
               labelProps={{ text: t('admin:components.location.lbl-name'), position: 'top' }}
               value={name.value}
@@ -235,18 +257,7 @@ export default function AddEditLocationModal(props: {
               fullWidth
               height="xl"
             />
-            <Input
-              type="number"
-              labelProps={{ text: t('admin:components.location.lbl-maxuser'), position: 'top' }}
-              value={maxUsers.value}
-              data-testid="publish-panel-location-max-users"
-              onChange={(event) => maxUsers.set(Math.max(parseInt(event.target.value, 0), 0))}
-              state={errors.maxUsers.value ? 'error' : undefined}
-              helperText={errors.maxUsers.value}
-              disabled={isLoading}
-              fullWidth
-              height="xl"
-            />
+
             <Select
               labelProps={{
                 text: t('admin:components.location.lbl-scene'),
@@ -287,33 +298,61 @@ export default function AddEditLocationModal(props: {
               width="full"
               inputSizeVariant="xl"
             />*/}
-            <Toggle
-              label={t('admin:components.location.lbl-ve')}
-              value={videoEnabled.value}
-              onChange={videoEnabled.set}
-              disabled={isLoading}
-            />
-            <Toggle
-              label={t('admin:components.location.lbl-ae')}
-              value={audioEnabled.value}
-              onChange={audioEnabled.set}
-              disabled={isLoading}
-            />
-            <Toggle
-              label={t('admin:components.location.lbl-se')}
-              value={screenSharingEnabled.value}
-              onChange={screenSharingEnabled.set}
-              disabled={isLoading}
-            />
-            {props.inStudio && (
-              <React.Suspense fallback={null}>
-                <StudioSections />
-              </React.Suspense>
-            )}
+
+            <div className="grid grid-cols-[276px_minmax(0,1fr)] gap-12 border-t border-t-ui-outline py-6">
+              <div className="flex flex-col">
+                {props.inStudio && (
+                  <React.Suspense fallback={null}>
+                    <StudioSections />
+                  </React.Suspense>
+                )}
+              </div>
+
+              <div className="grid h-full grid-rows-[auto,1fr] gap-5">
+                <div className="flex h-auto flex-col self-start">
+                  <h5>{t('editor:toolbar.publishLocation.multiplayerFeatures')}</h5>
+                  <span className="text-xs">{t('editor:toolbar.publishLocation.multiplayerDescription')}</span>
+                </div>
+
+                <div className="flex flex-col gap-5">
+                  <Input
+                    type="number"
+                    labelProps={{ text: t('admin:components.location.lbl-maxuser'), position: 'top' }}
+                    value={maxUsers.value}
+                    data-testid="publish-panel-location-max-users"
+                    onChange={(event) => maxUsers.set(Math.max(parseInt(event.target.value, 0), 0))}
+                    state={errors.maxUsers.value ? 'error' : undefined}
+                    helperText={errors.maxUsers.value}
+                    disabled={isLoading}
+                    fullWidth
+                    height="xl"
+                    placeholder="5 - Default"
+                  />
+                  <Toggle
+                    label={t('admin:components.location.lbl-ve')}
+                    value={videoEnabled.value}
+                    onChange={videoEnabled.set}
+                    disabled={isLoading}
+                  />
+                  <Toggle
+                    label={t('admin:components.location.lbl-ae')}
+                    value={audioEnabled.value}
+                    onChange={audioEnabled.set}
+                    disabled={isLoading}
+                  />
+                  <Toggle
+                    label={t('admin:components.location.lbl-se')}
+                    value={screenSharingEnabled.value}
+                    onChange={screenSharingEnabled.set}
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-flow-col border-t border-t-theme-primary px-6 py-5">
+        <div className="grid grid-flow-col border-t border-t-ui-outline px-6 py-5">
           <Button
             variant="tertiary"
             data-testid="publish-panel-cancel-button"
@@ -342,6 +381,84 @@ export default function AddEditLocationModal(props: {
               {publishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
             </Button>
           </div>
+        </div>
+      </div>
+
+      <ContextMenu
+        anchorEvent={anchorEvent.value as React.MouseEvent<HTMLElement>}
+        onClose={() => anchorEvent.set(null)}
+        className="z-9999"
+      >
+        <div className="w-[180px]" tabIndex={0}>
+          <DropdownItem
+            className="text-red-500"
+            label={t('editor:toolbar.publishLocation.unpublish')}
+            onMouseDown={(e) => {
+              e.stopPropagation()
+              unPublishLocation()
+              anchorEvent.set(null)
+            }}
+          />
+        </div>
+      </ContextMenu>
+    </div>
+  )
+}
+
+const LocationPublishSuccess = ({ published, url }: { published: boolean; url: string }) => {
+  const copied = useHookstate(false)
+  const { t } = useTranslation()
+
+  const handleCopy = () => {
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        copied.set(true)
+        setTimeout(() => copied.set(false), 5000)
+
+        NotificationService.dispatchNotify(t('editor:toolbar.publishLocation.locationLinkCopied'), {
+          variant: 'success'
+        })
+      })
+      .catch((err) => {
+        alert(`Failed to copy URL: ${err}`)
+      })
+  }
+
+  return (
+    <div className={published ? 'border-b border-t border-black' : ''}>
+      <div
+        className={`flex items-center justify-between rounded p-3 ${
+          published ? 'bg-transparent shadow' : 'bg-surface-success'
+        }`}
+      >
+        <div className="flex items-center gap-4">
+          <div className="flex h-full items-center">
+            <CheckCircleLg className={`h-10 w-10 ${published ? 'text-green-500' : 'text-white'}`} />
+          </div>
+
+          <div className="flex flex-col">
+            <span className="font-semibold text-text-primary">
+              {published
+                ? t('editor:toolbar.publishLocation.publishSuccess')
+                : t('editor:toolbar.publishLocation.publicUrl')}
+            </span>
+            <span className="cursor-pointer py-1 text-sm font-light text-text-primary" onClick={() => window.open(url)}>
+              {url}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center">
+          <button
+            onClick={handleCopy}
+            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-white transition ${
+              published ? 'bg-ui-success hover:bg-[#0e5026]' : 'bg-black bg-opacity-50'
+            }`}
+          >
+            <Copy02Sm className="text-white" />
+            {published ? t('editor:toolbar.publishLocation.copy') : t('editor:toolbar.publishLocation.copyPublicUrl')}
+          </button>
         </div>
       </div>
     </div>

@@ -214,9 +214,18 @@
       "title": "Publish",
       "create": "Publish Location",
       "update": "Update Published Location",
-      "unpublish": "Unpublish Location",
+      "unpublish": "Unpublish",
       "saveAndPublish": "Save and Publish",
-      "locationLinkCopied": "Location link copied"
+      "locationLinkCopied": "Location link copied",
+      "publishDate": "✓ Published {{formattedDate}} at {{formattedTime}}",
+      "notYetPublished": "Not Yet Published",
+      "multiplayerFeatures": "Multiplayer Features",
+      "multiplayerDescription": "Choose which features visitors can use when visiting your published space with others.",
+      "copy": "Copy",
+      "copyPublicUrl": "Copy Public URL",
+      "publicUrl": "Public URL",
+      "publishSuccess": "Location Published Successfully",
+      "noThumbnailPlaceholder": "Publish Scene to Generate a Preview Image"
     }
   },
   "properties": {
@@ -320,15 +329,17 @@
       "path": "Path",
       "paths": "Source Paths",
       "playmode": "Play Mode",
+      "audiomode": "Audio Mode",
       "playtitle": "Play",
       "pausetitle": "Pause",
       "resettitle": "Reset",
       "lbl-ui-offset": "UI Offset",
-      "lbl-controls": "controls",
+      "lbl-controls": "Show Controls In Viewport",
       "lbl-paused": "Paused",
       "info-paused": "Toggle media playback",
       "info-controls": "Toggle the visibility of the media controls.",
       "lbl-autoplay": "Autoplay",
+      "lbl-muteEditor": "Mute in Editor",
       "info-autoplay": "Toggle whether this video autoplays",
       "lbl-synchronize": "Synchronize",
       "info-synchronize": "If true, the media will be synchronized on all the connected clients.",
@@ -339,7 +350,11 @@
       "lbl-size": "Size",
       "seektime": "Start Time",
       "lbl-mediaControls": "Media Controls",
-      "info-mediaControls": "Control media playback (positional audio based on camera position)"
+      "info-mediaControls": "Control media playback (positional audio based on camera position)",
+      "lbl-mediaOptions": "Media Options",
+      "info-mediaOptions": "Media Options",
+      "lbl-mediaSynchronize": "Synchronize Client Playback"
+      
     },
     "media-preview": {
       "lbl-mediaPreview": "Media Preview",
@@ -373,8 +388,8 @@
       }
     },
     "audio": {
-      "name": "Positional Audio",
-      "description": "Positional audio settings",
+      "name": "Audio",
+      "description": "Audio settings",
       "lbl-distanceModel": "Distance Model",
       "info-distanceModel": "The algorithim used to calculate audio rolloff.",
       "lbl-rolloffFactor": "Rolloff Factor",
@@ -385,15 +400,19 @@
       "lbl-maxDistance": "Max Distance",
       "info-maxDistance": "A double value representing the maximum distance between the audio source and the listener, after which the volume is not reduced any further.",
       "info-maxDistanceDisabled": "Only supported with the Linear Distance Model.",
-      "lbl-coneInnerAngle": "Cone Inner Angle",
+      "lbl-coneAngle": "Cone Angle",
+      "info-coneAngle": "The angle (double), in degrees, of a cone.",
+      "lbl-coneInnerAngle": "Inner",
       "info-coneInnerAngle": "The angle (double), in degrees, of a cone inside of which there will be no directional volume reduction (gain = 1).",
-      "lbl-coneOuterAngle": "Cone Outer Angle",
+      "lbl-coneOuterAngle": "Outer",
       "info-coneOuterAngle": "The angle (double), in degrees, of an outer cone - within which the volume will be directionally reduced down to a constant value (coneOuterGain). The volume level will linearly reduce from 1 at edge of the inner angle cone to coneOuterGain's value at the edge of the outer angle cone.",
       "lbl-coreOuterGain": "Cone Outer Gain",
       "info-coreOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard.",
       "lbl-play": "Play",
       "lbl-pause": "Pause",
-      "error-url": "Error Loading From URL"
+      "error-url": "Error Loading From URL",
+      "lbl-media" : "Media Source",
+      "lbl-media-info" :"Media Source"
     },
     "collider": {
       "name": "Collider",
@@ -959,9 +978,13 @@
       "lbl-newTab": "Open in new tab",
       "description": "Adds an interactable that opens links or navigates scene"
     },
-    "iframe": {
-      "title": "Iframe",
-      "description": "Adds iframe as a popover when it's being interacted in the scene"
+    "overlay": {
+      "title": "Overlay",
+      "description": "Places content over the scene view as overlay.",
+      "contentSource": "Content Source",
+      "overlayPosition": "Overlay Position",
+      "optionalUrl": "URL (Optional)",
+      "src": "src"
     },
     "spotLight": {
       "name": "Spot Light",
@@ -1013,24 +1036,28 @@
       "lbl-projection": "Projection",
       "lbl-side": "Side",
       "lbl-side-info": "The side of the video to display",
-      "lbl-use-alpha": "Use Alpha",
+      "lbl-use-alpha": "Transparency", 
+      "lbl-use-alphaEnable": "Enbale", 
+      "lbl-use-alphaInvert": "Invert",     
       "lbl-use-alpha-info": "If true, the video will be rendered with an alpha channel",
-      "lbl-alpha-threshold": "Alpha Threshold",
+      "lbl-alpha-threshold": "Threshold",
       "lbl-alpha-threshold-info": "The alpha value below which the video will be considered transparent",
       "lbl-uv-offset": "UV Offset",
       "lbl-uv-offset-info": "The offset of the video texture in UV space",
       "lbl-uv-scale": "UV Scale",
       "lbl-uv-scale-info": "The scale of the video texture in UV space",
-      "lbl-wrap-s": "Wrap S",
+      "lbl-wrap": "Wrap",
+      "lbl-wrap-info": "The wrap mode of the video texture",
+      "lbl-wrap-s": "S",
       "lbl-wrap-s-info": "The wrap mode of the video texture in the S direction",
-      "lbl-wrap-t": "Wrap T",
+      "lbl-wrap-t": "T",
       "lbl-wrap-t-info": "The wrap mode of the video texture in the T direction",
-      "lbl-use-alpha-uv-transform": "Use Alpha UV Transform",
+      "lbl-use-alpha-uv-transform": "Alpha Transform",
       "lbl-use-alpha-uv-transform-info": "If true, the alpha channel will be transformed by its own UV transform",
-      "lbl-alpha-uv-offset": "Alpha UV Offset",
-      "lbl-alpha-uv-offset-info": "The offset of the alpha channel in UV space",
       "lbl-alpha-uv-scale": "Alpha UV Scale",
-      "lbl-alpha-uv-scale-info": "The scale of the alpha channel in UV space"
+      "lbl-alpha-uv-scale-info": "The scale of the alpha channel in UV space",
+      "lbl-synchronized-media-source": "Synchronized Media Source",
+      "lbl-synchronized-media-source-info": "Synchronized Media Source"
     },
     "volumetric": {
       "name": "Volumetric",
@@ -1274,7 +1301,7 @@
         "volumetric": "Import volumetric files. Accepts DRCS, UVOL, or Manifest Files. Links to cloud hosting.",
         "video": "Imports a 2D plane that accepts .mp4, .mkv, .avi",
         "variant": "Add model variant for level of detail",
-        "audio": "Import audio clips, .mp3, .flac, .ogg, .wav, .m4a",
+        "generalAudio": "Import audio clips, .mp3, .flac, .ogg, .wav, .m4a",
         "image": "Imports an image into the scene",
         "ground-plane": "Create collision ground plane.",
         "group": "Collection of models or assets.",
@@ -1299,7 +1326,7 @@
         "primitive-geometry": "Add basic Geometry to the scene",
         "link": "Add clickable Link to entity to route to different webpage",
         "dynamic-load": "Load entities dynamically",
-        "iframe": "Create popup based on iframe"
+        "overlay": "Create overlay based on iframe"
       },
       "placeObject": "Place Object",
       "placeObjectAtOrigin": "Place Object at Origin"

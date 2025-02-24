@@ -44,9 +44,8 @@ import {
   useFileBrowserDrop
 } from './helpers'
 import FilesLoaders from './loaders'
-import FilesToolbar from './toolbar'
 
-function Browser() {
+export function Browser() {
   const [anchorEvent, setAnchorEvent] = useState<undefined | React.MouseEvent>(undefined)
   const dropOnFileBrowser = useFileBrowserDrop()
   const filesState = useMutableState(FilesState)
@@ -82,7 +81,7 @@ function Browser() {
         $in: files.map((file) => file.key)
       },
       project: projectName.value,
-      $select: ['key', 'userId', 'stats', 'createdAt'],
+      $select: ['key', 'userId', 'user', 'stats', 'createdAt'],
       $limit: FILES_PAGE_LIMIT
     }
   })
@@ -93,7 +92,7 @@ function Browser() {
     staticResourceDataQuery.data.forEach((data: StaticResourceType) => {
       additionalData[data.key] = {
         createdAt: new Date(data.createdAt).toLocaleString(),
-        author: data.userId || 'iR Starter Content',
+        author: data.user ? data.user.name : 'iR Starter Content',
         statistics: Object.keys({ ...data.stats }).length ? JSON.stringify(data.stats) : ''
       }
     })
@@ -158,7 +157,7 @@ function Browser() {
 
   return (
     <div
-      className={twMerge('h-full overflow-y-scroll', isFileDropOver ? 'border-2 border-gray-300' : '')}
+      className={twMerge('h-full overflow-y-scroll bg-surface-1', isFileDropOver ? 'border-2 border-gray-300' : '')}
       ref={fileDropRef}
       onContextMenu={(event) => {
         event.preventDefault()
@@ -202,7 +201,6 @@ export default function FileBrowser() {
 
   return (
     <CurrentFilesQueryProvider>
-      <FilesToolbar />
       <FilesLoaders />
       <Browser />
     </CurrentFilesQueryProvider>

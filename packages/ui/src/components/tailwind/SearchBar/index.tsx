@@ -65,7 +65,7 @@ export default function SearchBar({
           search.query.set(event.target.value)
         }, debounceTime)
       }}
-      startComponent={<SearchSmSm className="h-20 text-white" />}
+      startComponent={<SearchSmSm className="h-20 text-text-secondary" />}
       data-testid="search-input"
       height={size}
       {...inputProps}

@@ -65,6 +65,11 @@ export interface NumericInputProp extends Omit<React.HTMLAttributes<HTMLInputEle
   largeStep?: number
   min?: number
   max?: number
+  prefixClassName?: string
+  PreFixIcon?: ({ className }: { className?: string }) => JSX.Element
+  prefixIconClassName?: string
+  SuffixIcon?: ({ className }: { className?: string }) => JSX.Element
+  suffixIconClassName?: string
 }
 
 const NumericInput = ({
@@ -83,6 +88,11 @@ const NumericInput = ({
   largeStep,
   min,
   max,
+  prefixClassName,
+  PreFixIcon,
+  prefixIconClassName,
+  SuffixIcon,
+  suffixIconClassName,
   ...rest
 }: NumericInputProp) => {
   const tempValue = useHookstate(0)
@@ -149,15 +159,16 @@ const NumericInput = ({
   return (
     <div
       className={twMerge(
-        prefix ? 'w-24 px-2 py-2' : 'w-full px-5 py-2',
-        'flex h-10 items-center justify-between rounded-lg bg-[#1A1A1A]',
+        'w-full px-2',
+        'flex h-8 items-center rounded-sm border border-ui-outline bg-ui-background',
         className
       )}
     >
-      {prefix}
+      {PreFixIcon && <PreFixIcon className={prefixIconClassName} />}
+      {prefix && <div className={prefixClassName}>{prefix}</div>}
       <input
         className={twMerge(
-          'w-full bg-inherit text-xs font-normal leading-normal text-[#8B8B8D] focus:outline-none disabled:text-[#6B6F78]',
+          'h-full w-full bg-inherit text-center text-xs font-normal leading-normal text-text-primary focus:outline-none disabled:text-text-inactive',
           inputClassName
         )}
         disabled={disabled ?? false}
@@ -170,10 +181,11 @@ const NumericInput = ({
         {...rest}
       />
       {unit && (
-        <Text fontSize="xs" className={twMerge('text-right ', disabled ? 'text-[#6B6F78]' : 'text-[#8B8B8D]')}>
+        <Text fontSize="xs" className={twMerge('text-right ', disabled ? 'text-text-secondary' : 'text-text-inactive')}>
           {unit}
         </Text>
       )}
+      {SuffixIcon && <SuffixIcon className={suffixIconClassName} />}
     </div>
   )
 }
