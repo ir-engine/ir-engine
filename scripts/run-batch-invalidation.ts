@@ -88,6 +88,7 @@ cli.main(async () => {
     const app = await createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
     const storageProviderName = appconfig.server.storageProvider
+    console.log('storageProviderName', storageProviderName)
     const limit = storageProviderName === 's3' ? 3000 : storageProviderName === 'gcs' ? 500 : 100
     const invalidations = await app.service(invalidationPath).find({
       query: {
@@ -112,7 +113,10 @@ cli.main(async () => {
       }
 
       pathArray = [...new Set(pathArray)]
+      console.log('idArray', idArray)
+      console.log('pathArray', pathArray)
       const storageProvider = getStorageProvider()
+      console.log('calling createInvalidation for storage provider', storageProvider)
       if (storageProviderName === 'gcs') await storageProvider.createInvalidation(pathArray, true)
       else await storageProvider.createInvalidation(pathArray)
       await app.service(invalidationPath).remove(null, {

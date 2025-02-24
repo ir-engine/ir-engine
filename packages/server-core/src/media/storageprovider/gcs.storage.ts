@@ -221,6 +221,7 @@ export class GCSStorage implements StorageProviderInterface {
    * @param useMediaCDN Not used for AWS, but part of createInvalidation parameter signature
    */
   async createInvalidation(invalidationItems: string[], useMediaCDN: boolean) {
+    console.log('GCS createInvalidation', invalidationItems, useMediaCDN)
     if (!invalidationItems || invalidationItems.length === 0) return
     invalidationItems = invalidationItems.map((item) => (item[0] !== '/' ? `/${item}` : item))
     console.log('invalidationItems', invalidationItems)
