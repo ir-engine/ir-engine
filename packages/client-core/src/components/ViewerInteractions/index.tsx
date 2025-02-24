@@ -79,6 +79,7 @@ export const ViewerInteractions = () => {
   }
 
   const externalInjectedMenus = useMutableState(ViewerMenuState).externalInjectedMenus.get(NO_PROXY)
+  
   const isScreenOpaque = loadingScreenOpacity.value > 0
 
   return (
