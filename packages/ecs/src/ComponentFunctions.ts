@@ -548,7 +548,7 @@ export const setComponent = <C extends Component>(
     function reactor() {
       return React.createElement(EntityContext.Provider, { value: entity }, React.createElement(component.reactor, {}))
     }
-    Object.defineProperty(reactor, 'name', { value: `${component.name} (eid: ${entity})` })
+    reactor['__name'] = `${component.name} (eid: ${entity})`
     const root = startReactor(reactor) as ReactorRoot
     root['entity'] = entity
     root['component'] = component.name

@@ -23,47 +23,17 @@ import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'
 
 import { defineSystem, ECSState, PresentationSystemGroup } from '@ir-engine/ecs'
-import {
-  defineState,
-  getMutableState,
-  getState,
-  NO_PROXY,
-  ReactorRenderCounterState,
-  syncStateWithLocalStorage,
-  useHookstate
-} from '@ir-engine/hyperflux'
+import { getMutableState, getState, NO_PROXY, ReactorRenderCounterState, useHookstate } from '@ir-engine/hyperflux'
 import { Checkbox } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
-const labelRenderer = (data: Record<string | number, any>, total: boolean) => {
-  return (keyPath: string[], ...args) => {
-    const key = keyPath[0]
-    if (!data[key]) return <Text fontWeight="medium">{key}</Text>
-    if (total) {
-      return (
-        <Text fontWeight="medium">
-          {data[key].name} - {data[key].count}
-        </Text>
-      )
-    }
-    if (!ReactorFrequencyMap.has(key)) {
-      return <Text fontWeight="medium">{data[key].name}</Text>
-    }
-    return (
-      <Text fontWeight="medium">
-        {data[key].name} - {ReactorFrequencyMap.get(key)?.frequency}/s
-      </Text>
-    )
-  }
-}
-
 let open = false
 let accumulator = 0
+const updatePeriod = 1 / 50
 
-const ReactorFrequencyMap = new Map<string, { lastCount: number; frequency: number }>()
-globalThis.ReactorFrequencyMap = ReactorFrequencyMap
-
-globalThis.ReactorRenderCounterState = ReactorRenderCounterState
+const timeSeriesWindow = 100
+const RenderFrequencyAverage = new Map<string, { lastCount: number; timeseries: number[]; average: number }>()
+globalThis.RenderFrequencyAverage = RenderFrequencyAverage
 
 const execute = () => {
   if (!open) return
@@ -71,18 +41,28 @@ const execute = () => {
   // every 100ms, update the render frequency
   const delta = getState(ECSState).deltaSeconds
   accumulator += delta
-  if (accumulator > 0.1) {
+  if (accumulator > updatePeriod) {
     const state = ReactorRenderCounterState.get(NO_PROXY) as Record<
       string,
-      { count: number; name: string; stack: string[] }
+      { count: number; name: string; stack: string[]; time: number; lastRender: number }
     >
     for (const [key, value] of Object.entries(state)) {
-      const frequency = ReactorFrequencyMap.get(key)
-      if (frequency) {
-        frequency.frequency = (value.count - frequency.lastCount) / accumulator
-        frequency.lastCount = value.count
-      } else {
-        ReactorFrequencyMap.set(key, { lastCount: value.count, frequency: 0 })
+      if (value.count > 0) {
+        if (!RenderFrequencyAverage.has(key)) {
+          RenderFrequencyAverage.set(key, {
+            lastCount: value.count,
+            timeseries: [],
+            average: 0
+          })
+        }
+        const lastCount = RenderFrequencyAverage.get(key)!.lastCount
+        RenderFrequencyAverage.get(key)!.lastCount = value.count
+        RenderFrequencyAverage.get(key)!.timeseries.push(value.count - lastCount)
+        if (RenderFrequencyAverage.get(key)!.timeseries.length > timeSeriesWindow) {
+          RenderFrequencyAverage.get(key)!.timeseries.shift()
+        }
+        RenderFrequencyAverage.get(key)!.average =
+          (RenderFrequencyAverage.get(key)!.timeseries.reduce((a, b) => a + b, 0) / timeSeriesWindow) * updatePeriod
       }
     }
     accumulator = 0
@@ -95,19 +75,13 @@ const ReactorFrequencySystem = defineSystem({
   execute
 })
 
-const ReactorSearchState = defineState({
-  name: 'ir.client.debug.ReactorSearchState',
-  initial: {
-    search: ''
-  },
-  extension: syncStateWithLocalStorage(['search'])
-})
+const shouldExpandNodeInitially = (keyPath: any, data: any, level: number) => level < 2
 
 export function ReactorDebug() {
   const { t } = useTranslation()
   useHookstate(getMutableState(ECSState).frameTime).value
 
-  const buttonChecked = useHookstate(false)
+  const averageEnabled = useHookstate(false)
 
   useEffect(() => {
     open = true
@@ -119,28 +93,35 @@ export function ReactorDebug() {
   const reactorProfileState = useHookstate(ReactorRenderCounterState)
 
   // sort by most frequently rendered
-  const state = buttonChecked.value
-    ? Object.fromEntries(
-        Object.entries(reactorProfileState.get(NO_PROXY))
-          .filter(([, a]) => a.count > 1)
-          .sort(([, a], [, b]) => b.count - a.count)
+  const state = Object.fromEntries(
+    Object.entries(reactorProfileState.get(NO_PROXY))
+      .filter(([key, val]) => (averageEnabled.value ? RenderFrequencyAverage.has(key) : true))
+      .sort(([keyA, valA], [keyB, valB]) =>
+        averageEnabled.value
+          ? RenderFrequencyAverage.get(keyB)!.average - RenderFrequencyAverage.get(keyA)!.average
+          : valB.count - valA.count
       )
-    : Object.fromEntries(
-        Object.entries(reactorProfileState.get(NO_PROXY))
-          .filter(([a]) => ReactorFrequencyMap.has(a)) // && ReactorFrequencyMap.get(a)!.frequency > 0)
-          .sort(([a], [b]) => ReactorFrequencyMap.get(b)!.frequency - ReactorFrequencyMap.get(a)!.frequency)
-      )
+      .filter((x, i) => i < 20)
+      .map(([key, val]) => {
+        return [
+          val.name,
+          {
+            uuid: key,
+            count: val.count,
+            time: val.time,
+            average: RenderFrequencyAverage.get(key)?.average ?? 0,
+            stack: val.stack
+          }
+        ]
+      })
+  )
 
   return (
     <div className="m-1 bg-neutral-600 p-1">
       <div className="my-0.5">
         <Text>{t('common:debug.state')}</Text>
-        <Checkbox
-          label={buttonChecked.value ? 'Frequency' : 'Total'}
-          checked={buttonChecked.value}
-          onChange={() => buttonChecked.set(() => !buttonChecked.value)}
-        />
-        <JSONTree data={state} labelRenderer={labelRenderer(state, buttonChecked.value)} />
+        <Checkbox checked={averageEnabled.value} onChange={() => averageEnabled.set((val) => !val)} label="Average" />
+        <JSONTree data={state} shouldExpandNodeInitially={shouldExpandNodeInitially} />
       </div>
     </div>
   )
