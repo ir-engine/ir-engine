@@ -19,13 +19,13 @@ if [ "$SOURCE_REPO_PROVIDER" == "gcp" ]; then
   SOURCE_REPO_NAME="$SOURCE_REPO_NAME_STEM-root/$SOURCE_REPO_NAME_STEM-root"
   
   # Apply environment-specific suffixes based on APP_HOST
-  if [[ "$APP_HOST" =~ "ir-engine-mt-rc-int" ]]; then
+  if [[ "$APP_HOST" =~ "mt-rc-int" ]]; then
     SUFFIX="mt-rc-int"
-  elif [[ "$APP_HOST" =~ "ir-engine-mt-qat" ]]; then
+  elif [[ "$APP_HOST" =~ "mt-qat" ]]; then
     SUFFIX="mt-qat"
-  elif [[ "$APP_HOST" =~ "ir-engine-mt" ]]; then
+  elif [[ "$APP_HOST" =~ "mt" ]]; then
     SUFFIX="mt"
-  elif [[ "$APP_HOST" =~ "ir-engine-qat" ]]; then
+  elif [[ "$APP_HOST" =~ "qat" ]]; then
     SUFFIX="qat"
   else
     SUFFIX=""
@@ -50,13 +50,13 @@ elif [ "$DESTINATION_REPO_PROVIDER" == "gcp" ]; then
   DESTINATION_REPO_NAME=$DESTINATION_REPO_NAME_STEM-$PACKAGE/$DESTINATION_REPO_NAME_STEM-$PACKAGE
 
   # Apply environment-specific suffixes based on APP_HOST
-  if [[ "$APP_HOST" =~ "ir-engine-mt-rc-int" ]]; then
+  if [[ "$APP_HOST" =~ "mt-rc-int" ]]; then
       SUFFIX="mt-rc-int"
-  elif [[ "$APP_HOST" =~ "ir-engine-mt-qat" ]]; then
+  elif [[ "$APP_HOST" =~ "mt-qat" ]]; then
       SUFFIX="mt-qat"
-  elif [[ "$APP_HOST" =~ "ir-engine-mt" ]]; then
+  elif [[ "$APP_HOST" =~ "mt" ]]; then
       SUFFIX="mt"
-  elif [[ "$APP_HOST" =~ "ir-engine-qat" ]]; then
+  elif [[ "$APP_HOST" =~ "qat" ]]; then
       SUFFIX="qat"
   else
       SUFFIX=""

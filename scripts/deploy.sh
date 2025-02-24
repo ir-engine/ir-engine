@@ -25,13 +25,13 @@ PROJECT_ID=""
 
 if [ "$DESTINATION_REPO_PROVIDER" = "gcp" ]; then
   # Determine suffix based on APP_HOST
-  if [[ "$APP_HOST" =~ "ir-engine-mt-rc-int" ]]; then
+  if [[ "$APP_HOST" =~ "mt-rc-int" ]]; then
     SUFFIX="-mt-rc-int"
-  elif [[ "$APP_HOST" =~ "ir-engine-mt-qat" ]]; then
+  elif [[ "$APP_HOST" =~ "mt-qat" ]]; then
     SUFFIX="-mt-qat"
-  elif [[ "$APP_HOST" =~ "ir-engine-mt" ]]; then
+  elif [[ "$APP_HOST" =~ "mt" ]]; then
     SUFFIX="-mt"
-  elif [[ "$APP_HOST" =~ "ir-engine-qat" ]]; then
+  elif [[ "$APP_HOST" =~ "qat" ]]; then
     SUFFIX="-qat"
   else
     SUFFIX=""
