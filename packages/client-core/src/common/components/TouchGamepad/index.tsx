@@ -114,7 +114,7 @@ export const TouchGamepad = () => {
 
   return (
     <>
-      <div className="pointer-events-auto fixed bottom-[15%] left-[15%] [&>div]:m-auto">
+      <div className="pointer-events-auto fixed bottom-[15%] left-[15%] select-none [&>div]:m-auto">
         <Joystick
           baseImage={BasepadImage}
           stickImage={StickypadImage}
@@ -129,7 +129,7 @@ export const TouchGamepad = () => {
         />
       </div>
       {availableInteractable && (
-        <div className="fixed bottom-[10px] right-[150px] rounded-[50%] leading-[4em]">{buttons}</div>
+        <div className="fixed bottom-[10px] right-[150px] select-none rounded-[50%] leading-[4em]">{buttons}</div>
       )}
     </>
   )
