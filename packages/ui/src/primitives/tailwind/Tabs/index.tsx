@@ -23,10 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { ReactNode, useEffect } from 'react'
+import React, { ReactNode, Suspense, useEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { useHookstate } from '@ir-engine/hyperflux'
+import { ErrorBoundary, useHookstate } from '@ir-engine/hyperflux'
 import Text from '../Text'
 
 export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -110,7 +110,17 @@ const Tabs = ({
         ))}
         {tabsData[currentTab.value]?.rightComponent}
       </div>
-      {scrollable ? tabsData.map((tab, index) => tab.bottomComponent) : tabsData[currentTab.value]?.bottomComponent}
+      {scrollable
+        ? tabsData.map((tab, index) => {
+            return (
+              <>
+                <ErrorBoundary key={index} fallback={<></>}>
+                  <Suspense fallback={<></>}>{tab.bottomComponent}</Suspense>
+                </ErrorBoundary>
+              </>
+            )
+          })
+        : tabsData[currentTab.value]?.bottomComponent}
     </div>
   )
 }

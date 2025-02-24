@@ -23,10 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { hookstate, State } from '@hookstate/core'
+import { hookstate, none, State } from '@hookstate/core'
 import React, { Suspense, useTransition } from 'react'
 import Reconciler from 'react-reconciler'
 import { ConcurrentRoot, DefaultEventPriority } from 'react-reconciler/constants'
+import { v4 as uuidv4 } from 'uuid'
 
 import { isDev } from './EnvironmentConstants'
 import { HyperFlux } from './StoreFunctions'
@@ -82,6 +83,7 @@ export type ReactorRoot = {
   suspended: State<boolean>
   errors: State<Error[]>
   cleanupFunctions: Set<() => void>
+  uuid: string
   run: () => void
   stop: () => void
 }
@@ -148,6 +150,11 @@ export function useReactorRootContext(): ReactorRoot {
   return React.useContext(ReactorRootContext)
 }
 
+/** @todo cyclical import means this can't be a hyperflux state */
+export const ReactorRenderCounterState = hookstate(
+  {} as Record<string, { count: number; name: string; stack: string[] }>
+)
+
 export function startReactor(Reactor: React.FC): ReactorRoot {
   const isStrictMode = false
   const concurrentUpdatesByDefaultOverride = true
@@ -173,10 +180,30 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
   const ReactorContainer = () => {
     const [isPending] = useTransition()
     reactorRoot.suspended.set(isPending)
+    const RenderCounter = () => {
+      if (isDev) {
+        const uuid = reactorRoot.uuid
+        if (!ReactorRenderCounterState.value[uuid]) {
+          const trace = { stack: '' }
+          Error.captureStackTrace?.(trace, startReactor) // In firefox captureStackTrace is undefined
+          const stack = trace.stack.split('\n')
+          stack.shift()
+          ReactorRenderCounterState[uuid].set({
+            count: 0,
+            stack,
+            name: Reactor.name
+          })
+        }
+        ReactorRenderCounterState[uuid].count.set((v) => v + 1)
+        console.log(Reactor.name, ReactorRenderCounterState[uuid].count.value)
+      }
+      return null
+    }
     return (
       <ReactorRootContext.Provider value={reactorRoot}>
         <Suspense fallback={<></>}>
           <ReactorErrorBoundary key="reactor-error-boundary" reactorRoot={reactorRoot}>
+            <RenderCounter />
             <Reactor />
           </ReactorErrorBoundary>
         </Suspense>
@@ -197,6 +224,7 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
     HyperFlux.store.activeReactors.delete(reactorRoot)
     reactorRoot.cleanupFunctions.forEach((fn) => fn())
     reactorRoot.cleanupFunctions.clear()
+    ReactorRenderCounterState[reactorRoot.uuid].set(none)
   }
 
   const reactorRoot = {
@@ -208,6 +236,7 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
     cleanupFunctions: new Set(),
     ReactorContainer: ReactorContainer as React.FC,
     promise: undefined!,
+    uuid: uuidv4(),
     run,
     stop
   } as ReactorRoot
