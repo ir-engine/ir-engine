@@ -45,9 +45,9 @@ export const cleanFileNameString = (fullFileName: string, useStorageProviderLeng
     let nameWithoutExtension = fileName.substring(0, lastDotIndex)
     const extension = fileName.substring(lastDotIndex + 1).toLowerCase()
 
-    // Sanitize the name: replace special chars and ensure alphanumeric start/end
+    // Sanitize the name while preserving dots except the last one
     nameWithoutExtension = nameWithoutExtension
-      .replace(/[^a-zA-Z0-9\s()_-]/g, '-') // Replace special chars with dash
+      .replace(/[^a-zA-Z0-9\s()_.-]/g, '-') // Allow dots along with other valid chars
       .replace(/\s+/g, '-') // Replace spaces with dash
       .replace(/^[^a-zA-Z0-9]+/, '') // Remove non-alphanumeric from start
       .replace(/[^a-zA-Z0-9]+$/, '') // Remove non-alphanumeric from end
