@@ -30,7 +30,6 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import FileBrowser from '../files/filebrowser'
 import { CurrentFilesQueryProvider } from '../files/helpers'
-import FilesLoaders, { FileUploadProgress } from '../files/loaders'
 import FilesToolbar from '../files/toolbar'
 import CategoriesList, { VerticalDivider } from './categories'
 import { AssetsQueryProvider } from './hooks'
@@ -67,15 +66,7 @@ enum SidebarType {
 function AssetsContainer() {
   const sidebarType = useHookstate(undefined)
 
-  const toolbar =
-    sidebarType.value === SidebarType.FILES ? (
-      <>
-        <FilesToolbar />
-        <FilesLoaders />
-      </>
-    ) : (
-      <Topbar />
-    )
+  const toolbar = sidebarType.value === SidebarType.FILES ? <FilesToolbar /> : <Topbar />
   const rightChildren = sidebarType.value === SidebarType.FILES ? <FileBrowser /> : <Resources />
 
   const handleSidebarChange = (category) => {
@@ -87,7 +78,6 @@ function AssetsContainer() {
       <CurrentFilesQueryProvider>
         <AssetsQueryProvider>
           {toolbar}
-          <FileUploadProgress />
           <VerticalDivider
             leftChildren={<CategoriesList selected={sidebarType.value} onClick={handleSidebarChange} />}
             rightChildren={rightChildren}
