@@ -143,7 +143,6 @@ const updateMaterialPrototype = (materialEntity: Entity, newPrototype: string) =
   const prototype = getState(MaterialPrototypeDefinitions)[newPrototype]
   if (!prototype) return
   const fullParameters = { ...extractDefaults(prototype.arguments) }
-  if (!prototype) return
   const newMaterial = new prototype.prototypeConstructor(fullParameters) as Material
 
   if (newMaterial.plugins) {
@@ -162,6 +161,7 @@ const updateMaterialPrototype = (materialEntity: Entity, newPrototype: string) =
       ...Object.fromEntries(Object.entries(material.userData).filter(([k, _v]) => k !== 'type'))
     }
   }
+
   newMaterial.type = newPrototype
   newMaterial.name = material.name
 

@@ -62,7 +62,6 @@ export type MaterialPrototypeObjectConstructor = { [key: string]: MaterialProtot
 export type MaterialPrototypeDefinition = {
   prototypeConstructor: MaterialPrototypeConstructor
   arguments: PrototypeArgument
-  // onBeforeCompile?: (shader: Shader, renderer: WebGLRenderer) => void
 }
 
 export type PrototypeArgumentValue = {
