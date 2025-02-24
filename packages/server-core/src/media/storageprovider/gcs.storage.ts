@@ -268,7 +268,7 @@ export class GCSStorage implements StorageProviderInterface {
       return await this.urlMaps.invalidateCache({
         cacheInvalidationRuleResource: {
           host: config.server.clientHost as string,
-          path: invalidationItems[0]
+          path: '/*'
         },
         project: config.gcp.project as string,
         urlMap: config.gcp.gcs.urlMap as string
