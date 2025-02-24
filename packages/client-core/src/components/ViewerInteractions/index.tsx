@@ -33,6 +33,7 @@ import { EngineState } from '@ir-engine/ecs'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { useTranslation } from 'react-i18next'
 import { PopoverState } from '../../common/services/PopoverState'
+import { twMerge } from 'tailwind-merge'
 import { LoadingSystemState } from '../../systems/state/LoadingState'
 import LocationIconButton from '../../user/components/LocationIconButton'
 import InstanceChat from '../../user/InstanceChat'
@@ -78,6 +79,7 @@ export const ViewerInteractions = () => {
   }
 
   const externalInjectedMenus = useMutableState(ViewerMenuState).externalInjectedMenus.get(NO_PROXY)
+  const isScreenOpaque = loadingScreenOpacity.value > 0
 
   return (
     <div style={{ opacity: 1 - loadingScreenOpacity.value }} className="relative h-dvh w-full p-6">
@@ -89,7 +91,12 @@ export const ViewerInteractions = () => {
         <VideoWindows />
       </div>
 
-      <div className="pointer-events-auto absolute bottom-0 left-0 h-fit w-full pb-[inherit]">
+      <div
+        className={twMerge(
+          'absolute bottom-0 left-0 h-fit w-full pb-[inherit]',
+          isScreenOpaque ? 'pointer-events-none' : 'pointer-events-auto '
+        )}
+      >
         <UserMenus />
       </div>
 
