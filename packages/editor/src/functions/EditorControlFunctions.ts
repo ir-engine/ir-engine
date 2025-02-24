@@ -78,6 +78,7 @@ import { extractDefaults } from '@ir-engine/spatial/src/renderer/materials/mater
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
+import { HierarchyTreeState } from '../services/HierarchyNodeState'
 import { SelectionState } from '../services/SelectionServices'
 
 const tempMatrix4 = new Matrix4()
@@ -282,6 +283,9 @@ const createObjectFromSceneElement = (
 
   EditorState.markModifiedScene(gltfEntity)
 
+  //force hierarry tree state refresh
+  HierarchyTreeState.refresh()
+
   return { entityUUID: getComponent(entity, UUIDComponent), sourceID }
 }
 
@@ -481,6 +485,10 @@ const reparentObject = (
       ? parentTree.children.indexOf(beforeEntity)
       : undefined
     setComponent(entity, EntityTreeComponent, { parentEntity: parent, childIndex: index })
+
+    //force hierarry tree state refresh
+    HierarchyTreeState.refresh()
+
     /** @todo handle the entity changing sources */
     EditorState.markModifiedScene(entity)
   }

@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Entity } from '@ir-engine/ecs'
-import { defineState, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
 
 interface IExpandedNodes {
   [scene: string]: {
@@ -37,7 +37,13 @@ export const HierarchyTreeState = defineState({
   initial: {
     expandedNodes: {} as IExpandedNodes,
     search: { local: '', query: '' },
-    firstSelectedEntity: null as Entity | null
+    firstSelectedEntity: null as Entity | null,
+    _refresh: 0
   },
-  extension: syncStateWithLocalStorage(['expandedNodes'])
+  extension: syncStateWithLocalStorage(['expandedNodes']),
+  refresh: () => {
+    //force hierarry tree state refresh
+    const hierarchyTreeState = getMutableState(HierarchyTreeState)
+    hierarchyTreeState._refresh.set((hierarchyTreeState._refresh.value + 1) % 1000)
+  }
 })

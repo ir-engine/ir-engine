@@ -61,6 +61,7 @@ import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/
 import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { assignMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { EditorState } from '../services/EditorServices'
+import { HierarchyTreeState } from '../services/HierarchyNodeState'
 import { EditorControlFunctions } from './EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
 
@@ -153,6 +154,10 @@ export async function addMediaNode(
           removeEntity(entity)
 
           const gltfEntity = getAncestorWithComponents(parent ?? rootEntity, [GLTFComponent])
+
+          //force hierarry tree state refresh
+          HierarchyTreeState.refresh()
+
           EditorState.markModifiedScene(gltfEntity)
         }
       )
