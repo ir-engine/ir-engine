@@ -51,7 +51,6 @@ import {
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { getDefaultType } from '@ir-engine/spatial/src/renderer/materials/constants/DefaultArgs'
 import { extractValues, formatMaterialArgs } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import MeshPhongMaterial from '@ir-engine/spatial/src/renderer/materials/prototypes/MeshPhongMaterial.mat'
 import { Button, Tooltip } from '@ir-engine/ui'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'
@@ -219,14 +218,6 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
 
   useEffect(() => {
     if (prototypeName.value === material.type) return
-    if (prototypeName.value === MeshPhongMaterial.prototypeConstructor.name) {
-      // this is necessary to prevent the threejs matcap shader freaking out about properties it's not expecting
-      EditorControlFunctions.modifyMaterial(
-        [materialComponent.material.value!.uuid],
-        materialComponent.material.value!.uuid as EntityUUID,
-        [{ ['envMap']: null, ['flipEnvMap']: null, ['reflectivity']: null, ['ior']: null, ['refractionRatio']: null }]
-      )
-    }
 
     EditorControlFunctions.updateMaterialPrototype(entity, prototypeName.value)
   }, [prototypeName])
