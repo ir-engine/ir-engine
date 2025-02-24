@@ -153,7 +153,6 @@ export async function addMediaNode(
           removeEntity(entity)
 
           const gltfEntity = getAncestorWithComponents(parent ?? rootEntity, [GLTFComponent])
-
           EditorState.markModifiedScene(gltfEntity)
         }
       )
