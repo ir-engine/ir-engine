@@ -482,7 +482,6 @@ const reparentObject = (
       ? parentTree.children.indexOf(beforeEntity)
       : undefined
     setComponent(entity, EntityTreeComponent, { parentEntity: parent, childIndex: index })
-
     /** @todo handle the entity changing sources */
     EditorState.markModifiedScene(entity)
   }
