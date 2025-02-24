@@ -31,13 +31,47 @@ describe('Model Transform Functions', () => {
   describe('MATCH_ASSET_PROJECT_FILENAME_REGEX', () => {
     it('should match valid asset project paths', () => {
       const validProjectPaths = [
-        'https://ir.world:8642/projects/ir-engine/default-project/assets/collisioncube-LOD0.glb',
-        'https://ir.world:8642/projects/ir-engine/default-project/public/collisioncube-LOD0.glb',
-        'https://ir.world:8642/projects/ir-engine/testproj/assets/collisioncube-LOD0.glb',
-        'https://ir.world:8642/projects/ir-engine/testproj/public/collisioncube-LOD0.glb'
+        {
+          url: 'https://ir.world:8642/projects/ir-engine/default-project/assets/collisioncube-LOD0.glb',
+          orgAndProjName: 'ir-engine/default-project',
+          assetName: 'collisioncube-LOD0.glb'
+        },
+        {
+          url: 'https://ir.world:8642/projects/ir-engine/default-project/public/collisioncube-LOD0.glb',
+          orgAndProjName: 'ir-engine/default-project',
+          assetName: 'collisioncube-LOD0.glb'
+        },
+        {
+          url: 'https://ir.world:8642/projects/ir-engine/testproj/assets/collisioncube-LOD0.glb',
+          orgAndProjName: 'ir-engine/testproj',
+          assetName: 'collisioncube-LOD0.glb'
+        },
+        {
+          url: 'https://ir.world:8642/projects/ir-engine/testproj/public/collisioncube-LOD0.glb',
+          orgAndProjName: 'ir-engine/testproj',
+          assetName: 'collisioncube-LOD0.glb'
+        }
       ]
+
+      /**
+       * https://ir.world/projects/ir-engine/default-project/assets/collisioncube-LOD0.glb
+       * Match 1: projects/ir-engine/default-project/assets/collisioncube-LOD0.glb
+       * Group 1: ir-engine/default-project
+       * Group 2: collisioncube-LOD0.glb
+       */
       validProjectPaths.forEach((filename) => {
-        assert.ok(MATCH_ASSET_PROJECT_FILENAME_REGEX.test(filename), `Expected '${filename}' to be valid`)
+        const match = MATCH_ASSET_PROJECT_FILENAME_REGEX.exec(filename.url)
+        assert.ok(match, `Expected '${filename.url}' to be valid`)
+        assert.equal(
+          match?.[1],
+          filename.orgAndProjName,
+          `Expected org/proj name '${filename.orgAndProjName}' in '${filename.url}'. Found ${match?.[1]}`
+        )
+        assert.equal(
+          match?.[2],
+          filename.assetName,
+          `Expected asset name '${filename.assetName}' in '${filename.url}'. Found ${match?.[2]}`
+        )
       })
     })
 
