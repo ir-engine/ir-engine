@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { TypedArray } from 'bitecs'
-
+import { TypedArray } from '@ir-engine/ecs/src/bitecsLegacy'
 import { getComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
@@ -61,6 +60,7 @@ export const checkBitflag = (mask: number, flag: number) => (mask & flag) === fl
 /**
  * Reads a component dynamically
  * (less efficient than statically due to inner loop)
+ * @unused @deprecated
  *
  * @param  {any} component
  */

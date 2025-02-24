@@ -28,19 +28,17 @@ import { useLayoutEffect } from 'react'
 import { Mesh } from 'three'
 import matches from 'ts-matches'
 
-import { EntityUUID } from '@ir-engine/ecs'
+import { EntityUUID, iterateEntityNode, useChildrenWithComponents, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
   getOptionalComponent,
-  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
+  useHasComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { NO_PROXY } from '@ir-engine/hyperflux'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { ColliderComponent as NewColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
@@ -53,13 +51,12 @@ import {
   ColliderOptions,
   OldShapeTypes
 } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { iterateEntityNode, useTreeQuery } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
-import { computeTransformMatrix, updateGroupChildren } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
-import { GLTFLoadedComponent } from './GLTFLoadedComponent'
+import { SourceComponent } from './SourceComponent'
 
 /** @deprecated - use the new API */
 export const OldColliderComponent = defineComponent({
@@ -138,16 +135,16 @@ export const OldColliderComponent = defineComponent({
     }
   },
 
-  toJSON(entity, component) {
+  toJSON: (component) => {
     return {
-      bodyType: component.bodyType.value,
-      shapeType: component.shapeType.value,
-      isTrigger: component.isTrigger.value,
-      removeMesh: component.removeMesh.value,
-      collisionLayer: component.collisionLayer.value,
-      collisionMask: component.collisionMask.value,
-      restitution: component.restitution.value,
-      triggers: component.triggers.get(NO_PROXY)
+      bodyType: component.bodyType,
+      shapeType: component.shapeType,
+      isTrigger: component.isTrigger,
+      removeMesh: component.removeMesh,
+      collisionLayer: component.collisionLayer,
+      collisionMask: component.collisionMask,
+      restitution: component.restitution,
+      triggers: component.triggers
     }
   },
 
@@ -156,22 +153,19 @@ export const OldColliderComponent = defineComponent({
 
     const transformComponent = useComponent(entity, TransformComponent)
     const colliderComponent = useComponent(entity, OldColliderComponent)
-    const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
+    const isLoadedFromGLTF = useHasComponent(entity, SourceComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)
-    const tree = useTreeQuery(entity)
+    const [tree] = useChildrenWithComponents(entity, [MeshComponent])
 
     useLayoutEffect(() => {
       setComponent(entity, InputComponent)
 
       const isMeshCollider = [ShapeType.TriMesh, ShapeType.ConvexPolyhedron].includes(colliderComponent.shapeType.value)
 
-      if (isLoadedFromGLTF?.value || isMeshCollider) {
+      if (isLoadedFromGLTF || isMeshCollider) {
         const colliderComponent = getComponent(entity, OldColliderComponent)
 
         iterateEntityNode(entity, computeTransformMatrix)
-        if (hasComponent(entity, GroupComponent)) {
-          updateGroupChildren(entity)
-        }
 
         const meshesToRemove = [] as Mesh[]
 
@@ -255,7 +249,7 @@ export const OldColliderComponent = defineComponent({
           removeComponent(entity, TriggerComponent)
         }
       }
-    }, [isLoadedFromGLTF, colliderComponent, transformComponent, groupComponent?.length, tree])
+    }, [isLoadedFromGLTF, colliderComponent, transformComponent, groupComponent, tree])
 
     return null
   }

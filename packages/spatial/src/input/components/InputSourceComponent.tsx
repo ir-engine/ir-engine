@@ -30,6 +30,7 @@ import { defineComponent, getComponent, setComponent } from '@ir-engine/ecs/src/
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getState } from '@ir-engine/hyperflux'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { ButtonStateMap } from '../state/ButtonState'
@@ -39,17 +40,17 @@ import { DefaultButtonAlias } from './InputComponent'
 export const InputSourceComponent = defineComponent({
   name: 'InputSourceComponent',
 
-  onInit: () => {
-    return {
-      source: {} as XRInputSource,
-      buttons: {} as Readonly<ButtonStateMap<typeof DefaultButtonAlias>>,
-      raycaster: new Raycaster(),
-      intersections: [] as Array<{
-        entity: Entity
-        distance: number
-      }>
-    }
-  },
+  schema: S.Object({
+    source: S.Type<XRInputSource>({} as XRInputSource),
+    buttons: S.Type<Readonly<ButtonStateMap<typeof DefaultButtonAlias>>>({}),
+    raycaster: S.Class(() => new Raycaster()),
+    intersections: S.Array(
+      S.Object({
+        entity: S.Entity(),
+        distance: S.Number()
+      })
+    )
+  }),
 
   onSet: (entity, component, args: { source?: XRInputSource; gamepad?: Gamepad } = {}) => {
     const source =
@@ -71,7 +72,7 @@ export const InputSourceComponent = defineComponent({
             mapping: '',
             timestamp: performance.now(),
             vibrationActuator: null
-          } as Gamepad),
+          } as unknown as Gamepad),
         profiles: [],
         hand: undefined
       } as XRInputSource)

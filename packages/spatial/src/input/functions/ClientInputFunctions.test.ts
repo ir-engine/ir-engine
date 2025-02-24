@@ -28,6 +28,7 @@ import {
   createEntity,
   destroyEngine,
   Entity,
+  EntityTreeComponent,
   getComponent,
   getMutableComponent,
   hasComponent,
@@ -38,9 +39,9 @@ import {
 import assert from 'assert'
 import sinon from 'sinon'
 import { Quaternion, Vector2, Vector3 } from 'three'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import { assertVec } from '../../../tests/util/assert'
 import { Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
-import { assertVecApproxEq } from '../../physics/classes/Physics.test'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { InputComponent } from '../components/InputComponent'
@@ -48,8 +49,6 @@ import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import { ButtonState, ButtonStateMap, MouseButton } from '../state/ButtonState'
 import ClientInputFunctions, { DRAGGING_THRESHOLD, ROTATING_THRESHOLD } from './ClientInputFunctions'
-import ClientInputHeuristics, { HeuristicData, HeuristicFunctions } from './ClientInputHeuristics'
-import { createHeuristicDummyData } from './ClientInputHeuristics.test'
 
 describe('ClientInputFunctions', () => {
   describe('preventDefault', () => {
@@ -201,20 +200,8 @@ describe('ClientInputFunctions', () => {
   })
 
   describe('assignInputSources', () => {
-    let data = {} as HeuristicData
-    const heuristics = {
-      editor: ClientInputHeuristics.findEditor,
-      xrui: ClientInputHeuristics.findXRUI,
-      physicsColliders: ClientInputHeuristics.findPhysicsColliders,
-      bboxes: ClientInputHeuristics.findBBoxes,
-      meshes: ClientInputHeuristics.findMeshes,
-      proximity: ClientInputHeuristics.findProximity,
-      raycastedInput: ClientInputHeuristics.findRaycastedInput
-    } as HeuristicFunctions
-
     beforeEach(async () => {
       createEngine()
-      data = createHeuristicDummyData()
     })
 
     afterEach(() => {
@@ -238,7 +225,7 @@ describe('ClientInputFunctions', () => {
       setComponent(otherEntity, InputSourceComponent)
 
       // Run and Check the result
-      ClientInputFunctions.assignInputSources(sourceEntity, capturedEntity, data, heuristics)
+      ClientInputFunctions.assignInputSources(sourceEntity, capturedEntity)
       const SourcesList = [sourceEntity, otherEntity]
       const result = getComponent(parentEntity, InputComponent).inputSources
       for (const entity of SourcesList) {
@@ -265,43 +252,12 @@ describe('ClientInputFunctions', () => {
       setComponent(otherEntity, InputSourceComponent)
 
       // Run and Check the result
-      ClientInputFunctions.assignInputSources(sourceEntity, capturedEntity, data, heuristics)
+      ClientInputFunctions.assignInputSources(sourceEntity, capturedEntity)
       const SourcesList = [sourceEntity, otherEntity]
       const result = getComponent(capturedEntity, InputComponent).inputSources
       for (const entity of SourcesList) {
         assert.equal(result.includes(entity), true)
       }
-    })
-
-    it('should call the heuristic.raycastedInput function when the `@param sourceEid` has a TransformComponent', () => {
-      const spy = sinon.spy()
-      heuristics.raycastedInput = spy
-
-      const PointerID = 42
-      const cameraEntity = createEntity()
-      const capturedEntity = UndefinedEntity
-      const sourceEntity = createEntity()
-      setComponent(sourceEntity, TransformComponent)
-      setComponent(sourceEntity, InputSourceComponent)
-      setComponent(sourceEntity, InputPointerComponent, { pointerId: PointerID, cameraEntity: cameraEntity })
-      assert.equal(spy.callCount, 0)
-
-      // Run and Check the result
-      ClientInputFunctions.assignInputSources(sourceEntity, capturedEntity, data, heuristics)
-      assert.equal(spy.callCount, 1)
-    })
-
-    it('should call the heuristic.proximity function when the `@param capturedEntity` is undefined, intersectionData.length is 0 and `@param sourceEid` does not have a InputPointerComponent', () => {
-      const spy = sinon.spy()
-      heuristics.proximity = spy
-
-      const capturedEntity = UndefinedEntity
-      const sourceEntity = createEntity()
-      setComponent(sourceEntity, InputSourceComponent)
-
-      // Run and Check the result
-      ClientInputFunctions.assignInputSources(sourceEntity, capturedEntity, data, heuristics)
-      assert.equal(spy.callCount, 1)
     })
   })
 
@@ -786,9 +742,9 @@ describe('ClientInputFunctions', () => {
             getMutableComponent(testEntity, InputPointerComponent).position.set(Position)
 
             // Run and Check the result
-            assertVecApproxEq(buttonState.downPosition, Initial, 3)
+            assertVec.approxEq(buttonState.downPosition, Initial, 3)
             ClientInputFunctions.updateGamepadInput(testEntity)
-            assertVecApproxEq(buttonState.downPosition, Expected, 3)
+            assertVec.approxEq(buttonState.downPosition, Expected, 3)
           })
         })
 
@@ -823,9 +779,9 @@ describe('ClientInputFunctions', () => {
             setComponent(testEntity, XRSpaceComponent, { space: {} as XRSpace, baseSpace: {} as XRSpace })
 
             // Run and Check the result
-            assertVecApproxEq(buttonState.downPosition, Initial, 3)
+            assertVec.approxEq(buttonState.downPosition, Initial, 3)
             ClientInputFunctions.updateGamepadInput(testEntity)
-            assertVecApproxEq(buttonState.downPosition, Expected, 3)
+            assertVec.approxEq(buttonState.downPosition, Expected, 3)
           })
 
           it('... should copy the `@param eid` TransformComponent.rotation into buttonState.downRotation', () => {
@@ -858,9 +814,9 @@ describe('ClientInputFunctions', () => {
             setComponent(testEntity, XRSpaceComponent, { space: {} as XRSpace, baseSpace: {} as XRSpace })
 
             // Run and Check the result
-            assertVecApproxEq(buttonState.downRotation, Initial, 4)
+            assertVec.approxEq(buttonState.downRotation, Initial, 4)
             ClientInputFunctions.updateGamepadInput(testEntity)
-            assertVecApproxEq(buttonState.downRotation, Expected, 4)
+            assertVec.approxEq(buttonState.downRotation, Expected, 4)
           })
         })
 
@@ -894,9 +850,9 @@ describe('ClientInputFunctions', () => {
             setComponent(testEntity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
 
             // Run and Check the result
-            assertVecApproxEq(buttonState.downPosition, Initial, 3)
+            assertVec.approxEq(buttonState.downPosition, Initial, 3)
             ClientInputFunctions.updateGamepadInput(testEntity)
-            assertVecApproxEq(buttonState.downPosition, Expected, 3)
+            assertVec.approxEq(buttonState.downPosition, Expected, 3)
           })
 
           it('... should set buttonState.downRotation to a new Quaterion()', () => {
@@ -928,9 +884,9 @@ describe('ClientInputFunctions', () => {
             setComponent(testEntity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
 
             // Run and Check the result
-            assertVecApproxEq(buttonState.downRotation, Initial, 4)
+            assertVec.approxEq(buttonState.downRotation, Initial, 4)
             ClientInputFunctions.updateGamepadInput(testEntity)
-            assertVecApproxEq(buttonState.downRotation, Expected, 4)
+            assertVec.approxEq(buttonState.downRotation, Expected, 4)
           })
         })
       })

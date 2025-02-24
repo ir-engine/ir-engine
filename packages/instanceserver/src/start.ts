@@ -70,7 +70,7 @@ export const instanceServerPipe = pipe(configureOpenAPI(), configurePrimus(true)
 ) => Application
 
 export const start = async (): Promise<Application> => {
-  const app = createFeathersKoaApp(ServerMode.Instance, instanceServerPipe)
+  const app = await createFeathersKoaApp(ServerMode.Instance, instanceServerPipe)
   startTimer()
 
   const serverState = getMutableState(ServerState)
@@ -131,7 +131,7 @@ export const start = async (): Promise<Application> => {
     key: useSSL ? fs.readFileSync(certKeyPath) : null,
     cert: useSSL ? fs.readFileSync(certPath) : null
   } as any
-  const port = Number(config.instanceserver.port)
+  const port = Number(config['instance-server'].port)
   if (useSSL) {
     logger.info(`Starting instanceserver with HTTPS on port ${port}.`)
   } else {

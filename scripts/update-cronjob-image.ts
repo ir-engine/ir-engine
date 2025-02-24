@@ -23,6 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+// This must always be imported first
+import '@ir-engine/server-core/src/patchEngineNode'
+
 import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
@@ -30,6 +33,7 @@ import dotenv from 'dotenv-flow'
 import { projectPath, ProjectType } from '@ir-engine/common/src/schema.type.module'
 import { getState } from '@ir-engine/hyperflux'
 import { createFeathersKoaApp, serverJobPipe } from '@ir-engine/server-core/src/createApp'
+import { getValidPodName } from '@ir-engine/server-core/src/k8s-job-helper'
 import { getCronJobBody } from '@ir-engine/server-core/src/projects/project/project-helper'
 import { ServerMode, ServerState } from '@ir-engine/server-core/src/ServerState'
 
@@ -61,7 +65,7 @@ const options = cli.parse({
 
 cli.main(async () => {
   try {
-    const app = createFeathersKoaApp(ServerMode.API, serverJobPipe)
+    const app = await createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
     const autoUpdateProjects = (await app.service(projectPath).find({
       query: {
@@ -82,7 +86,7 @@ cli.main(async () => {
       for (const project of autoUpdateProjects) {
         try {
           await k8BatchClient.patchNamespacedCronJob(
-            `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
+            getValidPodName(`${process.env.RELEASE_NAME}-auto-update-${project.name}`),
             'default',
             getCronJobBody(project, `${options.repoUrl}/${options.repoName}-api:${options.tag}__${options.startTime}`),
             undefined,

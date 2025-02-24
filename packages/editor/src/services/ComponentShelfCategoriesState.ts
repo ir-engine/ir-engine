@@ -27,23 +27,26 @@ import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { Component } from '@ir-engine/ecs'
 import { VisualScriptComponent } from '@ir-engine/engine'
-import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
+import { GeneralAudioComponent } from '@ir-engine/engine/src/audio/components/GeneralAudioComponent'
 import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
-import { GrabbableComponent } from '@ir-engine/engine/src/interaction/components/GrabbableComponent'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { GrabbableComponent } from '@ir-engine/engine/src/grabbable/GrabbableComponent'
 import { InteractableComponent } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
 import { AudioAnalysisComponent } from '@ir-engine/engine/src/scene/components/AudioAnalysisComponent'
 import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/CameraSettingsComponent'
 import { EnvMapBakeComponent } from '@ir-engine/engine/src/scene/components/EnvMapBakeComponent'
-import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
+import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { GroundPlaneComponent } from '@ir-engine/engine/src/scene/components/GroundPlaneComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
+import { LegacyVolumetricComponent } from '@ir-engine/engine/src/scene/components/LegacyVolumetricComponent'
 import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkComponent'
-import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
+import { LookAtComponent } from '@ir-engine/engine/src/scene/components/LookAtComponent'
 import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
-import { NewVolumetricComponent } from '@ir-engine/engine/src/scene/components/NewVolumetricComponent'
+import { OverlayComponent } from '@ir-engine/engine/src/scene/components/OverlayComponent'
 import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
 import { PortalComponent } from '@ir-engine/engine/src/scene/components/PortalComponent'
 import { PrimitiveGeometryComponent } from '@ir-engine/engine/src/scene/components/PrimitiveGeometryComponent'
+import { ReflectionProbeComponent } from '@ir-engine/engine/src/scene/components/ReflectionProbeComponent.tsx'
 import { RenderSettingsComponent } from '@ir-engine/engine/src/scene/components/RenderSettingsComponent'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
@@ -52,6 +55,7 @@ import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowCo
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@ir-engine/engine/src/scene/components/SpawnPointComponent'
 import { TextComponent } from '@ir-engine/engine/src/scene/components/TextComponent'
+import { TriggerCallbackComponent } from '@ir-engine/engine/src/scene/components/TriggerCallbackComponent'
 import { VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
@@ -67,36 +71,24 @@ import { CameraComponent } from '@ir-engine/spatial/src/camera/components/Camera
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
-import { TriggerComponent } from '@ir-engine/spatial/src/physics/components/TriggerComponent'
 import { FogSettingsComponent } from '@ir-engine/spatial/src/renderer/components/FogSettingsComponent'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
-import { LookAtComponent } from '@ir-engine/spatial/src/transform/components/LookAtComponent'
 import { useEffect } from 'react'
 
 export const ComponentShelfCategoriesState = defineState({
   name: 'ee.editor.ComponentShelfCategories',
   initial: () => {
     return {
-      Files: [
-        ModelComponent,
-        VolumetricComponent,
-        NewVolumetricComponent,
-        PositionalAudioComponent,
-        AudioAnalysisComponent,
-        VideoComponent,
-        ImageComponent
-      ],
+      Files: [GLTFComponent, GeneralAudioComponent, VideoComponent, ImageComponent],
       'Scene Composition': [CameraComponent, PrimitiveGeometryComponent, GroundPlaneComponent, VariantComponent],
-      Physics: [ColliderComponent, RigidBodyComponent, TriggerComponent],
+      Physics: [ColliderComponent, RigidBodyComponent, TriggerCallbackComponent],
       Interaction: [
         SpawnPointComponent,
-        PortalComponent,
         LinkComponent,
         MountPointComponent,
         InteractableComponent,
         InputComponent,
-        GrabbableComponent,
-        ScreenshareTargetComponent
+        OverlayComponent
       ],
       Lighting: [
         AmbientLightComponent,
@@ -105,7 +97,7 @@ export const ComponentShelfCategoriesState = defineState({
         DirectionalLightComponent,
         HemisphereLightComponent
       ],
-      FX: [LoopAnimationComponent, ShadowComponent, ParticleSystemComponent, EnvmapComponent, PostProcessingComponent],
+      FX: [LoopAnimationComponent, ShadowComponent, ParticleSystemComponent, EnvMapComponent, PostProcessingComponent],
       Scripting: [],
       Settings: [
         SceneSettingsComponent,
@@ -119,12 +111,21 @@ export const ComponentShelfCategoriesState = defineState({
         SkyboxComponent,
         TextComponent,
         LookAtComponent,
-        FogSettingsComponent
+        FogSettingsComponent,
+        ReflectionProbeComponent
       ]
     } as Record<string, Component[]>
   },
   reactor: () => {
     const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
+    const [portalEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.Portal])
+    const [grabbleEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.Grabble])
+
+    const [legacyVolumetricEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.LegacyVolumetric])
+    const [volumetricEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.Volumetric])
+    const [audioAnalysisEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.AudioAnalysis])
+    const [screenshareTargetEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.ScreenshareTarget])
+
     const cShelfState = getMutableState(ComponentShelfCategoriesState)
     useEffect(() => {
       if (visualScriptPanelEnabled) {
@@ -136,5 +137,71 @@ export const ComponentShelfCategoriesState = defineState({
         }
       }
     }, [visualScriptPanelEnabled])
+
+    useEffect(() => {
+      if (portalEnabled) {
+        cShelfState.Interaction.merge([PortalComponent])
+        return () => {
+          cShelfState.Interaction.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == PortalComponent.name))
+          })
+        }
+      }
+    }, [portalEnabled])
+
+    useEffect(() => {
+      if (grabbleEnabled) {
+        cShelfState.Interaction.merge([GrabbableComponent])
+        return () => {
+          cShelfState.Interaction.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == GrabbableComponent.name))
+          })
+        }
+      }
+    }, [grabbleEnabled])
+
+    useEffect(() => {
+      if (legacyVolumetricEnabled) {
+        cShelfState.Interaction.merge([LegacyVolumetricComponent])
+        return () => {
+          cShelfState.Interaction.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == LegacyVolumetricComponent.name))
+          })
+        }
+      }
+    }, [legacyVolumetricEnabled])
+
+    useEffect(() => {
+      if (volumetricEnabled) {
+        cShelfState.Interaction.merge([VolumetricComponent])
+        return () => {
+          cShelfState.Interaction.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == VolumetricComponent.name))
+          })
+        }
+      }
+    }, [volumetricEnabled])
+
+    useEffect(() => {
+      if (audioAnalysisEnabled) {
+        cShelfState.Interaction.merge([AudioAnalysisComponent])
+        return () => {
+          cShelfState.Interaction.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == AudioAnalysisComponent.name))
+          })
+        }
+      }
+    }, [audioAnalysisEnabled])
+
+    useEffect(() => {
+      if (screenshareTargetEnabled) {
+        cShelfState.Interaction.merge([ScreenshareTargetComponent])
+        return () => {
+          cShelfState.Interaction.set((curr) => {
+            return curr.splice(curr.findIndex((item) => item.name == ScreenshareTargetComponent.name))
+          })
+        }
+      }
+    }, [screenshareTargetEnabled])
   }
 })

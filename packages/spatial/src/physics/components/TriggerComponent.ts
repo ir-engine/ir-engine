@@ -23,63 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import matches from 'ts-matches'
+import { defineComponent } from '@ir-engine/ecs'
 
-import { defineComponent, EntityUUID } from '@ir-engine/ecs'
-import { NO_PROXY } from '@ir-engine/hyperflux'
-
-export const TriggerComponent = defineComponent({
-  name: 'TriggerComponent',
-  jsonID: 'EE_trigger',
-
-  onInit(entity) {
-    return {
-      triggers: [] as Array<{
-        /**
-         * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
-         */
-        onEnter: null | string
-        /**
-         * The function to call on the CallbackComponent of the targetEntity when the trigger volume is exited.
-         */
-        onExit: null | string
-        /**
-         * empty string represents self
-         */
-        target: null | EntityUUID
-      }>
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-
-    // backwards compatibility
-    const onEnter = (json as any).onEnter ?? null
-    const onExit = (json as any).onExit ?? null
-    const target = (json as any).target ?? null
-    if (!!onEnter || !!onExit || !!target) {
-      component.triggers.set([{ onEnter, onExit, target }])
-    } else if (typeof json.triggers === 'object') {
-      if (
-        matches
-          .arrayOf(
-            matches.shape({
-              onEnter: matches.nill.orParser(matches.string),
-              onExit: matches.nill.orParser(matches.string),
-              target: matches.nill.orParser(matches.string)
-            })
-          )
-          .test(json.triggers)
-      ) {
-        component.triggers.set(json.triggers)
-      }
-    }
-  },
-
-  toJSON(entity, component) {
-    return {
-      triggers: component.triggers.get(NO_PROXY)
-    }
-  }
-})
+export const TriggerComponent = defineComponent({ name: 'TriggerComponent' })

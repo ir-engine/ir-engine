@@ -44,6 +44,8 @@ import slugify from 'slugify'
 import config from '../../appconfig'
 import { LocationService } from './location.class'
 
+const MAX_USER_PER_INSTANCE = 10
+
 export const locationResolver = resolve<LocationType, HookContext>({
   locationSetting: virtual(async (location, context) => {
     const locationSetting = await context.app.service(locationSettingPath).find({
@@ -70,8 +72,8 @@ export const locationResolver = resolve<LocationType, HookContext>({
       paginate: false
     })) as LocationBanType[]
   }),
-  sceneAsset: virtual(async (location, context) => {
-    return context.app.service(staticResourcePath).get(location.sceneId)
+  sceneURL: virtual(async (location, context) => {
+    return (await context.app.service(staticResourcePath).get(location.sceneId)).url
   }),
   url: virtual(async (location, _context) => {
     return `${config.client.url}/location/${location.slugifiedName}`
@@ -123,6 +125,7 @@ export const locationDataResolver = resolve<LocationType, HookContext>({
       updatedAt: await getDateTimeSql()
     }
   },
+  maxUsersPerInstance: resolvedMaxUserPerInstance,
   updatedBy: async (_, __, context) => {
     return context.params?.user?.id || null
   },
@@ -131,13 +134,34 @@ export const locationDataResolver = resolve<LocationType, HookContext>({
 })
 
 export const locationPatchResolver = resolve<LocationType, HookContext>({
+  projectId: async (value, location, context: HookContext<LocationService>) => {
+    if (location.sceneId) {
+      try {
+        const asset = await context.app.service(staticResourcePath).get(location.sceneId)
+        if (!asset.project) throw new BadRequest('Error populating projectId into location')
+        const project = await context.app.service(projectPath).find({ query: { name: asset.project } })
+        if (!project || project.total === 0) throw new BadRequest('Error populating projectId into location')
+        return project.data[0].id
+      } catch (error) {
+        throw new BadRequest('Error populating projectId into location')
+      }
+    }
+  },
   slugifiedName: async (value, location) => {
     if (location.name) return slugify(location.name, { lower: true })
   },
   updatedBy: async (_, __, context) => {
     return context.params?.user?.id || null
   },
+  maxUsersPerInstance: resolvedMaxUserPerInstance,
   updatedAt: getDateTimeSql
 })
+
+async function resolvedMaxUserPerInstance(value, location) {
+  if (location.maxUsersPerInstance > MAX_USER_PER_INSTANCE) {
+    throw new BadRequest('You have entered higher than the allowed max users. Please enter a number between 1 and 10.')
+  }
+  return location.maxUsersPerInstance
+}
 
 export const locationQueryResolver = resolve<LocationQuery, HookContext>({})

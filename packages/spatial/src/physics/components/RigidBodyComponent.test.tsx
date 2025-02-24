@@ -24,15 +24,17 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { act, render } from '@testing-library/react'
-import assert from 'assert'
+import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
 import { RigidBodyType } from '@dimforge/rapier3d-compat'
 import {
+  EntityTreeComponent,
   SystemDefinitions,
   UUIDComponent,
   UndefinedEntity,
   createEngine,
   createEntity,
+  deserializeComponent,
   destroyEngine,
   getComponent,
   hasComponent,
@@ -43,17 +45,12 @@ import {
 } from '@ir-engine/ecs'
 import React from 'react'
 import { Vector3 } from 'three'
-import { PhysicsSystem, TransformComponent } from '../../SpatialModule'
+import { assertArray, assertFloat, assertVec } from '../../../tests/util/assert'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics, PhysicsWorld } from '../classes/Physics'
-import {
-  assertFloatApproxEq,
-  assertFloatApproxNotEq,
-  assertVecAllApproxNotEq,
-  assertVecApproxEq
-} from '../classes/Physics.test'
+import { PhysicsSystem } from '../systems/PhysicsSystem'
 import { BodyTypes } from '../types/PhysicsTypes'
 import { ColliderComponent } from './ColliderComponent'
 import {
@@ -71,28 +68,7 @@ const RigidBodyComponentDefaults = {
   enabledRotations: [true, true, true] as [boolean, boolean, boolean],
   canSleep: true,
   gravityScale: 1,
-  previousPosition: 3,
-  previousRotation: 4,
-  position: 3,
-  rotation: 4,
-  targetKinematicPosition: 3,
-  targetKinematicRotation: 4,
-  linearVelocity: 3,
-  angularVelocity: 3,
   targetKinematicLerpMultiplier: 0
-}
-
-export function assertArrayEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are not equal') {
-  assert.equal(A.length, B.length, err + ': Their lenght is not the same')
-  for (let id = 0; id < A.length && id < B.length; id++) {
-    assert.deepEqual(A[id], B[id], err + `: Their item[${id}] is not the same`)
-  }
-}
-
-export function assertArrayNotEqual<T>(A: Array<T>, B: Array<T>, err = 'Arrays are equal') {
-  for (let id = 0; id < A.length && id < B.length; id++) {
-    assert.notDeepEqual(A[id], B[id], err)
-  }
 }
 
 export function assertRigidBodyComponentEqual(data, expected = RigidBodyComponentDefaults) {
@@ -107,14 +83,14 @@ export function assertRigidBodyComponentEqual(data, expected = RigidBodyComponen
   assert.equal(data.gravityScale, expected.gravityScale)
   /**
   // @todo Not serialized by the component
-  assertVecApproxEq(data.previousPosition, expected.previousPosition, 3)
-  assertVecApproxEq(data.previousRotation, expected.previousRotation, 4)
-  assertVecApproxEq(data.position, expected.position, 3)
-  assertVecApproxEq(data.rotation, expected.rotation, 4)
-  assertVecApproxEq(data.targetKinematicPosition, expected.targetKinematicPosition, 3)
-  assertVecApproxEq(data.targetKinematicRotation, expected.targetKinematicRotation, 4)
-  assertVecApproxEq(data.linearVelocity, expected.linearVelocity, 3)
-  assertVecApproxEq(data.angularVelocity, expected.angularVelocity, 3)
+  assertVec.approxEq(data.previousPosition, expected.previousPosition, 3)
+  assertVec.approxEq(data.previousRotation, expected.previousRotation, 4)
+  assertVec.approxEq(data.position, expected.position, 3)
+  assertVec.approxEq(data.rotation, expected.rotation, 4)
+  assertVec.approxEq(data.targetKinematicPosition, expected.targetKinematicPosition, 3)
+  assertVec.approxEq(data.targetKinematicRotation, expected.targetKinematicRotation, 4)
+  assertVec.approxEq(data.linearVelocity, expected.linearVelocity, 3)
+  assertVec.approxEq(data.angularVelocity, expected.angularVelocity, 3)
   assert.equal(data.targetKinematicLerpMultiplier, expected.targetKinematicLerpMultiplier)
   */
 }
@@ -190,7 +166,7 @@ describe('RigidBodyComponent', () => {
       assert.equal(after.enabledRotations[2], Expected.enabledRotations[2])
     })
 
-    it('should not change values of an initialized RigidBodyComponent when the data passed had incorrect types', () => {
+    it('should not change values of an initialized RigidBodyComponent when deserialized incorrect types', () => {
       const Incorrect = {
         type: 1,
         ccd: 'ccd',
@@ -203,7 +179,7 @@ describe('RigidBodyComponent', () => {
       assertRigidBodyComponentEqual(before, RigidBodyComponentDefaults)
 
       // @ts-ignore    Pass an incorrect type to setComponent
-      setComponent(testEntity, RigidBodyComponent, Incorrect)
+      deserializeComponent(testEntity, RigidBodyComponent, Incorrect)
       const after = getComponent(testEntity, RigidBodyComponent)
       assertRigidBodyComponentEqual(after, RigidBodyComponentDefaults)
     })
@@ -252,7 +228,7 @@ describe('RigidBodyComponent', () => {
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)
       setComponent(physicsWorldEntity, EntityTreeComponent)
-      physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+      physicsWorld = Physics.createWorld(physicsWorldEntity)
       physicsWorld!.timestep = 1 / 60
 
       testEntity = createEntity()
@@ -281,7 +257,7 @@ describe('RigidBodyComponent', () => {
       setComponent(newPhysicsEntity, SceneComponent)
       setComponent(newPhysicsEntity, TransformComponent)
       setComponent(newPhysicsEntity, EntityTreeComponent)
-      newPhysicsWorld = Physics.createWorld(getComponent(newPhysicsEntity, UUIDComponent))
+      newPhysicsWorld = Physics.createWorld(newPhysicsEntity)
       newPhysicsWorld!.timestep = 1 / 60
 
       // Change the world
@@ -372,7 +348,7 @@ describe('RigidBodyComponent', () => {
       // Defaults
       const one = getComponent(testEntity, RigidBodyComponent).angularVelocity
       const before = { x: one.x, y: one.y, z: one.z }
-      assertVecApproxEq(before, Vector3_Zero, 3)
+      assertVec.approxEq(before, Vector3_Zero, 3)
       const Expected = !RigidBodyComponentDefaults.allowRolling
       assert.notEqual(getComponent(testEntity, RigidBodyComponent).allowRolling, Expected) // Should still be the default
 
@@ -383,7 +359,7 @@ describe('RigidBodyComponent', () => {
       physicsSystemExecute()
       const two = getComponent(testEntity, RigidBodyComponent).angularVelocity
       const after = { x: two.x, y: two.y, z: two.z }
-      assertVecApproxEq(before, after, 3)
+      assertVec.approxEq(before, after, 3)
 
       // Unlocked
       setComponent(testEntity, RigidBodyComponent, { allowRolling: !Expected })
@@ -392,7 +368,7 @@ describe('RigidBodyComponent', () => {
       physicsSystemExecute()
       const three = getComponent(testEntity, RigidBodyComponent).angularVelocity
       const unlocked = { x: three.x, y: three.y, z: three.z }
-      assertVecAllApproxNotEq(before, unlocked, 3)
+      assertVec.allApproxNotEq(before, unlocked, 3)
     })
 
     it('should enable/disable rotations for each axis for the RigidBody on the API data when component.enabledRotations changes', () => {
@@ -405,66 +381,66 @@ describe('RigidBodyComponent', () => {
 
       // Defaults
       const one = getComponent(testEntity, RigidBodyComponent).angularVelocity.clone()
-      assertFloatApproxEq(one.x, Vector3_Zero.x)
-      assertFloatApproxEq(one.y, Vector3_Zero.y)
-      assertFloatApproxEq(one.z, Vector3_Zero.z)
+      assertFloat.approxEq(one.x, Vector3_Zero.x)
+      assertFloat.approxEq(one.y, Vector3_Zero.y)
+      assertFloat.approxEq(one.z, Vector3_Zero.z)
 
       // Locked
       const AllLocked = [false, false, false] as [boolean, boolean, boolean]
-      assertArrayNotEqual(getComponent(testEntity, RigidBodyComponent).enabledRotations, AllLocked) // Should still be the default
+      assertArray.allNotEq(getComponent(testEntity, RigidBodyComponent).enabledRotations, AllLocked) // Should still be the default
       setComponent(testEntity, RigidBodyComponent, { enabledRotations: AllLocked })
-      assertArrayEqual(getComponent(testEntity, RigidBodyComponent).enabledRotations, AllLocked)
+      assertArray.eq(getComponent(testEntity, RigidBodyComponent).enabledRotations, AllLocked)
       reactor.run()
       body.applyTorqueImpulse(TorqueImpulse, false)
       physicsSystemExecute()
       const two = getComponent(testEntity, RigidBodyComponent).angularVelocity.clone()
-      assertFloatApproxEq(one.x, two.x)
-      assertFloatApproxEq(one.y, two.y)
-      assertFloatApproxEq(one.z, two.z)
+      assertFloat.approxEq(one.x, two.x)
+      assertFloat.approxEq(one.y, two.y)
+      assertFloat.approxEq(one.z, two.z)
 
       // Unlock X
       const XUnlocked = [true, false, false] as [boolean, boolean, boolean]
       setComponent(testEntity, RigidBodyComponent, { enabledRotations: XUnlocked })
-      assertArrayEqual(getComponent(testEntity, RigidBodyComponent).enabledRotations, XUnlocked)
+      assertArray.eq(getComponent(testEntity, RigidBodyComponent).enabledRotations, XUnlocked)
       body.applyTorqueImpulse(TorqueImpulse, false)
       physicsSystemExecute()
       const three = getComponent(testEntity, RigidBodyComponent).angularVelocity.clone()
-      assertFloatApproxNotEq(two.x, three.x)
-      assertFloatApproxEq(two.y, three.y)
-      assertFloatApproxEq(two.z, three.z)
+      assertFloat.approxNotEq(two.x, three.x)
+      assertFloat.approxEq(two.y, three.y)
+      assertFloat.approxEq(two.z, three.z)
 
       // Unlock Y
       const YUnlocked = [false, true, false] as [boolean, boolean, boolean]
       setComponent(testEntity, RigidBodyComponent, { enabledRotations: YUnlocked })
-      assertArrayEqual(getComponent(testEntity, RigidBodyComponent).enabledRotations, YUnlocked)
+      assertArray.eq(getComponent(testEntity, RigidBodyComponent).enabledRotations, YUnlocked)
       body.applyTorqueImpulse(TorqueImpulse, false)
       physicsSystemExecute()
       const four = getComponent(testEntity, RigidBodyComponent).angularVelocity.clone()
-      assertFloatApproxEq(three.x, four.x)
-      assertFloatApproxNotEq(three.y, four.y)
-      assertFloatApproxEq(three.z, four.z)
+      assertFloat.approxEq(three.x, four.x)
+      assertFloat.approxNotEq(three.y, four.y)
+      assertFloat.approxEq(three.z, four.z)
 
       // Unlock Z
       const ZUnlocked = [false, false, true] as [boolean, boolean, boolean]
       setComponent(testEntity, RigidBodyComponent, { enabledRotations: ZUnlocked })
-      assertArrayEqual(getComponent(testEntity, RigidBodyComponent).enabledRotations, ZUnlocked)
+      assertArray.eq(getComponent(testEntity, RigidBodyComponent).enabledRotations, ZUnlocked)
       body.applyTorqueImpulse(TorqueImpulse, false)
       physicsSystemExecute()
       const five = getComponent(testEntity, RigidBodyComponent).angularVelocity.clone()
-      assertFloatApproxEq(four.x, five.x)
-      assertFloatApproxEq(four.y, five.y)
-      assertFloatApproxNotEq(four.z, five.z)
+      assertFloat.approxEq(four.x, five.x)
+      assertFloat.approxEq(four.y, five.y)
+      assertFloat.approxNotEq(four.z, five.z)
 
       // Unlock All
       const AllUnlocked = [true, true, true] as [boolean, boolean, boolean]
       setComponent(testEntity, RigidBodyComponent, { enabledRotations: AllUnlocked })
-      assertArrayEqual(getComponent(testEntity, RigidBodyComponent).enabledRotations, AllUnlocked)
+      assertArray.eq(getComponent(testEntity, RigidBodyComponent).enabledRotations, AllUnlocked)
       body.applyTorqueImpulse(TorqueImpulse, false)
       physicsSystemExecute()
       const six = getComponent(testEntity, RigidBodyComponent).angularVelocity.clone()
-      assertFloatApproxNotEq(five.x, six.x)
-      assertFloatApproxNotEq(five.y, six.y)
-      assertFloatApproxNotEq(five.z, six.z)
+      assertFloat.approxNotEq(five.x, six.x)
+      assertFloat.approxNotEq(five.y, six.y)
+      assertFloat.approxNotEq(five.z, six.z)
     })
   }) // << reactor
 

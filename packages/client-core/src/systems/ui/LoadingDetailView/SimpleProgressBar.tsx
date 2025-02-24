@@ -52,6 +52,9 @@ export type ProgressBarProps = {
   barcontainerClassName?: string
   completedClassName?: string
   labelClassName?: string
+  isLooping?: boolean
+  loopingBarWidth?: number
+  loopingBarSpeed?: number
 }
 
 const ProgressBar: React.FC<ProgressBarProps> = ({
@@ -79,7 +82,10 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   animateOnRender,
   barcontainerClassName,
   completedClassName,
-  labelClassName
+  labelClassName,
+  isLooping,
+  loopingBarWidth,
+  loopingBarSpeed
 }) => {
   const getAlignment = (alignmentOption: ProgressBarProps['labelAlignment']) => {
     if (alignmentOption === 'left') {
@@ -97,18 +103,20 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
 
   const getFillerWidth = (
     maxCompletedValue: ProgressBarProps['maxCompleted'],
-    completedValue: ProgressBarProps['completed']
+    completedValue: ProgressBarProps['completed'],
+    isLooping: ProgressBarProps['isLooping'],
+    loopingBarWidth: ProgressBarProps['loopingBarWidth']
   ) => {
-    if (maxCompletedValue) {
-      const ratio = Number(completedValue) / maxCompletedValue
-      return ratio > 1 ? '100%' : `${ratio * 100}%`
-    }
-    return 0
+    if (!maxCompletedValue) return 0
+    const ratio = (isLooping ? loopingBarWidth ?? 0 : Number(completedValue)) / maxCompletedValue
+    return ratio > 1 ? '100%' : `${ratio * 100}%`
   }
 
-  const fillerWidth = getFillerWidth(maxCompleted, completed)
+  const fillerWidth = getFillerWidth(maxCompleted, completed, isLooping, loopingBarWidth)
 
   const [initWidth, setInitWidth] = React.useState<string | 0>(0)
+  const [direction, setDirection] = React.useState(1)
+  const [position, setPosition] = React.useState(0)
 
   const containerStyles: React.CSSProperties = {
     height: height,
@@ -129,7 +137,13 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
     alignItems: 'center',
     justifyContent: labelAlignment !== 'outside' && alignment ? alignment : 'normal'
   }
-
+  const loopingFillerStyles: React.CSSProperties = {
+    height,
+    width: fillerWidth,
+    backgroundColor: bgColor,
+    position: 'relative',
+    left: `${position}%`
+  }
   const labelStyles: React.CSSProperties = {
     padding: labelAlignment === 'outside' ? '0 0 0 5px' : '5px',
     color: labelColor,
@@ -152,7 +166,31 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       requestAnimationFrame(() => setInitWidth(fillerWidth))
     }
   }, [fillerWidth, animateOnRender])
+  React.useEffect(() => {
+    if (!isLooping) {
+      setPosition(0)
+      return
+    }
+    let animationFrameId
+    const animate = () => {
+      setPosition((prevPosition) => {
+        const newPosition = prevPosition + (direction ?? 1) * (loopingBarSpeed ?? 1)
+        const maxPosition = maxCompleted ?? 0
+        const maxPositionWithBarWidth = maxPosition - (loopingBarWidth ?? 0)
+        if (newPosition >= maxPositionWithBarWidth || newPosition <= 0) {
+          setDirection(-direction) // Reverse direction
+        }
+        return newPosition
+      })
+      animationFrameId = requestAnimationFrame(animate)
+    }
 
+    animate()
+
+    return () => {
+      cancelAnimationFrame(animationFrameId)
+    }
+  }, [isLooping, direction, loopingBarWidth])
   return (
     <div
       style={className ? undefined : outsideStyles}
@@ -165,7 +203,10 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       aria-valuetext={`${ariaValuetext === null ? labelStr : ariaValuetext}`}
     >
       <div style={barcontainerClassName ? undefined : containerStyles} className={barcontainerClassName}>
-        <div style={completedClassName ? undefined : fillerStyles} className={completedClassName}>
+        <div
+          style={completedClassName ? undefined : isLooping ? loopingFillerStyles : fillerStyles}
+          className={completedClassName}
+        >
           {labelAlignment !== 'outside' && (
             <span style={labelClassName ? undefined : labelStyles} className={labelClassName}>
               {labelStr}
@@ -202,7 +243,10 @@ ProgressBar.propTypes = {
   animateOnRender: PropTypes.bool,
   barcontainerClassName: PropTypes.string,
   completedClassName: PropTypes.string,
-  labelClassName: PropTypes.string
+  labelClassName: PropTypes.string,
+  isLooping: PropTypes.bool,
+  loopingBarWidth: PropTypes.number,
+  loopingBarSpeed: PropTypes.number
 }
 
 ProgressBar.defaultProps = {
@@ -220,7 +264,10 @@ ProgressBar.defaultProps = {
   ariaValuemax: 100,
   ariaValuetext: null,
   maxCompleted: 100,
-  animateOnRender: false
+  animateOnRender: false,
+  isLooping: false,
+  loopingBarWidth: 0,
+  loopingBarSpeed: 0.2
 }
 
 export default ProgressBar

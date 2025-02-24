@@ -23,49 +23,55 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { NormalizedLandmark } from '@mediapipe/tasks-vision'
-import { VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
-import { useEffect } from 'react'
+import { VRMHumanBoneList } from '@pixiv/three-vrm'
 
+import { S } from '@ir-engine/ecs'
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { QuaternionSchema, Vector3Schema } from '@ir-engine/spatial/src/transform/components/TransformComponent'
+import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
 
 export const MotionCaptureRigComponent = defineComponent({
   name: 'MotionCaptureRigComponent',
-  onInit: () => {
-    return {
-      prevWorldLandmarks: null as NormalizedLandmark[] | null,
-      prevScreenLandmarks: null as NormalizedLandmark[] | null
-    }
-  },
-  schema: {
-    rig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, QuaternionSchema])) as Record<
-      VRMHumanBoneName,
-      typeof QuaternionSchema
-    >,
-    slerpedRig: Object.fromEntries(VRMHumanBoneList.map((b) => [b, QuaternionSchema])) as Record<
-      VRMHumanBoneName,
-      typeof QuaternionSchema
-    >,
-    hipPosition: Vector3Schema,
-    hipRotation: QuaternionSchema,
-    footOffset: 'f64',
-    solvingLowerBody: 'ui8'
-  },
 
-  reactor: function () {
-    const entity = useEntityContext()
+  schema: S.Object({
+    prevWorldLandmarks: S.Array(S.Object({ x: S.Number(), y: S.Number(), z: S.Number(), visibility: S.Number() })),
+    prevScreenLandmarks: S.Array(S.Object({ x: S.Number(), y: S.Number(), z: S.Number(), visibility: S.Number() }))
+  }),
 
-    useEffect(() => {
-      for (const boneName of VRMHumanBoneList) {
-        //causes issues with ik solves, commenting out for now
-        //proxifyVector3(AvatarRigComponent.rig[boneName].position, entity)
-        //proxifyQuaternion(AvatarRigComponent.rig[boneName].rotation, entity)
-      }
-      MotionCaptureRigComponent.solvingLowerBody[entity] = 1
-    }, [])
-
-    return null
+  storage: {
+    rig: Object.fromEntries(
+      VRMHumanBoneList.map((b) => [
+        b,
+        {
+          x: createResizableTypeArray(Float64Array),
+          y: createResizableTypeArray(Float64Array),
+          z: createResizableTypeArray(Float64Array),
+          w: createResizableTypeArray(Float64Array)
+        }
+      ])
+    ),
+    slerpedRig: Object.fromEntries(
+      VRMHumanBoneList.map((b) => [
+        b,
+        {
+          x: createResizableTypeArray(Float64Array),
+          y: createResizableTypeArray(Float64Array),
+          z: createResizableTypeArray(Float64Array),
+          w: createResizableTypeArray(Float64Array)
+        }
+      ])
+    ),
+    hipPosition: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array)
+    },
+    hipRotation: {
+      x: createResizableTypeArray(Float64Array),
+      y: createResizableTypeArray(Float64Array),
+      z: createResizableTypeArray(Float64Array),
+      w: createResizableTypeArray(Float64Array)
+    },
+    footOffset: createResizableTypeArray(Float64Array),
+    solvingLowerBody: createResizableTypeArray(Uint8Array)
   }
 })

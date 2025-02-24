@@ -31,9 +31,9 @@ import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowComponent'
 
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
-import { BooleanInput } from '@ir-engine/ui/src/components/editor/input/Boolean'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { Checkbox } from '@ir-engine/ui'
 import InputGroup from '../../input/Group'
-import NodeEditor from '../nodeEditor'
 
 /**
  * ShadowProperties used to create editor view for the properties of ModelNode.
@@ -46,14 +46,14 @@ export const ShadowNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.shadow.name')}
       component={ShadowComponent}
       description={t('editor:properties.shadow.description')}
-      icon={<ShadowNodeEditor.iconComponent />}
+      Icon={ShadowNodeEditor.iconComponent}
       {...props}
     >
       <InputGroup name="Cast Shadow" label={t('editor:properties.shadow.lbl-castShadow')}>
-        <BooleanInput value={shadowComponent.cast.value} onChange={commitProperty(ShadowComponent, 'cast')} />
+        <Checkbox checked={shadowComponent.cast.value} onChange={commitProperty(ShadowComponent, 'cast')} />
       </InputGroup>
       <InputGroup name="Receive Shadow" label={t('editor:properties.shadow.lbl-receiveShadow')}>
-        <BooleanInput value={shadowComponent.receive.value} onChange={commitProperty(ShadowComponent, 'receive')} />
+        <Checkbox checked={shadowComponent.receive.value} onChange={commitProperty(ShadowComponent, 'receive')} />
       </InputGroup>
     </NodeEditor>
   )

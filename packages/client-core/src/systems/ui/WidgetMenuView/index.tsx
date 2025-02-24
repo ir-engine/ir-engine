@@ -28,16 +28,15 @@ import React from 'react'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 // import { VrIcon } from '../../../common/components/Icons/VrIcon'
 import { respawnAvatar } from '@ir-engine/engine/src/avatar/functions/respawnAvatar'
+import { createXRUI } from '@ir-engine/engine/src/xrui/createXRUI'
 import { createState, dispatchAction, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
-import { createXRUI } from '@ir-engine/spatial/src/xrui/functions/createXRUI'
-import { RegisteredWidgets, WidgetAppActions, WidgetAppState } from '@ir-engine/spatial/src/xrui/WidgetAppService'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
+import { RegisteredWidgets, WidgetAppActions, WidgetAppState } from '../../WidgetAppService'
 
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
-import { MediaStreamState } from '../../../transports/MediaStreams'
-import { toggleMicrophonePaused } from '../../../transports/SocketWebRTCClientFunctions'
+import { MediaStreamState } from '../../../media/MediaStreamState'
 import XRIconButton from '../../components/XRIconButton'
 import HandSVG from './back_hand_24px.svg?react'
 import styleString from './index.scss?inline'
@@ -118,7 +117,7 @@ const WidgetButtons = () => {
   const mediaInstanceState = useMediaInstance()
 
   const mediaStreamState = useMutableState(MediaStreamState)
-  const isCamAudioEnabled = mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
+  const isCamAudioEnabled = !!mediaStreamState.microphoneMediaStream.value && mediaStreamState.microphoneEnabled.value
 
   // TODO: add a notification hint function to the widget wrapper and move unread messages there
   // useEffect(() => {
@@ -183,7 +182,7 @@ const WidgetButtons = () => {
         {mediaInstanceState?.value && (
           <WidgetButton
             icon={isCamAudioEnabled ? 'Mic' : 'MicOff'}
-            toggle={toggleMicrophonePaused}
+            toggle={MediaStreamState.toggleMicrophonePaused}
             label={isCamAudioEnabled ? 'Audio on' : 'Audio Off'}
           />
         )}

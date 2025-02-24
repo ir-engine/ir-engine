@@ -28,22 +28,10 @@ import { Resizable } from 're-resizable'
 import React, { useEffect, useRef } from 'react'
 import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa'
 
-import { useMediaWindows } from '@ir-engine/client-core/src/components/UserMediaWindows'
-import {
-  PeerMediaChannelState,
-  PeerMediaStreamInterface
-} from '@ir-engine/client-core/src/transports/PeerMediaChannelState'
-import {
-  ConsumerExtension,
-  SocketWebRTCClientNetwork,
-  pauseConsumer,
-  resumeConsumer,
-  toggleMicrophonePaused,
-  toggleScreenshareAudioPaused,
-  toggleScreenshareVideoPaused,
-  toggleWebcamPaused
-} from '@ir-engine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { useUserAvatarThumbnail } from '@ir-engine/client-core/src/user/functions/useUserAvatarThumbnail'
+import { useUserAvatarThumbnail } from '@ir-engine/client-core/src/hooks/useUserAvatarThumbnail'
+import { MediaStreamState } from '@ir-engine/client-core/src/media/MediaStreamState'
+import { PeerMediaChannelState, PeerMediaStreamInterface } from '@ir-engine/client-core/src/media/PeerMediaChannelState'
+import { useMediaWindows } from '@ir-engine/client-core/src/user/VideoWindows'
 import { useGet } from '@ir-engine/common'
 import { UserName, userPath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
@@ -79,71 +67,46 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
   const peerMediaChannelState = useHookstate(
     getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
   )
-  const {
-    videoStream,
-    audioStream,
-    videoStreamPaused,
-    audioStreamPaused,
-    videoProducerPaused,
-    audioProducerPaused,
-    videoProducerGlobalMute,
-    audioProducerGlobalMute,
-    videoElement,
-    audioElement
-  } = peerMediaChannelState.get({ noproxy: true })
-
-  const { videoStream: videoStreamState } = peerMediaChannelState
+  const { videoMediaStream, audioMediaStream, videoStreamPaused, audioStreamPaused } = peerMediaChannelState.get({
+    noproxy: true
+  })
 
   const username = getUsername() as UserName
 
   const ref = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
-    if (!ref.current || ref.current.srcObject || !videoStreamState?.value) return
+    if (!ref.current || ref.current.srcObject || !videoMediaStream) return
 
     ref.current.id = `${peerID}_video_xrui`
     ref.current.autoplay = true
     ref.current.muted = true
     ref.current.setAttribute('playsinline', 'true')
 
-    const newVideoTrack = videoStreamState.value.track!.clone()
+    const newVideoTrack = videoMediaStream.getVideoTracks()[0]!.clone()
     ref.current.srcObject = new MediaStream([newVideoTrack])
     ref.current.play()
-  }, [ref.current, videoStreamState])
+  }, [ref.current, videoMediaStream])
 
   const toggleVideo = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
     if (isSelf && !isScreen) {
-      toggleWebcamPaused()
+      MediaStreamState.toggleWebcamPaused()
     } else if (isSelf && isScreen) {
-      toggleScreenshareVideoPaused()
+      MediaStreamState.toggleScreenshareVideoPaused()
     } else {
-      if (!videoStreamPaused) {
-        pauseConsumer(mediaNetwork, videoStream as ConsumerExtension)
-        peerMediaChannelState.videoStreamPaused.set(true)
-      } else {
-        resumeConsumer(mediaNetwork, videoStream as ConsumerExtension)
-        peerMediaChannelState.videoStreamPaused.set(false)
-      }
+      peerMediaChannelState.videoStreamPaused.set((val) => !val)
     }
   }
 
   const toggleAudio = async (e) => {
     e.stopPropagation()
-    const mediaNetwork = NetworkState.mediaNetwork as SocketWebRTCClientNetwork
     if (isSelf && !isScreen) {
-      toggleMicrophonePaused()
+      MediaStreamState.toggleMicrophonePaused()
     } else if (isSelf && isScreen) {
-      toggleScreenshareAudioPaused()
+      MediaStreamState.toggleScreenshareAudioPaused()
     } else {
-      if (!audioStreamPaused) {
-        pauseConsumer(mediaNetwork, audioStream as ConsumerExtension)
-        peerMediaChannelState.audioStreamPaused.set(true)
-      } else {
-        resumeConsumer(mediaNetwork, audioStream as ConsumerExtension)
-        peerMediaChannelState.audioStreamPaused.set(false)
-      }
+      peerMediaChannelState.audioStreamPaused.set((val) => !val)
     }
   }
 
@@ -171,7 +134,7 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
         className={`relative flex h-full items-center justify-center rounded-[5px]`}
         style={{ backgroundColor: 'gray' }} // TODO derive color from user thumbnail
       >
-        {videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute ? (
+        {!videoMediaStream || videoStreamPaused ? (
           <img
             src={userThumbnail}
             alt=""

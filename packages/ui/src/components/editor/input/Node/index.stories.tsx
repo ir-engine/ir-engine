@@ -28,7 +28,7 @@ import Component from './index'
 const argTypes = {}
 
 export default {
-  title: 'Editor/Input/Model',
+  title: 'Editor/Node',
   component: Component,
   parameters: {
     componentSubtitle: 'ModelInput',

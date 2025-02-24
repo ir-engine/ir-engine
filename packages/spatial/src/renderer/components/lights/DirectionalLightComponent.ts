@@ -24,24 +24,31 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { BufferGeometry, Color, DirectionalLight, Float32BufferAttribute } from 'three'
+import { BufferGeometry, DirectionalLight, Float32BufferAttribute } from 'three'
 
 import {
+  EntityTreeComponent,
+  S,
+  UndefinedEntity,
+  createEntity,
   defineComponent,
+  getMutableComponent,
+  hasComponent,
   removeComponent,
+  removeEntity,
   setComponent,
   useComponent,
+  useEntityContext,
   useOptionalComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { matches, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+} from '@ir-engine/ecs'
+import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
+import { ActiveHelperComponent } from '../../../common/ActiveHelperComponent'
 import { mergeBufferGeometries } from '../../../common/classes/BufferGeometryUtils'
-import { useDisposable } from '../../../resources/resourceHooks'
-import { useUpdateLight } from '../../functions/useUpdateLight'
+import { T } from '../../../schema/schemaFunctions'
 import { RendererState } from '../../RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '../GroupComponent'
 import { LineSegmentComponent } from '../LineSegmentComponent'
+import { ObjectComponent } from '../ObjectComponent'
 import { LightTagComponent } from './LightTagComponent'
 
 const size = 1
@@ -104,63 +111,44 @@ export const DirectionalLightComponent = defineComponent({
   name: 'DirectionalLightComponent',
   jsonID: 'EE_directional_light',
 
-  onInit: (entity) => {
-    return {
-      light: null! as DirectionalLight,
-      color: new Color(),
-      intensity: 1,
-      castShadow: false,
-      shadowBias: -0.00001,
-      shadowRadius: 1,
-      cameraFar: 200
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matches.object.test(json.color) && json.color.isColor) component.color.set(json.color)
-    if (matches.string.test(json.color) || matches.number.test(json.color)) component.color.value.set(json.color)
-    if (matches.number.test(json.intensity)) component.intensity.set(json.intensity)
-    if (matches.number.test(json.cameraFar)) component.cameraFar.set(json.cameraFar)
-    if (matches.boolean.test(json.castShadow)) component.castShadow.set(json.castShadow)
-    /** backwards compat */
-    if (matches.number.test(json.shadowBias)) component.shadowBias.set(json.shadowBias)
-    if (matches.number.test(json.shadowRadius)) component.shadowRadius.set(json.shadowRadius)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      color: component.color.value,
-      intensity: component.intensity.value,
-      cameraFar: component.cameraFar.value,
-      castShadow: component.castShadow.value,
-      shadowBias: component.shadowBias.value,
-      shadowRadius: component.shadowRadius.value
-    }
-  },
+  schema: S.Object({
+    light: S.NonSerialized(S.Type<DirectionalLight>()),
+    color: T.Color(),
+    intensity: S.Number(1),
+    castShadow: S.Bool(false),
+    shadowBias: S.Number(-0.00001),
+    shadowRadius: S.Number(1),
+    cameraFar: S.Number(200)
+  }),
 
   reactor: function () {
     const entity = useEntityContext()
     const renderState = useMutableState(RendererState)
+    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const debugEnabled = renderState.nodeHelperVisibility
     const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
-    const [light] = useDisposable(DirectionalLight, entity)
-    const lightHelper = useOptionalComponent(entity, LineSegmentComponent)
+    const light = useHookstate(() => new DirectionalLight()).value as DirectionalLight
+    const helperEntity = useHookstate(UndefinedEntity)
 
-    useImmediateEffect(() => {
+    useEffect(() => {
       setComponent(entity, LightTagComponent)
-      directionalLightComponent.light.set(light)
-      addObjectToGroup(entity, light)
+      getMutableComponent(entity, DirectionalLightComponent).light.set(light)
+      setComponent(entity, ObjectComponent, light)
+
       return () => {
-        removeObjectFromGroup(entity, light)
+        removeComponent(entity, ObjectComponent)
       }
     }, [])
 
     useEffect(() => {
       light.color.set(directionalLightComponent.color.value)
-      if (!lightHelper) return
-      lightHelper.color.set(directionalLightComponent.color.value)
     }, [directionalLightComponent.color])
+
+    useEffect(() => {
+      if (!helperEntity.value) return
+      const helper = getMutableComponent(helperEntity.value, LineSegmentComponent)
+      helper.color.set(directionalLightComponent.color.value)
+    }, [helperEntity.value, directionalLightComponent.color])
 
     useEffect(() => {
       light.intensity = directionalLightComponent.intensity.value
@@ -190,21 +178,21 @@ export const DirectionalLightComponent = defineComponent({
     }, [renderState.shadowMapResolution])
 
     useEffect(() => {
-      if (debugEnabled.value) {
-        setComponent(entity, LineSegmentComponent, {
-          name: 'directional-light-helper',
-          // Clone geometry because LineSegmentComponent disposes it when removed
-          geometry: mergedGeometry?.clone(),
-          color: directionalLightComponent.color.value
-        })
-      }
+      if (!debugEnabled.value && !hasComponent(entity, ActiveHelperComponent)) return
+      helperEntity.set(createEntity())
+      setComponent(helperEntity.value, EntityTreeComponent, { parentEntity: entity })
+      setComponent(helperEntity.value, LineSegmentComponent, {
+        name: 'directional-light-helper',
+        // Clone geometry because LineSegmentComponent disposes it when removed
+        geometry: mergedGeometry?.clone(),
+        color: directionalLightComponent.color.value
+      })
 
       return () => {
-        removeComponent(entity, LineSegmentComponent)
+        removeEntity(helperEntity.value)
+        helperEntity.set(UndefinedEntity)
       }
-    }, [debugEnabled])
-
-    useUpdateLight(light)
+    }, [debugEnabled, activeHelperComponent])
 
     return null
   }

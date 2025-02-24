@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 18.x
+          node-version: 22.x
           scope: '@ir-engine'
       - name: Set git username
         run: git config user.name "CI Bot"
@@ -40,7 +40,7 @@ jobs:
       - name: Move root package.json
         run: mv package.json package.json.altered
       - name: Install dependencies for running bump-project-versions
-        run: npm install cross-env@7.0.3 ts-node@10.8.2 cli@1.0.1 app-root-path@3.0.0
+        run: npm install cross-env@7.0.3 ts-node@10.9.2 cli@1.0.1 app-root-path@3.0.0
       - name: Move root package.json back
         run: mv package.json.altered package.json
       - name: Bump default and template project version

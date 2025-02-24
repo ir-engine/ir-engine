@@ -26,43 +26,24 @@ Infinite Reality Engine. All Rights Reserved.
 import { Color, CubeTexture, FogBase, Texture } from 'three'
 
 import { defineComponent } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
 export const SceneComponent = defineComponent({
-  name: 'SceneComponent'
+  name: 'SceneComponent',
+  schema: S.Object({ active: S.Bool(false) })
 })
 
 export const BackgroundComponent = defineComponent({
   name: 'BackgroundComponent',
-
-  onInit(entity) {
-    return null! as Color | Texture | CubeTexture
-  },
-
-  onSet(entity, component, json: Color | Texture | CubeTexture) {
-    if (typeof json === 'object') component.set(json)
-  }
+  schema: S.Type<Color | Texture | CubeTexture>()
 })
 
 export const EnvironmentMapComponent = defineComponent({
   name: 'EnvironmentMapComponent',
-
-  onInit(entity) {
-    return null! as Texture
-  },
-
-  onSet(entity, component, json: Texture) {
-    if (typeof json === 'object') component.set(json)
-  }
+  schema: S.Type<Texture>()
 })
 
 export const FogComponent = defineComponent({
   name: 'FogComponent',
-
-  onInit(entity) {
-    return null! as FogBase
-  },
-
-  onSet(entity, component, json: FogBase) {
-    if (typeof json === 'object') component.set(json)
-  }
+  schema: S.Type<FogBase>()
 })

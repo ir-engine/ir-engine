@@ -47,44 +47,45 @@ import { createHyperStore, getMutableState } from '@ir-engine/hyperflux'
 
 import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
 import { Application } from '../declarations'
+import packagejson from '../package.json'
 import { logger } from './ServerLogger'
 import { ServerMode, ServerState, ServerTypeMode } from './ServerState'
-import { default as appConfig, default as config } from './appconfig'
+import { default as appConfig } from './appconfig'
 import authenticate from './hooks/authenticate'
 import { logError } from './hooks/log-error'
 import persistHeaders from './hooks/persist-headers'
-import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
+import { createDefaultStorageProvider } from './media/storageprovider/storageprovider'
 import mysql from './mysql'
 import services from './services'
 import authentication from './user/authentication'
 import primus from './util/primus'
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require('fix-esm').register()
 
 export const configureOpenAPI = () => (app: Application) => {
   app.configure(
     swagger({
       ui: swagger.swaggerUI({
         docsPath: '/openapi'
-        // docsJsonPath: '/openapi.json',
-        // indexFile: path.join(process.cwd() + '/openapi.html')
       }),
       specs: {
         info: {
           title: 'Infinite Reality Engine API Surface',
           description: 'APIs for the Infinite Reality Engine application',
-          version: '1.0.0'
+          version: packagejson.version
         },
         schemes: ['https'],
-        securityDefinitions: {
-          bearer: {
-            type: 'apiKey',
-            in: 'header',
-            name: 'authorization'
+        components: {
+          securitySchemes: {
+            BearerAuth: {
+              type: 'http',
+              scheme: 'bearer'
+            }
           }
         },
-        security: [{ bearer: [] }]
+        security: [{ BearerAuth: [] }]
+      },
+      idType: 'string',
+      ignore: {
+        paths: ['oauth', 'knex_migrations']
       }
     })
   )
@@ -106,6 +107,8 @@ export const configurePrimus =
           transformer: 'websockets',
           origins: origin,
           methods: ['OPTIONS', 'GET', 'POST'],
+          pingInterval: commonConfig.websocket.pingInterval,
+          pingTimeout: commonConfig.websocket.pingTimeout,
           headers: '*',
           credentials: true
         },
@@ -172,14 +175,14 @@ export const serverJobRedisPipe = pipe(configurePrimus(), configureRedis(), conf
   app: Application
 ) => Application
 
-export const createFeathersKoaApp = (
+export const createFeathersKoaApp = async (
   serverMode: ServerTypeMode = ServerMode.API,
   configurationPipe = serverPipe
-): Application => {
+): Promise<Application> => {
   createEngine(createHyperStore())
 
   getMutableState(DomainConfigState).merge({
-    publicDomain: config.client.dist,
+    publicDomain: appConfig.client.dist,
     cloudDomain: commonConfig.client.fileServer,
     proxyDomain: commonConfig.client.cors.proxyUrl
   })
@@ -188,10 +191,6 @@ export const createFeathersKoaApp = (
   serverState.serverMode.set(serverMode)
 
   createDefaultStorageProvider()
-
-  if (appConfig.ipfs.enabled) {
-    createIPFSStorageProvider()
-  }
 
   const app = koa(feathers()) as Application
   API.instance = app
@@ -202,7 +201,9 @@ export const createFeathersKoaApp = (
   // hard-code http as the protocol, so manually mashing host + port together if in local.
   app.set(
     'host',
-    appConfig.server.local ? appConfig.server.hostname + ':' + appConfig.server.port : appConfig.server.hostname
+    (appConfig.server.local as any) === '1' || appConfig.server.local === true
+      ? appConfig.server.hostname + ':' + appConfig.server.port
+      : appConfig.server.hostname
   )
   app.set('port', appConfig.server.port)
 
@@ -257,7 +258,7 @@ export const createFeathersKoaApp = (
   app.configure(authentication)
 
   // Set up our services (see `services/index.js`)
-  app.configure(services)
+  await services(app)
 
   // Store headers across internal service calls
   app.hooks({

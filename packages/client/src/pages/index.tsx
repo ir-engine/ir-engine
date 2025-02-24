@@ -27,18 +27,16 @@ import React, { useEffect } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Navigate } from 'react-router-dom'
 
-import styles from '@ir-engine/client-core/src/admin/old-styles/admin.module.scss'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 
-import { PopupMenuState } from '@ir-engine/client-core/src/user/components/UserMenu/PopupMenuService'
 import config from '@ir-engine/common/src/config'
-import { getState, useMutableState } from '@ir-engine/hyperflux'
+import { useMutableState } from '@ir-engine/hyperflux'
 
 import { Box, Button } from '@mui/material'
 
-import ProfileMenu from '@ir-engine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-import { UserMenus } from '@ir-engine/client-core/src/user/UserUISystem'
-
+import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import ProfileMenu from '@ir-engine/client-core/src/user/menus/ProfileMenu'
+import { ViewerMenuState } from '@ir-engine/client-core/src/util/ViewerMenuState'
 import { useFind } from '@ir-engine/common'
 import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import './index.scss'
@@ -49,18 +47,18 @@ export const HomePage = (): any => {
   const { t } = useTranslation()
   const clientSettingQuery = useFind(clientSettingPath)
   const clientSetting = clientSettingQuery.data[0]
-  const popupMenuState = useMutableState(PopupMenuState)
-  const popupMenu = getState(PopupMenuState)
-  const Panel = popupMenu.openMenu ? popupMenu.menus[popupMenu.openMenu] : null
+  const viewerMenuState = useMutableState(ViewerMenuState)
 
   useEffect(() => {
     const error = new URL(window.location.href).searchParams.get('error')
     if (error) NotificationService.dispatchNotify(error, { variant: 'error' })
-  }, [])
+    PopoverState.showPopupover(<ProfileMenu />)
+    viewerMenuState.userMenus.profile.set(true)
 
-  useEffect(() => {
-    if (!popupMenuState.openMenu.value) popupMenuState.openMenu.set(UserMenus.Profile)
-  }, [popupMenuState.openMenu, popupMenuState.menus.keys])
+    return () => {
+      viewerMenuState.userMenus.profile.set(false)
+    }
+  }, [])
 
   if (ROOT_REDIRECT && ROOT_REDIRECT.length > 0 && ROOT_REDIRECT !== 'false') {
     const redirectParsed = new URL(ROOT_REDIRECT)
@@ -108,7 +106,7 @@ export const HomePage = (): any => {
             )}
             {Boolean(clientSetting?.homepageLinkButtonEnabled) && (
               <Button
-                className={styles.gradientButton + ' ' + styles.forceVaporwave}
+                className="gradientButton"
                 autoFocus
                 onClick={() => (window.location.href = clientSetting?.homepageLinkButtonRedirect)}
               >
@@ -130,8 +128,6 @@ export const HomePage = (): any => {
                 }
               `}
             </style>
-            {Panel && <Panel {...popupMenu.params} isPopover />}
-            {popupMenu.openMenu !== UserMenus.Profile && <ProfileMenu isPopover />}
           </Box>
         </div>
         <div className="link-container">

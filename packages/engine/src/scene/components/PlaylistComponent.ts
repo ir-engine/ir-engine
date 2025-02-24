@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, getMutableComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NO_PROXY } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
 import { PlayMode } from '../constants/PlayMode'
@@ -33,30 +34,25 @@ export const PlaylistComponent = defineComponent({
   name: 'PlaylistComponent',
   jsonID: 'EE_playlist',
 
-  onInit: (entity) => ({
-    tracks: [] as { uuid: string; src: string }[],
-    currentTrackUUID: '',
-    currentTrackIndex: -1,
-    paused: true,
-    playMode: PlayMode.loop,
-    autoplay: true
+  schema: S.Object({
+    tracks: S.Array(
+      S.Object({
+        uuid: S.String(),
+        src: S.String()
+      })
+    ),
+    currentTrackUUID: S.String(''),
+    currentTrackIndex: S.Number(-1),
+    paused: S.Bool(true),
+    playMode: S.Enum(PlayMode, PlayMode.loop),
+    autoplay: S.Bool(true)
   }),
 
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (json.tracks && Array.isArray(json.tracks)) component.tracks.set(json.tracks)
-    if (typeof json.currentTrackUUID === 'string') component.currentTrackUUID.set(json.currentTrackUUID)
-    if (typeof json.currentTrackIndex === 'number') component.currentTrackIndex.set(json.currentTrackIndex)
-    if (typeof json.playMode === 'string') component.playMode.set(json.playMode)
-    if (typeof json.paused === 'boolean') component.paused.set(json.paused)
-    if (typeof json.autoplay === 'boolean') component.autoplay.set(json.autoplay)
-  },
-
-  toJSON: (entity, component) => {
+  toJSON: (component) => {
     return {
-      tracks: component.tracks.value,
-      playMode: component.playMode.value,
-      autoplay: component.autoplay.value
+      tracks: component.tracks,
+      playMode: component.playMode,
+      autoplay: component.autoplay
     }
   },
 

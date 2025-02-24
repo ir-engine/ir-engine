@@ -23,24 +23,25 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { BoxGeometry, Group, Mesh, MeshNormalMaterial } from 'three'
+import { BoxGeometry, Mesh, MeshNormalMaterial } from 'three'
 
 import { createEntity, getComponent, removeEntity, setComponent, UUIDComponent } from '@ir-engine/ecs'
 import { EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 
+import { EntityTreeComponent } from '@ir-engine/ecs'
+import { useEffect } from 'react'
 import { CameraComponent } from './camera/components/CameraComponent'
 import { NameComponent } from './common/NameComponent'
-import { EngineState } from './EngineState'
 import { InputComponent } from './input/components/InputComponent'
-import { addObjectToGroup } from './renderer/components/GroupComponent'
-import { setObjectLayers } from './renderer/components/ObjectLayerComponent'
+import { ReferenceSpaceState } from './ReferenceSpaceState'
+import { MeshComponent } from './renderer/components/MeshComponent'
+import { ObjectLayerMaskComponent } from './renderer/components/ObjectLayerComponent'
 import { SceneComponent } from './renderer/components/SceneComponents'
 import { VisibleComponent } from './renderer/components/VisibleComponent'
 import { ObjectLayers } from './renderer/constants/ObjectLayers'
 import { PerformanceManager } from './renderer/PerformanceState'
-import { initializeEngineRenderer, RendererComponent } from './renderer/WebGLRendererSystem'
-import { EntityTreeComponent } from './transform/components/EntityTree'
+import { RendererComponent } from './renderer/WebGLRendererSystem'
 import { TransformComponent } from './transform/components/TransformComponent'
 
 export const initializeSpatialViewer = (canvas?: HTMLCanvasElement) => {
@@ -59,31 +60,38 @@ export const initializeSpatialViewer = (canvas?: HTMLCanvasElement) => {
   camera.layers.enable(ObjectLayers.Avatar)
   camera.layers.enable(ObjectLayers.UI)
   camera.layers.enable(ObjectLayers.TransformGizmo)
+  camera.layers.enable(ObjectLayers.Gizmos)
   camera.layers.enable(ObjectLayers.UVOL)
 
-  const { originEntity, localFloorEntity } = getState(EngineState)
-
   if (canvas) {
-    setComponent(viewerEntity, RendererComponent, { canvas, scenes: [originEntity, localFloorEntity, viewerEntity] })
-    initializeEngineRenderer(viewerEntity)
+    setComponent(viewerEntity, RendererComponent, { canvas, scenes: [viewerEntity] })
     PerformanceManager.buildPerformanceState(getComponent(viewerEntity, RendererComponent))
   }
 
-  getMutableState(EngineState).merge({
+  getMutableState(ReferenceSpaceState).merge({
     viewerEntity
   })
 }
 
 export const destroySpatialViewer = () => {
-  const { viewerEntity } = getState(EngineState)
+  const { viewerEntity } = getState(ReferenceSpaceState)
 
   if (viewerEntity) {
     removeEntity(viewerEntity)
   }
 
-  getMutableState(EngineState).merge({
+  getMutableState(ReferenceSpaceState).merge({
     viewerEntity: UndefinedEntity
   })
+}
+
+export const useSpatialEngine = () => {
+  useEffect(() => {
+    initializeSpatialEngine()
+    return () => {
+      destroySpatialEngine()
+    }
+  }, [])
 }
 
 export const initializeSpatialEngine = () => {
@@ -100,22 +108,19 @@ export const initializeSpatialEngine = () => {
   setComponent(localFloorEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
   setComponent(localFloorEntity, TransformComponent)
   setComponent(localFloorEntity, VisibleComponent, true)
-  setComponent(localFloorEntity, SceneComponent)
-  const origin = new Group()
-  addObjectToGroup(localFloorEntity, origin)
+  setComponent(localFloorEntity, SceneComponent, { active: true })
   const floorHelperMesh = new Mesh(new BoxGeometry(0.1, 0.1, 0.1), new MeshNormalMaterial())
-  setObjectLayers(floorHelperMesh, ObjectLayers.Gizmos)
-  floorHelperMesh.frustumCulled = false
-  origin.add(floorHelperMesh)
+  ObjectLayerMaskComponent.setLayer(localFloorEntity, ObjectLayers.Gizmos)
+  setComponent(localFloorEntity, MeshComponent, floorHelperMesh)
 
-  getMutableState(EngineState).merge({
+  getMutableState(ReferenceSpaceState).merge({
     originEntity,
     localFloorEntity
   })
 }
 
 export const destroySpatialEngine = () => {
-  const { originEntity, localFloorEntity, viewerEntity } = getState(EngineState)
+  const { originEntity, localFloorEntity } = getState(ReferenceSpaceState)
 
   if (localFloorEntity) {
     removeEntity(localFloorEntity)
@@ -124,7 +129,7 @@ export const destroySpatialEngine = () => {
     removeEntity(originEntity)
   }
 
-  getMutableState(EngineState).merge({
+  getMutableState(ReferenceSpaceState).merge({
     originEntity: UndefinedEntity,
     localFloorEntity: UndefinedEntity
   })

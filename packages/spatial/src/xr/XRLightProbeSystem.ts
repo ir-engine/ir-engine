@@ -26,16 +26,16 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Color, CubeTexture, LightProbe, Vector3, WebGLCubeRenderTarget } from 'three'
 
-import { Engine } from '@ir-engine/ecs'
-import { getComponent, getMutableComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Engine, createEntity } from '@ir-engine/ecs'
+import { getComponent, getMutableComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 
 import { Vector3_Zero } from '../common/constants/MathConstants'
 import { RendererComponent } from '../renderer/WebGLRendererSystem'
-import { addObjectToGroup } from '../renderer/components/GroupComponent'
+import { ObjectComponent } from '../renderer/components/ObjectComponent'
+import { EnvironmentMapComponent } from '../renderer/components/SceneComponents'
 import { setVisibleComponent } from '../renderer/components/VisibleComponent'
 import { DirectionalLightComponent } from '../renderer/components/lights/DirectionalLightComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -196,7 +196,7 @@ const reactor = () => {
       cameraFar: 2000,
       castShadow: true
     })
-    addObjectToGroup(directionalLightEntity, getState(XRLightProbeState).lightProbe)
+    setComponent(directionalLightEntity, ObjectComponent, getState(XRLightProbeState).lightProbe)
     setVisibleComponent(directionalLightEntity, true)
 
     xrLightProbeState.directionalLightEntity.set(directionalLightEntity)
@@ -238,6 +238,14 @@ const reactor = () => {
       })
     }
   }, [xrLightProbeState.probe])
+
+  useEffect(() => {
+    if (!xrLightProbeState.directionalLightEntity.value || !xrLightProbeState.environment.value) return
+    setComponent(xrLightProbeState.directionalLightEntity.value, EnvironmentMapComponent)
+    return () => {
+      removeComponent(xrLightProbeState.directionalLightEntity.value, EnvironmentMapComponent)
+    }
+  }, [xrLightProbeState.environment.value, xrLightProbeState.directionalLightEntity.value])
 
   return null
 }

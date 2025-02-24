@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Vector2 } from 'three'
-
 import {
   defineComponent,
   defineQuery,
@@ -35,7 +33,9 @@ import {
   useEntityContext,
   useQuery
 } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { defineState, getState, OpaqueType, useImmediateEffect } from '@ir-engine/hyperflux'
+import { T } from '../../schema/schemaFunctions'
 
 /**
  * @description
@@ -64,20 +64,13 @@ export const InputPointerState = defineState({
 export const InputPointerComponent = defineComponent({
   name: 'InputPointerComponent',
 
-  onInit: () => {
-    return {
-      pointerId: -1 as number,
-      position: new Vector2(),
-      lastPosition: new Vector2(),
-      movement: new Vector2(),
-      cameraEntity: UndefinedEntity
-    }
-  },
-
-  onSet(entity, component, json: { pointerId: number; cameraEntity: Entity }) {
-    if (typeof json.pointerId === 'number') component.pointerId.set(json.pointerId)
-    if (typeof json.cameraEntity === 'number') component.cameraEntity.set(json.cameraEntity)
-  },
+  schema: S.Object({
+    pointerId: S.Number(-1),
+    position: T.Vec2(),
+    lastPosition: T.Vec2(),
+    movement: T.Vec2(),
+    cameraEntity: S.Entity()
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
@@ -103,7 +96,7 @@ export const InputPointerComponent = defineComponent({
 
   usePointersForCamera(cameraEntity: Entity) {
     const pointers = useQuery([InputPointerComponent])
-    return pointers.filter((entity) => getComponent(entity, InputPointerComponent).cameraEntity === cameraEntity)
+    return pointers.filter((entity) => getComponent(entity, InputPointerComponent)?.cameraEntity === cameraEntity)
   },
 
   getPointerByID(cameraEntity: Entity, pointerId: number) {

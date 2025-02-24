@@ -1,4 +1,5 @@
 #!/bin/bash
+test -f ../.env.local && . ../.env.local
 
 if which docker > /dev/null 2>&1
 then
@@ -16,9 +17,15 @@ then
 
     export COMPOSE_IGNORE_ORPHANS=true
 
-    eval "$command_to_execute up -d"
-    if [[ -z "${IS_LOCAL_FS}" || "${IS_LOCAL_FS}" == 'false' ]]; then
+    eval "$command_to_execute -f docker-compose-core.yml up -d"
+    if [[ -z "${DC_minio}" || "${DC_minio}" == 'true' ]]; then
         eval "$command_to_execute -f docker-compose-minio.yml up -d"
+    fi
+    if [[ -z "${DC_test}" || "${DC_test}" == 'true' ]]; then
+        eval "$command_to_execute -f docker-compose-test.yml up -d"
+    fi
+    if [[ -z "${DC_minikube}" || "${DC_minikube}" == 'true' ]]; then
+        eval "$command_to_execute -f docker-compose-minikube.yml up -d"
     fi
 else
     echo "❌ Please install docker..."

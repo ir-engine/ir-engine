@@ -23,10 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, UndefinedEntity, getComponent, useOptionalComponent, useQuery } from '@ir-engine/ecs'
+import {
+  Entity,
+  EntityTreeComponent,
+  UndefinedEntity,
+  getComponent,
+  useOptionalComponent,
+  useQuery
+} from '@ir-engine/ecs'
 import { startReactor, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import React, { useLayoutEffect } from 'react'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { RendererComponent } from '../WebGLRendererSystem'
 
 /**
@@ -43,14 +49,15 @@ export function useRendererEntity(entity: Entity) {
       const tree = useOptionalComponent(props.entity, EntityTreeComponent)
       const renderers = useQuery([RendererComponent])
       const matchesQuery = renderers.find((r) => getComponent(r, RendererComponent).scenes.includes(props.entity))
+      const hasRenderer = !!useOptionalComponent(matchesQuery ?? UndefinedEntity, RendererComponent)?.renderer
 
       useLayoutEffect(() => {
-        if (!matchesQuery) return
+        if (!matchesQuery || !hasRenderer) return
         result.set(matchesQuery)
         return () => {
           if (!unmounted) result.set(UndefinedEntity)
         }
-      }, [tree?.parentEntity?.value, matchesQuery])
+      }, [tree?.parentEntity?.value, matchesQuery, hasRenderer])
 
       if (matchesQuery) return null
 

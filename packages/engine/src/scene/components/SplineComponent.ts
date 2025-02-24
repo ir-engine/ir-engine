@@ -26,57 +26,44 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { CatmullRomCurve3, Quaternion, Vector3 } from 'three'
 
+import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, removeComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { SplineHelperComponent } from './debug/SplineHelperComponent'
 
 export const SplineComponent = defineComponent({
   name: 'SplineComponent',
   jsonID: 'EE_spline',
 
-  onInit: (entity) => {
-    return {
-      elements: [
-        { position: new Vector3(-1, 0, -1), quaternion: new Quaternion() },
+  schema: S.Object({
+    elements: S.Array(
+      S.Object({
+        position: T.Vec3(),
+        rotation: T.Quaternion()
+      }),
+      () => [
+        { position: new Vector3(-1, 0, -1), rotation: new Quaternion() },
         {
           position: new Vector3(1, 0, -1),
-          quaternion: new Quaternion().setFromAxisAngle(Vector3_Up, Math.PI / 2)
+          rotation: new Quaternion().setFromAxisAngle(Vector3_Up, Math.PI / 2)
         },
         {
           position: new Vector3(1, 0, 1),
-          quaternion: new Quaternion().setFromAxisAngle(Vector3_Up, Math.PI)
+          rotation: new Quaternion().setFromAxisAngle(Vector3_Up, Math.PI)
         },
         {
           position: new Vector3(-1, 0, 1),
-          quaternion: new Quaternion().setFromAxisAngle(Vector3_Up, (3 * Math.PI) / 2)
+          rotation: new Quaternion().setFromAxisAngle(Vector3_Up, (3 * Math.PI) / 2)
         }
-      ] as Array<{
-        position: Vector3
-        quaternion: Quaternion
-      }>,
-      // internal
-      curve: new CatmullRomCurve3([], true)
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    json.elements &&
-      component.elements.set(
-        json.elements.map((e) => ({
-          position: new Vector3().copy(e.position),
-          quaternion: new Quaternion().copy(e.quaternion)
-        }))
-      )
-  },
-
-  toJSON: (entity, component) => {
-    return { elements: component.elements.get({ noproxy: true }) }
-  },
+      ]
+    ),
+    curve: S.NonSerialized(S.Class(() => new CatmullRomCurve3([], true)))
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
@@ -99,7 +86,7 @@ export const SplineComponent = defineComponent({
     }, [
       elements.length,
       // force a unique dep change upon any position or quaternion change
-      elements.value.map((e) => `${JSON.stringify(e.position)}${JSON.stringify(e.quaternion)})`).join('')
+      elements.value.map((e) => `${JSON.stringify(e.position)}${JSON.stringify(e.rotation)})`).join('')
     ])
 
     useEffect(() => {

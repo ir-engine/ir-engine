@@ -22,13 +22,14 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import '../../..'
 
 import { RigidBodyType, ShapeType, TempContactForceEvent, Vector, World } from '@dimforge/rapier3d-compat'
 import assert from 'assert'
 import sinon from 'sinon'
-import { BoxGeometry, Mesh, Quaternion, Vector3 } from 'three'
+import { BoxGeometry, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
+import { createEntity } from '@ir-engine/ecs'
 import {
   getComponent,
   getMutableComponent,
@@ -37,12 +38,10 @@ import {
   removeComponent,
   setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
+import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { getState } from '@ir-engine/hyperflux'
 
-import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { ObjectDirection, Vector3_Zero } from '../../common/constants/MathConstants'
+import { ObjectDirection, Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { ColliderComponent } from '../components/ColliderComponent'
@@ -56,13 +55,25 @@ import { TriggerComponent } from '../components/TriggerComponent'
 import { AllCollisionMask, CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 
-import { Entity, EntityUUID, SystemDefinitions, UUIDComponent, UndefinedEntity, removeEntity } from '@ir-engine/ecs'
+import {
+  Entity,
+  EntityTreeComponent,
+  SystemDefinitions,
+  UUIDComponent,
+  UndefinedEntity,
+  removeEntity
+} from '@ir-engine/ecs'
+import { NetworkObjectComponent } from '@ir-engine/network'
 import { act, render } from '@testing-library/react'
 import React from 'react'
+import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js'
+import { Epsilon, assertFloat, assertVec } from '../../../tests/util/assert'
+import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
 import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
-import { PhysicsSystem } from '../PhysicsModule'
+import '../../transform/TransformModule'
+import '../PhysicsModule'
+import { PhysicsSystem } from '../systems/PhysicsSystem'
 import {
   BodyTypes,
   ColliderDescOptions,
@@ -72,60 +83,6 @@ import {
   Shapes
 } from '../types/PhysicsTypes'
 import { Physics, PhysicsWorld, RapierWorldState } from './Physics'
-
-const Rotation_Zero = { x: 0, y: 0, z: 0, w: 1 }
-
-const Epsilon = 0.001
-function floatApproxEq(A: number, B: number, epsilon = Epsilon): boolean {
-  return Math.abs(A - B) < epsilon
-}
-export function assertFloatApproxEq(A: number, B: number, epsilon = Epsilon) {
-  assert.ok(floatApproxEq(A, B, epsilon), `Numbers are not approximately equal:  ${A} : ${B} : ${A - B}`)
-}
-
-export function assertFloatApproxNotEq(A: number, B: number, epsilon = Epsilon) {
-  assert.ok(!floatApproxEq(A, B, epsilon), `Numbers are approximately equal:  ${A} : ${B} : ${A - B}`)
-}
-
-export function assertVecApproxEq(A, B, elems: number, epsilon = Epsilon) {
-  // @note Also used by RigidBodyComponent.test.ts
-  assertFloatApproxEq(A.x, B.x, epsilon)
-  assertFloatApproxEq(A.y, B.y, epsilon)
-  assertFloatApproxEq(A.z, B.z, epsilon)
-  if (elems > 3) assertFloatApproxEq(A.w, B.w, epsilon)
-}
-
-/**
- * @description
- * Triggers an assert if one or many of the (x,y,z,w) members of `@param A` is not equal to `@param B`.
- * Does nothing for members that are equal */
-export function assertVecAnyApproxNotEq(A, B, elems: number, epsilon = Epsilon) {
-  // @note Also used by PhysicsSystem.test.ts
-  !floatApproxEq(A.x, B.x, epsilon) && assertFloatApproxNotEq(A.x, B.x, epsilon)
-  !floatApproxEq(A.y, B.y, epsilon) && assertFloatApproxNotEq(A.y, B.y, epsilon)
-  !floatApproxEq(A.z, B.z, epsilon) && assertFloatApproxNotEq(A.z, B.z, epsilon)
-  if (elems > 3) !floatApproxEq(A.w, B.w, epsilon) && assertFloatApproxEq(A.w, B.w, epsilon)
-}
-
-export function assertVecAllApproxNotEq(A, B, elems: number, epsilon = Epsilon) {
-  // @note Also used by RigidBodyComponent.test.ts
-  assertFloatApproxNotEq(A.x, B.x, epsilon)
-  assertFloatApproxNotEq(A.y, B.y, epsilon)
-  assertFloatApproxNotEq(A.z, B.z, epsilon)
-  if (elems > 3) assertFloatApproxNotEq(A.w, B.w, epsilon)
-}
-
-export function assertMatrixApproxEq(A, B, epsilon = Epsilon) {
-  for (let id = 0; id < 16; ++id) {
-    assertFloatApproxEq(A.elements[id], B.elements[id], epsilon)
-  }
-}
-
-export function assertMatrixAllApproxNotEq(A, B, epsilon = Epsilon) {
-  for (let id = 0; id < 16; ++id) {
-    assertFloatApproxNotEq(A.elements[id], B.elements[id], epsilon)
-  }
-}
 
 export const boxDynamicConfig = {
   shapeType: ShapeType.Cuboid,
@@ -151,7 +108,7 @@ describe('Physics : External API', () => {
     setComponent(physicsWorldEntity, SceneComponent)
     setComponent(physicsWorldEntity, TransformComponent)
     setComponent(physicsWorldEntity, EntityTreeComponent)
-    physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+    physicsWorld = Physics.createWorld(physicsWorldEntity)
     physicsWorld.timestep = 1 / 60
   })
 
@@ -281,12 +238,12 @@ describe('Physics : External API', () => {
       collisionLayer: CollisionGroups.Default,
       collisionMask: AllCollisionMask
     })
+    setComponent(entity2, TriggerComponent)
     setComponent(entity2, ColliderComponent, {
       shape: Shapes.Sphere,
       collisionLayer: CollisionGroups.Default,
       collisionMask: AllCollisionMask
     })
-    setComponent(entity2, TriggerComponent)
 
     await act(() => rerender(<></>))
 
@@ -342,22 +299,290 @@ describe('Physics : Rapier->ECS API', () => {
     })
 
     it('should create a world object with the default gravity when not specified', () => {
-      const world = Physics.createWorld('world' as EntityUUID)
-      assert(getState(RapierWorldState)['world'])
+      const entity = createEntity()
+      const world = Physics.createWorld(entity)
+      assert(getState(RapierWorldState)[entity])
       assert.ok(world instanceof World, 'The create world has an incorrect type.')
       const Expected = new Vector3(0.0, -9.81, 0.0)
-      assertVecApproxEq(world.gravity, Expected, 3)
-      Physics.destroyWorld('world' as EntityUUID)
-      assert(!getState(RapierWorldState)['world'])
+      assertVec.approxEq(world.gravity, Expected, 3)
+      Physics.destroyWorld(entity)
+      assert(!getState(RapierWorldState)[entity])
     })
 
     it('should create a world object with a different gravity value when specified', () => {
+      const entity = createEntity()
       const expected = { x: 0.0, y: -5.0, z: 0.0 }
-      const world = Physics.createWorld('world' as EntityUUID, { gravity: expected, substeps: 2 })
-      assertVecApproxEq(world.gravity, expected, 3)
+      const world = Physics.createWorld(entity, { gravity: expected, substeps: 2 })
+      assertVec.approxEq(world.gravity, expected, 3)
       assert.equal(world.substeps, 2)
+      Physics.destroyWorld(entity)
     })
-  })
+  }) //:: createWorld
+
+  describe('smoothKinematicBody', () => {
+    // Epsilon Constants for Interpolation
+    const LerpEpsilon = 0.000001
+    /** @note three.js Quat.slerp fails tests at 6 significant figures, but passes at 5 */
+    const SLerpEpsilon = 0.00001
+
+    const Quaternion_Zero = new Quaternion(0, 0, 0, 1).normalize()
+
+    /** @description Pair of `deltaTime` and `substep` values that will be used during an interpolation test */
+    type Step = { dt: number; substep: number }
+    /** @description Creates a Step object. @note Just a clarity/readability alias */
+    function createStep(dt: number, substep: number): Step {
+      return { dt, substep }
+    }
+
+    const DeltaTime = 1 / 60
+    const Start = {
+      position: new Vector3(1, 2, 3),
+      rotation: new Quaternion(0.5, 0.3, 0.2, 0.0).normalize()
+    }
+    const Final = {
+      position: new Vector3(4, 5, 6),
+      rotation: new Quaternion(0.0, 0.2, 0.8, 0.0).normalize()
+    }
+
+    /** @description List of steps that will be tested against for both the linear and smoooth interpolation tests */
+    const Step = {
+      Tenth: createStep(DeltaTime, 0.1),
+      Quarter: createStep(DeltaTime, 0.25),
+      Half: createStep(DeltaTime, 0.5),
+      One: createStep(DeltaTime, 1),
+      Two: createStep(DeltaTime, 2)
+    }
+
+    /** @description {@link Step} list, in array form */
+    const Steps = [Step.Tenth, Step.Quarter, Step.Half, Step.One, Step.Two]
+
+    /** @description List of non-zero values that {@link RigidbodyComponent.targetKinematicLerpMultiplier} will be set to during the gradual smoothing tests */
+    const KinematicMultiplierCases = [0.5, 0.25, 0.1, 0.01, 0.001, 0.0001, 2, 3, 4, 5]
+
+    /**
+     *  @section Initialize/Terminate the engine, entities and physics
+     */
+    let testEntity = UndefinedEntity
+    let physicsWorld: PhysicsWorld
+    let physicsWorldEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      await Physics.load()
+      physicsWorldEntity = createEntity()
+      setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
+      setComponent(physicsWorldEntity, SceneComponent)
+      setComponent(physicsWorldEntity, TransformComponent)
+      setComponent(physicsWorldEntity, EntityTreeComponent)
+      physicsWorld = Physics.createWorld(physicsWorldEntity)
+
+      testEntity = createEntity()
+      setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
+      setComponent(testEntity, TransformComponent)
+      setComponent(testEntity, RigidBodyComponent)
+      // Set the Start..Final values for interpolation
+      const body = getComponent(testEntity, RigidBodyComponent)
+      body.previousPosition.set(Start.position.x, Start.position.y, Start.position.z)
+      body.previousRotation.set(Start.rotation.x, Start.rotation.y, Start.rotation.z, Start.rotation.w)
+      body.targetKinematicPosition.set(Final.position.x, Final.position.y, Final.position.z)
+      body.targetKinematicRotation.set(Final.rotation.x, Final.rotation.y, Final.rotation.z, Final.rotation.w)
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    describe('when RigidbodyComponent.targetKinematicLerpMultiplier is set to 0 ...', () => {
+      /** @description Calculates the Deterministic Lerp value for the `@param entity`, as expected by the tests, based on the given {@link Step.substep} value  */
+      function computeLerp(entity: Entity, step: Step) {
+        const body = getComponent(entity, RigidBodyComponent)
+        const result = {
+          position: body.previousPosition.clone().lerp(body.targetKinematicPosition.clone(), step.substep).clone(),
+          rotation: body.previousRotation.clone().slerp(body.targetKinematicRotation.clone(), step.substep).clone()
+        }
+        return result
+      }
+      /** @description Set the {@link RigidBodyComponent.targetKinematicLerpMultiplier} to 0 for all of the linear interpolation tests */
+      beforeEach(() => {
+        getMutableComponent(testEntity, RigidBodyComponent).targetKinematicLerpMultiplier.set(0)
+      })
+
+      it('... should apply deterministic linear interpolation to the position of the KinematicBody of the given entity', () => {
+        // Check data before
+        const body = getComponent(testEntity, RigidBodyComponent)
+        const before = body.position.clone()
+        assertVec.approxEq(before, Vector3_Zero, 3, LerpEpsilon)
+
+        // Run and Check resulting data
+        Physics.smoothKinematicBody(physicsWorld, testEntity, Step.Quarter.dt, Step.Quarter.substep)
+        const after = body.position.clone()
+        assertVec.allApproxNotEq(before, after, 3, LerpEpsilon)
+        assertVec.approxEq(after, computeLerp(testEntity, Step.Quarter).position, 3, LerpEpsilon)
+        // Check the other Step cases
+        getComponent(testEntity, RigidBodyComponent).position.set(0, 0, 0) // reset for next case
+        Physics.smoothKinematicBody(physicsWorld, testEntity, Step.Tenth.dt, Step.Tenth.substep)
+        assertVec.approxEq(body.position.clone(), computeLerp(testEntity, Step.Tenth).position, 3, LerpEpsilon)
+        getComponent(testEntity, RigidBodyComponent).position.set(0, 0, 0) // reset for next case
+        Physics.smoothKinematicBody(physicsWorld, testEntity, Step.Half.dt, Step.Half.substep)
+        assertVec.approxEq(body.position.clone(), computeLerp(testEntity, Step.Half).position, 3, LerpEpsilon)
+        getComponent(testEntity, RigidBodyComponent).position.set(0, 0, 0) // reset for next case
+        Physics.smoothKinematicBody(physicsWorld, testEntity, Step.One.dt, Step.One.substep)
+        assertVec.approxEq(body.position.clone(), computeLerp(testEntity, Step.One).position, 3, LerpEpsilon)
+        getComponent(testEntity, RigidBodyComponent).position.set(0, 0, 0) // reset for next case
+        Physics.smoothKinematicBody(physicsWorld, testEntity, Step.Two.dt, Step.Two.substep)
+        assertVec.approxEq(body.position.clone(), computeLerp(testEntity, Step.Two).position, 3, LerpEpsilon)
+        // Check substep precision Step cases
+        const TestCount = 1_000_000
+        for (let divider = 1; divider <= TestCount; divider += 1_000) {
+          const step = createStep(DeltaTime, 1 / divider)
+          getComponent(testEntity, RigidBodyComponent).position.set(0, 0, 0) // reset for next case
+          Physics.smoothKinematicBody(physicsWorld, testEntity, step.dt, step.substep)
+          assertVec.approxEq(body.position.clone(), computeLerp(testEntity, step).position, 3, LerpEpsilon)
+        }
+      })
+
+      it('... should apply deterministic spherical linear interpolation to the rotation of the KinematicBody of the given entity', () => {
+        // Check data before
+        const body = getComponent(testEntity, RigidBodyComponent)
+        const before = body.rotation.clone()
+        assertVec.approxEq(before, new Quaternion(0, 0, 0, 1), 3, SLerpEpsilon)
+
+        // Run and Check resulting data
+        Physics.smoothKinematicBody(physicsWorld, testEntity, Step.Quarter.dt, Step.Quarter.substep)
+        const after = body.rotation.clone()
+        assertVec.allApproxNotEq(before, after, 4, SLerpEpsilon)
+        assertVec.approxEq(after, computeLerp(testEntity, Step.Quarter).rotation, 4, SLerpEpsilon)
+        // Check the other Step cases
+        getComponent(testEntity, RigidBodyComponent).rotation.set(0, 0, 0, 1) // reset for next case
+        Physics.smoothKinematicBody(physicsWorld, testEntity, Step.Tenth.dt, Step.Tenth.substep)
+        assertVec.approxEq(body.rotation.clone(), computeLerp(testEntity, Step.Tenth).rotation, 4, SLerpEpsilon)
+        getComponent(testEntity, RigidBodyComponent).rotation.set(0, 0, 0, 1) // reset for next case
+        Physics.smoothKinematicBody(physicsWorld, testEntity, Step.Half.dt, Step.Half.substep)
+        assertVec.approxEq(body.rotation.clone(), computeLerp(testEntity, Step.Half).rotation, 4, SLerpEpsilon)
+        getComponent(testEntity, RigidBodyComponent).rotation.set(0, 0, 0, 1) // reset for next case
+        Physics.smoothKinematicBody(physicsWorld, testEntity, Step.One.dt, Step.One.substep)
+        assertVec.approxEq(body.rotation.clone(), computeLerp(testEntity, Step.One).rotation, 4, SLerpEpsilon)
+        getComponent(testEntity, RigidBodyComponent).rotation.set(0, 0, 0, 1) // reset for next case
+        Physics.smoothKinematicBody(physicsWorld, testEntity, Step.Two.dt, Step.Two.substep)
+        assertVec.approxEq(body.rotation.clone(), computeLerp(testEntity, Step.Two).rotation, 4, SLerpEpsilon)
+        // Check substep precision Step cases
+        const TestCount = 1_000_000
+        for (let divider = 1; divider <= TestCount; divider += 1_000) {
+          const step = createStep(DeltaTime, 1 / divider)
+          getComponent(testEntity, RigidBodyComponent).rotation.set(0, 0, 0, 1) // reset for next case
+          Physics.smoothKinematicBody(physicsWorld, testEntity, step.dt, step.substep)
+          assertVec.approxEq(body.rotation.clone(), computeLerp(testEntity, step).rotation, 4, SLerpEpsilon)
+        }
+      })
+    })
+
+    describe('when RigidbodyComponent.targetKinematicLerpMultiplier is set to a value other than 0 ...', () => {
+      type LerpData = {
+        position: { start: Vector3; final: Vector3 }
+        rotation: { start: Quaternion; final: Quaternion }
+      }
+
+      /**
+       *  @description Sets the entity's {@link RigidBodyComponent.targetKinematicLerpMultiplier} property to `@param mult`
+       *  @returns The `@param mult` itself  */
+      function setMultiplier(entity: Entity, mult: number): number {
+        getMutableComponent(entity, RigidBodyComponent).targetKinematicLerpMultiplier.set(mult)
+        return mult
+      }
+      /**
+       *  @description Sets the entity's {@link RigidBodyComponent.targetKinematicLerpMultiplier} property to `@param mult` and calculates its smooth lerp alpha
+       *  @returns The exponentially smootheed Lerp Alpha value to use as `dt` in {@link smoothKinematicBody}  */
+      function getAlphaWithMultiplier(entity: Entity, dt: number, mult: number): number {
+        return smootheLerpAlpha(setMultiplier(entity, mult), dt)
+      }
+
+      /** @description Computes the lerp of the (`@param start`,`@param final`) input Vectors without mutating their values */
+      function lerpNoRef(start: Vector3, final: Vector3, dt: number) {
+        return start.clone().lerp(final.clone(), dt).clone()
+      }
+      /** @description Computes the fastSlerp of the (`@param start`,`@param final`) input Quaternions without mutating their values */
+      function fastSlerpNoRef(start: Quaternion, final: Quaternion, dt: number) {
+        return start.clone().fastSlerp(final.clone(), dt).clone()
+      }
+
+      /** @description Calculates the Exponential Lerp value for the `@param data`, as expected by the tests, based on the given `@param dt` alpha value  */
+      function computeELerp(data: LerpData, alpha: number) {
+        return {
+          position: lerpNoRef(data.position.start, data.position.final, alpha),
+          rotation: fastSlerpNoRef(data.rotation.start, data.rotation.final, alpha)
+        }
+      }
+
+      it('... should apply gradual smoothing (aka exponential interpolation) to the position of the KinematicBody of the given entity', () => {
+        // Check data before
+        const body = getComponent(testEntity, RigidBodyComponent)
+        const before = body.position.clone()
+        assertVec.approxEq(before, Vector3_Zero, 3, LerpEpsilon)
+
+        // Run and Check resulting data
+        // ... Infinite smoothing case
+        const MultInfinite = 1 // Multiplier 1 shouldn't change the position (aka. infinite smoothing)
+        setMultiplier(testEntity, MultInfinite)
+        Physics.smoothKinematicBody(physicsWorld, testEntity, DeltaTime, /*substep*/ 1)
+        assertVec.approxEq(before, body.position, 3, LerpEpsilon)
+
+        // ... Hardcoded case
+        setMultiplier(testEntity, 0.12345)
+        Physics.smoothKinematicBody(physicsWorld, testEntity, 1 / 60, 1)
+        const ExpectedHardcoded = { x: 0.1370581001805662, y: 0.17132262522570774, z: 0.20558715027084928 }
+        assertVec.approxEq(body.position.clone(), ExpectedHardcoded, 3)
+
+        // ... Check the other Step cases
+        for (const multiplier of KinematicMultiplierCases) {
+          for (const step of Steps) {
+            getComponent(testEntity, RigidBodyComponent).position.set(0, 0, 0) // reset for next case
+            const alpha = getAlphaWithMultiplier(testEntity, step.dt, multiplier)
+            const before = {
+              position: { start: body.position.clone(), final: body.targetKinematicPosition.clone() },
+              rotation: { start: body.rotation.clone(), final: body.targetKinematicRotation.clone() }
+            }
+            Physics.smoothKinematicBody(physicsWorld, testEntity, step.dt, step.substep)
+            assertVec.approxEq(body.position, computeELerp(before, alpha).position, 3, LerpEpsilon)
+          }
+        }
+      })
+
+      it('... should apply gradual smoothing (aka exponential interpolation) to the rotation of the KinematicBody of the given entity', () => {
+        // Check data before
+        const body = getComponent(testEntity, RigidBodyComponent)
+        const before = body.rotation.clone()
+        assertVec.approxEq(before, Quaternion_Zero, 4, SLerpEpsilon)
+
+        // Run and Check resulting data
+        // ... Infinite smoothing case
+        const MultInfinite = 1 // Multiplier 1 shouldn't change the rotation (aka. infinite smoothing)
+        setMultiplier(testEntity, MultInfinite)
+        Physics.smoothKinematicBody(physicsWorld, testEntity, DeltaTime, /*substep*/ 1)
+        assertVec.approxEq(before, body.rotation, 3, SLerpEpsilon)
+
+        // ... Hardcoded case
+        setMultiplier(testEntity, 0.12345)
+        Physics.smoothKinematicBody(physicsWorld, testEntity, 1 / 60, 1)
+        const ExpectedHardcoded = new Quaternion(0, 0.013047535062645674, 0.052190140250582696, 0.9985524073985961)
+        assertVec.approxEq(body.rotation.clone(), ExpectedHardcoded, 4)
+
+        // ... Check the other Step cases
+        for (const multiplier of KinematicMultiplierCases) {
+          for (const step of Steps) {
+            getComponent(testEntity, RigidBodyComponent).rotation.set(0, 0, 0, 1) // reset for next case
+            const alpha = getAlphaWithMultiplier(testEntity, step.dt, multiplier)
+            const before = {
+              position: { start: body.position.clone(), final: body.targetKinematicPosition.clone() },
+              rotation: { start: body.rotation.clone(), final: body.targetKinematicRotation.clone() }
+            } as LerpData
+            Physics.smoothKinematicBody(physicsWorld, testEntity, step.dt, step.substep)
+            assertVec.approxEq(body.rotation, computeELerp(before, alpha).rotation, 3, SLerpEpsilon)
+          }
+        }
+      })
+    })
+  }) //:: smoothKinematicBody
 
   describe('Rigidbodies', () => {
     describe('createRigidBody', () => {
@@ -374,7 +599,7 @@ describe('Physics : Rapier->ECS API', () => {
         await Physics.load()
         physicsWorldEntity = createEntity()
         setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
-        physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+        physicsWorld = Physics.createWorld(physicsWorldEntity)
         setComponent(physicsWorldEntity, SceneComponent)
         setComponent(physicsWorldEntity, TransformComponent)
         setComponent(physicsWorldEntity, EntityTreeComponent)
@@ -401,7 +626,7 @@ describe('Physics : Rapier->ECS API', () => {
 
       it("shouldn't mark the entity transform as dirty", () => {
         Physics.createRigidBody(physicsWorld, testEntity)
-        assert.ok(TransformComponent.dirtyTransforms[testEntity] == false)
+        assert.ok(TransformComponent.dirty[testEntity] === 0)
       })
 
       it('should assign the correct RigidBodyType enum', () => {
@@ -413,31 +638,31 @@ describe('Physics : Rapier->ECS API', () => {
       it("should assign the entity's position to the rigidBody.translation property", () => {
         Physics.createRigidBody(physicsWorld, testEntity)
         const body = physicsWorld.Rigidbodies.get(testEntity)!
-        assertVecApproxEq(body.translation(), position, 3)
+        assertVec.approxEq(body.translation(), position, 3)
       })
 
       it("should assign the entity's rotation to the rigidBody.rotation property", () => {
         Physics.createRigidBody(physicsWorld, testEntity)
         const body = physicsWorld.Rigidbodies.get(testEntity)!
-        assertVecApproxEq(body!.rotation(), rotation, 4)
+        assertVec.approxEq(body!.rotation(), rotation, 4)
       })
 
       it('should create a body with no Linear Velocity', () => {
         Physics.createRigidBody(physicsWorld, testEntity)
         const body = physicsWorld.Rigidbodies.get(testEntity)!
-        assertVecApproxEq(body.linvel(), Vector3_Zero, 3)
+        assertVec.approxEq(body.linvel(), Vector3_Zero, 3)
       })
 
       it('should create a body with no Angular Velocity', () => {
         Physics.createRigidBody(physicsWorld, testEntity)
         const body = physicsWorld.Rigidbodies.get(testEntity)!
-        assertVecApproxEq(body.angvel(), Vector3_Zero, 3)
+        assertVec.approxEq(body.angvel(), Vector3_Zero, 3)
       })
 
-      it("should store the entity in the body's userData property", () => {
+      it('should store the entity in the body', () => {
         Physics.createRigidBody(physicsWorld, testEntity)
         const body = physicsWorld.Rigidbodies.get(testEntity)!
-        assert.deepEqual(body.userData, { entity: testEntity })
+        assert.deepEqual(body.entity, testEntity)
       })
     })
 
@@ -450,7 +675,7 @@ describe('Physics : Rapier->ECS API', () => {
         await Physics.load()
         const entity = createEntity()
         setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -491,7 +716,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -523,6 +748,44 @@ describe('Physics : Rapier->ECS API', () => {
       })
     })
 
+    describe('wakeUp', () => {
+      let testEntity = UndefinedEntity
+      let physicsWorld: PhysicsWorld
+
+      beforeEach(async () => {
+        createEngine()
+        await Physics.load()
+        const entity = createEntity()
+        setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+        setComponent(entity, SceneComponent)
+        setComponent(entity, TransformComponent)
+        setComponent(entity, EntityTreeComponent)
+        physicsWorld = Physics.createWorld(entity)
+        physicsWorld!.timestep = 1 / 60
+
+        // Create the entity
+        testEntity = createEntity()
+        setComponent(testEntity, EntityTreeComponent, { parentEntity: entity })
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
+        RigidBodyComponent.reactorMap.get(testEntity)!.stop()
+        Physics.createRigidBody(physicsWorld, testEntity)
+      })
+
+      afterEach(() => {
+        removeEntity(testEntity)
+        return destroyEngine()
+      })
+
+      it('should wake up the body', () => {
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
+        body.sleep()
+        assert.equal(body.isSleeping(), true)
+        Physics.wakeUp(physicsWorld, testEntity)
+        assert.equal(body.isSleeping(), false)
+      })
+    })
+
     describe('setRigidBodyType', () => {
       let testEntity = UndefinedEntity
       let physicsWorld: PhysicsWorld
@@ -535,7 +798,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -593,7 +856,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -613,25 +876,25 @@ describe('Physics : Rapier->ECS API', () => {
       it("should set the body's Translation to the given Position", () => {
         Physics.setRigidbodyPose(physicsWorld, testEntity, position, rotation, linVel, angVel)
         const body = physicsWorld.Rigidbodies.get(testEntity)!
-        assertVecApproxEq(body.translation(), position, 3)
+        assertVec.approxEq(body.translation(), position, 3)
       })
 
       it("should set the body's Rotation to the given value", () => {
         Physics.setRigidbodyPose(physicsWorld, testEntity, position, rotation, linVel, angVel)
         const body = physicsWorld.Rigidbodies.get(testEntity)!
-        assertVecApproxEq(body.rotation(), rotation, 4)
+        assertVec.approxEq(body.rotation(), rotation, 4)
       })
 
       it("should set the body's Linear Velocity to the given value", () => {
         Physics.setRigidbodyPose(physicsWorld, testEntity, position, rotation, linVel, angVel)
         const body = physicsWorld.Rigidbodies.get(testEntity)!
-        assertVecApproxEq(body.linvel(), linVel, 3)
+        assertVec.approxEq(body.linvel(), linVel, 3)
       })
 
       it("should set the body's Angular Velocity to the given value", () => {
         Physics.setRigidbodyPose(physicsWorld, testEntity, position, rotation, linVel, angVel)
         const body = physicsWorld.Rigidbodies.get(testEntity)!
-        assertVecApproxEq(body.angvel(), angVel, 3)
+        assertVec.approxEq(body.angvel(), angVel, 3)
       })
     })
 
@@ -647,7 +910,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -692,7 +955,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -715,13 +978,13 @@ describe('Physics : Rapier->ECS API', () => {
         const beforeBody = physicsWorld.Rigidbodies.get(testEntity)
         assert.ok(beforeBody)
         const before = beforeBody.linvel()
-        assertVecApproxEq(before, Vector3_Zero, 3)
+        assertVec.approxEq(before, Vector3_Zero, 3)
         Physics.applyImpulse(physicsWorld, testEntity, testImpulse)
         physicsSystemExecute()
         const afterBody = physicsWorld.Rigidbodies.get(testEntity)
         assert.ok(afterBody)
         const after = afterBody.linvel()
-        assertVecAllApproxNotEq(after, before, 3)
+        assertVec.allApproxNotEq(after, before, 3)
       })
     })
 
@@ -737,7 +1000,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -757,16 +1020,16 @@ describe('Physics : Rapier->ECS API', () => {
         const impulse = new Vector3(1, 2, 3)
         const body = physicsWorld.Rigidbodies.get(testEntity)!
         const before = { x: body.angvel().x, y: body.angvel().y, z: body.angvel().z }
-        assertVecApproxEq(before, Vector3_Zero, 3)
+        assertVec.approxEq(before, Vector3_Zero, 3)
 
         body.applyTorqueImpulse(impulse, false)
         const dummy = { x: body.angvel().x, y: body.angvel().y, z: body.angvel().z }
-        assertVecAllApproxNotEq(before, dummy, 3)
+        assertVec.allApproxNotEq(before, dummy, 3)
 
         Physics.lockRotations(physicsWorld, testEntity, true)
         body.applyTorqueImpulse(impulse, false)
         const after = { x: body.angvel().x, y: body.angvel().y, z: body.angvel().z }
-        assertVecApproxEq(dummy, after, 3)
+        assertVec.approxEq(dummy, after, 3)
       })
 
       /**
@@ -780,12 +1043,12 @@ describe('Physics : Rapier->ECS API', () => {
         body.setRotation(ExpectedValue, false)
         console.log(JSON.stringify(body.rotation()), "BEFORE")
         console.log(JSON.stringify(ExpectedValue), "Expected")
-        assertVecAllApproxNotEq(body.rotation(), ExpectedValue, 3)
+        assertVec.allApproxNotEq(body.rotation(), ExpectedValue, 3)
         // assert.notDeepEqual(body.rotation(), ExpectedValue)
 
         Physics.lockRotations(testEntity, true)
         console.log(JSON.stringify(body.rotation()), "AFTEr")
-        assertVecApproxEq(body.rotation(), ExpectedValue, 4)
+        assertVec.approxEq(body.rotation(), ExpectedValue, 4)
       })
       */
     })
@@ -802,7 +1065,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -823,14 +1086,14 @@ describe('Physics : Rapier->ECS API', () => {
         const enabledRotation = [false, true, true] as [boolean, boolean, boolean]
         const body = physicsWorld.Rigidbodies.get(testEntity)!
         const before = body.angvel()
-        assertVecApproxEq(before, Vector3_Zero, 3)
+        assertVec.approxEq(before, Vector3_Zero, 3)
         Physics.setEnabledRotations(physicsWorld, testEntity, enabledRotation)
         body.applyTorqueImpulse(testImpulse, false)
         physicsWorld!.step()
         const after = body.angvel()
-        assertFloatApproxEq(after.x, before.x)
-        assertFloatApproxNotEq(after.y, before.y)
-        assertFloatApproxNotEq(after.z, before.z)
+        assertFloat.approxEq(after.x, before.x)
+        assertFloat.approxNotEq(after.y, before.y)
+        assertFloat.approxNotEq(after.z, before.z)
       })
 
       it('should disable rotations on the Y axis for the rigidBody of the entity', () => {
@@ -838,14 +1101,14 @@ describe('Physics : Rapier->ECS API', () => {
         const enabledRotation = [true, false, true] as [boolean, boolean, boolean]
         const body = physicsWorld.Rigidbodies.get(testEntity)!
         const before = body.angvel()
-        assertVecApproxEq(before, Vector3_Zero, 3)
+        assertVec.approxEq(before, Vector3_Zero, 3)
         Physics.setEnabledRotations(physicsWorld, testEntity, enabledRotation)
         body.applyTorqueImpulse(testImpulse, false)
         physicsWorld!.step()
         const after = body.angvel()
-        assertFloatApproxNotEq(after.x, before.x)
-        assertFloatApproxEq(after.y, before.y)
-        assertFloatApproxNotEq(after.z, before.z)
+        assertFloat.approxNotEq(after.x, before.x)
+        assertFloat.approxEq(after.y, before.y)
+        assertFloat.approxNotEq(after.z, before.z)
       })
 
       it('should disable rotations on the Z axis for the rigidBody of the entity', () => {
@@ -853,14 +1116,14 @@ describe('Physics : Rapier->ECS API', () => {
         const enabledRotation = [true, true, false] as [boolean, boolean, boolean]
         const body = physicsWorld.Rigidbodies.get(testEntity)!
         const before = body.angvel()
-        assertVecApproxEq(before, Vector3_Zero, 3)
+        assertVec.approxEq(before, Vector3_Zero, 3)
         Physics.setEnabledRotations(physicsWorld, testEntity, enabledRotation)
         body.applyTorqueImpulse(testImpulse, false)
         physicsWorld!.step()
         const after = body.angvel()
-        assertFloatApproxNotEq(after.x, before.x)
-        assertFloatApproxNotEq(after.y, before.y)
-        assertFloatApproxEq(after.z, before.z)
+        assertFloat.approxNotEq(after.x, before.x)
+        assertFloat.approxNotEq(after.y, before.y)
+        assertFloat.approxEq(after.z, before.z)
       })
     })
 
@@ -876,7 +1139,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -907,7 +1170,7 @@ describe('Physics : Rapier->ECS API', () => {
           y: RigidBodyComponent.previousPosition.y[testEntity],
           z: RigidBodyComponent.previousPosition.z[testEntity]
         }
-        assertVecAllApproxNotEq(before, after, 3)
+        assertVec.allApproxNotEq(before, after, 3)
       })
 
       it("should set the previous rotation of the entity's RigidBodyComponent", () => {
@@ -927,7 +1190,7 @@ describe('Physics : Rapier->ECS API', () => {
           z: RigidBodyComponent.previousRotation.z[testEntity],
           w: RigidBodyComponent.previousRotation.w[testEntity]
         }
-        assertVecAllApproxNotEq(before, after, 4)
+        assertVec.allApproxNotEq(before, after, 4)
       })
     })
 
@@ -943,7 +1206,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -958,7 +1221,24 @@ describe('Physics : Rapier->ECS API', () => {
         removeEntity(testEntity)
         return destroyEngine()
       })
-
+      it('should not update the pose and velocity for an entity that has a NetworkObjectComponent but no NetworkAuthorityComponent', () => {
+        setComponent(testEntity, NetworkObjectComponent)
+        const impulse = new Vector3(1, 2, 3)
+        const body = physicsWorld.Rigidbodies.get(testEntity)!
+        body.applyImpulse(impulse, false)
+        const before = {
+          x: RigidBodyComponent.linearVelocity.x[testEntity],
+          y: RigidBodyComponent.linearVelocity.y[testEntity],
+          z: RigidBodyComponent.linearVelocity.z[testEntity]
+        }
+        Physics.updateRigidbodyPose([testEntity])
+        const after = {
+          x: RigidBodyComponent.linearVelocity.x[testEntity],
+          y: RigidBodyComponent.linearVelocity.y[testEntity],
+          z: RigidBodyComponent.linearVelocity.z[testEntity]
+        }
+        assertVec.approxEq(before, after, 3)
+      })
       it("should set the position of the entity's RigidBodyComponent", () => {
         const position = new Vector3(1, 2, 3)
         const body = physicsWorld.Rigidbodies.get(testEntity)!
@@ -974,7 +1254,7 @@ describe('Physics : Rapier->ECS API', () => {
           y: RigidBodyComponent.position.y[testEntity],
           z: RigidBodyComponent.position.z[testEntity]
         }
-        assertVecAllApproxNotEq(before, after, 3)
+        assertVec.allApproxNotEq(before, after, 3)
       })
 
       it("should set the rotation of the entity's RigidBodyComponent", () => {
@@ -994,7 +1274,7 @@ describe('Physics : Rapier->ECS API', () => {
           z: RigidBodyComponent.rotation.z[testEntity],
           w: RigidBodyComponent.rotation.w[testEntity]
         }
-        assertVecAllApproxNotEq(before, after, 4)
+        assertVec.allApproxNotEq(before, after, 4)
       })
 
       it("should set the linearVelocity of the entity's RigidBodyComponent", () => {
@@ -1012,7 +1292,7 @@ describe('Physics : Rapier->ECS API', () => {
           y: RigidBodyComponent.linearVelocity.y[testEntity],
           z: RigidBodyComponent.linearVelocity.z[testEntity]
         }
-        assertVecAllApproxNotEq(before, after, 3)
+        assertVec.allApproxNotEq(before, after, 3)
       })
 
       it("should set the angularVelocity of the entity's RigidBodyComponent", () => {
@@ -1030,7 +1310,7 @@ describe('Physics : Rapier->ECS API', () => {
           y: RigidBodyComponent.angularVelocity.y[testEntity],
           z: RigidBodyComponent.angularVelocity.z[testEntity]
         }
-        assertVecAllApproxNotEq(before, after, 3)
+        assertVec.allApproxNotEq(before, after, 3)
       })
     })
 
@@ -1048,7 +1328,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1069,7 +1349,7 @@ describe('Physics : Rapier->ECS API', () => {
         const before = body.nextTranslation()
         Physics.setKinematicRigidbodyPose(physicsWorld, testEntity, position, rotation)
         const after = body.nextTranslation()
-        assertVecAllApproxNotEq(before, after, 3)
+        assertVec.allApproxNotEq(before, after, 3)
       })
 
       it("should set the nextRotation property of the entity's Kinematic RigidBody", () => {
@@ -1077,7 +1357,7 @@ describe('Physics : Rapier->ECS API', () => {
         const before = body.nextRotation()
         Physics.setKinematicRigidbodyPose(physicsWorld, testEntity, position, rotation)
         const after = body.nextRotation()
-        assertVecAllApproxNotEq(before, after, 4)
+        assertVec.allApproxNotEq(before, after, 4)
       })
     })
   }) // << Rigidbodies
@@ -1095,7 +1375,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1146,7 +1426,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1213,7 +1493,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1275,7 +1555,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1312,7 +1592,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1349,7 +1629,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1386,7 +1666,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1465,7 +1745,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1502,7 +1782,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1564,20 +1844,18 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
-        testEntity = createEntity()
-        setComponent(testEntity, EntityTreeComponent, { parentEntity: rootEntity })
-        setComponent(testEntity, TransformComponent)
-        setComponent(testEntity, RigidBodyComponent)
-        setComponent(testEntity, ColliderComponent)
         rootEntity = createEntity()
         setComponent(rootEntity, EntityTreeComponent, { parentEntity: entity })
         setComponent(rootEntity, TransformComponent)
+        testEntity = createEntity()
+        setComponent(testEntity, EntityTreeComponent, { parentEntity: rootEntity })
+        setComponent(testEntity, TransformComponent)
+        setComponent(testEntity, ColliderComponent)
         setComponent(rootEntity, RigidBodyComponent)
-        setComponent(rootEntity, ColliderComponent)
       })
 
       afterEach(() => {
@@ -1594,7 +1872,13 @@ describe('Physics : Rapier->ECS API', () => {
 
       it('should return a descriptor with the expected default values', () => {
         const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
-        assert.deepEqual(result, Default)
+        for (const key in Default) {
+          if (typeof Default[key] === 'object' && 'x' in Default[key]) {
+            assertVec.approxEq(result[key], Default[key], 3)
+          } else {
+            assert.deepEqual(result[key], Default[key])
+          }
+        }
       })
 
       it('should set the friction to the same value as the ColliderComponent', () => {
@@ -1660,18 +1944,157 @@ describe('Physics : Rapier->ECS API', () => {
       })
 
       it('should set the position relative to the parent entity', () => {
-        const Expected = new Vector3(1, 2, 3)
         const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
-        console.log(JSON.stringify(result))
-        console.log(JSON.stringify(result.translation))
-        assertVecApproxEq(result.translation, Vector3_Zero, 3)
+        assertVec.approxEq(result.translation, Vector3_Zero, 3)
       })
 
       it('should set the rotation relative to the parent entity', () => {
-        const Expected = new Quaternion(0.5, 0.3, 0.2, 0.0).normalize()
         const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
-        console.log(JSON.stringify(result.rotation))
-        assertVecApproxEq(result.rotation, Rotation_Zero, 4)
+        assertVec.approxEq(result.rotation, Q_IDENTITY, 4)
+      })
+
+      it('should encapsulate mesh with cube when set to match mesh', () => {
+        setComponent(testEntity, MeshComponent, new Mesh(new SphereGeometry(2)))
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Box, matchMesh: true })
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
+        assert.equal(result.shape.type, ShapeType.Cuboid)
+        assert.equal(result.shape.halfExtents.x, 2)
+      })
+
+      it('should encapsulate mesh with sphere when set to match mesh', () => {
+        const line = new LineGeometry()
+        line.setPositions([0, 0, 2, 0, 0, 6]) //line of length 4
+        setComponent(testEntity, MeshComponent, new Mesh(line))
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere, matchMesh: true })
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
+        assert.equal(result.shape.type, ShapeType.Ball)
+        assert.equal(result.shape.radius, 2)
+      })
+
+      it('should encapsulate mesh with capsule when set to match mesh', () => {
+        setComponent(testEntity, MeshComponent, new Mesh(new SphereGeometry(2)))
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Capsule, matchMesh: true })
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
+        assert.equal(result.shape.type, ShapeType.Capsule)
+        assert.equal(Math.abs(result.shape.radius - 2) < Epsilon, true)
+        assert.equal(result.shape.halfHeight, 2)
+      })
+
+      it('should encapsulate mesh with cylinder when set to match mesh', () => {
+        setComponent(testEntity, MeshComponent, new Mesh(new SphereGeometry(2)))
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Cylinder, matchMesh: true })
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
+        assert.equal(result.shape.type, ShapeType.Cylinder)
+        assert.equal(Math.abs(result.shape.radius - 2) < Epsilon, true)
+        assert.equal(result.shape.halfHeight, 2)
+      })
+
+      it('should offset box collider position to match mesh center-point', () => {
+        const boxGeometry = new BoxGeometry()
+        // Define the min and max points
+        const min = new Vector3(0, 0, 0)
+        const max = new Vector3(4, 4, 4)
+
+        // Create the corner points of the box
+        const points = [
+          new Vector3(min.x, min.y, min.z), // (0, 0, 0)
+          new Vector3(max.x, min.y, min.z), // (4, 0, 0)
+          new Vector3(min.x, max.y, min.z), // (0, 4, 0)
+          new Vector3(max.x, max.y, min.z), // (4, 4, 0)
+          new Vector3(min.x, min.y, max.z), // (0, 0, 4)
+          new Vector3(max.x, min.y, max.z), // (4, 0, 4)
+          new Vector3(min.x, max.y, max.z), // (0, 4, 4)
+          new Vector3(max.x, max.y, max.z) // (4, 4, 4)
+        ]
+
+        boxGeometry.setFromPoints(points)
+        const mesh = new Mesh(boxGeometry)
+        setComponent(testEntity, MeshComponent, mesh)
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Box, matchMesh: true })
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
+        assert.equal(result.shape.type, ShapeType.Cuboid)
+        assert.deepEqual(result.translation, new Vector3(2, 2, 2))
+      })
+
+      it('should offset sphere collider position to match mesh center-point', () => {
+        const boxGeometry = new BoxGeometry()
+        // Define the min and max points
+        const min = new Vector3(0, 0, 0)
+        const max = new Vector3(4, 4, 4)
+
+        // Create the corner points of the box
+        const points = [
+          new Vector3(min.x, min.y, min.z), // (0, 0, 0)
+          new Vector3(max.x, min.y, min.z), // (4, 0, 0)
+          new Vector3(min.x, max.y, min.z), // (0, 4, 0)
+          new Vector3(max.x, max.y, min.z), // (4, 4, 0)
+          new Vector3(min.x, min.y, max.z), // (0, 0, 4)
+          new Vector3(max.x, min.y, max.z), // (4, 0, 4)
+          new Vector3(min.x, max.y, max.z), // (0, 4, 4)
+          new Vector3(max.x, max.y, max.z) // (4, 4, 4)
+        ]
+
+        boxGeometry.setFromPoints(points)
+        const mesh = new Mesh(boxGeometry)
+        setComponent(testEntity, MeshComponent, mesh)
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Sphere, matchMesh: true })
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
+        assert.equal(result.shape.type, ShapeType.Ball)
+        assert.deepEqual(result.translation, new Vector3(2, 2, 2))
+      })
+
+      it('should offset capsule collider position to match mesh center-point', () => {
+        const boxGeometry = new BoxGeometry()
+        // Define the min and max points
+        const min = new Vector3(0, 0, 0)
+        const max = new Vector3(4, 4, 4)
+
+        // Create the corner points of the box
+        const points = [
+          new Vector3(min.x, min.y, min.z), // (0, 0, 0)
+          new Vector3(max.x, min.y, min.z), // (4, 0, 0)
+          new Vector3(min.x, max.y, min.z), // (0, 4, 0)
+          new Vector3(max.x, max.y, min.z), // (4, 4, 0)
+          new Vector3(min.x, min.y, max.z), // (0, 0, 4)
+          new Vector3(max.x, min.y, max.z), // (4, 0, 4)
+          new Vector3(min.x, max.y, max.z), // (0, 4, 4)
+          new Vector3(max.x, max.y, max.z) // (4, 4, 4)
+        ]
+
+        boxGeometry.setFromPoints(points)
+        const mesh = new Mesh(boxGeometry)
+        setComponent(testEntity, MeshComponent, mesh)
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Capsule, matchMesh: true })
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
+        assert.equal(result.shape.type, ShapeType.Capsule)
+        assert.deepEqual(result.translation, new Vector3(2, 2, 2))
+      })
+
+      it('should offset cylinder collider position to match mesh center-point', () => {
+        const boxGeometry = new BoxGeometry()
+        // Define the min and max points
+        const min = new Vector3(0, 0, 0)
+        const max = new Vector3(4, 4, 4)
+
+        // Create the corner points of the box
+        const points = [
+          new Vector3(min.x, min.y, min.z), // (0, 0, 0)
+          new Vector3(max.x, min.y, min.z), // (4, 0, 0)
+          new Vector3(min.x, max.y, min.z), // (0, 4, 0)
+          new Vector3(max.x, max.y, min.z), // (4, 4, 0)
+          new Vector3(min.x, min.y, max.z), // (0, 0, 4)
+          new Vector3(max.x, min.y, max.z), // (4, 0, 4)
+          new Vector3(min.x, max.y, max.z), // (0, 4, 4)
+          new Vector3(max.x, max.y, max.z) // (4, 4, 4)
+        ]
+
+        boxGeometry.setFromPoints(points)
+        const mesh = new Mesh(boxGeometry)
+        setComponent(testEntity, MeshComponent, mesh)
+        setComponent(testEntity, ColliderComponent, { shape: Shapes.Cylinder, matchMesh: true })
+        const result = Physics.createColliderDesc(physicsWorld, testEntity, rootEntity)
+        assert.equal(result.shape.type, ShapeType.Cylinder)
+        assert.deepEqual(result.translation, new Vector3(2, 2, 2))
       })
     })
 
@@ -1688,7 +2111,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1742,7 +2165,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1763,7 +2186,7 @@ describe('Physics : Rapier->ECS API', () => {
         const collider = physicsWorld.Colliders.get(testEntity)!
         // need to step to update the collider's position
         physicsWorld.step()
-        assertVecApproxEq(collider.translation(), position, 3, 0.01)
+        assertVec.approxEq(collider.translation(), position, 3, 0.01)
       })
 
       it("should assign the entity's rotation to the collider.rotation property", () => {
@@ -1771,7 +2194,7 @@ describe('Physics : Rapier->ECS API', () => {
         const collider = physicsWorld.Colliders.get(testEntity)!
         // need to step to update the collider's position
         physicsWorld.step()
-        assertVecApproxEq(collider.rotation(), rotation, 4)
+        assertVec.approxEq(collider.rotation(), rotation, 4)
       })
     })
 
@@ -1799,7 +2222,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1827,11 +2250,11 @@ describe('Physics : Rapier->ECS API', () => {
         Physics.createCharacterController(physicsWorld, testEntity, {})
         const controller = physicsWorld.Controllers.get(testEntity)
         assert.ok(controller)
-        assertFloatApproxEq(controller.offset(), Default.offset)
-        assertFloatApproxEq(controller.maxSlopeClimbAngle(), Default.maxSlopeClimbAngle)
-        assertFloatApproxEq(controller.minSlopeSlideAngle(), Default.minSlopeSlideAngle)
-        assertFloatApproxEq(controller.autostepMaxHeight()!, Default.autoStep.maxHeight)
-        assertFloatApproxEq(controller.autostepMinWidth()!, Default.autoStep.minWidth)
+        assertFloat.approxEq(controller.offset(), Default.offset)
+        assertFloat.approxEq(controller.maxSlopeClimbAngle(), Default.maxSlopeClimbAngle)
+        assertFloat.approxEq(controller.minSlopeSlideAngle(), Default.minSlopeSlideAngle)
+        assertFloat.approxEq(controller.autostepMaxHeight()!, Default.autoStep.maxHeight)
+        assertFloat.approxEq(controller.autostepMinWidth()!, Default.autoStep.minWidth)
         assert.equal(controller.autostepEnabled(), Default.autoStep.stepOverDynamic)
         assert.equal(controller.snapToGroundEnabled(), !!Default.enableSnapToGround)
       })
@@ -1848,19 +2271,19 @@ describe('Physics : Rapier->ECS API', () => {
         const controller = physicsWorld.Controllers.get(testEntity)
         assert.ok(controller)
         // Compare against the specified values
-        assertFloatApproxEq(controller.offset(), Expected.offset)
-        assertFloatApproxEq(controller.maxSlopeClimbAngle(), Expected.maxSlopeClimbAngle)
-        assertFloatApproxEq(controller.minSlopeSlideAngle(), Expected.minSlopeSlideAngle)
-        assertFloatApproxEq(controller.autostepMaxHeight()!, Expected.autoStep.maxHeight)
-        assertFloatApproxEq(controller.autostepMinWidth()!, Expected.autoStep.minWidth)
+        assertFloat.approxEq(controller.offset(), Expected.offset)
+        assertFloat.approxEq(controller.maxSlopeClimbAngle(), Expected.maxSlopeClimbAngle)
+        assertFloat.approxEq(controller.minSlopeSlideAngle(), Expected.minSlopeSlideAngle)
+        assertFloat.approxEq(controller.autostepMaxHeight()!, Expected.autoStep.maxHeight)
+        assertFloat.approxEq(controller.autostepMinWidth()!, Expected.autoStep.minWidth)
         assert.equal(controller.autostepIncludesDynamicBodies(), Expected.autoStep.stepOverDynamic)
         assert.equal(controller.snapToGroundEnabled(), !!Expected.enableSnapToGround)
         // Compare against the defaults
-        assertFloatApproxNotEq(controller.offset(), Default.offset)
-        assertFloatApproxNotEq(controller.maxSlopeClimbAngle(), Default.maxSlopeClimbAngle)
-        assertFloatApproxNotEq(controller.minSlopeSlideAngle(), Default.minSlopeSlideAngle)
-        assertFloatApproxNotEq(controller.autostepMaxHeight()!, Default.autoStep.maxHeight)
-        assertFloatApproxNotEq(controller.autostepMinWidth()!, Default.autoStep.minWidth)
+        assertFloat.approxNotEq(controller.offset(), Default.offset)
+        assertFloat.approxNotEq(controller.maxSlopeClimbAngle(), Default.maxSlopeClimbAngle)
+        assertFloat.approxNotEq(controller.minSlopeSlideAngle(), Default.minSlopeSlideAngle)
+        assertFloat.approxNotEq(controller.autostepMaxHeight()!, Default.autoStep.maxHeight)
+        assertFloat.approxNotEq(controller.autostepMinWidth()!, Default.autoStep.minWidth)
         assert.notEqual(controller.autostepIncludesDynamicBodies(), Default.autoStep.stepOverDynamic)
         assert.notEqual(controller.snapToGroundEnabled(), !!Default.enableSnapToGround)
       })
@@ -1878,7 +2301,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1918,7 +2341,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1948,7 +2371,7 @@ describe('Physics : Rapier->ECS API', () => {
           // filterPredicate?: (collider: Collider) => boolean
         )
         const after = controller.computedMovement()
-        assertVecAllApproxNotEq(before, after, 3)
+        assertVec.allApproxNotEq(before, after, 3)
       })
     }) // << computeColliderMovement
 
@@ -1964,7 +2387,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1983,7 +2406,7 @@ describe('Physics : Rapier->ECS API', () => {
       it('should return (0,0,0) when the entity does not have a CharacterController', () => {
         const result = new Vector3(1, 2, 3)
         Physics.getComputedMovement(physicsWorld, testEntity, result)
-        assertVecApproxEq(result, Vector3_Zero, 3)
+        assertVec.approxEq(result, Vector3_Zero, 3)
       })
 
       it("should return the same value contained in the `computedMovement` value of the entity's Character Controller", () => {
@@ -2000,11 +2423,11 @@ describe('Physics : Rapier->ECS API', () => {
           // filterPredicate?: (collider: Collider) => boolean
         )
         const after = controller.computedMovement()
-        assertVecAllApproxNotEq(before, after, 3)
+        assertVec.allApproxNotEq(before, after, 3)
         const result = new Vector3()
         Physics.getComputedMovement(physicsWorld, testEntity, result)
-        assertVecAllApproxNotEq(before, result, 3)
-        assertVecApproxEq(after, result, 3)
+        assertVec.allApproxNotEq(before, result, 3)
+        assertVec.approxEq(after, result, 3)
       })
     }) // << getComputedMovement
   }) // << CharacterControllers
@@ -2022,7 +2445,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -2061,7 +2484,7 @@ describe('Physics : Rapier->ECS API', () => {
         assert.deepEqual(hits.length, 1)
         assert.deepEqual(hits[0].normal.x, -1)
         assert.deepEqual(hits[0].distance, 5)
-        assert.deepEqual((hits[0].body.userData as any)['entity'], testEntity)
+        assert.deepEqual(hits[0].body.entity, testEntity)
       })
     })
 
@@ -2077,7 +2500,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -2123,7 +2546,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -2203,7 +2626,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld.timestep = 1 / 60
 
         testEntity1 = createEntity()
@@ -2274,18 +2697,18 @@ describe('Physics : Rapier->ECS API', () => {
         assert.ok(colliderParent1)
         assert.ok(colliderParent2)
         // Get the entities from parent.userData
-        const entity1 = (colliderParent1.userData as any)['entity']
-        const entity2 = (colliderParent2.userData as any)['entity']
+        const entity1 = colliderParent1.entity
+        const entity2 = colliderParent2.entity
         assert.equal(testEntity1, entity1)
         assert.equal(testEntity2, entity2)
         // Check before
-        assert.ok(!hasComponent(entity1, CollisionComponent))
-        assert.ok(!hasComponent(entity2, CollisionComponent))
+        assert.equal(hasComponent(entity1, CollisionComponent), false)
+        assert.equal(hasComponent(entity2, CollisionComponent), false)
 
         // Run and Check after
         event(collider1.handle, collider2.handle, true)
-        assert.ok(hasComponent(entity1, CollisionComponent))
-        assert.ok(hasComponent(entity2, CollisionComponent))
+        assert.equal(hasComponent(entity1, CollisionComponent), true)
+        assert.equal(hasComponent(entity2, CollisionComponent), true)
       })
 
       describe('when `started` is set to `true` ...', () => {
@@ -2452,7 +2875,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
+        physicsWorld = Physics.createWorld(entity)
         physicsWorld.timestep = 1 / 60
 
         testEntity1 = createEntity()
@@ -2540,7 +2963,7 @@ describe('Physics : Rapier->ECS API', () => {
           sinon.assert.called(collider2Spy)
           sinon.assert.called(maxForceSpy)
           const after = getComponent(testEntity1, CollisionComponent).get(testEntity2)?.maxForceDirection
-          assertVecApproxEq(after, ExpectedMaxForce, 3)
+          assertVec.approxEq(after, ExpectedMaxForce, 3)
         })
 
         it('should store event.maxForceDirection() into the CollisionComponent.maxForceDirection of entity2.collision.get(entity1) if the collision exists', () => {
@@ -2580,7 +3003,7 @@ describe('Physics : Rapier->ECS API', () => {
           sinon.assert.called(collider2Spy)
           sinon.assert.called(maxForceSpy)
           const after = getComponent(testEntity2, CollisionComponent).get(testEntity1)?.maxForceDirection
-          assertVecApproxEq(after, ExpectedMaxForce, 3)
+          assertVec.approxEq(after, ExpectedMaxForce, 3)
         })
 
         it('should store event.totalForce() into the CollisionComponent.totalForce of entity1.collision.get(entity2) if the collision exists', () => {
@@ -2619,7 +3042,7 @@ describe('Physics : Rapier->ECS API', () => {
           sinon.assert.called(collider2Spy)
           sinon.assert.called(totalForceSpy)
           const after = getComponent(testEntity1, CollisionComponent).get(testEntity2)?.totalForce
-          assertVecApproxEq(after, ExpectedTotalForce, 3)
+          assertVec.approxEq(after, ExpectedTotalForce, 3)
         })
 
         it('should store event.totalForce() into the CollisionComponent.totalForce of entity2.collision.get(entity1) if the collision exists', () => {
@@ -2658,7 +3081,7 @@ describe('Physics : Rapier->ECS API', () => {
           sinon.assert.called(collider2Spy)
           sinon.assert.called(totalForceSpy)
           const after = getComponent(testEntity2, CollisionComponent).get(testEntity1)?.totalForce
-          assertVecApproxEq(after, ExpectedTotalForce, 3)
+          assertVec.approxEq(after, ExpectedTotalForce, 3)
         })
       })
     }) // << drainContactEventQueue

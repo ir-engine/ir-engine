@@ -28,50 +28,47 @@ import { useTranslation } from 'react-i18next'
 
 import { State } from '@ir-engine/hyperflux'
 
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
-import { HiMagnifyingGlass } from 'react-icons/hi2'
-import { twMerge } from 'tailwind-merge'
+import { SearchSmSm } from '@ir-engine/ui/src/icons'
+import Input, { InputProps } from '@ir-engine/ui/src/primitives/tailwind/Input'
 
 export default function SearchBar({
   search,
-  size = 'large'
+  size = 'l',
+  inputProps = {},
+  debounceTime = 100
 }: {
   search: State<{
     local: string
     query: string
   }>
-  size?: 'small' | 'medium' | 'large'
+  size?: InputProps['height']
+  inputProps?: Partial<InputProps>
+  debounceTime?: number
 }) {
   const { t } = useTranslation()
   const debouncedSearchQueryRef = useRef<ReturnType<typeof setTimeout>>()
 
   useEffect(() => clearTimeout(debouncedSearchQueryRef.current), [])
-  const variants = {
-    small: 'px-1 py-0.5 ps-8',
-    medium: 'p-2 ps-8',
-    large: 'px-2 py-5 ps-10'
-  }
 
   return (
-    <div className="mb-4 flex justify-between">
-      <Input
-        placeholder={t('common:components.search')}
-        value={search?.value.local ?? ''}
-        onChange={(event) => {
-          search!.local.set(event.target.value)
+    <Input
+      placeholder={t('common:components.search')}
+      value={search?.value.local ?? ''}
+      onChange={(event) => {
+        search.local.set(event.target.value)
 
-          if (debouncedSearchQueryRef) {
-            clearTimeout(debouncedSearchQueryRef.current)
-          }
+        if (debouncedSearchQueryRef) {
+          clearTimeout(debouncedSearchQueryRef.current)
+        }
 
-          debouncedSearchQueryRef.current = setTimeout(() => {
-            search!.query.set(event.target.value)
-          }, 100)
-        }}
-        className={twMerge('bg-theme-surface-main', variants[size])}
-        containerClassName="w-1/5 block"
-        startComponent={<HiMagnifyingGlass />}
-      />
-    </div>
+        debouncedSearchQueryRef.current = setTimeout(() => {
+          search.query.set(event.target.value)
+        }, debounceTime)
+      }}
+      startComponent={<SearchSmSm className="h-20 text-text-secondary" />}
+      data-testid="search-input"
+      height={size}
+      {...inputProps}
+    />
   )
 }

@@ -24,34 +24,33 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import {
+  EngineState,
+  Entity,
+  EntityTreeComponent,
+  S,
+  UndefinedEntity,
+  createEntity,
   defineComponent,
   getComponent,
   hasComponent,
+  iterateEntityNode,
   removeComponent,
+  removeEntity,
   setComponent,
   useComponent,
-  useOptionalComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState, useDidMount, useState } from '@ir-engine/hyperflux'
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
+  useEntityContext
+} from '@ir-engine/ecs'
+import { getMutableState, useDidMount, useHookstate, useState } from '@ir-engine/hyperflux'
 import { Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
-import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/DebugComponentUtils'
-import { matchesColor } from '@ir-engine/spatial/src/common/functions/MatchesUtils'
 import { LineSegmentComponent } from '@ir-engine/spatial/src/renderer/components/LineSegmentComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectLayerMasks } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import {
-  EntityTreeComponent,
-  iterateEntityNode,
-  useChildrenWithComponents
-} from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { useEffect } from 'react'
-import { Box3, BufferGeometry, ColorRepresentation, LineBasicMaterial, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
-import { ModelComponent } from './ModelComponent'
+import { Box3, BufferGeometry, LineBasicMaterial, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
 
 function createBBoxGridGeometry(matrixWorld: Matrix4, bbox: Box3, density: number): BufferGeometry {
   const lineSegmentList: Vector3[] = []
@@ -111,57 +110,50 @@ function createBBoxGridGeometry(matrixWorld: Matrix4, bbox: Box3, density: numbe
 export const BoundingBoxHelperComponent = defineComponent({
   name: 'BoundingBoxHelperComponent',
 
-  onInit: (entity) => {
-    return {
-      name: 'bounding-box-helper',
-      bbox: new Box3(),
-      density: 2,
-      color: 0xff0000 as ColorRepresentation,
-      layerMask: ObjectLayerMasks.NodeHelper,
-      entity: undefined as undefined | Entity
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json || !json.bbox || !json.bbox.isBox3) throw new Error('BoundingBoxHelperComponent: Requires Box3')
-    component.bbox.set(json.bbox)
-
-    if (typeof json.density === 'number') component.density.set(json.density)
-    if (matchesColor.test(json.color)) component.color.set(json.color)
-    if (typeof json.layerMask === 'number') component.layerMask.set(json.layerMask)
-  },
+  schema: S.Object({
+    bbox: S.Required(S.Type<Box3>()),
+    density: S.Number(2),
+    color: T.Color(0xff0000),
+    layerMask: S.Number(ObjectLayerMasks.NodeHelper),
+    helperEntity: S.Optional(S.Entity())
+  }),
 
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, BoundingBoxHelperComponent)
-    const helper = useHelperEntity(entity, component)
-    const lineSegment = useOptionalComponent(helper, LineSegmentComponent)
 
-    useEffect(() => {
+    const lineSegmentedEntity = useHookstate(() => {
+      const helperEntity = createEntity()
       const bbox = component.bbox.value
       const density = component.density.value
-      setComponent(helper, LineSegmentComponent, {
+      setComponent(helperEntity, LineSegmentComponent, {
         name: 'bbox-line-segment-' + entity,
         geometry: createBBoxGridGeometry(new Matrix4().identity(), bbox, density),
         material: new LineBasicMaterial({ color: component.color.value }),
         layerMask: component.layerMask.value
       })
+      component.helperEntity.set(helperEntity)
+      return helperEntity
+    }).value
+    const lineSegment = useComponent(lineSegmentedEntity, LineSegmentComponent)
+
+    useEffect(() => {
+      return () => {
+        removeEntity(lineSegmentedEntity)
+      }
     }, [])
 
     useDidMount(() => {
-      if (!lineSegment) return
       const bbox = component.bbox.value
       const density = component.density.value
       lineSegment.geometry.set(createBBoxGridGeometry(new Matrix4().identity(), bbox, density))
     }, [component.bbox])
 
     useEffect(() => {
-      if (!lineSegment) return
       lineSegment.color.set(component.color.value)
     }, [component.color, lineSegment])
 
     useEffect(() => {
-      if (!lineSegment) return
       lineSegment.layerMask.set(component.layerMask.value)
     }, [component.layerMask, lineSegment])
 
@@ -177,27 +169,21 @@ const originalScale = new Vector3()
 export const ObjectGridSnapComponent = defineComponent({
   name: 'ObjectGridSnapComponent',
 
-  onInit: (entity) => {
-    return {
-      bbox: new Box3()
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    //if (typeof json.density === 'number') component.density.set(json.density)
-    if (typeof json.bbox === 'object' && json.bbox.isBox3) component.bbox.set(json.bbox)
-  },
+  schema: S.Object({
+    bbox: S.Class(() => new Box3())
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
     const engineState = useState(getMutableState(EngineState))
+    const gltfLoaded = GLTFComponent.useSceneLoaded(entity)
     const snapComponent = useComponent(entity, ObjectGridSnapComponent)
-    const modelComponent = useComponent(entity, ModelComponent)
-    const meshComponents = useChildrenWithComponents(entity, [MeshComponent])
 
     useEffect(() => {
-      if (!modelComponent.scene.value) return
+      if (!gltfLoaded) return
+      const originalPosition = new Vector3()
+      const originalRotation = new Quaternion()
+      const originalScale = new Vector3()
       const originalParent = getComponent(entity, EntityTreeComponent).parentEntity
       const transform = getComponent(entity, TransformComponent)
       transform.matrix.decompose(originalPosition, originalRotation, originalScale)
@@ -239,7 +225,7 @@ export const ObjectGridSnapComponent = defineComponent({
 
       //set bounding box in component
       snapComponent.bbox.set(bbox)
-    }, [modelComponent.scene, meshComponents])
+    }, [gltfLoaded])
 
     useEffect(() => {
       if (!engineState.isEditing.value) return

@@ -104,9 +104,9 @@ export interface InputGroupProps {
   disabled?: boolean
   children: React.ReactNode
   containerClassName?: string
-  labelClassName?: string
   infoClassName?: string
   className?: string
+  dataTestId?: string
 }
 
 /**
@@ -117,21 +117,24 @@ export function InputGroup({
   info,
   label,
   containerClassName,
-  labelClassName,
   infoClassName,
-  className
+  className,
+  disabled,
+  dataTestId
 }: InputGroupProps) {
   return (
-    <div className={twMerge('my-1 flex flex-wrap items-center justify-end', containerClassName)}>
-      <div className="mr-2 flex">
-        <Label className={twMerge('mr-2.5 text-wrap text-end text-xs text-[#A0A1A2]', labelClassName)}>{label}</Label>
+    <div className={twMerge('flex w-full flex-col gap-y-2 py-1.5 pl-8 pr-3.5', containerClassName)}>
+      <div className="flex w-full justify-between">
+        <Label>{label}</Label>
         {info && (
           <Tooltip content={info}>
-            <LuInfo className={twMerge('h-5 w-5 text-[#A0A1A2]', infoClassName)} />
+            <LuInfo className={twMerge('h-5 w-5 text-text-inactive hover:text-text-primary', infoClassName)} />
           </Tooltip>
         )}
       </div>
-      <div className={twMerge('w-3/5', className)}>{children}</div>
+      <div className={twMerge('w-full', className)} data-testid={dataTestId || ''}>
+        {children}
+      </div>
     </div>
   )
 }

@@ -37,18 +37,18 @@ import {
   WebGLRenderTarget
 } from 'three'
 
-import { Entity } from '@ir-engine/ecs'
-import { defineComponent, getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { AnimationSystemGroup, defineSystem, ECSState, Entity, useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { createEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
-import { SDFShader } from '@ir-engine/spatial/src/renderer/effects/sdf/SDFShader'
+import { createSDFShader } from '@ir-engine/spatial/src/renderer/effects/sdf/SDFShader'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { getState } from '@ir-engine/hyperflux'
 import { useRendererEntity } from '@ir-engine/spatial/src/renderer/functions/useRendererEntity'
-import { UpdatableCallback, UpdatableComponent } from './UpdatableComponent'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 
 export enum SDFMode {
   TORUS,
@@ -57,41 +57,19 @@ export enum SDFMode {
   FOG
 }
 
+// lazy load the shader to avoid generating a noise texture
+let SDFShader: ReturnType<typeof createSDFShader> | null = null
+
 export const SDFComponent = defineComponent({
   name: 'SDFComponent',
   jsonID: 'EE_sdf',
 
-  onInit: (entity) => {
-    return {
-      color: new Color(0xffffff),
-      scale: new Vector3(0.25, 0.001, 0.25),
-      enable: false,
-      mode: SDFMode.TORUS
-    }
-  },
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (json.color?.isColor) {
-      component.color.set(json.color)
-    }
-    if (typeof json.enable === 'boolean') {
-      component.enable.set(json.enable)
-    }
-    if (typeof json.mode === 'number') {
-      component.mode.set(json.mode)
-    }
-    if (typeof json.scale === 'number') {
-      component.scale.set(json.scale)
-    }
-  },
-  toJSON: (entity, component) => {
-    return {
-      color: component.color.value,
-      enable: component.enable.value,
-      scale: component.scale.value,
-      mode: component.mode.value
-    }
-  },
+  schema: S.Object({
+    color: T.Color(0xffffff),
+    scale: T.Vec3(new Vector3(0.25, 0.001, 0.25)),
+    enable: S.Bool(false),
+    mode: S.Enum(SDFMode, SDFMode.TORUS)
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
@@ -103,10 +81,8 @@ export const SDFComponent = defineComponent({
       const cameraPosition = cameraTransform.position
       const transformComponent = getComponent(entity, TransformComponent)
       const cameraComponent = getComponent(Engine.instance.cameraEntity, CameraComponent)
-      const updater = createEntity()
-      setCallback(updater, UpdatableCallback, (dt) => {
-        SDFShader.shader.uniforms.uTime.value += dt * 0.1
-      })
+
+      if (!SDFShader) SDFShader = createSDFShader()
 
       SDFShader.shader.uniforms.cameraMatrix.value = cameraTransform.matrix
       SDFShader.shader.uniforms.fov.value = cameraComponent.fov
@@ -115,28 +91,37 @@ export const SDFComponent = defineComponent({
       SDFShader.shader.uniforms.far.value = cameraComponent.far
       SDFShader.shader.uniforms.sdfMatrix.value = transformComponent.matrixWorld
       SDFShader.shader.uniforms.cameraPos.value = cameraPosition
-      setComponent(updater, UpdatableComponent, true)
     }, [])
 
     useEffect(() => {
-      SDFShader.shader.uniforms.uColor.value = new Vector3(
-        sdfComponent.color.value.r,
-        sdfComponent.color.value.g,
-        sdfComponent.color.value.b
-      )
+      if (!SDFShader) return
+      const color = new Color(sdfComponent.color.value)
+      SDFShader.shader.uniforms.uColor.value = new Vector3(color.r, color.g, color.b)
     }, [sdfComponent.color])
 
     useEffect(() => {
+      if (!SDFShader) return
       SDFShader.shader.uniforms.scale.value = sdfComponent.scale.value
     }, [sdfComponent.scale])
 
     useEffect(() => {
+      if (!SDFShader) return
       SDFShader.shader.uniforms.mode.value = sdfComponent.mode.value
     }, [sdfComponent.mode])
 
     if (!rendererEntity) return null
 
     return <RendererReactor entity={entity} rendererEntity={rendererEntity} />
+  }
+})
+
+export const SDFSystem = defineSystem({
+  uuid: 'ir.engine.SDFSystem',
+  insert: { after: AnimationSystemGroup },
+  execute: () => {
+    if (!SDFShader) return
+    const delta = getState(ECSState).deltaSeconds
+    SDFShader.shader.uniforms.uTime.value += delta * 0.1
   }
 })
 
@@ -165,6 +150,8 @@ const RendererReactor = (props: { entity: Entity; rendererEntity: Entity }) => {
     })
 
     composer.addPass(depthPass, 3) // hardcoded to 3, should add a registry instead later
+
+    if (!SDFShader) SDFShader = createSDFShader()
 
     SDFShader.shader.uniforms.uDepth.value = depthRenderTarget.depthTexture
     const SDFPass = new ShaderPass(SDFShader.shader, 'inputBuffer')

@@ -46,17 +46,7 @@ export async function getGithubRepoAccessRefreshJobBody(
   jobId: string,
   userId: UserID
 ): Promise<k8s.V1Job> {
-  const command = [
-    'npx',
-    'cross-env',
-    'ts-node',
-    '--swc',
-    'scripts/refresh-gh-repo-access.ts',
-    '--userId',
-    userId,
-    '--jobId',
-    jobId
-  ]
+  const command = ['npx', 'ts-node', '--swc', 'scripts/refresh-gh-repo-access.ts', '--userId', userId, '--jobId', jobId]
 
   const labels = {
     'ir-engine/ghRepoAccessRefresh': 'true',
@@ -65,7 +55,7 @@ export async function getGithubRepoAccessRefreshJobBody(
     'ir-engine/release': process.env.RELEASE_NAME!
   }
 
-  const name = `${process.env.RELEASE_NAME}-gh-repo-refresh-${userId.slice(0, 8)}-update`
+  const name = `${process.env.RELEASE_NAME}-gh-repo-refresh-${userId.slice(0, 8)}`
 
   return getJobBody(app, command, name, labels)
 }

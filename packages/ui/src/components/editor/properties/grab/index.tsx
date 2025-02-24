@@ -21,37 +21,39 @@ Original Code is the Infinite Reality Engine team.
 
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
+/*
+CPAL-1.0 License
+...
 */
 
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment'
-import { getComponent, hasComponent, UUIDComponent } from '@ir-engine/ecs'
+import { getComponent, hasComponent } from '@ir-engine/ecs'
 import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
-import { GrabbableComponent } from '@ir-engine/engine/src/interaction/components/GrabbableComponent'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
+import { GrabbableComponent } from '@ir-engine/engine/src/grabbable/GrabbableComponent'
 import { InteractableComponent } from '@ir-engine/engine/src/interaction/components/InteractableComponent'
-import { grabbableInteractMessage } from '@ir-engine/engine/src/interaction/functions/grabbableFunctions'
 import { GiGrab } from 'react-icons/gi'
-import NodeEditor from '../nodeEditor'
+
+export const grabbableInteractMessage = 'Grab'
 
 export const GrabbableComponentNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    if (isClient) {
-      if (!hasComponent(props.entity, InteractableComponent)) {
-        EditorControlFunctions.addOrRemoveComponent([props.entity], InteractableComponent, true, {
-          label: grabbableInteractMessage,
-          callbacks: [
-            {
-              callbackID: GrabbableComponent.grabbableCallbackName,
-              target: getComponent(props.entity, UUIDComponent)
-            }
-          ]
-        })
-      }
+    if (!hasComponent(props.entity, InteractableComponent)) {
+      EditorControlFunctions.addOrRemoveComponent([props.entity], InteractableComponent, true, {
+        label: grabbableInteractMessage,
+        callbacks: [
+          {
+            callbackID: GrabbableComponent.grabbableCallbackName,
+            target: getComponent(props.entity, NodeIDComponent)
+          }
+        ]
+      })
     }
   }, [])
 
@@ -60,7 +62,7 @@ export const GrabbableComponentNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.grabbable.name')}
       description={t('editor:properties.grabbable.description')}
-      icon={<GrabbableComponentNodeEditor.iconComponent />}
+      Icon={GrabbableComponentNodeEditor.iconComponent}
     >
       <div id={'grabbable-component'}></div>
     </NodeEditor>

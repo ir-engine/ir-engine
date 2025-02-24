@@ -23,25 +23,24 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useFind, useMutation, useSearch } from '@ir-engine/common'
+import { InstanceType, instancePath } from '@ir-engine/common/src/schema.type.module'
+import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
+import { EyeLg, Trash04Lg } from '@ir-engine/ui/src/icons'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiEye, HiTrash } from 'react-icons/hi2'
-
-import { useFind, useMutation, useSearch } from '@ir-engine/common'
-import { instancePath, InstanceType } from '@ir-engine/common/src/schema.type.module'
-import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-
+import { validate as isValidUUID } from 'uuid'
 import { PopoverState } from '../../../common/services/PopoverState'
-import { instanceColumns } from '../../common/constants/instance'
 import DataTable from '../../common/Table'
+import { instanceColumns } from '../../common/constants/instance'
+import ActionButton from '../ActionButton'
 import ViewModal from './ViewModal'
 
 export default function InstanceTable({ search }: { search: string }) {
   const { t } = useTranslation()
   const instancesQuery = useFind(instancePath, {
     query: {
-      $sort: { ended: 1 },
+      $sort: { createdAt: 1 },
       $limit: 20,
       action: 'admin'
     }
@@ -50,7 +49,17 @@ export default function InstanceTable({ search }: { search: string }) {
   useSearch(
     instancesQuery,
     {
-      search
+      $or: [
+        {
+          id: isValidUUID(search) ? search : undefined
+        },
+        {
+          locationId: isValidUUID(search) ? search : undefined
+        },
+        {
+          channelId: isValidUUID(search) ? search : undefined
+        }
+      ]
     },
     search
   )
@@ -62,25 +71,20 @@ export default function InstanceTable({ search }: { search: string }) {
       id: row.id,
       ipAddress: row.ipAddress,
       currentUsers: row.currentUsers,
-      ended: row.ended ? t('admin:components.instance.ended') : t('admin:components.instance.active'),
       locationName: row.location && row.location.name ? row.location.name : '',
       channelId: row.channelId,
       podName: row.podName,
       action: (
         <div className="flex items-center justify-start gap-3 px-2 py-1">
-          <Button
-            className="bg-theme-blue-secondary text-blue-700 dark:text-white"
+          <ActionButton
+            icon={EyeLg}
             onClick={() => {
               PopoverState.showPopupover(<ViewModal instanceId={row.id} />)
             }}
-            startIcon={<HiEye className="place-self-center text-blue-700 dark:text-white" />}
-            size="small"
-          >
-            {t('admin:components.instance.actions.view')}
-          </Button>
-          <Button
-            className="h-8 w-8 justify-center border border-theme-primary bg-transparent p-0"
-            rounded="full"
+          />
+
+          <ActionButton
+            icon={Trash04Lg}
             onClick={() => {
               PopoverState.showPopupover(
                 <ConfirmDialog
@@ -91,12 +95,11 @@ export default function InstanceTable({ search }: { search: string }) {
                 />
               )
             }}
-          >
-            <HiTrash className="place-self-center text-theme-iconRed" />
-          </Button>
+            variant="red"
+          />
         </div>
       )
     }))
 
-  return <DataTable query={instancesQuery} columns={instanceColumns} rows={createRows(instancesQuery.data)} />
+  return <DataTable size="xl" query={instancesQuery} columns={instanceColumns} rows={createRows(instancesQuery.data)} />
 }

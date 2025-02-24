@@ -24,19 +24,17 @@ Infinite Reality Engine. All Rights Reserved.
 */
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
+import { config } from '@ir-engine/common/src/config'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
 import RenameSceneModal from '@ir-engine/editor/src/panels/scenes/RenameSceneModal'
+import { Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import MoreOptionsMenu from '@ir-engine/ui/src/components/tailwind/MoreOptionsMenu'
+import { Edit01Sm, Trash04Sm } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { default as React } from 'react'
 import { useTranslation } from 'react-i18next'
-import { BsThreeDotsVertical } from 'react-icons/bs'
-import { LuTrash } from 'react-icons/lu'
-import { MdOutlineEdit } from 'react-icons/md'
 
 type SceneItemProps = {
   scene: StaticResourceType
@@ -45,6 +43,8 @@ type SceneItemProps = {
   onRenameScene?: (newName: string) => void
   onDeleteScene?: (scene: StaticResourceType) => void
 }
+
+const DEFAULT_SCENE_THUMBNAIL = `${config.client.fileServer}/projects/ir-engine/default-project/public/scenes/default.thumbnail.jpg`
 
 export default function SceneItem({
   scene,
@@ -72,77 +72,72 @@ export default function SceneItem({
 
   return (
     <div
-      data-test-id={`${sceneName === 'New-Scene' ? 'default-scene' : sceneName}`}
-      className="col-span-2 inline-flex h-64 w-64 min-w-64 max-w-64 cursor-pointer flex-col items-start justify-start gap-3 rounded-lg bg-theme-highlight p-3 lg:col-span-1"
+      data-testid="scene-container"
+      className="col-span-2 inline-flex h-64 w-64 min-w-64 max-w-64 cursor-pointer flex-col items-start justify-start gap-3 rounded-lg border border-ui-outline bg-ui-background p-3 lg:col-span-1"
     >
-      <img className="shrink grow basis-0 self-stretch rounded" src={scene.thumbnailURL} onClick={handleOpenScene} />
+      <img
+        className="shrink grow basis-0 self-stretch rounded"
+        src={scene.thumbnailURL || DEFAULT_SCENE_THUMBNAIL}
+        alt={DEFAULT_SCENE_THUMBNAIL}
+        data-testid="scene-thumbnail"
+        onClick={handleOpenScene}
+      />
       <div className="inline-flex items-start justify-between self-stretch">
         <div className="inline-flex w-full flex-col items-start justify-start">
           <div className="space-between flex w-full flex-row">
-            <Text component="h3" fontWeight="light" className="leading-6 text-neutral-100">
-              <Tooltip content={sceneName}>
-                <div className="w-52 truncate">{sceneName}</div>
-              </Tooltip>
-            </Text>
+            <Tooltip content={sceneName}>
+              <Text
+                component="h3"
+                fontWeight="semibold"
+                className="w-52 truncate leading-6 text-text-primary"
+                data-testid="scene-name"
+                fontSize="xl"
+              >
+                {sceneName}
+              </Text>
+            </Tooltip>
           </div>
-          <Text component="h3" fontSize="xs" fontWeight="light" className="h-3.5 w-40 leading-5 text-neutral-100">
+          <Text
+            component="h3"
+            fontSize="sm"
+            className="h-3.5 w-40 leading-5 text-text-primary"
+            data-testid="scene-updated-at"
+          >
             {t('editor:hierarchy.lbl-edited')} {t('common:timeAgo', { time: timeAgo(new Date(scene.updatedAt)) })}
           </Text>
         </div>
-        <div className="relative h-6 w-6">
-          <Popup
-            trigger={
-              <Button
-                variant="transparent"
-                size="small"
-                className="px-2 py-1.5"
-                startIcon={<BsThreeDotsVertical className="text-neutral-100" />}
-              />
+
+        <MoreOptionsMenu
+          actionProps={[
+            {
+              label: t('editor:hierarchy.lbl-rename'),
+              icon: <Edit01Sm />,
+              onClick: () => {
+                PopoverState.showPopupover(
+                  <RenameSceneModal
+                    sceneName={sceneName}
+                    scene={scene}
+                    onRenameScene={onRenameScene}
+                    refetchProjectsData={refetchProjectsData}
+                  />
+                )
+              }
+            },
+            {
+              label: t('editor:hierarchy.lbl-delete'),
+              icon: <Trash04Sm />,
+              onClick: () => {
+                PopoverState.showPopupover(
+                  <ConfirmDialog
+                    title={t('editor:hierarchy.lbl-deleteScene')}
+                    text={t('editor:hierarchy.lbl-deleteSceneDescription', { sceneName })}
+                    onSubmit={async () => deleteSelectedScene(scene)}
+                  />
+                )
+              }
             }
-          >
-            <ul className="fixed z-10 block w-max translate-x-5 rounded-lg bg-theme-primary px-4 py-3 pr-10">
-              <li className="h-8">
-                <Button
-                  variant="transparent"
-                  size="medium"
-                  className="h-full p-0 text-zinc-400 hover:text-[var(--text-primary)]"
-                  startIcon={<MdOutlineEdit />}
-                  onClick={() => {
-                    PopoverState.showPopupover(
-                      <RenameSceneModal
-                        sceneName={sceneName}
-                        scene={scene}
-                        onRenameScene={onRenameScene}
-                        refetchProjectsData={refetchProjectsData}
-                      />
-                    )
-                  }}
-                >
-                  {t('editor:hierarchy.lbl-rename')}
-                </Button>
-              </li>
-              <li className="h-8">
-                <Button
-                  variant="transparent"
-                  size="medium"
-                  className="h-full p-0 text-zinc-400 hover:text-[var(--text-primary)]"
-                  startIcon={<LuTrash />}
-                  onClick={() => {
-                    PopoverState.showPopupover(
-                      <ConfirmDialog
-                        title={t('editor:hierarchy.lbl-deleteScene')}
-                        text={t('editor:hierarchy.lbl-deleteSceneDescription', { sceneName })}
-                        onSubmit={async () => deleteSelectedScene(scene)}
-                      />
-                    )
-                  }}
-                >
-                  {t('editor:hierarchy.lbl-delete')}
-                </Button>
-              </li>
-            </ul>
-          </Popup>
-        </div>
+          ]}
+        />
       </div>
     </div>
   )

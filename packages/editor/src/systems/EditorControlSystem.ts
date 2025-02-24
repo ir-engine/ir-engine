@@ -26,7 +26,14 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Intersection, Layers, Object3D, Raycaster } from 'three'
 
-import { Entity, PresentationSystemGroup, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
+import {
+  Entity,
+  EntityTreeComponent,
+  getAncestorWithComponents,
+  PresentationSystemGroup,
+  UndefinedEntity,
+  UUIDComponent
+} from '@ir-engine/ecs'
 import {
   getComponent,
   getMutableComponent,
@@ -40,23 +47,18 @@ import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
-import { GLTFSnapshotAction } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
-import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { TransformMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
-import { dispatchAction, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { FlyControlComponent } from '@ir-engine/spatial/src/camera/components/FlyControlComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
 import { InfiniteGridComponent } from '@ir-engine/spatial/src/renderer/components/InfiniteGridHelper'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
-import { EngineState } from '@ir-engine/spatial/src/EngineState'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
-import { TransformGizmoControlComponent } from '../classes/TransformGizmoControlComponent'
-import { TransformGizmoControlledComponent } from '../classes/TransformGizmoControlledComponent'
+import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
 import { addMediaNode } from '../functions/addMediaNode'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import isInputSelected from '../functions/isInputSelected'
@@ -73,6 +75,10 @@ import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { TransformGizmoControlledComponent } from '../classes/gizmo/transform/TransformGizmoControlledComponent'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { ClickPlacementState } from './ClickPlacementSystem'
@@ -162,16 +168,13 @@ const onKeyX = () => {
 }
 
 const onKeyZ = (control: boolean, shift: boolean) => {
-  const source = getState(EditorState).scenePath
-  if (!source) return
+  const rootEntity = getState(EditorState).rootEntity
+  if (!rootEntity) return
   if (control) {
-    const state = getState(GLTFSnapshotState)[source]
     if (shift) {
-      if (state.index >= state.snapshots.length - 1) return
-      dispatchAction(GLTFSnapshotAction.redo({ count: 1, source }))
+      // redo
     } else {
-      if (state.index <= 0) return
-      dispatchAction(GLTFSnapshotAction.undo({ count: 1, source }))
+      // undo
     }
   } else {
     toggleTransformSpace()
@@ -306,8 +309,13 @@ const execute = () => {
       // dont let use the editor camera while dragging
       const mainOrbitCamera = getOptionalMutableComponent(Engine.instance.cameraEntity, CameraOrbitComponent)
       const controllerEntity = getComponent(lastSelection, TransformGizmoControlledComponent).controller
-      if (mainOrbitCamera && controllerEntity !== UndefinedEntity)
+      if (
+        mainOrbitCamera &&
+        controllerEntity !== UndefinedEntity &&
+        hasComponent(controllerEntity, TransformGizmoControlComponent)
+      ) {
         mainOrbitCamera.disabled.set(getComponent(controllerEntity, TransformGizmoControlComponent).dragging)
+      }
     }
   }
 
@@ -325,10 +333,10 @@ const execute = () => {
       }
 
       // Get top most parent entity from the GLTF document
-      let selectedParentEntity = GLTFSnapshotState.findTopLevelParent(closestIntersection.entity)
+      let selectedParentEntity = getAncestorWithComponents(closestIntersection.entity, [GLTFComponent])
       // If selectedParentEntity has a parent in a different GLTF document use that as top most parent
       const parent = getOptionalComponent(selectedParentEntity, EntityTreeComponent)?.parentEntity
-      if (parent && getComponent(parent, SourceComponent) !== getComponent(selectedParentEntity, SourceComponent)) {
+      if (parent && GLTFComponent.getInstanceID(parent) !== getComponent(selectedParentEntity, SourceComponent)) {
         selectedParentEntity = parent
       }
 
@@ -338,11 +346,8 @@ const execute = () => {
 
       // If not showing model children in hierarchy don't allow those objects to be selected
       if (!hierarchyFeatureFlagEnabled) {
-        const inAuthoringLayer = GLTFSnapshotState.isInSnapshot(
-          getOptionalComponent(selectedParentEntity, SourceComponent),
-          selectedEntity
-        )
-        clickStartEntity = inAuthoringLayer ? selectedEntity : clickStartEntity
+        const inCurrentScene = hasComponent(selectedParentEntity, SceneComponent)
+        clickStartEntity = inCurrentScene ? selectedEntity : clickStartEntity
       } else {
         clickStartEntity = selectedEntity
       }
@@ -361,8 +366,13 @@ const execute = () => {
       clickStartEntity = capturingEntity
     }
   }
+
   if (buttons.PrimaryClick?.up && !buttons.PrimaryClick?.dragging) {
-    if (hasComponent(clickStartEntity, SourceComponent) && !getState(ClickPlacementState).placementEntity) {
+    if (
+      hasComponent(clickStartEntity, SourceComponent) &&
+      !getState(ClickPlacementState).placementEntity &&
+      getMutableState(EditorHelperState).gizmoEnabled.value
+    ) {
       const selectedEntities = SelectionState.getSelectedEntities()
 
       //only update selection if the selection actually changed (prevents unnecessarily creating new transform gizmos in edit mode)
@@ -447,7 +457,7 @@ const reactor = () => {
     setComponent(infiniteGridHelperEntity, InfiniteGridComponent, { size: editorHelperState.translationSnap.value })
   }, [editorHelperState.translationSnap, rendererState.infiniteGridHelperEntity])
 
-  const viewerEntity = useMutableState(EngineState).viewerEntity.value
+  const viewerEntity = useMutableState(ReferenceSpaceState).viewerEntity.value
 
   useEffect(() => {
     if (!viewerEntity) return

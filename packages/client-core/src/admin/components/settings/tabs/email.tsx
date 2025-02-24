@@ -25,15 +25,16 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { useFind, useMutation } from '@ir-engine/common'
-import { emailSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { EngineSettingType, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
+import { flattenObjectToArray, unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { EmailConfigType } from '@ir-engine/server-core/src/appconfig'
+import { Button, Input } from '@ir-engine/ui'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
@@ -44,15 +45,24 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
     loading: false,
     errorMessage: ''
   })
-  const emailSetting = useFind(emailSettingPath).data.at(0)
-  const id = emailSetting?.id
-  const smsNameCharacterLimit = useHookstate(emailSetting?.smsNameCharacterLimit)
-  const smtp = useHookstate(emailSetting?.smtp)
-  const auth = useHookstate(emailSetting?.smtp?.auth)
-  const from = useHookstate(emailSetting?.from)
-  const subject = useHookstate(emailSetting?.subject)
+  const engineSetting = useFind(engineSettingPath, {
+    query: {
+      category: 'email',
+      paginate: false
+    }
+  })
 
-  const patchEmailSetting = useMutation(emailSettingPath).patch
+  const emailSettings = unflattenArrayToObject(
+    engineSetting.data.map((el) => ({ key: el.key, value: el.value, dataType: el.dataType }))
+  ) as EmailConfigType
+
+  const smsNameCharacterLimit = useHookstate(emailSettings.smsNameCharacterLimit)
+  const smtp = useHookstate(emailSettings?.smtp)
+  const auth = useHookstate(emailSettings?.smtp?.auth)
+  const from = useHookstate(emailSettings?.from)
+  const subject = useHookstate(emailSettings?.subject)
+
+  const engineSettingMutation = useMutation(engineSettingPath)
 
   const handleSmtpSecure = (value) => {
     smtp.set({ ...JSON.parse(JSON.stringify(smtp.value)), secure: value })
@@ -73,25 +83,53 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
   }
 
   useEffect(() => {
-    if (emailSetting) {
-      smtp.set(emailSetting?.smtp)
-      auth.set(emailSetting?.smtp?.auth)
-      subject.set(emailSetting?.subject)
-      from.set(emailSetting?.from)
+    if (engineSetting.status === 'success') {
+      smtp.set(emailSettings?.smtp)
+      auth.set(emailSettings?.smtp?.auth)
+      subject.set(emailSettings?.subject)
+      from.set(emailSettings?.from)
+      smsNameCharacterLimit.set(emailSettings?.smsNameCharacterLimit)
     }
-  }, [emailSetting])
+  }, [engineSetting.status])
 
   const handleSubmit = (event) => {
     state.loading.set(true)
     event.preventDefault()
+    if (!smtp.value || !auth.value || !from.value || !subject.value) return
 
-    if (!id || !smtp.value || !auth.value || !from.value || !subject.value) return
-
-    patchEmailSetting(id, {
-      smtp: { ...smtp.value, auth: auth.value, secure: Boolean(smtp.value.secure), port: Number(smtp.value.port) },
+    const updatedSettings = flattenObjectToArray({
+      smtp: { ...smtp.value, auth: auth.value, secure: `${smtp.value.secure}`, port: smtp.value.port },
       from: from.value,
       subject: subject.value
     })
+    const emailOperationPromises: Promise<EngineSettingType | EngineSettingType[]>[] = []
+
+    updatedSettings.forEach((setting) => {
+      const settingInDb = engineSetting.data.find((el) => el.key === setting.key)
+      if (!settingInDb) {
+        emailOperationPromises.push(
+          engineSettingMutation.create({
+            key: setting.key,
+            category: 'email',
+            dataType: getDataType(setting.value),
+            value: `${setting.value}`,
+            type: 'private'
+          })
+        )
+      } else if (settingInDb.value != setting.value) {
+        emailOperationPromises.push(
+          engineSettingMutation.patch(settingInDb.id, {
+            key: setting.key,
+            category: 'email',
+            dataType: getDataType(setting.value),
+            value: setting.value,
+            type: 'private'
+          })
+        )
+      }
+    })
+
+    Promise.all(emailOperationPromises)
       .then(() => {
         state.set({ loading: false, errorMessage: '' })
       })
@@ -101,11 +139,11 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
   }
 
   const handleCancel = () => {
-    smtp.set(emailSetting?.smtp)
-    auth.set(emailSetting?.smtp?.auth)
-    subject.set(emailSetting?.subject)
-    from.set(emailSetting?.from)
-    smsNameCharacterLimit.set(emailSetting?.smsNameCharacterLimit)
+    smtp.set(emailSettings?.smtp)
+    auth.set(emailSettings?.smtp?.auth)
+    subject.set(emailSettings?.subject)
+    from.set(emailSettings?.from)
+    smsNameCharacterLimit.set(emailSettings?.smsNameCharacterLimit)
   }
 
   const handleUpdateSubject = (event, type) => {
@@ -119,8 +157,6 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
     <Accordion
       title={t('admin:components.setting.email.header')}
       subtitle={t('admin:components.setting.email.subtitle')}
-      expandIcon={<HiPlusSmall />}
-      shrinkIcon={<HiMinus />}
       ref={ref}
       open={open}
     >
@@ -129,15 +165,21 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
           {t('admin:components.setting.smtp')}
         </Text>
         <Input
-          className="col-span-2"
-          label={t('admin:components.setting.host')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.host'),
+            position: 'top'
+          }}
           value={smtp?.value?.host || ''}
           onChange={(e) => handleUpdateSmtp(e, 'host')}
         />
 
         <Input
-          className="col-span-2"
-          label={t('admin:components.setting.port')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.port'),
+            position: 'top'
+          }}
           value={smtp?.value?.port || ''}
           onChange={(e) => handleUpdateSmtp(e, 'port')}
         />
@@ -155,8 +197,11 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
           {t('admin:components.setting.from')}
         </Text>
         <Input
-          className="col-span-2"
-          label={t('admin:components.setting.from')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.from'),
+            position: 'top'
+          }}
           value={from?.value || ''}
           onChange={(e) => from.set(e.target.value)}
         />
@@ -167,15 +212,21 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
           {t('admin:components.setting.auth')}
         </Text>
         <Input
-          className="col-span-2"
-          label={t('admin:components.setting.userName')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.userName'),
+            position: 'top'
+          }}
           value={auth?.value?.user || ''}
           onChange={(e) => handleUpdateAuth(e, 'user')}
         />
 
         <PasswordInput
-          className="col-span-2"
-          label={t('admin:components.setting.password')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.password'),
+            position: 'top'
+          }}
           value={auth?.value?.pass || ''}
           onChange={(e) => handleUpdateAuth(e, 'pass')}
         />
@@ -186,29 +237,41 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
           {t('admin:components.setting.subject')}
         </Text>
         <Input
-          className="col-span-2"
-          label={t('admin:components.setting.login')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.login'),
+            position: 'top'
+          }}
           value={subject?.value?.login || ''}
           onChange={(e) => handleUpdateSubject(e, 'login')}
         />
 
         <Input
-          className="col-span-2"
-          label={t('admin:components.setting.friend')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.friend'),
+            position: 'top'
+          }}
           value={subject?.value?.friend || ''}
           onChange={(e) => handleUpdateSubject(e, 'friend')}
         />
 
         <Input
-          className="col-span-2"
-          label={t('admin:components.setting.channel')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.channel'),
+            position: 'top'
+          }}
           value={subject?.value?.channel || ''}
           onChange={(e) => handleUpdateSubject(e, 'channel')}
         />
 
         <Input
-          className="col-span-2"
-          label={t('admin:components.setting.smsNameCharLimit')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.smsNameCharLimit'),
+            position: 'top'
+          }}
           value={smsNameCharacterLimit?.value?.toString() || ''}
           disabled
         />
@@ -222,18 +285,12 @@ const EmailTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefO
         )}
 
         <div className="col-span-1 grid grid-cols-4 gap-6">
-          <Button size="small" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
+          <Button size="sm" className="text-primary col-span-1 " fullWidth onClick={handleCancel}>
             {t('admin:components.common.reset')}
           </Button>
-          <Button
-            size="small"
-            variant="primary"
-            className="col-span-1"
-            fullWidth
-            onClick={handleSubmit}
-            startIcon={state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
-          >
+          <Button size="sm" variant="primary" className="col-span-1" fullWidth onClick={handleSubmit}>
             {t('admin:components.common.save')}
+            {state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
           </Button>
         </div>
       </div>

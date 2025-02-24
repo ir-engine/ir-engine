@@ -23,43 +23,41 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { getAllEntities, getEntityComponents } from 'bitecs'
+import { getAllEntities, getEntityComponents } from '@ir-engine/ecs'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'
 
-import { UUIDComponent } from '@ir-engine/ecs'
+import { EntityTreeComponent, UUIDComponent, entityExists } from '@ir-engine/ecs'
 import {
   Component,
   ComponentMap,
+  Layers,
   getComponent,
   getOptionalComponent,
   hasComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
-import { defineQuery, removeQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { SuspendedQueryChildState, defineQuery, removeQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { GLTFSourceState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import {
   HyperFlux,
   NO_PROXY,
   defineState,
-  getState,
   syncStateWithLocalStorage,
   useHookstate,
   useMutableState
 } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import { Input } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
-const renderEntityTreeRoots = () => {
+const renderEntityTreeRoots = (roots: Entity[]) => {
   return Object.fromEntries(
-    Object.values(getState(GLTFSourceState))
+    roots
       .map((entity, i) => {
         if (!entity || !entityExists(entity)) return []
         return [
@@ -147,12 +145,33 @@ const EntitySearchState = defineState({
   extension: syncStateWithLocalStorage(['search', 'query'])
 })
 
+const shouldExpandNodeInitially = (keyPath: any, data: any, level: number) => level < 2
+
+const simulationSources = defineQuery([GLTFComponent])
+const authoringSources = defineQuery([GLTFComponent], Layers.Authoring)
+
 export const EntityDebug = () => {
   const { t } = useTranslation()
 
   const namedEntities = useHookstate({})
   const erroredComponents = useHookstate([] as any[])
-  const entityTree = useHookstate({} as any)
+  const suspendedEntities = useMutableState(SuspendedQueryChildState)
+    .get(NO_PROXY)
+    .map((c) => [c.entity, { props: c.props, reactor: c.ChildEntityReactor }] as [Entity, any])
+    .reduce(
+      (acc, v) => {
+        const [entity, vals] = v
+        const entityLabel = `${
+          getOptionalComponent(entity, NameComponent) ?? getOptionalComponent(entity, UUIDComponent)
+        } - ${entity}`
+        if (!(entityLabel in acc)) acc[entityLabel] = []
+        acc[entityLabel].push(vals)
+        return acc
+      },
+      {} as Record<Entity, Array<any>>
+    )
+
+  const entityTree = useHookstate({ siimulation: {}, authoring: {} } as any)
   const entitySearch = useMutableState(EntitySearchState).search
   const entityQuery = useMutableState(EntitySearchState).query
 
@@ -174,7 +193,10 @@ export const EntityDebug = () => {
   useExecute(
     () => {
       namedEntities.set(renderAllEntities(entitySearch.value, entityQuery.value))
-      entityTree.set(renderEntityTreeRoots())
+      entityTree.set({
+        simulation: renderEntityTreeRoots(simulationSources()),
+        authoring: renderEntityTreeRoots(authoringSources())
+      })
     },
     { after: PresentationSystemGroup }
   )
@@ -183,23 +205,25 @@ export const EntityDebug = () => {
     <div className="m-1 bg-neutral-600 p-1">
       <div className="my-1">
         <Text>{t('common:debug.scenes')}</Text>
-        <JSONTree data={entityTree.value} postprocessValue={(v: any) => v?.value ?? v} />
+        <JSONTree
+          data={entityTree.get(NO_PROXY)}
+          shouldExpandNodeInitially={shouldExpandNodeInitially}
+          postprocessValue={(v: any) => v?.value ?? v}
+        />
       </div>
       <div className="my-1">
         <Text>{t('common:debug.entities')}</Text>
         <Input
-          containerClassName="my-0.5"
           placeholder="Search..."
           value={entitySearch.value}
           onChange={(event) => entitySearch.set(event.target.value)}
         />
-        <Input
-          containerClassName="my-0.5"
-          placeholder="Query..."
-          value={entityQuery.value}
-          onChange={(e) => entityQuery.set(e.target.value)}
-        />
+        <Input placeholder="Query..." value={entityQuery.value} onChange={(e) => entityQuery.set(e.target.value)} />
         <JSONTree data={namedEntities.get(NO_PROXY)} />
+      </div>
+      <div className="my-1">
+        <Text>{t('common:debug.suspendedEntities')}</Text>
+        <JSONTree data={suspendedEntities} />
       </div>
       <div className="my-1">
         <Text>{t('common:debug.erroredEntities')}</Text>

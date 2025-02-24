@@ -24,24 +24,25 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-import { twMerge } from 'tailwind-merge'
 import { LoaderUtils } from 'three'
 
-import { API } from '@ir-engine/common'
 import {
   transformModel as clientSideTransformModel,
   ModelTransformStatus
 } from '@ir-engine/common/src/model/ModelTransformFunctions'
-import { modelTransformPath } from '@ir-engine/common/src/schema.type.module'
-import { setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  getAncestorWithComponents,
+  iterateEntityNode,
+  removeEntityNodeRecursively,
+  UUIDComponent
+} from '@ir-engine/ecs'
+import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   DefaultModelTransformParameters as defaultParams,
   ModelTransformParameters
 } from '@ir-engine/engine/src/assets/classes/ModelTransform'
-import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
 import { Heuristic, VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
 import { NO_PROXY, none, useHookstate } from '@ir-engine/hyperflux'
-import { iterateEntityNode, removeEntityNodeRecursively } from '@ir-engine/spatial/src/transform/components/EntityTree'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useTranslation } from 'react-i18next'
@@ -49,10 +50,11 @@ import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTF
 import exportGLTF from '../../functions/exportGLTF'
 
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
+import { Button } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { HiPlus, HiXMark } from 'react-icons/hi2'
 import { MdClose } from 'react-icons/md'
@@ -60,62 +62,47 @@ import { FileDataType } from '../../constants/AssetTypes'
 import GLTFTransformProperties from '../properties/GLTFTransformProperties'
 
 const progressCaptions: Record<ModelTransformStatus, string> = {
-  [ModelTransformStatus.Initializing]: 'editor:properties.model.transform.status.initializing',
+  [ModelTransformStatus.TransformingModels]: 'editor:properties.model.transform.status.transformingmodels',
   [ModelTransformStatus.ProcessingTexture]: 'editor:properties.model.transform.status.processingtexture',
-  [ModelTransformStatus.Finalizing]: 'editor:properties.model.transform.status.finalizing',
   [ModelTransformStatus.WritingFiles]: 'editor:properties.model.transform.status.writingfiles',
   [ModelTransformStatus.Complete]: 'editor:properties.model.transform.status.complete'
 }
 
-export const createLODVariants = async (
+const createLODVariants = async (
+  srcURL: string,
   lods: LODVariantDescriptor[],
-  clientside: boolean,
   heuristic: Heuristic,
   exportCombined = false,
   onProgress: (
     progress: number,
     status: ModelTransformStatus,
     numerator: number,
-    denominator: number,
-    currentLOD: number,
-    totalLODS: number
+    denominator: number
   ) => void = () => {}
 ) => {
   const lodVariantParams: ModelTransformParameters[] = lods.map((lod) => ({
     ...lod.params
   }))
 
-  const transformMetadata = [] as Record<string, any>[]
-  for (const [i, variant] of lodVariantParams.entries()) {
-    if (clientside) {
-      await clientSideTransformModel(
-        variant,
-        (key, data) => {
-          if (!transformMetadata[i]) transformMetadata[i] = {}
-          transformMetadata[i][key] = data
-        },
-        (progress, status, numerator, denominator) => {
-          onProgress((progress + i) / lods.length, status, numerator ?? 0, denominator ?? 0, i, lods.length)
-        }
-      )
-    } else {
-      await API.instance.service(modelTransformPath).create(variant)
-    }
-  }
+  const transformMetadata: Record<string, any>[] = []
+  await clientSideTransformModel(
+    srcURL,
+    lodVariantParams,
+    (i, key, data) => {
+      if (!transformMetadata[i]) transformMetadata[i] = {}
+      transformMetadata[i][key] = data
+    },
+    onProgress
+  )
 
   if (exportCombined) {
     const firstLODParams = lods[0].params
 
     const result = createSceneEntity('container')
-    setComponent(result, ModelComponent)
     const variant = createSceneEntity('LOD Variant', result)
-    const modelSrcPath = `${LoaderUtils.extractUrlBase(firstLODParams.src)}${firstLODParams.dst}.${
-      firstLODParams.modelFormat
-    }`
-    setComponent(variant, ModelComponent, { src: modelSrcPath })
     setComponent(variant, VariantComponent, {
       levels: lods.map((lod, lodIndex) => ({
-        src: `${LoaderUtils.extractUrlBase(lod.params.src)}${lod.params.dst}.${lod.params.modelFormat}`,
+        src: `${LoaderUtils.extractUrlBase(srcURL)}${lod.params.dst}.${lod.params.modelFormat}`,
         metadata: {
           ...lod.variantMetadata,
           ...transformMetadata[lodIndex]
@@ -123,8 +110,11 @@ export const createLODVariants = async (
       })),
       heuristic
     })
-    const destinationPath = firstLODParams.src.replace(/\.[^.]*$/, `-integrated.gltf`)
-    iterateEntityNode(result, (entity) => setComponent(entity, SourceComponent, destinationPath))
+    const destinationPath = srcURL.replace(/\.[^.]*$/, `-integrated.gltf`)
+    const gltfEntity = getAncestorWithComponents(result, [GLTFComponent])
+    const uuid = getComponent(gltfEntity, UUIDComponent)
+    const sourceID = SourceComponent.getSourceID(uuid, destinationPath)
+    iterateEntityNode(result, (entity) => setComponent(entity, SourceComponent, sourceID))
     await exportGLTF(result, destinationPath)
     removeEntityNodeRecursively(result)
   }
@@ -178,13 +168,11 @@ export default function ModelCompressionPanel({
 
   const confirmPreset = () => {
     const lod = lods[selectedLODIndex.value].get(NO_PROXY)
-    const src = lod.params.src
     const dst = lod.params.dst
     const modelFormat = lod.params.modelFormat
     const uri = lod.params.resourceUri
 
     const presetParams = JSON.parse(JSON.stringify(selectedPreset.value)) as ModelTransformParameters
-    presetParams.src = src
     presetParams.dst = dst
     presetParams.modelFormat = modelFormat
     presetParams.resourceUri = uri
@@ -198,41 +186,35 @@ export default function ModelCompressionPanel({
   }
 
   const compressModel = async (file: FileDataType) => {
-    const clientside = true
     const exportCombined = true
 
     let fileLODs = lods.value as LODVariantDescriptor[]
 
+    const url = new URL(file.url)
+    const srcURL = pathJoin(url.origin, url.pathname)
+    const modelFormat = srcURL.endsWith('.gltf') ? 'gltf' : srcURL.endsWith('.vrm') ? 'vrm' : 'glb'
+
     if (selectedFiles.length > 1) {
       fileLODs = fileLODs.map((lod) => {
-        const url = new URL(file.url)
-        const src = pathJoin(url.origin, url.pathname)
-        const fileName = src.split('/').pop()!.split('.').shift()!
+        const fileName = srcURL.split('/').pop()!.split('.').shift()!
         const dst = fileName + lod.suffix
         return {
           ...lod,
-          src,
           dst,
-          modelFormat: src.endsWith('.gltf') ? 'gltf' : src.endsWith('.vrm') ? 'vrm' : 'glb'
+          modelFormat
         }
       })
     }
 
-    const heuristic = Heuristic.BUDGET
     await createLODVariants(
+      srcURL,
       fileLODs,
-      clientside,
-      heuristic,
+      Heuristic.DISTANCE,
       exportCombined,
-      (progress, status, numerator, denominator, currentLOD, totalLODs) => {
-        let caption = t(progressCaptions[status]!, {
+      (progress, status, numerator, denominator) => {
+        const caption = t(progressCaptions[status]!, {
           numerator: numerator + 1,
           denominator
-        })
-        caption = t('editor:properties.model.transform.progress', {
-          currentLOD: currentLOD + 1,
-          totalLODs,
-          caption
         })
         compressionProgress.set({ progress, caption })
       }
@@ -264,7 +246,6 @@ export default function ModelCompressionPanel({
 
     const defaults = defaultLODs.map((defaultLOD) => {
       const lod = JSON.parse(JSON.stringify(defaultLOD)) as LODVariantDescriptor
-      lod.params.src = fullSrc
       lod.params.dst = fileName + lod.suffix
       lod.params.modelFormat = fullSrc.endsWith('.gltf') ? 'gltf' : fullSrc.endsWith('.vrm') ? 'vrm' : 'glb'
       lod.params.resourceUri = ''
@@ -289,73 +270,68 @@ export default function ModelCompressionPanel({
   }
 
   return (
-    <div className="max-h-[80vh] w-[60vw] overflow-y-auto rounded-xl bg-[#0E0F11]">
+    <div className="max-h-[80vh] w-[60vw] overflow-y-auto rounded-xl bg-[#212226]">
       <div className="relative flex items-center justify-center px-8 py-3">
         <Text className="leading-6">{t('editor:properties.model.transform.compress')}</Text>
         <Button
-          variant="outline"
+          variant="tertiary"
           className="absolute right-0 border-0 dark:bg-transparent dark:text-[#A3A3A3]"
-          startIcon={<MdClose />}
           onClick={() => PopoverState.hidePopupover()}
-        />
+        >
+          <MdClose />
+        </Button>
       </div>
       <div className="px-8 pb-6 pt-2 text-left">
         <Text className="mb-6 font-semibold">{t('editor:properties.model.transform.lodLevels')}</Text>
         <div className="mb-8 flex gap-x-4">
           {lods.value.map((_lod, index) => (
             <span key={index} className="flex items-center">
-              <Button
-                variant="transparent"
+              <button
                 className={`rounded-none px-1 pb-4 text-sm font-medium ${
-                  selectedLODIndex.value === index ? 'border-b border-blue-primary text-blue-primary' : 'text-[#9CA0AA]'
+                  selectedLODIndex.value === index ? 'border-b' : 'text-[#9CA0AA]'
                 }`}
                 onClick={() => selectedLODIndex.set(Math.min(index, lods.length - 1))}
               >
                 {t('editor:properties.model.transform.lodLevelNumber', { index: index + 1 })}
-              </Button>
+              </button>
               {selectedLODIndex.value !== index && (
-                <Button
-                  className={twMerge('m-0 p-0 pb-1')}
-                  variant="transparent"
+                <button
+                  className="m-0 p-0 pb-1 font-medium text-white"
                   onClick={() => handleRemoveLOD(index)}
-                  startIcon={<HiXMark />}
                   title="remove"
-                />
+                >
+                  <HiXMark />
+                </button>
               )}
             </span>
           ))}
-          <Button
-            className="self-center rounded-md bg-[#162546] p-1 [&>*]:m-0"
-            variant="transparent"
+          <button
+            className="self-center rounded-md bg-[#162546] p-1 font-medium text-white [&>*]:m-0"
             onClick={handleAddLOD}
           >
             <HiPlus />
-          </Button>
+          </button>
         </div>
 
-        <div className="my-8 flex items-center justify-around gap-x-1 overflow-x-auto rounded-lg border border-theme-input p-2">
+        <div className="my-8 flex items-center justify-around gap-x-1 overflow-x-auto rounded-lg border  p-2">
           {presetList.value.map((lodItem: LODVariantDescriptor, index) => (
-            <Button
+            <button
               key={index}
-              variant="transparent"
-              className="text-nowrap rounded-full bg-[#2F3137] px-2 py-0.5"
+              className="flex items-center justify-center text-nowrap rounded-full bg-[#212226] px-2 py-0.5 font-medium text-white"
               onClick={() => applyPreset(lodItem.params)}
-              endIcon={
-                !LODList.find((l) => l.params.dst === lodItem.params.dst) && (
-                  <HiXMark onClick={(event) => deletePreset(event, index)} />
-                )
-              }
             >
               {lodItem.params.dst}
-            </Button>
+              {!LODList.find((l) => l.params.dst === lodItem.params.dst) && (
+                <HiXMark onClick={(event) => deletePreset(event, index)} />
+              )}
+            </button>
           ))}
-          <Button
-            variant="transparent"
-            className="text-nowrap rounded bg-[#162546] px-3 py-2"
+          <button
+            className="text-nowrap rounded bg-[#162546] px-3 py-2 font-medium text-white"
             onClick={() => savePresetList()}
           >
             {t('editor:properties.model.transform.savePreset')}
-          </Button>
+          </button>
         </div>
 
         <div className="ml-[16.66%] w-4/6">
@@ -370,7 +346,7 @@ export default function ModelCompressionPanel({
             <div className="flex w-full flex-col">
               <div className="h-4 w-full overflow-hidden rounded bg-white">
                 <div
-                  className="h-4 w-full origin-left bg-blue-primary transition-transform"
+                  className="h-4 w-full origin-left transition-transform"
                   style={{
                     transform: `scaleX(${compressionProgress.progress.value})`
                   }}

@@ -23,23 +23,140 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { AnimationClip, AnimationMixer } from 'three'
+import { AnimationClip, AnimationMixer, Object3D, PropertyBinding } from 'three'
 
-import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity, iterateEntityNode, removeEntity, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
+import {
+  defineComponent,
+  getComponent,
+  getOptionalComponent,
+  LayerComponent,
+  removeComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { NO_PROXY, State, useHookstate } from '@ir-engine/hyperflux'
+import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
+import {
+  MaterialInstanceComponent,
+  MaterialStateComponent
+} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { useEffect } from 'react'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
+import { AssetState } from '../../gltf/GLTFState'
+import { SourceComponent } from '../../scene/components/SourceComponent'
+import { AvatarRigComponent } from './AvatarAnimationComponent'
+import { NormalizedBoneComponent } from './NormalizedBoneComponent'
 
 export const AnimationComponent = defineComponent({
   name: 'AnimationComponent',
 
-  onInit: (entity) => {
-    return {
-      mixer: null! as AnimationMixer,
-      animations: [] as AnimationClip[]
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (json.mixer) component.mixer.set(json.mixer)
-    if (json.animations) component.animations.set(json.animations as AnimationClip[])
-  }
+  schema: S.Object({
+    mixer: S.Type<AnimationMixer>(),
+    animations: S.Array(S.Type<AnimationClip>())
+  })
 })
+
+export const useLoadAnimationFromBatchGLTF = (urls: string[], keepEntities = false) => {
+  const animations = urls.map((url) => useLoadAnimationFromGLTF(url, keepEntities))
+  const loadedAnimations = useHookstate(null as [AnimationClip[] | null, Entity][] | null)
+  useEffect(() => {
+    if (loadedAnimations.value || animations.some((animation) => !animation[0].value)) return
+    loadedAnimations.set(animations.map((animation) => [animation[0].get(NO_PROXY)!, animation[1]]))
+  }, [animations])
+  return loadedAnimations as State<[AnimationClip[] | null, Entity][]>
+}
+
+export const useLoadAnimationFromGLTF = (url: string, keepEntity = false) => {
+  const assetEntity = useHookstate(UndefinedEntity)
+  const animation = useHookstate(null as AnimationClip[] | null)
+  const animationComponent = useOptionalComponent(assetEntity.value, AnimationComponent)
+  const progress = useOptionalComponent(assetEntity.value, GLTFComponent)?.progress
+
+  useEffect(() => {
+    if (animation.value || !url) return
+    if (!assetEntity.value) {
+      assetEntity.set(AssetState.load(url))
+    }
+  }, [url, progress])
+
+  useEffect(() => {
+    if (
+      !assetEntity?.value ||
+      !animationComponent?.animations ||
+      !animationComponent.animations.length ||
+      animation.value
+    )
+      return
+    animation.set(getComponent(assetEntity.value, AnimationComponent).animations)
+    if (keepEntity) {
+      iterateEntityNode(assetEntity.value, (entity) => {
+        removeComponent(entity, MeshComponent)
+        removeComponent(entity, SkinnedMeshComponent)
+        removeComponent(entity, MaterialStateComponent)
+        removeComponent(entity, MaterialInstanceComponent)
+      })
+    } else {
+      removeEntity(assetEntity.value)
+    }
+  }, [animationComponent?.animations, assetEntity?.value])
+  return [animation, keepEntity ? assetEntity?.value ?? UndefinedEntity : UndefinedEntity] as [
+    State<AnimationClip[]>,
+    Entity
+  ]
+}
+
+PropertyBinding.parseTrackName = function (trackName) {
+  const lastDotIndex = trackName.lastIndexOf('.')
+  const beforeLastDot = trackName.substring(0, lastDotIndex)
+  const afterLastDot = trackName.substring(lastDotIndex + 1)
+
+  const results = {
+    nodeName: beforeLastDot,
+    objectName: undefined! as string,
+    objectIndex: undefined! as string,
+    propertyName: afterLastDot, // required
+    propertyIndex: undefined! as string
+  }
+
+  if (results.propertyName === null || results.propertyName.length === 0) {
+    throw new Error('PropertyBinding: can not parse propertyName from trackName: ' + trackName)
+  }
+
+  return results
+}
+
+export const getTrackId = (entity: Entity) =>
+  getComponent(entity, UUIDComponent).replace(getComponent(entity, SourceComponent) + '-', '')
+
+PropertyBinding.findNode = (root: Object3D, nodeName: string) => {
+  const sceneInstanceID = GLTFComponent.getInstanceID(root.entity)
+  const childEntities = SourceComponent.getEntitiesBySource(sceneInstanceID, LayerComponent.get(root.entity))
+
+  let entity = UndefinedEntity
+  /**if AvatarRigComponent is present, use VRM schema */
+  const avatarRigComponent = getOptionalComponent(root.entity!, AvatarRigComponent)
+  if (avatarRigComponent) {
+    entity = avatarRigComponent.bonesToEntities[nodeName]
+  }
+
+  /**Find the entity that corresponds to the nodeName.
+   * Using getTrackId to allow reuse of the same track for identical hierarchies across different entity roots.
+   */
+  if (!entity)
+    entity = childEntities.find((entity) => getTrackId(entity) === nodeName.substring(nodeName.lastIndexOf('-') + 1))!
+
+  if (!entity) {
+    return null
+  }
+
+  return (
+    getOptionalComponent(entity, NormalizedBoneComponent) ||
+    getOptionalComponent(entity, BoneComponent) ||
+    getOptionalComponent(entity, MeshComponent) ||
+    getOptionalComponent(entity, ObjectComponent)!
+  )
+}

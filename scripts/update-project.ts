@@ -23,6 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+// This must always be imported first
+import '@ir-engine/server-core/src/patchEngineNode'
+
 import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
@@ -34,7 +37,7 @@ import config from '@ir-engine/server-core/src/appconfig'
 import { createFeathersKoaApp, serverJobPipe } from '@ir-engine/server-core/src/createApp'
 import { updateAppConfig } from '@ir-engine/server-core/src/updateAppConfig'
 import { Octokit } from '@octokit/rest'
-import { JwtPayload, decode } from 'jsonwebtoken'
+import { JwtPayload, verify } from 'jsonwebtoken'
 
 dotenv.config({
   path: appRootPath.path,
@@ -73,7 +76,7 @@ const options = cli.parse({
 cli.main(async () => {
   try {
     await updateAppConfig()
-    const app = createFeathersKoaApp(ServerMode.API, serverJobPipe)
+    const app = await createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
     const { userId, jobId, ...data } = options
     data.reset = data.reset === 'true'
@@ -82,7 +85,10 @@ cli.main(async () => {
     if (data.token) {
       const appId = config.authentication.oauth.github.appId ? parseInt(config.authentication.oauth.github.appId) : null
       const token = data.token
-      const jwtDecoded = decode(token)! as JwtPayload
+      if (!config.authentication.oauth.github.privateKey) throw new NotAuthenticated('No GitHub private key configured')
+      const jwtDecoded = verify(token, config.authentication.oauth.github.privateKey, {
+        algorithms: ['RS256']
+      })! as JwtPayload
       if (jwtDecoded.iss == null || parseInt(jwtDecoded.iss) !== appId)
         throw new NotAuthenticated('Invalid app credentials')
       const octoKit = new Octokit({ auth: token })

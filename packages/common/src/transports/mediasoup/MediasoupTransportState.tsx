@@ -104,18 +104,25 @@ export const MediasoupTransportObjectsState = defineState({
   initial: {} as Record<string, any>
 })
 
+export type TransportType = {
+  transportID: string
+  peerID: PeerID
+  direction: 'send' | 'recv'
+  connected: boolean
+  sctpParameters: any
+  iceParameters: any
+  iceCandidates: any
+  iceServers: any
+  dtlsParameters: any
+}
+
 export const MediasoupTransportState = defineState({
   name: 'ee.engine.network.mediasoup.MediasoupTransportState',
 
   initial: {} as Record<
     NetworkID,
     {
-      [transportID: string]: {
-        transportID: string
-        peerID: PeerID
-        direction: 'send' | 'recv'
-        connected: boolean
-      }
+      [transportID: string]: TransportType
     }
   >,
 
@@ -131,10 +138,15 @@ export const MediasoupTransportState = defineState({
       state[networkID].merge({
         [action.transportID]: {
           /** Mediasoup is always client-server, so the peerID is always the host for clients */
-          peerID: isClient ? network.hostPeerID : action.peerID,
+          peerID: isClient ? network.hostPeerID! : action.peerID,
           transportID: action.transportID,
           direction: action.direction,
-          connected: false
+          connected: false,
+          sctpParameters: action.sctpParameters,
+          iceParameters: action.iceParameters,
+          iceCandidates: action.iceCandidates,
+          iceServers: action.iceServers,
+          dtlsParameters: action.dtlsParameters
         }
       })
     }),
@@ -153,14 +165,14 @@ export const MediasoupTransportState = defineState({
       if (!state[network].keys.length) state[network].set(none)
     }),
 
-    onUpdatePeers: NetworkActions.updatePeers.receive((action) => {
+    onUpdatePeers: NetworkActions.peerLeft.receive((action) => {
       const state = getState(MediasoupTransportState)
       const transports = state[action.$network]
       if (!transports) return
       for (const transport of Object.values(transports)) {
-        if (action.peers.find((peer) => peer.peerID === transport.peerID)) continue
-        console.log('Transport peer not found:', transport.peerID)
-        getMutableState(MediasoupTransportState)[action.$network][transport.transportID].set(none)
+        if (action.peerID === transport.peerID) {
+          getMutableState(MediasoupTransportState)[action.$network][transport.transportID].set(none)
+        }
       }
     })
   },

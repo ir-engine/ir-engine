@@ -27,7 +27,10 @@ import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
+import { DataTexture, Texture } from 'three'
+import { afterEach, beforeEach } from 'vitest'
 import { FileLoader } from '../../src/assets/loaders/base/FileLoader'
+import { TextureLoader } from '../../src/assets/loaders/texture/TextureLoader'
 
 const toArrayBuffer = (buf) => {
   const arrayBuffer = new ArrayBuffer(buf.length)
@@ -39,6 +42,7 @@ const toArrayBuffer = (buf) => {
 }
 
 const original = FileLoader.prototype.load
+const textureOriginal = TextureLoader.prototype.load
 
 export function overrideFileLoaderLoad() {
   beforeEach(() => {
@@ -46,7 +50,7 @@ export function overrideFileLoaderLoad() {
       try {
         const assetPathAbsolute = path.join(appRootPath.path, url)
         const buffer = toArrayBuffer(fs.readFileSync(assetPathAbsolute))
-        onLoad(buffer)
+        setTimeout(() => onLoad(buffer), 0)
       } catch (e) {
         onError(e)
       }
@@ -55,6 +59,32 @@ export function overrideFileLoaderLoad() {
   })
   afterEach(() => {
     FileLoader.prototype.load = original
+  })
+}
+
+export function overrideTextureLoaderLoad() {
+  beforeEach(() => {
+    function overrideLoad(
+      url: string,
+      onLoad: (loadedTexture: Texture) => void,
+      onProgress?: (event: ProgressEvent) => void,
+      onError?: (err: unknown) => void,
+      signal?: AbortSignal
+    ) {
+      try {
+        const assetPathAbsolute = path.join(appRootPath.path, url)
+        const buffer = toArrayBuffer(fs.readFileSync(assetPathAbsolute))
+        const texture = new DataTexture(buffer)
+        onLoad(texture)
+      } catch (e) {
+        onError?.(e)
+      }
+    }
+    //@ts-ignore
+    TextureLoader.prototype.load = overrideLoad
+  })
+  afterEach(() => {
+    TextureLoader.prototype.load = textureOriginal
   })
 }
 

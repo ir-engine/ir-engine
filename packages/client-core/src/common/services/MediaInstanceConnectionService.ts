@@ -31,14 +31,15 @@ import { ChannelID, InstanceID, instanceProvisionPath, RoomCode } from '@ir-engi
 import { defineState, getMutableState, getState, Identifiable, State, useState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 
-import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
+import { SocketWebRTCClientNetwork } from '../../transports/mediasoup/MediasoupClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:service:media-instance' })
 
 type InstanceState = {
-  ipAddress: string
-  port: string
+  ipAddress?: string
+  port?: string
+  p2p?: boolean
   channelId: ChannelID
   roomCode: RoomCode
 }
@@ -77,10 +78,11 @@ export const MediaInstanceConnectionService = {
         createPrivateRoom
       }
     })
-    if (provisionResult.ipAddress && provisionResult.port) {
+    if (provisionResult.p2p || (provisionResult.ipAddress && provisionResult.port)) {
       getMutableState(MediaInstanceState).instances[provisionResult.id].set({
         ipAddress: provisionResult.ipAddress,
         port: provisionResult.port,
+        p2p: provisionResult.p2p,
         channelId: channelID,
         roomCode: provisionResult.roomCode
       })

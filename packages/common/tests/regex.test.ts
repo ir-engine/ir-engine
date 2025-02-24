@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 import assert from 'assert'
+import { describe, it } from 'vitest'
 import {
   ASSETS_REGEX,
   BUILDER_CHART_REGEX,
@@ -36,6 +37,7 @@ import {
   PROJECT_REGEX,
   PROJECT_THUMBNAIL_REGEX,
   PUBLIC_SIGNED_REGEX,
+  UNIQUEIFIED_VITE_KEY_REGEX,
   USER_ID_REGEX,
   VALID_FILENAME_REGEX,
   VALID_HEIRARCHY_SEARCH_REGEX,
@@ -48,9 +50,9 @@ describe('regex.test', () => {
   describe('INVALID_FILENAME_REGEX', () => {
     it('should not match invalid filenames', () => {
       const invalidFilenames = [
-        'hello_world',
         'file<name',
         'email@example.com:80',
+        '_',
         'path/to/file',
         'back\\slash',
         'pipe|symbol',
@@ -75,7 +77,9 @@ describe('regex.test', () => {
 
     it('should match valid filenames', () => {
       const validFilenames = [
-        'helloworld',
+        'hello_world',
+        'hello-world',
+        'hello.world',
         'filename',
         'emailexample.com',
         'pathtofile',
@@ -93,7 +97,7 @@ describe('regex.test', () => {
   })
 
   describe('HEIRARCHY_SEARCH_REPLACE_REGEX', () => {
-    it('should replace special characters in search', () => {
+    describe('should replace special characters in search', () => {
       const escapeSpecialChars = (input) => {
         return input.replace(VALID_HEIRARCHY_SEARCH_REGEX, '\\$&')
       }
@@ -151,7 +155,7 @@ describe('regex.test', () => {
 
   describe('VALID_SCENE_NAME_REGEX', () => {
     it('should match valid scene names', () => {
-      const validSceneNames = ['A123', 'file-name', '12345', 'My-good-file']
+      const validSceneNames = ['A123', 'file-name', 'file_name', 'file.name', '12345', 'My-good-file']
       validSceneNames.forEach((filename) => {
         assert.ok(VALID_SCENE_NAME_REGEX.test(filename), `Expected '${filename}' to be valid scene names`)
       })
@@ -164,9 +168,7 @@ describe('regex.test', () => {
         'invalid!',
         'very-long-string-that-is-definitely-not-going-to-match-the-regex-because-it-is-way-too-long-for-the-pattern',
         '--double-hyphen',
-        '...',
-        'underscore_in_between',
-        'my-file_123'
+        '...'
       ]
       invalidSceneNames.forEach((filename) => {
         assert.ok(!VALID_SCENE_NAME_REGEX.test(filename), `Expected '${filename}' to be invalid scene names`)
@@ -233,7 +235,7 @@ describe('regex.test', () => {
         'username@yahoo.com.',
         'username@yahoo..com',
         'username@yahoo.c',
-        'username@yahoo.corporate',
+        // 'username@yahoo.corporate', TODO: will be added back after reverting EMAIL_REGEX
         'username@-example.com',
         'username@example.com-',
         'username@example..com',
@@ -699,6 +701,43 @@ describe('regex.test', () => {
         const matches = chart.matchAll(BUILDER_CHART_REGEX)
         const matchesArray = Array.from(matches)
         assert.ok(matchesArray.length === 0, `Expected '${chart}' to not match BUILDER_CHART_REGEX`)
+      })
+    })
+  })
+
+  describe('UNIQUEIFIED_VITE_KEY_REGEX', () => {
+    it('should match valid file keys', () => {
+      const positiveCases = [
+        'client/assets/AccountDetailsPage-Br_QAdyQ.js',
+        'client/assets/AccountDetailsPage-Br_QAdyQ.css',
+        'client/assets/Apppage-Br_QAdyQ.css.map',
+        'client/AccountDetailsPage-BraQAdyQ.css.map',
+        'AccountDetailsPage-Br_QAd-Q.css.map'
+      ]
+
+      positiveCases.forEach((item) => {
+        const match = UNIQUEIFIED_VITE_KEY_REGEX.exec(item)
+        assert.ok(match, `Expected '${item}' to match UNIQUEIFIED_VITE_KEY_REGEX`)
+      })
+    })
+
+    it('should not match invalid file keys', () => {
+      const negativeCases = [
+        'client/assets/AccountDetailsPage-Br_$Ad*Q.js',
+        'client/assets/AccountDetailsPage-Br_$AdyQ.js',
+        'client/assets/AccountDetailsPage.css',
+        'client/assets/AccountDetailsPage-Br_QAdyQ.tsx',
+        'client/assets/AccountDetailsPage-BraQAdyQ.tsx.map',
+        'client/AccountDetailsPage-Br_QQ.css.map',
+        'AccountDetailsPage-Br_QAd-QQQ.css.map',
+        'root-cookie-accessor.html'
+      ]
+      negativeCases.forEach((item) => {
+        assert.doesNotMatch(
+          item,
+          UNIQUEIFIED_VITE_KEY_REGEX,
+          `Expected '${item}' to not match UNIQUEIFIED_VITE_KEY_REGEX`
+        )
       })
     })
   })

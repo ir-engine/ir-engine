@@ -27,7 +27,6 @@ import * as THREE from 'three'
 import { Euler, Matrix4, Object3D, Quaternion, Scene, SkinnedMesh, Vector2, Vector3, Vector4 } from 'three'
 
 import { Entity } from '@ir-engine/ecs'
-import { isClient } from '@ir-engine/hyperflux'
 
 import { overrideOnBeforeCompile } from './common/functions/OnBeforeCompilePlugin'
 import { Object3DUtils } from './transform/Object3DUtils'
@@ -120,10 +119,12 @@ Euler.prototype.toJSON = function () {
   return { x: this._x, y: this._y, z: this._z, order: this._order }
 }
 
-declare module 'three/src/core/Object3D' {
+declare module 'three/src/core/Object3D.js' {
   export interface Object3D {
     matrixWorldAutoUpdate: boolean
     entity: Entity
+    /** @deprecated use TransformComponent property */
+    readonly rotation: Euler
     /** @deprecated use ECS hierarchy instead [#9308](https://github.com/ir-engine/ir-engine/issues/9308) */
     add(...object: Object3D[]): this
     /** @deprecated use ECS hierarchy instead [#9308](https://github.com/ir-engine/ir-engine/issues/9308) */
@@ -144,14 +145,32 @@ declare module 'three/src/core/Object3D' {
     traverseVisible(callback: (object: Object3D) => void): void
     /** @deprecated use ECS hierarchy instead [#9308](https://github.com/ir-engine/ir-engine/issues/9308) */
     traverseAncestors(callback: (object: Object3D) => void): void
+    /** @deprecated */
+    preserveChildren?: boolean
+    /** @deprecated */
+    readonly isProxified: true | undefined
   }
 }
 
-declare module 'three/src/math/Quaternion' {
+declare module 'three/src/math/Quaternion.js' {
   export interface Quaternion {
     fastSlerp: typeof fastSlerp
   }
 }
+
+// declare module 'three/src/core/BufferGeometry.js' {
+//   export interface BufferGeometry {
+//     boundsTree?: MeshBVH
+//     disposeBoundsTree: () => void
+//     computeBoundsTree: () => void
+//   }
+// }
+
+// declare module 'three/src/core/Raycaster.js' {
+//   export interface Raycaster {
+//     firstHitOnly: boolean
+//   }
+// }
 
 Scene.DEFAULT_MATRIX_AUTO_UPDATE = false
 
@@ -214,85 +233,50 @@ SkinnedMesh.prototype.applyBoneTransform = function (index, vector) {
   return vector.applyMatrix4(this.bindMatrixInverse)
 }
 
+Object3D.prototype.copy = function (source: Object3D, recursive = true) {
+  this.name = source.name
+
+  this.up.copy(source.up)
+
+  this.position.copy(source.position)
+
+  // disable rotation
+  // this.rotation.order = source.rotation.order;
+
+  this.quaternion.copy(source.quaternion)
+  this.scale.copy(source.scale)
+
+  this.matrix.copy(source.matrix)
+  this.matrixWorld.copy(source.matrixWorld)
+
+  this.matrixAutoUpdate = source.matrixAutoUpdate
+  this.matrixWorldNeedsUpdate = source.matrixWorldNeedsUpdate
+
+  this.matrixWorldAutoUpdate = source.matrixWorldAutoUpdate
+
+  this.layers.mask = source.layers.mask
+  this.visible = source.visible
+
+  this.castShadow = source.castShadow
+  this.receiveShadow = source.receiveShadow
+
+  this.frustumCulled = source.frustumCulled
+  this.renderOrder = source.renderOrder
+
+  this.animations = source.animations.slice()
+
+  this.userData = JSON.parse(JSON.stringify(source.userData))
+
+  if (recursive === true) {
+    for (let i = 0; i < source.children.length; i++) {
+      const child = source.children[i]
+      this.add(child.clone())
+    }
+  }
+
+  return this
+}
+
 overrideOnBeforeCompile()
 
 globalThis.THREE = { ...THREE } as any
-
-if (!isClient) {
-  const { Blob } = require('buffer')
-  const fetch = require('node-fetch')
-
-  globalThis.fetch = fetch
-  globalThis.Request = fetch.Request
-  globalThis.Response = fetch.Response
-  globalThis.Headers = fetch.Headers
-  globalThis.self = globalThis as Window & typeof globalThis
-
-  // this will be added in node 19
-  if (!globalThis.URL.createObjectURL) globalThis.URL.createObjectURL = (blob) => null!
-  if (!globalThis.Blob) globalThis.Blob = Blob
-
-  const _localStorage = {}
-  if (!globalThis.localStorage)
-    globalThis.localStorage = {
-      setItem: (key, val) => {
-        _localStorage[key] = val
-      },
-      getItem: (key) => {
-        return _localStorage[key] ?? null
-      }
-    } as Storage
-
-  // patches for headless-gl - currently unused
-
-  //@ts-ignore
-  THREE.TextureLoader.prototype.load = function (url, onLoad, onProgress, onError) {}
-
-  // patch navigator
-  if (!globalThis.navigator)
-    (globalThis as any).navigator = {
-      product: 'NativeScript', // patch axios so it doesnt complain,
-      userAgent: 'node'
-    }
-  /*
-  
-  // todo: move this out of module scope
-  function addEventListener(event, func, bind_) {}
-  
-  // patch window prop for three
-  if (!globalThis.window) (globalThis as any).window = {}
-  Object.assign((globalThis as any).window, {
-    innerWidth: 1920,
-    innerHeight: 1080,
-    addEventListener,
-    URL
-  })
-  
-  class Image {}
-  
-  // patch three ImageLoader
-  if (!globalThis.document) (globalThis as any).document = {}
-  Object.assign((globalThis as any).document, {
-    createElement: (type, ...args) => {
-      switch (type) {
-        case 'div': // patch for sinon
-        default:
-          return
-      }
-    },
-    URL,
-    createElementNS: (ns, type) => {
-      if (type === 'img') {
-        const img = new Image() as any
-        img.addEventListener = (type, handler) => {
-          img['on' + type] = handler.bind(img)
-        }
-        img.removeEventListener = (type) => {
-          img['on' + type] = null
-        }
-        return img
-      }
-    }
-  })
-  */
-}

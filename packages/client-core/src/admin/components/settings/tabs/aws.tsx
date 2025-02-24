@@ -25,14 +25,16 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { useFind, useMutation } from '@ir-engine/common'
-import { AwsCloudFrontType, AwsSmsType, awsSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { EngineSettingType, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
+import { flattenObjectToArray, unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { AwsConfig } from '@ir-engine/server-core/src/appconfig'
+import { Button, Input } from '@ir-engine/ui'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 const SMS_PROPERTIES = {
@@ -51,36 +53,82 @@ const CLOUDFRONT_PROPERTIES = {
 
 const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObject<HTMLDivElement>) => {
   const { t } = useTranslation()
+  const state = useHookstate({
+    loading: false,
+    errorMessage: ''
+  })
+  const patchAwsSettings = useMutation(engineSettingPath)
+  const engineSettingData = useFind(engineSettingPath, {
+    query: {
+      category: 'aws',
+      paginate: false
+    }
+  })
+  const awsSettings = unflattenArrayToObject(
+    engineSettingData.data.map((el) => ({ key: el.key, value: el.value, dataType: el.dataType }))
+  ) as AwsConfig
 
-  const patchAwsSettings = useMutation(awsSettingPath).patch
-  const adminAwsSettingsData = useFind(awsSettingPath).data.at(0)
-
-  const id = adminAwsSettingsData?.id
-  const sms = useHookstate(adminAwsSettingsData?.sms)
-  const cloudfront = useHookstate(adminAwsSettingsData?.cloudfront)
+  const sms = useHookstate(awsSettings?.sms)
+  const s3 = useHookstate(awsSettings?.s3)
+  const eks = useHookstate(awsSettings?.eks)
+  const cloudfront = useHookstate(awsSettings?.cloudfront)
 
   useEffect(() => {
-    if (!adminAwsSettingsData) {
-      return
+    if (engineSettingData.status == 'success') {
+      sms.set(awsSettings.sms)
+      cloudfront.set(awsSettings.cloudfront)
+      s3.set(awsSettings.s3)
+      eks.set(awsSettings.eks)
     }
-    const tempSms = JSON.parse(JSON.stringify(adminAwsSettingsData.sms)) as AwsSmsType
-    const tempCloudfront = JSON.parse(JSON.stringify(adminAwsSettingsData.cloudfront)) as AwsCloudFrontType
-    sms.set(tempSms)
-    cloudfront.set(tempCloudfront)
-  }, [adminAwsSettingsData])
+  }, [engineSettingData.status])
 
   const handleSubmit = (event) => {
+    state.loading.set(true)
     event.preventDefault()
-    if (!id) return
 
-    patchAwsSettings(id, { sms: sms.value, cloudfront: cloudfront.value })
+    const updatedSettings = flattenObjectToArray({
+      sms: sms.value,
+      cloudfront: cloudfront.value
+    })
+    const awsOperationPromises: Promise<EngineSettingType | EngineSettingType[]>[] = []
+
+    updatedSettings.forEach((setting) => {
+      const settingInDb = engineSettingData.data.find((el) => el.key === setting.key)
+      if (!settingInDb) {
+        awsOperationPromises.push(
+          patchAwsSettings.create({
+            key: setting.key,
+            category: 'aws',
+            dataType: getDataType(setting.value),
+            value: `${setting.value}`,
+            type: 'private'
+          })
+        )
+      } else if (settingInDb.value != setting.value) {
+        awsOperationPromises.push(
+          patchAwsSettings.patch(settingInDb.id, {
+            key: setting.key,
+            category: 'aws',
+            dataType: getDataType(setting.value),
+            value: setting.value,
+            type: 'private'
+          })
+        )
+      }
+    })
+
+    Promise.all(awsOperationPromises)
+      .then(() => {
+        state.set({ loading: false, errorMessage: '' })
+      })
+      .catch((e) => {
+        state.set({ loading: false, errorMessage: e.message })
+      })
   }
 
   const handleCancel = () => {
-    const tempSms = JSON.parse(JSON.stringify(adminAwsSettingsData?.sms)) as AwsSmsType
-    const tempCloudfront = JSON.parse(JSON.stringify(adminAwsSettingsData?.cloudfront)) as AwsCloudFrontType
-    sms.set(tempSms)
-    cloudfront.set(tempCloudfront)
+    sms.set(awsSettings.sms)
+    cloudfront.set(awsSettings.cloudfront)
   }
 
   const handleUpdateCloudfront = (event, type) => {
@@ -101,8 +149,6 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
     <Accordion
       title={t('admin:components.setting.aws.header')}
       subtitle={t('admin:components.setting.aws.subtitle')}
-      expandIcon={<HiPlusSmall />}
-      shrinkIcon={<HiMinus />}
       ref={ref}
       open={open}
     >
@@ -112,16 +158,22 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
         </Text>
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.accessKeyId')}
-          value={adminAwsSettingsData?.eks?.accessKeyId || ''}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.accessKeyId'),
+            position: 'top'
+          }}
+          value={eks?.value?.accessKeyId || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.secretAccessKey')}
-          value={adminAwsSettingsData?.eks?.secretAccessKey || ''}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.secretAccessKey'),
+            position: 'top'
+          }}
+          value={eks?.value?.secretAccessKey || ''}
           disabled
         />
       </div>
@@ -132,51 +184,72 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
         </Text>
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.accessKeyId')}
-          value={adminAwsSettingsData?.s3?.accessKeyId || ''}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.accessKeyId'),
+            position: 'top'
+          }}
+          value={s3?.value?.accessKeyId || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.secretAccessKey')}
-          value={adminAwsSettingsData?.s3?.secretAccessKey || ''}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.secretAccessKey'),
+            position: 'top'
+          }}
+          value={s3?.value?.secretAccessKey || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.endpoint')}
-          value={adminAwsSettingsData?.s3?.endpoint || ''}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.endpoint'),
+            position: 'top'
+          }}
+          value={s3?.value?.endpoint || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.staticResourceBucket')}
-          value={adminAwsSettingsData?.s3?.staticResourceBucket || ''}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.staticResourceBucket'),
+            position: 'top'
+          }}
+          value={s3?.value?.staticResourceBucket || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.region')}
-          value={adminAwsSettingsData?.s3?.region || ''}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.region'),
+            position: 'top'
+          }}
+          value={s3?.value?.region || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.avatarDir')}
-          value={adminAwsSettingsData?.s3?.avatarDir || ''}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.avatarDir'),
+            position: 'top'
+          }}
+          value={s3?.value?.avatarDir || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.s3DevMode')}
-          value={adminAwsSettingsData?.s3?.s3DevMode || ''}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.s3DevMode'),
+            position: 'top'
+          }}
+          value={s3?.value?.s3DevMode || ''}
           disabled
         />
       </div>
@@ -186,22 +259,31 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
           {t('admin:components.setting.cloudFront')}
         </Text>
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.domain')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.domain'),
+            position: 'top'
+          }}
           value={cloudfront?.value?.domain || ''}
           onChange={(e) => handleUpdateCloudfront(e, CLOUDFRONT_PROPERTIES.DOMAIN)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.distributionId')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.distributionId'),
+            position: 'top'
+          }}
           value={cloudfront?.value?.distributionId || ''}
           onChange={(e) => handleUpdateCloudfront(e, CLOUDFRONT_PROPERTIES.DISTRIBUTION_ID)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.region')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.region'),
+            position: 'top'
+          }}
           value={cloudfront?.value?.region || ''}
           onChange={(e) => handleUpdateCloudfront(e, CLOUDFRONT_PROPERTIES.REGION)}
         />
@@ -212,47 +294,69 @@ const AwsTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRefObj
           {t('admin:components.setting.sms')}
         </Text>
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.accessKeyId')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.accessKeyId'),
+            position: 'top'
+          }}
           value={sms?.value?.accessKeyId || ''}
           onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.ACCESS_KEY_ID)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.applicationId')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.applicationId'),
+            position: 'top'
+          }}
           value={sms?.value?.applicationId || ''}
           onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.APPLICATION_ID)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.region')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.region'),
+            position: 'top'
+          }}
           value={sms?.value?.region || ''}
           onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.REGION)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.senderId')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.senderId'),
+            position: 'top'
+          }}
           value={sms?.value?.senderId || ''}
           onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.SENDER_ID)}
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.secretAccessKey')}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.secretAccessKey'),
+            position: 'top'
+          }}
           value={sms?.value?.secretAccessKey || ''}
           onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.SECRET_ACCESS_KEY)}
         />
       </div>
-
+      {state.errorMessage.value && (
+        <div className="col-span-full">
+          <Text component="h3" className="text-red-700">
+            {state.errorMessage.value}
+          </Text>
+        </div>
+      )}
       <div className="grid grid-cols-8 gap-6">
-        <Button size="small" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
+        <Button size="sm" className="text-primary col-span-1 " fullWidth onClick={handleCancel}>
           {t('admin:components.common.reset')}
         </Button>
-        <Button size="small" variant="primary" className="col-span-1" fullWidth onClick={handleSubmit}>
+        <Button size="sm" variant="primary" className="col-span-1" fullWidth onClick={handleSubmit}>
           {t('admin:components.common.save')}
+          {state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
         </Button>
       </div>
     </Accordion>

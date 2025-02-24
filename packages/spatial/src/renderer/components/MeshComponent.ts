@@ -23,110 +23,24 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { Box3, BufferGeometry, Material, Mesh } from 'three'
+import { Mesh } from 'three'
 
-import { Entity, useEntityContext } from '@ir-engine/ecs'
-import {
-  defineComponent,
-  hasComponent,
-  removeComponent,
-  setComponent,
-  useComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
-import { NO_PROXY, State, useImmediateEffect } from '@ir-engine/hyperflux'
+import { defineComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 
-import { useResource } from '../../resources/resourceHooks'
-import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { S } from '@ir-engine/ecs'
+import { ObjectComponent } from './ObjectComponent'
 
 export const MeshComponent = defineComponent({
   name: 'MeshComponent',
-  jsonID: 'EE_mesh',
 
-  onInit: (entity) => null! as Mesh,
+  schema: S.Required(S.Type<Mesh>()),
 
-  onSet: (entity, component, mesh: Mesh) => {
-    if (!mesh || !mesh.isMesh) throw new Error('MeshComponent: Invalid mesh')
-    component.set(mesh)
+  onSet(entity, component, json) {
+    setComponent(entity, ObjectComponent, json as Mesh)
+    component.set(json as Mesh)
   },
 
-  reactor: () => {
-    const entity = useEntityContext()
-    const meshComponent = useComponent(entity, MeshComponent)
-    const [meshResource] = useResource(meshComponent.value, entity, meshComponent.uuid.value)
-    const [geometryResource] = useResource(meshComponent.geometry.value, entity, meshComponent.geometry.uuid.value)
-    const [materialResource] = useResource<Material | Material[]>(
-      meshComponent.material.value as Material,
-      entity,
-      !Array.isArray(meshComponent.material.value) ? (meshComponent.material.value as Material).uuid : undefined
-    )
-
-    useEffect(() => {
-      const box = geometryResource.boundingBox.get(NO_PROXY) as Box3 | null
-      if (!box) return
-
-      setComponent(entity, BoundingBoxComponent, { box: box })
-      return () => {
-        removeComponent(entity, BoundingBoxComponent)
-      }
-    }, [geometryResource.boundingBox])
-
-    useEffect(() => {
-      if (meshComponent.value !== meshResource.value) meshResource.set(meshComponent.value)
-    }, [meshComponent])
-
-    useEffect(() => {
-      const mesh = meshComponent.value
-      if (mesh.geometry !== geometryResource.value) geometryResource.set(mesh.geometry)
-    }, [meshComponent.geometry])
-
-    useEffect(() => {
-      const mesh = meshComponent.value
-      if (mesh.material !== materialResource.value) materialResource.set(mesh.material)
-
-      if (Array.isArray(mesh.material)) {
-        for (const material of mesh.material) material.needsUpdate = true
-      } else {
-        ;(mesh.material as Material).needsUpdate = true
-      }
-    }, [meshComponent.material])
-
-    return null
+  onRemove(entity, component) {
+    removeComponent(entity, ObjectComponent)
   }
 })
-
-/**
- *
- * Creates a mesh component that won't be exported
- *
- * @param entity entity to add the mesh component to
- * @param geometry a Geometry instance or function returing a Geometry instance to add to the mesh
- * @param material a Material instance or function returing a Material instance to add to the mesh
- * @returns State<Mesh>
- */
-export function useMeshComponent<TGeometry extends BufferGeometry, TMaterial extends Material>(
-  entity: Entity,
-  geometry: TGeometry | (() => TGeometry),
-  material: TMaterial | (() => TMaterial)
-): State<Mesh<TGeometry, TMaterial>> {
-  if (!hasComponent(entity, MeshComponent)) {
-    const geo = typeof geometry === 'function' ? geometry() : geometry
-    const mat = typeof material === 'function' ? material() : material
-    setComponent(entity, MeshComponent, new Mesh<TGeometry, TMaterial>(geo, mat))
-  }
-
-  const meshComponent = useComponent(entity, MeshComponent)
-
-  useImmediateEffect(() => {
-    const mesh = meshComponent.value as Mesh<TGeometry, TMaterial>
-    mesh.userData['ignoreOnExport'] = true
-    addObjectToGroup(entity, mesh)
-    return () => {
-      removeObjectFromGroup(entity, mesh)
-      removeComponent(entity, MeshComponent)
-    }
-  }, [])
-
-  return meshComponent as unknown as State<Mesh<TGeometry, TMaterial>>
-}

@@ -23,28 +23,30 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import './patchNodeForWebXREmulator'
-
-import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
-
-import { Entity, getMutableComponent, setComponent } from '@ir-engine/ecs'
+import { Entity, getComponent, setComponent } from '@ir-engine/ecs'
 import { EffectComposer, Pass, RenderPass } from 'postprocessing'
-import { WebGLRenderTarget } from 'three'
+import { WebGLRenderTarget, WebGLRenderer } from 'three'
 import { RendererComponent } from '../../src/renderer/WebGLRendererSystem'
 import { createWebXRManager } from '../../src/xr/WebXRManager'
 import { MockEventListener } from './MockEventListener'
 
-class MockCanvas extends MockEventListener {
-  #context = {
-    getContextAttributes: () => {
-      return {
-        xrCompatible: true
-      }
-    },
-    viewport: () => {}
-  }
-  parentElement = new MockEventListener()
-  getContext = () => this.#context
+const mockCanvas = new MockEventListener() as any
+mockCanvas.parentElement = new MockEventListener()
+mockCanvas.getContext = () => null! // null will tell the renderer to not initialize, allowing our mock to work
+mockCanvas.style = {
+  display: 'initial' /** [MDN Reference](https://developer.mozilla.org/docs/Web/CSS/display) */
+} as CSSStyleDeclaration
+
+const mockContext = {
+  getExtension: () => {},
+  getParameter: () => {},
+  getContextAttributes: () => {
+    return {
+      xrCompatible: true
+    }
+  },
+  canvas: mockCanvas,
+  viewport: () => {}
 }
 
 class MockRenderer {
@@ -56,13 +58,17 @@ class MockRenderer {
     setAnimationLoop: () => {},
     setContext: () => {}
   }
-  domElement = new MockCanvas()
+  domElement = mockCanvas
   setPixelRatio = () => {}
   getRenderTarget = () => {}
+  setRenderTarget = () => {}
   getSize = () => 0
-  getContext = () => this.domElement.getContext()
+  getContext = () => mockContext
   getPixelRatio = () => 1
   dispose = () => {}
+  capabilities = {
+    isWebGL2: true
+  }
 }
 
 class MockEffectComposer extends EffectComposer {
@@ -88,22 +94,16 @@ class MockEffectComposer extends EffectComposer {
 
 export const mockEngineRenderer = (entity: Entity) => {
   const renderer = new MockRenderer() as unknown as WebGLRenderer
-  setComponent(entity, RendererComponent)
   const effectComposer = new MockEffectComposer()
   const renderPass = new RenderPass()
   effectComposer.addPass(renderPass)
   const xrManager = createWebXRManager(renderer)
   xrManager.cameraAutoUpdate = false
   xrManager.enabled = true
-  getMutableComponent(entity, RendererComponent).merge({
-    supportWebGL2: true,
-    canvas: renderer.domElement,
-    renderContext: renderer.getContext(),
-    renderer,
-    effectComposer,
-    renderPass,
-    xrManager
-  })
-  // run reactor
-  setComponent(entity, RendererComponent)
+  setComponent(entity, RendererComponent, { canvas: renderer.domElement })
+  const renderComponent = getComponent(entity, RendererComponent)
+  renderComponent.renderer = renderer
+  renderComponent.effectComposer = effectComposer
+  renderComponent.renderPass = renderPass
+  renderComponent.xrManager = xrManager
 }

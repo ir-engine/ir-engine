@@ -25,7 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { Entity, setComponent } from '@ir-engine/ecs'
 import { Bounds, Edges, WebContainer3D, WebLayerManager } from '@ir-engine/xrui'
+import { IDBKeyRange, indexedDB } from 'fake-indexeddb'
 import { XRUIComponent } from '../../src/xrui/components/XRUIComponent'
+
+globalThis.indexedDB = indexedDB
+globalThis.IDBKeyRange = IDBKeyRange
 
 /**
  * @why
@@ -62,10 +66,10 @@ export function createMockXRUI(entity: Entity, size: number = 1) {
   bounds.width = size
 
   const container = new WebContainer3D(containerElement, { manager: manager })
-  const xrui = setComponent(entity, XRUIComponent, container)
-  xrui.rootLayer.bounds = bounds
-  xrui.rootLayer.margin = new Edges()
-  xrui.rootLayer.children.forEach((child) => {
+  setComponent(entity, XRUIComponent, container)
+  container.rootLayer.bounds = bounds
+  container.rootLayer.margin = new Edges()
+  container.rootLayer.children.forEach((child) => {
     child.visible = true
   })
 }

@@ -27,18 +27,26 @@ import { useEffect } from 'react'
 
 import {
   defineComponent,
+  getAuthoringCounterpart,
   getOptionalComponent,
   removeComponent,
   setComponent,
   useComponent,
+  useEntityContext,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { AudioNodeGroups, MediaElementComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import {
+  AudioNodeGroups,
+  MediaComponent,
+  MediaElementComponent
+} from '@ir-engine/engine/src/scene/components/MediaComponent'
+import { useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { ActiveHelperComponent } from '../../../../spatial/src/common/ActiveHelperComponent'
+import { GeneralAudioComponent } from './GeneralAudioComponent'
 import { PositionalAudioHelperComponent } from './PositionalAudioHelperComponent'
 
 export interface PositionalAudioInterface {
@@ -51,76 +59,50 @@ export interface PositionalAudioInterface {
   coneOuterGain: number
 }
 
+const distanceModel = S.LiteralUnion(['exponential', 'inverse', 'linear'], 'inverse')
+
 export const PositionalAudioComponent = defineComponent({
   name: 'EE_positionalAudio',
 
   jsonID: 'EE_audio',
 
-  onInit: (entity) => {
-    return {
-      // default values as suggested at https://medium.com/@kfarr/understanding-web-audio-api-positional-audio-distance-models-for-webxr-e77998afcdff
-      distanceModel: 'inverse' as DistanceModelType,
-      rolloffFactor: 3,
-      refDistance: 1,
-      maxDistance: 40,
-      coneInnerAngle: 360,
-      coneOuterAngle: 0,
-      coneOuterGain: 0
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.distanceModel === 'string' && component.distanceModel.value !== json.distanceModel)
-      component.distanceModel.set(json.distanceModel)
-    if (typeof json.rolloffFactor === 'number' && component.rolloffFactor.value !== json.rolloffFactor)
-      component.rolloffFactor.set(json.rolloffFactor)
-    if (typeof json.refDistance === 'number' && component.refDistance.value !== json.refDistance)
-      component.refDistance.set(json.refDistance)
-    if (typeof json.maxDistance === 'number' && component.maxDistance.value !== json.maxDistance)
-      component.maxDistance.set(json.maxDistance)
-    if (typeof json.coneInnerAngle === 'number' && component.coneInnerAngle.value !== json.coneInnerAngle)
-      component.coneInnerAngle.set(json.coneInnerAngle)
-    if (typeof json.coneOuterAngle === 'number' && component.coneOuterAngle.value !== json.coneOuterAngle)
-      component.coneOuterAngle.set(json.coneOuterAngle)
-    if (typeof json.coneOuterGain === 'number' && component.coneOuterGain.value !== json.coneOuterGain)
-      component.coneOuterGain.set(json.coneOuterGain)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      distanceModel: component.distanceModel.value,
-      rolloffFactor: component.rolloffFactor.value,
-      refDistance: component.refDistance.value,
-      maxDistance: component.maxDistance.value,
-      coneInnerAngle: component.coneInnerAngle.value,
-      coneOuterAngle: component.coneOuterAngle.value,
-      coneOuterGain: component.coneOuterGain.value
-    }
-  },
+  schema: S.Object({
+    distanceModel,
+    rolloffFactor: S.Number(1),
+    refDistance: S.Number(1),
+    maxDistance: S.Number(40),
+    coneInnerAngle: S.Number(360),
+    coneOuterAngle: S.Number(360),
+    coneOuterGain: S.Number(0)
+  }),
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
+    const renderState = useMutableState(RendererState)
+    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
+    const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
     const audio = useComponent(entity, PositionalAudioComponent)
     const mediaElement = useOptionalComponent(entity, MediaElementComponent)
 
     useEffect(() => {
-      if (debugEnabled.value) {
-        if (!mediaElement || !mediaElement.element.value) return
-        const audioNodes = AudioNodeGroups.get(mediaElement.element.value as HTMLMediaElement)
-        if (!audioNodes) return
+      const authEntity = getAuthoringCounterpart(entity)
+      if (authEntity) {
+        setComponent(authEntity, GeneralAudioComponent)
+        setComponent(authEntity, MediaComponent)
+      }
+    }, [])
+
+    useEffect(() => {
+      if (debugEnabled) {
         const name = getOptionalComponent(entity, NameComponent)
         setComponent(entity, PositionalAudioHelperComponent, {
-          audio: audioNodes,
           name: name ? `${name}-positional-audio-helper` : undefined
         })
       }
-
       return () => {
         removeComponent(entity, PositionalAudioHelperComponent)
       }
-    }, [debugEnabled, mediaElement?.element])
+    }, [debugEnabled, mediaElement?.element, audio.maxDistance, audio.coneInnerAngle, audio.coneOuterAngle])
 
     useEffect(() => {
       if (!mediaElement?.element.value) return

@@ -1,0 +1,33 @@
+body {
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    text-align: center;
+    background-image: linear-gradient(150deg, #00022e, rgba(255, 0, 125, 0.2901960784));
+    color: white;
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-around;
+}
+
+button {
+    width: 150px;
+    border-radius: 5px;
+    border: 2px solid transparent;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    border-color: black;
+}
+
+#confirmButton {
+    background-color: darkgreen;
+}
+
+#cancelButton {
+    background-color: darkred;
+}

@@ -25,21 +25,23 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall, HiTrash } from 'react-icons/hi2'
+import { HiTrash } from 'react-icons/hi2'
 
-import { API, useFind } from '@ir-engine/common'
-import { defaultIceServer } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
+import { useFind, useMutation } from '@ir-engine/common'
 import {
-  IceServerType,
-  InstanceServerSettingType,
-  instanceServerSettingPath
-} from '@ir-engine/common/src/schema.type.module'
-import { NO_PROXY, State, useHookstate } from '@ir-engine/hyperflux'
+  IceServer,
+  WebRTCSettings,
+  defaultIceServer,
+  defaultWebRTCSettings
+} from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
+import { EngineSettingType, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
+import { getDataType } from '@ir-engine/common/src/utils/dataTypeUtils'
+import { flattenObjectToArray, unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
+import { State, useHookstate } from '@ir-engine/hyperflux'
+import { Button, Checkbox, Input } from '@ir-engine/ui'
 import PasswordInput from '@ir-engine/ui/src/components/tailwind/PasswordInput'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
@@ -53,36 +55,114 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     errorMessage: ''
   })
 
-  const instanceServerSettingQuery = useFind(instanceServerSettingPath)
-  const instanceServerSettings = instanceServerSettingQuery.data[0] ?? null
-  const id = instanceServerSettings?.id
-  const local = useHookstate(true)
+  const engineSettingMutation = useMutation(engineSettingPath)
+  const engineSettings = useFind(engineSettingPath, {
+    query: {
+      category: 'instance-server',
+      paginate: false
+    }
+  })
+  const instanceWebRTCSettings = useFind(engineSettingPath, {
+    query: {
+      category: 'instance-server-webrtc',
+      jsonKey: EngineSettings.InstanceServer.WebRTCSettings,
+      paginate: false
+    }
+  })
 
-  const settingsState = useHookstate(null as null | InstanceServerSettingType)
+  const localState = useHookstate(true)
+  const webRTCSettingsState = useHookstate<WebRTCSettings>(defaultWebRTCSettings)
+
+  const getSettingValue = (settingName: string) => {
+    return (
+      (engineSettings.status === 'success' &&
+        engineSettings.data.length > 0 &&
+        engineSettings.data.find((setting) => setting.key === settingName)?.value) ||
+      ''
+    )
+  }
+
+  const domainValue = getSettingValue(EngineSettings.InstanceServer.Domain)
+  const clientHostValue = getSettingValue(EngineSettings.InstanceServer.ClientHost)
+  const rtcStartPortValue = getSettingValue(EngineSettings.InstanceServer.RtcStartPort)
+  const rtcEndPortValue = getSettingValue(EngineSettings.InstanceServer.RtcEndPort)
+  const rtcPortBlockSizeValue = getSettingValue(EngineSettings.InstanceServer.RtcPortBlockSize)
+  const identifierDigitsValue = getSettingValue(EngineSettings.InstanceServer.IdentifierDigits)
+  const releaseNameValue = getSettingValue(EngineSettings.InstanceServer.ReleaseName)
+  const portValue = getSettingValue(EngineSettings.InstanceServer.Port)
+  const modeValue = getSettingValue(EngineSettings.InstanceServer.Mode)
+  const locationNameValue = getSettingValue(EngineSettings.InstanceServer.LocationName)
+  const webRTCSettingsValue =
+    instanceWebRTCSettings?.data.length === 0
+      ? defaultWebRTCSettings
+      : unflattenArrayToObject(
+          instanceWebRTCSettings.data.map((setting) => ({
+            key: setting.key,
+            value: setting.value,
+            dataType: setting.dataType
+          }))
+        )
 
   useEffect(() => {
-    if (instanceServerSettings) {
-      settingsState.set(instanceServerSettings)
+    if (instanceWebRTCSettings.status === 'success') {
+      webRTCSettingsState.set(webRTCSettingsValue as WebRTCSettings)
       state.set({ loading: false, errorMessage: '' })
     }
-  }, [instanceServerSettings])
+  }, [instanceWebRTCSettings.status])
 
   const handleSubmit = (event) => {
     state.loading.set(true)
     event.preventDefault()
-    const newSettings = {
-      ...settingsState.get(NO_PROXY),
-      local: Boolean(settingsState.value?.local),
-      createdAt: undefined!,
-      updatedAt: undefined!
-    } as any as InstanceServerSettingType
 
-    API.instance
-      .service(instanceServerSettingPath)
-      .patch(id, newSettings)
+    const webTrcKeyValues = flattenObjectToArray(webRTCSettingsState.value)
+
+    // Create a map for quick lookup
+    const instanceSettingsMap = new Map(instanceWebRTCSettings.data.map((setting) => [setting.key, setting]))
+
+    // Ensure webTrcKeyValues is an array of objects with a key property
+    const missingInstanceSettings = Array.from(instanceSettingsMap.values()).filter(
+      (setting) => !webTrcKeyValues.some((entry) => entry.key === setting.key)
+    )
+
+    // Update or create settings
+    const settingsUpdateOperations = webTrcKeyValues.map((entry) => {
+      const settingInDb = instanceSettingsMap.get(entry.key)
+      let operation: Promise<EngineSettingType>
+
+      if (!settingInDb) {
+        // Create new setting
+        operation = engineSettingMutation.create({
+          key: entry.key,
+          category: 'instance-server-webrtc',
+          value: `${entry.value}`,
+          dataType: getDataType(`${entry.value}`),
+          type: 'private',
+          jsonKey: EngineSettings.InstanceServer.WebRTCSettings
+        })
+      } else if (settingInDb.value !== entry.value) {
+        // Update existing setting if value has changed
+        operation = engineSettingMutation.patch(settingInDb.id, {
+          key: entry.key,
+          category: 'instance-server-webrtc',
+          value: `${entry.value}`,
+          dataType: getDataType(`${entry.value}`),
+          type: 'private',
+          jsonKey: settingInDb.jsonKey || EngineSettings.InstanceServer.WebRTCSettings
+        })
+      } else {
+        // No operation needed if value hasn't changed
+        return Promise.resolve()
+      }
+
+      return operation
+    })
+    const deleteOpreations = missingInstanceSettings.map((setting) => {
+      return engineSettingMutation.remove(setting.id)
+    })
+
+    Promise.all([...settingsUpdateOperations, ...deleteOpreations])
       .then(() => {
         state.set({ loading: false, errorMessage: '' })
-        instanceServerSettingQuery.refetch()
       })
       .catch((e) => {
         state.set({ loading: false, errorMessage: e.message })
@@ -90,100 +170,137 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
   }
 
   const handleCancel = () => {
-    settingsState.set(instanceServerSettings)
+    if (engineSettings.status === 'success') {
+      webRTCSettingsState.set(webRTCSettingsValue as WebRTCSettings)
+    }
   }
 
-  if (!settingsState.value)
+  if (engineSettings.status === 'pending')
     return <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loading')} />
 
-  const settings = settingsState as State<InstanceServerSettingType>
+  const webRTCSettings = webRTCSettingsState as State<WebRTCSettings>
 
   return (
     <Accordion
       title={t('admin:components.setting.instanceServer.header')}
       subtitle={t('admin:components.setting.instanceServer.subtitle')}
-      expandIcon={<HiPlusSmall />}
-      shrinkIcon={<HiMinus />}
       ref={ref}
       open={open}
     >
       <div className="mt-6 grid grid-cols-2 gap-6">
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.clientHost')}
-          value={settings?.clientHost.value || ''}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.clientHost'),
+            position: 'top'
+          }}
+          value={clientHostValue || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.domain')}
-          value={settings?.domain.value || ''}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.domain'),
+            position: 'top'
+          }}
+          value={domainValue || ''}
+          disabled
+        />
+        <Input
+          labelProps={{
+            text: t('admin:components.setting.domain'),
+            position: 'top'
+          }}
+          value={domainValue || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.rtcStartPort')}
-          value={settings?.rtcStartPort.value || ''}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.rtcStartPort'),
+            position: 'top'
+          }}
+          value={rtcStartPortValue || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.releaseName')}
-          value={settings?.releaseName.value || ''}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.releaseName'),
+            position: 'top'
+          }}
+          value={releaseNameValue || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.rtcEndPort')}
-          value={settings?.rtcEndPort.value || ''}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.rtcEndPort'),
+            position: 'top'
+          }}
+          value={rtcEndPortValue || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.port')}
-          value={settings?.port.value || ''}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.port'),
+            position: 'top'
+          }}
+          value={portValue || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.rtcPortBlockSize')}
-          value={settings?.rtcPortBlockSize.value || ''}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.rtcPortBlockSize'),
+            position: 'top'
+          }}
+          value={rtcPortBlockSizeValue || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.mode')}
-          value={settings?.mode.value || ''}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.mode'),
+            position: 'top'
+          }}
+          value={modeValue || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.identifierDigits')}
-          value={settings?.identifierDigits.value || ''}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.identifierDigits'),
+            position: 'top'
+          }}
+          value={identifierDigitsValue || ''}
           disabled
         />
 
         <Input
-          className="col-span-1"
-          label={t('admin:components.setting.locationName')}
-          value={settings?.locationName.value || ''}
+          fullWidth
+          labelProps={{
+            text: t('admin:components.setting.locationName'),
+            position: 'top'
+          }}
+          value={locationNameValue || ''}
           disabled
         />
 
         <Toggle
-          containerClassName="justify-start"
           label={t('admin:components.setting.local')}
-          value={local.value}
+          value={localState.value}
           disabled
-          onChange={(value) => local.set(value)}
+          onChange={(value) => localState.set(value)}
         />
       </div>
 
@@ -193,178 +310,187 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         </Text>
 
         <Checkbox
-          className="col-span-1"
-          containerClassName="mb-1"
           label={t('admin:components.setting.webRTCSettings.useCustomICEServers')}
-          value={settings.webRTCSettings.useCustomICEServers.value || false}
-          onChange={(value) => settings.webRTCSettings.useCustomICEServers.set(value)}
+          checked={webRTCSettings?.useCustomICEServers?.value || false}
+          onChange={(value) => webRTCSettings.useCustomICEServers.set(value)}
         />
 
-        {settings.webRTCSettings.useCustomICEServers.value && (
+        {webRTCSettings?.useCustomICEServers?.value && (
           <Text component="h3" fontSize="xl" fontWeight="semibold" className="col-span-full mb-4">
             {t('admin:components.setting.webRTCSettings.iceServers')}
           </Text>
         )}
-        {settings.webRTCSettings.useCustomICEServers.value && (
+        {webRTCSettings?.useCustomICEServers?.value && (
           <div>
-            {settings.webRTCSettings.iceServers.map((iceServer, index) => {
-              return (
-                <div className="col-span-1 mb-4 rounded-2xl border border-4 border-theme-input p-4" key={index}>
-                  <div className="flex items-center">
-                    <Text component="h4" fontSize="xl" fontWeight="semibold" className="col-span-full">
-                      {t('admin:components.setting.webRTCSettings.iceServer') + (index + 1)}
-                    </Text>
+            {webRTCSettings?.iceServers?.map &&
+              webRTCSettings?.iceServers?.map((iceServer, index) => {
+                return (
+                  <div className="col-span-1 mb-4 rounded-2xl border-4  p-4" key={index}>
+                    <div className="flex items-center">
+                      <Text component="h4" fontSize="xl" fontWeight="semibold" className="col-span-full">
+                        {t('admin:components.setting.webRTCSettings.iceServer') + (index + 1)}
+                      </Text>
 
-                    <Button
-                      startIcon={<HiTrash />}
-                      variant="danger"
-                      size="small"
-                      className="ml-2"
-                      onClick={() => {
-                        const iceServers = [] as IceServerType[]
-                        for (const [iceServerIndex, iceServer] of Object.entries(
-                          settings.webRTCSettings.iceServers.value
-                        )) {
-                          if (parseInt(iceServerIndex) !== index)
-                            iceServers.push({
-                              urls: [...new Set(iceServer.urls)],
-                              useFixedCredentials: iceServer.useFixedCredentials,
-                              useTimeLimitedCredentials: iceServer.useTimeLimitedCredentials,
-                              username: iceServer.username,
-                              credential: iceServer.credential,
-                              webRTCStaticAuthSecretKey: iceServer.webRTCStaticAuthSecretKey
-                            })
-                        }
-                        settings.webRTCSettings.iceServers.set(iceServers)
-                      }}
-                    >
-                      Remove iceServer
-                    </Button>
-                  </div>
-                  <div className="col-span-1 mb-4">
-                    {typeof iceServer.urls.value === 'string' ? (
-                      <div className="col-span-1 mb-4 flex flex-row items-center">
-                        {' '}
-                        <Input
-                          className="col-span-1"
-                          containerClassName="mb-1"
-                          label={t('admin:components.setting.webRTCSettings.iceURL') + (index + 1)}
-                          value={iceServer.urls.value}
-                          onChange={(e) => {
-                            iceServer.urls.set(e.target.value)
-                          }}
-                        />
-                        <Button
-                          startIcon={<HiTrash />}
-                          variant="danger"
-                          size="small"
-                          style={{ margin: '20px 0 0 5px' }}
-                          onClick={() => {
-                            iceServer.urls.set([])
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      iceServer.urls?.value?.map((url, urlIndex) => {
-                        return (
-                          <div className="col-span-1 mb-4 flex flex-row items-center" key={urlIndex}>
-                            <Input
-                              label={t('admin:components.setting.webRTCSettings.iceURL') + (urlIndex + 1)}
-                              value={url}
-                              onChange={(e) => {
-                                iceServer.urls[urlIndex].set(e.target.value)
-                              }}
-                            />
-                            <Button
-                              startIcon={<HiTrash />}
-                              variant="danger"
-                              size="small"
-                              style={{ margin: '20px 0 0 5px' }}
-                              onClick={() => {
-                                const urls = [...new Set(iceServer.urls.value)]
-                                urls.splice(urlIndex, 1)
-                                iceServer.urls.set(urls)
-                              }}
-                            />
-                          </div>
-                        )
-                      })
-                    )}
-                    <Button
-                      startIcon={<HiPlus />}
-                      size="small"
-                      className="mb-1 mt-1"
-                      onClick={() => {
-                        if (typeof iceServer.urls.value === 'string') iceServer.urls.set([iceServer.urls.value, ''])
-                        else iceServer.urls.set([...new Set(iceServer.urls.value)].concat(''))
-                      }}
-                    >
-                      Add URL
-                    </Button>
-                  </div>
-
-                  <Checkbox
-                    className="col-span-1"
-                    containerClassName="mb-1"
-                    label={t('admin:components.setting.webRTCSettings.useFixedCredentials')}
-                    value={iceServer.useFixedCredentials.value || false}
-                    onChange={(value) => iceServer.useFixedCredentials.set(value)}
-                  />
-
-                  {iceServer.useFixedCredentials.value && (
-                    <>
-                      <Input
-                        className="col-span-1 mb-1"
-                        label={t('admin:components.setting.webRTCSettings.username')}
-                        value={iceServer.username.value || ''}
-                        onChange={(e) => {
-                          iceServer.username.set(e.target.value)
+                      <Button
+                        variant="red"
+                        size="sm"
+                        className="ml-2"
+                        onClick={() => {
+                          const iceServers = [] as IceServer[]
+                          for (const [iceServerIndex, iceServer] of Object.entries(webRTCSettings.iceServers.value)) {
+                            if (parseInt(iceServerIndex) !== index)
+                              iceServers.push({
+                                urls: [...new Set((iceServer as IceServer).urls as string)],
+                                useFixedCredentials: (iceServer as IceServer).useFixedCredentials,
+                                useTimeLimitedCredentials: (iceServer as IceServer).useTimeLimitedCredentials,
+                                username: (iceServer as IceServer).username,
+                                credential: (iceServer as IceServer).credential,
+                                webRTCStaticAuthSecretKey: (iceServer as IceServer).webRTCStaticAuthSecretKey
+                              })
+                          }
+                          webRTCSettings.iceServers.set(iceServers)
                         }}
-                      />
-
-                      <PasswordInput
-                        className="col-span-1 mb-1"
-                        label={t('admin:components.setting.webRTCSettings.credential')}
-                        value={iceServer.credential.value || ''}
-                        onChange={(e) => {
-                          iceServer.credential.set(e.target.value)
+                      >
+                        <HiTrash />
+                        Remove iceServer
+                      </Button>
+                    </div>
+                    <div className="col-span-1 mb-4">
+                      {typeof iceServer.urls.value === 'string' ? (
+                        <div className="col-span-1 mb-4 flex flex-row items-center">
+                          {' '}
+                          <Input
+                            fullWidth
+                            labelProps={{
+                              text: t('admin:components.setting.webRTCSettings.iceURL') + (index + 1),
+                              position: 'top'
+                            }}
+                            value={iceServer.urls.value}
+                            onChange={(e) => {
+                              iceServer.urls.set(e.target.value)
+                            }}
+                          />
+                          <Button
+                            variant="red"
+                            size="sm"
+                            style={{ margin: '20px 0 0 5px' }}
+                            onClick={() => {
+                              iceServer.urls.set([])
+                            }}
+                          >
+                            <HiTrash />
+                          </Button>
+                        </div>
+                      ) : (
+                        iceServer.urls?.value?.map((url, urlIndex) => {
+                          return (
+                            <div className="col-span-1 mb-4 flex flex-row items-center" key={urlIndex}>
+                              <Input
+                                fullWidth
+                                labelProps={{
+                                  text: t('admin:components.setting.webRTCSettings.iceURL') + (urlIndex + 1),
+                                  position: 'top'
+                                }}
+                                value={url}
+                                onChange={(e) => {
+                                  iceServer.urls[urlIndex].set(e.target.value)
+                                }}
+                              />
+                              <Button
+                                variant="red"
+                                size="sm"
+                                style={{ margin: '20px 0 0 5px' }}
+                                onClick={() => {
+                                  const urls = [...new Set(iceServer.urls.value)]
+                                  urls.splice(urlIndex, 1)
+                                  iceServer.urls.set(urls)
+                                }}
+                              >
+                                <HiTrash />
+                              </Button>
+                            </div>
+                          )
+                        })
+                      )}
+                      <Button
+                        size="sm"
+                        className="mb-1 mt-1"
+                        onClick={() => {
+                          if (typeof iceServer.urls.value === 'string') iceServer.urls.set([iceServer.urls.value, ''])
+                          else iceServer.urls.set([...new Set(iceServer.urls.value)].concat(''))
                         }}
-                      />
-                    </>
-                  )}
+                      >
+                        <HiPlus /> Add URL
+                      </Button>
+                    </div>
 
-                  <Checkbox
-                    className="col-span-1"
-                    containerClassName="mb-1"
-                    label={t('admin:components.setting.webRTCSettings.useTimeLimitedCredentials')}
-                    value={iceServer.useTimeLimitedCredentials.value || false}
-                    onChange={(value) => iceServer.useTimeLimitedCredentials.set(value)}
-                  />
-
-                  {iceServer.useTimeLimitedCredentials.value && (
-                    <PasswordInput
-                      className="col-span-1 mb-1"
-                      label={t('admin:components.setting.webRTCSettings.webRTCStaticAuthSecretKey')}
-                      value={iceServer.webRTCStaticAuthSecretKey.value || ''}
-                      onChange={(e) => {
-                        iceServer.webRTCStaticAuthSecretKey.set(e.target.value)
-                      }}
+                    <Checkbox
+                      label={t('admin:components.setting.webRTCSettings.useFixedCredentials')}
+                      checked={iceServer.useFixedCredentials.value || false}
+                      onChange={(value) => iceServer.useFixedCredentials.set(value)}
                     />
-                  )}
-                </div>
-              )
-            })}{' '}
+
+                    {iceServer.useFixedCredentials.value && (
+                      <>
+                        <Input
+                          fullWidth
+                          labelProps={{
+                            text: t('admin:components.setting.webRTCSettings.username'),
+                            position: 'top'
+                          }}
+                          value={iceServer.username.value || ''}
+                          onChange={(e) => {
+                            iceServer.username.set(e.target.value)
+                          }}
+                        />
+
+                        <PasswordInput
+                          labelProps={{
+                            text: t('admin:components.setting.webRTCSettings.credential'),
+                            position: 'top'
+                          }}
+                          value={iceServer.credential.value || ''}
+                          onChange={(e) => {
+                            iceServer.credential.set(e.target.value)
+                          }}
+                        />
+                      </>
+                    )}
+
+                    <Checkbox
+                      label={t('admin:components.setting.webRTCSettings.useTimeLimitedCredentials')}
+                      checked={iceServer.useTimeLimitedCredentials.value || false}
+                      onChange={(value) => iceServer.useTimeLimitedCredentials.set(value)}
+                    />
+
+                    {iceServer.useTimeLimitedCredentials.value && (
+                      <PasswordInput
+                        labelProps={{
+                          text: t('admin:components.setting.webRTCSettings.webRTCStaticAuthSecretKey'),
+                          position: 'top'
+                        }}
+                        value={iceServer.webRTCStaticAuthSecretKey.value || ''}
+                        onChange={(e) => {
+                          iceServer.webRTCStaticAuthSecretKey.set(e.target.value)
+                        }}
+                      />
+                    )}
+                  </div>
+                )
+              })}{' '}
           </div>
         )}
 
-        {settings.webRTCSettings.useCustomICEServers.value && (
+        {webRTCSettings?.useCustomICEServers?.value && (
           <Button
-            startIcon={<HiPlus />}
-            size="small"
+            size="sm"
             className="mb-4 mt-1"
             onClick={() => {
-              const iceServers = [] as IceServerType[]
-              for (const iceServer of settings.webRTCSettings.iceServers.value as IceServerType[])
+              const iceServers = [] as IceServer[]
+              if (!webRTCSettings.iceServers.value) {
+                webRTCSettings.iceServers.set([])
+              }
+              for (const iceServer of webRTCSettings.iceServers.value as IceServer[])
                 iceServers.push({
                   urls: [...new Set(iceServer.urls)],
                   useFixedCredentials: iceServer.useFixedCredentials,
@@ -374,34 +500,27 @@ const InstanceServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
                   webRTCStaticAuthSecretKey: iceServer.webRTCStaticAuthSecretKey
                 })
               iceServers.push(JSON.parse(JSON.stringify(defaultIceServer)))
-              settings.webRTCSettings.iceServers.set(iceServers)
+              webRTCSettings.iceServers.set(iceServers)
             }}
           >
+            <HiPlus />
             Add iceServer
           </Button>
         )}
 
         <Checkbox
-          className="col-span-1"
-          containerClassName="mb-1"
           label={t('admin:components.setting.webRTCSettings.usePrivateInstanceserverIP')}
-          value={settings.webRTCSettings.usePrivateInstanceserverIP.value || false}
-          onChange={(value) => settings.webRTCSettings.usePrivateInstanceserverIP.set(value)}
+          checked={webRTCSettings?.usePrivateInstanceserverIP?.value || false}
+          onChange={(value) => webRTCSettings.usePrivateInstanceserverIP.set(value)}
         />
       </div>
 
       <div className="mt-6 grid grid-cols-8 gap-6">
-        <Button size="small" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleCancel}>
+        <Button size="sm" className="text-primary col-span-1 " fullWidth onClick={handleCancel}>
           {t('admin:components.common.reset')}
         </Button>
-        <Button
-          size="small"
-          variant="primary"
-          className="col-span-1 mb-1"
-          fullWidth
-          onClick={handleSubmit}
-          startIcon={state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
-        >
+        <Button size="sm" variant="primary" className="col-span-1 mb-1" fullWidth onClick={handleSubmit}>
+          {state.loading.value && <LoadingView spinnerOnly className="h-6 w-6" />}
           {t('admin:components.common.save')}
         </Button>
       </div>

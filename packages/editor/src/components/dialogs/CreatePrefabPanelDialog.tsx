@@ -27,20 +27,29 @@ import { PopoverState } from '@ir-engine/client-core/src/common/services/Popover
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { Entity, createEntity, entityExists, getComponent, removeEntity, setComponent } from '@ir-engine/ecs'
+import {
+  Component,
+  Entity,
+  EntityTreeComponent,
+  UUIDComponent,
+  createEntity,
+  getComponent,
+  hasComponent,
+  iterateEntityNode,
+  removeEntityNodeRecursively,
+  setComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs'
 import PrefabConfirmationPanelDialog from '@ir-engine/editor/src/components/dialogs/PrefabConfirmationPanelDialog'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
-import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
-import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { proxifyParentChildRelationships } from '@ir-engine/engine/src/scene/functions/loadGLTFModel'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
 import { getMutableState, getState, startReactor, useHookstate } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
+import { DirectionalLightComponent, HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
+import { Button, Input } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -50,20 +59,130 @@ import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 
-export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
+export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?: Entity; isExportLookDev?: boolean }) {
   const defaultPrefabFolder = useHookstate<string>('assets/custom-prefabs')
   const prefabName = useHookstate<string>('prefab')
-  const prefabTag = useHookstate<string[]>([])
+  const prefabTag = useHookstate<string[]>(['prefab'])
   const { t } = useTranslation()
   const isOverwriteModalVisible = useHookstate(false)
   const isOverwriteConfirmed = useHookstate(false)
+
+  const finishSavePrefab = () => {
+    PopoverState.hidePopupover()
+    defaultPrefabFolder.set('assets/custom-prefabs')
+    prefabName.set('prefab')
+    prefabTag.set([])
+    isOverwriteModalVisible.set(false)
+    isOverwriteConfirmed.set(false)
+    PopoverState.showPopupover(<PrefabConfirmationPanelDialog />)
+  }
+
+  const exportLookDevPrefab = async (srcProject: string, fileName: string) => {
+    const lookdevEntity = [] as Entity[]
+    const lookDevComponent: Component[] = [
+      SkyboxComponent,
+      HemisphereLightComponent,
+      DirectionalLightComponent,
+      PostProcessingComponent
+    ]
+    const prefabEntity = createEntity()
+    const obj = new Scene()
+    setComponent(prefabEntity, ObjectComponent, obj)
+    const rootEntity = getState(EditorState).rootEntity
+    iterateEntityNode(rootEntity, (entity) => {
+      lookDevComponent.forEach((component) => {
+        if (hasComponent(entity, component)) {
+          if (lookdevEntity.includes(entity)) return
+          lookdevEntity.push(entity)
+        }
+      })
+    })
+    EditorControlFunctions.duplicateObject(lookdevEntity)
+    setComponent(prefabEntity, EntityTreeComponent, { parentEntity: rootEntity })
+    setComponent(prefabEntity, NameComponent, 'temp prefab')
+    lookdevEntity.forEach((entity) => {
+      setComponent(entity, EntityTreeComponent, { parentEntity: prefabEntity })
+    })
+
+    getMutableState(SelectionState).selectedEntities.set([])
+
+    await exportRelativeGLTF(prefabEntity, srcProject, fileName)
+
+    const resources = await API.instance.service(staticResourcePath).find({
+      query: { key: 'projects/' + srcProject + '/' + fileName }
+    })
+    if (resources.data.length === 0) {
+      throw new Error('User not found')
+    }
+    const resource = resources.data[0]
+    const tags = [...prefabTag.value]
+    tags.push('Lookdev')
+    await API.instance.service(staticResourcePath).patch(resource.id, { tags: tags, project: srcProject })
+    setComponent(prefabEntity, NameComponent, 'temp prefab')
+    removeEntityNodeRecursively(prefabEntity)
+    finishSavePrefab()
+  }
+
+  const exportPrefab = async (entity: Entity, srcProject: string, fileName: string, fileURL: string) => {
+    const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
+    setComponent(entity, NameComponent, prefabName.value)
+    getMutableState(SelectionState).selectedEntities.set([])
+
+    const transform = getComponent(entity, TransformComponent)
+    const position = transform.position.clone()
+    const rotation = transform.rotation.clone()
+
+    setComponent(entity, TransformComponent, {
+      position: new Vector3(0, 0, 0),
+      rotation: new Quaternion().identity(),
+      scale: new Vector3(1, 1, 1)
+    })
+    await exportRelativeGLTF(entity, srcProject, fileName)
+
+    const resources = await API.instance.service(staticResourcePath).find({
+      query: { key: 'projects/' + srcProject + '/' + fileName }
+    })
+    if (resources.data.length === 0) {
+      throw new Error('User not found')
+    }
+    const resource = resources.data[0]
+    const tags = [...prefabTag.value]
+    await API.instance.service(staticResourcePath).patch(resource.id, { tags: tags, project: srcProject })
+
+    EditorControlFunctions.removeObject([entity])
+    const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
+      [
+        { name: GLTFComponent.jsonID, props: { src: fileURL } },
+        { name: TransformComponent.jsonID, props: { position, rotation } }
+      ],
+      parentEntity
+    )
+    getMutableState(SelectionState).selectedEntities.set([entityUUID])
+    const reactor = startReactor(() => {
+      const entity = UUIDComponent.useEntityByUUID(entityUUID)
+      const gltfComponent = useOptionalComponent(entity, GLTFComponent)
+
+      useEffect(() => {
+        if (!gltfComponent) return
+        const name = prefabName.value
+        setComponent(entity, NameComponent, name)
+        finishSavePrefab()
+        reactor.stop()
+      }, [gltfComponent])
+
+      return null
+    })
+  }
+
   const onExportPrefab = async () => {
     const editorState = getState(EditorState)
-    const fileName = defaultPrefabFolder.value + '/' + prefabName.value + '.gltf'
+    const fileName = isExportLookDev
+      ? defaultPrefabFolder.value + '/' + prefabName.value + '.lookdev' + '.gltf'
+      : defaultPrefabFolder.value + '/' + prefabName.value + '.gltf'
     const srcProject = editorState.projectName!
     const fileURL = pathJoin(config.client.fileServer, 'projects', srcProject, fileName)
+
     try {
-      const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
       const resourcesold = await API.instance.service(staticResourcePath).find({
         query: { key: 'projects/' + srcProject + '/' + fileName }
       })
@@ -71,81 +190,23 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
         console.log('this name already exist, click confirm to overwrite the prefab')
         await isOverwriteModalVisible.set(true)
       } else {
-        const prefabEntity = createEntity()
-        const obj = new Scene()
-        addObjectToGroup(prefabEntity, obj)
-        proxifyParentChildRelationships(obj)
-        setComponent(prefabEntity, EntityTreeComponent, { parentEntity })
-        setComponent(prefabEntity, NameComponent, prefabName.value)
-        const entityTransform = getComponent(entity, TransformComponent)
-        const position = entityTransform.position.clone()
-        const rotation = entityTransform.rotation.clone()
-        const scale = entityTransform.scale.clone()
-        setComponent(prefabEntity, TransformComponent, {
-          position,
-          rotation,
-          scale
-        })
-        setComponent(entity, TransformComponent, {
-          position: new Vector3(0, 0, 0),
-          rotation: new Quaternion().identity(),
-          scale: new Vector3(1, 1, 1)
-        })
-        setComponent(entity, EntityTreeComponent, { parentEntity: prefabEntity })
-        getMutableState(SelectionState).selectedEntities.set([])
-        getComponent(entity, TransformComponent).matrix.identity()
-        await exportRelativeGLTF(prefabEntity, srcProject, fileName)
-
-        const resources = await API.instance.service(staticResourcePath).find({
-          query: { key: 'projects/' + srcProject + '/' + fileName }
-        })
-        if (resources.data.length === 0) {
-          throw new Error('User not found')
+        if (isExportLookDev) {
+          exportLookDevPrefab(srcProject, fileName)
+        } else {
+          if (!entity) return
+          exportPrefab(entity, srcProject, fileName, fileURL)
         }
-        const resource = resources.data[0]
-        const tags = [...prefabTag.value]
-        await API.instance.service(staticResourcePath).patch(resource.id, { tags: tags, project: srcProject })
-
-        removeEntity(prefabEntity)
-        EditorControlFunctions.removeObject([entity])
-        const sceneID = getComponent(parentEntity, SourceComponent)
-        const reactor = startReactor(() => {
-          const documentState = useHookstate(getMutableState(GLTFDocumentState))
-          const nodes = documentState[sceneID].nodes
-          useEffect(() => {
-            if (!entityExists(entity)) {
-              const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
-                [
-                  { name: ModelComponent.jsonID, props: { src: fileURL } },
-                  { name: TransformComponent.jsonID, props: { position, rotation, scale } }
-                ],
-                parentEntity
-              )
-              getMutableState(SelectionState).selectedEntities.set([entityUUID])
-              reactor.stop()
-            } else {
-              console.log('Entity not removed')
-            }
-          }, [nodes])
-          return null
-        })
-        PopoverState.hidePopupover()
-        defaultPrefabFolder.set('assets/custom-prefabs')
-        prefabName.set('prefab')
-        prefabTag.set([])
-        isOverwriteModalVisible.set(false)
-        isOverwriteConfirmed.set(false)
-        PopoverState.showPopupover(<PrefabConfirmationPanelDialog entity={entity} />)
       }
     } catch (e) {
       console.error(e)
     }
   }
+
   return (
     <>
       {!isOverwriteModalVisible.value && !isOverwriteConfirmed.value && (
         <Modal
-          title="Create Prefab"
+          title={isExportLookDev ? 'Create Lookdev Prefab' : 'Create Prefab'}
           onSubmit={onExportPrefab}
           className="w-[50vw] max-w-2xl"
           onClose={PopoverState.hidePopupover}
@@ -153,53 +214,64 @@ export default function CreatePrefabPanel({ entity }: { entity: Entity }) {
           <Input
             value={defaultPrefabFolder.value}
             onChange={(event) => defaultPrefabFolder.set(event.target.value)}
-            label="Default Save Folder"
+            labelProps={{
+              text: 'Default Save Folder',
+              position: 'top'
+            }}
           />
           <Input
             value={prefabName.value}
             onChange={(event) => prefabName.set(event.target.value)}
-            label="Name"
+            labelProps={{
+              text: 'Name',
+              position: 'top'
+            }}
             maxLength={64}
           />
-
-          <Button
-            size="small"
-            variant="outline"
-            className="text-left text-xs"
-            onClick={() => {
-              prefabTag.set([...(prefabTag.value ?? []), ''])
-            }}
-          >
-            {t('editor:layout.filebrowser.fileProperties.addTag')}
-          </Button>
-          <div>
-            {(prefabTag.value ?? []).map((tag, index) => (
-              <div style={{ display: 'flex', flexDirection: 'row', margin: '0, 16px 0 0' }}>
-                <Input
-                  key={index}
-                  label={t('editor:layout.filebrowser.fileProperties.tag')}
-                  onChange={(event) => {
-                    const tags = [...prefabTag.value]
-                    tags[index] = event.target.value
-                    prefabTag.set(tags)
-                  }}
-                  value={prefabTag.value[index]}
-                />
-                <Button
-                  onClick={() => {
-                    prefabTag.set(prefabTag.value.filter((_, i) => i !== index))
-                  }}
-                  size="small"
-                  variant="outline"
-                  className="text-left text-xs"
-                >
-                  {' '}
-                  x{' '}
-                </Button>
-                a
+          {!isExportLookDev && (
+            <div>
+              <Button
+                size="sm"
+                variant="tertiary"
+                className="text-left text-xs"
+                onClick={() => {
+                  prefabTag.set([...(prefabTag.value ?? []), ''])
+                }}
+              >
+                {t('editor:layout.filebrowser.fileProperties.addTag')}
+              </Button>
+              <div>
+                {(prefabTag.value ?? []).map((tag, index) => (
+                  <div className="ml-4 flex items-end" key={tag + index}>
+                    <Input
+                      labelProps={{
+                        text: t('editor:layout.filebrowser.fileProperties.tag'),
+                        position: 'top'
+                      }}
+                      onChange={(event) => {
+                        const tags = [...prefabTag.value]
+                        tags[index] = event.target.value
+                        prefabTag.set(tags)
+                      }}
+                      value={prefabTag.value[index]}
+                      endComponent={
+                        <Button
+                          onClick={() => {
+                            prefabTag.set(prefabTag.value.filter((_, i) => i !== index))
+                          }}
+                          size="sm"
+                          variant="tertiary"
+                          className="text-left text-xs"
+                        >
+                          x
+                        </Button>
+                      }
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </Modal>
       )}
       {/* Overwrite Confirmation Modal */}

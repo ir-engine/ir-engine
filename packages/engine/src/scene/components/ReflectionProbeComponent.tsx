@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { defineComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useEffect } from 'react'
 import { Texture } from 'three'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
@@ -32,20 +33,12 @@ import { addError } from '../functions/ErrorFunctions'
 export const ReflectionProbeComponent = defineComponent({
   name: 'ReflectionProbeComponent',
   jsonID: 'IR_reflectionProbe',
-  onInit: () => ({
-    src: '',
-    // internal
-    texture: null as Texture | null
+
+  schema: S.Object({
+    src: S.String(''),
+    texture: S.NonSerialized(S.Nullable(S.Type<Texture>()))
   }),
-  toJSON: (entity, component) => ({
-    src: component.src.value
-  }),
-  onSet: (entity, component, json) => {
-    if (typeof json === 'undefined') return
-    if (typeof json.src === 'string') {
-      component.src.set(json.src)
-    }
-  },
+
   errors: ['LOADING_ERROR'],
   reactor: () => {
     const entity = useEntityContext()
@@ -62,6 +55,6 @@ export const ReflectionProbeComponent = defineComponent({
       if (!error) return
       probeComponent.texture.set(null)
       addError(entity, ReflectionProbeComponent, 'LOADING_ERROR', 'Failed to load reflection probe texture.')
-    })
+    }, [])
   }
 })

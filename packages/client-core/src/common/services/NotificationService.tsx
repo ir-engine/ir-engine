@@ -30,6 +30,7 @@ import multiLogger from '@ir-engine/common/src/logger'
 import { defineState, getState, useMutableState } from '@ir-engine/hyperflux'
 
 import { MdClose } from 'react-icons/md'
+import InviteSnackbarActions from '../../components/InviteToast/InviteSnackbarActions'
 
 const logger = multiLogger.child({ component: 'client-core:Notification' })
 
@@ -58,9 +59,18 @@ export const defaultAction = (key: SnackbarKey, content?: React.ReactNode) => {
     </Fragment>
   )
 }
+export const inviteActions = (key: SnackbarKey, content?: React.ReactNode) => {
+  return (
+    <Fragment>
+      {content}
+      <InviteSnackbarActions closeSnackbar={() => closeSnackbar(key)} />
+    </Fragment>
+  )
+}
 
 export const NotificationActions = {
-  default: defaultAction
+  default: defaultAction,
+  invite: inviteActions
 }
 
 export const NotificationService = {

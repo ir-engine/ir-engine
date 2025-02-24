@@ -29,6 +29,7 @@ import { useEffect } from 'react'
 import {
   Component,
   ComponentMap,
+  createInitialComponentValue,
   getComponent,
   setComponent,
   useComponent
@@ -62,7 +63,7 @@ const listenerSkipComponents = [
 export function generateComponentNodeSchema(component: Component, withFlow = false) {
   const nodeschema = {}
   if (skipComponents.includes(component.name)) return nodeschema
-  const schema = component?.onInit(UndefinedEntity)
+  const schema = createInitialComponentValue(UndefinedEntity, component)
   if (schema === null) {
     return nodeschema
   }

@@ -31,14 +31,14 @@ import { EnvMapBakeTypes } from '@ir-engine/engine/src/scene/types/EnvMapBakeTyp
 
 import { commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
 import { uploadBPCEMBakeToServer } from '@ir-engine/editor/src/functions/uploadEnvMapBake'
-import BooleanInput from '@ir-engine/ui/src/components/editor/input/Boolean'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { Checkbox } from '@ir-engine/ui'
 import { useTranslation } from 'react-i18next'
 import { IoMapOutline } from 'react-icons/io5'
 import Button from '../../../../primitives/tailwind/Button'
 import InputGroup from '../../input/Group'
 import SelectInput from '../../input/Select'
 import Vector3Input from '../../input/Vector3'
-import NodeEditor from '../nodeEditor'
 import EnvMapBakeProperties from './properties'
 
 export const enum BakePropertyTypes {
@@ -150,20 +150,13 @@ export const EnvMapBakeNodeEditor = (props) => {
     return renderedProperty
   }
 
-  const onChangePosition = (value) => {
-    bakeComponent.bakePositionOffset.value.copy(value)
-  }
-  const onChangeScale = (value) => {
-    bakeComponent.bakeScale.value.copy(value)
-  }
-
   return (
     <NodeEditor
       style={envMapBakeNodeEditorStyle}
       {...props}
       name={t('editor:properties.envmap.lbl-bake')}
       description="For Adding EnvMap bake in your scene"
-      icon={<EnvMapBakeNodeEditor.iconComponent />}
+      Icon={EnvMapBakeNodeEditor.iconComponent}
     >
       <Button className="my-1 ml-auto px-10" onClick={() => uploadBPCEMBakeToServer(props.entity)}>
         {t(`editor.projects.bake`)}
@@ -201,12 +194,13 @@ export const EnvMapBakeNodeEditor = (props) => {
           onChange={commitProperty(EnvMapBakeComponent, 'resolution')}
         />
       </InputGroup>
-      <InputGroup name="Box Projection" label="Box Projection">
-        <BooleanInput
-          value={bakeComponent.boxProjection.value}
-          onChange={commitProperty(EnvMapBakeComponent, 'boxProjection')}
-        />
-      </InputGroup>
+      <Checkbox
+        variantTextPlacement="left"
+        checked={bakeComponent.boxProjection.value}
+        onChange={commitProperty(EnvMapBakeComponent, 'boxProjection')}
+        aria-label="Box Projection"
+        label="Box Projection"
+      />
     </NodeEditor>
   )
 }

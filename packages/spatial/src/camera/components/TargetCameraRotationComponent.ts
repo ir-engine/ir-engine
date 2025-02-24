@@ -24,28 +24,20 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { matches } from '@ir-engine/hyperflux'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
 export const TargetCameraRotationComponent = defineComponent({
   name: 'TargetCameraRotationComponent',
 
-  onInit(entity) {
-    return {
-      /** Rotation around Z axis */
-      phi: 0,
-      phiVelocity: { value: 0 },
-      /** Rotation around Y axis */
-      theta: 0,
-      thetaVelocity: { value: 0 },
-      /** Time to reach the target */
-      time: 0
-    }
-  },
+  schema: S.Object({
+    phi: S.Number(0),
+    theta: S.Number(0),
+    time: S.Number(0)
+  }),
 
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matches.number.test(json.theta)) component.theta.set(json.theta)
-    if (matches.number.test(json.phi)) component.phi.set(json.phi)
-    if (matches.number.test(json.time)) component.time.set(json.time)
-  }
+  onInit: (initial) => ({
+    ...initial,
+    phiVelocity: { value: 0 },
+    thetaVelocity: { value: 0 }
+  })
 })

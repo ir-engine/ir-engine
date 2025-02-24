@@ -37,7 +37,6 @@ import EmailTab from './tabs/email'
 import FeaturesTab from './tabs/features'
 import HelmTab from './tabs/helm'
 import InstanceServerTab from './tabs/instanceServer'
-import MailchimpTab from './tabs/mailchimp'
 import MetabaseTab from './tabs/metabase'
 import ProjectTab from './tabs/project'
 import RedisTab from './tabs/redis'
@@ -98,10 +97,6 @@ export const SettingsTabsData = [
   {
     label: t('admin:components.setting.zendesk.header'),
     Component: ZendeskTab
-  },
-  {
-    label: t('admin:components.setting.mailchimp.header'),
-    Component: MailchimpTab
   }
 ]
 
@@ -130,13 +125,5 @@ export default function Settings() {
     openState.set(openState.value.map((_, i) => i === index))
   }
 
-  return (
-    <Tabs
-      scrollable
-      tabsData={tabsData}
-      currentTabIndex={getInitialTabIndex()}
-      onTabChange={onTabChange}
-      tabcontainerClassName="bg-theme-primary"
-    />
-  )
+  return <Tabs scrollable tabsData={tabsData} currentTabIndex={getInitialTabIndex()} onTabChange={onTabChange} />
 }

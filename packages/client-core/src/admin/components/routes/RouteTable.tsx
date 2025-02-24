@@ -67,5 +67,5 @@ export default function RoutesTable() {
       })
       .flat()
 
-  return <DataTable query={routesQuery} columns={routeColumns} rows={createRows(installedRouteData)} />
+  return <DataTable size="xl" query={routesQuery} columns={routeColumns} rows={createRows(installedRouteData)} />
 }

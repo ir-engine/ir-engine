@@ -28,7 +28,7 @@ import type { Static } from '@feathersjs/typebox'
 import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 
 import { TypedString } from '../../types/TypeboxUtils'
-import { UserID } from '../user/user.schema'
+import { UserID, userSchema } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
 
 export const staticResourcePath = 'static-resource'
@@ -46,6 +46,7 @@ export const staticResourceSchema = Type.Object(
     userId: TypedString<UserID>({
       format: 'uuid'
     }),
+    user: Type.Optional(Type.Ref(userSchema)),
     hash: Type.String(),
     type: Type.String(), // 'scene' | 'asset' | 'file' | 'thumbnail' | 'avatar' | 'recording'
     project: Type.Optional(Type.String()),
@@ -54,6 +55,7 @@ export const staticResourceSchema = Type.Object(
     attribution: Type.Optional(Type.String()),
     licensing: Type.Optional(Type.String()),
     description: Type.Optional(Type.String()),
+    name: Type.Optional(Type.String()),
     url: Type.String(),
     stats: Type.Optional(Type.Record(Type.String(), Type.Any())),
     thumbnailKey: Type.Optional(Type.String()),
@@ -93,7 +95,8 @@ export const staticResourceDataSchema = Type.Partial(
     'description',
     'stats',
     'thumbnailKey',
-    'thumbnailMode'
+    'thumbnailMode',
+    'name'
   ]),
   { $id: 'StaticResourceData' }
 )
@@ -116,7 +119,8 @@ export const staticResourcePatchSchema = Type.Partial(
     'description',
     'stats',
     'thumbnailKey',
-    'thumbnailMode'
+    'thumbnailMode',
+    'name'
   ]),
   {
     $id: 'StaticResourcePatch'
@@ -142,7 +146,8 @@ export const staticResourceQueryProperties = Type.Pick(staticResourceSchema, [
   'thumbnailKey',
   'thumbnailMode',
   'createdAt',
-  'updatedAt'
+  'updatedAt',
+  'name'
 ])
 export const staticResourceQuerySchema = Type.Intersect(
   [

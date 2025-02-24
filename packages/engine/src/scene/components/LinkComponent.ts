@@ -26,26 +26,34 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Vector3 } from 'three'
 
+import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { defineState, getMutableState, getState, isClient, matches } from '@ir-engine/hyperflux'
+import { defineState, getState, isClient } from '@ir-engine/hyperflux'
 import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 
+import { EngineState } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 
 const linkLogic = (linkEntity: Entity, xrState) => {
+  if (getState(EngineState).isEditing) return
   const linkComponent = getComponent(linkEntity, LinkComponent)
-  if (!linkComponent.sceneNav) {
-    xrState && xrState.session?.end()
-    typeof window === 'object' && window && window.open(linkComponent.url, '_blank')
-  } else {
-    getMutableState(LinkState).location.set(linkComponent.location)
-  }
+  // if (!linkComponent.sceneNav) {
+  //   xrState && xrState.session?.end()
+  //   typeof window === 'object' && window && window.open(linkComponent.url, '_blank')
+  // } else {
+  //   getMutableState(LinkState).location.set(linkComponent.location)
+  // }
+  xrState && xrState.session?.end()
+  typeof window === 'object' && window && linkComponent.newTab
+    ? window.open(linkComponent.url, '_blank')
+    : (window.location.href = linkComponent.url)
 }
 const linkCallback = (linkEntity: Entity) => {
+  console.log('linkCallback')
   const buttons = InputComponent.getMergedButtons(linkEntity)
   if (buttons.XRStandardGamepadTrigger?.down) {
     const xrState = getState(XRState)
@@ -70,32 +78,16 @@ export const LinkComponent = defineComponent({
   name: 'LinkComponent',
   jsonID: 'EE_link',
 
-  onInit: (entity) => {
-    return {
-      url: '',
-      sceneNav: false,
-      location: ''
-    }
-  },
+  schema: S.Object({
+    url: S.String(''),
+    sceneNav: S.Bool(false),
+    location: S.String(''),
+    newTab: S.Bool(true)
+  }),
+
   linkCallbackName,
   linkCallback,
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    matches.string.test(json.url) && component.url.set(json.url as string)
-    matches.boolean.test(json.sceneNav) && component.sceneNav.set(json.sceneNav as boolean)
-    matches.string.test(json.location) && component.location.set(json.location as string)
-  },
-
   interactMessage,
-
-  toJSON: (entity, component) => {
-    return {
-      url: component.url.value,
-      sceneNav: component.sceneNav.value,
-      location: component.location.value
-    }
-  },
 
   errors: ['INVALID_URL'],
 

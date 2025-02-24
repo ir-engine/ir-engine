@@ -23,12 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { ReactElement, useEffect } from 'react'
+import { useEffect } from 'react'
 
 import {
+  createEntity,
+  Entity,
   EntityUUID,
   getComponent,
-  getOptionalComponent,
+  getMutableComponent,
   PresentationSystemGroup,
   QueryReactor,
   removeEntity,
@@ -36,103 +38,123 @@ import {
   UndefinedEntity,
   useComponent,
   useEntityContext,
-  useOptionalComponent
+  UUIDComponent
 } from '@ir-engine/ecs'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import {
-  MaterialPrototypeDefinition,
-  MaterialPrototypeDefinitions
-} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import {
-  createAndAssignMaterial,
-  createMaterialPrototype,
-  materialPrototypeMatches,
-  setMeshMaterial,
-  updateMaterialPrototype
-} from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-
-import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
+import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { isArray } from 'lodash'
-import { Material, MeshBasicMaterial } from 'three'
-import { SourceComponent } from '../../components/SourceComponent'
+import { getMaterialIndices } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
+import React from 'react'
+import { FrontSide, MeshLambertMaterial, MeshPhysicalMaterial, MeshStandardMaterial } from 'three'
 
-const reactor = (): ReactElement => {
+const reactor = () => {
   useEffect(() => {
-    MaterialPrototypeDefinitions.map((prototype: MaterialPrototypeDefinition, uuid) =>
-      createMaterialPrototype(prototype)
-    )
-    const fallbackMaterial = new MeshBasicMaterial({ name: 'Fallback Material', color: 0xff69b4 })
-    fallbackMaterial.uuid = MaterialStateComponent.fallbackMaterial
-    createAndAssignMaterial(UndefinedEntity, fallbackMaterial)
+    // default material according to GLTF spec. see https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#default-material
+    const fallbackMaterial = new MeshStandardMaterial({
+      name: 'Fallback Material',
+      color: 0xffffff,
+      emissive: 0x000000,
+      metalness: 1,
+      roughness: 1,
+      transparent: false,
+      depthTest: true,
+      side: FrontSide
+    })
+    fallbackMaterial.uuid = MaterialStateComponent.fallbackMaterialUUID
+    const fallbackMaterialEntity = createEntity()
+    setComponent(fallbackMaterialEntity, MaterialStateComponent, {
+      material: fallbackMaterial,
+      instances: [UndefinedEntity]
+    })
+    setComponent(fallbackMaterialEntity, UUIDComponent, MaterialStateComponent.fallbackMaterialUUID)
+    setComponent(fallbackMaterialEntity, NameComponent, 'Fallback Material')
   }, [])
 
-  return (
-    <>
-      <QueryReactor Components={[MaterialInstanceComponent]} ChildEntityReactor={MaterialInstanceReactor} />
-      <QueryReactor Components={[MaterialStateComponent]} ChildEntityReactor={MaterialEntityReactor} />
-      <QueryReactor Components={[MeshComponent]} ChildEntityReactor={MeshReactor} />
-    </>
-  )
-}
-
-const MeshReactor = () => {
-  const entity = useEntityContext()
-  const materialComponent = useOptionalComponent(entity, MaterialInstanceComponent)
-  const meshComponent = useComponent(entity, MeshComponent)
-
-  const createAndSourceMaterial = (material: Material) => {
-    const materialEntity = createAndAssignMaterial(entity, material)
-    const source = getOptionalComponent(entity, SourceComponent)
-    if (source) setComponent(materialEntity, SourceComponent, source)
-  }
-
+  const rendererState = useMutableState(RendererState)
   useEffect(() => {
-    if (materialComponent) return
-    const material = meshComponent.material.value as Material
-    if (!isArray(material)) createAndSourceMaterial(material)
-    else for (const mat of material) createAndSourceMaterial(mat)
-  }, [])
-  return null
+    if (rendererState.qualityLevel.value === 0) rendererState.forceBasicMaterials.set(true)
+  }, [rendererState.qualityLevel, rendererState.forceBasicMaterials])
+
+  return <QueryReactor Components={[MaterialStateComponent]} ChildEntityReactor={ChildMaterialReactor} />
 }
 
-const MaterialEntityReactor = () => {
+const ChildMaterialReactor = () => {
   const entity = useEntityContext()
+  const forceBasicMaterials = useMutableState(RendererState).forceBasicMaterials
   const materialComponent = useComponent(entity, MaterialStateComponent)
   useEffect(() => {
-    if (!materialComponent.instances.value!) return
-    for (const sourceEntity of materialComponent.instances.value) {
-      const sourceComponent = getOptionalComponent(sourceEntity, SourceComponent)
-      if (!sourceComponent || !SourceComponent.entitiesBySource[sourceComponent]) return
-      for (const entity of SourceComponent.entitiesBySource[getComponent(sourceEntity, SourceComponent)]) {
-        const uuid = getOptionalComponent(entity, MaterialInstanceComponent)?.uuid as EntityUUID[] | undefined
-        if (uuid) setMeshMaterial(entity, uuid)
-      }
-    }
-  }, [materialComponent.material])
-
-  useEffect(() => {
-    if (materialComponent.prototypeEntity.value && !materialPrototypeMatches(entity)) updateMaterialPrototype(entity)
-  }, [materialComponent.prototypeEntity])
-
-  useEffect(() => {
-    if (materialComponent.instances.value?.length === 0) removeEntity(entity)
-  }, [materialComponent.instances])
-
+    if (!materialComponent.material.value || !materialComponent.instances.length) return
+    convertMaterials(entity, forceBasicMaterials.value)
+  }, [
+    materialComponent.material,
+    materialComponent.material.needsUpdate,
+    materialComponent.instances,
+    forceBasicMaterials
+  ])
   return null
 }
 
-const MaterialInstanceReactor = () => {
-  const entity = useEntityContext()
-  const materialComponent = useComponent(entity, MaterialInstanceComponent)
-  const uuid = materialComponent.uuid
-  useEffect(() => {
-    if (uuid.value) setMeshMaterial(entity, uuid.value as EntityUUID[])
-  }, [materialComponent.uuid])
-  return null
+const ExpensiveMaterials = new Set(['MeshStandardMaterial', 'MeshPhysicalMaterial'])
+/**@todo refactor this to use preprocessor directives instead of new cloned materials with different shaders */
+export const convertMaterials = (material: Entity, forceBasicMaterials: boolean) => {
+  const materialComponent = getComponent(material, MaterialStateComponent)
+  const setMaterial = (uuid: EntityUUID, newUuid: EntityUUID) => {
+    for (const instance of materialComponent.instances) {
+      const indices = getMaterialIndices(instance, uuid)
+      for (const index of indices) {
+        const instanceComponent = getMutableComponent(instance, MaterialInstanceComponent)
+        const uuids = instanceComponent.uuid.get(NO_PROXY) as EntityUUID[]
+        uuids[index] = newUuid
+        instanceComponent.uuid.set(uuids)
+      }
+    }
+  }
+  const shouldMakeBasic =
+    (forceBasicMaterials || isMobileXRHeadset) && ExpensiveMaterials.has(materialComponent.material.type)
+
+  const uuid = getComponent(material, UUIDComponent)
+  const basicUuid = ('basic-' + uuid) as EntityUUID
+  const existingMaterialEntity = UUIDComponent.getEntityByUUID(basicUuid)
+  if (shouldMakeBasic) {
+    if (existingMaterialEntity) {
+      removeEntity(existingMaterialEntity)
+      return
+    }
+
+    const prevMaterial = materialComponent.material as MeshPhysicalMaterial
+    const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
+    const newBasicMaterial = new MeshLambertMaterial().copy(prevMaterial)
+    newBasicMaterial.specularMap = prevMaterial.roughnessMap ?? prevMaterial.specularIntensityMap
+    if (onlyEmmisive) newBasicMaterial.emissiveMap = prevMaterial.emissiveMap
+    else newBasicMaterial.map = prevMaterial.map
+    newBasicMaterial.reflectivity = prevMaterial.metalness
+    newBasicMaterial.envMap = prevMaterial.envMap
+    newBasicMaterial.uuid = basicUuid
+    newBasicMaterial.alphaTest = prevMaterial.alphaTest
+    newBasicMaterial.side = prevMaterial.side
+
+    const newMaterialEntity = createEntity()
+    setComponent(newMaterialEntity, MaterialStateComponent, {
+      material: newBasicMaterial,
+      instances: materialComponent.instances
+    })
+    setComponent(newMaterialEntity, UUIDComponent, basicUuid)
+    setComponent(newMaterialEntity, NameComponent, 'basic-' + getComponent(material, NameComponent))
+    setMaterial(uuid, basicUuid)
+  } else if (!forceBasicMaterials) {
+    const basicMaterialEntity = UUIDComponent.getEntityByUUID(uuid)
+    if (!basicMaterialEntity) return
+    const nonBasicUUID = uuid.slice(6) as EntityUUID
+    const materialEntity = UUIDComponent.getEntityByUUID(nonBasicUUID)
+    if (!materialEntity) return
+    setMaterial(uuid, nonBasicUUID)
+  }
 }
 
 export const MaterialLibrarySystem = defineSystem({

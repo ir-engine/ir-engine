@@ -34,6 +34,7 @@ import { PiTextT } from 'react-icons/pi'
 
 import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import {
   FontMaterialKind,
   TextComponent,
@@ -41,14 +42,13 @@ import {
   TroikaTextLineHeight
 } from '@ir-engine/engine/src/scene/components/TextComponent'
 import { useHookstate } from '@ir-engine/hyperflux'
-import { BooleanInput } from '@ir-engine/ui/src/components/editor/input/Boolean'
+import { Checkbox } from '@ir-engine/ui'
 import { ColorInput } from '../../../../primitives/tailwind/Color'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
 import { ControlledStringInput } from '../../input/String'
 import Vector2Input from '../../input/Vector2'
-import NodeEditor from '../nodeEditor'
 import { FontOption, fonts } from './fonts'
 
 /**
@@ -71,7 +71,10 @@ const SelectOptions = {
     { label: 'Break Word', value: 'break-word' }
   ],
   Font: fonts as FontOption[],
-  FontMaterial: [{ label: 'Basic', value: FontMaterialKind.Basic }]
+  FontMaterial: [
+    { label: 'Basic', value: FontMaterialKind.Basic },
+    { label: 'Standard', value: FontMaterialKind.Standard }
+  ]
 }
 
 /**
@@ -148,7 +151,12 @@ export const TextNodeEditor: EditorComponentType = (props) => {
   }, [])
 
   return (
-    <NodeEditor {...props} name="Text Component" description="A Text component" icon={<TextNodeEditor.iconComponent />}>
+    <NodeEditor
+      {...props}
+      name={t('editor:properties.text.name')}
+      description={t('editor:properties.text.description')}
+      Icon={TextNodeEditor.iconComponent}
+    >
       <InputGroup name="TextContents" label="Contents">
         <ControlledStringInput
           value={text.text.value}
@@ -204,11 +212,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
             />
           </InputGroup>
           <InputGroup name="TextWrap" label={t('editor:properties.text.textWrap')}>
-            <BooleanInput
-              value={text.textWrap.value}
-              onChange={text.textWrap.set}
-              onRelease={commitProperty(TextComponent, 'textWrap')}
-            />
+            <Checkbox checked={text.textWrap.value} onChange={commitProperty(TextComponent, 'textWrap')} />
           </InputGroup>
           <InputGroup name="TextAnchor" label={t('editor:properties.text.textAnchor')}>
             <Vector2Input
@@ -264,14 +268,13 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               unit="em"
             />
           </InputGroup>
-          {/* <InputGroup name="TextDirection" label={t('editor:properties.text.textDirection')}>
+          <InputGroup name="TextDirection" label={t('editor:properties.text.textDirection')}>
             <SelectInput
               options={SelectOptions.TextDirection}
               value={text.textDirection.value}
               onChange={commitProperty(TextComponent, 'textDirection')}
-              //onRelease={commitProperty(TextComponent, 'textDirection')}
             />
-          </InputGroup> */}
+          </InputGroup>
         </div>
       </InputGroup>
       <br></br>
@@ -408,7 +411,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
         label={t('editor:properties.text.advancedActive')}
         info={HoverInfo.AdvancedGroup}
       >
-        <BooleanInput value={advancedActive.value} onChange={advancedActive.set} />
+        <Checkbox checked={advancedActive.value} onChange={advancedActive.set} />
       </InputGroup>
       {advancedActive.value ? (
         /*Show Advanced Options only when Active*/
@@ -426,7 +429,7 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               label={t('editor:properties.text.clippingActive')}
               info={HoverInfo.Clipping}
             >
-              <BooleanInput value={text.clipActive.value} onChange={text.clipActive.set} />
+              <Checkbox checked={text.clipActive.value} onChange={commitProperty(TextComponent, 'clipActive')} />
             </InputGroup>
             <InputGroup
               disabled={!text.clipActive.value}
@@ -484,10 +487,9 @@ export const TextNodeEditor: EditorComponentType = (props) => {
               label={t('editor:properties.text.gpuAccelerated')}
               info={HoverInfo.GPUAccelerated}
             >
-              <BooleanInput
-                value={text.gpuAccelerated.value}
-                onChange={text.gpuAccelerated.set}
-                onRelease={commitProperty(TextComponent, 'gpuAccelerated')}
+              <Checkbox
+                checked={text.gpuAccelerated.value}
+                onChange={commitProperty(TextComponent, 'gpuAccelerated')}
               />
             </InputGroup>
           </div>

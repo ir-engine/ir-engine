@@ -107,6 +107,8 @@ export function createErrorBoundary<P extends { children: React.ReactNode }>(
     componentDidCatch(error: Error, info: React.ErrorInfo) {
       if (errorHandler) {
         errorHandler(error, info)
+      } else {
+        console.error(error, info)
       }
     }
 
@@ -128,13 +130,17 @@ export const ReactorErrorBoundary = createErrorBoundary<{ children: React.ReactN
   }
 )
 
-export const ErrorBoundary = createErrorBoundary(function error(props, error?: Error) {
-  if (error) {
-    return null
-  } else {
-    return <React.Fragment>{props.children}</React.Fragment>
+export const ErrorBoundary = createErrorBoundary<{ children: React.ReactNode; fallback?: React.ReactNode }>(
+  function error(props, error?: Error) {
+    if (error) {
+      console.error(error)
+      if (props.fallback) return <>{props.fallback}</>
+      return null
+    } else {
+      return <React.Fragment>{props.children}</React.Fragment>
+    }
   }
-})
+)
 
 const ReactorRootContext = React.createContext<ReactorRoot>(undefined as any)
 
@@ -211,7 +217,7 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
   return reactorRoot
 }
 
-export const disposeStore = (store = HyperFlux.store) => {
+export const stopAllReactors = (store = HyperFlux.store) => {
   for (const reactor of store.activeReactors) {
     ReactorReconciler.flushSync(() => reactor.stop())
   }

@@ -217,3 +217,19 @@ export const smoothDamp = (
 export function smootheLerpAlpha(smoothness: number, deltaSeconds: number) {
   return 1 - Math.pow(smoothness, deltaSeconds)
 }
+
+/**
+ * Smoothstep function between 0 and 1 input and output
+ * @param alpha value between 0 and 1
+ */
+export function smoothStep(alpha: number) {
+  return alpha * alpha * (3 - 2 * alpha)
+}
+
+/**
+ * Smootherstep function between 0 and 1 input and output
+ * @param alpha value between 0 and 1
+ */
+export function smootherStep(alpha: number) {
+  return alpha * alpha * alpha * (alpha * (alpha * 6 - 15) + 10)
+}

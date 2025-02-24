@@ -44,13 +44,13 @@ import config from '@ir-engine/common/src/config'
 import multiLogger from '@ir-engine/common/src/logger'
 import { ProjectType, projectPath } from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import CopyText from '@ir-engine/ui/src/primitives/tailwind/CopyText'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
+import { Button } from '@ir-engine/ui'
+import TruncatedText from '@ir-engine/ui/src/primitives/tailwind/TruncatedText'
 import DataTable from '../../common/Table'
 import { ProjectRowType, projectsColumns } from '../../common/constants/project'
 import { ProjectUpdateState } from '../../services/ProjectUpdateService'
@@ -113,28 +113,28 @@ export default function ProjectTable(props: { search: string }) {
       }).catch((err) => {
         NotificationService.dispatchNotify(err.message, { variant: 'error' })
       })
-      PopoverState.hidePopupover()
+      if (activeProjectId?.value === project.id) PopoverState.hidePopupover()
     }
 
     return (
       <div className="flex items-center justify-evenly p-1">
         <Button
-          startIcon={<HiOutlineArrowPath />}
-          size="small"
-          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
+          size="sm"
+          className="mr-2 h-min whitespace-pre  text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={project.name === 'ir-engine/default-project'}
-          onClick={() =>
+          onClick={() => {
+            activeProjectId.set(project.id)
             PopoverState.showPopupover(
               <AddEditProjectModal update={true} inputProject={project} onSubmit={handleProjectUpdate} />
             )
-          }
+          }}
         >
+          <HiOutlineArrowPath />
           {t('admin:components.project.actions.update')}
         </Button>
         <Button
-          startIcon={<GrGithub />}
-          size="small"
-          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
+          size="sm"
+          className="mr-2 h-min whitespace-pre  text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={!project || !project.repositoryPath || project.name === 'ir-engine/default-project'}
           onClick={() => {
             PopoverState.showPopupover(
@@ -149,24 +149,24 @@ export default function ProjectTable(props: { search: string }) {
             )
           }}
         >
+          <GrGithub />
           {t('admin:components.project.actions.push')}
         </Button>
 
         <Button
-          startIcon={<HiOutlineUsers />}
-          size="small"
-          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
+          size="sm"
+          className="mr-2 h-min whitespace-pre  text-[#214AA6] disabled:opacity-50 dark:text-white"
           onClick={() => {
             activeProjectId.set(project.id)
             PopoverState.showPopupover(<ManageUserPermissionModal project={project} />)
           }}
         >
+          <HiOutlineUsers />
           {t('admin:components.project.actions.access')}
         </Button>
         <Button
-          startIcon={<HiOutlineCommandLine />}
-          size="small"
-          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
+          size="sm"
+          className="mr-2 h-min whitespace-pre  text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={config.client.localBuildOrDev}
           onClick={() => {
             PopoverState.showPopupover(
@@ -179,29 +179,26 @@ export default function ProjectTable(props: { search: string }) {
             )
           }}
         >
+          <HiOutlineCommandLine />
           {t('admin:components.project.actions.invalidateCache')}
         </Button>
-        <Button
-          startIcon={<HiOutlineFolder />}
-          size="small"
-          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
-        >
+        <Button size="sm" className="mr-2 h-min whitespace-pre  text-[#214AA6] disabled:opacity-50 dark:text-white">
+          <HiOutlineFolder />
           {t('admin:components.common.view')}
         </Button>
         <Button
-          startIcon={<HiOutlineClock />}
-          size="small"
-          className="mr-2 h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
+          size="sm"
+          className="mr-2 h-min whitespace-pre  text-[#214AA6] disabled:opacity-50 dark:text-white"
           onClick={() => {
             PopoverState.showPopupover(<ProjectHistoryModal projectId={project.id} projectName={project.name} />)
           }}
         >
+          <HiOutlineClock />
           {t('admin:components.project.actions.history')}
         </Button>
         <Button
-          startIcon={<HiOutlineTrash />}
-          size="small"
-          className="h-min whitespace-pre bg-theme-blue-secondary text-[#214AA6] disabled:opacity-50 dark:text-white"
+          size="sm"
+          className="h-min whitespace-pre  text-[#214AA6] disabled:opacity-50 dark:text-white"
           disabled={project.name === 'ir-engine/default-project'}
           onClick={() => {
             PopoverState.showPopupover(
@@ -214,6 +211,7 @@ export default function ProjectTable(props: { search: string }) {
             )
           }}
         >
+          <HiOutlineTrash />
           {t('admin:components.common.remove')}
         </Button>
       </div>
@@ -225,20 +223,16 @@ export default function ProjectTable(props: { search: string }) {
       return {
         name: (
           <div className="flex items-center gap-2">
-            <a
-              target="_blank"
-              href={`/studio?project=${row.name}`}
-              className={row.needsRebuild ? 'text-blue-400' : 'text-theme-primary'}
-            >
+            <a target="_blank" href={`/studio?project=${row.name}`} className={row.needsRebuild ? 'text-blue-400' : ''}>
               {row.name}
             </a>
             {!!row.needsRebuild && (
-              <Tooltip content={t('admin:components.project.outdatedBuild')} position="right center">
+              <Tooltip content={t('admin:components.project.outdatedBuild')} position="right">
                 <HiOutlineExclamationCircle className="text-orange-400" size={22} />
               </Tooltip>
             )}
             {!!row.hasLocalChanges && (
-              <Tooltip content={t('admin:components.project.hasLocalChanges')} position="right center">
+              <Tooltip content={t('admin:components.project.hasLocalChanges')} position="right">
                 <HiOutlineExclamationCircle className="text-yellow-400" size={22} />
               </Tooltip>
             )}
@@ -254,17 +248,18 @@ export default function ProjectTable(props: { search: string }) {
         ),
         visibility: <Toggle value={row.visibility === 'public'} onChange={() => handleVisibilityChange(row)} />,
         commitSHA: (
-          <span className="flex items-center justify-between">
-            <Tooltip content={row.commitSHA || ''}>
-              <>{row.commitSHA?.slice(0, 8)}</>
-            </Tooltip>{' '}
-            <CopyText text={row.commitSHA || ''} className="ml-1" />
-          </span>
+          <TruncatedText
+            variant="copy"
+            text={row.commitSHA || ''}
+            truncatorChar=" "
+            visibleChars={8}
+            truncatorPosition="end"
+          />
         ),
         commitDate: toDisplayDateTime(row.commitDate),
         actions: <RowActions project={row} />
       }
     })
 
-  return <DataTable query={projectQuery} columns={projectsColumns} rows={createRows(projectQuery.data)} />
+  return <DataTable size="xs" query={projectQuery} columns={projectsColumns} rows={createRows(projectQuery.data)} />
 }

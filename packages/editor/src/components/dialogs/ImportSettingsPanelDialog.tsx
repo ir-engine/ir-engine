@@ -23,19 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { KTX2EncodeArguments } from '@ir-engine/engine/src/assets/constants/CompressionParms'
 import { NO_PROXY, State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { Checkbox, Input, Select, Tooltip } from '@ir-engine/ui'
 import InputGroup from '@ir-engine/ui/src/components/editor/input/Group'
 import NumericInput from '@ir-engine/ui/src/components/editor/input/Numeric'
-import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Label from '@ir-engine/ui/src/primitives/tailwind/Label'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HiOutlineInformationCircle } from 'react-icons/hi2'
@@ -56,6 +54,12 @@ const UASTCFlagOptions = [
   { label: 'Disable Flip and Individual', value: 256 }
 ]
 
+export const validateImportFolderPath = (importFolderPath: string) => {
+  if (!importFolderPath.startsWith('/public/') && !importFolderPath.startsWith('/assets/')) {
+    throw new Error('Folder must start with `/public/` or `/assets/`')
+  }
+}
+
 const ImageCompressionBox = ({ compressProperties }: { compressProperties: State<KTX2EncodeArguments> }) => {
   const { t } = useTranslation()
 
@@ -63,13 +67,15 @@ const ImageCompressionBox = ({ compressProperties }: { compressProperties: State
     <>
       <Text>{t('editor:properties.model.transform.compress')}</Text>
       <Select
-        label={t('editor:properties.model.transform.mode')}
-        description={t('editor:properties.model.transform.modeTooltip')}
+        labelProps={{
+          text: t('editor:properties.model.transform.mode'),
+          position: 'top'
+        }}
         options={[
           { label: 'ETC1S', value: 'ETC1S' },
           { label: 'UASTC', value: 'UASTC' }
         ]}
-        currentValue={compressProperties.mode.value}
+        value={compressProperties.mode.value}
         onChange={(val: 'ETC1S' | 'UASTC') => compressProperties.mode.set(val)}
       />
       <div className="flex items-center gap-2">
@@ -149,7 +155,7 @@ const ImageCompressionBox = ({ compressProperties }: { compressProperties: State
           >
             <Select
               options={UASTCFlagOptions}
-              currentValue={compressProperties.uastcFlags.value}
+              value={compressProperties.uastcFlags.value}
               onChange={(val: number) => compressProperties.uastcFlags.set(val)}
             />
           </InputGroup>
@@ -195,13 +201,20 @@ export default function ImportSettingsPanel() {
   }
 
   const handleSaveChanges = () => {
-    importSettingsState.importFolder.set(defaultImportFolder)
-    importSettingsState.LODFolder.set(LODImportFolder)
-    importSettingsState.LODsEnabled.set(LODGenEnabled)
-    importSettingsState.imageCompression.set(KTXEnabled)
-    importSettingsState.imageSettings.set(compressProperties.get(NO_PROXY))
-    importSettingsState.selectedLODS.set(selectedLODS)
-    handleCancel()
+    try {
+      validateImportFolderPath(defaultImportFolder)
+      importSettingsState.importFolder.set(
+        defaultImportFolder.endsWith('/') ? defaultImportFolder : defaultImportFolder + '/'
+      )
+      importSettingsState.LODFolder.set(LODImportFolder)
+      importSettingsState.LODsEnabled.set(LODGenEnabled)
+      importSettingsState.imageCompression.set(KTXEnabled)
+      importSettingsState.imageSettings.set(compressProperties.get(NO_PROXY))
+      importSettingsState.selectedLODS.set(selectedLODS)
+      handleCancel()
+    } catch (e) {
+      NotificationService.dispatchNotify(e.message, { variant: 'error' })
+    }
   }
 
   const handleCancel = () => {
@@ -218,24 +231,32 @@ export default function ImportSettingsPanel() {
       <Input
         value={defaultImportFolder}
         onChange={(event) => setDefaultImportFolder(event.target.value)}
-        label="Default Import Folder"
+        labelProps={{
+          text: 'Default Import Folder',
+          position: 'top'
+        }}
       />
-      <Checkbox value={LODGenEnabled} onChange={() => setLODGenEnabled(!LODGenEnabled)} label={'Generate LODs'} />
+      <Checkbox checked={LODGenEnabled} onChange={() => setLODGenEnabled(!LODGenEnabled)} label={'Generate LODs'} />
       {LODGenEnabled && (
         <>
           <Input
-            label="LODs Folder"
+            labelProps={{
+              text: 'LODs Folder',
+              position: 'top'
+            }}
             value={LODImportFolder}
             onChange={(event) => setLODImportFolder(event?.target.value)}
           />
           <Label>LODs to Generate</Label>
           {selectedLODS.slice(0, 3).map((LOD, idx) => (
             <Select
-              label={LOD.params.dst}
-              description={presetLabels[idx]}
+              labelProps={{
+                text: LOD.params.dst,
+                position: 'top'
+              }}
               key={idx}
               options={LODList.map((sLOD) => ({ label: sLOD.params.dst, value: sLOD as any }))}
-              currentValue={LOD.params.dst}
+              value={LOD.params.dst}
               onChange={(value) => {
                 setCurrentLOD(value as any)
                 setCurrentIndex(idx)
@@ -245,7 +266,7 @@ export default function ImportSettingsPanel() {
         </>
       )}
       <Text>Image Compression Settings</Text>
-      <Checkbox label={'Compress to KTX2'} value={KTXEnabled} onChange={() => setKTXEnabled(!KTXEnabled)} />
+      <Checkbox label={'Compress to KTX2'} checked={KTXEnabled} onChange={() => setKTXEnabled(!KTXEnabled)} />
       {KTXEnabled && <ImageCompressionBox compressProperties={compressProperties} />}
     </Modal>
   )

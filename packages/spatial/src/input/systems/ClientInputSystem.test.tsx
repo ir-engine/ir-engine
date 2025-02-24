@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
   createEngine,
@@ -43,9 +44,9 @@ import {
 } from '@ir-engine/ecs'
 import { getMutableState } from '@ir-engine/hyperflux'
 import { Quaternion, Vector3 } from 'three'
+import { assertVec } from '../../../tests/util/assert'
 import { CameraComponent } from '../../camera/components/CameraComponent'
-import { assertVecApproxEq } from '../../physics/classes/Physics.test'
-import { TransformComponent } from '../../SpatialModule'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { XRState } from '../../xr/XRState'
 import { InputPointerComponent } from '../components/InputPointerComponent'
@@ -62,7 +63,7 @@ import { ClientInputCleanupSystem, ClientInputSystem } from './ClientInputSystem
 //   const mockDocEvents = new MockEventListener()
 //   const mockWinEvents = new MockEventListener()
 
-//   before(() => {
+//   beforeAll(() => {
 //     documentAddEvent = globalThis.document.addEventListener
 //     documentRemoveEvent = globalThis.document.removeEventListener
 //     windowAddEvent = globalThis.window.addEventListener
@@ -77,7 +78,7 @@ import { ClientInputCleanupSystem, ClientInputSystem } from './ClientInputSystem
 //     globalThis.ReferenceSpace.origin = new MockXRReferenceSpace()
 //   })
 
-//   after(() => {
+//   afterAll(() => {
 //     globalThis.document.addEventListener = documentAddEvent
 //     globalThis.document.removeEventListener = documentRemoveEvent
 //     globalThis.window.addEventListener = windowAddEvent
@@ -329,8 +330,8 @@ describe('ClientInputSystem', () => {
       // Run and Check the result
       clientInputSystemExecute()
       const result = getComponent(testEntity, TransformComponent)
-      assertVecApproxEq(result.position, position, 3)
-      assertVecApproxEq(result.rotation, rotation, 4)
+      assertVec.approxEq(result.position, position, 3)
+      assertVec.approxEq(result.rotation, rotation, 4)
     })
 
     it('should remove any entities that match the query [InputPointerComponent, InputSourceComponent, Not(XRSpaceComponent)] when the InputPointerComponent.cameraEntity for that entity no longer exists (aka stalePointers)', () => {

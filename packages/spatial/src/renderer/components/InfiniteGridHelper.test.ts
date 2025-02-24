@@ -28,6 +28,7 @@ import {
   createEntity,
   defineQuery,
   destroyEngine,
+  EntityTreeComponent,
   getComponent,
   getMutableComponent,
   hasComponent,
@@ -38,10 +39,10 @@ import {
 } from '@ir-engine/ecs'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import assert from 'assert'
-import { Color, ShaderMaterial } from 'three'
+import { Color, ColorRepresentation, ShaderMaterial } from 'three'
+import { afterEach, beforeEach, describe, it } from 'vitest'
+import { assertFloat } from '../../../tests/util/assert'
 import { NameComponent } from '../../common/NameComponent'
-import { assertFloatApproxEq, assertFloatApproxNotEq } from '../../physics/classes/Physics.test'
-import { EntityTreeComponent } from '../../transform/components/EntityTree'
 import { RendererState } from '../RendererState'
 import { createInfiniteGridHelper, InfiniteGridComponent } from './InfiniteGridHelper'
 import { LineSegmentComponent } from './LineSegmentComponent'
@@ -50,7 +51,7 @@ import { VisibleComponent } from './VisibleComponent'
 
 type InfiniteGridComponentData = {
   size: number
-  color: Color
+  color: ColorRepresentation
   distance: number
 }
 
@@ -62,17 +63,21 @@ const InfiniteGridComponentDefaults = {
 
 function assertInfiniteGridComponentEq(A: InfiniteGridComponentData, B: InfiniteGridComponentData) {
   assert.equal(A.size, B.size)
-  assertFloatApproxEq(A.color.r, B.color.r)
-  assertFloatApproxEq(A.color.g, B.color.g)
-  assertFloatApproxEq(A.color.b, B.color.b)
+  const leftColor = new Color(A.color)
+  const rightColor = new Color(B.color)
+  assertFloat.approxEq(leftColor.r, rightColor.r)
+  assertFloat.approxEq(leftColor.g, rightColor.g)
+  assertFloat.approxEq(leftColor.b, rightColor.b)
   assert.equal(A.distance, B.distance)
 }
 
 function assertInfiniteGridComponentNotEq(A: InfiniteGridComponentData, B: InfiniteGridComponentData) {
   assert.notEqual(A.size, B.size)
-  assertFloatApproxNotEq(A.color.r, B.color.r)
-  assertFloatApproxNotEq(A.color.g, B.color.g)
-  assertFloatApproxNotEq(A.color.b, B.color.b)
+  const leftColor = new Color(A.color)
+  const rightColor = new Color(B.color)
+  assertFloat.approxNotEq(leftColor.r, rightColor.r)
+  assertFloat.approxNotEq(leftColor.g, rightColor.g)
+  assertFloat.approxNotEq(leftColor.b, rightColor.b)
   assert.notEqual(A.distance, B.distance)
 }
 
@@ -128,19 +133,6 @@ describe('InfiniteGridComponent', () => {
       setComponent(testEntity, InfiniteGridComponent, Expected)
       assertInfiniteGridComponentNotEq(data, InfiniteGridComponentDefaults)
       assertInfiniteGridComponentEq(data, Expected)
-    })
-
-    it('should not change values of an initialized InfiniteGridComponent when the data passed had incorrect types', () => {
-      const Incorrect = {
-        size: 'somesize',
-        color: 42,
-        distance: 'somedistance'
-      }
-      const data = getComponent(testEntity, InfiniteGridComponent)
-      assertInfiniteGridComponentEq(data, InfiniteGridComponentDefaults)
-      // @ts-ignore Coerce the data with incorrect types into the setComponent call
-      setComponent(testEntity, InfiniteGridComponent, Incorrect)
-      assertInfiniteGridComponentEq(data, InfiniteGridComponentDefaults)
     })
   }) //:: onSet
 

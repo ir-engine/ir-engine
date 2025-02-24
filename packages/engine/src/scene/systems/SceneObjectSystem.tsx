@@ -24,61 +24,41 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import React, { useEffect } from 'react'
-import {
-  Light,
-  Material,
-  Mesh,
-  MeshLambertMaterial,
-  MeshPhongMaterial,
-  MeshPhysicalMaterial,
-  MeshStandardMaterial,
-  Object3D,
-  SkinnedMesh,
-  Texture
-} from 'three'
+import { Light, Material, Mesh, Object3D, SkinnedMesh, Texture } from 'three'
 
-import { entityExists, useEntityContext, UUIDComponent } from '@ir-engine/ecs'
+import { UUIDComponent } from '@ir-engine/ecs'
 import {
   getComponent,
-  getOptionalComponent,
   hasComponent,
   removeComponent,
-  serializeComponent,
   setComponent,
+  useHasComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
-import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
-import { defineQuery, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import { defineQuery, EntityArrayBoundary, QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { getMutableState, getState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
 import { CallbackComponent } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { ThreeToPhysics } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
-import { GroupComponent, GroupQueryReactor } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
-import { ResourceManager } from '@ir-engine/spatial/src/resources/ResourceState'
+import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import {
   DistanceFromCameraComponent,
   FrustumCullCameraComponent
 } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
-import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
+import { KHRUnlitExtensionComponent } from '../../gltf/MaterialExtensionComponents'
+import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 
-import {
-  MaterialInstanceComponent,
-  MaterialStateComponent
-} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { createAndAssignMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
-import { EnvmapComponent } from '../components/EnvmapComponent'
-import { ModelComponent } from '../components/ModelComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SourceComponent } from '../components/SourceComponent'
-import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
-import { getModelSceneID, useModelSceneID } from '../functions/loaders/ModelFunctions'
 
 const disposeMaterial = (material: Material) => {
   for (const [key, val] of Object.entries(material) as [string, Texture][]) {
@@ -115,80 +95,8 @@ export const disposeObject3D = (obj: Object3D) => {
   if (typeof light.dispose === 'function') light.dispose()
 }
 
-export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
-/**@todo refactor this to use preprocessor directives instead of new cloned materials with different shaders */
-export function setupObject(obj: Object3D, entity: Entity, forceBasicMaterials = false) {
-  const child = obj as any as Mesh<any, any>
-  if (child.material) {
-    const shouldMakeBasic =
-      (forceBasicMaterials || isMobileXRHeadset) && ExpensiveMaterials.has(child.material.constructor)
-    if (shouldMakeBasic) {
-      const basicUUID = `basic-${child.material.uuid}` as EntityUUID
-      const basicMaterialEntity = UUIDComponent.getEntityByUUID(basicUUID)
-      if (basicMaterialEntity) {
-        child.material = getComponent(basicMaterialEntity, MaterialStateComponent).material
-        return
-      }
-      const prevMaterial = child.material
-      const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
-      const newBasicMaterial = new MeshLambertMaterial().copy(prevMaterial)
-      newBasicMaterial.specularMap = prevMaterial.roughnessMap ?? prevMaterial.specularIntensityMap
-      if (onlyEmmisive) newBasicMaterial.emissiveMap = prevMaterial.emissiveMap
-      else newBasicMaterial.map = prevMaterial.map
-      newBasicMaterial.reflectivity = prevMaterial.metalness
-      newBasicMaterial.envMap = prevMaterial.envMap
-      newBasicMaterial.uuid = basicUUID
-      newBasicMaterial.alphaTest = prevMaterial.alphaTest
-      newBasicMaterial.side = prevMaterial.side
-      newBasicMaterial.plugins = undefined
-
-      createAndAssignMaterial(entity, newBasicMaterial)
-      setComponent(entity, MaterialInstanceComponent, { uuid: [basicUUID] })
-    } else {
-      const UUID = child.material.uuid as EntityUUID
-      const basicMaterialEntity = UUIDComponent.getEntityByUUID(UUID)
-      if (!basicMaterialEntity) return
-
-      const nonBasicUUID = UUID.slice(6) as EntityUUID
-      const materialEntity = UUIDComponent.getEntityByUUID(nonBasicUUID)
-      if (!materialEntity) return
-
-      setComponent(entity, MaterialInstanceComponent, { uuid: [nonBasicUUID] })
-    }
-  }
-}
-
-const groupQuery = defineQuery([GroupComponent])
+const visibleObjectQuery = defineQuery([ObjectComponent, VisibleComponent])
 const updatableQuery = defineQuery([UpdatableComponent, CallbackComponent])
-
-function SceneObjectReactor(props: { entity: Entity; obj: Object3D }) {
-  const { entity, obj } = props
-
-  const renderState = getMutableState(RendererState)
-  const forceBasicMaterials = useHookstate(renderState.forceBasicMaterials)
-
-  useImmediateEffect(() => {
-    setComponent(entity, DistanceFromCameraComponent)
-    return () => {
-      if (entityExists(entity)) removeComponent(entity, DistanceFromCameraComponent)
-    }
-  }, [])
-
-  useEffect(() => {
-    const source = hasComponent(entity, ModelComponent)
-      ? getModelSceneID(entity)
-      : getOptionalComponent(entity, SourceComponent)
-    return () => {
-      ResourceManager.unloadObj(obj, source)
-    }
-  }, [])
-
-  useEffect(() => {
-    setupObject(obj, entity, forceBasicMaterials.value)
-  }, [forceBasicMaterials])
-
-  return null
-}
 
 const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
 
@@ -198,67 +106,62 @@ const execute = () => {
     const callbacks = getComponent(entity, CallbackComponent)
     callbacks.get(UpdatableCallback)?.(delta)
   }
-
-  for (const entity of groupQuery()) {
-    const group = getComponent(entity, GroupComponent)
+  for (const entity of visibleObjectQuery()) {
+    const obj = getComponent(entity, ObjectComponent)
+    const hasDistance = hasComponent(entity, DistanceFromCameraComponent)
+    const inRange = hasDistance
+      ? DistanceFromCameraComponent.squaredDistance[entity] > minimumFrustumCullDistanceSqr
+      : true
     /**
      * do frustum culling here, but only if the object is more than 5 units away
      */
-    const visible =
-      hasComponent(entity, VisibleComponent) &&
-      !(
-        FrustumCullCameraComponent.isCulled[entity] &&
-        DistanceFromCameraComponent.squaredDistance[entity] > minimumFrustumCullDistanceSqr
-      )
+    const visible = !(FrustumCullCameraComponent.isCulled[entity] && inRange)
 
-    for (const obj of group) obj.visible = visible
+    obj.visible = visible
   }
 }
 
-const ModelEntityReactor = () => {
-  const entity = useEntityContext()
-  const modelSceneID = useModelSceneID(entity)
-  const childEntities = useHookstate(SourceComponent.entitiesBySourceState[modelSceneID])
+const ModelEntityReactor = (props: { entity: Entity }) => {
+  const entity = props.entity
+  const modelInstanceID = GLTFComponent.useInstanceID(entity)
+  const childEntities = SourceComponent.useEntitiesBySource(modelInstanceID)
 
   return (
-    <>
-      {childEntities.value?.map((childEntity: Entity) => (
-        <ChildReactor key={childEntity} entity={childEntity} parentEntity={entity} />
-      ))}
-    </>
+    <EntityArrayBoundary entities={childEntities} ChildEntityReactor={ChildReactor} props={{ parentEntity: entity }} />
   )
 }
 
+const useIsUnlit = (entity: Entity) => {
+  let isUnlit = useHasComponent(entity, KHRUnlitExtensionComponent)
+  const materialInstanceUUIDs = useOptionalComponent(entity, MaterialInstanceComponent)?.uuid.value
+
+  if (materialInstanceUUIDs) {
+    for (const uuid of materialInstanceUUIDs) {
+      const matEntity = UUIDComponent.getEntityByUUID(uuid)
+      if (matEntity && hasComponent(matEntity, KHRUnlitExtensionComponent)) {
+        isUnlit = true
+        break
+      }
+    }
+  }
+
+  return isUnlit
+}
+
 const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
-  const isMesh = useOptionalComponent(props.entity, MeshComponent)
-  const isModelColliders = useOptionalComponent(props.parentEntity, RigidBodyComponent)
-  const isVisible = useOptionalComponent(props.entity, VisibleComponent)
+  const isMesh = useHasComponent(props.entity, MeshComponent)
+  const isModelColliders = useHasComponent(props.parentEntity, RigidBodyComponent)
+  const isVisible = useHasComponent(props.entity, VisibleComponent)
+  const isUnlit = useIsUnlit(props.entity)
 
   const shadowComponent = useOptionalComponent(props.parentEntity, ShadowComponent)
   useEffect(() => {
     if (!isMesh || !isVisible) return
-    if (shadowComponent)
-      setComponent(props.entity, ShadowComponent, serializeComponent(props.parentEntity, ShadowComponent))
-    else removeComponent(props.entity, ShadowComponent)
-  }, [isVisible, isMesh, shadowComponent?.cast, shadowComponent?.receive])
-
-  const envmapComponent = useOptionalComponent(props.parentEntity, EnvmapComponent)
-  useEffect(() => {
-    if (!isMesh || !isVisible) return
-    if (envmapComponent)
-      setComponent(props.entity, EnvmapComponent, serializeComponent(props.parentEntity, EnvmapComponent))
-    else removeComponent(props.entity, EnvmapComponent)
-  }, [
-    isVisible,
-    isMesh,
-    envmapComponent,
-    envmapComponent?.envMapIntensity,
-    envmapComponent?.envmap,
-    envmapComponent?.envMapSourceColor,
-    envmapComponent?.envMapSourceURL,
-    envmapComponent?.envMapTextureType,
-    envmapComponent?.envMapSourceEntityUUID
-  ])
+    if (shadowComponent) {
+      if (!isUnlit) setComponent(props.entity, ShadowComponent, getComponent(props.parentEntity, ShadowComponent))
+      else removeComponent(props.entity, ShadowComponent)
+    }
+  }, [isVisible, isMesh, isUnlit, shadowComponent?.cast, shadowComponent?.receive])
 
   useEffect(() => {
     if (!isModelColliders || !isMesh) return
@@ -282,12 +185,11 @@ const ChildReactor = (props: { entity: Entity; parentEntity: Entity }) => {
 const reactor = () => {
   return (
     <>
-      <QueryReactor Components={[ModelComponent]} ChildEntityReactor={ModelEntityReactor} />
-      <GroupQueryReactor GroupChildReactor={SceneObjectReactor} />
+      <QueryReactor Components={[GLTFComponent]} ChildEntityReactor={ModelEntityReactor} />
     </>
   )
 }
-//<QueryReactor Components={[SourceComponent]} ChildEntityReactor={SceneObjectEntityReactor} />
+
 export const SceneObjectSystem = defineSystem({
   uuid: 'ee.engine.SceneObjectSystem',
   insert: { after: AnimationSystemGroup },

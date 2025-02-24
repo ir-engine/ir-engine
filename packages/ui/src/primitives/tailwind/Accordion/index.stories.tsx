@@ -50,12 +50,24 @@ export const Default = {
     shrinkIcon: <HiMinus />,
     children: (
       <>
-        <div className="my-6 flex w-full justify-between gap-4">
-          <Input label="Port" value="3030" />
-          <Input label="Process Interval" value="30" />
+        <div className="flex w-full justify-between gap-4">
+          <Input
+            labelProps={{
+              text: 'Port',
+              position: 'top'
+            }}
+            value="3030"
+          />
+          <Input
+            labelProps={{
+              text: 'Process Interval',
+              position: 'top'
+            }}
+            value="30"
+          />
         </div>
         <div className="flex w-3/12 justify-between gap-4">
-          <Button fullWidth className="bg-theme-highlight">
+          <Button fullWidth className="">
             Cancel
           </Button>
           <Button fullWidth variant="primary">

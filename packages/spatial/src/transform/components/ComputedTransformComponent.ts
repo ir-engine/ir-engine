@@ -23,35 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { matches } from 'ts-matches'
-
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity } from '@ir-engine/ecs/src/Entity'
-import { useImmediateEffect } from '@ir-engine/hyperflux'
-import { TransformComponent } from './TransformComponent'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 
 export const ComputedTransformComponent = defineComponent({
   name: 'ComputedTransformComponent',
 
-  onInit(entity) {
-    return {
-      referenceEntities: [] as Entity[],
-      computeFunction: () => {}
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-
-    matches.arrayOf(matches.number).test(json.referenceEntities) &&
-      component.referenceEntities.set(json.referenceEntities)
-    if (typeof json.computeFunction === 'function') component.merge({ computeFunction: json.computeFunction })
-  },
-
-  reactor: () => {
-    useImmediateEffect(() => {
-      TransformComponent.transformsNeedSorting = true
-    }, [])
-    return null
-  }
+  schema: S.Object({
+    referenceEntities: S.Array(S.Entity()),
+    computeFunction: S.Call()
+  })
 })

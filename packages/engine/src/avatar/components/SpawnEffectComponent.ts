@@ -27,6 +27,7 @@ import { Easing, Tween } from '@tweenjs/tween.js'
 import { useEffect } from 'react'
 import { AdditiveBlending, DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, Vector3 } from 'three'
 
+import { EntityTreeComponent, createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -34,37 +35,28 @@ import {
   removeComponent,
   setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { ObjectDirection, Vector3_Right, Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { ObjectDirection, Vector3_Right, Vector3_Up } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { Physics, RaycastArgs } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { AvatarCollisionMask, CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import { getInteractionGroups } from '@ir-engine/spatial/src/physics/functions/getInteractionGroups'
 import { SceneQueryType } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
-import { addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { setVisibleComponent, VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { EntityTreeComponent } from '@ir-engine/spatial/src/transform/components/EntityTree'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { VisibleComponent, setVisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { TweenComponent } from '@ir-engine/spatial/src/transform/components/TweenComponent'
 
 export const SpawnEffectComponent = defineComponent({
   name: 'SpawnEffectComponent',
-  onInit: (entity) => {
-    return {
-      sourceEntity: UndefinedEntity,
-      opacityMultiplier: 1,
-      plateEntity: UndefinedEntity,
-      lightEntities: [] as Entity[]
-    }
-  },
 
-  onSet: (entity, component, json) => {
-    if (!json) return
-
-    if (json.sourceEntity) component.sourceEntity.set(json.sourceEntity)
-    if (json.opacityMultiplier) component.opacityMultiplier.set(json.opacityMultiplier)
-  },
+  schema: S.Object({
+    sourceEntity: S.Entity(),
+    opacityMultiplier: S.Number(1),
+    plateEntity: S.Entity(),
+    lightEntities: S.Array(S.Entity())
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
@@ -164,7 +156,7 @@ const createPlateEntity = (entity: Entity) => {
   const plateEntity = createEntity()
   setComponent(plateEntity, NameComponent, 'Spawn Plate ' + entity)
   setComponent(plateEntity, EntityTreeComponent, { parentEntity: entity })
-  addObjectToGroup(plateEntity, plateMesh)
+  setComponent(plateEntity, MeshComponent, plateMesh)
   setVisibleComponent(plateEntity, true)
   const transform = getComponent(plateEntity, TransformComponent)
   transform.rotation.setFromAxisAngle(Vector3_Right, -0.5 * Math.PI)
@@ -182,7 +174,7 @@ const createRayEntities = (entity: Entity) => {
     const rayEntity = createEntity()
     setComponent(rayEntity, NameComponent, 'Spawn Ray ' + entity)
     setComponent(rayEntity, EntityTreeComponent, { parentEntity: entity })
-    addObjectToGroup(rayEntity, ray)
+    setComponent(rayEntity, MeshComponent, ray)
     const transform = getComponent(rayEntity, TransformComponent)
     setVisibleComponent(rayEntity, true)
     getMutableComponent(entity, SpawnEffectComponent).lightEntities.merge([rayEntity])
@@ -190,7 +182,7 @@ const createRayEntities = (entity: Entity) => {
     const a = (2 * Math.PI * i) / rayCount
     const r = R * Math.random()
     transform.position.x += r * Math.cos(a)
-    transform.position.y += 0.5 * ray.geometry.boundingSphere?.radius! * Math.random()
+    transform.position.y += 0.5 * ray.geometry.boundingSphere!.radius! * Math.random()
     transform.position.z += r * Math.sin(a)
 
     transform.rotation.setFromAxisAngle(Vector3_Up, Math.random() * 2 * Math.PI)

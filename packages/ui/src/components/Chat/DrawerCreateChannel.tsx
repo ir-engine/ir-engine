@@ -26,9 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { IoMdAddCircle } from 'react-icons/io'
 
+import { useUserAvatarThumbnail } from '@ir-engine/client-core/src/hooks/useUserAvatarThumbnail'
 import { ChannelService } from '@ir-engine/client-core/src/social/services/ChannelService'
 import { FriendService, FriendState } from '@ir-engine/client-core/src/social/services/FriendService'
-import { useUserAvatarThumbnail } from '@ir-engine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { UserID } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'

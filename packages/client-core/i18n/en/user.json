@@ -6,7 +6,9 @@
     "saving": "Saving",
     "upload": "Upload",
     "discardChanges": "Discard Changes",
-    "confirmDiscardChange": "Changes you made may not be saved."
+    "confirmDiscardChange": "Changes you made may not be saved.",
+    "changesLostAlert": "If you proceed all your changes will be lost.",
+    "discard": "Discard"
   },
   "auth": {
     "confirmEmail": {
@@ -19,7 +21,7 @@
       "username": "UserName + Password",
       "social": "Social"
     },
-    "magiklink": {
+    "magiclink": {
       "header": "Login Link",
       "descriptionEmail": "Please enter your email address and we'll send you a login link via Email.",
       "descriptionSMS": "Please enter your phone number and we'll send you a login link via SMS.",
@@ -125,7 +127,11 @@
     "share": {
       "lbl-share": "Share",
       "ph-phoneEmail": "Invite by email or phone number",
+      "ph-email": "Invite by email",
+      "ph-phone": "Invite by phone number",
       "lbl-phoneEmail": "Send to email or phone number",
+      "lbl-email": "Send to email",
+      "lbl-phone": "Send to phone number",
       "lbl-copy": "Copy",
       "lbl-send-invite": "Send Invite",
       "lbl-spectator-mode": "Spectator Mode",
@@ -185,13 +191,16 @@
       "client": "Client",
       "studio": "Studio",
       "admin": "Admin",
-      "windowsPerformanceHelp": "Windows OS Performance"
+      "windowsPerformanceHelp": "Windows OS Performance",
+      "lbl-isVisible": "Show User NamePlate",
+      "lbl-triggerDistance": "NamePlate Trigger Distance"
     },
     "profile": {
       "lbl-profile": "Profile",
       "lbl-settings": "Settings",
       "lbl-username": "Username",
       "usernameError": "Invalid username",
+      "usernameLengthError": "Username must have less than {{maxCharacters}} characters",
       "update-msg": "Username updated",
       "inviteCode": "Invite Code",
       "createLoginLink": "Create Login Link",
@@ -223,8 +232,10 @@
       "requestVC": "Request a VC",
       "addSocial": "Connect your Social Logins",
       "logIn": "Log In",
+      "agreeToRequired": "Please agree to all iR Studio requirements before proceeding:",
       "agreeTOS": "I agree to the ",
       "termsOfService": "Infinite Reality Terms of Service",
+      "agreeToMarketing": "I agree to opt-in to marketing communications",
       "confirmAge13": "I am 13 years of age or older",
       "confirmAge18": "I am 18 years of age or older",
       "removeSocial": "Remove Social Logins",
@@ -274,20 +285,26 @@
       "reportWorld": "Report World"
     },
     "oauth": {
-      "authenticating": "Authenticating...",
-      "authFailed": "{{service}} authentication failed."
+      "authenticating": "Authenticating..."
     },
-    "magikLink": {
+    "magicLink": {
       "wait": "Please wait a moment while processing..."
     }
   },
   "oauth": {
-    "authenticating": "Authenticating...",
-    "authFailed": "{{service}} authentication failed.",
-    "redirectToRoot": "Return to Home"
+    "error": "Unfortunately, {{name}} authentication failed.",
+    "redirectToRoot": "Return to Home",
+    "promptForConnection": "Connect to existing account?",
+    "askConnection": "{{email}} is already associated with an account. Would you like to link this {{service}} Single Sign-On to that account?",
+    "acceptConnection": "Yes",
+    "declineConnection": "No (create new account)"
   },
-  "magikLink": {
-    "wait": "Please wait a moment while processing..."
+  "magicLink": {
+    "wait": "Please wait a moment while processing...",
+    "promptForConnection": "Connect to existing account?",
+    "askConnection": "{{email}} is already associated with an account. Would you like to link this magiclink login to that account?",
+    "acceptConnection": "Yes",
+    "declineConnection": "No (create new account)"
   },
   "dashboard": {
     "header": "Dashboard",
@@ -320,9 +337,10 @@
   },
   "avatar": {
     "titleEditAvatar": "Edit Avatar",
-    "titleSelectAvatar": "Select Avatar",
+    "titleSelectAvatar": "Select Your Avatar",
     "titleUploadAvatar": "Upload Avatar",
     "titleSelectThumbnail": "Select Thumbnail",
+    "titleCustomizeAvatar": "Customize Your Avatar",
     "lbl-browse": "Browse",
     "lbl-thumbnail": "Thumbnail",
     "lbl-upload": "Upload",
@@ -344,6 +362,7 @@
     "useUrlInstead": "Use url instead",
     "cancel": "Cancel",
     "createAvatar": "Create Avatar",
+    "uploadAvatar": "Upload Avatar",
     "delete": "Delete",
     "view": "View",
     "uploadAvatarInfo": "Update avatar Information",
@@ -371,7 +390,14 @@
     "thumbnail": "Thumbnail",
     "enterAvatarUrl": "Enter Avatar URL",
     "enterThumbnailUrl": "Enter Thumbnail URL",
-    "avatarName": "Avatar Name"
+    "avatarName": "Avatar Name",
+    "done": "Done",
+    "discardAvatarChanges": "Discard Your Avatar?",
+    "InputAvatarName": "Name Your Avatar",
+    "saveAvatar": "Save Avatar",
+    "savingAvatar": "Saving {{avatar}}",
+    "packagingAvatar": "Packaging & adding avatar to your Account...",
+    "avatarPreviewDisabledMessage": "Preview Image not Available"
   },
   "menu": {
     "settings": "Profile",
@@ -414,9 +440,7 @@
     "unmuteMe": "Unmute me",
     "muteThisPerson": "Mute this person",
     "unmuteThisPerson": "Unmute this person",
-    "openPictureInPicture": "Open Picture in Picture",
-    "openConferenceMode": "Open Conference Mode",
-    "closeConferenceMode": "Close Conference Mode"
+    "openPictureInPicture": "Open Picture in Picture"
   },
   "friends": {
     "find": "Find",
@@ -436,7 +460,8 @@
     "requestAccepted": "has accepted your request to be friends"
   },
   "messages": {
-    "enterMessage": "Enter Message"
+    "enterMessage": "Enter Message",
+    "rotateLandscape": "Please rotate to landscape"
   },
   "roomMenu": {
     "createRoom": "Create a room",
@@ -449,5 +474,10 @@
     "locationRequired": "Please provide a location name.",
     "roomCodeLength": "Room code must be of 6 digits. No zeros allowed",
     "invalidRoomCode": "Unable to find a room with this code. Please enter a valid room code."
+  },
+  "instanceChat": {
+    "wantToChat": "Want to chat with others?",
+    "register": "Become a registered user",
+    "verifyAge": "Verify your age"
   }
 }

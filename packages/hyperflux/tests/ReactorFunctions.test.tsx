@@ -22,12 +22,14 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import '@hookstate/core' // required for hookstate to override react properly work - see https://github.com/avkonst/hookstate/issues/412
 
 import { act, render } from '@testing-library/react'
 import assert from 'assert'
 import React, { useEffect, useLayoutEffect } from 'react'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
-import { createHyperStore, disposeStore, hookstate, ReactorReconciler, startReactor, useHookstate } from '..'
+import { createHyperStore, hookstate, ReactorReconciler, startReactor, stopAllReactors, useHookstate } from '..'
 
 describe('ReactorFunctions', () => {
   beforeEach(() => {
@@ -37,7 +39,7 @@ describe('ReactorFunctions', () => {
   })
 
   afterEach(() => {
-    return disposeStore()
+    return stopAllReactors()
   })
 
   it('should be able to run effects asynchronously', async () => {

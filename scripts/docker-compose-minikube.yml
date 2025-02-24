@@ -1,0 +1,12 @@
+
+services:
+  minikubedb:
+    image: mariadb:10.7
+    container_name: ir-engine_minikube_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ir-engine-root
+      MYSQL_DATABASE: ir-engine
+      MYSQL_USER: server
+      MYSQL_PASSWORD: password
+    ports:
+      - '3304:3306'

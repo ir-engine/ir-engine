@@ -25,11 +25,19 @@ Infinite Reality Engine. All Rights Reserved.
 
 // Add unit tests for new patterns in packages/common/tests/regex.test.ts
 
+/*
+A filename is valid if:
+  - it has 4 to 64 characters
+  - its first and last character are alphanumeric
+  - any other characters are either alphanumeric, '_', '-', or '.'
+*/
+
 // eslint-disable-next-line no-control-regex
-export const VALID_FILENAME_REGEX = /^(?!.*[\s_<>:"/\\|?*\u0000-\u001F].*)[^\s_<>:"/\\|?*\u0000-\u001F]{1,64}$/
+export const VALID_FILENAME_REGEX = /^([^_\W])([\w\-_.]{2,62})([^_\W])$/
+export const VALID_EXTENSION_REGEX = /^(\w{2,4})$/
 // eslint-disable-next-line no-control-regex
 export const WINDOWS_RESERVED_NAME_REGEX = /^(con|prn|aux|nul|com\d|lpt\d)$/i
-export const VALID_SCENE_NAME_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9-]{2,62}[a-zA-Z0-9]$/
+export const VALID_SCENE_NAME_REGEX = VALID_FILENAME_REGEX
 export const VALID_HEIRARCHY_SEARCH_REGEX = /[.*+?^${}()|[\]\\]/g
 
 // =====================================================================
@@ -45,12 +53,14 @@ export const USER_ID_REGEX = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-f
  * Email regex. Source: https://fightingforalostcause.net/content/misc/2006/compare-email-regex.php
  */
 export const EMAIL_REGEX =
-  /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i
+  /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.[a-z]{2,10}|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i
 
 /**
  * This regex is useful for validating input that must be exactly 10 digits long, such as a phone number (without any separators or formatting).
  */
 export const PHONE_REGEX = /^[0-9]{10}$/
+
+export const INVALID_USER_NAME_REGEX = /[^a-zA-Z\s]/g
 
 /**
  * This regex is used to validate strings that should consist of exactly 8 hexadecimal digits.
@@ -99,6 +109,13 @@ export const ASSETS_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+\/assets\
 export const PROJECT_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]/
 
 /**
+ * This regex captures strings that start with `projects/`, followed by one or more characters that can be letters, digits, hyphens, underscores, or forward slashes.
+ */
+export const PROJECT_CAPTURE_REGEX = /projects\/([a-zA-Z0-9-_@]+)\/([a-zA-Z0-9-_]+)/
+
+export const PATH_REGEX = /^[a-zA-Z0-9-_@.\/]+$/
+
+/**
  * This regex matches strings that start with `projects/`, followed by one or more characters that can be letters, digits, hyphens, underscores, or forward slashes, and then `/public/`.
  */
 export const PROJECT_PUBLIC_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+\/public\//
@@ -116,3 +133,5 @@ export const VALID_PROJECT_NAME = /^(?!\s)[\w\-\s]+$/
 
 export const MAIN_CHART_REGEX = /ir-engine-([0-9]+\.[0-9]+\.[0-9]+)/g
 export const BUILDER_CHART_REGEX = /ir-engine-builder-([0-9]+\.[0-9]+\.[0-9]+)/g
+
+export const UNIQUEIFIED_VITE_KEY_REGEX = /[.-]{1}[a-zA-Z0-9-_]{8}.(js|css)(.map)?$/

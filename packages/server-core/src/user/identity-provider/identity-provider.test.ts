@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/ir-engine/ir-engine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,285 +19,413 @@ The Original Code is Infinite Reality Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Infinite Reality Engine team.
 
-All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
+All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
-import { v4 as uuidv4 } from 'uuid'
+import '../../patchEngineNode'
 
-import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
+import { USER_ID_REGEX } from '@ir-engine/common/src/regex'
+import { IdentityProviderType, identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
+import assert from 'assert'
+import { v4 as uuidv4 } from 'uuid'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
+import { createAdmin, createUserApiKey } from '../../test-utils/user-test-utils'
 
 describe('identity-provider.test', () => {
   let userId: UserID
   let accessToken: string
   let app: Application
   let providers: IdentityProviderType[] = []
+  const testEmail = 'test@testdomain.com'
 
-  before(async () => {
-    app = createFeathersKoaApp()
+  beforeAll(async () => {
+    app = await createFeathersKoaApp()
     await app.setup()
   })
 
-  after(async () => {
+  afterAll(async () => {
     await tearDownAPI()
     destroyEngine()
   })
 
-  it('should create an identity provider for guest', async () => {
-    const type = 'guest'
-    const token = uuidv4()
+  describe('create', () => {
+    it('should create a guest identity provider', async () => {
+      const type = 'guest'
+      const token = uuidv4()
 
-    const createdIdentityProvider = await app.service(identityProviderPath).create({
-      type,
-      token,
-      userId: '' as UserID
-    })
-
-    providers.push(createdIdentityProvider)
-
-    userId = createdIdentityProvider.userId
-    accessToken = createdIdentityProvider.accessToken as string
-
-    assert.equal(createdIdentityProvider.type, type)
-    assert.equal(createdIdentityProvider.token, token)
-    assert.ok(createdIdentityProvider.accessToken)
-  })
-
-  it('should create an identity provider for email', async () => {
-    const type = 'email'
-    const token = uuidv4()
-
-    const createdIdentityProvider = await app.service(identityProviderPath).create(
-      {
-        type,
-        token,
-        userId
-      },
-      {
-        authentication: {
-          accessToken
-        }
-      }
-    )
-
-    providers.push(createdIdentityProvider)
-
-    assert.equal(createdIdentityProvider.type, type)
-    assert.equal(createdIdentityProvider.token, token)
-    assert.ok(createdIdentityProvider.accessToken)
-    assert.equal(createdIdentityProvider.userId, userId)
-  })
-
-  it('should create an identity provider for password', async () => {
-    const type = 'password'
-    const token = uuidv4()
-
-    const createdIdentityProvider = await app.service(identityProviderPath).create(
-      {
-        type,
-        token,
-        userId
-      },
-      {
-        authentication: {
-          accessToken
-        }
-      }
-    )
-
-    providers.push(createdIdentityProvider)
-
-    assert.equal(createdIdentityProvider.type, type)
-    assert.equal(createdIdentityProvider.token, token)
-    assert.ok(createdIdentityProvider.accessToken)
-    assert.equal(createdIdentityProvider.userId, userId)
-  })
-
-  it('should find identity providers', async () => {
-    const foundIdentityProviders = await app.service(identityProviderPath).find({
-      query: {
-        userId
-      },
-      isInternal: true
-    })
-
-    assert.ok(foundIdentityProviders)
-    assert.equal(foundIdentityProviders.total, providers.length)
-  })
-
-  it('should remove an identity provider by id', async () => {
-    await app.service(identityProviderPath).remove(providers[0].id)
-
-    const foundIdentityProviders = await app.service(identityProviderPath).find({
-      query: {
-        id: providers[0].id
-      }
-    })
-
-    assert.equal(foundIdentityProviders.total, 0)
-  })
-
-  it('should not be able to remove identity providers by user id', async () => {
-    await assert.rejects(
-      async () =>
-        await app.service(identityProviderPath).remove(null, {
-          query: {
-            userId
-          },
-          provider: 'rest',
-          headers: {
-            authorization: `Bearer ${accessToken}`
-          },
-          authentication: {
-            strategy: 'jwt',
-            accessToken: accessToken
-          }
-        }),
-      {
-        name: 'MethodNotAllowed'
-      }
-    )
-  })
-
-  it('should be able to remove the only identity provider as a guest', async () => {
-    const type = 'guest'
-    const token = uuidv4()
-
-    const foundIdentityProvider = await app.service(identityProviderPath).create(
-      {
+      const createdIdentityProvider = await app.service(identityProviderPath).create({
         type,
         token,
         userId: '' as UserID
-      },
-      {}
-    )
+      })
 
-    assert.ok(() => app.service(identityProviderPath).remove(foundIdentityProvider.id))
-  })
+      providers.push(createdIdentityProvider)
 
-  it('should not be able to remove the only non-guest identity provider as a user', async () => {
-    const type = 'github'
-    const token = uuidv4()
+      userId = createdIdentityProvider.userId
+      accessToken = createdIdentityProvider.accessToken as string
 
-    const foundIdentityProvider = await app.service(identityProviderPath).create(
-      {
-        type,
-        token,
-        userId: '' as UserID
-      },
-      {}
-    )
-
-    await app.service(userPath)._patch(foundIdentityProvider.userId, {
-      isGuest: false
+      assert.equal(createdIdentityProvider.type, type)
+      assert.ok(USER_ID_REGEX.test(createdIdentityProvider.token))
+      assert.ok(createdIdentityProvider.accessToken)
     })
 
-    console.log('foundIdentityProvider', foundIdentityProvider)
-    await assert.rejects(
-      async () =>
-        await app.service(identityProviderPath).remove(foundIdentityProvider.id, {
-          provider: 'rest',
-          headers: {
-            authorization: `Bearer ${foundIdentityProvider.accessToken}`
-          },
-          authentication: {
-            strategy: 'jwt',
-            accessToken: foundIdentityProvider.accessToken
-          }
-        }),
-      {
-        name: 'MethodNotAllowed'
-      }
-    )
-  })
+    it('should make the token a UUID on a new guest identity provider if it was something else, and the request was external', async () => {
+      const type = 'guest'
+      const token = 'test@gmail.com'
 
-  it('should not be able to make an identity provider on a user with no authentication', async () => {
-    const type = 'guest'
-    const token = uuidv4()
+      const createdIdentityProvider = await app.service(identityProviderPath).create(
+        {
+          type,
+          token,
+          userId: '' as UserID
+        },
+        {
+          provider: 'external'
+        }
+      )
 
-    await assert.rejects(
-      async () =>
-        await app.service(identityProviderPath).create({
+      assert.equal(createdIdentityProvider.type, type)
+      assert.notEqual(createdIdentityProvider.token, 'test@gmail.com')
+      assert.ok(USER_ID_REGEX.test(createdIdentityProvider.token))
+      assert.ok(createdIdentityProvider.accessToken)
+    })
+
+    it('should create a guest identity provider if the type is an oauth type and the request was external', async () => {
+      const type = 'google'
+      const token = 'test@gmail.com'
+
+      const createdIdentityProvider = await app.service(identityProviderPath).create(
+        {
+          type,
+          token,
+          userId: '' as UserID
+        },
+        {
+          provider: 'external'
+        }
+      )
+
+      assert.equal(createdIdentityProvider.type, 'guest')
+      assert.ok(USER_ID_REGEX.test(createdIdentityProvider.token))
+      assert.ok(createdIdentityProvider.accessToken)
+    })
+
+    it('should create an email identity provider', async () => {
+      const type = 'email'
+      const token = uuidv4()
+
+      const createdIdentityProvider = await app.service(identityProviderPath).create(
+        {
           type,
           token,
           userId
-        }),
-      {
-        name: 'BadRequest'
-      }
-    )
-  })
+        },
+        {
+          authentication: {
+            accessToken
+          }
+        }
+      )
 
-  it('should not be able to make an identity provider on a different user than the authenticated user', async () => {
-    const type = 'guest'
-    const token = uuidv4()
+      providers.push(createdIdentityProvider)
 
-    const foundIdentityProvider = await app.service(identityProviderPath).create(
-      {
-        type,
-        token,
-        userId: '' as UserID
-      },
-      {}
-    )
+      assert.equal(createdIdentityProvider.type, type)
+      assert.equal(createdIdentityProvider.token, token)
+      assert.ok(createdIdentityProvider.accessToken)
+      assert.equal(createdIdentityProvider.userId, userId)
+    })
 
-    await assert.rejects(
-      async () =>
-        await app.service(identityProviderPath).create(
-          {
+    it('should create an identity provider for password', async () => {
+      const type = 'password'
+      const token = uuidv4()
+
+      const createdIdentityProvider = await app.service(identityProviderPath).create(
+        {
+          type,
+          token,
+          userId
+        },
+        {
+          authentication: {
+            accessToken
+          }
+        }
+      )
+
+      providers.push(createdIdentityProvider)
+
+      assert.equal(createdIdentityProvider.type, type)
+      assert.equal(createdIdentityProvider.token, token)
+      assert.ok(createdIdentityProvider.accessToken)
+      assert.equal(createdIdentityProvider.userId, userId)
+      console.log('providers after all have been made', (await app.service(identityProviderPath).find()).data)
+    })
+
+    it('should not be able to make an identity provider on a user with no authentication', async () => {
+      const type = 'guest'
+      const token = uuidv4()
+
+      await assert.rejects(
+        async () =>
+          await app.service(identityProviderPath).create({
             type,
             token,
             userId
-          },
-          {
-            provider: 'rest',
-            headers: {
-              authorization: `Bearer ${foundIdentityProvider.accessToken}`
+          }),
+        {
+          name: 'BadRequest'
+        }
+      )
+    })
+
+    it('should not be able to make an identity provider on a different user than the authenticated user', async () => {
+      const type = 'guest'
+      const token = uuidv4()
+
+      const foundIdentityProvider = await app.service(identityProviderPath).create(
+        {
+          type,
+          token,
+          userId: '' as UserID
+        },
+        {}
+      )
+
+      await assert.rejects(
+        async () =>
+          await app.service(identityProviderPath).create(
+            {
+              type,
+              token,
+              userId
             },
-            authentication: {
-              strategy: 'jwt',
-              accessToken: foundIdentityProvider.accessToken
+            {
+              provider: 'rest',
+              headers: {
+                authorization: `Bearer ${foundIdentityProvider.accessToken}`
+              },
+              authentication: {
+                strategy: 'jwt',
+                accessToken: foundIdentityProvider.accessToken
+              }
             }
-          }
-        ),
-      {
-        name: 'BadRequest',
-        message: 'Cannot make identity-providers on other users'
-      }
-    )
+          ),
+        {
+          name: 'BadRequest',
+          message: 'Cannot make identity-providers on other users'
+        }
+      )
+    })
+
+    it('should not be able to make a guest identity provider on an existing user', async () => {
+      const type = 'guest'
+      const token = uuidv4()
+      let userId2
+
+      const foundIdentityProvider = await app.service(identityProviderPath).create(
+        {
+          type,
+          token,
+          userId: '' as UserID
+        },
+        {}
+      )
+
+      userId2 = foundIdentityProvider.userId
+
+      await assert.rejects(
+        async () =>
+          await app.service(identityProviderPath).create(
+            {
+              type,
+              token,
+              userId: userId2
+            },
+            {
+              provider: 'rest',
+              headers: {
+                authorization: `Bearer ${foundIdentityProvider.accessToken}`
+              },
+              authentication: {
+                strategy: 'jwt',
+                accessToken: foundIdentityProvider.accessToken
+              }
+            }
+          ),
+        {
+          name: 'BadRequest',
+          message: 'Cannot create a guest identity-provider on an existing user'
+        }
+      )
+    })
   })
 
-  it('should not be able to make a guest identity provider on an existing user', async () => {
-    const type = 'guest'
-    const token = uuidv4()
-    let userId2
+  describe('find', () => {
+    it('should find identity providers', async () => {
+      const foundIdentityProviders = await app.service(identityProviderPath).find({
+        query: {
+          userId
+        },
+        isInternal: true
+      })
 
-    const foundIdentityProvider = await app.service(identityProviderPath).create(
-      {
-        type,
-        token,
-        userId: '' as UserID
-      },
-      {}
-    )
+      assert.ok(foundIdentityProviders)
+      assert.equal(foundIdentityProviders.total, providers.length)
+    })
 
-    userId2 = foundIdentityProvider.userId
+    it('should find identity provider with exact email match', async () => {
+      const appUser = await createAdmin(app)
+      const adminUserApiKey = await createUserApiKey(app, appUser)
+      const adminIdentityProvider = await app.service(identityProviderPath).create(
+        {
+          type: 'email',
+          token: uuidv4(),
+          userId: appUser.id,
+          email: testEmail
+        },
+        {
+          provider: 'external',
+          headers: {
+            authorization: `Bearer ${adminUserApiKey.token}`
+          }
+        }
+      )
+      const result = await app.service(identityProviderPath).find({
+        user: appUser,
+        provider: 'external',
+        headers: {
+          authorization: `Bearer ${adminUserApiKey.token}`
+        },
+        query: {
+          email: testEmail
+        },
+        paginate: false
+      })
 
-    await assert.rejects(
-      async () =>
-        await app.service(identityProviderPath).create(
-          {
-            type,
-            token,
-            userId: userId2
-          },
-          {
+      assert.equal(result.length, 1)
+      assert.equal(result[0].id, adminIdentityProvider.id)
+      assert.equal(result[0].userId, adminIdentityProvider.userId)
+    })
+
+    it('should not not return any identity provider using $like', async () => {
+      const appUser = await createAdmin(app)
+      const adminUserApiKey = await createUserApiKey(app, appUser)
+
+      const result = await app.service(identityProviderPath).find({
+        user: appUser,
+        provider: 'external',
+        headers: {
+          authorization: `Bearer ${adminUserApiKey.token}`
+        },
+        query: {
+          email: {
+            $like: '%@testdomain.com%'
+          }
+        },
+        paginate: false
+      })
+
+      assert.equal(result.length, 0)
+    })
+
+    it('should not return any identity provider using $notlike', async () => {
+      const appUser = await createAdmin(app)
+      const adminUserApiKey = await createUserApiKey(app, appUser)
+
+      const result = await app.service(identityProviderPath).find({
+        user: appUser,
+        provider: 'external',
+        headers: {
+          authorization: `Bearer ${adminUserApiKey.token}`
+        },
+        query: {
+          email: {
+            $notlike: '%@domain.com%'
+          }
+        },
+        paginate: false
+      })
+
+      assert.equal(result.length, 0)
+    })
+  })
+
+  describe('remove', () => {
+    it('should remove an identity provider by id', async () => {
+      await app.service(identityProviderPath).remove(providers[0].id)
+
+      const foundIdentityProviders = await app.service(identityProviderPath).find({
+        query: {
+          id: providers[0].id
+        }
+      })
+
+      assert.equal(foundIdentityProviders.total, 0)
+    })
+    it('should not be able to remove identity providers by user id', async () => {
+      await assert.rejects(
+        async () =>
+          await app.service(identityProviderPath).remove(null, {
+            query: {
+              userId
+            },
+            provider: 'rest',
+            headers: {
+              authorization: `Bearer ${accessToken}`
+            },
+            authentication: {
+              strategy: 'jwt',
+              accessToken: accessToken
+            }
+          }),
+        {
+          name: 'MethodNotAllowed'
+        }
+      )
+    })
+
+    it('should be able to remove the only identity provider as a guest', async () => {
+      const type = 'guest'
+      const token = uuidv4()
+
+      const foundIdentityProvider = await app.service(identityProviderPath).create(
+        {
+          type,
+          token,
+          userId: '' as UserID
+        },
+        {}
+      )
+
+      assert.ok(() => app.service(identityProviderPath).remove(foundIdentityProvider.id))
+    })
+
+    it('should not be able to remove the only non-guest identity provider as a user', async () => {
+      const type = 'github'
+      const token = uuidv4()
+
+      const foundIdentityProvider = await app.service(identityProviderPath).create(
+        {
+          type,
+          token,
+          userId: '' as UserID
+        },
+        {}
+      )
+
+      await app.service(userPath)._patch(foundIdentityProvider.userId, {
+        isGuest: false
+      })
+
+      await assert.rejects(
+        async () =>
+          await app.service(identityProviderPath).remove(foundIdentityProvider.id, {
             provider: 'rest',
             headers: {
               authorization: `Bearer ${foundIdentityProvider.accessToken}`
@@ -306,12 +434,11 @@ describe('identity-provider.test', () => {
               strategy: 'jwt',
               accessToken: foundIdentityProvider.accessToken
             }
-          }
-        ),
-      {
-        name: 'BadRequest',
-        message: 'Cannot create a guest identity-provider on an existing user'
-      }
-    )
+          }),
+        {
+          name: 'MethodNotAllowed'
+        }
+      )
+    })
   })
 })

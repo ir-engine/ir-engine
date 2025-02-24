@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { BsPlusSquare } from 'react-icons/bs'
@@ -32,7 +33,6 @@ import { Quaternion, Vector3 } from 'three'
 import Text from '../../../../primitives/tailwind/Text'
 import InputGroup from '../../input/Group'
 import StringInput from '../../input/String'
-import NodeEditor from '../nodeEditor'
 
 /**
  * SpawnPointNodeEditor component used to provide the editor view to customize Spawn Point properties.
@@ -44,11 +44,7 @@ export const GalleryNodeEditor: EditorComponentType = (props) => {
   const elements = ['hello', 'bye', 'thanks'] // temp use
 
   return (
-    <NodeEditor
-      {...props}
-      name={t('editor:properties.gallery.lbl-imageGrid')}
-      icon={<GalleryNodeEditor.iconComponent />}
-    >
+    <NodeEditor {...props} name={t('editor:properties.gallery.lbl-imageGrid')} Icon={GalleryNodeEditor.iconComponent}>
       <div className="flex w-full items-center gap-2 py-1">
         <Text fontSize="xs" className="ml-14 w-full">
           {t('editor:properties.gallery.assets')}

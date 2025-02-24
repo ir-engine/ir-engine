@@ -41,12 +41,9 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { convertDateTimeSqlToLocal, toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { useHookstate } from '@ir-engine/hyperflux'
-import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
+import { Checkbox, Input, RadioGroup, Select } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import MultiEmailInput from '@ir-engine/ui/src/primitives/tailwind/MultiEmailInput'
-import Radios from '@ir-engine/ui/src/primitives/tailwind/Radio'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 
 type InviteTypeOptionsType = 'new-user' | 'location' | 'instance'
 const inviteTypeOptions = ['new-user', 'location', 'instance'] as InviteTypeOptionsType[]
@@ -203,7 +200,10 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
       <div className="relative grid w-full gap-6">
         {invite?.id ? (
           <Input
-            label={t('admin:components.invite.recipients')}
+            labelProps={{
+              text: t('admin:components.invite.recipients'),
+              position: 'top'
+            }}
             value={emailRecipients[0].value}
             onChange={() => {}}
             disabled={true}
@@ -217,15 +217,21 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
           />
         )}
         <Select
-          label={t('admin:components.invite.type')}
+          labelProps={{
+            text: t('admin:components.invite.type'),
+            position: 'top'
+          }}
           options={inviteTypeOptions.map((type) => ({ label: t(`admin:components.invite.${type}`), value: type }))}
-          currentValue={inviteType.value}
-          onChange={(value) => inviteType.set(value)}
+          value={inviteType.value}
+          onChange={(value: InviteTypeOptionsType) => inviteType.set(value)}
           disabled={submitLoading.value}
         />
         {inviteType.value === 'location' && (
           <Select
-            label={t('admin:components.invite.location')}
+            labelProps={{
+              text: t('admin:components.invite.location'),
+              position: 'top'
+            }}
             options={[
               { value: '', label: t('admin:components.invite.selectLocation'), disabled: true },
               ...adminLocations.map((location) => ({
@@ -233,15 +239,19 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
                 label: location.name
               }))
             ]}
-            currentValue={inviteLocation.value}
-            onChange={(value) => inviteLocation.set(value)}
-            error={errors.inviteLocation.value}
+            value={inviteLocation.value}
+            onChange={(value: string) => inviteLocation.set(value)}
+            state={errors.inviteLocation.value ? 'error' : undefined}
+            helperText={errors.inviteLocation.value}
             disabled={submitLoading.value}
           />
         )}
         {inviteType.value === 'instance' && (
           <Select
-            label={t('admin:components.invite.instance')}
+            labelProps={{
+              text: t('admin:components.invite.instance'),
+              position: 'top'
+            }}
             options={[
               { value: '', label: t('admin:components.invite.selectInstance'), disabled: true },
               ...adminInstances.map((instance) => ({
@@ -249,9 +259,10 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
                 value: instance.id
               }))
             ]}
-            currentValue={inviteInstance.value}
-            onChange={(value) => inviteInstance.set(value)}
-            error={errors.inviteInstance.value}
+            value={inviteInstance.value}
+            onChange={(value: string) => inviteInstance.set(value)}
+            state={errors.inviteInstance.value ? 'error' : undefined}
+            helperText={errors.inviteInstance.value}
             disabled={submitLoading.value}
           />
         )}
@@ -260,13 +271,13 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
           <>
             <Checkbox
               label={t('admin:components.invite.spawnAtPosition')}
-              value={spawnSelected.value}
+              checked={spawnSelected.value}
               onChange={(value) => spawnSelected.set(value)}
               disabled={submitLoading.value}
             />
             {spawnSelected.value && (
               <>
-                <Radios
+                <RadioGroup
                   horizontal
                   options={spawnTypeOptions.map((option) => ({
                     value: option,
@@ -278,16 +289,22 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
                 />
                 {spawnType.value === 'spawnPoint' && (
                   <Select
-                    label={t('admin:components.invite.spawnPoint')}
+                    labelProps={{
+                      text: t('admin:components.invite.spawnPoint'),
+                      position: 'top'
+                    }}
                     options={spawnPointOptions}
-                    currentValue={spawnPoint.value}
-                    onChange={(value) => spawnPoint.set(value)}
+                    value={spawnPoint.value}
+                    onChange={(value: string) => spawnPoint.set(value)}
                     disabled={submitLoading.value}
                   />
                 )}
                 {spawnType.value === 'userPosition' && (
                   <Select
-                    label={t('admin:components.invite.userPosition')}
+                    labelProps={{
+                      text: t('admin:components.invite.userPosition'),
+                      position: 'top'
+                    }}
                     options={[
                       { label: t('admin:components.invite.selectUserPosition'), value: '', disabled: true },
                       ...adminUsers
@@ -297,8 +314,8 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
                           label: `${user.name} (${user.inviteCode})`
                         }))
                     ]}
-                    currentValue={userPosition.value}
-                    onChange={(value) => userPosition.set(value)}
+                    value={userPosition.value}
+                    onChange={(value: string) => userPosition.set(value)}
                     disabled={submitLoading.value}
                   />
                 )}
@@ -308,13 +325,13 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
         )}
         <Checkbox
           label={t('admin:components.invite.oneTime')}
-          value={oneTimeInvite.value}
+          checked={oneTimeInvite.value}
           onChange={(value) => oneTimeInvite.set(value)}
           disabled={submitLoading.value}
         />
         <Checkbox
           label={t('admin:components.invite.timedInvite')}
-          value={timedInvite.value}
+          checked={timedInvite.value}
           onChange={(value) => timedInvite.set(value)}
           disabled={submitLoading.value}
         />
@@ -322,20 +339,26 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
           <div className="flex justify-between">
             <Input
               type="datetime-local"
-              className="w-auto"
-              label={t('admin:components.invite.startTime')}
+              labelProps={{
+                text: t('admin:components.invite.startTime'),
+                position: 'top'
+              }}
               value={inviteStartTime.value}
               onChange={(event) => inviteStartTime.set(event.target.value)}
-              error={errors.startTime.value}
+              helperText={errors.startTime.value}
+              state={errors.startTime.value ? 'error' : undefined}
               disabled={submitLoading.value}
             />
             <Input
               type="datetime-local"
-              className="w-auto"
-              label={t('admin:components.invite.endTime')}
+              labelProps={{
+                text: t('admin:components.invite.endTime'),
+                position: 'top'
+              }}
               value={inviteEndTime.value}
               onChange={(event) => inviteEndTime.set(event.target.value)}
-              error={errors.endTime.value}
+              helperText={errors.endTime.value}
+              state={errors.endTime.value ? 'error' : undefined}
               disabled={submitLoading.value}
             />
           </div>
@@ -343,7 +366,7 @@ export default function AddEditInviteModal({ invite }: { invite?: InviteType }) 
         {inviteType.value === 'new-user' && (
           <Checkbox
             label={t('admin:components.invite.makeAdmin')}
-            value={makeAdmin.value}
+            checked={makeAdmin.value}
             onChange={(value) => makeAdmin.set(value)}
             disabled={submitLoading.value}
           />

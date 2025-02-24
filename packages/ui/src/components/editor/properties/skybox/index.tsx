@@ -32,20 +32,20 @@ import { getEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorCom
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
 import { SkyTypeEnum } from '@ir-engine/engine/src/scene/constants/SkyTypeEnum'
 
+import DroppableImageInput from '@ir-engine/editor/src/components/assets/DroppableImageInput'
 import {
   EditorComponentType,
   commitProperties,
   commitProperty,
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { Slider } from '@ir-engine/ui/editor'
 import ColorInput from '../../../../primitives/tailwind/Color'
-import Slider from '../../../../primitives/tailwind/Slider'
 import FolderInput from '../../input/Folder'
 import InputGroup from '../../input/Group'
-import ImageInput from '../../input/Image'
 import NumericInput from '../../input/Numeric'
 import SelectInput from '../../input/Select'
-import NodeEditor from '../nodeEditor'
 
 const hoursToRadians = (hours: number) => hours / 24
 const radiansToHours = (rads: number) => rads * 24
@@ -118,65 +118,61 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
           onRelease={commitProperty(SkyboxComponent, 'skyboxProps.inclination' as any)}
         />
       </InputGroup>
-      <InputGroup name="Luminance" label={t('editor:properties.skybox.lbl-luminance')} className="w-auto">
-        <Slider
-          min={0.001}
-          max={1}
-          step={0.001}
-          value={skyboxComponent.skyboxProps.luminance.value}
-          onChange={updateProperty(SkyboxComponent, 'skyboxProps.luminance' as any)}
-          onRelease={commitProperty(SkyboxComponent, 'skyboxProps.luminance' as any)}
-        />
-      </InputGroup>
-      <InputGroup name="Scattering Amount" label={t('editor:properties.skybox.lbl-scattering')} className="w-auto">
-        <Slider
-          min={0}
-          max={0.1}
-          step={0.001}
-          value={skyboxComponent.skyboxProps.mieCoefficient.value}
-          onChange={updateProperty(SkyboxComponent, 'skyboxProps.mieCoefficient' as any)}
-          onRelease={commitProperty(SkyboxComponent, 'skyboxProps.mieCoefficient' as any)}
-        />
-      </InputGroup>
-      <InputGroup
-        name="Scattering Distance"
+      <Slider
+        min={0.001}
+        max={1}
+        step={0.001}
+        value={skyboxComponent.skyboxProps.luminance.value}
+        onChange={updateProperty(SkyboxComponent, 'skyboxProps.luminance' as any)}
+        onRelease={commitProperty(SkyboxComponent, 'skyboxProps.luminance' as any)}
+        aria-label="Luminance"
+        label={t('editor:properties.skybox.lbl-luminance')}
+      />
+      <Slider
+        aria-label="Scattering Amount"
+        label={t('editor:properties.skybox.lbl-scattering')}
+        min={0}
+        max={0.1}
+        step={0.001}
+        value={skyboxComponent.skyboxProps.mieCoefficient.value}
+        onChange={updateProperty(SkyboxComponent, 'skyboxProps.mieCoefficient' as any)}
+        onRelease={commitProperty(SkyboxComponent, 'skyboxProps.mieCoefficient' as any)}
+      />
+      <Slider
+        min={0}
+        max={1}
+        step={0.001}
+        value={skyboxComponent.skyboxProps.mieDirectionalG.value}
+        onChange={updateProperty(SkyboxComponent, 'skyboxProps.mieDirectionalG' as any)}
+        onRelease={commitProperty(SkyboxComponent, 'skyboxProps.mieDirectionalG' as any)}
+        aria-label="Scattering Distance"
         label={t('editor:properties.skybox.lbl-scatteringDistance')}
-        className="w-auto"
-      >
-        <Slider
-          min={0}
-          max={1}
-          step={0.001}
-          value={skyboxComponent.skyboxProps.mieDirectionalG.value}
-          onChange={updateProperty(SkyboxComponent, 'skyboxProps.mieDirectionalG' as any)}
-          onRelease={commitProperty(SkyboxComponent, 'skyboxProps.mieDirectionalG' as any)}
-        />
-      </InputGroup>
-      <InputGroup name="Horizon Start" label={t('editor:properties.skybox.lbl-horizonStart')} className="w-auto">
-        <Slider
-          min={1}
-          max={20}
-          value={skyboxComponent.skyboxProps.turbidity.value}
-          onChange={updateProperty(SkyboxComponent, 'skyboxProps.turbidity' as any)}
-          onRelease={commitProperty(SkyboxComponent, 'skyboxProps.turbidity' as any)}
-        />
-      </InputGroup>
-      <InputGroup name="Horizon End" label={t('editor:properties.skybox.lbl-horizonEnd')} className="w-auto">
-        <Slider
-          min={0}
-          max={4}
-          value={skyboxComponent.skyboxProps.rayleigh.value}
-          onChange={updateProperty(SkyboxComponent, 'skyboxProps.rayleigh' as any)}
-          onRelease={commitProperty(SkyboxComponent, 'skyboxProps.rayleigh' as any)}
-        />
-      </InputGroup>
+      />
+      <Slider
+        min={1}
+        max={20}
+        value={skyboxComponent.skyboxProps.turbidity.value}
+        onChange={updateProperty(SkyboxComponent, 'skyboxProps.turbidity' as any)}
+        onRelease={commitProperty(SkyboxComponent, 'skyboxProps.turbidity' as any)}
+        aria-label="Horizon Start"
+        label={t('editor:properties.skybox.lbl-horizonStart')}
+      />
+      <Slider
+        min={0}
+        max={4}
+        value={skyboxComponent.skyboxProps.rayleigh.value}
+        onChange={updateProperty(SkyboxComponent, 'skyboxProps.rayleigh' as any)}
+        onRelease={commitProperty(SkyboxComponent, 'skyboxProps.rayleigh' as any)}
+        aria-label="Horizon End"
+        label={t('editor:properties.skybox.lbl-horizonEnd')}
+      />
     </>
   )
 
   // creating editor view for equirectangular Settings
   const renderEquirectangularSettings = () => (
     <InputGroup name="Texture" label={t('editor:properties.skybox.lbl-texture')}>
-      <ImageInput value={skyboxComponent.equirectangularPath.value} onRelease={onChangeEquirectangularPathOption} />
+      <DroppableImageInput src={skyboxComponent.equirectangularPath.value} onBlur={onChangeEquirectangularPathOption} />
       {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.skybox.error-url')}</div>}
     </InputGroup>
   )
@@ -218,7 +214,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
     <NodeEditor
       name={t('editor:properties.skybox.name')}
       description={t('editor:properties.skybox.description')}
-      icon={<SkyboxNodeEditor.iconComponent />}
+      Icon={SkyboxNodeEditor.iconComponent}
       {...props}
     >
       <InputGroup name="Sky Type" label={t('editor:properties.skybox.lbl-skyType')}>

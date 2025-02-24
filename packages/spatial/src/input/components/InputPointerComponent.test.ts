@@ -39,6 +39,7 @@ import assert from 'assert'
 import { useEffect } from 'react'
 import sinon from 'sinon'
 import { Vector2 } from 'three'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 import { CameraPointerHash, InputPointerComponent, InputPointerState } from './InputPointerComponent'
 
 const InputPointerComponentDefaults = {
@@ -302,7 +303,7 @@ describe('InputPointerComponent', () => {
         return null
       }
       const root = startReactor(Reactor)
-      assert.equal(reactorSpy.callCount, 3)
+      assert.equal(reactorSpy.callCount, 1)
       assert.equal(effectSpy.callCount, 1)
       // Check that the assumptions are correct
       assert.equal(cameraPointers.length, 2)
@@ -311,7 +312,7 @@ describe('InputPointerComponent', () => {
       }
     })
 
-    it('should be possible to use the returned array reactively', () => {
+    it('should be possible to use the returned array reactively', async () => {
       const cameraEntity = createEntity()
       const Dummy = { pointerId: 12356, cameraEntity: createEntity() }
       const pointerEntity1 = createEntity()
@@ -334,7 +335,7 @@ describe('InputPointerComponent', () => {
         return null
       }
       const root = startReactor(Reactor)
-      assert.equal(reactorSpy.callCount, 2)
+      assert.equal(reactorSpy.callCount, 1)
       assert.equal(effectSpy.callCount, 1)
       // Check the basic assumptions
       assert.equal(cameraPointers.length, 2)
@@ -343,8 +344,10 @@ describe('InputPointerComponent', () => {
       }
       // Update the components and Check the results
       removeComponent(pointerEntity2, InputPointerComponent)
+
       root.run()
-      assert.equal(reactorSpy.callCount, 4)
+
+      assert.equal(reactorSpy.callCount, 2)
       assert.equal(effectSpy.callCount, 2)
       assert.equal(cameraPointers.length, 1)
     })

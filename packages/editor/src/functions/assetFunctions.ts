@@ -23,22 +23,213 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import {
   CancelableUploadPromiseArrayReturnType,
   CancelableUploadPromiseReturnType,
   uploadToFeathersService
 } from '@ir-engine/client-core/src/util/upload'
 import { API } from '@ir-engine/common'
-import { assetLibraryPath, fileBrowserPath, fileBrowserUploadPath } from '@ir-engine/common/src/schema.type.module'
-import { processFileName } from '@ir-engine/common/src/utils/processFileName'
+import config from '@ir-engine/common/src/config'
+import {
+  assetLibraryPath,
+  fileBrowserPath,
+  fileBrowserUploadPath,
+  staticResourcePath
+} from '@ir-engine/common/src/schema.type.module'
+import { CommonKnownContentTypes } from '@ir-engine/common/src/utils/CommonKnownContentTypes'
+import { cleanFileNameFile, cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
+import { KTX2EncodeArguments } from '@ir-engine/engine/src/assets/constants/CompressionParms'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
-import { t } from 'i18next'
+import { getMutableState } from '@ir-engine/hyperflux'
+import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
+import i18n from 'i18next'
+import { showMultipleFileModal } from '../panels/files/toolbar'
+import { ImportSettingsState } from '../services/ImportSettingsState'
 
-export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
+enum FileType {
+  THREE_D = '3D',
+  IMAGE = 'Image',
+  AUDIO = 'Audio',
+  VIDEO = 'Video',
+  UNKNOWN = 'Unknown'
+}
+
+const unsupportedFileMessage = {
+  [FileType.THREE_D]: 'Please upload either a .gltf or a .glb.',
+  [FileType.IMAGE]: 'Please upload a .png, .tiff, .jpg, .jpeg, .gif, or .ktx2.',
+  [FileType.AUDIO]: 'Please upload a .mp3, .mpeg, .m4a, or .wav.',
+  [FileType.VIDEO]: 'Please upload a .mp4, .mkv, or .avi.',
+  [FileType.UNKNOWN]: 'Please upload a valid 3D, Image, Audio, or Video file.'
+}
+
+const supportedFiles = {
+  [FileType.THREE_D]: new Set(['.gltf', '.glb', '.bin']),
+  [FileType.IMAGE]: new Set(['.png', '.tiff', '.jpg', '.jpeg', '.gif', '.ktx2']),
+  [FileType.AUDIO]: new Set(['.mp3', '.mpeg', '.m4a', '.wav']),
+  [FileType.VIDEO]: new Set(['.mp4', '.mkv', '.avi'])
+}
+
+function findMimeType(file: File): FileType {
+  let fileType = FileType.UNKNOWN
+  if (file.type.startsWith('image/')) {
+    fileType = FileType.IMAGE
+  } else if (file.type.startsWith('audio/')) {
+    fileType = FileType.AUDIO
+  } else if (file.type.startsWith('video/')) {
+    fileType = FileType.VIDEO
+  } else if (file.name.endsWith('.gltf') || file.name.endsWith('.glb')) {
+    fileType = FileType.THREE_D
+  }
+
+  return fileType
+}
+
+function isValidFileType(file): { isValid: boolean; errorMessage?: string } {
+  const mimeType: FileType = findMimeType(file)
+  const fileName = file.name
+  const extension = fileName.slice(fileName.lastIndexOf('.')).toLowerCase()
+
+  for (const [type, extensions] of Object.entries(supportedFiles)) {
+    if (extensions.has(extension)) {
+      return {
+        isValid: true
+      }
+    }
+  }
+
+  return {
+    isValid: false,
+    errorMessage: unsupportedFileMessage[mimeType]
+  }
+}
+
+export function sanitizeFiles(files: FileList | File[]): File[] {
+  const { maxFileSizeToUpload } = config.client
+
+  const invalidSizeFiles: string[] = []
+  const newFiles: File[] = []
+  for (const file of files) {
+    if (file.size > maxFileSizeToUpload) {
+      invalidSizeFiles.push(file.name)
+      continue
+    }
+    const newFile = cleanFileNameFile(file)
+    const { isValid, errorMessage } = isValidFileType(newFile)
+    if (!isValid) {
+      NotificationService.dispatchNotify(
+        i18n.t('editor:errors.fileNotSupported', { file: file.name, errorMessage: errorMessage || '' }) as string,
+        { variant: 'warning' }
+      )
+    }
+    newFiles.push(newFile)
+  }
+
+  if (invalidSizeFiles.length > 0) {
+    NotificationService.dispatchNotify(
+      i18n.t('editor:errors.maxUploadFileWeightExceed', {
+        maxFileSizeToUploadMB: maxFileSizeToUpload / (1024 * 1024),
+        fileNames: invalidSizeFiles.join(', ')
+      }) as string,
+      { variant: 'warning' }
+    )
+  }
+
+  return newFiles
+}
+
+export const compressImage = async (properties: KTX2EncodeArguments) => {
+  const ktx2Encoder = new KTX2Encoder()
+
+  let img: CanvasImageSource
+  if (properties.src instanceof Blob) {
+    img = await createImageBitmap(properties.src)
+  } else {
+    img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.src = properties.src
+    await img.decode()
+  }
+  const canvas = new OffscreenCanvas(img.width, img.height)
+  const ctx = canvas.getContext('2d')!
+  ctx.drawImage(img, 0, 0)
+  const imageData = ctx.getImageData(0, 0, img.width, img.height)
+
+  const data = await ktx2Encoder.encode(imageData, {
+    uastc: properties.mode === 'UASTC',
+    qualityLevel: properties.quality,
+    mipmaps: properties.mipmaps,
+    compressionLevel: properties.compressionLevel,
+    yFlip: properties.flipY,
+    srgb: !properties.srgb,
+    uastcFlags: properties.uastcFlags,
+    normalMap: properties.normalMap,
+    uastcZstandard: properties.uastcZstandard
+  })
+
+  return data
+}
+
+export const filterExistingFiles = async (projectName: string, directoryPath: string, files: File[]) => {
+  if (!files.length) {
+    return files
+  }
+
+  const resourcePaths = files.map((file) => `${directoryPath}${file.name}`)
+  const { data: existingResources } = await API.instance.service(staticResourcePath).find({
+    query: { key: { $in: resourcePaths || [] } }
+  })
+
+  const existingResourceKeys = new Set(existingResources.map((resource) => resource.key))
+
+  const { existingFiles, uniqueFiles } = files.reduce(
+    (result, file) => {
+      const fileKey = `${directoryPath}${file.name}`
+      if (existingResourceKeys.has(fileKey)) {
+        result.existingFiles.push(file)
+      } else {
+        result.uniqueFiles.push(file)
+      }
+      return result
+    },
+    { existingFiles: [], uniqueFiles: [] } as { existingFiles: File[]; uniqueFiles: File[] }
+  )
+
+  if (existingFiles.length > 0) {
+    showMultipleFileModal(projectName, directoryPath, existingFiles)
+  }
+
+  return uniqueFiles
+}
+
+// uploads files and returns an array of uploaded urls
+export const handleUploadFiles = (
+  projectName: string,
+  directoryPath: string,
+  files: FileList | File[]
+): Promise<string[]> => {
+  const { ktx2: compressedImage } = CommonKnownContentTypes
+  const importSettingsState = getMutableState(ImportSettingsState)
   return Promise.all(
-    Array.from(files).map((file) => {
+    Array.from(files).map(async (file) => {
+      file = cleanFileNameFile(file)
+
+      const ext = file.name.split('.').pop() ?? ''
+      const contentType = CommonKnownContentTypes[ext] as string | null
+      const isUncompressedImage = contentType != compressedImage && contentType?.startsWith('image')
+
+      if (isUncompressedImage && importSettingsState.imageCompression.value) {
+        const newFileName = file.name.replace(/.*\/(.*)\..*/, '$1').replace(/\.([^\.]+)$/, '-$1') + '.ktx2'
+        const data = await compressImage({
+          ...importSettingsState.imageSettings.value,
+          src: file
+        })
+        file = new File([data], newFileName, { type: 'image/ktx2' })
+      }
+
       const fileDirectory = file.webkitRelativePath || file.name
+
       return uploadToFeathersService(fileBrowserUploadPath, [file], {
         args: [
           {
@@ -48,7 +239,12 @@ export const handleUploadFiles = (projectName: string, directoryPath: string, fi
             contentType: file.type
           }
         ]
-      }).promise
+      })
+        .promise.then((response) => response[0])
+        .catch(() => {
+          NotificationService.dispatchNotify(i18n.t('editor:errors.fileUploadFailed') as string, { variant: 'error' })
+          throw new Error('Upload failed')
+        })
     })
   )
 }
@@ -79,12 +275,12 @@ export const inputFileWithAddToScene = ({
     el.onchange = async () => {
       try {
         if (el.files?.length) {
-          const isNameValid = !Array.from(el.files).some((file) => file.name.length > 64 || file.name.length < 4)
-          if (!isNameValid) throw new Error(t('editor:layout.filebrowser.fileNameLengthError'))
-
-          await handleUploadFiles(projectName, directoryPath, el.files)
+          const newFiles = sanitizeFiles(el.files)
+          const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
+          await handleUploadFiles(projectName, directoryPath, uniqueFiles)
         }
         resolve(null)
+        API.instance.service(fileBrowserPath).emit('created')
       } catch (err) {
         reject(err)
       } finally {
@@ -94,6 +290,67 @@ export const inputFileWithAddToScene = ({
 
     el.click()
   })
+
+// creates a file uploader that can be used to upload a single file from the file system
+const createFileUploader = ({
+  projectName,
+  directoryPath,
+  preserveDirectory,
+  acceptedFileTypes
+}: {
+  projectName: string
+  directoryPath: string
+  preserveDirectory?: boolean
+  acceptedFileTypes: string
+}): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const el = document.createElement('input')
+    el.type = 'file'
+    if (preserveDirectory) {
+      el.setAttribute('webkitdirectory', 'webkitdirectory')
+    }
+    el.multiple = false
+    el.accept = acceptedFileTypes
+    el.style.display = 'none'
+
+    el.onchange = async () => {
+      try {
+        if (el.files?.length) {
+          const newFiles = sanitizeFiles(el.files)
+          const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
+          const [uploadedFileUrl] = await handleUploadFiles(projectName, directoryPath, uniqueFiles)
+
+          if (uploadedFileUrl) {
+            resolve(uploadedFileUrl)
+          } else {
+            reject(new Error('No file was uploaded'))
+          }
+        } else {
+          reject(new Error('No file selected'))
+        }
+        API.instance.service(fileBrowserPath).emit('created')
+      } catch (err) {
+        reject(err)
+      } finally {
+        el.remove()
+      }
+    }
+
+    el.click()
+  })
+
+export const uploadImageFile = (params: {
+  projectName: string
+  directoryPath: string
+  preserveDirectory?: boolean
+}): Promise<string> => createFileUploader({ ...params, acceptedFileTypes: 'image/*' })
+
+// currently only supporting mp4
+export const uploadVideoFile = (params: {
+  projectName: string
+  directoryPath: string
+  preserveDirectory?: boolean
+}): Promise<string> => createFileUploader({ ...params, acceptedFileTypes: 'video/mp4,.mp4' })
 
 export const uploadProjectFiles = (projectName: string, files: File[], paths: string[], args?: object[]) => {
   const promises: CancelableUploadPromiseReturnType<string>[] = []
@@ -124,7 +381,11 @@ export async function clearModelResources(projectName: string, modelName: string
   }
 }
 
-export const uploadProjectAssetsFromUpload = async (projectName: string, entries: FileSystemEntry[], onProgress?) => {
+export const uploadProjectAssetsFromUpload = async (
+  projectName: string,
+  entries: FileSystemEntry[],
+  onProgress = (...args: any[]) => {}
+) => {
   const promises: CancelableUploadPromiseReturnType<string>[] = []
 
   for (let i = 0; i < entries.length; i++) {
@@ -158,11 +419,16 @@ export const processEntry = async (
 
   if (item.isFile) {
     const file = await getFile(item)
-    const name = processFileName(file.name)
+    const name = cleanFileNameString(file.name)
     const path = `assets${directory}/` + name
 
     promises.push(
-      uploadToFeathersService(fileBrowserUploadPath, [file], { projectName, path, contentType: '' }, onProgress)
+      uploadToFeathersService(
+        fileBrowserUploadPath,
+        [file],
+        { args: [{ project: projectName, path, contentType: file.type }] },
+        onProgress
+      )
     )
   }
 }

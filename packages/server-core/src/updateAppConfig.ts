@@ -23,46 +23,28 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+// ensure logger is loaded first - it loads the dotenv config
+import logger from './ServerLogger'
+
 import knex from 'knex'
 
+import { WebRTCSettings, defaultWebRTCSettings } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
+import { EngineSettingType, engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import {
   AuthenticationSettingDatabaseType,
   authenticationSettingPath
 } from '@ir-engine/common/src/schemas/setting/authentication-setting.schema'
-import { AwsSettingDatabaseType, awsSettingPath } from '@ir-engine/common/src/schemas/setting/aws-setting.schema'
-import {
-  chargebeeSettingPath,
-  ChargebeeSettingType
-} from '@ir-engine/common/src/schemas/setting/chargebee-setting.schema'
 import {
   ClientSettingDatabaseType,
   clientSettingPath
 } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
-import { coilSettingPath, CoilSettingType } from '@ir-engine/common/src/schemas/setting/coil-setting.schema'
-import { EmailSettingDatabaseType, emailSettingPath } from '@ir-engine/common/src/schemas/setting/email-setting.schema'
-import {
-  instanceServerSettingPath,
-  InstanceServerSettingType
-} from '@ir-engine/common/src/schemas/setting/instance-server-setting.schema'
-import { redisSettingPath, RedisSettingType } from '@ir-engine/common/src/schemas/setting/redis-setting.schema'
-import {
-  ServerSettingDatabaseType,
-  serverSettingPath
-} from '@ir-engine/common/src/schemas/setting/server-setting.schema'
-import {
-  taskServerSettingPath,
-  TaskServerSettingType
-} from '@ir-engine/common/src/schemas/setting/task-server-setting.schema'
-
-import { mailchimpSettingPath, MailchimpSettingType } from '@ir-engine/common/src/schema.type.module'
-import { zendeskSettingPath, ZendeskSettingType } from '@ir-engine/common/src/schemas/setting/zendesk-setting.schema'
-import appConfig from './appconfig'
-import logger from './ServerLogger'
+import { parseValue } from '@ir-engine/common/src/utils/dataTypeUtils'
+import { FlattenedEntry, unflattenArrayToObject } from '@ir-engine/common/src/utils/jsonHelperUtils'
+import { createHash } from 'crypto'
+import appConfig, { updateNestedConfig } from './appconfig'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
-import { awsDbToSchema } from './setting/aws-setting/aws-setting.resolvers'
 import { clientDbToSchema } from './setting/client-setting/client-setting.resolvers'
-import { emailDbToSchema } from './setting/email-setting/email-setting.resolvers'
-import { serverDbToSchema } from './setting/server-setting/server-setting.resolvers'
 
 const db = {
   user: process.env.MYSQL_USER ?? 'server',
@@ -87,22 +69,6 @@ export const updateAppConfig = async (): Promise<void> => {
 
   const promises: any[] = []
 
-  const taskServerSettingPromise = knexClient
-    .select()
-    .from<TaskServerSettingType>(taskServerSettingPath)
-    .then(([dbTaskServer]) => {
-      if (dbTaskServer) {
-        appConfig.taskserver = {
-          ...appConfig.taskserver,
-          ...dbTaskServer
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read taskServerSetting: ${e.message}`)
-    })
-  promises.push(taskServerSettingPromise)
-
   const authenticationSettingPromise = knexClient
     .select()
     .from<AuthenticationSettingDatabaseType>(authenticationSettingPath)
@@ -120,63 +86,26 @@ export const updateAppConfig = async (): Promise<void> => {
         appConfig.authentication = {
           ...appConfig.authentication,
           ...(dbAuthenticationConfig as any),
+          secret: dbAuthenticationConfig.secret.split(String.raw`\n`).join('\n'),
           authStrategies: authStrategies
         }
+        if (dbAuthenticationConfig.oauth?.github?.privateKey)
+          appConfig.authentication.oauth.github.privateKey = dbAuthenticationConfig.oauth.github.privateKey
+            .split(String.raw`\n`)
+            .join('\n')
+        if (dbAuthentication.jwtPublicKey && typeof dbAuthentication.jwtPublicKey === 'string') {
+          appConfig.authentication.jwtPublicKey = dbAuthentication.jwtPublicKey.split(String.raw`\n`).join('\n')
+          ;(appConfig.authentication.jwtOptions as any).keyid = createHash('sha3-256')
+            .update(appConfig.authentication.jwtPublicKey)
+            .digest('hex')
+        }
+        appConfig.authentication.jwtOptions.algorithm = dbAuthentication.jwtAlgorithm || 'HS256'
       }
     })
     .catch((e) => {
       logger.error(e, `[updateAppConfig]: Failed to read ${authenticationSettingPath}: ${e.message}`)
     })
   promises.push(authenticationSettingPromise)
-
-  const awsSettingPromise = knexClient
-    .select()
-    .from<AwsSettingDatabaseType>(awsSettingPath)
-    .then(([dbAws]) => {
-      const dbAwsConfig = awsDbToSchema(dbAws)
-      if (dbAwsConfig) {
-        appConfig.aws = {
-          ...appConfig.aws,
-          ...dbAwsConfig
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read ${awsSettingPath}: ${e.message}`)
-    })
-  promises.push(awsSettingPromise)
-
-  const chargebeeSettingPromise = knexClient
-    .select()
-    .from<ChargebeeSettingType>(chargebeeSettingPath)
-    .then(([dbChargebee]) => {
-      if (dbChargebee) {
-        appConfig.chargebee = {
-          ...appConfig.chargebee,
-          ...dbChargebee
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read chargebeeSetting: ${e.message}`)
-    })
-  promises.push(chargebeeSettingPromise)
-
-  const coilSettingPromise = knexClient
-    .select()
-    .from<CoilSettingType>(coilSettingPath)
-    .then(([dbCoil]) => {
-      if (dbCoil) {
-        appConfig.coil = {
-          ...appConfig.coil,
-          ...dbCoil
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read coilSetting: ${e.message}`)
-    })
-  promises.push(coilSettingPromise)
 
   const clientSettingPromise = knexClient
     .select()
@@ -195,123 +124,73 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(clientSettingPromise)
 
-  const emailSettingPromise = knexClient
-    .select()
-    .from<EmailSettingDatabaseType>(emailSettingPath)
-    .then(([dbEmail]) => {
-      const dbEmailConfig = emailDbToSchema(dbEmail)
-      if (dbEmailConfig) {
-        appConfig.email = {
-          ...appConfig.email,
-          ...dbEmailConfig
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read emailSetting: ${e.message}`)
-    })
-  promises.push(emailSettingPromise)
+  const categoriesToUnflatten = ['email', 'aws']
 
-  const instanceServerSettingPromise = knexClient
+  const engineSettingPromise = knexClient
     .select()
-    .from<InstanceServerSettingType>(instanceServerSettingPath)
-    .then(([dbInstanceServer]) => {
-      if (dbInstanceServer) {
-        appConfig.instanceserver = {
-          ...appConfig.instanceserver,
-          ...dbInstanceServer
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read instanceServerSetting: ${e.message}`)
-    })
-  promises.push(instanceServerSettingPromise)
-
-  const redisSettingPromise = knexClient
-    .select()
-    .from<RedisSettingType>(redisSettingPath)
-    .then(async ([dbRedis]) => {
-      const { address, port, password } = dbRedis
-      if (
-        address !== process.env.REDIS_ADDRESS ||
-        port !== process.env.REDIS_PORT ||
-        password !== process.env.REDIS_PASSWORD
-      ) {
-        await knexClient(redisSettingPath).update({
-          address: process.env.REDIS_ADDRESS,
-          port: process.env.REDIS_PORT,
-          password: process.env.REDIS_PASSWORD
+    .from<EngineSettingType>(engineSettingPath)
+    .then((dbEngineSettings) => {
+      // jsonkey undefined and its for plain key value pair settings and not in categoriesToUnflatten
+      dbEngineSettings
+        .filter((setting) => !setting.jsonKey && !categoriesToUnflatten.includes(setting.category))
+        .forEach((setting) => {
+          if (!appConfig[setting.category]) {
+            appConfig[setting.category] = {}
+          }
+          if (setting.key.includes('.')) {
+            updateNestedConfig(appConfig, setting)
+          } else {
+            appConfig[setting.category][setting.key] = parseValue(setting.value, setting.dataType)
+          }
         })
-        ;[dbRedis] = await knexClient.select().from<RedisSettingType>(redisSettingPath)
-      }
 
-      const dbRedisConfig = dbRedis && {
-        enabled: dbRedis.enabled,
-        address: dbRedis.address,
-        port: dbRedis.port,
-        password: dbRedis.password
-      }
-      if (dbRedisConfig) {
-        appConfig.redis = {
-          ...appConfig.redis,
-          ...dbRedisConfig
+      categoriesToUnflatten.forEach((category) => {
+        processSettings(dbEngineSettings, category)
+      })
+      // when jsonkey is defined and its instance-server-webrtc category and jsonKey is WebRTCSettings
+      const webRtcServerKeyValues: FlattenedEntry[] = dbEngineSettings
+        .filter(
+          (setting) =>
+            setting.jsonKey &&
+            setting.jsonKey === EngineSettings.InstanceServer.WebRTCSettings &&
+            setting.category === 'instance-server-webrtc'
+        )
+        .map((setting) => {
+          return {
+            key: setting.key,
+            value: setting.value,
+            dataType: setting.dataType
+          }
+        })
+      if (!appConfig['instance-server-webrtc'] || !appConfig['instance-server-webrtc'].webRTCSettings) {
+        appConfig['instance-server-webrtc'] = {
+          webRTCSettings: defaultWebRTCSettings
         }
       }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read redisSetting: ${e.message}`)
-    })
-  promises.push(redisSettingPromise)
 
-  const serverSettingPromise = knexClient
-    .select()
-    .from<ServerSettingDatabaseType>(serverSettingPath)
-    .then(([dbServer]) => {
-      const dbServerConfig = serverDbToSchema(dbServer)
-      if (dbServerConfig) {
-        appConfig.server = {
-          ...appConfig.server,
-          ...dbServerConfig
-        }
-      }
+      appConfig['instance-server-webrtc'].webRTCSettings = unflattenArrayToObject(
+        webRtcServerKeyValues
+      ) as WebRTCSettings
     })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read serverSetting: ${e.message}`)
-    })
-  promises.push(serverSettingPromise)
 
-  const zendeskSettingPromise = knexClient
-    .select()
-    .from<ZendeskSettingType>(zendeskSettingPath)
-    .then(([dbZendesk]) => {
-      if (dbZendesk) {
-        appConfig.zendesk = {
-          ...appConfig.zendesk,
-          ...dbZendesk
-        }
-      }
-    })
     .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read zendesk setting: ${e.message}`)
+      logger.error(e, `[updateAppConfig]: Failed to read engineSetting: ${e.message}`)
     })
-  promises.push(zendeskSettingPromise)
-
-  const mailchimpSettingPromise = knexClient
-    .select()
-    .from<MailchimpSettingType>(mailchimpSettingPath)
-    .then(([dbMailchimp]) => {
-      if (dbMailchimp) {
-        appConfig.mailchimp = {
-          ...appConfig.mailchimp,
-          ...dbMailchimp
-        }
-      }
-    })
-    .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read mailchimp setting: ${e.message}`)
-    })
-  promises.push(mailchimpSettingPromise)
-
+  promises.push(engineSettingPromise)
   await Promise.all(promises)
+}
+
+const processSettings = (settings: EngineSettingType[], category: string) => {
+  const filteredSettings = settings.filter((setting) => setting.category === category)
+  const settingsObject = unflattenArrayToObject(
+    filteredSettings.map((setting) => ({
+      key: setting.key,
+      value: setting.value,
+      dataType: setting.dataType
+    }))
+  )
+  appConfig[category] = {
+    ...appConfig[category],
+    ...settingsObject
+  }
 }

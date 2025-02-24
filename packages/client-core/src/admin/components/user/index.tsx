@@ -30,9 +30,8 @@ import { HiMagnifyingGlass } from 'react-icons/hi2'
 import { useMutation } from '@ir-engine/common'
 import { userPath, UserType } from '@ir-engine/common/src/schema.type.module'
 import { useHookstate } from '@ir-engine/hyperflux'
+import { Button, Input } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 
 import { PopoverState } from '../../../common/services/PopoverState'
@@ -72,14 +71,12 @@ export default function Users() {
                 search.query.set(event.target.value)
               }, 100)
             }}
-            className="bg-theme-surface-main"
-            containerClassName="w-1/5 block"
             startComponent={<HiMagnifyingGlass />}
           />
           {selectedUsers.length > 0 && (
             <Button
-              variant="danger"
-              size="small"
+              variant="red"
+              size="sm"
               onClick={() => {
                 PopoverState.showPopupover(
                   <ConfirmDialog

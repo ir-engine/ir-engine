@@ -26,15 +26,20 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { defineQuery } from '@ir-engine/ecs'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { useMutableState } from '@ir-engine/hyperflux'
 import { RenderInfoState } from '@ir-engine/spatial/src/renderer/RenderInfoSystem'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { LightTagComponent } from '@ir-engine/spatial/src/renderer/components/lights/LightTagComponent'
+import { Button } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import Stats from './stats'
 
 export const StatsPanel = (props: { show: boolean }) => {
   const renderInfoState = useMutableState(RenderInfoState)
   const info = renderInfoState.visible.value && renderInfoState.info.value
+  const lightQuery = defineQuery([LightTagComponent, VisibleComponent, SourceComponent])
 
   const toggleStats = () => {
     renderInfoState.visible.set(!renderInfoState.visible.value)
@@ -78,19 +83,25 @@ export const StatsPanel = (props: { show: boolean }) => {
     <div className="m-1 flex flex-col gap-0.5 rounded bg-neutral-600 p-1">
       <Text>{t('common:debug.stats')}</Text>
       <div className="flex gap-1 [&>div]:relative" ref={statsRef} />
-      <Button variant="secondary" onClick={toggleStats} size="small">
+      <Button variant="secondary" onClick={toggleStats} size="sm">
         {renderInfoState.visible.value ? 'Hide' : 'Show'}
       </Button>
       {info && (
-        <ul className="list-none text-sm text-theme-secondary">
+        <ul className="list-none text-sm ">
           <li>
             {t('editor:viewport.state.memory')}
-            <ul style={{ listStyle: 'none' }}>
+            <ul className="ml-2 list-none">
               <li>
                 {t('editor:viewport.state.geometries')}: {info.geometries}
               </li>
               <li>
                 {t('editor:viewport.state.textures')}: {info.textures}
+              </li>
+              <li>
+                {t('editor:viewport.state.texturesMB')}: {info.texturesMB}
+              </li>
+              <li>
+                {t('editor:viewport.state.shaderComplexity')}: {info.shaderComplexity}
               </li>
             </ul>
           </li>
@@ -115,7 +126,13 @@ export const StatsPanel = (props: { show: boolean }) => {
               <li>
                 {t('editor:viewport.state.lines')}: {info.lines}
               </li>
+              <li>
+                {t('editor:viewport.state.lights')}: {lightQuery().length}
+              </li>
             </ul>
+          </li>
+          <li>
+            {t('editor:viewport.state.sceneComplexity')}: {info.sceneComplexity}
           </li>
         </ul>
       )}

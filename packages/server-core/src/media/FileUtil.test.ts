@@ -23,9 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '../patchEngineNode'
+
 import assert from 'assert'
 import fs from 'fs'
 import path from 'path/posix'
+import { afterAll, beforeAll, describe, it } from 'vitest'
 
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
 
@@ -39,7 +42,7 @@ describe('FileUtil functions', () => {
   let PROJECT_PATH: string
   let STORAGE_PATH: string
   let store: LocalStorage
-  before(() => {
+  beforeAll(() => {
     createEngine()
     store = new LocalStorage()
     PROJECT_PATH = path.join(projectsRootFolder, TEST_DIR)
@@ -124,8 +127,8 @@ describe('FileUtil functions', () => {
 
     it('should return incremental name for file if it exist already', async () => {
       const fileName = 'FileUtil_Incremental_Name_File_Test.txt'
-      const fileName_1 = 'FileUtil_Incremental_Name_File_Test(1).txt'
-      const fileName_2 = 'FileUtil_Incremental_Name_File_Test(2).txt'
+      const fileName_1 = 'FileUtil_Incremental_Name_File_Test_1.txt'
+      const fileName_2 = 'FileUtil_Incremental_Name_File_Test_2.txt'
 
       fs.writeFileSync(path.join(STORAGE_PATH, fileName), 'Hello world')
 
@@ -142,8 +145,8 @@ describe('FileUtil functions', () => {
 
     it('should return incremental name for directory if it exist already', async () => {
       const dirName = 'FileUtil_Incremental_Name_Dir_Test'
-      const dirName_1 = 'FileUtil_Incremental_Name_Dir_Test(1)'
-      const dirName_2 = 'FileUtil_Incremental_Name_Dir_Test(2)'
+      const dirName_1 = 'FileUtil_Incremental_Name_Dir_Test_1'
+      const dirName_2 = 'FileUtil_Incremental_Name_Dir_Test_2'
 
       fs.mkdirSync(path.join(STORAGE_PATH, dirName))
 
@@ -182,18 +185,18 @@ describe('FileUtil functions', () => {
 
       // try to create another 'testdir' directory
       name = await getIncrementalName(singularDirName, TEST_DIR, store, true)
-      assert.equal(name, `${singularDirName}(1)`, "Should return 'testdir(1)' as 'testdir' already exists")
+      assert.equal(name, `${singularDirName}_1`, "Should return 'testdir_1' as 'testdir' already exists")
 
       // try to create 'testdirs' directory
       name = await getIncrementalName(pluralDirName, TEST_DIR, store, true)
-      assert.equal(name, `${pluralDirName}(1)`, "Should return 'testdirs(1)' as 'testdirs' already exists")
+      assert.equal(name, `${pluralDirName}_1`, "Should return 'testdirs_1' as 'testdirs' already exists")
 
       fs.rmdirSync(path.join(STORAGE_PATH, singularDirName))
       fs.rmdirSync(path.join(STORAGE_PATH, pluralDirName))
     })
   })
 
-  after(() => {
+  afterAll(() => {
     fs.rmSync(PROJECT_PATH, { force: true, recursive: true })
     fs.rmSync(STORAGE_PATH, { force: true, recursive: true })
     return destroyEngine()

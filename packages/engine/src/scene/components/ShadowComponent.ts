@@ -24,49 +24,39 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Object3D } from 'three'
+import { Mesh } from 'three'
 
 import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { matches } from '@ir-engine/hyperflux'
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { NO_PROXY } from '@ir-engine/hyperflux'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 
 export const ShadowComponent = defineComponent({
   name: 'ShadowComponent',
   jsonID: 'EE_shadow',
 
-  onInit: (entity) => {
-    return {
-      cast: true,
-      receive: true
-    }
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      cast: component.cast.value,
-      receive: component.receive.value
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matches.boolean.test(json.cast)) component.cast.set(json.cast)
-    if (matches.boolean.test(json.receive)) component.receive.set(json.receive)
-  },
+  schema: S.Object({
+    cast: S.Bool(true),
+    receive: S.Bool(true)
+  }),
 
   reactor: () => {
     const entity = useEntityContext()
     const shadowComponent = useComponent(entity, ShadowComponent)
-    const groupComponent = useComponent(entity, GroupComponent)
+    const object = useComponent(entity, ObjectComponent).get(NO_PROXY) as Mesh
 
     useEffect(() => {
-      for (const obj of groupComponent.value) {
-        const object = obj as Object3D
-        object.castShadow = shadowComponent.cast.value
-        object.receiveShadow = shadowComponent.receive.value
+      return () => {
+        object.castShadow = false
+        object.receiveShadow = false
       }
-    }, [groupComponent, shadowComponent.cast, shadowComponent.receive])
+    }, [])
+
+    useEffect(() => {
+      object.castShadow = shadowComponent.cast.value
+      object.receiveShadow = shadowComponent.receive.value
+    }, [!!object, shadowComponent.cast, shadowComponent.receive])
 
     return null
   }

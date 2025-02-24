@@ -31,10 +31,11 @@ import { MathUtils as _Math } from 'three'
 
 import { useComponent } from '@ir-engine/ecs'
 import { EditorComponentType, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { Checkbox } from '@ir-engine/ui'
 import ColorInput from '../../../../../primitives/tailwind/Color'
 import InputGroup from '../../../input/Group'
 import NumericInput from '../../../input/Numeric'
-import NodeEditor from '../../nodeEditor'
 
 /**
  * SpotLightNodeEditor component class used to provide editor view for property customization.
@@ -49,7 +50,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
       {...props}
       name={t('editor:properties.spotLight.name')}
       description={t('editor:properties.spotLight.description')}
-      icon={<SpotLightNodeEditor.iconComponent />}
+      Icon={SpotLightNodeEditor.iconComponent}
     >
       <InputGroup name="Color" label={t('editor:properties.spotLight.lbl-color')}>
         <ColorInput
@@ -114,6 +115,32 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
           value={lightComponent.decay.value}
           onChange={updateProperty(SpotLightComponent, 'decay')}
           onRelease={commitProperty(SpotLightComponent, 'decay')}
+        />
+      </InputGroup>
+      <InputGroup name="castShadow" label={t('editor:properties.spotLight.lbl-castShadow')}>
+        <Checkbox
+          onChange={commitProperty(SpotLightComponent, 'castShadow')}
+          checked={lightComponent.castShadow.value}
+        />
+      </InputGroup>
+      <InputGroup name="ShadowBias" label={t('editor:properties.spotLight.lbl-shadowBias')}>
+        <NumericInput
+          min={0}
+          max={1}
+          smallStep={0.00001}
+          mediumStep={0.001}
+          value={lightComponent.shadowBias.value}
+          onChange={updateProperty(SpotLightComponent, 'shadowBias')}
+          onRelease={commitProperty(SpotLightComponent, 'shadowBias')}
+        />
+      </InputGroup>
+      <InputGroup name="ShadowRadius" label={t('editor:properties.spotLight.lbl-shadowRadius')}>
+        <NumericInput
+          smallStep={0.1}
+          mediumStep={1}
+          value={lightComponent.shadowRadius.value}
+          onChange={updateProperty(SpotLightComponent, 'shadowRadius')}
+          onRelease={commitProperty(SpotLightComponent, 'shadowRadius')}
         />
       </InputGroup>
       {/* <LightShadowProperties entity={props.entity} component={SpotLightComponent} /> */}

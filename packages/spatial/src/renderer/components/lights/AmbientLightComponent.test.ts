@@ -36,11 +36,12 @@ import {
   UndefinedEntity
 } from '@ir-engine/ecs'
 import assert from 'assert'
-import { BoxGeometry, Color, ColorRepresentation, Mesh } from 'three'
+import { Color, ColorRepresentation } from 'three'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 import { mockSpatialEngine } from '../../../../tests/util/mockSpatialEngine'
 import { destroySpatialEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../RendererModule'
-import { addObjectToGroup, GroupComponent } from '../GroupComponent'
+import { ObjectComponent } from '../ObjectComponent'
 import { AmbientLightComponent } from './AmbientLightComponent'
 import { LightTagComponent } from './LightTagComponent'
 
@@ -51,11 +52,11 @@ const AmbientLightComponentDefaults: AmbientLightComponentData = {
 }
 
 function assertAmbientLightComponentEq(A: AmbientLightComponentData, B: AmbientLightComponentData): void {
-  assert.equal(A.color, B.color)
+  assert.equal(new Color(A.color).getHex(), new Color(B.color).getHex())
   assert.equal(A.intensity, B.intensity)
 }
 function assertAmbientLightComponentNotEq(A: AmbientLightComponentData, B: AmbientLightComponentData): void {
-  assert.notEqual(A.color, B.color)
+  assert.notEqual(new Color(A.color).getHex(), new Color(B.color).getHex())
   assert.notEqual(A.intensity, B.intensity)
 }
 
@@ -149,21 +150,6 @@ describe('AmbientLightComponent', () => {
       const result = getComponent(testEntity, AmbientLightComponent)
       assert.notDeepEqual(result.color, AmbientLightComponentDefaults.color)
     })
-
-    it('should not change the values of an initialized AmbientLightComponent when the data passed had incorrect types', () => {
-      const before = getComponent(testEntity, AmbientLightComponent)
-      assertAmbientLightComponentEq(before, AmbientLightComponentDefaults)
-      const Incorrect = {
-        color: true,
-        intensity: 'someIntensity'
-      }
-
-      // Run and Check the result
-      // @ts-ignore Allow coercing incorrect types into onSet
-      setComponent(testEntity, AmbientLightComponent, Incorrect)
-      const result = getComponent(testEntity, AmbientLightComponent)
-      assertAmbientLightComponentEq(result, AmbientLightComponentDefaults)
-    })
   }) //:: onSet
 
   describe('toJSON', () => {
@@ -218,42 +204,29 @@ describe('AmbientLightComponent', () => {
       assert.equal(hasComponent(testEntity, LightTagComponent), true)
     })
 
-    it('should add an AmbientLight object to the GroupComponent of the entityContext when it is mounted', () => {
-      setComponent(testEntity, GroupComponent)
-
+    it('should add an AmbientLight object to the ObjectComponent of the entityContext when it is mounted', () => {
       // Sanity check before running
-      const before = getComponent(testEntity, GroupComponent)
-      assert.equal(before.length, 0)
+      const before = getComponent(testEntity, ObjectComponent)
+      assert.equal(!!before, false)
 
       // Run and Check the result
       setComponent(testEntity, AmbientLightComponent)
-      const after = getComponent(testEntity, GroupComponent)
-      assert.notEqual(after.length, 0)
-      assert.equal(after.length, 1)
-      const result = after[0].type === 'AmbientLight'
+      const after = getComponent(testEntity, ObjectComponent)
+      assert.equal(!!after, true)
+      const result = after.type === 'AmbientLight'
       assert.equal(result, true)
     })
 
-    it('should remove the AmbientLight object from the GroupComponent of the entityContext when it is unmounted', () => {
-      setComponent(testEntity, GroupComponent)
-      const DummyObject = new Mesh(new BoxGeometry())
-
+    it('should remove the AmbientLight object from the ObjectComponent of the entityContext when it is unmounted', () => {
       // Sanity check before running
-      const before1 = getComponent(testEntity, GroupComponent)
-      assert.equal(before1.length, 0)
+      const before1 = getComponent(testEntity, ObjectComponent)
+      assert.equal(!!before1, false)
       setComponent(testEntity, AmbientLightComponent)
-      addObjectToGroup(testEntity, DummyObject)
-      const before2 = getComponent(testEntity, GroupComponent)
-      assert.notEqual(before2.length, 0)
-      assert.equal(before2.length, 2)
-      assert.equal(before2[0].type, 'AmbientLight')
 
       // Run and Check the result
       removeComponent(testEntity, AmbientLightComponent)
-      const after = getComponent(testEntity, GroupComponent)
-      assert.notEqual(after.length, 2)
-      assert.equal(after.length, 1)
-      assert.notEqual(after[0].type, 'AmbientLight')
+      const after = getComponent(testEntity, ObjectComponent)
+      assert.equal(!!after, false)
     })
 
     it('should react when component.intensity changes', () => {

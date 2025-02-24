@@ -29,7 +29,6 @@ import * as k8s from '@kubernetes/client-node'
 import { PodsType, ServerContainerInfoType, ServerPodInfoType } from '@ir-engine/common/src/schemas/cluster/pods.schema'
 import { instancePath, InstanceType } from '@ir-engine/common/src/schemas/networking/instance.schema'
 import { channelPath, ChannelType } from '@ir-engine/common/src/schemas/social/channel.schema'
-import { locationPath, LocationType } from '@ir-engine/common/src/schemas/social/location.schema'
 import { getState } from '@ir-engine/hyperflux'
 
 import { Application } from '../../../declarations'
@@ -248,20 +247,6 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
     return
   }
 
-  // TODO: Move following to instance.resolvers once instance service is migrated to feathers 5.
-  const locations = (await app.service(locationPath).find({
-    query: {
-      id: {
-        $in: instances.map((instance) => instance.locationId!)
-      }
-    },
-    paginate: false
-  })) as any as LocationType[]
-
-  for (const instance of instances) {
-    instance.location = locations.find((location) => location.id === instance.locationId)!
-  }
-
   const channelInstances = instances.filter((item) => item.channelId)
   let channels: ChannelType[] = []
 
@@ -279,7 +264,6 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
   for (const item of items) {
     const instanceExists = instances.find((instance) => instance.podName === item.name)
     item.instanceId = instanceExists ? instanceExists.id : undefined
-    item.currentUsers = instanceExists ? instanceExists.currentUsers : 0
     if (!instanceExists) {
       item.type = 'Unassigned'
       continue

@@ -47,7 +47,7 @@ process.on('unhandledRejection', (error, promise) => {
 const taskServerPipe = pipe(configurePrimus(), configureRedis(), configureK8s())
 
 export const start = async (): Promise<Application> => {
-  const app = createFeathersKoaApp(ServerMode.Task, taskServerPipe)
+  const app = await createFeathersKoaApp(ServerMode.Task, taskServerPipe)
 
   app.set('host', config.server.local ? config.server.hostname + ':' + config.server.port : config.server.hostname)
   app.set('port', config.server.port)
@@ -56,7 +56,7 @@ export const start = async (): Promise<Application> => {
   collectEvents(app)
   logger.info('Task server running.')
 
-  const port = Number(config.taskserver.port) || 5050
+  const port = Number(config['task-server'].port) || 5050
 
   await app.listen(port)
 

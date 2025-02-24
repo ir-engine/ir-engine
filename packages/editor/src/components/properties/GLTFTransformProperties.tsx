@@ -27,13 +27,10 @@ import React from 'react'
 
 import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/ModelTransform'
 import { State } from '@ir-engine/hyperflux'
+import { Checkbox, Input, Select } from '@ir-engine/ui'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
-import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
-import Select from '@ir-engine/ui/src/primitives/tailwind/Select'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
-import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 import { twMerge } from 'tailwind-merge'
 
 function CheckBoxParam({ label, state }: { label: string; state: State<boolean> }) {
@@ -45,7 +42,7 @@ function CheckBoxParam({ label, state }: { label: string; state: State<boolean> 
 
       <div className="col-span-2 col-start-3">
         <Checkbox
-          value={state.value}
+          checked={state.value}
           onChange={() => {
             state.set((v) => !v)
           }}
@@ -74,7 +71,6 @@ function TextParam({
 
       <div className="col-span-2 col-start-3">
         <Input
-          className="py-0 text-xs text-theme-input"
           value={state.value}
           onChange={(e) => {
             state.set(parseFunction(e.target.value))
@@ -98,12 +94,12 @@ export default function GLTFTransformProperties({
     transformParms && (
       <>
         {itemCount === 1 && (
-          <div className="mb-6 grid grid-cols-4 gap-2 border-b border-theme-primary pb-6">
+          <div className="mb-6 grid grid-cols-4 gap-2 border-b  pb-6">
             <div className="col-span-1 flex flex-col justify-around gap-y-2">
               <Text
                 fontSize="xs"
                 fontWeight="medium"
-                className="block px-2 py-0.5 text-right leading-[1.125rem] text-theme-gray3"
+                className="block px-2 py-0.5 text-right leading-[1.125rem] "
                 style={{
                   textWrap: 'nowrap' // tailwind class is not working
                 }}
@@ -113,7 +109,7 @@ export default function GLTFTransformProperties({
               <Text
                 fontSize="xs"
                 fontWeight="medium"
-                className="px-2 py-0.5 text-right leading-[1.125rem] text-theme-gray3"
+                className="px-2 py-0.5 text-right leading-[1.125rem] "
                 style={{
                   textWrap: 'nowrap' // tailwind class is not working
                 }}
@@ -127,25 +123,23 @@ export default function GLTFTransformProperties({
                 onChange={(e) => {
                   transformParms.dst.set(e.target.value)
                 }}
-                className="px-2 py-0.5 text-sm text-theme-input"
               />
               <Input
                 value={transformParms.resourceUri.value}
                 onChange={(e) => {
                   transformParms.resourceUri.set(e.target.value)
                 }}
-                className="px-2 py-0.5 text-sm text-theme-input"
               />
             </div>
           </div>
         )}
         {itemCount > 1 && (
-          <div className="mb-6 grid grid-cols-4 gap-2 border-b border-theme-primary pb-6">
+          <div className="mb-6 grid grid-cols-4 gap-2 border-b  pb-6">
             <div className="col-span-1 flex flex-col justify-around gap-y-2">
               <Text
                 fontSize="xs"
                 fontWeight="medium"
-                className="block px-2 py-0.5 text-right leading-[1.125rem] text-theme-gray3"
+                className="block px-2 py-0.5 text-right leading-[1.125rem] "
                 style={{
                   textWrap: 'nowrap' // tailwind class is not working
                 }}
@@ -154,18 +148,12 @@ export default function GLTFTransformProperties({
               </Text>
             </div>
             <div className="col-span-3 flex flex-col justify-around gap-y-2">
-              <Input value={`${itemCount} Items`} disabled={true} className="px-2 py-0.5 text-sm text-theme-input" />
+              <Input value={`${itemCount} Items`} disabled={true} />
             </div>
           </div>
         )}
 
-        <Accordion
-          title="Materials"
-          expandIcon={<HiPlusSmall />}
-          shrinkIcon={<HiMinus />}
-          titleFontSize="sm"
-          className="mb-2 rounded bg-theme-highlight p-2"
-        >
+        <Accordion title="Materials">
           <div className="my-1 grid grid-cols-4 items-center gap-x-2">
             <div className="col-span-1 col-start-2 text-right">
               <Text fontWeight="medium" fontSize="xs">
@@ -175,7 +163,6 @@ export default function GLTFTransformProperties({
 
             <div className="col-span-2 col-start-3">
               <Select
-                inputClassName="text-theme-input text-xs py-0"
                 options={[
                   { label: 'Default', value: 'default' },
                   { label: 'JPG', value: 'jpg' },
@@ -187,7 +174,7 @@ export default function GLTFTransformProperties({
                   // @ts-ignore
                   transformParms.textureFormat.set(value)
                 }}
-                currentValue={transformParms.textureFormat.value}
+                value={transformParms.textureFormat.value}
               />
             </div>
           </div>
@@ -219,7 +206,6 @@ export default function GLTFTransformProperties({
 
             <div className="col-span-2 col-start-3">
               <Select
-                inputClassName="text-theme-input text-xs py-0"
                 options={[
                   { label: 'UASTC', value: 'uastc' },
                   { label: 'ETC1', value: 'etc1' }
@@ -228,7 +214,7 @@ export default function GLTFTransformProperties({
                   // @ts-ignore
                   transformParms.textureCompressionType.set(value)
                 }}
-                currentValue={transformParms.textureCompressionType.value}
+                value={transformParms.textureCompressionType.value}
               />
             </div>
           </div>
@@ -258,13 +244,7 @@ export default function GLTFTransformProperties({
           <CheckBoxParam label={t('editor:properties.model.transform.mipmaps')} state={transformParms.mipmap} />
         </Accordion>
 
-        <Accordion
-          title="Meshes"
-          expandIcon={<HiPlusSmall />}
-          shrinkIcon={<HiMinus />}
-          titleFontSize="sm"
-          className="mb-2 rounded bg-theme-highlight p-2"
-        >
+        <Accordion title="Meshes">
           <CheckBoxParam label={t('editor:properties.model.transform.instance')} state={transformParms.instance} />
 
           <CheckBoxParam label={t('editor:properties.model.transform.join')} state={transformParms.join.enabled} />
@@ -285,26 +265,14 @@ export default function GLTFTransformProperties({
           />
         </Accordion>
 
-        <Accordion
-          title="Scene"
-          expandIcon={<HiPlusSmall />}
-          shrinkIcon={<HiMinus />}
-          titleFontSize="sm"
-          className="mb-2 rounded bg-theme-highlight p-2"
-        >
+        <Accordion title="Scene">
           <CheckBoxParam label={t('editor:properties.model.transform.removeDuplicates')} state={transformParms.dedup} />
           <CheckBoxParam label={t('editor:properties.model.transform.flatten')} state={transformParms.flatten} />
           <CheckBoxParam label={t('editor:properties.model.transform.pruneUnused')} state={transformParms.prune} />
           <CheckBoxParam label={t('editor:properties.model.transform.reorder')} state={transformParms.reorder} />
         </Accordion>
 
-        <Accordion
-          title="Animation"
-          expandIcon={<HiPlusSmall />}
-          shrinkIcon={<HiMinus />}
-          titleFontSize="sm"
-          className="mb-2 rounded bg-theme-highlight p-2"
-        >
+        <Accordion title="Animation">
           <CheckBoxParam
             label={t('editor:properties.model.transform.resampleAnimations')}
             state={transformParms.resample}

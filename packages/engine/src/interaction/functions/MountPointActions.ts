@@ -27,7 +27,7 @@ import matches from 'ts-matches'
 
 import { EntityUUID, matchesEntityUUID } from '@ir-engine/ecs'
 import { defineAction, defineState, getMutableState, none } from '@ir-engine/hyperflux'
-import { NetworkTopics } from '@ir-engine/network'
+import { NetworkTopics, WorldNetworkAction } from '@ir-engine/network'
 
 export class MountPointActions {
   static mountInteraction = defineAction({
@@ -41,12 +41,31 @@ export class MountPointActions {
 
 export const MountPointState = defineState({
   name: 'MountPointState',
-  initial: {} as Record<EntityUUID, EntityUUID>,
+  initial: () => ({
+    mountsToMountedEntities: {} as Record<EntityUUID, EntityUUID>,
+    mountedEntitiesToMounts: {} as Record<EntityUUID, EntityUUID>
+  }),
+
   receptors: {
     onMountInteraction: MountPointActions.mountInteraction.receive((action) => {
       const state = getMutableState(MountPointState)
-      if (action.mounted) state[action.targetMount].merge(action.mountedEntity)
-      else state[action.targetMount].set(none)
+      if (action.mounted) {
+        state.mountsToMountedEntities[action.targetMount].set(action.mountedEntity)
+        state.mountedEntitiesToMounts[action.mountedEntity].set(action.targetMount)
+      } else {
+        state.mountsToMountedEntities[action.targetMount].set(none)
+        state.mountedEntitiesToMounts[action.mountedEntity].set(none)
+      }
+    }),
+    onDestroyObject: WorldNetworkAction.destroyEntity.receive((action) => {
+      const state = getMutableState(MountPointState)
+      if (action.entityUUID in state.mountedEntitiesToMounts.value) {
+        const mountUUID = state.mountedEntitiesToMounts[action.entityUUID].value
+        if (mountUUID) {
+          state.mountsToMountedEntities[mountUUID].set(none)
+          state.mountedEntitiesToMounts[action.entityUUID].set(none)
+        }
+      }
     })
   }
 })

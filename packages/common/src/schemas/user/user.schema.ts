@@ -30,18 +30,13 @@ import { getValidator, querySyntax, Type } from '@feathersjs/typebox'
 import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
 
 import { UserID } from '@ir-engine/hyperflux'
+import { USERNAME_MAX_LENGTH } from '../../constants/UserConstants'
 import { TypedString } from '../../types/TypeboxUtils'
-import { instanceAttendanceSchema } from '../networking/instance-attendance.schema'
 import { ScopeType } from '../scope/scope.schema'
-import { locationAdminSchema } from '../social/location-admin.schema'
-import { locationBanSchema } from '../social/location-ban.schema'
-import { userSettingSchema } from '../user/user-setting.schema'
 import { dataValidator, queryValidator } from '../validators'
-import { avatarDataSchema, AvatarID } from './avatar.schema'
-import { identityProviderSchema } from './identity-provider.schema'
-import { userApiKeySchema } from './user-api-key.schema'
 import { userLoginSchema } from './user-login.schema'
 
+/** @deprecated - import from @ir-engine/hyperflux */
 export type { UserID }
 
 export const userPath = 'user'
@@ -64,19 +59,13 @@ export const userSchema = Type.Object(
     id: TypedString<UserID>({
       format: 'uuid'
     }),
-    name: TypedString<UserName>(),
-    acceptedTOS: Type.Boolean(),
+    name: TypedString<UserName>({
+      maxLength: USERNAME_MAX_LENGTH
+    }),
+    // @todo consider moving this to user-settings and make private
+    ageVerified: Type.Boolean(),
     isGuest: Type.Boolean(),
     inviteCode: Type.Optional(TypedString<InviteCode>()),
-    avatarId: TypedString<AvatarID>(),
-    avatar: Type.Ref(avatarDataSchema),
-    userSetting: Type.Ref(userSettingSchema),
-    apiKey: Type.Ref(userApiKeySchema),
-    identityProviders: Type.Array(Type.Ref(identityProviderSchema)),
-    locationAdmins: Type.Array(Type.Ref(locationAdminSchema)),
-    locationBans: Type.Array(Type.Ref(locationBanSchema)),
-    scopes: Type.Array(Type.Ref(userScopeSchema)),
-    instanceAttendance: Type.Array(Type.Ref(instanceAttendanceSchema)),
     lastLogin: Type.Optional(Type.Ref(userLoginSchema)),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
@@ -86,10 +75,9 @@ export const userSchema = Type.Object(
 export interface UserType extends Static<typeof userSchema> {}
 
 // Schema for creating new entries
-export const userDataSchema = Type.Partial(
-  Type.Pick(userSchema, ['name', 'isGuest', 'inviteCode', 'avatarId', 'scopes']),
-  { $id: 'UserData' }
-)
+export const userDataSchema = Type.Partial(Type.Pick(userSchema, ['name', 'isGuest', 'inviteCode']), {
+  $id: 'UserData'
+})
 export interface UserData extends Static<typeof userDataSchema> {}
 
 // Schema for updating existing entries
@@ -101,14 +89,7 @@ export interface UserPatch extends Static<typeof userPatchSchema> {}
 export interface UserPublicPatch extends Pick<UserType, 'name' | 'id'> {}
 
 // Schema for allowed query properties
-export const userQueryProperties = Type.Pick(userSchema, [
-  'id',
-  'name',
-  'isGuest',
-  'inviteCode',
-  'createdAt'
-  // 'scopes'   Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
-])
+export const userQueryProperties = Type.Pick(userSchema, ['id', 'name', 'isGuest', 'inviteCode', 'createdAt'])
 export const userQuerySchema = Type.Intersect(
   [
     querySyntax(userQueryProperties, {

@@ -23,15 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useLayoutEffect } from 'react'
-import { MeshPhysicalMaterial, SphereGeometry, Vector3 } from 'three'
+import { Mesh, MeshPhysicalMaterial, SphereGeometry } from 'three'
 
-import { defineComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState, matches, useHookstate } from '@ir-engine/hyperflux'
-import { DebugMeshComponent } from '@ir-engine/spatial/src/common/debug/DebugMeshComponent'
+import { useEntityContext } from '@ir-engine/ecs'
+import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { Vector3_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
+import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
 
@@ -42,61 +44,22 @@ export const EnvMapBakeComponent = defineComponent({
   name: 'EnvMapBakeComponent',
   jsonID: 'EE_envmapbake',
 
-  onInit: (entity) => {
-    return {
-      bakePosition: new Vector3(),
-      bakePositionOffset: new Vector3(),
-      bakeScale: new Vector3().set(1, 1, 1),
-      bakeType: EnvMapBakeTypes.Baked,
-      resolution: 1024,
-      refreshMode: EnvMapBakeRefreshTypes.OnAwake,
-      envMapOrigin: '',
-      boxProjection: true
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matches.object.test(json.bakePosition)) component.bakePosition.value.copy(json.bakePosition)
-    if (matches.object.test(json.bakePositionOffset)) component.bakePositionOffset.value.copy(json.bakePositionOffset)
-    if (matches.object.test(json.bakeScale)) component.bakeScale.value.copy(json.bakeScale)
-    if (matches.string.test(json.bakeType)) component.bakeType.set(json.bakeType)
-    if (matches.number.test(json.resolution)) component.resolution.set(json.resolution)
-    if (matches.string.test(json.refreshMode)) component.refreshMode.set(json.refreshMode)
-    if (matches.string.test(json.envMapOrigin)) component.envMapOrigin.set(json.envMapOrigin)
-    if (matches.boolean.test(json.boxProjection)) component.boxProjection.set(json.boxProjection)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      bakePosition: component.bakePosition.value,
-      bakePositionOffset: component.bakePositionOffset.value,
-      bakeScale: component.bakeScale.value,
-      bakeType: component.bakeType.value,
-      resolution: component.resolution.value,
-      refreshMode: component.refreshMode.value,
-      envMapOrigin: component.envMapOrigin.value,
-      boxProjection: component.boxProjection.value
-    }
-  },
+  schema: S.Object({
+    bakePosition: T.Vec3(),
+    bakePositionOffset: T.Vec3(),
+    bakeScale: T.Vec3(Vector3_One),
+    bakeType: S.Enum(EnvMapBakeTypes, EnvMapBakeTypes.Baked),
+    resolution: S.Number(1024),
+    refreshMode: S.Enum(EnvMapBakeRefreshTypes, EnvMapBakeRefreshTypes.OnAwake),
+    envMapOrigin: S.String(''),
+    boxProjection: S.Bool(true)
+  }),
 
   reactor: function () {
     const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
 
-    useLayoutEffect(() => {
-      if (debugEnabled.value) {
-        setComponent(entity, DebugMeshComponent, {
-          name: 'envmap-bake-helper',
-          geometry: sphereGeometry,
-          material: helperMeshMaterial
-        })
-      }
-
-      return () => {
-        removeComponent(entity, DebugMeshComponent)
-      }
-    }, [debugEnabled])
+    useHelperEntity(entity, () => new Mesh(sphereGeometry, helperMeshMaterial), debugEnabled.value)
 
     return null
   }

@@ -26,26 +26,59 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import { useHookstate } from '@ir-engine/hyperflux'
 
-// todo move this to core engine
-const ClickawayListener = (props: { children: JSX.Element }) => {
-  const childOver = useHookstate(false)
+import { getState } from '@ir-engine/hyperflux'
+import { useEffect, useRef } from 'react'
+import { twMerge } from 'tailwind-merge'
+
+const ClickawayListener = (props: { children: React.ReactNode; onClickOutside: VoidFunction | null }) => {
+  const backdropMode = getState(PopoverState).backdrop
+  const callbackRef = useRef<VoidFunction | null>(null)
+  const backdropRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const element = backdropRef.current
+      if (!element) {
+        return
+      }
+
+      let isClickedInside = false
+
+      for (const child of element.children) {
+        if (child.contains(e.target as Node)) {
+          isClickedInside = true
+          break
+        }
+      }
+
+      if (!isClickedInside && callbackRef.current) {
+        callbackRef.current()
+      }
+    }
+
+    document.addEventListener('mousedown', handler)
+    document.addEventListener('touchstart', handler)
+
+    return () => {
+      document.removeEventListener('mousedown', handler)
+      document.removeEventListener('touchstart', handler)
+    }
+  }, [])
+
+  useEffect(() => {
+    callbackRef.current = props.onClickOutside || null
+  }, [props.onClickOutside])
+
   return (
     <div
-      className="fixed inset-0 z-40 bg-gray-800 bg-opacity-50"
-      onMouseDown={() => {
-        if (childOver.value) return
-        PopoverState.hidePopupover()
-      }}
+      ref={backdropRef}
+      className={twMerge(
+        'fixed inset-0 z-[1000] flex h-full w-full items-center justify-center',
+        backdropMode === 'blur' ? 'backdrop-blur-[50px]' : 'bg-transparent/50'
+      )}
     >
-      <div
-        className="flex h-full w-full items-center justify-center"
-        onMouseEnter={() => childOver.set(true)}
-        onMouseLeave={() => childOver.set(false)}
-      >
-        {props.children}
-      </div>
+      {props.children}
     </div>
   )
 }

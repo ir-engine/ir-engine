@@ -34,7 +34,7 @@ import { profile } from '@ir-engine/ecs/src/Timer'
 import { defineState, getMutableState, getState, State, useMutableState } from '@ir-engine/hyperflux'
 import { RendererComponent, RenderSettingsState } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 
-import { EngineState } from '../EngineState'
+import { EngineState } from '@ir-engine/ecs'
 import { RendererState } from './RendererState'
 
 type PerformanceTier = 0 | 1 | 2 | 3 | 4 | 5
@@ -96,7 +96,7 @@ const tieredSettings = {
   [5]: {
     engine: {
       useShadows: true,
-      shadowMapResolution: 2048,
+      shadowMapResolution: 1024, // @todo we should probably make this opt in or only allow on high end GPUs
       usePostProcessing: true,
       forceBasicMaterials: false,
       renderScale: 1
@@ -139,7 +139,6 @@ export const PerformanceState = defineState({
     gpuTier: 3 as PerformanceTier,
     cpuTier: 3 as PerformanceTier,
 
-    supportWebGL2: true,
     targetFPS: 60 as TargetFPS,
 
     gpu: 'unknown',
@@ -288,8 +287,8 @@ const timeRenderFrameGPU = (callback: (number) => void = () => {}): (() => void)
     }
   }
 
-  const { renderContext, supportWebGL2 } = getState(PerformanceState)
-  if (renderContext && supportWebGL2) {
+  const { renderContext } = getState(PerformanceState)
+  if (renderContext) {
     const gl = renderContext
     const ext = gl.getExtension('EXT_disjoint_timer_query_webgl2')
 
@@ -443,7 +442,6 @@ const buildPerformanceState = async (
     device: gpuTier.device || 'unknown',
     gpuTier: tier as PerformanceTier,
     targetFPS: gpuTier.isMobile ? 30 : 60,
-    supportWebGL2: renderer.supportWebGL2,
     renderContext: gl,
     maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
     max3DTextureSize: gl.getParameter(gl.MAX_3D_TEXTURE_SIZE),

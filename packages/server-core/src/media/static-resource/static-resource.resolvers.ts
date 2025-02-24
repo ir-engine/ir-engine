@@ -27,6 +27,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 as uuidv4 } from 'uuid'
 
+import { userPath } from '@ir-engine/common/src/schema.type.module'
 import {
   StaticResourceDatabaseType,
   StaticResourceType
@@ -36,31 +37,35 @@ import type { HookContext } from '@ir-engine/server-core/declarations'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
 export const staticResourceDbToSchema = (rawData: StaticResourceDatabaseType): StaticResourceType => {
-  let tags = JSON.parse(rawData.tags) as string[]
-
-  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
-  // was serialized multiple times, therefore we need to parse it twice.
-  if (typeof tags === 'string') {
-    tags = JSON.parse(tags)
-  }
-
-  let stats = JSON.parse(rawData.stats) as Record<string, any>
-
-  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
-  // was serialized multiple times, therefore we need to parse it twice.
-  if (typeof stats === 'string') {
-    stats = JSON.parse(stats)
-  }
-
   const dependencies = rawData.dependencies ? (JSON.parse(rawData.dependencies) as string[]) : []
 
-  return {
-    ...rawData,
-    url: '', // TODO to make typescript happy...
-    dependencies,
-    tags,
-    stats
+  const result: StaticResourceType = { ...rawData, url: '', dependencies, tags: undefined, stats: undefined }
+
+  if (rawData.tags) {
+    let tags = JSON.parse(rawData.tags) as string[]
+
+    // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
+    // was serialized multiple times, therefore we need to parse it twice.
+    if (typeof tags === 'string') {
+      tags = JSON.parse(tags)
+    }
+
+    result.tags = tags
   }
+
+  if (rawData.stats) {
+    let stats = JSON.parse(rawData.stats) as Record<string, any>
+
+    // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
+    // was serialized multiple times, therefore we need to parse it twice.
+    if (typeof stats === 'string') {
+      stats = JSON.parse(stats)
+    }
+
+    result.stats = stats
+  }
+
+  return result
 }
 
 const getThumbnailURL = (staticResource: StaticResourceType, context: HookContext) => {
@@ -91,6 +96,9 @@ export const staticResourceResolver = resolve<StaticResourceType, HookContext>(
     }),
     thumbnailURL: virtual(async (staticResource, context) => {
       return getThumbnailURL(staticResource, context)
+    }),
+    user: virtual(async (rawData, context) => {
+      if (rawData.userId) return await context.app.service(userPath).get(rawData.userId)
     })
   },
   {

@@ -37,7 +37,7 @@ import {
   Vector3
 } from 'three'
 
-import { Engine } from '@ir-engine/ecs'
+import { Engine, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -49,23 +49,23 @@ import {
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { iOS } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { useVideoFrameCallback } from '@ir-engine/spatial/src/common/functions/useVideoFrameCallback'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { CORTOLoader } from '../../assets/loaders/corto/CORTOLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { AudioState } from '../../audio/AudioState'
+import { handleAutoplay, LegacyVolumetricComponent } from './LegacyVolumetricComponent'
 import { MediaElementComponent } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { UVOLDissolveComponent } from './UVOLDissolveComponent'
-import { handleAutoplay, VolumetricComponent } from './VolumetricComponent'
 
 const decodeCorto = (url: string, start: number, end: number) => {
   return new Promise<BufferGeometry | null>((res, rej) => {
@@ -94,32 +94,37 @@ interface ManifestSchema {
 export const UVOL1Component = defineComponent({
   name: 'UVOL1Component',
 
-  onInit: (entity) => {
-    return {
-      manifestPath: '',
-      data: {} as ManifestSchema,
-      firstGeometryFrameLoaded: false,
-      loadingEffectStarted: false,
-      loadingEffectEnded: false
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (json.manifestPath) {
-      component.manifestPath.set(json.manifestPath)
-    }
-    if (json.data) {
-      component.data.set(json.data)
-    }
-  },
+  schema: S.Object({
+    manifestPath: S.String(''),
+    data: S.Object(
+      {
+        maxVertices: S.Number(),
+        maxTriangles: S.Number(),
+        frameData: S.Array(
+          S.Object({
+            frameNumber: S.Number(),
+            keyframeNumber: S.Number(),
+            startBytePosition: S.Number(),
+            vertices: S.Number(),
+            faces: S.Number(),
+            meshLength: S.Number()
+          })
+        ),
+        frameRate: S.Number()
+      },
+      {}
+    ),
+    firstGeometryFrameLoaded: S.Bool(false),
+    loadingEffectStarted: S.Bool(false),
+    loadingEffectEnded: S.Bool(false)
+  }),
 
   reactor: UVOL1Reactor
 })
 
 function UVOL1Reactor() {
   const entity = useEntityContext()
-  const volumetric = useComponent(entity, VolumetricComponent)
+  const volumetric = useComponent(entity, LegacyVolumetricComponent)
   const component = useComponent(entity, UVOL1Component)
   const shadow = useOptionalComponent(entity, ShadowComponent)
   const videoElement = getMutableComponent(entity, MediaElementComponent).value
@@ -179,7 +184,7 @@ function UVOL1Reactor() {
     volumetric.currentTrackInfo.duration.set(component.data.frameData.length / component.data.frameRate.value)
 
     return () => {
-      removeObjectFromGroup(entity, mesh)
+      removeComponent(entity, ObjectComponent)
       videoTexture.dispose()
       const numberOfFrames = component.data.value.frameData.length
       removePlayedBuffer(numberOfFrames)
@@ -244,7 +249,7 @@ function UVOL1Reactor() {
         component.loadingEffectStarted.set(true)
       }
 
-      addObjectToGroup(entity, mesh)
+      setComponent(entity, ObjectComponent, mesh)
     }
 
     prepareMesh()

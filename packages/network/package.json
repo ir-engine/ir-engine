@@ -8,17 +8,20 @@
   "description": "Networking abstractions and APIs for the Infinite Reality Engine",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "test": "mocha --jobs 1"
+    "test": "cross-env TEST=true vitest run --config=../../vitest.client.config.ts",
+    "test-coverage": "npm run test-coverage-generate ; npm run test-coverage-launch",
+    "test-coverage-generate": "npm run test -- --coverage --silent",
+    "test-coverage-launch": "vite preview --open --outDir coverage"
   },
   "repository": "http://github.com/ir-engine/ir-engine",
   "author": "Infinite Reality Engine",
   "license": "CPAL",
   "dependencies": {
     "@ir-engine/ecs": "^1.6.0",
-    "@ir-engine/hyperflux": "^1.6.0"
+    "@ir-engine/hyperflux": "^1.6.0",
+    "msgpackr": "^1.9.2"
   },
   "devDependencies": {
-    "@types/mocha": "10.0.1",
     "@types/node": "18.15.5",
     "rimraf": "4.4.0",
     "three": "0.158.0"

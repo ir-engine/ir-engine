@@ -24,51 +24,35 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { AmbientLight, ColorRepresentation } from 'three'
+import { AmbientLight } from 'three'
 
-import { defineComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { matches } from '@ir-engine/hyperflux'
+import { defineComponent, removeComponent, setComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
 
-import { matchesColor } from '../../../common/functions/MatchesUtils'
-import { useDisposable } from '../../../resources/resourceHooks'
-import { addObjectToGroup, removeObjectFromGroup } from '../GroupComponent'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { T } from '../../../schema/schemaFunctions'
+import { ObjectComponent } from '../ObjectComponent'
 import { LightTagComponent } from './LightTagComponent'
 
 export const AmbientLightComponent = defineComponent({
   name: 'AmbientLightComponent',
   jsonID: 'EE_ambient_light',
 
-  onInit: (entity) => {
-    return {
-      color: 0xffffff as ColorRepresentation,
-      intensity: 1
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matchesColor.test(json.color)) component.color.set(json.color)
-    if (matches.number.test(json.intensity)) component.intensity.set(json.intensity)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      color: component.color.value,
-      intensity: component.intensity.value
-    }
-  },
+  schema: S.Object({
+    color: T.Color(0xffffff),
+    intensity: S.Number(1)
+  }),
 
   reactor: function () {
     const entity = useEntityContext()
     const ambientLightComponent = useComponent(entity, AmbientLightComponent)
-    const [light] = useDisposable(AmbientLight, entity)
+    const light = useHookstate(() => new AmbientLight()).value as AmbientLight
 
-    useEffect(() => {
+    useImmediateEffect(() => {
       setComponent(entity, LightTagComponent)
-      addObjectToGroup(entity, light)
+      setComponent(entity, ObjectComponent, light)
       return () => {
-        removeObjectFromGroup(entity, light)
+        removeComponent(entity, ObjectComponent)
       }
     }, [])
 

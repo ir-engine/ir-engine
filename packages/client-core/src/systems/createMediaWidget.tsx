@@ -23,13 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createXRUI } from '@ir-engine/spatial/src/xrui/functions/createXRUI'
-import { Widget, Widgets } from '@ir-engine/spatial/src/xrui/Widgets'
+import { createXRUI } from '@ir-engine/engine/src/xrui/createXRUI'
+import { Widget, Widgets } from './Widgets'
 
-import { UserMediaWindowsWidget } from '../components/UserMediaWindows'
+import { VideoWindowsWidget } from '../user/VideoWindows'
 
 export function createMediaWidget() {
-  const ui = createXRUI(UserMediaWindowsWidget)
+  const ui = createXRUI(VideoWindowsWidget)
   // removeComponent(ui.entity, VisibleComponent)
 
   const widget: Widget = {

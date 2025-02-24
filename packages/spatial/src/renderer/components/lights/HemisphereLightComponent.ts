@@ -24,65 +24,50 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { ColorRepresentation, HemisphereLight } from 'three'
+import { HemisphereLight, HemisphereLightHelper } from 'three'
 
 import {
+  S,
   defineComponent,
   removeComponent,
   setComponent,
   useComponent,
+  useEntityContext,
   useOptionalComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { matches, useMutableState } from '@ir-engine/hyperflux'
+} from '@ir-engine/ecs'
+import { NO_PROXY, useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
-import { LightHelperComponent } from '../../../common/debug/LightHelperComponent'
-import { matchesColor } from '../../../common/functions/MatchesUtils'
-import { useDisposable } from '../../../resources/resourceHooks'
+import { ActiveHelperComponent } from '../../../common/ActiveHelperComponent'
+import { useHelperEntity } from '../../../common/debug/useHelperEntity'
+import { T } from '../../../schema/schemaFunctions'
 import { RendererState } from '../../RendererState'
-import { addObjectToGroup, removeObjectFromGroup } from '../GroupComponent'
+import { ObjectComponent } from '../ObjectComponent'
 import { LightTagComponent } from './LightTagComponent'
 
 export const HemisphereLightComponent = defineComponent({
   name: 'HemisphereLightComponent',
   jsonID: 'EE_hemisphere_light',
 
-  onInit: (entity) => {
-    return {
-      skyColor: 0xffffff as ColorRepresentation,
-      groundColor: 0xffffff as ColorRepresentation,
-      intensity: 1
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matchesColor.test(json.skyColor)) component.skyColor.set(json.skyColor)
-    if (matchesColor.test(json.groundColor)) component.groundColor.set(json.groundColor)
-    if (matches.number.test(json.intensity)) component.intensity.set(json.intensity)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      skyColor: component.skyColor.value,
-      groundColor: component.groundColor.value,
-      intensity: component.intensity.value
-    }
-  },
+  schema: S.Object({
+    skyColor: T.Color(0xffffff),
+    groundColor: T.Color(0xffffff),
+    intensity: S.Number(1)
+  }),
 
   reactor: function () {
     const entity = useEntityContext()
     const hemisphereLightComponent = useComponent(entity, HemisphereLightComponent)
+    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const renderState = useMutableState(RendererState)
-    const debugEnabled = renderState.nodeHelperVisibility
-    const [light] = useDisposable(HemisphereLight, entity)
-    const lightHelper = useOptionalComponent(entity, LightHelperComponent)
+    const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
+    const light = useHookstate(() => new HemisphereLight()).get(NO_PROXY) as HemisphereLight
+    const helperEntity = useHelperEntity(entity, () => new HemisphereLightHelper(light, 100), debugEnabled)
 
-    useEffect(() => {
+    useImmediateEffect(() => {
       setComponent(entity, LightTagComponent)
-      addObjectToGroup(entity, light)
+      setComponent(entity, ObjectComponent, light)
       return () => {
-        removeObjectFromGroup(entity, light)
+        removeComponent(entity, ObjectComponent)
       }
     }, [])
 
@@ -90,23 +75,18 @@ export const HemisphereLightComponent = defineComponent({
       light.groundColor.set(hemisphereLightComponent.groundColor.value)
     }, [hemisphereLightComponent.groundColor])
 
+    const helper = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as
+      | HemisphereLightHelper
+      | undefined
+
     useEffect(() => {
       light.color.set(hemisphereLightComponent.skyColor.value)
-      if (lightHelper) lightHelper.color.set(hemisphereLightComponent.skyColor.value)
-    }, [hemisphereLightComponent.skyColor])
+      if (helper) helper.color = hemisphereLightComponent.skyColor.value
+    }, [!!helper, hemisphereLightComponent.skyColor])
 
     useEffect(() => {
       light.intensity = hemisphereLightComponent.intensity.value
     }, [hemisphereLightComponent.intensity])
-
-    useEffect(() => {
-      if (debugEnabled.value) {
-        setComponent(entity, LightHelperComponent, { name: 'hemisphere-light-helper', light: light })
-      }
-      return () => {
-        removeComponent(entity, LightHelperComponent)
-      }
-    }, [debugEnabled])
 
     return null
   }

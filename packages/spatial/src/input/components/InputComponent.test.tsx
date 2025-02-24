@@ -23,9 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import '@hookstate/core'
 import assert from 'assert'
 import React, { useEffect } from 'react'
 import sinon from 'sinon'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import {
   getComponent,
@@ -39,22 +41,25 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { ReactorReconciler, ReactorRoot, getMutableState, getState, startReactor } from '@ir-engine/hyperflux'
 
 import {
+  EngineState,
   Entity,
   EntityContext,
+  EntityTreeComponent,
   EntityUUID,
   InputSystemGroup,
   SystemDefinitions,
   UndefinedEntity,
   createEntity,
+  isAncestor,
   removeEntity
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { Raycaster } from 'three'
-import { EngineState } from '../../EngineState'
+import { assertArray } from '../../../tests/util/assert'
+import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { initializeSpatialEngine } from '../../initializeEngine'
-import { assertArrayEqual } from '../../physics/components/RigidBodyComponent.test'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
-import { EntityTreeComponent, isAncestor } from '../../transform/components/EntityTree'
+import { ReferenceSpace } from '../../xr/XRState'
 import { ButtonStateMap, MouseScroll, XRStandardGamepadAxes } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 import { DefaultButtonAlias, InputComponent, InputExecutionOrder, InputExecutionSystemGroup } from './InputComponent'
@@ -78,24 +83,11 @@ const InputComponentDefaults: InputComponentData = {
 }
 
 function assertInputComponentEq(A: InputComponentData, B: InputComponentData): void {
-  assertArrayEqual(A.inputSinks, B.inputSinks)
+  assertArray.eq(A.inputSinks, B.inputSinks)
   assert.equal(A.activationDistance, B.activationDistance)
   assert.equal(A.highlight, B.highlight)
   assert.equal(A.grow, B.grow)
-  assertArrayEqual(A.inputSources, B.inputSources)
-}
-
-/** @description Returns whethere or not the given `@param arr` has duplicate values. */
-export function arrayHasDuplicates(arr: any[]): boolean {
-  return new Set(arr).size !== arr.length
-}
-
-export function assertArrayHasDuplicates(arr: any[]) {
-  assert.ok(arrayHasDuplicates(arr))
-}
-
-export function assertArrayHasNoDuplicates(arr: any[]) {
-  assert.ok(!arrayHasDuplicates(arr))
+  assertArray.eq(A.inputSources, B.inputSources)
 }
 
 /** @description Alias to create a dummy entity with an InputComponent. Used for syntax ergonomics. */
@@ -219,22 +211,6 @@ describe('InputComponent', () => {
       const after = getComponent(testEntity, InputComponent)
       assertInputComponentEq(after, Expected)
     })
-
-    it('should not change values of an initialized InputComponent when the data passed had incorrect types', () => {
-      const before = getComponent(testEntity, InputComponent)
-      assertInputComponentEq(before, InputComponentDefaults)
-      const Incorrect = {
-        inputSinks: false,
-        activationDistance: false,
-        highlight: 46 & 2,
-        grow: 'invalid',
-        inputSources: [] as Entity[]
-      }
-      // @ts-ignore Override the linter to force-send invalid types
-      setComponent(testEntity, InputComponent, Incorrect)
-      const after = getComponent(testEntity, InputComponent)
-      assertInputComponentEq(after, InputComponentDefaults)
-    })
   }) // << onSet
 
   describe('toJSON', () => {
@@ -324,10 +300,10 @@ describe('InputComponent', () => {
         parentEntity,
         parentEntity
       ]
-      assertArrayHasDuplicates(DummyList)
+      assertArray.hasDuplicates(DummyList)
       getMutableComponent(parentEntity, InputSinkComponent).inputEntities.set(DummyList)
       const result = InputComponent.getInputEntities(testEntity)
-      assertArrayHasNoDuplicates(result)
+      assertArray.hasNoDuplicates(result)
       assert.ok(
         !result.includes(testEntity),
         'the result should not contain the given entity if it does not have an InputComponent'
@@ -390,7 +366,7 @@ describe('InputComponent', () => {
       // 3. We retrieve DummyList4 from the inputSources of entity `four`, which are accessed from the parentEntity.InputSinkComponent
       const result = InputComponent.getInputSourceEntities(testEntity)
       assert.ok(result.length > 0, 'The result should not be empty')
-      assertArrayEqual(
+      assertArray.eq(
         result,
         Expected,
         'The result should contain the expected lists of inputSources combined, no matter what their values are'
@@ -762,7 +738,10 @@ describe('InputComponent', () => {
       const WrongOther = 21
       setComponent(testEntity, InputSourceComponent)
       const DummyAxes = [HorizontalScroll, VerticalScroll, WrongBigger, WrongOther] as Axes
-      getMutableComponent(testEntity, InputSourceComponent).set(getDummyAxes(DummyAxes))
+      // mock reference space
+      // @ts-ignore
+      ReferenceSpace.viewer = {}
+      setComponent(testEntity, InputSourceComponent, getDummyAxes(DummyAxes))
       const result = InputComponent.getMergedAxesForInputSources([testEntity], SomeAliasList)
       assert.notEqual(result.SomeAxisOne, undefined)
       assert.notEqual(result.SomeWrongAxis, undefined)
@@ -808,8 +787,8 @@ describe('InputComponent', () => {
       setComponent(two, InputSourceComponent)
       const DummyAxes1 = [BiggerX, OtherY, BiggerZ, OtherW] as Axes
       const DummyAxes2 = [OtherX, BiggerY, OtherZ, BiggerW] as Axes
-      getMutableComponent(one, InputSourceComponent).set(getDummyAxes(DummyAxes1))
-      getMutableComponent(two, InputSourceComponent).set(getDummyAxes(DummyAxes2))
+      setComponent(one, InputSourceComponent, getDummyAxes(DummyAxes1))
+      setComponent(two, InputSourceComponent, getDummyAxes(DummyAxes2))
       // Create an inputSink entity that holds entity source one
       const sinkEntity = createEntity()
       setComponent(sinkEntity, InputComponent)
@@ -827,7 +806,7 @@ describe('InputComponent', () => {
       const resultArray = [merged[0], merged[1], merged[2], merged[3]] as Axes
       // Check that the result is what we expect it to be
       const Expected = [BiggerX, BiggerY, BiggerZ, BiggerW] as Axes
-      assertArrayEqual(resultArray, Expected)
+      assertArray.eq(resultArray, Expected)
       assert.equal(merged.HorizontalScroll, Expected[MouseScroll.HorizontalScroll])
       assert.equal(merged.VerticalScroll, Expected[MouseScroll.VerticalScroll])
     })
@@ -887,7 +866,7 @@ describe('InputComponent', () => {
       syst.execute()
       root.run()
       // Check that we have run the correct number of times, after having reacted to the inputSources change
-      assert.equal(reactorSpy.callCount, 3)
+      assert.equal(reactorSpy.callCount, 4)
       assert.equal(effectSpy.callCount, 2)
       const afterOne = InputComponent.getInputSourceEntities(testEntity)
       assert.ok(afterOne.length > 0, 'getInputSourceEntities for testEntity should return an array containing entities')
@@ -904,14 +883,14 @@ describe('InputComponent', () => {
       syst.execute()
 
       // Check the spies and the list of sources after running the system and the reactor
-      assert.equal(reactorSpy.callCount, 4)
+      assert.equal(reactorSpy.callCount, 5)
       assert.equal(effectSpy.callCount, 2)
       const afterTwo = InputComponent.getInputSourceEntities(testEntity).length == 0
       assert.ok(afterTwo, 'getInputSourceEntities for testEntity should return an empty array after we clear it')
 
       // Check that everything is updated as expected after running the reactor root
       root.run()
-      assert.equal(reactorSpy.callCount, 5)
+      assert.equal(reactorSpy.callCount, 6)
       assert.equal(effectSpy.callCount, 3)
     })
   })
@@ -1008,7 +987,7 @@ describe('InputComponent', () => {
           const root = startReactor(() => {
             return React.createElement(EntityContext.Provider, { value: testEntity }, React.createElement(Reactor, {}))
           }) as ReactorRoot
-          assert.equal(reactorSpy.callCount, 1)
+          assert.equal(reactorSpy.callCount, 2)
           assert.ok(!executeSpy.called)
           root.run()
           // Extract the useExecute system out of the global list of SystemDefinitions array
@@ -1027,7 +1006,7 @@ describe('InputComponent', () => {
           assert.equal(ConditionAncestor, !isAncestor(getState(InputState).capturingEntity, testEntity, true))
 
           // Check the test
-          assert.equal(reactorSpy.callCount, 2)
+          assert.equal(reactorSpy.callCount, 3)
           // assert.equal(executeSpy.called, ShouldRun)
         })
       })
@@ -1102,7 +1081,7 @@ describe('InputComponent', () => {
     })
 
     it('should add a HighlightComponent to the entity when the InputComponent is set with `highlight: true', async () => {
-      const entity = getState(EngineState).localFloorEntity
+      const entity = getState(ReferenceSpaceState).localFloorEntity
 
       const Expected = { highlight: true, grow: true }
       ReactorReconciler.flushSync(() => {

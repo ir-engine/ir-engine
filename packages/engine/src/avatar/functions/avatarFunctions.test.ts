@@ -23,7 +23,7 @@
 // Infinite Reality Engine. All Rights Reserved.
 // */
 
-// import assert from 'assert'
+// import { assert, describe, it, beforeEach, afterEach, before, after } from 'vitest'
 // import { AnimationClip, Bone, Group, SkinnedMesh, Vector3 } from 'three'
 
 // import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
@@ -34,7 +34,7 @@
 // import { addComponent, getComponent, setComponent } from '@ir-engine/ecs/srcComponentFunctions'
 // import { createEntity } from '@ir-engine/ecs/srcEntityFunctions'
 // import { createEngine } from '@ir-engine/ecs/src/Engine'
-// import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+// import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 // import { setTransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 // import { AnimationManager } from '../AnimationManager'
 // import { AnimationComponent } from '../components/AnimationComponent'

@@ -23,16 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, EntityUUID, getComponent, hasComponent } from '@ir-engine/ecs'
+import { Entity, EntityUUID, getComponent, hasComponent, LayerComponent } from '@ir-engine/ecs'
 import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 
+import { GLTFComponent } from '../../../gltf/GLTFComponent'
 import { SourceComponent } from '../../components/SourceComponent'
-import { getModelSceneID } from '../../functions/loaders/ModelFunctions'
 
 /**Gets all materials used by child and self entity */
 export const getMaterialsFromScene = (source: Entity) => {
-  const sceneInstanceID = getModelSceneID(source)
-  const childEntities = SourceComponent.entitiesBySource[sceneInstanceID] ?? ([] as Entity[])
+  const sceneInstanceID = GLTFComponent.getInstanceID(source)
+  const childEntities = SourceComponent.getEntitiesBySource(sceneInstanceID, LayerComponent.get(source))
   childEntities.push(source)
   const materials = {} as Record<EntityUUID, Entity>
   for (const entity of childEntities) {

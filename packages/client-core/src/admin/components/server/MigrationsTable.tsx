@@ -55,6 +55,7 @@ export default function MigrationsInfoTable() {
 
   return (
     <DataTable
+      size="sm"
       query={adminMigrationsInfoQuery}
       columns={migrationsInfoColumns}
       rows={createRows(adminMigrationsInfoQuery.data)}

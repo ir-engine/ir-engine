@@ -22,14 +22,16 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import '../../patchEngineNode'
+
 import { Paginated } from '@feathersjs/feathers'
 import assert from 'assert'
+import { afterEach, beforeEach, describe, it } from 'vitest'
 
 import { instancePath, InstanceType } from '@ir-engine/common/src/schemas/networking/instance.schema'
 import { channelUserPath, ChannelUserType } from '@ir-engine/common/src/schemas/social/channel-user.schema'
 import { channelPath, ChannelType } from '@ir-engine/common/src/schemas/social/channel.schema'
 import { RoomCode } from '@ir-engine/common/src/schemas/social/location.schema'
-import { AvatarID } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import { InviteCode, UserName, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
@@ -39,7 +41,7 @@ import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 describe('channel service', () => {
   let app: Application
   beforeEach(async () => {
-    app = createFeathersKoaApp()
+    app = await createFeathersKoaApp()
     await app.setup()
   })
 
@@ -62,9 +64,7 @@ describe('channel service', () => {
     const user = await app.service(userPath).create({
       name: 'user' as UserName,
       isGuest: false,
-      avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     const channel = await app.service(channelPath).create({}, { user })
@@ -108,13 +108,11 @@ describe('channel service', () => {
     const user = await app.service(userPath).create({
       name: 'user' as UserName,
       isGuest: false,
-      avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     const instance = (await app.service(instancePath).create(
-      { roomCode: '' as RoomCode, currentUsers: 0 },
+      { roomCode: '' as RoomCode },
       {
         // @ts-ignore
         isInternal: true
@@ -157,13 +155,11 @@ describe('channel service', () => {
     const user = await app.service(userPath).create({
       name: 'user' as UserName,
       isGuest: false,
-      avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     const instance = (await app.service(instancePath).create(
-      { roomCode: '' as RoomCode, currentUsers: 0 },
+      { roomCode: '' as RoomCode },
       {
         // @ts-ignore
         isInternal: true
@@ -186,13 +182,11 @@ describe('channel service', () => {
     const user = await app.service(userPath).create({
       name: 'user' as UserName,
       isGuest: false,
-      avatarId: '' as AvatarID,
-      inviteCode: '' as InviteCode,
-      scopes: []
+      inviteCode: '' as InviteCode
     })
 
     const instance = (await app.service(instancePath).create(
-      { roomCode: '' as RoomCode, currentUsers: 0 },
+      { roomCode: '' as RoomCode },
       {
         // @ts-ignore
         isInternal: true

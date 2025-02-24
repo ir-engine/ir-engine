@@ -45,6 +45,7 @@ import {
   Vector2
 } from 'three'
 
+import { useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getMutableComponent,
@@ -57,20 +58,19 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState, ECSState as EngineState } from '@ir-engine/ecs/src/ECSState'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { getState, isClient, NO_PROXY_STEALTH, none, State, usePrevious } from '@ir-engine/hyperflux'
 import { isIPhone, isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { AssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { getLoader } from '../../assets/classes/AssetLoader'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { AssetLoaderState } from '../../assets/state/AssetLoaderState'
 import { AudioState } from '../../audio/AudioState'
-import { PlayMode } from '../constants/PlayMode'
 import {
   ASTCTextureTarget,
   AudioFileFormat,
@@ -83,12 +83,14 @@ import {
   TextureType,
   UniformSolveTarget,
   UVOL_TYPE
-} from '../constants/UVOLTypes'
+} from '../constants/LegacyUVOLTypes'
+import { PlayMode } from '../constants/PlayMode'
 import getFirstMesh from '../util/meshUtils'
+import { handleAutoplay, LegacyVolumetricComponent } from './LegacyVolumetricComponent'
 import { MediaElementComponent } from './MediaComponent'
 import { ShadowComponent } from './ShadowComponent'
 import { UVOLDissolveComponent } from './UVOLDissolveComponent'
-import { handleAutoplay, VolumetricComponent } from './VolumetricComponent'
+import { TextureTypeSchema } from './VolumetricComponent'
 
 export const calculatePriority = (manifest: PlayerManifest) => {
   const geometryTargets = Object.keys(manifest.geometry.targets)
@@ -278,77 +280,48 @@ function sortAndMergeBufferMetadata(rangesState: State<BufferMetadata[]>, gapTol
   rangesState.set(mergedRanges)
 }
 
+const BufferMetadataSchema = S.Object({
+  start: S.Number(),
+  end: S.Number(),
+  fetchTime: S.Number()
+})
+
+const InfoItemSchema = S.Object({
+  targets: S.Array(S.String()),
+  userTarget: S.Number(-1), // -1 implies 'auto'
+  currentTarget: S.Number(0),
+  buffered: S.Array(BufferMetadataSchema)
+})
+
 export const UVOL2Component = defineComponent({
   name: 'UVOL2Component',
 
-  onInit: (entity) => {
-    return {
-      canPlay: false,
-      manifestPath: '',
-      data: {} as PlayerManifest,
-      useVideoTexture: true,
-      hasAudio: false,
-      bufferedUntil: 0,
-      geometryInfo: {
-        targets: [] as string[],
-        userTarget: -1, // -1 implies 'auto'
-        currentTarget: 0,
-        buffered: [] as BufferMetadata[]
-      },
-      textureInfo: {
-        textureTypes: [] as TextureType[],
-        baseColor: {
-          targets: [] as string[],
-          userTarget: -1,
-          currentTarget: 0,
-          buffered: [] as BufferMetadata[]
-        },
-        normal: {
-          targets: [] as string[],
-          userTarget: -1,
-          currentTarget: 0,
-          buffered: [] as BufferMetadata[]
-        },
-        metallicRoughness: {
-          targets: [] as string[],
-          userTarget: -1,
-          currentTarget: 0,
-          buffered: [] as BufferMetadata[]
-        },
-        emissive: {
-          targets: [] as string[],
-          userTarget: -1,
-          currentTarget: 0,
-          buffered: [] as BufferMetadata[]
-        },
-        occlusion: {
-          targets: [] as string[],
-          userTarget: -1,
-          currentTarget: 0,
-          buffered: [] as BufferMetadata[]
-        }
-      },
-      initialGeometryBuffersLoaded: false,
-      initialTextureBuffersLoaded: false,
-      firstGeometryFrameLoaded: false,
-      firstTextureFrameLoaded: false,
-      loadingEffectStarted: false,
-      loadingEffectEnded: false
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (json.manifestPath) {
-      component.manifestPath.set(json.manifestPath)
-    }
-    if (json.data) {
-      component.data.set(json.data)
-    }
-  },
+  schema: S.Object({
+    canPlay: S.Bool(false),
+    manifestPath: S.String(''),
+    data: S.Type<PlayerManifest>({} as PlayerManifest),
+    useVideoTexture: S.Bool(true),
+    hasAudio: S.Bool(false),
+    bufferedUntil: S.Number(0),
+    geometryInfo: InfoItemSchema,
+    textureInfo: S.Object({
+      textureTypes: S.Array(TextureTypeSchema),
+      baseColor: InfoItemSchema,
+      normal: InfoItemSchema,
+      metallicRoughness: InfoItemSchema,
+      emissive: InfoItemSchema,
+      occlusion: InfoItemSchema
+    }),
+    initialGeometryBuffersLoaded: S.Bool(false),
+    initialTextureBuffersLoaded: S.Bool(false),
+    firstGeometryFrameLoaded: S.Bool(false),
+    firstTextureFrameLoaded: S.Bool(false),
+    loadingEffectStarted: S.Bool(false),
+    loadingEffectEnded: S.Bool(false)
+  }),
 
   setStartAndPlaybackTime: (entity: Entity, newMediaStartTime: number, newPlaybackStartDate: number) => {
-    const volumetric = getMutableComponent(entity, VolumetricComponent)
+    const volumetric = getMutableComponent(entity, LegacyVolumetricComponent)
 
     volumetric.currentTrackInfo.merge({
       playbackStartDate: newPlaybackStartDate,
@@ -488,7 +461,7 @@ type KeyframeName = KeyframePositionName | KeyframeNormalName
 
 function UVOL2Reactor() {
   const entity = useEntityContext()
-  const volumetric = useComponent(entity, VolumetricComponent)
+  const volumetric = useComponent(entity, LegacyVolumetricComponent)
   const component = useComponent(entity, UVOL2Component)
   const shadow = useOptionalComponent(entity, ShadowComponent)
 

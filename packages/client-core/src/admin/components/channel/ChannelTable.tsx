@@ -25,18 +25,19 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiPencil, HiTrash } from 'react-icons/hi2'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import { channelPath, ChannelType } from '@ir-engine/common/src/schema.type.module'
 import { State } from '@ir-engine/hyperflux'
+import { Checkbox } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
+import { validate as isValidUUID } from 'uuid'
 
+import { Edit01Lg, Trash04Lg } from '@ir-engine/ui/src/icons'
 import { channelColumns, ChannelRowType } from '../../common/constants/channel'
 import DataTable from '../../common/Table'
+import ActionButton from '../ActionButton'
 import AddEditChannelModal from './AddEditChannelModal'
 
 export default function ChannelTable({
@@ -64,9 +65,7 @@ export default function ChannelTable({
     {
       $or: [
         {
-          id: {
-            $like: `%${search}%`
-          }
+          id: isValidUUID(search) ? search : undefined
         },
         {
           name: {
@@ -82,7 +81,7 @@ export default function ChannelTable({
     rows.map((row) => ({
       select: (
         <Checkbox
-          value={selectedChannels.value.findIndex((invite) => invite.id === row.id) !== -1}
+          checked={selectedChannels.value.findIndex((invite) => invite.id === row.id) !== -1}
           onChange={(value) => {
             if (value) selectedChannels.merge([row])
             else selectedChannels.set((prevInvites) => prevInvites.filter((invite) => invite.id !== row.id))
@@ -93,19 +92,15 @@ export default function ChannelTable({
       name: row.name,
       action: (
         <div className="flex items-center justify-start gap-3">
-          <Button
-            rounded="full"
-            variant="outline"
-            className="h-8 w-8"
+          <ActionButton
+            icon={Edit01Lg}
             title={t('admin:components.common.view')}
             onClick={() => PopoverState.showPopupover(<AddEditChannelModal channel={row} />)}
-          >
-            <HiPencil className="place-self-center text-theme-iconGreen" />
-          </Button>
-          <Button
-            rounded="full"
-            variant="outline"
-            className="h-8 w-8"
+            variant="green"
+          />
+
+          <ActionButton
+            icon={Trash04Lg}
             title={t('admin:components.common.delete')}
             onClick={() =>
               PopoverState.showPopupover(
@@ -117,22 +112,22 @@ export default function ChannelTable({
                 />
               )
             }
-          >
-            <HiTrash className="place-self-center text-theme-iconRed" />
-          </Button>
+            variant="red"
+          />
         </div>
       )
     }))
 
   return (
     <DataTable
+      size="xl"
       query={adminChannelsQuery}
       columns={[
         {
           id: 'select',
           label: (
             <Checkbox
-              value={selectedChannels.length === adminChannelsQuery.data.length}
+              checked={selectedChannels.length === adminChannelsQuery.data.length}
               onChange={(value) => {
                 if (value) selectedChannels.set(adminChannelsQuery.data.slice())
                 else selectedChannels.set([])

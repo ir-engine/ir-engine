@@ -30,26 +30,27 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { ProjectService } from '@ir-engine/client-core/src/common/services/ProjectService'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
-import { userHasAccess } from '@ir-engine/client-core/src/user/userHasAccess'
 import { useFind } from '@ir-engine/common'
 import multiLogger from '@ir-engine/common/src/logger'
-import { ProjectType, projectPath } from '@ir-engine/common/src/schema.type.module'
+import {
+  ProjectType,
+  ScopeType,
+  identityProviderPath,
+  projectPath,
+  scopePath
+} from '@ir-engine/common/src/schema.type.module'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
+import { Engine } from '@ir-engine/ecs'
+import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import Accordion from '@ir-engine/ui/src/primitives/tailwind/Accordion'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
-import Checkbox from '@ir-engine/ui/src/primitives/tailwind/Checkbox'
-import Input from '@ir-engine/ui/src/primitives/tailwind/Input'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React, { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-  MdArrowDropDown,
-  MdArrowRight,
   MdDownload,
   MdDownloadDone,
   MdFilterList,
@@ -167,8 +168,26 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
       $sort: { name: 1 }
     }
   })
-  const hasWriteAccess =
-    projectContextState.project?.hasWriteAccess || (userHasAccess('admin:admin') && userHasAccess('projects:write'))
+
+  const adminScopeQuery = useFind(scopePath, {
+    query: {
+      userId: Engine.instance.userID,
+      type: 'admin:admin' as ScopeType
+    }
+  })
+
+  const hasAdminAccess = adminScopeQuery.data.length > 0
+
+  const editorScopeQuery = useFind(scopePath, {
+    query: {
+      userId: Engine.instance.userID,
+      type: 'projects:write' as ScopeType
+    }
+  })
+
+  const hasProjectAccess = editorScopeQuery.data.length > 0
+
+  const hasWriteAccess = projectContextState.project?.hasWriteAccess || (hasAdminAccess && hasProjectAccess)
 
   const installedProjects = projectFindQuery.data.filter(() => projectCategoryFilter.installed.value)
 
@@ -326,7 +345,8 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
   const authState = useMutableState(AuthState)
   const authUser = authState.authUser
   const user = authState.user
-  const githubProvider = user.identityProviders.value?.find((ip) => ip.type === 'github')
+  const identityProvidersQuery = useFind(identityProviderPath)
+  const githubProvider = identityProvidersQuery.data.find((ip) => ip.type === 'github')
 
   if (!authUser?.accessToken.value || authUser.accessToken.value.length === 0 || !user?.id.value) return <></>
 
@@ -353,7 +373,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
 
         <div className="flex items-center justify-between gap-3">
           {githubProvider && (
-            <Button onClick={refreshGithubRepoAccess} variant="outline">
+            <Button onClick={refreshGithubRepoAccess} variant="tertiary">
               {refreshingGithubRepoAccess.value ? (
                 <>
                   <LoadingView className="mr-2 h-10 w-10" />
@@ -369,7 +389,7 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
             onClick={() => {
               PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={false} />)
             }}
-            variant="outline"
+            variant="tertiary"
           >
             {t('editor.projects.install')}
           </Button>
@@ -385,54 +405,36 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
         <div className="flex w-fit flex-col gap-4 rounded-lg border bg-neutral-900 p-2 shadow-lg">
           <Checkbox
             label={t('editor.projects.installed')}
-            value={projectCategoryFilter.installed.value}
+            checked={projectCategoryFilter.installed.value}
             onChange={() => toggleFilter('installed')}
           />
           <Checkbox
             label={t('editor.projects.official')}
-            value={projectCategoryFilter.official.value}
+            checked={projectCategoryFilter.official.value}
             onChange={() => toggleFilter('official')}
           />
           <Checkbox
             label={t('editor.projects.community')}
-            value={projectCategoryFilter.community.value}
+            checked={projectCategoryFilter.community.value}
             onChange={() => toggleFilter('community')}
           />
         </div>
       </ContextMenu>
 
       {installedProjects.length > 0 && (
-        <Accordion
-          title={`${t('editor.projects.installed')} (${installedProjects.length})`}
-          expandIcon={<MdArrowRight className="text-2xl" />}
-          shrinkIcon={<MdArrowDropDown className="text-2xl" />}
-          className="mb-3 mt-5 w-3/4"
-          open={true}
-        >
+        <Accordion title={`${t('editor.projects.installed')} (${installedProjects.length})`} open={true}>
           {renderProjectList(installedProjects, true)}
         </Accordion>
       )}
 
       {officialProjects.length > 0 && (
-        <Accordion
-          title={`${t('editor.projects.official')} (${officialProjects.length})`}
-          expandIcon={<MdArrowRight className="text-2xl" />}
-          shrinkIcon={<MdArrowDropDown className="text-2xl" />}
-          className="mb-3 w-3/4"
-          open={true}
-        >
+        <Accordion title={`${t('editor.projects.official')} (${officialProjects.length})`} open={true}>
           {renderProjectList(officialProjects)}
         </Accordion>
       )}
 
       {communityProjects.length > 0 && (
-        <Accordion
-          title={`${t('editor.projects.community')} (${communityProjects.length})`}
-          expandIcon={<MdArrowRight className="text-2xl" />}
-          shrinkIcon={<MdArrowDropDown className="text-2xl" />}
-          className="w-3/4"
-          open={true}
-        >
+        <Accordion title={`${t('editor.projects.community')} (${communityProjects.length})`} open={true}>
           {renderProjectList(communityProjects)}
         </Accordion>
       )}
@@ -452,10 +454,10 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
                   PopoverState.showPopupover(<ManageUserPermissionModal project={projectContextState.project} />)
                 }
               }}
-              startIcon={<MdGroup className="text-2xl" />}
-              variant="outline"
+              variant="tertiary"
               fullWidth
             >
+              <MdGroup className="text-2xl" />
               {t('editor.projects.permissions')}
             </Button>
           )}
@@ -471,10 +473,10 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
                     PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={true} />)
                   }
                 }}
-                startIcon={<MdDownload className="text-2xl" />}
-                variant="outline"
+                variant="tertiary"
                 fullWidth
               >
+                <MdDownload className="text-2xl" />
                 {t('editor.projects.updateFromGithub')}
               </Button>
             )}
@@ -490,10 +492,10 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
                     PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={true} />)
                   }
                 }}
-                startIcon={<MdLink className="text-2xl" />}
-                variant="outline"
+                variant="tertiary"
                 fullWidth
               >
+                <MdLink className="text-2xl" />
                 {t('editor.projects.link')}
               </Button>
             )}
@@ -509,35 +511,35 @@ const ProjectPage = ({ studioPath }: { studioPath: string }) => {
                     PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={true} />)
                   }
                 }}
-                startIcon={<MdLinkOff className="text-2xl" />}
-                variant="outline"
+                variant="tertiary"
                 fullWidth
               >
+                <MdLinkOff className="text-2xl" />
                 {t('editor.projects.unlink')}
               </Button>
             )}
 
           {isInstalled(projectContextState.project) && hasWriteAccess && hasRepo(projectContextState.project) && (
             <Button
-              startIcon={uploadingProject.value ? <LoadingView className="h-6 w-6" /> : <MdUpload />}
               onClick={() => projectContextState.project?.id && pushProject(projectContextState.project?.id)}
-              variant="outline"
+              variant="tertiary"
               fullWidth
             >
+              {uploadingProject.value ? <LoadingView className="h-6 w-6" /> : <MdUpload />}
               {t('editor.projects.pushToGithub')}
             </Button>
           )}
 
           {!isInstalled(projectContextState.project) && (
             <Button
-              startIcon={<MdDownload className="text-2xl" />}
               onClick={() => {
                 setProjectContextState({ event: undefined, project: null })
                 PopoverState.showPopupover(<AddEditProjectModal onSubmit={handleProjectUpdate} update={false} />)
               }}
-              variant="outline"
+              variant="tertiary"
               fullWidth
             >
+              <MdDownload className="text-2xl" />
               {t(`editor.projects.install`)}
             </Button>
           )}

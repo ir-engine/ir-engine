@@ -10,7 +10,7 @@
         "videoEnabled": "Video Enabled",
         "action": "Action"
       },
-      "lbl-name": "Name",
+      "lbl-name": "Title",
       "lbl-maxuser": "Max Users",
       "lbl-scene": "Scene",
       "lbl-ve": "Video Enabled",
@@ -27,6 +27,7 @@
       "selectScene": "Select a Scene",
       "sceneCantEmpty": "Scene can't be empty",
       "maxUserCantEmpty": "Max users can't be empty",
+      "maxUserExceeded": "You have entered higher than the allowed max users. Please enter a number between 1 and 5.",
       "nameCantEmpty": "Name can't be empty",
       "typeCantEmpty": "Type can't be empty",
       "nameRequired": "Name is required",
@@ -331,7 +332,7 @@
       "count": "Count",
       "kick": "Kick",
       "ban": "Ban",
-      "unban" : "Unban",
+      "unban": "Unban",
       "banned": "Banned till {{duration}}",
       "kickDuration": "Kick Duration",
       "confirmUserBan": "Are you sure you want to ban this user?",
@@ -372,6 +373,8 @@
       "service": "Service",
       "githubAppId": "App ID (Enter for GitHub App, omit for OAuth App)",
       "secret": "Secret",
+      "jwtAlgorithm": "JWT Algorithm",
+      "jwtPublicKey": "JWT Public Key",
       "entity": "Entity",
       "authStrategies": "Authentication Strategies",
       "userName": "User Name",
@@ -493,6 +496,11 @@
       "performDryRun": "Perform Dry Run",
       "storageProvider": "Storage Provider",
       "googleAnalyticsMeasurementId": "Google Analytics Measurement ID",
+      "googleTagManagerContainerId": "Google Tag Manager Container ID",
+      "googleTagManagerAuth": "Google Tag Manager Auth",
+      "googleTagManagerAuthDescription": "Auth token for testing, see custom environments.",
+      "googleTagManagerPreview": "Google Tag Manager Preview",
+      "googleTagManagerPreviewDescription": "Environment to test, see custom environments.",
       "certPath": "CertPath",
       "keyPath": "KeyPath",
       "githubWebhookSecret": "Github Webhook Secret",
@@ -532,6 +540,8 @@
       "screenshareMidResMaxBitrate": "Screenshare mid-res video max bitrate (kbps)",
       "screenshareHighResMaxBitrate": "Screenshare high-res video max bitrate (kbps)",
       "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms Of Service",
+      "assistanceLink": "Assistance",
       "webRTCSettings": {
         "main": "WebRTC Settings",
         "useCustomICEServers": "Use custom iceServers configuration",
@@ -553,6 +563,7 @@
         "save": "Save",
         "delete": "Delete",
         "add": "Add",
+        "showAssetOnly": "Show Asset Only Projects",
         "noSettingsMessage": "No settings available",
         "duplicateKey": "Duplicate keys cannot exist",
         "keyName": "Key Name",
@@ -590,14 +601,6 @@
       "zendesk": {
         "header": "Zendesk",
         "subtitle": "Edit Zendesk Settings"
-      },
-      "mailchimp": {
-        "header": "Mailchimp",
-        "subtitle": "Edit Mailchimp Settings", 
-        "key": "Key", 
-        "server": "Server",
-        "audienceId": "Audience Id",
-        "defaultTags": "Default Tags (comma separated)"
       },
       "keyName": "key Name",
       "kid": "Key Id"
@@ -660,8 +663,9 @@
         "avatar": "Avatar",
         "accountIdentifier": "Linked Accounts",
         "lastLogin": "Last Login",
-        "acceptedTOS": "TOS Agreed",
+        "ageVerified": "Age Verified (13 or above)",
         "isGuest": "Is Guest",
+        "createdAt": "Created",
         "action": "Action"
       },
       "users": "Users",
@@ -741,18 +745,18 @@
       "viewLogs": "View Logs",
       "columns": {
         "migrationsInfo": {
-        "id": "ID",
-        "name": "Name",
-        "batch": "Batch",
-        "migration_time": "Migration Time"
+          "id": "ID",
+          "name": "Name",
+          "batch": "Batch",
+          "migration_time": "Migration Time"
         },
         "apiJobs": {
-        "id": "ID",
-        "name": "Name",
-        "status": "Status",
-        "start_time": "Start Time",
-        "end_time": "End Time",
-        "return_data": "Return Data"
+          "id": "ID",
+          "name": "Name",
+          "status": "Status",
+          "start_time": "Start Time",
+          "end_time": "End Time",
+          "return_data": "Return Data"
         }
       }
     },

@@ -27,6 +27,7 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import {
   Engine,
   Entity,
+  EntityTreeComponent,
   UUIDComponent,
   UndefinedEntity,
   defineQuery,
@@ -34,44 +35,26 @@ import {
   getComponent,
   getOptionalComponent,
   removeComponent,
-  setComponent,
-  useOptionalComponent
+  setComponent
 } from '@ir-engine/ecs'
 import { AssetExt, FileToAssetExt } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { GLTFDocumentState, GLTFSnapshotAction } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
-import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { useEntityErrors } from '@ir-engine/engine/src/scene/components/ErrorComponent'
-import { ModelComponent } from '@ir-engine/engine/src/scene/components/ModelComponent'
+import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { entityJSONToGLTFNode } from '@ir-engine/engine/src/scene/functions/GLTFConversion'
 import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
-import { getModelSceneID } from '@ir-engine/engine/src/scene/functions/loaders/ModelFunctions'
-import { toEntityJson } from '@ir-engine/engine/src/scene/functions/serializeWorld'
-import {
-  NO_PROXY,
-  defineState,
-  dispatchAction,
-  getMutableState,
-  getState,
-  useHookstate,
-  useState
-} from '@ir-engine/hyperflux'
+import { NO_PROXY, defineState, getMutableState, getState, useHookstate, useState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
 import { MouseScroll } from '@ir-engine/spatial/src/input/state/ButtonState'
 import { Physics } from '@ir-engine/spatial/src/physics/classes/Physics'
-import { GroupComponent } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
-import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { ObjectLayerComponents } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { HolographicMaterial } from '@ir-engine/spatial/src/renderer/materials/prototypes/HolographicMaterial.mat'
-import { EntityTreeComponent, iterateEntityNode } from '@ir-engine/spatial/src/transform/components/EntityTree'
 import { TransformDirtyCleanupSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import React, { useEffect } from 'react'
-import { Euler, Material, Mesh, Quaternion, Raycaster, Vector3 } from 'three'
+import { Euler, Material, Mesh, Object3D, Quaternion, Raycaster, Vector3 } from 'three'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
@@ -115,20 +98,7 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
   const clickState = useState(getMutableState(ClickPlacementState))
   const editorState = useState(getMutableState(EditorHelperState))
   const sceneLoaded = GLTFComponent.useSceneLoaded(parentEntity)
-  const errors = useEntityErrors(clickState.placementEntity.value, ModelComponent)
-
-  // const renderers = defineQuery([RendererComponent])
-
-  // useEffect(() => {
-  //   const placementMode = editorState.placementMode.value
-  //   const renderer = getComponent(renderers()[0], RendererComponent)
-  //   const canvas = renderer.canvas
-  //   if (placementMode === PlacementMode.CLICK) {
-  //     canvas.addEventListener('click', clickListener)
-  //   } else {
-  //     canvas.removeEventListener('click', clickListener)
-  //   }
-  // }, [editorState.placementMode])
+  const errors = ErrorComponent.useComponentErrors(clickState.placementEntity.value, GLTFComponent)
 
   useEffect(() => {
     if (!sceneLoaded) return
@@ -145,20 +115,27 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
       clickState.placementEntity.set(UndefinedEntity)
       SelectionState.updateSelection(selectedEntities)
     }
-  }, [editorState.placementMode, sceneLoaded])
+  }, [editorState.placementMode.value, sceneLoaded])
 
   useEffect(() => {
     if (!clickState.placementEntity.value) return
     const assetURL = clickState.selectedAsset.get(NO_PROXY)
     const placementEntity = clickState.placementEntity.value
-    if (getComponent(placementEntity, ModelComponent)?.src === assetURL) return
+    if (getComponent(placementEntity, GLTFComponent)?.src === assetURL) return
     updatePlacementEntitySnapshot(placementEntity)
-  }, [clickState.selectedAsset, clickState.placementEntity])
+  }, [clickState.selectedAsset.value, clickState.placementEntity.value])
 
   useEffect(() => {
-    if (!errors || !errors.value) return
+    if (
+      !errors?.value ||
+      !clickState.selectedAsset.value ||
+      !clickState.placementEntity.value ||
+      !getComponent(clickState.placementEntity.value, GLTFComponent)?.src ||
+      getComponent(clickState.placementEntity.value, GLTFComponent)?.src === clickState.selectedAsset.value
+    )
+      return
     ClickPlacementState.assetError()
-  }, [errors])
+  }, [errors, clickState.selectedAsset.value])
 
   return (
     <PlacementModelReactor key={clickState.placementEntity.value} placementEntity={clickState.placementEntity.value} />
@@ -166,22 +143,22 @@ const ClickPlacementReactor = (props: { parentEntity: Entity }) => {
 }
 
 const PlacementModelReactor = (props: { placementEntity: Entity }) => {
-  const clickState = useState(getMutableState(ClickPlacementState))
-  const sceneState = useHookstate(getMutableState(GLTFDocumentState))
-  const placementModel = useOptionalComponent(props.placementEntity, ModelComponent)
+  // const clickState = useState(getMutableState(ClickPlacementState))
+  // const sceneState = useHookstate(getMutableState(GLTFDocumentState))
+  // const placementModel = useOptionalComponent(props.placementEntity, GLTFComponent)
 
-  useEffect(() => {
-    if (!placementModel) return
-    const sceneID = getModelSceneID(props.placementEntity)
-    if (!sceneState.scenes[sceneID]) return
-    iterateEntityNode(props.placementEntity, (entity) => {
-      const mesh = getOptionalComponent(entity, MeshComponent)
-      if (!mesh) return
-      const material = mesh.material as Material
-      clickState.materialCache.set((prev) => [...prev, [mesh, material]])
-      mesh.material = new HolographicMaterial({})
-    })
-  }, [placementModel?.scene, sceneState.scenes.keys])
+  // useEffect(() => {
+  //   if (placementModel?.progress?.value !== 100) return
+  //   const sceneID = GLTFComponent.getInstanceID(props.placementEntity)
+  //   if (!sceneState.scenes[sceneID]) return
+  //   iterateEntityNode(props.placementEntity, (entity) => {
+  //     const mesh = getOptionalComponent(entity, MeshComponent)
+  //     if (!mesh) return
+  //     const material = mesh.material as Material
+  //     clickState.materialCache.set((prev) => [...prev, [mesh, material]])
+  //     mesh.material = new HolographicMaterial({})
+  //   })
+  // }, [placementModel?.progress?.value === 100, sceneState.scenes.keys])
 
   return null
 }
@@ -194,34 +171,34 @@ const getParentEntity = () => {
 
 const updatePlacementEntitySnapshot = (placementEntity: Entity) => {
   const selectedAsset = getState(ClickPlacementState).selectedAsset
-  if (selectedAsset) setComponent(placementEntity, ModelComponent, { src: getState(ClickPlacementState).selectedAsset })
-  else removeComponent(placementEntity, ModelComponent)
+  if (selectedAsset) setComponent(placementEntity, GLTFComponent, { src: selectedAsset })
+  else removeComponent(placementEntity, GLTFComponent)
 
-  const sceneID = getComponent(placementEntity, SourceComponent)
-  const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
-  const uuid = getComponent(placementEntity, UUIDComponent)
-  const nodeIndex = snapshot.data.nodes!.findIndex(
-    (value) => value.extensions && value.extensions[UUIDComponent.jsonID] === uuid
-  )
-  const entityJson = toEntityJson(placementEntity)
-  const entityGLTFNode = entityJSONToGLTFNode(entityJson, uuid)
-  delete entityGLTFNode.matrix
-  snapshot.data.nodes![nodeIndex] = entityGLTFNode
-  dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
+  // const sceneID = getComponent(placementEntity, SourceComponent)
+  // const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+  // const uuid = getComponent(placementEntity, UUIDComponent)
+  // const nodeIndex = snapshot.data.nodes!.findIndex(
+  //   (value) => value.extensions && value.extensions[NodeIDComponent.jsonID] === uuid
+  // )
+  // const entityJson = toEntityJson(placementEntity)
+  // const entityGLTFNode = entityJSONToGLTFNode(entityJson, uuid)
+  // delete entityGLTFNode.matrix
+  // snapshot.data.nodes![nodeIndex] = entityGLTFNode
+  // dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
 }
 
 const createPlacementEntitySnapshot = (placementEntity: Entity) => {
-  setComponent(placementEntity, ModelComponent, { src: getState(ClickPlacementState).selectedAsset })
-  const sceneID = getComponent(placementEntity, SourceComponent)
-  const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
-  const uuid = getComponent(placementEntity, UUIDComponent)
-  const entityJson = toEntityJson(placementEntity)
-  const entityGLTFNode = entityJSONToGLTFNode(entityJson, uuid)
-  delete entityGLTFNode.matrix
-  const nodeIndex = snapshot.data.nodes!.length
-  snapshot.data.nodes!.push(entityGLTFNode)
-  snapshot.data.scenes![0].nodes.push(nodeIndex)
-  dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
+  setComponent(placementEntity, GLTFComponent, { src: getState(ClickPlacementState).selectedAsset })
+  // const sceneID = getComponent(placementEntity, SourceComponent)
+  // const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID)
+  // const uuid = getComponent(placementEntity, UUIDComponent)
+  // const entityJson = toEntityJson(placementEntity)
+  // const entityGLTFNode = entityJSONToGLTFNode(entityJson, uuid)
+  // delete entityGLTFNode.matrix
+  // const nodeIndex = snapshot.data.nodes!.length
+  // snapshot.data.nodes!.push(entityGLTFNode)
+  // snapshot.data.scenes![0].nodes.push(nodeIndex)
+  // dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
 }
 
 const createPlacementEntity = (parentEntity: Entity) => {
@@ -247,7 +224,6 @@ const clickListener = () => {
     ObjectGridSnapState.apply()
   } else {
     TransformComponent.updateFromWorldMatrix(placementEntity)
-    EditorControlFunctions.commitTransformSave([placementEntity])
   }
   placedCount += 1
   clickState.placementEntity.set(createPlacementEntity(parentEntity))
@@ -278,11 +254,10 @@ export const ClickPlacementSystem = defineSystem({
     const physicsWorld = Physics.getWorld(editorEntity)
     if (!physicsWorld) return
 
-    //@todo: fix type of `typeof GroupComponent`
-    const sceneObjects: any[] = []
+    const sceneObjects: Object3D[] = []
     const candidates = objectLayerQuery()
     for (const entity of candidates) {
-      const obj = getComponent(entity, GroupComponent)?.[0]
+      const obj = getOptionalComponent(entity, ObjectComponent)
       !!obj && sceneObjects.push(obj)
     }
     //const sceneObjects = Array.from(Engine.instance.objectLayerList[ObjectLayers.Scene] || [])
@@ -327,7 +302,7 @@ export const ClickPlacementSystem = defineSystem({
       const intersectPosition = cameraPosition
         .clone()
         .add(cameraDirection.clone().multiplyScalar(physicsIntersection.toi))
-      intersectEntity = (physicsIntersection.collider.parent() as { userData: { entity: Entity } }).userData.entity
+      intersectEntity = physicsIntersection.collider.parent()!.entity
       const intersectNormal = new Vector3(
         physicsIntersection.normal.x,
         physicsIntersection.normal.y,
@@ -343,7 +318,7 @@ export const ClickPlacementSystem = defineSystem({
     for (let i = 0; i < intersect.length; i++) {
       const intersected = intersect[i]
       if (intersected.distance > clickState.maxDistance.value) continue
-      if (isPlacementDescendant(intersected.object.entity)) continue
+      if (isPlacementDescendant(intersected.object.entity!)) continue
       targetIntersection = {
         point: intersected.point,
         normal: intersected.face?.normal ?? new Vector3(0, 1, 0)

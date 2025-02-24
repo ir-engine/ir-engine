@@ -24,101 +24,114 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Color, CubeReflectionMapping, CubeTexture, EquirectangularReflectionMapping, SRGBColorSpace } from 'three'
+import {
+  Color,
+  CubeReflectionMapping,
+  CubeTexture,
+  DataTexture,
+  EquirectangularReflectionMapping,
+  LinearFilter,
+  RGBAFormat,
+  SRGBColorSpace
+} from 'three'
 
-import { Engine } from '@ir-engine/ecs'
+import { Engine, entityExists, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getState, isClient } from '@ir-engine/hyperflux'
+import { isClient, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { BackgroundComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { T } from '@ir-engine/spatial/src/schema/schemaFunctions'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
-import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { Sky } from '../classes/Sky'
 import { SkyTypeEnum } from '../constants/SkyTypeEnum'
-import { loadCubeMapTexture } from '../constants/Util'
+import { getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
+
+const tempColor = new Color()
 
 export const SkyboxComponent = defineComponent({
   name: 'SkyboxComponent',
-
   jsonID: 'EE_skybox',
 
-  onInit: (entity) => {
-    return {
-      backgroundColor: new Color(0x000000),
-      equirectangularPath: '',
-      cubemapPath: `${
-        getState(DomainConfigState).cloudDomain
-      }/projects/ir-engine/default-project/assets/skyboxsun25deg/`,
-      backgroundType: 1,
-      sky: null! as Sky | null,
-      skyboxProps: {
-        turbidity: 10,
-        rayleigh: 1,
-        luminance: 1,
-        mieCoefficient: 0.004999999999999893,
-        mieDirectionalG: 0.99,
-        inclination: 0.10471975511965978,
-        azimuth: 0.16666666666666666
-      }
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (typeof json?.backgroundColor === 'number') component.backgroundColor.set(new Color(json.backgroundColor))
-    if (typeof json?.equirectangularPath === 'string') component.equirectangularPath.set(json.equirectangularPath)
-    if (typeof json?.cubemapPath === 'string') component.cubemapPath.set(json.cubemapPath)
-    if (typeof json?.backgroundType === 'number') component.backgroundType.set(json.backgroundType)
-    if (typeof json?.skyboxProps === 'object') component.skyboxProps.set(json.skyboxProps)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      backgroundColor: component.backgroundColor.value,
-      equirectangularPath: component.equirectangularPath.value,
-      cubemapPath: component.cubemapPath.value,
-      backgroundType: component.backgroundType.value,
-      skyboxProps: component.skyboxProps.get({ noproxy: true }) as any
-    }
-  },
-
-  /** @todo remove this wil proper useEffect cleanups, after resource reworking callbacks */
-  onRemove: (entity, component) => {
-    removeComponent(entity, BackgroundComponent)
-  },
+  schema: S.Object({
+    backgroundColor: T.Color(0x000000),
+    equirectangularPath: S.String(''),
+    cubemapPath: S.String(''),
+    backgroundType: S.Number(1),
+    sky: S.NonSerialized(S.Nullable(S.Type<Sky>())),
+    skyboxProps: S.Object({
+      turbidity: S.Number(10),
+      rayleigh: S.Number(1),
+      luminance: S.Number(1),
+      mieCoefficient: S.Number(0.004999999999999893),
+      mieDirectionalG: S.Number(0.99),
+      inclination: S.Number(0.10471975511965978),
+      azimuth: S.Number(0.16666666666666666)
+    })
+  }),
 
   reactor: function () {
     const entity = useEntityContext()
     if (!isClient) return null
 
     const skyboxState = useComponent(entity, SkyboxComponent)
+    const cubemapTexture = useHookstate<undefined | CubeTexture>(undefined)
+    const [texture, error] = useTexture(
+      skyboxState.backgroundType.value === SkyTypeEnum.equirectangular ? skyboxState.equirectangularPath.value : '',
+      entity
+    )
 
-    const [texture, error] = useTexture(skyboxState.equirectangularPath.value, entity)
+    useImmediateEffect(() => {
+      return () => {
+        if (entityExists(entity) && hasComponent(entity, BackgroundComponent))
+          removeComponent(entity, BackgroundComponent)
+      }
+    }, [])
 
     useEffect(() => {
-      if (skyboxState.backgroundType.value !== SkyTypeEnum.equirectangular) return
+      if (skyboxState.backgroundType.value !== SkyTypeEnum.equirectangular || !texture) return
 
-      if (texture) {
-        texture.colorSpace = SRGBColorSpace
-        texture.mapping = EquirectangularReflectionMapping
-        setComponent(entity, BackgroundComponent, texture)
+      texture.colorSpace = SRGBColorSpace
+      texture.mapping = EquirectangularReflectionMapping
+      texture.minFilter = LinearFilter
+      setComponent(entity, BackgroundComponent, texture)
+    }, [texture, skyboxState.backgroundType])
+
+    useEffect(() => {
+      if (!error) return
+      addError(entity, SkyboxComponent, 'FILE_ERROR', error.message)
+      return () => {
         removeError(entity, SkyboxComponent, 'FILE_ERROR')
-      } else if (error) {
-        addError(entity, SkyboxComponent, 'FILE_ERROR', error.message)
       }
-    }, [texture, error, skyboxState.backgroundType, skyboxState.equirectangularPath])
+    }, [error])
 
     useEffect(() => {
       if (skyboxState.backgroundType.value !== SkyTypeEnum.color) return
-      setComponent(entity, BackgroundComponent, skyboxState.backgroundColor.value)
+
+      const col = skyboxState.backgroundColor.value ?? tempColor
+      const resolution = 64 // Min value required
+      /** @todo track this in resource manager */
+      const texture = new DataTexture(getRGBArray(new Color(col)), resolution, resolution, RGBAFormat)
+      // ResourceState.addResource(texture, texture.uuid, entity)
+      texture.needsUpdate = true
+      texture.colorSpace = SRGBColorSpace
+      texture.mapping = EquirectangularReflectionMapping
+      setComponent(entity, BackgroundComponent, texture)
+
+      return () => {
+        // ResourceState.unload(texture.uuid, entity)
+        texture.dispose()
+        removeComponent(entity, BackgroundComponent)
+      }
     }, [skyboxState.backgroundType, skyboxState.backgroundColor])
 
     useEffect(() => {
@@ -126,6 +139,7 @@ export const SkyboxComponent = defineComponent({
       const onLoad = (texture: CubeTexture) => {
         texture.colorSpace = SRGBColorSpace
         texture.mapping = CubeReflectionMapping
+        cubemapTexture.set(texture)
         setComponent(entity, BackgroundComponent, texture)
         removeError(entity, SkyboxComponent, 'FILE_ERROR')
       }
@@ -142,7 +156,19 @@ export const SkyboxComponent = defineComponent({
       ]
       /** @todo replace this with useCubemap */
       loadCubeMapTexture(...loadArgs)
+      return () => {
+        removeComponent(entity, BackgroundComponent)
+      }
     }, [skyboxState.backgroundType, skyboxState.cubemapPath])
+
+    useEffect(() => {
+      const cubemap = cubemapTexture.value
+      if (!cubemap) return
+
+      return () => {
+        cubemap.dispose()
+      }
+    }, [cubemapTexture])
 
     useEffect(() => {
       if (skyboxState.backgroundType.value !== SkyTypeEnum.skybox) {

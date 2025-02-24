@@ -23,14 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
+import '../../patchEngineNode'
+
 import nock from 'nock'
+import { afterAll, afterEach, assert, beforeAll, describe, it } from 'vitest'
 
 import { matchInstancePath } from '@ir-engine/common/src/schemas/matchmaking/match-instance.schema'
 import { instancePath } from '@ir-engine/common/src/schemas/networking/instance.schema'
 import { LocationSettingType } from '@ir-engine/common/src/schemas/social/location-setting.schema'
 import { LocationID, locationPath } from '@ir-engine/common/src/schemas/social/location.schema'
-import { AvatarID } from '@ir-engine/common/src/schemas/user/avatar.schema'
 import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { InviteCode, UserName, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
@@ -84,8 +85,8 @@ describe.skip('matchmaking match-instance service', () => {
   }
 
   let app: Application
-  before(async () => {
-    app = createFeathersKoaApp()
+  beforeAll(async () => {
+    app = await createFeathersKoaApp()
     await app.setup()
 
     scope = nock(FRONTEND_SERVICE_URL)
@@ -107,7 +108,7 @@ describe.skip('matchmaking match-instance service', () => {
 
     location = await app.service(locationPath).create({
       name: `game-${gameMode}`,
-      maxUsersPerInstance: 20,
+      maxUsersPerInstance: 5,
       sceneId: `test/game-${gameMode}`,
       locationSetting: commonlocationSetting,
       isLobby: false,
@@ -121,9 +122,7 @@ describe.skip('matchmaking match-instance service', () => {
         const userPromise = app.service(userPath).create({
           name: ('Test #' + Math.random()) as UserName,
           isGuest: true,
-          avatarId: '' as AvatarID,
-          inviteCode: '' as InviteCode,
-          scopes: []
+          inviteCode: '' as InviteCode
         })
         usersPromises.push(userPromise)
 
@@ -158,7 +157,7 @@ describe.skip('matchmaking match-instance service', () => {
 
     tickets.push(...(await Promise.all(ticketsPromises)))
   })
-  after(async () => {
+  afterAll(async () => {
     const cleanupPromises: Promise<any>[] = []
 
     // delete tickets

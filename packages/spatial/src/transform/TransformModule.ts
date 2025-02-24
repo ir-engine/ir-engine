@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Object3DUtils } from './Object3DUtils'
 import { SpawnPoseState } from './SpawnPoseState'
-import { LookAtSystem } from './systems/LookAtSystem'
+import { MeshBVHSystem } from './functions/MeshBVHSystem'
 import { TransformSystem } from './systems/TransformSystem'
 
-export { LookAtSystem, Object3DUtils, SpawnPoseState, TransformSystem }
+export { MeshBVHSystem, Object3DUtils, SpawnPoseState, TransformSystem }

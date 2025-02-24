@@ -114,6 +114,24 @@ export const MediasoupDataProducersConsumersObjectsState = defineState({
   }
 })
 
+export type DataProducerType = {
+  producerID: string
+  transportID: string
+  protocol: string
+  sctpStreamParameters: any
+  dataChannel: DataChannelType
+  appData: any
+}
+
+export type DataConsumerType = {
+  consumerID: string
+  transportID: string
+  dataChannel: DataChannelType
+  sctpStreamParameters: any
+  appData: any
+  protocol: string
+}
+
 export const MediasoupDataProducerConsumerState = defineState({
   name: 'ee.engine.network.mediasoup.DataProducerConsumerState',
 
@@ -121,24 +139,10 @@ export const MediasoupDataProducerConsumerState = defineState({
     NetworkID,
     {
       producers: {
-        [producerID: string]: {
-          producerID: string
-          transportID: string
-          protocol: string
-          sctpStreamParameters: any
-          dataChannel: DataChannelType
-          appData: any
-        }
+        [producerID: string]: DataProducerType
       }
       consumers: {
-        [consumerID: string]: {
-          consumerID: string
-          transportID: string
-          dataChannel: DataChannelType
-          sctpStreamParameters: any
-          appData: any
-          protocol: string
-        }
+        [consumerID: string]: DataConsumerType
       }
     }
   >,
@@ -259,21 +263,27 @@ export const MediasoupDataProducerConsumerState = defineState({
       if (!state.producers.keys.length && !state.consumers.keys.length) state.set(none)
     }),
 
-    onUpdatePeers: NetworkActions.updatePeers.receive((action) => {
+    onUpdatePeers: NetworkActions.peerLeft.receive((action) => {
       const state = getState(MediasoupDataProducerConsumerState)
       const producers = state[action.$network]?.producers
       if (producers)
         for (const producer of Object.values(producers)) {
           const transport = getState(MediasoupTransportState)[action.$network][producer.transportID]
-          if (transport && action.peers.find((peer) => peer.peerID === transport.peerID)) continue
-          getMutableState(MediasoupDataProducerConsumerState)[action.$network].producers[producer.producerID].set(none)
+          if (transport && action.peerID === transport.peerID) {
+            getMutableState(MediasoupDataProducerConsumerState)[action.$network].producers[producer.producerID].set(
+              none
+            )
+          }
         }
       const consumers = state[action.$network]?.consumers
       if (consumers)
         for (const consumer of Object.values(consumers)) {
           const transport = getState(MediasoupTransportState)[action.$network][consumer.transportID]
-          if (transport && action.peers.find((peer) => peer.peerID === transport.peerID)) continue
-          getMutableState(MediasoupDataProducerConsumerState)[action.$network].consumers[consumer.consumerID].set(none)
+          if (transport && action.peerID === transport.peerID) {
+            getMutableState(MediasoupDataProducerConsumerState)[action.$network].consumers[consumer.consumerID].set(
+              none
+            )
+          }
         }
     })
   },

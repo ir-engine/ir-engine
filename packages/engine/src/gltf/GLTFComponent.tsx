@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { GLTF } from '@gltf-transform/core'
-import React, { useEffect } from 'react'
+import React, { Suspense, useEffect } from 'react'
 
 import {
   Component,
@@ -36,115 +36,259 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
+  Layers,
+  removeComponent,
+  removeEntity,
+  setComponent,
+  UndefinedEntity,
   useComponent,
   useEntityContext,
+  useHasComponent,
+  useHasComponents,
+  useOptionalComponent,
   useQuery,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
-import { dispatchAction, getState, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, getState, NO_PROXY_STEALTH, none, State, useHookstate } from '@ir-engine/hyperflux'
 
+import { LayerComponent, useAncestorWithComponents } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { TransformComponent } from '@ir-engine/spatial'
+import { ShapeSchema } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
+import { LoaderUtils } from 'three'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
-import { BINARY_EXTENSION_HEADER_MAGIC, EXTENSIONS, GLTFBinaryExtension } from '../assets/loaders/gltf/GLTFExtensions'
-import { SourceComponent } from '../scene/components/SourceComponent'
+import {
+  BINARY_EXTENSION_CHUNK_TYPES,
+  BINARY_EXTENSION_HEADER_LENGTH,
+  BINARY_EXTENSION_HEADER_MAGIC
+} from '../assets/loaders/gltf/GLTFExtensions'
+import { AssetLoaderState } from '../assets/state/AssetLoaderState'
+import { AnimationComponent } from '../avatar/components/AnimationComponent'
+import { ErrorComponent } from '../scene/components/ErrorComponent'
+import { SceneDynamicLoadComponent } from '../scene/components/SceneDynamicLoadComponent'
+import { SourceComponent, SourceID } from '../scene/components/SourceComponent'
+import { addError, removeError } from '../scene/functions/ErrorFunctions'
 import { SceneJsonType } from '../scene/types/SceneTypes'
 import { migrateSceneJSONToGLTF } from './convertJsonToGLTF'
-import { GLTFDocumentState, GLTFSnapshotAction } from './GLTFDocumentState'
+import { GLTFLoaderFunctions, GLTFParserOptions } from './GLTFLoaderFunctions'
+import { AssetState } from './GLTFState'
+import { NodeID, NodeIDComponent } from './NodeIDComponent'
 import { ResourcePendingComponent } from './ResourcePendingComponent'
+import { useApplyCollidersToChildMeshesEffect } from './useApplyCollidersToChildMeshesEffect'
+
+export const GLTFComponent = defineComponent({
+  name: 'GLTFComponent',
+  jsonID: 'EE_model',
+
+  schema: S.Object({
+    src: S.String(''),
+    /** @todo move this to it's own component */
+    cameraOcclusion: S.Bool(false),
+
+    //collision info
+    applyColliders: S.Bool(false),
+    shape: ShapeSchema('box'),
+
+    // internals
+    body: S.NonSerialized(S.Nullable(S.Type<ArrayBuffer>())),
+    document: S.NonSerialized(S.Nullable(S.Type<GLTF.IGLTF>())),
+    progress: S.NonSerialized(S.Number(0)),
+    extensions: S.NonSerialized(S.Record(S.String(), S.Any(), {})),
+    dependencies: S.NonSerialized(S.Optional(S.Type<ComponentDependencies>()))
+  }),
+
+  errors: ['LOADING_ERROR', 'INVALID_SOURCE'],
+
+  useDependenciesLoaded(entity: Entity) {
+    const dependencies = useComponent(entity, GLTFComponent).dependencies
+    return componentDependenciesLoaded(dependencies.value as ComponentDependencies | undefined)
+  },
+
+  useSceneLoaded(entity: Entity) {
+    const gltfComponent = useOptionalComponent(entity, GLTFComponent)
+    if (!gltfComponent) return false
+    const dependencies = gltfComponent.dependencies
+    const progress = gltfComponent.progress.value
+    return componentDependenciesLoaded(dependencies.value as ComponentDependencies | undefined) && progress === 100
+  },
+
+  isSceneLoaded(entity: Entity) {
+    const gltfComponent = getOptionalComponent(entity, GLTFComponent)
+    if (!gltfComponent) return false
+    const dependencies = gltfComponent.dependencies
+    const progress = gltfComponent.progress
+    return componentDependenciesLoaded(dependencies) && progress === 100
+  },
+
+  getInstanceID: (entity: Entity) => {
+    if (!hasComponent(entity, GLTFComponent)) return getOptionalComponent(entity, SourceComponent) ?? ('' as SourceID)
+    const uuid = getOptionalComponent(entity, UUIDComponent)
+    const src = getOptionalComponent(entity, GLTFComponent)?.src
+    if (!uuid || !src) return '' as SourceID
+    return SourceComponent.getSourceID(uuid, src)
+  },
+
+  useInstanceID: (entity: Entity) => {
+    const uuid = useOptionalComponent(entity, UUIDComponent)?.value
+    const src = useOptionalComponent(entity, GLTFComponent)?.src.value
+    const source = useOptionalComponent(entity, SourceComponent)?.value
+    if (!uuid || !src) return source ?? ('' as SourceID)
+    return SourceComponent.getSourceID(uuid, src)
+  }
+})
+
+type DependencyEval = {
+  key: string
+  eval: (val: unknown) => boolean
+}
+
+type ComponentDependencies = {
+  componentDependencies: Record<EntityUUID, Component[]>
+}
+
+const componentDependenciesLoaded = (dependencies?: ComponentDependencies) => {
+  return !!dependencies && Object.keys(dependencies.componentDependencies).length === 0
+}
 
 const loadDependencies = {
-  ['EE_model']: ['scene']
-} as Record<string, string[]>
+  ['EE_model']: [
+    {
+      key: 'dependencies',
+      eval: (dependencies?: ComponentDependencies) => componentDependenciesLoaded(dependencies)
+    }
+  ]
+} as Record<string, DependencyEval[]>
 
-type ComponentDependencies = Record<EntityUUID, Component[]>
+const buildComponentDependencies = (entity: Entity, json: GLTF.IGLTF) => {
+  const dependencies = {
+    componentDependencies: {}
+  } as ComponentDependencies
 
-const buildComponentDependencies = (json: GLTF.IGLTF) => {
-  const dependencies = {} as ComponentDependencies
+  const meshes = new Set<number>()
+  const materials = new Set<number>()
+
   if (!json.nodes) return dependencies
   for (const node of json.nodes) {
-    if (!node.extensions || !node.extensions[UUIDComponent.jsonID]) continue
-    const uuid = node.extensions[UUIDComponent.jsonID] as EntityUUID
-    const extensions = Object.keys(node.extensions)
-    for (const extension of extensions) {
-      if (loadDependencies[extension]) {
-        if (!dependencies[uuid]) dependencies[uuid] = []
-        dependencies[uuid].push(ComponentJSONIDMap.get(extension)!)
+    if (node.extensions && node.extensions[NodeIDComponent.jsonID]) {
+      const nodeID = node.extensions[NodeIDComponent.jsonID] as NodeID
+      const sourceID = GLTFComponent.getInstanceID(entity)
+      const uuid = NodeIDComponent.getUUIDBySourceAndNodeID(sourceID, nodeID)
+      const extensions = Object.keys(node.extensions)
+      if (typeof node.extensions[SceneDynamicLoadComponent.jsonID] !== 'undefined') continue
+      for (const extension of extensions) {
+        if (loadDependencies[extension]) {
+          if (!dependencies.componentDependencies[uuid]) dependencies.componentDependencies[uuid] = []
+          dependencies.componentDependencies[uuid].push(ComponentJSONIDMap.get(extension)!)
+        }
       }
+    }
+
+    if (node.mesh !== undefined) {
+      meshes.add(node.mesh)
+      const mesh = json.meshes![node.mesh]
+      mesh.primitives.forEach((prim) => {
+        if (prim.material !== undefined) materials.add(prim.material)
+      })
     }
   }
 
   return dependencies
 }
 
-export const GLTFComponent = defineComponent({
-  name: 'GLTFComponent',
-
-  onInit(entity) {
-    return {
-      src: '',
-      // internals
-      extensions: {},
-      progress: 0,
-      dependencies: undefined as ComponentDependencies | undefined
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (typeof json?.src === 'string') component.src.set(json.src)
-  },
-
-  useDependenciesLoaded(entity: Entity) {
-    const dependencies = useComponent(entity, GLTFComponent).dependencies
-    return !!(dependencies.value && !dependencies.keys?.length)
-  },
-
-  useSceneLoaded(entity: Entity) {
-    const gltfComponent = useComponent(entity, GLTFComponent)
-    const dependencies = gltfComponent.dependencies
-    const progress = gltfComponent.progress.value
-    return !!(dependencies.value && !dependencies.keys?.length) && progress === 100
-  },
-
-  isSceneLoaded(entity: Entity) {
-    const gltfComponent = getComponent(entity, GLTFComponent)
-    const dependencies = gltfComponent.dependencies
-    const progress = gltfComponent.progress
-    return !!(dependencies && !Object.keys(dependencies).length) && progress === 100
-  },
-
-  reactor: () => {
-    const entity = useEntityContext()
-    const gltfComponent = useComponent(entity, GLTFComponent)
-    const dependencies = gltfComponent.dependencies
-
-    useGLTFDocument(gltfComponent.src.value, entity)
-
-    const documentID = useComponent(entity, SourceComponent).value
-
-    return (
-      <>
-        <ResourceReactor documentID={documentID} entity={entity} />
-        {dependencies.value && dependencies.keys?.length ? (
-          <DependencyReactor
-            key={entity}
-            gltfComponentEntity={entity}
-            dependencies={dependencies.value as ComponentDependencies}
-          />
-        ) : null}
-      </>
-    )
-  }
-})
-
-const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
-  const dependenciesLoaded = GLTFComponent.useDependenciesLoaded(props.entity)
-  const resourceQuery = useQuery([SourceComponent, ResourcePendingComponent])
-  const sourceEntities = useHookstate(SourceComponent.entitiesBySourceState[props.documentID])
+export const GLTFComponentReactor = () => {
+  const entity = useEntityContext()
+  const gltfComponent = useComponent(entity, GLTFComponent)
+  const documentLoaded = useHookstate(false)
 
   useEffect(() => {
-    if (getComponent(props.entity, GLTFComponent).progress === 100) return
-    if (!getState(GLTFDocumentState)[props.documentID]) return
+    const occlusion = gltfComponent.cameraOcclusion.value
+    if (!occlusion) ObjectLayerMaskComponent.disableLayer(entity, ObjectLayers.Camera)
+    else ObjectLayerMaskComponent.enableLayer(entity, ObjectLayers.Camera)
+  }, [gltfComponent.cameraOcclusion])
 
+  useGLTFDocument(entity)
+
+  const sourceID = GLTFComponent.getInstanceID(entity)
+
+  useEffect(() => {
+    getMutableState(AssetState)[sourceID].set(entity)
+    return () => {
+      getMutableState(AssetState)[sourceID].set(none)
+    }
+  }, [gltfComponent.src])
+
+  useEffect(() => {
+    const gltfComponent = getComponent(entity, GLTFComponent)
+    if (!gltfComponent.document) return
+
+    const options = getGLTFOptions(entity)
+    const url = options.url
+
+    const sceneIndex = options.document.scene || 0
+    let aborted = false
+    removeComponent(entity, AnimationComponent)
+
+    const unloadEntities = () => {
+      const loadedEntities = SourceComponent.getEntitiesBySource(sourceID)
+      for (const entity of loadedEntities) removeEntity(entity)
+    }
+
+    GLTFLoaderFunctions.loadScene(options, sceneIndex).then(() => {
+      documentLoaded.set(true)
+
+      // force transform update for all entities in the model.
+      // required to propagate dirty update auth to sim layers
+      TransformComponent.dirty[entity] = 1
+
+      if (aborted) {
+        unloadEntities()
+      }
+    })
+    return () => {
+      documentLoaded.set(false)
+      GLTFLoaderFunctions.unloadScene(url, entity)
+      aborted = true
+      unloadEntities()
+      if (hasComponent(entity, GLTFComponent)) {
+        getMutableComponent(entity, GLTFComponent).progress.set(0)
+      }
+    }
+  }, [gltfComponent.document])
+
+  const sceneLoaded = GLTFComponent.useSceneLoaded(entity)
+
+  const scene = useOptionalComponent(entity, SceneComponent)
+
+  useEffect(() => {
+    if (!sceneLoaded || !scene) return
+    setComponent(entity, SceneComponent, { active: true })
+  }, [sceneLoaded, !!scene])
+
+  const dependencies = gltfComponent.dependencies.get(NO_PROXY_STEALTH) as ComponentDependencies | undefined
+  return (
+    <>
+      <ResourceReactor documentID={sourceID} entity={entity} documentLoaded={documentLoaded.value} />
+      {dependencies && !componentDependenciesLoaded(dependencies) ? (
+        <DependencyReactor key={entity} gltfComponentEntity={entity} dependencies={dependencies} />
+      ) : null}
+    </>
+  )
+}
+
+const ResourceReactor = (props: { documentID: string; entity: Entity; documentLoaded: boolean }) => {
+  const dependenciesLoaded = GLTFComponent.useDependenciesLoaded(props.entity)
+  const resourceQuery = useQuery([SourceComponent, ResourcePendingComponent])
+
+  useApplyCollidersToChildMeshesEffect(props.entity)
+
+  useEffect(() => {
+    if (!hasComponent(props.entity, GLTFComponent) || !props.documentLoaded) return
+    if (getComponent(props.entity, GLTFComponent).progress === 100) return
     const entities = resourceQuery.filter((e) => getComponent(e, SourceComponent) === props.documentID)
     if (!entities.length) {
       if (dependenciesLoaded) getMutableComponent(props.entity, GLTFComponent).progress.set(100)
@@ -171,7 +315,7 @@ const ResourceReactor = (props: { documentID: string; entity: Entity }) => {
 
     const percentage = Math.floor(Math.min((progress / total) * 100, dependenciesLoaded ? 100 : 99))
     getMutableComponent(props.entity, GLTFComponent).progress.set(percentage)
-  }, [resourceQuery, sourceEntities, dependenciesLoaded])
+  }, [resourceQuery, dependenciesLoaded, props.documentLoaded])
 
   return null
 }
@@ -180,19 +324,14 @@ const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; 
   const { gltfComponentEntity, entity, component } = props
   const dependencies = loadDependencies[component.jsonID!]
   const comp = useComponent(entity, component)
+  const errors = ErrorComponent.useComponentErrors(entity, component)
 
-  useEffect(() => {
-    const compValue = comp.value
-    for (const key of dependencies) {
-      if (!compValue[key]) return
-    }
-
-    // console.log(`All dependencies loaded for entity: ${entity} on component: ${component.jsonID}`)
-
+  const removeGLTFDependency = () => {
     const gltfComponent = getMutableComponent(gltfComponentEntity, GLTFComponent)
     const uuid = getComponent(entity, UUIDComponent)
-    gltfComponent.dependencies.set((prev) => {
+    ;(gltfComponent.dependencies as State<ComponentDependencies>).componentDependencies.set((prev) => {
       const dependencyArr = prev![uuid] as Component[]
+      if (!dependencyArr) return prev
       const index = dependencyArr.findIndex((compItem) => compItem.jsonID === component.jsonID)
       dependencyArr.splice(index, 1)
       if (!dependencyArr.length) {
@@ -200,24 +339,50 @@ const ComponentReactor = (props: { gltfComponentEntity: Entity; entity: Entity; 
       }
       return prev
     })
-  }, [...dependencies.map((key) => comp[key])])
+  }
+
+  useEffect(() => {
+    const compValue = comp.value
+    for (const dep of dependencies) {
+      if (!dep.eval(compValue[dep.key])) return
+    }
+
+    // console.log(`All dependencies loaded for entity: ${entity} on component: ${component.jsonID}`)
+    removeGLTFDependency()
+  }, [...dependencies.map((dep) => comp[dep.key])])
+
+  useEffect(() => {
+    if (!errors) return
+    addError(
+      entity,
+      GLTFComponent,
+      'LOADING_ERROR',
+      `GLTFComponent:ComponentReactor Component ${component.name} errored during loading`
+    )
+    removeGLTFDependency()
+  }, [errors])
 
   return null
 }
 
 const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: string; components: Component[] }) => {
   const { gltfComponentEntity, uuid, components } = props
-  const entity = UUIDComponent.useEntityByUUID(uuid as EntityUUID) as Entity | undefined
-  return entity ? (
+  const layer = LayerComponent.get(gltfComponentEntity)
+  const entity = UUIDComponent.useEntityByUUID(uuid as EntityUUID, layer) as Entity | undefined
+  const hasComponents = useHasComponents(entity ?? UndefinedEntity, components)
+  const dynamicLoad = useHasComponent(entity ?? UndefinedEntity, SceneDynamicLoadComponent)
+  return entity && !dynamicLoad && hasComponents ? (
     <>
       {components.map((component) => {
         return (
-          <ComponentReactor
-            key={component.jsonID}
-            gltfComponentEntity={gltfComponentEntity}
-            entity={entity}
-            component={component}
-          />
+          <Suspense key={component.jsonID} fallback={null}>
+            <ComponentReactor
+              key={component.jsonID}
+              gltfComponentEntity={gltfComponentEntity}
+              entity={entity}
+              component={component}
+            />
+          </Suspense>
         )
       })}
     </>
@@ -226,11 +391,18 @@ const DependencyEntryReactor = (props: { gltfComponentEntity: Entity; uuid: stri
 
 const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: ComponentDependencies }) => {
   const { gltfComponentEntity, dependencies } = props
-  const entries = Object.entries(dependencies)
+  const componentDependencies = Object.entries(dependencies.componentDependencies)
+
+  useEffect(() => {
+    return () => {
+      removeError(gltfComponentEntity, GLTFComponent, 'LOADING_ERROR')
+      removeError(gltfComponentEntity, GLTFComponent, 'INVALID_SOURCE')
+    }
+  }, [])
 
   return (
     <>
-      {entries.map(([uuid, components]) => {
+      {componentDependencies.map(([uuid, components]) => {
         return (
           <DependencyEntryReactor
             key={uuid}
@@ -244,89 +416,187 @@ const DependencyReactor = (props: { gltfComponentEntity: Entity; dependencies: C
   )
 }
 
-const onError = (error: ErrorEvent) => {
-  // console.error(error)
-}
-
 const onProgress: (event: ProgressEvent) => void = (event) => {
   // console.log(event)
 }
 
-const useGLTFDocument = (url: string, entity: Entity) => {
-  const state = useComponent(entity, GLTFComponent)
-  const sourceComponent = useComponent(entity, SourceComponent)
+export const loadGLTFFile = (
+  url: string,
+  onLoad: (gltf: GLTF.IGLTF, body: ArrayBuffer | null) => void,
+  onProgress?: (event: ProgressEvent) => void,
+  onError?: (error: ErrorEvent) => void,
+  signal?: AbortSignal
+) => {
+  const onSuccess = (data: string | ArrayBuffer | GLTF.IGLTF) => {
+    if (signal && signal.aborted) return
 
-  useEffect(() => {
-    const source = sourceComponent.value
-    return () => {
-      dispatchAction(GLTFSnapshotAction.unload({ source }))
+    const textDecoder = new TextDecoder()
+    let json: GLTF.IGLTF | SceneJsonType
+    let body: ArrayBuffer | null = null
+
+    if (typeof data === 'string') {
+      json = JSON.parse(data)
+    } else if ('byteLength' in data) {
+      const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
+
+      if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
+        try {
+          const { json: jsonContent, body: bodyContent } = parseBinaryData(data)
+          body = bodyContent
+          json = jsonContent
+        } catch (error) {
+          if (onError) onError(error)
+          return
+        }
+      } else {
+        json = JSON.parse(textDecoder.decode(data))
+      }
+    } else {
+      json = data
     }
-  }, [])
+
+    /** Migrate old scene json format */
+    if ('entities' in json && 'root' in json) {
+      json = migrateSceneJSONToGLTF(json)
+    }
+
+    onLoad(parseStorageProviderURLs(JSON.parse(JSON.stringify(json))), body)
+  }
+
+  const loader = new FileLoader()
+
+  loader.setResponseType('arraybuffer')
+  loader.setRequestHeader({})
+  loader.setWithCredentials(false)
+
+  loader.load(url, onSuccess, onProgress, onError, signal)
+}
+
+const useGLTFDocument = (entity: Entity) => {
+  const state = useComponent(entity, GLTFComponent)
+  const url = state.src.value
+
+  const dynamicLoadComponent = useOptionalComponent(entity, SceneDynamicLoadComponent)
+  const layer = LayerComponent.get(entity)
+  const isEditing = layer === Layers.Authoring
+
+  const dynamicLoadAndNotEditing = !isEditing && !!dynamicLoadComponent && !dynamicLoadComponent?.loaded?.value
 
   useEffect(() => {
-    if (!url) return
+    if (dynamicLoadAndNotEditing) return
+
+    if (!url) {
+      addError(entity, GLTFComponent, 'INVALID_SOURCE', 'Invalid URL')
+      return
+    }
 
     const abortController = new AbortController()
     const signal = abortController.signal
 
-    const onSuccess = (data: string | ArrayBuffer | GLTF.IGLTF) => {
-      if (signal.aborted) return
-
-      const textDecoder = new TextDecoder()
-      let json: GLTF.IGLTF | SceneJsonType
-
-      if (typeof data === 'string') {
-        json = JSON.parse(data)
-      } else if (data instanceof ArrayBuffer) {
-        const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
-
-        if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
-          try {
-            /** TODO we will need to refactor and persist this */
-            state.extensions.merge({ [EXTENSIONS.KHR_BINARY_GLTF]: new GLTFBinaryExtension(data) })
-          } catch (error) {
-            if (onError) onError(error)
-            return
-          }
-
-          json = JSON.parse(state.extensions.value[EXTENSIONS.KHR_BINARY_GLTF].content)
-        } else {
-          json = JSON.parse(textDecoder.decode(data))
-        }
-      } else {
-        json = data
-      }
-
-      /** Migrate old scene json format */
-      if ('entities' in json && 'root' in json) {
-        json = migrateSceneJSONToGLTF(json)
-      }
-
-      const dependencies = buildComponentDependencies(json)
-      state.dependencies.set(dependencies)
-
-      dispatchAction(
-        GLTFSnapshotAction.createSnapshot({
-          source: getComponent(entity, SourceComponent),
-          data: parseStorageProviderURLs(JSON.parse(JSON.stringify(json)))
-        })
-      )
+    const onError = (error: ErrorEvent) => {
+      addError(entity, GLTFComponent, 'LOADING_ERROR', 'Error loading model')
     }
 
-    const loader = new FileLoader()
-
-    loader.setResponseType('arraybuffer')
-    loader.setRequestHeader({})
-    loader.setWithCredentials(false)
-
-    loader.load(url, onSuccess, onProgress, onError, signal)
+    loadGLTFFile(
+      url,
+      (gltf, body) => {
+        if (body) state.body.set(body)
+        state.document.set(gltf)
+        const dependencies = buildComponentDependencies(entity, gltf)
+        state.dependencies.set(dependencies)
+      },
+      onProgress,
+      onError,
+      signal
+    )
 
     return () => {
       abortController.abort()
       if (!hasComponent(entity, GLTFComponent)) return
-      state.merge({
-        extensions: {}
-      })
+      const gltfComponent = getMutableComponent(entity, GLTFComponent)
+      gltfComponent.document.set(null)
+      gltfComponent.body.set(null)
+      gltfComponent.progress.set(0)
     }
-  }, [url])
+  }, [url, dynamicLoadAndNotEditing])
+}
+
+export const parseBinaryData = (data) => {
+  const headerView = new DataView(data, 0, BINARY_EXTENSION_HEADER_LENGTH)
+  const textDecoder = new TextDecoder()
+
+  const header = {
+    magic: textDecoder.decode(new Uint8Array(data.slice(0, 4))),
+    version: headerView.getUint32(4, true),
+    length: headerView.getUint32(8, true)
+  }
+
+  if (header.magic !== BINARY_EXTENSION_HEADER_MAGIC) {
+    throw new Error('THREE.GLTFLoader: Unsupported glTF-Binary header.')
+  } else if (header.version < 2.0) {
+    throw new Error('THREE.GLTFLoader: Legacy binary file detected.')
+  }
+
+  const chunkContentsLength = header.length - BINARY_EXTENSION_HEADER_LENGTH
+  const chunkView = new DataView(data, BINARY_EXTENSION_HEADER_LENGTH)
+  let chunkIndex = 0
+
+  let content = null as string | null
+  let body = null as ArrayBuffer | null
+
+  while (chunkIndex < chunkContentsLength) {
+    const chunkLength = chunkView.getUint32(chunkIndex, true)
+    chunkIndex += 4
+
+    const chunkType = chunkView.getUint32(chunkIndex, true)
+    chunkIndex += 4
+
+    if (chunkType === BINARY_EXTENSION_CHUNK_TYPES.JSON) {
+      const contentArray = new Uint8Array(data, BINARY_EXTENSION_HEADER_LENGTH + chunkIndex, chunkLength)
+      content = textDecoder.decode(contentArray)
+    } else if (chunkType === BINARY_EXTENSION_CHUNK_TYPES.BIN) {
+      const byteOffset = BINARY_EXTENSION_HEADER_LENGTH + chunkIndex
+      body = data.slice(byteOffset, byteOffset + chunkLength)
+    }
+
+    // Clients must ignore chunks with unknown types.
+
+    chunkIndex += chunkLength
+  }
+
+  if (content === null) {
+    throw new Error('THREE.GLTFLoader: JSON content not found.')
+  }
+
+  return { json: JSON.parse(content), body }
+}
+
+/**
+ * Returns true if the entity is part of a model or a mesh component that is not a child of model
+ * @param entity
+ * @returns {boolean}
+ */
+export const useHasModelOrIndependentMesh = (entity: Entity) => {
+  const hasModel = useHasComponent(entity, GLTFComponent)
+  const isChildOfModel = !!useAncestorWithComponents(entity, [GLTFComponent, SceneComponent])
+  const hasMesh = useHasComponent(entity, MeshComponent)
+  return hasModel || (hasMesh && !isChildOfModel)
+}
+
+export const getGLTFOptions = (entity: Entity): GLTFParserOptions => {
+  const gltfComponent = getComponent(entity, GLTFComponent)
+  const documentID = GLTFComponent.getInstanceID(entity)
+  const document = gltfComponent.document!
+  const gltfLoader = getState(AssetLoaderState).gltfLoader
+
+  return {
+    entity,
+    document,
+    documentID,
+    url: gltfComponent.src,
+    path: LoaderUtils.extractUrlBase(gltfComponent.src),
+    body: gltfComponent.body,
+    requestHeader: {},
+    manager: gltfLoader.manager
+  }
 }

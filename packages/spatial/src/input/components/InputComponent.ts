@@ -27,20 +27,21 @@ import { useLayoutEffect } from 'react'
 
 import {
   defineSystem,
+  EngineState,
   getComponent,
   getOptionalComponent,
   InputSystemGroup,
   UndefinedEntity,
+  useEntityContext,
   useExecute
 } from '@ir-engine/ecs'
 import { defineComponent, removeComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
-import { EngineState } from '../../EngineState'
 
+import { getAncestorWithComponents, isAncestor } from '@ir-engine/ecs'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
-import { getAncestorWithComponents, isAncestor } from '../../transform/components/EntityTree'
 import {
   AnyAxis,
   AnyButton,
@@ -79,33 +80,16 @@ export const InputComponent = defineComponent({
   name: 'InputComponent',
   jsonID: 'EE_input',
 
-  onInit: () => {
-    return {
-      inputSinks: ['Self'] as EntityUUID[],
-      activationDistance: 2,
-      highlight: false,
-      grow: false,
+  schema: S.Object({
+    inputSinks: S.Array(S.EntityUUID(), ['Self']),
+    activationDistance: S.Number(2),
+    highlight: S.Bool(false),
+    grow: S.Bool(false),
 
-      //internal
-      /** populated automatically by ClientInputSystem */
-      inputSources: [] as Entity[]
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-    if (Array.isArray(json.inputSinks)) component.inputSinks.set(json.inputSinks)
-    if (typeof json.highlight === 'boolean') component.highlight.set(json.highlight)
-    if (json.activationDistance) component.activationDistance.set(json.activationDistance)
-    if (typeof json.grow === 'boolean') component.grow.set(json.grow)
-  },
-
-  toJSON: (entity, component) => {
-    return {
-      inputSinks: component.inputSinks.value,
-      activationDistance: component.activationDistance.value
-    }
-  },
+    //internal
+    /** populated automatically by ClientInputSystem */
+    inputSources: S.NonSerialized(S.Array(S.Entity()))
+  }),
 
   useExecuteWithInput(
     executeOnInput: () => void,

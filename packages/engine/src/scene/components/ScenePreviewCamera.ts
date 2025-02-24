@@ -24,22 +24,24 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useLayoutEffect } from 'react'
-import { PerspectiveCamera } from 'three'
+import { CameraHelper, PerspectiveCamera } from 'three'
 
-import { useExecute } from '@ir-engine/ecs'
+import { EngineState, useEntityContext, useExecute } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
   removeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Engine } from '@ir-engine/ecs/src/Engine'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { CameraHelperComponent } from '@ir-engine/spatial/src/common/debug/CameraHelperComponent'
-import { addObjectToGroup, removeObjectFromGroup } from '@ir-engine/spatial/src/renderer/components/GroupComponent'
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { getMutableState, getState, isClient, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { ActiveHelperComponent } from '@ir-engine/spatial/src/common/ActiveHelperComponent'
+import { useHelperEntity } from '@ir-engine/spatial/src/common/debug/useHelperEntity'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
+import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { TransformDirtyCleanupSystem } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 
@@ -47,40 +49,38 @@ export const ScenePreviewCameraComponent = defineComponent({
   name: 'EE_scenePreviewCamera',
   jsonID: 'EE_scene_preview_camera',
 
-  onInit: (entity) => {
-    const camera = new PerspectiveCamera(80, 16 / 9, 0.2, 8000)
-
-    return {
-      camera
-    }
-  },
-
-  toJSON: () => {
-    return {} as any
-  },
+  schema: S.Object({
+    camera: S.NonSerialized(S.Class(() => new PerspectiveCamera(80, 16 / 9, 0.2, 8000)))
+  }),
 
   reactor: function () {
+    if (!isClient) return null
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
+    const renderState = useMutableState(RendererState)
+    const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
+    const debugEnabled = renderState.nodeHelperVisibility || activeHelperComponent !== undefined
     const previewCamera = useComponent(entity, ScenePreviewCameraComponent)
     const previewCameraTransform = useComponent(entity, TransformComponent)
-    const engineCameraTransform = useComponent(Engine.instance.cameraEntity, TransformComponent)
+    const engineCameraTransform = useOptionalComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
+    const isEditing = useHookstate(getMutableState(EngineState).isEditing).value
 
     useLayoutEffect(() => {
+      if (!engineCameraTransform || isEditing) return
+
       const transform = getComponent(entity, TransformComponent)
-      const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+      const cameraTransform = getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
       cameraTransform.position.copy(transform.position)
       cameraTransform.rotation.copy(transform.rotation)
       const camera = previewCamera.camera.value as PerspectiveCamera
-      addObjectToGroup(entity, camera)
+      setComponent(entity, ObjectComponent, camera)
       return () => {
-        removeObjectFromGroup(entity, camera)
+        removeComponent(entity, ObjectComponent)
       }
-    }, [])
+    }, [engineCameraTransform])
 
     useExecute(
       () => {
-        if (!TransformComponent.dirtyTransforms[entity]) return
+        if (!TransformComponent.dirty[entity]) return
         const camera = getComponent(entity, ScenePreviewCameraComponent).camera
         camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
       },
@@ -88,21 +88,12 @@ export const ScenePreviewCameraComponent = defineComponent({
     )
 
     useLayoutEffect(() => {
-      engineCameraTransform.position.value.copy(previewCameraTransform.position.value)
-      engineCameraTransform.rotation.value.copy(previewCameraTransform.rotation.value)
+      if (!engineCameraTransform) return
+      previewCamera.camera.value.position.copy(previewCameraTransform.position.value)
+      previewCamera.camera.value.quaternion.copy(previewCameraTransform.rotation.value)
     }, [previewCameraTransform])
 
-    useLayoutEffect(() => {
-      if (debugEnabled.value) {
-        setComponent(entity, CameraHelperComponent, {
-          name: 'scene-preview-helper',
-          camera: previewCamera.camera.value as PerspectiveCamera
-        })
-      }
-      return () => {
-        removeComponent(entity, CameraHelperComponent)
-      }
-    }, [debugEnabled])
+    useHelperEntity(entity, () => new CameraHelper(previewCamera.camera.value as PerspectiveCamera), debugEnabled.value)
 
     return null
   }

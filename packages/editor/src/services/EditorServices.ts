@@ -26,36 +26,18 @@ Infinite Reality Engine. All Rights Reserved.
 import { LayoutData } from 'rc-dock'
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { EntityUUID, getComponent } from '@ir-engine/ecs'
+import { EntityUUID, getOptionalComponent } from '@ir-engine/ecs'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { LinkState } from '@ir-engine/engine/src/scene/components/LinkComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import {
-  defineState,
-  getMutableState,
-  getState,
-  syncStateWithLocalStorage,
-  useHookstate,
-  useMutableState
-} from '@ir-engine/hyperflux'
+import { defineState, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
-
-interface IExpandedNodes {
-  [scene: string]: {
-    [entity: Entity]: true
-  }
-}
 
 export enum UIMode {
   BASIC = 'BASIC',
   ADVANCED = 'ADVANCED'
-}
-
-export type StudioUIAddons = {
-  container: Record<string, JSX.Element>
-  newScene: Record<string, JSX.Element>
-  //more addon points to come here
 }
 
 export const EditorState = defineState({
@@ -67,29 +49,30 @@ export const EditorState = defineState({
     scenePath: null as string | null,
     /** just used to store the id of the current scene asset */
     sceneAssetID: null as string | null,
-    expandedNodes: {} as IExpandedNodes,
     lockPropertiesPanel: '' as EntityUUID,
     panelLayout: {} as LayoutData,
     rootEntity: UndefinedEntity,
     uiEnabled: true,
-    uiMode: UIMode.ADVANCED,
-    uiAddons: {
-      container: {},
-      newScene: {}
-    } as StudioUIAddons
+    uiMode: UIMode.ADVANCED
   }),
   useIsModified: () => {
     const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
-    const modifiedState = useMutableState(GLTFModifiedState)
+    const modifiedState = useMutableState(AssetModifiedState)
     if (!rootEntity) return false
-    return !!modifiedState[getComponent(rootEntity, SourceComponent)].value
+    return !!modifiedState[GLTFComponent.getInstanceID(rootEntity)].value
   },
   isModified: () => {
     const rootEntity = getState(EditorState).rootEntity
     if (!rootEntity) return false
-    return !!getState(GLTFModifiedState)[getComponent(rootEntity, SourceComponent)]
+    return !!getState(AssetModifiedState)[GLTFComponent.getInstanceID(rootEntity)]
   },
-  extension: syncStateWithLocalStorage(['expandedNodes']),
+  markModifiedScene: (entity: Entity) => {
+    const sourceID = getOptionalComponent(entity, SourceComponent) || GLTFComponent.getInstanceID(entity)
+    if (!sourceID) return
+
+    const modifiedState = getMutableState(AssetModifiedState)
+    modifiedState[sourceID].set(true)
+  },
   reactor: () => {
     const linkState = useMutableState(LinkState)
 

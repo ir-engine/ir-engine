@@ -23,11 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import appRootPath from 'app-root-path'
-import { ChildProcess } from 'child_process'
+import { default as appRootPath } from 'app-root-path'
 import fs from 'fs'
 import fsStore from 'fs-blob-store'
 import glob from 'glob'
+import kill from 'kill-port'
 import path from 'path/posix'
 import { PassThrough, Readable } from 'stream'
 
@@ -35,6 +35,7 @@ import { MULTIPART_CUTOFF_SIZE } from '@ir-engine/common/src/constants/FileSizeC
 import { FileBrowserContentType } from '@ir-engine/common/src/schemas/media/file-browser.schema'
 import { getState } from '@ir-engine/hyperflux'
 
+import { ChildProcess } from 'child_process'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerMode, ServerState } from '../../ServerState'
@@ -47,6 +48,8 @@ import {
   StorageObjectPutInterface,
   StorageProviderInterface
 } from './storageprovider.interface'
+
+const port = config.server.localStorageProviderPort
 
 /**
  * Storage provide class to communicate with Local http file server.
@@ -85,31 +88,37 @@ export class LocalStorage implements StorageProviderInterface {
     this._store = fsStore(this.PATH_PREFIX)
 
     if (getState(ServerState).serverMode === ServerMode.API) {
-      const child: ChildProcess = require('child_process').spawn(
-        'npx',
-        [
-          'http-server',
-          `${this.PATH_PREFIX}`,
-          '--ssl',
-          '--cert',
-          `${config.server.certPath}`,
-          '--key',
-          `${config.server.keyPath}`,
-          '--port',
-          '8642',
-          '--cors=*',
-          '--brotli',
-          '--gzip'
-        ],
-        {
-          cwd: process.cwd(),
-          stdio: 'inherit',
-          detached: true
-        }
-      )
-      process.on('exit', async () => {
-        process.kill(-child.pid!, 'SIGINT')
-      })
+      kill(port, 'tcp')
+        .catch(() => {})
+        .finally(() => {
+          const child: ChildProcess = require('child_process').spawn(
+            'npx',
+            [
+              'http-server',
+              `${this.PATH_PREFIX}`,
+              '--ssl',
+              '--cert',
+              `${config.server.certPath}`,
+              '--key',
+              `${config.server.keyPath}`,
+              '--port',
+              `${port}`,
+              '--cors=*',
+              '--brotli',
+              '--gzip',
+              '-a',
+              '::'
+            ],
+            {
+              cwd: process.cwd(),
+              stdio: 'inherit',
+              detached: true
+            }
+          )
+          process.on('exit', async () => {
+            process.kill(-child.pid!, 'SIGINT')
+          })
+        })
     }
     this.getOriginURLs().then((result) => (this.originURLs = result))
   }
@@ -217,7 +226,6 @@ export class LocalStorage implements StorageProviderInterface {
           const readable = Readable.from(data.Body)
           readable.pipe(writeableStream)
           writeableStream.on('finish', () => {
-            console.log('finished writing to file', filePath)
             resolve(true)
           })
           readable.on('error', (e) => {
@@ -230,7 +238,7 @@ export class LocalStorage implements StorageProviderInterface {
         }
       })
     } else {
-      fs.writeFileSync(filePath, data.Body)
+      fs.writeFileSync(filePath, new Uint8Array(data.Body))
       return true
     }
   }

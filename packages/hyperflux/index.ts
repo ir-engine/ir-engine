@@ -22,14 +22,15 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import '@hookstate/core' // required for hookstate to override react properly work - see https://github.com/avkonst/hookstate/issues/412
 
 export * from './src/EventDispatcher'
 export * from './src/functions/ActionFunctions'
+export * from './src/functions/createHookableFunction'
 export * from './src/functions/EnvironmentConstants'
 export * from './src/functions/ReactorFunctions'
 export * from './src/functions/StateFunctions'
 export * from './src/functions/StoreFunctions'
-export * from './src/functions/createHookableFunction'
 export * from './src/hooks/useDidMount'
 export * from './src/hooks/useForceUpdate'
 export * from './src/hooks/useImmediateEffect'

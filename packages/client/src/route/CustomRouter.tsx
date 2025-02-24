@@ -27,7 +27,7 @@ import { t } from 'i18next'
 import React, { Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
-import ErrorBoundary from '@ir-engine/client-core/src/common/components/ErrorBoundary'
+import ClientErrorBoundary from '@ir-engine/client-core/src/common/components/ClientErrorBoundary'
 import { useCustomRoutes } from '@ir-engine/client-core/src/common/services/RouterService'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 
@@ -42,7 +42,7 @@ function CustomRouter() {
   }
 
   return (
-    <ErrorBoundary>
+    <ClientErrorBoundary>
       <Suspense
         fallback={<LoadingView fullScreen className={`block h-12 w-12`} title={t('common:loader.loadingRoutes')} />}
       >
@@ -64,7 +64,7 @@ function CustomRouter() {
           <Route key={'404'} path="*" element={<$404 />} />
         </Routes>
       </Suspense>
-    </ErrorBoundary>
+    </ClientErrorBoundary>
   )
 }
 

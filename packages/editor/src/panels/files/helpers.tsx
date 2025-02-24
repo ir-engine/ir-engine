@@ -24,6 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { ImmutableArray } from '@hookstate/core'
+import { useHookstate } from '@ir-engine/hyperflux'
+
 import { FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { useFind, useMutation, useRealtime, useSearch } from '@ir-engine/common'
@@ -35,24 +37,28 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { CommonKnownContentTypes } from '@ir-engine/common/src/utils/CommonKnownContentTypes'
 import { bytesToSize } from '@ir-engine/common/src/utils/btyesToSize'
+import { cleanFileNameFile } from '@ir-engine/common/src/utils/cleanFileName'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
-import React, { ReactNode, createContext, useContext } from 'react'
+import React, { ReactNode, createContext, useContext, useEffect } from 'react'
 import { DnDFileType, FileDataType } from '../../constants/AssetTypes'
-import { handleUploadFiles } from '../../functions/assetFunctions'
+import { filterExistingFiles, handleUploadFiles, sanitizeFiles } from '../../functions/assetFunctions'
+import { EditorState } from '../../services/EditorServices'
 import { FilesState } from '../../services/FilesState'
+import { AssetCategoryNode } from '../assets/categories'
 
 /* CONSTANTS */
 
 export const FILES_PAGE_LIMIT = 100 as const
 
-export const availableTableColumns = ['name', 'type', 'dateModified', 'size'] as const
+export const availableTableColumns = ['name', 'type', 'author', 'createdAt', 'statistics', 'size'] as const
 
 /* HOOKS */
 
 const FilesQueryContext = createContext({
   filesQuery: null as null | ReturnType<typeof useFind<'file-browser'>>,
   files: [] as FileDataType[],
+  categories: [] as any,
   changeDirectoryByPath: (_path: string) => {},
   backDirectory: () => {},
   refreshDirectory: async () => {},
@@ -61,11 +67,17 @@ const FilesQueryContext = createContext({
 
 export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }) => {
   const filesState = useMutableState(FilesState)
+  const categories = useHookstate<any>([])
+  const directory = (
+    filesState.selectedDirectory.value !== ''
+      ? filesState.selectedDirectory.value
+      : '/projects/' + filesState.projectName.value
+  ).replace(/^\/+/, '')
 
   const filesQuery = useFind(fileBrowserPath, {
     query: {
       $limit: FILES_PAGE_LIMIT,
-      directory: filesState.selectedDirectory.value
+      directory: filesState.searchText.value ? `${directory}/**` : directory
     }
   })
 
@@ -119,9 +131,72 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
   useRealtime(staticResourcePath, filesQuery.refetch)
   FileThumbnailJobState.useGenerateThumbnails(filesQuery.data)
 
+  const projectName = useMutableState(EditorState).projectName.value
+
+  function buildHierarchy(paths: { key: string; name: string }[]): AssetCategoryNode[] {
+    const map = new Map<string, AssetCategoryNode>()
+    const roots: AssetCategoryNode[] = []
+
+    for (const { key: path } of paths) {
+      const parts = path
+        .split('/')
+        .slice(`/projects/${projectName}/public/**`.split('/').length - 2)
+        .filter(Boolean)
+      let currentPath = ''
+      let parentNode: AssetCategoryNode | null = null
+
+      for (let i = 0; i < parts.length; i++) {
+        currentPath = currentPath ? `${currentPath}/${parts[i]}` : parts[i]
+
+        if (!map.has(currentPath)) {
+          const newNode: AssetCategoryNode = {
+            name: parts[i],
+            path: `/${path}`,
+            depth: currentPath.split('/').length - 1,
+            children: []
+          }
+          map.set(currentPath, newNode)
+
+          if (parentNode) {
+            parentNode.children.push(newNode)
+          } else {
+            roots.push(newNode)
+          }
+        }
+
+        parentNode = map.get(currentPath)!
+      }
+    }
+
+    return roots
+  }
+
+  const foldersQuery = useFind(fileBrowserPath, {
+    query: {
+      $limit: FILES_PAGE_LIMIT,
+      directory: `/projects/${projectName}/public/**`
+    }
+  })
+
+  const folders = React.useMemo(() => foldersQuery.data.filter((file) => file.type === 'folder'), [foldersQuery.data])
+
+  useEffect(() => {
+    if (foldersQuery.status === 'success') {
+      categories.set(buildHierarchy(folders))
+    }
+  }, [foldersQuery.status])
+
   return (
     <FilesQueryContext.Provider
-      value={{ filesQuery, files, changeDirectoryByPath, backDirectory, refreshDirectory, createNewFolder }}
+      value={{
+        categories,
+        filesQuery,
+        files,
+        changeDirectoryByPath,
+        backDirectory,
+        refreshDirectory,
+        createNewFolder
+      }}
     >
       {children}
     </FilesQueryContext.Provider>
@@ -148,6 +223,7 @@ export function useFileBrowserDrop() {
     isCopy = false
   ): Promise<void> => {
     if (isLoading) return
+    if (!isCopy && newPath.startsWith(oldPath)) return // make sure we are not moving a folder into itself
     try {
       await fileService.update(null, {
         oldProject: filesState.projectName.value,
@@ -171,7 +247,7 @@ export function useFileBrowserDrop() {
     dropOn?: FileDataType,
     selectedFileKeys?: string[]
   ) => {
-    const destinationPath = dropOn?.isFolder ? `${dropOn.key}/` : filesState.selectedDirectory.value
+    const destinationPath = dropOn?.isFolder ? `${dropOn.key}` : filesState.selectedDirectory.value
 
     if (isFileDataType(data)) {
       if (dropOn?.isFolder) {
@@ -194,6 +270,7 @@ export function useFileBrowserDrop() {
 
       await Promise.all(
         data.files.map(async (file) => {
+          file = cleanFileNameFile(file)
           const assetType = !file.type || file.type.length === 0 ? AssetLoader.getAssetType(file.name) : file.type
           if (!assetType || assetType === file.name) {
             await fileService.create(`${destinationPath}${file.name}`)
@@ -205,7 +282,9 @@ export function useFileBrowserDrop() {
 
       if (filesToUpload.length) {
         try {
-          await handleUploadFiles(filesState.projectName.value, path, filesToUpload)
+          const uniqueFiles = await filterExistingFiles(filesState.projectName.value, path, filesToUpload)
+          const sanitizedFiles = sanitizeFiles(uniqueFiles)
+          await handleUploadFiles(filesState.projectName.value, path, sanitizedFiles)
         } catch (err) {
           NotificationService.dispatchNotify(err.message, { variant: 'error' })
         }
@@ -251,6 +330,7 @@ export const createStaticResourceDigest = (staticResources: ImmutableArray<Stati
     attribution: '',
     licensing: '',
     description: '',
+    name: '',
     // stats: '',
     thumbnailKey: '',
     thumbnailMode: '',
@@ -276,14 +356,17 @@ export const createStaticResourceDigest = (staticResources: ImmutableArray<Stati
 }
 
 export function fileConsistsOfContentType(files: readonly FileDataType[], contentType: string): boolean {
-  return files.every((file) => {
-    if (file.isFolder) {
-      return contentType.startsWith('image')
-    } else {
-      const guessedType: string = CommonKnownContentTypes[file.type]
-      return guessedType?.startsWith(contentType)
-    }
-  })
+  return (
+    files.length > 0 &&
+    files.every((file) => {
+      if (file.isFolder) {
+        return contentType.startsWith('image')
+      } else {
+        const guessedType: string = CommonKnownContentTypes[file.type]
+        return guessedType?.startsWith(contentType)
+      }
+    })
+  )
 }
 
 export const canDropOnFileBrowser = (folderName: string) =>

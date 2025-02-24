@@ -30,14 +30,15 @@ import CreateSceneDialog from '@ir-engine/editor/src/components/dialogs/CreateSc
 import { confirmSceneSaveIfModified } from '@ir-engine/editor/src/components/toolbar/Toolbar'
 import { onNewScene } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
-import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { Button } from '@ir-engine/ui'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { PlusCircleSm } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import { TabData } from 'rc-dock'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { HiOutlinePlusCircle } from 'react-icons/hi2'
+import { UIAddonsState } from '../../services/UIAddonsState'
 import SceneItem from './SceneItem'
 
 function ScenesPanel() {
@@ -63,7 +64,7 @@ function ScenesPanel() {
   const isCreatingScene = useHookstate(false)
   const handleCreateScene = async () => {
     isCreatingScene.set(true)
-    const newSceneUIAddons = editorState.uiAddons.newScene.value
+    const newSceneUIAddons = getState(UIAddonsState).editor.newScene
     if (Object.keys(newSceneUIAddons).length > 0) {
       PopoverState.showPopupover(<CreateSceneDialog />)
     } else {
@@ -73,26 +74,26 @@ function ScenesPanel() {
   }
 
   return (
-    <div className="h-full bg-theme-primary">
-      <div className="mb-4 w-full bg-theme-surface-main">
+    <div className="h-full bg-surface-1">
+      <div className="mb-4 w-full overflow-hidden bg-surface-4 p-1">
         <Button
-          startIcon={<HiOutlinePlusCircle />}
-          endIcon={isCreatingScene.value && <LoadingView spinnerOnly className="h-4 w-4" />}
           disabled={isCreatingScene.value}
-          rounded="none"
-          className="ml-auto bg-theme-highlight px-2"
-          size="small"
+          className="ml-auto h-8  px-2"
+          size="sm"
+          data-testid="scene-panel-add-scene-button"
           onClick={handleCreateScene}
         >
-          {t('editor:newScene')}
+          <PlusCircleSm />
+          <span className="text-nowrap">{t('editor:newScene')}</span>
+          {isCreatingScene.value && <LoadingView spinnerOnly className="h-4 w-4" />}
         </Button>
       </div>
-      <div className="h-full bg-theme-primary">
+      <div className="h-full bg-surface-1">
         {scenesLoading ? (
           <LoadingView title={t('editor:loadingScenes')} fullSpace className="block h-12 w-12" />
         ) : (
-          <div className="relative h-full flex-1 overflow-y-auto px-4 py-3 pb-8">
-            <div className="flex flex-wrap gap-4 pb-8">
+          <div className="relative h-full flex-1 overflow-y-auto px-4 py-3 pb-16">
+            <div className="flex flex-wrap gap-4 pb-8" data-testid="scene-panel-scene-browser">
               {scenes.map((scene) => (
                 <SceneItem
                   key={scene.id}
@@ -123,7 +124,7 @@ const ScenePanelTitle = () => {
 
   return (
     <div>
-      <PanelDragContainer>
+      <PanelDragContainer dataTestId="scene-panel-tab">
         <PanelTitle>{t('editor:properties.scene.name')}</PanelTitle>
       </PanelDragContainer>
     </div>

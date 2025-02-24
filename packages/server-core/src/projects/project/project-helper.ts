@@ -58,31 +58,33 @@ import { ProjectCheckUnfetchedCommitType } from '@ir-engine/common/src/schemas/p
 import { ProjectCommitType } from '@ir-engine/common/src/schemas/projects/project-commits.schema'
 import { ProjectDestinationCheckType } from '@ir-engine/common/src/schemas/projects/project-destination-check.schema'
 import { projectPath, ProjectType } from '@ir-engine/common/src/schemas/projects/project.schema'
-import { helmSettingPath } from '@ir-engine/common/src/schemas/setting/helm-setting.schema'
 import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { userPath, UserType } from '@ir-engine/common/src/schemas/user/user.schema'
+import { cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
 import { getDateTimeSql, toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import {
   copyFolderRecursiveSync,
   deleteFolderRecursive,
   getFilesRecursive
 } from '@ir-engine/common/src/utils/fsHelperFunctions'
-import { processFileName } from '@ir-engine/common/src/utils/processFileName'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { getState } from '@ir-engine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@ir-engine/projects/ProjectConfigInterface'
 
+import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { BUILDER_CHART_REGEX } from '@ir-engine/common/src/regex'
+import { engineSettingPath } from '@ir-engine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/pods/pods-helper'
-import { getJobBody } from '../../k8s-job-helper'
+import { getJobBody, getValidPodName } from '../../k8s-job-helper'
 import { getStats, regenerateProjectResourcesJson } from '../../media/static-resource/static-resource-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { createStaticResourceHash } from '../../media/upload-asset/upload-asset.service'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
+import { execPromise } from '../../util/execPromise'
 import { getContentType } from '../../util/fileUtils'
 import { getGitConfigData, getGitHeadData, getGitOrigHeadData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
@@ -148,8 +150,16 @@ export const updateBuilder = async (
     await Promise.all(data.projectsToUpdate.map((project) => app.service(projectPath).update('', project, params)))
   }
 
-  const helmSettingsResult = await app.service(helmSettingPath).find()
-  const helmSettings = helmSettingsResult.total > 0 ? helmSettingsResult.data[0] : null
+  const helmSettings = await app.service(engineSettingPath).find({
+    query: {
+      category: 'helm'
+    },
+    paginate: false
+  })
+
+  const helmBuilder = helmSettings.find((setting) => setting.key == EngineSettings.Helm.Main)?.value
+  const helmMain = helmSettings.find((setting) => setting.key === EngineSettings.Helm.Builder)?.value
+
   const builderDeploymentName = `${config.server.releaseName}-builder`
   const k8sAppsClient = getState(ServerState).k8AppsClient
   const k8BatchClient = getState(ServerState).k8BatchClient
@@ -186,9 +196,9 @@ export const updateBuilder = async (
           `kubectl delete deployment --ignore-not-found=true ${builderDeployments.body.items[0].metadata!.name}`
         )
 
-      if (helmSettings && helmSettings.builder && helmSettings.builder.length > 0)
+      if (helmSettings.length > 0 && helmBuilder && helmBuilder.length > 0)
         await execAsync(
-          `helm repo update && helm upgrade --reuse-values --version ${helmSettings.builder} --set builder.image.tag=${tag} ${builderDeploymentName} ir-engine/ir-engine-builder`
+          `helm repo update && helm upgrade --reuse-values --version ${helmBuilder} --set builder.image.tag=${tag} ${builderDeploymentName} ir-engine/ir-engine-builder`
         )
       else {
         const { stdout } = await execAsync(`helm history ${builderDeploymentName} | grep deployed`)
@@ -300,7 +310,9 @@ export const onProjectEvent = async (
   eventType: keyof ProjectEventHooks,
   ...args
 ) => {
-  const hooks = require(path.resolve(projectsRootFolder, project.name, hookPath)).default
+  const hookFilePath = path.resolve(projectsRootFolder, project.name, hookPath)
+  if (!fs.existsSync(hookFilePath)) return logger.warn(`No hooks file found at ${hookFilePath}`)
+  const hooks = (await import(hookFilePath)).default
   if (typeof hooks[eventType] === 'function') {
     if (args && args.length > 0) {
       return await hooks[eventType](app, project, ...args)
@@ -309,16 +321,12 @@ export const onProjectEvent = async (
   }
 }
 
-export const getProjectConfig = (projectName: string) => {
+export const getProjectConfig = async (projectName: string) => {
   try {
-    return require(path.resolve(projectsRootFolder, projectName, 'xrengine.config.ts'))
-      .default as ProjectConfigInterface
+    const configFilePath = path.resolve(projectsRootFolder, projectName, 'xrengine.config.ts')
+    return (await import(configFilePath)).default as ProjectConfigInterface
   } catch (e) {
-    logger.error(
-      e,
-      '[Projects]: WARNING project with ' +
-        `name ${projectName} has no xrengine.config.ts file - this is not recommended.`
-    )
+    // asset only projects do not have a config file
   }
 }
 export const getProjectManifest = (projectName: string): ManifestJson => {
@@ -789,7 +797,7 @@ export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> 
     const awsCredentials = `[default]\naws_access_key_id=${config.aws.eks.accessKeyId}\naws_secret_access_key=${config.aws.eks.secretAccessKey}\n[role]\nrole_arn = ${config.aws.eks.roleArn}\nsource_profile = default`
 
     if (!fs.existsSync(awsPath)) fs.mkdirSync(awsPath, { recursive: true })
-    if (!fs.existsSync(credentialsPath)) fs.writeFileSync(credentialsPath, Buffer.from(awsCredentials))
+    if (!fs.existsSync(credentialsPath)) fs.writeFileSync(credentialsPath, awsCredentials)
 
     const ecr = new ECRPUBLICClient({
       credentials: fromIni({
@@ -827,7 +835,7 @@ export const findBuilderTags = async (): Promise<Array<ProjectBuilderTagsType>> 
     const awsCredentials = `[default]\naws_access_key_id=${config.aws.eks.accessKeyId}\naws_secret_access_key=${config.aws.eks.secretAccessKey}\n[role]\nrole_arn = ${config.aws.eks.roleArn}\nsource_profile = default`
 
     if (!fs.existsSync(awsPath)) fs.mkdirSync(awsPath, { recursive: true })
-    if (!fs.existsSync(credentialsPath)) fs.writeFileSync(credentialsPath, Buffer.from(awsCredentials))
+    if (!fs.existsSync(credentialsPath)) fs.writeFileSync(credentialsPath, awsCredentials)
 
     const ecr = new ECRClient({
       credentials: fromIni({
@@ -962,7 +970,6 @@ export async function getProjectUpdateJobBody(
 ): Promise<k8s.V1Job> {
   const command = [
     'npx',
-    'cross-env',
     'ts-node',
     '--swc',
     'scripts/update-project.ts',
@@ -1015,7 +1022,7 @@ export async function getProjectUpdateJobBody(
     'ir-engine/release': process.env.RELEASE_NAME!
   }
 
-  const name = `${process.env.RELEASE_NAME}-${projectJobName}-update`
+  const name = `${process.env.RELEASE_NAME}-update-${projectJobName}`
 
   return getJobBody(app, command, name, labels)
 }
@@ -1030,7 +1037,6 @@ export async function getProjectPushJobBody(
 ): Promise<k8s.V1Job> {
   const command = [
     'npx',
-    'cross-env',
     'ts-node',
     '--swc',
     'scripts/push-project.ts',
@@ -1062,7 +1068,7 @@ export async function getProjectPushJobBody(
     'ir-engine/release': process.env.RELEASE_NAME!
   }
 
-  const name = `${process.env.RELEASE_NAME}-${projectJobName}-gh-push`
+  const name = `${process.env.RELEASE_NAME}-gh-push-${projectJobName}`
 
   return getJobBody(app, command, name, labels)
 }
@@ -1071,7 +1077,7 @@ export const getCronJobBody = (project: ProjectType, image: string): object => {
   const projectJobName = cleanProjectName(project.name)
   return {
     metadata: {
-      name: `${process.env.RELEASE_NAME}-${projectJobName}-auto-update`,
+      name: getValidPodName(`${process.env.RELEASE_NAME}-auto-update-${projectJobName}`),
       labels: {
         'ir-engine/projectUpdater': 'true',
         'ir-engine/autoUpdate': 'true',
@@ -1101,18 +1107,10 @@ export const getCronJobBody = (project: ProjectType, image: string): object => {
               serviceAccountName: `${process.env.RELEASE_NAME}-ir-engine-api`,
               containers: [
                 {
-                  name: `${process.env.RELEASE_NAME}-${project.name.toLowerCase()}-auto-update`,
+                  name: getValidPodName(`${process.env.RELEASE_NAME}-auto-update-${project.name.toLowerCase()}`),
                   image,
                   imagePullPolicy: 'IfNotPresent',
-                  command: [
-                    'npx',
-                    'cross-env',
-                    'ts-node',
-                    '--swc',
-                    'scripts/auto-update-project.ts',
-                    '--projectName',
-                    project.name
-                  ],
+                  command: ['npx', 'ts-node', '--swc', 'scripts/auto-update-project.ts', '--projectName', project.name],
                   env: Object.entries(process.env).map(([key, value]) => {
                     return { name: key, value: value }
                   })
@@ -1134,7 +1132,6 @@ export async function getDirectoryArchiveJobBody(
 ): Promise<k8s.V1Job> {
   const command = [
     'npx',
-    'cross-env',
     'ts-node',
     '--swc',
     'scripts/archive-directory.ts',
@@ -1152,7 +1149,7 @@ export async function getDirectoryArchiveJobBody(
     'ir-engine/release': process.env.RELEASE_NAME || ''
   }
 
-  const name = `${process.env.RELEASE_NAME}-${projectJobName}-archive`
+  const name = `${process.env.RELEASE_NAME}-archive-${projectJobName}`
 
   return getJobBody(app, command, name, labels)
 }
@@ -1182,7 +1179,7 @@ export const createOrUpdateProjectUpdateJob = async (app: Application, projectNa
   if (k8BatchClient) {
     try {
       await k8BatchClient.patchNamespacedCronJob(
-        `${process.env.RELEASE_NAME}-${projectName}-auto-update`,
+        getValidPodName(`${process.env.RELEASE_NAME}-auto-update-${projectName}`),
         'default',
         getCronJobBody(project, image),
         undefined,
@@ -1207,7 +1204,10 @@ export const removeProjectUpdateJob = async (app: Application, projectName: stri
   try {
     const k8BatchClient = getState(ServerState).k8BatchClient
     if (k8BatchClient)
-      await k8BatchClient.deleteNamespacedCronJob(`${process.env.RELEASE_NAME}-${projectName}-auto-update`, 'default')
+      await k8BatchClient.deleteNamespacedCronJob(
+        getValidPodName(`${process.env.RELEASE_NAME}-auto-update-${projectName}`),
+        'default'
+      )
   } catch (err) {
     logger.error('Failed to remove project update cronjob %o', err)
   }
@@ -1261,7 +1261,7 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
 }
 
 export const copyDefaultProject = () => {
-  deleteFolderRecursive(path.join(projectsRootFolder, `default-project`))
+  deleteFolderRecursive(path.join(projectsRootFolder, `ir-engine/default-project`))
   copyFolderRecursiveSync(
     path.join(appRootPath.path, 'packages/projects/default-project'),
     path.join(projectsRootFolder, 'ir-engine')
@@ -1443,7 +1443,7 @@ export const updateProject = async (
 
   const { assetsOnly } = await uploadLocalProjectToProvider(app, projectName)
 
-  const projectConfig = getProjectConfig(projectName)
+  const projectConfig = await getProjectConfig(projectName)
 
   const enabled = getProjectEnabled(projectName)
 
@@ -1530,6 +1530,7 @@ export const updateProject = async (
     )
   }
   // run project install script
+  await execPromise(`npm install`, { cwd: appRootPath.path })
   if (projectConfig?.onEvent) {
     await onProjectEvent(app, returned, projectConfig.onEvent, existingProject ? 'onUpdate' : 'onInstall')
   }
@@ -1577,7 +1578,7 @@ export const deleteProjectFilesInStorageProvider = async (
 ) => {
   const storageProvider = getStorageProvider(storageProviderName)
   try {
-    const existingFiles = await getFileKeysRecursive(`projects/${projectName}`)
+    const existingFiles = await getFileKeysRecursive(`projects/${projectName}/`)
     if (existingFiles.length) {
       await storageProvider.deleteResources(existingFiles)
       if (config.server.edgeCachingEnabled)
@@ -1612,6 +1613,7 @@ const migrateResourcesJson = (projectName: string, resourceJsonPath: string) => 
             dependencies: item.dependencies,
             licensing: item.licensing,
             description: item.description,
+            name: item.name,
             attribution: item.attribution,
             thumbnailKey: (item as any).thumbnailURL, // old fields
             thumbnailMode: (item as any).thumbnailType // old fields
@@ -1620,7 +1622,7 @@ const migrateResourcesJson = (projectName: string, resourceJsonPath: string) => 
       })
     ) as ResourcesJson
   }
-  if (newManifest) fs.writeFileSync(resourceJsonPath, Buffer.from(JSON.stringify(newManifest, null, 2)))
+  if (newManifest) fs.writeFileSync(resourceJsonPath, JSON.stringify(newManifest, null, 2))
 }
 
 const getResourceType = (key: string, resource?: ResourceType) => {
@@ -1725,7 +1727,7 @@ export const uploadLocalProjectToProvider = async (
   for (const file of filteredFilesInProjectFolder) {
     try {
       const fileResult = fs.readFileSync(file)
-      const filePathRelative = processFileName(file.slice(projectRootPath.length + 1))
+      const filePathRelative = cleanFileNameString(file.slice(projectRootPath.length + 1), true)
       const key = `projects/${projectName}/${filePathRelative}`
 
       const contentType = getContentType(key)
@@ -1775,6 +1777,7 @@ export const uploadLocalProjectToProvider = async (
             dependencies: resourceInfo?.dependencies ?? undefined,
             licensing: resourceInfo?.licensing ?? undefined,
             description: resourceInfo?.description ?? undefined,
+            name: resourceInfo?.name ?? undefined,
             attribution: resourceInfo?.attribution ?? undefined,
             thumbnailKey,
             thumbnailMode: resourceInfo?.thumbnailMode ?? undefined
@@ -1795,6 +1798,7 @@ export const uploadLocalProjectToProvider = async (
             dependencies: resourceInfo?.dependencies ?? undefined,
             licensing: resourceInfo?.licensing ?? undefined,
             description: resourceInfo?.description ?? undefined,
+            name: resourceInfo?.name ?? undefined,
             attribution: resourceInfo?.attribution ?? undefined,
             thumbnailKey,
             thumbnailMode: resourceInfo?.thumbnailMode ?? undefined
