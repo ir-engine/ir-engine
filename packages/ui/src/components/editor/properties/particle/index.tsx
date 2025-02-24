@@ -36,7 +36,7 @@ import {
 } from 'three'
 import { BurstParameters, RenderMode } from 'three.quarks'
 
-import { getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   ApplyForceBehaviorJSON,
   BehaviorJSON,
@@ -45,7 +45,6 @@ import {
   ColorGeneratorJSON,
   ConstantColorJSON,
   DONUT_SHAPE_DEFAULT,
-  ExtraSystemJSON,
   MESH_SHAPE_DEFAULT,
   POINT_SHAPE_DEFAULT,
   ParticleSystemComponent,
@@ -107,20 +106,9 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
     }
   }, [])
 
-  const onSetState = useCallback((state: State<any>) => {
+  const onSetState = useCallback((path: string) => {
     return (value: any) => {
-      state.set(value)
-      const { systemParameters, behaviorParameters } = JSON.parse(
-        JSON.stringify(getComponent(entity, ParticleSystemComponent))
-      )
-      commitProperties(
-        ParticleSystemComponent,
-        {
-          systemParameters,
-          behaviorParameters
-        },
-        [props.entity]
-      )
+      commitProperties(ParticleSystemComponent, { [path]: value }, [props.entity])
       particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
     }
   }, [])
@@ -215,7 +203,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
         >
           <ModelInput
             value={particleSystem.systemParameters.shape.mesh!}
-            onRelease={onSetState(particleSystemState.systemParameters.shape.mesh as any)}
+            onRelease={onSetState('systemParameters.shape.mesh')}
           />
         </InputGroup>
       )}
@@ -232,23 +220,23 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
           return (
             <div>
               <InputGroup name="Time" label={t('editor:properties.particle-system.burst.time')}>
-                <NumericInput value={burst.time.value} onChange={onSetState(burst.time)} />
+                <NumericInput value={burst.time.value} onChange={onSetState('burst.time')} />
               </InputGroup>
 
               <InputGroup name="Count" label={t('editor:properties.particle-system.burst.count')}>
-                <NumericInput value={burst.count.value} onChange={onSetState(burst.count)} />
+                <NumericInput value={burst.count.value} onChange={onSetState('burst.count')} />
               </InputGroup>
 
               <InputGroup name="Cycle" label={t('editor:properties.particle-system.burst.cycle')}>
-                <NumericInput value={burst.cycle.value} onChange={onSetState(burst.cycle)} />
+                <NumericInput value={burst.cycle.value} onChange={onSetState('burst.cycle')} />
               </InputGroup>
 
               <InputGroup name="Interval" label={t('editor:properties.particle-system.burst.interval')}>
-                <NumericInput value={burst.interval.value} onChange={onSetState(burst.interval)} />
+                <NumericInput value={burst.interval.value} onChange={onSetState('burst.interval')} />
               </InputGroup>
 
               <InputGroup name="Probability" label={t('editor:properties.particle-system.burst.probability')}>
-                <NumericInput value={burst.probability.value} onChange={onSetState(burst.probability)} />
+                <NumericInput value={burst.probability.value} onChange={onSetState('burst.probability')} />
               </InputGroup>
 
               <Button onClick={onRemoveBurst(burst as any)}>
@@ -261,6 +249,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
 
       <InputGroup name="Start Life" label={t('editor:properties.particle-system.start-life')}>
         <ValueGenerator
+          path="systemParameters.startLife"
           value={particleSystem.systemParameters.startLife as ValueGeneratorJSON}
           scope={particleSystemState.systemParameters.startLife as any}
           onChange={onSetState}
@@ -268,6 +257,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Start Size" label={t('editor:properties.particle-system.start-size')}>
         <ValueGenerator
+          path="systemParameters.startSize"
           value={particleSystem.systemParameters.startSize as ValueGeneratorJSON}
           scope={particleSystemState.systemParameters.startSize as any}
           onChange={onSetState}
@@ -275,6 +265,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Start Speed" label={t('editor:properties.particle-system.start-speed')}>
         <ValueGenerator
+          path="systemParameters.startSpeed"
           value={particleSystem.systemParameters.startSpeed as ValueGeneratorJSON}
           scope={particleSystemState.systemParameters.startSpeed as any}
           onChange={onSetState}
@@ -282,6 +273,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Start Rotation" label={t('editor:properties.particle-system.start-rotation')}>
         <ValueGenerator
+          path="systemParameters.startRotation"
           value={particleSystem.systemParameters.startRotation as ValueGeneratorJSON}
           scope={particleSystemState.systemParameters.startRotation as any}
           onChange={onSetState}
@@ -289,6 +281,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Start Color" label={t('editor:properties.particle-system.start-color')}>
         <ColorGenerator
+          path="systemParameters.startColor"
           scope={particleSystemState.systemParameters.startColor as unknown as State<ColorGeneratorJSON>}
           value={particleSystem.systemParameters.startColor as ConstantColorJSON}
           onChange={onSetState}
@@ -296,6 +289,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Emission Over Time" label={t('editor:properties.particle-system.emission-over-time')}>
         <ValueGenerator
+          path="systemParameters.emissionOverTime"
           value={particleSystem.systemParameters.emissionOverTime as ValueGeneratorJSON}
           scope={particleSystemState.systemParameters.emissionOverTime as any}
           onChange={onSetState}
@@ -320,6 +314,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
         <>
           <InputGroup name="Trail Length" label={t('editor:properties.particle-system.trail-length')}>
             <ValueGenerator
+              path="systemParameters.rendererEmitterSettings.startLength"
               value={particleSystem.systemParameters.rendererEmitterSettings.startLength as ValueGeneratorJSON}
               scope={
                 (particleSystemState.systemParameters.rendererEmitterSettings as any)
@@ -331,7 +326,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
           <InputGroup name="Follow Local Origin" label={t('editor:properties.particle-system.follow-local-origin')}>
             <Checkbox
               checked={particleSystem.systemParameters.rendererEmitterSettings.followLocalOrigin}
-              onChange={onSetState(particleSystemState.systemParameters.rendererEmitterSettings.followLocalOrigin)}
+              onChange={onSetState('systemParameters.rendererEmitterSettings.followLocalOrigin')}
             />
           </InputGroup>
         </>
@@ -353,7 +348,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
           <>
             <NumericInput
               value={particleSystem.systemParameters.startTileIndex}
-              onChange={onSetState(particleSystemState.systemParameters.startTileIndex)}
+              onChange={onSetState('systemParameters.startTileIndex')}
             />
             <Button
               onClick={() => {
@@ -373,6 +368,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
         )}
         {typeof particleSystem.systemParameters.startTileIndex === 'object' && (
           <ValueGenerator
+            path="systemParameters.startTileIndex"
             scope={particleSystemState.systemParameters.startTileIndex as unknown as State<ValueGeneratorJSON>}
             value={particleSystem.systemParameters.startTileIndex as ValueGeneratorJSON}
             onChange={onSetState}
@@ -383,15 +379,13 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Mesh" label={t('editor:properties.particle-system.mesh')}>
         <ModelInput
           value={particleSystem.systemParameters.instancingGeometry}
-          onRelease={onSetState(
-            (particleSystemState.systemParameters as unknown as State<ExtraSystemJSON>).instancingGeometry
-          )}
+          onRelease={onSetState('instancingGeometry')}
         />
       </InputGroup>
       <InputGroup name="Blending" label={t('editor:properties.particle-system.blending')}>
         <SelectInput
           value={particleSystem.systemParameters.blending as Blending}
-          onChange={onSetState(particleSystemState.systemParameters.blending)}
+          onChange={onSetState('systemParameters.blending')}
           options={[
             { label: t('editor:properties.particle-system.blending-type.normal'), value: NormalBlending },
             { label: t('editor:properties.particle-system.blending-type.additive'), value: AdditiveBlending },
@@ -405,7 +399,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Transparent" label={t('editor:properties.particle-system.transparent')}>
         <Checkbox
           checked={particleSystem.systemParameters.transparent ?? false}
-          onChange={onSetState(particleSystemState.systemParameters.transparent)}
+          onChange={onSetState('systemParameters.transparent')}
         />
       </InputGroup>
       <InputGroup name="World Space" label={t('editor:properties.particle-system.world-space')}>
@@ -419,7 +413,12 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
         element={(behaviorState: State<BehaviorJSON>, index) => {
           return (
             <>
-              <BehaviorInput scope={behaviorState} value={behaviorState.value as BehaviorJSON} onChange={onSetState} />
+              <BehaviorInput
+                path="behaviorParameters"
+                scope={behaviorState}
+                value={behaviorState.value as BehaviorJSON}
+                onChange={onSetState}
+              />
               <Button onClick={onRemoveBehavior(index)}>{t('editor:properties.particle-system.remove')}</Button>
             </>
           )
