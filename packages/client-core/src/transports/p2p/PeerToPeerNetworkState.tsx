@@ -28,7 +28,6 @@ import { IceServer } from '@ir-engine/common/src/constants/DefaultWebRTCSettings
 import {
   InstanceAttendanceType,
   InstanceID,
-  InstanceType,
   clientSettingPath,
   instanceAttendancePath,
   instancePath,
@@ -39,6 +38,7 @@ import { Engine } from '@ir-engine/ecs'
 import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
 import {
   PeerID,
+  Topic,
   UserID,
   defineState,
   dispatchAction,
@@ -109,11 +109,16 @@ const NetworkReactor = (props: { id: InstanceID }) => {
   const instance = useGet(instancePath, props.id)
   if (!instance.data) return null
 
-  return <ConnectionReactor instance={instance.data} />
+  return (
+    <ConnectionReactor
+      instanceID={instance.data.id}
+      topic={instance.data.locationId ? NetworkTopics.world : NetworkTopics.media}
+    />
+  )
 }
 
-const ConnectionReactor = (props: { instance: InstanceType }) => {
-  const instanceID = props.instance.id
+const ConnectionReactor = (props: { instanceID: InstanceID; topic: Topic }) => {
+  const instanceID = props.instanceID
   const joinResponse = useHookstate<null | { index: number; iceServers: IceServer[] }>(null)
 
   useEffect(() => {
@@ -139,7 +144,7 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
   useEffect(() => {
     if (!joinResponse.value) return
 
-    const topic = props.instance.locationId ? NetworkTopics.world : NetworkTopics.media
+    const topic = props.topic
 
     getMutableState(NetworkState).hostIds[topic].set(instanceID)
 
@@ -182,13 +187,13 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
 
   if (!joinResponse.value) return null
 
-  return <PeersReactor instance={props.instance} />
+  return <PeersReactor instanceID={props.instanceID} />
 }
 
-const PeersReactor = (props: { instance: InstanceType }) => {
+const PeersReactor = (props: { instanceID: InstanceID }) => {
   const instanceAttendanceQuery = useFind(instanceAttendancePath, {
     query: {
-      instanceId: props.instance.id,
+      instanceId: props.instanceID,
       ended: false,
       updatedAt: {
         // Only consider instances that have been updated in the last 10 seconds
@@ -222,7 +227,7 @@ const PeersReactor = (props: { instance: InstanceType }) => {
           peerID={peer.peerId}
           peerIndex={peer.peerIndex}
           userID={peer.userId}
-          instanceID={props.instance.id}
+          instanceID={props.instanceID}
         />
       ))}
     </>
