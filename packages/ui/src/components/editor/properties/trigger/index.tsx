@@ -104,7 +104,7 @@ const TriggerProperties: EditorComponentType = (props) => {
         {!hasRigidbody && (
           <Button
             title={t('editor:properties.triggerVolume.lbl-addRigidBody')}
-            className="text-sm text-[#FFFFFF]"
+            className="text-sm text-text-primary"
             variant="tertiary"
             onClick={() => {
               const nodes = SelectionState.getSelectedEntities()
@@ -119,7 +119,7 @@ const TriggerProperties: EditorComponentType = (props) => {
       <div className="my-3 flex justify-end">
         <Button
           title={t('editor:properties.triggerVolume.lbl-addTrigger')}
-          className="text-sm text-[#FFFFFF]"
+          className="text-sm text-text-primary"
           variant="tertiary"
           onClick={() => {
             const triggers = [
