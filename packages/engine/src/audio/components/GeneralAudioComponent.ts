@@ -23,21 +23,34 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import { useEffect } from 'react'
 
-const argTypes = {}
+import { defineComponent, removeComponent, setComponent, useEntityContext } from '@ir-engine/ecs'
+import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 
-export default {
-  title: 'Editor/Properties/PositionalAudio',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'PositionalAudioNodeEditor',
-    jest: 'positionalAudioNodeEditor.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { NodeIDSchema } from '../../gltf/NodeIDComponent'
+
+export const GeneralAudioComponent = defineComponent({
+  name: 'EE_generalAudio',
+
+  jsonID: 'EE_audio_general',
+
+  schema: S.Object({
+    mediaUUID: NodeIDSchema()
+  }),
+
+  onRemove: (entity, component) => {
+    removeComponent(entity, MediaComponent)
   },
-  argTypes
-}
-export const Default = { args: {} }
+
+  reactor: function () {
+    const entity = useEntityContext()
+
+    useEffect(() => {
+      setComponent(entity, MediaComponent)
+    }, [])
+
+    return null
+  }
+})
