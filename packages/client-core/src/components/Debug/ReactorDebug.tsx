@@ -81,7 +81,7 @@ export function ReactorDebug() {
   const { t } = useTranslation()
   useHookstate(getMutableState(ECSState).frameTime).value
 
-  const averageEnabled = useHookstate(false)
+  const averageEnabled = useHookstate(true)
 
   useEffect(() => {
     open = true
