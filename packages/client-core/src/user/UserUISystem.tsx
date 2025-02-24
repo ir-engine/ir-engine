@@ -51,16 +51,11 @@ const OverlayReactor = () => {
       const popoverType = overlayComponent?.type.value
       if (!popoverType) return
       const Component = getState(OverlayComponentState)[popoverType]
-      PopoverState.showPopupover(
-        <div className="animate-slideIn">
-          <Component component={overlayComponent.value} />
-        </div>,
-        () => {
-          setComponent(entity, OverlayComponent, { isOpen: false })
-          PopoverState.hidePopupover()
-          setIsPopoverOpen(false)
-        }
-      )
+      PopoverState.showPopupover(<Component component={overlayComponent.value} />, () => {
+        setComponent(entity, OverlayComponent, { isOpen: false })
+        PopoverState.hidePopupover()
+        setIsPopoverOpen(false)
+      })
       setIsPopoverOpen(true)
     }
   }, [overlayComponent?.isOpen.value])
