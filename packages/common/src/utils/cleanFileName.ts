@@ -29,6 +29,13 @@ Infinite Reality Engine. All Rights Reserved.
  * @param fullFileName
  * @param useStorageProviderLengthRestrictions
  */
+import {
+  END_WITH_ALPHANUMERIC_REGEX,
+  SANITIZE_FILENAME_REGEX,
+  START_WITH_ALPHANUMERIC_REGEX,
+  WITH_OUT_SPACE_REGEX
+} from '../regex'
+
 export const cleanFileNameString = (fullFileName: string, useStorageProviderLengthRestrictions = false): string => {
   try {
     //extract the path and file name separately
@@ -47,13 +54,12 @@ export const cleanFileNameString = (fullFileName: string, useStorageProviderLeng
 
     // Sanitize the name while preserving dots except the last one
     nameWithoutExtension = nameWithoutExtension
-      .replace(/[^a-zA-Z0-9\s()_.-]/g, '-') // Allow dots along with other valid chars
-      .replace(/\s+/g, '-') // Replace spaces with dash
-      .replace(/^[^a-zA-Z0-9]+/, '') // Remove non-alphanumeric from start
-      .replace(/[^a-zA-Z0-9]+$/, '') // Remove non-alphanumeric from end
-      .replace(/-+/g, '-') // Replace multiple dashes with single dash
+      .replace(SANITIZE_FILENAME_REGEX, '-')
+      .replace(WITH_OUT_SPACE_REGEX, '-') // Replace spaces with dash
+      .replace(START_WITH_ALPHANUMERIC_REGEX, '') // Remove non-alphanumeric from start
+      .replace(END_WITH_ALPHANUMERIC_REGEX, '') // Remove non-alphanumeric from end
 
-    //Used by backend uploads to storage provider, which has different length restrictions than other uses
+    //Used by backend uploads to storage provider...
     if (useStorageProviderLengthRestrictions) {
       if (nameWithoutExtension.length > 1024) nameWithoutExtension = nameWithoutExtension.slice(0, 1024)
     } else {
