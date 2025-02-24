@@ -35,6 +35,7 @@ import {
   QuerySubReactor,
   traverseEntityNode,
   UndefinedEntity,
+  useChildrenWithComponents,
   useComponent,
   useQuery
 } from '@ir-engine/ecs'
@@ -102,7 +103,7 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
   const contextMenu = useHookstate({ entity: UndefinedEntity, anchorEvent: undefined as React.MouseEvent | undefined })
   const entities = useQuery([SourceComponent], Layers.Authoring)
 
-  const childEntities = useQuery([EntityTreeComponent], Layers.Authoring)
+  const childEntities = useChildrenWithComponents(rootEntity, [EntityTreeComponent])
   const reparentRefresh = useHookstate(0)
 
   const ChildEntityReactor = (props: { entity: Entity }) => {
@@ -115,7 +116,7 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
         setParentEntity(entityTreeComponent.value.parentEntity)
         reparentRefresh.set((reparentRefresh.value + 1) % 1000)
       }
-    }, [entityTreeComponent.parentEntity])
+    }, [entityTreeComponent.parentEntity.value])
 
     return null
   }
