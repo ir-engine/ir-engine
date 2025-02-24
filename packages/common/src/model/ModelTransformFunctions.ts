@@ -414,7 +414,8 @@ const doUpload = async (projectName, fileName, buffer) => {
 const toProjectAndFileName = (fUploadPath: string, srcBaseURL: string): [string, string] => {
   // TODO: remove srcBaseURL if it's unnecessary
   const [_, projectName, fileName] =
-    PATH_CHECK_REGEX.exec(fUploadPath) ?? PATH_CHECK_REGEX.exec(pathJoin(srcBaseURL, fUploadPath))!
+    MATCH_ASSET_PROJECT_FILENAME_REGEX.exec(fUploadPath) ??
+    MATCH_ASSET_PROJECT_FILENAME_REGEX.exec(pathJoin(srcBaseURL, fUploadPath))!
   return [projectName, fileName]
 }
 
