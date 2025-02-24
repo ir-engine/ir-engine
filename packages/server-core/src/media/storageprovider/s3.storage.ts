@@ -448,7 +448,7 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   /**
-   * Invalidate items in the S3 storage.
+   * Invalidate items in S3
    * @param invalidationItems List of keys.
    */
   async createInvalidation(invalidationItems: string[]) {
