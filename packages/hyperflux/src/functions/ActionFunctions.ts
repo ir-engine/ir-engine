@@ -469,6 +469,8 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
     } catch (err) {
       console.log('error in logging action', action)
     }
+    const idx = HyperFlux.store.actions.incoming.indexOf(action)
+    HyperFlux.store.actions.incoming.splice(idx, 1)
     return
   }
 
@@ -496,6 +498,8 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
   } finally {
     HyperFlux.store.actions.history.push(action)
     HyperFlux.store.actions.knownUUIDs.add(action.$uuid)
+    const idx = HyperFlux.store.actions.incoming.indexOf(action)
+    HyperFlux.store.actions.incoming.splice(idx, 1)
   }
 }
 
@@ -518,10 +522,12 @@ const applyEventSourcingToAllQueues = () => {
  * Process incoming actions
  */
 export const applyIncomingActions = () => {
-  const { incoming } = HyperFlux.store.actions
+  const incoming = HyperFlux.store.actions.incoming
+  if (!incoming.length) return
+
   const now = HyperFlux.store.getDispatchTime()
-  while (incoming.length > 0) {
-    const action = incoming.shift()!
+  const actions = incoming.slice()
+  for (const action of actions) {
     _forwardIfNecessary(action)
     if (action.$time <= now) _applyIncomingAction(action)
   }

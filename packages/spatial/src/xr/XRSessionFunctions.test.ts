@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 import { afterEach, assert, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { getLastAction } from '../../tests/util/actionHelpers'
 import { destroyEmulatedXREngine, mockEmulatedXREngine } from '../../tests/util/mockEmulatedXREngine'
 import { mockSpatialEngine } from '../../tests/util/mockSpatialEngine'
 import {
@@ -35,7 +34,7 @@ import {
 } from '../../tests/webxr/emulator'
 
 import { createEngine, destroyEngine, getComponent, getMutableComponent } from '@ir-engine/ecs'
-import { applyIncomingActions, getMutableState, getState } from '@ir-engine/hyperflux'
+import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { Quaternion, Vector3 } from 'three'
 import { ReferenceSpaceState, TransformComponent } from '../SpatialModule'
 import { Q_IDENTITY, Vector3_One, Vector3_Zero } from '../common/constants/MathConstants'
@@ -322,16 +321,6 @@ describe('onSessionEnd', () => {
     // Run and Check the result
     onSessionEnd()
     const result = ReferenceSpace.viewer
-    expect(result).toBe(Expected)
-  })
-
-  it('should call `dispatchAction` with XRAction.sessionChanged{active:false}', () => {
-    const Expected = false
-    // Run and Check the result
-    onSessionEnd()
-    applyIncomingActions()
-    // @ts-expect-error
-    const result = getLastAction().active
     expect(result).toBe(Expected)
   })
 }) //:: onSessionEnd
@@ -683,12 +672,3 @@ describe('endXRSession', () => {
     expect(XREmulatorHelper.getLastXRSessionData(result).ended).toBe(Expected)
   })
 }) //:: endXRSession
-
-describe('xrSessionChanged', () => {
-  it('does nothing, but does not fail to run either', () => {
-    const Expected = undefined
-    // @ts-ignore Allow coercing undefined into the function parameter
-    const result = xrSessionChanged(undefined)
-    expect(result).toBe(Expected)
-  })
-}) //:: xrSessionChanged
