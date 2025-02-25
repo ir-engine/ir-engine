@@ -31,6 +31,7 @@ import {
   locationPath,
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
+import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbnailState'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { Button, DropdownItem, Input, Select } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
@@ -155,6 +156,13 @@ export default function AddEditLocationModal(props: {
     }
 
     publishLoading.set(true)
+
+    try {
+      await SceneThumbnailState.createThumbnail()
+      await SceneThumbnailState.uploadThumbnail()
+    } catch (e) {
+      errors.serverError.set(e.message)
+    }
 
     if (props.onPublish) {
       try {
