@@ -236,12 +236,15 @@ const Reactor = () => {
   return null
 }
 
+/**
+ * @todo disabled until WebXR is fully supported again
+ */
 export const WidgetUISystem = defineSystem({
   uuid: 'ee.client.WidgetUISystem',
   insert: { before: TransformSystem },
-  execute,
-  reactor: () => {
-    if (!useMutableState(ReferenceSpaceState).viewerEntity.value) return null
-    return <Reactor />
-  }
+  // execute,
+  // reactor: () => {
+  //   if (!useMutableState(ReferenceSpaceState).viewerEntity.value) return null
+  //   return <Reactor />
+  // }
 })

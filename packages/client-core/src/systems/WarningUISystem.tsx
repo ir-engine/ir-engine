@@ -239,12 +239,15 @@ const Reactor = () => {
   return <TransitionReactor />
 }
 
+/**
+ * @todo disabled until this system is used
+ */
 export const WarningUISystem = defineSystem({
   uuid: 'ee.client.WarningUISystem',
   insert: { after: PresentationSystemGroup },
-  execute,
-  reactor: () => {
-    if (!useMutableState(ReferenceSpaceState).viewerEntity.value) return null
-    return <Reactor />
-  }
+  // execute,
+  // reactor: () => {
+  //   if (!useMutableState(ReferenceSpaceState).viewerEntity.value) return null
+  //   return <Reactor />
+  // }
 })

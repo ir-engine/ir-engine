@@ -61,15 +61,16 @@ export const useLoadLocation = (props: { locationName: string }) => {
     }
   }, [locationState.invalidLocation])
 
-  useEffect(() => {
-    if (locationState.currentLocation.selfNotAuthorized.value) {
-      WarningUIService.openWarning({
-        title: t('common:instanceServer.notAuthorizedAtLocationTitle'),
-        body: t('common:instanceServer.notAuthorizedAtLocation'),
-        action: () => RouterState.navigate('/')
-      })
-    }
-  }, [locationState.currentLocation.selfNotAuthorized])
+  /** @todo disabled */
+  // useEffect(() => {
+  //   if (locationState.currentLocation.selfNotAuthorized.value) {
+  //     WarningUIService.openWarning({
+  //       title: t('common:instanceServer.notAuthorizedAtLocationTitle'),
+  //       body: t('common:instanceServer.notAuthorizedAtLocation'),
+  //       action: () => RouterState.navigate('/')
+  //     })
+  //   }
+  // }, [locationState.currentLocation.selfNotAuthorized])
 
   /**
    * Once we have the location, fetch the current scene data
