@@ -66,15 +66,18 @@ export const saveSceneGLTF = async (
   projectName: string,
   sceneFile: string,
   signal: AbortSignal,
-  saveAs?: boolean
+  saveAs?: boolean,
+  savePath?: string
 ) => {
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
 
   const { rootEntity } = getState(EditorState)
 
   const sceneName = cleanString(sceneFile!.replace('.scene.json', '').replace('.gltf', ''))
-  const currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
-
+  let currentSceneDirectory = getState(EditorState).scenePath!.split('/').slice(0, -1).join('/')
+  if (savePath) {
+    currentSceneDirectory = savePath
+  }
   if (saveAs) {
     const isSceneExists = await confirmSceneExists(sceneFile)
     if (isSceneExists) throw new Error(i18n.t('editor:errors.sceneAlreadyExists'))
