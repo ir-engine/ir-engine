@@ -93,7 +93,7 @@ const Debug = () => {
   })
 
   return (
-    <div id="debug" className="pointer-events-auto fixed z-[1000] rounded bg-neutral-700 p-0.5">
+    <div id="debug" className="pointer-events-auto fixed z-[1000] max-w-[33%] rounded bg-neutral-700 p-0.5">
       <Placer id="debug-placer" />
       <div className="m-1 max-h-[95vh] overflow-y-auto">
         <DebugButtons />

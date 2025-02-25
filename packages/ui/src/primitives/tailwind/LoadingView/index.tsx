@@ -89,7 +89,7 @@ const LoadingView = ({
       ) : (
         loader
       )}
-      {title && <Text className={titleClassname}>{title}</Text>}
+      {title && <Text className={twMerge(titleClassname, 'text-text-primary')}>{title}</Text>}
       {description && <Text className="opacity-65">{description}</Text>}
     </div>
   )
