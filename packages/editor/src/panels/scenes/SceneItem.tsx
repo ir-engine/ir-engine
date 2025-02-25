@@ -75,13 +75,15 @@ export default function SceneItem({
       data-testid="scene-container"
       className="col-span-2 inline-flex h-64 w-64 min-w-64 max-w-64 cursor-pointer flex-col items-start justify-start gap-3 rounded-lg border border-ui-outline bg-ui-background p-3 lg:col-span-1"
     >
-      <img
-        className="shrink grow basis-0 self-stretch rounded"
-        src={scene.thumbnailURL || DEFAULT_SCENE_THUMBNAIL}
-        alt={DEFAULT_SCENE_THUMBNAIL}
-        data-testid="scene-thumbnail"
-        onClick={handleOpenScene}
-      />
+      <div className="shrink grow basis-0 self-stretch">
+        <img
+          className="rounded"
+          src={scene.thumbnailURL || DEFAULT_SCENE_THUMBNAIL}
+          alt={DEFAULT_SCENE_THUMBNAIL}
+          data-testid="scene-thumbnail"
+          onClick={handleOpenScene}
+        />
+      </div>
       <div className="inline-flex items-start justify-between self-stretch">
         <div className="inline-flex w-full flex-col items-start justify-start">
           <div className="space-between flex w-full flex-row">

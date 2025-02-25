@@ -179,6 +179,8 @@ function FileItemCard({
         name={file?.fullName}
         onClick={onClick}
         onDoubleClick={file?.isFolder ? onDoubleClick : undefined}
+        onLoad={undefined}
+        onLoadStart={undefined}
         onContextMenu={() => {}}
         isSelected={isSelected}
         info={file?.size}

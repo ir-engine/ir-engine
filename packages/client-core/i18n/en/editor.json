@@ -225,7 +225,8 @@
       "copyPublicUrl": "Copy Public URL",
       "publicUrl": "Public URL",
       "publishSuccess": "Location Published Successfully",
-      "noThumbnailPlaceholder": "Publish Scene to Generate a Preview Image"
+      "noThumbnailPlaceholder": "Publish Scene to Generate a Preview Image",
+      "createCompressedScenePublish": "Create Compressed Scene and Publish"
     }
   },
   "properties": {
