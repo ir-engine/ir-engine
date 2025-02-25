@@ -101,7 +101,7 @@ const execute = () => {
   const targetFixedTime = ecsState.simulationTime + jitterBufferDelay
 
   while (jitterBufferTaskList.length > 0 && jitterBufferTaskList[0].simulationTime <= targetFixedTime) {
-    const { read } = jitterBufferTaskList.shift()!
+    const read = jitterBufferTaskList.shift()!.read
     read()
   }
 }
