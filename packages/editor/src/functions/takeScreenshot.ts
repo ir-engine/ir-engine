@@ -26,8 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { PerspectiveCamera, Vector2 } from 'three'
 
 import { getCanvasBlob } from '@ir-engine/client-core/src/common/utils'
-import { createEntity, Entity, EntityTreeComponent, UndefinedEntity } from '@ir-engine/ecs'
-import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity } from '@ir-engine/ecs'
+import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
 import { getState } from '@ir-engine/hyperflux'
@@ -37,7 +37,6 @@ import {
   getSceneParameters,
   RendererComponent
 } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
-import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
@@ -72,31 +71,11 @@ export async function takeScreenshot(
   width: number,
   height: number,
   quality: number = 0.9,
+  scenePreviewCamera: PerspectiveCamera,
+  scenePreviewCameraEntity: Entity,
   format = 'jpeg' as 'jpeg' | 'png',
-  scenePreviewCameraEntity: Entity = UndefinedEntity,
   hideHelpers = true
 ): Promise<Blob | null> {
-  // Getting Scene preview camera or creating one if not exists
-  if (!scenePreviewCameraEntity) {
-    for (const entity of scenePreviewCameraQuery()) {
-      scenePreviewCameraEntity = entity
-    }
-
-    if (!scenePreviewCameraEntity) {
-      const entity = createEntity()
-      setComponent(entity, ScenePreviewCameraComponent)
-      const { position, rotation } = getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
-      setComponent(entity, TransformComponent, { position, rotation })
-      setComponent(entity, EntityTreeComponent, {
-        parentEntity: getState(EditorState).rootEntity
-      })
-
-      getComponent(entity, ScenePreviewCameraComponent).camera.updateMatrixWorld(true)
-      scenePreviewCameraEntity = entity
-    }
-  }
-
-  const scenePreviewCamera = getComponent(scenePreviewCameraEntity, ScenePreviewCameraComponent).camera
   const prevAspect = scenePreviewCamera.aspect
   const prevLayers = scenePreviewCamera.layers
   const prevLayersMask = scenePreviewCamera.layers.mask
@@ -183,7 +162,9 @@ export async function takeScreenshot(
 
 /** @todo make size, compression & format configurable */
 export const downloadScreenshot = () => {
-  takeScreenshot(1920 * 4, 1080 * 4, 1, 'png', getState(ReferenceSpaceState).viewerEntity, false).then((blob) => {
+  const cameraEntity = getState(ReferenceSpaceState).viewerEntity
+  const camera = getComponent(cameraEntity, CameraComponent)
+  takeScreenshot(1920 * 4, 1080 * 4, 1, camera, cameraEntity, 'png', false).then((blob) => {
     if (!blob) return
 
     const blobUrl = URL.createObjectURL(blob)
