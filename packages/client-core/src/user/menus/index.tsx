@@ -23,11 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { Emote, Send01Lg, User01Lg } from '@ir-engine/ui/src/icons'
 
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaUserFriends } from 'react-icons/fa'
 import { PopoverState } from '../../common/services/PopoverState'
@@ -39,53 +39,66 @@ import ShareMenu from './ShareMenu'
 import FriendsMenu from './social/FriendsMenu'
 
 export default function UserMenus() {
-  const userMenus = useMutableState(ViewerMenuState).userMenus
   const { t } = useTranslation()
+  const userMenus = useMutableState(ViewerMenuState).userMenus
+  const menuComponents = useMutableState(ViewerMenuState).menuComponents
+
+  useEffect(() => {
+    const newComponents: Record<string, JSX.Element> = {}
+
+    if (userMenus.profile) {
+      newComponents.profile = (
+        <LocationIconButton
+          key="profile"
+          tooltip={{ title: t('user:menu.settings'), position: 'top' }}
+          icon={User01Lg}
+          onClick={() => PopoverState.showPopupover(<ProfileMenu />)}
+        />
+      )
+    }
+
+    if (userMenus.share) {
+      newComponents.share = (
+        <LocationIconButton
+          key="share"
+          tooltip={{ title: t('user:menu.sendLocation'), position: 'top' }}
+          icon={Send01Lg}
+          onClick={() => PopoverState.showPopupover(<ShareMenu />)}
+        />
+      )
+    }
+
+    if (userMenus.emote) {
+      newComponents.emote = (
+        <LocationIconButton
+          key="emote"
+          tooltip={{ title: t('user:menu.emote'), position: 'top' }}
+          icon={Emote}
+          onClick={() => PopoverState.showPopupover(<EmoteMenu />, undefined, 'transparent')}
+        />
+      )
+    }
+
+    if (userMenus.social) {
+      newComponents.social = (
+        <LocationIconButton
+          key="social"
+          tooltip={{ title: t('user:menu.friends'), position: 'top' }}
+          icon={FaUserFriends}
+          onClick={() => PopoverState.showPopupover(<FriendsMenu />)}
+        />
+      )
+    }
+
+    menuComponents.merge(newComponents)
+  }, [userMenus])
+
+  console.log(menuComponents)
 
   return (
     <>
       <div className="flex w-full items-center justify-center gap-x-6">
-        {userMenus.profile && (
-          <LocationIconButton
-            tooltip={{
-              title: t('user:menu.settings'),
-              position: 'top'
-            }}
-            icon={User01Lg}
-            onClick={() => PopoverState.showPopupover(<ProfileMenu />)}
-          />
-        )}
-        {userMenus.share && (
-          <LocationIconButton
-            tooltip={{
-              title: t('user:menu.sendLocation'),
-              position: 'top'
-            }}
-            icon={Send01Lg}
-            onClick={() => PopoverState.showPopupover(<ShareMenu />)}
-          />
-        )}
-        {userMenus.emote && (
-          <LocationIconButton
-            tooltip={{
-              title: t('user:menu.emote'),
-              position: 'top'
-            }}
-            icon={Emote}
-            onClick={() => PopoverState.showPopupover(<EmoteMenu />, undefined, 'transparent')}
-          />
-        )}
-        {userMenus.social && (
-          <LocationIconButton
-            tooltip={{
-              title: t('user:menu.friends'),
-              position: 'top'
-            }}
-            // @ts-ignore
-            icon={FaUserFriends}
-            onClick={() => PopoverState.showPopupover(<FriendsMenu />)}
-          />
-        )}
+        {Object.values(menuComponents.get(NO_PROXY))}
       </div>
       <PopupMenu />
     </>

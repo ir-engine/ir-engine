@@ -40,6 +40,7 @@ export const ViewerMenuState = defineState({
       friends: false,
       social: false,
       embedframe: true
-    }
+    },
+    menuComponents: {} as Record<string, JSX.Element>
   })
 })
