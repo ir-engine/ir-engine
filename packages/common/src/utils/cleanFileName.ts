@@ -36,7 +36,11 @@ import {
   WITH_OUT_SPACE_REGEX
 } from '../regex'
 
-export const cleanFileNameString = (fullFileName: string, useStorageProviderLengthRestrictions = false): string => {
+export const cleanFileNameString = (
+  fullFileName: string,
+  useStorageProviderLengthRestrictions = false,
+  allowSpaces = false
+): string => {
   try {
     //extract the path and file name separately
     const lastSlashIndex = fullFileName.lastIndexOf('/')
@@ -55,7 +59,7 @@ export const cleanFileNameString = (fullFileName: string, useStorageProviderLeng
     // Sanitize the name while preserving dots except the last one
     nameWithoutExtension = nameWithoutExtension
       .replace(SANITIZE_FILENAME_REGEX, '-')
-      .replace(WITH_OUT_SPACE_REGEX, '-') // Replace spaces with dash
+      .replace(WITH_OUT_SPACE_REGEX, allowSpaces ? ' ' : '-') // Replace spaces with dash
       .replace(START_WITH_ALPHANUMERIC_REGEX, '') // Remove non-alphanumeric from start
       .replace(END_WITH_ALPHANUMERIC_REGEX, '') // Remove non-alphanumeric from end
 
@@ -85,7 +89,7 @@ export const cleanFileNameString = (fullFileName: string, useStorageProviderLeng
  * @param file
  */
 export function cleanFileNameFile(file: File): File {
-  const newFile = new File([file], cleanFileNameString(file.name), {
+  const newFile = new File([file], cleanFileNameString(file.name, false, true), {
     type: file.type,
     lastModified: file.lastModified
   })
