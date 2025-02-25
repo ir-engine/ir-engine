@@ -577,7 +577,9 @@ export default function AddEditLocationModal(props: {
                 : t('editor:toolbar.publishLocation.title')}
               {publishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
             </Button>
-            <Button onClick={handlePublishFolder}>{t('save duplicate scene and publish')}</Button>
+            <Button onClick={handlePublishFolder}>
+              {t('editor:toolbar.publishLocation.createCompressedScenePublish')}
+            </Button>
           </div>
         </div>
       </div>
