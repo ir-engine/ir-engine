@@ -113,20 +113,6 @@ export function PrototypeNotFoundError(message: string) {
   this.message = message
 }
 
-/** Assigns a preexisting material entity to a mesh */
-// export const assignMaterial = (user: Entity, materialEntity: Entity, index = 0) => {
-//   const materialStateComponent = getOptionalMutableComponent(materialEntity, MaterialStateComponent)
-//   if (!materialStateComponent) return
-//   materialStateComponent.instances.set([...materialStateComponent.instances.value, user])
-//   if (!user) return
-//   if (!hasComponent(user, MaterialInstanceComponent)) setComponent(user, MaterialInstanceComponent)
-//   const material = materialStateComponent.material.value as Material
-//   const materialInstanceComponent = getMutableComponent(user, MaterialInstanceComponent)
-//   const newUUID = material.uuid as EntityUUID
-//   if (!UUIDComponent.getEntityByUUID(newUUID)) throw new MaterialNotFoundError(`Material ${newUUID} not found`)
-//   materialInstanceComponent.uuid[index].set(newUUID)
-// }
-
 export const getMaterialIndices = (entity: Entity, materialUUID: EntityUUID): number[] => {
   if (!hasComponent(entity, MaterialInstanceComponent)) return [] as number[]
   const uuids = getComponent(entity, MaterialInstanceComponent).uuid
