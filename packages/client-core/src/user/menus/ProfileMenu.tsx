@@ -365,8 +365,8 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   return (
     <div className="absolute z-50 h-fit max-h-[90vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 mdh:max-h-[60vh] mdh:px-8 mdh:py-6">
       <div className="relative grid w-full grid-cols-5 gap-x-2">
-        <div className="col-span-3 grid grid-cols-3 gap-x-2">
-          <div className="relative col-span-1 h-20 w-20">
+        <div className="col-span-3 grid grid-cols-[auto,1fr] gap-x-6">
+          <div className="relative h-20 w-20">
             <AvatarImage size="large" src={avatarThumbnail} className="object-cover" />
             <button
               onClick={() => {
@@ -378,7 +378,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             </button>
           </div>
 
-          <div className="col-span-2 flex flex-col">
+          <div className="flex flex-col">
             <Text fontSize="xl" fontWeight="semibold" className="text-text-primary">
               {hasAdminAccess ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
               <span>{hasAdminAccess ? ' Admin' : isGuest ? ' Guest' : ' User'}</span>
@@ -430,37 +430,49 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
           )}
         </div>
 
-        {isGuest && !originallyAcceptedTOS && (
-          <div
-            className={twMerge(
-              'absolute left-[6.5rem] flex flex-col gap-y-2',
-              acceptedTOS ? 'top-16' : 'top-11',
-              initialized ? 'top-[4.5rem]' : ''
-            )}
-          >
-            <div className="flex w-full items-center justify-start gap-x-1">
+        <div
+          className={twMerge(
+            'absolute left-[6.5rem] flex flex-col gap-y-2 !italic',
+            acceptedTOS ? 'top-16' : 'top-11',
+            initialized && 'top-[4.5rem]'
+          )}
+        >
+          {isGuest && !originallyAcceptedTOS && (
+            <>
+              <div className="flex w-full items-center justify-start gap-x-1">
+                <Checkbox
+                  variantSize="lg"
+                  checked={checkedTOS.value}
+                  onChange={() => checkedTOS.set((v) => !v)}
+                  disabled={checkedTOS.value}
+                  label={t('user:usermenu.profile.agreeTOS')}
+                />
+                <a
+                  className="inline text-sm text-text-primary underline-offset-4 hover:text-ui-hover-primary hover:underline"
+                  href={clientSetting?.termsOfService}
+                  target="_blank"
+                >
+                  {t('user:usermenu.profile.termsOfService')}
+                </a>
+              </div>
               <Checkbox
-                checked={checkedTOS.value}
-                onChange={() => checkedTOS.set((v) => !v)}
-                disabled={checkedTOS.value}
-                label={t('user:usermenu.profile.agreeTOS')}
+                variantSize="lg"
+                checked={checked13OrOver.value}
+                onChange={() => checked13OrOver.set((v) => !v)}
+                disabled={checked13OrOver.value}
+                label={t('user:usermenu.profile.confirmAge13')}
               />
-              <a
-                className="inline text-sm text-text-primary underline-offset-4 hover:text-ui-hover-primary hover:underline"
-                href={clientSetting?.termsOfService}
-                target="_blank"
-              >
-                {t('user:usermenu.profile.termsOfService')}
-              </a>
-            </div>
+            </>
+          )}
+          {!isGuest && !originallyAgeVerified.value && (
             <Checkbox
-              checked={checked13OrOver.value}
-              onChange={() => checked13OrOver.set((v) => !v)}
-              disabled={checked13OrOver.value}
-              label={t('user:usermenu.profile.confirmAge13')}
+              variantSize="lg"
+              checked={checked18OrOver}
+              onChange={submitAgeVerified}
+              label={t('user:usermenu.profile.confirmAge18')}
             />
-          </div>
-        )}
+          )}
+        </div>
       </div>
       <div
         className={twMerge(
@@ -468,16 +480,6 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
           isGuest && !originallyAcceptedTOS ? 'mt-7 mdh:mt-16' : 'mt-1 mdh:mt-5'
         )}
       >
-        {!isGuest && !originallyAgeVerified.value && (
-          <Checkbox
-            checked={checked18OrOver}
-            onChange={submitAgeVerified}
-            label={t('user:usermenu.profile.confirmAge18')}
-          />
-        )}
-
-        <div className="mt-1" />
-
         <Input
           value={username.value || ('' as UserName)}
           state={errorUsername.value ? 'error' : undefined}
@@ -491,7 +493,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             position: 'top'
           }}
           endComponent={
-            <button className="h-4 w-4" onMouseDown={updateUserName}>
+            <button className="h-4 w-4 text-text-primary" onMouseDown={updateUserName}>
               <CheckLg />
             </button>
           }
@@ -507,7 +509,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             value={userId}
             endComponent={
               <button
-                className="h-4 w-4"
+                className="h-4 w-4 text-text-primary"
                 onMouseDown={() => {
                   navigator.clipboard.writeText(userId)
                   NotificationService.dispatchNotify(t('user:usermenu.profile.userIdCopied'), {
@@ -530,13 +532,13 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             }}
             value={apiKey?.token}
             startComponent={
-              <button className="h-4 w-4" onMouseDown={refreshApiKey}>
+              <button className="h-4 w-4 text-text-primary" onMouseDown={refreshApiKey}>
                 <Refresh1Lg />
               </button>
             }
             endComponent={
               <button
-                className="h-4 w-4"
+                className="h-4 w-4 text-text-primary"
                 onMouseDown={() => {
                   navigator.clipboard.writeText(apiKey?.token)
                   NotificationService.dispatchNotify(t('user:usermenu.profile.apiKeyCopied'), {
@@ -562,7 +564,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               state={error.value ? 'error' : undefined}
               helperText={error.value ? getErrorText() : ''}
               endComponent={
-                <button className="h-4 w-4" onMouseDown={handleGuestSubmit}>
+                <button className="h-4 w-4 text-text-primary" onMouseDown={handleGuestSubmit}>
                   <Send01Lg />
                 </button>
               }

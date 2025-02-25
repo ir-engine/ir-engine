@@ -139,7 +139,7 @@ const Input = (
 
         <div
           className={twMerge(
-            'flex w-full items-center gap-x-2 rounded-md border-[0.5px] border-ui-outline bg-ui-background placeholder-text-tertiary transition-colors duration-300',
+            'flex w-full items-center gap-x-2 rounded-md border-[0.5px] border-ui-outline bg-ui-background text-xs placeholder-text-tertiary transition-colors duration-300',
             heights[height],
             disabled
               ? 'border-ui-inactive-outline bg-ui-inactive-background text-text-inactive'
