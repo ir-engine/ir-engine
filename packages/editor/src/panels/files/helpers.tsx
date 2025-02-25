@@ -68,14 +68,16 @@ const FilesQueryContext = createContext({
 export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }) => {
   const filesState = useMutableState(FilesState)
   const categories = useHookstate<any>([])
+  const directory = (
+    filesState.selectedDirectory.value !== ''
+      ? filesState.selectedDirectory.value
+      : '/projects/' + filesState.projectName.value
+  ).replace(/^\/+/, '')
 
   const filesQuery = useFind(fileBrowserPath, {
     query: {
       $limit: FILES_PAGE_LIMIT,
-      directory:
-        filesState.selectedDirectory.value != ''
-          ? filesState.selectedDirectory.value
-          : '/projects/' + filesState.projectName.value
+      directory: filesState.searchText.value ? `${directory}/**` : directory
     }
   })
 
