@@ -103,6 +103,9 @@ const IntensityReactor = (props: { rootEntity: Entity; entity: Entity }) => {
   return null
 }
 
+// circumvent threejs bug with envmap uniforms
+const disallowedMaterials = new Set(['MeshMatcapMaterial', 'MeshToonMaterial'])
+
 const EnvMapSkyboxReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   const { entity, rootEntity } = props
   const backgroundQuery = useQuery([BackgroundComponent])
@@ -114,7 +117,7 @@ const EnvMapSkyboxReactor = (props: { entity: Entity; rootEntity: Entity }) => {
     if (!backgroundComponent) return
     const material = materialComponent.material as State<MeshStandardMaterial>
     // threejs freaks out if matcap materials are passed in envmap related values
-    if (material.type.value === 'MeshMatcapMaterial') return
+    if (disallowedMaterials.has(material.type.value)) return
 
     material.envMap.set(backgroundComponent as any)
   }, [backgroundQuery, materialComponent.material.uuid.value])
@@ -133,7 +136,7 @@ const EnvMapCubemapReactor = (props: { entity: Entity; rootEntity: Entity }) => 
   }, [])
 
   useEffect(() => {
-    if (materialComponent.material.type.value === 'MeshMatcapMaterial') return
+    if (disallowedMaterials.has(materialComponent.material.type.value)) return
     loadCubeMapTexture(
       envMapComponent.envMapCubemapURL.value,
       (texture: CubeTexture | undefined) => {
@@ -168,7 +171,7 @@ const EnvmapProbesReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   }, [])
 
   useEffect(() => {
-    if (materialComponent.material.type.value === 'MeshMatcapMaterial') return
+    if (disallowedMaterials.has(materialComponent.material.type.value)) return
 
     const [renderTexture, unload] = createReflectionProbeRenderTarget(entity, probeQuery)
     ;(materialComponent.material as State<MeshStandardMaterial>).envMap.set(renderTexture)
@@ -193,7 +196,7 @@ const EnvMapEquirectangularReactor = (props: { entity: Entity; rootEntity: Entit
   }, [])
 
   useEffect(() => {
-    if (materialComponent.type.value === 'MeshMatcapMaterial') return
+    if (disallowedMaterials.has(materialComponent.type.value)) return
 
     if (!envMapTexture || !envMapTexture.isTexture) return
     envMapTexture.mapping = EquirectangularReflectionMapping
@@ -221,7 +224,7 @@ const EnvMapBakeReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   const [envMaptexture, error] = useTexture(bakeComponent?.envMapOrigin.value ?? '', bakeEntity)
 
   useEffect(() => {
-    if (materialComponent.material.type.value === 'MeshMatcapMaterial') return
+    if (disallowedMaterials.has(materialComponent.material.type.value)) return
 
     const texture = envMaptexture
     if (!texture) return
@@ -262,7 +265,7 @@ const EnvMapColorReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   }, [])
 
   useEffect(() => {
-    if (materialComponent.material.type.value === 'MeshMatcapMaterial') return
+    if (disallowedMaterials.has(materialComponent.material.type.value)) return
 
     const color = envMapComponent.envMapSourceColor.value ?? tempColor
     const resolution = 64 // Min value required
