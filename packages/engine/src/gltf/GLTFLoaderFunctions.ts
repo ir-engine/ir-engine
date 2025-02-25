@@ -775,7 +775,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
     if (typeof Component.getMaterialType === 'function') {
       const ext = Component.getMaterialType(materialDef)
       if (ext) materialConstructor = ext
-      else console.warn('GLTFLoaderFunctions: Material type ' + extensionName + ' not found.')
+      else console.warn('GLTFLoaderFunctions: Material type not found.')
     }
     if (typeof Component.extendMaterialParams === 'function') {
       promises.push(Component.extendMaterialParams(options, materialParams, materialDef, materialIndex))
