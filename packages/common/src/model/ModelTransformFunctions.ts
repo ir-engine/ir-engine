@@ -408,6 +408,9 @@ const doUpload = async (projectName, fileName, buffer) => {
     resolver = resolve
   })
   uploadRequestState.queue.set([...queue, { file, projectName, callback: resolver }])
+  if (fileName.includes('combined-mesh')) {
+    uploadRequestState.isOnPublishing.set(true)
+  }
   await promise
 }
 

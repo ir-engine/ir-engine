@@ -33,7 +33,7 @@ A filename is valid if:
 */
 
 // eslint-disable-next-line no-control-regex
-export const VALID_FILENAME_REGEX = /^([^_\W])([\w\-_.]{2,62})([^_\W])$/
+export const VALID_FILENAME_REGEX = /^([^_\W])([\w\-_.]{2,126})([^_\W])$/
 export const VALID_EXTENSION_REGEX = /^(\w{2,4})$/
 // eslint-disable-next-line no-control-regex
 export const WINDOWS_RESERVED_NAME_REGEX = /^(con|prn|aux|nul|com\d|lpt\d)$/i
