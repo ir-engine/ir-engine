@@ -61,9 +61,9 @@ const getAllPods = async (k8Client, continueValue, labelSelector, pods = []) => 
     labelSelector,
     limit: K8S_PAGE_LIMIT
   })
-  if (matchingPods?.body?.items) pods = pods.concat(matchingPods.body.items)
-  if (matchingPods.body.metadata?._continue)
-    return await getAllPods(k8Client, matchingPods.body.metadata._continue, labelSelector, pods)
+  if (matchingPods?.items) pods = pods.concat(matchingPods.items)
+  if (matchingPods.metadata?._continue)
+    return await getAllPods(k8Client, matchingPods.metadata._continue, labelSelector, pods)
   else return pods
 }
 
