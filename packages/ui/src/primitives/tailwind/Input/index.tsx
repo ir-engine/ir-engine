@@ -169,7 +169,7 @@ const Input = (
 
       {helperText && (
         <span
-          className={`text-xs ${state === 'success' && 'text-ui-success'} ${state === 'error' && 'text-ui-error'}`}
+          className={`text-xs ${state === 'success' && 'text-ui-success'} ${state === 'error' && 'text-text-error'}`}
           style={{
             translate: helperOffset
           }}

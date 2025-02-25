@@ -34,11 +34,9 @@ import { EngineState } from '@ir-engine/ecs'
 import { NetworkPeerState } from '@ir-engine/network/src/NetworkPeerState'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../media/PeerMediaChannelState'
-import { AuthState } from '../../user/services/AuthService'
 import { FilteredUsersState } from '../../world/FilteredUsersSystem'
-import { useShelfStyles } from '../Shelves/useShelfStyles'
-import { UserMediaWindow, UserMediaWindowWidget } from '../UserMediaWindow'
-import styles from './index.module.scss'
+import { AuthState } from '../services/AuthService'
+import { SingleVideoWindow, SingleVideoWindowWidget } from './window'
 
 type WindowType = { peerID: PeerID; type: 'cam' | 'screen' }
 
@@ -125,23 +123,19 @@ export const useMediaWindows = () => {
   )
 }
 
-export const UserMediaWindows = () => {
-  const { topShelfStyle } = useShelfStyles()
-
+export const VideoWindows = () => {
   const windows = useMediaWindows()
 
   return (
-    <div className={`${styles.userMediaWindowsContainer} ${topShelfStyle}`}>
-      <div className={styles.userMediaWindows}>
-        {windows.map(({ peerID, type }) => (
-          <UserMediaWindow type={type} peerID={peerID} key={type + '-' + peerID} />
-        ))}
-      </div>
-    </div>
+    <>
+      {windows.map(({ peerID, type }) => (
+        <SingleVideoWindow type={type} peerID={peerID} key={type + '-' + peerID} />
+      ))}
+    </>
   )
 }
 
-export const UserMediaWindowsWidget = () => {
+export const VideoWindowsWidget = () => {
   const peerMediaChannelState = useMutableState(PeerMediaChannelState)
 
   const consumers = Object.entries(peerMediaChannelState.get({ noproxy: true })) as [
@@ -175,14 +169,12 @@ export const UserMediaWindowsWidget = () => {
   }
 
   return (
-    <div className={`${styles.userMediaWindowsContainer}`}>
-      <div className={styles.userMediaWindows}>
-        {windows
-          .filter(({ peerID }) => peerMediaChannelState[peerID].value)
-          .map(({ peerID, type }) => (
-            <UserMediaWindowWidget type={type} peerID={peerID} key={type + '-' + peerID} />
-          ))}
-      </div>
-    </div>
+    <>
+      {windows
+        .filter(({ peerID }) => peerMediaChannelState[peerID].value)
+        .map(({ peerID, type }) => (
+          <SingleVideoWindowWidget type={type} peerID={peerID} key={type + '-' + peerID} />
+        ))}
+    </>
   )
 }
