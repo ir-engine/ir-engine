@@ -303,8 +303,6 @@ export class FileBrowserService
     delete data.storageProviderName
     const storageProvider = getStorageProvider(storageProviderName)
 
-    console.log('ensuring project permissions for', data)
-
     await ensureProjectPermissionAndPublicOrAssetsDirectory(
       path.join(data.oldPath, data.oldName),
       data.oldProject,
@@ -318,8 +316,6 @@ export class FileBrowserService
       this.app,
       params!
     )
-
-    console.log('All permissions good')
 
     /** @todo future proofing for when projects include orgname */
     if (!data.oldPath.startsWith('projects/' + data.oldProject))
@@ -340,8 +336,6 @@ export class FileBrowserService
     if (data.oldName === data.newName && data.oldPath !== data.newPath && data.newPath.startsWith(data.oldPath))
       throw new Error('Cannot move a folder into itself')
 
-    console.log('All pathing is valid')
-
     const oldDirectory = data.oldPath.endsWith('/')
       ? data.oldPath.split('/').slice(0, -1).join('/')
       : data.oldPath.split('/').join('/')
@@ -349,14 +343,10 @@ export class FileBrowserService
       ? data.newPath.split('/').slice(0, -1).join('/')
       : data.newPath.split('/').join('/')
     const oldName = data.oldName.endsWith('/') ? data.oldName.slice(0, -1) : data.oldName
-    console.log('oldName', oldName)
     const newName = data.newName.endsWith('/') ? data.newName.slice(0, -1) : data.newName
-    console.log('newName', newName)
 
     const isDirectory = await storageProvider.isDirectory(oldName, oldDirectory)
-    console.log('isDirectory', isDirectory)
     const fileName = await getIncrementalName(newName, newDirectory, storageProvider, isDirectory)
-    console.log('incremental filename', fileName)
     if (isDirectory) {
       await this.moveFolderRecursively(
         storageProvider,
@@ -365,9 +355,7 @@ export class FileBrowserService
         !!data?.isCopy
       )
     } else {
-      console.log('moving object in storage provider', oldName, fileName, oldDirectory, newDirectory, data.isCopy)
       await storageProvider.moveObject(oldName, fileName, oldDirectory, newDirectory, data.isCopy)
-      console.log('Moved object', fileName)
     }
 
     const staticResources = (await this.app.service(staticResourcePath).find({
@@ -473,19 +461,15 @@ export class FileBrowserService
    * Upload file
    */
   async patch(id: NullableId, data: FileBrowserPatch, params?: FileBrowserParams) {
-    console.log('filebrowser patch', data.project, data.path)
     await ensureProjectPermissionAndPublicOrAssetsDirectory(
       path.join('projects', data.project, data.path),
       data.project,
       this.app,
       params!
     )
-    console.log('ensured permissions')
 
     if (typeof data.body === 'string') {
-      console.log('data.body was string')
       const url = new URL(data.body)
-      console.log('url', url)
       try {
         const response = await fetch(url)
         const arr = await response.arrayBuffer()
@@ -495,15 +479,9 @@ export class FileBrowserService
       }
     }
 
-    console.log('data.type', data.type)
-    if (data.type === 'scene') {
-      console.log('validating scene name', data.path)
-      await validateSceneName(data.path)
-      console.log('scene name validatied')
-    }
+    if (data.type === 'scene') await validateSceneName(data.path)
 
     let key = path.join('projects', data.project, data.path)
-    console.log('key', key)
     if (data.unique) key = await ensureUniqueName(this.app, key)
 
     /** @todo should we allow user-specific content types? Or standardize on the backend? */
@@ -609,32 +587,23 @@ export const validateSceneName = async (key: string) => {
 }
 
 export const ensureUniqueName = async (app: Application, key: string) => {
-  console.log('ensureUniqueName', key)
   const fileName = key.split('/').pop()!
-  console.log('fileName', fileName)
 
   const cleanedFileNameWithoutExtension = fileName.split('.').slice(0, -1).join('.')
-  console.log('cleanedFileNameWithoutExtenstion', cleanedFileNameWithoutExtension)
   const fileExtension = fileName.split('/').pop()!.split('.').pop()
-  console.log('fileExtension', fileExtension)
   const fileDirectory = key!.split('/').slice(0, -1).join('/') + '/'
-  console.log('fileDirectory', fileDirectory)
   let counter = 0
   let name = cleanedFileNameWithoutExtension + '.' + fileExtension
-  console.log('initial name', name)
 
   const storageProvider = getStorageProvider()
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
     if (counter > 0) name = cleanedFileNameWithoutExtension + '-' + counter + '.' + fileExtension
-    console.log('checking name', name, fileDirectory)
     const sceneNameExists = await storageProvider.doesExist(name, fileDirectory)
-    console.log('sceneNameExists', sceneNameExists)
     if (!sceneNameExists) break
     counter++
   }
 
-  console.log('returning', fileDirectory + name)
   return fileDirectory + name
 }

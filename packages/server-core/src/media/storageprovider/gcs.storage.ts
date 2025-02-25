@@ -221,20 +221,22 @@ export class GCSStorage implements StorageProviderInterface {
    * @param useMediaCDN Not used for AWS, but part of createInvalidation parameter signature
    */
   async createInvalidation(invalidationItems: string[], useMediaCDN: boolean) {
-    console.log('GCS createInvalidation', invalidationItems, useMediaCDN)
     if (!invalidationItems || invalidationItems.length === 0) return
     invalidationItems = invalidationItems.map((item) => (item[0] !== '/' ? `/${item}` : item))
-    console.log('invalidationItems', invalidationItems)
-    console.log('useMediaCDN', useMediaCDN)
     if (useMediaCDN) {
       try {
-        console.log('invalidating Media CDN cache for', config.gcp.gcs.edgeCacheService)
         return Promise.all(
           invalidationItems.map((item) => {
-            console.log('Invalidating', item)
             try {
               return new Promise((resolve) => {
-                const initProcess = spawn('gcloud', ['edge-cache', 'services', 'invalidate-cache', config.gcp.gcs.edgeCacheService as string, '--path', item])
+                const initProcess = spawn('gcloud', [
+                  'edge-cache',
+                  'services',
+                  'invalidate-cache',
+                  config.gcp.gcs.edgeCacheService as string,
+                  '--path',
+                  item
+                ])
                 initProcess.once('exit', resolve)
                 initProcess.once('error', resolve)
                 initProcess.once('disconnect', resolve)
@@ -251,16 +253,6 @@ export class GCSStorage implements StorageProviderInterface {
         logger.error(err)
       }
     } else {
-      console.log(
-        'Invalidating Cloud CDN for host',
-        config.server.clientHost,
-        'path',
-        invalidationItems[0],
-        'project',
-        config.gcp.project,
-        'urlMap',
-        config.gcp.gcs.urlMap
-      )
       return await this.urlMaps.invalidateCache({
         cacheInvalidationRuleResource: {
           host: config.server.clientHost as string,
@@ -338,22 +330,18 @@ export class GCSStorage implements StorageProviderInterface {
     recursive = false,
     isDirectory = true
   ): Promise<FileBrowserContentType[]> {
-    console.log('listFolderContent', folderName, recursive)
     const prefix = folderName.endsWith('/') || !isDirectory ? folderName : folderName + '/'
-    console.log('prefix', prefix)
     const response = await this.provider.bucket(this.bucket).getFiles({
       prefix,
       delimiter: recursive ? undefined : '/'
     })
 
-    console.log('getFiles response', response)
     const promises: Promise<FileBrowserContentType>[] = []
 
     const files = response[2] as {
       items?: { mediaLink: string; name: string; size: string }[]
       prefixes?: string[]
     }
-    console.log('files', files)
     if (!files.items) files.items = []
     if (!files.prefixes) files.prefixes = []
 
@@ -413,33 +401,22 @@ export class GCSStorage implements StorageProviderInterface {
    * @param isCopy If true it will create a copy of object.
    */
   async moveObject(oldName: string, newName: string, oldPath: string, newPath: string, isCopy = false) {
-    console.log('gcs moveObject', oldName, newName, oldPath, newPath, isCopy)
     const isDirectory = await this.isDirectory(oldName, oldPath)
-    console.log('isDirectory', isDirectory)
     const oldFilePath = path.join(oldPath, oldName)
-    console.log('oldFilePath', oldFilePath)
     const newFilePath = path.join(newPath, newName)
-    console.log('newFilePath', newFilePath)
     const listResponse = await this.listObjects(oldFilePath + (isDirectory ? '/' : ''), false, undefined, isDirectory)
-    console.log('listResponse for', oldFilePath + (isDirectory ? '/' : ''))
-    console.log(listResponse, listResponse.Contents)
 
     if (listResponse.Contents.length > 0)
       return await Promise.all([
         ...listResponse.Contents.map(async (file) => {
-          console.log('file to move', file)
           const relativePath = file.Key.replace(oldFilePath, '')
-          console.log('relativePath', relativePath)
           const key = newFilePath + relativePath
-          console.log('key', key)
 
-          console.log('moving/copying', file.Key, 'to', key)
           if (isCopy) return await this.provider.bucket(this.bucket).file(file.Key).copy(key, {})
           else return await this.provider.bucket(this.bucket).file(file.Key).move(key, {})
         })
       ])
     else {
-      console.log('Moving empty folder', oldFilePath, newFilePath)
       const oldPath = path.join(oldFilePath, '/')
       const newPath = path.join(newFilePath, '/')
       if (isCopy) return await this.provider.bucket(this.bucket).file(oldPath).copy(newPath, {})
