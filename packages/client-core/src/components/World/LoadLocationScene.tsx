@@ -35,7 +35,6 @@ import { getMutableState, getState, useMutableState } from '@ir-engine/hyperflux
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { NotificationService } from '../../common/services/NotificationService'
 import { RouterState } from '../../common/services/RouterService'
-import { WarningUIService } from '../../systems/WarningUISystem'
 import { ClientContextState } from '../../util/ClientContextState'
 
 export const useLoadLocation = (props: { locationName: string }) => {
@@ -61,15 +60,16 @@ export const useLoadLocation = (props: { locationName: string }) => {
     }
   }, [locationState.invalidLocation])
 
-  useEffect(() => {
-    if (locationState.currentLocation.selfNotAuthorized.value) {
-      WarningUIService.openWarning({
-        title: t('common:instanceServer.notAuthorizedAtLocationTitle'),
-        body: t('common:instanceServer.notAuthorizedAtLocation'),
-        action: () => RouterState.navigate('/')
-      })
-    }
-  }, [locationState.currentLocation.selfNotAuthorized])
+  /** @todo disabled */
+  // useEffect(() => {
+  //   if (locationState.currentLocation.selfNotAuthorized.value) {
+  //     WarningUIService.openWarning({
+  //       title: t('common:instanceServer.notAuthorizedAtLocationTitle'),
+  //       body: t('common:instanceServer.notAuthorizedAtLocation'),
+  //       action: () => RouterState.navigate('/')
+  //     })
+  //   }
+  // }, [locationState.currentLocation.selfNotAuthorized])
 
   /**
    * Once we have the location, fetch the current scene data
