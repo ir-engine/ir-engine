@@ -44,6 +44,7 @@ import { ReferenceSpaceState } from '@ir-engine/spatial'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
 import React from 'react'
 import { EditorState } from '../services/EditorServices'
+import { SceneThumbnailState } from '../services/SceneThumbnailState'
 import { uploadProjectFiles } from './assetFunctions'
 
 const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
@@ -174,6 +175,13 @@ export const setCurrentEditorScene = (sceneURL: string, uuid: EntityUUID) => {
 export const onSaveScene = async () => {
   const { sceneAssetID, projectName, sceneName, rootEntity } = getState(EditorState)
   const sceneModified = EditorState.isModified()
+
+  try {
+    await SceneThumbnailState.createThumbnail()
+    await SceneThumbnailState.uploadThumbnail()
+  } catch (error) {
+    console.error(error)
+  }
 
   if (!sceneModified) {
     PopoverState.hidePopupover()

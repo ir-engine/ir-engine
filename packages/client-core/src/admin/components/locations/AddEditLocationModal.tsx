@@ -50,6 +50,7 @@ import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorCo
 import exportGLTF, { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
 import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbnailState'
 import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/ModelTransform'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
@@ -63,6 +64,7 @@ import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/Col
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+
 import { Button, DropdownItem, Input, Select } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
@@ -352,6 +354,13 @@ export default function AddEditLocationModal(props: {
       return
     }
     publishLoading.set(true)
+
+    try {
+      await SceneThumbnailState.createThumbnail()
+      await SceneThumbnailState.uploadThumbnail()
+    } catch (e) {
+      errors.serverError.set(e.message)
+    }
 
     if (props.onPublish) {
       try {
