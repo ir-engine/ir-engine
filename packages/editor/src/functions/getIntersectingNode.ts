@@ -62,7 +62,6 @@ export function getIntersectingNode(results: Intersection<Object3D>[]): RaycastI
     const obj = result.object //getParentEntity(result.object)
     const parentNode = getParentEntity(obj)
     if (!parentNode || !hasComponent(obj.entity, VisibleComponent)) continue //skip obj3ds that are not visible and not children of EntityNodes
-    console.log(obj.entity)
     if (!obj.entity && parentNode && !selected.has(parentNode.entity!)) {
       result.node = parentNode.entity
       result.obj3d = getComponent(parentNode.entity!, ObjectComponent) as Object3D
@@ -72,7 +71,6 @@ export function getIntersectingNode(results: Intersection<Object3D>[]): RaycastI
     if (obj) {
       result.obj3d = obj
       result.node = obj.entity
-      console.log('returning', obj.entity)
       return result
     }
   }
