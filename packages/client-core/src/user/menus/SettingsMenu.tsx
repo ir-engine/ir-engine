@@ -180,8 +180,8 @@ function GraphicsTab() {
   }
   return (
     <div className="h-full w-full">
-      <div className="mx-auto grid grid-cols-[1fr_2fr] items-center gap-x-4 lg:w-3/4">
-        <div className="mt-2 text-right text-sm text-text-primary">{t('user:usermenu.setting.lbl-quality')}</div>
+      <div className="ml-auto mt-6 flex w-3/4 items-center gap-x-2">
+        <div className="w-28 text-left text-sm text-text-primary">{t('user:usermenu.setting.lbl-quality')}</div>
         <Slider
           max={5}
           min={0}
@@ -226,7 +226,7 @@ function GraphicsTab() {
           label={t('user:usermenu.setting.lbl-automatic')}
         />
       </div>
-      <div className="mx-auto my-1 w-3/4">
+      <div className="mx-auto my-1">
         <Select
           width="full"
           labelProps={{
@@ -248,7 +248,7 @@ function GraphicsTab() {
           }}
         />
       </div>
-      <div className="ml-auto w-3/4">
+      <div className="my-1 ml-auto w-3/4">
         <Checkbox
           onChange={() => xruiNameplateState.isVisible.set(!xruiNameplateState.isVisible.value)}
           checked={xruiNameplateState.isVisible.value}
@@ -256,8 +256,8 @@ function GraphicsTab() {
         />
       </div>
       {xruiNameplateState.isVisible.value && (
-        <div className="mx-auto grid grid-cols-[1fr_2fr] items-center gap-x-4 lg:w-3/4">
-          <div className="mt-2 text-right text-sm text-text-primary">
+        <div className="ml-auto flex w-3/4 items-center gap-x-2">
+          <div className="w-72 text-left text-sm text-text-primary">
             {t('user:usermenu.setting.lbl-triggerDistance')}
           </div>
           <Slider
