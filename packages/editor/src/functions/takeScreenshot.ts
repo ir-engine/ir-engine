@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { PerspectiveCamera, Vector2 } from 'three'
 
 import { getCanvasBlob } from '@ir-engine/client-core/src/common/utils'
-import { createEntity, Entity, EntityTreeComponent } from '@ir-engine/ecs'
+import { createEntity, Entity, EntityTreeComponent, UndefinedEntity } from '@ir-engine/ecs'
 import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
@@ -73,7 +73,7 @@ export async function takeScreenshot(
   height: number,
   quality: number = 0.9,
   format = 'jpeg' as 'jpeg' | 'png',
-  scenePreviewCameraEntity?: Entity,
+  scenePreviewCameraEntity: Entity = UndefinedEntity,
   hideHelpers = true
 ): Promise<Blob | null> {
   // Getting Scene preview camera or creating one if not exists
