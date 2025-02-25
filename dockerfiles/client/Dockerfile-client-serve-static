@@ -114,7 +114,7 @@ RUN npm run build-client
 
 RUN npx ts-node --swc scripts/push-client-to-storage-provider.ts
 
-RUN if [[ "$STORAGE_PROVIDER" == "s3" ]]; then npx ts-node --swc scripts/update-cloudfront-function.ts --stage=$STAGE; fi
+RUN if [ "$STORAGE_PROVIDER" = "s3" ]; then npx ts-node --swc scripts/update-cloudfront-function.ts --stage=$STAGE; fi
 
 RUN rm -r packages/client/public
 

@@ -31,6 +31,7 @@ import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
 import { invalidationPath } from '@ir-engine/common/src/schema.type.module'
+import appconfig from '@ir-engine/server-core/src/appconfig'
 import { createFeathersKoaApp, serverJobPipe } from '@ir-engine/server-core/src/createApp'
 import { getStorageProvider } from '@ir-engine/server-core/src/media/storageprovider/storageprovider'
 import { ServerMode } from '@ir-engine/server-core/src/ServerState'
@@ -86,9 +87,12 @@ cli.main(async () => {
   try {
     const app = await createFeathersKoaApp(ServerMode.API, serverJobPipe)
     await app.setup()
+    const storageProviderName = appconfig.server.storageProvider
+    console.log('storageProviderName', storageProviderName)
+    const limit = storageProviderName === 's3' ? 3000 : storageProviderName === 'gcs' ? 500 : 100
     const invalidations = await app.service(invalidationPath).find({
       query: {
-        $limit: 3000,
+        $limit: limit,
         $sort: {
           createdAt: 1
         }
@@ -102,15 +106,19 @@ cli.main(async () => {
 
       for (let invalidation of invalidations) {
         const isWildcard = invalidation.path.match(/\*/)
-        if (isWildcard && numWildcards > 5) continue
+        if (storageProviderName === 's3' && isWildcard && numWildcards > 5) continue
         pathArray.push(encodeCloudfrontInvalidation(invalidation.path))
         idArray.push(invalidation.id)
         if (isWildcard) numWildcards++
       }
 
       pathArray = [...new Set(pathArray)]
+      console.log('idArray', idArray)
+      console.log('pathArray', pathArray)
       const storageProvider = getStorageProvider()
-      await storageProvider.createInvalidation(pathArray)
+      console.log('calling createInvalidation for storage provider', storageProvider)
+      if (storageProviderName === 'gcs') await storageProvider.createInvalidation(pathArray, true)
+      else await storageProvider.createInvalidation(pathArray)
       await app.service(invalidationPath).remove(null, {
         query: {
           id: {
