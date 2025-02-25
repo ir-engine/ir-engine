@@ -38,13 +38,13 @@ export const CopyState = defineState({
 })
 
 export const CopyPasteFunctions = {
-  _generateEnityCopyData: (entities: Entity[]) =>
+  _generateEntityCopyData: (entities: Entity[]) =>
     entities.map((entity) => {
       const name = getComponent(entity, NameComponent)
       const children = getComponent(entity, EntityTreeComponent).children as Entity[]
       return {
         name: name,
-        children: CopyPasteFunctions._generateEnityCopyData(children),
+        children: CopyPasteFunctions._generateEntityCopyData(children),
         components: CopyPasteFunctions._generateComponentCopyData(entity)
       }
     }) as EntityCopyDataType[],
@@ -67,7 +67,7 @@ export const CopyPasteFunctions = {
   },
 
   copyEntities: async (entities: Entity[]) => {
-    const copyData = JSON.stringify(CopyPasteFunctions._generateEnityCopyData(entities))
+    const copyData = JSON.stringify(CopyPasteFunctions._generateEntityCopyData(entities))
     await navigator.clipboard.writeText(copyData)
     getMutableState(CopyState).set(copyData)
   },
