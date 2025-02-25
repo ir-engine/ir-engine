@@ -104,7 +104,7 @@ const TriggerProperties: EditorComponentType = (props) => {
         {!hasRigidbody && (
           <Button
             title={t('editor:properties.triggerVolume.lbl-addRigidBody')}
-            className="text-sm text-text-primary"
+            className="text-text-primary"
             variant="tertiary"
             onClick={() => {
               const nodes = SelectionState.getSelectedEntities()
