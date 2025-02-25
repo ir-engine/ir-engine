@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import execa from 'execa'
+import { spawn } from 'child_process'
 import path from 'path/posix'
 import S3BlobStore from 's3-blob-store'
 
@@ -233,9 +233,14 @@ export class GCSStorage implements StorageProviderInterface {
           invalidationItems.map((item) => {
             console.log('Invalidating', item)
             try {
-              return execa(
-                `gcloud edge-cache services invalidate-cache ${config.gcp.gcs.edgeCacheService} --path ${item}`
-              )
+              return new Promise((resolve) => {
+                const initProcess = spawn('gcloud', ['edge-cache', 'services', 'invalidate-cache', config.gcp.gcs.edgeCacheService as string, '--path', item])
+                initProcess.once('exit', resolve)
+                initProcess.once('error', resolve)
+                initProcess.once('disconnect', resolve)
+                initProcess.stdout.on('data', (data) => console.log(data.toString()))
+                initProcess.stderr.on('data', (data) => console.error(data.toString()))
+              })
             } catch (err) {
               console.error('error invalidating', item, err)
             }
