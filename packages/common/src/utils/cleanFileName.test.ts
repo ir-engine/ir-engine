@@ -49,6 +49,6 @@ describe('cleanFileNameString', () => {
   it('should respect multiple spaces in the file name', () => {
     const fullFileName = 'path/to/file/file name with spaces.txt'
     const result = cleanFileNameString(fullFileName)
-    assert.equal(result, 'path/to/file/file-name-with-spaces.txt')
+    assert.equal(result, 'path/to/file/file name with spaces.txt')
   })
 })

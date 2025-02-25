@@ -29,18 +29,31 @@ Infinite Reality Engine. All Rights Reserved.
  * @param fullFileName
  * @param useStorageProviderLengthRestrictions
  */
-import {
-  END_WITH_ALPHANUMERIC_REGEX,
-  SANITIZE_FILENAME_REGEX,
-  START_WITH_ALPHANUMERIC_REGEX,
-  WITH_OUT_SPACE_REGEX
-} from '../regex'
+import { END_WITH_ALPHANUMERIC_REGEX, SANITIZE_FILENAME_REGEX, START_WITH_ALPHANUMERIC_REGEX } from '../regex'
 
-export const cleanFileNameString = (
-  fullFileName: string,
-  useStorageProviderLengthRestrictions = false,
-  allowSpaces = false
-): string => {
+export const sanitizeNameFile = (file: File): File => {
+  // Split name and extension
+  const lastDotIndex = file.name.lastIndexOf('.')
+  const hasExtension = lastDotIndex !== -1
+  const nameWithoutExtension = hasExtension ? file.name.substring(0, lastDotIndex) : file.name
+  const extension = hasExtension ? file.name.substring(lastDotIndex + 1) : ''
+
+  // Sanitize only the name part
+  const sanitizedName = nameWithoutExtension
+    .replace(SANITIZE_FILENAME_REGEX, '-')
+    .replace(START_WITH_ALPHANUMERIC_REGEX, '')
+    .replace(END_WITH_ALPHANUMERIC_REGEX, '')
+
+  // Combine sanitized name with original extension
+  const finalName = hasExtension ? `${sanitizedName}.${extension}` : sanitizedName
+
+  return new File([file], finalName, {
+    type: file.type,
+    lastModified: file.lastModified
+  })
+}
+
+export const cleanFileNameString = (fullFileName: string, useStorageProviderLengthRestrictions = false): string => {
   try {
     //extract the path and file name separately
     const lastSlashIndex = fullFileName.lastIndexOf('/')
@@ -55,13 +68,6 @@ export const cleanFileNameString = (
     // Split the name into the part before and after the dot
     let nameWithoutExtension = fileName.substring(0, lastDotIndex)
     const extension = fileName.substring(lastDotIndex + 1).toLowerCase()
-
-    // Sanitize the name while preserving dots except the last one
-    nameWithoutExtension = nameWithoutExtension
-      .replace(SANITIZE_FILENAME_REGEX, '-')
-      .replace(WITH_OUT_SPACE_REGEX, allowSpaces ? ' ' : '-') // Replace spaces with dash
-      .replace(START_WITH_ALPHANUMERIC_REGEX, '') // Remove non-alphanumeric from start
-      .replace(END_WITH_ALPHANUMERIC_REGEX, '') // Remove non-alphanumeric from end
 
     //Used by backend uploads to storage provider...
     if (useStorageProviderLengthRestrictions) {
@@ -89,7 +95,7 @@ export const cleanFileNameString = (
  * @param file
  */
 export function cleanFileNameFile(file: File): File {
-  const newFile = new File([file], cleanFileNameString(file.name, false, true), {
+  const newFile = new File([file], cleanFileNameString(file.name), {
     type: file.type,
     lastModified: file.lastModified
   })

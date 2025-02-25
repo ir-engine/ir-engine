@@ -36,7 +36,6 @@ A filename is valid if:
 export const VALID_FILENAME_REGEX = /^([^_\W])([\w\-_.]{2,126})([^_\W])$/
 export const VALID_EXTENSION_REGEX = /^(\w{2,4})$/
 export const SANITIZE_FILENAME_REGEX = /[^a-zA-Z0-9._-]+/g
-export const WITH_OUT_SPACE_REGEX = /\s+/g
 export const START_WITH_ALPHANUMERIC_REGEX = /^[^a-zA-Z0-9]+/
 export const END_WITH_ALPHANUMERIC_REGEX = /[^a-zA-Z0-9]+$/
 // eslint-disable-next-line no-control-regex

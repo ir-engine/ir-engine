@@ -40,7 +40,7 @@ import { FileBrowserService } from './file-browser.class'
 
 const cleanFileName = () => {
   return async (context: HookContext<FileBrowserService>) => {
-    context.data.path = cleanFileNameString(context.data.path, true, true)
+    context.data.path = cleanFileNameString(context.data.path, true)
     return context
   }
 }
