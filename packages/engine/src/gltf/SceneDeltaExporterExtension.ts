@@ -33,12 +33,12 @@ import { NodeIDComponent } from './NodeIDComponent'
 
 export const SCENE_DELTA_EXTENSION_NAME = 'IR_scene_delta'
 
-export const SceneDeltaExporterExtension: GLTFSceneExportExtension = {
+export const SceneDeltaExporterExtension: () => GLTFSceneExportExtension = () => ({
   after: (rootEntity, gltf) => {
     iterateEntityNode(rootEntity, (entity) => {
       if (entity === rootEntity) return
-      const sourceID = getComponent(entity, SourceComponent)
-      const rootSource = GLTFComponent.getInstanceID(rootEntity)
+      const sourceID = getComponent(entity, SourceComponent).replaceAll(/\?hash=[^-]+/g, '')
+      const rootSource = GLTFComponent.getInstanceID(rootEntity).replaceAll(/\?hash=[^-]+/g, '')
       if (sourceID === rootSource) return
       const deltaState = getState(SceneDeltaState)
       const sourceDelta = deltaState[sourceID]
@@ -54,4 +54,4 @@ export const SceneDeltaExporterExtension: GLTFSceneExportExtension = {
       extension[sourceID][nodeID] = nodeDelta
     })
   }
-}
+})

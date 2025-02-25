@@ -43,7 +43,8 @@ import {
   setComponent,
   traverseEntityNode
 } from '@ir-engine/ecs'
-import { getState, isClient } from '@ir-engine/hyperflux'
+import { SceneDeltaEntry, SceneDeltaRegistry, SceneDeltaState } from '@ir-engine/ecs/src/SceneDeltaState'
+import { getMutableState, getState, isClient } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -133,6 +134,7 @@ import { GLTFComponent } from './GLTFComponent'
 import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
 import { KHRTextureTransformExtensionComponent, KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
 import { NodeID, NodeIDComponent } from './NodeIDComponent'
+import { SCENE_DELTA_EXTENSION_NAME } from './SceneDeltaExporterExtension'
 
 const assignFinalMaterial = (primitiveDef: GLTF.IMeshPrimitive, material: MeshPhysicalMaterial) => {
   const useDerivativeTangents = primitiveDef.attributes.TANGENT === undefined
@@ -1468,11 +1470,28 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
 
   await Promise.all(extensionPending)
 
+  //apply deltas if they exist in state
+  const hashlessDocumentID = options.documentID.replaceAll(/\?hash=[^-]+/g, '')
+  const deltas = getState(SceneDeltaState)?.[hashlessDocumentID]?.[nodeID]
+  if (deltas) {
+    for (const [componentName, delta] of Object.entries(deltas)) {
+      const Component = ComponentJSONIDMap.get(componentName)
+      if (!Component) continue
+      deserializeComponent(nodeEntity, Component, delta as SceneDeltaEntry<typeof Component>)
+    }
+  }
+
   return nodeEntity
 }
 
 const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   const json = options.document
+
+  // load deltas into state before anything else
+  const deltas = json.extensions?.[SCENE_DELTA_EXTENSION_NAME] as SceneDeltaRegistry | null
+  if (deltas) {
+    getMutableState(SceneDeltaState).merge(deltas)
+  }
 
   DependencyCache.set(options.url, new Map())
 

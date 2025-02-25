@@ -38,7 +38,7 @@ export const SceneDeltaState = defineState({
   registerDelta<C extends Component>(entity: Entity, component: C, delta: Partial<SerializedComponentType<C>>) {
     if (!hasComponent(entity, SourceComponent) || !hasComponent(entity, NodeIDComponent)) return
     if (!component.jsonID) return
-    const sourceID = getComponent(entity, SourceComponent)
+    const sourceID = getComponent(entity, SourceComponent).replaceAll(/\?hash=[^-]+/g, '')
     const nodeID = getComponent(entity, NodeIDComponent)
     const state = getMutableState(SceneDeltaState)
     if (!state.value[sourceID]) state[sourceID].set({})
