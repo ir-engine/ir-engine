@@ -90,11 +90,13 @@ export function editorInputHeuristic(intersectionData: Set<IntersectionData>, po
   const cameraGizmo = cameraGizmoQuery() //camera gizmo heuristic
 
   //concatenating cameraGizmo to both pickerObjects(transformGizmo) and inputObjects
-  const allGizmos = cameraGizmo.concat(pickerObj)
   const inputObj = [] as Entity[]
-  inputObj.concat(inputObjectsQuery()).concat(cameraGizmo)
 
-  const objects = (pickerObj.length > 0 ? allGizmos : inputObj) // gizmo heuristic
+  const objects = (
+    pickerObj.length > 0
+      ? inputObj.concat(cameraGizmo).concat(pickerObj)
+      : inputObj.concat(inputObjectsQuery()).concat(cameraGizmo)
+  ) // gizmo heuristic
     .map((eid) => getComponent(eid, ObjectComponent))
 
   //camera gizmos layer should always be active here, since it doesn't disable based on transformGizmo existing
