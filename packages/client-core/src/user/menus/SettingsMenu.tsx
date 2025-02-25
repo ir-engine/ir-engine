@@ -38,6 +38,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PopoverState } from '../../common/services/PopoverState'
 import { XruiNameplateState } from '../../social/XruiNameplateState'
+import BlockSlider from '../components/BlockSlider'
 import ControllerMappingMobileImage from './images/controller-mapping-mobile.svg'
 import ControllerMappingImage from './images/controller-mapping.png'
 import KeyboardMappingImage from './images/keyboard-mapping.png'
@@ -112,77 +113,53 @@ function AudioTab() {
           }}
         />
       </div> */}
-      <div className="mx-auto grid grid-cols-1 items-center gap-x-4 gap-y-4 lg:w-3/4">
-        <Slider
-          max={1}
-          min={0}
-          step={0.01}
+      <div className="mx-auto mt-6 grid grid-cols-1 items-center gap-x-4 gap-y-4 lg:w-3/4">
+        <BlockSlider
+          label={t('user:usermenu.setting.lbl-microphone')}
           value={audioState.microphoneGain.value}
-          onChange={(value: number) => {
+          onChange={(value) => {
             audioState.microphoneGain.set(value)
             logger.info({ event_name: `set_microphone_volume`, event_value: value })
           }}
-          onRelease={() => {}}
-          label={t('user:usermenu.setting.lbl-microphone')}
         />
-        <Slider
-          max={1}
-          min={0}
-          step={0.01}
+        <BlockSlider
           value={audioState.masterVolume.value}
           onChange={(value: number) => {
             audioState.masterVolume.set(value)
             logger.info({ event_name: `set_total_volume`, event_value: value })
           }}
-          onRelease={() => {}}
           label={t('user:usermenu.setting.lbl-volume')}
         />
-        <Slider
-          max={1}
-          min={0}
-          step={0.01}
+        <BlockSlider
           value={audioState.mediaStreamVolume.value}
           onChange={(value: number) => {
             audioState.mediaStreamVolume.set(value)
             logger.info({ event_name: `set_user_volume`, event_value: value })
           }}
-          onRelease={() => {}}
           label={t('user:usermenu.setting.lbl-media-instance')}
         />
-        <Slider
-          max={1}
-          min={0}
-          step={0.01}
+        <BlockSlider
           value={audioState.notificationVolume.value}
           onChange={(value: number) => {
             audioState.notificationVolume.set(value)
             logger.info({ event_name: `set_notification_volume`, event_value: value })
           }}
-          onRelease={() => {}}
           label={t('user:usermenu.setting.lbl-notification')}
         />
-        <Slider
-          max={1}
-          min={0}
-          step={0.01}
+        <BlockSlider
           value={audioState.soundEffectsVolume.value}
           onChange={(value: number) => {
             audioState.soundEffectsVolume.set(value)
             logger.info({ event_name: `set_scene_volume`, event_value: value })
           }}
-          onRelease={() => {}}
           label={t('user:usermenu.setting.lbl-sound-effect')}
         />
-        <Slider
-          max={1}
-          min={0}
-          step={0.01}
+        <BlockSlider
           value={audioState.backgroundMusicVolume.value}
           onChange={(value: number) => {
             audioState.backgroundMusicVolume.set(value)
             logger.info({ event_name: `set_music_volume`, event_value: value })
           }}
-          onRelease={() => {}}
           label={t('user:usermenu.setting.lbl-background-music-volume')}
         />
       </div>
@@ -317,7 +294,7 @@ export default function SettingsMenu() {
   useEffect(() => {}, [])
 
   return (
-    <div className="absolute z-50 h-fit max-h-[90vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-1 p-6 text-text-secondary mdh:max-h-[60vh] mdh:p-10">
+    <div className="absolute z-50 h-fit max-h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 text-text-secondary mdh:max-h-[60dvh] mdh:p-10">
       <div className="mb-[17px]">
         <button onClick={() => PopoverState.hidePopupover()}>
           <ArrowLeftLg />
