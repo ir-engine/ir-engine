@@ -27,7 +27,7 @@ import React, { useLayoutEffect } from 'react'
 
 import { TouchGamepad } from '@ir-engine/client-core/src/common/components/TouchGamepad'
 import UserMenus from '@ir-engine/client-core/src/user/menus'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { getMutableState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 
 import { EngineState } from '@ir-engine/ecs'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
@@ -35,6 +35,7 @@ import { useTranslation } from 'react-i18next'
 import { LoadingSystemState } from '../../systems/state/LoadingState'
 import InstanceChat from '../../user/InstanceChat'
 import { VideoWindows } from '../../user/VideoWindows'
+import { ViewerMenuState } from '../../util/ViewerMenuState'
 import { ARPlacement } from '../ARPlacement'
 import { Fullscreen } from '../Fullscreen'
 import { MediaIconsBox } from '../MediaIconsBox'
@@ -74,10 +75,15 @@ export const ViewerInteractions = () => {
     )
   }
 
+  const viewerMenuState = getMutableState(ViewerMenuState)
+
   return (
     <div style={{ opacity: 1 - loadingScreenOpacity.value }} className="relative h-dvh w-full p-6">
       <div className="pointer-events-auto absolute left-0 top-0 h-fit w-full pt-[inherit]">
-        <MediaIconsBox />
+        <div className="flex items-center justify-between px-6">
+          <MediaIconsBox />
+          {viewerMenuState.userMenus.ecommerce && viewerMenuState.menuComponents.get(NO_PROXY).ecommerce}
+        </div>
       </div>
 
       <div className="pointer-events-auto absolute left-0 top-0 pl-[inherit] pt-[inherit]">
