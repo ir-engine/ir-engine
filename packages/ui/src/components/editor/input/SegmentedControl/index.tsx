@@ -23,21 +23,25 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Component from './index'
+import React from 'react'
+import { MdOutlineHeatPump, MdOutlineWatch, MdOutlineWindPower } from 'react-icons/md'
+import SegmentedControl, { SegmentedControlProps } from '../../../../primitives/tailwind/SegmentedControl'
 
-const argTypes = {}
-
-export default {
-  title: 'Editor/Properties/PositionalAudio',
-  component: Component,
-  parameters: {
-    componentSubtitle: 'PositionalAudioNodeEditor',
-    jest: 'positionalAudioNodeEditor.test.tsx',
-    design: {
-      type: 'figma',
-      url: ''
-    }
-  },
-  argTypes
+/**Tailwind `Select` styled for studio */
+const SegmentedControlInput = (props: SegmentedControlProps) => {
+  return <SegmentedControl {...props} />
 }
-export const Default = { args: {} }
+
+SegmentedControlInput.displayName = 'SegmentedControlInput'
+SegmentedControlInput.defaultProps = {
+  options: [
+    { label: 'Cuboid', value: 'a', icon: <MdOutlineWatch /> },
+    { label: 'Cylinder', value: 'b', icon: <MdOutlineHeatPump /> },
+    { label: 'Cube', value: 'c', icon: <MdOutlineWindPower /> }
+  ],
+  value: 'a',
+  onChange: () => {},
+  width: 'full'
+}
+
+export default SegmentedControlInput

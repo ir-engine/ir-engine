@@ -920,7 +920,7 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         const props = schema.properties as any
         for (const prop of props) {
           const parsed = createArgs(prop, '', obj)
-          if (parsed) return parsed
+          if (typeof parsed !== 'undefined') return parsed
         }
         return null
       }
@@ -1084,6 +1084,22 @@ export const LayerComponent = defineComponent({
 
 export function getAuthoringCounterpart(entity: Entity) {
   return LayerComponents[Layers.Simulation].refs[entity]
+}
+
+export function getSimulationCounterpart(entity: Entity) {
+  const layer = LayerComponent.get(entity)
+  if (layer === Layers.Simulation) {
+    return entity
+  }
+  const relations = LayerFunctions.getLayerRelationsEntities(entity)
+  if (!relations) return UndefinedEntity
+  const entityLayer = LayerComponent.get(entity)
+  for (const [linkedLayer, linkedEntity] of relations) {
+    if (linkedLayer === Layers.Simulation) {
+      return linkedEntity
+    }
+  }
+  return UndefinedEntity
 }
 
 /**

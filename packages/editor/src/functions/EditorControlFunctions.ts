@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
+import { Euler, Material, Matrix4, Quaternion, Vector3 } from 'three'
 
 import {
   EntityTreeComponent,
@@ -32,6 +32,7 @@ import {
   generateEntityUUID,
   getAncestorWithComponents,
   getChildrenWithComponents,
+  iterateEntityNode,
   removeEntityNodeRecursively,
   UUIDComponent
 } from '@ir-engine/ecs'
@@ -42,7 +43,9 @@ import {
   deserializeComponent,
   getComponent,
   getMutableComponent,
+  getOptionalMutableComponent,
   hasComponent,
+  LayerFunctions,
   Layers,
   removeComponent,
   serializeComponent,
@@ -59,7 +62,6 @@ import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 import { getMutableState, getState, setNestedObject } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent } from '@ir-engine/spatial'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { getMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
@@ -68,6 +70,12 @@ import { serializeEntity } from '@ir-engine/engine/src/scene/functions/serialize
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import {
+  MaterialPrototypeDefinitions,
+  MaterialStateComponent
+} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { extractDefaults } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
@@ -125,11 +133,54 @@ const modifyProperty = <C extends Component<any, any>>(
   }
 }
 
+/**Updates the materialEntity's threejs material using the the newPrototype to look up the new constructor */
+const updateMaterialPrototype = (materialEntity: Entity, newPrototype: string) => {
+  const materialComponent = getOptionalMutableComponent(materialEntity, MaterialStateComponent)
+  if (!materialComponent) return
+  const material = materialComponent.material.value
+
+  if (!material || newPrototype === material.type) return
+  const prototype = getState(MaterialPrototypeDefinitions)[newPrototype]
+  if (!prototype) return
+  const fullParameters = { ...extractDefaults(prototype.arguments) }
+  if (!prototype) return
+  const newMaterial = new prototype.prototypeConstructor(fullParameters) as Material
+
+  if (newMaterial.plugins) {
+    newMaterial.customProgramCacheKey = () =>
+      (newMaterial.shader ? newMaterial.shader.fragmentShader + newMaterial.shader.vertexShader : '') +
+      newMaterial.plugins!.map((plugin) => plugin?.toString() ?? '').reduce((x, y) => x + y, '')
+  }
+  newMaterial.uuid = material.uuid
+  if (material.defines?.['USE_COLOR']) {
+    newMaterial.defines = newMaterial.defines ?? {}
+    newMaterial.defines!['USE_COLOR'] = material.defines!['USE_COLOR']
+  }
+  if (material.userData) {
+    newMaterial.userData = {
+      ...newMaterial.userData,
+      ...Object.fromEntries(Object.entries(material.userData).filter(([k, _v]) => k !== 'type'))
+    }
+  }
+  newMaterial.type = newPrototype
+  newMaterial.name = material.name
+
+  materialComponent.material.set(newMaterial)
+  materialComponent.parameters.set({})
+  for (const key in prototype.arguments) materialComponent.parameters[key].set(prototype.arguments[key].default)
+
+  const sceneID = getComponent(materialEntity, SourceComponent)
+  getMutableState(AssetModifiedState)[sceneID].set(true)
+
+  return newMaterial
+}
+
 const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [_: string]: any }[]) => {
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
     if (typeof node !== 'string') return
-    const material = getMaterial(materialId)
+    const materialEntity = UUIDComponent.getEntityByUUID(materialId, Layers.Authoring)
+    const material = getComponent(materialEntity, MaterialStateComponent).material
     if (!material) return
     const props = properties[i] ?? properties[0]
     Object.entries(props).map(([k, v]) => {
@@ -144,11 +195,14 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
       } else {
         material[k] = v
       }
+      getMutableComponent(materialEntity, MaterialStateComponent).parameters[k].set(v)
     })
-    const materialEntity = UUIDComponent.getEntityByUUID(materialId, Layers.Authoring)
     const sceneID = getComponent(materialEntity, SourceComponent)
+    getMutableComponent(
+      LayerFunctions.getLayerRelationsEntities(materialEntity)![0][1],
+      MaterialStateComponent
+    ).material.plugins.set(material.plugins)
     getMutableState(AssetModifiedState)[sceneID].set(true)
-    material.needsUpdate = true
   }
 }
 
@@ -314,6 +368,7 @@ const positionObject = (
 
     setComponent(entity, TransformComponent, { position: transform.position })
     getMutableComponent(entity, TransformComponent).position.set((v) => v)
+    iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
     EditorState.markModifiedScene(entity)
   }
@@ -349,6 +404,7 @@ const rotateObject = (nodes: Entity[], rotations: Quaternion[], space = getState
 
     setComponent(entity, TransformComponent, { rotation: transform.rotation })
     getMutableComponent(entity, TransformComponent).rotation.set((v) => v)
+    iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
     EditorState.markModifiedScene(entity)
   }
@@ -376,6 +432,7 @@ const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: V
 
     setComponent(entity, TransformComponent, { rotation: transform.rotation })
     getMutableComponent(entity, TransformComponent).rotation.set((v) => v)
+    iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
     EditorState.markModifiedScene(entity)
   }
@@ -402,6 +459,7 @@ const scaleObject = (entities: Entity[], scales: Vector3[], overrideScale = fals
 
     setComponent(entity, TransformComponent, { scale: transformComponent.scale })
     getMutableComponent(entity, TransformComponent).scale.set((v) => v)
+    iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
     EditorState.markModifiedScene(entity)
   }
@@ -515,6 +573,7 @@ export const EditorControlFunctions = {
   modifyProperty,
   modifyName,
   modifyMaterial,
+  updateMaterialPrototype,
   createObjectFromSceneElement,
   duplicateObject,
   positionObject,

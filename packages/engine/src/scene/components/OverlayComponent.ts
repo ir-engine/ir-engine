@@ -27,7 +27,6 @@ import { useEffect } from 'react'
 
 import { defineComponent, getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { isClient } from '@ir-engine/hyperflux'
 import { removeCallback, setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 
 import { Entity } from '@ir-engine/ecs/src/Entity'
@@ -35,49 +34,49 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 
 const interactMessage = 'Click'
-const iframeCallbackName = 'iframeCallback'
+const overlayCallbackName = 'onOpenMenu'
 
-const toggleOpen = (iframeEntity: Entity) => {
-  const iframeComponent = getComponent(iframeEntity, IFrameComponent)
-  setComponent(iframeEntity, IFrameComponent, { isOpen: !iframeComponent.isOpen })
+const toggleOpen = (overlayEntity: Entity) => {
+  const overlayComponent = getComponent(overlayEntity, OverlayComponent)
+  setComponent(overlayEntity, OverlayComponent, { isOpen: !overlayComponent.isOpen })
 }
 
-export const IFrameComponent = defineComponent({
-  name: 'IFrameComponent',
-  jsonID: 'IR_iframe',
+export const OverlayComponent = defineComponent({
+  name: 'OverlayComponent',
+  jsonID: 'IR_overlay_component',
 
   schema: S.Object({
     src: S.String(''),
-    isOpen: S.NonSerialized(S.Bool(false))
+    type: S.String(''),
+    isOpen: S.NonSerialized(S.Bool(false)),
+    props: S.Any()
   }),
 
-  iframeCallbackName,
+  overlayCallbackName,
   interactMessage,
   toggleOpen,
 
   errors: ['INVALID_URL'],
 
   reactor: function () {
-    if (!isClient) return null
     const entity = useEntityContext()
-    const iframeComponent = useComponent(entity, IFrameComponent)
+    const overlayComponent = useComponent(entity, OverlayComponent)
 
     useEffect(() => {
-      clearErrors(entity, IFrameComponent)
-      if (iframeComponent.src.value) return
+      clearErrors(entity, OverlayComponent)
+      if (overlayComponent.src.value) return
       try {
-        new URL(iframeComponent.src.value)
+        new URL(overlayComponent.src.value)
       } catch {
-        return addError(entity, IFrameComponent, 'INVALID_URL', 'Please enter a valid URL.')
+        return addError(entity, OverlayComponent, 'INVALID_URL', 'Please enter a valid URL.')
       }
       return
-    }, [iframeComponent.src])
+    }, [overlayComponent.src])
 
     useEffect(() => {
-      setCallback(entity, iframeCallbackName, () => toggleOpen(entity))
-
+      setCallback(entity, overlayCallbackName, () => toggleOpen(entity))
       return () => {
-        removeCallback(entity, iframeCallbackName)
+        removeCallback(entity, overlayCallbackName)
       }
     }, [])
 

@@ -156,7 +156,8 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
   /** Must run after scene object system to ensure source light is not lit */
   useExecute(
     () => {
-      if (!directionalLight || !directionalLightComponent.castShadow.value) return
+      if (!directionalLight) return
+      if (!getOptionalComponent(entity, DirectionalLightComponent)?.castShadow) return
       directionalLight.visible = false
     },
     { after: SceneObjectSystem }
@@ -258,6 +259,8 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
   )
   const directionalLight = useOptionalComponent(activeLightEntity.value, DirectionalLightComponent)
 
+  const primaryLightVisibleComponent = useOptionalComponent(activeLightEntity.value, VisibleComponent)
+
   //const rendererState = useMutableState(RendererState)
 
   // useEffect(() => {
@@ -278,7 +281,7 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
       return
     }
 
-    if (renderSettingsComponent.primaryLight.value) {
+    if (renderSettingsComponent.primaryLight.value && primaryLightVisibleComponent) {
       activeLightEntity.set(
         NodeFunctions.getEntityFromNodeID(renderSettingsEntity, renderSettingsComponent.primaryLight.value)
       )
@@ -286,7 +289,7 @@ function CSMReactor(props: { rendererEntity: Entity; renderSettingsEntity: Entit
     }
 
     activeLightEntity.set(UndefinedEntity)
-  }, [xrLightProbeEntity.value, renderSettingsComponent.primaryLight])
+  }, [xrLightProbeEntity.value, renderSettingsComponent.primaryLight, primaryLightVisibleComponent])
 
   if (!renderSettingsComponent.csm.value || !activeLightEntity.value || !directionalLight?.value) return null
 

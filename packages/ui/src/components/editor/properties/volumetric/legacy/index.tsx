@@ -251,7 +251,6 @@ export const LegacyVolumetricNodeEditor: EditorComponentType = (props) => {
         //prefix="Content"
         values={volumetricComponent.paths.value as string[]}
         //onRelease={commitProperty(LegacyVolumetricComponent, 'paths')}
-        label={t('editor:properties.media.paths')}
         onChange={updateProperty(LegacyVolumetricComponent, 'paths')}
         //acceptFileTypes={VolumetricFileTypes}
         //acceptDropItems={ItemTypes.Volumetrics}

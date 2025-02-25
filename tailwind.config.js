@@ -158,10 +158,15 @@ module.exports = {
           '0%': { opacity: '0.6' },
           '50%': { opacity: '1' },
           '100%': { opacity: '0.6' }
-        }
+        },
+        slideIn: {
+          "0%": { opacity: 0, transform: "translateY(20px)" },
+          "100%": { opacity: 1, transform: "translateY(0)" },
+        },
       },
       animation: {
-        twinkling: 'twinkling 5s alternate infinite'
+        twinkling: 'twinkling 5s alternate infinite',
+        slideIn: "slideIn 0.3s ease-out forwards",
       }
     }
   },

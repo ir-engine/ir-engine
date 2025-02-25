@@ -49,6 +49,7 @@ import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { ResourcePendingComponent } from '../../gltf/ResourcePendingComponent'
 import { AssetLoader } from '../classes/AssetLoader'
 import { FileLoader } from '../loaders/base/FileLoader'
+import { parseStorageProviderURLs } from './parseSceneJSON'
 import { loadResource } from './resourceLoaderFunctions'
 
 const defaultLoaders = {
@@ -68,6 +69,7 @@ function useLoader<T extends ResourceAssetType>(
   const error = useHookstate<ErrorEvent | Error | null>(null)
   const progress = useHookstate<ProgressEvent<EventTarget> | null>(null)
   const entityResource = useHookstate<Resource[] | null>(null)
+  url = parseStorageProviderURLs(url)
 
   const unload = () => {
     if (url && entityResource.value) {

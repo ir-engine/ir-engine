@@ -42,6 +42,7 @@ import {
   defineSystem,
   getComponent,
   getMutableComponent,
+  hasComponent,
   removeEntity,
   setComponent,
   useOptionalComponent,
@@ -80,9 +81,9 @@ export const SceneState = defineState({
     }
 
     return () => {
-      if (viewerEntity) {
+      if (viewerEntity && hasComponent(viewerEntity, RendererComponent)) {
         getMutableComponent(viewerEntity, RendererComponent).scenes.set((current) =>
-          current.splice(current.indexOf(simulationEntity), 1)
+          current.filter((scene) => scene !== simulationEntity)
         )
       }
       AssetState.unload(gltfEntity)

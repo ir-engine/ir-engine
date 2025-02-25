@@ -62,16 +62,18 @@ import SelectInput from '../Select'
 import Vector3Input from '../Vector3'
 
 export default function BehaviorInput({
+  path,
   scope,
   value,
   onChange
 }: {
+  path: string
   scope: State<BehaviorJSON>
   value: BehaviorJSON
-  onChange: (scope: State<any>) => (value: any) => void
+  onChange: (path: string) => (value: any) => void
 }) {
   const onChangeBehaviorType = useCallback(() => {
-    const onChangeType = onChange(scope.type)
+    const onChangeType = onChange(path + '.type')
     return (type: typeof value.type) => {
       const nuVals = JSON.parse(JSON.stringify(BehaviorJSONDefaults[type]))
       scope.set(nuVals)
@@ -79,8 +81,8 @@ export default function BehaviorInput({
     }
   }, [])
 
-  const onChangeVec3 = useCallback((scope: State<any>) => {
-    const thisOnChange = onChange(scope)
+  const onChangeVec3 = useCallback((path: string) => {
+    const thisOnChange = onChange(path)
     return (vec3: Vector3) => {
       thisOnChange([...vec3.toArray()])
     }
@@ -93,10 +95,11 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="force" label="Force">
-            <Vector3Input value={new Vector3(...value.direction)} onChange={onChangeVec3(forceScope.direction)} />
+            <Vector3Input value={new Vector3(...value.direction)} onChange={onChangeVec3(path + '.direction')} />
           </InputGroup>
           <InputGroup name="magnitude" label="Magnitude">
             <ValueGenerator
+              path={path + '.magnitude'}
               scope={forceScope.magnitude}
               value={value.magnitude as ValueGeneratorJSON}
               onChange={onChange}
@@ -115,16 +118,16 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="frequency" label="Frequency">
-            <Vector3Input value={new Vector3(...value.frequency)} onChange={onChangeVec3(noiseScope.frequency)} />
+            <Vector3Input value={new Vector3(...value.frequency)} onChange={onChangeVec3(path + '.frequency')} />
           </InputGroup>
           <InputGroup name="power" label="Power">
-            <Vector3Input value={new Vector3(...value.power)} onChange={onChange(noiseScope.power)} />
+            <Vector3Input value={new Vector3(...value.power)} onChange={onChange(path + '.power')} />
           </InputGroup>
           <InputGroup name="positionAmount" label="positionAmount">
-            <NumericInput value={value.positionAmount} onChange={onChange(noiseScope.positionAmount)} />
+            <NumericInput value={value.positionAmount} onChange={onChange(path + '.positionAmount')} />
           </InputGroup>
           <InputGroup name="rotationAmount" label="rotation Amount">
-            <NumericInput value={value.rotationAmount} onChange={onChange(noiseScope.rotationAmount)} />
+            <NumericInput value={value.rotationAmount} onChange={onChange(path + '.rotationAmount')} />
           </InputGroup>
         </>
       )
@@ -139,19 +142,19 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="scale" label="Scale">
-            <Vector3Input value={new Vector3(...value.scale)} onChange={onChangeVec3(turbulenceScope.scale)} />
+            <Vector3Input value={new Vector3(...value.scale)} onChange={onChangeVec3(path + '.scale')} />
           </InputGroup>
           <InputGroup name="octaves" label="Octaves">
-            <NumericInput value={value.octaves} onChange={onChange(turbulenceScope.octaves)} />
+            <NumericInput value={value.octaves} onChange={onChange(path + '.octaves')} />
           </InputGroup>
           <InputGroup name="velocityMultiplier" label="Velocity Multiplier">
             <Vector3Input
               value={new Vector3(...value.velocityMultiplier)}
-              onChange={onChangeVec3(turbulenceScope.velocityMultiplier)}
+              onChange={onChangeVec3(path + '.velocityMultiplier')}
             />
           </InputGroup>
           <InputGroup name="timeScale" label="Time Scale">
-            <Vector3Input value={new Vector3(...value.timeScale)} onChange={onChangeVec3(turbulenceScope.timeScale)} />
+            <Vector3Input value={new Vector3(...value.timeScale)} onChange={onChangeVec3(path + '.timeScale')} />
           </InputGroup>
         </>
       )
@@ -166,10 +169,10 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="center" label="Center">
-            <Vector3Input value={new Vector3(...value.center)} onChange={onChangeVec3(gravityScope.center)} />
+            <Vector3Input value={new Vector3(...value.center)} onChange={onChangeVec3(path + '.center')} />
           </InputGroup>
           <InputGroup name="magnitude" label="Magnitude">
-            <NumericInput value={value.magnitude} onChange={onChange(gravityScope.magnitude)} />
+            <NumericInput value={value.magnitude} onChange={onChange(path + '.magnitude')} />
           </InputGroup>
         </>
       )
@@ -184,7 +187,12 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="color" label="Color">
-            <ColorGenerator scope={colorScope.color} value={value.color as ColorGeneratorJSON} onChange={onChange} />
+            <ColorGenerator
+              path={path + '.color'}
+              scope={colorScope.color}
+              value={value.color as ColorGeneratorJSON}
+              onChange={onChange}
+            />
           </InputGroup>
         </>
       )
@@ -200,6 +208,7 @@ export default function BehaviorInput({
         <>
           <InputGroup name="angularVelocity" label="Angular Velocity">
             <ValueGenerator
+              path={path + '.angularVelocity'}
               scope={rotationScope.angularVelocity}
               value={value.angularVelocity as ValueGeneratorJSON}
               onChange={onChange}
@@ -219,13 +228,14 @@ export default function BehaviorInput({
         <>
           <InputGroup name="angularVelocity" label="Angular Velocity">
             <RotationGenerator
+              path={path + '.angularVelocity'}
               scope={rotation3DScope.angularVelocity}
               value={rotation3D.angularVelocity as RotationGeneratorJSON}
               onChange={onChange}
             />
           </InputGroup>
           <InputGroup name="dynamic" label="Dynamic">
-            <Checkbox checked={rotation3D.dynamic} onChange={onChange(rotation3DScope.dynamic)} />
+            <Checkbox checked={rotation3D.dynamic} onChange={onChange(path + '.dynamic')} />
           </InputGroup>
         </>
       )
@@ -240,7 +250,12 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="size" label="Size">
-            <ValueGenerator scope={sizeScope.size} value={value.size as ValueGeneratorJSON} onChange={onChange} />
+            <ValueGenerator
+              path={path + '.size'}
+              scope={sizeScope.size}
+              value={value.size as ValueGeneratorJSON}
+              onChange={onChange}
+            />
           </InputGroup>
         </>
       )
@@ -255,7 +270,12 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="speed" label="Speed">
-            <ValueGenerator scope={speedScope.speed} value={value.speed as ValueGeneratorJSON} onChange={onChange} />
+            <ValueGenerator
+              path={path + '.speed'}
+              scope={speedScope.speed}
+              value={value.speed as ValueGeneratorJSON}
+              onChange={onChange}
+            />
           </InputGroup>
         </>
       )
@@ -270,7 +290,12 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="frame" label="Frame">
-            <ValueGenerator scope={frameScope.frame} value={value.frame as ValueGeneratorJSON} onChange={onChange} />
+            <ValueGenerator
+              path={path + '.frame'}
+              scope={frameScope.frame}
+              value={value.frame as ValueGeneratorJSON}
+              onChange={onChange}
+            />
           </InputGroup>
         </>
       )
@@ -286,13 +311,14 @@ export default function BehaviorInput({
         <>
           <InputGroup name="orbit" label="Orbit">
             <ValueGenerator
+              path={path + '.orbitSpeed'}
               scope={orbitScope.orbitSpeed}
               value={value.orbitSpeed as ValueGeneratorJSON}
               onChange={onChange}
             />
           </InputGroup>
           <InputGroup name="axis" label="Axis">
-            <Vector3Input value={new Vector3(...value.axis)} onChange={onChangeVec3(orbitScope.axis)} />
+            <Vector3Input value={new Vector3(...value.axis)} onChange={onChangeVec3(path + '.axis')} />
           </InputGroup>
         </>
       )
@@ -307,7 +333,12 @@ export default function BehaviorInput({
       return (
         <>
           <InputGroup name="width" label="Width">
-            <ValueGenerator scope={widthScope.width} value={value.width as ValueGeneratorJSON} onChange={onChange} />
+            <ValueGenerator
+              path={path + '.width'}
+              scope={widthScope.width}
+              value={value.width as ValueGeneratorJSON}
+              onChange={onChange}
+            />
           </InputGroup>
         </>
       )
@@ -323,6 +354,7 @@ export default function BehaviorInput({
         <>
           <InputGroup name="angle" label="Angle">
             <ValueGenerator
+              path={path + '.angle'}
               scope={changeEmitDirectionScope.angle}
               value={value.angle as ValueGeneratorJSON}
               onChange={onChange}
@@ -356,7 +388,7 @@ export default function BehaviorInput({
 
   const onChangeSequenceTexture = useCallback(
     (scope: State<TextureSequencerJSON>) => {
-      const thisOnChange = onChange(scope.src)
+      const thisOnChange = onChange(path + '.src')
       return (src: string) => {
         getTextureAsync(src).then(([texture]) => {
           if (!texture) return
@@ -387,7 +419,7 @@ export default function BehaviorInput({
   const onAddTextureSequencer = useCallback(() => {
     const sequencersScope = scope as State<ApplySequencesJSON>
     const sequencers = sequencersScope.value
-    const thisOnChange = onChange(sequencersScope.sequencers)
+    const thisOnChange = onChange(path + '.sequencers')
     return () => {
       const nuSequencer = {
         range: { a: 0, b: 1 },

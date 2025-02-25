@@ -125,7 +125,7 @@ export async function takeScreenshot(
         clearInterval(interval)
         resolve()
       }
-    }, 10)
+    }, 100)
 
     const timeout = setTimeout(() => {
       console.warn('Could not resize viewport in time')

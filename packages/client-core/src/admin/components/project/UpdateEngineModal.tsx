@@ -193,8 +193,7 @@ export default function UpdateEngineModal() {
             position: 'top'
           }}
           positioning={{
-            maxHeight: '200px',
-            direction: 'down'
+            maxHeight: '200px'
           }}
           options={selectCommitTagOptions}
           value={selectedCommitTag.value}

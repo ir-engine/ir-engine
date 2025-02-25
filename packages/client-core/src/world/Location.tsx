@@ -23,14 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useLayoutEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { useLoadLocation, useLoadScene } from '@ir-engine/client-core/src/components/World/LoadLocationScene'
 import { AuthService } from '@ir-engine/client-core/src/user/services/AuthService'
 import { ThemeContextProvider } from '@ir-engine/client/src/pages/themeContext'
-import { useMutableState } from '@ir-engine/hyperflux'
-import { TopButtons } from '../components/TopButtons'
+import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
+import { ViewerInteractions } from '../components/ViewerInteractions'
 
 import '@ir-engine/client-core/src/util/GlobalStyle.css'
 
@@ -40,6 +40,7 @@ import multiLogger from '@ir-engine/common/src/logger'
 import { StyledEngineProvider } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 import { NotificationService } from '../common/services/NotificationService'
+import { ThemeState } from '../common/services/ThemeService'
 import { useNetwork } from '../components/World/EngineHooks'
 import { LocationService } from '../social/services/LocationService'
 import { LoadingUISystemState } from '../systems/LoadingUISystem'
@@ -83,11 +84,17 @@ const LocationPage = ({ online }: Props) => {
     }
   }, [location.search])
 
+  useLayoutEffect(() => {
+    const previousTheme = getMutableState(ThemeState).theme.value
+    ThemeState.setTheme('light')
+    window.addEventListener('beforeunload', () => ThemeState.setTheme(previousTheme))
+  }, [])
+
   return (
     <>
       <ThemeContextProvider>
         <StyledEngineProvider injectFirst>
-          <TopButtons />
+          <ViewerInteractions />
         </StyledEngineProvider>
       </ThemeContextProvider>
     </>

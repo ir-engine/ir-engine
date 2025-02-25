@@ -23,26 +23,34 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 
-const ClickAwayListener = ({ onClickAway, children }) => {
-  const wrapperRef = useRef(null)
+import { defineComponent, removeComponent, setComponent, useEntityContext } from '@ir-engine/ecs'
+import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (wrapperRef.current && !(wrapperRef.current! as HTMLElement).contains(event.target)) {
-        onClickAway()
-      }
-    }
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { NodeIDSchema } from '../../gltf/NodeIDComponent'
 
-    document.addEventListener('mousedown', handleClickOutside)
+export const GeneralAudioComponent = defineComponent({
+  name: 'EE_generalAudio',
 
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [onClickAway])
+  jsonID: 'EE_audio_general',
 
-  return <div ref={wrapperRef}>{children}</div>
-}
+  schema: S.Object({
+    mediaUUID: NodeIDSchema()
+  }),
 
-export default ClickAwayListener
+  onRemove: (entity, component) => {
+    removeComponent(entity, MediaComponent)
+  },
+
+  reactor: function () {
+    const entity = useEntityContext()
+
+    useEffect(() => {
+      setComponent(entity, MediaComponent)
+    }, [])
+
+    return null
+  }
+})
