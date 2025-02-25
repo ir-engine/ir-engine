@@ -42,6 +42,7 @@ import {
   defineSystem,
   getComponent,
   getMutableComponent,
+  hasComponent,
   removeEntity,
   setComponent,
   useOptionalComponent,
@@ -80,7 +81,7 @@ export const SceneState = defineState({
     }
 
     return () => {
-      if (viewerEntity) {
+      if (viewerEntity && hasComponent(viewerEntity, RendererComponent)) {
         getMutableComponent(viewerEntity, RendererComponent).scenes.set((current) =>
           current.filter((scene) => scene !== simulationEntity)
         )
