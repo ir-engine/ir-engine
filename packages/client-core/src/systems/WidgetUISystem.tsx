@@ -63,7 +63,6 @@ import { ReferenceSpace, XRState, isMobileXRHeadset } from '@ir-engine/spatial/s
 import { RegisteredWidgets, WidgetAppActions, WidgetAppService, WidgetAppState } from './WidgetAppService'
 
 import { ReferenceSpaceState } from '@ir-engine/spatial'
-import React from 'react'
 import { createAnchorWidget } from './createAnchorWidget'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
 
@@ -241,7 +240,7 @@ const Reactor = () => {
  */
 export const WidgetUISystem = defineSystem({
   uuid: 'ee.client.WidgetUISystem',
-  insert: { before: TransformSystem },
+  insert: { before: TransformSystem }
   // execute,
   // reactor: () => {
   //   if (!useMutableState(ReferenceSpaceState).viewerEntity.value) return null

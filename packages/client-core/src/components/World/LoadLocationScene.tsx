@@ -35,7 +35,6 @@ import { getMutableState, getState, useMutableState } from '@ir-engine/hyperflux
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { NotificationService } from '../../common/services/NotificationService'
 import { RouterState } from '../../common/services/RouterService'
-import { WarningUIService } from '../../systems/WarningUISystem'
 import { ClientContextState } from '../../util/ClientContextState'
 
 export const useLoadLocation = (props: { locationName: string }) => {
