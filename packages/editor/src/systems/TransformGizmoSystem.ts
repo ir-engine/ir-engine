@@ -86,12 +86,13 @@ export function editorInputHeuristic(intersectionData: Set<IntersectionData>, po
 
   raycaster.set(position, direction)
 
-  const [...pickerObj] = gizmoPickerObjectsQuery() // gizmo heuristic
-  const [...cameraGizmo] = cameraGizmoQuery() //camera gizmo heuristic
+  const pickerObj = gizmoPickerObjectsQuery() // gizmo heuristic
+  const cameraGizmo = cameraGizmoQuery() //camera gizmo heuristic
 
   //concatenating cameraGizmo to both pickerObjects(transformGizmo) and inputObjects
   const allGizmos = cameraGizmo.concat(pickerObj)
-  const inputObj = [...inputObjectsQuery()].concat(cameraGizmo)
+  const inputObj = [] as Entity[]
+  inputObj.concat(inputObjectsQuery()).concat(cameraGizmo)
 
   const objects = (pickerObj.length > 0 ? allGizmos : inputObj) // gizmo heuristic
     .map((eid) => getComponent(eid, ObjectComponent))
@@ -176,12 +177,7 @@ const useGizmoControl = (entities: Entity[]) => {
 
 const reactor = () => {
   useEffect(() => {
-    getMutableState(InputHeuristicState).merge([
-      {
-        order: 1,
-        heuristic: editorInputHeuristic
-      }
-    ])
+    InputHeuristicState.addHeuristic(1, editorInputHeuristic)
   }, [])
 
   const selectedEntities = SelectionState.useSelectedEntities()

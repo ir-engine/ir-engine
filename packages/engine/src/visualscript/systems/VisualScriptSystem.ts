@@ -80,6 +80,6 @@ const reactor = () => {
 export const VisualScriptSystem = defineSystem({
   uuid: 'ee.engine.VisualScriptSystem',
   insert: { with: InputSystemGroup },
-  execute,
-  reactor
+  // execute,
+  // reactor
 })

@@ -150,14 +150,9 @@ export const InputComponent = defineComponent({
     inputSourceEntities: Entity[],
     inputAlias: AliasType = DefaultButtonAlias as unknown as AliasType
   ) {
-    const buttons = Object.assign(
-      {},
-      ...inputSourceEntities.map((eid) => {
-        return getComponent(eid, InputSourceComponent).buttons
-      })
-    ) as ButtonStateMap<AliasType>
+    const buttons = Object.assign({}, ...inputSourceEntities.map(mapInputButtons)) as ButtonStateMap<AliasType>
 
-    for (const key of Object.keys(inputAlias)) {
+    for (const key in inputAlias) {
       const k = key as keyof AliasType
       buttons[k] = inputAlias[key].reduce((acc: any, alias) => acc || buttons[alias], undefined)
     }
@@ -188,7 +183,7 @@ export const InputComponent = defineComponent({
       }
     }
 
-    for (const key of Object.keys(inputAlias)) {
+    for (const key in inputAlias) {
       axes[key as any] = inputAlias[key].reduce<number>((prev, alias) => {
         return getLargestMagnitudeNumber(prev, axes[alias] ?? 0)
       }, 0)
@@ -292,3 +287,5 @@ export const InputExecutionSystemGroup = defineSystem({
   uuid: 'ee.engine.InputExecutionSystemGroup',
   insert: { with: InputSystemGroup }
 })
+
+const mapInputButtons = (eid: Entity) => getComponent(eid, InputSourceComponent).buttons

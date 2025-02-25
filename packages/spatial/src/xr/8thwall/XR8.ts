@@ -292,7 +292,6 @@ const overrideXRSessionFunctions = () => {
     document.body.addEventListener('touchend', onTouchEnd)
 
     xrState.requestingSession.set(false)
-    dispatchAction(XRAction.sessionChanged({ active: true }))
   }
 
   endXRSession.implementation = async () => {
@@ -314,8 +313,6 @@ const overrideXRSessionFunctions = () => {
     document.body.removeEventListener('touchstart', onTouchStart)
     document.body.removeEventListener('touchmove', onTouchMove)
     document.body.removeEventListener('touchend', onTouchEnd)
-
-    dispatchAction(XRAction.sessionChanged({ active: false }))
   }
 }
 

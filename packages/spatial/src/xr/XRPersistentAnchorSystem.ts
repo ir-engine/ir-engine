@@ -156,5 +156,5 @@ const execute = () => {
 export const XRPersistentAnchorSystem = defineSystem({
   uuid: 'ee.engine.XRPersistentAnchorSystem',
   insert: { with: XRSystem },
-  execute
+  // execute
 })

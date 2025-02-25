@@ -852,5 +852,5 @@ const execute = () => {
 export const ECSRecordingSystem = defineSystem({
   uuid: 'ee.engine.ECSRecordingSystem',
   insert: { after: PresentationSystemGroup },
-  execute
+  // execute
 })

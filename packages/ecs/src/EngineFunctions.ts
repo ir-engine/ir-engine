@@ -111,7 +111,7 @@ export const executeFixedSystem = (systemUUID: SystemUUID) => {
   }
 }
 
-export const getDAG = (systemUUIDs = DefaultSystemPipeline, depth = 0, out: string[]) => {
+export const getDAG = (systemUUIDs = DefaultSystemPipeline, depth = 0, out = [] as string[]) => {
   for (const systemUUID of systemUUIDs) {
     const system = SystemDefinitions.get(systemUUID)
     if (!system) return
