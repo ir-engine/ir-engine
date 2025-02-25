@@ -174,9 +174,25 @@ else
   elif [ "$DESTINATION_REPO_PROVIDER" = "gcp" ]
   then
     echo "PRUNING GCP ARTIFACT REGISTRY REPOS"
-    npx ts-node --swc ./scripts/prune_gcp_ar_images.ts --repoUrl $DESTINATION_REPO_URL --repoName $DESTINATION_REPO_NAME_STEM-api --service api --releaseName $RELEASE_NAME
-    npx ts-node --swc ./scripts/prune_gcp_ar_images.ts --repoUrl $DESTINATION_REPO_URL --repoName $DESTINATION_REPO_NAME_STEM-client --service client --releaseName $RELEASE_NAME
-    npx ts-node --swc ./scripts/prune_gcp_ar_images.ts --repoUrl $DESTINATION_REPO_URL --repoName $DESTINATION_REPO_NAME_STEM-instanceserver --service instanceserver --releaseName $RELEASE_NAME
+
+    # Determine suffix based on APP_HOST
+    if [[ "$APP_HOST" =~ "mt-rc-int" ]]; then
+      SUFFIX="-mt-rc-int"
+    elif [[ "$APP_HOST" =~ "mt-int" ]]; then
+      SUFFIX="-mt-int"
+    elif [[ "$APP_HOST" =~ "mt-qat" ]]; then
+      SUFFIX="-mt-qat"
+    elif [[ "$APP_HOST" =~ "mt" ]]; then
+      SUFFIX="-mt"
+    elif [[ "$APP_HOST" =~ "qat" ]]; then
+      SUFFIX="-qat"
+    else
+      SUFFIX=""
+    fi
+
+    npx ts-node --swc ./scripts/prune_gcp_ar_images.ts --repoUrl $DESTINATION_REPO_URL --repoName $DESTINATION_REPO_NAME_STEM-api-$SUFFIX --packageName $DESTINATION_PACKAGE_NAME_STEM-api --service api --releaseName $RELEASE_NAME
+    npx ts-node --swc ./scripts/prune_gcp_ar_images.ts --repoUrl $DESTINATION_REPO_URL --repoName $DESTINATION_REPO_NAME_STEM-client-$SUFFIX --packageName $DESTINATION_PACKAGE_NAME_STEM-client --service client --releaseName $RELEASE_NAME
+    npx ts-node --swc ./scripts/prune_gcp_ar_images.ts --repoUrl $DESTINATION_REPO_URL --repoName $DESTINATION_REPO_NAME_STEM-instanceserver-$SUFFIX --packageName $DESTINATION_PACKAGE_NAME_STEM-instanceserver --service instanceserver --releaseName $RELEASE_NAME
 #    npx ts-node --swc ./scripts/prune_gcp_ar_images.ts --repoUrl $DESTINATION_REPO_URL --repoName $DESTINATION_REPO_NAME_STEM-taskserver --service taskserver --releaseName $RELEASE_NAME
   fi
 fi

@@ -35,6 +35,7 @@ cli.enable('status')
 const options = cli.parse({
   repoUrl: [false, 'Name of registry', 'string'],
   repoName: [false, 'Name of repository', 'string'],
+  packageName: [false, 'Name of package'],
   service: [true, 'Name of service', 'string'],
   releaseName: [true, 'Name of release', 'string']
 })
@@ -62,7 +63,7 @@ const getParent = (includePackage = false) => {
   const urlSplit = options.repoUrl.split('/')
   const region = urlSplit[0].replace('-docker.pkg.dev', '')
   let returned = `projects/${urlSplit[1]}/locations/${region}/repositories/${options.repoName}`
-  if (includePackage) returned += `/packages/${options.repoName}`
+  if (includePackage) returned += `/packages/${options.packageName}`
   return returned
 }
 
