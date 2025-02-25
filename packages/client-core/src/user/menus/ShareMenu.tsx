@@ -193,10 +193,16 @@ const ShareMenu = (): JSX.Element => {
   }
 
   return (
-    <div className="relative z-50 h-fit max-h-[90vh] min-w-[720px] rounded-2xl bg-surface-1 pt-[16.5px] mdh:max-h-[60vh] mdh:w-[50vw] mdh:max-w-2xl">
+    <div className="relative z-50 h-fit max-h-[90dvh] min-w-[720px] rounded-2xl bg-surface-4 pb-4 pt-[16.5px] mdh:max-h-[60dvh] mdh:w-[50vw] mdh:max-w-2xl mdh:pb-0">
       <div className="mx-8 grid grid-cols-3 gap-x-3 gap-y-3">
+        <div className="col-span-3 flex w-full items-center justify-center mdh:hidden">
+          <Text fontWeight="medium" className="text-text-primary">
+            {t('user:usermenu.share.description-share')}
+          </Text>
+        </div>
+
         <div className="col-span-1 mdh:col-span-full">
-          <div className="mb-[16.5px] flex w-full items-center justify-center">
+          <div className="mb-[16.5px] hidden w-full items-center justify-center mdh:flex">
             <Text fontWeight="medium" className="text-text-primary">
               {t('user:usermenu.share.description-share')}
             </Text>
@@ -204,17 +210,17 @@ const ShareMenu = (): JSX.Element => {
 
           <div className="flex w-full items-center justify-center ">
             <div className="rounded-md bg-white p-4">
-              <QRCodeSVG height={176} width={200} value={shareLink} />
+              <QRCodeSVG className="h-[114px] w-[131px] mdh:h-[161px] mdh:w-[184px]" value={shareLink} />
             </div>
           </div>
         </div>
 
-        <div className="col-span-2 grid grid-cols-1 gap-y-3 mdh:col-span-full">
+        <div className="col-span-2 grid grid-cols-1 mdh:col-span-full mdh:gap-y-3">
           <Input
             readOnly
             value={shareLink}
             endComponent={
-              <button className="h-4 w-4" onMouseDown={copyLinkToClipboard}>
+              <button className="h-4 w-4 text-text-primary" onMouseDown={copyLinkToClipboard}>
                 <Copy03Lg />
               </button>
             }
@@ -226,54 +232,58 @@ const ShareMenu = (): JSX.Element => {
             ref={refLink}
           />
 
-          <Input
-            readOnly
-            value={iframeString}
-            labelProps={{
-              text: t('user:usermenu.share.shareEmbed'),
-              position: 'top'
-            }}
-            endComponent={
-              <button
-                className="h-4 w-4"
-                onMouseDown={() => {
-                  copyToClipboard(iframeString)
-                }}
-              >
-                <Copy03Lg />
-              </button>
-            }
-            fullWidth
-          />
-
-          <Input
-            value={token}
-            labelProps={{
-              text: t('user:usermenu.share.shareInvite'),
-              position: 'top'
-            }}
-            placeholder={getConnectPlaceholder()}
-            onChange={(e) => handleChangeToken(e)}
-            endComponent={
-              <button className="h-4 w-4" onMouseDown={packageInvite}>
-                <Send01Lg />
-              </button>
-            }
-            fullWidth
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                packageInvite()
+          <div className="hidden mdh:block">
+            <Input
+              readOnly
+              value={iframeString}
+              labelProps={{
+                text: t('user:usermenu.share.shareEmbed'),
+                position: 'top'
+              }}
+              endComponent={
+                <button
+                  className="h-4 w-4 text-text-primary"
+                  onMouseDown={() => {
+                    copyToClipboard(iframeString)
+                  }}
+                >
+                  <Copy03Lg />
+                </button>
               }
-            }}
-          />
+              fullWidth
+            />
+          </div>
+
+          <div className="-mt-4 mdh:mt-0">
+            <Input
+              value={token}
+              labelProps={{
+                text: t('user:usermenu.profile.connectEmail'),
+                position: 'top'
+              }}
+              placeholder={getConnectPlaceholder()}
+              onChange={(e) => handleChangeToken(e)}
+              endComponent={
+                <button className="h-4 w-4 text-text-primary" onMouseDown={packageInvite}>
+                  <Send01Lg />
+                </button>
+              }
+              fullWidth
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') packageInvite()
+              }}
+            />
+          </div>
         </div>
       </div>
-      <div className="mt-4 flex w-full items-center justify-center border-t-[0.5px] border-[#212226] py-[11px]">
-        <Button variant="secondary" size="l" onClick={() => navigator.share({ url: shareLink })}>
-          <Share06Sm />
-          {t('user:usermenu.share.lbl-share')}
-        </Button>
-      </div>
+      {
+        <div className="mt-4 hidden w-full items-center justify-center border-t-[0.5px] border-[#212226] py-[11px] mdh:flex">
+          <Button variant="secondary" size="l" onClick={() => navigator.share({ url: shareLink })}>
+            <Share06Sm />
+            {t('user:usermenu.share.lbl-share')}
+          </Button>
+        </div>
+      }
     </div>
   )
 }
