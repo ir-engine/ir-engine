@@ -166,7 +166,7 @@ function NewMessage() {
 
   return (
     <div className="mt-5 flex w-full items-center justify-end">
-      <div className="relative w-16">
+      <div className="relative max-w-16">
         {!isChatOpen.value && unreadMessages.value && (
           <div className="absolute right-0 top-0 h-4 w-4 rounded-full bg-blue-500" />
         )}
@@ -196,7 +196,11 @@ function NewMessage() {
           onChange={handleComposedMessage}
         />
         <span className="sm:m-[5px]">
-          {isMobile ? <Send01Sm onClick={sendMessage} /> : <LocationIconButton icon={Send01Lg} onClick={sendMessage} />}
+          {isMobile ? (
+            <Send01Sm className="text-text-primary" onClick={sendMessage} />
+          ) : (
+            <LocationIconButton icon={Send01Lg} onClick={sendMessage} />
+          )}
         </span>
       </div>
     </div>
@@ -220,7 +224,7 @@ function Message({ message, hideUsername }: { message: MessageType; hideUsername
     <div
       className={twMerge(
         'my-4 w-fit place-self-start rounded-[14px] bg-surface-3 px-2 py-0.5 opacity-50 lg:rounded-[11px] lg:py-2.5',
-        message.sender.id === user.id.value && 'place-self-end bg-[#C7C7C7]',
+        message.sender.id === user.id.value && 'place-self-end bg-surface-0',
         newMessages.value[message.id] && 'opacity-100',
         hideUsername && '-mt-3'
       )}
@@ -282,7 +286,7 @@ export default function InstanceChat() {
 
   return (
     <InstanceChatProvider>
-      {!ageVerified ? (
+      {(false as any) ? (
         <div className="rounded-lg bg-surface-4 p-4">
           <div className="mx-auto text-center font-semibold text-[#3B3A3A]">{t('user:instanceChat.wantToChat')}</div>
           <Button
