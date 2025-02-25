@@ -49,6 +49,7 @@ import EulerInput from '../../input/Euler'
 import InputGroup from '../../input/Group'
 import NumericInput from '../../input/Numeric'
 import Vector3Input from '../../input/Vector3'
+import { TransformUniformScaleState } from './TransformUniformScaleState.ts'
 
 const position = new Vector3()
 const rotation = new Quaternion()
@@ -99,6 +100,16 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
     EditorControlFunctions.scaleObject(selectedEntities, [value], true)
   }
 
+  const onToggleUniformScale = (updatedValue: boolean) => {
+    updatedValue
+      ? TransformUniformScaleState.addOrUpdateEntity(props.entity)
+      : TransformUniformScaleState.removeEntry(props.entity)
+  }
+
+  const getUniformScale = (): boolean => {
+    return TransformUniformScaleState.getEntityState(props.entity) ?? false
+  }
+
   return (
     <ComponentDropdown
       name={t('editor:properties.transform.title')}
@@ -147,11 +158,12 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
       <InputGroup name="Scale" label={t('editor:properties.transform.lbl-scale')} className="w-auto">
         <Vector3Input
           disabled={locked}
-          uniformScaling
+          uniformScaling={getUniformScale()}
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
           value={scale}
+          onToggleUniformScale={onToggleUniformScale}
           onChange={onChangeScale}
           onRelease={onRelease}
         />
