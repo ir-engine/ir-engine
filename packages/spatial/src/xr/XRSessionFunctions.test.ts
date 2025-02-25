@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 import { afterEach, assert, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { getIncomingAction, getLastAction } from '../../tests/util/actionHelpers'
+import { getLastAction } from '../../tests/util/actionHelpers'
 import { destroyEmulatedXREngine, mockEmulatedXREngine } from '../../tests/util/mockEmulatedXREngine'
 import { mockSpatialEngine } from '../../tests/util/mockSpatialEngine'
 import {
@@ -41,15 +41,8 @@ import { ReferenceSpaceState, TransformComponent } from '../SpatialModule'
 import { Q_IDENTITY, Vector3_One, Vector3_Zero } from '../common/constants/MathConstants'
 import { destroySpatialEngine, destroySpatialViewer } from '../initializeEngine'
 import { RendererComponent } from '../renderer/WebGLRendererSystem'
-import {
-  endXRSession,
-  getReferenceSpaces,
-  onSessionEnd,
-  requestXRSession,
-  setupXRSession,
-  xrSessionChanged
-} from './XRSessionFunctions'
-import { ReferenceSpace, XRAction, XRState } from './XRState'
+import { endXRSession, getReferenceSpaces, onSessionEnd, requestXRSession, setupXRSession } from './XRSessionFunctions'
+import { ReferenceSpace, XRState } from './XRState'
 
 /** @note Runs once on the `describe` implied by vitest for this file */
 beforeAll(() => {
@@ -642,17 +635,6 @@ describe('requestXRSession', () => {
     await requestXRSession()
     const result = getState(XRState).session
     expect(result).toBe(Expected)
-  })
-
-  it('should call `dispatchAction` with XRAction.sessionChanged', async () => {
-    // Sanity check before running
-    const before = getIncomingAction(XRAction.sessionChanged.type)
-    expect(before).toBe(undefined)
-    // Run and Check the result
-    await requestXRSession()
-    const result = getIncomingAction(XRAction.sessionChanged.type)
-    assert(result)
-    expect(typeof result).toBe('object')
   })
 
   /*

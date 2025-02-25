@@ -32,7 +32,7 @@ import { InputSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 
 import { EngineState, Entity, UndefinedEntity } from '@ir-engine/ecs'
 import { SnapMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
-import { getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
+import { getState, useMutableState } from '@ir-engine/hyperflux'
 import { CameraGizmoTagComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { InputHeuristicState, IntersectionData } from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'
