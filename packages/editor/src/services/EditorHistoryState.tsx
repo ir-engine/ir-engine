@@ -162,6 +162,20 @@ export const EditorHistoryState = defineState({
         ))}
       </>
     )
+  },
+
+  canRedo: (sourceID: SourceID) => {
+    const history = getState(EditorHistoryState)[sourceID]
+    const commands = Object.values(history.commands).flat() as HistoryCommand[]
+    const { redoStack } = computeCommands(commands)
+    return redoStack.length > 0
+  },
+
+  canUndo: (sourceID: SourceID) => {
+    const history = getState(EditorHistoryState)[sourceID]
+    const commands = Object.values(history.commands).flat() as HistoryCommand[]
+    const { doneStack } = computeCommands(commands)
+    return doneStack.length > 1 // 1 such that you cannot undo the first snapshot
   }
 })
 
@@ -198,7 +212,7 @@ const SourceHistoryReactor = (props: { sourceID: SourceID }) => {
 
     // parse our undo/redo stack and return a new list of commands that represent the final graph path
     const { doneStack } = computeCommands(commands)
-    if (doneStack.length <= 1) return
+    if (!doneStack.length) return
 
     // get the final state of the history
     const finalState = doneStack[doneStack.length - 1] as StateSnapshotCommand
@@ -245,6 +259,8 @@ export const computeCommands = (commands: HistoryCommand[]) => {
       redoStack.length = 0
     }
   }
+
+  console.log({ doneStack, redoStack })
 
   return { doneStack, redoStack }
 }

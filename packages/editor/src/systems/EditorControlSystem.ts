@@ -79,7 +79,7 @@ import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { TransformGizmoControlledComponent } from '../classes/gizmo/transform/TransformGizmoControlledComponent'
-import { EditorHistoryActions } from '../services/EditorHistoryState'
+import { EditorHistoryActions, EditorHistoryState } from '../services/EditorHistoryState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { ClickPlacementState } from './ClickPlacementSystem'
@@ -174,9 +174,9 @@ const onKeyZ = (control: boolean, shift: boolean) => {
   if (control) {
     const sourceID = GLTFComponent.getInstanceID(rootEntity)
     if (shift) {
-      dispatchAction(EditorHistoryActions.redo({ sourceID }))
+      if (EditorHistoryState.canRedo(sourceID)) dispatchAction(EditorHistoryActions.redo({ sourceID }))
     } else {
-      dispatchAction(EditorHistoryActions.undo({ sourceID }))
+      if (EditorHistoryState.canUndo(sourceID)) dispatchAction(EditorHistoryActions.undo({ sourceID }))
     }
   } else {
     toggleTransformSpace()
