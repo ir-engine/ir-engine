@@ -30,7 +30,9 @@ import { defineState, getMutableState, NO_PROXY_STEALTH } from '@ir-engine/hyper
 
 export type SceneDeltaEntry<C extends Component> = Record<string, Partial<SerializedComponentType<C>>>
 
-export type SceneDeltaRegistry = Record<SourceID, Record<NodeID, SceneDeltaEntry<any>>>
+export type MaterialDeltaEntry = Record<'materialParameters', any>
+
+export type SceneDeltaRegistry = Record<SourceID, Record<NodeID, SceneDeltaEntry<any> | MaterialDeltaEntry>>
 
 export const SceneDeltaState = defineState({
   name: 'SceneDeltaState',
@@ -46,5 +48,16 @@ export const SceneDeltaState = defineState({
     if (!source.value[nodeID]) source[nodeID].set({} as SceneDeltaEntry<C>)
     const componentMap = source[nodeID].get(NO_PROXY_STEALTH) as SceneDeltaEntry<C>
     componentMap[component.jsonID] = delta
+  },
+  registerMaterialDelta(entity: Entity, props: any) {
+    if (!hasComponent(entity, SourceComponent) || !hasComponent(entity, NodeIDComponent)) return
+    const sourceID = getComponent(entity, SourceComponent).replaceAll(/\?hash=[^-]+/g, '')
+    const nodeID = getComponent(entity, NodeIDComponent)
+    const state = getMutableState(SceneDeltaState)
+    if (!state.value[sourceID]) state[sourceID].set({})
+    const source = state[sourceID]
+    if (!source.value[nodeID]) source[nodeID].set({} as MaterialDeltaEntry)
+    const componentMap = source[nodeID].get(NO_PROXY_STEALTH) as MaterialDeltaEntry
+    componentMap['materialParameters'] = props
   }
 })

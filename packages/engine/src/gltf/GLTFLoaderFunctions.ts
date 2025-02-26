@@ -786,6 +786,20 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
 
   await Promise.all(promises)
 
+  //apply deltas
+  const deltaState = getState(SceneDeltaState)
+  const sourceDelta = deltaState[options.documentID.replaceAll(/\?hash=[^-]+/g, '')]
+  if (sourceDelta) {
+    const nodeID = getComponent(materialEntity, NodeIDComponent)
+    const nodeDelta = sourceDelta[nodeID]
+    if (nodeDelta) {
+      const materialDelta = nodeDelta[MaterialStateComponent.jsonID]
+      if (materialDelta) {
+        Object.assign(materialParams, materialDelta)
+      }
+    }
+  }
+
   const material = new materialConstructor(materialParams)
   const uuid = getComponent(materialEntity, UUIDComponent)
   material.uuid = uuid

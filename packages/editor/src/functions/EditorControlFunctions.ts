@@ -209,6 +209,7 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
       MaterialStateComponent
     ).material.plugins.set(material.plugins)
     getMutableState(AssetModifiedState)[sceneID].set(true)
+    SceneDeltaState.registerMaterialDelta(materialEntity, props)
   }
 }
 
