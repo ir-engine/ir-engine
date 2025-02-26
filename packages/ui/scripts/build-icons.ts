@@ -46,21 +46,21 @@ async function run() {
 
   const newFilePromises = Object.values(iconaJson).map(async (iconEntry) => {
     const componentName = transformName(iconEntry.name)
-    const fileName = './src/icons/files/' + componentName + '.tsx'
+    const componentFilePath = './src/icons/files/' + componentName + '.tsx'
     const fileExists = await fs
-      .access(fileName)
+      .access(componentFilePath)
       .then(() => true)
       .catch(() => false)
     if (fileExists) {
       return null
     }
-    return { iconEntry, componentName, fileName }
+    return { iconEntry, componentName, componentFilePath }
   })
 
   const transformPromises = (await Promise.all(newFilePromises)).filter(Boolean).map(async (newFile) => {
     if (!newFile) return
 
-    const { iconEntry, componentName, fileName } = newFile
+    const { iconEntry, componentName, componentFilePath } = newFile
     const correctedSVG = iconEntry.svg.replace(/stroke=\"#\w{6}\"/gi, "stroke='currentColor'")
     const reactComponent = await transform(
       correctedSVG,
@@ -79,7 +79,7 @@ async function run() {
     )
 
     console.log(`writing new icon component: ${componentName}`)
-    await fs.writeFile(fileName, reactComponent)
+    await fs.writeFile(componentFilePath, reactComponent)
 
     return componentName
   })
@@ -90,7 +90,18 @@ async function run() {
     .toSorted()
     .map((componentName) => `export { default as ${componentName} } from './files/${componentName}'`)
     .join('\n')
-  await fs.writeFile('./src/icons/index.ts', componentNamesExports)
+
+  const indexFilePath = './src/icons/index.ts'
+  const indexFileExists = await fs
+    .access(indexFilePath)
+    .then(() => true)
+    .catch(() => false)
+
+  if (indexFileExists) {
+    await fs.appendFile(indexFilePath, componentNamesExports)
+  } else {
+    await fs.writeFile(indexFilePath, componentNamesExports)
+  }
 
   console.log(`completed writing ${transformPromises.length} files and generated index.ts`)
 }
