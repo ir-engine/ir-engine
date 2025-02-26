@@ -23,20 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import multiLogger from '@ir-engine/common/src/logger'
 import { defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 import { VideoConstants } from '@ir-engine/network'
 
-import config from '@ir-engine/common/src/config'
 import { Engine } from '@ir-engine/ecs'
 import { useEffect } from 'react'
 import { createPeerMediaChannels, PeerMediaChannelState, removePeerMediaChannels } from './PeerMediaChannelState'
 
-const logger = multiLogger.child({ component: 'client-core:MediaStreamState' })
-
 export const MediaStreamState = defineState({
   name: 'MediaStreamState',
   initial: {
+    maxResolution: 'hd' as keyof typeof VideoConstants.VIDEO_CONSTRAINTS,
     availableVideoDevices: [] as MediaDeviceInfo[],
     availableAudioDevices: [] as MediaDeviceInfo[],
     /** Whether the video is enabled or not. */
@@ -122,12 +119,11 @@ export const MediaStreamState = defineState({
     useEffect(() => {
       if (!state.webcamEnabled.value) return
 
-      const { maxResolution } = config.client.mediaSettings!.video
       const constraints = {
-        video: VideoConstants.VIDEO_CONSTRAINTS[maxResolution] || VideoConstants.VIDEO_CONSTRAINTS.hd
+        video: VideoConstants.VIDEO_CONSTRAINTS[state.maxResolution.value] || VideoConstants.VIDEO_CONSTRAINTS.hd
       }
 
-      logger.info('Getting video stream %o', constraints)
+      console.log('Getting video stream', constraints)
 
       const abortController = new AbortController()
       navigator.mediaDevices
@@ -140,7 +136,7 @@ export const MediaStreamState = defineState({
           state.webcamMediaStream.set(videoStream)
         })
         .catch((err) => {
-          logger.error(err)
+          console.error(err)
         })
 
       return () => {
@@ -156,7 +152,7 @@ export const MediaStreamState = defineState({
     useEffect(() => {
       if (!state.microphoneEnabled.value) return
 
-      logger.info('Getting audio stream %o', VideoConstants.localAudioConstraints)
+      console.log('Getting audio stream', VideoConstants.localAudioConstraints)
 
       const abortController = new AbortController()
       navigator.mediaDevices
@@ -181,7 +177,7 @@ export const MediaStreamState = defineState({
           state.microphoneMediaStream.set(audioStream)
         })
         .catch((err) => {
-          logger.error(err)
+          console.error(err)
         })
 
       return () => {
@@ -215,7 +211,7 @@ export const MediaStreamState = defineState({
           state.screenshareMediaStream.set(stream)
         })
         .catch((err) => {
-          logger.error(err)
+          console.error(err)
         })
 
       return () => {
@@ -239,17 +235,16 @@ export const MediaStreamService = {
   async cycleCamera() {
     const state = getMutableState(MediaStreamState)
     if (!state.webcamMediaStream.value) {
-      logger.info('Cannot cycle camera - no current camera track')
+      console.log('Cannot cycle camera no current camera track')
       return false
     }
-    logger.info('Cycle camera')
-
+    console.log('Cycle camera')
     // find "next" device in device list
     const deviceId = await MediaStreamService.getCurrentDeviceId('video')
     const allDevices = await navigator.mediaDevices.enumerateDevices()
     const vidDevices = allDevices.filter((d) => d.kind === 'videoinput')
     if (!(vidDevices.length > 1)) {
-      logger.info('Cannot cycle camera - only one camera')
+      console.log('Cannot cycle camera only one camera')
       return false
     }
 
@@ -264,7 +259,7 @@ export const MediaStreamService = {
       // just in case browsers want to group audio/video streams together
       // from the same device when possible (though they don't seem to,
       // currently)
-      logger.info(`Getting a video stream from new device "${vidDevices[index].label}".`)
+      console.log(`Getting a video from new device "${vidDevices[index].label}".`)
 
       try {
         const newVideoStream = await navigator.mediaDevices.getUserMedia({

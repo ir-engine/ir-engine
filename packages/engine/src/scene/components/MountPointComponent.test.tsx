@@ -58,7 +58,6 @@ import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { act, render } from '@testing-library/react'
-import React from 'react'
 import { Quaternion, Vector3 } from 'three'
 import { v4 } from 'uuid'
 import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -143,8 +142,8 @@ describe('MountPointComponent.ts', async () => {
       it('Should update the UI to show or hide an Interacteable component in the dropdown button based on wheter or not its mounted', async () => {
         MountPointComponent.mountEntity(avatarTestEntity, mountPointTestEntity)
         applyIncomingActions()
-        const { rerender, unmount } = render(<></>)
-        await act(async () => rerender(MountPointComponent.reactor))
+        await act(() => render(null))
+
         // Github race condition
         await vi.waitFor(
           () => {
@@ -156,7 +155,9 @@ describe('MountPointComponent.ts', async () => {
         assert.equal(!!mountPointPresent, true)
         MountPointComponent.unmountEntity(avatarTestEntity)
         applyIncomingActions()
-        await act(async () => rerender(MountPointComponent.reactor))
+
+        await act(() => render(null))
+
         // Github race condition
         await vi.waitFor(
           () => {

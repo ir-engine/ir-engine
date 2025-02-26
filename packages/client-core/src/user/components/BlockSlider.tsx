@@ -23,14 +23,29 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-/** World Module */
-import '@ir-engine/spatial'
+import { Slider, SliderProps } from '@ir-engine/ui/editor'
+import React from 'react'
 
-export * from './assets/AssetModule'
-export * from './audio/MediaModule'
-export * from './avatar/AvatarModule'
-export * from './grabbable/GrabbableSystem'
-export * from './interaction/systems/InteractableSystem'
-export * from './mocap/MocapModule'
-export * from './postprocessing/PopulateEffectRegistry'
-export * from './scene/SceneModule'
+export default function BlockSlider({
+  label,
+  value,
+  onChange
+}: {
+  label: string
+  value: SliderProps['value']
+  onChange: SliderProps['onChange']
+}) {
+  return (
+    <>
+      <div className="flex items-center gap-x-4 lg:hidden">
+        <span className="w-44 text-right text-sm text-text-tertiary">{label}</span>
+        <div className="w-80">
+          <Slider max={1} min={0} step={0.01} value={value} onChange={onChange} onRelease={() => {}} label={''} />
+        </div>
+      </div>
+      <div className="hidden lg:block">
+        <Slider max={1} min={0} step={0.01} value={value} onChange={onChange} onRelease={() => {}} label={label} />
+      </div>
+    </>
+  )
+}
