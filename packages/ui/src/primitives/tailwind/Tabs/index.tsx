@@ -89,7 +89,9 @@ const Tabs = ({
           {tabsData[currentTab.value]?.title}
         </Text>
       )}
-      {tabsData[currentTab.value]?.topComponent}
+      <ErrorBoundary>
+        <Suspense>{tabsData[currentTab.value]?.topComponent}</Suspense>
+      </ErrorBoundary>
       <div className={'sticky top-0 z-50 mb-2 flex justify-between rounded-md bg-ui-background px-3 py-2'}>
         {tabsData.map((tab, index) => (
           <button
@@ -110,17 +112,21 @@ const Tabs = ({
         ))}
         {tabsData[currentTab.value]?.rightComponent}
       </div>
-      {scrollable
-        ? tabsData.map((tab, index) => {
-            return (
-              <>
-                <ErrorBoundary key={index} fallback={<></>}>
-                  <Suspense fallback={<></>}>{tab.bottomComponent}</Suspense>
-                </ErrorBoundary>
-              </>
-            )
-          })
-        : tabsData[currentTab.value]?.bottomComponent}
+      {scrollable ? (
+        tabsData.map((tab, index) => {
+          return (
+            <>
+              <ErrorBoundary key={index}>
+                <Suspense>{tab.bottomComponent}</Suspense>
+              </ErrorBoundary>
+            </>
+          )
+        })
+      ) : (
+        <ErrorBoundary>
+          <Suspense>{tabsData[currentTab.value]?.bottomComponent}</Suspense>
+        </ErrorBoundary>
+      )}
     </div>
   )
 }
