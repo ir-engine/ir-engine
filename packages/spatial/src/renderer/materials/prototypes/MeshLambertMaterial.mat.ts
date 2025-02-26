@@ -37,7 +37,6 @@ export const MeshLambertArguments = {
 }
 
 export const MeshLambertMaterial: MaterialPrototypeDefinition = {
-  prototypeId: 'MeshLambertMaterial',
   prototypeConstructor: Lambert,
   arguments: MeshLambertArguments
 }

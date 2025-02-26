@@ -425,8 +425,7 @@ describe('materialFunctions', () => {
       const materialParameters = { [key]: { thing: 42 } }
       getMutableState(MaterialPrototypeDefinitions)[type].set({
         arguments: prototypeArguments,
-        prototypeConstructor: Material,
-        prototypeId: type
+        prototypeConstructor: Material
       })
       const Expected = { ...prototypeArguments }
       Expected[key].default = materialParameters[key]
