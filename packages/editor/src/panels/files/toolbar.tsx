@@ -106,7 +106,7 @@ function BreadcrumbItems() {
 
   let breadcrumbDirectoryFiles = filesState.selectedDirectory.value.slice(1, -1).split('/')
   const nestedIndex = breadcrumbDirectoryFiles.indexOf('projects')
-  breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx > nestedIndex)
+  breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx > nestedIndex + 1)
 
   return (
     <div className="flex items-center gap-2">
@@ -216,10 +216,8 @@ export default function FilesToolbar() {
   const { t } = useTranslation()
   const filesState = useMutableState(FilesState)
 
-  const originalPath = useMutableState(EditorState).projectName.value
   const filesViewMode = useMutableState(FilesViewModeState).viewMode
 
-  const showBackButton = filesState.selectedDirectory.value.split('/').length > (originalPath?.split('/').length || 0)
   const showDownloadButtons = filesState.selectedDirectory.value.startsWith(
     '/projects/' + filesState.projectName.value + '/'
   )
@@ -345,6 +343,11 @@ export function PanelToolbar({
 }) {
   const { t } = useTranslation()
   const { createNewFolder } = useCurrentFiles()
+  const filesState = useMutableState(FilesState)
+  const originalPath = useMutableState(EditorState).projectName.value
+  const showBackButton =
+    filesState.selectedDirectory.value.replace(/^\/|\/$/g, '').split('/').length >
+    (originalPath?.split('/').length || 0) + 1
 
   return (
     <div
@@ -354,11 +357,17 @@ export function PanelToolbar({
       {/* Tools */}
       <div className="flex items-center gap-x-1 divide-x divide-ui-outline">
         <div className="flex items-center">
-          <div>
-            <Tooltip content={t('editor:layout.filebrowser.back')}>
-              <ViewportButton data-testid={dataTestIdJson?.backButtonId} onClick={onBackDirectory} icon={ArrowLeftSm} />
-            </Tooltip>
-          </div>
+          {showBackButton && (
+            <div>
+              <Tooltip content={t('editor:layout.filebrowser.back')}>
+                <ViewportButton
+                  data-testid={dataTestIdJson?.backButtonId}
+                  onClick={onBackDirectory}
+                  icon={ArrowLeftSm}
+                />
+              </Tooltip>
+            </div>
+          )}
           <div>
             <Tooltip content={t('editor:layout.filebrowser.refresh')}>
               <ViewportButton
