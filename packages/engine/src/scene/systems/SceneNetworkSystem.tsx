@@ -68,6 +68,7 @@ const SourcedEntityReactor = () => {
         parentUUID,
         $network: undefined,
         $topic: undefined,
+        $user: SceneUser,
         $peer: ScenePeer
       })
     )

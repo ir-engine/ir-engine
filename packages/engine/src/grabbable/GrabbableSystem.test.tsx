@@ -117,6 +117,7 @@ describe('GrabbableSystem', () => {
         ownerID: network.hostUserID!,
         $topic: NetworkTopics.world,
         $peer: hostPeerID,
+        $user: hostUserID,
         entityUUID: grabbableEntityUUID
       })
     )
@@ -162,6 +163,7 @@ describe('GrabbableSystem', () => {
         ownerID: hostUserID,
         entityUUID: grabbableEntityUUID,
         newAuthority: peerID,
+        $user: hostUserID,
         $peer: hostPeerID
       })
     )
@@ -235,6 +237,7 @@ describe('GrabbableSystem', () => {
         parentUUID: getComponent(sceneEntity, UUIDComponent),
         ownerID: SceneUser,
         $peer: ScenePeer,
+        $user: SceneUser,
         $topic: NetworkTopics.world,
         entityUUID: grabbableEntityUUID
       })
@@ -281,7 +284,8 @@ describe('GrabbableSystem', () => {
         ownerID: SceneUser,
         entityUUID: grabbableEntityUUID,
         newAuthority: peerID,
-        $peer: peerID
+        $peer: peerID,
+        $user: userID
       })
     )
 
