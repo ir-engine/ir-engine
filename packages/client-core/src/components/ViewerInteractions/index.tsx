@@ -86,7 +86,7 @@ export const ViewerInteractions = () => {
         </div>
       </div>
 
-      <div className="pointer-events-auto absolute left-0 top-0 pl-[inherit] pt-[inherit]">
+      <div className="pointer-events-auto absolute left-0 top-0 select-none pl-[inherit] pt-[inherit]">
         <VideoWindows />
       </div>
 
