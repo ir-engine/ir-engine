@@ -23,14 +23,18 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-/** World Module */
-import '@ir-engine/spatial'
+import { AssetLoader } from './classes/AssetLoader'
+import createGLTFExporter from './functions/createGLTFExporter'
+import { createGLTFLoader } from './functions/createGLTFLoader'
+import { AssetLoaderState } from './state/AssetLoaderState'
+import { DomainConfigState } from './state/DomainConfigState'
+import { ResourceLoadingManagerState } from './state/ResourceLoadingManagerState'
 
-export * from './assets/AssetModule'
-export * from './audio/MediaModule'
-export * from './avatar/AvatarModule'
-export * from './grabbable/GrabbableSystem'
-export * from './interaction/systems/InteractableSystem'
-export * from './mocap/MocapModule'
-export * from './postprocessing/PopulateEffectRegistry'
-export * from './scene/SceneModule'
+export default {
+  AssetLoaderState,
+  DomainConfigState,
+  ResourceLoadingManagerState,
+  AssetLoader,
+  createGLTFExporter,
+  createGLTFLoader
+}
