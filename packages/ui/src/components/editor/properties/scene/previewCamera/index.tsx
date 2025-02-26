@@ -35,7 +35,7 @@ import { EditorComponentType } from '@ir-engine/editor/src/components/properties
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbnailState'
 import { ScenePreviewCameraComponent } from '@ir-engine/engine/src/scene/components/ScenePreviewCamera'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { getState, useMutableState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
 import { ImageLink } from '@ir-engine/ui/editor'
@@ -49,7 +49,7 @@ import Button from '../../../../../primitives/tailwind/Button'
 export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const transformComponent = useComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
-  const sceneThumnailState = getMutableState(SceneThumbnailState)
+  const sceneThumnailState = useMutableState(SceneThumbnailState)
   const onSetFromViewport = () => {
     const { position, rotation } = getComponent(getState(ReferenceSpaceState).viewerEntity, TransformComponent)
     const scenePreviewCamera = getComponent(props.entity, ScenePreviewCameraComponent)

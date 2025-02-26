@@ -36,6 +36,7 @@ interface MoreOptionsMenuProps {
     icon?: React.ReactNode
     label: string
     onClick: () => void
+    disabled: boolean
   }[]
 }
 
@@ -75,6 +76,7 @@ export default function MoreOptionsMenu({ disabled, actionProps }: MoreOptionsMe
             <Button
               variant="tertiary"
               className="h-full w-full justify-start gap-2 border-0 p-2 text-text-primary hover:bg-ui-hover-quadrary"
+              disabled={actionProp.disabled}
               onClick={() => {
                 closePopup()
                 actionProp.onClick()

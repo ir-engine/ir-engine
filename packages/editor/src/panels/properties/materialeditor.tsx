@@ -219,6 +219,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
 
   useEffect(() => {
     if (prototypeName.value === material.type) return
+
     EditorControlFunctions.updateMaterialPrototype(entity, prototypeName.value)
     EditorHistoryFunctions.snapshot()
   }, [prototypeName])
