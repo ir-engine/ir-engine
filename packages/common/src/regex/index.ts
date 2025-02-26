@@ -61,10 +61,9 @@ export const EMAIL_REGEX =
 export const PHONE_REGEX = /^[0-9]{10}$/
 
 /**
- * Regular expression pattern for username validation.  Characters specified within the negated character class (between brackets) will be considered invalid for username input.
- * Modify the character set to adjust validation requirements as needed.
+ * Regular expression pattern for username validation.
  */
-export const INVALID_USER_NAME_REGEX = /[]/g
+export const INVALID_USER_NAME_REGEX = /^[0-9\W]*$/g
 
 /**
  * This regex is used to validate strings that should consist of exactly 8 hexadecimal digits.
@@ -139,5 +138,3 @@ export const MAIN_CHART_REGEX = /ir-engine-([0-9]+\.[0-9]+\.[0-9]+)/g
 export const BUILDER_CHART_REGEX = /ir-engine-builder-([0-9]+\.[0-9]+\.[0-9]+)/g
 
 export const UNIQUEIFIED_VITE_KEY_REGEX = /[.-]{1}[a-zA-Z0-9-_]{8}.(js|css)(.map)?$/
-
-export const REMOVE_EDGE_SLASH_REGEX = /^\/|\/$/g
