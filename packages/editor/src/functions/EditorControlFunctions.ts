@@ -143,7 +143,6 @@ const updateMaterialPrototype = (materialEntity: Entity, newPrototype: string) =
   const prototype = getState(MaterialPrototypeDefinitions)[newPrototype]
   if (!prototype) return
   const fullParameters = { ...extractDefaults(prototype.arguments) }
-  if (!prototype) return
   const newMaterial = new prototype.prototypeConstructor(fullParameters) as Material
 
   if (newMaterial.plugins) {
@@ -162,6 +161,7 @@ const updateMaterialPrototype = (materialEntity: Entity, newPrototype: string) =
       ...Object.fromEntries(Object.entries(material.userData).filter(([k, _v]) => k !== 'type'))
     }
   }
+
   newMaterial.type = newPrototype
   newMaterial.name = material.name
 
@@ -290,42 +290,33 @@ const createObjectFromSceneElement = (
  * @todo copying an object should be rooted to which object is currently selected
  */
 const duplicateObject = (entities: Entity[]) => {
-  const rootEntities = findRootAncestors(entities)
-  const uuidMap = {} as { [entityUUID: EntityUUID]: EntityUUID }
-
-  const duplicateEntity = (entity: Entity) => {
-    const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
-    const entityUUID = getComponent(entity, UUIDComponent)
+  const duplicateEntities = (entities: Entity[], parentEntity: Entity) => {
     const parentUUID = getComponent(parentEntity, UUIDComponent)
-    const entityData = serializeEntity(entity).filter((c) => c.name !== NodeIDComponent.jsonID)
-    const newUUID = generateEntityUUID()
-    const originalSource = getComponent(entity, SourceComponent)
 
-    const newEntity = NodeIDComponent.create(originalSource, NodeIDComponent.generate(), Layers.Authoring)
+    entities.forEach((entity) => {
+      const entityData = serializeEntity(entity).filter((c) => c.name !== NodeIDComponent.jsonID)
+      const originalSource = getComponent(entity, SourceComponent)
 
-    const name = getComponent(entity, NameComponent)
-    setComponent(newEntity, VisibleComponent)
-    setComponent(newEntity, NameComponent, name)
-    for (const component of entityData) {
-      deserializeComponent(newEntity, ComponentJSONIDMap.get(component.name)!, component.props)
-    }
-    const newParentUUID = uuidMap[parentUUID]
-    const newParentEntity = UUIDComponent.getEntityByUUID(newParentUUID, Layers.Authoring)
-    setComponent(newEntity, EntityTreeComponent, { parentEntity: newParentEntity })
-    uuidMap[entityUUID] = newUUID
+      const newEntity = NodeIDComponent.create(originalSource, NodeIDComponent.generate(), Layers.Authoring)
+      const name = getComponent(entity, NameComponent)
+      setComponent(newEntity, VisibleComponent)
+      setComponent(newEntity, NameComponent, name)
+      setComponent(newEntity, EntityTreeComponent, { parentEntity: parentEntity })
 
-    const children = getComponent(entity, EntityTreeComponent).children
-    for (const childEntity of children) {
-      duplicateEntity(childEntity)
-    }
+      for (const component of entityData) {
+        deserializeComponent(newEntity, ComponentJSONIDMap.get(component.name)!, component.props)
+      }
+
+      const children = getComponent(entity, EntityTreeComponent).children as Entity[]
+      duplicateEntities(children, newEntity)
+    })
   }
 
+  const rootEntities = findRootAncestors(entities)
   for (const rootEntity of rootEntities) {
     if (hasComponent(rootEntity, SceneComponent)) continue
     const { parentEntity } = getComponent(rootEntity, EntityTreeComponent)
-    const rootParentUUID = getComponent(parentEntity, UUIDComponent)
-    uuidMap[rootParentUUID] = rootParentUUID
-    duplicateEntity(rootEntity)
+    duplicateEntities([rootEntity], parentEntity)
     EditorState.markModifiedScene(rootEntity)
   }
 }

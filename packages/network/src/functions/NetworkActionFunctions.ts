@@ -39,11 +39,20 @@ import { NetworkState } from '../NetworkState'
 const receiveIncomingActions = (network: Network, fromPeerID: PeerID, actions: Required<Action>[]) => {
   if (network.isHosting) {
     for (const a of actions) {
+      a.$peer = fromPeerID
+      const peerUser = network.peers[fromPeerID]?.userId
+      if (peerUser) a.$user = peerUser
       a.$network = network.id
       dispatchAction(a)
     }
   } else {
     for (const a of actions) {
+      // if the action is not from the host, override the $peer field to ensure we can validate correctly later
+      if (fromPeerID !== network.hostPeerID) {
+        a.$peer = fromPeerID
+        const peerUser = network.peers[fromPeerID]?.userId
+        if (peerUser) a.$user = peerUser
+      }
       HyperFlux.store.actions.incoming.push(a)
     }
   }
