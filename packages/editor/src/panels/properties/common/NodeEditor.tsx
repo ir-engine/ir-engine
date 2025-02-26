@@ -27,13 +27,13 @@ import React, { Suspense, useEffect } from 'react'
 
 import { hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EditorPropType } from '@ir-engine/editor/src/components/properties/Util'
-import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import ComponentDropdown, { ComponentDropdownProps } from '@ir-engine/ui/src/components/editor/ComponentDropdown'
 import { ComponentDropdownState } from '@ir-engine/ui/src/components/editor/ComponentDropdown/ComponentDropdownState'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
+import { EditorHistoryFunctions } from '../../../services/EditorHistoryState'
 
 interface INodeErrorProps {
   name?: string
@@ -108,7 +108,8 @@ const NodeEditor = ({
           ? () => {
               const entities = SelectionState.getSelectedEntities()
               //remove the component from the entities
-              EditorControlFunctions.addOrRemoveComponent(entities, component, false)
+
+              EditorHistoryFunctions.removeComponent(entities, component)
             }
           : undefined
       }
