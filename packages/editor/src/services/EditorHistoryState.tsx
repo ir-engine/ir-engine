@@ -273,13 +273,16 @@ export const computeCommands = (commands: HistoryCommand[]) => {
  */
 export const applyCommandsToECS = (sourceID: SourceID, currentState: SourceData, finalState: SourceData) => {
   for (const nodeID of Object.keys(finalState) as NodeID[]) {
-    const uuid = NodeIDComponent.getUUIDBySourceAndNodeID(sourceID, nodeID)
     if (finalState[nodeID]) {
       if (!currentState[nodeID]) {
         // entity does not exist, add entity
-        NodeIDComponent.create(sourceID, nodeID, Layers.Authoring)
+        const entity = NodeIDComponent.create(sourceID, nodeID, Layers.Authoring)
+        console.log({ entity })
       }
+      const uuid = NodeIDComponent.getUUIDBySourceAndNodeID(sourceID, nodeID)
+      console.log({ uuid })
       const entity = UUIDComponent.getEntityByUUID(uuid, Layers.Authoring)
+      console.log({ entity })
       for (const [componentName, componentData] of Object.entries(finalState[nodeID])) {
         const Component = ComponentMap.get(componentName)
         if (!Component) continue
@@ -400,6 +403,7 @@ export const EditorHistoryFunctions = {
       if (!Component?.jsonID) return
       return { name: Component.jsonID, props: componentData } as any
     })
+    componentJson[NodeIDComponent.jsonID] = { name: NodeIDComponent.jsonID, props: nodeID }
     const root = getState(EditorState).rootEntity
     EditorControlFunctions.createObjectFromSceneElement(componentJson, root)
     const sourceID = GLTFComponent.getInstanceID(root)
@@ -412,8 +416,18 @@ export const EditorHistoryFunctions = {
     )
   },
   removeEntity: (entities: Entity[]) => {
-    const affectedNodes = EditorControlFunctions.removeObject(entities)
+    EditorControlFunctions.removeObject(entities)
     const sourceID = GLTFComponent.getInstanceID(getState(EditorState).rootEntity)
+    dispatchAction(
+      EditorHistoryActions.snapshot({
+        sourceID,
+        /** @todo make this a partial */
+        partialState: getSourceSnapshot(sourceID)
+      })
+    )
+  },
+  snapshot: (sourceID?: SourceID) => {
+    if (!sourceID) sourceID = GLTFComponent.getInstanceID(getState(EditorState).rootEntity)
     dispatchAction(
       EditorHistoryActions.snapshot({
         sourceID,

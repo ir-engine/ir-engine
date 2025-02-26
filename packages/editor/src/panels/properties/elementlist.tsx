@@ -97,6 +97,7 @@ const PrefabListItem = ({ item, onSelect }: { item: PrefabShelfItem; onSelect: (
               name: TransformComponent.jsonID
             }
           ])
+          EditorHistoryFunctions.snapshot()
         } else {
           addMediaNode(url)
         }
