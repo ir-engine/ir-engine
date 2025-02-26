@@ -85,6 +85,14 @@ import { UploadRequestState } from '@ir-engine/engine/src/assets/state/UploadReq
 import ModelTransformLoader from './ModelTransformLoader'
 
 /**
+ * https://ir.world/projects/ir-engine/default-project/assets/collisioncube-LOD0.glb
+ * Match 1: projects/ir-engine/default-project/assets/collisioncube-LOD0.glb
+ * Group 1: ir-engine/default-project
+ * Group 2: collisioncube-LOD0.glb
+ */
+export const MATCH_ASSET_PROJECT_FILENAME_REGEX = /projects\/([^/]+\/[^/]+)\/(?:assets|public)\/([\w\d\s\-|_./]*)$/
+
+/**
  *
  * @param doc
  * @param batchExtension
@@ -400,13 +408,17 @@ const doUpload = async (projectName, fileName, buffer) => {
     resolver = resolve
   })
   uploadRequestState.queue.set([...queue, { file, projectName, callback: resolver }])
+  if (fileName.includes('combined-mesh')) {
+    uploadRequestState.isOnPublishing.set(true)
+  }
   await promise
 }
 
 const toProjectAndFileName = (fUploadPath: string, srcBaseURL: string): [string, string] => {
-  const pathCheck = /projects\/([^/]+\/[^/]+)\/assets\/([\w\d\s\-|_./]*)$/
   // TODO: remove srcBaseURL if it's unnecessary
-  const [_, projectName, fileName] = pathCheck.exec(fUploadPath) ?? pathCheck.exec(pathJoin(srcBaseURL, fUploadPath))!
+  const [_, projectName, fileName] =
+    MATCH_ASSET_PROJECT_FILENAME_REGEX.exec(fUploadPath) ??
+    MATCH_ASSET_PROJECT_FILENAME_REGEX.exec(pathJoin(srcBaseURL, fUploadPath))!
   return [projectName, fileName]
 }
 

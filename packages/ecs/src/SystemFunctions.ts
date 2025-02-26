@@ -104,6 +104,7 @@ export function executeSystem(systemUUID: SystemUUID) {
 
   /** @todo when we fully remove deprecated system reactors in favour of state reactors, we can just wrap system.execute with flushSync */
   if (system.reactor && !getState(SystemState).activeSystemReactors.has(system.uuid)) {
+    system.reactor['__name'] = system.uuid
     const reactor = startReactor(system.reactor)
     getState(SystemState).activeSystemReactors.set(system.uuid, reactor)
   }

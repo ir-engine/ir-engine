@@ -72,8 +72,8 @@ export const LineSegmentComponent = defineComponent({
     }, [component.name])
 
     useEffect(() => {
-      setComponent(entity, ObjectLayerMaskComponent, component.layerMask.value)
-    }, [component.layerMask])
+      ObjectLayerMaskComponent.setMask(entity, component.layerMask.value)
+    }, [component.layerMask.value])
 
     useEffect(() => {
       const color = component.color.value
@@ -83,7 +83,7 @@ export const LineSegmentComponent = defineComponent({
         mat.color.set(color)
         mat.needsUpdate = true
       }
-    }, [component.color])
+    }, [component.color.value])
 
     useEffect(() => {
       const geo = component.geometry.get(NO_PROXY) as BufferGeometry<NormalBufferAttributes>
@@ -91,7 +91,7 @@ export const LineSegmentComponent = defineComponent({
       return () => {
         geo.dispose()
       }
-    }, [component.geometry])
+    }, [component.geometry.value])
 
     useEffect(() => {
       const mat = component.material.get(NO_PROXY) as Material
@@ -100,7 +100,7 @@ export const LineSegmentComponent = defineComponent({
       return () => {
         mat.dispose()
       }
-    }, [component.material])
+    }, [component.material.value])
 
     return null
   }

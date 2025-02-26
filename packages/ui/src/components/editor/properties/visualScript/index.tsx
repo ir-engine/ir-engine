@@ -32,7 +32,7 @@ import { MdIntegrationInstructions } from 'react-icons/md'
 
 import { EditorComponentType, commitProperty } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
-import { VisualScriptComponent } from '@ir-engine/engine'
+import { VisualScriptComponent } from '@ir-engine/engine/src/visualscript/components/VisualScriptComponent'
 import { Checkbox } from '@ir-engine/ui'
 import InputGroup from '../../input/Group'
 

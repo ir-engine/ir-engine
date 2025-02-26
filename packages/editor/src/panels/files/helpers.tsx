@@ -68,14 +68,16 @@ const FilesQueryContext = createContext({
 export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }) => {
   const filesState = useMutableState(FilesState)
   const categories = useHookstate<any>([])
+  const directory = (
+    filesState.selectedDirectory.value !== ''
+      ? filesState.selectedDirectory.value
+      : '/projects/' + filesState.projectName.value
+  ).replace(/^\/+/, '')
 
   const filesQuery = useFind(fileBrowserPath, {
     query: {
       $limit: FILES_PAGE_LIMIT,
-      directory:
-        filesState.selectedDirectory.value != ''
-          ? filesState.selectedDirectory.value
-          : '/projects/' + filesState.projectName.value
+      directory: filesState.searchText.value ? `${directory}/**` : directory
     }
   })
 
@@ -112,7 +114,6 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
   }
 
   const createNewFolder = () => fileService.create(`${filesState.selectedDirectory.value}New-Folder`)
-
   const files = filesQuery.data.map((file) => {
     const isFolder = file.type === 'folder'
     const fullName = isFolder ? file.name : file.name + '.' + file.type
@@ -125,7 +126,6 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
       isFolder
     }
   })
-
   useRealtime(staticResourcePath, filesQuery.refetch)
   FileThumbnailJobState.useGenerateThumbnails(filesQuery.data)
 

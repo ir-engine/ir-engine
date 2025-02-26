@@ -37,6 +37,7 @@ import {
 } from '@ir-engine/hyperflux'
 
 import { ECSState } from './ECSState'
+import { EngineState } from './EngineState'
 import { Entity } from './Entity'
 import { $RemovedComponent, removeEntity } from './EntityFunctions'
 import { queries, removeQuery } from './QueryFunctions'
@@ -50,7 +51,7 @@ export class Engine {
    * The uuid of the logged-in user
    */
   get userID() {
-    return Engine.instance.store.stateMap['EngineState']?.get(NO_PROXY_STEALTH).userID
+    return getState(EngineState).userID
   }
 
   store: HyperStore
@@ -94,6 +95,7 @@ export function createEngine(hyperstore = createHyperStore()) {
   hyperstore.getCurrentReactorRoot = () =>
     getState(SystemState).activeSystemReactors.get(getState(SystemState).currentSystemUUID)
   hyperstore.getDispatchTime = () => getState(ECSState).simulationTime
+  hyperstore.getAgentID = () => getState(EngineState).userID
   Engine.instance.store = bitECS.createWorld(hyperstore) as HyperStore
   const UndefinedEntity = bitECS.addEntity(hyperstore)
 }

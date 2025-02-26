@@ -221,7 +221,7 @@ export const TextComponent = defineComponent({
     outlineOpacity: S.Number(0, { minimum: 0, maximum: 100 }), // range[0..100], sent to troika as [0..1] :number
     outlineWidth: S.Number(0, { minimum: 0, maximum: 100 }), // range[0..100+], sent to troika as [0..100]% :string
     outlineBlur: S.Number(0, { minimum: 0, maximum: 100 }), // range[0..100+], sent to troika as [0..100]% :string
-    outlineOffset: T.Vec2(new Vector2(0, 100)), // range[0..100+], sent to troika as [0..100]% :string
+    outlineOffset: T.Vec2(new Vector2(0, 0)), // range[0..100+], sent to troika as [0..100]% :string
     outlineColor: T.Color(0xffffff),
     // Font Stroke Properties
     strokeOpacity: S.Number(0, { minimum: 0, maximum: 100 }), // range[0..100], sent to troika as [0..1] :number

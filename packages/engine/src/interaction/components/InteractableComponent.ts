@@ -277,10 +277,12 @@ export const InteractableComponent = defineComponent({
       setComponent(entity, DistanceFromCameraComponent)
       setComponent(entity, DistanceFromLocalClientComponent)
       setComponent(entity, BoundingBoxComponent)
+      setComponent(entity, InputComponent)
       return () => {
         removeComponent(entity, DistanceFromCameraComponent)
         removeComponent(entity, DistanceFromLocalClientComponent)
         removeComponent(entity, BoundingBoxComponent)
+        removeComponent(entity, InputComponent)
       }
     }, [])
 
