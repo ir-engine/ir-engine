@@ -1401,7 +1401,6 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
               }
             }
             deserializeComponent(nodeEntity, Component, deserializedValue)
-            if (Component === ColliderComponent) removeComponent(nodeEntity, VisibleComponent)
           }
         }
       }
@@ -1456,9 +1455,6 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
     for (const extension in nodeDef.extensions) {
       const Component = ComponentJSONIDMap.get(extension) as any // todo
       if (!Component) continue
-      if (Component === ColliderComponent) {
-        removeComponent(nodeEntity, VisibleComponent)
-      }
       deserializeComponent(nodeEntity, Component, nodeDef.extensions[extension])
       if (typeof Component.loadNode === 'function') {
         extensionPending.push(Component.loadNode(options, nodeIndex))
