@@ -32,8 +32,8 @@ import { getMutableState, NO_PROXY, useHookstate, useMutableState } from '@ir-en
 import { EngineState } from '@ir-engine/ecs'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { useTranslation } from 'react-i18next'
-import { PopoverState } from '../../common/services/PopoverState'
 import { twMerge } from 'tailwind-merge'
+import { PopoverState } from '../../common/services/PopoverState'
 import { LoadingSystemState } from '../../systems/state/LoadingState'
 import LocationIconButton from '../../user/components/LocationIconButton'
 import InstanceChat from '../../user/InstanceChat'
@@ -79,7 +79,7 @@ export const ViewerInteractions = () => {
   }
 
   const externalInjectedMenus = useMutableState(ViewerMenuState).externalInjectedMenus.get(NO_PROXY)
-  
+
   const isScreenOpaque = loadingScreenOpacity.value > 0
 
   return (
