@@ -260,8 +260,6 @@ export const computeCommands = (commands: HistoryCommand[]) => {
     }
   }
 
-  console.log({ doneStack, redoStack })
-
   return { doneStack, redoStack }
 }
 
@@ -276,13 +274,10 @@ export const applyCommandsToECS = (sourceID: SourceID, currentState: SourceData,
     if (finalState[nodeID]) {
       if (!currentState[nodeID]) {
         // entity does not exist, add entity
-        const entity = NodeIDComponent.create(sourceID, nodeID, Layers.Authoring)
-        console.log({ entity })
+        NodeIDComponent.create(sourceID, nodeID, Layers.Authoring)
       }
       const uuid = NodeIDComponent.getUUIDBySourceAndNodeID(sourceID, nodeID)
-      console.log({ uuid })
       const entity = UUIDComponent.getEntityByUUID(uuid, Layers.Authoring)
-      console.log({ entity })
       for (const [componentName, componentData] of Object.entries(finalState[nodeID])) {
         const Component = ComponentMap.get(componentName)
         if (!Component) continue
