@@ -37,6 +37,7 @@ import {
 } from '@ir-engine/common/src/schemas/setting/authentication-setting.schema'
 import {
   ClientSettingDatabaseType,
+  clientDbToSchema,
   clientSettingPath
 } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
 import { parseValue } from '@ir-engine/common/src/utils/dataTypeUtils'
@@ -44,7 +45,6 @@ import { FlattenedEntry, unflattenArrayToObject } from '@ir-engine/common/src/ut
 import { createHash } from 'crypto'
 import appConfig, { updateNestedConfig } from './appconfig'
 import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
-import { clientDbToSchema } from './setting/client-setting/client-setting.resolvers'
 
 const db = {
   user: process.env.MYSQL_USER ?? 'server',

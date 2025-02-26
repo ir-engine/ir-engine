@@ -25,6 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 
+import '@ir-engine/engine'
+
 import { API } from '@ir-engine/common'
 import { avatarPath, staticResourcePath, userAvatarPath } from '@ir-engine/common/src/schema.type.module'
 import {
@@ -40,6 +42,7 @@ import {
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
+import '@ir-engine/engine/src/avatar/state/AvatarNetworkState'
 import { SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { startEngineReactor } from '@ir-engine/engine/tests/startEngineReactor'

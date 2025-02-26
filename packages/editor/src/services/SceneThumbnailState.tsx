@@ -59,8 +59,9 @@ export const SceneThumbnailState = defineState({
     resolution: 2048
   }),
   createThumbnail: async (width = 512, height = 320, quality = 1) => {
-    const camera = getComponent(getState(ReferenceSpaceState).viewerEntity, CameraComponent)
-    const thumbnailBlob = await takeScreenshot(width, height, quality, 'jpeg', camera)
+    const cameraEntity = getState(ReferenceSpaceState).viewerEntity
+    const camera = getComponent(cameraEntity, CameraComponent)
+    const thumbnailBlob = await takeScreenshot(camera, cameraEntity, width, height, quality, 'jpeg')
     if (!thumbnailBlob) return
     const sceneName = getState(EditorState).sceneName!.split('.').slice(0, -1).join('.')
     const file = new File([thumbnailBlob!], sceneName + '.thumbnail.jpg')

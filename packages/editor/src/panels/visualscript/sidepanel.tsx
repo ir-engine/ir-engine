@@ -30,7 +30,7 @@ import { useTranslation } from 'react-i18next'
 import { useReactFlow } from 'reactflow'
 
 import { UndefinedEntity } from '@ir-engine/ecs'
-import { NodetoEnginetype } from '@ir-engine/engine'
+import { NodetoEnginetype } from '@ir-engine/engine/src/visualscript/VisualScriptModule'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { Button } from '@ir-engine/ui'
 import SelectInput from '@ir-engine/ui/src/components/editor/input/Select'

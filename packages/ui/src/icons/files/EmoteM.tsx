@@ -26,27 +26,27 @@ Infinite Reality Engine. All Rights Reserved.
 import type { SVGProps } from 'react'
 import * as React from 'react'
 import { Ref, forwardRef } from 'react'
-const Emote = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
+const EmoteM = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="1em"
     height="1em"
     fill="none"
-    viewBox="0 0 22 24"
+    viewBox="0 0 19 20"
     role="img"
     stroke="currentColor"
     ref={ref}
     {...props}
   >
-    <g fill="#080808">
+    <g fill="#F7F8FA">
       <path
         fillRule="evenodd"
-        d="m14.625 2.739-3.089 1.055 4.824 1.723 1.281 4.42 1.385-4.272a10.9 10.9 0 0 1 2.869 7.388C21.895 19.099 16.993 24 10.947 24S0 19.1 0 13.053 4.901 2.105 10.947 2.105c1.29 0 2.529.224 3.678.634m-3.678 19.577a9.263 9.263 0 0 0 9.14-10.783c-6.557.607-9.477-3.34-10.403-4.796-1.01 3.7-5.88 5.328-7.99 5.892q-.01.21-.01.424a9.263 9.263 0 0 0 9.263 9.263m-1.684-8a1.263 1.263 0 1 1-2.526 0 1.263 1.263 0 0 1 2.526 0m4.632 1.263a1.263 1.263 0 1 0 0-2.526 1.263 1.263 0 0 0 0 2.526"
+        d="m12.188 2.282-2.575.88 4.02 1.435 1.068 3.683 1.154-3.56a9.123 9.123 0 1 1-6.732-2.966c1.075 0 2.107.186 3.065.528M9.123 18.596a7.72 7.72 0 0 0 7.616-8.986c-5.464.507-7.898-2.783-8.67-3.996-.84 3.083-4.899 4.44-6.658 4.91a7.72 7.72 0 0 0 7.711 8.072M7.719 11.93a1.053 1.053 0 1 1-2.105 0 1.053 1.053 0 0 1 2.105 0m3.86 1.053a1.053 1.053 0 1 0 0-2.106 1.053 1.053 0 0 0 0 2.105"
         clipRule="evenodd"
       />
-      <path d="m17.684 0-.795 2.743-2.994 1.023 2.994 1.07.795 2.743.89-2.743 2.9-1.07-2.9-1.023z" />
+      <path d="m14.736 0-.663 2.286-2.495.853 2.495.89.663 2.287.74-2.286 2.418-.891-2.417-.853z" />
     </g>
   </svg>
 )
-const ForwardRef = forwardRef(Emote)
+const ForwardRef = forwardRef(EmoteM)
 export default ForwardRef

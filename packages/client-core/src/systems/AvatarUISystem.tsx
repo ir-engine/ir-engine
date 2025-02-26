@@ -58,13 +58,13 @@ import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/sys
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 
 import { EntityTreeComponent } from '@ir-engine/ecs'
+import { PeerMediaChannelState } from '@ir-engine/network/src/media/PeerMediaChannelState'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import React from 'react'
-import { PeerMediaChannelState } from '../media/PeerMediaChannelState'
 import { XruiNameplateComponent } from '../social/components/XruiNameplateComponent'
 
 export const AvatarUI = new Map<Entity, Entity>()

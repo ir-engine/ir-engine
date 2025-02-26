@@ -35,8 +35,8 @@ import { NetworkState } from '@ir-engine/network'
 import { startPlayback } from '@ir-engine/ui/src/pages/Capture'
 import { WidgetAppService } from '../WidgetAppService'
 
+import { PeerMediaChannelState } from '@ir-engine/network/src/media/PeerMediaChannelState'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
-import { PeerMediaChannelState } from '../../media/PeerMediaChannelState'
 
 // TODO replace these templates with our generalised ones for XRUI
 const Checkbox = (props: { label: string; disabled?: boolean; checked: boolean; onChange: () => void }) => {

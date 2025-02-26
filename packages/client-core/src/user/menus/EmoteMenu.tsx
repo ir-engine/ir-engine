@@ -23,16 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { HTMLProps, useLayoutEffect, useState } from 'react'
-
 import { UUIDComponent } from '@ir-engine/ecs'
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { emoteAnimations, preloadedAnimations } from '@ir-engine/engine/src/avatar/animation/Util'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
-import { dispatchAction } from '@ir-engine/hyperflux'
+import { dispatchAction, useHookstate } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
-import { ChevronLeftLg, ChevronRightLg } from '@ir-engine/ui/src/icons'
+import React, { HTMLProps, useLayoutEffect, useRef } from 'react'
 import { PopoverState } from '../../common/services/PopoverState'
 
 const iconItems = [
@@ -41,7 +39,7 @@ const iconItems = [
       <g {...props}>
         <path
           d="M14 196.5c0-17.949 14.55-32.5 32.5-32.5S79 178.551 79 196.5 64.45 229 46.5 229 14 214.449 14 196.5"
-          fill="#F5F5F5"
+          fill="#DDE1E5"
         />
         <path
           fillRule="evenodd"
@@ -55,14 +53,15 @@ const iconItems = [
         />
       </g>
     ),
-    stateName: 'clap'
+    stateName: 'clap',
+    description: 'Clap Hands'
   },
   {
     icon: (props: HTMLProps<SVGGElement>) => (
       <g {...props}>
         <path
           d="M33 330.5c0-17.949 14.55-32.5 32.5-32.5S98 312.551 98 330.5 83.45 363 65.5 363 33 348.449 33 330.5"
-          fill="#F5F5F5"
+          fill="#DDE1E5"
         />
         <path
           d="M70.822 336.254a10 10 0 0 0 1.864-1.471 10 10 0 0 0 2.952-7.091v-9.424c0-.478-.198-.923-.52-1.245a1.78 1.78 0 0 0-1.245-.511 1.78 1.78 0 0 0-1.245.511 1.8 1.8 0 0 0-.51 1.245v5.83a.313.313 0 1 1-.627 0v-8.517a1.75 1.75 0 0 0-.52-1.245 1.73 1.73 0 0 0-1.237-.52 1.75 1.75 0 0 0-1.245.52c-.321.321-.52.758-.52 1.245v8.517c0 .173-.14.313-.312.313a.31.31 0 0 1-.305-.313v-9.334c0-.486-.198-.931-.52-1.245a1.753 1.753 0 0 0-2.49 0 1.77 1.77 0 0 0-.511 1.245v9.334a.313.313 0 0 1-.627 0v-8.517c0-.487-.197-.924-.52-1.245a1.73 1.73 0 0 0-1.236-.52 1.75 1.75 0 0 0-1.245.52 1.75 1.75 0 0 0-.52 1.245v12.862c0 .173-.14.313-.304.313a.33.33 0 0 1-.314-.256l-1.096-4.386a1.77 1.77 0 0 0-.8-1.08 1.75 1.75 0 0 0-2.416.61 1.73 1.73 0 0 0-.198 1.328l1.353 5.392a10.06 10.06 0 0 0 3.421 5.169c.63.506 1.323.937 2.065 1.28v2.159h9.326v-2.421c0-.132.043-.222.102-.297m.935 3.955H60.379q-.37 0-.371.371V348h12.12v-7.42c0-.124-.124-.371-.371-.371m-2.845 5.194c-.742 0-1.36-.618-1.36-1.36s.618-1.361 1.36-1.361 1.36.619 1.36 1.361c-.123.742-.618 1.36-1.36 1.36"
@@ -70,7 +69,8 @@ const iconItems = [
         />
       </g>
     ),
-    stateName: 'wave'
+    stateName: 'wave',
+    description: 'Wave hand'
   },
 
   {
@@ -78,7 +78,7 @@ const iconItems = [
       <g {...props}>
         <path
           d="M377 330.5c0-17.949 14.551-32.5 32.5-32.5s32.5 14.551 32.5 32.5-14.551 32.5-32.5 32.5-32.5-14.551-32.5-32.5"
-          fill="#F5F5F5"
+          fill="#DDE1E5"
         />
         <path
           d="M415.634 324.609v6.767c.938 2.816 2.371 8.843-.494 13.141-.445.691-1.482.79-2.125.197-.493-.444-.543-1.185-.197-1.729 1.926-2.964 1.087-7.509 0-10.868l-2.964 8.645c-.346 1.087-1.729 1.482-2.618.741l-4.644-4.05c-.593-.495-.642-1.334-.148-1.927a1.35 1.35 0 0 1 1.927-.148l3.211 2.717 1.58-5.928v-7.262c-1.432-.049-3.013-.099-4.495-.148-1.087-.05-1.927-.988-1.828-2.124l.642-7.559c.198-.543.791-.889 1.334-.889.889 0 1.63.889 1.383 1.779l-.494 4.001c-.098.692.494 1.334 1.186 1.334h8.151c.395 0 .741-.148.939-.445 1.136-1.482 1.877-3.853 2.272-5.582.296-.889.889-1.087 1.531-1.087.791.099 1.334.889 1.186 1.68-.544 2.47-1.976 7.311-5.335 8.744"
@@ -90,7 +90,8 @@ const iconItems = [
         />
       </g>
     ),
-    stateName: 'dance4'
+    stateName: 'dance4',
+    description: 'Dances - Running Man'
   },
 
   {
@@ -98,7 +99,7 @@ const iconItems = [
       <g {...props}>
         <path
           d="M112 71.5c0-17.95 14.551-32.5 32.5-32.5S177 53.55 177 71.5 162.449 104 144.5 104 112 89.45 112 71.5"
-          fill="#F5F5F5"
+          fill="#DDE1E5"
         />
         <path
           d="M151.068 65.609v6.767c.939 2.816 2.372 8.843-.494 13.14-.444.692-1.482.791-2.124.198-.494-.444-.543-1.185-.198-1.729 1.927-2.964 1.087-7.508 0-10.868l-2.963 8.645c-.346 1.087-1.729 1.482-2.619.741l-4.643-4.05c-.593-.495-.642-1.334-.148-1.927s1.383-.642 1.926-.148l3.211 2.717 1.581-5.928v-7.262c-1.433-.05-3.013-.099-4.495-.148-1.087-.05-1.927-.988-1.828-2.124l.642-7.559c.198-.543.79-.889 1.334-.889.889 0 1.63.89 1.383 1.779l-.494 4.001c-.099.692.494 1.334 1.186 1.334h8.15c.396 0 .741-.148.939-.445 1.136-1.482 1.877-3.853 2.272-5.582.297-.89.89-1.087 1.532-1.087.79.1 1.334.89 1.185 1.68-.543 2.47-1.976 7.311-5.335 8.744"
@@ -110,7 +111,8 @@ const iconItems = [
         />
       </g>
     ),
-    stateName: 'dance1'
+    stateName: 'dance1',
+    description: 'Dances - Cabbage Patch'
   },
 
   {
@@ -118,7 +120,7 @@ const iconItems = [
       <g {...props}>
         <path
           d="M396 196.5c0-17.949 14.551-32.5 32.5-32.5s32.5 14.551 32.5 32.5-14.551 32.5-32.5 32.5-32.5-14.551-32.5-32.5"
-          fill="#F5F5F5"
+          fill="#DDE1E5"
         />
         <path
           d="M434.569 190.572v6.747c.936 2.807 2.364 8.814-.493 13.099-.443.689-1.477.788-2.117.197-.492-.444-.542-1.182-.197-1.724 1.92-2.955 1.083-7.485 0-10.834l-2.955 8.618c-.344 1.083-1.723 1.477-2.61.739l-4.629-4.038c-.591-.493-.64-1.33-.147-1.921a1.344 1.344 0 0 1 1.92-.148l3.201 2.709 1.576-5.909v-7.239c-1.428-.05-3.004-.099-4.481-.148-1.084-.049-1.921-.985-1.822-2.118l.64-7.534c.197-.542.788-.886 1.329-.886.887 0 1.625.886 1.379 1.772l-.492 3.989c-.099.69.492 1.33 1.182 1.33h8.125c.394 0 .739-.148.936-.443 1.132-1.478 1.871-3.842 2.265-5.565.295-.886.886-1.083 1.526-1.083.788.098 1.33.886 1.182 1.674-.541 2.462-1.97 7.288-5.318 8.716"
@@ -130,7 +132,8 @@ const iconItems = [
         />
       </g>
     ),
-    stateName: 'dance3'
+    stateName: 'dance3',
+    description: 'Dances - Twist and Shout Dance'
   },
 
   {
@@ -138,7 +141,7 @@ const iconItems = [
       <g {...props}>
         <path
           d="M301 71.5c0-17.95 14.551-32.5 32.5-32.5S366 53.55 366 71.5 351.449 104 333.5 104 301 89.45 301 71.5"
-          fill="#F5F5F5"
+          fill="#DDE1E5"
         />
         <path
           d="M339.632 65.609v6.767c.938 2.816 2.371 8.843-.495 13.14-.444.692-1.481.791-2.124.198-.494-.444-.543-1.185-.197-1.729 1.926-2.964 1.087-7.508 0-10.868l-2.964 8.645c-.346 1.087-1.729 1.482-2.618.741l-4.644-4.05c-.593-.495-.642-1.334-.148-1.927s1.383-.642 1.926-.148l3.211 2.717 1.581-5.928v-7.262c-1.432-.05-3.013-.099-4.495-.148-1.087-.05-1.927-.988-1.828-2.124l.642-7.559c.198-.543.791-.889 1.334-.889.889 0 1.63.89 1.383 1.779l-.494 4.001c-.099.692.494 1.334 1.186 1.334h8.151c.395 0 .741-.148.938-.445 1.137-1.482 1.877-3.853 2.273-5.582.296-.89.889-1.087 1.531-1.087.791.1 1.334.89 1.186 1.68-.544 2.47-1.976 7.311-5.335 8.744"
@@ -150,10 +153,11 @@ const iconItems = [
         />
       </g>
     ),
-    stateName: 'dance2'
-  },
+    stateName: 'dance2',
+    description: 'Dances - Macarena'
+  }
 
-  {
+  /*{
     icon: (props: HTMLProps<SVGSVGElement>) => (
       <svg x="33" y="298" width="62" height="62" viewBox="0 0 62 62" fill="none" {...props}>
         <path
@@ -222,7 +226,7 @@ const iconItems = [
       </svg>
     ),
     stateName: 'defeat'
-  }
+  }*/
 ]
 
 const EmoteMenu = (): JSX.Element => {
@@ -240,13 +244,14 @@ const EmoteMenu = (): JSX.Element => {
     PopoverState.hidePopupover()
   }
 
-  const [currentIconsPage, setCurrentIconsPage] = useState(0)
+  const dimensions = useHookstate({ width: 474, height: 440 })
+  const tooltipContent = useHookstate('')
 
-  const [dimensions, setDimensions] = useState({ width: 474, height: 440 })
+  const { TooltipInjection, onMouseEnter, onMouseLeave, onMouseMove } = useMovingTooltip()
 
   useLayoutEffect(() => {
     if (isMobile) {
-      setDimensions((prev) => ({
+      dimensions.set((prev) => ({
         width: prev.width * 0.75,
         height: prev.height * 0.75
       }))
@@ -254,70 +259,89 @@ const EmoteMenu = (): JSX.Element => {
   }, [])
 
   return (
-    <svg
-      className="pointer-events-auto"
-      width={dimensions.width}
-      height={dimensions.height}
-      viewBox="0 0 474 440"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M90.454 423.273C35.368 379.876 0 312.568 0 236.999c0-130.891 106.108-237 237-237 130.891 0 237 106.109 237 237 0 75.569-35.368 142.877-90.454 186.274-13.952 10.991-33.554 10.231-48.435.535-10.823-7.052-17.511-19.199-17.511-32.117 0-15.468 8.252-29.5 19.783-39.81 31.008-27.725 50.525-68.035 50.525-112.903 0-83.452-67.518-151.135-150.908-151.402-83.39.267-150.908 67.95-150.908 151.402 0 44.868 19.517 85.178 50.525 112.903 11.531 10.31 19.783 24.342 19.783 39.81 0 12.918-6.688 25.065-17.511 32.117-14.881 9.696-34.483 10.456-48.435-.535"
-        fill="#D3D5D9"
-      />
-
-      {iconItems.slice(currentIconsPage * 6, (currentIconsPage + 1) * 6).map(({ icon: Icon, stateName }, index) => (
-        <Icon
-          className="cursor-pointer"
-          style={{
-            // @ts-ignore: This is not supported by tailwind. And this value is only supported by SVGs, hence incorrecly flagged by TS
-            pointerEvents: 'bounding-box'
-          }}
-          onClick={() => {
-            playAnimation(emoteAnimations[stateName])
-          }}
-          key={index}
+    <>
+      <svg
+        className="pointer-events-auto"
+        width={dimensions.width.value}
+        height={dimensions.height.value}
+        viewBox="0 0 474 440"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M90.454 423.273C35.368 379.876 0 312.568 0 236.999c0-130.891 106.108-237 237-237 130.891 0 237 106.109 237 237 0 75.569-35.368 142.877-90.454 186.274-13.952 10.991-33.554 10.231-48.435.535-10.823-7.052-17.511-19.199-17.511-32.117 0-15.468 8.252-29.5 19.783-39.81 31.008-27.725 50.525-68.035 50.525-112.903 0-83.452-67.518-151.135-150.908-151.402-83.39.267-150.908 67.95-150.908 151.402 0 44.868 19.517 85.178 50.525 112.903 11.531 10.31 19.783 24.342 19.783 39.81 0 12.918-6.688 25.065-17.511 32.117-14.881 9.696-34.483 10.456-48.435-.535"
+          fill="#F5F5F5"
         />
-      ))}
 
-      <svg
-        x="90"
-        y="375"
-        width="2.5rem"
-        height="2.5rem"
-        className="cursor-pointer"
-        onClick={() => {
-          if (currentIconsPage > 0) {
-            setCurrentIconsPage(currentIconsPage - 1)
-          }
-        }}
-      >
-        <circle cx="50%" cy="50%" r="20" fill="transparent" className="hover:fill-gray-200" />
-
-        <ChevronLeftLg width="100%" height="100%" />
+        {iconItems.map(({ icon: Icon, stateName, description }, index) => (
+          <Icon
+            className="cursor-pointer"
+            style={{
+              // @ts-ignore: This is not supported by tailwind. And this value is only supported by SVGs, hence incorrecly flagged by TS
+              pointerEvents: 'bounding-box'
+            }}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+            onMouseMove={(event) => {
+              onMouseMove(event)
+              tooltipContent.set(description || stateName)
+            }}
+            onClick={() => {
+              playAnimation(emoteAnimations[stateName])
+            }}
+            key={index}
+          />
+        ))}
       </svg>
-
-      <svg
-        x="345"
-        y="375"
-        width="2.5rem"
-        height="2.5rem"
-        className="cursor-pointer"
-        onClick={() => {
-          if (currentIconsPage < Math.floor(iconItems.length / 6)) {
-            setCurrentIconsPage(currentIconsPage + 1)
-          }
-        }}
-      >
-        <circle cx="50%" cy="50%" r="20" fill="transparent" className="hover:fill-gray-200" />
-
-        <ChevronRightLg width="100%" height="100%" />
-      </svg>
-    </svg>
+      <TooltipInjection content={tooltipContent.value} />
+    </>
   )
+}
+
+const useMovingTooltip = () => {
+  const isTooltipVisible = useHookstate(false)
+  const tooltipPosition = useHookstate({ x: 0, y: 0 })
+
+  const tooltipRef = useRef<HTMLDivElement>(null)
+
+  const onMouseMove = (event: React.MouseEvent) => {
+    const tooltipX = event.clientX + 24,
+      tooltipY = event.clientY - 24
+    tooltipPosition.set({ x: tooltipX, y: tooltipY })
+  }
+
+  const onMouseEnter = () => {
+    isTooltipVisible.set(true)
+  }
+
+  const onMouseLeave = () => {
+    isTooltipVisible.set(false)
+  }
+
+  const TooltipInjection = ({ content }: { content: string }) => {
+    return (
+      <div className={isTooltipVisible.value ? 'block' : 'hidden'}>
+        {isTooltipVisible.value && (
+          <div
+            ref={tooltipRef}
+            className={`fixed z-50 bg-black p-4 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25),_0px_2px_8px_0px_rgba(0,0,0,0.04),_0px_8px_16px_0px_rgba(0,0,0,0.08)] ${
+              content ? 'opacity-100' : 'opacity-0'
+            }`}
+            style={{
+              top: tooltipPosition.y.value,
+              left: tooltipPosition.x.value
+            }}
+          >
+            {content}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  return { onMouseMove, onMouseEnter, onMouseLeave, TooltipInjection }
 }
 
 export default EmoteMenu
