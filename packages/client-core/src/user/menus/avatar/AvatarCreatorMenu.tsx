@@ -36,7 +36,8 @@ import { Button, Input } from '@ir-engine/ui'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import { IoArrowBackOutline, IoCloseOutline } from 'react-icons/io5'
+import { IoArrowBackOutline } from 'react-icons/io5'
+import { MdClose } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import AvatarPreview from '../../../common/components/AvatarPreview'
 import { PopoverState } from '../../../common/services/PopoverState'
@@ -70,7 +71,7 @@ interface AvatarCreatorMenuProps {
 }
 
 const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProps) => {
-  const { showBackButton, previewEnabled = true, previewDisabledMessage } = props
+  const { previewEnabled = true, previewDisabledMessage } = props
   const { t } = useTranslation()
   const selectedBlob = useHookstate<Blob | null>(null)
   const thumbnail = useHookstate<Blob | null>(null)
@@ -251,36 +252,32 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
 
   return (
     <Modal
-      id="select-avatar-modal"
+      id="create-avatar-modal"
       className={twMerge(
-        'min-w-34 pointer-events-auto m-auto flex max-w-6xl rounded-xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col',
-        avatarPreviewLoaded && !previewEnabled ? 'h-[45vh] w-[40vw]' : 'h-[95vh] w-[70vw]'
+        'min-w-34 pointer-events-auto m-auto flex h-full max-h-[95vh] w-full max-w-[90vw] rounded-xl lg:h-[95vh] lg:w-[70vw] lg:max-w-6xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col'
       )}
       showCloseButton={false}
       hideFooter={true}
       rawChildren={
         <div className="flex h-full w-full flex-1 flex-col">
-          <div className="grid h-14 w-full grid-cols-[2rem,1fr,2rem] border-b px-8">
-            <Button
-              data-testid="edit-avatar-button"
-              className=" h-6 w-6 self-center  bg-transparent text-text-primary hover:bg-transparent focus:bg-transparent"
+          <div className="grid h-14 w-full grid-cols-[1.5rem,1fr,1.5rem] border-b px-5">
+            <button
+              data-testid="back-create-avatar-modal-button"
+              className=" h-6 w-6 cursor-pointer self-center bg-transparent text-text-primary hover:bg-transparent focus:bg-transparent"
               onClick={() => {
                 PopoverState.hidePopupover()
               }}
             >
-              <span>
-                <IoArrowBackOutline size={16} />
-              </span>
-            </Button>
+              <IoArrowBackOutline size={16} />
+            </button>
             <Text className="col-start-2  place-self-center self-center text-text-primary">
               {loading.value !== LoadingState.Uploading
                 ? t('user:avatar.titleCustomizeAvatar')
                 : t('user:avatar.savingAvatar', { avatar: avatarName.value })}
             </Text>
-            <Button
-              fullWidth={false}
-              data-testid="edit-avatar-button"
-              className=" h-6 w-6 self-center  bg-transparent text-text-primary hover:bg-transparent focus:bg-transparent"
+            <button
+              data-testid="close-create-avatar-modal-button"
+              className=" h-6 w-6 cursor-pointer self-center bg-transparent text-text-primary hover:bg-transparent focus:bg-transparent"
               onClick={() =>
                 PopoverState.showPopupover(
                   <DiscardAvatarChangesMenu
@@ -292,12 +289,10 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
                 )
               }
             >
-              <span>
-                <IoCloseOutline size={16} />
-              </span>
-            </Button>
+              <MdClose size={16} />
+            </button>
           </div>
-          <div className="grid h-full w-full flex-1 grid-cols-[1fr,50%,1fr] gap-6 px-10 py-2">
+          <div className="grid h-full w-full flex-1 grid-cols-[1fr,50%,1fr] gap-6 px-5 pb-2">
             {loading.value === LoadingState.LoadingCreator && (
               <iframe
                 id="rpm-iframe"
@@ -311,7 +306,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
                 className="col-span-3"
               />
             )}
-            {loading.value !== LoadingState.LoadingCreator && avatarUrl && previewEnabled && (
+            {loading.value !== LoadingState.LoadingCreator && avatarUrl.value && previewEnabled && (
               <div className="relative col-start-2 rounded-lg bg-gradient-to-b from-[#162941] to-[#114352]">
                 <div className="stars absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent"></div>
                 <AvatarPreview

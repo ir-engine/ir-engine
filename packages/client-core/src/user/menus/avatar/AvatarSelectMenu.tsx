@@ -42,8 +42,8 @@ import { Button, Input } from '@ir-engine/ui'
 import { UserPlus01Sm } from '@ir-engine/ui/src/icons'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import { HiXMark } from 'react-icons/hi2'
 import { IoArrowBackOutline } from 'react-icons/io5'
+import { MdClose } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { AuthService, AuthState } from '../../services/AuthService'
@@ -146,17 +146,17 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
     <Modal
       id="select-avatar-modal"
       className={twMerge(
-        'pointer-events-auto m-auto flex h-[95vh] max-w-6xl rounded-xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col',
-        previewEnabled ? 'min-w-34 w-[70vw]' : 'w-[29vw] min-w-[450px]'
+        'pointer-events-auto m-auto flex h-[95vh] max-w-[90vw] rounded-xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col',
+        previewEnabled ? 'lg:w-auto lg:max-w-6xl' : 'w-full lg:w-[24rem] lg:max-w-96'
       )}
       hideFooter={true}
       rawChildren={
         <div className="grid h-full w-full grid-rows-[3.5rem,1fr]">
-          <div className="grid h-14 w-full grid-cols-[2rem,1fr,2rem] border-b px-8">
+          <div className="grid h-14 w-full grid-cols-[1.5rem,1fr,1.5rem] border-b px-5">
             {showBackButton && (
               <button
-                data-testid="edit-avatar-button"
-                className=" h-6 w-6 self-center bg-transparent text-text-primary hover:bg-transparent focus:bg-transparent"
+                data-testid="back-select-avatar-modal-button"
+                className=" h-6 w-6 cursor-pointer self-center bg-transparent text-text-primary hover:bg-transparent focus:bg-transparent"
                 onClick={handleClose}
               >
                 <IoArrowBackOutline size={16} />
@@ -165,19 +165,18 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
             <Text className="col-start-2 place-self-center self-center text-text-primary">
               {t('user:avatar.titleSelectAvatar')}
             </Text>
-            <Button
-              fullWidth={false}
-              data-testid="edit-avatar-button"
-              className="h-6 w-6 self-center bg-transparent  text-text-primary hover:bg-transparent focus:bg-transparent"
+            <button
+              data-testid="close-select-avatar-modal-button"
+              className="h-6 w-6 cursor-pointer self-center bg-transparent  text-text-primary hover:bg-transparent focus:bg-transparent"
               onClick={handleClose}
             >
-              <HiXMark />
-            </Button>
+              <MdClose size={16} />
+            </button>
           </div>
           <div
             className={twMerge(
-              'grid h-full max-h-[calc(95vh-3.5rem)] w-full flex-1 gap-6 px-10 py-2',
-              previewEnabled ? 'grid-cols-[60%,40%]' : 'grid-cols-1'
+              'h-full max-h-[calc(95vh-3.5rem)] w-full flex-1 gap-6 px-5 py-2',
+              previewEnabled ? 'grid grid-cols-[1fr,24rem]' : 'flex max-w-96 flex-col self-center'
             )}
           >
             {previewEnabled && (
@@ -187,7 +186,7 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
               </div>
             )}
             <div className="grid h-full min-h-0 w-full min-w-0 grid-flow-row grid-rows-[3rem,1fr]">
-              <div className="flex max-h-6 gap-2">
+              <div className="flex max-h-6 max-w-96 gap-2">
                 <Input
                   fullWidth
                   data-test-id="search-avatar-input"
@@ -212,7 +211,9 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
                     variant="primary"
                     onClick={() => {
                       const Menu = AvatarCreatorMenu2(SupportedSdks.ReadyPlayerMe)
-                      PopoverState.showPopupover(<Menu showBackButton previewEnabled previewDisabledMessage />)
+                      PopoverState.showPopupover(
+                        <Menu showBackButton={showBackButton} previewEnabled={previewEnabled} />
+                      )
                     }}
                   >
                     <UserPlus01Sm />
@@ -232,7 +233,7 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
                 )}
               </div>
               <div className="flex max-h-[calc(95vh-7.5rem)] flex-col pb-6">
-                <div className="flex flex-1 flex-col gap-2 overflow-y-auto">
+                <div className="flex max-w-96 flex-1 flex-col gap-2 overflow-y-auto">
                   {avatarsData.map((avatar) => (
                     <Fragment key={avatar.id}>
                       <Avatar
