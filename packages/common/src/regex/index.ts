@@ -60,8 +60,10 @@ export const EMAIL_REGEX =
  */
 export const PHONE_REGEX = /^[0-9]{10}$/
 
-// export const INVALID_USER_NAME_REGEX = /[^a-zA-Z\s]/g
-export const INVALID_USER_NAME_REGEX = /^[0-9\W]*$/g
+/**
+ * This regex is used to validate username, adding special charecters between brackets would allow to invalidate them.
+ */
+export const INVALID_USER_NAME_REGEX = /[]/g
 /**
  * This regex is used to validate strings that should consist of exactly 8 hexadecimal digits.
  */
