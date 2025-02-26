@@ -36,7 +36,7 @@ import { AllFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
-import { getMutableState, getState } from '@ir-engine/hyperflux'
+import { getState } from '@ir-engine/hyperflux'
 import { t } from 'i18next'
 import { CopyPasteFunctions, EntityCopyDataType } from '../../functions/CopyPasteFunctions'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -89,11 +89,9 @@ export const copyNodes = (entity?: Entity) => {
 }
 
 export const pasteNodes = (parentEntity?: Entity) => {
+  let parentEntities = [parentEntity] as Entity[]
   if (!parentEntity) {
-    const selectedEntities = getMutableState(SelectionState).selectedEntities.value.slice(0)
-    if (selectedEntities.length > 0) {
-      parentEntity = UUIDComponent.getEntityByUUID(selectedEntities[0])
-    }
+    parentEntities = getSelectedEntities(parentEntity)
   }
 
   const ProcessEntityData = (parentEntity: Entity | undefined, nodeEntitiesData: EntityCopyDataType[]) => {
@@ -113,7 +111,9 @@ export const pasteNodes = (parentEntity?: Entity) => {
 
   CopyPasteFunctions.getPastedEntities()
     .then((nodeEntitiesData) => {
-      ProcessEntityData(parentEntity, nodeEntitiesData)
+      parentEntities.forEach((entity) => {
+        ProcessEntityData(entity, nodeEntitiesData)
+      })
     })
     .catch(() => {
       NotificationService.dispatchNotify(t('editor:hierarchy.copy-paste.no-hierarchy-nodes') as string, {
