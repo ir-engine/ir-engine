@@ -23,10 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { ReactNode, Suspense, useEffect } from 'react'
+import React, { ReactNode, useEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { ErrorBoundary, useHookstate } from '@ir-engine/hyperflux'
+import { useHookstate } from '@ir-engine/hyperflux'
 import Text from '../Text'
 
 export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -89,9 +89,7 @@ const Tabs = ({
           {tabsData[currentTab.value]?.title}
         </Text>
       )}
-      <ErrorBoundary>
-        <Suspense>{tabsData[currentTab.value]?.topComponent}</Suspense>
-      </ErrorBoundary>
+      {tabsData[currentTab.value]?.topComponent}
       <div className={'sticky top-0 z-50 mb-2 flex justify-between rounded-md bg-ui-background px-3 py-2'}>
         {tabsData.map((tab, index) => (
           <button
@@ -112,21 +110,7 @@ const Tabs = ({
         ))}
         {tabsData[currentTab.value]?.rightComponent}
       </div>
-      {scrollable ? (
-        tabsData.map((tab, index) => {
-          return (
-            <>
-              <ErrorBoundary key={index}>
-                <Suspense>{tab.bottomComponent}</Suspense>
-              </ErrorBoundary>
-            </>
-          )
-        })
-      ) : (
-        <ErrorBoundary>
-          <Suspense>{tabsData[currentTab.value]?.bottomComponent}</Suspense>
-        </ErrorBoundary>
-      )}
+      {scrollable ? tabsData.map((tab, index) => tab.bottomComponent) : tabsData[currentTab.value]?.bottomComponent}
     </div>
   )
 }
