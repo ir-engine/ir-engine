@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useMutableState } from '@ir-engine/hyperflux'
-import { Emote, Send01Lg, User01Lg } from '@ir-engine/ui/src/icons'
+import { EmoteLg, Send01Lg, User01Lg } from '@ir-engine/ui/src/icons'
 
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import React from 'react'
@@ -45,7 +45,7 @@ export default function UserMenus() {
   return (
     <>
       <div className="flex w-full items-center justify-center gap-x-6">
-        {userMenus.profile && (
+        {userMenus.profile.value && (
           <LocationIconButton
             tooltip={{
               title: t('user:menu.settings'),
@@ -55,7 +55,7 @@ export default function UserMenus() {
             onClick={() => PopoverState.showPopupover(<ProfileMenu />)}
           />
         )}
-        {userMenus.share && (
+        {userMenus.share.value && (
           <LocationIconButton
             tooltip={{
               title: t('user:menu.sendLocation'),
@@ -65,17 +65,17 @@ export default function UserMenus() {
             onClick={() => PopoverState.showPopupover(<ShareMenu />)}
           />
         )}
-        {userMenus.emote && (
+        {userMenus.emote.value && (
           <LocationIconButton
             tooltip={{
               title: t('user:menu.emote'),
               position: 'top'
             }}
-            icon={Emote}
+            icon={EmoteLg}
             onClick={() => PopoverState.showPopupover(<EmoteMenu />, undefined, 'transparent')}
           />
         )}
-        {userMenus.social && (
+        {userMenus.social.value && (
           <LocationIconButton
             tooltip={{
               title: t('user:menu.friends'),

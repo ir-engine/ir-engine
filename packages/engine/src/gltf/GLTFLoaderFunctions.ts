@@ -627,7 +627,6 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   const materialExtensions = materialDef.extensions || {}
 
   let materialConstructor = MeshStandardMaterial
-
   if (!materialExtensions[EXTENSIONS.EE_MATERIAL] && materialExtensions[EXTENSIONS.KHR_MATERIALS_UNLIT]) {
     const kmuExtension = KHRUnlitExtensionComponent
     materialConstructor = kmuExtension.getMaterialType() as any
@@ -768,6 +767,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   }
 
   const extensions = Object.entries(materialDef.extensions || {})
+
   for (const [extensionName, extension] of extensions) {
     const Component = ComponentJSONIDMap.get(extensionName) as any // todo
     if (!Component) continue

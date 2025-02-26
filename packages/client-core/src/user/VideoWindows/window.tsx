@@ -44,11 +44,11 @@ import { drawPoseToCanvas } from '@ir-engine/ui/src/pages/Capture'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
 
+import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
+import { PeerMediaChannelState, PeerMediaStreamInterface } from '@ir-engine/network/src/media/PeerMediaChannelState'
 import { useTranslation } from 'react-i18next'
 import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 import { useZendesk } from '../../hooks/useZendesk'
-import { MediaStreamState } from '../../media/MediaStreamState'
-import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../media/PeerMediaChannelState'
 
 interface Props {
   peerID: PeerID

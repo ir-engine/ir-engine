@@ -33,7 +33,7 @@ import { SpawnEffectComponent } from '@ir-engine/engine/src/avatar/components/Sp
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { debounce } from 'lodash'
-import React, { useEffect, useRef } from 'react'
+import React, { Fragment, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
@@ -42,7 +42,8 @@ import { Button, Input } from '@ir-engine/ui'
 import { UserPlus01Sm } from '@ir-engine/ui/src/icons'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import { IoArrowBackOutline, IoCloseOutline } from 'react-icons/io5'
+import { HiXMark } from 'react-icons/hi2'
+import { IoArrowBackOutline } from 'react-icons/io5'
 import { twMerge } from 'tailwind-merge'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { AuthService, AuthState } from '../../services/AuthService'
@@ -64,8 +65,10 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
   const selfAvatarEntity = AvatarComponent.useSelfAvatarEntity()
   const selfAvatarLoaded = useOptionalComponent(selfAvatarEntity, GLTFComponent)?.progress?.value === 100
 
-  const [createAvatarEnabled] = useFeatureFlags([FeatureFlags.Client.Menu.CreateAvatar])
-  const [uploadAvatarEnabled] = useFeatureFlags([FeatureFlags.Client.Menu.UploadAvatar])
+  const [createAvatarEnabled, uploadAvatarEnabled] = useFeatureFlags([
+    FeatureFlags.Client.Menu.CreateAvatar,
+    FeatureFlags.Client.Menu.UploadAvatar
+  ])
 
   const page = useHookstate(0)
   const selectedAvatarId = useHookstate('' as AvatarID)
@@ -168,9 +171,7 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
               className="h-6 w-6 self-center bg-transparent  text-text-primary hover:bg-transparent focus:bg-transparent"
               onClick={handleClose}
             >
-              <span>
-                <IoCloseOutline size={16} />
-              </span>
+              <HiXMark />
             </Button>
           </div>
           <div
@@ -206,7 +207,8 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
                 />
                 {createAvatarEnabled && (
                   <Button
-                    className="min-w-[9rem] rounded-md text-sm font-normal"
+                    className="min-w-[140px] rounded-md text-sm font-normal"
+                    size="l"
                     variant="primary"
                     onClick={() => {
                       const Menu = AvatarCreatorMenu2(SupportedSdks.ReadyPlayerMe)
@@ -229,10 +231,10 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
                   </Button>
                 )}
               </div>
-              <div className="flex max-h-[calc(95vh-7.5rem)] flex-col pb-6 pr-2">
+              <div className="flex max-h-[calc(95vh-7.5rem)] flex-col pb-6">
                 <div className="flex flex-1 flex-col gap-2 overflow-y-auto">
                   {avatarsData.map((avatar) => (
-                    <div key={avatar.id} className="w-full">
+                    <Fragment key={avatar.id}>
                       <Avatar
                         imageSrc={avatar.thumbnailResource?.url || ''}
                         isSelected={currentAvatar && avatar.id === currentAvatar.id}
@@ -241,7 +243,7 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
                         onClick={() => selectedAvatarId.set(avatar.id)}
                         onChange={() => PopoverState.showPopupover(<AvatarModifyMenu selectedAvatar={avatar} />)}
                       />
-                    </div>
+                    </Fragment>
                   ))}
                 </div>
               </div>

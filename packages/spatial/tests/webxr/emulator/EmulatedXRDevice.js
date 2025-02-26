@@ -36,7 +36,7 @@ import { PRIVATE as XRSESSION_PRIVATE } from 'webxr-polyfill/src/api/XRSession';
 import XRScene from './XRScene';
 import XRTransientInputHitTestSource from './api/XRTransientInputHitTestSource';
 import { WebXREventDispatcher } from './WebXREventDispatcher';
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment';
+import { isClient } from '@ir-engine/hyperflux';
 
 const DEFAULT_MODES = ['inline'];
 
