@@ -1220,8 +1220,6 @@ const loadMesh = async (options: GLTFParserOptions, entity: Entity, nodeIndex: n
 
   const meshDef = json.meshes![meshIndex]
 
-  if (!hasComponent(entity, ColliderComponent)) setComponent(entity, VisibleComponent)
-
   const node = json.nodes![nodeIndex]
 
   const [geometry, materials] = await GLTFLoaderFunctions.loadPrimitives(options, node.mesh!)
@@ -1401,6 +1399,7 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
               }
             }
             deserializeComponent(nodeEntity, Component, deserializedValue)
+            if (Component === ColliderComponent) removeComponent(nodeEntity, VisibleComponent)
           }
         }
       }
@@ -1426,7 +1425,6 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
   if (typeof nodeDef.mesh !== 'undefined') {
     const meshPromise = getDependency(options, 'mesh', nodeEntity, nodeIndex, nodeDef.mesh)
     dependencies.push(meshPromise)
-    if (!hasComponent(nodeEntity, ColliderComponent)) setComponent(nodeEntity, VisibleComponent)
   } else if (isBoneNode(json, nodeIndex)) {
     const bone = new Bone()
     // bone.name = node.name ?? 'Node-' + i
