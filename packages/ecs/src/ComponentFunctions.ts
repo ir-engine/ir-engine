@@ -1083,6 +1083,10 @@ export const LayerComponent = defineComponent({
 })
 
 export function getAuthoringCounterpart(entity: Entity) {
+  const layer = LayerComponent.get(entity)
+  if (layer === Layers.Authoring) {
+    return entity
+  }
   return LayerComponents[Layers.Simulation].refs[entity]
 }
 
