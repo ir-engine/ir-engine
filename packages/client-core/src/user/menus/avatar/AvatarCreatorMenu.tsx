@@ -38,7 +38,6 @@ import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { IoArrowBackOutline } from 'react-icons/io5'
 import { MdClose } from 'react-icons/md'
-import { twMerge } from 'tailwind-merge'
 import AvatarPreview from '../../../common/components/AvatarPreview'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../util/avatarIdFunctions'
@@ -253,9 +252,7 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
   return (
     <Modal
       id="create-avatar-modal"
-      className={twMerge(
-        'min-w-34 pointer-events-auto m-auto flex h-full max-h-[95vh] w-full max-w-[90vw] rounded-xl lg:h-[95vh] lg:w-[70vw] lg:max-w-6xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col'
-      )}
+      className="min-w-34 pointer-events-auto m-auto flex h-full max-h-[95vh] w-full max-w-[90vw] rounded-xl lg:h-[95vh] lg:w-[70vw] lg:max-w-6xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col"
       showCloseButton={false}
       hideFooter={true}
       rawChildren={
