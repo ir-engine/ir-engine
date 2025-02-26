@@ -23,31 +23,18 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { MeshLambertMaterial as Lambert } from 'three'
+import { AssetLoader } from './classes/AssetLoader'
+import createGLTFExporter from './functions/createGLTFExporter'
+import { createGLTFLoader } from './functions/createGLTFLoader'
+import { AssetLoaderState } from './state/AssetLoaderState'
+import { DomainConfigState } from './state/DomainConfigState'
+import { ResourceLoadingManagerState } from './state/ResourceLoadingManagerState'
 
-import { BasicArgs, EmissiveMapArgs, EnvMapArgs } from '../constants/BasicArgs'
-import { BoolArg } from '../constants/DefaultArgs'
-import { MaterialPrototypeDefinition } from '../MaterialComponent'
-
-export const MeshLambertArguments = {
-  ...BasicArgs,
-  ...EmissiveMapArgs,
-  ...EnvMapArgs,
-  fog: BoolArg
+export default {
+  AssetLoaderState,
+  DomainConfigState,
+  ResourceLoadingManagerState,
+  AssetLoader,
+  createGLTFExporter,
+  createGLTFLoader
 }
-
-export const MeshLambertMaterial: MaterialPrototypeDefinition = {
-  prototypeConstructor: Lambert,
-  arguments: MeshLambertArguments
-}
-
-// export const MeshLambertMaterial = defineComponent({
-//   name: 'MeshLambertMaterial',
-//   onInit: (entity) => {
-//     return {
-//       material: new Lambert()
-//     }
-//   },
-// })
-
-export default MeshLambertMaterial

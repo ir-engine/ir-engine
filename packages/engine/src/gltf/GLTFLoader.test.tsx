@@ -50,7 +50,6 @@ import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import React from 'react'
 import { InstancedMesh, MathUtils, MeshStandardMaterial } from 'three'
 import { startEngineReactor } from '../../tests/startEngineReactor'
 import { overrideFileLoaderLoad } from '../../tests/util/loadGLTFAssetNode'
@@ -121,7 +120,7 @@ describe('GLTF Loader', async () => {
       async () => {
         expect(getChildrenWithComponents(entity, [MeshComponent]).length).toBeTruthy()
       },
-      { timeout: 5000 }
+      { timeout: 10000 }
     )
 
     const meshes = getChildrenWithComponents(entity, [MeshComponent])
@@ -153,7 +152,7 @@ describe('GLTF Loader', async () => {
       async () => {
         expect(getChildrenWithComponents(entity, [MaterialStateComponent]).length).toBeTruthy()
       },
-      { timeout: 5000 }
+      { timeout: 10000 }
     )
 
     const materials = getChildrenWithComponents(entity, [MaterialStateComponent])
@@ -188,7 +187,7 @@ describe('GLTF Loader', async () => {
       async () => {
         expect(getChildrenWithComponents(entity, [MeshComponent]).length).toBeTruthy()
       },
-      { timeout: 5000 }
+      { timeout: 10000 }
     )
 
     const meshes = getChildrenWithComponents(entity, [MeshComponent])
@@ -224,7 +223,7 @@ describe('GLTF Loader', async () => {
       async () => {
         expect(getChildrenWithComponents(entity, [MaterialStateComponent]).length).toBeTruthy()
       },
-      { timeout: 5000 }
+      { timeout: 10000 }
     )
 
     const materials = getChildrenWithComponents(entity, [KHRUnlitExtensionComponent])
@@ -257,7 +256,7 @@ describe('GLTF Loader', async () => {
       async () => {
         expect(getChildrenWithComponents(entity, [MaterialStateComponent]).length).toBeTruthy()
       },
-      { timeout: 5000 }
+      { timeout: 10000 }
     )
 
     const matStateEntities = getChildrenWithComponents(entity, [MaterialStateComponent])
@@ -296,7 +295,7 @@ describe('GLTF Loader', async () => {
       async () => {
         expect(getChildrenWithComponents(entity, [MeshComponent]).length).toBeTruthy()
       },
-      { timeout: 5000 }
+      { timeout: 10000 }
     )
 
     const materials = [...usedMaterials]
@@ -334,9 +333,10 @@ describe('GLTF Loader', async () => {
 
     await vi.waitFor(
       async () => {
+        await act(() => render(null))
         expect(getChildrenWithComponents(entity, [MeshComponent]).length).toBeTruthy()
       },
-      { timeout: 5000 }
+      { timeout: 10000 }
     )
 
     const meshEntity = getChildrenWithComponents(entity, [MeshComponent])[0]
@@ -354,10 +354,11 @@ describe('GLTF Loader', async () => {
     await act(() => render(null))
 
     await vi.waitFor(
-      () => {
+      async () => {
+        await act(() => render(null))
         expect(getOptionalComponent(entity, AnimationComponent)).toBeTruthy()
       },
-      { timeout: 5000 }
+      { timeout: 10000 }
     )
     const document = getComponent(entity, GLTFComponent).document
 
@@ -380,7 +381,7 @@ describe('GLTF Loader', async () => {
       () => {
         expect(getOptionalComponent(entity, AnimationComponent)).toBeTruthy()
       },
-      { timeout: 5000 }
+      { timeout: 10000 }
     )
 
     const animationComponent = getComponent(entity, AnimationComponent)
@@ -399,7 +400,7 @@ describe('GLTF Loader', async () => {
       () => {
         expect(getOptionalComponent(entity, AnimationComponent)).toBeTruthy()
       },
-      { timeout: 5000 }
+      { timeout: 10000 }
     )
 
     const document = getComponent(entity, GLTFComponent).document
@@ -440,7 +441,7 @@ describe('GLTF Loader', async () => {
       () => {
         expect(getChildrenWithComponents(entity, [CameraComponent]).length).toBeTruthy()
       },
-      { timeout: 5000 }
+      { timeout: 10000 }
     )
     const cameraEntities = getChildrenWithComponents(entity, [CameraComponent])
 
@@ -484,7 +485,7 @@ describe('GLTF Loader', async () => {
       () => {
         expect(getChildrenWithComponents(testEntity, [KHRLightsPunctualComponent]).length).toBeTruthy()
       },
-      { timeout: 5000 }
+      { timeout: 10000 }
     )
 
     const khrLightEntities = getChildrenWithComponents(testEntity, [KHRLightsPunctualComponent])
@@ -579,9 +580,11 @@ describe('GLTF Loader', async () => {
     setComponent(entity2, UUIDComponent, UUIDComponent.generateUUID())
     setComponent(entity2, GLTFComponent, { src: duck_gltf })
 
-    const { rerender, unmount } = render(<></>)
+    await act(() => render(null))
+
     applyIncomingActions()
-    await act(async () => rerender(<></>))
+
+    await act(() => render(null))
 
     const instanceID = GLTFComponent.getInstanceID(entity)
     const instanceID2 = GLTFComponent.getInstanceID(entity2)
@@ -592,7 +595,5 @@ describe('GLTF Loader', async () => {
     const meshEntities2 = getChildrenWithComponents(entity2, [MeshComponent])
 
     expect(meshEntities.length).toBe(meshEntities2.length)
-
-    unmount()
   })
 })

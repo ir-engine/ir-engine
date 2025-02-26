@@ -219,7 +219,7 @@ describe.skip('ResourceLoaderHooks', () => {
       // ensure that the loadResource function is synchronously called when the hook is rendered
       assert(resourceState.resources[texURL])
       unmount()
-      await act(() => render(<></>))
+      await act(() => render(null))
       done()
     }))
 })

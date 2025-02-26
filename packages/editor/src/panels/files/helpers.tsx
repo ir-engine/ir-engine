@@ -114,7 +114,6 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
   }
 
   const createNewFolder = () => fileService.create(`${filesState.selectedDirectory.value}New-Folder`)
-
   const files = filesQuery.data.map((file) => {
     const isFolder = file.type === 'folder'
     const fullName = isFolder ? file.name : file.name + '.' + file.type
@@ -127,7 +126,6 @@ export const CurrentFilesQueryProvider = ({ children }: { children?: ReactNode }
       isFolder
     }
   })
-
   useRealtime(staticResourcePath, filesQuery.refetch)
   FileThumbnailJobState.useGenerateThumbnails(filesQuery.data)
 

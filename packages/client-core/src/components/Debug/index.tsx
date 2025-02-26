@@ -37,6 +37,7 @@ import { useDraggable } from '../../hooks/useDraggable'
 import { APIDebug } from './APIDebug'
 import DebugButtons from './DebugButtons'
 import { EntityDebug } from './EntityDebug'
+import { ReactorDebug } from './ReactorDebug'
 import { ResourceDebug } from './ResourceDebug'
 import { StateDebug } from './StateDebug'
 import { StatsPanel } from './StatsPanel'
@@ -75,6 +76,7 @@ const DebugTabs = {
   API: <APIDebug />,
   Systems: <SystemDebug />,
   State: <StateDebug />,
+  Reactor: <ReactorDebug />,
   Resources: <ResourceDebug />
 }
 

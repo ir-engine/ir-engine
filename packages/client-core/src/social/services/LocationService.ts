@@ -44,7 +44,7 @@ export const LocationSeed: LocationType = {
   id: '' as LocationID,
   name: '',
   slugifiedName: '',
-  maxUsersPerInstance: 5,
+  maxUsersPerInstance: 10,
   sceneId: '',
   projectId: '',
   url: '',

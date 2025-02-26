@@ -104,6 +104,7 @@ function ScenesPanel() {
                       editorState.sceneAssetID.set(null)
                     }
                   }}
+                  disableDeleteScene={editorState.sceneAssetID.value === scene.id}
                   onRenameScene={(newName) => {
                     editorState.scenePath.set(newName)
                   }}

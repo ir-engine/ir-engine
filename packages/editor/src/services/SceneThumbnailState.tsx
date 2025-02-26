@@ -28,6 +28,7 @@ import { uploadToFeathersService } from '@ir-engine/client-core/src/util/upload'
 import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { fileBrowserUploadPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
+import { getComponent } from '@ir-engine/ecs'
 import {
   blurAndScaleImageData,
   convertImageDataToKTX2Blob,
@@ -35,6 +36,8 @@ import {
 } from '@ir-engine/engine/src/scene/classes/ImageUtils'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { ReferenceSpaceState } from '@ir-engine/spatial/src/ReferenceSpaceState'
+import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { useEffect } from 'react'
 import { commitProperty } from '../components/properties/Util'
 import { uploadProjectFiles } from '../functions/assetFunctions'
@@ -56,7 +59,9 @@ export const SceneThumbnailState = defineState({
     resolution: 2048
   }),
   createThumbnail: async (width = 512, height = 320, quality = 1) => {
-    const thumbnailBlob = await takeScreenshot(width, height, quality)
+    const cameraEntity = getState(ReferenceSpaceState).viewerEntity
+    const camera = getComponent(cameraEntity, CameraComponent)
+    const thumbnailBlob = await takeScreenshot(camera, cameraEntity, width, height, quality, 'jpeg')
     if (!thumbnailBlob) return
     const sceneName = getState(EditorState).sceneName!.split('.').slice(0, -1).join('.')
     const file = new File([thumbnailBlob!], sceneName + '.thumbnail.jpg')
