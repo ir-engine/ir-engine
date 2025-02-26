@@ -39,17 +39,28 @@ async function run() {
     .then(() => true)
     .catch(() => false)
 
-  if (dirExists) {
-    console.log('icons/files already exists, deleting old directory and creating new one')
-    await fs.rm('./src/icons/files', { recursive: true })
-    await fs.mkdir('./src/icons/files')
-  } else {
+  if (!dirExists) {
     await fs.mkdir('./src/icons/files')
     console.log('created icons/files')
   }
 
-  const transformPromises = Object.values(iconaJson).map(async (iconEntry) => {
+  const newFilePromises = Object.values(iconaJson).map(async (iconEntry) => {
     const componentName = transformName(iconEntry.name)
+    const fileName = './src/icons/files/' + componentName + '.tsx'
+    const fileExists = await fs
+      .access(fileName)
+      .then(() => true)
+      .catch(() => false)
+    if (fileExists) {
+      return null
+    }
+    return { iconEntry, componentName, fileName }
+  })
+
+  const transformPromises = (await Promise.all(newFilePromises)).filter(Boolean).map(async (newFile) => {
+    if (!newFile) return
+
+    const { iconEntry, componentName, fileName } = newFile
     const correctedSVG = iconEntry.svg.replace(/stroke=\"#\w{6}\"/gi, "stroke='currentColor'")
     const reactComponent = await transform(
       correctedSVG,
@@ -66,7 +77,9 @@ async function run() {
       },
       { componentName }
     )
-    await fs.writeFile('./src/icons/files/' + componentName + '.tsx', reactComponent)
+
+    console.log(`writing new icon component: ${componentName}`)
+    await fs.writeFile(fileName, reactComponent)
 
     return componentName
   })
