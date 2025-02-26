@@ -272,11 +272,11 @@ export const computeCommands = (commands: HistoryCommand[]) => {
 export const applyCommandsToECS = (sourceID: SourceID, currentState: SourceData, finalState: SourceData) => {
   for (const nodeID of Object.keys(finalState) as NodeID[]) {
     if (finalState[nodeID]) {
-      if (!currentState[nodeID]) {
+      const uuid = NodeIDComponent.getUUIDBySourceAndNodeID(sourceID, nodeID)
+      if (!currentState[nodeID] && !UUIDComponent.getEntityByUUID(uuid, Layers.Authoring)) {
         // entity does not exist, add entity
         NodeIDComponent.create(sourceID, nodeID, Layers.Authoring)
       }
-      const uuid = NodeIDComponent.getUUIDBySourceAndNodeID(sourceID, nodeID)
       const entity = UUIDComponent.getEntityByUUID(uuid, Layers.Authoring)
       for (const [componentName, componentData] of Object.entries(finalState[nodeID])) {
         const Component = ComponentMap.get(componentName)
