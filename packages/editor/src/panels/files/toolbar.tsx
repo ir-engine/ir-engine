@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { REMOVE_EDGE_SLASH_REGEX } from '@ir-engine/common/src/regex'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
 import { Slider, ViewportButton } from '@ir-engine/ui/editor'
@@ -346,7 +347,7 @@ export function PanelToolbar({
   const filesState = useMutableState(FilesState)
   const originalPath = useMutableState(EditorState).projectName.value
   const showBackButton =
-    filesState.selectedDirectory.value.replace(/^\/|\/$/g, '').split('/').length >
+    filesState.selectedDirectory.value.replace(REMOVE_EDGE_SLASH_REGEX, '').split('/').length >
     (originalPath?.split('/').length || 0) + 1
 
   return (
