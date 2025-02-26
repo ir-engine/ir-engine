@@ -68,11 +68,11 @@ const ktx2Encoder = new KTX2Encoder()
  */
 
 export async function takeScreenshot(
+  scenePreviewCamera: PerspectiveCamera,
+  scenePreviewCameraEntity: Entity,
   width: number,
   height: number,
   quality: number = 0.9,
-  scenePreviewCamera: PerspectiveCamera,
-  scenePreviewCameraEntity: Entity,
   format = 'jpeg' as 'jpeg' | 'png',
   hideHelpers = true
 ): Promise<Blob | null> {
@@ -164,7 +164,7 @@ export async function takeScreenshot(
 export const downloadScreenshot = () => {
   const cameraEntity = getState(ReferenceSpaceState).viewerEntity
   const camera = getComponent(cameraEntity, CameraComponent)
-  takeScreenshot(1920 * 4, 1080 * 4, 1, camera, cameraEntity, 'png', false).then((blob) => {
+  takeScreenshot(camera, cameraEntity, 1920 * 4, 1080 * 4, 1, 'png', false).then((blob) => {
     if (!blob) return
 
     const blobUrl = URL.createObjectURL(blob)
