@@ -42,6 +42,7 @@ type SceneItemProps = {
   refetchProjectsData: () => void
   onRenameScene?: (newName: string) => void
   onDeleteScene?: (scene: StaticResourceType) => void
+  disableDeleteScene: boolean
 }
 
 const DEFAULT_SCENE_THUMBNAIL = `${config.client.fileServer}/projects/ir-engine/default-project/public/scenes/default.thumbnail.jpg`
@@ -51,7 +52,8 @@ export default function SceneItem({
   handleOpenScene,
   refetchProjectsData,
   onRenameScene,
-  onDeleteScene
+  onDeleteScene,
+  disableDeleteScene
 }: SceneItemProps) {
   const { t } = useTranslation()
 
@@ -113,6 +115,7 @@ export default function SceneItem({
           actionProps={[
             {
               label: t('editor:hierarchy.lbl-rename'),
+              disabled: false,
               icon: <Edit01Sm />,
               onClick: () => {
                 PopoverState.showPopupover(
@@ -127,6 +130,7 @@ export default function SceneItem({
             },
             {
               label: t('editor:hierarchy.lbl-delete'),
+              disabled: disableDeleteScene,
               icon: <Trash04Sm />,
               onClick: () => {
                 PopoverState.showPopupover(
