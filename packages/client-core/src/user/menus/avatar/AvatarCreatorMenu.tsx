@@ -265,7 +265,14 @@ const AvatarCreatorMenu = (selectedSdk: string) => (props: AvatarCreatorMenuProp
               data-testid="back-create-avatar-modal-button"
               className=" h-6 w-6 cursor-pointer self-center bg-transparent text-text-primary hover:bg-transparent focus:bg-transparent"
               onClick={() => {
-                PopoverState.hidePopupover()
+                PopoverState.showPopupover(
+                  <DiscardAvatarChangesMenu
+                    handleConfirm={() => {
+                      PopoverState.hidePopupover()
+                      PopoverState.hidePopupover()
+                    }}
+                  />
+                )
               }}
             >
               <IoArrowBackOutline size={16} />
