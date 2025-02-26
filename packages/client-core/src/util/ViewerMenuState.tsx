@@ -39,7 +39,8 @@ export const ViewerMenuState = defineState({
       emote: false,
       friends: false,
       social: false,
-      embedframe: true
+      embedframe: true,
+      ecommerce: false
     },
     menuComponents: {} as Record<string, JSX.Element>
   })
