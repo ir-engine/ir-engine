@@ -57,6 +57,8 @@ export class LogsApiService implements ServiceInterface<void, any, LogsApiParams
         await this._processLogItem(data, userId)
       }
     }
+
+    return
   }
 
   _processLogItem = async (logItem, userId?: string) => {

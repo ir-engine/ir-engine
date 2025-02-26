@@ -90,5 +90,6 @@ export const logToBigQuery = async (event: LogParamsObject) => {
     console.log(`Logged event to BigQuery: ${event.event_name}`)
   } catch (error) {
     console.error('Error inserting row into BigQuery:', error)
+    throw error
   }
 }
