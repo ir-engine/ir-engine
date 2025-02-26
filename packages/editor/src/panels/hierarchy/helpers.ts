@@ -22,7 +22,6 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import {
   Entity,
@@ -30,14 +29,16 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
+  Layers,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { AllFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { t } from 'i18next'
-import { CopyPasteFunctions } from '../../functions/CopyPasteFunctions'
+import { CopyPasteFunctions, EntityCopyDataType } from '../../functions/CopyPasteFunctions'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { SelectionState } from '../../services/SelectionServices'
@@ -87,19 +88,32 @@ export const copyNodes = (entity?: Entity) => {
   CopyPasteFunctions.copyEntities(getSelectedEntities(entity))
 }
 
-export const pasteNodes = (entity?: Entity) => {
-  if (!entity) {
+export const pasteNodes = (parentEntity?: Entity) => {
+  if (!parentEntity) {
     const selectedEntities = getMutableState(SelectionState).selectedEntities.value.slice(0)
     if (selectedEntities.length > 0) {
-      entity = UUIDComponent.getEntityByUUID(selectedEntities[0])
+      parentEntity = UUIDComponent.getEntityByUUID(selectedEntities[0])
     }
   }
 
+  const ProcessEntityData = (parentEntity: Entity | undefined, nodeEntitiesData: EntityCopyDataType[]) => {
+    nodeEntitiesData.forEach((nodeEntityData) => {
+      const components = nodeEntityData.components.map((c) => ({ name: c.name, props: c.json }) as ComponentJsonType)
+
+      const entityData = EditorControlFunctions.createObjectFromSceneElement(
+        components,
+        parentEntity,
+        getSelectedEntities(parentEntity)[0],
+        nodeEntityData.name
+      )
+      const newEntity = UUIDComponent.getEntityByUUID(entityData.entityUUID, Layers.Authoring)
+      ProcessEntityData(newEntity, nodeEntityData.children)
+    })
+  }
+
   CopyPasteFunctions.getPastedEntities()
-    .then((nodeComponentJSONs) => {
-      nodeComponentJSONs.forEach((componentJSONs) => {
-        EditorControlFunctions.createObjectFromSceneElement(componentJSONs, entity, getSelectedEntities(entity)[0])
-      })
+    .then((nodeEntitiesData) => {
+      ProcessEntityData(parentEntity, nodeEntitiesData)
     })
     .catch(() => {
       NotificationService.dispatchNotify(t('editor:hierarchy.copy-paste.no-hierarchy-nodes') as string, {

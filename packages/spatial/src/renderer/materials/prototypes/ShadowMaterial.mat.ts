@@ -35,7 +35,6 @@ export const ShadowMaterialArguments = {
 }
 
 export const ShadowMaterial: MaterialPrototypeDefinition = {
-  prototypeId: 'ShadowMaterial',
   prototypeConstructor: Shadow,
   arguments: ShadowMaterialArguments
 }

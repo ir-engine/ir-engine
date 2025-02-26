@@ -53,7 +53,7 @@ import { Button, Input } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Scene } from 'three'
+import { Quaternion, Scene, Vector3 } from 'three'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
@@ -127,6 +127,16 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
     const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
     setComponent(entity, NameComponent, prefabName.value)
     getMutableState(SelectionState).selectedEntities.set([])
+
+    const transform = getComponent(entity, TransformComponent)
+    const position = transform.position.clone()
+    const rotation = transform.rotation.clone()
+
+    setComponent(entity, TransformComponent, {
+      position: new Vector3(0, 0, 0),
+      rotation: new Quaternion().identity(),
+      scale: new Vector3(1, 1, 1)
+    })
     await exportRelativeGLTF(entity, srcProject, fileName)
 
     const resources = await API.instance.service(staticResourcePath).find({
@@ -138,10 +148,6 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
     const resource = resources.data[0]
     const tags = [...prefabTag.value]
     await API.instance.service(staticResourcePath).patch(resource.id, { tags: tags, project: srcProject })
-
-    const transform = getComponent(entity, TransformComponent)
-    const position = transform.position.clone()
-    const rotation = transform.rotation.clone()
 
     EditorControlFunctions.removeObject([entity])
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(

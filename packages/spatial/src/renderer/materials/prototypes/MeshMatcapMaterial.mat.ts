@@ -39,14 +39,8 @@ export const MeshMatcapArguments = {
 }
 
 export const MeshMatcapMaterial: MaterialPrototypeDefinition = {
-  prototypeId: 'MeshMatcapMaterial',
   arguments: MeshMatcapArguments,
-  prototypeConstructor: Matcap,
-  onBeforeCompile: (shader, renderer) => {
-    ;['envMap', 'flipEnvMap', 'reflectivity', 'ior', 'refractionRatio'].map(
-      (arg) => (shader.uniforms[arg] = { value: null })
-    )
-  }
+  prototypeConstructor: Matcap
 }
 
 export default MeshMatcapMaterial
