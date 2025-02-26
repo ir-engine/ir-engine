@@ -82,9 +82,7 @@ export const ViewerInteractions = () => {
   return (
     <div style={{ opacity: 1 - loadingScreenOpacity.value }} className="relative h-dvh w-full p-6">
       <div className="pointer-events-auto absolute left-0 top-0 h-fit w-full pt-[inherit]">
-        <div className="flex items-center justify-between px-6">
-          <MediaIconsBox />
-        </div>
+        <MediaIconsBox />
       </div>
 
       <div className="pointer-events-auto absolute left-0 top-0 select-none pl-[inherit] pt-[inherit]">
