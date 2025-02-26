@@ -51,10 +51,9 @@ export const ViewerMenuState = defineState({
     } as Record<string, boolean>,
     externalInjectedMenus: {} as Record<string, ExternalMenuType>
   }),
-  addExternalMenu: (name: string, icon: SVGIconType | IconType, component: React.ReactNode) => {
-    getMutableState(ViewerMenuState).externalInjectedMenus.merge({ [name]: { component, icon } } as Record<
-      string,
-      ExternalMenuType
-    >)
+  addExternalMenu: (params: { name: string; icon: React.ElementType | JSX.Element; component: React.ReactNode }) => {
+    getMutableState(ViewerMenuState).externalInjectedMenus.merge({
+      [params.name]: { component: params.component, icon: params.icon }
+    } as Record<string, ExternalMenuType>)
   }
 })
