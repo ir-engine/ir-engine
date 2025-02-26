@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import type { SVGProps } from 'react'
 import * as React from 'react'
 import { Ref, forwardRef } from 'react'
-const ArrowTopRightOnSquareSm = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
+const WarningSm = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="1em"
@@ -39,13 +39,12 @@ const ArrowTopRightOnSquareSm = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVG
     {...props}
   >
     <path
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={1.5}
-      d="M9 4H3.5A1.5 1.5 0 0 0 2 5.5v7A1.5 1.5 0 0 0 3.5 14h7a1.5 1.5 0 0 0 1.5-1.5V7m-7 4 9-9m0 0h-3.5M14 2v3.5"
+      fill="#2C2E33"
+      fillRule="evenodd"
+      d="M6.267 2.002c.77-1.334 2.695-1.334 3.465 0l4.903 8.499c.77 1.333-.193 2.999-1.732 2.999H3.097c-1.54 0-2.502-1.666-1.733-3zM8 5.5a.5.5 0 0 1 .5.5v2.5a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5M8 11a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"
+      clipRule="evenodd"
     />
   </svg>
 )
-const ForwardRef = forwardRef(ArrowTopRightOnSquareSm)
+const ForwardRef = forwardRef(WarningSm)
 export default ForwardRef

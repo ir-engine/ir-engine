@@ -23,29 +23,29 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import type { SVGProps } from 'react'
-import * as React from 'react'
-import { Ref, forwardRef } from 'react'
-const ArrowTopRightOnSquareSm = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="1em"
-    height="1em"
-    fill="none"
-    viewBox="0 0 16 16"
-    role="img"
-    stroke="currentColor"
-    ref={ref}
-    {...props}
-  >
-    <path
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={1.5}
-      d="M9 4H3.5A1.5 1.5 0 0 0 2 5.5v7A1.5 1.5 0 0 0 3.5 14h7a1.5 1.5 0 0 0 1.5-1.5V7m-7 4 9-9m0 0h-3.5M14 2v3.5"
-    />
-  </svg>
-)
-const ForwardRef = forwardRef(ArrowTopRightOnSquareSm)
-export default ForwardRef
+import { Slider, SliderProps } from '@ir-engine/ui/editor'
+import React from 'react'
+
+export default function BlockSlider({
+  label,
+  value,
+  onChange
+}: {
+  label: string
+  value: SliderProps['value']
+  onChange: SliderProps['onChange']
+}) {
+  return (
+    <>
+      <div className="flex items-center gap-x-4 lg:hidden">
+        <span className="w-44 text-right text-sm text-text-tertiary">{label}</span>
+        <div className="w-80">
+          <Slider max={1} min={0} step={0.01} value={value} onChange={onChange} onRelease={() => {}} label={''} />
+        </div>
+      </div>
+      <div className="hidden lg:block">
+        <Slider max={1} min={0} step={0.01} value={value} onChange={onChange} onRelease={() => {}} label={label} />
+      </div>
+    </>
+  )
+}

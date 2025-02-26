@@ -100,12 +100,12 @@ const archive = async (app: Application, projectName: string, params?: ArchiverP
     const date = await getDateTimeSql()
     await app.service(apiJobPath).patch(params.query.jobId as string, {
       status: 'succeeded',
-      returnData: zipOutputDirectory,
+      returnData: `${zipOutputDirectory}?hash=${new Date().getTime()}`,
       endTime: date
     })
   }
 
-  return zipOutputDirectory
+  return `${zipOutputDirectory}?hash=${new Date().getTime()}`
 }
 
 export class ArchiverService implements ServiceInterface<string, ArchiverParams> {

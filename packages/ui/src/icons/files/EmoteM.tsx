@@ -26,26 +26,27 @@ Infinite Reality Engine. All Rights Reserved.
 import type { SVGProps } from 'react'
 import * as React from 'react'
 import { Ref, forwardRef } from 'react'
-const ArrowTopRightOnSquareSm = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
+const EmoteM = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="1em"
     height="1em"
     fill="none"
-    viewBox="0 0 16 16"
+    viewBox="0 0 19 20"
     role="img"
     stroke="currentColor"
     ref={ref}
     {...props}
   >
-    <path
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={1.5}
-      d="M9 4H3.5A1.5 1.5 0 0 0 2 5.5v7A1.5 1.5 0 0 0 3.5 14h7a1.5 1.5 0 0 0 1.5-1.5V7m-7 4 9-9m0 0h-3.5M14 2v3.5"
-    />
+    <g fill="#F7F8FA">
+      <path
+        fillRule="evenodd"
+        d="m12.188 2.282-2.575.88 4.02 1.435 1.068 3.683 1.154-3.56a9.123 9.123 0 1 1-6.732-2.966c1.075 0 2.107.186 3.065.528M9.123 18.596a7.72 7.72 0 0 0 7.616-8.986c-5.464.507-7.898-2.783-8.67-3.996-.84 3.083-4.899 4.44-6.658 4.91a7.72 7.72 0 0 0 7.711 8.072M7.719 11.93a1.053 1.053 0 1 1-2.105 0 1.053 1.053 0 0 1 2.105 0m3.86 1.053a1.053 1.053 0 1 0 0-2.106 1.053 1.053 0 0 0 0 2.105"
+        clipRule="evenodd"
+      />
+      <path d="m14.736 0-.663 2.286-2.495.853 2.495.89.663 2.287.74-2.286 2.418-.891-2.417-.853z" />
+    </g>
   </svg>
 )
-const ForwardRef = forwardRef(ArrowTopRightOnSquareSm)
+const ForwardRef = forwardRef(EmoteM)
 export default ForwardRef
