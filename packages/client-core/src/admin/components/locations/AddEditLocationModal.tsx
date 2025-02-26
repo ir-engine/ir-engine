@@ -218,7 +218,6 @@ export default function AddEditLocationModal(props: {
 
   useEffect(() => {
     if (location && props.onPublishSuccess) {
-      console.log('publishSuccess?', location)
       props.onPublishSuccess(location)
     }
   }, [location, props.onPublishSuccess])
