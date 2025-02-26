@@ -41,7 +41,6 @@ import {
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { mockSpatialEngine } from '@ir-engine/spatial/tests/util/mockSpatialEngine'
 import { act, render } from '@testing-library/react'
-import React from 'react'
 import { Mesh, MeshLambertMaterial, MeshPhysicalMaterial } from 'three'
 import { afterEach, assert, beforeEach, describe, it } from 'vitest'
 import { convertMaterials } from './MaterialLibrarySystem'
@@ -64,8 +63,7 @@ describe('MaterialLibrarySystem', { retry: 2 }, () => {
         uuid: ['mockUuid1' as EntityUUID, materialUuid, 'mockUuid2' as EntityUUID]
       })
       setComponent(instanceEntity, MeshComponent, new Mesh())
-      const { rerender, unmount } = render(<></>)
-      await act(async () => rerender(<></>))
+      await act(() => render(null))
     })
 
     afterEach(() => {

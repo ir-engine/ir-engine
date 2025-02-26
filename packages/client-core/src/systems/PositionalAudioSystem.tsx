@@ -50,8 +50,8 @@ import {
   MediaElementComponent,
   createAudioNodeGroup
 } from '@ir-engine/engine/src/scene/components/MediaComponent'
+import { PeerMediaChannelState } from '@ir-engine/network/src/media/PeerMediaChannelState'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
-import { PeerMediaChannelState } from '../media/PeerMediaChannelState'
 
 const _vec3 = new Vector3()
 const _rot = new Vector3()

@@ -39,11 +39,13 @@ import {
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { ChannelService, ChannelState } from '@ir-engine/client-core/src/social/services/ChannelService'
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
+import { useFind } from '@ir-engine/common'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
-import { InstanceID, LocationID, RoomCode } from '@ir-engine/common/src/schema.type.module'
-import { EngineState, PresentationSystemGroup, defineSystem } from '@ir-engine/ecs'
+import { clientSettingPath, InstanceID, LocationID, RoomCode } from '@ir-engine/common/src/schema.type.module'
+import { defineSystem, EngineState, PresentationSystemGroup } from '@ir-engine/ecs'
 import { getMutableState, getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
+import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
 import { FriendService } from '../social/services/FriendService'
 import { connectToInstance } from '../transports/mediasoup/MediasoupClientFunctions'
 import { PeerToPeerNetworkState } from '../transports/p2p/PeerToPeerNetworkState'
@@ -270,6 +272,15 @@ export const FriendMenus = () => {
 export const reactor = () => {
   const networkConfigState = useHookstate(getMutableState(NetworkState).config)
   const userID = useHookstate(getMutableState(EngineState).userID).value
+
+  const clientSettingQuery = useFind(clientSettingPath)
+  const clientSetting = clientSettingQuery.data[0]
+  const maxResolution = clientSetting && (clientSetting.mediaSettings.video.maxResolution as any)
+
+  useEffect(() => {
+    if (!maxResolution) return
+    getMutableState(MediaStreamState).maxResolution.set(maxResolution)
+  }, [])
 
   if (!userID) return null
 
