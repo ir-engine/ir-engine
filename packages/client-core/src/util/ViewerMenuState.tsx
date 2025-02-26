@@ -23,7 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineState } from '@ir-engine/hyperflux'
+import { defineState, getMutableState } from '@ir-engine/hyperflux'
+import { IconType } from 'react-icons'
+import { SVGIconType } from '../user/components/LocationIconButton'
+
+type ExternalMenuType = {
+  component: React.ReactNode
+  title: string
+  icon: SVGIconType | IconType
+}
 
 export const ViewerMenuState = defineState({
   name: 'ViewerMenuState',
@@ -41,6 +49,12 @@ export const ViewerMenuState = defineState({
       social: false,
       embedframe: true
     } as Record<string, boolean>,
-    menuComponents: {} as Record<string, JSX.Element>
-  })
+    externalInjectedMenus: {} as Record<string, ExternalMenuType>
+  }),
+  addExternalMenu: (name: string, icon: SVGIconType | IconType, component: React.ReactNode) => {
+    getMutableState(ViewerMenuState).externalInjectedMenus.merge({ [name]: { component, icon } } as Record<
+      string,
+      ExternalMenuType
+    >)
+  }
 })
