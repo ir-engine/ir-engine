@@ -127,16 +127,15 @@ export const cleanFileNameString = (fullFileName: string, useStorageProviderLeng
     let nameWithoutExtension = fileName.substring(0, lastDotIndex)
     const extension = fileName.substring(lastDotIndex + 1).toLowerCase()
 
-    // Sanitize the name part
-    nameWithoutExtension = nameWithoutExtension
-      .replace(SANITIZE_FILENAME_REGEX, '-')
-      .replace(START_WITH_ALPHANUMERIC_REGEX, '')
-      .replace(END_WITH_ALPHANUMERIC_REGEX, '')
-
     //Used by backend uploads to storage provider...
     if (useStorageProviderLengthRestrictions) {
       if (nameWithoutExtension.length > 1024) nameWithoutExtension = nameWithoutExtension.slice(0, 1024)
     } else {
+      // Sanitize the name part and skiped if needed in the server
+      nameWithoutExtension = nameWithoutExtension
+        .replace(SANITIZE_FILENAME_REGEX, '-')
+        .replace(START_WITH_ALPHANUMERIC_REGEX, '')
+        .replace(END_WITH_ALPHANUMERIC_REGEX, '')
       // Truncate or concat the name if it is too long or too short
       if (nameWithoutExtension.length > 64) {
         nameWithoutExtension = nameWithoutExtension.slice(0, 64)
