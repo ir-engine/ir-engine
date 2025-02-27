@@ -160,7 +160,7 @@ const ColliderReactor = function () {
       removeCallback(entity, 'Disable Collision')
       removeCallback(entity, 'Enable Collision')
     }
-  }, [])
+  }, [physicsWorld])
 
   return null
 }
