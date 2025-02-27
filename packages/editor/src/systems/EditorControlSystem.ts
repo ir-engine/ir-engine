@@ -49,7 +49,7 @@ import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { TransformMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
-import { getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
+import { dispatchAction, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { FlyControlComponent } from '@ir-engine/spatial/src/camera/components/FlyControlComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
@@ -79,6 +79,7 @@ import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { TransformGizmoControlledComponent } from '../classes/gizmo/transform/TransformGizmoControlledComponent'
+import { EditorHistoryActions, EditorHistoryFunctions, EditorHistoryState } from '../services/EditorHistoryState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
 import { ClickPlacementState } from './ClickPlacementSystem'
@@ -171,10 +172,11 @@ const onKeyZ = (control: boolean, shift: boolean) => {
   const rootEntity = getState(EditorState).rootEntity
   if (!rootEntity) return
   if (control) {
+    const sourceID = GLTFComponent.getInstanceID(rootEntity)
     if (shift) {
-      // redo
+      if (EditorHistoryState.canRedo(sourceID)) dispatchAction(EditorHistoryActions.redo({ sourceID }))
     } else {
-      // undo
+      if (EditorHistoryState.canUndo(sourceID)) dispatchAction(EditorHistoryActions.undo({ sourceID }))
     }
   } else {
     toggleTransformSpace()
@@ -193,6 +195,7 @@ const onMinus = () => {
 
 const onDelete = () => {
   EditorControlFunctions.removeObject(SelectionState.getSelectedEntities())
+  EditorHistoryFunctions.snapshot()
 }
 
 function copy(event) {
