@@ -89,7 +89,7 @@ import ModelTransformLoader from './ModelTransformLoader'
  * Group 1: ir-engine/default-project
  * Group 2: collisioncube-LOD0.glb
  */
-const MATCH_ASSET_PROJECT_FILENAME_REGEX =
+export const MATCH_ASSET_PROJECT_FILENAME_REGEX =
   /projects\/([^/]+\/[^/]+)\/(?:assets|public(?:\/publish)?)\/([\w\d\s\-|_./]*)$/
 
 /**
