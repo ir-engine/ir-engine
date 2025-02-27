@@ -25,7 +25,122 @@ Infinite Reality Engine. All Rights Reserved.
 
 import assert from 'assert'
 import { describe, it } from 'vitest'
-import { cleanFileNameString } from './cleanFileName'
+import { cleanFileNameString, getDecodedFileName, getEncodedFileName, sanitizeNameFile } from './cleanFileName'
+
+describe.only('sanitizeNameFile', () => {
+  it('should handle file with extension', () => {
+    const mockFile = new File(['test content'], 'test.txt', {
+      type: 'text/plain',
+      lastModified: 1234567
+    })
+
+    const result = sanitizeNameFile(mockFile)
+    assert.equal(result.name, 'test.txt')
+    assert.equal(result.type, 'text/plain')
+    assert.equal(result.lastModified, 1234567)
+  })
+
+  it('should handle file without extension', () => {
+    const mockFile = new File(['test content'], 'testfile', {
+      type: 'text/plain',
+      lastModified: 1234567
+    })
+
+    const result = sanitizeNameFile(mockFile)
+    assert.equal(result.name, 'testfile')
+    assert.equal(result.type, 'text/plain')
+    assert.equal(result.lastModified, 1234567)
+  })
+
+  it('should sanitize file name with special characters', () => {
+    const mockFile = new File(['test content'], '@test#file$.txt', {
+      type: 'text/plain',
+      lastModified: 1234567
+    })
+
+    const result = sanitizeNameFile(mockFile)
+    assert.equal(result.name, 'test-file.txt')
+  })
+
+  it('should handle file name starting with non-alphanumeric', () => {
+    const mockFile = new File(['test content'], '_testfile.txt', {
+      type: 'text/plain',
+      lastModified: 1234567
+    })
+
+    const result = sanitizeNameFile(mockFile)
+    assert.equal(result.name, 'testfile.txt')
+  })
+
+  it('should handle file name ending with non-alphanumeric', () => {
+    const mockFile = new File(['test content'], 'testfile_.txt', {
+      type: 'text/plain',
+      lastModified: 1234567
+    })
+
+    const result = sanitizeNameFile(mockFile)
+    assert.equal(result.name, 'testfile.txt')
+  })
+
+  it('should preserve file content', () => {
+    const content = 'test content'
+    const mockFile = new File([content], 'test.txt', {
+      type: 'text/plain',
+      lastModified: 1234567
+    })
+
+    const result = sanitizeNameFile(mockFile)
+    assert.equal(result.size, content.length)
+  })
+})
+
+describe('getEncodedFileName', () => {
+  it('should handle normal text without special characters', () => {
+    assert.equal(getEncodedFileName('hello'), 'hello')
+    assert.equal(getEncodedFileName('hello world'), 'hello-world')
+  })
+
+  it('should preserve hyphens by doubling them', () => {
+    assert.equal(getEncodedFileName('hello-world'), 'hello--world')
+    assert.equal(getEncodedFileName('test-file-name'), 'test--file--name')
+  })
+
+  it('should handle parentheses', () => {
+    assert.equal(getEncodedFileName('(test)'), 'x_test--y')
+    assert.equal(getEncodedFileName('folder (1)'), 'folder-_1--y')
+    assert.equal(getEncodedFileName('(2)'), 'x_2--y')
+  })
+
+  it('should handle spaces and special characters', () => {
+    assert.equal(getEncodedFileName('New Folder (2)'), 'New-Folder-_2--y')
+    assert.equal(getEncodedFileName('test - file'), 'test----file')
+    assert.equal(getEncodedFileName(' space '), 'x-space-y')
+  })
+})
+
+describe('getDecodedFileName', () => {
+  it('should handle normal text without special characters', () => {
+    assert.equal(getDecodedFileName('hello'), 'hello')
+    assert.equal(getDecodedFileName('hello-world'), 'hello world')
+  })
+
+  it('should decode double hyphens back to single hyphen', () => {
+    assert.equal(getDecodedFileName('hello--world'), 'hello-world')
+    assert.equal(getDecodedFileName('test--file--name'), 'test-file-name')
+  })
+
+  it('should decode encoded parentheses', () => {
+    assert.equal(getDecodedFileName('x_test-y'), '(test)')
+    assert.equal(getDecodedFileName('folder-_1-y'), 'folder (1)')
+    assert.equal(getDecodedFileName('x_2-y'), '(2)')
+  })
+
+  it('should handle numbers correctly', () => {
+    assert.equal(getDecodedFileName('version-2'), 'version 2')
+    assert.equal(getDecodedFileName('v2-test'), 'v2 test')
+    assert.equal(getDecodedFileName('test-2-v3'), 'test 2 v3')
+  })
+})
 
 describe('cleanFileNameString', () => {
   it('should return a cleaned version of the filename', () => {

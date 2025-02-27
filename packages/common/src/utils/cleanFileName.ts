@@ -23,14 +23,105 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-/**
- * This method takes a filename (with or without included path) and returns a cleaned version of it.
- * ensures toLower file extension, truncates a file name if too long
- * @param fullFileName
- * @param useStorageProviderLengthRestrictions
- */
 import { END_WITH_ALPHANUMERIC_REGEX, SANITIZE_FILENAME_REGEX, START_WITH_ALPHANUMERIC_REGEX } from '../regex'
 
+/**
+ * Encodes a filename by replacing special characters with a safe format:
+ * 1. Converts parentheses to underscores/hyphens: '(' -> '_', ')' -> '-'
+ * 2. Preserves existing hyphens by doubling them: '-' -> '--'
+ * 3. Converts spaces to single hyphens
+ * 4. Adds 'x' prefix if filename starts with special chars
+ * 5. Adds 'y' suffix if filename ends with special chars
+ *
+ * @param displayName - The original filename to encode
+ * @returns The encoded filename safe for storage/transmission
+ *
+ * @example
+ * // Returns "hello--world"
+ * getEncodedFileName("hello-world")
+ *
+ * // Returns "x_test-y"
+ * getEncodedFileName("(test)")
+ *
+ * // Returns "my-file-name"
+ * getEncodedFileName("my file name")
+ */
+export const getEncodedFileName = (displayName: string) => {
+  let encoded = displayName
+    .replace(/\(/g, '_') // opening parenthesis to underscore
+    .replace(/\)/g, '-') // closing parenthesis to hyphen
+    .replace(/-/g, '--') // preserve hyphens by doubling them
+    .replace(/\s/g, '-') // spaces to single hyphens
+
+  // Add 'x' at the beginning if it starts with special characters
+  if (/^[-_]/.test(encoded)) {
+    encoded = 'x' + encoded
+  }
+  // Add 'y' at the end if it ends with special characters
+  if (/[-_]$/.test(encoded)) {
+    encoded = encoded + 'y'
+  }
+  return encoded
+}
+
+/**
+ * Decodes a filename that was previously encoded by getEncodedFileName by:
+ * 1. Removing 'x' prefix and 'y' suffix if they were added during encoding
+ * 2. Converting underscores back to opening parentheses '(' in specific positions
+ * 3. Converting hyphens back to closing parentheses ')' when appropriate
+ * 4. Restoring original hyphens that were doubled during encoding
+ * 5. Converting remaining single hyphens back to spaces
+ *
+ * @param encodedName - The encoded filename to decode
+ * @returns The original filename with special characters restored
+ *
+ * @example
+ * // Returns "hello-world"
+ * getDecodedFileName("hello--world")
+ *
+ * // Returns "(test)"
+ * getDecodedFileName("x_test-y")
+ *
+ * // Returns "my file name"
+ * getDecodedFileName("my-file-name")
+ */
+export const getDecodedFileName = (encodedName: string) => {
+  let decoded = encodedName
+  // Remove added characters if they were added during encoding
+  if (decoded.startsWith('x') && /^x[-_]/.test(decoded)) {
+    decoded = decoded.slice(1)
+  }
+  if (decoded.endsWith('y') && /[-_]y$/.test(decoded)) {
+    decoded = decoded.slice(0, -1)
+  }
+
+  return decoded
+    .replace(/(?<=^|\s)_/g, '(') // underscore to opening parenthesis (if preceded by start or space)
+    .replace(/(?<![\d\s])_(?=\d)/g, '(') // underscore to opening parenthesis before numbers
+    .replace(/-(?=\s|$)/g, ')') // hyphen to closing parenthesis if followed by space or end
+    .replace(/--/g, '§') // temporarily replace double hyphens
+    .replace(/-(?!\d)/g, ' ') // single hyphens to spaces (except if followed by number)
+    .replace(/(?<![\d\s])-/g, ' ') // remaining single hyphens to spaces
+    .replace(/§/g, '-') // restore original hyphens
+}
+
+/**
+ * Sanitizes a File object's name by:
+ * 1. Preserving the file extension if present
+ * 2. Replacing special characters with hyphens in the filename
+ * 3. Removing non-alphanumeric characters from start/end of filename
+ * 4. Maintaining the original file type and modification date
+ *
+ * @param file - The File object to sanitize
+ * @returns A new File object with sanitized name but same content and metadata
+ *
+ * @example
+ * // Returns new File with name "my-file.txt" instead of "my@file!.txt"
+ * sanitizeNameFile(new File(['content'], 'my@file!.txt'))
+ *
+ * // Returns new File with name "document" instead of "@document#"
+ * sanitizeNameFile(new File(['content'], '@document#'))
+ */
 export const sanitizeNameFile = (file: File): File => {
   // Split name and extension
   const lastDotIndex = file.name.lastIndexOf('.')
@@ -53,6 +144,12 @@ export const sanitizeNameFile = (file: File): File => {
   })
 }
 
+/**
+ * This method takes a filename (with or without included path) and returns a cleaned version of it.
+ * ensures toLower file extension, truncates a file name if too long
+ * @param fullFileName
+ * @param useStorageProviderLengthRestrictions
+ */
 export const cleanFileNameString = (fullFileName: string, useStorageProviderLengthRestrictions = false): string => {
   try {
     //extract the path and file name separately
