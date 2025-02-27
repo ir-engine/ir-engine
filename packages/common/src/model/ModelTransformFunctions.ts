@@ -69,7 +69,7 @@ import {
   ResourceTransforms
 } from '@ir-engine/engine/src/assets/classes/ModelTransform'
 import { baseName, dropRoot, pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
-import { getMutableState, getState, NO_PROXY } from '@ir-engine/hyperflux'
+import { getMutableState, NO_PROXY } from '@ir-engine/hyperflux'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
@@ -91,7 +91,7 @@ import ModelTransformLoader from './ModelTransformLoader'
  * Group 2: collisioncube-LOD0.glb
  */
 export function getMatchAssetProjectFilenameRegex() {
-  const scenename = getState(EditorState).sceneName?.split('.').shift() || '.*' // Default wildcard if undefined
+  const scenename = getMutableState(EditorState).sceneName.value?.split('.').shift() || '.*' // Default wildcard if undefined
   return new RegExp(
     `projects\\/([^/]+\\/[^/]+)\\/(?:assets|public(?:\\/publish\\/${scenename}\\/([\\w\\d\\s\\-|_./]*))?)$`
   )
