@@ -626,7 +626,6 @@ export const EditorControlFunctions = {
   positionObject,
   rotateObject,
   rotateAround,
-  worldScaleObject,
   scaleObject,
   reparentObject,
   groupObjects,
