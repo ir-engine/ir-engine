@@ -90,11 +90,12 @@ import ModelTransformLoader from './ModelTransformLoader'
  * Group 1: ir-engine/default-project
  * Group 2: collisioncube-LOD0.glb
  */
-export const MATCH_ASSET_PROJECT_FILENAME_REGEX = new RegExp(
-  `projects\\/([^/]+\\/[^/]+)\\/(?:assets|public(?:\\/publish\\/${getState(EditorState)
-    .sceneName?.split('.')
-    .shift()}\\/([\\w\\d\\s\\-|_./]*))?)$`
-)
+export function getMatchAssetProjectFilenameRegex() {
+  const scenename = getState(EditorState).sceneName?.split('.').shift() || '.*' // Default wildcard if undefined
+  return new RegExp(
+    `projects\\/([^/]+\\/[^/]+)\\/(?:assets|public(?:\\/publish\\/${scenename}\\/([\\w\\d\\s\\-|_./]*))?)$`
+  )
+}
 
 /**
  *
@@ -420,9 +421,8 @@ const doUpload = async (projectName, fileName, buffer) => {
 
 const toProjectAndFileName = (fUploadPath: string, srcBaseURL: string): [string, string] => {
   // TODO: remove srcBaseURL if it's unnecessary
-  const [_, projectName, fileName] =
-    MATCH_ASSET_PROJECT_FILENAME_REGEX.exec(fUploadPath) ??
-    MATCH_ASSET_PROJECT_FILENAME_REGEX.exec(pathJoin(srcBaseURL, fUploadPath))!
+  const regex = getMatchAssetProjectFilenameRegex()
+  const [_, projectName, fileName] = regex.exec(fUploadPath) ?? regex.exec(pathJoin(srcBaseURL, fUploadPath))!
   return [projectName, fileName]
 }
 
