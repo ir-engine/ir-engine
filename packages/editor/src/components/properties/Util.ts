@@ -34,7 +34,7 @@ import {
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getMutableState, setNestedObject } from '@ir-engine/hyperflux'
 
-import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 
@@ -107,5 +107,5 @@ export const commitProperties = <C extends Component>(
     ? [UUIDComponent.getEntityByUUID(editorState.lockPropertiesPanel.value, Layers.Authoring)]
     : SelectionState.getSelectedEntities()
 
-  EditorControlFunctions.modifyProperty(affectedNodes, component, properties)
+  EditorHistoryFunctions.setComponent(affectedNodes, component, properties)
 }
