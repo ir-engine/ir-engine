@@ -56,7 +56,7 @@ elif [ "$DESTINATION_REPO_PROVIDER" == "gcp" ]; then
   # Apply environment-specific suffixes based on APP_HOST
   if [[ "$APP_HOST" =~ "preview" ]] || [[ "$APP_HOST" =~ "mt-stg" ]]; then
     SUFFIX="mt"
-  elif [[ "$APP_HOST" =~ "mt-rc-int" ]]; then
+  elif [[ "$APP_HOST" =~ "mt-rc" ]]; then
     SUFFIX="mt-rc"
   elif [[ "$APP_HOST" =~ "mt-int" ]]; then
       SUFFIX="mt-int"
