@@ -25,10 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import assert from 'assert'
 import { describe, it } from 'vitest'
-import { getMatchAssetProjectFilenameRegex } from './ModelTransformFunctions'
+import { MATCH_ASSET_PROJECT_FILENAME_REGEX } from './ModelTransformFunctions'
 
 describe('Model Transform Functions', () => {
-  const MATCH_ASSET_PROJECT_FILENAME_REGEX = getMatchAssetProjectFilenameRegex()
   describe('MATCH_ASSET_PROJECT_FILENAME_REGEX', () => {
     it('should match valid asset project paths', () => {
       const validProjectPaths = [

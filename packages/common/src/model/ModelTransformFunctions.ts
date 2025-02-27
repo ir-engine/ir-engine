@@ -96,6 +96,8 @@ export function getMatchAssetProjectFilenameRegex() {
     `projects\\/([^/]+\\/[^/]+)\\/(?:assets|public(?:\\/publish\\/${scenename}\\/([\\w\\d\\s\\-|_./]*))?)$`
   )
 }
+export const MATCH_ASSET_PROJECT_FILENAME_REGEX =
+  /projects\/([^/]+\/[^/]+)\/(?:assets|public(?:\/publish)?)\/([\w\d\s\-|_./]*)$/
 
 /**
  *
