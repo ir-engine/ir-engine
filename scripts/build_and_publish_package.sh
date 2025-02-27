@@ -19,8 +19,10 @@ if [ "$SOURCE_REPO_PROVIDER" == "gcp" ]; then
   SOURCE_REPO_NAME="$SOURCE_REPO_NAME_STEM-root/$SOURCE_REPO_NAME_STEM-root"
   
   # Apply environment-specific suffixes based on APP_HOST
-  if [[ "$APP_HOST" =~ "mt-rc-int" ]]; then
-    SUFFIX="mt-rc-int"
+  if [[ "$APP_HOST" =~ "preview" ]] || [[ "$APP_HOST" =~ "mt-stg" ]]; then
+    SUFFIX="mt"
+  elif [[ "$APP_HOST" =~ "mt-rc-int" ]]; then
+    SUFFIX="mt-rc"
   elif [[ "$APP_HOST" =~ "mt-int" ]]; then
       SUFFIX="mt-int"
   elif [[ "$APP_HOST" =~ "mt-qat" ]]; then
@@ -52,8 +54,10 @@ elif [ "$DESTINATION_REPO_PROVIDER" == "gcp" ]; then
   DESTINATION_REPO_NAME=$DESTINATION_REPO_NAME_STEM-$PACKAGE/$DESTINATION_REPO_NAME_STEM-$PACKAGE
 
   # Apply environment-specific suffixes based on APP_HOST
-  if [[ "$APP_HOST" =~ "mt-rc-int" ]]; then
-      SUFFIX="mt-rc-int"
+  if [[ "$APP_HOST" =~ "preview" ]] || [[ "$APP_HOST" =~ "mt-stg" ]]; then
+    SUFFIX="mt"
+  elif [[ "$APP_HOST" =~ "mt-rc-int" ]]; then
+    SUFFIX="mt-rc"
   elif [[ "$APP_HOST" =~ "mt-int" ]]; then
       SUFFIX="mt-int"
   elif [[ "$APP_HOST" =~ "mt-qat" ]]; then
