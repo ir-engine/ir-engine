@@ -84,6 +84,13 @@ import { SelectionState } from '../services/SelectionServices'
 const tempMatrix4 = new Matrix4()
 const tempVector = new Vector3()
 
+const isInActiveScene = (entity: Entity) => {
+  const rootEntity = getState(EditorState).rootEntity
+  const rootSourceID = GLTFComponent.getInstanceID(rootEntity)
+  const sourceID = getComponent(entity, SourceComponent)
+  return sourceID === rootSourceID
+}
+
 const addOrRemoveComponent = <C extends Component<any, any>>(
   entities: Entity[],
   component: C,
@@ -98,13 +105,8 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
     if (hasComponent(entity, SceneComponent)) continue
     if (add) {
       setComponent(entity, component, args)
-      if (args) {
-        const sourceID = getComponent(entity, SourceComponent)
-        const rootEntity = getState(EditorState).rootEntity
-        const rootSourceID = GLTFComponent.getInstanceID(rootEntity)
-        if (sourceID !== rootSourceID) {
-          SceneDeltaState.registerDelta(entity, component, args)
-        }
+      if (args && !isInActiveScene(entity)) {
+        SceneDeltaState.registerDelta(entity, component, args)
       }
     } else {
       removeComponent(entity, component)
@@ -137,10 +139,7 @@ const modifyProperty = <C extends Component<any, any>>(
   const affectedNodes = [] as NodeID[]
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
-    const sourceID = getComponent(entity, SourceComponent)
-    const rootEntity = getState(EditorState).rootEntity
-    const rootSourceID = GLTFComponent.getInstanceID(rootEntity)
-    if (sourceID !== rootSourceID) {
+    if (!isInActiveScene(entity)) {
       SceneDeltaState.registerDelta(entity, component, properties)
     }
     const currentComponent = hasComponent(entity, component) ? serializeComponent(entity, component) : {}
@@ -230,7 +229,9 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
       MaterialStateComponent
     ).material.plugins.set(material.plugins)
     getMutableState(AssetModifiedState)[sceneID].set(true)
-    SceneDeltaState.registerMaterialDelta(materialEntity, props)
+    if (!isInActiveScene(materialEntity)) {
+      SceneDeltaState.registerMaterialDelta(materialEntity, props)
+    }
   }
 }
 
@@ -386,6 +387,9 @@ const positionObject = (
     }
 
     setComponent(entity, TransformComponent, { position: transform.position })
+    if (!isInActiveScene(entity)) {
+      SceneDeltaState.registerDelta(entity, TransformComponent, { position: transform.position })
+    }
     getMutableComponent(entity, TransformComponent).position.set((v) => v)
     iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
@@ -422,6 +426,9 @@ const rotateObject = (nodes: Entity[], rotations: Quaternion[], space = getState
     }
 
     setComponent(entity, TransformComponent, { rotation: transform.rotation })
+    if (!isInActiveScene(entity)) {
+      SceneDeltaState.registerDelta(entity, TransformComponent, { rotation: transform.rotation })
+    }
     getMutableComponent(entity, TransformComponent).rotation.set((v) => v)
     iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
@@ -450,6 +457,9 @@ const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: V
       .decompose(transform.position, transform.rotation, transform.scale)
 
     setComponent(entity, TransformComponent, { rotation: transform.rotation })
+    if (!isInActiveScene(entity)) {
+      SceneDeltaState.registerDelta(entity, TransformComponent, { rotation: transform.rotation })
+    }
     getMutableComponent(entity, TransformComponent).rotation.set((v) => v)
     iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
@@ -477,6 +487,9 @@ const scaleObject = (entities: Entity[], scales: Vector3[], overrideScale = fals
     )
 
     setComponent(entity, TransformComponent, { scale: transformComponent.scale })
+    if (!isInActiveScene(entity)) {
+      SceneDeltaState.registerDelta(entity, TransformComponent, { scale: transformComponent.scale })
+    }
     getMutableComponent(entity, TransformComponent).scale.set((v) => v)
     iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
