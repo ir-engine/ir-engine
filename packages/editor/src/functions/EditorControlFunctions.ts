@@ -513,7 +513,7 @@ const reparentObject = (
 
     EditorControlFunctions.positionObject([entity], [worldPosition], TransformSpace.world)
     EditorControlFunctions.rotateObject([entity], [worldRotation], TransformSpace.world)
-    EditorControlFunctions.worldScaleObject([entity], [worldScale])
+    worldScaleObject([entity], [worldScale])
 
     /** @todo handle the entity changing sources */
     EditorState.markModifiedScene(entity)
