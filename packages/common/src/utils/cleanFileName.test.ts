@@ -25,74 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import assert from 'assert'
 import { describe, it } from 'vitest'
-import { cleanFileNameString, getDecodedFileName, getEncodedFileName, sanitizeNameFile } from './cleanFileName'
-
-describe.only('sanitizeNameFile', () => {
-  it('should handle file with extension', () => {
-    const mockFile = new File(['test content'], 'test.txt', {
-      type: 'text/plain',
-      lastModified: 1234567
-    })
-
-    const result = sanitizeNameFile(mockFile)
-    assert.equal(result.name, 'test.txt')
-    assert.equal(result.type, 'text/plain')
-    assert.equal(result.lastModified, 1234567)
-  })
-
-  it('should handle file without extension', () => {
-    const mockFile = new File(['test content'], 'testfile', {
-      type: 'text/plain',
-      lastModified: 1234567
-    })
-
-    const result = sanitizeNameFile(mockFile)
-    assert.equal(result.name, 'testfile')
-    assert.equal(result.type, 'text/plain')
-    assert.equal(result.lastModified, 1234567)
-  })
-
-  it('should sanitize file name with special characters', () => {
-    const mockFile = new File(['test content'], '@test#file$.txt', {
-      type: 'text/plain',
-      lastModified: 1234567
-    })
-
-    const result = sanitizeNameFile(mockFile)
-    assert.equal(result.name, 'test-file.txt')
-  })
-
-  it('should handle file name starting with non-alphanumeric', () => {
-    const mockFile = new File(['test content'], '_testfile.txt', {
-      type: 'text/plain',
-      lastModified: 1234567
-    })
-
-    const result = sanitizeNameFile(mockFile)
-    assert.equal(result.name, 'testfile.txt')
-  })
-
-  it('should handle file name ending with non-alphanumeric', () => {
-    const mockFile = new File(['test content'], 'testfile_.txt', {
-      type: 'text/plain',
-      lastModified: 1234567
-    })
-
-    const result = sanitizeNameFile(mockFile)
-    assert.equal(result.name, 'testfile.txt')
-  })
-
-  it('should preserve file content', () => {
-    const content = 'test content'
-    const mockFile = new File([content], 'test.txt', {
-      type: 'text/plain',
-      lastModified: 1234567
-    })
-
-    const result = sanitizeNameFile(mockFile)
-    assert.equal(result.size, content.length)
-  })
-})
+import { cleanFileNameString, getDecodedFileName, getEncodedFileName } from './cleanFileName'
 
 describe('getEncodedFileName', () => {
   it('should handle normal text without special characters', () => {
@@ -164,6 +97,6 @@ describe('cleanFileNameString', () => {
   it('should respect multiple spaces in the file name', () => {
     const fullFileName = 'path/to/file/file name with spaces.txt'
     const result = cleanFileNameString(fullFileName)
-    assert.equal(result, 'path/to/file/file name with spaces.txt')
+    assert.equal(result, 'path/to/file/file-name-with-spaces.txt')
   })
 })

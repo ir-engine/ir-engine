@@ -106,47 +106,8 @@ export const getDecodedFileName = (encodedName: string) => {
 }
 
 /**
- * Sanitizes a File object's name by:
- * 1. Preserving the file extension if present
- * 2. Replacing special characters with hyphens in the filename
- * 3. Removing non-alphanumeric characters from start/end of filename
- * 4. Maintaining the original file type and modification date
- *
- * @param file - The File object to sanitize
- * @returns A new File object with sanitized name but same content and metadata
- *
- * @example
- * // Returns new File with name "my-file.txt" instead of "my@file!.txt"
- * sanitizeNameFile(new File(['content'], 'my@file!.txt'))
- *
- * // Returns new File with name "document" instead of "@document#"
- * sanitizeNameFile(new File(['content'], '@document#'))
- */
-export const sanitizeNameFile = (file: File): File => {
-  // Split name and extension
-  const lastDotIndex = file.name.lastIndexOf('.')
-  const hasExtension = lastDotIndex !== -1
-  const nameWithoutExtension = hasExtension ? file.name.substring(0, lastDotIndex) : file.name
-  const extension = hasExtension ? file.name.substring(lastDotIndex + 1) : ''
-
-  // Sanitize only the name part
-  const sanitizedName = nameWithoutExtension
-    .replace(SANITIZE_FILENAME_REGEX, '-')
-    .replace(START_WITH_ALPHANUMERIC_REGEX, '')
-    .replace(END_WITH_ALPHANUMERIC_REGEX, '')
-
-  // Combine sanitized name with original extension
-  const finalName = hasExtension ? `${sanitizedName}.${extension}` : sanitizedName
-
-  return new File([file], finalName, {
-    type: file.type,
-    lastModified: file.lastModified
-  })
-}
-
-/**
  * This method takes a filename (with or without included path) and returns a cleaned version of it.
- * ensures toLower file extension, truncates a file name if too long
+ * Ensures toLower file extension, truncates a file name if too long, and sanitizes special characters
  * @param fullFileName
  * @param useStorageProviderLengthRestrictions
  */
@@ -165,6 +126,12 @@ export const cleanFileNameString = (fullFileName: string, useStorageProviderLeng
     // Split the name into the part before and after the dot
     let nameWithoutExtension = fileName.substring(0, lastDotIndex)
     const extension = fileName.substring(lastDotIndex + 1).toLowerCase()
+
+    // Sanitize the name part
+    nameWithoutExtension = nameWithoutExtension
+      .replace(SANITIZE_FILENAME_REGEX, '-')
+      .replace(START_WITH_ALPHANUMERIC_REGEX, '')
+      .replace(END_WITH_ALPHANUMERIC_REGEX, '')
 
     //Used by backend uploads to storage provider...
     if (useStorageProviderLengthRestrictions) {
