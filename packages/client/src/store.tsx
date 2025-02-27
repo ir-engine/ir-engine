@@ -35,6 +35,7 @@ import { createHyperStore, getMutableState } from '@ir-engine/hyperflux'
 
 import MetaTags from '@ir-engine/client-core/src/common/components/MetaTags'
 import config from '@ir-engine/common/src/config'
+import { isURL } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { DomainConfigState } from '@ir-engine/engine/src/assets/state/DomainConfigState'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
@@ -71,7 +72,9 @@ export default function ({ children }): JSX.Element {
 
     const urlSearchParams = new URLSearchParams(window.location.search)
     const redirectUrl = urlSearchParams.get('redirectUrl')
-    if (redirectUrl) {
+
+    // The isUrl check below is to prevent xss. Ref: IR-7215
+    if (redirectUrl && isURL(redirectUrl)) {
       history.push(redirectUrl)
     }
   }, [])
