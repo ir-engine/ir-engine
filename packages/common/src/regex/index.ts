@@ -33,7 +33,7 @@ A filename is valid if:
 */
 
 // eslint-disable-next-line no-control-regex
-export const VALID_FILENAME_REGEX = /^([^_\W])([\w\-_.]{2,62})([^_\W])$/
+export const VALID_FILENAME_REGEX = /^([^_\W])([\w\-_.]{2,126})([^_\W])$/
 export const VALID_EXTENSION_REGEX = /^(\w{2,4})$/
 // eslint-disable-next-line no-control-regex
 export const WINDOWS_RESERVED_NAME_REGEX = /^(con|prn|aux|nul|com\d|lpt\d)$/i
@@ -60,7 +60,10 @@ export const EMAIL_REGEX =
  */
 export const PHONE_REGEX = /^[0-9]{10}$/
 
-export const INVALID_USER_NAME_REGEX = /[^a-zA-Z\s]/g
+/**
+ * Regular expression pattern for username validation.
+ */
+export const INVALID_USER_NAME_REGEX = /(?!.)/g
 
 /**
  * This regex is used to validate strings that should consist of exactly 8 hexadecimal digits.
@@ -135,3 +138,5 @@ export const MAIN_CHART_REGEX = /ir-engine-([0-9]+\.[0-9]+\.[0-9]+)/g
 export const BUILDER_CHART_REGEX = /ir-engine-builder-([0-9]+\.[0-9]+\.[0-9]+)/g
 
 export const UNIQUEIFIED_VITE_KEY_REGEX = /[.-]{1}[a-zA-Z0-9-_]{8}.(js|css)(.map)?$/
+
+export const REMOVE_EDGE_SLASH_REGEX = /^\/|\/$/g

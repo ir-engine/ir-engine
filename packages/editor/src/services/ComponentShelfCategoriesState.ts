@@ -26,8 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { Component } from '@ir-engine/ecs'
-import { VisualScriptComponent } from '@ir-engine/engine'
-import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
+import { GeneralAudioComponent } from '@ir-engine/engine/src/audio/components/GeneralAudioComponent'
 import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GrabbableComponent } from '@ir-engine/engine/src/grabbable/GrabbableComponent'
@@ -79,7 +78,7 @@ export const ComponentShelfCategoriesState = defineState({
   name: 'ee.editor.ComponentShelfCategories',
   initial: () => {
     return {
-      Files: [GLTFComponent, PositionalAudioComponent, VideoComponent, ImageComponent],
+      Files: [GLTFComponent, GeneralAudioComponent, VideoComponent, ImageComponent],
       'Scene Composition': [CameraComponent, PrimitiveGeometryComponent, GroundPlaneComponent, VariantComponent],
       Physics: [ColliderComponent, RigidBodyComponent, TriggerCallbackComponent],
       Interaction: [
@@ -117,7 +116,6 @@ export const ComponentShelfCategoriesState = defineState({
     } as Record<string, Component[]>
   },
   reactor: () => {
-    const [visualScriptPanelEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.VisualScript])
     const [portalEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.Portal])
     const [grabbleEnabled] = useFeatureFlags([FeatureFlags.Studio.Panel.Grabble])
 
@@ -127,16 +125,6 @@ export const ComponentShelfCategoriesState = defineState({
     const [screenshareTargetEnabled] = useFeatureFlags([FeatureFlags.Studio.Components.ScreenshareTarget])
 
     const cShelfState = getMutableState(ComponentShelfCategoriesState)
-    useEffect(() => {
-      if (visualScriptPanelEnabled) {
-        cShelfState.Scripting.merge([VisualScriptComponent])
-        return () => {
-          cShelfState.Scripting.set((curr) => {
-            return curr.splice(curr.findIndex((item) => item.name == VisualScriptComponent.name))
-          })
-        }
-      }
-    }, [visualScriptPanelEnabled])
 
     useEffect(() => {
       if (portalEnabled) {

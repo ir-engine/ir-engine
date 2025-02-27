@@ -68,32 +68,47 @@ export const EntityNetworkState = defineState({
   >,
 
   receptors: {
-    onSpawnObject: WorldNetworkAction.spawnEntity.receive((action) => {
-      getMutableState(EntityNetworkState)[action.entityUUID].merge({
-        parentUUID: action.parentUUID,
-        ownerId: action.ownerID,
-        authorityPeerId: action.authorityPeerId ?? action.$peer,
-        ownerPeer: action.$peer
+    onSpawnObject: WorldNetworkAction.spawnEntity
+      .receive((action) => {
+        getMutableState(EntityNetworkState)[action.entityUUID].merge({
+          parentUUID: action.parentUUID,
+          ownerId: action.ownerID,
+          authorityPeerId: action.authorityPeerId ?? action.$peer,
+          ownerPeer: action.$peer
+        })
       })
-    }),
+      .validate((action) => {
+        if (action.ownerID !== action.$user) return false
+        return true
+      }),
 
     onRequestAuthorityOverObject: WorldNetworkAction.requestAuthorityOverObject.receive((action) => {
       getMutableState(EntityNetworkState)[action.entityUUID].requestingPeerId.set(action.newAuthority)
     }),
 
-    onTransferAuthorityOfObject: WorldNetworkAction.transferAuthorityOfObject.receive((action) => {
-      const fromUserId = action.ownerID
-      const state = getMutableState(EntityNetworkState)
-      const ownerUserId = state[action.entityUUID].ownerId.value
-      /** @todo move this to validation */
-      if (fromUserId !== ownerUserId) return // Authority transfer can only be initiated by owner
-      state[action.entityUUID].authorityPeerId.set(action.newAuthority)
-      state[action.entityUUID].requestingPeerId.set(none)
-    }),
+    onTransferAuthorityOfObject: WorldNetworkAction.transferAuthorityOfObject
+      .receive((action) => {
+        const state = getMutableState(EntityNetworkState)
+        state[action.entityUUID].authorityPeerId.set(action.newAuthority)
+        state[action.entityUUID].requestingPeerId.set(none)
+      })
+      .validate((action) => {
+        const fromUserId = action.ownerID
+        const ownerUserId = getState(EntityNetworkState)[action.entityUUID].ownerId
+        // Authority transfer can only be initiated by owner, unless the owner is the scene user
+        if ((ownerUserId !== action.$user && ownerUserId !== SceneUser) || ownerUserId !== fromUserId) return false
+        return true
+      }),
 
-    onDestroyObject: WorldNetworkAction.destroyEntity.receive((action) => {
-      getMutableState(EntityNetworkState)[action.entityUUID].set(none)
-    })
+    onDestroyObject: WorldNetworkAction.destroyEntity
+      .receive((action) => {
+        getMutableState(EntityNetworkState)[action.entityUUID].set(none)
+      })
+      .validate((action) => {
+        const owner = getState(EntityNetworkState)[action.entityUUID]?.ownerId
+        if (owner && owner !== action.$user) return false
+        return true
+      })
   },
 
   reactor: () => {

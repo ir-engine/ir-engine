@@ -85,6 +85,7 @@ interface Vector3InputProp {
   onChange: (v: Vector3) => void
   onRelease?: (v: Vector3) => void
   disabled?: boolean
+  onToggleUniformScale?: (updatedValue: boolean) => void
 }
 
 export const Vector3Input = ({
@@ -97,12 +98,17 @@ export const Vector3Input = ({
   onChange,
   disabled,
   onRelease,
+  onToggleUniformScale,
   ...rest
 }: Vector3InputProp) => {
-  const uniformEnabled = useHookstate(false)
+  const uniformEnabled = useHookstate(uniformScaling ?? false)
 
   const onToggleUniform = () => {
     uniformEnabled.set((v) => !v)
+    const updatedValue = uniformEnabled.get()
+    if (onToggleUniformScale) {
+      onToggleUniformScale(updatedValue)
+    }
   }
 
   const toVec3 = (field: string, fieldValue: number): Vector3 => {
@@ -133,7 +139,7 @@ export const Vector3Input = ({
 
   return (
     <div className="flex w-full items-center gap-x-1.5">
-      {uniformScaling && (
+      {uniformScaling !== undefined && (
         <button onClick={onToggleUniform} className="w-fit" tabIndex={-1} disabled={disabled}>
           {uniformEnabled.value ? (
             <Lock01Lg className="text-text-secondary hover:text-text-primary" />

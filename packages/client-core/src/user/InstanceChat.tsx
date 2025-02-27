@@ -29,7 +29,8 @@ import { useTouchOutside } from '@ir-engine/common/src/utils/useClickOutside'
 import { State, dispatchAction, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
-import { MessageTextSquare01Lg, Send01Lg, Send01Sm, XCloseLg } from '@ir-engine/ui/src/icons'
+import { Button } from '@ir-engine/ui'
+import { ArrowTopRightOnSquareMd, MessageTextSquare01Lg, Send01Lg, Send01Sm, XCloseLg } from '@ir-engine/ui/src/icons'
 import React, { createContext, useContext, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
@@ -165,7 +166,7 @@ function NewMessage() {
 
   return (
     <div className="mt-5 flex w-full items-center justify-end">
-      <div className="relative w-16">
+      <div className="relative max-w-16">
         {!isChatOpen.value && unreadMessages.value && (
           <div className="absolute right-0 top-0 h-4 w-4 rounded-full bg-blue-500" />
         )}
@@ -195,7 +196,11 @@ function NewMessage() {
           onChange={handleComposedMessage}
         />
         <span className="sm:m-[5px]">
-          {isMobile ? <Send01Sm onClick={sendMessage} /> : <LocationIconButton icon={Send01Lg} onClick={sendMessage} />}
+          {isMobile ? (
+            <Send01Sm className="text-text-primary" onClick={sendMessage} />
+          ) : (
+            <LocationIconButton icon={Send01Lg} onClick={sendMessage} />
+          )}
         </span>
       </div>
     </div>
@@ -210,7 +215,7 @@ function Message({ message, hideUsername }: { message: MessageType; hideUsername
     <div
       className="my-4 place-self-center text-center text-xs text-text-primary lg:text-sm"
       style={{
-        textShadow: '0px 1px 4px rgb(255, 255, 255)'
+        textShadow: isMobile ? '' : '0px 1px 4px rgb(255, 255, 255)'
       }}
     >
       {message.text}
@@ -218,8 +223,8 @@ function Message({ message, hideUsername }: { message: MessageType; hideUsername
   ) : (
     <div
       className={twMerge(
-        'my-4 place-self-end rounded-[14px] bg-surface-3 px-2 py-0.5 opacity-50 lg:rounded-[11px] lg:py-2.5',
-        message.sender.id === user.id.value && 'place-self-start bg-[#C7C7C7]',
+        'my-4 w-fit place-self-start rounded-[14px] bg-surface-3 px-2 py-0.5 opacity-50 lg:rounded-[11px] lg:py-2.5',
+        message.sender.id === user.id.value && 'place-self-end bg-surface-0',
         newMessages.value[message.id] && 'opacity-100',
         hideUsername && '-mt-3'
       )}
@@ -236,7 +241,7 @@ function Messages() {
   const { messages, isChatOpen } = useInstanceChatMessages()
   if (!isChatOpen.value) return null
   return (
-    <div className="flex max-h-[65vh] flex-col justify-end lg:max-h-[45vh]">
+    <div className="flex max-h-[65dvh] flex-col justify-end lg:max-h-[45vh]">
       <div className="min-h-0 flex-1 overflow-y-auto">
         {messages.value.map((message, index) => (
           <Message
@@ -281,15 +286,17 @@ export default function InstanceChat() {
 
   return (
     <InstanceChatProvider>
-      {!ageVerified ? (
-        <div className="rounded-lg bg-[#C6C6C6] p-4">
+      {(false as any) ? (
+        <div className="rounded-lg bg-surface-4 p-4">
           <div className="mx-auto text-center font-semibold text-[#3B3A3A]">{t('user:instanceChat.wantToChat')}</div>
-          <button
-            className="mt-4 flex items-center justify-center rounded-[20px] bg-[#969696] px-[30px] py-1.5"
+          <Button
+            variant="secondary"
+            className="mt-4 rounded-[20px]"
             onClick={() => PopoverState.showPopupover(<ProfileMenu />)}
           >
             {isGuest ? t('user:instanceChat.register') : t('user:instanceChat.verifyAge')}
-          </button>
+            <ArrowTopRightOnSquareMd />
+          </Button>
         </div>
       ) : (
         <MessagesWrapper />

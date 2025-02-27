@@ -10,10 +10,10 @@ import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/Avat
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import { defineActionQueue, getMutableState } from '@ir-engine/hyperflux'
+import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
 import { createWorkerFromCrossOriginURL } from '@ir-engine/spatial/src/common/functions/createWorkerFromCrossOriginURL'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
-import { MediaStreamState } from '../MediaStreamState'
 import { WebcamInputComponent } from './WebcamInputComponent'
 
 /*

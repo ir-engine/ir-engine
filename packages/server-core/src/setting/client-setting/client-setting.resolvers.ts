@@ -31,52 +31,11 @@ import {
   ClientSettingDatabaseType,
   ClientSettingQuery,
   ClientSettingType,
-  ClientSocialLinkType,
-  ClientThemeOptionsType
+  clientDbToSchema
 } from '@ir-engine/common/src/schemas/setting/client-setting.schema'
 import type { HookContext } from '@ir-engine/server-core/declarations'
 
 import { fromDateTimeSql, getDateTimeSql } from '../../../../common/src/utils/datetime-sql'
-
-export const clientDbToSchema = (rawData: ClientSettingDatabaseType): ClientSettingType => {
-  let appSocialLinks =
-    typeof rawData.appSocialLinks === 'string'
-      ? (JSON.parse(rawData.appSocialLinks) as ClientSocialLinkType[])
-      : (rawData.appSocialLinks as ClientSocialLinkType[])
-
-  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
-  // was serialized multiple times, therefore we need to parse it twice.
-  if (typeof appSocialLinks === 'string') {
-    appSocialLinks = JSON.parse(appSocialLinks)
-  }
-
-  let themeSettings =
-    rawData.themeSettings === 'string'
-      ? (JSON.parse(rawData.themeSettings) as Record<string, ClientThemeOptionsType>)
-      : (rawData.themeSettings as unknown as Record<string, ClientThemeOptionsType>)
-
-  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
-  // was serialized multiple times, therefore we need to parse it twice.
-  if (typeof themeSettings === 'string') themeSettings = JSON.parse(themeSettings)
-
-  let themeModes =
-    typeof rawData.themeModes === 'string'
-      ? (JSON.parse(rawData.themeModes) as Record<string, string>)
-      : (rawData.themeModes as Record<string, string>)
-
-  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
-  // was serialized multiple times, therefore we need to parse it twice.
-  if (typeof themeModes === 'string') themeModes = JSON.parse(themeModes)
-
-  if (typeof rawData.mediaSettings === 'string') rawData.mediaSettings = JSON.parse(rawData.mediaSettings)
-
-  return {
-    ...rawData,
-    appSocialLinks,
-    themeSettings,
-    themeModes
-  }
-}
 
 export const clientSettingResolver = resolve<ClientSettingType, HookContext>(
   {

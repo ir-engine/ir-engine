@@ -53,6 +53,12 @@ describe('STATIC_ASSET_REGEX', () => {
         orgName: 'ir-engine',
         projectName: 'default-project',
         assetPath: 'assets/animations/locomotion.glb'
+      },
+      {
+        url: 'https://example.com/projects/ir-engine/default-project/public/animations/locomotion.glb',
+        orgName: 'ir-engine',
+        projectName: 'default-project',
+        assetPath: 'public/animations/locomotion.glb'
       }
     ]
     positiveCases.forEach(({ url, orgName, projectName, assetPath }) => {

@@ -437,11 +437,7 @@ export async function handleWebRtcTransportCreate(
         }
       })
     ) as WebRTCSettings
-    const iceServers: IceServer[] = webRTCSettings.useCustomICEServers
-      ? webRTCSettings.iceServers
-      : config.kubernetes.enabled
-      ? PUBLIC_STUN_SERVERS
-      : []
+    const iceServers: IceServer[] = webRTCSettings.useCustomICEServers ? webRTCSettings.iceServers : PUBLIC_STUN_SERVERS
 
     if (config.kubernetes.enabled) {
       const serverState = getState(ServerState)

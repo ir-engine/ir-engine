@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Material, Shader, WebGLRenderer } from 'three'
+import { Material, Shader } from 'three'
 
 import {
   Component,
@@ -60,10 +60,8 @@ import { ShadowMaterial } from './prototypes/ShadowMaterial.mat'
 export type MaterialPrototypeConstructor = new (...args: any) => any
 export type MaterialPrototypeObjectConstructor = { [key: string]: MaterialPrototypeConstructor }
 export type MaterialPrototypeDefinition = {
-  prototypeId: string
   prototypeConstructor: MaterialPrototypeConstructor
   arguments: PrototypeArgument
-  onBeforeCompile?: (shader: Shader, renderer: WebGLRenderer) => void
 }
 
 export type PrototypeArgumentValue = {

@@ -166,7 +166,7 @@ describe('regex.test', () => {
         'A1',
         '-test',
         'invalid!',
-        'very-long-string-that-is-definitely-not-going-to-match-the-regex-because-it-is-way-too-long-for-the-pattern',
+        'very-long-string-that-is-definitely-not-going-to-match-the-regex-because-it-is-way-too-long-for-the-pattern-very-long-string-that-is-definitely-not-going-to-match-the-regex-because-it-is-way-too-long-for-the-pattern',
         '--double-hyphen',
         '...'
       ]

@@ -25,17 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Color, Material, Mesh, Texture } from 'three'
 
-import {
-  Entity,
-  EntityUUID,
-  getComponent,
-  getMutableComponent,
-  getOptionalComponent,
-  getOptionalMutableComponent,
-  hasComponent,
-  setComponent,
-  UUIDComponent
-} from '@ir-engine/ecs'
+import { Entity, EntityUUID, getComponent, getOptionalComponent, hasComponent, UUIDComponent } from '@ir-engine/ecs'
 
 import { getState } from '@ir-engine/hyperflux'
 import { MeshComponent } from '../components/MeshComponent'
@@ -121,20 +111,6 @@ export function MaterialNotFoundError(message: string) {
 export function PrototypeNotFoundError(message: string) {
   this.name = 'PrototypeNotFound'
   this.message = message
-}
-
-/** Assigns a preexisting material entity to a mesh */
-export const assignMaterial = (user: Entity, materialEntity: Entity, index = 0) => {
-  const materialStateComponent = getOptionalMutableComponent(materialEntity, MaterialStateComponent)
-  if (!materialStateComponent) return
-  materialStateComponent.instances.set([...materialStateComponent.instances.value, user])
-  if (!user) return
-  if (!hasComponent(user, MaterialInstanceComponent)) setComponent(user, MaterialInstanceComponent)
-  const material = materialStateComponent.material.value as Material
-  const materialInstanceComponent = getMutableComponent(user, MaterialInstanceComponent)
-  const newUUID = material.uuid as EntityUUID
-  if (!UUIDComponent.getEntityByUUID(newUUID)) throw new MaterialNotFoundError(`Material ${newUUID} not found`)
-  materialInstanceComponent.uuid[index].set(newUUID)
 }
 
 export const getMaterialIndices = (entity: Entity, materialUUID: EntityUUID): number[] => {

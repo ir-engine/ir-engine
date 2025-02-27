@@ -53,7 +53,6 @@ import { AvatarNetworkAction } from '../avatar/state/AvatarNetworkActions'
 import { EngineState } from '@ir-engine/ecs'
 import '@ir-engine/spatial/src/transform/SpawnPoseState'
 import { act, render } from '@testing-library/react'
-import React from 'react'
 import '../avatar/state/AvatarNetworkState'
 import { GrabbableComponent, GrabbableNetworkAction, GrabbedComponent, GrabberComponent } from './GrabbableComponent'
 import { GrabbableState } from './GrabbableState'
@@ -117,6 +116,7 @@ describe('GrabbableSystem', () => {
         ownerID: network.hostUserID!,
         $topic: NetworkTopics.world,
         $peer: hostPeerID,
+        $user: hostUserID,
         entityUUID: grabbableEntityUUID
       })
     )
@@ -162,6 +162,7 @@ describe('GrabbableSystem', () => {
         ownerID: hostUserID,
         entityUUID: grabbableEntityUUID,
         newAuthority: peerID,
+        $user: hostUserID,
         $peer: hostPeerID
       })
     )
@@ -169,8 +170,7 @@ describe('GrabbableSystem', () => {
     applyIncomingActions()
 
     // wait for the authority transfer to be processed by the GrabbableState reactor
-    const { rerender, unmount } = render(<></>)
-    await act(async () => rerender(<></>))
+    await act(() => render(null))
 
     // should now have authority
     await vi.waitFor(() => {
@@ -192,8 +192,6 @@ describe('GrabbableSystem', () => {
     // strictEqual(grabbableTransform.rotation.y, rotation.y)
     // strictEqual(grabbableTransform.rotation.z, rotation.z)
     // strictEqual(grabbableTransform.rotation.w, rotation.w)
-
-    unmount()
   })
 
   it('can grab an object owner by the scene as another user', async () => {
@@ -235,6 +233,7 @@ describe('GrabbableSystem', () => {
         parentUUID: getComponent(sceneEntity, UUIDComponent),
         ownerID: SceneUser,
         $peer: ScenePeer,
+        $user: SceneUser,
         $topic: NetworkTopics.world,
         entityUUID: grabbableEntityUUID
       })
@@ -281,7 +280,8 @@ describe('GrabbableSystem', () => {
         ownerID: SceneUser,
         entityUUID: grabbableEntityUUID,
         newAuthority: peerID,
-        $peer: peerID
+        $peer: peerID,
+        $user: userID
       })
     )
 
