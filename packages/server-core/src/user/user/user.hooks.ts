@@ -212,11 +212,9 @@ const addUserSettings = async (context: HookContext<UserService>) => {
   const result = (Array.isArray(context.result) ? context.result : [context.result]) as UserType[]
 
   for (const item of result) {
-    console.log('creating new userSetting for', item)
     await context.app.service(userSettingPath).create({
       userId: item.id
     })
-    console.log('created new userSetting for', item.id)
   }
 }
 

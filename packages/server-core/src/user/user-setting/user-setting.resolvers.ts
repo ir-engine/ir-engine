@@ -52,7 +52,6 @@ export const userDbToSchema = (rawData: UserSettingDatabaseType): UserSettingTyp
     }
   }
 
-  console.log('returning from userDbToSchema')
   return {
     ...rawData,
     themeModes
@@ -67,8 +66,6 @@ export const userSettingResolver = resolve<UserSettingType, HookContext>(
   {
     // Convert the raw data into a new structure before running property resolvers
     converter: async (rawData, context) => {
-      console.log('raw userSetting data to resolve', rawData)
-      console.log('context of user setting call', context.method, context)
       return userDbToSchema(rawData)
     }
   }
