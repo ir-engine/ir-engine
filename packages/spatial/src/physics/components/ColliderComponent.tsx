@@ -148,6 +148,8 @@ const ColliderReactor = function () {
   }, [physicsWorld, triggerComponent, hasCollider])
 
   useEffect(() => {
+    if (!physicsWorld) return
+
     setCallback(entity, 'Disable Collision', () => {
       if (!physicsWorld) return
       Physics.setCollisionLayer(physicsWorld, entity, CollisionGroups.None)
