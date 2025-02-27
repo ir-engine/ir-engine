@@ -38,7 +38,7 @@ import {
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
 import { CommonKnownContentTypes } from '@ir-engine/common/src/utils/CommonKnownContentTypes'
-import { cleanFileNameFile, cleanFileNameString, sanitizeNameFile } from '@ir-engine/common/src/utils/cleanFileName'
+import { cleanFileNameFile, cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
 import { KTX2EncodeArguments } from '@ir-engine/engine/src/assets/constants/CompressionParms'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
@@ -115,8 +115,7 @@ export function sanitizeFiles(files: FileList | File[]): File[] {
       invalidSizeFiles.push(file.name)
       continue
     }
-    const sanitizedFile = sanitizeNameFile(file)
-    const newFile = cleanFileNameFile(sanitizedFile)
+    const newFile = cleanFileNameFile(file)
     const { isValid, errorMessage } = isValidFileType(newFile)
     if (!isValid) {
       NotificationService.dispatchNotify(
