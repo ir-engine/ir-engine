@@ -138,7 +138,7 @@ export const MediaComponent = defineComponent({
     resources: S.Array(S.String()),
     playMode: S.Enum(PlayMode, PlayMode.loop),
     isMusic: S.Bool(false),
-    seekTime: S.Number(0),
+    seekTime: S.NonSerialized(S.Number(0)),
     /**@deprecated */
     paths: S.Array(S.String()),
     // runtime props

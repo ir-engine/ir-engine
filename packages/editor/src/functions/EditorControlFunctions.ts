@@ -33,7 +33,6 @@ import {
   getAncestorWithComponents,
   getChildrenWithComponents,
   iterateEntityNode,
-  removeEntityNodeRecursively,
   UUIDComponent
 } from '@ir-engine/ecs'
 import {
@@ -48,6 +47,7 @@ import {
   LayerFunctions,
   Layers,
   removeComponent,
+  removeEntity,
   serializeComponent,
   SerializedComponentType,
   setComponent,
@@ -90,7 +90,9 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
   args: SetComponentType<C> | undefined = undefined
 ) => {
   const sceneComponentID = component.jsonID
-  if (!sceneComponentID) return
+  if (!sceneComponentID) return []
+
+  const modifiedNodes = [] as NodeID[]
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
     if (add) {
@@ -98,15 +100,21 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
     } else {
       removeComponent(entity, component)
     }
+    modifiedNodes.push(getComponent(entity, NodeIDComponent))
     EditorState.markModifiedScene(entity)
   }
+
+  return modifiedNodes
 }
 
 const modifyName = (entities: Entity[], name: string) => {
+  const modifiedNodes = [] as NodeID[]
   for (const entity of entities) {
     setComponent(entity, NameComponent, name)
     EditorState.markModifiedScene(entity)
+    modifiedNodes.push(getComponent(entity, NodeIDComponent))
   }
+  return modifiedNodes
 }
 
 /**
@@ -117,6 +125,7 @@ const modifyProperty = <C extends Component<any, any>>(
   component: C,
   properties: Partial<SerializedComponentType<C>>
 ) => {
+  const affectedNodes = [] as NodeID[]
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
 
@@ -130,7 +139,11 @@ const modifyProperty = <C extends Component<any, any>>(
     }
     deserializeComponent(entity, component, currentComponent)
     EditorState.markModifiedScene(entity)
+
+    affectedNodes.push(getComponent(entity, NodeIDComponent))
   }
+
+  return affectedNodes
 }
 
 /**Updates the materialEntity's threejs material using the the newPrototype to look up the new constructor */
@@ -143,7 +156,6 @@ const updateMaterialPrototype = (materialEntity: Entity, newPrototype: string) =
   const prototype = getState(MaterialPrototypeDefinitions)[newPrototype]
   if (!prototype) return
   const fullParameters = { ...extractDefaults(prototype.arguments) }
-  if (!prototype) return
   const newMaterial = new prototype.prototypeConstructor(fullParameters) as Material
 
   if (newMaterial.plugins) {
@@ -162,6 +174,7 @@ const updateMaterialPrototype = (materialEntity: Entity, newPrototype: string) =
       ...Object.fromEntries(Object.entries(material.userData).filter(([k, _v]) => k !== 'type'))
     }
   }
+
   newMaterial.type = newPrototype
   newMaterial.name = material.name
 
@@ -290,42 +303,33 @@ const createObjectFromSceneElement = (
  * @todo copying an object should be rooted to which object is currently selected
  */
 const duplicateObject = (entities: Entity[]) => {
-  const rootEntities = findRootAncestors(entities)
-  const uuidMap = {} as { [entityUUID: EntityUUID]: EntityUUID }
-
-  const duplicateEntity = (entity: Entity) => {
-    const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
-    const entityUUID = getComponent(entity, UUIDComponent)
+  const duplicateEntities = (entities: Entity[], parentEntity: Entity) => {
     const parentUUID = getComponent(parentEntity, UUIDComponent)
-    const entityData = serializeEntity(entity).filter((c) => c.name !== NodeIDComponent.jsonID)
-    const newUUID = generateEntityUUID()
-    const originalSource = getComponent(entity, SourceComponent)
 
-    const newEntity = NodeIDComponent.create(originalSource, NodeIDComponent.generate(), Layers.Authoring)
+    entities.forEach((entity) => {
+      const entityData = serializeEntity(entity).filter((c) => c.name !== NodeIDComponent.jsonID)
+      const originalSource = getComponent(entity, SourceComponent)
 
-    const name = getComponent(entity, NameComponent)
-    setComponent(newEntity, VisibleComponent)
-    setComponent(newEntity, NameComponent, name)
-    for (const component of entityData) {
-      deserializeComponent(newEntity, ComponentJSONIDMap.get(component.name)!, component.props)
-    }
-    const newParentUUID = uuidMap[parentUUID]
-    const newParentEntity = UUIDComponent.getEntityByUUID(newParentUUID, Layers.Authoring)
-    setComponent(newEntity, EntityTreeComponent, { parentEntity: newParentEntity })
-    uuidMap[entityUUID] = newUUID
+      const newEntity = NodeIDComponent.create(originalSource, NodeIDComponent.generate(), Layers.Authoring)
+      const name = getComponent(entity, NameComponent)
+      setComponent(newEntity, VisibleComponent)
+      setComponent(newEntity, NameComponent, name)
+      setComponent(newEntity, EntityTreeComponent, { parentEntity: parentEntity })
 
-    const children = getComponent(entity, EntityTreeComponent).children
-    for (const childEntity of children) {
-      duplicateEntity(childEntity)
-    }
+      for (const component of entityData) {
+        deserializeComponent(newEntity, ComponentJSONIDMap.get(component.name)!, component.props)
+      }
+
+      const children = getComponent(entity, EntityTreeComponent).children as Entity[]
+      duplicateEntities(children, newEntity)
+    })
   }
 
+  const rootEntities = findRootAncestors(entities)
   for (const rootEntity of rootEntities) {
     if (hasComponent(rootEntity, SceneComponent)) continue
     const { parentEntity } = getComponent(rootEntity, EntityTreeComponent)
-    const rootParentUUID = getComponent(parentEntity, UUIDComponent)
-    uuidMap[rootParentUUID] = rootParentUUID
-    duplicateEntity(rootEntity)
+    duplicateEntities([rootEntity], parentEntity)
     EditorState.markModifiedScene(rootEntity)
   }
 }
@@ -515,11 +519,25 @@ const removeObject = (entities: Entity[]) => {
   /** we have to manually set this here or it will cause react errors when entities are removed */
   getMutableState(SelectionState).selectedEntities.set([])
 
+  const affectedNodes = [] as NodeID[]
+
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
+    const sourceID = getComponent(entity, SourceComponent)
     EditorState.markModifiedScene(entity)
-    removeEntityNodeRecursively(entity)
+    const entitiesToRemove = [] as Entity[]
+    iterateEntityNode(
+      entity,
+      (node) => {
+        affectedNodes.push(getComponent(node, NodeIDComponent))
+        entitiesToRemove.push(node)
+      },
+      (child) => getComponent(child, SourceComponent) === sourceID
+    )
+    for (const node of entitiesToRemove) removeEntity(node)
   }
+
+  return affectedNodes
 }
 
 const replaceSelection = (entities: EntityUUID[]) => {

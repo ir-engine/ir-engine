@@ -545,9 +545,15 @@ export const setComponent = <C extends Component>(
   LayerFunctions.propagateLayer(entity, component)
 
   if (component.reactor && !component.reactorMap.has(entity) && LayerComponent.get(entity) === Layers.Simulation) {
-    const root = startReactor(() => {
-      return React.createElement(EntityContext.Provider, { value: entity }, React.createElement(component.reactor, {}))
-    }) as ReactorRoot
+    function reactor() {
+      return React.createElement(
+        EntityContext.Provider,
+        { value: entity },
+        React.createElement(component.reactor, { entity })
+      )
+    }
+    reactor['__name'] = `${component.name} (eid: ${entity})`
+    const root = startReactor(reactor) as ReactorRoot
     root['entity'] = entity
     root['component'] = component.name
     component.reactorMap.set(entity, root)
@@ -1083,6 +1089,10 @@ export const LayerComponent = defineComponent({
 })
 
 export function getAuthoringCounterpart(entity: Entity) {
+  const layer = LayerComponent.get(entity)
+  if (layer === Layers.Authoring) {
+    return entity
+  }
   return LayerComponents[Layers.Simulation].refs[entity]
 }
 

@@ -56,6 +56,7 @@ import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 
 import { startReactor } from '@ir-engine/hyperflux'
+import { act, render } from '@testing-library/react'
 import { assertColor } from '../../../tests/util/assert'
 import { NameComponent } from '../../common/NameComponent'
 import { ObjectLayerMasks, ObjectLayers } from '../constants/ObjectLayers'
@@ -208,7 +209,7 @@ describe('LineSegmentComponent', () => {
 
     it('should trigger when component.name changes', () => {
       const testEntity = createEntity()
-      const Expected = 'TestLineName'
+      const Expected = 'line-segment'
       assert.equal(hasComponent(testEntity, NameComponent), false)
       const geometry = new BoxGeometry(1, 1, 1)
       setComponent(testEntity, LineSegmentComponent, {
@@ -225,7 +226,7 @@ describe('LineSegmentComponent', () => {
       assert.equal(result, Expected)
     })
 
-    it('should trigger when component.layerMask changes', () => {
+    it('should trigger when component.layerMask changes', async () => {
       const testEntity = createEntity()
       const Expected = 42
       assert.equal(hasComponent(testEntity, ObjectLayerMaskComponent), false)
@@ -241,6 +242,7 @@ describe('LineSegmentComponent', () => {
         geometry: geometry,
         material: new MeshBasicMaterial({ color: 0x111111 })
       })
+      await act(() => render(null))
       assert.equal(ObjectLayerMaskComponent.mask[testEntity], Expected)
     })
 
@@ -277,7 +279,7 @@ describe('LineSegmentComponent', () => {
       removeEntity(entity)
     })
 
-    it('should trigger when component.color changes', () => {
+    it('should trigger when component.color changes', async () => {
       const testEntity = createEntity()
       const Expected = new Color('#123456')
       assert.equal(hasComponent(testEntity, NameComponent), false)
@@ -296,6 +298,7 @@ describe('LineSegmentComponent', () => {
         geometry: geometry,
         material: material
       })
+      await act(() => render(null))
       const result = (getComponent(testEntity, LineSegmentComponent).material as MeshBasicMaterial).color
       assert.deepEqual(result, Expected)
     })
@@ -323,7 +326,7 @@ describe('LineSegmentComponent', () => {
       assert(!hasComponent(entity, LineSegmentComponent))
     })
 
-    it('should update the LineSegmentComponent data correctly', () => {
+    it('should update the LineSegmentComponent data correctly', async () => {
       const entity = createEntity()
       const geometry = new BoxGeometry(1, 1, 1)
       const material = new MeshBasicMaterial({ color: 0xffff00 })
@@ -340,9 +343,7 @@ describe('LineSegmentComponent', () => {
 
       setComponent(entity, LineSegmentComponent, { geometry: geometry, material: material })
 
-      const Reactor = LineSegmentComponent.reactorMap.get(entity)!
-
-      Reactor.run()
+      await act(() => render(null))
 
       assert(hasComponent(entity, LineSegmentComponent))
 
@@ -350,7 +351,7 @@ describe('LineSegmentComponent', () => {
       lineSegmentComponent.geometry.set(geometry2)
       lineSegmentComponent.material.set(material2)
 
-      Reactor.run()
+      await act(() => render(null))
 
       sinon.assert.calledTwice(spy)
     })

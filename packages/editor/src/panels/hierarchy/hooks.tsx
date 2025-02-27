@@ -35,7 +35,6 @@ import {
   QuerySubReactor,
   traverseEntityNode,
   UndefinedEntity,
-  useChildrenWithComponents,
   useComponent,
   useQuery
 } from '@ir-engine/ecs'
@@ -51,6 +50,7 @@ import { DnDFileType, FileDataType, ItemTypes, SupportedFileTypes } from '../../
 import { addMediaNode } from '../../functions/addMediaNode'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
+import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { SelectionState } from '../../services/SelectionServices'
@@ -103,7 +103,7 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
   const contextMenu = useHookstate({ entity: UndefinedEntity, anchorEvent: undefined as React.MouseEvent | undefined })
   const entities = useQuery([SourceComponent], Layers.Authoring)
 
-  const childEntities = useChildrenWithComponents(rootEntity, [EntityTreeComponent])
+  const childEntities = useQuery([EntityTreeComponent], Layers.Authoring)
   const reparentRefresh = useHookstate(0)
 
   const ChildEntityReactor = (props: { entity: Entity }) => {
@@ -310,6 +310,7 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
         parentNode,
         beforeNode
       )
+      EditorHistoryFunctions.snapshot()
       return
     }
 
@@ -323,6 +324,7 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
       afterNode,
       parentNode
     )
+    EditorHistoryFunctions.snapshot()
   }
 
   const [{ canDrop, isOver }, dropTarget] = useDrop({

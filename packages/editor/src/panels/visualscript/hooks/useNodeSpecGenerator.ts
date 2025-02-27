@@ -29,7 +29,12 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect, useState } from 'react'
 
 import { getComponent } from '@ir-engine/ecs'
-import { EngineVariableGet, EngineVariableSet, EngineVariableUse, VisualScriptComponent } from '@ir-engine/engine'
+import {
+  EngineVariableGet,
+  EngineVariableSet,
+  EngineVariableUse,
+  VisualScriptComponent
+} from '@ir-engine/engine/src/visualscript/VisualScriptModule'
 import {
   IRegistry,
   NodeConfigurationJSON,

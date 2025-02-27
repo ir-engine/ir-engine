@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VisualScriptComponent } from '@ir-engine/engine'
 import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GrabbableComponent } from '@ir-engine/engine/src/grabbable/GrabbableComponent'
@@ -56,6 +55,7 @@ import { TextComponent } from '@ir-engine/engine/src/scene/components/TextCompon
 import { VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
+import { VisualScriptComponent } from '@ir-engine/engine/src/visualscript/components/VisualScriptComponent'
 import { defineState } from '@ir-engine/hyperflux'
 import {
   AmbientLightComponent,
