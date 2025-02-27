@@ -112,7 +112,22 @@ class TextureLoader extends Loader<Texture> {
         const texture = new Texture(image)
         texture.userData.url = url
         texture.source.data.src = url
+
+        if (texture.source.data instanceof HTMLImageElement) {
+          if (texture.source.data.complete) {
+            texture.needsUpdate = true
+          } else {
+            const onload = () => {
+              texture.needsUpdate = true
+              texture.source.data.removeEventListener('load', onload)
+            }
+            texture.source.data.addEventListener('load', onload)
+          }
+        } else {
+          texture.needsUpdate = true
+        }
         texture.needsUpdate = true
+
         if (canvas) canvas.remove()
         onLoad(texture)
       },
