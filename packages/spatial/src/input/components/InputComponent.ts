@@ -29,13 +29,18 @@ import {
   defineSystem,
   EngineState,
   getComponent,
-  getOptionalComponent,
   InputSystemGroup,
   UndefinedEntity,
   useEntityContext,
   useExecute
 } from '@ir-engine/ecs'
-import { defineComponent, removeComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  defineComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
 
@@ -110,20 +115,20 @@ export const InputComponent = defineComponent({
   },
 
   getInputEntities(entityContext: Entity): Entity[] {
-    const inputSinkEntity = getAncestorWithComponents(entityContext, [InputSinkComponent])
-    const closestInputEntity = getAncestorWithComponents(entityContext, [InputComponent])
-    const inputSinkInputEntities = getOptionalComponent(inputSinkEntity, InputSinkComponent)?.inputEntities ?? []
-    const inputEntities = [closestInputEntity, ...inputSinkInputEntities]
-    return inputEntities.filter(
-      (entity, index) => inputEntities.indexOf(entity) === index && entity !== UndefinedEntity
-    ) // remove duplicates
+    const inputSinkEntity = getAncestorWithComponents(entityContext, inputSinkComponentQueryComponents)
+    const closestInputEntity = getAncestorWithComponents(entityContext, inputComponentQueryComponents)
+    if (hasComponent(inputSinkEntity, InputSinkComponent)) {
+      const inputSinkInputEntities = getComponent(inputSinkEntity, InputSinkComponent).inputEntities
+      const inputEntities = [closestInputEntity, ...inputSinkInputEntities]
+      return inputEntities.filter(filterInputEntities) // remove duplicates
+    } else {
+      return [closestInputEntity]
+    }
   },
 
   getInputSourceEntities(entityContext: Entity) {
     const inputEntities = InputComponent.getInputEntities(entityContext)
-    return inputEntities.reduce<Entity[]>((prev, eid) => {
-      return [...prev, ...getComponent(eid, InputComponent).inputSources]
-    }, [])
+    return inputEntities.reduce<Entity[]>(reduceInputEntities, [] as Entity[])
   },
 
   getMergedButtons<AliasType extends InputAlias = typeof DefaultButtonAlias>(
@@ -265,6 +270,10 @@ function getLargestMagnitudeNumber(a: number, b: number) {
   return Math.abs(a) > Math.abs(b) ? a : b
 }
 
+function filterInputEntities(entity: Entity, index: number, arr: Entity[]) {
+  return arr.indexOf(entity) === index && entity !== UndefinedEntity
+}
+
 export const enum InputExecutionOrder {
   'Before' = -1,
   'With' = 0,
@@ -289,3 +298,11 @@ export const InputExecutionSystemGroup = defineSystem({
 })
 
 const mapInputButtons = (eid: Entity) => getComponent(eid, InputSourceComponent).buttons
+
+const inputSinkComponentQueryComponents = [InputSinkComponent]
+const inputComponentQueryComponents = [InputComponent]
+
+const reduceInputEntities = (prev: Entity[], eid: Entity) => {
+  prev.push(...getComponent(eid, InputComponent).inputSources)
+  return prev
+}
