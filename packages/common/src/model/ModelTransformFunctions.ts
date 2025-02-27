@@ -72,7 +72,6 @@ import { baseName, dropRoot, pathJoin } from '@ir-engine/engine/src/assets/funct
 import { getMutableState, NO_PROXY } from '@ir-engine/hyperflux'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 
-import { PublishSceneState } from '@ir-engine/client-core/src/admin/components/locations/PublishSceneState'
 import {
   EEArgEntry,
   EEMaterial,
@@ -90,8 +89,8 @@ import ModelTransformLoader from './ModelTransformLoader'
  * Group 1: ir-engine/default-project
  * Group 2: collisioncube-LOD0.glb
  */
-export const MATCH_ASSET_PROJECT_FILENAME_REGEX = /projects\/([^/]+\/[^/]+)\/(?:assets|public)\/([\w\d\s\-|_./]*)$/
-const MATCH_ASSET_PUBLISH_FILENAME_REGEX = /projects\/([^/]+\/[^/]+)\/public\/publish\/([\w\d\s\-|_./]*)$/
+const MATCH_ASSET_PROJECT_FILENAME_REGEX =
+  /projects\/([^/]+\/[^/]+)\/(?:assets|public(?:\/publish)?)\/([\w\d\s\-|_./]*)$/
 
 /**
  *
@@ -417,21 +416,9 @@ const doUpload = async (projectName, fileName, buffer) => {
 
 const toProjectAndFileName = (fUploadPath: string, srcBaseURL: string): [string, string] => {
   // TODO: remove srcBaseURL if it's unnecessary
-  let matchResult: RegExpExecArray | null
-  const publishState = getMutableState(PublishSceneState)
-  if (publishState.isInCompresssedPublishing.value) {
-    matchResult =
-      MATCH_ASSET_PUBLISH_FILENAME_REGEX.exec(fUploadPath) ??
-      MATCH_ASSET_PUBLISH_FILENAME_REGEX.exec(pathJoin(srcBaseURL, fUploadPath))!
-  } else {
-    matchResult =
-      MATCH_ASSET_PROJECT_FILENAME_REGEX.exec(fUploadPath) ??
-      MATCH_ASSET_PROJECT_FILENAME_REGEX.exec(pathJoin(srcBaseURL, fUploadPath))!
-  }
-  if (!matchResult) {
-    throw new Error(`Invalid file path: ${fUploadPath}`)
-  }
-  const [_, projectName, fileName] = matchResult
+  const [_, projectName, fileName] =
+    MATCH_ASSET_PROJECT_FILENAME_REGEX.exec(fUploadPath) ??
+    MATCH_ASSET_PROJECT_FILENAME_REGEX.exec(pathJoin(srcBaseURL, fUploadPath))!
   return [projectName, fileName]
 }
 

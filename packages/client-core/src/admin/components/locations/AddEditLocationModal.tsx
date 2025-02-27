@@ -57,7 +57,7 @@ import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { Heuristic, VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
 import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
-import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
+import { getState, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
@@ -73,7 +73,6 @@ import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 import { LoaderUtils, Quaternion, Vector3 } from 'three'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { PublishSceneState } from './PublishSceneState'
 
 function formatPublishedDate(isoString) {
   const date = new Date(isoString)
@@ -154,7 +153,6 @@ export default function AddEditLocationModal(props: {
     caption: ''
   })
   const lods = useHookstate<LODVariantDescriptor[]>([])
-  const publishSceneState = getMutableState(PublishSceneState)
   useEffect(() => {
     if (location) {
       name.set(location.name)
@@ -177,7 +175,6 @@ export default function AddEditLocationModal(props: {
   const handlePublishFolder = async () => {
     const { projectName, sceneName, rootEntity, sceneAssetID, scenePath } = getState(EditorState)
     const abortController = new AbortController()
-    publishSceneState.isInCompresssedPublishing.set(true)
     try {
       //save current scene
       await saveSceneGLTF(sceneAssetID!, projectName!, sceneName!, abortController.signal)
@@ -329,7 +326,6 @@ export default function AddEditLocationModal(props: {
         //re-open the original scene
         const studioUrl = `${window.location.origin}/studio?project=${projectName}&scenePath=${scenePath}`
         window.open(studioUrl, '_blank')?.focus()
-        publishSceneState.isInCompresssedPublishing.set(false)
         //PopoverState.hidePopupover()
       }
     } catch (error) {
