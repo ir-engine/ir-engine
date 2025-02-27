@@ -33,7 +33,6 @@ import {
   LayerFunctions,
   Layers,
   UUIDComponent,
-  createEntity,
   deserializeComponent,
   getComponent,
   getMutableComponent,
@@ -128,7 +127,7 @@ import { TextureLoader } from '../assets/loaders/texture/TextureLoader'
 import { AssetCacheState } from '../assets/state/AssetCacheState'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
-import { SourceComponent, SourceID } from '../scene/components/SourceComponent'
+import { SourceID } from '../scene/components/SourceComponent'
 import { GLTFComponent } from './GLTFComponent'
 import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
 import { KHRTextureTransformExtensionComponent, KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
@@ -627,7 +626,6 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   const materialExtensions = materialDef.extensions || {}
 
   let materialConstructor = MeshStandardMaterial
-
   if (!materialExtensions[EXTENSIONS.EE_MATERIAL] && materialExtensions[EXTENSIONS.KHR_MATERIALS_UNLIT]) {
     const kmuExtension = KHRUnlitExtensionComponent
     materialConstructor = kmuExtension.getMaterialType() as any
@@ -768,6 +766,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   }
 
   const extensions = Object.entries(materialDef.extensions || {})
+
   for (const [extensionName, extension] of extensions) {
     const Component = ComponentJSONIDMap.get(extensionName) as any // todo
     if (!Component) continue
@@ -1352,12 +1351,8 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
   const layerID = LayerComponent.get(options.entity)
 
   const nodeID = getNodeID(nodeDef, options.documentID, nodeIndex)
-  const nodeEntity = createEntity(layerID)
-  setComponent(nodeEntity, NodeIDComponent, nodeID)
-  const uuid = NodeIDComponent.getUUIDBySourceAndNodeID(options.documentID, nodeID)
-  setComponent(nodeEntity, SourceComponent, options.documentID)
+  const nodeEntity = NodeIDComponent.create(options.documentID, nodeID, layerID)
 
-  setComponent(nodeEntity, UUIDComponent, uuid)
   setComponent(nodeEntity, NameComponent, nodeDef.name ?? 'Node-' + nodeIndex)
   setComponent(nodeEntity, TransformComponent)
 

@@ -126,6 +126,7 @@
     },
     "share": {
       "lbl-share": "Share",
+      "description-share": "Share this location",
       "ph-phoneEmail": "Invite by email or phone number",
       "ph-email": "Invite by email",
       "ph-phone": "Invite by phone number",
@@ -140,10 +141,8 @@
       "linkCopied": "Link copied to clipboard.",
       "friends": "Friends",
       "party": "Party",
-      "shareQuest": "Share to Quest",
       "shareDirect": "Share Direct Link",
       "shareEmbed": "Embed This Space",
-      "shareInvite": "Share by Invite",
       "shareTitle": "AR/VR World | Infinite Reality Engine",
       "shareDescription": "Check out AR/VR world on Infinite Reality Engine",
       "shareFailed": "Error during sharing"
@@ -337,7 +336,7 @@
   },
   "avatar": {
     "titleEditAvatar": "Edit Avatar",
-    "titleSelectAvatar": "Select Your Avatar",
+    "titleSelectAvatar": "Change Your Avatar",
     "titleUploadAvatar": "Upload Avatar",
     "titleSelectThumbnail": "Select Thumbnail",
     "titleCustomizeAvatar": "Customize Your Avatar",

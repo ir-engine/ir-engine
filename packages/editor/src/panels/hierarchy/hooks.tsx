@@ -50,6 +50,7 @@ import { DnDFileType, FileDataType, ItemTypes, SupportedFileTypes } from '../../
 import { addMediaNode } from '../../functions/addMediaNode'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
+import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { SelectionState } from '../../services/SelectionServices'
@@ -309,6 +310,7 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
         parentNode,
         beforeNode
       )
+      EditorHistoryFunctions.snapshot()
       return
     }
 
@@ -322,6 +324,7 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
       afterNode,
       parentNode
     )
+    EditorHistoryFunctions.snapshot()
   }
 
   const [{ canDrop, isOver }, dropTarget] = useDrop({

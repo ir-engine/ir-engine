@@ -35,8 +35,7 @@ import {
 } from '@ir-engine/ecs'
 import { applyIncomingActions } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { render } from '@testing-library/react'
-import React from 'react'
+import { act, render } from '@testing-library/react'
 import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createTestGLTFEntity } from '../../../tests/avatar/mockAnimatedAvatar'
 import { startEngineReactor } from '../../../tests/startEngineReactor'
@@ -70,11 +69,14 @@ describe('retargetingFunctions', () => {
       setComponent(entity, GLTFComponent, { src: animation_pack })
       setComponent(entity, NameComponent, 'animationPack')
 
-      const { rerender, unmount } = render(<></>)
+      await act(() => render(null))
+
       applyIncomingActions()
+
       //extra wait for animation component to prevent race conditions
       await vi.waitFor(
-        () => {
+        async () => {
+          await act(() => render(null))
           expect(getOptionalComponent(entity, AnimationComponent)).toBeTruthy()
         },
         { timeout: 20000 }
@@ -94,8 +96,6 @@ describe('retargetingFunctions', () => {
           assert.equal(!!rig[track.name.split('.')[0]], true)
         }
       }
-
-      unmount()
     })
   })
 })

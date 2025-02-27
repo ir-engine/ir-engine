@@ -43,7 +43,6 @@ import {
   serializeComponent,
   setComponent
 } from '@ir-engine/ecs'
-import React from 'react'
 import { Vector3 } from 'three'
 import { assertArray, assertFloat, assertVec } from '../../../tests/util/assert'
 import { Vector3_Zero } from '../../common/constants/MathConstants'
@@ -263,9 +262,7 @@ describe('RigidBodyComponent', () => {
       // Change the world
       setComponent(testEntity, EntityTreeComponent, { parentEntity: newPhysicsEntity })
 
-      // Force react lifecycle to update Physics.useWorld
-      const { rerender, unmount } = render(<></>)
-      await act(() => rerender(<></>))
+      await act(() => render(null))
 
       // Check the changes
       RigidBodyComponent.reactorMap.get(testEntity)!.run() // Reactor is already running. But force-run it so changes are applied immediately

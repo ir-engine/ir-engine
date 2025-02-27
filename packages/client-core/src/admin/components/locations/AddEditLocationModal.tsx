@@ -50,6 +50,7 @@ import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorCo
 import exportGLTF, { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
 import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
+import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbnailState'
 import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/ModelTransform'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
@@ -63,6 +64,7 @@ import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/Col
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+
 import { Button, DropdownItem, Input, Select } from '@ir-engine/ui'
 import { ContextMenu } from '@ir-engine/ui/src/components/tailwind/ContextMenu'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
@@ -105,7 +107,7 @@ const locationTypeOptions = [
   { label: 'Showroom', value: 'showroom' }
 ]
 
-const LOCATION_MAX = 5
+const LOCATION_MAX = 10
 
 export default function AddEditLocationModal(props: {
   action: string
@@ -115,6 +117,7 @@ export default function AddEditLocationModal(props: {
   inStudio?: boolean
 
   onPublish?: () => Promise<void>
+  onPublishSuccess?: (location: LocationType) => void
 }) {
   const { t } = useTranslation()
   const compressionLoading = useHookstate(false)
@@ -347,7 +350,7 @@ export default function AddEditLocationModal(props: {
     if (!maxUsers.value) {
       errors.maxUsers.set(t('admin:components.location.maxUserCantEmpty'))
     }
-    if (maxUsers.value > 5) {
+    if (maxUsers.value > LOCATION_MAX) {
       errors.maxUsers.set(t('admin:components.location.maxUserExceeded'))
     }
     if (!scene.value) {
@@ -357,6 +360,13 @@ export default function AddEditLocationModal(props: {
       return
     }
     publishLoading.set(true)
+
+    try {
+      await SceneThumbnailState.createThumbnail()
+      await SceneThumbnailState.uploadThumbnail()
+    } catch (e) {
+      errors.serverError.set(e.message)
+    }
 
     if (props.onPublish) {
       try {
@@ -416,6 +426,12 @@ export default function AddEditLocationModal(props: {
   }
 
   const anchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
+
+  useEffect(() => {
+    if (location && props.onPublishSuccess) {
+      props.onPublishSuccess(location)
+    }
+  }, [location, props.onPublishSuccess])
 
   return (
     <div className="absolute z-50 bg-surface-2 px-8 pt-6">
