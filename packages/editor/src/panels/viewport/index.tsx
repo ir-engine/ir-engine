@@ -49,6 +49,7 @@ import { DnDFileType, FileDataType, ItemTypes, SceneElementType, SupportedFileTy
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { getCursorSpawnPosition } from '../../functions/screenSpaceFunctions'
+import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { EditorState } from '../../services/EditorServices'
 import CameraGizmoTool from './tools/CameraGizmoTool'
 import GridTool from './tools/GridTool'
@@ -77,6 +78,7 @@ const ViewportDnD = ({ children }: { children: React.ReactNode }) => {
           { name: item.componentJsonID },
           { name: TransformComponent.jsonID, props: { position: vec3 } }
         ])
+        EditorHistoryFunctions.snapshot()
       } else if ('url' in item) {
         addMediaNode(item.url, undefined, undefined, [{ name: TransformComponent.jsonID, props: { position: vec3 } }])
       } else if ('files' in item) {

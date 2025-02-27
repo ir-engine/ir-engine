@@ -104,7 +104,8 @@ const TriggerProperties: EditorComponentType = (props) => {
         {!hasRigidbody && (
           <Button
             title={t('editor:properties.triggerVolume.lbl-addRigidBody')}
-            className="text-sm text-[#FFFFFF]"
+            className="text-text-primary"
+            variant="tertiary"
             onClick={() => {
               const nodes = SelectionState.getSelectedEntities()
               EditorControlFunctions.addOrRemoveComponent(nodes, RigidBodyComponent, true, { type: 'fixed' })
@@ -116,9 +117,10 @@ const TriggerProperties: EditorComponentType = (props) => {
         )}
       </div>
       <div className="my-3 flex justify-end">
-        <button
+        <Button
           title={t('editor:properties.triggerVolume.lbl-addTrigger')}
-          className="text-sm text-[#8B8B8D]"
+          className="text-text-primary"
+          variant="tertiary"
           onClick={() => {
             const triggers = [
               ...triggerComponent.triggers.value,
@@ -134,7 +136,8 @@ const TriggerProperties: EditorComponentType = (props) => {
           }}
         >
           <HiPlus />
-        </button>
+          {t('editor:properties.triggerVolume.lbl-addTrigger')}
+        </Button>
       </div>
       {triggerComponent.triggers.map((trigger, index) => {
         const targetOption = targets.value.find((o) => o.value === trigger.target.value)

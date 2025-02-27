@@ -26,8 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { useHookstate } from '@ir-engine/hyperflux'
 import React, { useId, useRef } from 'react'
 import { LuInfo } from 'react-icons/lu'
-import { twMerge } from 'tailwind-merge'
-import Label from '../../../primitives/tailwind/Label'
 import Tooltip from '../../../primitives/tailwind/Tooltip'
 
 export interface SliderProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
@@ -86,13 +84,15 @@ const Slider = ({
   const gradientPercent = Math.round(((localValue.value - min) / (max - min)) * 100)
 
   return (
-    <div ref={parentRef} className="group/editor-slider grid w-full grid-cols-1 gap-y-2" {...props}>
+    <div ref={parentRef} className="group/editor-slider grid w-full grid-cols-1 gap-y-4" {...props}>
       {(label || info) && (
         <div className="flex w-full justify-between">
-          {label && <Label>{label}</Label>}
+          {label && (
+            <label className="text-sm text-text-tertiary group-hover/editor-slider:text-text-primary">{label}</label>
+          )}
           {info && (
             <Tooltip content={info}>
-              <LuInfo className={twMerge('h-5 w-5 text-text-inactive hover:text-text-primary')} />
+              <LuInfo className="h-5 w-5 text-text-inactive group-hover/editor-slider:text-text-primary" />
             </Tooltip>
           )}
         </div>
@@ -112,7 +112,7 @@ const Slider = ({
             }
           }}
           onBlur={() => onRelease?.(value)}
-          className="m-0 h-8 w-14 rounded bg-ui-background text-center text-sm font-normal text-text-secondary outline-none group-hover/editor-slider:bg-ui-hover-background group-hover/editor-slider:text-text-primary group-focus/editor-slider:bg-ui-select-background group-focus/editor-slider:text-text-primary"
+          className="m-0 h-8 w-14 rounded bg-ui-background text-center text-sm font-normal text-text-tertiary outline-none group-hover/editor-slider:bg-ui-hover-background group-hover/editor-slider:text-text-primary group-focus/editor-slider:bg-ui-select-background group-focus/editor-slider:text-text-primary"
           data-testid="slider-text-value-input"
         />
 
