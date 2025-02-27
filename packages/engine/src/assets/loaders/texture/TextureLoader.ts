@@ -126,7 +126,6 @@ class TextureLoader extends Loader<Texture> {
         } else {
           texture.needsUpdate = true
         }
-        texture.needsUpdate = true
 
         if (canvas) canvas.remove()
         onLoad(texture)
