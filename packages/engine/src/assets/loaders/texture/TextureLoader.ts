@@ -112,9 +112,27 @@ class TextureLoader extends Loader<Texture> {
         const texture = new Texture(image)
         texture.userData.url = url
         texture.source.data.src = url
-        texture.needsUpdate = true
-        if (canvas) canvas.remove()
-        onLoad(texture)
+
+        const completedLoading = () => {
+          texture.needsUpdate = true
+          if (canvas) canvas.remove()
+          onLoad(texture)
+        }
+
+        // workaround for threejs freaking out when texture is set before image is complete
+        if (texture.source.data instanceof HTMLImageElement) {
+          if (texture.source.data.complete) {
+            completedLoading()
+          } else {
+            const onload = () => {
+              completedLoading()
+              texture.source.data.removeEventListener('load', onload)
+            }
+            texture.source.data.addEventListener('load', onload)
+          }
+        } else {
+          completedLoading()
+        }
       },
       onProgress,
       onError
