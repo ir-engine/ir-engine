@@ -546,7 +546,11 @@ export const setComponent = <C extends Component>(
 
   if (component.reactor && !component.reactorMap.has(entity) && LayerComponent.get(entity) === Layers.Simulation) {
     function reactor() {
-      return React.createElement(EntityContext.Provider, { value: entity }, React.createElement(component.reactor, {}))
+      return React.createElement(
+        EntityContext.Provider,
+        { value: entity },
+        React.createElement(component.reactor, { entity })
+      )
     }
     reactor['__name'] = `${component.name} (eid: ${entity})`
     const root = startReactor(reactor) as ReactorRoot
