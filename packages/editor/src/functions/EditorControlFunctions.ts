@@ -64,10 +64,10 @@ import { DirectionalLightComponent, HemisphereLightComponent } from '@ir-engine/
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
-import { SceneDeltaState } from '@ir-engine/ecs/src/SceneDeltaState'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { serializeEntity } from '@ir-engine/engine/src/scene/functions/serializeWorld'
+import { SceneDeltaState } from '@ir-engine/engine/src/scene/systems/SceneDeltaState'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
@@ -98,6 +98,14 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
     if (hasComponent(entity, SceneComponent)) continue
     if (add) {
       setComponent(entity, component, args)
+      if (args) {
+        const sourceID = getComponent(entity, SourceComponent)
+        const rootEntity = getState(EditorState).rootEntity
+        const rootSourceID = GLTFComponent.getInstanceID(rootEntity)
+        if (sourceID !== rootSourceID) {
+          SceneDeltaState.registerDelta(entity, component, args)
+        }
+      }
     } else {
       removeComponent(entity, component)
     }

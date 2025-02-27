@@ -42,7 +42,6 @@ import {
   setComponent,
   traverseEntityNode
 } from '@ir-engine/ecs'
-import { SceneDeltaEntry, SceneDeltaRegistry, SceneDeltaState } from '@ir-engine/ecs/src/SceneDeltaState'
 import { getMutableState, getState, isClient } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
@@ -102,6 +101,7 @@ import {
   Vector3,
   VectorKeyframeTrack
 } from 'three'
+import { parseStorageProviderURLs } from '../assets/functions/parseSceneJSON'
 import { loadResource, unloadResourcesForEntity } from '../assets/functions/resourceLoaderFunctions'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { Loader } from '../assets/loaders/base/Loader'
@@ -129,6 +129,7 @@ import { AssetCacheState } from '../assets/state/AssetCacheState'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { SourceID } from '../scene/components/SourceComponent'
+import { SceneDeltaEntry, SceneDeltaRegistry, SceneDeltaState } from '../scene/systems/SceneDeltaState'
 import { GLTFComponent } from './GLTFComponent'
 import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
 import { KHRTextureTransformExtensionComponent, KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
@@ -792,7 +793,7 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
     const nodeID = getComponent(materialEntity, NodeIDComponent)
     const nodeDelta = sourceDelta[nodeID]
     if (nodeDelta) {
-      const materialDelta = nodeDelta[MaterialStateComponent.jsonID]
+      const materialDelta = nodeDelta['materialParameters']
       if (materialDelta) {
         Object.assign(materialParams, materialDelta)
       }
@@ -1499,7 +1500,8 @@ const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   // load deltas into state before anything else
   const deltas = json.extensions?.[SCENE_DELTA_EXTENSION_NAME] as SceneDeltaRegistry | null
   if (deltas) {
-    getMutableState(SceneDeltaState).merge(deltas)
+    const parsedDeltas = parseStorageProviderURLs(deltas)
+    getMutableState(SceneDeltaState).merge(parsedDeltas)
   }
 
   DependencyCache.set(options.url, new Map())

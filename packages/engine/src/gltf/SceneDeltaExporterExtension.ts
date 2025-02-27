@@ -24,9 +24,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { getComponent, iterateEntityNode } from '@ir-engine/ecs'
-import { SceneDeltaRegistry, SceneDeltaState } from '@ir-engine/ecs/src/SceneDeltaState'
 import { getState } from '@ir-engine/hyperflux'
+import { cleanStorageProviderURLs } from '../assets/functions/parseSceneJSON'
 import { SourceComponent } from '../scene/components/SourceComponent'
+import { SceneDeltaRegistry, SceneDeltaState } from '../scene/systems/SceneDeltaState'
 import { GLTFSceneExportExtension } from './exportGLTFScene'
 import { GLTFComponent } from './GLTFComponent'
 import { NodeIDComponent } from './NodeIDComponent'
@@ -35,6 +36,7 @@ export const SCENE_DELTA_EXTENSION_NAME = 'IR_scene_delta'
 
 export const SceneDeltaExporterExtension: () => GLTFSceneExportExtension = () => ({
   after: (rootEntity, gltf) => {
+    let usedSceneDelta = false
     iterateEntityNode(rootEntity, (entity) => {
       if (entity === rootEntity) return
       const sourceID = getComponent(entity, SourceComponent).replaceAll(/\?hash=[^-]+/g, '')
@@ -52,6 +54,12 @@ export const SceneDeltaExporterExtension: () => GLTFSceneExportExtension = () =>
       const extension: SceneDeltaRegistry = extensions[SCENE_DELTA_EXTENSION_NAME]
       extension[sourceID] ??= {}
       extension[sourceID][nodeID] = nodeDelta
+      usedSceneDelta = true
     })
+    if (usedSceneDelta) {
+      cleanStorageProviderURLs(gltf.extensions![SCENE_DELTA_EXTENSION_NAME])
+      gltf.extensionsUsed ??= []
+      gltf.extensionsUsed.push(SCENE_DELTA_EXTENSION_NAME)
+    }
   }
 })

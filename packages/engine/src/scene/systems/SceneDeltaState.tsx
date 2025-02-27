@@ -23,10 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Component, Entity, getComponent, hasComponent, SerializedComponentType } from '@ir-engine/ecs'
+import { Component, defineSystem, Entity, getComponent, hasComponent, SerializedComponentType } from '@ir-engine/ecs'
 import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { SourceComponent, SourceID } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { defineState, getMutableState, NO_PROXY_STEALTH } from '@ir-engine/hyperflux'
+import { defineState, getMutableState, NO_PROXY_STEALTH, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { useEffect } from 'react'
+import { SceneState } from '../../gltf/GLTFState'
+import { SceneObjectSystem } from './SceneObjectSystem'
 
 export type SceneDeltaEntry<C extends Component> = Record<string, Partial<SerializedComponentType<C>>>
 
@@ -59,5 +62,22 @@ export const SceneDeltaState = defineState({
     if (!source.value[nodeID]) source[nodeID].set({} as MaterialDeltaEntry)
     const componentMap = source[nodeID].get(NO_PROXY_STEALTH) as MaterialDeltaEntry
     componentMap['materialParameters'] = props
+  }
+})
+
+export const SceneDeltaSystem = defineSystem({
+  uuid: 'ir.engine.SceneDeltaSystem',
+  insert: { with: SceneObjectSystem },
+  reactor: () => {
+    const sceneState = useMutableState(SceneState)
+    const currentRoot = useHookstate(sceneState.keys[0])
+    useEffect(() => {
+      const newRoot = sceneState.keys[0]
+      if (newRoot !== currentRoot.value) {
+        getMutableState(SceneDeltaState).set({})
+        currentRoot.set(newRoot)
+      }
+    }, [sceneState.keys])
+    return null
   }
 })
