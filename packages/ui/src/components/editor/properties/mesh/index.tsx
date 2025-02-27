@@ -51,9 +51,11 @@ const MeshNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
       <Accordion title={t('editor:properties.mesh.geometryEditor')}>
         <GeometryEditor geometry={meshComponent?.geometry ?? null} />
       </Accordion>
-      <Accordion title={t('editor:properties.mesh.materialEditor')}>
-        <MaterialEditor materialUUID={((meshComponent?.material as Material).uuid as EntityUUID) ?? null} />
-      </Accordion>
+      {(meshComponent?.material as Material)?.uuid && (
+        <Accordion title={t('editor:properties.mesh.materialEditor')}>
+          <MaterialEditor materialUUID={(meshComponent.material as Material).uuid as EntityUUID} />
+        </Accordion>
+      )}
     </NodeEditor>
   )
 }
