@@ -77,7 +77,7 @@ const toBlobs = (thumbnails: Record<string, ThumbnailData>): Record<string, stri
 
 export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   const { t } = useTranslation()
-  const entity = UUIDComponent.useEntityByUUID(props.materialUUID, Layers.Authoring)
+  const entity = UUIDComponent.useEntityByUUID(props.materialUUID, Layers.Simulation)
   const materialComponent = useComponent(entity, MaterialStateComponent)
   const material = materialComponent.material.get(NO_PROXY) as Material
 

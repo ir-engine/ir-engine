@@ -41,6 +41,27 @@ const MeshNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
   const entity = props.entity
   const { t } = useTranslation()
   const meshComponent = getComponent(entity, MeshComponent)
+
+  const materialEditor = () => {
+    if (Array.isArray(meshComponent?.material) && meshComponent.material.length > 0) {
+      return meshComponent.material.map((material, index) => {
+        return (
+          <Accordion title={t('editor:properties.mesh.materialEditor')} key={index}>
+            <MaterialEditor materialUUID={material.uuid as EntityUUID} />
+          </Accordion>
+        )
+      })
+    } else if ((meshComponent?.material as Material)?.uuid) {
+      return (
+        <Accordion title={t('editor:properties.mesh.materialEditor')}>
+          <MaterialEditor materialUUID={(meshComponent.material as Material).uuid as EntityUUID} />
+        </Accordion>
+      )
+    }
+
+    return null
+  }
+
   return (
     <NodeEditor
       name={t('editor:properties.mesh.name')}
@@ -51,11 +72,7 @@ const MeshNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
       <Accordion title={t('editor:properties.mesh.geometryEditor')}>
         <GeometryEditor geometry={meshComponent?.geometry ?? null} />
       </Accordion>
-      {(meshComponent?.material as Material)?.uuid && (
-        <Accordion title={t('editor:properties.mesh.materialEditor')}>
-          <MaterialEditor materialUUID={(meshComponent.material as Material).uuid as EntityUUID} />
-        </Accordion>
-      )}
+      {materialEditor()}
     </NodeEditor>
   )
 }
