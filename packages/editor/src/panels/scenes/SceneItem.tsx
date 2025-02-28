@@ -23,11 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { ThemeState } from '@ir-engine/client-core/src/common/services/ThemeService'
 import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
-import { config } from '@ir-engine/common/src/config'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
 import RenameSceneModal from '@ir-engine/editor/src/panels/scenes/RenameSceneModal'
+import { useMutableState } from '@ir-engine/hyperflux'
 import { Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import MoreOptionsMenu from '@ir-engine/ui/src/components/tailwind/MoreOptionsMenu'
@@ -35,6 +36,7 @@ import { Edit01Sm, Trash04Sm } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { default as React } from 'react'
 import { useTranslation } from 'react-i18next'
+import { twMerge } from 'tailwind-merge'
 
 type SceneItemProps = {
   scene: StaticResourceType
@@ -44,8 +46,6 @@ type SceneItemProps = {
   onDeleteScene?: (scene: StaticResourceType) => void
   disableDeleteScene?: boolean
 }
-
-const DEFAULT_SCENE_THUMBNAIL = `${config.client.fileServer}/projects/ir-engine/default-project/public/scenes/default.thumbnail.jpg`
 
 export default function SceneItem({
   scene,
@@ -58,6 +58,7 @@ export default function SceneItem({
   const { t } = useTranslation()
 
   const sceneName = scene.key.split('/').pop()!.replace('.gltf', '')
+  const theme = useMutableState(ThemeState).theme
 
   const deleteSelectedScene = async (scene: StaticResourceType) => {
     if (scene) {
@@ -72,16 +73,18 @@ export default function SceneItem({
     PopoverState.hidePopupover()
   }
 
+  const defaultThumbnail = theme?.value === 'dark' ? '/iR-logo-Modal-light.png' : '/iR-logo-Modal-dark.png'
+
   return (
     <div
       data-testid="scene-container"
       className="col-span-2 inline-flex h-64 w-64 min-w-64 max-w-64 cursor-pointer flex-col items-start justify-start gap-3 rounded-lg border border-ui-outline bg-ui-background p-3 lg:col-span-1"
     >
-      <div className="shrink grow basis-0 self-stretch">
+      <div className="flex max-h-40 shrink grow basis-0 items-center justify-center self-stretch rounded bg-surface-4">
         <img
-          className="rounded"
-          src={scene.thumbnailURL || DEFAULT_SCENE_THUMBNAIL}
-          alt={DEFAULT_SCENE_THUMBNAIL}
+          className={twMerge(scene.thumbnailURL ? 'rounded' : 'h-auto max-h-32 w-full max-w-32 ')}
+          src={scene.thumbnailURL || defaultThumbnail}
+          alt={defaultThumbnail}
           data-testid="scene-thumbnail"
           onClick={handleOpenScene}
         />

@@ -155,7 +155,7 @@ const ShareMenu = (): JSX.Element => {
   })
 
   useEffect(() => {
-    logger.info({ event_name: 'share_clicked' })
+    logger.analytics({ event_name: 'share_clicked' })
   }, [])
 
   // Ref: https://developer.oculus.com/documentation/web/web-launch
