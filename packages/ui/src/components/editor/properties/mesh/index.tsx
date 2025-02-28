@@ -26,7 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { UUIDComponent } from '@ir-engine/ecs'
+import { getComponent, Layers } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
@@ -37,6 +38,10 @@ import { Material } from 'three'
 import Accordion from '../../../../primitives/tailwind/Accordion'
 import GeometryEditor from './geometryEditor'
 
+const MaterialIsInAuthoringLayer = (material: Material): boolean => {
+  return !!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID, Layers.Authoring)
+}
+
 const MeshNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
   const entity = props.entity
   const { t } = useTranslation()
@@ -45,6 +50,7 @@ const MeshNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
   const materialEditor = () => {
     if (Array.isArray(meshComponent?.material) && meshComponent.material.length > 0) {
       return meshComponent.material.map((material, index) => {
+        if (!MaterialIsInAuthoringLayer(material)) return null
         return (
           <Accordion title={t('editor:properties.mesh.materialEditor')} key={index}>
             <MaterialEditor materialUUID={material.uuid as EntityUUID} />
@@ -52,6 +58,7 @@ const MeshNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
         )
       })
     } else if ((meshComponent?.material as Material)?.uuid) {
+      if (!MaterialIsInAuthoringLayer(meshComponent.material as Material)) return null
       return (
         <Accordion title={t('editor:properties.mesh.materialEditor')}>
           <MaterialEditor materialUUID={(meshComponent.material as Material).uuid as EntityUUID} />
