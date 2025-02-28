@@ -23,8 +23,16 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EntityTreeComponent, getAllComponents, getComponent, serializeComponent } from '@ir-engine/ecs'
-import { Entity } from '@ir-engine/ecs/src/Entity'
+import {
+  EntityTreeComponent,
+  getAllComponents,
+  getAncestorWithComponents,
+  getComponent,
+  serializeComponent
+} from '@ir-engine/ecs'
+import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 
@@ -39,15 +47,22 @@ export const CopyState = defineState({
 
 export const CopyPasteFunctions = {
   _generateEntityCopyData: (entities: Entity[]) =>
-    entities.map((entity) => {
-      const name = getComponent(entity, NameComponent)
-      const children = getComponent(entity, EntityTreeComponent).children as Entity[]
-      return {
-        name: name,
-        children: CopyPasteFunctions._generateEntityCopyData(children),
-        components: CopyPasteFunctions._generateComponentCopyData(entity)
-      }
-    }) as EntityCopyDataType[],
+    entities
+      .map((entity) => {
+        const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
+        const gltfParentEntity = getAncestorWithComponents(parentEntity, [GLTFComponent, SourceComponent])
+        if (gltfParentEntity !== UndefinedEntity) {
+          return
+        }
+        const name = getComponent(entity, NameComponent)
+        const children = getComponent(entity, EntityTreeComponent).children as Entity[]
+        return {
+          name: name,
+          children: CopyPasteFunctions._generateEntityCopyData(children),
+          components: CopyPasteFunctions._generateComponentCopyData(entity)
+        }
+      })
+      .filter((e) => e !== undefined) as EntityCopyDataType[],
 
   _generateComponentCopyData: (entity: Entity) => {
     const components = getAllComponents(entity)
