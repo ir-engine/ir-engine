@@ -23,37 +23,32 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineState, getMutableState } from '@ir-engine/hyperflux'
-import { IconType } from 'react-icons'
-import { SVGIconType } from '../user/components/LocationIconButton'
+import type { Knex } from 'knex'
 
-type ExternalMenuType = {
-  component: React.ReactNode
-  title: string
-  icon: SVGIconType | IconType
+export const staticResourcePath = 'static-resource'
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const tableExists = await knex.schema.hasTable(staticResourcePath)
+
+  if (tableExists) {
+    await knex(staticResourcePath)
+      .whereNot('project', 'ir-engine/default-project')
+      .andWhere('type', 'scene')
+      .andWhere('thumbnailKey', 'projects/ir-engine/default-project/public/scenes/default.thumbnail.jpg')
+      .update({ thumbnailKey: null })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
-export const ViewerMenuState = defineState({
-  name: 'ViewerMenuState',
-  initial: () => ({
-    userMenus: {
-      profile: true,
-      settings: false,
-      readyplayer: false,
-      avaturn: false,
-      avatarselect: false,
-      avatarmodify: false,
-      share: false,
-      emote: false,
-      friends: false,
-      social: false,
-      embedframe: true
-    } as Record<string, boolean>,
-    externalInjectedMenus: {} as Record<string, ExternalMenuType>
-  }),
-  addExternalMenu: (params: { name: string; icon: React.ElementType | JSX.Element; component: React.ReactNode }) => {
-    getMutableState(ViewerMenuState).externalInjectedMenus.merge({
-      [params.name]: { component: params.component, icon: params.icon }
-    } as Record<string, ExternalMenuType>)
-  }
-})
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {}

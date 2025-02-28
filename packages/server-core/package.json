@@ -59,6 +59,7 @@
     "@feathersjs/koa": "5.0.5",
     "@feathersjs/transport-commons": "5.0.5",
     "@ffprobe-installer/ffprobe": "^2.0.0",
+    "@google-cloud/bigquery": "^7.9.1",
     "@ir-engine/common": "^1.6.0",
     "@ir-engine/engine": "^1.6.0",
     "@ir-engine/matchmaking": "^1.6.0",

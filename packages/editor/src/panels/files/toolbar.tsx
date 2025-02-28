@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { REMOVE_EDGE_SLASH_REGEX } from '@ir-engine/common/src/regex'
 import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
 import { Slider, ViewportButton } from '@ir-engine/ui/editor'
@@ -106,7 +107,7 @@ function BreadcrumbItems() {
 
   let breadcrumbDirectoryFiles = filesState.selectedDirectory.value.slice(1, -1).split('/')
   const nestedIndex = breadcrumbDirectoryFiles.indexOf('projects')
-  breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx > nestedIndex)
+  breadcrumbDirectoryFiles = breadcrumbDirectoryFiles.filter((_, idx) => idx > nestedIndex + 1)
 
   return (
     <div className="flex items-center gap-2">
@@ -216,10 +217,8 @@ export default function FilesToolbar() {
   const { t } = useTranslation()
   const filesState = useMutableState(FilesState)
 
-  const originalPath = useMutableState(EditorState).projectName.value
   const filesViewMode = useMutableState(FilesViewModeState).viewMode
 
-  const showBackButton = filesState.selectedDirectory.value.split('/').length > (originalPath?.split('/').length || 0)
   const showDownloadButtons = filesState.selectedDirectory.value.startsWith(
     '/projects/' + filesState.projectName.value + '/'
   )
@@ -297,7 +296,7 @@ export default function FilesToolbar() {
             data-testid="files-panel-upload-files-button"
             className="disabled:bg-[#212226]"
           >
-            <FolderSm />
+            <PlusCircleSm />
             <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFiles')}</span>
           </Button>
           <Button
@@ -317,7 +316,7 @@ export default function FilesToolbar() {
             }
             data-testid="files-panel-upload-folder-button"
           >
-            <PlusCircleSm />
+            <FolderSm />
             <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFolder')}</span>
           </Button>
         </>
@@ -345,6 +344,11 @@ export function PanelToolbar({
 }) {
   const { t } = useTranslation()
   const { createNewFolder } = useCurrentFiles()
+  const filesState = useMutableState(FilesState)
+  const originalPath = useMutableState(EditorState).projectName.value
+  const showBackButton =
+    filesState.selectedDirectory.value.replace(REMOVE_EDGE_SLASH_REGEX, '').split('/').length >
+    (originalPath?.split('/').length || 0) + 1
 
   return (
     <div
@@ -354,11 +358,17 @@ export function PanelToolbar({
       {/* Tools */}
       <div className="flex items-center gap-x-1 divide-x divide-ui-outline">
         <div className="flex items-center">
-          <div>
-            <Tooltip content={t('editor:layout.filebrowser.back')}>
-              <ViewportButton data-testid={dataTestIdJson?.backButtonId} onClick={onBackDirectory} icon={ArrowLeftSm} />
-            </Tooltip>
-          </div>
+          {showBackButton && (
+            <div>
+              <Tooltip content={t('editor:layout.filebrowser.back')}>
+                <ViewportButton
+                  data-testid={dataTestIdJson?.backButtonId}
+                  onClick={onBackDirectory}
+                  icon={ArrowLeftSm}
+                />
+              </Tooltip>
+            </div>
+          )}
           <div>
             <Tooltip content={t('editor:layout.filebrowser.refresh')}>
               <ViewportButton

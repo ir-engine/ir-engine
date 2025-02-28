@@ -64,6 +64,7 @@ import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { EditorHistoryFunctions } from '../services/EditorHistoryState'
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
@@ -147,6 +148,7 @@ export async function addMediaNode(
           const json = serializeEntity(firstChild)
           EditorControlFunctions.overwriteLookdevObject([...json, ...extraComponentJson], parent!, before)
           removeEntity(entity)
+          EditorHistoryFunctions.snapshot()
         }
       )
     } else if (contentType.startsWith('model/prefab')) {
@@ -182,6 +184,7 @@ export async function addMediaNode(
         parent!,
         before
       )
+      EditorHistoryFunctions.snapshot()
       return entityUUID
     }
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
@@ -195,6 +198,7 @@ export async function addMediaNode(
       parent!,
       before
     )
+    EditorHistoryFunctions.snapshot()
     return entityUUID
   } else if (contentType.startsWith('image/')) {
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
@@ -202,6 +206,7 @@ export async function addMediaNode(
       parent!,
       before
     )
+    EditorHistoryFunctions.snapshot()
     return entityUUID
   } else if (contentType.startsWith('audio/')) {
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
@@ -213,6 +218,7 @@ export async function addMediaNode(
       parent!,
       before
     )
+    EditorHistoryFunctions.snapshot()
     return entityUUID
   } else if (url.includes('.uvol')) {
     // TODO: detect whether to add LegacyVolumetricComponent or VolumetricComponent
@@ -225,6 +231,7 @@ export async function addMediaNode(
       parent!,
       before
     )
+    EditorHistoryFunctions.snapshot()
     return entityUUID
   }
   return null

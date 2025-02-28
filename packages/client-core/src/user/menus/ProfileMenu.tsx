@@ -143,9 +143,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
         .patch(userId, { ageVerified: true })
         .then(() => {
           selfUser.ageVerified.set(true)
-          logger.info({
-            event_name: 'accept_tos'
-          })
+          logger.analytics({ event_name: 'accept_tos' })
         })
         .catch((e) => {
           console.error(e, 'Error updating user')
@@ -190,7 +188,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   }, [selfUser.name.value])
 
   useEffect(() => {
-    if (!loading.value) logger.info({ event_name: 'view_profile' })
+    if (!loading.value) logger.analytics({ event_name: 'view_profile' })
   }, [loading.value])
 
   const identityProvidersQuery = useFind(identityProviderPath)
@@ -248,7 +246,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     if (errorUsername.value.length > 0) return
     if (selfUser.name.value.trim() !== name) {
       AvatarService.updateUsername(userId, name).then(() =>
-        logger.info({
+        logger.analytics({
           event_name: 'rename_user'
         })
       )
@@ -276,14 +274,14 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     const redirectUrl = window.location.toString().replace(window.location.search, '')
     if (type === 'email')
       AuthService.createMagicLink(emailPhone.value, authState?.value, 'email', redirectUrl).then(() =>
-        logger.info({
+        logger.analytics({
           event_name: 'connect_email',
           event_value: e.currentTarget.id
         })
       )
     else if (type === 'sms')
       AuthService.createMagicLink(emailPhone.value, authState?.value, 'sms', redirectUrl).then(() =>
-        logger.info({
+        logger.analytics({
           event_name: 'connect_sms',
           event_value: e.currentTarget.id
         })
@@ -292,7 +290,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   }
 
   const handleOAuthServiceClick = (serviceName: keyof typeof initialOAuthConnectedState) => {
-    logger.info({
+    logger.analytics({
       event_name: 'connect_social_login',
       event_value: serviceName
     })
@@ -300,7 +298,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   }
 
   const handleRemoveOAuthServiceClick = (serviceName: keyof typeof initialOAuthConnectedState) => {
-    logger.info({
+    logger.analytics({
       event_name: 'disconnect_social_login',
       event_value: serviceName
     })

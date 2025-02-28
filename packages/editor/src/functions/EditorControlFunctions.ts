@@ -33,7 +33,6 @@ import {
   getAncestorWithComponents,
   getChildrenWithComponents,
   iterateEntityNode,
-  removeEntityNodeRecursively,
   UUIDComponent
 } from '@ir-engine/ecs'
 import {
@@ -48,6 +47,7 @@ import {
   LayerFunctions,
   Layers,
   removeComponent,
+  removeEntity,
   serializeComponent,
   SerializedComponentType,
   setComponent,
@@ -90,7 +90,9 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
   args: SetComponentType<C> | undefined = undefined
 ) => {
   const sceneComponentID = component.jsonID
-  if (!sceneComponentID) return
+  if (!sceneComponentID) return []
+
+  const modifiedNodes = [] as NodeID[]
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
     if (add) {
@@ -98,15 +100,21 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
     } else {
       removeComponent(entity, component)
     }
+    modifiedNodes.push(getComponent(entity, NodeIDComponent))
     EditorState.markModifiedScene(entity)
   }
+
+  return modifiedNodes
 }
 
 const modifyName = (entities: Entity[], name: string) => {
+  const modifiedNodes = [] as NodeID[]
   for (const entity of entities) {
     setComponent(entity, NameComponent, name)
     EditorState.markModifiedScene(entity)
+    modifiedNodes.push(getComponent(entity, NodeIDComponent))
   }
+  return modifiedNodes
 }
 
 /**
@@ -117,6 +125,7 @@ const modifyProperty = <C extends Component<any, any>>(
   component: C,
   properties: Partial<SerializedComponentType<C>>
 ) => {
+  const affectedNodes = [] as NodeID[]
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
 
@@ -130,7 +139,11 @@ const modifyProperty = <C extends Component<any, any>>(
     }
     deserializeComponent(entity, component, currentComponent)
     EditorState.markModifiedScene(entity)
+
+    affectedNodes.push(getComponent(entity, NodeIDComponent))
   }
+
+  return affectedNodes
 }
 
 /**Updates the materialEntity's threejs material using the the newPrototype to look up the new constructor */
@@ -429,6 +442,25 @@ const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: V
   }
 }
 
+const worldScaleObject = (entities: Entity[], worldScales: Vector3[]) => {
+  for (let i = 0; i < entities.length; i++) {
+    const entity = entities[i]
+    const worldScale = worldScales[i] ?? worldScales[0]
+
+    const entityTreeComponent = getComponent(entity, EntityTreeComponent)
+    const parentEntity = entityTreeComponent.parentEntity
+
+    const entityWorldScale = TransformComponent.getWorldScale(parentEntity, new Vector3(1, 1, 1))
+    const newLocalScale = new Vector3(
+      worldScale.x / entityWorldScale.x,
+      worldScale.y / entityWorldScale.y,
+      worldScale.z / entityWorldScale.z
+    )
+    setComponent(entity, TransformComponent, { scale: newLocalScale })
+    EditorState.markModifiedScene(entity)
+  }
+}
+
 const scaleObject = (entities: Entity[], scales: Vector3[], overrideScale = false) => {
   for (let i = 0; i < entities.length; i++) {
     const entity = entities[i]
@@ -466,6 +498,11 @@ const reparentObject = (
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
     if (entity === parent) continue
+
+    const worldPosition = TransformComponent.getWorldPosition(entity, new Vector3())
+    const worldRotation = TransformComponent.getWorldRotation(entity, new Quaternion())
+    const worldScale = TransformComponent.getWorldScale(entity, new Vector3())
+
     const parentTree = getComponent(parent, EntityTreeComponent)
     const index = afterEntity
       ? parentTree.children.indexOf(afterEntity) + 1
@@ -473,6 +510,11 @@ const reparentObject = (
       ? parentTree.children.indexOf(beforeEntity)
       : undefined
     setComponent(entity, EntityTreeComponent, { parentEntity: parent, childIndex: index })
+
+    EditorControlFunctions.positionObject([entity], [worldPosition], TransformSpace.world)
+    EditorControlFunctions.rotateObject([entity], [worldRotation], TransformSpace.world)
+    worldScaleObject([entity], [worldScale])
+
     /** @todo handle the entity changing sources */
     EditorState.markModifiedScene(entity)
   }
@@ -506,11 +548,25 @@ const removeObject = (entities: Entity[]) => {
   /** we have to manually set this here or it will cause react errors when entities are removed */
   getMutableState(SelectionState).selectedEntities.set([])
 
+  const affectedNodes = [] as NodeID[]
+
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
+    const sourceID = getComponent(entity, SourceComponent)
     EditorState.markModifiedScene(entity)
-    removeEntityNodeRecursively(entity)
+    const entitiesToRemove = [] as Entity[]
+    iterateEntityNode(
+      entity,
+      (node) => {
+        affectedNodes.push(getComponent(node, NodeIDComponent))
+        entitiesToRemove.push(node)
+      },
+      (child) => getComponent(child, SourceComponent) === sourceID
+    )
+    for (const node of entitiesToRemove) removeEntity(node)
   }
+
+  return affectedNodes
 }
 
 const replaceSelection = (entities: EntityUUID[]) => {

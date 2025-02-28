@@ -23,37 +23,28 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineState, getMutableState } from '@ir-engine/hyperflux'
-import { IconType } from 'react-icons'
-import { SVGIconType } from '../user/components/LocationIconButton'
-
-type ExternalMenuType = {
-  component: React.ReactNode
-  title: string
-  icon: SVGIconType | IconType
-}
-
-export const ViewerMenuState = defineState({
-  name: 'ViewerMenuState',
-  initial: () => ({
-    userMenus: {
-      profile: true,
-      settings: false,
-      readyplayer: false,
-      avaturn: false,
-      avatarselect: false,
-      avatarmodify: false,
-      share: false,
-      emote: false,
-      friends: false,
-      social: false,
-      embedframe: true
-    } as Record<string, boolean>,
-    externalInjectedMenus: {} as Record<string, ExternalMenuType>
-  }),
-  addExternalMenu: (params: { name: string; icon: React.ElementType | JSX.Element; component: React.ReactNode }) => {
-    getMutableState(ViewerMenuState).externalInjectedMenus.merge({
-      [params.name]: { component: params.component, icon: params.icon }
-    } as Record<string, ExternalMenuType>)
-  }
-})
+import type { SVGProps } from 'react'
+import * as React from 'react'
+import { Ref, forwardRef } from 'react'
+const WarningLg = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="1em"
+    height="1em"
+    fill="none"
+    viewBox="0 0 24 24"
+    role="img"
+    stroke="currentColor"
+    ref={ref}
+    {...props}
+  >
+    <path
+      fill="#2C2E33"
+      fillRule="evenodd"
+      d="M9.4 3.003c1.155-2 4.044-2 5.198 0l7.354 12.748c1.154 2-.29 4.499-2.598 4.499H4.645c-2.309 0-3.752-2.5-2.598-4.5zM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75m0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5"
+      clipRule="evenodd"
+    />
+  </svg>
+)
+const ForwardRef = forwardRef(WarningLg)
+export default ForwardRef

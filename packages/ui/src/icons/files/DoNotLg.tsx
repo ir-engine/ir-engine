@@ -23,37 +23,29 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineState, getMutableState } from '@ir-engine/hyperflux'
-import { IconType } from 'react-icons'
-import { SVGIconType } from '../user/components/LocationIconButton'
-
-type ExternalMenuType = {
-  component: React.ReactNode
-  title: string
-  icon: SVGIconType | IconType
-}
-
-export const ViewerMenuState = defineState({
-  name: 'ViewerMenuState',
-  initial: () => ({
-    userMenus: {
-      profile: true,
-      settings: false,
-      readyplayer: false,
-      avaturn: false,
-      avatarselect: false,
-      avatarmodify: false,
-      share: false,
-      emote: false,
-      friends: false,
-      social: false,
-      embedframe: true
-    } as Record<string, boolean>,
-    externalInjectedMenus: {} as Record<string, ExternalMenuType>
-  }),
-  addExternalMenu: (params: { name: string; icon: React.ElementType | JSX.Element; component: React.ReactNode }) => {
-    getMutableState(ViewerMenuState).externalInjectedMenus.merge({
-      [params.name]: { component: params.component, icon: params.icon }
-    } as Record<string, ExternalMenuType>)
-  }
-})
+import type { SVGProps } from 'react'
+import * as React from 'react'
+import { Ref, forwardRef } from 'react'
+const DoNotLg = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="1em"
+    height="1em"
+    fill="none"
+    viewBox="0 0 24 24"
+    role="img"
+    stroke="currentColor"
+    ref={ref}
+    {...props}
+  >
+    <path
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636"
+    />
+  </svg>
+)
+const ForwardRef = forwardRef(DoNotLg)
+export default ForwardRef
