@@ -70,8 +70,8 @@ const LocationPage = ({ online }: Props) => {
 
   useEffect(() => {
     if (!ready.value) return
-    logger.info({ event_name: 'enter_location' })
-    return () => logger.info({ event_name: 'exit_location' })
+    logger.analytics({ event_name: 'enter_location' })
+    return () => logger.analytics({ event_name: 'exit_location' })
   }, [ready.value])
 
   // To show invalid token error

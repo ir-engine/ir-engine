@@ -44,7 +44,7 @@ type SceneItemProps = {
   refetchProjectsData: () => void
   onRenameScene?: (newName: string) => void
   onDeleteScene?: (scene: StaticResourceType) => void
-  disableDeleteScene: boolean
+  disableDeleteScene?: boolean
 }
 
 export default function SceneItem({
