@@ -23,18 +23,13 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  EntityTreeComponent,
-  getAllComponents,
-  getAncestorWithComponents,
-  getComponent,
-  serializeComponent
-} from '@ir-engine/ecs'
-import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { EntityTreeComponent, getAllComponents, getComponent, serializeComponent } from '@ir-engine/ecs'
+import { Entity } from '@ir-engine/ecs/src/Entity'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { EditorState } from '../services/EditorServices'
 
 export type EntityCopyDataType = { name: string; children: EntityCopyDataType[]; components: ComponentCopyDataType[] }
 export type ComponentCopyDataType = { name: string; json: Record<string, unknown> }
@@ -49,9 +44,9 @@ export const CopyPasteFunctions = {
   _generateEntityCopyData: (entities: Entity[]) =>
     entities
       .map((entity) => {
-        const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
-        const gltfParentEntity = getAncestorWithComponents(parentEntity, [GLTFComponent, SourceComponent])
-        if (gltfParentEntity !== UndefinedEntity) {
+        const rootEntity = getState(EditorState).rootEntity
+        const sourceId = getComponent(entity, SourceComponent)
+        if (sourceId !== GLTFComponent.getInstanceID(rootEntity)) {
           return
         }
         const name = getComponent(entity, NameComponent)
