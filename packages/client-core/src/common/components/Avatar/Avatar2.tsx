@@ -59,7 +59,7 @@ const Avatar = ({ alt, imageSrc, isSelected, name, showChangeButton, type, size,
         onPointerUp={handleSoundEffect}
         onPointerEnter={handleSoundEffect}
         className={twMerge(
-          'relative box-border flex h-32 max-h-[149px] min-h-32 max-w-[410px] cursor-pointer items-start gap-3 rounded-lg bg-surface-2 p-3 shadow-sm ',
+          'relative box-border flex h-[6.5rem] max-h-32 max-w-96 cursor-pointer items-start gap-3 rounded-lg bg-surface-2 p-3 shadow-sm ',
           isSelected ? 'border-2 border-ui-select-primary' : 'border border-ui-outline'
         )}
       >

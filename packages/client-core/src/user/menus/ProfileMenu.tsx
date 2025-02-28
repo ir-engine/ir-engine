@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
@@ -135,6 +135,10 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   const originallyAgeVerified = useHookstate(checked18OrOver)
   const originallyAcceptedTOS = useHookstate(acceptedTOS).value
   const currentLocation = getState(LocationState).currentLocation.location
+
+  const avatarSelectMenuRef = useRef<{
+    handleClose: () => Promise<void>
+  } | null>(null)
 
   const submitAgeVerified = () => {
     if (!originallyAgeVerified.value && !checked18OrOver) {
@@ -353,6 +357,14 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     }
   }
 
+  const onAvatarSelectClose = () => {
+    if (avatarSelectMenuRef.current) {
+      avatarSelectMenuRef.current?.handleClose()
+    } else {
+      PopoverState.hidePopupover()
+    }
+  }
+
   const enableSocial =
     authState?.value?.apple ||
     authState?.value?.discord ||
@@ -372,7 +384,10 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             <AvatarImage size="large" src={avatarThumbnail} className="object-cover" />
             <button
               onClick={() => {
-                PopoverState.showPopupover(<AvatarSelectMenu showBackButton={true} previewEnabled={true} />)
+                PopoverState.showPopupover(
+                  <AvatarSelectMenu ref={avatarSelectMenuRef} showBackButton={true} previewEnabled={true} />,
+                  onAvatarSelectClose
+                )
               }}
               className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#DDE1E5] p-2"
             >
