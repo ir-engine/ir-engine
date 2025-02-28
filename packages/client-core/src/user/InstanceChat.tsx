@@ -188,7 +188,7 @@ function NewMessage() {
           onKeyUp={(event) => event.key === 'Enter' && sendMessage()}
           onChange={handleComposedMessage}
         />
-        <span className="sm:m-[5px]">
+        <span className="sm:m-[5px] sm:mr-2.5">
           {isMobile ? (
             <Send01Sm className="text-text-primary" onClick={sendMessage} />
           ) : (
@@ -276,7 +276,7 @@ function MessagesWrapper() {
           <LocationIconButton icon={MessageTextSquare01Md} onClick={() => isChatOpen.set(!isChatOpen.value)} />
         )}
       </div>
-      <div className={`lg:ml-[13px] ${isChatOpen.value ? 'w-[25dvw]' : 'w-0'}`} ref={ref}>
+      <div className={`mb-3 lg:mb-0 lg:ml-[13px] ${isChatOpen.value ? 'w-[25dvw]' : 'w-0'}`} ref={ref}>
         <Messages />
         <NewMessage />
       </div>
