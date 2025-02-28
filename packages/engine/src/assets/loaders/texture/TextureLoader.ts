@@ -32,14 +32,10 @@ import { Loader } from '../base/Loader'
 // Do we still need this check if we're now reliant on a browser that's new enough to have ArrayBuffer.resize?
 const useImageLoader = typeof createImageBitmap === 'undefined' || isSafari || (isFirefox && firefoxVersion < 98)
 const iOSMaxResolution = 1024
-const decodeQueue = new PromiseQueue<ImageBitmap | null>(2)
+const decodeQueue = new PromiseQueue<[ImageBitmap | null, unknown | null]>(2)
 
 /** @todo make this accessible for performance scaling */
-const getScaledBitmap = async (
-  src: string,
-  maxResolution: number,
-  onError?: (err: unknown) => void
-): Promise<ImageBitmap | null> => {
+const getScaledBitmap = async (src: string, maxResolution: number): Promise<[ImageBitmap | null, unknown | null]> => {
   return decodeQueue.enqueuePromise(() => {
     return new Promise(async (resolve) => {
       const img = new Image()
@@ -49,8 +45,7 @@ const getScaledBitmap = async (
       try {
         await img.decode()
       } catch (error) {
-        onError?.(error)
-        resolve(null)
+        resolve([null, error])
         return
       }
 
@@ -76,7 +71,7 @@ const getScaledBitmap = async (
       const ctx = canvas.getContext('2d')!
       ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight)
 
-      resolve(canvas.transferToImageBitmap())
+      resolve([canvas.transferToImageBitmap(), null])
     })
   })
 }
@@ -131,8 +126,14 @@ class TextureLoader extends Loader<Texture> {
     }
 
     if (this.maxResolution) {
-      const imageBitmap = await getScaledBitmap(url, this.maxResolution)
+      const [imageBitmap, error] = await getScaledBitmap(url, this.maxResolution)
+      if (error) {
+        onError?.(error)
+        return
+      }
+
       if (imageBitmap) onImage(imageBitmap)
+      else onError?.(new Error(`TextureLoader:load Unable to create scaled image bitmap for image url: ${url}`))
       return
     }
 
