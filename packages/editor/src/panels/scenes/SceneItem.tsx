@@ -73,7 +73,7 @@ export default function SceneItem({
     PopoverState.hidePopupover()
   }
 
-  const defaultThumbnail = theme?.value === 'dark' ? '/iR-logo-Modal-light.png' : 'iR-logo-Modal-dark.png'
+  const defaultThumbnail = theme?.value === 'dark' ? '/iR-logo-Modal-light.png' : '/iR-logo-Modal-dark.png'
 
   return (
     <div
