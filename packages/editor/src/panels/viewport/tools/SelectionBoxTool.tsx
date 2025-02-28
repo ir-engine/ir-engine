@@ -46,7 +46,8 @@ import { SelectionState } from '../../../services/SelectionServices'
 export const SelectionBoxState = defineState({
   name: 'selectionBox State',
   initial: () => ({
-    selectionBoxEnabled: false
+    selectionBoxEnabled: false,
+    gizmoInControl: false
   })
 })
 
@@ -59,21 +60,30 @@ export default function SelectionBox({
 }) {
   const [startX, setStartX] = useState(0)
   const [startY, setStartY] = useState(0)
-  const [left, setLeft] = useState(0)
-  const [top, setTop] = useState(0)
+  const left = useHookstate(0)
+  const top = useHookstate(0)
   const width = useHookstate(0)
   const height = useHookstate(0)
 
   const [isDragging, setIsDragging] = useState(false)
+
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (!getMutableState(SelectionBoxState).selectionBoxEnabled.value) return
     const viewportRect = viewportRef.current!.getBoundingClientRect()
     const toolbarRect = toolbarRef.current!.getBoundingClientRect()
+    if (
+      !getMutableState(SelectionBoxState).selectionBoxEnabled.value ||
+      getMutableState(SelectionBoxState).gizmoInControl.value ||
+      e.clientY < viewportRect.top + toolbarRect.height ||
+      e.clientY > viewportRect.top + viewportRect.height ||
+      e.clientX < viewportRect.left ||
+      e.clientX > viewportRect.left + viewportRect.width
+    )
+      return
     setStartX(e.clientX)
     setStartY(e.clientY)
     setIsDragging(true)
-    setLeft(Math.max(e.clientX - viewportRect.left, 0))
-    setTop(Math.max(e.clientY - viewportRect.top - toolbarRect.height, 0))
+    left.set(Math.max(e.clientX - viewportRect.left, 0))
+    top.set(Math.max(e.clientY - viewportRect.top - toolbarRect.height, 0))
     width.set(0)
     height.set(0)
   }
@@ -83,9 +93,24 @@ export default function SelectionBox({
     const viewportRect = viewportRef.current!.getBoundingClientRect()
     const toolbarRect = toolbarRef.current!.getBoundingClientRect()
     if (!isDragging) return
-    width.set(Math.min(e.clientX - startX, viewportRect.width - startX))
-    height.set(Math.min(e.clientY - startY, viewportRect.height + toolbarRect.height - startY))
+
+    if (e.clientX > startX) {
+      width.set(Math.min(e.clientX - startX, viewportRect.width - startX))
+      left.set(startX - viewportRect.left)
+    } else {
+      width.set(Math.abs(Math.max(e.clientX - startX, 0 - startX)))
+      left.set(startX - width.value - viewportRect.left)
+    }
+
+    if (e.clientY > startY) {
+      height.set(Math.min(e.clientY - startY, viewportRect.top + viewportRect.height - startY))
+      top.set(startY - viewportRect.top - toolbarRect.height)
+    } else {
+      height.set(Math.min(startY - e.clientY, startY - viewportRect.top - toolbarRect.height))
+      top.set(startY - height.value - viewportRect.top - toolbarRect.height)
+    }
   }
+
   const handleMouseUp = (e: React.MouseEvent) => {
     if (!getMutableState(SelectionBoxState).selectionBoxEnabled.value) return
     setIsDragging(false)
@@ -97,10 +122,10 @@ export default function SelectionBox({
   const updateSelectionEntity = () => {
     const viewportRect = viewportRef.current!.getBoundingClientRect()
     const toolbarRect = toolbarRef.current!.getBoundingClientRect()
-    const ndcX1 = (left / viewportRect.width) * 2 - 1
-    const ndcX2 = ((left + width.value) / viewportRect.width) * 2 - 1
-    const ndcY1 = 1 - ((top + toolbarRect.height) / viewportRect.height) * 2
-    const ndcY2 = 1 - ((top + toolbarRect.height + height.value) / viewportRect.height) * 2
+    const ndcX1 = (left.value / viewportRect.width) * 2 - 1
+    const ndcX2 = ((left.value + width.value) / viewportRect.width) * 2 - 1
+    const ndcY1 = 1 - ((top.value + toolbarRect.height) / viewportRect.height) * 2
+    const ndcY2 = 1 - ((top.value + toolbarRect.height + height.value) / viewportRect.height) * 2
     const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     camera.updateMatrixWorld()
     camera.updateProjectionMatrix()
@@ -158,8 +183,8 @@ export default function SelectionBox({
         <div
           className="absolute z-[5] flex flex-col items-center border-2 border-dashed border-white bg-transparent"
           style={{
-            left: `${left}px`,
-            top: `${top}px`,
+            left: `${left.value}px`,
+            top: `${top.value}px`,
             width: `${width.value}px`,
             height: `${height.value}px`
           }}
