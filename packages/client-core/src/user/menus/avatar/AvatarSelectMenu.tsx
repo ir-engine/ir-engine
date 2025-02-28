@@ -33,7 +33,7 @@ import { SpawnEffectComponent } from '@ir-engine/engine/src/avatar/components/Sp
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { debounce } from 'lodash'
-import React, { Fragment, useEffect, useRef } from 'react'
+import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
@@ -55,7 +55,8 @@ interface AvatarMenuProps {
   showBackButton: boolean
   previewEnabled?: boolean
 }
-const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuProps) => {
+
+const AvatarSelectMenu = forwardRef(({ showBackButton, previewEnabled = true }: AvatarMenuProps, ref) => {
   const { t } = useTranslation()
   const authState = useMutableState(AuthState)
   const userId = authState.user?.id?.value
@@ -64,6 +65,10 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
   const avatarLoading = useHookstate(false)
   const selfAvatarEntity = AvatarComponent.useSelfAvatarEntity()
   const selfAvatarLoaded = useOptionalComponent(selfAvatarEntity, GLTFComponent)?.progress?.value === 100
+
+  const avatarCreatorMenuRef = useRef<{
+    handleClose: () => Promise<void>
+  } | null>(null)
 
   const [createAvatarEnabled, uploadAvatarEnabled] = useFeatureFlags([
     FeatureFlags.Client.Menu.CreateAvatar,
@@ -142,11 +147,27 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
     PopoverState.hidePopupover()
   }
 
+  // expose handleClose since only the parent component
+  // can set the onClickOutside handler
+  useImperativeHandle(ref, () => {
+    return {
+      handleClose
+    }
+  })
+
+  const handleAvatarCreatorMenuClose = () => {
+    if (avatarCreatorMenuRef.current) {
+      avatarCreatorMenuRef.current?.handleClose()
+    } else {
+      PopoverState.hidePopupover()
+    }
+  }
+
   return (
     <Modal
       id="select-avatar-modal"
       className={twMerge(
-        'pointer-events-auto m-auto flex h-[95vh] max-w-[90vw] rounded-xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col',
+        'pointer-events-auto m-auto flex h-[95vh] max-w-[90vw] rounded-xl  lg:w-[70vw] lg:max-w-6xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col',
         previewEnabled ? 'lg:w-auto lg:max-w-6xl' : 'w-full lg:w-[24rem] lg:max-w-96'
       )}
       hideFooter={true}
@@ -212,7 +233,12 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
                     onClick={() => {
                       const Menu = AvatarCreatorMenu2(SupportedSdks.ReadyPlayerMe)
                       PopoverState.showPopupover(
-                        <Menu showBackButton={showBackButton} previewEnabled={previewEnabled} />
+                        <Menu
+                          ref={avatarCreatorMenuRef}
+                          showBackButton={showBackButton}
+                          previewEnabled={previewEnabled}
+                        />,
+                        handleAvatarCreatorMenuClose
                       )
                     }}
                   >
@@ -254,6 +280,6 @@ const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuP
       }
     />
   )
-}
+})
 
 export default AvatarSelectMenu
