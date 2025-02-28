@@ -167,7 +167,7 @@ export const MediaIconsBox = () => {
             id="UserVideo"
             onClick={() => {
               MediaStreamState.toggleWebcamPaused()
-              logger.info({ event_name: 'toggle_camera', value: isCamVideoEnabled })
+              logger.analytics({ event_name: 'toggle_camera', value: isCamVideoEnabled })
             }}
             loadingState={!!mediaStreamState.webcamMediaStream.value != mediaStreamState.webcamEnabled.value}
           />
@@ -190,7 +190,7 @@ export const MediaIconsBox = () => {
               }}
               onClick={() => {
                 window.open(`/capture/${location.pathname.split('/')[2]}`, '_blank')
-                logger.info({
+                logger.analytics({
                   event_name: 'toggle_motion_capture',
                   event_value: isMotionCaptureEnabled
                 })

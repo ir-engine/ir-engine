@@ -358,7 +358,7 @@ const ScreenshareReactor = () => {
 
     if (screenShareAudioPaused) MediasoupMediaProducerConsumerState.pauseProducer(network, screenAudioProducer.id)
     else MediasoupMediaProducerConsumerState.resumeConsumer(network, screenAudioProducer.id)
-    logger.info({ event_name: 'screenshare', value: screenShareAudioPaused })
+    logger.analytics({ event_name: 'screenshare', value: screenShareAudioPaused })
   }, [screenShareAudioPaused])
 
   return null

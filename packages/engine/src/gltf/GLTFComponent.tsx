@@ -233,8 +233,9 @@ export const GLTFComponentReactor = () => {
     let aborted = false
     removeComponent(entity, AnimationComponent)
 
+    const layer = LayerComponent.get(entity)
     const unloadEntities = () => {
-      const loadedEntities = SourceComponent.getEntitiesBySource(sourceID)
+      const loadedEntities = SourceComponent.getEntitiesBySource(sourceID, layer)
       for (const entity of loadedEntities) removeEntity(entity)
     }
 

@@ -46,15 +46,19 @@ const OverlayReactor = () => {
   const overlayComponent = useOptionalComponent(entity, OverlayComponent)
   const [isPopoverOpen, setIsPopoverOpen] = React.useState(false)
 
+  const onClose = () => {
+    setComponent(entity, OverlayComponent, { isOpen: false })
+    PopoverState.hidePopupover()
+    setIsPopoverOpen(false)
+  }
+
   useEffect(() => {
     if (overlayComponent?.isOpen.value && !isPopoverOpen) {
       const popoverType = overlayComponent?.type.value
       if (!popoverType) return
       const Component = getState(OverlayComponentState)[popoverType]
-      PopoverState.showPopupover(<Component component={overlayComponent.value} />, () => {
-        setComponent(entity, OverlayComponent, { isOpen: false })
-        PopoverState.hidePopupover()
-        setIsPopoverOpen(false)
+      PopoverState.showPopupover(<Component component={overlayComponent.value} onClose={onClose} />, () => {
+        onClose()
       })
       setIsPopoverOpen(true)
     }
