@@ -30,14 +30,7 @@ import { State, dispatchAction, useHookstate, useMutableState } from '@ir-engine
 import { NetworkState } from '@ir-engine/network'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { Button } from '@ir-engine/ui'
-import {
-  ArrowTopRightOnSquareMd,
-  MessageTextSquare01Lg,
-  MessageTextSquare01Md,
-  Send01Lg,
-  Send01Sm,
-  XCloseLg
-} from '@ir-engine/ui/src/icons'
+import { MessageTextSquare01Lg, MessageTextSquare01Md, Send01Lg, Send01Sm, XCloseLg } from '@ir-engine/ui/src/icons'
 import React, { createContext, useContext, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
@@ -300,11 +293,10 @@ export default function InstanceChat() {
           <div className="mx-auto text-center font-semibold text-[#3B3A3A]">{t('user:instanceChat.wantToChat')}</div>
           <Button
             variant="secondary"
-            className="mt-4 rounded-[20px]"
+            className="mx-auto mt-4 rounded-[20px]"
             onClick={() => PopoverState.showPopupover(<ProfileMenu />)}
           >
             {isGuest ? t('user:instanceChat.register') : t('user:instanceChat.verifyAge')}
-            <ArrowTopRightOnSquareMd />
           </Button>
         </div>
       ) : (

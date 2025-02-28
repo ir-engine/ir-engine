@@ -23,11 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { DrawingUtils } from '@mediapipe/tasks-vision'
-import hark from 'hark'
-import { t } from 'i18next'
-import React, { RefObject, useEffect, useRef } from 'react'
-
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { useGet } from '@ir-engine/common'
 import { UserName, userPath } from '@ir-engine/common/src/schema.type.module'
@@ -39,13 +34,16 @@ import { MotionCaptureSystem, timeSeriesMocapData } from '@ir-engine/engine/src/
 import { applyScreenshareToTexture } from '@ir-engine/engine/src/scene/functions/applyScreenshareToTexture'
 import { NO_PROXY, PeerID, State, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
+import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
+import { PeerMediaChannelState, PeerMediaStreamInterface } from '@ir-engine/network/src/media/PeerMediaChannelState'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { drawPoseToCanvas } from '@ir-engine/ui/src/pages/Capture'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
-
-import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
-import { PeerMediaChannelState, PeerMediaStreamInterface } from '@ir-engine/network/src/media/PeerMediaChannelState'
+import { DrawingUtils } from '@mediapipe/tasks-vision'
+import hark from 'hark'
+import { t } from 'i18next'
+import React, { RefObject, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 import { useZendesk } from '../../hooks/useZendesk'
@@ -390,19 +388,16 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
     <div
       tabIndex={0}
       id={peerID + '_' + type + '_container'}
-      className="pointer-events-auto relative h-[80px] w-[80px] overflow-hidden rounded-[90px] lg:h-[131px] lg:w-[131px]"
+      className={`
+        pointer-events-auto relative h-[80px] w-[80px] overflow-hidden rounded-[90px] lg:h-[131px] lg:w-[131px] ${
+          (!videoMediaStream || videoStreamPaused) && 'hidden lg:block'
+        }`}
       onClick={() => {
         if (isScreen && isPiP) togglePiP()
       }}
     >
       {(!videoMediaStream || videoStreamPaused) && (
-        <img
-          src={avatarThumbnail}
-          alt={t('user:avatar.avatar')}
-          crossOrigin="anonymous"
-          draggable={false}
-          className="hidden lg:inline"
-        />
+        <img src={avatarThumbnail} alt={t('user:avatar.avatar')} crossOrigin="anonymous" draggable={false} />
       )}
       <span
         className="[&>video]:h-full [&>video]:w-full [&>video]:object-cover"
