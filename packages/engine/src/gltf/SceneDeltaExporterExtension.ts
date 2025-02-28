@@ -39,8 +39,8 @@ export const SceneDeltaExporterExtension: () => GLTFSceneExportExtension = () =>
     let usedSceneDelta = false
     iterateEntityNode(rootEntity, (entity) => {
       if (entity === rootEntity) return
-      const sourceID = getComponent(entity, SourceComponent).replaceAll(/\?hash=[^-]+/g, '')
-      const rootSource = GLTFComponent.getInstanceID(rootEntity).replaceAll(/\?hash=[^-]+/g, '')
+      const sourceID = GLTFComponent.removeHashes(getComponent(entity, SourceComponent))
+      const rootSource = GLTFComponent.removeHashes(GLTFComponent.getInstanceID(rootEntity))
       if (sourceID === rootSource) return
       const deltaState = getState(SceneDeltaState)
       const sourceDelta = deltaState[sourceID]

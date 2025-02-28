@@ -129,7 +129,12 @@ import { AssetCacheState } from '../assets/state/AssetCacheState'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { SourceID } from '../scene/components/SourceComponent'
-import { SceneDeltaEntry, SceneDeltaRegistry, SceneDeltaState } from '../scene/systems/SceneDeltaState'
+import {
+  MATERIAL_JSON_ID,
+  SceneDeltaEntry,
+  SceneDeltaRegistry,
+  SceneDeltaState
+} from '../scene/systems/SceneDeltaState'
 import { GLTFComponent } from './GLTFComponent'
 import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
 import { KHRTextureTransformExtensionComponent, KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
@@ -788,12 +793,12 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
 
   //apply deltas
   const deltaState = getState(SceneDeltaState)
-  const sourceDelta = deltaState[options.documentID.replaceAll(/\?hash=[^-]+/g, '')]
+  const sourceDelta = deltaState[GLTFComponent.removeHashes(options.documentID)]
   if (sourceDelta) {
     const nodeID = getComponent(materialEntity, NodeIDComponent)
     const nodeDelta = sourceDelta[nodeID]
     if (nodeDelta) {
-      const materialDelta = nodeDelta['materialParameters']
+      const materialDelta = nodeDelta[MATERIAL_JSON_ID]
       if (materialDelta) {
         Object.assign(materialParams, materialDelta)
       }
@@ -1481,7 +1486,7 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
   await Promise.all(extensionPending)
 
   //apply deltas if they exist in state
-  const hashlessDocumentID = options.documentID.replaceAll(/\?hash=[^-]+/g, '')
+  const hashlessDocumentID = GLTFComponent.removeHashes(options.documentID)
   const deltas = getState(SceneDeltaState)?.[hashlessDocumentID]?.[nodeID]
   if (deltas) {
     for (const [componentName, delta] of Object.entries(deltas)) {

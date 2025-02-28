@@ -23,17 +23,19 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Component, defineSystem, Entity, getComponent, hasComponent, SerializedComponentType } from '@ir-engine/ecs'
+import { Component, Entity, getComponent, hasComponent, SerializedComponentType } from '@ir-engine/ecs'
 import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { SourceComponent, SourceID } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { defineState, getMutableState, NO_PROXY_STEALTH, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
+import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { SceneState } from '../../gltf/GLTFState'
-import { SceneObjectSystem } from './SceneObjectSystem'
 
 export type SceneDeltaEntry<C extends Component> = Record<string, Partial<SerializedComponentType<C>>>
 
-export type MaterialDeltaEntry = Record<'materialParameters', any>
+export const MATERIAL_JSON_ID = 'materialParameters' as const
+
+export type MaterialDeltaEntry = Record<typeof MATERIAL_JSON_ID, any>
 
 export type SceneDeltaRegistry = Record<SourceID, Record<NodeID, SceneDeltaEntry<any> | MaterialDeltaEntry>>
 
@@ -43,7 +45,7 @@ export const SceneDeltaState = defineState({
   registerDelta<C extends Component>(entity: Entity, component: C, delta: Partial<SerializedComponentType<C>>) {
     if (!hasComponent(entity, SourceComponent) || !hasComponent(entity, NodeIDComponent)) return
     if (!component.jsonID) return
-    const sourceID = getComponent(entity, SourceComponent).replaceAll(/\?hash=[^-]+/g, '')
+    const sourceID = GLTFComponent.removeHashes(getComponent(entity, SourceComponent))
     const nodeID = getComponent(entity, NodeIDComponent)
     const state = getMutableState(SceneDeltaState)
     if (!state.value[sourceID]) state[sourceID].set({})
@@ -55,21 +57,16 @@ export const SceneDeltaState = defineState({
   },
   registerMaterialDelta(entity: Entity, props: any) {
     if (!hasComponent(entity, SourceComponent) || !hasComponent(entity, NodeIDComponent)) return
-    const sourceID = getComponent(entity, SourceComponent).replaceAll(/\?hash=[^-]+/g, '')
+    const sourceID = GLTFComponent.removeHashes(getComponent(entity, SourceComponent))
     const nodeID = getComponent(entity, NodeIDComponent)
     const state = getMutableState(SceneDeltaState)
     if (!state.value[sourceID]) state[sourceID].set({})
     const source = state[sourceID]
     if (!source.value[nodeID]) source[nodeID].set({} as MaterialDeltaEntry)
     const componentMap = source[nodeID].get(NO_PROXY_STEALTH) as MaterialDeltaEntry
-    componentMap['materialParameters'] = { ...componentMap['materialParameters'], ...props }
+    componentMap[MATERIAL_JSON_ID] = { ...componentMap[MATERIAL_JSON_ID], ...props }
     source[nodeID].set(componentMap)
-  }
-})
-
-export const SceneDeltaSystem = defineSystem({
-  uuid: 'ir.engine.SceneDeltaSystem',
-  insert: { with: SceneObjectSystem },
+  },
   reactor: () => {
     const sceneState = useMutableState(SceneState)
     const currentRoot = useHookstate(sceneState.keys[0])
