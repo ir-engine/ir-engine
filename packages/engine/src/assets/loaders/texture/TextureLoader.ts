@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { PromiseQueue } from '@ir-engine/common/src/utils/promiseQueue'
 import { isClient } from '@ir-engine/hyperflux'
+import { PromiseQueue } from '@ir-engine/spatial/src/common/classes/PromiseQueue'
 import { firefoxVersion, iOS, isFirefox, isSafari } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { ImageBitmapLoader, ImageLoader, LoadingManager, Texture } from 'three'
 import { Loader } from '../base/Loader'
