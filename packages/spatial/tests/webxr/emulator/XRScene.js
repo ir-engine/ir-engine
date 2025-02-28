@@ -47,7 +47,7 @@ import { BoxLineGeometry } from 'three/examples/jsm/geometries/BoxLineGeometry.j
 import { XRMesh } from './api/XRMesh';
 import XRSpace from 'webxr-polyfill/src/api/XRSpace';
 import { mat4 } from 'gl-matrix';
-import { isClient } from '@ir-engine/common/src/utils/getEnvironment';
+import { isClient } from '@ir-engine/hyperflux';
 
 const DEFAULT_CAMERA_POSITION = [0, 1.6, 0];
 const PLANE_CONFIG = {

@@ -61,6 +61,7 @@ import {
   getAncestorWithComponents,
   getChildrenWithComponents,
   removeEntity,
+  useAncestorWithComponents,
   useEntityContext
 } from '@ir-engine/ecs'
 import {
@@ -795,34 +796,51 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS = S.Object({
   startLife: S.Object({
     type: S.String('IntervalValue'),
     a: S.Number(1),
-    b: S.Number(2)
+    b: S.Number(2),
+    value: S.Number(1),
+    functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   startSpeed: S.Object({
     type: S.String('IntervalValue'),
     a: S.Number(0.1),
-    b: S.Number(5)
+    b: S.Number(5),
+    value: S.Number(1),
+    functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   startRotation: S.Object({
     type: S.String('IntervalValue'),
     a: S.Number(0),
-    b: S.Number(300)
+    b: S.Number(300),
+    value: S.Number(1),
+    functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   startSize: S.Object({
     type: S.String('IntervalValue'),
     a: S.Number(0.025),
-    b: S.Number(0.45)
+    b: S.Number(0.45),
+    value: S.Number(1),
+    functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   startColor: S.Object({
     type: S.String('ConstantColor'),
-    color: S.Object({ r: S.Number(1), g: S.Number(1), b: S.Number(1), a: S.Number(0.1) })
+    color: S.Object({ r: S.Number(1), g: S.Number(1), b: S.Number(1), a: S.Number(0.1) }),
+    a: S.Object({ r: S.Number(1), g: S.Number(1), b: S.Number(1), a: S.Number(1) }),
+    b: S.Object({ r: S.Number(1), g: S.Number(1), b: S.Number(1), a: S.Number(1) }),
+    functions: S.Array(S.Type<ColorGradientFunctionJSON>())
   }),
   emissionOverTime: S.Object({
     type: S.String('ConstantValue'),
-    value: S.Number(400)
+    value: S.Number(400),
+    a: S.Number(0),
+    b: S.Number(1),
+    functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   emissionOverDistance: S.Object({
     type: S.String('ConstantValue'),
-    value: S.Number(0)
+    value: S.Number(0),
+    a: S.Number(0),
+    b: S.Number(1),
+    functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   emissionBursts: S.Array(
     S.Object({
@@ -837,19 +855,25 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS = S.Object({
   rendererEmitterSettings: S.Object({
     startLength: S.Object({
       type: S.String('ConstantValue'),
-      value: S.Number(1)
+      value: S.Number(1),
+      a: S.Number(0),
+      b: S.Number(1),
+      functions: S.Array(S.Type<BezierFunctionJSON>())
     }),
     followLocalOrigin: S.Bool(true)
   }),
   renderMode: S.Enum(RenderMode, RenderMode.BillBoard),
-  texture: S.String('/static/editor/dot.png'),
+  texture: S.String(''),
   /**
    * particle mesh geometry
    */
   instancingGeometry: S.String(''),
   startTileIndex: S.Object({
     type: S.String('ConstantValue'),
-    value: S.Number(0)
+    value: S.Number(0),
+    a: S.Number(0),
+    b: S.Number(1),
+    functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   uTileCount: S.Number(1),
   vTileCount: S.Number(1),
@@ -896,6 +920,23 @@ export const ParticleSystemComponent = defineComponent({
 
     //for particle meshes
     const geoDependencyEntity = useGLTFComponent(componentState.value.systemParameters.instancingGeometry, entity)
+
+    /** @todo track this in resource manager */
+    const dudMaterial = useHookstate(
+      () =>
+        new MeshBasicMaterial({
+          color: 0xff0000,
+          transparent: componentState.value.systemParameters.transparent ?? true,
+          blending: componentState.value.systemParameters.blending as Blending,
+          side: DoubleSide
+        })
+    ).value as MeshBasicMaterial
+
+    useEffect(() => {
+      //add dud material
+      componentState.systemParameters.material.set('dud')
+      metadata.materials.nested('dud').set(dudMaterial)
+    }, [])
 
     //for particle meshes
     useEffect(() => {
@@ -950,23 +991,6 @@ export const ParticleSystemComponent = defineComponent({
       dudMaterial.map = null
     })
 
-    /** @todo track this in resource manager */
-    const dudMaterial = useHookstate(
-      () =>
-        new MeshBasicMaterial({
-          color: 0xffffff,
-          transparent: componentState.value.systemParameters.transparent ?? true,
-          blending: componentState.value.systemParameters.blending as Blending,
-          side: DoubleSide
-        })
-    ).value as MeshBasicMaterial
-
-    useEffect(() => {
-      //add dud material
-      componentState.systemParameters.material.set('dud')
-      metadata.materials.nested('dud').set(dudMaterial)
-    }, [])
-
     useEffect(() => {
       if (!texture) return
       metadata.textures.nested(componentState.value.systemParameters.texture!).set(texture)
@@ -975,8 +999,35 @@ export const ParticleSystemComponent = defineComponent({
     }, [texture])
 
     useEffect(() => {
+      const component = componentState.value
+
+      const doLoadEmissionGeo =
+        component.systemParameters.shape.type === 'mesh_surface' &&
+        AssetLoader.getAssetClass(component.systemParameters.shape.mesh ?? '') === AssetType.Model
+
+      const doLoadInstancingGeo =
+        component.systemParameters.instancingGeometry &&
+        AssetLoader.getAssetClass(component.systemParameters.instancingGeometry) === AssetType.Model
+
+      const doLoadTexture =
+        component.systemParameters.texture &&
+        AssetLoader.getAssetClass(component.systemParameters.texture) === AssetType.Image
+
+      const loadedEmissionGeo = (doLoadEmissionGeo && shapeMeshEntity) || !doLoadEmissionGeo
+      const loadedInstanceGeo = (doLoadInstancingGeo && geoDependencyEntity) || !doLoadInstancingGeo
+      const loadedTexture = (doLoadTexture && texture) || !doLoadTexture
+
+      if (loadedEmissionGeo && loadedInstanceGeo && loadedTexture) {
+        componentState._loadIndex.set(componentState._loadIndex.value + 1)
+      }
+    }, [geoDependencyEntity, shapeMeshEntity, texture, componentState._refresh])
+
+    const sceneEntity = useAncestorWithComponents(entity, [SceneComponent])
+
+    useEffect(() => {
       // loadIndex of 0 means particle system dependencies haven't loaded yet
       if (!componentState._loadIndex.value) return
+      if (!sceneEntity) return
 
       const component = componentState.get(NO_PROXY)
       const rendererInstance = createBatchedRenderer(entity)
@@ -1020,31 +1071,7 @@ export const ParticleSystemComponent = defineComponent({
         emitterAsObj3D.dispose()
         removeBatchedRenderer(sceneID!)
       }
-    }, [componentState._loadIndex])
-
-    useEffect(() => {
-      const component = componentState.value
-
-      const doLoadEmissionGeo =
-        component.systemParameters.shape.type === 'mesh_surface' &&
-        AssetLoader.getAssetClass(component.systemParameters.shape.mesh ?? '') === AssetType.Model
-
-      const doLoadInstancingGeo =
-        component.systemParameters.instancingGeometry &&
-        AssetLoader.getAssetClass(component.systemParameters.instancingGeometry) === AssetType.Model
-
-      const doLoadTexture =
-        component.systemParameters.texture &&
-        AssetLoader.getAssetClass(component.systemParameters.texture) === AssetType.Image
-
-      const loadedEmissionGeo = (doLoadEmissionGeo && shapeMeshEntity) || !doLoadEmissionGeo
-      const loadedInstanceGeo = (doLoadInstancingGeo && geoDependencyEntity) || !doLoadInstancingGeo
-      const loadedTexture = (doLoadTexture && texture) || !doLoadTexture
-
-      if (loadedEmissionGeo && loadedInstanceGeo && loadedTexture) {
-        componentState._loadIndex.set(componentState._loadIndex.value + 1)
-      }
-    }, [geoDependencyEntity, shapeMeshEntity, texture, componentState._refresh])
+    }, [componentState._loadIndex, sceneEntity])
 
     return null
   }

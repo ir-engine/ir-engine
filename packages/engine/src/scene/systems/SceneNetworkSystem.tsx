@@ -34,7 +34,8 @@ import {
   getComponent,
   hasComponent,
   useComponent,
-  useEntityContext
+  useEntityContext,
+  useOptionalComponent
 } from '@ir-engine/ecs'
 import { dispatchAction, useHookstate } from '@ir-engine/hyperflux'
 import { NetworkState, ScenePeer, SceneUser, WorldNetworkAction } from '@ir-engine/network'
@@ -50,7 +51,7 @@ import { SourceComponent } from '../components/SourceComponent'
 const SourcedEntityReactor = () => {
   const entity = useEntityContext()
   const parentEntity = useComponent(entity, EntityTreeComponent).parentEntity.value
-  const parentUUID = useComponent(parentEntity, UUIDComponent).value
+  const parentUUID = useOptionalComponent(parentEntity, UUIDComponent)?.value
 
   useEffect(() => {
     const entityUUID = getComponent(entity, UUIDComponent)
@@ -60,6 +61,7 @@ const SourcedEntityReactor = () => {
   }, [])
 
   useEffect(() => {
+    if (!parentUUID) return
     const entityUUID = getComponent(entity, UUIDComponent)
     dispatchAction(
       WorldNetworkAction.spawnEntity({
@@ -68,6 +70,7 @@ const SourcedEntityReactor = () => {
         parentUUID,
         $network: undefined,
         $topic: undefined,
+        $user: SceneUser,
         $peer: ScenePeer
       })
     )

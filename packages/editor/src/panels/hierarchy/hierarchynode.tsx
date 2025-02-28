@@ -24,8 +24,11 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
+import { userHasProjectPermission } from '@ir-engine/client-core/src/hooks/useUserProjectPermission'
+import { API } from '@ir-engine/common'
+import { projectPermissionPath } from '@ir-engine/common/src/schema.type.module'
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
-import { entityExists, EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
+import { EngineState, entityExists, EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
 import {
   getAllComponents,
   getComponent,
@@ -44,6 +47,7 @@ import { ResourceLoaderManager } from '@ir-engine/engine/src/assets/functions/re
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GLTFLoaderFunctions } from '@ir-engine/engine/src/gltf/GLTFLoaderFunctions'
 import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
 import { getMutableState, getState, none, useHookstate, useMutableState, useState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
@@ -65,6 +69,7 @@ import { twMerge } from 'tailwind-merge'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { ComponentEditorsState } from '../../services/ComponentEditors'
 import { EditorHelperState, PlacementMode } from '../../services/EditorHelperState'
+import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { deleteNode, HierarchyTreeNodeType } from './helpers'
@@ -123,6 +128,8 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const { setMenu } = useHierarchyTreeContextMenu()
   const renameRef = useRef<HTMLInputElement>(null)
   const isRenameOpen = useState(false)
+  const canSaveNodeChanges = useState(false)
+  const permissionToChangeNodeVerified = useState(false)
 
   const handleRenameOpen = () => {
     if (!isRenameOpen.value) {
@@ -137,6 +144,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
       document.removeEventListener('mousedown', handleClickOutside)
       if (saveRename) {
         EditorControlFunctions.modifyName([entity], toValidHierarchyNodeName(entity, currentRenameNode.value))
+        EditorHistoryFunctions.snapshot(getComponent(entity, SourceComponent))
         currentRenameNode.set(getComponent(entity, NameComponent))
       }
       renamingNode.clear()
@@ -307,11 +315,10 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const onHideUnhideNode = (event: React.MouseEvent) => {
     event.stopPropagation()
     if (visible) {
-      EditorControlFunctions.addOrRemoveComponent([entity], VisibleComponent, false)
+      EditorHistoryFunctions.setComponent([entity], VisibleComponent)
     } else {
-      EditorControlFunctions.addOrRemoveComponent([entity], VisibleComponent, true)
+      EditorHistoryFunctions.removeComponent([entity], VisibleComponent)
     }
-    // setVisibleComponent(entity, !hasComponent(entity, VisibleComponent))
   }
 
   const onLockUnlockNode = (event: React.MouseEvent) => {
@@ -343,6 +350,42 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     EditorControlFunctions.modifyProperty([node.entity], GLTFComponent, { src: gltfComponent.src })
     ResourceLoaderManager.reloadResource(gltfComponent.src)
     getMutableState(AssetModifiedState)[GLTFComponent.getInstanceID(entity)].set(none)
+  }
+
+  useEffect(() => {
+    if (isModified) {
+      checkIfUserCanSaveNodeChanges()
+    }
+  }, [isModified])
+
+  const checkIfUserCanSaveNodeChanges = async () => {
+    if (permissionToChangeNodeVerified.value) return
+    permissionToChangeNodeVerified.set(true)
+
+    const gltfComponent = getComponent(node.entity, GLTFComponent)
+    const [, orgName, projectName] = STATIC_ASSET_REGEX.exec(gltfComponent.src)!
+    const fullProjectName = `${orgName}/${projectName}`
+
+    const { projectName: stateProjectName } = getState(EditorState)
+
+    if (stateProjectName === fullProjectName) {
+      canSaveNodeChanges.set(true)
+      return
+    }
+
+    const userID = getState(EngineState).userID
+    const { data } = await API.instance.service(projectPermissionPath).find({
+      query: {
+        project: fullProjectName,
+        userId: userID
+      }
+    })
+    const [permission] = data
+    if (!permission) {
+      canSaveNodeChanges.set(false)
+      return
+    }
+    canSaveNodeChanges.set(userHasProjectPermission(permission, ['owner', 'editor']))
   }
 
   return (
@@ -421,7 +464,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
                 </span>
               </div>
             )}
-            {isModified && (
+            {isModified && canSaveNodeChanges.value && (
               <div className="flex items-center gap-1">
                 <Button
                   variant="tertiary"

@@ -111,7 +111,7 @@ const Checkbox = (
           'border border-ui-outline bg-ui-background outline-none',
           (checked || indeterminate) && 'border-ui-select-primary bg-ui-select-background',
           disabled
-            ? 'cursor-not-allowed border-ui-inactive-primary bg-ui-inactive-background'
+            ? 'cursor-not-allowed border-ui-inactive-outline bg-ui-inactive-background'
             : 'group-hover/checkbox:border-ui-hover-primary group-hover/checkbox:bg-ui-hover-background'
         )}
         onClick={handleChange}

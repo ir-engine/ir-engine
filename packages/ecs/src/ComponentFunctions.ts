@@ -545,9 +545,15 @@ export const setComponent = <C extends Component>(
   LayerFunctions.propagateLayer(entity, component)
 
   if (component.reactor && !component.reactorMap.has(entity) && LayerComponent.get(entity) === Layers.Simulation) {
-    const root = startReactor(() => {
-      return React.createElement(EntityContext.Provider, { value: entity }, React.createElement(component.reactor, {}))
-    }) as ReactorRoot
+    function reactor() {
+      return React.createElement(
+        EntityContext.Provider,
+        { value: entity },
+        React.createElement(component.reactor, { entity })
+      )
+    }
+    reactor['__name'] = `${component.name} (eid: ${entity})`
+    const root = startReactor(reactor) as ReactorRoot
     root['entity'] = entity
     root['component'] = component.name
     component.reactorMap.set(entity, root)
@@ -669,7 +675,20 @@ export const deserializeComponent = <C extends Component>(
     if (!valid) throw new Error(`${Component.name}:OnSet Missing required value for key ${key}`)
   }
 
-  if (!hasComponent(entity, Component)) setComponent(entity, Component)
+  /** @todo this can be replaced with setComponent rather than just some of the initializers once reactors are not forced to run synchronously */
+  if (!hasComponent(entity, Component)) {
+    if (!entity) throw new Error('[setComponent]: entity is undefined')
+    if (!entityExists(entity)) throw new Error('[setComponent]: entity does not exist')
+
+    if (Component.storage) {
+      const nextSize = nextPowerOf2(entity + 1)
+      if (Component.storageSize < nextSize) resizeComponent(Component, nextSize)
+    }
+
+    const state = _getComponentState(entity, Component)
+    state.set(createInitialComponentValue(entity, Component))
+    bitECS.addComponent(HyperFlux.store, entity, Component)
+  }
 
   if (json === null || json === undefined) return
 
@@ -920,7 +939,7 @@ function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedL
         const props = schema.properties as any
         for (const prop of props) {
           const parsed = createArgs(prop, '', obj)
-          if (parsed) return parsed
+          if (typeof parsed !== 'undefined') return parsed
         }
         return null
       }
@@ -1083,7 +1102,27 @@ export const LayerComponent = defineComponent({
 })
 
 export function getAuthoringCounterpart(entity: Entity) {
+  const layer = LayerComponent.get(entity)
+  if (layer === Layers.Authoring) {
+    return entity
+  }
   return LayerComponents[Layers.Simulation].refs[entity]
+}
+
+export function getSimulationCounterpart(entity: Entity) {
+  const layer = LayerComponent.get(entity)
+  if (layer === Layers.Simulation) {
+    return entity
+  }
+  const relations = LayerFunctions.getLayerRelationsEntities(entity)
+  if (!relations) return UndefinedEntity
+  const entityLayer = LayerComponent.get(entity)
+  for (const [linkedLayer, linkedEntity] of relations) {
+    if (linkedLayer === Layers.Simulation) {
+      return linkedEntity
+    }
+  }
+  return UndefinedEntity
 }
 
 /**

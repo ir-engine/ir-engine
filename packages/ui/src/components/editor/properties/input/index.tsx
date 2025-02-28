@@ -31,8 +31,8 @@ import {
   EditorComponentType,
   updateProperty
 } from '@ir-engine/editor/src/components/properties/Util'
-import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { EditorHistoryFunctions } from '@ir-engine/editor/src/services/EditorHistoryState'
 import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -66,7 +66,7 @@ export const InputComponentNodeEditor: EditorComponentType = (props) => {
     const sinks = [...(inputComponent.inputSinks.value ?? []), getComponent(props.entity, NodeIDComponent)]
 
     if (!hasComponent(props.entity, InputComponent)) {
-      EditorControlFunctions.addOrRemoveComponent([props.entity], InputComponent, true, {
+      EditorHistoryFunctions.setComponent([props.entity], InputComponent, {
         inputSinks: JSON.parse(JSON.stringify(sinks))
       })
     } else {

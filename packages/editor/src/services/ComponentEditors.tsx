@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VisualScriptComponent } from '@ir-engine/engine'
-import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GrabbableComponent } from '@ir-engine/engine/src/grabbable/GrabbableComponent'
@@ -37,7 +35,6 @@ import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComp
 import { InstancingComponent } from '@ir-engine/engine/src/scene/components/InstancingComponent'
 import { LegacyVolumetricComponent } from '@ir-engine/engine/src/scene/components/LegacyVolumetricComponent'
 import { LinkComponent } from '@ir-engine/engine/src/scene/components/LinkComponent'
-import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { MountPointComponent } from '@ir-engine/engine/src/scene/components/MountPointComponent'
 import { ParticleSystemComponent } from '@ir-engine/engine/src/scene/components/ParticleSystemComponent'
 import { PlaylistComponent } from '@ir-engine/engine/src/scene/components/PlaylistComponent'
@@ -58,6 +55,7 @@ import { TextComponent } from '@ir-engine/engine/src/scene/components/TextCompon
 import { VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
+import { VisualScriptComponent } from '@ir-engine/engine/src/visualscript/components/VisualScriptComponent'
 import { defineState } from '@ir-engine/hyperflux'
 import {
   AmbientLightComponent,
@@ -78,7 +76,6 @@ import { PersistentAnchorComponent } from '@ir-engine/spatial/src/xr/XRAnchorCom
 import PersistentAnchorNodeEditor from '@ir-engine/ui/src/components/editor/properties/anchor'
 import LoopAnimationNodeEditor from '@ir-engine/ui/src/components/editor/properties/animation'
 import AudioAnalysisEditor from '@ir-engine/ui/src/components/editor/properties/audio/analysis'
-import PositionalAudioNodeEditor from '@ir-engine/ui/src/components/editor/properties/audio/positional'
 import CameraNodeEditor from '@ir-engine/ui/src/components/editor/properties/camera'
 import CameraPropertiesNodeEditor from '@ir-engine/ui/src/components/editor/properties/cameraProperties'
 import ColliderComponentEditor from '@ir-engine/ui/src/components/editor/properties/collider'
@@ -100,7 +97,6 @@ import PointLightNodeEditor from '@ir-engine/ui/src/components/editor/properties
 import SpotLightNodeEditor from '@ir-engine/ui/src/components/editor/properties/light/spot'
 import LinkNodeEditor from '@ir-engine/ui/src/components/editor/properties/link'
 import LookAtNodeEditor from '@ir-engine/ui/src/components/editor/properties/lookAt'
-import MediaNodeEditor from '@ir-engine/ui/src/components/editor/properties/media'
 import MeshNodeEditor from '@ir-engine/ui/src/components/editor/properties/mesh'
 import MountPointNodeEditor from '@ir-engine/ui/src/components/editor/properties/mountPoint'
 import OverlayNodeEditor from '@ir-engine/ui/src/components/editor/properties/overlay'
@@ -119,11 +115,13 @@ import SkyboxNodeEditor from '@ir-engine/ui/src/components/editor/properties/sky
 import SpawnPointNodeEditor from '@ir-engine/ui/src/components/editor/properties/spawnPoint'
 import SplineNodeEditor from '@ir-engine/ui/src/components/editor/properties/spline'
 
+import { GeneralAudioComponent } from '@ir-engine/engine/src/audio/components/GeneralAudioComponent'
 import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { LookAtComponent } from '@ir-engine/engine/src/scene/components/LookAtComponent'
 import { OverlayComponent } from '@ir-engine/engine/src/scene/components/OverlayComponent'
 import { TriggerCallbackComponent } from '@ir-engine/engine/src/scene/components/TriggerCallbackComponent'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { GeneralAudioNodeEditor } from '@ir-engine/ui/src/components/editor/properties/audio/general'
 import PlaylistNodeEditor from '@ir-engine/ui/src/components/editor/properties/playlist'
 import SplineTrackNodeEditor from '@ir-engine/ui/src/components/editor/properties/spline/track'
 import TextNodeEditor from '@ir-engine/ui/src/components/editor/properties/text'
@@ -167,9 +165,7 @@ export const ComponentEditorsState = defineState({
       [ScenePreviewCameraComponent.name]: ScenePreviewCameraNodeEditor,
       [SkyboxComponent.name]: SkyboxNodeEditor,
       [SpawnPointComponent.name]: SpawnPointNodeEditor,
-      [MediaComponent.name]: MediaNodeEditor,
       [ImageComponent.name]: ImageNodeEditor,
-      [PositionalAudioComponent.name]: PositionalAudioNodeEditor,
       [AudioAnalysisComponent.name]: AudioAnalysisEditor,
       [VideoComponent.name]: VideoNodeEditor,
       [LegacyVolumetricComponent.name]: LegacyVolumetricNodeEditor,
@@ -191,7 +187,8 @@ export const ComponentEditorsState = defineState({
       [ScreenshareTargetComponent.name]: ScreenshareTargetNodeEditor,
       [TextComponent.name]: TextNodeEditor,
       [LookAtComponent.name]: LookAtNodeEditor,
-      [ReflectionProbeComponent.name]: ReflectionProbeNodeEditor
+      [ReflectionProbeComponent.name]: ReflectionProbeNodeEditor,
+      [GeneralAudioComponent.name]: GeneralAudioNodeEditor
     } as Record<string, EditorComponentType>
   }
 })

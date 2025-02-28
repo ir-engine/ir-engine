@@ -65,7 +65,6 @@ import {
 } from '@ir-engine/ecs'
 import { NetworkObjectComponent } from '@ir-engine/network'
 import { act, render } from '@testing-library/react'
-import React from 'react'
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js'
 import { Epsilon, assertFloat, assertVec } from '../../../tests/util/assert'
 import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
@@ -218,7 +217,7 @@ describe('Physics : External API', () => {
 
   it('should generate a trigger event', async () => {
     //force nested reactors to run
-    const { rerender, unmount } = render(<></>)
+    await act(() => render(null))
 
     const entity1 = createEntity()
     const entity2 = createEntity()
@@ -245,7 +244,7 @@ describe('Physics : External API', () => {
       collisionMask: AllCollisionMask
     })
 
-    await act(() => rerender(<></>))
+    await act(() => render(null))
 
     const collisionEventQueue = Physics.createCollisionEventQueue()
     const drainCollisions = Physics.drainCollisionEventQueue(physicsWorld)
@@ -2742,7 +2741,7 @@ describe('Physics : Rapier->ECS API', () => {
 
         it('... should create a CollisionEvents.TRIGGER_START when either one of the colliders is a sensor (aka has a TriggerComponent)', async () => {
           //force nested reactors to run
-          const { rerender, unmount } = render(<></>)
+          await act(() => render(null))
 
           const Started = true
 
@@ -2760,7 +2759,8 @@ describe('Physics : Rapier->ECS API', () => {
           assert.equal(before1, undefined)
           assert.equal(before2, undefined)
           setComponent(testEntity1, TriggerComponent) // Set the trigger component (marks testEntity1.body.isSensor() as true)
-          await act(() => rerender(<></>))
+
+          await act(() => render(null))
 
           event(collider1.handle, collider2.handle, Started)
 
@@ -2800,7 +2800,7 @@ describe('Physics : Rapier->ECS API', () => {
       describe('when `started` is set to `false` ...', () => {
         it('... should create a CollisionEvents.TRIGGER_END when either one of the colliders is a sensor', async () => {
           //force nested reactors to run
-          const { rerender, unmount } = render(<></>)
+          await act(() => render(null))
 
           const Started = false
 
@@ -2818,7 +2818,7 @@ describe('Physics : Rapier->ECS API', () => {
           assert.equal(before1, undefined)
           assert.equal(before2, undefined)
           setComponent(testEntity1, TriggerComponent) // Set the trigger component (marks testEntity1.body.isSensor() as true)
-          await act(() => rerender(<></>))
+          await act(() => render(null))
 
           // Run and Check after
           event(collider1.handle, collider2.handle, true) // Run the even twice, so that the entities get each other in their collision components

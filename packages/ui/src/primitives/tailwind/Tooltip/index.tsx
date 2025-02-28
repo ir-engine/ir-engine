@@ -23,7 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import React, { ReactNode, useEffect, useImperativeHandle, useRef, useState } from 'react'
+
 import ReactDOM from 'react-dom'
 import './tooltip.css'
 
@@ -172,6 +174,10 @@ function Tooltip(
       setIsVisible('visible')
     }
   }, [visibleState, title, content])
+
+  if (isMobile) {
+    return <>{children}</>
+  }
 
   return (
     <div

@@ -39,7 +39,6 @@ export const MeshToonArguments = {
 }
 
 export const MeshToonMaterial: MaterialPrototypeDefinition = {
-  prototypeId: 'MeshToonMaterial',
   prototypeConstructor: Toon,
   arguments: MeshToonArguments
 }

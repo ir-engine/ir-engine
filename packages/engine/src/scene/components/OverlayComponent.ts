@@ -48,7 +48,8 @@ export const OverlayComponent = defineComponent({
   schema: S.Object({
     src: S.String(''),
     type: S.String(''),
-    isOpen: S.NonSerialized(S.Bool(false))
+    isOpen: S.NonSerialized(S.Bool(false)),
+    props: S.Any()
   }),
 
   overlayCallbackName,

@@ -27,17 +27,14 @@ import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
 import { config } from '@ir-engine/common/src/config'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
-import { useClickOutside } from '@ir-engine/common/src/utils/useClickOutside'
 import RenameSceneModal from '@ir-engine/editor/src/panels/scenes/RenameSceneModal'
-import { useHookstate } from '@ir-engine/hyperflux'
-import { Button, Tooltip } from '@ir-engine/ui'
+import { Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
+import MoreOptionsMenu from '@ir-engine/ui/src/components/tailwind/MoreOptionsMenu'
 import { Edit01Sm, Trash04Sm } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import { default as React, useRef } from 'react'
+import { default as React } from 'react'
 import { useTranslation } from 'react-i18next'
-import { BsThreeDotsVertical } from 'react-icons/bs'
-import { twMerge } from 'tailwind-merge'
 
 type SceneItemProps = {
   scene: StaticResourceType
@@ -45,6 +42,7 @@ type SceneItemProps = {
   refetchProjectsData: () => void
   onRenameScene?: (newName: string) => void
   onDeleteScene?: (scene: StaticResourceType) => void
+  disableDeleteScene?: boolean
 }
 
 const DEFAULT_SCENE_THUMBNAIL = `${config.client.fileServer}/projects/ir-engine/default-project/public/scenes/default.thumbnail.jpg`
@@ -54,15 +52,12 @@ export default function SceneItem({
   handleOpenScene,
   refetchProjectsData,
   onRenameScene,
-  onDeleteScene
+  onDeleteScene,
+  disableDeleteScene
 }: SceneItemProps) {
   const { t } = useTranslation()
 
   const sceneName = scene.key.split('/').pop()!.replace('.gltf', '')
-  const isOptionsPopupOpen = useHookstate(false)
-  const sceneItemOptionsRef = useRef<HTMLDivElement>(null)
-
-  useClickOutside(sceneItemOptionsRef, () => isOptionsPopupOpen.set(false))
 
   const deleteSelectedScene = async (scene: StaticResourceType) => {
     if (scene) {
@@ -82,13 +77,15 @@ export default function SceneItem({
       data-testid="scene-container"
       className="col-span-2 inline-flex h-64 w-64 min-w-64 max-w-64 cursor-pointer flex-col items-start justify-start gap-3 rounded-lg border border-ui-outline bg-ui-background p-3 lg:col-span-1"
     >
-      <img
-        className="shrink grow basis-0 self-stretch rounded"
-        src={scene.thumbnailURL || DEFAULT_SCENE_THUMBNAIL}
-        alt={DEFAULT_SCENE_THUMBNAIL}
-        data-testid="scene-thumbnail"
-        onClick={handleOpenScene}
-      />
+      <div className="shrink grow basis-0 self-stretch">
+        <img
+          className="rounded"
+          src={scene.thumbnailURL || DEFAULT_SCENE_THUMBNAIL}
+          alt={DEFAULT_SCENE_THUMBNAIL}
+          data-testid="scene-thumbnail"
+          onClick={handleOpenScene}
+        />
+      </div>
       <div className="inline-flex items-start justify-between self-stretch">
         <div className="inline-flex w-full flex-col items-start justify-start">
           <div className="space-between flex w-full flex-row">
@@ -113,66 +110,40 @@ export default function SceneItem({
             {t('editor:hierarchy.lbl-edited')} {t('common:timeAgo', { time: timeAgo(new Date(scene.updatedAt)) })}
           </Text>
         </div>
-        <div className="relative h-6 w-6" ref={sceneItemOptionsRef}>
-          <Button
-            variant="tertiary"
-            size="sm"
-            className="border-0 px-2 py-1.5"
-            data-testid="scene-options-button"
-            onClick={() => isOptionsPopupOpen.set((displayed) => !displayed)}
-          >
-            <BsThreeDotsVertical className="text-text-primary" />
-          </Button>
-          <ul
-            className={twMerge(
-              'dropdown-menu absolute left-6 top-2 z-10  block  w-[180px] rounded-lg bg-surface-4 p-1',
-              isOptionsPopupOpen.value ? 'visible' : 'hidden'
-            )}
-            data-testid="project-options-list"
-          >
-            <li className="h-8">
-              <Button
-                variant="tertiary"
-                className="h-full w-full justify-start gap-2 border-0 p-2 text-text-primary hover:bg-ui-hover-background"
-                data-testid="scene-rename-button"
-                onClick={() => {
-                  isOptionsPopupOpen.set(false)
-                  PopoverState.showPopupover(
-                    <RenameSceneModal
-                      sceneName={sceneName}
-                      scene={scene}
-                      onRenameScene={onRenameScene}
-                      refetchProjectsData={refetchProjectsData}
-                    />
-                  )
-                }}
-              >
-                <Edit01Sm />
-                {t('editor:hierarchy.lbl-rename')}
-              </Button>
-            </li>
-            <li className="h-8">
-              <Button
-                variant="tertiary"
-                className="h-full w-full justify-start gap-2 border-0 p-2 text-text-primary hover:bg-ui-hover-background"
-                data-testid="scene-delete-button"
-                onClick={() => {
-                  isOptionsPopupOpen.set(false)
-                  PopoverState.showPopupover(
-                    <ConfirmDialog
-                      title={t('editor:hierarchy.lbl-deleteScene')}
-                      text={t('editor:hierarchy.lbl-deleteSceneDescription', { sceneName })}
-                      onSubmit={async () => deleteSelectedScene(scene)}
-                    />
-                  )
-                }}
-              >
-                <Trash04Sm />
-                {t('editor:hierarchy.lbl-delete')}
-              </Button>
-            </li>
-          </ul>
-        </div>
+
+        <MoreOptionsMenu
+          actionProps={[
+            {
+              label: t('editor:hierarchy.lbl-rename'),
+              disabled: false,
+              icon: <Edit01Sm />,
+              onClick: () => {
+                PopoverState.showPopupover(
+                  <RenameSceneModal
+                    sceneName={sceneName}
+                    scene={scene}
+                    onRenameScene={onRenameScene}
+                    refetchProjectsData={refetchProjectsData}
+                  />
+                )
+              }
+            },
+            {
+              label: t('editor:hierarchy.lbl-delete'),
+              disabled: disableDeleteScene,
+              icon: <Trash04Sm />,
+              onClick: () => {
+                PopoverState.showPopupover(
+                  <ConfirmDialog
+                    title={t('editor:hierarchy.lbl-deleteScene')}
+                    text={t('editor:hierarchy.lbl-deleteSceneDescription', { sceneName })}
+                    onSubmit={async () => deleteSelectedScene(scene)}
+                  />
+                )
+              }
+            }
+          ]}
+        />
       </div>
     </div>
   )

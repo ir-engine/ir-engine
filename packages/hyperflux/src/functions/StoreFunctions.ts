@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { State } from '@hookstate/core'
 import { v4 as uuidv4 } from 'uuid'
 
-import { PeerID } from '../types/Types'
+import { PeerID, UserID } from '../types/Types'
 import { ActionQueueHandle, ActionQueueInstance, ResolvedActionType, Topic } from './ActionFunctions'
 import { ReactorRoot } from './ReactorFunctions'
 
@@ -56,6 +56,10 @@ export interface HyperStore {
    * The default dispatch delay (default is 0)
    */
   defaultDispatchDelay: () => number
+  /**
+   * The agent id
+   */
+  getAgentID: () => UserID
   /**
    * State dictionary
    */
@@ -110,6 +114,7 @@ export function createHyperStore(options?: {
   getDispatchTime?: () => number
   defaultDispatchDelay?: () => number
   getCurrentReactorRoot?: () => ReactorRoot | undefined
+  getAgentID?: () => UserID
 }) {
   const store: HyperStore = {
     defaultTopic: 'default' as Topic,
@@ -117,6 +122,7 @@ export function createHyperStore(options?: {
     getDispatchTime: options?.getDispatchTime ?? (() => 0),
     defaultDispatchDelay: options?.defaultDispatchDelay ?? (() => 0),
     getCurrentReactorRoot: options?.getCurrentReactorRoot ?? (() => undefined),
+    getAgentID: () => 'default' as UserID,
     peerID: uuidv4() as PeerID,
     stateMap: {},
     stateReactors: {},
