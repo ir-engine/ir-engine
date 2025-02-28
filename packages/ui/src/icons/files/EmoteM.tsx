@@ -34,7 +34,6 @@ const EmoteM = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
     fill="none"
     viewBox="0 0 19 20"
     role="img"
-    stroke="currentColor"
     ref={ref}
     {...props}
   >
