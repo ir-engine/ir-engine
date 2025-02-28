@@ -122,6 +122,7 @@
     "lbl-advanced": "Advanced",
     "gizmo": {
       "pointer": "Pointer",
+      "marquee": "disable orbit camera and enable selection box",
       "description": "Transform Gizmo",
       "translate": "[W] Translate",
       "rotate": "[E] Rotate",
