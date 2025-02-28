@@ -47,10 +47,11 @@ const LocationRoutes = () => {
   const ref = useRef<HTMLElement>(document.body)
   const ready = useMutableState(LoadingUISystemState).value.ready
 
+  useUserBannedCheck()
+
   useSpatialEngine()
   useEngineCanvas(ref)
   useBrowserCheck()
-  useUserBannedCheck()
 
   const projectsLoaded = useEngineInjection()
 

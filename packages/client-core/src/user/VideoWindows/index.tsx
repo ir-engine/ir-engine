@@ -136,7 +136,6 @@ export const useMediaWindows = () => {
 
 export const VideoWindows = () => {
   const windows = useMediaWindows()
-  console.log('windows', windows.length)
   return (
     <ReportUserProvider>
       <div className="flex flex-col gap-y-2">
