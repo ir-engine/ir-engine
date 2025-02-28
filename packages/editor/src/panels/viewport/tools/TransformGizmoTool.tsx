@@ -59,7 +59,6 @@ function Placer({ id }: { id: string }) {
 
 export default function TransformGizmoTool() {
   const { t } = useTranslation()
-  const [_, setPointerSelected] = useState(false)
 
   const editorHelperState = useMutableState(EditorHelperState)
   const transformMode = editorHelperState.transformMode.value
