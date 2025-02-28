@@ -96,7 +96,7 @@ export default function TransformGizmoTool() {
             icon={Cursor03Default}
           />
         </Tooltip>
-        <Tooltip content={t('disable orbit camera and enable selection box')} position="right">
+        <Tooltip content={t('editor:toolbar.gizmo.marquee')} position="right">
           <ViewportButton
             onClick={handleClickSelectionBox}
             selected={toolSelected === GizmoTools.selectionBox}
