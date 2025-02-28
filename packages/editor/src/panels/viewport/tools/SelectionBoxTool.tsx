@@ -46,7 +46,8 @@ import { SelectionState } from '../../../services/SelectionServices'
 export const SelectionBoxState = defineState({
   name: 'selectionBox State',
   initial: () => ({
-    selectionBoxEnabled: false
+    selectionBoxEnabled: false,
+    gizmoInControl: false
   })
 })
 
@@ -65,8 +66,13 @@ export default function SelectionBox({
   const height = useHookstate(0)
 
   const [isDragging, setIsDragging] = useState(false)
+
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (!getMutableState(SelectionBoxState).selectionBoxEnabled.value) return
+    if (
+      !getMutableState(SelectionBoxState).selectionBoxEnabled.value ||
+      getMutableState(SelectionBoxState).gizmoInControl.value
+    )
+      return
     const viewportRect = viewportRef.current!.getBoundingClientRect()
     const toolbarRect = toolbarRef.current!.getBoundingClientRect()
     setStartX(e.clientX)
