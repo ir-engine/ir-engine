@@ -50,7 +50,8 @@ export const SceneDeltaState = defineState({
     const source = state[sourceID]
     if (!source.value[nodeID]) source[nodeID].set({} as SceneDeltaEntry<C>)
     const componentMap = source[nodeID].get(NO_PROXY_STEALTH) as SceneDeltaEntry<C>
-    componentMap[component.jsonID] = delta
+    componentMap[component.jsonID] = { ...componentMap[component.jsonID], ...delta }
+    source[nodeID].set(componentMap)
   },
   registerMaterialDelta(entity: Entity, props: any) {
     if (!hasComponent(entity, SourceComponent) || !hasComponent(entity, NodeIDComponent)) return
@@ -61,7 +62,8 @@ export const SceneDeltaState = defineState({
     const source = state[sourceID]
     if (!source.value[nodeID]) source[nodeID].set({} as MaterialDeltaEntry)
     const componentMap = source[nodeID].get(NO_PROXY_STEALTH) as MaterialDeltaEntry
-    componentMap['materialParameters'] = props
+    componentMap['materialParameters'] = { ...componentMap['materialParameters'], ...props }
+    source[nodeID].set(componentMap)
   }
 })
 
