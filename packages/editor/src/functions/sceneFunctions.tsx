@@ -106,7 +106,7 @@ export const saveSceneGLTF = async (
         {
           type: 'scene',
           contentType: 'model/gltf+json',
-          thumbnailKey: currentScene.thumbnailKey
+          thumbnailKey: currentScene.thumbnailKey ?? ''
         }
       ]
     ).promises
