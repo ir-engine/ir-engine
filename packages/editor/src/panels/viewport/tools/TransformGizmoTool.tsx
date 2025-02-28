@@ -33,7 +33,6 @@ import { ViewportButton } from '@ir-engine/ui/editor'
 import { Cursor03Default, MoveMd, Refresh1Md, Scale02Md, TransformMd } from '@ir-engine/ui/src/icons'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { EditorControlFunctions } from '../../../functions/EditorControlFunctions'
 import { EditorHelperState } from '../../../services/EditorHelperState'
 import { SelectionBoxState } from './SelectionBoxTool'
 
@@ -78,9 +77,6 @@ export default function TransformGizmoTool() {
     const isSelecting = selectionMode.value === SelectionModes.selectionBox
     getMutableState(SelectionBoxState).selectionBoxEnabled.set(isSelecting)
     getMutableState(InputState).capturingCameraOrbitEnabled.set(!isSelecting)
-    if (!isSelecting) {
-      EditorControlFunctions.replaceSelection([])
-    }
   }, [selectionMode])
 
   useEffect(() => {
