@@ -457,7 +457,7 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
         </div>
         <span key={peerID + '-' + type + '-audio-container'} id={peerID + '-' + type + '-audio-container'} />
       </div>
-      {isPiP && !isSelf && (
+      {!isSelf && (
         <Button
           variant="primary"
           size="sm"
