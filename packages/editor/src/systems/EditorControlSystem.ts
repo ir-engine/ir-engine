@@ -438,7 +438,7 @@ const updateSelection = (clickedEntity: Entity, control: boolean, shift: boolean
 const reactor = () => {
   const editorHelperState = useMutableState(EditorHelperState)
   const rendererState = useMutableState(RendererState)
-  const flag = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowModelChildren])
+  const flag = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.HideGlbChildren])
 
   useEffect(() => {
     // todo figure out how to do these with our input system

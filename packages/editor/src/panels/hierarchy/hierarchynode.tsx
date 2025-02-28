@@ -336,7 +336,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     const [_, orgName, projectName, fileName] = STATIC_ASSET_REGEX.exec(gltfComponent.src)!
     const fullProjectName = `${orgName}/${projectName}`
     const parsedName = fileName.split('?')[0]
-    exportRelativeGLTF(node.entity, fullProjectName, parsedName).then((newSRC) => {
+    exportRelativeGLTF(node.entity, fullProjectName, parsedName, false).then((newSRC) => {
       EditorControlFunctions.modifyProperty([node.entity], GLTFComponent, { src: newSRC })
       getMutableState(AssetModifiedState)[GLTFComponent.getInstanceID(entity)].set(none)
     })
@@ -361,11 +361,16 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     permissionToChangeNodeVerified.set(true)
 
     const gltfComponent = getComponent(node.entity, GLTFComponent)
-    const [, orgName, projectName] = STATIC_ASSET_REGEX.exec(gltfComponent.src)!
+    const [, orgName, projectName, fileName] = STATIC_ASSET_REGEX.exec(gltfComponent.src)!
     const fullProjectName = `${orgName}/${projectName}`
 
     const { projectName: stateProjectName } = getState(EditorState)
 
+    const trimmedFilename = fileName.split('?')[0]
+    if (trimmedFilename && trimmedFilename.endsWith('.glb')) {
+      canSaveNodeChanges.set(false)
+      return
+    }
     if (stateProjectName === fullProjectName) {
       canSaveNodeChanges.set(true)
       return

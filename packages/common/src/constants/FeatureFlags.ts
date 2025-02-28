@@ -56,7 +56,7 @@ export const FeatureFlags = {
       SceneComplexityNotification: 'ir.editor.ui.sceneComplexityNotification',
       TransformPivot: 'ir.editor.ui.transformPivot',
       Hierarchy: {
-        ShowModelChildren: 'ir.editor.ui.hierarchy.showModelChildren'
+        HideGlbChildren: 'ir.editor.ui.hierarchy.showModelChildren'
       },
       PointClick: 'ir.editor.ui.pointClick'
     }
