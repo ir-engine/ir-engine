@@ -370,8 +370,8 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
 
   useEffect(() => {
     videoElement.draggable = false
-    document.getElementById(peerID + '-' + type + '-video-container')!.append(videoElement)
-    document.getElementById(peerID + '-' + type + '-audio-container')!.append(audioElement)
+    document.getElementById(peerID + '-' + type + '-video-container')?.append(videoElement)
+    document.getElementById(peerID + '-' + type + '-audio-container')?.append(audioElement)
   }, [])
 
   useEffect(() => {
@@ -396,7 +396,13 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
       }}
     >
       {(!videoMediaStream || videoStreamPaused) && (
-        <img src={avatarThumbnail} alt={t('user:avatar.avatar')} crossOrigin="anonymous" draggable={false} />
+        <img
+          src={avatarThumbnail}
+          alt={t('user:avatar.avatar')}
+          crossOrigin="anonymous"
+          draggable={false}
+          className="hidden lg:inline"
+        />
       )}
       <span
         className="[&>video]:h-full [&>video]:w-full [&>video]:object-cover"
