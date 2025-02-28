@@ -234,7 +234,7 @@ const ReportMenu = (props: ReportMenuProps) => {
                 placeholder={fieldOptions.details.placeholder}
                 className={twMerge('min-h-[120px] w-full', errors.details.value && 'border-red-700')}
               />
-              {errors.details.value && <span className="text-red-700">{errors.details.value}</span>}
+              {errors.details.value && <span className="text-xs text-red-700">{errors.details.value}</span>}
             </div>
 
             <div className="flex flex-col gap-2">

@@ -78,7 +78,6 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
     const twClassname = twMerge(
       'text-base font-normal tracking-tight',
       'textshadow-sm flex w-full rounded-lg border   px-3.5 py-2 transition-colors',
-      'dark:[color-scheme:dark]',
       'focus-visible:ring-ring placeholder:text-gray-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
       variant !== 'outlined' ? '' : 'focus-visible:ring-1',
       startComponent ? 'ps-10' : undefined,
@@ -131,7 +130,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
         </div>
         {description && <p className="self-stretch text-xs ">{description}</p>}
         {error && (
-          <p className="inline-flex items-center gap-2.5 self-start text-sm ">
+          <p className="inline-flex items-center gap-2.5 self-start text-xs">
             <HiXCircle /> {error}
           </p>
         )}
