@@ -35,7 +35,7 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 
 import { ABUSE_REASONS } from '@ir-engine/common/src/constants/ModerationConstants'
-import { getMutableState, useHookstate, UserID } from '@ir-engine/hyperflux'
+import { useHookstate, UserID } from '@ir-engine/hyperflux'
 import { Button, Select } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -46,7 +46,6 @@ import { twMerge } from 'tailwind-merge'
 import { NotificationService } from '../../common/services/NotificationService'
 import { PopoverState } from '../../common/services/PopoverState'
 import { uploadToFeathersService } from '../../util/upload'
-import { AuthState } from '../services/AuthService'
 
 type ReportMenuProps = { type: ModerationTypeType; userId?: UserID; locationId?: LocationID }
 
@@ -75,7 +74,6 @@ const ReportMenu = (props: ReportMenuProps) => {
   const typeReport = type === 'user' ? 'user' : 'location'
   const reportedLocationId = props.locationId
   const userReportsMutation = useMutation(moderationPath)
-  const selfUser = useHookstate(getMutableState(AuthState).user)
   const handleClose = async () => {
     PopoverState.hidePopupover()
   }
