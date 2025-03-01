@@ -36,6 +36,7 @@ import {
   moderationResolver
 } from './moderation.resolvers'
 
+import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 import verifyScope from '@ir-engine/server-core/src/hooks/verify-scope'
 import { iff, isProvider } from 'feathers-hooks-common'
@@ -43,9 +44,9 @@ import { iff, isProvider } from 'feathers-hooks-common'
 const validateModeration = async (context: HookContext) => {
   const { data } = context
 
-  if (data.type === 'Person') {
-    if (!data.reportedUserId || !data.reportingUserId) {
-      throw new Error('Both reportedUserId and reportingUserId must be provided when type is Person')
+  if (data.type === 'user') {
+    if (!data.reportedUserId) {
+      throw new BadRequest('reportedUserId must be provided when type is Person')
     }
   }
 

@@ -28,9 +28,11 @@ import {
   locationAdminPath,
   moderationAttachmentPath,
   moderationBanPath,
+  ModerationID,
+  moderationPath,
+  ModerationType,
   userPath
 } from '@ir-engine/common/src/schema.type.module'
-import { moderationPath, ModerationType } from '@ir-engine/common/src/schemas/moderation/moderation.schema'
 import { toDisplayDateTime, toDisplayDateTimeUtc } from '@ir-engine/common/src/utils/datetime-sql'
 import { Button } from '@ir-engine/ui'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
@@ -51,7 +53,7 @@ export const ModerationDetail = ({
   onBack: () => void
   onResloved: (report: ModerationType) => void
 }) => {
-  const isPersonModeration = report.type === 'Person'
+  const isPersonModeration = report.type === 'user'
   const { t } = useTranslation()
   const moderationMutation = useMutation(moderationPath)
   const moderationBanMutation = useMutation(moderationBanPath)
@@ -110,6 +112,7 @@ export const ModerationDetail = ({
           banned: true,
           banReason: report.abuseReason,
           reportedAt: report.reportedAt,
+          moderationId: report.id as ModerationID,
           ipAddress: report.ipAddress,
           reportedLocationId: report.reportedLocationId
         })
@@ -126,16 +129,16 @@ export const ModerationDetail = ({
   }
 
   const usersQuery =
-    report.type == 'Person'
+    report.type === 'user'
       ? useFind(userPath, {
           query: {
-            id: { $in: [report.reportedUserId, report.reportingUserId] },
+            id: { $in: [report.reportedUserId, report.createdBy] },
             $limit: 2
           }
         })
       : useFind(userPath, {
           query: {
-            id: { $in: [report.reportingUserId] },
+            id: { $in: [report.createdBy] },
             $limit: 1
           }
         })
@@ -161,7 +164,7 @@ export const ModerationDetail = ({
         report.type,
         usersQuery.data.find((user) => user.id == report.reportedUserId)?.name,
         report.reportedUserId,
-        usersQuery.data.find((user) => user.id == report.reportingUserId)?.name,
+        usersQuery.data.find((user) => user.id == report.createdBy)?.name,
         report.abuseReason,
         report.status,
         `"${toDisplayDateTime(report.createdAt)}"`,
@@ -203,7 +206,7 @@ export const ModerationDetail = ({
           <Text className="mb-4">{report.id}</Text>
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.type')}</Text>
           <Text className="mb-4">
-            {report.type == 'Location' ? t('admin:components.moderation.space') : report.type}
+            {report.type == 'location' ? t('admin:components.moderation.space') : report.type}
           </Text>
           {isPersonModeration && (
             <>
@@ -222,7 +225,7 @@ export const ModerationDetail = ({
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.dateReported')}</Text>
           <Text className="mb-4">{toDisplayDateTimeUtc(report?.reportedAt)} UTC</Text>
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.reporter')}</Text>
-          <UserInfo userId={report.reportingUserId} usersQuery={usersQuery} />
+          <UserInfo userId={report.createdBy} usersQuery={usersQuery} />
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.space')}</Text>
           <Text className="mb-4">
             {report.reportedLocationId && <LocationLabel locationId={report.reportedLocationId} showUrl={true} />}

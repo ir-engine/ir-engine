@@ -31,7 +31,7 @@ import { dataValidator, queryValidator } from '../validators'
 import { TypedString } from '../../types/TypeboxUtils'
 import { LocationID } from '../social/location.schema'
 import { UserID } from '../user/user.schema'
-import { abuseReasons } from './moderation.schema'
+import { abuseReasons, ModerationID } from './moderation.schema'
 
 export const moderationBanPath = 'moderation-ban'
 export const moderationBanMethods = ['create', 'find', 'patch', 'remove'] as const
@@ -50,6 +50,9 @@ export const moderationBanSchema = Type.Object(
         format: 'uuid'
       })
     ),
+    moderationId: TypedString<ModerationID>({
+      format: 'uuid'
+    }),
     banReason: StringEnum([...abuseReasons]),
     ipAddress: Type.Optional(Type.String({ maxLength: 255 })),
     reportedAt: Type.Optional(Type.String({ format: 'date-time' })),
@@ -70,7 +73,7 @@ export interface ModerationBanType extends Static<typeof moderationBanSchema> {}
 // Schema for creating new entries
 export const moderationBanDataSchema = Type.Pick(
   moderationBanSchema,
-  ['banUserId', 'banReason', 'ipAddress', 'reportedAt', 'banned', 'reportedLocationId'],
+  ['banUserId', 'banReason', 'ipAddress', 'reportedAt', 'banned', 'reportedLocationId', 'moderationId'],
   { $id: 'ModerationBanData' }
 )
 export interface ModerationBanData extends Static<typeof moderationBanDataSchema> {}

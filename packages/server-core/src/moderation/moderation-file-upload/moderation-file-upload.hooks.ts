@@ -22,6 +22,7 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import { Forbidden } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 import { moderationPath } from '@ir-engine/common/src/schema.type.module'
 import { SYNC } from 'feathers-sync'
@@ -53,7 +54,7 @@ const checkOwnership = async (context: HookContext) => {
   })
 
   if (moderation.data.some((x) => x.createdBy !== user.id)) {
-    throw new Error('You are not authorized to perform this action')
+    throw new Forbidden('You are not authorized to perform this action')
   }
 
   return context

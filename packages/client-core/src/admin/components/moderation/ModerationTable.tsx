@@ -83,7 +83,7 @@ export default function ModerationTable({ search }) {
           id: isValidUUID(search) ? search : undefined
         },
         {
-          type: search == 'Space' ? 'Location' : search == 'Person' ? 'Person' : undefined
+          type: search == 'Space' ? 'location' : search == 'user' ? 'user' : undefined
         },
         {
           abuseReason: {
@@ -99,7 +99,7 @@ export default function ModerationTable({ search }) {
     rows.map((moderation) => {
       return {
         id: moderation.id,
-        type: <span>{moderation.type == 'Location' ? t('admin:components.moderation.space') : moderation.type}</span>,
+        type: <span>{moderation.type == 'location' ? t('admin:components.moderation.space') : moderation.type}</span>,
         username: (
           <span>{moderation.reportedUserId ? <UserDisplayName userId={moderation.reportedUserId} /> : 'N/A'}</span>
         ),

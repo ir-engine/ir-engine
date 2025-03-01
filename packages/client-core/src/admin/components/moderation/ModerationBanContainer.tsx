@@ -24,9 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { API, useFind, useMutation } from '@ir-engine/common'
-import { moderationBanPath, ModerationBanType } from '@ir-engine/common/src/schema.type.module'
+import { moderationBanPath, ModerationBanType, UserType } from '@ir-engine/common/src/schema.type.module'
 import { AbuseReasonsType } from '@ir-engine/common/src/schemas/moderation/moderation.schema'
-import { UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 import { Button } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React from 'react'

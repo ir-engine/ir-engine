@@ -41,11 +41,10 @@ import {
   moderationAttachmentResolver
 } from './moderation-attachment.resolvers'
 
-const baseUrl = config.aws.s3.endpoint
-const bucketName = config.aws.s3.staticResourceBucket
-
-export const appendBaseUrl = (baseUrl: string, bucketName: string) => {
+export const appendBaseUrl = () => {
   return async (context: HookContext) => {
+    const baseUrl = config.aws.s3.endpoint
+    const bucketName = config.aws.s3.staticResourceBucket
     if (context.result) {
       if (Array.isArray(context.result.data)) {
         context.result = context.result.data.map((item) => ({
@@ -92,8 +91,8 @@ export default {
   },
   after: {
     all: [],
-    find: [appendBaseUrl(baseUrl, bucketName)],
-    get: [appendBaseUrl(baseUrl, bucketName)],
+    find: [appendBaseUrl()],
+    get: [appendBaseUrl()],
     create: [],
     update: [],
     patch: [],

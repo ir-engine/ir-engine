@@ -70,9 +70,8 @@ describe('moderation.test', () => {
 
   it('should create a moderation entry', async () => {
     const moderationData = {
-      type: 'Person',
+      type: 'user',
       abuseReason: 'Fake News & Scams',
-      reportingUserId: user1.id,
       reportedUserId: user2.id,
       reportedLocationId: testLocation.id,
       reportDetails: 'Test details'
@@ -83,7 +82,6 @@ describe('moderation.test', () => {
 
     assert.ok(moderation.id)
     assert.equal(moderation.reportedUserId, moderationData.reportedUserId)
-    assert.equal(moderation.reportingUserId, moderationData.reportingUserId)
     assert.equal(moderation.reportedLocationId, moderationData.reportedLocationId)
     assert.equal(moderation.reportDetails, moderationData.reportDetails)
     assert.equal(moderation.type, moderationData.type)

@@ -38,8 +38,7 @@ export async function up(knex: Knex): Promise<void> {
     table.string('type', 255).notNullable()
     //@ts-ignore
     table.uuid('reportedUserId', 36).collate('utf8mb4_bin')
-    //@ts-ignore
-    table.uuid('reportingUserId', 36).collate('utf8mb4_bin')
+
     //@ts-ignore
     table.string('reportedLocationId', 255).collate('utf8mb4_bin')
     table.string('status', 255).notNullable().defaultTo('open')
@@ -55,7 +54,6 @@ export async function up(knex: Knex): Promise<void> {
     table.dateTime('updatedAt').notNullable()
 
     table.foreign('reportedUserId').references('id').inTable('user').onDelete('SET NULL').onUpdate('CASCADE')
-    table.foreign('reportingUserId').references('id').inTable('user').onDelete('SET NULL').onUpdate('CASCADE')
     table.foreign('reportedLocationId').references('id').inTable('location').onDelete('SET NULL').onUpdate('CASCADE')
     table.foreign('updatedBy').references('id').inTable('user').onDelete('SET NULL').onUpdate('CASCADE')
     table.foreign('createdBy').references('id').inTable('user').onDelete('SET NULL').onUpdate('CASCADE')

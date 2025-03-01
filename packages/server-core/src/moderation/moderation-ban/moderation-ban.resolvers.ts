@@ -47,6 +47,9 @@ export const moderationBanDataResolver = resolve<ModerationBanType, HookContext>
   createdBy: async (_, __, context) => {
     return context.params?.user?.id || null
   },
+  updatedBy: async (_, __, context) => {
+    return context.params?.user?.id || null
+  },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
 })

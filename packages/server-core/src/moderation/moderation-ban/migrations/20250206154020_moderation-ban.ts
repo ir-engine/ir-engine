@@ -35,6 +35,8 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('id').collate('utf8mb4_bin').primary()
     //@ts-ignore
     table.uuid('banUserId', 36).collate('utf8mb4_bin')
+    //@ts-ignore
+    table.uuid('moderationId', 36).collate('utf8mb4_bin')
     table.string('banReason', 255)
     table.string('ipAddress', 255)
     table.dateTime('reportedAt')
@@ -54,6 +56,7 @@ export async function up(knex: Knex): Promise<void> {
     table.foreign('updatedBy').references('id').inTable('user').onDelete('SET NULL').onUpdate('CASCADE')
     table.foreign('createdBy').references('id').inTable('user').onDelete('SET NULL').onUpdate('CASCADE')
     table.foreign('reportedLocationId').references('id').inTable('location').onDelete('SET NULL').onUpdate('CASCADE')
+    table.foreign('moderationId').references('id').inTable('moderation').onDelete('SET NULL').onUpdate('CASCADE')
     table.unique(['banUserId'])
   })
 }

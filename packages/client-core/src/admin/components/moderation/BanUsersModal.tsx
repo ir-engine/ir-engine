@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { UserType } from '@ir-engine/common/src/schema.type.module'
 import { abuseReasons } from '@ir-engine/common/src/schemas/moderation/moderation.schema'
-import { UserType } from '@ir-engine/common/src/schemas/user/user.schema'
 import { Select } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React, { useState } from 'react'

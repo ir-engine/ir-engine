@@ -34,7 +34,7 @@ export async function up(knex: Knex): Promise<void> {
   const tableExists = await knex.schema.hasTable(moderationAttachmentPath)
 
   if (tableExists === false) {
-    return knex.schema.createTable(moderationAttachmentPath, (table) => {
+    await knex.schema.createTable(moderationAttachmentPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       //@ts-ignore

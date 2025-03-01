@@ -53,7 +53,7 @@ export const abuseReasons = [
 ] as const
 export type AbuseReasonsType = (typeof abuseReasons)[number]
 
-const moderationTypes = ['Person', 'Location'] as const
+const moderationTypes = ['user', 'location'] as const
 export type ModerationTypeType = (typeof moderationTypes)[number]
 
 // Main data model schema
@@ -69,9 +69,6 @@ export const moderationSchema = Type.Object(
         format: 'uuid'
       })
     ),
-    reportingUserId: TypedString<UserID>({
-      format: 'uuid'
-    }),
     reportedLocationId: TypedString<LocationID>({
       format: 'uuid'
     }),
@@ -95,7 +92,7 @@ export interface ModerationType extends Static<typeof moderationSchema> {}
 // Schema for creating new entries
 export const moderationDataSchema = Type.Pick(
   moderationSchema,
-  ['type', 'reportedUserId', 'reportedLocationId', 'ipAddress', 'reportingUserId', 'abuseReason', 'reportDetails'],
+  ['type', 'reportedUserId', 'reportedLocationId', 'ipAddress', 'abuseReason', 'reportDetails'],
   {
     $id: 'ModerationData'
   }
@@ -117,7 +114,6 @@ export const moderationQueryProperties = Type.Pick(moderationSchema, [
   'type',
   'reportedLocationId',
   'reportedUserId',
-  'reportingUserId',
   'abuseReason',
   'status'
 ])
