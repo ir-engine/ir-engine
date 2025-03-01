@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { ChevronDownSm, HelpIconSm, XCloseSm } from '@ir-engine/ui/src/icons'
 import Fuse from 'fuse.js'
-import { isEmpty } from 'lodash'
 import React, { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import Popup from 'reactjs-popup'
 import { PopupActions } from 'reactjs-popup/dist/types'
@@ -397,7 +396,7 @@ const Select = ({
           }
         }}
       >
-        {!isEmpty(filteredOptions) &&
+        {filteredOptions.length > 0 &&
           !disabled &&
           filteredOptions.map(({ value: currentValue, ...optionProps }, index) => (
             <DropdownItem
@@ -432,7 +431,7 @@ const Select = ({
             />
           ))}
 
-        {!isEmpty(filteredOptions) && !disabled && (
+        {filteredOptions.length === 0 && !disabled && (
           <div className="flex h-12 items-center justify-center bg-ui-background text-text-secondary">
             No options available
           </div>
