@@ -138,6 +138,8 @@ const server = {
   hostname: process.env.SERVER_HOST!,
   port: process.env.SERVER_PORT!,
   clientHost: process.env.APP_HOST!,
+  // DNS Provider Config
+  dnsProvider: process.env.DNS_PROVIDER || 'aws',
   // Public directory (used for favicon.ico, logo, etc)
   rootDir:
     process.env.BUILD_MODE! === 'individual'

@@ -23,34 +23,25 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import React from 'react'
+import { MdOutlineHeatPump, MdOutlineWatch, MdOutlineWindPower } from 'react-icons/md'
+import SegmentedControl, { SegmentedControlProps } from '../../../../primitives/tailwind/SegmentedControl'
 
-export const useClickOutside = (
-  ref: React.RefObject<HTMLElement>,
-  onClickOutsideCallback: (event: MouseEvent) => void
-) => {
-  useEffect(() => {
-    const onClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        onClickOutsideCallback(event)
-      }
-    }
-    document.addEventListener('mousedown', onClickOutside)
-    return () => document.removeEventListener('mousedown', onClickOutside)
-  }, [ref.current])
+/**Tailwind `Select` styled for studio */
+const SegmentedControlInput = (props: SegmentedControlProps) => {
+  return <SegmentedControl {...props} />
 }
 
-export const useTouchOutside = (
-  ref: React.RefObject<HTMLElement>,
-  onClickOutsideCallback: (event: TouchEvent) => void
-) => {
-  useEffect(() => {
-    const onClickOutside = (event: TouchEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        onClickOutsideCallback(event)
-      }
-    }
-    document.addEventListener('touchend', onClickOutside)
-    return () => document.removeEventListener('touchend', onClickOutside)
-  }, [ref.current])
+SegmentedControlInput.displayName = 'SegmentedControlInput'
+SegmentedControlInput.defaultProps = {
+  options: [
+    { label: 'Cuboid', value: 'a', icon: <MdOutlineWatch /> },
+    { label: 'Cylinder', value: 'b', icon: <MdOutlineHeatPump /> },
+    { label: 'Cube', value: 'c', icon: <MdOutlineWindPower /> }
+  ],
+  value: 'a',
+  onChange: () => {},
+  width: 'full'
 }
+
+export default SegmentedControlInput

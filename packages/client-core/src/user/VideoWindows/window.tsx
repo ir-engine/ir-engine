@@ -24,12 +24,10 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { DrawingUtils } from '@mediapipe/tasks-vision'
-import classNames from 'classnames'
 import hark from 'hark'
 import { t } from 'i18next'
 import React, { RefObject, useEffect, useRef } from 'react'
 
-import Text from '@ir-engine/client-core/src/common/components/Text'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
 import { useGet } from '@ir-engine/common'
 import { UserName, userPath } from '@ir-engine/common/src/schema.type.module'
@@ -44,9 +42,6 @@ import { NetworkState } from '@ir-engine/network'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { drawPoseToCanvas } from '@ir-engine/ui/src/pages/Capture'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
-import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
-import Slider from '@ir-engine/ui/src/primitives/mui/Slider'
-import Tooltip from '@ir-engine/ui/src/primitives/mui/Tooltip'
 import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
 
 import { useTranslation } from 'react-i18next'
@@ -54,8 +49,6 @@ import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 import { useZendesk } from '../../hooks/useZendesk'
 import { MediaStreamState } from '../../media/MediaStreamState'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../media/PeerMediaChannelState'
-import Draggable from './Draggable'
-import styles from './index.module.scss'
 
 interface Props {
   peerID: PeerID
@@ -102,7 +95,7 @@ const useDrawMocapLandmarks = (
   )
 }
 
-export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
+const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   const peerMediaChannelState = useHookstate(
     getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
   )
@@ -339,7 +332,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   }
 }
 
-export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
+export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
   const {
     isPiP,
     volume,
@@ -394,197 +387,31 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
   })
 
   return (
-    <Draggable isPiP={isPiP}>
-      <div
-        tabIndex={0}
-        id={peerID + '_' + type + '_container'}
-        className={classNames({
-          [styles['resizeable-screen']]: isScreen && !isPiP,
-          [styles['resizeable-screen-fullscreen']]: isScreen && isPiP,
-          [styles['party-chat-user']]: true,
-          [styles['self-user']]: isSelf && !isScreen,
-          [styles['no-video']]: videoMediaStream == null,
-          [styles['video-paused']]: videoMediaStream && videoStreamPaused,
-          [styles.pip]: isPiP && !isScreen,
-          [styles.screenpip]: isPiP && isScreen,
-          [styles['not-rendered']]: !isSelf && !rendered
-        })}
-        style={{
-          pointerEvents: 'auto'
-        }}
-        onClick={() => {
-          if (isScreen && isPiP) togglePiP()
-        }}
-      >
-        <div
-          className={classNames({
-            [styles['video-wrapper']]: !isScreen,
-            [styles['screen-video-wrapper']]: isScreen,
-            [styles['border-lit']]: soundIndicatorOn && !audioStreamPaused
-          })}
-        >
-          {(!videoMediaStream || videoStreamPaused) && (
-            // || videoProducerGlobalMute
-            <img src={avatarThumbnail} alt="" crossOrigin="anonymous" draggable={false} />
-          )}
-          <span key={peerID + '-' + type + '-video-container'} id={peerID + '-' + type + '-video-container'} />
-          <div
-            className={classNames({
-              [styles['canvas-container']]: true,
-              [styles['canvas-rotate']]: !isSelf
-            })}
-          >
-            <Canvas ref={canvasRef} />
-          </div>
-        </div>
-        <span key={peerID + '-' + type + '-audio-container'} id={peerID + '-' + type + '-audio-container'} />
-        <div className={styles['user-controls']}>
-          <div className={styles['username']}>{username}</div>
-          {initialized && isPiP && !isSelf && (
-            <button
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                position: 'relative',
-                width: '50%',
-                left: '25%',
-                alignItems: 'center',
-                alignContent: 'center',
-                height: '2rem',
-                marginTop: '1rem',
-                marginBottom: '0.5rem',
-                borderRadius: '10px',
-                backgroundColor: 'red'
-              }}
-              onClick={openChat}
-            >
-              <Icon
-                type="Report"
-                style={{
-                  display: 'block',
-                  width: '20px',
-                  height: '20px',
-                  margin: '8px',
-                  color: 'var(--inputBackground)'
-                }}
-              />
-              <Text
-                align="center"
-                sx={{
-                  marginLeft: '8px',
-                  fontSize: '12px',
-                  color: 'var(--inputBackground)'
-                }}
-              >
-                {t('social:user.reportUser')}
-              </Text>
-            </button>
-          )}
-          <div className={styles['controls']}>
-            <div className={styles['mute-controls']}>
-              {videoMediaStream && (
-                <Tooltip title={videoStreamPaused ? 'Resume Video' : 'Pause Video'}>
-                  <IconButton
-                    size="large"
-                    className={classNames({
-                      [styles['icon-button']]: true,
-                      [styles.mediaOff]: videoStreamPaused,
-                      [styles.mediaOn]: !videoStreamPaused
-                    })}
-                    onClick={toggleVideo}
-                    icon={<Icon type={videoStreamPaused ? 'VideocamOff' : 'Videocam'} />}
-                  />
-                </Tooltip>
-              )}
-              {/* {enableGlobalMute && !isSelf && audioMediaStream && (
-                <Tooltip
-                  title={
-                    !audioProducerGlobalMute
-                      ? (t('user:person.muteForEveryone') as string)
-                      : (t('user:person.unmuteForEveryone') as string)
-                  }
-                >
-                  <IconButton
-                    size="large"
-                    className={classNames({
-                      [styles['icon-button']]: true,
-                      [styles.mediaOff]: audioProducerGlobalMute,
-                      [styles.mediaOn]: !audioProducerGlobalMute
-                    })}
-                    onClick={toggleGlobalMute}
-                    icon={<Icon type={audioProducerGlobalMute ? 'VoiceOverOff' : 'RecordVoiceOver'} />}
-                  />
-                </Tooltip>
-              )} */}
-              {audioMediaStream && (
-                <Tooltip
-                  title={
-                    (isSelf && !audioStreamPaused
-                      ? t('user:person.muteMe')
-                      : isSelf && audioStreamPaused
-                      ? t('user:person.unmuteMe')
-                      : !isSelf && !audioStreamPaused
-                      ? t('user:person.muteThisPerson')
-                      : t('user:person.unmuteThisPerson')) as string
-                  }
-                >
-                  <IconButton
-                    size="large"
-                    className={classNames({
-                      [styles['icon-button']]: true,
-                      [styles.mediaOff]: audioStreamPaused,
-                      [styles.mediaOn]: !audioStreamPaused
-                    })}
-                    onClick={toggleAudio}
-                    icon={
-                      <Icon
-                        type={
-                          isSelf ? (audioStreamPaused ? 'MicOff' : 'Mic') : audioStreamPaused ? 'VolumeOff' : 'VolumeUp'
-                        }
-                      />
-                    }
-                  />
-                </Tooltip>
-              )}
-              <Tooltip title={t('user:person.openPictureInPicture') as string}>
-                <IconButton
-                  size="large"
-                  className={styles['icon-button']}
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    togglePiP()
-                  }}
-                  icon={<Icon type="Launch" className={styles.pipBtn} />}
-                />
-              </Tooltip>
-            </div>
-            {/* {audioProducerGlobalMute && <div className={styles['global-mute']}>Muted by Admin</div>} */}
-            {audioMediaStream && !audioStreamPaused && (
-              // && !audioProducerGlobalMute
-              <div className={styles['audio-slider']}>
-                {volume === 0 && <Icon type="VolumeMute" />}
-                {volume > 0 && volume < 0.7 && <Icon type="VolumeDown" />}
-                {volume >= 0.7 && <Icon type="VolumeUp" />}
-                <Slider
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  value={volume}
-                  onChange={adjustVolume}
-                  aria-labelledby="continuous-slider"
-                  style={{ color: 'var(--textColor)' }}
-                />
-              </div>
-            )}
-          </div>
-        </div>
+    <div
+      tabIndex={0}
+      id={peerID + '_' + type + '_container'}
+      className="pointer-events-auto relative h-[80px] w-[80px] overflow-hidden rounded-[90px] lg:h-[131px] lg:w-[131px]"
+      onClick={() => {
+        if (isScreen && isPiP) togglePiP()
+      }}
+    >
+      {(!videoMediaStream || videoStreamPaused) && (
+        <img src={avatarThumbnail} alt={t('user:avatar.avatar')} crossOrigin="anonymous" draggable={false} />
+      )}
+      <span
+        className="[&>video]:h-full [&>video]:w-full [&>video]:object-cover"
+        key={peerID + '-' + type + '-video-container'}
+        id={peerID + '-' + type + '-video-container'}
+      />
+      <div className="pointer-events-none absolute top-0 h-full w-full">
+        <Canvas ref={canvasRef} />
       </div>
-    </Draggable>
+      <span key={peerID + '-' + type + '-audio-container'} id={peerID + '-' + type + '-audio-container'} />
+    </div>
   )
 }
 
-export const UserMediaWindowWidget = ({ peerID, type }: Props): JSX.Element => {
+export const SingleVideoWindowWidget = ({ peerID, type }: Props): JSX.Element => {
   const { username, isSelf, videoMediaStream, avatarThumbnail, videoStreamPaused, audioStreamPaused, toggleAudio } =
     useUserMediaWindowHook({ peerID, type })
 

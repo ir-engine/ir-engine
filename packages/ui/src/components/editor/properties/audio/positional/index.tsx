@@ -238,7 +238,13 @@ export const PositionalAudioNodeEditor: EditorComponentType = (props) => {
   )
 }
 
-function updateConeAngle(value: number, isInner: boolean, commit: boolean, innerValue: number, outerValue: number) {
+export function updateConeAngle(
+  value: number,
+  isInner: boolean,
+  commit: boolean,
+  innerValue: number,
+  outerValue: number
+) {
   if (isInner) {
     if (commit) {
       commitProperties(PositionalAudioComponent, {

@@ -40,7 +40,7 @@ import { ChevronDownSm, SquaresLg } from '@ir-engine/ui/src/icons'
 import { t } from 'i18next'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { onNewScene, onSaveScene, saveSceneGLTF } from '../../functions/sceneFunctions'
+import { confirmSceneExists, onNewScene, onSaveScene, saveSceneGLTF } from '../../functions/sceneFunctions'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { uploadFiles } from '../../panels/assets/topbar'
 import { EditorState } from '../../services/EditorServices'
@@ -64,9 +64,12 @@ const onImportAsset = async () => {
 }
 
 export const confirmSceneSaveIfModified = async () => {
+  const { sceneName } = getState(EditorState)
+  const isSceneExists = sceneName ? await confirmSceneExists(sceneName) : false
+
   const isModified = EditorState.isModified()
 
-  if (isModified) {
+  if (isModified && isSceneExists) {
     return new Promise((resolve) => {
       PopoverState.showPopupover(<QuitToDashboardConfirmationDialog resolve={resolve} />)
     })
