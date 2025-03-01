@@ -122,7 +122,7 @@ export const InputComponent = defineComponent({
       const inputEntities = [closestInputEntity, ...inputSinkInputEntities]
       return inputEntities.filter(filterInputEntities) // remove duplicates
     } else {
-      return [closestInputEntity]
+      return closestInputEntity === UndefinedEntity ? [] : [closestInputEntity]
     }
   },
 
