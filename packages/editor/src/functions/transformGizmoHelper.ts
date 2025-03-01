@@ -45,7 +45,7 @@ import {
   TransformSpace,
   TransformSpaceType
 } from '@ir-engine/engine/src/scene/constants/transformConstants'
-import { getState, NO_PROXY, State } from '@ir-engine/hyperflux'
+import { getMutableState, getState, NO_PROXY, State } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { Axis, Q_IDENTITY, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
@@ -60,6 +60,8 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
 import { TransformGizmoVisualComponent } from '../classes/gizmo/transform/TransformGizmoVisualComponent'
 import { GizmoMaterial, gizmoMaterialProperties } from '../constants/GizmoPresets'
+import { SelectionBoxState } from '../panels/viewport/tools/SelectionBoxTool'
+import { EditorHistoryFunctions } from '../services/EditorHistoryState'
 import { ObjectGridSnapState } from '../systems/ObjectGridSnapSystem'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
@@ -495,8 +497,10 @@ function pointerHover(gizmoEntity: Entity) {
   const intersect = intersectObjectWithRay(picker, _raycaster, true)
 
   if (intersect) {
+    getMutableState(SelectionBoxState).gizmoInControl.set(true)
     gizmoControlComponent.axis.set(intersect.object.name as (typeof TransformAxis)[keyof typeof TransformAxis])
   } else {
+    getMutableState(SelectionBoxState).gizmoInControl.set(false)
     gizmoControlComponent.axis.set(null)
   }
 }
@@ -551,7 +555,6 @@ function pointerDown(gizmoEntity: Entity) {
         }
       }
     }
-
     gizmoControlComponent.dragging.set(true)
   }
 }
@@ -934,6 +937,8 @@ export function onGizmoCommit(gizmoEntity) {
   }
   gizmoControlComponent.dragging.set(false)
   gizmoControlComponent.axis.set(null)
+  console.log('gizmo commit')
+  EditorHistoryFunctions.setComponent(gizmoControlComponent.controlledEntities.value as Entity[], TransformComponent)
 }
 
 function pointerUp(gizmoEntity) {

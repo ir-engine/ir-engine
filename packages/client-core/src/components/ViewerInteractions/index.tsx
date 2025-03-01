@@ -50,6 +50,7 @@ export const ViewerInteractions = () => {
   const userID = useHookstate(getMutableState(EngineState).userID).value
   const loadingScreenOpacity = useHookstate(getMutableState(LoadingSystemState).loadingScreenOpacity)
   const { t } = useTranslation()
+  const externalInjectedMenus = useMutableState(ViewerMenuState).externalInjectedMenus.get(NO_PROXY)
 
   useLayoutEffect(() => {
     const orientationChangeHandler = () => {
@@ -77,8 +78,6 @@ export const ViewerInteractions = () => {
       </div>
     )
   }
-
-  const externalInjectedMenus = useMutableState(ViewerMenuState).externalInjectedMenus.get(NO_PROXY)
 
   const isScreenOpaque = loadingScreenOpacity.value > 0
 
