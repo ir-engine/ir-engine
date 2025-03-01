@@ -73,6 +73,6 @@ const execute = () => {
 
 export const VPSSystem = defineSystem({
   uuid: 'ee.engine.VPSSystem',
-  insert: { after: XRPersistentAnchorSystem },
-  execute
+  insert: { after: XRPersistentAnchorSystem }
+  // execute
 })
