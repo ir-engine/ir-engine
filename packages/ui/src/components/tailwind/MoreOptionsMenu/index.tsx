@@ -36,7 +36,7 @@ interface MoreOptionsMenuProps {
     icon?: React.ReactNode
     label: string
     onClick: () => void
-    disabled: boolean
+    disabled?: boolean
   }[]
 }
 

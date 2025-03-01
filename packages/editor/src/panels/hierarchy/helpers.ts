@@ -34,6 +34,7 @@ import {
 } from '@ir-engine/ecs'
 import { AllFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 import { getState } from '@ir-engine/hyperflux'
@@ -41,6 +42,7 @@ import { t } from 'i18next'
 import { CopyPasteFunctions, EntityCopyDataType } from '../../functions/CopyPasteFunctions'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { isEntityGlb } from '../../functions/utils'
+import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { SelectionState } from '../../services/SelectionServices'
 
@@ -74,15 +76,17 @@ const getSelectedEntities = (entity?: Entity) => {
 }
 
 export const deleteNode = (entity: Entity) => {
-  EditorControlFunctions.removeObject(getSelectedEntities(entity))
+  EditorHistoryFunctions.removeEntity([entity])
 }
 
 export const duplicateNode = (entity?: Entity) => {
   EditorControlFunctions.duplicateObject(getSelectedEntities(entity))
+  EditorHistoryFunctions.snapshot()
 }
 
 export const groupNodes = (entity?: Entity) => {
   EditorControlFunctions.groupObjects(getSelectedEntities(entity))
+  EditorHistoryFunctions.snapshot()
 }
 
 export const copyNodes = (entity?: Entity) => {
@@ -98,6 +102,7 @@ export const pasteNodes = (parentEntity?: Entity) => {
   const ProcessEntityData = (parentEntity: Entity | undefined, nodeEntitiesData: EntityCopyDataType[]) => {
     nodeEntitiesData.forEach((nodeEntityData) => {
       const components = nodeEntityData.components.map((c) => ({ name: c.name, props: c.json }) as ComponentJsonType)
+      delete components[NodeIDComponent.jsonID]
 
       const entityData = EditorControlFunctions.createObjectFromSceneElement(
         components,
@@ -115,6 +120,7 @@ export const pasteNodes = (parentEntity?: Entity) => {
       parentEntities.forEach((entity) => {
         ProcessEntityData(entity, nodeEntitiesData)
       })
+      EditorHistoryFunctions.snapshot()
     })
     .catch(() => {
       NotificationService.dispatchNotify(t('editor:hierarchy.copy-paste.no-hierarchy-nodes') as string, {

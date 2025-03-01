@@ -567,6 +567,8 @@ const exportAccessor = (
   return accessorIndex
 }
 
+const getPaddedBufferSize = (bufferSize: number): number => Math.ceil(bufferSize / 4) * 4
+
 const exportBufferView = (
   attribute: BufferAttribute,
   componentType: number,
@@ -592,7 +594,7 @@ const exportBufferView = (
   }
 
   const bufferSize = count * attribute.itemSize * componentSize
-  const byteLength = Math.ceil(bufferSize / 4) * 4
+  const byteLength = getPaddedBufferSize(bufferSize)
   const dataView = new DataView(new ArrayBuffer(byteLength))
   let offset = 0
   for (let i = start; i < start + count; i++) {
@@ -767,6 +769,50 @@ const exportTexture = async (texture: Texture, gltf: GLTF.IGLTF, context: GLTFSc
   return textureIndex
 }
 
+const getPaddedArrayBuffer = (arrayBuffer: ArrayBuffer, paddingByte = 0) => {
+  const paddedLength = getPaddedBufferSize(arrayBuffer.byteLength)
+
+  if (paddedLength !== arrayBuffer.byteLength) {
+    const array = new Uint8Array(paddedLength)
+    array.set(new Uint8Array(arrayBuffer))
+
+    if (paddingByte !== 0) {
+      for (let i = arrayBuffer.byteLength; i < paddedLength; i++) {
+        array[i] = paddingByte
+      }
+    }
+
+    return array.buffer
+  }
+
+  return arrayBuffer
+}
+
+const exportBufferViewImage = async (
+  blob: Blob,
+  gltf: GLTF.IGLTF,
+  context: GLTFSceneExportContext
+): Promise<number> => {
+  return new Promise(function (resolve) {
+    const reader = new FileReader()
+    reader.readAsArrayBuffer(blob)
+    reader.onloadend = function () {
+      const buffer = getPaddedArrayBuffer(reader.result as ArrayBuffer)
+
+      const bufferViewDef = {
+        buffer: exportBuffer(buffer, gltf, context),
+        byteOffset: 0,
+        byteLength: buffer.byteLength
+      }
+
+      const bufferViewIndex = gltf.bufferViews!.length
+      if (!gltf.bufferViews) gltf.bufferViews = []
+      gltf.bufferViews.push(bufferViewDef)
+      resolve(bufferViewIndex)
+    }
+  })
+}
+
 const exportImage = async (image: any, gltf: GLTF.IGLTF, context: GLTFSceneExportContext): Promise<number> => {
   const cache = context.cache.images
   if (typeof image.src === 'string') {
@@ -774,17 +820,33 @@ const exportImage = async (image: any, gltf: GLTF.IGLTF, context: GLTFSceneExpor
   } else if (cache.has(image)) return cache.get(image)!
 
   gltf.images ??= []
-  const relativeSrc = STATIC_ASSET_REGEX.exec(image.src)![3]
-  const dstName = baseName(relativeSrc)
-  const srcName = baseName(context.relativePath)
-  const dstDir = LoaderUtils.extractUrlBase(relativeSrc)
-  const srcDir = LoaderUtils.extractUrlBase(context.relativePath)
 
-  const uri = pathJoin(relativePathTo(srcDir, dstDir), dstName)
+  let imageDef = undefined as undefined | GLTF.IImage
 
-  const imageDef: GLTF.IImage = {
-    mimeType: image.mimeType,
-    uri
+  if (/^blob:/.test(image.src)) {
+    const canvas = new OffscreenCanvas(image.width, image.height)
+    const ctx = canvas.getContext('2d')!
+    ctx.drawImage(image, 0, 0)
+    const blob = await canvas.convertToBlob({ type: image.mimeType, quality: 1 })
+
+    const bufferViewIndex = await exportBufferViewImage(blob, gltf, context)
+    imageDef = {
+      mimeType: image.mimeType,
+      bufferView: bufferViewIndex
+    }
+  } else {
+    const relativeSrc = STATIC_ASSET_REGEX.exec(image.src)![3]
+    const dstName = baseName(relativeSrc)
+    const srcName = baseName(context.relativePath)
+    const dstDir = LoaderUtils.extractUrlBase(relativeSrc)
+    const srcDir = LoaderUtils.extractUrlBase(context.relativePath)
+
+    const uri = pathJoin(relativePathTo(srcDir, dstDir), dstName)
+
+    imageDef = {
+      mimeType: image.mimeType,
+      uri
+    }
   }
 
   gltf.images ??= []

@@ -185,7 +185,7 @@ const Select = ({
     } else {
       setDisplayText(filteredOptions[index].label)
     }
-  }, [localValue, selectedOptionIndex])
+  }, [localValue, selectedOptionIndex, filteredOptions])
 
   useEffect(() => {
     if (searchString === '') {

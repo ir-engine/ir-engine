@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineQuery, defineSystem, getComponent } from '@ir-engine/ecs'
+import { defineQuery, defineSystem, Entity, getComponent } from '@ir-engine/ecs'
 import { SpotLight, Vector3 } from 'three'
 import { TransformSystem } from '../transform/systems/TransformSystem'
 import { ObjectComponent } from './components/ObjectComponent'
@@ -35,14 +35,17 @@ const _vec3 = new Vector3()
 const spotLightQuery = defineQuery([ObjectComponent, SpotLightComponent])
 const directionalLightQuery = defineQuery([ObjectComponent, DirectionalLightComponent])
 
+const updateLight = (entity: Entity) => {
+  const light = getComponent(entity, ObjectComponent) as SpotLight
+  if (!light?.target) return
+  light.getWorldDirection(_vec3)
+  light.getWorldPosition(light.target.position).add(_vec3)
+  light.target.updateMatrixWorld()
+}
+
 const execute = () => {
-  for (const entity of [...directionalLightQuery(), ...spotLightQuery()]) {
-    const light = getComponent(entity, ObjectComponent) as SpotLight
-    if (!light?.target) continue
-    light.getWorldDirection(_vec3)
-    light.getWorldPosition(light.target.position).add(_vec3)
-    light.target.updateMatrixWorld()
-  }
+  for (const entity of directionalLightQuery()) updateLight(entity)
+  for (const entity of spotLightQuery()) updateLight(entity)
 }
 
 export const LightTransformSystem = defineSystem({

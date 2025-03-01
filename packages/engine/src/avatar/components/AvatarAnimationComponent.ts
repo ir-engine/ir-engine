@@ -135,6 +135,11 @@ export function createVRM(rootEntity: Entity) {
     setComponent(rootEntity, ObjectComponent, obj3d)
   }
 
+  setComponent(rootEntity, AvatarRigComponent, {
+    bonesToEntities: {} as Record<VRMHumanBoneName, Entity>,
+    entitiesToBones: {} as Record<Entity, VRMHumanBoneName>
+  })
+
   if (gltf.extensions?.VRM || gltf.extensions?.VRMC_vrm) {
     const vrmExtensionDefinition = (gltf.extensions!.VRM as V0VRM.VRM) ?? (gltf.extensions.VRMC_vrm as V0VRM.VRM)
     const humanBonesArray = Array.isArray(vrmExtensionDefinition.humanoid?.humanBones)
