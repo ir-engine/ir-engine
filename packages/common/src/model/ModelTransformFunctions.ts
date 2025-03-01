@@ -58,9 +58,7 @@ import { $attributes } from 'property-graph'
 import { LoaderUtils } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 
-import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
-import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
 import {
   ExtractedImageTransformParameters,
   extractParameters,
@@ -727,11 +725,11 @@ const writeFiles = async (
     const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
     const folderURL = resourcePath.replace(config.client.fileServer, '')
 
-    const fileBrowserService = API.instance.service(fileBrowserPath)
-    const folderExists = await fileBrowserService.get(folderURL)
-    if (!folderExists) {
-      await fileBrowserService.create(folderURL)
-    }
+    // const fileBrowserService = API.instance.service(fileBrowserPath)
+    // const folderExists = await fileBrowserService.get(folderURL)
+    // if (!folderExists) {
+    //   await fileBrowserService.create(folderURL)
+    // }
 
     const removeExtension = (uri: string) => {
       const pathSegments = uri.split('/')
