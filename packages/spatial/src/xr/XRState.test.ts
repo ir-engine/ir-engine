@@ -74,12 +74,6 @@ beforeAll(() => {
 })
 
 describe('XRAction', () => {
-  describe('sessionChanged', () => {
-    it('should initialize the .name field with the expected value', () => {
-      expect(XRAction.sessionChanged.type).toBe('xre.xr.sessionChanged')
-    })
-  }) //:: XRAction.sessionChanged
-
   describe('vibrateController', () => {
     it('should initialize the .name field with the expected value', () => {
       expect(XRAction.vibrateController.type).toBe('xre.xr.vibrateController')

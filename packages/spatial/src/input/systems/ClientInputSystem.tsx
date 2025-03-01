@@ -128,16 +128,8 @@ const reactor = () => {
   if (!isClient) return null
 
   useEffect(() => {
-    getMutableState(InputHeuristicState).merge([
-      {
-        order: -1,
-        heuristic: meshHeuristic
-      },
-      {
-        order: 0,
-        heuristic: boundingBoxHeuristic
-      }
-    ])
+    InputHeuristicState.addHeuristic(-1, meshHeuristic)
+    InputHeuristicState.addHeuristic(0, boundingBoxHeuristic)
   }, [])
 
   ClientInputHooks.useNonSpatialInputSources()
