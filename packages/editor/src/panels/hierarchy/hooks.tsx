@@ -49,7 +49,7 @@ import useUpload from '../../components/assets/useUpload'
 import { DnDFileType, FileDataType, ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { cmdOrCtrlString } from '../../functions/utils'
+import { cmdOrCtrlString, isEntityGlb } from '../../functions/utils'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { SelectionState } from '../../services/SelectionServices'
@@ -240,6 +240,7 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
     if (item.type === ItemTypes.Node) {
       if (node?.entity) {
         const entityTreeComponent = getComponent(node.entity, EntityTreeComponent)
+        if (place === 'On' && isEntityGlb(node.entity)) return false
         if (place === 'On' || !!entityTreeComponent.parentEntity) return true
       }
 

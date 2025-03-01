@@ -40,6 +40,7 @@ import { getState } from '@ir-engine/hyperflux'
 import { t } from 'i18next'
 import { CopyPasteFunctions, EntityCopyDataType } from '../../functions/CopyPasteFunctions'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { isEntityGlb } from '../../functions/utils'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { SelectionState } from '../../services/SelectionServices'
 
@@ -127,13 +128,6 @@ type WalkerEntry = {
   depth: number
   lastChild: boolean
   isRendered: boolean
-}
-
-function isEntityGlb(entity: Entity): boolean {
-  const gltfComponent = getOptionalComponent(entity, GLTFComponent)
-  if (!gltfComponent) return false
-  const trimmedFilename = gltfComponent?.src.split('?')[0]
-  return trimmedFilename !== undefined && trimmedFilename.endsWith('.glb')
 }
 
 export function ecsHierarchyTreeWalker(rootEntity: Entity, enableHideGlbChildren: boolean): HierarchyTreeNodeType[] {

@@ -129,6 +129,9 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const canSaveNodeChanges = useState(false)
   const permissionToChangeNodeVerified = useState(false)
 
+  //@todo when this feature flag is added, remove the hardcoded value
+  const hideGlbChildrenFeatureFlag = [true] //useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.HideGlbChildren])
+
   const handleRenameOpen = () => {
     if (!isRenameOpen.value) {
       isRenameOpen.set(true)
@@ -400,7 +403,8 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
         'bg-ui-background',
         !visible ? 'text-text-inactive' : '',
         selected ? 'rounded-sm border border-ui-select-outline bg-ui-select-background text-text-primary' : '',
-        isOverOn && canDropOn ? 'border border-dotted' : ''
+        isOverOn && canDropOn ? 'border border-dotted' : '',
+        hideGlbChildrenFeatureFlag[0] && isOverOn && !canDropOn ? 'border border-dotted bg-ui-hover-error' : ''
       )}
       data-testid="hierarchy-panel-scene-item"
     >
