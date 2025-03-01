@@ -133,6 +133,26 @@ export const saveSceneGLTF = async (
   })
 }
 
+export const logNewScene = (authoringApp: string, entryPoint: string = 'editor') => {
+  logger.analytics({
+    app_name: 'editor',
+    project: getState(EditorState).projectName,
+    user_id: getState(EngineState).userID,
+    event_name: 'editor',
+    event_value: 'new-scene',
+    event_properties: [
+      {
+        key: 'authoring-app',
+        value: authoringApp
+      },
+      {
+        key: 'entry-point',
+        value: entryPoint
+      }
+    ]
+  })
+}
+
 export const onNewScene = async (
   templateURL = config.client.fileServer + '/projects/ir-engine/default-project/public/scenes/default.gltf'
 ) => {
