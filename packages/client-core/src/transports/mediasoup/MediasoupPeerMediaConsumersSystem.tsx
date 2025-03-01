@@ -43,12 +43,12 @@ import {
 import { useFind } from '@ir-engine/common'
 import { defineSystem, PresentationSystemGroup } from '@ir-engine/ecs'
 import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
-import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import {
   createPeerMediaChannels,
   PeerMediaChannelState,
   removePeerMediaChannels
-} from '../../media/PeerMediaChannelState'
+} from '@ir-engine/network/src/media/PeerMediaChannelState'
+import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
 import { ConsumerExtension, ProducerExtension } from './MediasoupClientFunctions'
 
 const MAX_RES_TO_USE_TOP_LAYER = 540 // If under 540p, use the topmost video layer, otherwise use layer n-1

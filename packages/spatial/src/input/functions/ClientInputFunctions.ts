@@ -214,6 +214,16 @@ export const redirectPointerEventsToXRUI = (cameraEntity: Entity, evt: PointerEv
 
 const nonSpatialInputSource = defineQuery([InputSourceComponent, Not(TransformComponent)])
 
+const sortByDistance = (a: IntersectionData, b: IntersectionData) => {
+  // - if a < b
+  // + if a > b
+  // 0 if equal
+  const aNum = hasComponent(a.entity, TransformGizmoTagComponent) ? -1 : 0
+  const bNum = hasComponent(b.entity, TransformGizmoTagComponent) ? -1 : 0
+  //aNum - bNum : 0 if equal, -1 if a has tag and b doesn't, 1 if a doesnt have tag and b does
+  return Math.sign(a.distance - b.distance) + (aNum - bNum)
+}
+
 export function assignInputSources(sourceEid: Entity, capturedEntity: Entity) {
   const isSpatialInput = hasComponent(sourceEid, TransformComponent)
 
@@ -221,15 +231,7 @@ export function assignInputSources(sourceEid: Entity, capturedEntity: Entity) {
 
   if (isSpatialInput) findRaycastedInput(sourceEid, intersectionData)
 
-  const sortedIntersections = Array.from(intersectionData).sort((a, b) => {
-    // - if a < b
-    // + if a > b
-    // 0 if equal
-    const aNum = hasComponent(a.entity, TransformGizmoTagComponent) ? -1 : 0
-    const bNum = hasComponent(b.entity, TransformGizmoTagComponent) ? -1 : 0
-    //aNum - bNum : 0 if equal, -1 if a has tag and b doesn't, 1 if a doesnt have tag and b does
-    return Math.sign(a.distance - b.distance) + (aNum - bNum)
-  })
+  const sortedIntersections = Array.from(intersectionData).sort(sortByDistance)
   const sourceState = getMutableComponent(sourceEid, InputSourceComponent)
 
   //TODO check all inputSources sorted by distance list of InputComponents from query, probably similar to the spatialInputQuery

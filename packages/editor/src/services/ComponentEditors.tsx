@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { VisualScriptComponent } from '@ir-engine/engine'
 import { LoopAnimationComponent } from '@ir-engine/engine/src/avatar/components/LoopAnimationComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { GrabbableComponent } from '@ir-engine/engine/src/grabbable/GrabbableComponent'
@@ -56,6 +55,7 @@ import { TextComponent } from '@ir-engine/engine/src/scene/components/TextCompon
 import { VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
+import { VisualScriptComponent } from '@ir-engine/engine/src/visualscript/components/VisualScriptComponent'
 import { defineState } from '@ir-engine/hyperflux'
 import {
   AmbientLightComponent,
@@ -115,10 +115,13 @@ import SkyboxNodeEditor from '@ir-engine/ui/src/components/editor/properties/sky
 import SpawnPointNodeEditor from '@ir-engine/ui/src/components/editor/properties/spawnPoint'
 import SplineNodeEditor from '@ir-engine/ui/src/components/editor/properties/spline'
 
+import { GeneralAudioComponent } from '@ir-engine/engine/src/audio/components/GeneralAudioComponent'
 import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { LookAtComponent } from '@ir-engine/engine/src/scene/components/LookAtComponent'
 import { OverlayComponent } from '@ir-engine/engine/src/scene/components/OverlayComponent'
+import { TriggerCallbackComponent } from '@ir-engine/engine/src/scene/components/TriggerCallbackComponent'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { GeneralAudioNodeEditor } from '@ir-engine/ui/src/components/editor/properties/audio/general'
 import PlaylistNodeEditor from '@ir-engine/ui/src/components/editor/properties/playlist'
 import SplineTrackNodeEditor from '@ir-engine/ui/src/components/editor/properties/spline/track'
 import TextNodeEditor from '@ir-engine/ui/src/components/editor/properties/text'
@@ -134,45 +137,31 @@ export const ComponentEditorsState = defineState({
   name: 'ee.editor.ComponentEditorsState',
   initial: () => {
     return {
-      [AmbientLightComponent.name]: AmbientLightNodeEditor,
-      [AudioAnalysisComponent.name]: AudioAnalysisEditor,
-      [CameraComponent.name]: CameraNodeEditor,
-      [CameraSettingsComponent.name]: CameraPropertiesNodeEditor,
-      [ColliderComponent.name]: ColliderComponentEditor,
-      [DirectionalLightComponent.name]: DirectionalLightNodeEditor,
-      [EnvMapComponent.name]: EnvMapEditor,
-      [EnvMapBakeComponent.name]: EnvMapBakeNodeEditor,
-      [FogSettingsComponent.name]: FogSettingsEditor,
-      [GrabbableComponent.name]: GrabbableComponentNodeEditor,
-      [GLTFComponent.name]: GLTFNodeEditor,
-      [GroundPlaneComponent.name]: GroundPlaneNodeEditor,
-      [HemisphereLightComponent.name]: HemisphereLightNodeEditor,
-      [ImageComponent.name]: ImageNodeEditor,
-      [InstancingComponent.name]: InstancingNodeEditor,
-      [InputComponent.name]: InputComponentNodeEditor,
-      [InteractableComponent.name]: InteractableComponentNodeEditor,
-      [LegacyVolumetricComponent.name]: LegacyVolumetricNodeEditor,
-      [LinkComponent.name]: LinkNodeEditor,
-      [LookAtComponent.name]: LookAtNodeEditor,
-      [LoopAnimationComponent.name]: LoopAnimationNodeEditor,
-      [MediaComponent.name]: MediaNodeEditor,
-      [MeshComponent.name]: MeshNodeEditor,
-      [MountPointComponent.name]: MountPointNodeEditor,
-      [PersistentAnchorComponent.name]: PersistentAnchorNodeEditor,
-      [ParticleSystemComponent.name]: ParticleSystemNodeEditor,
-      [PointLightComponent.name]: PointLightNodeEditor,
-      [PositionalAudioComponent.name]: PositionalAudioNodeEditor,
-      [PostProcessingComponent.name]: PostProcessingSettingsEditor,
-      [PortalComponent.name]: PortalNodeEditor,
-      [PrimitiveGeometryComponent.name]: PrimitiveGeometryNodeEditor,
-      [ReflectionProbeComponent.name]: ReflectionProbeNodeEditor,
-      [RenderSettingsComponent.name]: RenderSettingsEditor,
-      [RigidBodyComponent.name]: RigidBodyComponentEditor,
-      [ScenePreviewCameraComponent.name]: ScenePreviewCameraNodeEditor,
       [SceneSettingsComponent.name]: SceneSettingsEditor,
-      [ScreenshareTargetComponent.name]: ScreenshareTargetNodeEditor,
+      [PostProcessingComponent.name]: PostProcessingSettingsEditor,
+      [RenderSettingsComponent.name]: RenderSettingsEditor,
+      [FogSettingsComponent.name]: FogSettingsEditor,
+      [CameraSettingsComponent.name]: CameraPropertiesNodeEditor,
+      [CameraComponent.name]: CameraNodeEditor,
+      [DirectionalLightComponent.name]: DirectionalLightNodeEditor,
+      [HemisphereLightComponent.name]: HemisphereLightNodeEditor,
+      [AmbientLightComponent.name]: AmbientLightNodeEditor,
+      [PointLightComponent.name]: PointLightNodeEditor,
+      [SpotLightComponent.name]: SpotLightNodeEditor,
       [SDFComponent.name]: SDFEditor,
+      [GroundPlaneComponent.name]: GroundPlaneNodeEditor,
+      [MeshComponent.name]: MeshNodeEditor,
+      [GLTFComponent.name]: GLTFNodeEditor,
       [ShadowComponent.name]: ShadowNodeEditor,
+      [LoopAnimationComponent.name]: LoopAnimationNodeEditor,
+      [ParticleSystemComponent.name]: ParticleSystemNodeEditor,
+      [PrimitiveGeometryComponent.name]: PrimitiveGeometryNodeEditor,
+      [PortalComponent.name]: PortalNodeEditor,
+      [MountPointComponent.name]: MountPointNodeEditor,
+      [RigidBodyComponent.name]: RigidBodyComponentEditor,
+      [ColliderComponent.name]: ColliderComponentEditor,
+      [TriggerCallbackComponent.name]: TriggerComponentEditor,
+      [ScenePreviewCameraComponent.name]: ScenePreviewCameraNodeEditor,
       [SkyboxComponent.name]: SkyboxNodeEditor,
       [SpawnPointComponent.name]: SpawnPointNodeEditor,
       [ImageComponent.name]: ImageNodeEditor,
@@ -188,7 +177,6 @@ export const ComponentEditorsState = defineState({
       [VariantComponent.name]: VariantNodeEditor,
       [SplineComponent.name]: SplineNodeEditor,
       [SplineTrackComponent.name]: SplineTrackNodeEditor,
-      [SpotLightComponent.name]: SpotLightNodeEditor,
       [VisualScriptComponent.name]: VisualScriptNodeEditor,
       [LinkComponent.name]: LinkNodeEditor,
       [OverlayComponent.name]: OverlayNodeEditor,
@@ -197,13 +185,9 @@ export const ComponentEditorsState = defineState({
       [GrabbableComponent.name]: GrabbableComponentNodeEditor,
       [ScreenshareTargetComponent.name]: ScreenshareTargetNodeEditor,
       [TextComponent.name]: TextNodeEditor,
-      [TriggerComponent.name]: TriggerComponentEditor,
-      [VariantComponent.name]: VariantNodeEditor,
-      [VideoComponent.name]: VideoNodeEditor,
-      [VisualScriptComponent.name]: VisualScriptNodeEditor,
-      [VolumetricComponent.name]: VolumetricNodeEditor,
-      [PlaylistComponent.name]: PlaylistNodeEditor
-      // [MediaSettingsComponent.name]: MediaSettingsEditor,
+      [LookAtComponent.name]: LookAtNodeEditor,
+      [ReflectionProbeComponent.name]: ReflectionProbeNodeEditor,
+      [GeneralAudioComponent.name]: GeneralAudioNodeEditor
     } as Record<string, EditorComponentType>
   }
 })

@@ -230,7 +230,14 @@ export class EEMaterialExtension extends CopyableExtension {
             nuArgDef.type = argDef.type!
             if (argDef.type === 'texture') {
               const value = argDef.contents
-              const texture = value ? readerContext.textures[value.index] : null
+              let texture: Texture | null = null
+              if (value) {
+                const imageIndex = readerContext.jsonDoc.json.textures?.[value.index]?.source
+                if (typeof imageIndex !== 'number') {
+                  console.warn('Could not resolve image index for texture')
+                }
+                texture = typeof imageIndex === 'number' ? readerContext.textures[imageIndex] : null
+              }
               if (texture) {
                 const textureInfo = new TextureInfo(this.document.getGraph())
                 readerContext.setTextureInfo(textureInfo, value)

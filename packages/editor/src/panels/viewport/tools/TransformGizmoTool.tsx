@@ -24,27 +24,28 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useDraggable } from '@ir-engine/client-core/src/hooks/useDraggable'
-import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import { setTransformMode } from '@ir-engine/editor/src/functions/transformFunctions'
 import { TransformMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
-import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { Tooltip } from '@ir-engine/ui'
 import { ViewportButton } from '@ir-engine/ui/editor'
-import { Cursor03Default, Refresh1Md, Scale02Md, TransformMd } from '@ir-engine/ui/src/icons'
+import { Cursor03Default, MoveMd, Refresh1Md, Scale02Md, TransformMd } from '@ir-engine/ui/src/icons'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { TbMarquee2 } from 'react-icons/tb'
 import { EditorHelperState } from '../../../services/EditorHelperState'
 import { SelectionBoxState } from './SelectionBoxTool'
 
 const GizmoTools = {
-  ...TransformMode,
+  ...TransformMode
+}
+type GizmoToolsType = (typeof GizmoTools)[keyof typeof GizmoTools]
+
+const SelectionModes = {
   pointer: 'pointer' as const,
   selectionBox: 'selection_box' as const
 }
-
-type GizmoToolsType = (typeof GizmoTools)[keyof typeof GizmoTools]
+type SelectionModesType = (typeof SelectionModes)[keyof typeof SelectionModes]
 
 function Placer({ id }: { id: string }) {
   return (
@@ -57,18 +58,12 @@ function Placer({ id }: { id: string }) {
 
 export default function TransformGizmoTool() {
   const { t } = useTranslation()
-  const [_, setPointerSelected] = useState(false)
-  const [isClickedSelectionBox, setIsClickedSelectionBox] = useState(false)
 
   const editorHelperState = useMutableState(EditorHelperState)
   const transformMode = editorHelperState.transformMode.value
+
+  const selectionMode = useHookstate<SelectionModesType>(SelectionModes.pointer)
   const [toolSelected, setToolSelected] = useState<GizmoToolsType>(transformMode)
-  const handleClickSelectionBox = () => {
-    setIsClickedSelectionBox(!isClickedSelectionBox)
-    getMutableState(SelectionBoxState).selectionBoxEnabled.set(!isClickedSelectionBox)
-    getMutableState(InputState).capturingCameraOrbitEnabled.set(isClickedSelectionBox)
-    setToolSelected(GizmoTools.selectionBox)
-  }
 
   useDraggable({
     targetId: 'gizmo-tool',
@@ -77,6 +72,12 @@ export default function TransformGizmoTool() {
     targetStartY: 56,
     targetStartX: 16
   })
+
+  useEffect(() => {
+    const isSelecting = selectionMode.value === SelectionModes.selectionBox
+    getMutableState(SelectionBoxState).selectionBoxEnabled.set(isSelecting)
+    getMutableState(InputState).capturingCameraOrbitEnabled.set(!isSelecting)
+  }, [selectionMode])
 
   useEffect(() => {
     const mode = editorHelperState.transformMode.value
@@ -90,13 +91,23 @@ export default function TransformGizmoTool() {
         <Tooltip content={t('editor:toolbar.gizmo.pointer')} position="right">
           <ViewportButton
             onClick={() => {
-              EditorControlFunctions.replaceSelection([])
-              setToolSelected(GizmoTools.pointer)
+              selectionMode.set(SelectionModes.pointer)
             }}
-            selected={toolSelected === GizmoTools.pointer}
+            selected={selectionMode.value === SelectionModes.pointer}
             icon={Cursor03Default}
           />
         </Tooltip>
+        <Tooltip content={t('editor:toolbar.gizmo.marquee')} position="right">
+          <ViewportButton
+            onClick={() => {
+              selectionMode.set(SelectionModes.selectionBox)
+            }}
+            selected={selectionMode.value === SelectionModes.selectionBox}
+            icon={TransformMd}
+          />
+        </Tooltip>
+      </div>
+      <div className="mt-2 flex flex-col overflow-hidden rounded bg-surface-3">
         <Tooltip content={t('editor:toolbar.gizmo.translate')} position="right">
           <ViewportButton
             onClick={() => {
@@ -104,7 +115,7 @@ export default function TransformGizmoTool() {
               setToolSelected(GizmoTools.translate)
             }}
             selected={toolSelected === GizmoTools.translate}
-            icon={Scale02Md}
+            icon={MoveMd}
           />
         </Tooltip>
         <Tooltip content={t('editor:toolbar.gizmo.rotate')} position="right">
@@ -124,14 +135,7 @@ export default function TransformGizmoTool() {
               setToolSelected(GizmoTools.scale)
             }}
             selected={toolSelected === GizmoTools.scale}
-            icon={TransformMd}
-          />
-        </Tooltip>
-        <Tooltip content={t('disable orbit camera and enable selection box')} position="right">
-          <ViewportButton
-            onClick={handleClickSelectionBox}
-            selected={toolSelected === GizmoTools.selectionBox}
-            icon={TbMarquee2}
+            icon={Scale02Md}
           />
         </Tooltip>
       </div>

@@ -44,11 +44,11 @@ import { drawPoseToCanvas } from '@ir-engine/ui/src/pages/Capture'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
 
+import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
+import { PeerMediaChannelState, PeerMediaStreamInterface } from '@ir-engine/network/src/media/PeerMediaChannelState'
 import { useTranslation } from 'react-i18next'
 import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 import { useZendesk } from '../../hooks/useZendesk'
-import { MediaStreamState } from '../../media/MediaStreamState'
-import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../media/PeerMediaChannelState'
 
 interface Props {
   peerID: PeerID
@@ -396,7 +396,13 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
       }}
     >
       {(!videoMediaStream || videoStreamPaused) && (
-        <img src={avatarThumbnail} alt={t('user:avatar.avatar')} crossOrigin="anonymous" draggable={false} />
+        <img
+          src={avatarThumbnail}
+          alt={t('user:avatar.avatar')}
+          crossOrigin="anonymous"
+          draggable={false}
+          className="bg-[radial-gradient(circle,_#DDDDDD,_#726B65)]"
+        />
       )}
       <span
         className="[&>video]:h-full [&>video]:w-full [&>video]:object-cover"

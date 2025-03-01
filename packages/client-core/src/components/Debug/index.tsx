@@ -37,6 +37,7 @@ import { useDraggable } from '../../hooks/useDraggable'
 import { APIDebug } from './APIDebug'
 import DebugButtons from './DebugButtons'
 import { EntityDebug } from './EntityDebug'
+import { ReactorDebug } from './ReactorDebug'
 import { ResourceDebug } from './ResourceDebug'
 import { StateDebug } from './StateDebug'
 import { StatsPanel } from './StatsPanel'
@@ -75,6 +76,7 @@ const DebugTabs = {
   API: <APIDebug />,
   Systems: <SystemDebug />,
   State: <StateDebug />,
+  Reactor: <ReactorDebug />,
   Resources: <ResourceDebug />
 }
 
@@ -93,7 +95,7 @@ const Debug = () => {
   })
 
   return (
-    <div id="debug" className="pointer-events-auto fixed z-[1000] rounded bg-neutral-700 p-0.5">
+    <div id="debug" className="pointer-events-auto fixed z-[1000] max-w-[600px] rounded bg-neutral-700 p-0.5">
       <Placer id="debug-placer" />
       <div className="m-1 max-h-[95vh] overflow-y-auto">
         <DebugButtons />

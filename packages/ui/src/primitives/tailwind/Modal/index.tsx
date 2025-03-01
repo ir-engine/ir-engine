@@ -159,7 +159,7 @@ const Modal = ({
     <div data-test-id={id} className={twClassName}>
       {onClose && <ModalHeader title={title} onClose={onClose} headerIconSrc={headerIconSrc} />}
       {rawChildren}
-      {children && <div className="h-fit max-h-[60vh] w-full overflow-y-auto px-10 py-6">{children}</div>}
+      {children && <div className="h-fit max-h-[60dvh] w-full overflow-y-auto px-10 py-6">{children}</div>}
 
       {!hideFooter && (
         <ModalFooter

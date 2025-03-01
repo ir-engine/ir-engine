@@ -42,6 +42,7 @@ import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import multiLogger from '@ir-engine/common/src/logger'
 import { EngineState } from '@ir-engine/ecs'
+import { MediaStreamService, MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import {
   Microphone01Lg,
@@ -55,7 +56,6 @@ import { IoAccessibility } from 'react-icons/io5'
 import { MdFlipCameraAndroid, MdOutlineViewInAr } from 'react-icons/md'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
 import { SearchParamState } from '../../common/services/RouterService'
-import { MediaStreamService, MediaStreamState } from '../../media/MediaStreamState'
 import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
 import LocationIconButton from '../../user/components/LocationIconButton'
 import { clientContextParams } from '../../util/ClientContextState'
@@ -167,7 +167,7 @@ export const MediaIconsBox = () => {
             id="UserVideo"
             onClick={() => {
               MediaStreamState.toggleWebcamPaused()
-              logger.info({ event_name: 'toggle_camera', value: isCamVideoEnabled })
+              logger.analytics({ event_name: 'toggle_camera', value: isCamVideoEnabled })
             }}
             loadingState={!!mediaStreamState.webcamMediaStream.value != mediaStreamState.webcamEnabled.value}
           />
@@ -190,7 +190,7 @@ export const MediaIconsBox = () => {
               }}
               onClick={() => {
                 window.open(`/capture/${location.pathname.split('/')[2]}`, '_blank')
-                logger.info({
+                logger.analytics({
                   event_name: 'toggle_motion_capture',
                   event_value: isMotionCaptureEnabled
                 })

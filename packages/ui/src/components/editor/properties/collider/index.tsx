@@ -26,8 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { camelCaseToSpacedString } from '@ir-engine/common/src/utils/camelCaseToSpacedString'
 import { hasComponent, SerializedComponentType, useAncestorWithComponents, useComponent } from '@ir-engine/ecs'
 import { commitProperty, EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
-import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { EditorHistoryFunctions } from '@ir-engine/editor/src/services/EditorHistoryState'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { ColliderComponent, supportedColliderShapes } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
@@ -98,7 +98,7 @@ export const ColliderComponentEditor: EditorComponentType = (props) => {
             className="text-sm text-[#FFFFFF]"
             onClick={() => {
               const nodes = SelectionState.getSelectedEntities()
-              EditorControlFunctions.addOrRemoveComponent(nodes, RigidBodyComponent, true, { type: 'fixed' })
+              EditorHistoryFunctions.setComponent(nodes, RigidBodyComponent, { type: 'fixed' })
             }}
           >
             <HiPlus />

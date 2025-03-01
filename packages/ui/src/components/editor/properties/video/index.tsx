@@ -68,7 +68,7 @@ import NumericScrubber from '../../input/Numeric/Scrubber'
 import SegmentedControlInput from '../../input/SegmentedControl'
 import SelectInput from '../../input/Select'
 import Vector2Input from '../../input/Vector2'
-import { updateConeAngle } from '../audio/positional'
+import { updateConeAngle } from '../audio/general'
 
 const PlayModeOptions = [
   {
@@ -121,7 +121,7 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
   const simulationEntity = getSimulationCounterpart(props.entity)
   const video = useComponent(simulationEntity, VideoComponent)
   const media = useOptionalComponent(simulationEntity, MediaComponent)
-  const audio = getOptionalMutableComponent(simulationEntity, PositionalAudioComponent)
+  const audio = useOptionalComponent(simulationEntity, PositionalAudioComponent)
 
   const mediaUUID = video.mediaUUID.value
   const mediaEntity =
@@ -157,7 +157,6 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
         value: getComponent(entity, NodeIDComponent)
       }
     })
-  mediaOptions.unshift({ label: 'Self', value: '' as NodeID })
 
   const toggle = () => {
     if (media) {
@@ -169,6 +168,10 @@ export const VideoNodeEditor: EditorComponentType = (props) => {
     setMediaSourceValue(val)
     if (val === 'Self') {
       commitProperty(VideoComponent, 'mediaUUID')('' as NodeID)
+    } else {
+      if (media) {
+        media.paused.set(true)
+      }
     }
   }
 

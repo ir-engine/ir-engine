@@ -53,7 +53,7 @@ function LocationIconButton({
     return (
       <button
         className={twMerge(
-          'flex h-12 w-12 items-center justify-center rounded-full bg-white mdh:h-16 mdh:w-16',
+          'flex h-12 w-12 select-none items-center justify-center rounded-full bg-white mdh:h-16 mdh:w-16',
           className
         )}
         onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}

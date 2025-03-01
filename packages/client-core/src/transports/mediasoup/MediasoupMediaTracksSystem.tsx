@@ -48,9 +48,9 @@ import {
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
 } from '@ir-engine/network'
+import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
 import React, { useEffect } from 'react'
 import { MediaInstanceState, useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
-import { MediaStreamState } from '../../media/MediaStreamState'
 import { clientContextParams } from '../../util/ClientContextState'
 import { ProducerExtension, WebRTCTransportExtension } from './MediasoupClientFunctions'
 
@@ -358,7 +358,7 @@ const ScreenshareReactor = () => {
 
     if (screenShareAudioPaused) MediasoupMediaProducerConsumerState.pauseProducer(network, screenAudioProducer.id)
     else MediasoupMediaProducerConsumerState.resumeConsumer(network, screenAudioProducer.id)
-    logger.info({ event_name: 'screenshare', value: screenShareAudioPaused })
+    logger.analytics({ event_name: 'screenshare', value: screenShareAudioPaused })
   }, [screenShareAudioPaused])
 
   return null

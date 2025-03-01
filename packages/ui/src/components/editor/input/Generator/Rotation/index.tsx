@@ -40,16 +40,18 @@ import Vector3Input from '../../Vector3'
 import ValueGenerator from '../Value'
 
 export default function RotationGenerator({
+  path,
   scope,
   value,
   onChange
 }: {
+  path: string
   scope: State<RotationGeneratorJSON>
   value: RotationGeneratorJSON
-  onChange: (scope: State<any>) => (value: any) => void
+  onChange: (path: string) => (value: any) => void
 }) {
-  const onChangeVec3 = useCallback((scope: State<any>) => {
-    const thisOnChange = onChange(scope)
+  const onChangeVec3 = useCallback((path: string) => {
+    const thisOnChange = onChange(path)
     return (vec3: Vector3) => {
       thisOnChange([...vec3.toArray()])
     }
@@ -61,10 +63,11 @@ export default function RotationGenerator({
     return (
       <>
         <InputGroup name="Axis" label="Axis">
-          <Vector3Input value={new Vector3(...axisAngle.axis)} onChange={onChangeVec3(axisAngleScope.axis)} />
+          <Vector3Input value={new Vector3(...axisAngle.axis)} onChange={onChangeVec3(path + '.axis')} />
         </InputGroup>
         <InputGroup name="Angle" label="Angle">
           <ValueGenerator
+            path={path + '.angle'}
             scope={axisAngleScope.angle}
             value={axisAngle.angle as ValueGeneratorJSON}
             onChange={onChange}
@@ -80,13 +83,28 @@ export default function RotationGenerator({
     return (
       <>
         <InputGroup name="Angle X" label="Angle X">
-          <ValueGenerator scope={eulerScope.angleX} value={euler.angleX as ValueGeneratorJSON} onChange={onChange} />
+          <ValueGenerator
+            path={path + '.angleX'}
+            scope={eulerScope.angleX}
+            value={euler.angleX as ValueGeneratorJSON}
+            onChange={onChange}
+          />
         </InputGroup>
         <InputGroup name="Angle Y" label="Angle Y">
-          <ValueGenerator scope={eulerScope.angleY} value={euler.angleY as ValueGeneratorJSON} onChange={onChange} />
+          <ValueGenerator
+            path={path + '.angleY'}
+            scope={eulerScope.angleY}
+            value={euler.angleY as ValueGeneratorJSON}
+            onChange={onChange}
+          />
         </InputGroup>
         <InputGroup name="Angle Z" label="Angle Z">
-          <ValueGenerator scope={eulerScope.angleZ} value={euler.angleZ as ValueGeneratorJSON} onChange={onChange} />
+          <ValueGenerator
+            path={path + '.angleZ'}
+            scope={eulerScope.angleZ}
+            value={euler.angleZ as ValueGeneratorJSON}
+            onChange={onChange}
+          />
         </InputGroup>
       </>
     )
@@ -97,7 +115,7 @@ export default function RotationGenerator({
   }, [])
 
   const onChangeRotationType = useCallback(() => {
-    const thisOnChange = onChange(scope.type)
+    const thisOnChange = onChange(path)
     return (type: typeof value.type) => {
       scope.set(RotationGeneratorJSONDefaults[type])
       thisOnChange(type)
