@@ -127,7 +127,6 @@ export const DirectionalLightComponent = defineComponent({
     const debugEnabled = renderState.nodeHelperVisibility
     const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
     const light = useHookstate(() => new DirectionalLight()).value as DirectionalLight
-    const helperEntity = useHookstate(UndefinedEntity)
 
     useEffect(() => {
       setComponent(entity, LightTagComponent)
