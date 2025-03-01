@@ -26,14 +26,15 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 
 import { useMutation } from '@ir-engine/common'
-import { LocationID } from '@ir-engine/common/src/schema.type.module'
-import { moderationFileUploadPath } from '@ir-engine/common/src/schemas/moderation/moderation-file-upload.schema'
 import {
-  abuseReasons,
   type AbuseReasonsType,
+  LocationID,
+  moderationFileUploadPath,
   moderationPath,
   type ModerationTypeType
-} from '@ir-engine/common/src/schemas/moderation/moderation.schema'
+} from '@ir-engine/common/src/schema.type.module'
+
+import { ABUSE_REASONS } from '@ir-engine/common/src/constants/ModerationConstants'
 import { getMutableState, useHookstate, UserID } from '@ir-engine/hyperflux'
 import { Button, Select } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
@@ -134,7 +135,7 @@ const ReportMenu = (props: ReportMenuProps) => {
       value: 'null',
       label: t('user:usermenu.profile.selectOne') as string
     },
-    ...abuseReasons.map((abuseReason) => ({
+    ...ABUSE_REASONS.map((abuseReason) => ({
       value: abuseReason,
       label: abuseReason
     }))

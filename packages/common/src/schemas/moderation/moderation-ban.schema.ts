@@ -28,10 +28,11 @@ import { getValidator, querySyntax, Static, StringEnum, Type } from '@feathersjs
 import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
 import { dataValidator, queryValidator } from '../validators'
 
+import { ABUSE_REASONS } from '../../constants/ModerationConstants'
 import { TypedString } from '../../types/TypeboxUtils'
 import { LocationID } from '../social/location.schema'
 import { UserID } from '../user/user.schema'
-import { abuseReasons, ModerationID } from './moderation.schema'
+import { ModerationID } from './moderation.schema'
 
 export const moderationBanPath = 'moderation-ban'
 export const moderationBanMethods = ['create', 'find', 'patch', 'remove'] as const
@@ -53,7 +54,7 @@ export const moderationBanSchema = Type.Object(
     moderationId: TypedString<ModerationID>({
       format: 'uuid'
     }),
-    banReason: StringEnum([...abuseReasons]),
+    banReason: StringEnum([...ABUSE_REASONS]),
     ipAddress: Type.Optional(Type.String({ maxLength: 255 })),
     reportedAt: Type.Optional(Type.String({ format: 'date-time' })),
     banned: Type.Boolean(),

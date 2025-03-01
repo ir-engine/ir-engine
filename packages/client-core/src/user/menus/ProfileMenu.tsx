@@ -443,7 +443,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
                 variant="red"
                 fullWidth
                 onClick={() =>
-                  PopoverState.showPopupover(<ReportMenu type="Location" locationId={currentLocation.id} />)
+                  PopoverState.showPopupover(<ReportMenu type="location" locationId={currentLocation.id} />)
                 }
               >
                 <ReportWebsiteDefaullg />

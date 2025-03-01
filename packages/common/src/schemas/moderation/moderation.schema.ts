@@ -30,6 +30,7 @@ import { getValidator, querySyntax, StringEnum, Type } from '@feathersjs/typebox
 import { OpaqueType } from '@ir-engine/common/src/interfaces/OpaqueType'
 
 import { LocationID } from '@ir-engine/common/src/schema.type.module'
+import { ABUSE_REASONS } from '../../constants/ModerationConstants'
 import { TypedString } from '../../types/TypeboxUtils'
 import { UserID } from '../user/user.schema'
 import { dataValidator, queryValidator } from '../validators'
@@ -40,18 +41,7 @@ export const moderationMethods = ['find', 'create', 'patch', 'remove'] as const
 
 export type ModerationID = OpaqueType<'ModerationID'> & string
 
-export const abuseReasons = [
-  'Nudity',
-  'Fake News & Scams',
-  'Disturbing/Inappropriate',
-  'Cheating/Hacking',
-  'Bullying/Harassment',
-  'Illegal Activity',
-  'Copyright & Other Infringements',
-  'Child Exploitation',
-  'Something Else'
-] as const
-export type AbuseReasonsType = (typeof abuseReasons)[number]
+export type AbuseReasonsType = (typeof ABUSE_REASONS)[number]
 
 const moderationTypes = ['user', 'location'] as const
 export type ModerationTypeType = (typeof moderationTypes)[number]
@@ -63,7 +53,7 @@ export const moderationSchema = Type.Object(
       format: 'uuid'
     }),
     type: StringEnum([...moderationTypes]),
-    abuseReason: StringEnum([...abuseReasons]),
+    abuseReason: StringEnum([...ABUSE_REASONS]),
     reportedUserId: Type.Optional(
       TypedString<UserID>({
         format: 'uuid'

@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { ABUSE_REASONS } from '@ir-engine/common/src/constants/ModerationConstants'
 import { UserType } from '@ir-engine/common/src/schema.type.module'
-import { abuseReasons } from '@ir-engine/common/src/schemas/moderation/moderation.schema'
 import { Select } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React, { useState } from 'react'
@@ -83,7 +83,7 @@ export const BanUsersModal = ({ onSubmit }) => {
         <div>
           <Select
             labelProps={{ text: t('admin:components.moderation.reason'), position: 'top' }}
-            options={abuseReasons.map((reason) => ({ label: reason, value: reason }))}
+            options={[...ABUSE_REASONS].map((reason) => ({ label: reason, value: reason }))}
             onChange={(e) => setReason(e as string)}
             width="full"
             helperText={t('admin:components.moderation.userBannedSelectReasonHelperText')}

@@ -169,7 +169,7 @@ const ReportUserWindow = () => {
         <Button
           onClick={() =>
             PopoverState.showPopupover(
-              <ReportMenu type="Person" userId={reportedUserId} locationId={currentLocation.id} />
+              <ReportMenu type="user" userId={reportedUserId} locationId={currentLocation.id} />
             )
           }
           variant="red"
