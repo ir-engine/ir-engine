@@ -179,7 +179,6 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   useEffect(() => {
     prototypeName.set(material.type)
 
-    if (currentSelectedMaterial.value === null) return
     materialParameters.set({})
     materialParameters.set(
       Object.fromEntries(
@@ -196,7 +195,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   const pluginValues = useHookstate({})
 
   useEffect(() => {
-    if (currentSelectedMaterial.value) pluginValues.set({})
+    pluginValues.set({})
     pluginParameters.set({})
   }, [selectedPlugin, currentSelectedMaterial])
 
