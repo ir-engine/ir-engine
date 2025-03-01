@@ -118,6 +118,7 @@ const onBeforeCompile = {
     return this._onBeforeCompile
   },
   set: function (this: Material, plugins: PluginType | PluginType[]) {
+    if (plugins === null) return
     if (plugins instanceof Array) {
       for (let i = 0, l = plugins.length; i < l; i++) (this as any).onBeforeCompile = plugins[i]
     } else if (plugins instanceof Function || plugins instanceof Object) {
