@@ -24,14 +24,14 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { ECSState, Timer, executeSystems } from '@ir-engine/ecs'
-import { getMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { XRState } from './xr/XRState'
 
 export const startTimer = () => {
   const timer = Timer((time, xrFrame) => {
-    getMutableState(XRState).xrFrame.set(xrFrame)
+    getState(XRState).xrFrame = xrFrame
     executeSystems(time)
-    getMutableState(XRState).xrFrame.set(null)
+    getState(XRState).xrFrame = null
   })
   getMutableState(ECSState).timer.set(timer)
   timer.start()
