@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 import { afterEach, assert, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { getIncomingAction, getLastAction } from '../../tests/util/actionHelpers'
 import { destroyEmulatedXREngine, mockEmulatedXREngine } from '../../tests/util/mockEmulatedXREngine'
 import { mockSpatialEngine } from '../../tests/util/mockSpatialEngine'
 import {
@@ -35,21 +34,14 @@ import {
 } from '../../tests/webxr/emulator'
 
 import { createEngine, destroyEngine, getComponent, getMutableComponent } from '@ir-engine/ecs'
-import { applyIncomingActions, getMutableState, getState } from '@ir-engine/hyperflux'
+import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { Quaternion, Vector3 } from 'three'
 import { ReferenceSpaceState, TransformComponent } from '../SpatialModule'
 import { Q_IDENTITY, Vector3_One, Vector3_Zero } from '../common/constants/MathConstants'
 import { destroySpatialEngine, destroySpatialViewer } from '../initializeEngine'
 import { RendererComponent } from '../renderer/WebGLRendererSystem'
-import {
-  endXRSession,
-  getReferenceSpaces,
-  onSessionEnd,
-  requestXRSession,
-  setupXRSession,
-  xrSessionChanged
-} from './XRSessionFunctions'
-import { ReferenceSpace, XRAction, XRState } from './XRState'
+import { endXRSession, getReferenceSpaces, onSessionEnd, requestXRSession, setupXRSession } from './XRSessionFunctions'
+import { ReferenceSpace, XRState } from './XRState'
 
 /** @note Runs once on the `describe` implied by vitest for this file */
 beforeAll(() => {
@@ -329,16 +321,6 @@ describe('onSessionEnd', () => {
     // Run and Check the result
     onSessionEnd()
     const result = ReferenceSpace.viewer
-    expect(result).toBe(Expected)
-  })
-
-  it('should call `dispatchAction` with XRAction.sessionChanged{active:false}', () => {
-    const Expected = false
-    // Run and Check the result
-    onSessionEnd()
-    applyIncomingActions()
-    // @ts-expect-error
-    const result = getLastAction().active
     expect(result).toBe(Expected)
   })
 }) //:: onSessionEnd
@@ -644,17 +626,6 @@ describe('requestXRSession', () => {
     expect(result).toBe(Expected)
   })
 
-  it('should call `dispatchAction` with XRAction.sessionChanged', async () => {
-    // Sanity check before running
-    const before = getIncomingAction(XRAction.sessionChanged.type)
-    expect(before).toBe(undefined)
-    // Run and Check the result
-    await requestXRSession()
-    const result = getIncomingAction(XRAction.sessionChanged.type)
-    assert(result)
-    expect(typeof result).toBe('object')
-  })
-
   /*
   // @note Cannot be tested. The EventTarget symbol from webxr-polyfill is not exported
   it("should add an `end` event listener to the resulting XRSession", async () => {
@@ -701,12 +672,3 @@ describe('endXRSession', () => {
     expect(XREmulatorHelper.getLastXRSessionData(result).ended).toBe(Expected)
   })
 }) //:: endXRSession
-
-describe('xrSessionChanged', () => {
-  it('does nothing, but does not fail to run either', () => {
-    const Expected = undefined
-    // @ts-ignore Allow coercing undefined into the function parameter
-    const result = xrSessionChanged(undefined)
-    expect(result).toBe(Expected)
-  })
-}) //:: xrSessionChanged

@@ -100,11 +100,9 @@ const execute = () => {
 
   const targetFixedTime = ecsState.simulationTime + jitterBufferDelay
 
-  for (const [index, { simulationTime, read }] of jitterBufferTaskList.slice().entries()) {
-    if (simulationTime <= targetFixedTime) {
-      read()
-      jitterBufferTaskList.splice(index, 1)
-    }
+  while (jitterBufferTaskList.length > 0 && jitterBufferTaskList[0].simulationTime <= targetFixedTime) {
+    const read = jitterBufferTaskList.shift()!.read
+    read()
   }
 }
 
