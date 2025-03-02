@@ -50,6 +50,7 @@ import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import Tooltip from '@ir-engine/ui/src/primitives/mui/Tooltip'
 
 import { useHookstate } from '@hookstate/core'
+import config from '@ir-engine/common/src/config'
 import { AnimationComponent } from '@ir-engine/engine/src/avatar/components/AnimationComponent'
 import {
   AvatarAnimationComponent,
@@ -86,13 +87,18 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     setComponent(avatar.value, TransformComponent)
     setComponent(avatar.value, VisibleComponent)
     setComponent(avatar.value, EntityTreeComponent, { parentEntity: sceneEntity })
-    setComponent(avatar.value, EnvMapComponent, { type: EnvMapSourceType.Skybox })
+    setComponent(avatar.value, EnvMapComponent, {
+      type: EnvMapSourceType.Equirectangular,
+      envMapSourceURL:
+        config.client.fileServer + '/projects/ir-engine/default-project/public/scenes/apartment-envmap.ktx2',
+      envMapIntensity: 5
+    })
     setComponent(avatar.value, AvatarComponent)
     setComponent(avatar.value, AvatarAnimationComponent)
     setComponent(avatar.value, AvatarRigComponent)
 
     const lightEntity = createEntity()
-    setComponent(lightEntity, HemisphereLightComponent)
+    setComponent(lightEntity, HemisphereLightComponent, { skyColor: 0xffffff, groundColor: 0x000000, intensity: 1 })
     setComponent(lightEntity, TransformComponent)
     setComponent(lightEntity, VisibleComponent)
     setComponent(lightEntity, NameComponent, 'Ambient Light')
