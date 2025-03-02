@@ -291,7 +291,7 @@ describe('exportGLTFScene', () => {
 
     assert.strictEqual(gltf.images?.length, 1)
     const image = gltf.images[0]
-    assert.strictEqual(image.uri, '../../../../ir-engine/dud-project/public/images/image.png')
+    assert.strictEqual(image.uri, '../../../ir-engine/dud-project/public/images/image.png')
   })
 
   it('export mesh with material texture map into new folder', async () => {
@@ -299,7 +299,7 @@ describe('exportGLTFScene', () => {
     const [gltf, ...files] = (await exportGLTFScene(meshEntity, 'dud-project', 'base/folder2/test.gltf')) as [
       GLTF.IGLTF
     ]
-    assert.strictEqual(gltf.images?.[0]?.uri, '../../../../ir-engine/dud-project/public/images/image.png')
+    assert.strictEqual(gltf.images?.[0]?.uri, '../../../ir-engine/dud-project/public/images/image.png')
   })
 
   it('export custom ECS data', async () => {
