@@ -96,7 +96,7 @@ function toValidHierarchyNodeName(entity: Entity, name: string): string {
   return name
 }
 
-function IconComponent({ entity }: { entity: Entity }) {
+export function IconComponent({ entity }: { entity: Entity }) {
   const icons = entityExists(entity)
     ? getAllComponents(entity)
         .map((c) => getState(ComponentEditorsState)[c.name]?.iconComponent)
