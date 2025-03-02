@@ -799,6 +799,16 @@
       "updatePermission": "updated the permission of the user"
     },
     "moderation": {
+      "columns": {
+        "username": "Username",
+        "userId": "User Id",
+        "reason": "Reason",
+        "space": "Space",
+        "status": "Status",
+        "ipAddress": "IP Address",
+        "dateReported": "Date Reported",
+        "action": "Action"
+      },
       "header": "Moderation",
       "reportResolved": "Report resolved",
       "errorResolvingReport": "Error resolving report",
