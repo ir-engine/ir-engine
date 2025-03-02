@@ -31,6 +31,7 @@ import { afterAll, beforeAll, describe, it } from 'vitest'
 import { moderationBanPath, ModerationBanType } from '@ir-engine/common/src/schemas/moderation/moderation-ban.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
+import { ABUSE_REASONS } from '@ir-engine/common/src/constants/ModerationConstants'
 import { locationPath, LocationType, userPath, UserType } from '@ir-engine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import { createTestLocation } from '../../../tests/util/createTestLocation'
@@ -64,7 +65,7 @@ describe('moderation-ban.test', () => {
   it('should create a moderation ban entry', async () => {
     const moderationBanData = {
       banned: true,
-      banReason: 'Bullying/Harassment',
+      banReason: ABUSE_REASONS[0],
       banUserId: user2.id
     } as ModerationBanType
 
