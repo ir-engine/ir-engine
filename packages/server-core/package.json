@@ -60,6 +60,7 @@
     "@feathersjs/transport-commons": "5.0.5",
     "@ffprobe-installer/ffprobe": "^2.0.0",
     "@google-cloud/artifact-registry": "^3.5.0",
+    "@google-cloud/bigquery": "^7.9.1",
     "@google-cloud/compute": "^4.11.0",
     "@google-cloud/networkservices": "^0.7.0",
     "@google-cloud/storage": "^7.15.0",

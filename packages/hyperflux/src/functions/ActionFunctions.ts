@@ -539,9 +539,12 @@ const applyEventSourcingToAllQueues = () => {
  * Process incoming actions
  */
 export const applyIncomingActions = () => {
-  const { incoming } = HyperFlux.store.actions
+  const incoming = HyperFlux.store.actions.incoming
+  if (!incoming.length) return
+
   const now = HyperFlux.store.getDispatchTime()
-  for (const action of [...incoming]) {
+  const actions = incoming.slice()
+  for (const action of actions) {
     _forwardIfNecessary(action)
     if (action.$time <= now) _applyIncomingAction(action)
   }

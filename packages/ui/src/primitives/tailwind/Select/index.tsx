@@ -309,7 +309,7 @@ const Select = ({
                   }}
                   type="text"
                   className={twMerge(
-                    'w-full bg-inherit focus:outline-none',
+                    'focus:outline-non w-full bg-inherit text-text-secondary',
                     searchMode === undefined ? 'cursor-pointer' : 'cursor-text',
                     disabled ? 'cursor-not-allowed' : ''
                   )}
@@ -321,12 +321,12 @@ const Select = ({
                   }}
                 />
 
-                {showClearButton && (
+                {showClearButton && !disabled && (
                   <XCloseSm
                     onClick={() => {
                       onChange('')
                     }}
-                    className="cursor-pointer"
+                    className="cursor-pointer text-text-secondary"
                   />
                 )}
 
@@ -336,7 +336,7 @@ const Select = ({
                       togglePopup()
                     }
                   }}
-                  className={`cursor-pointer ${isOpen && 'rotate-180'} duration-300`}
+                  className={`cursor-pointer ${isOpen && !disabled && 'rotate-180'} text-text-secondary duration-300`}
                 />
               </div>
             </div>
@@ -396,7 +396,8 @@ const Select = ({
           }
         }}
       >
-        {filteredOptions.length > 0 ? (
+        {filteredOptions.length > 0 &&
+          !disabled &&
           filteredOptions.map(({ value: currentValue, ...optionProps }, index) => (
             <DropdownItem
               key={index}
@@ -428,8 +429,9 @@ const Select = ({
                 }
               }}
             />
-          ))
-        ) : (
+          ))}
+
+        {filteredOptions.length === 0 && !disabled && (
           <div className="flex h-12 items-center justify-center bg-ui-background text-text-secondary">
             No options available
           </div>
