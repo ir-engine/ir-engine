@@ -41,7 +41,7 @@ import {
 } from '@ir-engine/ecs'
 import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { EnvMapSourceType } from '@ir-engine/engine/src/scene/constants/EnvMapEnum'
-import { AmbientLightComponent, TransformComponent } from '@ir-engine/spatial'
+import { HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { AssetPreviewCameraComponent } from '@ir-engine/spatial/src/camera/components/AssetPreviewCameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
@@ -49,6 +49,7 @@ import Box from '@ir-engine/ui/src/primitives/mui/Box'
 import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import Tooltip from '@ir-engine/ui/src/primitives/mui/Tooltip'
 
+import { useHookstate } from '@hookstate/core'
 import { AnimationComponent } from '@ir-engine/engine/src/avatar/components/AnimationComponent'
 import {
   AvatarAnimationComponent,
@@ -76,22 +77,22 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
   const loaded = GLTFComponent.useSceneLoaded(sceneEntity)
   const errors = ErrorComponent.useComponentErrors(sceneEntity, GLTFComponent)
 
+  const avatar = useHookstate(UndefinedEntity)
+
   useEffect(() => {
     if (!avatarUrl) return
 
-    setComponent(sceneEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
-    setComponent(sceneEntity, EnvMapComponent, { type: EnvMapSourceType.Skybox })
-    setComponent(sceneEntity, AvatarComponent)
-    setComponent(sceneEntity, GLTFComponent, { src: avatarUrl })
-    setComponent(sceneEntity, AvatarAnimationComponent)
-    setComponent(sceneEntity, AvatarRigComponent)
-    //workaround to prevent a few frames of untextured, tposing avatars
-    removeComponent(sceneEntity, VisibleComponent)
-
-    setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: sceneEntity })
+    avatar.set(createEntity())
+    setComponent(avatar.value, TransformComponent)
+    setComponent(avatar.value, VisibleComponent)
+    setComponent(avatar.value, EntityTreeComponent, { parentEntity: sceneEntity })
+    setComponent(avatar.value, EnvMapComponent, { type: EnvMapSourceType.Skybox })
+    setComponent(avatar.value, AvatarComponent)
+    setComponent(avatar.value, AvatarAnimationComponent)
+    setComponent(avatar.value, AvatarRigComponent)
 
     const lightEntity = createEntity()
-    setComponent(lightEntity, AmbientLightComponent)
+    setComponent(lightEntity, HemisphereLightComponent)
     setComponent(lightEntity, TransformComponent)
     setComponent(lightEntity, VisibleComponent)
     setComponent(lightEntity, NameComponent, 'Ambient Light')
@@ -99,8 +100,18 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
 
     return () => {
       removeEntity(lightEntity)
+      removeEntity(avatar.value)
     }
   }, [avatarUrl])
+
+  useEffect(() => {
+    if (!avatarUrl) return
+    setComponent(sceneEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
+    setComponent(avatar.value, GLTFComponent, { src: avatarUrl })
+    //workaround to prevent a few frames of untextured, tposing avatars
+    removeComponent(sceneEntity, VisibleComponent)
+    setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: avatar.value })
+  }, [avatar])
 
   useEffect(() => {
     if (!loaded) return
@@ -113,7 +124,7 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
   }, [errors])
 
   useEffect(() => {
-    const animationComponent = getOptionalComponent(sceneEntity, AnimationComponent)
+    const animationComponent = getOptionalComponent(avatar.value, AnimationComponent)
     if (!animationComponent) return
     const animation = AnimationClip.findByName(animationComponent.animations, 'Idle')
 
@@ -121,7 +132,7 @@ const AvatarPreview = ({ fill, avatarUrl, sx, onAvatarError, onAvatarLoaded }: P
     animationComponent.mixer.clipAction(animation).play()
 
     setComponent(sceneEntity, VisibleComponent, true)
-  }, [useOptionalComponent(sceneEntity, AnimationComponent)?.animations])
+  }, [useOptionalComponent(avatar.value, AnimationComponent)?.animations])
 
   return (
     <Box className={`${commonStyles.preview} ${fill ? styles.fill : ''}`} sx={sx}>
