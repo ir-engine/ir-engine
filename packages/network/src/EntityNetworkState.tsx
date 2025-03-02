@@ -192,10 +192,12 @@ const EntityNetworkReactor = (props: { uuid: EntityUUID }) => {
 
     return () => {
       // ensure entity still exists
-      if (!worldNetwork || !getState(EntityNetworkState)[props.uuid] || !worldNetwork.users?.[userID]?.length) return
+      if (!NetworkState.worldNetwork) return
+      if (!getState(EntityNetworkState)[props.uuid]) return
+      if (!getState(NetworkPeerState)[NetworkState.worldNetwork.id]?.users?.[userID]?.length) return
 
       // Use the lowest peer as the new authority
-      const lowestPeer = [...worldNetwork.users[userID]].sort((a, b) => (a > b ? 1 : -1))[0]
+      const lowestPeer = [...NetworkState.worldNetwork.users[userID]].sort((a, b) => (a > b ? 1 : -1))[0]
       if (lowestPeer !== Engine.instance.store.peerID) return
 
       dispatchAction(

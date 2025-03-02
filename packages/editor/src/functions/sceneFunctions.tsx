@@ -106,7 +106,7 @@ export const saveSceneGLTF = async (
         {
           type: 'scene',
           contentType: 'model/gltf+json',
-          thumbnailKey: currentScene.thumbnailKey
+          thumbnailKey: currentScene.thumbnailKey ?? ''
         }
       ]
     ).promises
@@ -130,6 +130,26 @@ export const saveSceneGLTF = async (
     scenePath: assetURL,
     projectName,
     sceneAssetID: result.data[0].id
+  })
+}
+
+export const logNewScene = (authoringApp: string, entryPoint: string = 'editor') => {
+  logger.analytics({
+    app_name: 'editor',
+    project: getState(EditorState).projectName,
+    user_id: getState(EngineState).userID,
+    event_name: 'editor',
+    event_value: 'new-scene',
+    event_properties: [
+      {
+        key: 'authoring-app',
+        value: authoringApp
+      },
+      {
+        key: 'entry-point',
+        value: entryPoint
+      }
+    ]
   })
 }
 

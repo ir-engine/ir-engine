@@ -60,6 +60,7 @@ import ParameterInput from '@ir-engine/ui/src/components/editor/properties/param
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Material, Texture, Uniform } from 'three'
+import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 
 type ThumbnailData = {
   src: string
@@ -178,8 +179,6 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   useEffect(() => {
     prototypeName.set(material.type)
 
-    if (currentSelectedMaterial.value === null) return
-    materialParameters.set({})
     materialParameters.set(
       Object.fromEntries(
         Object.keys(extractValues(definitions.value[prototypeName.value].arguments as PrototypeArgument, material)).map(
@@ -187,7 +186,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         )
       )
     )
-  }, [currentSelectedMaterial])
+  }, [currentSelectedMaterial, material.type])
 
   //for each parameter type, default values
   const pluginParameters = useHookstate({})
@@ -195,7 +194,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
   const pluginValues = useHookstate({})
 
   useEffect(() => {
-    if (currentSelectedMaterial.value) pluginValues.set({})
+    pluginValues.set({})
     pluginParameters.set({})
   }, [selectedPlugin, currentSelectedMaterial])
 
@@ -220,6 +219,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
     if (prototypeName.value === material.type) return
 
     EditorControlFunctions.updateMaterialPrototype(entity, prototypeName.value)
+    EditorHistoryFunctions.snapshot()
   }, [prototypeName])
 
   return (
@@ -268,6 +268,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
               materialComponent.material.value!.uuid as EntityUUID,
               [{ [key]: property }]
             )
+            EditorHistoryFunctions.snapshot()
             await checkThumbs()
           }}
           defaults={prototype.arguments!.value}

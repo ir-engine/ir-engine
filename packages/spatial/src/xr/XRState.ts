@@ -31,12 +31,6 @@ import { defineAction, defineState, getMutableState, getState, useMutableState }
 import { DepthDataTexture } from './DepthDataTexture'
 
 export class XRAction {
-  static sessionChanged = defineAction({
-    type: 'xre.xr.sessionChanged' as const,
-    active: matches.boolean,
-    $cache: { removePrevious: true }
-  })
-
   // todo, support more haptic formats other than just vibrating controllers
   static vibrateController = defineAction({
     type: 'xre.xr.vibrateController',
