@@ -186,7 +186,7 @@ export function MaterialEditor(props: { materialUUID: EntityUUID }) {
         )
       )
     )
-  }, [currentSelectedMaterial])
+  }, [currentSelectedMaterial, material.type])
 
   //for each parameter type, default values
   const pluginParameters = useHookstate({})

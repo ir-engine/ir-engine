@@ -607,7 +607,7 @@ const createTextureOperations = (
   return operations
 }
 
-const transformTexture = async (resultCache: Map<string, Texture>, operation: TextureOperation) => {
+const transformTexture = async (resultCache: Map<string, Texture>, operation: TextureOperation, index: number) => {
   const { shouldResize, shouldConvertToKTX, texture, params } = operation
 
   const hash = hashTextureOperation(operation)
@@ -659,6 +659,15 @@ const transformTexture = async (resultCache: Map<string, Texture>, operation: Te
     texture.setImage(new Uint8Array(compressedData))
     texture.setMimeType('image/ktx2')
     texture.setURI(texture.getURI().replace(/\.[^.]+$/, '.ktx2'))
+  }
+
+  if (shouldResize || shouldConvertToKTX) {
+    //wipe relative path from URI
+    const uri = texture.getURI()
+    let newURI = uri.split('/').at(-1)!
+    const [_, fileName, extension] = /(.*)\.([^.]+)$/.exec(newURI)!
+    newURI = `${fileName}-${index}.${extension}`
+    texture.setURI(newURI)
   }
   resultCache.set(hash, texture)
 }
@@ -862,7 +871,7 @@ export const transformModel = async (
   const resultCache = new Map<string, Texture>()
   for (let i = 0; i < numTextureOperations; i++) {
     onProgress?.((i + 1) / totalProgressSteps, Status.ProcessingTexture, i, numTextureOperations)
-    await transformTexture(resultCache, textureOperations[i])
+    await transformTexture(resultCache, textureOperations[i], i)
   }
 
   const results: string[] = []
