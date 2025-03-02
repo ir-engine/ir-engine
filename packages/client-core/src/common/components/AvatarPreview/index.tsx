@@ -39,13 +39,15 @@ import {
 } from '@ir-engine/ecs'
 import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { EnvMapSourceType } from '@ir-engine/engine/src/scene/constants/EnvMapEnum'
-import { AmbientLightComponent, TransformComponent } from '@ir-engine/spatial'
+import { HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { AssetPreviewCameraComponent } from '@ir-engine/spatial/src/camera/components/AssetPreviewCameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { HelpIconLg, MouseDefault, MouseLeftClick, MouseRightClick } from '@ir-engine/ui/src/icons'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 
+import { useHookstate } from '@hookstate/core'
+import config from '@ir-engine/common/src/config'
 import { AnimationComponent } from '@ir-engine/engine/src/avatar/components/AnimationComponent'
 import {
   AvatarAnimationComponent,
@@ -72,22 +74,27 @@ const AvatarPreview = ({ fill, avatarUrl, onAvatarError, onAvatarLoaded }: Props
   const loaded = GLTFComponent.useSceneLoaded(sceneEntity)
   const errors = ErrorComponent.useComponentErrors(sceneEntity, GLTFComponent)
 
+  const avatar = useHookstate(UndefinedEntity)
+
   useEffect(() => {
     if (!avatarUrl) return
 
-    setComponent(sceneEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
-    setComponent(sceneEntity, EnvMapComponent, { type: EnvMapSourceType.Skybox })
-    setComponent(sceneEntity, AvatarComponent)
-    setComponent(sceneEntity, GLTFComponent, { src: avatarUrl })
-    setComponent(sceneEntity, AvatarAnimationComponent)
-    setComponent(sceneEntity, AvatarRigComponent)
-    //workaround to prevent a few frames of untextured, tposing avatars
-    removeComponent(sceneEntity, VisibleComponent)
-
-    setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: sceneEntity })
+    avatar.set(createEntity())
+    setComponent(avatar.value, TransformComponent)
+    setComponent(avatar.value, VisibleComponent)
+    setComponent(avatar.value, EntityTreeComponent, { parentEntity: sceneEntity })
+    setComponent(avatar.value, EnvMapComponent, {
+      type: EnvMapSourceType.Equirectangular,
+      envMapSourceURL:
+        config.client.fileServer + '/projects/ir-engine/default-project/public/scenes/apartment-envmap.ktx2',
+      envMapIntensity: 5
+    })
+    setComponent(avatar.value, AvatarComponent)
+    setComponent(avatar.value, AvatarAnimationComponent)
+    setComponent(avatar.value, AvatarRigComponent)
 
     const lightEntity = createEntity()
-    setComponent(lightEntity, AmbientLightComponent)
+    setComponent(lightEntity, HemisphereLightComponent, { skyColor: 0xffffff, groundColor: 0x000000, intensity: 1 })
     setComponent(lightEntity, TransformComponent)
     setComponent(lightEntity, VisibleComponent)
     setComponent(lightEntity, NameComponent, 'Ambient Light')
@@ -95,8 +102,18 @@ const AvatarPreview = ({ fill, avatarUrl, onAvatarError, onAvatarLoaded }: Props
 
     return () => {
       removeEntity(lightEntity)
+      removeEntity(avatar.value)
     }
   }, [avatarUrl])
+
+  useEffect(() => {
+    if (!avatarUrl) return
+    setComponent(sceneEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
+    setComponent(avatar.value, GLTFComponent, { src: avatarUrl })
+    //workaround to prevent a few frames of untextured, tposing avatars
+    removeComponent(sceneEntity, VisibleComponent)
+    setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: avatar.value })
+  }, [avatar])
 
   useEffect(() => {
     if (!loaded) return
@@ -109,7 +126,7 @@ const AvatarPreview = ({ fill, avatarUrl, onAvatarError, onAvatarLoaded }: Props
   }, [errors])
 
   useEffect(() => {
-    const animationComponent = getOptionalComponent(sceneEntity, AnimationComponent)
+    const animationComponent = getOptionalComponent(avatar.value, AnimationComponent)
     if (!animationComponent) return
     const animation = AnimationClip.findByName(animationComponent.animations, 'Idle')
 
@@ -117,7 +134,7 @@ const AvatarPreview = ({ fill, avatarUrl, onAvatarError, onAvatarLoaded }: Props
     animationComponent.mixer.clipAction(animation).play()
 
     setComponent(sceneEntity, VisibleComponent, true)
-  }, [useOptionalComponent(sceneEntity, AnimationComponent)?.animations])
+  }, [useOptionalComponent(avatar.value, AnimationComponent)?.animations])
 
   return (
     <div className={`${commonStyles.preview} ${fill ? styles.fill : ''} relative`}>
