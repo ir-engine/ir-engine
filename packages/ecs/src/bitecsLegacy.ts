@@ -65,9 +65,13 @@ export function enterQuery<W extends IWorld = IWorld>(queryFn: Query<W>): Query<
         queue.length = 0
       }
     }
-    const results = queue.slice()
-    queue.length = 0
-    return results
+    if (queue.length) {
+      const results = queue.slice()
+      queue.length = 0
+      return results
+    } else {
+      return queue
+    }
   }
   query.unsubscribe = () => {}
   return query
@@ -85,9 +89,13 @@ export function exitQuery<W extends IWorld = IWorld>(queryFn: Query<W>): Query<W
         queue.length = 0
       }
     }
-    const results = queue.slice()
-    queue.length = 0
-    return results
+    if (queue.length) {
+      const results = queue.slice()
+      queue.length = 0
+      return results
+    } else {
+      return queue
+    }
   }
   query.unsubscribe = () => {}
   return query

@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { DataProducer, DataProducerOptions } from 'mediasoup-client/lib/DataProducer'
+import type { DataProducer, DataProducerOptions } from 'mediasoup-client/lib/DataProducer'
 import { decode } from 'msgpackr'
 import React, { useEffect } from 'react'
 

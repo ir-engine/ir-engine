@@ -66,7 +66,7 @@ export const logToBigQuery = async (event: LogParamsObject) => {
     event_name: event.event_name,
     event_id: event.event_id || uuidv4(),
     event_value: event.event_value || '',
-    event_properties: event.event_properties || {},
+    event_properties: event.event_properties || [],
     event_time: Date.now(),
     tenant: event.tenant,
     project: event.project,
