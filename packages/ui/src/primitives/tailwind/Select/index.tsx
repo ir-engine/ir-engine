@@ -155,15 +155,15 @@ const Select = ({
     }
   }, [labelProps])
 
-  useEffect(() => {
-    setSearchString('')
-  }, [selectedOptionIndex])
+  // useEffect(() => {
+  //   setSearchString('')
+  // }, [selectedOptionIndex])
 
   useEffect(() => {
-    if (localValue === '') {
-      setDisplayText('')
-      return
-    }
+    // if (localValue === '') {
+    //   setDisplayText('')
+    //   return
+    // }
 
     if (
       0 <= selectedOptionIndex &&
@@ -309,7 +309,7 @@ const Select = ({
                   }}
                   type="text"
                   className={twMerge(
-                    'focus:outline-non w-full bg-inherit text-text-secondary',
+                    'w-full bg-inherit text-text-secondary focus:border-transparent focus:outline-none focus:ring-0',
                     searchMode === undefined ? 'cursor-pointer' : 'cursor-text',
                     disabled ? 'cursor-not-allowed' : ''
                   )}
