@@ -53,7 +53,7 @@ export const ModerationDetail = ({
   onBack: () => void
   onResloved: (report: ModerationType) => void
 }) => {
-  const isPersonModeration = report.type === 'user'
+  const isUserModeration = report.type === 'user'
   const { t } = useTranslation()
   const moderationMutation = useMutation(moderationPath)
   const moderationBanMutation = useMutation(moderationBanPath)
@@ -208,7 +208,7 @@ export const ModerationDetail = ({
           <Text className="mb-4">
             {report.type == 'location' ? t('admin:components.moderation.space') : report.type}
           </Text>
-          {isPersonModeration && (
+          {isUserModeration && (
             <>
               <Text className="mb-4 text-text-primary">{t('admin:components.moderation.usernameBeingReported')}</Text>
               <UserInfo userId={report.reportedUserId} usersQuery={usersQuery} />
@@ -265,7 +265,7 @@ export const ModerationDetail = ({
             >
               {t('admin:components.moderation.resolveIssue')}
             </Button>
-            {isPersonModeration && !moderationBanQuery?.data[0]?.banned && (
+            {isUserModeration && !moderationBanQuery?.data[0]?.banned && (
               <Button variant="red" onClick={handleBanUser} className="ui-danger rounded px-4 py-2">
                 {t('admin:components.moderation.banUser')}
               </Button>
