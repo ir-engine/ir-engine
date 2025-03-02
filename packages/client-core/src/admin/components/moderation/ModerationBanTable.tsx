@@ -36,13 +36,13 @@ import { LocationLabel } from './common/LocationLabel'
 import { UserDisplayName } from './common/UserDisplayName'
 
 const moderationBanColumns: ITableHeadCell[] = [
-  { id: 'username', label: t('admin:components.moderation.columns.username') },
-  { id: 'userId', label: t('admin:components.moderation.columns.userId') },
-  { id: 'reason', label: t('admin:components.moderation.columns.reason') },
-  { id: 'space', label: t('admin:components.moderation.columns.space') },
-  { id: 'ipAddress', label: t('admin:components.moderation.columns.ipAddress') },
-  { id: 'dateReported', label: t('admin:components.moderation.columns.dateReported') },
-  { id: 'action', label: t('admin:components.moderation.columns.action') }
+  { id: 'username', label: t('admin:components.moderation.moderationban.columns.username') },
+  { id: 'userId', label: t('admin:components.moderation.moderationban.columns.userId') },
+  { id: 'reason', label: t('admin:components.moderation.moderationban.columns.reason') },
+  { id: 'space', label: t('admin:components.moderation.moderationban.columns.space') },
+  { id: 'ipAddress', label: t('admin:components.moderation.moderationban.columns.ipAddress') },
+  { id: 'dateReported', label: t('admin:components.moderation.moderationban.columns.dateReported') },
+  { id: 'action', label: t('admin:components.moderation.moderationban.columns.action') }
 ]
 
 export default function ModerationBanTable({ search }) {

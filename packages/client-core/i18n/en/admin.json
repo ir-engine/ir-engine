@@ -800,12 +800,11 @@
     },
     "moderation": {
       "columns": {
-        "username": "Username",
-        "userId": "User Id",
+        "id": "Report ID",
+        "type": "Type",
+        "username": "Username being reported",
         "reason": "Reason",
-        "space": "Space",
         "status": "Status",
-        "ipAddress": "IP Address",
         "dateReported": "Date Reported",
         "action": "Action"
       },
@@ -856,7 +855,19 @@
       "userBannedSelectUserHelperText": "Select a user to ban",
       "userBannedSelectReasonHelperText": "Select a reason for banning the user",
       "open": "Open",
-      "resolved": "Resolved"
+      "resolved": "Resolved",
+      "moderationban": {
+        "columns": {
+          "username": "Username",
+          "userId": "User Id",
+          "reason": "Reason",
+          "space": "Space",
+          "status": "Status",
+          "ipAddress": "IP Address",
+          "dateReported": "Date Reported",
+          "action": "Action"
+        }
+      }
     }
   }
 }

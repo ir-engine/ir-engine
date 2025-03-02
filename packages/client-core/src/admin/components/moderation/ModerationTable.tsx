@@ -38,13 +38,13 @@ import { UserDisplayName } from './common/UserDisplayName'
 import { ModerationDetail } from './ModerationDetail'
 
 const moderationTableColumns: ITableHeadCell[] = [
-  { id: 'id', label: t('admin:components.moderation.id') },
-  { id: 'type', label: t('admin:components.moderation.type') },
-  { id: 'username', label: t('admin:components.moderation.usernameBeingReported') },
-  { id: 'reason', label: t('admin:components.moderation.reason') },
-  { id: 'status', label: t('admin:components.moderation.status') },
-  { id: 'dateReported', label: t('admin:components.moderation.dateReported') },
-  { id: 'action', label: t('admin:components.moderation.action') }
+  { id: 'id', label: t('admin:components.moderation.columns.id') },
+  { id: 'type', label: t('admin:components.moderation.columns.type') },
+  { id: 'username', label: t('admin:components.moderation.columns.usernameBeingReported') },
+  { id: 'reason', label: t('admin:components.moderation.columns.reason') },
+  { id: 'status', label: t('admin:components.moderation.columns.status') },
+  { id: 'dateReported', label: t('admin:components.moderation.columns.dateReported') },
+  { id: 'action', label: t('admin:components.moderation.columns.action') }
 ]
 
 export default function ModerationTable({ search }) {
