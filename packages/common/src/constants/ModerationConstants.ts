@@ -24,13 +24,13 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 export const ABUSE_REASONS = [
-  'Nudity',
-  'Fake News & Scams',
-  'Disturbing/Inappropriate',
-  'Cheating/Hacking',
-  'Bullying/Harassment',
-  'Illegal Activity',
-  'Copyright & Other Infringements',
-  'Child Exploitation',
-  'Something Else'
+  'nudity',
+  'fakeNewsScams',
+  'disturbingInappropriate',
+  'cheatingHacking',
+  'bullyingHarassment',
+  'illegalActivity',
+  'copyrightInfringements',
+  'childExploitation',
+  'somethingElse'
 ] as const

@@ -135,7 +135,7 @@ const ReportMenu = (props: ReportMenuProps) => {
     },
     ...ABUSE_REASONS.map((abuseReason) => ({
       value: abuseReason,
-      label: abuseReason
+      label: t(`user:moderation.abuseReason.${abuseReason}`) as string
     }))
   ]
   const handleChange = (newValue: string, name: string) => {

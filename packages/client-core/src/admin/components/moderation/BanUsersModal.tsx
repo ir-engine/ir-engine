@@ -83,7 +83,10 @@ export const BanUsersModal = ({ onSubmit }) => {
         <div>
           <Select
             labelProps={{ text: t('admin:components.moderation.reason'), position: 'top' }}
-            options={[...ABUSE_REASONS].map((reason) => ({ label: reason, value: reason }))}
+            options={[...ABUSE_REASONS].map((abuseReason) => ({
+              label: t(`user:moderation.abuseReason.${abuseReason}`) as string,
+              value: abuseReason
+            }))}
             onChange={(e) => setReason(e as string)}
             width="full"
             helperText={t('admin:components.moderation.userBannedSelectReasonHelperText')}

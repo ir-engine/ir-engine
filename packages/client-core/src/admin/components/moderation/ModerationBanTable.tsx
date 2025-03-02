@@ -98,7 +98,7 @@ export default function ModerationBanTable({ search }) {
       username: <UserDisplayName userId={row.banUserId} />,
       userId: row.banUserId,
       space: row.reportedLocationId ? <LocationLabel locationId={row.reportedLocationId} /> : 'N/A',
-      reason: row.banReason,
+      reason: t(`user:moderation.abuseReason.${row.banReason}`),
       ipAddress: row.ipAddress,
       dateReported: <span>{toDisplayDateTime(row.createdAt)}</span>,
       action: (

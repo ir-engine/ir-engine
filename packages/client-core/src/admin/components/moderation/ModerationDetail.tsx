@@ -45,7 +45,7 @@ import { LocationLabel } from './common/LocationLabel'
 import { UserInfo } from './common/UserInfo'
 
 export const ModerationDetail = ({
-  report,
+  report: moderation,
   onBack,
   onResloved
 }: {
@@ -53,7 +53,7 @@ export const ModerationDetail = ({
   onBack: () => void
   onResloved: (report: ModerationType) => void
 }) => {
-  const isUserModeration = report.type === 'user'
+  const isUserModeration = moderation.type === 'user'
   const { t } = useTranslation()
   const moderationMutation = useMutation(moderationPath)
   const moderationBanMutation = useMutation(moderationBanPath)
@@ -61,25 +61,25 @@ export const ModerationDetail = ({
   const moderationBanQuery = useFind(moderationBanPath, {
     query: {
       action: 'admin',
-      banUserId: report.reportedUserId
+      banUserId: moderation.reportedUserId
     }
   })
 
   const locationAdminQuery = useFind(locationAdminPath, {
     query: {
       action: 'admin',
-      userId: report.reportedUserId,
-      locationId: report.reportedLocationId
+      userId: moderation.reportedUserId,
+      locationId: moderation.reportedLocationId
     }
   })
 
   const handleMarkAsHandled = () => {
-    const result = moderationMutation.patch(report.id, {
+    const result = moderationMutation.patch(moderation.id, {
       status: 'resolved'
     })
     result
       .then(() => {
-        onResloved(report)
+        onResloved(moderation)
         NotificationService.dispatchNotify(t('admin:components.moderation.reportResolved'), {
           variant: 'success'
         })
@@ -108,13 +108,13 @@ export const ModerationDetail = ({
     } else {
       moderationBanMutation
         .create({
-          banUserId: report.reportedUserId!,
+          banUserId: moderation.reportedUserId!,
           banned: true,
-          banReason: report.abuseReason,
-          reportedAt: report.reportedAt,
-          moderationId: report.id as ModerationID,
-          ipAddress: report.ipAddress,
-          reportedLocationId: report.reportedLocationId
+          banReason: moderation.abuseReason,
+          reportedAt: moderation.reportedAt,
+          moderationId: moderation.id as ModerationID,
+          ipAddress: moderation.ipAddress,
+          reportedLocationId: moderation.reportedLocationId
         })
         .then((_value) => {
           NotificationService.dispatchNotify(t('admin:components.moderation.userBanned'), {
@@ -129,23 +129,23 @@ export const ModerationDetail = ({
   }
 
   const usersQuery =
-    report.type === 'user'
+    moderation.type === 'user'
       ? useFind(userPath, {
           query: {
-            id: { $in: [report.reportedUserId, report.createdBy] },
+            id: { $in: [moderation.reportedUserId, moderation.createdBy] },
             $limit: 2
           }
         })
       : useFind(userPath, {
           query: {
-            id: { $in: [report.createdBy] },
+            id: { $in: [moderation.createdBy] },
             $limit: 1
           }
         })
 
   const reportAttachments = useFind(moderationAttachmentPath, {
     query: {
-      moderationId: report.id
+      moderationId: moderation.id
     }
   })
   const handleExport = () => {
@@ -161,14 +161,14 @@ export const ModerationDetail = ({
     ]
     const rows = [
       [
-        report.type,
-        usersQuery.data.find((user) => user.id == report.reportedUserId)?.name,
-        report.reportedUserId,
-        usersQuery.data.find((user) => user.id == report.createdBy)?.name,
-        report.abuseReason,
-        report.status,
-        `"${toDisplayDateTime(report.createdAt)}"`,
-        report.reportDetails
+        moderation.type,
+        usersQuery.data.find((user) => user.id == moderation.reportedUserId)?.name,
+        moderation.reportedUserId,
+        usersQuery.data.find((user) => user.id == moderation.createdBy)?.name,
+        moderation.abuseReason,
+        moderation.status,
+        `"${toDisplayDateTime(moderation.createdAt)}"`,
+        moderation.reportDetails
       ]
     ]
 
@@ -203,15 +203,15 @@ export const ModerationDetail = ({
       <div className="mb-4 rounded-lg p-4 shadow">
         <div className="grid grid-cols-[30%_70%] gap-4">
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.id')}</Text>
-          <Text className="mb-4">{report.id}</Text>
+          <Text className="mb-4">{moderation.id}</Text>
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.type')}</Text>
           <Text className="mb-4">
-            {report.type == 'location' ? t('admin:components.moderation.space') : report.type}
+            {moderation.type == 'location' ? t('admin:components.moderation.space') : moderation.type}
           </Text>
           {isUserModeration && (
             <>
               <Text className="mb-4 text-text-primary">{t('admin:components.moderation.usernameBeingReported')}</Text>
-              <UserInfo userId={report.reportedUserId} usersQuery={usersQuery} />
+              <UserInfo userId={moderation.reportedUserId} usersQuery={usersQuery} />
               <Text className="mb-4 text-text-primary">{t('admin:components.moderation.accountType')}</Text>
               <Text className="mb-4">
                 {locationAdminQuery && locationAdminQuery.status == 'success' && locationAdminQuery.data.length > 0
@@ -221,20 +221,22 @@ export const ModerationDetail = ({
             </>
           )}
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.reasonForAbuse')}</Text>
-          <Text className="mb-4">{report.abuseReason}</Text>
+          <Text className="mb-4">{t(`user:moderation.abuseReason.${moderation.abuseReason}`)}</Text>
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.dateReported')}</Text>
-          <Text className="mb-4">{toDisplayDateTimeUtc(report?.reportedAt)} UTC</Text>
+          <Text className="mb-4">{toDisplayDateTimeUtc(moderation?.reportedAt)} UTC</Text>
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.reporter')}</Text>
-          <UserInfo userId={report.createdBy} usersQuery={usersQuery} />
+          <UserInfo userId={moderation.createdBy} usersQuery={usersQuery} />
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.space')}</Text>
           <Text className="mb-4">
-            {report.reportedLocationId && <LocationLabel locationId={report.reportedLocationId} showUrl={true} />}
+            {moderation.reportedLocationId && (
+              <LocationLabel locationId={moderation.reportedLocationId} showUrl={true} />
+            )}
           </Text>
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.ipAddress')}</Text>
-          <Text className="mb-4">{report.ipAddress}</Text>
+          <Text className="mb-4">{moderation.ipAddress}</Text>
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.reportDetails')}</Text>
           <Text className="mb-4 mr-4 rounded-lg bg-[#f0f0f0] p-4 font-medium text-[#4a5568] dark:bg-surface-1 dark:text-text-primary">
-            {report?.reportDetails}
+            {moderation?.reportDetails}
           </Text>
           <Text className="mb-4 text-text-primary">{t('admin:components.moderation.uploadedFiles')}</Text>
           <div className="mb-4">
@@ -259,7 +261,7 @@ export const ModerationDetail = ({
           <div className="flex space-x-4">
             <Button
               onClick={handleMarkAsHandled}
-              disabled={report.status == 'resolved'}
+              disabled={moderation.status == 'resolved'}
               variant="green"
               className="ui-success rounded px-4 py-2 text-sm text-text-primary disabled:text-text-primary"
             >

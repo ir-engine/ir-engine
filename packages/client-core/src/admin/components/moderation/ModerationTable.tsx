@@ -103,7 +103,7 @@ export default function ModerationTable({ search }) {
         username: (
           <span>{moderation.reportedUserId ? <UserDisplayName userId={moderation.reportedUserId} /> : 'N/A'}</span>
         ),
-        reason: <span>{moderation.abuseReason}</span>,
+        reason: <span>{t(`user:moderation.abuseReason.${moderation.abuseReason}`)}</span>,
         dateReported: <span>{toDisplayDateTime(moderation.createdAt)}</span>,
         status: (
           <Text

@@ -496,5 +496,18 @@
     "more": "More",
     "reportUser": "Report User",
     "blockUser": "Block User"
+  },
+  "moderation": {
+    "abuseReason": {
+      "nudity": "Nudity",
+      "fakeNewsScams": "Fake News & Scams",
+      "disturbingInappropriate": "Disturbing/Inappropriate",
+      "cheatingHacking": "Cheating/Hacking",
+      "bullyingHarassment": "Bullying/Harassment",
+      "illegalActivity": "Illegal Activity",
+      "copyrightInfringements": "Copyright & Other Infringements",
+      "childExploitation": "Child Exploitation",
+      "somethingElse": "Something Else"
+    }
   }
 }
