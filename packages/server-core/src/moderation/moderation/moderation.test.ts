@@ -31,6 +31,7 @@ import { afterAll, beforeAll, describe, it } from 'vitest'
 import { moderationPath, ModerationType } from '@ir-engine/common/src/schemas/moderation/moderation.schema'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 
+import { ABUSE_REASONS } from '@ir-engine/common/src/constants/ModerationConstants'
 import { locationPath, LocationType, UserName, userPath, UserType } from '@ir-engine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
 import { createTestLocation } from '../../../tests/util/createTestLocation'
@@ -71,7 +72,7 @@ describe('moderation.test', () => {
   it('should create a moderation entry', async () => {
     const moderationData = {
       type: 'user',
-      abuseReason: 'Fake News & Scams',
+      abuseReason: ABUSE_REASONS[1],
       reportedUserId: user2.id,
       reportedLocationId: testLocation.id,
       reportDetails: 'Test details'
