@@ -23,9 +23,91 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { END_WITH_ALPHANUMERIC_REGEX, SANITIZE_FILENAME_REGEX, START_WITH_ALPHANUMERIC_REGEX } from '../regex'
+
+/**
+ * Encodes a filename by replacing special characters with a safe format:
+ * 1. Converts parentheses to underscores/hyphens: '(' -> '_', ')' -> '-'
+ * 2. Preserves existing hyphens by doubling them: '-' -> '--'
+ * 3. Converts spaces to single hyphens
+ * 4. Adds 'x' prefix if filename starts with special chars
+ * 5. Adds 'y' suffix if filename ends with special chars
+ *
+ * @param displayName - The original filename to encode
+ * @returns The encoded filename safe for storage/transmission
+ *
+ * @example
+ * // Returns "hello--world"
+ * getEncodedFileName("hello-world")
+ *
+ * // Returns "x_test-y"
+ * getEncodedFileName("(test)")
+ *
+ * // Returns "my-file-name"
+ * getEncodedFileName("my file name")
+ */
+export const getEncodedFileName = (displayName: string) => {
+  let encoded = displayName
+    .replace(/\(/g, '_') // opening parenthesis to underscore
+    .replace(/\)/g, '-') // closing parenthesis to hyphen
+    .replace(/-/g, '--') // preserve hyphens by doubling them
+    .replace(/\s/g, '-') // spaces to single hyphens
+
+  // Add 'x' at the beginning if it starts with special characters
+  if (/^[-_]/.test(encoded)) {
+    encoded = 'x' + encoded
+  }
+  // Add 'y' at the end if it ends with special characters
+  if (/[-_]$/.test(encoded)) {
+    encoded = encoded + 'y'
+  }
+  return encoded
+}
+
+/**
+ * Decodes a filename that was previously encoded by getEncodedFileName by:
+ * 1. Removing 'x' prefix and 'y' suffix if they were added during encoding
+ * 2. Converting underscores back to opening parentheses '(' in specific positions
+ * 3. Converting hyphens back to closing parentheses ')' when appropriate
+ * 4. Restoring original hyphens that were doubled during encoding
+ * 5. Converting remaining single hyphens back to spaces
+ *
+ * @param encodedName - The encoded filename to decode
+ * @returns The original filename with special characters restored
+ *
+ * @example
+ * // Returns "hello-world"
+ * getDecodedFileName("hello--world")
+ *
+ * // Returns "(test)"
+ * getDecodedFileName("x_test-y")
+ *
+ * // Returns "my file name"
+ * getDecodedFileName("my-file-name")
+ */
+export const getDecodedFileName = (encodedName: string) => {
+  let decoded = encodedName
+  // Remove added characters if they were added during encoding
+  if (decoded.startsWith('x') && /^x[-_]/.test(decoded)) {
+    decoded = decoded.slice(1)
+  }
+  if (decoded.endsWith('y') && /[-_]y$/.test(decoded)) {
+    decoded = decoded.slice(0, -1)
+  }
+
+  return decoded
+    .replace(/(?<=^|\s)_/g, '(') // underscore to opening parenthesis (if preceded by start or space)
+    .replace(/(?<![\d\s])_(?=\d)/g, '(') // underscore to opening parenthesis before numbers
+    .replace(/-(?=\s|$)/g, ')') // hyphen to closing parenthesis if followed by space or end
+    .replace(/--/g, '§') // temporarily replace double hyphens
+    .replace(/-(?!\d)/g, ' ') // single hyphens to spaces (except if followed by number)
+    .replace(/(?<![\d\s])-/g, ' ') // remaining single hyphens to spaces
+    .replace(/§/g, '-') // restore original hyphens
+}
+
 /**
  * This method takes a filename (with or without included path) and returns a cleaned version of it.
- * ensures toLower file extension, truncates a file name if too long
+ * Ensures toLower file extension, truncates a file name if too long, and sanitizes special characters
  * @param fullFileName
  * @param useStorageProviderLengthRestrictions
  */
@@ -45,16 +127,20 @@ export const cleanFileNameString = (fullFileName: string, useStorageProviderLeng
     let nameWithoutExtension = fileName.substring(0, lastDotIndex)
     const extension = fileName.substring(lastDotIndex + 1).toLowerCase()
 
-    //Used by backend uploads to storage provider, which has different length restrictions than other uses
+    //Used by backend uploads to storage provider...
     if (useStorageProviderLengthRestrictions) {
       if (nameWithoutExtension.length > 1024) nameWithoutExtension = nameWithoutExtension.slice(0, 1024)
     } else {
+      // Sanitize the name part and skiped if needed in the server
+      nameWithoutExtension = nameWithoutExtension
+        .replace(SANITIZE_FILENAME_REGEX, '-')
+        .replace(START_WITH_ALPHANUMERIC_REGEX, '')
+        .replace(END_WITH_ALPHANUMERIC_REGEX, '')
       // Truncate or concat the name if it is too long or too short
       if (nameWithoutExtension.length > 64) {
         nameWithoutExtension = nameWithoutExtension.slice(0, 64)
       } else if (nameWithoutExtension.length < 4) {
-        //file names need to be longer than 3 characters to be valid for s3 - https://docs.weka.io/additional-protocols/s3/s3-limitations
-        nameWithoutExtension = nameWithoutExtension + '0000'
+        nameWithoutExtension = nameWithoutExtension.padEnd(4, '0')
       }
     }
 
