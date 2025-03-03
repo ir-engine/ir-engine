@@ -174,16 +174,20 @@ const Select = ({
       return
     }
 
-    const index = filteredOptions.findIndex((option) => option.value === localValue)
+    if (filteredOptions.length > 0) {
+      const index = filteredOptions.findIndex((option) => option.value === localValue)
 
-    if (index === -1) {
-      if (searchMode === undefined) {
-        console.warn('No corresponding option found. Defaulting to null.')
-        setDisplayText('')
-        return
+      if (index === -1) {
+        if (searchMode === undefined) {
+          console.warn('No corresponding option found. Defaulting to null.')
+          setDisplayText('')
+          return
+        }
+      } else {
+        setDisplayText(filteredOptions[index].label)
       }
     } else {
-      setDisplayText(filteredOptions[index].label)
+      setDisplayText('')
     }
   }, [localValue, selectedOptionIndex, filteredOptions])
 
