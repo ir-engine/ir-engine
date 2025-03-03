@@ -28,6 +28,10 @@ import {
   BufferAttribute,
   Cache,
   CompressedTexture,
+  CubeReflectionMapping,
+  CubeRefractionMapping,
+  EquirectangularReflectionMapping,
+  EquirectangularRefractionMapping,
   InterleavedBufferAttribute,
   Light,
   Line,
@@ -114,11 +118,11 @@ type GLTFMetadata = {
   textureWidths: number[]
 } & BaseMetadata
 
-type TexutreMetadata = {
+type TextureMetadata = {
   textureWidth: number
 } & BaseMetadata
 
-type Metadata = GLTFMetadata | TexutreMetadata | BaseMetadata
+type Metadata = GLTFMetadata | TextureMetadata | BaseMetadata
 
 export type Resource = {
   id: string
@@ -248,10 +252,15 @@ const resourceCallbacks = {
         resource.metadata.merge({ onGPU: true, discarded: discardUponUpload })
         //@ts-ignore
         asset.onUpdate = null
-        if (discardUponUpload) {
+        const isEnvMapTexture =
+          asset.mapping === EquirectangularReflectionMapping ||
+          asset.mapping === EquirectangularRefractionMapping ||
+          asset.mapping === CubeReflectionMapping ||
+          asset.mapping === CubeRefractionMapping
+        if (discardUponUpload && !isEnvMapTexture) {
           /** @todo re-enable discard */
-          // asset.source.data = null
-          // asset.mipmaps = []
+          asset.source.data = null
+          asset.mipmaps = []
         }
       }
       if ((asset as CompressedTexture).isCompressedTexture && discardUponUpload) {
@@ -581,7 +590,7 @@ const addEntityResource = (
     }
     case ResourceType.Material: {
       const material = asset as Material
-      for (const [_, val] of Object.entries(material) as [string, any][]) {
+      for (const [key, val] of Object.entries(material) as [string, any][]) {
         if (isTexture(val)) {
           addEntityResource(entity, val, returnedResources)
         }
