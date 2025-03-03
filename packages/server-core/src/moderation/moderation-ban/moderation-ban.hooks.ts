@@ -24,56 +24,59 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
-
 import {
-  locationAdminDataValidator,
-  locationAdminPatchValidator,
-  locationAdminQueryValidator
-} from '@ir-engine/common/src/schemas/social/location-admin.schema'
-import attachOwnerIdInQuery from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-query'
+  moderationBanDataValidator,
+  moderationBanPatchValidator,
+  moderationBanQueryValidator
+} from '@ir-engine/common/src/schemas/moderation/moderation-ban.schema'
+import {
+  moderationBanDataResolver,
+  moderationBanExternalResolver,
+  moderationBanPatchResolver,
+  moderationBanQueryResolver,
+  moderationBanResolver
+} from './moderation-ban.resolvers'
 
+import verifyScope from '@ir-engine/server-core/src/hooks/verify-scope'
+import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 import isAction from '../../hooks/is-action'
 import persistQuery from '../../hooks/persist-query'
-import verifyScope from '../../hooks/verify-scope'
-import {
-  locationAdminDataResolver,
-  locationAdminExternalResolver,
-  locationAdminPatchResolver,
-  locationAdminQueryResolver,
-  locationAdminResolver
-} from './location-admin.resolvers'
+import setLoggedinUserInQuery from '../../hooks/set-loggedin-user-in-query'
 
 export default {
   around: {
-    all: [schemaHooks.resolveExternal(locationAdminExternalResolver), schemaHooks.resolveResult(locationAdminResolver)]
+    all: [schemaHooks.resolveExternal(moderationBanExternalResolver), schemaHooks.resolveResult(moderationBanResolver)]
   },
-
   before: {
-    all: [schemaHooks.validateQuery(locationAdminQueryValidator), schemaHooks.resolveQuery(locationAdminQueryResolver)],
+    all: [schemaHooks.validateQuery(moderationBanQueryValidator), schemaHooks.resolveQuery(moderationBanQueryResolver)],
     find: [
       persistQuery,
       iff(
         isProvider('external'),
-        iffElse(isAction('admin'), verifyScope('moderation', 'read'), attachOwnerIdInQuery('userId')),
+        iffElse(isAction('admin'), verifyScope('moderation', 'read'), setLoggedinUserInQuery('banUserId')),
         discardQuery('action')
       )
     ],
-    get: [disallow('external')],
+    get: [
+      persistQuery,
+      iff(
+        isProvider('external'),
+        iffElse(isAction('admin'), verifyScope('moderation', 'read'), setLoggedinUserInQuery('banUserId')),
+        discardQuery('action')
+      )
+    ],
     create: [
-      iff(isProvider('external'), verifyScope('location', 'write')),
-      schemaHooks.validateData(locationAdminDataValidator),
-      schemaHooks.resolveData(locationAdminDataResolver)
+      iff(isProvider('external'), verifyScope('moderation', 'write')),
+      schemaHooks.validateData(moderationBanDataValidator),
+      schemaHooks.resolveData(moderationBanDataResolver)
     ],
-    update: [disallow()],
     patch: [
-      iff(isProvider('external'), verifyScope('location', 'write')),
-      schemaHooks.validateData(locationAdminPatchValidator),
-      schemaHooks.resolveData(locationAdminPatchResolver)
+      iff(isProvider('external'), verifyScope('moderation', 'write')),
+      schemaHooks.validateData(moderationBanPatchValidator),
+      schemaHooks.resolveData(moderationBanPatchResolver)
     ],
-    remove: [iff(isProvider('external'), verifyScope('location', 'write'))]
+    remove: [iff(isProvider('external'), verifyScope('moderation', 'write'))]
   },
-
   after: {
     all: [],
     find: [],
@@ -83,14 +86,7 @@ export default {
     patch: [],
     remove: []
   },
-
   error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+    all: []
   }
 } as any

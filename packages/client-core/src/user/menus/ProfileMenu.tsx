@@ -43,6 +43,7 @@ import {
 import {
   defineState,
   getMutableState,
+  getState,
   syncStateWithLocalStorage,
   useHookstate,
   useMutableState
@@ -80,10 +81,12 @@ import { NotificationService } from '../../common/services/NotificationService'
 import { PopoverState } from '../../common/services/PopoverState'
 import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 import { useZendesk } from '../../hooks/useZendesk'
+import { LocationState } from '../../social/services/LocationService'
 import { clientContextParams } from '../../util/ClientContextState'
 import { AuthService, AuthState } from '../services/AuthService'
 import { AvatarService } from '../services/AvatarService'
 import AvatarSelectMenu from './avatar/AvatarSelectMenu'
+import ReportMenu from './ReportMenu'
 import SettingsMenu from './SettingsMenu'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ProfileMenu', modifier: clientContextParams })
@@ -132,6 +135,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
 
   const originallyAgeVerified = useHookstate(checked18OrOver)
   const originallyAcceptedTOS = useHookstate(acceptedTOS).value
+  const currentLocation = getState(LocationState).currentLocation.location
 
   const avatarSelectMenuRef = useRef<{
     handleClose: () => Promise<void>
@@ -440,7 +444,9 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
                 variant="red"
                 fullWidth={!isMobile}
                 className="w-[136px] rounded-[10px] lg:w-full"
-                onClick={openChat}
+                onClick={() =>
+                  PopoverState.showPopupover(<ReportMenu type="location" locationId={currentLocation.id} />)
+                }
               >
                 <ReportWebsiteDefaullg />
                 {t('user:usermenu.profile.reportWorld')}
