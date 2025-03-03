@@ -329,8 +329,9 @@ const Select = ({
                   value={displayText}
                   readOnly={searchMode === undefined}
                   onChange={(e) => {
-                    setSearchString(e.target.value)
+                    popupRef.current && popupRef.current.open()
                     setDisplayText(e.target.value)
+                    setSearchString(e.target.value)
                   }}
                 />
 
