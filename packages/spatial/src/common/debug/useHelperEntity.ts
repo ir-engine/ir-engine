@@ -30,7 +30,6 @@ import {
   createEntity,
   Entity,
   EntityTreeComponent,
-  generateEntityUUID,
   getComponent,
   getOptionalComponent,
   removeEntity,
@@ -113,7 +112,7 @@ export function createHelperEntity<TObject extends DisposableObject3D>(
   setComponent(helperEntity, EntityTreeComponent, { parentEntity: parentEntity })
   setComponent(helperEntity, TransformComponent)
   setComponent(helperEntity, ObjectComponent, helper)
-  setComponent(helperEntity, UUIDComponent, generateEntityUUID())
+  setComponent(helperEntity, UUIDComponent, UUIDComponent.generateUUID())
   setComponent(helperEntity, ObjectLayerMaskComponent, layerMask)
   setComponent(helperEntity, VisibleComponent, true)
   setComponent(helperEntity, NameComponent, `${name ?? parentEntity}-${nameSuffix}`)

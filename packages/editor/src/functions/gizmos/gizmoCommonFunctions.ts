@@ -44,6 +44,7 @@ export function intersectObjectWithRay(object: Object3D, raycaster: Raycaster, i
   return false
 }
 
+// not used anywhere in the PR, template function for crating future gizmo heuristics
 export function templateGizmoInputHeuristic(gizmoInputRaycast: Raycaster, gizmoObjectQuery: any) {
   const gizmoInputHeuristic = (intersectionData: Set<IntersectionData>, position: Vector3, direction: Vector3) => {
     const isEditing = getState(EngineState).isEditing

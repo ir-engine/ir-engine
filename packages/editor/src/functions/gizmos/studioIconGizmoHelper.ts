@@ -39,7 +39,7 @@ const _raycaster = new Raycaster()
 _raycaster.layers.set(ObjectLayers.NodeHelper)
 _raycaster.firstHitOnly = true
 
-const _interpolationFactor = 0.3
+const _interpolationFactor = 0.3 // used for the hover grow effect
 
 export const createIconGizmo = (textureURL) => {
   const texture = new TextureLoader().load(textureURL)
@@ -94,7 +94,8 @@ function pointerHover(parentEntity: Entity) {
   _raycaster.setFromCamera(pointerPosition, camera)
 
   const intersect = intersectObjectWithRay(spriteObject, _raycaster, true)
-  const targetSize = intersect ? 0.25 : 0.2 // 0.3 is the hover size, 0.25 is the default size
+  const targetSize = intersect ? 0.25 : 0.2 // 0.25 is the hover size, 0.2 is the default size
+  //TODO : make the sizeFactor editable
   const originalSize = activeHelperComponent.sizeFactor.value
   const interpolatedSize = originalSize + (targetSize - originalSize) * _interpolationFactor
   activeHelperComponent.sizeFactor.set(interpolatedSize)

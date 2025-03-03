@@ -151,7 +151,6 @@ const useStudioIconGizmo = () => {
             const directionalEntity = setupGizmo(entity, iconGizmoArrow, ObjectLayers.NodeHelper)
             setComponent(entity, ActiveHelperComponent, { directionalEntities: directionalEntity })
           }
-          // add text
           return iconGizmo
         },
         ObjectLayerMasks.NodeHelper,
