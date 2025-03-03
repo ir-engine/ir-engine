@@ -157,7 +157,12 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
         </>
       )
     } else if (projectHistory.action === 'PROJECT_CREATED') {
-      return <Text>created the project</Text>
+      return (
+        <>
+          <Text>{t('admin:components.history.createdProject')}</Text>
+          <Text fontWeight="semibold">{projectName}</Text>
+        </>
+      )
     } else if (
       projectHistory.action === 'RESOURCE_CREATED' ||
       projectHistory.action === 'RESOURCE_REMOVED' ||
