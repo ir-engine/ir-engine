@@ -33,7 +33,6 @@ import {
   getComponent,
   getOptionalComponent,
   PresentationSystemGroup,
-  removeComponent,
   useHasComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
@@ -58,7 +57,6 @@ import { EngineState, useChildrenWithComponents } from '@ir-engine/ecs'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
-import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { SearchParamState } from '../common/services/RouterService'
 import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
 import { LocationState } from '../social/services/LocationService'
@@ -152,7 +150,6 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
         entityUUID: (userID + '_avatar') as any as EntityUUID
       })
     )
-    removeComponent(selfAvatarEntity, VisibleComponent)
   }, [isSpectating, userAvatar])
 
   return null
