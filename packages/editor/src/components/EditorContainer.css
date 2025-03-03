@@ -9,6 +9,10 @@
   border: none;
 }
 
+.dock-panel-max-btn::before {
+  border-color: var(--text-primary) !important;
+}
+
 .dock.dock-top {
   background: var(--surface-0);
 }

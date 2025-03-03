@@ -49,7 +49,7 @@ import useUpload from '../../components/assets/useUpload'
 import { DnDFileType, FileDataType, ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { cmdOrCtrlString } from '../../functions/utils'
+import { cmdOrCtrlString, isEntityGlb } from '../../functions/utils'
 import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
@@ -98,7 +98,7 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
   const { children, rootEntity, sourceID } = props
   const selectionState = useMutableState(SelectionState)
   const hierarchyTreeState = useMutableState(HierarchyTreeState)
-  const [showModelChildren] = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowModelChildren])
+  const [hideGlbChildren] = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.HideGlbChildren])
   const renamingEntity = useHookstate<Entity | null>(null)
   const contextMenu = useHookstate({ entity: UndefinedEntity, anchorEvent: undefined as React.MouseEvent | undefined })
   const entities = useQuery([SourceComponent], Layers.Authoring)
@@ -122,11 +122,11 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
   }
 
   const hierarchyNodes = useMemo(
-    () => ecsHierarchyTreeWalker(rootEntity),
+    () => ecsHierarchyTreeWalker(rootEntity, hideGlbChildren),
     [
       hierarchyTreeState.expandedNodes[sourceID],
       selectionState.selectedEntities,
-      showModelChildren,
+      hideGlbChildren,
       entities,
       childEntities,
       reparentRefresh
@@ -241,6 +241,7 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
     if (item.type === ItemTypes.Node) {
       if (node?.entity) {
         const entityTreeComponent = getComponent(node.entity, EntityTreeComponent)
+        if (place === 'On' && isEntityGlb(node.entity)) return false
         if (place === 'On' || !!entityTreeComponent.parentEntity) return true
       }
 

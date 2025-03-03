@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { getDecodedFileName } from '@ir-engine/common/src/utils/cleanFileName'
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
 import {
   FilesState,
@@ -111,7 +112,7 @@ function FileItemRow({
       >
         {file.isFolder ? <IoIosArrowForward /> : <VscBlank />}
         <FileIcon isMinified={true} thumbnailURL={thumbnailURL} type={file?.type} isFolder={file?.isFolder} />
-        <span className="text-ellipsis text-nowrap">{file?.fullName}</span>
+        <span className="text-ellipsis text-nowrap">{getDecodedFileName(file?.fullName)}</span>
       </span>
     ),
     type: file?.type.toUpperCase(),
@@ -176,7 +177,7 @@ function FileItemCard({
     >
       <FileCard
         item={file}
-        name={file?.fullName}
+        name={getDecodedFileName(file?.fullName)}
         onClick={onClick}
         onDoubleClick={file?.isFolder ? onDoubleClick : undefined}
         onLoad={undefined}

@@ -131,6 +131,9 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const canSaveNodeChanges = useState(false)
   const permissionToChangeNodeVerified = useState(false)
 
+  //@todo when this feature flag is added, remove the hardcoded value
+  const hideGlbChildrenFeatureFlag = [true] //useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.HideGlbChildren])
+
   const handleRenameOpen = () => {
     if (!isRenameOpen.value) {
       isRenameOpen.set(true)
@@ -338,7 +341,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     const [_, orgName, projectName, fileName] = STATIC_ASSET_REGEX.exec(gltfComponent.src)!
     const fullProjectName = `${orgName}/${projectName}`
     const parsedName = fileName.split('?')[0]
-    exportRelativeGLTF(node.entity, fullProjectName, parsedName).then((newSRC) => {
+    exportRelativeGLTF(node.entity, fullProjectName, parsedName, false).then((newSRC) => {
       EditorControlFunctions.modifyProperty([node.entity], GLTFComponent, { src: newSRC })
       getMutableState(AssetModifiedState)[GLTFComponent.getInstanceID(entity)].set(none)
     })
@@ -363,11 +366,16 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     permissionToChangeNodeVerified.set(true)
 
     const gltfComponent = getComponent(node.entity, GLTFComponent)
-    const [, orgName, projectName] = STATIC_ASSET_REGEX.exec(gltfComponent.src)!
+    const [, orgName, projectName, fileName] = STATIC_ASSET_REGEX.exec(gltfComponent.src)!
     const fullProjectName = `${orgName}/${projectName}`
 
     const { projectName: stateProjectName } = getState(EditorState)
 
+    const trimmedFilename = fileName.split('?')[0]
+    if (trimmedFilename && trimmedFilename.endsWith('.glb')) {
+      canSaveNodeChanges.set(false)
+      return
+    }
     if (stateProjectName === fullProjectName) {
       canSaveNodeChanges.set(true)
       return
@@ -397,7 +405,8 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
         'bg-ui-background',
         !visible ? 'text-text-inactive' : '',
         selected ? 'rounded-sm border border-ui-select-outline bg-ui-select-background text-text-primary' : '',
-        isOverOn && canDropOn ? 'border border-dotted' : ''
+        isOverOn && canDropOn ? 'border border-dotted' : '',
+        hideGlbChildrenFeatureFlag[0] && isOverOn && !canDropOn ? 'border border-dotted bg-ui-hover-error' : ''
       )}
       data-testid="hierarchy-panel-scene-item"
     >

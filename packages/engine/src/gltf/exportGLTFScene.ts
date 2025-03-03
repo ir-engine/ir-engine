@@ -835,11 +835,14 @@ const exportImage = async (image: any, gltf: GLTF.IGLTF, context: GLTFSceneExpor
       bufferView: bufferViewIndex
     }
   } else {
-    const relativeSrc = STATIC_ASSET_REGEX.exec(image.src)![3]
-    const dstName = baseName(relativeSrc)
-    const srcName = baseName(context.relativePath)
-    const dstDir = LoaderUtils.extractUrlBase(relativeSrc)
-    const srcDir = LoaderUtils.extractUrlBase(context.relativePath)
+    const [, dstOrgName, dstProjectName, dstInternalPath] = STATIC_ASSET_REGEX.exec(image.src)!
+    const srcProjectName = context.projectName
+    const dstRelativePath = pathJoin(dstOrgName, dstProjectName, dstInternalPath)
+    const srcRelativePath = pathJoin(srcProjectName, context.relativePath)
+    const dstName = baseName(dstRelativePath)
+    const srcName = baseName(srcRelativePath)
+    const dstDir = LoaderUtils.extractUrlBase(dstRelativePath)
+    const srcDir = LoaderUtils.extractUrlBase(srcRelativePath)
 
     const uri = pathJoin(relativePathTo(srcDir, dstDir), dstName)
 
