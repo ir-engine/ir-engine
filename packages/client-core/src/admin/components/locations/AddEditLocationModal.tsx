@@ -423,10 +423,10 @@ export default function AddEditLocationModal(props: {
   const anchorEvent = useHookstate<null | React.MouseEvent<HTMLElement>>(null)
 
   useEffect(() => {
-    if (location && props.onPublishSuccess) {
+    if (isNewPublished.value && location && props.onPublishSuccess) {
       props.onPublishSuccess(location)
     }
-  }, [location, props.onPublishSuccess])
+  }, [location, props.onPublishSuccess, isNewPublished.value])
 
   return (
     <div className="absolute z-50 bg-surface-2 px-8 pt-6">

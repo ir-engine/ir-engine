@@ -296,7 +296,7 @@ export default function FilesToolbar() {
             data-testid="files-panel-upload-files-button"
             className="disabled:bg-[#212226]"
           >
-            <FolderSm />
+            <PlusCircleSm />
             <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFiles')}</span>
           </Button>
           <Button
@@ -316,7 +316,7 @@ export default function FilesToolbar() {
             }
             data-testid="files-panel-upload-folder-button"
           >
-            <PlusCircleSm />
+            <FolderSm />
             <span className="text-nowrap">{t('editor:layout.filebrowser.uploadFolder')}</span>
           </Button>
         </>
