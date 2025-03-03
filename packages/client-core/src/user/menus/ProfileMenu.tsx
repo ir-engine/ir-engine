@@ -374,7 +374,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   const enableConnect = authState?.value?.emailMagicLink || authState?.value?.smsMagicLink
 
   return (
-    <div className="absolute z-50 h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 mdh:h-fit mdh:max-h-[60dvh] mdh:px-8 mdh:py-6">
+    <div className="absolute z-50 h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 lg:h-fit mdh:max-h-[60vh] mdh:px-8 mdh:py-6">
       <div className="relative grid w-full grid-cols-5 gap-x-2">
         <div className="col-span-3 grid grid-cols-[auto,1fr] gap-x-6">
           <div className="relative h-20 w-20">
