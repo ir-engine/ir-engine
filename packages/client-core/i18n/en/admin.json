@@ -796,7 +796,8 @@
       "createdThumbnail": "created a thumbnail: ",
       "updatedThumbnail": "updated the thumbnail of the resource: ",
       "removedThumbnail": "removed the thumbnail for the resource: ",
-      "updatePermission": "updated the permission of the user"
+      "updatePermission": "updated the permission of the user",
+      "createdProject": "created project: "
     },
     "moderation": {
       "columns": {
