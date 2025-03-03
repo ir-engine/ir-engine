@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { getComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { createHookableFunction, dispatchAction, getMutableState, getState } from '@ir-engine/hyperflux'
+import { createHookableFunction, getMutableState, getState } from '@ir-engine/hyperflux'
 
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { Vector3_One, Vector3_Zero } from '../common/constants/MathConstants'
@@ -32,7 +32,7 @@ import { isSafari } from '../common/functions/isMobile'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin } from '../transform/updateWorldOrigin'
 import { RendererComponent } from './../renderer/WebGLRendererSystem'
-import { ReferenceSpace, XRAction, XRState } from './XRState'
+import { ReferenceSpace, XRState } from './XRState'
 
 export const onSessionEnd = () => {
   const xrState = getMutableState(XRState)
@@ -64,8 +64,6 @@ export const onSessionEnd = () => {
   ReferenceSpace.origin = null
   ReferenceSpace.localFloor = null
   ReferenceSpace.viewer = null
-
-  dispatchAction(XRAction.sessionChanged({ active: false }))
 
   xrState.session.set(null)
 }
@@ -178,7 +176,6 @@ export const requestXRSession = createHookableFunction(
 
       getReferenceSpaces(xrSession)
 
-      dispatchAction(XRAction.sessionChanged({ active: true }))
       xrSession.addEventListener('end', onSessionEnd)
     } catch (e) {
       console.error('Failed to create XR Session', e)
@@ -193,9 +190,3 @@ export const requestXRSession = createHookableFunction(
 export const endXRSession = createHookableFunction(async () => {
   await getMutableState(XRState).session.value?.end()
 })
-
-/**
- * A hookable function that is fired when the XR Session has changed
- * @returns
- */
-export const xrSessionChanged = createHookableFunction((_action: typeof XRAction.sessionChanged.matches._TYPE) => {})

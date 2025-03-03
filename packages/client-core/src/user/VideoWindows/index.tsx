@@ -25,17 +25,28 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { UserID } from '@ir-engine/common/src/schema.type.module'
+import { UserID, userPath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { NO_PROXY, PeerID, useMutableState } from '@ir-engine/hyperflux'
+import { getState, NO_PROXY, PeerID, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 
+import { useGet } from '@ir-engine/common'
 import { EngineState } from '@ir-engine/ecs'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '@ir-engine/network/src/media/PeerMediaChannelState'
 import { NetworkPeerState } from '@ir-engine/network/src/NetworkPeerState'
+import { ArrowTopRightOnSquareMd } from '@ir-engine/ui/src/icons'
+import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { useTranslation } from 'react-i18next'
 import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionService'
+import { PopoverState } from '../../common/services/PopoverState'
+import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
+import { LocationState } from '../../social/services/LocationService'
 import { FilteredUsersState } from '../../world/FilteredUsersSystem'
+import ReportMenu from '../menus/ReportMenu'
 import { AuthState } from '../services/AuthService'
+import { ReportUserProvider, useReportUser } from './hook'
 import { SingleVideoWindow, SingleVideoWindowWidget } from './window'
 
 type WindowType = { peerID: PeerID; type: 'cam' | 'screen' }
@@ -125,13 +136,57 @@ export const useMediaWindows = () => {
 
 export const VideoWindows = () => {
   const windows = useMediaWindows()
+  return (
+    <ReportUserProvider>
+      <div className="flex flex-col gap-y-2">
+        {windows.map(({ peerID, type }) => (
+          <SingleVideoWindow type={type} peerID={peerID} key={type + '-' + peerID} />
+        ))}
+      </div>
+      <ReportUserWindow />
+    </ReportUserProvider>
+  )
+}
+
+const ReportUserWindow = () => {
+  const { t } = useTranslation()
+  const { reportedUserId, resetUserId } = useReportUser()
+  const avatarThumbnail = useUserAvatarThumbnail(reportedUserId)
+  const reportedUser = useGet(userPath, reportedUserId).data
+  const currentLocation = getState(LocationState).currentLocation.location
+
+  if (!reportedUserId || !reportedUser) return null
 
   return (
-    <>
-      {windows.map(({ peerID, type }) => (
-        <SingleVideoWindow type={type} peerID={peerID} key={type + '-' + peerID} />
-      ))}
-    </>
+    <div className="fixed right-[10%] top-[5%] flex w-[328px] gap-x-4 rounded-xl bg-surface-4 p-4 lg:right-[5%]">
+      <div className="h-[100px] w-[100px]">
+        <AvatarImage size="fill" className="rounded-none" src={avatarThumbnail} />
+      </div>
+      <div className="flex flex-col">
+        <Text className="text-text-primary" fontWeight="semibold" fontSize="sm">
+          {reportedUser.name}
+        </Text>
+        <Button
+          onClick={() =>
+            PopoverState.showPopupover(
+              <ReportMenu type="user" userId={reportedUserId} locationId={currentLocation.id} />
+            )
+          }
+          variant="red"
+          size="sm"
+          fullWidth
+          className="mt-2"
+        >
+          {t('user:videoWindows.reportUser')}
+        </Button>
+      </div>
+      <button
+        className="grid h-10 w-10 rotate-180 place-items-center rounded-full bg-ui-secondary"
+        onClick={() => resetUserId()}
+      >
+        <ArrowTopRightOnSquareMd />
+      </button>
+    </div>
   )
 }
 
@@ -169,12 +224,14 @@ export const VideoWindowsWidget = () => {
   }
 
   return (
-    <>
-      {windows
-        .filter(({ peerID }) => peerMediaChannelState[peerID].value)
-        .map(({ peerID, type }) => (
-          <SingleVideoWindowWidget type={type} peerID={peerID} key={type + '-' + peerID} />
-        ))}
-    </>
+    <ReportUserProvider>
+      <div className="flex flex-col gap-y-2">
+        {windows
+          .filter(({ peerID }) => peerMediaChannelState[peerID].value)
+          .map(({ peerID, type }) => (
+            <SingleVideoWindowWidget type={type} peerID={peerID} key={type + '-' + peerID} />
+          ))}
+      </div>
+    </ReportUserProvider>
   )
 }

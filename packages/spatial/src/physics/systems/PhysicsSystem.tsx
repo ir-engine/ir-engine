@@ -57,8 +57,10 @@ const collisionQuery = defineQuery([CollisionComponent])
 
 const kinematicQuery = defineQuery([RigidBodyComponent, RigidBodyKinematicTagComponent, TransformComponent])
 
+const existingColliderHits = [] as Array<{ entity: Entity; collisionEntity: Entity; hit: ColliderHitEvent }>
+
 const execute = () => {
-  const existingColliderHits = [] as Array<{ entity: Entity; collisionEntity: Entity; hit: ColliderHitEvent }>
+  existingColliderHits.length = 0
 
   for (const collisionEntity of collisionQuery()) {
     const collisionComponent = getComponent(collisionEntity, CollisionComponent)
@@ -158,12 +160,7 @@ const reactor = () => {
   const physicsQuery = useQuery([SceneComponent])
 
   useEffect(() => {
-    getMutableState(InputHeuristicState).merge([
-      {
-        order: 0,
-        heuristic: spatialInputRaycastHeuristic
-      }
-    ])
+    InputHeuristicState.addHeuristic(0, spatialInputRaycastHeuristic)
 
     const networkState = getMutableState(NetworkState)
 
