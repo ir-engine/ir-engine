@@ -29,7 +29,7 @@ import { Button } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { onNewScene } from '../../functions/sceneFunctions'
+import { logNewScene, onNewScene } from '../../functions/sceneFunctions'
 import { UIAddonsState } from '../../services/UIAddonsState'
 
 export default function CreateSceneDialog() {
@@ -48,6 +48,7 @@ export default function CreateSceneDialog() {
           className="w-[10vw] break-keep"
           onClick={() => {
             onNewScene()
+            logNewScene('editor', 'editor')
             PopoverState.hidePopupover()
           }}
         >
