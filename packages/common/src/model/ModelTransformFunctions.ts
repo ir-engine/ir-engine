@@ -70,7 +70,6 @@ import { baseName, dropRoot, pathJoin } from '@ir-engine/engine/src/assets/funct
 import { getMutableState, NO_PROXY } from '@ir-engine/hyperflux'
 import { KTX2Encoder } from '@ir-engine/xrui/core/textures/KTX2Encoder'
 
-import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import {
   EEArgEntry,
   EEMaterial,
@@ -81,6 +80,7 @@ import {
   EEResourceIDExtension
 } from '@ir-engine/engine/src/assets/compression/extensions/EE_ResourceIDTransformer'
 import { UploadRequestState } from '@ir-engine/engine/src/assets/state/UploadRequestState'
+import { MATCH_ASSET_PROJECT_FILENAME_REGEX } from '../regex'
 import ModelTransformLoader from './ModelTransformLoader'
 /**
  * https://ir.world/projects/ir-engine/default-project/assets/collisioncube-LOD0.glb
@@ -88,14 +88,6 @@ import ModelTransformLoader from './ModelTransformLoader'
  * Group 1: ir-engine/default-project
  * Group 2: collisioncube-LOD0.glb
  */
-export function getMatchAssetProjectFilenameRegex() {
-  const scenename = getMutableState(EditorState).sceneName.value?.split('.').shift() || '.*' // Default wildcard if undefined
-  return new RegExp(
-    `projects\\/([^/]+\\/[^/]+)\\/(?:assets|public(?:\\/publish\\/${scenename}\\/([\\w\\d\\s\\-|_./]*))?)$`
-  )
-}
-export const MATCH_ASSET_PROJECT_FILENAME_REGEX =
-  /projects\/([^/]+\/[^/]+)\/(?:assets|public(?:\/publish)?)\/([\w\d\s\-|_./]*)$/
 
 /**
  *
@@ -421,8 +413,9 @@ const doUpload = async (projectName, fileName, buffer) => {
 
 const toProjectAndFileName = (fUploadPath: string, srcBaseURL: string): [string, string] => {
   // TODO: remove srcBaseURL if it's unnecessary
-  const regex = getMatchAssetProjectFilenameRegex()
-  const [_, projectName, fileName] = regex.exec(fUploadPath) ?? regex.exec(pathJoin(srcBaseURL, fUploadPath))!
+  const [_, projectName, fileName] =
+    MATCH_ASSET_PROJECT_FILENAME_REGEX.exec(fUploadPath) ??
+    MATCH_ASSET_PROJECT_FILENAME_REGEX.exec(pathJoin(srcBaseURL, fUploadPath))!
   return [projectName, fileName]
 }
 
