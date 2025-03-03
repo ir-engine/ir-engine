@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import { clamp } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
 
@@ -146,16 +146,11 @@ const NumericInput = ({
   }
 
   const handleFocus = () => {
-    window.addEventListener('wheel', disableScroll, { passive: false })
-    window.addEventListener('touchmove', disableScroll, { passive: false })
     tempValue.set(Number(toPrecisionString(value, displayPrecision)))
     focused.set(true)
   }
 
   const handleBlur = () => {
-    window.removeEventListener('wheel', disableScroll)
-    window.removeEventListener('touchmove', disableScroll)
-
     if (!focused.value) return
     focused.set(false)
 
@@ -163,6 +158,18 @@ const NumericInput = ({
       onRelease(Number(tempValue.value!))
     }
   }
+
+  useEffect(() => {
+    if (focused.value) {
+      window.addEventListener('wheel', disableScroll, { passive: false })
+      window.addEventListener('touchmove', disableScroll, { passive: false })
+    }
+
+    return () => {
+      window.removeEventListener('wheel', disableScroll)
+      window.removeEventListener('touchmove', disableScroll)
+    }
+  }, [focused])
 
   return (
     <div
