@@ -41,6 +41,7 @@ import { getState } from '@ir-engine/hyperflux'
 import { t } from 'i18next'
 import { CopyPasteFunctions, EntityCopyDataType } from '../../functions/CopyPasteFunctions'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { isEntityGlb } from '../../functions/utils'
 import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { SelectionState } from '../../services/SelectionServices'
@@ -135,17 +136,24 @@ type WalkerEntry = {
   isRendered: boolean
 }
 
-export function ecsHierarchyTreeWalker(rootEntity: Entity): HierarchyTreeNodeType[] {
+export function ecsHierarchyTreeWalker(rootEntity: Entity, enableHideGlbChildren: boolean): HierarchyTreeNodeType[] {
   const result: HierarchyTreeNodeType[] = []
   const frontier: WalkerEntry[] = [{ entity: rootEntity, depth: 0, lastChild: true, isRendered: true }]
   while (frontier.length > 0) {
     const { entity, depth, lastChild, isRendered: originalIsRendered } = frontier.pop()!
     const eTree = getOptionalComponent(entity, EntityTreeComponent)
-    const valid = hasComponent(entity, GLTFComponent) || hasComponent(entity, SourceComponent)
+
+    const hasGLTFComponent = hasComponent(entity, GLTFComponent)
+    const hasSourceComponent = hasComponent(entity, SourceComponent)
+
+    const valid = hasGLTFComponent || hasSourceComponent
     if (!eTree || !valid) continue
     const childIndex = eTree.childIndex ?? 0
     const children = eTree.children
-    const isLeaf = !children || children.length === 0
+
+    //@todo temporary check for glb so we don't display children we can't save edits to
+    const hideChildren = isEntityGlb(entity) && enableHideGlbChildren
+    const isLeaf = !children || children.length === 0 || hideChildren //check glb here to hide expansion chevron
     const sourceID = GLTFComponent.getInstanceID(rootEntity)
     const isCollapsed = !getState(HierarchyTreeState).expandedNodes[sourceID]?.[entity]
     const isRendered = originalIsRendered && !isCollapsed
@@ -158,7 +166,8 @@ export function ecsHierarchyTreeWalker(rootEntity: Entity): HierarchyTreeNodeTyp
       isCollapsed,
       isRendered: originalIsRendered
     })
-    if (children) {
+    if (children && !hideChildren) {
+      //do not push children of glb
       for (let i = children.length - 1; i >= 0; i--) {
         frontier.push({ entity: children[i], depth: depth + 1, lastChild: i === 0, isRendered })
       }

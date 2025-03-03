@@ -30,6 +30,7 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useMutation } from '@ir-engine/common'
 import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
+import { getDecodedFileName } from '@ir-engine/common/src/utils/cleanFileName'
 import { useHookstate } from '@ir-engine/hyperflux'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -70,8 +71,11 @@ export default function DeleteFileModal({
     >
       <Text className="w-full text-center">
         {files.length === 1
-          ? t('editor:dialog.delete.confirm-content', { content: files[0].fullName })
-          : t('editor:dialog.delete.confirm-multiple', { first: files[0].fullName, count: files.length - 1 })}
+          ? t('editor:dialog.delete.confirm-content', { content: getDecodedFileName(files[0].fullName) })
+          : t('editor:dialog.delete.confirm-multiple', {
+              first: getDecodedFileName(files[0].fullName),
+              count: files.length - 1
+            })}
       </Text>
     </Modal>
   )
