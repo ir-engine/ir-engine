@@ -254,7 +254,7 @@ function MessagesWrapper() {
   })
 
   return (
-    <div className="flex items-end">
+    <div className="mb-3 flex items-end lg:mb-0 ">
       <div className="relative max-w-16">
         {!isChatOpen.value && unreadMessages.value && (
           <div className="absolute right-0 top-0 h-4 w-4 rounded-full bg-blue-500" />
@@ -269,7 +269,7 @@ function MessagesWrapper() {
           <LocationIconButton icon={MessageTextSquare01Md} onClick={() => isChatOpen.set(!isChatOpen.value)} />
         )}
       </div>
-      <div className={`mb-3 lg:mb-0 lg:ml-[13px] ${isChatOpen.value ? 'w-[25dvw]' : 'w-0'}`} ref={ref}>
+      <div className={`lg:ml-[13px] ${isChatOpen.value ? 'w-[25dvw]' : 'w-0'}`} ref={ref}>
         <Messages />
         <NewMessage />
       </div>
@@ -284,7 +284,7 @@ export default function InstanceChat() {
   const networkState = useMutableState(NetworkState)
   const isGuest = useMutableState(AuthState).user.isGuest.value
 
-  if (networkState.config.media.value && !mediaNetworkState?.ready.value) return null
+  if (networkState.config.media.value && !mediaNetworkState?.ready?.value) return null
 
   return (
     <InstanceChatProvider>

@@ -34,14 +34,14 @@ import { useTranslation } from 'react-i18next'
 import { Props, useReportUser, useUserMediaWindowHook } from './hook'
 
 export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
-  const { isSelf, isPiP, isScreen, videoMediaStream, avatarThumbnail, videoStreamPaused, togglePiP, peerUserId } =
+  const { isSelf, isPiP, isScreen, videoMediaStream, avatarThumbnail, videoStreamPaused, togglePiP } =
     useUserMediaWindowHook({
       peerID,
       type
     })
 
   const { t } = useTranslation()
-  const { setReportedUserId } = useReportUser()
+  const { setReportedPeerId: setReportedUserId } = useReportUser()
   const peerMediaChannelState = useHookstate(
     getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
   )
@@ -78,7 +78,7 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
       <div
         tabIndex={0}
         id={peerID + '_' + type + '_container'}
-        className={`pointer-events-auto relative h-[80px] w-[80px] overflow-hidden rounded-[90px] lg:h-[131px] lg:w-[131px]  ${
+        className={`pointer-events-auto relative h-[80px] w-[80px] overflow-hidden rounded-[90px] lg:h-[131px] lg:w-[131px] ${
           (!videoMediaStream || videoStreamPaused) && 'hidden lg:block'
         }`}
         onClick={() => {
@@ -99,14 +99,14 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
         </div>
         <span key={peerID + '-' + type + '-audio-container'} id={peerID + '-' + type + '-audio-container'} />
       </div>
-      {!isSelf && peerUserId && (
+      {!isSelf && (
         <Button
           variant="primary"
           size="sm"
           className={`hidden lg:group-hover/video-window:flex ${isMoreButtonVisible.value ? 'flex' : ''}`}
           onClick={() => {
             isMoreButtonVisible.set(false)
-            setReportedUserId(peerUserId)
+            setReportedUserId(peerID)
           }}
         >
           {t('user:videoWindows.more')}
