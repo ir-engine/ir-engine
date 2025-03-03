@@ -36,6 +36,7 @@ import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 ;(globalThis as any).process = { env: { ...(import.meta as any).env, APP_ENV: (import.meta as any).env.MODE } }
 
 const $offline = lazy(() => import('@ir-engine/client/src/pages/offline/offline'))
+const $banned = lazy(() => import('@ir-engine/client/src/pages/_banned'))
 const $location = lazy(() => import('@ir-engine/client/src/pages/location/location'))
 const $auth = lazy(() => import('@ir-engine/client/src/pages/auth/authRoutes'))
 
