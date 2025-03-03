@@ -38,7 +38,7 @@ import { Material } from 'three'
 import Accordion from '../../../../primitives/tailwind/Accordion'
 import GeometryEditor from './geometryEditor'
 
-const MaterialIsInAuthoringLayer = (material: Material): boolean => {
+const materialIsInAuthoringLayer = (material: Material): boolean => {
   return !!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID, Layers.Authoring)
 }
 
@@ -49,16 +49,16 @@ const MeshNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
 
   const materialEditor = () => {
     if (Array.isArray(meshComponent?.material) && meshComponent.material.length > 0) {
-      return meshComponent.material.map((material, index) => {
-        if (!MaterialIsInAuthoringLayer(material)) return null
+      return meshComponent.material.map((material) => {
+        if (!materialIsInAuthoringLayer(material)) return null
         return (
-          <Accordion title={t('editor:properties.mesh.materialEditor')} key={index}>
+          <Accordion title={t('editor:properties.mesh.materialEditor')} key={material.uuid}>
             <MaterialEditor materialUUID={material.uuid as EntityUUID} />
           </Accordion>
         )
       })
     } else if ((meshComponent?.material as Material)?.uuid) {
-      if (!MaterialIsInAuthoringLayer(meshComponent.material as Material)) return null
+      if (!materialIsInAuthoringLayer(meshComponent.material as Material)) return null
       return (
         <Accordion title={t('editor:properties.mesh.materialEditor')}>
           <MaterialEditor materialUUID={(meshComponent.material as Material).uuid as EntityUUID} />
