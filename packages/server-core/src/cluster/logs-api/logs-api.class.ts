@@ -73,9 +73,8 @@ export class LogsApiService implements ServiceInterface<void, any, LogsApiParams
 
     delete logItem.level
     delete logItem.msg
-    
-    const safeLevel = ['trace','debug','info','warn','error','fatal'].includes(level) ? level : 'info'
-    logger[safeLevel]({ ...logItem, userId }, msg)
 
+    const safeLevel = ['trace', 'debug', 'info', 'warn', 'error', 'fatal'].includes(level) ? level : 'info'
+    logger[safeLevel]({ ...logItem, userId }, msg)
   }
 }
