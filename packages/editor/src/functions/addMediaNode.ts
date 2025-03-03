@@ -28,7 +28,6 @@ import { Intersection, Raycaster, Vector2 } from 'three'
 import { getContentType } from '@ir-engine/common/src/utils/getContentType'
 import {
   EntityTreeComponent,
-  getAncestorWithComponents,
   getChildrenWithComponents,
   iterateEntityNode,
   removeEntity,
@@ -47,6 +46,7 @@ import { GeneralAudioComponent } from '@ir-engine/engine/src/audio/components/Ge
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { AssetState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
@@ -163,14 +163,17 @@ export async function addMediaNode(
           const newSource = GLTFComponent.getInstanceID(rootEntity)
           for (const entity of entities) {
             setComponent(entity, SourceComponent, newSource)
+            setComponent(
+              entity,
+              UUIDComponent,
+              NodeIDComponent.getUUIDBySourceAndNodeID(newSource, getComponent(entity, NodeIDComponent))
+            )
           }
           for (const childEntity of getComponent(entity, EntityTreeComponent).children) {
             setComponent(childEntity, EntityTreeComponent, { parentEntity: parent ?? rootEntity })
           }
           removeEntity(entity)
-
-          const gltfEntity = getAncestorWithComponents(parent ?? rootEntity, [GLTFComponent])
-          EditorState.markModifiedScene(gltfEntity)
+          EditorHistoryFunctions.snapshot()
         }
       )
     } else {
