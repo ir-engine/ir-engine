@@ -65,7 +65,11 @@ export default {
         discardQuery('action')
       )
     ],
-    create: [schemaHooks.validateData(moderationBanDataValidator), schemaHooks.resolveData(moderationBanDataResolver)],
+    create: [
+      iff(isProvider('external'), verifyScope('moderation', 'write')),
+      schemaHooks.validateData(moderationBanDataValidator),
+      schemaHooks.resolveData(moderationBanDataResolver)
+    ],
     patch: [
       iff(isProvider('external'), verifyScope('moderation', 'write')),
       schemaHooks.validateData(moderationBanPatchValidator),
