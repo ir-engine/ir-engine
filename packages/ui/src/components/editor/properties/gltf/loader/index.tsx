@@ -53,6 +53,7 @@ import ModelInput from '../../../input/Model'
 import SelectInput from '../../../input/Select'
 
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
+import { EditorHistoryFunctions } from '@ir-engine/editor/src/services/EditorHistoryState'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { HiPlus } from 'react-icons/hi2'
@@ -160,6 +161,7 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
             onClick={() => {
               const nodes = SelectionState.getSelectedEntities()
               EditorControlFunctions.addOrRemoveComponent(nodes, RigidBodyComponent, true, { type: 'fixed' })
+              EditorHistoryFunctions.snapshot()
             }}
           >
             <HiPlus />

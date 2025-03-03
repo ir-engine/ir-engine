@@ -47,6 +47,7 @@ import { GeneralAudioComponent } from '@ir-engine/engine/src/audio/components/Ge
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { AssetState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
@@ -64,6 +65,7 @@ import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { EditorHistoryFunctions } from '../services/EditorHistoryState'
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
@@ -147,6 +149,7 @@ export async function addMediaNode(
           const json = serializeEntity(firstChild)
           EditorControlFunctions.overwriteLookdevObject([...json, ...extraComponentJson], parent!, before)
           removeEntity(entity)
+          EditorHistoryFunctions.snapshot()
         }
       )
     } else if (contentType.startsWith('model/prefab')) {
@@ -156,19 +159,24 @@ export async function addMediaNode(
       AssetState.loadAsync(url, false, UUIDComponent.generateUUID(), UndefinedEntity, Layers.Authoring as LayerID).then(
         (entity) => {
           const currentSource = GLTFComponent.getInstanceID(entity)
-          const entities = SourceComponent.getEntitiesBySource(currentSource)
+          const entities = SourceComponent.getEntitiesBySource(currentSource, Layers.Authoring)
           const rootEntity = getState(EditorState).rootEntity
           const newSource = GLTFComponent.getInstanceID(rootEntity)
           for (const entity of entities) {
             setComponent(entity, SourceComponent, newSource)
+            setComponent(
+              entity,
+              UUIDComponent,
+              NodeIDComponent.getUUIDBySourceAndNodeID(newSource, getComponent(entity, NodeIDComponent))
+            )
           }
           for (const childEntity of getComponent(entity, EntityTreeComponent).children) {
             setComponent(childEntity, EntityTreeComponent, { parentEntity: parent ?? rootEntity })
           }
           removeEntity(entity)
-
           const gltfEntity = getAncestorWithComponents(parent ?? rootEntity, [GLTFComponent])
           EditorState.markModifiedScene(gltfEntity)
+          EditorHistoryFunctions.snapshot()
         }
       )
     } else {
@@ -182,6 +190,7 @@ export async function addMediaNode(
         parent!,
         before
       )
+      EditorHistoryFunctions.snapshot()
       return entityUUID
     }
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
@@ -195,6 +204,7 @@ export async function addMediaNode(
       parent!,
       before
     )
+    EditorHistoryFunctions.snapshot()
     return entityUUID
   } else if (contentType.startsWith('image/')) {
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
@@ -202,6 +212,7 @@ export async function addMediaNode(
       parent!,
       before
     )
+    EditorHistoryFunctions.snapshot()
     return entityUUID
   } else if (contentType.startsWith('audio/')) {
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
@@ -213,6 +224,7 @@ export async function addMediaNode(
       parent!,
       before
     )
+    EditorHistoryFunctions.snapshot()
     return entityUUID
   } else if (url.includes('.uvol')) {
     // TODO: detect whether to add LegacyVolumetricComponent or VolumetricComponent
@@ -225,6 +237,7 @@ export async function addMediaNode(
       parent!,
       before
     )
+    EditorHistoryFunctions.snapshot()
     return entityUUID
   }
   return null

@@ -100,7 +100,7 @@ export const hasPlugin = (material: Material, callback) =>
 
 export const removePlugin = (material: Material, callback) => {
   const pluginIndex = material.plugins?.findIndex((plugin) => plugin === callback)
-  if (pluginIndex !== undefined) material.plugins?.splice(pluginIndex, 1)
+  if (pluginIndex !== undefined && pluginIndex >= 0) material.plugins?.splice(pluginIndex, 1)
 }
 
 export function MaterialNotFoundError(message: string) {
