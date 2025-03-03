@@ -155,7 +155,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
     return () => {
       removeComponent(selfAvatarEntity, VisibleComponent)
     }
-  }, [rig?.bonesToEntities, userAvatar.avatar.modelResource?.url])
+  }, [rig?.bonesToEntities.hips])
 
   useEffect(() => {
     if (isSpectating || !userAvatar) return
@@ -165,6 +165,7 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
         entityUUID: (userID + '_avatar') as any as EntityUUID
       })
     )
+    removeComponent(selfAvatarEntity, VisibleComponent)
   }, [isSpectating, userAvatar])
 
   return null
