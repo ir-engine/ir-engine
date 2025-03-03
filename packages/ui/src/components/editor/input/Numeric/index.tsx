@@ -49,9 +49,6 @@ function toPrecisionString(value: number, precision?: number) {
   return value.toLocaleString('fullwide', { useGrouping: false })
 }
 
-const disableScroll = (event: Event) => {
-  event.stopPropagation()
-}
 export interface NumericInputProp extends Omit<React.HTMLAttributes<HTMLInputElement>, 'onChange' | 'prefix'> {
   value: number
   onChange: (value: number) => void
@@ -160,6 +157,10 @@ const NumericInput = ({
   }
 
   useEffect(() => {
+    const disableScroll = (event: Event) => {
+      event.stopPropagation()
+    }
+
     if (focused.value) {
       window.addEventListener('wheel', disableScroll, { passive: false })
       window.addEventListener('touchmove', disableScroll, { passive: false })
