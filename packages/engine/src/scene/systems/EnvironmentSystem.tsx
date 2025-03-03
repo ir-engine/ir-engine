@@ -74,15 +74,33 @@ const EnvMapReactor = () => {
       {materialComponentEntities.map((materialComponentEntity) => {
         switch (envMapComponent) {
           case 'Skybox':
-            return <EnvMapSkyboxReactor entity={materialComponentEntity} rootEntity={entity} />
+            return (
+              <EnvMapSkyboxReactor entity={materialComponentEntity} rootEntity={entity} key={materialComponentEntity} />
+            )
           case 'Cubemap':
-            return <EnvMapCubemapReactor entity={materialComponentEntity} rootEntity={entity} />
+            return (
+              <EnvMapCubemapReactor
+                entity={materialComponentEntity}
+                rootEntity={entity}
+                key={materialComponentEntity}
+              />
+            )
           case 'Equirectangular':
-            return <EnvMapEquirectangularReactor entity={materialComponentEntity} rootEntity={entity} />
+            return (
+              <EnvMapEquirectangularReactor
+                entity={materialComponentEntity}
+                rootEntity={entity}
+                key={materialComponentEntity}
+              />
+            )
           case 'Color':
-            return <EnvMapColorReactor entity={materialComponentEntity} rootEntity={entity} />
+            return (
+              <EnvMapColorReactor entity={materialComponentEntity} rootEntity={entity} key={materialComponentEntity} />
+            )
           case 'Bake':
-            return <EnvMapBakeReactor entity={materialComponentEntity} rootEntity={entity} />
+            return (
+              <EnvMapBakeReactor entity={materialComponentEntity} rootEntity={entity} key={materialComponentEntity} />
+            )
           case 'Probes':
             return (
               <EnvmapProbesReactor entity={materialComponentEntity} rootEntity={entity} key={materialComponentEntity} />
