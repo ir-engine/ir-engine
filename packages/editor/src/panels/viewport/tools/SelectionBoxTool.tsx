@@ -179,13 +179,13 @@ export default function SelectionBox({
     selectedUUIDs = []
   }
   useEffect(() => {
-    document.addEventListener('mousemove', handleMouseMove as any)
-    document.addEventListener('mouseup', handleMouseUp as any)
-    document.addEventListener('mousedown', handleMouseDown as any)
+    viewportRef.current!.addEventListener('mousemove', handleMouseMove as any)
+    viewportRef.current!.addEventListener('mouseup', handleMouseUp as any)
+    viewportRef.current!.addEventListener('mousedown', handleMouseDown as any)
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove as any)
-      document.removeEventListener('mouseup', handleMouseUp as any)
-      document.removeEventListener('mousedown', handleMouseDown as any)
+      viewportRef.current!.removeEventListener('mousemove', handleMouseMove as any)
+      viewportRef.current!.removeEventListener('mouseup', handleMouseUp as any)
+      viewportRef.current!.removeEventListener('mousedown', handleMouseDown as any)
     }
   }, [isDragging])
   useEffect(() => {}, [getMutableState(SelectionBoxState).selectionBoxEnabled])
