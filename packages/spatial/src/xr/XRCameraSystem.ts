@@ -28,15 +28,16 @@ import { ArrayCamera, PerspectiveCamera, Vector2, Vector3, Vector4 } from 'three
 import { AnimationSystemGroup } from '@ir-engine/ecs'
 import { getComponent, getOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { defineActionQueue, getMutableState, getState } from '@ir-engine/hyperflux'
+import { getState, useMutableState } from '@ir-engine/hyperflux'
 
+import { useEffect } from 'react'
 import { ReferenceSpaceState } from '../ReferenceSpaceState'
 import { CameraComponent } from '../camera/components/CameraComponent'
 import { Vector3_One } from '../common/constants/MathConstants'
 import { RendererComponent } from '../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRRendererState } from './WebXRManager'
-import { ReferenceSpace, XRAction, XRState } from './XRState'
+import { ReferenceSpace, XRState } from './XRState'
 import { XRSystem } from './XRSystem'
 
 const cameraLPos = new Vector3()
@@ -59,8 +60,6 @@ cameraR.rotation._onChangeCallback = () => {}
 cameraR.quaternion._onChangeCallback = () => {}
 
 const cameraPool = [cameraL, cameraR]
-
-const sessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
 /**
  * Assumes 2 cameras that are parallel and share an X-axis, and that
@@ -227,12 +226,6 @@ export function updateXRCamera() {
   const xrState = getState(XRState)
   const session = xrState.session
 
-  for (const action of sessionChangedQueue()) {
-    if (!action.active) {
-      camera.updateProjectionMatrix()
-    }
-  }
-
   if (session === null) {
     camera.cameras = [cameraL]
     cameraL.copy(camera, false)
@@ -264,26 +257,34 @@ export function updateXRCamera() {
   updateProjectionFromCameraArrayUnion(camera)
 }
 
-const xrSessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
-
 const execute = () => {
-  for (const action of xrSessionChangedQueue()) {
-    if (!action.active) {
-      _currentDepthNear = null
-      _currentDepthFar = null
-    }
-  }
-
   const { xrFrame } = getState(XRState)
   if (!xrFrame) return
 
-  getMutableState(XRState).viewerPose.set(ReferenceSpace.localFloor && xrFrame.getViewerPose(ReferenceSpace.localFloor))
+  getState(XRState).viewerPose = ReferenceSpace.localFloor && xrFrame.getViewerPose(ReferenceSpace.localFloor)
 }
 
 export const XRCameraInputSystem = defineSystem({
   uuid: 'ee.engine.XRCameraInputSystem',
   insert: { with: XRSystem },
-  execute
+  execute,
+  reactor: () => {
+    const xrSession = useMutableState(XRState).session.value
+
+    useEffect(() => {
+      if (!xrSession) return
+      return () => {
+        _currentDepthNear = null
+        _currentDepthFar = null
+        const viewerEntity = getState(ReferenceSpaceState).viewerEntity
+        if (!viewerEntity) return
+        const camera = getComponent(viewerEntity, CameraComponent)
+        camera.updateProjectionMatrix()
+      }
+    }, [xrSession])
+
+    return null
+  }
 })
 
 /**

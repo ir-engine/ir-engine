@@ -122,6 +122,7 @@
     "lbl-advanced": "Advanced",
     "gizmo": {
       "pointer": "Pointer",
+      "marquee": "disable orbit camera and enable selection box",
       "description": "Transform Gizmo",
       "translate": "[W] Translate",
       "rotate": "[E] Rotate",
@@ -1528,6 +1529,11 @@
     "saveModel": {
       "title": "Save Changes",
       "text": "Are you sure you want to save changes to this file?"
+    },
+    "savePrefab": {
+      "title": "Save Prefab",
+      "lbl-save-path": "Save Path",
+      "warn-save-path": "Name must be between 4 and 64 characters (with only letters, numbers, underscores, dashes and periods allowed)"
     },
     "revertModel": {
       "lbl-name": "Revert",
