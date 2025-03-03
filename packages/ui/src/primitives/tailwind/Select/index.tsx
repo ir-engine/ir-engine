@@ -253,6 +253,8 @@ const Select = ({
     }
   }
 
+  const inputRef = useRef(null)
+
   return (
     <Popup
       trigger={(isOpen) => (
@@ -302,6 +304,8 @@ const Select = ({
                 )}
               >
                 <input
+                  ref={inputRef}
+                  onBlur={() => inputRef.current && inputRef.current.focus()}
                   onClick={() => {
                     if (!disabled) {
                       togglePopup()
@@ -358,7 +362,7 @@ const Select = ({
       closeOnDocumentClick
       arrow={false}
       ref={popupRef}
-      position={['bottom left', 'top left']}
+      position={['bottom center', 'top center']}
       repositionOnResize={true}
       contentStyle={{ padding: '0px', border: 'none' }}
     >
