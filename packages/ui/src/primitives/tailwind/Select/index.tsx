@@ -249,6 +249,20 @@ const Select = ({
   }
 
   const inputRef = useRef<HTMLInputElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const [positionStyle, setPositionStyle] = useState({})
+
+  useEffect(() => {
+    if (ref.current && contentRef.current) {
+      const refTop = ref.current.getBoundingClientRect().top
+      const contentHeight = contentRef.current.getBoundingClientRect().height
+      const gap = 10
+
+      setPositionStyle({
+        top: `${refTop - contentHeight - gap}px`
+      })
+    }
+  }, [filteredOptions])
 
   return (
     <Popup
@@ -359,9 +373,14 @@ const Select = ({
       ref={popupRef}
       position={['bottom center', 'top center']}
       repositionOnResize={true}
-      contentStyle={{ padding: '0px', border: 'none' }}
+      contentStyle={{
+        padding: '0px',
+        border: 'none',
+        ...positionStyle
+      }}
     >
       <div
+        ref={contentRef}
         className={`z-50 flex flex-col overflow-y-auto overflow-x-hidden rounded-lg`}
         style={{
           width: triggerWidth,
