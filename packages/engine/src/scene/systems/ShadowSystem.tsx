@@ -193,7 +193,6 @@ const EntityCSMReactor = (props: { entity: Entity; rendererEntity: Entity; rende
 
   useEffect(() => {
     if (!csm) return
-    csm.updateFrustums()
     csm.cascades = renderSettingsComponent.cascades.value
     csm.needsUpdate = true
   }, [csm, renderSettingsComponent.cascades])
