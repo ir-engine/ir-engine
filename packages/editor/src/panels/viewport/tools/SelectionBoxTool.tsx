@@ -28,13 +28,17 @@ import {
   EntityTreeComponent,
   EntityUUID,
   UUIDComponent,
+  UndefinedEntity,
   getComponent,
+  getSimulationCounterpart,
   hasComponent,
   setComponent
 } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { defineState, getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import {
   BoundingBoxComponent,
   updateBoundingBox
@@ -150,15 +154,23 @@ export default function SelectionBox({
     const parentEntity = getState(EditorState).rootEntity
     const entities = getComponent(parentEntity, EntityTreeComponent).children
     entities.forEach((entity) => {
-      if (hasComponent(entity, GLTFComponent)) {
-        setComponent(entity, BoundingBoxComponent)
-        updateBoundingBox(entity)
-        const boundingBox = getComponent(entity, BoundingBoxComponent).box
-        const status = frustum.intersectsBox(boundingBox)
-        if (status) {
-          const uuid = getComponent(entity, UUIDComponent)
-          if (!selectedUUIDs.includes(uuid)) {
-            selectedUUIDs.push(uuid)
+      const simulationEntity = getSimulationCounterpart(entity)
+      if (simulationEntity !== UndefinedEntity) {
+        if (
+          hasComponent(simulationEntity, VisibleComponent) &&
+          (hasComponent(simulationEntity, BoundingBoxComponent) ||
+            hasComponent(simulationEntity, MeshComponent) ||
+            hasComponent(simulationEntity, GLTFComponent))
+        ) {
+          setComponent(simulationEntity, BoundingBoxComponent)
+          updateBoundingBox(simulationEntity)
+          const boundingBox = getComponent(simulationEntity, BoundingBoxComponent).box
+          const status = frustum.intersectsBox(boundingBox)
+          if (status) {
+            const uuid = getComponent(entity, UUIDComponent)
+            if (!selectedUUIDs.includes(uuid)) {
+              selectedUUIDs.push(uuid)
+            }
           }
         }
       }
