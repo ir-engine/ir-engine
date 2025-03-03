@@ -177,10 +177,15 @@ const Select = ({
         setDisplayText('')
         return
       }
-    } else {
-      setDisplayText(filteredOptions[index].label)
     }
   }, [localValue, selectedOptionIndex, filteredOptions])
+
+  useEffect(() => {
+    const index = filteredOptions.findIndex((option) => option.value === localValue)
+    if (index !== -1) {
+      setDisplayText(filteredOptions[index].label)
+    }
+  }, [])
 
   useEffect(() => {
     if (searchString === '') {
