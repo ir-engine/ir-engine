@@ -252,11 +252,11 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
   const clientSettingQuery = useFind(clientSettingPath)
   const clientSetting = clientSettingQuery.data[0]
 
-  const maxResolution = clientSetting?.mediaSettings.video.maxResolution
-
   const immersiveMedia = useMutableState(MediaSettingsState).immersiveMedia.value
 
   if (!clientSetting) return null
+
+  const maxResolution = clientSetting.mediaSettings.video.maxResolution
 
   return (
     <WebRTCPeerConnection
