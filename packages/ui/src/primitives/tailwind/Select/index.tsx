@@ -253,7 +253,7 @@ const Select = ({
     }
   }
 
-  const inputRef = useRef(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   return (
     <Popup
