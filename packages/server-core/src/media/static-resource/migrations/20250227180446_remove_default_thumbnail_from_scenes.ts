@@ -23,44 +23,32 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import type { Knex } from 'knex'
 
-import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { InputSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
-import { getMutableState } from '@ir-engine/hyperflux'
-
-import { XRState } from './XRState'
+export const staticResourcePath = 'static-resource'
 
 /**
- * System for XR session and input handling
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
  */
+export async function up(knex: Knex): Promise<void> {
+  await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-const updateSessionSupportForMode = (mode: XRSessionMode) => {
-  navigator.xr
-    ?.isSessionSupported(mode)
-    .then((supported) => getMutableState(XRState).supportedSessionModes[mode].set(supported))
+  const tableExists = await knex.schema.hasTable(staticResourcePath)
+
+  if (tableExists) {
+    await knex(staticResourcePath)
+      .whereNot('project', 'ir-engine/default-project')
+      .andWhere('type', 'scene')
+      .andWhere('thumbnailKey', 'projects/ir-engine/default-project/public/scenes/default.thumbnail.jpg')
+      .update({ thumbnailKey: null })
+  }
+
+  await knex.raw('SET FOREIGN_KEY_CHECKS=1')
 }
 
-const updateSessionSupport = () => {
-  updateSessionSupportForMode('inline')
-  updateSessionSupportForMode('immersive-ar')
-  updateSessionSupportForMode('immersive-vr')
-}
-
-const reactor = () => {
-  useEffect(() => {
-    navigator.xr?.addEventListener('devicechange', updateSessionSupport)
-    updateSessionSupport()
-
-    return () => {
-      navigator.xr?.removeEventListener('devicechange', updateSessionSupport)
-    }
-  }, [])
-  return null
-}
-
-export const XRSystem = defineSystem({
-  uuid: 'ee.engine.XRSystem',
-  insert: { before: InputSystemGroup },
-  reactor
-})
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {}
