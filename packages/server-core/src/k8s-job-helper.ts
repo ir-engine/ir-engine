@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { apiJobPath } from '@ir-engine/common/src/schemas/cluster/api-job.schema'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { getState } from '@ir-engine/hyperflux'
-import * as k8s from '@kubernetes/client-node'
+import { V1Job } from '@kubernetes/client-node'
 import { Application } from '../declarations'
 import { ServerState } from './ServerState'
 import config from './appconfig'
@@ -34,7 +34,7 @@ import { getPodsData } from './cluster/pods/pods-helper'
 
 export const createExecutorJob = async (
   app: Application,
-  jobBody: k8s.V1Job,
+  jobBody: V1Job,
   jobLabelSelector: string,
   timeout: number,
   jobId: string,
@@ -85,7 +85,7 @@ export async function getJobBody(
   name: string,
   labels: { [key: string]: string },
   ttlSecondsAfterFinished = 86400 // This value is 1 day
-): Promise<k8s.V1Job> {
+): Promise<V1Job> {
   const apiPods = await getPodsData(
     `app.kubernetes.io/instance=${config.server.releaseName},app.kubernetes.io/component=api`,
     'api',
@@ -100,7 +100,7 @@ export async function getJobBody(
 
   name = getValidPodName(name)
 
-  const jobSpec: k8s.V1Job = {
+  const jobSpec: V1Job = {
     metadata: {
       name,
       labels

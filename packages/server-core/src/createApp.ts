@@ -27,7 +27,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { feathers } from '@feathersjs/feathers'
 import { bodyParser, errorHandler, koa, rest } from '@feathersjs/koa'
-import * as k8s from '@kubernetes/client-node'
+import { AppsV1Api, BatchV1Api, CoreV1Api, CustomObjectsApi, KubeConfig } from '@kubernetes/client-node'
 import { EventEmitter } from 'events'
 // Do not delete, this is used even if some IDEs show it as unused
 import swagger from 'feathers-swagger'
@@ -146,14 +146,14 @@ export const configureRedis = () => (app: Application) => {
 
 export const configureK8s = () => (app: Application) => {
   if (appConfig.kubernetes.enabled) {
-    const kc = new k8s.KubeConfig()
+    const kc = new KubeConfig()
     kc.loadFromDefault()
     const serverState = getMutableState(ServerState)
 
-    const k8AgonesClient = kc.makeApiClient(k8s.CustomObjectsApi)
-    const k8DefaultClient = kc.makeApiClient(k8s.CoreV1Api)
-    const k8AppsClient = kc.makeApiClient(k8s.AppsV1Api)
-    const k8BatchClient = kc.makeApiClient(k8s.BatchV1Api)
+    const k8AgonesClient = kc.makeApiClient(CustomObjectsApi)
+    const k8DefaultClient = kc.makeApiClient(CoreV1Api)
+    const k8AppsClient = kc.makeApiClient(AppsV1Api)
+    const k8BatchClient = kc.makeApiClient(BatchV1Api)
 
     serverState.merge({
       k8AppsClient,

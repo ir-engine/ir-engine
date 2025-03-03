@@ -27,7 +27,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { v1 } from '@google-cloud/artifact-registry'
 import config from '@ir-engine/server-core/src/appconfig'
-import * as k8s from '@kubernetes/client-node'
+import { CoreV1Api, KubeConfig } from '@kubernetes/client-node'
 import cli from 'cli'
 
 cli.enable('status')
@@ -95,9 +95,9 @@ cli.main(async () => {
       excludedImageUris = [] as string[],
       currentImages = [] as string[]
     if (options.service !== 'builder') {
-      const kc = new k8s.KubeConfig()
+      const kc = new KubeConfig()
       kc.loadFromDefault()
-      const k8DefaultClient = kc.makeApiClient(k8s.CoreV1Api)
+      const k8DefaultClient = kc.makeApiClient(CoreV1Api)
       if (options.service === 'instanceserver') {
         matchingPods = await getAllPods(k8DefaultClient, undefined, `agones.dev/role=gameserver`, [])
         const releaseAnnotation = `${options.releaseName}-instanceserver`

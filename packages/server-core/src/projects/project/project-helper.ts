@@ -33,7 +33,7 @@ import { fromIni } from '@aws-sdk/credential-providers'
 import { BadRequest, Forbidden, NotFound } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { v1 } from '@google-cloud/artifact-registry'
-import * as k8s from '@kubernetes/client-node'
+import { V1CronJob, V1Job } from '@kubernetes/client-node'
 import { Octokit, RestEndpointMethodTypes } from '@octokit/rest'
 import appRootPath from 'app-root-path'
 import { exec } from 'child_process'
@@ -989,7 +989,7 @@ export async function getProjectUpdateJobBody(
   jobId: string,
   userId?: string,
   token?: string
-): Promise<k8s.V1Job> {
+): Promise<V1Job> {
   const command = [
     'npx',
     'ts-node',
@@ -1056,7 +1056,7 @@ export async function getProjectPushJobBody(
   jobId: string,
   commitSHA?: string,
   storageProviderName?: string
-): Promise<k8s.V1Job> {
+): Promise<V1Job> {
   const command = [
     'npx',
     'ts-node',
@@ -1098,7 +1098,7 @@ export async function getProjectPushJobBody(
 export const getCronJobBody = (project: ProjectType, image: string): object => {
   const projectJobName = cleanProjectName(project.name)
 
-  const jobSpec: k8s.V1CronJob = {
+  const jobSpec: V1CronJob = {
     metadata: {
       name: getValidPodName(`${process.env.RELEASE_NAME}-auto-update-${projectJobName}`),
       labels: {
@@ -1171,11 +1171,7 @@ export const getCronJobBody = (project: ProjectType, image: string): object => {
   return jobSpec
 }
 
-export async function getDirectoryArchiveJobBody(
-  app: Application,
-  projectName: string,
-  jobId: string
-): Promise<k8s.V1Job> {
+export async function getDirectoryArchiveJobBody(app: Application, projectName: string, jobId: string): Promise<V1Job> {
   const command = [
     'npx',
     'ts-node',

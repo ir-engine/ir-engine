@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors/lib'
-import * as k8s from '@kubernetes/client-node'
+import { V1ContainerStatus, V1Pod } from '@kubernetes/client-node'
 
 import { PodsType, ServerContainerInfoType, ServerPodInfoType } from '@ir-engine/common/src/schemas/cluster/pods.schema'
 import { instancePath, InstanceType } from '@ir-engine/common/src/schemas/networking/instance.schema'
@@ -193,13 +193,13 @@ const getGameserversData = async (labelSelector: string, id: string, label: stri
   }
 }
 
-const getServerPodsInfo = (items: k8s.V1Pod[]) => {
+const getServerPodsInfo = (items: V1Pod[]) => {
   return items.map((item) => {
     return getServerPodInfo(item)
   })
 }
 
-const getServerPodInfo = (item: k8s.V1Pod) => {
+const getServerPodInfo = (item: V1Pod) => {
   return {
     name: item.metadata?.name,
     status: item.status?.phase,
@@ -208,7 +208,7 @@ const getServerPodInfo = (item: k8s.V1Pod) => {
   } as ServerPodInfoType
 }
 
-const getServerContainerInfo = (items: k8s.V1ContainerStatus[]) => {
+const getServerContainerInfo = (items: V1ContainerStatus[]) => {
   return items.map((item) => {
     return {
       name: item.name,

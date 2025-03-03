@@ -37,7 +37,7 @@ import { createFeathersKoaApp, serverJobPipe } from '@ir-engine/server-core/src/
 import { getValidPodName } from '@ir-engine/server-core/src/k8s-job-helper'
 import { getCronJobBody } from '@ir-engine/server-core/src/projects/project/project-helper'
 import { ServerMode, ServerState } from '@ir-engine/server-core/src/ServerState'
-import * as k8s from '@kubernetes/client-node'
+import { createConfiguration } from '@kubernetes/client-node'
 
 dotenv.config({
   path: appRootPath.path,
@@ -95,7 +95,7 @@ cli.main(async () => {
             post: async (responseContext) => responseContext
           })
 
-          const configuration = new k8s.createConfiguration({
+          const configuration = new createConfiguration({
             // uncomment once https://github.com/kubernetes-client/javascript/issues/2160 is resolved
             // middleware: [headerPatchMiddleware],
           })
