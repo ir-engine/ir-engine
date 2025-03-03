@@ -43,10 +43,10 @@ import {
 
 export const appendBaseUrl = () => {
   return async (context: HookContext) => {
-    const baseUrl = config.aws.s3.endpoint
-    const bucketName = config.aws.s3.staticResourceBucket
     if (context.result) {
       if (Array.isArray(context.result.data)) {
+        const baseUrl = config.aws.s3.endpoint
+        const bucketName = config.aws.s3.staticResourceBucket
         context.result = context.result.data.map((item) => ({
           ...item,
           filePath: `${baseUrl}/${bucketName}${item.filePath}`
