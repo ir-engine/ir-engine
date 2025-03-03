@@ -33,7 +33,10 @@ import {
   getComponent,
   getOptionalComponent,
   PresentationSystemGroup,
+  removeComponent,
+  setComponent,
   useHasComponent,
+  useOptionalComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
@@ -54,9 +57,11 @@ import { SpectateActions } from '@ir-engine/spatial/src/camera/systems/SpectateS
 import { useFind, useMutation } from '@ir-engine/common'
 import { avatarPath, userAvatarPath } from '@ir-engine/common/src/schema.type.module'
 import { EngineState, useChildrenWithComponents } from '@ir-engine/ecs'
+import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { SearchParamState } from '../common/services/RouterService'
 import { useLoadedSceneEntity } from '../hooks/useLoadedSceneEntity'
 import { LocationState } from '../social/services/LocationService'
@@ -141,6 +146,16 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
     const randomAvatar = avatarsQuery.data[Math.floor(Math.random() * avatarsQuery.data.length)]
     userAvatarMutation.patch(null, { avatarId: randomAvatar.id }, { query: { userId: userID } })
   }, [errorWithAvatar])
+
+  // hide avatar until the rig is set up to prevent visible tposing
+  const rig = useOptionalComponent(selfAvatarEntity, AvatarRigComponent)
+  useEffect(() => {
+    if (!rig?.bonesToEntities.hips) return
+    setComponent(selfAvatarEntity, VisibleComponent)
+    return () => {
+      removeComponent(selfAvatarEntity, VisibleComponent)
+    }
+  }, [rig?.bonesToEntities, userAvatar.avatar.modelResource?.url])
 
   useEffect(() => {
     if (isSpectating || !userAvatar) return
