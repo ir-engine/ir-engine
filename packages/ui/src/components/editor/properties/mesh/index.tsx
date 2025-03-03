@@ -27,47 +27,26 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, Layers } from '@ir-engine/ecs/src/ComponentFunctions'
+import { getComponent, Layers, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { EditorComponentType } from '@ir-engine/editor/src/components/properties/Util'
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import MaterialEditor from '@ir-engine/editor/src/panels/properties/materialeditor'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { GiMeshBall } from 'react-icons/gi'
-import { Material } from 'three'
 import Accordion from '../../../../primitives/tailwind/Accordion'
 import GeometryEditor from './geometryEditor'
 
-const materialIsInAuthoringLayer = (material: Material): boolean => {
-  return !!UUIDComponent.getEntityByUUID(material.uuid as EntityUUID, Layers.Authoring)
+const materialIsInAuthoringLayer = (materialUUID: EntityUUID): boolean => {
+  return !!UUIDComponent.getEntityByUUID(materialUUID, Layers.Authoring)
 }
 
 const MeshNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
   const entity = props.entity
   const { t } = useTranslation()
   const meshComponent = getComponent(entity, MeshComponent)
-
-  const materialEditor = () => {
-    if (Array.isArray(meshComponent?.material) && meshComponent.material.length > 0) {
-      return meshComponent.material.map((material) => {
-        if (!materialIsInAuthoringLayer(material)) return null
-        return (
-          <Accordion title={t('editor:properties.mesh.materialEditor')} key={material.uuid}>
-            <MaterialEditor materialUUID={material.uuid as EntityUUID} />
-          </Accordion>
-        )
-      })
-    } else if ((meshComponent?.material as Material)?.uuid) {
-      if (!materialIsInAuthoringLayer(meshComponent.material as Material)) return null
-      return (
-        <Accordion title={t('editor:properties.mesh.materialEditor')}>
-          <MaterialEditor materialUUID={(meshComponent.material as Material).uuid as EntityUUID} />
-        </Accordion>
-      )
-    }
-
-    return null
-  }
+  const materialInstanceComponent = useComponent(entity, MaterialInstanceComponent)
 
   return (
     <NodeEditor
@@ -79,7 +58,14 @@ const MeshNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
       <Accordion title={t('editor:properties.mesh.geometryEditor')}>
         <GeometryEditor geometry={meshComponent?.geometry ?? null} />
       </Accordion>
-      {materialEditor()}
+      {materialInstanceComponent.value.uuid.map((materialUUID) => {
+        if (!materialIsInAuthoringLayer(materialUUID)) return null
+        return (
+          <Accordion title={t('editor:properties.mesh.materialEditor')} key={materialUUID}>
+            <MaterialEditor materialUUID={materialUUID} />
+          </Accordion>
+        )
+      })}
     </NodeEditor>
   )
 }
