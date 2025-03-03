@@ -155,16 +155,11 @@ const Select = ({
     }
   }, [labelProps])
 
-  // useEffect(() => {
-  //   setSearchString('')
-  // }, [selectedOptionIndex])
+  useEffect(() => {
+    setSearchString('')
+  }, [selectedOptionIndex])
 
   useEffect(() => {
-    // if (localValue === '') {
-    //   setDisplayText('')
-    //   return
-    // }
-
     if (
       0 <= selectedOptionIndex &&
       selectedOptionIndex < filteredOptions.length &&
