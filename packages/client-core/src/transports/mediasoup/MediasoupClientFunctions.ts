@@ -23,8 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import * as mediasoupClient from 'mediasoup-client'
-import {
+import type {
   Consumer,
   DataProducer,
   DtlsParameters,
@@ -126,7 +125,13 @@ export const closeNetwork = (network: SocketWebRTCClientNetwork) => {
   removeNetwork(network)
 }
 
-export const initializeNetwork = (id: InstanceID, hostPeerID: PeerID, topic: Topic, primus: Primus) => {
+export const initializeNetwork = (
+  id: InstanceID,
+  hostPeerID: PeerID,
+  topic: Topic,
+  primus: Primus,
+  mediasoupClient: Awaited<typeof import('mediasoup-client')>
+) => {
   const mediasoupDevice = new mediasoupClient.Device(
     navigator.userAgent === BotUserAgent ? { handlerName: 'Chrome74' } : undefined
   )
@@ -392,7 +397,9 @@ export const connectToNetwork = async (
   const existingNetwork = getState(NetworkState).networks[instanceID]
   if (!existingNetwork) {
     getMutableState(NetworkState).hostIds[topic].set(instanceID)
-    const network = initializeNetwork(instanceID, hostPeerID, topic, primus)
+
+    const mediasoupClient = await import('mediasoup-client')
+    const network = initializeNetwork(instanceID, hostPeerID, topic, primus, mediasoupClient)
     addNetwork(network)
   }
 
