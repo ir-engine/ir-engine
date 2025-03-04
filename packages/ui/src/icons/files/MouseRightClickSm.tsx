@@ -23,23 +23,30 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Tooltip as MuiTooltip, TooltipProps } from '@mui/material'
-import React from 'react'
-
-import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
-import IconButton from '@ir-engine/ui/src/primitives/mui/IconButton'
-
-const Tooltip = ({ children, ...props }: TooltipProps) => (
-  <MuiTooltip {...props}>
-    <span>{children}</span>
-  </MuiTooltip>
+import type { SVGProps } from 'react'
+import * as React from 'react'
+import { Ref, forwardRef } from 'react'
+const MouseRightClickSm = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="1em"
+    height="1em"
+    fill="none"
+    viewBox="0 0 16 16"
+    role="img"
+    stroke="currentColor"
+    ref={ref}
+    {...props}
+  >
+    <path
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.5}
+      d="M8 1.333A4.667 4.667 0 0 0 3.332 6v4a4.667 4.667 0 1 0 9.333 0V6M7.999 1.333A4.667 4.667 0 0 1 12.666 6M7.999 1.333V6h4.667"
+    />
+    <path fill="#F7F8FA" d="M8.334 5.667V1.333s1.785.432 2.667 1c1.178.76 1.333 3.334 1.333 3.334z" />
+  </svg>
 )
-
-Tooltip.displayName = 'Tooltip'
-
-Tooltip.defaultProps = {
-  children: <IconButton icon={<Icon type="Menu" />} />,
-  title: 'Tooltip'
-}
-
-export default Tooltip
+const ForwardRef = forwardRef(MouseRightClickSm)
+export default ForwardRef

@@ -16,38 +16,6 @@
   }
 
   :global {
-    .MuiInputLabel-formControl,
-    .MuiInputLabel-root {
-      -webkit-text-fill-color: var(--textColor);
-      color: var(--textColor);
-      transform-origin: top left;
-      -webkit-transform: translate(14px, -9px) scale(0.75);
-      -ms-transform: translate(14px, -9px) scale(0.75);
-      transform: translate(14px, -9px) scale(0.75);
-      position: absolute;
-      padding-left: 5px;
-      padding-right: 5px;
-      max-width: fit-content;
-      font-size: 16px;
-      margin-left: -5px;
-      margin-bottom: 7px;
-    }
-
-    .MuiSvgIcon-root,
-    .MuiInputBase-input {
-      -webkit-text-fill-color: var(--textColor);
-      color: var(--textColor);
-    }
-
-    .MuiOutlinedInput-notchedOutline {
-      border-color: var(--inputOutline) !important;
-
-      legend {
-        visibility: visible;
-        max-width: fit-content;
-      }
-    }
-
     input:placeholder-shown {
       font-style: italic;
     }

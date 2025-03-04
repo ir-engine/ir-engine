@@ -39,6 +39,7 @@ import { WidgetAppActions } from './WidgetAppService'
 import { Widget, Widgets } from './Widgets'
 
 import { defineQuery } from '@ir-engine/ecs'
+import { Pin02Lg } from '@ir-engine/ui/src/icons'
 import { AnchorWidgetUI } from './ui/AnchorWidgetUI'
 
 const instanceSourceQuery = defineQuery([InputSourceComponent])
@@ -51,7 +52,7 @@ export function createAnchorWidget() {
   const widget: Widget = {
     ui,
     label: 'World Anchor',
-    icon: 'Anchor',
+    icon: Pin02Lg,
     onOpen: () => {
       xrState.scenePlacementMode.set('placing')
       dispatchAction(WidgetAppActions.showWidgetMenu({ shown: false }))
