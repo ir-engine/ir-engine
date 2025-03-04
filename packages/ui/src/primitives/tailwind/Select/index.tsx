@@ -252,7 +252,6 @@ const Select = ({
     }
   }
 
-  const inputRef = useRef<HTMLInputElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const [positionStyle, setPositionStyle] = useState({})
 
@@ -317,7 +316,6 @@ const Select = ({
                 )}
               >
                 <input
-                  ref={inputRef}
                   onClick={() => {
                     if (!disabled) {
                       togglePopup()
