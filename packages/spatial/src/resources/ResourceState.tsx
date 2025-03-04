@@ -252,7 +252,7 @@ const resourceCallbacks = {
           setTimeout(() => {
             asset.source.data = null
             asset.mipmaps = []
-          }, 100)
+          }, 500)
         }
       }
       if ((asset as CompressedTexture).isCompressedTexture && discardUponUpload) {

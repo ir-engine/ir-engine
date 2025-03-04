@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEffect, useLayoutEffect } from 'react'
+import { useLayoutEffect } from 'react'
 
 import { createEntity, entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs'
 import {
@@ -60,21 +60,14 @@ export const SpawnPointComponent = defineComponent({
     const renderState = useMutableState(RendererState)
     const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
 
-    const debugEnabled =
-      renderState.nodeHelperVisibility.value ||
-      (activeHelperComponent !== undefined && activeHelperComponent.enabled.value)
+    const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
 
     const debugGLTF = useGLTFComponent(debugEnabled ? GLTF_PATH : '', entity)
-
-    useEffect(() => {
-      setComponent(entity, ActiveHelperComponent, { directional: true })
-    }, [])
 
     useLayoutEffect(() => {
       if (!debugGLTF || !debugEnabled) return
 
       const boundsHelperEntity = createEntity()
-      setComponent(entity, ActiveHelperComponent, { helperSelectedGizmo: boundsHelperEntity })
       setComponent(boundsHelperEntity, TransformComponent)
       setComponent(boundsHelperEntity, EntityTreeComponent, { parentEntity: entity })
       setComponent(boundsHelperEntity, VisibleComponent)

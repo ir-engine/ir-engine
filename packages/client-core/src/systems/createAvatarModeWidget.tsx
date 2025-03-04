@@ -40,6 +40,7 @@ import { EntityNetworkState } from '@ir-engine/network'
 import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { computeTransformMatrix } from '@ir-engine/spatial/src/transform/systems/TransformSystem'
+import { User01Lg } from '@ir-engine/ui/src/icons'
 import { Quaternion, Vector3 } from 'three'
 import { Widget, Widgets } from './Widgets'
 
@@ -50,7 +51,7 @@ export function createAvatarModeWidget() {
   const widget: Widget = {
     ui,
     label: 'Avatar Mode',
-    icon: 'Person',
+    icon: User01Lg,
     onOpen: () => {
       const avatarEntity = AvatarComponent.getSelfAvatarEntity()
       const currentParent = getComponent(avatarEntity, EntityTreeComponent).parentEntity

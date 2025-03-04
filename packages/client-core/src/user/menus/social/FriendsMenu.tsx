@@ -202,7 +202,6 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
     return (
       <div key={user.id} className="m-2 flex items-center gap-2 text-text-secondary hover:text-text-primary">
         <AvatarImage src={thumbnail} size="medium" />
-
         <Text className="w-full">{userName}</Text>
 
         {user.relationType === 'friend' && (

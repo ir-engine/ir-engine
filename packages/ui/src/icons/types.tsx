@@ -23,6 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-
-export const ActiveHelperComponent = defineComponent({ name: 'ActiveHelperComponent' })
+export type SVGIconType = React.ForwardRefExoticComponent<
+  Omit<React.SVGProps<SVGSVGElement>, 'ref'> & React.RefAttributes<SVGSVGElement>
+>
