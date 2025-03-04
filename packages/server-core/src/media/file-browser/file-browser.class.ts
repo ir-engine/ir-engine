@@ -47,7 +47,7 @@ import { isValidFileExtension, isValidFileName, isValidFilePath } from '@ir-engi
 import isValidSceneName from '@ir-engine/common/src/utils/validateSceneName'
 
 import { BadRequest } from '@feathersjs/errors/lib'
-import { PROJECT_CAPTURE_REGEX, PROJECT_REGEX } from '@ir-engine/common/src/regex'
+import { PROJECT_CAPTURE_REGEX, PROJECT_REGEX, TRAILING_SLASH_REGEX } from '@ir-engine/common/src/regex'
 import { copyFolderRecursiveSync } from '@ir-engine/common/src/utils/fsHelperFunctions'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -333,8 +333,8 @@ export class FileBrowserService
           data.newProject
       )
 
-    const oldFullPath = `${data.oldPath}${data.oldName}/`.replace(/\/+$/, '') // Ensure consistent format
-    const newFullPath = data.newPath.replace(/\/+$/, '')
+    const oldFullPath = `${data.oldPath}${data.oldName}/`.replace(TRAILING_SLASH_REGEX, '')
+    const newFullPath = data.newPath.replace(TRAILING_SLASH_REGEX, '')
 
     if (oldFullPath === newFullPath || newFullPath.startsWith(oldFullPath + '/')) {
       throw new Error('Cannot move a folder into itself or its own subfolder')

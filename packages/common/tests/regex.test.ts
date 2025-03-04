@@ -22,7 +22,6 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import assert from 'assert'
 import { describe, it } from 'vitest'
 import {
   ASSETS_REGEX,
@@ -37,6 +36,8 @@ import {
   PROJECT_REGEX,
   PROJECT_THUMBNAIL_REGEX,
   PUBLIC_SIGNED_REGEX,
+  REMOVE_EDGE_SLASH_REGEX,
+  TRAILING_SLASH_REGEX,
   UNIQUEIFIED_VITE_KEY_REGEX,
   USER_ID_REGEX,
   VALID_FILENAME_REGEX,
@@ -738,6 +739,71 @@ describe('regex.test', () => {
           UNIQUEIFIED_VITE_KEY_REGEX,
           `Expected '${item}' to not match UNIQUEIFIED_VITE_KEY_REGEX`
         )
+      })
+    })
+  })
+
+  describe('REMOVE_EDGE_SLASH_REGEX', () => {
+    it('should remove leading and trailing slashes', () => {
+      const positiveCases = [
+        { input: '/path/to/folder/', expected: 'path/to/folder' },
+        { input: '/leading/slash', expected: 'leading/slash' },
+        { input: 'trailing/slash/', expected: 'trailing/slash' },
+        { input: '/both/slashes/', expected: 'both/slashes' },
+        { input: '////multiple/slashes///', expected: 'multiple/slashes' }
+      ]
+
+      positiveCases.forEach(({ input, expected }) => {
+        const result = input.replace(REMOVE_EDGE_SLASH_REGEX, '')
+        assert.strictEqual(result, expected, `Expected '${input}' to become '${expected}'`)
+      })
+    })
+
+    it('should not modify strings without edge slashes', () => {
+      const negativeCases = ['path/to/folder', 'file.txt', 'nested/path', 'no/slashes/at/edges']
+
+      negativeCases.forEach((input) => {
+        const result = input.replace(REMOVE_EDGE_SLASH_REGEX, '')
+        assert.strictEqual(result, input, `Expected '${input}' to remain unchanged`)
+      })
+    })
+
+    it('should handle strings with only slashes', () => {
+      const singleSlashCases = [
+        { input: '/', expected: '' },
+        { input: '///', expected: '' },
+        { input: '//////', expected: '' }
+      ]
+
+      singleSlashCases.forEach(({ input, expected }) => {
+        const result = input.replace(REMOVE_EDGE_SLASH_REGEX, '')
+        assert.strictEqual(result, expected, `Expected '${input}' to become '${expected}'`)
+      })
+    })
+  })
+
+  describe('TRAILING_SLASH_REGEX', () => {
+    it('should remove trailing slashes from paths', () => {
+      const positiveCases = [
+        { input: 'path/to/folder/', expected: 'path/to/folder' },
+        { input: 'path/', expected: 'path' },
+        { input: 'path//', expected: 'path' },
+        { input: '/leading-and-trailing/', expected: '/leading-and-trailing' },
+        { input: 'multiple/slashes////', expected: 'multiple/slashes' }
+      ]
+
+      positiveCases.forEach(({ input, expected }) => {
+        const result = input.replace(TRAILING_SLASH_REGEX, '')
+        assert.strictEqual(result, expected, `Expected '${input}' to become '${expected}'`)
+      })
+    })
+
+    it('should not modify paths without trailing slashes', () => {
+      const negativeCases = ['path/to/folder', 'file.txt', '/root/path', 'another/path.with.dots', '']
+
+      negativeCases.forEach((input) => {
+        const result = input.replace(TRAILING_SLASH_REGEX, '')
+        assert.strictEqual(result, input, `Expected '${input}' to remain unchanged`)
       })
     })
   })
