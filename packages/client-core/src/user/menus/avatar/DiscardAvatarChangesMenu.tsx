@@ -54,7 +54,7 @@ export const DiscardAvatarChangesMenu = ({ handleConfirm, handleCancel }: Props)
             <GoAlert className="m-auto text-3xl text-ui-hover-error" />
           </div>
           <div className="flex flex-col items-center justify-center">
-            <Text fontSize="xl" fontWeight="bold" className="capitalize text-text-primary">
+            <Text fontSize="xl" fontWeight="medium" className="capitalize text-text-primary">
               {t('user:avatar.discardAvatarChanges')}
             </Text>
             <Text fontSize="base" className="mt-2 text-text-secondary">

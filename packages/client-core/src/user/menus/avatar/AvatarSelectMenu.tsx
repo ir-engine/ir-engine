@@ -39,11 +39,9 @@ import { useTranslation } from 'react-i18next'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { Button, Input } from '@ir-engine/ui'
-import { UserPlus01Sm } from '@ir-engine/ui/src/icons'
+import { ArrowLeftMd, UserPlus01Sm, XCloseMd } from '@ir-engine/ui/src/icons'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import { IoArrowBackOutline } from 'react-icons/io5'
-import { MdClose } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { AuthService, AuthState } from '../../services/AuthService'
@@ -180,7 +178,7 @@ const AvatarSelectMenu = forwardRef(({ showBackButton, previewEnabled = true }: 
                 className=" h-6 w-6 cursor-pointer self-center bg-transparent text-text-primary hover:bg-transparent focus:bg-transparent"
                 onClick={handleClose}
               >
-                <IoArrowBackOutline size={16} />
+                <ArrowLeftMd />
               </button>
             )}
             <Text className="col-start-2 place-self-center self-center text-text-primary">
@@ -191,7 +189,7 @@ const AvatarSelectMenu = forwardRef(({ showBackButton, previewEnabled = true }: 
               className="h-6 w-6 cursor-pointer self-center bg-transparent  text-text-primary hover:bg-transparent focus:bg-transparent"
               onClick={handleClose}
             >
-              <MdClose size={16} />
+              <XCloseMd />
             </button>
           </div>
           <div

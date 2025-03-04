@@ -33,11 +33,10 @@ import { getCanvasBlob } from '@ir-engine/client-core/src/common/utils'
 import multiLogger from '@ir-engine/common/src/logger'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { Button, Input } from '@ir-engine/ui'
+import { ArrowLeftMd, XCloseMd } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import { IoArrowBackOutline } from 'react-icons/io5'
-import { MdClose } from 'react-icons/md'
 import AvatarPreview from '../../../common/components/AvatarPreview'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../util/avatarIdFunctions'
@@ -283,7 +282,7 @@ const AvatarCreatorMenu = (selectedSdk: string) =>
                 className=" h-6 w-6 cursor-pointer self-center bg-transparent text-text-primary hover:bg-transparent focus:bg-transparent"
                 onClick={handleClose}
               >
-                <IoArrowBackOutline size={16} />
+                <ArrowLeftMd />
               </button>
               <Text className="col-start-2  place-self-center self-center text-text-primary">
                 {loading.value !== LoadingState.Uploading
@@ -295,7 +294,7 @@ const AvatarCreatorMenu = (selectedSdk: string) =>
                 className=" h-6 w-6 cursor-pointer self-center bg-transparent text-text-primary hover:bg-transparent focus:bg-transparent"
                 onClick={handleClose}
               >
-                <MdClose size={16} />
+                <XCloseMd />
               </button>
             </div>
             <div className="grid h-full w-full flex-1 grid-cols-[1fr,50%,1fr] gap-6 px-5 pb-2">
