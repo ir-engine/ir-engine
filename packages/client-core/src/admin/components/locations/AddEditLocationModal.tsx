@@ -54,7 +54,6 @@ import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/M
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -287,7 +286,7 @@ export default function AddEditLocationModal(props: {
             compressionProgress.set({ progress, caption })
           }
         )
-        const result = createSceneEntity('container')
+        // const result = createSceneEntity('container')
         // const variant = createSceneEntity('LOD Variant', result)
         // const heuristic = Heuristic.DISTANCE
         // setComponent(variant, VariantComponent, {
