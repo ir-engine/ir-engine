@@ -43,11 +43,11 @@ import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/com
 import { MathUtils, Raycaster, Vector3 } from 'three'
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
 import { TransformGizmoControlledComponent } from '../classes/gizmo/transform/TransformGizmoControlledComponent'
-import { controlUpdate, gizmoUpdate, planeUpdate } from '../functions/transformGizmoHelper'
+import { controlUpdate, planeUpdate, transformGizmoUpdate } from '../functions/gizmos/transformGizmoHelper'
 import { EditorHelperState } from '../services/EditorHelperState'
 import { SelectionState } from '../services/SelectionServices'
 
-const transformGizmoControllerQuery = defineQuery([TransformGizmoControlComponent])
+export const transformGizmoControllerQuery = defineQuery([TransformGizmoControlComponent])
 
 const execute = () => {
   for (const gizmoEntity of transformGizmoControllerQuery()) {
@@ -55,7 +55,7 @@ const execute = () => {
     if (!gizmoControlComponent.enabled) return
 
     if (!gizmoControlComponent.visualEntity) return
-    gizmoUpdate(gizmoEntity)
+    transformGizmoUpdate(gizmoEntity)
     if (!gizmoControlComponent.planeEntity) return
     planeUpdate(gizmoEntity)
     controlUpdate(gizmoEntity)
@@ -74,8 +74,8 @@ const gizmoPickerObjectsQuery = defineQuery([
 //prevent query from detecting CameraGizmoVisualEntity which has no ObjectComponent but has CameraGizmoTagComponent
 const cameraGizmoQuery = defineQuery([CameraGizmoTagComponent, InputComponent, VisibleComponent, ObjectComponent])
 
-const raycaster = new Raycaster()
-raycaster.layers.enable(ObjectLayers.Gizmos)
+const _raycaster = new Raycaster()
+_raycaster.layers.enable(ObjectLayers.Gizmos)
 
 export function editorInputHeuristic(intersectionData: Set<IntersectionData>, position: Vector3, direction: Vector3) {
   const isEditing = getState(EngineState).isEditing
@@ -84,7 +84,7 @@ export function editorInputHeuristic(intersectionData: Set<IntersectionData>, po
   const gizmoEnabled = getState(EditorHelperState).gizmoEnabled
   if (!gizmoEnabled) return
 
-  raycaster.set(position, direction)
+  _raycaster.set(position, direction)
 
   const pickerObj = gizmoPickerObjectsQuery() // gizmo heuristic
   const cameraGizmo = cameraGizmoQuery() //camera gizmo heuristic
@@ -101,10 +101,10 @@ export function editorInputHeuristic(intersectionData: Set<IntersectionData>, po
 
   //camera gizmos layer should always be active here, since it doesn't disable based on transformGizmo existing
   pickerObj.length > 0
-    ? raycaster.layers.enable(ObjectLayers.TransformGizmo)
-    : raycaster.layers.disable(ObjectLayers.TransformGizmo)
+    ? _raycaster.layers.enable(ObjectLayers.TransformGizmo)
+    : _raycaster.layers.disable(ObjectLayers.TransformGizmo)
 
-  const hits = raycaster.intersectObjects(objects, true)
+  const hits = _raycaster.intersectObjects(objects, true)
   for (const hit of hits) {
     intersectionData.add({ entity: hit.object.entity!, distance: hit.distance })
   }
