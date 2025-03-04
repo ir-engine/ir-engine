@@ -77,7 +77,9 @@ export function gizmoIconUpdate(parentEntity: Entity) {
   const activeHelperComponent = getComponent(parentEntity, ActiveHelperComponent)
   const transform = getComponent(activeHelperComponent.helperDefaultGizmo, TransformComponent)
   const size = transform.scale
-  const finalSize = size.set(1, 1, 1).multiplyScalar(getCameraFactor(transform.position, size.z))
+  const finalSize = size
+    .set(1, 1, 1)
+    .multiplyScalar(getCameraFactor(transform.position, activeHelperComponent.sizeFactor))
   setComponent(activeHelperComponent.helperDefaultGizmo, TransformComponent, { scale: finalSize })
   for (const entity of activeHelperComponent.directionalEntities) {
     setComponent(entity, TransformComponent, { scale: finalSize })
@@ -94,7 +96,7 @@ function pointerHover(parentEntity: Entity) {
   _raycaster.setFromCamera(pointerPosition, camera)
 
   const intersect = intersectObjectWithRay(spriteObject, _raycaster, true)
-  const targetSize = intersect ? 0.25 : 0.2 // 0.25 is the hover size, 0.2 is the default size
+  const targetSize = intersect ? 0.5 : 0.4 // 0.25 is the hover size, 0.2 is the default size
   //TODO : make the sizeFactor editable
   const originalSize = activeHelperComponent.sizeFactor.value
   const interpolatedSize = originalSize + (targetSize - originalSize) * _interpolationFactor

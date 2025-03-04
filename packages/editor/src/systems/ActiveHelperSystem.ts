@@ -127,6 +127,7 @@ const execute = () => {
 const useStudioIconGizmo = () => {
   const componentStudioIconState = useHookstate(getMutableState(ComponentStudioIconState))
   const helperQuery = useQuery([ActiveHelperComponent, SimulationLayerComponent])
+  const isEditing = useHookstate(getMutableState(EngineState)).isEditing
 
   useEffect(() => {
     for (const entity of helperQuery) {
@@ -160,6 +161,30 @@ const useStudioIconGizmo = () => {
       // create the icon helper
     }
   }, [helperQuery])
+
+  useEffect(() => {
+    const setGizmoVisibility = (entity: Entity, visible: boolean) => {
+      setVisibleComponent(getComponent(entity, ActiveHelperComponent).helperDefaultGizmo, visible)
+      getComponent(entity, ActiveHelperComponent).directionalEntities.forEach((entity) => {
+        setVisibleComponent(entity, visible)
+      })
+      getComponent(entity, ActiveHelperComponent).lineEntities.forEach((entity) => {
+        setVisibleComponent(entity, visible)
+      })
+    }
+
+    if (!isEditing.value) {
+      for (const entity of helperQuery) {
+        setGizmoVisibility(entity, false)
+      }
+    }
+
+    return () => {
+      for (const entity of helperQuery) {
+        setGizmoVisibility(entity, true)
+      }
+    }
+  }, [isEditing])
 }
 
 const useActiveHelper = (entities) => {
