@@ -190,7 +190,7 @@ const Select = ({
   }, [value, localValue, selectedOptionIndex, filteredOptions])
 
   useEffect(() => {
-    const index = filteredOptions.findIndex((option) => option.value === localValue)
+    const index = filteredOptions.findIndex((option) => option.value === localValue.value)
     if (index !== -1) {
       setDisplayText(filteredOptions[index].label)
     }
