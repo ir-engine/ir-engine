@@ -420,10 +420,10 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
           </div>
         </div>
 
-        <div className="col-span-2 grid grid-cols-3 gap-x-3">
+        <div className="col-span-2 grid grid-cols-[auto_136px] gap-x-3">
           <button
             className={twMerge(
-              'col-span-1 flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-ui-secondary p-2 text-text-primary-button hover:bg-ui-hover-secondary focus:bg-ui-select-secondary',
+              'flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-ui-secondary p-2 text-text-primary-button hover:bg-ui-hover-secondary focus:bg-ui-select-secondary',
               initialized ? 'justify-self-end' : 'col-start-3'
             )}
             onClick={() => {
@@ -434,7 +434,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
           </button>
 
           {initialized && (
-            <div className="col-span-2 flex w-full flex-col gap-y-4">
+            <div className="flex w-full flex-col items-end gap-y-4">
               <Button variant="secondary" className="w-[136px] rounded-[10px] lg:w-full" onClick={openChat}>
                 <HelpIconLg />
                 {t('user:usermenu.profile.helpChat')}
