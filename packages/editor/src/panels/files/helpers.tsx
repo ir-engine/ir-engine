@@ -221,7 +221,7 @@ export function useFileBrowserDrop() {
     isCopy = false
   ): Promise<void> => {
     if (isLoading) return
-    if (!isCopy && newPath.startsWith(oldPath)) return // make sure we are not moving a folder into itself
+    if (!isCopy && newPath.startsWith(`${oldPath}/`)) return
     try {
       await fileService.update(null, {
         oldProject: filesState.projectName.value,
