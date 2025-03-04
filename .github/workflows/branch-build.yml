@@ -48,7 +48,7 @@ jobs:
       - name: cache for next steps
         uses: actions/cache@v3
         with:
-          path: ./
+          path: .
           key: dir-${{github.sha}}
 
   check-lint:
@@ -60,7 +60,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: ./
+          path: .
           key: dir-${{github.sha}}
       - run: npm run lint
       - run: npm run check-eslint
@@ -75,7 +75,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: ./
+          path: .
           key: dir-${{github.sha}}
       - run: npm run dev-docker
       - run: npm run dev-reinit
@@ -91,7 +91,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: ./
+          path: .
           key: dir-${{github.sha}}
 #      - run: npm install -g node --force
       - run: node --version
@@ -112,7 +112,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: ./
+          path: .
           key: dir-${{github.sha}}
       - run: mkdir -p packages_moved/hyperflux/
       - run: mv packages/hyperflux packages_moved/
@@ -129,7 +129,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: ./
+          path: .
           key: dir-${{github.sha}}
       - run: mkdir -p packages_moved/hyperflux/
       - run: mkdir -p packages_moved/ecs/
@@ -149,7 +149,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: ./
+          path: .
           key: dir-${{github.sha}}
       - run: mkdir -p packages_moved/hyperflux/
       - run: mkdir -p packages_moved/ecs/
@@ -172,7 +172,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: ./
+          path: .
           key: dir-${{github.sha}}
       - run: mkdir -p packages_moved/hyperflux/
       - run: mkdir -p packages_moved/ecs/
@@ -201,7 +201,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: ./
+          path: .
           key: dir-${{github.sha}}
       - run: mkdir -p packages_moved/hyperflux/
       - run: mkdir -p packages_moved/ecs/
@@ -244,7 +244,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: ./
+          path: .
           key: dir-${{github.sha}}
       - run: rm -rf packages/instanceserver
       - run: rm -rf packages/server
@@ -269,7 +269,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: ./
+          path: .
           key: dir-${{github.sha}}
       - run: rm -rf packages/client
       - run: rm -rf packages/client-core
