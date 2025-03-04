@@ -29,6 +29,7 @@ import { useTranslation } from 'react-i18next'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useMutation } from '@ir-engine/common'
 import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
+import { getDecodedFileName, getEncodedFileName } from '@ir-engine/common/src/utils/cleanFileName'
 import { isValidFileName } from '@ir-engine/common/src/utils/validateFileName'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { Input } from '@ir-engine/ui'
@@ -37,18 +38,19 @@ import { FileDataType } from '../../../constants/AssetTypes'
 
 export default function RenameFileModal({ projectName, file }: { projectName: string; file: FileDataType }) {
   const { t } = useTranslation()
-  const newFileName = useHookstate(file.name)
+  const newFileName = useHookstate(getDecodedFileName(file.name))
   const fileService = useMutation(fileBrowserPath)
-  const isValid = isValidFileName(newFileName.value)
+  const isValid = isValidFileName(getEncodedFileName(newFileName.value))
 
   const handleSubmit = async () => {
-    const name = newFileName.value
-    if (isValidFileName(name)) {
+    const encodedName = getEncodedFileName(newFileName.value)
+
+    if (isValidFileName(encodedName)) {
       fileService.update(null, {
         oldProject: projectName,
         newProject: projectName,
         oldName: file.fullName,
-        newName: file.isFolder ? name : `${name}.${file.type}`,
+        newName: file.isFolder ? encodedName : `${encodedName}.${file.type}`,
         oldPath: file.path,
         newPath: file.path,
         isCopy: false

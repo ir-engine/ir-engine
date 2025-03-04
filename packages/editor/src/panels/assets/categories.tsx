@@ -24,6 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import capitalizeFirstLetter from '@ir-engine/common/src/utils/capitalizeFirstLetter'
+import { getDecodedFileName } from '@ir-engine/common/src/utils/cleanFileName'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import EditorDropdownItem from '@ir-engine/ui/src/components/editor/DropdownItem'
 import { CubeOutlineLg, File04Lg, Folder, Pin02Lg } from '@ir-engine/ui/src/icons'
@@ -52,7 +53,7 @@ function NodeHierarchyItem({ node, onClick }: { node: AssetCategoryNode; onClick
   return (
     <>
       <EditorDropdownItem
-        label={node.name}
+        label={getDecodedFileName(node.name)}
         ItemIcon={({ className }: { className: string }) => <Folder className={className} />}
         collapsed={!isOpen}
         onClick={handleClick}

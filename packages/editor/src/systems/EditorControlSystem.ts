@@ -72,13 +72,11 @@ import { EditorErrorState } from '../services/EditorErrorServices'
 
 import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 
-import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
-import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
-import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { TransformGizmoControlledComponent } from '../classes/gizmo/transform/TransformGizmoControlledComponent'
+import { isEntityGlb } from '../functions/utils.ts'
 import { EditorHistoryActions, EditorHistoryFunctions, EditorHistoryState } from '../services/EditorHistoryState'
 import { EditorState } from '../services/EditorServices'
 import { SelectionState } from '../services/SelectionServices'
@@ -347,10 +345,10 @@ const execute = () => {
       const selectedEntity =
         selectedParentEntity === clickStartEntity ? closestIntersection.entity : selectedParentEntity
 
-      // If not showing model children in hierarchy don't allow those objects to be selected
-      if (!hierarchyFeatureFlagEnabled) {
-        const inCurrentScene = hasComponent(selectedParentEntity, SceneComponent)
-        clickStartEntity = inCurrentScene ? selectedEntity : clickStartEntity
+      // If hiding children of GLB, don't allow those children to be selected (clicking in scene view)
+      if (hierarchyFeatureFlagEnabled && selectedParentEntity) {
+        const forceSelectGlbParent = isEntityGlb(selectedParentEntity) // && hasComponent(selectedParentEntity, SceneComponent)
+        clickStartEntity = forceSelectGlbParent ? selectedParentEntity : selectedEntity //selectedEntity vs clickStartEntity so that we allow closest intersection drill down above to work
       } else {
         clickStartEntity = selectedEntity
       }
@@ -441,7 +439,9 @@ const updateSelection = (clickedEntity: Entity, control: boolean, shift: boolean
 const reactor = () => {
   const editorHelperState = useMutableState(EditorHelperState)
   const rendererState = useMutableState(RendererState)
-  const flag = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowModelChildren])
+
+  //@todo remove hardcoded value once feature flag is added to MT
+  const hideGlbChildrenFeatureFlag = [true] // useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.HideGlbChildren])
 
   useEffect(() => {
     // todo figure out how to do these with our input system
@@ -476,8 +476,8 @@ const reactor = () => {
   }, [viewerEntity])
 
   useEffect(() => {
-    hierarchyFeatureFlagEnabled = flag[0]
-  }, [flag])
+    hierarchyFeatureFlagEnabled = hideGlbChildrenFeatureFlag[0]
+  }, [hideGlbChildrenFeatureFlag])
 
   return null
 }

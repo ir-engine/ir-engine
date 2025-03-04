@@ -25,7 +25,55 @@ Infinite Reality Engine. All Rights Reserved.
 
 import assert from 'assert'
 import { describe, it } from 'vitest'
-import { cleanFileNameString } from './cleanFileName'
+import { cleanFileNameString, getDecodedFileName, getEncodedFileName } from './cleanFileName'
+
+describe('getEncodedFileName', () => {
+  it('should handle normal text without special characters', () => {
+    assert.equal(getEncodedFileName('hello'), 'hello')
+    assert.equal(getEncodedFileName('hello world'), 'hello-world')
+  })
+
+  it('should preserve hyphens by doubling them', () => {
+    assert.equal(getEncodedFileName('hello-world'), 'hello--world')
+    assert.equal(getEncodedFileName('test-file-name'), 'test--file--name')
+  })
+
+  it('should handle parentheses', () => {
+    assert.equal(getEncodedFileName('(test)'), 'x_test--y')
+    assert.equal(getEncodedFileName('folder (1)'), 'folder-_1--y')
+    assert.equal(getEncodedFileName('(2)'), 'x_2--y')
+  })
+
+  it('should handle spaces and special characters', () => {
+    assert.equal(getEncodedFileName('New Folder (2)'), 'New-Folder-_2--y')
+    assert.equal(getEncodedFileName('test - file'), 'test----file')
+    assert.equal(getEncodedFileName(' space '), 'x-space-y')
+  })
+})
+
+describe('getDecodedFileName', () => {
+  it('should handle normal text without special characters', () => {
+    assert.equal(getDecodedFileName('hello'), 'hello')
+    assert.equal(getDecodedFileName('hello-world'), 'hello world')
+  })
+
+  it('should decode double hyphens back to single hyphen', () => {
+    assert.equal(getDecodedFileName('hello--world'), 'hello-world')
+    assert.equal(getDecodedFileName('test--file--name'), 'test-file-name')
+  })
+
+  it('should decode encoded parentheses', () => {
+    assert.equal(getDecodedFileName('x_test-y'), '(test)')
+    assert.equal(getDecodedFileName('folder-_1-y'), 'folder (1)')
+    assert.equal(getDecodedFileName('x_2-y'), '(2)')
+  })
+
+  it('should handle numbers correctly', () => {
+    assert.equal(getDecodedFileName('version-2'), 'version 2')
+    assert.equal(getDecodedFileName('v2-test'), 'v2 test')
+    assert.equal(getDecodedFileName('test-2-v3'), 'test 2 v3')
+  })
+})
 
 describe('cleanFileNameString', () => {
   it('should return a cleaned version of the filename', () => {
@@ -49,6 +97,6 @@ describe('cleanFileNameString', () => {
   it('should respect multiple spaces in the file name', () => {
     const fullFileName = 'path/to/file/file name with spaces.txt'
     const result = cleanFileNameString(fullFileName)
-    assert.equal(result, 'path/to/file/file name with spaces.txt')
+    assert.equal(result, 'path/to/file/file-name-with-spaces.txt')
   })
 })
