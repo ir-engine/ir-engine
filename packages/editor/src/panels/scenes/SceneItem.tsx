@@ -25,6 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { ThemeState } from '@ir-engine/client-core/src/common/services/ThemeService'
 import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
+import IRLogoModalDark from '@ir-engine/client/public/iR-logo-Modal-dark.png'
+import IRLogoModalLight from '@ir-engine/client/public/iR-logo-Modal-light.png'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
 import RenameSceneModal from '@ir-engine/editor/src/panels/scenes/RenameSceneModal'
@@ -37,8 +39,6 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { default as React } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
-import IRLogoModalDark from '../../../../client/public/iR-logo-Modal-dark.png'
-import IRLogoModalLight from '../../../../client/public/iR-logo-Modal-light.png'
 
 type SceneItemProps = {
   scene: StaticResourceType
