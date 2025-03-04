@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { useRef } from 'react'
 import Popup from 'reactjs-popup'
-import { PopupActions } from 'reactjs-popup/dist/types'
+import { PopupActions, PopupPosition } from 'reactjs-popup/dist/types'
 import { twMerge } from 'tailwind-merge'
 import { Button } from '../../..'
 import { DotsVerticalLg } from '../../../icons'
@@ -38,9 +38,10 @@ interface MoreOptionsMenuProps {
     onClick: () => void
     disabled?: boolean
   }[]
+  position?: PopupPosition | PopupPosition[] | undefined
 }
 
-export default function MoreOptionsMenu({ disabled, actionProps }: MoreOptionsMenuProps) {
+export default function MoreOptionsMenu({ disabled, actionProps, position }: MoreOptionsMenuProps) {
   const popupRef = useRef<PopupActions>(null)
 
   const closePopup = () => {
@@ -63,7 +64,7 @@ export default function MoreOptionsMenu({ disabled, actionProps }: MoreOptionsMe
         </Button>
       }
       ref={popupRef}
-      position="left bottom"
+      position={position ? position : 'left bottom'}
       on="click"
       closeOnDocumentClick
       arrow={false}

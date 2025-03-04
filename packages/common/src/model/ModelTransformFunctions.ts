@@ -80,6 +80,7 @@ import {
   EEResourceIDExtension
 } from '@ir-engine/engine/src/assets/compression/extensions/EE_ResourceIDTransformer'
 import { UploadRequestState } from '@ir-engine/engine/src/assets/state/UploadRequestState'
+import { MATCH_ASSET_PROJECT_FILENAME_REGEX } from '../regex'
 import ModelTransformLoader from './ModelTransformLoader'
 /**
  * https://ir.world/projects/ir-engine/default-project/assets/collisioncube-LOD0.glb
@@ -87,8 +88,6 @@ import ModelTransformLoader from './ModelTransformLoader'
  * Group 1: ir-engine/default-project
  * Group 2: collisioncube-LOD0.glb
  */
-export const MATCH_ASSET_PROJECT_FILENAME_REGEX =
-  /projects\/([^/]+\/[^/]+)\/(?:assets|public(?:\/publish)?)\/([\w\d\s\-|_./]*)$/
 
 /**
  *

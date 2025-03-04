@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import { clamp } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
 
@@ -156,6 +156,22 @@ const NumericInput = ({
     }
   }
 
+  useEffect(() => {
+    const disableScroll = (event: Event) => {
+      event.stopPropagation()
+    }
+
+    if (focused.value) {
+      window.addEventListener('wheel', disableScroll, { passive: false })
+      window.addEventListener('touchmove', disableScroll, { passive: false })
+    }
+
+    return () => {
+      window.removeEventListener('wheel', disableScroll)
+      window.removeEventListener('touchmove', disableScroll)
+    }
+  }, [focused])
+
   return (
     <div
       className={twMerge(
@@ -177,6 +193,7 @@ const NumericInput = ({
         onFocus={handleFocus}
         onChange={handleChange}
         onBlur={handleBlur}
+        onMouseOut={handleBlur}
         type="number"
         {...rest}
       />

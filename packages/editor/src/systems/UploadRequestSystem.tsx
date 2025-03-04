@@ -31,6 +31,7 @@ import { UploadRequestState } from '@ir-engine/engine/src/assets/state/UploadReq
 import { getMutableState, getState, NO_PROXY, useState } from '@ir-engine/hyperflux'
 
 import { uploadProjectFiles } from '../functions/assetFunctions'
+import { EditorState } from '../services/EditorServices'
 import { ImportSettingsState } from '../services/ImportSettingsState'
 
 export const UploadRequestSystem = defineSystem({
@@ -41,7 +42,8 @@ export const UploadRequestSystem = defineSystem({
     useEffect(() => {
       const uploadRequests = uploadRequestState.queue.get(NO_PROXY)
       if (uploadRequests.length === 0) return
-      const publishFolder = '/public/publish/'
+      const publishSceneName = getState(EditorState).sceneName?.split('.').shift()
+      const publishFolder = '/public/publish/' + publishSceneName + '/'
       const importSettings = getState(ImportSettingsState)
 
       const uploadPromises = uploadRequests.map((uploadRequest) => {

@@ -39,7 +39,6 @@ import {
   Layers,
   UUIDComponent,
   createEntity,
-  getAncestorWithComponents,
   getComponent,
   hasComponent,
   iterateEntityNode,
@@ -47,7 +46,7 @@ import {
 } from '@ir-engine/ecs'
 import { LODVariantDescriptor, defaultLODs } from '@ir-engine/editor/src/constants/GLTFPresets'
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
-import exportGLTF, { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
+import { exportRelativeGLTF } from '@ir-engine/editor/src/functions/exportGLTF'
 import { saveSceneGLTF } from '@ir-engine/editor/src/functions/sceneFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
 import { SceneThumbnailState } from '@ir-engine/editor/src/services/SceneThumbnailState'
@@ -55,8 +54,6 @@ import { ModelTransformParameters } from '@ir-engine/engine/src/assets/classes/M
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { Heuristic, VariantComponent } from '@ir-engine/engine/src/scene/components/VariantComponent'
-import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
 import { getState, useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -71,8 +68,9 @@ import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
 import { CheckCircleLg, Copy02Sm, EllipsisVertical } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
-import { LoaderUtils, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 import { NotificationService } from '../../../common/services/NotificationService'
+import CompressedPublishConfirmation from './CompressedPublishConfirmation'
 
 function formatPublishedDate(isoString) {
   const date = new Date(isoString)
@@ -174,6 +172,7 @@ export default function AddEditLocationModal(props: {
     }
   })
   const handlePublishFolder = async () => {
+    PopoverState.showPopupover(<CompressedPublishConfirmation />)
     const { projectName, sceneName, rootEntity, sceneAssetID, scenePath } = getState(EditorState)
     const abortController = new AbortController()
     try {
@@ -187,7 +186,7 @@ export default function AddEditLocationModal(props: {
           .join('/')
           .replace('scenes', 'publish')
 
-        const scenename = getState(EditorState).sceneName
+        const scenename = getState(EditorState).sceneName?.split('.').shift()
         //add all mesh into one entity
         const combinedMeshEntity = createEntity(Layers.Authoring) //export entity need compress
         const rootEntity = getState(EditorState).rootEntity
@@ -205,7 +204,7 @@ export default function AddEditLocationModal(props: {
         setComponent(combinedMeshEntity, UUIDComponent, UUIDComponent.generateUUID())
         const newSource = GLTFComponent.getInstanceID(rootEntity)
         setComponent(combinedMeshEntity, SourceComponent, newSource)
-        const srcURL = pathJoin(config.client.fileServer, saveScenePath + '/combined-mesh.gltf')
+        const srcURL = pathJoin(config.client.fileServer, saveScenePath + '/' + scenename + '/combined-mesh.gltf')
         iterateEntityNode(rootEntity, (entity) => {
           if (hasComponent(entity, MeshComponent)) {
             if (meshEntity.includes(entity) || hasComponent(entity, ColliderComponent)) return
@@ -233,14 +232,19 @@ export default function AddEditLocationModal(props: {
           }
         })
         //export parent entities and combined mesh entity
-        await exportRelativeGLTF(combinedMeshEntity, projectName, 'public/publish/combined-mesh.gltf', false)
+        await exportRelativeGLTF(
+          combinedMeshEntity,
+          projectName,
+          'public/publish/' + scenename + '/' + 'combined-mesh.gltf',
+          false
+        )
         EditorControlFunctions.modifyProperty([combinedMeshEntity], GLTFComponent, { src: srcURL })
         EditorControlFunctions.modifyProperty([combinedMeshEntity], VisibleComponent, { visible: true })
 
         for (const entity of exportParentEntity) {
           const url = getComponent(entity, GLTFComponent).src
           const saveName = url.split('/').pop()?.split('.').shift()
-          await exportRelativeGLTF(entity, projectName, 'public/publish/' + saveName + '.gltf', false)
+          await exportRelativeGLTF(entity, projectName, 'public/publish/' + scenename + '/' + saveName + '.gltf', false)
           EditorControlFunctions.modifyProperty([entity], GLTFComponent, {
             src: srcURL.replace('combined-mesh', saveName as string)
           })
@@ -289,25 +293,25 @@ export default function AddEditLocationModal(props: {
             compressionProgress.set({ progress, caption })
           }
         )
-        const result = createSceneEntity('container')
-        const variant = createSceneEntity('LOD Variant', result)
-        const heuristic = Heuristic.DISTANCE
-        setComponent(variant, VariantComponent, {
-          levels: lods.map((lod, lodIndex) => ({
-            src: `${LoaderUtils.extractUrlBase(srcURL)}${lod.params.dst}.${lod.params.modelFormat}`,
-            metadata: {
-              ...lod.variantMetadata,
-              ...transformMetadata[lodIndex]
-            }
-          })),
-          heuristic
-        })
-        const destinationPath = srcURL.replace(/\.[^.]*$/, `-integrated.gltf`)
-        const gltfEntity = getAncestorWithComponents(result, [GLTFComponent])
-        const uuid = getComponent(gltfEntity, UUIDComponent)
-        const sourceID = SourceComponent.getSourceID(uuid, destinationPath)
-        iterateEntityNode(result, (entity) => setComponent(entity, SourceComponent, sourceID))
-        await exportGLTF(result, destinationPath, false)
+        // const result = createSceneEntity('container')
+        // const variant = createSceneEntity('LOD Variant', result)
+        // const heuristic = Heuristic.DISTANCE
+        // setComponent(variant, VariantComponent, {
+        //   levels: lods.map((lod, lodIndex) => ({
+        //     src: `${LoaderUtils.extractUrlBase(srcURL)}${lod.params.dst}.${lod.params.modelFormat}`,
+        //     metadata: {
+        //       ...lod.variantMetadata,
+        //       ...transformMetadata[lodIndex]
+        //     }
+        //   })),
+        //   heuristic
+        // })
+        // const destinationPath = srcURL.replace(/\.[^.]*$/, `-integrated.gltf`)
+        // const gltfEntity = getAncestorWithComponents(result, [GLTFComponent])
+        // const uuid = getComponent(gltfEntity, UUIDComponent)
+        // const sourceID = SourceComponent.getSourceID(uuid, destinationPath)
+        // iterateEntityNode(result, (entity) => setComponent(entity, SourceComponent, sourceID))
+        // await exportGLTF(result, destinationPath, false)
         const compressedFilePath = srcURL.replace(/\.[^.]*$/, `-LOD2.gltf`)
         //update src from combined mesh to compressed mesh
         compressionLoading.set(false)
@@ -320,14 +324,14 @@ export default function AddEditLocationModal(props: {
           sceneName.replace('.gltf', '-duplicated.gltf'),
           abortController.signal,
           true,
-          saveScenePath
+          saveScenePath + '/' + scenename
         )
 
         await handlePublish()
         //re-open the original scene
         const studioUrl = `${window.location.origin}/studio?project=${projectName}&scenePath=${scenePath}`
         window.open(studioUrl, '_blank')?.focus()
-        //PopoverState.hidePopupover()
+        PopoverState.hidePopupover()
       }
     } catch (error) {
       PopoverState.showPopupover(

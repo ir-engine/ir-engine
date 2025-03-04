@@ -160,7 +160,7 @@ export class FacebookStrategy extends CustomOAuthStrategy {
       await this.app.service(identityProviderPath).remove(null, {
         query: {
           type: 'guest',
-          userId: existingEntity.userId
+          userId: entity.userId
         }
       })
       await this.userLoginEntry(newIP, params)

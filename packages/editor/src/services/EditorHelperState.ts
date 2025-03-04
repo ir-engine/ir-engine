@@ -54,7 +54,16 @@ export const EditorHelperState = defineState({
     rotationSnap: 10,
     scaleSnap: 0.1,
     placementMode: PlacementMode.DRAG,
-    gizmoEnabled: true
+    gizmoEnabled: true,
+    gridVisibility: false,
+    gridHeight: 0
   }),
-  extension: syncStateWithLocalStorage(['snapMode', 'translationSnap', 'rotationSnap', 'scaleSnap'])
+  extension: syncStateWithLocalStorage([
+    'snapMode',
+    'translationSnap',
+    'rotationSnap',
+    'scaleSnap',
+    'gridVisibility',
+    'gridHeight'
+  ])
 })

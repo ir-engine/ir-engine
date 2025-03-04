@@ -22,340 +22,26 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-
-import { DrawingUtils } from '@mediapipe/tasks-vision'
-import hark from 'hark'
-import { t } from 'i18next'
-import React, { RefObject, useEffect, useRef } from 'react'
-
-import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
-import { useGet } from '@ir-engine/common'
-import { UserName, userPath } from '@ir-engine/common/src/schema.type.module'
-import { useExecute } from '@ir-engine/ecs'
-import { Engine } from '@ir-engine/ecs/src/Engine'
-import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
-import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
-import { MotionCaptureSystem, timeSeriesMocapData } from '@ir-engine/engine/src/mocap/MotionCaptureSystem'
-import { applyScreenshareToTexture } from '@ir-engine/engine/src/scene/functions/applyScreenshareToTexture'
-import { NO_PROXY, PeerID, State, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { NetworkState } from '@ir-engine/network'
-import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
-import { drawPoseToCanvas } from '@ir-engine/ui/src/pages/Capture'
-import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
-import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
-
-import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
+import { State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '@ir-engine/network/src/media/PeerMediaChannelState'
+import { ArrowTopRightOnSquareSm } from '@ir-engine/ui/src/icons'
+import React, { useEffect, useRef } from 'react'
+
+import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
 import { useTranslation } from 'react-i18next'
-import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
-import { useZendesk } from '../../hooks/useZendesk'
-
-interface Props {
-  peerID: PeerID
-  type: 'screen' | 'cam'
-}
-
-const useDrawMocapLandmarks = (
-  videoElement: HTMLVideoElement,
-  canvasCtxRef: React.MutableRefObject<CanvasRenderingContext2D | undefined>,
-  canvasRef: RefObject<HTMLCanvasElement>,
-  peerID: PeerID
-) => {
-  let lastTimestamp = 0
-  const drawingUtils = useHookstate(null as null | DrawingUtils)
-  useEffect(() => {
-    drawingUtils.set(new DrawingUtils(canvasCtxRef.current!))
-    canvasRef.current!.style.transform = `scaleX(-1)`
-  }, [])
-  useExecute(
-    () => {
-      if (videoElement.paused || videoElement.ended || !videoElement.currentTime) return
-      const networkState = getState(NetworkState)
-      if (networkState.hostIds.world) {
-        const network = networkState.networks[networkState.hostIds.world]
-        if (network?.peers?.[peerID]) {
-          const userID = network.peers[peerID].userId
-          const peers = network.users[userID]
-          for (const peer of peers) {
-            const mocapBuffer = timeSeriesMocapData.get(peer)
-            if (mocapBuffer) {
-              const lastMocapResult = mocapBuffer.getLast()
-              if (lastMocapResult && lastMocapResult.timestamp !== lastTimestamp) {
-                lastTimestamp = lastMocapResult.timestamp
-                drawingUtils.value &&
-                  drawPoseToCanvas([lastMocapResult.results.landmarks], canvasCtxRef, canvasRef, drawingUtils.value)
-                return
-              }
-            }
-          }
-        }
-      }
-    },
-    { before: MotionCaptureSystem }
-  )
-}
-
-const useUserMediaWindowHook = ({ peerID, type }: Props) => {
-  const peerMediaChannelState = useHookstate(
-    getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
-  )
-  const { videoMediaStream, audioMediaStream, videoStreamPaused, audioStreamPaused, videoElement, audioElement } =
-    peerMediaChannelState.value as PeerMediaStreamInterface
-
-  const harkListener = useHookstate(null as ReturnType<typeof hark> | null)
-  const soundIndicatorOn = useHookstate(false)
-  const isPiP = useHookstate(false)
-
-  const resumeVideoOnUnhide = useRef<boolean>(false)
-  const resumeAudioOnUnhide = useRef<boolean>(false)
-
-  const audioState = useMutableState(AudioState)
-
-  const _volume = useHookstate(1)
-
-  const selfUser = useMutableState(AuthState).user.get(NO_PROXY)
-  // const currentLocation = useMutableState(LocationState).currentLocation.location
-  /** @todo refactor global mute for admin controls */
-  // const enableGlobalMute =
-  //   currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
-  //   selfUser?.locationAdmins?.find((locationAdmin) => currentLocation?.id?.value === locationAdmin.locationId) != null
-
-  const mediaNetwork = NetworkState.mediaNetwork
-  const isSelf =
-    !mediaNetwork ||
-    peerID === Engine.instance.store.peerID ||
-    (mediaNetwork?.peers &&
-      Object.values(mediaNetwork.peers).find((peer) => peer.userId === selfUser.id)?.peerID === peerID) ||
-    peerID === 'self'
-  const volume = isSelf ? audioState.microphoneGain.value : _volume.value
-  const isScreen = type === 'screen'
-  const userId = isSelf ? selfUser?.id : mediaNetwork?.peers?.[peerID]?.userId
-
-  const mediaStreamState = useMutableState(MediaStreamState)
-  const mediaSettingState = useMutableState(MediaSettingsState)
-  const rendered = !mediaSettingState.immersiveMedia.value
-
-  useEffect(() => {
-    function onUserInteraction() {
-      videoElement?.play()
-      audioElement?.play()
-      harkListener?.value?.resume()
-    }
-    window.addEventListener('pointerup', onUserInteraction)
-    return () => {
-      window.removeEventListener('pointerup', onUserInteraction)
-    }
-  }, [videoElement, audioElement, harkListener?.value])
-
-  useEffect(() => {
-    if (!audioMediaStream || !audioMediaStream.getAudioTracks().length) return
-
-    audioElement.id = `${peerID}_audio`
-    audioElement.autoplay = true
-    audioElement.setAttribute('playsinline', 'true')
-    audioElement.muted = audioStreamPaused || isSelf
-    audioElement.volume = audioStreamPaused || isSelf ? 0 : volume
-
-    audioElement.srcObject = audioMediaStream
-
-    const newHark = hark(audioElement.srcObject, { play: false })
-    newHark.on('speaking', () => {
-      if (unmounted) return
-      soundIndicatorOn.set(true)
-    })
-    newHark.on('stopped_speaking', () => {
-      if (unmounted) return
-      soundIndicatorOn.set(false)
-    })
-    harkListener.set(newHark)
-
-    let unmounted = false
-
-    return () => {
-      unmounted = true
-      newHark.stop()
-    }
-  }, [audioMediaStream])
-
-  useEffect(() => {
-    audioElement.muted = audioStreamPaused || isSelf
-    audioElement.volume = audioStreamPaused || isSelf ? 0 : volume
-  }, [audioStreamPaused])
-
-  useEffect(() => {
-    if (!videoMediaStream) return
-
-    videoElement.id = `${peerID}_video`
-    videoElement.autoplay = true
-    videoElement.muted = true
-    videoElement.setAttribute('playsinline', 'true')
-    videoElement.srcObject = videoMediaStream
-
-    if (isScreen) {
-      applyScreenshareToTexture(videoElement!)
-    }
-  }, [videoMediaStream])
-
-  useEffect(() => {
-    mediaStreamState.microphoneGainNode.value?.gain.setTargetAtTime(
-      audioState.microphoneGain.value,
-      audioState.audioContext.currentTime.value,
-      0.01
-    )
-  }, [audioState.microphoneGain.value])
-
-  const toggleVideo = async (e) => {
-    e.stopPropagation()
-    if (isSelf && !isScreen) {
-      MediaStreamState.toggleWebcamPaused()
-    } else if (isSelf && isScreen) {
-      MediaStreamState.toggleScreenshareVideoPaused()
-    } else {
-      peerMediaChannelState.videoStreamPaused.set((val) => !val)
-    }
-  }
-
-  const toggleAudio = async (e) => {
-    e.stopPropagation()
-    if (isSelf && !isScreen) {
-      MediaStreamState.toggleMicrophonePaused()
-    } else if (isSelf && isScreen) {
-      MediaStreamState.toggleScreenshareAudioPaused()
-    } else {
-      peerMediaChannelState.audioStreamPaused.set((val) => !val)
-    }
-  }
-
-  const toggleGlobalMute = async (e) => {
-    e.stopPropagation()
-    /** @todo */
-    // const mediaNetwork = NetworkState.mediaNetwork
-    // const audioStreamProducer = audioStream as ConsumerExtension
-    // if (!audioProducerGlobalMute) {
-    //   MediasoupMediaProducerConsumerState.globalMuteProducer(mediaNetwork, audioStreamProducer.producerId)
-    //   peerMediaChannelState.audioProducerGlobalMute.set(true)
-    // } else if (audioProducerGlobalMute) {
-    //   MediasoupMediaProducerConsumerState.globalUnmuteProducer(mediaNetwork, audioStreamProducer.producerId)
-    //   peerMediaChannelState.audioProducerGlobalMute.set(false)
-    // }
-  }
-
-  const adjustVolume = (e, value) => {
-    if (isSelf) {
-      getMutableState(AudioState).microphoneGain.set(value)
-    } else {
-      audioElement!.volume = value
-    }
-    _volume.set(value)
-  }
-
-  const user = useGet(userPath, userId)
-
-  const getUsername = () => {
-    if (isSelf && !isScreen) return t('user:person.you')
-    if (isSelf && isScreen) return t('user:person.yourScreen')
-    const username = user.data?.name ?? 'A User'
-    if (!isSelf && isScreen) return username + "'s Screen"
-    return username
-  }
-
-  const togglePiP = () => isPiP.set(!isPiP.value)
-
-  useEffect(() => {
-    peerMediaChannelState.videoQuality.set(isPiP.value ? 'largest' : 'smallest')
-  }, [isPiP.value])
-
-  const username = getUsername() as UserName
-
-  const avatarThumbnail = useUserAvatarThumbnail(userId)
-
-  const handleVisibilityChange = () => {
-    if (document.hidden) {
-      if (!videoStreamPaused) {
-        resumeVideoOnUnhide.current = true
-        toggleVideo({
-          stopPropagation: () => {}
-        })
-      }
-      if (!audioStreamPaused) {
-        resumeAudioOnUnhide.current = true
-        toggleAudio({
-          stopPropagation: () => {}
-        })
-      }
-    }
-    if (!document.hidden) {
-      if (resumeVideoOnUnhide.current)
-        toggleVideo({
-          stopPropagation: () => {}
-        })
-      if (resumeAudioOnUnhide.current)
-        toggleAudio({
-          stopPropagation: () => {}
-        })
-      resumeVideoOnUnhide.current = false
-      resumeAudioOnUnhide.current = false
-    }
-  }
-
-  useEffect(() => {
-    if (isMobile) {
-      document.addEventListener('visibilitychange', handleVisibilityChange)
-
-      return () => {
-        document.removeEventListener('visibilitychange', handleVisibilityChange)
-      }
-    }
-  }, [])
-
-  return {
-    isPiP: isPiP.value,
-    volume,
-    isScreen,
-    username,
-    selfUser,
-    isSelf,
-    videoMediaStream,
-    audioMediaStream,
-    avatarThumbnail,
-    videoStreamPaused,
-    audioStreamPaused,
-    soundIndicatorOn: soundIndicatorOn.value,
-    togglePiP,
-    toggleAudio,
-    toggleVideo,
-    adjustVolume,
-    /** @todo reimplement global mute */
-    // enableGlobalMute,
-    // toggleGlobalMute,
-    rendered
-  }
-}
+import { Props, useReportUser, useUserMediaWindowHook } from './hook'
 
 export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
-  const {
-    isPiP,
-    volume,
-    isScreen,
-    username,
-    isSelf,
-    videoMediaStream,
-    audioMediaStream,
-    avatarThumbnail,
-    videoStreamPaused,
-    audioStreamPaused,
-    soundIndicatorOn,
-    togglePiP,
-    toggleAudio,
-    toggleVideo,
-    adjustVolume,
-    rendered
-  } = useUserMediaWindowHook({ peerID, type })
+  const { isSelf, isPiP, isScreen, videoMediaStream, avatarThumbnail, videoStreamPaused, togglePiP, peerUserId } =
+    useUserMediaWindowHook({
+      peerID,
+      type
+    })
 
   const { t } = useTranslation()
-
-  const { initialized, openChat } = useZendesk()
-
+  const { setReportedUserId } = useReportUser()
   const peerMediaChannelState = useHookstate(
     getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
   )
@@ -364,12 +50,14 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const canvasCtxRef = useRef<CanvasRenderingContext2D>()
+  const isMoreButtonVisible = useHookstate(false)
 
   // @todo - currently this adds lots of systems unnecessarily
   // useDrawMocapLandmarks(videoElement, canvasCtxRef, canvasRef, peerID)
 
   useEffect(() => {
     videoElement.draggable = false
+    if (isSelf) videoElement.style.transform = 'scaleX(-1)'
     document.getElementById(peerID + '-' + type + '-video-container')!.append(videoElement)
     document.getElementById(peerID + '-' + type + '-audio-container')!.append(audioElement)
   }, [])
@@ -387,32 +75,43 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
   })
 
   return (
-    <div
-      tabIndex={0}
-      id={peerID + '_' + type + '_container'}
-      className="pointer-events-auto relative h-[80px] w-[80px] overflow-hidden rounded-[90px] lg:h-[131px] lg:w-[131px]"
-      onClick={() => {
-        if (isScreen && isPiP) togglePiP()
-      }}
-    >
-      {(!videoMediaStream || videoStreamPaused) && (
-        <img
-          src={avatarThumbnail}
-          alt={t('user:avatar.avatar')}
-          crossOrigin="anonymous"
-          draggable={false}
-          className="bg-[radial-gradient(circle,_#DDDDDD,_#726B65)]"
+    <div className="group/video-window flex items-center gap-x-2">
+      <div
+        tabIndex={0}
+        id={peerID + '_' + type + '_container'}
+        className="pointer-events-auto relative h-[80px] w-[80px] overflow-hidden rounded-[90px] lg:h-[131px] lg:w-[131px]"
+        onClick={() => {
+          if (isScreen && isPiP) togglePiP()
+        }}
+        onMouseOver={() => isMoreButtonVisible.set((prev) => !prev)}
+      >
+        {(!videoMediaStream || videoStreamPaused) && (
+          <img src={avatarThumbnail} alt={t('user:avatar.avatar')} crossOrigin="anonymous" draggable={false} />
+        )}
+        <span
+          className="[&>video]:h-full [&>video]:w-full [&>video]:object-cover"
+          key={peerID + '-' + type + '-video-container'}
+          id={peerID + '-' + type + '-video-container'}
         />
-      )}
-      <span
-        className="[&>video]:h-full [&>video]:w-full [&>video]:object-cover"
-        key={peerID + '-' + type + '-video-container'}
-        id={peerID + '-' + type + '-video-container'}
-      />
-      <div className="pointer-events-none absolute top-0 h-full w-full">
-        <Canvas ref={canvasRef} />
+        <div className="pointer-events-none absolute top-0 h-full w-full">
+          <Canvas ref={canvasRef} />
+        </div>
+        <span key={peerID + '-' + type + '-audio-container'} id={peerID + '-' + type + '-audio-container'} />
       </div>
-      <span key={peerID + '-' + type + '-audio-container'} id={peerID + '-' + type + '-audio-container'} />
+      {!isSelf && peerUserId && (
+        <Button
+          variant="primary"
+          size="sm"
+          className={`hidden lg:group-hover/video-window:flex ${isMoreButtonVisible.value ? 'flex' : ''}`}
+          onClick={() => {
+            isMoreButtonVisible.set(false)
+            setReportedUserId(peerUserId)
+          }}
+        >
+          {t('user:videoWindows.more')}
+          <ArrowTopRightOnSquareSm />
+        </Button>
+      )}
     </div>
   )
 }
