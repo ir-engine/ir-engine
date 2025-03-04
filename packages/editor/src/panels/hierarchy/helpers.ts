@@ -76,7 +76,7 @@ const getSelectedEntities = (entity?: Entity) => {
 }
 
 export const deleteNode = (entity: Entity) => {
-  EditorHistoryFunctions.removeEntity([entity])
+  EditorHistoryFunctions.removeEntity(getSelectedEntities(entity))
 }
 
 export const duplicateNode = (entity?: Entity) => {
