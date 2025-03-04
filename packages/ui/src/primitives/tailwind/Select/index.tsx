@@ -317,7 +317,6 @@ const Select = ({
               >
                 <input
                   ref={inputRef}
-                  onBlur={() => inputRef.current && inputRef.current.focus()}
                   onClick={() => {
                     if (!disabled) {
                       togglePopup()
