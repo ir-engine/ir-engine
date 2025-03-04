@@ -28,10 +28,6 @@ import {
   BufferAttribute,
   Cache,
   CompressedTexture,
-  CubeReflectionMapping,
-  CubeRefractionMapping,
-  EquirectangularReflectionMapping,
-  EquirectangularRefractionMapping,
   InterleavedBufferAttribute,
   Light,
   Line,
@@ -251,16 +247,12 @@ const resourceCallbacks = {
       asset.onUpdate = () => {
         resource.metadata.merge({ onGPU: true, discarded: discardUponUpload })
         //@ts-ignore
-        asset.onUpdate = null
-        const isEnvMapTexture =
-          asset.mapping === EquirectangularReflectionMapping ||
-          asset.mapping === EquirectangularRefractionMapping ||
-          asset.mapping === CubeReflectionMapping ||
-          asset.mapping === CubeRefractionMapping
-        if (discardUponUpload && !isEnvMapTexture) {
-          /** @todo re-enable discard */
-          asset.source.data = null
-          asset.mipmaps = []
+        // asset.onUpdate = null
+        if (discardUponUpload) {
+          setTimeout(() => {
+            asset.source.data = null
+            asset.mipmaps = []
+          }, 100)
         }
       }
       if ((asset as CompressedTexture).isCompressedTexture && discardUponUpload) {

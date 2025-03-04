@@ -54,6 +54,7 @@ import {
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Input } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { useFrameUpdate } from './useFrameUpdate'
 
 const renderEntityTreeRoots = (roots: Entity[]) => {
   return Object.fromEntries(
@@ -152,6 +153,8 @@ const authoringSources = defineQuery([GLTFComponent], Layers.Authoring)
 
 export const EntityDebug = () => {
   const { t } = useTranslation()
+
+  useFrameUpdate()
 
   const namedEntities = useHookstate({})
   const erroredComponents = useHookstate([] as any[])

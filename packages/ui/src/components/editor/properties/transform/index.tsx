@@ -27,7 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Quaternion, Vector3 } from 'three'
 
-import { getComponent, useComponent, useHasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { useComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { SceneDynamicLoadComponent } from '@ir-engine/engine/src/scene/components/SceneDynamicLoadComponent'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 
@@ -63,7 +63,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const locked = useHookstate(getMutableState(EntityHierarchyLockState).lockedEntities).value[props.entity] ?? false
-  const hasDynamicLoad = useHasComponent(props.entity, SceneDynamicLoadComponent)
+  const hasDynamicLoad = useOptionalComponent(props.entity, SceneDynamicLoadComponent)
   const transformComponent = useComponent(props.entity, TransformComponent)
   const transformSpace = useHookstate(getMutableState(EditorHelperState).transformSpace)
 
@@ -124,7 +124,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
     >
       <div className="flex w-full gap-x-2 py-1.5 pl-8 pr-3.5">
         <Checkbox
-          checked={hasDynamicLoad}
+          checked={!!hasDynamicLoad}
           onChange={onChangeDynamicLoad}
           label={t('editor:properties.lbl-dynamicLoad')}
         />
@@ -133,7 +133,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
             <NumericInput
               min={1}
               max={100}
-              value={getComponent(props.entity, SceneDynamicLoadComponent).distance}
+              value={hasDynamicLoad.distance.value}
               onChange={updateProperty(SceneDynamicLoadComponent, 'distance')}
               onRelease={commitProperty(SceneDynamicLoadComponent, 'distance')}
             />

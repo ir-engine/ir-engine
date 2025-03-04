@@ -318,9 +318,9 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const onHideUnhideNode = (event: React.MouseEvent) => {
     event.stopPropagation()
     if (visible) {
-      EditorHistoryFunctions.setComponent([entity], VisibleComponent)
-    } else {
       EditorHistoryFunctions.removeComponent([entity], VisibleComponent)
+    } else {
+      EditorHistoryFunctions.setComponent([entity], VisibleComponent)
     }
   }
 
