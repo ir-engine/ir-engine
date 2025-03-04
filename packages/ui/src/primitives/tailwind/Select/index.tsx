@@ -165,15 +165,6 @@ const Select = ({
   }, [selectedOptionIndex])
 
   useEffect(() => {
-    if (
-      0 <= selectedOptionIndex &&
-      selectedOptionIndex < filteredOptions.length &&
-      filteredOptions[selectedOptionIndex].value === localValue.value
-    ) {
-      setDisplayText(filteredOptions[selectedOptionIndex].label)
-      return
-    }
-
     if (filteredOptions.length > 0) {
       const index = filteredOptions.findIndex((option) => option.value === localValue.value)
 
@@ -183,8 +174,6 @@ const Select = ({
           setDisplayText('')
           return
         }
-      } else {
-        setDisplayText(filteredOptions[index].label)
       }
     }
   }, [value, localValue, selectedOptionIndex, filteredOptions])
@@ -194,7 +183,7 @@ const Select = ({
     if (index !== -1) {
       setDisplayText(filteredOptions[index].label)
     }
-  }, [])
+  }, [localValue])
 
   useEffect(() => {
     if (searchString === '') {
