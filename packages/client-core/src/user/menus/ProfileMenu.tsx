@@ -378,7 +378,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   const enableConnect = authState?.value?.emailMagicLink || authState?.value?.smsMagicLink
 
   return (
-    <div className="absolute z-50 h-fit max-h-[90vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 mdh:max-h-[60vh] mdh:px-8 mdh:py-6">
+    <div className="absolute z-50 h-fit max-h-[90vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 smh:max-h-[60vh] smh:px-8 smh:py-6">
       <div className="relative grid w-full grid-cols-5 gap-x-2">
         <div className="col-span-3 grid grid-cols-[auto,1fr] gap-x-6">
           <div className="relative h-20 w-20">
@@ -502,7 +502,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
       <div
         className={twMerge(
           'mt-1 grid w-full grid-cols-1 gap-y-1',
-          isGuest && !originallyAcceptedTOS ? 'mt-7 mdh:mt-16' : 'mt-1 mdh:mt-5'
+          isGuest && !originallyAcceptedTOS ? 'mt-7 smh:mt-16' : 'mt-1 smh:mt-5'
         )}
       >
         <Input
@@ -604,7 +604,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
       </div>
 
       {!isGuest && (
-        <div className="grid w-1/2 grid-cols-1 gap-y-1 px-5 mdh:mt-5 mdh:gap-y-2">
+        <div className="grid w-1/2 grid-cols-1 gap-y-1 px-5 smh:mt-5 smh:gap-y-2">
           <button
             className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
             onClick={handleLogout}
@@ -778,7 +778,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
       )}
 
       <a href={clientSetting?.privacyPolicy} target="_blank">
-        <Text className="mt-1 w-full text-center text-text-primary mdh:mt-5" fontSize="sm">
+        <Text className="mt-1 w-full text-center text-text-primary smh:mt-5" fontSize="sm">
           {t('user:usermenu.profile.privacyPolicy')}
         </Text>
       </a>
