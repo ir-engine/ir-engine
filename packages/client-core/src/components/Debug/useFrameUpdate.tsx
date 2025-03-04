@@ -23,36 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { twMerge } from 'tailwind-merge'
-
-const sizes = {
-  small: 'h-1.5',
-  default: 'h-2.5',
-  large: 'h-4',
-  extralarge: 'h-6'
-}
-
-export interface ProgressProps extends React.HTMLAttributes<HTMLProgressElement> {
-  className?: string
-  value: number
-  size?: keyof typeof sizes
-  barClassName?: string
-}
-
-const Progress = ({ className, barClassName, value, size = 'default' }: ProgressProps) => {
-  const twClassName = twMerge(sizes[size], 'w-full rounded-full bg-gray-200 dark:bg-gray-700', className)
-  const twBarClassName = twMerge(
-    sizes[size],
-    'rounded-full bg-ui-primary transition-all duration-500 ease-out',
-    barClassName
-  )
-
-  return (
-    <div className={twClassName}>
-      <div className={twBarClassName} style={{ width: `${value}%` }} />
-    </div>
+import { PresentationSystemGroup, useExecute } from '@ir-engine/ecs'
+import { useForceUpdate } from '@ir-engine/hyperflux'
+/**
+ * WARNING - to be used for debug purposes only - will cause performance issues
+ */
+export const useFrameUpdate = () => {
+  const force = useForceUpdate()
+  useExecute(
+    () => {
+      force()
+    },
+    { after: PresentationSystemGroup }
   )
 }
-
-export default Progress

@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import {
   defineState,
   getMutableState,
@@ -86,7 +85,6 @@ const tabsData: TabProps['tabsData'] = Object.keys(DebugTabs).map((tabLabel) => 
 }))
 
 const Debug = () => {
-  useHookstate(getMutableState(ECSState).frameTime).value
   const activeTabIndex = useMutableState(DebugState).activeTabIndex
 
   useDraggable({

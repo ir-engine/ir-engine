@@ -71,21 +71,55 @@ const EnvMapReactor = () => {
   const materialComponentEntities = useChildrenWithComponents(entity, [MaterialStateComponent])
   return (
     <>
-      {materialComponentEntities.map((materialComponentEntity) => {
+      {materialComponentEntities.map((materialComponentEntity, index) => {
         switch (envMapComponent) {
           case 'Skybox':
-            return <EnvMapSkyboxReactor entity={materialComponentEntity} rootEntity={entity} />
+            return (
+              <EnvMapSkyboxReactor
+                key={envMapComponent + '-' + materialComponentEntity + '-' + index}
+                entity={materialComponentEntity}
+                rootEntity={entity}
+              />
+            )
           case 'Cubemap':
-            return <EnvMapCubemapReactor entity={materialComponentEntity} rootEntity={entity} />
+            return (
+              <EnvMapCubemapReactor
+                key={envMapComponent + '-' + materialComponentEntity + '-' + index}
+                entity={materialComponentEntity}
+                rootEntity={entity}
+              />
+            )
           case 'Equirectangular':
-            return <EnvMapEquirectangularReactor entity={materialComponentEntity} rootEntity={entity} />
+            return (
+              <EnvMapEquirectangularReactor
+                key={envMapComponent + '-' + materialComponentEntity + '-' + index}
+                entity={materialComponentEntity}
+                rootEntity={entity}
+              />
+            )
           case 'Color':
-            return <EnvMapColorReactor entity={materialComponentEntity} rootEntity={entity} />
+            return (
+              <EnvMapColorReactor
+                key={envMapComponent + '-' + materialComponentEntity + '-' + index}
+                entity={materialComponentEntity}
+                rootEntity={entity}
+              />
+            )
           case 'Bake':
-            return <EnvMapBakeReactor entity={materialComponentEntity} rootEntity={entity} />
+            return (
+              <EnvMapBakeReactor
+                key={envMapComponent + '-' + materialComponentEntity + '-' + index}
+                entity={materialComponentEntity}
+                rootEntity={entity}
+              />
+            )
           case 'Probes':
             return (
-              <EnvmapProbesReactor entity={materialComponentEntity} rootEntity={entity} key={materialComponentEntity} />
+              <EnvmapProbesReactor
+                key={envMapComponent + '-' + materialComponentEntity + '-' + index}
+                entity={materialComponentEntity}
+                rootEntity={entity}
+              />
             )
         }
       })}

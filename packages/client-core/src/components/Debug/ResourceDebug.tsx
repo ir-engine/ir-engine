@@ -23,14 +23,7 @@ import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'
 
 import { Entity, getOptionalComponent, UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
-import { ECSState } from '@ir-engine/ecs/src/ECSState'
-import {
-  defineState,
-  getMutableState,
-  syncStateWithLocalStorage,
-  useHookstate,
-  useMutableState
-} from '@ir-engine/hyperflux'
+import { defineState, syncStateWithLocalStorage, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Resource, ResourceState } from '@ir-engine/spatial/src/resources/ResourceState'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -73,7 +66,6 @@ const getEntityLabel = (entity: Entity, val: Resource) =>
 const getSizeLabel = (size: number) => ` (${roundToTwo(size / MB)} MB)`
 
 export function ResourceDebug() {
-  useHookstate(getMutableState(ECSState).frameTime).value
   const { t } = useTranslation()
 
   const resourceState = useMutableState(ResourceState)
