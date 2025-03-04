@@ -92,7 +92,7 @@ jobs:
         with:
           path: .
           key: dir-${{github.sha}}
-      - run: npm install -g node --force
+#      - run: npm install -g node --force
       - run: node --version
       - run: npm run dev-docker
       - run: npm run dev-reinit
