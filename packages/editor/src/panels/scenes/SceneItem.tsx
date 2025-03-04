@@ -37,6 +37,8 @@ import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { default as React } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
+import IRLogoModalDark from '../../../../client/public/iR-logo-Modal-dark.png'
+import IRLogoModalLight from '../../../../client/public/iR-logo-Modal-light.png'
 
 type SceneItemProps = {
   scene: StaticResourceType
@@ -73,7 +75,7 @@ export default function SceneItem({
     PopoverState.hidePopupover()
   }
 
-  const defaultThumbnail = theme?.value === 'dark' ? '/iR-logo-Modal-light.png' : '/iR-logo-Modal-dark.png'
+  const defaultThumbnail = theme?.value === 'dark' ? IRLogoModalLight : IRLogoModalDark
 
   return (
     <div
