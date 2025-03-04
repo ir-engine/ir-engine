@@ -36,7 +36,6 @@ import { PeerMediaChannelState, PeerMediaStreamInterface } from '@ir-engine/netw
 import { NetworkPeerState } from '@ir-engine/network/src/NetworkPeerState'
 import {
   ArrowTopRightOnSquareLg,
-  DoNotLg,
   Microphone01Md,
   MicrophoneOff,
   VideoRecorderMd,
@@ -206,9 +205,6 @@ const ReportUserWindow = () => {
             }
           >
             <WarningLg />
-          </button>
-          <button className="rounded-full bg-ui-error p-[15px]" title={t('user:videoWindows.blockUser')}>
-            <DoNotLg />
           </button>
         </div>
       </div>
