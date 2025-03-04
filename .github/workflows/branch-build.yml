@@ -47,9 +47,7 @@ jobs:
       - name: cache for next steps
         uses: actions/cache@v3
         with:
-          path: |
-            ~/.npm
-            .
+          path: .
           key: dir-${{github.sha}}
 
   check-lint:
@@ -61,10 +59,12 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: |
-            ~/.npm
-            .
+          path: .
           key: dir-${{github.sha}}
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
       - run: npm run lint
       - run: npm run check-eslint
         timeout-minutes: 20
@@ -78,10 +78,12 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: |
-            ~/.npm
-            .
+          path: .
           key: dir-${{github.sha}}
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
       - run: npm run dev-docker
       - run: npm run dev-reinit
       - run: npx lerna run --scope '@ir-engine/*' check-errors
@@ -96,11 +98,12 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: |
-            ~/.npm
-            .
+          path: .
           key: dir-${{github.sha}}
-      - run: node --version
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
       - run: npm run dev-docker
       - run: npm run dev-reinit
       - run: rm -rf packages/instanceserver
@@ -118,10 +121,12 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: |
-            ~/.npm
-            .
+          path: .
           key: dir-${{github.sha}}
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
       - run: mkdir -p packages_moved/hyperflux/
       - run: mv packages/hyperflux packages_moved/
       - run: rm -rf packages/*
@@ -137,10 +142,12 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: |
-            ~/.npm
-            .
+          path: .
           key: dir-${{github.sha}}
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
       - run: mkdir -p packages_moved/hyperflux/
       - run: mkdir -p packages_moved/ecs/
       - run: mv packages/hyperflux packages_moved/
@@ -159,10 +166,12 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: |
-            ~/.npm
-            .
+          path: .
           key: dir-${{github.sha}}
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
       - run: mkdir -p packages_moved/hyperflux/
       - run: mkdir -p packages_moved/ecs/
       - run: mkdir -p packages_moved/network/
@@ -184,10 +193,12 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: |
-            ~/.npm
-            .
+          path: .
           key: dir-${{github.sha}}
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
       - run: mkdir -p packages_moved/hyperflux/
       - run: mkdir -p packages_moved/ecs/
       - run: mkdir -p packages_moved/network/
@@ -215,10 +226,12 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: |
-            ~/.npm
-            .
+          path: .
           key: dir-${{github.sha}}
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
       - run: mkdir -p packages_moved/hyperflux/
       - run: mkdir -p packages_moved/ecs/
       - run: mkdir -p packages_moved/network/
@@ -260,10 +273,12 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: |
-            ~/.npm
-            .
+          path: .
           key: dir-${{github.sha}}
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
       - run: rm -rf packages/instanceserver
       - run: rm -rf packages/server
       - run: rm -rf packages/server-core
@@ -287,10 +302,12 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: |
-            ~/.npm
-            .
+          path: .
           key: dir-${{github.sha}}
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
       - run: rm -rf packages/client
       - run: rm -rf packages/client-core
       - run: rm -rf packages/editor
