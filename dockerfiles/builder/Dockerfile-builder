@@ -43,4 +43,4 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.
   && apt-get update -y \
   && apt-get install google-cloud-cli -y    
 
-CMD ["sleep", "infinity"]
+CMD ["scripts/run-builder.sh"]
