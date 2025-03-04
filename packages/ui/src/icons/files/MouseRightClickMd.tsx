@@ -26,13 +26,13 @@ Infinite Reality Engine. All Rights Reserved.
 import type { SVGProps } from 'react'
 import * as React from 'react'
 import { Ref, forwardRef } from 'react'
-const Maximize02Default = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
+const MouseRightClickMd = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="1em"
     height="1em"
     fill="none"
-    viewBox="0 0 16 16"
+    viewBox="0 0 20 20"
     role="img"
     stroke="currentColor"
     ref={ref}
@@ -42,10 +42,11 @@ const Maximize02Default = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElemen
       stroke="currentColor"
       strokeLinecap="round"
       strokeLinejoin="round"
-      strokeWidth={1.5}
-      d="M5.629 2.667H5.51c-.995 0-1.493 0-1.873.194-.335.17-.607.442-.777.777-.194.38-.194.878-.194 1.873v.119m2.963 7.704H5.51c-.995 0-1.493 0-1.873-.194a1.78 1.78 0 0 1-.777-.777c-.194-.38-.194-.878-.194-1.874v-.118M13.333 5.63v-.119c0-.995 0-1.493-.194-1.873a1.78 1.78 0 0 0-.777-.777c-.38-.194-.878-.194-1.874-.194h-.118m2.963 7.704v.118c0 .996 0 1.494-.194 1.874-.17.335-.442.607-.777.777-.38.194-.878.194-1.874.194h-.118"
+      strokeWidth={1.75}
+      d="M10 1.667A5.833 5.833 0 0 0 4.168 7.5v5a5.833 5.833 0 0 0 11.667 0v-5m-5.833-5.833A5.833 5.833 0 0 1 15.834 7.5m-5.833-5.833V7.5h5.833"
     />
+    <path fill="#F7F8FA" d="M10.416 7.083V1.667s2.23.539 3.333 1.25c1.473.95 1.667 4.166 1.667 4.166z" />
   </svg>
 )
-const ForwardRef = forwardRef(Maximize02Default)
+const ForwardRef = forwardRef(MouseRightClickMd)
 export default ForwardRef

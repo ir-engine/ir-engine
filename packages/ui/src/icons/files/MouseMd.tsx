@@ -26,29 +26,26 @@ Infinite Reality Engine. All Rights Reserved.
 import type { SVGProps } from 'react'
 import * as React from 'react'
 import { Ref, forwardRef } from 'react'
-const MouseLeftClick = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
+const MouseMd = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
   <svg
-    width="1rem"
-    height="1rem"
-    viewBox="0 0 16 16"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
+    width="1em"
+    height="1em"
+    fill="none"
+    viewBox="0 0 20 20"
+    role="img"
     stroke="currentColor"
     ref={ref}
     {...props}
   >
     <path
-      d="M8.00065 1.33301C10.578 1.33301 12.6673 3.42235 12.6673 5.99967V9.99967C12.6673 12.577 10.578 14.6663 8.00065 14.6663C5.42332 14.6663 3.33398 12.577 3.33398 9.99967V5.99967M8.00065 1.33301C5.42332 1.33301 3.33398 3.42235 3.33398 5.99967M8.00065 1.33301V5.99967L3.33398 5.99967"
       stroke="currentColor"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    />
-    <path
-      d="M7.66602 5.66634V1.33301C7.66602 1.33301 5.8814 1.76428 4.99935 2.33301C3.82103 3.09277 3.66602 5.66634 3.66602 5.66634H7.66602Z"
-      fill="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.75}
+      d="M10 7.5V5m0 13.333A5.833 5.833 0 0 1 4.165 12.5v-5a5.833 5.833 0 1 1 11.667 0v5a5.833 5.833 0 0 1-5.834 5.833"
     />
   </svg>
 )
-const ForwardRef = forwardRef(MouseLeftClick)
+const ForwardRef = forwardRef(MouseMd)
 export default ForwardRef

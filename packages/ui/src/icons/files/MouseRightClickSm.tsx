@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import type { SVGProps } from 'react'
 import * as React from 'react'
 import { Ref, forwardRef } from 'react'
-const MouseDefault = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
+const MouseRightClickSm = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="1em"
@@ -43,9 +43,10 @@ const MouseDefault = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) =
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth={1.5}
-      d="M8 6V4m0 10.666A4.667 4.667 0 0 1 3.335 10V6a4.667 4.667 0 0 1 9.333 0v4a4.667 4.667 0 0 1-4.666 4.666"
+      d="M8 1.333A4.667 4.667 0 0 0 3.332 6v4a4.667 4.667 0 1 0 9.333 0V6M7.999 1.333A4.667 4.667 0 0 1 12.666 6M7.999 1.333V6h4.667"
     />
+    <path fill="#F7F8FA" d="M8.334 5.667V1.333s1.785.432 2.667 1c1.178.76 1.333 3.334 1.333 3.334z" />
   </svg>
 )
-const ForwardRef = forwardRef(MouseDefault)
+const ForwardRef = forwardRef(MouseRightClickSm)
 export default ForwardRef

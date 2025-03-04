@@ -43,7 +43,7 @@ import { HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial
 import { AssetPreviewCameraComponent } from '@ir-engine/spatial/src/camera/components/AssetPreviewCameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { HelpIconLg, MouseDefault, MouseLeftClick, MouseRightClick } from '@ir-engine/ui/src/icons'
+import { HelpIconLg, MouseLeftClickMd, MouseMd, MouseRightClickMd } from '@ir-engine/ui/src/icons'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 
 import { useHookstate } from '@hookstate/core'
@@ -154,21 +154,21 @@ const AvatarPreview = ({ fill, avatarUrl, onAvatarError, onAvatarLoaded }: Props
               <div style={{ fontWeight: 'bold' }}>{t('user:avatar.rotate')}:</div>
               <div style={{ display: 'flex', justifyContent: 'center' }}>
                 {t('admin:components.avatar.leftClick')}
-                <MouseLeftClick fontSize="large" />
+                <MouseLeftClickMd />
               </div>
 
               <br />
 
               <div style={{ fontWeight: 'bold' }}>{t('user:avatar.pan')}:</div>
               <div style={{ display: 'flex', justifyContent: 'center' }}>
-                {t('admin:components.avatar.rightClick')} <MouseRightClick fontSize="large" />
+                {t('admin:components.avatar.rightClick')} <MouseRightClickMd />
               </div>
 
               <br />
 
               <div style={{ fontWeight: 'bold' }}>{t('admin:components.avatar.zoom')}:</div>
               <div style={{ display: 'flex', justifyContent: 'center' }}>
-                {t('admin:components.avatar.scroll')} <MouseDefault fontSize="large" />
+                {t('admin:components.avatar.scroll')} <MouseMd />
               </div>
             </div>
           }
