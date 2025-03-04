@@ -218,6 +218,8 @@ const RigReactor = (props: { entity: Entity }) => {
   const gltfComponent = useOptionalComponent(entity, GLTFComponent)
   const avatarAnimationComponent = useOptionalComponent(entity, AvatarAnimationComponent)
   useEffect(() => {
+    setVisibleComponent(entity, false)
+
     if (gltfComponent?.progress?.value !== 100 || !avatarAnimationComponent?.value) return
     try {
       createVRM(entity)
