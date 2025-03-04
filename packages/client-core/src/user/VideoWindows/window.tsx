@@ -22,14 +22,16 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { PeerMediaChannelState, PeerMediaStreamInterface } from '@ir-engine/network/src/media/PeerMediaChannelState'
-import { ArrowTopRightOnSquareSm } from '@ir-engine/ui/src/icons'
+
 import React, { useEffect, useRef } from 'react'
 
-import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
-import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
+import { State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { Microphone01, MicrophoneOff, VolumeMaxLg, VolumeXLg } from '@ir-engine/ui/src/icons'
 import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
+
+import { PeerMediaChannelState, PeerMediaStreamInterface } from '@ir-engine/network/src/media/PeerMediaChannelState'
+import { ArrowTopRightOnSquareSm } from '@ir-engine/ui/src/icons'
+import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import { useTranslation } from 'react-i18next'
 import { Props, useReportUser, useUserMediaWindowHook } from './hook'
 
@@ -57,6 +59,7 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
 
   useEffect(() => {
     videoElement.draggable = false
+    if (isSelf) videoElement.style.transform = 'scaleX(-1)'
     document.getElementById(peerID + '-' + type + '-video-container')!.append(videoElement)
     document.getElementById(peerID + '-' + type + '-audio-container')!.append(audioElement)
   }, [])
@@ -182,10 +185,17 @@ export const SingleVideoWindowWidget = ({ peerID, type }: Props): JSX.Element =>
       >
         {username}
         <button style={{ margin: 0 }} onClick={toggleAudio} xr-layer="true">
-          <Icon
-            xr-layer="true"
-            type={isSelf ? (audioStreamPaused ? 'MicOff' : 'Mic') : audioStreamPaused ? 'VolumeOff' : 'VolumeUp'}
-          />
+          {isSelf ? (
+            audioStreamPaused ? (
+              <MicrophoneOff />
+            ) : (
+              <Microphone01 />
+            )
+          ) : audioStreamPaused ? (
+            <VolumeXLg />
+          ) : (
+            <VolumeMaxLg fontSize="larger" />
+          )}
         </button>
       </div>
     </div>

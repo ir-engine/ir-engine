@@ -23,16 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { describe, expect, it } from '@jest/globals'
-import { shallow } from 'enzyme'
-import React from 'react'
-
-import Tooltip from './index'
-import { Default as story } from './index.stories'
-
-describe('Tooltip', () => {
-  it('- should render', () => {
-    const wrapper = shallow(<Tooltip {...story?.args} />)
-    expect(wrapper).toMatchSnapshot()
-  })
-})
+import { PresentationSystemGroup, useExecute } from '@ir-engine/ecs'
+import { useForceUpdate } from '@ir-engine/hyperflux'
+/**
+ * WARNING - to be used for debug purposes only - will cause performance issues
+ */
+export const useFrameUpdate = () => {
+  const force = useForceUpdate()
+  useExecute(
+    () => {
+      force()
+    },
+    { after: PresentationSystemGroup }
+  )
+}

@@ -40,7 +40,6 @@ import { useEngineInjection } from '@ir-engine/client-core/src/components/World/
 import { useUserBannedCheck } from '@ir-engine/client-core/src/hooks/useUserBanned'
 import { LoadingUISystemState } from '@ir-engine/client-core/src/systems/LoadingUISystem'
 import { useMutableState } from '@ir-engine/hyperflux'
-import '../mui.styles.scss' /** @todo Remove when MUI is removed */
 import '../styles.scss'
 
 const LocationRoutes = () => {
