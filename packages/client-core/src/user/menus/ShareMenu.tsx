@@ -278,14 +278,12 @@ const ShareMenu = (): JSX.Element => {
           </div>
         </div>
       </div>
-      {
-        <div className="mt-4 hidden w-full items-center justify-center border-t-[0.5px] border-[#212226] py-[11px] mdh:flex">
-          <Button variant="secondary" size="l" onClick={() => navigator.share({ url: shareLink })}>
-            <Share06Sm />
-            {t('user:usermenu.share.lbl-share')}
-          </Button>
-        </div>
-      }
+      <div className="mt-4 hidden w-full items-center justify-center border-t-[0.5px] border-[#212226] py-[11px] mdh:flex">
+        <Button variant="secondary" size="l" onClick={() => navigator.share({ url: shareLink })}>
+          <Share06Sm />
+          {t('user:usermenu.share.lbl-share')}
+        </Button>
+      </div>
     </div>
   )
 }
