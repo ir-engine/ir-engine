@@ -24,8 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { defineState, getMutableState } from '@ir-engine/hyperflux'
+import { SVGIconType } from '@ir-engine/ui/src/icons/types'
 import { IconType } from 'react-icons'
-import { SVGIconType } from '../user/components/LocationIconButton'
 
 type ExternalMenuType = {
   component: React.ReactNode

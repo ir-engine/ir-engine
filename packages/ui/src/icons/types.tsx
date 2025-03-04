@@ -23,16 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { describe, expect, it } from '@jest/globals'
-import { shallow } from 'enzyme'
-import React from 'react'
-
-import IconButton from './index'
-import { Default as story } from './index.stories'
-
-describe('IconButton', () => {
-  it('- should render', () => {
-    const wrapper = shallow(<IconButton {...story?.args} />)
-    expect(wrapper).toMatchSnapshot()
-  })
-})
+export type SVGIconType = React.ForwardRefExoticComponent<
+  Omit<React.SVGProps<SVGSVGElement>, 'ref'> & React.RefAttributes<SVGSVGElement>
+>

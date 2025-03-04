@@ -37,8 +37,6 @@ import { useFind } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
-
-import './mui.styles.scss' /** @todo Remove when MUI is removed */
 import './styles.scss'
 
 const ClientSettings = () => {

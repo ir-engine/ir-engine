@@ -23,10 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { respawnAvatar } from '@ir-engine/engine/src/avatar/functions/respawnAvatar'
-import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { Button } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -46,7 +45,6 @@ import { DebugState } from './index'
 
 export default function DebugButtons() {
   const { t } = useTranslation()
-  useHookstate(getMutableState(ECSState).frameTime).value
   const rendererState = useMutableState(RendererState)
   const debugEnabled = useMutableState(DebugState).enabled
 

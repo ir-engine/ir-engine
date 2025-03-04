@@ -28,7 +28,6 @@ import { useParams } from 'react-router-dom'
 
 import { useLoadLocation, useLoadScene } from '@ir-engine/client-core/src/components/World/LoadLocationScene'
 import { AuthService } from '@ir-engine/client-core/src/user/services/AuthService'
-import { ThemeContextProvider } from '@ir-engine/client/src/pages/themeContext'
 import { getMutableState, useMutableState } from '@ir-engine/hyperflux'
 import { ViewerInteractions } from '../components/ViewerInteractions'
 
@@ -37,7 +36,6 @@ import '@ir-engine/client-core/src/util/GlobalStyle.css'
 import './LocationModule'
 
 import multiLogger from '@ir-engine/common/src/logger'
-import { StyledEngineProvider } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 import { NotificationService } from '../common/services/NotificationService'
 import { ThemeState } from '../common/services/ThemeService'
@@ -92,11 +90,7 @@ const LocationPage = ({ online }: Props) => {
 
   return (
     <>
-      <ThemeContextProvider>
-        <StyledEngineProvider injectFirst>
-          <ViewerInteractions />
-        </StyledEngineProvider>
-      </ThemeContextProvider>
+      <ViewerInteractions />
     </>
   )
 }

@@ -40,6 +40,7 @@ import { SystemState } from '@ir-engine/ecs/src/SystemState'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { Button } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { useFrameUpdate } from './useFrameUpdate'
 
 const col = new Color()
 const col2 = new Color()
@@ -53,7 +54,6 @@ const convertSystemExecutionTimeToColor = (systemDuration: number, targetTimeste
 }
 
 export const SystemDebug = () => {
-  useHookstate(getMutableState(ECSState).frameTime).value
   const performanceProfilingEnabled = useHookstate(getMutableState(SystemState).performanceProfilingEnabled)
   const { t } = useTranslation()
 
@@ -77,7 +77,8 @@ export const SystemDebug = () => {
 export const SystemDagView = (props: { uuid: SystemUUID }) => {
   const { t } = useTranslation()
 
-  useHookstate(getMutableState(ECSState).frameTime).value
+  useFrameUpdate()
+
   const performanceProfilingEnabled = useHookstate(getMutableState(SystemState).performanceProfilingEnabled)
 
   return (

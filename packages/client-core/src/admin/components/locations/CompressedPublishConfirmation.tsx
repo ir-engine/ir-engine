@@ -23,30 +23,28 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import CloseIcon from '@mui/icons-material/Close'
+import ProgressBar from '@ir-engine/client-core/src/systems/ui/LoadingDetailView/SimpleProgressBar'
 import React from 'react'
 
-import IconButton from '../IconButton'
-import Tooltip from '../Tooltip'
-
-const IconButtonWithTooltip = ({
-  id,
-  title,
-  icon,
-  tooltipClassName,
-  ...props
-}: Parameters<typeof IconButton>[0] & { tooltipClassName?: string }) => {
+export default function CompressedPublishConfirmation() {
   return (
-    <Tooltip id={id} title={title} className={tooltipClassName}>
-      <IconButton id={id} icon={icon} {...props} />
-    </Tooltip>
+    <div className="flex items-center justify-center">
+      <div className="absolute z-50 w-[30vw] rounded-lg border border-gray-800 bg-surface-2  p-20 shadow-lg">
+        <ProgressBar
+          bgColor={'#ffffff'}
+          completed={50}
+          loopingBarWidth={50}
+          height="4px"
+          baseBgColor="#2F3137"
+          isLabelVisible={false}
+          isLooping={true}
+          loopingBarSpeed={0.4}
+        />
+        <div className="mb-8 mt-6  flex justify-between text-sm text-white">
+          <span>On Compressed Publish...</span>
+          <span>Please Wait</span>
+        </div>
+      </div>
+    </div>
   )
 }
-
-IconButtonWithTooltip.displayName = 'IconButtonWithTooltip'
-
-IconButtonWithTooltip.defaultProps = {
-  icon: <CloseIcon />
-}
-
-export default IconButtonWithTooltip

@@ -43,7 +43,6 @@ import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/Col
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import { BodyTypes, Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
-import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import {
   DistanceFromCameraComponent,
   FrustumCullCameraComponent
@@ -68,8 +67,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
   setComponent(entity, TransformComponent)
-
-  setComponent(entity, VisibleComponent, true)
 
   setComponent(entity, DistanceFromCameraComponent)
   setComponent(entity, FrustumCullCameraComponent)
