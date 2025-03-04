@@ -44,6 +44,7 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm install --production=false --loglevel notice --legacy-peer-deps
+      - run: node --version
       - name: cache for next steps
         uses: actions/cache@v3
         with:
