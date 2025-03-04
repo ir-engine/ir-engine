@@ -27,6 +27,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { feathers } from '@feathersjs/feathers'
 import { bodyParser, errorHandler, koa, rest } from '@feathersjs/koa'
+//@ts-ignore
 import { AppsV1Api, BatchV1Api, CoreV1Api, CustomObjectsApi, KubeConfig } from '@kubernetes/client-node'
 // Do not delete, this is used even if some IDEs show it as unused
 import swagger from 'feathers-swagger'
