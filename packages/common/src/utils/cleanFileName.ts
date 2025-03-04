@@ -48,10 +48,13 @@ import { END_WITH_ALPHANUMERIC_REGEX, SANITIZE_FILENAME_REGEX, START_WITH_ALPHAN
  */
 export const getEncodedFileName = (displayName: string) => {
   let encoded = displayName
-    .replace(/\(/g, '_') // opening parenthesis to underscore
-    .replace(/\)/g, '-') // closing parenthesis to hyphen
-    .replace(/-/g, '--') // preserve hyphens by doubling them
-    .replace(/\s/g, '-') // spaces to single hyphens
+    .replace(/\s*\(\s*(\d+)\s*\)\s*/g, '_$1-') // handle (number) pattern with any spaces
+    .replace(/\(/g, '_') // remaining opening parenthesis to underscore
+    .replace(/\)/g, '-') // remaining closing parenthesis to hyphen
+    .replace(/--/g, '§') // temporarily store double hyphens
+    .replace(/-/g, '--') // double all single hyphens
+    .replace(/§/g, '--') // restore original double hyphens
+    .replace(/\s+/g, '-') // convert spaces to single hyphens
 
   // Add 'x' at the beginning if it starts with special characters
   if (/^[-_]/.test(encoded)) {
@@ -96,13 +99,12 @@ export const getDecodedFileName = (encodedName: string) => {
   }
 
   return decoded
-    .replace(/(?<=^|\s)_/g, '(') // underscore to opening parenthesis (if preceded by start or space)
-    .replace(/(?<![\d\s])_(?=\d)/g, '(') // underscore to opening parenthesis before numbers
-    .replace(/-(?=\s|$)/g, ')') // hyphen to closing parenthesis if followed by space or end
-    .replace(/--/g, '§') // temporarily replace double hyphens
-    .replace(/-(?!\d)/g, ' ') // single hyphens to spaces (except if followed by number)
-    .replace(/(?<![\d\s])-/g, ' ') // remaining single hyphens to spaces
+    .replace(/_(\d+)-/g, ' ($1)') // handle _number- pattern with proper spacing
+    .replace(/--/g, '§') // temporarily store double hyphens
+    .replace(/-/g, ' ') // convert single hyphens to spaces
     .replace(/§/g, '-') // restore original hyphens
+    .replace(/\s+/g, ' ') // normalize multiple spaces to single space
+    .trim() // remove any leading/trailing spaces
 }
 
 /**

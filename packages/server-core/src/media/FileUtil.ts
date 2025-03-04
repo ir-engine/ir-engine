@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import fs from 'fs'
 import path from 'path'
 
+import { getEncodedFileName } from '@ir-engine/common/src/utils/cleanFileName'
 import { StorageProviderInterface } from './storageprovider/storageprovider.interface'
 
 export const copyRecursiveSync = function (src: string, dest: string): void {
@@ -56,7 +57,7 @@ export const getIncrementalName = async function (
 
   if (isDirectory) {
     while (await store.isDirectory(filename, directoryPath)) {
-      filename = `${name}_${count}`
+      filename = getEncodedFileName(`${name} (${count})`)
       count++
     }
   } else {
@@ -64,7 +65,7 @@ export const getIncrementalName = async function (
     const baseName = path.basename(name, extension)
 
     while (await store.doesExist(filename, directoryPath)) {
-      filename = `${baseName}_${count}${extension}`
+      filename = `${getEncodedFileName(`${baseName} (${count})`)}${extension}`
       count++
     }
   }
