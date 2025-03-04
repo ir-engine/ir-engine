@@ -25,8 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 
-import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
-
+import { CheckLg } from '@ir-engine/ui/src/icons'
 import styleString from './index.scss?inline'
 
 type labelPositionVariant = 'start' | 'end' | 'none'
@@ -48,7 +47,7 @@ const XRCheckboxButton = (props) => {
           <input type="checkbox" checked={checked} {...inputProps} />
           {checked && (
             <span className="checkboxIcon">
-              <Icon type="Check" />
+              <CheckLg />
             </span>
           )}
         </label>

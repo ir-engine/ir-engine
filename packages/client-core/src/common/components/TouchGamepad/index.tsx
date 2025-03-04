@@ -29,9 +29,8 @@ import { Joystick } from 'react-joystick-component'
 import { InteractableState } from '@ir-engine/engine/src/interaction/functions/interactableFunctions'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { isTouchAvailable } from '@ir-engine/spatial/src/common/functions/DetectFeatures'
-import { AnyButton, XRStandardGamepadButton } from '@ir-engine/spatial/src/input/state/ButtonState'
+import { AnyButton } from '@ir-engine/spatial/src/input/state/ButtonState'
 import { XRState, isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
-import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import { IJoystickUpdateEvent } from 'react-joystick-component/build/lib/Joystick'
 import { AppState } from '../../services/AppService'
 import BasepadImage from './basepad.svg'
@@ -63,12 +62,7 @@ const handleStop = () => {
   document.dispatchEvent(event)
 }
 
-const buttonsConfig: Array<{ button: AnyButton; label: React.ReactElement }> = [
-  {
-    button: XRStandardGamepadButton.XRStandardGamepadTrigger,
-    label: <Icon type="TouchApp" />
-  }
-]
+const buttonsConfig: Array<{ button: AnyButton; label: React.ReactElement }> = []
 
 export const TouchGamepad = () => {
   const interactableState = useMutableState(InteractableState)

@@ -23,9 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { ChevronDownLg } from '@ir-engine/ui/src/icons'
 import React, { useState } from 'react'
-
-import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 
 import styleString from './index.scss?inline'
 
@@ -49,7 +48,7 @@ function XRSelectDropdown<T extends string>(props: Props<T>) {
       <div className="selectContainer" onClick={toggleVisibility}>
         <div className="selectValue">{value}</div>
         <div className="selectIcon">
-          <Icon type="ArrowDropDown" />
+          <ChevronDownLg />
         </div>
         <div className={`selectOptions ${visible ? 'visible' : ''}`}>
           {options.map((op, index) => {

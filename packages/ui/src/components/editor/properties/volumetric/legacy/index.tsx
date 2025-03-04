@@ -47,7 +47,6 @@ import { MdVideocam } from 'react-icons/md'
 
 import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
 import { Slider } from '@ir-engine/ui/editor'
-import { Button } from '@mui/material'
 import { Scrubber } from 'react-scrubber'
 import 'react-scrubber/lib/scrubber.css'
 import ArrayInputGroup from '../../../input/Array'
@@ -283,11 +282,11 @@ export const LegacyVolumetricNodeEditor: EditorComponentType = (props) => {
           onChange={commitProperty(LegacyVolumetricComponent, 'playMode')}
         />
         {volumetricComponent.paths && volumetricComponent.paths.length > 0 && volumetricComponent.paths[0] && (
-          <Button style={{ marginLeft: '5px', width: '60px' }} type="submit" onClick={toggle}>
+          <button style={{ marginLeft: '5px', width: '60px' }} type="submit" onClick={toggle}>
             {volumetricComponent.paused.value
               ? t('editor:properties.media.playtitle')
               : t('editor:properties.media.pausetitle')}
-          </Button>
+          </button>
         )}
       </InputGroup>
 

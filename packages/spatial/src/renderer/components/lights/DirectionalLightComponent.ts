@@ -33,7 +33,6 @@ import {
   createEntity,
   defineComponent,
   getMutableComponent,
-  hasComponent,
   removeComponent,
   removeEntity,
   setComponent,
@@ -128,12 +127,12 @@ export const DirectionalLightComponent = defineComponent({
     const debugEnabled = renderState.nodeHelperVisibility
     const directionalLightComponent = useComponent(entity, DirectionalLightComponent)
     const light = useHookstate(() => new DirectionalLight()).value as DirectionalLight
-    const helperEntity = useHookstate(UndefinedEntity)
 
     useEffect(() => {
       setComponent(entity, LightTagComponent)
       getMutableComponent(entity, DirectionalLightComponent).light.set(light)
       setComponent(entity, ObjectComponent, light)
+      setComponent(entity, ActiveHelperComponent, { directional: true })
 
       return () => {
         removeComponent(entity, ObjectComponent)
@@ -145,10 +144,10 @@ export const DirectionalLightComponent = defineComponent({
     }, [directionalLightComponent.color])
 
     useEffect(() => {
-      if (!helperEntity.value) return
-      const helper = getMutableComponent(helperEntity.value, LineSegmentComponent)
+      if (!activeHelperComponent?.helperSelectedGizmo.value) return
+      const helper = getMutableComponent(activeHelperComponent?.helperSelectedGizmo.value, LineSegmentComponent)
       helper.color.set(directionalLightComponent.color.value)
-    }, [helperEntity.value, directionalLightComponent.color])
+    }, [activeHelperComponent?.helperSelectedGizmo, directionalLightComponent.color])
 
     useEffect(() => {
       light.intensity = directionalLightComponent.intensity.value
@@ -178,10 +177,11 @@ export const DirectionalLightComponent = defineComponent({
     }, [renderState.shadowMapResolution])
 
     useEffect(() => {
-      if (!debugEnabled.value && !hasComponent(entity, ActiveHelperComponent)) return
-      helperEntity.set(createEntity())
-      setComponent(helperEntity.value, EntityTreeComponent, { parentEntity: entity })
-      setComponent(helperEntity.value, LineSegmentComponent, {
+      if (!(debugEnabled.value || (activeHelperComponent !== undefined && activeHelperComponent.enabled.value))) return
+
+      activeHelperComponent!.helperSelectedGizmo.set(createEntity())
+      setComponent(activeHelperComponent!.helperSelectedGizmo.value, EntityTreeComponent, { parentEntity: entity })
+      setComponent(activeHelperComponent!.helperSelectedGizmo.value, LineSegmentComponent, {
         name: 'directional-light-helper',
         // Clone geometry because LineSegmentComponent disposes it when removed
         geometry: mergedGeometry?.clone(),
@@ -189,10 +189,10 @@ export const DirectionalLightComponent = defineComponent({
       })
 
       return () => {
-        removeEntity(helperEntity.value)
-        helperEntity.set(UndefinedEntity)
+        removeEntity(activeHelperComponent!.helperSelectedGizmo.value)
+        activeHelperComponent!.helperSelectedGizmo.set(UndefinedEntity)
       }
-    }, [debugEnabled, activeHelperComponent])
+    }, [debugEnabled, activeHelperComponent?.enabled])
 
     return null
   }
