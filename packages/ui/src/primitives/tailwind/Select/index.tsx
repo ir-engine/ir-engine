@@ -100,6 +100,7 @@ const Select = ({
   const [filteredOptions, setFilteredOptions] = useState(options)
   const [searchString, setSearchString] = useState('')
   const fuseRef = useRef<Fuse<OptionType> | null>(null)
+  const [touchMoved, setTouchedMoved] = useState(false)
   const localValue = useHookstate(value)
   const id = useId()
   const [triggerWidth, setTriggerWidth] = useState(0)
@@ -440,6 +441,21 @@ const Select = ({
               }}
               onMouseLeave={() => {
                 setActiveIndex(-1)
+              }}
+              onTouchStart={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+              }}
+              onTouchMove={() => setTouchedMoved(true)}
+              onTouchEnd={() => {
+                if (!touchMoved) {
+                  closePopup()
+                  localValue.set(currentValue)
+                  setSelectedOptionIndex(index)
+                  setDisplayText(optionProps.label)
+                  onChange(currentValue)
+                }
+                setTouchedMoved(false)
               }}
               onKeyUp={(e) => {
                 if (e.code === 'Enter') {
