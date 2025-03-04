@@ -42,6 +42,7 @@ import { userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { checkScope } from '@ir-engine/common/src/utils/checkScope'
 import setLoggedInUser from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-body'
 
+import { USER_ID_REGEX } from '@ir-engine/common/src/regex'
 import { HookContext } from '../../../declarations'
 import disallowNonId from '../../hooks/disallow-non-id'
 import isAction from '../../hooks/is-action'
@@ -169,13 +170,15 @@ const removeAvatarResources = async (context: HookContext<AvatarService>) => {
   const avatar = await context.app.service(avatarPath).get(context.id!, context.params)
 
   try {
-    await context.app.service(staticResourcePath).remove(avatar.modelResourceId)
+    if (USER_ID_REGEX.test(avatar.modelResourceId))
+      await context.app.service(staticResourcePath).remove(avatar.modelResourceId)
   } catch (err) {
     logger.error(err)
   }
 
   try {
-    await context.app.service(staticResourcePath).remove(avatar.thumbnailResourceId)
+    if (USER_ID_REGEX.test(avatar.thumbnailResourceId))
+      await context.app.service(staticResourcePath).remove(avatar.thumbnailResourceId)
   } catch (err) {
     logger.error(err)
   }

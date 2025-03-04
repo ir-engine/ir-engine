@@ -42,6 +42,7 @@ import {
 import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
 import verifyScope from '@ir-engine/server-core/src/hooks/verify-scope'
 
+import { USER_ID_REGEX } from '@ir-engine/common/src/regex'
 import { projectHistoryPath, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
 import checkScope from '../../hooks/check-scope'
@@ -173,7 +174,8 @@ const removeLocationSetting = async (context: HookContext<LocationService>) => {
   if (context.id) {
     const location = await context.app.service(locationPath).get(context.id)
 
-    if (location.locationSetting) await context.app.service(locationSettingPath).remove(location.locationSetting.id)
+    if (location.locationSetting && USER_ID_REGEX.test(location.locationSetting.id))
+      await context.app.service(locationSettingPath).remove(location.locationSetting.id)
   }
 }
 

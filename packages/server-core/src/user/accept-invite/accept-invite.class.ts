@@ -39,6 +39,7 @@ import { IdentityProviderType, identityProviderPath } from '@ir-engine/common/sr
 import { userRelationshipPath } from '@ir-engine/common/src/schemas/user/user-relationship.schema'
 import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 
+import { USER_ID_REGEX } from '@ir-engine/common/src/regex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 
@@ -167,7 +168,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
         const inviter = await this.app.service(userPath).get(invite.userId)
 
         if (inviter == null) {
-          await this.app.service(invitePath).remove(invite.id)
+          if (USER_ID_REGEX.test(invite.id)) await this.app.service(invitePath).remove(invite.id)
           throw new BadRequest('Invalid user ID')
         }
 
@@ -234,7 +235,7 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
           .find({ query: { id: invite.targetObjectId, $limit: 1 } })) as Paginated<ChannelType>
 
         if (channel.total === 0) {
-          await this.app.service(invitePath).remove(invite.id)
+          if (USER_ID_REGEX.test(invite.id)) await this.app.service(invitePath).remove(invite.id)
           throw new BadRequest('Invalid channel ID')
         }
 
@@ -254,7 +255,8 @@ export class AcceptInviteService implements ServiceInterface<AcceptInviteParams>
       }
 
       params.preventUserRelationshipRemoval = true
-      if (invite.deleteOnUse) await this.app.service(invitePath).remove(invite.id, params as any)
+      if (invite.deleteOnUse && USER_ID_REGEX.test(invite.id))
+        await this.app.service(invitePath).remove(invite.id, params as any)
 
       returned.token = await this.app
         .service('authentication')

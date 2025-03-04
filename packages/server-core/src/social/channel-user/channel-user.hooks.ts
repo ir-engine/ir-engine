@@ -39,6 +39,7 @@ import { channelPath } from '@ir-engine/common/src/schemas/social/channel.schema
 import { messagePath } from '@ir-engine/common/src/schemas/social/message.schema'
 import { userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 
+import { USER_ID_REGEX } from '@ir-engine/common/src/regex'
 import { HookContext } from '../../../declarations'
 import disallowId from '../../hooks/disallow-id'
 import verifyScope from '../../hooks/verify-scope'
@@ -115,9 +116,8 @@ const removeEmptyNonInstanceChannel = async (context: HookContext<ChannelUserSer
       }
     })) as Paginated<ChannelUserType>
 
-    if (channelUserCount.data.length === 0) {
+    if (channelUserCount.data.length === 0 && USER_ID_REGEX.test(item.channelId))
       await app.service(channelPath).remove(item.channelId)
-    }
   }
 
   return context

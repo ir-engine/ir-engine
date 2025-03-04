@@ -33,6 +33,7 @@ import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/us
 import { InviteCode, UserName, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { getDateTimeSql, toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 
+import { USER_ID_REGEX } from '@ir-engine/common/src/regex'
 import { loginTokenPath } from '@ir-engine/common/src/schemas/user/login-token.schema'
 import moment from 'moment/moment'
 import { Octokit } from 'octokit'
@@ -147,8 +148,9 @@ export class GithubStrategy extends CustomOAuthStrategy {
       })
     if (entity.type !== 'guest' && identityProvider.type === 'guest') {
       const existingUser = await this.app.service(userPath).get(entity.userId)
-      await this.app.service(identityProviderPath)._remove(identityProvider.id)
-      await this.app.service(userPath).remove(identityProvider.userId)
+      if (USER_ID_REGEX.test(identityProvider.id))
+        await this.app.service(identityProviderPath)._remove(identityProvider.id)
+      if (USER_ID_REGEX.test(identityProvider.userId)) await this.app.service(userPath).remove(identityProvider.userId)
       if (!config.kubernetes.enabled)
         await this.app.service(githubRepoAccessRefreshPath).find(Object.assign({}, params, { user: existingUser }))
       else await this.createRefreshJob(existingUser.id)
@@ -201,7 +203,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
             }
           }
         }
-        await this.app.service(identityProviderPath).remove(entity.id)
+        if (USER_ID_REGEX.test(entity.id)) await this.app.service(identityProviderPath).remove(entity.id)
       }
       if (!config.kubernetes.enabled)
         await this.app.service(githubRepoAccessRefreshPath).find(Object.assign({}, params, { user }))

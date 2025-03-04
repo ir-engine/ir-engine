@@ -43,7 +43,7 @@ import path from 'path'
 import semver from 'semver'
 import { promisify } from 'util'
 
-import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX } from '@ir-engine/common/src/regex'
+import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX, USER_ID_REGEX } from '@ir-engine/common/src/regex'
 import { AssetType, FileToAssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
 
 import { ManifestJson } from '@ir-engine/common/src/interfaces/ManifestJson'
@@ -1818,7 +1818,7 @@ export const uploadLocalProjectToProvider = async (
   await Promise.all(
     Array.from(existingKeySet.values()).map(async (id) => {
       try {
-        await app.service(staticResourcePath).remove(id, { ignoreResourcesJson: true })
+        if (USER_ID_REGEX.test(id)) await app.service(staticResourcePath).remove(id, { ignoreResourcesJson: true })
       } catch (error) {
         logger.warn(`Error deleting resource: ${error}`)
       }

@@ -47,7 +47,7 @@ import { isValidFileExtension, isValidFileName, isValidFilePath } from '@ir-engi
 import isValidSceneName from '@ir-engine/common/src/utils/validateSceneName'
 
 import { BadRequest } from '@feathersjs/errors/lib'
-import { PROJECT_CAPTURE_REGEX, PROJECT_REGEX } from '@ir-engine/common/src/regex'
+import { PROJECT_CAPTURE_REGEX, PROJECT_REGEX, USER_ID_REGEX } from '@ir-engine/common/src/regex'
 import { copyFolderRecursiveSync } from '@ir-engine/common/src/utils/fsHelperFunctions'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -553,7 +553,7 @@ export class FileBrowserService
     if (staticResources?.length > 0) {
       await Promise.all(
         staticResources.map(async (resource) => {
-          await this.app.service(staticResourcePath).remove(resource.id)
+          if (USER_ID_REGEX.test(resource.id)) await this.app.service(staticResourcePath).remove(resource.id)
           if (resource.thumbnailKey) {
             const thumbnail = (await this.app.service(staticResourcePath).find({
               query: { key: { $like: `%${resource.thumbnailKey}%` }, type: 'thumbnail' },
@@ -561,7 +561,8 @@ export class FileBrowserService
             })) as any as StaticResourceType[]
             if (thumbnail.length > 0 && !this.isDefaultThumbnail(thumbnail[0])) {
               await storageProvider.deleteResources([thumbnail[0].key])
-              await this.app.service(staticResourcePath).remove(thumbnail[0].id)
+              if (USER_ID_REGEX.test(thumbnail[0].id))
+                await this.app.service(staticResourcePath).remove(thumbnail[0].id)
             }
           }
         })

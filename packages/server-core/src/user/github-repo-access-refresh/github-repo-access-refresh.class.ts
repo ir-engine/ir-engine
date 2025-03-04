@@ -33,6 +33,7 @@ import {
 import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import * as k8s from '@kubernetes/client-node'
 
+import { USER_ID_REGEX } from '@ir-engine/common/src/regex'
 import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { getJobBody } from '../../k8s-job-helper'
@@ -108,7 +109,7 @@ export class GithubRepoAccessRefreshService implements ServiceInterface<void, Gi
         const urlsOnly = githubRepos.map((repo) => repo.html_url)
         await Promise.all(
           existingGithubRepoAccesses.map(async (repoAccess) => {
-            if (urlsOnly.indexOf(repoAccess.repo) < 0)
+            if (urlsOnly.indexOf(repoAccess.repo) < 0 && USER_ID_REGEX.test(repoAccess.id))
               await this.app.service(githubRepoAccessPath).remove(repoAccess.id)
           })
         )

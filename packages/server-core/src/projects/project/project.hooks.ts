@@ -32,7 +32,7 @@ import { Knex } from 'knex'
 import path from 'path'
 
 import { ManifestJson } from '@ir-engine/common/src/interfaces/ManifestJson'
-import { GITHUB_URL_REGEX } from '@ir-engine/common/src/regex'
+import { GITHUB_URL_REGEX, USER_ID_REGEX } from '@ir-engine/common/src/regex'
 import { apiJobPath } from '@ir-engine/common/src/schemas/cluster/api-job.schema'
 import { staticResourcePath, StaticResourceType } from '@ir-engine/common/src/schemas/media/static-resource.schema'
 import { ProjectBuildUpdateItemType } from '@ir-engine/common/src/schemas/projects/project-build.schema'
@@ -460,7 +460,11 @@ const removeLocationFromProject = async (context: HookContext<ProjectService>) =
     }
   })
   await Promise.all(
-    removingLocations.data.map((removingLocation) => context.app.service(locationPath).remove(removingLocation.id))
+    removingLocations.data.map((removingLocation) =>
+      USER_ID_REGEX.test(removingLocation.id)
+        ? context.app.service(locationPath).remove(removingLocation.id)
+        : Promise.resolve()
+    )
   )
 }
 
@@ -491,9 +495,9 @@ const removeAvatarsFromProject = async (context: HookContext<ProjectService>) =>
   })) as any as AvatarType[]
 
   await Promise.all(
-    avatarItems.map(async (avatar) => {
-      await context.app.service(avatarPath).remove(avatar.id)
-    })
+    avatarItems.map(async (avatar) =>
+      USER_ID_REGEX.test(avatar.id) ? await context.app.service(avatarPath).remove(avatar.id) : Promise.resolve()
+    )
   )
 }
 
@@ -511,7 +515,8 @@ const removeStaticResourcesFromProject = async (context: HookContext<ProjectServ
   })) as any as StaticResourceType[]
   staticResourceItems.length &&
     staticResourceItems.forEach(async (staticResource) => {
-      await context.app.service(staticResourcePath).remove(staticResource.id, { ignoreResourcesJson: true })
+      if (USER_ID_REGEX.test(staticResource.id))
+        await context.app.service(staticResourcePath).remove(staticResource.id, { ignoreResourcesJson: true })
     })
 }
 

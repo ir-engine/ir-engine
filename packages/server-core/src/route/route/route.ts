@@ -31,6 +31,7 @@ import { InstalledRoutesInterface } from '@ir-engine/common/src/interfaces/Route
 import { routeMethods, routePath, RouteType } from '@ir-engine/common/src/schemas/route/route.schema'
 import { ProjectConfigInterface } from '@ir-engine/projects/ProjectConfigInterface'
 
+import { USER_ID_REGEX } from '@ir-engine/common/src/regex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { RouteService } from './route.class'
@@ -104,7 +105,7 @@ export const activateRoute = (routeService: RouteService) => {
       if (routeToActivate) {
         // if any projects already have this route, deactivate them
         for (const route of activatedRoutes) {
-          if (route.route === data.route) await routeService.remove(route.id)
+          if (route.route === data.route && USER_ID_REGEX.test(route.id)) await routeService.remove(route.id)
         }
         await routeService.create({
           route: data.route,
@@ -114,7 +115,7 @@ export const activateRoute = (routeService: RouteService) => {
       }
     } else {
       const routeToDeactivate = activatedRoutes.find((r) => r.project === data.project && r.route === data.route)
-      if (routeToDeactivate) {
+      if (routeToDeactivate && USER_ID_REGEX.test(routeToDeactivate.id)) {
         await routeService.remove(routeToDeactivate.id)
         return true
       }

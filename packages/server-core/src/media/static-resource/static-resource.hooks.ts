@@ -28,6 +28,7 @@ import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
 
 import { StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schemas/media/static-resource.schema'
 
+import { USER_ID_REGEX } from '@ir-engine/common/src/regex'
 import { projectHistoryPath, projectPath } from '@ir-engine/common/src/schema.type.module'
 import { isEmpty } from 'lodash'
 import { HookContext } from '../../../declarations'
@@ -249,7 +250,8 @@ const deleteOldThumbnail = async (context: HookContext<StaticResourceService>) =
     })
     if (oldThumbnail.data.length) {
       const oldThumbnailResource = oldThumbnail.data[0]
-      await context.app.service(staticResourcePath).remove(oldThumbnailResource.id)
+      if (USER_ID_REGEX.test(oldThumbnailResource.id))
+        await context.app.service(staticResourcePath).remove(oldThumbnailResource.id)
     } else {
       logger.warn('Old thumbnail resource not found')
     }

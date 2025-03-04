@@ -31,6 +31,7 @@ import { loginTokenPath } from '@ir-engine/common/src/schemas/user/login-token.s
 import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 
+import { USER_ID_REGEX } from '@ir-engine/common/src/regex'
 import { userLoginPath } from '@ir-engine/common/src/schemas/user/user-login.schema'
 import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import moment from 'moment'
@@ -89,7 +90,7 @@ export class LoginService implements ServiceInterface {
       }
       if (new Date() > new Date(loginToken.expiresAt)) {
         logger.info('Login Token has expired')
-        await this.app.service(loginTokenPath).remove(loginToken.id)
+        if (USER_ID_REGEX.test(loginToken.id)) await this.app.service(loginTokenPath).remove(loginToken.id)
         return { error: 'Login link has expired' }
       }
       const identityProvider = await this.app.service(identityProviderPath).get(loginToken.identityProviderId)
@@ -167,7 +168,7 @@ export class LoginService implements ServiceInterface {
         }
       })
 
-      await this.app.service(loginTokenPath).remove(loginToken.id)
+      if (USER_ID_REGEX.test(loginToken.id)) await this.app.service(loginTokenPath).remove(loginToken.id)
       await this.app.service(userPath).patch(identityProvider.userId, {
         isGuest: false
       })

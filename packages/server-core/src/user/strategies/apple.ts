@@ -26,6 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { AuthenticationRequest, AuthenticationResult } from '@feathersjs/authentication'
 import { Paginated, Params } from '@feathersjs/feathers'
 
+import { USER_ID_REGEX } from '@ir-engine/common/src/regex'
 import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { loginTokenPath } from '@ir-engine/common/src/schemas/user/login-token.schema'
 import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
@@ -108,8 +109,9 @@ export class AppleStrategy extends CustomOAuthStrategy {
         userId: entity.userId
       })
     if (entity.type !== 'guest' && identityProvider.type === 'guest') {
-      await this.app.service(identityProviderPath).remove(identityProvider.id)
-      await this.app.service(userPath).remove(identityProvider.userId)
+      if (USER_ID_REGEX.test(identityProvider.id))
+        await this.app.service(identityProviderPath).remove(identityProvider.id)
+      if (USER_ID_REGEX.test(identityProvider.userId)) await this.app.service(userPath).remove(identityProvider.userId)
       await this.app.service(identityProviderPath).remove(null, {
         query: {
           type: 'guest',
@@ -156,7 +158,7 @@ export class AppleStrategy extends CustomOAuthStrategy {
             }
           }
         }
-        await this.app.service(identityProviderPath).remove(entity.id)
+        if (USER_ID_REGEX.test(entity.id)) await this.app.service(identityProviderPath).remove(entity.id)
       }
       await this.app.service(identityProviderPath).remove(null, {
         query: {

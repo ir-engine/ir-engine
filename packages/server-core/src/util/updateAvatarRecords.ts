@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { USER_ID_REGEX } from '@ir-engine/common/src/regex'
 import { avatarPath } from '@ir-engine/common/src/schema.type.module'
 import { Application } from '@ir-engine/server-core/declarations'
 import appRootPath from 'app-root-path'
@@ -54,7 +55,7 @@ export default async function (app: Application, avatarsFolder: string, manifest
   })
   await Promise.all(
     existingAvatars.map(async (existingAvatar) => {
-      if (!existingAvatar.modelResource && !existingAvatar.thumbnailResource)
+      if (!existingAvatar.modelResource && !existingAvatar.thumbnailResource && USER_ID_REGEX.test(existingAvatar.id))
         return await app.service(avatarPath).remove(existingAvatar.id)
       else return Promise.resolve()
     })

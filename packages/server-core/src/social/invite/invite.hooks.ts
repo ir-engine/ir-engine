@@ -38,6 +38,7 @@ import inviteRemoveAuthenticate from '@ir-engine/server-core/src/hooks/invite-re
 import attachOwnerIdInBody from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-body'
 import attachOwnerIdInQuery from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-query'
 
+import { USER_ID_REGEX } from '@ir-engine/common/src/regex'
 import { HookContext } from '../../../declarations'
 import isAction from '../../hooks/is-action'
 import { sendInvite } from '../../hooks/send-invite'
@@ -83,7 +84,8 @@ async function removeFriend(context: HookContext<InviteService>) {
   const invite = await context.service.get(context.id)
   if (invite.inviteType === 'friend' && invite.inviteeId && !context.params?.preventUserRelationshipRemoval) {
     const relatedUserId = invite.userId === context.params.user!.id ? invite.inviteeId : invite.userId
-    await context.app.service(userRelationshipPath).remove(relatedUserId, context.params as any)
+    if (USER_ID_REGEX.test(relatedUserId))
+      await context.app.service(userRelationshipPath).remove(relatedUserId, context.params as any)
   }
 }
 
