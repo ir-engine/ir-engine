@@ -96,7 +96,11 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
     if (add) {
-      setComponent(entity, component, args)
+      if (args) {
+        EditorControlFunctions.modifyProperty([entity], component, args)
+      } else {
+        setComponent(entity, component, args)
+      }
     } else {
       removeComponent(entity, component)
     }
