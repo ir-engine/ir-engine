@@ -27,7 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { Quaternion, Vector3 } from 'three'
 
-import { getComponent, useComponent, useHasComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { useComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { SceneDynamicLoadComponent } from '@ir-engine/engine/src/scene/components/SceneDynamicLoadComponent'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 
