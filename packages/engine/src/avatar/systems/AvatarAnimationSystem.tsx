@@ -218,8 +218,6 @@ const RigReactor = (props: { entity: Entity }) => {
   const gltfComponent = useOptionalComponent(entity, GLTFComponent)
   const avatarAnimationComponent = useOptionalComponent(entity, AvatarAnimationComponent)
   useEffect(() => {
-    setVisibleComponent(entity, false)
-
     if (gltfComponent?.progress?.value !== 100 || !avatarAnimationComponent?.value) return
     try {
       createVRM(entity)
@@ -236,8 +234,8 @@ const RigReactor = (props: { entity: Entity }) => {
 
   const rig = useOptionalComponent(entity, AvatarRigComponent)
   useEffect(() => {
-    setVisibleComponent(entity, !!rig?.bonesToEntities?.hips?.value)
-  }, [rig?.bonesToEntities.hips])
+    setVisibleComponent(entity, !!rig?.bonesToEntities?.hips?.value && gltfComponent?.progress.value === 100)
+  }, [rig?.bonesToEntities.hips, gltfComponent?.src])
 
   return null
 }
