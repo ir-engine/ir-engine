@@ -32,8 +32,9 @@ import { Engine } from '@ir-engine/ecs/src/Engine'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 
 import { Input } from '@ir-engine/ui'
-import { ArrowLeftLg, CallEndLg, CallLg, Send01Lg } from '@ir-engine/ui/src/icons'
+import { ArrowLeftLg, Send01Lg } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { MdCall, MdCallEnd } from 'react-icons/md'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { useUserAvatarThumbnail } from '../../../hooks/useUserAvatarThumbnail'
 import { ChannelService, ChannelState } from '../../../social/services/ChannelService'
@@ -61,7 +62,7 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
       }
     }
   })
-  //
+
   const channelState = useMutableState(ChannelState)
   const inChannelCall = channelState.targetChannelId.value === props.channelID
 
@@ -183,7 +184,7 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
           style={{ position: 'absolute', right: '0px' }}
           variant="iconOnly"
           onClick={() => startMediaCall()}
-          content={inChannelCall ? <CallEndLg /> : <CallLg />}
+          content={inChannelCall ? <MdCallEnd /> : <MdCall />}
         />
       </div>
     )
