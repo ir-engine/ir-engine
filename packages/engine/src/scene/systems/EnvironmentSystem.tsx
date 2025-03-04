@@ -113,7 +113,6 @@ const EnvMapSkyboxReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   const backgroundQuery = useQuery([BackgroundComponent])
   const materialComponent = useOptionalComponent(entity, MaterialStateComponent)
 
-  console.log('materialComponent', materialComponent)
   let i = 0
   for (i; i < backgroundQuery.length; i++) if (haveCommonAncestor(entity, backgroundQuery[i])) break
   const backgroundComponent = useOptionalComponent(backgroundQuery[i], BackgroundComponent)
