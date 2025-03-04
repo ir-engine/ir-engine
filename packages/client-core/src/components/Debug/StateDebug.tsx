@@ -65,7 +65,7 @@ export function StateDebug() {
   const { t } = useTranslation()
 
   useFrameUpdate()
-  
+
   const stateSearch = useHookstate(getMutableState(StateSearchState).search)
 
   const state =

@@ -81,7 +81,7 @@ const shouldExpandNodeInitially = (keyPath: any, data: any, level: number) => le
 export function ReactorDebug() {
   const { t } = useTranslation()
 
-  useFrameUpdate()  
+  useFrameUpdate()
 
   const averageEnabled = useHookstate(true)
 
