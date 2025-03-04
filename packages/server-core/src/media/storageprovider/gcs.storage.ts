@@ -90,10 +90,8 @@ export class GCSStorage implements StorageProviderInterface {
    * @param directoryPath Directory of file in the storage.
    */
   async doesExist(fileName: string, directoryPath: string): Promise<boolean> {
-    console.log('doesExist check', fileName, directoryPath, path.join(directoryPath, fileName))
     const file = this.provider.bucket(this.bucket).file(path.join(directoryPath, fileName))
     const response = await file.exists()
-    console.log('exists response', response)
     return response[0]
   }
   /**
@@ -103,19 +101,16 @@ export class GCSStorage implements StorageProviderInterface {
    */
   async isDirectory(fileName: string, directoryPath: string): Promise<boolean> {
     const joinedPath = path.join(directoryPath, fileName, '/')
-    console.log('run isDirectory', directoryPath, fileName, joinedPath)
     const response = await this.provider.bucket(this.bucket).getFiles({
       prefix: joinedPath,
       maxResults: 1
     })
-    console.log('isDirectory response', response, (response[2] as any).items)
 
     const files = response[2] as {
       items?: { mediaLink: string; name: string; size: string }[]
       prefixes?: string[]
     }
     const item0 = files.items?.[0]
-    console.log('item0', item0)
     // Directories in GCS don't exist and are emulated based on file path.
     return item0
       ? (item0.name === path.join(directoryPath, fileName, '/') && item0.size === '0') ||
@@ -168,9 +163,7 @@ export class GCSStorage implements StorageProviderInterface {
     continuationToken?: string,
     isDirectory?: boolean
   ): Promise<StorageListObjectInterface> {
-    console.log('listObjects', prefix, recursive)
     const files = await this.listFolderContent(prefix, recursive, isDirectory)
-    console.log('files', files)
     return {
       Contents: files.map((file) => {
         return {
@@ -240,7 +233,7 @@ export class GCSStorage implements StorageProviderInterface {
                 initProcess.once('exit', resolve)
                 initProcess.once('error', resolve)
                 initProcess.once('disconnect', resolve)
-                initProcess.stdout.on('data', (data) => console.log(data.toString()))
+                // initProcess.stdout.on('data', (data) => console.log(data.toString()))
                 initProcess.stderr.on('data', (data) => console.error(data.toString()))
               })
             } catch (err) {
