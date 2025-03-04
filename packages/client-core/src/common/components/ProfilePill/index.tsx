@@ -29,7 +29,7 @@ import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyper
 import { Button } from '@ir-engine/ui'
 import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
-import React from 'react'
+import React, { useRef } from 'react'
 import { HiPencil } from 'react-icons/hi2'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
 import { useUserAvatarThumbnail } from '../../../hooks/useUserAvatarThumbnail'
@@ -45,6 +45,17 @@ const ProfilePill = () => {
   const email = identityProvidersQuery.data.find((ip) => ip.type === 'email')?.accountIdentifier
   const popUpOpened = useHookstate(false)
   const themeState = useMutableState(ThemeState)
+  const avatarSelectMenuRef = useRef<{
+    handleClose: () => Promise<void>
+  } | null>(null)
+
+  const onAvatarSelectClose = () => {
+    if (avatarSelectMenuRef.current) {
+      avatarSelectMenuRef.current?.handleClose()
+    } else {
+      PopoverState.hidePopupover()
+    }
+  }
 
   return (
     <Popup
@@ -76,7 +87,10 @@ const ProfilePill = () => {
               className="absolute bottom-0 left-10 rounded-full p-1 text-[#F5F5F5]"
               onClick={() => {
                 popUpOpened.set(false)
-                PopoverState.showPopupover(<AvatarSelectMenu showBackButton={false} />)
+                PopoverState.showPopupover(
+                  <AvatarSelectMenu ref={avatarSelectMenuRef} showBackButton={false} />,
+                  onAvatarSelectClose
+                )
               }}
             >
               <HiPencil />

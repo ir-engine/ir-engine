@@ -25,6 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { ThemeState } from '@ir-engine/client-core/src/common/services/ThemeService'
 import { deleteScene } from '@ir-engine/client-core/src/world/SceneAPI'
+import IRLogoModalDark from '@ir-engine/client/public/iR-logo-Modal-dark.png'
+import IRLogoModalLight from '@ir-engine/client/public/iR-logo-Modal-light.png'
 import { StaticResourceType } from '@ir-engine/common/src/schema.type.module'
 import { timeAgo } from '@ir-engine/common/src/utils/datetime-sql'
 import RenameSceneModal from '@ir-engine/editor/src/panels/scenes/RenameSceneModal'
@@ -73,7 +75,7 @@ export default function SceneItem({
     PopoverState.hidePopupover()
   }
 
-  const defaultThumbnail = theme?.value === 'dark' ? '/iR-logo-Modal-light.png' : '/iR-logo-Modal-dark.png'
+  const defaultThumbnail = theme?.value === 'dark' ? IRLogoModalLight : IRLogoModalDark
 
   return (
     <div
