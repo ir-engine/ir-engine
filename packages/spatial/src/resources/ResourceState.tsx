@@ -249,18 +249,20 @@ const resourceCallbacks = {
       if (!asset.image) return
       resource.metadata.merge({ onGPU: false, discarded: false })
       asset.onUpdate = () => {
-        resource.metadata.merge({ onGPU: true, discarded: discardUponUpload })
-        //@ts-ignore
-        asset.onUpdate = null
         const isEnvMapTexture =
           asset.mapping === EquirectangularReflectionMapping ||
           asset.mapping === EquirectangularRefractionMapping ||
           asset.mapping === CubeReflectionMapping ||
           asset.mapping === CubeRefractionMapping
-        if (discardUponUpload && !isEnvMapTexture) {
-          /** @todo re-enable discard */
-          asset.source.data = null
-          asset.mipmaps = []
+        const discarded = discardUponUpload && !isEnvMapTexture
+        resource.metadata.merge({ onGPU: true, discarded })
+        //@ts-ignore
+        asset.onUpdate = null
+        if (discarded) {
+          setTimeout(() => {
+            asset.source.data = null
+            asset.mipmaps = []
+          }, 100)
         }
       }
       if ((asset as CompressedTexture).isCompressedTexture && discardUponUpload) {
