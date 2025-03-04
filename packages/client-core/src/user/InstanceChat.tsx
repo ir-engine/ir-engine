@@ -225,10 +225,16 @@ function Message({ message, hideUsername }: { message: MessageType; hideUsername
 
 function Messages() {
   const { messages, isChatOpen } = useInstanceChatMessages()
+  const scrollRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!scrollRef.current || !isChatOpen.value) return
+    scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+  }, [isChatOpen])
+
   if (!isChatOpen.value) return null
   return (
     <div className="flex max-h-[65dvh] flex-col justify-end lg:max-h-[45vh]">
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="min-h-0 flex-1 overflow-y-auto" ref={scrollRef}>
         {messages.value.map((message, index) => (
           <Message
             key={message.id}
@@ -254,7 +260,7 @@ function MessagesWrapper() {
   })
 
   return (
-    <div className="mb-3 flex items-end lg:mb-0 ">
+    <div className={`flex items-end ${isChatOpen.value ? 'mb-3 lg:mb-0' : ''}`}>
       <div className="relative max-w-16">
         {!isChatOpen.value && unreadMessages.value && (
           <div className="absolute right-0 top-0 h-4 w-4 rounded-full bg-blue-500" />

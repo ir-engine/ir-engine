@@ -378,7 +378,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   const enableConnect = authState?.value?.emailMagicLink || authState?.value?.smsMagicLink
 
   return (
-    <div className="absolute z-50 h-fit max-h-[90vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 smh:max-h-[60dvh] smh:px-8 smh:py-6">
+    <div className="absolute z-50 h-fit max-h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 smh:max-h-[60dvh] smh:px-8 smh:py-6">
       <div className="relative grid w-full grid-cols-5 gap-x-2">
         <div className="col-span-3 grid grid-cols-[auto,1fr] gap-x-6">
           <div className="relative h-20 w-20">
@@ -420,7 +420,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
           </div>
         </div>
 
-        <div className="col-span-2 grid grid-cols-[auto_136px] gap-x-3">
+        <div className="col-span-2 grid grid-cols-[auto_136px] gap-x-6 lg:grid-cols-[auto_auto]">
           <button
             className={twMerge(
               'flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-ui-secondary p-2 text-text-primary-button hover:bg-ui-hover-secondary focus:bg-ui-select-secondary',
@@ -502,7 +502,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
       <div
         className={twMerge(
           'mt-1 grid w-full grid-cols-1 gap-y-1',
-          isGuest && !originallyAcceptedTOS ? 'mt-7 smh:mt-16' : 'mt-1 smh:mt-5'
+          isGuest && !originallyAcceptedTOS ? 'mt-7 smh:mt-16' : 'mt-2.5 smh:mt-5'
         )}
       >
         <Input
