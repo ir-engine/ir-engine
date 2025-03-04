@@ -19,15 +19,12 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
+import { SVGIconType } from '@ir-engine/ui/src/icons/types'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Tooltip, { TooltipProps } from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React from 'react'
 import { IconType } from 'react-icons'
 import { twMerge } from 'tailwind-merge'
-
-export type SVGIconType = React.ForwardRefExoticComponent<
-  Omit<React.SVGProps<SVGSVGElement>, 'ref'> & React.RefAttributes<SVGSVGElement>
->
 
 interface LocationIconButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   tooltip?: {

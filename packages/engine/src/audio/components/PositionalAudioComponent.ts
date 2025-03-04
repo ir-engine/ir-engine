@@ -80,9 +80,7 @@ export const PositionalAudioComponent = defineComponent({
     const entity = useEntityContext()
     const renderState = useMutableState(RendererState)
     const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
-    const debugEnabled =
-      renderState.nodeHelperVisibility.value ||
-      (activeHelperComponent !== undefined && activeHelperComponent.enabled.value === true)
+    const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
     const audio = useComponent(entity, PositionalAudioComponent)
     const mediaElement = useOptionalComponent(entity, MediaElementComponent)
 
@@ -100,7 +98,6 @@ export const PositionalAudioComponent = defineComponent({
         setComponent(entity, PositionalAudioHelperComponent, {
           name: name ? `${name}-positional-audio-helper` : undefined
         })
-        setComponent(entity, ActiveHelperComponent, { helperSelectedGizmo: entity, directional: true }) // we have multiple child helpers so we use the entity as the selected gizmo
       }
       return () => {
         removeComponent(entity, PositionalAudioHelperComponent)

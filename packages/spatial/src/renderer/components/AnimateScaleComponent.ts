@@ -37,7 +37,7 @@ import { TweenComponent } from '../../transform/components/TweenComponent'
 
 export const AnimateScaleComponent = defineComponent({
   name: 'AnimateScaleComponent',
-  schema: S.Object({ multiplier: S.Number(1.05), duration: S.Number(300) }),
+  schema: S.Object({ multiplier: S.Number(1.05) }),
 
   reactor: function () {
     const entity = useEntityContext()
@@ -47,8 +47,7 @@ export const AnimateScaleComponent = defineComponent({
       const originalScale = transformComponent.scale.clone()
 
       const sizeMultiplier = getComponent(entity, AnimateScaleComponent).multiplier
-      const duration = getComponent(entity, AnimateScaleComponent).duration
-      animateScale(entity, originalScale.clone().multiplyScalar(sizeMultiplier), duration)
+      animateScale(entity, originalScale.clone().multiplyScalar(sizeMultiplier))
 
       return () => {
         if (!entityExists(entity)) return
@@ -61,7 +60,7 @@ export const AnimateScaleComponent = defineComponent({
 })
 
 /** @todo Export this function so that it is accessible by this file's UnitTests */
-const animateScale = (entity: Entity, newScale: Vector3, duration = 300) => {
+const animateScale = (entity: Entity, newScale: Vector3) => {
   const highlight = { scaler: 0 }
   const { scale } = getComponent(entity, TransformComponent) ?? getComponent(entity, TransformComponent)
   setComponent(
@@ -72,7 +71,7 @@ const animateScale = (entity: Entity, newScale: Vector3, duration = 300) => {
         {
           scaler: 1
         },
-        duration
+        300
       )
       .onUpdate(() => {
         scale.lerp(newScale, highlight.scaler)

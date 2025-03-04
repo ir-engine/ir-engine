@@ -28,7 +28,7 @@ import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AnimationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { CameraGizmoComponent } from '../classes/gizmo/camera/CameraGizmoComponent'
-import { cameraGizmoUpdate, controlUpdate } from '../functions/gizmos/cameraGizmoHelper'
+import { controlUpdate, gizmoUpdate } from '../functions/cameraGizmoHelper'
 
 export const cameraGizmoQuery = defineQuery([CameraGizmoComponent])
 
@@ -36,7 +36,7 @@ const execute = () => {
   for (const cameraGizmoEntity of cameraGizmoQuery()) {
     const cameraGizmoComponent = getComponent(cameraGizmoEntity, CameraGizmoComponent)
     if (!cameraGizmoComponent.enabled || !cameraGizmoComponent.visualEntity) return
-    cameraGizmoUpdate(cameraGizmoEntity)
+    gizmoUpdate(cameraGizmoEntity)
     controlUpdate(cameraGizmoEntity)
   }
 }

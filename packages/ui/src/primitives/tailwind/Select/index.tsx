@@ -380,6 +380,8 @@ const Select = ({
         border: 'none',
         ...positionStyle
       }}
+      onOpen={() => onOpen?.(true)}
+      onClose={() => onOpen?.(false)}
     >
       <div
         ref={contentRef}
