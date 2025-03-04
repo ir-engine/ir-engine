@@ -28,9 +28,8 @@ import { userHasProjectPermission } from '@ir-engine/client-core/src/hooks/useUs
 import { API } from '@ir-engine/common'
 import { projectPermissionPath } from '@ir-engine/common/src/schema.type.module'
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
-import { EngineState, entityExists, EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
+import { EngineState, EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
 import {
-  getAllComponents,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -55,7 +54,6 @@ import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/C
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { Button, Input } from '@ir-engine/ui'
-import TransformPropertyGroup from '@ir-engine/ui/src/components/editor/properties/transform'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import React, { KeyboardEvent, useEffect, useRef } from 'react'
 import { useDrag } from 'react-dnd'
@@ -66,8 +64,8 @@ import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
 import { PiEyeBold, PiEyeClosedBold, PiLockBold, PiLockOpenBold } from 'react-icons/pi'
 import { ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
+import { IconComponent } from '../../components/panels/IconComponent'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
-import { ComponentEditorsState } from '../../services/ComponentEditors'
 import { EditorHelperState, PlacementMode } from '../../services/EditorHelperState'
 import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { EditorState } from '../../services/EditorServices'
@@ -94,19 +92,6 @@ function getNodeElId(node: HierarchyTreeNodeType) {
 function toValidHierarchyNodeName(entity: Entity, name: string): string {
   name = name.trim()
   return name
-}
-
-function IconComponent({ entity }: { entity: Entity }) {
-  const icons = entityExists(entity)
-    ? getAllComponents(entity)
-        .map((c) => getState(ComponentEditorsState)[c.name]?.iconComponent)
-        .filter((icon) => !!icon)
-    : []
-  const _IconComponent = icons.length > 0 ? icons[0] : TransformPropertyGroup.iconComponent
-  if (!_IconComponent) return null
-  return (
-    <_IconComponent entity={entity} className="h-5 w-5 flex-shrink-0" data-testid="hierarchy-panel-scene-item-icon" />
-  )
 }
 
 export default React.memo(function HierarchyTreeNode(props: ListChildComponentProps<undefined>) {
