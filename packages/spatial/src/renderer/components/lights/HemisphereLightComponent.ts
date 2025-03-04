@@ -59,16 +59,13 @@ export const HemisphereLightComponent = defineComponent({
     const hemisphereLightComponent = useComponent(entity, HemisphereLightComponent)
     const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const renderState = useMutableState(RendererState)
-    const debugEnabled =
-      renderState.nodeHelperVisibility.value ||
-      (activeHelperComponent !== undefined && activeHelperComponent.enabled.value === true)
+    const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
     const light = useHookstate(() => new HemisphereLight()).get(NO_PROXY) as HemisphereLight
     const helperEntity = useHelperEntity(entity, () => new HemisphereLightHelper(light, 100), debugEnabled)
 
     useImmediateEffect(() => {
       setComponent(entity, LightTagComponent)
       setComponent(entity, ObjectComponent, light)
-      setComponent(entity, ActiveHelperComponent, { helperSelectedGizmo: helperEntity })
       return () => {
         removeComponent(entity, ObjectComponent)
       }

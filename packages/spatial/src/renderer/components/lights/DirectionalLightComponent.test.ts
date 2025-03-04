@@ -265,14 +265,8 @@ describe('DirectionalLightComponent', () => {
       const Expected = new Color(0x123456)
 
       // Set the data as expected
-      getMutableState(RendererState).nodeHelperVisibility.set(false)
-
-      // Run and Check the Initial result
-      setComponent(testEntity, DirectionalLightComponent)
-
-      // Re-run and Check the result again
       getMutableState(RendererState).nodeHelperVisibility.set(true)
-      DirectionalLightComponent.reactorMap.get(testEntity)!.run()
+      setComponent(testEntity, DirectionalLightComponent)
 
       // Sanity check before running
       const before = getComponent(testEntity, DirectionalLightComponent).color
@@ -281,7 +275,6 @@ describe('DirectionalLightComponent', () => {
 
       // Run and Check the result
       setComponent(testEntity, DirectionalLightComponent, { color: Expected })
-      DirectionalLightComponent.reactorMap.get(testEntity)!.run()
 
       const childEntity1 = getComponent(testEntity, EntityTreeComponent).children[0]
       const result = getComponent(childEntity1, LineSegmentComponent).color
