@@ -59,8 +59,11 @@ export const RigidBodyComponentEditor: EditorComponentType = (props) => {
 
     if (rigidbodyAlreadyInHierarchy) {
       NotificationService.dispatchNotify(
-        t('editor:properties.rigidbody.duplicateError', { entity: entity, name: getComponent(entity, NameComponent) }),
-        { variant: 'error' }
+        t('editor:properties.rigidbody.duplicateWarning', {
+          entity: entity,
+          name: getComponent(entity, NameComponent)
+        }),
+        { variant: 'warning' }
       )
       EditorControlFunctions.addOrRemoveComponent([entity], RigidBodyComponent, false)
     }
