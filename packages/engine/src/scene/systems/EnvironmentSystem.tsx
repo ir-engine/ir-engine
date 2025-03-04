@@ -85,7 +85,7 @@ const EnvMapReactor = () => {
             return <EnvMapBakeReactor key={envMapComponent + '-' + materialComponentEntity + '-' + index} entity={materialComponentEntity} rootEntity={entity} />
           case 'Probes':
             return (
-              <EnvmapProbesReactor key={envMapComponent + '-' + materialComponentEntity + '-' + index} entity={materialComponentEntity} rootEntity={entity} key={materialComponentEntity} />
+              <EnvmapProbesReactor key={envMapComponent + '-' + materialComponentEntity + '-' + index} entity={materialComponentEntity} rootEntity={entity} />
             )
         }
       })}
