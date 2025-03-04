@@ -77,7 +77,7 @@
     "CORS": "Possibly a CORS error",
     "urlFetchError": "Failed to fetch \"{{url}}\"",
     "invalidSceneName": "Scene name must be 4-64 characters long, using only alphanumeric characters, underscores, hyphens, and periods, and begin and end with an alphanumeric.",
-    "maxUploadFileSizeExceed":"That file size is too large. Please upload a file under {{maxFileSizeToUploadMB}}MB. The following files are too large: {{filesNames}}"
+    "maxUploadFileSizeExceed": "That file size is too large. Please upload a file under {{maxFileSizeToUploadMB}}MB. The following files are too large: {{filesNames}}"
   },
   "warnings": {
     "sceneComplexity": "Scene complexity is {{sceneComplexity}}. Consider optimizing your scene for better performance."
@@ -269,7 +269,7 @@
       "name": "Rigidbody",
       "description": "A rigidbody component that allows the entity to be affected by physics.",
       "lbl-type": "Body Type",
-      "duplicateError": "A rigidbody component already exists in the current entity hierarchy, removing it from entity {{entity}} with name {{name}}"
+      "duplicateWarning": "A rigidbody component already exists in the current entity hierarchy, removing it from entity {{entity}} with name {{name}}"
     },
     "prefab": {
       "name": "Prefab",
@@ -356,13 +356,12 @@
       "lbl-mediaOptions": "Media Options",
       "info-mediaOptions": "Media Options",
       "lbl-mediaSynchronize": "Synchronize Client Playback"
-      
     },
     "media-preview": {
       "lbl-mediaPreview": "Media Preview",
       "info-mediaPreview": "Preview the selected media (audio or video) source here in properties panel without spatial audio or a video texture in scene",
       "lbl-selected-source": "Source to Preview"
-      },
+    },
     "mesh": {
       "name": "Mesh",
       "description": "A mesh is a collection of vertices, edges, and faces that describe the shape of a 3D object.",
@@ -413,8 +412,8 @@
       "lbl-play": "Play",
       "lbl-pause": "Pause",
       "error-url": "Error Loading From URL",
-      "lbl-media" : "Media Source",
-      "lbl-media-info" :"Media Source"
+      "lbl-media": "Media Source",
+      "lbl-media-info": "Media Source"
     },
     "collider": {
       "name": "Collider",
@@ -1038,9 +1037,9 @@
       "lbl-projection": "Projection",
       "lbl-side": "Side",
       "lbl-side-info": "The side of the video to display",
-      "lbl-use-alpha": "Transparency", 
-      "lbl-use-alphaEnable": "Enbale", 
-      "lbl-use-alphaInvert": "Invert",     
+      "lbl-use-alpha": "Transparency",
+      "lbl-use-alphaEnable": "Enbale",
+      "lbl-use-alphaInvert": "Invert",
       "lbl-use-alpha-info": "If true, the video will be rendered with an alpha channel",
       "lbl-alpha-threshold": "Threshold",
       "lbl-alpha-threshold-info": "The alpha value below which the video will be considered transparent",
@@ -1146,8 +1145,8 @@
       "interact-message-seat": "Press E to Sit",
       "lbl-type": "Type",
       "lbl-dismount": "Dismount point, offsets this transform",
-      "lbl-force-dismount" : "Force Dismount Position",
-      "lbl-force-dismount-info" : "If true, the dismount position will be forced to the specified position (mid-air OK), regardless of raycast result returning a hit within 2m below dismount offset point"
+      "lbl-force-dismount": "Force Dismount Position",
+      "lbl-force-dismount-info": "If true, the dismount position will be forced to the specified position (mid-air OK), regardless of raycast result returning a hit within 2m below dismount offset point"
     },
     "text": {
       "name": "3D Text",
@@ -1440,7 +1439,7 @@
     "lbl-collapseAll": "Collapse All",
     "lbl-explode": "Explode Objects",
     "lbl-addEntity": "Add Entity",
-    "lbl-createPrefab": "Create Prefab", 
+    "lbl-createPrefab": "Create Prefab",
     "lbl-savePrefab": "Save Prefab",
     "issues": "Issues",
     "copy-paste": {
@@ -1529,6 +1528,11 @@
     "saveModel": {
       "title": "Save Changes",
       "text": "Are you sure you want to save changes to this file?"
+    },
+    "savePrefab": {
+      "title": "Save Prefab",
+      "lbl-save-path": "Save Path",
+      "warn-save-path": "Name must be between 4 and 64 characters (with only letters, numbers, underscores, dashes and periods allowed)"
     },
     "revertModel": {
       "lbl-name": "Revert",

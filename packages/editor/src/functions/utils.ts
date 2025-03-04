@@ -23,6 +23,15 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 import { isApple } from '@ir-engine/common/src/utils/getDeviceStats'
+import { Entity, getOptionalComponent } from '@ir-engine/ecs'
+import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent.tsx'
+
+export function isEntityGlb(entity: Entity): boolean {
+  const gltfComponent = getOptionalComponent(entity, GLTFComponent)
+  if (!gltfComponent) return false
+  const trimmedFilename = gltfComponent?.src.split('?')[0]
+  return trimmedFilename !== undefined && trimmedFilename.endsWith('.glb')
+}
 
 export function getStepSize(event, smallStep, mediumStep, largeStep) {
   if (event.altKey) {

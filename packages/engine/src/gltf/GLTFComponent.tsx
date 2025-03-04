@@ -35,6 +35,7 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  getSimulationCounterpart,
   hasComponent,
   Layers,
   removeComponent,
@@ -285,7 +286,8 @@ const ResourceReactor = (props: { documentID: string; entity: Entity; documentLo
   const dependenciesLoaded = GLTFComponent.useDependenciesLoaded(props.entity)
   const resourceQuery = useQuery([SourceComponent, ResourcePendingComponent])
 
-  useApplyCollidersToChildMeshesEffect(props.entity)
+  const simulationEntity = getSimulationCounterpart(props.entity)
+  useApplyCollidersToChildMeshesEffect(simulationEntity)
 
   useEffect(() => {
     if (!hasComponent(props.entity, GLTFComponent) || !props.documentLoaded) return

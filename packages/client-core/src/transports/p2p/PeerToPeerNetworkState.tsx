@@ -23,20 +23,22 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { API, useFind, useGet } from '@ir-engine/common'
+import { API, useFind } from '@ir-engine/common'
 import { IceServer } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
 import {
+  ChannelID,
   InstanceAttendanceType,
   InstanceID,
+  LocationID,
   clientSettingPath,
   instanceAttendancePath,
-  instancePath,
   instanceSignalingPath
 } from '@ir-engine/common/src/schema.type.module'
 import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { Engine } from '@ir-engine/ecs'
 import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
 import {
+  ErrorBoundary,
   PeerID,
   Topic,
   UserID,
@@ -63,16 +65,22 @@ import {
   StunServerState,
   WebRTCTransportFunctions
 } from '@ir-engine/network/src/webrtc/WebRTCTransportFunctions'
-import React, { useEffect } from 'react'
+import React, { Suspense, useEffect } from 'react'
+
+type InstanceType = {
+  id: InstanceID
+  locationId?: LocationID
+  channelId?: ChannelID
+}
 
 export const PeerToPeerNetworkState = defineState({
   name: 'ir.client.transport.p2p.PeerToPeerNetworkState',
-  initial: () => ({}) as { [id: InstanceID]: object },
-  connectToP2PInstance: (id: InstanceID) => {
-    getMutableState(PeerToPeerNetworkState)[id].set({})
+  initial: {} as { [id: InstanceID]: InstanceType },
+  connectToP2PInstance: (instance: InstanceType) => {
+    getMutableState(PeerToPeerNetworkState)[instance.id].set(instance)
 
     return () => {
-      getMutableState(PeerToPeerNetworkState)[id].set(none)
+      getMutableState(PeerToPeerNetworkState)[instance.id].set(none)
     }
   },
 
@@ -81,25 +89,21 @@ export const PeerToPeerNetworkState = defineState({
 
     return (
       <>
-        {state.keys.map((id: InstanceID) => (
-          <NetworkReactor key={id} id={id} />
+        {Object.values(state.value).map((instance) => (
+          <ErrorBoundary key={instance.id}>
+            <Suspense>
+              <ConnectionReactor
+                key={instance.id}
+                instanceID={instance.id}
+                topic={instance.locationId ? NetworkTopics.world : NetworkTopics.media}
+              />
+            </Suspense>
+          </ErrorBoundary>
         ))}
       </>
     )
   }
 })
-
-const NetworkReactor = (props: { id: InstanceID }) => {
-  const instance = useGet(instancePath, props.id)
-  if (!instance.data) return null
-
-  return (
-    <ConnectionReactor
-      instanceID={instance.data.id}
-      topic={instance.data.locationId ? NetworkTopics.world : NetworkTopics.media}
-    />
-  )
-}
 
 const ConnectionReactor = (props: { instanceID: InstanceID; topic: Topic }) => {
   const instanceID = props.instanceID
@@ -206,13 +210,17 @@ const PeersReactor = (props: { instanceID: InstanceID }) => {
   return (
     <>
       {otherPeers.value.map((peer) => (
-        <PeerReactor
-          key={peer.peerId}
-          peerID={peer.peerId}
-          peerIndex={peer.peerIndex}
-          userID={peer.userId}
-          instanceID={props.instanceID}
-        />
+        <ErrorBoundary key={peer.id}>
+          <Suspense>
+            <PeerReactor
+              key={peer.peerId}
+              peerID={peer.peerId}
+              peerIndex={peer.peerIndex}
+              userID={peer.userId}
+              instanceID={props.instanceID}
+            />
+          </Suspense>
+        </ErrorBoundary>
       ))}
     </>
   )
@@ -244,9 +252,11 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
   const clientSettingQuery = useFind(clientSettingPath)
   const clientSetting = clientSettingQuery.data[0]
 
-  const { maxResolution } = clientSetting.mediaSettings.video
-
   const immersiveMedia = useMutableState(MediaSettingsState).immersiveMedia.value
+
+  if (!clientSetting) return null
+
+  const maxResolution = clientSetting.mediaSettings.video.maxResolution
 
   return (
     <WebRTCPeerConnection
