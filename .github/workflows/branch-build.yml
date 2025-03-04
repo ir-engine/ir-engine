@@ -75,7 +75,7 @@ jobs:
     steps:
       - uses: actions/cache@v3
         with:
-          path: .
+          path: ./
           key: dir-${{github.sha}}
       - run: npm run dev-docker
       - run: npm run dev-reinit
