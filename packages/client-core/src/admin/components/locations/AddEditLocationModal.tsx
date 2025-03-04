@@ -73,6 +73,7 @@ import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Toggle from '@ir-engine/ui/src/primitives/tailwind/Toggle'
 import { LoaderUtils, Quaternion, Vector3 } from 'three'
 import { NotificationService } from '../../../common/services/NotificationService'
+import CompressedPublishConfirmation from './CompressedPublishConfirmation'
 
 function formatPublishedDate(isoString) {
   const date = new Date(isoString)
@@ -174,6 +175,7 @@ export default function AddEditLocationModal(props: {
     }
   })
   const handlePublishFolder = async () => {
+    PopoverState.showPopupover(<CompressedPublishConfirmation />)
     const { projectName, sceneName, rootEntity, sceneAssetID, scenePath } = getState(EditorState)
     const abortController = new AbortController()
     try {
@@ -327,7 +329,7 @@ export default function AddEditLocationModal(props: {
         //re-open the original scene
         const studioUrl = `${window.location.origin}/studio?project=${projectName}&scenePath=${scenePath}`
         window.open(studioUrl, '_blank')?.focus()
-        //PopoverState.hidePopupover()
+        PopoverState.hidePopupover()
       }
     } catch (error) {
       PopoverState.showPopupover(
