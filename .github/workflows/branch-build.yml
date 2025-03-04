@@ -92,6 +92,7 @@ jobs:
         with:
           path: .
           key: dir-${{github.sha}}
+      - run: cat packages/server-core/src/createApp.ts
       - run: npm run dev-docker
       - run: npm run dev-reinit
       - run: rm -rf packages/instanceserver
