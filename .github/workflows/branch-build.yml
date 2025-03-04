@@ -48,8 +48,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
+            .
             ~/.npm
-            ./node_modules
           key: dir-${{github.sha}}
 
   check-lint:
@@ -62,8 +62,8 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
+            .
             ~/.npm
-            ./node_modules
           key: dir-${{github.sha}}
       - run: npm run lint
       - run: npm run check-eslint
@@ -79,8 +79,8 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
+            .
             ~/.npm
-            ./node_modules
           key: dir-${{github.sha}}
       - run: npm run dev-docker
       - run: npm run dev-reinit
@@ -97,8 +97,8 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
+            .
             ~/.npm
-            ./node_modules
           key: dir-${{github.sha}}
       - run: node --version
       - run: npm run dev-docker
@@ -119,8 +119,8 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
+            .
             ~/.npm
-            ./node_modules
           key: dir-${{github.sha}}
       - run: mkdir -p packages_moved/hyperflux/
       - run: mv packages/hyperflux packages_moved/
@@ -138,8 +138,8 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
+            .
             ~/.npm
-            ./node_modules
           key: dir-${{github.sha}}
       - run: mkdir -p packages_moved/hyperflux/
       - run: mkdir -p packages_moved/ecs/
@@ -160,8 +160,8 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
+            .
             ~/.npm
-            ./node_modules
           key: dir-${{github.sha}}
       - run: mkdir -p packages_moved/hyperflux/
       - run: mkdir -p packages_moved/ecs/
@@ -185,8 +185,8 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
+            .
             ~/.npm
-            ./node_modules
           key: dir-${{github.sha}}
       - run: mkdir -p packages_moved/hyperflux/
       - run: mkdir -p packages_moved/ecs/
@@ -216,8 +216,8 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
+            .
             ~/.npm
-            ./node_modules
           key: dir-${{github.sha}}
       - run: mkdir -p packages_moved/hyperflux/
       - run: mkdir -p packages_moved/ecs/
@@ -261,8 +261,8 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
+            .
             ~/.npm
-            ./node_modules
           key: dir-${{github.sha}}
       - run: rm -rf packages/instanceserver
       - run: rm -rf packages/server
@@ -288,8 +288,8 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
+            .
             ~/.npm
-            ./node_modules
           key: dir-${{github.sha}}
       - run: rm -rf packages/client
       - run: rm -rf packages/client-core
