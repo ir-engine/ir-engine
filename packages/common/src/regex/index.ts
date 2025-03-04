@@ -132,6 +132,11 @@ export const PROJECT_PUBLIC_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+\
 export const PROJECT_THUMBNAIL_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+\/thumbnails\//
 
 export const VALID_PROJECT_NAME = /^(?!\s)[\w\-\s]+$/
+/**
+ * This regex matches strings that start with project/ followd by assets publish for compression.
+ */
+export const MATCH_ASSET_PROJECT_FILENAME_REGEX =
+  /projects\/([^/]+\/[^/]+)\/(?:assets|public(?:\/publish(?:\/[^/]+))?)\/([\w\d\s\-|_./]*)$/
 
 // =======================================================================
 // ========================= Helm Regex Patterns =========================
