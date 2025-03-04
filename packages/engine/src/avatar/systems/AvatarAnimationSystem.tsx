@@ -235,7 +235,7 @@ const RigReactor = (props: { entity: Entity }) => {
   const rig = useOptionalComponent(entity, AvatarRigComponent)
   useEffect(() => {
     setVisibleComponent(entity, !!rig?.bonesToEntities?.hips?.value && gltfComponent?.progress.value === 100)
-  }, [rig?.bonesToEntities.hips, gltfComponent?.src])
+  }, [rig?.bonesToEntities.hips, gltfComponent?.progress])
 
   return null
 }
