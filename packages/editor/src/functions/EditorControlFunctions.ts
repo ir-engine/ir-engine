@@ -33,6 +33,7 @@ import {
   getAncestorWithComponents,
   getChildrenWithComponents,
   iterateEntityNode,
+  UndefinedEntity,
   UUIDComponent
 } from '@ir-engine/ecs'
 import {
@@ -521,6 +522,15 @@ const reparentObject = (
 
     /** @todo handle the entity changing sources */
     EditorState.markModifiedScene(entity)
+
+    const gltfAncestor = getAncestorWithComponents(entity, [GLTFComponent])
+    if (gltfAncestor !== UndefinedEntity) {
+      const sourceID = GLTFComponent.getInstanceID(gltfAncestor)
+      if (sourceID) {
+        const modifiedState = getMutableState(AssetModifiedState)
+        modifiedState[sourceID].set(true)
+      }
+    }
   }
 }
 
