@@ -56,20 +56,23 @@ const LocationRoutes = () => {
 
   return (
     <Suspense>
-      {!ready && !projectsLoaded && (
-        <div className="flex h-screen w-screen items-center justify-center bg-white" style={{ zIndex: 1000000 }}>
-          <LoadingView
-            fullScreen
-            animated
-            className="block h-12 w-12"
-            title={t('common:loader.loadingApp')}
-            titleClassname="text-[#262626]"
-          />
-        </div>
+      {projectsLoaded ? (
+        <Routes>
+          <Route path=":locationName" element={<LocationPage online />} />
+        </Routes>
+      ) : (
+        !ready && (
+          <div className="flex h-screen w-screen items-center justify-center bg-white" style={{ zIndex: 1000000 }}>
+            <LoadingView
+              fullScreen
+              animated
+              className="block h-12 w-12"
+              title={t('common:loader.loadingApp')}
+              titleClassname="text-[#262626]"
+            />
+          </div>
+        )
       )}
-      <Routes>
-        <Route path=":locationName" element={<LocationPage online />} />
-      </Routes>
       <Debug />
     </Suspense>
   )
