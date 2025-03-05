@@ -33,7 +33,7 @@ import { getCanvasBlob } from '@ir-engine/client-core/src/common/utils'
 import multiLogger from '@ir-engine/common/src/logger'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { Button, Input } from '@ir-engine/ui'
-import { ArrowLeftMd, XCloseMd } from '@ir-engine/ui/src/icons'
+import { ArrowLeftLg, XCloseLg } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import AvatarPreview from '../../../common/components/AvatarPreview'
@@ -278,7 +278,7 @@ const AvatarCreatorMenu = (selectedSdk: string) =>
             className=" h-6 w-6 cursor-pointer self-center bg-transparent text-text-primary hover:bg-transparent focus:bg-transparent"
             onClick={handleClose}
           >
-            <ArrowLeftMd />
+            <ArrowLeftLg />
           </button>
           <Text className="col-start-2  place-self-center self-center text-text-primary">
             {loading.value !== LoadingState.Uploading
@@ -290,7 +290,7 @@ const AvatarCreatorMenu = (selectedSdk: string) =>
             className=" h-6 w-6 cursor-pointer self-center bg-transparent text-text-primary hover:bg-transparent focus:bg-transparent"
             onClick={handleClose}
           >
-            <XCloseMd />
+            <XCloseLg />
           </button>
         </div>
         <div className="grid h-full w-full flex-1 grid-cols-[1fr,50%,1fr] gap-6 px-5 pb-2">

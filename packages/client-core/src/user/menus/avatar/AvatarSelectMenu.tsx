@@ -39,7 +39,7 @@ import { useTranslation } from 'react-i18next'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { Button, Input } from '@ir-engine/ui'
-import { ArrowLeftMd, UserPlus01Sm, XCloseMd } from '@ir-engine/ui/src/icons'
+import { ArrowLeftLg, UserPlus01Sm, XCloseLg } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { twMerge } from 'tailwind-merge'
 import { PopoverState } from '../../../common/services/PopoverState'
@@ -176,7 +176,7 @@ const AvatarSelectMenu = forwardRef(({ showBackButton, previewEnabled = true }: 
               className=" h-6 w-6 cursor-pointer self-center bg-transparent text-text-primary hover:bg-transparent focus:bg-transparent"
               onClick={handleClose}
             >
-              <ArrowLeftMd />
+              <ArrowLeftLg />
             </button>
           )}
           <Text className="col-start-2 place-self-center self-center text-text-primary">
@@ -187,7 +187,7 @@ const AvatarSelectMenu = forwardRef(({ showBackButton, previewEnabled = true }: 
             className="h-6 w-6 cursor-pointer self-center bg-transparent  text-text-primary hover:bg-transparent focus:bg-transparent"
             onClick={handleClose}
           >
-            <XCloseMd />
+            <XCloseLg />
           </button>
         </div>
         <div
