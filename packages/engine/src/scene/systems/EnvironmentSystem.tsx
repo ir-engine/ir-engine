@@ -159,15 +159,14 @@ const EnvMapSkyboxReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   let i = 0
   for (i; i < backgroundQuery.length; i++) if (haveCommonAncestor(entity, backgroundQuery[i])) break
   const backgroundComponent = useOptionalComponent(backgroundQuery[i], BackgroundComponent)
-
   useEffect(() => {
     if (!materialComponent || !backgroundComponent) return
 
     // threejs freaks out if matcap materials are passed in envmap related values
     if (disallowedMaterials.has(materialComponent.type.value)) return
 
-    materialComponent.envMap.set(backgroundComponent.value as any)
-  }, [backgroundComponent, materialComponent?.uuid.value])
+    material.envMap.set(backgroundComponent.value as any)
+  }, [backgroundComponent?.value, materialComponent?.material.uuid.value])
 
   return <IntensityReactor entity={entity} rootEntity={rootEntity} />
 }
