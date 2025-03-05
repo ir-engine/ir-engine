@@ -127,8 +127,8 @@ describe('FileUtil functions', () => {
 
     it('should return incremental name for file if it exist already', async () => {
       const fileName = 'FileUtil_Incremental_Name_File_Test.txt'
-      const fileName_1 = 'FileUtil_Incremental_Name_File_Test_1--y.txt'
-      const fileName_2 = 'FileUtil_Incremental_Name_File_Test_2--y.txt'
+      const fileName_1 = 'FileUtil_Incremental_Name_File_Test_1.txt'
+      const fileName_2 = 'FileUtil_Incremental_Name_File_Test_2.txt'
 
       fs.writeFileSync(path.join(STORAGE_PATH, fileName), 'Hello world')
 
@@ -145,8 +145,8 @@ describe('FileUtil functions', () => {
 
     it('should return incremental name for directory if it exist already', async () => {
       const dirName = 'FileUtil_Incremental_Name_Dir_Test'
-      const dirName_1 = 'FileUtil_Incremental_Name_Dir_Test_1--y'
-      const dirName_2 = 'FileUtil_Incremental_Name_Dir_Test_2--y'
+      const dirName_1 = 'FileUtil_Incremental_Name_Dir_Test_1'
+      const dirName_2 = 'FileUtil_Incremental_Name_Dir_Test_2'
 
       fs.mkdirSync(path.join(STORAGE_PATH, dirName))
 
@@ -185,11 +185,11 @@ describe('FileUtil functions', () => {
 
       // try to create another 'testdir' directory
       name = await getIncrementalName(singularDirName, TEST_DIR, store, true)
-      assert.equal(name, `${singularDirName}_1--y`, "Should return 'testdir_1' as 'testdir' already exists")
+      assert.equal(name, `${singularDirName}_1`, "Should return 'testdir_1' as 'testdir' already exists")
 
       // try to create 'testdirs' directory
       name = await getIncrementalName(pluralDirName, TEST_DIR, store, true)
-      assert.equal(name, `${pluralDirName}_1--y`, "Should return 'testdirs_1' as 'testdirs' already exists")
+      assert.equal(name, `${pluralDirName}_1`, "Should return 'testdirs_1' as 'testdirs' already exists")
 
       fs.rmdirSync(path.join(STORAGE_PATH, singularDirName))
       fs.rmdirSync(path.join(STORAGE_PATH, pluralDirName))

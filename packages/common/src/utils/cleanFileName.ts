@@ -52,8 +52,11 @@ export const getEncodedFileName = (displayName: string) => {
     .replace(/\(/g, '_') // remaining opening parenthesis to underscore
     .replace(/\)/g, '-') // remaining closing parenthesis to hyphen
     .replace(/--/g, '§') // temporarily store double hyphens
+    .replace(/__/g, '¤') // temporarily store double underscores
     .replace(/-/g, '--') // double all single hyphens
+    .replace(/_/g, '__') // double all single underscores
     .replace(/§/g, '--') // restore original double hyphens
+    .replace(/¤/g, '__') // restore original double underscores
     .replace(/\s+/g, '-') // convert spaces to single hyphens
 
   // Add 'x' at the beginning if it starts with special characters
@@ -101,8 +104,11 @@ export const getDecodedFileName = (encodedName: string) => {
   return decoded
     .replace(/_(\d+)-/g, ' ($1)') // handle _number- pattern with proper spacing
     .replace(/--/g, '§') // temporarily store double hyphens
+    .replace(/__/g, '¤') // temporarily store double underscores
     .replace(/-/g, ' ') // convert single hyphens to spaces
+    .replace(/_/g, ' ') // convert single underscores to spaces
     .replace(/§/g, '-') // restore original hyphens
+    .replace(/¤/g, '_') // restore original underscores
     .replace(/\s+/g, ' ') // normalize multiple spaces to single space
     .trim() // remove any leading/trailing spaces
 }

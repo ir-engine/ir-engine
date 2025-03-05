@@ -39,8 +39,8 @@ describe('getEncodedFileName', () => {
   })
 
   it('should handle parentheses', () => {
-    assert.equal(getEncodedFileName('(test)'), 'x_test--y')
-    assert.equal(getEncodedFileName('(2)'), 'x_2--y')
+    assert.equal(getEncodedFileName('(test)'), 'x__test--y')
+    assert.equal(getEncodedFileName('(2)'), 'x__2--y')
   })
 
   it('should handle spaces and special characters', () => {
@@ -49,15 +49,15 @@ describe('getEncodedFileName', () => {
   })
 
   it('should handle folder names with numbers in parentheses', () => {
-    assert.equal(getEncodedFileName('New Folder (1)'), 'New-Folder_1--y')
-    assert.equal(getEncodedFileName('New Folder (2)'), 'New-Folder_2--y')
-    assert.equal(getEncodedFileName('folder (10)'), 'folder_10--y')
-    assert.equal(getEncodedFileName('test folder (1) '), 'test-folder_1--y')
+    assert.equal(getEncodedFileName('New Folder (1)'), 'New-Folder__1--y')
+    assert.equal(getEncodedFileName('New Folder (2)'), 'New-Folder__2--y')
+    assert.equal(getEncodedFileName('folder (10)'), 'folder__10--y')
+    assert.equal(getEncodedFileName('test folder (1) '), 'test-folder__1--y')
   })
 
   it('should handle folder names with hyphens and numbers in parentheses', () => {
-    assert.equal(getEncodedFileName('my-folder (1)'), 'my--folder_1--y')
-    assert.equal(getEncodedFileName('test-folder (2)'), 'test--folder_2--y')
+    assert.equal(getEncodedFileName('my-folder (1)'), 'my--folder__1--y')
+    assert.equal(getEncodedFileName('test-folder (2)'), 'test--folder__2--y')
   })
 })
 
