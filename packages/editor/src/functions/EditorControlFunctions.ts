@@ -67,6 +67,7 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { serializeEntity } from '@ir-engine/engine/src/scene/functions/serializeWorld'
+import { SceneDeltaState } from '@ir-engine/engine/src/scene/systems/SceneDeltaState'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { PostProcessingComponent } from '@ir-engine/spatial/src/renderer/components/PostProcessingComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
@@ -96,6 +97,7 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
     if (add) {
+      setComponent(entity, component, args)
       if (args) {
         EditorControlFunctions.modifyProperty([entity], component, args)
       } else {
@@ -132,7 +134,9 @@ const modifyProperty = <C extends Component<any, any>>(
   const affectedNodes = [] as NodeID[]
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
-
+    if (!EditorState.isInActiveScene(entity)) {
+      SceneDeltaState.registerDelta(entity, component, properties)
+    }
     const currentComponent = hasComponent(entity, component) ? serializeComponent(entity, component) : {}
     for (const [key, val] of Object.entries(properties)) {
       if (key.includes('.')) {
@@ -220,6 +224,9 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
       MaterialStateComponent
     ).material.plugins.set(material.plugins)
     getMutableState(AssetModifiedState)[sceneID].set(true)
+    if (!EditorState.isInActiveScene(materialEntity)) {
+      SceneDeltaState.registerMaterialDelta(materialEntity, props)
+    }
   }
 }
 
@@ -375,6 +382,9 @@ const positionObject = (
     }
 
     setComponent(entity, TransformComponent, { position: transform.position })
+    if (!EditorState.isInActiveScene(entity)) {
+      SceneDeltaState.registerDelta(entity, TransformComponent, { position: transform.position })
+    }
     getMutableComponent(entity, TransformComponent).position.set((v) => v)
     iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
@@ -411,6 +421,9 @@ const rotateObject = (nodes: Entity[], rotations: Quaternion[], space = getState
     }
 
     setComponent(entity, TransformComponent, { rotation: transform.rotation })
+    if (!EditorState.isInActiveScene(entity)) {
+      SceneDeltaState.registerDelta(entity, TransformComponent, { rotation: transform.rotation })
+    }
     getMutableComponent(entity, TransformComponent).rotation.set((v) => v)
     iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
@@ -439,6 +452,9 @@ const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: V
       .decompose(transform.position, transform.rotation, transform.scale)
 
     setComponent(entity, TransformComponent, { rotation: transform.rotation })
+    if (!EditorState.isInActiveScene(entity)) {
+      SceneDeltaState.registerDelta(entity, TransformComponent, { rotation: transform.rotation })
+    }
     getMutableComponent(entity, TransformComponent).rotation.set((v) => v)
     iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 
@@ -485,6 +501,9 @@ const scaleObject = (entities: Entity[], scales: Vector3[], overrideScale = fals
     )
 
     setComponent(entity, TransformComponent, { scale: transformComponent.scale })
+    if (!EditorState.isInActiveScene(entity)) {
+      SceneDeltaState.registerDelta(entity, TransformComponent, { scale: transformComponent.scale })
+    }
     getMutableComponent(entity, TransformComponent).scale.set((v) => v)
     iterateEntityNode(entity, computeTransformMatrix, (e) => hasComponent(e, TransformComponent))
 

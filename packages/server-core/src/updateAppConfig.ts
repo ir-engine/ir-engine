@@ -59,7 +59,7 @@ export const updateAppConfig = async (): Promise<void> => {
   if (appConfig.db.forceRefresh || !appConfig.kubernetes.enabled) return
 
   const knexClient = knex({
-    client: 'mysql',
+    client: 'mysql2',
     connection: {
       ...db,
       port: parseInt(db.port.toString()),

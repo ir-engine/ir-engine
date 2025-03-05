@@ -119,7 +119,7 @@ export const PROJECT_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]/
  */
 export const PROJECT_CAPTURE_REGEX = /projects\/([a-zA-Z0-9-_@]+)\/([a-zA-Z0-9-_]+)/
 
-export const PATH_REGEX = /^[a-zA-Z0-9-_@.\/]+$/
+export const PATH_REGEX = /^(?:[a-zA-Z0-9][-_@.a-zA-Z0-9]*\/)*[a-zA-Z0-9][-_@.()\sa-zA-Z0-9]*(?:\/)?$/
 
 /**
  * This regex matches strings that start with `projects/`, followed by one or more characters that can be letters, digits, hyphens, underscores, or forward slashes, and then `/public/`.
@@ -147,4 +147,6 @@ export const BUILDER_CHART_REGEX = /ir-engine-builder-([0-9]+\.[0-9]+\.[0-9]+)/g
 
 export const UNIQUEIFIED_VITE_KEY_REGEX = /[.-]{1}[a-zA-Z0-9-_]{8}.(js|css)(.map)?$/
 
-export const REMOVE_EDGE_SLASH_REGEX = /^\/|\/$/g
+export const REMOVE_EDGE_SLASH_REGEX = /^\/+|\/+$/g
+
+export const TRAILING_SLASH_REGEX = /\/+$/
