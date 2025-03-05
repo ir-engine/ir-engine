@@ -38,10 +38,11 @@ import {
   ArrowTopRightOnSquareLg,
   Microphone01Md,
   MicrophoneOff,
-  VideoRecorderMd,
-  VideoRecorderOffMd,
-  WarningLg
+  VideoRecorderLg,
+  VideoRecorderOffLg
 } from '@ir-engine/ui/src/icons'
+import { IoWarning } from 'react-icons/io5'
+
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { useTranslation } from 'react-i18next'
@@ -190,10 +191,18 @@ const ReportUserWindow = () => {
         </div>
         <div className="flex items-center gap-x-4">
           <button className="rounded-full bg-ui-secondary p-[15px]" onClick={() => toggleVideo()}>
-            {!videoStreamPaused ? <VideoRecorderOffMd /> : <VideoRecorderMd />}
+            {!videoStreamPaused ? (
+              <VideoRecorderOffLg className="h-5 w-5 text-text-primary-button" />
+            ) : (
+              <VideoRecorderLg className="h-5 w-5 text-text-primary-button" />
+            )}
           </button>
           <button className="rounded-full bg-ui-secondary p-[15px]" onClick={() => toggleAudio()}>
-            {!audioStreamPaused ? <MicrophoneOff /> : <Microphone01Md />}
+            {!audioStreamPaused ? (
+              <MicrophoneOff className="h-5 w-5 text-text-primary-button" />
+            ) : (
+              <Microphone01Md className="h-5 w-5 text-text-primary-button" />
+            )}
           </button>
           <button
             className="rounded-full bg-ui-error p-[15px]"
@@ -204,7 +213,7 @@ const ReportUserWindow = () => {
               )
             }
           >
-            <WarningLg />
+            <IoWarning className="h-5 w-5 text-text-primary-button" />
           </button>
         </div>
       </div>

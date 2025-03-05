@@ -223,7 +223,7 @@ const AvatarSelectMenu = forwardRef(({ showBackButton, previewEnabled = true }: 
               />
               {createAvatarEnabled && (
                 <Button
-                  className="min-w-[140px] rounded-md text-sm font-normal"
+                  className="whitespace-nowrap rounded-md text-sm font-normal"
                   size="l"
                   variant="primary"
                   onClick={() => {
