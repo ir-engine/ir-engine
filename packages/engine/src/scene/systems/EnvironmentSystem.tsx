@@ -28,7 +28,6 @@ import React, { useEffect } from 'react'
 import {
   defineSystem,
   Entity,
-  getOptionalComponent,
   haveCommonAncestor,
   PresentationSystemGroup,
   QueryReactor,
@@ -147,18 +146,20 @@ const EnvMapSkyboxReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   const { entity, rootEntity } = props
   const backgroundQuery = useQuery([BackgroundComponent])
   const materialComponent = useOptionalComponent(entity, MaterialStateComponent)
+
+  let i = 0
+  for (i; i < backgroundQuery.length; i++) if (haveCommonAncestor(entity, backgroundQuery[i])) break
+  const backgroundComponent = useOptionalComponent(backgroundQuery[i], BackgroundComponent)
+
   useEffect(() => {
-    if (!materialComponent) return
-    let i = 0
-    for (i; i < backgroundQuery.length; i++) if (haveCommonAncestor(entity, backgroundQuery[i])) break
-    const backgroundComponent = getOptionalComponent(backgroundQuery[i], BackgroundComponent)
-    if (!backgroundComponent) return
+    if (!materialComponent || !backgroundComponent) return
+
     const material = materialComponent.material as State<MeshStandardMaterial>
     // threejs freaks out if matcap materials are passed in envmap related values
     if (disallowedMaterials.has(material.type.value)) return
 
-    material.envMap.set(backgroundComponent as any)
-  }, [backgroundQuery, materialComponent?.material.uuid.value])
+    material.envMap.set(backgroundComponent.value as any)
+  }, [backgroundComponent, materialComponent?.material.uuid.value])
 
   return <IntensityReactor entity={entity} rootEntity={rootEntity} />
 }

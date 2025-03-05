@@ -46,7 +46,6 @@ import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ActiveHelperComponent } from '../../../../spatial/src/common/ActiveHelperComponent'
-import { GeneralAudioComponent } from './GeneralAudioComponent'
 import { PositionalAudioHelperComponent } from './PositionalAudioHelperComponent'
 
 export interface PositionalAudioInterface {
@@ -87,7 +86,6 @@ export const PositionalAudioComponent = defineComponent({
     useEffect(() => {
       const authEntity = getAuthoringCounterpart(entity)
       if (authEntity) {
-        setComponent(authEntity, GeneralAudioComponent)
         setComponent(authEntity, MediaComponent)
       }
     }, [])
