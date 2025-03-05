@@ -165,13 +165,15 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
   const mediaEntities = useQuery([MediaComponent])
   const mediaOptions = mediaEntities
     .filter(
-      (entity) =>
-        entity !== entity && entity !== simulationEntity && getOptionalComponent(entity, NameComponent) !== undefined
+      (loopEntity) =>
+        loopEntity !== entity &&
+        loopEntity !== simulationEntity &&
+        getOptionalComponent(loopEntity, NameComponent) !== undefined
     )
-    .map((entity) => {
+    .map((loopEntity) => {
       return {
-        label: getComponent(entity, NameComponent),
-        value: getComponent(entity, NodeIDComponent)
+        label: getComponent(loopEntity, NameComponent),
+        value: getComponent(loopEntity, NodeIDComponent)
       }
     })
 
