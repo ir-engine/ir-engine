@@ -210,7 +210,7 @@ const ShareMenu = (): JSX.Element => {
             </Text>
           </div>
 
-          <div className="flex w-full items-center justify-center ">
+          <div className="flex w-fit items-center justify-center smh:w-full">
             <div className="rounded-md bg-white p-4">
               <QRCodeSVG className="h-[114px] w-[131px] smh:h-[161px] smh:w-[184px]" value={shareLink} />
             </div>
