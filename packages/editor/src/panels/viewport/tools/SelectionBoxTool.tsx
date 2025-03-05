@@ -180,11 +180,11 @@ export default function SelectionBox({
   }
   useEffect(() => {
     viewportRef.current!.addEventListener('mousemove', handleMouseMove as any)
-    viewportRef.current!.addEventListener('mouseup', handleMouseUp as any)
+    document.addEventListener('mouseup', handleMouseUp as any)
     viewportRef.current!.addEventListener('mousedown', handleMouseDown as any)
     return () => {
       viewportRef.current!.removeEventListener('mousemove', handleMouseMove as any)
-      viewportRef.current!.removeEventListener('mouseup', handleMouseUp as any)
+      document.removeEventListener('mouseup', handleMouseUp as any)
       viewportRef.current!.removeEventListener('mousedown', handleMouseDown as any)
     }
   }, [isDragging])

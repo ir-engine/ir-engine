@@ -23,24 +23,30 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createXRUI } from '@ir-engine/engine/src/xrui/createXRUI'
-import { Widget, Widgets } from './Widgets'
-
-import { Users02Lg } from '@ir-engine/ui/src/icons'
-import { VideoWindowsWidget } from '../user/VideoWindows'
-
-export function createMediaWidget() {
-  const ui = createXRUI(VideoWindowsWidget)
-  // removeComponent(ui.entity, VisibleComponent)
-
-  const widget: Widget = {
-    ui,
-    label: 'Media',
-    icon: Users02Lg,
-    onOpen: () => {},
-    system: () => {},
-    cleanup: async () => {}
-  }
-
-  const id = Widgets.registerWidget(ui.entity, widget)
-}
+import type { SVGProps } from 'react'
+import * as React from 'react'
+import { Ref, forwardRef } from 'react'
+const MouseLeftClickMd = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="1em"
+    height="1em"
+    fill="none"
+    viewBox="0 0 20 20"
+    role="img"
+    stroke="currentColor"
+    ref={ref}
+    {...props}
+  >
+    <path
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.75}
+      d="M10 1.667A5.833 5.833 0 0 1 15.832 7.5v5a5.833 5.833 0 0 1-11.667 0v-5m5.833-5.833A5.833 5.833 0 0 0 4.166 7.5m5.833-5.833V7.5H4.166"
+    />
+    <path fill="#F7F8FA" d="M9.584 7.083V1.667s-2.23.539-3.333 1.25c-1.473.95-1.667 4.166-1.667 4.166z" />
+  </svg>
+)
+const ForwardRef = forwardRef(MouseLeftClickMd)
+export default ForwardRef

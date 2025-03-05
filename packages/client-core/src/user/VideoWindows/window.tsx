@@ -25,11 +25,11 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '@ir-engine/network/src/media/PeerMediaChannelState'
-import { ArrowTopRightOnSquareSm } from '@ir-engine/ui/src/icons'
-import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
+import { ArrowTopRightOnSquareSm, Microphone01Lg, MicrophoneOff, VolumeMaxLg, VolumeXLg } from '@ir-engine/ui/src/icons'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
 import React, { useEffect, useRef } from 'react'
+
 import { useTranslation } from 'react-i18next'
 import { Props, useReportUser, useUserMediaWindowHook } from './hook'
 
@@ -185,10 +185,17 @@ export const SingleVideoWindowWidget = ({ peerID, type }: Props): JSX.Element =>
       >
         {username}
         <button style={{ margin: 0 }} onClick={toggleAudio} xr-layer="true">
-          <Icon
-            xr-layer="true"
-            type={isSelf ? (audioStreamPaused ? 'MicOff' : 'Mic') : audioStreamPaused ? 'VolumeOff' : 'VolumeUp'}
-          />
+          {isSelf ? (
+            audioStreamPaused ? (
+              <MicrophoneOff />
+            ) : (
+              <Microphone01Lg />
+            )
+          ) : audioStreamPaused ? (
+            <VolumeXLg />
+          ) : (
+            <VolumeMaxLg />
+          )}
         </button>
       </div>
     </div>

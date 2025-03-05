@@ -27,9 +27,8 @@ import React, { useLayoutEffect } from 'react'
 
 import { TouchGamepad } from '@ir-engine/client-core/src/common/components/TouchGamepad'
 import UserMenus from '@ir-engine/client-core/src/user/menus'
-import { getMutableState, NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-
 import { EngineState } from '@ir-engine/ecs'
+import { getMutableState, NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'

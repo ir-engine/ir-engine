@@ -252,7 +252,6 @@ const Select = ({
     }
   }
 
-  const inputRef = useRef<HTMLInputElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const [positionStyle, setPositionStyle] = useState({})
 
@@ -317,8 +316,6 @@ const Select = ({
                 )}
               >
                 <input
-                  ref={inputRef}
-                  onBlur={() => inputRef.current && inputRef.current.focus()}
                   onClick={() => {
                     if (!disabled) {
                       togglePopup()
@@ -383,6 +380,8 @@ const Select = ({
         border: 'none',
         ...positionStyle
       }}
+      onOpen={() => onOpen?.(true)}
+      onClose={() => onOpen?.(false)}
     >
       <div
         ref={contentRef}

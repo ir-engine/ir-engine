@@ -325,7 +325,10 @@ export const applyCommandsToECS = (sourceID: SourceID, currentState: SourceData,
       // entity does not exist, remove entity
       const uuid = NodeIDComponent.getUUIDBySourceAndNodeID(sourceID, nodeID)
       const entity = UUIDComponent.getEntityByUUID(uuid, Layers.Authoring)
-      removeEntity(entity)
+      // ensure the entity has actually been removed, and not moved to another source
+      if (getComponent(entity, SourceComponent) === sourceID) {
+        removeEntity(entity)
+      }
     }
   }
 }

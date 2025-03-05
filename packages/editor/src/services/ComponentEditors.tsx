@@ -115,13 +115,13 @@ import SkyboxNodeEditor from '@ir-engine/ui/src/components/editor/properties/sky
 import SpawnPointNodeEditor from '@ir-engine/ui/src/components/editor/properties/spawnPoint'
 import SplineNodeEditor from '@ir-engine/ui/src/components/editor/properties/spline'
 
-import { GeneralAudioComponent } from '@ir-engine/engine/src/audio/components/GeneralAudioComponent'
 import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { LookAtComponent } from '@ir-engine/engine/src/scene/components/LookAtComponent'
+import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { OverlayComponent } from '@ir-engine/engine/src/scene/components/OverlayComponent'
 import { TriggerCallbackComponent } from '@ir-engine/engine/src/scene/components/TriggerCallbackComponent'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { GeneralAudioNodeEditor } from '@ir-engine/ui/src/components/editor/properties/audio/general'
+import MediaNodeEditor from '@ir-engine/ui/src/components/editor/properties/media'
 import PlaylistNodeEditor from '@ir-engine/ui/src/components/editor/properties/playlist'
 import SplineTrackNodeEditor from '@ir-engine/ui/src/components/editor/properties/spline/track'
 import TextNodeEditor from '@ir-engine/ui/src/components/editor/properties/text'
@@ -188,7 +188,7 @@ export const ComponentEditorsState = defineState({
       [TextComponent.name]: TextNodeEditor,
       [LookAtComponent.name]: LookAtNodeEditor,
       [ReflectionProbeComponent.name]: ReflectionProbeNodeEditor,
-      [GeneralAudioComponent.name]: GeneralAudioNodeEditor
+      [MediaComponent.name]: MediaNodeEditor
     } as Record<string, EditorComponentType>
   }
 })
