@@ -72,6 +72,7 @@ import { SourceComponent } from '../scene/components/SourceComponent'
 import { handleScenePaths } from '../scene/functions/GLTFConversion'
 import { GLTFComponent } from './GLTFComponent'
 import { NodeIDComponent } from './NodeIDComponent'
+import { SceneDeltaExporterExtension } from './SceneDeltaExporterExtension'
 
 const WEBGL_CONSTANTS = {
   POINTS: 0x0000,
@@ -198,9 +199,9 @@ type GLTFSceneExportContext = {
   }
 }
 
-export type ExportExtension = new () => GLTFSceneExportExtension
+export type ExportExtension = GLTFSceneExportExtension
 
-export const defaultExportExtensionList = [] as ExportExtension[]
+export const defaultExportExtensionList = [SceneDeltaExporterExtension] as (() => ExportExtension)[]
 
 type TypedArrayConstructor =
   | Int8ArrayConstructor
@@ -319,9 +320,9 @@ export async function exportGLTFScene(
   projectName: string,
   relativePath: string,
   exportRoot = true,
-  exportExtensionTypes: ExportExtension[] = defaultExportExtensionList
+  exportExtensionTypes: ExportExtension[] = defaultExportExtensionList.map((ext) => ext())
 ) {
-  const exportExtensions = exportExtensionTypes.map((ext) => new ext())
+  const exportExtensions = exportExtensionTypes //.map((ext) => new ext())
 
   const gltf = {
     asset: { generator: 'IREngine.SceneExporter', version: '2.0' },
