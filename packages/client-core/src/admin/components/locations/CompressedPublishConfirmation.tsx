@@ -40,9 +40,8 @@ export default function CompressedPublishConfirmation() {
           isLooping={true}
           loopingBarSpeed={0.4}
         />
-        <div className="mb-8 mt-6  flex justify-between text-sm text-white">
-          <span>On Compressed Publish...</span>
-          <span>Please Wait</span>
+        <div className="mb-8 mt-6  flex justify-between text-xs text-text-primary">
+          <span>Please wait for your space to be published...</span>
         </div>
       </div>
     </div>
