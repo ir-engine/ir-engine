@@ -105,19 +105,13 @@ const AvatarPreview = ({ fill, avatarUrl, onAvatarError, onAvatarLoaded }: Props
     setComponent(cameraEntity, AssetPreviewCameraComponent, { targetModelEntity: avatar.value })
     //workaround to prevent a few frames of untextured, tposing avatars
     removeComponent(sceneEntity, VisibleComponent)
-
+    setComponent(avatar.value, GLTFComponent, { src: avatarUrl })
     return () => {
       removeEntity(lightEntity)
       removeEntity(avatar.value)
       removeComponent(cameraEntity, AssetPreviewCameraComponent)
     }
   }, [avatarUrl])
-
-  // set gltf component in separate reactor as hotfix for environment system errors
-  useEffect(() => {
-    if (!avatar.value) return
-    setComponent(avatar.value, GLTFComponent, { src: avatarUrl })
-  }, [avatar])
 
   useEffect(() => {
     if (!loaded) return
