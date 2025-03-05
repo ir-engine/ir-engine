@@ -78,7 +78,6 @@ export const createScene = async (
     type: 'scene',
     body: templateURL,
     path: 'public/scenes/New-Scene.gltf',
-    thumbnailKey: templateURL.replace(`${config.client.fileServer}/`, '').replace('.gltf', '.thumbnail.jpg'),
     unique: true
   })
   return sceneData

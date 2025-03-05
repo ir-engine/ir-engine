@@ -109,7 +109,7 @@ function AudioTab() {
           checked={audioState.positionalMedia.value}
           onChange={(value: boolean) => {
             audioState.positionalMedia.set(value)
-            logger.info({ event_name: `spatial_user_av`, event_value: value })
+            logger.analytics({ event_name: `spatial_user_av`, event_value: value })
           }}
         />
       </div> */}
@@ -119,14 +119,14 @@ function AudioTab() {
           value={audioState.microphoneGain.value}
           onChange={(value) => {
             audioState.microphoneGain.set(value)
-            logger.info({ event_name: `set_microphone_volume`, event_value: value })
+            logger.analytics({ event_name: `set_microphone_volume`, event_value: value })
           }}
         />
         <BlockSlider
           value={audioState.masterVolume.value}
           onChange={(value: number) => {
             audioState.masterVolume.set(value)
-            logger.info({ event_name: `set_total_volume`, event_value: value })
+            logger.analytics({ event_name: `set_total_volume`, event_value: value })
           }}
           label={t('user:usermenu.setting.lbl-volume')}
         />
@@ -134,7 +134,7 @@ function AudioTab() {
           value={audioState.mediaStreamVolume.value}
           onChange={(value: number) => {
             audioState.mediaStreamVolume.set(value)
-            logger.info({ event_name: `set_user_volume`, event_value: value })
+            logger.analytics({ event_name: `set_user_volume`, event_value: value })
           }}
           label={t('user:usermenu.setting.lbl-media-instance')}
         />
@@ -142,7 +142,7 @@ function AudioTab() {
           value={audioState.notificationVolume.value}
           onChange={(value: number) => {
             audioState.notificationVolume.set(value)
-            logger.info({ event_name: `set_notification_volume`, event_value: value })
+            logger.analytics({ event_name: `set_notification_volume`, event_value: value })
           }}
           label={t('user:usermenu.setting.lbl-notification')}
         />
@@ -150,7 +150,7 @@ function AudioTab() {
           value={audioState.soundEffectsVolume.value}
           onChange={(value: number) => {
             audioState.soundEffectsVolume.set(value)
-            logger.info({ event_name: `set_scene_volume`, event_value: value })
+            logger.analytics({ event_name: `set_scene_volume`, event_value: value })
           }}
           label={t('user:usermenu.setting.lbl-sound-effect')}
         />
@@ -158,7 +158,7 @@ function AudioTab() {
           value={audioState.backgroundMusicVolume.value}
           onChange={(value: number) => {
             audioState.backgroundMusicVolume.set(value)
-            logger.info({ event_name: `set_music_volume`, event_value: value })
+            logger.analytics({ event_name: `set_music_volume`, event_value: value })
           }}
           label={t('user:usermenu.setting.lbl-background-music-volume')}
         />
@@ -174,9 +174,9 @@ function GraphicsTab() {
 
   const handleQualityLevelChange = (value: number) => {
     rendererState.qualityLevel.set(value)
-    logger.info({ event_name: `set_quality_preset`, event_value: value })
+    logger.analytics({ event_name: `set_quality_preset`, event_value: value })
     rendererState.automatic.set(false)
-    logger.info({ event_name: `automatic_qp`, event_value: false })
+    logger.analytics({ event_name: `automatic_qp`, event_value: false })
   }
   return (
     <div className="h-full w-full">
@@ -196,9 +196,9 @@ function GraphicsTab() {
         <Checkbox
           onChange={() => {
             rendererState.usePostProcessing.set(!rendererState.usePostProcessing.value)
-            logger.info({ event_name: `post_processing`, event_value: rendererState.usePostProcessing.value })
+            logger.analytics({ event_name: `post_processing`, event_value: rendererState.usePostProcessing.value })
             rendererState.automatic.set(false)
-            logger.info({ event_name: `automatic_qp`, event_value: false })
+            logger.analytics({ event_name: `automatic_qp`, event_value: false })
           }}
           checked={rendererState.usePostProcessing.value}
           label={t('user:usermenu.setting.lbl-pp')}
@@ -208,9 +208,9 @@ function GraphicsTab() {
         <Checkbox
           onChange={() => {
             rendererState.useShadows.set(!rendererState.useShadows.value)
-            logger.info({ event_name: `shadows`, event_value: rendererState.useShadows.value })
+            logger.analytics({ event_name: `shadows`, event_value: rendererState.useShadows.value })
             rendererState.automatic.set(false)
-            logger.info({ event_name: `automatic_qp`, event_value: false })
+            logger.analytics({ event_name: `automatic_qp`, event_value: false })
           }}
           checked={rendererState.useShadows.value}
           label={t('user:usermenu.setting.lbl-shadow')}
@@ -220,7 +220,7 @@ function GraphicsTab() {
         <Checkbox
           onChange={() => {
             rendererState.automatic.set(!rendererState.automatic.value)
-            logger.info({ event_name: `automatic_qp`, event_value: rendererState.automatic.value })
+            logger.analytics({ event_name: `automatic_qp`, event_value: rendererState.automatic.value })
           }}
           checked={rendererState.automatic.value}
           label={t('user:usermenu.setting.lbl-automatic')}

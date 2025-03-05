@@ -163,7 +163,10 @@ export const WorldInstance = ({ id }: { id: InstanceID }) => {
   useEffect(() => {
     const worldInstance = getState(LocationInstanceState).instances[id]
     if (worldInstance.p2p) {
-      return PeerToPeerNetworkState.connectToP2PInstance(id)
+      return PeerToPeerNetworkState.connectToP2PInstance({
+        id,
+        locationId: worldInstance.locationId
+      })
     } else {
       return connectToInstance(
         id,
@@ -223,7 +226,10 @@ export const MediaInstance = ({ id }: { id: InstanceID }) => {
   useEffect(() => {
     const mediaInstance = getState(MediaInstanceState).instances[id]
     if (mediaInstance.p2p) {
-      return PeerToPeerNetworkState.connectToP2PInstance(id)
+      return PeerToPeerNetworkState.connectToP2PInstance({
+        id,
+        channelId: mediaInstance.channelId
+      })
     } else {
       return connectToInstance(
         id,

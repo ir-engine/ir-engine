@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import Pause from '@mui/icons-material/Pause'
-import PlayArrow from '@mui/icons-material/PlayArrow'
 import React from 'react'
 
 import { getMutableComponent, getOptionalComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
@@ -35,6 +33,7 @@ import { createXRUI } from '@ir-engine/engine/src/xrui/createXRUI'
 import { useHookstate } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
+import { PauseCircleLg, PlayLg } from '@ir-engine/ui/src/icons'
 
 export function createMediaControlsView(entity: Entity) {
   const MediaControls = () => <MediaControlsView entity={entity} />
@@ -107,8 +106,8 @@ const MediaControlsView = (props: MediaControlsProps) => {
         }`}
         </style>
 
-        {mediaComponent.paused.value && <PlayArrow style={mediaStyles} />}
-        {!mediaComponent.paused.value && <Pause style={mediaStyles} />}
+        {mediaComponent.paused.value && <PlayLg style={mediaStyles} />}
+        {!mediaComponent.paused.value && <PauseCircleLg style={mediaStyles} />}
       </button>
     </div>
   )

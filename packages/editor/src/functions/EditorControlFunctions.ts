@@ -98,8 +98,10 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
     if (hasComponent(entity, SceneComponent)) continue
     if (add) {
       setComponent(entity, component, args)
-      if (args && !EditorState.isInActiveScene(entity)) {
-        SceneDeltaState.registerDelta(entity, component, args)
+      if (args) {
+        EditorControlFunctions.modifyProperty([entity], component, args)
+      } else {
+        setComponent(entity, component, args)
       }
     } else {
       removeComponent(entity, component)
@@ -460,6 +462,25 @@ const rotateAround = (entities: Entity[], axis: Vector3, angle: number, pivot: V
   }
 }
 
+const worldScaleObject = (entities: Entity[], worldScales: Vector3[]) => {
+  for (let i = 0; i < entities.length; i++) {
+    const entity = entities[i]
+    const worldScale = worldScales[i] ?? worldScales[0]
+
+    const entityTreeComponent = getComponent(entity, EntityTreeComponent)
+    const parentEntity = entityTreeComponent.parentEntity
+
+    const entityWorldScale = TransformComponent.getWorldScale(parentEntity, new Vector3(1, 1, 1))
+    const newLocalScale = new Vector3(
+      worldScale.x / entityWorldScale.x,
+      worldScale.y / entityWorldScale.y,
+      worldScale.z / entityWorldScale.z
+    )
+    setComponent(entity, TransformComponent, { scale: newLocalScale })
+    EditorState.markModifiedScene(entity)
+  }
+}
+
 const scaleObject = (entities: Entity[], scales: Vector3[], overrideScale = false) => {
   for (let i = 0; i < entities.length; i++) {
     const entity = entities[i]
@@ -500,6 +521,11 @@ const reparentObject = (
   for (const entity of entities) {
     if (hasComponent(entity, SceneComponent)) continue
     if (entity === parent) continue
+
+    const worldPosition = TransformComponent.getWorldPosition(entity, new Vector3())
+    const worldRotation = TransformComponent.getWorldRotation(entity, new Quaternion())
+    const worldScale = TransformComponent.getWorldScale(entity, new Vector3())
+
     const parentTree = getComponent(parent, EntityTreeComponent)
     const index = afterEntity
       ? parentTree.children.indexOf(afterEntity) + 1
@@ -507,7 +533,21 @@ const reparentObject = (
       ? parentTree.children.indexOf(beforeEntity)
       : undefined
     setComponent(entity, EntityTreeComponent, { parentEntity: parent, childIndex: index })
-    /** @todo handle the entity changing sources */
+
+    EditorControlFunctions.positionObject([entity], [worldPosition], TransformSpace.world)
+    EditorControlFunctions.rotateObject([entity], [worldRotation], TransformSpace.world)
+    worldScaleObject([entity], [worldScale])
+
+    const newSourceID = hasComponent(parent, GLTFComponent)
+      ? GLTFComponent.getInstanceID(parent)
+      : getComponent(parent, SourceComponent)
+    setComponent(entity, SourceComponent, newSourceID)
+    setComponent(
+      entity,
+      UUIDComponent,
+      NodeIDComponent.getUUIDBySourceAndNodeID(newSourceID, getComponent(entity, NodeIDComponent))
+    )
+
     EditorState.markModifiedScene(entity)
   }
 }

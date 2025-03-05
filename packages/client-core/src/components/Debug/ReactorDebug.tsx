@@ -23,9 +23,10 @@ import { useTranslation } from 'react-i18next'
 import { JSONTree } from 'react-json-tree'
 
 import { defineSystem, ECSState, PresentationSystemGroup } from '@ir-engine/ecs'
-import { getMutableState, getState, NO_PROXY, ReactorRenderCounterState, useHookstate } from '@ir-engine/hyperflux'
+import { getState, NO_PROXY, ReactorRenderCounterState, useHookstate } from '@ir-engine/hyperflux'
 import { Checkbox } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { useFrameUpdate } from './useFrameUpdate'
 
 let open = false
 let accumulator = 0
@@ -79,7 +80,8 @@ const shouldExpandNodeInitially = (keyPath: any, data: any, level: number) => le
 
 export function ReactorDebug() {
   const { t } = useTranslation()
-  useHookstate(getMutableState(ECSState).frameTime).value
+
+  useFrameUpdate()
 
   const averageEnabled = useHookstate(true)
 

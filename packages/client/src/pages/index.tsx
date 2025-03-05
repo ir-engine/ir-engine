@@ -32,8 +32,6 @@ import { NotificationService } from '@ir-engine/client-core/src/common/services/
 import config from '@ir-engine/common/src/config'
 import { useMutableState } from '@ir-engine/hyperflux'
 
-import { Box, Button } from '@mui/material'
-
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import ProfileMenu from '@ir-engine/client-core/src/user/menus/ProfileMenu'
 import { ViewerMenuState } from '@ir-engine/client-core/src/util/ViewerMenuState'
@@ -105,16 +103,16 @@ export const HomePage = (): any => {
               </Trans>
             )}
             {Boolean(clientSetting?.homepageLinkButtonEnabled) && (
-              <Button
+              <button
                 className="gradientButton"
                 autoFocus
                 onClick={() => (window.location.href = clientSetting?.homepageLinkButtonRedirect)}
               >
                 {clientSetting?.homepageLinkButtonText}
-              </Button>
+              </button>
             )}
           </div>
-          <Box sx={{ flex: 1 }}>
+          <div style={{ flexGrow: 1 }}>
             <style>
               {`
                 [class*=menu] {
@@ -128,7 +126,7 @@ export const HomePage = (): any => {
                 }
               `}
             </style>
-          </Box>
+          </div>
         </div>
         <div className="link-container">
           <div className="link-block">

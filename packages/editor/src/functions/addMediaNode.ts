@@ -43,10 +43,10 @@ import {
   setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
-import { GeneralAudioComponent } from '@ir-engine/engine/src/audio/components/GeneralAudioComponent'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { AssetState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
@@ -158,19 +158,25 @@ export async function addMediaNode(
       AssetState.loadAsync(url, false, UUIDComponent.generateUUID(), UndefinedEntity, Layers.Authoring as LayerID).then(
         (entity) => {
           const currentSource = GLTFComponent.getInstanceID(entity)
-          const entities = SourceComponent.getEntitiesBySource(currentSource)
+          const entities = SourceComponent.getEntitiesBySource(currentSource, Layers.Authoring)
           const rootEntity = getState(EditorState).rootEntity
           const newSource = GLTFComponent.getInstanceID(rootEntity)
           for (const entity of entities) {
             setComponent(entity, SourceComponent, newSource)
+            setComponent(entity, NodeIDComponent, NodeIDComponent.generate())
+            setComponent(
+              entity,
+              UUIDComponent,
+              NodeIDComponent.getUUIDBySourceAndNodeID(newSource, getComponent(entity, NodeIDComponent))
+            )
           }
           for (const childEntity of getComponent(entity, EntityTreeComponent).children) {
             setComponent(childEntity, EntityTreeComponent, { parentEntity: parent ?? rootEntity })
           }
           removeEntity(entity)
-
           const gltfEntity = getAncestorWithComponents(parent ?? rootEntity, [GLTFComponent])
           EditorState.markModifiedScene(gltfEntity)
+          EditorHistoryFunctions.snapshot()
         }
       )
     } else {
@@ -210,11 +216,7 @@ export async function addMediaNode(
     return entityUUID
   } else if (contentType.startsWith('audio/')) {
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
-      [
-        { name: GeneralAudioComponent.jsonID },
-        { name: MediaComponent.jsonID, props: { resources: [url] } },
-        ...extraComponentJson
-      ],
+      [{ name: MediaComponent.jsonID, props: { resources: [url] } }, ...extraComponentJson],
       parent!,
       before
     )

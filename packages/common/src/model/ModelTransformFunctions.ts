@@ -58,9 +58,7 @@ import { $attributes } from 'property-graph'
 import { LoaderUtils } from 'three'
 import { v4 as uuidv4 } from 'uuid'
 
-import { API } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
-import { fileBrowserPath } from '@ir-engine/common/src/schema.type.module'
 import {
   ExtractedImageTransformParameters,
   extractParameters,
@@ -82,15 +80,14 @@ import {
   EEResourceIDExtension
 } from '@ir-engine/engine/src/assets/compression/extensions/EE_ResourceIDTransformer'
 import { UploadRequestState } from '@ir-engine/engine/src/assets/state/UploadRequestState'
+import { MATCH_ASSET_PROJECT_FILENAME_REGEX } from '../regex'
 import ModelTransformLoader from './ModelTransformLoader'
-
 /**
  * https://ir.world/projects/ir-engine/default-project/assets/collisioncube-LOD0.glb
  * Match 1: projects/ir-engine/default-project/assets/collisioncube-LOD0.glb
  * Group 1: ir-engine/default-project
  * Group 2: collisioncube-LOD0.glb
  */
-export const MATCH_ASSET_PROJECT_FILENAME_REGEX = /projects\/([^/]+\/[^/]+)\/(?:assets|public)\/([\w\d\s\-|_./]*)$/
 
 /**
  *
@@ -609,7 +606,7 @@ const createTextureOperations = (
   return operations
 }
 
-const transformTexture = async (resultCache: Map<string, Texture>, operation: TextureOperation) => {
+const transformTexture = async (resultCache: Map<string, Texture>, operation: TextureOperation, index: number) => {
   const { shouldResize, shouldConvertToKTX, texture, params } = operation
 
   const hash = hashTextureOperation(operation)
@@ -661,6 +658,15 @@ const transformTexture = async (resultCache: Map<string, Texture>, operation: Te
     texture.setImage(new Uint8Array(compressedData))
     texture.setMimeType('image/ktx2')
     texture.setURI(texture.getURI().replace(/\.[^.]+$/, '.ktx2'))
+  }
+
+  if (shouldResize || shouldConvertToKTX) {
+    //wipe relative path from URI
+    const uri = texture.getURI()
+    let newURI = uri.split('/').at(-1)!
+    const [_, fileName, extension] = /(.*)\.([^.]+)$/.exec(newURI)!
+    newURI = `${fileName}-${index}.${extension}`
+    texture.setURI(newURI)
   }
   resultCache.set(hash, texture)
 }
@@ -727,11 +733,11 @@ const writeFiles = async (
     const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
     const folderURL = resourcePath.replace(config.client.fileServer, '')
 
-    const fileBrowserService = API.instance.service(fileBrowserPath)
-    const folderExists = await fileBrowserService.get(folderURL)
-    if (!folderExists) {
-      await fileBrowserService.create(folderURL)
-    }
+    // const fileBrowserService = API.instance.service(fileBrowserPath)
+    // const folderExists = await fileBrowserService.get(folderURL)
+    // if (!folderExists) {
+    //   await fileBrowserService.create(folderURL)
+    // }
 
     const removeExtension = (uri: string) => {
       const pathSegments = uri.split('/')
@@ -864,7 +870,7 @@ export const transformModel = async (
   const resultCache = new Map<string, Texture>()
   for (let i = 0; i < numTextureOperations; i++) {
     onProgress?.((i + 1) / totalProgressSteps, Status.ProcessingTexture, i, numTextureOperations)
-    await transformTexture(resultCache, textureOperations[i])
+    await transformTexture(resultCache, textureOperations[i], i)
   }
 
   const results: string[] = []

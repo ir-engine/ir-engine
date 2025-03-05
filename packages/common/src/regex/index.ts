@@ -35,6 +35,9 @@ A filename is valid if:
 // eslint-disable-next-line no-control-regex
 export const VALID_FILENAME_REGEX = /^([^_\W])([\w\-_.]{2,126})([^_\W])$/
 export const VALID_EXTENSION_REGEX = /^(\w{2,4})$/
+export const SANITIZE_FILENAME_REGEX = /[^a-zA-Z0-9._-]+/g
+export const START_WITH_ALPHANUMERIC_REGEX = /^[^a-zA-Z0-9]+/
+export const END_WITH_ALPHANUMERIC_REGEX = /[^a-zA-Z0-9]+$/
 // eslint-disable-next-line no-control-regex
 export const WINDOWS_RESERVED_NAME_REGEX = /^(con|prn|aux|nul|com\d|lpt\d)$/i
 export const VALID_SCENE_NAME_REGEX = VALID_FILENAME_REGEX
@@ -60,7 +63,10 @@ export const EMAIL_REGEX =
  */
 export const PHONE_REGEX = /^[0-9]{10}$/
 
-export const INVALID_USER_NAME_REGEX = /[^a-zA-Z\s]/g
+/**
+ * Regular expression pattern for username validation.
+ */
+export const INVALID_USER_NAME_REGEX = /(?!.)/g
 
 /**
  * This regex is used to validate strings that should consist of exactly 8 hexadecimal digits.
@@ -113,7 +119,7 @@ export const PROJECT_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]/
  */
 export const PROJECT_CAPTURE_REGEX = /projects\/([a-zA-Z0-9-_@]+)\/([a-zA-Z0-9-_]+)/
 
-export const PATH_REGEX = /^[a-zA-Z0-9-_@.\/]+$/
+export const PATH_REGEX = /^(?:[a-zA-Z0-9][-_@.a-zA-Z0-9]*\/)*[a-zA-Z0-9][-_@.()\sa-zA-Z0-9]*(?:\/)?$/
 
 /**
  * This regex matches strings that start with `projects/`, followed by one or more characters that can be letters, digits, hyphens, underscores, or forward slashes, and then `/public/`.
@@ -126,6 +132,11 @@ export const PROJECT_PUBLIC_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+\
 export const PROJECT_THUMBNAIL_REGEX = /projects\/+[a-zA-Z0-9-_@]+\/[a-zA-Z0-9-_]+\/thumbnails\//
 
 export const VALID_PROJECT_NAME = /^(?!\s)[\w\-\s]+$/
+/**
+ * This regex matches strings that start with project/ followd by assets publish for compression.
+ */
+export const MATCH_ASSET_PROJECT_FILENAME_REGEX =
+  /projects\/([^/]+\/[^/]+)\/(?:assets|public(?:\/publish(?:\/[^/]+))?)\/([\w\d\s\-|_./]*)$/
 
 // =======================================================================
 // ========================= Helm Regex Patterns =========================
@@ -136,4 +147,6 @@ export const BUILDER_CHART_REGEX = /ir-engine-builder-([0-9]+\.[0-9]+\.[0-9]+)/g
 
 export const UNIQUEIFIED_VITE_KEY_REGEX = /[.-]{1}[a-zA-Z0-9-_]{8}.(js|css)(.map)?$/
 
-export const REMOVE_EDGE_SLASH_REGEX = /^\/|\/$/g
+export const REMOVE_EDGE_SLASH_REGEX = /^\/+|\/+$/g
+
+export const TRAILING_SLASH_REGEX = /\/+$/

@@ -28,9 +28,8 @@ import { userHasProjectPermission } from '@ir-engine/client-core/src/hooks/useUs
 import { API } from '@ir-engine/common'
 import { projectPermissionPath } from '@ir-engine/common/src/schema.type.module'
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
-import { EngineState, entityExists, EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
+import { EngineState, EntityTreeComponent, UUIDComponent } from '@ir-engine/ecs'
 import {
-  getAllComponents,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -55,7 +54,6 @@ import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/C
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { Button, Input } from '@ir-engine/ui'
-import TransformPropertyGroup from '@ir-engine/ui/src/components/editor/properties/transform'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import React, { KeyboardEvent, useEffect, useRef } from 'react'
 import { useDrag } from 'react-dnd'
@@ -66,8 +64,8 @@ import { MdKeyboardArrowDown, MdKeyboardArrowRight } from 'react-icons/md'
 import { PiEyeBold, PiEyeClosedBold, PiLockBold, PiLockOpenBold } from 'react-icons/pi'
 import { ListChildComponentProps } from 'react-window'
 import { twMerge } from 'tailwind-merge'
+import { IconComponent } from '../../components/panels/IconComponent'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
-import { ComponentEditorsState } from '../../services/ComponentEditors'
 import { EditorHelperState, PlacementMode } from '../../services/EditorHelperState'
 import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 import { EditorState } from '../../services/EditorServices'
@@ -96,19 +94,6 @@ function toValidHierarchyNodeName(entity: Entity, name: string): string {
   return name
 }
 
-function IconComponent({ entity }: { entity: Entity }) {
-  const icons = entityExists(entity)
-    ? getAllComponents(entity)
-        .map((c) => getState(ComponentEditorsState)[c.name]?.iconComponent)
-        .filter((icon) => !!icon)
-    : []
-  const _IconComponent = icons.length > 0 ? icons[0] : TransformPropertyGroup.iconComponent
-  if (!_IconComponent) return null
-  return (
-    <_IconComponent entity={entity} className="h-5 w-5 flex-shrink-0" data-testid="hierarchy-panel-scene-item-icon" />
-  )
-}
-
 export default React.memo(function HierarchyTreeNode(props: ListChildComponentProps<undefined>) {
   const { t } = useTranslation()
   const nodes = useHierarchyNodes()
@@ -130,6 +115,9 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const isRenameOpen = useState(false)
   const canSaveNodeChanges = useState(false)
   const permissionToChangeNodeVerified = useState(false)
+
+  //@todo when this feature flag is added, remove the hardcoded value
+  const hideGlbChildrenFeatureFlag = [true] //useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.HideGlbChildren])
 
   const handleRenameOpen = () => {
     if (!isRenameOpen.value) {
@@ -315,9 +303,9 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
   const onHideUnhideNode = (event: React.MouseEvent) => {
     event.stopPropagation()
     if (visible) {
-      EditorHistoryFunctions.setComponent([entity], VisibleComponent)
-    } else {
       EditorHistoryFunctions.removeComponent([entity], VisibleComponent)
+    } else {
+      EditorHistoryFunctions.setComponent([entity], VisibleComponent)
     }
   }
 
@@ -338,7 +326,7 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     const [_, orgName, projectName, fileName] = STATIC_ASSET_REGEX.exec(gltfComponent.src)!
     const fullProjectName = `${orgName}/${projectName}`
     const parsedName = fileName.split('?')[0]
-    exportRelativeGLTF(node.entity, fullProjectName, parsedName).then((newSRC) => {
+    exportRelativeGLTF(node.entity, fullProjectName, parsedName, false).then((newSRC) => {
       EditorControlFunctions.modifyProperty([node.entity], GLTFComponent, { src: newSRC })
       getMutableState(AssetModifiedState)[GLTFComponent.getInstanceID(entity)].set(none)
     })
@@ -363,11 +351,16 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
     permissionToChangeNodeVerified.set(true)
 
     const gltfComponent = getComponent(node.entity, GLTFComponent)
-    const [, orgName, projectName] = STATIC_ASSET_REGEX.exec(gltfComponent.src)!
+    const [, orgName, projectName, fileName] = STATIC_ASSET_REGEX.exec(gltfComponent.src)!
     const fullProjectName = `${orgName}/${projectName}`
 
     const { projectName: stateProjectName } = getState(EditorState)
 
+    const trimmedFilename = fileName.split('?')[0]
+    if (trimmedFilename && trimmedFilename.endsWith('.glb')) {
+      canSaveNodeChanges.set(false)
+      return
+    }
     if (stateProjectName === fullProjectName) {
       canSaveNodeChanges.set(true)
       return
@@ -397,7 +390,8 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
         'bg-ui-background',
         !visible ? 'text-text-inactive' : '',
         selected ? 'rounded-sm border border-ui-select-outline bg-ui-select-background text-text-primary' : '',
-        isOverOn && canDropOn ? 'border border-dotted' : ''
+        isOverOn && canDropOn ? 'border border-dotted' : '',
+        hideGlbChildrenFeatureFlag[0] && isOverOn && !canDropOn ? 'border border-dotted bg-ui-hover-error' : ''
       )}
       data-testid="hierarchy-panel-scene-item"
     >

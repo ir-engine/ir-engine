@@ -25,7 +25,86 @@ Infinite Reality Engine. All Rights Reserved.
 
 import assert from 'assert'
 import { describe, it } from 'vitest'
-import { cleanFileNameString } from './cleanFileName'
+import { cleanFileNameString, getDecodedFileName, getEncodedFileName } from './cleanFileName'
+
+describe('getEncodedFileName', () => {
+  it('should handle normal text without special characters', () => {
+    assert.equal(getEncodedFileName('hello'), 'hello')
+    assert.equal(getEncodedFileName('hello world'), 'hello-world')
+  })
+
+  it('should preserve hyphens by doubling them', () => {
+    assert.equal(getEncodedFileName('hello-world'), 'hello--world')
+    assert.equal(getEncodedFileName('test-file-name'), 'test--file--name')
+  })
+
+  it('should handle parentheses', () => {
+    assert.equal(getEncodedFileName('(test)'), 'x__test--y')
+    assert.equal(getEncodedFileName('(2)'), 'x__2--y')
+  })
+
+  it('should handle spaces and special characters', () => {
+    assert.equal(getEncodedFileName('test - file'), 'test----file')
+    assert.equal(getEncodedFileName(' space '), 'x-space-y')
+  })
+
+  it('should handle folder names with numbers in parentheses', () => {
+    assert.equal(getEncodedFileName('New Folder (1)'), 'New-Folder__1--y')
+    assert.equal(getEncodedFileName('New Folder (2)'), 'New-Folder__2--y')
+    assert.equal(getEncodedFileName('folder (10)'), 'folder__10--y')
+    assert.equal(getEncodedFileName('test folder (1) '), 'test-folder__1--y')
+  })
+
+  it('should handle folder names with hyphens and numbers in parentheses', () => {
+    assert.equal(getEncodedFileName('my-folder (1)'), 'my--folder__1--y')
+    assert.equal(getEncodedFileName('test-folder (2)'), 'test--folder__2--y')
+  })
+})
+
+describe('getDecodedFileName', () => {
+  it('should handle normal text without special characters', () => {
+    assert.equal(getDecodedFileName('hello'), 'hello')
+    assert.equal(getDecodedFileName('hello-world'), 'hello world')
+  })
+
+  it('should decode double hyphens back to single hyphen', () => {
+    assert.equal(getDecodedFileName('hello--world'), 'hello-world')
+    assert.equal(getDecodedFileName('test--file--name'), 'test-file-name')
+  })
+
+  it('should decode encoded parentheses', () => {
+    assert.equal(getDecodedFileName('folder-_1-y'), 'folder (1)')
+    assert.equal(getDecodedFileName('x_2-y'), '(2)')
+  })
+
+  it('should handle numbers correctly', () => {
+    assert.equal(getDecodedFileName('version-2'), 'version 2')
+    assert.equal(getDecodedFileName('v2-test'), 'v2 test')
+    assert.equal(getDecodedFileName('test-2-v3'), 'test 2 v3')
+  })
+
+  it('should properly decode folder names with numbers', () => {
+    assert.equal(getDecodedFileName('New-Folder_1-'), 'New Folder (1)')
+    assert.equal(getDecodedFileName('folder_10-'), 'folder (10)')
+    assert.equal(getDecodedFileName('test-folder_1-'), 'test folder (1)')
+    assert.equal(getDecodedFileName('my--folder_1-'), 'my-folder (1)')
+  })
+
+  it('should maintain proper spacing around parentheses', () => {
+    assert.equal(getDecodedFileName('New-Folder_1-'), 'New Folder (1)')
+    assert.equal(getDecodedFileName('test--new-folder_2-'), 'test-new folder (2)')
+  })
+
+  it('should handle round-trip encoding and decoding', () => {
+    const testCases = ['New Folder (1)', 'test-folder (2)', 'my folder (10)', 'hello-world (1)', 'New Folder (1)']
+
+    testCases.forEach((original) => {
+      const encoded = getEncodedFileName(original)
+      const decoded = getDecodedFileName(encoded)
+      assert.equal(decoded, original.trim())
+    })
+  })
+})
 
 describe('cleanFileNameString', () => {
   it('should return a cleaned version of the filename', () => {
@@ -49,6 +128,6 @@ describe('cleanFileNameString', () => {
   it('should respect multiple spaces in the file name', () => {
     const fullFileName = 'path/to/file/file name with spaces.txt'
     const result = cleanFileNameString(fullFileName)
-    assert.equal(result, 'path/to/file/file name with spaces.txt')
+    assert.equal(result, 'path/to/file/file-name-with-spaces.txt')
   })
 })

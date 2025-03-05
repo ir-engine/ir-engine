@@ -35,6 +35,7 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  getSimulationCounterpart,
   hasComponent,
   Layers,
   removeComponent,
@@ -236,8 +237,9 @@ export const GLTFComponentReactor = () => {
     let aborted = false
     removeComponent(entity, AnimationComponent)
 
+    const layer = LayerComponent.get(entity)
     const unloadEntities = () => {
-      const loadedEntities = SourceComponent.getEntitiesBySource(sourceID)
+      const loadedEntities = SourceComponent.getEntitiesBySource(sourceID, layer)
       for (const entity of loadedEntities) removeEntity(entity)
     }
 
@@ -287,7 +289,8 @@ const ResourceReactor = (props: { documentID: string; entity: Entity; documentLo
   const dependenciesLoaded = GLTFComponent.useDependenciesLoaded(props.entity)
   const resourceQuery = useQuery([SourceComponent, ResourcePendingComponent])
 
-  useApplyCollidersToChildMeshesEffect(props.entity)
+  const simulationEntity = getSimulationCounterpart(props.entity)
+  useApplyCollidersToChildMeshesEffect(simulationEntity)
 
   useEffect(() => {
     if (!hasComponent(props.entity, GLTFComponent) || !props.documentLoaded) return

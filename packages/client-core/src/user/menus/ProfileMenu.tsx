@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
@@ -43,6 +43,7 @@ import {
 import {
   defineState,
   getMutableState,
+  getState,
   syncStateWithLocalStorage,
   useHookstate,
   useMutableState
@@ -79,10 +80,12 @@ import { NotificationService } from '../../common/services/NotificationService'
 import { PopoverState } from '../../common/services/PopoverState'
 import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 import { useZendesk } from '../../hooks/useZendesk'
+import { LocationState } from '../../social/services/LocationService'
 import { clientContextParams } from '../../util/ClientContextState'
 import { AuthService, AuthState } from '../services/AuthService'
 import { AvatarService } from '../services/AvatarService'
 import AvatarSelectMenu from './avatar/AvatarSelectMenu'
+import ReportMenu from './ReportMenu'
 import SettingsMenu from './SettingsMenu'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ProfileMenu', modifier: clientContextParams })
@@ -131,6 +134,11 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
 
   const originallyAgeVerified = useHookstate(checked18OrOver)
   const originallyAcceptedTOS = useHookstate(acceptedTOS).value
+  const currentLocation = getState(LocationState).currentLocation.location
+
+  const avatarSelectMenuRef = useRef<{
+    handleClose: () => Promise<void>
+  } | null>(null)
 
   const submitAgeVerified = () => {
     if (!originallyAgeVerified.value && !checked18OrOver) {
@@ -139,9 +147,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
         .patch(userId, { ageVerified: true })
         .then(() => {
           selfUser.ageVerified.set(true)
-          logger.info({
-            event_name: 'accept_tos'
-          })
+          logger.analytics({ event_name: 'accept_tos' })
         })
         .catch((e) => {
           console.error(e, 'Error updating user')
@@ -186,7 +192,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   }, [selfUser.name.value])
 
   useEffect(() => {
-    if (!loading.value) logger.info({ event_name: 'view_profile' })
+    if (!loading.value) logger.analytics({ event_name: 'view_profile' })
   }, [loading.value])
 
   const identityProvidersQuery = useFind(identityProviderPath)
@@ -244,7 +250,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     if (errorUsername.value.length > 0) return
     if (selfUser.name.value.trim() !== name) {
       AvatarService.updateUsername(userId, name).then(() =>
-        logger.info({
+        logger.analytics({
           event_name: 'rename_user'
         })
       )
@@ -272,14 +278,14 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     const redirectUrl = window.location.toString().replace(window.location.search, '')
     if (type === 'email')
       AuthService.createMagicLink(emailPhone.value, authState?.value, 'email', redirectUrl).then(() =>
-        logger.info({
+        logger.analytics({
           event_name: 'connect_email',
           event_value: e.currentTarget.id
         })
       )
     else if (type === 'sms')
       AuthService.createMagicLink(emailPhone.value, authState?.value, 'sms', redirectUrl).then(() =>
-        logger.info({
+        logger.analytics({
           event_name: 'connect_sms',
           event_value: e.currentTarget.id
         })
@@ -288,7 +294,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   }
 
   const handleOAuthServiceClick = (serviceName: keyof typeof initialOAuthConnectedState) => {
-    logger.info({
+    logger.analytics({
       event_name: 'connect_social_login',
       event_value: serviceName
     })
@@ -296,7 +302,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   }
 
   const handleRemoveOAuthServiceClick = (serviceName: keyof typeof initialOAuthConnectedState) => {
-    logger.info({
+    logger.analytics({
       event_name: 'disconnect_social_login',
       event_value: serviceName
     })
@@ -351,6 +357,14 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     }
   }
 
+  const onAvatarSelectClose = () => {
+    if (avatarSelectMenuRef.current) {
+      avatarSelectMenuRef.current?.handleClose()
+    } else {
+      PopoverState.hidePopupover()
+    }
+  }
+
   const enableSocial =
     authState?.value?.apple ||
     authState?.value?.discord ||
@@ -370,7 +384,10 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             <AvatarImage size="large" src={avatarThumbnail} className="object-cover" />
             <button
               onClick={() => {
-                PopoverState.showPopupover(<AvatarSelectMenu showBackButton={true} previewEnabled={true} />)
+                PopoverState.showPopupover(
+                  <AvatarSelectMenu ref={avatarSelectMenuRef} showBackButton={true} previewEnabled={true} />,
+                  onAvatarSelectClose
+                )
               }}
               className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#DDE1E5] p-2"
             >
@@ -422,7 +439,13 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
                 {t('user:usermenu.profile.helpChat')}
               </Button>
 
-              <Button variant="red" fullWidth onClick={openChat}>
+              <Button
+                variant="red"
+                fullWidth
+                onClick={() =>
+                  PopoverState.showPopupover(<ReportMenu type="location" locationId={currentLocation.id} />)
+                }
+              >
                 <ReportWebsiteDefaullg />
                 {t('user:usermenu.profile.reportWorld')}
               </Button>
