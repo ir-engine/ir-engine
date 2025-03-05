@@ -61,6 +61,7 @@ import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { useXRUIState } from '@ir-engine/engine/src/xrui/useXRUIState'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { inFrustum } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
+import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile.ts'
 import { smootheLerpAlpha } from '@ir-engine/spatial/src/common/functions/MathLerpFunctions'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import {
@@ -290,6 +291,7 @@ export const InteractableComponent = defineComponent({
       () => {
         const buttons = InputComponent.getMergedButtons(entity)
         if (!interactableComponent.clickInteract.value && buttons.PrimaryClick?.pressed) return
+
         if (
           buttons.Interact?.pressed &&
           !buttons.Interact?.dragging &&
@@ -297,7 +299,7 @@ export const InteractableComponent = defineComponent({
         ) {
           InputState.setCapturingEntity(entity)
 
-          if (buttons.Interact?.up) {
+          if (buttons.Interact?.up || (isMobile && buttons.Interact?.touched)) {
             callInteractCallbacks(entity)
           }
         }
