@@ -1038,7 +1038,7 @@
       "lbl-side": "Side",
       "lbl-side-info": "The side of the video to display",
       "lbl-use-alpha": "Transparency",
-      "lbl-use-alphaEnable": "Enbale",
+      "lbl-use-alphaEnable": "Enable",
       "lbl-use-alphaInvert": "Invert",
       "lbl-use-alpha-info": "If true, the video will be rendered with an alpha channel",
       "lbl-alpha-threshold": "Threshold",

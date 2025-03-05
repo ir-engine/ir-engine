@@ -41,6 +41,7 @@ import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
 import React from 'react'
 import { Quaternion, Vector3 } from 'three'
 import { T } from '../../schema/schemaFunctions'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
 const options = {
   deserialize: (curr, value) => curr.copy(value)
@@ -142,6 +143,7 @@ const RigidBodyReactor = () => {
     if (!physicsWorld) return
     Physics.createRigidBody(physicsWorld, entity)
     component.initialized.set(true)
+    TransformComponent.dirty[entity] = 1
     return () => {
       Physics.removeRigidbody(physicsWorld, entity)
       if (!hasComponent(entity, RigidBodyComponent)) return
