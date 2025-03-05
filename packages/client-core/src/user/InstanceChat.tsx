@@ -85,7 +85,7 @@ const InstanceChatProvider = ({ children }: { children: React.ReactNode }) => {
   }, [messagesResponse.data, messagesResponse.status])
 
   useEffect(() => {
-    if (!isChatOpen && messages.at(-1)?.senderId.value !== user.id.value && channelState.messageCreated.value) {
+    if (!isChatOpen.value && messages.at(-1)?.senderId.value !== user.id.value && channelState.messageCreated.value) {
       unreadMessages.set(true)
     } else {
       unreadMessages.set(false)
