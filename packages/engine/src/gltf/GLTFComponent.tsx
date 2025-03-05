@@ -140,6 +140,9 @@ export const GLTFComponent = defineComponent({
     const source = useOptionalComponent(entity, SourceComponent)?.value
     if (!uuid || !src) return source ?? ('' as SourceID)
     return SourceComponent.getSourceID(uuid, src)
+  },
+  removeHashes: <T extends EntityUUID | SourceID | NodeID>(url: T) => {
+    return url.replaceAll(/\?hash=[^-]+/g, '') as T
   }
 })
 
@@ -437,33 +440,34 @@ export const loadGLTFFile = (
     let json: GLTF.IGLTF | SceneJsonType
     let body: ArrayBuffer | null = null
 
-    if (typeof data === 'string') {
-      json = JSON.parse(data)
-    } else if ('byteLength' in data) {
-      const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
+    try {
+      if (typeof data === 'string') {
+        json = JSON.parse(data)
+      } else if ('byteLength' in data) {
+        const magic = textDecoder.decode(new Uint8Array(data, 0, 4))
 
-      if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
-        try {
+        if (magic === BINARY_EXTENSION_HEADER_MAGIC) {
           const { json: jsonContent, body: bodyContent } = parseBinaryData(data)
           body = bodyContent
           json = jsonContent
-        } catch (error) {
-          if (onError) onError(error)
-          return
+        } else {
+          json = JSON.parse(textDecoder.decode(data))
         }
       } else {
-        json = JSON.parse(textDecoder.decode(data))
+        json = data
       }
-    } else {
-      json = data
-    }
 
-    /** Migrate old scene json format */
-    if ('entities' in json && 'root' in json) {
-      json = migrateSceneJSONToGLTF(json)
-    }
+      /** Migrate old scene json format */
+      if ('entities' in json && 'root' in json) {
+        json = migrateSceneJSONToGLTF(json)
+      }
 
-    onLoad(parseStorageProviderURLs(JSON.parse(JSON.stringify(json))), body)
+      console.log(json, body)
+      onLoad(parseStorageProviderURLs(JSON.parse(JSON.stringify(json))), body)
+    } catch (error) {
+      if (onError) onError(error)
+      return
+    }
   }
 
   const loader = new FileLoader()

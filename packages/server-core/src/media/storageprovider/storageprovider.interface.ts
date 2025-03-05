@@ -169,8 +169,9 @@ export interface StorageProviderInterface {
   /**
    * Invalidate items in the storage provider.
    * @param invalidationItems List of keys.
+   * @param useMediaCDN If using Google Cloud, indicates whether to invalidate a Media CDN item (otherwise invalidate Cloud CDN)
    */
-  createInvalidation(invalidationItems: string[]): Promise<any>
+  createInvalidation(invalidationItems: string[], useMediaCDN?: boolean): Promise<any>
 
   getOriginURLs(): Promise<string[]>
 
@@ -213,6 +214,12 @@ export interface StorageProviderInterface {
    * @returns {StorageObjectInterface}
    */
   getObject(key: string): Promise<StorageObjectInterface>
+
+  /**
+   * Get the content type of an object
+   * @returns {StorageProviderInterface}
+   */
+  getObjectContentType(key: string): Promise<string>
 
   /**
    * Get the instance of current storage provider.

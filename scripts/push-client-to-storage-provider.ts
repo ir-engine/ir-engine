@@ -47,7 +47,7 @@ cli.main(async () => {
     const storageProvider = getStorageProvider()
     const clientPath = path.resolve(appRootPath.path, `packages/client/dist`)
     const files = getFilesRecursive(clientPath)
-    let filesToPruneResponse = await storageProvider.getObject('client/S3FilesToRemoveInitial.json')
+    let filesToPruneResponse = await storageProvider.getObject('client/StorageProviderFilesToRemoveInitial.json')
     const filesToPush: string[] = []
     await Promise.all(
       files.map((file) => {
@@ -83,23 +83,23 @@ cli.main(async () => {
         })
       })
     )
-    console.log('Pushed client files to S3')
+    console.log('Pushed client files to Storage Provider')
     let filesToPrune = JSON.parse(filesToPruneResponse.Body.toString('utf-8'))
     filesToPrune = filesToPrune.filter((file) => filesToPush.indexOf(file) < 0)
     const putData = {
       Body: Buffer.from(JSON.stringify(filesToPrune)),
       ContentType: 'application/json',
-      Key: 'client/S3FilesToRemoveFinal.json',
+      Key: 'client/StorageProviderFilesToRemoveFinal.json',
       Metadata: {
         'Cache-Control': 'no-cache'
       }
     }
     await storageProvider.putObject(putData, { isDirectory: false })
     await storageProvider.createInvalidation(['client/*'])
-    console.log('Pushed filtered list of files to remove to S3')
+    console.log('Pushed filtered list of files to remove to Storage Provider')
     process.exit(0)
   } catch (err) {
-    console.log('Error in pushing client images to S3:')
+    console.log('Error in pushing client images to Storage Provider:')
     console.log(err)
     cli.fatal(err)
   }

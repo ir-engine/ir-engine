@@ -42,7 +42,7 @@ import {
   setComponent,
   traverseEntityNode
 } from '@ir-engine/ecs'
-import { getState, isClient } from '@ir-engine/hyperflux'
+import { getMutableState, getState, isClient } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -101,6 +101,7 @@ import {
   Vector3,
   VectorKeyframeTrack
 } from 'three'
+import { parseStorageProviderURLs } from '../assets/functions/parseSceneJSON'
 import { loadResource, unloadResourcesForEntity } from '../assets/functions/resourceLoaderFunctions'
 import { FileLoader } from '../assets/loaders/base/FileLoader'
 import { Loader } from '../assets/loaders/base/Loader'
@@ -128,10 +129,17 @@ import { AssetCacheState } from '../assets/state/AssetCacheState'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { SourceID } from '../scene/components/SourceComponent'
+import {
+  MATERIAL_JSON_ID,
+  SceneDeltaEntry,
+  SceneDeltaRegistry,
+  SceneDeltaState
+} from '../scene/systems/SceneDeltaState'
 import { GLTFComponent } from './GLTFComponent'
 import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
 import { KHRTextureTransformExtensionComponent, KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
 import { NodeID, NodeIDComponent } from './NodeIDComponent'
+import { SCENE_DELTA_EXTENSION_NAME } from './SceneDeltaExporterExtension'
 
 const assignFinalMaterial = (primitiveDef: GLTF.IMeshPrimitive, material: MeshPhysicalMaterial) => {
   const useDerivativeTangents = primitiveDef.attributes.TANGENT === undefined
@@ -782,6 +790,20 @@ const loadMaterial = async (options: GLTFParserOptions, materialIndex: number) =
   }
 
   await Promise.all(promises)
+
+  //apply deltas
+  const deltaState = getState(SceneDeltaState)
+  const sourceDelta = deltaState[GLTFComponent.removeHashes(options.documentID)]
+  if (sourceDelta) {
+    const nodeID = getComponent(materialEntity, NodeIDComponent)
+    const nodeDelta = sourceDelta[nodeID]
+    if (nodeDelta) {
+      const materialDelta = nodeDelta[MATERIAL_JSON_ID]
+      if (materialDelta) {
+        Object.assign(materialParams, materialDelta)
+      }
+    }
+  }
 
   const material = new materialConstructor(materialParams)
   const uuid = getComponent(materialEntity, UUIDComponent)
@@ -1457,11 +1479,29 @@ const loadNode = async (options: GLTFParserOptions, nodeIndex: number) => {
 
   await Promise.all(extensionPending)
 
+  //apply deltas if they exist in state
+  const hashlessDocumentID = GLTFComponent.removeHashes(options.documentID)
+  const deltas = getState(SceneDeltaState)?.[hashlessDocumentID]?.[nodeID]
+  if (deltas) {
+    for (const [componentName, delta] of Object.entries(deltas)) {
+      const Component = ComponentJSONIDMap.get(componentName)
+      if (!Component) continue
+      deserializeComponent(nodeEntity, Component, delta as SceneDeltaEntry<typeof Component>)
+    }
+  }
+
   return nodeEntity
 }
 
 const loadScene = async (options: GLTFParserOptions, sceneIndex: number) => {
   const json = options.document
+
+  // load deltas into state before anything else
+  const deltas = json.extensions?.[SCENE_DELTA_EXTENSION_NAME] as SceneDeltaRegistry | null
+  if (deltas) {
+    const parsedDeltas = parseStorageProviderURLs(deltas)
+    getMutableState(SceneDeltaState).merge(parsedDeltas)
+  }
 
   DependencyCache.set(options.url, new Map())
 

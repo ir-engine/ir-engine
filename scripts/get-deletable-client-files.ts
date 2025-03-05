@@ -44,13 +44,13 @@ cli.main(async () => {
     const putData = {
       Body: Buffer.from(JSON.stringify(files.map((file) => file.key))),
       ContentType: 'application/json',
-      Key: 'client/S3FilesToRemoveInitial.json'
+      Key: 'client/StorageProviderFilesToRemoveInitial.json'
     }
     await storageProvider.putObject(putData, { isDirectory: false })
-    console.log('Created list of S3 files to delete after deployment')
+    console.log('Created list of client files to delete after deployment')
     process.exit(0)
   } catch (err) {
-    console.log('Error in getting deletable S3 client files:')
+    console.log('Error in getting deletable client files:')
     console.log(err)
     cli.fatal(err)
   }

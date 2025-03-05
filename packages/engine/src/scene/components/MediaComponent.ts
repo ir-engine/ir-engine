@@ -270,6 +270,14 @@ export function MediaReactor() {
   }
 
   useEffect(() => {
+    if (media.resources.length > 0 && media.autoplay && media.track.value < 0) {
+      media.track.set(0)
+      media.paused.set(false)
+      playTrack()
+    }
+  }, [media.resources.length])
+
+  useEffect(() => {
     if (!rendererEntity) return
     setComponent(entity, BoundingBoxComponent)
     setComponent(entity, InputComponent, { highlight: false, grow: false })

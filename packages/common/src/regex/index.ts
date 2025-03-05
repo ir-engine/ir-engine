@@ -147,4 +147,6 @@ export const BUILDER_CHART_REGEX = /ir-engine-builder-([0-9]+\.[0-9]+\.[0-9]+)/g
 
 export const UNIQUEIFIED_VITE_KEY_REGEX = /[.-]{1}[a-zA-Z0-9-_]{8}.(js|css)(.map)?$/
 
-export const REMOVE_EDGE_SLASH_REGEX = /^\/|\/$/g
+export const REMOVE_EDGE_SLASH_REGEX = /^\/+|\/+$/g
+
+export const TRAILING_SLASH_REGEX = /\/+$/
