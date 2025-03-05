@@ -150,7 +150,6 @@ const EnvMapSkyboxReactor = (props: { entity: Entity; rootEntity: Entity }) => {
   let i = 0
   for (i; i < backgroundQuery.length; i++) if (haveCommonAncestor(entity, backgroundQuery[i])) break
   const backgroundComponent = useOptionalComponent(backgroundQuery[i], BackgroundComponent)
-
   useEffect(() => {
     if (!materialComponent || !backgroundComponent) return
 
@@ -159,7 +158,7 @@ const EnvMapSkyboxReactor = (props: { entity: Entity; rootEntity: Entity }) => {
     if (disallowedMaterials.has(material.type.value)) return
 
     material.envMap.set(backgroundComponent.value as any)
-  }, [backgroundComponent, materialComponent?.material.uuid.value])
+  }, [backgroundComponent?.value, materialComponent?.material.uuid.value])
 
   return <IntensityReactor entity={entity} rootEntity={rootEntity} />
 }
