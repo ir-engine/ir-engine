@@ -165,8 +165,8 @@ const EnvMapSkyboxReactor = (props: { entity: Entity; rootEntity: Entity }) => {
     // threejs freaks out if matcap materials are passed in envmap related values
     if (disallowedMaterials.has(materialComponent.type.value)) return
 
-    material.envMap.set(backgroundComponent.value as any)
-  }, [backgroundComponent?.value, materialComponent?.material.uuid.value])
+    materialComponent.envMap.set(backgroundComponent.value as any)
+  }, [backgroundComponent?.value, materialComponent?.uuid.value])
 
   return <IntensityReactor entity={entity} rootEntity={rootEntity} />
 }
