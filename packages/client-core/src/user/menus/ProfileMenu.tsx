@@ -115,7 +115,6 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   const errorUsername = useHookstate('')
   const showUserId = useHookstate(false)
   const showApiKey = useHookstate(false)
-  const showDeleteAccount = useHookstate(false)
   const oauthConnectedState = useHookstate(Object.assign({}, initialOAuthConnectedState))
   const authState = useHookstate(initialAuthState)
   /** Login Link feature that was needed for multi cam mocap that is not currently necessary. Keeping code around for now if we return to it*/
@@ -616,6 +615,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
           <button
             className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
             onClick={() => {
+              PopoverState.hidePopupover() // Close the ProfileMenu popover
               PopoverState.showPopupover(
                 <ConfirmDialog
                   title={t('user:usermenu.profile.delete.finalDeleteConfirm')}
@@ -623,7 +623,9 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
                   onSubmit={async () => {
                     AuthService.removeUser(userId)
                     AuthService.logoutUser()
-                    showDeleteAccount.set(false)
+                  }}
+                  onClose={() => {
+                    PopoverState.showPopupover(<ProfileMenu />)
                   }}
                 />
               )
