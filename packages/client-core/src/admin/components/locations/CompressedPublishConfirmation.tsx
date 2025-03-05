@@ -42,7 +42,6 @@ export default function CompressedPublishConfirmation() {
         />
         <div className="mb-8 mt-6  flex justify-between text-xs text-text-primary">
           <span>Please wait for your space to be published</span>
-          <span>Please Wait</span>
         </div>
       </div>
     </div>
