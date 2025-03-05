@@ -34,6 +34,7 @@ import { InviteCode, InviteData, authenticationSettingPath } from '@ir-engine/co
 import { useMutableState } from '@ir-engine/hyperflux'
 
 import { useFind } from '@ir-engine/common'
+import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { Button, Input } from '@ir-engine/ui'
 import { Copy03Lg, Send01Lg, Share06Sm } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -279,7 +280,15 @@ const ShareMenu = (): JSX.Element => {
         </div>
       </div>
       <div className="mt-4 hidden w-full items-center justify-center border-t-[0.5px] border-[#212226] py-[11px] smh:flex">
-        <Button variant="secondary" size="l" onClick={() => navigator.share({ url: shareLink })}>
+        <Button
+          variant="secondary"
+          size="l"
+          onClick={() =>
+            isMobile && 'navigator' in window
+              ? window.navigator.share({ url: shareLink })
+              : window.open(shareLink, '_blank')?.focus()
+          }
+        >
           <Share06Sm />
           {t('user:usermenu.share.lbl-share')}
         </Button>
