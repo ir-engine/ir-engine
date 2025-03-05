@@ -606,10 +606,23 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
         <div className="grid w-1/2 grid-cols-1 gap-y-1 px-5 smh:mt-5 smh:gap-y-2">
           <button
             className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
-            onClick={handleLogout}
+            onClick={() => {
+              PopoverState.hidePopupover() // Close the ProfileMenu popover
+              PopoverState.showPopupover(
+                <ConfirmDialog
+                  text={t('user:usermenu.profile.logout.title')}
+                  onSubmit={async () => {
+                    handleLogout()
+                  }}
+                  onClose={() => {
+                    PopoverState.showPopupover(<ProfileMenu />)
+                  }}
+                />
+              )
+            }}
           >
             <LogIn01Lg />
-            {t('user:usermenu.profile.logout')}
+            {t('user:usermenu.profile.logout.submit')}
           </button>
 
           <button
