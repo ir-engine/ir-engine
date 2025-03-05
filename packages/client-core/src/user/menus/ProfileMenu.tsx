@@ -115,7 +115,6 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   const errorUsername = useHookstate('')
   const showUserId = useHookstate(false)
   const showApiKey = useHookstate(false)
-  const showDeleteAccount = useHookstate(false)
   const oauthConnectedState = useHookstate(Object.assign({}, initialOAuthConnectedState))
   const authState = useHookstate(initialAuthState)
   /** Login Link feature that was needed for multi cam mocap that is not currently necessary. Keeping code around for now if we return to it*/
@@ -607,15 +606,29 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
         <div className="grid w-1/2 grid-cols-1 gap-y-1 px-5 smh:mt-5 smh:gap-y-2">
           <button
             className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
-            onClick={handleLogout}
+            onClick={() => {
+              PopoverState.hidePopupover() // Close the ProfileMenu popover
+              PopoverState.showPopupover(
+                <ConfirmDialog
+                  text={t('user:usermenu.profile.logout.title')}
+                  onSubmit={async () => {
+                    handleLogout()
+                  }}
+                  onClose={() => {
+                    PopoverState.showPopupover(<ProfileMenu />)
+                  }}
+                />
+              )
+            }}
           >
             <LogIn01Lg />
-            {t('user:usermenu.profile.logout')}
+            {t('user:usermenu.profile.logout.submit')}
           </button>
 
           <button
             className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
             onClick={() => {
+              PopoverState.hidePopupover() // Close the ProfileMenu popover
               PopoverState.showPopupover(
                 <ConfirmDialog
                   title={t('user:usermenu.profile.delete.finalDeleteConfirm')}
@@ -623,7 +636,9 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
                   onSubmit={async () => {
                     AuthService.removeUser(userId)
                     AuthService.logoutUser()
-                    showDeleteAccount.set(false)
+                  }}
+                  onClose={() => {
+                    PopoverState.showPopupover(<ProfileMenu />)
                   }}
                 />
               )
