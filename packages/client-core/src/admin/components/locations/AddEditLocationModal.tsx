@@ -327,7 +327,7 @@ export default function AddEditLocationModal(props: {
           saveScenePath + '/' + scenename
         )
 
-        await handlePublish()
+        await handlePublish(true)
         //re-open the original scene
         const studioUrl = `${window.location.origin}/studio?project=${projectName}&scenePath=${scenePath}`
         window.open(studioUrl, '_blank')?.focus()
@@ -340,7 +340,7 @@ export default function AddEditLocationModal(props: {
     }
   }
 
-  const handlePublish = async () => {
+  const handlePublish = async (inCompress = false) => {
     errors.set(getDefaultErrors())
 
     if (!name.value.trim()) {
@@ -367,7 +367,7 @@ export default function AddEditLocationModal(props: {
       errors.serverError.set(e.message)
     }
 
-    if (props.onPublish) {
+    if (!inCompress && props.onPublish) {
       try {
         await props.onPublish()
       } catch (e) {
@@ -589,7 +589,11 @@ export default function AddEditLocationModal(props: {
                 {unPublishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
               </Button>
             )}
-            <Button data-testid="publish-panel-publish-or-update-button" disabled={isLoading} onClick={handlePublish}>
+            <Button
+              data-testid="publish-panel-publish-or-update-button"
+              disabled={isLoading}
+              onClick={() => handlePublish()}
+            >
               {location?.id
                 ? t('common:components.update')
                 : props.sceneModified

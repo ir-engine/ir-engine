@@ -31,7 +31,7 @@ import {
   GithubRepoAccessType
 } from '@ir-engine/common/src/schemas/user/github-repo-access.schema'
 import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
-import * as k8s from '@kubernetes/client-node'
+import { V1Job } from '@kubernetes/client-node'
 
 import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
@@ -45,7 +45,7 @@ export async function getGithubRepoAccessRefreshJobBody(
   app: Application,
   jobId: string,
   userId: UserID
-): Promise<k8s.V1Job> {
+): Promise<V1Job> {
   const command = ['npx', 'ts-node', '--swc', 'scripts/refresh-gh-repo-access.ts', '--userId', userId, '--jobId', jobId]
 
   const labels = {

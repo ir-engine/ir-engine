@@ -25,33 +25,25 @@ Infinite Reality Engine. All Rights Reserved.
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-import {
-  BatchDeleteImageCommand as BatchDeletePrivateImageCommand,
-  DescribeImagesCommand as DescribePrivateImagesCommand,
-  ECRClient
-} from '@aws-sdk/client-ecr'
-import { BatchDeleteImageCommand, DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
-import { fromIni } from '@aws-sdk/credential-providers'
+import { v1 } from '@google-cloud/artifact-registry'
 import config from '@ir-engine/server-core/src/appconfig'
 import { CoreV1Api, KubeConfig } from '@kubernetes/client-node'
 import cli from 'cli'
-import fs from 'fs'
 
 cli.enable('status')
 
 const options = cli.parse({
+  repoUrl: [false, 'Name of registry', 'string'],
   repoName: [false, 'Name of repository', 'string'],
+  packageName: [false, 'Name of package'],
   service: [true, 'Name of service', 'string'],
-  public: [false, 'Whether or not the ECR repo is public', 'boolean'],
-  region: [false, 'Name of AWS region', 'string'],
   releaseName: [true, 'Name of release', 'string']
 })
 
-const awsPath = './.aws/eks'
-const credentialsPath = `${awsPath}/credentials`
+const ArtifactRegistryClient = v1.ArtifactRegistryClient
 
-const K8S_PAGE_LIMIT = 1
-const ECR_PAGE_LIMIT = 10
+const K8S_PAGE_LIMIT = 50
+const ARTIFACT_REGISTRY_BATCH_DELETE_PAGE_SIZE = 50
 
 const getAllPods = async (k8Client, continueValue, labelSelector, pods = []) => {
   const matchingPods = await k8Client.listNamespacedPod({
@@ -67,45 +59,40 @@ const getAllPods = async (k8Client, continueValue, labelSelector, pods = []) => 
   else return pods
 }
 
-const getAllImages = async (
-  ecr: any,
-  repoName: string,
-  token: string | undefined,
-  images = [] as string[],
-  publicRepo: boolean
-) => {
-  const input = {
-    repositoryName: repoName,
-    maxResults: ECR_PAGE_LIMIT
-  } as any
-  if (token) input.nextToken = token
-  const command = publicRepo ? new DescribeImagesCommand(input) : new DescribePrivateImagesCommand(input)
-  const response = await ecr.send(command)
-  if (response.imageDetails) images = images.concat(response.imageDetails)
-  if (response.nextToken) return await getAllImages(ecr, repoName, response.nextToken, images, publicRepo)
-  else return images
+const getParent = (includePackage = false) => {
+  const urlSplit = options.repoUrl.split('/')
+  const region = urlSplit[0].replace('-docker.pkg.dev', '')
+  let returned = `projects/${urlSplit[1]}/locations/${region}/repositories/${options.repoName}`
+  if (includePackage) returned += `/packages/${options.packageName}`
+  return returned
 }
 
-const deleteImages = async (ecr, toBeDeleted, publicRepo: boolean) => {
-  const thisDelete = toBeDeleted.length >= 100 ? toBeDeleted.slice(0, 100) : toBeDeleted
+const getAllImages = async (arClient: any, repoName: string, images = [] as any[]) => {
+  const input = {
+    parent: getParent(false)
+  } as any
+  const iterableResponse = arClient.listDockerImagesAsync(input)
+  for await (const item of iterableResponse) images = images.concat(item)
+  return images.filter((image) => new RegExp(repoName).test(image.uri))
+}
+
+const deleteImages = async (arClient, toBeDeleted) => {
+  const parent = getParent(true)
+  const paginated = toBeDeleted.length > ARTIFACT_REGISTRY_BATCH_DELETE_PAGE_SIZE
+  const deletePage = paginated ? toBeDeleted.slice(0, 50) : toBeDeleted
   const localOptions = {
-    imageIds: thisDelete.map((image) => {
-      return { imageDigest: image.imageDigest }
-    }),
-    repositoryName: options.repoName || 'ir-engine'
+    names: deletePage.map((image) => parent + '/versions/' + image.name.split('@')[1]),
+    parent
   }
-  const deleteCommand = publicRepo
-    ? new BatchDeleteImageCommand(localOptions)
-    : new BatchDeletePrivateImageCommand(localOptions)
-  await ecr.send(deleteCommand)
-  if (toBeDeleted.length >= 100) return await deleteImages(ecr, toBeDeleted.slice(100), publicRepo)
-  else return Promise.resolve()
+  const [operation] = await arClient.batchDeleteVersions(localOptions)
+  if (paginated) return await deleteImages(arClient, toBeDeleted.slice(ARTIFACT_REGISTRY_BATCH_DELETE_PAGE_SIZE))
+  return await operation.promise()
 }
 
 cli.main(async () => {
   try {
     let matchingPods,
-      excludedImageDigests = [] as string[],
+      excludedImageUris = [] as string[],
       currentImages = [] as string[]
     if (options.service !== 'builder') {
       const kc = new KubeConfig()
@@ -137,77 +124,58 @@ cli.main(async () => {
       currentImages = [...new Set(currentImages)]
     }
 
-    const awsCredentials = `[default]\naws_access_key_id=${config.aws.eks.accessKeyId}\naws_secret_access_key=${config.aws.eks.secretAccessKey}\n[role]\nrole_arn = ${config.aws.eks.roleArn}\nsource_profile = default`
+    const arClient = new ArtifactRegistryClient({})
 
-    if (!fs.existsSync(awsPath)) fs.mkdirSync(awsPath, { recursive: true })
-    if (!fs.existsSync(credentialsPath)) fs.writeFileSync(credentialsPath, Buffer.from(awsCredentials))
-
-    const ecr =
-      options.public === true
-        ? new ECRPUBLICClient({
-            credentials: fromIni({
-              profile: config.aws.eks.roleArn ? 'role' : 'default',
-              filepath: credentialsPath
-            }),
-            region: 'us-east-1'
-          })
-        : new ECRClient({
-            credentials: fromIni({
-              profile: config.aws.eks.roleArn ? 'role' : 'default',
-              filepath: credentialsPath
-            }),
-            region: options.region || 'us-east-1'
-          })
-    const images = await getAllImages(ecr, options.repoName || 'ir-engine', undefined, [], options.public === true)
+    const images = await getAllImages(arClient, options.repoName || 'ir-engine', [])
     if (!images) return
     const latestImage = images.find(
       (image) =>
-        image.imageTags &&
-        (image.imageTags.indexOf(`latest_${options.releaseName}`) >= 0 ||
-          image.imageTags.indexOf(`latest_${options.releaseName}_cache`) >= 0)
+        image.tags &&
+        (image.tags.indexOf(`latest_${options.releaseName}`) >= 0 ||
+          image.tags.indexOf(`latest_${options.releaseName}_cache`) >= 0)
     )
     if (latestImage) {
-      const latestImageTime = latestImage.imagePushedAt.getTime()
+      const latestImageTime = latestImage.uploadTime
       // ECR automatically supports multi-architecture builds, which results in multiple images/image indexes. In order
       // to not accidentally delete related images, we need to keep all of them for a given tag. Ran into problems
       // trying to inspect the image (and pulling it would be time-consuming), so just checking for images that
       // were made within 10 seconds of the tagged manifest.
-      excludedImageDigests.push(
+      excludedImageUris.push(
         ...images
           .filter(
             (image) =>
-              latestImageTime - image.imagePushedAt.getTime() <= 10000 &&
-              latestImageTime - image.imagePushedAt.getTime() >= 0
+              latestImageTime.seconds - image.uploadTime.seconds <= 10000 &&
+              latestImageTime.seconds - image.uploadTime.seconds >= 0
           )
-          .map((image) => image.imageDigest)
+          .map((image) => image.uri)
       )
     }
     const currentTaggedImages = images.filter(
-      (image) => image.imageTags && image.imageTags.some((item) => currentImages.includes(item))
+      (image) => image.tags && image.tags.some((item) => currentImages.includes(item))
     )
     if (currentTaggedImages) {
       for (let currentTaggedImage of currentTaggedImages) {
-        const currentTaggedImageTime = currentTaggedImage.imagePushedAt.getTime()
-        excludedImageDigests.push(
+        const currentTaggedImageTime = currentTaggedImage.uploadTime
+        excludedImageUris.push(
           ...images
             .filter(
               (image) =>
-                currentTaggedImageTime - image.imagePushedAt.getTime() <= 10000 &&
-                currentTaggedImageTime - image.imagePushedAt.getTime() >= 0
+                currentTaggedImageTime.seconds - image.uploadTime.seconds <= 10000 &&
+                currentTaggedImageTime.seconds - image.uploadTime.seconds >= 0
             )
-            .map((image) => image.imageDigest)
+            .map((image) => image.uri)
         )
       }
     }
-    const withoutLatestOrCurrent = images.filter((image) => excludedImageDigests.indexOf(image.imageDigest) < 0)
-    const sorted = withoutLatestOrCurrent.sort((a, b) => b.imagePushedAt.getTime() - a.imagePushedAt.getTime())
+    const withoutLatestOrCurrent = images.filter((image) => excludedImageUris.indexOf(image.uri) < 0)
+    const sorted = withoutLatestOrCurrent.sort((a, b) => b.uploadTime.seconds - a.uploadTime.seconds)
     let toBeDeleted = sorted.slice(9)
     if (toBeDeleted.length > 0) {
-      await deleteImages(ecr, toBeDeleted, options.public === true)
+      await deleteImages(arClient, toBeDeleted)
       process.exit(0)
     } else process.exit(0)
   } catch (err) {
-    console.log('Error in deleting old ECR images:')
+    console.log('Error in deleting old Artifact Registry images:')
     console.log(err)
   }
 })
