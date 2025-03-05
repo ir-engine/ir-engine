@@ -44,7 +44,7 @@ import SegmentedControlInput from '../../input/SegmentedControl'
 import SelectInput from '../../input/Select'
 import Vector2Input from '../../input/Vector2'
 import Slider from '../../Slider'
-import MediaInput, { MediaMode } from '../media'
+import { MediaInput, MediaMode } from '../media'
 
 const PlayModeOptions = [
   {

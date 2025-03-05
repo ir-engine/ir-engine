@@ -33,12 +33,21 @@ import {
   getOptionalMutableComponent,
   getSimulationCounterpart,
   hasComponent,
+  useComponent,
   useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
-import { commitProperties, commitProperty, updateProperty } from '@ir-engine/editor/src/components/properties/Util'
+import {
+  commitProperties,
+  commitProperty,
+  EditorComponentType,
+  updateProperty
+} from '@ir-engine/editor/src/components/properties/Util'
+import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
+import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
+import NodeEditor from '@ir-engine/editor/src/panels/properties/common/NodeEditor'
+import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
-import { NodeFunctions } from '@ir-engine/engine/src/gltf/NodeFunctions'
 import { NodeID, NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
 import { MediaComponent, MediaElementComponent, setTime } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
@@ -152,9 +161,6 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
   const simulationEntity = getSimulationCounterpart(entity)
   const media = useOptionalComponent(simulationEntity, MediaComponent)
   const mediaElement = getOptionalMutableComponent(simulationEntity, MediaElementComponent)
-
-  const mediaEntity =
-    mediaNodeId === ('' as NodeID) ? simulationEntity : NodeFunctions.getEntityFromNodeID(simulationEntity, mediaNodeId)
 
   const mediaEntities = useQuery([MediaComponent])
   const mediaOptions = mediaEntities
@@ -273,18 +279,19 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
       >
         <SegmentedControlInput value={mediaSourceValue} onChange={mediaSourceChange} options={mediaSourceOptions} />
       </InputGroup>
+
+      {mediaSourceValue !== 'Self' && (
+        <InputGroup
+          name="SynchronizedMedia"
+          label={t('editor:properties.audio.lbl-synchronized-media-source')}
+          info={t('editor:properties.audio.lbl-synchronized-media-source-info')}
+        >
+          <SelectInput value={mediaNodeId} onChange={OnMediaSourceUpdate} options={mediaOptions} />
+        </InputGroup>
+      )}
+
       {mediaSourceValue === 'Self' && mediaNodeId === ('' as NodeID) && media && (
         <>
-          {mediaSourceValue !== 'Self' && (
-            <InputGroup
-              name="SynchronizedMedia"
-              label={t('editor:properties.audio.lbl-synchronized-media-source')}
-              info={t('editor:properties.audio.lbl-synchronized-media-source-info')}
-            >
-              <SelectInput value={mediaNodeId} onChange={OnMediaSourceUpdate} options={mediaOptions} />
-            </InputGroup>
-          )}
-
           <InputGroup
             name="SourcePaths"
             label={t('editor:properties.media.paths')}
@@ -446,4 +453,44 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
   )
 }
 
-export default MediaInput
+/**
+ * MediaNodeEditor used to render editor view for property customization.
+ */
+export const MediaNodeEditor: EditorComponentType = (props) => {
+  const { t } = useTranslation()
+  const simulationEntity = getSimulationCounterpart(props.entity)
+  const audio = useComponent(simulationEntity, MediaComponent)
+  const hasVideo = hasComponent(simulationEntity, VideoComponent)
+
+  useEffect(() => {
+    if (!hasComponent(props.entity, MediaComponent)) {
+      const nodes = SelectionState.getSelectedEntities()
+      EditorControlFunctions.addOrRemoveComponent(nodes, MediaComponent, true)
+    }
+  }, [])
+
+  return (
+    <>
+      {!hasVideo && (
+        <NodeEditor
+          {...props}
+          name={t('editor:properties.audio.name')}
+          description={t('editor:properties.audio.description')}
+          Icon={MediaNodeEditor.iconComponent}
+        >
+          <MediaInput
+            mediaMode={MediaMode.audio}
+            entity={props.entity}
+            mediaNodeId={audio.externalMediaNodeID.value}
+            OnMediaSourceUpdate={commitProperty(MediaComponent, 'externalMediaNodeID')}
+            dropTypes={[...ItemTypes.Audios]}
+          />
+        </NodeEditor>
+      )}
+    </>
+  )
+}
+
+MediaNodeEditor.iconComponent = PiSpeakerLowLight
+
+export default MediaNodeEditor
