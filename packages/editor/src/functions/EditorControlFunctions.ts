@@ -523,6 +523,12 @@ const reparentObject = (
       ? GLTFComponent.getInstanceID(parent)
       : getComponent(parent, SourceComponent)
     setComponent(entity, SourceComponent, newSourceID)
+    setComponent(
+      entity,
+      UUIDComponent,
+      NodeIDComponent.getUUIDBySourceAndNodeID(newSourceID, getComponent(entity, NodeIDComponent))
+    )
+
     EditorState.markModifiedScene(entity)
   }
 }
