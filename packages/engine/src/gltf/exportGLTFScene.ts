@@ -876,9 +876,9 @@ const exportGLTFSceneNode = async (
 
   const children = getOptionalComponent(entity, EntityTreeComponent)?.children
   const childrenIndicies = [] as number[]
-  //instead of comparing source, just skip recursive support of the children of prefab entities that are THEMSELVES nested prefabs
-  if (!hasComponent(entity, GLTFComponent) && children && children.length > 0) {
+  if (children && children.length > 0) {
     for (const child of children) {
+      if (getComponent(child, SourceComponent) !== context.sourceID) continue
       const childIndex = await exportGLTFSceneNode(child, gltf, context)
       if (typeof childIndex === 'number') childrenIndicies.push(childIndex)
     }
