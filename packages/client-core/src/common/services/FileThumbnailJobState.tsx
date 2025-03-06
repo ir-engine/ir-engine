@@ -41,7 +41,14 @@ import {
   useChildrenWithComponents,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import { NO_PROXY, defineState, getMutableState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import {
+  ErrorBoundary,
+  NO_PROXY,
+  defineState,
+  getMutableState,
+  useHookstate,
+  useImmediateEffect
+} from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -55,7 +62,7 @@ import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/compon
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
 import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
-import React, { useEffect } from 'react'
+import React, { Suspense, useEffect } from 'react'
 import { Color, Euler, Material, Mesh, Quaternion, SphereGeometry } from 'three'
 
 import { useFind } from '@ir-engine/common'
@@ -548,5 +555,16 @@ const ThumbnailJobReactor = () => {
     }
   }
 
-  return fileType && currentJob.value ? <>{renderThumbnailForType(fileType)}</> : null
+  const ErrorFallback = () => {
+    useEffect(() => {
+      FileThumbnailJobState.removeCurrentJob()
+    }, [])
+    return null
+  }
+
+  return fileType && currentJob.value ? (
+    <ErrorBoundary fallback={<ErrorFallback />}>
+      <Suspense>{renderThumbnailForType(fileType)}</Suspense>
+    </ErrorBoundary>
+  ) : null
 }
