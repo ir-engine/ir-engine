@@ -57,7 +57,11 @@ function LocationIconButton({
         {...props}
       >
         {(loadingState && <LoadingView className="h-6 w-6" />) || (
-          <Icon ref={() => ref} className={twMerge('h-[20px] w-[20px] lg:h-[24px] lg:w-[24px] text-[#080808]', className)} {...restIconProps} />
+          <Icon
+            ref={() => ref}
+            className={twMerge('h-[20px] w-[20px] text-[#080808] lg:h-[24px] lg:w-[24px]', className)}
+            {...restIconProps}
+          />
         )}
       </button>
     )

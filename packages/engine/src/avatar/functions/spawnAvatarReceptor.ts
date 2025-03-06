@@ -51,6 +51,8 @@ import { TransformComponent } from '@ir-engine/spatial/src/transform/components/
 
 import { isClient } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { GrabberComponent } from '../../grabbable/GrabbableComponent'
 import { EnvMapComponent } from '../../scene/components/EnvmapComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
@@ -60,8 +62,6 @@ import { AvatarAnimationComponent, AvatarRigComponent } from '../components/Avat
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarColliderComponent, AvatarControllerComponent, eyeOffset } from '../components/AvatarControllerComponent'
 import { AvatarIKComponent } from '../components/AvatarIKComponents'
-import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 
 export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   const entity = UUIDComponent.getEntityByUUID(entityUUID)

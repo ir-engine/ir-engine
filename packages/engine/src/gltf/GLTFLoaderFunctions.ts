@@ -51,8 +51,10 @@ import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/Col
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import {
   MaterialInstanceComponent,
   MaterialStateComponent
@@ -140,8 +142,6 @@ import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
 import { KHRTextureTransformExtensionComponent, KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
 import { NodeID, NodeIDComponent } from './NodeIDComponent'
 import { SCENE_DELTA_EXTENSION_NAME } from './SceneDeltaExporterExtension'
-import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 
 const assignFinalMaterial = (primitiveDef: GLTF.IMeshPrimitive, material: MeshPhysicalMaterial) => {
   const useDerivativeTangents = primitiveDef.attributes.TANGENT === undefined

@@ -169,6 +169,4 @@ const userAgent = 'navigator' in globalThis ? navigator.userAgent : ''
  * Wheter or not this is a mobile XR headset
  **/
 export const isMobileXRHeadset =
-  userAgent.includes('Oculus') ||
-  userAgent.includes('Reality') ||
-  userAgent.includes('Wolvic')
+  userAgent.includes('Oculus') || userAgent.includes('Reality') || userAgent.includes('Wolvic')
