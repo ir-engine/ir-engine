@@ -252,49 +252,38 @@ function Messages() {
 }
 
 function MessagesWrapper() {
+  const { t } = useTranslation()
   const ref = useRef<HTMLDivElement>(null)
   const { isChatOpen, unreadMessages } = useInstanceChatMessages()
+  const ageVerified = useMutableState(AuthState).user.ageVerified.value
+  const isGuest = useMutableState(AuthState).user.isGuest.value
   useTouchOutside(ref, () => {
     if (!isChatOpen.value) return
     isChatOpen.set(false)
   })
 
   return (
-    <div className={`flex items-end ${isChatOpen.value ? 'mb-3 lg:mb-0' : ''}`}>
-      <div className="relative max-w-16">
+    <div className="flex items-end">
+      <div className="relative mr-[13px] max-w-16">
         {!isChatOpen.value && unreadMessages.value && (
           <div className="absolute right-0 top-0 h-4 w-4 rounded-full bg-blue-500" />
         )}
-        {!isMobile && (
+        {isChatOpen.value && (
           <LocationIconButton
             icon={isChatOpen.value ? XCloseLg : MessageTextSquare01Lg}
             onClick={() => isChatOpen.set(!isChatOpen.value)}
+            className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]"
           />
         )}
-        {isMobile && !isChatOpen.value && (
-          <LocationIconButton icon={MessageTextSquare01Md} onClick={() => isChatOpen.set(!isChatOpen.value)} />
+        {!isChatOpen.value && (
+          <LocationIconButton
+            icon={MessageTextSquare01Md}
+            onClick={() => isChatOpen.set(!isChatOpen.value)}
+            className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]"
+          />
         )}
       </div>
-      <div className={`lg:ml-[13px] ${isChatOpen.value ? 'w-[25dvw]' : 'w-0'}`} ref={ref}>
-        <Messages />
-        <NewMessage />
-      </div>
-    </div>
-  )
-}
-
-export default function InstanceChat() {
-  const { t } = useTranslation()
-  const ageVerified = useMutableState(AuthState).user.ageVerified.value
-  const mediaNetworkState = useMediaNetwork()
-  const networkState = useMutableState(NetworkState)
-  const isGuest = useMutableState(AuthState).user.isGuest.value
-
-  if (networkState.config.media.value && !mediaNetworkState?.ready?.value) return null
-
-  return (
-    <InstanceChatProvider>
-      {(!ageVerified as any) ? (
+      {isChatOpen.value && (!ageVerified as any) ? (
         <div className="rounded-lg bg-surface-4 p-4">
           <div className="mx-auto text-center font-semibold text-[#3B3A3A]">{t('user:instanceChat.wantToChat')}</div>
           <Button
@@ -306,8 +295,24 @@ export default function InstanceChat() {
           </Button>
         </div>
       ) : (
-        <MessagesWrapper />
+        <div className={`lg:ml-[13px] ${isChatOpen.value ? 'w-[25dvw]' : 'w-0'}`} ref={ref}>
+          <Messages />
+          <NewMessage />
+        </div>
       )}
+    </div>
+  )
+}
+
+export default function InstanceChat() {
+  const mediaNetworkState = useMediaNetwork()
+  const networkState = useMutableState(NetworkState)
+
+  if (networkState.config.media.value && !mediaNetworkState?.ready?.value) return null
+
+  return (
+    <InstanceChatProvider>
+      <MessagesWrapper />
     </InstanceChatProvider>
   )
 }
