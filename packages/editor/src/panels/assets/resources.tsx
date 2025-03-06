@@ -139,8 +139,6 @@ function ResourceFileContextMenu({
                           isFolder: false
                         }
                       ])
-                      staticResourcesPagination.skip.set(0)
-
                       refetchResources()
                     }
                   }}
@@ -419,14 +417,8 @@ function ResourceItems() {
 
   const thumbnailJobState = useMutableState(FileThumbnailJobState)
   useEffect(() => {
-    console.log('thumbnailJobState.length = ' + thumbnailJobState.length)
-    staticResourcesPagination.skip.set(0)
     refetchResources()
   }, [thumbnailJobState.length])
-
-  useEffect(() => {
-    console.log('resources= ', resources)
-  }, [resources])
 
   return (
     <div className="relative flex w-full ">
