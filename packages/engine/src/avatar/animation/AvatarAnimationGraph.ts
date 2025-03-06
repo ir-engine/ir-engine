@@ -27,7 +27,12 @@ import { clamp } from 'lodash'
 import { AnimationAction, AnimationClip, AnimationMixer, LoopOnce, LoopRepeat, Vector3 } from 'three'
 
 import { UUIDComponent } from '@ir-engine/ecs'
-import { getComponent, getMutableComponent, getOptionalComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  hasComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { defineActionQueue, getState } from '@ir-engine/hyperflux'
