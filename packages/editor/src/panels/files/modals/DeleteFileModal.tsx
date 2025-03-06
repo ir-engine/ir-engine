@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { filesDeleted } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useMutation } from '@ir-engine/common'
@@ -52,7 +51,6 @@ export default function DeleteFileModal({
     modalProcessing.set(true)
     try {
       await Promise.all(files.map((file) => fileService.remove(file.key)))
-      filesDeleted(files)
       modalProcessing.set(false)
       PopoverState.hidePopupover()
       onComplete?.()

@@ -22,6 +22,7 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import { filesDeleted } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import ProgressBar from '@ir-engine/client-core/src/systems/ui/LoadingDetailView/SimpleProgressBar'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
@@ -82,7 +83,7 @@ function ResourceFileContextMenu({
 }) {
   const { t } = useTranslation()
   const userID = useMutableState(AuthState).user.id.value
-  const { refetchResources } = useAssetsQuery()
+  const { refetchResources, staticResourcesPagination } = useAssetsQuery()
 
   const splitResourceKey = resource.key.split('/')
   const name = resource.name || splitResourceKey.at(-1)!
@@ -126,6 +127,20 @@ function ResourceFileContextMenu({
                   ]}
                   onComplete={(err?: unknown) => {
                     if (!err) {
+                      filesDeleted([
+                        {
+                          key: resource.key,
+                          path: resource.url,
+                          name: resource.key,
+                          fullName: name,
+                          thumbnailURL: resource.thumbnailURL,
+                          url: resource.url,
+                          type: assetType,
+                          isFolder: false
+                        }
+                      ])
+                      staticResourcesPagination.skip.set(0)
+
                       refetchResources()
                     }
                   }}
@@ -440,12 +455,19 @@ function ResourceItems() {
                     (i + 1) * (ASSETS_PAGE_LIMIT + calculateItemsToFetch())
                   )
                   .map((resource, index) => (
-                    <ResourceFile
-                      onLoadStart={handleFileIconLoadStart}
-                      onLoad={handleFileIconLoad}
-                      key={resource.id}
-                      resource={resource as StaticResourceType}
-                    />
+                    <>
+                      <ResourceFile
+                        onLoadStart={handleFileIconLoadStart}
+                        onLoad={handleFileIconLoad}
+                        key={resource.id}
+                        resource={resource as StaticResourceType}
+                      />
+                      <div className="text-white">
+                        index = {index}
+                        <br />
+                        {resource.id}
+                      </div>
+                    </>
                   ))}
               </div>
             </div>
@@ -481,7 +503,7 @@ function ResourceItems() {
 }
 
 export default function Resources() {
-  const { resourcesLoading, staticResourcesPagination, refetchResources } = useAssetsQuery()
+  const { resources, resourcesLoading, staticResourcesPagination, refetchResources } = useAssetsQuery()
 
   return (
     <div id="asset-panel" className="relative flex h-full w-full flex-col overflow-auto bg-surface-1">
