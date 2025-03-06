@@ -240,6 +240,8 @@ const Select = ({
     }
   }, [])
 
+  const inputRef = useRef<HTMLInputElement>(null)
+
   const togglePopup = () => {
     if (popupRef.current) {
       popupRef.current.toggle()
@@ -316,9 +318,11 @@ const Select = ({
                 )}
               >
                 <input
+                  ref={inputRef}
                   onClick={() => {
                     if (!disabled) {
                       togglePopup()
+                      setTimeout(() => inputRef.current?.focus(), 0)
                     }
                   }}
                   type="text"
