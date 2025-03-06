@@ -77,7 +77,9 @@ export default function ModerationTable({ search }) {
   useSearch(
     userReportsQuery,
     {
-      search
+      id: {
+        $like: `%${search}%`
+      }
     },
     search
   )
