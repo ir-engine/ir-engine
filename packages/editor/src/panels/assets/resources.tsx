@@ -460,14 +460,12 @@ function ResourceItems() {
                     (i + 1) * (ASSETS_PAGE_LIMIT + calculateItemsToFetch())
                   )
                   .map((resource, index) => (
-                    <>
-                      <ResourceFile
-                        onLoadStart={handleFileIconLoadStart}
-                        onLoad={handleFileIconLoad}
-                        key={resource.id}
-                        resource={resource as StaticResourceType}
-                      />
-                    </>
+                    <ResourceFile
+                      onLoadStart={handleFileIconLoadStart}
+                      onLoad={handleFileIconLoad}
+                      key={resource.id}
+                      resource={resource as StaticResourceType}
+                    />
                   ))}
               </div>
             </div>
