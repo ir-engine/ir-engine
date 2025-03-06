@@ -24,8 +24,9 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useMutableState } from '@ir-engine/hyperflux'
-import { EmoteLg, Send01Lg, User01Lg } from '@ir-engine/ui/src/icons'
+import { EmoteLg, EmoteM, Send01Lg, Send01Md, User01Lg, User01Md } from '@ir-engine/ui/src/icons'
 
+import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -51,7 +52,7 @@ export default function UserMenus() {
               title: t('user:menu.settings'),
               position: 'top'
             }}
-            icon={User01Lg}
+            icon={isMobile ? User01Md : User01Lg}
             onClick={() => PopoverState.showPopupover(<ProfileMenu />)}
           />
         )}
@@ -61,7 +62,7 @@ export default function UserMenus() {
               title: t('user:menu.sendLocation'),
               position: 'top'
             }}
-            icon={Send01Lg}
+            icon={isMobile ? Send01Md : Send01Lg}
             onClick={() => PopoverState.showPopupover(<ShareMenu />)}
           />
         )}
@@ -71,7 +72,7 @@ export default function UserMenus() {
               title: t('user:menu.emote'),
               position: 'top'
             }}
-            icon={EmoteLg}
+            icon={isMobile ? EmoteLg : EmoteM}
             onClick={() => PopoverState.showPopupover(<EmoteMenu />, undefined, 'transparent')}
           />
         )}
@@ -81,7 +82,6 @@ export default function UserMenus() {
               title: t('user:menu.friends'),
               position: 'top'
             }}
-            // @ts-ignore
             icon={FaUserFriends}
             onClick={() => PopoverState.showPopupover(<FriendsMenu />)}
           />
