@@ -23,7 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { afterEach, assert, beforeEach, describe, it } from 'vitest'
+import sinon from 'sinon'
+import { afterEach, assert, beforeEach, describe, expect, it } from 'vitest'
 
 import '@ir-engine/engine'
 
@@ -115,38 +116,46 @@ describe('AvatarSpawnSystem', async () => {
       ],
       [avatarPath]: []
     }
-    eventDispatcher = new EventDispatcher()
-    ;(API.instance as any) = {
-      service: (path: string) => {
-        return {
-          find: () => {
-            return new Promise((resolve) => {
-              resolve(
-                JSON.parse(
-                  JSON.stringify({
-                    data: db[path],
-                    limit: 10,
-                    skip: 0,
-                    total: db[path].length
-                  })
-                )
+
+    const createService = (path: string) => {
+      return {
+        find: () => {
+          return new Promise((resolve) => {
+            resolve(
+              JSON.parse(
+                JSON.stringify({
+                  data: db[path],
+                  limit: 10,
+                  skip: 0,
+                  total: db[path].length
+                })
               )
-            })
-          },
-          get: (id) => {
-            return new Promise((resolve) => {
-              const data = db[path].find((entry) => entry.id === id)
-              resolve(data ? JSON.parse(JSON.stringify(data)) : null)
-            })
-          },
-          on: (serviceName, cb) => {
-            eventDispatcher.addEventListener(serviceName, cb)
-          },
-          off: (serviceName, cb) => {
-            eventDispatcher.removeEventListener(serviceName, cb)
-          }
+            )
+          })
+        },
+        get: (id) => {
+          return new Promise((resolve) => {
+            const data = db[path].find((entry) => entry.id === id)
+            resolve(data ? JSON.parse(JSON.stringify(data)) : null)
+          })
+        },
+        on: (serviceName, cb) => {
+          eventDispatcher.addEventListener(serviceName, cb)
+        },
+        off: (serviceName, cb) => {
+          eventDispatcher.removeEventListener(serviceName, cb)
         }
       }
+    }
+
+    const apis = {
+      [staticResourcePath]: createService(staticResourcePath),
+      [userAvatarPath]: createService(userAvatarPath),
+      [avatarPath]: createService(avatarPath)
+    }
+    eventDispatcher = new EventDispatcher()
+    ;(API.instance as any) = {
+      service: (path: string) => apis[path]
     }
 
     getMutableState(LocationState).currentLocation.location.sceneURL.set(sceneURL)
@@ -283,5 +292,26 @@ describe('AvatarSpawnSystem', async () => {
     assert.ok(spectateAction)
     assert.equal(spectateAction.spectatorUserID, Engine.instance.userID)
     assert.equal(spectateAction.spectatingEntity, spectateUUID)
+  })
+
+  it('should select a new avatar if none is found', async () => {
+    db[userAvatarPath] = []
+    db[avatarPath] = [
+      {
+        id: v4(),
+        modelResource: {
+          url: '/avatar2.gltf'
+        }
+      }
+    ]
+
+    const patchCallSpy = sinon.spy()
+    API.instance.service(userAvatarPath).patch = patchCallSpy
+
+    startReactor(system.reactor!)
+
+    await act(async () => render(null))
+
+    expect(patchCallSpy.calledOnce).toBe(true)
   })
 })

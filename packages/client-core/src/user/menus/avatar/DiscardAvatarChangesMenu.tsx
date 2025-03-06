@@ -46,7 +46,7 @@ export const DiscardAvatarChangesMenu = ({ handleConfirm, handleCancel }: Props)
 
   return (
     <Modal
-      className="max-h-1/3 pointer-events-auto h-fit w-1/4 rounded-lg md:h-72 md:w-96"
+      className="max-h-1/3 pointer-events-auto h-fit max-h-[90dvh] w-1/4 rounded-lg md:h-72 md:w-96"
       hideFooter
       rawChildren={
         <div className="grid h-full grid-flow-row grid-rows-[auto,1fr,auto] p-6">
@@ -54,7 +54,7 @@ export const DiscardAvatarChangesMenu = ({ handleConfirm, handleCancel }: Props)
             <GoAlert className="m-auto text-3xl text-ui-hover-error" />
           </div>
           <div className="flex flex-col items-center justify-center">
-            <Text fontSize="xl" fontWeight="bold" className="capitalize text-text-primary">
+            <Text fontSize="xl" fontWeight="medium" className="capitalize text-text-primary">
               {t('user:avatar.discardAvatarChanges')}
             </Text>
             <Text fontSize="base" className="mt-2 text-text-secondary">
