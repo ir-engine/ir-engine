@@ -78,19 +78,9 @@ export default function ModerationTable({ search }) {
   useSearch(
     userReportsQuery,
     {
-      $or: [
-        {
-          id: isValidId(search) ? search : undefined
-        },
-        {
-          type: search == 'Space' ? 'location' : search == 'user' ? 'user' : undefined
-        },
-        {
-          abuseReason: {
-            $like: `%${search}%`
-          }
-        }
-      ]
+      id: {
+        $like: `%${search}%`
+      }
     },
     search
   )
