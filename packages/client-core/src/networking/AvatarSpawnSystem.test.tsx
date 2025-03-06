@@ -296,12 +296,14 @@ describe('AvatarSpawnSystem', async () => {
 
   it('should select a new avatar if none is found', async () => {
     db[userAvatarPath] = []
-    db[avatarPath] = [{
-      id: v4(),
-      modelResource: {
-        url: '/avatar2.gltf'
+    db[avatarPath] = [
+      {
+        id: v4(),
+        modelResource: {
+          url: '/avatar2.gltf'
+        }
       }
-    }]
+    ]
 
     const patchCallSpy = sinon.spy()
     API.instance.service(userAvatarPath).patch = patchCallSpy
