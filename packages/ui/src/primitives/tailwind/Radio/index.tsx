@@ -92,14 +92,16 @@ export const Radio = ({ disabled, label, onClick, value, description, checked, v
           className={twMerge(
             disabled
               ? 'text-text-inactive'
-              : 'text-start text-text-secondary hover:text-text-primary focus:text-text-primary group-hover:cursor-pointer'
+              : 'text-start text-text-secondary group-hover:cursor-pointer group-hover:text-text-primary group-focus:text-text-primary'
           )}
         >
           {label}
         </span>
         <span
           className={twMerge(
-            disabled ? 'text-text-inactive' : 'text-text-tertiary hover:text-text-tertiary focus:text-text-tertiary'
+            disabled
+              ? 'text-text-inactive'
+              : 'text-text-tertiary group-hover:text-text-tertiary group-focus:text-text-tertiary'
           )}
         >
           {description}
