@@ -27,13 +27,13 @@ import DataTable, { ITableHeadCell } from '@ir-engine/client-core/src/admin/comm
 import { useFind, useSearch } from '@ir-engine/common'
 import { moderationPath, ModerationType } from '@ir-engine/common/src/schema.type.module'
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import { Select } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import { t } from 'i18next'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoArrowForward } from 'react-icons/io5'
-import { validate as isValidUUID } from 'uuid'
 import { UserDisplayName } from './common/UserDisplayName'
 import { ModerationDetail } from './ModerationDetail'
 
@@ -80,7 +80,7 @@ export default function ModerationTable({ search }) {
     {
       $or: [
         {
-          id: isValidUUID(search) ? search : undefined
+          id: isValidId(search) ? search : undefined
         },
         {
           type: search == 'Space' ? 'location' : search == 'user' ? 'user' : undefined

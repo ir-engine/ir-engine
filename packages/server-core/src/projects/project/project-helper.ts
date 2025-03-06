@@ -32,23 +32,10 @@ import { DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-publ
 import { fromIni } from '@aws-sdk/credential-providers'
 import { BadRequest, Forbidden, NotFound } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
-import * as k8s from '@kubernetes/client-node'
-import { Octokit, RestEndpointMethodTypes } from '@octokit/rest'
-import appRootPath from 'app-root-path'
-import { exec } from 'child_process'
-import { compareVersions } from 'compare-versions'
-import fs from 'fs'
-import fetch from 'node-fetch'
-import path from 'path'
-import semver from 'semver'
-import { promisify } from 'util'
-
-import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX, USER_ID_REGEX } from '@ir-engine/common/src/regex'
-import { AssetType, FileToAssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
-
 import { ManifestJson } from '@ir-engine/common/src/interfaces/ManifestJson'
 import { ProjectPackageJsonType } from '@ir-engine/common/src/interfaces/ProjectPackageJsonType'
 import { ResourcesJson, ResourceType } from '@ir-engine/common/src/interfaces/ResourcesJson'
+import { INSTALLATION_SIGNED_REGEX, PUBLIC_SIGNED_REGEX } from '@ir-engine/common/src/regex'
 import { apiJobPath } from '@ir-engine/common/src/schemas/cluster/api-job.schema'
 import { invalidationPath } from '@ir-engine/common/src/schemas/media/invalidation.schema'
 import { staticResourcePath, StaticResourceType } from '@ir-engine/common/src/schemas/media/static-resource.schema'
@@ -67,9 +54,21 @@ import {
   deleteFolderRecursive,
   getFilesRecursive
 } from '@ir-engine/common/src/utils/fsHelperFunctions'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
+import { AssetType, FileToAssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
 import { getState } from '@ir-engine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@ir-engine/projects/ProjectConfigInterface'
+import * as k8s from '@kubernetes/client-node'
+import { Octokit, RestEndpointMethodTypes } from '@octokit/rest'
+import appRootPath from 'app-root-path'
+import { exec } from 'child_process'
+import { compareVersions } from 'compare-versions'
+import fs from 'fs'
+import fetch from 'node-fetch'
+import path from 'path'
+import semver from 'semver'
+import { promisify } from 'util'
 
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
 import { BUILDER_CHART_REGEX } from '@ir-engine/common/src/regex'
@@ -1818,7 +1817,7 @@ export const uploadLocalProjectToProvider = async (
   await Promise.all(
     Array.from(existingKeySet.values()).map(async (id) => {
       try {
-        if (USER_ID_REGEX.test(id)) await app.service(staticResourcePath).remove(id, { ignoreResourcesJson: true })
+        if (isValidId(id)) await app.service(staticResourcePath).remove(id, { ignoreResourcesJson: true })
       } catch (error) {
         logger.warn(`Error deleting resource: ${error}`)
       }

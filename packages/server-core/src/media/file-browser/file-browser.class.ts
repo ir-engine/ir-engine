@@ -25,11 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { NullableId, Paginated, ServiceInterface } from '@feathersjs/feathers/lib/declarations'
 import { KnexAdapterParams } from '@feathersjs/knex'
-import appRootPath from 'app-root-path'
-import fs from 'fs'
-import { Knex } from 'knex'
-import path from 'path/posix'
-
 import { projectPath, ProjectType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import {
   FileBrowserContentType,
@@ -43,11 +38,16 @@ import {
   ProjectPermissionType
 } from '@ir-engine/common/src/schemas/projects/project-permission.schema'
 import { checkScope } from '@ir-engine/common/src/utils/checkScope'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import { isValidFileExtension, isValidFileName, isValidFilePath } from '@ir-engine/common/src/utils/validateFileName'
 import isValidSceneName from '@ir-engine/common/src/utils/validateSceneName'
+import appRootPath from 'app-root-path'
+import fs from 'fs'
+import { Knex } from 'knex'
+import path from 'path/posix'
 
 import { BadRequest } from '@feathersjs/errors/lib'
-import { PROJECT_CAPTURE_REGEX, PROJECT_REGEX, USER_ID_REGEX } from '@ir-engine/common/src/regex'
+import { PROJECT_CAPTURE_REGEX, PROJECT_REGEX } from '@ir-engine/common/src/regex'
 import { copyFolderRecursiveSync } from '@ir-engine/common/src/utils/fsHelperFunctions'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -553,7 +553,7 @@ export class FileBrowserService
     if (staticResources?.length > 0) {
       await Promise.all(
         staticResources.map(async (resource) => {
-          if (USER_ID_REGEX.test(resource.id)) await this.app.service(staticResourcePath).remove(resource.id)
+          if (isValidId(resource.id)) await this.app.service(staticResourcePath).remove(resource.id)
           if (resource.thumbnailKey) {
             const thumbnail = (await this.app.service(staticResourcePath).find({
               query: { key: { $like: `%${resource.thumbnailKey}%` }, type: 'thumbnail' },
@@ -561,8 +561,7 @@ export class FileBrowserService
             })) as any as StaticResourceType[]
             if (thumbnail.length > 0 && !this.isDefaultThumbnail(thumbnail[0])) {
               await storageProvider.deleteResources([thumbnail[0].key])
-              if (USER_ID_REGEX.test(thumbnail[0].id))
-                await this.app.service(staticResourcePath).remove(thumbnail[0].id)
+              if (isValidId(thumbnail[0].id)) await this.app.service(staticResourcePath).remove(thumbnail[0].id)
             }
           }
         })
