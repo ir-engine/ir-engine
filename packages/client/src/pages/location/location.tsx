@@ -40,7 +40,6 @@ import { useEngineInjection } from '@ir-engine/client-core/src/components/World/
 import { useUserBannedCheck } from '@ir-engine/client-core/src/hooks/useUserBanned'
 import { LoadingUISystemState } from '@ir-engine/client-core/src/systems/LoadingUISystem'
 import { useMutableState } from '@ir-engine/hyperflux'
-import '../mui.styles.scss' /** @todo Remove when MUI is removed */
 import '../styles.scss'
 
 const LocationRoutes = () => {
@@ -57,20 +56,23 @@ const LocationRoutes = () => {
 
   return (
     <Suspense>
-      {!ready && !projectsLoaded && (
-        <div className="flex h-screen w-screen items-center justify-center bg-white" style={{ zIndex: 1000000 }}>
-          <LoadingView
-            fullScreen
-            animated
-            className="block h-12 w-12"
-            title={t('common:loader.loadingApp')}
-            titleClassname="text-[#262626]"
-          />
-        </div>
+      {projectsLoaded ? (
+        <Routes>
+          <Route path=":locationName" element={<LocationPage online />} />
+        </Routes>
+      ) : (
+        !ready && (
+          <div className="flex h-screen w-screen items-center justify-center bg-white" style={{ zIndex: 1000000 }}>
+            <LoadingView
+              fullScreen
+              animated
+              className="block h-12 w-12"
+              title={t('common:loader.loadingApp')}
+              titleClassname="text-[#262626]"
+            />
+          </div>
+        )
       )}
-      <Routes>
-        <Route path=":locationName" element={<LocationPage online />} />
-      </Routes>
       <Debug />
     </Suspense>
   )

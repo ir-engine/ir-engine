@@ -314,10 +314,7 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
     >
       <div className="grid grid-cols-2 gap-x-4">
         <div className="col-span-1">
-          <AvatarPreview
-            avatarUrl={avatarSrc}
-            sx={{ width: `${THUMBNAIL_WIDTH}px`, height: `${THUMBNAIL_HEIGHT}px`, m: 'auto' }}
-          />
+          <AvatarPreview avatarUrl={avatarSrc} />
         </div>
         <div className="col-span-1 grid grid-cols-1 gap-y-3">
           {rpmEnabled && (

@@ -186,7 +186,7 @@ export default function AddEditLocationModal(props: {
           .join('/')
           .replace('scenes', 'publish')
 
-        const scenename = getState(EditorState).sceneName
+        const scenename = getState(EditorState).sceneName?.split('.').shift()
         //add all mesh into one entity
         const combinedMeshEntity = createEntity(Layers.Authoring) //export entity need compress
         const rootEntity = getState(EditorState).rootEntity
@@ -204,7 +204,7 @@ export default function AddEditLocationModal(props: {
         setComponent(combinedMeshEntity, UUIDComponent, UUIDComponent.generateUUID())
         const newSource = GLTFComponent.getInstanceID(rootEntity)
         setComponent(combinedMeshEntity, SourceComponent, newSource)
-        const srcURL = pathJoin(config.client.fileServer, saveScenePath + '/combined-mesh.gltf')
+        const srcURL = pathJoin(config.client.fileServer, saveScenePath + '/' + scenename + '/combined-mesh.gltf')
         iterateEntityNode(rootEntity, (entity) => {
           if (hasComponent(entity, MeshComponent)) {
             if (meshEntity.includes(entity) || hasComponent(entity, ColliderComponent)) return
@@ -232,14 +232,19 @@ export default function AddEditLocationModal(props: {
           }
         })
         //export parent entities and combined mesh entity
-        await exportRelativeGLTF(combinedMeshEntity, projectName, 'public/publish/combined-mesh.gltf', false)
+        await exportRelativeGLTF(
+          combinedMeshEntity,
+          projectName,
+          'public/publish/' + scenename + '/' + 'combined-mesh.gltf',
+          false
+        )
         EditorControlFunctions.modifyProperty([combinedMeshEntity], GLTFComponent, { src: srcURL })
         EditorControlFunctions.modifyProperty([combinedMeshEntity], VisibleComponent, { visible: true })
 
         for (const entity of exportParentEntity) {
           const url = getComponent(entity, GLTFComponent).src
           const saveName = url.split('/').pop()?.split('.').shift()
-          await exportRelativeGLTF(entity, projectName, 'public/publish/' + saveName + '.gltf', false)
+          await exportRelativeGLTF(entity, projectName, 'public/publish/' + scenename + '/' + saveName + '.gltf', false)
           EditorControlFunctions.modifyProperty([entity], GLTFComponent, {
             src: srcURL.replace('combined-mesh', saveName as string)
           })
@@ -319,10 +324,10 @@ export default function AddEditLocationModal(props: {
           sceneName.replace('.gltf', '-duplicated.gltf'),
           abortController.signal,
           true,
-          saveScenePath
+          saveScenePath + '/' + scenename
         )
 
-        await handlePublish()
+        await handlePublish(true)
         //re-open the original scene
         const studioUrl = `${window.location.origin}/studio?project=${projectName}&scenePath=${scenePath}`
         window.open(studioUrl, '_blank')?.focus()
@@ -335,7 +340,7 @@ export default function AddEditLocationModal(props: {
     }
   }
 
-  const handlePublish = async () => {
+  const handlePublish = async (inCompress = false) => {
     errors.set(getDefaultErrors())
 
     if (!name.value.trim()) {
@@ -362,7 +367,7 @@ export default function AddEditLocationModal(props: {
       errors.serverError.set(e.message)
     }
 
-    if (props.onPublish) {
+    if (!inCompress && props.onPublish) {
       try {
         await props.onPublish()
       } catch (e) {
@@ -584,7 +589,11 @@ export default function AddEditLocationModal(props: {
                 {unPublishLoading.value ? <LoadingView spinnerOnly className="h-6 w-6" /> : undefined}
               </Button>
             )}
-            <Button data-testid="publish-panel-publish-or-update-button" disabled={isLoading} onClick={handlePublish}>
+            <Button
+              data-testid="publish-panel-publish-or-update-button"
+              disabled={isLoading}
+              onClick={() => handlePublish()}
+            >
               {location?.id
                 ? t('common:components.update')
                 : props.sceneModified

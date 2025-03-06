@@ -170,10 +170,13 @@ const server = {
   local: process.env.LOCAL === 'true',
   releaseName: process.env.RELEASE_NAME || 'local',
   matchmakerEmulationMode: process.env.MATCHMAKER_EMULATION_MODE === 'true',
-  edgeCachingEnabled: process.env.STORAGE_PROVIDER! === 's3' && process.env.S3_DEV_MODE! !== 'local',
+  edgeCachingEnabled:
+    (process.env.STORAGE_PROVIDER! === 's3' && process.env.S3_DEV_MODE! !== 'local') ||
+    process.env.STORAGE_PROVIDER === 'gcs',
   instanceserverUnreachableTimeoutSeconds: process.env.INSTANCESERVER_UNREACHABLE_TIMEOUT_SECONDS
     ? parseInt(process.env.INSTANCESERVER_UNREACHABLE_TIMEOUT_SECONDS)
     : 10,
+  namespace: (process.env.NAMESPACE as string) || 'default',
   requireAgeVerification:
     typeof process.env.REQUIRE_AGE_VERIFICATION === 'string' ? process.env.REQUIRE_AGE_VERIFICATION === 'true' : true
 }
@@ -370,19 +373,17 @@ const aws = {
     endpoint: process.env.STORAGE_S3_ENDPOINT!,
     staticResourceBucket: testEnabled
       ? process.env.STORAGE_S3_TEST_RESOURCE_BUCKET!
-      : process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET!,
-    region: process.env.STORAGE_S3_REGION!,
+      : process.env.STORAGE_STATIC_RESOURCE_BUCKET!,
+    region: process.env.STORAGE_REGION!,
     avatarDir: process.env.STORAGE_S3_AVATAR_DIRECTORY!,
     s3DevMode: process.env.STORAGE_S3_DEV_MODE!,
     roleArn: process.env.STORAGE_AWS_ROLE_ARN
   },
   cloudfront: {
     domain:
-      process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true'
-        ? server.clientHost
-        : process.env.STORAGE_CLOUDFRONT_DOMAIN!,
+      process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' ? server.clientHost : process.env.STORAGE_CDN_DOMAIN!,
     distributionId: process.env.STORAGE_CLOUDFRONT_DISTRIBUTION_ID!,
-    region: process.env.STORAGE_CLOUDFRONT_REGION || process.env.STORAGE_S3_REGION
+    region: process.env.STORAGE_CLOUDFRONT_REGION || process.env.STORAGE_REGION
   },
   eks: {
     accessKeyId: process.env.EKS_AWS_ACCESS_KEY_ID!,
@@ -398,6 +399,20 @@ const aws = {
   }
 }
 export type AwsConfig = typeof aws
+
+/**
+ * GCP
+ */
+
+const gcp = {
+  gcs: {
+    cacheDomain: process.env.STORAGE_CDN_DOMAIN,
+    bucket: process.env.STORAGE_STATIC_RESOURCE_BUCKET,
+    edgeCacheService: process.env.GCP_EDGE_CACHE_SERVICE,
+    urlMap: process.env.GCP_URL_MAP
+  },
+  project: process.env.GCP_PROJECT
+}
 
 const chargebee = {
   url: process.env.CHARGEBEE_SITE + '.chargebee.com' || 'dummy.not-chargebee.com',
@@ -447,6 +462,7 @@ const config = {
   deployStage: process.env.DEPLOY_STAGE!,
   authentication,
   aws,
+  gcp,
   chargebee,
   client,
   coil,

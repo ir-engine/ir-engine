@@ -19,15 +19,12 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
+import { SVGIconType } from '@ir-engine/ui/src/icons/types'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import Tooltip, { TooltipProps } from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import React from 'react'
 import { IconType } from 'react-icons'
 import { twMerge } from 'tailwind-merge'
-
-export type SVGIconType = React.ForwardRefExoticComponent<
-  Omit<React.SVGProps<SVGSVGElement>, 'ref'> & React.RefAttributes<SVGSVGElement>
->
 
 interface LocationIconButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   tooltip?: {
@@ -53,14 +50,18 @@ function LocationIconButton({
     return (
       <button
         className={twMerge(
-          'flex h-12 w-12 select-none items-center justify-center rounded-full bg-white mdh:h-16 mdh:w-16',
+          'flex h-[50px] w-[50px] select-none items-center justify-center rounded-full bg-white mdh:h-16 mdh:w-16',
           className
         )}
         onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         {...props}
       >
         {(loadingState && <LoadingView className="h-6 w-6" />) || (
-          <Icon ref={() => ref} className={twMerge('h-6 w-6 text-[#080808]', className)} {...restIconProps} />
+          <Icon
+            ref={() => ref}
+            className={twMerge('h-[20px] w-[20px] text-[#080808] lg:h-[24px] lg:w-[24px]', className)}
+            {...restIconProps}
+          />
         )}
       </button>
     )

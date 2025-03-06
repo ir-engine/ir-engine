@@ -27,9 +27,8 @@ import React, { useLayoutEffect } from 'react'
 
 import { TouchGamepad } from '@ir-engine/client-core/src/common/components/TouchGamepad'
 import UserMenus from '@ir-engine/client-core/src/user/menus'
-import { getMutableState, NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-
 import { EngineState } from '@ir-engine/ecs'
+import { getMutableState, NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
@@ -82,7 +81,7 @@ export const ViewerInteractions = () => {
   const isScreenOpaque = loadingScreenOpacity.value > 0
 
   return (
-    <div style={{ opacity: 1 - loadingScreenOpacity.value }} className="relative h-dvh w-full p-6">
+    <div style={{ opacity: 1 - loadingScreenOpacity.value }} className="fixed h-dvh w-full p-6">
       <div className="pointer-events-auto absolute left-0 top-0 h-fit w-full pt-[inherit]">
         <MediaIconsBox />
       </div>
@@ -112,6 +111,7 @@ export const ViewerInteractions = () => {
         {Object.entries(externalInjectedMenus).map(([menuName, props]) => (
           <LocationIconButton
             key={menuName}
+            title={props.title}
             icon={props.icon}
             onClick={() => PopoverState.showPopupover(props.component as JSX.Element)}
           />

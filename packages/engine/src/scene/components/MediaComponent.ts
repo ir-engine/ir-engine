@@ -53,6 +53,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { AudioState } from '../../audio/AudioState'
 import { removePannerNode } from '../../audio/PositionalAudioFunctions'
+import { NodeIDSchema } from '../../gltf/NodeIDComponent'
 import { PlayMode } from '../constants/PlayMode'
 import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
 import isHLS from '../functions/isHLS'
@@ -149,7 +150,8 @@ export const MediaComponent = defineComponent({
     track: S.NonSerialized(S.Number(-1)),
     currentTrackTime: S.NonSerialized(S.Number(0)),
     currentTrackDuration: S.NonSerialized(S.Number(0)),
-    isCurrentTrackLoaded: S.NonSerialized(S.Bool(false))
+    isCurrentTrackLoaded: S.NonSerialized(S.Bool(false)),
+    externalMediaNodeID: NodeIDSchema()
     /**
      * TODO: refactor this into a ScheduleComponent for invoking callbacks at scheduled times
      * The auto start time for the playlist, in Unix/Epoch time (milliseconds).
@@ -266,6 +268,14 @@ export function MediaReactor() {
     }
     validateTime()
   }
+
+  useEffect(() => {
+    if (media.resources.length > 0 && media.autoplay && media.track.value < 0) {
+      media.track.set(0)
+      media.paused.set(false)
+      playTrack()
+    }
+  }, [media.resources.length])
 
   useEffect(() => {
     if (!rendererEntity) return

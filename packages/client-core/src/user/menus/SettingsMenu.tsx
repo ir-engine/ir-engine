@@ -31,7 +31,7 @@ import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 import { Checkbox, Select } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
-import { ArrowLeftLg } from '@ir-engine/ui/src/icons'
+import { ArrowNarrowLeftLg } from '@ir-engine/ui/src/icons'
 import { OptionType } from '@ir-engine/ui/src/primitives/tailwind/Select'
 import SidebarNavigation from '@ir-engine/ui/src/primitives/tailwind/SidebarNavigation'
 import React, { useEffect } from 'react'
@@ -85,7 +85,6 @@ function GeneralTab() {
         </>
       )}
       {isMobile && <img src={ControllerMappingMobileImage} alt="Mobile Controls" />}
-      {xrSupported && <img src="/static/XR_Tutorial.png" alt="XR Controls" />}
     </div>
   )
 }
@@ -113,7 +112,7 @@ function AudioTab() {
           }}
         />
       </div> */}
-      <div className="mx-auto mt-6 grid grid-cols-1 items-center gap-x-4 gap-y-4 lg:w-3/4">
+      <div className="mx-auto mt-6 grid grid-cols-1 items-center gap-x-4 gap-y-2 lg:w-3/4 lg:gap-y-4">
         <BlockSlider
           label={t('user:usermenu.setting.lbl-microphone')}
           value={audioState.microphoneGain.value}
@@ -192,7 +191,7 @@ function GraphicsTab() {
           label=""
         />
       </div>
-      <div className="ml-auto mt-4 w-3/4">
+      <div className="mb-2.5 ml-auto mt-4 w-3/4">
         <Checkbox
           onChange={() => {
             rendererState.usePostProcessing.set(!rendererState.usePostProcessing.value)
@@ -204,7 +203,7 @@ function GraphicsTab() {
           label={t('user:usermenu.setting.lbl-pp')}
         />
       </div>
-      <div className="ml-auto w-3/4">
+      <div className="mb-2.5 ml-auto w-3/4">
         <Checkbox
           onChange={() => {
             rendererState.useShadows.set(!rendererState.useShadows.value)
@@ -216,7 +215,7 @@ function GraphicsTab() {
           label={t('user:usermenu.setting.lbl-shadow')}
         />
       </div>
-      <div className="ml-auto w-3/4">
+      <div className="mb-3 ml-auto w-3/4">
         <Checkbox
           onChange={() => {
             rendererState.automatic.set(!rendererState.automatic.value)
@@ -294,10 +293,10 @@ export default function SettingsMenu() {
   useEffect(() => {}, [])
 
   return (
-    <div className="absolute z-50 h-fit max-h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 text-text-secondary mdh:max-h-[60dvh] mdh:p-10">
+    <div className="absolute z-50 h-fit max-h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 text-text-secondary smh:max-h-[60dvh] smh:p-10">
       <div className="mb-[17px]">
         <button onClick={() => PopoverState.hidePopupover()}>
-          <ArrowLeftLg />
+          <ArrowNarrowLeftLg />
         </button>
       </div>
       <SidebarNavigation

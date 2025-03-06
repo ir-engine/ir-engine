@@ -351,6 +351,7 @@ const DropShadowReactor = () => {
     const center = sphere.center.sub(TransformComponent.getWorldPosition(entity, vec3))
     const shadowEntity = createEntity()
     setComponent(shadowEntity, MeshComponent, new Mesh(shadowGeometry.clone(), shadowMaterial.clone()))
+    ObjectLayerMaskComponent.setLayer(shadowEntity, ObjectLayers.Avatar)
     setComponent(shadowEntity, EntityTreeComponent, { parentEntity: Engine.instance.originEntity })
     setComponent(
       shadowEntity,
@@ -358,7 +359,6 @@ const DropShadowReactor = () => {
       'Shadow for ' + getComponent(entity, NameComponent) + '_' + getComponent(entity, UUIDComponent)
     )
     setComponent(shadowEntity, VisibleComponent)
-    ObjectLayerMaskComponent.setLayer(shadowEntity, ObjectLayers.Scene)
     setComponent(entity, DropShadowComponent, { radius, center, entity: shadowEntity })
 
     return () => {
@@ -389,7 +389,7 @@ function updateDropShadowTransforms() {
     const dropShadow = getComponent(entity, DropShadowComponent)
     const dropShadowTransform = getComponent(dropShadow.entity, TransformComponent)
 
-    TransformComponent.getWorldPosition(entity, raycasterPosition).add(dropShadow.center)
+    TransformComponent.getWorldPosition(entity, raycasterPosition)
     raycaster.set(raycasterPosition, shadowDirection)
 
     const intersected = raycaster.intersectObjects(sceneObjects, false)[0]

@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import assert from 'assert'
 import { describe, it } from 'vitest'
-import { MATCH_ASSET_PROJECT_FILENAME_REGEX } from './ModelTransformFunctions'
+import { MATCH_ASSET_PROJECT_FILENAME_REGEX } from '../regex'
 
 describe('Model Transform Functions', () => {
   describe('MATCH_ASSET_PROJECT_FILENAME_REGEX', () => {
@@ -48,6 +48,11 @@ describe('Model Transform Functions', () => {
         },
         {
           url: 'https://ir.world:8642/projects/ir-engine/testproj/public/collisioncube-LOD0.glb',
+          orgAndProjName: 'ir-engine/testproj',
+          assetName: 'collisioncube-LOD0.glb'
+        },
+        {
+          url: 'https://ir.world:8642/projects/ir-engine/testproj/public/publish/scene/collisioncube-LOD0.glb',
           orgAndProjName: 'ir-engine/testproj',
           assetName: 'collisioncube-LOD0.glb'
         }

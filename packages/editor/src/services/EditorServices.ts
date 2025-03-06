@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { LayoutData } from 'rc-dock'
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { EntityUUID, getOptionalComponent } from '@ir-engine/ecs'
+import { EntityUUID, getComponent, getOptionalComponent } from '@ir-engine/ecs'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
@@ -72,6 +72,18 @@ export const EditorState = defineState({
 
     const modifiedState = getMutableState(AssetModifiedState)
     modifiedState[sourceID].set(true)
+    const activeScene = getState(EditorState).rootEntity
+    //also mark the active scene as modified due to scene deltas being added
+    const rootSourceID = GLTFComponent.getInstanceID(activeScene)
+    if (rootSourceID !== sourceID) {
+      modifiedState[rootSourceID].set(true)
+    }
+  },
+  isInActiveScene: (entity: Entity) => {
+    const rootEntity = getState(EditorState).rootEntity
+    const rootSourceID = GLTFComponent.getInstanceID(rootEntity)
+    const sourceID = getComponent(entity, SourceComponent)
+    return sourceID === rootSourceID
   },
   reactor: () => {
     const linkState = useMutableState(LinkState)

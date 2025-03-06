@@ -100,6 +100,7 @@ const Select = ({
   const [filteredOptions, setFilteredOptions] = useState(options)
   const [searchString, setSearchString] = useState('')
   const fuseRef = useRef<Fuse<OptionType> | null>(null)
+  const [touchMoved, setTouchedMoved] = useState(false)
   const localValue = useHookstate(value)
   const id = useId()
   const [triggerWidth, setTriggerWidth] = useState(0)
@@ -251,7 +252,6 @@ const Select = ({
     }
   }
 
-  const inputRef = useRef<HTMLInputElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const [positionStyle, setPositionStyle] = useState({})
 
@@ -316,8 +316,6 @@ const Select = ({
                 )}
               >
                 <input
-                  ref={inputRef}
-                  onBlur={() => inputRef.current && inputRef.current.focus()}
                   onClick={() => {
                     if (!disabled) {
                       togglePopup()
@@ -382,6 +380,8 @@ const Select = ({
         border: 'none',
         ...positionStyle
       }}
+      onOpen={() => onOpen?.(true)}
+      onClose={() => onOpen?.(false)}
     >
       <div
         ref={contentRef}
@@ -440,6 +440,21 @@ const Select = ({
               }}
               onMouseLeave={() => {
                 setActiveIndex(-1)
+              }}
+              onTouchStart={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+              }}
+              onTouchMove={() => setTouchedMoved(true)}
+              onTouchEnd={() => {
+                if (!touchMoved) {
+                  closePopup()
+                  localValue.set(currentValue)
+                  setSelectedOptionIndex(index)
+                  setDisplayText(optionProps.label)
+                  onChange(currentValue)
+                }
+                setTouchedMoved(false)
               }}
               onKeyUp={(e) => {
                 if (e.code === 'Enter') {

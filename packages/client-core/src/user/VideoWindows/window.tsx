@@ -22,26 +22,26 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+
 import { State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '@ir-engine/network/src/media/PeerMediaChannelState'
-import { ArrowTopRightOnSquareSm } from '@ir-engine/ui/src/icons'
-import React, { useEffect, useRef } from 'react'
-
-import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
+import { ArrowTopRightOnSquareSm, Microphone01Lg, MicrophoneOff, VolumeMaxLg, VolumeXLg } from '@ir-engine/ui/src/icons'
 import Button from '@ir-engine/ui/src/primitives/tailwind/Button'
 import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
+import React, { useEffect, useRef } from 'react'
+
 import { useTranslation } from 'react-i18next'
 import { Props, useReportUser, useUserMediaWindowHook } from './hook'
 
 export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
-  const { isSelf, isPiP, isScreen, videoMediaStream, avatarThumbnail, videoStreamPaused, togglePiP, peerUserId } =
+  const { isSelf, isPiP, isScreen, videoMediaStream, avatarThumbnail, videoStreamPaused, togglePiP } =
     useUserMediaWindowHook({
       peerID,
       type
     })
 
   const { t } = useTranslation()
-  const { setReportedUserId } = useReportUser()
+  const { setReportedPeerId: setReportedUserId } = useReportUser()
   const peerMediaChannelState = useHookstate(
     getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
   )
@@ -58,8 +58,8 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
   useEffect(() => {
     videoElement.draggable = false
     if (isSelf) videoElement.style.transform = 'scaleX(-1)'
-    document.getElementById(peerID + '-' + type + '-video-container')!.append(videoElement)
-    document.getElementById(peerID + '-' + type + '-audio-container')!.append(audioElement)
+    document.getElementById(peerID + '-' + type + '-video-container')?.append(videoElement)
+    document.getElementById(peerID + '-' + type + '-audio-container')?.append(audioElement)
   }, [])
 
   useEffect(() => {
@@ -79,7 +79,9 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
       <div
         tabIndex={0}
         id={peerID + '_' + type + '_container'}
-        className="pointer-events-auto relative h-[80px] w-[80px] overflow-hidden rounded-[90px] lg:h-[131px] lg:w-[131px]"
+        className={`pointer-events-auto relative h-[80px] w-[80px] overflow-hidden rounded-[90px] lg:h-[131px] lg:w-[131px] ${
+          (!videoMediaStream || videoStreamPaused) && 'hidden lg:block'
+        }`}
         onClick={() => {
           if (isScreen && isPiP) togglePiP()
         }}
@@ -98,14 +100,14 @@ export const SingleVideoWindow = ({ peerID, type }: Props): JSX.Element => {
         </div>
         <span key={peerID + '-' + type + '-audio-container'} id={peerID + '-' + type + '-audio-container'} />
       </div>
-      {!isSelf && peerUserId && (
+      {!isSelf && (
         <Button
           variant="primary"
           size="sm"
           className={`hidden lg:group-hover/video-window:flex ${isMoreButtonVisible.value ? 'flex' : ''}`}
           onClick={() => {
             isMoreButtonVisible.set(false)
-            setReportedUserId(peerUserId)
+            setReportedUserId(peerID)
           }}
         >
           {t('user:videoWindows.more')}
@@ -183,10 +185,17 @@ export const SingleVideoWindowWidget = ({ peerID, type }: Props): JSX.Element =>
       >
         {username}
         <button style={{ margin: 0 }} onClick={toggleAudio} xr-layer="true">
-          <Icon
-            xr-layer="true"
-            type={isSelf ? (audioStreamPaused ? 'MicOff' : 'Mic') : audioStreamPaused ? 'VolumeOff' : 'VolumeUp'}
-          />
+          {isSelf ? (
+            audioStreamPaused ? (
+              <MicrophoneOff />
+            ) : (
+              <Microphone01Lg />
+            )
+          ) : audioStreamPaused ? (
+            <VolumeXLg />
+          ) : (
+            <VolumeMaxLg />
+          )}
         </button>
       </div>
     </div>
