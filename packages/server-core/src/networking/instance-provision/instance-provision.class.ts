@@ -26,11 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { BadRequest, NotAuthenticated } from '@feathersjs/errors'
 import { Paginated, ServiceInterface } from '@feathersjs/feathers'
 import { KnexAdapterParams } from '@feathersjs/knex'
-import https from 'https'
-import { Knex } from 'knex'
-import _ from 'lodash'
-import fetch from 'node-fetch'
-
 import {
   instanceAuthorizedUserPath,
   InstanceAuthorizedUserType
@@ -42,7 +37,12 @@ import { LocationID, locationPath, LocationType, RoomCode } from '@ir-engine/com
 import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { UserID } from '@ir-engine/common/src/schemas/user/user.schema'
 import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import { getState } from '@ir-engine/hyperflux'
+import https from 'https'
+import { Knex } from 'knex'
+import _ from 'lodash'
+import fetch from 'node-fetch'
 
 import { instanceAttendancePath, InstanceAttendanceType } from '@ir-engine/common/src/schema.type.module'
 import { Application } from '../../../declarations'
@@ -307,7 +307,7 @@ export async function checkForDuplicatedAssignments({
     }
     if (!isFirstAssignment) {
       //If this is not the first assignment to this IP, remove the assigned instance row
-      await app.service(instancePath).remove(assignResult.id)
+      if (isValidId(assignResult.id)) await app.service(instancePath).remove(assignResult.id)
       //If this is the 10th or more attempt to get a free instanceserver, then there probably aren't any free ones,
       if (iteration < 10) {
         return getFreeInstanceserver({
@@ -383,7 +383,7 @@ export async function checkForDuplicatedAssignments({
     }
     if (!isFirstAssignment) {
       //If this is not the first assignment to this IP, remove the assigned instance row
-      await app.service(instancePath).remove(assignResult.id)
+      if (isValidId(assignResult.id)) await app.service(instancePath).remove(assignResult.id)
       return earlierInstance!
     }
   }
@@ -427,7 +427,7 @@ export async function checkForDuplicatedAssignments({
 
   if (!responsivenessCheck) {
     logger.warn(`Instanceserver at ${ipAddress} took too long to respond, assuming it is unresponsive and killing`)
-    await app.service(instancePath).remove(assignResult.id)
+    if (isValidId(assignResult.id)) await app.service(instancePath).remove(assignResult.id)
     const k8DefaultClient = getState(ServerState).k8DefaultClient
     if (config.kubernetes.enabled)
       try {
