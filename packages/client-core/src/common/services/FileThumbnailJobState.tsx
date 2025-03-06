@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { API } from '@ir-engine/common'
+import { API, PaginationQuery } from '@ir-engine/common'
 import {
   FileBrowserContentType,
   fileBrowserUploadPath,
@@ -121,27 +121,31 @@ const uploadThumbnail = async (src: string, projectName: string, staticResourceI
   const thumbnailMode = 'automatic'
   const thumbnailKey = generateThumbnailKey(src, projectName)
   const file = new File([blob], thumbnailKey)
-  const thumbnailURL = new URL(
-    await uploadToFeathersService(fileBrowserUploadPath, [file], {
-      args: [
-        {
-          fileName: file.name,
-          project: projectName,
-          path: 'public/thumbnails/' + file.name,
-          contentType: file.type,
-          type: 'thumbnail',
-          thumbnailKey,
-          thumbnailMode
-        }
-      ]
-    }).promise
-  )
-  thumbnailURL.search = ''
-  thumbnailURL.hash = ''
-  const _thumbnailKey = thumbnailURL.href.replace(config.client.fileServer + '/', '')
-  await API.instance
-    .service(staticResourcePath)
-    .patch(staticResourceId, { thumbnailKey: _thumbnailKey, thumbnailMode, project: projectName })
+  try {
+    const thumbnailURL = new URL(
+      await uploadToFeathersService(fileBrowserUploadPath, [file], {
+        args: [
+          {
+            fileName: file.name,
+            project: projectName,
+            path: 'public/thumbnails/' + file.name,
+            contentType: file.type,
+            type: 'thumbnail',
+            thumbnailKey,
+            thumbnailMode
+          }
+        ]
+      }).promise
+    )
+    thumbnailURL.search = ''
+    thumbnailURL.hash = ''
+    const _thumbnailKey = thumbnailURL.href.replace(config.client.fileServer + '/', '')
+    await API.instance
+      .service(staticResourcePath)
+      .patch(staticResourceId, { thumbnailKey: _thumbnailKey, thumbnailMode, project: projectName })
+  } catch (e) {
+    console.error(e)
+  }
 }
 
 const seenResources = new Set<string>()
@@ -149,6 +153,11 @@ const seenResources = new Set<string>()
 export const filesDeleted = (files: readonly FileDataType[]) => {
   files.forEach((file) => seenResources.delete(file.key))
 }
+
+export const TestState = defineState({
+  name: 'TestState',
+  initial: new Set<string>()
+})
 
 export const FileThumbnailJobState = defineState({
   name: 'FileThumbnailJobState',
@@ -162,19 +171,32 @@ export const FileThumbnailJobState = defineState({
     })
   },
   useGenerateThumbnails: async (files: readonly FileBrowserContentType[]) => {
-    const resourceQuery = useFind(staticResourcePath, {
-      query: {
-        key: {
-          $in: files.map((file) => file.key).filter((key) => !seenResources.has(key))
-        },
-        thumbnailKey: 'null'
+    const fileList = files
+      .map((file) => (file.thumbnailURL || file.type === 'folder' ? undefined : file.key))
+      .filter((key) => key !== undefined)
+      .filter((key) => !seenResources.has(key))
+
+    const query = {
+      key: {
+        $in: fileList
       }
+    } as PaginationQuery
+
+    const resourceQuery = useFind(staticResourcePath, {
+      query: query
     })
 
     /**
      * This useEffect will continuously check for new resources that need thumbnails generated until all resources have thumbnails
      */
     useEffect(() => {
+      for (const resource of resourceQuery.data) {
+        if (resource.thumbnailURL) {
+          resourceQuery.refetch()
+          return
+        }
+      }
+
       for (const resource of resourceQuery.data) {
         if (seenResources.has(resource.key)) continue
         seenResources.add(resource.key)
@@ -189,13 +211,20 @@ export const FileThumbnailJobState = defineState({
 
         if (resource.thumbnailKey != null || !extensionCanHaveThumbnail(resource.key.split('.').pop() ?? '')) continue
 
-        getMutableState(FileThumbnailJobState).merge([
-          {
-            key: resource.url,
-            project: resource.project!,
-            id: resource.id
-          }
-        ])
+        const fileJobs = getMutableState(FileThumbnailJobState)
+        if (
+          fileJobs.value.filter((fj) => {
+            fj.key === resource.url
+          }).length < 1
+        ) {
+          fileJobs.merge([
+            {
+              key: resource.url,
+              project: resource.project!,
+              id: resource.id
+            }
+          ])
+        }
       }
 
       // If there are more files left to be processed in the list we have specified, refetch the query
@@ -392,7 +421,7 @@ const RenderImageThumbnail = (props: RenderThumbnailProps) => {
 }
 
 const RenderModelThumbnail = (props: RenderThumbnailProps) => {
-  const { src, project, id, onError } = props
+  const { src, onError } = props
   const [entity, lightEntity, skyboxEntity, cameraEntity] = useRenderEntities(src)
   const errors = ErrorComponent.useComponentErrors(entity, GLTFComponent)
   const loaded = GLTFComponent.useSceneLoaded(entity)
