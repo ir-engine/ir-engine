@@ -140,6 +140,8 @@ import { KHR_DRACO_MESH_COMPRESSION, getBufferIndex } from './GLTFExtensions'
 import { KHRTextureTransformExtensionComponent, KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
 import { NodeID, NodeIDComponent } from './NodeIDComponent'
 import { SCENE_DELTA_EXTENSION_NAME } from './SceneDeltaExporterExtension'
+import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 
 const assignFinalMaterial = (primitiveDef: GLTF.IMeshPrimitive, material: MeshPhysicalMaterial) => {
   const useDerivativeTangents = primitiveDef.attributes.TANGENT === undefined
@@ -1280,6 +1282,7 @@ const loadMesh = async (options: GLTFParserOptions, entity: Entity, nodeIndex: n
     skinnedMesh.skeleton = new Skeleton()
     skinnedMesh.normalizeSkinWeights()
     setComponent(entity, SkinnedMeshComponent, skinnedMesh)
+    ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.Avatar)
   }
 
   //handle primitive extensions

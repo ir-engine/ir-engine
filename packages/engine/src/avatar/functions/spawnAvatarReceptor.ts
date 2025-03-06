@@ -60,6 +60,8 @@ import { AvatarAnimationComponent, AvatarRigComponent } from '../components/Avat
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarColliderComponent, AvatarControllerComponent, eyeOffset } from '../components/AvatarControllerComponent'
 import { AvatarIKComponent } from '../components/AvatarIKComponents'
+import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
+import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 
 export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   const entity = UUIDComponent.getEntityByUUID(entityUUID)
@@ -86,6 +88,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   })
 
   setComponent(entity, AvatarComponent)
+  ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.Avatar)
 
   createAvatarCollider(entity)
 
