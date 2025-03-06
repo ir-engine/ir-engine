@@ -22,7 +22,7 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { filesDeleted } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
+import { filesDeleted, FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import ProgressBar from '@ir-engine/client-core/src/systems/ui/LoadingDetailView/SimpleProgressBar'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
@@ -84,11 +84,17 @@ function ResourceFileContextMenu({
   const { t } = useTranslation()
   const userID = useMutableState(AuthState).user.id.value
   const { refetchResources, staticResourcesPagination } = useAssetsQuery()
+  const thumbnailJobState = useMutableState(FileThumbnailJobState)
 
   const splitResourceKey = resource.key.split('/')
   const name = resource.name || splitResourceKey.at(-1)!
   const path = splitResourceKey.slice(0, -1).join('/') + '/'
   const assetType = AssetLoader.getAssetType(resource.key)
+
+  useEffect(() => {
+    staticResourcesPagination.skip.set(0)
+    refetchResources()
+  }, [thumbnailJobState.length])
 
   return (
     <ContextMenu
@@ -213,7 +219,9 @@ export function FileCard({
             fontSize="sm"
             className={twMerge(
               'mt-2 w-24 overflow-hidden text-ellipsis whitespace-nowrap px-2',
-              isSelected ? 'rounded bg-[#375DAF]' : 'rounded group-hover:bg-[#2F3137]'
+              isSelected
+                ? 'rounded bg-ui-select-background text-ui-select-primary'
+                : 'rounded text-ui-hover-primary group-hover:bg-ui-hover-background'
             )}
             data-testid={dataTestIdJson?.fileNameId}
           >
@@ -462,11 +470,6 @@ function ResourceItems() {
                         key={resource.id}
                         resource={resource as StaticResourceType}
                       />
-                      <div className="text-white">
-                        index = {index}
-                        <br />
-                        {resource.id}
-                      </div>
                     </>
                   ))}
               </div>
