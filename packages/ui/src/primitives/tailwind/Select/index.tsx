@@ -180,11 +180,13 @@ const Select = ({
   }, [value, localValue, selectedOptionIndex, filteredOptions])
 
   useEffect(() => {
-    const index = filteredOptions.findIndex((option) => option.value === localValue.value)
-    if (index !== -1) {
-      setDisplayText(filteredOptions[index].label)
+    if (filteredOptions.length) {
+      const index = filteredOptions.findIndex((option) => option.value === localValue.value)
+      if (index !== -1) {
+        setDisplayText(filteredOptions[index].label)
+      }
     }
-  }, [localValue])
+  }, [localValue, filteredOptions])
 
   useEffect(() => {
     if (searchString === '') {
