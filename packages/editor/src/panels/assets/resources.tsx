@@ -84,17 +84,11 @@ function ResourceFileContextMenu({
   const { t } = useTranslation()
   const userID = useMutableState(AuthState).user.id.value
   const { refetchResources, staticResourcesPagination } = useAssetsQuery()
-  const thumbnailJobState = useMutableState(FileThumbnailJobState)
 
   const splitResourceKey = resource.key.split('/')
   const name = resource.name || splitResourceKey.at(-1)!
   const path = splitResourceKey.slice(0, -1).join('/') + '/'
   const assetType = AssetLoader.getAssetType(resource.key)
-
-  useEffect(() => {
-    staticResourcesPagination.skip.set(0)
-    refetchResources()
-  }, [thumbnailJobState.length])
 
   return (
     <ContextMenu
@@ -401,7 +395,7 @@ function BottomPaginationNavBar({ handleScrollToPage }) {
 
 function ResourceItems() {
   const { t } = useTranslation()
-  const { resourcesLoading, resources, staticResourcesPagination } = useAssetsQuery()
+  const { resourcesLoading, resources, staticResourcesPagination, refetchResources } = useAssetsQuery()
   const pages = Math.ceil(resources.length / (ASSETS_PAGE_LIMIT + calculateItemsToFetch()))
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]) // Create a ref array
   const fileIconsLoaded = useHookstate(0)
@@ -422,6 +416,17 @@ function ResourceItems() {
   const handleFileIconLoad = () => {
     fileIconsLoaded.set(fileIconsLoaded.get() + 1)
   }
+
+  const thumbnailJobState = useMutableState(FileThumbnailJobState)
+  useEffect(() => {
+    console.log('thumbnailJobState.length = ' + thumbnailJobState.length)
+    staticResourcesPagination.skip.set(0)
+    refetchResources()
+  }, [thumbnailJobState.length])
+
+  useEffect(() => {
+    console.log('resources= ', resources)
+  }, [resources])
 
   return (
     <div className="relative flex w-full ">
@@ -506,7 +511,7 @@ function ResourceItems() {
 }
 
 export default function Resources() {
-  const { resources, resourcesLoading, staticResourcesPagination, refetchResources } = useAssetsQuery()
+  const { resourcesLoading, staticResourcesPagination, refetchResources } = useAssetsQuery()
 
   return (
     <div id="asset-panel" className="relative flex h-full w-full flex-col overflow-auto bg-surface-1">
