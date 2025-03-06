@@ -34,7 +34,7 @@ import Modal, { ModalProps } from '../../../primitives/tailwind/Modal'
 interface InputDialogProps {
   title?: string
   fields: FieldOptions[]
-  onSubmit: () => Promise<void> | void
+  onSubmit: (fieldValues) => Promise<void> | void
   onClose?: () => void
   modalProps?: Partial<ModalProps>
 }
@@ -61,7 +61,7 @@ export const InputDialog = ({ title, fields, onSubmit, onClose, modalProps }: In
   const handleSubmit = async () => {
     modalProcessing.set(true)
     try {
-      await onSubmit()
+      await onSubmit(fieldValues.value)
       PopoverState.hidePopupover()
     } catch (error) {
       errorText.set(error.message)
@@ -98,8 +98,6 @@ export const InputDialog = ({ title, fields, onSubmit, onClose, modalProps }: In
             }}
             fullWidth
             placeholder={field.placeholder}
-            state={errors.value[name] ? 'error' : undefined}
-            helperText={errors.value[name]}
           />
         ))}
       </div>
