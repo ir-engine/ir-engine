@@ -343,7 +343,8 @@ export const uploadImageFile = (params: {
   projectName: string
   directoryPath: string
   preserveDirectory?: boolean
-}): Promise<string> => createFileUploader({ ...params, acceptedFileTypes: 'image/*' })
+  acceptedFileTypes?: string
+}): Promise<string> => createFileUploader({ ...params, acceptedFileTypes: params.acceptedFileTypes ?? 'image/*' })
 
 // currently only supporting mp4
 export const uploadVideoFile = (params: {
