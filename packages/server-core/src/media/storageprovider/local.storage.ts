@@ -146,6 +146,10 @@ export class LocalStorage implements StorageProviderInterface {
     return new URL(key, 'https://' + cacheDomain).href
   }
 
+  async getObjectContentType(key: string): Promise<any> {
+    return Promise.resolve('')
+  }
+
   /**
    * Get a list of keys under a path.
    * @param prefix Path relative to root in order to list objects.

@@ -43,7 +43,10 @@ import { fromDateTimeSql, getDateTimeSql } from '@ir-engine/common/src/utils/dat
 import type { HookContext } from '@ir-engine/server-core/declarations'
 
 export const recordingDbToSchema = (rawData: RecordingDatabaseType): RecordingType => {
-  let schema = JSON.parse(rawData.schema) as RecordingSchemaType
+  let schema =
+    typeof rawData.schema === 'string'
+      ? (JSON.parse(rawData.schema) as RecordingSchemaType)
+      : (rawData.schema as RecordingSchemaType)
 
   // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
   // was serialized multiple times, therefore we need to parse it twice.

@@ -23,8 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import * as k8s from '@kubernetes/client-node'
-
 import { getState } from '@ir-engine/hyperflux'
 
 import config from '../appconfig'
@@ -37,10 +35,10 @@ export default async () => {
   if (k8AppsClient) {
     try {
       logger.info('Attempting to refresh API pods')
-      const refreshApiPodResponse = await k8AppsClient.patchNamespacedDeployment(
-        `${config.server.releaseName}-ir-engine-api`,
-        'default',
-        {
+      const refreshApiPodResponse = await k8AppsClient.patchNamespacedDeployment({
+        name: `${config.server.releaseName}-ir-engine-api`,
+        namespace: config.server.namespace,
+        body: {
           spec: {
             template: {
               metadata: {
@@ -50,18 +48,8 @@ export default async () => {
               }
             }
           }
-        },
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        {
-          headers: {
-            'Content-Type': k8s.PatchUtils.PATCH_FORMAT_STRATEGIC_MERGE_PATCH
-          }
         }
-      )
+      })
       logger.info(refreshApiPodResponse, 'updateBuilderTagResponse')
     } catch (e) {
       logger.error(e)

@@ -30,7 +30,6 @@ import {
   InstanceAttendanceType,
   InstanceID,
   LocationID,
-  clientSettingPath,
   instanceAttendancePath,
   instanceSignalingPath
 } from '@ir-engine/common/src/schema.type.module'
@@ -59,6 +58,7 @@ import {
   createNetwork,
   removeNetwork
 } from '@ir-engine/network'
+import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
 import {
   MessageTypes,
   SendMessageType,
@@ -249,14 +249,8 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
     })
   }, [])
 
-  const clientSettingQuery = useFind(clientSettingPath)
-  const clientSetting = clientSettingQuery.data[0]
-
   const immersiveMedia = useMutableState(MediaSettingsState).immersiveMedia.value
-
-  if (!clientSetting) return null
-
-  const maxResolution = clientSetting.mediaSettings.video.maxResolution
+  const maxResolution = useMutableState(MediaStreamState).maxResolution.value
 
   return (
     <WebRTCPeerConnection

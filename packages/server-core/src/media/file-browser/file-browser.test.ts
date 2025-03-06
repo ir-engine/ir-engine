@@ -3679,7 +3679,7 @@ describe('file-browser.test', () => {
             }
           ),
         {
-          message: 'Cannot move a folder into itself'
+          message: 'Cannot move a folder into itself or its own subfolder'
         }
       )
 

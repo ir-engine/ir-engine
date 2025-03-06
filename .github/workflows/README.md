@@ -44,7 +44,7 @@ have to modify some of these variables, downloads, and calls to use another serv
 This action uses several other secrets to control what repo it is interacting with:
 *`EKS_AWS_ACCESS_KEY_ID`: The public key of an IAM user that has EKS access
 *`EKS_AWS_ACCESS_KEY_SECRET`: The secret key of an IAM user that has EKS access
-*`AWS_REGION`: The region of the EKS cluster/ECR repo to which this built image will be pushed and deployed
+*`STORAGE_REGION`: The region of the cloud image repo to which this built image will be pushed and deployed
 *`CLUSTER_NAME`: The name of the cluster to which this built image will be deployed
 *`DEV_REPO_NAME`: The name of the repo that this built image will be deployed to; most easily set to `etherealengine-dev-builder`
 (also have a repo `etherealengine-dev` for the final built image)
@@ -87,7 +87,7 @@ have to modify some of these variables, downloads, and calls to use another serv
 This action uses several other secrets to control what repo it is interacting with:
 *`EKS_AWS_ACCESS_KEY_ID`: The public key of an IAM user that has EKS access
 *`EKS_AWS_ACCESS_KEY_SECRET`: The secret key of an IAM user that has EKS access
-*`AWS_REGION`: The region of the EKS cluster/ECR repo to which this built image will be pushed and deployed
+*`STORAGE_REGION`: The region of the cloud image repo to which this built image will be pushed and deployed
 *`CLUSTER_NAME`: The name of the cluster to which this built image will be deployed
 *`PROD_REPO_NAME`: The name of the repo that this built image will be deployed to; most easily set to `etherealengine-prod-builder`
 (also have a repo `etherealengine-prod` for the final built image)

@@ -47,7 +47,7 @@ import { isValidFileExtension, isValidFileName, isValidFilePath } from '@ir-engi
 import isValidSceneName from '@ir-engine/common/src/utils/validateSceneName'
 
 import { BadRequest } from '@feathersjs/errors/lib'
-import { PROJECT_CAPTURE_REGEX, PROJECT_REGEX } from '@ir-engine/common/src/regex'
+import { PROJECT_CAPTURE_REGEX, PROJECT_REGEX, TRAILING_SLASH_REGEX } from '@ir-engine/common/src/regex'
 import { copyFolderRecursiveSync } from '@ir-engine/common/src/utils/fsHelperFunctions'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -333,8 +333,12 @@ export class FileBrowserService
           data.newProject
       )
 
-    if (data.oldName === data.newName && data.oldPath !== data.newPath && data.newPath.startsWith(data.oldPath))
-      throw new Error('Cannot move a folder into itself')
+    const oldFullPath = `${data.oldPath}${data.oldName}/`.replace(TRAILING_SLASH_REGEX, '')
+    const newFullPath = data.newPath.replace(TRAILING_SLASH_REGEX, '')
+
+    if (oldFullPath === newFullPath || newFullPath.startsWith(oldFullPath + '/')) {
+      throw new Error('Cannot move a folder into itself or its own subfolder')
+    }
 
     const oldDirectory = data.oldPath.endsWith('/')
       ? data.oldPath.split('/').slice(0, -1).join('/')
@@ -479,7 +483,7 @@ export class FileBrowserService
       }
     }
 
-    if (data.type === 'scene') validateSceneName(data.path)
+    if (data.type === 'scene') await validateSceneName(data.path)
 
     let key = path.join('projects', data.project, data.path)
     if (data.unique) key = await ensureUniqueName(this.app, key)

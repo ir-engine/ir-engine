@@ -443,13 +443,13 @@ export async function handleWebRtcTransportCreate(
       const serverState = getState(ServerState)
       const instanceServerState = getState(InstanceServerState)
 
-      const serverResult = await serverState.k8AgonesClient.listNamespacedCustomObject(
-        'agones.dev',
-        'v1',
-        'default',
-        'gameservers'
-      )
-      const thisGs = (serverResult?.body as any).items.find(
+      const serverResult = await serverState.k8AgonesClient.listNamespacedCustomObject({
+        group: 'agones.dev',
+        version: 'v1',
+        namespace: config.server.namespace,
+        plural: 'gameservers'
+      })
+      const thisGs = serverResult.items.find(
         (server) => server.metadata.name === instanceServerState.instanceServer.objectMeta.name
       )
 

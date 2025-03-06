@@ -2,7 +2,7 @@ ARG REPO_URL
 ARG REPO_NAME
 ARG STAGE
 ARG TAG
-FROM ${REPO_URL}/${REPO_NAME}-root:${TAG} as builder
+FROM ${REPO_URL}/${REPO_NAME}:${TAG} as builder
 
 # Create app directory
 WORKDIR /app
