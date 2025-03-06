@@ -34,7 +34,6 @@ import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSyst
 import { dispatchAction, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { SpectateEntityState } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
-import { endXRSession, requestXRSession } from '@ir-engine/spatial/src/xr/XRSessionFunctions'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 import { RegisteredWidgets, WidgetAppActions } from '../../systems/WidgetAppService'
 
@@ -48,16 +47,13 @@ import {
   Microphone01Lg,
   Microphone01Md,
   MicrophoneOff,
-  Screenshare,
   VideoRecorderLg,
   VideoRecorderMd,
   VideoRecorderOffLg,
   VideoRecorderOffMd
 } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
-import { IoAccessibility } from 'react-icons/io5'
-import { MdFlipCameraAndroid, MdOutlineViewInAr } from 'react-icons/md'
-import { VrIcon } from '../../common/components/Icons/VrIcon'
+import { MdFlipCameraAndroid } from 'react-icons/md'
 import { SearchParamState } from '../../common/services/RouterService'
 import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
 import LocationIconButton from '../../user/components/LocationIconButton'
@@ -193,7 +189,7 @@ export const MediaIconsBox = () => {
               icon={MdFlipCameraAndroid}
             />
           )}
-          {motionCaptureEnabled && (
+          {/* {motionCaptureEnabled && (
             <LocationIconButton
               id="UserPoseTracking"
               tooltip={{
@@ -208,10 +204,10 @@ export const MediaIconsBox = () => {
               }}
               icon={IoAccessibility}
             />
-          )}
+          )} */}
         </>
       ) : null}
-      {!isMobile &&
+      {/* {!isMobile &&
       !(typeof navigator.mediaDevices.getDisplayMedia === 'undefined') &&
       screenshareEnabled &&
       mediaNetworkReady &&
@@ -224,8 +220,8 @@ export const MediaIconsBox = () => {
           id="UserScreenSharing"
           onClick={MediaStreamState.toggleScreenshare}
         />
-      ) : null}
-      {supportsVR && xrEnabled && (
+      ) : null} */}
+      {/* {supportsVR && xrEnabled && (
         <LocationIconButton
           tooltip={{
             title: t('user:menu.enterVR')
@@ -248,7 +244,7 @@ export const MediaIconsBox = () => {
           }}
           icon={MdOutlineViewInAr}
         />
-      )}
+      )} */}
       {spectating && (
         <button
           type="button"
