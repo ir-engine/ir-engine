@@ -26,8 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
-
 import {
   channelUserDataValidator,
   channelUserPatchValidator,
@@ -38,6 +36,8 @@ import {
 import { channelPath } from '@ir-engine/common/src/schemas/social/channel.schema'
 import { messagePath } from '@ir-engine/common/src/schemas/social/message.schema'
 import { userPath } from '@ir-engine/common/src/schemas/user/user.schema'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import { HookContext } from '../../../declarations'
 import disallowId from '../../hooks/disallow-id'
@@ -115,9 +115,8 @@ const removeEmptyNonInstanceChannel = async (context: HookContext<ChannelUserSer
       }
     })) as Paginated<ChannelUserType>
 
-    if (channelUserCount.data.length === 0) {
+    if (channelUserCount.data.length === 0 && isValidId(item.channelId))
       await app.service(channelPath).remove(item.channelId)
-    }
   }
 
   return context

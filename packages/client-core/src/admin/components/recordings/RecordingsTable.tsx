@@ -28,9 +28,8 @@ import { useTranslation } from 'react-i18next'
 
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import { RecordingType, recordingPath } from '@ir-engine/common/src/schema.type.module'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import { validate as isValidUUID } from 'uuid'
-
 import { Trash04Lg } from '@ir-engine/ui/src/icons'
 import { PopoverState } from '../../../common/services/PopoverState'
 import DataTable from '../../common/Table'
@@ -52,10 +51,10 @@ export default function RecordingsTable({ search }: { search: string }) {
     {
       $or: [
         {
-          id: isValidUUID(search) ? search : undefined
+          id: isValidId(search) ? search : undefined
         },
         {
-          userId: isValidUUID(search) ? search : undefined
+          userId: isValidId(search) ? search : undefined
         }
       ]
     },
