@@ -39,7 +39,7 @@ import {
 import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 import verifyScope from '@ir-engine/server-core/src/hooks/verify-scope'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { discardQuery, iff, isProvider } from 'feathers-hooks-common'
 
 const validateModeration = async (context: HookContext) => {
   const { data } = context
@@ -53,13 +53,46 @@ const validateModeration = async (context: HookContext) => {
   return context
 }
 
+/**
+ * Hook function to handle moderation search queries.
+ *
+ * This function modifies the `context.params.query` object to include a search condition
+ * based on the `search` parameter. If a `search` parameter is present in the query, it adds
+ * an `$or` condition to search for records where the `id` field matches the search string.
+ *
+ * @param context - The hook context object, which contains the query parameters.
+ */
+const handleModerationSearch = (context: HookContext) => {
+  if (context.params.query?.search) {
+    const search = context.params.query.search
+    context.params.query = {
+      ...context.params.query,
+      $or: [
+        ...(context.params?.query?.$or || []),
+        {
+          id: {
+            $like: `%${search}%`
+          }
+        }
+      ]
+    }
+  }
+}
+
 export default {
   around: {
     all: [schemaHooks.resolveExternal(moderationExternalResolver), schemaHooks.resolveResult(moderationResolver)]
   },
   before: {
     all: [schemaHooks.validateQuery(moderationQueryValidator), schemaHooks.resolveQuery(moderationQueryResolver)],
-    find: [iff(isProvider('external'), verifyScope('moderation', 'read'))],
+    find: [
+      iff(
+        isProvider('external'),
+        verifyScope('moderation', 'read'),
+        handleModerationSearch,
+        discardQuery('search', '$sort.createdAt') as any
+      )
+    ],
     get: [
       iff(isProvider('external'), verifyScope('moderation', 'read')),
       schemaHooks.validateQuery(moderationQueryValidator),
