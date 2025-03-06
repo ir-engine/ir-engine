@@ -50,6 +50,7 @@ export interface SelectProps<T = string | number> {
   width?: 'sm' | 'md' | 'lg' | 'full'
   inputHeight?: InputProps['height']
   onChange: (value: T) => void
+  onInputChange?: (value: string) => void
   onOpen?: (isOpen: boolean) => void
   value: T
   labelProps?: InputProps['labelProps']
@@ -76,6 +77,7 @@ const Select = ({
   width = 'md',
   inputHeight = 'l',
   onChange,
+  onInputChange,
   onOpen,
   value,
   labelProps,
@@ -333,6 +335,8 @@ const Select = ({
                     popupRef.current && popupRef.current.open()
                     setDisplayText(e.target.value)
                     setSearchString(e.target.value)
+                    onInputChange && onInputChange(e.target.value)
+                    onInputChange && ref.current && ref.current.focus()
                   }}
                 />
 
