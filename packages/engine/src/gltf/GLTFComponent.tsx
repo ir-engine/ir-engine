@@ -462,7 +462,6 @@ export const loadGLTFFile = (
         json = migrateSceneJSONToGLTF(json)
       }
 
-      console.log(json, body)
       onLoad(parseStorageProviderURLs(JSON.parse(JSON.stringify(json))), body)
     } catch (error) {
       if (onError) onError(error)

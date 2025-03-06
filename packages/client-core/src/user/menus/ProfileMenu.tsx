@@ -52,6 +52,7 @@ import {
 import { API } from '@ir-engine/common'
 import { USERNAME_MAX_LENGTH } from '@ir-engine/common/src/constants/UserConstants'
 import { INVALID_USER_NAME_REGEX } from '@ir-engine/common/src/regex'
+import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import {
@@ -114,7 +115,6 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   const errorUsername = useHookstate('')
   const showUserId = useHookstate(false)
   const showApiKey = useHookstate(false)
-  const showDeleteAccount = useHookstate(false)
   const oauthConnectedState = useHookstate(Object.assign({}, initialOAuthConnectedState))
   const authState = useHookstate(initialAuthState)
   /** Login Link feature that was needed for multi cam mocap that is not currently necessary. Keeping code around for now if we return to it*/
@@ -377,7 +377,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   const enableConnect = authState?.value?.emailMagicLink || authState?.value?.smsMagicLink
 
   return (
-    <div className="absolute z-50 h-fit max-h-[90vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 mdh:max-h-[60vh] mdh:px-8 mdh:py-6">
+    <div className="absolute z-50 h-fit max-h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 smh:max-h-[60dvh] smh:px-8 smh:py-6">
       <div className="relative grid w-full grid-cols-5 gap-x-2">
         <div className="col-span-3 grid grid-cols-[auto,1fr] gap-x-6">
           <div className="relative h-20 w-20">
@@ -419,10 +419,10 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
           </div>
         </div>
 
-        <div className="col-span-2 grid grid-cols-3 gap-x-3">
+        <div className="col-span-2 grid grid-cols-[auto_136px] gap-x-6 lg:grid-cols-[auto_auto]">
           <button
             className={twMerge(
-              'col-span-1 flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-ui-secondary p-2 text-text-primary-button hover:bg-ui-hover-secondary focus:bg-ui-select-secondary',
+              'flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-ui-secondary p-2 text-text-primary-button hover:bg-ui-hover-secondary focus:bg-ui-select-secondary',
               initialized ? 'justify-self-end' : 'col-start-3'
             )}
             onClick={() => {
@@ -433,15 +433,16 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
           </button>
 
           {initialized && (
-            <div className="col-span-2 flex w-full flex-col gap-y-1 mdh:gap-y-2">
-              <Button variant="secondary" fullWidth onClick={openChat}>
+            <div className="flex w-full flex-col items-end gap-y-4">
+              <Button variant="secondary" className="w-[136px] rounded-[10px] lg:w-full" onClick={openChat}>
                 <HelpIconLg />
                 {t('user:usermenu.profile.helpChat')}
               </Button>
 
               <Button
                 variant="red"
-                fullWidth
+                fullWidth={!isMobile}
+                className="w-[136px] rounded-[10px] lg:w-full"
                 onClick={() =>
                   PopoverState.showPopupover(<ReportMenu type="location" locationId={currentLocation.id} />)
                 }
@@ -500,7 +501,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
       <div
         className={twMerge(
           'mt-1 grid w-full grid-cols-1 gap-y-1',
-          isGuest && !originallyAcceptedTOS ? 'mt-7 mdh:mt-16' : 'mt-1 mdh:mt-5'
+          isGuest && !originallyAcceptedTOS ? 'mt-7 smh:mt-16' : 'mt-2.5 smh:mt-5'
         )}
       >
         <Input
@@ -602,18 +603,32 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
       </div>
 
       {!isGuest && (
-        <div className="grid w-1/2 grid-cols-1 gap-y-1 px-5 mdh:mt-5 mdh:gap-y-2">
+        <div className="grid w-1/2 grid-cols-1 gap-y-1 px-5 smh:mt-5 smh:gap-y-2">
           <button
             className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
-            onClick={handleLogout}
+            onClick={() => {
+              PopoverState.hidePopupover() // Close the ProfileMenu popover
+              PopoverState.showPopupover(
+                <ConfirmDialog
+                  text={t('user:usermenu.profile.logout.title')}
+                  onSubmit={async () => {
+                    handleLogout()
+                  }}
+                  onClose={() => {
+                    PopoverState.showPopupover(<ProfileMenu />)
+                  }}
+                />
+              )
+            }}
           >
             <LogIn01Lg />
-            {t('user:usermenu.profile.logout')}
+            {t('user:usermenu.profile.logout.submit')}
           </button>
 
           <button
             className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
             onClick={() => {
+              PopoverState.hidePopupover() // Close the ProfileMenu popover
               PopoverState.showPopupover(
                 <ConfirmDialog
                   title={t('user:usermenu.profile.delete.finalDeleteConfirm')}
@@ -621,7 +636,9 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
                   onSubmit={async () => {
                     AuthService.removeUser(userId)
                     AuthService.logoutUser()
-                    showDeleteAccount.set(false)
+                  }}
+                  onClose={() => {
+                    PopoverState.showPopupover(<ProfileMenu />)
                   }}
                 />
               )
@@ -633,7 +650,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
         </div>
       )}
 
-      <hr className="mb-1 mt-1 border-ui-outline mdh:mb-1 mdh:mt-4" />
+      <hr className="mb-1 mt-4 border-ui-outline" />
 
       {!hideLogin && acceptedTOS && enableSocial && (
         <div className="flex w-full items-center justify-between gap-x-4">
@@ -776,7 +793,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
       )}
 
       <a href={clientSetting?.privacyPolicy} target="_blank">
-        <Text className="mt-1 w-full text-center text-text-primary mdh:mt-5" fontSize="sm">
+        <Text className="mt-1 w-full text-center text-text-primary smh:mt-5" fontSize="sm">
           {t('user:usermenu.profile.privacyPolicy')}
         </Text>
       </a>

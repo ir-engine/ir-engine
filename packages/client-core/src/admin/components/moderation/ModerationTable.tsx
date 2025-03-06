@@ -33,7 +33,6 @@ import { t } from 'i18next'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IoArrowForward } from 'react-icons/io5'
-import { validate as isValidUUID } from 'uuid'
 import { UserDisplayName } from './common/UserDisplayName'
 import { ModerationDetail } from './ModerationDetail'
 
@@ -78,19 +77,9 @@ export default function ModerationTable({ search }) {
   useSearch(
     userReportsQuery,
     {
-      $or: [
-        {
-          id: isValidUUID(search) ? search : undefined
-        },
-        {
-          type: search == 'Space' ? 'location' : search == 'user' ? 'user' : undefined
-        },
-        {
-          abuseReason: {
-            $like: `%${search}%`
-          }
-        }
-      ]
+      id: {
+        $like: `%${search}%`
+      }
     },
     search
   )

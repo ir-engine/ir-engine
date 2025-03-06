@@ -32,16 +32,7 @@ import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
 import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
 import { MotionCaptureSystem, timeSeriesMocapData } from '@ir-engine/engine/src/mocap/MotionCaptureSystem'
 import { applyScreenshareToTexture } from '@ir-engine/engine/src/scene/functions/applyScreenshareToTexture'
-import {
-  getMutableState,
-  getState,
-  NO_PROXY,
-  PeerID,
-  State,
-  useHookstate,
-  useMutableState,
-  UserID
-} from '@ir-engine/hyperflux'
+import { getMutableState, getState, NO_PROXY, PeerID, State, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { drawPoseToCanvas } from '@ir-engine/ui/src/pages/Capture'
@@ -55,22 +46,22 @@ export interface Props {
   type: 'screen' | 'cam'
 }
 
-const ReportUserContext = createContext({ reportedUserId: undefined! as State<UserID | undefined> })
+const ReportUserContext = createContext({ reportedPeerId: undefined! as State<PeerID | undefined> })
 
 export const ReportUserProvider = ({ children }: { children: React.ReactNode }) => {
-  const reportedUserId = useHookstate(undefined as UserID | undefined)
-  return <ReportUserContext.Provider value={{ reportedUserId }}>{children}</ReportUserContext.Provider>
+  const reportedPeerId = useHookstate(undefined as PeerID | undefined)
+  return <ReportUserContext.Provider value={{ reportedPeerId: reportedPeerId }}>{children}</ReportUserContext.Provider>
 }
 
 export const useReportUser = () => {
-  const { reportedUserId } = useContext(ReportUserContext)
+  const { reportedPeerId } = useContext(ReportUserContext)
   return {
-    reportedUserId: reportedUserId.value,
-    setReportedUserId: (userId: UserID) => {
-      reportedUserId.set(userId)
+    reportedPeerId: reportedPeerId.value,
+    setReportedPeerId: (peerId: PeerID) => {
+      reportedPeerId.set(peerId)
     },
-    resetUserId: () => {
-      reportedUserId.set(undefined)
+    resetPeerId: () => {
+      reportedPeerId.set(undefined)
     }
   }
 }
@@ -184,8 +175,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     )
   }, [audioState.microphoneGain.value])
 
-  const toggleVideo = async (e) => {
-    e.stopPropagation()
+  const toggleVideo = async () => {
     if (isSelf && !isScreen) {
       MediaStreamState.toggleWebcamPaused()
     } else if (isSelf && isScreen) {
@@ -195,8 +185,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     }
   }
 
-  const toggleAudio = async (e) => {
-    e.stopPropagation()
+  const toggleAudio = async () => {
     if (isSelf && !isScreen) {
       MediaStreamState.toggleMicrophonePaused()
     } else if (isSelf && isScreen) {
@@ -253,26 +242,16 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     if (document.hidden) {
       if (!videoStreamPaused) {
         resumeVideoOnUnhide.current = true
-        toggleVideo({
-          stopPropagation: () => {}
-        })
+        toggleVideo()
       }
       if (!audioStreamPaused) {
         resumeAudioOnUnhide.current = true
-        toggleAudio({
-          stopPropagation: () => {}
-        })
+        toggleAudio()
       }
     }
     if (!document.hidden) {
-      if (resumeVideoOnUnhide.current)
-        toggleVideo({
-          stopPropagation: () => {}
-        })
-      if (resumeAudioOnUnhide.current)
-        toggleAudio({
-          stopPropagation: () => {}
-        })
+      if (resumeVideoOnUnhide.current) toggleVideo()
+      if (resumeAudioOnUnhide.current) toggleAudio()
       resumeVideoOnUnhide.current = false
       resumeAudioOnUnhide.current = false
     }
@@ -295,7 +274,6 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     username,
     selfUser,
     isSelf,
-    peerUserId: isSelf ? null : userId,
     videoMediaStream,
     audioMediaStream,
     avatarThumbnail,

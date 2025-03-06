@@ -54,7 +54,6 @@ import {
   SetComponentType
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { AssetModifiedState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
@@ -190,9 +189,7 @@ const updateMaterialPrototype = (materialEntity: Entity, newPrototype: string) =
   materialComponent.parameters.set({})
   for (const key in prototype.arguments) materialComponent.parameters[key].set(prototype.arguments[key].default)
 
-  const sceneID = getComponent(materialEntity, SourceComponent)
-  getMutableState(AssetModifiedState)[sceneID].set(true)
-
+  EditorState.markModifiedScene(materialEntity)
   return newMaterial
 }
 
@@ -223,7 +220,7 @@ const modifyMaterial = (nodes: string[], materialId: EntityUUID, properties: { [
       LayerFunctions.getLayerRelationsEntities(materialEntity)![0][1],
       MaterialStateComponent
     ).material.plugins.set(material.plugins)
-    getMutableState(AssetModifiedState)[sceneID].set(true)
+    EditorState.markModifiedScene(materialEntity)
     if (!EditorState.isInActiveScene(materialEntity)) {
       SceneDeltaState.registerMaterialDelta(materialEntity, props)
     }

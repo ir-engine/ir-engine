@@ -72,6 +72,12 @@ export const EditorState = defineState({
 
     const modifiedState = getMutableState(AssetModifiedState)
     modifiedState[sourceID].set(true)
+    const activeScene = getState(EditorState).rootEntity
+    //also mark the active scene as modified due to scene deltas being added
+    const rootSourceID = GLTFComponent.getInstanceID(activeScene)
+    if (rootSourceID !== sourceID) {
+      modifiedState[rootSourceID].set(true)
+    }
   },
   isInActiveScene: (entity: Entity) => {
     const rootEntity = getState(EditorState).rootEntity
