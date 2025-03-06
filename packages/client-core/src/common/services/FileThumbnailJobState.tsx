@@ -179,7 +179,8 @@ export const FileThumbnailJobState = defineState({
     const query = {
       key: {
         $in: fileList
-      }
+      },
+      thumbnailKey: 'null'
     } as PaginationQuery
 
     const resourceQuery = useFind(staticResourcePath, {
@@ -190,13 +191,6 @@ export const FileThumbnailJobState = defineState({
      * This useEffect will continuously check for new resources that need thumbnails generated until all resources have thumbnails
      */
     useEffect(() => {
-      for (const resource of resourceQuery.data) {
-        if (resource.thumbnailURL) {
-          resourceQuery.refetch()
-          return
-        }
-      }
-
       for (const resource of resourceQuery.data) {
         if (seenResources.has(resource.key)) continue
         seenResources.add(resource.key)
