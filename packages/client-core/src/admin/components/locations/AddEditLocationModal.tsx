@@ -107,16 +107,19 @@ const locationTypeOptions = [
 
 const LOCATION_MAX = 10
 
-export default function AddEditLocationModal(props: {
+type AddEditLocationModalProps = Readonly<{
   action: string
   location?: LocationType
   sceneID?: string | null
   sceneModified?: boolean
   inStudio?: boolean
+  projectFullName?: string
 
   onPublish?: () => Promise<void>
   onPublishSuccess?: (location: LocationType) => void
-}) {
+}>
+
+export default function AddEditLocationModal(props: AddEditLocationModalProps) {
   const { t } = useTranslation()
   const compressionLoading = useHookstate(false)
   const locationID = useHookstate(props.location?.id || null)
@@ -165,12 +168,16 @@ export default function AddEditLocationModal(props: {
     }
   }, [location])
 
+  const projectQueryParam = props.action === 'studio' && !props.inStudio ? props.projectFullName : undefined
+
   const scenes = useFind(staticResourcePath, {
     query: {
       paginate: false,
-      type: 'scene'
+      type: 'scene',
+      project: projectQueryParam
     }
   })
+
   const handlePublishFolder = async () => {
     PopoverState.showPopupover(<CompressedPublishConfirmation />)
     const { projectName, sceneName, rootEntity, sceneAssetID, scenePath } = getState(EditorState)
