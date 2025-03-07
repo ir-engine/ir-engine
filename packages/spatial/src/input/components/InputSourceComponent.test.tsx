@@ -45,14 +45,14 @@ import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
 import { XRState } from '../../xr/XRState'
 import { ButtonStateMap } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
-import { DefaultButtonBindings } from './InputComponent'
+import { DefaultButtonAlias } from './InputComponent'
 import { InputSourceComponent } from './InputSourceComponent'
 
 /** @note Intersection types used, but not exported or declared, by InputSourceComponent */
 type Intersection = { entity: Entity; distance: number }
 type IntersectionList = Array<Intersection>
 /** @note ButtonStateMap, aliased to its required type for ergonomics */
-type ButtonStateMapAlias = Readonly<ButtonStateMap<typeof DefaultButtonBindings>>
+type ButtonStateMapAlias = Readonly<ButtonStateMap<typeof DefaultButtonAlias>>
 
 describe.skip('InputSourceComponent', () => {
   // beforeEach(() => {

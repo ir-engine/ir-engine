@@ -38,10 +38,10 @@ import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/Vis
 
 import { UndefinedEntity } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { TransformAxis } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getState, useImmediateEffect } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { CameraGizmoTagComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { TransformAxis } from '@ir-engine/spatial/src/common/constants/TransformConstants'
 import { InputComponent, InputExecutionOrder } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
 import {
@@ -115,7 +115,7 @@ export const CameraGizmoComponent = defineComponent({
 
         onPointerHover(entity)
 
-        const pickerButtons = InputComponent.getButtons(
+        const pickerButtons = InputComponent.getMergedButtons(
           getComponent(cameraGizmoComponent.visualEntity.value, CameraGizmoVisualComponent).picker
         )
 

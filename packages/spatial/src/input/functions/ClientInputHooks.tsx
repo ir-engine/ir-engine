@@ -43,22 +43,15 @@ import {
 } from '@ir-engine/ecs'
 import { getState, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 import { useEffect } from 'react'
-import { Vector2 } from 'three'
+import { Vector3 } from 'three'
 import { NameComponent } from '../../common/NameComponent'
 import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRState } from '../../xr/XRState'
-import { DefaultButtonBindings, InputComponent } from '../components/InputComponent'
+import { DefaultButtonAlias, InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
-import {
-  AnyButton,
-  ButtonState,
-  ButtonStateMap,
-  createInitialButtonState,
-  MouseButton,
-  MouseScroll
-} from '../state/ButtonState'
+import { AnyButton, ButtonState, ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 import ClientInputFunctions from './ClientInputFunctions'
 import normalizeWheel from './normalizeWheel'
@@ -156,7 +149,7 @@ export const useXRInputSources = () => {
 
     const addInputSource = (source: XRInputSource) => {
       const eid = createEntity()
-      setComponent(eid, InputSourceComponent, { source, sourceEntity: Engine.instance.viewerEntity })
+      setComponent(eid, InputSourceComponent, { source })
       setComponent(eid, EntityTreeComponent, {
         parentEntity:
           source.targetRayMode === 'tracked-pointer' ? Engine.instance.localFloorEntity : Engine.instance.viewerEntity
@@ -184,7 +177,7 @@ export const useXRInputSources = () => {
       if (!eid) return
       const inputSourceComponent = getComponent(eid, InputSourceComponent)
       if (!inputSourceComponent) return
-      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonBindings>
+      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
       state.PrimaryClick = createInitialButtonState(eid)
     }
     const onXRSelectEnd = (event: XRInputSourceEvent) => {
@@ -192,7 +185,7 @@ export const useXRInputSources = () => {
       if (!eid) return
       const inputSourceComponent = getComponent(eid, InputSourceComponent)
       if (!inputSourceComponent) return
-      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonBindings>
+      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
       if (!state.PrimaryClick) return
       state.PrimaryClick.up = true
     }
@@ -235,7 +228,7 @@ export const CanvasInputReactor = () => {
       const pointerEntity = createEntity()
       setComponent(pointerEntity, NameComponent, 'InputSource-emulated-pointer')
       setComponent(pointerEntity, TransformComponent)
-      setComponent(pointerEntity, InputSourceComponent, { sourceEntity: cameraEntity })
+      setComponent(pointerEntity, InputSourceComponent)
       setComponent(pointerEntity, InputPointerComponent, {
         pointerId: event.pointerId,
         cameraEntity
@@ -268,13 +261,13 @@ export const CanvasInputReactor = () => {
       if (event.button === 1) button = MouseButton.AuxiliaryClick
       else if (event.button === 2) button = MouseButton.SecondaryClick
 
-      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonBindings>
+      const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
       if (down) {
         state[button] = createInitialButtonState(pointerEntity) //down, pressed, touched = true
 
         const pointer = getOptionalComponent(pointerEntity, InputPointerComponent)
         if (pointer) {
-          state[button]!.downPointerPosition = new Vector2(pointer.position.x, pointer.position.y)
+          state[button]!.downPosition = new Vector3(pointer.position.x, pointer.position.y, 0)
           //rotation will never be defined for the mouse or touch
         }
       } else if (state[button]) {
@@ -326,8 +319,8 @@ export const CanvasInputReactor = () => {
       const inputSourceComponent = getComponent(pointer, InputSourceComponent)
       const normalizedValues = normalizeWheel(event)
       const axes = inputSourceComponent.source.gamepad!.axes as number[]
-      axes[MouseScroll.HorizontalScroll] = normalizedValues.spinX
-      axes[MouseScroll.VerticalScroll] = normalizedValues.spinY
+      axes[0] = normalizedValues.spinX
+      axes[1] = normalizedValues.spinY
     }
 
     canvas.addEventListener('dragstart', ClientInputFunctions.preventDefault, false)

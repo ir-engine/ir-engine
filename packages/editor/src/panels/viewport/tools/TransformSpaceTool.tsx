@@ -25,8 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { setTransformSpace, toggleTransformSpace } from '@ir-engine/editor/src/functions/transformFunctions'
 import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
+import { TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { TransformSpace } from '@ir-engine/spatial/src/common/constants/TransformConstants'
 import { Tooltip } from '@ir-engine/ui'
 import { ViewportButton } from '@ir-engine/ui/editor'
 import { Globe01Md } from '@ir-engine/ui/src/icons'

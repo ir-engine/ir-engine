@@ -37,7 +37,7 @@ import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/
 import { TargetCameraRotationComponent } from '@ir-engine/spatial/src/camera/components/TargetCameraRotationComponent'
 import { setTargetCameraRotation } from '@ir-engine/spatial/src/camera/functions/CameraFunctions'
 import { FollowCameraMode } from '@ir-engine/spatial/src/camera/types/FollowCameraMode'
-import { DefaultAxisBindings, InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
+import { DefaultAxisAlias, InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
 import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
 import { getThumbstickOrThumbpadAxes } from '@ir-engine/spatial/src/input/functions/getThumbstickOrThumbpadAxes'
@@ -53,7 +53,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 // const throttleHandleCameraZoom = throttle(handleFollowCameraZoom, 30, { leading: true, trailing: false })
 
 const pointerPositionDelta = new Vector2()
-const followCameraQuery = defineQuery([RendererComponent, FollowCameraComponent])
+const rendererQuery = defineQuery([RendererComponent])
 const epsilon = 0.001
 
 const followCameraModeCycle = [
@@ -88,7 +88,7 @@ const onFollowCameraShoulderCam = (cameraEntity: Entity) => {
  */
 export const handleFollowCameraScroll = (
   cameraEntity: Entity,
-  axes: AxisValueMap<typeof DefaultAxisBindings>,
+  axes: AxisValueMap<typeof DefaultAxisAlias>,
   deltaTime: number
 ): void => {
   const follow = getComponent(cameraEntity, FollowCameraComponent)
@@ -122,13 +122,15 @@ const execute = () => {
   const deltaSeconds = getState(ECSState).deltaSeconds
   const cameraSettings = getState(CameraSettings)
 
-  for (const cameraEntity of followCameraQuery()) {
-    const buttons = InputComponent.getButtons(cameraEntity)
-    const axes = InputComponent.getAxes(cameraEntity)
+  for (const cameraEntity of rendererQuery()) {
+    const buttons = InputComponent.getMergedButtons(cameraEntity)
+    const axes = InputComponent.getMergedAxes(cameraEntity)
 
     const inputPointerEntities = InputPointerComponent.getPointersForCamera(cameraEntity)
     const inputState = getState(InputState)
-    const follow = getComponent(cameraEntity, FollowCameraComponent)
+
+    const follow = getOptionalComponent(cameraEntity, FollowCameraComponent)
+    if (!follow) continue
 
     let { theta, phi } = getOptionalComponent(cameraEntity, TargetCameraRotationComponent) ?? follow
     let time = 0.3
