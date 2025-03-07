@@ -289,7 +289,6 @@ export default React.memo(function HierarchyTreeNode(props: ListChildComponentPr
       if (entity && getOptionalComponent(cameraEntity, CameraOrbitComponent)) {
         const editorCameraState = getMutableComponent(cameraEntity, CameraOrbitComponent)
         editorCameraState.focusedEntities.set([entity])
-        editorCameraState.refocus.set(true)
       }
     }
   }

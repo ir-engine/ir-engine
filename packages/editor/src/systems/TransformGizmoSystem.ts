@@ -31,11 +31,15 @@ import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { InputSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 
 import { EngineState, Entity, UndefinedEntity } from '@ir-engine/ecs'
-import { SnapMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getState, useMutableState } from '@ir-engine/hyperflux'
 import { CameraGizmoTagComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { SnapMode } from '@ir-engine/spatial/src/common/constants/TransformConstants'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
-import { InputHeuristicState, IntersectionData } from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'
+import {
+  filterEntitiesByViewer,
+  InputHeuristicState,
+  IntersectionData
+} from '@ir-engine/spatial/src/input/functions/ClientInputHeuristics'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
@@ -55,10 +59,10 @@ const execute = () => {
     if (!gizmoControlComponent.enabled) return
 
     if (!gizmoControlComponent.visualEntity) return
-    gizmoUpdate(gizmoEntity)
     if (!gizmoControlComponent.planeEntity) return
-    planeUpdate(gizmoEntity)
     controlUpdate(gizmoEntity)
+    gizmoUpdate(gizmoEntity)
+    planeUpdate(gizmoEntity)
   }
 }
 
@@ -77,7 +81,12 @@ const cameraGizmoQuery = defineQuery([CameraGizmoTagComponent, InputComponent, V
 const raycaster = new Raycaster()
 raycaster.layers.enable(ObjectLayers.Gizmos)
 
-export function editorInputHeuristic(intersectionData: Set<IntersectionData>, position: Vector3, direction: Vector3) {
+export function editorInputHeuristic(
+  viewerEntity: Entity,
+  intersectionData: Set<IntersectionData>,
+  position: Vector3,
+  direction: Vector3
+) {
   const isEditing = getState(EngineState).isEditing
   if (!isEditing) return
 
@@ -97,6 +106,7 @@ export function editorInputHeuristic(intersectionData: Set<IntersectionData>, po
       ? inputObj.concat(cameraGizmo).concat(pickerObj)
       : inputObj.concat(inputObjectsQuery()).concat(cameraGizmo)
   ) // gizmo heuristic
+    .filter((eid) => filterEntitiesByViewer(eid, viewerEntity))
     .map((eid) => getComponent(eid, ObjectComponent))
 
   //camera gizmos layer should always be active here, since it doesn't disable based on transformGizmo existing
@@ -113,7 +123,7 @@ export function editorInputHeuristic(intersectionData: Set<IntersectionData>, po
 const useGizmoControl = (entities: Entity[]) => {
   TransformGizmoControlComponent.useControlEntities(entities)
 
-  const controlledEntity = entities[entities.length - 1]
+  const controlledEntity = entities[0]
 
   const gizmoControlledComponent = useOptionalComponent(controlledEntity, TransformGizmoControlledComponent)
   const gizmoControlComponent = useOptionalComponent(

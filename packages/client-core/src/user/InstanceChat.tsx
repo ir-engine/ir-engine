@@ -264,26 +264,28 @@ function MessagesWrapper() {
 
   return (
     <div className="flex items-end">
-      <div className="relative mr-[13px] max-w-16">
-        {!isChatOpen.value && unreadMessages.value && (
-          <div className="absolute right-0 top-0 h-4 w-4 rounded-full bg-blue-500" />
-        )}
-        {isChatOpen.value && (
-          <LocationIconButton
-            icon={isChatOpen.value ? XCloseLg : MessageTextSquare01Lg}
-            onClick={() => isChatOpen.set(!isChatOpen.value)}
-            className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]"
-          />
-        )}
-        {!isChatOpen.value && (
-          <LocationIconButton
-            icon={MessageTextSquare01Md}
-            onClick={() => isChatOpen.set(!isChatOpen.value)}
-            className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]"
-          />
-        )}
-      </div>
-      {isChatOpen.value && (!ageVerified as any) ? (
+      {ageVerified && (
+        <div className="relative mr-[13px] max-w-16">
+          {!isChatOpen.value && unreadMessages.value && (
+            <div className="absolute right-0 top-0 h-4 w-4 rounded-full bg-blue-500" />
+          )}
+          {isChatOpen.value && (
+            <LocationIconButton
+              icon={isChatOpen.value ? XCloseLg : MessageTextSquare01Lg}
+              onClick={() => isChatOpen.set(!isChatOpen.value)}
+              className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]"
+            />
+          )}
+          {!isChatOpen.value && (
+            <LocationIconButton
+              icon={MessageTextSquare01Md}
+              onClick={() => isChatOpen.set(!isChatOpen.value)}
+              className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]"
+            />
+          )}
+        </div>
+      )}
+      {!ageVerified ? (
         <div className="rounded-lg bg-surface-4 p-4">
           <div className="mx-auto text-center font-semibold text-[#3B3A3A]">{t('user:instanceChat.wantToChat')}</div>
           <Button

@@ -25,9 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useDraggable } from '@ir-engine/client-core/src/hooks/useDraggable'
 import { setTransformMode } from '@ir-engine/editor/src/functions/transformFunctions'
-import { TransformMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
+import { TransformMode } from '@ir-engine/spatial/src/common/constants/TransformConstants'
 import { Tooltip } from '@ir-engine/ui'
 import { ViewportButton } from '@ir-engine/ui/editor'
 import { Cursor03Default, MoveMd, Refresh1Md, Scale02Md, TransformMd } from '@ir-engine/ui/src/icons'
@@ -76,7 +75,7 @@ export default function TransformGizmoTool() {
   useEffect(() => {
     const isSelecting = selectionMode.value === SelectionModes.selectionBox
     getMutableState(SelectionBoxState).selectionBoxEnabled.set(isSelecting)
-    getMutableState(InputState).capturingCameraOrbitEnabled.set(!isSelecting)
+    // getMutableState(InputState).capturingCameraOrbitEnabled.set(!isSelecting)
   }, [selectionMode])
 
   useEffect(() => {
