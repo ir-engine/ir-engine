@@ -248,22 +248,24 @@ export function MediaReactor() {
     mediaElementState.hls.set(undefined)
     ;(mediaElementState.element.value as HTMLMediaElement).crossOrigin = 'anonymous'
     ;(mediaElementState.element.value as HTMLMediaElement).ontimeupdate = (event) => {
-      const media = getMutableComponent(entity, MediaComponent)
-      const mediaElement = getComponent(entity, MediaElementComponent)
-      if (!mediaElement) return
-      if (!mediaElement.element) return
-      const time = (mediaElement.element as HTMLMediaElement).currentTime
-      media.currentTrackTime.set(time)
+      const localMedia = getMutableComponent(entity, MediaComponent)
+      const localMediaElement = getComponent(entity, MediaElementComponent)
+      if (!localMedia) return
+      if (!localMediaElement) return
+      if (!localMediaElement.element) return
+      const time = (localMediaElement.element as HTMLMediaElement).currentTime
+      localMedia.currentTrackTime.set(time)
     }
     media.isCurrentTrackLoaded.set(false)
     ;(mediaElementState.element.value as HTMLMediaElement).onloadeddata = (event) => {
-      const media = getMutableComponent(entity, MediaComponent)
-      const mediaElement = getComponent(entity, MediaElementComponent)
-      if (!mediaElement) return
-      if (!mediaElement.element) return
-      const time = (mediaElement.element as HTMLMediaElement).duration
-      media.currentTrackDuration.set(time)
-      media.isCurrentTrackLoaded.set(true)
+      const localMedia = getMutableComponent(entity, MediaComponent)
+      const localMediaElement = getComponent(entity, MediaElementComponent)
+      if (!localMedia) return
+      if (!localMediaElement) return
+      if (!localMediaElement.element) return
+      const time = (localMediaElement.element as HTMLMediaElement).duration
+      localMedia.currentTrackDuration.set(time)
+      localMedia.isCurrentTrackLoaded.set(true)
     }
     if (isHLS(path)) {
       setupHLS(entity, path).then((hls) => {
