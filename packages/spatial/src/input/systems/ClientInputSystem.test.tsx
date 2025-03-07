@@ -442,46 +442,42 @@ describe('ClientInputCleanupSystem', () => {
       }
     })
 
-    /** The ClientInputSystem still clears values even if there's no DOM now */
-    // it('should not do anything if the DOM is undefined', () => {
-    //   const oneEntity = createEntity()
-    //   const twoEntity = createEntity()
-    //   const Initial = 42
+    it('should not do anything if the DOM is undefined', () => {
+      const oneEntity = createEntity()
+      const twoEntity = createEntity()
+      const Initial = 42
 
-    //   // Set the initial data from the conditions
-    //   const EntityList = [testEntity, oneEntity, twoEntity] as Entity[]
-    //   for (const entity of EntityList) {
-    //     setComponent(entity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
-    //     setComponent(entity, InputSourceComponent)
-    //   }
+      // Set the initial data from the conditions
+      const EntityList = [testEntity, oneEntity, twoEntity] as Entity[]
+      for (const entity of EntityList) {
+        setComponent(entity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
+        setComponent(entity, InputSourceComponent)
+      }
 
-    //   // Set the expected data
-    //   for (const entity of EntityList) {
-    //     const gamepad = getMutableComponent(entity, InputSourceComponent).source.gamepad!
-    //     gamepad.set((value) => {
-    //       if (!value) value = { axes: [0, 0, 0, 0] } as unknown as Gamepad
-    //       for (let id = 0; id < value!.axes.length; ++id) {
-    //         // @ts-ignore Ignore the readonly property typecheck
-    //         value.axes[id] = Initial
-    //       }
-    //       return value
-    //     })
-    //   }
+      // Set the expected data
+      for (const entity of EntityList) {
+        const gamepad = getMutableComponent(entity, InputSourceComponent).source.gamepad!
+        for (let id = 0; id < gamepad?.value!.axes.length; ++id) {
+          gamepad.set((value) => {
+            // @ts-ignore Ignore the readonly property typecheck
+            if (value) value.axes[id] = Initial
+            return value
+          })
+        }
+      }
 
-    //   const DOMbackup = globalThis.document
-    //   // @ts-ignore Force-assign undefined to the dom
-    //   globalThis.document = undefined
-    //   // Run and Check the result
-    //   clientInputCleanupSystemExecute()
-    //   for (const entity of EntityList) {
-    //     assert.equal(hasComponent(entity, XRSpaceComponent), false)
-    //     const Axes = getComponent(entity, InputSourceComponent).source.gamepad!.axes
-
-    //     // The system still clears input if there's not document
-    //     for (const axis of Axes) assert.equal(axis, Initial)
-    //   }
-    //   // Restore the DOM  (note: Other tests will break if this is not restored)
-    //   globalThis.document = DOMbackup
-    // })
+      const DOMbackup = globalThis.document
+      // @ts-ignore Force-assign undefined to the dom
+      globalThis.document = undefined
+      // Run and Check the result
+      clientInputCleanupSystemExecute()
+      for (const entity of EntityList) {
+        assert.equal(hasComponent(entity, XRSpaceComponent), false)
+        const Axes = getComponent(entity, InputSourceComponent).source.gamepad!.axes
+        for (const axis of Axes) assert.equal(axis, Initial)
+      }
+      // Restore the DOM  (note: Other tests will break if this is not restored)
+      globalThis.document = DOMbackup
+    })
   })
 })

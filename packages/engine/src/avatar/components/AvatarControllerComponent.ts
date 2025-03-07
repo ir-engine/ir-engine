@@ -137,20 +137,20 @@ export const AvatarControllerComponent = defineComponent({
     }, [avatarComponent?.avatarHeight, camera.near])
 
     useEffect(() => {
-      if (!avatarComponent || isCameraAttachedToAvatar || !cameraHasTargetRotation) return
-
-      const controller = getComponent(entity, AvatarControllerComponent)
-      const targetCameraRotation = getComponent(controller.cameraEntity, TargetCameraRotationComponent)
-      setComponent(controller.cameraEntity, FollowCameraComponent, {
-        targetEntity: entity,
-        phi: targetCameraRotation.phi,
-        theta: targetCameraRotation.theta,
-        firstPersonOffset: new Vector3(0, avatarComponent.eyeHeight.value, eyeOffset),
-        thirdPersonOffset: new Vector3(0, avatarComponent.eyeHeight.value, 0)
-      })
-
-      return () => {
-        if (entityExists(controller.cameraEntity)) removeComponent(controller.cameraEntity, FollowCameraComponent)
+      if (!avatarComponent) return
+      if (isCameraAttachedToAvatar) {
+        const controller = getComponent(entity, AvatarControllerComponent)
+        removeComponent(controller.cameraEntity, FollowCameraComponent)
+      } else if (cameraHasTargetRotation) {
+        const controller = getComponent(entity, AvatarControllerComponent)
+        const targetCameraRotation = getComponent(controller.cameraEntity, TargetCameraRotationComponent)
+        setComponent(controller.cameraEntity, FollowCameraComponent, {
+          targetEntity: entity,
+          phi: targetCameraRotation.phi,
+          theta: targetCameraRotation.theta,
+          firstPersonOffset: new Vector3(0, avatarComponent.eyeHeight.value, eyeOffset),
+          thirdPersonOffset: new Vector3(0, avatarComponent.eyeHeight.value, 0)
+        })
       }
     }, [isCameraAttachedToAvatar, avatarComponent, cameraHasTargetRotation])
 
