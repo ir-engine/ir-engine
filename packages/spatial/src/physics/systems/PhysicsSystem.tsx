@@ -37,11 +37,7 @@ import { NetworkState } from '@ir-engine/network'
 import { EngineState, Not, useEntityContext } from '@ir-engine/ecs'
 import React from 'react'
 import { Vector3 } from 'three'
-import {
-  filterEntitiesByViewer,
-  InputHeuristicState,
-  IntersectionData
-} from '../../input/functions/ClientInputHeuristics'
+import { InputHeuristicState, IntersectionData } from '../../input/functions/ClientInputHeuristics'
 import { SceneComponent } from '../../renderer/components/SceneComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics, RaycastArgs } from '../classes/Physics'
@@ -136,7 +132,6 @@ const _inputRaycast = {
 const sceneQuery = defineQuery([SceneComponent])
 
 export function spatialInputRaycastHeuristic(
-  viewerEntity: Entity,
   intersectionData: Set<IntersectionData>,
   position: Vector3,
   direction: Vector3
@@ -147,13 +142,11 @@ export function spatialInputRaycastHeuristic(
   _inputRaycast.origin.copy(position)
   _inputRaycast.direction.copy(direction)
 
-  const scenes = sceneQuery().filter((e) => filterEntitiesByViewer(e, viewerEntity))
-
-  for (const entity of scenes) {
+  for (const entity of sceneQuery()) {
     const world = Physics.getWorld(entity)
     if (!world) continue
 
-    const hits = Physics.getIntersectionsWithRay(world, _inputRaycast)
+    const hits = Physics.castRay(world, _inputRaycast)
     for (const hit of hits) {
       if (!hit.entity) continue
       intersectionData.add({ entity: hit.entity, distance: hit.distance })

@@ -23,14 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import {
-  EngineState,
-  EntityTreeComponent,
-  createEngine,
-  createEntity,
-  destroyEngine,
-  setComponent
-} from '@ir-engine/ecs'
+import { EngineState, createEngine, createEntity, destroyEngine, setComponent } from '@ir-engine/ecs'
 import { getMutableState } from '@ir-engine/hyperflux'
 import { TransformComponent } from '@ir-engine/spatial'
 import { destroySpatialEngine, destroySpatialViewer } from '@ir-engine/spatial/src/initializeEngine'
@@ -40,7 +33,6 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { TransformGizmoTagComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 import { afterEach, assert, beforeEach, describe, it } from 'vitest'
@@ -92,12 +84,6 @@ describe('TransformGizmoSystem', () => {
         setComponent(three, InputComponent)
         ObjectLayerMaskComponent.setLayer(three, ObjectLayers.TransformGizmo)
 
-        const viewerEntity = createEntity()
-        setComponent(viewerEntity, RendererComponent, { scenes: [viewerEntity] })
-        setComponent(one, EntityTreeComponent, { parentEntity: viewerEntity })
-        setComponent(two, EntityTreeComponent, { parentEntity: viewerEntity })
-        setComponent(three, EntityTreeComponent, { parentEntity: viewerEntity })
-
         const KnownEntities = [one, two]
 
         const rayOrigin = new Vector3(0, 0, 0)
@@ -105,7 +91,7 @@ describe('TransformGizmoSystem', () => {
 
         const data = new Set<IntersectionData>()
 
-        editorInputHeuristic(viewerEntity, data, rayOrigin, rayDirection)
+        editorInputHeuristic(data, rayOrigin, rayDirection)
 
         assert.notEqual(data.size, 0)
         const result = [...data]
@@ -143,12 +129,6 @@ describe('TransformGizmoSystem', () => {
         setComponent(three, MeshComponent, box3)
         // setComponent(three, InputComponent)  // Do not add the InputComponent, so that it is not part of inputObjectsQuery
 
-        const viewerEntity = createEntity()
-        setComponent(viewerEntity, RendererComponent, { scenes: [viewerEntity] })
-        setComponent(one, EntityTreeComponent, { parentEntity: viewerEntity })
-        setComponent(two, EntityTreeComponent, { parentEntity: viewerEntity })
-        setComponent(three, EntityTreeComponent, { parentEntity: viewerEntity })
-
         const KnownEntities = [one, two]
 
         const rayOrigin = new Vector3(0, 0, 0)
@@ -156,7 +136,7 @@ describe('TransformGizmoSystem', () => {
 
         const data = new Set<IntersectionData>()
 
-        editorInputHeuristic(viewerEntity, data, rayOrigin, rayDirection)
+        editorInputHeuristic(data, rayOrigin, rayDirection)
 
         assert.notEqual(data.size, 0)
         const result = [...data]
