@@ -30,7 +30,14 @@ import { State, dispatchAction, useHookstate, useMutableState } from '@ir-engine
 import { NetworkState } from '@ir-engine/network'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { Button } from '@ir-engine/ui'
-import { MessageTextSquare01Lg, MessageTextSquare01Md, Send01Lg, Send01Sm, XCloseLg } from '@ir-engine/ui/src/icons'
+import {
+  ArrowTopRightOnSquareSm,
+  MessageTextSquare01Lg,
+  MessageTextSquare01Md,
+  Send01Lg,
+  Send01Sm,
+  XCloseLg
+} from '@ir-engine/ui/src/icons'
 import React, { createContext, useContext, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
@@ -216,7 +223,9 @@ function Message({ message, hideUsername }: { message: MessageType; hideUsername
       )}
     >
       {message.sender.id !== user.id.value && !hideUsername && (
-        <div className="text-xs font-bold text-text-primary lg:text-lg">{message.sender.name}</div>
+        <div className="flex items-center gap-x-2 text-xs font-bold text-text-primary lg:text-lg">
+          {message.sender.name} <ArrowTopRightOnSquareSm />
+        </div>
       )}
       <div className="text-sm tracking-[-0.14px] text-text-primary lg:text-base lg:tracking-normal">{message.text}</div>
     </div>
@@ -264,26 +273,28 @@ function MessagesWrapper() {
 
   return (
     <div className="flex items-end">
-      <div className="relative mr-[13px] max-w-16">
-        {!isChatOpen.value && unreadMessages.value && (
-          <div className="absolute right-0 top-0 h-4 w-4 rounded-full bg-blue-500" />
-        )}
-        {isChatOpen.value && (
-          <LocationIconButton
-            icon={isChatOpen.value ? XCloseLg : MessageTextSquare01Lg}
-            onClick={() => isChatOpen.set(!isChatOpen.value)}
-            className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]"
-          />
-        )}
-        {!isChatOpen.value && (
-          <LocationIconButton
-            icon={MessageTextSquare01Md}
-            onClick={() => isChatOpen.set(!isChatOpen.value)}
-            className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]"
-          />
-        )}
-      </div>
-      {isChatOpen.value && (!ageVerified as any) ? (
+      {ageVerified && (
+        <div className="relative mr-[13px] max-w-16">
+          {!isChatOpen.value && unreadMessages.value && (
+            <div className="absolute right-0 top-0 h-4 w-4 rounded-full bg-blue-500" />
+          )}
+          {isChatOpen.value && (
+            <LocationIconButton
+              icon={isChatOpen.value ? XCloseLg : MessageTextSquare01Lg}
+              onClick={() => isChatOpen.set(!isChatOpen.value)}
+              className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]"
+            />
+          )}
+          {!isChatOpen.value && (
+            <LocationIconButton
+              icon={MessageTextSquare01Md}
+              onClick={() => isChatOpen.set(!isChatOpen.value)}
+              className="h-[20px] w-[20px] lg:h-[24px] lg:w-[24px]"
+            />
+          )}
+        </div>
+      )}
+      {!ageVerified ? (
         <div className="rounded-lg bg-surface-4 p-4">
           <div className="mx-auto text-center font-semibold text-[#3B3A3A]">{t('user:instanceChat.wantToChat')}</div>
           <Button
