@@ -23,7 +23,6 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import * as PropTypes from 'prop-types'
 import * as React from 'react'
 
 export type ProgressBarProps = {
@@ -221,32 +220,6 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       )}
     </div>
   )
-}
-
-ProgressBar.propTypes = {
-  completed: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-  bgColor: PropTypes.string,
-  baseBgColor: PropTypes.string,
-  height: PropTypes.string,
-  width: PropTypes.string,
-  borderRadius: PropTypes.string,
-  margin: PropTypes.string,
-  padding: PropTypes.string,
-  labelAlignment: PropTypes.oneOf(['left', 'center', 'right', 'outside']),
-  labelColor: PropTypes.string,
-  labelSize: PropTypes.string,
-  isLabelVisible: PropTypes.bool,
-  className: PropTypes.string,
-  dir: PropTypes.oneOf(['rtl', 'ltr', 'auto']),
-  maxCompleted: PropTypes.number,
-  customLabel: PropTypes.string,
-  animateOnRender: PropTypes.bool,
-  barcontainerClassName: PropTypes.string,
-  completedClassName: PropTypes.string,
-  labelClassName: PropTypes.string,
-  isLooping: PropTypes.bool,
-  loopingBarWidth: PropTypes.number,
-  loopingBarSpeed: PropTypes.number
 }
 
 ProgressBar.defaultProps = {

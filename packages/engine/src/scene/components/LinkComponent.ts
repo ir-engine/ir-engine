@@ -54,7 +54,7 @@ const linkLogic = (linkEntity: Entity, xrState) => {
 }
 const linkCallback = (linkEntity: Entity) => {
   console.log('linkCallback')
-  const buttons = InputComponent.getMergedButtons(linkEntity)
+  const buttons = InputComponent.getButtons(linkEntity)
   if (buttons.XRStandardGamepadTrigger?.down) {
     const xrState = getState(XRState)
     linkLogic(linkEntity, xrState)

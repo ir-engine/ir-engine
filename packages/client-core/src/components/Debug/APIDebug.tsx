@@ -92,7 +92,7 @@ export function APIDebug() {
   return (
     <div className="m-1 bg-neutral-600 p-1">
       <div className="my-0.5">
-        <Text>{t('common:debug.api')}</Text>
+        <Text className="text-text-primary-button">{t('common:debug.api')}</Text>
         <Input
           type="text"
           placeholder="Search..."
