@@ -22,7 +22,10 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { filesDeleted, FileThumbnailJobState } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
+import {
+  FileThumbnailJobState,
+  removeFromFileThumbnailsSeen
+} from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import ProgressBar from '@ir-engine/client-core/src/systems/ui/LoadingDetailView/SimpleProgressBar'
 import { AuthState } from '@ir-engine/client-core/src/user/services/AuthService'
@@ -127,7 +130,7 @@ function ResourceFileContextMenu({
                   ]}
                   onComplete={(err?: unknown) => {
                     if (!err) {
-                      filesDeleted([
+                      removeFromFileThumbnailsSeen([
                         {
                           key: resource.key,
                           path: resource.url,

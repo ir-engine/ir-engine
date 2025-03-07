@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { removeFromFileThumbnailsSeen } from '@ir-engine/client-core/src/common/services/FileThumbnailJobState'
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
 import {
   CancelableUploadPromiseArrayReturnType,
@@ -39,6 +40,7 @@ import {
 } from '@ir-engine/common/src/schema.type.module'
 import { CommonKnownContentTypes } from '@ir-engine/common/src/utils/CommonKnownContentTypes'
 import { cleanFileNameFile, cleanFileNameString } from '@ir-engine/common/src/utils/cleanFileName'
+import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { KTX2EncodeArguments } from '@ir-engine/engine/src/assets/constants/CompressionParms'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { modelResourcesPath } from '@ir-engine/engine/src/assets/functions/pathResolver'
@@ -266,8 +268,22 @@ export const handleUploadFiles = (
           const fileURL = new URL(response[0])
           fileURL.search = ''
           fileURL.hash = ''
-          const fileKeyKey = fileURL.href.replace(config.client.fileServer + '/', '')
-          return checkStaticResourceThumbnail(fileKeyKey)
+          const fileKey = fileURL.href.replace(config.client.fileServer + '/', '')
+
+          removeFromFileThumbnailsSeen([
+            {
+              key: fileKey,
+              path: fileKey,
+              name: fileKey,
+              fullName: '',
+              thumbnailURL: undefined,
+              url: '',
+              type: AssetLoader.getAssetType(fileKey),
+              isFolder: false
+            }
+          ])
+
+          return checkStaticResourceThumbnail(fileKey)
         })
         .catch(() => {
           NotificationService.dispatchNotify(i18n.t('editor:errors.fileUploadFailed') as string, { variant: 'error' })

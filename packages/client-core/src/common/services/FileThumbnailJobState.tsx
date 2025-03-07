@@ -170,7 +170,7 @@ const uploadThumbnail = async (src: string, projectName: string, blob: Blob | nu
   }
 }
 
-export const filesDeleted = (files: readonly FileDataType[]) => {
+export const removeFromFileThumbnailsSeen = (files: readonly FileDataType[]) => {
   const jobState = getMutableState(FileThumbnailJobState)
   const seenResources = jobState.seenResources.get(NO_PROXY) as string[]
   files.forEach((file) => {
