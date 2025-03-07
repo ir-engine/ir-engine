@@ -75,13 +75,6 @@ export const computeTransformMatrix = (entity: Entity) => {
   }
 }
 
-export const computeTransformMatrixWithChildren = (entity: Entity) => {
-  hasComponent(entity, TransformComponent) && computeTransformMatrix(entity)
-  for (const child of getOptionalComponent(entity, EntityTreeComponent)?.children ?? []) {
-    computeTransformMatrixWithChildren(child)
-  }
-}
-
 const _tempDistSqrVec3 = new Vector3()
 
 export const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vector3) => {
