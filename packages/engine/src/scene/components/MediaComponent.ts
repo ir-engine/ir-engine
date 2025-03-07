@@ -227,8 +227,12 @@ export function MediaReactor() {
 
     media.ended.set(false)
 
-    if (!mediaElement || !mediaElement.element || mediaElement.element.nodeName.value.toLowerCase() !== assetClass) {
+    let mediaElement = getComponent(entity, MediaElementComponent)
+    console.log(mediaElement, mediaElement?.element, mediaElement?.element.nodeName.toLowerCase(), assetClass)
+
+    if (!mediaElement || !mediaElement.element || mediaElement.element.nodeName.toLowerCase() !== assetClass) {
       setUpMediaElement(entity, path, media, audioContext, gainNodeMixBuses)
+      mediaElement = getComponent(entity, MediaElementComponent)
     }
 
     setComponent(entity, MediaElementComponent)
@@ -244,13 +248,20 @@ export function MediaReactor() {
     mediaElementState.hls.set(undefined)
     ;(mediaElementState.element.value as HTMLMediaElement).crossOrigin = 'anonymous'
     ;(mediaElementState.element.value as HTMLMediaElement).ontimeupdate = (event) => {
-      if (!mediaElementState.element) return
-      const time = (mediaElementState.element.value as HTMLMediaElement).currentTime
+      const media = getMutableComponent(entity, MediaComponent)
+      const mediaElement = getComponent(entity, MediaElementComponent)
+      if (!mediaElement) return
+      if (!mediaElement.element) return
+      const time = (mediaElement.element as HTMLMediaElement).currentTime
       media.currentTrackTime.set(time)
     }
     media.isCurrentTrackLoaded.set(false)
     ;(mediaElementState.element.value as HTMLMediaElement).onloadeddata = (event) => {
-      const time = (mediaElementState.element.value as HTMLMediaElement).duration
+      const media = getMutableComponent(entity, MediaComponent)
+      const mediaElement = getComponent(entity, MediaElementComponent)
+      if (!mediaElement) return
+      if (!mediaElement.element) return
+      const time = (mediaElement.element as HTMLMediaElement).duration
       media.currentTrackDuration.set(time)
       media.isCurrentTrackLoaded.set(true)
     }
@@ -516,12 +527,20 @@ const setUpMediaElement = (
   }
 ) => {
   const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
+
+  const hasMediaElementComponent = hasComponent(entity, MediaElementComponent)
+  let element: HTMLMediaElement | null = null
+  if (hasMediaElementComponent) {
+    element = getComponent(entity, MediaElementComponent).element as HTMLMediaElement
+  } else {
+    element = document.createElement(assetClass) as HTMLMediaElement
+    console.log(entity + ' - document.createElement(' + assetClass + ') as HTMLMediaElement')
+  }
+
   setComponent(entity, MediaElementComponent, {
-    element: document.createElement(assetClass) as HTMLMediaElement
+    element: element
   })
   const mediaElementState = getMutableComponent(entity, MediaElementComponent)
-
-  const element = mediaElementState.element.value as HTMLMediaElement
 
   element.crossOrigin = 'anonymous'
   element.preload = 'auto'
