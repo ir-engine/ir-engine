@@ -233,25 +233,27 @@ export function MediaReactor() {
 
     media.ended.set(false)
 
-    let mediaElement = getComponent(entity, MediaElementComponent)
-    if (!mediaElement || !mediaElement.element || mediaElement.element.nodeName.toLowerCase() !== assetClass) {
+    const checkMediaElement = getComponent(entity, MediaElementComponent)
+    if (
+      !checkMediaElement ||
+      !checkMediaElement.element ||
+      checkMediaElement.element.nodeName.toLowerCase() !== assetClass
+    ) {
       setUpMediaElement(entity, path, media, audioContext, gainNodeMixBuses)
-      mediaElement = getComponent(entity, MediaElementComponent)
     }
 
-    setComponent(entity, MediaElementComponent)
-    const mediaElementState = getMutableComponent(entity, MediaElementComponent)
+    const mutableMediaElement = getMutableComponent(entity, MediaElementComponent)
 
-    if (mediaElementState.element.src.value === path && media.isCurrentTrackLoaded.value) {
-      const duration = mediaElementState.element.duration.value
+    if (mutableMediaElement.element.src.value === path && media.isCurrentTrackLoaded.value) {
+      const duration = mutableMediaElement.element.duration.value
       media.currentTrackDuration.set(duration)
       return
     }
 
-    mediaElementState.hls.value?.destroy()
-    mediaElementState.hls.set(undefined)
-    ;(mediaElementState.element.value as HTMLMediaElement).crossOrigin = 'anonymous'
-    ;(mediaElementState.element.value as HTMLMediaElement).ontimeupdate = (event) => {
+    mutableMediaElement.hls.value?.destroy()
+    mutableMediaElement.hls.set(undefined)
+    ;(mutableMediaElement.element.value as HTMLMediaElement).crossOrigin = 'anonymous'
+    ;(mutableMediaElement.element.value as HTMLMediaElement).ontimeupdate = (event) => {
       const localMedia = getMutableComponent(entity, MediaComponent)
       const localMediaElement = getComponent(entity, MediaElementComponent)
       if (!localMedia) return
@@ -261,7 +263,7 @@ export function MediaReactor() {
       localMedia.currentTrackTime.set(time)
     }
     media.isCurrentTrackLoaded.set(false)
-    ;(mediaElementState.element.value as HTMLMediaElement).onloadeddata = (event) => {
+    ;(mutableMediaElement.element.value as HTMLMediaElement).onloadeddata = (event) => {
       const localMedia = getMutableComponent(entity, MediaComponent)
       const localMediaElement = getComponent(entity, MediaElementComponent)
       if (!localMedia) return
@@ -273,15 +275,15 @@ export function MediaReactor() {
     }
     if (isHLS(path)) {
       setupHLS(entity, path).then((hls) => {
-        mediaElementState.hls.set(hls)
-        mediaElementState.hls.value!.attachMedia(mediaElementState.element.value as HTMLMediaElement)
+        mutableMediaElement.hls.set(hls)
+        mutableMediaElement.hls.value!.attachMedia(mutableMediaElement.element.value as HTMLMediaElement)
       })
     } else {
-      mediaElementState.element.src.set(path)
+      mutableMediaElement.element.src.set(path)
     }
 
     if (!media.paused.value) {
-      mediaElementState.value.element.play()
+      mutableMediaElement.value.element.play()
     }
     validateTime()
   }
