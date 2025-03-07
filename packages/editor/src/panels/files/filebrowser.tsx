@@ -72,7 +72,7 @@ export function Browser() {
 
   useEffect(() => {
     refreshDirectory()
-  }, [thumbnailJobState.length])
+  }, [thumbnailJobState.jobs.length])
 
   const staticResourceDataQuery = useFind(staticResourcePath, {
     query: {
