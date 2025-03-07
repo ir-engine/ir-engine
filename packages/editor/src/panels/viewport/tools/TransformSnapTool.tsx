@@ -26,8 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { toggleSnapMode } from '@ir-engine/editor/src/functions/transformFunctions'
 import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
 import { ObjectGridSnapState } from '@ir-engine/editor/src/systems/ObjectGridSnapSystem'
-import { SnapMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
+import { SnapMode } from '@ir-engine/spatial/src/common/constants/TransformConstants'
 import { Tooltip } from '@ir-engine/ui'
 import { ViewportButton } from '@ir-engine/ui/editor'
 import { SnappingToolMd } from '@ir-engine/ui/src/icons'
@@ -98,6 +98,7 @@ const TransformSnapTool = () => {
 
       <ToolbarDropdown
         tooltipContent={t('editor:toolbar.transformSnapTool.info-translate')}
+        tooltipPosition="right"
         onChange={onChangeTranslationSnap}
         options={translationSnapOptions}
         value={editorHelperState.translationSnap.value}
@@ -108,6 +109,7 @@ const TransformSnapTool = () => {
 
       <ToolbarDropdown
         tooltipContent={t('editor:toolbar.transformSnapTool.info-rotate')}
+        tooltipPosition="right"
         onChange={onChangeRotationSnap}
         options={rotationSnapOptions}
         value={editorHelperState.rotationSnap.value}

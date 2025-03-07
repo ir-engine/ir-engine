@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Entity, UndefinedEntity } from '@ir-engine/ecs'
-import { Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector2, Vector3 } from 'three'
 
 /**
  * Button state
@@ -51,14 +51,20 @@ export type ButtonState = {
   /** true for every frame this button is being rotated*/
   rotating: boolean
 
-  /** position when this button down was true of either InputPointerComponent.position OR the Transform.position if an XRInputSource */
+  /** position of the input source when this button was down */
   downPosition?: Vector3
 
-  /** rotation when this button down was true of the Transform.position if XRInputSource */
+  /** rotation of the input source when this button was down */
   downRotation?: Quaternion
 
+  /** position of the input pointer when this button was down */
+  downPointerPosition?: Vector2
+
   /** input source associated with this button state */
-  inputSource: Entity
+  inputSourceEntity: Entity
+
+  /** indicates if this button is consumed for the current frame */
+  consumed: Entity
 }
 
 /**
@@ -282,7 +288,7 @@ export const DefaultBooleanButtonState = Object.freeze({
   value: 1,
   dragging: false,
   rotating: false
-})
+}) as ButtonState
 
 export const createInitialButtonState = (
   inputSourceEntity: Entity,
@@ -296,6 +302,10 @@ export const createInitialButtonState = (
     rotating: initial.rotating ?? false,
     up: initial.up ?? false,
     value: initial.value ?? 1,
-    inputSource: inputSourceEntity ?? UndefinedEntity
+    inputSourceEntity,
+    downPosition: initial.downPosition ?? undefined,
+    downRotation: initial.downRotation ?? undefined,
+    downPointerPosition: initial.downPointerPosition ?? undefined,
+    consumed: UndefinedEntity
   } as ButtonState
 }
