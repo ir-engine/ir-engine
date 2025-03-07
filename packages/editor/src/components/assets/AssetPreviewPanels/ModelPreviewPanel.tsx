@@ -80,7 +80,11 @@ export const ModelPreviewPanel = (props) => {
         </div>
       )}
       <div id="modelPreview" style={{ width: '100%', height: '100%' }}>
-        <canvas ref={panelRef} style={{ width: '100%', height: '100%', pointerEvents: 'all' }} />
+        <canvas
+          id="model-preview-canvas"
+          ref={panelRef}
+          style={{ width: '100%', height: '100%', pointerEvents: 'all' }}
+        />
       </div>
     </>
   )

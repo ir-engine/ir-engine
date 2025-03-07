@@ -40,8 +40,8 @@ import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorCo
 import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
 import { EntityHierarchyLockState } from '@ir-engine/editor/src/services/EntityHierarchyLockState'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
-import { TransformSpace } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { TransformComponent } from '@ir-engine/spatial'
+import { TransformSpace } from '@ir-engine/spatial/src/common/constants/TransformConstants'
 
 import { EditorHistoryFunctions } from '@ir-engine/editor/src/services/EditorHistoryState'
 import { Checkbox } from '@ir-engine/ui'
