@@ -855,6 +855,7 @@
       "userAlreadyBanned": "User is already banned",
       "userBannedSelectUserHelperText": "Select a user to ban",
       "userBannedSelectReasonHelperText": "Select a reason for banning the user",
+      "all": "All",
       "open": "Open",
       "resolved": "Resolved",
       "moderationban": {

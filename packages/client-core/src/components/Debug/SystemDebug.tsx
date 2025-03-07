@@ -59,12 +59,12 @@ export const SystemDebug = () => {
 
   return (
     <div className="m-1 bg-neutral-600 p-1">
-      <Text>{t('common:debug.systems')}</Text>
+      <Text className="text-text-primary-button">{t('common:debug.systems')}</Text>
       <Button
         onClick={() => performanceProfilingEnabled.set((val) => !val)}
         variant={performanceProfilingEnabled.value ? 'secondary' : 'tertiary'}
       >
-        {'Profile'}
+        <span className="text-text-primary-button">Profile</span>
       </Button>
       <SystemDagView uuid={InputSystemGroup} />
       <SystemDagView uuid={SimulationSystemGroup} />

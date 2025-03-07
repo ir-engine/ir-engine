@@ -120,8 +120,16 @@ export function ReactorDebug() {
 
   return (
     <div className="mx-1 my-0.5 bg-neutral-600 p-1">
-      <Text>{t('common:debug.state')}</Text>
-      <Checkbox checked={averageEnabled.value} onChange={() => averageEnabled.set((val) => !val)} label="Average" />
+      <Text className="text-text-primary-button">{t('common:debug.state')}</Text>
+      <div className="flex w-full justify-start gap-x-2">
+        <Checkbox checked={averageEnabled.value} onChange={() => averageEnabled.set((val) => !val)} />
+        <Text
+          className="cursor-pointer text-gray-400 hover:text-white"
+          onClick={() => averageEnabled.set((val) => !val)}
+        >
+          Average
+        </Text>
+      </div>
       <JSONTree data={state} shouldExpandNodeInitially={shouldExpandNodeInitially} />
     </div>
   )

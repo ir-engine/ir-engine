@@ -129,7 +129,7 @@ export function ResourceDebug() {
   return (
     <div className="m-1 bg-neutral-600 p-1">
       <div className="my-1">
-        <Text>{t('common:debug.resources')}</Text>
+        <Text className="text-text-primary-button">{t('common:debug.resources')}</Text>
         {/* <Input
           type="text"
           placeholder="Search..."
@@ -139,11 +139,11 @@ export function ResourceDebug() {
         <JSONTree data={entriesSortedByType} hideRoot />
       </div>
       <div className="my-1">
-        <Text>{`Total VRAM: ${totalVRAM} MB`}</Text>
+        <Text className="text-text-primary-button">{`Total VRAM: ${totalVRAM} MB`}</Text>
         <JSONTree data={entriesOnGPU} />
       </div>
       <div className="my-1">
-        <Text>{`Total RAM: ${totalRAM} MB`}</Text>
+        <Text className="text-text-primary-button">{`Total RAM: ${totalRAM} MB`}</Text>
         <JSONTree data={entriesOnCPU} />
       </div>
     </div>

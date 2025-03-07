@@ -289,7 +289,7 @@ export const InteractableComponent = defineComponent({
 
     InputComponent.useExecuteWithInput(
       () => {
-        const buttons = InputComponent.getMergedButtons(entity)
+        const buttons = InputComponent.getButtons(entity)
         if (!interactableComponent.clickInteract.value && buttons.PrimaryClick?.pressed) return
 
         if (

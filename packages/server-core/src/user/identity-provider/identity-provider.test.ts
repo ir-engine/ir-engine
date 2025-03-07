@@ -25,14 +25,13 @@ Infinite Reality Engine. All Rights Reserved.
 
 import '../../patchEngineNode'
 
-import { USER_ID_REGEX } from '@ir-engine/common/src/regex'
 import { IdentityProviderType, identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
 import { UserID, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import { destroyEngine } from '@ir-engine/ecs/src/Engine'
 import assert from 'assert'
 import { v4 as uuidv4 } from 'uuid'
 import { afterAll, beforeAll, describe, it } from 'vitest'
-
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp, tearDownAPI } from '../../createApp'
 import { createAdmin, createUserApiKey } from '../../test-utils/user-test-utils'
@@ -71,7 +70,7 @@ describe('identity-provider.test', () => {
       accessToken = createdIdentityProvider.accessToken as string
 
       assert.equal(createdIdentityProvider.type, type)
-      assert.ok(USER_ID_REGEX.test(createdIdentityProvider.token))
+      assert.ok(isValidId(createdIdentityProvider.token))
       assert.ok(createdIdentityProvider.accessToken)
     })
 
@@ -92,7 +91,7 @@ describe('identity-provider.test', () => {
 
       assert.equal(createdIdentityProvider.type, type)
       assert.notEqual(createdIdentityProvider.token, 'test@gmail.com')
-      assert.ok(USER_ID_REGEX.test(createdIdentityProvider.token))
+      assert.ok(isValidId(createdIdentityProvider.token))
       assert.ok(createdIdentityProvider.accessToken)
     })
 
@@ -112,7 +111,7 @@ describe('identity-provider.test', () => {
       )
 
       assert.equal(createdIdentityProvider.type, 'guest')
-      assert.ok(USER_ID_REGEX.test(createdIdentityProvider.token))
+      assert.ok(isValidId(createdIdentityProvider.token))
       assert.ok(createdIdentityProvider.accessToken)
     })
 

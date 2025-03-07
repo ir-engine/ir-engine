@@ -57,7 +57,6 @@ export const MaterialPreviewCanvas = () => {
     setComponent(sceneEntity, EnvMapComponent, { type: 'Skybox', envMapIntensity: 2 })
     const orbitCamera = getMutableComponent(cameraEntity, CameraOrbitComponent)
     orbitCamera.focusedEntities.set([sceneEntity])
-    orbitCamera.refocus.set(true)
   }, [
     selectedMaterial,
     useComponent(UUIDComponent.getEntityByUUID(selectedMaterial.value!, Layers.Authoring), MaterialStateComponent)
@@ -66,7 +65,7 @@ export const MaterialPreviewCanvas = () => {
   return (
     <>
       <div id="materialPreview" style={{ minHeight: '200px', width: '100%', height: '100%' }}>
-        <canvas ref={panelRef} style={{ pointerEvents: 'all' }} />
+        <canvas id="material-preview-canvas" ref={panelRef} style={{ pointerEvents: 'all' }} />
       </div>
     </>
   )

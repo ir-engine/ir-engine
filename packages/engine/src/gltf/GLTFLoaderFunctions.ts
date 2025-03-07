@@ -51,10 +51,8 @@ import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/Col
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
-import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { SkinnedMeshComponent } from '@ir-engine/spatial/src/renderer/components/SkinnedMeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import {
   MaterialInstanceComponent,
   MaterialStateComponent
@@ -1282,7 +1280,6 @@ const loadMesh = async (options: GLTFParserOptions, entity: Entity, nodeIndex: n
     skinnedMesh.skeleton = new Skeleton()
     skinnedMesh.normalizeSkinWeights()
     setComponent(entity, SkinnedMeshComponent, skinnedMesh)
-    ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.Avatar)
   }
 
   //handle primitive extensions

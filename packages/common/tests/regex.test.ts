@@ -29,6 +29,7 @@ import {
   BUILDER_CHART_REGEX,
   EMAIL_REGEX,
   GITHUB_URL_REGEX,
+  GUID_ID_REGEX,
   INSTALLATION_SIGNED_REGEX,
   INVITE_CODE_REGEX,
   MAIN_CHART_REGEX,
@@ -40,7 +41,6 @@ import {
   REMOVE_EDGE_SLASH_REGEX,
   TRAILING_SLASH_REGEX,
   UNIQUEIFIED_VITE_KEY_REGEX,
-  USER_ID_REGEX,
   VALID_FILENAME_REGEX,
   VALID_HEIRARCHY_SEARCH_REGEX,
   VALID_PROJECT_NAME,
@@ -178,8 +178,8 @@ describe('regex.test', () => {
     })
   })
 
-  describe('USER_ID_REGEX', () => {
-    it('should match valid user Ids', () => {
+  describe('GUID_ID_REGEX', () => {
+    it('should match valid guid Ids', () => {
       const positiveCases = [
         '123e4567-e89b-12d3-a456-426614174000',
         'abcdef01-2345-6789-abcd-ef0123456789',
@@ -187,12 +187,12 @@ describe('regex.test', () => {
         'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
         'ffffffff-ffff-ffff-ffff-ffffffffffff'
       ]
-      positiveCases.forEach((userId) => {
-        assert.match(userId, USER_ID_REGEX, `Expected '${userId}' to match USER_ID_REGEX`)
+      positiveCases.forEach((id) => {
+        assert.match(id, GUID_ID_REGEX, `Expected '${id}' to match GUID_ID_REGEX`)
       })
     })
 
-    it('should not match invalid user Ids', () => {
+    it('should not match invalid guid Ids', () => {
       const negativeCases = [
         '123e4567-e89b-12d3-a456-42661417400',
         '123e4567e89b12d3a456426614174000',
@@ -201,8 +201,8 @@ describe('regex.test', () => {
         '123e4567-e89b-12d3-a456-4266141740000',
         '123e4567-e89b-12d3-g456-426614174000'
       ]
-      negativeCases.forEach((userId) => {
-        assert.doesNotMatch(userId, USER_ID_REGEX, `Expected '${userId}' to not match USER_ID_REGEX`)
+      negativeCases.forEach((id) => {
+        assert.doesNotMatch(id, GUID_ID_REGEX, `Expected '${id}' to not match GUID_ID_REGEX`)
       })
     })
   })
