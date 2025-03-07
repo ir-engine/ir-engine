@@ -240,7 +240,35 @@ export const handleUploadFiles = (
           }
         ]
       })
-        .promise.then((response) => response[0])
+        .promise.then((response) => {
+          //get the static resource record for this file, so we can make it's thumbnail null, since it was oerwritten
+
+          const checkStaticResourceThumbnail = async (path) => {
+            await API.instance
+              .service(staticResourcePath)
+              .find({
+                query: { key: { $in: [path] } }
+              })
+              .then((reponse) => {
+                if (reponse.data.length > 0) {
+                  const staticResourceId = reponse.data[0].id
+                  const updateStaticResourceThumbnail = async (staticResourceId: string) => {
+                    await API.instance
+                      .service(staticResourcePath)
+                      .patch(staticResourceId, { thumbnailKey: null, thumbnailMode: null, project: projectName })
+                  }
+                  updateStaticResourceThumbnail(staticResourceId)
+                }
+              })
+              .catch((e) => console.error(e))
+            return path
+          }
+          const fileURL = new URL(response[0])
+          fileURL.search = ''
+          fileURL.hash = ''
+          const fileKeyKey = fileURL.href.replace(config.client.fileServer + '/', '')
+          return checkStaticResourceThumbnail(fileKeyKey)
+        })
         .catch(() => {
           NotificationService.dispatchNotify(i18n.t('editor:errors.fileUploadFailed') as string, { variant: 'error' })
           throw new Error('Upload failed')
