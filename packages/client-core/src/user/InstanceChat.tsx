@@ -30,14 +30,7 @@ import { State, dispatchAction, useHookstate, useMutableState } from '@ir-engine
 import { NetworkState } from '@ir-engine/network'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { Button } from '@ir-engine/ui'
-import {
-  ArrowTopRightOnSquareSm,
-  MessageTextSquare01Lg,
-  MessageTextSquare01Md,
-  Send01Lg,
-  Send01Sm,
-  XCloseLg
-} from '@ir-engine/ui/src/icons'
+import { MessageTextSquare01Lg, MessageTextSquare01Md, Send01Lg, Send01Sm, XCloseLg } from '@ir-engine/ui/src/icons'
 import React, { createContext, useContext, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { twMerge } from 'tailwind-merge'
@@ -223,9 +216,7 @@ function Message({ message, hideUsername }: { message: MessageType; hideUsername
       )}
     >
       {message.sender.id !== user.id.value && !hideUsername && (
-        <div className="flex items-center gap-x-2 text-xs font-bold text-text-primary lg:text-lg">
-          {message.sender.name} <ArrowTopRightOnSquareSm />
-        </div>
+        <div className="text-xs font-bold text-text-primary lg:text-lg">{message.sender.name}</div>
       )}
       <div className="text-sm tracking-[-0.14px] text-text-primary lg:text-base lg:tracking-normal">{message.text}</div>
     </div>
