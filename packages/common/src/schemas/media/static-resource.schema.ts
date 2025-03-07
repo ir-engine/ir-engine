@@ -59,7 +59,6 @@ export const staticResourceSchema = Type.Object(
     url: Type.String(),
     stats: Type.Optional(Type.Record(Type.String(), Type.Any())),
     thumbnailKey: Type.Optional(Type.Union([Type.String(), Type.Null()])),
-    thumbnailURL: Type.Optional(Type.Union([Type.String(), Type.Null()])),
     thumbnailMode: Type.Optional(Type.Union([Type.String(), Type.Null()])), // 'automatic' | 'manual'
     updatedBy: TypedString<UserID>({
       format: 'uuid'
