@@ -80,7 +80,7 @@ export function removeQuery(queryOrTerms: ReturnType<typeof defineQuery> | bitEC
   }
 }
 
-export const query = (queryTerms: bitECS.QueryTerm[]) => bitECS.query(HyperFlux.store, queryTerms)
+export const query = (queryTerms: bitECS.QueryTerm[]) => bitECS.query(HyperFlux.store, queryTerms) as readonly Entity[]
 
 const UseQuerySubreactorEntityCache = {} as Record<string, Set<State<Entity[]>>>
 const UseQuerySubreactorCache = {} as Record<string, ReturnType<typeof startReactor>>

@@ -23,6 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { defineState, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
 import {
   SnapMode,
   SnapModeType,
@@ -32,8 +33,7 @@ import {
   TransformPivotType,
   TransformSpace,
   TransformSpaceType
-} from '@ir-engine/engine/src/scene/constants/transformConstants'
-import { defineState, syncStateWithLocalStorage } from '@ir-engine/hyperflux'
+} from '@ir-engine/spatial/src/common/constants/TransformConstants'
 import { EditorMode, EditorModeType } from '../constants/EditorModeTypes'
 
 export enum PlacementMode {
@@ -46,9 +46,8 @@ export const EditorHelperState = defineState({
   initial: () => ({
     editorMode: EditorMode.Simple as EditorModeType,
     transformMode: TransformMode.translate as TransformModeType,
-    transformModeOnCancel: TransformMode.translate as TransformModeType,
     transformSpace: TransformSpace.local as TransformSpaceType,
-    transformPivot: TransformPivot.Center as TransformPivotType,
+    transformPivot: TransformPivot.FirstSelected as TransformPivotType,
     gridSnap: SnapMode.Grid as SnapModeType,
     translationSnap: 0.5,
     rotationSnap: 10,

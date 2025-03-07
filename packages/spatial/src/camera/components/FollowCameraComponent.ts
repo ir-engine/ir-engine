@@ -429,7 +429,7 @@ const updateCameraTargetRotation = (cameraEntity: Entity) => {
   }
 }
 
-const cameraLayerQuery = defineQuery([VisibleComponent, ObjectLayerComponents[ObjectLayers.Camera], MeshComponent])
+const cameraLayerQuery = defineQuery([VisibleComponent, ObjectLayerComponents[ObjectLayers.Scene], MeshComponent])
 
 const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
   const followCamera = getComponent(cameraEntity, FollowCameraComponent)
@@ -455,7 +455,7 @@ const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
   let maxDistance = Math.min(followCamera.thirdPersonMaxDistance, raycastProps.rayLength)
 
   // Check hit with mid ray
-  raycaster.layers.set(ObjectLayers.Camera)
+  raycaster.layers.set(ObjectLayers.Scene)
   raycaster.firstHitOnly = true
   raycaster.far = followCamera.thirdPersonMaxDistance
   raycaster.set(target, followCamera.targetToCamera.normalize())

@@ -26,7 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { INVITE_CODE_REGEX, USER_ID_REGEX } from '@ir-engine/common/src/regex'
+import { INVITE_CODE_REGEX } from '@ir-engine/common/src/regex'
+import { projectHistoryPath } from '@ir-engine/common/src/schema.type.module'
 import {
   ProjectPermissionData,
   ProjectPermissionPatch,
@@ -39,10 +40,9 @@ import {
 import { projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
 import { InviteCode, UserID, UserType, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { checkScope } from '@ir-engine/common/src/utils/checkScope'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import setLoggedInUserData from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-body'
 import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
-
-import { projectHistoryPath } from '@ir-engine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
 import checkScopeHook from '../../hooks/check-scope'
@@ -72,7 +72,7 @@ const ensureInviteCode = async (context: HookContext<ProjectPermissionService>) 
 
   const data: ProjectPermissionData[] = Array.isArray(context.data) ? context.data : [context.data]
 
-  if (data[0].inviteCode && USER_ID_REGEX.test(data[0].inviteCode)) {
+  if (data[0].inviteCode && isValidId(data[0].inviteCode)) {
     data[0].userId = data[0].inviteCode as string as UserID
     delete data[0].inviteCode
   }

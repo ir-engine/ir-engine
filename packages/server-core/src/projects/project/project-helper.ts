@@ -68,6 +68,7 @@ import {
   deleteFolderRecursive,
   getFilesRecursive
 } from '@ir-engine/common/src/utils/fsHelperFunctions'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import { AssetLoader } from '@ir-engine/engine/src/assets/classes/AssetLoader'
 import { getState } from '@ir-engine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@ir-engine/projects/ProjectConfigInterface'
@@ -1853,7 +1854,7 @@ export const uploadLocalProjectToProvider = async (
   await Promise.all(
     Array.from(existingKeySet.values()).map(async (id) => {
       try {
-        await app.service(staticResourcePath).remove(id, { ignoreResourcesJson: true })
+        if (isValidId(id)) await app.service(staticResourcePath).remove(id, { ignoreResourcesJson: true })
       } catch (error) {
         logger.warn(`Error deleting resource: ${error}`)
       }

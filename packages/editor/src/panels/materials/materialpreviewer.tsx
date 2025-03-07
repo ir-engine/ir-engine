@@ -66,7 +66,6 @@ function MaterialPreviewCanvas() {
     setComponent(sceneEntity, MaterialInstanceComponent, { uuid: [selectedMaterial.value] })
     const orbitCamera = getMutableComponent(cameraEntity, CameraOrbitComponent)
     orbitCamera.focusedEntities.set([sceneEntity])
-    orbitCamera.refocus.set(true)
 
     return () => {}
   }, [selectedMaterial])
@@ -90,7 +89,7 @@ function MaterialPreviewCanvas() {
   return (
     <>
       <div id="materialPreview" className="aspect-square h-full max-h-[200px] min-h-[100px] w-full">
-        <canvas ref={panelRef} className="pointer-events-auto" />
+        <canvas id="material-preview-canvas" ref={panelRef} className="pointer-events-auto" />
       </div>
     </>
   )
