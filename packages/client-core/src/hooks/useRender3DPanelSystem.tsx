@@ -65,7 +65,7 @@ export function useRender3DPanelSystem(canvas: React.MutableRefObject<HTMLCanvas
     setComponent(cameraEntity, CameraComponent)
     setComponent(cameraEntity, TransformComponent)
     setComponent(cameraEntity, VisibleComponent)
-    setComponent(cameraEntity, CameraOrbitComponent)
+    setComponent(cameraEntity, CameraOrbitComponent, { refocus: true })
     setComponent(cameraEntity, InputComponent)
     setComponent(cameraEntity, EntityTreeComponent, { parentEntity: UndefinedEntity })
 

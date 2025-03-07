@@ -35,15 +35,14 @@ import { XRHandComponent, XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { ButtonStateMap } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
-import { DefaultButtonBindings } from './InputComponent'
+import { DefaultButtonAlias } from './InputComponent'
 
 export const InputSourceComponent = defineComponent({
   name: 'InputSourceComponent',
 
   schema: S.Object({
-    sourceEntity: S.Entity(),
     source: S.Type<XRInputSource>({} as XRInputSource),
-    buttons: S.Type<Readonly<ButtonStateMap<typeof DefaultButtonBindings>>>({}),
+    buttons: S.Type<Readonly<ButtonStateMap<typeof DefaultButtonAlias>>>({}),
     raycaster: S.Class(() => new Raycaster()),
     intersections: S.Array(
       S.Object({
@@ -53,11 +52,7 @@ export const InputSourceComponent = defineComponent({
     )
   }),
 
-  onSet: (
-    entity,
-    component,
-    args: { sourceEntity?: Entity; buttons?: ButtonStateMap<any>; source?: XRInputSource; gamepad?: Gamepad } = {}
-  ) => {
+  onSet: (entity, component, args: { source?: XRInputSource; gamepad?: Gamepad } = {}) => {
     const source =
       args.source ??
       ({
@@ -96,14 +91,6 @@ export const InputSourceComponent = defineComponent({
 
     if (source.hand) {
       setComponent(entity, XRHandComponent)
-    }
-
-    if (args.buttons) {
-      component.buttons.set(args.buttons)
-    }
-
-    if (typeof args.sourceEntity === 'number') {
-      component.sourceEntity.set(args.sourceEntity)
     }
   },
 

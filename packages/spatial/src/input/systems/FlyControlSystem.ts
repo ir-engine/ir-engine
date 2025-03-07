@@ -23,23 +23,30 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Quaternion, Vector3 } from 'three'
+import { MathUtils, Quaternion, Vector3 } from 'three'
 
 import {
   defineQuery,
   defineSystem,
   ECSState,
+  Entity,
   getComponent,
   getOptionalComponent,
-  InputSystemGroup
+  hasComponent,
+  InputSystemGroup,
+  removeComponent,
+  setComponent
 } from '@ir-engine/ecs'
 import { getState } from '@ir-engine/hyperflux'
 
+import { CameraComponent } from '../../camera/components/CameraComponent'
+import { CameraOrbitComponent } from '../../camera/components/CameraOrbitComponent'
 import { FlyControlComponent } from '../../camera/components/FlyControlComponent'
 import { Vector3_Up, Vector3_Zero } from '../../common/constants/MathConstants'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
+import { InputSourceComponent } from '../components/InputSourceComponent'
 
 const EPSILON = 10e-5
 const movement = new Vector3()
@@ -48,20 +55,57 @@ const tempVec3 = new Vector3()
 const quat = new Quaternion()
 const candidateWorldQuat = new Quaternion()
 
-const flyControlQuery = defineQuery([FlyControlComponent, TransformComponent])
+const center = new Vector3()
+const directionToCenter = new Vector3()
+
+const onSecondaryClick = (viewerEntity: Entity) => {
+  setComponent(viewerEntity, FlyControlComponent, {
+    boostSpeed: 4,
+    moveSpeed: 4,
+    lookSensitivity: 5,
+    maxXRotation: MathUtils.degToRad(80)
+  })
+}
+
+const onSecondaryReleased = (viewerEntity: Entity) => {
+  const transform = getComponent(viewerEntity, TransformComponent)
+  const editorCameraCenter = getComponent(viewerEntity, CameraOrbitComponent).cameraOrbitCenter
+  center.subVectors(transform.position, editorCameraCenter)
+  const centerLength = center.length()
+  editorCameraCenter.copy(transform.position)
+  editorCameraCenter.add(directionToCenter.set(0, 0, -centerLength).applyQuaternion(transform.rotation))
+  removeComponent(viewerEntity, FlyControlComponent)
+}
+
+const flyControlQuery = defineQuery([FlyControlComponent, TransformComponent, InputComponent])
+const cameraQuery = defineQuery([CameraComponent])
+const inputSourceQuery = defineQuery([InputSourceComponent])
 
 const execute = () => {
+  const inputSourceEntities = inputSourceQuery()
+
+  /** Since we have nothing that specifies whether we should use orbit/fly controls or not, just tie it to the camera orbit component for the studio */
+  for (const entity of cameraQuery()) {
+    const inputPointerEntities = InputPointerComponent.getPointersForCamera(entity)
+    if (!inputPointerEntities) continue
+    if (hasComponent(entity, CameraOrbitComponent)) {
+      const buttons = InputComponent.getMergedButtonsForInputSources(inputPointerEntities)
+      if (buttons.SecondaryClick?.down) onSecondaryClick(entity)
+      if (buttons.SecondaryClick?.up) onSecondaryReleased(entity)
+    }
+  }
+
   for (const entity of flyControlQuery()) {
-    const inputSourceEntities = InputComponent.getInputSourceEntities(entity)
-    const buttons = InputComponent.getButtons(entity)
+    const buttons = InputComponent.getMergedButtonsForInputSources(inputSourceEntities)
 
     const flyControlComponent = getComponent(entity, FlyControlComponent)
     const transform = getComponent(entity, TransformComponent)
 
     movement.copy(Vector3_Zero)
     for (const inputSourceEntity of inputSourceEntities) {
+      const inputSource = getComponent(inputSourceEntity, InputSourceComponent)
       const pointer = getOptionalComponent(inputSourceEntity, InputPointerComponent)
-      if (pointer) {
+      if (pointer && inputSource.buttons.SecondaryClick?.pressed) {
         movement.x += pointer.movement.x
         movement.y += pointer.movement.y
       }

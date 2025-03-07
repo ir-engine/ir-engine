@@ -37,18 +37,15 @@ import {
   getOptionalComponent,
   hasComponent,
   Not,
-  query,
   UndefinedEntity,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { getState } from '@ir-engine/hyperflux'
-import { CameraComponent } from '../../camera/components/CameraComponent'
-import { PI } from '../../common/constants/MathConstants'
-import { ReferenceSpaceState } from '../../ReferenceSpaceState'
+import { Quaternion, Vector3 } from 'three'
+import { PI, Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
 import { TransformComponent, TransformGizmoTagComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
-import { DefaultButtonBindings, InputComponent } from '../components/InputComponent'
+import { DefaultButtonAlias, InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import { ButtonState, ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
@@ -59,6 +56,9 @@ export const ROTATING_THRESHOLD = 1.5 * (PI / 180)
 
 /** squared distance threshold for dragging state */
 export const DRAGGING_THRESHOLD = 0.001
+
+/** anti-garbage variable!! value not to be used unless you set values just before use*/
+const _pointerPositionVector3 = new Vector3()
 
 export function preventDefault(e) {
   e.preventDefault()
@@ -75,6 +75,14 @@ export function updateGamepadInput(eid: Entity) {
   const inputSource = getComponent(eid, InputSourceComponent)
   const gamepad = inputSource.source.gamepad
   const buttons = inputSource.buttons
+  // const buttonDownPos = inputSource.buttonDownPositions as WeakMap<AnyButton, Vector3>
+  // log buttons
+  // if (source.gamepad) {
+  //   for (let i = 0; i < source.gamepad.buttons.length; i++) {
+  //     const button = source.gamepad.buttons[i]
+  //     if (button.pressed) console.log('button ' + i + ' pressed: ' + button.pressed)
+  //   }
+  // }
 
   if (!gamepad) return
   const gamepadButtons = gamepad.buttons
@@ -93,12 +101,15 @@ export function updateGamepadInput(eid: Entity) {
       // First frame condition: Initialize downPosition when buttonState.pressed and gamepadButton.pressed are different (aka the first frame)
       if (!buttonState.pressed && gamepadButton.pressed) {
         buttonState.down = true
+        buttonState.downPosition = new Vector3()
+        buttonState.downRotation = new Quaternion()
+
         if (pointer) {
-          buttonState.downPointerPosition = pointer.position.clone()
-        }
-        if (xrTransform) {
-          buttonState.downPosition = xrTransform.position.clone()
-          buttonState.downRotation = xrTransform.rotation.clone()
+          buttonState.downPosition.set(pointer.position.x, pointer.position.y, 0)
+          //TODO maybe map pointer rotation/swing/twist to downRotation here once we map the pointer events to that (think Apple pencil)
+        } else if (hasComponent(eid, XRSpaceComponent) && xrTransform) {
+          buttonState.downPosition.copy(xrTransform.position)
+          buttonState.downRotation.copy(xrTransform.rotation)
         }
       }
       // Sync buttonState with gamepadButton
@@ -106,22 +117,24 @@ export function updateGamepadInput(eid: Entity) {
       buttonState.touched = gamepadButton.touched
       buttonState.value = gamepadButton.value
 
-      //if not yet dragging, compare distance to drag threshold and begin if appropriate
-      if (pointer && buttonState.downPointerPosition && !buttonState.dragging) {
-        const squaredDistance = buttonState.downPointerPosition.distanceToSquared(pointer.position)
-        buttonState.dragging = squaredDistance > DRAGGING_THRESHOLD
-      }
+      if (buttonState.downPosition) {
+        //if not yet dragging, compare distance to drag threshold and begin if appropriate
+        if (!buttonState.dragging) {
+          if (pointer) _pointerPositionVector3.set(pointer.position.x, pointer.position.y, 0)
+          // Will always be 0 on the first frame: downPosition will be set this frame, and therefore checked against itself
+          const squaredDistance = buttonState.downPosition.distanceToSquared(
+            pointer ? _pointerPositionVector3 : xrTransform?.position ?? Vector3_Zero
+          )
+          buttonState.dragging = squaredDistance > DRAGGING_THRESHOLD
+        }
 
-      //if not yet dragging, compare distance to drag threshold and begin if appropriate
-      if (xrTransform && buttonState.downPosition && !buttonState.dragging) {
-        const squaredDistance = buttonState.downPosition.distanceToSquared(xrTransform.position)
-        buttonState.dragging = squaredDistance > DRAGGING_THRESHOLD
-      }
-
-      //if not yet rotating, compare distance to drag threshold and begin if appropriate
-      if (xrTransform && buttonState.downRotation && !buttonState.rotating) {
-        const angleRadians = buttonState.downRotation!.angleTo(xrTransform.rotation)
-        buttonState.rotating = angleRadians > ROTATING_THRESHOLD
+        //if not yet rotating, compare distance to drag threshold and begin if appropriate
+        if (!buttonState.rotating) {
+          const angleRadians = buttonState.downRotation!.angleTo(
+            pointer ? Q_IDENTITY : xrTransform?.rotation ?? Q_IDENTITY
+          )
+          buttonState.rotating = angleRadians > ROTATING_THRESHOLD
+        }
       }
     } else if (buttonState) {
       buttonState.up = true
@@ -146,7 +159,7 @@ export function updatePointerDragging(pointerEntity: Entity, event: PointerEvent
   const inputSourceComponent = getOptionalComponent(pointerEntity, InputSourceComponent)
   if (!inputSourceComponent) return
 
-  const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonBindings>
+  const state = inputSourceComponent.buttons as ButtonStateMap<typeof DefaultButtonAlias>
 
   let button = MouseButton.PrimaryClick
   if (event.type === 'pointermove') {
@@ -158,39 +171,27 @@ export function updatePointerDragging(pointerEntity: Entity, event: PointerEvent
 
   const pointer = getOptionalComponent(pointerEntity, InputPointerComponent)
 
-  if (!pointer || !btn.pressed || !btn.downPointerPosition) return
+  if (!btn.pressed || !btn.downPosition) return
 
   //if not yet dragging, compare distance to drag threshold and begin if appropriate
-  const squaredDistance = btn.downPointerPosition.distanceToSquared(pointer.position)
+  pointer
+    ? _pointerPositionVector3.set(pointer.position.x, pointer.position.y, 0)
+    : _pointerPositionVector3.copy(Vector3_Zero)
+  const squaredDistance = btn.downPosition.distanceToSquared(_pointerPositionVector3)
 
   if (squaredDistance > DRAGGING_THRESHOLD) {
     btn.dragging = true
   }
 }
 
-function _refreshButton(
+export function cleanupButton(
   key: string,
   buttons: ButtonStateMap<Partial<Record<string | number | symbol, ButtonState | undefined>>>,
   hasFocus: boolean
 ) {
   const button = buttons[key]
-  if (button) {
-    if (button.down) button.down = false
-    if (button.consumed) button.consumed = UndefinedEntity
-    if (!button.up && !hasFocus) {
-      button.up = true
-    } else if (button.up || !hasFocus) {
-      delete buttons[key]
-    }
-  } else {
-    delete buttons[key]
-  }
-}
-
-function _refreshButtonState(buttonStates: ButtonStateMap<any>, hasFocus: boolean = true) {
-  for (const key of Object.keys(buttonStates)) {
-    _refreshButton(key, buttonStates, hasFocus)
-  }
+  if (button?.down) button.down = false
+  if (button?.up || !hasFocus) delete buttons[key]
 }
 
 export const redirectPointerEventsToXRUI = (cameraEntity: Entity, evt: PointerEvent) => {
@@ -245,40 +246,21 @@ export function assignInputSources(sourceEid: Entity, capturedEntity: Entity) {
   }
 
   const inputPointerComponent = getOptionalComponent(sourceEid, InputPointerComponent)
-  const viewerEntity = inputPointerComponent?.cameraEntity ?? getState(ReferenceSpaceState).viewerEntity
-  const camera = getOptionalComponent(viewerEntity, CameraComponent)
-  sortedIntersections.push({ entity: viewerEntity, distance: camera?.far ?? 1e16 })
+  if (inputPointerComponent) {
+    sortedIntersections.push({ entity: inputPointerComponent.cameraEntity, distance: 0 })
+  }
 
   sourceState.intersections.set(sortedIntersections)
 
   const finalInputSources = Array.from(new Set([sourceEid, ...nonSpatialInputSource()]))
 
+  //if we have a capturedEntity, only run on the capturedEntity, not the sortedIntersections
   if (capturedEntity !== UndefinedEntity) {
-    //if we have a capturedEntity, only run on the capturedEntity, not the sortedIntersections
     ClientInputFunctions.setInputSources(capturedEntity, finalInputSources)
   } else {
-    if (!sortedIntersections.length) {
-      ClientInputFunctions.setInputSources(viewerEntity, finalInputSources)
-    } else {
-      for (const intersection of sortedIntersections) {
-        ClientInputFunctions.setInputSources(intersection.entity, finalInputSources)
-      }
+    for (const intersection of sortedIntersections) {
+      ClientInputFunctions.setInputSources(intersection.entity, finalInputSources)
     }
-  }
-}
-
-export function refreshInputs(hasFocus = typeof globalThis.document === 'undefined' ? true : document.hasFocus()) {
-  for (const eid of query([InputSourceComponent])) {
-    const source = getComponent(eid, InputSourceComponent)
-    _refreshButtonState(source.buttons, hasFocus)
-    // clear non-spatial emulated axes data end of each frame
-    if (!hasComponent(eid, XRSpaceComponent) && hasComponent(eid, InputPointerComponent)) {
-      ;(source.source.gamepad!.axes as number[]).fill(0)
-    }
-  }
-  for (const eid of query([InputComponent])) {
-    const inputComponent = getComponent(eid, InputComponent)
-    _refreshButtonState(inputComponent.cachedButtons, hasFocus)
   }
 }
 
@@ -288,7 +270,7 @@ export const ClientInputFunctions = {
   updateGamepadInput,
   setInputSources,
   updatePointerDragging,
-  refreshInputs,
+  cleanupButton,
   redirectPointerEventsToXRUI,
   assignInputSources
 }
