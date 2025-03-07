@@ -938,6 +938,47 @@ function castRayFromCamera(
   return Physics.castRay(world, raycastQuery, filterPredicate)
 }
 
+function getIntersectionsWithRay(world: PhysicsWorld, raycastQuery: RaycastArgs) {
+  const worldEntity = world.id
+  const worldTransform = getComponent(worldEntity, TransformComponent)
+  _worldInverseMatrix.copy(worldTransform.matrixWorld).invert()
+
+  const ray = new Ray(
+    _origin.copy(raycastQuery.origin).applyMatrix4(_worldInverseMatrix),
+    _direction
+      .copy(raycastQuery.direction)
+      .applyQuaternion(_quaternion.copy(worldTransform.rotation).invert())
+      .multiply(_vector3.set(1 / worldTransform.scale.x, 1 / worldTransform.scale.y, 1 / worldTransform.scale.z))
+  )
+  const maxToi = raycastQuery.maxDistance
+  const solid = true // TODO: Add option for this in args
+  const groups = raycastQuery.groups
+  const flags = raycastQuery.flags
+
+  const hits = [] as RaycastHit[]
+
+  world.intersectionsWithRay(
+    ray,
+    maxToi,
+    solid,
+    (hit) => {
+      hits.push({
+        collider: hit.collider,
+        distance: hit.toi,
+        position: ray.pointAt(hit.toi),
+        normal: hit.normal,
+        body: hit.collider.parent() as RigidBody,
+        entity: hit.collider.parent()?.entity ?? UndefinedEntity
+      })
+      return true
+    },
+    flags,
+    groups
+  )
+
+  return hits
+}
+
 export type ShapecastArgs = {
   type: SceneQueryType
   hits: RaycastHit[]
@@ -1094,6 +1135,7 @@ export const Physics = {
   castRay,
   castRayFromCamera,
   castShape,
+  getIntersectionsWithRay,
   /** Collisions */
   createCollisionEventQueue,
   drainCollisionEventQueue,
