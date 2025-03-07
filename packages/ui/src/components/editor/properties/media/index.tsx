@@ -301,7 +301,7 @@ export const MediaInput = ({ entity, mediaNodeId, OnMediaSourceUpdate, dropTypes
           >
             {mediaElement && (
               <>
-                {mediaMode == MediaMode.video && showVideoPreview.value && (
+                {mediaMode === MediaMode.video && showVideoPreview.value && (
                   <div ref={videoPreviewParentRef} className="my-1">
                     <div className={'relative aspect-video w-full'}>
                       <Video
