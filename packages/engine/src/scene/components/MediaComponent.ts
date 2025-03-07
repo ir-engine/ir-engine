@@ -99,6 +99,12 @@ export const MediaElementComponent = defineComponent({
       component.element.set(json.element as HTMLMediaElement)
   },
 
+  onRemove: (entity, component) => {
+    if (component.element) {
+      component.element.value.remove()
+    }
+  },
+
   reactor: () => {
     const entity = useEntityContext()
     const mediaElementComponent = useComponent(entity, MediaElementComponent)
@@ -228,8 +234,6 @@ export function MediaReactor() {
     media.ended.set(false)
 
     let mediaElement = getComponent(entity, MediaElementComponent)
-    console.log(mediaElement, mediaElement?.element, mediaElement?.element.nodeName.toLowerCase(), assetClass)
-
     if (!mediaElement || !mediaElement.element || mediaElement.element.nodeName.toLowerCase() !== assetClass) {
       setUpMediaElement(entity, path, media, audioContext, gainNodeMixBuses)
       mediaElement = getComponent(entity, MediaElementComponent)
@@ -283,10 +287,12 @@ export function MediaReactor() {
   }
 
   useEffect(() => {
-    if (media.resources.length > 0 && media.autoplay && media.track.value < 0) {
+    if (media.resources.length > 0 && media.track.value < 0) {
       media.track.set(0)
-      media.paused.set(false)
-      playTrack()
+      if (getAutoPlay()) {
+        media.paused.set(false)
+        playTrack()
+      }
     }
   }, [media.resources.length])
 
@@ -536,7 +542,6 @@ const setUpMediaElement = (
     element = getComponent(entity, MediaElementComponent).element as HTMLMediaElement
   } else {
     element = document.createElement(assetClass) as HTMLMediaElement
-    console.log(entity + ' - document.createElement(' + assetClass + ') as HTMLMediaElement')
   }
 
   setComponent(entity, MediaElementComponent, {
