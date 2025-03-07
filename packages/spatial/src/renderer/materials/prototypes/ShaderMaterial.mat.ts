@@ -40,7 +40,6 @@ export const ShaderMaterialArguments = {
 }
 
 export const ShaderMaterial: MaterialPrototypeDefinition = {
-  prototypeId: 'ShaderMaterial',
   prototypeConstructor: Shader,
   arguments: ShaderMaterialArguments
 }

@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { staticResourcePath } from '@ir-engine/common/src/schema.type.module'
-import { NO_PROXY, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { NO_PROXY, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import ErrorDialog from '@ir-engine/ui/src/components/tailwind/ErrorDialog'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import { t } from 'i18next'
@@ -54,13 +54,13 @@ import { useTranslation } from 'react-i18next'
 import { IoHelpCircleOutline } from 'react-icons/io5'
 import { onSaveScene, setCurrentEditorScene } from '../functions/sceneFunctions'
 import { AssetsPanelTab } from '../panels/assets'
-import { FilesPanelTab } from '../panels/files'
 import { HierarchyPanelTab } from '../panels/hierarchy'
 import { MaterialsPanelTab } from '../panels/materials'
 import { PropertiesPanelTab } from '../panels/properties'
 import { ScenePanelTab } from '../panels/scenes'
 import { ViewportPanelTab } from '../panels/viewport'
 import { VisualScriptPanelTab } from '../panels/visualscript'
+import { EditorHistoryState } from '../services/EditorHistoryState'
 import { EditorWarningState } from '../services/EditorWarningServices'
 import { UIAddonsState } from '../services/UIAddonsState'
 import './EditorContainer.css'
@@ -102,7 +102,7 @@ const onEditorError = (error) => {
 }
 
 const defaultLayout = (flags: { visualScriptPanelEnabled: boolean }): LayoutData => {
-  const tabs = [ScenePanelTab, FilesPanelTab, AssetsPanelTab]
+  const tabs = [ScenePanelTab, AssetsPanelTab]
   flags.visualScriptPanelEnabled && tabs.push(VisualScriptPanelTab)
 
   return {
@@ -184,6 +184,9 @@ const EditorContainer = () => {
 
   useSpatialEngine()
 
+  /** Call get state since it needs to be created */
+  getState(EditorHistoryState)
+
   const originEntity = useMutableState(ReferenceSpaceState).originEntity.value
 
   useEffect(() => {
@@ -236,11 +239,7 @@ const EditorContainer = () => {
 
   return (
     <main className="pointer-events-auto">
-      <div
-        id="editor-container"
-        className="flex flex-col bg-black"
-        style={scenePath.value ? { background: 'transparent' } : {}}
-      >
+      <div id="editor-container" className="flex flex-col" style={scenePath.value ? { background: 'transparent' } : {}}>
         {uiEnabled.value && (
           <DndWrapper id="editor-container">
             <DragLayer />

@@ -31,10 +31,8 @@ import {
   Component,
   Entity,
   EntityTreeComponent,
-  EntityUUID,
   UUIDComponent,
   createEntity,
-  entityExists,
   getComponent,
   hasComponent,
   iterateEntityNode,
@@ -45,10 +43,8 @@ import {
 import PrefabConfirmationPanelDialog from '@ir-engine/editor/src/components/dialogs/PrefabConfirmationPanelDialog'
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { SkyboxComponent } from '@ir-engine/engine/src/scene/components/SkyboxComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { getMutableState, getState, startReactor, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { getMutableState, getState, startReactor, useHookstate } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, HemisphereLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
@@ -57,7 +53,7 @@ import { Button, Input } from '@ir-engine/ui'
 import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Scene } from 'three'
+import { Quaternion, Scene, Vector3 } from 'three'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { exportRelativeGLTF } from '../../functions/exportGLTF'
 import { EditorState } from '../../services/EditorServices'
@@ -131,6 +127,16 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
     const parentEntity = getComponent(entity, EntityTreeComponent).parentEntity
     setComponent(entity, NameComponent, prefabName.value)
     getMutableState(SelectionState).selectedEntities.set([])
+
+    const transform = getComponent(entity, TransformComponent)
+    const position = transform.position.clone()
+    const rotation = transform.rotation.clone()
+
+    setComponent(entity, TransformComponent, {
+      position: new Vector3(0, 0, 0),
+      rotation: new Quaternion().identity(),
+      scale: new Vector3(1, 1, 1)
+    })
     await exportRelativeGLTF(entity, srcProject, fileName)
 
     const resources = await API.instance.service(staticResourcePath).find({
@@ -143,49 +149,28 @@ export default function CreatePrefabPanel({ entity, isExportLookDev }: { entity?
     const tags = [...prefabTag.value]
     await API.instance.service(staticResourcePath).patch(resource.id, { tags: tags, project: srcProject })
 
-    const transform = getComponent(entity, TransformComponent)
-    const position = transform.position.clone()
-    const rotation = transform.rotation.clone()
-
     EditorControlFunctions.removeObject([entity])
-    const sceneID = getComponent(parentEntity, SourceComponent)
+    const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
+      [
+        { name: GLTFComponent.jsonID, props: { src: fileURL } },
+        { name: TransformComponent.jsonID, props: { position, rotation } }
+      ],
+      parentEntity
+    )
+    getMutableState(SelectionState).selectedEntities.set([entityUUID])
     const reactor = startReactor(() => {
-      const documentState = useHookstate(getMutableState(GLTFDocumentState))
-      const nodes = documentState[sceneID].nodes
-      const entityUUIDState = useHookstate<EntityUUID | undefined>(undefined)
+      const entity = UUIDComponent.useEntityByUUID(entityUUID)
+      const gltfComponent = useOptionalComponent(entity, GLTFComponent)
+
       useEffect(() => {
-        if (!entityExists(entity) && !entityUUIDState.value) {
-          const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
-            [
-              { name: GLTFComponent.jsonID, props: { src: fileURL } },
-              { name: TransformComponent.jsonID, props: { position, rotation } }
-            ],
-            parentEntity
-          )
-          getMutableState(SelectionState).selectedEntities.set([entityUUID])
-          entityUUIDState.set(entityUUID)
-        } else {
-          console.log('Entity not removed')
-        }
-      }, [nodes])
+        if (!gltfComponent) return
+        const name = prefabName.value
+        setComponent(entity, NameComponent, name)
+        finishSavePrefab()
+        reactor.stop()
+      }, [gltfComponent])
 
-      const ModelLoadedReactor = (props: { entityUUID: EntityUUID }) => {
-        const { entityUUID } = props
-        const entity = UUIDComponent.useEntityByUUID(entityUUID)
-        const gltfComponent = useOptionalComponent(entity, GLTFComponent)
-
-        useImmediateEffect(() => {
-          if (!gltfComponent) return
-          const name = prefabName.value
-          setComponent(entity, NameComponent, name)
-          finishSavePrefab()
-          reactor.stop()
-        }, [gltfComponent])
-
-        return null
-      }
-
-      return entityUUIDState.value ? <ModelLoadedReactor entityUUID={entityUUIDState.value} /> : null
+      return null
     })
   }
 

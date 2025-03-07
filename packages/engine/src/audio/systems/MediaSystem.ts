@@ -26,7 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { MeshBasicMaterial, VideoTexture } from 'three'
 
-import { getComponent, getMutableComponent, hasComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import {
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  hasComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
@@ -57,6 +62,7 @@ export class AudioEffectPlayer {
     ui: '/sfx/ui.mp3'
   }
 
+  bufferPromiseMap = {} as { [path: string]: Promise<AudioBuffer | null> }
   bufferMap = {} as { [path: string]: AudioBuffer }
 
   loadBuffer = async (path: string) => {
@@ -69,7 +75,7 @@ export class AudioEffectPlayer {
 
   #init() {
     if (this.#els.length) return
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 4; i++) {
       const audioElement = document.createElement('audio')
       audioElement.crossOrigin = 'anonymous'
       audioElement.loop = false
@@ -77,25 +83,38 @@ export class AudioEffectPlayer {
     }
   }
 
-  play = async (sound: string, volumeMultiplier = getState(AudioState).notificationVolume) => {
-    await Promise.resolve()
+  #queue = new Set<string>()
 
+  play = (sound: string, volumeMultiplier = getState(AudioState).notificationVolume) => {
     if (!this.#els.length) return
 
-    if (!this.bufferMap[sound]) {
+    const audioContext = getState(AudioState).audioContext
+
+    if (this.#queue.has(sound) || audioContext.state === 'suspended') return
+    this.#queue.add(sound)
+
+    if (!this.bufferPromiseMap[sound]) {
       // create buffer if doesn't exist
-      const [buffer] = await getAudioAsync(sound)
-      if (buffer) this.bufferMap[sound] = buffer
+      this.bufferPromiseMap[sound] = this.loadBuffer(sound)
+      this.bufferPromiseMap[sound].then((buffer) => {
+        if (!buffer) return // keep in queue so we never request it again
+        this.bufferMap[sound] = buffer
+        this.#queue.delete(sound)
+        this.play(sound, volumeMultiplier)
+      })
+      return
     }
 
-    const source = getState(AudioState).audioContext.createBufferSource()
+    const source = audioContext.createBufferSource()
     source.buffer = this.bufferMap[sound]
-    const el = this.#els.find((el) => el.paused) ?? this.#els[0]
+    const el = this.#els.find((el) => el.paused) ?? this.#els[Math.floor(Math.random() * this.#els.length)]
     el.volume = getState(AudioState).masterVolume * volumeMultiplier
     if (el.src !== sound) el.src = sound
     el.currentTime = 0
     source.start()
-    source.connect(getState(AudioState).audioContext.destination)
+    source.connect(audioContext.destination)
+
+    this.#queue.delete(sound)
   }
 }
 
@@ -130,13 +149,15 @@ const execute = () => {
   /** Use a priority queue with videos to ensure only a few are updated each frame */
   for (const entity of VideoComponent.uniqueVideoEntities) {
     const videoMeshEntity = getComponent(entity, VideoComponent).videoMeshEntity
-    const videoTexture = (getComponent(videoMeshEntity, MeshComponent)?.material as MeshBasicMaterial)
-      ?.map as VideoTexture
-    if (videoTexture?.isVideoTexture) {
-      const video = videoTexture.image
-      const hasVideoFrameCallback = 'requestVideoFrameCallback' in video
-      if (hasVideoFrameCallback === false || video.readyState < video.HAVE_CURRENT_DATA) continue
-      videoPriorityQueue.addPriority(entity, 1)
+    const videoMesh = getOptionalComponent(videoMeshEntity, MeshComponent)
+    if (videoMesh) {
+      const videoTexture = (videoMesh.material as MeshBasicMaterial)?.map as VideoTexture
+      if (videoTexture?.isVideoTexture) {
+        const video = videoTexture.image
+        const hasVideoFrameCallback = 'requestVideoFrameCallback' in video
+        if (hasVideoFrameCallback === false || video.readyState < video.HAVE_CURRENT_DATA) continue
+        videoPriorityQueue.addPriority(entity, 1)
+      }
     }
   }
 

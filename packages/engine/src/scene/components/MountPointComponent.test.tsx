@@ -58,7 +58,6 @@ import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { act, render } from '@testing-library/react'
-import React from 'react'
 import { Quaternion, Vector3 } from 'three'
 import { v4 } from 'uuid'
 import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -124,13 +123,14 @@ describe('MountPointComponent.ts', async () => {
     })
 
     it('Should set the mount point component initial data', () => {
-      const customData = setComponent(mountPointTestEntity, MountPointComponent, {
-        type: 'seat',
+      const customData = {
+        type: 'seat' as const,
         dismountOffset: new Vector3(0, 0, 0.75),
         forceDismountPosition: true
-      })
+      }
+      setComponent(mountPointTestEntity, MountPointComponent, customData)
       const componentData = getComponent(mountPointTestEntity, MountPointComponent)
-      assert.equal(componentData, customData)
+      assert.deepEqual(componentData, customData)
     })
     describe('Reactor', () => {
       it('Should set mountEntity as callback to entity', () => {
@@ -142,8 +142,8 @@ describe('MountPointComponent.ts', async () => {
       it('Should update the UI to show or hide an Interacteable component in the dropdown button based on wheter or not its mounted', async () => {
         MountPointComponent.mountEntity(avatarTestEntity, mountPointTestEntity)
         applyIncomingActions()
-        const { rerender, unmount } = render(<></>)
-        await act(async () => rerender(MountPointComponent.reactor))
+        await act(() => render(null))
+
         // Github race condition
         await vi.waitFor(
           () => {
@@ -155,7 +155,9 @@ describe('MountPointComponent.ts', async () => {
         assert.equal(!!mountPointPresent, true)
         MountPointComponent.unmountEntity(avatarTestEntity)
         applyIncomingActions()
-        await act(async () => rerender(MountPointComponent.reactor))
+
+        await act(() => render(null))
+
         // Github race condition
         await vi.waitFor(
           () => {
@@ -294,8 +296,7 @@ describe('MountPointComponent.ts', async () => {
       setComponent(physicsWorldEntity, UUIDComponent, v4() as EntityUUID)
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)
-      const physicsWorldUUID = getComponent(physicsWorldEntity, UUIDComponent)
-      physicsWorld = Physics.createWorld(physicsWorldUUID)
+      physicsWorld = Physics.createWorld(physicsWorldEntity)
       physicsWorld.timestep = 1 / 60
       setComponent(avatarTestEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
       setComponent(mountPointTestEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })

@@ -9,8 +9,12 @@
   border: none;
 }
 
+.dock-panel-max-btn::before {
+  border-color: var(--text-primary) !important;
+}
+
 .dock.dock-top {
-  background: var(--bg-primary);
+  background: var(--surface-0);
 }
 
 .dock-nav-list {
@@ -28,10 +32,12 @@
   background: transparent !important;
   margin: 0;
   border-bottom: none !important;
+  color: var(--text-secondary) !important;
 }
 
 .dock-tab.dock-tab-active {
-  background: #212226 !important;
+  background: var(--ui-select-background) !important;
+  color: var(--text-primary) !important;
 }
 
 .dock-tab:not(.dock-tab-active):hover {

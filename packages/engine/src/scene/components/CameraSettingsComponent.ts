@@ -25,8 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
+import { useEntityContext } from '@ir-engine/ecs'
 import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getMutableState, getState } from '@ir-engine/hyperflux'
 import { CameraSettingsState } from '@ir-engine/spatial/src/camera/CameraSceneMetadata'

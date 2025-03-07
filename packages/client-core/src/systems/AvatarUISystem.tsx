@@ -24,25 +24,30 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { CircleGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
+import { CircleGeometry, DoubleSide, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
-import multiLogger from '@ir-engine/common/src/logger'
 import { UserID } from '@ir-engine/common/src/schema.type.module'
-import { getComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { createEntity, EngineState, useEntityContext } from '@ir-engine/ecs'
+import {
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
+import { QueryReactor } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { applyVideoToTexture } from '@ir-engine/engine/src/scene/functions/applyScreenshareToTexture'
-import { getState } from '@ir-engine/hyperflux'
+import { getState, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkObjectComponent, NetworkState } from '@ir-engine/network'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
 import { easeOutElastic } from '@ir-engine/spatial/src/common/functions/MathFunctions'
+import { createTransitionState } from '@ir-engine/spatial/src/common/functions/createTransitionState'
 import { InputPointerComponent } from '@ir-engine/spatial/src/input/components/InputPointerComponent'
 import { Physics, RaycastArgs } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
@@ -53,17 +58,16 @@ import { TransformDirtyUpdateSystem } from '@ir-engine/spatial/src/transform/sys
 import { XRUIComponent } from '@ir-engine/spatial/src/xrui/components/XRUIComponent'
 
 import { EntityTreeComponent } from '@ir-engine/ecs'
+import { PeerMediaChannelState } from '@ir-engine/network/src/media/PeerMediaChannelState'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { PeerMediaChannelState } from '../media/PeerMediaChannelState'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
+import React from 'react'
 import { XruiNameplateComponent } from '../social/components/XruiNameplateComponent'
-import { createAvatarDetailView } from './ui/AvatarDetailView'
 
-const logger = multiLogger.child({ component: 'client-core:systems' })
-
-export const AvatarUI = new Map<Entity, ReturnType<typeof createAvatarDetailView>>()
+export const AvatarUI = new Map<Entity, Entity>()
 export const AvatarUITransitions = new Map<Entity, ReturnType<typeof createTransitionState>>()
 
 export const AvatarMenus = {
@@ -90,8 +94,6 @@ export const renderAvatarContextMenu = (userId: UserID, contextMenuEntity: Entit
   contextMenuXRUI.position.z += contextMenuXRUI.position.z > cameraPosition.z ? -0.4 : 0.4
   contextMenuXRUI.quaternion.copy(cameraTransform.rotation)
 }
-
-const userQuery = defineQuery([AvatarComponent, TransformComponent, NetworkObjectComponent]) //, Not(NetworkObjectOwnedTag)])
 
 const _vector3 = new Vector3()
 
@@ -148,45 +150,24 @@ const execute = () => {
   videoPreviewTimer += ecsState.deltaSeconds
   if (videoPreviewTimer > 1) videoPreviewTimer = 0
 
-  for (const userEntity of userQuery.enter()) {
-    if (AvatarUI.has(userEntity)) {
-      logger.info({ userEntity }, 'Entity already exists.')
-      continue
-    }
-    const userId = getComponent(userEntity, NetworkObjectComponent).ownerId
-    const ui = createAvatarDetailView(userId)
-    const transition = createTransitionState(1, 'IN')
-    AvatarUITransitions.set(userEntity, transition)
-    const mesh = ui.state.videoPreviewMesh.value as Mesh<CircleGeometry, MeshBasicMaterial>
-    const previewMeshEntity = createEntity()
-    setComponent(previewMeshEntity, TransformComponent, { position: new Vector3(0, 0.3, 0) })
-    setComponent(previewMeshEntity, EntityTreeComponent, { parentEntity: ui.entity })
-    setComponent(previewMeshEntity, NameComponent, `avatar-ui-root-${userEntity}`)
-    setComponent(previewMeshEntity, MeshComponent, mesh)
-    AvatarUI.set(userEntity, ui)
-  }
-
   const cameraTransform = getComponent(viewerEntity, TransformComponent)
 
   const immersiveMedia = getState(MediaSettingsState).immersiveMedia
   const mediaNetwork = NetworkState.mediaNetwork
 
   /** Render immersive media bubbles */
-  for (const userEntity of userQuery()) {
-    const ui = AvatarUI.get(userEntity)
-    if (!ui) continue
+  for (const [userEntity, videoMeshEntity] of AvatarUI.entries()) {
     const transition = AvatarUITransitions.get(userEntity)!
     const { avatarHeight } = getComponent(userEntity, AvatarComponent)
-    const userTransform = getComponent(userEntity, TransformComponent)
-    const xruiTransform = getComponent(ui.entity, TransformComponent)
 
-    const videoPreviewMesh = ui.state.videoPreviewMesh.value as Mesh<CircleGeometry, MeshBasicMaterial>
-    _vector3.copy(userTransform.position).y += avatarHeight + (videoPreviewMesh.visible ? 0.1 : 0.3)
+    TransformComponent.getWorldPosition(userEntity, _vector3)
+
+    _vector3.y += avatarHeight + 0.5
 
     const dist = cameraTransform.position.distanceTo(_vector3)
 
-    if (dist > 25) transition.setState('OUT')
-    if (dist < 20) transition.setState('IN')
+    if (dist > 10) transition.setState('OUT')
+    if (dist < 6) transition.setState('IN')
 
     let springAlpha = transition.alpha
     const deltaSeconds = getState(ECSState).deltaSeconds
@@ -195,9 +176,13 @@ const execute = () => {
       springAlpha = easeOutElastic(alpha)
     })
 
-    xruiTransform.scale.setScalar(1.3 * Math.max(1, dist / 6) * Math.max(springAlpha, 0.001))
-    xruiTransform.position.copy(_vector3)
-    xruiTransform.rotation.copy(cameraTransform.rotation)
+    const videoTransform = getComponent(videoMeshEntity, TransformComponent)
+
+    videoTransform.scale.setScalar(0.5 * Math.max(1, dist / 6) * Math.max(springAlpha, 0.001))
+    videoTransform.position.copy(_vector3)
+    videoTransform.rotation.copy(cameraTransform.rotation)
+
+    const videoPreviewMesh = getComponent(videoMeshEntity, MeshComponent) as Mesh<CircleGeometry, MeshBasicMaterial>
 
     if (mediaNetwork)
       if (immersiveMedia && videoPreviewTimer === 0) {
@@ -231,12 +216,12 @@ const execute = () => {
               if (!newVideo.readyState) {
                 newVideo.onloadeddata = () => {
                   applyVideoToTexture(newVideo, videoPreviewMesh, 'fill')
-                  videoPreviewMesh.visible = true
+                  setComponent(videoPreviewMesh.entity, VisibleComponent)
                   applyingVideo.delete(ownerId)
                 }
               } else {
                 applyVideoToTexture(newVideo, videoPreviewMesh, 'fill')
-                videoPreviewMesh.visible = true
+                setComponent(videoPreviewMesh.entity, VisibleComponent)
                 applyingVideo.delete(ownerId)
               }
             }
@@ -249,30 +234,49 @@ const execute = () => {
       videoPreviewMesh.visible = false
     }
   }
-
-  for (const userEntity of userQuery.exit()) {
-    const entity = AvatarUI.get(userEntity)?.entity
-    if (typeof entity !== 'undefined') removeEntity(entity) // todo - why does this cause a GroupQueryReactor unmount error?
-    AvatarUI.delete(userEntity)
-    AvatarUITransitions.delete(userEntity)
-  }
 }
 
 const AvatarInstanceReactor = () => {
   const avatarEntity = useEntityContext()
+  const isSelf = useComponent(avatarEntity, NetworkObjectComponent).ownerId.value === getState(EngineState).userID
+
+  const immersiveMedia = useMutableState(MediaSettingsState).immersiveMedia.value
 
   useEffect(() => {
+    if (isSelf) return
+
     setComponent(avatarEntity, XruiNameplateComponent)
+
     return () => {
       removeComponent(avatarEntity, XruiNameplateComponent)
     }
   }, [])
+
+  useEffect(() => {
+    if (isSelf || !immersiveMedia) return
+
+    const transition = createTransitionState(1, 'IN')
+    AvatarUITransitions.set(avatarEntity, transition)
+    const previewMeshEntity = createEntity()
+    setComponent(previewMeshEntity, TransformComponent)
+    setComponent(previewMeshEntity, EntityTreeComponent, { parentEntity: getState(ReferenceSpaceState).originEntity })
+    setComponent(previewMeshEntity, NameComponent, `avatar-ui-root-${avatarEntity}`)
+    const videoPreviewMesh = new Mesh(new CircleGeometry(0.25, 32), new MeshBasicMaterial({ side: DoubleSide }))
+    setComponent(previewMeshEntity, MeshComponent, videoPreviewMesh)
+    AvatarUI.set(avatarEntity, previewMeshEntity)
+
+    return () => {
+      AvatarUI.delete(avatarEntity)
+      AvatarUITransitions.delete(avatarEntity)
+    }
+  }, [immersiveMedia])
+
   return null
 }
 
 export const AvatarUISystem = defineSystem({
   uuid: 'ee.client.AvatarUISystem',
-  insert: { before: TransformDirtyUpdateSystem }
-  // execute,
-  // reactor
+  insert: { before: TransformDirtyUpdateSystem },
+  execute,
+  reactor: () => <QueryReactor Components={[AvatarComponent]} ChildEntityReactor={AvatarInstanceReactor} />
 })

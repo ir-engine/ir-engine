@@ -25,7 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
-import LoadingAnimation from './animation.svg?react'
+import LoadingAnimation from './assets/animation.webp'
 
 const LoadingView = ({
   title,
@@ -83,13 +83,13 @@ const LoadingView = ({
       data-testid="loading-view-spinner"
     >
       {animated ? (
-        <div className="h-70 w-56 bg-cover bg-center">
-          <LoadingAnimation />
+        <div className="h-50% w-50% bg-cover bg-center">
+          <img src={LoadingAnimation} alt="loading spinner"></img>
         </div>
       ) : (
         loader
       )}
-      {title && <Text className={titleClassname}>{title}</Text>}
+      {title && <Text className={twMerge(titleClassname, 'text-text-primary')}>{title}</Text>}
       {description && <Text className="opacity-65">{description}</Text>}
     </div>
   )

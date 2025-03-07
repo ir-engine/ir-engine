@@ -23,7 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { afterEach, assert, beforeEach, describe, it } from 'vitest'
+import sinon from 'sinon'
+import { afterEach, assert, beforeEach, describe, expect, it } from 'vitest'
+
+import '@ir-engine/engine'
 
 import { API } from '@ir-engine/common'
 import { avatarPath, staticResourcePath, userAvatarPath } from '@ir-engine/common/src/schema.type.module'
@@ -40,8 +43,10 @@ import {
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'
-import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
+import '@ir-engine/engine/src/avatar/state/AvatarNetworkState'
+import { SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
+import { startEngineReactor } from '@ir-engine/engine/tests/startEngineReactor'
 import {
   EventDispatcher,
   UserID,
@@ -54,8 +59,8 @@ import {
 import { NetworkActions, NetworkState, NetworkTopics } from '@ir-engine/network'
 import { createMockNetwork } from '@ir-engine/network/tests/createMockNetwork'
 import { SpectateActions } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
+import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import { act, render } from '@testing-library/react'
-import React from 'react'
 import { Cache } from 'three'
 import { v4 } from 'uuid'
 import { SearchParamState } from '../common/services/RouterService'
@@ -83,7 +88,10 @@ const sceneURL = '/empty.gltf'
 describe('AvatarSpawnSystem', async () => {
   let sceneEntity: Entity
   beforeEach(async () => {
+    Cache.enabled = true
     createEngine()
+    initializeSpatialEngine()
+    startEngineReactor()
 
     Cache.add(sceneURL, emptyGltf)
 
@@ -108,44 +116,52 @@ describe('AvatarSpawnSystem', async () => {
       ],
       [avatarPath]: []
     }
-    eventDispatcher = new EventDispatcher()
-    ;(API.instance as any) = {
-      service: (path: string) => {
-        return {
-          find: () => {
-            return new Promise((resolve) => {
-              resolve(
-                JSON.parse(
-                  JSON.stringify({
-                    data: db[path],
-                    limit: 10,
-                    skip: 0,
-                    total: db[path].length
-                  })
-                )
+
+    const createService = (path: string) => {
+      return {
+        find: () => {
+          return new Promise((resolve) => {
+            resolve(
+              JSON.parse(
+                JSON.stringify({
+                  data: db[path],
+                  limit: 10,
+                  skip: 0,
+                  total: db[path].length
+                })
               )
-            })
-          },
-          get: (id) => {
-            return new Promise((resolve) => {
-              const data = db[path].find((entry) => entry.id === id)
-              resolve(data ? JSON.parse(JSON.stringify(data)) : null)
-            })
-          },
-          on: (serviceName, cb) => {
-            eventDispatcher.addEventListener(serviceName, cb)
-          },
-          off: (serviceName, cb) => {
-            eventDispatcher.removeEventListener(serviceName, cb)
-          }
+            )
+          })
+        },
+        get: (id) => {
+          return new Promise((resolve) => {
+            const data = db[path].find((entry) => entry.id === id)
+            resolve(data ? JSON.parse(JSON.stringify(data)) : null)
+          })
+        },
+        on: (serviceName, cb) => {
+          eventDispatcher.addEventListener(serviceName, cb)
+        },
+        off: (serviceName, cb) => {
+          eventDispatcher.removeEventListener(serviceName, cb)
         }
       }
     }
 
-    getMutableState(LocationState).currentLocation.location.sceneURL.set(sceneURL)
-    GLTFAssetState.loadScene(sceneURL, sceneID)
+    const apis = {
+      [staticResourcePath]: createService(staticResourcePath),
+      [userAvatarPath]: createService(userAvatarPath),
+      [avatarPath]: createService(avatarPath)
+    }
+    eventDispatcher = new EventDispatcher()
+    ;(API.instance as any) = {
+      service: (path: string) => apis[path]
+    }
 
-    sceneEntity = getState(GLTFAssetState)[sceneURL]
+    getMutableState(LocationState).currentLocation.location.sceneURL.set(sceneURL)
+    SceneState.loadScene(sceneURL, sceneID)
+
+    sceneEntity = getState(SceneState)[sceneURL]
 
     createMockNetwork(NetworkTopics.world)
 
@@ -172,6 +188,7 @@ describe('AvatarSpawnSystem', async () => {
     url.search = ''
     history.replaceState(history.state, null!, url.href)
 
+    Cache.enabled = false
     return destroyEngine()
   })
 
@@ -179,10 +196,9 @@ describe('AvatarSpawnSystem', async () => {
     // ensure no spectate data
     getMutableState(SearchParamState).set({})
 
-    const reactor = startReactor(system.reactor!)
+    startReactor(system.reactor!)
 
-    const { rerender, unmount } = render(<></>)
-    await act(async () => rerender(<></>))
+    await act(async () => render(null))
 
     applyIncomingActions()
 
@@ -205,8 +221,6 @@ describe('AvatarSpawnSystem', async () => {
     assert.deepEqual(avatarURLAction.type as string, AvatarNetworkAction.setAvatarURL.type)
     assert.equal(avatarURLAction.avatarURL, '/avatar.gltf')
     assert.equal(avatarURLAction.entityUUID, userID + '_avatar')
-
-    unmount()
   })
 
   it('should enter spectate mode with freecam when empty spectate is in search state', async () => {
@@ -218,10 +232,9 @@ describe('AvatarSpawnSystem', async () => {
     url.searchParams.set('spectate', '')
     history.replaceState(history.state, null!, url.href)
 
-    const reactor = startReactor(system.reactor!)
+    startReactor(system.reactor!)
 
-    const { rerender, unmount } = render(<></>)
-    await act(async () => rerender(<></>))
+    await act(async () => render(null))
 
     applyIncomingActions()
 
@@ -232,8 +245,6 @@ describe('AvatarSpawnSystem', async () => {
     assert.ok(spectateAction)
     assert.equal(spectateAction.spectatorUserID, Engine.instance.userID)
     assert.equal(spectateAction.spectatingEntity, '')
-
-    unmount()
   })
 
   it('should enter spectate mode when spectate specified user is in search state', async () => {
@@ -247,10 +258,9 @@ describe('AvatarSpawnSystem', async () => {
     url.searchParams.set('spectate', otherUserID)
     history.replaceState(history.state, null!, url.href)
 
-    const reactor = startReactor(system.reactor!)
+    startReactor(system.reactor!)
 
-    const { rerender, unmount } = render(<></>)
-    await act(async () => rerender(<></>))
+    await act(async () => render(null))
 
     applyIncomingActions()
 
@@ -261,8 +271,6 @@ describe('AvatarSpawnSystem', async () => {
     assert.ok(spectateAction)
     assert.equal(spectateAction.spectatorUserID, Engine.instance.userID)
     assert.equal(spectateAction.spectatingEntity, otherUserID)
-
-    unmount()
   })
 
   it('should spectate entity specified in scene settings', async () => {
@@ -271,10 +279,9 @@ describe('AvatarSpawnSystem', async () => {
     setComponent(entity, EntityTreeComponent, { parentEntity: sceneEntity })
     setComponent(entity, SceneSettingsComponent, { spectateEntity: spectateUUID })
 
-    const reactor = startReactor(system.reactor!)
+    startReactor(system.reactor!)
 
-    const { rerender, unmount } = render(<></>)
-    await act(async () => rerender(<></>))
+    await act(async () => render(null))
 
     applyIncomingActions()
 
@@ -285,7 +292,26 @@ describe('AvatarSpawnSystem', async () => {
     assert.ok(spectateAction)
     assert.equal(spectateAction.spectatorUserID, Engine.instance.userID)
     assert.equal(spectateAction.spectatingEntity, spectateUUID)
+  })
 
-    unmount()
+  it('should select a new avatar if none is found', async () => {
+    db[userAvatarPath] = []
+    db[avatarPath] = [
+      {
+        id: v4(),
+        modelResource: {
+          url: '/avatar2.gltf'
+        }
+      }
+    ]
+
+    const patchCallSpy = sinon.spy()
+    API.instance.service(userAvatarPath).patch = patchCallSpy
+
+    startReactor(system.reactor!)
+
+    await act(async () => render(null))
+
+    expect(patchCallSpy.calledOnce).toBe(true)
   })
 })

@@ -115,6 +115,7 @@ export async function seed(knex: Knex): Promise<void> {
             appId: process.env.GITHUB_APP_ID,
             key: process.env.GITHUB_CLIENT_ID,
             secret: process.env.GITHUB_CLIENT_SECRET,
+            privateKey: process.env.GITHUB_PRIVATE_KEY,
             scope: GITHUB_SCOPES
           },
           google: {

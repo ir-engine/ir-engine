@@ -237,19 +237,11 @@ export const VolumetricComponent = defineComponent({
     preTrackBufferingCallback: S.Optional(S.Func([S.Type<State<ComponentType<any>>>()], S.Void()))
   }),
 
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (typeof json.useLoadingEffect === 'boolean') {
-      component.useLoadingEffect.set(json.useLoadingEffect)
-    }
-    if (typeof json.volume === 'number') {
-      component.volume.set(json.volume)
-    }
-  },
   toJSON: (component) => ({
     useLoadingEffect: component.useLoadingEffect,
     volume: component.volume
   }),
+
   errors: ['INVALID_TRACK', 'GEOMETRY_ERROR', 'TEXTURE_ERROR', 'UNKNOWN_ERROR'],
 
   canPlayWithoutPause: (entity: Entity) => {

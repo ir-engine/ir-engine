@@ -23,14 +23,17 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ClientSettingDatabaseType, clientSettingPath } from '../../common/src/schemas/setting/client-setting.schema'
+import {
+  ClientSettingDatabaseType,
+  clientDbToSchema,
+  clientSettingPath
+} from '../../common/src/schemas/setting/client-setting.schema'
 
 import knex from 'knex'
-import { clientDbToSchema } from '../../server-core/src/setting/client-setting/client-setting.resolvers'
 
 export const getClientSetting = async () => {
   const knexClient = knex({
-    client: 'mysql',
+    client: 'mysql2',
     connection: {
       user: process.env.MYSQL_USER ?? 'server',
       password: process.env.MYSQL_PASSWORD ?? 'password',

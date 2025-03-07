@@ -29,16 +29,16 @@ import {
   ComponentType,
   getAllComponents,
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   serializeComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { getState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import {
-  MaterialPrototypeComponent,
+  MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 import { injectMaterialDefaults } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
@@ -67,10 +67,12 @@ import {
   Texture
 } from 'three'
 import { baseName, pathJoin, relativePathTo } from '../assets/functions/miscUtils'
-import { cleanStorageProviderURLs } from '../assets/functions/parseSceneJSON'
 import { STATIC_ASSET_REGEX } from '../assets/functions/pathResolver'
 import { SourceComponent } from '../scene/components/SourceComponent'
+import { handleScenePaths } from '../scene/functions/GLTFConversion'
 import { GLTFComponent } from './GLTFComponent'
+import { NodeIDComponent } from './NodeIDComponent'
+import { SceneDeltaExporterExtension } from './SceneDeltaExporterExtension'
 
 const WEBGL_CONSTANTS = {
   POINTS: 0x0000,
@@ -181,54 +183,8 @@ export interface GLTFSceneExportExtension {
   after?: (rootEntity: Entity, gltf: GLTF.IGLTF) => void
 }
 
-export class RemoveRootNodeParentExportExtension implements GLTFSceneExportExtension {
-  parentEntity: Entity = UndefinedEntity
-
-  before(rootEntity: Entity) {
-    if (hasComponent(rootEntity, EntityTreeComponent)) {
-      const tree = getMutableComponent(rootEntity, EntityTreeComponent)
-      this.parentEntity = tree.parentEntity.value
-      tree.parentEntity.set(UndefinedEntity)
-    }
-  }
-
-  after(rootEntity: Entity) {
-    if (hasComponent(rootEntity, EntityTreeComponent)) {
-      getMutableComponent(rootEntity, EntityTreeComponent).parentEntity.set(this.parentEntity)
-    }
-  }
-}
-
-export class IgnoreGLTFComponentExportExtension implements GLTFSceneExportExtension {
-  entityChildrenCache = new Map<Entity, Entity[] | undefined>()
-
-  beforeNode(entity: Entity) {
-    if (hasComponent(entity, GLTFComponent)) {
-      const source = GLTFComponent.getInstanceID(entity)
-      const children = getOptionalComponent(entity, EntityTreeComponent)?.children
-      if (children && children.length) {
-        const removed: Entity[] = []
-        const toKeep: Entity[] = []
-        for (const child of children) {
-          if (getOptionalComponent(child, SourceComponent) === source) removed.push(child)
-          else toKeep.push(child)
-        }
-        this.entityChildrenCache[entity] = removed
-        getMutableComponent(entity, EntityTreeComponent).children.set(toKeep)
-      }
-    }
-  }
-
-  afterNode(entity: Entity) {
-    const children = this.entityChildrenCache[entity]
-    if (children) {
-      getMutableComponent(entity, EntityTreeComponent).children.set(children)
-      this.entityChildrenCache.delete(entity)
-    }
-  }
-}
-
 type GLTFSceneExportContext = {
+  sourceID: string
   buffers: ArrayBuffer[]
   extensionsUsed: Set<string>
   exportExtensions: GLTFSceneExportExtension[]
@@ -243,12 +199,9 @@ type GLTFSceneExportContext = {
   }
 }
 
-export type ExportExtension = new () => GLTFSceneExportExtension
+export type ExportExtension = GLTFSceneExportExtension
 
-export const defaultExportExtensionList = [
-  IgnoreGLTFComponentExportExtension,
-  RemoveRootNodeParentExportExtension
-] as ExportExtension[]
+export const defaultExportExtensionList = [SceneDeltaExporterExtension] as (() => ExportExtension)[]
 
 type TypedArrayConstructor =
   | Int8ArrayConstructor
@@ -285,7 +238,7 @@ export function splitMeshByMaterials(originalMesh: Mesh): Mesh[] {
 
     const subMesh = new Mesh(subGeom, subMaterial)
     subMesh.position.copy(originalMesh.position)
-    subMesh.rotation.copy(originalMesh.rotation)
+    subMesh.quaternion.copy(originalMesh.quaternion)
     subMesh.scale.copy(originalMesh.scale)
     subMesh.matrix.copy(originalMesh.matrix)
     subMesh.matrixWorld.copy(originalMesh.matrixWorld)
@@ -367,9 +320,9 @@ export async function exportGLTFScene(
   projectName: string,
   relativePath: string,
   exportRoot = true,
-  exportExtensionTypes: ExportExtension[] = defaultExportExtensionList
+  exportExtensionTypes: ExportExtension[] = defaultExportExtensionList.map((ext) => ext())
 ) {
-  const exportExtensions = exportExtensionTypes.map((ext) => new ext())
+  const exportExtensions = exportExtensionTypes //.map((ext) => new ext())
 
   const gltf = {
     asset: { generator: 'IREngine.SceneExporter', version: '2.0' },
@@ -388,7 +341,10 @@ export async function exportGLTFScene(
     attributes: new Map<BufferAttribute | InterleavedBufferAttribute, number>()
   }
 
-  const context = {
+  const context: GLTFSceneExportContext = {
+    sourceID: hasComponent(entity, GLTFComponent)
+      ? GLTFComponent.getInstanceID(entity)
+      : getComponent(entity, SourceComponent),
     buffers: [] as ArrayBuffer[],
     extensionsUsed: new Set<string>(),
     exportExtensions,
@@ -399,19 +355,19 @@ export async function exportGLTFScene(
 
   if (exportRoot) {
     const rootIndex = await exportGLTFSceneNode(entity, gltf, context)
-    rootIndex && gltf.scenes![0].nodes.push(rootIndex)
+    if (typeof rootIndex === 'number') gltf.scenes![0].nodes.push(rootIndex)
   } else {
     const indices: number[] = []
     const children = getComponent(entity, EntityTreeComponent).children
     for (const child of children) {
       const index = await exportGLTFSceneNode(child, gltf, context)
-      typeof index === 'number' && indices.push(index)
+      if (typeof index === 'number') indices.push(index)
     }
     gltf.scenes![0].nodes.push(...indices)
   }
 
   if (context.extensionsUsed.size) gltf.extensionsUsed = [...context.extensionsUsed]
-  cleanStorageProviderURLs(gltf)
+  handleScenePaths(gltf, 'encode')
 
   const files: File[] = []
   //combine buffers
@@ -449,9 +405,9 @@ export async function exportGLTFScene(
 
   if (!gltf) return []
 
-  const blob = [new Blob([JSON.stringify(gltf, null, 2)], { type: 'application/gltf+json' })]
-  const gltfFile = new File(blob, relativePath)
-  return [gltfFile, ...files]
+  // const blob = [new Blob([JSON.stringify(gltf, null, 2)], { type: 'application/gltf+json' })]
+  // const gltfFile = new File(blob, relativePath)
+  return [gltf, ...files]
 }
 
 const _diffMatrix = new Matrix4()
@@ -482,15 +438,14 @@ const exportMesh = async (mesh: Mesh, gltf: GLTF.IGLTF, context: GLTFSceneExport
       if (attributeName.slice(0, 5) === 'morph') continue
 
       const attribute = geometry.attributes[attributeName]
-      if (attribute instanceof InterleavedBufferAttribute) {
-        throw new Error('InterleavedBufferAttribute not supported')
-      }
 
       const convertedName = nameConversion[attributeName] || attributeName.toUpperCase()
 
       let attributeIndex = -1
       if (context.cache.attributes.has(attribute)) {
         attributeIndex = context.cache.attributes.get(attribute)!
+      } else if (attribute instanceof InterleavedBufferAttribute) {
+        attributeIndex = exportAccessor(toDeInterleaved(attribute), gltf, context)
       } else {
         attributeIndex = exportAccessor(attribute, gltf, context)
       }
@@ -535,6 +490,10 @@ const exportMesh = async (mesh: Mesh, gltf: GLTF.IGLTF, context: GLTFSceneExport
   context.cache.meshes.set(mesh, meshIndex)
 
   return meshIndex
+}
+
+const toDeInterleaved = (attribute: InterleavedBufferAttribute): BufferAttribute => {
+  return attribute.clone(undefined)
 }
 
 const exportAccessor = (
@@ -612,6 +571,8 @@ const exportAccessor = (
   return accessorIndex
 }
 
+const getPaddedBufferSize = (bufferSize: number): number => Math.ceil(bufferSize / 4) * 4
+
 const exportBufferView = (
   attribute: BufferAttribute,
   componentType: number,
@@ -637,7 +598,7 @@ const exportBufferView = (
   }
 
   const bufferSize = count * attribute.itemSize * componentSize
-  const byteLength = Math.ceil(bufferSize / 4) * 4
+  const byteLength = getPaddedBufferSize(bufferSize)
   const dataView = new DataView(new ArrayBuffer(byteLength))
   let offset = 0
   for (let i = start; i < start + count; i++) {
@@ -763,13 +724,13 @@ const exportMaterial = async (
     result[field] = argEntry
   }
   const materialComponent = getComponent(materialEntity, MaterialStateComponent)
-  const prototype = getComponent(materialComponent.prototypeEntity!, MaterialPrototypeComponent)
+  const prototype = getState(MaterialPrototypeDefinitions)[materialComponent.material.type]
   //@todo: plugins
   materialDef.extensions = materialDef.extensions ?? {}
   materialDef.extensions['EE_material'] = {
-    uuid: getComponent(materialEntity, UUIDComponent),
+    uuid: getComponent(materialEntity, NodeIDComponent),
     name: getComponent(materialEntity, NameComponent),
-    prototype: Object.keys(prototype.prototypeConstructor!)[0],
+    prototype: prototype.prototypeConstructor.name,
     args: result,
     plugins: []
   }
@@ -792,8 +753,10 @@ const exportTexture = async (texture: Texture, gltf: GLTF.IGLTF, context: GLTFSc
   if (mimeType === 'image/webp') mimeType = 'image/png'
 
   const src = texture.userData.src
-
-  if (src) {
+  const url = texture.userData.url
+  if (url) {
+    texture.image.src = url
+  } else if (src) {
     texture.image.src = src
   }
   if (mimeType) {
@@ -810,6 +773,50 @@ const exportTexture = async (texture: Texture, gltf: GLTF.IGLTF, context: GLTFSc
   return textureIndex
 }
 
+const getPaddedArrayBuffer = (arrayBuffer: ArrayBuffer, paddingByte = 0) => {
+  const paddedLength = getPaddedBufferSize(arrayBuffer.byteLength)
+
+  if (paddedLength !== arrayBuffer.byteLength) {
+    const array = new Uint8Array(paddedLength)
+    array.set(new Uint8Array(arrayBuffer))
+
+    if (paddingByte !== 0) {
+      for (let i = arrayBuffer.byteLength; i < paddedLength; i++) {
+        array[i] = paddingByte
+      }
+    }
+
+    return array.buffer
+  }
+
+  return arrayBuffer
+}
+
+const exportBufferViewImage = async (
+  blob: Blob,
+  gltf: GLTF.IGLTF,
+  context: GLTFSceneExportContext
+): Promise<number> => {
+  return new Promise(function (resolve) {
+    const reader = new FileReader()
+    reader.readAsArrayBuffer(blob)
+    reader.onloadend = function () {
+      const buffer = getPaddedArrayBuffer(reader.result as ArrayBuffer)
+
+      const bufferViewDef = {
+        buffer: exportBuffer(buffer, gltf, context),
+        byteOffset: 0,
+        byteLength: buffer.byteLength
+      }
+
+      const bufferViewIndex = gltf.bufferViews!.length
+      if (!gltf.bufferViews) gltf.bufferViews = []
+      gltf.bufferViews.push(bufferViewDef)
+      resolve(bufferViewIndex)
+    }
+  })
+}
+
 const exportImage = async (image: any, gltf: GLTF.IGLTF, context: GLTFSceneExportContext): Promise<number> => {
   const cache = context.cache.images
   if (typeof image.src === 'string') {
@@ -817,17 +824,36 @@ const exportImage = async (image: any, gltf: GLTF.IGLTF, context: GLTFSceneExpor
   } else if (cache.has(image)) return cache.get(image)!
 
   gltf.images ??= []
-  const relativeSrc = STATIC_ASSET_REGEX.exec(image.src)![3]
-  const dstName = baseName(relativeSrc)
-  const srcName = baseName(context.relativePath)
-  const dstDir = LoaderUtils.extractUrlBase(relativeSrc)
-  const srcDir = LoaderUtils.extractUrlBase(context.relativePath)
 
-  const uri = pathJoin(relativePathTo(srcDir, dstDir), dstName)
+  let imageDef = undefined as undefined | GLTF.IImage
 
-  const imageDef: GLTF.IImage = {
-    mimeType: image.mimeType,
-    uri
+  if (/^blob:/.test(image.src)) {
+    const canvas = new OffscreenCanvas(image.width, image.height)
+    const ctx = canvas.getContext('2d')!
+    ctx.drawImage(image, 0, 0)
+    const blob = await canvas.convertToBlob({ type: image.mimeType, quality: 1 })
+
+    const bufferViewIndex = await exportBufferViewImage(blob, gltf, context)
+    imageDef = {
+      mimeType: image.mimeType,
+      bufferView: bufferViewIndex
+    }
+  } else {
+    const [, dstOrgName, dstProjectName, dstInternalPath] = STATIC_ASSET_REGEX.exec(image.src)!
+    const srcProjectName = context.projectName
+    const dstRelativePath = pathJoin(dstOrgName, dstProjectName, dstInternalPath)
+    const srcRelativePath = pathJoin(srcProjectName, context.relativePath)
+    const dstName = baseName(dstRelativePath)
+    const srcName = baseName(srcRelativePath)
+    const dstDir = LoaderUtils.extractUrlBase(dstRelativePath)
+    const srcDir = LoaderUtils.extractUrlBase(srcRelativePath)
+
+    const uri = pathJoin(relativePathTo(srcDir, dstDir), dstName)
+
+    imageDef = {
+      mimeType: image.mimeType,
+      uri
+    }
   }
 
   gltf.images ??= []
@@ -856,8 +882,9 @@ const exportGLTFSceneNode = async (
   const childrenIndicies = [] as number[]
   if (children && children.length > 0) {
     for (const child of children) {
+      if (getComponent(child, SourceComponent) !== context.sourceID) continue
       const childIndex = await exportGLTFSceneNode(child, gltf, context)
-      childIndex && childrenIndicies.push(childIndex)
+      if (typeof childIndex === 'number') childrenIndicies.push(childIndex)
     }
   }
 
@@ -907,10 +934,32 @@ const exportGLTFSceneNode = async (
 
     for (const extension of context.exportExtensions) extension.afterComponent?.(entity, component, node, index)
   }
+  if (node.matrix && matrixEqualsIdentity(node.matrix)) delete node.matrix
   if (Object.keys(extensions).length > 0) node.extensions = extensions
-  node.children = childrenIndicies
+  if (childrenIndicies.length) node.children = childrenIndicies
 
   for (const extension of context.exportExtensions) extension.afterNode?.(entity, node, index)
 
   return index
+}
+
+const matrixEqualsIdentity = (matrix: number[]) => {
+  return (
+    matrix[0] === 1 &&
+    matrix[1] === 0 &&
+    matrix[2] === 0 &&
+    matrix[3] === 0 &&
+    matrix[4] === 0 &&
+    matrix[5] === 1 &&
+    matrix[6] === 0 &&
+    matrix[7] === 0 &&
+    matrix[8] === 0 &&
+    matrix[9] === 0 &&
+    matrix[10] === 1 &&
+    matrix[11] === 0 &&
+    matrix[12] === 0 &&
+    matrix[13] === 0 &&
+    matrix[14] === 0 &&
+    matrix[15] === 1
+  )
 }

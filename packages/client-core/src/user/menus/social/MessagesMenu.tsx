@@ -30,11 +30,11 @@ import { useFind, useMutation } from '@ir-engine/common'
 import { ChannelID, messagePath } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 
 import { Input } from '@ir-engine/ui'
-import { Send01Lg } from '@ir-engine/ui/src/icons'
+import { ArrowLeftLg, Send01Lg } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { MdCall, MdCallEnd } from 'react-icons/md'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { useUserAvatarThumbnail } from '../../../hooks/useUserAvatarThumbnail'
 import { ChannelService, ChannelState } from '../../../social/services/ChannelService'
@@ -184,14 +184,14 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
           style={{ position: 'absolute', right: '0px' }}
           variant="iconOnly"
           onClick={() => startMediaCall()}
-          content={<Icon type={inChannelCall ? 'CallEnd' : 'Call'} />}
+          content={inChannelCall ? <MdCallEnd /> : <MdCall />}
         />
       </div>
     )
   }
 
   return (
-    <div className="relative z-50 h-fit max-h-[60vh] w-[50vw] min-w-[500px] max-w-2xl overflow-y-auto rounded-2xl bg-theme-surface-main px-10 py-6">
+    <div className="absolute z-50 h-fit max-h-[60vh] w-[50vw] min-w-[500px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-1 px-10 py-6">
       <Text fontWeight="semibold" fontSize="lg" component="h2">
         {props.name}
       </Text>
@@ -201,7 +201,7 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
         className="iconBlock"
         variant="iconOnly"
         onClick={() => PopoverState.showPopupover(<FriendsMenu />)}
-        content={<Icon type="ArrowBack" />}
+        content={<ArrowLeftLg fontSize="larger" />}
       />
       <div style={{ height: '600px', maxWidth: '100%', overflowX: 'hidden' }}>
         <div

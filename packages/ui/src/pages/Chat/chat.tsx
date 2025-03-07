@@ -58,8 +58,8 @@ export function ChatPage() {
       instanceID: true,
       roomID: false
     })
-    logger.info({ event_name: 'world_chat_open', event_value: '' })
-    return () => logger.info({ event_name: 'world_chat_close', event_value: '' })
+    logger.analytics({ event_name: 'world_chat_open', event_value: '' })
+    return () => logger.analytics({ event_name: 'world_chat_close', event_value: '' })
   }, [])
 
   return (

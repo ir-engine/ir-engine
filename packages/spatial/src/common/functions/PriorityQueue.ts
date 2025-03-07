@@ -23,8 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { entityExists } from '@ir-engine/ecs'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
 import { Query } from '@ir-engine/ecs/src/QueryFunctions'
 import { DeepReadonly } from '@ir-engine/hyperflux'
 import { insertionSort } from './insertionSort'

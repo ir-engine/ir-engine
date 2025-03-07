@@ -26,7 +26,8 @@ Infinite Reality Engine. All Rights Reserved.
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { INVITE_CODE_REGEX, USER_ID_REGEX } from '@ir-engine/common/src/regex'
+import { INVITE_CODE_REGEX } from '@ir-engine/common/src/regex'
+import { projectHistoryPath } from '@ir-engine/common/src/schema.type.module'
 import {
   ProjectPermissionData,
   ProjectPermissionPatch,
@@ -39,15 +40,16 @@ import {
 import { projectPath } from '@ir-engine/common/src/schemas/projects/project.schema'
 import { InviteCode, UserID, UserType, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
 import { checkScope } from '@ir-engine/common/src/utils/checkScope'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import setLoggedInUserData from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-body'
 import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
-
-import { projectHistoryPath } from '@ir-engine/common/src/schema.type.module'
 import { HookContext } from '../../../declarations'
 import logger from '../../ServerLogger'
 import checkScopeHook from '../../hooks/check-scope'
+import disallowNonId from '../../hooks/disallow-non-id'
 import enableClientPagination from '../../hooks/enable-client-pagination'
 import resolveProjectId from '../../hooks/resolve-project-id'
+import setInContext, { ContextScope } from '../../hooks/set-in-context'
 import verifyProjectPermission from '../../hooks/verify-project-permission'
 import { ProjectPermissionService } from './project-permission.class'
 import {
@@ -70,7 +72,7 @@ const ensureInviteCode = async (context: HookContext<ProjectPermissionService>) 
 
   const data: ProjectPermissionData[] = Array.isArray(context.data) ? context.data : [context.data]
 
-  if (data[0].inviteCode && USER_ID_REGEX.test(data[0].inviteCode)) {
+  if (data[0].inviteCode && isValidId(data[0].inviteCode)) {
     data[0].userId = data[0].inviteCode as string as UserID
     delete data[0].inviteCode
   }
@@ -178,17 +180,44 @@ const ensureOwnership = async (context: HookContext<ProjectPermissionService>) =
 }
 
 /**
- * Ensures that the type field is present in the patch data
+ * Ensures that the type field is present in the data and is owner only in certain cases.
  * @param context
  * @returns
  */
-const ensureTypeInPatch = async (context: HookContext<ProjectPermissionService>) => {
-  if (!context.data || context.method !== 'patch') {
-    throw new BadRequest(`${context.path} service only works for data in ${context.method}`)
+const ensureTypeInData = async (context: HookContext<ProjectPermissionService>) => {
+  if (!context.data) {
+    throw new BadRequest(`${context.path} service only works for data in context`)
   }
 
-  const data: ProjectPermissionPatch = context.data as ProjectPermissionPatch
-  context.data = { type: data.type === 'owner' ? 'owner' : data.type } as ProjectPermissionData
+  const data = context.data as ProjectPermissionPatch | ProjectPermissionData
+  const type = data.type ?? 'editor'
+
+  const hasOwnerPermission = context.projectPermissions?.find((item) => item.type === 'owner')
+  if (context.hasProjectScope !== 'true' && !hasOwnerPermission && type === 'owner') {
+    throw new Forbidden(`You don't have permission to set an owner permission`)
+  }
+
+  if (context.method === 'patch') {
+    context.data = { type } as ProjectPermissionData
+  } else {
+    context.data = { ...data, type } as ProjectPermissionData
+  }
+}
+
+/**
+ * Ensures owner can be removed in certain cases only.
+ * @param context
+ * @returns
+ */
+const restrictOnType = async (context: HookContext<ProjectPermissionService>) => {
+  const permission = (await context.app.service(projectPermissionPath)._get(context.id!)) as ProjectPermissionType
+
+  if (permission.type === 'owner') {
+    const hasOwnerPermission = context.projectPermissions?.find((item) => item.type === 'owner')
+    if (context.hasProjectScope !== 'true' && !hasOwnerPermission) {
+      throw new Forbidden(`You cannot remove the owner permission`)
+    }
+  }
 }
 
 /**
@@ -272,29 +301,45 @@ export default {
     create: [
       iff(
         isProvider('external'),
-        iffElse(checkScopeHook('projects', 'write'), [], [resolvePermissionId, verifyProjectPermission(['owner'])])
+        iffElse(
+          checkScopeHook('projects', 'write'),
+          [setInContext('hasProjectScope', 'true', ContextScope.Root)],
+          [resolvePermissionId, verifyProjectPermission(['owner', 'editor'])]
+        )
       ),
       schemaHooks.validateData(projectPermissionDataValidator),
       schemaHooks.resolveData(projectPermissionDataResolver),
       setLoggedInUserData('createdBy'),
       ensureInviteCode,
-      checkExistingPermissions
+      checkExistingPermissions,
+      iff(isProvider('external'), ensureTypeInData)
     ],
     update: [disallow()],
     patch: [
+      disallowNonId,
       iff(
         isProvider('external'),
-        iffElse(checkScopeHook('projects', 'write'), [], [resolvePermissionId, verifyProjectPermission(['owner'])])
+        iffElse(
+          checkScopeHook('projects', 'write'),
+          [setInContext('hasProjectScope', 'true', ContextScope.Root)],
+          [resolvePermissionId, verifyProjectPermission(['owner', 'editor'])]
+        )
       ),
       schemaHooks.validateData(projectPermissionPatchValidator),
       schemaHooks.resolveData(projectPermissionPatchResolver),
-      ensureTypeInPatch
+      iff(isProvider('external'), restrictOnType, ensureTypeInData)
     ],
     remove: [
+      disallowNonId,
       iff(
         isProvider('external'),
-        iffElse(checkScopeHook('projects', 'write'), [], [resolvePermissionId, verifyProjectPermission(['owner'])])
-      )
+        iffElse(
+          checkScopeHook('projects', 'write'),
+          [setInContext('hasProjectScope', 'true', ContextScope.Root)],
+          [resolvePermissionId, verifyProjectPermission(['owner', 'editor'])]
+        )
+      ),
+      iff(isProvider('external'), restrictOnType)
     ]
   },
 

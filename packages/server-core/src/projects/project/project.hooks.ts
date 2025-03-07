@@ -25,12 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import appRootPath from 'app-root-path'
-import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
-import fs from 'fs'
-import { Knex } from 'knex'
-import path from 'path'
-
 import { ManifestJson } from '@ir-engine/common/src/interfaces/ManifestJson'
 import { GITHUB_URL_REGEX } from '@ir-engine/common/src/regex'
 import { apiJobPath } from '@ir-engine/common/src/schemas/cluster/api-job.schema'
@@ -57,7 +51,13 @@ import { identityProviderPath, IdentityProviderType } from '@ir-engine/common/sr
 import { checkScope } from '@ir-engine/common/src/utils/checkScope'
 import { cleanString } from '@ir-engine/common/src/utils/cleanString'
 import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+import { isValidId } from '@ir-engine/common/src/utils/isValidId'
 import templateManifestJson from '@ir-engine/projects/template-project/manifest.json'
+import appRootPath from 'app-root-path'
+import { discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
+import fs from 'fs'
+import { Knex } from 'knex'
+import path from 'path'
 
 import { HookContext } from '../../../declarations'
 import config from '../../appconfig'
@@ -460,7 +460,9 @@ const removeLocationFromProject = async (context: HookContext<ProjectService>) =
     }
   })
   await Promise.all(
-    removingLocations.data.map((removingLocation) => context.app.service(locationPath).remove(removingLocation.id))
+    removingLocations.data.map((removingLocation) =>
+      isValidId(removingLocation.id) ? context.app.service(locationPath).remove(removingLocation.id) : Promise.resolve()
+    )
   )
 }
 
@@ -491,9 +493,9 @@ const removeAvatarsFromProject = async (context: HookContext<ProjectService>) =>
   })) as any as AvatarType[]
 
   await Promise.all(
-    avatarItems.map(async (avatar) => {
-      await context.app.service(avatarPath).remove(avatar.id)
-    })
+    avatarItems.map(async (avatar) =>
+      isValidId(avatar.id) ? await context.app.service(avatarPath).remove(avatar.id) : Promise.resolve()
+    )
   )
 }
 
@@ -511,7 +513,8 @@ const removeStaticResourcesFromProject = async (context: HookContext<ProjectServ
   })) as any as StaticResourceType[]
   staticResourceItems.length &&
     staticResourceItems.forEach(async (staticResource) => {
-      await context.app.service(staticResourcePath).remove(staticResource.id, { ignoreResourcesJson: true })
+      if (isValidId(staticResource.id))
+        await context.app.service(staticResourcePath).remove(staticResource.id, { ignoreResourcesJson: true })
     })
 }
 

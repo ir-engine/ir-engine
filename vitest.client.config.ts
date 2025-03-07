@@ -34,11 +34,12 @@ import path from 'path'
 
 export default defineConfig({
   test: {
-    setupFiles: [path.resolve(appRootPath.path, 'packages/spatial/tests/util/patchNode.ts')],
+    setupFiles: [path.resolve(appRootPath.path, 'packages/hyperflux/tests/utils/patchNode.ts')],
     environment: 'jsdom',
+    maxConcurrency: 1,
     passWithNoTests: true,
-    testTimeout: 2 * 60 * 1000,
-    hookTimeout: 2 * 60 * 1000,
+    testTimeout: 10000,
+    hookTimeout: 10000,
     reporters: reporters,
     slowTestThreshold: 1000,
     coverage: {

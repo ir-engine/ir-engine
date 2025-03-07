@@ -81,13 +81,13 @@ export const StatsPanel = (props: { show: boolean }) => {
 
   return (
     <div className="m-1 flex flex-col gap-0.5 rounded bg-neutral-600 p-1">
-      <Text>{t('common:debug.stats')}</Text>
+      <Text className="text-text-primary-button">{t('common:debug.stats')}</Text>
       <div className="flex gap-1 [&>div]:relative" ref={statsRef} />
       <Button variant="secondary" onClick={toggleStats} size="sm">
         {renderInfoState.visible.value ? 'Hide' : 'Show'}
       </Button>
       {info && (
-        <ul className="list-none text-sm text-theme-secondary">
+        <ul className="list-none text-sm text-text-primary-button">
           <li>
             {t('editor:viewport.state.memory')}
             <ul className="ml-2 list-none">

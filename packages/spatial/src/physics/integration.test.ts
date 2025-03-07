@@ -135,7 +135,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
       setComponent(physicsWorldEntity, EntityTreeComponent)
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)
-      physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+      physicsWorld = Physics.createWorld(physicsWorldEntity)
       physicsWorld.timestep = 1 / 60
 
       testEntity = createEntity()
@@ -169,6 +169,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
       setComponent(testEntity, MeshComponent, mesh)
       setComponent(testEntity, RigidBodyComponent, { type: BodyTypes.Dynamic })
       setComponent(testEntity, ColliderComponent)
+      TransformComponent.dirty[testEntity] = 0
       const Expected: Result = {
         before: {
           physicsSystem: getPositionFromMatrix(testEntity),
@@ -261,7 +262,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
       setComponent(physicsWorldEntity, EntityTreeComponent)
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)
-      physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
+      physicsWorld = Physics.createWorld(physicsWorldEntity)
       physicsWorld.timestep = 1 / 60
 
       testEntity = createEntity()
@@ -371,7 +372,7 @@ describe('Integration : PhysicsSystem + PhysicsPreTransformSystem + TransformSys
         const Expected = Initial.position.clone().addScalar(ChangeAmount)
         // Set the data as expected
         setupEntityTree()
-        const transform = setComponent(parentEntity, TransformComponent, { position: Initial.position })
+        setComponent(parentEntity, TransformComponent, { position: Initial.position })
         updateTransforms()
         // Sanity check before running
         for (let id = 0; id < childrenCount; ++id) assert.equal(hasComponent(children[id], TransformComponent), true)

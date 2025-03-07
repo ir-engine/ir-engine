@@ -28,6 +28,7 @@ import { createXRUI } from '@ir-engine/engine/src/xrui/createXRUI'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { Widget, Widgets } from './Widgets'
 
+import { VideoRecorderLg } from '@ir-engine/ui/src/icons'
 import { RecordingsWidgetUI } from './ui/RecordingsWidgetUI'
 
 export function createRecordingsWidget() {
@@ -37,7 +38,7 @@ export function createRecordingsWidget() {
   const widget: Widget = {
     ui,
     label: 'Recording',
-    icon: 'Videocam'
+    icon: VideoRecorderLg
   }
 
   const id = Widgets.registerWidget(ui.entity, widget)

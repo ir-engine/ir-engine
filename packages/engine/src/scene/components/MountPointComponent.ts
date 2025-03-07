@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { ArrowHelper, Vector3 } from 'three'
 
-import { UndefinedEntity, UUIDComponent } from '@ir-engine/ecs'
+import { UndefinedEntity, useEntityContext, UUIDComponent } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -36,7 +36,6 @@ import {
   setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { dispatchAction, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { setCallback } from '@ir-engine/spatial/src/common/CallbackComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
@@ -145,7 +144,7 @@ export const MountPointComponent = defineComponent({
 
   schema: S.Object({
     type: MountPointTypesSchema,
-    dismountOffset: T.Vec3({ x: 0, y: 0, z: 0.75 }),
+    dismountOffset: T.Vec3(new Vector3(0, 0, 0.75)),
     forceDismountPosition: S.Bool(false)
   }),
 

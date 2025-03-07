@@ -129,7 +129,7 @@ describe('verify-project-permission', () => {
 
     const perms = await app.service(projectPermissionPath).create(
       {
-        type: 'reviewer',
+        type: 'editor',
         userId: user.id,
         projectId: project.id
       },

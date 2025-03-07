@@ -27,19 +27,18 @@ import { useEffect } from 'react'
 import { PointLight, PointLightHelper } from 'three'
 
 import {
+  S,
   defineComponent,
   removeComponent,
   setComponent,
   useComponent,
+  useEntityContext,
   useOptionalComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
-import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
-import { NO_PROXY, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
+} from '@ir-engine/ecs'
+import { NO_PROXY, useHookstate, useImmediateEffect, useMutableState } from '@ir-engine/hyperflux'
 
-import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { ActiveHelperComponent } from '../../../common/ActiveHelperComponent'
 import { useHelperEntity } from '../../../common/debug/useHelperEntity'
-import { useDisposable } from '../../../resources/resourceHooks'
 import { T } from '../../../schema/schemaFunctions'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { RendererState } from '../../RendererState'
@@ -58,7 +57,7 @@ export const PointLightComponent = defineComponent({
     castShadow: S.Bool(false),
     shadowBias: S.Number(0),
     shadowRadius: S.Number(1),
-    helperEntity: S.Entity()
+    helperEntity: S.NonSerialized(S.Entity())
   }),
 
   reactor: function () {
@@ -67,8 +66,7 @@ export const PointLightComponent = defineComponent({
     const activeHelperComponent = useOptionalComponent(entity, ActiveHelperComponent)
     const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
     const pointLightComponent = useComponent(entity, PointLightComponent)
-
-    const [light] = useDisposable(PointLight, entity)
+    const light = useHookstate(() => new PointLight()).value as PointLight
     const helperEntity = useHelperEntity(entity, () => new PointLightHelper(light), debugEnabled)
     const helper = useOptionalComponent(helperEntity, ObjectComponent)?.get(NO_PROXY) as PointLightHelper | undefined
 

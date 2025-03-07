@@ -34,11 +34,23 @@ const sizes = {
 } as const
 
 const variants = {
-  primary: 'bg-[#375DAF] hover:bg-[#214AA6] focus:bg-[#375DAF] disabled:bg-[#5F7DBF] disabled:text-[#AFBEDF]',
-  secondary: 'bg-[#162546] hover:bg-[#213869] focus:bg-[#213869] disabled:bg-[#375DAF] disabled:text-white',
-  tertiary: 'border border-[#162546] disabled:text-white',
-  green: 'bg-[#0D9467] hover:bg-[#10B981] focus:bg-[#10B981] disabled:bg-[#0A6F4D] disabled:text-white',
-  red: 'bg-[#F43F5E] hover:bg-[#FB7185] focus:bg-[#F43F5E] disabled:bg-[#C3324B] disabled:text-white'
+  primary:
+    'bg-ui-primary text-text-primary-button hover:bg-ui-hover-primary focus:bg-ui-select-primary disabled:bg-ui-inactive-primary disabled:text-text-inactive',
+  secondary:
+    'bg-ui-secondary text-text-primary-button hover:bg-ui-hover-secondary focus:bg-ui-select-secondary disabled:bg-ui-inactive-secondary disabled:text-text-inactive',
+  tertiary:
+    'text-text-primary border border-ui-secondary hover:border-ui-hover-secondary focus:border-ui-select-secondary disabled:border-ui-inactive-secondary disabled:text-text-inactive',
+  green:
+    'bg-ui-success text-text-primary-button hover:bg-ui-hover-success focus:bg-ui-select-success disabled:bg-ui-inactive-success disabled:text-text-inactive',
+  red: 'bg-ui-error text-text-primary-button hover:bg-ui-hover-error focus:bg-ui-select-error disabled:bg-ui-inactive-error disabled:text-text-inactive'
+} as const
+
+const radiusMap: Record<keyof typeof variants, string> = {
+  primary: 'rounded-[0.625rem]',
+  secondary: 'rounded-[0.625rem]',
+  tertiary: 'rounded-[0.625rem]',
+  green: 'rounded-lg',
+  red: 'rounded-lg'
 } as const
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -57,8 +69,9 @@ const Button = (
       ref={ref}
       role="button"
       className={twMerge(
-        'flex items-center justify-center gap-1 rounded-md',
-        'text-sm font-medium leading-4 text-white',
+        'flex items-center justify-center gap-1',
+        radiusMap[variant],
+        'text-sm font-medium leading-4',
         'px-4 py-1',
         sizes[size],
         fullWidth ? 'w-full' : 'w-fit',

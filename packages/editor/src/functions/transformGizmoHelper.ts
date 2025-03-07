@@ -33,6 +33,7 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   UndefinedEntity
@@ -44,7 +45,7 @@ import {
   TransformSpace,
   TransformSpaceType
 } from '@ir-engine/engine/src/scene/constants/transformConstants'
-import { getState, NO_PROXY, State } from '@ir-engine/hyperflux'
+import { getMutableState, getState, NO_PROXY, State } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { Axis, Q_IDENTITY, Vector3_Zero } from '@ir-engine/spatial/src/common/constants/MathConstants'
@@ -59,6 +60,8 @@ import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshCo
 import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
 import { TransformGizmoVisualComponent } from '../classes/gizmo/transform/TransformGizmoVisualComponent'
 import { GizmoMaterial, gizmoMaterialProperties } from '../constants/GizmoPresets'
+import { SelectionBoxState } from '../panels/viewport/tools/SelectionBoxTool'
+import { EditorHistoryFunctions } from '../services/EditorHistoryState'
 import { ObjectGridSnapState } from '../systems/ObjectGridSnapSystem'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
@@ -226,13 +229,11 @@ export function gizmoUpdate(gizmoControlEntity) {
     setComponent(handleEntity, VisibleComponent)
     const name = getComponent(handleEntity, NameComponent)
     const transform = getComponent(handleEntity, TransformComponent)
-    transform.rotation.identity()
-    transform.position.set(0, 0, 0)
-    transform.scale.set(1, 1, 1).multiplyScalar((factor * gizmoControl.size) / 4)
 
     // Align handles to current local or world rotation
-
     transform.rotation.copy(quaternion)
+    transform.position.set(0, 0, 0)
+    transform.scale.set(1, 1, 1).multiplyScalar((factor * gizmoControl.size) / 4)
 
     if (gizmoControl.mode === TransformMode.translate || gizmoControl.mode === TransformMode.scale) {
       // Hide translate and scale axis facing the camera
@@ -376,9 +377,8 @@ export function planeUpdate(gizmoEntity) {
 
   let space = gizmoControl.space
 
-  const planeTransform = setComponent(gizmoControl.planeEntity, TransformComponent, {
-    position: gizmoControl.worldPosition
-  })
+  setComponent(gizmoControl.planeEntity, TransformComponent, { position: gizmoControl.worldPosition })
+  const planeTransform = getComponent(gizmoControl.planeEntity, TransformComponent)
 
   if (gizmoControl.mode === TransformMode.scale) space = TransformSpace.local // scale always oriented to local rotation
 
@@ -453,14 +453,10 @@ export function controlUpdate(gizmoEntity: Entity) {
       : gizmoControl.controlledEntities.get(NO_PROXY)[0]
   if (targetEntity === UndefinedEntity) return
 
-  let parentEntity = UndefinedEntity
-  const parent = getComponent(targetEntity, EntityTreeComponent)
+  const parentEntity = getOptionalComponent(targetEntity, EntityTreeComponent)?.parentEntity
 
-  if (parent && parent.parentEntity !== UndefinedEntity) {
-    parentEntity = parent.parentEntity!
-  }
-
-  if (parentEntity) _parentScale.copy(getComponent(parentEntity!, TransformComponent).scale)
+  if (parentEntity && hasComponent(parentEntity, TransformComponent))
+    _parentScale.copy(getComponent(parentEntity!, TransformComponent).scale)
   else _parentScale.set(1, 1, 1)
 
   const currentMatrix = getComponent(targetEntity, TransformComponent).matrixWorld
@@ -468,7 +464,8 @@ export function controlUpdate(gizmoEntity: Entity) {
   gizmoControl.worldPosition.set(_worldPosition)
   gizmoControl.worldQuaternion.set(_worldQuaternion)
 
-  if (parentEntity) _parentQuaternionInv.copy(getComponent(parentEntity!, TransformComponent).rotation).invert()
+  if (parentEntity && hasComponent(parentEntity, TransformComponent))
+    _parentQuaternionInv.copy(getComponent(parentEntity!, TransformComponent).rotation).invert()
   else _parentQuaternionInv.set(0, 0, 0, 1).invert()
   _worldQuaternionInv.copy(getComponent(targetEntity, TransformComponent).rotation).invert()
 
@@ -500,8 +497,10 @@ function pointerHover(gizmoEntity: Entity) {
   const intersect = intersectObjectWithRay(picker, _raycaster, true)
 
   if (intersect) {
+    getMutableState(SelectionBoxState).gizmoInControl.set(true)
     gizmoControlComponent.axis.set(intersect.object.name as (typeof TransformAxis)[keyof typeof TransformAxis])
   } else {
+    getMutableState(SelectionBoxState).gizmoInControl.set(false)
     gizmoControlComponent.axis.set(null)
   }
 }
@@ -556,7 +555,6 @@ function pointerDown(gizmoEntity: Entity) {
         }
       }
     }
-
     gizmoControlComponent.dragging.set(true)
   }
 }
@@ -933,14 +931,14 @@ export function onGizmoCommit(gizmoEntity) {
   const gizmoControlComponent = getMutableComponent(gizmoEntity, TransformGizmoControlComponent)
   if (gizmoControlComponent.dragging && gizmoControlComponent.axis !== null) {
     //check for snap modes
-    if (!getState(ObjectGridSnapState).enabled) {
-      EditorControlFunctions.commitTransformSave(gizmoControlComponent.controlledEntities.get(NO_PROXY) as Entity[])
-    } else {
+    if (getState(ObjectGridSnapState).enabled) {
       ObjectGridSnapState.apply()
     }
   }
   gizmoControlComponent.dragging.set(false)
   gizmoControlComponent.axis.set(null)
+  console.log('gizmo commit')
+  EditorHistoryFunctions.setComponent(gizmoControlComponent.controlledEntities.value as Entity[], TransformComponent)
 }
 
 function pointerUp(gizmoEntity) {

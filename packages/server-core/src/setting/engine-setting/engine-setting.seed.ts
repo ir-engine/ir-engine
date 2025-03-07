@@ -294,7 +294,7 @@ export async function seed(knex: Knex): Promise<void> {
       },
       {
         key: EngineSettings.Aws.S3.Region,
-        value: process.env.STORAGE_S3_REGION || ''
+        value: process.env.STORAGE_REGION || ''
       },
       {
         key: EngineSettings.Aws.S3.RoleArn,
@@ -310,7 +310,7 @@ export async function seed(knex: Knex): Promise<void> {
       },
       {
         key: EngineSettings.Aws.S3.StaticResourceBucket,
-        value: process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET || ''
+        value: process.env.STORAGE_STATIC_RESOURCE_BUCKET || ''
       },
       {
         key: EngineSettings.Aws.CloudFront.DistributionId,
@@ -321,11 +321,11 @@ export async function seed(knex: Knex): Promise<void> {
         value:
           process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true'
             ? process.env.APP_HOST!
-            : process.env.STORAGE_CLOUDFRONT_DOMAIN! || ''
+            : process.env.STORAGE_CDN_DOMAIN! || ''
       },
       {
         key: EngineSettings.Aws.CloudFront.Region,
-        value: process.env.STORAGE_CLOUDFRONT_REGION || process.env.STORAGE_S3_REGION || ''
+        value: process.env.STORAGE_CLOUDFRONT_REGION || process.env.STORAGE_REGION || ''
       },
       {
         key: EngineSettings.Aws.SMS.AccessKeyId,

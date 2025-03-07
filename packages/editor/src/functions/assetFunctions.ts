@@ -203,7 +203,12 @@ export const filterExistingFiles = async (projectName: string, directoryPath: st
   return uniqueFiles
 }
 
-export const handleUploadFiles = (projectName: string, directoryPath: string, files: FileList | File[]) => {
+// uploads files and returns an array of uploaded urls
+export const handleUploadFiles = (
+  projectName: string,
+  directoryPath: string,
+  files: FileList | File[]
+): Promise<string[]> => {
   const { ktx2: compressedImage } = CommonKnownContentTypes
   const importSettingsState = getMutableState(ImportSettingsState)
   return Promise.all(
@@ -234,9 +239,12 @@ export const handleUploadFiles = (projectName: string, directoryPath: string, fi
             contentType: file.type
           }
         ]
-      }).promise.catch(() => {
-        NotificationService.dispatchNotify(i18n.t('editor:errors.fileUploadFailed') as string, { variant: 'error' })
       })
+        .promise.then((response) => response[0])
+        .catch(() => {
+          NotificationService.dispatchNotify(i18n.t('editor:errors.fileUploadFailed') as string, { variant: 'error' })
+          throw new Error('Upload failed')
+        })
     })
   )
 }
@@ -282,6 +290,68 @@ export const inputFileWithAddToScene = ({
 
     el.click()
   })
+
+// creates a file uploader that can be used to upload a single file from the file system
+const createFileUploader = ({
+  projectName,
+  directoryPath,
+  preserveDirectory,
+  acceptedFileTypes
+}: {
+  projectName: string
+  directoryPath: string
+  preserveDirectory?: boolean
+  acceptedFileTypes: string
+}): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const el = document.createElement('input')
+    el.type = 'file'
+    if (preserveDirectory) {
+      el.setAttribute('webkitdirectory', 'webkitdirectory')
+    }
+    el.multiple = false
+    el.accept = acceptedFileTypes
+    el.style.display = 'none'
+
+    el.onchange = async () => {
+      try {
+        if (el.files?.length) {
+          const newFiles = sanitizeFiles(el.files)
+          const uniqueFiles = await filterExistingFiles(projectName, directoryPath, newFiles)
+          const [uploadedFileUrl] = await handleUploadFiles(projectName, directoryPath, uniqueFiles)
+
+          if (uploadedFileUrl) {
+            resolve(uploadedFileUrl)
+          } else {
+            reject(new Error('No file was uploaded'))
+          }
+        } else {
+          reject(new Error('No file selected'))
+        }
+        API.instance.service(fileBrowserPath).emit('created')
+      } catch (err) {
+        reject(err)
+      } finally {
+        el.remove()
+      }
+    }
+
+    el.click()
+  })
+
+export const uploadImageFile = (params: {
+  projectName: string
+  directoryPath: string
+  preserveDirectory?: boolean
+  acceptedFileTypes?: string
+}): Promise<string> => createFileUploader({ ...params, acceptedFileTypes: params.acceptedFileTypes ?? 'image/*' })
+
+// currently only supporting mp4
+export const uploadVideoFile = (params: {
+  projectName: string
+  directoryPath: string
+  preserveDirectory?: boolean
+}): Promise<string> => createFileUploader({ ...params, acceptedFileTypes: 'video/mp4,.mp4' })
 
 export const uploadProjectFiles = (projectName: string, files: File[], paths: string[], args?: object[]) => {
   const promises: CancelableUploadPromiseReturnType<string>[] = []

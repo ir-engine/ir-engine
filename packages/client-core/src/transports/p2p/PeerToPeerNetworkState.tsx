@@ -23,22 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { API, useFind, useGet } from '@ir-engine/common'
+import { API, useFind } from '@ir-engine/common'
 import { IceServer } from '@ir-engine/common/src/constants/DefaultWebRTCSettings'
 import {
+  ChannelID,
   InstanceAttendanceType,
   InstanceID,
-  InstanceType,
-  clientSettingPath,
+  LocationID,
   instanceAttendancePath,
-  instancePath,
   instanceSignalingPath
 } from '@ir-engine/common/src/schema.type.module'
 import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import { Engine } from '@ir-engine/ecs'
 import { MediaSettingsState } from '@ir-engine/engine/src/audio/MediaSettingsState'
 import {
+  ErrorBoundary,
   PeerID,
+  Topic,
   UserID,
   defineState,
   dispatchAction,
@@ -49,46 +50,37 @@ import {
   useMutableState
 } from '@ir-engine/hyperflux'
 import {
-  DataChannelRegistryState,
-  DataChannelType,
   NetworkActions,
   NetworkState,
   NetworkTopics,
-  VideoConstants,
+  WebRTCPeerConnection,
   addNetwork,
   createNetwork,
-  removeNetwork,
-  screenshareAudioDataChannelType,
-  screenshareVideoDataChannelType,
-  useWebRTCPeerConnection,
-  webcamAudioDataChannelType,
-  webcamVideoDataChannelType
+  removeNetwork
 } from '@ir-engine/network'
-import { CAM_VIDEO_SIMULCAST_ENCODINGS } from '@ir-engine/network/src/constants/VideoConstants'
+import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
 import {
   MessageTypes,
-  RTCPeerConnectionState,
   SendMessageType,
   StunServerState,
   WebRTCTransportFunctions
 } from '@ir-engine/network/src/webrtc/WebRTCTransportFunctions'
-import { decode } from 'msgpackr'
-import React, { useEffect } from 'react'
-import { MediaStreamState } from '../../media/MediaStreamState'
-import {
-  PeerMediaChannelState,
-  createPeerMediaChannels,
-  removePeerMediaChannels
-} from '../../media/PeerMediaChannelState'
+import React, { Suspense, useEffect } from 'react'
+
+type InstanceType = {
+  id: InstanceID
+  locationId?: LocationID
+  channelId?: ChannelID
+}
 
 export const PeerToPeerNetworkState = defineState({
   name: 'ir.client.transport.p2p.PeerToPeerNetworkState',
-  initial: () => ({}) as { [id: InstanceID]: object },
-  connectToP2PInstance: (id: InstanceID) => {
-    getMutableState(PeerToPeerNetworkState)[id].set({})
+  initial: {} as { [id: InstanceID]: InstanceType },
+  connectToP2PInstance: (instance: InstanceType) => {
+    getMutableState(PeerToPeerNetworkState)[instance.id].set(instance)
 
     return () => {
-      getMutableState(PeerToPeerNetworkState)[id].set(none)
+      getMutableState(PeerToPeerNetworkState)[instance.id].set(none)
     }
   },
 
@@ -97,23 +89,24 @@ export const PeerToPeerNetworkState = defineState({
 
     return (
       <>
-        {state.keys.map((id: InstanceID) => (
-          <NetworkReactor key={id} id={id} />
+        {Object.values(state.value).map((instance) => (
+          <ErrorBoundary key={instance.id}>
+            <Suspense>
+              <ConnectionReactor
+                key={instance.id}
+                instanceID={instance.id}
+                topic={instance.locationId ? NetworkTopics.world : NetworkTopics.media}
+              />
+            </Suspense>
+          </ErrorBoundary>
         ))}
       </>
     )
   }
 })
 
-const NetworkReactor = (props: { id: InstanceID }) => {
-  const instance = useGet(instancePath, props.id)
-  if (!instance.data) return null
-
-  return <ConnectionReactor instance={instance.data} />
-}
-
-const ConnectionReactor = (props: { instance: InstanceType }) => {
-  const instanceID = props.instance.id
+const ConnectionReactor = (props: { instanceID: InstanceID; topic: Topic }) => {
+  const instanceID = props.instanceID
   const joinResponse = useHookstate<null | { index: number; iceServers: IceServer[] }>(null)
 
   useEffect(() => {
@@ -139,7 +132,7 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
   useEffect(() => {
     if (!joinResponse.value) return
 
-    const topic = props.instance.locationId ? NetworkTopics.world : NetworkTopics.media
+    const topic = props.topic
 
     getMutableState(NetworkState).hostIds[topic].set(instanceID)
 
@@ -182,13 +175,13 @@ const ConnectionReactor = (props: { instance: InstanceType }) => {
 
   if (!joinResponse.value) return null
 
-  return <PeersReactor instance={props.instance} />
+  return <PeersReactor instanceID={props.instanceID} />
 }
 
-const PeersReactor = (props: { instance: InstanceType }) => {
+const PeersReactor = (props: { instanceID: InstanceID }) => {
   const instanceAttendanceQuery = useFind(instanceAttendancePath, {
     query: {
-      instanceId: props.instance.id,
+      instanceId: props.instanceID,
       ended: false,
       updatedAt: {
         // Only consider instances that have been updated in the last 10 seconds
@@ -217,13 +210,17 @@ const PeersReactor = (props: { instance: InstanceType }) => {
   return (
     <>
       {otherPeers.value.map((peer) => (
-        <PeerReactor
-          key={peer.peerId}
-          peerID={peer.peerId}
-          peerIndex={peer.peerIndex}
-          userID={peer.userId}
-          instanceID={props.instance.id}
-        />
+        <ErrorBoundary key={peer.id}>
+          <Suspense>
+            <PeerReactor
+              key={peer.peerId}
+              peerID={peer.peerId}
+              peerIndex={peer.peerIndex}
+              userID={peer.userId}
+              instanceID={props.instanceID}
+            />
+          </Suspense>
+        </ErrorBoundary>
       ))}
     </>
   )
@@ -241,8 +238,6 @@ const sendMessage: SendMessageType = (instanceID: InstanceID, toPeerID: PeerID, 
 const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID; instanceID: InstanceID }) => {
   const network = getState(NetworkState).networks[props.instanceID]
 
-  useWebRTCPeerConnection(network, props.peerID, props.peerIndex, props.userID, sendMessage)
-
   useEffect(() => {
     API.instance.service(instanceSignalingPath).on('patched', (data) => {
       // need to ignore messages from self
@@ -254,256 +249,18 @@ const PeerReactor = (props: { peerID: PeerID; peerIndex: number; userID: UserID;
     })
   }, [])
 
-  const dataChannelRegistry = useMutableState(DataChannelRegistryState).value
-
-  const peerConnectionState = useMutableState(RTCPeerConnectionState)[network.id][props.peerID]?.value
-
-  if (!peerConnectionState?.ready) return null
+  const immersiveMedia = useMutableState(MediaSettingsState).immersiveMedia.value
+  const maxResolution = useMutableState(MediaStreamState).maxResolution.value
 
   return (
-    <>
-      {network.topic === NetworkTopics.world &&
-        Object.keys(dataChannelRegistry).map((dataChannelType: DataChannelType) => (
-          <DataChannelReactor
-            key={dataChannelType}
-            instanceID={props.instanceID}
-            peerID={props.peerID}
-            dataChannelType={dataChannelType}
-          />
-        ))}
-      {network.topic === NetworkTopics.media && (
-        <MediaSendChannelReactor instanceID={props.instanceID} peerID={props.peerID} />
-      )}
-      {Object.keys(peerConnectionState.incomingMediaTracks).map((trackID) => (
-        <MediaReceiveChannelReactor
-          key={trackID}
-          instanceID={props.instanceID}
-          peerID={props.peerID}
-          trackID={trackID}
-        />
-      ))}
-    </>
+    <WebRTCPeerConnection
+      network={network}
+      peerID={props.peerID}
+      peerIndex={props.peerIndex}
+      userID={props.userID}
+      sendMessage={sendMessage}
+      maxResolution={maxResolution}
+      isPiP={immersiveMedia}
+    />
   )
-}
-
-const DataChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID; dataChannelType: DataChannelType }) => {
-  const peerConnectionState = useMutableState(RTCPeerConnectionState)[props.instanceID][props.peerID].value
-  const dataChannel = peerConnectionState?.dataChannels?.[props.dataChannelType] as RTCDataChannel | undefined
-
-  useEffect(() => {
-    const isInitiator = Engine.instance.store.peerID < props.peerID
-    if (!isInitiator) return
-
-    WebRTCTransportFunctions.createDataChannel(props.instanceID, props.peerID, props.dataChannelType)
-    return () => {
-      WebRTCTransportFunctions.closeDataChannel(props.instanceID, props.peerID, props.dataChannelType)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!dataChannel) return
-
-    const network = getState(NetworkState).networks[props.instanceID]
-
-    const onBuffer = (e: MessageEvent) => {
-      const message = e.data
-      const [fromPeerIndex, data] = decode(message)
-      const fromPeerID = network.peerIndexToPeerID[fromPeerIndex]
-      const dataBuffer = new Uint8Array(data).buffer
-      network.onBuffer(dataChannel.label as DataChannelType, fromPeerID, dataBuffer)
-    }
-
-    dataChannel.addEventListener('message', onBuffer)
-
-    return () => {
-      dataChannel.removeEventListener('message', onBuffer)
-    }
-  }, [dataChannel])
-
-  return null
-}
-
-const MediaSendChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID }) => {
-  const mediaStreamState = useMutableState(MediaStreamState)
-  const microphoneEnabled = mediaStreamState.microphoneEnabled.value
-  const microphoneMediaStream = mediaStreamState.microphoneMediaStream.value
-  const webcamEnabled = mediaStreamState.webcamEnabled.value
-  const webcamMediaStream = mediaStreamState.webcamMediaStream.value
-  const screenshareEnabled = mediaStreamState.screenshareEnabled.value
-  const screenshareMediaStream = mediaStreamState.screenshareMediaStream.value
-
-  useEffect(() => {
-    createPeerMediaChannels(props.peerID)
-    return () => {
-      removePeerMediaChannels(props.peerID)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!microphoneEnabled || !microphoneMediaStream) return
-    const track = microphoneMediaStream.getAudioTracks()[0].clone()
-    const stream = WebRTCTransportFunctions.createMediaChannel(
-      sendMessage,
-      props.instanceID,
-      props.peerID,
-      track,
-      webcamAudioDataChannelType
-    )
-    if (!stream) return
-    return () => {
-      WebRTCTransportFunctions.closeMediaChannel(sendMessage, props.instanceID, props.peerID, track, stream)
-    }
-  }, [microphoneMediaStream, microphoneEnabled])
-
-  useEffect(() => {
-    if (!webcamEnabled || !webcamMediaStream) return
-    const track = webcamMediaStream.getVideoTracks()[0].clone()
-    const stream = WebRTCTransportFunctions.createMediaChannel(
-      sendMessage,
-      props.instanceID,
-      props.peerID,
-      track,
-      webcamVideoDataChannelType
-    )
-    if (!stream) return
-    return () => {
-      WebRTCTransportFunctions.closeMediaChannel(sendMessage, props.instanceID, props.peerID, track, stream)
-    }
-  }, [webcamMediaStream, webcamEnabled])
-
-  useEffect(() => {
-    if (!screenshareEnabled || !screenshareMediaStream) return
-
-    const videoTrack = screenshareMediaStream.getVideoTracks()[0].clone()
-    const videoStream = WebRTCTransportFunctions.createMediaChannel(
-      sendMessage,
-      props.instanceID,
-      props.peerID,
-      videoTrack,
-      screenshareVideoDataChannelType
-    )
-
-    let audioStream: MediaStream | undefined
-
-    const audioTracks = screenshareMediaStream.getAudioTracks()
-    if (audioTracks.length) {
-      const audioTrack = audioTracks[0].clone()
-
-      audioStream = WebRTCTransportFunctions.createMediaChannel(
-        sendMessage,
-        props.instanceID,
-        props.peerID,
-        audioTrack,
-        screenshareAudioDataChannelType
-      )!
-    }
-
-    return () => {
-      if (videoStream) {
-        WebRTCTransportFunctions.closeMediaChannel(sendMessage, props.instanceID, props.peerID, videoTrack, videoStream)
-      }
-      if (audioStream) {
-        WebRTCTransportFunctions.closeMediaChannel(sendMessage, props.instanceID, props.peerID, videoTrack, audioStream)
-      }
-    }
-  }, [screenshareMediaStream, screenshareEnabled])
-
-  return null
-}
-
-const MAX_RES_TO_USE_TOP_LAYER = 540 // If under 540p, use the topmost video layer, otherwise use layer n-1
-
-const MediaReceiveChannelReactor = (props: { instanceID: InstanceID; peerID: PeerID; trackID: string }) => {
-  const peerConnectionState = useMutableState(RTCPeerConnectionState)[props.instanceID][props.peerID].value
-  const mediaTrack = peerConnectionState?.incomingMediaTracks?.[props.trackID]
-  const mediaTag = mediaTrack?.mediaTag
-  const type = mediaTag
-    ? mediaTag === screenshareAudioDataChannelType || mediaTag === screenshareVideoDataChannelType
-      ? 'screen'
-      : 'cam'
-    : null
-  const isAudio = type ? mediaTag === webcamAudioDataChannelType || mediaTag === screenshareAudioDataChannelType : false
-  const stream = type ? (mediaTrack?.stream as MediaStream) : null
-
-  const peerMediaChannelState = useMutableState(PeerMediaChannelState)[props.peerID]
-  const peerMediaStream = type ? peerMediaChannelState?.[type] : null
-
-  useEffect(() => {
-    if (!mediaTag || !stream || !peerMediaStream?.value) return
-
-    if (isAudio) {
-      peerMediaStream.audioMediaStream.set(stream)
-      return () => {
-        if (type && !getState(PeerMediaChannelState)[props.peerID]?.[type]) return
-        peerMediaStream.audioMediaStream.set(null)
-      }
-    } else {
-      peerMediaStream.videoMediaStream.set(stream)
-      return () => {
-        if (type && !getState(PeerMediaChannelState)[props.peerID]?.[type]) return
-        peerMediaStream.videoMediaStream.set(null)
-      }
-    }
-  }, [mediaTag, stream, !!peerMediaStream?.value])
-
-  useEffect(() => {
-    if (!mediaTag || !stream || !peerMediaStream || !type) return
-    const paused = isAudio ? peerMediaStream.audioStreamPaused.value : peerMediaStream.videoStreamPaused.value
-    WebRTCTransportFunctions.pauseMediaChannel(sendMessage, props.instanceID, props.peerID, stream, paused)
-  }, [isAudio ? peerMediaStream?.audioStreamPaused?.value : peerMediaStream?.videoStreamPaused?.value])
-
-  const clientSettingQuery = useFind(clientSettingPath)
-  const clientSetting = clientSettingQuery.data[0]
-
-  const immersiveMedia = useMutableState(MediaSettingsState).immersiveMedia.value
-
-  const isPiP = peerMediaStream?.value?.videoQuality === 'largest'
-
-  useEffect(() => {
-    if (!stream || isAudio) return
-
-    const { maxResolution } = clientSetting.mediaSettings.video
-
-    const isScreen = type === 'screen'
-
-    const { scale, maxBitrate } = getVideoQuality({ isScreen, maxResolution, isPiP, immersiveMedia })
-
-    WebRTCTransportFunctions.requestVideoQuality(sendMessage, props.instanceID, props.peerID, stream, scale, maxBitrate)
-  }, [stream, immersiveMedia, isPiP])
-
-  return null
-}
-
-/**
- * Get the video quality based on the client settings
- * - If the video is in PiP or immersive media mode, use the highest quality
- * - If the resolution is less than 540p, use the second layer
- * - If the video is a screen share, do not scale the resolution
- * @param args
- * @returns
- */
-const getVideoQuality = (args: {
-  isScreen: boolean
-  maxResolution: string
-  isPiP: boolean
-  immersiveMedia: boolean
-}) => {
-  const { isScreen, maxResolution, isPiP, immersiveMedia } = args
-
-  const resolution = VideoConstants.VIDEO_CONSTRAINTS[maxResolution] || VideoConstants.VIDEO_CONSTRAINTS.hd
-
-  const layer =
-    isPiP || immersiveMedia
-      ? resolution.height.ideal > MAX_RES_TO_USE_TOP_LAYER
-        ? CAM_VIDEO_SIMULCAST_ENCODINGS.length - 1
-        : CAM_VIDEO_SIMULCAST_ENCODINGS.length - 2
-      : 0
-  const config = CAM_VIDEO_SIMULCAST_ENCODINGS[layer]
-  const scale = isScreen ? 1 : config.scaleResolutionDownBy
-  const maxBitrate = config.maxBitrate
-
-  return {
-    scale,
-    maxBitrate
-  }
 }

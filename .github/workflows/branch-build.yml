@@ -61,6 +61,10 @@ jobs:
         with:
           path: .
           key: dir-${{github.sha}}
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
       - run: npm run lint
       - run: npm run check-eslint
         timeout-minutes: 20
@@ -76,6 +80,10 @@ jobs:
         with:
           path: .
           key: dir-${{github.sha}}
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
       - run: npm run dev-docker
       - run: npm run dev-reinit
       - run: npx lerna run --scope '@ir-engine/*' check-errors
@@ -92,11 +100,163 @@ jobs:
         with:
           path: .
           key: dir-${{github.sha}}
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
       - run: npm run dev-docker
       - run: npm run dev-reinit
+      - run: rm -rf packages/instanceserver
+      - run: rm -rf packages/server
+      - run: rm -rf packages/server-core
+      - run: rm -rf packages/taskserver
       - run: npm run build-client
 
-  test:
+  test_hyperflux:
+    needs: install-modules
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: .
+          key: dir-${{github.sha}}
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
+      - run: mkdir -p packages_moved/hyperflux/
+      - run: mv packages/hyperflux packages_moved/
+      - run: rm -rf packages/*
+      - run: mv packages_moved/hyperflux packages/
+      - run: cd packages/hyperflux && npm run test
+
+  test_ecs:
+    needs: install-modules
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: .
+          key: dir-${{github.sha}}
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
+      - run: mkdir -p packages_moved/hyperflux/
+      - run: mkdir -p packages_moved/ecs/
+      - run: mv packages/hyperflux packages_moved/
+      - run: mv packages/ecs packages_moved/
+      - run: rm -rf packages/*
+      - run: mv packages_moved/hyperflux packages/
+      - run: mv packages_moved/ecs packages/
+      - run: cd packages/ecs && npm run test
+
+  test_network:
+    needs: install-modules
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: .
+          key: dir-${{github.sha}}
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
+      - run: mkdir -p packages_moved/hyperflux/
+      - run: mkdir -p packages_moved/ecs/
+      - run: mkdir -p packages_moved/network/
+      - run: mv packages/hyperflux packages_moved/
+      - run: mv packages/ecs packages_moved/
+      - run: mv packages/network packages_moved/
+      - run: rm -rf packages/*
+      - run: mv packages_moved/hyperflux packages/
+      - run: mv packages_moved/ecs packages/
+      - run: mv packages_moved/network packages/
+      - run: cd packages/network && npm run test
+
+  test_spatial:
+    needs: install-modules
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: .
+          key: dir-${{github.sha}}
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
+      - run: mkdir -p packages_moved/hyperflux/
+      - run: mkdir -p packages_moved/ecs/
+      - run: mkdir -p packages_moved/network/
+      - run: mkdir -p packages_moved/xrui/
+      - run: mkdir -p packages_moved/spatial/
+      - run: mv packages/hyperflux packages_moved/
+      - run: mv packages/ecs packages_moved/
+      - run: mv packages/network packages_moved/
+      - run: mv packages/xrui packages_moved/
+      - run: mv packages/spatial packages_moved/
+      - run: rm -rf packages/*
+      - run: mv packages_moved/hyperflux packages/
+      - run: mv packages_moved/ecs packages/
+      - run: mv packages_moved/network packages/
+      - run: mv packages_moved/xrui packages/
+      - run: mv packages_moved/spatial packages/
+      - run: cd packages/spatial && npm run test
+
+  test_engine:
+    needs: install-modules
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/cache@v3
+        with:
+          path: .
+          key: dir-${{github.sha}}
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
+      - run: mkdir -p packages_moved/hyperflux/
+      - run: mkdir -p packages_moved/ecs/
+      - run: mkdir -p packages_moved/network/
+      - run: mkdir -p packages_moved/xrui/
+      - run: mkdir -p packages_moved/spatial/
+      - run: mkdir -p packages_moved/engine/
+      - run: mkdir -p packages_moved/projects/
+      - run: mv packages/hyperflux packages_moved/
+      - run: mv packages/ecs packages_moved/
+      - run: mv packages/network packages_moved/
+      - run: mv packages/xrui packages_moved/
+      - run: mv packages/spatial packages_moved/
+      - run: mv packages/engine packages_moved/
+      - run: mv packages/projects packages_moved/
+      - run: rm -rf packages/*
+      - run: mv packages_moved/hyperflux packages/
+      - run: mv packages_moved/ecs packages/
+      - run: mv packages_moved/network packages/
+      - run: mv packages_moved/xrui packages/
+      - run: mv packages_moved/spatial packages/
+      - run: mv packages_moved/engine packages/
+      - run: mv packages_moved/projects packages/
+      - run: cd packages/engine && npm run test
+
+  test_client:
     needs: install-modules
     runs-on: ubuntu-latest
     strategy:
@@ -106,17 +266,7 @@ jobs:
           - client
           - client-core
           - common
-          - ecs
           - editor
-          - engine
-          - hyperflux
-          - matchmaking
-          - network
-          - server
-          - spatial
-          - taskserver
-          - visual-script
-          - xrui
     defaults:
       run:
         shell: bash
@@ -125,16 +275,27 @@ jobs:
         with:
           path: .
           key: dir-${{github.sha}}
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
+      - run: rm -rf packages/instanceserver
+      - run: rm -rf packages/server
+      - run: rm -rf packages/server-core
+      - run: rm -rf packages/taskserver
       - run: cd packages/${{ matrix.package }} && npm run test
 
-  test_docker:
+  test_server:
     needs: install-modules
     runs-on: ubuntu-latest
     strategy:
       matrix:
         package:
-          - server-core
           - instanceserver
+          - matchmaking
+          - server
+          - server-core
+          - taskserver
     defaults:
       run:
         shell: bash
@@ -143,6 +304,10 @@ jobs:
         with:
           path: .
           key: dir-${{github.sha}}
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
       - run: rm -rf packages/client
       - run: rm -rf packages/client-core
       - run: rm -rf packages/editor

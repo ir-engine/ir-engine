@@ -52,7 +52,18 @@ import {
 } from 'three.quarks'
 import matches from 'ts-matches'
 
-import { Entity, EntityTreeComponent, UUIDComponent, getChildrenWithComponents } from '@ir-engine/ecs'
+import {
+  Entity,
+  EntityTreeComponent,
+  UUIDComponent,
+  createEntity,
+  generateEntityUUID,
+  getAncestorWithComponents,
+  getChildrenWithComponents,
+  removeEntity,
+  useAncestorWithComponents,
+  useEntityContext
+} from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -61,30 +72,18 @@ import {
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
-import { createEntity, generateEntityUUID, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { AssetType } from '@ir-engine/engine/src/assets/constants/AssetType'
-import {
-  NO_PROXY,
-  defineState,
-  dispatchAction,
-  getMutableState,
-  getState,
-  none,
-  useHookstate
-} from '@ir-engine/hyperflux'
+import { NO_PROXY, defineState, getMutableState, none, useHookstate } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { Vector3_One } from '@ir-engine/spatial/src/common/constants/MathConstants'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
+import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { useDisposable } from '@ir-engine/spatial/src/resources/resourceHooks'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { useGLTFComponent, useTexture } from '../../assets/functions/resourceLoaderHooks'
-import { GLTFComponent } from '../../gltf/GLTFComponent'
-import { GLTFSnapshotAction } from '../../gltf/GLTFDocumentState'
-import { GLTFSnapshotState, GLTFSourceState } from '../../gltf/GLTFState'
 import { mergeGeometries } from '../util/meshUtils'
 import { SourceComponent } from './SourceComponent'
 
@@ -94,10 +93,11 @@ export type ParticleSystemRendererInstance = {
   instanceCount: number
 }
 
-const createBatchedRenderer: (sceneID: string) => ParticleSystemRendererInstance = (sceneID) => {
+const createBatchedRenderer = (entity: Entity) => {
+  const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
   const particleState = getMutableState(ParticleState)
-  if (particleState.renderers[sceneID].value) {
-    const instance = particleState.renderers[sceneID].get(NO_PROXY) as ParticleSystemRendererInstance
+  if (particleState.renderers[sceneEntity].value) {
+    const instance = particleState.renderers[sceneEntity].get(NO_PROXY) as ParticleSystemRendererInstance
     instance.instanceCount++
     return instance
   } else {
@@ -106,8 +106,8 @@ const createBatchedRenderer: (sceneID: string) => ParticleSystemRendererInstance
     setComponent(rendererEntity, UUIDComponent, generateEntityUUID())
     setComponent(rendererEntity, VisibleComponent)
     setComponent(rendererEntity, NameComponent, 'Particle Renderer')
-    const sourceState = getState(GLTFSourceState)
-    setComponent(rendererEntity, EntityTreeComponent, { parentEntity: sourceState[sceneID] })
+    const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
+    setComponent(rendererEntity, EntityTreeComponent, { parentEntity: sceneEntity })
     renderer.preserveChildren = true
     renderer.parent = {
       type: 'Scene',
@@ -117,7 +117,7 @@ const createBatchedRenderer: (sceneID: string) => ParticleSystemRendererInstance
     renderer.matrixWorld = new Matrix4().identity()
     setComponent(rendererEntity, ObjectComponent, renderer)
     const instance: ParticleSystemRendererInstance = { renderer, rendererEntity, instanceCount: 1 }
-    particleState.renderers[sceneID].set(instance)
+    particleState.renderers[sceneEntity].set(instance)
     return instance
   }
 }
@@ -143,7 +143,7 @@ const removeBatchedRenderer: (sceneID: string) => void = (sceneID) => {
 export const ParticleState = defineState({
   name: 'ParticleState',
   initial: () => ({
-    renderers: {} as Record<string, ParticleSystemRendererInstance>
+    renderers: {} as Record<Entity, ParticleSystemRendererInstance>
   })
 })
 
@@ -796,34 +796,51 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS = S.Object({
   startLife: S.Object({
     type: S.String('IntervalValue'),
     a: S.Number(1),
-    b: S.Number(2)
+    b: S.Number(2),
+    value: S.Number(1),
+    functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   startSpeed: S.Object({
     type: S.String('IntervalValue'),
     a: S.Number(0.1),
-    b: S.Number(5)
+    b: S.Number(5),
+    value: S.Number(1),
+    functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   startRotation: S.Object({
     type: S.String('IntervalValue'),
     a: S.Number(0),
-    b: S.Number(300)
+    b: S.Number(300),
+    value: S.Number(1),
+    functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   startSize: S.Object({
     type: S.String('IntervalValue'),
     a: S.Number(0.025),
-    b: S.Number(0.45)
+    b: S.Number(0.45),
+    value: S.Number(1),
+    functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   startColor: S.Object({
     type: S.String('ConstantColor'),
-    color: S.Object({ r: S.Number(1), g: S.Number(1), b: S.Number(1), a: S.Number(0.1) })
+    color: S.Object({ r: S.Number(1), g: S.Number(1), b: S.Number(1), a: S.Number(0.1) }),
+    a: S.Object({ r: S.Number(1), g: S.Number(1), b: S.Number(1), a: S.Number(1) }),
+    b: S.Object({ r: S.Number(1), g: S.Number(1), b: S.Number(1), a: S.Number(1) }),
+    functions: S.Array(S.Type<ColorGradientFunctionJSON>())
   }),
   emissionOverTime: S.Object({
     type: S.String('ConstantValue'),
-    value: S.Number(400)
+    value: S.Number(400),
+    a: S.Number(0),
+    b: S.Number(1),
+    functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   emissionOverDistance: S.Object({
     type: S.String('ConstantValue'),
-    value: S.Number(0)
+    value: S.Number(0),
+    a: S.Number(0),
+    b: S.Number(1),
+    functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   emissionBursts: S.Array(
     S.Object({
@@ -838,19 +855,25 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS = S.Object({
   rendererEmitterSettings: S.Object({
     startLength: S.Object({
       type: S.String('ConstantValue'),
-      value: S.Number(1)
+      value: S.Number(1),
+      a: S.Number(0),
+      b: S.Number(1),
+      functions: S.Array(S.Type<BezierFunctionJSON>())
     }),
     followLocalOrigin: S.Bool(true)
   }),
   renderMode: S.Enum(RenderMode, RenderMode.BillBoard),
-  texture: S.String('/static/editor/dot.png'),
+  texture: S.String(''),
   /**
    * particle mesh geometry
    */
   instancingGeometry: S.String(''),
   startTileIndex: S.Object({
     type: S.String('ConstantValue'),
-    value: S.Number(0)
+    value: S.Number(0),
+    a: S.Number(0),
+    b: S.Number(1),
+    functions: S.Array(S.Type<BezierFunctionJSON>())
   }),
   uTileCount: S.Number(1),
   vTileCount: S.Number(1),
@@ -894,12 +917,26 @@ export const ParticleSystemComponent = defineComponent({
     const componentState = useComponent(entity, ParticleSystemComponent)
     const metadata = useHookstate({ textures: {}, geometries: {}, materials: {} } as ParticleSystemMetadata)
     const sceneID = useOptionalComponent(entity, SourceComponent)?.value
-    const rootEntity = useHookstate(getMutableState(GLTFSourceState))[sceneID ?? ''].value
-    const gltfComponent = useOptionalComponent(rootEntity, GLTFComponent)
-    const refreshed = useHookstate(false)
 
     //for particle meshes
     const geoDependencyEntity = useGLTFComponent(componentState.value.systemParameters.instancingGeometry, entity)
+
+    /** @todo track this in resource manager */
+    const dudMaterial = useHookstate(
+      () =>
+        new MeshBasicMaterial({
+          color: 0xff0000,
+          transparent: componentState.value.systemParameters.transparent ?? true,
+          blending: componentState.value.systemParameters.blending as Blending,
+          side: DoubleSide
+        })
+    ).value as MeshBasicMaterial
+
+    useEffect(() => {
+      //add dud material
+      componentState.systemParameters.material.set('dud')
+      metadata.materials.nested('dud').set(dudMaterial)
+    }, [])
 
     //for particle meshes
     useEffect(() => {
@@ -954,85 +991,12 @@ export const ParticleSystemComponent = defineComponent({
       dudMaterial.map = null
     })
 
-    const [dudMaterial] = useDisposable(MeshBasicMaterial, entity, {
-      color: 0xffffff,
-      transparent: componentState.value.systemParameters.transparent ?? true,
-      blending: componentState.value.systemParameters.blending as Blending,
-      side: DoubleSide
-    })
-
-    //@todo: this is a hack to make trail rendering mode work correctly. We need to find out why an additional snapshot is needed
-    useEffect(() => {
-      if (!sceneID) return
-      if (gltfComponent?.value && !GLTFComponent.isSceneLoaded(rootEntity)) return
-      if (refreshed.value) return
-
-      //if (componentState.systemParameters.renderMode.value === RenderMode.Trail) {
-      const snapshot = GLTFSnapshotState.cloneCurrentSnapshot(sceneID!)
-      dispatchAction(GLTFSnapshotAction.createSnapshot(snapshot))
-      //}
-      refreshed.set(true)
-    }, [gltfComponent?.progress])
-
-    useEffect(() => {
-      //add dud material
-      componentState.systemParameters.material.set('dud')
-      metadata.materials.nested('dud').set(dudMaterial)
-    }, [])
-
     useEffect(() => {
       if (!texture) return
       metadata.textures.nested(componentState.value.systemParameters.texture!).set(texture)
       dudMaterial.map = texture
       dudMaterial.needsUpdate = true
     }, [texture])
-
-    useEffect(() => {
-      // loadIndex of 0 means particle system dependencies haven't loaded yet
-      if (!componentState._loadIndex.value) return
-
-      const component = componentState.get(NO_PROXY)
-      const rendererInstance = createBatchedRenderer(sceneID!)
-      const renderer = rendererInstance.renderer
-
-      const systemParameters = JSON.parse(JSON.stringify(component.systemParameters)) as ExpandedSystemJSON
-      const nuSystem = ParticleSystem.fromJSON(systemParameters, metadata.value as ParticleSystemMetadata, {})
-      renderer.addSystem(nuSystem)
-      const behaviors = component.behaviorParameters.map((behaviorJSON) => {
-        const behavior = BehaviorFromJSON(behaviorJSON, nuSystem)
-        nuSystem.addBehavior(behavior)
-        return behavior
-      })
-      componentState.behaviors.set(behaviors)
-
-      const emitterAsObj3D = nuSystem.emitter
-      emitterAsObj3D.userData['_refresh'] = component._refresh
-      setComponent(entity, ObjectComponent, emitterAsObj3D)
-      emitterAsObj3D.parent = renderer
-      const transformComponent = getComponent(entity, TransformComponent)
-      emitterAsObj3D.matrix = transformComponent.matrix
-      componentState.system.set(nuSystem)
-
-      return () => {
-        const index = renderer.systemToBatchIndex.get(nuSystem)
-        if (typeof index !== 'undefined') {
-          renderer.deleteSystem(nuSystem)
-          renderer.children.splice(index, 1)
-          const [batch] = renderer.batches.splice(index, 1)
-          batch.dispose()
-          renderer.systemToBatchIndex.clear()
-          for (let i = 0; i < renderer.batches.length; i++) {
-            for (const system of renderer.batches[i].systems) {
-              renderer.systemToBatchIndex.set(system, i)
-            }
-          }
-        }
-        removeComponent(entity, ObjectComponent)
-        nuSystem.dispose()
-        emitterAsObj3D.dispose()
-        removeBatchedRenderer(sceneID!)
-      }
-    }, [componentState._loadIndex])
 
     useEffect(() => {
       const component = componentState.value
@@ -1057,6 +1021,57 @@ export const ParticleSystemComponent = defineComponent({
         componentState._loadIndex.set(componentState._loadIndex.value + 1)
       }
     }, [geoDependencyEntity, shapeMeshEntity, texture, componentState._refresh])
+
+    const sceneEntity = useAncestorWithComponents(entity, [SceneComponent])
+
+    useEffect(() => {
+      // loadIndex of 0 means particle system dependencies haven't loaded yet
+      if (!componentState._loadIndex.value) return
+      if (!sceneEntity) return
+
+      const component = componentState.get(NO_PROXY)
+      const rendererInstance = createBatchedRenderer(entity)
+      const renderer = rendererInstance.renderer
+
+      const systemParameters = JSON.parse(JSON.stringify(component.systemParameters)) as ExpandedSystemJSON
+      const nuSystem = ParticleSystem.fromJSON(systemParameters, metadata.value as ParticleSystemMetadata, {})
+      renderer.addSystem(nuSystem)
+      const behaviors = component.behaviorParameters.map((behaviorJSON) => {
+        const behavior = BehaviorFromJSON(behaviorJSON, nuSystem)
+        nuSystem.addBehavior(behavior)
+        return behavior
+      })
+      componentState.behaviors.set(behaviors)
+
+      const emitterAsObj3D = nuSystem.emitter
+      emitterAsObj3D.userData['_refresh'] = component._refresh
+      setComponent(entity, ObjectComponent, emitterAsObj3D)
+      setComponent(entity, EntityTreeComponent, { parentEntity: renderer.entity })
+      // emitterAsObj3D.parent = renderer
+      const transformComponent = getComponent(entity, TransformComponent)
+      emitterAsObj3D.matrix = transformComponent.matrix
+      componentState.system.set(nuSystem)
+
+      return () => {
+        const index = renderer.systemToBatchIndex.get(nuSystem)
+        if (typeof index !== 'undefined') {
+          renderer.deleteSystem(nuSystem)
+          renderer.children.splice(index, 1)
+          const [batch] = renderer.batches.splice(index, 1)
+          batch.dispose()
+          renderer.systemToBatchIndex.clear()
+          for (let i = 0; i < renderer.batches.length; i++) {
+            for (const system of renderer.batches[i].systems) {
+              renderer.systemToBatchIndex.set(system, i)
+            }
+          }
+        }
+        removeComponent(entity, ObjectComponent)
+        nuSystem.dispose()
+        emitterAsObj3D.dispose()
+        removeBatchedRenderer(sceneID!)
+      }
+    }, [componentState._loadIndex, sceneEntity])
 
     return null
   }

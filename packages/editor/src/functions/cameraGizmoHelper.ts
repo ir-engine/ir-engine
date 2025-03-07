@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Quaternion, Raycaster, Vector3 } from 'three'
+import { BufferGeometry, Color, Mesh, MeshBasicMaterial, Quaternion, Raycaster, Vector3 } from 'three'
 
 import {
   Entity,
@@ -63,9 +63,15 @@ export function gizmoUpdate(gizmoEntity) {
   if (gizmo.gizmo === UndefinedEntity) return
 
   for (const childEntity of getComponent(gizmo.gizmo, EntityTreeComponent).children) {
-    const handle = getComponent(childEntity, ObjectComponent) as any
+    const handle = getComponent(childEntity, ObjectComponent) as Mesh<
+      BufferGeometry,
+      MeshBasicMaterial & {
+        _color: Color
+        _opacity: number
+      }
+    >
     handle.visible = true
-    handle.rotation.set(0, 0, 0)
+    handle.quaternion.identity()
     handle.position.set(0, 0, 0)
 
     // Hide disabled axes

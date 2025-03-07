@@ -31,12 +31,6 @@ import { defineAction, defineState, getMutableState, getState, useMutableState }
 import { DepthDataTexture } from './DepthDataTexture'
 
 export class XRAction {
-  static sessionChanged = defineAction({
-    type: 'xre.xr.sessionChanged' as const,
-    active: matches.boolean,
-    $cache: { removePrevious: true }
-  })
-
   // todo, support more haptic formats other than just vibrating controllers
   static vibrateController = defineAction({
     type: 'xre.xr.vibrateController',
@@ -175,8 +169,4 @@ const userAgent = 'navigator' in globalThis ? navigator.userAgent : ''
  * Wheter or not this is a mobile XR headset
  **/
 export const isMobileXRHeadset =
-  userAgent.includes('Oculus') ||
-  userAgent.includes('VR') ||
-  userAgent.includes('AR') ||
-  userAgent.includes('Reality') ||
-  userAgent.includes('Wolvic')
+  userAgent.includes('Oculus') || userAgent.includes('Reality') || userAgent.includes('Wolvic')

@@ -77,7 +77,7 @@ export async function up(knex: Knex): Promise<void> {
             key: EngineSettings.Aws.S3.Region,
             value:
               awsS3SettingConfigArray.find((item) => item.key === EngineSettings.Aws.S3.Region)?.value ||
-              process.env.STORAGE_S3_REGION ||
+              process.env.STORAGE_REGION ||
               ''
           },
           {
@@ -105,7 +105,7 @@ export async function up(knex: Knex): Promise<void> {
             key: EngineSettings.Aws.S3.StaticResourceBucket,
             value:
               awsS3SettingConfigArray.find((item) => item.key === EngineSettings.Aws.S3.StaticResourceBucket)?.value ||
-              process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET ||
+              process.env.STORAGE_STATIC_RESOURCE_BUCKET ||
               ''
           },
           {
@@ -122,14 +122,14 @@ export async function up(knex: Knex): Promise<void> {
               cloudfrontAwsConfigArray.find((item) => item.key === EngineSettings.Aws.CloudFront.Domain)?.value ||
               process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true'
                 ? process.env.APP_HOST
-                : process.env.STORAGE_CLOUDFRONT_DOMAIN! || ''
+                : process.env.STORAGE_CDN_DOMAIN! || ''
           },
           {
             key: EngineSettings.Aws.CloudFront.Region,
             value:
               cloudfrontAwsConfigArray.find((item) => item.key === EngineSettings.Aws.CloudFront.Region)?.value ||
               process.env.STORAGE_CLOUDFRONT_REGION ||
-              process.env.STORAGE_S3_REGION ||
+              process.env.STORAGE_REGION ||
               ''
           },
           {

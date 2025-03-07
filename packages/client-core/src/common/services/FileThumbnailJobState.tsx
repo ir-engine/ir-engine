@@ -38,9 +38,17 @@ import {
   getComponent,
   removeEntity,
   setComponent,
+  useChildrenWithComponents,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import { NO_PROXY, defineState, getMutableState, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import {
+  ErrorBoundary,
+  NO_PROXY,
+  defineState,
+  getMutableState,
+  useHookstate,
+  useImmediateEffect
+} from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
@@ -54,12 +62,12 @@ import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/compon
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import createReadableTexture from '@ir-engine/spatial/src/renderer/functions/createReadableTexture'
 import { BoundingBoxComponent } from '@ir-engine/spatial/src/transform/components/BoundingBoxComponents'
-import React, { useEffect } from 'react'
+import React, { Suspense, useEffect } from 'react'
 import { Color, Euler, Material, Mesh, Quaternion, SphereGeometry } from 'three'
 
 import { useFind } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
-import { getChildrenWithComponents, useChildWithComponents } from '@ir-engine/ecs'
+import { getChildrenWithComponents } from '@ir-engine/ecs'
 import { useGLTFComponent, useTexture } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
@@ -311,13 +319,13 @@ const renderThumbnail = (
     const camera = getComponent(cameraEntity, CameraComponent)
     const viewCamera = camera.cameras[0]
 
-    viewCamera.layers.mask = getComponent(cameraEntity, ObjectLayerMaskComponent)
+    viewCamera.layers.mask = ObjectLayerMaskComponent.mask[cameraEntity]
     setComponent(cameraEntity, RendererComponent, { scenes: [entity, lightEntity, skyboxEntity] })
 
     const renderer = getComponent(cameraEntity, RendererComponent)
     const { scene, canvas, scenes } = renderer
     const entitiesToRender = scenes.map(getNestedVisibleChildren).flat()
-    const { background, children } = getSceneParameters(entitiesToRender)
+    const { background, children } = getSceneParameters(entitiesToRender, cameraEntity)
     scene.children = children
     scene.background = background
     render(renderer, renderer.scene, getComponent(cameraEntity, CameraComponent), 0, false)
@@ -477,7 +485,7 @@ const RenderLookDevThumbnail = (props: RenderThumbnailProps) => {
   const { src, project, id, onError } = props
   const [entity, lightEntity, skyboxEntity, cameraEntity] = useRenderEntities(src)
   const errors = ErrorComponent.useComponentErrors(entity, GLTFComponent)
-  const lookdevSkybox = useChildWithComponents(entity, [SkyboxComponent])
+  const [lookdevSkybox] = useChildrenWithComponents(entity, [SkyboxComponent])
   const backgroundComponent = useOptionalComponent(lookdevSkybox, BackgroundComponent)
 
   useEffect(() => {
@@ -547,5 +555,16 @@ const ThumbnailJobReactor = () => {
     }
   }
 
-  return fileType && currentJob.value ? <>{renderThumbnailForType(fileType)}</> : null
+  const ErrorFallback = () => {
+    useEffect(() => {
+      FileThumbnailJobState.removeCurrentJob()
+    }, [])
+    return null
+  }
+
+  return fileType && currentJob.value ? (
+    <ErrorBoundary fallback={<ErrorFallback />}>
+      <Suspense>{renderThumbnailForType(fileType)}</Suspense>
+    </ErrorBoundary>
+  ) : null
 }

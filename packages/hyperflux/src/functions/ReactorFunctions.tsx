@@ -23,10 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { hookstate, State } from '@hookstate/core'
-import React, { Suspense, useTransition } from 'react'
+import { hookstate, none, State } from '@hookstate/core'
+import React, { Profiler, Suspense, useTransition } from 'react'
 import Reconciler from 'react-reconciler'
 import { ConcurrentRoot, DefaultEventPriority } from 'react-reconciler/constants'
+import { v4 as uuidv4 } from 'uuid'
 
 import { isDev } from './EnvironmentConstants'
 import { HyperFlux } from './StoreFunctions'
@@ -82,6 +83,7 @@ export type ReactorRoot = {
   suspended: State<boolean>
   errors: State<Error[]>
   cleanupFunctions: Set<() => void>
+  uuid: string
   run: () => void
   stop: () => void
 }
@@ -107,6 +109,8 @@ export function createErrorBoundary<P extends { children: React.ReactNode }>(
     componentDidCatch(error: Error, info: React.ErrorInfo) {
       if (errorHandler) {
         errorHandler(error, info)
+      } else {
+        console.error(error, info)
       }
     }
 
@@ -128,19 +132,28 @@ export const ReactorErrorBoundary = createErrorBoundary<{ children: React.ReactN
   }
 )
 
-export const ErrorBoundary = createErrorBoundary(function error(props, error?: Error) {
-  if (error) {
-    return null
-  } else {
-    return <React.Fragment>{props.children}</React.Fragment>
+export const ErrorBoundary = createErrorBoundary<{ children: React.ReactNode; fallback?: React.ReactNode }>(
+  function error(props, error?: Error) {
+    if (error) {
+      console.error(error)
+      if (props.fallback) return <>{props.fallback}</>
+      return null
+    } else {
+      return <React.Fragment>{props.children}</React.Fragment>
+    }
   }
-})
+)
 
 const ReactorRootContext = React.createContext<ReactorRoot>(undefined as any)
 
 export function useReactorRootContext(): ReactorRoot {
   return React.useContext(ReactorRootContext)
 }
+
+/** @todo cyclical import means this can't be a hyperflux state */
+export const ReactorRenderCounterState = hookstate(
+  {} as Record<string, { count: number; name: string; time: number; stack: string[]; lastRender: number }>
+)
 
 export function startReactor(Reactor: React.FC): ReactorRoot {
   const isStrictMode = false
@@ -162,16 +175,41 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
     null
   )
 
-  if (!Reactor.name) Object.defineProperty(Reactor, 'name', { value: 'HyperFluxReactor' })
+  if (!Reactor['__name'] && Reactor.name) Reactor['__name'] = Reactor.name
+  if (!Reactor['__name']) Reactor['__name'] = 'HyperFluxReactor'
 
   const ReactorContainer = () => {
     const [isPending] = useTransition()
     reactorRoot.suspended.set(isPending)
+    const onRender = (id, phase, actualDuration, baseDuration, startTime, commitTime) => {
+      const uuid = reactorRoot.uuid
+      if (!ReactorRenderCounterState.value[uuid]) {
+        const trace = { stack: '' }
+        Error.captureStackTrace?.(trace, startReactor) // In firefox captureStackTrace is undefined
+        const stack = trace.stack.split('\n')
+        stack.shift()
+        ReactorRenderCounterState[uuid].set({
+          count: 0,
+          lastRender: commitTime,
+          time: actualDuration,
+          stack,
+          name: Reactor['__name']
+        })
+      }
+      ReactorRenderCounterState[uuid].count.set((v) => v + 1)
+      ReactorRenderCounterState[uuid].time.set(actualDuration)
+    }
     return (
       <ReactorRootContext.Provider value={reactorRoot}>
         <Suspense fallback={<></>}>
           <ReactorErrorBoundary key="reactor-error-boundary" reactorRoot={reactorRoot}>
-            <Reactor />
+            {isDev ? (
+              <Profiler id={Reactor.name} onRender={onRender}>
+                <Reactor />
+              </Profiler>
+            ) : (
+              <Reactor />
+            )}
           </ReactorErrorBoundary>
         </Suspense>
       </ReactorRootContext.Provider>
@@ -191,6 +229,7 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
     HyperFlux.store.activeReactors.delete(reactorRoot)
     reactorRoot.cleanupFunctions.forEach((fn) => fn())
     reactorRoot.cleanupFunctions.clear()
+    ReactorRenderCounterState[reactorRoot.uuid].set(none)
   }
 
   const reactorRoot = {
@@ -202,6 +241,7 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
     cleanupFunctions: new Set(),
     ReactorContainer: ReactorContainer as React.FC,
     promise: undefined!,
+    uuid: uuidv4(),
     run,
     stop
   } as ReactorRoot
@@ -211,7 +251,7 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
   return reactorRoot
 }
 
-export const disposeStore = (store = HyperFlux.store) => {
+export const stopAllReactors = (store = HyperFlux.store) => {
   for (const reactor of store.activeReactors) {
     ReactorReconciler.flushSync(() => reactor.stop())
   }

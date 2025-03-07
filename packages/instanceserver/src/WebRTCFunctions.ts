@@ -437,23 +437,19 @@ export async function handleWebRtcTransportCreate(
         }
       })
     ) as WebRTCSettings
-    const iceServers: IceServer[] = webRTCSettings.useCustomICEServers
-      ? webRTCSettings.iceServers
-      : config.kubernetes.enabled
-      ? PUBLIC_STUN_SERVERS
-      : []
+    const iceServers: IceServer[] = webRTCSettings.useCustomICEServers ? webRTCSettings.iceServers : PUBLIC_STUN_SERVERS
 
     if (config.kubernetes.enabled) {
       const serverState = getState(ServerState)
       const instanceServerState = getState(InstanceServerState)
 
-      const serverResult = await serverState.k8AgonesClient.listNamespacedCustomObject(
-        'agones.dev',
-        'v1',
-        'default',
-        'gameservers'
-      )
-      const thisGs = (serverResult?.body as any).items.find(
+      const serverResult = await serverState.k8AgonesClient.listNamespacedCustomObject({
+        group: 'agones.dev',
+        version: 'v1',
+        namespace: config.server.namespace,
+        plural: 'gameservers'
+      })
+      const thisGs = serverResult.items.find(
         (server) => server.metadata.name === instanceServerState.instanceServer.objectMeta.name
       )
 
