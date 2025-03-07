@@ -28,7 +28,6 @@ import {
   createEngine,
   createEntity,
   destroyEngine,
-  getComponent,
   hasComponent,
   removeEntity,
   setComponent
@@ -181,19 +180,19 @@ describe('TransformSerialization', () => {
         assert.equal(view.cursor, afterCursor)
       })
 
-      it('should mark TransformComponent.dirty for `@param entity` as true', () => {
+      it('should mark TransformComponent.dirtyTransforms for `@param entity` as true', () => {
         const Expected = true
 
         // Set the data as expected
         const cursor: ViewCursor = createViewCursor()
         const view = createViewCursor(cursor.buffer)
-        TransformComponent.dirty[testEntity] = 0
+        TransformComponent.dirtyTransforms[testEntity] = false
         // Sanity check before running
-        assert.equal(TransformComponent.dirty[testEntity], 0)
+        assert.equal(TransformComponent.dirtyTransforms[testEntity], false)
 
         // Run and Check the result
         readTransform(view, testEntity)
-        const result = TransformComponent.dirty[testEntity]
+        const result = TransformComponent.dirtyTransforms[testEntity]
         assert.equal(result, Expected)
       })
     }) //:: readTransform
@@ -294,8 +293,7 @@ describe('TransformSerialization', () => {
 
       it('should return the resulting ViewCursor if one of TransformComponent.[position, rotation] changed', () => {
         // Set the data as expected
-        setComponent(testEntity, TransformComponent)
-        const transform = getComponent(testEntity, TransformComponent)
+        const transform = setComponent(testEntity, TransformComponent)
         transform.position.x = 42
         const cursor: ViewCursor = createViewCursor()
         // Sanity check before running

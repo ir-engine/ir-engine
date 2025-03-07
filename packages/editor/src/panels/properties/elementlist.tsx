@@ -36,7 +36,7 @@ import { CameraSettingsComponent } from '@ir-engine/engine/src/scene/components/
 import { RenderSettingsComponent } from '@ir-engine/engine/src/scene/components/RenderSettingsComponent'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
+import { Button } from '@ir-engine/ui'
 import StringInput from '@ir-engine/ui/src/components/editor/input/String'
 import { PlusCircleSm } from '@ir-engine/ui/src/icons'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
@@ -45,13 +45,8 @@ import React, { useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { GrStatusPlaceholder } from 'react-icons/gr'
 import { twMerge } from 'tailwind-merge'
-import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
 
 type ElementsType = 'components' | 'prefabs'
-
-const labelRemapping = {
-  EE_media: 'audio'
-}
 
 export type SceneElementType = {
   componentJsonID: string
@@ -66,55 +61,56 @@ const ComponentListItem = ({ item, onSelect }: { item: Component; onSelect: () =
   const Icon = getState(ComponentEditorsState)[item.name]?.iconComponent ?? GrStatusPlaceholder
 
   // remove any prefix from the jsonID
-  const jsonName =
-    (item.jsonID ? labelRemapping[item.jsonID] : undefined) || item.jsonID?.split('_').slice(1).join('-') || item.name
+  const jsonName = item.jsonID?.split('_').slice(1).join('-') || item.name
 
   return (
-    <button
-      className="flex w-full items-center justify-center gap-1 rounded-md bg-ui-background p-2 text-text-secondary hover:bg-ui-hover-primary hover:text-text-primary-button"
+    <Button
+      fullWidth
+      className="h-full bg-[#2C2E33] p-2 text-[#B2B5BD]"
       onClick={() => {
         const entities = SelectionState.getSelectedEntities()
-        EditorHistoryFunctions.setComponent(entities, item)
+        EditorControlFunctions.addOrRemoveComponent(entities, item, true)
         onSelect()
       }}
     >
-      <Icon className="h-4 w-4" />
+      <Icon className="h-4 w-4 text-[#B2B5BD]" />
       <div className="ml-4 w-full">
-        <Text className="mb-1 block text-left text-sm">{startCase(jsonName.replace('-', ' ').toLowerCase())}</Text>
-        <Text component="p" className="block text-left text-xs ">
+        <Text className="mb-1 block text-left text-sm text-[#B2B5BD]">
+          {startCase(jsonName.replace('-', ' ').toLowerCase())}
+        </Text>
+        <Text component="p" className="block text-left text-xs text-theme-secondary">
           {t(`editor:layout.assetGrid.component-detail.${jsonName}`, '')}
         </Text>
       </div>
-    </button>
+    </Button>
   )
 }
 
 const PrefabListItem = ({ item, onSelect }: { item: PrefabShelfItem; onSelect: () => void }) => {
   return (
     <button
-      className="flex w-full items-center justify-center gap-1 rounded-md bg-ui-background p-2 text-text-secondary hover:bg-ui-hover-primary hover:text-text-primary-button"
+      className="flex w-full items-center justify-center gap-1 rounded-md bg-[#2C2E33] p-2 text-[#B2B5BD] hover:bg-[#214AA6]"
       data-testid="prefabs-category-item"
       onClick={() => {
         const url = item.url
         if (!url.length) {
-          EditorControlFunctions.createObjectFromSceneElement([
-            {
-              name: TransformComponent.jsonID
-            }
-          ])
-          EditorHistoryFunctions.snapshot()
+          EditorControlFunctions.createObjectFromSceneElement()
         } else {
           addMediaNode(url)
         }
         onSelect()
       }}
     >
-      <PlusCircleSm />
+      <PlusCircleSm className="text-[#B2B5BD]" />
       <div className="ml-4 w-full">
-        <Text className="mb-1 block text-left text-sm" data-testid="prefabs-category-item-name">
+        <Text className="mb-1 block text-left text-sm text-[#B2B5BD]" data-testid="prefabs-category-item-name">
           {item.name}
         </Text>
-        <Text component="p" className="block text-left text-xs " data-testid="prefabs-category-item-detail">
+        <Text
+          component="p"
+          className="block text-left text-xs text-theme-secondary"
+          data-testid="prefabs-category-item-detail"
+        >
           {item.detail}
         </Text>
       </div>
@@ -134,21 +130,21 @@ const SceneElementListItem = ({
   return (
     <button
       className={twMerge(
-        'flex flex-col items-center justify-center gap-1 rounded-xl border border-ui-outline bg-ui-background px-3 py-2.5 text-sm font-medium',
-        selected
-          ? 'border-ui-select-outline bg-ui-select-primary text-text-primary-button'
-          : 'text-text-secondary hover:bg-ui-hover-background hover:text-text-primary'
+        'gap-1 rounded-xl border-[1px] border-[#212226] bg-[#212226] px-3 py-2.5 text-sm font-medium',
+        selected ? 'border-[#42454D] bg-[#2C2E33]' : 'text-[#B2B5BD]'
       )}
       data-testid="prefabs-category"
       onClick={onClick}
     >
-      <PrefabIcon categoryTitle={categoryTitle} isSelected={selected ?? false} />
-      <span
-        className="max-w-full overflow-hidden truncate whitespace-nowrap text-nowrap"
-        data-testid="prefabs-category-title"
-      >
-        {categoryTitle}
-      </span>
+      <div className="flex flex-col items-center justify-center">
+        <PrefabIcon categoryTitle={categoryTitle} isSelected={selected ?? false} />
+        <span
+          className="max-w-full overflow-hidden truncate whitespace-nowrap text-nowrap"
+          data-testid="prefabs-category-title"
+        >
+          {categoryTitle}
+        </span>
+      </div>
     </button>
   )
 }
@@ -176,11 +172,7 @@ const useComponentShelfCategories = (search: string) => {
 
     return Object.entries(getState(ComponentShelfCategoriesState))
       .map(([category, items]) => {
-        const filteredItems = items.filter((item) =>
-          ((item.jsonID ? labelRemapping[item.jsonID] : undefined) || item.name)
-            .toLowerCase()
-            .includes(search.toLowerCase())
-        )
+        const filteredItems = items.filter((item) => item.name.toLowerCase().includes(search.toLowerCase()))
         return [category, filteredItems] as [string, Component[]]
       })
       .map(mapSettingsComponents)
@@ -274,11 +266,9 @@ export function ElementList({ type, onSelect }: { type: ElementsType; onSelect: 
   }
 
   return (
-    <div className="rounded-xl border border-ui-outline bg-surface-1 p-4">
+    <div className="rounded-xl bg-[#191B1F] p-4">
       <div className="h-auto w-full overflow-hidden p-2">
-        <Text className="mb-1.5 w-full text-center uppercase text-text-primary">
-          {t(`editor:layout.assetGrid.${type}`)}
-        </Text>
+        <Text className="mb-1.5 w-full text-center uppercase text-white">{t(`editor:layout.assetGrid.${type}`)}</Text>
         <StringInput
           placeholder={t(`editor:layout.assetGrid.${type}-search`)}
           value={search.local.value}

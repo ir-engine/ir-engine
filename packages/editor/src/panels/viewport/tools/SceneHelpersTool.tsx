@@ -43,22 +43,24 @@ export default function SceneHelpersTool() {
   const [pointClickEnabled] = useFeatureFlags([FeatureFlags.Studio.UI.PointClick])
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1 rounded bg-[#0E0F11]">
       {pointClickEnabled && (
         <>
           <Tooltip content={t('editor:toolbar.placement.click')} position="bottom">
             <ViewportButton
               onClick={() => editorHelperState.placementMode.set(PlacementMode.CLICK)}
               selected={editorHelperState.placementMode.value === PlacementMode.CLICK}
-              icon={LuMousePointerClick}
-            />
+            >
+              <LuMousePointerClick className="text-theme-input" />
+            </ViewportButton>
           </Tooltip>
           <Tooltip content={t('editor:toolbar.placement.drag')} position="bottom">
             <ViewportButton
               onClick={() => editorHelperState.placementMode.set(PlacementMode.DRAG)}
               selected={editorHelperState.placementMode.value === PlacementMode.DRAG}
-              icon={LuMove3D}
-            />
+            >
+              <LuMove3D className="text-theme-input" />
+            </ViewportButton>
           </Tooltip>
         </>
       )}
@@ -70,8 +72,9 @@ export default function SceneHelpersTool() {
         <ViewportButton
           onClick={() => rendererState.physicsDebug.set(!rendererState.physicsDebug.value)}
           selected={rendererState.physicsDebug.value}
-          icon={RulerUnitsMd}
-        />
+        >
+          <RulerUnitsMd />
+        </ViewportButton>
       </Tooltip>
       <Tooltip
         title={t('editor:toolbar.helpersToggle.lbl-nodeHelpers')}
@@ -81,15 +84,18 @@ export default function SceneHelpersTool() {
         <ViewportButton
           onClick={() => rendererState.nodeHelperVisibility.set(!rendererState.nodeHelperVisibility.value)}
           selected={rendererState.nodeHelperVisibility.value}
-          icon={ColliderAtomsMd}
-        />
+        >
+          <ColliderAtomsMd />
+        </ViewportButton>
       </Tooltip>
       <Tooltip
         title={t('editor:toolbar.sceneScreenshot.lbl')}
         content={t('editor:toolbar.sceneScreenshot.info')}
         position="bottom"
       >
-        <ViewportButton onClick={() => downloadScreenshot()} icon={ScreenshotMenuMd} />
+        <ViewportButton onClick={() => downloadScreenshot()}>
+          <ScreenshotMenuMd />
+        </ViewportButton>
       </Tooltip>
     </div>
   )

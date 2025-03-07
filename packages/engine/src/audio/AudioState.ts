@@ -65,7 +65,13 @@ export const AudioState = defineState({
     'notificationVolume',
     'soundEffectsVolume',
     'backgroundMusicVolume'
-  ])
+  ]),
+  onCreate: () => {
+    //FIXME do this more gracefully than a hard setTimeout
+    setTimeout(() => {
+      getMutableState(MediaSettingsState).immersiveMedia.set(getState(AudioState).positionalMedia)
+    }, 1000)
+  }
 })
 
 export const useAudioState = () => {
@@ -181,8 +187,8 @@ export const useAudioState = () => {
 
   useEffect(() => {
     if (!audioState.positionalMedia.value) return
-    getMutableState(MediaSettingsState).immersiveMedia.set(getPositionalMedia())
-  }, [audioState.audioContext, audioState.positionalMedia, audioState.usePositionalMedia])
+    getMutableState(MediaSettingsState).immersiveMedia.set(audioState.positionalMedia.value)
+  }, [audioState.audioContext, audioState.positionalMedia])
 }
 
 export const getPositionalMedia = () => {

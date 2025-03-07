@@ -37,9 +37,9 @@ import { CameraActions } from '../CameraState'
 import { CameraComponent } from '../components/CameraComponent'
 import './CameraSystem'
 
-describe('CameraSystem', () => {
-  describe('CameraEntityState', () => {
-    beforeEach(() => {
+describe('CameraSystem', async () => {
+  describe('CameraEntityState', async () => {
+    beforeEach(async () => {
       createEngine()
       Engine.instance.store.defaultDispatchDelay = () => 0
       initializeSpatialViewer()
@@ -49,7 +49,7 @@ describe('CameraSystem', () => {
       return destroyEngine()
     })
 
-    it('should create a camera entity and apply a CameraComponent to that entity', () => {
+    it('should create a camera entity and apply a CameraComponent to that entity', async () => {
       const hostUserID = 'host user' as UserID
       const hostPeerID = Engine.instance.store.peerID
 

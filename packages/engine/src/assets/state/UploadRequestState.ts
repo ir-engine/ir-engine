@@ -34,8 +34,7 @@ export type UploadRequest = {
 export const UploadRequestState = defineState({
   name: 'UploadRequestState',
   initial: {
-    queue: [] as UploadRequest[],
-    isOnPublishing: false
+    queue: [] as UploadRequest[]
   }
 })
 

@@ -25,9 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Object3D } from 'three'
 
-import { Entity, entityExists } from '@ir-engine/ecs'
+import { Entity, entityExists, Types } from '@ir-engine/ecs'
 import { defineComponent, hasComponent, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
 
 const maxBitWidth = 32
 /**
@@ -43,9 +42,10 @@ export const ObjectLayerMaskDefault = 1 << 0 // enable layer 0
 
 export const ObjectLayerMaskComponent = defineComponent({
   name: 'ObjectLayerMaskComponent',
+  schema: { mask: Types.i32 },
 
-  storage: {
-    mask: createResizableTypeArray(Int32Array)
+  onInit() {
+    return ObjectLayerMaskDefault // enable layer 0
   },
 
   /**
@@ -68,6 +68,7 @@ export const ObjectLayerMaskComponent = defineComponent({
         removeComponent(entity, ObjectLayerComponents[i])
       }
     }
+    component.set(mask)
     ObjectLayerMaskComponent.mask[entity] = mask
   },
 
@@ -75,6 +76,7 @@ export const ObjectLayerMaskComponent = defineComponent({
     for (let i = 0; i < maxBitWidth; i++) {
       removeComponent(entity, ObjectLayerComponents[i])
     }
+    component.set(0)
   },
 
   setLayer(entity: Entity, layer: number) {

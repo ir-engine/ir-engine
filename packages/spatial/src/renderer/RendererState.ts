@@ -47,7 +47,7 @@ export const RendererState = defineState({
     gridVisibility: false,
     gridHeight: 0,
     forceBasicMaterials: false,
-    shadowMapResolution: isIPhone ? 256 : 1024,
+    shadowMapResolution: isIPhone ? 256 : 2048,
     infiniteGridHelperEntity: null as Entity | null
   }),
   extension: syncStateWithLocalStorage([
@@ -60,6 +60,8 @@ export const RendererState = defineState({
     'bvhDebug',
     'avatarDebug',
     'renderMode',
-    'nodeHelperVisibility'
+    'nodeHelperVisibility',
+    'gridVisibility',
+    'gridHeight'
   ])
 })

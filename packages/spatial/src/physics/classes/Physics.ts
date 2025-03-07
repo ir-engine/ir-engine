@@ -51,10 +51,16 @@ import {
   Vector3
 } from 'three'
 
-import { getComponent, getOptionalComponent, hasComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import {
+  getComponent,
+  getOptionalComponent,
+  hasComponent,
+  setComponent,
+  useOptionalComponent
+} from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
 
-import { getAncestorWithComponents, useAncestorWithComponents } from '@ir-engine/ecs'
+import { UUIDComponent, getAncestorWithComponents, useAncestorWithComponents } from '@ir-engine/ecs'
 import { NO_PROXY, defineState, getMutableState, getState, none, useHookstate } from '@ir-engine/hyperflux'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '@ir-engine/network'
 import { Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
@@ -81,7 +87,7 @@ import {
 } from '../types/PhysicsTypes'
 
 export type PhysicsWorld = World & {
-  id: Entity
+  id: EntityUUID
   substeps: number
   cameraAttachedRigidbodyEntity: Entity
   Colliders: Map<Entity, Collider>
@@ -108,10 +114,10 @@ async function load() {
 
 export const RapierWorldState = defineState({
   name: 'ir.spatial.physics.RapierWorldState',
-  initial: {} as Record<Entity, PhysicsWorld>
+  initial: {} as Record<EntityUUID, PhysicsWorld>
 })
 
-function createWorld(id: Entity, args = { gravity: { x: 0.0, y: -9.81, z: 0.0 }, substeps: 1 }) {
+function createWorld(id: EntityUUID, args = { gravity: { x: 0.0, y: -9.81, z: 0.0 }, substeps: 1 }) {
   const world = new World(args.gravity) as PhysicsWorld
 
   world.id = id
@@ -135,7 +141,7 @@ function createWorld(id: Entity, args = { gravity: { x: 0.0, y: -9.81, z: 0.0 },
   return world
 }
 
-function destroyWorld(id: Entity) {
+function destroyWorld(id: EntityUUID) {
   const world = getState(RapierWorldState)[id]
   if (!world) throw new Error('Physics world not found')
   getMutableState(RapierWorldState)[id].set(none)
@@ -148,13 +154,16 @@ function destroyWorld(id: Entity) {
 function getWorld(entity: Entity) {
   const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
   if (!sceneEntity) return
-  return getState(RapierWorldState)[sceneEntity]
+  const sceneUUID = getOptionalComponent(sceneEntity, UUIDComponent)
+  if (!sceneUUID) return
+  return getState(RapierWorldState)[sceneUUID]
 }
 
 function useWorld(entity: Entity) {
   const sceneEntity = useAncestorWithComponents(entity, [SceneComponent])
+  const sceneUUID = useOptionalComponent(sceneEntity, UUIDComponent)?.value
   const worlds = useHookstate(getMutableState(RapierWorldState))
-  return sceneEntity ? (worlds[sceneEntity].get(NO_PROXY) as PhysicsWorld) : undefined
+  return sceneUUID ? (worlds[sceneUUID].get(NO_PROXY) as PhysicsWorld) : undefined
 }
 
 function smoothKinematicBody(physicsWorld: PhysicsWorld, entity: Entity, dt: number, substep: number) {
@@ -216,7 +225,7 @@ function createRigidBody(world: PhysicsWorld, entity: Entity) {
   TransformComponent.getMatrixRelativeToScene(entity, mat4)
   mat4.decompose(position, rotation, scale)
 
-  TransformComponent.dirty[entity] = 0
+  TransformComponent.dirtyTransforms[entity] = false
 
   const rigidBody = getComponent(entity, RigidBodyComponent)
 
@@ -855,7 +864,7 @@ const _vector3 = new Vector3()
  * Raycast from a world position and direction
  */
 function castRay(world: PhysicsWorld, raycastQuery: RaycastArgs, filterPredicate?: (collider: Collider) => boolean) {
-  const worldEntity = world.id
+  const worldEntity = UUIDComponent.getEntityByUUID(world.id)
   const worldTransform = getComponent(worldEntity, TransformComponent)
   _worldInverseMatrix.copy(worldTransform.matrixWorld).invert()
 
@@ -913,7 +922,7 @@ function castRayFromCamera(
   raycastQuery: RaycastArgs,
   filterPredicate?: (collider: Collider) => boolean
 ) {
-  const worldEntity = world.id
+  const worldEntity = UUIDComponent.getEntityByUUID(world.id)
   const worldTransform = getComponent(worldEntity, TransformComponent)
 
   if ((camera as PerspectiveCamera).isPerspectiveCamera) {

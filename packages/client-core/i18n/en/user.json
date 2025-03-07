@@ -8,9 +8,7 @@
     "discardChanges": "Discard Changes",
     "confirmDiscardChange": "Changes you made may not be saved.",
     "changesLostAlert": "If you proceed all your changes will be lost.",
-    "discard": "Discard",
-    "userBannedMessage": "You have been banned from joining this space.",
-    "userBannedMessageDescription": "If you feel like this is an error, please contact customer support."
+    "discard": "Discard"
   },
   "auth": {
     "confirmEmail": {
@@ -128,7 +126,6 @@
     },
     "share": {
       "lbl-share": "Share",
-      "description-share": "Share this location",
       "ph-phoneEmail": "Invite by email or phone number",
       "ph-email": "Invite by email",
       "ph-phone": "Invite by phone number",
@@ -143,8 +140,10 @@
       "linkCopied": "Link copied to clipboard.",
       "friends": "Friends",
       "party": "Party",
+      "shareQuest": "Share to Quest",
       "shareDirect": "Share Direct Link",
       "shareEmbed": "Embed This Space",
+      "shareInvite": "Share by Invite",
       "shareTitle": "AR/VR World | Infinite Reality Engine",
       "shareDescription": "Check out AR/VR world on Infinite Reality Engine",
       "shareFailed": "Error during sharing"
@@ -214,11 +213,7 @@
       "showApiKey": "Show API key",
       "hideApiKey": "Hide API key",
       "apiKey": "API key",
-      "logout": {
-        "title": "Are you sure you want to log out?",
-        "submit": "Log out",
-        "cancel": "Cancel"
-      },
+      "logout": "Log out",
       "connectPhone": "Connect your Phone Number",
       "connectEmail": "Connect your Email",
       "connectPhoneEmail": "Connect your Email or Phone Number",
@@ -287,17 +282,7 @@
       "refreshApiKey": "Refresh API Key",
       "privacyPolicy": "Privacy Policy",
       "helpChat": "Help Chat",
-      "reportWorld": "Report Space",
-      "report": "Report a {{type}}",
-      "typeAbuse": "Type of abuse",
-      "selectAbuseTypeRequired": "Please select the type of abuse",
-      "selectOne": "Select One",
-      "reportDetails": "Report details",
-      "reportDetailsRequired": "Please enter report details",
-      "reportDetailsPlaceholder": "Use this section to include the necessary details for your report. Note that the upload attachment field below is required, so please be sure to attach any evidence you think is helpful to your report.",
-      "reportFileLabel": "Attachments",
-      "reportFileRequired": "Please attach at least one file",
-      "reportSuccessMessage": "Your report has been submitted."
+      "reportWorld": "Report World"
     },
     "oauth": {
       "authenticating": "Authenticating..."
@@ -345,15 +330,14 @@
     "server": "Server",
     "recordings": "Recordings",
     "channels": "Channels",
-    "crashReport": "Crash Report",
-    "moderation": "Moderation"
+    "crashReport": "Crash Report"
   },
   "resource": {
     "createResource": "Create Resource"
   },
   "avatar": {
     "titleEditAvatar": "Edit Avatar",
-    "titleSelectAvatar": "Change Your Avatar",
+    "titleSelectAvatar": "Select Your Avatar",
     "titleUploadAvatar": "Upload Avatar",
     "titleSelectThumbnail": "Select Thumbnail",
     "titleCustomizeAvatar": "Customize Your Avatar",
@@ -435,6 +419,7 @@
     "exitFullScreen": "Exit FullScreen",
     "hide": "Hide",
     "show": "Show"
+    
   },
   "personMenu": {
     "inviteToParty": "Invite To Party",
@@ -476,8 +461,7 @@
     "requestAccepted": "has accepted your request to be friends"
   },
   "messages": {
-    "enterMessage": "Enter Message",
-    "rotateLandscape": "Please rotate to landscape"
+    "enterMessage": "Enter Message"
   },
   "roomMenu": {
     "createRoom": "Create a room",
@@ -493,25 +477,7 @@
   },
   "instanceChat": {
     "wantToChat": "Want to chat with others?",
-    "register": "Create an account",
+    "register": "Become a registered user",
     "verifyAge": "Verify your age"
-  },
-  "videoWindows": {
-    "more": "More",
-    "reportUser": "Report User",
-    "blockUser": "Block User"
-  },
-  "moderation": {
-    "abuseReason": {
-      "nudity": "Nudity",
-      "fakeNewsScams": "Fake News & Scams",
-      "disturbingInappropriate": "Disturbing/Inappropriate",
-      "cheatingHacking": "Cheating/Hacking",
-      "bullyingHarassment": "Bullying/Harassment",
-      "illegalActivity": "Illegal Activity",
-      "copyrightInfringements": "Copyright & Other Infringements",
-      "childExploitation": "Child Exploitation",
-      "somethingElse": "Something Else"
-    }
   }
 }

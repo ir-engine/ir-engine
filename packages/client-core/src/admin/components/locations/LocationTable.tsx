@@ -23,20 +23,21 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { HiPencil, HiTrash } from 'react-icons/hi2'
+import { validate as isValidUUID } from 'uuid'
+
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import { locationPath, LocationType, scopePath, ScopeType } from '@ir-engine/common/src/schema.type.module'
-import { isValidId } from '@ir-engine/common/src/utils/isValidId'
+import { Button } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import React from 'react'
-import { useTranslation } from 'react-i18next'
 
 import config from '@ir-engine/common/src/config'
 import { Engine } from '@ir-engine/ecs'
-import { Edit01Lg, Trash04Lg } from '@ir-engine/ui/src/icons'
 import { locationColumns, LocationRowType } from '../../common/constants/location'
 import DataTable from '../../common/Table'
-import ActionButton from '../ActionButton'
 import AddEditLocationModal from './AddEditLocationModal'
 
 const getStudioURLfromScene = (url: string) => {
@@ -74,7 +75,7 @@ export default function LocationTable({ search }: { search: string }) {
     {
       $or: [
         {
-          id: isValidId(search) ? search : undefined
+          id: isValidUUID(search) ? search : undefined
         },
         {
           name: {
@@ -82,7 +83,7 @@ export default function LocationTable({ search }: { search: string }) {
           }
         },
         {
-          sceneId: isValidId(search) ? search : undefined
+          sceneId: isValidUUID(search) ? search : undefined
         }
       ]
     },
@@ -111,15 +112,18 @@ export default function LocationTable({ search }: { search: string }) {
         : t('admin:components.common.no'),
       action: (
         <div className="flex items-center justify-start gap-3">
-          <ActionButton
-            icon={Edit01Lg}
+          <Button
+            variant="tertiary"
+            className="h-8 w-8"
+            disabled={!userHasAccess}
             title={t('admin:components.common.view')}
             onClick={() => PopoverState.showPopupover(<AddEditLocationModal action="admin" location={row} />)}
-            variant="green"
-          />
-
-          <ActionButton
-            icon={Trash04Lg}
+          >
+            <HiPencil className="text-theme-iconGreen" />
+          </Button>
+          <Button
+            variant="tertiary"
+            className="h-8 w-8"
             title={t('admin:components.common.delete')}
             onClick={() =>
               PopoverState.showPopupover(
@@ -131,8 +135,9 @@ export default function LocationTable({ search }: { search: string }) {
                 />
               )
             }
-            variant="red"
-          />
+          >
+            <HiTrash className="place-self-center text-theme-iconRed" />
+          </Button>
         </div>
       )
     }))

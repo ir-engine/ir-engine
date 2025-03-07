@@ -24,9 +24,8 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useMutableState } from '@ir-engine/hyperflux'
-import { EmoteLg, EmoteM, Send01Lg, Send01Md, User01Lg, User01Md } from '@ir-engine/ui/src/icons'
+import { Emote, Send01Lg, User01Lg } from '@ir-engine/ui/src/icons'
 
-import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import PopupMenu from '@ir-engine/ui/src/primitives/tailwind/PopupMenu'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -46,42 +45,43 @@ export default function UserMenus() {
   return (
     <>
       <div className="flex w-full items-center justify-center gap-x-6">
-        {userMenus.profile.value && (
+        {userMenus.profile && (
           <LocationIconButton
             tooltip={{
               title: t('user:menu.settings'),
               position: 'top'
             }}
-            icon={isMobile ? User01Md : User01Lg}
+            icon={User01Lg}
             onClick={() => PopoverState.showPopupover(<ProfileMenu />)}
           />
         )}
-        {userMenus.share.value && (
+        {userMenus.share && (
           <LocationIconButton
             tooltip={{
               title: t('user:menu.sendLocation'),
               position: 'top'
             }}
-            icon={isMobile ? Send01Md : Send01Lg}
+            icon={Send01Lg}
             onClick={() => PopoverState.showPopupover(<ShareMenu />)}
           />
         )}
-        {userMenus.emote.value && (
+        {userMenus.emote && (
           <LocationIconButton
             tooltip={{
               title: t('user:menu.emote'),
               position: 'top'
             }}
-            icon={isMobile ? EmoteLg : EmoteM}
-            onClick={() => PopoverState.showPopupover(<EmoteMenu />, undefined, 'transparent')}
+            icon={Emote}
+            onClick={() => PopoverState.showPopupover(<EmoteMenu />)}
           />
         )}
-        {userMenus.social.value && (
+        {userMenus.social && (
           <LocationIconButton
             tooltip={{
               title: t('user:menu.friends'),
               position: 'top'
             }}
+            // @ts-ignore
             icon={FaUserFriends}
             onClick={() => PopoverState.showPopupover(<FriendsMenu />)}
           />

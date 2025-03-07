@@ -25,14 +25,16 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { AuthenticationRequest, AuthenticationResult } from '@feathersjs/authentication'
 import { Paginated } from '@feathersjs/feathers'
+
 import { apiJobPath } from '@ir-engine/common/src/schemas/cluster/api-job.schema'
 import { githubRepoAccessRefreshPath } from '@ir-engine/common/src/schemas/user/github-repo-access-refresh.schema'
 import { identityProviderPath } from '@ir-engine/common/src/schemas/user/identity-provider.schema'
-import { loginTokenPath } from '@ir-engine/common/src/schemas/user/login-token.schema'
 import { userApiKeyPath, UserApiKeyType } from '@ir-engine/common/src/schemas/user/user-api-key.schema'
 import { InviteCode, UserName, userPath } from '@ir-engine/common/src/schemas/user/user.schema'
-import { getDateTimeSql, toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
-import { isValidId } from '@ir-engine/common/src/utils/isValidId'
+import { getDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
+
+import { loginTokenPath } from '@ir-engine/common/src/schemas/user/login-token.schema'
+import { toDateTimeSql } from '@ir-engine/common/src/utils/datetime-sql'
 import moment from 'moment/moment'
 import { Octokit } from 'octokit'
 import { Application } from '../../../declarations'
@@ -145,18 +147,11 @@ export class GithubStrategy extends CustomOAuthStrategy {
         userId: entity.userId
       })
     if (entity.type !== 'guest' && identityProvider.type === 'guest') {
-      const existingUser = await this.app.service(userPath).get(entity.userId)
-      if (isValidId(identityProvider.id)) await this.app.service(identityProviderPath)._remove(identityProvider.id)
-      if (isValidId(identityProvider.userId)) await this.app.service(userPath).remove(identityProvider.userId)
+      await this.app.service(identityProviderPath)._remove(identityProvider.id)
+      await this.app.service(userPath).remove(identityProvider.userId)
       if (!config.kubernetes.enabled)
-        await this.app.service(githubRepoAccessRefreshPath).find(Object.assign({}, params, { user: existingUser }))
-      else await this.createRefreshJob(existingUser.id)
-      await this.app.service(identityProviderPath).remove(null, {
-        query: {
-          type: 'guest',
-          userId: entity.userId
-        }
-      })
+        await this.app.service(githubRepoAccessRefreshPath).find(Object.assign({}, params, { user }))
+      else await this.createRefreshJob(user.id)
       await this.userLoginEntry(entity, params)
 
       return super.updateEntity(entity, profile, params)
@@ -200,29 +195,17 @@ export class GithubStrategy extends CustomOAuthStrategy {
             }
           }
         }
-        if (isValidId(entity.id)) await this.app.service(identityProviderPath).remove(entity.id)
+        await this.app.service(identityProviderPath).remove(entity.id)
       }
       if (!config.kubernetes.enabled)
         await this.app.service(githubRepoAccessRefreshPath).find(Object.assign({}, params, { user }))
       else await this.createRefreshJob(user.id)
-      await this.app.service(identityProviderPath).remove(null, {
-        query: {
-          type: 'guest',
-          userId: entity.userId
-        }
-      })
       await this.userLoginEntry(newIP, params)
       return newIP
     } else if (existingEntity.userId === identityProvider.userId) {
       if (!config.kubernetes.enabled)
         await this.app.service(githubRepoAccessRefreshPath).find(Object.assign({}, params, { user }))
       else await this.createRefreshJob(user.id)
-      await this.app.service(identityProviderPath).remove(null, {
-        query: {
-          type: 'guest',
-          userId: existingEntity.userId
-        }
-      })
       await this.userLoginEntry(existingEntity, params)
       return existingEntity
     } else {

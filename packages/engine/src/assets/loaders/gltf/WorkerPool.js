@@ -55,7 +55,6 @@ export class WorkerPool {
   _onMessage(workerId, msg) {
     const resolve = this.workersResolve[workerId]
     resolve && resolve(msg)
-    this.workersResolve[workerId] = null
 
     if (this.queue.length) {
       const { resolve, msg, transfer } = this.queue.shift()

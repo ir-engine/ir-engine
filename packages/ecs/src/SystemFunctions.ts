@@ -28,7 +28,14 @@ Infinite Reality Engine. All Rights Reserved.
 import { FC } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
-import { getState, HyperFlux, OpaqueType, startReactor, useImmediateEffect } from '@ir-engine/hyperflux'
+import {
+  getMutableState,
+  getState,
+  HyperFlux,
+  OpaqueType,
+  startReactor,
+  useImmediateEffect
+} from '@ir-engine/hyperflux'
 
 import { SystemState } from './SystemState'
 import { nowMilliseconds } from './Timer'
@@ -83,8 +90,6 @@ export const sortSystemsByAvgDuration = (): System[] => {
   return sorted
 }
 
-const nullSystemID = '__null__' as SystemUUID
-
 export const SystemDefinitions = new Map<SystemUUID, System>()
 globalThis.SystemDefinitions = SystemDefinitions
 
@@ -104,7 +109,6 @@ export function executeSystem(systemUUID: SystemUUID) {
 
   /** @todo when we fully remove deprecated system reactors in favour of state reactors, we can just wrap system.execute with flushSync */
   if (system.reactor && !getState(SystemState).activeSystemReactors.has(system.uuid)) {
-    system.reactor['__name'] = system.uuid
     const reactor = startReactor(system.reactor)
     getState(SystemState).activeSystemReactors.set(system.uuid, reactor)
   }
@@ -112,14 +116,14 @@ export function executeSystem(systemUUID: SystemUUID) {
   const startTime = nowMilliseconds()
 
   try {
-    getState(SystemState).currentSystemUUID = systemUUID
+    getMutableState(SystemState).currentSystemUUID.set(systemUUID)
     system.execute()
   } catch (e) {
     const logger = HyperFlux.store.logger('ecs:SystemFunctions')
     logger.error(`Failed to execute system ${system.uuid}`)
     logger.error(e)
   } finally {
-    getState(SystemState).currentSystemUUID = nullSystemID
+    getMutableState(SystemState).currentSystemUUID.set('__null__' as SystemUUID)
   }
 
   const endTime = nowMilliseconds()

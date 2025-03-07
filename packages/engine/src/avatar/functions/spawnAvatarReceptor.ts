@@ -43,18 +43,16 @@ import { ColliderComponent } from '@ir-engine/spatial/src/physics/components/Col
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '@ir-engine/spatial/src/physics/enums/CollisionGroups'
 import { BodyTypes, Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
+import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import {
   DistanceFromCameraComponent,
   FrustumCullCameraComponent
 } from '@ir-engine/spatial/src/transform/components/DistanceComponents'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
-import { isClient } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
-import { ObjectLayerMaskComponent } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
-import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { GrabberComponent } from '../../grabbable/GrabbableComponent'
-import { EnvMapComponent } from '../../scene/components/EnvmapComponent'
+import { EnvmapComponent } from '../../scene/components/EnvmapComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { EnvMapSourceType } from '../../scene/constants/EnvMapEnum'
 import { AnimationComponent } from '../components/AnimationComponent'
@@ -70,10 +68,12 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
   setComponent(entity, TransformComponent)
 
+  setComponent(entity, VisibleComponent, true)
+
   setComponent(entity, DistanceFromCameraComponent)
   setComponent(entity, FrustumCullCameraComponent)
 
-  setComponent(entity, EnvMapComponent, {
+  setComponent(entity, EnvmapComponent, {
     type: EnvMapSourceType.Skybox,
     envMapIntensity: 1
   })
@@ -88,7 +88,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   })
 
   setComponent(entity, AvatarComponent)
-  ObjectLayerMaskComponent.setLayer(entity, ObjectLayers.Avatar)
 
   createAvatarCollider(entity)
 
@@ -106,9 +105,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   setComponent(entity, ShadowComponent)
   setComponent(entity, GrabberComponent)
-  if (isClient) {
-    setComponent(entity, AvatarRigComponent)
-  }
+  setComponent(entity, AvatarRigComponent)
   setComponent(entity, AvatarIKComponent)
 
   setComponent(entity, InputComponent)

@@ -69,9 +69,11 @@ const TransformPivotTool = () => {
   const editorHelperState = useHookstate(getMutableState(EditorHelperState))
 
   return (
-    <div className="flex items-center gap-x-1">
+    <div className="flex items-center rounded bg-[#141619] p-1">
       <Tooltip content={t('editor:toolbar.transformPivot.toggleTransformPivot')} position="bottom">
-        <ViewportButton onClick={toggleTransformPivot} icon={SelectionMd} />
+        <ViewportButton onClick={toggleTransformPivot}>
+          <SelectionMd />
+        </ViewportButton>
       </Tooltip>
       <ToolbarDropdown
         tooltipContent={
@@ -81,7 +83,7 @@ const TransformPivotTool = () => {
         options={transformPivotOptions}
         value={editorHelperState.transformPivot.value}
         width="full"
-        inputHeight="l"
+        inputHeight="xs"
         dropdownParentClassName="w-[106px]"
       />
     </div>

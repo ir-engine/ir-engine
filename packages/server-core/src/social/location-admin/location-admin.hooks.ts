@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { hooks as schemaHooks } from '@feathersjs/schema'
-import { disallow, discardQuery, iff, iffElse, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import {
   locationAdminDataValidator,
@@ -33,8 +33,6 @@ import {
 } from '@ir-engine/common/src/schemas/social/location-admin.schema'
 import attachOwnerIdInQuery from '@ir-engine/server-core/src/hooks/set-loggedin-user-in-query'
 
-import isAction from '../../hooks/is-action'
-import persistQuery from '../../hooks/persist-query'
 import verifyScope from '../../hooks/verify-scope'
 import {
   locationAdminDataResolver,
@@ -51,14 +49,7 @@ export default {
 
   before: {
     all: [schemaHooks.validateQuery(locationAdminQueryValidator), schemaHooks.resolveQuery(locationAdminQueryResolver)],
-    find: [
-      persistQuery,
-      iff(
-        isProvider('external'),
-        iffElse(isAction('admin'), verifyScope('moderation', 'read'), attachOwnerIdInQuery('userId')),
-        discardQuery('action')
-      )
-    ],
+    find: [iff(isProvider('external'), attachOwnerIdInQuery('userId'))],
     get: [disallow('external')],
     create: [
       iff(isProvider('external'), verifyScope('location', 'write')),

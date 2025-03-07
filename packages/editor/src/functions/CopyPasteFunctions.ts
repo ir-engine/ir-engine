@@ -23,16 +23,12 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { EntityTreeComponent, getAllComponents, getComponent, serializeComponent } from '@ir-engine/ecs'
+import { getAllComponents, serializeComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
 import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
-import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { EditorState } from '../services/EditorServices'
 
-export type EntityCopyDataType = { name: string; children: EntityCopyDataType[]; components: ComponentCopyDataType[] }
-export type ComponentCopyDataType = { name: string; json: Record<string, unknown> }
+type ComponentCopyDataType = { name: string; json: Record<string, unknown> }
 
 // fallback to avoid error at readText
 export const CopyState = defineState({
@@ -41,43 +37,24 @@ export const CopyState = defineState({
 })
 
 export const CopyPasteFunctions = {
-  _generateEntityCopyData: (entities: Entity[]) =>
-    entities
-      .map((entity) => {
-        const rootEntity = getState(EditorState).rootEntity
-        const sourceId = getComponent(entity, SourceComponent)
-        if (sourceId !== GLTFComponent.getInstanceID(rootEntity)) {
-          return
-        }
-        const name = getComponent(entity, NameComponent)
-        const children = getComponent(entity, EntityTreeComponent).children as Entity[]
-        return {
-          name: name,
-          children: CopyPasteFunctions._generateEntityCopyData(children),
-          components: CopyPasteFunctions._generateComponentCopyData(entity)
-        }
-      })
-      .filter((e) => e !== undefined) as EntityCopyDataType[],
-
-  _generateComponentCopyData: (entity: Entity) => {
-    const components = getAllComponents(entity)
-    const componentData = components
-      .map((component) => {
-        if (!component.jsonID) return
-        const json = serializeComponent(entity, component)
-        if (!json) return
-        return {
-          name: component.jsonID,
-          json
-        } as ComponentCopyDataType
-      })
-      .filter((c) => typeof c?.json === 'object' && c.json !== null)
-      .filter((c) => c !== undefined)
-    return componentData
-  },
+  _generateComponentCopyData: (entities: Entity[]) =>
+    entities.map(
+      (entity) =>
+        getAllComponents(entity)
+          .map((component) => {
+            if (!component.jsonID) return
+            const json = serializeComponent(entity, component)
+            if (!json) return
+            return {
+              name: component.jsonID,
+              json
+            }
+          })
+          .filter((c) => typeof c?.json === 'object' && c.json !== null) as ComponentCopyDataType[]
+    ),
 
   copyEntities: async (entities: Entity[]) => {
-    const copyData = JSON.stringify(CopyPasteFunctions._generateEntityCopyData(entities))
+    const copyData = JSON.stringify(CopyPasteFunctions._generateComponentCopyData(entities))
     await navigator.clipboard.writeText(copyData)
     getMutableState(CopyState).set(copyData)
   },
@@ -92,8 +69,10 @@ export const CopyPasteFunctions = {
 
     // eslint-disable-next-line no-useless-catch
     try {
-      const nodeEntitiesData = JSON.parse(clipboardText) as EntityCopyDataType[]
-      return nodeEntitiesData
+      const nodeComponentJSONs = JSON.parse(clipboardText) as ComponentCopyDataType[][]
+      return nodeComponentJSONs.map(
+        (nodeComponentJSON) => nodeComponentJSON.map((c) => ({ name: c.name, props: c.json })) as ComponentJsonType[]
+      )
     } catch (err) {
       throw err
     }

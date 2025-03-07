@@ -39,7 +39,7 @@ const ArrowTopRightOnSquareLg = (props: SVGProps<SVGSVGElement>, ref: Ref<SVGSVG
     {...props}
   >
     <path
-      stroke="currentColor"
+      stroke="#000"
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth={2}

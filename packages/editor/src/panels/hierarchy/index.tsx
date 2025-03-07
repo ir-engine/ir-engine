@@ -23,12 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
+import { useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { EditorState } from '@ir-engine/editor/src/services/EditorServices'
-import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { ErrorBoundary, useMutableState } from '@ir-engine/hyperflux'
+import { GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { useMutableState } from '@ir-engine/hyperflux'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import { TabData } from 'rc-dock'
-import React, { Suspense } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import HierarchyTreeContextMenu from './contextmenu'
 import { Contents, Topbar } from './hierarchytree'
@@ -50,25 +52,22 @@ export const HierarchyPanelTab: TabData = {
   id: 'hierarchyPanel',
   closable: true,
   title: <HierarchyPanelTitle />,
-  content: (
-    <ErrorBoundary fallback={<div>Error occured with the Hierarchy tab</div>}>
-      <Suspense>
-        <HierarchyPanelWrapper />
-      </Suspense>
-    </ErrorBoundary>
-  )
+  content: <HierarchyPanelWrapper />
 }
 
 function HierarchyPanelWrapper() {
   const { scenePath, rootEntity } = useMutableState(EditorState).value
-  const sourceID = GLTFComponent.useInstanceID(rootEntity)
+  const sourceId = useOptionalComponent(rootEntity, SourceComponent)?.value
 
-  if (!scenePath || !rootEntity || !sourceID) return null
+  if (!scenePath || !rootEntity || !sourceId) return null
 
-  return <HierarchyPanel />
+  return <HierarchyPanel sourceId={sourceId} />
 }
 
-function HierarchyPanel() {
+function HierarchyPanel({ sourceId }: { sourceId: string }) {
+  const index = GLTFSnapshotState.useSnapshotIndex(sourceId)
+  if (index === undefined) return null
+
   return (
     <HierarchyPanelProvider>
       <Topbar />

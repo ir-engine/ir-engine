@@ -27,15 +27,23 @@ import React, { useEffect, useRef } from 'react'
 import { BufferAttribute, Mesh, SphereGeometry } from 'three'
 
 import { useRender3DPanelSystem } from '@ir-engine/client-core/src/hooks/useRender3DPanelSystem'
-import { getComponent, getMutableComponent, getOptionalComponent, setComponent, UUIDComponent } from '@ir-engine/ecs'
+import {
+  generateEntityUUID,
+  getComponent,
+  getMutableComponent,
+  setComponent,
+  useOptionalComponent,
+  UUIDComponent
+} from '@ir-engine/ecs'
+import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { MaterialSelectionState } from '@ir-engine/engine/src/scene/materials/MaterialLibraryState'
-import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
+import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
-import { MaterialInstanceComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { getMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { RendererComponent } from '@ir-engine/spatial/src/renderer/WebGLRendererSystem'
 import { MATERIALS_PANEL_ID } from './helpers'
 
@@ -44,32 +52,32 @@ function MaterialPreviewCanvas() {
   const renderPanel = useRender3DPanelSystem(panelRef)
   const selectedMaterial = useHookstate(getMutableState(MaterialSelectionState).selectedMaterial)
   const panel = document.getElementById(MATERIALS_PANEL_ID)
-  useEffect(() => {
-    const { sceneEntity, cameraEntity } = renderPanel
-    if (
-      !selectedMaterial.value ||
-      selectedMaterial.value === getOptionalComponent(sceneEntity, MaterialInstanceComponent)?.uuid[0]
-    )
-      return
+  const materialComponent = useOptionalComponent(
+    UUIDComponent.getEntityByUUID(selectedMaterial.value!),
+    MaterialStateComponent
+  )
 
-    setComponent(sceneEntity, TransformComponent)
-    setComponent(sceneEntity, UUIDComponent, UUIDComponent.generateUUID())
+  useEffect(() => {
+    if (!selectedMaterial.value) return
+    const { sceneEntity, cameraEntity } = renderPanel
     setComponent(sceneEntity, NameComponent, 'Material Preview Entity')
+    const uuid = generateEntityUUID()
+    setComponent(sceneEntity, UUIDComponent, uuid)
     setComponent(sceneEntity, VisibleComponent, true)
-    const sphereMesh = new Mesh(new SphereGeometry(5, 32, 32))
+    const material = getMaterial(getState(MaterialSelectionState).selectedMaterial!)
+    if (!material) return
+    const sphereMesh = new Mesh(new SphereGeometry(5, 32, 32), material)
     sphereMesh.geometry.attributes['color'] = new BufferAttribute(
       new Float32Array(sphereMesh.geometry.attributes.position.count * 3).fill(1),
       3
     )
     sphereMesh.geometry.attributes['uv1'] = sphereMesh.geometry.attributes['uv']
     setComponent(sceneEntity, MeshComponent, sphereMesh)
-    setComponent(sceneEntity, MaterialInstanceComponent, { uuid: [selectedMaterial.value] })
+    setComponent(sceneEntity, EnvmapComponent, { type: 'Skybox', envMapIntensity: 2 })
     const orbitCamera = getMutableComponent(cameraEntity, CameraOrbitComponent)
     orbitCamera.focusedEntities.set([sceneEntity])
     orbitCamera.refocus.set(true)
-
-    return () => {}
-  }, [selectedMaterial])
+  }, [selectedMaterial, materialComponent?.material])
 
   useEffect(() => {
     if (!panelRef?.current) return

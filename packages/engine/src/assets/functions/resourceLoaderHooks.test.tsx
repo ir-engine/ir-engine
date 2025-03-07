@@ -37,7 +37,7 @@ import { loadEmptyScene } from '../../../tests/util/loadEmptyScene'
 import { overrideFileLoaderLoad, overrideTextureLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { useTexture } from './resourceLoaderHooks'
 
-describe.skip('ResourceLoaderHooks', () => {
+describe('ResourceLoaderHooks', () => {
   // const gltfURL = '/packages/projects/default-project/assets/collisioncube.glb'
   // const gltfURL2 = '/packages/projects/default-project/assets/portal_frame.glb'
   const texURL = '/packages/projects/default-project/assets/drop-shadow.png'
@@ -84,7 +84,7 @@ describe.skip('ResourceLoaderHooks', () => {
           assert(!error)
           const resourceState = getState(ResourceState)
           assert(resourceState.resources[texURL])
-          // assert(resourceState.resources[texURL].references.includes(entity))
+          assert(resourceState.resources[texURL].references.includes(entity))
           done()
         }, [texture, error])
 
@@ -180,11 +180,11 @@ describe.skip('ResourceLoaderHooks', () => {
           const resourceState = getState(ResourceState)
           if (src === texURL && tex) {
             assert(resourceState.resources[texURL])
-            // assert(resourceState.resources[texURL].references.includes(entity))
+            assert(resourceState.resources[texURL].references.includes(entity))
             assert(!resourceState.resources[texURL2])
           } else if (src === texURL2 && tex) {
             assert(resourceState.resources[texURL2])
-            // assert(resourceState.resources[texURL2].references.includes(entity))
+            assert(resourceState.resources[texURL2].references.includes(entity))
             assert(!resourceState.resources[texURL])
           }
         }, [tex, error])
@@ -219,7 +219,7 @@ describe.skip('ResourceLoaderHooks', () => {
       // ensure that the loadResource function is synchronously called when the hook is rendered
       assert(resourceState.resources[texURL])
       unmount()
-      await act(() => render(null))
+      await act(() => render(<></>))
       done()
     }))
 })

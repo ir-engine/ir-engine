@@ -22,7 +22,7 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
-import { PeerID, UserID } from '@ir-engine/hyperflux'
+import { UserID } from '@ir-engine/hyperflux'
 import { Entity, EntityUUID, UndefinedEntity } from '../Entity'
 import {
   Kind,
@@ -41,7 +41,6 @@ import {
   TObjectSchema,
   TPartialSchema,
   TProperties,
-  TProxySchema,
   TRecordSchema,
   TRequiredSchema,
   TStringSchema,
@@ -173,11 +172,7 @@ export const S = {
    * Schema that infers as an array type of the schema passed in
    * S.Array(S.Number()) -> number[]
    */
-  Array: <T extends Schema, Initial extends any[]>(
-    item: T,
-    init?: Initial | (() => Initial),
-    options?: TArraySchema<T>['options']
-  ) =>
+  Array: <T extends Schema, Initial extends any[]>(item: T, init?: Initial, options?: TArraySchema<T>['options']) =>
     ({
       [Kind]: 'Array',
       options: buildOptions(init ?? [], options),
@@ -235,7 +230,7 @@ export const S = {
    * Can provide a serializer function that can be used for custom serialization
    */
   SerializedClass: <T extends TProperties, Class>(
-    init: (entity: Entity) => Class,
+    init: () => Class,
     items: T,
     options?: TClassSchema<T, Class>['options']
   ) =>
@@ -243,7 +238,6 @@ export const S = {
       [Kind]: 'Class',
       options: {
         ...options,
-        id: 'SerializedClass',
         default: init
       },
       properties: items
@@ -354,7 +348,9 @@ export const S = {
 
   /** Entity type schema helper, Entities will not be serialized, defaults to UndefinedEntity */
   Entity: (def?: Entity, options?: TTypedSchema<Entity>['options']) =>
-    S.Number(def ?? UndefinedEntity, { ...options, id: 'Entity' }) as unknown as TTypedSchema<Entity>,
+    S.NonSerialized(S.Number(def ?? UndefinedEntity, { ...options, id: 'Entity' })) as unknown as TNonSerializedSchema<
+      TTypedSchema<Entity>
+    >,
 
   /** EntityUUID type schema helper, defaults to '' */
   EntityUUID: (options?: TTypedSchema<EntityUUID>['options']) =>
@@ -362,18 +358,5 @@ export const S = {
 
   /** UserID type schema helper, defaults to '' */
   UserID: (options?: TTypedSchema<UserID>['options']) =>
-    S.String('', { ...options, id: 'UserUUID' }) as unknown as TTypedSchema<UserID>,
-
-  /** PeerID type schema helper, defaults to '' */
-  PeerID: (options?: TTypedSchema<PeerID>['options']) =>
-    S.String('', { ...options, id: 'PeerUUID' }) as unknown as TTypedSchema<PeerID>,
-
-  Proxy: <T extends Schema>(schema: T, proxy: (entity: Entity, property: string, obj: object) => PropertyDescriptor) =>
-    ({
-      [Kind]: 'Proxy',
-      options: {
-        create: proxy
-      },
-      properties: schema
-    }) as TProxySchema<T>
+    S.String('', { ...options, id: 'UserUUID' }) as unknown as TTypedSchema<UserID>
 }

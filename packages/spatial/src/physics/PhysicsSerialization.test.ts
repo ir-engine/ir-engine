@@ -335,7 +335,7 @@ describe('PhysicsSerialization', () => {
           setComponent(physicsWorldEntity, SceneComponent)
           setComponent(physicsWorldEntity, TransformComponent)
           setComponent(physicsWorldEntity, EntityTreeComponent)
-          physicsWorld = Physics.createWorld(physicsWorldEntity)
+          physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
           physicsWorld.timestep = 1 / 60
         })
 
@@ -564,8 +564,7 @@ describe('PhysicsSerialization', () => {
 
       it('should return the resulting ViewCursor if one of RigidBodyComponent.[position, rotation, linearVelocity, angularVelocity] changed', () => {
         // Set the data as expected
-        setComponent(testEntity, RigidBodyComponent)
-        const rigidBody = getComponent(testEntity, RigidBodyComponent)
+        const rigidBody = setComponent(testEntity, RigidBodyComponent)
         rigidBody.position.x = 42
         const cursor: ViewCursor = createViewCursor()
         // Sanity check before running

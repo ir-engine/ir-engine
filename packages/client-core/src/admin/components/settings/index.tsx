@@ -125,5 +125,13 @@ export default function Settings() {
     openState.set(openState.value.map((_, i) => i === index))
   }
 
-  return <Tabs scrollable tabsData={tabsData} currentTabIndex={getInitialTabIndex()} onTabChange={onTabChange} />
+  return (
+    <Tabs
+      scrollable
+      tabsData={tabsData}
+      currentTabIndex={getInitialTabIndex()}
+      onTabChange={onTabChange}
+      tabcontainerClassName="bg-theme-primary"
+    />
+  )
 }

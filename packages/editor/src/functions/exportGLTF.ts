@@ -28,30 +28,26 @@ import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathR
 import { exportGLTFScene } from '@ir-engine/engine/src/gltf/exportGLTFScene'
 import { uploadProjectFiles } from './assetFunctions'
 
-export default async function exportGLTF(entity: Entity, path: string, exportRoot = true) {
+export default async function exportGLTF(entity: Entity, path: string) {
   const [, orgname, pName, fileName] = STATIC_ASSET_REGEX.exec(path)!
-  return exportRelativeGLTF(entity, `${orgname}/${pName}`, fileName, exportRoot)
+  return exportRelativeGLTF(entity, `${orgname}/${pName}`, fileName)
 }
 
 export async function exportRelativeGLTF(entity: Entity, projectName: string, relativePath: string, exportRoot = true) {
-  // const isGLTF = /\.gltf$/.test(relativePath)
+  const isGLTF = /\.gltf$/.test(relativePath)
   // const gltf = await exportGLTFScene(entity, projectName, relativePath, exportRoot)
   // if (!gltf) return
   // const blob = [new Blob([JSON.stringify(gltf, null, 2)])]
   // const file = new File(blob, relativePath)
-  const [gltf, ...files] = await exportGLTFScene(entity, projectName, relativePath, exportRoot)
-  const blob = [new Blob([JSON.stringify(gltf, null, 2)])]
-  const file = new File(blob, relativePath)
-  files.push(file)
+  const files = await exportGLTFScene(entity, projectName, relativePath, exportRoot)
   const paths = files.map(() => '')
-  const [url] = (await Promise.all(
-    uploadProjectFiles(projectName, files as File[], paths, [
+  const urls = await Promise.all(
+    uploadProjectFiles(projectName, files, paths, [
       {
         contentType: 'model/gltf+json',
         type: 'asset'
       }
     ]).promises
-  )) as string[]
-  console.log('exported model data to ', url)
-  return url
+  )
+  console.log('exported model data to ', ...urls)
 }

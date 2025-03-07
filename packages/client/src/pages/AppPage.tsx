@@ -37,6 +37,8 @@ import { useFind } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
+
+import './mui.styles.scss' /** @todo Remove when MUI is removed */
 import './styles.scss'
 
 const ClientSettings = () => {
@@ -69,9 +71,7 @@ const AppPage = (props: { children: React.ReactNode; fallback?: JSX.Element; log
   return (
     <>
       <NotificationSnackbar />
-      <LoadWebappInjection isLocationPage={!props.loginRequired} fallback={props.fallback}>
-        {props.children}
-      </LoadWebappInjection>
+      <LoadWebappInjection fallback={props.fallback}>{props.children}</LoadWebappInjection>
       {isLoggedIn && <ClientSettings />}
     </>
   )

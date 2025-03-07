@@ -168,9 +168,9 @@ export const getImageStats = async (
       width: widthBuffer.readUInt32LE()
     }
   } else {
-    const fileBuffer = typeof file === 'string' ? Buffer.from(await (await fetch(file)).arrayBuffer()) : file
+    if (typeof file === 'string') file = Buffer.from(await (await fetch(file)).arrayBuffer())
     const stream = new Readable()
-    stream.push(fileBuffer)
+    stream.push(file)
     stream.push(null)
     try {
       const imageDimensions = await probe(stream)
@@ -181,7 +181,7 @@ export const getImageStats = async (
     } catch (e) {
       console.error('error getting image stats')
       console.error(e)
-      if (typeof file === 'string') console.log(file, mimeType)
+      console.log(file, mimeType)
     }
   }
   return {} as any

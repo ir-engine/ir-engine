@@ -62,10 +62,12 @@ export const authenticationSettingSchemaToDb = (patch: AuthenticationSettingPatc
 }
 
 export const authenticationDbToSchema = (rawData: AuthenticationSettingDatabaseType): AuthenticationSettingType => {
-  let authStrategies =
-    typeof rawData.authStrategies === 'string'
-      ? (JSON.parse(rawData.authStrategies) as AuthStrategiesType[])
-      : (rawData.authStrategies as AuthStrategiesType[])
+  if (rawData.oauth && typeof rawData.oauth !== 'string') {
+    // Did following because oauth string was incorrect
+    rawData.oauth = Object.values(rawData.oauth).join('')
+  }
+
+  let authStrategies = JSON.parse(rawData.authStrategies) as AuthStrategiesType[]
 
   // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
   // was serialized multiple times, therefore we need to parse it twice.
@@ -75,22 +77,18 @@ export const authenticationDbToSchema = (rawData: AuthenticationSettingDatabaseT
 
   let jwtOptions: AuthJwtOptionsType | undefined = undefined
   if (rawData.jwtOptions) {
-    jwtOptions =
-      typeof rawData.jwtOptions === 'string'
-        ? (JSON.parse(rawData.jwtOptions) as AuthJwtOptionsType)
-        : rawData.jwtOptions
+    jwtOptions = JSON.parse(rawData.jwtOptions) as AuthJwtOptionsType
 
     // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
     // was serialized multiple times, therefore we need to parse it twice.
-    if (typeof jwtOptions === 'string') jwtOptions = JSON.parse(jwtOptions)
+    if (typeof jwtOptions === 'string') {
+      jwtOptions = JSON.parse(jwtOptions)
+    }
   }
 
   let bearerToken: AuthBearerTokenType | undefined = undefined
   if (rawData.bearerToken) {
-    bearerToken =
-      typeof rawData.bearerToken === 'string'
-        ? (JSON.parse(rawData.bearerToken) as AuthBearerTokenType)
-        : (rawData.bearerToken as AuthBearerTokenType)
+    bearerToken = JSON.parse(rawData.bearerToken) as AuthBearerTokenType
 
     // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
     // was serialized multiple times, therefore we need to parse it twice.
@@ -101,22 +99,18 @@ export const authenticationDbToSchema = (rawData: AuthenticationSettingDatabaseT
 
   let callback: AuthCallbackType | undefined = undefined
   if (rawData.callback) {
-    callback =
-      typeof rawData.callback === 'string'
-        ? (JSON.parse(rawData.callback) as AuthCallbackType)
-        : (rawData.callback as AuthCallbackType)
+    callback = JSON.parse(rawData.callback) as AuthCallbackType
 
     // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
     // was serialized multiple times, therefore we need to parse it twice.
-    if (typeof callback === 'string') callback = JSON.parse(callback)
+    if (typeof callback === 'string') {
+      callback = JSON.parse(callback)
+    }
   }
 
   let oauth: AuthOauthType | undefined = undefined
   if (rawData.oauth) {
-    oauth =
-      typeof rawData.oauth === 'string'
-        ? (JSON.parse(rawData.oauth) as AuthOauthType)
-        : (rawData.oauth as AuthOauthType)
+    oauth = JSON.parse(rawData.oauth) as AuthOauthType
 
     // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
     // was serialized multiple times, therefore we need to parse it twice.

@@ -57,6 +57,7 @@ export const MeshPhysicalArguments = {
 }
 
 export const MeshPhysicalMaterial: MaterialPrototypeDefinition = {
+  prototypeId: 'MeshPhysicalMaterial',
   prototypeConstructor: Physical,
   arguments: MeshPhysicalArguments
 }

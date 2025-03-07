@@ -36,17 +36,17 @@ export interface BadgeProps {
 
 const variantMap = {
   success: {
-    containerClass: '',
+    containerClass: 'bg-theme-tagGreen',
     iconColor: '#15803d',
     textClass: 'text-green-900 dark:text-white'
   },
   successLight: {
-    containerClass: '',
+    containerClass: 'bg-theme-tagLime',
     iconColor: '#9ACD32',
     textClass: 'text-[#9ACD32]-900 dark:text-white'
   },
   danger: {
-    containerClass: '',
+    containerClass: 'bg-theme-tagRed',
     iconColor: '#f43f5e',
     textClass: 'text-white'
   },
@@ -56,7 +56,7 @@ const variantMap = {
     textClass: 'text-black dark:text-white'
   },
   warning: {
-    containerClass: '',
+    containerClass: 'bg-theme-tagYellow',
     iconColor: '#d6a407',
     textClass: 'text-yellow-900 dark:text-white'
   }

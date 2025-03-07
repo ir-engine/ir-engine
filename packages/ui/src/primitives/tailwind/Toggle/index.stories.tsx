@@ -42,8 +42,7 @@ export const Off = {
   args: {
     label: 'Toggle Off Example',
     value: false,
-    onChange: () => {},
-    disabled: false
+    onChange: () => {}
   }
 }
 
@@ -51,7 +50,6 @@ export const On = {
   args: {
     label: 'Toggle On Example',
     value: true,
-    onChange: () => {},
-    disabled: false
+    onChange: () => {}
   }
 }

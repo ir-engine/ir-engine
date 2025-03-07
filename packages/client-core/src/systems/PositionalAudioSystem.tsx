@@ -26,8 +26,9 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { Vector3 } from 'three'
 
-import { ECSState, Not, useEntityContext } from '@ir-engine/ecs'
+import { ECSState, Not } from '@ir-engine/ecs'
 import { ComponentType, getComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { QueryReactor, defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
@@ -50,8 +51,8 @@ import {
   MediaElementComponent,
   createAudioNodeGroup
 } from '@ir-engine/engine/src/scene/components/MediaComponent'
-import { PeerMediaChannelState } from '@ir-engine/network/src/media/PeerMediaChannelState'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { PeerMediaChannelState } from '../media/PeerMediaChannelState'
 
 const _vec3 = new Vector3()
 const _rot = new Vector3()

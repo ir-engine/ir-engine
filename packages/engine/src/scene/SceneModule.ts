@@ -34,20 +34,19 @@ import { MountPointSystem } from '../interaction/systems/MountPointSystem'
 import { MaterialLibrarySystem } from '../scene/materials/systems/MaterialLibrarySystem'
 import { CameraSettingsComponent } from './components/CameraSettingsComponent'
 import { EnvMapBakeComponent } from './components/EnvMapBakeComponent'
-import { EnvMapComponent } from './components/EnvmapComponent'
+import { EnvmapComponent } from './components/EnvmapComponent'
 import { GroundPlaneComponent } from './components/GroundPlaneComponent'
 import { HyperspaceTagComponent } from './components/HyperspaceTagComponent'
 import { ImageComponent } from './components/ImageComponent'
 import { LegacyVolumetricComponent } from './components/LegacyVolumetricComponent'
 import { LinkComponent } from './components/LinkComponent'
-import { LookAtComponent } from './components/LookAtComponent'
 import { MediaComponent } from './components/MediaComponent'
 import { MountPointComponent } from './components/MountPointComponent'
 import { OldColliderComponent } from './components/OldColliderComponent'
 import { ParticleSystemComponent } from './components/ParticleSystemComponent'
 import { PrimitiveGeometryComponent } from './components/PrimitiveGeometryComponent'
 import { RenderSettingsComponent } from './components/RenderSettingsComponent'
-import { SceneDynamicLoadComponent } from './components/SceneDynamicLoadComponent'
+import { SceneDynamicLoadTagComponent } from './components/SceneDynamicLoadTagComponent'
 import { ScenePreviewCameraComponent } from './components/ScenePreviewCamera'
 import { SceneSettingsComponent } from './components/SceneSettingsComponent'
 import { ScreenshareTargetComponent } from './components/ScreenshareTargetComponent'
@@ -57,12 +56,10 @@ import { SpawnPointComponent } from './components/SpawnPointComponent'
 import { SplineComponent } from './components/SplineComponent'
 import { SplineTrackComponent } from './components/SplineTrackComponent'
 import { TextComponent } from './components/TextComponent'
-import { TriggerCallbackComponent } from './components/TriggerCallbackComponent'
 import { VariantComponent } from './components/VariantComponent'
 import { VideoComponent } from './components/VideoComponent'
 import { VolumetricComponent } from './components/VolumetricComponent'
 import { EnvironmentSystem } from './systems/EnvironmentSystem'
-import { LookAtSystem } from './systems/LookAtSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
 import { PortalSystem } from './systems/PortalSystem'
 import { SceneKillHeightSystem } from './systems/SceneKillHeightSystem'
@@ -70,7 +67,6 @@ import { SceneNetworkSystem } from './systems/SceneNetworkSystem'
 import { SceneObjectDynamicLoadSystem } from './systems/SceneObjectDynamicLoadSystem'
 import { SceneObjectSystem } from './systems/SceneObjectSystem'
 import { DropShadowSystem, ShadowSystem } from './systems/ShadowSystem'
-import { TriggerCallbackSystem } from './systems/TriggerCallbackSystem'
 import { VariantSystem } from './systems/VariantSystem'
 
 /** This const MUST be kept here, to ensure all components definitions are loaded by the time the scene loading occurs */
@@ -81,12 +77,11 @@ export const SceneComponents = [
   CameraSettingsComponent,
   // CloudComponent,
   EnvMapBakeComponent,
-  EnvMapComponent,
+  EnvmapComponent,
   GroundPlaneComponent,
   HyperspaceTagComponent,
   ImageComponent,
   // InteriorComponent,
-  LookAtComponent,
   MediaComponent,
   // MediaSettingsComponent,
   MountPointComponent,
@@ -95,7 +90,7 @@ export const SceneComponents = [
   PostProcessingComponent,
   PrimitiveGeometryComponent,
   RenderSettingsComponent,
-  SceneDynamicLoadComponent,
+  SceneDynamicLoadTagComponent,
   ScenePreviewCameraComponent,
   SceneSettingsComponent,
   ScreenshareTargetComponent,
@@ -104,7 +99,6 @@ export const SceneComponents = [
   SpawnPointComponent,
   SplineComponent,
   SplineTrackComponent,
-  TriggerCallbackComponent,
   VariantComponent,
   VideoComponent,
   LegacyVolumetricComponent,
@@ -119,7 +113,6 @@ export {
   DropShadowSystem,
   EnvironmentSystem,
   FogSystem,
-  LookAtSystem,
   MaterialLibrarySystem,
   MountPointSystem,
   NoiseOffsetSystem,
@@ -130,6 +123,5 @@ export {
   SceneObjectDynamicLoadSystem,
   SceneObjectSystem,
   ShadowSystem,
-  TriggerCallbackSystem,
   VariantSystem
 }

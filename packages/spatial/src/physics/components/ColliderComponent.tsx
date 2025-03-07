@@ -28,9 +28,9 @@ import { useState } from '@ir-engine/hyperflux'
 
 import { useAncestorWithComponents } from '@ir-engine/ecs'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import React, { useEffect, useLayoutEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import { removeCallback, setCallback } from '../../common/CallbackComponent'
-import { Vector3_One } from '../../common/constants/MathConstants'
+import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { T } from '../../schema/schemaFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
@@ -54,118 +54,113 @@ export const ColliderComponent = defineComponent({
 
     //shape specific parameters
     matchMesh: S.Bool(true),
-    centerOffset: T.Vec3(),
-    boxSize: T.Vec3(Vector3_One),
+    centerOffset: T.Vec3({ x: 0, y: 0, z: 0 }),
+    boxSize: T.Vec3({ x: 1, y: 1, z: 1 }),
     radius: S.Number(1),
     height: S.Number(2)
   }),
 
-  reactor: () => {
-    return <ColliderReactor />
-  }
-})
+  reactor: function () {
+    const entity = useEntityContext()
+    const component = useComponent(entity, ColliderComponent)
+    const transform = useComponent(entity, TransformComponent)
+    const rigidbodyEntity = useAncestorWithComponents(entity, [RigidBodyComponent])
+    const rigidbodyComponent = useOptionalComponent(rigidbodyEntity, RigidBodyComponent)
+    const physicsWorld = Physics.useWorld(entity)
+    const triggerComponent = useOptionalComponent(entity, TriggerComponent)
+    const hasCollider = useState(false)
+    const meshComponent = useOptionalComponent(entity, MeshComponent)
 
-const ColliderReactor = function () {
-  const entity = useEntityContext()
-  const component = useComponent(entity, ColliderComponent)
-  const transform = useComponent(entity, TransformComponent)
-  const rigidbodyEntity = useAncestorWithComponents(entity, [RigidBodyComponent])
-  const rigidbodyComponent = useOptionalComponent(rigidbodyEntity, RigidBodyComponent)
-  const physicsWorld = Physics.useWorld(entity)
-  const triggerComponent = useOptionalComponent(entity, TriggerComponent)
-  const hasCollider = useState(false)
+    useLayoutEffect(() => {
+      if (!rigidbodyComponent?.initialized?.value || !physicsWorld) return
 
-  useLayoutEffect(() => {
-    if (!rigidbodyComponent?.initialized?.value || !physicsWorld) return
+      const colliderDesc = Physics.createColliderDesc(physicsWorld, entity, rigidbodyEntity)
 
-    const colliderDesc = Physics.createColliderDesc(physicsWorld, entity, rigidbodyEntity)
+      if (!colliderDesc) return
 
-    if (!colliderDesc) return
+      Physics.attachCollider(physicsWorld, colliderDesc, rigidbodyEntity, entity)
+      hasCollider.set(true)
 
-    Physics.attachCollider(physicsWorld, colliderDesc, rigidbodyEntity, entity)
-    hasCollider.set(true)
+      return () => {
+        Physics.removeCollider(physicsWorld, entity)
+        hasCollider.set(false)
+      }
+    }, [
+      physicsWorld,
+      component.shape,
+      !!rigidbodyComponent?.initialized?.value,
+      transform.scale,
+      component.centerOffset,
+      component.boxSize,
+      component.radius,
+      component.height
+    ])
 
-    return () => {
-      Physics.removeCollider(physicsWorld, entity)
-      hasCollider.set(false)
-    }
-  }, [
-    physicsWorld,
-    component.shape,
-    !!rigidbodyComponent?.initialized?.value,
-    transform.scale,
-    component.centerOffset,
-    component.boxSize,
-    component.radius,
-    component.height
-  ])
+    useEffect(() => {
+      return () => {
+        if (!physicsWorld) return
+        Physics.removeCollider(physicsWorld, entity)
+        hasCollider.set(false)
+      }
+    }, [])
 
-  useEffect(() => {
-    return () => {
+    useLayoutEffect(() => {
       if (!physicsWorld) return
-      Physics.removeCollider(physicsWorld, entity)
-      hasCollider.set(false)
-    }
-  }, [])
+      Physics.setMass(physicsWorld, entity, component.mass.value)
+    }, [physicsWorld, component.mass])
 
-  useLayoutEffect(() => {
-    if (!physicsWorld) return
-    Physics.setMass(physicsWorld, entity, component.mass.value)
-  }, [physicsWorld, component.mass])
+    // useLayoutEffect(() => {
+    // @todo
+    // }, [physicsWorld, component.massCenter])
 
-  // useLayoutEffect(() => {
-  // @todo
-  // }, [physicsWorld, component.massCenter])
-
-  useLayoutEffect(() => {
-    if (!physicsWorld) return
-    Physics.setFriction(physicsWorld, entity, component.friction.value)
-  }, [physicsWorld, component.friction])
-
-  useLayoutEffect(() => {
-    if (!physicsWorld) return
-    Physics.setRestitution(physicsWorld, entity, component.restitution.value)
-  }, [physicsWorld, component.restitution])
-
-  useLayoutEffect(() => {
-    if (!physicsWorld) return
-    Physics.setCollisionLayer(physicsWorld, entity, component.collisionLayer.value)
-  }, [physicsWorld, component.collisionLayer])
-
-  useLayoutEffect(() => {
-    if (!physicsWorld) return
-    Physics.setCollisionMask(physicsWorld, entity, component.collisionMask.value)
-  }, [physicsWorld, component.collisionMask])
-
-  useLayoutEffect(() => {
-    if (!physicsWorld || !triggerComponent?.value || !hasCollider.value) return
-
-    Physics.setTrigger(physicsWorld, entity, true)
-
-    return () => {
-      Physics.setTrigger(physicsWorld, entity, false)
-    }
-  }, [physicsWorld, triggerComponent, hasCollider])
-
-  useEffect(() => {
-    if (!physicsWorld) return
-
-    setCallback(entity, 'Disable Collision', () => {
+    useLayoutEffect(() => {
       if (!physicsWorld) return
-      Physics.setCollisionLayer(physicsWorld, entity, CollisionGroups.None)
-    })
-    setCallback(entity, 'Enable Collision', () => {
+      Physics.setFriction(physicsWorld, entity, component.friction.value)
+    }, [physicsWorld, component.friction])
+
+    useLayoutEffect(() => {
+      if (!physicsWorld) return
+      Physics.setRestitution(physicsWorld, entity, component.restitution.value)
+    }, [physicsWorld, component.restitution])
+
+    useLayoutEffect(() => {
       if (!physicsWorld) return
       Physics.setCollisionLayer(physicsWorld, entity, component.collisionLayer.value)
-    })
-    return () => {
-      removeCallback(entity, 'Disable Collision')
-      removeCallback(entity, 'Enable Collision')
-    }
-  }, [physicsWorld])
+    }, [physicsWorld, component.collisionLayer])
 
-  return null
-}
+    useLayoutEffect(() => {
+      if (!physicsWorld) return
+      Physics.setCollisionMask(physicsWorld, entity, component.collisionMask.value)
+    }, [physicsWorld, component.collisionMask])
+
+    useLayoutEffect(() => {
+      if (!physicsWorld || !triggerComponent?.value || !hasCollider.value) return
+
+      Physics.setTrigger(physicsWorld, entity, true)
+
+      return () => {
+        Physics.setTrigger(physicsWorld, entity, false)
+      }
+    }, [physicsWorld, triggerComponent, hasCollider])
+
+    useEffect(() => {
+      setCallback(entity, 'Disable Collision', () => {
+        if (!physicsWorld) return
+        Physics.setCollisionLayer(physicsWorld, entity, CollisionGroups.None)
+      })
+      setCallback(entity, 'Enable Collision', () => {
+        if (!physicsWorld) return
+        Physics.setCollisionLayer(physicsWorld, entity, component.collisionLayer.value)
+      })
+      return () => {
+        removeCallback(entity, 'Disable Collision')
+        removeCallback(entity, 'Enable Collision')
+      }
+    }, [])
+
+    return null
+  }
+})
 
 export const supportedColliderShapes = [
   Shapes.Sphere,

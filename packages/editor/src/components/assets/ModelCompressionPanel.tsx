@@ -30,13 +30,8 @@ import {
   transformModel as clientSideTransformModel,
   ModelTransformStatus
 } from '@ir-engine/common/src/model/ModelTransformFunctions'
-import {
-  getAncestorWithComponents,
-  iterateEntityNode,
-  removeEntityNodeRecursively,
-  UUIDComponent
-} from '@ir-engine/ecs'
-import { getComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { iterateEntityNode, removeEntityNodeRecursively } from '@ir-engine/ecs'
+import { setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import {
   DefaultModelTransformParameters as defaultParams,
   ModelTransformParameters
@@ -50,7 +45,6 @@ import { defaultLODs, LODList, LODVariantDescriptor } from '../../constants/GLTF
 import exportGLTF from '../../functions/exportGLTF'
 
 import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
-import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { createSceneEntity } from '@ir-engine/engine/src/scene/functions/createSceneEntity'
 import { Button } from '@ir-engine/ui'
@@ -111,10 +105,7 @@ const createLODVariants = async (
       heuristic
     })
     const destinationPath = srcURL.replace(/\.[^.]*$/, `-integrated.gltf`)
-    const gltfEntity = getAncestorWithComponents(result, [GLTFComponent])
-    const uuid = getComponent(gltfEntity, UUIDComponent)
-    const sourceID = SourceComponent.getSourceID(uuid, destinationPath)
-    iterateEntityNode(result, (entity) => setComponent(entity, SourceComponent, sourceID))
+    iterateEntityNode(result, (entity) => setComponent(entity, SourceComponent, destinationPath))
     await exportGLTF(result, destinationPath)
     removeEntityNodeRecursively(result)
   }
@@ -288,7 +279,7 @@ export default function ModelCompressionPanel({
             <span key={index} className="flex items-center">
               <button
                 className={`rounded-none px-1 pb-4 text-sm font-medium ${
-                  selectedLODIndex.value === index ? 'border-b' : 'text-[#9CA0AA]'
+                  selectedLODIndex.value === index ? 'border-b border-blue-primary text-blue-primary' : 'text-[#9CA0AA]'
                 }`}
                 onClick={() => selectedLODIndex.set(Math.min(index, lods.length - 1))}
               >
@@ -313,7 +304,7 @@ export default function ModelCompressionPanel({
           </button>
         </div>
 
-        <div className="my-8 flex items-center justify-around gap-x-1 overflow-x-auto rounded-lg border  p-2">
+        <div className="my-8 flex items-center justify-around gap-x-1 overflow-x-auto rounded-lg border border-theme-input p-2">
           {presetList.value.map((lodItem: LODVariantDescriptor, index) => (
             <button
               key={index}
@@ -346,7 +337,7 @@ export default function ModelCompressionPanel({
             <div className="flex w-full flex-col">
               <div className="h-4 w-full overflow-hidden rounded bg-white">
                 <div
-                  className="h-4 w-full origin-left transition-transform"
+                  className="h-4 w-full origin-left bg-blue-primary transition-transform"
                   style={{
                     transform: `scaleX(${compressionProgress.progress.value})`
                   }}

@@ -130,6 +130,7 @@ export default function ImageCompressionPanel({
       <div className="mx-auto grid w-4/5 min-w-[400px] justify-center gap-y-2">
         <InputGroup
           containerClassName="w-full justify-start flex-nowrap"
+          labelClassName="w-24 text-theme-gray3"
           name="mode"
           label={t('editor:properties.model.transform.dst')}
         >
@@ -138,7 +139,8 @@ export default function ImageCompressionPanel({
         <div className="w-full border border-[#2B2C30]" />
         <InputGroup
           containerClassName="w-full justify-start flex-nowrap"
-          infoClassName=""
+          labelClassName="w-20 text-theme-gray3"
+          infoClassName="text-theme-gray3"
           name="mode"
           label={t('editor:properties.model.transform.mode')}
           info={t('editor:properties.model.transform.modeTooltip')}
@@ -154,7 +156,8 @@ export default function ImageCompressionPanel({
         </InputGroup>
         <InputGroup
           containerClassName="w-full justify-start flex-nowrap"
-          infoClassName=""
+          labelClassName="w-20 text-theme-gray3"
+          infoClassName="text-theme-gray3"
           className="w-min"
           name="flipY"
           label={t('editor:properties.model.transform.flipY')}
@@ -164,7 +167,8 @@ export default function ImageCompressionPanel({
         </InputGroup>
         <InputGroup
           containerClassName="w-full justify-start flex-nowrap"
-          infoClassName=""
+          labelClassName="w-20 text-theme-gray3"
+          infoClassName="text-theme-gray3"
           className="w-min"
           name="linear"
           label={t('editor:properties.model.transform.srgb')}
@@ -174,7 +178,8 @@ export default function ImageCompressionPanel({
         </InputGroup>
         <InputGroup
           containerClassName="w-full justify-start flex-nowrap"
-          infoClassName=""
+          labelClassName="w-20 text-theme-gray3"
+          infoClassName="text-theme-gray3"
           name="mipmaps"
           className="w-min"
           label={t('editor:properties.model.transform.mipmaps')}
@@ -184,7 +189,8 @@ export default function ImageCompressionPanel({
         </InputGroup>
         <InputGroup
           containerClassName="w-full justify-start flex-nowrap"
-          infoClassName=""
+          labelClassName="w-20 text-theme-gray3"
+          infoClassName="text-theme-gray3"
           name="normalMap"
           className="w-min"
           label={t('editor:properties.model.transform.normalMap')}
@@ -196,7 +202,8 @@ export default function ImageCompressionPanel({
           <>
             <InputGroup
               containerClassName="w-full justify-start flex-nowrap"
-              infoClassName=""
+              labelClassName="w-20 text-theme-gray3"
+              infoClassName="text-theme-gray3"
               name="quality"
               label={t('editor:properties.model.transform.quality')}
               info={t('editor:properties.model.transform.qualityTooltip')}
@@ -213,7 +220,8 @@ export default function ImageCompressionPanel({
             </InputGroup>
             <InputGroup
               containerClassName="w-full justify-start flex-nowrap"
-              infoClassName=""
+              labelClassName="w-20 text-theme-gray3"
+              infoClassName="text-theme-gray3"
               name="compressionLevel"
               label={t('editor:properties.model.transform.compressionLevel')}
               info={t('editor:properties.model.transform.compressionLevelTooltip')}
@@ -234,7 +242,8 @@ export default function ImageCompressionPanel({
           <>
             <InputGroup
               containerClassName="w-full justify-start flex-nowrap"
-              infoClassName=""
+              labelClassName="w-20 text-theme-gray3"
+              infoClassName="text-theme-gray3"
               name="uastcFlags"
               label={t('editor:properties.model.transform.uastcFlags')}
               info={t('editor:properties.model.transform.uastcFlagsTooltip')}
@@ -247,7 +256,8 @@ export default function ImageCompressionPanel({
             </InputGroup>
             <InputGroup
               containerClassName="w-full justify-start flex-nowrap"
-              infoClassName=""
+              labelClassName="w-20 text-theme-gray3"
+              infoClassName="text-theme-gray3"
               name="uastcZstandard"
               label={t('editor:properties.model.transform.uastcZstandard')}
               info={t('editor:properties.model.transform.uastcZstandardTooltip')}

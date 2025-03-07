@@ -229,8 +229,6 @@ function mergeBufferGeometries(geometries: Array<BufferGeometry>, useGroups = fa
     }
   }
 
-  mergedGeometry.morphTargetsRelative = morphTargetsRelative
-
   return mergedGeometry
 }
 
@@ -242,16 +240,22 @@ function mergeBufferAttributes(attributes) {
   let TypedArray
   let itemSize
   let normalized
-  let gpuType = -1
   let arrayLength = 0
 
   for (let i = 0; i < attributes.length; ++i) {
     const attribute = attributes[i]
 
+    if (attribute.isInterleavedBufferAttribute) {
+      console.error(
+        'THREE.BufferGeometryUtils: .mergeBufferAttributes() failed. InterleavedBufferAttributes are not supported.'
+      )
+      return null
+    }
+
     if (TypedArray === undefined) TypedArray = attribute.array.constructor
     if (TypedArray !== attribute.array.constructor) {
       console.error(
-        'THREE.BufferGeometryUtils: .mergeAttributes() failed. BufferAttribute.array must be of consistent array types across matching attributes.'
+        'THREE.BufferGeometryUtils: .mergeBufferAttributes() failed. BufferAttribute.array must be of consistent array types across matching attributes.'
       )
       return null
     }
@@ -259,7 +263,7 @@ function mergeBufferAttributes(attributes) {
     if (itemSize === undefined) itemSize = attribute.itemSize
     if (itemSize !== attribute.itemSize) {
       console.error(
-        'THREE.BufferGeometryUtils: .mergeAttributes() failed. BufferAttribute.itemSize must be consistent across matching attributes.'
+        'THREE.BufferGeometryUtils: .mergeBufferAttributes() failed. BufferAttribute.itemSize must be consistent across matching attributes.'
       )
       return null
     }
@@ -267,48 +271,24 @@ function mergeBufferAttributes(attributes) {
     if (normalized === undefined) normalized = attribute.normalized
     if (normalized !== attribute.normalized) {
       console.error(
-        'THREE.BufferGeometryUtils: .mergeAttributes() failed. BufferAttribute.normalized must be consistent across matching attributes.'
+        'THREE.BufferGeometryUtils: .mergeBufferAttributes() failed. BufferAttribute.normalized must be consistent across matching attributes.'
       )
       return null
     }
 
-    if (gpuType === -1) gpuType = attribute.gpuType
-    if (gpuType !== attribute.gpuType) {
-      console.error(
-        'THREE.BufferGeometryUtils: .mergeAttributes() failed. BufferAttribute.gpuType must be consistent across matching attributes.'
-      )
-      return null
-    }
-
-    arrayLength += attribute.count * itemSize
+    arrayLength += attribute.array.length
   }
 
   const array = new TypedArray(arrayLength)
-  const result = new BufferAttribute(array, itemSize, normalized)
   let offset = 0
 
   for (let i = 0; i < attributes.length; ++i) {
-    const attribute = attributes[i]
-    if (attribute.isInterleavedBufferAttribute) {
-      const tupleOffset = offset / itemSize
-      for (let j = 0, l = attribute.count; j < l; j++) {
-        for (let c = 0; c < itemSize; c++) {
-          const value = attribute.getComponent(j, c)
-          result.setComponent(j + tupleOffset, c, value)
-        }
-      }
-    } else {
-      array.set(attribute.array, offset)
-    }
+    array.set(attributes[i].array, offset)
 
-    offset += attribute.count * itemSize
+    offset += attributes[i].array.length
   }
 
-  if (gpuType !== undefined) {
-    result.gpuType = gpuType
-  }
-
-  return result
+  return new BufferAttribute(array, itemSize, normalized)
 }
 
 /**

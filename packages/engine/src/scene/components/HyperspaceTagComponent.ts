@@ -41,14 +41,7 @@ import {
   Vector3
 } from 'three'
 
-import {
-  EntityTreeComponent,
-  PresentationSystemGroup,
-  createEntity,
-  removeEntity,
-  removeEntityNodeRecursively,
-  useEntityContext
-} from '@ir-engine/ecs'
+import { EntityTreeComponent, PresentationSystemGroup, removeEntityNodeRecursively } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -60,6 +53,7 @@ import {
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { useExecute } from '@ir-engine/ecs/src/SystemFunctions'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
@@ -69,14 +63,13 @@ import {
   TransitionStateSchema,
   createTransitionState
 } from '@ir-engine/spatial/src/common/functions/createTransitionState'
-import { ObjectComponent } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { setObjectLayers } from '@ir-engine/spatial/src/renderer/components/ObjectLayerComponent'
 import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
+import { ObjectComponent, addObjectToGroup } from '@ir-engine/spatial/src/renderer/components/ObjectComponent'
 import { useTexture } from '../../assets/functions/resourceLoaderHooks'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -103,7 +96,7 @@ class PortalEffect extends Object3D {
     setComponent(portalEntity, NameComponent, this.name)
     setComponent(portalEntity, EntityTreeComponent, { parentEntity: parent })
     setComponent(portalEntity, VisibleComponent, true)
-    setComponent(portalEntity, MeshComponent, this.tubeMesh)
+    addObjectToGroup(portalEntity, this.tubeMesh)
     this.tubeMesh.layers.set(ObjectLayers.Portal)
   }
 
@@ -198,7 +191,7 @@ export const HyperspaceTagComponent = defineComponent({
       const ambientLightEntity = ambientLightEntityState.value
 
       const hyperspaceEffect = new PortalEffect(hyperspaceEffectEntity)
-      setComponent(hyperspaceEffectEntity, ObjectComponent, hyperspaceEffect)
+      addObjectToGroup(hyperspaceEffectEntity, hyperspaceEffect)
       setObjectLayers(hyperspaceEffect, ObjectLayers.Portal)
 
       getComponent(hyperspaceEffectEntity, TransformComponent).scale.set(10, 10, 10)
@@ -207,7 +200,7 @@ export const HyperspaceTagComponent = defineComponent({
 
       const light = new AmbientLight('#aaa')
       light.layers.enable(ObjectLayers.Portal)
-      setComponent(ambientLightEntity, ObjectComponent, light)
+      addObjectToGroup(ambientLightEntity, light)
 
       setComponent(ambientLightEntity, EntityTreeComponent, { parentEntity: hyperspaceEffectEntity })
       setComponent(ambientLightEntity, VisibleComponent)

@@ -33,14 +33,16 @@ import { SpawnEffectComponent } from '@ir-engine/engine/src/avatar/components/Sp
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { debounce } from 'lodash'
-import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { Button, Input } from '@ir-engine/ui'
-import { ArrowLeftLg, UserPlus01Sm, XCloseLg } from '@ir-engine/ui/src/icons'
+import { UserPlus01Sm } from '@ir-engine/ui/src/icons'
+import Modal from '@ir-engine/ui/src/primitives/tailwind/Modal'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { IoArrowBackOutline, IoCloseOutline } from 'react-icons/io5'
 import { twMerge } from 'tailwind-merge'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { AuthService, AuthState } from '../../services/AuthService'
@@ -52,8 +54,7 @@ interface AvatarMenuProps {
   showBackButton: boolean
   previewEnabled?: boolean
 }
-
-const AvatarSelectMenu = forwardRef(({ showBackButton, previewEnabled = true }: AvatarMenuProps, ref) => {
+const AvatarSelectMenu = ({ showBackButton, previewEnabled = true }: AvatarMenuProps) => {
   const { t } = useTranslation()
   const authState = useMutableState(AuthState)
   const userId = authState.user?.id?.value
@@ -63,14 +64,8 @@ const AvatarSelectMenu = forwardRef(({ showBackButton, previewEnabled = true }: 
   const selfAvatarEntity = AvatarComponent.useSelfAvatarEntity()
   const selfAvatarLoaded = useOptionalComponent(selfAvatarEntity, GLTFComponent)?.progress?.value === 100
 
-  const avatarCreatorMenuRef = useRef<{
-    handleClose: () => Promise<void>
-  } | null>(null)
-
-  const [createAvatarEnabled, uploadAvatarEnabled] = useFeatureFlags([
-    FeatureFlags.Client.Menu.CreateAvatar,
-    FeatureFlags.Client.Menu.UploadAvatar
-  ])
+  const [createAvatarEnabled] = useFeatureFlags([FeatureFlags.Client.Menu.CreateAvatar])
+  const [uploadAvatarEnabled] = useFeatureFlags([FeatureFlags.Client.Menu.UploadAvatar])
 
   const page = useHookstate(0)
   const selectedAvatarId = useHookstate('' as AvatarID)
@@ -144,137 +139,123 @@ const AvatarSelectMenu = forwardRef(({ showBackButton, previewEnabled = true }: 
     PopoverState.hidePopupover()
   }
 
-  // expose handleClose since only the parent component
-  // can set the onClickOutside handler
-  useImperativeHandle(ref, () => {
-    return {
-      handleClose
-    }
-  })
-
-  const handleAvatarCreatorMenuClose = () => {
-    if (avatarCreatorMenuRef.current) {
-      avatarCreatorMenuRef.current?.handleClose()
-    } else {
-      PopoverState.hidePopupover()
-    }
-  }
-
   return (
-    <div
+    <Modal
       id="select-avatar-modal"
       className={twMerge(
-        'pointer-events-auto absolute z-50 m-auto flex h-[90dvh] max-w-[90vw] overflow-y-auto rounded-xl bg-surface-4 lg:h-[95dvh] lg:w-[70vw] lg:max-w-6xl ',
-        previewEnabled ? 'lg:w-auto lg:max-w-6xl' : 'w-full lg:w-[24rem] lg:max-w-96'
+        'pointer-events-auto m-auto flex h-[95vh] max-w-6xl rounded-xl [&>div]:flex [&>div]:h-full [&>div]:max-h-full [&>div]:w-full  [&>div]:flex-1 [&>div]:flex-col',
+        previewEnabled ? 'min-w-34 w-[70vw]' : 'w-[29vw] min-w-[450px]'
       )}
-    >
-      <div className="grid h-full w-full grid-rows-[3.5rem,1fr]">
-        <div className="grid h-14 w-full grid-cols-[1.5rem,1fr,1.5rem] border-b px-5">
-          {showBackButton && (
-            <button
-              data-testid="back-select-avatar-modal-button"
-              className=" h-6 w-6 cursor-pointer self-center bg-transparent text-text-primary hover:bg-transparent focus:bg-transparent"
+      hideFooter={true}
+      rawChildren={
+        <div className="grid h-full w-full grid-rows-[3.5rem,1fr]">
+          <div className="grid h-14 w-full grid-cols-[2rem,1fr,2rem] border-b border-b-theme-primary px-8">
+            {showBackButton && (
+              <Button
+                data-testid="edit-avatar-button"
+                className=" h-6 w-6 self-center bg-transparent hover:bg-transparent focus:bg-transparent"
+                onClick={async () => {
+                  if (userAvatarId !== selectedAvatarId.value) {
+                    await handleConfirmAvatar()
+                  }
+                  PopoverState.hidePopupover()
+                }}
+              >
+                <span>
+                  <IoArrowBackOutline size={16} />
+                </span>
+              </Button>
+            )}
+            <Text className="col-start-2  place-self-center self-center">{t('user:avatar.titleSelectAvatar')}</Text>
+            <Button
+              fullWidth={false}
+              data-testid="edit-avatar-button"
+              className="h-6 w-6 self-center bg-transparent hover:bg-transparent focus:bg-transparent"
               onClick={handleClose}
             >
-              <ArrowLeftLg />
-            </button>
-          )}
-          <Text className="col-start-2 place-self-center self-center text-text-primary">
-            {t('user:avatar.titleSelectAvatar')}
-          </Text>
-          <button
-            data-testid="close-select-avatar-modal-button"
-            className="h-6 w-6 cursor-pointer self-center bg-transparent  text-text-primary hover:bg-transparent focus:bg-transparent"
-            onClick={handleClose}
+              <span>
+                <IoCloseOutline size={16} />
+              </span>
+            </Button>
+          </div>
+          <div
+            className={twMerge(
+              'grid h-full max-h-[calc(95vh-3.5rem)] w-full flex-1 gap-6 px-10 py-2',
+              previewEnabled ? 'grid-cols-[60%,40%]' : 'grid-cols-1'
+            )}
           >
-            <XCloseLg />
-          </button>
-        </div>
-        <div
-          className={twMerge(
-            'h-full max-h-[calc(95vh-3.5rem)] w-full flex-1 gap-6 px-5 py-2',
-            previewEnabled ? 'grid grid-cols-[1fr,24rem]' : 'flex max-w-96 flex-col self-center'
-          )}
-        >
-          {previewEnabled && (
-            <div className="relative h-full min-h-0 min-w-0 rounded-lg bg-gradient-to-b from-[#162941] to-[#114352]">
-              <div className="stars absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent"></div>
-              <AvatarPreview fill avatarUrl={currentAvatar?.modelResource?.url} />
-            </div>
-          )}
-          <div className="grid h-full min-h-0 w-full min-w-0 grid-flow-row grid-rows-[3rem,1fr]">
-            <div className="flex max-h-6 max-w-96 gap-2">
-              <Input
-                fullWidth
-                data-test-id="search-avatar-input"
-                value={search.local.value}
-                placeholder={t('user:avatar.searchAvatar')}
-                onChange={(event) => {
-                  search.local.set(event.target.value)
+            {previewEnabled && (
+              <div className="relative h-full min-h-0 min-w-0 rounded-lg bg-gradient-to-b from-[#162941] to-[#114352]">
+                <div className="stars absolute left-0 top-0 h-[2px] w-[2px] animate-twinkling bg-transparent"></div>
+                <AvatarPreview fill avatarUrl={currentAvatar?.modelResource?.url} />
+              </div>
+            )}
+            <div className="grid h-full min-h-0 w-full min-w-0 grid-flow-row grid-rows-[3rem,1fr]">
+              <div className="flex max-h-6 gap-2">
+                <Input
+                  fullWidth
+                  data-test-id="search-avatar-input"
+                  value={search.local.value}
+                  placeholder={t('user:avatar.searchAvatar')}
+                  onChange={(event) => {
+                    search.local.set(event.target.value)
 
-                  if (debouncedSearchQueryRef) {
-                    clearTimeout(debouncedSearchQueryRef.current)
-                  }
+                    if (debouncedSearchQueryRef) {
+                      clearTimeout(debouncedSearchQueryRef.current)
+                    }
 
-                  debouncedSearchQueryRef.current = setTimeout(() => {
-                    handleSearch(event.target.value)
-                  }, 100)
-                }}
-              />
-              {createAvatarEnabled && (
-                <Button
-                  className="whitespace-nowrap rounded-md text-sm font-normal"
-                  size="l"
-                  variant="primary"
-                  onClick={() => {
-                    const Menu = AvatarCreatorMenu2(SupportedSdks.ReadyPlayerMe)
-                    PopoverState.showPopupover(
-                      <Menu
-                        ref={avatarCreatorMenuRef}
-                        showBackButton={showBackButton}
-                        previewEnabled={previewEnabled}
-                      />,
-                      handleAvatarCreatorMenuClose
-                    )
+                    debouncedSearchQueryRef.current = setTimeout(() => {
+                      handleSearch(event.target.value)
+                    }, 100)
                   }}
-                >
-                  <UserPlus01Sm />
-                  {t('user:avatar.createAvatar')}
-                </Button>
-              )}
-              {uploadAvatarEnabled && (
-                <Button
-                  className="min-w-[8rem] rounded-md text-sm font-normal"
-                  variant="secondary"
-                  onClick={() => {
-                    PopoverState.showPopupover(<AvatarModifyMenu />)
-                  }}
-                >
-                  {t('user:avatar.uploadAvatar')}
-                </Button>
-              )}
-            </div>
-            <div className="flex max-h-[calc(95vh-7.5rem)] flex-col pb-6">
-              <div className="flex max-w-96 flex-1 flex-col gap-2 overflow-y-auto">
-                {avatarsData.map((avatar) => (
-                  <Fragment key={avatar.id}>
-                    <Avatar
-                      imageSrc={avatar.thumbnailResource?.url || ''}
-                      isSelected={currentAvatar && avatar.id === currentAvatar.id}
-                      name={avatar.name}
-                      type="rectangle"
-                      onClick={() => selectedAvatarId.set(avatar.id)}
-                      onChange={() => PopoverState.showPopupover(<AvatarModifyMenu selectedAvatar={avatar} />)}
-                    />
-                  </Fragment>
-                ))}
+                />
+                {createAvatarEnabled && (
+                  <Button
+                    className="min-w-[9rem] rounded-md text-sm font-normal"
+                    variant="primary"
+                    onClick={() => {
+                      const Menu = AvatarCreatorMenu2(SupportedSdks.ReadyPlayerMe)
+                      PopoverState.showPopupover(<Menu showBackButton previewEnabled previewDisabledMessage />)
+                    }}
+                  >
+                    <UserPlus01Sm />
+                    {t('user:avatar.createAvatar')}
+                  </Button>
+                )}
+                {uploadAvatarEnabled && (
+                  <Button
+                    className="min-w-[8rem] rounded-md text-sm font-normal"
+                    variant="secondary"
+                    onClick={() => {
+                      PopoverState.showPopupover(<AvatarModifyMenu />)
+                    }}
+                  >
+                    {t('user:avatar.uploadAvatar')}
+                  </Button>
+                )}
+              </div>
+              <div className="max-h-[calc(95vh-7.5rem)] overflow-y-auto pb-6 pr-2">
+                <div className="grid grid-cols-1 gap-2">
+                  {avatarsData.map((avatar) => (
+                    <div key={avatar.id} className="w-full">
+                      <Avatar
+                        imageSrc={avatar.thumbnailResource?.url || ''}
+                        isSelected={currentAvatar && avatar.id === currentAvatar.id}
+                        name={avatar.name}
+                        type="rectangle"
+                        onClick={() => selectedAvatarId.set(avatar.id)}
+                        onChange={() => PopoverState.showPopupover(<AvatarModifyMenu selectedAvatar={avatar} />)}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      }
+    />
   )
-})
+}
 
 export default AvatarSelectMenu

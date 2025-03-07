@@ -33,15 +33,16 @@ export interface LabelProps extends React.HtmlHTMLAttributes<HTMLLabelElement> {
 
 const Label = ({ className, htmlFor, children, ...props }: LabelProps) => {
   return (
-    <span
+    <label
+      htmlFor={htmlFor}
       className={twMerge(
-        'inline-block text-xs font-semibold text-text-primary peer-disabled:cursor-not-allowed peer-disabled:text-text-inactive',
+        'inline-block text-sm font-medium leading-none text-theme-secondary peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
         className
       )}
       {...props}
     >
       {children}
-    </span>
+    </label>
   )
 }
 

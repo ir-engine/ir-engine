@@ -45,34 +45,32 @@ import { NO_PROXY, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import {
   MaterialInstanceComponent,
+  MaterialPrototypeDefinition,
+  MaterialPrototypeDefinitions,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { getMaterialIndices } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import {
+  createMaterialPrototype,
+  getMaterialIndices
+} from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
 import React from 'react'
-import { FrontSide, MeshLambertMaterial, MeshPhysicalMaterial, MeshStandardMaterial } from 'three'
+import { MeshBasicMaterial, MeshLambertMaterial, MeshPhysicalMaterial } from 'three'
 
 const reactor = () => {
   useEffect(() => {
-    // default material according to GLTF spec. see https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#default-material
-    const fallbackMaterial = new MeshStandardMaterial({
-      name: 'Fallback Material',
-      color: 0xffffff,
-      emissive: 0x000000,
-      metalness: 1,
-      roughness: 1,
-      transparent: false,
-      depthTest: true,
-      side: FrontSide
-    })
-    fallbackMaterial.uuid = MaterialStateComponent.fallbackMaterialUUID
+    MaterialPrototypeDefinitions.map((prototype: MaterialPrototypeDefinition, uuid) =>
+      createMaterialPrototype(prototype)
+    )
+    const fallbackMaterial = new MeshBasicMaterial({ name: 'Fallback Material', color: 0xff69b4 })
+    fallbackMaterial.uuid = MaterialStateComponent.fallbackMaterial
     const fallbackMaterialEntity = createEntity()
     setComponent(fallbackMaterialEntity, MaterialStateComponent, {
       material: fallbackMaterial,
       instances: [UndefinedEntity]
     })
-    setComponent(fallbackMaterialEntity, UUIDComponent, MaterialStateComponent.fallbackMaterialUUID)
+    setComponent(fallbackMaterialEntity, UUIDComponent, MaterialStateComponent.fallbackMaterial)
     setComponent(fallbackMaterialEntity, NameComponent, 'Fallback Material')
   }, [])
 
@@ -138,6 +136,7 @@ export const convertMaterials = (material: Entity, forceBasicMaterials: boolean)
     newBasicMaterial.uuid = basicUuid
     newBasicMaterial.alphaTest = prevMaterial.alphaTest
     newBasicMaterial.side = prevMaterial.side
+    newBasicMaterial.plugins = undefined
 
     const newMaterialEntity = createEntity()
     setComponent(newMaterialEntity, MaterialStateComponent, {

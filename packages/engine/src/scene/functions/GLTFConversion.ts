@@ -26,13 +26,12 @@ Infinite Reality Engine. All Rights Reserved.
 import { GLTF } from '@gltf-transform/core'
 import { Matrix4, Object3D } from 'three'
 
-import { EntityUUID, generateEntityUUID, SerializedComponentType } from '@ir-engine/ecs'
+import { EntityUUID, generateEntityUUID, SerializedComponentType, UUIDComponent } from '@ir-engine/ecs'
+import { sceneRelativePathIdentifier } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 
 import { getState } from '@ir-engine/hyperflux'
-import { pathIndentifiers } from '../../assets/functions/parseSceneJSON'
 import { DomainConfigState } from '../../assets/state/DomainConfigState'
-import { NodeIDComponent } from '../../gltf/NodeIDComponent'
 import { EntityJsonType, SceneJsonType } from '../types/SceneTypes'
 
 export const nodeToEntityJson = (node: any): EntityJsonType => {
@@ -100,7 +99,7 @@ export const handleScenePaths = (gltf: GLTF.IGLTF, mode: 'encode' | 'decode') =>
         }
         if (mode === 'encode') {
           if (typeof v === 'string' && cacheRe.test(v)) {
-            elt[k] = v.replace(cacheRe, pathIndentifiers.sceneRelative)
+            elt[k] = v.replace(cacheRe, sceneRelativePathIdentifier)
           }
         }
         if (mode === 'decode') {
@@ -118,7 +117,7 @@ export function entityJSONToGLTFNode(entityJson: EntityJsonType, entityUUID: Ent
   const node: GLTF.INode = {
     name: entityJson.name,
     extensions: {
-      [NodeIDComponent.jsonID]: entityUUID
+      [UUIDComponent.jsonID]: entityUUID
     }
   }
   if (entityJson.components) {

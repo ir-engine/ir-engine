@@ -50,7 +50,7 @@ export const Default = {
     shrinkIcon: <HiMinus />,
     children: (
       <>
-        <div className="flex w-full justify-between gap-4">
+        <div className="my-6 flex w-full justify-between gap-4">
           <Input
             labelProps={{
               text: 'Port',
@@ -67,7 +67,7 @@ export const Default = {
           />
         </div>
         <div className="flex w-3/12 justify-between gap-4">
-          <Button fullWidth className="">
+          <Button fullWidth className="bg-theme-highlight">
             Cancel
           </Button>
           <Button fullWidth variant="primary">

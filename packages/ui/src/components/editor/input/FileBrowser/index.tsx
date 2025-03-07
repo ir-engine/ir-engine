@@ -31,7 +31,6 @@ import config from '@ir-engine/common/src/config'
 import useUpload from '@ir-engine/editor/src/components/assets/useUpload'
 import { ItemTypes } from '@ir-engine/editor/src/constants/AssetTypes'
 import { AllFileTypes } from '@ir-engine/engine/src/assets/constants/fileTypes'
-import { twMerge } from 'tailwind-merge'
 import { ControlledStringInput, StringInputProps } from '../String'
 
 export type FileBrowserInputProps = StringInputProps & { acceptFileTypes: string[]; acceptDropItems: string[] }
@@ -103,7 +102,7 @@ export function FileBrowserInput({
   })
 
   return (
-    <div className={twMerge('inline-block', isOver ? 'border-4 border-dashed border-ui-outline' : '')}>
+    <>
       <ControlledStringInput ref={dropRef} value={value} onRelease={onRelease} {...rest} />
       {/*assetIsExternal && (
         <IconButton
@@ -116,7 +115,7 @@ export function FileBrowserInput({
           <Icon type="Download" style={{ color: 'var(--textColor)' }} />
         </IconButton>
       )*/}
-    </div>
+    </>
   )
 }
 

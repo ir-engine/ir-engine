@@ -24,9 +24,9 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useLayoutEffect } from 'react'
-import { CameraHelper, PerspectiveCamera } from 'three'
+import { CameraHelper, Euler, PerspectiveCamera } from 'three'
 
-import { EngineState, useEntityContext, useExecute } from '@ir-engine/ecs'
+import { EngineState, useExecute } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -35,6 +35,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { getMutableState, getState, isClient, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
@@ -50,7 +51,7 @@ export const ScenePreviewCameraComponent = defineComponent({
   jsonID: 'EE_scene_preview_camera',
 
   schema: S.Object({
-    camera: S.NonSerialized(S.Class(() => new PerspectiveCamera(80, 16 / 9, 0.2, 8000)))
+    camera: S.Class(() => new PerspectiveCamera(80, 16 / 9, 0.2, 8000))
   }),
 
   reactor: function () {
@@ -80,7 +81,7 @@ export const ScenePreviewCameraComponent = defineComponent({
 
     useExecute(
       () => {
-        if (!TransformComponent.dirty[entity]) return
+        if (!TransformComponent.dirtyTransforms[entity]) return
         const camera = getComponent(entity, ScenePreviewCameraComponent).camera
         camera.matrixWorldInverse.copy(camera.matrixWorld).invert()
       },
@@ -90,7 +91,7 @@ export const ScenePreviewCameraComponent = defineComponent({
     useLayoutEffect(() => {
       if (!engineCameraTransform) return
       previewCamera.camera.value.position.copy(previewCameraTransform.position.value)
-      previewCamera.camera.value.quaternion.copy(previewCameraTransform.rotation.value)
+      previewCamera.camera.value.rotation.copy(new Euler().setFromQuaternion(previewCameraTransform.rotation.value))
     }, [previewCameraTransform])
 
     useHelperEntity(entity, () => new CameraHelper(previewCamera.camera.value as PerspectiveCamera), debugEnabled.value)

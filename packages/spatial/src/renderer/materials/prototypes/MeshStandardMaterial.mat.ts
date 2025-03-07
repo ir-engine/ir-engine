@@ -54,6 +54,7 @@ export const MeshStandardArguments = {
 }
 
 export const MeshStandardMaterial: MaterialPrototypeDefinition = {
+  prototypeId: 'MeshStandardMaterial',
   prototypeConstructor: Standard,
   arguments: MeshStandardArguments
 }

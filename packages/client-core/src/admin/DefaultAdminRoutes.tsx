@@ -41,7 +41,6 @@ import { RiSendPlaneFill } from 'react-icons/ri'
 
 import { clientSettingPath } from '@ir-engine/common/src/schema.type.module'
 
-import { MdOutlineAdminPanelSettings } from 'react-icons/md'
 import { AdminRouteStateType } from './AllowedAdminRoutesState'
 
 const Avatars = lazy(() => import('./components/avatar'))
@@ -69,8 +68,6 @@ const Settings = lazy(() => import('./components/settings'))
 const Channels = lazy(() => import('./components/channel'))
 
 const CrashReport = lazy(() => import('./components/crash-report'))
-
-const Moderation = lazy(() => import('./components/moderation'))
 
 export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
   settings: {
@@ -163,12 +160,5 @@ export const DefaultAdminRoutes: Record<string, AdminRouteStateType> = {
     component: CrashReport,
     access: false,
     icon: <HiMiniShieldExclamation />
-  },
-  moderation: {
-    name: 'user:dashboard.moderation',
-    scope: 'moderation',
-    component: Moderation,
-    access: false,
-    icon: <MdOutlineAdminPanelSettings />
   }
 }

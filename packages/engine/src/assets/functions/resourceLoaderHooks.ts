@@ -23,8 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import { AudioLoader, Texture } from 'three'
+import { v4 as uuidv4 } from 'uuid'
 
 import {
   createEntity,
@@ -36,11 +37,11 @@ import {
   UndefinedEntity,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { NO_PROXY, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { getState, NO_PROXY, State, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
 import {
-  Resource,
   ResourceAssetType,
-  ResourceState,
+  ResourceManager,
+  ResourceStatus,
   ResourceType
 } from '@ir-engine/spatial/src/resources/ResourceState'
 
@@ -49,8 +50,10 @@ import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { ResourcePendingComponent } from '../../gltf/ResourcePendingComponent'
 import { AssetLoader } from '../classes/AssetLoader'
 import { FileLoader } from '../loaders/base/FileLoader'
-import { parseStorageProviderURLs } from './parseSceneJSON'
-import { loadResource } from './resourceLoaderFunctions'
+import { GLTF as GLTFAsset } from '../loaders/gltf/GLTFLoader'
+import { AssetLoaderState } from '../state/AssetLoaderState'
+import { ResourceLoadingManagerState } from '../state/ResourceLoadingManagerState'
+import { loadResource, setGLTFResource } from './resourceLoaderFunctions'
 
 const defaultLoaders = {
   fileLoader: new FileLoader(),
@@ -68,17 +71,10 @@ function useLoader<T extends ResourceAssetType>(
   const value = useHookstate<T | null>(null)
   const error = useHookstate<ErrorEvent | Error | null>(null)
   const progress = useHookstate<ProgressEvent<EventTarget> | null>(null)
-  const entityResource = useHookstate<Resource[] | null>(null)
-  url = parseStorageProviderURLs(url)
+  const uuid = useHookstate<string>(uuidv4)
 
   const unload = () => {
-    if (url && entityResource.value) {
-      for (const resource of entityResource.value) {
-        if (resource.id === url) {
-          ResourceState.removeEntityResource(resource as Resource)
-        }
-      }
-    }
+    if (url) ResourceManager.unload(url, entity, uuid.value)
   }
 
   useEffect(() => {
@@ -102,7 +98,6 @@ function useLoader<T extends ResourceAssetType>(
       (response) => {
         completed = true
         value.set(response)
-        entityResource.set(ResourceState.addEntityResource(entity, response))
         if (entity) {
           ResourcePendingComponent.removeResource(entity, _url)
         }
@@ -123,7 +118,8 @@ function useLoader<T extends ResourceAssetType>(
         }
       },
       controller.signal,
-      loader
+      loader,
+      uuid.value
     )
 
     return () => {
@@ -133,7 +129,7 @@ function useLoader<T extends ResourceAssetType>(
         )
 
       if (entity && entityExists(entity)) ResourcePendingComponent.removeResource(entity, _url)
-      // ResourceState.unload(_url, entity, uuid.value)
+      ResourceManager.unload(_url, entity, uuid.value)
       value.set(null)
       progress.set(null)
       error.set(null)
@@ -144,12 +140,81 @@ function useLoader<T extends ResourceAssetType>(
   return [value.get(NO_PROXY) as T | null, error.get(NO_PROXY), progress.get(NO_PROXY), unload]
 }
 
+function useBatchLoader<T extends ResourceAssetType>(
+  urls: string[],
+  resourceType: ResourceType,
+  entity: Entity = UndefinedEntity,
+  loader?: AssetLoader
+): [
+  State<(T | null)[]>,
+  State<(ErrorEvent | Error | null)[]>,
+  State<(ProgressEvent<EventTarget> | null)[]>,
+  () => void
+] {
+  const values = useHookstate<T[]>(new Array(urls.length).fill(null))
+  const errors = useHookstate<(ErrorEvent | Error)[]>(new Array(urls.length).fill(null))
+  const progress = useHookstate<ProgressEvent<EventTarget>[]>(new Array(urls.length).fill(null))
+
+  const unload = () => {
+    for (const url of urls) ResourceManager.unload(url, entity)
+  }
+
+  useEffect(() => {
+    return unload
+  }, [])
+
+  useImmediateEffect(() => {
+    const completedArr = new Array(urls.length).fill(false) as boolean[]
+    const controller = new AbortController()
+
+    for (let i = 0; i < urls.length; i++) {
+      const url = urls[i]
+      if (!url) continue
+      loadResource<T>(
+        url,
+        resourceType,
+        entity,
+        (response) => {
+          completedArr[i] = true
+          values[i].set(response)
+        },
+        (request) => {
+          progress[i].set(request)
+        },
+        (err) => {
+          completedArr[i] = true
+          errors[i].set(err)
+        },
+        controller.signal,
+        loader
+      )
+    }
+
+    return () => {
+      for (const completed of completedArr) {
+        if (!completed) {
+          controller.abort(
+            `resourceHooks:useBatchLoader Component loading ${resourceType} at urls ${urls.toString()} for entity ${entity} was unmounted`
+          )
+          return
+        }
+      }
+    }
+  }, [JSON.stringify(urls)])
+
+  return [values, errors, progress, unload]
+}
+
 async function getLoader<T extends ResourceAssetType>(
   url: string,
   resourceType: ResourceType,
   entity: Entity = UndefinedEntity,
   loader?: AssetLoader
 ): Promise<[T | null, () => void, ErrorEvent | Error | null]> {
+  const unload = () => {
+    ResourceManager.unload(url, entity)
+  }
+
   return new Promise((resolve) => {
     const controller = new AbortController()
     loadResource<T>(
@@ -157,15 +222,11 @@ async function getLoader<T extends ResourceAssetType>(
       resourceType,
       entity,
       (response) => {
-        const resources = ResourceState.addEntityResource(entity, response)
-        const unload = () => {
-          for (const resource of resources) ResourceState.removeEntityResource(resource)
-        }
         resolve([response, unload, null])
       },
       (request) => {},
       (err) => {
-        resolve([null, () => {}, err])
+        resolve([null, unload, err])
       },
       controller.signal,
       loader
@@ -206,10 +267,45 @@ export function useGLTFComponent(url: string, parentEntity: Entity): Entity | nu
   return loaded ? gltfEntityState.value : null
 }
 
+export function useGLTFResource(url: string, entity: Entity): void {
+  const loaded = GLTFComponent.useSceneLoaded(entity)
+  ResourceLoadingManagerState.initialize()
+
+  useImmediateEffect(() => {
+    const status = loaded ? ResourceStatus.Loaded : ResourceStatus.Loading
+    setGLTFResource(url, entity, status)
+  }, [loaded])
+
+  useLayoutEffect(() => {
+    return () => {
+      if (url) ResourceManager.unload(url, entity)
+    }
+  }, [url])
+}
+
+/**
+ *
+ * GLTF loader function for when you need to load an asset in a non-React context.
+ * The asset will be loaded through the ResourceManager in ResourceState.ts.
+ * The asset will only be unloaded when onUnloadCallback is called, otherwise the asset will be leaked.
+ *
+ * @param url The URL of the GLTF file to load
+ * @param entity *Optional* The entity that is loading the GLTF, defaults to UndefinedEntity
+ * @param params *Optional* LoadingArgs that are passed through to the asset loader
+ * @returns Promise of Tuple of [GLTF, onUnloadCallback, Error]
+ */
+export async function getGLTFAsync(
+  url: string,
+  entity?: Entity,
+  loader: AssetLoader = getState(AssetLoaderState).gltfLoader
+): Promise<[GLTFAsset | null, () => void, ErrorEvent | Error | null]> {
+  return getLoader<GLTFAsset>(url, ResourceType.GLTF, entity, loader)
+}
+
 /**
  *
  * Texture loader hook for use in React Contexts.
- * The asset will be loaded through the ResourceState in ResourceState.ts.
+ * The asset will be loaded through the ResourceManager in ResourceState.ts.
  * The asset will be unloaded and disposed when the component is unmounted or when onUnloadCallback is called.
  *
  * @param url The URL of the texture file to load
@@ -239,7 +335,7 @@ export function useFile(
 /**
  *
  * Texture loader function for when you need to load an asset in a non-React context.
- * The asset will be loaded through the ResourceState in ResourceState.ts.
+ * The asset will be loaded through the ResourceManager in ResourceState.ts.
  * The asset will only be unloaded when onUnloadCallback is called, otherwise the asset will be leaked.
  *
  * @param url The URL of the texture file to load

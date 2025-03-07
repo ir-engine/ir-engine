@@ -34,6 +34,7 @@ import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSyst
 import { dispatchAction, getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
 import { SpectateEntityState } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
+import { endXRSession, requestXRSession } from '@ir-engine/spatial/src/xr/XRSessionFunctions'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 import { RegisteredWidgets, WidgetAppActions } from '../../systems/WidgetAppService'
 
@@ -41,20 +42,16 @@ import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import multiLogger from '@ir-engine/common/src/logger'
 import { EngineState } from '@ir-engine/ecs'
-import { MediaStreamService, MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
-import {
-  Microphone01Lg,
-  Microphone01Md,
-  MicrophoneOff,
-  VideoRecorderLg,
-  VideoRecorderMd,
-  VideoRecorderOffLg,
-  VideoRecorderOffMd
-} from '@ir-engine/ui/src/icons'
+import { Tooltip } from '@ir-engine/ui'
+import { Microphone01Lg, MicrophoneOff, Screenshare } from '@ir-engine/ui/src/icons'
 import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
-import { MdFlipCameraAndroid } from 'react-icons/md'
+import { IoAccessibility } from 'react-icons/io5'
+import { MdFlipCameraAndroid, MdOutlineViewInAr } from 'react-icons/md'
+import { twMerge } from 'tailwind-merge'
+import { VrIcon } from '../../common/components/Icons/VrIcon'
 import { SearchParamState } from '../../common/services/RouterService'
+import { MediaStreamService, MediaStreamState } from '../../media/MediaStreamState'
 import { RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
 import LocationIconButton from '../../user/components/LocationIconButton'
 import { clientContextParams } from '../../util/ClientContextState'
@@ -151,33 +148,49 @@ export const MediaIconsBox = () => {
           tooltip={{
             title: t('user:menu.toggleMute')
           }}
-          icon={isCamAudioEnabled ? (isMobile ? Microphone01Md : Microphone01Lg) : MicrophoneOff}
+          icon={isCamAudioEnabled ? Microphone01Lg : MicrophoneOff}
           id="UserAudio"
           onClick={MediaStreamState.toggleMicrophonePaused}
         />
       ) : null}
       {videoEnabled && hasVideoDevice && mediaNetworkReady && mediaNetworkState?.ready.value ? (
         <>
-          <LocationIconButton
-            tooltip={{
-              title: t('user:menu.toggleVideo')
-            }}
-            icon={
-              isCamVideoEnabled
-                ? isMobile
-                  ? VideoRecorderMd
-                  : VideoRecorderLg
-                : isMobile
-                ? VideoRecorderOffMd
-                : VideoRecorderOffLg
-            }
-            id="UserVideo"
-            onClick={() => {
-              MediaStreamState.toggleWebcamPaused()
-              logger.analytics({ event_name: 'toggle_camera', value: isCamVideoEnabled })
-            }}
-            loadingState={!!mediaStreamState.webcamMediaStream.value != mediaStreamState.webcamEnabled.value}
-          />
+          <Tooltip content={t('user:menu.toggleVideo')} position="bottom">
+            <button
+              className={twMerge('relative flex h-16 w-16 items-center justify-center rounded-full bg-white ')}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              id="UserVideo"
+              onClick={() => {
+                MediaStreamState.toggleWebcamPaused()
+                logger.info({ event_name: 'toggle_camera', value: isCamVideoEnabled })
+              }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1em"
+                height="1em"
+                fill="none"
+                viewBox="0 0 24 24"
+                role="img"
+                stroke="currentColor"
+                className="h-6 w-6 text-[#080808]"
+              >
+                <g stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}>
+                  <path d="M22 8.931c0-.605 0-.908-.12-1.049a.5.5 0 0 0-.42-.173c-.183.014-.397.228-.826.657L17 12l3.634 3.634c.429.429.643.643.827.657a.5.5 0 0 0 .42-.173c.119-.14.119-.444.119-1.05zM2 9.8c0-1.68 0-2.52.327-3.162a3 3 0 0 1 1.311-1.311C4.28 5 5.12 5 6.8 5h5.4c1.68 0 2.52 0 3.162.327a3 3 0 0 1 1.311 1.311C17 7.28 17 8.12 17 9.8v4.4c0 1.68 0 2.52-.327 3.162a3 3 0 0 1-1.311 1.311C14.72 19 13.88 19 12.2 19H6.8c-1.68 0-2.52 0-3.162-.327a3 3 0 0 1-1.311-1.311C2 16.72 2 15.88 2 14.2z" />
+                  <path
+                    className={twMerge(
+                      'transition-transform duration-150 ease-in-out',
+                      isCamVideoEnabled ? 'scale-0' : 'scale-100'
+                    )}
+                    d="M23 23 L1 1"
+                  />
+                </g>
+              </svg>
+              {!!mediaStreamState.webcamMediaStream.value != mediaStreamState.webcamEnabled.value && (
+                <LoadingView className="absolute bottom-0 left-0 top-0 h-16 w-16" />
+              )}
+            </button>
+          </Tooltip>
 
           {isCamVideoEnabled && numVideoDevices > 1 && (
             <LocationIconButton
@@ -189,7 +202,7 @@ export const MediaIconsBox = () => {
               icon={MdFlipCameraAndroid}
             />
           )}
-          {/* {motionCaptureEnabled && (
+          {motionCaptureEnabled && (
             <LocationIconButton
               id="UserPoseTracking"
               tooltip={{
@@ -197,17 +210,17 @@ export const MediaIconsBox = () => {
               }}
               onClick={() => {
                 window.open(`/capture/${location.pathname.split('/')[2]}`, '_blank')
-                logger.analytics({
+                logger.info({
                   event_name: 'toggle_motion_capture',
                   event_value: isMotionCaptureEnabled
                 })
               }}
               icon={IoAccessibility}
             />
-          )} */}
+          )}
         </>
       ) : null}
-      {/* {!isMobile &&
+      {!isMobile &&
       !(typeof navigator.mediaDevices.getDisplayMedia === 'undefined') &&
       screenshareEnabled &&
       mediaNetworkReady &&
@@ -220,8 +233,8 @@ export const MediaIconsBox = () => {
           id="UserScreenSharing"
           onClick={MediaStreamState.toggleScreenshare}
         />
-      ) : null} */}
-      {/* {supportsVR && xrEnabled && (
+      ) : null}
+      {supportsVR && xrEnabled && (
         <LocationIconButton
           tooltip={{
             title: t('user:menu.enterVR')
@@ -244,7 +257,7 @@ export const MediaIconsBox = () => {
           }}
           icon={MdOutlineViewInAr}
         />
-      )} */}
+      )}
       {spectating && (
         <button
           type="button"

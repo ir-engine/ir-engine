@@ -23,16 +23,18 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Material, Shader } from 'three'
+import { Material, Shader, WebGLRenderer } from 'three'
 
 import {
   Component,
   UUIDComponent,
   defineComponent,
+  defineQuery,
   getComponent,
   getOptionalComponent,
   getOptionalMutableComponent,
   hasComponent,
+  useComponent,
   useEntityContext,
   useOptionalComponent
 } from '@ir-engine/ecs'
@@ -40,13 +42,12 @@ import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
 import { PluginType } from '@ir-engine/spatial/src/common/functions/OnBeforeCompilePlugin'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { defineState } from '@ir-engine/hyperflux'
 import React, { useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { MeshComponent } from '../components/MeshComponent'
 import { NoiseOffsetPluginComponent } from './constants/plugins/NoiseOffsetPlugin'
 import { TransparencyDitheringPluginComponent } from './constants/plugins/TransparencyDitheringComponent'
-import { setMeshMaterial } from './materialFunctions'
+import { materialPrototypeMatches, setMeshMaterial, updateMaterialPrototype } from './materialFunctions'
 import MeshBasicMaterial from './prototypes/MeshBasicMaterial.mat'
 import MeshLambertMaterial from './prototypes/MeshLambertMaterial.mat'
 import MeshMatcapMaterial from './prototypes/MeshMatcapMaterial.mat'
@@ -57,11 +58,15 @@ import MeshToonMaterial from './prototypes/MeshToonMaterial.mat'
 import { ShaderMaterial } from './prototypes/ShaderMaterial.mat'
 import { ShadowMaterial } from './prototypes/ShadowMaterial.mat'
 
+export type MaterialWithEntity = Material & { entity: Entity }
+
 export type MaterialPrototypeConstructor = new (...args: any) => any
 export type MaterialPrototypeObjectConstructor = { [key: string]: MaterialPrototypeConstructor }
 export type MaterialPrototypeDefinition = {
+  prototypeId: string
   prototypeConstructor: MaterialPrototypeConstructor
   arguments: PrototypeArgument
+  onBeforeCompile?: (shader: Shader, renderer: WebGLRenderer) => void
 }
 
 export type PrototypeArgumentValue = {
@@ -76,21 +81,17 @@ export type PrototypeArgument = {
   [_: string]: PrototypeArgumentValue
 }
 
-export const MaterialPrototypeDefinitions = defineState({
-  name: 'MaterialPrototypeDefinitions',
-  initial: () =>
-    ({
-      MeshBasicMaterial,
-      MeshLambertMaterial,
-      MeshMatcapMaterial,
-      MeshPhongMaterial,
-      MeshPhysicalMaterial,
-      MeshStandardMaterial,
-      MeshToonMaterial,
-      ShaderMaterial,
-      ShadowMaterial
-    }) as Record<string, MaterialPrototypeDefinition>
-})
+export const MaterialPrototypeDefinitions = [
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  MeshMatcapMaterial,
+  MeshPhysicalMaterial,
+  MeshLambertMaterial,
+  MeshPhongMaterial,
+  MeshToonMaterial,
+  ShaderMaterial,
+  ShadowMaterial
+] as MaterialPrototypeDefinition[]
 
 export const MaterialPlugins = { TransparencyDitheringPluginComponent, NoiseOffsetPluginComponent } as Record<
   string,
@@ -105,28 +106,30 @@ export const MaterialStateComponent = defineComponent({
     material: S.Type<Material>({} as Material),
     parameters: S.Record(S.String(), S.Any()),
     // all entities using this material. an undefined entity at index 0 is a fake user
-    instances: S.NonSerialized(S.Array(S.Entity()))
+    instances: S.Array(S.Entity()),
+    prototypeEntity: S.Entity()
   }),
 
-  fallbackMaterialUUID: uuidv4() as EntityUUID,
-  fallbackMaterial: () => {
-    const fallbackMaterialEntity = UUIDComponent.getEntityByUUID(MaterialStateComponent.fallbackMaterialUUID)
-    return getComponent(fallbackMaterialEntity, MaterialStateComponent).material //.clone()
+  fallbackMaterial: uuidv4() as EntityUUID,
+
+  onRemove: (entity) => {
+    const materialComponent = getOptionalComponent(entity, MaterialStateComponent)
+    if (!materialComponent) return
+    for (const instanceEntity of materialComponent.instances) {
+      if (!hasComponent(instanceEntity, MaterialInstanceComponent)) continue
+      setMeshMaterial(instanceEntity, getComponent(instanceEntity, MaterialInstanceComponent).uuid)
+    }
   },
 
-  onRemove: (entity, component) => {
-    if (!component.instances.value) return
-    try {
-      const instances = Array.isArray(component.instances.value)
-        ? component.instances.value
-        : [component.instances.value]
-      for (const instanceEntity of instances) {
-        if (!hasComponent(instanceEntity, MaterialInstanceComponent)) continue
-        setMeshMaterial(instanceEntity, getComponent(instanceEntity, MaterialInstanceComponent).uuid)
-      }
-    } catch (e) {
-      // this throws errors between tests - should be moved to a reactor
-    }
+  reactor: () => {
+    const entity = useEntityContext()
+    const materialComponent = useComponent(entity, MaterialStateComponent)
+
+    useEffect(() => {
+      if (materialComponent.prototypeEntity.value && !materialPrototypeMatches(entity)) updateMaterialPrototype(entity)
+    }, [materialComponent.prototypeEntity])
+
+    return null
   }
 })
 
@@ -156,13 +159,7 @@ export const MaterialInstanceComponent = defineComponent({
       return (
         <>
           {materialComponent.uuid.value.map((uuid, index) => (
-            <MaterialInstanceSubReactor
-              array={true}
-              key={uuid + '-' + index}
-              index={index}
-              uuid={uuid}
-              entity={entity}
-            />
+            <MaterialInstanceSubReactor array={true} key={uuid} index={index} uuid={uuid} entity={entity} />
           ))}
         </>
       )
@@ -181,10 +178,10 @@ export const MaterialInstanceComponent = defineComponent({
 
 const MaterialInstanceSubReactor = (props: { array: boolean; uuid: EntityUUID; entity: Entity; index: number }) => {
   const { uuid, entity, index } = props
-
   const materialStateEntity = UUIDComponent.useEntityByUUID(uuid)
   const materialStateComponent = useOptionalComponent(materialStateEntity, MaterialStateComponent)
   const meshComponent = useOptionalComponent(entity, MeshComponent)
+
   useEffect(() => {
     if (!meshComponent || !materialStateComponent) return
     const material = getComponent(materialStateEntity, MaterialStateComponent).material
@@ -200,6 +197,17 @@ const MaterialInstanceSubReactor = (props: { array: boolean; uuid: EntityUUID; e
 
   return null
 }
+
+export const MaterialPrototypeComponent = defineComponent({
+  name: 'MaterialPrototypeComponent',
+
+  schema: S.Object({
+    prototypeArguments: S.Type<PrototypeArgument>({}),
+    prototypeConstructor: S.Type<MaterialPrototypeObjectConstructor>({})
+  })
+})
+
+export const prototypeQuery = defineQuery([MaterialPrototypeComponent])
 
 declare module 'three/src/materials/Material.js' {
   export interface Material {

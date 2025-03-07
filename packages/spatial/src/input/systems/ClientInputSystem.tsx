@@ -89,7 +89,7 @@ const execute = () => {
     TransformComponent.rotation.y[eid] = _rayRotation.y
     TransformComponent.rotation.z[eid] = _rayRotation.z
     TransformComponent.rotation.w[eid] = _rayRotation.w
-    TransformComponent.dirty[eid] = 1
+    TransformComponent.dirtyTransforms[eid] = true
   }
 
   // remove stale pointers
@@ -111,7 +111,7 @@ const execute = () => {
     TransformComponent.rotation.y[eid] = pose.transform.orientation.y
     TransformComponent.rotation.z[eid] = pose.transform.orientation.z
     TransformComponent.rotation.w[eid] = pose.transform.orientation.w
-    TransformComponent.dirty[eid] = 1
+    TransformComponent.dirtyTransforms[eid] = true
   }
 
   // assign input sources (InputSourceComponent) to input sinks (InputComponent), foreach on InputSourceComponents
@@ -128,8 +128,16 @@ const reactor = () => {
   if (!isClient) return null
 
   useEffect(() => {
-    InputHeuristicState.addHeuristic(-1, meshHeuristic)
-    InputHeuristicState.addHeuristic(0, boundingBoxHeuristic)
+    getMutableState(InputHeuristicState).merge([
+      {
+        order: -1,
+        heuristic: meshHeuristic
+      },
+      {
+        order: 0,
+        heuristic: boundingBoxHeuristic
+      }
+    ])
   }, [])
 
   ClientInputHooks.useNonSpatialInputSources()

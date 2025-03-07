@@ -32,13 +32,11 @@ import { createXRUI } from '@ir-engine/engine/src/xrui/createXRUI'
 import { createState, dispatchAction, getMutableState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
+import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
 import { RegisteredWidgets, WidgetAppActions, WidgetAppState } from '../../WidgetAppService'
 
-import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
-import { Microphone01, MicrophoneOff, Refresh2Lg, User01Lg } from '@ir-engine/ui/src/icons'
-import { SVGIconType } from '@ir-engine/ui/src/icons/types'
-import { IconType } from 'react-icons'
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
+import { MediaStreamState } from '../../../media/MediaStreamState'
 import XRIconButton from '../../components/XRIconButton'
 import HandSVG from './back_hand_24px.svg?react'
 import styleString from './index.scss?inline'
@@ -52,13 +50,13 @@ function createWidgetButtonsState() {
 }
 
 type WidgetButtonProps = {
-  Icon: SVGIconType | IconType
+  icon: any
   toggle: () => any
   label: string
   disabled?: boolean
 }
 
-const WidgetButton = ({ Icon, toggle, label, disabled }: WidgetButtonProps) => {
+const WidgetButton = ({ icon, toggle, label, disabled }: WidgetButtonProps) => {
   const mouseOver = useHookstate(false)
   return (
     <XRIconButton
@@ -66,7 +64,7 @@ const WidgetButton = ({ Icon, toggle, label, disabled }: WidgetButtonProps) => {
       size="large"
       content={
         <>
-          {<Icon className="svgIcon" />}
+          {<Icon type={icon} className="svgIcon" />}
           {mouseOver.value && <div>{label}</div>}
         </>
       }
@@ -113,7 +111,7 @@ const HandednessWidgetButton = () => {
   )
 }
 
-export const WidgetButtons = () => {
+const WidgetButtons = () => {
   const widgetMutableState = useMutableState(WidgetAppState)
   const sessionMode = useHookstate(getMutableState(XRState).sessionMode)
   const mediaInstanceState = useMediaInstance()
@@ -176,14 +174,14 @@ export const WidgetButtons = () => {
     <>
       <style>{styleString}</style>
       <div className="container" style={{ gridTemplateColumns }} xr-pixel-ratio="8" xr-layer="true">
-        <WidgetButton Icon={Refresh2Lg} toggle={handleRespawnAvatar} label={'Respawn'} />
+        <WidgetButton icon="Refresh" toggle={handleRespawnAvatar} label={'Respawn'} />
         {sessionMode.value !== 'none' && (
-          <WidgetButton Icon={User01Lg} toggle={handleHeightAdjustment} label={'Reset Height'} />
+          <WidgetButton icon="Person" toggle={handleHeightAdjustment} label={'Reset Height'} />
         )}
         <HandednessWidgetButton />
         {mediaInstanceState?.value && (
           <WidgetButton
-            Icon={isCamAudioEnabled ? Microphone01 : MicrophoneOff}
+            icon={isCamAudioEnabled ? 'Mic' : 'MicOff'}
             toggle={MediaStreamState.toggleMicrophonePaused}
             label={isCamAudioEnabled ? 'Audio on' : 'Audio Off'}
           />
@@ -194,7 +192,7 @@ export const WidgetButtons = () => {
           label={engineState.xrSessionStarted.value ? 'Exit VR' : 'Enter VR'}
         /> */}
         {activeWidgets.map((widget, i) => (
-          <WidgetButton key={i} Icon={widget.icon!} toggle={toggleWidget(widget)} label={widget.label} />
+          <WidgetButton key={i} icon={widget.icon} toggle={toggleWidget(widget)} label={widget.label} />
         ))}
       </div>
     </>

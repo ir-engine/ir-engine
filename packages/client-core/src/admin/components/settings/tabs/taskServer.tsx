@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { forwardRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { useFind } from '@ir-engine/common'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
@@ -51,6 +52,8 @@ const TaskServerTab = forwardRef(({ open }: { open: boolean }, ref: React.Mutabl
     <Accordion
       title={t('admin:components.setting.taskServer.taskServer')}
       subtitle={t('admin:components.setting.taskServer.subtitle')}
+      expandIcon={<HiPlusSmall />}
+      shrinkIcon={<HiMinus />}
       ref={ref}
       open={open}
     >

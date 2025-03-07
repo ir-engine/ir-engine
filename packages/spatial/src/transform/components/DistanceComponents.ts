@@ -23,32 +23,35 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { createResizableTypeArray } from '@ir-engine/ecs/src/bitecsLegacy'
+import { Types, useEntityContext } from '@ir-engine/ecs'
 import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
+import { useLayoutEffect } from 'react'
+
+export const DistanceComponentSchema = { squaredDistance: Types.f32 }
 
 export const DistanceFromLocalClientComponent = defineComponent({
   name: 'DistanceFromLocalClientComponent',
-  storage: {
-    squaredDistance: createResizableTypeArray(Float32Array)
-  }
+  schema: DistanceComponentSchema
 })
 export const DistanceFromCameraComponent = defineComponent({
   name: 'DistanceFromCameraComponent',
-  storage: {
-    squaredDistance: createResizableTypeArray(Float32Array)
-  }
+  schema: DistanceComponentSchema
 })
 
+export const FrustumCullCameraSchema = { isCulled: Types.ui8 }
 export const FrustumCullCameraComponent = defineComponent({
   name: 'FrustumCullCameraComponent',
+  schema: FrustumCullCameraSchema,
 
-  storage: {
-    isCulled: createResizableTypeArray(Uint8Array)
-  },
-
-  onRemove(entity, component) {
-    FrustumCullCameraComponent.isCulled[entity] = 0
+  reactor: () => {
+    const entity = useEntityContext()
+    useLayoutEffect(() => {
+      return () => {
+        // reset upon removing the component
+        FrustumCullCameraComponent.isCulled[entity] = 0
+      }
+    }, [])
   }
 })
 

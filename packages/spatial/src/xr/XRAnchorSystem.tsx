@@ -36,7 +36,7 @@ import {
   Vector3
 } from 'three'
 
-import { EntityTreeComponent, createEntity } from '@ir-engine/ecs'
+import { EntityTreeComponent } from '@ir-engine/ecs'
 import {
   ComponentType,
   getComponent,
@@ -48,9 +48,10 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineQuery, useQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
-import { defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
+import { defineActionQueue, defineState, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 import { smootheLerpAlpha } from '../common/functions/MathLerpFunctions'
 
 import React from 'react'
@@ -68,7 +69,7 @@ import { updateWorldOriginFromScenePlacement } from '../transform/updateWorldOri
 import { XRCameraUpdateSystem } from './XRCameraSystem'
 import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'
 import { XRScenePlacementComponent } from './XRScenePlacementComponent'
-import { ReferenceSpace, XRState } from './XRState'
+import { ReferenceSpace, XRAction, XRState } from './XRState'
 
 export const updateHitTest = (entity: Entity) => {
   const xrFrame = getState(XRState).xrFrame!
@@ -186,6 +187,8 @@ export const updateScenePlacement = (scenePlacementEntity: Entity) => {
   )
 }
 
+const xrSessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
+
 const xrHitTestQuery = defineQuery([XRHitTestComponent, TransformComponent])
 const xrAnchorQuery = defineQuery([XRAnchorComponent, TransformComponent])
 
@@ -201,6 +204,14 @@ const execute = () => {
   const xrState = getState(XRState)
 
   const { scenePlacementEntity, originAnchorEntity } = getState(XRAnchorSystemState)
+
+  for (const action of xrSessionChangedQueue()) {
+    if (!action.active) {
+      getMutableState(XRState).scenePlacementMode.set('unplaced')
+      for (const e of xrHitTestQuery()) removeComponent(e, XRHitTestComponent)
+      for (const e of xrAnchorQuery()) removeComponent(e, XRAnchorComponent)
+    }
+  }
 
   if (!getState(XRState).xrFrame) return
 
@@ -295,24 +306,24 @@ const Reactor = () => {
               setComponent(scenePlacementEntity, XRAnchorComponent, { anchor })
             })
           removeComponent(scenePlacementEntity, XRHitTestComponent)
-        } else {
-          // @ts-ignore createAnchor function is not typed correctly
-          const anchorPromise = hitTestResult.createAnchor()
-          if (anchorPromise)
-            anchorPromise
-              .then((anchor) => {
-                if (!active) {
-                  anchor.delete()
-                  return
-                }
-                setComponent(scenePlacementEntity, XRAnchorComponent, { anchor })
-                removeComponent(scenePlacementEntity, XRHitTestComponent)
-              })
-              .catch(() => {
-                removeComponent(scenePlacementEntity, XRHitTestComponent)
-              })
-          else removeComponent(scenePlacementEntity, XRHitTestComponent)
+          return
         }
+        // @ts-ignore createAnchor function is not typed correctly
+        const anchorPromise = hitTestResult.createAnchor()
+        if (anchorPromise)
+          anchorPromise
+            .then((anchor) => {
+              if (!active) {
+                anchor.delete()
+                return
+              }
+              setComponent(scenePlacementEntity, XRAnchorComponent, { anchor })
+              removeComponent(scenePlacementEntity, XRHitTestComponent)
+            })
+            .catch(() => {
+              removeComponent(scenePlacementEntity, XRHitTestComponent)
+            })
+        else removeComponent(scenePlacementEntity, XRHitTestComponent)
       }
     }
 
@@ -358,15 +369,6 @@ const Reactor = () => {
         getMutableState(InputState).capturingEntity.set(UndefinedEntity)
     }
   }, [scenePlacementMode, xrSession])
-
-  useEffect(() => {
-    if (!xrSession) return
-    return () => {
-      getMutableState(XRState).scenePlacementMode.set('unplaced')
-      for (const e of xrHitTestQuery()) removeComponent(e, XRHitTestComponent)
-      for (const e of xrAnchorQuery()) removeComponent(e, XRAnchorComponent)
-    }
-  }, [xrSession])
 
   return null
 }

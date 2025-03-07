@@ -29,7 +29,8 @@ import { useTranslation } from 'react-i18next'
 import { AudioEffectPlayer } from '@ir-engine/engine/src/audio/systems/MediaSystem'
 import { getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { XRState, isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
-import { Pin02Md } from '@ir-engine/ui/src/icons'
+import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
+
 import { AppState } from '../../common/services/AppService'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
@@ -169,6 +170,7 @@ export const ARPlacement = () => {
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
+            {/* <Icon type="Scale" /> */}
             <div style={{ margin: '3px' }}>{t('common:ar.auto')}</div>
           </button>
         )}
@@ -180,7 +182,7 @@ export const ARPlacement = () => {
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >
-          {!inPlacingMode && <Pin02Md />}
+          {!inPlacingMode && <Icon type="Anchor" />}
           <div style={{ margin: '3px' }}>{inPlacingMode ? t('common:ar.done') : t('common:ar.placeScene')}</div>
         </button>
       </div>

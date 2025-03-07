@@ -24,20 +24,53 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { NotificationService } from '@ir-engine/client-core/src/common/services/NotificationService'
-import { getState } from '@ir-engine/hyperflux'
-import { Button } from '@ir-engine/ui'
+import { getState, useMutableState } from '@ir-engine/hyperflux'
+import { Button, Tooltip } from '@ir-engine/ui'
+import { Slider, StudioButton } from '@ir-engine/ui/editor'
+import { Popup } from '@ir-engine/ui/src/components/tailwind/Popup'
 import SearchBar from '@ir-engine/ui/src/components/tailwind/SearchBar'
-import { FolderSm, PlusCircleSm, SearchSmSm } from '@ir-engine/ui/src/icons'
+import { ArrowLeftSm, CogSm, FolderSm, PlusCircleSm, Refresh1Sm, SearchSmSm } from '@ir-engine/ui/src/icons'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { validateImportFolderPath } from '../../components/dialogs/ImportSettingsPanelDialog'
 import { inputFileWithAddToScene } from '../../functions/assetFunctions'
 import { EditorState } from '../../services/EditorServices'
+import { FilesViewModeSettings } from '../../services/FilesState'
 import { ImportSettingsState } from '../../services/ImportSettingsState'
-import { BreadCrumbSlash, PanelToolbar } from '../files/toolbar'
-import { AssetCategoryNode } from './categories'
-import { findCategoryByPath } from './helpers'
-import { assetCategories, useAssetsCategory, useAssetsQuery } from './hooks'
+import { useAssetsCategory, useAssetsQuery } from './hooks'
+
+const ViewModeSettings = () => {
+  const { t } = useTranslation()
+  const viewModeSettings = useMutableState(FilesViewModeSettings)
+
+  return (
+    <Popup
+      contentStyle={{ background: '#15171b', border: 'solid', borderColor: '#5d646c' }}
+      position={'bottom left'}
+      trigger={
+        <Tooltip content={t('editor:layout.filebrowser.view-mode.settings.name')}>
+          <StudioButton size="sm" variant="tertiary" data-testid="assets-panel-view-options-button">
+            <CogSm />
+          </StudioButton>
+        </Tooltip>
+      }
+    >
+      <div className="flex flex-col justify-end">
+        <div className="w-3/5">
+          <Slider
+            label={t('editor:layout.filebrowser.view-mode.settings.fontSize')}
+            min={10}
+            max={100}
+            step={0.5}
+            value={viewModeSettings.list.fontSize.value}
+            onChange={viewModeSettings.list.fontSize.set}
+            onRelease={viewModeSettings.list.fontSize.set}
+          />
+        </div>
+      </div>
+    </Popup>
+  )
+}
 
 export const uploadFiles = () => {
   const projectName = getState(EditorState).projectName
@@ -60,37 +93,39 @@ export const uploadFiles = () => {
 export function AssetsBreadcrumbs() {
   const { currentCategoryPath } = useAssetsCategory()
   const { refetchResources } = useAssetsQuery()
-  const currentCategory = currentCategoryPath.get({ noproxy: true }) as AssetCategoryNode
-
-  const breadcrumbTrail = currentCategory?.path
-    ? currentCategory.path.split('/').map((name, index, array) => ({
-        name,
-        path: array.slice(0, index + 1).join('/')
-      }))
-    : []
+  const parentCategories = currentCategoryPath.length > 1 ? currentCategoryPath.slice(0, -1) : []
+  const currentCategory = currentCategoryPath.length > 0 ? currentCategoryPath.at(-1) : null
 
   const handleSelectParentCategory = (index: number) => {
-    const selectedPath = breadcrumbTrail[index].path
-    const newParent = findCategoryByPath(assetCategories as AssetCategoryNode[], selectedPath)
-    currentCategoryPath.set(newParent || undefined)
+    currentCategoryPath.set((prevPath) => prevPath.slice(0, index + 1))
     refetchResources()
   }
 
   return (
-    <div className="flex items-center gap-2" data-testid="assets-panel-breadcrumbs">
-      <FolderSm onClick={() => handleSelectParentCategory(0)} className="text-base text-text-secondary" />
-      {breadcrumbTrail.map((category, idx) => (
-        <div key={category.path} className="flex items-center">
-          <span
-            className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-base text-text-secondary"
-            data-testid={`assets-panel-breadcrumb-nested-level-${idx}`}
-            onClick={() => handleSelectParentCategory(idx)}
-          >
-            {category.name}
-          </span>
-          {idx < breadcrumbTrail.length - 1 && <BreadCrumbSlash />}
-        </div>
+    <div
+      className="flex h-6 w-96 items-center gap-2 rounded-lg border border-[#42454D] bg-[#141619] px-2"
+      data-testid="assets-panel-breadcrumbs"
+    >
+      <FolderSm onClick={() => handleSelectParentCategory(0)} className="cursor-pointer text-xs text-[#42454D]" />
+      {parentCategories.map((category, idx) => (
+        <span
+          key={category.name.value}
+          className="cursor-pointer overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3]"
+          data-testid={`assets-panel-breadcrumb-nested-level-${idx}`}
+          onClick={() => handleSelectParentCategory(idx)}
+        >
+          <span className="hover:underline">{category.name.value}</span>
+          <span>{' > '}</span>
+        </span>
       ))}
+      {currentCategory && (
+        <span
+          className="overflow-hidden overflow-ellipsis whitespace-nowrap text-xs text-[#A3A3A3]"
+          data-testid="assets-panel-breadcrumb-current-category"
+        >
+          {currentCategory.name.value}
+        </span>
+      )}
     </div>
   )
 }
@@ -98,22 +133,16 @@ export function AssetsBreadcrumbs() {
 export default function Topbar() {
   const { t } = useTranslation()
   const { search } = useAssetsQuery()
-  const { currentCategoryPath } = useAssetsCategory()
+  const { currentCategoryPath, expandedCategories } = useAssetsCategory()
   const { refetchResources, staticResourcesPagination } = useAssetsQuery()
 
   const handleBack = () => {
-    const path = currentCategoryPath.value?.path.split('/') ?? []
-    if (path.length <= 1) {
-      currentCategoryPath.set(undefined)
-      return
-    }
-    const selectedPath = path.slice(0, path.length - 1).join('/')
-    const foundCategory = findCategoryByPath(assetCategories as AssetCategoryNode[], selectedPath)
-    currentCategoryPath.set(foundCategory || undefined)
+    currentCategoryPath.set((path) => path.slice(0, -1))
     refetchResources()
   }
 
   const handleRefresh = () => {
+    expandedCategories.set({})
     refetchResources()
   }
 
@@ -123,31 +152,46 @@ export default function Topbar() {
   }, [search.query])
 
   return (
-    <PanelToolbar
-      onBackDirectory={handleBack}
-      onRefreshDirectory={handleRefresh}
-      breadcrumbComponent={<AssetsBreadcrumbs />}
-      searchbar={
+    <div className="mb-1 flex h-8 items-center gap-2 bg-[#191B1F] py-1" data-testid="assets-panel-top-bar">
+      <div className="ml-2" />
+      <div>
+        <Tooltip content={t('editor:layout.filebrowser.back')}>
+          <StudioButton size="sm" variant="tertiary" data-testid="assets-panel-back-button" onClick={handleBack}>
+            <ArrowLeftSm />
+          </StudioButton>
+        </Tooltip>
+      </div>
+      <div>
+        <Tooltip content={t('editor:layout.filebrowser.refresh')}>
+          <StudioButton size="sm" variant="tertiary" data-testid="assets-panel-refresh-button" onClick={handleRefresh}>
+            <Refresh1Sm />
+          </StudioButton>
+        </Tooltip>
+      </div>
+      <ViewModeSettings />
+      <div className="align-center flex h-6 w-full justify-center gap-2 sm:px-2 md:px-4 lg:px-6 xl:px-10">
+        <AssetsBreadcrumbs />
         <SearchBar
           inputProps={{
             placeholder: t('editor:layout.scene-assets.search-placeholder'),
             height: 'xs',
-            startComponent: <SearchSmSm className="h-5 w-5 text-[#A3A3A3]" />
+            startComponent: <SearchSmSm className="h-3.5 w-3.5 text-[#A3A3A3]" />
           }}
           search={search}
         />
-      }
-      uploadButton={
-        <Button size="l" data-testid="assets-panel-upload-button" onClick={() => uploadFiles().then(handleRefresh)}>
+      </div>
+      <div className="w-fit">
+        <Button
+          size="l"
+          variant="secondary"
+          data-testid="assets-panel-upload-button"
+          className="bg-[#212226]"
+          onClick={() => uploadFiles().then(handleRefresh)}
+        >
           <PlusCircleSm />
           <span className="text-nowrap">{t('editor:layout.filebrowser.uploadAssets')}</span>
         </Button>
-      }
-      dataTestIdJson={{
-        topbarId: 'assets-panel-top-bar',
-        backButtonId: 'assets-panel-back-button',
-        refreshButtonId: 'assets-panel-refresh-button'
-      }}
-    />
+      </div>
+    </div>
   )
 }

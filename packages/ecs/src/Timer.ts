@@ -48,7 +48,7 @@ export function profile(): () => number {
   }
 }
 
-export function Timer(onFrame: TimerUpdateCallback, serverTickRate = 60) {
+export function Timer(update: TimerUpdateCallback, serverTickRate = 60) {
   const animation = 'requestAnimationFrame' in self ? createAnimationLoop() : createServerLoop(serverTickRate)
 
   animation.setContext(self)
@@ -75,15 +75,15 @@ export function Timer(onFrame: TimerUpdateCallback, serverTickRate = 60) {
   let timerRuns = 0
   let prevTimerRuns = 0
 
-  function onFrameWithTPS(time: number, xrFrame: XRFrame | null) {
+  function onFrame(time: number, xrFrame: XRFrame | null) {
     timerRuns += 1
     const itsTpsReportTime = TPS_REPORT_INTERVAL_MS && nextTpsReportTime <= time
-    if (itsTpsReportTime) {
+    if (TPS_REPORTS_ENABLED && itsTpsReportTime) {
       tpsPrintReport(time)
     }
 
     tpsSubMeasureStart('update')
-    onFrame(time, xrFrame)
+    update(time, xrFrame)
     tpsSubMeasureEnd('update')
   }
 
@@ -164,7 +164,7 @@ export function Timer(onFrame: TimerUpdateCallback, serverTickRate = 60) {
   }
 
   function start() {
-    animation.setAnimationLoop(TPS_REPORTS_ENABLED ? onFrameWithTPS : onFrame)
+    animation.setAnimationLoop(onFrame)
     animation.start()
     tpsReset()
   }

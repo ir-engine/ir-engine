@@ -41,13 +41,17 @@ import { lut1DAddToEffectRegistry } from './LUT1DEffect'
 import { lut3DAddToEffectRegistry } from './LUT3DEffect'
 import { lensDistortionAddToEffectRegistry } from './LensDistortionEffect'
 import { linearTosRGBAddToEffectRegistry } from './LinearTosRGBEffect'
-// import { motionBlurAddToEffectRegistry } from './MotionBlurEffect'
+import { motionBlurAddToEffectRegistry } from './MotionBlurEffect'
 import { noiseAddToEffectRegistry } from './NoiseEffect'
 import { pixelationAddToEffectRegistry } from './PixelationEffect'
 import { smaaAddToEffectRegistry } from './SMAAEffect'
 import { ssaoAddToEffectRegistry } from './SSAOEffect'
+import { ssgiAddToEffectRegistry } from './SSGIEffect'
+import { ssrAddToEffectRegistry } from './SSREffect'
 import { scanlineAddToEffectRegistry } from './ScanlineEffect'
-// import { traaAddToEffectRegistry } from './TRAAEffect'
+import { shockWaveAddToEffectRegistry } from './ShockWaveEffect'
+import { traaAddToEffectRegistry } from './TRAAEffect'
+import { textureAddToEffectRegistry } from './TextureEffect'
 import { tiltShiftAddToEffectRegistry } from './TiltShiftEffect'
 import { toneMappingAddToEffectRegistry } from './ToneMappingEffect'
 import { vignetteAddToEffectRegistry } from './VignetteEffect'
@@ -68,21 +72,21 @@ export const populateEffectRegistry = () => {
   hueSaturationAddToEffectRegistry()
   lensDistortionAddToEffectRegistry()
   linearTosRGBAddToEffectRegistry()
-  lut1DAddToEffectRegistry() //could use better user-messaging
-  lut3DAddToEffectRegistry() //could use better user-messaging
-  // motionBlurAddToEffectRegistry() // realism-effect
+  lut1DAddToEffectRegistry()
+  lut3DAddToEffectRegistry()
+  motionBlurAddToEffectRegistry()
   noiseAddToEffectRegistry()
   pixelationAddToEffectRegistry()
   scanlineAddToEffectRegistry()
-  // shockWaveAddToEffectRegistry()
+  shockWaveAddToEffectRegistry()
   smaaAddToEffectRegistry()
   ssaoAddToEffectRegistry()
-  // ssrAddToEffectRegistry() // realism-effect - issue = no visual change
-  // ssgiAddToEffectRegistry() // realism-effect - issue = no visual change
-  // textureAddToEffectRegistry() // issue = engine freezes when assigning texture
+  ssrAddToEffectRegistry()
+  ssgiAddToEffectRegistry()
+  textureAddToEffectRegistry()
   tiltShiftAddToEffectRegistry()
   toneMappingAddToEffectRegistry()
-  //traaAddToEffectRegistry() // realism-effect - issue = crashing and freezing
+  traaAddToEffectRegistry()
   vignetteAddToEffectRegistry()
 }
 

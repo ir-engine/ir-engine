@@ -58,7 +58,11 @@ const Text = ({
 }: TextProps): JSX.Element => {
   const Component = componentTypes[component]
 
-  const twClassName = twMerge('inline-block leading-normal', `font-${fontWeight} text-${fontSize}`, className)
+  const twClassName = twMerge(
+    'inline-block leading-normal',
+    `font-${fontWeight} text-${fontSize} text-theme-${theme}`,
+    className
+  )
 
   return (
     <Component className={twClassName} {...props}>

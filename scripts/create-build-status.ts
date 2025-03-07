@@ -42,7 +42,7 @@ cli.enable('status')
 cli.main(async () => {
   try {
     const knexClient = knex({
-      client: 'mysql2',
+      client: 'mysql',
       connection: {
         user: process.env.MYSQL_USER ?? 'server',
         password: process.env.MYSQL_PASSWORD ?? 'password',

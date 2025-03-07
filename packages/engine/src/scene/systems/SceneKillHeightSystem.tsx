@@ -78,7 +78,7 @@ const execute = () => {
         position: spawnState?.spawnPosition,
         rotation: spawnState?.spawnRotation
       })
-      TransformComponent.dirty[entity] = 1
+      TransformComponent.dirtyTransforms[entity] = true
 
       if (!isCameraAttachedToAvatar) continue
 

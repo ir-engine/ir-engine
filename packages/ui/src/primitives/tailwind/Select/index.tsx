@@ -23,12 +23,10 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@ir-engine/hyperflux'
+import { useClickOutside } from '@ir-engine/common/src/utils/useClickOutside'
 import { ChevronDownSm, HelpIconSm, XCloseSm } from '@ir-engine/ui/src/icons'
 import Fuse from 'fuse.js'
-import React, { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
-import Popup from 'reactjs-popup'
-import { PopupActions } from 'reactjs-popup/dist/types'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { DropdownItem } from '../Dropdown'
 import { InputProps, heights } from '../Input'
@@ -59,6 +57,7 @@ export interface SelectProps<T = string | number> {
   disabled?: boolean
   searchMode?: 'prefix' | 'substring' | 'fuzzy'
   positioning?: {
+    direction: 'down' | 'up'
     maxHeight: string
   }
   showClearButton?: boolean
@@ -87,9 +86,12 @@ const Select = ({
   positioning: userPositioning,
   showClearButton = false
 }: SelectProps) => {
+  const [open, setOpen] = useState(false)
   const [positioning, setPositioning] = useState({
+    direction: 'down' as 'down' | 'up',
     maxHeight: '0px',
-    ...userPositioning
+    ...userPositioning,
+    userSet: false
   })
   const ref = useRef<HTMLDivElement>(null)
   const [displayText, setDisplayText] = useState('')
@@ -100,11 +102,7 @@ const Select = ({
   const [filteredOptions, setFilteredOptions] = useState(options)
   const [searchString, setSearchString] = useState('')
   const fuseRef = useRef<Fuse<OptionType> | null>(null)
-  const [touchMoved, setTouchedMoved] = useState(false)
-  const localValue = useHookstate(value)
-  const id = useId()
-  const [triggerWidth, setTriggerWidth] = useState(0)
-  const popupRef = useRef<PopupActions>(null)
+  const [localValue, setLocalValue] = useState(value)
 
   useEffect(() => {
     if (searchMode === 'fuzzy' && fuseRef.current !== null) {
@@ -113,10 +111,6 @@ const Select = ({
       })
     }
   }, [searchMode])
-
-  useEffect(() => {
-    localValue.set(value)
-  }, [value])
 
   useLayoutEffect(() => {
     const updateDirection = () => {
@@ -131,7 +125,7 @@ const Select = ({
         const _maxHeight = newDirection === 'down' ? 0.8 * spaceBelow : 0.8 * spaceAbove
         setPositioning({
           ...positioning,
-          // direction: newDirection,
+          direction: newDirection,
           maxHeight: `${_maxHeight}px`
         })
       }
@@ -161,32 +155,47 @@ const Select = ({
     }
   }, [labelProps])
 
+  useClickOutside(ref, () => {
+    setOpen(false)
+  })
+
   useEffect(() => {
     setSearchString('')
   }, [selectedOptionIndex])
 
   useEffect(() => {
-    if (filteredOptions.length > 0) {
-      const index = filteredOptions.findIndex((option) => option.value === localValue.value)
-
-      if (index === -1) {
-        if (searchMode === undefined) {
-          console.warn('No corresponding option found. Defaulting to null.')
-          setDisplayText('')
-          return
-        }
-      }
+    if (localValue === '') {
+      setDisplayText('')
+      return
     }
-  }, [value, localValue, selectedOptionIndex, filteredOptions])
+
+    if (
+      0 <= selectedOptionIndex &&
+      selectedOptionIndex < filteredOptions.length &&
+      filteredOptions[selectedOptionIndex].value === localValue
+    ) {
+      setDisplayText(filteredOptions[selectedOptionIndex].label)
+      return
+    }
+
+    const index = filteredOptions.findIndex((option) => option.value === localValue)
+
+    if (index === -1) {
+      if (searchMode === undefined) {
+        console.warn('No corresponding option found. Defaulting to null.')
+        setDisplayText('')
+        return
+      }
+    } else {
+      setDisplayText(filteredOptions[index].label)
+    }
+  }, [localValue, selectedOptionIndex])
 
   useEffect(() => {
-    if (filteredOptions.length) {
-      const index = filteredOptions.findIndex((option) => option.value === localValue.value)
-      if (index !== -1) {
-        setDisplayText(filteredOptions[index].label)
-      }
+    if (onOpen) {
+      onOpen(open)
     }
-  }, [localValue, filteredOptions])
+  }, [open])
 
   useEffect(() => {
     if (searchString === '') {
@@ -223,264 +232,173 @@ const Select = ({
     }
   }, [options, searchString])
 
-  useEffect(() => {
-    const element = document.getElementById(id)
-    const updateTriggerWidth = () => {
-      if (element) {
-        setTriggerWidth(element.offsetWidth)
-      }
-    }
-
-    const resizeObserver = new ResizeObserver(updateTriggerWidth)
-    if (element) {
-      resizeObserver.observe(element)
-    }
-    updateTriggerWidth()
-
-    return () => {
-      resizeObserver.disconnect()
-    }
-  }, [])
-
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  const togglePopup = () => {
-    if (popupRef.current) {
-      popupRef.current.toggle()
-    }
-  }
-
-  const closePopup = () => {
-    if (popupRef.current) {
-      popupRef.current.close()
-    }
-  }
-
-  const contentRef = useRef<HTMLDivElement>(null)
-  const [positionStyle, setPositionStyle] = useState({})
-
-  useEffect(() => {
-    if (ref.current && contentRef.current) {
-      const refTop = ref.current.getBoundingClientRect().top
-      const contentHeight = contentRef.current.getBoundingClientRect().height
-      const gap = 10
-
-      setPositionStyle({
-        top: `${refTop - contentHeight - gap}px`
-      })
-    }
-  }, [filteredOptions])
-
   return (
-    <Popup
-      trigger={(isOpen) => (
-        <div id={id} className={twMerge('flex flex-col gap-y-2', width === 'full' ? 'w-full' : 'w-fit')}>
-          <div
-            className={twMerge(
-              'flex',
-              width === 'full' ? 'w-full' : 'w-fit',
-              labelProps?.position === 'top' && 'flex-col gap-y-2',
-              labelProps?.position === 'left' && 'flex-row items-center gap-x-2'
-            )}
-          >
-            {labelProps?.text && (
-              <label className="block text-xs font-medium" ref={labelRef}>
-                <div className="flex flex-row items-center gap-x-1.5">
-                  <div className="flex flex-row items-center gap-x-0.5">
-                    {required && <span className="text-sm text-ui-error">*</span>}
-                    <span className="text-xs text-text-secondary">{labelProps.text}</span>
-                  </div>
-
-                  {labelProps?.infoText && (
-                    <Tooltip content={labelProps.infoText}>
-                      <HelpIconSm className="text-text-tertiary" />
-                    </Tooltip>
-                  )}
-                </div>
-              </label>
-            )}
-
-            <div
-              ref={ref}
-              className="relative"
-              style={{
-                width: variantToWidth[width]
-              }}
-            >
-              <div
-                tabIndex={0}
-                className={twMerge(
-                  `relative flex w-full items-center gap-x-2 rounded-md bg-ui-background text-text-tertiary ${heights[inputHeight]} border-[0.5px] border-ui-outline transition-colors duration-300`,
-                  disabled
-                    ? 'cursor-not-allowed bg-ui-inactive-background text-ui-inactive-outline'
-                    : 'hover:text-text-primary',
-                  // 'focus:outline-none',
-                  state === 'success' ? 'border-ui-success' : '',
-                  state === 'error' ? 'border-ui-error' : ''
-                )}
-              >
-                <input
-                  ref={inputRef}
-                  onClick={() => {
-                    if (!disabled) {
-                      togglePopup()
-                      setTimeout(() => inputRef.current?.focus(), 0)
-                    }
-                  }}
-                  type="text"
-                  className={twMerge(
-                    'w-full bg-inherit text-text-secondary focus:border-transparent focus:outline-none focus:ring-0',
-                    searchMode === undefined ? 'cursor-pointer' : 'cursor-text',
-                    disabled ? 'cursor-not-allowed' : ''
-                  )}
-                  value={displayText}
-                  readOnly={searchMode === undefined}
-                  onChange={(e) => {
-                    popupRef.current && popupRef.current.open()
-                    setDisplayText(e.target.value)
-                    setSearchString(e.target.value)
-                  }}
-                />
-
-                {showClearButton && !disabled && (
-                  <XCloseSm
-                    onClick={() => {
-                      onChange('')
-                    }}
-                    className="cursor-pointer text-text-secondary"
-                  />
-                )}
-
-                <ChevronDownSm
-                  onClick={() => {
-                    if (!disabled) {
-                      togglePopup()
-                    }
-                  }}
-                  className={`cursor-pointer ${isOpen && !disabled && 'rotate-180'} text-text-secondary duration-300`}
-                />
-              </div>
-            </div>
-          </div>
-
-          {helperText && !isOpen && (
-            <span
-              className={`text-xs ${state === 'success' && 'text-ui-success'} ${state === 'error' && 'text-ui-error'}`}
-              style={{
-                translate: helperOffset
-              }}
-            >
-              {helperText}
-            </span>
-          )}
-        </div>
-      )}
-      on="click"
-      closeOnDocumentClick
-      arrow={false}
-      ref={popupRef}
-      position={['bottom center', 'top center']}
-      repositionOnResize={true}
-      contentStyle={{
-        padding: '0px',
-        border: 'none',
-        ...positionStyle
-      }}
-      onOpen={() => onOpen?.(true)}
-      onClose={() => onOpen?.(false)}
-    >
+    <div className={`flex flex-col gap-y-2 ${width === 'full' ? 'w-full' : 'w-fit'}`}>
       <div
-        ref={contentRef}
-        className={`z-50 flex flex-col overflow-y-auto overflow-x-hidden rounded-lg`}
-        style={{
-          width: triggerWidth,
-          maxHeight: positioning.maxHeight
-        }}
-        onKeyUp={(e) => {
-          if (disabled || !open) return
-
-          let newIndex = activeIndex
-
-          if (activeIndex === -1) {
-            if (e.code === 'ArrowUp') {
-              newIndex = filteredOptions.length - 1
-            } else if (e.code === 'ArrowDown') {
-              newIndex = 0
-            }
-          } else if (e.code === 'ArrowUp') {
-            newIndex = (activeIndex - 1 + filteredOptions.length) % filteredOptions.length
-          } else if (e.code === 'ArrowDown') {
-            newIndex = (activeIndex + 1) % filteredOptions.length
-          }
-
-          setActiveIndex(newIndex)
-
-          if (['Enter', ' '].includes(e.code)) {
-            closePopup()
-            localValue.set(filteredOptions[newIndex].value)
-            setSelectedOptionIndex(newIndex)
-            setDisplayText(filteredOptions[newIndex].label)
-            onChange(filteredOptions[newIndex].value)
-          }
-        }}
+        className={twMerge(
+          'flex',
+          width === 'full' ? 'w-full' : 'w-fit',
+          labelProps?.position === 'top' && 'flex-col gap-y-2',
+          labelProps?.position === 'left' && 'flex-row items-center gap-x-2'
+        )}
       >
-        {filteredOptions.length > 0 &&
-          !disabled &&
-          filteredOptions.map(({ value: currentValue, ...optionProps }, index) => (
-            <DropdownItem
-              key={index}
-              {...optionProps}
-              selected={localValue.value === currentValue}
-              active={index === activeIndex}
-              onMouseDown={(e) => {
-                e.stopPropagation()
-                e.preventDefault()
-                closePopup()
-                localValue.set(currentValue)
-                setSelectedOptionIndex(index)
-                setDisplayText(optionProps.label)
-                onChange(currentValue)
-              }}
-              onMouseEnter={() => {
-                setActiveIndex(index)
-              }}
-              onMouseLeave={() => {
-                setActiveIndex(-1)
-              }}
-              onTouchStart={(e) => {
-                e.stopPropagation()
-                e.preventDefault()
-              }}
-              onTouchMove={() => setTouchedMoved(true)}
-              onTouchEnd={() => {
-                if (!touchMoved) {
-                  closePopup()
-                  localValue.set(currentValue)
-                  setSelectedOptionIndex(index)
-                  setDisplayText(optionProps.label)
-                  onChange(currentValue)
+        {labelProps?.text && (
+          <label className="block text-xs font-medium" ref={labelRef}>
+            <div className="flex flex-row items-center gap-x-1.5">
+              <div className="flex flex-row items-center gap-x-0.5">
+                {required && <span className="text-sm text-[#E11D48]">*</span>}
+                <span className="text-xs text-[#D3D5D9]">{labelProps.text}</span>
+              </div>
+
+              {labelProps?.infoText && (
+                <Tooltip content={labelProps.infoText}>
+                  <HelpIconSm className="text-[#9CA0AA]" />
+                </Tooltip>
+              )}
+            </div>
+          </label>
+        )}
+
+        <div
+          ref={ref}
+          className="relative"
+          style={{
+            width: variantToWidth[width]
+          }}
+        >
+          <div
+            tabIndex={0}
+            className={twMerge(
+              `relative flex w-full items-center gap-x-2 rounded-md border-[0.5px] border-[#42454D] bg-[#141619] text-[#9CA0AA] ${
+                heights[inputHeight]
+              } ${disabled && 'cursor-not-allowed bg-[#191B1F] text-[#6B6F78]'} transition-colors duration-300`,
+              'focus:outline-none',
+              state === 'success' && 'border-[#10B981]',
+              state === 'error' && 'border-[#C3324B]'
+            )}
+            onKeyUp={(e) => {
+              if (disabled || !open) return
+
+              let newIndex = activeIndex
+
+              if (activeIndex === -1) {
+                if (e.code === 'ArrowUp') {
+                  newIndex = filteredOptions.length - 1
+                } else if (e.code === 'ArrowDown') {
+                  newIndex = 0
                 }
-                setTouchedMoved(false)
-              }}
-              onKeyUp={(e) => {
-                if (e.code === 'Enter') {
-                  closePopup()
-                  localValue.set(currentValue)
-                  setSelectedOptionIndex(index)
-                  setDisplayText(optionProps.label)
-                  onChange(currentValue)
+              } else if (e.code === 'ArrowUp') {
+                newIndex = (activeIndex - 1 + filteredOptions.length) % filteredOptions.length
+              } else if (e.code === 'ArrowDown') {
+                newIndex = (activeIndex + 1) % filteredOptions.length
+              }
+
+              setActiveIndex(newIndex)
+              if (['Enter', ' '].includes(e.code)) {
+                setOpen(false)
+                setLocalValue(filteredOptions[newIndex].value)
+                setSelectedOptionIndex(newIndex)
+                setDisplayText(filteredOptions[newIndex].label)
+                onChange(filteredOptions[newIndex].value)
+              }
+            }}
+          >
+            <input
+              onClick={() => {
+                if (!disabled) {
+                  setOpen((v) => !v)
                 }
+              }}
+              type="text"
+              className={twMerge(
+                'w-full bg-inherit focus:outline-none',
+                searchMode === undefined ? 'cursor-pointer' : 'cursor-text'
+              )}
+              value={displayText}
+              readOnly={searchMode === undefined}
+              onChange={(e) => {
+                if (!open) {
+                  setOpen(true)
+                }
+                setSearchString(e.target.value)
+                setDisplayText(e.target.value)
               }}
             />
-          ))}
 
-        {filteredOptions.length === 0 && !disabled && (
-          <div className="flex h-12 items-center justify-center bg-ui-background text-text-secondary">
-            No options available
+            {showClearButton && (
+              <XCloseSm
+                onClick={() => {
+                  onChange('')
+                }}
+                className="cursor-pointer"
+              />
+            )}
+
+            <ChevronDownSm className={`${open && 'rotate-180'} duration-300`} />
           </div>
-        )}
+
+          {open && (
+            <div
+              className={`absolute z-50 flex w-full flex-col overflow-y-auto overflow-x-hidden rounded-lg ${
+                positioning.direction === 'down' && 'top-[calc(100%+0.5rem)]'
+              } ${positioning.direction === 'up' && 'bottom-[calc(100%+0.5rem)]'}`}
+              style={{
+                maxHeight: '150px'
+              }}
+            >
+              {filteredOptions.length > 0 ? (
+                filteredOptions.map(({ value: currentValue, ...optionProps }, index) => (
+                  <DropdownItem
+                    key={index}
+                    {...optionProps}
+                    selected={localValue === currentValue}
+                    active={index === activeIndex}
+                    onClick={() => {
+                      setOpen(false)
+                      setLocalValue(currentValue)
+                      setSelectedOptionIndex(index)
+                      setDisplayText(optionProps.label)
+                      onChange(currentValue)
+                    }}
+                    onMouseEnter={() => {
+                      setActiveIndex(index)
+                    }}
+                    onMouseLeave={() => {
+                      setActiveIndex(-1)
+                    }}
+                    onKeyUp={(e) => {
+                      if (e.code === 'Enter') {
+                        setOpen(false)
+                        setLocalValue(currentValue)
+                        setSelectedOptionIndex(index)
+                        setDisplayText(optionProps.label)
+                        onChange(currentValue)
+                      }
+                    }}
+                  />
+                ))
+              ) : (
+                <div className="flex h-12 items-center justify-center bg-[#141619] text-[#9CA0AA]">
+                  No options available
+                </div>
+              )}
+              {/* {} */}
+            </div>
+          )}
+        </div>
       </div>
-    </Popup>
+
+      {helperText && !open && (
+        <span
+          className={`text-xs ${state === 'success' && 'text-[#0D9467]'} ${state === 'error' && 'text-[#C3324B]'}`}
+          style={{
+            translate: helperOffset
+          }}
+        >
+          {helperText}
+        </span>
+      )}
+    </div>
   )
 }
 

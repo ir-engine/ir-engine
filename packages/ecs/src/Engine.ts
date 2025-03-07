@@ -29,18 +29,18 @@ import { getAllEntities } from 'bitecs'
 import * as Hyperflux from '@ir-engine/hyperflux'
 import {
   createHyperStore,
+  disposeStore,
   getState,
   HyperFlux,
   HyperStore,
   NO_PROXY_STEALTH,
-  stopAllReactors
+  ReactorReconciler
 } from '@ir-engine/hyperflux'
 
 import { ECSState } from './ECSState'
-import { EngineState } from './EngineState'
 import { Entity } from './Entity'
-import { $RemovedComponent, removeEntity } from './EntityFunctions'
-import { queries, removeQuery } from './QueryFunctions'
+import { removeEntity } from './EntityFunctions'
+import { removeQuery } from './QueryFunctions'
 import { SystemState } from './SystemState'
 
 export class Engine {
@@ -51,7 +51,7 @@ export class Engine {
    * The uuid of the logged-in user
    */
   get userID() {
-    return getState(EngineState).userID
+    return Engine.instance.store.stateMap['EngineState']?.get(NO_PROXY_STEALTH).userID
   }
 
   store: HyperStore
@@ -95,39 +95,26 @@ export function createEngine(hyperstore = createHyperStore()) {
   hyperstore.getCurrentReactorRoot = () =>
     getState(SystemState).activeSystemReactors.get(getState(SystemState).currentSystemUUID)
   hyperstore.getDispatchTime = () => getState(ECSState).simulationTime
-  hyperstore.getAgentID = () => getState(EngineState).userID
   Engine.instance.store = bitECS.createWorld(hyperstore) as HyperStore
   const UndefinedEntity = bitECS.addEntity(hyperstore)
 }
 
 export function destroyEngine() {
-  /** Clear timer */
   getState(ECSState).timer?.clear()
 
-  try {
-    /** Remove all entities */
-    const entities = getAllEntities(HyperFlux.store) as Entity[]
+  /** Remove all entities */
+  const entities = getAllEntities(HyperFlux.store) as Entity[]
+
+  ReactorReconciler.flushSync(() => {
     for (const entity of entities) removeEntity(entity)
-  } catch (e) {
-    //some errors are thrown because we have side effects in component onRemove - we need to move that logic to reactors
+  })
+
+  for (const query of getState(SystemState).reactiveQueryStates) {
+    removeQuery(query.query)
   }
 
-  $RemovedComponent.exists.fill(0)
+  disposeStore()
 
-  /** Remove all queries */
-  for (const query of queries) {
-    removeQuery(query)
-  }
-
-  /** Stop all reactors */
-  stopAllReactors()
-
-  /** Remove world */
   bitECS.deleteWorld(HyperFlux.store)
-
-  /** Dereference store */
-  HyperFlux.store = null!
-
-  /** Dereference engine */
   Engine.instance = null!
 }

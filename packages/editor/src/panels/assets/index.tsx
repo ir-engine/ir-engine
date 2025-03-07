@@ -23,14 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
 import { PanelDragContainer, PanelTitle } from '@ir-engine/ui/src/components/editor/layout/Panel'
 import { TabData } from 'rc-dock'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import FileBrowser from '../files/filebrowser'
-import { CurrentFilesQueryProvider } from '../files/helpers'
-import FilesToolbar from '../files/toolbar'
+import { FileUploadProgress } from '../files/loaders'
 import CategoriesList, { VerticalDivider } from './categories'
 import { AssetsQueryProvider } from './hooks'
 import Resources from './resources'
@@ -57,33 +54,14 @@ export const AssetsPanelTab: TabData = {
   content: <AssetsContainer />
 }
 
-enum SidebarType {
-  FAVORITES = 'favorites',
-  ASSETS = 'assets',
-  FILES = 'files'
-}
-
 function AssetsContainer() {
-  const sidebarType = useHookstate(undefined)
-
-  const toolbar = sidebarType.value === SidebarType.FILES ? <FilesToolbar /> : <Topbar />
-  const rightChildren = sidebarType.value === SidebarType.FILES ? <FileBrowser /> : <Resources />
-
-  const handleSidebarChange = (category) => {
-    sidebarType.set(category)
-  }
-
   return (
     <div className="flex h-full flex-col">
-      <CurrentFilesQueryProvider>
-        <AssetsQueryProvider>
-          {toolbar}
-          <VerticalDivider
-            leftChildren={<CategoriesList selected={sidebarType.value} onClick={handleSidebarChange} />}
-            rightChildren={rightChildren}
-          />
-        </AssetsQueryProvider>
-      </CurrentFilesQueryProvider>
+      <AssetsQueryProvider>
+        <Topbar />
+        <FileUploadProgress />
+        <VerticalDivider leftChildren={<CategoriesList />} rightChildren={<Resources />} />
+      </AssetsQueryProvider>
     </div>
   )
 }

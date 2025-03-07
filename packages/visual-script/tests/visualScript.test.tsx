@@ -45,7 +45,6 @@ import {
   UUIDComponent
 } from '@ir-engine/ecs'
 import { createEngine } from '@ir-engine/ecs/src/Engine'
-import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
 import {
   getOnAsyncExecuteSystemUUID,
   getOnExecuteSystemUUID,
@@ -54,7 +53,8 @@ import {
   registerEngineProfile,
   VisualScriptComponent,
   VisualScriptDomain
-} from '@ir-engine/engine/src/visualscript/VisualScriptModule'
+} from '@ir-engine/engine'
+import { parseStorageProviderURLs } from '@ir-engine/engine/src/assets/functions/parseSceneJSON'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { initializeSpatialEngine } from '@ir-engine/spatial/src/initializeEngine'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'

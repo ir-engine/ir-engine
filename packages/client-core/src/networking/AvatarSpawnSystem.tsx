@@ -33,7 +33,7 @@ import {
   getComponent,
   getOptionalComponent,
   PresentationSystemGroup,
-  useHasComponent,
+  useOptionalComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
@@ -130,19 +130,17 @@ export const AvatarSpawnReactor = (props: { sceneEntity: Entity }) => {
   }, [isSpectating, !!userAvatar])
 
   const selfAvatarEntity = AvatarComponent.useSelfAvatarEntity()
-  const errorWithAvatar = useHasComponent(selfAvatarEntity, ErrorComponent)
-  const isMissingAvatar = userAvatarQuery.data.length === 0 && userAvatarQuery.status === 'success'
-  const needsNewAvatar = errorWithAvatar || isMissingAvatar
+  const errorWithAvatar = !!useOptionalComponent(selfAvatarEntity, ErrorComponent)
 
   const userAvatarMutation = useMutation(userAvatarPath)
 
   const avatarsQuery = useFind(avatarPath)
 
   useEffect(() => {
-    if (!needsNewAvatar || !avatarsQuery.data.length) return
+    if (!errorWithAvatar || !avatarsQuery.data.length) return
     const randomAvatar = avatarsQuery.data[Math.floor(Math.random() * avatarsQuery.data.length)]
     userAvatarMutation.patch(null, { avatarId: randomAvatar.id }, { query: { userId: userID } })
-  }, [needsNewAvatar])
+  }, [errorWithAvatar])
 
   useEffect(() => {
     if (isSpectating || !userAvatar) return

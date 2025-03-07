@@ -33,7 +33,7 @@ import {
 import { BatchDeleteImageCommand, DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
 import { fromIni } from '@aws-sdk/credential-providers'
 import config from '@ir-engine/server-core/src/appconfig'
-import { CoreV1Api, KubeConfig } from '@kubernetes/client-node'
+import * as k8s from '@kubernetes/client-node'
 import cli from 'cli'
 import fs from 'fs'
 
@@ -54,16 +54,18 @@ const K8S_PAGE_LIMIT = 1
 const ECR_PAGE_LIMIT = 10
 
 const getAllPods = async (k8Client, continueValue, labelSelector, pods = []) => {
-  const matchingPods = await k8Client.listNamespacedPod({
-    namespace: config.server.namespace,
-    pretty: 'false',
-    _continue: continueValue,
+  const matchingPods = await k8Client.listNamespacedPod(
+    'default',
+    'false',
+    false,
+    continueValue,
+    undefined,
     labelSelector,
-    limit: K8S_PAGE_LIMIT
-  })
-  if (matchingPods?.items) pods = pods.concat(matchingPods.items)
-  if (matchingPods.metadata?._continue)
-    return await getAllPods(k8Client, matchingPods.metadata._continue, labelSelector, pods)
+    K8S_PAGE_LIMIT
+  )
+  if (matchingPods?.body?.items) pods = pods.concat(matchingPods.body.items)
+  if (matchingPods.body.metadata?._continue)
+    return await getAllPods(k8Client, matchingPods.body.metadata._continue, labelSelector, pods)
   else return pods
 }
 
@@ -108,9 +110,9 @@ cli.main(async () => {
       excludedImageDigests = [] as string[],
       currentImages = [] as string[]
     if (options.service !== 'builder') {
-      const kc = new KubeConfig()
+      const kc = new k8s.KubeConfig()
       kc.loadFromDefault()
-      const k8DefaultClient = kc.makeApiClient(CoreV1Api)
+      const k8DefaultClient = kc.makeApiClient(k8s.CoreV1Api)
       if (options.service === 'instanceserver') {
         matchingPods = await getAllPods(k8DefaultClient, undefined, `agones.dev/role=gameserver`, [])
         const releaseAnnotation = `${options.releaseName}-instanceserver`

@@ -1,0 +1,54 @@
+$MobileControllButtonsSize: 3em;
+
+.stickLeft {
+  position: fixed;
+  bottom: 110px;
+  width: 50%;
+  left: 0;
+  pointer-events: auto;
+
+  div {
+    margin: auto;
+  }
+
+  @media (max-width: 478px) {
+    left: 25px;
+    bottom: 30px;
+  }
+}
+
+.controlButtonContainer {
+  position: fixed;
+  border-radius: 50%;
+  right: 150px;
+  bottom: 10px;
+  line-height: ($MobileControllButtonsSize + 1em);
+  pointer-events: auto;
+
+  .controllButton {
+    position: absolute;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 40%);
+    opacity: 0.75;
+    bottom: 20px;
+    font-size: 20px;
+    height: $MobileControllButtonsSize;
+    width: $MobileControllButtonsSize;
+    text-align: center;
+    border: 1px solid #fff;
+
+    >svg {
+      height: 2em;
+    }
+
+    &.availableButton {
+      opacity: 1;
+      border: 1px solid #ff0;
+      box-shadow: 0 0 10px rgb(255 255 0 / 100%);
+    }
+
+    &.notAvailableButton {
+      opacity: 0;
+    }
+  }
+}

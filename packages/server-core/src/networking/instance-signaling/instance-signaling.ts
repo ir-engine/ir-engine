@@ -52,6 +52,7 @@ import { MessageTypes } from '@ir-engine/network/src/webrtc/WebRTCTransportFunct
 import crypto from 'crypto'
 import { Application } from '../../../declarations'
 import { ServerMode, ServerState } from '../../ServerState'
+import config from '../../appconfig'
 
 const logger = multiLogger.child({ component: 'instance-signaling' })
 
@@ -147,7 +148,11 @@ const peerJoin = async (app: Application, data: InstanceSignalingDataType, param
       }
     })
   ) as WebRTCSettings
-  const iceServers: IceServer[] = webRTCSettings.useCustomICEServers ? webRTCSettings.iceServers : PUBLIC_STUN_SERVERS
+  const iceServers: IceServer[] = webRTCSettings.useCustomICEServers
+    ? webRTCSettings.iceServers
+    : config.kubernetes.enabled
+    ? PUBLIC_STUN_SERVERS
+    : []
 
   /** Duplicated from WebRTCFunctions.ts */
   if (webRTCSettings.useCustomICEServers) {

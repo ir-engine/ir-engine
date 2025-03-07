@@ -25,7 +25,6 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { Cache, LoadingManager } from 'three'
 
-import { parseStorageProviderURLs } from '../../functions/parseSceneJSON'
 import { Loader } from './Loader'
 
 const loading = {}
@@ -43,7 +42,6 @@ class FileLoader<TData = unknown> extends Loader<TData> {
   responseType: undefined | string
 
   constructor(manager?: LoadingManager) {
-    manager?.setURLModifier((url) => parseStorageProviderURLs(url))
     super(manager)
   }
 
@@ -65,10 +63,7 @@ class FileLoader<TData = unknown> extends Loader<TData> {
     if (cached !== undefined) {
       this.manager.itemStart(url)
 
-      // for some reason, not having setTimeout can cause weird issues with reactors when coming from the cache
-      setTimeout(() => {
-        if (onLoad) onLoad(cached)
-      }, 0)
+      if (onLoad) onLoad(cached)
 
       this.manager.itemEnd(url)
 

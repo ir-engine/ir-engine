@@ -25,7 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import {
   createEngine,
+  createEntity,
   destroyEngine,
+  EntityTreeComponent,
   generateEntityUUID,
   getComponent,
   getOptionalComponent,
@@ -35,16 +37,24 @@ import {
 } from '@ir-engine/ecs'
 import { applyIncomingActions } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import { act, render } from '@testing-library/react'
+import { render } from '@testing-library/react'
+import React from 'react'
 import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createTestGLTFEntity } from '../../../tests/avatar/mockAnimatedAvatar'
-import { startEngineReactor } from '../../../tests/startEngineReactor'
 import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
 import { GLTFComponent } from '../../gltf/GLTFComponent'
 import { mixamoVRMRigMap } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { retargetAnimationClips } from './retargetingFunctions'
+
+export const createTestGLTFEntity = () => {
+  const parent = createEntity()
+  setComponent(parent, EntityTreeComponent)
+  setComponent(parent, UUIDComponent, generateEntityUUID())
+  const entity = createEntity()
+  setComponent(entity, EntityTreeComponent, { parentEntity: parent })
+  return entity
+}
 
 const default_url = 'packages/projects/default-project/assets'
 const animation_pack = default_url + '/animations/emotes.glb'
@@ -55,7 +65,6 @@ describe('retargetingFunctions', () => {
 
     beforeEach(() => {
       createEngine()
-      startEngineReactor()
     })
 
     afterEach(() => {
@@ -69,14 +78,11 @@ describe('retargetingFunctions', () => {
       setComponent(entity, GLTFComponent, { src: animation_pack })
       setComponent(entity, NameComponent, 'animationPack')
 
-      await act(() => render(null))
-
+      const { rerender, unmount } = render(<></>)
       applyIncomingActions()
-
       //extra wait for animation component to prevent race conditions
       await vi.waitFor(
-        async () => {
-          await act(() => render(null))
+        () => {
           expect(getOptionalComponent(entity, AnimationComponent)).toBeTruthy()
         },
         { timeout: 20000 }
@@ -96,6 +102,8 @@ describe('retargetingFunctions', () => {
           assert.equal(!!rig[track.name.split('.')[0]], true)
         }
       }
+
+      unmount()
     })
   })
 })

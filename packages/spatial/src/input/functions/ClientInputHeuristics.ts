@@ -39,7 +39,7 @@ import {
   UndefinedEntity,
   UUIDComponent
 } from '@ir-engine/ecs'
-import { defineState, getMutableState, getState } from '@ir-engine/hyperflux'
+import { defineState, getState } from '@ir-engine/hyperflux'
 import { Quaternion, Ray, Raycaster, Vector3 } from 'three'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/MathConstants'
@@ -75,24 +75,9 @@ export type HeuristicFunctions = (
   direction: Vector3
 ) => void
 
-const sortOrder = (a, b) => b.order - a.order
-
 export const InputHeuristicState = defineState({
   name: 'ir.spatial.input.InputHeuristicState',
-  initial: [] as Array<{ order: HeuristicOrder; heuristic: HeuristicFunctions }>,
-
-  addHeuristic: (order: HeuristicOrder, heuristic: HeuristicFunctions) => {
-    const state = getMutableState(InputHeuristicState)
-    state.set((arr) =>
-      [
-        ...arr,
-        {
-          order,
-          heuristic
-        }
-      ].sort(sortOrder)
-    )
-  }
+  initial: [] as Array<{ order: HeuristicOrder; heuristic: HeuristicFunctions }>
 })
 
 /**Proximity query */
@@ -207,7 +192,7 @@ export function findRaycastedInput(sourceEid: Entity, intersectionData: Set<Inte
 
   TransformComponent.getWorldPosition(sourceEid, position).addScaledVector(direction, -0.01)
 
-  const heuristics = getState(InputHeuristicState)
+  const heuristics = [...getState(InputHeuristicState)].sort((a, b) => b.order - a.order)
 
-  for (const h of heuristics) h.heuristic(intersectionData, position, direction)
+  for (const { heuristic } of heuristics) heuristic(intersectionData, position, direction)
 }

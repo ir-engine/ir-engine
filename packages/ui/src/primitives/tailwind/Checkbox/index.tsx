@@ -105,14 +105,17 @@ const Checkbox = (
     >
       <div
         className={twMerge(
-          'relative shrink-0',
+          'relative',
           'grid place-items-center rounded',
           variantSizes.checkboxSizes[variantSize],
-          'border border-ui-outline bg-ui-background outline-none',
-          (checked || indeterminate) && 'border-ui-select-primary bg-ui-select-background',
-          disabled
-            ? 'cursor-not-allowed border-ui-inactive-outline bg-ui-inactive-background'
-            : 'group-hover/checkbox:border-ui-hover-primary group-hover/checkbox:bg-ui-hover-background'
+          'border border-[#42454D] bg-[#141619] outline-none',
+          !checked &&
+            !indeterminate &&
+            !disabled &&
+            'group-hover/checkbox:border-[#9CA0AA] group-hover/checkbox:bg-[#191B1F]',
+          !checked && !disabled && 'group-focus/checkbox:border-[#375DAF] group-focus/checkbox:bg-[#212226]',
+          (checked || indeterminate) && 'border-[#375DAF] bg-[#212226]',
+          disabled && 'cursor-not-allowed border-[#42454D] bg-[#191B1F]'
         )}
         onClick={handleChange}
         ref={ref}
@@ -120,10 +123,9 @@ const Checkbox = (
         <CheckLg
           onClick={handleChange}
           className={twMerge(
-            'absolute transition-[transform,color] duration-200 ease-in-out',
-            'text-ui-primary focus:text-ui-select-primary',
+            'absolute transition-transform duration-200 ease-in-out',
             variantSizes.iconSizes[variantSize],
-            disabled ? 'cursor-not-allowed text-ui-inactive-primary' : 'group-hover/checkbox:text-ui-hover-primary',
+            disabled ? 'cursor-not-allowed text-[#42454D]' : 'text-[#5F7DBF]',
             checked ? 'scale-100' : 'scale-0'
           )}
         />
@@ -132,9 +134,8 @@ const Checkbox = (
           onClick={handleChange}
           className={twMerge(
             'absolute transition-transform duration-200 ease-in-out',
-            'text-ui-primary focus:text-ui-select-primary',
             variantSizes.iconSizes[variantSize],
-            disabled ? 'cursor-not-allowed text-ui-inactive-primary' : 'group-hover/checkbox:text-ui-hover-primary',
+            disabled ? 'cursor-not-allowed text-[#42454D]' : 'text-[#5F7DBF]',
             indeterminate ? 'scale-100' : 'scale-0'
           )}
         />
@@ -144,15 +145,19 @@ const Checkbox = (
         <div
           className={twMerge(
             variantSizes.textSizes[variantSize],
-            'cursor-pointer text-text-secondary focus:text-text-primary',
+            'cursor-pointer text-[#D3D5D9]',
             variantTextPlacement === 'left' && 'text-right',
-            disabled ? 'cursor-not-allowed text-text-inactive' : 'group-hover/checkbox:text-text-primary',
+            disabled && 'cursor-auto text-[#6B6F78]',
             description && 'grid gap-y-1',
             variantSizes.textLineHeight[variantSize]
           )}
           onClick={handleChange}
         >
-          <p>{label}</p>
+          <p
+            className={twMerge(!disabled && 'group-hover/checkbox:text-[#F5F5F5] group-focus/checkbox:text-[#F5F5F5]')}
+          >
+            {label}
+          </p>
           <p className={twMerge('block text-wrap', variantSizes.maxDescriptionWidth[variantSize])}>{description}</p>
         </div>
       )}

@@ -31,20 +31,20 @@ import {
 import { toDisplayDateTime } from '@ir-engine/common/src/utils/datetime-sql'
 import { Engine } from '@ir-engine/ecs'
 import { State, getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { Checkbox } from '@ir-engine/ui'
+import { Button, Checkbox } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import { Edit01Lg, InfoCircleLg, Trash04Lg } from '@ir-engine/ui/src/icons'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Tooltip from '@ir-engine/ui/src/primitives/tailwind/Tooltip'
 import { truncateText } from '@ir-engine/ui/src/primitives/tailwind/TruncatedText'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { FaRegCircleCheck, FaRegCircleXmark } from 'react-icons/fa6'
+import { HiPencil, HiTrash } from 'react-icons/hi2'
+import { LuInfo } from 'react-icons/lu'
 import { PopoverState } from '../../../common/services/PopoverState'
 import { AuthState } from '../../../user/services/AuthService'
 import DataTable from '../../common/Table'
 import { UserRowType, userColumns } from '../../common/constants/user'
-import ActionButton from '../ActionButton'
 import AccountIdentifiers from './AccountIdentifiers'
 import AddEditUserModal from './AddEditUserModal'
 
@@ -134,7 +134,7 @@ export default function UserTable({
                 </>
               }
             >
-              <InfoCircleLg className="ml-2 h-5 w-5 bg-transparent text-text-secondary hover:text-text-primary" />
+              <LuInfo className="ml-2 h-5 w-5 bg-transparent" />
             </Tooltip>
           </div>
         ) : (
@@ -176,23 +176,27 @@ export default function UserTable({
         lastLogin: <RenderLogin />,
 
         ageVerified: row.ageVerified ? (
-          <FaRegCircleCheck className="h-5 w-5 " />
+          <FaRegCircleCheck className="h-5 w-5 text-theme-iconGreen" />
         ) : (
-          <FaRegCircleXmark className="h-5 w-5 " />
+          <FaRegCircleXmark className="h-5 w-5 text-theme-iconRed" />
         ),
         isGuest: row.isGuest.toString(),
         createdAt: toDisplayDateTime(row.createdAt),
         action: (
           <div className="flex items-center justify-start gap-3">
-            <ActionButton
-              icon={Edit01Lg}
+            <Button
+              variant="tertiary"
+              className="h-8 w-8"
+              disabled={!userHasAccess}
               title={t('admin:components.common.view')}
               onClick={() => PopoverState.showPopupover(<AddEditUserModal user={row} />)}
-              variant="green"
-            />
-
-            <ActionButton
-              icon={Trash04Lg}
+            >
+              <HiPencil className="text-theme-iconGreen" />
+            </Button>
+            <Button
+              variant="tertiary"
+              className="h-8 w-8"
+              disabled={user.id.value === row.id}
               title={t('admin:components.common.delete')}
               onClick={() => {
                 PopoverState.showPopupover(
@@ -204,8 +208,9 @@ export default function UserTable({
                   />
                 )
               }}
-              variant="red"
-            />
+            >
+              <HiTrash className="text-theme-iconRed" />
+            </Button>
           </div>
         )
       }

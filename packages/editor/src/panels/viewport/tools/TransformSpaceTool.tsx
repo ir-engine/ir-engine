@@ -54,9 +54,11 @@ const TransformSpaceTool = () => {
   const transformSpace = useHookstate(getMutableState(EditorHelperState).transformSpace)
 
   return (
-    <div className="flex items-center gap-x-1 rounded">
+    <div className="flex items-center rounded bg-[#0E0F11]">
       <Tooltip content={t('editor:toolbar.transformSpace.lbl-toggleTransformSpace')}>
-        <ViewportButton onClick={toggleTransformSpace} icon={Globe01Md} />
+        <ViewportButton onClick={toggleTransformSpace}>
+          <Globe01Md />
+        </ViewportButton>
       </Tooltip>
       <ToolbarDropdown
         tooltipTitle={
@@ -70,7 +72,7 @@ const TransformSpaceTool = () => {
         options={transformSpaceOptions}
         value={transformSpace.value}
         width="full"
-        inputHeight="l"
+        inputHeight="xs"
         dropdownParentClassName="w-[106px]"
       />
     </div>

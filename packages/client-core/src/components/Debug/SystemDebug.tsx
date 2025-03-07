@@ -40,7 +40,6 @@ import { SystemState } from '@ir-engine/ecs/src/SystemState'
 import { getMutableState, getState, useHookstate } from '@ir-engine/hyperflux'
 import { Button } from '@ir-engine/ui'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import { useFrameUpdate } from './useFrameUpdate'
 
 const col = new Color()
 const col2 = new Color()
@@ -54,17 +53,18 @@ const convertSystemExecutionTimeToColor = (systemDuration: number, targetTimeste
 }
 
 export const SystemDebug = () => {
+  useHookstate(getMutableState(ECSState).frameTime).value
   const performanceProfilingEnabled = useHookstate(getMutableState(SystemState).performanceProfilingEnabled)
   const { t } = useTranslation()
 
   return (
     <div className="m-1 bg-neutral-600 p-1">
-      <Text className="text-text-primary-button">{t('common:debug.systems')}</Text>
+      <Text>{t('common:debug.systems')}</Text>
       <Button
         onClick={() => performanceProfilingEnabled.set((val) => !val)}
         variant={performanceProfilingEnabled.value ? 'secondary' : 'tertiary'}
       >
-        <span className="text-text-primary-button">Profile</span>
+        {'Profile'}
       </Button>
       <SystemDagView uuid={InputSystemGroup} />
       <SystemDagView uuid={SimulationSystemGroup} />
@@ -77,8 +77,7 @@ export const SystemDebug = () => {
 export const SystemDagView = (props: { uuid: SystemUUID }) => {
   const { t } = useTranslation()
 
-  useFrameUpdate()
-
+  useHookstate(getMutableState(ECSState).frameTime).value
   const performanceProfilingEnabled = useHookstate(getMutableState(SystemState).performanceProfilingEnabled)
 
   return (

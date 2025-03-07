@@ -44,10 +44,6 @@ export const toDisplayDateTime = (date: string | null | undefined) => {
     : '-'
 }
 
-export const toDisplayDateTimeUtc = (date: string | null | undefined) => {
-  return date ? new Date(date).toISOString().slice(0, 19).replace('T', ' ') : '-'
-}
-
 // https://stackoverflow.com/a/11150727
 export const fromDateTimeSql = (date: string) => {
   let dateObj: Date

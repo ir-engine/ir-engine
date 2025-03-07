@@ -23,40 +23,25 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 
 import { PopoverState } from '@ir-engine/client-core/src/common/services/PopoverState'
-import { NO_PROXY, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, NO_PROXY, useHookstate } from '@ir-engine/hyperflux'
 
 import ClickawayListener from '../ClickawayListener'
 
 const PopupMenu = () => {
-  const popups = useMutableState(PopoverState).popups
-
-  const currentOnClose = useHookstate<{
-    callback: VoidFunction | null
-  }>({
-    callback: null
-  })
-
-  useEffect(() => {
-    if (popups.length > 0) {
-      currentOnClose.set({
-        callback: popups[popups.length - 1].get(NO_PROXY).onClickOutside
-      })
-    }
-  }, [popups])
-
-  if (popups.length === 0) {
-    return null
-  }
-
+  const popoverElement = useHookstate(getMutableState(PopoverState).elements)
   return (
-    <ClickawayListener onClickOutside={currentOnClose.get(NO_PROXY).callback}>
-      {popups.get(NO_PROXY).map((popupData, idx) => (
-        <React.Fragment key={idx}>{popupData.element}</React.Fragment>
-      ))}
-    </ClickawayListener>
+    <>
+      {popoverElement.get(NO_PROXY).map((element, idx) => {
+        return (
+          <div key={idx} className="block">
+            <ClickawayListener isTopMost={idx === popoverElement.length - 1}>{element ?? undefined}</ClickawayListener>
+          </div>
+        )
+      })}
+    </>
   )
 }
 PopupMenu.displayName = 'PopupMenu'

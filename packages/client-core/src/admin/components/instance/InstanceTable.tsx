@@ -25,15 +25,15 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useFind, useMutation, useSearch } from '@ir-engine/common'
 import { InstanceType, instancePath } from '@ir-engine/common/src/schema.type.module'
-import { isValidId } from '@ir-engine/common/src/utils/isValidId'
+import { Button } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
-import { EyeLg, Trash04Lg } from '@ir-engine/ui/src/icons'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { HiEye, HiTrash } from 'react-icons/hi2'
+import { validate as isValidUUID } from 'uuid'
 import { PopoverState } from '../../../common/services/PopoverState'
 import DataTable from '../../common/Table'
 import { instanceColumns } from '../../common/constants/instance'
-import ActionButton from '../ActionButton'
 import ViewModal from './ViewModal'
 
 export default function InstanceTable({ search }: { search: string }) {
@@ -51,13 +51,13 @@ export default function InstanceTable({ search }: { search: string }) {
     {
       $or: [
         {
-          id: isValidId(search) ? search : undefined
+          id: isValidUUID(search) ? search : undefined
         },
         {
-          locationId: isValidId(search) ? search : undefined
+          locationId: isValidUUID(search) ? search : undefined
         },
         {
-          channelId: isValidId(search) ? search : undefined
+          channelId: isValidUUID(search) ? search : undefined
         }
       ]
     },
@@ -76,15 +76,18 @@ export default function InstanceTable({ search }: { search: string }) {
       podName: row.podName,
       action: (
         <div className="flex items-center justify-start gap-3 px-2 py-1">
-          <ActionButton
-            icon={EyeLg}
+          <Button
+            className="bg-theme-blue-secondary text-blue-700 dark:text-white"
             onClick={() => {
               PopoverState.showPopupover(<ViewModal instanceId={row.id} />)
             }}
-          />
-
-          <ActionButton
-            icon={Trash04Lg}
+            size="sm"
+          >
+            <HiEye className="text-blue-700 dark:text-white" />
+            {t('admin:components.instance.actions.view')}
+          </Button>
+          <Button
+            className="h-8 w-8 justify-center border border-theme-primary bg-transparent p-0"
             onClick={() => {
               PopoverState.showPopupover(
                 <ConfirmDialog
@@ -95,8 +98,9 @@ export default function InstanceTable({ search }: { search: string }) {
                 />
               )
             }}
-            variant="red"
-          />
+          >
+            <HiTrash className="place-self-center text-theme-iconRed" />
+          </Button>
         </div>
       )
     }))

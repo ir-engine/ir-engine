@@ -23,10 +23,8 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { Entity, getComponent } from '@ir-engine/ecs'
+import { Entity } from '@ir-engine/ecs'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
-import { TransformComponent } from '@ir-engine/spatial'
-import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent.ts'
 import { EffectReactorProps, PostProcessingEffectState } from '@ir-engine/spatial/src/renderer/effects/EffectRegistry'
 import { ShockWaveEffect } from 'postprocessing'
 import React, { useEffect } from 'react'
@@ -60,11 +58,7 @@ export const ShockWaveEffectProcessReactor: React.FC<EffectReactorProps> = (prop
       if (effects[effectKey].value) effects[effectKey].set(none)
       return
     }
-    const camera = getComponent(rendererEntity, CameraComponent)
-    const cameraPosition = new Vector3()
-    TransformComponent.getWorldPosition(rendererEntity, cameraPosition)
-
-    const eff = new ShockWaveEffect(camera, cameraPosition, effectData[effectKey].value)
+    const eff = new ShockWaveEffect(effectData[effectKey].value)
     effects[effectKey].set(eff)
     return () => {
       effects[effectKey].set(none)

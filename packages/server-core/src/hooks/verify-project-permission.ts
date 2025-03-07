@@ -89,8 +89,6 @@ export default (types: string[]) => {
       throw new Forbidden('Missing required project permission for ' + project.name)
     }
 
-    context.projectPermissions = data
-
     return context
   }
 }

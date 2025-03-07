@@ -67,7 +67,7 @@ export const EulerInput = ({ disabled, quaternion, onRelease, unit, onChange, ..
   }
 
   return (
-    <div className="grid w-full grid-cols-3 gap-x-2">
+    <div className="flex flex-wrap justify-end gap-1.5">
       <NumericInput
         disabled={disabled}
         value={angle.x}

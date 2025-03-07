@@ -29,12 +29,12 @@ import { Joystick } from 'react-joystick-component'
 import { InteractableState } from '@ir-engine/engine/src/interaction/functions/interactableFunctions'
 import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { isTouchAvailable } from '@ir-engine/spatial/src/common/functions/DetectFeatures'
-import { AnyButton } from '@ir-engine/spatial/src/input/state/ButtonState'
+import { AnyButton, XRStandardGamepadButton } from '@ir-engine/spatial/src/input/state/ButtonState'
 import { XRState, isMobileXRHeadset } from '@ir-engine/spatial/src/xr/XRState'
-import { IJoystickUpdateEvent } from 'react-joystick-component/build/lib/Joystick'
+import Icon from '@ir-engine/ui/src/primitives/mui/Icon'
+
 import { AppState } from '../../services/AppService'
-import BasepadImage from './basepad.svg'
-import StickypadImage from './stickypad.svg'
+import styles from './index.module.scss'
 
 const triggerButton = (button: AnyButton, pressed: boolean): void => {
   const eventType = pressed ? 'touchgamepadbuttondown' : 'touchgamepadbuttonup'
@@ -42,9 +42,7 @@ const triggerButton = (button: AnyButton, pressed: boolean): void => {
   document.dispatchEvent(event)
 }
 
-const handleMove = (e: IJoystickUpdateEvent) => {
-  if (!e.x || !e.y) return
-
+const handleMove = (e) => {
   const event = new CustomEvent('touchstickmove', {
     detail: {
       stick: 'LeftStick',
@@ -62,7 +60,12 @@ const handleStop = () => {
   document.dispatchEvent(event)
 }
 
-const buttonsConfig: Array<{ button: AnyButton; label: React.ReactElement }> = []
+const buttonsConfig: Array<{ button: AnyButton; label: React.ReactElement }> = [
+  {
+    button: XRStandardGamepadButton.XRStandardGamepadTrigger,
+    label: <Icon type="TouchApp" />
+  }
+]
 
 export const TouchGamepad = () => {
   const interactableState = useMutableState(InteractableState)
@@ -93,27 +96,26 @@ export const TouchGamepad = () => {
     !appState.showTouchPad.value ||
     hasGamepad.value
   )
-    return null
+    return <></>
 
-  const buttons = buttonsConfig.map((value, index) => (
-    <div
-      key={index}
-      className="bg-[rgb(255,255,255, 0.4)] bottom-5 h-[3em] w-[3em] border border-white text-center text-xl shadow-[0_0_10px_rgba(255,255,0,1)]"
-      onPointerDown={(): void => triggerButton(value.button, true)}
-      onPointerUp={(): void => triggerButton(value.button, false)}
-    >
-      {value.label}
-    </div>
-  ))
+  const buttons = buttonsConfig.map((value, index) => {
+    return (
+      <div
+        key={index}
+        className={styles.controllButton + ' ' + styles[`gamepadButton_${value.label}`] + ' ' + styles.availableButton}
+        onPointerDown={(): void => triggerButton(value.button, true)}
+        onPointerUp={(): void => triggerButton(value.button, false)}
+      >
+        {value.label}
+      </div>
+    )
+  })
 
   return (
     <>
-      <div className="pointer-events-auto fixed bottom-[15%] left-[15%] select-none [&>div]:m-auto">
+      <div className={styles.stickLeft}>
         <Joystick
-          baseImage={StickypadImage}
-          stickImage={BasepadImage}
-          size={27}
-          stickSize={80}
+          size={100}
           throttle={100}
           minDistance={40}
           move={handleMove}
@@ -122,9 +124,7 @@ export const TouchGamepad = () => {
           stickColor="rgba(255, 255, 255, 0.8)"
         />
       </div>
-      {availableInteractable && (
-        <div className="fixed bottom-[10px] right-[150px] select-none rounded-[50%] leading-[4em]">{buttons}</div>
-      )}
+      {availableInteractable && <div className={styles.controlButtonContainer}>{buttons}</div>}
     </>
   )
 }

@@ -25,13 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import Component from './index'
 
-const argTypes = {
-  uniformScaling: {
-    control: {
-      type: 'boolean'
-    }
-  }
-}
+const argTypes = {}
 
 export default {
   title: 'Editor/Input/Vector3',

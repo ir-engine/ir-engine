@@ -30,7 +30,6 @@ import config from '@ir-engine/common/src/config'
 
 import { Application } from '../../../declarations'
 import { logger } from '../../ServerLogger'
-import { logToBigQuery } from './analytics-logger'
 
 export interface LogsApiParams extends KnexAdapterParams {}
 
@@ -51,30 +50,20 @@ export class LogsApiService implements ServiceInterface<void, any, LogsApiParams
 
       if (Array.isArray(data)) {
         for (const item of data) {
-          await this._processLogItem(item, userId)
+          this._processLogItem(item, userId)
         }
       } else {
-        await this._processLogItem(data, userId)
+        this._processLogItem(data, userId)
       }
     }
-
-    return
   }
 
-  _processLogItem = async (logItem, userId?: string) => {
-    const { msg, level, action } = logItem
-
-    delete logItem.action
-
-    if (action === 'analytics' && process.env.BQ_PROJECT_ID && process.env.BQ_DATASET_ID && process.env.BQ_TABLE_ID) {
-      await logToBigQuery({ ...logItem })
-      return
-    }
+  _processLogItem = (logItem, userId?: string) => {
+    const { msg, level } = logItem
 
     delete logItem.level
     delete logItem.msg
 
-    const safeLevel = ['trace', 'debug', 'info', 'warn', 'error', 'fatal', 'analytics'].includes(level) ? level : 'info'
-    logger[safeLevel]({ ...logItem, userId }, msg)
+    logger[level]({ ...logItem, userId }, msg)
   }
 }

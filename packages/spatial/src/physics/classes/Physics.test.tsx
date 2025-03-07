@@ -29,7 +29,6 @@ import sinon from 'sinon'
 import { BoxGeometry, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 
-import { createEntity } from '@ir-engine/ecs'
 import {
   getComponent,
   getMutableComponent,
@@ -39,6 +38,7 @@ import {
   setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
+import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { getState } from '@ir-engine/hyperflux'
 
 import { ObjectDirection, Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
@@ -58,6 +58,7 @@ import { getInteractionGroups } from '../functions/getInteractionGroups'
 import {
   Entity,
   EntityTreeComponent,
+  EntityUUID,
   SystemDefinitions,
   UUIDComponent,
   UndefinedEntity,
@@ -65,6 +66,7 @@ import {
 } from '@ir-engine/ecs'
 import { NetworkObjectComponent } from '@ir-engine/network'
 import { act, render } from '@testing-library/react'
+import React from 'react'
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js'
 import { Epsilon, assertFloat, assertVec } from '../../../tests/util/assert'
 import { smootheLerpAlpha } from '../../common/functions/MathLerpFunctions'
@@ -107,7 +109,7 @@ describe('Physics : External API', () => {
     setComponent(physicsWorldEntity, SceneComponent)
     setComponent(physicsWorldEntity, TransformComponent)
     setComponent(physicsWorldEntity, EntityTreeComponent)
-    physicsWorld = Physics.createWorld(physicsWorldEntity)
+    physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
     physicsWorld.timestep = 1 / 60
   })
 
@@ -217,7 +219,7 @@ describe('Physics : External API', () => {
 
   it('should generate a trigger event', async () => {
     //force nested reactors to run
-    await act(() => render(null))
+    const { rerender, unmount } = render(<></>)
 
     const entity1 = createEntity()
     const entity2 = createEntity()
@@ -244,7 +246,7 @@ describe('Physics : External API', () => {
       collisionMask: AllCollisionMask
     })
 
-    await act(() => render(null))
+    await act(() => rerender(<></>))
 
     const collisionEventQueue = Physics.createCollisionEventQueue()
     const drainCollisions = Physics.drainCollisionEventQueue(physicsWorld)
@@ -298,23 +300,20 @@ describe('Physics : Rapier->ECS API', () => {
     })
 
     it('should create a world object with the default gravity when not specified', () => {
-      const entity = createEntity()
-      const world = Physics.createWorld(entity)
-      assert(getState(RapierWorldState)[entity])
+      const world = Physics.createWorld('world' as EntityUUID)
+      assert(getState(RapierWorldState)['world'])
       assert.ok(world instanceof World, 'The create world has an incorrect type.')
       const Expected = new Vector3(0.0, -9.81, 0.0)
       assertVec.approxEq(world.gravity, Expected, 3)
-      Physics.destroyWorld(entity)
-      assert(!getState(RapierWorldState)[entity])
+      Physics.destroyWorld('world' as EntityUUID)
+      assert(!getState(RapierWorldState)['world'])
     })
 
     it('should create a world object with a different gravity value when specified', () => {
-      const entity = createEntity()
       const expected = { x: 0.0, y: -5.0, z: 0.0 }
-      const world = Physics.createWorld(entity, { gravity: expected, substeps: 2 })
+      const world = Physics.createWorld('world' as EntityUUID, { gravity: expected, substeps: 2 })
       assertVec.approxEq(world.gravity, expected, 3)
       assert.equal(world.substeps, 2)
-      Physics.destroyWorld(entity)
     })
   }) //:: createWorld
 
@@ -373,7 +372,7 @@ describe('Physics : Rapier->ECS API', () => {
       setComponent(physicsWorldEntity, SceneComponent)
       setComponent(physicsWorldEntity, TransformComponent)
       setComponent(physicsWorldEntity, EntityTreeComponent)
-      physicsWorld = Physics.createWorld(physicsWorldEntity)
+      physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
 
       testEntity = createEntity()
       setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
@@ -598,7 +597,7 @@ describe('Physics : Rapier->ECS API', () => {
         await Physics.load()
         physicsWorldEntity = createEntity()
         setComponent(physicsWorldEntity, UUIDComponent, UUIDComponent.generateUUID())
-        physicsWorld = Physics.createWorld(physicsWorldEntity)
+        physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
         setComponent(physicsWorldEntity, SceneComponent)
         setComponent(physicsWorldEntity, TransformComponent)
         setComponent(physicsWorldEntity, EntityTreeComponent)
@@ -625,7 +624,7 @@ describe('Physics : Rapier->ECS API', () => {
 
       it("shouldn't mark the entity transform as dirty", () => {
         Physics.createRigidBody(physicsWorld, testEntity)
-        assert.ok(TransformComponent.dirty[testEntity] === 0)
+        assert.ok(TransformComponent.dirtyTransforms[testEntity] == false)
       })
 
       it('should assign the correct RigidBodyType enum', () => {
@@ -674,7 +673,7 @@ describe('Physics : Rapier->ECS API', () => {
         await Physics.load()
         const entity = createEntity()
         setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
@@ -715,7 +714,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -759,7 +758,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -797,7 +796,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -855,7 +854,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -909,7 +908,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -954,7 +953,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -999,7 +998,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1064,7 +1063,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1138,7 +1137,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1205,7 +1204,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1327,7 +1326,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1374,7 +1373,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1425,7 +1424,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1492,7 +1491,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1554,7 +1553,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1591,7 +1590,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1628,7 +1627,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1665,7 +1664,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1744,7 +1743,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1781,7 +1780,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -1843,7 +1842,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -2110,7 +2109,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -2164,7 +2163,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -2221,7 +2220,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -2300,7 +2299,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -2340,7 +2339,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -2386,7 +2385,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -2444,7 +2443,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -2499,7 +2498,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -2545,7 +2544,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld!.timestep = 1 / 60
 
         // Create the entity
@@ -2625,7 +2624,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld.timestep = 1 / 60
 
         testEntity1 = createEntity()
@@ -2741,7 +2740,7 @@ describe('Physics : Rapier->ECS API', () => {
 
         it('... should create a CollisionEvents.TRIGGER_START when either one of the colliders is a sensor (aka has a TriggerComponent)', async () => {
           //force nested reactors to run
-          await act(() => render(null))
+          const { rerender, unmount } = render(<></>)
 
           const Started = true
 
@@ -2759,8 +2758,7 @@ describe('Physics : Rapier->ECS API', () => {
           assert.equal(before1, undefined)
           assert.equal(before2, undefined)
           setComponent(testEntity1, TriggerComponent) // Set the trigger component (marks testEntity1.body.isSensor() as true)
-
-          await act(() => render(null))
+          await act(() => rerender(<></>))
 
           event(collider1.handle, collider2.handle, Started)
 
@@ -2800,7 +2798,7 @@ describe('Physics : Rapier->ECS API', () => {
       describe('when `started` is set to `false` ...', () => {
         it('... should create a CollisionEvents.TRIGGER_END when either one of the colliders is a sensor', async () => {
           //force nested reactors to run
-          await act(() => render(null))
+          const { rerender, unmount } = render(<></>)
 
           const Started = false
 
@@ -2818,7 +2816,7 @@ describe('Physics : Rapier->ECS API', () => {
           assert.equal(before1, undefined)
           assert.equal(before2, undefined)
           setComponent(testEntity1, TriggerComponent) // Set the trigger component (marks testEntity1.body.isSensor() as true)
-          await act(() => render(null))
+          await act(() => rerender(<></>))
 
           // Run and Check after
           event(collider1.handle, collider2.handle, true) // Run the even twice, so that the entities get each other in their collision components
@@ -2875,7 +2873,7 @@ describe('Physics : Rapier->ECS API', () => {
         setComponent(entity, SceneComponent)
         setComponent(entity, TransformComponent)
         setComponent(entity, EntityTreeComponent)
-        physicsWorld = Physics.createWorld(entity)
+        physicsWorld = Physics.createWorld(getComponent(entity, UUIDComponent))
         physicsWorld.timestep = 1 / 60
 
         testEntity1 = createEntity()

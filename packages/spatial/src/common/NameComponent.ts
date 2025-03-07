@@ -23,20 +23,14 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { useEntityContext } from '@ir-engine/ecs'
+import { defineComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
-import { defineState, getState } from '@ir-engine/hyperflux'
+import { useImmediateEffect } from '@ir-engine/hyperflux'
 import { NonEmptyString } from '../schema/schemaFunctions'
 
-const NameComponentState = defineState({
-  name: 'NameComponentState',
-  initial: () => {
-    return {
-      entitiesByName: {} as Record<string, Set<Entity>>
-    }
-  }
-})
+const entitiesByName = {} as Record<string, Entity[]>
 
 export const NameComponent = defineComponent({
   name: 'NameComponent',
@@ -45,31 +39,25 @@ export const NameComponent = defineComponent({
     validate: NonEmptyString('NameComponent expects a non-empty string')
   }),
 
-  onSet: (entity, component, name: string) => {
-    const prevName = component.value
+  reactor: () => {
+    const entity = useEntityContext()
+    const nameComponent = useComponent(entity, NameComponent)
 
-    component.set(name)
+    useImmediateEffect(() => {
+      const name = nameComponent.value
+      if (!entitiesByName[name]) {
+        entitiesByName[name] = []
+      }
 
-    const entitiesByName = getState(NameComponentState).entitiesByName
+      entitiesByName[name].push(entity)
+      return () => {
+        const index = entitiesByName[name].indexOf(entity)
+        entitiesByName[name].splice(index, 1)
+      }
+    }, [nameComponent.value])
 
-    if (entitiesByName[prevName]) {
-      entitiesByName[prevName].delete(entity)
-    }
-
-    if (!entitiesByName[name]) {
-      entitiesByName[name] = new Set()
-    }
-
-    getState(NameComponentState).entitiesByName[name].add(entity)
+    return null
   },
 
-  onRemove: (entity, component) => {
-    const name = component.value
-    getState(NameComponentState).entitiesByName[name].delete(entity)
-  },
-
-  /** @deprecated - will be removed in the future */
-  getEntitiesByName: (name: string) => {
-    return [...getState(NameComponentState).entitiesByName[name]]
-  }
+  entitiesByName: entitiesByName as Readonly<typeof entitiesByName>
 })

@@ -26,18 +26,17 @@ Infinite Reality Engine. All Rights Reserved.
 import {
   Engine,
   Entity,
-  EntityArrayBoundary,
   PresentationSystemGroup,
-  QueryReactor,
   UUIDComponent,
   defineQuery,
   defineSystem,
   getComponent,
   getOptionalComponent,
   setComponent,
-  useOptionalComponent
+  useOptionalComponent,
+  useQuery
 } from '@ir-engine/ecs'
-import { getState } from '@ir-engine/hyperflux'
+import { getState, useHookstate } from '@ir-engine/hyperflux'
 import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
 import { TransformComponent } from '@ir-engine/spatial/src/transform/components/TransformComponent'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
@@ -99,22 +98,30 @@ const execute = () => {
 
 export const AvatarTransparencySystem = defineSystem({
   uuid: 'AvatarTransparencySystem',
-  insert: { with: PresentationSystemGroup },
   execute,
-  reactor: () => <QueryReactor Components={[AvatarComponent]} ChildEntityReactor={AvatarReactor} />
+  insert: { with: PresentationSystemGroup },
+  reactor: () => {
+    const avatarQuery = useQuery([AvatarComponent])
+    return (
+      <>
+        {avatarQuery.map((childEntity) => (
+          <AvatarReactor key={childEntity} entity={childEntity} />
+        ))}
+      </>
+    )
+  }
 })
 
 const AvatarReactor = (props: { entity: Entity }) => {
   const entity = props.entity
   const sceneInstanceID = GLTFComponent.useInstanceID(entity)
-  const childEntities = SourceComponent.useEntitiesBySource(sceneInstanceID)
-
+  const childEntities = useHookstate(SourceComponent.entitiesBySourceState[sceneInstanceID])
   return (
-    <EntityArrayBoundary
-      entities={childEntities}
-      ChildEntityReactor={DitherChildReactor}
-      props={{ rootEntity: entity }}
-    />
+    <>
+      {childEntities.value?.map((childEntity) => (
+        <DitherChildReactor key={childEntity} entity={childEntity} rootEntity={entity} />
+      ))}
+    </>
   )
 }
 

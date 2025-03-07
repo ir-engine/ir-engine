@@ -32,17 +32,14 @@ import LoadingView from '@ir-engine/ui/src/primitives/tailwind/LoadingView'
 import React, { Suspense, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-export const LoadWebappInjection = (props: {
-  children: React.ReactNode
-  fallback?: JSX.Element
-  isLocationPage?: boolean
-}) => {
+export const LoadWebappInjection = (props: { children: React.ReactNode; fallback?: JSX.Element }) => {
   const { t } = useTranslation()
+
   const projectComponents = useHookstate(null as null | any[])
   const projects = useFind(projectsPath)
 
   useEffect(() => {
-    if (!projects.data.length || projectComponents.value) return
+    if (!projects.data.length) return
     loadWebappInjection(projects.data as string[])
       .then((result) => {
         projectComponents.set(result)
@@ -53,8 +50,7 @@ export const LoadWebappInjection = (props: {
       })
   }, [projects.data])
 
-  // Skip rendering if login is required and components aren't loaded yet & is not a location page
-  if (!props.isLocationPage && !projectComponents.value) {
+  if (!projectComponents.value) {
     return (
       props.fallback ?? <LoadingView fullScreen className="block h-12 w-12" title={t('common:loader.loadingApp')} />
     )
@@ -62,7 +58,9 @@ export const LoadWebappInjection = (props: {
 
   return (
     <>
-      {projectComponents.value && projectComponents.get(NO_PROXY)?.map((Component, i) => <Component key={i} />)}
+      {projectComponents.get(NO_PROXY)!.map((Component, i) => (
+        <Component key={i} />
+      ))}
       <Suspense fallback={props.fallback}>{props.children}</Suspense>
     </>
   )

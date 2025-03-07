@@ -23,91 +23,39 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 import { SupportedFileTypes } from '@ir-engine/editor/src/constants/AssetTypes'
-import { NO_PROXY, useHookstate, useState } from '@ir-engine/hyperflux'
-import React, { useCallback, useEffect } from 'react'
-import { DndProvider, useDrag, useDrop } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
-import { HiMinus, HiPlus } from 'react-icons/hi'
-import { MdDragIndicator } from 'react-icons/md'
+import React, { useCallback, useState } from 'react'
+import { useDrop } from 'react-dnd'
+import { HiPlus } from 'react-icons/hi'
+import { PiTrashSimple } from 'react-icons/pi'
 import { twMerge } from 'tailwind-merge'
-import { v4 as uuidv4 } from 'uuid'
-import Button from '../../../../primitives/tailwind/Button'
 import Input from '../../../../primitives/tailwind/Input'
-
-const ItemType = {
-  inputElement: 'inputElement'
-}
-
-interface InputElement {
-  uuid: string
-  value: string
-}
+import Label from '../../../../primitives/tailwind/Label'
+import Text from '../../../../primitives/tailwind/Text'
 
 export interface ArrayInputProps {
   name?: string
+  label: string
   containerClassName?: string
   values: string[]
   onChange: (values: string[]) => void
-  onSelect?: (index: number) => void
+  inputLabel?: string
   dropTypes?: string[]
-  SelectIcon?: ({ className }: { className?: string }) => JSX.Element
-  selectedIndex?: number
 }
 
 const DiscardableInput = ({
   value,
   index,
+  inputLabel,
   onChange,
-  onSelect,
-  dropTypes,
-  SelectIcon,
-  selected,
-  inputElement,
-  moveInputElement,
-  findInputElement
+  onRemove,
+  dropTypes
 }: {
   value: string
   index: number
   onChange: (val: string, idx: number) => void
-  onSelect?: (idx: number) => void
-  SelectIcon?: ({ className }: { className?: string }) => JSX.Element
-  selected?: boolean
-  inputElement: InputElement
-  moveInputElement: (inputElementUUID: string, atIndex: number) => void
-  findInputElement: (inputElementUUID: string) => {
-    inputElement: InputElement | undefined
-    index: number
-  }
-} & Pick<ArrayInputProps, 'dropTypes'>) => {
-  const originalIndex = () => {
-    if (findInputElement) {
-      return findInputElement(value).index
-    } else {
-      return undefined
-    }
-  }
-  const [{ opacity }, dragSourceRef, previewRef] = useDrag({
-    type: ItemType.inputElement,
-    item: { uuid: inputElement?.uuid, index: originalIndex },
-    collect: (monitor) => ({
-      opacity: monitor.isDragging() ? 0 : 1
-    })
-  })
-
-  const [{ isDroppable: isInputElementDroppable }, inputElementDropRef] = useDrop(() => ({
-    accept: ItemType.inputElement,
-    hover({ uuid: draggedtrackUUID }: { uuid: string; index: number }) {
-      if (draggedtrackUUID !== inputElement.uuid) {
-        const { index: overIndex } = findInputElement(inputElement.uuid)
-        moveInputElement(draggedtrackUUID, overIndex)
-      }
-    },
-    collect: (monitor) => ({
-      isDroppable: monitor.canDrop() && monitor.isOver()
-    })
-  }))
-
-  const [{ isDroppable: isFileDroppable }, fileDropRef] = useDrop(() => ({
+  onRemove: (idx: number) => void
+} & Pick<ArrayInputProps, 'inputLabel' | 'dropTypes'>) => {
+  const [{ isDroppable }, dropRef] = useDrop(() => ({
     accept: dropTypes ?? [...SupportedFileTypes],
     drop: (item: { url: string }) => {
       onChange(item.url, index)
@@ -118,35 +66,14 @@ const DiscardableInput = ({
   }))
 
   return (
-    <div
-      className={twMerge(' flex w-full gap-2', isInputElementDroppable && 'outline outline-2 outline-white')}
-      ref={(node) => {
-        inputElementDropRef(previewRef(node))
-      }}
-    >
+    <div className="flex flex-col px-3">
+      {inputLabel && <Label className="mb-1 text-[#A0A1A2]">{inputLabel + ' ' + (index + 1)}</Label>}
       <div
-        ref={fileDropRef}
-        className={twMerge('flex w-full justify-end gap-1', isFileDroppable && 'outline outline-2 outline-white')}
+        ref={dropRef}
+        className={twMerge('mb-2 flex items-center', isDroppable && 'outline outline-2 outline-white')}
       >
-        <div ref={dragSourceRef} className=" flex h-full w-6 cursor-move items-center text-2xl text-text-inactive">
-          <MdDragIndicator />
-        </div>
-        <Input fullWidth={true} value={value} onChange={(event) => onChange(event.target.value, index)} />
-        {SelectIcon && (
-          <Button
-            className={twMerge(
-              'h-8 w-9 rounded-md p-1',
-              selected ? 'bg-ui-primary text-text-primary-button' : 'bg-surface-2 text-text-inactive'
-            )}
-            onClick={() => {
-              if (onSelect) {
-                onSelect(index)
-              }
-            }}
-          >
-            <SelectIcon className="h-6 w-6" />
-          </Button>
-        )}
+        <Input value={value} onChange={(event) => onChange(event.target.value, index)} />
+        <PiTrashSimple className="ml-2.5 cursor-pointer text-[#444]" onClick={() => onRemove(index)} />
       </div>
     </div>
   )
@@ -154,51 +81,31 @@ const DiscardableInput = ({
 
 export default function ArrayInputGroup({
   name,
+  label,
   containerClassName,
   values: initialValues,
   onChange,
-  dropTypes,
-  SelectIcon,
-  onSelect,
-  selectedIndex
+  inputLabel,
+  dropTypes
 }: ArrayInputProps) {
-  const buildInputElements = () => {
-    const returnArray = [] as InputElement[]
-    initialValues.forEach(function (val) {
-      returnArray.push({
-        uuid: uuidv4(),
-        value: val
-      })
-    })
-    return returnArray
-  }
-
-  const localSelectIndex = useState(selectedIndex)
-  localSelectIndex.set(selectedIndex)
-  const inputElements = useHookstate(buildInputElements() as InputElement[])
-
-  const buildValueArrayFromInputElements = (inputElements: InputElement[]) => {
-    const returnArray = [] as string[]
-    inputElements.forEach(function (inputElement) {
-      returnArray.push(inputElement.value)
-    })
-    return returnArray
-  }
+  const [values, setValues] = useState(initialValues)
 
   const handleChange = useCallback(
     (value: string, index: number, addRemove?: 'add' | 'remove') => {
-      const prevValues = inputElements.get(NO_PROXY)
+      setValues((prevValues) => {
+        let newValues
 
-      let newValues = [] as InputElement[]
+        if (addRemove === 'add') {
+          newValues = [...prevValues, value]
+        } else if (addRemove === 'remove') {
+          newValues = prevValues.filter((_, idx) => idx !== index)
+        } else {
+          newValues = prevValues.map((v, idx) => (idx === index ? value : v))
+        }
 
-      if (addRemove === 'add') {
-        newValues = [...prevValues, { uuid: uuidv4(), value: value }]
-      } else if (addRemove === 'remove') {
-        newValues = prevValues.filter((_, idx) => idx !== index)
-      } else {
-        newValues = prevValues.map((v, idx) => (idx === index ? { uuid: prevValues[idx].uuid, value: value } : v))
-      }
-      inputElements.set(newValues)
+        onChange(newValues)
+        return newValues
+      })
     },
     [onChange]
   )
@@ -219,81 +126,33 @@ export default function ArrayInputGroup({
     [handleChange]
   )
 
-  const findInputElement = (inputElementUUID: string) => {
-    for (let i = 0; i < inputElements.length; i++) {
-      const ie = inputElements.get(NO_PROXY)[i]
-      if (ie.uuid === inputElementUUID) {
-        return {
-          inputElement: ie,
-          index: i
-        }
-      }
-    }
-    return {
-      inputElement: undefined,
-      index: -1
-    }
-  }
-
-  const moveInputElement = (inputElementUUID: string, atIndex: number) => {
-    const { inputElement, index } = findInputElement(inputElementUUID)
-    if (inputElement && index !== -1) {
-      const newinputElements = inputElements.get(NO_PROXY) as InputElement[]
-      newinputElements.splice(index, 1)
-      newinputElements.splice(atIndex, 0, inputElement)
-      inputElements.set(newinputElements)
-    }
-  }
-
-  const [, drop] = useDrop(() => ({ accept: ItemType.inputElement }))
-
-  useEffect(() => {
-    onChange(buildValueArrayFromInputElements(inputElements.get(NO_PROXY) as InputElement[]))
-  }, [inputElements])
-
   return (
-    <div ref={groupDropRef} aria-label={name} className={twMerge('w-full ', containerClassName)}>
+    <div ref={groupDropRef} aria-label={name} className={containerClassName}>
       <div
         className={`outline outline-2 transition-colors duration-200 ${
           isGroupDroppable ? 'outline-white' : 'outline-transparent'
         }`}
       >
-        {inputElements.length > 0 && (
-          <DndProvider backend={HTML5Backend} key="InputElementDropArea">
-            <div ref={drop} className="flex grid w-full grid-cols-1 space-y-1 py-1.5 ">
-              {inputElements.value.map((inputElement, idx) => (
-                <DiscardableInput
-                  key={inputElement.value + idx}
-                  value={inputElement.value}
-                  index={idx}
-                  onChange={handleChange}
-                  dropTypes={dropTypes}
-                  SelectIcon={SelectIcon}
-                  onSelect={onSelect}
-                  selected={localSelectIndex.value === idx}
-                  inputElement={inputElement}
-                  moveInputElement={moveInputElement}
-                  findInputElement={findInputElement}
-                />
-              ))}
-            </div>
-          </DndProvider>
-        )}
-        <div className="my-1 flex w-full justify-end gap-1">
-          {inputElements.length > 0 && (
-            <button
-              className=" h-8 w-9 cursor-pointer rounded-md bg-surface-2 text-text-primary-button"
-              onClick={() => handleChange('', inputElements.length - 1, 'remove')}
-            >
-              <HiMinus className="m-auto" />
-            </button>
-          )}
-          <button
-            className=" h-8 w-8 cursor-pointer rounded-md bg-surface-2 text-text-primary-button"
+        <div className="mb-3 flex items-center justify-between">
+          <Text className="ml-5">{label}</Text>
+          <HiPlus
+            className="mr-5 cursor-pointer rounded-md bg-[#1A1A1A] text-white"
+            size="20px"
             onClick={() => handleChange('', 0, 'add')}
-          >
-            <HiPlus className="m-auto" />
-          </button>
+          />
+        </div>
+        <div className="flex flex-col space-y-1 rounded-md bg-[#1A1A1A] py-1.5">
+          {values.map((value, idx) => (
+            <DiscardableInput
+              key={value + idx}
+              value={value}
+              index={idx}
+              inputLabel={inputLabel}
+              onChange={handleChange}
+              onRemove={(index) => handleChange('', index, 'remove')}
+              dropTypes={dropTypes}
+            />
+          ))}
         </div>
       </div>
     </div>

@@ -34,10 +34,8 @@ import { InviteCode, InviteData, authenticationSettingPath } from '@ir-engine/co
 import { useMutableState } from '@ir-engine/hyperflux'
 
 import { useFind } from '@ir-engine/common'
-import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
-import { Button, Input } from '@ir-engine/ui'
-import { Copy03Lg, Send01Lg, Share06Sm } from '@ir-engine/ui/src/icons'
-import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
+import { Checkbox, Input } from '@ir-engine/ui'
+import { Copy03Lg, Send01Lg } from '@ir-engine/ui/src/icons'
 import { InviteService } from '../../social/services/InviteService'
 import { AuthState } from '../services/AuthService'
 
@@ -151,21 +149,27 @@ const ShareMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
 
-  const { copyLinkToClipboard, packageInvite, handleChangeToken, token, shareLink } = useShareMenuHooks({
+  const {
+    copyLinkToClipboard,
+    packageInvite,
+    handleChangeToken,
+    token,
+    shareLink,
+    isSpectatorMode,
+    toggleSpectatorMode
+  } = useShareMenuHooks({
     refLink
   })
 
   useEffect(() => {
-    logger.analytics({ event_name: 'share_clicked' })
+    logger.info({ event_name: 'share_clicked' })
   }, [])
 
   // Ref: https://developer.oculus.com/documentation/web/web-launch
   const questShareLink = new URL('https://oculus.com/open_url/')
   questShareLink.searchParams.set('url', shareLink)
 
-  const iframeString = `<iframe src="${
-    window.location.origin + window.location.pathname
-  }" height="100%" width="100%" allow="camera 'src'; microphone 'src';xr-spatial-tracking" style="pointer-events:all;user-select:none;border:none;"></iframe>`
+  const iframeString = `<iframe src="${window.location.href}" height="100%" width="100%" allow="camera 'src'; microphone 'src';xr-spatial-tracking" style="pointer-events:all;user-select:none;border:none;"></iframe>`
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -174,13 +178,13 @@ const ShareMenu = (): JSX.Element => {
   const authSetting = useFind(authenticationSettingPath).data.at(0)
 
   const getConnectPlaceholder = () => {
-    let smsMagicLink = false,
+    let smsMagicLink,
       emailMagicLink = false
 
     if (authSetting?.authStrategies) {
-      for (const authStrategies of authSetting.authStrategies) {
-        if (authStrategies.smsMagicLink) smsMagicLink = true
-        if (authStrategies.emailMagicLink) emailMagicLink = true
+      for (let item of authSetting.authStrategies) {
+        if (item.smsMagicLink) smsMagicLink = true
+        if (item.emailMagicLink) emailMagicLink = true
       }
 
       if (emailMagicLink && smsMagicLink) {
@@ -196,102 +200,88 @@ const ShareMenu = (): JSX.Element => {
   }
 
   return (
-    <div className="relative z-50 h-fit max-h-[90dvh] min-w-[720px] rounded-2xl bg-surface-4 pb-4 pt-[16.5px] smh:max-h-[60dvh] smh:w-[50vw] smh:max-w-2xl smh:pb-0">
-      <div className="mx-8 grid grid-cols-3 gap-x-3 gap-y-3">
-        <div className="col-span-3 flex w-full items-center justify-center smh:hidden">
-          <Text fontWeight="medium" className="text-text-primary">
-            {t('user:usermenu.share.description-share')}
-          </Text>
-        </div>
+    <div className="relative z-50 h-fit max-h-[60vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-theme-surface-main p-10">
+      <div className="mb-3 flex w-full items-center justify-center">
+        <div className="flex justify-center gap-x-4">
+          <button className="rounded-3xl bg-gray-800 px-6 py-2" onClick={() => window.open(questShareLink, '_blank')}>
+            {t('user:usermenu.share.shareQuest')}
+          </button>
 
-        <div className="col-span-1 smh:col-span-full">
-          <div className="mb-[16.5px] hidden w-full items-center justify-center smh:flex">
-            <Text fontWeight="medium" className="text-text-primary">
-              {t('user:usermenu.share.description-share')}
-            </Text>
-          </div>
-
-          <div className="flex w-fit items-center justify-center smh:w-full">
-            <div className="rounded-md bg-white p-4">
-              <QRCodeSVG className="h-[114px] w-[131px] smh:h-[161px] smh:w-[184px]" value={shareLink} />
-            </div>
-          </div>
-        </div>
-
-        <div className="col-span-2 grid grid-cols-1 smh:col-span-full smh:gap-y-3">
-          <Input
-            readOnly
-            value={shareLink}
-            endComponent={
-              <button className="h-4 w-4 text-text-primary" onMouseDown={copyLinkToClipboard}>
-                <Copy03Lg />
-              </button>
-            }
-            labelProps={{
-              text: t('user:usermenu.share.shareDirect'),
-              position: 'top'
-            }}
-            fullWidth
-            ref={refLink}
-          />
-
-          <div className="hidden smh:block">
-            <Input
-              readOnly
-              value={iframeString}
-              labelProps={{
-                text: t('user:usermenu.share.shareEmbed'),
-                position: 'top'
-              }}
-              endComponent={
-                <button
-                  className="h-4 w-4 text-text-primary"
-                  onMouseDown={() => {
-                    copyToClipboard(iframeString)
-                  }}
-                >
-                  <Copy03Lg />
-                </button>
-              }
-              fullWidth
-            />
-          </div>
-
-          <div className="-mt-4 smh:mt-0">
-            <Input
-              value={token}
-              labelProps={{
-                text: t('user:usermenu.profile.connectEmail'),
-                position: 'top'
-              }}
-              placeholder={getConnectPlaceholder()}
-              onChange={(e) => handleChangeToken(e)}
-              endComponent={
-                <button className="h-4 w-4 text-text-primary" onMouseDown={packageInvite}>
-                  <Send01Lg />
-                </button>
-              }
-              fullWidth
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') packageInvite()
-              }}
-            />
-          </div>
+          <button onClick={() => copyToClipboard(questShareLink.toString())}>
+            <Copy03Lg />
+          </button>
         </div>
       </div>
-      <div className="mt-4 hidden w-full items-center justify-center border-t-[0.5px] border-[#212226] py-[11px] smh:flex">
-        <Button
-          variant="secondary"
-          size="l"
-          onClick={() =>
-            isMobile && 'navigator' in window
-              ? window.navigator.share({ url: shareLink })
-              : window.open(shareLink, '_blank')?.focus()
+
+      <div className="flex w-full items-center justify-center ">
+        <div className="rounded-md bg-white p-4">
+          <QRCodeSVG height={176} width={200} value={shareLink} />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-y-3">
+        <Checkbox
+          label={t('user:usermenu.share.lbl-spectator-mode')}
+          checked={isSpectatorMode}
+          onChange={toggleSpectatorMode}
+        />
+
+        <Input
+          readOnly
+          value={shareLink}
+          endComponent={
+            <button className="h-4 w-4" onMouseDown={copyLinkToClipboard}>
+              <Copy03Lg />
+            </button>
           }
-        >
-          <Share06Sm />
-          {t('user:usermenu.share.lbl-share')}
-        </Button>
+          labelProps={{
+            text: t('user:usermenu.share.shareDirect'),
+            position: 'top'
+          }}
+          fullWidth
+          ref={refLink}
+        />
+
+        <Input
+          readOnly
+          value={iframeString}
+          labelProps={{
+            text: t('user:usermenu.share.shareEmbed'),
+            position: 'top'
+          }}
+          endComponent={
+            <button
+              className="h-4 w-4"
+              onMouseDown={() => {
+                copyToClipboard(iframeString)
+              }}
+            >
+              <Copy03Lg />
+            </button>
+          }
+          fullWidth
+        />
+
+        <Input
+          value={token}
+          labelProps={{
+            text: t('user:usermenu.share.shareInvite'),
+            position: 'top'
+          }}
+          placeholder={getConnectPlaceholder()}
+          onChange={(e) => handleChangeToken(e)}
+          endComponent={
+            <button className="h-4 w-4" onMouseDown={packageInvite}>
+              <Send01Lg />
+            </button>
+          }
+          fullWidth
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              packageInvite()
+            }
+          }}
+        />
       </div>
     </div>
   )

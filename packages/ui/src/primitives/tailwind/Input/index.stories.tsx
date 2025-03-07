@@ -104,13 +104,9 @@ const Template: StoryFn = (args) => {
       infoText: args.infoText
     }
   }
-  const [value, setValue] = React.useState(args.value)
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(e.target.value)
-  }
   return (
     <div className="grid h-[50vh] w-full place-items-center rounded border border-gray-300 p-5">
-      <Input {...updatedArgs} value={value} onChange={handleChange} />
+      <Input {...updatedArgs} />
     </div>
   )
 }

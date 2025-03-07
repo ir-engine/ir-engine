@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { useFind, useMutation } from '@ir-engine/common'
 import { AuthenticationSettingType, authenticationSettingPath } from '@ir-engine/common/src/schema.type.module'
@@ -183,6 +184,8 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
     <Accordion
       title={t('admin:components.setting.authentication.header')}
       subtitle={t('admin:components.setting.authentication.subtitle')}
+      expandIcon={<HiPlusSmall />}
+      shrinkIcon={<HiMinus />}
       ref={ref}
       open={open}
     >
@@ -249,6 +252,9 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
           return (
             <Toggle
               key={i}
+              className="col-span-1 capitalize"
+              containerClassName="justify-start"
+              labelClassName="capitalize"
               label={displayStrategyName}
               value={state[strategyName].value}
               disabled={strategyName === 'jwt'}
@@ -288,7 +294,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
         />
       </div>
 
-      <hr className="my-6 border " />
+      <hr className="my-6 border border-theme-primary" />
       <div className="grid grid-cols-3 gap-4">
         {holdAuth?.apple?.value && (
           <div className="col-span-1 grid gap-y-2">
@@ -567,7 +573,7 @@ const AuthenticationTab = forwardRef(({ open }: { open: boolean }, ref: React.Mu
       </div>
 
       <div className="mt-6 grid grid-cols-8 gap-6">
-        <Button size="sm" className="text-primary col-span-1 " onClick={handleCancel} fullWidth>
+        <Button size="sm" className="text-primary col-span-1 bg-theme-highlight" onClick={handleCancel} fullWidth>
           {t('admin:components.common.reset')}
         </Button>
 

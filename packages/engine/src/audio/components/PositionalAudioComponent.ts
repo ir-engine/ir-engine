@@ -27,19 +27,14 @@ import { useEffect } from 'react'
 
 import {
   defineComponent,
-  getAuthoringCounterpart,
   getOptionalComponent,
   removeComponent,
   setComponent,
   useComponent,
-  useEntityContext,
   useOptionalComponent
 } from '@ir-engine/ecs'
-import {
-  AudioNodeGroups,
-  MediaComponent,
-  MediaElementComponent
-} from '@ir-engine/engine/src/scene/components/MediaComponent'
+import { useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
+import { AudioNodeGroups, MediaElementComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
@@ -82,13 +77,6 @@ export const PositionalAudioComponent = defineComponent({
     const debugEnabled = renderState.nodeHelperVisibility.value || activeHelperComponent !== undefined
     const audio = useComponent(entity, PositionalAudioComponent)
     const mediaElement = useOptionalComponent(entity, MediaElementComponent)
-
-    useEffect(() => {
-      const authEntity = getAuthoringCounterpart(entity)
-      if (authEntity) {
-        setComponent(authEntity, MediaComponent)
-      }
-    }, [])
 
     useEffect(() => {
       if (debugEnabled) {

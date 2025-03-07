@@ -26,15 +26,15 @@ Infinite Reality Engine. All Rights Reserved.
 import { Color, Material, SRGBColorSpace } from 'three'
 import matches from 'ts-matches'
 
-import { getOptionalComponent, UUIDComponent } from '@ir-engine/ecs'
+import { getComponent, getOptionalComponent, UUIDComponent } from '@ir-engine/ecs'
 import {
-  MaterialPrototypeConstructor,
-  MaterialPrototypeDefinitions,
+  MaterialPrototypeComponent,
+  MaterialPrototypeObjectConstructor,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
 
-import { getState } from '@ir-engine/hyperflux'
 import {
+  getPrototypeEntityFromName,
   injectMaterialDefaults,
   PrototypeNotFoundError
 } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
@@ -54,9 +54,12 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     const materialDef = parser.json.materials![materialIndex]
     if (!materialDef.extensions?.[this.name]) return null
     const eeMaterial: EEMaterialExtensionType = materialDef.extensions[this.name] as any
-    let constructor: MaterialPrototypeConstructor | null = null
+    let constructor: MaterialPrototypeObjectConstructor | null = null
     try {
-      constructor = getState(MaterialPrototypeDefinitions)[eeMaterial.prototype].prototypeConstructor
+      constructor = getComponent(
+        getPrototypeEntityFromName(eeMaterial.prototype)!,
+        MaterialPrototypeComponent
+      ).prototypeConstructor
     } catch (e) {
       if (e instanceof PrototypeNotFoundError) {
         console.warn('prototype ' + eeMaterial.prototype + ' not found')
@@ -66,7 +69,7 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     }
     return constructor
       ? (function (args) {
-          const material = new constructor(args)
+          const material = new constructor![eeMaterial.prototype](args)
           typeof eeMaterial.uuid === 'string' && (material.uuid = eeMaterial.uuid)
           return material
         } as unknown as typeof Material)
@@ -96,11 +99,11 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     )
     let foundPrototype = false
     if (materialComponent) {
-      foundPrototype = !!getState(MaterialPrototypeDefinitions)[materialComponent.material.type]
+      foundPrototype = !!materialComponent.prototypeEntity
       injectMaterialDefaults(extension.uuid)
     } else {
       try {
-        getState(MaterialPrototypeDefinitions)[materialComponent!.material.type].prototypeConstructor
+        getComponent(getPrototypeEntityFromName(extension.prototype)!, MaterialPrototypeComponent).prototypeArguments
         foundPrototype = true
       } catch (e) {
         if (e instanceof PrototypeNotFoundError) {

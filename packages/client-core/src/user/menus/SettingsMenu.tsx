@@ -25,24 +25,19 @@ Infinite Reality Engine. All Rights Reserved.
 
 import multiLogger from '@ir-engine/common/src/logger'
 import { AudioState } from '@ir-engine/engine/src/audio/AudioState'
-import { useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { useMutableState } from '@ir-engine/hyperflux'
 import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 import { XRState } from '@ir-engine/spatial/src/xr/XRState'
 import { Checkbox, Select } from '@ir-engine/ui'
 import { Slider } from '@ir-engine/ui/editor'
-import { ArrowNarrowLeftLg } from '@ir-engine/ui/src/icons'
+import { ArrowLeftLg } from '@ir-engine/ui/src/icons'
 import { OptionType } from '@ir-engine/ui/src/primitives/tailwind/Select'
-import SidebarNavigation from '@ir-engine/ui/src/primitives/tailwind/SidebarNavigation'
-import React, { useEffect } from 'react'
+import Tabs from '@ir-engine/ui/src/primitives/tailwind/Tabs'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { PopoverState } from '../../common/services/PopoverState'
 import { XruiNameplateState } from '../../social/XruiNameplateState'
-import BlockSlider from '../components/BlockSlider'
-import ControllerMappingMobileImage from './images/controller-mapping-mobile.svg'
-import ControllerMappingImage from './images/controller-mapping.png'
-import KeyboardMappingImage from './images/keyboard-mapping.png'
-import MouseMappingImage from './images/mouse-mapping.png'
 
 const isChromeDesktop = !isMobile && /chrome/i.test(navigator.userAgent)
 const logger = multiLogger.child({ component: 'system:settings-menu' })
@@ -74,17 +69,24 @@ function GeneralTab() {
   const xrSupported = xrSupportedModes['immersive-ar'].value || xrSupportedModes['immersive-vr'].value
 
   return (
-    <div>
+    <div className="h-full w-full">
       {!isMobile && !xrSupported && (
         <>
-          <img src={KeyboardMappingImage} alt="Desktop Controls" className="mx-auto" />
-          <div className="mx-auto grid grid-cols-2">
-            <img src={ControllerMappingImage} alt="Controller Controls" className="col-span-1" />
-            <img src={MouseMappingImage} alt="Controller Controls" className="col-span-1" />
+          <div className="m-2 rounded-md bg-[#191B1F]">
+            <img src="/static/Desktop_Tutorial_Keyboard.png" alt="Desktop Controls" className="m-auto" />
+          </div>
+          <div className="flex">
+            <div className="m-2 flex-1 rounded-md bg-[#191B1F]">
+              <img src="/static/Controller_Tutorial.png" alt="Controller Controls" className="m-auto" />
+            </div>
+            <div className="m-2 flex-1 rounded-md bg-[#191B1F]">
+              <img src="/static/Desktop_Tutorial_Mouse.png" alt="Controller Controls" className="m-auto" />
+            </div>
           </div>
         </>
       )}
-      {isMobile && <img src={ControllerMappingMobileImage} alt="Mobile Controls" />}
+      {isMobile && <img src="/static/Mobile_Tutorial.png" alt="Mobile Controls" />}
+      {xrSupported && <img src="/static/XR_Tutorial.png" alt="XR Controls" />}
     </div>
   )
 }
@@ -92,6 +94,7 @@ function GeneralTab() {
 function AudioTab() {
   const { t } = useTranslation()
   const audioState = useMutableState(AudioState)
+  console.log('debug1 the audiostate', audioState)
 
   return (
     <div className="h-full w-full">
@@ -101,65 +104,127 @@ function AudioTab() {
           <span className="font-bold underline">chrome://flags/#chrome-wide-echo-cancellation</span>
         </div>
       )}
-      {/* <div className="mx-auto flex w-3/4 justify-center">
+      <div className="flex w-3/4 justify-center">
         <Checkbox
           variantTextPlacement="right"
-          label={t('user:usermenu.setting.use-positional-media')}
+          label={(<label className="text-[#080808]">{t('user:usermenu.setting.use-positional-media')}</label>) as any}
           checked={audioState.positionalMedia.value}
           onChange={(value: boolean) => {
             audioState.positionalMedia.set(value)
-            logger.analytics({ event_name: `spatial_user_av`, event_value: value })
+            logger.info({ event_name: `spatial_user_av`, event_value: value })
           }}
         />
-      </div> */}
-      <div className="mx-auto mt-6 grid grid-cols-1 items-center gap-x-4 gap-y-2 lg:w-3/4 lg:gap-y-4">
-        <BlockSlider
-          label={t('user:usermenu.setting.lbl-microphone')}
-          value={audioState.microphoneGain.value}
-          onChange={(value) => {
-            audioState.microphoneGain.set(value)
-            logger.analytics({ event_name: `set_microphone_volume`, event_value: value })
-          }}
-        />
-        <BlockSlider
+      </div>
+      <div className="mx-auto my-1 w-3/4">
+        <Slider
+          max={1}
+          min={0}
+          step={0.01}
           value={audioState.masterVolume.value}
           onChange={(value: number) => {
             audioState.masterVolume.set(value)
-            logger.analytics({ event_name: `set_total_volume`, event_value: value })
+            logger.info({ event_name: `set_total_volume`, event_value: value })
           }}
-          label={t('user:usermenu.setting.lbl-volume')}
+          onRelease={() => {}}
+          label={
+            (
+              <div className="w-32 whitespace-nowrap text-[#080808]">{t('user:usermenu.setting.lbl-volume')}</div>
+            ) as any
+          }
         />
-        <BlockSlider
+      </div>
+      <div className="mx-auto my-1 w-3/4">
+        <Slider
+          max={1}
+          min={0}
+          step={0.01}
+          value={audioState.microphoneGain.value}
+          onChange={(value: number) => {
+            audioState.microphoneGain.set(value)
+            logger.info({ event_name: `set_microphone_volume`, event_value: value })
+          }}
+          onRelease={() => {}}
+          label={
+            (
+              <div className="w-32 whitespace-nowrap text-[#080808]">{t('user:usermenu.setting.lbl-microphone')}</div>
+            ) as any
+          }
+        />
+      </div>
+      <div className="mx-auto my-1 w-3/4">
+        <Slider
+          max={1}
+          min={0}
+          step={0.01}
           value={audioState.mediaStreamVolume.value}
           onChange={(value: number) => {
             audioState.mediaStreamVolume.set(value)
-            logger.analytics({ event_name: `set_user_volume`, event_value: value })
+            logger.info({ event_name: `set_user_volume`, event_value: value })
           }}
-          label={t('user:usermenu.setting.lbl-media-instance')}
+          onRelease={() => {}}
+          label={
+            (
+              <div className="w-32 whitespace-nowrap text-[#080808]">
+                {t('user:usermenu.setting.lbl-media-instance')}
+              </div>
+            ) as any
+          }
         />
-        <BlockSlider
+      </div>
+      <div className="mx-auto my-1 w-3/4">
+        <Slider
+          max={1}
+          min={0}
+          step={0.01}
           value={audioState.notificationVolume.value}
           onChange={(value: number) => {
             audioState.notificationVolume.set(value)
-            logger.analytics({ event_name: `set_notification_volume`, event_value: value })
+            logger.info({ event_name: `set_notification_volume`, event_value: value })
           }}
-          label={t('user:usermenu.setting.lbl-notification')}
+          onRelease={() => {}}
+          label={
+            (
+              <div className="w-32 whitespace-nowrap text-[#080808]">{t('user:usermenu.setting.lbl-notification')}</div>
+            ) as any
+          }
         />
-        <BlockSlider
+      </div>
+      <div className="mx-auto my-1 w-3/4">
+        <Slider
+          max={1}
+          min={0}
+          step={0.01}
           value={audioState.soundEffectsVolume.value}
           onChange={(value: number) => {
             audioState.soundEffectsVolume.set(value)
-            logger.analytics({ event_name: `set_scene_volume`, event_value: value })
+            logger.info({ event_name: `set_scene_volume`, event_value: value })
           }}
-          label={t('user:usermenu.setting.lbl-sound-effect')}
+          onRelease={() => {}}
+          label={
+            (
+              <div className="w-32 whitespace-nowrap text-[#080808]">{t('user:usermenu.setting.lbl-sound-effect')}</div>
+            ) as any
+          }
         />
-        <BlockSlider
+      </div>
+      <div className="mx-auto my-1 w-3/4">
+        <Slider
+          max={1}
+          min={0}
+          step={0.01}
           value={audioState.backgroundMusicVolume.value}
           onChange={(value: number) => {
             audioState.backgroundMusicVolume.set(value)
-            logger.analytics({ event_name: `set_music_volume`, event_value: value })
+            logger.info({ event_name: `set_music_volume`, event_value: value })
           }}
-          label={t('user:usermenu.setting.lbl-background-music-volume')}
+          onRelease={() => {}}
+          label={
+            (
+              <div className="w-32 whitespace-nowrap text-[#080808]">
+                {t('user:usermenu.setting.lbl-background-music-volume')}
+              </div>
+            ) as any
+          }
         />
       </div>
     </div>
@@ -173,14 +238,13 @@ function GraphicsTab() {
 
   const handleQualityLevelChange = (value: number) => {
     rendererState.qualityLevel.set(value)
-    logger.analytics({ event_name: `set_quality_preset`, event_value: value })
+    logger.info({ event_name: `set_quality_preset`, event_value: value })
     rendererState.automatic.set(false)
-    logger.analytics({ event_name: `automatic_qp`, event_value: false })
+    logger.info({ event_name: `automatic_qp`, event_value: false })
   }
   return (
     <div className="h-full w-full">
-      <div className="ml-auto mt-6 flex w-3/4 items-center gap-x-2">
-        <div className="w-28 text-left text-sm text-text-primary">{t('user:usermenu.setting.lbl-quality')}</div>
+      <div className="mx-auto my-1 w-3/4">
         <Slider
           max={5}
           min={0}
@@ -188,44 +252,54 @@ function GraphicsTab() {
           value={rendererState.qualityLevel.value}
           onChange={handleQualityLevelChange}
           onRelease={() => {}}
-          label=""
+          label={
+            (<div className="whitespace-nowrap text-[#080808]">{t('user:usermenu.setting.lbl-quality')}</div>) as any
+          }
         />
       </div>
-      <div className="mb-2.5 ml-auto mt-4 w-3/4">
+      <div className="flex w-3/4 justify-center">
         <Checkbox
           onChange={() => {
             rendererState.usePostProcessing.set(!rendererState.usePostProcessing.value)
-            logger.analytics({ event_name: `post_processing`, event_value: rendererState.usePostProcessing.value })
+            logger.info({ event_name: `post_processing`, event_value: rendererState.usePostProcessing.value })
             rendererState.automatic.set(false)
-            logger.analytics({ event_name: `automatic_qp`, event_value: false })
+            logger.info({ event_name: `automatic_qp`, event_value: false })
           }}
           checked={rendererState.usePostProcessing.value}
-          label={t('user:usermenu.setting.lbl-pp')}
+          label={
+            (<div className="w-4 whitespace-nowrap text-[#080808]">{t('user:usermenu.setting.lbl-pp')}</div>) as any
+          }
         />
       </div>
-      <div className="mb-2.5 ml-auto w-3/4">
+      <div className="flex w-3/4 justify-center">
         <Checkbox
           onChange={() => {
             rendererState.useShadows.set(!rendererState.useShadows.value)
-            logger.analytics({ event_name: `shadows`, event_value: rendererState.useShadows.value })
+            logger.info({ event_name: `shadows`, event_value: rendererState.useShadows.value })
             rendererState.automatic.set(false)
-            logger.analytics({ event_name: `automatic_qp`, event_value: false })
+            logger.info({ event_name: `automatic_qp`, event_value: false })
           }}
           checked={rendererState.useShadows.value}
-          label={t('user:usermenu.setting.lbl-shadow')}
+          label={
+            (<div className="w-4 whitespace-nowrap text-[#080808]">{t('user:usermenu.setting.lbl-shadow')}</div>) as any
+          }
         />
       </div>
-      <div className="mb-3 ml-auto w-3/4">
+      <div className="flex w-3/4 justify-center">
         <Checkbox
           onChange={() => {
             rendererState.automatic.set(!rendererState.automatic.value)
-            logger.analytics({ event_name: `automatic_qp`, event_value: rendererState.automatic.value })
+            logger.info({ event_name: `automatic_qp`, event_value: rendererState.automatic.value })
           }}
           checked={rendererState.automatic.value}
-          label={t('user:usermenu.setting.lbl-automatic')}
+          label={
+            (
+              <div className="w-4 whitespace-nowrap text-[#080808]">{t('user:usermenu.setting.lbl-automatic')}</div>
+            ) as any
+          }
         />
       </div>
-      <div className="mx-auto my-1">
+      <div className="mx-auto my-1 w-3/4">
         <Select
           width="full"
           labelProps={{
@@ -247,18 +321,19 @@ function GraphicsTab() {
           }}
         />
       </div>
-      <div className="my-1 ml-auto w-3/4">
+      <div className="flex w-3/4 justify-center">
         <Checkbox
           onChange={() => xruiNameplateState.isVisible.set(!xruiNameplateState.isVisible.value)}
           checked={xruiNameplateState.isVisible.value}
-          label={t('user:usermenu.setting.lbl-isVisible')}
+          label={
+            (
+              <div className="w-4 whitespace-nowrap text-[#080808]">{t('user:usermenu.setting.lbl-isVisible')}</div>
+            ) as any
+          }
         />
       </div>
       {xruiNameplateState.isVisible.value && (
-        <div className="ml-auto flex w-3/4 items-center gap-x-2">
-          <div className="w-72 text-left text-sm text-text-primary">
-            {t('user:usermenu.setting.lbl-triggerDistance')}
-          </div>
+        <div className="mx-auto my-1 w-3/4">
           <Slider
             max={100}
             min={0}
@@ -266,7 +341,11 @@ function GraphicsTab() {
             value={xruiNameplateState.triggerDistance.value}
             onChange={(value) => xruiNameplateState.triggerDistance.set(value)}
             onRelease={() => {}}
-            label=""
+            label={
+              (
+                <div className="whitespace-nowrap text-[#080808]">{t('user:usermenu.setting.lbl-triggerDistance')}</div>
+              ) as any
+            }
           />
         </div>
       )}
@@ -277,36 +356,31 @@ function GraphicsTab() {
 export default function SettingsMenu() {
   const { t } = useTranslation()
 
-  const currentTabIndex = useHookstate(0)
-  const labels = [
-    t('user:usermenu.setting.general'),
-    t('user:usermenu.setting.audio'),
-    t('user:usermenu.setting.graphics')
-  ]
-
-  const componentMap: Record<string, React.ReactNode> = {
-    0: <GeneralTab />,
-    1: <AudioTab />,
-    2: <GraphicsTab />
-  }
-
-  useEffect(() => {}, [])
-
   return (
-    <div className="absolute z-50 h-fit max-h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 text-text-secondary smh:max-h-[60dvh] smh:p-10">
+    <div className="relative z-50 h-fit max-h-[60vh] min-h-[50vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-[#CDCDCD] p-10 text-[#616161]">
       <div className="mb-[17px]">
         <button onClick={() => PopoverState.hidePopupover()}>
-          <ArrowNarrowLeftLg />
+          <ArrowLeftLg />
         </button>
       </div>
-      <SidebarNavigation
-        currentTabIndex={currentTabIndex.value}
-        labels={labels}
-        onChange={(index) => {
-          currentTabIndex.set(index)
-        }}
+      <Tabs
+        tabsData={[
+          {
+            tabLabel: t('user:usermenu.setting.general'),
+            bottomComponent: <GeneralTab />
+          },
+          {
+            tabLabel: t('user:usermenu.setting.audio'),
+            bottomComponent: <AudioTab />
+          },
+          {
+            tabLabel: t('user:usermenu.setting.graphics'),
+            bottomComponent: <GraphicsTab />
+          }
+        ]}
+        tabClassName="text-[#616161]"
+        tabcontainerClassName="bg-[#CDCDCD] w-full"
       />
-      {componentMap[currentTabIndex.value]}
     </div>
   )
 }

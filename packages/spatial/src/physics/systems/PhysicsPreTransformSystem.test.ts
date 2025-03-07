@@ -57,12 +57,21 @@ const _position = new Vector3()
 const _scale = new Vector3()
 
 describe('PhysicsPreTransformFunctions', () => {
-  function assertDirty(entity: Entity): void {
-    assert.equal(TransformComponent.dirty[entity], 1)
+  function assertDirty(entity: Entity, id: number = 0): void {
+    if (!id) {
+      assert.equal(TransformComponent.dirtyTransforms[entity], false)
+      return
+    }
+    assert.equal(TransformComponent.dirtyTransforms[entity], true)
   }
 
-  function assertNotDirty(entity: Entity): void {
-    assert.equal(TransformComponent.dirty[entity], 0)
+  function assertNotDirty(entity: Entity, id: number = 0): void {
+    if (!id) {
+      assert.equal(TransformComponent.dirtyTransforms[entity], false)
+      return
+    }
+    if (TransformComponent.dirtyTransforms[entity] === undefined) return
+    assert.equal(TransformComponent.dirtyTransforms[entity], false)
   }
 
   describe('lerpTransformFromRigidbody', () => {
@@ -89,7 +98,7 @@ describe('PhysicsPreTransformFunctions', () => {
         setComponent(physicsWorldEntity, EntityTreeComponent)
         setComponent(physicsWorldEntity, TransformComponent)
         setComponent(physicsWorldEntity, SceneComponent)
-        physicsWorld = Physics.createWorld(physicsWorldEntity)
+        physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
 
         testEntity = createEntity()
         setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
@@ -161,7 +170,7 @@ describe('PhysicsPreTransformFunctions', () => {
         setComponent(physicsWorldEntity, EntityTreeComponent)
         setComponent(physicsWorldEntity, TransformComponent)
         setComponent(physicsWorldEntity, SceneComponent)
-        physicsWorld = Physics.createWorld(physicsWorldEntity)
+        physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
 
         testEntity = createEntity()
         setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
@@ -183,20 +192,19 @@ describe('PhysicsPreTransformFunctions', () => {
       })
 
       it('should not set the `@param entity` transform to dirty', () => {
-        TransformComponent.dirty[testEntity] = 0
+        // Sanity check before running
+        assertNotDirty(testEntity)
         // Run and Check the result
         PhysicsPreTransformFunctions.lerpTransformFromRigidbody(testEntity, Alpha)
         assertNotDirty(testEntity)
       })
 
       it('should deeply set all children transforms to dirty', () => {
-        TransformComponent.dirty[testEntity] = 0
+        // Sanity check before running
+        assertNotDirty(testEntity)
         // Run and Check the result
         PhysicsPreTransformFunctions.lerpTransformFromRigidbody(testEntity, Alpha)
-        iterateEntityNode(testEntity, (childEntity) => {
-          if (childEntity === testEntity) assertNotDirty(childEntity)
-          else assertDirty(testEntity)
-        })
+        iterateEntityNode(testEntity, assertDirty)
       })
     })
   }) //:: lerpTransformFromRigidbody
@@ -215,7 +223,7 @@ describe('PhysicsPreTransformFunctions', () => {
         setComponent(physicsWorldEntity, EntityTreeComponent)
         setComponent(physicsWorldEntity, TransformComponent)
         setComponent(physicsWorldEntity, SceneComponent)
-        physicsWorld = Physics.createWorld(physicsWorldEntity)
+        physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
 
         testEntity = createEntity()
         setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
@@ -274,14 +282,20 @@ describe('PhysicsPreTransformFunctions', () => {
         assertVec.approxEq(after.body.rotation(), after.rotation, 4)
       })
 
-      it('should deeply set all children transforms to dirty', () => {
-        TransformComponent.dirty[testEntity] = 0
+      it('should not set the `@param entity` transform to dirty', () => {
+        // Sanity check before running
+        assertNotDirty(testEntity)
         // Run and Check the result
         PhysicsPreTransformFunctions.copyTransformToRigidBody(testEntity)
-        iterateEntityNode(testEntity, (childEntity) => {
-          if (childEntity === testEntity) assertNotDirty(childEntity)
-          else assertDirty(testEntity)
-        })
+        assertNotDirty(testEntity)
+      })
+
+      it('should deeply set all children transforms to dirty', () => {
+        // Sanity check before running
+        assertNotDirty(testEntity)
+        // Run and Check the result
+        PhysicsPreTransformFunctions.copyTransformToRigidBody(testEntity)
+        iterateEntityNode(testEntity, assertDirty)
       })
     })
 
@@ -301,10 +315,10 @@ describe('PhysicsPreTransformFunctions', () => {
 
       it('should not do anything', () => {
         // Sanity check before running
-        assertDirty(testEntity)
+        assertDirty(testEntity, 1)
         // Run and Check the result
         PhysicsPreTransformFunctions.copyTransformToRigidBody(testEntity)
-        assertDirty(testEntity)
+        assertDirty(testEntity, 1)
       })
     })
   }) //:: copyTransformToRigidBody
@@ -324,7 +338,7 @@ describe('PhysicsPreTransformFunctions', () => {
         setComponent(physicsWorldEntity, EntityTreeComponent)
         setComponent(physicsWorldEntity, TransformComponent)
         setComponent(physicsWorldEntity, SceneComponent)
-        physicsWorld = Physics.createWorld(physicsWorldEntity)
+        physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
 
         testEntity = createEntity()
         setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
@@ -383,10 +397,10 @@ describe('PhysicsPreTransformFunctions', () => {
 
       it('should not do anything', () => {
         // Sanity check before running
-        assertDirty(testEntity)
+        assertDirty(testEntity, 1)
         // Run and Check the result
         PhysicsPreTransformFunctions.copyTransformToCollider(testEntity)
-        assertDirty(testEntity)
+        assertDirty(testEntity, 1)
       })
     })
   }) //:: copyTransformToCollider
@@ -401,7 +415,7 @@ describe('PhysicsPreTransformFunctions', () => {
         physicsWorldEntity = createEntity()
         setComponent(physicsWorldEntity, EntityTreeComponent)
         setComponent(physicsWorldEntity, TransformComponent)
-        TransformComponent.dirty[physicsWorldEntity] = 0 // We would hit a different branch otherwise
+        TransformComponent.dirtyTransforms[physicsWorldEntity] = false // We would hit a different branch otherwise
 
         testEntity = createEntity()
         setComponent(testEntity, TransformComponent)
@@ -436,7 +450,7 @@ describe('PhysicsPreTransformFunctions', () => {
         setComponent(physicsWorldEntity, EntityTreeComponent)
         setComponent(physicsWorldEntity, TransformComponent)
         setComponent(physicsWorldEntity, SceneComponent)
-        physicsWorld = Physics.createWorld(physicsWorldEntity)
+        physicsWorld = Physics.createWorld(getComponent(physicsWorldEntity, UUIDComponent))
 
         testEntity = createEntity()
         setComponent(testEntity, EntityTreeComponent, { parentEntity: physicsWorldEntity })
@@ -459,7 +473,7 @@ describe('PhysicsPreTransformFunctions', () => {
       it('should return true if the entity has a parent with a dirty transform', () => {
         const Expected = true
         // Sanity check before running
-        assert.equal(TransformComponent.dirty[physicsWorldEntity], 1)
+        assert.equal(TransformComponent.dirtyTransforms[physicsWorldEntity], true)
         // Run and Check the result
         const result = PhysicsPreTransformFunctions.filterAwakeCleanRigidbodies(testEntity)
         assert.equal(result, Expected)
@@ -468,10 +482,10 @@ describe('PhysicsPreTransformFunctions', () => {
       it('should return false if the entity has a dirty transform', () => {
         const Expected = false
         // Set the data as expected
-        TransformComponent.dirty[physicsWorldEntity] = 0
-        TransformComponent.dirty[testEntity] = 1
+        TransformComponent.dirtyTransforms[physicsWorldEntity] = false
+        TransformComponent.dirtyTransforms[testEntity] = true
         // Sanity check before running
-        assert.equal(TransformComponent.dirty[physicsWorldEntity], 0)
+        assert.equal(TransformComponent.dirtyTransforms[physicsWorldEntity], false)
         assert.equal(isDirty(testEntity), true)
         // Run and Check the result
         const result = PhysicsPreTransformFunctions.filterAwakeCleanRigidbodies(testEntity)
@@ -481,11 +495,11 @@ describe('PhysicsPreTransformFunctions', () => {
       it('should return false if the entity is sleeping', () => {
         const Expected = false
         // Set the data as expected
-        TransformComponent.dirty[physicsWorldEntity] = 0
-        TransformComponent.dirty[testEntity] = 0
+        TransformComponent.dirtyTransforms[physicsWorldEntity] = false
+        TransformComponent.dirtyTransforms[testEntity] = false
         physicsWorld.Rigidbodies.get(testEntity)?.sleep()
         // Sanity check before running
-        assert.equal(TransformComponent.dirty[physicsWorldEntity], 0)
+        assert.equal(TransformComponent.dirtyTransforms[physicsWorldEntity], false)
         assert.equal(isDirty(testEntity), false)
         // Run and Check the result
         const result = PhysicsPreTransformFunctions.filterAwakeCleanRigidbodies(testEntity)
@@ -495,11 +509,11 @@ describe('PhysicsPreTransformFunctions', () => {
       it('should return true if the entity is not sleeping', () => {
         const Expected = true
         // Set the data as expected
-        TransformComponent.dirty[physicsWorldEntity] = 0
-        TransformComponent.dirty[testEntity] = 0
+        TransformComponent.dirtyTransforms[physicsWorldEntity] = false
+        TransformComponent.dirtyTransforms[testEntity] = false
         // physicsWorld.Rigidbodies.get(testEntity)?.sleep()
         // Sanity check before running
-        assert.equal(TransformComponent.dirty[physicsWorldEntity], 0)
+        assert.equal(TransformComponent.dirtyTransforms[physicsWorldEntity], false)
         assert.equal(isDirty(testEntity), false)
         // Run and Check the result
         const result = PhysicsPreTransformFunctions.filterAwakeCleanRigidbodies(testEntity)

@@ -33,15 +33,18 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Entity } from '@ir-engine/ecs/src/Entity'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
+import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { ComponentJsonType, EntityJsonType } from '../types/SceneTypes'
 
 export const serializeEntity = (entity: Entity) => {
+  const ignoreComponents = getOptionalComponent(entity, GLTFLoadedComponent)
+
   const jsonComponents = [] as ComponentJsonType[]
   const components = getAllComponents(entity)
 
   for (const component of components) {
     const sceneComponentID = component.jsonID
-    if (sceneComponentID) {
+    if (sceneComponentID && !ignoreComponents?.includes(component.name)) {
       const data = serializeComponent(entity, component)
       if (data) {
         jsonComponents.push({

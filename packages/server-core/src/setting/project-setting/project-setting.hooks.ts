@@ -33,7 +33,7 @@ import {
   projectSettingQueryValidator
 } from '@ir-engine/common/src/schemas/setting/project-setting.schema'
 
-import checkProjectPermission from '../../hooks/check-project-permission'
+import verifyScope from '@ir-engine/server-core/src/hooks/verify-scope'
 import checkScope from '../../hooks/check-scope'
 import setInContext from '../../hooks/set-in-context'
 import verifyProjectPermission from '../../hooks/verify-project-permission'
@@ -64,7 +64,13 @@ export default {
         iffElse(
           checkScope('projects', 'read'),
           [],
-          [iffElse(checkProjectPermission(['owner', 'editor']), [], setInContext('type', 'public')) as any]
+          [
+            iffElse(
+              checkScope('editor', 'write'),
+              verifyProjectPermission(['owner', 'editor', 'reviewer']),
+              setInContext('type', 'public')
+            ) as any
+          ]
         )
       )
     ],
@@ -75,7 +81,11 @@ export default {
       schemaHooks.resolveData(projectSettingDataResolver),
       iff(
         isProvider('external'),
-        iffElse(checkScope('projects', 'write'), [], [verifyProjectPermission(['owner', 'editor'])])
+        iffElse(
+          checkScope('projects', 'write'),
+          [],
+          [verifyScope('editor', 'write'), verifyProjectPermission(['owner'])]
+        )
       )
     ],
     patch: [
@@ -84,14 +94,22 @@ export default {
       schemaHooks.resolveData(projectSettingPatchResolver),
       iff(
         isProvider('external'),
-        iffElse(checkScope('projects', 'write'), [], [verifyProjectPermission(['owner', 'editor'])])
+        iffElse(
+          checkScope('projects', 'write'),
+          [],
+          [verifyScope('editor', 'write'), verifyProjectPermission(['owner', 'editor'])]
+        )
       )
     ],
     update: [],
     remove: [
       iff(
         isProvider('external'),
-        iffElse(checkScope('projects', 'write'), [], [verifyProjectPermission(['owner', 'editor'])])
+        iffElse(
+          checkScope('projects', 'write'),
+          [],
+          [verifyScope('editor', 'write'), verifyProjectPermission(['owner'])]
+        )
       )
     ]
   },

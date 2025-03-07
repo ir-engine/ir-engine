@@ -22,6 +22,7 @@ Original Code is the Infinite Reality Engine team.
 All portions of the code written by the Infinite Reality Engine team are Copyright © 2021-2023 
 Infinite Reality Engine. All Rights Reserved.
 */
+import { GLTF } from '@gltf-transform/core'
 import useFeatureFlags from '@ir-engine/client-core/src/hooks/useFeatureFlags'
 import { FeatureFlags } from '@ir-engine/common/src/constants/FeatureFlags'
 import { VALID_HEIRARCHY_SEARCH_REGEX } from '@ir-engine/common/src/regex'
@@ -30,34 +31,33 @@ import {
   entityExists,
   EntityTreeComponent,
   getComponent,
+  getOptionalComponent,
   isAncestor,
-  Layers,
-  QuerySubReactor,
   traverseEntityNode,
   UndefinedEntity,
-  useComponent,
+  useOptionalComponent,
   useQuery
 } from '@ir-engine/ecs'
-import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { GLTFModifiedState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
+import { GLTFAssetState, GLTFSnapshotState } from '@ir-engine/engine/src/gltf/GLTFState'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
-import { getMutableState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
+import { getMutableState, getState, none, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { NameComponent } from '@ir-engine/spatial/src/common/NameComponent'
-import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, ReactNode, useContext, useEffect, useMemo } from 'react'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { useHotkeys } from 'react-hotkeys-hook'
 import useUpload from '../../components/assets/useUpload'
 import { DnDFileType, FileDataType, ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { cmdOrCtrlString, isEntityGlb } from '../../functions/utils'
-import { EditorHistoryFunctions } from '../../services/EditorHistoryState'
+import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorState } from '../../services/EditorServices'
 import { HierarchyTreeState } from '../../services/HierarchyNodeState'
 import { SelectionState } from '../../services/SelectionServices'
 import {
   copyNodes,
   duplicateNode,
-  ecsHierarchyTreeWalker,
+  gltfHierarchyTreeWalker,
   groupNodes,
   HierarchyTreeNodeType,
   pasteNodes,
@@ -94,62 +94,59 @@ const HierarchyTreeContext = createContext({
   }
 })
 
-const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Entity; sourceID: string }) => {
-  const { children, rootEntity, sourceID } = props
+const HierarchySnapshotReactor = (props: {
+  children?: ReactNode
+  rootEntity: Entity
+  sourceId: string
+  snapshotIndex: number
+}) => {
+  const { children, rootEntity, sourceId, snapshotIndex } = props
+  const gltfState = useMutableState(GLTFSnapshotState)
   const selectionState = useMutableState(SelectionState)
+  const hierarchyNodes = useHookstate<HierarchyTreeNodeType[]>([])
   const hierarchyTreeState = useMutableState(HierarchyTreeState)
-  const [hideGlbChildren] = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.HideGlbChildren])
+  const [showModelChildren] = useFeatureFlags([FeatureFlags.Studio.UI.Hierarchy.ShowModelChildren])
   const renamingEntity = useHookstate<Entity | null>(null)
   const contextMenu = useHookstate({ entity: UndefinedEntity, anchorEvent: undefined as React.MouseEvent | undefined })
-  const entities = useQuery([SourceComponent], Layers.Authoring)
-
-  const childEntities = useQuery([EntityTreeComponent], Layers.Authoring)
-  const reparentRefresh = useHookstate(0)
-
-  const ChildEntityReactor = (props: { entity: Entity }) => {
-    const entity = props.entity
-    const entityTreeComponent = useComponent(entity, EntityTreeComponent)
-    const [parentEntity, setParentEntity] = useState(entityTreeComponent.value.parentEntity)
-
-    useEffect(() => {
-      if (entityTreeComponent.value.parentEntity !== parentEntity) {
-        setParentEntity(entityTreeComponent.value.parentEntity)
-        reparentRefresh.set((reparentRefresh.value + 1) % 1000)
-      }
-    }, [entityTreeComponent.parentEntity.value])
-
-    return null
-  }
-
-  const hierarchyNodes = useMemo(
-    () => ecsHierarchyTreeWalker(rootEntity, hideGlbChildren),
-    [
-      hierarchyTreeState.expandedNodes[sourceID],
-      selectionState.selectedEntities,
-      hideGlbChildren,
-      entities,
-      childEntities,
-      reparentRefresh
-    ]
-  )
+  const modifiedState = useMutableState(GLTFModifiedState)
+  const gltfSnapshot = gltfState[sourceId].snapshots[snapshotIndex]
 
   const displayedNodes = useMemo(() => {
     if (hierarchyTreeState.search.query.value.length > 0) {
       const searchedNodes: HierarchyTreeNodeType[] = []
       const adjustedSearchValue = hierarchyTreeState.search.query.value.replace(VALID_HEIRARCHY_SEARCH_REGEX, '\\$&')
       const condition = new RegExp(adjustedSearchValue, 'i')
-      hierarchyNodes.forEach((node) => {
+      hierarchyNodes.value.forEach((node) => {
         if (node.entity && condition.test(getComponent(node.entity, NameComponent)?.toLowerCase() ?? ''))
           searchedNodes.push(node)
       })
       return searchedNodes
     }
-    return hierarchyNodes.filter((node) => node.isRendered)
-  }, [hierarchyTreeState.search.query, hierarchyNodes, entities])
+    return hierarchyNodes.value.filter((node) => node.isRendered)
+  }, [hierarchyTreeState.search.query, hierarchyNodes])
 
   useEffect(() => {
-    hierarchyTreeState.expandedNodes.set({ [sourceID]: { [rootEntity]: true } })
-  }, [sourceID])
+    if (!hierarchyTreeState.expandedNodes.value[sourceId]) {
+      hierarchyTreeState.expandedNodes.set({ [sourceId]: { [rootEntity]: true } })
+    }
+  }, [sourceId])
+
+  const sourceQuery = useQuery([SourceComponent])
+  useEffect(() => {
+    const nodes = gltfHierarchyTreeWalker(rootEntity, gltfSnapshot.nodes.value as GLTF.INode[], showModelChildren)
+    if (didHierarchyChange(hierarchyNodes.value as HierarchyTreeNodeType[], nodes)) {
+      hierarchyNodes.set(nodes.filter((node) => entityExists(node.entity)))
+    }
+  }, [
+    hierarchyTreeState.expandedNodes.value[sourceId], // extra dep for rebuilding tree for expanded/collapsed nodes
+    snapshotIndex,
+    gltfState,
+    gltfSnapshot,
+    selectionState.selectedEntities,
+    showModelChildren,
+    modifiedState.keys,
+    sourceQuery
+  ])
 
   useEffect(() => {
     if (!selectionState.selectedEntities.value.length) {
@@ -158,37 +155,40 @@ const HierarchySnapshotReactor = (props: { children?: ReactNode; rootEntity: Ent
   }, [selectionState.selectedEntities])
 
   return (
-    <>
-      {childEntities.map((childEntity) => (
-        <QuerySubReactor key={childEntity} entity={childEntity} ChildEntityReactor={ChildEntityReactor} />
-      ))}
-      <HierarchyTreeContext.Provider
-        value={{
-          nodes: displayedNodes.filter((node) => entityExists(node.entity)),
-          renamingNode: {
-            entity: renamingEntity.value,
-            clear: () => renamingEntity.set(null),
-            set: (entity: Entity) => renamingEntity.set(entity)
-          },
-          contextMenu: {
-            entity: contextMenu.entity.value,
-            anchorEvent: contextMenu.anchorEvent.value as React.MouseEvent | undefined,
-            setMenu: (event?: React.MouseEvent, entity: Entity = UndefinedEntity) =>
-              contextMenu.set({ entity, anchorEvent: event })
-          }
-        }}
-      >
-        {children}
-      </HierarchyTreeContext.Provider>
-    </>
+    <HierarchyTreeContext.Provider
+      value={{
+        nodes: displayedNodes.filter((node) => entityExists(node.entity)),
+        renamingNode: {
+          entity: renamingEntity.value,
+          clear: () => renamingEntity.set(null),
+          set: (entity: Entity) => renamingEntity.set(entity)
+        },
+        contextMenu: {
+          entity: contextMenu.entity.value,
+          anchorEvent: contextMenu.anchorEvent.value as React.MouseEvent | undefined,
+          setMenu: (event?: React.MouseEvent, entity: Entity = UndefinedEntity) =>
+            contextMenu.set({ entity, anchorEvent: event })
+        }
+      }}
+    >
+      {children}
+    </HierarchyTreeContext.Provider>
   )
 }
 
 export const HierarchyPanelProvider = ({ children }: { children?: ReactNode }) => {
   const rootEntity = useHookstate(getMutableState(EditorState).rootEntity).value
-  const sourceID = GLTFComponent.useInstanceID(rootEntity)
-  if (!sourceID) return null
-  return <HierarchySnapshotReactor children={children} rootEntity={rootEntity} sourceID={sourceID} />
+  const sourceId = useOptionalComponent(rootEntity, SourceComponent)!.value
+  const snapshotIndex = GLTFSnapshotState.useSnapshotIndex(sourceId)
+
+  return snapshotIndex !== undefined ? (
+    <HierarchySnapshotReactor
+      children={children}
+      rootEntity={rootEntity}
+      sourceId={sourceId}
+      snapshotIndex={snapshotIndex.value}
+    />
+  ) : null
 }
 
 export const useHierarchyNodes = () => useContext(HierarchyTreeContext).nodes
@@ -198,7 +198,7 @@ export const useHierarchyTreeContextMenu = () => useContext(HierarchyTreeContext
 export const useNodeCollapseExpand = () => {
   const rootEntity = useMutableState(EditorState).rootEntity.value
   const expandedNodes = useMutableState(HierarchyTreeState).expandedNodes
-  const sourceID = GLTFComponent.useInstanceID(rootEntity)
+  const sourceID = useOptionalComponent(rootEntity, SourceComponent)!.value
 
   const expandNode = (entity: Entity) => {
     expandedNodes[sourceID][entity].set(true)
@@ -226,6 +226,7 @@ export const useNodeCollapseExpand = () => {
 export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' | 'Before' | 'After') => {
   const onUpload = useUpload(uploadOptions)
   const rootEntity = useMutableState(EditorState).rootEntity.value
+  const sourceId = useOptionalComponent(rootEntity, SourceComponent)!.value
 
   const canDropItem = (item: DragItemType, monitor: DropTargetMonitor): boolean => {
     if (!monitor.isOver({ shallow: true })) {
@@ -241,11 +242,10 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
     if (item.type === ItemTypes.Node) {
       if (node?.entity) {
         const entityTreeComponent = getComponent(node.entity, EntityTreeComponent)
-        if (place === 'On' && isEntityGlb(node.entity)) return false
         if (place === 'On' || !!entityTreeComponent.parentEntity) return true
       }
 
-      const entity = node?.entity || rootEntity
+      const entity = node?.entity || getState(GLTFAssetState)[sourceId]
 
       return !(item.multiple
         ? (item.value as Entity[]).some((otherObject) => isAncestor(otherObject, entity))
@@ -260,20 +260,22 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
     let afterNode: Entity = UndefinedEntity
 
     if (node) {
-      const entityTreeComponent = getComponent(node.entity, EntityTreeComponent)
-      parentNode = entityTreeComponent.parentEntity
-      const parentTreeComponent = getComponent(entityTreeComponent.parentEntity, EntityTreeComponent)
+      const entityTreeComponent = getOptionalComponent(node.entity, EntityTreeComponent)
+      parentNode = entityTreeComponent?.parentEntity
+      const parentTreeComponent = getOptionalComponent(entityTreeComponent?.parentEntity!, EntityTreeComponent)
 
       switch (place) {
         case 'Before': // we want to place before this node
           beforeNode = node.entity
+          if (!parentTreeComponent || !parentNode) break
           if (0 > node.childIndex - 1) break // nothing to place after it, as node index is the first child
           afterNode = UndefinedEntity
           break
         case 'After': // we want to place after this node
           afterNode = node.entity
+          if (!parentTreeComponent || !parentNode) break
           if (node.lastChild) break // if it is last child, nothing to place before it
-          if (parentTreeComponent.children.length < node.childIndex + 1) break //node index is last child
+          if (parentTreeComponent?.children.length < node.childIndex + 1) break //node index is last child
           beforeNode = UndefinedEntity
           break
         default: //case 'on'
@@ -281,10 +283,10 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
       }
     }
 
-    // if (!parentNode) {
-    //   console.warn('parent is not defined')
-    //   return
-    // }
+    if (!parentNode) {
+      console.warn('parent is not defined')
+      return
+    }
 
     if ('files' in item) {
       const dndItem: any = monitor.getItem()
@@ -311,11 +313,8 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
         parentNode,
         beforeNode
       )
-      EditorHistoryFunctions.snapshot()
       return
     }
-
-    if (!parentNode) return
 
     EditorControlFunctions.reparentObject(
       Array.isArray((item as DragItemType).value)
@@ -323,9 +322,8 @@ export const useHierarchyTreeDrop = (node?: HierarchyTreeNodeType, place?: 'On' 
         : [(item as DragItemType).value as Entity],
       beforeNode,
       afterNode,
-      parentNode
+      parentNode === null ? undefined : parentNode
     )
-    EditorHistoryFunctions.snapshot()
   }
 
   const [{ canDrop, isOver }, dropTarget] = useDrop({

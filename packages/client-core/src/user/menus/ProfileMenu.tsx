@@ -23,10 +23,11 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
+import commonStyles from '@ir-engine/client-core/src/common/components/common.module.scss'
 import { useFind } from '@ir-engine/common'
 import { validateEmail, validatePhoneNumber } from '@ir-engine/common/src/config'
 import multiLogger from '@ir-engine/common/src/logger'
@@ -43,7 +44,6 @@ import {
 import {
   defineState,
   getMutableState,
-  getState,
   syncStateWithLocalStorage,
   useHookstate,
   useMutableState
@@ -52,8 +52,7 @@ import {
 import { API } from '@ir-engine/common'
 import { USERNAME_MAX_LENGTH } from '@ir-engine/common/src/constants/UserConstants'
 import { INVALID_USER_NAME_REGEX } from '@ir-engine/common/src/regex'
-import { isMobile } from '@ir-engine/spatial/src/common/functions/isMobile'
-import { Button, Checkbox, Input, Tooltip } from '@ir-engine/ui'
+import { Checkbox, Input, Tooltip } from '@ir-engine/ui'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 import {
   CheckLg,
@@ -63,7 +62,6 @@ import {
   Edit01Lg,
   FacebookOriginalFalse,
   GithubOriginalFalse,
-  GoogleOriginalFalse,
   HelpIconLg,
   LogIn01Lg,
   Refresh1Lg,
@@ -74,19 +72,15 @@ import {
 } from '@ir-engine/ui/src/icons'
 import AvatarImage from '@ir-engine/ui/src/primitives/tailwind/AvatarImage'
 import Text from '@ir-engine/ui/src/primitives/tailwind/Text'
-import { FaApple } from 'react-icons/fa'
-import { twMerge } from 'tailwind-merge'
 import { initialAuthState, initialOAuthConnectedState } from '../../common/initialAuthState'
 import { NotificationService } from '../../common/services/NotificationService'
 import { PopoverState } from '../../common/services/PopoverState'
 import { useUserAvatarThumbnail } from '../../hooks/useUserAvatarThumbnail'
 import { useZendesk } from '../../hooks/useZendesk'
-import { LocationState } from '../../social/services/LocationService'
 import { clientContextParams } from '../../util/ClientContextState'
 import { AuthService, AuthState } from '../services/AuthService'
 import { AvatarService } from '../services/AvatarService'
 import AvatarSelectMenu from './avatar/AvatarSelectMenu'
-import ReportMenu from './ReportMenu'
 import SettingsMenu from './SettingsMenu'
 
 const logger = multiLogger.child({ component: 'engine:ecs:ProfileMenu', modifier: clientContextParams })
@@ -115,6 +109,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   const errorUsername = useHookstate('')
   const showUserId = useHookstate(false)
   const showApiKey = useHookstate(false)
+  const showDeleteAccount = useHookstate(false)
   const oauthConnectedState = useHookstate(Object.assign({}, initialOAuthConnectedState))
   const authState = useHookstate(initialAuthState)
   /** Login Link feature that was needed for multi cam mocap that is not currently necessary. Keeping code around for now if we return to it*/
@@ -134,11 +129,6 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
 
   const originallyAgeVerified = useHookstate(checked18OrOver)
   const originallyAcceptedTOS = useHookstate(acceptedTOS).value
-  const currentLocation = getState(LocationState).currentLocation.location
-
-  const avatarSelectMenuRef = useRef<{
-    handleClose: () => Promise<void>
-  } | null>(null)
 
   const submitAgeVerified = () => {
     if (!originallyAgeVerified.value && !checked18OrOver) {
@@ -147,7 +137,9 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
         .patch(userId, { ageVerified: true })
         .then(() => {
           selfUser.ageVerified.set(true)
-          logger.analytics({ event_name: 'accept_tos' })
+          logger.info({
+            event_name: 'accept_tos'
+          })
         })
         .catch((e) => {
           console.error(e, 'Error updating user')
@@ -192,7 +184,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   }, [selfUser.name.value])
 
   useEffect(() => {
-    if (!loading.value) logger.analytics({ event_name: 'view_profile' })
+    if (!loading.value) logger.info({ event_name: 'view_profile' })
   }, [loading.value])
 
   const identityProvidersQuery = useFind(identityProviderPath)
@@ -250,7 +242,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     if (errorUsername.value.length > 0) return
     if (selfUser.name.value.trim() !== name) {
       AvatarService.updateUsername(userId, name).then(() =>
-        logger.analytics({
+        logger.info({
           event_name: 'rename_user'
         })
       )
@@ -278,14 +270,14 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     const redirectUrl = window.location.toString().replace(window.location.search, '')
     if (type === 'email')
       AuthService.createMagicLink(emailPhone.value, authState?.value, 'email', redirectUrl).then(() =>
-        logger.analytics({
+        logger.info({
           event_name: 'connect_email',
           event_value: e.currentTarget.id
         })
       )
     else if (type === 'sms')
       AuthService.createMagicLink(emailPhone.value, authState?.value, 'sms', redirectUrl).then(() =>
-        logger.analytics({
+        logger.info({
           event_name: 'connect_sms',
           event_value: e.currentTarget.id
         })
@@ -294,7 +286,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   }
 
   const handleOAuthServiceClick = (serviceName: keyof typeof initialOAuthConnectedState) => {
-    logger.analytics({
+    logger.info({
       event_name: 'connect_social_login',
       event_value: serviceName
     })
@@ -302,7 +294,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   }
 
   const handleRemoveOAuthServiceClick = (serviceName: keyof typeof initialOAuthConnectedState) => {
-    logger.analytics({
+    logger.info({
       event_name: 'disconnect_social_login',
       event_value: serviceName
     })
@@ -357,14 +349,6 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
     }
   }
 
-  const onAvatarSelectClose = () => {
-    if (avatarSelectMenuRef.current) {
-      avatarSelectMenuRef.current?.handleClose()
-    } else {
-      PopoverState.hidePopupover()
-    }
-  }
-
   const enableSocial =
     authState?.value?.apple ||
     authState?.value?.discord ||
@@ -377,40 +361,43 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
   const enableConnect = authState?.value?.emailMagicLink || authState?.value?.smsMagicLink
 
   return (
-    <div className="absolute z-50 h-fit max-h-[90dvh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-surface-4 p-6 smh:max-h-[60dvh] smh:px-8 smh:py-6">
-      <div className="relative grid w-full grid-cols-5 gap-x-2">
-        <div className="col-span-3 grid grid-cols-[auto,1fr] gap-x-6">
-          <div className="relative h-20 w-20">
-            <AvatarImage size="large" src={avatarThumbnail} className="object-cover" />
+    <div className="relative z-50 h-fit max-h-[60vh] w-[50vw] min-w-[720px] max-w-2xl overflow-y-auto rounded-2xl bg-theme-surface-main p-10">
+      <div className="grid w-full grid-cols-2 gap-x-2">
+        <div className="grid grid-cols-3 gap-x-2">
+          <div className="relative col-span-1 h-[3.75rem] w-[3.75rem]">
+            <AvatarImage size="fill" src={avatarThumbnail} />
             <button
               onClick={() => {
-                PopoverState.showPopupover(
-                  <AvatarSelectMenu ref={avatarSelectMenuRef} showBackButton={true} previewEnabled={true} />,
-                  onAvatarSelectClose
-                )
+                PopoverState.showPopupover(<AvatarSelectMenu showBackButton={true} previewEnabled={true} />)
               }}
-              className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#DDE1E5] p-2"
+              className="absolute -bottom-3 -right-3 flex h-8 w-8 items-center justify-center rounded-full bg-[#DDE1E5] p-2"
             >
-              <Edit01Lg className="place-items-center text-text-secondary" />
+              <Edit01Lg className="place-items-center text-black" />
             </button>
           </div>
 
-          <div className="flex flex-col">
-            <Text fontSize="xl" fontWeight="semibold" className="text-text-primary">
+          <div className="col-span-2 grid grid-cols-1 gap-y-1">
+            <Text fontSize="xl" fontWeight="semibold">
               {hasAdminAccess ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
-              <span>{hasAdminAccess ? ' Admin' : isGuest ? ' Guest' : ' User'}</span>
+              <span className={commonStyles.bold}>{hasAdminAccess ? ' Admin' : isGuest ? ' Guest' : ' User'}</span>.
             </Text>
+
+            {acceptedTOS && selfUser?.inviteCode.value && (
+              <Text fontSize="sm">
+                {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode.value}
+              </Text>
+            )}
 
             {acceptedTOS && (
               <button className="w-fit" onClick={() => showUserId.set(!showUserId.value)}>
-                <Text fontSize="sm" className="text-text-primary">
+                <Text fontSize="sm">
                   {showUserId.value ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
                 </Text>
               </button>
             )}
 
             {acceptedTOS && apiKey?.id && (
-              <button onClick={() => showApiKey.set(!showApiKey.value)} className="w-fit text-text-secondary">
+              <button onClick={() => showApiKey.set(!showApiKey.value)} className="w-fit">
                 <Text fontSize="sm">
                   {showApiKey.value ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
                 </Text>
@@ -419,91 +406,62 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
           </div>
         </div>
 
-        <div className="col-span-2 grid grid-cols-[auto_136px] gap-x-6 lg:grid-cols-[auto_auto]">
+        <div className="grid grid-cols-3 gap-x-2">
           <button
-            className={twMerge(
-              'flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-ui-secondary p-2 text-text-primary-button hover:bg-ui-hover-secondary focus:bg-ui-select-secondary',
-              initialized ? 'justify-self-end' : 'col-start-3'
-            )}
+            className="col-span-1 flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-[#616161] p-2"
             onClick={() => {
               PopoverState.showPopupover(<SettingsMenu />)
             }}
           >
-            <CogLg className="h-[1.875rem] w-[1.875rem]" />
+            <CogLg className="h-10 w-10 text-white" />
           </button>
 
           {initialized && (
-            <div className="flex w-full flex-col items-end gap-y-4">
-              <Button variant="secondary" className="w-[136px] rounded-[10px] lg:w-full" onClick={openChat}>
+            <div className="col-span-2 grid grid-cols-1 gap-y-2">
+              <button
+                className="flex w-full items-center justify-center gap-x-2 rounded-md bg-[#616161] p-1"
+                onClick={openChat}
+              >
                 <HelpIconLg />
                 {t('user:usermenu.profile.helpChat')}
-              </Button>
+              </button>
 
-              <Button
-                variant="red"
-                fullWidth={!isMobile}
-                className="w-[136px] rounded-[10px] lg:w-full"
-                onClick={() =>
-                  PopoverState.showPopupover(<ReportMenu type="location" locationId={currentLocation.id} />)
-                }
+              <button
+                className="flex w-full items-center justify-center gap-x-2 rounded-md bg-[#C3324B] p-1"
+                onClick={openChat}
               >
                 <ReportWebsiteDefaullg />
                 {t('user:usermenu.profile.reportWorld')}
-              </Button>
+              </button>
             </div>
           )}
         </div>
-
-        <div
-          className={twMerge(
-            'absolute left-[6.5rem] flex flex-col gap-y-2 !italic',
-            acceptedTOS ? 'top-16' : 'top-11',
-            initialized && 'top-[4.5rem]'
-          )}
-        >
-          {isGuest && !originallyAcceptedTOS && (
-            <>
-              <div className="flex w-full items-center justify-start gap-x-1">
-                <Checkbox
-                  variantSize="lg"
-                  checked={checkedTOS.value}
-                  onChange={() => checkedTOS.set((v) => !v)}
-                  disabled={checkedTOS.value}
-                  label={t('user:usermenu.profile.agreeTOS')}
-                />
-                <a
-                  className="inline text-sm text-text-primary underline-offset-4 hover:text-ui-hover-primary hover:underline"
-                  href={clientSetting?.termsOfService}
-                  target="_blank"
-                >
-                  {t('user:usermenu.profile.termsOfService')}
-                </a>
-              </div>
-              <Checkbox
-                variantSize="lg"
-                checked={checked13OrOver.value}
-                onChange={() => checked13OrOver.set((v) => !v)}
-                disabled={checked13OrOver.value}
-                label={t('user:usermenu.profile.confirmAge13')}
-              />
-            </>
-          )}
-          {!isGuest && !originallyAgeVerified.value && (
-            <Checkbox
-              variantSize="lg"
-              checked={checked18OrOver}
-              onChange={submitAgeVerified}
-              label={t('user:usermenu.profile.confirmAge18')}
-            />
-          )}
-        </div>
       </div>
-      <div
-        className={twMerge(
-          'mt-1 grid w-full grid-cols-1 gap-y-1',
-          isGuest && !originallyAcceptedTOS ? 'mt-7 smh:mt-16' : 'mt-2.5 smh:mt-5'
+
+      <div className="mt-5 grid w-full grid-cols-1 gap-y-4">
+        {isGuest && !originallyAcceptedTOS && (
+          <>
+            <Checkbox
+              checked={checkedTOS.value}
+              onChange={() => checkedTOS.set((v) => !v)}
+              label={t('user:usermenu.profile.agreeTOS')}
+            />
+            <Checkbox
+              checked={checked13OrOver.value}
+              onChange={() => checked13OrOver.set((v) => !v)}
+              label={t('user:usermenu.profile.confirmAge13')}
+            />
+          </>
         )}
-      >
+
+        {!isGuest && !originallyAgeVerified.value && (
+          <Checkbox
+            checked={checked18OrOver}
+            onChange={submitAgeVerified}
+            label={t('user:usermenu.profile.confirmAge18')}
+          />
+        )}
+
         <Input
           value={username.value || ('' as UserName)}
           state={errorUsername.value ? 'error' : undefined}
@@ -517,7 +475,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             position: 'top'
           }}
           endComponent={
-            <button className="h-4 w-4 text-text-primary" onMouseDown={updateUserName}>
+            <button className="h-4 w-4" onMouseDown={updateUserName}>
               <CheckLg />
             </button>
           }
@@ -533,7 +491,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             value={userId}
             endComponent={
               <button
-                className="h-4 w-4 text-text-primary"
+                className="h-4 w-4"
                 onMouseDown={() => {
                   navigator.clipboard.writeText(userId)
                   NotificationService.dispatchNotify(t('user:usermenu.profile.userIdCopied'), {
@@ -556,13 +514,13 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
             }}
             value={apiKey?.token}
             startComponent={
-              <button className="h-4 w-4 text-text-primary" onMouseDown={refreshApiKey}>
+              <button className="h-4 w-4" onMouseDown={refreshApiKey}>
                 <Refresh1Lg />
               </button>
             }
             endComponent={
               <button
-                className="h-4 w-4 text-text-primary"
+                className="h-4 w-4"
                 onMouseDown={() => {
                   navigator.clipboard.writeText(apiKey?.token)
                   NotificationService.dispatchNotify(t('user:usermenu.profile.apiKeyCopied'), {
@@ -588,7 +546,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
               state={error.value ? 'error' : undefined}
               helperText={error.value ? getErrorText() : ''}
               endComponent={
-                <button className="h-4 w-4 text-text-primary" onMouseDown={handleGuestSubmit}>
+                <button className="h-4 w-4" onMouseDown={handleGuestSubmit}>
                   <Send01Lg />
                 </button>
               }
@@ -603,32 +561,15 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
       </div>
 
       {!isGuest && (
-        <div className="grid w-1/2 grid-cols-1 gap-y-1 px-5 smh:mt-5 smh:gap-y-2">
-          <button
-            className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
-            onClick={() => {
-              PopoverState.hidePopupover() // Close the ProfileMenu popover
-              PopoverState.showPopupover(
-                <ConfirmDialog
-                  text={t('user:usermenu.profile.logout.title')}
-                  onSubmit={async () => {
-                    handleLogout()
-                  }}
-                  onClose={() => {
-                    PopoverState.showPopupover(<ProfileMenu />)
-                  }}
-                />
-              )
-            }}
-          >
+        <div className="mt-5 grid w-1/2 grid-cols-1 gap-y-2 px-5">
+          <button className="flex w-full items-center justify-start gap-x-2 p-2" onClick={handleLogout}>
             <LogIn01Lg />
-            {t('user:usermenu.profile.logout.submit')}
+            {t('user:usermenu.profile.logout')}
           </button>
 
           <button
-            className="flex w-full items-center justify-start gap-x-2 p-2 text-text-primary"
+            className="flex w-full items-center justify-start gap-x-2 p-2"
             onClick={() => {
-              PopoverState.hidePopupover() // Close the ProfileMenu popover
               PopoverState.showPopupover(
                 <ConfirmDialog
                   title={t('user:usermenu.profile.delete.finalDeleteConfirm')}
@@ -636,9 +577,7 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
                   onSubmit={async () => {
                     AuthService.removeUser(userId)
                     AuthService.logoutUser()
-                  }}
-                  onClose={() => {
-                    PopoverState.showPopupover(<ProfileMenu />)
+                    showDeleteAccount.set(false)
                   }}
                 />
               )
@@ -650,150 +589,103 @@ const ProfileMenu = ({ hideLogin, onClose }: Props): JSX.Element => {
         </div>
       )}
 
-      <hr className="mb-1 mt-4 border-ui-outline" />
+      <hr className="mb-5 mt-5 border-[#616161]" />
 
       {!hideLogin && acceptedTOS && enableSocial && (
-        <div className="flex w-full items-center justify-between gap-x-4">
-          <div className="flex items-center gap-x-4">
-            {authState?.value?.facebook && (
-              <Tooltip
-                position="top"
-                content={`Click to ${oauthConnectedState.facebook.value ? 'unlink' : 'link'} your Facebook account`}
+        <div className="flex w-full items-center justify-center gap-x-2">
+          {authState?.value?.facebook && (
+            <Tooltip
+              position="top"
+              content={`Click to ${oauthConnectedState.facebook.value ? 'unlink' : 'link'} your Facebook account`}
+            >
+              <button
+                className="relative h-10 w-10"
+                onClick={() => {
+                  if (oauthConnectedState.facebook.value) {
+                    handleRemoveOAuthServiceClick('facebook')
+                  } else {
+                    handleOAuthServiceClick('facebook')
+                  }
+                }}
               >
-                <button
-                  className="relative h-8 w-8"
-                  onClick={() => {
-                    if (oauthConnectedState.facebook.value) {
-                      handleRemoveOAuthServiceClick('facebook')
-                    } else {
-                      handleOAuthServiceClick('facebook')
-                    }
-                  }}
-                >
-                  <FacebookOriginalFalse className="h-8 w-8" />
-                  {oauthConnectedState.facebook.value && (
-                    <CheckLg className="absolute -right-1 -top-1 font-semibold text-green-400" />
-                  )}
-                </button>
-              </Tooltip>
-            )}
-            {authState?.value?.twitter && (
-              <Tooltip
-                position="top"
-                content={`Click to ${oauthConnectedState.twitter.value ? 'unlink' : 'link'} your Twitter account`}
+                <FacebookOriginalFalse className="h-10 w-10" />
+                {oauthConnectedState.facebook.value && (
+                  <CheckLg className="absolute -right-1 -top-1 font-semibold text-green-400" />
+                )}
+              </button>
+            </Tooltip>
+          )}
+          {authState?.value?.twitter && (
+            <Tooltip
+              position="top"
+              content={`Click to ${oauthConnectedState.twitter.value ? 'unlink' : 'link'} your Twitter account`}
+            >
+              <button
+                className="relative h-10 w-10"
+                onClick={() => {
+                  if (oauthConnectedState.twitter.value) {
+                    handleRemoveOAuthServiceClick('twitter')
+                  } else {
+                    handleOAuthServiceClick('twitter')
+                  }
+                }}
               >
-                <button
-                  className="relative h-8 w-8"
-                  onClick={() => {
-                    if (oauthConnectedState.twitter.value) {
-                      handleRemoveOAuthServiceClick('twitter')
-                    } else {
-                      handleOAuthServiceClick('twitter')
-                    }
-                  }}
-                >
-                  <TwitterOriginalFalse className="h-8 w-8" />
-                  {oauthConnectedState.twitter.value && (
-                    <CheckLg className="absolute -right-1 -top-1 font-semibold text-green-400" />
-                  )}
-                </button>
-              </Tooltip>
-            )}
-            {authState?.value?.google && (
-              <Tooltip
-                position="top"
-                content={`Click to ${oauthConnectedState.google.value ? 'unlink' : 'link'} your Google account`}
+                <TwitterOriginalFalse className="h-10 w-10" />
+                {oauthConnectedState.twitter.value && (
+                  <CheckLg className="absolute -right-1 -top-1 font-semibold text-green-400" />
+                )}
+              </button>
+            </Tooltip>
+          )}
+          {authState?.value?.github && (
+            <Tooltip
+              position="top"
+              content={`Click to ${oauthConnectedState.github.value ? 'unlink' : 'link'} your Github account`}
+            >
+              <button
+                className="relative h-10 w-10"
+                onClick={() => {
+                  if (oauthConnectedState.github.value) {
+                    handleRemoveOAuthServiceClick('github')
+                  } else {
+                    handleOAuthServiceClick('github')
+                  }
+                }}
               >
-                <button
-                  className="relative h-8 w-8"
-                  onClick={() => {
-                    if (oauthConnectedState.google.value) {
-                      handleRemoveOAuthServiceClick('google')
-                    } else {
-                      handleOAuthServiceClick('google')
-                    }
-                  }}
-                >
-                  <GoogleOriginalFalse className="h-8 w-8" />
-                  {oauthConnectedState.google.value && (
-                    <CheckLg className="absolute -right-1 -top-1 font-semibold text-green-400" />
-                  )}
-                </button>
-              </Tooltip>
-            )}
-            {authState?.value?.apple && (
-              <Tooltip
-                position="top"
-                content={`Click to ${oauthConnectedState.apple.value ? 'unlink' : 'link'} your Apple account`}
+                <GithubOriginalFalse className="h-10 w-10" />
+                {oauthConnectedState.github.value && (
+                  <CheckLg className="absolute -right-1 -top-1 font-semibold text-green-400" />
+                )}
+              </button>
+            </Tooltip>
+          )}
+          {authState?.value?.discord && (
+            <Tooltip
+              position="top"
+              content={`Click to ${oauthConnectedState.discord.value ? 'unlink' : 'link'} your Discord account`}
+            >
+              <button
+                className="relative h-10 w-10"
+                onClick={() => {
+                  if (oauthConnectedState.discord.value) {
+                    handleRemoveOAuthServiceClick('discord')
+                  } else {
+                    handleOAuthServiceClick('discord')
+                  }
+                }}
               >
-                <button
-                  className="relative h-8 w-8"
-                  onClick={() => {
-                    if (oauthConnectedState.apple.value) {
-                      handleRemoveOAuthServiceClick('apple')
-                    } else {
-                      handleOAuthServiceClick('apple')
-                    }
-                  }}
-                >
-                  <FaApple className="h-8 w-8 text-text-primary" />
-                  {oauthConnectedState.apple.value && (
-                    <CheckLg className="absolute -right-1 -top-1 font-semibold text-green-400" />
-                  )}
-                </button>
-              </Tooltip>
-            )}
-            {authState?.value?.github && (
-              <Tooltip
-                position="top"
-                content={`Click to ${oauthConnectedState.github.value ? 'unlink' : 'link'} your Github account`}
-              >
-                <button
-                  className="relative h-8 w-8"
-                  onClick={() => {
-                    if (oauthConnectedState.github.value) {
-                      handleRemoveOAuthServiceClick('github')
-                    } else {
-                      handleOAuthServiceClick('github')
-                    }
-                  }}
-                >
-                  <GithubOriginalFalse className="h-8 w-8" />
-                  {oauthConnectedState.github.value && (
-                    <CheckLg className="absolute -right-1 -top-1 font-semibold text-green-400" />
-                  )}
-                </button>
-              </Tooltip>
-            )}
-            {authState?.value?.discord && (
-              <Tooltip
-                position="top"
-                content={`Click to ${oauthConnectedState.discord.value ? 'unlink' : 'link'} your Discord account`}
-              >
-                <button
-                  className="relative h-8 w-8"
-                  onClick={() => {
-                    if (oauthConnectedState.discord.value) {
-                      handleRemoveOAuthServiceClick('discord')
-                    } else {
-                      handleOAuthServiceClick('discord')
-                    }
-                  }}
-                >
-                  <DiscordOriginalFalse className="h-8 w-8" />
-                  {oauthConnectedState.discord.value && (
-                    <CheckLg className="absolute -right-1 -top-1 font-semibold text-green-400" />
-                  )}
-                </button>
-              </Tooltip>
-            )}
-          </div>
-          <span className="text-sm text-text-primary">{t('user:usermenu.profile.addSocial')}</span>
+                <DiscordOriginalFalse className="h-10 w-10" />
+                {oauthConnectedState.discord.value && (
+                  <CheckLg className="absolute -right-1 -top-1 font-semibold text-green-400" />
+                )}
+              </button>
+            </Tooltip>
+          )}
         </div>
       )}
 
       <a href={clientSetting?.privacyPolicy} target="_blank">
-        <Text className="mt-1 w-full text-center text-text-primary smh:mt-5" fontSize="sm">
+        <Text className="mt-5 w-full text-center" fontSize="sm">
           {t('user:usermenu.profile.privacyPolicy')}
         </Text>
       </a>

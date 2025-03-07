@@ -23,7 +23,7 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { ProjectService, ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
+import { ProjectState } from '@ir-engine/client-core/src/common/services/ProjectService'
 import config from '@ir-engine/common/src/config'
 import { camelCaseToSpacedString } from '@ir-engine/common/src/utils/camelCaseToSpacedString'
 import { hasComponent, useAncestorWithComponents, useChildrenWithComponents, useComponent } from '@ir-engine/ecs'
@@ -36,13 +36,14 @@ import { pathJoin } from '@ir-engine/engine/src/assets/functions/miscUtils'
 import { STATIC_ASSET_REGEX } from '@ir-engine/engine/src/assets/functions/pathResolver'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
-import { getState, useHookstate, useMutableState, useState } from '@ir-engine/hyperflux'
+import { getState, useHookstate } from '@ir-engine/hyperflux'
 import { supportedColliderShapes } from '@ir-engine/spatial/src/physics/components/ColliderComponent'
 import { Shapes } from '@ir-engine/spatial/src/physics/types/PhysicsTypes'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { Checkbox, Input } from '@ir-engine/ui'
-import React, { useCallback, useEffect } from 'react'
+import { Checkbox } from '@ir-engine/ui'
+import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { IoIosArrowBack, IoIosArrowDown } from 'react-icons/io'
 import { MdOutlineViewInAr } from 'react-icons/md'
 import Accordion from '../../../../../primitives/tailwind/Accordion'
 import Button from '../../../../../primitives/tailwind/Button'
@@ -51,13 +52,12 @@ import Text from '../../../../../primitives/tailwind/Text'
 import InputGroup from '../../../input/Group'
 import ModelInput from '../../../input/Model'
 import SelectInput from '../../../input/Select'
+import StringInput from '../../../input/String'
 
 import { EditorControlFunctions } from '@ir-engine/editor/src/functions/EditorControlFunctions'
-import { EditorHistoryFunctions } from '@ir-engine/editor/src/services/EditorHistoryState'
 import { SelectionState } from '@ir-engine/editor/src/services/SelectionServices'
 import { RigidBodyComponent } from '@ir-engine/spatial/src/physics/components/RigidBodyComponent'
 import { HiPlus } from 'react-icons/hi2'
-import { OptionType } from '../../../../../primitives/tailwind/Select'
 
 const shapeTypeOptions = Object.entries(Shapes)
   .filter(([_, value]) => supportedColliderShapes.includes(value as any))
@@ -71,8 +71,8 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
   const gltfComponent = useComponent(props.entity, GLTFComponent)
   const exporting = useHookstate(false)
   const editorState = getState(EditorState)
-  const projectState = useMutableState(ProjectState)
-  const loadedProjects = useState([] as OptionType[])
+  const projectState = getState(ProjectState)
+  const loadedProjects = useHookstate(() => projectState.projects.map((project) => project.name))
   const hasRigidBody = useAncestorWithComponents(props.entity, [RigidBodyComponent])
 
   const childMeshEntities = useChildrenWithComponents(props.entity, [MeshComponent])
@@ -123,23 +123,6 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
     })
   }
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      await ProjectService.fetchProjects()
-    }
-    fetchProjects()
-  }, [])
-
-  useEffect(() => {
-    const projects = projectState.projects.value.map((project) => project.name)
-    const options =
-      projects.map((project) => ({
-        label: project,
-        value: project
-      })) ?? []
-    loadedProjects.set(options as unknown as OptionType[])
-  }, [projectState.projects])
-
   return (
     <NodeEditor
       name={t('editor:properties.model.title')}
@@ -179,7 +162,6 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
             onClick={() => {
               const nodes = SelectionState.getSelectedEntities()
               EditorControlFunctions.addOrRemoveComponent(nodes, RigidBodyComponent, true, { type: 'fixed' })
-              EditorHistoryFunctions.snapshot()
             }}
           >
             <HiPlus />
@@ -198,18 +180,30 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
         </InputGroup>
       )) ||
         ''}
-      <Accordion title={t('editor:properties.model.lbl-export')}>
+      <Accordion
+        className="space-y-4 p-4"
+        title={t('editor:properties.model.lbl-export')}
+        expandIcon={<IoIosArrowBack className="text-xl text-gray-300" />}
+        shrinkIcon={<IoIosArrowDown className="text-xl text-gray-300" />}
+        titleClassName="text-gray-300"
+        titleFontSize="base"
+      >
         {!exporting.value && (
           <>
             <InputGroup name="Export Project" label="Project">
               <SelectInput
                 value={srcProject.value}
-                options={loadedProjects.value as OptionType[]}
+                options={
+                  loadedProjects.value.map((project) => ({
+                    label: project,
+                    value: project
+                  })) ?? []
+                }
                 onChange={(val) => srcProject.set(val as string)}
               />
             </InputGroup>
             <InputGroup name="File Path" label="File Path">
-              <Input fullWidth value={srcPath.value} onChange={(e) => srcPath.set(e.target.value)} />
+              <StringInput value={srcPath.value} onChange={srcPath.set} />
             </InputGroup>
             <InputGroup name="Export Type" label={t('editor:properties.model.lbl-exportType')}>
               <SelectInput
@@ -227,7 +221,7 @@ const GLTFNodeEditor: EditorComponentType = (props) => {
                 onChange={(val) => exportType.set(val as string)}
               />
             </InputGroup>
-            <Button className="self-end" onClick={onExportModel} fullWidth>
+            <Button className="self-end" onClick={onExportModel}>
               {t('editor:properties.model.saveChanges')}
             </Button>
           </>

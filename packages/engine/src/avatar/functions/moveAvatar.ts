@@ -387,7 +387,7 @@ export const updateLocalAvatarPosition = (entity: Entity) => {
   rigidbody.position.copy(rigidbody.targetKinematicPosition)
   transform.position.copy(rigidbody.targetKinematicPosition)
   Physics.setKinematicRigidbodyPose(world, entity, rigidbody.targetKinematicPosition, rigidbody.rotation)
-  TransformComponent.dirty[entity] = 0
+  delete TransformComponent.dirtyTransforms[entity]
 }
 
 const viewerQuat = new Quaternion()

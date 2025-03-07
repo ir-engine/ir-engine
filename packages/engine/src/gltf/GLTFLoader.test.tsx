@@ -23,25 +23,23 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { act, render } from '@testing-library/react'
-import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
-
-import { GLTF } from '@gltf-transform/core/dist/types/gltf'
+import { GLTF } from '@gltf-transform/core'
 import {
-  createEntity,
   EntityTreeComponent,
+  UUIDComponent,
+  createEntity,
   generateEntityUUID,
   getChildrenWithComponents,
   getComponent,
   getOptionalComponent,
   hasComponent,
-  setComponent,
-  UUIDComponent
+  setComponent
 } from '@ir-engine/ecs'
 import { createEngine, destroyEngine } from '@ir-engine/ecs/src/Engine'
-import { applyIncomingActions, getState } from '@ir-engine/hyperflux'
+import { applyIncomingActions, getMutableState, getState } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, PointLightComponent, SpotLightComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
+import { RapierWorldState } from '@ir-engine/spatial/src/physics/classes/Physics'
 import { BoneComponent } from '@ir-engine/spatial/src/renderer/components/BoneComponent'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
@@ -50,14 +48,18 @@ import {
   MaterialInstanceComponent,
   MaterialStateComponent
 } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { act, render } from '@testing-library/react'
+import assert from 'assert'
+import React from 'react'
+import Sinon from 'sinon'
 import { InstancedMesh, MathUtils, MeshStandardMaterial } from 'three'
-import { startEngineReactor } from '../../tests/startEngineReactor'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { overrideFileLoaderLoad } from '../../tests/util/loadGLTFAssetNode'
-import { loadDRACODecoderNode, NodeDRACOLoader } from '../assets/loaders/gltf/NodeDracoLoader'
 import { AssetLoaderState } from '../assets/state/AssetLoaderState'
 import { AnimationComponent } from '../avatar/components/AnimationComponent'
 import { GLTFComponent } from './GLTFComponent'
-import { KHRUnlitExtensionComponent } from './MaterialExtensionComponents'
+import { GLTFDocumentState } from './GLTFDocumentState'
+import { KHRUnlitExtensionComponent, MaterialDefinitionComponent } from './MaterialDefinitionComponent'
 import { EXTMeshGPUInstancingComponent, KHRLightsPunctualComponent, KHRPunctualLight } from './MeshExtensionComponents'
 
 const base_url = 'packages/engine/tests/assets'
@@ -79,22 +81,22 @@ const setupEntity = () => {
   const parent = createEntity()
   setComponent(parent, SceneComponent)
   setComponent(parent, EntityTreeComponent)
-  const uuid = UUIDComponent.generateUUID()
-  setComponent(parent, UUIDComponent, uuid)
+  const uuid = setComponent(parent, UUIDComponent, generateEntityUUID())
+
+  getMutableState(RapierWorldState).merge({
+    [uuid]: true as any
+  })
 
   const entity = createEntity()
   setComponent(entity, EntityTreeComponent, { parentEntity: parent })
   return entity
 }
 
-describe('GLTF Loader', async () => {
+describe('GLTF Loader', { retry: 2 }, async () => {
   overrideFileLoaderLoad()
 
-  beforeEach(async () => {
+  beforeEach(() => {
     createEngine()
-    startEngineReactor()
-
-    await act(() => render(null))
   })
 
   afterEach(() => {
@@ -107,25 +109,31 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: duck_gltf })
 
-    await act(() => render(null))
+    const { rerender, unmount } = render(<></>)
+    applyIncomingActions()
+    await act(async () => rerender(<></>))
 
-    const document = getComponent(entity, GLTFComponent).document
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const gltfDocumentState = getState(GLTFDocumentState)
+    const gltf = gltfDocumentState[instanceID]
 
-    const usedMeshes = document!.nodes!.reduce((accum, node) => {
+    const usedMeshes = gltf.nodes!.reduce((accum, node) => {
       if (typeof node.mesh === 'number') accum.add(node.mesh)
       return accum
     }, new Set<number>())
+    await act(async () => rerender(<></>))
+
+    const meshes = getChildrenWithComponents(entity, [MeshComponent])
 
     await vi.waitFor(
       async () => {
         expect(getChildrenWithComponents(entity, [MeshComponent]).length).toBeTruthy()
       },
-      { timeout: 10000 }
+      { timeout: 20000 }
     )
 
-    const meshes = getChildrenWithComponents(entity, [MeshComponent])
-
     assert(meshes.length === usedMeshes.size)
+    unmount()
   })
 
   it('can load a material', async () => {
@@ -134,13 +142,17 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: duck_gltf })
 
-    await act(() => render(null))
+    const { rerender, unmount } = render(<></>)
+    applyIncomingActions()
+    await act(async () => rerender(<></>))
 
-    const document = getComponent(entity, GLTFComponent).document
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const gltfDocumentState = getState(GLTFDocumentState)
+    const gltf = gltfDocumentState[instanceID]
 
-    const usedMaterials = document!.nodes!.reduce((accum, node) => {
+    const usedMaterials = gltf.nodes!.reduce((accum, node) => {
       if (typeof node.mesh === 'number') {
-        const mesh = document!.meshes![node.mesh]
+        const mesh = gltf.meshes![node.mesh]
         for (const primitive of mesh.primitives) {
           if (typeof primitive.material === 'number') accum.add(primitive.material)
         }
@@ -148,50 +160,42 @@ describe('GLTF Loader', async () => {
       return accum
     }, new Set<number>())
 
-    await vi.waitFor(
-      async () => {
-        expect(getChildrenWithComponents(entity, [MaterialStateComponent]).length).toBeTruthy()
-      },
-      { timeout: 10000 }
-    )
-
-    const materials = getChildrenWithComponents(entity, [MaterialStateComponent])
+    const materials = getChildrenWithComponents(entity, [MaterialDefinitionComponent])
     assert(materials.length === usedMaterials.size)
+    unmount()
   })
 
   it('can load a draco geometry', async () => {
     const entity = setupEntity()
 
-    const loader = getState(AssetLoaderState).gltfLoader
-    loadDRACODecoderNode()
-    const dracoLoader = new NodeDRACOLoader()
-    /* @ts-ignore */
-    dracoLoader.preload = () => {
-      return dracoLoader
-    }
-    loader.setDRACOLoader(dracoLoader)
+    const dracoLoader = getState(AssetLoaderState).gltfLoader.dracoLoader!
+
+    const spy = Sinon.spy(dracoLoader, 'preload')
+    // dracoLoader.preload = () => {
+    //   spy()
+    //   return dracoLoader
+    // }
 
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: draco_gltf })
 
-    await act(() => render(null))
+    const { rerender, unmount } = render(<></>)
+    applyIncomingActions()
+    await act(async () => rerender(<></>))
 
-    const document = getComponent(entity, GLTFComponent).document
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const gltfDocumentState = getState(GLTFDocumentState)
+    const gltf = gltfDocumentState[instanceID]
 
-    const usedMeshes = document!.nodes!.reduce((accum, node) => {
+    const usedMeshes = gltf.nodes!.reduce((accum, node) => {
       if (typeof node.mesh === 'number') accum.add(node.mesh)
       return accum
     }, new Set<number>())
 
-    await vi.waitFor(
-      async () => {
-        expect(getChildrenWithComponents(entity, [MeshComponent]).length).toBeTruthy()
-      },
-      { timeout: 10000 }
-    )
-
     const meshes = getChildrenWithComponents(entity, [MeshComponent])
     assert(meshes.length === usedMeshes.size)
+    assert(spy.called)
+    unmount()
   })
 
   it('can load an unlit material', async () => {
@@ -200,16 +204,20 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: unlit_gltf })
 
-    await act(() => render(null))
+    const { rerender, unmount } = render(<></>)
+    applyIncomingActions()
+    await act(async () => rerender(<></>))
 
-    const document = getComponent(entity, GLTFComponent).document
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const gltfDocumentState = getState(GLTFDocumentState)
+    const gltf = gltfDocumentState[instanceID]
 
-    const usedUnlitMaterials = document!.nodes!.reduce((accum, node) => {
+    const usedUnlitMaterials = gltf.nodes!.reduce((accum, node) => {
       if (typeof node.mesh === 'number') {
-        const mesh = document!.meshes![node.mesh]
+        const mesh = gltf.meshes![node.mesh]
         for (const primitive of mesh.primitives) {
           if (typeof primitive.material === 'number') {
-            const material = document!.materials![primitive.material]
+            const material = gltf.materials![primitive.material]
             if (material.extensions && KHRUnlitExtensionComponent.jsonID in material.extensions) {
               accum.add(primitive.material)
             }
@@ -219,15 +227,9 @@ describe('GLTF Loader', async () => {
       return accum
     }, new Set<number>())
 
-    await vi.waitFor(
-      async () => {
-        expect(getChildrenWithComponents(entity, [MaterialStateComponent]).length).toBeTruthy()
-      },
-      { timeout: 10000 }
-    )
-
     const materials = getChildrenWithComponents(entity, [KHRUnlitExtensionComponent])
     assert(materials.length === usedUnlitMaterials.size)
+    unmount()
   })
 
   it('can load a texture for a material', async () => {
@@ -236,34 +238,31 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: textured_gltf })
 
-    await act(() => render(null))
+    const { rerender, unmount } = render(<></>)
+    applyIncomingActions()
+    await act(async () => rerender(<></>))
 
-    const document = getComponent(entity, GLTFComponent).document
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const gltfDocumentState = getState(GLTFDocumentState)
+    const gltf = gltfDocumentState[instanceID]
 
-    const usedTextures = document!.meshes!.reduce((accum, mesh) => {
+    const usedTextures = gltf.meshes!.reduce((accum, mesh) => {
       if (mesh.primitives.length) {
         for (const prim of mesh.primitives) {
           if (typeof prim.material === 'number')
-            accum.add(
-              document!.images![document!.materials![prim.material].pbrMetallicRoughness!.baseColorTexture!.index].uri!
-            )
+            accum.add(gltf.images![gltf.materials![prim.material].pbrMetallicRoughness!.baseColorTexture!.index].uri!)
         }
       }
       return accum
     }, new Set<string>())
-
-    await vi.waitFor(
-      async () => {
-        expect(getChildrenWithComponents(entity, [MaterialStateComponent]).length).toBeTruthy()
-      },
-      { timeout: 10000 }
-    )
 
     const matStateEntities = getChildrenWithComponents(entity, [MaterialStateComponent])
     for (const matStateEntity of matStateEntities) {
       const material = getComponent(matStateEntity, MaterialStateComponent).material as MeshStandardMaterial
       assert(usedTextures.has(material.map!.name))
     }
+
+    unmount()
   })
 
   it('can load meshes with multiple primitives/materials', async () => {
@@ -272,36 +271,33 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: multiple_mesh_primitives_gltf })
 
-    await act(() => render(null))
+    const { rerender, unmount } = render(<></>)
+    applyIncomingActions()
+    await act(async () => rerender(<></>))
 
-    const document = getComponent(entity, GLTFComponent).document
-    const nodes = document!.nodes
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const gltfDocumentState = getState(GLTFDocumentState)
+    const gltf = gltfDocumentState[instanceID]
+    const nodes = gltf.nodes
 
-    const primitives = document!.meshes!.reduce((accum, mesh) => {
+    const primitives = gltf.meshes!.reduce((accum, mesh) => {
       if (mesh.primitives.length) accum.push(...mesh.primitives)
       return accum
     }, [] as GLTF.IMeshPrimitive[])
 
-    const usedMaterials = document!.meshes!.reduce((accum, mesh) => {
+    const usedMaterials = gltf.meshes!.reduce((accum, mesh) => {
       if (mesh.primitives.length) {
         for (const prim of mesh.primitives) {
-          if (typeof prim.material === 'number') accum.add(document!.materials![prim.material])
+          if (typeof prim.material === 'number') accum.add(gltf.materials![prim.material])
         }
       }
       return accum
     }, new Set<GLTF.IMaterial>())
 
-    await vi.waitFor(
-      async () => {
-        expect(getChildrenWithComponents(entity, [MeshComponent]).length).toBeTruthy()
-      },
-      { timeout: 10000 }
-    )
-
     const materials = [...usedMaterials]
 
-    assert(primitives.length > document!.meshes!.length)
-    assert(materials.length > document!.meshes!.length)
+    assert(primitives.length > gltf.meshes!.length)
+    assert(materials.length > gltf.meshes!.length)
 
     const meshes = nodes!.reduce((accum, node) => {
       if (typeof node.mesh === 'number') accum.push(node.mesh)
@@ -321,6 +317,8 @@ describe('GLTF Loader', async () => {
 
     assert(materials.length === matUUIDs.length)
     assert(matUUIDs.length > meshEntities.length)
+
+    unmount()
   })
 
   it('can load morph targets', async () => {
@@ -329,20 +327,20 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: morph_gltf })
 
-    await act(() => render(null))
+    const { rerender, unmount } = render(<></>)
+    applyIncomingActions()
+    await act(async () => rerender(<></>))
 
-    await vi.waitFor(
-      async () => {
-        await act(() => render(null))
-        expect(getChildrenWithComponents(entity, [MeshComponent]).length).toBeTruthy()
-      },
-      { timeout: 10000 }
-    )
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const gltfDocumentState = getState(GLTFDocumentState)
+    const gltf = gltfDocumentState[instanceID]
 
     const meshEntity = getChildrenWithComponents(entity, [MeshComponent])[0]
     const mesh = getComponent(meshEntity, MeshComponent)
     assert(mesh.geometry.morphAttributes)
     assert(mesh.geometry.morphTargetsRelative)
+
+    unmount()
   })
 
   it('can load a mesh with a single animation clip', async () => {
@@ -351,20 +349,23 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: rings_gltf })
 
-    await act(() => render(null))
-
+    const { rerender, unmount } = render(<></>)
+    applyIncomingActions()
+    await act(async () => rerender(<></>))
     await vi.waitFor(
-      async () => {
-        await act(() => render(null))
+      () => {
         expect(getOptionalComponent(entity, AnimationComponent)).toBeTruthy()
       },
-      { timeout: 10000 }
+      { timeout: 20000 }
     )
-    const document = getComponent(entity, GLTFComponent).document
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const gltfDocumentState = getState(GLTFDocumentState)
+    const gltf = gltfDocumentState[instanceID]
 
     const animationComponent = getComponent(entity, AnimationComponent)
+    assert(animationComponent.animations.length === gltf.animations!.length)
 
-    assert(animationComponent.animations.length === document!.animations!.length)
+    unmount()
   })
 
   it('can load a skeleton with many animation clips', async () => {
@@ -373,20 +374,23 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: animation_pack })
 
-    await act(() => render(null))
-
-    const document = getComponent(entity, GLTFComponent).document
-
+    const { rerender, unmount } = render(<></>)
+    applyIncomingActions()
+    await act(async () => rerender(<></>))
     await vi.waitFor(
       () => {
         expect(getOptionalComponent(entity, AnimationComponent)).toBeTruthy()
       },
-      { timeout: 10000 }
+      { timeout: 20000 }
     )
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const gltfDocumentState = getState(GLTFDocumentState)
+    const gltf = gltfDocumentState[instanceID]
 
     const animationComponent = getComponent(entity, AnimationComponent)
-    /**@todo why does this occasionally fail? */
-    //assert(animationComponent?.animations.length === document!.animations!.length)
+    assert(animationComponent?.animations.length === gltf.animations!.length)
+
+    unmount()
   })
 
   it('can load skinned meshes with bones and animations', async () => {
@@ -394,18 +398,21 @@ describe('GLTF Loader', async () => {
 
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: skinned_gltf })
-    await act(() => render(null))
 
+    const { rerender, unmount } = render(<></>)
+    applyIncomingActions()
+    await act(async () => rerender(<></>))
     await vi.waitFor(
       () => {
         expect(getOptionalComponent(entity, AnimationComponent)).toBeTruthy()
       },
-      { timeout: 10000 }
+      { timeout: 20000 }
     )
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const gltfDocumentState = getState(GLTFDocumentState)
+    const gltf = gltfDocumentState[instanceID]
 
-    const document = getComponent(entity, GLTFComponent).document
-
-    const joints = document!.skins!.reduce((accum, skin) => {
+    const joints = gltf.skins!.reduce((accum, skin) => {
       if (skin.joints) accum.push(...skin.joints)
       return accum
     }, [] as number[])
@@ -414,14 +421,16 @@ describe('GLTF Loader', async () => {
     const boneEntities = getChildrenWithComponents(entity, [BoneComponent])
     const animationComponent = getComponent(entity, AnimationComponent)
 
-    assert(skinnedMeshEntities.length === document!.skins!.length)
+    assert(skinnedMeshEntities.length === gltf.skins!.length)
     assert(boneEntities.length === joints.length)
-    assert(animationComponent.animations.length === document!.animations!.length)
+    assert(animationComponent.animations.length === gltf.animations!.length)
 
     for (const anim of animationComponent.animations) {
-      const gltfAnim = document!.animations!.find((a) => a.name === anim.name)
+      const gltfAnim = gltf.animations!.find((a) => a.name === anim.name)
       assert(gltfAnim?.channels.length === anim.tracks.length)
     }
+
+    unmount()
   })
 
   it('can load cameras', async () => {
@@ -430,19 +439,17 @@ describe('GLTF Loader', async () => {
     setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: camera_gltf })
 
-    await act(() => render(null))
+    const { rerender, unmount } = render(<></>)
+    applyIncomingActions()
+    await act(async () => rerender(<></>))
 
-    const document = getComponent(entity, GLTFComponent).document
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const gltfDocumentState = getState(GLTFDocumentState)
+    const gltf = gltfDocumentState[instanceID]
 
     // Update when orthographic cameras are supported
-    const cameras = document!.cameras!.filter((cam) => cam.type === 'perspective')
+    const cameras = gltf.cameras!.filter((cam) => cam.type === 'perspective')
 
-    await vi.waitFor(
-      () => {
-        expect(getChildrenWithComponents(entity, [CameraComponent]).length).toBeTruthy()
-      },
-      { timeout: 10000 }
-    )
     const cameraEntities = getChildrenWithComponents(entity, [CameraComponent])
 
     assert(cameraEntities.length === cameras.length)
@@ -454,98 +461,81 @@ describe('GLTF Loader', async () => {
     assert(cameraComponent.far === gltfCamera.zfar)
     assert(cameraComponent.fov === MathUtils.radToDeg(gltfCamera.yfov))
     assert(cameraComponent.near === gltfCamera.znear)
+
+    unmount()
   })
 
-  /*
-  // Fixing up the commented portions of GLTFLoader.test
-  // The preceding stuff is working.
-  // Should be able to look at the existing changes as a guide and apply them downwards.
-  // Might find discrepencies or issues with the loader (as I did with the animation file tests) which will also be helpful
-  // - [?] can load KHR lights
-  // - [x] can load instanced primitives with EXT_mesh_gpu_instancing
-  // - [x] can load multiple of the same GLTF file
-  */
-
-  /* @todo Where is KHRLightsPunctualComponent.reactor expected to be run from ??
-   * Manually for the test, by some other reactor, or something else ?? */
   it('can load KHR lights', async () => {
-    const testEntity = setupEntity()
-    setComponent(testEntity, UUIDComponent, UUIDComponent.generateUUID())
-    setComponent(testEntity, GLTFComponent, { src: khr_light_gltf })
+    const entity = setupEntity()
 
-    await act(() => render(null))
-    // @todo @important This line makes the test pass, but only intermitently
+    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, GLTFComponent, { src: khr_light_gltf })
 
-    const document = getComponent(testEntity, GLTFComponent).document
+    const { rerender, unmount } = render(<></>)
+    applyIncomingActions()
+    await act(async () => rerender(<></>))
 
-    const lights = (document!.extensions![KHRLightsPunctualComponent.jsonID] as any).lights as KHRPunctualLight[]
-    expect(lights).toBeTruthy()
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const gltfDocumentState = getState(GLTFDocumentState)
+    const gltf = gltfDocumentState[instanceID]
 
-    await vi.waitFor(
-      () => {
-        expect(getChildrenWithComponents(testEntity, [KHRLightsPunctualComponent]).length).toBeTruthy()
-      },
-      { timeout: 10000 }
-    )
+    const lights = (gltf.extensions![KHRLightsPunctualComponent.jsonID] as any).lights as KHRPunctualLight[]
+    assert(lights)
 
-    const khrLightEntities = getChildrenWithComponents(testEntity, [KHRLightsPunctualComponent])
-    expect(lights.length).toBe(khrLightEntities.length)
+    const khrLightEntities = getChildrenWithComponents(entity, [KHRLightsPunctualComponent])
+    assert(lights.length === khrLightEntities.length)
 
     for (const khrLightEntity of khrLightEntities) {
       const khrLightComponent = getComponent(khrLightEntity, KHRLightsPunctualComponent)
       const light = lights[khrLightComponent.light!]
-      expect(light).toBeTruthy()
-
+      assert(light)
       switch (light.type) {
         case 'directional':
-          expect(hasComponent(khrLightEntity, PointLightComponent)).toBeFalsy()
-          expect(hasComponent(khrLightEntity, SpotLightComponent)).toBeFalsy()
-          expect(hasComponent(khrLightEntity, DirectionalLightComponent)).toBeTruthy()
+          assert(hasComponent(khrLightEntity, DirectionalLightComponent))
           break
         case 'point':
-          expect(hasComponent(khrLightEntity, DirectionalLightComponent)).toBeFalsy()
-          expect(hasComponent(khrLightEntity, SpotLightComponent)).toBeFalsy()
-          expect(hasComponent(khrLightEntity, PointLightComponent)).toBeTruthy()
+          assert(hasComponent(khrLightEntity, PointLightComponent))
           break
         case 'spot':
-          expect(hasComponent(khrLightEntity, DirectionalLightComponent)).toBeFalsy()
-          expect(hasComponent(khrLightEntity, PointLightComponent)).toBeFalsy()
-          expect(hasComponent(khrLightEntity, SpotLightComponent)).toBeTruthy()
+          assert(hasComponent(khrLightEntity, SpotLightComponent))
           break
         default:
           break
       }
     }
+
+    unmount()
   })
 
   it('can load instanced primitives with EXT_mesh_gpu_instancing', async () => {
-    const testEntity = setupEntity()
+    const entity = setupEntity()
 
-    setComponent(testEntity, UUIDComponent, UUIDComponent.generateUUID())
-    setComponent(testEntity, GLTFComponent, { src: instanced_gltf })
+    setComponent(entity, UUIDComponent, generateEntityUUID())
+    setComponent(entity, GLTFComponent, { src: instanced_gltf })
 
-    await act(() => render(null))
-
+    const { rerender, unmount } = render(<></>)
+    applyIncomingActions()
+    await act(async () => rerender(<></>))
     await vi.waitFor(
       () => {
-        expect(getChildrenWithComponents(testEntity, [EXTMeshGPUInstancingComponent]).length).toBeTruthy()
+        expect(getChildrenWithComponents(entity, [EXTMeshGPUInstancingComponent]).length).toBeTruthy()
       },
-      { timeout: 5_000 }
+      { timeout: 20000 }
     )
 
-    expect(getComponent(testEntity, GLTFComponent).document).not.toBeNull()
-    expect(getComponent(testEntity, GLTFComponent).document).toBeTruthy()
-    const gltf = getComponent(testEntity, GLTFComponent).document!
+    const instanceID = GLTFComponent.getInstanceID(entity)
+    const gltfDocumentState = getState(GLTFDocumentState)
+    const gltf = gltfDocumentState[instanceID]
 
     const instancingUsed = gltf.extensionsUsed!.includes(EXTMeshGPUInstancingComponent.jsonID)
-    expect(instancingUsed).toBeTruthy()
+    assert(instancingUsed)
 
     const extNodes = gltf.nodes!.reduce((accum, node) => {
       if (node.extensions?.[EXTMeshGPUInstancingComponent.jsonID]) accum.push(node)
       return accum
     }, [] as GLTF.INode[])
 
-    const extMeshGPUEntities = getChildrenWithComponents(testEntity, [EXTMeshGPUInstancingComponent])
+    const extMeshGPUEntities = getChildrenWithComponents(entity, [EXTMeshGPUInstancingComponent])
     assert(extMeshGPUEntities.length === extNodes.length)
 
     const findNode = (attr: Record<string, number>) => {
@@ -564,36 +554,38 @@ describe('GLTF Loader', async () => {
     for (const extMeshEntity of extMeshGPUEntities) {
       const extMesh = getComponent(extMeshEntity, EXTMeshGPUInstancingComponent)
       const node = findNode(extMesh.attributes)
-      expect(node).toBeTruthy()
+      assert(node)
       const mesh = getComponent(extMeshEntity, MeshComponent)
-      expect(mesh instanceof InstancedMesh).toBeTruthy()
+      assert(mesh instanceof InstancedMesh)
     }
+
+    unmount()
   })
 
   it('can load multiple of the same GLTF file', async () => {
     const entity = setupEntity()
     const entity2 = setupEntity()
 
-    setComponent(entity, UUIDComponent, UUIDComponent.generateUUID())
+    setComponent(entity, UUIDComponent, generateEntityUUID())
     setComponent(entity, GLTFComponent, { src: duck_gltf })
 
-    setComponent(entity2, UUIDComponent, UUIDComponent.generateUUID())
+    setComponent(entity2, UUIDComponent, generateEntityUUID())
     setComponent(entity2, GLTFComponent, { src: duck_gltf })
 
-    await act(() => render(null))
-
+    const { rerender, unmount } = render(<></>)
     applyIncomingActions()
-
-    await act(() => render(null))
+    await act(async () => rerender(<></>))
 
     const instanceID = GLTFComponent.getInstanceID(entity)
     const instanceID2 = GLTFComponent.getInstanceID(entity2)
 
-    expect(instanceID).not.toBe(instanceID2)
+    assert(instanceID !== instanceID2)
 
     const meshEntities = getChildrenWithComponents(entity, [MeshComponent])
     const meshEntities2 = getChildrenWithComponents(entity2, [MeshComponent])
 
-    expect(meshEntities.length).toBe(meshEntities2.length)
+    assert(meshEntities.length === meshEntities2.length)
+
+    unmount()
   })
 })

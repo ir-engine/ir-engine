@@ -26,28 +26,27 @@ Infinite Reality Engine. All Rights Reserved.
 import { useHookstate } from '@hookstate/core'
 import {
   Entity,
-  Layers,
   PresentationSystemGroup,
   UndefinedEntity,
   defineSystem,
   removeEntityNodeRecursively,
+  useChildrenWithComponents,
   useComponent,
-  useHasComponent,
-  useOptionalComponent,
-  useQuery
+  useOptionalComponent
 } from '@ir-engine/ecs'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { createLoadingSpinner } from '@ir-engine/engine/src/scene/functions/spatialLoadingSpinner'
-import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
+import { getMutableState } from '@ir-engine/hyperflux'
 import React, { useEffect } from 'react'
+import { EditorState } from '../services/EditorServices'
 
 const LoadingSpinnerReactor = (props: { entity: Entity }) => {
   const { entity } = props
   const gltfComponent = useComponent(entity, GLTFComponent)
   const errors = !!useOptionalComponent(entity, ErrorComponent)?.value?.[GLTFComponent.name]
   const loaded = GLTFComponent.useSceneLoaded(entity)
-  const isScene = useHasComponent(entity, SceneComponent)
 
   const loadingEntity = useHookstate<Entity>(UndefinedEntity)
 
@@ -63,20 +62,17 @@ const LoadingSpinnerReactor = (props: { entity: Entity }) => {
   }
 
   useEffect(() => {
-    if (isScene) return
     if (loadingEntity.value) return
     if (!gltfComponent.src.value) return
     createLoadingGeo()
   }, [gltfComponent.src.value])
 
   useEffect(() => {
-    if (isScene) return
     if (!errors) return
     removeLoadingGeo()
   }, [errors])
 
   useEffect(() => {
-    if (isScene) return
     if (!loaded) return
     removeLoadingGeo()
   }, [loaded])
@@ -85,7 +81,9 @@ const LoadingSpinnerReactor = (props: { entity: Entity }) => {
 }
 
 const reactor = () => {
-  const entities = useQuery([GLTFComponent], Layers.Authoring)
+  const studioSceneEntity = useHookstate(getMutableState(EditorState)).rootEntity.value
+  const entities = useChildrenWithComponents(studioSceneEntity, [GLTFComponent, SourceComponent])
+  if (!studioSceneEntity) return null
   return (
     <>
       {entities.map((entity) => (

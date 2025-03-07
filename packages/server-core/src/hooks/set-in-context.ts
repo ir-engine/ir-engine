@@ -31,16 +31,9 @@ import { HookContext } from '../../declarations'
  * following setField hook.
  * https://hooks-common.feathersjs.com/hooks.html#setfield
  */
-
-export enum ContextScope {
-  Query,
-  Data,
-  Root
-}
-
-export default (propertyName: string, propertyValue: string, scope?: ContextScope) => {
+export default (propertyName: string, propertyValue: string, inData?: false) => {
   return (context: HookContext): HookContext => {
-    if (scope === ContextScope.Data) {
+    if (inData) {
       if (Array.isArray(context.data)) {
         context.data = context.data.map((item) => {
           return {
@@ -54,8 +47,6 @@ export default (propertyName: string, propertyValue: string, scope?: ContextScop
           [propertyName]: propertyValue
         }
       }
-    } else if (scope === ContextScope.Root) {
-      context[propertyName] = propertyValue
     } else {
       context.params.query = {
         ...context.params.query,

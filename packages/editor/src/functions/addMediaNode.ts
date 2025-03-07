@@ -27,44 +27,33 @@ import { Intersection, Raycaster, Vector2 } from 'three'
 
 import { getContentType } from '@ir-engine/common/src/utils/getContentType'
 import {
-  EntityTreeComponent,
-  getAncestorWithComponents,
-  getChildrenWithComponents,
+  generateEntityUUID,
   iterateEntityNode,
-  removeEntity,
+  removeEntityNodeRecursively,
+  useChildWithComponents,
   UUIDComponent
 } from '@ir-engine/ecs'
-import {
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  LayerID,
-  Layers,
-  setComponent
-} from '@ir-engine/ecs/src/ComponentFunctions'
-import { Entity, EntityUUID, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { getOptionalComponent, useOptionalComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity, EntityUUID } from '@ir-engine/ecs/src/Entity'
+import { AssetLoaderState } from '@ir-engine/engine/src/assets/state/AssetLoaderState'
 import { PositionalAudioComponent } from '@ir-engine/engine/src/audio/components/PositionalAudioComponent'
-import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { AssetState } from '@ir-engine/engine/src/gltf/GLTFState'
-import { NodeIDComponent } from '@ir-engine/engine/src/gltf/NodeIDComponent'
-import { EnvMapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
+import { GLTFComponent, loadGLTFFile } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { GLTFSourceState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { gltfReplaceUUIDsReferences } from '@ir-engine/engine/src/gltf/gltfUtils'
+import { EnvmapComponent } from '@ir-engine/engine/src/scene/components/EnvmapComponent'
 import { ImageComponent } from '@ir-engine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@ir-engine/engine/src/scene/components/MediaComponent'
 import { ShadowComponent } from '@ir-engine/engine/src/scene/components/ShadowComponent'
-import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { VideoComponent } from '@ir-engine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@ir-engine/engine/src/scene/components/VolumetricComponent'
-import { serializeEntity } from '@ir-engine/engine/src/scene/functions/serializeWorld'
+import { createLoadingSpinner } from '@ir-engine/engine/src/scene/functions/spatialLoadingSpinner'
 import { ComponentJsonType } from '@ir-engine/engine/src/scene/types/SceneTypes'
-import { getState } from '@ir-engine/hyperflux'
+import { getState, startReactor, useMutableState } from '@ir-engine/hyperflux'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
-import { VisibleComponent } from '@ir-engine/spatial/src/renderer/components/VisibleComponent'
 import { ObjectLayerMasks, ObjectLayers } from '@ir-engine/spatial/src/renderer/constants/ObjectLayers'
-import {
-  MaterialInstanceComponent,
-  MaterialStateComponent
-} from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
-import { EditorHistoryFunctions } from '../services/EditorHistoryState'
+import { MaterialStateComponent } from '@ir-engine/spatial/src/renderer/materials/MaterialComponent'
+import { assignMaterial } from '@ir-engine/spatial/src/renderer/materials/materialFunctions'
+import { useEffect } from 'react'
 import { EditorState } from '../services/EditorServices'
 import { EditorControlFunctions } from './EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
@@ -85,6 +74,7 @@ export async function addMediaNode(
 ): Promise<EntityUUID | null> {
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
+  console.log(contentType)
 
   if (contentType.startsWith('model/')) {
     if (contentType.startsWith('model/material')) {
@@ -111,86 +101,91 @@ export async function addMediaNode(
 
       // setComponent(rayEntity, LineSegmentComponent, { geometry: lineGeometry })
 
-      AssetState.loadAsync(url, false, UUIDComponent.generateUUID(), UndefinedEntity, Layers.Authoring as LayerID).then(
-        (assetEntity) => {
-          /** @todo do we need to get rid of the gltf entity here? */
-          const [material] = getChildrenWithComponents(assetEntity, [MaterialStateComponent])
-          let foundTarget = false
-          for (const intersection of intersections) {
-            if (!hasComponent(intersection.object.entity, VisibleComponent)) continue
+      return await new Promise((resolve, reject) =>
+        startReactor(() => {
+          const assetEntity = useMutableState(GLTFSourceState)[url].value
+          const progress = useOptionalComponent(assetEntity, GLTFComponent)?.progress
+          const material = useChildWithComponents(assetEntity, [MaterialStateComponent])
 
-            iterateEntityNode(intersection.object.entity, (entity: Entity) => {
-              const mesh = getOptionalComponent(entity, MeshComponent)
-              if (!mesh) return
-              let materialIndex = 0
-              for (const g of mesh.geometry.groups) {
-                if (intersection.faceIndex! * 3 >= g.start && intersection.faceIndex! * 3 < g.start + g.count) {
-                  materialIndex = g.materialIndex!
-                  break
-                }
-              }
-              const uuids = getComponent(entity, MaterialInstanceComponent).uuid
-              uuids[materialIndex] = getComponent(material, UUIDComponent)
-              setComponent(entity, MaterialInstanceComponent, { uuid: uuids })
-              foundTarget = true
-            })
-            if (foundTarget) break
-          }
-        }
+          useEffect(() => {
+            if (!assetEntity) {
+              GLTFSourceState.load(url)
+              return
+            }
+          }, [progress])
+
+          useEffect(() => {
+            if (!material) return
+
+            let foundTarget = false
+            for (const intersection of intersections) {
+              iterateEntityNode(intersection.object.entity, (entity: Entity) => {
+                const mesh = getOptionalComponent(entity, MeshComponent)
+                if (!mesh || !mesh.visible) return
+                assignMaterial(entity, material)
+                foundTarget = true
+              })
+              if (foundTarget) break
+            }
+            resolve(null)
+          }, [material])
+          return null
+        })
       )
     } else if (contentType.startsWith('model/lookdev')) {
-      /**
-       * Load the lookdev object and override or attach it to the current scene
-       */
-      AssetState.loadAsync(url, false, UUIDComponent.generateUUID(), UndefinedEntity, Layers.Authoring as LayerID).then(
-        (entity) => {
-          const firstChild = getComponent(entity, EntityTreeComponent).children[0]
-          const json = serializeEntity(firstChild)
-          EditorControlFunctions.overwriteLookdevObject([...json, ...extraComponentJson], parent!, before)
-          removeEntity(entity)
-          EditorHistoryFunctions.snapshot()
-        }
+      const gltfLoader = getState(AssetLoaderState).gltfLoader
+      const spinnerEntity = createLoadingSpinner('lookdev loading spinner', getState(EditorState).rootEntity)
+      return await new Promise((resolve, reject) =>
+        gltfLoader.load(
+          url,
+          (gltf) => {
+            const componentJson = gltf.scene.children[0].userData.componentJson
+            EditorControlFunctions.overwriteLookdevObject(
+              [{ name: GLTFComponent.jsonID, props: { src: url } }, ...extraComponentJson],
+              componentJson,
+              parent!,
+              before
+            )
+            removeEntityNodeRecursively(spinnerEntity)
+            resolve(null)
+          },
+          null,
+          (error) => {
+            removeEntityNodeRecursively(spinnerEntity)
+            reject(error)
+          }
+        )
       )
     } else if (contentType.startsWith('model/prefab')) {
-      /**
-       * Load all entities from the prefab and attach them to the current scene
-       */
-      AssetState.loadAsync(url, false, UUIDComponent.generateUUID(), UndefinedEntity, Layers.Authoring as LayerID).then(
-        (entity) => {
-          const currentSource = GLTFComponent.getInstanceID(entity)
-          const entities = SourceComponent.getEntitiesBySource(currentSource, Layers.Authoring)
-          const rootEntity = getState(EditorState).rootEntity
-          const newSource = GLTFComponent.getInstanceID(rootEntity)
-          for (const entity of entities) {
-            setComponent(entity, SourceComponent, newSource)
-            setComponent(entity, NodeIDComponent, NodeIDComponent.generate())
-            setComponent(
-              entity,
-              UUIDComponent,
-              NodeIDComponent.getUUIDBySourceAndNodeID(newSource, getComponent(entity, NodeIDComponent))
-            )
+      return await new Promise((resolve) =>
+        loadGLTFFile(url, (gltf) => {
+          if (gltf.nodes) {
+            const uuidReplacements = [] as [EntityUUID, EntityUUID][]
+            gltf.nodes.forEach((node) => {
+              if (node.extensions && node.extensions[UUIDComponent.jsonID]) {
+                const prevUUID = node.extensions[UUIDComponent.jsonID] as EntityUUID
+                const newUUID = generateEntityUUID()
+                node.extensions[UUIDComponent.jsonID] = newUUID
+                uuidReplacements.push([prevUUID, newUUID])
+              }
+            })
+            gltfReplaceUUIDsReferences(gltf, uuidReplacements)
           }
-          for (const childEntity of getComponent(entity, EntityTreeComponent).children) {
-            setComponent(childEntity, EntityTreeComponent, { parentEntity: parent ?? rootEntity })
-          }
-          removeEntity(entity)
-          const gltfEntity = getAncestorWithComponents(parent ?? rootEntity, [GLTFComponent])
-          EditorState.markModifiedScene(gltfEntity)
-          EditorHistoryFunctions.snapshot()
-        }
+          EditorControlFunctions.appendToSnapshot(gltf)
+          resolve(null)
+        })
       )
     } else {
       const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
         [
-          { name: GLTFComponent.jsonID, props: { src: url } },
+          { name: GLTFComponent.jsonID, props: { src: url, progress: 0, body: null } },
           { name: ShadowComponent.jsonID },
-          { name: EnvMapComponent.jsonID },
+          { name: EnvmapComponent.jsonID },
           ...extraComponentJson
         ],
         parent!,
         before
       )
-      EditorHistoryFunctions.snapshot()
       return entityUUID
     }
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
@@ -204,7 +199,6 @@ export async function addMediaNode(
       parent!,
       before
     )
-    EditorHistoryFunctions.snapshot()
     return entityUUID
   } else if (contentType.startsWith('image/')) {
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
@@ -212,15 +206,17 @@ export async function addMediaNode(
       parent!,
       before
     )
-    EditorHistoryFunctions.snapshot()
     return entityUUID
   } else if (contentType.startsWith('audio/')) {
     const { entityUUID } = EditorControlFunctions.createObjectFromSceneElement(
-      [{ name: MediaComponent.jsonID, props: { resources: [url] } }, ...extraComponentJson],
+      [
+        { name: PositionalAudioComponent.jsonID },
+        { name: MediaComponent.jsonID, props: { resources: [url] } },
+        ...extraComponentJson
+      ],
       parent!,
       before
     )
-    EditorHistoryFunctions.snapshot()
     return entityUUID
   } else if (url.includes('.uvol')) {
     // TODO: detect whether to add LegacyVolumetricComponent or VolumetricComponent
@@ -233,7 +229,6 @@ export async function addMediaNode(
       parent!,
       before
     )
-    EditorHistoryFunctions.snapshot()
     return entityUUID
   }
   return null

@@ -92,7 +92,6 @@ export const ControlledStringInput = React.forwardRef<any, StringInputProps>((va
       disabled={disabled}
       placeholder={placeholder}
       type="text"
-      fullWidth
     />
   )
 })

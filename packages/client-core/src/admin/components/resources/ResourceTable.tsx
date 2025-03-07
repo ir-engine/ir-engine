@@ -25,17 +25,17 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import { HiEye, HiTrash } from 'react-icons/hi2'
 
 import { useFind, useSearch } from '@ir-engine/common'
 import { StaticResourceType, staticResourcePath } from '@ir-engine/common/src/schema.type.module'
 import ConfirmDialog from '@ir-engine/ui/src/components/tailwind/ConfirmDialog'
 
 import { API } from '@ir-engine/common'
-import { Edit01Lg, Trash04Lg } from '@ir-engine/ui/src/icons'
+import { Button } from '@ir-engine/ui'
 import { PopoverState } from '../../../common/services/PopoverState'
 import DataTable from '../../common/Table'
 import { resourceColumns } from '../../common/constants/resources'
-import ActionButton from '../ActionButton'
 import AddEditResourceModal from './AddEditResourceModal'
 
 const RESOURCE_PAGE_LIMIT = 25
@@ -70,17 +70,16 @@ export default function ResourceTable({ search }: { search: string }) {
       project: el.project,
       action: (
         <div className="flex items-center justify-start gap-3">
-          <ActionButton
-            icon={Edit01Lg}
+          <Button
             onClick={() => {
               PopoverState.showPopupover(<AddEditResourceModal selectedResource={el} />)
             }}
-            variant="green"
-          />
-
-          <ActionButton
-            icon={Trash04Lg}
-            title={t('admin:components.common.delete')}
+            className="h-8 w-8 justify-center border border-theme-primary bg-transparent p-0"
+          >
+            <HiEye className="text-theme-primary" />
+          </Button>
+          <Button
+            className="h-8 w-8 justify-center border border-theme-primary bg-transparent p-0"
             onClick={() => {
               PopoverState.showPopupover(
                 <ConfirmDialog
@@ -91,8 +90,9 @@ export default function ResourceTable({ search }: { search: string }) {
                 />
               )
             }}
-            variant="red"
-          />
+          >
+            <HiTrash className="text-theme-iconRed" />
+          </Button>
         </div>
       )
     }

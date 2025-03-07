@@ -24,10 +24,9 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { Entity } from '@ir-engine/ecs/src/Entity'
-import { createXRUI } from '@ir-engine/engine/src/xrui/createXRUI'
 import { dispatchAction } from '@ir-engine/hyperflux'
-import { SVGIconType } from '@ir-engine/ui/src/icons/types'
-import { IconType } from 'react-icons'
+
+import { createXRUI } from '@ir-engine/engine/src/xrui/createXRUI'
 import { RegisteredWidgets, WidgetAppActions } from './WidgetAppService'
 
 /**
@@ -57,7 +56,7 @@ export const WidgetName = {
 export type Widget = {
   ui: ReturnType<typeof createXRUI>
   label: string
-  icon?: SVGIconType | IconType
+  icon?: string
   onOpen?: () => void
   onClose?: () => void
   system?: () => void

@@ -119,11 +119,10 @@ const reactor = () => {
   const resourceState = useHookstate(getMutableState(ResourceState))
 
   useEffect(() => {
-    /** @todo this causes lots of lag */
-    // getMutableState(RenderInfoState).info.merge({
-    //   texturesMB: resourceState.totalBufferCount.value / (1024 * 1024),
-    //   shaderComplexity: getShaderComplexity(resourceState.resources.value)
-    // })
+    getMutableState(RenderInfoState).info.merge({
+      texturesMB: resourceState.totalBufferCount.value / (1024 * 1024),
+      shaderComplexity: getShaderComplexity(resourceState.resources.value)
+    })
   }, [resourceState.resources])
 
   return null

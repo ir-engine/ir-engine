@@ -70,28 +70,19 @@ export const FileIcon = ({
   type,
   isFolder,
   color = 'text-white',
-  isMinified = false,
-  onLoad = () => {},
-  onLoadStart = () => {}
+  isMinified = false
 }: {
   thumbnailURL?: string
   type: string
   isFolder?: boolean
   color?: string
   isMinified?: boolean
-  onLoad?: () => void
-  onLoadStart?: () => void
 }) => {
   const FallbackIcon = FileIconType[type ?? '']
   const imageLoaded = useHookstate(false)
 
   const handleImageLoaded = () => {
     imageLoaded.set(true)
-    onLoad?.()
-  }
-
-  const handleLoadStart = () => {
-    onLoadStart?.()
   }
 
   const Tag = ({ className }: { className?: string }) => {
@@ -136,7 +127,6 @@ export const FileIcon = ({
               crossOrigin="anonymous"
               src={FILE_ICON_BLUR}
               alt="file-thumbnail"
-              onLoad={handleLoadStart}
             />
           </div>
         </div>

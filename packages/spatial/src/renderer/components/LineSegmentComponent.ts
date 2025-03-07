@@ -27,10 +27,11 @@ import { useEffect } from 'react'
 import { BufferGeometry, Color, LineBasicMaterial, LineSegments, Material, NormalBufferAttributes } from 'three'
 
 import { defineComponent, removeComponent, setComponent, useComponent, useEntityContext } from '@ir-engine/ecs'
-import { NO_PROXY, useHookstate, useImmediateEffect } from '@ir-engine/hyperflux'
+import { NO_PROXY } from '@ir-engine/hyperflux'
 
 import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
 import { NameComponent } from '../../common/NameComponent'
+import { useDisposable, useResource } from '../../resources/resourceHooks'
 import { T } from '../../schema/schemaFunctions'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { ObjectComponent } from './ObjectComponent'
@@ -45,21 +46,23 @@ export const LineSegmentComponent = defineComponent({
     geometry: S.Required(S.Type<BufferGeometry>()),
     material: S.Class(() => new LineBasicMaterial() as Material),
     color: S.Optional(T.Color()),
-    layerMask: S.Number(ObjectLayers.NodeHelper)
+    layerMask: S.Number(ObjectLayers.NodeHelper),
+    entity: S.Optional(S.Entity())
   }),
 
   reactor: function () {
     const entity = useEntityContext()
     const component = useComponent(entity, LineSegmentComponent)
-    const lineSegment = useHookstate(
-      () =>
-        new LineSegments(
-          component.geometry.value as BufferGeometry<NormalBufferAttributes>,
-          component.material.value as Material
-        )
-    ).value as LineSegments
+    const [geometryState] = useResource(component.geometry.value, entity)
+    const [materialState] = useResource(component.material.value, entity)
+    const [lineSegment] = useDisposable(
+      LineSegments,
+      entity,
+      geometryState.value as BufferGeometry<NormalBufferAttributes>,
+      materialState.value as Material
+    )
 
-    useImmediateEffect(() => {
+    useEffect(() => {
       setComponent(entity, ObjectComponent, lineSegment)
       setVisibleComponent(entity, true)
       return () => {
@@ -72,8 +75,8 @@ export const LineSegmentComponent = defineComponent({
     }, [component.name])
 
     useEffect(() => {
-      ObjectLayerMaskComponent.setMask(entity, component.layerMask.value)
-    }, [component.layerMask.value])
+      setComponent(entity, ObjectLayerMaskComponent, component.layerMask.value)
+    }, [component.layerMask])
 
     useEffect(() => {
       const color = component.color.value
@@ -83,24 +86,24 @@ export const LineSegmentComponent = defineComponent({
         mat.color.set(color)
         mat.needsUpdate = true
       }
-    }, [component.color.value])
+    }, [component.color])
 
     useEffect(() => {
       const geo = component.geometry.get(NO_PROXY) as BufferGeometry<NormalBufferAttributes>
-      lineSegment.geometry = geo
-      return () => {
-        geo.dispose()
+      if (geo != geometryState.value) {
+        geometryState.set(geo)
+        lineSegment.geometry = geo
       }
-    }, [component.geometry.value])
+    }, [component.geometry])
 
     useEffect(() => {
       const mat = component.material.get(NO_PROXY) as Material
-      lineSegment.material = mat
-      mat.needsUpdate = true
-      return () => {
-        mat.dispose()
+      if (mat != materialState.value) {
+        materialState.set(component.material.get(NO_PROXY))
+        lineSegment.material = mat
       }
-    }, [component.material.value])
+      mat.needsUpdate = true
+    }, [component.material])
 
     return null
   }

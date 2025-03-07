@@ -165,6 +165,12 @@
   --dockBackground: rgb(73 66 152 / 85%);
 }
 
+::selection {
+  /* Code for Firefox */
+  background: var(--selection);
+  color: white;
+}
+
 ::-webkit-scrollbar {
   width: 0.5rem;
 }
@@ -190,7 +196,7 @@ body {
   overflow: hidden;
   color: var(--textColor);
   overscroll-behavior: none contain;
-  background-color: var(--surface-0);
+  background-color: var(--bg-primary);
 }
 
 vite-error-overlay {

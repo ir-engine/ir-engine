@@ -270,7 +270,6 @@ describe('SpotLightComponent', () => {
       // Run and Check the result
       removeComponent(testEntity, SpotLightComponent)
       const after = getComponent(testEntity, ObjectComponent)
-      console.log({ after })
       assert.equal(!!after, false)
       assert.notEqual(after?.type, 'SpotLight')
     })

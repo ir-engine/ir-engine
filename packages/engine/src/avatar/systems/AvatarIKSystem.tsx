@@ -32,10 +32,9 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
-  QueryReactor,
   setComponent,
   useComponent,
-  useEntityContext,
+  useQuery,
   UUIDComponent
 } from '@ir-engine/ecs'
 import { defineState, getMutableState, getState, none } from '@ir-engine/hyperflux'
@@ -297,11 +296,11 @@ const difference = new Matrix4(),
   armMatrix = new Matrix4().makeRotationFromEuler(new Euler(Math.PI * -0.5, 0, 0)),
   legMatrix = new Matrix4().makeRotationFromEuler(new Euler(Math.PI * 0.5, 0, 0))
 
-const SetupIkMatrices = () => {
-  const entity = useEntityContext()
-  const rigComponent = useComponent(entity, AvatarRigComponent)
+const SetupIkMatrices = (props: { avatarEntity: Entity }) => {
+  const rigComponent = useComponent(props.avatarEntity, AvatarRigComponent)
   useEffect(() => {
     if (!rigComponent.vrm.value) return
+    const rootEntity = props.avatarEntity
 
     const rig = rigComponent.bonesToEntities.value
 
@@ -310,8 +309,8 @@ const SetupIkMatrices = () => {
       (bone) => bone.includes('Arm') || bone.includes('Leg') || bone.includes('Foot') || bone.includes('Hand')
     )
 
-    const transform = getComponent(entity, TransformComponent)
-    const rootMatrix = getComponent(entity, TransformComponent).matrixWorld
+    const transform = getComponent(rootEntity, TransformComponent)
+    const rootMatrix = getComponent(rootEntity, TransformComponent).matrixWorld
     rootRotationInverse.makeRotationFromQuaternion(transform.rotation).invert()
     toOrigin.identity()
     back.identity().multiply(rootRotationInverse)
@@ -368,6 +367,8 @@ const SetupIkMatrices = () => {
 }
 
 export const AvatarIkReactor = () => {
+  const ikQuery = useQuery([AvatarRigComponent, AvatarIKComponent])
+
   useEffect(() => {
     const networkState = getMutableState(NetworkState)
 
@@ -381,7 +382,13 @@ export const AvatarIkReactor = () => {
     }
   }, [])
 
-  return <QueryReactor Components={[AvatarRigComponent, AvatarIKComponent]} ChildEntityReactor={SetupIkMatrices} />
+  return (
+    <>
+      {ikQuery.map((entity) => (
+        <SetupIkMatrices key={entity} avatarEntity={entity} />
+      ))}
+    </>
+  )
 }
 
 export const AvatarIKSystem = defineSystem({

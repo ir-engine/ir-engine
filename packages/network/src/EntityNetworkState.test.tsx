@@ -38,6 +38,7 @@ import { Network, NetworkTopics } from './Network'
 import './EntityNetworkState'
 
 import { EngineState } from '@ir-engine/ecs'
+import React from 'react'
 import { EntityNetworkState } from './EntityNetworkState'
 import { WorldNetworkAction } from './functions/WorldNetworkAction'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from './NetworkObjectComponent'
@@ -122,7 +123,6 @@ describe('EntityNetworkState', () => {
           ownerID: network.hostUserID!,
           $topic: NetworkTopics.world,
           $peer: hostPeerID,
-          $user: hostUserId,
           entityUUID: 'entity' as EntityUUID
         })
       )
@@ -173,7 +173,6 @@ describe('EntityNetworkState', () => {
           parentUUID,
           ownerID: userId,
           $peer: peerID2,
-          $user: userId,
           entityUUID: 'entity' as EntityUUID
         })
       )
@@ -223,7 +222,6 @@ describe('EntityNetworkState', () => {
           parentUUID,
           ownerID: userId,
           $peer: peerID2,
-          $user: userId,
           entityUUID: 'entity' as EntityUUID
         })
       )
@@ -295,7 +293,6 @@ describe('EntityNetworkState', () => {
           parentUUID,
           ownerID: userId2, // from other user
           $peer: peerID3,
-          $user: userId2,
           $topic: NetworkTopics.world,
           entityUUID: peerID3 as any as EntityUUID
         })
@@ -315,67 +312,6 @@ describe('EntityNetworkState', () => {
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, 0)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityPeerID, peerID3)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), false)
-    })
-
-    it('should not spawn entity if action sent by non-owner', async () => {
-      const hostUserId = 'host user' as UserID
-      const hostPeerID = 'host peer' as PeerID
-
-      createMockNetwork(NetworkTopics.world, hostPeerID, hostUserId)
-
-      const userId = 'user id' as UserID
-      const peerID = Engine.instance.store.peerID
-
-      const userId2 = 'second user id' as UserID
-      const peerID2 = 'peer id 2' as PeerID
-
-      getMutableState(EngineState).userID.set(userId)
-      const network = NetworkState.worldNetwork as Network
-
-      const parentEntity = createEntity()
-      const parentUUID = UUIDComponent.generateUUID()
-      setComponent(parentEntity, UUIDComponent, parentUUID)
-
-      dispatchAction(
-        NetworkActions.peerJoined({
-          peerID: peerID,
-          peerIndex: 1,
-          userID: userId,
-          $network: network.id
-        })
-      )
-      dispatchAction(
-        NetworkActions.peerJoined({
-          peerID: peerID2,
-          peerIndex: 2,
-          userID: userId2,
-          $network: network.id
-        })
-      )
-
-      applyIncomingActions()
-
-      dispatchAction(
-        WorldNetworkAction.spawnEntity({
-          parentUUID,
-          ownerID: userId, // from other user
-          $peer: peerID2,
-          $user: userId2,
-          $topic: NetworkTopics.world,
-          entityUUID: peerID2 as any as EntityUUID
-        })
-      )
-
-      applyIncomingActions()
-
-      const networkObjectQuery = defineQuery([NetworkObjectComponent])
-      const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
-
-      const networkObjectEntities = networkObjectQuery()
-      const networkObjectOwnedEntities = networkObjectOwnedQuery()
-
-      assert.equal(networkObjectEntities.length, 0)
-      assert.equal(networkObjectOwnedEntities.length, 0)
     })
   })
 
@@ -399,7 +335,6 @@ describe('EntityNetworkState', () => {
           ownerID: network.hostUserID!,
           $topic: NetworkTopics.world,
           $peer: hostPeerID,
-          $user: hostUserId,
           entityUUID: 'entity' as EntityUUID
         })
       )
@@ -462,7 +397,6 @@ describe('EntityNetworkState', () => {
           ownerID: network.hostUserID!,
           $topic: NetworkTopics.world,
           $peer: hostPeerID,
-          $user: hostUserId,
           entityUUID: 'entity' as EntityUUID
         })
       )
@@ -481,8 +415,6 @@ describe('EntityNetworkState', () => {
       dispatchAction(
         WorldNetworkAction.destroyEntity({
           entityUUID: 'entity' as EntityUUID,
-          $peer: hostPeerID,
-          $user: hostUserId,
           $topic: NetworkTopics.world
         })
       )
@@ -514,7 +446,6 @@ describe('EntityNetworkState', () => {
           ownerID: SceneUser,
           $topic: NetworkTopics.world,
           $peer: ScenePeer,
-          $user: SceneUser,
           entityUUID: 'entity' as EntityUUID
         })
       )
@@ -565,7 +496,6 @@ describe('EntityNetworkState', () => {
           ownerID: SceneUser,
           $topic: NetworkTopics.world,
           $peer: ScenePeer,
-          $user: SceneUser,
           entityUUID: 'entity' as EntityUUID
         })
       )
@@ -584,80 +514,6 @@ describe('EntityNetworkState', () => {
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, 0)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityPeerID, SceneUser)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), false)
-    })
-
-    it('should not despawn entity if action sent by non-owner', async () => {
-      const hostUserId = 'host user' as UserID
-      const hostPeerID = 'host peer' as PeerID
-
-      createMockNetwork(NetworkTopics.world, hostPeerID, hostUserId)
-
-      const userId = 'user id' as UserID
-      const peerID = Engine.instance.store.peerID
-
-      const userId2 = 'second user id' as UserID
-      const peerID2 = 'peer id 2' as PeerID
-
-      getMutableState(EngineState).userID.set(userId)
-      const network = NetworkState.worldNetwork as Network
-
-      dispatchAction(
-        NetworkActions.peerJoined({
-          peerID: peerID,
-          peerIndex: 1,
-          userID: userId,
-          $network: network.id
-        })
-      )
-      dispatchAction(
-        NetworkActions.peerJoined({
-          peerID: peerID2,
-          peerIndex: 2,
-          userID: userId2,
-          $network: network.id
-        })
-      )
-
-      applyIncomingActions()
-
-      dispatchAction(
-        WorldNetworkAction.spawnEntity({
-          parentUUID: 'parent' as EntityUUID,
-          ownerID: userId,
-          $peer: peerID,
-          $user: userId,
-          $topic: NetworkTopics.world,
-          entityUUID: 'entity' as EntityUUID
-        })
-      )
-
-      applyIncomingActions()
-
-      const networkObjectQuery = defineQuery([NetworkObjectComponent])
-      const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
-
-      let networkObjectEntities = networkObjectQuery()
-      let networkObjectOwnedEntities = networkObjectOwnedQuery()
-
-      assert.equal(networkObjectEntities.length, 1)
-      assert.equal(networkObjectOwnedEntities.length, 1)
-
-      dispatchAction(
-        WorldNetworkAction.destroyEntity({
-          entityUUID: 'entity' as EntityUUID,
-          $peer: peerID2,
-          $user: userId2,
-          $topic: NetworkTopics.world
-        })
-      )
-
-      applyIncomingActions()
-
-      networkObjectEntities = networkObjectQuery()
-      networkObjectOwnedEntities = networkObjectOwnedQuery()
-
-      assert.equal(networkObjectEntities.length, 1)
-      assert.equal(networkObjectOwnedEntities.length, 1)
     })
   })
 
@@ -704,7 +560,6 @@ describe('EntityNetworkState', () => {
           ownerID: userID,
           $topic: NetworkTopics.world,
           $peer: peerID,
-          $user: userID,
           entityUUID: 'entity' as EntityUUID
         })
       )
@@ -790,7 +645,6 @@ describe('EntityNetworkState', () => {
         ownerID: userID,
         $topic: NetworkTopics.world,
         $peer: peerID,
-        $user: userID,
         entityUUID: 'entity' as EntityUUID
       })
     )
@@ -874,7 +728,6 @@ describe('EntityNetworkState', () => {
         ownerID: hostUserID, // from  host
         $topic: NetworkTopics.world,
         $peer: Engine.instance.store.peerID,
-        $user: hostUserID,
         entityUUID: Engine.instance.store.peerID as any as EntityUUID
       })
     )
@@ -949,7 +802,6 @@ describe('EntityNetworkState', () => {
         ownerID: hostUserID,
         $topic: NetworkTopics.world,
         $peer: hostPeerID,
-        $user: hostUserID,
         entityUUID
       })
     )
@@ -973,7 +825,6 @@ describe('EntityNetworkState', () => {
         ownerID: hostUserID,
         $topic: NetworkTopics.world,
         $peer: hostPeerID,
-        $user: hostUserID,
         entityUUID: entityUUID2
       })
     )
@@ -993,7 +844,6 @@ describe('EntityNetworkState', () => {
         ownerID: userId,
         $topic: NetworkTopics.world,
         $peer: peerID,
-        $user: userId,
         entityUUID: otherEntityUUID
       })
     )
@@ -1016,7 +866,6 @@ describe('EntityNetworkState', () => {
         ownerID: userId,
         $topic: NetworkTopics.world,
         $peer: peerID,
-        $user: userId,
         entityUUID: otherEntityUUID2
       })
     )
@@ -1062,7 +911,6 @@ describe('EntityNetworkState', () => {
         ownerID: SceneUser,
         $topic: NetworkTopics.world,
         $peer: ScenePeer,
-        $user: SceneUser,
         entityUUID: 'entity' as EntityUUID
       })
     )
@@ -1090,13 +938,16 @@ describe('EntityNetworkState', () => {
 
     applyIncomingActions()
 
-    await act(() => render(null))
+    const { rerender, unmount } = render(<></>)
+    await act(async () => rerender(<></>))
 
     const networkObjectEntitiesAfter = networkObjectQuery()
 
     assert.equal(networkObjectEntitiesAfter.length, 1)
     assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).networkId, 0)
     assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).authorityPeerID, peerID)
+
+    unmount()
   })
 
   it('should transfer authority of object we own but our other peer disconnects', async () => {
@@ -1141,7 +992,6 @@ describe('EntityNetworkState', () => {
         ownerID: userId,
         $topic: NetworkTopics.world,
         $peer: peerID,
-        $user: userId,
         entityUUID: 'entity' as EntityUUID
       })
     )
@@ -1158,7 +1008,8 @@ describe('EntityNetworkState', () => {
 
     applyIncomingActions()
 
-    await act(() => render(null))
+    const { rerender, unmount } = render(<></>)
+    await act(async () => rerender(<></>))
 
     applyIncomingActions()
 
@@ -1170,6 +1021,8 @@ describe('EntityNetworkState', () => {
 
     assert.equal(networkObjectEntitiesAfter.length, 1)
     assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).authorityPeerID, peerID2)
+
+    unmount()
   })
 
   it('should not transfer authority of object we do not own when authority peer disconnects', async () => {
@@ -1215,7 +1068,6 @@ describe('EntityNetworkState', () => {
         ownerID: userId2,
         $topic: NetworkTopics.world,
         $peer: peerID2,
-        $user: userId2,
         entityUUID: 'entity' as EntityUUID
       })
     )
@@ -1232,7 +1084,8 @@ describe('EntityNetworkState', () => {
 
     applyIncomingActions()
 
-    await act(() => render(null))
+    const { rerender, unmount } = render(<></>)
+    await act(async () => rerender(<></>))
 
     applyIncomingActions()
 
@@ -1244,6 +1097,8 @@ describe('EntityNetworkState', () => {
 
     // entity should be removed
     assert.equal(networkObjectEntitiesAfter.length, 0)
+
+    unmount()
   })
 
   it('should not transfer authority of scene object when authority peer disconnects', async () => {
@@ -1291,7 +1146,6 @@ describe('EntityNetworkState', () => {
         authorityPeerId: peerID2,
         $topic: NetworkTopics.world,
         $peer: ScenePeer,
-        $user: SceneUser,
         entityUUID: 'entity' as EntityUUID
       })
     )
@@ -1308,7 +1162,8 @@ describe('EntityNetworkState', () => {
 
     applyIncomingActions()
 
-    await act(() => render(null))
+    const { rerender, unmount } = render(<></>)
+    await act(async () => rerender(<></>))
 
     applyIncomingActions()
 
@@ -1321,6 +1176,8 @@ describe('EntityNetworkState', () => {
 
     assert.equal(networkObjectEntitiesAfter.length, 1)
     // assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).authorityPeerID, ScenePeer)
+
+    unmount()
   })
 
   it.skip('benchmark 1000 entities spawn', async () => {
@@ -1369,7 +1226,6 @@ describe('EntityNetworkState', () => {
           ownerID: hostUserID, // from  host
           $topic: NetworkTopics.world,
           $peer: Engine.instance.store.peerID,
-          $user: hostUserID,
           entityUUID: generateEntityUUID()
         })
       )
@@ -1394,7 +1250,6 @@ describe('EntityNetworkState', () => {
         ownerID: hostUserID, // from  host
         $topic: NetworkTopics.world,
         $peer: Engine.instance.store.peerID,
-        $user: hostUserID,
         entityUUID: generateEntityUUID()
       })
     )

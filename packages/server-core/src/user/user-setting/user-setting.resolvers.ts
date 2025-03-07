@@ -38,8 +38,7 @@ import type { HookContext } from '@ir-engine/server-core/declarations'
 
 export const userDbToSchema = (rawData: UserSettingDatabaseType): UserSettingType => {
   let themeModes
-  if (rawData.themeModes && typeof rawData.themeModes !== 'object')
-    themeModes = JSON.parse(rawData.themeModes) as Record<string, string>
+  if (typeof rawData.themeModes !== 'object') themeModes = JSON.parse(rawData.themeModes) as Record<string, string>
 
   // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
   // was serialized multiple times, therefore we need to parse it twice.

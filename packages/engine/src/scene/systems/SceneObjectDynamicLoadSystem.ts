@@ -36,7 +36,7 @@ import { getAncestorWithComponents } from '@ir-engine/ecs'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { SceneComponent } from '@ir-engine/spatial/src/renderer/components/SceneComponents'
 import { Matrix4, Vector3 } from 'three'
-import { SceneDynamicLoadComponent } from '../components/SceneDynamicLoadComponent'
+import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 
 const _cameraMat4 = new Matrix4()
 const _sceneMat4 = new Matrix4()
@@ -47,7 +47,7 @@ let accumulator = 0
 
 const distanceMultiplier = isMobile ? 0.5 : 1
 
-const dynamicLoadQuery = defineQuery([SceneDynamicLoadComponent])
+const dynamicLoadQuery = defineQuery([SceneDynamicLoadTagComponent])
 
 const execute = () => {
   accumulator += getState(ECSState).deltaSeconds
@@ -64,7 +64,7 @@ const execute = () => {
   const viewerWorldMatrix = viewerTransform.matrixWorld
 
   for (const entity of dynamicLoadQuery()) {
-    const dynamicComponent = getComponent(entity, SceneDynamicLoadComponent)
+    const dynamicComponent = getComponent(entity, SceneDynamicLoadTagComponent)
     if (dynamicComponent.mode !== 'distance') continue
 
     const sceneEntity = getAncestorWithComponents(entity, [SceneComponent])
@@ -79,7 +79,7 @@ const execute = () => {
     const distanceToAvatar = _cameraVec3.distanceToSquared(objectPosition)
     const loadDistance = dynamicComponent.distance * dynamicComponent.distance * distanceMultiplier
 
-    getMutableComponent(entity, SceneDynamicLoadComponent).loaded.set(distanceToAvatar < loadDistance)
+    getMutableComponent(entity, SceneDynamicLoadTagComponent).loaded.set(distanceToAvatar < loadDistance)
   }
 }
 

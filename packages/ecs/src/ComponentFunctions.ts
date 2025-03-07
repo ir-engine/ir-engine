@@ -28,18 +28,19 @@ Infinite Reality Engine. All Rights Reserved.
  * @todo Write the `fileoverview` for `ComponentFunctions.ts`
  */
 import * as bitECS from 'bitecs'
-import React from 'react'
+import React, { startTransition, useEffect } from 'react'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
 
 import {
   DeepReadonly,
   HyperFlux,
+  NO_PROXY,
   NO_PROXY_STEALTH,
   ReactorRoot,
   SetPartialStateAction,
   State,
-  destroy,
+  getNestedObject,
   getState,
   hookstate,
   none,
@@ -50,28 +51,23 @@ import {
 import { ECSState } from './ECSState'
 import { Easing, EasingFunction } from './EasingFunctions'
 import { Entity, UndefinedEntity } from './Entity'
+import { EntityContext } from './EntityFunctions'
 import { defineQuery, removeQuery } from './QueryFunctions'
-import { defineSystem } from './SystemFunctions'
-import { PresentationSystemGroup } from './SystemGroups'
 import { Transitionable, TransitionableTypes, getTransitionableKeyForType } from './Transitionable'
-import { createResizableTypeArray } from './bitecsLegacy'
-import { Kind, Static, Schema as TSchema, TTypedSchema } from './schemas/JSONSchemaTypes'
+import * as bitECSLegacy from './bitecsLegacy'
+import { Kind, Static, Schema as TSchema } from './schemas/JSONSchemaTypes'
 import {
   CreateSchemaValue,
   DeserializeSchemaValue,
   HasRequiredSchema,
   HasRequiredSchemaValues,
+  HasSchemaDeserializers,
   HasSchemaValidators,
   HasValidSchemaValues,
   IsSingleValueSchema,
   SerializeSchema
 } from './schemas/JSONSchemaUtils'
 import { S } from './schemas/JSONSchemas'
-
-/**
- * === SECTION ===
- * Component Functions
- */
 
 export const ComponentMap = new Map<string, Component<any, any, any, any, any, any>>()
 export const ComponentJSONIDMap = new Map<string, Component<any, any, any, any, any, any>>() // <jsonID, Component>
@@ -89,7 +85,7 @@ type SomeStringLiteral = 'a' | 'b' | 'c'
 type StringLiteral<T> = string extends T ? SomeStringLiteral : string
 type Optional<T> = T | undefined
 
-type ComponentSchema = TSchema
+type ComponentSchema = TSchema | bitECSLegacy.ISchema
 
 /** @todo figure out how to make these actually optional */
 type ComponentJSON<T> = PartialIfObject<T>
@@ -99,7 +95,11 @@ type ComponentJSON<T> = PartialIfObject<T>
 //   ? T
 //   : Optional<T>
 
-type ComponentInitializationType<Schema extends ComponentSchema> = Schema extends TSchema ? Static<Schema> : never
+type ComponentInitializationType<Schema extends ComponentSchema> = Schema extends TSchema
+  ? Static<Schema>
+  : Schema extends bitECSLegacy.ISchema
+  ? ECSComponentType<Schema> & { entity: Entity }
+  : never
 
 /**
  * @description
@@ -114,8 +114,7 @@ export interface ComponentPartial<
   ComponentType = InitializationType,
   JSON = ComponentType,
   SetJSON = ComponentJSON<DeepReadonly<ComponentType>>,
-  ErrorTypes = never,
-  StorageType = object
+  ErrorTypes = never
 > {
   /** @description Human readable label for the component. Displayed in the editor and debugging tools. */
   name: string
@@ -157,8 +156,6 @@ export interface ComponentPartial<
    * `@todo` Explain this function
    */
   reactor?: any // previously <React.FC> breaks types
-
-  storage?: StorageType
   /**
    * @todo Explain ComponentPartial.errors[]
    */
@@ -178,8 +175,7 @@ export interface Component<
   ComponentType = InitializationType,
   JSON = ComponentType,
   SetJSON = ComponentJSON<DeepReadonly<ComponentType>>,
-  ErrorTypes = string,
-  StorageType = any
+  ErrorTypes = string
 > {
   isComponent: true
   name: string
@@ -190,15 +186,37 @@ export interface Component<
   onSet: (entity: Entity, component: State<ComponentType>, json?: SetJSON) => void
   onRemove: (entity: Entity, component: State<ComponentType>) => void
   reactor?: any
-  storage?: StorageType
   reactorMap: Map<Entity, ReactorRoot>
-  stateMap: Record<Entity, State<ComponentType>>
+  stateMap: State<Record<Entity, ComponentType>>
   valueMap: Record<Entity, ComponentType>
   errors: ErrorTypes[]
   storageSize: number
   __ComponentType: ComponentType
 }
 
+// ECS schema to JS type
+export type ECSComponentType<S extends bitECSLegacy.ISchema> = {
+  [key in keyof S]: S[key] extends bitECSLegacy.ISchema
+    ? ECSComponentType<S[key]>
+    : S[key] extends readonly [infer Type, number]
+    ? Type extends bitECSLegacy.Type
+      ? bitECSLegacy.ArrayByType[Type]
+      : unknown
+    : number
+}
+
+/** Reimplementation of bitECSLegacy.ComponentType, bitECSLegacy.ComponentType seems to have incorrect typing for List types */
+export type SoAComponentType<S extends bitECSLegacy.ISchema> = {
+  [key in keyof S]: S[key] extends bitECSLegacy.Type
+    ? bitECSLegacy.ArrayByType[S[key]]
+    : S[key] extends readonly [infer RT, number]
+    ? RT extends bitECSLegacy.Type
+      ? Array<bitECSLegacy.ArrayByType[RT]>
+      : never
+    : S[key] extends bitECSLegacy.ISchema
+    ? SoAComponentType<S[key]>
+    : never
+}
 /** @description Generic `type` for all Engine's ECS {@link Component}s. All of its fields are required to not be `null`. */
 export type ComponentType<C extends Component> = C['__ComponentType']
 /** @description Generic `type` for {@link Component}s, that takes the shape of the type returned by the its serialization function {@link Component.toJSON}. */
@@ -208,6 +226,14 @@ export type SetComponentType<C extends Component> = Parameters<C['onSet']>[2]
 /** @description Generic `type` for {@link Component}s, that takes the shape of the type used by its {@link Component.errors} field. */
 export type ComponentErrorsType<C extends Component> =
   C['errors'][number] /** @todo What is C[...][number] doing here? */
+
+const schemaIsJSONSchema = (schema?: ComponentSchema): schema is TSchema => {
+  return !!(schema as TSchema)?.[Kind]
+}
+
+const schemaIsECSSchema = (schema?: ComponentSchema): schema is bitECSLegacy.ISchema => {
+  return !!(schema && (schema as TSchema)[Kind] === undefined)
+}
 
 type Primitive = string | number | bigint | boolean | undefined | symbol
 export type ComponentPropertyPath<T, Prefix = ''> = {
@@ -257,15 +283,24 @@ export type ComponentPropertyFromPath<T, Path extends string> = IsDirectProperty
  * ```ts
  * export const MyComponent = defineComponent({
  *   name: 'MyComponent',
- *   schema: S.Object({
- *     prop: S.String('default')
- *   }),
+ *   schema: {
+ *     id: Types.ui32
+ *   },
+ *   onInit: (entity) => {
+ *     return {
+ *       myProp: 'My Value'
+ *     }
+ *   },
+ *   toJSON: (component) => {
+ *     return {
+ *       myProp: component.myProp.value
+ *     }
+ *   },
  *   onSet: (entity, component, json) => {
- *     // side effects
+ *     if (typeof json?.myProp === 'string') component.myProp.set(json.myProp)
  *   },
- *   onRemove: (entity, component) => {
- *     // clean up side effects
- *   },
+ *   onRemove: (entity, component) => {},
+ *   reactor: undefined,
  *   errors: []
  * })
  * ```
@@ -278,68 +313,83 @@ export const defineComponent = <
   SetJSON = ComponentJSON<DeepReadonly<ComponentType>>,
   ErrorTypes = never,
   ComponentExtras = Record<string, unknown>,
-  StorageType = object
+  SOAComponent = Schema extends TSchema
+    ? unknown
+    : Schema extends bitECSLegacy.ISchema
+    ? SoAComponentType<Schema>
+    : unknown
 >(
-  def: ComponentPartial<Schema, InitializationType, ComponentType, JSON, SetJSON, ErrorTypes, StorageType> &
-    ComponentExtras
+  def: ComponentPartial<Schema, InitializationType, ComponentType, JSON, SetJSON, ErrorTypes> & ComponentExtras
 ) => {
-  const Component = {} as Component<
+  const Component = (schemaIsECSSchema(def.schema) ? bitECSLegacy.defineComponent(def.schema) : {}) as Component<
     Schema,
     InitializationType,
     ComponentType,
     JSON,
     SetJSON,
-    ErrorTypes,
-    StorageType
+    ErrorTypes
   > & {
     _TYPE: ComponentType
   } & ComponentExtras &
-    StorageType & { setTransition: typeof setTransition }
+    SOAComponent & { setTransition: typeof setTransition }
   Component.isComponent = true
 
-  // move all branching out of hot path and into definition
-  if (def.schema) {
-    if (IsSingleValueSchema(def.schema)) {
-      if (HasRequiredSchema(def.schema)) {
-        Component.onSet = (entity, component, json) => {
-          const [valid, key] = HasRequiredSchemaValues(def.schema as TSchema, json)
-          if (!valid) throw new Error(`${def.name}:OnSet Missing required value for key ${key}`)
-          component.set(json as ComponentType)
+  // Memoize as much tree walking as possible during component creation
+  const hasSchemaInitializers = schemaIsJSONSchema(def.schema) && HasSchemaDeserializers(def.schema)
+  const hasRequiredSchema = schemaIsJSONSchema(def.schema) && HasRequiredSchema(def.schema)
+  const hasSchemaValidators = schemaIsJSONSchema(def.schema) && HasSchemaValidators(def.schema)
+  const isSingleValueSchema = schemaIsJSONSchema(def.schema) && IsSingleValueSchema(def.schema)
+
+  Component.onSet = (entity, component, json) => {
+    if (schemaIsJSONSchema(def.schema)) {
+      if (hasRequiredSchema) {
+        const [valid, key] = HasRequiredSchemaValues(def.schema as TSchema, json)
+        if (!valid) throw new Error(`${def.name}:OnSet Missing required value for key ${key}`)
+      }
+
+      if (json === null || json === undefined) return
+
+      const cleanJson = DeserializeSchemaValue(
+        def.schema as TSchema,
+        component.get(NO_PROXY_STEALTH) as ComponentType,
+        json as any
+      )
+
+      if (cleanJson === null || cleanJson === undefined) return
+
+      if (hasSchemaValidators) {
+        const [valid, key] = HasValidSchemaValues(
+          def.schema as TSchema,
+          cleanJson as ComponentType,
+          component.get(NO_PROXY_STEALTH) as ComponentType,
+          entity
+        )
+        if (!valid) throw new Error(`${def.name}:OnSet Invalid value for key ${key}`)
+      }
+
+      if (Array.isArray(cleanJson) || typeof cleanJson !== 'object' || isSingleValueSchema)
+        component.set(cleanJson as ComponentType)
+      else if (cleanJson) {
+        for (const key of Object.keys(cleanJson)) {
+          ;(component[key] as any).set((_) => cleanJson?.[key])
         }
       } else {
-        Component.onSet = (entity, component, json) => {
-          if (!json) return
-          component.set(json as ComponentType)
-        }
+        component.set(cleanJson as any)
       }
-    } else {
-      if (HasRequiredSchema(def.schema)) {
-        Component.onSet = (entity, component, json) => {
-          const [valid, key] = HasRequiredSchemaValues(def.schema as TSchema, json)
-          if (!valid) throw new Error(`${def.name}:OnSet Missing required value for key ${key}`)
 
-          if (Array.isArray(json) || typeof json !== 'object') {
-            component.set(json as ComponentType)
-          } else {
-            component.merge(json as SetPartialStateAction<ComponentType>)
-          }
-        }
-      } else {
-        Component.onSet = (entity, component, json) => {
-          if (!json) return
-
-          if (Array.isArray(json) || typeof json !== 'object') {
-            component.set(json as ComponentType)
-          } else {
-            component.merge(json as SetPartialStateAction<ComponentType>)
-          }
-        }
-      }
+      return
     }
-  } else {
-    Component.onSet = () => {}
-  }
 
+    if (json === null || json === undefined) return
+
+    // if no schema, just set the json - assume insecure or internal
+    if (Array.isArray(json) || typeof json !== 'object' || isSingleValueSchema) component.set(json as ComponentType)
+    else if (json) {
+      for (const key of Object.keys(json)) {
+        ;(component[key] as any).set((_) => json?.[key])
+      }
+    } else component.merge(json as SetPartialStateAction<ComponentType>)
+  }
   Component.onRemove = () => {}
   Component.toJSON = (component: ComponentType) => {
     return validateComponentSchema(def as any, component) as JSON
@@ -347,18 +397,13 @@ export const defineComponent = <
 
   Component.errors = []
   Object.assign(Component, def)
-
-  if (def.storage) {
-    Object.assign(Component, def.storage)
-  }
-
   if (Component.reactor) Object.defineProperty(Component.reactor, 'name', { value: `Internal${Component.name}Reactor` })
   Component.reactorMap = new Map()
   // We have to create an stateful existence map in order to reactively track which entities have a given component.
   // Unfortunately, we can't simply use a single shared state because hookstate will (incorrectly) invalidate other nested states when a single component
   // instance is added/removed, so each component instance has to be isolated from the others.
   Component.valueMap = {}
-  Component.stateMap = {}
+  Component.stateMap = hookstate(Component.valueMap) as State<Record<Entity, ComponentType>>
   if (Component.jsonID) {
     ComponentJSONIDMap.set(Component.jsonID, Component)
     // console.log(`Registered component ${Component.name} with jsonID ${Component.jsonID}`)
@@ -393,6 +438,23 @@ export const defineComponent = <
   Component.storageSize = 0
 
   return Component
+
+  // const ExternalComponentReactor = (props: SetJSON) => {
+  //   const entity = useEntityContext()
+
+  //   useLayoutEffect(() => {
+  //     setComponent(entity, Component, props)
+  //     return () => {
+  //       removeComponent(entity, Component)
+  //     }
+  //   }, [props])
+
+  //   return null
+  // }
+  // Object.setPrototypeOf(ExternalComponentReactor, Component)
+  // Object.defineProperty(ExternalComponentReactor, 'name', { value: `${Component.name}Reactor` })
+
+  // return ExternalComponentReactor as typeof Component & { _TYPE: ComponentType } & typeof ExternalComponentReactor
 }
 
 export const getOptionalMutableComponent = <C extends Component>(
@@ -419,20 +481,90 @@ export const getOptionalComponent = <C extends Component>(
   entity: Entity,
   component: C
 ): ComponentType<C> | undefined => {
-  // if (!bitECS.hasComponent(HyperFlux.store, entity, component)) return undefined
-  // return component.stateMap[entity]?.get(NO_PROXY_STEALTH) as ComponentType<C> | undefined
-  return component.valueMap[entity]
+  return bitECS.hasComponent(HyperFlux.store, entity, component) ? component.valueMap[entity] : undefined
 }
 
 export const getComponent = <C extends Component>(entity: Entity, component: C): ComponentType<C> => {
-  const value = component.valueMap[entity] as ComponentType<C>
-  // const value = component.stateMap[entity]?.get(NO_PROXY_STEALTH) as ComponentType<C>
-  if (value === undefined) {
+  if (!bitECS.hasComponent(HyperFlux.store, entity, component)) {
     console.warn(
       `[getComponent]: entity ${entity} does not have ${component.name}. This will be an error in the future. Use getOptionalComponent if there is uncertainty over whether or not an entity has the specified component.`
     )
+    return undefined as ComponentType<C>
   }
-  return value
+  return component.valueMap[entity] as ComponentType<C>
+}
+
+const accessor = Symbol('proxied')
+
+// Uncommenting the target values makes debugging easier, but doubles memory usage of components
+const createSchemaArrProxy = (obj, store, entity: Entity) => {
+  const proxy = new Proxy(obj, {
+    get(target, key, receiver) {
+      if (typeof store[entity][key] === 'function') {
+        return store[entity][key].bind(store[entity])
+        // store[entity][key].bind(store[entity])
+        // target[key].bind(target)
+        // return (...args) => {
+        // store[entity][key](...args)
+        // target[key](...args)
+        // }
+      } else if (key === 'entity') return entity
+      return store[entity][key]
+    },
+    set(target, key, value) {
+      // target[key] = value
+      store[entity][key] = value
+      return true
+    }
+  })
+
+  return proxy
+}
+
+const createSchemaObjProxy = (obj, store, entity: Entity) => {
+  const proxy = new Proxy(obj, {
+    get(target, key, receiver) {
+      if (typeof target[key] === 'object') {
+        return target[key]
+      } else if (key === 'entity') return entity
+      return store[key]?.[entity]
+    },
+    set(target, key, value) {
+      if (typeof value === 'object') {
+        for (const innerKey in value) {
+          target[key][innerKey] = value[innerKey]
+        }
+        return true
+      }
+      // target[key] = value
+      store[key][entity] = value
+      return true
+    }
+  })
+
+  return proxy
+}
+
+const makeSchemaObject = (object: Record<string, any>, entity: Entity, store: any) => {
+  const obj = Object.entries(object).reduce((accum, [key, value]) => {
+    const isArray = Array.isArray(value)
+    if (!isArray && typeof value === 'object') accum[key] = makeSchemaObject(value, entity, store[key])
+    // else if (isArray && value.length === 2) accum[key] = createSchemaArrProxy(new ArrayByType[value[0]](value[1]), store[key], entity)
+    // else accum[key] = 0
+    else if (isArray && value.length === 2) accum[key] = createSchemaArrProxy([], store[key], entity)
+    else accum[key] = accessor
+    return accum
+  }, {})
+
+  return createSchemaObjProxy(obj, store, entity)
+}
+
+const createProxyForECSSchema = <Schema extends ComponentSchema, InitializationType, ComponentType, JSON, SetJSON>(
+  entity: Entity,
+  component: Component<Schema, InitializationType, ComponentType, JSON, SetJSON, unknown>
+) => {
+  const obj = makeSchemaObject(component.schema!, entity, component)
+  return obj as InitializationType
 }
 
 export const createInitialComponentValue = <
@@ -445,13 +577,16 @@ export const createInitialComponentValue = <
   entity: Entity,
   component: Component<Schema, InitializationType, ComponentType, JSON, SetJSON, unknown>
 ): ComponentType => {
-  if (!component.schema) {
-    if (component.onInit) return component.onInit(undefined as InitializationType) as ComponentType
-    return true as ComponentType // true as tag component
-  }
-  const schema = CreateSchemaValue(entity, component.schema) as InitializationType
-  if (component.onInit) return component.onInit(schema) as ComponentType
-  else return schema as unknown as ComponentType
+  if (schemaIsJSONSchema(component.schema)) {
+    const schema = CreateSchemaValue(component.schema) as InitializationType
+    if (component.onInit) return component.onInit(schema) as ComponentType
+    else return schema as unknown as ComponentType
+  } else if (schemaIsECSSchema(component.schema)) {
+    const proxy = createProxyForECSSchema(entity, component)
+    if (component.onInit) return component.onInit(proxy)
+    else return proxy as unknown as ComponentType
+  } else if (component.onInit) return component.onInit(undefined as InitializationType) as ComponentType
+  else return null as ComponentType
 }
 
 function nearestPowerOf2(n: number) {
@@ -465,37 +600,23 @@ function nextPowerOf2(n: number) {
 const TypedArray = Object.getPrototypeOf(Uint8Array)
 
 const resizeSoA = (arrayOrObject: any, size: number) => {
-  if (arrayOrObject instanceof TypedArray) {
-    const byteLength = size * arrayOrObject.constructor.BYTES_PER_ELEMENT
-    arrayOrObject.buffer.resize(byteLength)
-  } else {
+  if (arrayOrObject instanceof TypedArray == false) {
     for (const propertyName in arrayOrObject) {
       resizeSoA(arrayOrObject[propertyName], size)
     }
+  } else {
+    const byteLength = size * arrayOrObject.constructor.BYTES_PER_ELEMENT
+    arrayOrObject.buffer.resize(byteLength)
   }
 }
 
-const resizeComponent = (component: Component, size: number) => {
-  const schema = component.storage
+export const resizeComponent = (component: Component, size: number) => {
+  const schema = component.schema
+  if (!schemaIsECSSchema(schema)) return
   for (const propertyName in schema) {
     resizeSoA(component[propertyName], size)
   }
   component.storageSize = size
-}
-
-const _getComponentState = <C extends Component>(entity: Entity, component: C) => {
-  if (!component.stateMap[entity]) {
-    component.stateMap[entity] = hookstate(none, () => ({
-      onSet: (s, d) => {
-        const rootState = component.stateMap[entity]
-        component.valueMap[entity] = rootState.promised ? undefined : rootState.get(NO_PROXY_STEALTH)
-        if (bitECS.hasComponent(HyperFlux.store, entity, component)) {
-          LayerFunctions.propagateLayer(entity, component)
-        }
-      }
-    }))
-  }
-  return component.stateMap[entity]
 }
 
 /**
@@ -504,7 +625,6 @@ const _getComponentState = <C extends Component>(entity: Entity, component: C) =
  * @notes
  * - If the component already exists, it will be overwritten.
  * - Unlike calling {@link removeComponent} followed by {@link addComponent}, the entry queue will not be rerun.
- * - Does not run validators or deserialization.
  *
  * @param entity The entity to which the Component will be attached.
  * @param component The Component that will be attached.
@@ -515,53 +635,81 @@ export const setComponent = <C extends Component>(
   entity: Entity,
   component: C,
   args: SetComponentType<C> | undefined = undefined
-) => {
+): ComponentType<C> => {
   if (!entity) {
     throw new Error('[setComponent]: entity is undefined')
   }
-  if (!entityExists(entity)) {
+  if (!bitECS.entityExists(HyperFlux.store, entity)) {
     throw new Error('[setComponent]: entity does not exist')
   }
 
-  if (component.storage) {
+  if (schemaIsECSSchema(component.schema)) {
     const nextSize = nextPowerOf2(entity + 1)
     if (component.storageSize < nextSize) resizeComponent(component, nextSize)
   }
 
-  const state = _getComponentState(entity, component)
-
-  const exists = hasComponent(entity, component)
-
-  if (!exists) {
-    // we must call onSet before setting the component in the ECS, such that the propagation
-    // callback does not propagate data that may be required but not set yet
-    state.set(createInitialComponentValue(entity, component))
-    component.onSet(entity, state, args)
+  const componentExists = hasComponent(entity, component)
+  if (!componentExists) {
+    const value = createInitialComponentValue(entity, component)
+    component.stateMap[entity]!.set(value)
     bitECS.addComponent(HyperFlux.store, entity, component)
-  } else {
-    component.onSet(entity, state, args)
   }
 
-  LayerFunctions.propagateLayer(entity, component)
+  component.onSet(entity, component.stateMap[entity]!, args)
 
-  if (component.reactor && !component.reactorMap.has(entity) && LayerComponent.get(entity) === Layers.Simulation) {
-    function reactor() {
-      return React.createElement(
-        EntityContext.Provider,
-        { value: entity },
-        React.createElement(component.reactor, { entity })
-      )
-    }
-    reactor['__name'] = `${component.name} (eid: ${entity})`
-    const root = startReactor(reactor) as ReactorRoot
+  if (!componentExists && component.reactor && !component.reactorMap.has(entity)) {
+    const root = startReactor(() => {
+      return React.createElement(EntityContext.Provider, { value: entity }, React.createElement(component.reactor!, {}))
+    }) as ReactorRoot
     root['entity'] = entity
     root['component'] = component.name
     component.reactorMap.set(entity, root)
-    root.run()
+    return getComponent(entity, component)
   }
 
   const root = component.reactorMap.get(entity)
   root?.run()
+  return getComponent(entity, component)
+}
+
+/**
+ * @experimental
+ * @description `@todo` Explain how `updateComponent` works.
+ */
+export const updateComponent = <C extends Component>(
+  entity: Entity,
+  Component: C,
+  props: Partial<SerializedComponentType<C>>
+) => {
+  if (typeof props === 'undefined') return
+
+  const comp = getMutableComponent(entity, Component)
+  if (!comp) {
+    throw new Error('[updateComponent]: component does not exist ' + Component.name)
+  }
+
+  startTransition(() => {
+    if (typeof props !== 'object') {
+      // component has top level value (eg NameComponent)
+      comp.set(props)
+    } else {
+      for (const propertyName of Object.keys(props as any)) {
+        const value = props[propertyName]
+        const { result, finalProp } = getNestedObject(comp, propertyName)
+        if (
+          typeof value !== 'undefined' &&
+          typeof result[finalProp] === 'object' &&
+          typeof result[finalProp].set === 'function'
+        ) {
+          result[finalProp].set(value)
+        } else {
+          result[finalProp] = value
+        }
+      }
+    }
+    const root = Component.reactorMap.get(entity)
+    if (!root?.isRunning) root?.run()
+  })
 }
 
 export const hasComponent = <C extends Component>(entity: Entity, component: C): boolean => {
@@ -588,8 +736,8 @@ export function hasComponents<C extends Component>(entity: Entity, components: C
 export function useHasComponents<C extends Component>(entity: Entity, components: C[]): boolean {
   let hasAllComponents = true
   for (const component of components) {
-    useOptionalComponent(entity, component)?.value
-    if (!hasComponent(entity, component)) hasAllComponents = false
+    const exists = !!useOptionalComponent(entity, component)
+    if (!exists) hasAllComponents = false
   }
 
   return hasAllComponents
@@ -597,26 +745,13 @@ export function useHasComponents<C extends Component>(entity: Entity, components
 
 export const removeComponent = <C extends Component>(entity: Entity, component: C) => {
   if (!hasComponent(entity, component)) return
-
-  const relations = LayerFunctions.getLayerRelationsEntities(entity)
-  if (relations) {
-    const entityLayer = LayerComponent.get(entity)
-    for (const [layer, linkedEntity] of relations) {
-      if (!LayerFunctions.shouldPropagate(entityLayer, layer)) continue
-      removeComponent(linkedEntity, component)
-    }
-  }
-
-  bitECS.removeComponent(HyperFlux.store, entity, component)
   component.onRemove(entity, component.stateMap[entity]!)
+  bitECS.removeComponent(HyperFlux.store, entity, component)
   const root = component.reactorMap.get(entity)
   component.reactorMap.delete(entity)
   if (root?.isRunning) root.stop()
   /** clear state data after reactor stops, to ensure hookstate is still referenceable */
   component.stateMap[entity]?.set(none)
-  destroy(component.stateMap[entity])
-  delete component.stateMap[entity]
-  delete component.valueMap[entity]
 }
 
 /**
@@ -637,7 +772,7 @@ export const componentJsonDefaults = <C extends Component>(component: C) => {
  * @returns An array containing all of the Entity's associated components.
  */
 export const getAllComponents = (entity: Entity): Component[] => {
-  if (!entityExists(entity)) return []
+  if (!bitECS.entityExists(HyperFlux.store, entity)) return []
   return bitECS.getEntityComponents(HyperFlux.store, entity) as Component[]
 }
 
@@ -651,7 +786,6 @@ export const getAllComponentData = (entity: Entity): { [name: string]: Component
 }
 
 export const removeAllComponents = (entity: Entity) => {
-  if (!entityExists(entity)) return
   try {
     for (const component of bitECS.getEntityComponents(HyperFlux.store, entity)) {
       try {
@@ -665,45 +799,6 @@ export const removeAllComponents = (entity: Entity) => {
   }
 }
 
-export const deserializeComponent = <C extends Component>(
-  entity: Entity,
-  Component: C,
-  json: SetComponentType<C> | undefined = undefined
-) => {
-  if (Component.schema && HasRequiredSchema(Component.schema)) {
-    const [valid, key] = HasRequiredSchemaValues(Component.schema as TSchema, json)
-    if (!valid) throw new Error(`${Component.name}:OnSet Missing required value for key ${key}`)
-  }
-
-  /** @todo this can be replaced with setComponent rather than just some of the initializers once reactors are not forced to run synchronously */
-  if (!hasComponent(entity, Component)) {
-    if (!entity) throw new Error('[setComponent]: entity is undefined')
-    if (!entityExists(entity)) throw new Error('[setComponent]: entity does not exist')
-
-    if (Component.storage) {
-      const nextSize = nextPowerOf2(entity + 1)
-      if (Component.storageSize < nextSize) resizeComponent(Component, nextSize)
-    }
-
-    const state = _getComponentState(entity, Component)
-    state.set(createInitialComponentValue(entity, Component))
-    bitECS.addComponent(HyperFlux.store, entity, Component)
-  }
-
-  if (json === null || json === undefined) return
-
-  const component = getComponent(entity, Component)
-
-  const args = Component.schema ? DeserializeSchemaValue(entity, Component.schema, component, json) : json
-
-  if (Component.schema && HasSchemaValidators(Component.schema)) {
-    const [valid, key] = HasValidSchemaValues(Component.schema, args, component, entity)
-    if (!valid) throw new Error(`${component.name}:OnSet Invalid value for key ${key} ${JSON.stringify(args)}`)
-  }
-
-  setComponent(entity, Component, args)
-}
-
 export const serializeComponent = <C extends Component>(entity: Entity, Component: C) => {
   const component = getComponent(entity, Component)
   return JSON.parse(JSON.stringify(Component.toJSON(component))) as ReturnType<C['toJSON']>
@@ -711,8 +806,11 @@ export const serializeComponent = <C extends Component>(entity: Entity, Componen
 
 // If we want to add more validation logic (ie. schema migrations), decouple this function from Component.toJSON first
 export const validateComponentSchema = <C extends Component>(Component: C, data: ComponentType<C>) => {
-  if (!Component.schema) return data
-  return SerializeSchema(Component.schema, data)
+  if (schemaIsJSONSchema(Component.schema)) {
+    return SerializeSchema(Component.schema, data)
+  }
+
+  return data
 }
 
 // use seems to be unavailable in the server environment
@@ -739,25 +837,50 @@ export function _use(promise) {
   }
 }
 
+const useComponentObservers = new Map<string, { promise: Promise<any>; unsubscribe: () => void }>()
+
 /**
  * Use a component in a reactive context (a React component)
  */
 export function useComponent<C extends Component>(entity: Entity, component: C): State<ComponentType<C>> {
   if (entity === UndefinedEntity) throw new Error('InvalidUsage: useComponent called with UndefinedEntity')
 
-  const state = _getComponentState(entity, component)
+  const key = entity + component.name
 
   // use() will suspend the component (by throwing a promise) and resume when the promise is resolved
-  if (state.promise) {
-    ;(React.use ?? _use)(state.promise)
+  if (!hasComponent(entity, component)) {
+    let observer = useComponentObservers.get(key)
+    if (!observer) {
+      let unsubscribe
+      const promise = new Promise((resolve) => {
+        unsubscribe = bitECS.observe(HyperFlux.store, bitECS.onAdd(component), (eid) => {
+          if (entity === eid) {
+            resolve(getComponent(entity, component))
+            unsubscribe?.()
+            useComponentObservers.delete(key)
+          }
+        })
+      })
+      observer = {
+        promise,
+        unsubscribe
+      }
+      useComponentObservers.set(key, observer)
+    }
+    ;(React.use ?? _use)(observer.promise)
   }
 
-  return useHookstate(state) as State<ComponentType<C>>
-}
+  useEffect(() => {
+    return () => {
+      const observer = useComponentObservers.get(key)
+      if (observer) {
+        observer.unsubscribe()
+        useComponentObservers.delete(key)
+      }
+    }
+  }, [])
 
-export function useHasComponent<C extends Component>(entity: Entity, component: C): boolean {
-  useOptionalComponent(entity, component)?.value
-  return hasComponent(entity, component)
+  return useHookstate(component.stateMap[entity]) as State<ComponentType<C>>
 }
 
 /**
@@ -767,8 +890,8 @@ export function useOptionalComponent<C extends Component>(
   entity: Entity,
   component: C
 ): State<ComponentType<C>> | undefined {
-  const componentState = useHookstate(_getComponentState(entity, component)) as State<ComponentType<C>>
-  return componentState.promised ? undefined : componentState
+  const componentState = useHookstate(component.stateMap[entity]) as State<ComponentType<C>>
+  return !hasComponent(entity, component) || componentState.promised ? undefined : componentState
 }
 
 export const getComponentCountOfType = <C extends Component>(component: C): number => {
@@ -786,349 +909,6 @@ export const getAllComponentsOfType = <C extends Component>(component: C): Compo
     return getComponent(e, component)!
   })
 }
-
-/**
- * === SECTION ===
- * Entity Layers
- */
-
-/**
- * @description Returns array of relations that, for each entry, contains:
- *  - Layer number at slot 0
- *  - Entity ID at slot 1
- *  @example ```ts
- *  for ([layer, linkedEntity] of getLayerRelations(entity)) { ..... }
- *  ```
- * */
-function getLayerRelationsEntities(entity: Entity): [LayerID, Entity][] | undefined {
-  const layerComponent = LayerFunctions.getLayerComponent(entity)
-  if (!layerComponent) return
-  const layer = getOptionalComponent(entity, layerComponent)
-  if (!layer) return
-  return Object.entries(layer.relations).map(
-    ([layer, val]): [LayerID, Entity] => [Number(layer), val] as [LayerID, Entity]
-  )
-}
-
-function getLayerRelationsTypes(layer: LayerID): [LayerID, keyof typeof LayerRelationTypes][] {
-  return Object.entries(LayerRelations[layer]).map(
-    ([layer, val]) => [Number(layer), val] as [LayerID, keyof typeof LayerRelationTypes]
-  )
-}
-
-/**
- * @description Returns the LayerComponent used by this entity from the LayerComponents map.
- * */
-function getLayerComponent(entity: Entity) {
-  return LayerComponents[LayerComponent.get(entity)]
-}
-
-/**
- * @description Returns true if the given entity/layer pair should trigger propagation behavior.
- * */
-function shouldPropagate(entityLayer: LayerID, layer: LayerID): boolean {
-  return LayerRelations[entityLayer][layer] === LayerRelationTypes.Propagate
-}
-
-/**
- * @description Runs the `@param linkedLayer` propagation process for the schema of the given `@param C` Component
- * @note Checking whether this process/behavior should be run or not is done with the {@link shouldPropagate} helper function.
- * */
-function createLayerPropagationArgs<C extends Component>(entity: Entity, linkedLayer: LayerID, component: C) {
-  if (!component.schema) return
-  const componentSchema = component.schema as TTypedSchema<C>
-  const layer = LayerComponent.get(entity)
-  const createArgs = (schema: TTypedSchema<C>, key: string | number, data: any) => {
-    const obj = key === '' ? data : data[key]
-    if (typeof obj === 'undefined') return
-    switch (schema[Kind] as any) {
-      case 'Null':
-      case 'Undefined':
-      case 'Void':
-      case 'Bool':
-      case 'String':
-      case 'Enum':
-      case 'Literal': {
-        return obj
-      }
-      case 'Number': {
-        if (obj === UndefinedEntity) return obj
-        if ((schema[Kind] as any) === 'Number' && schema?.options?.['id'] === 'Entity') {
-          const referencedEntity = obj as Entity
-
-          // if the entity is already in the linked layer, return the current arg
-          if (LayerComponent.get(referencedEntity) === linkedLayer) return referencedEntity
-
-          // otherwise return the linked entity
-          return getComponent(referencedEntity, LayerComponents[layer]).relations[linkedLayer]
-        } else {
-          return obj
-        }
-      }
-      case 'Any': {
-        if (!obj) return
-        if (typeof obj === 'object' && 'clone' in obj && typeof obj.clone === 'function') {
-          return obj.clone()
-        } else if (Array.isArray(obj)) {
-          return [...obj] as any[]
-        } else {
-          return structuredClone(obj)
-        }
-      }
-      case 'Class': {
-        if (!obj) return
-        if ('clone' in obj && typeof obj.clone === 'function') {
-          return obj.clone()
-        } else {
-          try {
-            return structuredClone(obj)
-          } catch (error) {
-            // throw new Error(
-            //   `[propagateSchema]: ${entity} ${component.name} ${key} is not a cloneable class. ` + error.message
-            // )
-            console.warn(
-              `[propagateSchema]: ${entity} ${component.name} ${key} is not a cloneable class. ` + error.message
-            )
-            return obj
-          }
-        }
-      }
-      case 'Object': {
-        if (!obj) return
-        const props = schema.properties as any
-        const args = {} as any
-        for (const k in props) {
-          const parsed = createArgs(props[k], k, obj)
-          if (typeof parsed === 'undefined') continue
-          args[k] = parsed
-        }
-        return args
-      }
-      case 'Record': {
-        if (!obj) return
-        const { key, value } = schema.properties as { key: any; value: any }
-        const args = {} as any
-        for (const k in obj) {
-          const parsed = createArgs(value, k, obj)
-          if (typeof parsed === 'undefined') continue
-          args[k] = parsed
-        }
-        return args
-      }
-      case 'Array': {
-        if (!obj) return
-        const props = schema.properties as any
-        const args = [] as any[]
-        for (let i = 0; i < obj.length; i++) {
-          const parsed = createArgs(props, i, obj)
-          args[i] = parsed
-        }
-        return args
-      }
-      case 'Tuple': {
-        if (!obj) return
-        const props = schema.properties as any
-        const args = [] as any[]
-        for (let i = 0; i < props.length; i++) {
-          const parsed = createArgs(props[i], i, obj)
-          args[i] = parsed
-        }
-        return args
-      }
-      case 'Union': {
-        const props = schema.properties as any
-        for (const prop of props) {
-          const parsed = createArgs(prop, '', obj)
-          if (typeof parsed !== 'undefined') return parsed
-        }
-        return null
-      }
-      case 'NonSerialized': {
-        return
-      }
-      case 'Partial':
-      case 'Required':
-      case 'Proxy':
-      default: {
-        let props = schema.properties as any
-        if (!props) {
-          // must be SoA data
-          if (typeof obj === 'object') {
-            props = {
-              properties: Object.fromEntries(Object.keys(schema).map((key) => [key, { [Kind]: 'Any' }])),
-              [Kind]: 'Object'
-            }
-          } else if (typeof obj === 'number') {
-            return obj
-          }
-        }
-        return createArgs(props, '', obj)
-      }
-    }
-  }
-
-  const vals = createArgs(componentSchema, '', getComponent(entity, component))
-
-  for (const key in vals) {
-    if (typeof vals[key] === 'undefined') {
-      delete vals[key]
-    }
-  }
-
-  return vals
-}
-
-/**
- * @description
- * Runs the `@param linkedLayer` propagation process for the given `@param entity`/`@param component` pair
- * It will also trigger Schema propagation when `@param component`.schema is truthy.
- *
- * @note Checking whether this process/behavior should be run or not is done with the {@link shouldPropagate} helper function.
- * */
-function propagateLayer<C extends Component>(entity: Entity, component: C) {
-  if ((component as any) === LayerComponent || LayerComponents.includes(component as any)) return
-  const relations = LayerFunctions.getLayerRelationsEntities(entity)
-  if (!relations) return
-  const entityLayer = LayerComponent.get(entity)
-  for (const [linkedLayer, linkedEntity] of relations) {
-    if (!LayerFunctions.shouldPropagate(entityLayer, linkedLayer)) continue
-    const newArgs = LayerFunctions.createLayerPropagationArgs(entity, linkedLayer, component)
-    setComponent(linkedEntity, component, newArgs)
-  }
-}
-
-/**
- * @description
- * Collection of ECSLayers Helper functions.
- *
- * @note
- * Usage of these functions through this object is preferable.
- * Simplifies unit testing by allowing the definition of function spies directly from this object.
- * */
-export const LayerFunctions = {
-  getLayerRelationsEntities,
-  getLayerRelationsTypes,
-  getLayerComponent,
-  shouldPropagate,
-  createLayerPropagationArgs,
-  propagateLayer,
-  getAuthoringCounterpart
-}
-
-export const Layers = {
-  Simulation: 0 as const,
-  Authoring: 1 as const
-}
-
-export type LayerID = (typeof Layers)[keyof typeof Layers]
-
-export const LayerRelationTypes = {
-  Propagate: 'propagate'
-}
-
-export const LayerRelations = {
-  [Layers.Simulation]: {},
-  [Layers.Authoring]: {
-    [Layers.Simulation]: LayerRelationTypes.Propagate
-  }
-} as Record<number, Record<number, keyof typeof LayerRelationTypes>>
-
-export const LayerComponents = Object.entries(Layers).map(([name, layer]) => {
-  return defineComponent({
-    name: `${name}LayerComponent`,
-    schema: S.Object({
-      relations: S.Record(S.Enum(Layers), S.Entity())
-    }),
-
-    // backward references
-    refs: {} as Record<Entity, Entity>,
-
-    onSet: (entity, _component) => {
-      for (const [linkedLayer, relation] of LayerFunctions.getLayerRelationsTypes(layer)) {
-        if (relation === LayerRelationTypes.Propagate) {
-          const linkedEntity = createEntity(linkedLayer as LayerID)
-          _component.relations[linkedLayer].set(linkedEntity)
-          LayerComponents[linkedLayer].refs[linkedEntity] = entity
-        }
-      }
-    },
-
-    onRemove(entity, _component) {
-      for (const [linkedLayer, relation] of LayerFunctions.getLayerRelationsTypes(layer)) {
-        if (relation === LayerRelationTypes.Propagate) {
-          const relation = getComponent(entity, LayerComponents[layer]).relations[linkedLayer]
-          removeEntity(relation)
-          delete LayerComponents[linkedLayer].refs[relation]
-        }
-      }
-    }
-  })
-})
-
-export const SimulationLayerComponent = LayerComponents[Layers.Simulation]
-
-// @note LayerComponent is the API for setting and getting the layer of an entity
-export const LayerComponent = defineComponent({
-  name: 'LayerComponent',
-
-  storage: {
-    layer: createResizableTypeArray(Uint8Array)
-  },
-
-  onSet(entity, component, layer: LayerID) {
-    LayerComponent.layer[entity] = layer
-    setComponent(entity, LayerComponents[layer])
-  },
-
-  get: (entity: Entity) => {
-    return LayerComponent.layer[entity] as any as LayerID
-  },
-
-  onRemove(entity, component) {
-    const layer = LayerComponent.layer[entity]
-    removeComponent(entity, LayerComponents[layer])
-    LayerComponent.layer[entity] = 0
-  },
-
-  hasUpstreamEntity(entity: Entity) {
-    const entityLayer = LayerComponent.get(entity)
-    if (entityLayer === Layers.Simulation) {
-      const upstreamEntity = LayerComponents[Layers.Simulation].refs[entity]
-      if (upstreamEntity !== undefined && upstreamEntity !== UndefinedEntity && entityExists(upstreamEntity))
-        return true
-    }
-    return false
-  }
-})
-
-export function getAuthoringCounterpart(entity: Entity) {
-  const layer = LayerComponent.get(entity)
-  if (layer === Layers.Authoring) {
-    return entity
-  }
-  return LayerComponents[Layers.Simulation].refs[entity]
-}
-
-export function getSimulationCounterpart(entity: Entity) {
-  const layer = LayerComponent.get(entity)
-  if (layer === Layers.Simulation) {
-    return entity
-  }
-  const relations = LayerFunctions.getLayerRelationsEntities(entity)
-  if (!relations) return UndefinedEntity
-  const entityLayer = LayerComponent.get(entity)
-  for (const [linkedLayer, linkedEntity] of relations) {
-    if (linkedLayer === Layers.Simulation) {
-      return linkedEntity
-    }
-  }
-  return UndefinedEntity
-}
-
-/**
- * === SECTION ===
- * Component Transitions
- */
 
 export const TransitionComponent = defineComponent({
   name: 'TransitionComponent',
@@ -1188,7 +968,7 @@ export const TransitionComponent = defineComponent({
       (t) => t.componentJsonID === target.componentJsonID && t.propertyPath === target.propertyPath
     )
     if (!transition) {
-      const t = CreateSchemaValue(entity, TransitionComponent.schema.properties)
+      const t = CreateSchemaValue(TransitionComponent.schema.properties)
       transitions.push(t)
       transition = transitions[transitions.length - 1]
       transition.componentJsonID = target.componentJsonID
@@ -1288,97 +1068,3 @@ export const TransitionComponent = defineComponent({
     }
   }
 })
-
-/**
- * === SECTION ===
- * Entity Functions
- */
-
-/**
- * $RemovedComponent
- * - internal to the ECS
- * - used as a component to mark an entity as existing, and it's store 'exists' is set to 0
- *       immediately upon calling removeEntity, thus we can use it for entity existence
- */
-export const $RemovedComponent = defineComponent({
-  name: '$RemovedComponent',
-  storage: { exists: createResizableTypeArray(Uint8Array) }
-})
-
-// precalc initial few unnecessary resizes
-resizeComponent($RemovedComponent, Math.pow(2, 8))
-
-// add a delay such that we ensure any deletions never happen on the same animation frame to ensure reactors have enough time to run effects
-let lastMarkedForRemoval = 0
-const delay = 100 // 100ms - usually enough for a few frames on low end devices
-
-const _markEntityForRemoval = (eid: Entity): void => {
-  bitECS.addComponent(HyperFlux.store, eid, $RemovedComponent)
-  $RemovedComponent.exists[eid] = 0
-  // updating to now ensures we are at least <delay> time from the last mark, which ensures reactors always have enough time to run
-  lastMarkedForRemoval = Date.now()
-}
-
-export const _removeMarkedEntity = (eid: Entity): void => {
-  bitECS.removeComponent(HyperFlux.store, eid, $RemovedComponent)
-  bitECS.removeEntity(HyperFlux.store, eid)
-}
-
-export const _removeMarkedEntities = (): void => {
-  const now = Date.now()
-  if (now - lastMarkedForRemoval > delay) return
-
-  for (const eid of bitECS.query(HyperFlux.store, [$RemovedComponent]) as Entity[]) _removeMarkedEntity(eid)
-}
-
-export const $EntityRemovalSystem = defineSystem({
-  uuid: '$EntityRemovalSystem',
-  insert: { after: PresentationSystemGroup },
-  execute: _removeMarkedEntities
-})
-
-export const createEntity = (layerID: LayerID = Layers.Simulation): Entity => {
-  if (!LayerComponents[layerID]) throw new Error('createEntity: argument layerID must be a valid LayerID value')
-  const entity = bitECS.addEntity(HyperFlux.store) as Entity
-  if ($RemovedComponent.exists.length <= entity) {
-    const nextSize = nextPowerOf2(entity + 1)
-    if ($RemovedComponent.storageSize < nextSize) resizeComponent($RemovedComponent, nextSize)
-  }
-  $RemovedComponent.exists[entity] = 1
-  setComponent(entity, LayerComponent, layerID)
-  return entity
-}
-
-export const removeEntity = (entity: Entity) => {
-  if (!entity || !entityExists(entity)) return ///throw new Error(`[removeEntity]: Entity ${entity} does not exist in the world`)
-
-  const relations = LayerFunctions.getLayerRelationsEntities(entity)
-  const entityLayer = LayerComponent.get(entity)
-  if (relations) {
-    for (const [layer, linkedEntity] of relations) {
-      if (!LayerFunctions.shouldPropagate(entityLayer, layer)) continue
-      removeEntity(linkedEntity)
-    }
-  }
-
-  for (const component of bitECS.getEntityComponents(HyperFlux.store, entity)) {
-    if (component === LayerComponent || LayerComponents.includes(component)) continue
-    removeComponent(entity, component)
-  }
-
-  // always ensure layer component is removed last (it removes the specific layer component too)
-  removeComponent(entity, LayerComponent)
-
-  _markEntityForRemoval(entity)
-}
-
-export const entityExists = (entity: Entity) => {
-  return $RemovedComponent.exists[entity] === 1
-}
-
-export const EntityContext = React.createContext(UndefinedEntity)
-
-/** @deprecated entity is now passed in as a prop 'entity' to query and array child reactors */
-export const useEntityContext = () => {
-  return React.useContext(EntityContext)
-}

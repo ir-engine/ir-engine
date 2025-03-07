@@ -35,21 +35,14 @@ import {
   SphereGeometry
 } from 'three'
 
-import {
-  Entity,
-  EntityTreeComponent,
-  S,
-  createEntity,
-  defineComponent,
-  getComponent,
-  removeEntity,
-  setComponent,
-  useComponent,
-  useEntityContext
-} from '@ir-engine/ecs'
-import { getState } from '@ir-engine/hyperflux'
+import { EntityTreeComponent } from '@ir-engine/ecs'
+import { defineComponent, getComponent, setComponent, useComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Entity } from '@ir-engine/ecs/src/Entity'
+import { createEntity, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { WebContainer3D } from '@ir-engine/xrui'
 
+import { S } from '@ir-engine/ecs/src/schemas/JSONSchemas'
+import { getState } from '@ir-engine/hyperflux'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
 import { NameComponent } from '../../common/NameComponent'
 import { useAnimationTransition } from '../../common/functions/createTransitionState'

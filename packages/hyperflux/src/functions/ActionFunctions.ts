@@ -29,7 +29,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { createHookableFunction } from './createHookableFunction'
 
 import { OpaqueType } from '../types/OpaqueType'
-import { NetworkID, PeerID, UserID } from '../types/Types'
+import { NetworkID, PeerID } from '../types/Types'
 import { isDev } from './EnvironmentConstants'
 import { ReactorRoot } from './ReactorFunctions'
 import { setInitialState, StateDefinitions } from './StateFunctions'
@@ -72,18 +72,10 @@ export type ActionOptions = {
   $uuid?: string
 
   /**
-   * The id of the dispatching peer's unique identifier
+   * The id of the sender's socket
    * Will be undefined if dispatched locally or not in a network
-   * - It is recommended that transports implement this upon receiving actions to ensure the peer is who they say they are
    */
   $peer?: PeerID
-
-  /**
-   * The user that dispatched this action
-   * Will be undefined if dispatched locally or not authenticated
-   * - It is recommended that transports implement this upon receiving actions to ensure the user is who they say they are
-   */
-  $user?: UserID
 
   /**
    * The intended recipients
@@ -229,8 +221,6 @@ export const ActionDefinitions = {} as Record<string, any>
 
 export type ActionReceptor<A extends ActionShape<Action>> = ((action: A) => void) & {
   matchesAction: Validator<A, any>
-  validate: (validator: (action: ResolvedActionType<A>) => boolean) => ActionReceptor<A>
-  validator?: (action: A) => boolean
 }
 
 export function isActionReceptor<A extends ActionShape<Action>>(f: any): f is ActionReceptor<A> {
@@ -314,10 +304,6 @@ export function defineAction<Shape extends Omit<ActionShape<Action>, keyof Actio
   actionCreator.receive = (actionReceptor: (action: ResolvedAction) => void) => {
     const hookableReceptor = createHookableFunction(actionReceptor)
     hookableReceptor['matchesAction'] = matchesShape
-    hookableReceptor['validate'] = (actionValidator: (action: ResolvedAction) => boolean) => {
-      hookableReceptor['validator'] = actionValidator
-      return hookableReceptor
-    }
     return hookableReceptor as typeof hookableReceptor & ActionReceptor<Shape>
   }
 
@@ -334,11 +320,9 @@ export function defineAction<Shape extends Omit<ActionShape<Action>, keyof Actio
 export const dispatchAction = <A extends Action>(_action: A) => {
   const action = JSON.parse(JSON.stringify(_action))
 
-  const peerID = HyperFlux.store.peerID
-  const agentID = HyperFlux.store.getAgentID()
+  const agentId = HyperFlux.store.peerID
 
-  action.$peer = action.$peer ?? peerID
-  action.$user = action.$user ?? agentID
+  action.$peer = action.$peer ?? agentId
   action.$to = action.$to ?? 'all'
   action.$time = action.$time ?? HyperFlux.store.getDispatchTime() + HyperFlux.store.defaultDispatchDelay()
   action.$cache = action.$cache ?? false
@@ -454,7 +438,6 @@ const createEventSourceQueues = (action: Required<ResolvedActionType>) => {
           try {
             const receptor = definitionReceptor as ActionReceptor<ResolvedActionType>
             if (receptor.matchesAction.test(action)) {
-              if (receptor.validator && !receptor.validator(action)) continue
               receptor(action)
               hasNewActions = true
             }
@@ -539,12 +522,9 @@ const applyEventSourcingToAllQueues = () => {
  * Process incoming actions
  */
 export const applyIncomingActions = () => {
-  const incoming = HyperFlux.store.actions.incoming
-  if (!incoming.length) return
-
+  const { incoming } = HyperFlux.store.actions
   const now = HyperFlux.store.getDispatchTime()
-  const actions = incoming.slice()
-  for (const action of actions) {
+  for (const action of [...incoming]) {
     _forwardIfNecessary(action)
     if (action.$time <= now) _applyIncomingAction(action)
   }

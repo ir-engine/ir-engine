@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect, useLayoutEffect } from 'react'
 
 import {
-  entityExists,
   EntityUUID,
   getOptionalComponent,
   removeComponent,
@@ -34,6 +33,7 @@ import {
   useOptionalComponent,
   UUIDComponent
 } from '@ir-engine/ecs'
+import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
 import { AvatarColliderComponent } from '@ir-engine/engine/src/avatar/components/AvatarControllerComponent'
 import { spawnAvatarReceptor } from '@ir-engine/engine/src/avatar/functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from '@ir-engine/engine/src/avatar/state/AvatarNetworkActions'

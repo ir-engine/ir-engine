@@ -48,7 +48,6 @@ type Kinds =
   | 'Required'
   | 'NonSerialized'
   | 'Class'
-  | 'Proxy'
   | 'Any'
 
 export interface Schema {
@@ -138,7 +137,6 @@ type ObjectStatic<T extends TProperties> = {
 } & {
   [K in ObjectOptionalKeys<T>]?: Static<T[K]>
 }
-
 export interface TObjectSchema<T extends TProperties> extends Schema {
   [Kind]: 'Object'
   static: ObjectStatic<T>
@@ -252,12 +250,3 @@ export type SerializedType<T> = T extends object
   : T extends TNonSerializable
   ? never
   : T
-
-export interface TProxySchema<T extends Schema> extends Schema {
-  [Kind]: 'Proxy'
-  static: Static<T>
-  properties: T
-  options?: Options<this['static']> & {
-    create: (entity: Entity, property: string, obj: object) => PropertyDescriptor
-  }
-}

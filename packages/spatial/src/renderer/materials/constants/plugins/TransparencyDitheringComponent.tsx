@@ -68,8 +68,6 @@ export const TransparencyDitheringPluginComponent = defineComponent({
       if (!materialComponent) return
       const material = materialComponent.material as Material
       const callback = (shader) => {
-        if (shader.hasTransparencyDitherShader) return
-
         material.side = FrontSide
         const plugin = getComponent(entity, TransparencyDitheringPluginComponent)
 
@@ -93,8 +91,6 @@ export const TransparencyDitheringPluginComponent = defineComponent({
         shader.uniforms.exponents = plugin.exponents
         shader.uniforms.distances = plugin.distances
         shader.uniforms.useWorldCalculation = plugin.useWorldCalculation
-
-        shader.hasTransparencyDitherShader = true
       }
       setPlugin(materialComponent.material as Material, callback)
     }, [material])

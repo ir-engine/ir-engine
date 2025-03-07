@@ -26,7 +26,6 @@ Infinite Reality Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Vector3 } from 'three'
 
-import { entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs'
 import {
   defineComponent,
   getComponent,
@@ -34,11 +33,11 @@ import {
   removeComponent,
   setComponent,
   useComponent,
-  useHasComponent,
   useOptionalComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
 import { Entity, UndefinedEntity } from '@ir-engine/ecs/src/Entity'
+import { entityExists, removeEntity, useEntityContext } from '@ir-engine/ecs/src/EntityFunctions'
 import { getState, useImmediateEffect } from '@ir-engine/hyperflux'
 import { FollowCameraComponent } from '@ir-engine/spatial/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@ir-engine/spatial/src/camera/components/TargetCameraRotationComponent'
@@ -95,7 +94,7 @@ export const AvatarControllerComponent = defineComponent({
     const camera = useComponent(Engine.instance.cameraEntity, CameraComponent)
     const world = Physics.useWorld(entity)
     const gltfComponent = useOptionalComponent(entity, GLTFComponent)
-    const cameraHasTargetRotation = useHasComponent(
+    const cameraHasTargetRotation = !!useOptionalComponent(
       avatarControllerComponent.cameraEntity.value,
       TargetCameraRotationComponent
     )

@@ -23,10 +23,9 @@ All portions of the code written by the Infinite Reality Engine team are Copyrig
 Infinite Reality Engine. All Rights Reserved.
 */
 
-import { SerializedComponentType } from '@ir-engine/ecs'
+import { EntityUUID, SerializedComponentType } from '@ir-engine/ecs'
 
 import { DirectionalLightComponent } from '@ir-engine/spatial/src/renderer/components/lights/DirectionalLightComponent'
-import { NodeID } from '../../gltf/NodeIDComponent'
 import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
 import { SceneJsonType } from '../types/SceneTypes'
 
@@ -46,7 +45,7 @@ export const migrateDirectionalLightUseInCSM = (json: SceneJsonType) => {
     (c) => c.name === RenderSettingsComponent.jsonID
   )!.props as SerializedComponentType<typeof RenderSettingsComponent>
 
-  renderSettingsComponent.primaryLight = directionalLightEntity[0] as NodeID
+  renderSettingsComponent.primaryLight = directionalLightEntity[0] as EntityUUID
 
   /** @ts-ignore */
   delete directionalLightComponent.useInCSM

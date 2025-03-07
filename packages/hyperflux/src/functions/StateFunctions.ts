@@ -99,83 +99,39 @@ export type Paths<S> = S extends object
     }[keyof S]
   : []
 
-export function resolveObject<O extends object, P extends string | ReadonlyArray<string | number>>(
+export function resolveObject<O extends object, P extends string>(
   obj: O,
-  path: P
-): _Object.Path<O, P extends string ? String.Split<P, '.'> : P> {
-  const keyPath = Array.isArray(path) ? path : (path as string).split('.')
+  path: Function.AutoPath<O, P>
+): _Object.Path<O, String.Split<P, '.'>> {
+  const keyPath = Array.isArray(path) ? path : path.split('.')
   return keyPath.reduce((prev, curr) => prev?.[curr], obj as any)
 }
 
 export function getNestedObject(object: any, propertyName: string) {
-  if (propertyName === '') return { result: object, finalProp: '' }
-  if (propertyName.startsWith('.')) propertyName = propertyName.slice(1)
   const props = propertyName.split('.')
   let result = object
-  for (let i = 0; i < props.length; i++) {
-    if (typeof result !== 'object') continue
-    let isNumber = false
-    try {
-      isNumber = !isNaN(Number(props[i]))
-    } catch (e) {
-      isNumber = false
-    }
-    let val = props[i] as string | number
-    if (isNumber) {
-      val = Number(val)
-    }
-    result = result[val]
-  }
-  return { result, finalProp: props[props.length - 1] }
-}
 
-export function setNestedObject(object: object, propertyName: string, value: any) {
-  if (propertyName === '') return { result: object, finalProp: '' }
-  if (propertyName.startsWith('.')) propertyName = propertyName.slice(1)
-  const props = propertyName.split('.')
-  let last = object
   for (let i = 0; i < props.length - 1; i++) {
-    if (typeof last !== 'object') continue
     let isNumber = false
+
     try {
-      isNumber = !isNaN(Number(props[i]))
+      Number(props[0])
+      isNumber = true
     } catch (e) {
       isNumber = false
     }
+
     let val = props[i] as string | number
+
     if (isNumber) {
       val = Number(val)
     }
 
-    if (!last[val]) {
-      if (isNumber) last[val] = []
-      else last[val] = {}
-    }
+    if (typeof result[props[i]] === 'undefined') result[props[i]] = {}
+    result = result[props[i]]
+  }
 
-    last = last[val]
-  }
-  last[props[props.length - 1]] = value
-}
-
-/** @todo unused */
-const _mergeStateValuesDeep = (target: State<any>, source: any) => {
-  if (typeof source !== 'object') {
-    target.set(source)
-    return
-  }
-  for (const key in target) {
-    if (typeof source[key] === 'object') {
-      if (source[key] === null) {
-        target[key].set(null)
-        return
-      }
-      if (Array.isArray(source[key])) {
-        target[key].set([...source[key]]) // clone array deeply rather than reference
-        return
-      }
-      _mergeStateValuesDeep(target[key], source[key]) // recurse objects
-    }
-  }
+  return { result, finalProp: props[props.length - 1] }
 }
 
 export function useMutableState<S, I, E, R extends ReceptorMap, P extends string>(

@@ -26,7 +26,7 @@ Infinite Reality Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { BackSide, Color, Mesh, MeshBasicMaterial, SphereGeometry, Vector2 } from 'three'
 
-import { Entity, EntityTreeComponent, UndefinedEntity, createEntity, useChildrenWithComponents } from '@ir-engine/ecs'
+import { Entity, EntityTreeComponent, UndefinedEntity, useChildWithComponents } from '@ir-engine/ecs'
 import {
   getComponent,
   getMutableComponent,
@@ -37,9 +37,11 @@ import {
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { ECSState } from '@ir-engine/ecs/src/ECSState'
 import { Engine } from '@ir-engine/ecs/src/Engine'
+import { createEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { useTexture } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
+import { GLTFDocumentState } from '@ir-engine/engine/src/gltf/GLTFDocumentState'
 import { SceneSettingsComponent } from '@ir-engine/engine/src/scene/components/SceneSettingsComponent'
 import { NO_PROXY, defineState, getMutableState, getState, useHookstate, useMutableState } from '@ir-engine/hyperflux'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
@@ -61,6 +63,7 @@ import type { WebLayer3D } from '@ir-engine/xrui'
 import { EngineState } from '@ir-engine/ecs'
 import { AvatarRigComponent } from '@ir-engine/engine/src/avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
+import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
 import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { SpectateEntityState } from '@ir-engine/spatial/src/camera/systems/SpectateSystem'
 import { MeshComponent } from '@ir-engine/spatial/src/renderer/components/MeshComponent'
@@ -205,7 +208,7 @@ const LoadingReactor = (props: { sceneEntity: Entity }) => {
 }
 
 const SceneSettingsReactor = (props: { sceneEntity: Entity }) => {
-  const [sceneSettingsEntity] = useChildrenWithComponents(props.sceneEntity, [SceneSettingsComponent])
+  const sceneSettingsEntity = useChildWithComponents(props.sceneEntity, [SceneSettingsComponent])
   if (!sceneSettingsEntity) return null
   return <SceneSettingsChildReactor entity={sceneSettingsEntity} key={sceneSettingsEntity} />
 }
@@ -339,9 +342,12 @@ const execute = () => {
 const Reactor = () => {
   const locationSceneURL = useHookstate(getMutableState(LocationState).currentLocation.location.sceneURL).value
   const sceneEntity = useLoadedSceneEntity(locationSceneURL)
-  const sceneLoaded = GLTFComponent.useSceneLoaded(sceneEntity)
+  const gltfDocumentState = useMutableState(GLTFDocumentState)
 
-  if (!sceneEntity || !sceneLoaded) return null
+  if (!sceneEntity) return null
+
+  // wait for scene gltf to load
+  if (!gltfDocumentState[getComponent(sceneEntity, SourceComponent)]) return null
 
   return (
     <>

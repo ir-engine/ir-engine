@@ -157,12 +157,7 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
         </>
       )
     } else if (projectHistory.action === 'PROJECT_CREATED') {
-      return (
-        <>
-          <Text>{t('admin:components.history.createdProject')}</Text>
-          <Text fontWeight="semibold">{projectName}</Text>
-        </>
-      )
+      return <Text>created the project</Text>
     } else if (
       projectHistory.action === 'RESOURCE_CREATED' ||
       projectHistory.action === 'RESOURCE_REMOVED' ||
@@ -347,7 +342,7 @@ function HistoryLog({ projectHistory, projectName }: { projectHistory: ProjectHi
   }
 
   return (
-    <div className="mb-3 flex w-full items-center justify-between gap-x-2 rounded-lg bg-surface-1 px-5 py-2 text-text-secondary hover:text-text-primary">
+    <div className="mb-3 flex w-full items-center justify-between gap-x-2 rounded-lg bg-[#191B1F] px-5 py-2">
       <AvatarImage
         className="inline-grid min-h-10 min-w-10 rounded-full"
         src={projectHistory.userAvatarURL}

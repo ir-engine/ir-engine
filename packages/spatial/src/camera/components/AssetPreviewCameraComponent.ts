@@ -45,7 +45,7 @@ export const AssetPreviewCameraComponent = defineComponent({
     useEffect(() => {
       cameraOrbitComponent.focusedEntities.set([previewCameraComponent.targetModelEntity.value])
       cameraOrbitComponent.refocus.set(true)
-    }, [childMeshes.length > 0, !!cameraOrbitComponent])
+    }, [childMeshes, cameraOrbitComponent])
 
     return null
   }

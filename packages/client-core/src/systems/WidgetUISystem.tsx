@@ -27,7 +27,6 @@ import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
 import { isDev } from '@ir-engine/common/src/config'
-import { removeEntity } from '@ir-engine/ecs'
 import {
   getComponent,
   getOptionalComponent,
@@ -36,6 +35,7 @@ import {
   setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
 import { Engine } from '@ir-engine/ecs/src/Engine'
+import { removeEntity } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import {
@@ -63,6 +63,7 @@ import { ReferenceSpace, XRState, isMobileXRHeadset } from '@ir-engine/spatial/s
 import { RegisteredWidgets, WidgetAppActions, WidgetAppService, WidgetAppState } from './WidgetAppService'
 
 import { ReferenceSpaceState } from '@ir-engine/spatial'
+import React from 'react'
 import { createAnchorWidget } from './createAnchorWidget'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
 
@@ -235,15 +236,12 @@ const Reactor = () => {
   return null
 }
 
-/**
- * @todo disabled until WebXR is fully supported again
- */
 export const WidgetUISystem = defineSystem({
   uuid: 'ee.client.WidgetUISystem',
-  insert: { before: TransformSystem }
-  // execute,
-  // reactor: () => {
-  //   if (!useMutableState(ReferenceSpaceState).viewerEntity.value) return null
-  //   return <Reactor />
-  // }
+  insert: { before: TransformSystem },
+  execute,
+  reactor: () => {
+    if (!useMutableState(ReferenceSpaceState).viewerEntity.value) return null
+    return <Reactor />
+  }
 })

@@ -26,17 +26,16 @@ Infinite Reality Engine. All Rights Reserved.
 import { createXRUI } from '@ir-engine/engine/src/xrui/createXRUI'
 import { Widget, Widgets } from './Widgets'
 
-import { Users02Lg } from '@ir-engine/ui/src/icons'
-import { VideoWindowsWidget } from '../user/VideoWindows'
+import { UserMediaWindowsWidget } from '../components/UserMediaWindows'
 
 export function createMediaWidget() {
-  const ui = createXRUI(VideoWindowsWidget)
+  const ui = createXRUI(UserMediaWindowsWidget)
   // removeComponent(ui.entity, VisibleComponent)
 
   const widget: Widget = {
     ui,
     label: 'Media',
-    icon: Users02Lg,
+    icon: 'Groups',
     onOpen: () => {},
     system: () => {},
     cleanup: async () => {}

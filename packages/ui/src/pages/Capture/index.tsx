@@ -33,6 +33,7 @@ import { useMediaNetwork } from '@ir-engine/client-core/src/common/services/Medi
 import { useResizableVideoCanvas } from '@ir-engine/client-core/src/hooks/useResizableVideoCanvas'
 import { useScrubbableVideo } from '@ir-engine/client-core/src/hooks/useScrubbableVideo'
 import { CaptureClientSettingsState } from '@ir-engine/client-core/src/media/CaptureClientSettingsState'
+import { MediaStreamState } from '@ir-engine/client-core/src/media/MediaStreamState'
 import { LocationState } from '@ir-engine/client-core/src/social/services/LocationService'
 import { useGet } from '@ir-engine/common'
 import {
@@ -48,7 +49,7 @@ import {
   staticResourcePath
 } from '@ir-engine/common/src/schema.type.module'
 import { Engine } from '@ir-engine/ecs/src/Engine'
-import { SceneState } from '@ir-engine/engine/src/gltf/GLTFState'
+import { GLTFAssetState } from '@ir-engine/engine/src/gltf/GLTFState'
 import {
   MotionCaptureFunctions,
   MotionCaptureResults,
@@ -71,8 +72,6 @@ import Canvas from '@ir-engine/ui/src/primitives/tailwind/Canvas'
 import Video from '@ir-engine/ui/src/primitives/tailwind/Video'
 
 import { SocketWebRTCClientNetwork } from '@ir-engine/client-core/src/transports/mediasoup/MediasoupClientFunctions'
-import { MediaStreamState } from '@ir-engine/network/src/media/MediaStreamState'
-import { ReferenceSpaceState } from '@ir-engine/spatial'
 import { useVideoFrameCallback } from '@ir-engine/spatial/src/common/functions/useVideoFrameCallback'
 import { Slider } from '../../../editor'
 import Button from '../../primitives/tailwind/Button'
@@ -486,8 +485,7 @@ const PlaybackMode = () => {
       !scene
     )
       return
-    const viewerEntity = getState(ReferenceSpaceState).viewerEntity
-    return SceneState.loadScene(scene.url, scene.id, viewerEntity)
+    return GLTFAssetState.loadScene(scene.url, scene.id)
   }, [scene])
 
   const ActiveRecording = () => {

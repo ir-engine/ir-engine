@@ -44,14 +44,17 @@ import { nowMilliseconds } from './Timer'
  * @param elapsedTime the current frame time in milliseconds (DOMHighResTimeStamp) relative to performance.timeOrigin
  */
 export const executeSystems = (elapsedTime: number) => {
-  const ecsState = getState(ECSState)
-  ecsState.frameTime = performance.timeOrigin + elapsedTime
+  const ecsState = getMutableState(ECSState)
+  ecsState.frameTime.set(performance.timeOrigin + elapsedTime)
 
   const start = nowMilliseconds()
+  const incomingActions = [...HyperFlux.store.actions.incoming]
 
   const elapsedSeconds = elapsedTime / 1000
-  ecsState.deltaSeconds = Math.max(0.001, Math.min(ecsState.maxDeltaSeconds, elapsedSeconds - ecsState.elapsedSeconds))
-  ecsState.elapsedSeconds = elapsedSeconds
+  ecsState.deltaSeconds.set(
+    Math.max(0.001, Math.min(ecsState.maxDeltaSeconds.value, elapsedSeconds - ecsState.elapsedSeconds.value))
+  )
+  ecsState.elapsedSeconds.set(elapsedSeconds)
 
   executeSystem(InputSystemGroup)
   executeFixedSystem(SimulationSystemGroup)
@@ -61,9 +64,11 @@ export const executeSystems = (elapsedTime: number) => {
   const end = nowMilliseconds()
   const duration = end - start
   if (duration > 150) {
-    HyperFlux.store.logger('ecs:execute').warn(`Long frame execution detected. Duration: ${duration}`)
+    HyperFlux.store
+      .logger('ecs:execute')
+      .warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: %o`, incomingActions)
   }
-  ecsState.lastSystemExecutionDuration = duration
+  ecsState.lastSystemExecutionDuration.set(duration)
 }
 
 /**
@@ -111,23 +116,20 @@ export const executeFixedSystem = (systemUUID: SystemUUID) => {
   }
 }
 
-export const getDAG = (systemUUIDs = DefaultSystemPipeline, depth = 0, out = [] as string[]) => {
+export const getDAG = (systemUUIDs = DefaultSystemPipeline, depth = 0) => {
   for (const systemUUID of systemUUIDs) {
     const system = SystemDefinitions.get(systemUUID)
     if (!system) return
 
-    out.push(system.uuid)
-
     for (const preSystem of system.preSystems) {
-      getDAG([preSystem], depth + 1, out)
+      getDAG([preSystem], depth + 1)
     }
     console.log('-'.repeat(depth), system.uuid.split('.').pop())
     for (const subSystem of system.subSystems) {
-      getDAG([subSystem], depth + 1, out)
+      getDAG([subSystem], depth + 1)
     }
     for (const postSystem of system.postSystems) {
-      getDAG([postSystem], depth + 1, out)
+      getDAG([postSystem], depth + 1)
     }
   }
 }
-globalThis.getDAG = getDAG

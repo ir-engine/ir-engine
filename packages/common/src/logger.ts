@@ -94,8 +94,7 @@ const nullLogger = {
   info: console.info,
   warn: console.warn,
   error: console.error,
-  fatal: console.error,
-  analytics: console.info
+  fatal: console.error
 }
 
 /**
@@ -108,7 +107,6 @@ const multiLogger = {
   warn: console.warn.bind(console, `[${baseComponent}]`),
   error: console.error.bind(console, `[${baseComponent}]`),
   fatal: console.error.bind(console, `[${baseComponent}]`),
-  analytics: console.info.bind(console, `[${baseComponent}]`),
 
   /**
    * Usage:
@@ -131,8 +129,7 @@ const multiLogger = {
         info: console.log.bind(console, `[${opts.component}]`),
         warn: console.warn.bind(console, `[${opts.component}]`),
         error: console.error.bind(console, `[${opts.component}]`),
-        fatal: console.error.bind(console, `[${opts.component}]`),
-        analytics: console.log.bind(console, `[${opts.component}]`)
+        fatal: console.error.bind(console, `[${opts.component}]`)
       }
     } else {
       // For non-local builds, this send() is used
@@ -142,8 +139,7 @@ const multiLogger = {
           info: console.log.bind(console, `[${opts.component}]`),
           warn: console.warn.bind(console, `[${opts.component}]`),
           error: console.error.bind(console, `[${opts.component}]`),
-          fatal: console.error.bind(console, `[${opts.component}]`),
-          analytics: console.log.bind(console, `[${opts.component}]`)
+          fatal: console.error.bind(console, `[${opts.component}]`)
         }
 
         return async (...args) => {
@@ -156,22 +152,14 @@ const multiLogger = {
             // In addition to sending to logging endpoint,  output to console
             consoleMethods[level](...args)
 
-            if (level === 'analytics' && config.client.serverHost && LogConfig.api) {
-              LogConfig.api.service(logsApiPath).create({
-                action: 'analytics',
-                level,
-                component: opts.component,
-                ...logParams
-              })
-            } else {
-              // Send an async rate-limited request to backend logs-api service for aggregation
-              // Also suppress logger.info() levels (the equivalent to console.log())
-              cacheLog({
-                level,
-                component: opts.component,
-                ...logParams
-              })
-            }
+            // Send an async rate-limited request to backend logs-api service for aggregation
+            // Also suppress logger.info() levels (the equivalent to console.log())
+
+            cacheLog({
+              level,
+              component: opts.component,
+              ...logParams
+            })
           } catch (error) {
             console.error(error)
           }
@@ -185,8 +173,7 @@ const multiLogger = {
             info: send('info'),
             warn: send('warn'),
             error: send('error'),
-            fatal: send('fatal'),
-            analytics: send('analytics')
+            fatal: send('fatal')
           }
     }
   }

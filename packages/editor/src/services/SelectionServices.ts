@@ -25,8 +25,9 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { EntityUUID, UUIDComponent, entityExists } from '@ir-engine/ecs'
-import { LayerID, Layers, removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { EntityUUID, UUIDComponent } from '@ir-engine/ecs'
+import { removeComponent, setComponent } from '@ir-engine/ecs/src/ComponentFunctions'
+import { entityExists } from '@ir-engine/ecs/src/EntityFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { PresentationSystemGroup } from '@ir-engine/ecs/src/SystemGroups'
 import { SelectTagComponent } from '@ir-engine/engine/src/scene/components/SelectTagComponent'
@@ -44,14 +45,12 @@ export const SelectionState = defineState({
       selectedEntities: selectedEntities
     })
   },
-  getSelectedEntities: (layer: LayerID = Layers.Authoring) => {
-    return getState(SelectionState).selectedEntities.map((entity) => UUIDComponent.getEntityByUUID(entity, layer))
+  getSelectedEntities: () => {
+    return getState(SelectionState).selectedEntities.map(UUIDComponent.getEntityByUUID)
   },
 
-  useSelectedEntities: (layer: LayerID = Layers.Authoring) => {
-    return useHookstate(getMutableState(SelectionState).selectedEntities).value.map((entity) =>
-      UUIDComponent.getEntityByUUID(entity, layer)
-    )
+  useSelectedEntities: () => {
+    return useHookstate(getMutableState(SelectionState).selectedEntities).value.map(UUIDComponent.getEntityByUUID)
   }
 })
 
@@ -59,9 +58,7 @@ const reactor = () => {
   const selectedEntities = useHookstate(getMutableState(SelectionState).selectedEntities)
 
   useEffect(() => {
-    const entities = [...selectedEntities.value].map((entity) =>
-      UUIDComponent.getEntityByUUID(entity, Layers.Authoring)
-    )
+    const entities = [...selectedEntities.value].map(UUIDComponent.getEntityByUUID)
     for (const entity of entities) {
       if (!entityExists(entity)) continue
       setComponent(entity, SelectTagComponent)

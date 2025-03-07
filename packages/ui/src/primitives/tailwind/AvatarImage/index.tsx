@@ -45,10 +45,7 @@ export interface AvatarImageProps extends React.HTMLAttributes<HTMLImageElement>
 
 const AvatarPlaceholder = ({ className, label }: { className: string; label: string }) => (
   <div
-    className={twMerge(
-      'grid select-none grid-cols-1 place-items-center rounded-lg bg-[radial-gradient(circle,_#DDDDDD,_#726B65)] text-white',
-      className
-    )}
+    className={twMerge('grid select-none grid-cols-1 place-items-center rounded-lg bg-[#10BCAA] text-white', className)}
   >
     {label}
   </div>
@@ -68,13 +65,13 @@ const AvatarImage = ({ src, size = 'medium', className, name }: AvatarImageProps
 
   return imageLoaded.value ? (
     <img
-      className={twMerge(`${sizes[size]} rounded-full bg-[radial-gradient(circle,_#DDDDDD,_#726B65)]`, className)}
+      className={`${twClassName} rounded-full`}
       src={src}
       alt={src.split('/').at(-1)}
       onError={() => imageLoaded.set(false)}
     />
   ) : (
-    <AvatarPlaceholder className={twMerge(`${sizes[size]}`, className)} label={label} />
+    <AvatarPlaceholder className={twClassName} label={label} />
   )
 }
 

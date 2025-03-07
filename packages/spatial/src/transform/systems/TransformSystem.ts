@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Frustum, Matrix4, Vector3 } from 'three'
+import { Camera, Frustum, Matrix4, Mesh, Vector3 } from 'three'
 
 import {
   AnimationSystemGroup,
@@ -33,9 +33,7 @@ import {
   Entity,
   getComponent,
   getOptionalComponent,
-  hasComponent,
-  LayerComponents,
-  Layers
+  hasComponent
 } from '@ir-engine/ecs'
 import { getMutableState, getState, none } from '@ir-engine/hyperflux'
 import { NetworkState } from '@ir-engine/network'
@@ -44,6 +42,8 @@ import { EntityTreeComponent } from '@ir-engine/ecs'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { insertionSort } from '../../common/functions/insertionSort'
 import { ReferenceSpaceState } from '../../ReferenceSpaceState'
+import { ObjectComponent } from '../../renderer/components/ObjectComponent'
+import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { XRState } from '../../xr/XRState'
 import { BoundingBoxComponent, updateBoundingBox } from '../components/BoundingBoxComponents'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
@@ -52,7 +52,8 @@ import { composeMatrix, TransformComponent } from '../components/TransformCompon
 import { TransformSerialization } from '../TransformSerialization'
 
 const transformQuery = defineQuery([TransformComponent])
-const computedTransformQuery = defineQuery([ComputedTransformComponent])
+
+const objectQuery = defineQuery([ObjectComponent, VisibleComponent])
 
 const boundingBoxQuery = defineQuery([BoundingBoxComponent])
 
@@ -60,6 +61,15 @@ const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCam
 const frustumCulledQuery = defineQuery([TransformComponent, FrustumCullCameraComponent])
 
 const cameraQuery = defineQuery([TransformComponent, CameraComponent])
+
+const updateObjectChildren = (entity: Entity) => {
+  const object = getComponent(entity, ObjectComponent) as any as Mesh & Camera
+  if (object.isProxified) return
+  for (const obj of object.children) {
+    obj.updateMatrixWorld()
+    obj.matrixWorldNeedsUpdate = false
+  }
+}
 
 export const computeTransformMatrix = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
@@ -107,9 +117,7 @@ const compareReferenceDepth = (a: Entity, b: Entity) => {
   return aDepth - bDepth
 }
 
-const dirtyAuthoringTransformQuery = defineQuery([TransformComponent], Layers.Authoring)
-
-export const isDirty = (entity: Entity) => TransformComponent.dirty[entity] === 1
+export const isDirty = (entity: Entity) => TransformComponent.dirtyTransforms[entity]
 
 const _sortedTransformEntities = [] as Entity[]
 
@@ -123,10 +131,7 @@ const sortAndMakeDirtyEntities = () => {
    * Sort transforms if needed
    */
 
-  let needsSorting =
-    TransformComponent.transformsNeedSorting ||
-    computedTransformQuery.enter().length ||
-    computedTransformQuery.exit().length
+  let needsSorting = TransformComponent.transformsNeedSorting
 
   for (const entity of transformQuery.enter()) {
     _sortedTransformEntities.push(entity)
@@ -146,28 +151,22 @@ const sortAndMakeDirtyEntities = () => {
     TransformComponent.transformsNeedSorting = false
   }
 
-  /** Mark the corresponding simulation entity of any authoring layer entities as dirty */
-  const dirtyAuthoringEntities = dirtyAuthoringTransformQuery().filter(isDirty)
-  for (const entity of dirtyAuthoringEntities) {
-    const authoringComponent = getComponent(entity, LayerComponents[Layers.Authoring])
-    const linkedEntity = authoringComponent.relations[Layers.Simulation]
-    TransformComponent.dirty[entity] = 0
-    TransformComponent.dirty[linkedEntity] = 1
-  }
-
   // entities with dirty parent or reference entities, or computed transforms, should also be dirty
   for (const entity of _sortedTransformEntities) {
-    TransformComponent.dirty[entity] =
-      TransformComponent.dirty[entity] ||
-      (hasComponent(entity, ComputedTransformComponent) ? 1 : 0) ||
-      TransformComponent.dirty[getOptionalComponent(entity, EntityTreeComponent)?.parentEntity ?? -1] ||
-      0
+    TransformComponent.dirtyTransforms[entity] =
+      TransformComponent.dirtyTransforms[entity] ||
+      hasComponent(entity, ComputedTransformComponent) ||
+      TransformComponent.dirtyTransforms[getOptionalComponent(entity, EntityTreeComponent)?.parentEntity ?? -1] ||
+      false
   }
 }
 
 const execute = () => {
   const dirtySortedTransformEntities = _sortedTransformEntities.filter(isDirty)
   for (const entity of dirtySortedTransformEntities) computeTransformMatrix(entity)
+
+  const dirtyObjectEntities = objectQuery().filter(isDirty)
+  for (const entity of dirtyObjectEntities) updateObjectChildren(entity)
 
   const dirtyBoundingBoxes = boundingBoxQuery().filter(isDirty)
   for (const entity of dirtyBoundingBoxes) updateBoundingBox(entity)
@@ -243,6 +242,6 @@ export const TransformDirtyCleanupSystem = defineSystem({
   uuid: 'ee.engine.TransformDirtyCleanupSystem',
   insert: { after: TransformSystem },
   execute: () => {
-    TransformComponent.dirty.fill(0)
+    for (const entity in TransformComponent.dirtyTransforms) delete TransformComponent.dirtyTransforms[entity]
   }
 })

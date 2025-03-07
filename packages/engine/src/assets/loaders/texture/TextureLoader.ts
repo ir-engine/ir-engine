@@ -24,55 +24,51 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { isClient } from '@ir-engine/hyperflux'
-import { PromiseQueue } from '@ir-engine/spatial/src/common/classes/PromiseQueue'
 import { firefoxVersion, iOS, isFirefox, isSafari } from '@ir-engine/spatial/src/common/functions/isMobile'
 import { ImageBitmapLoader, ImageLoader, LoadingManager, Texture } from 'three'
 import { Loader } from '../base/Loader'
 
-// Do we still need this check if we're now reliant on a browser that's new enough to have ArrayBuffer.resize?
 const useImageLoader = typeof createImageBitmap === 'undefined' || isSafari || (isFirefox && firefoxVersion < 98)
 const iOSMaxResolution = 1024
-const decodeQueue = new PromiseQueue<[ImageBitmap | null, unknown | null]>(2)
 
 /** @todo make this accessible for performance scaling */
-const getScaledBitmap = async (src: string, maxResolution: number): Promise<[ImageBitmap | null, unknown | null]> => {
-  return decodeQueue.enqueuePromise(() => {
-    return new Promise(async (resolve) => {
-      const img = new Image()
-      img.crossOrigin = 'anonymous' //browser will yell without this
-      img.src = src
+const getScaledTextureURI = async (src: string, maxResolution: number): Promise<[string, HTMLCanvasElement]> => {
+  return new Promise(async (resolve) => {
+    const img = new Image()
+    img.crossOrigin = 'anonymous' //browser will yell without this
+    img.src = src
+    await img.decode() //new way to wait for image to load
+    // Initialize the canvas and it's size
+    const canvas = document.createElement('canvas') //dead dom elements? Remove after Three loads them
+    const ctx = canvas.getContext('2d')
 
-      try {
-        await img.decode()
-      } catch (error) {
-        resolve([null, error])
-        return
+    // Set width and height
+    const originalWidth = img.width
+    const originalHeight = img.height
+
+    let resizingFactor = 1
+    if (originalWidth >= originalHeight) {
+      if (originalWidth > maxResolution) {
+        resizingFactor = maxResolution / originalWidth
       }
-
-      // Set width and height
-      const originalWidth = img.width
-      const originalHeight = img.height
-
-      let resizingFactor = 1
-      if (originalWidth >= originalHeight) {
-        if (originalWidth > maxResolution) {
-          resizingFactor = maxResolution / originalWidth
-        }
-      } else {
-        if (originalHeight > maxResolution) {
-          resizingFactor = maxResolution / originalHeight
-        }
+    } else {
+      if (originalHeight > maxResolution) {
+        resizingFactor = maxResolution / originalHeight
       }
+    }
 
-      const canvasWidth = originalWidth * resizingFactor
-      const canvasHeight = originalHeight * resizingFactor
+    const canvasWidth = originalWidth * resizingFactor
+    const canvasHeight = originalHeight * resizingFactor
 
-      const canvas = new OffscreenCanvas(canvasWidth, canvasHeight)
-      const ctx = canvas.getContext('2d')!
-      ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight)
+    canvas.width = canvasWidth
+    canvas.height = canvasHeight
 
-      resolve([canvas.transferToImageBitmap(), null])
-    })
+    // Draw image and export to a data-uri
+    ctx?.drawImage(img, 0, 0, canvasWidth, canvasHeight)
+    const dataURI = canvas.toDataURL()
+
+    // Do something with the result, like overwrite original
+    resolve([dataURI, canvas])
   })
 }
 
@@ -94,46 +90,13 @@ class TextureLoader extends Loader<Texture> {
     onError?: (err: unknown) => void,
     signal?: AbortSignal
   ) {
-    const onImage = (image: HTMLImageElement | ImageBitmap) => {
-      const texture = new Texture(image)
-      texture.userData.url = url
-      texture.source.data.src = url
-
-      const completedLoading = () => {
-        texture.needsUpdate = true
-        onLoad(texture)
-      }
-
-      // workaround for threejs freaking out when texture is set before image is complete
-      if (texture.source.data instanceof HTMLImageElement) {
-        if (texture.source.data.complete) {
-          completedLoading()
-        } else {
-          const onload = () => {
-            completedLoading()
-            texture.source.data.removeEventListener('load', onload)
-          }
-          texture.source.data.addEventListener('load', onload)
-        }
-      } else {
-        completedLoading()
-      }
+    let canvas: HTMLCanvasElement | undefined = undefined
+    if (this.maxResolution) {
+      ;[url, canvas] = await getScaledTextureURI(url, this.maxResolution)
     }
 
     if (!isClient) {
       onLoad(new Texture())
-      return
-    }
-
-    if (this.maxResolution) {
-      const [imageBitmap, error] = await getScaledBitmap(url, this.maxResolution)
-      if (error) {
-        onError?.(error)
-        return
-      }
-
-      if (imageBitmap) onImage(imageBitmap)
-      else onError?.(new Error(`TextureLoader:load Unable to create scaled image bitmap for image url: ${url}`))
       return
     }
 
@@ -143,7 +106,17 @@ class TextureLoader extends Loader<Texture> {
     if (useImageLoader || !this.autoDetectBitmap)
       loader = new ImageLoader(this.manager).setCrossOrigin(this.crossOrigin).setPath(this.path)
     else loader = new ImageBitmapLoader(this.manager).setCrossOrigin(this.crossOrigin).setPath(this.path)
-    loader.load(url, onImage, onProgress, onError)
+    loader.load(
+      url,
+      (image: HTMLImageElement | ImageBitmap) => {
+        const texture = new Texture(image)
+        texture.needsUpdate = true
+        if (canvas) canvas.remove()
+        onLoad(texture)
+      },
+      onProgress,
+      onError
+    )
   }
 }
 

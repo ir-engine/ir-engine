@@ -25,6 +25,7 @@ Infinite Reality Engine. All Rights Reserved.
 
 import React, { forwardRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { HiMinus, HiPlusSmall } from 'react-icons/hi2'
 
 import { useFind, useMutation } from '@ir-engine/common'
 import { EngineSettings } from '@ir-engine/common/src/constants/EngineSettings'
@@ -117,6 +118,8 @@ const ZendeskTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
     <Accordion
       title={t('admin:components.setting.zendesk.header')}
       subtitle={t('admin:components.setting.zendesk.subtitle')}
+      expandIcon={<HiPlusSmall />}
+      shrinkIcon={<HiMinus />}
       ref={ref}
       open={open}
     >
@@ -153,7 +156,7 @@ const ZendeskTab = forwardRef(({ open }: { open: boolean }, ref: React.MutableRe
       </div>
 
       <div className="grid grid-cols-8 gap-6">
-        <Button size="sm" className="text-primary col-span-1 " fullWidth onClick={handleReset}>
+        <Button size="sm" className="text-primary col-span-1 bg-theme-highlight" fullWidth onClick={handleReset}>
           {t('admin:components.common.reset')}
         </Button>
         <Button size="sm" variant="primary" className="col-span-1" fullWidth onClick={handleSubmit}>

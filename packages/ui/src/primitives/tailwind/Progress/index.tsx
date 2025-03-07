@@ -42,11 +42,7 @@ export interface ProgressProps extends React.HTMLAttributes<HTMLProgressElement>
 
 const Progress = ({ className, barClassName, value, size = 'default' }: ProgressProps) => {
   const twClassName = twMerge(sizes[size], 'w-full rounded-full bg-gray-200 dark:bg-gray-700', className)
-  const twBarClassName = twMerge(
-    sizes[size],
-    'rounded-full bg-ui-primary transition-all duration-500 ease-out',
-    barClassName
-  )
+  const twBarClassName = twMerge(sizes[size], 'rounded-full bg-blue-primary', barClassName)
 
   return (
     <div className={twClassName}>

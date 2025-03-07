@@ -71,7 +71,7 @@ export const DefaultArgs = {
   }
 }
 
-export class HolographicMaterialClass extends MeshStandardMaterial {
+export class HolographicMaterial extends MeshStandardMaterial {
   _uniforms: Record<string, Uniform>
   constructor(args: HolographicMaterialParameters) {
     const basicParms: MeshStandardMaterialParameters = Object.fromEntries(
@@ -268,7 +268,9 @@ export class HolographicMaterialClass extends MeshStandardMaterial {
   }
 }
 
-export const HolographicMaterial: MaterialPrototypeDefinition = {
-  prototypeConstructor: HolographicMaterialClass,
+export const HolographicMaterialPrototype: MaterialPrototypeDefinition = {
+  prototypeId: 'HolographicMaterial',
+  // @ts-ignore
+  baseMaterial: HolographicMaterial as MeshStandardMaterial,
   arguments: DefaultArgs
 }

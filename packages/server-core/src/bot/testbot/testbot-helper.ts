@@ -36,11 +36,9 @@ export const getTestbotPod = async (app: Application) => {
   if (k8DefaultClient) {
     try {
       const jobName = `${config.server.releaseName}-ir-engine-testbot`
-      const podsResult = await k8DefaultClient.listNamespacedPod({
-        namespace: config.server.namespace
-      })
+      const podsResult = await k8DefaultClient.listNamespacedPod('default')
       let pods: TestBot[] = []
-      for (const pod of podsResult.items) {
+      for (const pod of podsResult.body.items) {
         let labels = pod.metadata!.labels
         if (labels && labels['job-name'] && labels['job-name'] === jobName) {
           pods.push({
@@ -69,33 +67,36 @@ export const runTestbotJob = async (app: Application): Promise<SpawnTestBot> => 
   if (k8BatchClient) {
     try {
       const jobName = `${config.server.releaseName}-ir-engine-testbot`
-      const oldJobResult = await k8BatchClient.readNamespacedJob({ name: jobName, namespace: config.server.namespace })
+      const oldJobResult = await k8BatchClient.readNamespacedJob(jobName, 'default')
 
-      if (oldJobResult) {
+      if (oldJobResult && oldJobResult.body) {
         // Removed unused properties
-        delete oldJobResult.metadata!.managedFields
-        delete oldJobResult.metadata!.resourceVersion
-        delete oldJobResult.spec!.selector
-        delete oldJobResult.spec!.template!.metadata!.labels
+        delete oldJobResult.body.metadata!.managedFields
+        delete oldJobResult.body.metadata!.resourceVersion
+        delete oldJobResult.body.spec!.selector
+        delete oldJobResult.body.spec!.template!.metadata!.labels
 
-        oldJobResult.spec!.suspend = false
+        oldJobResult.body.spec!.suspend = false
 
-        const deleteJobResult = await k8BatchClient.deleteNamespacedJob({
-          name: jobName,
-          namespace: config.server.namespace,
-          gracePeriodSeconds: 0,
-          propagationPolicy: 'Background'
-        })
+        const deleteJobResult = await k8BatchClient.deleteNamespacedJob(
+          jobName,
+          'default',
+          undefined,
+          undefined,
+          0,
+          undefined,
+          'Background'
+        )
 
-        if (deleteJobResult.status === 'Success') {
-          await k8BatchClient.createNamespacedJob({ namespace: config.server.namespace, body: oldJobResult })
+        if (deleteJobResult.body.status === 'Success') {
+          await k8BatchClient.createNamespacedJob('default', oldJobResult.body)
 
           return { status: true, message: 'Bot spawned successfully' }
         }
       }
     } catch (e) {
       serverLogger.error(e)
-      return { status: false, message: `Failed to spawn bot. (${e.reason})` }
+      return { status: false, message: `Failed to spawn bot. (${e.body.reason})` }
     }
   }
 

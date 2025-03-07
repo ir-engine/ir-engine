@@ -36,7 +36,6 @@ import ClusterServices from './cluster/services'
 import IntegrationServices from './integrations/services'
 import MatchMakingServices from './matchmaking/services'
 import MediaServices from './media/services'
-import ModerationServices from './moderation/services'
 import NetworkingServices from './networking/services'
 import EntityServices from './projects/services'
 import RecordingServices from './recording/services'
@@ -89,7 +88,6 @@ const services = [
   ...ClusterServices,
   ...AnalyticsServices,
   ...UserServices,
-  ...ModerationServices,
   ...AssetServices,
   ...MediaServices,
   ...EntityServices,
