@@ -181,11 +181,6 @@ export const removeFromFileThumbnailsSeen = (files: readonly string[]) => {
   jobState.seenResources.set(seenResources)
 }
 
-export const TestState = defineState({
-  name: 'TestState',
-  initial: new Set<string>()
-})
-
 export const FileThumbnailJobState = defineState({
   name: 'FileThumbnailJobState',
   initial: {
