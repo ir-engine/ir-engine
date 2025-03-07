@@ -284,7 +284,7 @@ function MessagesWrapper() {
         )}
       </div>
       {isChatOpen.value && (!ageVerified as any) ? (
-        <div className="rounded-lg bg-surface-4 p-4">
+        <div className="ml-[13px] rounded-lg bg-surface-4 p-4">
           <div className="mx-auto text-center font-semibold text-[#3B3A3A]">{t('user:instanceChat.wantToChat')}</div>
           <Button
             variant="secondary"
