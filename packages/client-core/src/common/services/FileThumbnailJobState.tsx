@@ -47,7 +47,8 @@ import {
   defineState,
   getMutableState,
   useHookstate,
-  useImmediateEffect
+  useImmediateEffect,
+  useMutableState
 } from '@ir-engine/hyperflux'
 import { DirectionalLightComponent, TransformComponent } from '@ir-engine/spatial'
 import { CameraComponent } from '@ir-engine/spatial/src/camera/components/CameraComponent'
@@ -140,18 +141,46 @@ const uploadThumbnail = async (src: string, projectName: string, staticResourceI
     thumbnailURL.search = ''
     thumbnailURL.hash = ''
     const _thumbnailKey = thumbnailURL.href.replace(config.client.fileServer + '/', '')
+
+    const fileURL = new URL(src)
+    fileURL.search = ''
+    fileURL.hash = ''
+    const fileKeyKey = fileURL.href.replace(config.client.fileServer + '/', '')
+
     await API.instance
       .service(staticResourcePath)
-      .patch(staticResourceId, { thumbnailKey: _thumbnailKey, thumbnailMode, project: projectName })
-  } catch (e) {
-    console.error(e)
+      .find({
+        query: { key: { $in: [fileKeyKey] } }
+      })
+      .then((reponse) => {
+        if (reponse.data.length > 0) {
+          const staticResourceId = reponse.data[0].id
+          const updateThumbnailKey = async (staticResourceId) => {
+            await API.instance
+              .service(staticResourcePath)
+              .patch(staticResourceId, { thumbnailKey: _thumbnailKey, thumbnailMode, project: projectName })
+          }
+          updateThumbnailKey(staticResourceId)
+        } else {
+          console.error('static Resource not foudn for key - ', fileKeyKey)
+        }
+      })
+      .catch((e) => console.error(e))
+  } catch {
+    ;(e) => console.error(e)
   }
 }
 
-const seenResources = new Set<string>()
-
 export const filesDeleted = (files: readonly FileDataType[]) => {
-  files.forEach((file) => seenResources.delete(file.key))
+  const jobState = getMutableState(FileThumbnailJobState)
+  const seenResources = jobState.seenResources.get(NO_PROXY) as string[]
+  files.forEach((file) => {
+    const index = seenResources.indexOf(file.key)
+    if (index >= 0) {
+      seenResources.splice(index, 1)
+    }
+  })
+  jobState.seenResources.set(seenResources)
 }
 
 export const TestState = defineState({
@@ -161,20 +190,26 @@ export const TestState = defineState({
 
 export const FileThumbnailJobState = defineState({
   name: 'FileThumbnailJobState',
-  initial: [] as ThumbnailJob[],
+  initial: {
+    seenResources: [] as string[],
+    jobs: [] as ThumbnailJob[]
+  },
   reactor: () => <ThumbnailJobReactor />,
   removeCurrentJob: () => {
     const jobState = getMutableState(FileThumbnailJobState)
-    jobState.set((prev) => {
+    jobState.jobs.set((prev) => {
       prev.splice(0, 1)
       return prev
     })
   },
   useGenerateThumbnails: async (files: readonly FileBrowserContentType[]) => {
+    const jobState = useMutableState(FileThumbnailJobState)
+    const seenResources = jobState.seenResources
+
     const fileList = files
       .map((file) => (file.thumbnailURL || file.type === 'folder' ? undefined : file.key))
       .filter((key) => key !== undefined)
-      .filter((key) => !seenResources.has(key))
+      .filter((key) => !seenResources.value.includes(key))
 
     const query = {
       key: {
@@ -192,8 +227,8 @@ export const FileThumbnailJobState = defineState({
      */
     useEffect(() => {
       for (const resource of resourceQuery.data) {
-        if (seenResources.has(resource.key)) continue
-        seenResources.add(resource.key)
+        if (seenResources.value.includes(resource.key)) continue
+        seenResources.merge([resource.key])
 
         if (resource.type === 'thumbnail') {
           //set thumbnail's thumbnail as itself
@@ -205,7 +240,7 @@ export const FileThumbnailJobState = defineState({
 
         if (resource.thumbnailKey != null || !extensionCanHaveThumbnail(resource.key.split('.').pop() ?? '')) continue
 
-        const fileJobs = getMutableState(FileThumbnailJobState)
+        const fileJobs = getMutableState(FileThumbnailJobState).jobs
         if (
           fileJobs.value.filter((fj) => {
             fj.key === resource.url
@@ -556,13 +591,13 @@ const ThumbnailJobReactor = () => {
   }
 
   useEffect(() => {
-    if (jobState.length > 0) {
-      const newJob = jobState[0].get(NO_PROXY)
+    if (jobState.jobs.length > 0) {
+      const newJob = jobState.jobs[0].get(NO_PROXY)
       currentJob.set(JSON.parse(JSON.stringify(newJob)))
     } else {
       currentJob.set(null)
     }
-  }, [jobState.length])
+  }, [jobState.jobs.length])
 
   const renderThumbnailForType = (type: ThumbnailFileType) => {
     switch (type) {

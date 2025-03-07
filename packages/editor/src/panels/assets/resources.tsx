@@ -418,7 +418,7 @@ function ResourceItems() {
   const thumbnailJobState = useMutableState(FileThumbnailJobState)
   useEffect(() => {
     refetchResources()
-  }, [thumbnailJobState.length])
+  }, [thumbnailJobState.jobs.length])
 
   return (
     <div className="relative flex w-full ">
