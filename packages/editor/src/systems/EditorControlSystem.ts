@@ -24,7 +24,7 @@ Infinite Reality Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Intersection, Layers, MathUtils, Object3D, Quaternion, Raycaster, Vector3 } from 'three'
+import { Intersection, Layers, Object3D, Raycaster } from 'three'
 
 import {
   Entity,
@@ -36,26 +36,29 @@ import {
 } from '@ir-engine/ecs'
 import {
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
   getOptionalMutableComponent,
   hasComponent,
   removeComponent,
   setComponent
 } from '@ir-engine/ecs/src/ComponentFunctions'
+import { Engine } from '@ir-engine/ecs/src/Engine'
 import { defineQuery } from '@ir-engine/ecs/src/QueryFunctions'
 import { defineSystem } from '@ir-engine/ecs/src/SystemFunctions'
 import { AvatarComponent } from '@ir-engine/engine/src/avatar/components/AvatarComponent'
 import { SourceComponent } from '@ir-engine/engine/src/scene/components/SourceComponent'
+import { TransformMode } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { dispatchAction, getMutableState, getState, useMutableState } from '@ir-engine/hyperflux'
 import { CameraOrbitComponent } from '@ir-engine/spatial/src/camera/components/CameraOrbitComponent'
 import { FlyControlComponent } from '@ir-engine/spatial/src/camera/components/FlyControlComponent'
-import { TransformMode } from '@ir-engine/spatial/src/common/constants/TransformConstants'
 import { InputComponent } from '@ir-engine/spatial/src/input/components/InputComponent'
 import { InputSourceComponent } from '@ir-engine/spatial/src/input/components/InputSourceComponent'
 import { InfiniteGridComponent } from '@ir-engine/spatial/src/renderer/components/InfiniteGridHelper'
 import { RendererState } from '@ir-engine/spatial/src/renderer/RendererState'
 
 import { InputState } from '@ir-engine/spatial/src/input/state/InputState'
+import { TransformGizmoControlComponent } from '../classes/gizmo/transform/TransformGizmoControlComponent'
 import { addMediaNode } from '../functions/addMediaNode'
 import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import isInputSelected from '../functions/isInputSelected'
@@ -71,9 +74,8 @@ import { EditorHelperState, PlacementMode } from '../services/EditorHelperState'
 
 import { usesCtrlKey } from '@ir-engine/common/src/utils/OperatingSystemFunctions'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
-import { ReferenceSpaceState, TransformComponent } from '@ir-engine/spatial'
-import { InputButtonBindings } from '@ir-engine/spatial/src/input/components/InputComponent'
-import { KeyboardButton, MouseButton } from '@ir-engine/spatial/src/input/state/ButtonState'
+import { ReferenceSpaceState } from '@ir-engine/spatial'
+import { TransformGizmoControlledComponent } from '../classes/gizmo/transform/TransformGizmoControlledComponent'
 import { isEntityGlb } from '../functions/utils.ts'
 import { EditorHistoryActions, EditorHistoryFunctions, EditorHistoryState } from '../services/EditorHistoryState'
 import { EditorState } from '../services/EditorServices'
@@ -81,32 +83,53 @@ import { SelectionState } from '../services/SelectionServices'
 import { ClickPlacementState } from './ClickPlacementSystem'
 import { ObjectGridSnapState } from './ObjectGridSnapSystem'
 
-export const EditorButtonBindings = {
-  Undo: [[KeyboardButton.ControlLeft, KeyboardButton.KeyZ]],
-  Redo: [[KeyboardButton.ControlLeft, KeyboardButton.ShiftLeft, KeyboardButton.KeyZ]],
-  ObjectGridSnap: [KeyboardButton.KeyB],
-  TransformModeTranslate: [KeyboardButton.KeyW],
-  TransformModeRotate: [KeyboardButton.KeyE],
-  TransformModeScale: [KeyboardButton.KeyR],
-  TogglePlacementMode: [KeyboardButton.KeyP],
-  ToggleSnapMode: [KeyboardButton.KeyC],
-  ToggleTransformPivot: [KeyboardButton.KeyX],
-  ToggleTransformSpace: [KeyboardButton.KeyZ],
-  IncreaseGridHeight: [KeyboardButton.Equal],
-  DecreaseGridHeight: [KeyboardButton.Minus],
-  CancelSelection: [KeyboardButton.Escape],
-  DeleteSelection: [KeyboardButton.Delete],
-  FlyControlMode: [MouseButton.SecondaryClick]
-} satisfies InputButtonBindings
-
 const raycaster = new Raycaster()
 const raycasterResults: Intersection<Object3D>[] = []
 
-const onObjectGridSnap = () => {
+// const gizmoControlledQuery = defineQuery([TransformGizmoControlledComponent])
+// let primaryClickAccum = 0
+
+const onKeyB = () => {
   getMutableState(ObjectGridSnapState).enabled.set(!getState(ObjectGridSnapState).enabled)
 }
 
-const onCancelSelection = () => {
+const onKeyF = () => {
+  getMutableComponent(Engine.instance.cameraEntity, CameraOrbitComponent).focusedEntities.set(
+    SelectionState.getSelectedEntities()
+  )
+}
+
+// const onKeyQ = () => {
+//   const nodes = SelectionState.getSelectedEntities()
+//   const gizmo = gizmoControlledQuery()
+//   if (gizmo.length === 0) return
+//   const gizmoEntity = gizmo[gizmo.length - 1]
+//   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
+//   const editorHelperState = getState(EditorHelperState)
+//   EditorControlFunctions.rotateAround(
+//     nodes,
+//     Vector3_Up,
+//     editorHelperState.rotationSnap * MathUtils.DEG2RAD,
+//     gizmoTransform.position
+//   )
+// }
+
+// const onKeyE = () => {
+//   const nodes = SelectionState.getSelectedEntities()
+//   const gizmo = gizmoControlledQuery()
+//   if (gizmo.length === 0) return
+//   const gizmoEntity = gizmo[gizmo.length - 1]
+//   const gizmoTransform = getComponent(gizmoEntity, TransformComponent)
+//   const editorHelperState = getState(EditorHelperState)
+//   EditorControlFunctions.rotateAround(
+//     nodes,
+//     Vector3_Up,
+//     -editorHelperState.rotationSnap * MathUtils.DEG2RAD,
+//     gizmoTransform.position
+//   )
+// }
+
+const onEscape = () => {
   EditorControlFunctions.replaceSelection([])
   const element = document.activeElement
   if (element instanceof HTMLElement) {
@@ -114,11 +137,11 @@ const onCancelSelection = () => {
   }
 }
 
-const onTransformModeTranslate = () => {
+const onKeyW = () => {
   setTransformMode(TransformMode.translate)
 }
 
-const onTogglePlacementMode = () => {
+const onKeyP = () => {
   const editorHelperState = getMutableState(EditorHelperState)
   if (editorHelperState.placementMode.value === PlacementMode.CLICK) {
     editorHelperState.placementMode.set(PlacementMode.DRAG)
@@ -127,83 +150,50 @@ const onTogglePlacementMode = () => {
   }
 }
 
-const onTransformModeRotate = () => {
+const onKeyE = () => {
   setTransformMode(TransformMode.rotate)
 }
 
-const onTransformModeScale = () => {
+const onKeyR = () => {
   setTransformMode(TransformMode.scale)
 }
 
-const onToggleSnapMode = () => {
+const onKeyC = () => {
   toggleSnapMode()
 }
 
-const onToggleTransformPivot = () => {
+const onKeyX = () => {
   toggleTransformPivot()
 }
 
-const onToggleTransformSpace = () => {
-  toggleTransformSpace()
-}
-
-const onUndo = () => {
+const onKeyZ = (control: boolean, shift: boolean) => {
   const rootEntity = getState(EditorState).rootEntity
   if (!rootEntity) return
-  const sourceID = GLTFComponent.getInstanceID(rootEntity)
-  if (EditorHistoryState.canRedo(sourceID)) dispatchAction(EditorHistoryActions.undo({ sourceID }))
+  if (control) {
+    const sourceID = GLTFComponent.getInstanceID(rootEntity)
+    if (shift) {
+      if (EditorHistoryState.canRedo(sourceID)) dispatchAction(EditorHistoryActions.redo({ sourceID }))
+    } else {
+      if (EditorHistoryState.canUndo(sourceID)) dispatchAction(EditorHistoryActions.undo({ sourceID }))
+    }
+  } else {
+    toggleTransformSpace()
+  }
 }
 
-const onRedo = () => {
-  const rootEntity = getState(EditorState).rootEntity
-  if (!rootEntity) return
-  const sourceID = GLTFComponent.getInstanceID(rootEntity)
-  if (EditorHistoryState.canRedo(sourceID)) dispatchAction(EditorHistoryActions.redo({ sourceID }))
-}
-
-const onIncreaseGridHeight = () => {
-  const rendererState = getMutableState(RendererState)
+const onEqual = () => {
+  const rendererState = useMutableState(RendererState)
   rendererState.gridHeight.set(rendererState.gridHeight.value + 1)
 }
 
-const onDecreaseGridHeight = () => {
-  const rendererState = getMutableState(RendererState)
+const onMinus = () => {
+  const rendererState = useMutableState(RendererState)
   rendererState.gridHeight.set(rendererState.gridHeight.value - 1)
 }
 
-const onDeleteSelection = () => {
+const onDelete = () => {
   EditorControlFunctions.removeObject(SelectionState.getSelectedEntities())
   EditorHistoryFunctions.snapshot()
-}
-
-let lastDistanceToCenter = 10
-
-const onFlyControlModeBegin = () => {
-  const viewerEntity = getState(ReferenceSpaceState).viewerEntity
-  if (!viewerEntity) return
-  const cameraOrbit = getOptionalComponent(viewerEntity, CameraOrbitComponent)
-  if (cameraOrbit) {
-    const position = TransformComponent.getWorldPosition(viewerEntity, new Vector3())
-    lastDistanceToCenter = cameraOrbit.cameraOrbitCenter.distanceTo(position)
-  }
-  removeComponent(viewerEntity, CameraOrbitComponent)
-  setComponent(viewerEntity, FlyControlComponent, {
-    boostSpeed: 4,
-    moveSpeed: 4,
-    lookSensitivity: 5,
-    maxXRotation: MathUtils.degToRad(80)
-  })
-}
-
-const directionToCenter = new Vector3()
-const onFlyControlModeEnd = () => {
-  const viewerEntity = getState(ReferenceSpaceState).viewerEntity
-  removeComponent(viewerEntity, FlyControlComponent)
-  setComponent(viewerEntity, CameraOrbitComponent)
-  const position = TransformComponent.getWorldPosition(viewerEntity, new Vector3())
-  const rotation = TransformComponent.getWorldRotation(viewerEntity, new Quaternion())
-  const editorCameraCenter = getComponent(viewerEntity, CameraOrbitComponent).cameraOrbitCenter
-  editorCameraCenter.copy(position).add(directionToCenter.set(0, 0, -lastDistanceToCenter).applyQuaternion(rotation))
 }
 
 function copy(event) {
@@ -283,35 +273,52 @@ const findNextSelectionEntity = (topLevelParent: Entity, child: Entity): Entity 
   return findNextSelectionEntity(topLevelParent, parentTree.parentEntity)
 }
 
+const inputQuery = defineQuery([InputSourceComponent])
 let clickStartEntity = UndefinedEntity
+
 let hierarchyFeatureFlagEnabled = false
 
 const execute = () => {
-  const viewerEntity = getState(ReferenceSpaceState).viewerEntity
-  const buttons = InputComponent.getButtons(viewerEntity, EditorButtonBindings)
-
-  if (buttons.FlyControlMode?.down) onFlyControlModeBegin()
-  if (buttons.FlyControlMode?.up) onFlyControlModeEnd()
-
-  if (hasComponent(viewerEntity, FlyControlComponent)) return
-
   const entity = AvatarComponent.getSelfAvatarEntity()
   if (entity) return
 
-  if (buttons.Undo?.down) onUndo()
-  if (buttons.Redo?.down) onRedo()
-  if (buttons.ObjectGridSnap?.down) onObjectGridSnap()
-  if (buttons.TransformModeRotate?.down) onTransformModeRotate()
-  if (buttons.TogglePlacementMode?.down) onTogglePlacementMode()
-  if (buttons.TransformModeScale?.down) onTransformModeScale()
-  if (buttons.TransformModeTranslate?.down) onTransformModeTranslate()
-  if (buttons.ToggleSnapMode?.down) onToggleSnapMode()
-  if (buttons.ToggleTransformPivot?.down) onToggleTransformPivot()
-  if (buttons.ToggleTransformSpace?.down) onToggleTransformSpace()
-  if (buttons.IncreaseGridHeight?.down) onIncreaseGridHeight()
-  if (buttons.DecreaseGridHeight?.down) onDecreaseGridHeight()
-  if (buttons.CancelSelection?.down) onCancelSelection()
-  if (buttons.DeleteSelection?.down) onDeleteSelection()
+  if (hasComponent(Engine.instance.cameraEntity, FlyControlComponent)) return
+
+  const selectedEntities = SelectionState.getSelectedEntities()
+
+  const inputSources = inputQuery()
+
+  const buttons = InputComponent.getMergedButtonsForInputSources(inputSources)
+
+  if (buttons.KeyB?.down) onKeyB()
+  if (buttons.KeyE?.down) onKeyE()
+  if (buttons.KeyP?.down) onKeyP()
+  if (buttons.KeyR?.down) onKeyR()
+  if (buttons.KeyW?.down) onKeyW()
+  if (buttons.KeyC?.down) onKeyC()
+  if (buttons.KeyX?.down) onKeyX()
+  if (buttons.KeyF?.down) onKeyF()
+  if (buttons.KeyZ?.down) onKeyZ(!!buttons.ControlLeft?.pressed, !!buttons.ShiftLeft?.pressed)
+  if (buttons.Equal?.down) onEqual()
+  if (buttons.Minus?.down) onMinus()
+  if (buttons.Escape?.down) onEscape()
+  if (buttons.Delete?.down) onDelete()
+
+  if (selectedEntities) {
+    const lastSelection = selectedEntities[selectedEntities.length - 1]
+    if (hasComponent(lastSelection, TransformGizmoControlledComponent)) {
+      // dont let use the editor camera while dragging
+      const mainOrbitCamera = getOptionalMutableComponent(Engine.instance.cameraEntity, CameraOrbitComponent)
+      const controllerEntity = getComponent(lastSelection, TransformGizmoControlledComponent).controller
+      if (
+        mainOrbitCamera &&
+        controllerEntity !== UndefinedEntity &&
+        hasComponent(controllerEntity, TransformGizmoControlComponent)
+      ) {
+        mainOrbitCamera.disabled.set(getComponent(controllerEntity, TransformGizmoControlComponent).dragging)
+      }
+    }
+  }
 
   if (buttons.PrimaryClick?.pressed) {
     let closestIntersection = {
@@ -319,9 +326,11 @@ const execute = () => {
       distance: Infinity
     }
     if (buttons.PrimaryClick?.down) {
-      const intersection = InputSourceComponent.getClosestIntersection(buttons.PrimaryClick.inputSourceEntity)
-      if (intersection && intersection.distance < closestIntersection.distance) {
-        closestIntersection = intersection
+      for (const inputSourceEntity of inputSources) {
+        const intersection = InputSourceComponent.getClosestIntersection(inputSourceEntity)
+        if (intersection && intersection.distance < closestIntersection.distance) {
+          closestIntersection = intersection
+        }
       }
 
       // Get top most parent entity from the GLTF document
@@ -465,22 +474,6 @@ const reactor = () => {
       removeComponent(viewerEntity, InputComponent)
     }
   }, [viewerEntity])
-
-  const selectedEntities = SelectionState.useSelectedEntities()
-  useEffect(() => {
-    const cameraOrbit = getOptionalMutableComponent(viewerEntity, CameraOrbitComponent)
-    cameraOrbit?.focusedEntities.set(selectedEntities)
-  }, [selectedEntities])
-
-  const rootEntity = useMutableState(EditorState).rootEntity.value
-  const sceneLoaded = GLTFComponent.useSceneLoaded(rootEntity)
-
-  /** On scene load ensure the camera isn't stuck at the origin */
-  useEffect(() => {
-    if (!sceneLoaded) return
-    const cameraOrbit = getOptionalMutableComponent(viewerEntity, CameraOrbitComponent)
-    cameraOrbit?.focusedEntities.set([rootEntity])
-  }, [sceneLoaded])
 
   useEffect(() => {
     hierarchyFeatureFlagEnabled = hideGlbChildrenFeatureFlag[0]

@@ -168,7 +168,7 @@ function NewMessage() {
     <div className="mt-5 flex w-full items-center justify-end">
       <div
         className={twMerge(
-          'height-[30px] lg:height-[74px] mr-4 flex items-center justify-between rounded-[37px] bg-ui-background transition-[width,transform] duration-500 lg:ml-[13px] lg:mr-0 lg:bg-black/50',
+          'height-[30px] lg:height-[74px] mr-4 flex items-center justify-between rounded-[37px] bg-ui-background transition-[width,transform] duration-500 lg:mr-0 lg:bg-black/50',
           isChatOpen.value ? 'w-full translate-x-0' : 'hidden'
         )}
       >
@@ -264,7 +264,7 @@ function MessagesWrapper() {
 
   return (
     <div className="flex items-end">
-      <div className="relative mr-[13px] max-w-16">
+      <div className="relative max-w-16">
         {!isChatOpen.value && unreadMessages.value && (
           <div className="absolute right-0 top-0 h-4 w-4 rounded-full bg-blue-500" />
         )}
@@ -284,7 +284,7 @@ function MessagesWrapper() {
         )}
       </div>
       {isChatOpen.value && (!ageVerified as any) ? (
-        <div className="rounded-lg bg-surface-4 p-4">
+        <div className="ml-[13px] rounded-lg bg-surface-4 p-4">
           <div className="mx-auto text-center font-semibold text-[#3B3A3A]">{t('user:instanceChat.wantToChat')}</div>
           <Button
             variant="secondary"

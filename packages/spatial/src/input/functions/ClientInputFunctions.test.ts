@@ -31,35 +31,26 @@ import {
   EntityTreeComponent,
   getComponent,
   getMutableComponent,
+  hasComponent,
+  removeEntity,
   setComponent,
   UndefinedEntity
 } from '@ir-engine/ecs'
-import { getMutableState } from '@ir-engine/hyperflux'
 import assert from 'assert'
 import sinon from 'sinon'
 import { Quaternion, Vector2, Vector3 } from 'three'
 import { afterEach, beforeEach, describe, it } from 'vitest'
 import { assertVec } from '../../../tests/util/assert'
+import { Q_IDENTITY, Vector3_Zero } from '../../common/constants/MathConstants'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { InputComponent } from '../components/InputComponent'
 import { InputPointerComponent } from '../components/InputPointerComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
-import { AnyButton, ButtonState, createInitialButtonState, MouseButton } from '../state/ButtonState'
-import { InputState } from '../state/InputState'
-import ClientInputFunctions from './ClientInputFunctions'
+import { ButtonState, ButtonStateMap, MouseButton } from '../state/ButtonState'
+import ClientInputFunctions, { DRAGGING_THRESHOLD, ROTATING_THRESHOLD } from './ClientInputFunctions'
 
 describe('ClientInputFunctions', () => {
-  beforeEach(() => {
-    createEngine()
-    // Initialize InputState
-    getMutableState(InputState).capturingEntity.set(UndefinedEntity)
-  })
-
-  afterEach(() => {
-    return destroyEngine()
-  })
-
   describe('preventDefault', () => {
     it('should call the preventDefault function of the given object/event', () => {
       const eventSpy = sinon.spy()
@@ -144,6 +135,18 @@ describe('ClientInputFunctions', () => {
   })
 
   describe('setInputSources', () => {
+    let testEntity = UndefinedEntity
+
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+    })
+
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
     it('should add the `@param inputSources` to the `InputComponent.inputSources` of each entity in the ancestor.InputComponent.inputSinks list', () => {
       const sourceOne = createEntity()
       const sourceTwo = createEntity()
@@ -153,7 +156,6 @@ describe('ClientInputFunctions', () => {
 
       const parentEntity = createEntity()
       setComponent(parentEntity, InputComponent)
-      const testEntity = createEntity()
       setComponent(testEntity, EntityTreeComponent, { parentEntity: parentEntity })
 
       // Sanity check before running
@@ -171,39 +173,41 @@ describe('ClientInputFunctions', () => {
     })
   })
 
-  describe('cleanupButtonState', () => {
+  describe('cleanupButton', () => {
+    type ButtonData = ButtonStateMap<Partial<Record<string | number | symbol, ButtonState | undefined>>>
+
     it("should make the button's .down property false when it is true", () => {
-      const sourceEntity = createEntity()
-      const buttons = { key1: createInitialButtonState(sourceEntity, { down: true }) }
-      setComponent(sourceEntity, InputSourceComponent, { buttons })
-      assert.equal(buttons.key1?.down, true)
-      ClientInputFunctions.refreshInputs(true)
-      assert.equal(buttons.key1?.down, false)
+      const data = { key1: { down: true } as ButtonState } as ButtonData
+      assert.equal(data.key1?.down, true)
+      ClientInputFunctions.cleanupButton('key1', data, true)
+      assert.equal(data.key1?.down, false)
     })
 
     it('should remove the button with the given `@param key` from the `@param buttons` list if `@param hasFocus` is false', () => {
-      const sourceEntity = createEntity()
-      const buttons = { key1: createInitialButtonState(sourceEntity, { down: true }) }
-      setComponent(sourceEntity, InputSourceComponent, { buttons })
-      assert.notEqual(buttons.key1, undefined)
-      assert.equal(buttons.key1?.down, true)
-      /**@todo the query in refreshInputs returns an array of undefined in this test, but the test above and below work */
-      ClientInputFunctions.refreshInputs(false)
-      //assert.equal(buttons.key1, undefined)
+      const data = { key1: { down: true } as ButtonState } as ButtonData
+      assert.notEqual(data.key1, undefined)
+      ClientInputFunctions.cleanupButton('key1', data, false)
+      assert.equal(data.key1, undefined)
     })
 
     it('should remove the button with the given `@param key` from the `@param buttons` list if the button is up', () => {
-      const sourceEntity = createEntity()
-      const buttons = { key1: createInitialButtonState(sourceEntity, { down: false, up: true }) }
-      setComponent(sourceEntity, InputSourceComponent, { buttons })
-      assert.notEqual(buttons.key1, undefined)
-      assert.equal(buttons.key1?.up, true)
-      ClientInputFunctions.refreshInputs(true)
-      assert.equal(buttons.key1, undefined)
+      const data = { key1: { down: false, up: true } as ButtonState } as ButtonData
+      assert.notEqual(data.key1, undefined)
+      assert.equal(data.key1?.up, true)
+      ClientInputFunctions.cleanupButton('key1', data, true)
+      assert.equal(data.key1, undefined)
     })
   })
 
   describe('assignInputSources', () => {
+    beforeEach(async () => {
+      createEngine()
+    })
+
+    afterEach(() => {
+      return destroyEngine()
+    })
+
     it("should add the `@param sourceEid` entity, and entities that have an InputSourceComponent but no TransformComponent, to the list of InputComponent.inputSources of sourceEid's parent, when capturedEntity is undefined", () => {
       const parentEntity = createEntity()
       setComponent(parentEntity, InputComponent)
@@ -258,23 +262,25 @@ describe('ClientInputFunctions', () => {
   })
 
   describe('updatePointerDragging', () => {
-    describe('when the `@param pointerEntity` does not have an InputPointerComponent', () => {
-      it('should not modify the dragging property', () => {
+    beforeEach(async () => {
+      createEngine()
+    })
+
+    afterEach(() => {
+      return destroyEngine()
+    })
+
+    describe('when the `@param pointerEntity` does not have an InputPointerComponent ...', () => {
+      it('should not modify the dragging property of PrimaryClick when PrimaryClick.downPosition is (0,0,0)', () => {
         const Btn = MouseButton.PrimaryClick
-        const ev = { type: 'pointermove', button: 0 } as PointerEvent
+        const ev = {} as PointerEvent
 
         const pointerEntity = createEntity()
         setComponent(pointerEntity, InputSourceComponent)
         getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
-          [Btn]: createInitialButtonState(pointerEntity, {
-            pressed: true,
-            downPointerPosition: new Vector2(0, 0),
-            dragging: false,
-            touched: true,
-            down: false,
-            up: false,
-            value: 1
-          })
+          [MouseButton.PrimaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState,
+          [MouseButton.AuxiliaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState,
+          [MouseButton.SecondaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState
         })
 
         // Run and Check the result
@@ -282,36 +288,65 @@ describe('ClientInputFunctions', () => {
         const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
         assert.equal(result, false)
       })
-    })
 
-    describe('when the `@param pointerEntity` has an InputPointerComponent', () => {
-      it('should enable dragging when pointer moves far enough from downPointerPosition', () => {
-        const Btn = MouseButton.PrimaryClick
-        const ev = { type: 'pointermove', button: 0 } as PointerEvent
+      it('should not modify the dragging property of AuxiliaryClick when AuxiliaryClick.downPosition is (0,0,0)', () => {
+        const Btn = MouseButton.AuxiliaryClick
+        const ev = { type: 'pointermove', button: 1 } as PointerEvent
 
         const pointerEntity = createEntity()
-
-        // Set up pointer component with position far from initial click
-        setComponent(pointerEntity, InputPointerComponent, {
-          cameraEntity: createEntity(),
-          pointerId: 1,
-          position: new Vector2(2, 2), // Position moved enough to exceed threshold
-          lastPosition: new Vector2(0, 0),
-          movement: new Vector2(0, 0)
-        })
-
-        // Set up input source with initial button state
         setComponent(pointerEntity, InputSourceComponent)
         getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
-          [Btn]: createInitialButtonState(pointerEntity, {
+          [MouseButton.PrimaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState,
+          [MouseButton.AuxiliaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState,
+          [MouseButton.SecondaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState
+        })
+
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, false)
+      })
+
+      it('should not modify the dragging property of SecondaryClick when SecondaryClick.downPosition is (0,0,0)', () => {
+        const Btn = MouseButton.SecondaryClick
+        const ev = { type: 'pointermove', button: 2 } as PointerEvent
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState,
+          [MouseButton.AuxiliaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState,
+          [MouseButton.SecondaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState
+        })
+
+        // Run and Check the result
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, false)
+      })
+
+      it('should modify the dragging property of PrimaryClick when PrimaryClick.downPosition is not (0,0,0)', () => {
+        const Btn = MouseButton.PrimaryClick
+        const ev = {} as PointerEvent
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: {
             pressed: true,
-            downPointerPosition: new Vector2(0, 0), // Initial click position
-            dragging: false,
-            touched: true,
-            down: false,
-            up: false,
-            value: 1
-          })
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.AuxiliaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.SecondaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState
         })
 
         // Run and Check the result
@@ -320,34 +355,126 @@ describe('ClientInputFunctions', () => {
         assert.equal(result, true)
       })
 
-      it('should not enable dragging when pointer position equals downPointerPosition', () => {
-        const Btn = MouseButton.PrimaryClick
-        const ev = { type: 'pointermove', button: 0 } as PointerEvent
-        const position = new Vector2(1, 1)
+      it('should modify the dragging property of AuxiliaryClick when AuxiliaryClick.downPosition is not (0,0,0)', () => {
+        const Btn = MouseButton.AuxiliaryClick
+        const ev = { type: 'pointermove', button: 1 } as PointerEvent
 
         const pointerEntity = createEntity()
-
-        // Set up pointer component with same position as downPointerPosition
-        setComponent(pointerEntity, InputPointerComponent, {
-          cameraEntity: createEntity(),
-          pointerId: 1,
-          position: position.clone(), // Same as downPointerPosition
-          lastPosition: new Vector2(0, 0),
-          movement: new Vector2(0, 0)
-        })
-
-        // Set up input source with initial button state
         setComponent(pointerEntity, InputSourceComponent)
         getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
-          [Btn]: createInitialButtonState(pointerEntity, {
+          [MouseButton.PrimaryClick]: {
             pressed: true,
-            downPointerPosition: position.clone(), // Same as current position
-            dragging: false,
-            touched: true,
-            down: false,
-            up: false,
-            value: 1
-          })
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.AuxiliaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.SecondaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState
+        })
+
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, true)
+      })
+
+      it('should modify the dragging property of SecondaryClick when SecondaryClick.downPosition is not (0,0,0)', () => {
+        const Btn = MouseButton.SecondaryClick
+        const ev = { type: 'pointermove', button: 2 } as PointerEvent
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.AuxiliaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.SecondaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState
+        })
+
+        // Run and Check the result
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, true)
+      })
+    })
+
+    describe('when the `@param pointerEntity` has an InputPointerComponent ...', () => {
+      it('should modify the dragging property when the distance between PrimaryClick.downPosition and InputPointerComponent.position is greater than the threshold', () => {
+        const Btn = MouseButton.PrimaryClick
+        const ev = {} as PointerEvent
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        setComponent(pointerEntity, InputPointerComponent, { pointerId: 123, cameraEntity: UndefinedEntity })
+        getMutableComponent(pointerEntity, InputPointerComponent).position.set(new Vector2(42, 42))
+
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.AuxiliaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.SecondaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState
+        })
+
+        // Run and Check the result
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, true)
+      })
+
+      it('should not modify the dragging property when the distance between PrimaryClick.downPosition and InputPointerComponent.position is not greater than the threshold', () => {
+        const Btn = MouseButton.PrimaryClick
+        const ev = {} as PointerEvent
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        setComponent(pointerEntity, InputPointerComponent, { pointerId: 123, cameraEntity: UndefinedEntity })
+        getMutableComponent(pointerEntity, InputPointerComponent).position.set(new Vector2(0, 0))
+
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(0, 0, 0),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.AuxiliaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.SecondaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState
         })
 
         // Run and Check the result
@@ -356,34 +483,21 @@ describe('ClientInputFunctions', () => {
         assert.equal(result, false)
       })
 
-      it('should not enable dragging when pointer movement is below threshold', () => {
+      it('should not modify the dragging property of PrimaryClick when PrimaryClick.downPosition is (pointer.position.x, pointer.position.y, 0)', () => {
         const Btn = MouseButton.PrimaryClick
-        const ev = { type: 'pointermove', button: 0 } as PointerEvent
+        const ev = {} as PointerEvent
+        const Position = new Vector2(42, 42)
+        const DownPosition = new Vector3(Position.x, Position.y, 0)
 
         const pointerEntity = createEntity()
-
-        // Set up pointer component with tiny movement
-        setComponent(pointerEntity, InputPointerComponent, {
-          cameraEntity: createEntity(),
-          pointerId: 1,
-          position: new Vector2(0.001, 0.001), // Tiny movement below threshold
-          lastPosition: new Vector2(0, 0),
-          movement: new Vector2(0, 0)
-        })
-
-        // Set up input source with initial button state
         setComponent(pointerEntity, InputSourceComponent)
         getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
-          [Btn]: createInitialButtonState(pointerEntity, {
-            pressed: true,
-            downPointerPosition: new Vector2(0, 0),
-            dragging: false,
-            touched: true,
-            down: false,
-            up: false,
-            value: 1
-          })
+          [MouseButton.PrimaryClick]: { pressed: true, downPosition: DownPosition, dragging: false } as ButtonState,
+          [MouseButton.AuxiliaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState,
+          [MouseButton.SecondaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState
         })
+        setComponent(pointerEntity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
+        getMutableComponent(pointerEntity, InputPointerComponent).position.set(Position)
 
         // Run and Check the result
         ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
@@ -391,176 +505,841 @@ describe('ClientInputFunctions', () => {
         assert.equal(result, false)
       })
 
-      it('should not enable dragging when button is not pressed', () => {
-        const Btn = MouseButton.PrimaryClick
-        const ev = { type: 'pointermove', button: 0 } as PointerEvent
+      it('should not modify the dragging property of AuxiliaryClick when AuxiliaryClick.downPosition is (pointer.position.x, pointer.position.y, 0)', () => {
+        const Btn = MouseButton.AuxiliaryClick
+        const ev = {} as PointerEvent
+        const Position = new Vector2(42, 42)
+        const DownPosition = new Vector3(Position.x, Position.y, 0)
 
         const pointerEntity = createEntity()
-
-        // Set up pointer component with significant movement
-        setComponent(pointerEntity, InputPointerComponent, {
-          cameraEntity: createEntity(),
-          pointerId: 1,
-          position: new Vector2(2, 2), // Movement exceeds threshold
-          lastPosition: new Vector2(0, 0),
-          movement: new Vector2(0, 0)
-        })
-
-        // Set up input source with initial button state (not pressed)
         setComponent(pointerEntity, InputSourceComponent)
         getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
-          [Btn]: createInitialButtonState(pointerEntity, {
-            pressed: false, // Button not pressed
-            downPointerPosition: new Vector2(0, 0),
-            dragging: false,
-            touched: true,
-            down: false,
-            up: false,
-            value: 0
-          })
+          [MouseButton.PrimaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState,
+          [MouseButton.AuxiliaryClick]: { pressed: true, downPosition: DownPosition, dragging: false } as ButtonState,
+          [MouseButton.SecondaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState
         })
+        setComponent(pointerEntity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
+        getMutableComponent(pointerEntity, InputPointerComponent).position.set(Position)
 
         // Run and Check the result
         ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
         const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
         assert.equal(result, false)
+      })
+
+      it('should not modify the dragging property of SecondaryClick when SecondaryClick.downPosition is (pointer.position.x, pointer.position.y, 0)', () => {
+        const Btn = MouseButton.SecondaryClick
+        const ev = {} as PointerEvent
+        const Position = new Vector2(42, 42)
+        const DownPosition = new Vector3(Position.x, Position.y, 0)
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState,
+          [MouseButton.AuxiliaryClick]: { pressed: true, downPosition: new Vector3(), dragging: false } as ButtonState,
+          [MouseButton.SecondaryClick]: { pressed: true, downPosition: DownPosition, dragging: false } as ButtonState
+        })
+        setComponent(pointerEntity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
+        getMutableComponent(pointerEntity, InputPointerComponent).position.set(Position)
+
+        // Run and Check the result
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, false)
+      })
+
+      it('should modify the dragging property of PrimaryClick when PrimaryClick.downPosition is not (pointer.position.x, pointer.position.y, 0)', () => {
+        const Btn = MouseButton.PrimaryClick
+        const ev = {} as PointerEvent
+        const Position = new Vector2(42, 42)
+        const DownPosition = new Vector3(1, 1, 0)
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        setComponent(pointerEntity, InputPointerComponent, { pointerId: 123, cameraEntity: UndefinedEntity })
+        getMutableComponent(pointerEntity, InputPointerComponent).position.set(Position)
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: {
+            pressed: true,
+            downPosition: DownPosition,
+            dragging: false
+          } as ButtonState,
+          [MouseButton.AuxiliaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.SecondaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState
+        })
+        setComponent(pointerEntity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
+        getMutableComponent(pointerEntity, InputPointerComponent).position.set(Position)
+
+        // Run and Check the result
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, true)
+      })
+
+      it('should modify the dragging property of AuxiliaryClick when AuxiliaryClick.downPosition is not (pointer.position.x, pointer.position.y, 0)', () => {
+        const Btn = MouseButton.AuxiliaryClick
+        const ev = { type: 'pointermove', button: 1 } as PointerEvent
+        const Position = new Vector2(42, 42)
+        const DownPosition = new Vector3(1, 1, 0)
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        setComponent(pointerEntity, InputPointerComponent, { pointerId: 123, cameraEntity: UndefinedEntity })
+        getMutableComponent(pointerEntity, InputPointerComponent).position.set(Position)
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.AuxiliaryClick]: {
+            pressed: true,
+            downPosition: DownPosition,
+            dragging: false
+          } as ButtonState,
+          [MouseButton.SecondaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState
+        })
+        setComponent(pointerEntity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
+        getMutableComponent(pointerEntity, InputPointerComponent).position.set(Position)
+
+        // Run and Check the result
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, true)
+      })
+
+      it('should modify the dragging property of SecondaryClick when SecondaryClick.downPosition is not (pointer.position.x, pointer.position.y, 0)', () => {
+        const Btn = MouseButton.SecondaryClick
+        const ev = { type: 'pointermove', button: 2 } as PointerEvent
+        const Position = new Vector2(42, 42)
+        const DownPosition = new Vector3(1, 1, 0)
+
+        const pointerEntity = createEntity()
+        setComponent(pointerEntity, InputSourceComponent)
+        setComponent(pointerEntity, InputPointerComponent, { pointerId: 123, cameraEntity: UndefinedEntity })
+        getMutableComponent(pointerEntity, InputPointerComponent).position.set(Position)
+        getMutableComponent(pointerEntity, InputSourceComponent).buttons.merge({
+          [MouseButton.PrimaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.AuxiliaryClick]: {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState,
+          [MouseButton.SecondaryClick]: {
+            pressed: true,
+            downPosition: DownPosition,
+            dragging: false
+          } as ButtonState
+        })
+        setComponent(pointerEntity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
+        getMutableComponent(pointerEntity, InputPointerComponent).position.set(Position)
+
+        // Run and Check the result
+        ClientInputFunctions.updatePointerDragging(pointerEntity, ev)
+        const result = getComponent(pointerEntity, InputSourceComponent).buttons[Btn]?.dragging
+        assert.equal(result, true)
       })
     })
   })
 
   describe('updateGamepadInput', () => {
-    function setupGamepadButton(entity: Entity, buttonState: Partial<ButtonState>, gamepadState: Partial<ButtonState>) {
-      const buttons = {}
-      const gamepadButtons = [] as ButtonState[]
-      const buttonIndex = 0 as AnyButton
+    let testEntity = UndefinedEntity
 
-      buttons[buttonIndex] = createInitialButtonState(entity, buttonState)
-      gamepadButtons[buttonIndex] = gamepadState as ButtonState
-
-      setComponent(entity, InputSourceComponent, {
-        buttons,
-        gamepad: {
-          buttons: gamepadButtons
-        } as unknown as Gamepad
-      })
-
-      return buttons[buttonIndex]
-    }
-
-    describe('on first frame (buttonState.pressed=false, gamepadButton.pressed=true)', () => {
-      it('should set down=true and copy pressed/touched/value from gamepad', () => {
-        const entity = createEntity()
-        const buttonState = setupGamepadButton(entity, { pressed: false }, { pressed: true, touched: true, value: 0.5 })
-        ClientInputFunctions.updateGamepadInput(entity)
-
-        assert.equal(buttonState.down, true)
-        assert.equal(buttonState.pressed, true)
-        assert.equal(buttonState.touched, true)
-        assert.equal(buttonState.value, 0.5)
-      })
-
-      it('should set downPosition from transform when XRSpace component exists', () => {
-        const expectedPos = new Vector3(1, 2, 3)
-        const testEntity = createEntity()
-        setComponent(testEntity, TransformComponent, { position: expectedPos })
-        setComponent(testEntity, XRSpaceComponent, { space: {} as XRSpace, baseSpace: {} as XRSpace })
-
-        const buttonState = setupGamepadButton(testEntity, { pressed: false }, { pressed: true, touched: true })
-        ClientInputFunctions.updateGamepadInput(testEntity)
-        assertVec.approxEq(buttonState.downPosition!, expectedPos, 3)
-      })
-
-      it('should set downRotation from transform when XRSpace component exists', () => {
-        const expectedRot = new Quaternion(0, 1, 0, 0)
-        const testEntity = createEntity()
-        setComponent(testEntity, TransformComponent, { rotation: expectedRot })
-        setComponent(testEntity, XRSpaceComponent, { space: {} as XRSpace, baseSpace: {} as XRSpace })
-
-        const buttonState = setupGamepadButton(testEntity, { pressed: false }, { pressed: true, touched: true })
-
-        ClientInputFunctions.updateGamepadInput(testEntity)
-        assertVec.approxEq(buttonState.downRotation!, expectedRot, 4)
-      })
+    beforeEach(async () => {
+      createEngine()
+      testEntity = createEntity()
+      setComponent(testEntity, InputSourceComponent)
     })
 
-    describe('dragging behavior', () => {
-      it('should enable dragging when pointer moves beyond threshold', () => {
-        const testEntity = createEntity()
-        setComponent(testEntity, InputPointerComponent, {
-          cameraEntity: createEntity(),
-          pointerId: 1,
-          position: new Vector2(2, 2)
+    afterEach(() => {
+      removeEntity(testEntity)
+      return destroyEngine()
+    })
+
+    describe('when buttonState has a value, and either gamepadButton.pressed or gamepadButton.touched are true ...', () => {
+      /** @note First Frame Cases */
+      describe('when buttonState.pressed is false and gamepadButton.pressed is true (aka on the First Frame)...', () => {
+        const ButtonStatePressed = false
+        const GamepadButtonPressed = true
+
+        it('... should set buttonState.down to true', () => {
+          const Buttons = {}
+          const GamepadButtons = [] as ButtonState[]
+
+          // Set the initial data from the conditions
+          const buttonState = {
+            pressed: ButtonStatePressed,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: false
+          } as ButtonState
+          const gamepadButton = { pressed: GamepadButtonPressed, touched: true, value: 42 } as ButtonState
+
+          // Set the expected data
+          const ID = 0
+          Buttons[ID] = buttonState
+          GamepadButtons[ID] = gamepadButton
+          getMutableComponent(testEntity, InputSourceComponent).merge({
+            buttons: Buttons,
+            source: {
+              gamepad: {
+                buttons: GamepadButtons
+              } as unknown as Gamepad
+            } as XRInputSource
+          })
+
+          // Run and Check the result
+          assert.equal(buttonState.down, undefined)
+          ClientInputFunctions.updateGamepadInput(testEntity)
+          assert.equal(buttonState.down, true)
         })
 
-        const buttonState = setupGamepadButton(
-          testEntity,
-          {
-            pressed: true,
-            downPointerPosition: new Vector2(0, 0),
-            dragging: false
-          },
-          { pressed: true, touched: true }
-        )
+        describe('when `@param eid` has an InputPointerComponent ...', () => {
+          it('... should set buttonState.downPosition to  InputPointerComponent.(position.x, position.y, 0)', () => {
+            const Buttons = {}
+            const GamepadButtons = [] as ButtonState[]
 
-        ClientInputFunctions.updateGamepadInput(testEntity)
-        assert.equal(buttonState.dragging, true)
-      })
+            // Set the initial data from the conditions
+            const Initial = new Vector3(1, 1, 1)
+            const Position = new Vector2(42, 42)
+            const Expected = new Vector3(Position.x, Position.y, 0)
+            const buttonState = {
+              pressed: ButtonStatePressed,
+              downPosition: Initial,
+              dragging: false
+            } as ButtonState
+            const gamepadButton = { pressed: GamepadButtonPressed, touched: true, value: 42 } as ButtonState
 
-      it('should not enable dragging when movement is below threshold', () => {
-        const testEntity = createEntity()
-        setComponent(testEntity, InputPointerComponent, {
-          cameraEntity: createEntity(),
-          pointerId: 1,
-          position: new Vector2(0.0001, 0.0001)
+            // Set the expected data
+            const ID = 0
+            Buttons[ID] = buttonState
+            GamepadButtons[ID] = gamepadButton
+            getMutableComponent(testEntity, InputSourceComponent).merge({
+              buttons: Buttons,
+              source: {
+                gamepad: {
+                  buttons: GamepadButtons
+                } as unknown as Gamepad
+              } as XRInputSource
+            })
+            setComponent(testEntity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
+            getMutableComponent(testEntity, InputPointerComponent).position.set(Position)
+
+            // Run and Check the result
+            assertVec.approxEq(buttonState.downPosition, Initial, 3)
+            ClientInputFunctions.updateGamepadInput(testEntity)
+            assertVec.approxEq(buttonState.downPosition, Expected, 3)
+          })
         })
 
-        const buttonState = setupGamepadButton(
-          testEntity,
-          {
+        describe('when `@param eid` has an XRSpaceComponent and a TransformComponent', () => {
+          it('... should copy the `@param eid` TransformComponent.position into buttonState.downPosition', () => {
+            const Buttons = {}
+            const GamepadButtons = [] as ButtonState[]
+
+            // Set the initial data from the conditions
+            const Initial = new Vector3(1, 1, 1)
+            const Expected = new Vector3(40, 41, 42)
+            const buttonState = {
+              pressed: ButtonStatePressed,
+              downPosition: Initial,
+              dragging: false
+            } as ButtonState
+            const gamepadButton = { pressed: GamepadButtonPressed, touched: true, value: 42 } as ButtonState
+
+            // Set the expected data
+            const ID = 0
+            Buttons[ID] = buttonState
+            GamepadButtons[ID] = gamepadButton
+            getMutableComponent(testEntity, InputSourceComponent).merge({
+              buttons: Buttons,
+              source: {
+                gamepad: {
+                  buttons: GamepadButtons
+                } as unknown as Gamepad
+              } as XRInputSource
+            })
+            setComponent(testEntity, TransformComponent, { position: Expected })
+            setComponent(testEntity, XRSpaceComponent, { space: {} as XRSpace, baseSpace: {} as XRSpace })
+
+            // Run and Check the result
+            assertVec.approxEq(buttonState.downPosition, Initial, 3)
+            ClientInputFunctions.updateGamepadInput(testEntity)
+            assertVec.approxEq(buttonState.downPosition, Expected, 3)
+          })
+
+          it('... should copy the `@param eid` TransformComponent.rotation into buttonState.downRotation', () => {
+            const Buttons = {}
+            const GamepadButtons = [] as ButtonState[]
+
+            // Set the initial data from the conditions
+            const Initial = new Quaternion(1, 1, 1).normalize()
+            const Expected = new Quaternion(40, 41, 42).normalize()
+            const buttonState = {
+              pressed: ButtonStatePressed,
+              downRotation: Initial,
+              dragging: false
+            } as ButtonState
+            const gamepadButton = { pressed: GamepadButtonPressed, touched: true, value: 42 } as ButtonState
+
+            // Set the expected data
+            const ID = 0
+            Buttons[ID] = buttonState
+            GamepadButtons[ID] = gamepadButton
+            getMutableComponent(testEntity, InputSourceComponent).merge({
+              buttons: Buttons,
+              source: {
+                gamepad: {
+                  buttons: GamepadButtons
+                } as unknown as Gamepad
+              } as XRInputSource
+            })
+            setComponent(testEntity, TransformComponent, { rotation: Expected })
+            setComponent(testEntity, XRSpaceComponent, { space: {} as XRSpace, baseSpace: {} as XRSpace })
+
+            // Run and Check the result
+            assertVec.approxEq(buttonState.downRotation, Initial, 4)
+            ClientInputFunctions.updateGamepadInput(testEntity)
+            assertVec.approxEq(buttonState.downRotation, Expected, 4)
+          })
+        })
+
+        describe('when `@param eid` has an InputPointerComponent and it does not have an XRSpaceComponent and a TransformComponent ...', () => {
+          it('... should set buttonState.downPosition to a new Vector3()', () => {
+            const Buttons = {}
+            const GamepadButtons = [] as ButtonState[]
+
+            // Set the initial data from the conditions
+            const Initial = new Vector3(1, 1, 1)
+            const Expected = new Vector3()
+            const buttonState = {
+              pressed: ButtonStatePressed,
+              downPosition: Initial,
+              dragging: false
+            } as ButtonState
+            const gamepadButton = { pressed: GamepadButtonPressed, touched: true, value: 42 } as ButtonState
+
+            // Set the expected data
+            const ID = 0
+            Buttons[ID] = buttonState
+            GamepadButtons[ID] = gamepadButton
+            getMutableComponent(testEntity, InputSourceComponent).merge({
+              buttons: Buttons,
+              source: {
+                gamepad: {
+                  buttons: GamepadButtons
+                } as unknown as Gamepad
+              } as XRInputSource
+            })
+            setComponent(testEntity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
+
+            // Run and Check the result
+            assertVec.approxEq(buttonState.downPosition, Initial, 3)
+            ClientInputFunctions.updateGamepadInput(testEntity)
+            assertVec.approxEq(buttonState.downPosition, Expected, 3)
+          })
+
+          it('... should set buttonState.downRotation to a new Quaterion()', () => {
+            const Buttons = {}
+            const GamepadButtons = [] as ButtonState[]
+
+            // Set the initial data from the conditions
+            const Initial = new Quaternion(42, 42, 42, 42).normalize()
+            const Expected = new Quaternion()
+            const buttonState = {
+              pressed: ButtonStatePressed,
+              downRotation: Initial,
+              dragging: false
+            } as ButtonState
+            const gamepadButton = { pressed: GamepadButtonPressed, touched: true, value: 42 } as ButtonState
+
+            // Set the expected data
+            const ID = 0
+            Buttons[ID] = buttonState
+            GamepadButtons[ID] = gamepadButton
+            getMutableComponent(testEntity, InputSourceComponent).merge({
+              buttons: Buttons,
+              source: {
+                gamepad: {
+                  buttons: GamepadButtons
+                } as unknown as Gamepad
+              } as XRInputSource
+            })
+            setComponent(testEntity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
+
+            // Run and Check the result
+            assertVec.approxEq(buttonState.downRotation, Initial, 4)
+            ClientInputFunctions.updateGamepadInput(testEntity)
+            assertVec.approxEq(buttonState.downRotation, Expected, 4)
+          })
+        })
+      })
+
+      it('... should set buttonState.pressed to the value of gamepadButton.pressed', () => {
+        const Buttons = {}
+        const GamepadButtons = [] as ButtonState[]
+
+        // Set the initial data from the conditions
+        const GamepadButtonPressed = true
+        const ButtonStatePressed = !GamepadButtonPressed
+        const buttonState = {
+          pressed: ButtonStatePressed,
+          downPosition: new Vector3(1, 1, 1),
+          dragging: false
+        } as ButtonState
+        const gamepadButton = { pressed: GamepadButtonPressed, touched: true, value: 42 } as ButtonState
+
+        // Set the expected data
+        const ID = 0
+        Buttons[ID] = buttonState
+        GamepadButtons[ID] = gamepadButton
+        getMutableComponent(testEntity, InputSourceComponent).merge({
+          buttons: Buttons,
+          source: {
+            gamepad: {
+              buttons: GamepadButtons
+            } as unknown as Gamepad
+          } as XRInputSource
+        })
+
+        // Run and Check the result
+        assert.notEqual(buttonState.pressed, GamepadButtonPressed)
+        ClientInputFunctions.updateGamepadInput(testEntity)
+        assert.equal(buttonState.pressed, GamepadButtonPressed)
+      })
+
+      it('... should set buttonState.touched to the value of gamepadButton.touched', () => {
+        const Buttons = {}
+        const GamepadButtons = [] as ButtonState[]
+
+        // Set the initial data from the conditions
+        const GamepadButtonTouched = true
+        const ButtonStateTouched = !GamepadButtonTouched
+        const buttonState = {
+          touched: ButtonStateTouched,
+          downPosition: new Vector3(1, 1, 1),
+          dragging: false
+        } as ButtonState
+        const gamepadButton = { pressed: true, touched: GamepadButtonTouched, value: 42 } as ButtonState
+
+        // Set the expected data
+        const ID = 0
+        Buttons[ID] = buttonState
+        GamepadButtons[ID] = gamepadButton
+        getMutableComponent(testEntity, InputSourceComponent).merge({
+          buttons: Buttons,
+          source: {
+            gamepad: {
+              buttons: GamepadButtons
+            } as unknown as Gamepad
+          } as XRInputSource
+        })
+
+        // Run and Check the result
+        assert.notEqual(buttonState.touched, GamepadButtonTouched)
+        ClientInputFunctions.updateGamepadInput(testEntity)
+        assert.equal(buttonState.touched, GamepadButtonTouched)
+      })
+
+      it('... should set buttonState.value to the value of gamepadButton.value', () => {
+        const Buttons = {}
+        const GamepadButtons = [] as ButtonState[]
+
+        // Set the initial data from the conditions
+        const Initial = 1
+        const Expected = 42
+        const buttonState = {
+          value: Initial,
+          pressed: true,
+          downPosition: new Vector3(1, 1, 1),
+          dragging: true,
+          rotating: true
+        } as ButtonState
+        const gamepadButton = { pressed: true, touched: true, value: Expected } as ButtonState
+
+        // Set the expected data
+        const ID = 0
+        Buttons[ID] = buttonState
+        GamepadButtons[ID] = gamepadButton
+        getMutableComponent(testEntity, InputSourceComponent).merge({
+          buttons: Buttons,
+          source: {
+            gamepad: {
+              buttons: GamepadButtons
+            } as unknown as Gamepad
+          } as XRInputSource
+        })
+
+        // Run and Check the result
+        assert.notEqual(buttonState.value, Expected)
+        assert.equal(buttonState.value, Initial)
+        ClientInputFunctions.updateGamepadInput(testEntity)
+        assert.equal(buttonState.value, Expected)
+      })
+
+      describe('when buttonState.downPosition has a value ...', () => {
+        it('... should set buttonState.dragging to true when it is not already true, `@param eid` has an InputPointerComponent and the distanceToSquared from buttonState.downPosition to InputPointerComponent.position is bigger than the threshold', () => {
+          const Buttons = {}
+          const GamepadButtons = [] as ButtonState[]
+
+          // Set the initial data from the conditions
+          const Initial = false
+          const Expected = !Initial
+          const buttonState = {
             pressed: true,
-            downPointerPosition: new Vector2(0, 0),
-            dragging: false
-          },
-          { pressed: true, touched: true }
-        )
+            downPosition: new Vector3(1, 1, 1),
+            dragging: Initial,
+            rotating: true
+          } as ButtonState
+          const gamepadButton = { pressed: true, touched: true, value: 42 } as ButtonState
 
-        ClientInputFunctions.updateGamepadInput(testEntity)
-        assert.equal(buttonState.dragging, false)
+          // Set the expected data
+          const ID = 0
+          Buttons[ID] = buttonState
+          GamepadButtons[ID] = gamepadButton
+          getMutableComponent(testEntity, InputSourceComponent).merge({
+            buttons: Buttons,
+            source: {
+              gamepad: {
+                buttons: GamepadButtons
+              } as unknown as Gamepad
+            } as XRInputSource
+          })
+          setComponent(testEntity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
+          const pointerPosition = getMutableComponent(testEntity, InputPointerComponent).position
+          pointerPosition.set(new Vector2(1, 1))
+          const targetPosition = new Vector3(pointerPosition.value.x, pointerPosition.value.y, 0)
+          const distance = buttonState.downPosition?.distanceToSquared(targetPosition)
+          assert.equal(distance! > DRAGGING_THRESHOLD, true)
+
+          // Run and Check the result
+          assert.equal(hasComponent(testEntity, InputPointerComponent), true)
+          assert.equal(buttonState.dragging, Initial)
+          ClientInputFunctions.updateGamepadInput(testEntity)
+          assert.equal(buttonState.dragging, Expected)
+        })
+
+        it('... should set buttonState.dragging to true when it is not already true, `@param eid` does not have an InputPointerComponent but has a TransformComponent, and the distanceToSquared from buttonState.downPosition to TransformComponent.position is bigger than the threshold', () => {
+          const Buttons = {}
+          const GamepadButtons = [] as ButtonState[]
+
+          // Set the initial data from the conditions
+          const Initial = false
+          const Expected = !Initial
+          const buttonState = {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: Initial,
+            rotating: true
+          } as ButtonState
+          const gamepadButton = { pressed: true, touched: true, value: 42 } as ButtonState
+
+          // Set the expected data
+          const ID = 0
+          Buttons[ID] = buttonState
+          GamepadButtons[ID] = gamepadButton
+          getMutableComponent(testEntity, InputSourceComponent).merge({
+            buttons: Buttons,
+            source: {
+              gamepad: {
+                buttons: GamepadButtons
+              } as unknown as Gamepad
+            } as XRInputSource
+          })
+          const targetPosition = new Vector3(42, 42, 42)
+          setComponent(testEntity, TransformComponent, { position: targetPosition })
+          const distance = buttonState.downPosition?.distanceToSquared(targetPosition)
+          assert.equal(distance! > DRAGGING_THRESHOLD, true)
+
+          // Run and Check the result
+          assert.equal(hasComponent(testEntity, InputPointerComponent), false)
+          assert.equal(hasComponent(testEntity, TransformComponent), true)
+          assert.equal(buttonState.dragging, Initial)
+          ClientInputFunctions.updateGamepadInput(testEntity)
+          assert.equal(buttonState.dragging, Expected)
+        })
+
+        it('... should set buttonState.dragging to true when it is not already true, `@param eid` does not have an InputPointerComponent or a TransformComponent, and the distanceToSquared from buttonState.downPosition to Vector3_Zero is bigger than the threshold', () => {
+          const Buttons = {}
+          const GamepadButtons = [] as ButtonState[]
+
+          // Set the initial data from the conditions
+          const Initial = false
+          const Expected = !Initial
+          const buttonState = {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            dragging: Initial,
+            rotating: true
+          } as ButtonState
+          const gamepadButton = { pressed: true, touched: true, value: 42 } as ButtonState
+
+          // Set the expected data
+          const ID = 0
+          Buttons[ID] = buttonState
+          GamepadButtons[ID] = gamepadButton
+          getMutableComponent(testEntity, InputSourceComponent).merge({
+            buttons: Buttons,
+            source: {
+              gamepad: {
+                buttons: GamepadButtons
+              } as unknown as Gamepad
+            } as XRInputSource
+          })
+          const targetPosition = Vector3_Zero
+          const distance = buttonState.downPosition?.distanceToSquared(targetPosition)
+          assert.equal(distance! > DRAGGING_THRESHOLD, true)
+
+          // Run and Check the result
+          assert.equal(hasComponent(testEntity, InputPointerComponent), false)
+          assert.equal(hasComponent(testEntity, TransformComponent), false)
+          assert.equal(buttonState.dragging, Initial)
+          ClientInputFunctions.updateGamepadInput(testEntity)
+          assert.equal(buttonState.dragging, Expected)
+        })
+
+        it('... should set buttonState.rotating to true when it is not already true, `@param eid` has an InputPointerComponent and its rotation from Q_IDENTITY to buttonState.rotation is bigger than the threshold', () => {
+          const Buttons = {}
+          const GamepadButtons = [] as ButtonState[]
+
+          // Set the initial data from the conditions
+          const Initial = false
+          const Expected = !Initial
+          const buttonState = {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            downRotation: new Quaternion(42, 42, 42, 0).normalize(),
+            dragging: true,
+            rotating: Initial
+          } as ButtonState
+          const gamepadButton = { pressed: true, touched: true, value: 42 } as ButtonState
+
+          // Set the expected data
+          const ID = 0
+          Buttons[ID] = buttonState
+          GamepadButtons[ID] = gamepadButton
+          getMutableComponent(testEntity, InputSourceComponent).merge({
+            buttons: Buttons,
+            source: {
+              gamepad: {
+                buttons: GamepadButtons
+              } as unknown as Gamepad
+            } as XRInputSource
+          })
+          setComponent(testEntity, InputPointerComponent, { pointerId: 42, cameraEntity: createEntity() })
+          const targetRotation = Q_IDENTITY
+          const distance = buttonState.downRotation?.angleTo(targetRotation)
+          assert.equal(distance! > ROTATING_THRESHOLD, true)
+
+          // Run and Check the result
+          assert.equal(hasComponent(testEntity, InputPointerComponent), true)
+          assert.equal(buttonState.rotating, Initial)
+          ClientInputFunctions.updateGamepadInput(testEntity)
+          assert.equal(buttonState.rotating, Expected)
+        })
+
+        it('... should set buttonState.rotating to true when it is not already true, `@param eid` does not have an InputPointerComponent but has a TransformComponent, and its rotation from TransformComponent.rotation to buttonState.rotation is bigger than the threshold', () => {
+          const Buttons = {}
+          const GamepadButtons = [] as ButtonState[]
+
+          // Set the initial data from the conditions
+          const Initial = false
+          const Expected = !Initial
+          const buttonState = {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            downRotation: new Quaternion(42, 42, 42, 0).normalize(),
+            dragging: true,
+            rotating: Initial
+          } as ButtonState
+          const gamepadButton = { pressed: true, touched: true, value: 42 } as ButtonState
+
+          // Set the expected data
+          const ID = 0
+          Buttons[ID] = buttonState
+          GamepadButtons[ID] = gamepadButton
+          getMutableComponent(testEntity, InputSourceComponent).merge({
+            buttons: Buttons,
+            source: {
+              gamepad: {
+                buttons: GamepadButtons
+              } as unknown as Gamepad
+            } as XRInputSource
+          })
+          const targetRotation = new Quaternion(1, 1, 1, 1).normalize()
+          setComponent(testEntity, TransformComponent, { rotation: targetRotation })
+          const distance = buttonState.downRotation?.angleTo(targetRotation)
+          assert.equal(distance! > ROTATING_THRESHOLD, true)
+
+          // Run and Check the result
+          assert.equal(hasComponent(testEntity, InputPointerComponent), false)
+          assert.equal(hasComponent(testEntity, TransformComponent), true)
+          assert.equal(buttonState.rotating, Initial)
+          ClientInputFunctions.updateGamepadInput(testEntity)
+          assert.equal(buttonState.rotating, Expected)
+        })
+
+        it('... should set buttonState.rotating to true when it is not already true, `@param eid` does not have an InputPointerComponent or a TransformComponent, and its rotation from Q_IDENTITY to buttonState.rotation is bigger than the threshold', () => {
+          const Buttons = {}
+          const GamepadButtons = [] as ButtonState[]
+
+          // Set the initial data from the conditions
+          const Initial = false
+          const Expected = !Initial
+          const buttonState = {
+            pressed: true,
+            downPosition: new Vector3(1, 1, 1),
+            downRotation: new Quaternion(42, 42, 42, 0).normalize(),
+            dragging: true,
+            rotating: Initial
+          } as ButtonState
+          const gamepadButton = { pressed: true, touched: true, value: 42 } as ButtonState
+
+          // Set the expected data
+          const ID = 0
+          Buttons[ID] = buttonState
+          GamepadButtons[ID] = gamepadButton
+          getMutableComponent(testEntity, InputSourceComponent).merge({
+            buttons: Buttons,
+            source: {
+              gamepad: {
+                buttons: GamepadButtons
+              } as unknown as Gamepad
+            } as XRInputSource
+          })
+          const targetRotation = Q_IDENTITY
+          const distance = buttonState.downRotation?.angleTo(targetRotation)
+          assert.equal(distance! > ROTATING_THRESHOLD, true)
+
+          // Run and Check the result
+          assert.equal(hasComponent(testEntity, InputPointerComponent), false)
+          assert.equal(hasComponent(testEntity, TransformComponent), false)
+          assert.equal(buttonState.rotating, Initial)
+          ClientInputFunctions.updateGamepadInput(testEntity)
+          assert.equal(buttonState.rotating, Expected)
+        })
       })
     })
 
-    describe('button release', () => {
-      it('should set up=true when button is released', () => {
-        const testEntity = createEntity()
-        const buttonState = setupGamepadButton(
-          testEntity,
-          { pressed: true, up: false },
-          { pressed: false, touched: false }
-        )
+    describe('when neither gamepadButton.pressed nor gamepadButton.touched are true ...', () => {
+      it('... should set buttonState.up to true', () => {
+        const Buttons = {}
+        const GamepadButtons = [] as ButtonState[]
 
+        // Set the initial data from the conditions
+        const Initial = false
+        const Expected = !Initial
+        const buttonState = {
+          pressed: true,
+          downPosition: new Vector3(1, 1, 1),
+          downRotation: new Quaternion(42, 42, 42, 0).normalize(),
+          dragging: true,
+          rotating: true,
+          up: Initial
+        } as ButtonState
+        const gamepadButton = { pressed: false, touched: false, value: 42 } as ButtonState
+
+        // Set the expected data
+        const ID = 0
+        Buttons[ID] = buttonState
+        GamepadButtons[ID] = gamepadButton
+        getMutableComponent(testEntity, InputSourceComponent).merge({
+          buttons: Buttons,
+          source: {
+            gamepad: {
+              buttons: GamepadButtons
+            } as unknown as Gamepad
+          } as XRInputSource
+        })
+
+        // Run and Check the result
+        assert.equal(gamepadButton.pressed, false)
+        assert.equal(gamepadButton.touched, false)
+        assert.equal(buttonState.up, Initial)
         ClientInputFunctions.updateGamepadInput(testEntity)
-        assert.equal(buttonState.up, true)
+        assert.equal(buttonState.up, Expected)
       })
     })
 
-    it('should do nothing if gamepad is not present', () => {
-      const testEntity = createEntity()
-      const buttonState = setupGamepadButton(
-        testEntity,
-        { pressed: true, up: false },
-        { pressed: false, touched: false }
-      )
+    it('should not do anything if the `@param eid` InputSourceComponent.source.gamepad object is not set', () => {
+      const Buttons = {}
 
-      const buttonIndex = 0 as AnyButton
-      setComponent(testEntity, InputSourceComponent, {
-        buttons: { [buttonIndex]: buttonState },
+      // Set the initial data from the conditions
+      const Initial = false
+      const buttonState = {
+        pressed: true,
+        downPosition: new Vector3(1, 1, 1),
+        downRotation: new Quaternion(42, 42, 42, 0).normalize(),
+        dragging: true,
+        rotating: true,
+        up: Initial
+      } as ButtonState
+      const gamepadButton = { pressed: false, touched: false, value: 42 } as ButtonState
+
+      // Set the expected data
+      const ID = 0
+      Buttons[ID] = buttonState
+      getMutableComponent(testEntity, InputSourceComponent).merge({
+        buttons: Buttons,
         source: {
           gamepad: undefined
         } as XRInputSource
       })
 
+      // Run and Check the result
+      assert.equal(buttonState.up, Initial)
       ClientInputFunctions.updateGamepadInput(testEntity)
-      assert.equal(buttonState.up, false)
+      assert.equal(buttonState.up, Initial)
+    })
+
+    it('should not do anything if the `@param eid` InputSourceComponent.source.gamepad.buttons has no buttons set', () => {
+      const Buttons = {}
+      const GamepadButtons = [] as ButtonState[]
+
+      // Set the initial data from the conditions
+      const Initial = false
+      const buttonState = {
+        pressed: true,
+        downPosition: new Vector3(1, 1, 1),
+        downRotation: new Quaternion(42, 42, 42, 0).normalize(),
+        dragging: true,
+        rotating: true,
+        up: Initial
+      } as ButtonState
+      const gamepadButton = { pressed: false, touched: false, value: 42 } as ButtonState
+
+      // Set the expected data
+      const ID = 0
+      GamepadButtons[ID] = gamepadButton
+      getMutableComponent(testEntity, InputSourceComponent).merge({
+        buttons: Buttons,
+        source: {
+          gamepad: {
+            buttons: GamepadButtons
+          } as unknown as Gamepad
+        } as XRInputSource
+      })
+
+      // Run and Check the result
+      assert.equal(buttonState.up, Initial)
+      ClientInputFunctions.updateGamepadInput(testEntity)
+      assert.equal(buttonState.up, Initial)
     })
   })
 

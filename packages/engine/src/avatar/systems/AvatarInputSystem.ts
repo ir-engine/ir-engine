@@ -241,7 +241,7 @@ const execute = () => {
 
   if (!isMobile && !inputPointerEntity && !xrState.session) return
 
-  const buttons = InputComponent.getButtons(viewerEntity)
+  const buttons = InputComponent.getMergedButtons(viewerEntity)
 
   if (buttons.ShiftLeft?.down) onShiftLeft()
 

@@ -25,8 +25,8 @@ Infinite Reality Engine. All Rights Reserved.
 
 import { setTransformPivot, toggleTransformPivot } from '@ir-engine/editor/src/functions/transformFunctions'
 import { EditorHelperState } from '@ir-engine/editor/src/services/EditorHelperState'
+import { TransformPivot } from '@ir-engine/engine/src/scene/constants/transformConstants'
 import { getMutableState, useHookstate } from '@ir-engine/hyperflux'
-import { TransformPivot } from '@ir-engine/spatial/src/common/constants/TransformConstants'
 import { Tooltip } from '@ir-engine/ui'
 import { ViewportButton } from '@ir-engine/ui/editor'
 import { SelectionMd } from '@ir-engine/ui/src/icons'
@@ -47,9 +47,14 @@ const transformPivotOptions = [
     value: TransformPivot.Center
   },
   {
-    label: t('editor:toolbar.transformPivot.lbl-bottom'),
-    description: t('editor:toolbar.transformPivot.info-bottom'),
-    value: TransformPivot.Bottom
+    label: t('editor:toolbar.transformPivot.lbl-bbox'),
+    description: t('editor:toolbar.transformPivot.info-bbox'),
+    value: TransformPivot.BoundingBox
+  },
+  {
+    label: t('editor:toolbar.transformPivot.lbl-bbox-bottom'),
+    description: t('editor:toolbar.transformPivot.info-bbox-bottom'),
+    value: TransformPivot.BoundingBoxBottom
   },
   {
     label: t('editor:toolbar.transformPivot.lbl-origin'),
@@ -72,7 +77,6 @@ const TransformPivotTool = () => {
         tooltipContent={
           transformPivotOptions.find((pivot) => pivot.value === editorHelperState.transformPivot.value)?.description
         }
-        tooltipPosition="right"
         onChange={setTransformPivot}
         options={transformPivotOptions}
         value={editorHelperState.transformPivot.value}

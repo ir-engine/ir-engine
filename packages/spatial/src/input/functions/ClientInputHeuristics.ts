@@ -36,7 +36,6 @@ import {
   getOptionalComponent,
   hasComponent,
   Not,
-  traverseEntityNodeParent,
   UndefinedEntity,
   UUIDComponent
 } from '@ir-engine/ecs'
@@ -48,13 +47,11 @@ import { MeshComponent } from '../../renderer/components/MeshComponent'
 import { ObjectComponent } from '../../renderer/components/ObjectComponent'
 import { VisibleComponent } from '../../renderer/components/VisibleComponent'
 import { ObjectLayers } from '../../renderer/constants/ObjectLayers'
-import { RendererComponent } from '../../renderer/WebGLRendererSystem'
 import { BoundingBoxComponent } from '../../transform/components/BoundingBoxComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRScenePlacementComponent } from '../../xr/XRScenePlacementComponent'
 import { XRState } from '../../xr/XRState'
 import { InputComponent } from '../components/InputComponent'
-import { InputSourceComponent } from '../components/InputSourceComponent'
 import { InputState } from '../state/InputState'
 
 const _worldPosInputSourceComponent = new Vector3()
@@ -73,7 +70,6 @@ export type IntersectionData = {
 export type HeuristicOrder = -1 | 0 | 1
 
 export type HeuristicFunctions = (
-  viewerEntity: Entity,
   intersectionData: Set<IntersectionData>,
   position: Vector3,
   direction: Vector3
@@ -164,12 +160,7 @@ const sortDistance = (a: IntersectionData, b: IntersectionData) => {
 const hitTarget = new Vector3()
 const ray = new Ray()
 
-export function boundingBoxHeuristic(
-  viewerEntity: Entity,
-  intersectionData: Set<IntersectionData>,
-  position: Vector3,
-  direction: Vector3
-) {
+export function boundingBoxHeuristic(intersectionData: Set<IntersectionData>, position: Vector3, direction: Vector3) {
   const isEditing = getState(EngineState).isEditing
   if (isEditing) return
 
@@ -178,7 +169,6 @@ export function boundingBoxHeuristic(
 
   const inputState = getState(InputState)
   for (const entity of inputState.inputBoundingBoxes) {
-    if (!filterEntitiesByViewer(entity, viewerEntity)) continue
     const boundingBox = getOptionalComponent(entity, BoundingBoxComponent)
     if (!boundingBox) continue
     const hit = ray.intersectBox(boundingBox.box, hitTarget)
@@ -192,16 +182,10 @@ const _raycaster = new Raycaster()
 _raycaster.layers.set(ObjectLayers.Scene)
 const meshesQuery = defineQuery([VisibleComponent, MeshComponent])
 
-export function meshHeuristic(
-  viewerEntity: Entity,
-  intersectionData: Set<IntersectionData>,
-  position: Vector3,
-  direction: Vector3
-) {
+export function meshHeuristic(intersectionData: Set<IntersectionData>, position: Vector3, direction: Vector3) {
   const isEditing = getState(EngineState).isEditing
   const inputState = getState(InputState)
   const objects = (isEditing ? meshesQuery() : Array.from(inputState.inputMeshes))
-    .filter((eid) => filterEntitiesByViewer(eid, viewerEntity))
     .filter((eid) => hasComponent(eid, ObjectComponent))
     .map((eid) => getComponent(eid, ObjectComponent))
 
@@ -225,21 +209,5 @@ export function findRaycastedInput(sourceEid: Entity, intersectionData: Set<Inte
 
   const heuristics = getState(InputHeuristicState)
 
-  const viewerEntity = getComponent(sourceEid, InputSourceComponent).sourceEntity
-  if (!viewerEntity) return
-
-  for (const h of heuristics) h.heuristic(viewerEntity, intersectionData, position, direction)
-}
-
-export function filterEntitiesByViewer(entity: Entity, viewerEntity: Entity) {
-  let isRendered = false
-  const scenes = getComponent(viewerEntity, RendererComponent).scenes
-  // iterate parent hierarchy until we find one in the scene
-  traverseEntityNodeParent(entity, (eid) => {
-    if (scenes.includes(eid)) {
-      isRendered = true
-      return true
-    }
-  })
-  return isRendered
+  for (const h of heuristics) h.heuristic(intersectionData, position, direction)
 }
