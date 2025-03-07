@@ -130,18 +130,7 @@ function ResourceFileContextMenu({
                   ]}
                   onComplete={(err?: unknown) => {
                     if (!err) {
-                      removeFromFileThumbnailsSeen([
-                        {
-                          key: resource.key,
-                          path: resource.url,
-                          name: resource.key,
-                          fullName: name,
-                          thumbnailURL: resource.thumbnailURL,
-                          url: resource.url,
-                          type: assetType,
-                          isFolder: false
-                        }
-                      ])
+                      removeFromFileThumbnailsSeen([resource.key])
                       refetchResources()
                     }
                   }}

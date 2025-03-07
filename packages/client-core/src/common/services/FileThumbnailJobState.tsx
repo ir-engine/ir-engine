@@ -69,7 +69,6 @@ import { Color, Euler, Material, Mesh, Quaternion, SphereGeometry } from 'three'
 import { useFind } from '@ir-engine/common'
 import config from '@ir-engine/common/src/config'
 import { getChildrenWithComponents } from '@ir-engine/ecs'
-import { FileDataType } from '@ir-engine/editor/src/constants/AssetTypes'
 import { useGLTFComponent, useTexture } from '@ir-engine/engine/src/assets/functions/resourceLoaderHooks'
 import { GLTFComponent } from '@ir-engine/engine/src/gltf/GLTFComponent'
 import { ErrorComponent } from '@ir-engine/engine/src/scene/components/ErrorComponent'
@@ -170,11 +169,11 @@ const uploadThumbnail = async (src: string, projectName: string, blob: Blob | nu
   }
 }
 
-export const removeFromFileThumbnailsSeen = (files: readonly FileDataType[]) => {
+export const removeFromFileThumbnailsSeen = (files: readonly string[]) => {
   const jobState = getMutableState(FileThumbnailJobState)
   const seenResources = jobState.seenResources.get(NO_PROXY) as string[]
   files.forEach((file) => {
-    const index = seenResources.indexOf(file.key)
+    const index = seenResources.indexOf(file)
     if (index >= 0) {
       seenResources.splice(index, 1)
     }
