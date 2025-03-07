@@ -93,7 +93,7 @@ const AdminSideBar = () => {
   }, [])
 
   return (
-    <aside className="col-span-4 mx-8 h-fit overflow-y-auto overflow-x-hidden rounded-2xl px-2 py-4 lg:col-span-3 2xl:col-span-2">
+    <aside className="col-span-4 mx-8 overflow-y-auto overflow-x-hidden rounded-2xl px-2 py-4 lg:col-span-3 2xl:col-span-2">
       <ul className="space-y-2">
         {Object.entries(allowedRoutes)
           .filter(([_, sidebarItem]) => sidebarItem.access)
