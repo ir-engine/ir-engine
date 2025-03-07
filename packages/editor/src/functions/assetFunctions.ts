@@ -256,7 +256,7 @@ export const handleUploadFiles = (
                   const updateStaticResourceThumbnail = async (id: string) => {
                     await API.instance
                       .service(staticResourcePath)
-                      .patch(id, { thumbnailKey: null, thumbnailMode: null } as any)
+                      .patch(id, { thumbnailKey: undefined, thumbnailMode: undefined })
                   }
                   updateStaticResourceThumbnail(staticResourceId)
                 }
