@@ -243,7 +243,6 @@ export const handleUploadFiles = (
       })
         .promise.then((response) => {
           //get the static resource record for this file, so we can make it's thumbnail null, since it was oerwritten
-
           const checkStaticResourceThumbnail = async (path) => {
             await API.instance
               .service(staticResourcePath)
@@ -271,9 +270,11 @@ export const handleUploadFiles = (
           removeFromFileThumbnailsSeen([file])
           return checkStaticResourceThumbnail(file)
         })
-        .catch(() => {
-          NotificationService.dispatchNotify(i18n.t('editor:errors.fileUploadFailed') as string, { variant: 'error' })
-          throw new Error('Upload failed')
+        .catch((e) => {
+          NotificationService.dispatchNotify(i18n.t('editor:errors.fileUploadFailed', { reason: e }) as string, {
+            variant: 'error',
+            autoHideDuration: 20000
+          })
         })
     })
   )
